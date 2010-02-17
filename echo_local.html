@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Web Sockets echo test</title>
+    <meta charset="UTF-8">
+    <script src="mootools.js"></script>
+    <script src="mootools-more.js"></script>
+    <script>
+
+        var cnt = 0;
+        var s = null;
+        var timer = null;
+
+        function debug(str) {
+            cell = $('debug');
+            cell.innerHTML += str + "<br/>";
+        }
+
+        function send_data() {
+            debug(">> send_data: testing " + cnt);
+            s.send("testing " + cnt);
+            cnt ++;
+        }
+
+        window.onload = function() {
+            debug(">> window.onload");
+            var uri = new URI(window.location);
+            var host = uri.getData("host");
+            var port = uri.getData("port");
+            if ((!host) || (!port)) {
+                debug("must set host and port");
+                return;
+            }
+            var location = "ws://" + host + ":" + port
+            debug("connecting to " + location);
+            s = new WebSocket(location);
+            s.onmessage = function(e) {
+                debug(">> onmessage: " + e.data);
+            };
+            s.onopen = function(e) {
+                debug(">> onopen" + e);
+                timer = send_data.periodical(1000);
+            };
+            s.onclose = function(e) {
+                if (timer) {
+                    timer = $clear(timer);
+                }
+                debug("<< onclose: " + e);
+            }
+            debug("<< window.onload");
+        };
+
+
+    </script>
+  </head>
+    <body>
+      Debug:
+      <div id="debug" style="width:600px;height:300px"></div>
+    </body>
+</html>
