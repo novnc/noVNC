@@ -42,6 +42,7 @@
                 timer = send_data.periodical(1000);
             };
             s.onclose = function(e) {
+                debug(">> onclose: " + e);
                 if (timer) {
                     timer = $clear(timer);
                 }
