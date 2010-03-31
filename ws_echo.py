@@ -26,7 +26,9 @@ def start_server(port):
             handshake(csock, tick)
             print 'handshaken'
             while True:
-                interact(csock, tick)
+                data = csock.recv(255)
+                print 'got:%s' %(data)
+                csock.send("\x00 server response %d \xff" % (tick))
                 tick+=1
         except Exception, e:
             print "Ignoring exception:", e
@@ -37,14 +39,9 @@ def handshake(client, tick):
     _, path, _ = req_lines[0].split(" ")
     _, origin = req_lines[4].split(" ")
     _, host = req_lines[3].split(" ")
-    print "*** got handshake:\n%s" % handshake
-    print "*** origin: %s, location: ws://%s%s" % (origin, host, path)
+    #print "*** got handshake:\n%s" % handshake
+    print "*** client origin: %s, location: ws://%s%s" % (origin, host, path)
     client.send(server_handshake % (origin, host, path))
-
-def interact(client, tick):
-    data = client.recv(255)
-    print 'got:%s' %(data)
-    client.send("\x00 server response %d \xff" % (tick))
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
