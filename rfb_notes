@@ -1,0 +1,147 @@
+5.1.1 ProtocolVersion: 12, 12 bytes
+
+    - Sent by server, max supported
+        12 ascii - "RFB 003.008\n"
+    - Response by client, version to use
+        12 ascii - "RFB 003.003\n"
+
+5.1.2 Authentication: >=4, [16, 4] bytes
+
+    - Sent by server
+        CARD32 - authentication-scheme
+                0 - connection failed
+                    CARD32 - length
+                    length - reason
+                1 - no authentication
+
+                2 - VNC authentication
+                    16 CARD8 - challenge (random bytes)
+
+    - Response by client (if VNC authentication)
+        16 CARD8 - client encrypts the challenge with DES, using user
+                   password as key, sends resulting 16 byte response
+
+    - Response by server (if VNC authentication) 
+        CARD32 - 0 - OK
+                 1 - failed
+                 2 - too-many
+
+5.1.3 ClientInitialisation: 1 byte
+    - Sent by client
+        CARD8 - shared-flag, 0 exclusive, non-zero shared
+
+5.1.4 ServerInitialisation: >=24 bytes
+    - Sent by server
+        CARD16 - framebuffer-width
+        CARD16 - framebuffer-height
+        16 byte PIXEL_FORMAT - server-pixel-format
+            CARD8 - bits-per-pixel
+            CARD8 - depth
+            CARD8 - big-endian-flag, non-zero is big endian
+            CARD8 - true-color-flag, non-zero then next 6 apply
+            CARD16 - red-max
+            CARD16 - green-max
+            CARD16 - blue-max
+            CARD8 - red-shift
+            CARD8 - green-shift
+            CARD8 - blue-shift
+            3 bytes - padding
+        CARD32 - name-length
+
+        CARD8[length] - name-string
+
+
+
+Client to Server Messages:
+
+5.2.1 SetPixelFormat: 20 bytes
+    CARD8: 0 - message-type
+    ...
+
+5.2.2 FixColourMapEntries: >=6 bytes
+    CARD8: 1 - message-type
+    ...
+
+5.2.3 SetEncodings: >=8 bytes
+    CARD8: 2 - message-type
+    CARD8    - padding
+    CARD16   - numer-of-encodings
+
+    CARD32   - encoding-type in preference order
+        0 - raw
+        1 - copy-rectangle
+        2 - RRE
+        4 - CoRRE
+        5 - hextile
+
+5.2.4 FramebufferUpdateRequest (10 bytes)
+    CARD8: 3 - message-type
+    CARD8    - incremental (0 for full-update, non-zero for incremental)
+    CARD16   - x-position
+    CARD16   - y-position
+    CARD16   - width
+    CARD16   - height
+
+
+5.2.5 KeyEvent: 8 bytes
+    CARD8: 4 - message-type
+    CARD8    - down-flag
+    2 bytes  - padding
+    CARD32   - key (X-Windows keysym values)
+
+5.2.6 PointerEvent: 6 bytes
+    CARD8: 5 - message-type
+    CARD8    - button-mask
+    CARD16   - x-position
+    CARD16   - y-position
+
+5.2.7 ClientCutText: >=9 bytes
+    CARD8: 6 - message-type
+    ...
+
+
+Server to Client Messages:
+
+5.3.1 FramebufferUpdate
+    CARD8: 0 - message-type
+    1 byte   - padding
+    CARD16   - number-of-rectangles
+
+    CARD16   - x-position
+    CARD16   - y-position
+    CARD16   - width
+    CARD16   - height
+    CARD16   - encoding-type:
+        0 - raw
+        1 - copy rectangle
+        2 - RRE
+        4 - CoRRE
+        5 - hextile
+
+        raw:
+            - width x height pixel values
+
+        copy rectangle: 
+            CARD16 - src-x-position
+            CARD16 - src-y-position
+
+        RRE:
+            CARD32  - N number-of-subrectangles
+            Nxd bytes - background-pixel-value (d bits-per-pixel)
+
+        ...
+
+5.3.2 SetColourMapEntries (no support)
+    CARD8: 1 - message-type
+    ...
+
+5.3.3 Bell
+    CARD8: 2 - message-type
+
+5.3.4 ServerCutText
+    CARD8: 3 - message-type
+
+
+
+
+    

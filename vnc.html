@@ -1,0 +1,38 @@
+<html>
+
+    <body onload="draw();">
+
+        VNC Window:<br>
+
+        <canvas id="vnc" width="800" height="600">
+            Canvas not supported.
+        </canvas>
+
+        <br><br>
+        Debug:
+        <div id="debug"></div>
+
+    </body>
+
+    <script src="include/mootools.js"></script>
+    <script src="include/mootools-more.js"></script>
+    <script src="vnc.js"></script>
+
+    <script type="text/javascript">
+        function connect() {
+            debug(">> connect");
+            var uri = new URI(window.location);
+            var host = uri.getData("host");
+            var port = uri.getData("port");
+            if ((!host) || (!port)) {
+                debug("must set host and port");
+                return;
+            }
+            init_ws(host, port);
+            debug("<< connect");
+        }
+
+        window.onload = connect();
+    </script>
+
+</html>

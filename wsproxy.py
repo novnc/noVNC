@@ -20,6 +20,10 @@ def handshake(client):
     _, host = req_lines[3].split(" ")
     client.send(server_handshake % (origin, host, path))
 
+def traffic(token="."):
+    sys.stdout.write(token)
+    sys.stdout.flush()
+
 def proxy(client, target):
     cqueue = []
     tqueue = []
@@ -33,23 +37,28 @@ def proxy(client, target):
             buf = client.recv(1024)
             if len(buf) == 0: raise Exception("Client closed")
             tqueue.append(buf[1:-1])
-            print "Client recv: %s (%d)" % (buf[1:-1], len(buf))
+            #print "Client recv: %s (%d)" % (buf[1:-1], len(buf))
+            traffic("}")
 
         if target in ins:
             buf = target.recv(1024)
             if len(buf) == 0: raise Exception("Target closed")
             cqueue.append("\x00" + buf + "\xff")
-            print "Target recv: %s (%d)" % (buf, len(buf))
+            #print "Target recv: %s (%d)" % (buf, len(buf))
+            traffic("{")
 
         if cqueue and client in outs:
             while cqueue:
-                print "Client send: %s" % cqueue[0]
+                #print "Client send: %s" % cqueue[0]
                 client.send(cqueue.pop(0))
+                traffic("<")
 
         if tqueue and target in outs:
             while tqueue:
-                print "Target send: %s" % tqueue[0]
+                #print "Target send: %s" % tqueue[0]
+                sys.stdout.flush()
                 target.send(tqueue.pop(0))
+                traffic(">")
 
 def start_server(listen_port, target_host, target_port):
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
