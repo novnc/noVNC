@@ -3,45 +3,48 @@ var ws = null;
 var vnc_host = '';
 var vnc_port = 5900;
 var rfb_state = 'ProtocolVersion';
+var rfb_continue = -1;
 var rfb_shared = 1;
 var fb_width  = 0;
 var fb_height = 0;
 var fb_name = "";
 
-function card8(num) {
-    return String.fromCharCode(num);
+
+Array.prototype.card8 = function (pos) {
+    return this[pos];
 }
-String.prototype.card8 = function (pos) {
-    return this.charCodeAt(pos);
+Array.prototype.pushCard8 = function (num) {
+    this.push(num & 0xFF);
 }
 
-function card16(num) {
-    return String.fromCharCode(num >> 8) + 
-           String.fromCharCode(num       & 0xFF);
+Array.prototype.card16 = function (pos) {
+    return (this[pos]   << 8) +
+           (this[pos+1]     );
 }
-String.prototype.card16 = function (pos) {
-    debug("card16 0: " + this.charCodeAt(pos));
-    debug("card16 1: " + this.charCodeAt(pos+1));
-    return (this.charCodeAt(pos)   << 8) +
-           (this.charCodeAt(pos+1)     );
+Array.prototype.pushCard16 = function (num) {
+    this.push((num >> 8) & 0xFF,
+              (num     ) & 0xFF  );
 }
 
-function card32(num) {
-    return String.fromCharCode( num >> 24)         +
-           String.fromCharCode((num >> 16) & 0xFF) +
-           String.fromCharCode((num >>  8) & 0xFF) +
-           String.fromCharCode( num        & 0xFF);
+
+Array.prototype.card32 = function (pos) {
+    return (this[pos]   << 24) +
+           (this[pos+1] << 16) +
+           (this[pos+2] <<  8) +
+           (this[pos+3]      );
 }
-String.prototype.card32 = function (pos) {
-    debug("card32 0: " + this.charCodeAt(pos));
-    debug("card32 1: " + this.charCodeAt(pos+1));
-    debug("card32 2: " + this.charCodeAt(pos+2));
-    debug("card32 3: " + this.charCodeAt(pos+3));
-    return (this.charCodeAt(pos)   << 24) +
-           (this.charCodeAt(pos+1) << 16) +
-           (this.charCodeAt(pos+2) <<  8) +
-           (this.charCodeAt(pos+3)      );
+Array.prototype.pushCard32 = function (num) {
+    this.push((num >> 24) & 0xFF,
+              (num >> 16) & 0xFF,
+              (num >>  8) & 0xFF,
+              (num      ) & 0xFF  );
 }
+
+Array.prototype.substr = function (start, len) {
+    return this.slice(start, start+len).map(
+            function (num) { return String.fromCharCode(num); } ).join('');
+}
+
 
 function debug(str) {
     cell = $('debug');
@@ -56,6 +59,7 @@ function debug(str) {
 /* RFB/VNC initialisation */
 function rfb_init_msg(data) {
     debug(">> rfb_init_msg");
+
     switch (rfb_state) {
 
     case 'ProtocolVersion' :
@@ -65,7 +69,7 @@ function rfb_init_msg(data) {
             rfb_state = 'reset';
             return;
         }
-        ws.send("RFB 003.003\n");
+        send_string("RFB 003.003\n");
         rfb_state = 'Authentication';
         break;
 
@@ -86,14 +90,14 @@ function rfb_init_msg(data) {
                 rfb_state = "reset";
                 return;
             case 1:  // no authentication
-                ws.send(card8(rfb_shared)); // ClientInitialisation
+                send_array([rfb_shared]); // ClientInitialisation
                 rfb_state = "ServerInitialisation";
                 break;
             case 2:  // VNC authentication
                 var challenge = data.substr(4, 16);
                 // TODO:
                 //var crypt = des(challenge, password);
-                //ws.send(crypt);
+                //send_string(crypt);
                 rfb_state = "Authentication-VNC";
                 break;
         }
@@ -120,7 +124,7 @@ function rfb_init_msg(data) {
                 rfb_state = "reset";
                 return;
         }
-        ws.send(card8(rfb_shared)); // ClientInitialisation
+        send_array([rfb_shared]); // ClientInitialisation
         rfb_state = "ServerInitialisation";
         break;
 
@@ -131,12 +135,35 @@ function rfb_init_msg(data) {
             rfb_state = 'reset';
             return;
         }
+
+        /* Screen size */
+        debug("data: " + data);
         fb_width  = data.card16(0);
         fb_height = data.card16(2);
+
+        debug("Screen size: " + fb_width + "x" + fb_height);
+
+        /* PIXEL_FORMAT */
+        var bits_per_pixel = data.card8(4);
+        var depth          = data.card8(5);
+        var big_endian     = data.card8(6);
+        var true_color     = data.card8(7);
+
+        debug("bits per pixel: " + bits_per_pixel);
+        debug("depth: " + depth);
+        debug("big_endian: " + big_endian);
+        debug("true_color: " + true_color);
+
+        /* Connection name/title */
         var name_length   = data.card32(20);
         fb_name = data.substr(24, name_length);
-        debug("Screen size: " + fb_width + "x" + fb_height);
+
         debug("Name: " + fb_name);
+
+        setEncodings();
+
+        fbUpdateRequest(0, 0, 0, 10, 10);
+
         rfb_state = 'normal';
         break;
     }
@@ -146,7 +173,11 @@ function rfb_init_msg(data) {
 /* Normal RFB/VNC messages */
 function rfb_msg(data) {
     debug(">> rfb_msg");
-    var msg_type = data.card8(0);
+    if (rfb_continue >= 0) {
+        var msg_type = rfb_continue;
+    } else
+        var msg_type = data.card8(0);
+    }
     switch (msg_type) {
     case 0:  // FramebufferUpdate
         debug("FramebufferUpdate");
@@ -171,6 +202,15 @@ function rfb_msg(data) {
  * Client message routines
  */
 
+function send_string(str) {
+    ws.send(Base64.encode(str));
+}
+
+function send_array(arr) {
+    debug("encoded array: " + Base64.encode_array(arr));
+    ws.send(Base64.encode_array(arr));
+}
+
 function setPixelFormat() {
 }
 
@@ -178,9 +218,25 @@ function fixColourMapEntries() {
 }
 
 function setEncodings() {
+    debug(">> setEncodings");
+    var arr = [2];  // msg-type
+    arr.pushCard8(0);  // padding
+    arr.pushCard16(1); // encoding count
+    arr.pushCard32(0); // raw encoding
+    send_array(arr);
+    debug("<< setEncodings");
 }
 
-function fbUpdateRequest() {
+function fbUpdateRequest(incremental, x, y, xw, yw) {
+    debug(">> fbUpdateRequest");
+    var arr = [3];  // msg-type
+    arr.pushCard8(incremental);
+    arr.pushCard16(x);
+    arr.pushCard16(y);
+    arr.pushCard16(xw);
+    arr.pushCard16(yw);
+    send_array(arr);
+    debug("<< fbUpdateRequest");
 }
 
 function keyEvent() {
@@ -204,10 +260,12 @@ function _init_ws() {
     ws = new WebSocket(uri);
     ws.onmessage = function(e) {
         debug(">> onmessage");
+        var data = Base64.decode_array(e.data);
+        //debug("decoded array: " + data);
         if (rfb_state != 'normal') {
-            rfb_init_msg(e.data);
+            rfb_init_msg(data);
         } else {
-            rfb_msg(e.data);
+            rfb_msg(data);
         }
         if (rfb_state == 'reset') {
             /* close and reset connection */
