@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys, os, socket, time, traceback
+from base64 import b64encode, b64decode
 from select import select
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
@@ -36,29 +37,28 @@ def proxy(client, target):
         if client in ins:
             buf = client.recv(1024)
             if len(buf) == 0: raise Exception("Client closed")
-            tqueue.append(buf[1:-1])
-            #print "Client recv: %s (%d)" % (buf[1:-1], len(buf))
-            traffic("}")
+            tqueue.append(b64decode(buf[1:-1]))
+            print "Client recv: %s (%d)" % (repr(buf[1:-1]), len(buf))
+            #traffic("}")
 
         if target in ins:
             buf = target.recv(1024)
             if len(buf) == 0: raise Exception("Target closed")
-            cqueue.append("\x00" + buf + "\xff")
-            #print "Target recv: %s (%d)" % (buf, len(buf))
-            traffic("{")
+            cqueue.append("\x00" + b64encode(buf) + "\xff")
+            print "Target recv: %s (%d)" % (repr(buf), len(buf))
+            #traffic("{")
 
         if cqueue and client in outs:
             while cqueue:
-                #print "Client send: %s" % cqueue[0]
+                print "Client send: %s" % repr(cqueue[0])
                 client.send(cqueue.pop(0))
-                traffic("<")
+                #traffic("<")
 
         if tqueue and target in outs:
             while tqueue:
-                #print "Target send: %s" % tqueue[0]
-                sys.stdout.flush()
+                print "Target send: %s" % repr(tqueue[0])
                 target.send(tqueue.pop(0))
-                traffic(">")
+                #traffic(">")
 
 def start_server(listen_port, target_host, target_port):
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
