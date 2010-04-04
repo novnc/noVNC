@@ -1,4 +1,3 @@
-debug("here0");
 var ws = null;
 var vnc_host = '';
 var vnc_port = 5900;
@@ -44,13 +43,6 @@ Array.prototype.substr = function (start, len) {
     return this.slice(start, start+len).map(
             function (num) { return String.fromCharCode(num); } ).join('');
 }
-
-
-function debug(str) {
-    cell = $('debug');
-    cell.innerHTML += str + "<br/>";
-}
-
 
 /*
  * Server message handlers
@@ -175,7 +167,7 @@ function rfb_msg(data) {
     debug(">> rfb_msg");
     if (rfb_continue >= 0) {
         var msg_type = rfb_continue;
-    } else
+    } else {
         var msg_type = data.card8(0);
     }
     switch (msg_type) {

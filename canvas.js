@@ -1,11 +1,3 @@
-window.onload = init;
-
-var img = null;
-var c_x = 0;
-var c_y = 0;
-var c_wx = 0;
-var c_wy = 0;
-
 function debug(str) {
     cell = $('debug');
     cell.innerHTML += str + "\n";
@@ -29,66 +21,73 @@ function dirObj(obj, parent, depth) {
     return msg;
 }
 
-function mouseDown(e) {
+
+Canvas = {
+
+c_x : 0,
+c_y : 0,
+c_wx : 0,
+c_wy : 0,
+
+mousedown: function (e) {
     evt = e.event || window.event;
     e.stop();
     debug('mouse ' + evt.which + '/' + evt.button + ' down:' +
-            (evt.clientX - c_x) + "," + (evt.clientY - c_y));
-}
+            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+},
 
-function mouseUp(e) {
+mouseUp: function (e) {
     evt = e.event || window.event;
     e.stop();
     debug('mouse ' + evt.which + '/' + evt.button + ' up:' +
-            (evt.clientX - c_x) + "," + (evt.clientY - c_y));
-}
+            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+},
 
-function keyDown(e) {
+keyDown: function (e) {
     e.stop();
     debug("keydown: " + e.key + "(" + e.code + ")");
-}
+},
 
-function keyUp(e) {
+keyUp : function (e) {
     e.stop();
     debug("keyup: " + e.key + "(" + e.code + ")");
-}
+},
 
-function ctxDisable(e) {
+ctxDisable: function (e) {
     evt = e.event || window.event;
     /* Stop propagation if inside canvas area */
-    if ((evt.clientX >= c_x) && (evt.clientX < (c_x + c_wx)) &&
-        (evt.clientY >= c_y) && (evt.clientY < (c_y + c_wy))) {
+    if ((evt.clientX >= Canvas.c_x) && (evt.clientX < (Canvas.c_x + Canvas.c_wx)) &&
+        (evt.clientY >= Canvas.c_y) && (evt.clientY < (Canvas.c_y + Canvas.c_wy))) {
         e.stop();
         return false;
     };
-}
+},
 
 
-function init() {
-    debug(">> init");
+init: function (canvas) {
+    debug(">> init_canvas");
 
-    c = $('tutorial');
-    c.addEvent('mousedown', mouseDown);
-    c.addEvent('mouseup', mouseUp);
-    document.addEvent('keydown', keyDown);
-    document.addEvent('keyup', keyUp);
+    c = $(canvas);
+    c.addEvent('mousedown', Canvas.mouseDown);
+    c.addEvent('mouseup', Canvas.mouseUp);
+    document.addEvent('keydown', Canvas.keyDown);
+    document.addEvent('keyup', Canvas.keyUp);
 
     /* Work around right and middle click browser behaviors */
-    document.addEvent('click', ctxDisable);
-    document.body.addEvent('contextmenu', ctxDisable);
+    document.addEvent('click', Canvas.ctxDisable);
+    document.body.addEvent('contextmenu', Canvas.ctxDisable);
 
-    c_x = c.getPosition().x;
-    c_y = c.getPosition().y;
-    c_wx = c.getSize().x;
-    c_wy = c.getSize().y;
+    Canvas.c_x = c.getPosition().x;
+    Canvas.c_y = c.getPosition().y;
+    Canvas.c_wx = c.getSize().x;
+    Canvas.c_wy = c.getSize().y;
 
-    //var canvas = document.getElementById('tutorial');  
     if (! c.getContext) return;
     var ctx = c.getContext('2d'); 
 
     /* Border */
     ctx.stroke();  
-    ctx.rect(0, 0, 500, 300);
+    ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
     ctx.stroke();  
 
     /*
@@ -99,7 +98,7 @@ function init() {
     */
 
     /* Test array image data */
-    img = ctx.createImageData(50, 50);
+    var img = ctx.createImageData(50, 50);
     for (y=0; y< 50; y++) {
         for (x=0; x< 50; x++) {
             img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y);
@@ -110,6 +109,8 @@ function init() {
     }
     ctx.putImageData(img, 100, 100);
 
-    debug("<< init");
+    debug("<< init_canvas");
 }
+
+};
 

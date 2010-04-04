@@ -1,25 +1,26 @@
 <html>
 
+    <head><title>VNC Client</title></head>
+
     <body onload="draw();">
 
         VNC Window:<br>
-
         <canvas id="vnc" width="800" height="600">
             Canvas not supported.
         </canvas>
 
-        <br><br>
-        Debug:
-        <div id="debug"></div>
-
+        <br>
+        Debug:<br>
+        <textarea id="debug" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
     <script src="include/mootools.js"></script>
     <script src="include/mootools-more.js"></script>
     <script src="include/base64a.js"></script>
+    <script src="canvas.js"></script>
     <script src="vnc.js"></script>
 
-    <script type="text/javascript">
+    <script>
         function connect() {
             debug(">> connect");
             var uri = new URI(window.location);
@@ -33,7 +34,10 @@
             debug("<< connect");
         }
 
-        window.onload = connect();
+        window.onload = function() {
+            Canvas.init('vnc');
+            connect();
+        }
     </script>
 
 </html>
