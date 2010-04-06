@@ -2,7 +2,8 @@
     <head><title>Canvas Experiments</title></head>
     <body>
         Canvas:<br>
-        <canvas id="tutorial" width="640" height="480">
+        <canvas id="tutorial" width="640" height="480"
+                style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
 
@@ -17,8 +18,10 @@
 
     <script>
         window.onload = function() {
-            Canvas.init_canvas('tutorial', 640, 480);
+            debug("here1");
+            Canvas.init('tutorial', 640, 480);
             Canvas.draw();
+            debug("here2");
         }
     </script>
 </html>
