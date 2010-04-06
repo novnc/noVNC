@@ -28,8 +28,9 @@ c_x : 0,
 c_y : 0,
 c_wx : 0,
 c_wy : 0,
+ctx  : null,
 
-mousedown: function (e) {
+mouseDown: function (e) {
     evt = e.event || window.event;
     e.stop();
     debug('mouse ' + evt.which + '/' + evt.button + ' down:' +
@@ -64,14 +65,21 @@ ctxDisable: function (e) {
 },
 
 
-init: function (canvas) {
+init: function (canvas, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     debug(">> init_canvas");
 
+    if (! keyDown) keyDown = Canvas.keyDown;
+    if (! keyUp) keyUp = Canvas.keyUp;
+    if (! mouseDown) mouseDown = Canvas.mouseDown;
+    if (! mouseUp) mouseUp = Canvas.mouseUp;
+
     c = $(canvas);
-    c.addEvent('mousedown', Canvas.mouseDown);
-    c.addEvent('mouseup', Canvas.mouseUp);
-    document.addEvent('keydown', Canvas.keyDown);
-    document.addEvent('keyup', Canvas.keyUp);
+    c.width = width;
+    c.height = height;
+    document.addEvent('keydown', keyDown);
+    document.addEvent('keyup', keyUp);
+    c.addEvent('mousedown', mouseDown);
+    c.addEvent('mouseup', mouseUp);
 
     /* Work around right and middle click browser behaviors */
     document.addEvent('click', Canvas.ctxDisable);
@@ -83,22 +91,22 @@ init: function (canvas) {
     Canvas.c_wy = c.getSize().y;
 
     if (! c.getContext) return;
-    var ctx = c.getContext('2d'); 
+    Canvas.ctx = c.getContext('2d'); 
 
     /* Border */
-    ctx.stroke();  
-    ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
-    ctx.stroke();  
+    Canvas.ctx.stroke();  
+    Canvas.ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
+    Canvas.ctx.stroke();  
 
     /*
     // Does not work in firefox
     var himg = new Image();
     himg.src = "head_ani2.gif"
-    ctx.drawImage(himg, 10, 10);
+    Canvas.ctx.drawImage(himg, 10, 10);
     */
 
     /* Test array image data */
-    var img = ctx.createImageData(50, 50);
+    var img = Canvas.ctx.createImageData(50, 50);
     for (y=0; y< 50; y++) {
         for (x=0; x< 50; x++) {
             img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y);
@@ -107,9 +115,21 @@ init: function (canvas) {
             img.data[(y*50 + x)*4 + 3] = 255;
         }
     }
-    ctx.putImageData(img, 100, 100);
+    Canvas.ctx.putImageData(img, 100, 100);
 
     debug("<< init_canvas");
+},
+
+rfbImage: function(x, y, width, height, arr) {
+    var img = Canvas.ctx.createImageData(width, height);
+    for (var i=0; i < (width * height); i++) {
+        img.data[i*4 + 0] = arr[i*4 + 0];
+        img.data[i*4 + 1] = arr[i*4 + 1];
+        img.data[i*4 + 2] = arr[i*4 + 2];
+        img.data[i*4 + 3] = 255; // Set Alpha
+    }
+    Canvas.ctx.putImageData(img, x, y);
+
 }
 
 };
