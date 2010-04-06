@@ -1,22 +1,3 @@
-var ws = null;
-var vnc_host = '';
-var vnc_port = 5900;
-var vnc_password = '';
-var fbu = {
-    rects    : 0,
-    bytes    : 0,
-    x        : 0,
-    y        : 0,
-    width    : 0, 
-    height   : 0,
-    encoding : 0,
-    arr      : null};
-var fb_width  = 0;
-var fb_height = 0;
-var fb_name = "";
-var fb_Bpp = 4;
-
-
 Array.prototype.shift8 = function () {
     return this.shift();
 }
@@ -57,37 +38,66 @@ Array.prototype.shiftBytes = function (len) {
     return this.splice(0, len);
 }
 
+/*
+ * Pending frame buffer update data
+ */
+var FBU = {
+    rects    : 0,
+    bytes    : 0,
+    x        : 0,
+    y        : 0,
+    width    : 0, 
+    height   : 0,
+    encoding : 0,
+    arr      : null};
+
+
+/*
+ * RFB namespace
+ */
+
+RFB = {
+
+ws        : null,  // Web Socket object
+
+version   : "RFB 003.003\n",
+state     : 'ProtocolVersion',
+shared    : 1,
+poll_rate : 3000,
+
+host      : '',
+port      : 5900,
+password  : '',
+
+fb_width  : 0,
+fb_height : 0,
+fb_name   : "",
+fb_Bpp    : 4,
+
 
 /*
  * Server message handlers
  */
 
-RFB = {
-
-state  : 'ProtocolVersion',
-shared : 1,
-poll_rate : 3000,
-
 /* RFB/VNC initialisation */
 init_msg: function (data) {
-    debug(">> init_msg");
+    debug(">> init_msg: " + RFB.state);
 
     switch (RFB.state) {
 
     case 'ProtocolVersion' :
-        debug("ProtocolVersion:")
         if (data.length != 12) {
             debug("Invalid protocol version from server");
             RFB.state = 'reset';
             return;
         }
-        debug("Server ProtocolVersion: " + data.shiftStr(11))
-        RFB.send_string("RFB 003.003\n");
+        debug("Server  ProtocolVersion: " + data.shiftStr(11));
+        debug("Sending ProtocolVersion: " + RFB.version.substr(0,11));
+        RFB.send_string(RFB.version);
         RFB.state = 'Authentication';
         break;
 
     case 'Authentication' :
-        debug("Authentication")
         if (data.length < 4) {
             debug("Invalid auth frame");
             RFB.state = 'reset';
@@ -108,13 +118,12 @@ init_msg: function (data) {
                 break;
             case 2:  // VNC authentication
                 var challenge = data.shiftBytes(16);
-                debug("vnc_password: " + vnc_password);
-                debug("challenge: " + challenge + "(" + challenge.length + ")");
-                //passwd = [194, 242, 234, 194, 242, 234]; // 'COWCOW' bit mirrored
-                passwd = RFB.passwdTwiddle(vnc_password);
-                debug("passwd: " + passwd + "(" + passwd.length + ")");
+                debug("Password: " + RFB.password);
+                debug("Challenge: " + challenge + "(" + challenge.length + ")");
+                passwd = RFB.passwdTwiddle(RFB.password);
+                //debug("passwd: " + passwd + "(" + passwd.length + ")");
                 response = des(passwd, challenge, 1)
-                debug("reponse: " + response + "(" + response.length + ")");
+                //debug("reponse: " + response + "(" + response.length + ")");
 
                 RFB.send_array(response);
                 RFB.state = "SecurityResult";
@@ -123,7 +132,6 @@ init_msg: function (data) {
         break;
 
     case 'SecurityResult' :
-        debug("SecurityResult")
         if (data.length != 4) {
             debug("Invalid server auth response");
             RFB.state = 'reset';
@@ -148,7 +156,6 @@ init_msg: function (data) {
         break;
 
     case 'ServerInitialisation' :
-        debug("ServerInitialisation")
         if (data.length < 24) {
             debug("Invalid server initialisation");
             RFB.state = 'reset';
@@ -157,10 +164,10 @@ init_msg: function (data) {
 
         /* Screen size */
         //debug("data: " + data);
-        fb_width  = data.shift16();
-        fb_height = data.shift16();
+        RFB.fb_width  = data.shift16();
+        RFB.fb_height = data.shift16();
 
-        debug("Screen size: " + fb_width + "x" + fb_height);
+        debug("Screen size: " + RFB.fb_width + "x" + RFB.fb_height);
 
         /* PIXEL_FORMAT */
         var bpp            = data.shift8();
@@ -176,89 +183,89 @@ init_msg: function (data) {
         /* Connection name/title */
         data.shiftStr(12);
         var name_length   = data.shift32();
-        fb_name = data.shiftStr(name_length);
+        RFB.fb_name = data.shiftStr(name_length);
 
-        debug("Name: " + fb_name);
-        $('status').innerHTML = "Connected to: " + fb_name;
+        debug("Name: " + RFB.fb_name);
+        $('status').innerHTML = "Connected to: " + RFB.fb_name;
 
-        Canvas.init('vnc', fb_width, fb_height, RFB.keyDown, RFB.keyUp);
+        Canvas.init('vnc', RFB.fb_width, RFB.fb_height, RFB.keyDown, RFB.keyUp);
 
         RFB.setEncodings();
         RFB.setPixelFormat();
 
-        RFB.fbUpdateRequest(0, 0, 0, fb_width, fb_height);
+        RFB.fbUpdateRequest(0, 0, 0, RFB.fb_width, RFB.fb_height);
 
         RFB.state = 'normal';
         break;
     }
-    debug("<< init_msg");
+    debug("<< init_msg (" + RFB.state + ")");
 },
 
 /* Normal RFB/VNC messages */
 normal_msg: function (data) {
     //debug(">> normal_msg");
-    if ((fbu.rects > 0) || (fbu.bytes > 0)) {
+    if ((FBU.rects > 0) || (FBU.bytes > 0)) {
         var msg_type = 0;
     } else {
         var msg_type = data.shift8();
     }
     switch (msg_type) {
     case 0:  // FramebufferUpdate
-        if (fbu.rects == 0) {
+        if (FBU.rects == 0) {
             data.shift8();
-            fbu.rects = data.shift16();
-            debug("FramebufferUpdate, " + fbu.rects + " rects");
-            fbu.bytes = 0;
-            fbu.arr = [];
+            FBU.rects = data.shift16();
+            debug("FramebufferUpdate, " + FBU.rects + " rects");
+            FBU.bytes = 0;
+            FBU.arr = [];
         } else {
             //debug("FramebufferUpdate continuation");
         }
 
         while (data.length > 0) {
             //debug("data.length: " + data.length);
-            if (fbu.bytes == 0) {
-                fbu.x      = data.shift16();
-                fbu.y      = data.shift16();
-                fbu.width  = data.shift16();
-                fbu.height = data.shift16();
-                fbu.encoding = data.shift32();
-                //debug('New  rect: ' + fbu.x + "," + fbu.y + " -> " + (fbu.x + fbu.width) + "," + (fbu.y + fbu.height));
-                switch (fbu.encoding) {
+            if (FBU.bytes == 0) {
+                FBU.x      = data.shift16();
+                FBU.y      = data.shift16();
+                FBU.width  = data.shift16();
+                FBU.height = data.shift16();
+                FBU.encoding = data.shift32();
+                //debug('New  rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                switch (FBU.encoding) {
                     case 0:  // Raw
-                        fbu.bytes = fbu.width * fbu.height * fb_Bpp;
+                        FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
                         break;
                     case 1:  // Copy-Rect
                         fbu_bytes = 4;
                         break;
                 }
             } else {
-                if (data.length >= fbu.bytes) {
-                    //debug('Done rect: ' + fbu.x + "," + fbu.y + " -> " + (fbu.x + fbu.width) + "," + (fbu.y + fbu.height));
-                    fbu.arr = fbu.arr.concat(data.shiftBytes(fbu.bytes))
-                    fbu.bytes = 0;
+                if (data.length >= FBU.bytes) {
+                    //debug('Done rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                    FBU.arr = FBU.arr.concat(data.shiftBytes(FBU.bytes))
+                    FBU.bytes = 0;
                     
-                    switch (fbu.encoding) {
+                    switch (FBU.encoding) {
                         case 0:  // Raw
-                            debug('Raw-Rect: ' + fbu.x + "," + fbu.y + " -> " + (fbu.x + fbu.width) + "," + (fbu.y + fbu.height));
-                            Canvas.rfbImage(fbu.x, fbu.y, fbu.width, fbu.height, fbu.arr);
+                            debug('Raw-Rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                            Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, FBU.arr);
                             break;
                         case 1:  // Copy-Rect
-                            debug('Copy-Rect: ' + fbu.x + "," + fbu.y + " -> " + (fbu.x + fbu.width) + "," + (fbu.y + fbu.height));
-                            var new_x = fbu.arr.shift16();
-                            var new_y = fbu.arr.shift16();
-                            Canvas.ctx.drawImage(Canvas.c, fbu.x, fbu.y, fbu.width, fbu.height, new_x, new_y, fbu.width, fbu.height);
+                            debug('Copy-Rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                            var new_x = FBU.arr.shift16();
+                            var new_y = FBU.arr.shift16();
+                            Canvas.ctx.drawImage(Canvas.c, FBU.x, FBU.y, FBU.width, FBU.height, new_x, new_y, FBU.width, FBU.height);
                             break;
                     }
-                    fbu.arr = [];
-                    fbu.rects --;
+                    FBU.arr = [];
+                    FBU.rects --;
                 } else {
-                    //debug('Part rect: ' + fbu.x + "," + fbu.y + " -> " + (fbu.x + fbu.width) + "," + (fbu.y + fbu.height));
-                    fbu.bytes = fbu.bytes - data.length;
-                    fbu.arr = fbu.arr.concat(data.shiftBytes(data.length))
+                    //debug('Part rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                    FBU.bytes = FBU.bytes - data.length;
+                    FBU.arr = FBU.arr.concat(data.shiftBytes(data.length))
                 }
             }
 
-            //debug("Bytes remaining: " + fbu.bytes);
+            //debug("Bytes remaining: " + FBU.bytes);
         }
         //debug("Finished frame buffer update");
         break;
@@ -289,7 +296,7 @@ setPixelFormat: function () {
     arr.push8(0);  // padding
     arr.push8(0);  // padding
 
-    arr.push8(fb_Bpp * 8); // bits-per-pixel
+    arr.push8(RFB.fb_Bpp * 8); // bits-per-pixel
     arr.push8(24); // depth
     arr.push8(0);  // little-endian
     arr.push8(1);  // true-color
@@ -342,7 +349,7 @@ keyEvent: function (keysym, down) {
     arr.push32(keysym);
     //debug("keyEvent array: " + arr);
     RFB.send_array(arr);
-    RFB.fbUpdateRequest(1, 0, 0, fb_width, fb_height);
+    RFB.fbUpdateRequest(1, 0, 0, RFB.fb_width, RFB.fb_height);
     //debug("<< keyEvent");
 },
 
@@ -359,12 +366,14 @@ clientCutText: function () {
 
 send_string: function (str) {
     //debug(">> send_string: " + str);
-    ws.send(Base64.encode(str));
+    var arr = str.split('').map(function (chr) {
+            return chr.charCodeAt(0) } );
+    RFB.send_array(arr);
 },
 
 send_array: function (arr) {
     //debug(">> send_array: " + Base64.encode_array(arr));
-    ws.send(Base64.encode_array(arr));
+    RFB.ws.send(Base64.encode_array(arr));
 },
 
 /* Mirror bits of each character and return as array */
@@ -386,7 +395,7 @@ passwdTwiddle: function (passwd) {
 
 poller: function () {
     if (RFB.state == 'normal') {
-        RFB.fbUpdateRequest(1, 0, 0, fb_width, fb_height);
+        RFB.fbUpdateRequest(1, 0, 0, RFB.fb_width, RFB.fb_height);
         RFB.poller.delay(RFB.poll_rate);
     }
 },
@@ -410,10 +419,10 @@ keyUp: function (e) {
 
 init_ws: function () {
     debug(">> init_ws");
-    var uri = "ws://" + vnc_host + ":" + vnc_port;
+    var uri = "ws://" + RFB.host + ":" + RFB.port;
     debug("connecting to " + uri);
-    ws = new WebSocket(uri);
-    ws.onmessage = function(e) {
+    RFB.ws = new WebSocket(uri);
+    RFB.ws.onmessage = function(e) {
         //debug(">> onmessage");
         var data = Base64.decode_array(e.data);
         //debug("decoded array: " + data);
@@ -432,12 +441,12 @@ init_ws: function () {
         }
         //debug("<< onmessage");
     };
-    ws.onopen = function(e) {
+    RFB.ws.onopen = function(e) {
         debug(">> onopen");
         RFB.state = "ProtocolVersion";
         debug("<< onopen");
     };
-    ws.onclose = function(e) {
+    RFB.ws.onclose = function(e) {
         debug(">> onclose");
         RFB.state = "closed";
         debug("<< onclose");
@@ -449,15 +458,15 @@ init_ws: function () {
 
 connect: function () {
     debug(">> connect");
-    vnc_host = $('host').value;
-    vnc_port = $('port').value;
-    vnc_password = $('password').value;
+    RFB.host = $('host').value;
+    RFB.port = $('port').value;
+    RFB.password = $('password').value;
     if ((!host) || (!port)) {
         debug("must set host and port");
         return;
     }
-    if (ws) {
-        ws.close();
+    if (RFB.ws) {
+        RFB.ws.close();
     }
     RFB.init_ws();
     $('connectButton').value = "Disconnect";
@@ -468,8 +477,8 @@ connect: function () {
 
 disconnect: function () {
     debug(">> disconnect");
-    if (ws) {
-        ws.close();
+    if (RFB.ws) {
+        RFB.ws.close();
     }
     if (Canvas.ctx) {
         Canvas.clear();
