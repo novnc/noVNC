@@ -105,21 +105,20 @@ init_msg: function (data) {
                 RFB.state = "ServerInitialisation";
                 break;
             case 2:  // VNC authentication
-                var challenge = data.shiftStr(16);
-                // TODO:
-                //var crypt = des(challenge, password);
-                //RFB.send_string(crypt);
-                RFB.state = "SecurityResult";
+                var challenge = data.shiftBytes(16);
                 debug("challenge: " + challenge + "(" + challenge.length + ")");
                 //response = Javacrypt.crypt(challenge, "jdm239").toString();
                 //response = Javacrypt.crypt("jdm239", challenge).toString();
                 //response = des("jdm239", challenge, 1)
-                /* COWCOW bit mirrored */
-                passwd = [194, 242, 234, 194, 242, 234, 0, 0].shiftStr(8);
+                //
+                //passwd = [67, 79, 87, 67, 79, 87]; // 'COWCOW'
+                passwd = [194, 242, 234, 194, 242, 234]; // 'COWCOW' bit mirrored
                 debug("passwd: " + passwd + "(" + passwd.length + ")");
                 response = des(passwd, challenge, 1)
                 debug("reponse: " + response + "(" + response.length + ")");
-                RFB.send_string(response);
+
+                RFB.send_array(response);
+                RFB.state = "SecurityResult";
                 break;
         }
         break;

@@ -123,9 +123,9 @@ init: function (canvas, width, height, keyDown, keyUp, mouseDown, mouseUp) {
 rfbImage: function(x, y, width, height, arr) {
     var img = Canvas.ctx.createImageData(width, height);
     for (var i=0; i < (width * height); i++) {
-        img.data[i*4 + 0] = arr[i*4 + 0];
+        img.data[i*4 + 0] = arr[i*4 + 2];
         img.data[i*4 + 1] = arr[i*4 + 1];
-        img.data[i*4 + 2] = arr[i*4 + 2];
+        img.data[i*4 + 2] = arr[i*4 + 0];
         img.data[i*4 + 3] = 255; // Set Alpha
     }
     Canvas.ctx.putImageData(img, x, y);
