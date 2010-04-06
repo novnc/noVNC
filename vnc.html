@@ -4,8 +4,16 @@
 
     <body onload="draw();">
 
-        VNC Window:<br>
-        <canvas id="vnc" width="800" height="600">
+        Host: <input id='host' style='width:100'>&nbsp;
+        Port: <input id='port' style='width:50'>&nbsp;
+        Password: <input id='password' type='password' style='width:80'>&nbsp;
+        <input id='connectButton' type='button' value='Connect' style='width:100px'
+            onclick="RFB.connect();">&nbsp;
+        <br><br>
+
+        <div id='status'>Disconnected</div>
+        <canvas id="vnc" width="640" height="100"
+                style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
 
@@ -22,21 +30,13 @@
     <script src="vnc.js"></script>
 
     <script>
-        function connect() {
-            debug(">> connect");
-            var uri = new URI(window.location);
-            var host = uri.getData("host");
-            var port = uri.getData("port");
-            if ((!host) || (!port)) {
-                debug("must set host and port");
-                return;
-            }
-            RFB.init_ws(host, port);
-            debug("<< connect");
-        }
-
         window.onload = function() {
-            connect();
+            var uri = new URI(window.location);
+            $('host').value  = uri.getData("host");
+            $('port').value  = uri.getData("port");
+            if (uri.getData("password")) {
+                $('password').value = uri.getData("password");
+            }
         }
     </script>
 

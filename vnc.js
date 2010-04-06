@@ -1,6 +1,7 @@
 var ws = null;
 var vnc_host = '';
 var vnc_port = 5900;
+var vnc_password = '';
 var fbu = {
     rects    : 0,
     bytes    : 0,
@@ -106,13 +107,10 @@ init_msg: function (data) {
                 break;
             case 2:  // VNC authentication
                 var challenge = data.shiftBytes(16);
+                debug("vnc_password: " + vnc_password);
                 debug("challenge: " + challenge + "(" + challenge.length + ")");
-                //response = Javacrypt.crypt(challenge, "jdm239").toString();
-                //response = Javacrypt.crypt("jdm239", challenge).toString();
-                //response = des("jdm239", challenge, 1)
-                //
-                //passwd = [67, 79, 87, 67, 79, 87]; // 'COWCOW'
-                passwd = [194, 242, 234, 194, 242, 234]; // 'COWCOW' bit mirrored
+                //passwd = [194, 242, 234, 194, 242, 234]; // 'COWCOW' bit mirrored
+                passwd = RFB.passwdTwiddle(vnc_password);
                 debug("passwd: " + passwd + "(" + passwd.length + ")");
                 response = des(passwd, challenge, 1)
                 debug("reponse: " + response + "(" + response.length + ")");
@@ -180,6 +178,7 @@ init_msg: function (data) {
         fb_name = data.shiftStr(name_length);
 
         debug("Name: " + fb_name);
+        $('status').innerHTML = "Connected to: " + fb_name;
 
         Canvas.init('vnc', fb_width, fb_height, RFB.keyDown, RFB.keyUp);
 
@@ -365,6 +364,23 @@ send_array: function (arr) {
     ws.send(Base64.encode_array(arr));
 },
 
+/* Mirror bits of each character and return as array */
+passwdTwiddle: function (passwd) {
+    var arr = [];
+    for (var i=0; i< passwd.length; i++) {
+        var c = passwd.charCodeAt(i);
+        arr.push( ((c & 0x80) >> 7) +
+                  ((c & 0x40) >> 5) +
+                  ((c & 0x20) >> 3) +
+                  ((c & 0x10) >> 1) +
+                  ((c & 0x08) << 1) +
+                  ((c & 0x04) << 3) +
+                  ((c & 0x02) << 5) +
+                  ((c & 0x01) << 7)   );
+    }
+    return arr;
+},
+
 poller: function () {
     if (RFB.state == 'normal') {
         RFB.fbUpdateRequest(1, 0, 0, fb_width, fb_height);
@@ -387,8 +403,8 @@ keyUp: function (e) {
  * Setup routines
  */
 
-_init_ws: function () {
-    debug(">> _init_ws");
+init_ws: function () {
+    debug(">> init_ws");
     var uri = "ws://" + vnc_host + ":" + vnc_port;
     debug("connecting to " + uri);
     ws = new WebSocket(uri);
@@ -403,11 +419,11 @@ _init_ws: function () {
         }
         if (RFB.state == 'reset') {
             /* close and reset connection */
-            ws.close();
-            RFB._init_ws();
+            RFB.disconnect();
+            RFB.init_ws();
         } else if (RFB.state == 'failed') {
             debug("Giving up!");
-            ws.close();
+            RFB.disconnect();
         }
         //debug("<< onmessage");
     };
@@ -423,19 +439,40 @@ _init_ws: function () {
     }
     RFB.poller.delay(RFB.poll_rate);
 
-    debug("<< _init_ws");
+    debug("<< init_ws");
 },
 
-init_ws: function (host, port) {
-    debug(">> init_ws");
-    vnc_host = host;
-    vnc_port = port;
+connect: function () {
+    debug(">> connect");
+    vnc_host = $('host').value;
+    vnc_port = $('port').value;
+    vnc_password = $('password').value;
+    if ((!host) || (!port)) {
+        debug("must set host and port");
+        return;
+    }
     if (ws) {
         ws.close();
     }
-    RFB._init_ws();
-    debug("<< init_ws");
+    RFB.init_ws();
+    $('connectButton').value = "Disconnect";
+    $('connectButton').onclick = RFB.disconnect;
+    debug("<< connect");
 
+},
+
+disconnect: function () {
+    debug(">> disconnect");
+    if (ws) {
+        ws.close();
+    }
+    if (Canvas.ctx) {
+        Canvas.clear();
+    }
+    $('connectButton').value = "Connect";
+    $('connectButton').onclick = RFB.connect;
+    $('status').innerHTML = "Disconnected";
+    debug("<< disconnect");
 }
 
 }; /* End of RFB */

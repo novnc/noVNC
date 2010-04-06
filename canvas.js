@@ -65,15 +65,17 @@ ctxDisable: function (e) {
 },
 
 
-init: function (canvas, width, height, keyDown, keyUp, mouseDown, mouseUp) {
+init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     debug(">> init_canvas");
+
+    Canvas.id = id;
 
     if (! keyDown) keyDown = Canvas.keyDown;
     if (! keyUp) keyUp = Canvas.keyUp;
     if (! mouseDown) mouseDown = Canvas.mouseDown;
     if (! mouseUp) mouseUp = Canvas.mouseUp;
 
-    c = $(canvas);
+    var c = $(Canvas.id);
     c.width = width;
     c.height = height;
     document.addEvent('keydown', keyDown);
@@ -93,6 +95,17 @@ init: function (canvas, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     if (! c.getContext) return;
     Canvas.ctx = c.getContext('2d'); 
 
+    debug("<< init_canvas");
+},
+
+clear: function () {
+    Canvas.ctx.clearRect(0, 0, Canvas.c_wx, Canvas.c_wy);
+    var c = $(Canvas.id);
+    c.width = 640;
+    c.height = 100;
+},
+
+draw: function () {
     /* Border */
     Canvas.ctx.stroke();  
     Canvas.ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
@@ -116,8 +129,6 @@ init: function (canvas, width, height, keyDown, keyUp, mouseDown, mouseUp) {
         }
     }
     Canvas.ctx.putImageData(img, 100, 100);
-
-    debug("<< init_canvas");
 },
 
 rfbImage: function(x, y, width, height, arr) {
