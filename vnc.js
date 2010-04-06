@@ -57,6 +57,7 @@ Array.prototype.shiftBytes = function (len) {
     return this.splice(0, len);
 }
 
+
 /*
  * Server message handlers
  */
@@ -322,7 +323,7 @@ setEncodings: function () {
 },
 
 fbUpdateRequest: function (incremental, x, y, xw, yw) {
-    debug(">> fbUpdateRequest");
+    //debug(">> fbUpdateRequest");
     var arr = [3];  // msg-type
     arr.push8(incremental);
     arr.push16(x);
@@ -330,18 +331,19 @@ fbUpdateRequest: function (incremental, x, y, xw, yw) {
     arr.push16(xw);
     arr.push16(yw);
     RFB.send_array(arr);
-    debug("<< fbUpdateRequest");
+    //debug("<< fbUpdateRequest");
 },
 
-keyEvent: function (key, code, down) {
-    debug(">> keyEvent: " + key + "(" + code + ") " + down);
+keyEvent: function (keysym, down) {
+    debug(">> keyEvent, keysym: " + keysym + ", down: " + down);
     var arr = [4];  // msg-type
     arr.push8(down);
     arr.push16(0);
-    arr.push32(code);
+    arr.push32(keysym);
+    //debug("keyEvent array: " + arr);
     RFB.send_array(arr);
     RFB.fbUpdateRequest(1, 0, 0, fb_width, fb_height);
-    debug("<< keyEvent");
+    //debug("<< keyEvent");
 },
 
 pointerEvent: function () {
@@ -356,11 +358,12 @@ clientCutText: function () {
  */
 
 send_string: function (str) {
+    //debug(">> send_string: " + str);
     ws.send(Base64.encode(str));
 },
 
 send_array: function (arr) {
-    debug("encoded array: " + Base64.encode_array(arr));
+    //debug(">> send_array: " + Base64.encode_array(arr));
     ws.send(Base64.encode_array(arr));
 },
 
@@ -389,13 +392,15 @@ poller: function () {
 },
 
 keyDown: function (e) {
+    //debug(">> keyDown: " + e.key + "(" + e.code + ")");
     e.stop();
-    RFB.keyEvent(e.key, e.code, 1);
+    RFB.keyEvent(Canvas.getKeysym(e), 1);
 },
 
 keyUp: function (e) {
+    //debug(">> keyUp: " + e.key + "(" + e.code + ")");
     e.stop();
-    RFB.keyEvent(e.key, e.code, 0);
+    RFB.keyEvent(Canvas.getKeysym(e), 0);
 },
 
 
