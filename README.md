@@ -18,15 +18,15 @@ Requirements
 * Until VNC server support web sockets, you need to use a Web Sockets to
   normal socket proxy. There are a couple reasons for this:
 
-  * Web Sockets is not a pure socket protocol. There is an initial HTTP
-    like handshake to allow easy hand-off by web servers and allow some
-    origin policy exchange. Also, each Web Sockets frame begins with
-    0 ('\x00') and ends with 255 ('\xff').
+  1. Web Sockets is not a pure socket protocol. There is an initial HTTP
+     like handshake to allow easy hand-off by web servers and allow some
+     origin policy exchange. Also, each Web Sockets frame begins with
+     0 ('\x00') and ends with 255 ('\xff').
 
-  * Javascript itself does not have the ability to handle pure byte
-    strings (Unicode encoding messes with it) even though you can read
-    them with Web Sockets. The python proxy base64 encodes the data so
-    that the Javascript client can base64 decode the data into an array.
+  2. Javascript itself does not have the ability to handle pure byte
+     strings (Unicode encoding messes with it) even though you can read
+     them with Web Sockets. The python proxy base64 encodes the data so
+     that the Javascript client can base64 decode the data into an array.
 
 
 Usage
