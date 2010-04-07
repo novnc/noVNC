@@ -228,32 +228,34 @@ normal_msg: function (data) {
                 FBU.y      = data.shift16();
                 FBU.width  = data.shift16();
                 FBU.height = data.shift16();
-                FBU.encoding = data.shift32();
+                FBU.encoding = parseInt(data.shift32(), 10);
+                //debug("encoding: " + FBU.encoding);
                 //debug('New  rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
                 switch (FBU.encoding) {
                     case 0:  // Raw
                         FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
                         break;
                     case 1:  // Copy-Rect
-                        fbu_bytes = 4;
+                        FBU.bytes = 4;
                         break;
                 }
             } else {
                 if (data.length >= FBU.bytes) {
-                    //debug('Done rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                    //debug('Done rect:');
                     FBU.arr = FBU.arr.concat(data.shiftBytes(FBU.bytes))
                     FBU.bytes = 0;
                     
                     switch (FBU.encoding) {
                         case 0:  // Raw
-                            debug('Raw-Rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                            //debug('Raw-Rect: (' + FBU.x + "," + FBU.y + ")X(" + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height) + ")");
                             Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, FBU.arr);
                             break;
                         case 1:  // Copy-Rect
-                            debug('Copy-Rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
-                            var new_x = FBU.arr.shift16();
-                            var new_y = FBU.arr.shift16();
-                            Canvas.ctx.drawImage(Canvas.c, FBU.x, FBU.y, FBU.width, FBU.height, new_x, new_y, FBU.width, FBU.height);
+                            var old_x = FBU.arr.shift16();
+                            var old_y = FBU.arr.shift16();
+                            //debug('Copy-Rect: (' + old_x + "," + old_y + ")X(" + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height) + ") -> (" + FBU.x + "," + FBU.y + ")");
+
+                            Canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
                             break;
                     }
                     FBU.arr = [];
