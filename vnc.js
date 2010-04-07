@@ -122,7 +122,7 @@ init_msg: function (data) {
                 debug("Challenge: " + challenge + "(" + challenge.length + ")");
                 passwd = RFB.passwdTwiddle(RFB.password);
                 //debug("passwd: " + passwd + "(" + passwd.length + ")");
-                response = des(passwd, challenge, 1)
+                response = des(passwd, challenge, 1);
                 //debug("reponse: " + response + "(" + response.length + ")");
 
                 RFB.send_array(response);
