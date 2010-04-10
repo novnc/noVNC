@@ -32,11 +32,9 @@
     <script>
         window.onload = function() {
             var uri = new URI(window.location);
-            $('host').value  = uri.getData("host");
-            $('port').value  = uri.getData("port");
-            if (uri.getData("password")) {
-                $('password').value = uri.getData("password");
-            }
+            $('host').value  = uri.getData("host") || '';
+            $('port').value  = uri.getData("port") || '';
+            $('password').value = uri.getData("password") || '';
         }
     </script>
 
