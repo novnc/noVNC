@@ -346,9 +346,9 @@ setPixelFormat: function () {
     arr.push16(255);  // red-max
     arr.push16(255);  // green-max
     arr.push16(255);  // blue-max
-    arr.push8(16);    // red-shift
+    arr.push8(0);    // red-shift
     arr.push8(8);     // green-shift
-    arr.push8(0);     // blue-shift
+    arr.push8(16);     // blue-shift
 
     arr.push8(0);  // padding
     arr.push8(0);  // padding
