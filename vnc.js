@@ -74,6 +74,7 @@ fb_width  : 0,
 fb_height : 0,
 fb_name   : "",
 fb_Bpp    : 4,
+rre_chunk : 100,
 
 
 /*
@@ -220,14 +221,14 @@ display_copy_rect: function () {
 },
 
 display_rre: function () {
-    //debug(">> display_rre");
+    //debug(">> display_rre (" + FBU.arr.length + " bytes)");
     if (FBU.subrects == 0) {
         FBU.subrects = FBU.arr.shift32();
-        debug("RRE (" + FBU.subrects + " subrects)");
+        debug(">> display_rre " + "(" + FBU.subrects + " subrects)");
         var color = FBU.arr.shiftBytes(RFB.fb_Bpp); // Background
         Canvas.rfbRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
-    } else {
-        /* Render one sub-rectangle */
+    }
+    while (FBU.arr.length > 0) {
         FBU.subrects --;
         var color = FBU.arr.shiftBytes(RFB.fb_Bpp);
         var x = FBU.arr.shift16();
@@ -239,7 +240,8 @@ display_rre: function () {
     //debug("rects: " + FBU.rects + ", FBU.subrects: " + FBU.subrects);
 
     if (FBU.subrects > 0) {
-        FBU.bytes = (RFB.fb_Bpp + 8); // One more
+        var chunk = Math.min(RFB.rre_chunk, FBU.subrects);
+        FBU.bytes = (RFB.fb_Bpp + 8) * chunk;
     } else {
         FBU.rects --;
         FBU.arr = [];
