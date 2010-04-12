@@ -148,6 +148,11 @@ rfbImage: function(x, y, width, height, arr) {
 
 },
 
+rfbRect: function(x, y, width, height, color) {
+    Canvas.ctx.fillStyle = "rgb(" + color[2] + "," + color[1] + "," + color[0] + ")";  
+    Canvas.ctx.fillRect(x, y, width, height);
+},
+
 copyImage: function(old_x, old_y, new_x, new_y, width, height) {
     Canvas.ctx.drawImage($(Canvas.id), old_x, old_y, width, height,
                                        new_x, new_y, width, height);

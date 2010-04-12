@@ -43,6 +43,7 @@ Array.prototype.shiftBytes = function (len) {
  */
 var FBU = {
     rects    : 0,
+    subrects : 0,
     bytes    : 0,
     x        : 0,
     y        : 0,
@@ -201,6 +202,47 @@ init_msg: function (data) {
     debug("<< init_msg (" + RFB.state + ")");
 },
 
+/* Framebuffer update display functions */
+display_raw: function () {
+    debug(">> display_raw");
+    Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, FBU.arr);
+    FBU.rects --;
+},
+
+display_copy_rect: function () {
+    debug(">> display_copy_rect");
+    var old_x = FBU.arr.shift16();
+    var old_y = FBU.arr.shift16();
+    Canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
+    FBU.rects --;
+},
+
+display_rre: function () {
+    debug(">> display_rre");
+    if (FBU.subrects == 0) {
+        debug("Processing new RRE");
+        FBU.subrects = FBU.arr.shift32();
+        var color = data.shiftBytes(FBU.fb_Bpp); // Background
+        Canvas.rfbRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
+    } else {
+        /* Render one sub-rectangle */
+        FBU.subrects --;
+        var color = data.shiftBytes(FBU.fb_Bpp);
+        var x = data.shift16();
+        var y = data.shift16();
+        var width = data.shift16();
+        var height = data.shift16();
+        Canvas.rfbRect(x, y, width, height, color);
+    }
+
+    if (FBU.subrects > 0) {
+        FBU.bytes = (8 + FBU.fb_Bpp);
+    } else {
+        FBU.rect --;
+    }
+},
+
+
 /* Normal RFB/VNC messages */
 normal_msg: function (data) {
     //debug(">> normal_msg");
@@ -222,21 +264,24 @@ normal_msg: function (data) {
         }
 
         while (data.length > 0) {
-            //debug("data.length: " + data.length);
+            debug("data.length: " + data.length + ", FBU.bytes: " + FBU.bytes);
             if (FBU.bytes == 0) {
                 FBU.x      = data.shift16();
                 FBU.y      = data.shift16();
                 FBU.width  = data.shift16();
                 FBU.height = data.shift16();
                 FBU.encoding = parseInt(data.shift32(), 10);
-                //debug("encoding: " + FBU.encoding);
-                //debug('New  rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
+                debug("encoding: " + FBU.encoding);
                 switch (FBU.encoding) {
                     case 0:  // Raw
                         FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
                         break;
                     case 1:  // Copy-Rect
                         FBU.bytes = 4;
+                        break;
+                    case 2:  // RRE
+                        debug("RRE");
+                        FBU.bytes = 4 + RFB.fb_Bpp;
                         break;
                 }
             } else {
@@ -246,22 +291,13 @@ normal_msg: function (data) {
                     FBU.bytes = 0;
                     
                     switch (FBU.encoding) {
-                        case 0:  // Raw
-                            //debug('Raw-Rect: (' + FBU.x + "," + FBU.y + ")X(" + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height) + ")");
-                            Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, FBU.arr);
-                            break;
-                        case 1:  // Copy-Rect
-                            var old_x = FBU.arr.shift16();
-                            var old_y = FBU.arr.shift16();
-                            //debug('Copy-Rect: (' + old_x + "," + old_y + ")X(" + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height) + ") -> (" + FBU.x + "," + FBU.y + ")");
-
-                            Canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
-                            break;
+                        case 0: RFB.display_raw();       break; // Raw
+                        case 1: RFB.display_copy_rect(); break; // Copy-Rect
+                        case 2: RFB.display_rre();       break; // RRE
                     }
+
                     FBU.arr = [];
-                    FBU.rects --;
                 } else {
-                    //debug('Part rect: ' + FBU.x + "," + FBU.y + " -> " + (FBU.x + FBU.width) + "," + (FBU.y + FBU.height));
                     FBU.bytes = FBU.bytes - data.length;
                     FBU.arr = FBU.arr.concat(data.shiftBytes(data.length))
                 }
@@ -322,9 +358,10 @@ fixColourMapEntries: function () {
 
 setEncodings: function () {
     debug(">> setEncodings");
-    var arr = [2];  // msg-type
+    var arr = [2]; // msg-type
     arr.push8(0);  // padding
-    arr.push16(2); // encoding count
+    arr.push16(3); // encoding count
+    arr.push32(2); // RRE encoding
     arr.push32(1); // copy-rect encoding
     arr.push32(0); // raw encoding
     RFB.send_array(arr);
