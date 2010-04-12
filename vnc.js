@@ -207,6 +207,7 @@ display_raw: function () {
     debug(">> display_raw");
     Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, FBU.arr);
     FBU.rects --;
+    FBU.arr = [];
 },
 
 display_copy_rect: function () {
@@ -215,31 +216,35 @@ display_copy_rect: function () {
     var old_y = FBU.arr.shift16();
     Canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
     FBU.rects --;
+    FBU.arr = [];
 },
 
 display_rre: function () {
-    debug(">> display_rre");
+    //debug(">> display_rre");
     if (FBU.subrects == 0) {
-        debug("Processing new RRE");
         FBU.subrects = FBU.arr.shift32();
-        var color = data.shiftBytes(FBU.fb_Bpp); // Background
+        debug("RRE (" + FBU.subrects + " subrects)");
+        var color = FBU.arr.shiftBytes(RFB.fb_Bpp); // Background
         Canvas.rfbRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
     } else {
         /* Render one sub-rectangle */
         FBU.subrects --;
-        var color = data.shiftBytes(FBU.fb_Bpp);
-        var x = data.shift16();
-        var y = data.shift16();
-        var width = data.shift16();
-        var height = data.shift16();
-        Canvas.rfbRect(x, y, width, height, color);
+        var color = FBU.arr.shiftBytes(RFB.fb_Bpp);
+        var x = FBU.arr.shift16();
+        var y = FBU.arr.shift16();
+        var width = FBU.arr.shift16();
+        var height = FBU.arr.shift16();
+        Canvas.rfbRect(FBU.x + x, FBU.y + y, width, height, color);
     }
+    //debug("rects: " + FBU.rects + ", FBU.subrects: " + FBU.subrects);
 
     if (FBU.subrects > 0) {
-        FBU.bytes = (8 + FBU.fb_Bpp);
+        FBU.bytes = (RFB.fb_Bpp + 8); // One more
     } else {
-        FBU.rect --;
+        FBU.rects --;
+        FBU.arr = [];
     }
+    //debug("<< display_rre, FBU.bytes: " + FBU.bytes);
 },
 
 
@@ -264,7 +269,7 @@ normal_msg: function (data) {
         }
 
         while (data.length > 0) {
-            debug("data.length: " + data.length + ", FBU.bytes: " + FBU.bytes);
+            //debug("data.length: " + data.length + ", FBU.bytes: " + FBU.bytes);
             if (FBU.bytes == 0) {
                 FBU.x      = data.shift16();
                 FBU.y      = data.shift16();
@@ -280,7 +285,6 @@ normal_msg: function (data) {
                         FBU.bytes = 4;
                         break;
                     case 2:  // RRE
-                        debug("RRE");
                         FBU.bytes = 4 + RFB.fb_Bpp;
                         break;
                 }
