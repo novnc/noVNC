@@ -52,8 +52,6 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     if (! mouseUp) mouseUp = Canvas.mouseUp;
 
     var c = $(Canvas.id);
-    c.width = width;
-    c.height = height;
     document.addEvent('keydown', keyDown);
     document.addEvent('keyup', keyUp);
     c.addEvent('mousedown', mouseDown);
@@ -63,6 +61,8 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     document.addEvent('click', Canvas.ctxDisable);
     document.body.addEvent('contextmenu', Canvas.ctxDisable);
 
+    c.width = width;
+    c.height = height;
     Canvas.c_x = c.getPosition().x;
     Canvas.c_y = c.getPosition().y;
     Canvas.c_wx = c.getSize().x;
@@ -77,8 +77,17 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
 clear: function () {
     Canvas.ctx.clearRect(0, 0, Canvas.c_wx, Canvas.c_wy);
     var c = $(Canvas.id);
+    document.removeEvents('keydown');
+    document.removeEvents('keyup');
+    c.removeEvents('mousedown');
+    c.removeEvents('mouseup');
+
+    /* Work around right and middle click browser behaviors */
+    document.removeEvents('click');
+    document.body.removeEvents('contextmenu');
+
     c.width = 640;
-    c.height = 100;
+    c.height = 20;
 },
 
 draw: function () {
