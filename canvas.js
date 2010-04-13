@@ -1,32 +1,3 @@
-function debug(str) {
-    cell = $('debug');
-    cell.innerHTML += str + "\n";
-    cell.scrollTop = cell.scrollHeight;
-}
-
-function dirObj(obj, parent, depth) {
-    var msg = "";
-    var val = "";
-    if (! depth) { depth=2; }
-    if (! parent) { parent= ""; }
-
-    // Print the properties of the passed-in object 
-    for (var i in obj) {
-        if ((depth > 1) && (typeof obj[i] == "object")) { 
-            // Recurse attributes that are objects
-            msg += dirObj(obj[i], parent + "." + i, depth-1);
-        } else {
-            val = new String(obj[i]).replace("\n", " ");
-            if (val.length > 30) {
-                val = val.substr(0,30) + "...";
-            } 
-            msg += parent + "." + i + ": " + val + "\n";
-        }
-    }
-    return msg;
-}
-
-
 Canvas = {
 
 c_x : 0,
@@ -38,25 +9,25 @@ ctx  : null,
 mouseDown: function (e) {
     evt = e.event || window.event;
     e.stop();
-    debug('mouse ' + evt.which + '/' + evt.button + ' down:' +
+    console.log('mouse ' + evt.which + '/' + evt.button + ' down:' +
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
 },
 
 mouseUp: function (e) {
     evt = e.event || window.event;
     e.stop();
-    debug('mouse ' + evt.which + '/' + evt.button + ' up:' +
+    console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
 },
 
 keyDown: function (e) {
     e.stop();
-    debug("keydown: " + e.key + "(" + e.code + ")");
+    console.log("keydown: " + e.key + "(" + e.code + ")");
 },
 
 keyUp : function (e) {
     e.stop();
-    debug("keyup: " + e.key + "(" + e.code + ")");
+    console.log("keyup: " + e.key + "(" + e.code + ")");
 },
 
 ctxDisable: function (e) {
@@ -71,7 +42,7 @@ ctxDisable: function (e) {
 
 
 init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
-    debug(">> init_canvas");
+    console.log(">> init_canvas");
 
     Canvas.id = id;
 
@@ -100,7 +71,7 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     if (! c.getContext) return;
     Canvas.ctx = c.getContext('2d'); 
 
-    debug("<< init_canvas");
+    console.log("<< init_canvas");
 },
 
 clear: function () {
@@ -162,7 +133,7 @@ copyImage: function(old_x, old_y, new_x, new_y, width, height) {
 getKeysym: function(e) {
     evt = e.event || window.event;
     var keysym;
-    //debug(dirObj(e, null, 1));
+    //console.log(dirObj(e, null, 1));
 
     /* Remap modifier and special keys */
     switch ( evt.keyCode ) {

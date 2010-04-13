@@ -6,22 +6,19 @@
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
-
-        <br>
-        Debug:<br>
-        <textarea id="debug" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
     <script src="include/mootools.js"></script>
     <script src="include/mootools-more.js"></script>
+    <script src="include/util.js"></script>
     <script src="canvas.js"></script>
 
     <script>
         window.onload = function() {
-            debug("here1");
+            console.log("here1");
             Canvas.init('tutorial', 640, 480);
             Canvas.draw();
-            debug("here2");
+            console.log("here2");
         }
     </script>
 </html>

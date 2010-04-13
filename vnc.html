@@ -16,21 +16,19 @@
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
-
-        <br>
-        Debug:<br>
-        <textarea id="debug" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
     <script src="include/mootools.js"></script>
     <script src="include/mootools-more.js"></script>
     <script src="include/base64.js"></script>
     <script src="include/des.js"></script>
+    <script src="include/util.js"></script>
     <script src="canvas.js"></script>
     <script src="vnc.js"></script>
 
     <script>
         window.onload = function() {
+            console.log("onload");
             var uri = new URI(window.location);
             $('host').value  = uri.getData("host") || '';
             $('port').value  = uri.getData("port") || '';
