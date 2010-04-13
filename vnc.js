@@ -41,7 +41,7 @@ Array.prototype.shiftBytes = function (len) {
 /*
  * Pending frame buffer update data
  */
-var FBU = {
+FBU = {
     rects    : 0,
     subrects : 0,
     tiles    : 0,
@@ -53,7 +53,15 @@ var FBU = {
     encoding : 0,
     subencoding : -1,
     background: null,
-    arr      : null};
+    arr      : []};
+
+/*
+ * Mouse state data
+ */
+Mouse = {
+    buttonmask : 0,
+    arr        : []
+};
 
 
 /*
@@ -67,7 +75,7 @@ ws        : null,  // Web Socket object
 version   : "RFB 003.003\n",
 state     : 'ProtocolVersion',
 shared    : 1,
-poll_rate : 1413,
+push_rate : 1413,
 
 host      : '',
 port      : 5900,
@@ -193,16 +201,17 @@ init_msg: function (data) {
         console.log("Name: " + RFB.fb_name);
         $('status').innerHTML = "Connected to: " + RFB.fb_name;
 
-        Canvas.init('vnc', RFB.fb_width, RFB.fb_height, RFB.keyDown, RFB.keyUp);
+        Canvas.init('vnc', RFB.fb_width, RFB.fb_height,
+                RFB.keyDown, RFB.keyUp, RFB.mouseDown, RFB.mouseUp);
 
         var init = [];
         init = init.concat(RFB.pixelFormat());
         init = init.concat(RFB.encodings());
-        init = init.concat(RFB.fbUpdateRequest(0, 0, 0, RFB.fb_width, RFB.fb_height));
+        init = init.concat(RFB.fbUpdateRequest(0));
         RFB.send_array(init);
         
-        /* Start polling */
-        RFB.poller.delay(RFB.poll_rate);
+        /* Start pushing/polling */
+        RFB.pusher.delay(RFB.push_rate);
 
         RFB.state = 'normal';
         break;
@@ -313,7 +322,7 @@ display_hextile: function() {
             }
         }
 
-        //console.log("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) + ", subencoding:" + subencoding + ", subrects:" + subrects + ", tile:" + tile_x + "," + tile_y + " [" + x + "," + y + "], arr.length:" + FBU.arr.length + ", bytes:" + FBU.bytes);
+        console.log("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) + ", subencoding:" + subencoding + ", subrects:" + subrects + ", tile:" + tile_x + "," + tile_y + " [" + x + "," + y + "], arr.length:" + FBU.arr.length + ", bytes:" + FBU.bytes);
         //console.log("   arr[0..30]: " + FBU.arr.slice(0,30));
         if (FBU.arr.length < FBU.bytes) {
             //console.log("   waiting for " + (FBU.bytes - FBU.arr.length) + "bytes");
@@ -371,7 +380,7 @@ display_hextile: function() {
         FBU.rects --;
     }
 
-    //console.log("<< display_hextile");
+    console.log("<< display_hextile, rects:" + FBU.rects);
 },
 
 
@@ -390,7 +399,6 @@ normal_msg: function (data) {
             FBU.rects = data.shift16();
             console.log("FramebufferUpdate, " + FBU.rects + " rects");
             FBU.bytes = 0;
-            FBU.arr = [];
         } else {
             //console.log("FramebufferUpdate continuation");
         }
@@ -399,7 +407,7 @@ normal_msg: function (data) {
             FBU.arr = FBU.arr.concat(data);
         }
 
-        while (FBU.arr.length > 0) {
+        while ((FBU.rects > 0) && (FBU.arr.length > 0)) {
             if (FBU.bytes == 0) {
                 FBU.x      = FBU.arr.shift16();
                 FBU.y      = FBU.arr.shift16();
@@ -520,7 +528,11 @@ encodings: function () {
 },
 
 fbUpdateRequest: function (incremental, x, y, xw, yw) {
-    //console.log(">> fbUpdateRequest");
+    console.log(">> fbUpdateRequest");
+    if (!x) x = 0;
+    if (!y) y = 0;
+    if (!xw) xw = RFB.fb_width;
+    if (!yw) yw = RFB.fb_height;
     var arr;
     arr = [3];  // msg-type
     arr.push8(incremental);
@@ -540,12 +552,19 @@ keyEvent: function (keysym, down) {
     arr.push16(0);
     arr.push32(keysym);
     //console.log("keyEvent array: " + arr);
-    arr = arr.concat(RFB.fbUpdateRequest(1, 0, 0, RFB.fb_width, RFB.fb_height));
-    RFB.send_array(arr);
     //console.log("<< keyEvent");
+    return arr;
 },
 
-pointerEvent: function () {
+pointerEvent: function (x, y) {
+    console.log(">> pointerEvent, x,y: " + x + "," + y + " , mask: " + Mouse.buttonMask);
+    var arr;
+    arr = [5];  // msg-type
+    arr.push8(Mouse.buttonMask);
+    arr.push16(x);
+    arr.push16(y);
+    console.log("<< pointerEvent");
+    return arr;
 },
 
 clientCutText: function () {
@@ -563,7 +582,7 @@ send_string: function (str) {
 },
 
 send_array: function (arr) {
-    //console.log(">> send_array: " + arr);
+    console.log(">> send_array: " + arr);
     //console.log(">> send_array: " + Base64.encode_array(arr));
     RFB.ws.send(Base64.encode_array(arr));
 },
@@ -586,24 +605,67 @@ passwdTwiddle: function (passwd) {
     return arr;
 },
 
-poller: function () {
+flushClient: function () {
+    var arr = [];
+    if (Mouse.arr.length > 0) {
+        RFB.send_array(Mouse.arr.concat(RFB.fbUpdateRequest(1)));
+        Mouse.arr = [];
+    } else {
+        RFB.send_array(RFB.fbUpdateRequest(1));
+    }
+},
+
+pusher: function () {
     if (RFB.state == 'normal') {
-        RFB.send_array(RFB.fbUpdateRequest(1, 0, 0, RFB.fb_width, RFB.fb_height));
-        RFB.poller.delay(RFB.poll_rate);
+        RFB.flushClient();
+        RFB.pusher.delay(RFB.push_rate);
     }
 },
 
 keyDown: function (e) {
     //console.log(">> keyDown: " + e.key + "(" + e.code + ")");
     e.stop();
-    RFB.keyEvent(Canvas.getKeysym(e), 1);
+    var arr = RFB.keyEvent(Canvas.getKeysym(e), 1);
+    arr = arr.concat(RFB.fbUpdateRequest(1));
+    RFB.send_array(arr);
 },
 
 keyUp: function (e) {
     //console.log(">> keyUp: " + e.key + "(" + e.code + ")");
     e.stop();
-    RFB.keyEvent(Canvas.getKeysym(e), 0);
+    var arr = RFB.keyEvent(Canvas.getKeysym(e), 0);
+    arr = arr.concat(RFB.fbUpdateRequest(1));
+    RFB.send_array(arr);
 },
+
+mouseDown: function(e) {
+    var evt = e.event || window.event;
+    var x, y;
+    x = (evt.clientX - Canvas.c_x);
+    y = (evt.clientY - Canvas.c_y);
+    console.log('>> mouseDown ' + evt.which + '/' + evt.button + " " + x + "," + y);
+    Mouse.buttonMask |= 1 << evt.button;
+    Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
+
+    RFB.flushClient();
+},
+
+mouseUp: function(e) {
+    var evt = e.event || window.event;
+    var x, y;
+    x = (evt.clientX - Canvas.c_x);
+    y = (evt.clientY - Canvas.c_y);
+    console.log('>> mouseUp ' + evt.which + '/' + evt.button + " " + x + "," + y);
+    Mouse.buttonMask ^= 1 << evt.button;
+    Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
+
+    RFB.flushClient();
+},
+
+mouseMove: function(e) {
+    // TODO: accumulate in global array
+},
+
 
 
 /*

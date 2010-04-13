@@ -7,14 +7,14 @@ c_wy : 0,
 ctx  : null,
 
 mouseDown: function (e) {
-    evt = e.event || window.event;
+    var evt = e.event || window.event;
     e.stop();
     console.log('mouse ' + evt.which + '/' + evt.button + ' down:' +
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
 },
 
 mouseUp: function (e) {
-    evt = e.event || window.event;
+    var evt = e.event || window.event;
     e.stop();
     console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
