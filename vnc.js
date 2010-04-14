@@ -33,7 +33,6 @@ Array.prototype.shiftStr = function (len) {
     return arr.map(function (num) {
             return String.fromCharCode(num); } ).join('');
 }
-
 Array.prototype.shiftBytes = function (len) {
     return this.splice(0, len);
 }
@@ -95,7 +94,6 @@ rre_chunk : 100,
 /* RFB/VNC initialisation */
 init_msg: function () {
     console.log(">> init_msg: " + RFB.state);
-    console.log("d:" + RFB.d);
 
     switch (RFB.state) {
 
@@ -273,8 +271,8 @@ display_hextile: function() {
     //console.log(">> display_hextile, tiles: " + FBU.tiles + ", arr.length: " + RFB.d.length + ", bytes: " + FBU.bytes);
     var subencoding, subrects, cur_tile, tile_x, x, w, tile_y, y, h;
 
-    /* FBU.bytes comes in as 0, RFB.d.length at least 2 */
-    while ((FBU.tiles > 0) && (RFB.d.length >= Math.max(2, FBU.bytes))) {
+    /* FBU.bytes comes in as 0, RFB.d.length at least 1 */
+    while ((FBU.tiles > 0) && (RFB.d.length >= Math.max(1, FBU.bytes))) {
         cur_tile = FBU.total_tiles - FBU.tiles;
         tile_x = cur_tile % FBU.tiles_x;
         tile_y = Math.floor(cur_tile / FBU.tiles_x);
@@ -298,7 +296,7 @@ display_hextile: function() {
             /* Figure out how much we are expecting */
             if (subencoding & 0x01) { // Raw
                 //console.log("   Raw subencoding");
-                FBU.bytes = w * h * RFB.fb_Bpp;
+                FBU.bytes += w * h * RFB.fb_Bpp;
             } else {
                 if (subencoding & 0x02) { // Background
                     FBU.bytes += RFB.fb_Bpp;
@@ -310,7 +308,7 @@ display_hextile: function() {
                     FBU.bytes++;   // Since we aren't shifting it off
                     if (RFB.d.length < FBU.bytes) {
                         /* Wait for subrects byte */
-                        //console.log("   waiting for subrects byte");
+                        console.log("   waiting for hextile subrects header bytes");
                         return;
                     }
                     subrects = RFB.d[FBU.bytes-1]; // Peek
@@ -323,10 +321,10 @@ display_hextile: function() {
             }
         }
 
-        console.log("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) + ", subencoding:" + subencoding + "(last: " + FBU.lastsubencoding + "), subrects:" + subrects + ", tile:" + tile_x + "," + tile_y + " [" + x + "," + y + "], arr.length:" + RFB.d.length + ", bytes:" + FBU.bytes);
+        //console.log("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) + ", subencoding:" + subencoding + "(last: " + FBU.lastsubencoding + "), subrects:" + subrects + ", tile:" + tile_x + "," + tile_y + " [" + x + "," + y + "]@" + w + "x" + h + ", arr.length:" + RFB.d.length + ", bytes:" + FBU.bytes);
         //console.log("   arr[0..30]: " + RFB.d.slice(0,30));
         if (RFB.d.length < FBU.bytes) {
-            //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + "bytes");
+            //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + " hextile bytes");
             return;
         }
 
@@ -390,7 +388,7 @@ display_hextile: function() {
         FBU.rects --;
     }
 
-    console.log("<< display_hextile, rects:" + FBU.rects, " d:" + RFB.d.slice(0,40));
+    //console.log("<< display_hextile, rects:" + FBU.rects, " d:" + RFB.d.slice(0,40));
 },
 
 
@@ -405,31 +403,41 @@ normal_msg: function () {
     switch (msg_type) {
     case 0:  // FramebufferUpdate
         if (FBU.rects == 0) {
+            if (RFB.d.length < 3) {
+                console.log("   waiting for FBU header bytes");
+                return;
+            }
             RFB.d.shift8();
             FBU.rects = RFB.d.shift16();
-            console.log("FramebufferUpdate, " + FBU.rects + " rects");
+            //console.log("FramebufferUpdate, rects:" + FBU.rects);
             FBU.bytes = 0;
-        } else {
-            //console.log("FramebufferUpdate continuation");
         }
 
         while ((FBU.rects > 0) && (RFB.d.length > 0)) {
             if (FBU.bytes == 0) {
+                if (RFB.d.length < 12) {
+                    console.log("   waiting for rect header bytes");
+                    return;
+                }
+                /* New FramebufferUpdate */
                 FBU.x      = RFB.d.shift16();
                 FBU.y      = RFB.d.shift16();
                 FBU.width  = RFB.d.shift16();
                 FBU.height = RFB.d.shift16();
                 FBU.encoding = parseInt(RFB.d.shift32(), 10);
-                console.log("encoding: " + FBU.encoding);
+                //var msg = "FramebufferUpdate rects:" + FBU.rects + " encoding:" + FBU.encoding
                 switch (FBU.encoding) {
                     case 0:  // Raw
                         FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
+                        //msg += "(RAW)"
                         break;
                     case 1:  // Copy-Rect
                         FBU.bytes = 4;
+                        //msg += "(COPY-RECT)"
                         break;
                     case 2:  // RRE
                         FBU.bytes = 4 + RFB.fb_Bpp;
+                        //msg += "(RRE)"
                         break;
                     case 5:  // hextile
                         FBU.bytes = 2;  // No header; get it started
@@ -437,17 +445,18 @@ normal_msg: function () {
                         FBU.tiles_y = Math.ceil(FBU.height/16);
                         FBU.total_tiles = FBU.tiles_x * FBU.tiles_y;
                         FBU.tiles = FBU.total_tiles;
+                        //msg += "(HEXTILE " + FBU.tiles + " tiles)"
                         break;
                     default:
                         console.log("Unsupported encoding " + FBU.encoding);
                         RFB.state = "failed";
-                        break;
+                        return;
                 }
+                //msg += ", RFB.d.length: " + RFB.d.length + ", FBU.bytes: " + FBU.bytes
+                //console.log(msg);
             }
-            //console.log("RFB.d.length: " + RFB.d.length + ", FBU.bytes: " + FBU.bytes);
 
             if (RFB.d.length >= FBU.bytes) {
-                //console.log('Done rect:');
                 FBU.bytes = 0;
                 
                 switch (FBU.encoding) {
@@ -542,7 +551,7 @@ encodings: function () {
 },
 
 fbUpdateRequest: function (incremental, x, y, xw, yw) {
-    console.log(">> fbUpdateRequest");
+    //console.log(">> fbUpdateRequest");
     if (!x) x = 0;
     if (!y) y = 0;
     if (!xw) xw = RFB.fb_width;
@@ -559,7 +568,7 @@ fbUpdateRequest: function (incremental, x, y, xw, yw) {
 },
 
 keyEvent: function (keysym, down) {
-    console.log(">> keyEvent, keysym: " + keysym + ", down: " + down);
+    //console.log(">> keyEvent, keysym: " + keysym + ", down: " + down);
     var arr;
     arr = [4];  // msg-type
     arr.push8(down);
@@ -571,13 +580,13 @@ keyEvent: function (keysym, down) {
 },
 
 pointerEvent: function (x, y) {
-    console.log(">> pointerEvent, x,y: " + x + "," + y + " , mask: " + Mouse.buttonMask);
+    //console.log(">> pointerEvent, x,y: " + x + "," + y + " , mask: " + Mouse.buttonMask);
     var arr;
     arr = [5];  // msg-type
     arr.push8(Mouse.buttonMask);
     arr.push16(x);
     arr.push16(y);
-    console.log("<< pointerEvent");
+    //console.log("<< pointerEvent");
     return arr;
 },
 
@@ -596,7 +605,7 @@ send_string: function (str) {
 },
 
 send_array: function (arr) {
-    console.log(">> send_array: " + arr);
+    //console.log(">> send_array: " + arr);
     //console.log(">> send_array: " + Base64.encode_array(arr));
     RFB.ws.send(Base64.encode_array(arr));
 },
@@ -637,7 +646,7 @@ pusher: function () {
 },
 
 keyDown: function (e) {
-    //console.log(">> keyDown: " + e.key + "(" + e.code + ")");
+    console.log(">> keyDown: " + Canvas.getKeysym(e));
     e.stop();
     var arr = RFB.keyEvent(Canvas.getKeysym(e), 1);
     arr = arr.concat(RFB.fbUpdateRequest(1));
@@ -645,7 +654,7 @@ keyDown: function (e) {
 },
 
 keyUp: function (e) {
-    //console.log(">> keyUp: " + e.key + "(" + e.code + ")");
+    console.log(">> keyUp: " + Canvas.getKeysym(e));
     e.stop();
     var arr = RFB.keyEvent(Canvas.getKeysym(e), 0);
     arr = arr.concat(RFB.fbUpdateRequest(1));
