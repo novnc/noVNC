@@ -223,7 +223,119 @@ init_msg: function () {
     console.log("<< init_msg (" + RFB.state + ")");
 },
 
-/* Framebuffer update display functions */
+
+/* Normal RFB/VNC server messages */
+normal_msg: function () {
+    //console.log(">> normal_msg");
+    if ((FBU.rects > 0) || (FBU.bytes > 0)) {
+        var msg_type = 0;
+    } else {
+        var msg_type = RFB.d.shift8();
+    }
+    switch (msg_type) {
+    case 0:  // FramebufferUpdate
+        if (FBU.rects == 0) {
+            if (RFB.d.length < 3) {
+                console.log("   waiting for FBU header bytes");
+                return;
+            }
+            RFB.d.shift8();
+            FBU.rects = RFB.d.shift16();
+            //console.log("FramebufferUpdate, rects:" + FBU.rects);
+            FBU.bytes = 0;
+        }
+
+        while ((FBU.rects > 0) && (RFB.d.length > 0)) {
+            if (FBU.bytes == 0) {
+                if (RFB.d.length < 12) {
+                    console.log("   waiting for rect header bytes");
+                    return;
+                }
+                /* New FramebufferUpdate */
+                FBU.x      = RFB.d.shift16();
+                FBU.y      = RFB.d.shift16();
+                FBU.width  = RFB.d.shift16();
+                FBU.height = RFB.d.shift16();
+                FBU.encoding = parseInt(RFB.d.shift32(), 10);
+                //var msg = "FramebufferUpdate rects:" + FBU.rects + " encoding:" + FBU.encoding
+                switch (FBU.encoding) {
+                    case 0:  // Raw
+                        FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
+                        //msg += "(RAW)"
+                        break;
+                    case 1:  // Copy-Rect
+                        FBU.bytes = 4;
+                        //msg += "(COPY-RECT)"
+                        break;
+                    case 2:  // RRE
+                        FBU.bytes = 4 + RFB.fb_Bpp;
+                        //msg += "(RRE)"
+                        break;
+                    case 5:  // hextile
+                        FBU.bytes = 2;  // No header; get it started
+                        FBU.tiles_x = Math.ceil(FBU.width/16);
+                        FBU.tiles_y = Math.ceil(FBU.height/16);
+                        FBU.total_tiles = FBU.tiles_x * FBU.tiles_y;
+                        FBU.tiles = FBU.total_tiles;
+                        //msg += "(HEXTILE " + FBU.tiles + " tiles)"
+                        break;
+                    default:
+                        console.log("Unsupported encoding " + FBU.encoding);
+                        RFB.state = "failed";
+                        return;
+                }
+                //msg += ", RFB.d.length: " + RFB.d.length + ", FBU.bytes: " + FBU.bytes
+                //console.log(msg);
+            }
+
+            if (RFB.d.length >= FBU.bytes) {
+                FBU.bytes = 0;
+                
+                switch (FBU.encoding) {
+                    case 0: RFB.display_raw();       break; // Raw
+                    case 1: RFB.display_copy_rect(); break; // Copy-Rect
+                    case 2: RFB.display_rre();       break; // RRE
+                    case 5: RFB.display_hextile();   break; // hextile
+                }
+            } else {
+                /* We don't have enough yet */
+                FBU.bytes = FBU.bytes - RFB.d.length;
+                break;
+            }
+            if (RFB.state != "normal") return;
+        }
+
+        //console.log("Finished frame buffer update");
+        break;
+    case 1:  // SetColourMapEntries
+        console.log("SetColourMapEntries (unsupported)");
+        RFB.d.shift8();  // Padding
+        RFB.d.shift16(); // First colour
+        var num_colours = RFB.d.shift16();
+        RFB.d.shiftBytes(num_colours * 6);
+        break;
+    case 2:  // Bell
+        console.log("Bell (unsupported)");
+        break;
+    case 3:  // ServerCutText
+        console.log("ServerCutText");
+        RFB.d.shiftBytes(3);  // Padding
+        var length = RFB.d.shift32();
+        RFB.d.shiftBytes(length);
+        break;
+    default:
+        console.log("Unknown server message type: " + msg_type);
+        RFB.state = "failed";
+        break;
+    }
+    //console.log("<< normal_msg");
+},
+
+
+/*
+ * FramebufferUpdate encodings
+ */
+
 display_raw: function () {
     console.log(">> display_raw");
     Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, RFB.d);
@@ -401,112 +513,6 @@ display_hextile: function() {
 },
 
 
-/* Normal RFB/VNC messages */
-normal_msg: function () {
-    //console.log(">> normal_msg");
-    if ((FBU.rects > 0) || (FBU.bytes > 0)) {
-        var msg_type = 0;
-    } else {
-        var msg_type = RFB.d.shift8();
-    }
-    switch (msg_type) {
-    case 0:  // FramebufferUpdate
-        if (FBU.rects == 0) {
-            if (RFB.d.length < 3) {
-                console.log("   waiting for FBU header bytes");
-                return;
-            }
-            RFB.d.shift8();
-            FBU.rects = RFB.d.shift16();
-            //console.log("FramebufferUpdate, rects:" + FBU.rects);
-            FBU.bytes = 0;
-        }
-
-        while ((FBU.rects > 0) && (RFB.d.length > 0)) {
-            if (FBU.bytes == 0) {
-                if (RFB.d.length < 12) {
-                    console.log("   waiting for rect header bytes");
-                    return;
-                }
-                /* New FramebufferUpdate */
-                FBU.x      = RFB.d.shift16();
-                FBU.y      = RFB.d.shift16();
-                FBU.width  = RFB.d.shift16();
-                FBU.height = RFB.d.shift16();
-                FBU.encoding = parseInt(RFB.d.shift32(), 10);
-                //var msg = "FramebufferUpdate rects:" + FBU.rects + " encoding:" + FBU.encoding
-                switch (FBU.encoding) {
-                    case 0:  // Raw
-                        FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
-                        //msg += "(RAW)"
-                        break;
-                    case 1:  // Copy-Rect
-                        FBU.bytes = 4;
-                        //msg += "(COPY-RECT)"
-                        break;
-                    case 2:  // RRE
-                        FBU.bytes = 4 + RFB.fb_Bpp;
-                        //msg += "(RRE)"
-                        break;
-                    case 5:  // hextile
-                        FBU.bytes = 2;  // No header; get it started
-                        FBU.tiles_x = Math.ceil(FBU.width/16);
-                        FBU.tiles_y = Math.ceil(FBU.height/16);
-                        FBU.total_tiles = FBU.tiles_x * FBU.tiles_y;
-                        FBU.tiles = FBU.total_tiles;
-                        //msg += "(HEXTILE " + FBU.tiles + " tiles)"
-                        break;
-                    default:
-                        console.log("Unsupported encoding " + FBU.encoding);
-                        RFB.state = "failed";
-                        return;
-                }
-                //msg += ", RFB.d.length: " + RFB.d.length + ", FBU.bytes: " + FBU.bytes
-                //console.log(msg);
-            }
-
-            if (RFB.d.length >= FBU.bytes) {
-                FBU.bytes = 0;
-                
-                switch (FBU.encoding) {
-                    case 0: RFB.display_raw();       break; // Raw
-                    case 1: RFB.display_copy_rect(); break; // Copy-Rect
-                    case 2: RFB.display_rre();       break; // RRE
-                    case 5: RFB.display_hextile();   break; // hextile
-                }
-            } else {
-                /* We don't have enough yet */
-                FBU.bytes = FBU.bytes - RFB.d.length;
-                break;
-            }
-            if (RFB.state != "normal") return;
-        }
-
-        //console.log("Finished frame buffer update");
-        break;
-    case 1:  // SetColourMapEntries
-        console.log("SetColourMapEntries (unsupported)");
-        RFB.d.shift8();  // Padding
-        RFB.d.shift16(); // First colour
-        var num_colours = RFB.d.shift16();
-        RFB.d.shiftBytes(num_colours * 6);
-        break;
-    case 2:  // Bell
-        console.log("Bell (unsupported)");
-        break;
-    case 3:  // ServerCutText
-        console.log("ServerCutText");
-        RFB.d.shiftBytes(3);  // Padding
-        var length = RFB.d.shift32();
-        RFB.d.shiftBytes(length);
-        break;
-    default:
-        console.log("Unknown server message type: " + msg_type);
-        RFB.state = "failed";
-        break;
-    }
-    //console.log("<< normal_msg");
-},
 
 /*
  * Client message routines
