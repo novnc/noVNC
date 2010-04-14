@@ -227,7 +227,7 @@ init_msg: function () {
 display_raw: function () {
     console.log(">> display_raw");
     Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, RFB.d);
-    RFB.d.splice(0, FBU.width * FBU.height * RFB.fb_Bpp);
+    RFB.d.shiftBytes(FBU.width * FBU.height * RFB.fb_Bpp);
     FBU.rects --;
 },
 
@@ -331,6 +331,7 @@ display_hextile: function() {
         if (subencoding > -1) {
             /* We know the encoding and have a whole tile */
             FBU.subencoding = RFB.d.shift8();
+            FBU.bytes--;
             if (FBU.subencoding == 0) {
                 if (FBU.lastsubencoding & 0x01) {
                     /* Weird: ignore blanks after RAW */
@@ -343,37 +344,45 @@ display_hextile: function() {
                 }
             } else if (FBU.subencoding & 0x01) { // Raw
                 Canvas.rfbImage(x, y, w, h, RFB.d);
-                RFB.d.splice(0, FBU.bytes - 1);
             } else {
+                var idx = 0;
                 if (FBU.subencoding & 0x02) { // Background
-                    FBU.background = RFB.d.shiftBytes(RFB.fb_Bpp);
+                    FBU.background = RFB.d.slice(idx, idx + RFB.fb_Bpp);
+                    idx += RFB.fb_Bpp;
                     //console.log("   background: " + FBU.background);
                 }
                 if (FBU.subencoding & 0x04) { // Foreground
-                    FBU.foreground = RFB.d.shiftBytes(RFB.fb_Bpp);
+                    FBU.foreground = RFB.d.slice(idx, idx + RFB.fb_Bpp);
+                    idx += RFB.fb_Bpp;
                     //console.log("   foreground: " + FBU.foreground);
                 }
                 Canvas.rfbRect(x, y, w, h, FBU.background);
                 if (FBU.subencoding & 0x08) { // AnySubrects
-                    subrects = RFB.d.shift8();
+                    subrects = RFB.d[idx];
+                    idx++;
+                    var color, xy, sx, sy, wh, sw, sh;
                     for (var i = 0; i < subrects; i ++) {
                         if (FBU.subencoding & 0x10) { // SubrectsColoured
-                            var color = RFB.d.shiftBytes(RFB.fb_Bpp);
+                            color = RFB.d.slice(idx, idx + RFB.fb_Bpp);
+                            idx += RFB.fb_Bpp;
                         } else {
-                            var color = FBU.foreground;
+                            color = FBU.foreground;
                         }
-                        var xy = RFB.d.shift8();
-                        var sx = x + (xy >> 4);
-                        var sy = y + (xy & 0x0f);
+                        xy = RFB.d[idx];
+                        idx++;
+                        sx = x + (xy >> 4);
+                        sy = y + (xy & 0x0f);
 
-                        var wh = RFB.d.shift8();
-                        var sw = (wh >> 4)   + 1;
-                        var sh = (wh & 0x0f) + 1;
+                        wh = RFB.d[idx];
+                        idx++;
+                        sw = (wh >> 4)   + 1;
+                        sh = (wh & 0x0f) + 1;
 
                         Canvas.rfbRect(sx, sy, sw, sh, color);
                     }
                 }
             }
+            if (FBU.bytes > 0) RFB.d.shiftBytes(FBU.bytes);
             FBU.lastsubencoding = FBU.subencoding;
             FBU.subencoding = -1;
             FBU.tiles --;
