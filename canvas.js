@@ -6,6 +6,8 @@ c_wx : 0,
 c_wy : 0,
 ctx  : null,
 
+prevStyle: "",
+
 mouseDown: function (e) {
     var evt = e.event || window.event;
     e.stop();
@@ -70,6 +72,8 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
 
     if (! c.getContext) return;
     Canvas.ctx = c.getContext('2d'); 
+    
+    Canvas.prevStyle = "";
 
     console.log("<< init_canvas");
 },
@@ -119,7 +123,7 @@ draw: function () {
     Canvas.ctx.putImageData(img, 100, 100);
 },
 
-rfbImage: function(x, y, width, height, arr) {
+rgbxImage: function(x, y, width, height, arr) {
     var img = Canvas.ctx.createImageData(width, height);
     for (var i=0; i < (width * height); i++) {
         img.data[i*4 + 0] = arr[i*4 + 0];
@@ -131,8 +135,12 @@ rfbImage: function(x, y, width, height, arr) {
 
 },
 
-rfbRect: function(x, y, width, height, color) {
-    Canvas.ctx.fillStyle = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";  
+fillRect: function(x, y, width, height, color) {
+    var newStyle = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
+    if (newStyle != Canvas.prevStyle) {
+        Canvas.ctx.fillStyle = newStyle;
+        prevStyle = newStyle;
+    }
     Canvas.ctx.fillRect(x, y, width, height);
 },
 

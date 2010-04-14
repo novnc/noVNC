@@ -338,7 +338,7 @@ normal_msg: function () {
 
 display_raw: function () {
     console.log(">> display_raw");
-    Canvas.rfbImage(FBU.x, FBU.y, FBU.width, FBU.height, RFB.d);
+    Canvas.rgbxImage(FBU.x, FBU.y, FBU.width, FBU.height, RFB.d);
     RFB.d.shiftBytes(FBU.width * FBU.height * RFB.fb_Bpp);
     FBU.rects --;
 },
@@ -357,7 +357,7 @@ display_rre: function () {
         FBU.subrects = RFB.d.shift32();
         console.log(">> display_rre " + "(" + FBU.subrects + " subrects)");
         var color = RFB.d.shiftBytes(RFB.fb_Bpp); // Background
-        Canvas.rfbRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
+        Canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
     }
     while ((FBU.subrects > 0) && (RFB.d.length >= (RFB.fb_Bpp + 8))) {
         FBU.subrects --;
@@ -366,7 +366,7 @@ display_rre: function () {
         var y = RFB.d.shift16();
         var width = RFB.d.shift16();
         var height = RFB.d.shift16();
-        Canvas.rfbRect(FBU.x + x, FBU.y + y, width, height, color);
+        Canvas.fillRect(FBU.x + x, FBU.y + y, width, height, color);
     }
     //console.log("   display_rre: rects: " + FBU.rects + ", FBU.subrects: " + FBU.subrects);
 
@@ -452,10 +452,10 @@ display_hextile: function() {
                     //FBU.lastsubencoding = 0;
                     continue;
                 } else {
-                    Canvas.rfbRect(x, y, w, h, FBU.background);
+                    Canvas.fillRect(x, y, w, h, FBU.background);
                 }
             } else if (FBU.subencoding & 0x01) { // Raw
-                Canvas.rfbImage(x, y, w, h, RFB.d);
+                Canvas.rgbxImage(x, y, w, h, RFB.d);
             } else {
                 var idx = 0;
                 if (FBU.subencoding & 0x02) { // Background
@@ -468,7 +468,7 @@ display_hextile: function() {
                     idx += RFB.fb_Bpp;
                     //console.log("   foreground: " + FBU.foreground);
                 }
-                Canvas.rfbRect(x, y, w, h, FBU.background);
+                Canvas.fillRect(x, y, w, h, FBU.background);
                 if (FBU.subencoding & 0x08) { // AnySubrects
                     subrects = RFB.d[idx];
                     idx++;
@@ -490,7 +490,7 @@ display_hextile: function() {
                         sw = (wh >> 4)   + 1;
                         sh = (wh & 0x0f) + 1;
 
-                        Canvas.rfbRect(sx, sy, sw, sh, color);
+                        Canvas.fillRect(sx, sy, sw, sh, color);
                     }
                 }
             }
