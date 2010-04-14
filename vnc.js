@@ -74,7 +74,9 @@ d         : [],    // Received data accumulator
 version   : "RFB 003.003\n",
 state     : 'ProtocolVersion',
 shared    : 1,
-push_rate : 1413,
+check_rate : 217,
+req_rate  : 1413,
+last_req  : 0,
 
 host      : '',
 port      : 5900,
@@ -206,7 +208,8 @@ init_msg: function () {
         $('status').innerHTML = "Connected to: " + RFB.fb_name;
 
         Canvas.init('vnc', RFB.fb_width, RFB.fb_height,
-                RFB.keyDown, RFB.keyUp, RFB.mouseDown, RFB.mouseUp);
+                RFB.keyDown, RFB.keyUp,
+                RFB.mouseDown, RFB.mouseUp, RFB.mouseMove);
 
         var init = [];
         init = init.concat(RFB.pixelFormat());
@@ -215,7 +218,7 @@ init_msg: function () {
         RFB.send_array(init);
         
         /* Start pushing/polling */
-        RFB.pusher.delay(RFB.push_rate);
+        RFB.checkEvents.delay(RFB.check_rate);
 
         RFB.state = 'normal';
         break;
@@ -620,7 +623,7 @@ send_string: function (str) {
 },
 
 send_array: function (arr) {
-    //console.log(">> send_array: " + arr);
+    console.log(">> send_array: " + arr);
     //console.log(">> send_array: " + Base64.encode_array(arr));
     RFB.ws.send(Base64.encode_array(arr));
 },
@@ -648,15 +651,22 @@ flushClient: function () {
     if (Mouse.arr.length > 0) {
         RFB.send_array(Mouse.arr.concat(RFB.fbUpdateRequest(1)));
         Mouse.arr = [];
+        return true;
     } else {
-        RFB.send_array(RFB.fbUpdateRequest(1));
+        return false;
     }
 },
 
-pusher: function () {
+checkEvents: function () {
     if (RFB.state == 'normal') {
-        RFB.flushClient();
-        RFB.pusher.delay(RFB.push_rate);
+        if (! RFB.flushClient()) {
+            var now = new Date().getTime();
+            if (now > RFB.last_req + RFB.req_rate) {
+                RFB.last_req = now;
+                RFB.send_array(RFB.fbUpdateRequest(1));
+            }
+        }
+        RFB.checkEvents.delay(RFB.check_rate);
     }
 },
 
@@ -701,7 +711,12 @@ mouseUp: function(e) {
 },
 
 mouseMove: function(e) {
-    // TODO: accumulate in global array
+    var evt = e.event || window.event;
+    var x, y;
+    x = (evt.clientX - Canvas.c_x);
+    y = (evt.clientY - Canvas.c_y);
+    console.log('>> mouseMove ' + x + "," + y);
+    Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
 },
 
 

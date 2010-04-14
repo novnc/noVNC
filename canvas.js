@@ -22,6 +22,14 @@ mouseUp: function (e) {
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
 },
 
+mouseMove: function (e) {
+    var evt = e.event || window.event;
+    //e.stop();
+    console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
+            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+},
+
+
 keyDown: function (e) {
     e.stop();
     console.log("keydown: " + e.key + "(" + e.code + ")");
@@ -43,7 +51,7 @@ ctxDisable: function (e) {
 },
 
 
-init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
+init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp, mouseMove) {
     console.log(">> init_canvas");
 
     Canvas.id = id;
@@ -52,12 +60,14 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp) {
     if (! keyUp) keyUp = Canvas.keyUp;
     if (! mouseDown) mouseDown = Canvas.mouseDown;
     if (! mouseUp) mouseUp = Canvas.mouseUp;
+    if (! mouseMove) mouseMove = Canvas.mouseMove;
 
     var c = $(Canvas.id);
     document.addEvent('keydown', keyDown);
     document.addEvent('keyup', keyUp);
     c.addEvent('mousedown', mouseDown);
     c.addEvent('mouseup', mouseUp);
+    c.addEvent('mousemove', mouseMove);
 
     /* Work around right and middle click browser behaviors */
     document.addEvent('click', Canvas.ctxDisable);
