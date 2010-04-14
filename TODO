@@ -10,3 +10,6 @@
 - Version without mootools:
     - test cross-browser
 
+- Add WSS/https/SSL support to page and wsproxy.py
+
+- Make C version of wsproxy.py
