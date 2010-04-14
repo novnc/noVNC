@@ -772,7 +772,10 @@ disconnect: function () {
         RFB.ws.close();
     }
     if (Canvas.ctx) {
-        Canvas.clear();
+        Canvas.stop();
+        if (! /__debug__$/i.test(document.location.href)) {
+            Canvas.clear();
+        }
     }
     $('connectButton').value = "Connect";
     $('connectButton').onclick = RFB.connect;
