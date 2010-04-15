@@ -114,7 +114,8 @@ init_msg: function () {
     case 'ProtocolVersion' :
         if (RFB.d.length != 12) {
             console.log("Invalid protocol version from server");
-            RFB.state = 'reset';
+            //RFB.state = 'reset';
+            RFB.state = 'failed';
             return;
         }
         var server_version = RFB.d.shiftStr(12);
@@ -672,8 +673,8 @@ send_string: function (str) {
 
 send_array: function (arr) {
     //console.log(">> send_array: " + arr);
-    //console.log(">> send_array: " + Base64.encode_array(arr));
-    RFB.ws.send(Base64.encode_array(arr));
+    //console.log(">> send_array: " + Base64.encode(arr));
+    RFB.ws.send(Base64.encode(arr));
 },
 
 /* Mirror bits of each character and return as array */
@@ -802,7 +803,7 @@ init_ws: function () {
     RFB.ws = new WebSocket(uri);
     RFB.ws.onmessage = function(e) {
         //console.log(">> onmessage");
-        RFB.d = RFB.d.concat(Base64.decode_array(e.data));
+        RFB.d = RFB.d.concat(Base64.decode(e.data));
         if (RFB.state != 'normal') {
             RFB.init_msg();
         } else {

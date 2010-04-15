@@ -1,80 +1,134 @@
-/**
-*
-*  Base64 encode / decode with array versions
-*
-*  Based on Base64 from:
-*  http://www.webtoolkit.info/
-*
-**/
- 
-var Base64 = {
- 
-    // private property
-    _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
- 
-    // public method for encoding an array to a string
-    encode_array : function (input) {
-        var output = "";
-        var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-        var i = 0;
- 
-        while (i < input.length) {
- 
-            chr1 = input[i++];
-            chr2 = input[i++];
-            chr3 = input[i++];
+/*
+ * Modified from:
+ * http://lxr.mozilla.org/mozilla/source/extensions/xml-rpc/src/nsXmlRpcClient.js#956
+ */
 
-            enc1 = chr1 >> 2;
-            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-            enc4 = chr3 & 63;
- 
-            if (isNaN(chr2)) {
-                enc3 = enc4 = 64;
-            } else if (isNaN(chr3)) {
-                enc4 = 64;
-            }
- 
-            output = output +
-            this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
-            this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
- 
-        }
- 
-        return output;
-    },
- 
-    // public method for decoding a string to an array
-    decode_array : function (input) {
-        var output = [];
-        var chr1, chr2, chr3;
-        var enc1, enc2, enc3, enc4;
-        var i = 0;
- 
-        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
- 
-        while (i < input.length) {
- 
-            enc1 = this._keyStr.indexOf(input.charAt(i++));
-            enc2 = this._keyStr.indexOf(input.charAt(i++));
-            enc3 = this._keyStr.indexOf(input.charAt(i++));
-            enc4 = this._keyStr.indexOf(input.charAt(i++));
- 
-            chr1 = (enc1 << 2) | (enc2 >> 4);
-            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-            chr3 = ((enc3 & 3) << 6) | enc4;
- 
-            output.push(chr1);
- 
-            if (enc3 != 64) {
-                output.push(chr2);
-            }
-            if (enc4 != 64) {
-                output.push(chr3);
-            }
- 
-        }
- 
-        return output;
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is Mozilla XML-RPC Client component.
+ *
+ * The Initial Developer of the Original Code is
+ * Digital Creations 2, Inc.
+ * Portions created by the Initial Developer are Copyright (C) 2000
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Martijn Pieters <mj@digicool.com> (original author)
+ *   Samuel Sieb <samuel@sieb.net>
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+Base64 = {
+
+/* Convert data (an array of integers) to a Base64 string. */
+toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+base64Pad     : '=',
+
+encode: function (data) {
+    var result = '';
+    var chrTable = Base64.toBase64Table;
+    var pad = Base64.base64Pad;
+    var length = data.length;
+    var i;
+    // Convert every three bytes to 4 ascii characters.
+    for (i = 0; i < (length - 2); i += 3) {
+        result += chrTable[data[i] >> 2];
+        result += chrTable[((data[i] & 0x03) << 4) + (data[i+1] >> 4)];
+        result += chrTable[((data[i+1] & 0x0f) << 2) + (data[i+2] >> 6)];
+        result += chrTable[data[i+2] & 0x3f];
     }
+
+    // Convert the remaining 1 or 2 bytes, pad out to 4 characters.
+    if (length%3) {
+        i = length - (length%3);
+        result += chrTable[data[i] >> 2];
+        if ((length%3) == 2) {
+            result += chrTable[((data[i] & 0x03) << 4) + (data[i+1] >> 4)];
+            result += chrTable[(data[i+1] & 0x0f) << 2];
+            result += pad;
+        } else {
+            result += chrTable[(data[i] & 0x03) << 4];
+            result += pad + pad;
+        }
+    }
+
+    return result;
+},
+
+/* Convert Base64 data to a string */
+toBinaryTable : [
+    -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+    -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+    -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,62, -1,-1,-1,63,
+    52,53,54,55, 56,57,58,59, 60,61,-1,-1, -1, 0,-1,-1,
+    -1, 0, 1, 2,  3, 4, 5, 6,  7, 8, 9,10, 11,12,13,14,
+    15,16,17,18, 19,20,21,22, 23,24,25,-1, -1,-1,-1,-1,
+    -1,26,27,28, 29,30,31,32, 33,34,35,36, 37,38,39,40,
+    41,42,43,44, 45,46,47,48, 49,50,51,-1, -1,-1,-1,-1
+],
+
+decode: function (data) {
+    var binTable = Base64.toBinaryTable;
+    var pad = Base64.base64Pad;
+    var leftbits = 0; // number of bits decoded, but yet to be appended
+    var leftdata = 0; // bits decoded, but yet to be appended
+
+    /* Every four characters is 3 resulting numbers */
+    var data_length = data.indexOf('=');
+    if (data_length == -1) data_length = data.length;
+    var result_length = (data_length >> 2) * 3 + (data.length % 4 - 1);
+    var result = new Array(result_length);
+
+    // Convert one by one.
+    var idx = 0;
+    for (var i = 0; i < data.length; i++) {
+        var c = binTable[data[i].charCodeAt(0) & 0x7f];
+        var padding = (data[i] == pad);
+        // Skip illegal characters and whitespace
+        if (c == -1) continue;
+        
+        // Collect data into leftdata, update bitcount
+        leftdata = (leftdata << 6) | c;
+        leftbits += 6;
+
+        // If we have 8 or more bits, append 8 bits to the result
+        if (leftbits >= 8) {
+            leftbits -= 8;
+            // Append if not padding.
+            if (!padding)
+                result[idx++] = (leftdata >> leftbits) & 0xff;
+            leftdata &= (1 << leftbits) - 1;
+        }
+    }
+
+    // If there are any bits left, the base64 string was corrupted
+    if (leftbits)
+        throw Components.Exception('Corrupted base64 string');
+
+    return result;
 }
+
+}; /* End of Base64 namespace */
