@@ -1,7 +1,5 @@
 - Cut and paste support.
 
-- Framing bugs when using RRE encoding.
-
 - Better status and error feedback.
 
 - Get working in firefox using flash web-socket-js:
