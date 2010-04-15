@@ -3,9 +3,23 @@
 - Get working in firefox using flash web-socket-js:
     http://github.com/gimite/web-socket-js
 
+    - Only load Flash stuff if needed:
+        var x='< script type="text/javascript" src=';
+        var y='><\/script>';
+        var t='';
+        t+= x+'file1.js'+y;
+        t+= x+'file2.js'+y;
+        t+= x+'fileA.txt'+y;
+        document.write(t);
+
 - Version without mootools:
     - test cross-browser
 
 - Add WSS/https/SSL support to page and wsproxy.py
 
 - Make C version of wsproxy.py
+
+- Implement UI option for shared.
+
+- Upgrade to protocol 3.8 
+    - implement ZRLE encoding

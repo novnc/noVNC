@@ -34,7 +34,8 @@ Array.prototype.shiftStr = function (len) {
             return String.fromCharCode(num); } ).join('');
 }
 Array.prototype.pushStr = function (str) {
-    for (var i=0; i < str.length; i++) {
+    var n = str.length;
+    for (var i=0; i < n; i++) {
         this.push(str.charCodeAt(i));
     }
 }
@@ -377,8 +378,7 @@ display_raw: function () {
 
 display_copy_rect: function () {
     //console.log(">> display_copy_rect");
-    FBU.bytes = 4;
-    if (RFB.d.length < FBU.bytes) {
+    if (RFB.d.length < 4) {
         //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + " COPY-RECT bytes");
         return;
     }
@@ -392,9 +392,9 @@ display_copy_rect: function () {
 display_rre: function () {
     //console.log(">> display_rre (" + RFB.d.length + " bytes)");
     if (FBU.subrects == 0) {
-        FBU.bytes = 4 + RFB.fb_Bpp;
-        if (RFB.d.length < FBU.bytes) {
-            //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + " RRE bytes");
+        ;
+        if (RFB.d.length < 4 + RFB.fb_Bpp) {
+            //console.log("   waiting for " + (4 + RFB.fb_Bpp - RFB.d.length) + " RRE bytes");
             return;
         }
         FBU.subrects = RFB.d.shift32();
