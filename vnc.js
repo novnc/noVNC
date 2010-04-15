@@ -33,6 +33,12 @@ Array.prototype.shiftStr = function (len) {
     return arr.map(function (num) {
             return String.fromCharCode(num); } ).join('');
 }
+Array.prototype.pushStr = function (str) {
+    for (var i=0; i < str.length; i++) {
+        this.push(str.charCodeAt(i));
+    }
+}
+
 Array.prototype.shiftBytes = function (len) {
     return this.splice(0, len);
 }
@@ -74,6 +80,10 @@ d         : [],    // Received data accumulator
 
 version   : "RFB 003.003\n",
 state     : 'ProtocolVersion',
+cuttext   : 'none', // ServerCutText wait state
+ct_length : 0,
+clipboardFocus: false,
+
 shared    : 1,
 check_rate : 217,
 req_rate  : 1413,
@@ -233,6 +243,8 @@ normal_msg: function () {
     //console.log(">> normal_msg");
     if (FBU.rects > 0) {
         var msg_type = 0;
+    } else if (RFB.cuttext != 'none') {
+        var msg_type = 3;
     } else {
         var msg_type = RFB.d.shift8();
     }
@@ -305,9 +317,25 @@ normal_msg: function () {
         break;
     case 3:  // ServerCutText
         console.log("ServerCutText");
-        RFB.d.shiftBytes(3);  // Padding
-        var length = RFB.d.shift32();
-        RFB.d.shiftBytes(length);
+        console.log("RFB.d:" + RFB.d.slice(0,20));
+        if (RFB.cuttext == 'none') {
+            RFB.cuttext = 'header';
+        }
+        if (RFB.cuttext == 'header') {
+            if (RFB.d.length < 7) {
+                console.log("waiting for ServerCutText header");
+                break;
+            }
+            RFB.d.shiftBytes(3);  // Padding
+            RFB.ct_length = RFB.d.shift32();
+        }
+        RFB.cuttext = 'bytes';
+        if (RFB.d.length < RFB.ct_length) {
+            console.log("waiting for ServerCutText bytes");
+            break;
+        }
+        RFB.clipboardCopyTo(RFB.d.shiftStr(RFB.ct_length));
+        RFB.cuttext = 'none';
         break;
     default:
         console.log("Unknown server message type: " + msg_type);
@@ -618,7 +646,17 @@ pointerEvent: function (x, y) {
     return arr;
 },
 
-clientCutText: function () {
+clientCutText: function (text) {
+    console.log(">> clientCutText");
+    var arr;
+    arr = [6];     // msg-type
+    arr.push8(0);  // padding
+    arr.push8(0);  // padding
+    arr.push8(0);  // padding
+    arr.push32(text.length);
+    arr.pushStr(text);
+    console.log("<< clientCutText");
+    return arr;
 },
 
 
@@ -680,20 +718,24 @@ checkEvents: function () {
     }
 },
 
-keyDown: function (e) {
-    //console.log(">> keyDown: " + Canvas.getKeysym(e));
+_keyX: function (e, down) {
+    if (RFB.clipboardFocus) {
+        return true;
+    }
     e.stop();
-    var arr = RFB.keyEvent(Canvas.getKeysym(e), 1);
+    var arr = RFB.keyEvent(Canvas.getKeysym(e), down);
     arr = arr.concat(RFB.fbUpdateRequest(1));
     RFB.send_array(arr);
 },
 
+keyDown: function (e) {
+    //console.log(">> keyDown: " + Canvas.getKeysym(e));
+    RFB._keyX(e, 1);
+},
+
 keyUp: function (e) {
     //console.log(">> keyUp: " + Canvas.getKeysym(e));
-    e.stop();
-    var arr = RFB.keyEvent(Canvas.getKeysym(e), 0);
-    arr = arr.concat(RFB.fbUpdateRequest(1));
-    RFB.send_array(arr);
+    RFB._keyX(e, 0);
 },
 
 mouseDown: function(e) {
@@ -729,6 +771,24 @@ mouseMove: function(e) {
     Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
 },
 
+clipboardCopyTo: function (text) {
+    console.log(">> clipboardCopyTo: " + text.substr(0,40) + "...");
+    $('clipboard').value = text;
+    console.log("<< clipboardCopyTo");
+},
+
+clipboardPasteFrom: function () {
+    if (RFB.state != "normal") return;
+    var text = $('clipboard').value;
+    console.log(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
+    RFB.send_array(RFB.clientCutText(text));
+    console.log("<< clipboardPasteFrom");
+},
+
+clipboardClear: function () {
+    $('clipboard').value = '';
+    RFB.clipboardPasteFrom();
+},
 
 
 /*
@@ -781,10 +841,22 @@ connect: function () {
         console.log("must set host and port");
         return;
     }
+
+    /* Reset state */
+    RFB.cuttext  = 'none';
+    RFB.ct_length = 0;
+    FBU.rects    = 0;
+    FBU.subrects = 0;  // RRE and HEXTILE
+    FBU.lines    = 0,  // RAW
+    FBU.tiles    = 0,  // HEXTILE
+    Mouse.buttonmask = 0;
+    Mouse.arr    = [];
+
     if (RFB.ws) {
         RFB.ws.close();
     }
     RFB.init_ws();
+
     $('connectButton').value = "Disconnect";
     $('connectButton').onclick = RFB.disconnect;
     console.log("<< connect");

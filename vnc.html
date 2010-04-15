@@ -16,6 +16,15 @@
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
+
+        <br><br>
+        VNC Clipboard:
+        <input id='clearButton' type="button" value="Clear"
+            onclick="RFB.clipboardClear();"><br>
+        <textarea id="clipboard" style="font-size:9;" cols=80 rows=5
+            onchange="RFB.clipboardPasteFrom();"
+            onfocus="RFB.clipboardFocus=true;"
+            onblur="RFB.clipboardFocus=false;"></textarea>
     </body>
 
     <script src="include/mootools.js"></script>
