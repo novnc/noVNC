@@ -101,6 +101,7 @@ stop: function () {
     document.removeEvents('keyup');
     c.removeEvents('mousedown');
     c.removeEvents('mouseup');
+    c.removeEvents('mousemove');
 
     /* Work around right and middle click browser behaviors */
     document.removeEvents('click');
