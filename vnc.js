@@ -42,8 +42,9 @@ Array.prototype.shiftBytes = function (len) {
  */
 FBU = {
     rects    : 0,
-    subrects : 0,
-    tiles    : 0,
+    subrects : 0,  // RRE and HEXTILE
+    lines    : 0,  // RAW
+    tiles    : 0,  // HEXTILE
     bytes    : 0,
     x        : 0,
     y        : 0,
@@ -230,7 +231,7 @@ init_msg: function () {
 /* Normal RFB/VNC server messages */
 normal_msg: function () {
     //console.log(">> normal_msg");
-    if ((FBU.rects > 0) || (FBU.bytes > 0)) {
+    if (FBU.rects > 0) {
         var msg_type = 0;
     } else {
         var msg_type = RFB.d.shift8();
@@ -248,7 +249,7 @@ normal_msg: function () {
             FBU.bytes = 0;
         }
 
-        while ((FBU.rects > 0) && (RFB.d.length > 0)) {
+        while ((FBU.rects > 0) && (RFB.d.length >= FBU.bytes)) {
             if (FBU.bytes == 0) {
                 if (RFB.d.length < 12) {
                     console.log("   waiting for rect header bytes");
@@ -260,51 +261,33 @@ normal_msg: function () {
                 FBU.width  = RFB.d.shift16();
                 FBU.height = RFB.d.shift16();
                 FBU.encoding = parseInt(RFB.d.shift32(), 10);
-                //var msg = "FramebufferUpdate rects:" + FBU.rects + " encoding:" + FBU.encoding
+
+                // Debug:
+                /*
+                var msg = "FramebufferUpdate rects:" + FBU.rects + " encoding:" + FBU.encoding
                 switch (FBU.encoding) {
-                    case 0:  // Raw
-                        FBU.bytes = FBU.width * FBU.height * RFB.fb_Bpp;
-                        //msg += "(RAW)"
-                        break;
-                    case 1:  // Copy-Rect
-                        FBU.bytes = 4;
-                        //msg += "(COPY-RECT)"
-                        break;
-                    case 2:  // RRE
-                        FBU.bytes = 4 + RFB.fb_Bpp;
-                        //msg += "(RRE)"
-                        break;
-                    case 5:  // hextile
-                        FBU.bytes = 2;  // No header; get it started
-                        FBU.tiles_x = Math.ceil(FBU.width/16);
-                        FBU.tiles_y = Math.ceil(FBU.height/16);
-                        FBU.total_tiles = FBU.tiles_x * FBU.tiles_y;
-                        FBU.tiles = FBU.total_tiles;
-                        //msg += "(HEXTILE " + FBU.tiles + " tiles)"
-                        break;
+                    case 0: msg += "(RAW)"; break;
+                    case 1: msg += "(COPY-RECT)"; break;
+                    case 2: msg += "(RRE)"; break;
+                    case 5: msg += "(HEXTILE " + FBU.tiles + " tiles)"; break;
                     default:
                         console.log("Unsupported encoding " + FBU.encoding);
                         RFB.state = "failed";
                         return;
                 }
-                //msg += ", RFB.d.length: " + RFB.d.length + ", FBU.bytes: " + FBU.bytes
-                //console.log(msg);
+                msg += ", RFB.d.length: " + RFB.d.length
+                console.log(msg);
+                */
             }
 
-            if (RFB.d.length >= FBU.bytes) {
-                FBU.bytes = 0;
-                
-                switch (FBU.encoding) {
-                    case 0: RFB.display_raw();       break; // Raw
-                    case 1: RFB.display_copy_rect(); break; // Copy-Rect
-                    case 2: RFB.display_rre();       break; // RRE
-                    case 5: RFB.display_hextile();   break; // hextile
-                }
-            } else {
-                /* We don't have enough yet */
-                FBU.bytes = FBU.bytes - RFB.d.length;
-                break;
+            //console.log("> RFB.d.length: " + RFB.d.length + ", arr[0..30]: " + RFB.d.slice(0,30));
+            switch (FBU.encoding) {
+                case 0: RFB.display_raw();       break; // Raw
+                case 1: RFB.display_copy_rect(); break; // Copy-Rect
+                case 2: RFB.display_rre();       break; // RRE
+                case 5: RFB.display_hextile();   break; // hextile
             }
+            //console.log("< RFB.d.length: " + RFB.d.length + ", FBU.bytes: " + FBU.bytes);
             if (RFB.state != "normal") return;
         }
 
@@ -340,36 +323,65 @@ normal_msg: function () {
  */
 
 display_raw: function () {
-    console.log(">> display_raw");
-    Canvas.rgbxImage(FBU.x, FBU.y, FBU.width, FBU.height, RFB.d);
-    RFB.d.shiftBytes(FBU.width * FBU.height * RFB.fb_Bpp);
-    FBU.rects --;
+    //console.log(">> display_raw");
+    if (FBU.lines == 0) {
+        FBU.lines = FBU.height;
+    }
+    FBU.bytes = FBU.width * RFB.fb_Bpp; // At least a line
+    if (RFB.d.length < FBU.bytes) {
+        //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + " RAW bytes");
+        return;
+    }
+    var cur_y = FBU.y + (FBU.height - FBU.lines);
+    var cur_height = Math.min(FBU.lines, Math.floor(RFB.d.length/(FBU.width * RFB.fb_Bpp)));
+    //console.log("cur_y:" + cur_y + ", cur_height:" + cur_height);
+    Canvas.rgbxImage(FBU.x, cur_y, FBU.width, cur_height, RFB.d);
+    RFB.d.shiftBytes(FBU.width * cur_height * RFB.fb_Bpp);
+    FBU.lines -= cur_height;
+
+    if (FBU.lines > 0) {
+        FBU.bytes = FBU.width * RFB.fb_Bpp; // At least another line
+    } else {
+        FBU.rects --;
+        FBU.bytes = 0;
+    }
 },
 
 display_copy_rect: function () {
-    console.log(">> display_copy_rect");
+    //console.log(">> display_copy_rect");
+    FBU.bytes = 4;
+    if (RFB.d.length < FBU.bytes) {
+        //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + " COPY-RECT bytes");
+        return;
+    }
     var old_x = RFB.d.shift16();
     var old_y = RFB.d.shift16();
     Canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
     FBU.rects --;
+    FBU.bytes = 0;
 },
 
 display_rre: function () {
     //console.log(">> display_rre (" + RFB.d.length + " bytes)");
     if (FBU.subrects == 0) {
+        FBU.bytes = 4 + RFB.fb_Bpp;
+        if (RFB.d.length < FBU.bytes) {
+            //console.log("   waiting for " + (FBU.bytes - RFB.d.length) + " RRE bytes");
+            return;
+        }
         FBU.subrects = RFB.d.shift32();
-        console.log(">> display_rre " + "(" + FBU.subrects + " subrects)");
+        //console.log(">> display_rre " + "(" + FBU.subrects + " subrects)");
         var color = RFB.d.shiftBytes(RFB.fb_Bpp); // Background
         Canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
     }
     while ((FBU.subrects > 0) && (RFB.d.length >= (RFB.fb_Bpp + 8))) {
-        FBU.subrects --;
         var color = RFB.d.shiftBytes(RFB.fb_Bpp);
         var x = RFB.d.shift16();
         var y = RFB.d.shift16();
         var width = RFB.d.shift16();
         var height = RFB.d.shift16();
         Canvas.fillRect(FBU.x + x, FBU.y + y, width, height, color);
+        FBU.subrects --;
     }
     //console.log("   display_rre: rects: " + FBU.rects + ", FBU.subrects: " + FBU.subrects);
 
@@ -378,6 +390,7 @@ display_rre: function () {
         FBU.bytes = (RFB.fb_Bpp + 8) * chunk;
     } else {
         FBU.rects --;
+        FBU.bytes = 0;
     }
     //console.log("<< display_rre, FBU.bytes: " + FBU.bytes);
 },
@@ -386,8 +399,27 @@ display_hextile: function() {
     //console.log(">> display_hextile, tiles: " + FBU.tiles + ", arr.length: " + RFB.d.length + ", bytes: " + FBU.bytes);
     var subencoding, subrects, cur_tile, tile_x, x, w, tile_y, y, h;
 
-    /* FBU.bytes comes in as 0, RFB.d.length at least 1 */
-    while ((FBU.tiles > 0) && (RFB.d.length >= Math.max(1, FBU.bytes))) {
+    if (FBU.tiles == 0) {
+        FBU.tiles_x = Math.ceil(FBU.width/16);
+        FBU.tiles_y = Math.ceil(FBU.height/16);
+        FBU.total_tiles = FBU.tiles_x * FBU.tiles_y;
+        FBU.tiles = FBU.total_tiles;
+    }
+
+    /* FBU.bytes comes in as 1, RFB.d.length at least 1 */
+    while (FBU.tiles > 0) {
+        FBU.bytes = 1;
+        if (RFB.d.length < FBU.bytes) {
+            console.log("   waiting for HEXTILE subencoding byte");
+            return;
+        }
+        subencoding = RFB.d[0];  // Peek
+        if (subencoding > 30) { // Raw
+            console.log("Illegal subencoding " + subencoding);
+            RFB.state = "failed";
+            return;
+        }
+        subrects = 0;
         cur_tile = FBU.total_tiles - FBU.tiles;
         tile_x = cur_tile % FBU.tiles_x;
         tile_y = Math.floor(cur_tile / FBU.tiles_x);
@@ -395,43 +427,30 @@ display_hextile: function() {
         y = FBU.y + tile_y * 16;
         w = Math.min(16, (FBU.x + FBU.width) - x)
         h = Math.min(16, (FBU.y + FBU.height) - y)
-        subrects = 0;
-        if (FBU.subencoding == -1) {
-            /* We enter with at least 2 bytes */
-            subencoding = RFB.d[0];  // Peek
-            //console.log("   display_hextile, subencoding: " + subencoding);
-            FBU.bytes++;   // Since we aren't shifting it off
-            //console.log("   subencoding: " + subencoding);
-            if (subencoding > 30) { // Raw
-                console.log("Illegal subencoding " + subencoding);
-                RFB.state = "failed";
-                return;
-            }
 
-            /* Figure out how much we are expecting */
-            if (subencoding & 0x01) { // Raw
-                //console.log("   Raw subencoding");
-                FBU.bytes += w * h * RFB.fb_Bpp;
-            } else {
-                if (subencoding & 0x02) { // Background
-                    FBU.bytes += RFB.fb_Bpp;
+        /* Figure out how much we are expecting */
+        if (subencoding & 0x01) { // Raw
+            //console.log("   Raw subencoding");
+            FBU.bytes += w * h * RFB.fb_Bpp;
+        } else {
+            if (subencoding & 0x02) { // Background
+                FBU.bytes += RFB.fb_Bpp;
+            }
+            if (subencoding & 0x04) { // Foreground
+                FBU.bytes += RFB.fb_Bpp;
+            }
+            if (subencoding & 0x08) { // AnySubrects
+                FBU.bytes++;   // Since we aren't shifting it off
+                if (RFB.d.length < FBU.bytes) {
+                    /* Wait for subrects byte */
+                    console.log("   waiting for hextile subrects header byte");
+                    return;
                 }
-                if (subencoding & 0x04) { // Foreground
-                    FBU.bytes += RFB.fb_Bpp;
-                }
-                if (subencoding & 0x08) { // AnySubrects
-                    FBU.bytes++;   // Since we aren't shifting it off
-                    if (RFB.d.length < FBU.bytes) {
-                        /* Wait for subrects byte */
-                        console.log("   waiting for hextile subrects header bytes");
-                        return;
-                    }
-                    subrects = RFB.d[FBU.bytes-1]; // Peek
-                    if (subencoding & 0x10) { // SubrectsColoured
-                        FBU.bytes += subrects * (RFB.fb_Bpp + 2);
-                    } else {
-                        FBU.bytes += subrects * 2;
-                    }
+                subrects = RFB.d[FBU.bytes-1]; // Peek
+                if (subencoding & 0x10) { // SubrectsColoured
+                    FBU.bytes += subrects * (RFB.fb_Bpp + 2);
+                } else {
+                    FBU.bytes += subrects * 2;
                 }
             }
         }
@@ -443,72 +462,63 @@ display_hextile: function() {
             return;
         }
 
-        if (subencoding > -1) {
-            /* We know the encoding and have a whole tile */
-            FBU.subencoding = RFB.d.shift8();
-            FBU.bytes--;
-            if (FBU.subencoding == 0) {
-                if (FBU.lastsubencoding & 0x01) {
-                    /* Weird: ignore blanks after RAW */
-                    console.log("     Ignoring blank after RAW");
-                    FBU.subencoding = -1;
-                    //FBU.lastsubencoding = 0;
-                    continue;
-                } else {
-                    Canvas.fillRect(x, y, w, h, FBU.background);
-                }
-            } else if (FBU.subencoding & 0x01) { // Raw
-                Canvas.rgbxImage(x, y, w, h, RFB.d);
-            } else {
-                var idx = 0;
-                if (FBU.subencoding & 0x02) { // Background
-                    FBU.background = RFB.d.slice(idx, idx + RFB.fb_Bpp);
-                    idx += RFB.fb_Bpp;
-                    //console.log("   background: " + FBU.background);
-                }
-                if (FBU.subencoding & 0x04) { // Foreground
-                    FBU.foreground = RFB.d.slice(idx, idx + RFB.fb_Bpp);
-                    idx += RFB.fb_Bpp;
-                    //console.log("   foreground: " + FBU.foreground);
-                }
-                Canvas.fillRect(x, y, w, h, FBU.background);
-                if (FBU.subencoding & 0x08) { // AnySubrects
-                    subrects = RFB.d[idx];
-                    idx++;
-                    var color, xy, sx, sy, wh, sw, sh;
-                    for (var i = 0; i < subrects; i ++) {
-                        if (FBU.subencoding & 0x10) { // SubrectsColoured
-                            color = RFB.d.slice(idx, idx + RFB.fb_Bpp);
-                            idx += RFB.fb_Bpp;
-                        } else {
-                            color = FBU.foreground;
-                        }
-                        xy = RFB.d[idx];
-                        idx++;
-                        sx = x + (xy >> 4);
-                        sy = y + (xy & 0x0f);
-
-                        wh = RFB.d[idx];
-                        idx++;
-                        sw = (wh >> 4)   + 1;
-                        sh = (wh & 0x0f) + 1;
-
-                        Canvas.fillRect(sx, sy, sw, sh, color);
+        /* We know the encoding and have a whole tile */
+        FBU.subencoding = RFB.d.shift8();
+        FBU.bytes--;
+        if (FBU.subencoding == 0) {
+            if (FBU.lastsubencoding & 0x01) {
+                /* Weird: ignore blanks after RAW */
+                console.log("     Ignoring blank after RAW");
+                continue;
+            }
+            Canvas.fillRect(x, y, w, h, FBU.background);
+        } else if (FBU.subencoding & 0x01) { // Raw
+            Canvas.rgbxImage(x, y, w, h, RFB.d);
+        } else {
+            var idx = 0;
+            if (FBU.subencoding & 0x02) { // Background
+                FBU.background = RFB.d.slice(idx, idx + RFB.fb_Bpp);
+                idx += RFB.fb_Bpp;
+                //console.log("   background: " + FBU.background);
+            }
+            if (FBU.subencoding & 0x04) { // Foreground
+                FBU.foreground = RFB.d.slice(idx, idx + RFB.fb_Bpp);
+                idx += RFB.fb_Bpp;
+                //console.log("   foreground: " + FBU.foreground);
+            }
+            Canvas.fillRect(x, y, w, h, FBU.background);
+            if (FBU.subencoding & 0x08) { // AnySubrects
+                subrects = RFB.d[idx];
+                idx++;
+                var color, xy, sx, sy, wh, sw, sh;
+                for (var i = 0; i < subrects; i ++) {
+                    if (FBU.subencoding & 0x10) { // SubrectsColoured
+                        color = RFB.d.slice(idx, idx + RFB.fb_Bpp);
+                        idx += RFB.fb_Bpp;
+                    } else {
+                        color = FBU.foreground;
                     }
+                    xy = RFB.d[idx];
+                    idx++;
+                    sx = x + (xy >> 4);
+                    sy = y + (xy & 0x0f);
+
+                    wh = RFB.d[idx];
+                    idx++;
+                    sw = (wh >> 4)   + 1;
+                    sh = (wh & 0x0f) + 1;
+
+                    Canvas.fillRect(sx, sy, sw, sh, color);
                 }
             }
-            if (FBU.bytes > 0) RFB.d.shiftBytes(FBU.bytes);
-            FBU.lastsubencoding = FBU.subencoding;
-            FBU.subencoding = -1;
-            FBU.tiles --;
-            FBU.bytes = 0;
         }
+        RFB.d.shiftBytes(FBU.bytes);
+        FBU.lastsubencoding = FBU.subencoding;
+        FBU.bytes = 0;
+        FBU.tiles --;
     }
 
-    if (FBU.tiles > 0) {
-        FBU.bytes = 2;
-    } else {
-        FBU.background = [255, 255, 0, 0];  // Yellow: invalid
+    if (FBU.tiles == 0) {
         FBU.rects --;
     }
 
@@ -623,7 +633,7 @@ send_string: function (str) {
 },
 
 send_array: function (arr) {
-    console.log(">> send_array: " + arr);
+    //console.log(">> send_array: " + arr);
     //console.log(">> send_array: " + Base64.encode_array(arr));
     RFB.ws.send(Base64.encode_array(arr));
 },
@@ -671,7 +681,7 @@ checkEvents: function () {
 },
 
 keyDown: function (e) {
-    console.log(">> keyDown: " + Canvas.getKeysym(e));
+    //console.log(">> keyDown: " + Canvas.getKeysym(e));
     e.stop();
     var arr = RFB.keyEvent(Canvas.getKeysym(e), 1);
     arr = arr.concat(RFB.fbUpdateRequest(1));
@@ -679,7 +689,7 @@ keyDown: function (e) {
 },
 
 keyUp: function (e) {
-    console.log(">> keyUp: " + Canvas.getKeysym(e));
+    //console.log(">> keyUp: " + Canvas.getKeysym(e));
     e.stop();
     var arr = RFB.keyEvent(Canvas.getKeysym(e), 0);
     arr = arr.concat(RFB.fbUpdateRequest(1));
@@ -691,7 +701,7 @@ mouseDown: function(e) {
     var x, y;
     x = (evt.clientX - Canvas.c_x);
     y = (evt.clientY - Canvas.c_y);
-    console.log('>> mouseDown ' + evt.which + '/' + evt.button + " " + x + "," + y);
+    //console.log('>> mouseDown ' + evt.which + '/' + evt.button + " " + x + "," + y);
     Mouse.buttonMask |= 1 << evt.button;
     Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
 
@@ -703,7 +713,7 @@ mouseUp: function(e) {
     var x, y;
     x = (evt.clientX - Canvas.c_x);
     y = (evt.clientY - Canvas.c_y);
-    console.log('>> mouseUp ' + evt.which + '/' + evt.button + " " + x + "," + y);
+    //console.log('>> mouseUp ' + evt.which + '/' + evt.button + " " + x + "," + y);
     Mouse.buttonMask ^= 1 << evt.button;
     Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
 
@@ -715,7 +725,7 @@ mouseMove: function(e) {
     var x, y;
     x = (evt.clientX - Canvas.c_x);
     y = (evt.clientY - Canvas.c_y);
-    console.log('>> mouseMove ' + x + "," + y);
+    //console.log('>> mouseMove ' + x + "," + y);
     Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
 },
 
