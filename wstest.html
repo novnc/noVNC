@@ -1,0 +1,182 @@
+<html>
+
+    <head><title>WebSockets Test</title></head>
+
+    <body>
+
+        Host: <input id='host' style='width:100'>&nbsp;
+        Port: <input id='port' style='width:50'>&nbsp;
+        Send Delay (ms): <input id='sendDelay' style='width:50' value="100">&nbsp;
+        <input id='connectButton' type='button' value='Start' style='width:100px'
+            onclick="connect();">&nbsp;
+
+        <br><br>
+        <table border=1>
+            <tr>
+                <th align="right">Packets sent:</th>
+                <td align="right"><div id='sent'>0</div></td>
+            </tr><tr>
+                <th align="right">Good Packets Received:</th>
+                <td align="right"><div id='received'>0</div></td>
+            </tr><tr>
+                <th align="right">Errors (Bad Packets Received:)</th>
+                <td align="right"><div id='errors'>0</div></td>
+            </tr>
+        </table>
+
+    </body>
+
+    <script src="include/mootools.js"></script>
+    <script src="include/base64.js"></script>
+    <script src="include/util.js"></script>
+
+    <script>
+
+        var host = null, port = null, sendDelay = 0;
+        var ws = null, update_ref = null, send_ref = null;
+        var sent = 0, received = 0, errors = 0;
+
+        Array.prototype.pushStr = function (str) {
+            var n = str.length;
+            for (var i=0; i < n; i++) {
+                this.push(str.charCodeAt(i));
+            }
+        }
+
+
+
+        function add (x,y) {
+            return parseInt(x,10)+parseInt(y,10);
+        }
+
+        function check_respond(data) {
+            //console.log(">> check_respond");
+            var decoded, str, length, chksum, nums, arr;
+            decoded = Base64.decode(data);
+            arr = decoded.map(function(num) {
+                    return String.fromCharCode(num); 
+                } ).join('').split(':');
+            length = arr[0];
+            chksum = arr[1];
+            nums = arr[2];
+            //console.log("   length:" + length + " chksum:" + chksum + " nums:" + nums);
+            if (nums.length != length) {
+                console.error("Real length " + nums.length + " is not " + length);
+                errors++;
+                return;
+            }
+            real_chksum = nums.split('').reduce(add);
+            if (real_chksum != chksum) {
+                console.error("Real chksum " + real_chksum + " is not " + chksum);
+                errors++
+                return;
+            }
+            received++;
+            //console.log("   Packet checks out: length:" + length + " chksum:" + chksum);
+            //console.log("<< check_respond");
+        }
+
+        function send() {
+            var length = Math.floor(Math.random()*1991) + 10; // 10 - 2000
+            var numlist = [], arr = [];
+            for (var i=0; i < length; i++) {
+                numlist.push( Math.floor(Math.random()*10) );
+            }
+            chksum = numlist.reduce(add);
+            var nums = numlist.join('');
+            arr.pushStr(length + ":" + chksum + ":" + nums)
+            ws.send(Base64.encode(arr));
+            sent++;
+        }
+
+        function update_stats() {
+            $('sent').innerHTML = sent;
+            $('received').innerHTML = received;
+            $('errors').innerHTML = errors;
+        }
+
+        function init_ws() {
+            console.log(">> init_ws");
+            var uri = "ws://" + host + ":" + port;
+            console.log("connecting to " + uri);
+            ws = new WebSocket(uri);
+            ws.onmessage = function(e) {
+                //console.log(">> WebSockets.onmessage");
+                check_respond(e.data);
+                //console.log("<< WebSockets.onmessage");
+            };
+            ws.onopen = function(e) {
+                console.log(">> WebSockets.onopen");
+                send_ref = send.periodical(sendDelay);
+                console.log("<< WebSockets.onopen");
+            };
+            ws.onclose = function(e) {
+                console.log(">> WebSockets.onclose");
+                console.log("<< WebSockets.onclose");
+            };
+            ws.onerror = function(e) {
+                console.log(">> WebSockets.onerror");
+                console.log("   " + e);
+                console.log("<< WebSockets.onerror");
+            };
+
+            console.log("<< init_ws");
+        }
+
+        function connect() {
+            console.log(">> connect");
+            host = $('host').value;
+            port = $('port').value;
+            sendDelay = parseInt($('sendDelay').value, 10);
+            if ((!host) || (!port)) {
+                console.log("must set host and port");
+                return;
+            }
+
+            if (ws) {
+                ws.close();
+            }
+            init_ws();
+            update_ref = update_stats.periodical(1);
+
+            $('connectButton').value = "Stop";
+            $('connectButton').onclick = disconnect;
+            console.log("<< connect");
+        }
+
+        function disconnect() {
+            console.log(">> disconnect");
+            if (ws) {
+                ws.close();
+            }
+
+            $clear(update_ref);
+            update_stats(); // Final numbers
+
+            $clear(send_ref);
+
+            $('connectButton').value = "Start";
+            $('connectButton').onclick = connect;
+            console.log("<< disconnect");
+        }
+
+
+        /* If no builtin websockets then load web_socket.js */
+        if (! window.WebSocket) {
+            console.log("Loading web-socket-js flash bridge");
+            var extra = "<script src='web-socket-js/swfobject.js'><\/script>";
+            extra += "<script src='web-socket-js/FABridge.js'><\/script>";
+            extra += "<script src='web-socket-js/web_socket.js'><\/script>";
+            document.write(extra);
+        }
+
+        window.onload = function() {
+            WebSocket.__swfLocation = "web-socket-js/WebSocketMain.swf";
+            console.log("onload");
+            var url = document.location.href;
+            $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
+            $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
+        }
+    </script>
+
+</html>
