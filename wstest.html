@@ -35,6 +35,7 @@
         var host = null, port = null, sendDelay = 0;
         var ws = null, update_ref = null, send_ref = null;
         var sent = 0, received = 0, errors = 0;
+        var max_send = 2000;
 
         Array.prototype.pushStr = function (str) {
             var n = str.length;
@@ -51,8 +52,21 @@
 
         function check_respond(data) {
             //console.log(">> check_respond");
-            var decoded, str, length, chksum, nums, arr;
+            var decoded, first, last, str, length, chksum, nums, arr;
             decoded = Base64.decode(data);
+            first = String.fromCharCode(decoded.shift());
+            last = String.fromCharCode(decoded.pop());
+
+            if (first != "^") {
+                console.error("Packet missing start char '^'");
+                errors++;
+                return;
+            }
+            if (last != "$") {
+                console.error("Packet missing end char '$'");
+                errors++;
+                return;
+            }
             arr = decoded.map(function(num) {
                     return String.fromCharCode(num); 
                 } ).join('').split(':');
@@ -77,14 +91,14 @@
         }
 
         function send() {
-            var length = Math.floor(Math.random()*1991) + 10; // 10 - 2000
+            var length = Math.floor(Math.random()*(max_send-9)) + 10; // 10 - max_send
             var numlist = [], arr = [];
             for (var i=0; i < length; i++) {
                 numlist.push( Math.floor(Math.random()*10) );
             }
             chksum = numlist.reduce(add);
             var nums = numlist.join('');
-            arr.pushStr(length + ":" + chksum + ":" + nums)
+            arr.pushStr("^" + length + ":" + chksum + ":" + nums + "$")
             ws.send(Base64.encode(arr));
             sent++;
         }

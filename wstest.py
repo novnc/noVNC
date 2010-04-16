@@ -36,41 +36,56 @@ def traffic(token="."):
     sys.stdout.flush()
 
 def check(buf):
+
     try:
         data = b64decode(buf[1:-1])
     except:
+        print "\n<BOF>" + repr(buf) + "<EOF>"
         return "Failed to decode"
 
-    try:
-        length, chksum, nums = data.split(':')
-        length = int(length)
-        chksum = int(chksum)
-    except:
-        return "Invalid data format"
+    chunks = data.count('$')
+    if chunks > 1:
+        traffic(str(chunks))
 
-    if len(nums) != length:
-        return "Real length %d is not %d" % (len(nums), length)
+    for chunk in data.split("$"):
+        if not chunk: continue
 
-    inv = nums.translate(None, "0123456789")
-    if inv:
-        return "Invalid characters found: %s" % inv
+        if chunk[0] != "^":
+            return "buf did not start with '^'"
 
-    real_chksum = 0
-    for num in nums:
-        real_chksum += int(num)
+        try:
+            length, chksum, nums = chunk[1:].split(':')
+            length = int(length)
+            chksum = int(chksum)
+        except:
+            print "\n<BOF>" + repr(data) + "<EOF>"
+            return "Invalid data format"
 
-    if real_chksum != chksum:
-        return "Real checksum %d is not %d" % (real_chksum, chksum)
+        if len(nums) != length:
+            return "Real length %d is not %d" % (len(nums), length)
+
+        inv = nums.translate(None, "0123456789")
+        if inv:
+            return "Invalid characters found: %s" % inv
+
+        real_chksum = 0
+        for num in nums:
+            real_chksum += int(num)
+
+        if real_chksum != chksum:
+            return "Real checksum %d is not %d" % (real_chksum, chksum)
 
 
 def generate():
-    length = random.randint(10, 2000)
-    numlist = []
-    for i in range(0, length):
-        numlist.append(random.randint(0, 9))
+    length = random.randint(10, 10000)
+    numlist = rand_array[10000-length:]
+    # Error in length
+    #numlist.append(5)
     chksum = sum(numlist)
+    # Error in checksum
+    #numlist[0] = 5
     nums = "".join( [str(n) for n in numlist] )
-    data = "%d:%d:%s" % (length, chksum, nums)
+    data = "^%d:%d:%s$" % (length, chksum, nums)
 
     buf = "\x00" + b64encode(data) + "\xff"
     return buf
@@ -78,6 +93,7 @@ def generate():
 def responder(client, delay=500):
     global errors
     cqueue = []
+    cpartial = ""
     socks = [client]
     last_send = time.time() * 1000
 
@@ -89,13 +105,21 @@ def responder(client, delay=500):
             buf = client.recv(buffer_size)
             if len(buf) == 0: raise Exception("Client closed")
             #print "Client recv: %s (%d)" % (repr(buf[1:-1]), len(buf))
-            err = check(buf)
-            if err:
-                traffic("}")
-                errors = errors + 1
-                print err
+            if buf[-1] == '\xff':
+                if cpartial:
+                    err = check(cpartial + buf)
+                    cpartial = ""
+                else:
+                    err = check(buf)
+                if err:
+                    traffic("}")
+                    errors = errors + 1
+                    print err
+                else:
+                    traffic(">")
             else:
-                traffic(">")
+                traffic(".>")
+                cpartial = cpartial + buf
 
         now = time.time() * 1000
         if client in outs and now > (last_send + delay):
@@ -139,4 +163,10 @@ if __name__ == '__main__':
     except:
         print "Usage: <listen_port> [delay_ms]"
         sys.exit(1)
+
+    print "Prepopulating random array"
+    rand_array = []
+    for i in range(0, 10000):
+        rand_array.append(random.randint(0, 9))
+
     start_server(listen_port, delay=delay)
