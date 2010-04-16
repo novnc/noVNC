@@ -15,8 +15,16 @@ WebSocket-Protocol: sample\r
 \r
 """
 
+policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>"""
+
 def handshake(client):
-    handshake = client.recv(255)
+    handshake = client.recv(1024)
+    print "Handshake [%s]" % handshake
+    if handshake.startswith("<policy-file-request/>"):
+        print "Sending:", policy_response
+        client.send(policy_response)
+        handshake = client.recv(1024)
+        print "Handshake [%s]" % handshake
     req_lines = handshake.split("\r\n")
     _, path, _ = req_lines[0].split(" ")
     _, origin = req_lines[4].split(" ")
@@ -27,8 +35,17 @@ def traffic(token="."):
     sys.stdout.write(token)
     sys.stdout.flush()
 
+def decode(buf):
+    """ Parse out WebSocket packets. """
+    if buf.count('\xff') > 1:
+        return [d[1:] for d in buf.split('\xff')]
+    else:
+        return [b64decode(buf[1:-1])]
+
 def proxy(client, target):
+    """ Proxy WebSocket to normal socket. """
     cqueue = []
+    cpartial = ""
     tqueue = []
     socks = [client, target]
 
@@ -39,9 +56,19 @@ def proxy(client, target):
         if client in ins:
             buf = client.recv(buffer_size)
             if len(buf) == 0: raise Exception("Client closed")
-            tqueue.append(b64decode(buf[1:-1]))
-            #print "Client recv: %s (%d)" % (repr(buf[1:-1]), len(buf))
-            traffic("}")
+
+            if buf[-1] == "\xff":
+                if cpartial:
+                    tqueue.extend(decode(cpartial + buf))
+                    cpartial = ""
+                else:
+                    tqueue.extend(decode(buf))
+                traffic("}")
+            else:
+                traffic(".}")
+                cpartial = cpartial + buf
+
+            #print "Client recv: %s (%d)" % (repr(buf, len(buf))
 
         if target in ins:
             buf = target.recv(buffer_size)

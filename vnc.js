@@ -802,33 +802,39 @@ init_ws: function () {
     console.log("connecting to " + uri);
     RFB.ws = new WebSocket(uri);
     RFB.ws.onmessage = function(e) {
-        //console.log(">> onmessage");
+        //console.log(">> WebSockets.onmessage");
         RFB.d = RFB.d.concat(Base64.decode(e.data));
-        if (RFB.state != 'normal') {
-            RFB.init_msg();
-        } else {
-            RFB.normal_msg();
-        }
-        if (RFB.state == 'reset') {
+        if (RFB.state == 'closed') {
+            console.log("onmessage while close");
+        } else if (RFB.state == 'reset') {
             /* close and reset connection */
             RFB.disconnect();
             RFB.init_ws();
         } else if (RFB.state == 'failed') {
             console.log("Giving up!");
             RFB.disconnect();
+        } else if (RFB.state != 'normal') {
+            RFB.init_msg();
+        } else {
+            RFB.normal_msg();
         }
-        //console.log("<< onmessage");
+        //console.log("<< WebSockets.onmessage");
     };
     RFB.ws.onopen = function(e) {
-        console.log(">> onopen");
+        console.log(">> WebSockets.onopen");
         RFB.state = "ProtocolVersion";
-        console.log("<< onopen");
+        console.log("<< WebSockets.onopen");
     };
     RFB.ws.onclose = function(e) {
-        console.log(">> onclose");
+        console.log(">> WebSockets.onclose");
         RFB.state = "closed";
-        console.log("<< onclose");
-    }
+        console.log("<< WebSockets.onclose");
+    };
+    RFB.ws.onerror = function(e) {
+        console.log(">> WebSockets.onerror");
+        console.log("   " + e);
+        console.log("<< WebSockets.onerror");
+    };
 
     console.log("<< init_ws");
 },
@@ -838,7 +844,7 @@ connect: function () {
     RFB.host = $('host').value;
     RFB.port = $('port').value;
     RFB.password = $('password').value;
-    if ((!host) || (!port)) {
+    if ((!RFB.host) || (!RFB.port)) {
         console.log("must set host and port");
         return;
     }
