@@ -16,7 +16,7 @@ WebSocket-Protocol: sample\r
 \r
 """
 
-policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>"""
+policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>\n"""
 
 traffic_legend = """
 Traffic Legend:
@@ -31,19 +31,24 @@ Traffic Legend:
 """
 
 
-def handshake(client):
+def do_handshake(client):
     handshake = client.recv(1024)
     print "Handshake [%s]" % handshake
     if handshake.startswith("<policy-file-request/>"):
         print "Sending:", policy_response
         client.send(policy_response)
-        handshake = client.recv(1024)
-        print "Handshake [%s]" % handshake
+        client.close()
+        return False
+        #handshake = client.recv(1024)
+        #if len(handshake) == 0:
+        #    raise Exception("Policy exchange failed")
+        #print "Handshake [%s]" % handshake
     req_lines = handshake.split("\r\n")
     _, path, _ = req_lines[0].split(" ")
     _, origin = req_lines[4].split(" ")
     _, host = req_lines[3].split(" ")
     client.send(server_handshake % (origin, host, path))
+    return True
 
 def traffic(token="."):
     sys.stdout.write(token)
@@ -137,7 +142,7 @@ def start_server(listen_port, target_host, target_port):
             print 'waiting for connection on port %s' % listen_port
             csock, address = lsock.accept()
             print 'Got client connection from %s' % address[0]
-            handshake(csock)
+            if not do_handshake(csock): continue
             print "Connecting to: %s:%s" % (target_host, target_port)
             tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             tsock.connect((target_host, target_port))
