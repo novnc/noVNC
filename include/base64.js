@@ -90,25 +90,30 @@ toBinaryTable : [
     41,42,43,44, 45,46,47,48, 49,50,51,-1, -1,-1,-1,-1
 ],
 
-decode: function (data) {
+decode: function (data, offset) {
+    offset = typeof(offset) != 'undefined' ? offset : 0;
     var binTable = Base64.toBinaryTable;
     var pad = Base64.base64Pad;
     var leftbits = 0; // number of bits decoded, but yet to be appended
     var leftdata = 0; // bits decoded, but yet to be appended
 
     /* Every four characters is 3 resulting numbers */
-    var data_length = data.indexOf('=');
-    if (data_length == -1) data_length = data.length;
-    var result_length = (data_length >> 2) * 3 + (data.length % 4 - 1);
+    var data_length = data.indexOf('=') - offset;
+    if (data_length < 0) data_length = data.length - offset;
+
+    var result_length = (data_length >> 2) * 3 + ((data.length - offset) % 4 - 1);
     var result = new Array(result_length);
 
     // Convert one by one.
     var idx = 0;
-    for (var i = 0; i < data.length; i++) {
+    for (var i = offset; i < data.length; i++) {
         var c = binTable[data[i].charCodeAt(0) & 0x7f];
         var padding = (data[i] == pad);
         // Skip illegal characters and whitespace
-        if (c == -1) continue;
+        if (c == -1) {
+            console.log("Illegal character '" + data[i].charCodeAt(0) + "'");
+            continue;
+        }
         
         // Collect data into leftdata, update bitcount
         leftdata = (leftdata << 6) | c;

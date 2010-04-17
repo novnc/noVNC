@@ -2,7 +2,7 @@
 
     <head><title>VNC Client</title></head>
 
-    <body onload="draw();">
+    <body>
 
         Host: <input id='host' style='width:100'>&nbsp;
         Port: <input id='port' style='width:50'>&nbsp;
@@ -35,8 +35,26 @@
     <script src="vnc.js"></script>
 
     <script>
+        var native_ws = true;
+
+        /* If no builtin websockets then load web_socket.js */
+        if (! window.WebSocket) {
+            var extra = "<script src='include/web-socket-js/swfobject.js'><\/script>";
+            extra += "<script src='include/web-socket-js/FABridge.js'><\/script>";
+            extra += "<script src='include/web-socket-js/web_socket.js'><\/script>";
+            document.write(extra);
+            native_ws = false;
+        }
+
         window.onload = function() {
             console.log("onload");
+            if (native_ws) {
+                console.log("Using native WebSockets");
+            } else {
+                console.log("Using web-socket-js flash bridge");
+                WebSocket.__swfLocation = "web-socket-js/WebSocketMain.swf";
+                RFB.force_copy = true;
+            }
             var url = document.location.href;
             $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
             $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];

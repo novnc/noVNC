@@ -5,6 +5,7 @@ from base64 import b64encode, b64decode
 from select import select
 
 buffer_size = 65536
+recv_cnt = send_cnt = 0
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
@@ -35,57 +36,83 @@ def traffic(token="."):
     sys.stdout.write(token)
     sys.stdout.flush()
 
+
+def decode(buf):
+    """ Parse out WebSocket packets. """
+    if buf.count('\xff') > 1:
+        traffic(str(buf.count('\xff')))
+        return [b64decode(d[1:]) for d in buf.split('\xff')]
+    else:
+        return [b64decode(buf[1:-1])]
+
 def check(buf):
+    global recv_cnt
 
     try:
-        data = b64decode(buf[1:-1])
+        data_list = decode(buf)
     except:
         print "\n<BOF>" + repr(buf) + "<EOF>"
         return "Failed to decode"
 
-    chunks = data.count('$')
-    if chunks > 1:
-        traffic(str(chunks))
+    err = ""
+    for data in data_list:
+        if data.count('$') > 1:
+            raise Exception("Multiple parts within single packet")
+        if len(data) == 0:
+            traffic("_")
+            continue
 
-    for chunk in data.split("$"):
-        if not chunk: continue
-
-        if chunk[0] != "^":
-            return "buf did not start with '^'"
+        if data[0] != "^":
+            err += "buf did not start with '^'\n"
+            continue
 
         try:
-            length, chksum, nums = chunk[1:].split(':')
+            cnt, length, chksum, nums = data[1:-1].split(':')
+            cnt    = int(cnt)
             length = int(length)
             chksum = int(chksum)
         except:
             print "\n<BOF>" + repr(data) + "<EOF>"
-            return "Invalid data format"
+            err += "Invalid data format\n"
+            continue
+
+        if recv_cnt != cnt:
+            err += "Expected count %d but got %d\n" % (recv_cnt, cnt)
+            recv_cnt = cnt + 1
+            continue
+
+        recv_cnt += 1
 
         if len(nums) != length:
-            return "Real length %d is not %d" % (len(nums), length)
+            err += "Expected length %d but got %d\n" % (length, len(nums))
+            continue
 
         inv = nums.translate(None, "0123456789")
         if inv:
-            return "Invalid characters found: %s" % inv
+            err += "Invalid characters found: %s\n" % inv
+            continue
 
         real_chksum = 0
         for num in nums:
             real_chksum += int(num)
 
         if real_chksum != chksum:
-            return "Real checksum %d is not %d" % (real_chksum, chksum)
+            err += "Expected checksum %d but real chksum is %d\n" % (chksum, real_chksum)
+    return err
 
 
 def generate():
-    length = random.randint(10, 10000)
-    numlist = rand_array[10000-length:]
+    global send_cnt
+    length = random.randint(10, 100000)
+    numlist = rand_array[100000-length:]
     # Error in length
     #numlist.append(5)
     chksum = sum(numlist)
     # Error in checksum
     #numlist[0] = 5
     nums = "".join( [str(n) for n in numlist] )
-    data = "^%d:%d:%s$" % (length, chksum, nums)
+    data = "^%d:%d:%d:%s$" % (send_cnt, length, chksum, nums)
+    send_cnt += 1
 
     buf = "\x00" + b64encode(data) + "\xff"
     return buf
@@ -129,7 +156,7 @@ def responder(client, delay=500):
             traffic("<")
 
 def start_server(listen_port, delay=500):
-    global errors
+    global errors, send_cnt, recv_cnt
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     lsock.bind(('', listen_port))
@@ -142,6 +169,8 @@ def start_server(listen_port, delay=500):
             print 'Got client connection from %s' % address[0]
             handshake(csock)
 
+            send_cnt = 0
+            recv_cnt = 0
             responder(csock, delay=delay)
 
         except Exception:
@@ -166,7 +195,7 @@ if __name__ == '__main__':
 
     print "Prepopulating random array"
     rand_array = []
-    for i in range(0, 10000):
+    for i in range(0, 100000):
         rand_array.append(random.randint(0, 9))
 
     start_server(listen_port, delay=delay)
