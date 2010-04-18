@@ -4,7 +4,7 @@ if ((!window.console) || (! /__debug__$/i.test(document.location.href))) {
   window.console.log = function(message) {}; 
 }
 
-function dirObj(obj, parent, depth) {
+function dirObj(obj, depth, parent) {
     var msg = "";
     var val = "";
     if (! depth) { depth=2; }
@@ -14,7 +14,7 @@ function dirObj(obj, parent, depth) {
     for (var i in obj) {
         if ((depth > 1) && (typeof obj[i] == "object")) { 
             // Recurse attributes that are objects
-            msg += dirObj(obj[i], parent + "." + i, depth-1);
+            msg += dirObj(obj[i], depth-1, parent + "." + i);
         } else {
             val = new String(obj[i]).replace("\n", " ");
             if (val.length > 30) {
