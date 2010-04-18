@@ -24,7 +24,6 @@ mouseUp: function (e) {
 
 mouseMove: function (e) {
     var evt = e.event || window.event;
-    //e.stop();
     console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
 },
@@ -164,7 +163,6 @@ copyImage: function(old_x, old_y, new_x, new_y, width, height) {
 getKeysym: function(e) {
     evt = e.event || window.event;
     var keysym;
-    //console.log(dirObj(e, null, 1));
 
     /* Remap modifier and special keys */
     switch ( evt.keyCode ) {
@@ -205,7 +203,9 @@ getKeysym: function(e) {
         case 186       : keysym = 59; break; // ;  (IE)
         case 187       : keysym = 61; break; // =  (IE)
         case 188       : keysym = 44; break; // ,  (Mozilla, IE)
-        //case 109       :                     // -  (Mozilla)
+        case 109       :                     // -  (Mozilla)
+            if (Browser.Engine.gecko)
+                         keysym = 45; break;
         case 189       : keysym = 45; break; // -  (IE)
         case 190       : keysym = 46; break; // .  (Mozilla, IE)
         case 191       : keysym = 47; break; // /  (Mozilla, IE)

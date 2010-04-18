@@ -1,5 +1,3 @@
-- Fix firefox key codes ('-', etc)
-
 - Make packet sequence number optional based on WebSockets 'path'.
 
 - Better status and error feedback.
