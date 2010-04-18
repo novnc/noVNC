@@ -7,11 +7,11 @@
         Host: <input id='host' style='width:100'>&nbsp;
         Port: <input id='port' style='width:50'>&nbsp;
         Password: <input id='password' type='password' style='width:80'>&nbsp;
-        <input id='connectButton' type='button' value='Connect' style='width:100px'
-            onclick="RFB.connect();">&nbsp;
+        <input id='connectButton' type='button' value='Loading'
+            style='width:100px' disabled>&nbsp;
         <br><br>
 
-        <div id='status'>Disconnected</div>
+        <div id='status'>Loading</div>
         <canvas id="vnc" width="640" height="20"
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
@@ -26,6 +26,11 @@
             onfocus="RFB.clipboardFocus=true;"
             onblur="RFB.clipboardFocus=false;"></textarea>
     </body>
+
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
 
     <script src="include/mootools.js"></script>
     <script src="include/base64.js"></script>
@@ -50,15 +55,26 @@
             console.log("onload");
             if (native_ws) {
                 console.log("Using native WebSockets");
+                RFB.updateState('disconnected', 'Disconnected');
             } else {
                 console.log("Using web-socket-js flash bridge");
-                WebSocket.__swfLocation = "web-socket-js/WebSocketMain.swf";
-                RFB.force_copy = true;
+                if ((! Browser.Plugins.Flash) ||
+                    (Browser.Plugins.Flash.version < 9)) {
+                    RFB.updateState('failed', "WebSockets or Adobe Flash is required");
+                } else if (location.href.substr(0, 7) == "file://") {
+                    RFB.updateState('failed', "'file://' URL is incompatible with Adobe Flash");
+                } else {
+                    WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
+                    RFB.force_copy = true;
+                    RFB.updateState('disconnected', 'Disconnected');
+                }
             }
-            var url = document.location.href;
-            $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
-            $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
-            $('password').value = (url.match(/password=([^&#]*)/) || ['',''])[1];
+            if (RFB.state == 'disconnected') {
+                var url = document.location.href;
+                $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
+                $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
+                $('password').value = (url.match(/password=([^&#]*)/) || ['',''])[1];
+            }
         }
     </script>
 

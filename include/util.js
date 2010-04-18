@@ -2,6 +2,8 @@ if ((!window.console) || (! /__debug__$/i.test(document.location.href))) {
  // non-debug mode, an empty function  
   window.console = window.console || {};  
   window.console.log = function(message) {}; 
+  window.console.warn = function(message) {}; 
+  window.console.error = function(message) {}; 
 }
 
 function dirObj(obj, depth, parent) {

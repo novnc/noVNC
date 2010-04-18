@@ -86,7 +86,7 @@ sendID    : null,
 force_copy : false,
 
 version   : "RFB 003.003\n",
-state     : 'ProtocolVersion',
+state     : 'disconnected',
 cuttext   : 'none', // ServerCutText wait state
 ct_length : 0,
 clipboardFocus: false,
@@ -113,28 +113,24 @@ rre_chunk : 100,
 
 /* RFB/VNC initialisation */
 init_msg: function () {
-    console.log(">> init_msg: " + RFB.state);
+    console.log(">> init_msg");
 
     switch (RFB.state) {
 
     case 'ProtocolVersion' :
         if (RQ.length != 12) {
-            console.log("Invalid protocol version from server");
-            //RFB.state = 'reset';
-            RFB.state = 'failed';
+            updateStatus('failed', "Disconnected: invalid RFB protocol version received");
             return;
         }
         var server_version = RQ.shiftStr(12);
-        console.log("Server  ProtocolVersion: " + server_version.substr(0,11));
-        console.log("Sending ProtocolVersion: " + RFB.version.substr(0,11));
+        console.log("Server ProtocolVersion: " + server_version.substr(0,11));
         RFB.send_string(RFB.version);
-        RFB.state = 'Authentication';
+        RFB.updateState('Authentication', "Sent ProtocolVersion: " + RFB.version.substr(0,11));
         break;
 
     case 'Authentication' :
         if (RQ.length < 4) {
-            console.log("Invalid auth frame");
-            RFB.state = 'reset';
+            RFB.updateState('reset', "Invalid auth frame");
             return;
         }
         var scheme = RQ.shift32();
@@ -143,65 +139,55 @@ init_msg: function () {
             case 0:  // connection failed
                 var strlen = RQ.shift32();
                 var reason = RQ.shiftStr(strlen);
-                console.log("auth failed: " + reason);
-                RFB.state = "failed";
+                RFB.updateState('failed', "Disconnected: auth failure: " + reason);
                 return;
             case 1:  // no authentication
                 RFB.send_array([RFB.shared]); // ClientInitialisation
-                RFB.state = "ServerInitialisation";
+                RFB.updateState('ServerInitialisation');
                 break;
             case 2:  // VNC authentication
                 var challenge = RQ.shiftBytes(16);
                 console.log("Password: " + RFB.password);
                 console.log("Challenge: " + challenge + "(" + challenge.length + ")");
                 passwd = RFB.passwdTwiddle(RFB.password);
-                //console.log("passwd: " + passwd + "(" + passwd.length + ")");
                 response = des(passwd, challenge, 1);
-                //console.log("reponse: " + response + "(" + response.length + ")");
 
                 RFB.send_array(response);
-                RFB.state = "SecurityResult";
+                RFB.updateState('SecurityResult');
                 break;
             default:
-                console.log("Unsupported auth scheme");
-                RFB.state = "failed";
+                RFB.updateState('failed', "Disconnected: unsupported auth scheme " + scheme);
                 return;
         }
         break;
 
     case 'SecurityResult' :
         if (RQ.length != 4) {
-            console.log("Invalid server auth response");
-            RFB.state = 'reset';
+            RFB.updateState('reset', "Invalid VNC auth response");
             return;
         }
         var resp = RQ.shift32();
         switch (resp) {
             case 0:  // OK
-                console.log("Authentication OK");
+                RFB.updateState('ServerInitialisation', "Authentication OK");
                 break;
             case 1:  // failed
-                console.log("Authentication failed");
-                RFB.state = "reset";
+                RFB.updateState('reset', "Authentication failed");
                 return;
             case 2:  // too-many
-                console.log("Too many authentication attempts");
-                RFB.state = "failed";
+                RFB.updateState('failed', "Disconnected: too many auth attempts");
                 return;
         }
         RFB.send_array([RFB.shared]); // ClientInitialisation
-        RFB.state = "ServerInitialisation";
         break;
 
     case 'ServerInitialisation' :
         if (RQ.length < 24) {
-            console.log("Invalid server initialisation");
-            RFB.state = 'reset';
+            RFB.updateState('reset', "Invalid server initialisation");
             return;
         }
 
         /* Screen size */
-        //console.log("RQ: " + RQ);
         RFB.fb_width  = RQ.shift16();
         RFB.fb_height = RQ.shift16();
 
@@ -223,9 +209,6 @@ init_msg: function () {
         var name_length   = RQ.shift32();
         RFB.fb_name = RQ.shiftStr(name_length);
 
-        console.log("Name: " + RFB.fb_name);
-        $('status').innerHTML = "Connected to: " + RFB.fb_name;
-
         Canvas.init('vnc', RFB.fb_width, RFB.fb_height,
                 RFB.keyDown, RFB.keyUp,
                 RFB.mouseDown, RFB.mouseUp, RFB.mouseMove);
@@ -239,10 +222,10 @@ init_msg: function () {
         /* Start pushing/polling */
         RFB.checkEvents.delay(RFB.check_rate);
 
-        RFB.state = 'normal';
+        RFB.updateState('normal', "Connected to: " + RFB.fb_name);
         break;
     }
-    console.log("<< init_msg (" + RFB.state + ")");
+    console.log("<< init_msg");
 },
 
 
@@ -293,8 +276,7 @@ normal_msg: function () {
                     case 2: msg += "(RRE)"; break;
                     case 5: msg += "(HEXTILE " + FBU.tiles + " tiles)"; break;
                     default:
-                        console.log("Unsupported encoding " + FBU.encoding);
-                        RFB.state = "failed";
+                        RFB.updateState('failed', "Disconnected: unsupported encoding " + FBU.encoding);
                         return false;
                 }
                 msg += ", RQ.length: " + RQ.length
@@ -302,18 +284,15 @@ normal_msg: function () {
                 */
             }
 
-            //console.log("> RQ.length: " + RQ.length + ", arr[0..30]: " + RQ.slice(0,30));
             switch (FBU.encoding) {
                 case 0: ret = RFB.display_raw();       break; // Raw
                 case 1: ret = RFB.display_copy_rect(); break; // Copy-Rect
                 case 2: ret = RFB.display_rre();       break; // RRE
                 case 5: ret = RFB.display_hextile();   break; // hextile
             }
-            //console.log("< RQ.length: " + RQ.length + ", FBU.bytes: " + FBU.bytes);
             if (RFB.state != "normal") return true;
         }
 
-        //console.log("Finished frame buffer update");
         break;
     case 1:  // SetColourMapEntries
         console.log("SetColourMapEntries (unsupported)");
@@ -348,9 +327,8 @@ normal_msg: function () {
         RFB.cuttext = 'none';
         break;
     default:
-        console.error("Illegal server message type: " + msg_type);
+        RFB.updateState('failed', "Disconnected: illegal server message type " + msg_type);
         console.log("RQ.slice(0,30):" + RQ.slice(0,30));
-        RFB.state = "failed";
         break;
     }
     //console.log("<< normal_msg");
@@ -374,7 +352,6 @@ display_raw: function () {
     }
     var cur_y = FBU.y + (FBU.height - FBU.lines);
     var cur_height = Math.min(FBU.lines, Math.floor(RQ.length/(FBU.width * RFB.fb_Bpp)));
-    //console.log("cur_y:" + cur_y + ", cur_height:" + cur_height);
     Canvas.rgbxImage(FBU.x, cur_y, FBU.width, cur_height, RQ);
     RQ.shiftBytes(FBU.width * cur_height * RFB.fb_Bpp);
     FBU.lines -= cur_height;
@@ -409,7 +386,6 @@ display_rre: function () {
             return;
         }
         FBU.subrects = RQ.shift32();
-        //console.log(">> display_rre " + "(" + FBU.subrects + " subrects)");
         var color = RQ.shiftBytes(RFB.fb_Bpp); // Background
         Canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
     }
@@ -435,7 +411,7 @@ display_rre: function () {
 },
 
 display_hextile: function() {
-    //console.log(">> display_hextile, tiles: " + FBU.tiles + ", arr.length: " + RQ.length + ", bytes: " + FBU.bytes);
+    //console.log(">> display_hextile");
     var subencoding, subrects, cur_tile, tile_x, x, w, tile_y, y, h;
 
     if (FBU.tiles == 0) {
@@ -454,9 +430,8 @@ display_hextile: function() {
         }
         subencoding = RQ[0];  // Peek
         if (subencoding > 30) { // Raw
-            console.error("Illegal subencoding " + subencoding);
+            RFB.updateState('failed', "Disconnected: illegal hextile subencoding " + subencoding);
             console.log("RQ.slice(0,30):" + RQ.slice(0,30));
-            RFB.state = "failed";
             return;
         }
         subrects = 0;
@@ -496,7 +471,6 @@ display_hextile: function() {
         }
 
         //console.log("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) + ", subencoding:" + subencoding + "(last: " + FBU.lastsubencoding + "), subrects:" + subrects + ", tile:" + tile_x + "," + tile_y + " [" + x + "," + y + "]@" + w + "x" + h + ", d.length:" + RQ.length + ", bytes:" + FBU.bytes + " last:" + RQ.slice(FBU.bytes-10, FBU.bytes) + " next:" + RQ.slice(FBU.bytes-1, FBU.bytes+10));
-        //console.log("   arr[0..30]: " + RQ.slice(0,30));
         if (RQ.length < FBU.bytes) {
             //console.log("   waiting for " + (FBU.bytes - RQ.length) + " hextile bytes");
             return;
@@ -519,12 +493,10 @@ display_hextile: function() {
             if (FBU.subencoding & 0x02) { // Background
                 FBU.background = RQ.slice(idx, idx + RFB.fb_Bpp);
                 idx += RFB.fb_Bpp;
-                //console.log("   background: " + FBU.background);
             }
             if (FBU.subencoding & 0x04) { // Foreground
                 FBU.foreground = RQ.slice(idx, idx + RFB.fb_Bpp);
                 idx += RFB.fb_Bpp;
-                //console.log("   foreground: " + FBU.foreground);
             }
             Canvas.fillRect(x, y, w, h, FBU.background);
             if (FBU.subencoding & 0x08) { // AnySubrects
@@ -562,7 +534,7 @@ display_hextile: function() {
         FBU.rects --;
     }
 
-    //console.log("<< display_hextile, rects:" + FBU.rects, " d:" + RQ.slice(0,40));
+    //console.log("<< display_hextile");
 },
 
 
@@ -642,7 +614,6 @@ keyEvent: function (keysym, down) {
     arr.push8(down);
     arr.push16(0);
     arr.push32(keysym);
-    //console.log("keyEvent array: " + arr);
     //console.log("<< keyEvent");
     return arr;
 },
@@ -813,6 +784,42 @@ clipboardClear: function () {
     RFB.clipboardPasteFrom();
 },
 
+updateState: function(state, statusMsg) {
+    var s = $('status');
+    var c = $('connectButton');
+    var func = function(msg) { console.log(msg) };
+    switch (state) {
+        case 'failed':
+            func = function(msg) { console.error(msg) };
+            c.disabled = true;
+            s.style.fontColor = "#880000";
+            break;
+        case 'normal':
+            c.value = "Disconnect";
+            c.onclick = RFB.disconnect;
+            c.disabled = false;
+            s.style.fontColor = "#000000";
+            break;
+        case 'disconnected':
+            c.value = "Connect";
+            c.onclick = RFB.connect;
+            c.disabled = false;
+            s.style.fontColor = "#000000";
+            break;
+        default:
+            func = function(msg) { console.warn(msg) };
+            c.disabled = true;
+            s.style.fontColor = "#444400";
+            break;
+    }
+
+    RFB.state = state;
+    var cmsg = typeof(statusMsg) != 'undefined' ? (" Msg: " + statusMsg) : "";
+    func("New state '" + state + "'." + cmsg);
+    if (typeof(statusMsg) != 'undefined') {
+        s.innerHTML = statusMsg;
+    }
+},
 
 /*
  * Setup routines
@@ -825,20 +832,17 @@ init_ws: function () {
     console.log("connecting to " + uri);
     RFB.ws = new WebSocket(uri);
     RFB.ws.onmessage = function(e) {
-        //console.log(">> WebSockets.onmessage");
+        //console.log(">> WebSocket.onmessage");
 
-        //console.log(e.data);
         var offset = e.data.indexOf(":") + 1;
         var seq_num = parseInt(e.data.substr(0, offset-1));
-        //console.log("RQ_seq_num:" + RQ_seq_num + ", seq_num:" + seq_num);
         if (RQ_seq_num == seq_num) {
             RQ = RQ.concat(Base64.decode(e.data, offset));
             RQ_seq_num++;
         } else {
             console.warn("sequence number mismatch RQ_seq_num:" + RQ_seq_num + ", seq_num:" + seq_num);
             if (RQ_reorder.length > 20) {
-                console.log("Re-order queue too long");
-                RFB.state = 'failed';
+                RFB.updateState('failed', "Re-order queue too long");
             } else {
                 RQ_reorder = RQ_reorder.concat(e.data.substr(0));
                 var i = 0;
@@ -862,8 +866,8 @@ init_ws: function () {
         }
 
         switch (RFB.state) {
-        case 'closed':
-            console.log("onmessage while closed");
+        case 'disconnected':
+            console.error("WebSocket.onmessage while disconnected");
             break;
         case 'reset':
             /* close and reset connection */
@@ -890,11 +894,11 @@ init_ws: function () {
             RFB.init_msg();
             break;
         }
-        //console.log("<< WebSockets.onmessage");
+        //console.log("<< WebSocket.onmessage");
     };
     RFB.ws.onopen = function(e) {
-        console.log(">> WebSockets.onopen");
-        RFB.state = "ProtocolVersion";
+        console.log(">> WebSocket.onopen");
+        RFB.updateState('ProtocolVersion', "Starting VNC handshake");
         RFB.sendID = setInterval(function() {
                 /*
                  * Send updates either at a rate of one update every 50ms,
@@ -909,18 +913,20 @@ init_ws: function () {
                     console.log("Delaying send");
                 }
             }, 50);
-        console.log("<< WebSockets.onopen");
+        console.log("<< WebSocket.onopen");
     };
     RFB.ws.onclose = function(e) {
-        console.log(">> WebSockets.onclose");
+        console.log(">> WebSocket.onclose");
         clearInterval(RFB.sendID);
-        RFB.state = "closed";
-        console.log("<< WebSockets.onclose");
+        if (RFB.state != 'disconnected') {
+            RFB.updateState('disconnected', 'VNC disconnected');
+        }
+        console.log("<< WebSocket.onclose");
     };
     RFB.ws.onerror = function(e) {
-        console.log(">> WebSockets.onerror");
-        console.log("   " + e);
-        console.log("<< WebSockets.onerror");
+        console.error(">> WebSocket.onerror");
+        console.error("   " + e);
+        console.error("<< WebSocket.onerror");
     };
 
     console.log("<< init_ws");
@@ -954,21 +960,20 @@ connect: function () {
 
     RFB.init_vars();
 
-    if (RFB.ws) {
+    if ((RFB.ws) && (RFB.ws.readyState == WebSocket.OPEN)) {
         RFB.ws.close();
     }
     RFB.init_ws();
 
-    $('connectButton').value = "Disconnect";
-    $('connectButton').onclick = RFB.disconnect;
+    RFB.updateState('ProtocolVersion');
     console.log("<< connect");
 
 },
 
 disconnect: function () {
     console.log(">> disconnect");
-    if (RFB.ws) {
-        RFB.state = "closed";
+    if ((RFB.ws) && (RFB.ws.readyState == WebSocket.OPEN)) {
+        RFB.updateState('closed');
         RFB.ws.close();
     }
     if (Canvas.ctx) {
@@ -977,9 +982,8 @@ disconnect: function () {
             Canvas.clear();
         }
     }
-    $('connectButton').value = "Connect";
-    $('connectButton').onclick = RFB.connect;
-    $('status').innerHTML = "Disconnected";
+
+    RFB.updateState('disconnected', 'Disconnected');
     console.log("<< disconnect");
 }
 

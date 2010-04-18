@@ -1,7 +1,5 @@
 - Make packet sequence number optional based on WebSockets 'path'.
 
-- Better status and error feedback.
-
 - Add WSS/https/SSL support to page and wsproxy.py
 
 - Make C version of wsproxy.py

@@ -121,7 +121,8 @@ draw: function () {
     */
 
     /* Test array image data */
-    var img = Canvas.ctx.createImageData(50, 50);
+    //var img = Canvas.ctx.createImageData(50, 50);
+    var img = Canvas.ctx.getImageData(0, 0, 50, 50);
     for (y=0; y< 50; y++) {
         for (x=0; x< 50; x++) {
             img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y);
@@ -134,7 +135,8 @@ draw: function () {
 },
 
 rgbxImage: function(x, y, width, height, arr) {
-    var img = Canvas.ctx.createImageData(width, height);
+    /* Old firefox and Opera don't support createImageData */
+    var img = Canvas.ctx.getImageData(0, 0, width, height);
     for (var i=0; i < (width * height); i++) {
         img.data[i*4 + 0] = arr[i*4 + 0];
         img.data[i*4 + 1] = arr[i*4 + 1];
