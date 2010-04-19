@@ -65,7 +65,7 @@
                     RFB.updateState('failed', "'file://' URL is incompatible with Adobe Flash");
                 } else {
                     WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
-                    RFB.force_copy = true;
+                    RFB.use_seq = true;
                     RFB.updateState('disconnected', 'Disconnected');
                 }
             }

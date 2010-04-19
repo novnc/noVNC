@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
-import sys, os, socket, time, traceback
+import sys, os, socket, time, traceback, re
 from base64 import b64encode, b64decode
 from select import select
 
 buffer_size = 65536
 send_seq = 0
+client_settings = {}
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
@@ -32,21 +33,27 @@ Traffic Legend:
 
 
 def do_handshake(client):
+    global client_settings
     handshake = client.recv(1024)
-    print "Handshake [%s]" % handshake
+    #print "Handshake [%s]" % handshake
     if handshake.startswith("<policy-file-request/>"):
-        print "Sending:", policy_response
+        print "Sending flash policy response"
         client.send(policy_response)
         client.close()
         return False
-        #handshake = client.recv(1024)
-        #if len(handshake) == 0:
-        #    raise Exception("Policy exchange failed")
-        #print "Handshake [%s]" % handshake
     req_lines = handshake.split("\r\n")
     _, path, _ = req_lines[0].split(" ")
     _, origin = req_lines[4].split(" ")
     _, host = req_lines[3].split(" ")
+
+    # Parse settings from the path
+    cvars = path.partition('?')[2].partition('#')[0].split('&')
+    for cvar in [c for c in cvars if c]:
+        name, _, value = cvar.partition('=')
+        client_settings[name] = value and value or True
+
+    print "client_settings:", client_settings
+
     client.send(server_handshake % (origin, host, path))
     return True
 
@@ -76,7 +83,7 @@ def proxy(client, target):
 
         if tqueue and target in outs:
             #print "Target send: %s" % repr(tqueue[0])
-            log.write("Target send: %s\n" % map(ord, tqueue[0]))
+            ##log.write("Target send: %s\n" % map(ord, tqueue[0]))
             dat = tqueue.pop(0)
             sent = target.send(dat)
             if sent == len(dat):
@@ -90,25 +97,28 @@ def proxy(client, target):
             sent = client.send(dat)
             if sent == len(dat):
                 traffic("<")
-                log.write("Client send: %s\n" % repr(dat))
+                ##log.write("Client send: %s\n" % repr(dat))
             else:
                 cqueue.insert(0, dat[sent:])
                 traffic("<.")
-                log.write("Client send partial: %s\n" % repr(dat[0:send]))
+                ##log.write("Client send partial: %s\n" % repr(dat[0:send]))
 
 
         if target in ins:
             buf = target.recv(buffer_size)
             if len(buf) == 0: raise Exception("Target closed")
 
-            #enc = b64encode(buf)
-            #chksum = sum([ord(c) for c in enc])
-            #cqueue.append("\x00^" + str(chksum) + "@" + enc + "$\xff")
+            ##log.write("Target recv (%d): %s\n" % (len(buf), map(ord, buf)))
 
-            cqueue.append("\x00%d:%s\xff" % (send_seq, b64encode(buf)))
-            send_seq += 1
+            if client_settings.get("b64encode"):
+                buf = b64encode(buf)
 
-            log.write("Target recv (%d): %s\n" % (len(buf), map(ord, buf)))
+            if client_settings.get("seq_num"):
+                cqueue.append("\x00%d:%s\xff" % (send_seq, buf))
+                send_seq += 1
+            else:
+                cqueue.append("\x00%s\xff" % buf)
+
             traffic("{")
 
         if client in ins:
@@ -117,7 +127,7 @@ def proxy(client, target):
 
             if buf[-1] == "\xff":
                 traffic("}")
-                log.write("Client recv (%d): %s\n" % (len(buf), repr(buf)))
+                ##log.write("Client recv (%d): %s\n" % (len(buf), repr(buf)))
                 if cpartial:
                     tqueue.extend(decode(cpartial + buf))
                     cpartial = ""
@@ -125,7 +135,7 @@ def proxy(client, target):
                     tqueue.extend(decode(buf))
             else:
                 traffic("}.")
-                log.write("Client recv partial (%d): %s\n" % (len(buf), repr(buf)))
+                ##log.write("Client recv partial (%d): %s\n" % (len(buf), repr(buf)))
                 cpartial = cpartial + buf
 
 
@@ -157,7 +167,7 @@ def start_server(listen_port, target_host, target_port):
             if tsock: tsock.close()
 
 if __name__ == '__main__':
-    log = open("ws.log", 'w')
+    ##log = open("ws.log", 'w')
     try:
         if len(sys.argv) != 4: raise
         listen_port = int(sys.argv[1])

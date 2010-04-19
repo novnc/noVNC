@@ -83,7 +83,7 @@ RFB = {
 
 ws        : null,  // Web Socket object
 sendID    : null,
-force_copy : false,
+use_seq   : false,
 
 version   : "RFB 003.003\n",
 state     : 'disconnected',
@@ -647,6 +647,84 @@ clientCutText: function (text) {
  * Utility routines
  */
 
+recv_message: function(e) {
+    //console.log(">> recv_message");
+    RQ = RQ.concat(Base64.decode(e.data, 0));
+
+    RFB.handle_message();
+    //console.log("<< recv_message");
+},
+
+recv_message_reorder: function(e) {
+    //console.log(">> recv_message_reorder");
+
+    var offset = e.data.indexOf(":") + 1;
+    var seq_num = parseInt(e.data.substr(0, offset-1));
+    if (RQ_seq_num == seq_num) {
+        RQ = RQ.concat(Base64.decode(e.data, offset));
+        RQ_seq_num++;
+    } else {
+        console.warn("sequence number mismatch RQ_seq_num:" + RQ_seq_num + ", seq_num:" + seq_num);
+        if (RQ_reorder.length > 20) {
+            RFB.updateState('failed', "Re-order queue too long");
+        } else {
+            RQ_reorder = RQ_reorder.concat(e.data.substr(0));
+            var i = 0;
+            while (i < RQ_reorder.length) {
+                var offset = RQ_reorder[i].indexOf(":") + 1;
+                var seq_num = parseInt(RQ_reorder[i].substr(0, offset-1));
+                console.log("Searching reorder list item " + i + ", seq_num " + seq_num);
+                if (seq_num == RQ_seq_num) {
+                    /* Remove it from reorder queue, decode it and
+                        * add it to the receive queue */
+                    console.log("Found re-ordered packet seq_num " + seq_num);
+                    RQ = RQ.concat(Base64.decode(RQ_reorder.splice(i, 1)[0], offset));
+                    RQ_seq_num++;
+                    i = 0;  // Start search again for next one
+                } else {
+                    i++;
+                }
+            }
+            
+        }
+    }
+
+    RFB.handle_message();
+    //console.log("<< recv_message_reorder");
+},
+
+handle_message: function () {
+    switch (RFB.state) {
+    case 'disconnected':
+        console.error("Got data while disconnected");
+        break;
+    case 'reset':
+        /* close and reset connection */
+        RFB.disconnect();
+        RFB.init_ws();
+        break;
+    case 'failed':
+        console.log("Giving up!");
+        RFB.disconnect();
+        break;
+    case 'normal':
+        RFB.normal_msg();
+        /*
+        while (RQ.length > 0) {
+            if (RFB.normal_msg() && RFB.state == 'normal') {
+                console.log("More to process");
+            } else {
+                break;
+            }
+        }
+        */
+        break;
+    default:
+        RFB.init_msg();
+        break;
+    }
+},
+
 send_string: function (str) {
     //console.log(">> send_string: " + str);
     RFB.send_array(str.split('').map(
@@ -828,74 +906,18 @@ updateState: function(state, statusMsg) {
 init_ws: function () {
 
     console.log(">> init_ws");
-    var uri = "ws://" + RFB.host + ":" + RFB.port;
+    var uri = "ws://" + RFB.host + ":" + RFB.port + "/?b64encode";
+    if (RFB.use_seq) {
+        uri += "&seq_num";
+    }
     console.log("connecting to " + uri);
     RFB.ws = new WebSocket(uri);
-    RFB.ws.onmessage = function(e) {
-        //console.log(">> WebSocket.onmessage");
 
-        var offset = e.data.indexOf(":") + 1;
-        var seq_num = parseInt(e.data.substr(0, offset-1));
-        if (RQ_seq_num == seq_num) {
-            RQ = RQ.concat(Base64.decode(e.data, offset));
-            RQ_seq_num++;
-        } else {
-            console.warn("sequence number mismatch RQ_seq_num:" + RQ_seq_num + ", seq_num:" + seq_num);
-            if (RQ_reorder.length > 20) {
-                RFB.updateState('failed', "Re-order queue too long");
-            } else {
-                RQ_reorder = RQ_reorder.concat(e.data.substr(0));
-                var i = 0;
-                while (i < RQ_reorder.length) {
-                    var offset = RQ_reorder[i].indexOf(":") + 1;
-                    var seq_num = parseInt(RQ_reorder[i].substr(0, offset-1));
-                    console.log("Searching reorder list item " + i + ", seq_num " + seq_num);
-                    if (seq_num == RQ_seq_num) {
-                        /* Remove it from reorder queue, decode it and
-                         * add it to the receive queue */
-                        console.log("Found re-ordered packet seq_num " + seq_num);
-                        RQ = RQ.concat(Base64.decode(RQ_reorder.splice(i, 1)[0], offset));
-                        RQ_seq_num++;
-                        i = 0;  // Start search again for next one
-                    } else {
-                        i++;
-                    }
-                }
-                
-            }
-        }
-
-        switch (RFB.state) {
-        case 'disconnected':
-            console.error("WebSocket.onmessage while disconnected");
-            break;
-        case 'reset':
-            /* close and reset connection */
-            RFB.disconnect();
-            RFB.init_ws();
-            break;
-        case 'failed':
-            console.log("Giving up!");
-            RFB.disconnect();
-            break;
-        case 'normal':
-            RFB.normal_msg();
-            /*
-            while (RQ.length > 0) {
-                if (RFB.normal_msg() && RFB.state == 'normal') {
-                    console.log("More to process");
-                } else {
-                    break;
-                }
-            }
-            */
-            break;
-        default:
-            RFB.init_msg();
-            break;
-        }
-        //console.log("<< WebSocket.onmessage");
-    };
+    if (RFB.use_seq) {
+        RFB.ws.onmessage = RFB.recv_message_reorder;
+    } else {
+        RFB.ws.onmessage = RFB.recv_message;
+    }
     RFB.ws.onopen = function(e) {
         console.log(">> WebSocket.onopen");
         RFB.updateState('ProtocolVersion', "Starting VNC handshake");
