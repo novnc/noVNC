@@ -1,10 +1,8 @@
-- Make packet sequence number optional based on WebSockets 'path'.
-
 - Add WSS/https/SSL support to page and wsproxy.py
 
 - Make C version of wsproxy.py
 
-- Implement UI option for shared.
+- Implement UI option for VNC shared mode.
 
 - Upgrade to protocol 3.8 
     - implement ZRLE encoding
