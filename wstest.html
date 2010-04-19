@@ -43,6 +43,7 @@
     <script>
 
         function error(str) {
+            console.error(str);
             cell = $('error');
             cell.innerHTML += errors + ": " + str + "\n";
             cell.scrollTop = cell.scrollHeight;
