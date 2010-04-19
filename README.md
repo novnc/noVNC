@@ -5,7 +5,7 @@ VNC HTML5 Client
 Description
 -----------
 
-An VNC client implemented using HTML5, specifically Canvas and
+A VNC client implemented using HTML5, specifically Canvas and
 WebSocket.
 
 For browsers that do not have builtin WebSocket support, the project
@@ -62,7 +62,7 @@ Usage
 * Point your web browser at http://localhost:8080/vnc.html
  (or whatever port you used above to run the web server).
 
-* Provide the host and port where the proxy is running and the
+* Specify the host and port where the proxy is running and the
   password that the vnc server is using (if any). Hit the Connect
   button and enjoy!
 
