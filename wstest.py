@@ -18,19 +18,20 @@ WebSocket-Protocol: sample\r
 
 policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>"""
 
-def handshake(client):
+def do_handshake(client):
     handshake = client.recv(1024)
     print "Handshake [%s]" % handshake
     if handshake.startswith("<policy-file-request/>"):
-        print "Sending:", policy_response
+        print "Sending flash policy response"
         client.send(policy_response)
-        handshake = client.recv(1024)
-        print "Handshake [%s]" % handshake
+        client.close()
+        return False
     req_lines = handshake.split("\r\n")
     _, path, _ = req_lines[0].split(" ")
     _, origin = req_lines[4].split(" ")
     _, host = req_lines[3].split(" ")
     client.send(server_handshake % (origin, host, path))
+    return True
 
 def traffic(token="."):
     sys.stdout.write(token)
@@ -117,7 +118,7 @@ def generate():
     buf = "\x00" + b64encode(data) + "\xff"
     return buf
 
-def responder(client, delay=500):
+def responder(client, delay=10):
     global errors
     cqueue = []
     cpartial = ""
@@ -155,7 +156,7 @@ def responder(client, delay=500):
             client.send(generate())
             traffic("<")
 
-def start_server(listen_port, delay=500):
+def start_server(listen_port, delay=10):
     global errors, send_cnt, recv_cnt
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -167,7 +168,8 @@ def start_server(listen_port, delay=500):
             print 'listening on port %s' % listen_port
             csock, address = lsock.accept()
             print 'Got client connection from %s' % address[0]
-            handshake(csock)
+            if not do_handshake(csock):
+                continue
 
             send_cnt = 0
             recv_cnt = 0
@@ -188,7 +190,7 @@ if __name__ == '__main__':
         if len(sys.argv) == 3:
             delay = int(sys.argv[2])
         else:
-            delay = 500
+            delay = 10
     except:
         print "Usage: <listen_port> [delay_ms]"
         sys.exit(1)

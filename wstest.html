@@ -24,13 +24,29 @@
             </tr>
         </table>
 
+        <br>
+        Errors:<br>
+        <textarea id="error" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
+
+
+    <!-- Uncomment to activate firebug lite -->
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
 
     <script src="include/mootools.js"></script>
     <script src="include/base64.js"></script>
     <script src="include/util.js"></script>
 
     <script>
+
+        function error(str) {
+            cell = $('error');
+            cell.innerHTML += errors + ": " + str + "\n";
+            cell.scrollTop = cell.scrollHeight;
+        }
 
         var host = null, port = null, sendDelay = 0;
         var ws = null, update_ref = null, send_ref = null;
@@ -59,13 +75,13 @@
             last = String.fromCharCode(decoded.pop());
 
             if (first != "^") {
-                console.error("Packet missing start char '^'");
                 errors++;
+                error("Packet missing start char '^'");
                 return;
             }
             if (last != "$") {
-                console.error("Packet missing end char '$'");
                 errors++;
+                error("Packet missing end char '$'");
                 return;
             }
             arr = decoded.map(function(num) {
@@ -74,24 +90,29 @@
             cnt    = arr[0];
             length = arr[1];
             chksum = arr[2];
-            nums = arr[3];
+            nums   = arr[3];
+
             //console.log("   length:" + length + " chksum:" + chksum + " nums:" + nums);
             if (cnt != recv_cnt) {
-                console.error("Expected count " + recv_cnt + " but got " + cnt);
-                recv_cnt = parseInt(cnt,10) + 1;   // Back on track
                 errors++;
+                error("Expected count " + recv_cnt + " but got " + cnt);
+                recv_cnt = parseInt(cnt,10) + 1;   // Back on track
                 return;
             }
             recv_cnt++;
             if (nums.length != length) {
-                console.error("Expected length " + length + " but got " + nums.length);
                 errors++;
+                error("Expected length " + length + " but got " + nums.length);
                 return;
             }
-            real_chksum = nums.split('').reduce(add);
+            //real_chksum = nums.reduce(add);
+            real_chksum = 0;
+            for (var i=0; i < nums.length; i++) {
+                real_chksum += parseInt(nums.charAt(i), 10);
+            }
             if (real_chksum != chksum) {
-                console.error("Expected chksum " + chksum + " but real chksum is " + real_chksum);
                 errors++
+                error("Expected chksum " + chksum + " but real chksum is " + real_chksum);
                 return;
             }
             received++;
@@ -109,7 +130,11 @@
             for (var i=0; i < length; i++) {
                 numlist.push( Math.floor(Math.random()*10) );
             }
-            chksum = numlist.reduce(add);
+            //chksum = numlist.reduce(add);
+            chksum = 0;
+            for (var i=0; i < numlist.length; i++) {
+                chksum += parseInt(numlist[i], 10);
+            }
             var nums = numlist.join('');
             arr.pushStr("^" + send_cnt + ":" + length + ":" + chksum + ":" + nums + "$")
             send_cnt ++;
@@ -191,14 +216,14 @@
         /* If no builtin websockets then load web_socket.js */
         if (! window.WebSocket) {
             console.log("Loading web-socket-js flash bridge");
-            var extra = "<script src='web-socket-js/swfobject.js'><\/script>";
-            extra += "<script src='web-socket-js/FABridge.js'><\/script>";
-            extra += "<script src='web-socket-js/web_socket.js'><\/script>";
+            var extra = "<script src='include/web-socket-js/swfobject.js'><\/script>";
+            extra += "<script src='include/web-socket-js/FABridge.js'><\/script>";
+            extra += "<script src='include/web-socket-js/web_socket.js'><\/script>";
             document.write(extra);
         }
 
         window.onload = function() {
-            WebSocket.__swfLocation = "web-socket-js/WebSocketMain.swf";
+            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
             console.log("onload");
             var url = document.location.href;
             $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
