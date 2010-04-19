@@ -941,7 +941,11 @@ init_ws: function () {
         console.log(">> WebSocket.onclose");
         clearInterval(RFB.sendID);
         if (RFB.state != 'disconnected') {
-            RFB.updateState('disconnected', 'VNC disconnected');
+            if (RFB.state == 'failed') {
+                RFB.updateState('disconnected');
+            } else {
+                RFB.updateState('disconnected', 'VNC disconnected');
+            }
         }
         console.log("<< WebSocket.onclose");
     };
@@ -1005,7 +1009,11 @@ disconnect: function () {
         }
     }
 
-    RFB.updateState('disconnected', 'Disconnected');
+    if (RFB.state == 'failed') {
+        RFB.updateState('disconnected');
+    } else {
+        RFB.updateState('disconnected', 'Disconnected');
+    }
     console.log("<< disconnect");
 }
 
