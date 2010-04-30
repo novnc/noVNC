@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application 
+	xmlns="http://ns.adobe.com/air/application/1.0"
+	minimumPatchLevel="0">
+<!-- AIR Application Descriptor File. See http://www.adobe.com/go/air_1.0_application_descriptor. -->
+	<id>com.Test</id>
+	<name>Test</name>
+	<version>1.0</version>
+	<filename>Test</filename>
+	<description>Test</description>
+	<copyright>(c) 2007</copyright>
+	<initialWindow>
+		<content>bin/Test.swf</content>
+		<title>Test</title>
+		<systemChrome>standard</systemChrome>
+		<transparent>false</transparent>
+		<visible>true</visible>
+		<minimizable>true</minimizable>
+		<maximizable>true</maximizable>
+		<resizable>true</resizable>
+		<width>1024</width>
+    <height>768</height>
+    <x>100</x>
+    <y>50</y>
+		<minSize>300 300</minSize>
+		<maxSize>800 800</maxSize>
+	</initialWindow>
+	<installFolder>Test</installFolder>
+	<programMenuFolder>Test</programMenuFolder>
+	<icon>
+	  <!--
+		<image16x16>icons/AIRApp_16.png</image16x16>
+		<image32x32>icons/AIRApp_32.png</image32x32>
+		<image48x48>icons/AIRApp_48.png</image48x48>
+		<image128x128>icons/AIRApp_128.png</image128x128>
+		-->
+	</icon>
+	<customUpdateUI>false</customUpdateUI>
+	<allowBrowserInvocation>false</allowBrowserInvocation>	
+</application>

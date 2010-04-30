@@ -1,0 +1,13 @@
+
+= DESCRIPTION
+
+  as3crypto 1.3 has some bugs, at r28(latest version of original svn-repository),
+  many of them are fixed, but there are another bugs around a new ASN1 parser.
+  so I copied some features from r28 to 1.3
+  version, and fixed them to be built without error.
+  and added build-swc.xml
+
+= LICENSE
+
+See LICENCE.txt,
+

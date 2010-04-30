@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*"
+				xmlns:flexunit="flexunit.flexui.*"
+				creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+			import flexunit.framework.TestSuite;
+			import suite.*;
+			
+			// After everything is built, configure the test
+			// runner to use the appropriate test suite and
+			// kick off the unit tests
+			private function onCreationComplete():void {
+ 				testRunner.test = createSuite();
+ 				testRunner.startTest();
+ 			}
+			
+			// Creates the test suite to run
+			private function createSuite():TestSuite {
+ 				var ts:TestSuite = new TestSuite();
+ 				
+ 				// TODO: Add more tests here to test more classes
+ 				// by calling addTest as often as necessary
+ 				ts.addTest(new AllTests());
+ 				
+ 				return ts;
+ 			}
+			
+		]]>
+	</mx:Script>
+
+	<!-- flexunit provides a very handy default test runner GUI -->
+	<flexunit:TestRunnerBase id="testRunner" width="100%" height="100%" />
+</mx:Application>
