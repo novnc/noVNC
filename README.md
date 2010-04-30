@@ -6,11 +6,15 @@ Description
 -----------
 
 A VNC client implemented using HTML5, specifically Canvas and
-WebSocket.
+WebSocket (supports 'wss://' encryption).
 
 For browsers that do not have builtin WebSocket support, the project
 includes web-socket-js, a WebSocket emulator using Adobe Flash
 (http://github.com/gimite/web-socket-js).
+
+In addition, as3crypto has been added to web-socket-js to implement
+WebSocket SSL/TLS encryption, i.e. the "wss://" URI scheme.
+(http://github.com/lyokato/as3crypto_patched).
 
 
 Requirements
@@ -18,7 +22,8 @@ Requirements
 
 Until there is VNC server support for WebSocket connections, you need
 to use a WebSocket to TCP socket proxy. There is a python proxy
-included ('wsproxy').
+included ('wsproxy'). One advantage of using the proxy is that it has
+builtin support for SSL/TLS encryption (i.e. "wss://").
 
 There a few reasons why a proxy is required:
 
@@ -37,6 +42,13 @@ There a few reasons why a proxy is required:
      events may arrive out of order. In order to compensate for this
      the client asks the proxy (using the initial query string) to add
      sequence numbers to each packet.
+
+To encrypt the traffic using the WebSocket 'wss://' URI scheme you
+need to generate a certificate for the proxy to load. You can generate
+a self-signed certificate using openssl. The common name should be the
+hostname of the server where the proxy will be running:
+
+    `openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem`
 
 
 Usage

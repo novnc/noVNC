@@ -16,6 +16,10 @@ import mx.controls.*;
 import mx.events.*;
 import mx.utils.*;
 import com.adobe.net.proxies.RFC2817Socket;
+import com.hurlant.crypto.tls.TLSSocket;
+import com.hurlant.crypto.tls.TLSConfig;
+import com.hurlant.crypto.tls.TLSEngine;
+import com.hurlant.crypto.tls.TLSSecurityParameters;
 
 [Event(name="message", type="WebSocketMessageEvent")]
 [Event(name="open", type="flash.events.Event")]
@@ -27,7 +31,11 @@ public class WebSocket extends EventDispatcher {
   private static var OPEN:int = 1;
   private static var CLOSED:int = 2;
   
-  private var socket:RFC2817Socket;
+  //private var rawSocket:RFC2817Socket;
+  private var rawSocket:Socket;
+  private var tlsSocket:TLSSocket;
+  private var tlsConfig:TLSConfig;
+  private var socket:Socket;
   private var main:WebSocketMain;
   private var scheme:String;
   private var host:String;
@@ -59,6 +67,7 @@ public class WebSocket extends EventDispatcher {
     // "Header1: xxx\r\nHeader2: yyyy\r\n"
     this.headers = headers;
     
+    /*
     socket = new RFC2817Socket();
             
     // if no proxy information is supplied, it acts like a normal Socket
@@ -66,13 +75,30 @@ public class WebSocket extends EventDispatcher {
     if (proxyHost != null && proxyPort != 0){      
       socket.setProxyInfo(proxyHost, proxyPort);
     } 
-    
-    socket.addEventListener(Event.CLOSE, onSocketClose);
-    socket.addEventListener(Event.CONNECT, onSocketConnect);
-    socket.addEventListener(IOErrorEvent.IO_ERROR, onSocketIoError);
-    socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSocketSecurityError);
-    socket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
-    socket.connect(host, port);
+    */
+
+    ExternalInterface.call("console.log", "[WebSocket] scheme: " + scheme);
+    rawSocket = new Socket();
+
+    rawSocket.addEventListener(Event.CLOSE, onSocketClose);
+    rawSocket.addEventListener(Event.CONNECT, onSocketConnect);
+    rawSocket.addEventListener(IOErrorEvent.IO_ERROR, onSocketIoError);
+    rawSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSocketSecurityError);
+    if (scheme == "wss") {
+        tlsConfig= new TLSConfig(TLSEngine.CLIENT,
+            null, null, null, null, null,
+            TLSSecurityParameters.PROTOCOL_VERSION);
+        tlsConfig.trustSelfSignedCertificates = true;
+        tlsConfig.ignoreCommonNameMismatch = true;
+
+        tlsSocket = new TLSSocket();
+        tlsSocket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
+        socket = (tlsSocket as Socket);
+    } else {
+        rawSocket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
+        socket = (rawSocket as Socket);
+    }
+    rawSocket.connect(host, port);
   }
   
   public function send(data:String):int {
@@ -118,6 +144,12 @@ public class WebSocket extends EventDispatcher {
   
   private function onSocketConnect(event:Event):void {
     main.log("connected");
+
+    if (scheme == "wss") {
+        ExternalInterface.call("console.log", "[WebSocket] starting SSL/TLS");
+        tlsSocket.startTLS(rawSocket, host, tlsConfig);
+    }
+    
     var hostValue:String = host + (port == 80 ? "" : ":" + port);
     var cookie:String = "";
     if (main.getCallerHost() == host) {

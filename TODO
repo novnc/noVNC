@@ -1,8 +1,8 @@
-- Add WSS/https/SSL support to page and wsproxy.py
-
 - Make C version of wsproxy.py
 
 - Implement UI option for VNC shared mode.
 
 - Upgrade to protocol 3.8 
     - implement ZRLE encoding
+
+- Get web-socket-js RFC2817 proxying working again.

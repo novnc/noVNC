@@ -1,0 +1,21 @@
+Canvas Browser Compatibility:
+    http://philip.html5.org/tests/canvas/suite/tests/results.html
+
+WebSockets API standard:
+    http://dev.w3.org/html5/websockets/
+
+Browser Keyboard Events detailed:
+    http://unixpapa.com/js/key.html
+
+ActionScript (Flash) WebSocket implementation:
+    http://github.com/gimite/web-socket-js
+
+ActionScript (Flash) crypto/TLS library:
+    http://code.google.com/p/as3crypto
+    http://github.com/lyokato/as3crypto_patched
+
+TLS Protocol:
+    http://en.wikipedia.org/wiki/Transport_Layer_Security
+
+Generate self-signed certificate:
+    http://docs.python.org/dev/library/ssl.html#certificates

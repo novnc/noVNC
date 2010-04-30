@@ -906,7 +906,11 @@ updateState: function(state, statusMsg) {
 init_ws: function () {
 
     console.log(">> init_ws");
-    var uri = "ws://" + RFB.host + ":" + RFB.port + "/?b64encode";
+    var scheme = "ws://";
+    if ($('encrypt').checked) {
+        scheme = "wss://";
+    }
+    var uri = scheme + RFB.host + ":" + RFB.port + "/?b64encode";
     if (RFB.use_seq) {
         uri += "&seq_num";
     }

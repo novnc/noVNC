@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+'''
+A WebSocket to TCP socket proxy with support for "wss://" encryption.
+
+You can make a cert/key with openssl using:
+openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem
+as taken from http://docs.python.org/dev/library/ssl.html#certificates
+
+'''
+
 import sys, os, socket, ssl, time, traceback, re
 from base64 import b64encode, b64decode
 from select import select
@@ -129,7 +138,7 @@ def do_handshake(sock):
         retsock = ssl.wrap_socket(
                 sock,
                 server_side=True,
-                certfile='wsproxy.pem',
+                certfile='self.pem',
                 ssl_version=ssl.PROTOCOL_TLSv1)
         scheme = "wss"
         print "Using SSL/TLS"
