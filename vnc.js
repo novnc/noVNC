@@ -21,6 +21,12 @@ Array.prototype.shift32 = function () {
            (this.shift() <<  8) +
            (this.shift()      );
 }
+Array.prototype.get32 = function (off) {
+    return (this[off    ] << 24) +
+           (this[off + 1] << 16) +
+           (this[off + 2] <<  8) +
+           (this[off + 3]      );
+}
 Array.prototype.push32 = function (num) {
     this.push((num >> 24) & 0xFF,
               (num >> 16) & 0xFF,
@@ -85,7 +91,9 @@ ws        : null,  // Web Socket object
 sendID    : null,
 use_seq   : false,
 
-version   : "RFB 003.003\n",
+max_version : 3.8,
+version   : 0,
+auth_scheme : '',
 state     : 'disconnected',
 cuttext   : 'none', // ServerCutText wait state
 ct_length : 0,
@@ -115,28 +123,68 @@ rre_chunk : 100,
 init_msg: function () {
     console.log(">> init_msg");
 
+    //console.log("RQ (" + RQ.length + ") " + RQ);
+
     switch (RFB.state) {
 
     case 'ProtocolVersion' :
-        if (RQ.length != 12) {
-            updateStatus('failed', "Disconnected: invalid RFB protocol version received");
+        if (RQ.length < 12) {
+            RFB.updateState('failed', "Disconnected: invalid RFB protocol version received");
             return;
         }
-        var server_version = RQ.shiftStr(12);
-        console.log("Server ProtocolVersion: " + server_version.substr(0,11));
-        RFB.send_string(RFB.version);
-        RFB.updateState('Authentication', "Sent ProtocolVersion: " + RFB.version.substr(0,11));
+        var server_version = RQ.shiftStr(12).substr(0,11);
+        console.log("Server ProtocolVersion: " + server_version);
+        if ((server_version == "RFB 003.003") || (RFB.max_version == 3.3)) {
+            RFB.version = 3.3;
+            var verstr = "RFB 003.003";
+            RFB.send_string(verstr + "\n");
+            RFB.updateState('Security', "Sent ProtocolVersion: " + verstr);
+        } else if (server_version == "RFB 003.008") {
+            RFB.version = 3.8;
+            var verstr = "RFB 003.008";
+            RFB.send_string(verstr + "\n");
+            RFB.updateState('Security', "Sent ProtocolVersion: " + verstr);
+        } else {
+            RFB.updateState('failed', "Invalid server version " + server_version);
+            return;
+        }
         break;
 
-    case 'Authentication' :
-        if (RQ.length < 4) {
-            RFB.updateState('reset', "Invalid auth frame");
-            return;
+    case 'Security' :
+        if (RFB.version == 3.3) {
+            if (RQ.length < 4) {
+                RFB.updateState('reset', "Invalid security frame");
+                return;
+            }
+            RFB.auth_scheme = RQ.shift32();
+            console.log("auth_scheme: " + RFB.auth_scheme);
+        } else if (RFB.version == 3.8) {
+            var num_types = RQ.shift8();
+            if (num_types == 0) {
+                var strlen = RQ.shift32();
+                var reason = RQ.shiftStr(strlen);
+                RFB.updateState('failed', "Disconnected: security failure: " + reason);
+                return;
+            }
+            var types = RQ.shiftBytes(num_types);
+            if ((types[0] != 1) && (types[0] != 2)) {
+                RFB.updateState('failed', "Disconnected: invalid security type list: " + types);
+                return;
+            }
+            RFB.auth_scheme = types[0];
+            RFB.send_array([RFB.auth_scheme]);
         }
-        var scheme = RQ.shift32();
-        console.log("Auth scheme: " + scheme);
-        switch (scheme) {
+        RFB.updateState('Authentication', "Authenticating using scheme: " + RFB.auth_scheme);
+        // Fall through
+
+    case 'Authentication' :
+        console.log("Security auth scheme: " + RFB.auth_scheme);
+        switch (RFB.auth_scheme) {
             case 0:  // connection failed
+                if (RQ.length < 4) {
+                    console.log("   waiting for auth reason bytes");
+                    return;
+                }
                 var strlen = RQ.shift32();
                 var reason = RQ.shiftStr(strlen);
                 RFB.updateState('failed', "Disconnected: auth failure: " + reason);
@@ -146,17 +194,22 @@ init_msg: function () {
                 RFB.updateState('ServerInitialisation');
                 break;
             case 2:  // VNC authentication
+                if (RQ.length < 16) {
+                    console.log("   waiting for auth challenge bytes");
+                    return;
+                }
                 var challenge = RQ.shiftBytes(16);
                 console.log("Password: " + RFB.password);
-                console.log("Challenge: " + challenge + "(" + challenge.length + ")");
+                console.log("Challenge: " + challenge + " (" + challenge.length + ")");
                 passwd = RFB.passwdTwiddle(RFB.password);
                 response = des(passwd, challenge, 1);
+                console.log("Response: " + response + " (" + response.length + ")");
 
                 RFB.send_array(response);
                 RFB.updateState('SecurityResult');
                 break;
             default:
-                RFB.updateState('failed', "Disconnected: unsupported auth scheme " + scheme);
+                RFB.updateState('failed', "Disconnected: unsupported auth scheme: " + RFB.auth_scheme);
                 return;
         }
         break;

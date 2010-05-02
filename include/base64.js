@@ -101,7 +101,7 @@ decode: function (data, offset) {
     var data_length = data.indexOf('=') - offset;
     if (data_length < 0) data_length = data.length - offset;
 
-    var result_length = (data_length >> 2) * 3 + ((data.length - offset) % 4 - 1);
+    var result_length = (data_length >> 2) * 3 + Math.floor((data_length%4)/1.5);
     var result = new Array(result_length);
 
     // Convert one by one.
