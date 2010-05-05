@@ -123,7 +123,7 @@ rre_chunk : 100,
 init_msg: function () {
     console.log(">> init_msg");
 
-    //console.log("RQ (" + RQ.length + ") " + RQ);
+    console.log("RQ (" + RQ.length + ") " + RQ);
 
     switch (RFB.state) {
 
@@ -151,14 +151,7 @@ init_msg: function () {
         break;
 
     case 'Security' :
-        if (RFB.version == 3.3) {
-            if (RQ.length < 4) {
-                RFB.updateState('reset', "Invalid security frame");
-                return;
-            }
-            RFB.auth_scheme = RQ.shift32();
-            console.log("auth_scheme: " + RFB.auth_scheme);
-        } else if (RFB.version == 3.8) {
+        if (RFB.version == 3.8) {
             var num_types = RQ.shift8();
             if (num_types == 0) {
                 var strlen = RQ.shift32();
@@ -168,11 +161,17 @@ init_msg: function () {
             }
             var types = RQ.shiftBytes(num_types);
             if ((types[0] != 1) && (types[0] != 2)) {
-                RFB.updateState('failed', "Disconnected: invalid security type list: " + types);
+                RFB.updateState('failed', "Disconnected: invalid security types list: " + types);
                 return;
             }
             RFB.auth_scheme = types[0];
             RFB.send_array([RFB.auth_scheme]);
+        } else if (RFB.version == 3.3) {
+            if (RQ.length < 4) {
+                RFB.updateState('failed', "Invalid security frame");
+                return;
+            }
+            RFB.auth_scheme = RQ.shift32();
         }
         RFB.updateState('Authentication', "Authenticating using scheme: " + RFB.auth_scheme);
         // Fall through
@@ -201,8 +200,7 @@ init_msg: function () {
                 var challenge = RQ.shiftBytes(16);
                 console.log("Password: " + RFB.password);
                 console.log("Challenge: " + challenge + " (" + challenge.length + ")");
-                passwd = RFB.passwdTwiddle(RFB.password);
-                response = des(passwd, challenge, 1);
+                var response = RFB.DES(RFB.password, challenge);
                 console.log("Response: " + response + " (" + response.length + ")");
 
                 RFB.send_array(response);
@@ -215,8 +213,8 @@ init_msg: function () {
         break;
 
     case 'SecurityResult' :
-        if (RQ.length != 4) {
-            RFB.updateState('reset', "Invalid VNC auth response");
+        if (RQ.length < 4) {
+            RFB.updateState('failed', "Invalid VNC auth response");
             return;
         }
         var resp = RQ.shift32();
@@ -225,7 +223,13 @@ init_msg: function () {
                 RFB.updateState('ServerInitialisation', "Authentication OK");
                 break;
             case 1:  // failed
-                RFB.updateState('reset', "Authentication failed");
+                if (RFB.version == 3.8) {
+                    var reason_len = RQ.shift32();
+                    var reason = RQ.shiftStr(reason_len);
+                    RFB.updateState('failed', reason);
+                } else if (RFB.version == 3.3) {
+                    RFB.updateState('failed', "Authentication failed");
+                }
                 return;
             case 2:  // too-many
                 RFB.updateState('failed', "Disconnected: too many auth attempts");
@@ -236,7 +240,7 @@ init_msg: function () {
 
     case 'ServerInitialisation' :
         if (RQ.length < 24) {
-            RFB.updateState('reset', "Invalid server initialisation");
+            RFB.updateState('failed', "Invalid server initialisation");
             return;
         }
 
@@ -796,22 +800,17 @@ send_array: function (arr) {
     }
 },
 
-/* Mirror bits of each character and return as array */
-passwdTwiddle: function (passwd) {
-    var arr;
-    arr = [];
-    for (var i=0; i< passwd.length; i++) {
-        var c = passwd.charCodeAt(i);
-        arr.push( ((c & 0x80) >> 7) +
-                  ((c & 0x40) >> 5) +
-                  ((c & 0x20) >> 3) +
-                  ((c & 0x10) >> 1) +
-                  ((c & 0x08) << 1) +
-                  ((c & 0x04) << 3) +
-                  ((c & 0x02) << 5) +
-                  ((c & 0x01) << 7)   );
+DES: function (password, challenge) {
+    var passwd = [];
+    var response = challenge.slice();
+    for (var i=0; i < password.length; i++) {
+        passwd.push(password.charCodeAt(i));
     }
-    return arr;
+
+    DES.setKeys(passwd);
+    DES.encrypt(response, 0, response, 0);
+    DES.encrypt(response, 8, response, 8);
+    return response;
 },
 
 flushClient: function () {
