@@ -6,6 +6,7 @@
 
         Host: <input id='host' style='width:100'>&nbsp;
         Port: <input id='port' style='width:50'>&nbsp;
+        Encrypt: <input id='encrypt' type='checkbox'>&nbsp;
         Send Delay (ms): <input id='sendDelay' style='width:50' value="100">&nbsp;
         <input id='connectButton' type='button' value='Start' style='width:100px'
             onclick="connect();">&nbsp;
@@ -151,9 +152,17 @@
 
         function init_ws() {
             console.log(">> init_ws");
-            var uri = "ws://" + host + ":" + port;
+            var scheme = "ws://";
+            if ($('encrypt').checked) {
+                scheme = "wss://";
+            }
+            var uri = scheme + host + ":" + port + "/?b64encode";
+            //if (RFB.use_seq) {
+            //    uri += "&seq_num";
+            //}
             console.log("connecting to " + uri);
             ws = new WebSocket(uri);
+
             ws.onmessage = function(e) {
                 //console.log(">> WebSockets.onmessage");
                 check_respond(e.data);
@@ -206,6 +215,7 @@
             }
 
             $clear(update_ref);
+            recv_cnt = 0;
             update_stats(); // Final numbers
 
             $('connectButton').value = "Start";

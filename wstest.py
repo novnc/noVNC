@@ -85,8 +85,7 @@ def generate():
     data = "^%d:%d:%d:%s$" % (send_cnt, length, chksum, nums)
     send_cnt += 1
 
-    buf = "\x00" + b64encode(data) + "\xff"
-    return buf
+    return encode(data)
 
 def responder(client, delay=10):
     global errors
