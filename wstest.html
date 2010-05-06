@@ -224,8 +224,8 @@
         }
 
         window.onload = function() {
-            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
             console.log("onload");
+            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
             var url = document.location.href;
             $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
             $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];

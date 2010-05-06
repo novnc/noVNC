@@ -1,50 +1,20 @@
 #!/usr/bin/python
 
-import sys, os, socket, time, traceback, random, time
+'''
+WebSocket server-side load test program. Sends and receives traffic
+that has a random payload (length and content) that is checksummed and
+given a sequence number. Any errors are reported and counted.
+'''
+
+import sys, socket, ssl, time, traceback
+import random, time
 from base64 import b64encode, b64decode
 from select import select
+from websocket import *
 
 buffer_size = 65536
 recv_cnt = send_cnt = 0
 
-server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
-Upgrade: WebSocket\r
-Connection: Upgrade\r
-WebSocket-Origin: %s\r
-WebSocket-Location: ws://%s%s\r
-WebSocket-Protocol: sample\r
-\r
-"""
-
-policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>"""
-
-def do_handshake(client):
-    handshake = client.recv(1024)
-    print "Handshake [%s]" % handshake
-    if handshake.startswith("<policy-file-request/>"):
-        print "Sending flash policy response"
-        client.send(policy_response)
-        client.close()
-        return False
-    req_lines = handshake.split("\r\n")
-    _, path, _ = req_lines[0].split(" ")
-    _, origin = req_lines[4].split(" ")
-    _, host = req_lines[3].split(" ")
-    client.send(server_handshake % (origin, host, path))
-    return True
-
-def traffic(token="."):
-    sys.stdout.write(token)
-    sys.stdout.flush()
-
-
-def decode(buf):
-    """ Parse out WebSocket packets. """
-    if buf.count('\xff') > 1:
-        traffic(str(buf.count('\xff')))
-        return [b64decode(d[1:]) for d in buf.split('\xff')]
-    else:
-        return [b64decode(buf[1:-1])]
 
 def check(buf):
     global recv_cnt
@@ -103,7 +73,7 @@ def check(buf):
 
 
 def generate():
-    global send_cnt
+    global send_cnt, rand_array
     length = random.randint(10, 100000)
     numlist = rand_array[100000-length:]
     # Error in length
@@ -156,31 +126,19 @@ def responder(client, delay=10):
             client.send(generate())
             traffic("<")
 
-def start_server(listen_port, delay=10):
-    global errors, send_cnt, recv_cnt
-    lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    lsock.bind(('', listen_port))
-    lsock.listen(100)
-    while True:
-        try:
-            csock = None
-            print 'listening on port %s' % listen_port
-            csock, address = lsock.accept()
-            print 'Got client connection from %s' % address[0]
-            if not do_handshake(csock):
-                continue
+def test_handler(client):
+    global errors, delay, send_cnt, recv_cnt
 
-            send_cnt = 0
-            recv_cnt = 0
-            responder(csock, delay=delay)
+    send_cnt = 0
+    recv_cnt = 0
 
-        except Exception:
-            print "accumulated errors:", errors
-            errors = 0
-            print "Ignoring exception:"
-            print traceback.format_exc()
-            if csock: csock.close()
+    try:
+        responder(client, delay)
+    except:
+        print "accumulated errors:", errors
+        errors = 0
+        raise
+
 
 if __name__ == '__main__':
     errors = 0
@@ -200,4 +158,4 @@ if __name__ == '__main__':
     for i in range(0, 100000):
         rand_array.append(random.randint(0, 9))
 
-    start_server(listen_port, delay=delay)
+    start_server(listen_port, test_handler)
