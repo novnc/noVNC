@@ -1,3 +1,107 @@
+/*
+ * HTML5 VNC client. To use, include this script and define a div with
+ * id of 'vnc'. For example:
+ *     <html><body>
+ *         <script src='vnc.js'></script>
+ *         <div id='vnc'>Loading</div>
+ *     </body></html>
+ *
+ * This script defines the following globals:
+ *     VNC_scripts, VNC_native_ws, FBU, RFB,
+ *     RQ, RQ_reorder, RQ_seq_num, SQ
+ */
+
+
+/*
+ * Load supporting scripts
+ */
+
+VNC_scripts = "";
+
+// Uncomment to activate firebug lite
+//VNC_scripts += "<script src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'><\/script>";
+
+VNC_scripts += "<script src='include/mootools.js'><\/script>";
+VNC_scripts += "<script src='include/base64.js'><\/script>";
+VNC_scripts += "<script src='include/des.js'><\/script>";
+VNC_scripts += "<script src='include/util.js'><\/script>";
+VNC_scripts += "<script src='canvas.js'><\/script>";
+
+/* If no builtin websockets then load web_socket.js */
+if (window.WebSocket) {
+    VNC_native_ws = true;
+} else {
+    VNC_native_ws = false;
+    VNC_scripts += "<script src='include/web-socket-js/swfobject.js'><\/script>";
+    VNC_scripts += "<script src='include/web-socket-js/FABridge.js'><\/script>";
+    VNC_scripts += "<script src='include/web-socket-js/web_socket.js'><\/script>";
+}
+document.write(VNC_scripts);
+
+/* 
+ * Load the controls
+ */
+window.onload = function () {
+    console.log("onload");
+
+    /* Populate the 'vnc' div */
+    var html = "";
+    html += '<div id="controls">';
+    html += 'Host: <input id="host" style="width:100">&nbsp;';
+    html += 'Port: <input id="port" style="width:50">&nbsp;';
+    html += 'Password: <input id="password" type="password" style="width:80">&nbsp;';
+    html += 'Encrypt: <input id="encrypt" type="checkbox">&nbsp;';
+    html += '<input id="connectButton" type="button" value="Loading"';
+    html += 'style="width:100px" disabled>&nbsp;';
+    html += '</div>';
+    html += '<br>';
+    html += '<div id="status">Loading</div>';
+    html += '<canvas id="canvas" width="640" height="20"';
+    html += '    style="border-style: dotted; border-width: 1px;">';
+    html += '    Canvas not supported.';
+    html += '</canvas>';
+    html += '<br><br>';
+    html += 'VNC Clipboard:';
+    html += '<input id="clearButton" type="button" value="Clear"';
+    html += '    onclick="RFB.clipboardClear();"><br>';
+    html += '<textarea id="clipboard" style="font-size:9;" cols=80 rows=5';
+    html += '    onchange="RFB.clipboardPasteFrom();"';
+    html += '    onfocus="RFB.clipboardFocus=true;"';
+    html += '    onblur="RFB.clipboardFocus=false;"></textarea>';
+    $('vnc').innerHTML = html;
+
+    /* Load web-socket-js if no builtin WebSocket support */
+    if (VNC_native_ws) {
+        console.log("Using native WebSockets");
+        RFB.updateState('disconnected', 'Disconnected');
+    } else {
+        console.log("Using web-socket-js flash bridge");
+        if ((! Browser.Plugins.Flash) ||
+            (Browser.Plugins.Flash.version < 9)) {
+            RFB.updateState('failed', "WebSockets or Adobe Flash is required");
+        } else if (location.href.substr(0, 7) == "file://") {
+            RFB.updateState('failed', "'file://' URL is incompatible with Adobe Flash");
+        } else {
+            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
+            RFB.use_seq = true;
+            RFB.updateState('disconnected', 'Disconnected');
+        }
+    }
+
+    /* Populate the controls if defaults are provided in the URL */
+    if (RFB.state == 'disconnected') {
+        var url = document.location.href;
+        $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
+        $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
+        $('password').value = (url.match(/password=([^&#]*)/) || ['',''])[1];
+        $('encrypt').checked = (url.match(/encrypt=([^&#]*)/) || ['',''])[1];
+    }
+}
+
+/*
+ * Make arrays quack
+ */
+
 Array.prototype.shift8 = function () {
     return this.shift();
 }
@@ -68,15 +172,6 @@ FBU = {
     background: null};
 
 /*
- * Mouse state
- */
-Mouse = {
-    buttonmask : 0,
-    arr        : []
-};
-
-
-/*
  * RFB namespace
  */
 
@@ -88,6 +183,7 @@ SQ         = "";  // Send Queue
 RFB = {
 
 ws        : null,  // Web Socket object
+scheme    : "ws://",
 sendID    : null,
 use_seq   : false,
 
@@ -97,7 +193,7 @@ auth_scheme : '',
 state     : 'disconnected',
 cuttext   : 'none', // ServerCutText wait state
 ct_length : 0,
-clipboardFocus: false,
+clipboardFocus : false,
 
 shared    : 1,
 check_rate : 217,
@@ -113,6 +209,10 @@ fb_height : 0,
 fb_name   : "",
 fb_Bpp    : 4,
 rre_chunk : 100,
+
+/* Mouse state */
+mouse_buttonmask : 0,
+mouse_arr        : [],
 
 
 /*
@@ -266,7 +366,7 @@ init_msg: function () {
         var name_length   = RQ.shift32();
         RFB.fb_name = RQ.shiftStr(name_length);
 
-        Canvas.init('vnc', RFB.fb_width, RFB.fb_height,
+        Canvas.init('canvas', RFB.fb_width, RFB.fb_height,
                 RFB.keyDown, RFB.keyUp,
                 RFB.mouseDown, RFB.mouseUp, RFB.mouseMove);
 
@@ -676,10 +776,10 @@ keyEvent: function (keysym, down) {
 },
 
 pointerEvent: function (x, y) {
-    //console.log(">> pointerEvent, x,y: " + x + "," + y + " , mask: " + Mouse.buttonMask);
+    //console.log(">> pointerEvent, x,y: " + x + "," + y + " , mask: " + RFB.mouse_buttonMask);
     var arr;
     arr = [5];  // msg-type
-    arr.push8(Mouse.buttonMask);
+    arr.push8(RFB.mouse_buttonMask);
     arr.push16(x);
     arr.push16(y);
     //console.log("<< pointerEvent");
@@ -815,14 +915,14 @@ DES: function (password, challenge) {
 
 flushClient: function () {
     var arr = [];
-    if (Mouse.arr.length > 0) {
-        //RFB.send_array(Mouse.arr.concat(RFB.fbUpdateRequest(1)));
-        RFB.send_array(Mouse.arr)
+    if (RFB.mouse_arr.length > 0) {
+        //RFB.send_array(RFB.mouse_arr.concat(RFB.fbUpdateRequest(1)));
+        RFB.send_array(RFB.mouse_arr)
         setTimeout(function() {
                 RFB.send_array(RFB.fbUpdateRequest(1));
             }, 50);
 
-        Mouse.arr = [];
+        RFB.mouse_arr = [];
         return true;
     } else {
         return false;
@@ -868,8 +968,8 @@ mouseDown: function(e) {
     x = (evt.clientX - Canvas.c_x);
     y = (evt.clientY - Canvas.c_y);
     //console.log('>> mouseDown ' + evt.which + '/' + evt.button + " " + x + "," + y);
-    Mouse.buttonMask |= 1 << evt.button;
-    Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
+    RFB.mouse_buttonMask |= 1 << evt.button;
+    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 
     RFB.flushClient();
 },
@@ -880,8 +980,8 @@ mouseUp: function(e) {
     x = (evt.clientX - Canvas.c_x);
     y = (evt.clientY - Canvas.c_y);
     //console.log('>> mouseUp ' + evt.which + '/' + evt.button + " " + x + "," + y);
-    Mouse.buttonMask ^= 1 << evt.button;
-    Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
+    RFB.mouse_buttonMask ^= 1 << evt.button;
+    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 
     RFB.flushClient();
 },
@@ -892,7 +992,7 @@ mouseMove: function(e) {
     x = (evt.clientX - Canvas.c_x);
     y = (evt.clientY - Canvas.c_y);
     //console.log('>> mouseMove ' + x + "," + y);
-    Mouse.arr = Mouse.arr.concat( RFB.pointerEvent(x, y) );
+    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 },
 
 clipboardCopyTo: function (text) {
@@ -958,11 +1058,7 @@ updateState: function(state, statusMsg) {
 init_ws: function () {
 
     console.log(">> init_ws");
-    var scheme = "ws://";
-    if ($('encrypt').checked) {
-        scheme = "wss://";
-    }
-    var uri = scheme + RFB.host + ":" + RFB.port + "/?b64encode";
+    var uri = RFB.scheme + RFB.host + ":" + RFB.port + "/?b64encode";
     if (RFB.use_seq) {
         uri += "&seq_num";
     }
@@ -1025,8 +1121,8 @@ init_vars: function () {
     FBU.subrects = 0;  // RRE and HEXTILE
     FBU.lines    = 0,  // RAW
     FBU.tiles    = 0,  // HEXTILE
-    Mouse.buttonmask = 0;
-    Mouse.arr    = [];
+    RFB.mouse_buttonmask = 0;
+    RFB.mouse_arr    = [];
 },
 
 
@@ -1035,6 +1131,11 @@ connect: function () {
     RFB.host = $('host').value;
     RFB.port = $('port').value;
     RFB.password = $('password').value;
+    if ($('encrypt').checked) {
+        RFB.scheme = "wss://";
+    } else {
+        RFB.scheme = "ws://";
+    }
     if ((!RFB.host) || (!RFB.port)) {
         console.log("must set host and port");
         return;
@@ -1071,6 +1172,6 @@ disconnect: function () {
         RFB.updateState('disconnected', 'Disconnected');
     }
     console.log("<< disconnect");
-}
+},
 
 }; /* End of RFB */

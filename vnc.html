@@ -1,84 +1,12 @@
 <html>
 
-    <head><title>VNC Client</title></head>
+    <head>
+        <title>VNC Client</title>
+        <script src="vnc.js"></script>
+    </head>
 
     <body>
-
-        Host: <input id='host' style='width:100'>&nbsp;
-        Port: <input id='port' style='width:50'>&nbsp;
-        Password: <input id='password' type='password' style='width:80'>&nbsp;
-        Encrypt: <input id='encrypt' type='checkbox'>&nbsp;
-        <input id='connectButton' type='button' value='Loading'
-            style='width:100px' disabled>&nbsp;
-        <br><br>
-
-        <div id='status'>Loading</div>
-        <canvas id="vnc" width="640" height="20"
-                style="border-style: dotted; border-width: 1px;">
-            Canvas not supported.
-        </canvas>
-
-        <br><br>
-        VNC Clipboard:
-        <input id='clearButton' type="button" value="Clear"
-            onclick="RFB.clipboardClear();"><br>
-        <textarea id="clipboard" style="font-size:9;" cols=80 rows=5
-            onchange="RFB.clipboardPasteFrom();"
-            onfocus="RFB.clipboardFocus=true;"
-            onblur="RFB.clipboardFocus=false;"></textarea>
+        <div id='vnc'>Loading</div>
     </body>
-
-    <!-- Uncomment to activate firebug lite -->
-    <!--
-    <script type='text/javascript' 
-        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
-    -->
-
-    <script src="include/mootools.js"></script>
-    <script src="include/base64.js"></script>
-    <script src="include/des.js"></script>
-    <script src="include/util.js"></script>
-    <script src="canvas.js"></script>
-    <script src="vnc.js"></script>
-
-    <script>
-        var native_ws = true;
-
-        /* If no builtin websockets then load web_socket.js */
-        if (! window.WebSocket) {
-            var extra = "<script src='include/web-socket-js/swfobject.js'><\/script>";
-            extra += "<script src='include/web-socket-js/FABridge.js'><\/script>";
-            extra += "<script src='include/web-socket-js/web_socket.js'><\/script>";
-            document.write(extra);
-            native_ws = false;
-        }
-
-        window.onload = function() {
-            console.log("onload");
-            if (native_ws) {
-                console.log("Using native WebSockets");
-                RFB.updateState('disconnected', 'Disconnected');
-            } else {
-                console.log("Using web-socket-js flash bridge");
-                if ((! Browser.Plugins.Flash) ||
-                    (Browser.Plugins.Flash.version < 9)) {
-                    RFB.updateState('failed', "WebSockets or Adobe Flash is required");
-                } else if (location.href.substr(0, 7) == "file://") {
-                    RFB.updateState('failed', "'file://' URL is incompatible with Adobe Flash");
-                } else {
-                    WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
-                    RFB.use_seq = true;
-                    RFB.updateState('disconnected', 'Disconnected');
-                }
-            }
-            if (RFB.state == 'disconnected') {
-                var url = document.location.href;
-                $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
-                $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
-                $('password').value = (url.match(/password=([^&#]*)/) || ['',''])[1];
-                $('encrypt').checked = (url.match(/encrypt=([^&#]*)/) || ['',''])[1];
-            }
-        }
-    </script>
 
 </html>
