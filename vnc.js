@@ -260,11 +260,17 @@ init_msg: function () {
                 return;
             }
             var types = RQ.shiftBytes(num_types);
+            
             if ((types[0] != 1) && (types[0] != 2)) {
                 RFB.updateState('failed', "Disconnected: invalid security types list: " + types);
                 return;
             }
-            RFB.auth_scheme = types[0];
+
+            if (RFB.password.length == 0) {
+              RFB.auth_scheme = 1;
+            } else {
+              RFB.auth_scheme = type[0];
+            }
             RFB.send_array([RFB.auth_scheme]);
         } else if (RFB.version == 3.3) {
             if (RQ.length < 4) {
@@ -289,8 +295,8 @@ init_msg: function () {
                 RFB.updateState('failed', "Disconnected: auth failure: " + reason);
                 return;
             case 1:  // no authentication
-                RFB.send_array([RFB.shared]); // ClientInitialisation
-                RFB.updateState('ServerInitialisation');
+                // RFB.send_array([RFB.shared]); // ClientInitialisation
+                RFB.updateState('SecurityResult');
                 break;
             case 2:  // VNC authentication
                 if (RQ.length < 16) {
