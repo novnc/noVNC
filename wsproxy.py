@@ -10,6 +10,8 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 '''
 
 import sys, os, socket, ssl, time, traceback, re
+import time
+
 from base64 import b64encode, b64decode
 from select import select
 
@@ -62,6 +64,8 @@ def proxy(client, target):
     socks = [client, target]
 
     while True:
+        time.sleep(0.01) # 10ms
+
         ins, outs, excepts = select(socks, socks, socks, 1)
         if excepts: raise Exception("Socket exception")
 
