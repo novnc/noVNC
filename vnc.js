@@ -267,9 +267,9 @@ init_msg: function () {
             }
 
             if (RFB.password.length == 0) {
-              RFB.auth_scheme = 1;
+                RFB.auth_scheme = 1;
             } else {
-              RFB.auth_scheme = type[0];
+                RFB.auth_scheme = types[0];
             }
             RFB.send_array([RFB.auth_scheme]);
         } else if (RFB.version == 3.3) {
