@@ -78,3 +78,22 @@ Usage
   password that the vnc server is using (if any). Hit the Connect
   button and enjoy!
 
+
+Integration
+-----------
+
+The client is designed to be easily integrated with existing web
+structure and style.
+
+At a minimum you must include the script and call the RFB.load()
+function which takes a parameter that is the ID of the DOM element to
+fill. For example:
+
+    <body>
+        <div id='vnc'>Loading</div>
+    </body>
+    <script src='vnc.js'></script>
+    <script> windows.onload = RFB.load('vnc'); </script>
+
+
+The file include/plain.css has a list of stylable elements.

@@ -1,10 +1,9 @@
 /*
- * HTML5 VNC client. To use, include this script and define a div with
- * id of 'vnc'. For example:
- *     <html><body>
- *         <script src='vnc.js'></script>
- *         <div id='vnc'>Loading</div>
- *     </body></html>
+ * HTML5 VNC client
+ *
+ * Licensed under AGPL-3 (see LICENSE.AGPL-3)
+ *
+ * See README.md for usage and integration instructions.
  *
  * This script defines the following globals:
  *     VNC_scripts, VNC_native_ws, FBU, RFB,
@@ -37,66 +36,6 @@ if (window.WebSocket) {
     VNC_scripts += "<script src='include/web-socket-js/web_socket.js'><\/script>";
 }
 document.write(VNC_scripts);
-
-/* 
- * Load the controls
- */
-window.onload = function () {
-    console.log("onload");
-
-    /* Populate the 'vnc' div */
-    var html = "";
-    html += '<div id="controls">';
-    html += 'Host: <input id="host" style="width:100">&nbsp;';
-    html += 'Port: <input id="port" style="width:50">&nbsp;';
-    html += 'Password: <input id="password" type="password" style="width:80">&nbsp;';
-    html += 'Encrypt: <input id="encrypt" type="checkbox">&nbsp;';
-    html += '<input id="connectButton" type="button" value="Loading"';
-    html += 'style="width:100px" disabled>&nbsp;';
-    html += '</div>';
-    html += '<br>';
-    html += '<div id="status">Loading</div>';
-    html += '<canvas id="canvas" width="640" height="20"';
-    html += '    style="border-style: dotted; border-width: 1px;">';
-    html += '    Canvas not supported.';
-    html += '</canvas>';
-    html += '<br><br>';
-    html += 'VNC Clipboard:';
-    html += '<input id="clearButton" type="button" value="Clear"';
-    html += '    onclick="RFB.clipboardClear();"><br>';
-    html += '<textarea id="clipboard" style="font-size:9;" cols=80 rows=5';
-    html += '    onchange="RFB.clipboardPasteFrom();"';
-    html += '    onfocus="RFB.clipboardFocus=true;"';
-    html += '    onblur="RFB.clipboardFocus=false;"></textarea>';
-    $('vnc').innerHTML = html;
-
-    /* Load web-socket-js if no builtin WebSocket support */
-    if (VNC_native_ws) {
-        console.log("Using native WebSockets");
-        RFB.updateState('disconnected', 'Disconnected');
-    } else {
-        console.log("Using web-socket-js flash bridge");
-        if ((! Browser.Plugins.Flash) ||
-            (Browser.Plugins.Flash.version < 9)) {
-            RFB.updateState('failed', "WebSockets or Adobe Flash is required");
-        } else if (location.href.substr(0, 7) == "file://") {
-            RFB.updateState('failed', "'file://' URL is incompatible with Adobe Flash");
-        } else {
-            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
-            RFB.use_seq = true;
-            RFB.updateState('disconnected', 'Disconnected');
-        }
-    }
-
-    /* Populate the controls if defaults are provided in the URL */
-    if (RFB.state == 'disconnected') {
-        var url = document.location.href;
-        $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
-        $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
-        $('password').value = (url.match(/password=([^&#]*)/) || ['',''])[1];
-        $('encrypt').checked = (url.match(/encrypt=([^&#]*)/) || ['',''])[1];
-    }
-}
 
 /*
  * Make arrays quack
@@ -372,7 +311,7 @@ init_msg: function () {
         var name_length   = RQ.shift32();
         RFB.fb_name = RQ.shiftStr(name_length);
 
-        Canvas.init('canvas', RFB.fb_width, RFB.fb_height,
+        Canvas.init('VNC_canvas', RFB.fb_width, RFB.fb_height,
                 RFB.keyDown, RFB.keyUp,
                 RFB.mouseDown, RFB.mouseUp, RFB.mouseMove);
 
@@ -801,7 +740,7 @@ clientCutText: function (text) {
     arr.push8(0);  // padding
     arr.push32(text.length);
     arr.pushStr(text);
-    console.log("<< clientCutText");
+    console.log("<< clientCutText:" + arr);
     return arr;
 },
 
@@ -1003,26 +942,26 @@ mouseMove: function(e) {
 
 clipboardCopyTo: function (text) {
     console.log(">> clipboardCopyTo: " + text.substr(0,40) + "...");
-    $('clipboard').value = text;
+    $('VNC_clipboard_text').value = text;
     console.log("<< clipboardCopyTo");
 },
 
 clipboardPasteFrom: function () {
     if (RFB.state != "normal") return;
-    var text = $('clipboard').value;
+    var text = $('VNC_clipboard_text').value;
     console.log(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
     RFB.send_array(RFB.clientCutText(text));
     console.log("<< clipboardPasteFrom");
 },
 
 clipboardClear: function () {
-    $('clipboard').value = '';
+    $('VNC_clipboard_text').value = '';
     RFB.clipboardPasteFrom();
 },
 
 updateState: function(state, statusMsg) {
-    var s = $('status');
-    var c = $('connectButton');
+    var s = $('VNC_status');
+    var c = $('VNC_connect_button');
     var func = function(msg) { console.log(msg) };
     switch (state) {
         case 'failed':
@@ -1134,10 +1073,10 @@ init_vars: function () {
 
 connect: function () {
     console.log(">> connect");
-    RFB.host = $('host').value;
-    RFB.port = $('port').value;
-    RFB.password = $('password').value;
-    if ($('encrypt').checked) {
+    RFB.host = $('VNC_host').value;
+    RFB.port = $('VNC_port').value;
+    RFB.password = $('VNC_password').value;
+    if ($('VNC_encrypt').checked) {
         RFB.scheme = "wss://";
     } else {
         RFB.scheme = "ws://";
@@ -1179,5 +1118,91 @@ disconnect: function () {
     }
     console.log("<< disconnect");
 },
+
+/* 
+ * Load the controls
+ */
+load: function (target) {
+    console.log(">> RFB.load");
+
+    if (!target) { target = 'vnc' };
+
+    /* Populate the 'vnc' div */
+    var html = "";
+    if ($('VNC_controls') === null) {
+        html += '<div id="VNC_controls">';
+        html += '  <ul>';
+        html += '    <li>Host: <input id="VNC_host"></li>';
+        html += '    <li>Port: <input id="VNC_port"></li>';
+        html += '    <li>Password: <input id="VNC_password" type="password"></li>';
+        html += '    <li>Encrypt: <input id="VNC_encrypt" type="checkbox"></li>';
+        html += '    <li><input id="VNC_connect_button" type="button"';
+        html += '           value="Loading" disabled></li>';
+        html += '  </ul>';
+        html += '</div>';
+    }
+    if ($('VNC_screen') === null) {
+        html += '<div id="VNC_screen">';
+        html += '</div>';
+    }
+    if ($('VNC_clipboard') === null) {
+        html += '<br><br>';
+        html += '<div id="VNC_clipboard">';
+        html += '  VNC Clipboard:';
+        html += '  <input id="VNC_clipboard_clear_button" type="button" value="Clear">';
+        html += '  <br>';
+        html += '  <textarea id="VNC_clipboard_text" cols=80 rows=5>';
+        html += '      </textarea>';
+        html += '</div>';
+    }
+    $(target).innerHTML = html;
+
+    html = "";
+    if ($('VNC_status') === null) {
+        html += '<div id="VNC_status">Loading</div>';
+    }
+    if ($('VNC_canvas') === null) {
+        html += '<canvas id="VNC_canvas" width="640px" height="20px">';
+        html += '    Canvas not supported.';
+        html += '</canvas>';
+    }
+    $('VNC_screen').innerHTML += html;
+
+    /* Add handlers */
+    $('VNC_clipboard_clear_button').onclick = RFB.clipboardClear;
+    var clipt = $('VNC_clipboard_text')
+    clipt.onchange = RFB.clipboardPasteFrom;
+    clipt.onfocus = function () { RFB.clipboardFocus = true; };
+    clipt.onblur = function () { RFB.clipboardFocus = false; };
+
+    /* Load web-socket-js if no builtin WebSocket support */
+    if (VNC_native_ws) {
+        console.log("Using native WebSockets");
+        RFB.updateState('disconnected', 'Disconnected');
+    } else {
+        console.log("Using web-socket-js flash bridge");
+        if ((! Browser.Plugins.Flash) ||
+            (Browser.Plugins.Flash.version < 9)) {
+            RFB.updateState('failed', "WebSockets or Adobe Flash is required");
+        } else if (location.href.substr(0, 7) == "file://") {
+            RFB.updateState('failed', "'file://' URL is incompatible with Adobe Flash");
+        } else {
+            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
+            RFB.use_seq = true;
+            RFB.updateState('disconnected', 'Disconnected');
+        }
+    }
+
+    /* Populate the controls if defaults are provided in the URL */
+    if (RFB.state == 'disconnected') {
+        var url = document.location.href;
+        $('VNC_host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
+        $('VNC_port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
+        $('VNC_password').value = (url.match(/password=([^&#]*)/) || ['',''])[1];
+        $('VNC_encrypt').checked = (url.match(/encrypt=([^&#]*)/) || ['',''])[1];
+    }
+
+    console.log("<< RFB.load");
+}
 
 }; /* End of RFB */
