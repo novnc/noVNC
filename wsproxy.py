@@ -9,7 +9,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import sys, socket, ssl, time
+import sys, socket, ssl
 from select import select
 from websocket import *
 
@@ -32,15 +32,16 @@ def do_proxy(client, target):
     cqueue = []
     cpartial = ""
     tqueue = []
-    socks = [client, target]
+    rlist = [client, target]
 
     while True:
-        time.sleep(0.01) # 10ms
-
-        ins, outs, excepts = select(socks, socks, socks, 1)
+        wlist = []
+        if tqueue: wlist.append(target)
+        if cqueue: wlist.append(client)
+        ins, outs, excepts = select(rlist, wlist, [], 1)
         if excepts: raise Exception("Socket exception")
 
-        if tqueue and target in outs:
+        if target in outs:
             dat = tqueue.pop(0)
             sent = target.send(dat)
             if sent == len(dat):
@@ -50,7 +51,7 @@ def do_proxy(client, target):
                 traffic(".>")
             ##log.write("Target send: %s\n" % map(ord, dat))
 
-        if cqueue and client in outs:
+        if client in outs:
             dat = cqueue.pop(0)
             sent = client.send(dat)
             if sent == len(dat):
