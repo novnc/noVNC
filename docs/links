@@ -19,3 +19,34 @@ TLS Protocol:
 
 Generate self-signed certificate:
     http://docs.python.org/dev/library/ssl.html#certificates
+
+
+Related projects:
+    
+    guacamole: http://guacamole.sourceforge.net/
+
+        - HTML5 client, but Java servlet does pre-processing
+
+    jsvnc: http://code.google.com/p/jsvnc/
+
+        - No releases
+
+    webvnc: http://code.google.com/p/webvnc/
+
+        - Jetty web server gateway, no updates since April 2008.
+
+    RealVNC Java applet: http://www.realvnc.com/support/javavncviewer.html
+
+        - Java applet
+
+    Flashlight-VNC: http://www.wizhelp.com/flashlight-vnc/
+
+        - Adobe Flash implementation
+
+    FVNC: http://osflash.org/fvnc
+
+        - Adbove Flash implementation
+
+    CanVNC: http://canvnc.sourceforge.net/
+
+        - HTML client with REST to VNC python proxy. Mostly vapor.
