@@ -233,7 +233,6 @@ DES = {
             
         DES.deskey(key, true, DES.encryptKeys);
         DES.deskey(key, false, DES.decryptKeys);
-        console.log("DES.encryptKeys: " + DES.encryptKeys);
     },
 
     // Turn an 8-byte key into internal keys.

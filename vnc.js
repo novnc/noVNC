@@ -122,9 +122,13 @@ SQ         = "";  // Send Queue
 RFB = {
 
 ws        : null,  // Web Socket object
-scheme    : "ws://",
 sendID    : null,
 use_seq   : false,
+
+// DOM objects
+statusLine : null,
+connectBtn : null,
+clipboard  : null,
 
 max_version : 3.8,
 version   : 0,
@@ -942,26 +946,26 @@ mouseMove: function(e) {
 
 clipboardCopyTo: function (text) {
     console.log(">> clipboardCopyTo: " + text.substr(0,40) + "...");
-    $('VNC_clipboard_text').value = text;
+    RFB.clipboard.value = text;
     console.log("<< clipboardCopyTo");
 },
 
 clipboardPasteFrom: function () {
     if (RFB.state != "normal") return;
-    var text = $('VNC_clipboard_text').value;
+    var text = RFB.clipboard.value;
     console.log(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
     RFB.send_array(RFB.clientCutText(text));
     console.log("<< clipboardPasteFrom");
 },
 
 clipboardClear: function () {
-    $('VNC_clipboard_text').value = '';
+    RFB.clipboard.value = '';
     RFB.clipboardPasteFrom();
 },
 
 updateState: function(state, statusMsg) {
-    var s = $('VNC_status');
-    var c = $('VNC_connect_button');
+    var s = RFB.statusLine;
+    var c = RFB.connectBtn;
     var func = function(msg) { console.log(msg) };
     switch (state) {
         case 'failed':
@@ -977,7 +981,8 @@ updateState: function(state, statusMsg) {
             break;
         case 'disconnected':
             c.value = "Connect";
-            c.onclick = RFB.connect;
+            c.onclick = function () { RFB.connect(); },
+
             c.disabled = false;
             s.style.fontColor = "#000000";
             break;
@@ -1003,7 +1008,13 @@ updateState: function(state, statusMsg) {
 init_ws: function () {
 
     console.log(">> init_ws");
-    var uri = RFB.scheme + RFB.host + ":" + RFB.port + "/?b64encode";
+    var uri = "";
+    if (RFB.encrypt) {
+        uri = "wss://";
+    } else {
+        uri = "ws://";
+    }
+    uri += RFB.host + ":" + RFB.port + "/?b64encode";
     if (RFB.use_seq) {
         uri += "&seq_num";
     }
@@ -1071,18 +1082,15 @@ init_vars: function () {
 },
 
 
-connect: function () {
+connect: function (host, port, password, encrypt) {
     console.log(">> connect");
-    RFB.host = $('VNC_host').value;
-    RFB.port = $('VNC_port').value;
-    RFB.password = $('VNC_password').value;
-    if ($('VNC_encrypt').checked) {
-        RFB.scheme = "wss://";
-    } else {
-        RFB.scheme = "ws://";
-    }
+    RFB.host = (host !== undefined) ? host : $('VNC_host').value;
+    console.log("RFB.host: " + RFB.host);
+    RFB.port = (port !== undefined) ? port : $('VNC_port').value;
+    RFB.password = (password !== undefined) ? password : $('VNC_password').value;
+    RFB.encrypt = (encrypt !== undefined) ? encrypt : $('VNC_encrypt').checked;
     if ((!RFB.host) || (!RFB.port)) {
-        console.log("must set host and port");
+        alert("Must set host and port");
         return;
     }
 
@@ -1168,12 +1176,16 @@ load: function (target) {
     }
     $('VNC_screen').innerHTML += html;
 
+    /* DOM object references */
+    RFB.statusLine = $('VNC_status');
+    RFB.connectBtn = $('VNC_connect_button');
+    RFB.clipboard  = $('VNC_clipboard_text');
+
     /* Add handlers */
     $('VNC_clipboard_clear_button').onclick = RFB.clipboardClear;
-    var clipt = $('VNC_clipboard_text')
-    clipt.onchange = RFB.clipboardPasteFrom;
-    clipt.onfocus = function () { RFB.clipboardFocus = true; };
-    clipt.onblur = function () { RFB.clipboardFocus = false; };
+    RFB.clipboard.onchange = RFB.clipboardPasteFrom;
+    RFB.clipboard.onfocus = function () { RFB.clipboardFocus = true; };
+    RFB.clipboard.onblur = function () { RFB.clipboardFocus = false; };
 
     /* Load web-socket-js if no builtin WebSocket support */
     if (VNC_native_ws) {

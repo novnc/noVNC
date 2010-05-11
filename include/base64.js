@@ -131,7 +131,8 @@ decode: function (data, offset) {
 
     // If there are any bits left, the base64 string was corrupted
     if (leftbits)
-        throw Components.Exception('Corrupted base64 string');
+        throw {name: 'Base64-Error', 
+               message: 'Corrupted base64 string'};
 
     return result;
 }
