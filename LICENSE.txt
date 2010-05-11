@@ -1,0 +1,13 @@
+HTML5-VNC is licensed under the Affero GPL version 3 (see
+LICENSE.AGPL-3) with the following exceptions:
+
+    include/as3crypto_patched/ : various BSD style licenses
+
+    include/mootools*          : MIT style license
+
+    include/base64.js          : Dual GPL-2 or LGPL-2.1
+   
+    incluee/des.js             : Various BSD style licenses
+
+    include/web-socket.js/     : New BSD license
+
