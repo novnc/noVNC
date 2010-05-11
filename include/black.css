@@ -1,0 +1,73 @@
+body {
+  background: #ddd;
+  margin: 0;
+  font-size: 13px;
+  color: #111;
+  font-family: "Helvetica";
+}
+
+#VNC_controls {
+  background: #111;
+  line-height: 1em;
+  color: #FFF;
+  overflow: hidden;
+  padding: 4px 24px;
+}
+
+#VNC_controls ul {
+  list-style:none;
+  list-style-position: outside;
+  margin: 0;
+  padding: 0;
+}
+#VNC_controls li {
+  margin-right: 15px;
+  padding: 2px 0;
+  float: left;
+}
+#VNC_controls li input[type=text],
+#VNC_controls li input[type=password] {
+  border: 2px solid #333;
+}
+
+#VNC_host {
+    width: 100;
+}
+#VNC_port {
+    width: 50;
+}
+#VNC_password {
+    width: 80;
+}
+#VNC_encrypt {
+}
+#VNC_connect_button {
+    width: 100px;
+}
+
+#VNC_status {
+  padding: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+#VNC_screen {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  background: #000;
+  padding: 20px;
+  margin: 0 auto;
+  color: #FFF;
+  margin-top: 20px;
+  text-align: center;
+
+  /* This causes the width of the outer div(#screen) honor the size of the inner (#vnc) div */
+  display: table; 
+  table-layout: auto;
+}
+#VNC_canvas {
+  margin: 0 auto;
+}
+#VNC_clipboard {
+  display: none;
+}
