@@ -96,4 +96,4 @@ fill. For example:
     <script> windows.onload = RFB.load('vnc'); </script>
 
 
-The file include/plain.css has a list of stylable elements.
+The file `include/plain.css` has a list of stylable elements.
