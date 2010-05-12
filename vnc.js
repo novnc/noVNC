@@ -1,5 +1,5 @@
 /*
- * HTML5 VNC client
+ * noVNC: HTML5 VNC client
  *
  * Licensed under AGPL-3 (see LICENSE.AGPL-3)
  *

@@ -1,5 +1,5 @@
-HTML5-VNC is licensed under the Affero GPL version 3 (see
-LICENSE.AGPL-3) with the following exceptions:
+noVNC is licensed under the Affero GPL version 3 (see LICENSE.AGPL-3)
+with the following exceptions:
 
     include/as3crypto_patched/ : various BSD style licenses
 

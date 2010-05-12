@@ -1,12 +1,12 @@
-VNC HTML5 Client
-================
+noVNC: HTML5 VNC Client
+======================
 
 
 Description
 -----------
 
-A VNC client implemented using HTML5, specifically Canvas and
-WebSocket (supports 'wss://' encryption).
+noVNC is a VNC client implemented using HTML5 technologies,
+specifically Canvas and WebSocket (supports 'wss://' encryption).
 
 For browsers that do not have builtin WebSocket support, the project
 includes web-socket-js, a WebSocket emulator using Adobe Flash

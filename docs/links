@@ -25,7 +25,7 @@ Related projects:
     
     guacamole: http://guacamole.sourceforge.net/
 
-        - HTML5 client, but Java servlet does pre-processing
+        - Web client, but Java servlet does pre-processing
 
     jsvnc: http://code.google.com/p/jsvnc/
 
