@@ -30,7 +30,7 @@ var VNC_native_ws, RFB;
     extra += start + "include/base64.js" + end;
     extra += start + "include/des.js" + end;
     extra += start + "include/util.js" + end;
-    extra += start + "canvas.js" + end;
+    extra += start + "include/canvas.js" + end;
 
     /* If no builtin websockets then load web_socket.js */
     if (window.WebSocket) {
