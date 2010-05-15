@@ -134,6 +134,63 @@ draw: function () {
     Canvas.ctx.putImageData(img, 100, 100);
 },
 
+
+/*
+ * Tile rendering functions optimized for rendering engines.
+ *
+ * - In Chrome/webkit, Javascript image data array manipulations are
+ *   faster than direct Canvas fillStyle, fillRect rendering. In
+ *   gecko, Javascript array handling is much slower.
+ */
+getTile: function(x, y, width, height, color) {
+    var img = {'x': x, 'y': y, 'width': width, 'height': height,
+               'data': []};
+    if (Browser.Engine.webkit) {
+        var p, red = color[0], green = color[1], blue = color[2];
+        var width = img.width, height = img.height;
+        for (var j = 0; j < height; j++) {
+            for (var i = 0; i < width; i++) {
+                p = (i + (j * width) ) * 4;
+                img.data[p + 0] = red;
+                img.data[p + 1] = green;
+                img.data[p + 2] = blue;
+                //img.data[p + 3] = 255; // Set Alpha
+            }   
+        } 
+    } else {
+        Canvas.fillRect(x, y, width, height, color);
+    }
+    return img;
+},
+
+setTile: function(img, x, y, w, h, color) {
+    if (Browser.Engine.webkit) {
+        var p, red = color[0], green = color[1], blue = color[2];
+        var width = img.width;
+        for (var j = 0; j < h; j++) {
+            for (var i = 0; i < w; i++) {
+                p = (x + i + ((y + j) * width) ) * 4;
+                img.data[p + 0] = red;
+                img.data[p + 1] = green;
+                img.data[p + 2] = blue;
+                //img.data[p + 3] = 255; // Set Alpha
+            }   
+        } 
+    } else {
+        Canvas.fillRect(img.x + x, img.y + y, w, h, color);
+    }
+},
+
+putTile: function(img) {
+    if (Browser.Engine.webkit) {
+        Canvas.rgbxImage(img.x, img.y, img.width, img.height, img.data);
+        //Canvas.ctx.putImageData(img, img.x, img.y);
+    } else {
+        // No-op, under gecko already done by setTile
+    }
+},
+
+
 rgbxImage: function(x, y, width, height, arr) {
     /* Old firefox and Opera don't support createImageData */
     var img = Canvas.ctx.getImageData(0, 0, width, height);

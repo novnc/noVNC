@@ -604,12 +604,13 @@ display_hextile: function() {
                 FBU.foreground = RQ.slice(idx, idx + RFB.fb_Bpp);
                 idx += RFB.fb_Bpp;
             }
-            Canvas.fillRect(x, y, w, h, FBU.background);
+
+            var tile = Canvas.getTile(x, y, w, h, FBU.background);
             if (FBU.subencoding & 0x08) { // AnySubrects
                 subrects = RQ[idx];
                 idx++;
-                var color, xy, sx, sy, wh, sw, sh;
-                for (var i = 0; i < subrects; i ++) {
+                var xy, sx, sy, wh, sw, sh;
+                for (var s = 0; s < subrects; s ++) {
                     if (FBU.subencoding & 0x10) { // SubrectsColoured
                         color = RQ.slice(idx, idx + RFB.fb_Bpp);
                         idx += RFB.fb_Bpp;
@@ -618,17 +619,18 @@ display_hextile: function() {
                     }
                     xy = RQ[idx];
                     idx++;
-                    sx = x + (xy >> 4);
-                    sy = y + (xy & 0x0f);
+                    sx = (xy >> 4);
+                    sy = (xy & 0x0f);
 
                     wh = RQ[idx];
                     idx++;
                     sw = (wh >> 4)   + 1;
                     sh = (wh & 0x0f) + 1;
 
-                    Canvas.fillRect(sx, sy, sw, sh, color);
+                    Canvas.setTile(tile, sx, sy, sw, sh, color);
                 }
             }
+            Canvas.putTile(tile);
         }
         RQ.shiftBytes(FBU.bytes);
         FBU.lastsubencoding = FBU.subencoding;
