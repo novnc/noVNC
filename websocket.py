@@ -81,6 +81,7 @@ def do_handshake(sock):
 
     # Parse settings from the path
     cvars = path.partition('?')[2].partition('#')[0].split('&')
+    client_settings = {}
     for cvar in [c for c in cvars if c]:
         name, _, value = cvar.partition('=')
         client_settings[name] = value and value or True
