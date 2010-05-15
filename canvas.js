@@ -1,4 +1,16 @@
-Canvas = {
+/*
+ * noVNC: HTML5 VNC client
+ *
+ * Licensed under AGPL-3 (see LICENSE.AGPL-3)
+ *
+ * See README.md for usage and integration instructions.
+ */
+"use strict";
+
+/*global window, $, Browser */
+
+// Everything namespaced inside Canvas
+var Canvas = {
 
 c_x : 0,
 c_y : 0,
@@ -40,26 +52,29 @@ keyUp : function (e) {
 },
 
 ctxDisable: function (e) {
-    evt = e.event || window.event;
+    var evt = e.event || window.event;
     /* Stop propagation if inside canvas area */
-    if ((evt.clientX >= Canvas.c_x) && (evt.clientX < (Canvas.c_x + Canvas.c_wx)) &&
-        (evt.clientY >= Canvas.c_y) && (evt.clientY < (Canvas.c_y + Canvas.c_wy))) {
+    if ((evt.clientX >= Canvas.c_x) &&
+        (evt.clientY >= Canvas.c_y) &&
+        (evt.clientX < (Canvas.c_x + Canvas.c_wx)) &&
+        (evt.clientY < (Canvas.c_y + Canvas.c_wy))) {
         e.stop();
         return false;
-    };
+    }
 },
 
 
-init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp, mouseMove) {
+init: function (id, width, height, keyDown, keyUp,
+                mouseDown, mouseUp, mouseMove) {
     console.log(">> Canvas.init");
 
     Canvas.id = id;
 
-    if (! keyDown) keyDown = Canvas.keyDown;
-    if (! keyUp) keyUp = Canvas.keyUp;
-    if (! mouseDown) mouseDown = Canvas.mouseDown;
-    if (! mouseUp) mouseUp = Canvas.mouseUp;
-    if (! mouseMove) mouseMove = Canvas.mouseMove;
+    if (! keyDown) { keyDown = Canvas.keyDown; }
+    if (! keyUp) { keyUp = Canvas.keyUp; }
+    if (! mouseDown) { mouseDown = Canvas.mouseDown; }
+    if (! mouseUp) { mouseUp = Canvas.mouseUp; }
+    if (! mouseMove) { mouseMove = Canvas.mouseMove; }
 
     var c = $(Canvas.id);
     document.addEvent('keydown', keyDown);
@@ -79,7 +94,7 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp, mouseMove
     Canvas.c_wx = c.getSize().x;
     Canvas.c_wy = c.getSize().y;
 
-    if (! c.getContext) return;
+    if (! c.getContext) { return; }
     Canvas.ctx = c.getContext('2d'); 
     
     Canvas.prevStyle = "";
@@ -108,6 +123,7 @@ stop: function () {
 },
 
 draw: function () {
+    var img, x, y;
     /* Border */
     Canvas.ctx.stroke();  
     Canvas.ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
@@ -121,13 +137,13 @@ draw: function () {
     */
 
     /* Test array image data */
-    //var img = Canvas.ctx.createImageData(50, 50);
-    var img = Canvas.ctx.getImageData(0, 0, 50, 50);
+    //img = Canvas.ctx.createImageData(50, 50);
+    img = Canvas.ctx.getImageData(0, 0, 50, 50);
     for (y=0; y< 50; y++) {
         for (x=0; x< 50; x++) {
-            img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y);
-            img.data[(y*50 + x)*4 + 1] = parseInt((255 / 50) * y);
-            img.data[(y*50 + x)*4 + 2] = parseInt((255 / 50) * x);
+            img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y, 10);
+            img.data[(y*50 + x)*4 + 1] = parseInt((255 / 50) * y, 10);
+            img.data[(y*50 + x)*4 + 2] = parseInt((255 / 50) * x, 10);
             img.data[(y*50 + x)*4 + 3] = 255;
         }
     }
@@ -143,13 +159,15 @@ draw: function () {
  *   gecko, Javascript array handling is much slower.
  */
 getTile: function(x, y, width, height, color) {
-    var img = {'x': x, 'y': y, 'width': width, 'height': height,
-               'data': []};
+    var img, p, red, green, blue, j, i;
+    img = {'x': x, 'y': y, 'width': width, 'height': height,
+           'data': []};
     if (Browser.Engine.webkit) {
-        var p, red = color[0], green = color[1], blue = color[2];
-        var width = img.width, height = img.height;
-        for (var j = 0; j < height; j++) {
-            for (var i = 0; i < width; i++) {
+        red = color[0];
+        green = color[1];
+        blue = color[2];
+        for (j = 0; j < height; j++) {
+            for (i = 0; i < width; i++) {
                 p = (i + (j * width) ) * 4;
                 img.data[p + 0] = red;
                 img.data[p + 1] = green;
@@ -164,11 +182,14 @@ getTile: function(x, y, width, height, color) {
 },
 
 setTile: function(img, x, y, w, h, color) {
+    var p, red, green, blue, width, j, i;
     if (Browser.Engine.webkit) {
-        var p, red = color[0], green = color[1], blue = color[2];
-        var width = img.width;
-        for (var j = 0; j < h; j++) {
-            for (var i = 0; i < w; i++) {
+        width = img.width;
+        red = color[0];
+        green = color[1];
+        blue = color[2];
+        for (j = 0; j < h; j++) {
+            for (i = 0; i < w; i++) {
                 p = (x + i + ((y + j) * width) ) * 4;
                 img.data[p + 0] = red;
                 img.data[p + 1] = green;
@@ -192,9 +213,10 @@ putTile: function(img) {
 
 
 rgbxImage: function(x, y, width, height, arr) {
+    var img, i;
     /* Old firefox and Opera don't support createImageData */
-    var img = Canvas.ctx.getImageData(0, 0, width, height);
-    for (var i=0; i < (width * height); i++) {
+    img = Canvas.ctx.getImageData(0, 0, width, height);
+    for (i=0; i < (width * height); i++) {
         img.data[i*4 + 0] = arr[i*4 + 0];
         img.data[i*4 + 1] = arr[i*4 + 1];
         img.data[i*4 + 2] = arr[i*4 + 2];
@@ -206,9 +228,9 @@ rgbxImage: function(x, y, width, height, arr) {
 
 fillRect: function(x, y, width, height, color) {
     var newStyle = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
-    if (newStyle != Canvas.prevStyle) {
+    if (newStyle !== Canvas.prevStyle) {
         Canvas.ctx.fillStyle = newStyle;
-        prevStyle = newStyle;
+        Canvas.prevStyle = newStyle;
     }
     Canvas.ctx.fillRect(x, y, width, height);
 },
@@ -220,8 +242,8 @@ copyImage: function(old_x, old_y, new_x, new_y, width, height) {
 
 /* Translate DOM key event to keysym value */
 getKeysym: function(e) {
+    var evt, keysym;
     evt = e.event || window.event;
-    var keysym;
 
     /* Remap modifier and special keys */
     switch ( evt.keyCode ) {
@@ -263,8 +285,9 @@ getKeysym: function(e) {
         case 187       : keysym = 61; break; // =  (IE)
         case 188       : keysym = 44; break; // ,  (Mozilla, IE)
         case 109       :                     // -  (Mozilla)
-            if (Browser.Engine.gecko)
-                         keysym = 45; break;
+            if (Browser.Engine.gecko) {
+                         keysym = 45; }
+                                      break;
         case 189       : keysym = 45; break; // -  (IE)
         case 190       : keysym = 46; break; // .  (Mozilla, IE)
         case 191       : keysym = 47; break; // /  (Mozilla, IE)
