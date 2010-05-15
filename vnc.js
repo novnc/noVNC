@@ -10,7 +10,7 @@
 /*global window, WebSocket, $, Browser, Canvas, Base64, DES */
 
 // Globals defined here
-var VNC_native_ws, FBU, RFB, RQ, RQ_reorder, RQ_seq_num, SQ;
+var VNC_native_ws, RFB;
 
 
 /*
@@ -45,127 +45,71 @@ var VNC_native_ws, FBU, RFB, RQ, RQ_reorder, RQ_seq_num, SQ;
 }());
 
 /*
- * Make arrays quack
- */
-
-Array.prototype.shift8 = function () {
-    return this.shift();
-};
-Array.prototype.push8 = function (num) {
-    this.push(num & 0xFF);
-};
-
-Array.prototype.shift16 = function () {
-    return (this.shift() << 8) +
-           (this.shift()     );
-};
-Array.prototype.push16 = function (num) {
-    this.push((num >> 8) & 0xFF,
-              (num     ) & 0xFF  );
-};
-
-
-Array.prototype.shift32 = function () {
-    return (this.shift() << 24) +
-           (this.shift() << 16) +
-           (this.shift() <<  8) +
-           (this.shift()      );
-};
-Array.prototype.get32 = function (off) {
-    return (this[off    ] << 24) +
-           (this[off + 1] << 16) +
-           (this[off + 2] <<  8) +
-           (this[off + 3]      );
-};
-Array.prototype.push32 = function (num) {
-    this.push((num >> 24) & 0xFF,
-              (num >> 16) & 0xFF,
-              (num >>  8) & 0xFF,
-              (num      ) & 0xFF  );
-};
-
-Array.prototype.shiftStr = function (len) {
-    var arr = this.splice(0, len);
-    return arr.map(function (num) {
-            return String.fromCharCode(num); } ).join('');
-};
-Array.prototype.pushStr = function (str) {
-    var i, n = str.length;
-    for (i=0; i < n; i++) {
-        this.push(str.charCodeAt(i));
-    }
-};
-
-Array.prototype.shiftBytes = function (len) {
-    return this.splice(0, len);
-};
-
-/*
- * Frame buffer update state
- */
-FBU = {
-    rects    : 0,
-    subrects : 0,  // RRE and HEXTILE
-    lines    : 0,  // RAW
-    tiles    : 0,  // HEXTILE
-    bytes    : 0,
-    x        : 0,
-    y        : 0,
-    width    : 0, 
-    height   : 0,
-    encoding : 0,
-    subencoding : -1,
-    background: null};
-
-/*
  * RFB namespace
  */
 
-RQ         = [];  // Receive Queue
-RQ_reorder = [];  // Receive Queue re-order list
-RQ_seq_num = 0;   // Expected sequence number
-SQ         = "";  // Send Queue
-
 RFB = {
 
-ws        : null,  // Web Socket object
-sendID    : null,
-use_seq   : false,
+ws             : null,  // Web Socket object
+sendID         : null,
+use_seq        : false,
+
+// Receive and send queues
+RQ             : [],  // Receive Queue
+RQ_reorder     : [],  // Receive Queue re-order list
+RQ_seq_num     : 0,   // Expected sequence number
+SQ             : "",  // Send Queue
+
+// Frame buffer update state
+FBU            : {
+    rects          : 0,
+    subrects       : 0,  // RRE and HEXTILE
+    lines          : 0,  // RAW
+    tiles          : 0,  // HEXTILE
+    bytes          : 0,
+    x              : 0,
+    y              : 0,
+    width          : 0, 
+    height         : 0,
+    encoding       : 0,
+    subencoding    : -1,
+    background     : null
+},
 
 // DOM objects
-statusLine : null,
-connectBtn : null,
-clipboard  : null,
+statusLine     : null,
+connectBtn     : null,
+clipboard      : null,
 
-max_version : 3.8,
-version   : 0,
-auth_scheme : '',
-state     : 'disconnected',
-cuttext   : 'none', // ServerCutText wait state
-ct_length : 0,
+max_version    : 3.8,
+version        : 0,
+auth_scheme    : '',
+state          : 'disconnected',
+cuttext        : 'none', // ServerCutText wait state
+ct_length      : 0,
 clipboardFocus : false,
 
-shared    : 1,
-check_rate : 217,
-req_rate  : 1413,
-last_req  : 0,
+shared         : 1,
+check_rate     : 217,
+req_rate       : 1413,
+last_req       : 0,
 
-host      : '',
-port      : 5900,
-password  : '',
+host           : '',
+port           : 5900,
+password       : '',
 
-fb_width  : 0,
-fb_height : 0,
-fb_name   : "",
-fb_Bpp    : 4,
-rre_chunk : 100,
+fb_width       : 0,
+fb_height      : 0,
+fb_name        : "",
+fb_Bpp         : 4,
+rre_chunk      : 100,
 
-timing : {
-    last_fbu  : 0,
-    fbu_total  : 0,
+timing         : {
+    last_fbu       : 0,
+    fbu_total      : 0,
     fbu_total_cnt  : 0,
     full_fbu_total : 0,
-    full_fbu_cnt : 0
+    full_fbu_cnt   : 0
 },
 
 /* Mouse state */
@@ -180,12 +124,12 @@ mouse_arr        : [],
 /* RFB/VNC initialisation */
 init_msg: function () {
     console.log(">> init_msg [RFB.state '" + RFB.state + "']");
-    //console.log("RQ (" + RQ.length + ") " + RQ);
 
-    var verstr, strlen, reason, reason_len, server_version,
-        types, num_types, challenge, response,
+    var RQ = RFB.RQ, verstr, strlen, reason, reason_len,
+        server_version, types, num_types, challenge, response,
         bpp, depth, big_endian, true_color, name_length;
 
+    //console.log("RQ (" + RQ.length + ") " + RQ);
     switch (RFB.state) {
 
     case 'ProtocolVersion' :
@@ -365,7 +309,9 @@ init_msg: function () {
 normal_msg: function () {
     //console.log(">> normal_msg");
 
-    var ret = true, msg_type, num_colours, msg;
+    var RQ = RFB.RQ, FBU = RFB.FBU,
+        ret = true, msg_type, num_colours, msg;
+
     if (FBU.rects > 0) {
         msg_type = 0;
     } else if (RFB.cuttext !== 'none') {
@@ -497,7 +443,7 @@ normal_msg: function () {
 display_raw: function () {
     //console.log(">> display_raw");
 
-    var cur_y, cur_height; 
+    var RQ = RFB.RQ, FBU = RFB.FBU, cur_y, cur_height; 
 
     if (FBU.lines === 0) {
         FBU.lines = FBU.height;
@@ -526,7 +472,7 @@ display_raw: function () {
 display_copy_rect: function () {
     //console.log(">> display_copy_rect");
 
-    var old_x, old_y;
+    var RQ = RFB.RQ, FBU = RFB.FBU, old_x, old_y;
 
     if (RQ.length < 4) {
         //console.log("   waiting for " +
@@ -541,8 +487,8 @@ display_copy_rect: function () {
 },
 
 display_rre: function () {
-    //console.log(">> display_rre (" + RQ.length + " bytes)");
-    var color, x, y, width, height, chunk;
+    //console.log(">> display_rre (" + RFB.RQ.length + " bytes)");
+    var RQ = RFB.RQ, FBU = RFB.FBU, color, x, y, width, height, chunk;
     if (FBU.subrects === 0) {
         if (RQ.length < 4 + RFB.fb_Bpp) {
             //console.log("   waiting for " +
@@ -577,8 +523,9 @@ display_rre: function () {
 
 display_hextile: function() {
     //console.log(">> display_hextile");
-    var subencoding, subrects, cur_tile, tile_x, x, w, tile_y, y, h,
-        idx, tile, xy, s, sx, sy, wh, sw, sh, color;
+    var RQ = RFB.RQ, FBU = RFB.FBU,
+        subencoding, subrects, idx, tile, color, cur_tile,
+        tile_x, x, w, tile_y, y, h, xy, s, sx, sy, wh, sw, sh;
 
     if (FBU.tiles === 0) {
         FBU.tiles_x = Math.ceil(FBU.width/16);
@@ -831,7 +778,7 @@ recv_message: function(e) {
         if (RFB.use_seq) {
             RFB.recv_message_reorder(e);
         } else {
-            RQ = RQ.concat(Base64.decode(e.data, 0));
+            RFB.RQ = RFB.RQ.concat(Base64.decode(e.data, 0));
 
             RFB.handle_message();
         }
@@ -849,33 +796,34 @@ recv_message: function(e) {
 recv_message_reorder: function(e) {
     //console.log(">> recv_message_reorder");
 
-    var offset, seq_num, i;
+    var RQ_reorder = RFB.RQ_reorder, offset, seq_num, i;
 
     offset = e.data.indexOf(":") + 1;
     seq_num = parseInt(e.data.substr(0, offset-1), 10);
-    if (RQ_seq_num === seq_num) {
-        RQ = RQ.concat(Base64.decode(e.data, offset));
-        RQ_seq_num++;
+    if (RFB.RQ_seq_num === seq_num) {
+        RFB.RQ = RFB.RQ.concat(Base64.decode(e.data, offset));
+        RFB.RQ_seq_num++;
     } else {
         console.warn("sequence number mismatch: expected " +
-                     RQ_seq_num + ", got " + seq_num);
-        if (RQ_reorder.length > 20) {
+                     RFB.RQ_seq_num + ", got " + seq_num);
+        if (RFB.RQ_reorder.length > 20) {
             RFB.updateState('failed', "Re-order queue too long");
         } else {
-            RQ_reorder = RQ_reorder.concat(e.data.substr(0));
+            RFB.RQ_reorder = RFB.RQ_reorder.concat(e.data.substr(0));
             i = 0;
-            while (i < RQ_reorder.length) {
-                offset = RQ_reorder[i].indexOf(":") + 1;
-                seq_num = parseInt(RQ_reorder[i].substr(0, offset-1), 10);
+            while (i < RFB.RQ_reorder.length) {
+                offset = RFB.RQ_reorder[i].indexOf(":") + 1;
+                seq_num = parseInt(RFB.RQ_reorder[i].substr(0, offset-1), 10);
                 //console.log("Searching reorder list item " +
                 //            i + ", seq_num " + seq_num);
-                if (seq_num === RQ_seq_num) {
+                if (seq_num === RFB.RQ_seq_num) {
                     /* Remove it from reorder queue, decode it and
                         * add it to the receive queue */
                     console.log("Found re-ordered packet seq_num " + seq_num);
-                    RQ = RQ.concat(Base64.decode(RQ_reorder.splice(i, 1)[0],
-                                   offset));
-                    RQ_seq_num++;
+                    RFB.RQ = RFB.RQ.concat(
+                            Base64.decode(RFB.RQ_reorder.splice(i, 1)[0],
+                                          offset));
+                    RFB.RQ_seq_num++;
                     i = 0;  // Start search again for next one
                 } else {
                     i++;
@@ -901,7 +849,7 @@ handle_message: function () {
     case 'normal':
         RFB.normal_msg();
         /*
-        while (RQ.length > 0) {
+        while (RFB.RQ.length > 0) {
             if (RFB.normal_msg() && RFB.state === 'normal') {
                 console.log("More to process");
             } else {
@@ -925,10 +873,10 @@ send_string: function (str) {
 send_array: function (arr) {
     //console.log(">> send_array: " + arr);
     //console.log(">> send_array: " + Base64.encode(arr));
-    SQ = SQ + Base64.encode(arr);
+    RFB.SQ = RFB.SQ + Base64.encode(arr);
     if (RFB.ws.bufferedAmount === 0) {
-        RFB.ws.send(SQ);
-        SQ = "";
+        RFB.ws.send(RFB.SQ);
+        RFB.SQ = "";
     } else {
         console.log("Delaying send");
     }
@@ -1129,9 +1077,9 @@ init_ws: function () {
                  * or whatever slower rate the network can handle
                  */
                 if (RFB.ws.bufferedAmount === 0) {
-                    if (SQ) {
-                        RFB.ws.send(SQ);
-                        SQ = "";
+                    if (RFB.SQ) {
+                        RFB.ws.send(RFB.SQ);
+                        RFB.SQ = "";
                     }
                 } else {
                     console.log("Delaying send");
@@ -1156,18 +1104,18 @@ init_ws: function () {
 
 init_vars: function () {
     /* Reset state */
-    RFB.cuttext  = 'none';
-    RFB.ct_length = 0;
-    RQ           = [];
-    RQ_reorder   = [];
-    RQ_seq_num   = 0;
-    SQ           = "";
-    FBU.rects    = 0;
-    FBU.subrects = 0;  // RRE and HEXTILE
-    FBU.lines    = 0;  // RAW
-    FBU.tiles    = 0;  // HEXTILE
+    RFB.cuttext          = 'none';
+    RFB.ct_length        = 0;
+    RFB.RQ               = [];
+    RFB.RQ_reorder       = [];
+    RFB.RQ_seq_num       = 0;
+    RFB.SQ               = "";
+    RFB.FBU.rects        = 0;
+    RFB.FBU.subrects     = 0;  // RRE and HEXTILE
+    RFB.FBU.lines        = 0;  // RAW
+    RFB.FBU.tiles        = 0;  // HEXTILE
     RFB.mouse_buttonmask = 0;
-    RFB.mouse_arr    = [];
+    RFB.mouse_arr        = [];
 },
 
 
