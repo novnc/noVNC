@@ -125,8 +125,8 @@ mouse_arr        : [],
 init_msg: function () {
     console.log(">> init_msg [RFB.state '" + RFB.state + "']");
 
-    var RQ = RFB.RQ, verstr, strlen, reason, reason_len,
-        server_version, types, num_types, challenge, response,
+    var RQ = RFB.RQ, strlen, reason, reason_len,
+        sversion, cversion, types, num_types, challenge, response,
         bpp, depth, big_endian, true_color, name_length;
 
     //console.log("RQ (" + RQ.length + ") " + RQ);
@@ -138,27 +138,29 @@ init_msg: function () {
                     "Disconnected: incomplete protocol version");
             return;
         }
-        server_version = RQ.shiftStr(12).substr(0,11);
-        console.log("Server ProtocolVersion: " + server_version);
-        if ((server_version === "RFB 003.003") || (RFB.max_version === 3.3)) {
-            RFB.version = 3.3;
-            verstr = "RFB 003.003";
-            RFB.send_string(verstr + "\n");
-            RFB.updateState('Security', "Sent ProtocolVersion: " + verstr);
-        } else if (server_version === "RFB 003.008") {
-            RFB.version = 3.8;
-            verstr = "RFB 003.008";
-            RFB.send_string(verstr + "\n");
-            RFB.updateState('Security', "Sent ProtocolVersion: " + verstr);
-        } else {
-            RFB.updateState('failed',
-                    "Invalid server version " + server_version);
-            return;
+        sversion = RQ.shiftStr(12).substr(4,7);
+        console.log("Server ProtocolVersion: " + sversion);
+        switch (sversion) {
+            case "003.003": RFB.version = 3.3; break;
+            case "003.007": RFB.version = 3.7; break;
+            case "003.008": RFB.version = 3.8; break;
+            default:
+                RFB.updateState('failed',
+                        "Invalid server version " + sversion);
+                return;
         }
+        if (RFB.version > RFB.max_version) { 
+            RFB.version = RFB.max_version;
+        }
+
+        cversion = "00" + parseInt(RFB.version,10) +
+                   ".00" + ((RFB.version * 10) % 10);
+        RFB.send_string("RFB " + cversion + "\n");
+        RFB.updateState('Security', "Sent ProtocolVersion: " + sversion);
         break;
 
     case 'Security' :
-        if (RFB.version === 3.8) {
+        if (RFB.version >= 3.7) {
             num_types = RQ.shift8();
             if (num_types === 0) {
                 strlen = RQ.shift32();
@@ -181,7 +183,7 @@ init_msg: function () {
                 RFB.auth_scheme = types[0];
             }
             RFB.send_array([RFB.auth_scheme]);
-        } else if (RFB.version === 3.3) {
+        } else {
             if (RQ.length < 4) {
                 RFB.updateState('failed', "Invalid security frame");
                 return;
@@ -244,11 +246,11 @@ init_msg: function () {
                 RFB.updateState('ServerInitialisation', "Authentication OK");
                 break;
             case 1:  // failed
-                if (RFB.version === 3.8) {
+                if (RFB.version >= 3.8) {
                     reason_len = RQ.shift32();
                     reason = RQ.shiftStr(reason_len);
                     RFB.updateState('failed', reason);
-                } else if (RFB.version === 3.3) {
+                } else {
                     RFB.updateState('failed', "Authentication failed");
                 }
                 return;
