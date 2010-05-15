@@ -51,7 +51,7 @@ ctxDisable: function (e) {
 
 
 init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp, mouseMove) {
-    console.log(">> init_canvas");
+    console.log(">> Canvas.init");
 
     Canvas.id = id;
 
@@ -84,7 +84,7 @@ init: function (id, width, height, keyDown, keyUp, mouseDown, mouseUp, mouseMove
     
     Canvas.prevStyle = "";
 
-    console.log("<< init_canvas");
+    console.log("<< Canvas.init");
 },
 
 clear: function () {

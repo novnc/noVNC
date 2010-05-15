@@ -153,6 +153,14 @@ fb_name   : "",
 fb_Bpp    : 4,
 rre_chunk : 100,
 
+timing : {
+    last_fbu  : 0,
+    fbu_total  : 0,
+    fbu_total_cnt  : 0,
+    full_fbu_total : 0,
+    full_fbu_cnt : 0
+},
+
 /* Mouse state */
 mouse_buttonmask : 0,
 mouse_arr        : [],
@@ -164,9 +172,9 @@ mouse_arr        : [],
 
 /* RFB/VNC initialisation */
 init_msg: function () {
-    console.log(">> init_msg");
+    console.log(">> init_msg [RFB.state '" + RFB.state + "']");
 
-    console.log("RQ (" + RQ.length + ") " + RQ);
+    //console.log("RQ (" + RQ.length + ") " + RQ);
 
     switch (RFB.state) {
 
@@ -247,11 +255,12 @@ init_msg: function () {
                     return;
                 }
                 var challenge = RQ.shiftBytes(16);
-                console.log("Password: " + RFB.password);
-                console.log("Challenge: " + challenge + " (" + challenge.length + ")");
+                //console.log("Password: " + RFB.password);
+                //console.log("Challenge: " + challenge + " (" + challenge.length + ")");
                 var response = RFB.DES(RFB.password, challenge);
-                console.log("Response: " + response + " (" + response.length + ")");
-
+                //console.log("Response: " + response + " (" + response.length + ")");
+                
+                console.log("Sending DES encrypted auth response");
                 RFB.send_array(response);
                 RFB.updateState('SecurityResult');
                 break;
@@ -297,18 +306,16 @@ init_msg: function () {
         RFB.fb_width  = RQ.shift16();
         RFB.fb_height = RQ.shift16();
 
-        console.log("Screen size: " + RFB.fb_width + "x" + RFB.fb_height);
-
         /* PIXEL_FORMAT */
         var bpp            = RQ.shift8();
         var depth          = RQ.shift8();
         var big_endian     = RQ.shift8();
         var true_color     = RQ.shift8();
 
-        console.log("bpp: " + bpp);
-        console.log("depth: " + depth);
-        console.log("big_endian: " + big_endian);
-        console.log("true_color: " + true_color);
+        console.log("Screen: " + RFB.fb_width + "x" + RFB.fb_height + 
+                    ", bpp: " + bpp + ", depth: " + depth +
+                    ", big_endian: " + big_endian +
+                    ", true_color: " + true_color);
 
         /* Connection name/title */
         RQ.shiftStr(12);
@@ -331,7 +338,7 @@ init_msg: function () {
         RFB.updateState('normal', "Connected to: " + RFB.fb_name);
         break;
     }
-    console.log("<< init_msg");
+    //console.log("<< init_msg");
 },
 
 
@@ -357,6 +364,7 @@ normal_msg: function () {
             RQ.shift8();
             FBU.rects = RQ.shift16();
             //console.log("FramebufferUpdate, rects:" + FBU.rects);
+            RFB.timing.cur_fbu = 0;
             FBU.bytes = 0;
         }
 
@@ -390,11 +398,20 @@ normal_msg: function () {
                 */
             }
 
+            RFB.timing.last_fbu = (new Date).getTime();
             switch (FBU.encoding) {
                 case 0: ret = RFB.display_raw();       break; // Raw
                 case 1: ret = RFB.display_copy_rect(); break; // Copy-Rect
                 case 2: ret = RFB.display_rre();       break; // RRE
                 case 5: ret = RFB.display_hextile();   break; // hextile
+            }
+            RFB.timing.cur_fbu += ((new Date).getTime() - RFB.timing.last_fbu);
+            if (FBU.rects == 0) {
+                if ((FBU.width === RFB.fb_width) && (FBU.height === RFB.fb_height)) {
+                    RFB.timing.full_fbu_total += RFB.timing.cur_fbu;
+                    RFB.timing.full_fbu_cnt += 1;
+                    console.log("Timing of full FBU, cur: " + RFB.timing.cur_fbu + ", total: " + RFB.timing.full_fbu_total + ", cnt: " + RFB.timing.full_fbu_cnt + ", avg: " + (RFB.timing.full_fbu_total / RFB.timing.full_fbu_cnt));
+                }
             }
             if (RFB.state != "normal") return true;
         }
@@ -652,7 +669,7 @@ display_hextile: function() {
  */
 
 pixelFormat: function () {
-    console.log(">> setPixelFormat");
+    //console.log(">> setPixelFormat");
     var arr;
     arr = [0];     // msg-type
     arr.push8(0);  // padding
@@ -674,7 +691,7 @@ pixelFormat: function () {
     arr.push8(0);     // padding
     arr.push8(0);     // padding
     arr.push8(0);     // padding
-    console.log("<< setPixelFormat");
+    //console.log("<< setPixelFormat");
     return arr;
 },
 
@@ -682,7 +699,7 @@ fixColourMapEntries: function () {
 },
 
 encodings: function () {
-    console.log(">> setEncodings");
+    //console.log(">> setEncodings");
     var arr;
     arr = [2];     // msg-type
     arr.push8(0);  // padding
@@ -694,7 +711,7 @@ encodings: function () {
     arr.push32(2); // RRE encoding
     arr.push32(1); // copy-rect encoding
     arr.push32(0); // raw encoding
-    console.log("<< setEncodings");
+    //console.log("<< setEncodings");
     return arr;
 },
 
@@ -757,9 +774,23 @@ clientCutText: function (text) {
 
 recv_message: function(e) {
     //console.log(">> recv_message");
-    RQ = RQ.concat(Base64.decode(e.data, 0));
 
-    RFB.handle_message();
+    try {
+        if (RFB.use_seq) {
+            RFB.recv_message_reorder(e);
+        } else {
+            RQ = RQ.concat(Base64.decode(e.data, 0));
+
+            RFB.handle_message();
+        }
+    } catch (e) {
+        console.log("recv_message, caught exception: " + e);
+        if (typeof e.name !== 'undefined') {
+            RFB.updateState('failed', e.name + ": " + e.message);
+        } else {
+            RFB.updateState('failed', e);
+        }
+    }
     //console.log("<< recv_message");
 },
 
@@ -772,7 +803,7 @@ recv_message_reorder: function(e) {
         RQ = RQ.concat(Base64.decode(e.data, offset));
         RQ_seq_num++;
     } else {
-        console.warn("sequence number mismatch RQ_seq_num:" + RQ_seq_num + ", seq_num:" + seq_num);
+        console.warn("sequence number mismatch: expected " + RQ_seq_num + ", got " + seq_num);
         if (RQ_reorder.length > 20) {
             RFB.updateState('failed', "Re-order queue too long");
         } else {
@@ -781,7 +812,7 @@ recv_message_reorder: function(e) {
             while (i < RQ_reorder.length) {
                 var offset = RQ_reorder[i].indexOf(":") + 1;
                 var seq_num = parseInt(RQ_reorder[i].substr(0, offset-1));
-                console.log("Searching reorder list item " + i + ", seq_num " + seq_num);
+                //console.log("Searching reorder list item " + i + ", seq_num " + seq_num);
                 if (seq_num == RQ_seq_num) {
                     /* Remove it from reorder queue, decode it and
                         * add it to the receive queue */
@@ -805,11 +836,6 @@ handle_message: function () {
     switch (RFB.state) {
     case 'disconnected':
         console.error("Got data while disconnected");
-        break;
-    case 'reset':
-        /* close and reset connection */
-        RFB.disconnect();
-        RFB.init_ws();
         break;
     case 'failed':
         console.log("Giving up!");
@@ -969,33 +995,41 @@ updateState: function(state, statusMsg) {
     var s = RFB.statusLine;
     var c = RFB.connectBtn;
     var func = function(msg) { console.log(msg) };
+    var color;
     switch (state) {
         case 'failed':
             func = function(msg) { console.error(msg) };
             c.disabled = true;
-            s.style.fontColor = "#880000";
+            color = "#880000";
             break;
         case 'normal':
             c.value = "Disconnect";
             c.onclick = RFB.disconnect;
             c.disabled = false;
-            s.style.fontColor = "#000000";
+            color = "#000000";
             break;
         case 'disconnected':
             c.value = "Connect";
             c.onclick = function () { RFB.connect(); },
 
             c.disabled = false;
-            s.style.fontColor = "#000000";
+            color = "#000000";
             break;
         default:
             func = function(msg) { console.warn(msg) };
             c.disabled = true;
-            s.style.fontColor = "#444400";
+            color = "#444400";
             break;
     }
 
+    if ((RFB.state === 'failed') &&
+        ((state === 'disconnected') || (state === 'closed'))) {
+        // Leave the failed message
+        return;
+    }
+
     RFB.state = state;
+    s.style.color = color;
     var cmsg = typeof(statusMsg) != 'undefined' ? (" Msg: " + statusMsg) : "";
     func("New state '" + state + "'." + cmsg);
     if (typeof(statusMsg) != 'undefined') {
@@ -1023,11 +1057,7 @@ init_ws: function () {
     console.log("connecting to " + uri);
     RFB.ws = new WebSocket(uri);
 
-    if (RFB.use_seq) {
-        RFB.ws.onmessage = RFB.recv_message_reorder;
-    } else {
-        RFB.ws.onmessage = RFB.recv_message;
-    }
+    RFB.ws.onmessage = RFB.recv_message;
     RFB.ws.onopen = function(e) {
         console.log(">> WebSocket.onopen");
         RFB.updateState('ProtocolVersion', "Starting VNC handshake");
@@ -1050,13 +1080,7 @@ init_ws: function () {
     RFB.ws.onclose = function(e) {
         console.log(">> WebSocket.onclose");
         clearInterval(RFB.sendID);
-        if (RFB.state != 'disconnected') {
-            if (RFB.state == 'failed') {
-                RFB.updateState('disconnected');
-            } else {
-                RFB.updateState('disconnected', 'VNC disconnected');
-            }
-        }
+        RFB.updateState('disconnected', 'VNC disconnected');
         console.log("<< WebSocket.onclose");
     };
     RFB.ws.onerror = function(e) {
@@ -1073,6 +1097,7 @@ init_vars: function () {
     RFB.cuttext  = 'none';
     RFB.ct_length = 0;
     RQ           = [];
+    RQ_reorder   = [];
     RQ_seq_num   = 0;
     SQ           = "";
     FBU.rects    = 0;
@@ -1086,8 +1111,8 @@ init_vars: function () {
 
 connect: function (host, port, password, encrypt) {
     console.log(">> connect");
+
     RFB.host = (host !== undefined) ? host : $('VNC_host').value;
-    console.log("RFB.host: " + RFB.host);
     RFB.port = (port !== undefined) ? port : $('VNC_port').value;
     RFB.password = (password !== undefined) ? password : $('VNC_password').value;
     RFB.encrypt = (encrypt !== undefined) ? encrypt : $('VNC_encrypt').checked;
@@ -1112,6 +1137,7 @@ disconnect: function () {
     console.log(">> disconnect");
     if ((RFB.ws) && (RFB.ws.readyState == WebSocket.OPEN)) {
         RFB.updateState('closed');
+        RFB.ws.onmessage = function (e) { return; }
         RFB.ws.close();
     }
     if (Canvas.ctx) {
@@ -1121,11 +1147,7 @@ disconnect: function () {
         }
     }
 
-    if (RFB.state == 'failed') {
-        RFB.updateState('disconnected');
-    } else {
-        RFB.updateState('disconnected', 'Disconnected');
-    }
+    RFB.updateState('disconnected', 'Disconnected');
     console.log("<< disconnect");
 },
 
@@ -1133,7 +1155,7 @@ disconnect: function () {
  * Load the controls
  */
 load: function (target) {
-    console.log(">> RFB.load");
+    //console.log(">> load");
 
     if (!target) { target = 'vnc' };
 
@@ -1216,7 +1238,7 @@ load: function (target) {
         $('VNC_encrypt').checked = (url.match(/encrypt=([^&#]*)/) || ['',''])[1];
     }
 
-    console.log("<< RFB.load");
-}
+    //console.log("<< load");
+},
 
 }; /* End of RFB */

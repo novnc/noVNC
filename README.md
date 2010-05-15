@@ -36,7 +36,7 @@ There a few reasons why a proxy is required:
      strings (Unicode encoding messes with it) even though you can
      read them with WebSocket. The python proxy encodes the data so
      that the Javascript client can base64 decode the data into an
-     array. The client requests this encoding
+     array.
 
   3. When using the web-socket-js as a fallback, WebSocket 'onmessage'
      events may arrive out of order. In order to compensate for this

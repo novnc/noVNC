@@ -56,7 +56,7 @@ def do_proxy(client, target):
             sent = client.send(dat)
             if sent == len(dat):
                 traffic("<")
-                ##log.write("Client send: %s\n" % repr(dat))
+                ##log.write("Client send: %s ...\n" % repr(dat[0:80]))
             else:
                 cqueue.insert(0, dat[sent:])
                 traffic("<.")
