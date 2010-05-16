@@ -54,7 +54,7 @@
         var ws = null, update_ref = null, send_ref = null;
         var sent = 0, received = 0, errors = 0;
         var max_send = 2000;
-        var recv_cnt = 0, send_cnt = 0;
+        var recv_seq = 0, send_seq = 0;
 
         Array.prototype.pushStr = function (str) {
             var n = str.length;
@@ -89,19 +89,19 @@
             arr = decoded.map(function(num) {
                     return String.fromCharCode(num); 
                 } ).join('').split(':');
-            cnt    = arr[0];
+            seq    = arr[0];
             length = arr[1];
             chksum = arr[2];
             nums   = arr[3];
 
             //console.log("   length:" + length + " chksum:" + chksum + " nums:" + nums);
-            if (cnt != recv_cnt) {
+            if (seq != recv_seq) {
                 errors++;
-                error("Expected count " + recv_cnt + " but got " + cnt);
-                recv_cnt = parseInt(cnt,10) + 1;   // Back on track
+                error("Expected seq " + recv_seq + " but got " + seq);
+                recv_seq = parseInt(seq,10) + 1;   // Back on track
                 return;
             }
-            recv_cnt++;
+            recv_seq++;
             if (nums.length != length) {
                 errors++;
                 error("Expected length " + length + " but got " + nums.length);
@@ -138,8 +138,8 @@
                 chksum += parseInt(numlist[i], 10);
             }
             var nums = numlist.join('');
-            arr.pushStr("^" + send_cnt + ":" + length + ":" + chksum + ":" + nums + "$")
-            send_cnt ++;
+            arr.pushStr("^" + send_seq + ":" + length + ":" + chksum + ":" + nums + "$")
+            send_seq ++;
             ws.send(Base64.encode(arr));
             sent++;
         }
@@ -216,8 +216,8 @@
 
             $clear(update_ref);
             update_stats(); // Final numbers
-            recv_cnt = 0;
-            send_cnt = 0;
+            recv_seq = 0;
+            send_seq = 0;
 
             $('connectButton').value = "Start";
             $('connectButton').onclick = connect;
