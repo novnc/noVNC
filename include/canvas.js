@@ -12,6 +12,8 @@
 // Everything namespaced inside Canvas
 var Canvas = {
 
+prefer_js : false,
+
 c_x : 0,
 c_y : 0,
 c_wx : 0,
@@ -99,6 +101,10 @@ init: function (id, width, height, keyDown, keyUp,
     
     Canvas.prevStyle = "";
 
+    if (Browser.Engine.webkit) {
+        Canvas.prefer_js = true;
+    }
+
     console.log("<< Canvas.init");
 },
 
@@ -122,35 +128,6 @@ stop: function () {
     document.body.removeEvents('contextmenu');
 },
 
-draw: function () {
-    var img, x, y;
-    /* Border */
-    Canvas.ctx.stroke();  
-    Canvas.ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
-    Canvas.ctx.stroke();  
-
-    /*
-    // Does not work in firefox
-    var himg = new Image();
-    himg.src = "head_ani2.gif"
-    Canvas.ctx.drawImage(himg, 10, 10);
-    */
-
-    /* Test array image data */
-    //img = Canvas.ctx.createImageData(50, 50);
-    img = Canvas.ctx.getImageData(0, 0, 50, 50);
-    for (y=0; y< 50; y++) {
-        for (x=0; x< 50; x++) {
-            img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y, 10);
-            img.data[(y*50 + x)*4 + 1] = parseInt((255 / 50) * y, 10);
-            img.data[(y*50 + x)*4 + 2] = parseInt((255 / 50) * x, 10);
-            img.data[(y*50 + x)*4 + 3] = 255;
-        }
-    }
-    Canvas.ctx.putImageData(img, 100, 100);
-},
-
-
 /*
  * Tile rendering functions optimized for rendering engines.
  *
@@ -159,10 +136,11 @@ draw: function () {
  *   gecko, Javascript array handling is much slower.
  */
 getTile: function(x, y, width, height, color) {
-    var img, p, red, green, blue, j, i;
+    var img, data, p, red, green, blue, j, i;
     img = {'x': x, 'y': y, 'width': width, 'height': height,
            'data': []};
-    if (Browser.Engine.webkit) {
+    if (Canvas.prefer_js) {
+        data = img.data;
         red = color[0];
         green = color[1];
         blue = color[2];
@@ -182,8 +160,9 @@ getTile: function(x, y, width, height, color) {
 },
 
 setTile: function(img, x, y, w, h, color) {
-    var p, red, green, blue, width, j, i;
-    if (Browser.Engine.webkit) {
+    var data, p, red, green, blue, width, j, i;
+    if (Canvas.prefer_js) {
+        data = img.data;
         width = img.width;
         red = color[0];
         green = color[1];
@@ -191,9 +170,9 @@ setTile: function(img, x, y, w, h, color) {
         for (j = 0; j < h; j++) {
             for (i = 0; i < w; i++) {
                 p = (x + i + ((y + j) * width) ) * 4;
-                img.data[p + 0] = red;
-                img.data[p + 1] = green;
-                img.data[p + 2] = blue;
+                data[p + 0] = red;
+                data[p + 1] = green;
+                data[p + 2] = blue;
                 //img.data[p + 3] = 255; // Set Alpha
             }   
         } 
@@ -203,7 +182,7 @@ setTile: function(img, x, y, w, h, color) {
 },
 
 putTile: function(img) {
-    if (Browser.Engine.webkit) {
+    if (Canvas.prefer_js) {
         Canvas.rgbxImage(img.x, img.y, img.width, img.height, img.data);
         //Canvas.ctx.putImageData(img, img.x, img.y);
     } else {
@@ -213,14 +192,17 @@ putTile: function(img) {
 
 
 rgbxImage: function(x, y, width, height, arr) {
-    var img, i;
+    var img, i, data;
     /* Old firefox and Opera don't support createImageData */
     img = Canvas.ctx.getImageData(0, 0, width, height);
+    //console.log("rfbxImage: img: " + img + " x: " + x + " y: " + y + " width: " + width + " height: " + height);
+    //img.data = arr.slice();
+    data = img.data;
     for (i=0; i < (width * height); i++) {
-        img.data[i*4 + 0] = arr[i*4 + 0];
-        img.data[i*4 + 1] = arr[i*4 + 1];
-        img.data[i*4 + 2] = arr[i*4 + 2];
-        img.data[i*4 + 3] = 255; // Set Alpha
+        data[i*4 + 0] = arr[i*4 + 0];
+        data[i*4 + 1] = arr[i*4 + 1];
+        data[i*4 + 2] = arr[i*4 + 2];
+        data[i*4 + 3] = 255; // Set Alpha
     }
     Canvas.ctx.putImageData(img, x, y);
 

@@ -1,11 +1,22 @@
 <html>
-    <head><title>Canvas Experiments</title></head>
+    <head><title>Canvas Performance Test</title></head>
     <body>
+        Iterations: <input id='iterations' style='width:50' value="100">&nbsp;
+
+        <input id='startButton' type='button' value='Start' style='width:100px'
+            onclick="start();">&nbsp;
+
+        <br><br>
+
         Canvas:<br>
-        <canvas id="tutorial" width="640" height="480"
+        <canvas id="canvas" width="640" height="20"
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
+
+        <br>
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
     <!--
@@ -18,11 +29,92 @@
     <script src="../include/canvas.js"></script>
 
     <script>
+        var msg_cnt = 0;
+        var width = 800, height = 600;
+        var iterations;
+
+        function message(str) {
+            console.log(str);
+            cell = $('messages');
+            cell.innerHTML += msg_cnt + ": " + str + "\n";
+            cell.scrollTop = cell.scrollHeight;
+        }
+
+        function draw () {
+            var img, x, y;
+            /* Border */
+            Canvas.ctx.stroke();  
+            Canvas.ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
+            Canvas.ctx.stroke();  
+
+            /*
+            // Does not work in firefox
+            var himg = new Image();
+            himg.src = "head_ani2.gif"
+            Canvas.ctx.drawImage(himg, 10, 10);
+            */
+
+            /* Test array image data */
+            //img = Canvas.ctx.createImageData(50, 50);
+            img = Canvas.ctx.getImageData(0, 0, 50, 50);
+            for (y=0; y< 50; y++) {
+                for (x=0; x< 50; x++) {
+                    img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y, 10);
+                    img.data[(y*50 + x)*4 + 1] = parseInt((255 / 50) * y, 10);
+                    img.data[(y*50 + x)*4 + 2] = parseInt((255 / 50) * x, 10);
+                    img.data[(y*50 + x)*4 + 3] = 255;
+                }
+            }
+            Canvas.ctx.putImageData(img, 100, 100);
+        }
+
+        function start () {
+            $('startButton').value = "Running";
+            $('startButton').disabled = true;
+            setTimeout(start_delayed, 250);
+            iterations = $('iterations').value;
+        }
+
+        function start_delayed () {
+
+            message("Running test: prefer Javascript");
+            Canvas.prefer_js = true;
+            var time1 = run_test();
+            message("prefer Javascript: " + time1 + "ms total, " +
+                    (time1 / iterations) + "ms per frame");
+
+            message("Running test: prefer Canvas ops");
+            Canvas.prefer_js = false;
+            var time2 = run_test();
+            message("prefer Canvas ops: " + time2 + "ms total, " +
+                    (time2 / iterations) + "ms per frame");
+
+            $('startButton').disabled = false;
+            $('startButton').value = "Start";
+        }
+
+        function run_test () {
+            var color, start_time = (new Date()).getTime();
+            for (var i=0; i < iterations; i++) {
+                color = [128, 128, (255 / iterations) * i, 0];
+                for (var x=0; x < width; x = x + 16) {
+                    for (var y=0; y < width; y = y + 16) {
+                        var tile = Canvas.getTile(x, y, 16, 16, color);
+                        Canvas.setTile(tile, 0, 0, 16, 16, color);
+                        Canvas.putTile(tile);
+                    }
+                }
+            }
+            var end_time = (new Date()).getTime();
+            return (end_time - start_time);
+        }
+
         window.onload = function() {
-            console.log("here1");
-            Canvas.init('tutorial', 640, 480);
-            Canvas.draw();
-            console.log("here2");
+            Canvas.init('canvas', width, height);
+            Canvas.stop();   // Shut-off event interception
+            $('iterations').value = 10;
+            draw();
+            message("Canvas initialized");
         }
     </script>
 </html>

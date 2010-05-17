@@ -835,7 +835,9 @@ recv_message_reorder: function(e) {
         }
     }
 
-    RFB.handle_message();
+    if (RFB.RQ.length > 0) {
+        RFB.handle_message();
+    }
     //console.log("<< recv_message_reorder");
 },
 
