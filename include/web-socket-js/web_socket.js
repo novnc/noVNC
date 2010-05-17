@@ -302,10 +302,12 @@
     console.error(decodeURIComponent(message));
   }
 
+  /*
   if (window.addEventListener) {
     window.addEventListener("load", WebSocket.__initialize, false);
   } else {
     window.attachEvent("onload", WebSocket.__initialize);
   }
+  */
   
 })();

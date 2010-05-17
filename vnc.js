@@ -1247,6 +1247,7 @@ load: function (target) {
                     "'file://' URL is incompatible with Adobe Flash");
         } else {
             WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
+            WebSocket.__initialize();
             RFB.use_seq = true;
             RFB.updateState('disconnected', 'Disconnected');
         }
