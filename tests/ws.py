@@ -6,10 +6,12 @@ that has a random payload (length and content) that is checksummed and
 given a sequence number. Any errors are reported and counted.
 '''
 
-import sys, socket, ssl, time, traceback
+import sys, os, socket, ssl, time, traceback
 import random, time
 from base64 import b64encode, b64decode
 from select import select
+
+sys.path.insert(0,os.path.dirname(__file__) + "/../")
 from websocket import *
 
 buffer_size = 65536

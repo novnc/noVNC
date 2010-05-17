@@ -1,0 +1,114 @@
+<html>
+
+    <head><title>FABridge Event Test</title></head>
+
+    <body>
+
+        Event Delay (ms): <input id='eventDelay' style='width:50' value="100">&nbsp;
+        <input id='startButton' type='button' value='Start' style='width:100px'
+            onclick="start();">&nbsp;
+
+        <br><br>
+        <table border=1>
+            <tr>
+                <th align="right">Good Events Received:</th>
+                <td align="right"><div id='received'>0</div></td>
+            </tr><tr>
+                <th align="right">Errors (Bad Events Received:)</th>
+                <td align="right"><div id='errors'>0</div></td>
+            </tr>
+        </table>
+
+        <br>
+        Errors:<br>
+        <textarea id="error" style="font-size: 9;" cols=80 rows=25></textarea>
+    </body>
+
+
+    <!-- Uncomment to activate firebug lite -->
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
+
+    <script src="../include/mootools.js"></script>
+    <script src="../include/util.js"></script>
+
+    <script>
+
+        function error(str) {
+            console.error(str);
+            cell = $('error');
+            cell.innerHTML += errors + ": " + str + "\n";
+            cell.scrollTop = cell.scrollHeight;
+        }
+
+        var eventDelay = 0;
+        var fab = null;
+        var recv_seq = 0, received = 0, errors = 0;
+
+        function check_event(data) {
+            //console.log(">> check_event");
+            var got_seq = parseInt(data, 10);
+            if (got_seq !== recv_seq) {
+                error("got event " + got_seq + ", expecting " + recv_seq);
+                errors = errors + 1;
+            } else {
+                received = received + 1;
+            }
+            recv_seq = got_seq + 1;
+            //console.log("<< check_event");
+        }
+
+        function update_stats() {
+            $('received').innerHTML = received;
+            $('errors').innerHTML = errors;
+        }
+
+        function start() {
+            console.log(">> start");
+            eventDelay = parseInt($('eventDelay').value, 10);
+            recv_seq = 0;
+
+            fab.onmessage = function(e) {
+                //console.log(">> FABTest.onmessage");
+                check_event(e.data);
+                //console.log("<< FABTest.onmessage");
+            };
+            fab.start(eventDelay);
+            update_ref = update_stats.periodical(1);
+
+            $('startButton').value = "Stop";
+            $('startButton').onclick = stop;
+            console.log("<< start");
+        }
+
+        function stop() {
+            console.log(">> stop");
+            fab.stop();
+            $clear(update_ref);
+            update_stats(); // Final numbers
+            recv_seq = 0;
+
+            $('startButton').value = "Start";
+            $('startButton').onclick = start;
+            console.log("<< stop");
+        }
+
+
+        /* If no builtin websockets then load web_socket.js */
+        console.log("Loading FABridge event test object");
+        var extra = "<script src='../include/web-socket-js/swfobject.js'><\/script>";
+        extra += "<script src='../include/web-socket-js/FABridge.js'><\/script>";
+        extra += "<script src='../include/fab-test/fab-test.js'><\/script>";
+        document.write(extra);
+
+        window.onload = function() {
+            console.log("onload");
+            FABTest.__swfLocation = "../include/fab-test/FABTestMain.swf";
+            console.log("creating FABridge event test object");
+            fab = new FABTest(eventDelay);
+        }
+    </script>
+
+</html>
