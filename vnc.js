@@ -1004,7 +1004,7 @@ clipboardClear: function () {
 },
 
 updateState: function(state, statusMsg) {
-    var s, c, func, color, cmsg;
+    var s, c, func, klass, cmsg;
     s = RFB.statusLine;
     c = RFB.connectBtn;
     func = function(msg) { console.log(msg); };
@@ -1012,25 +1012,25 @@ updateState: function(state, statusMsg) {
         case 'failed':
             func = function(msg) { console.error(msg); };
             c.disabled = true;
-            color = "#880000";
+            klass = "error";
             break;
         case 'normal':
             c.value = "Disconnect";
             c.onclick = RFB.disconnect;
             c.disabled = false;
-            color = "#000000";
+            klass = "normal";
             break;
         case 'disconnected':
             c.value = "Connect";
             c.onclick = function () { RFB.connect(); };
 
             c.disabled = false;
-            color = "#000000";
+            klass = "normal";
             break;
         default:
             func = function(msg) { console.warn(msg); };
             c.disabled = true;
-            color = "#444400";
+            klass = "warn";
             break;
     }
 
@@ -1041,7 +1041,7 @@ updateState: function(state, statusMsg) {
     }
 
     RFB.state = state;
-    s.style.color = color;
+    s.setAttribute("class", "VNC_status_" + klass);
     cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
     func("New state '" + state + "'." + cmsg);
     if (typeof(statusMsg) !== 'undefined') {

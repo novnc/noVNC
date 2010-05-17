@@ -29,7 +29,16 @@
 #VNC_status {
     margin-top: 15px;
     text-align: center;
+    /*background: #eee;*/
+}
+.VNC_status_normal {
     background: #eee;
+}
+.VNC_status_error {
+    background: #f44;
+}
+.VNC_status_warn {
+    background: #ff4;
 }
 
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect

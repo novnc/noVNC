@@ -50,6 +50,15 @@ body {
   font-weight: bold;
   text-align: center;
 }
+.VNC_status_normal {
+  color: #fff;
+}
+.VNC_status_error {
+  color: #f44;
+}
+.VNC_status_warn {
+  color: #ff4;
+}
 #VNC_screen {
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
