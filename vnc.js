@@ -459,7 +459,7 @@ display_raw: function () {
     cur_y = FBU.y + (FBU.height - FBU.lines);
     cur_height = Math.min(FBU.lines,
                           Math.floor(RQ.length/(FBU.width * RFB.fb_Bpp)));
-    Canvas.rgbxImage(FBU.x, cur_y, FBU.width, cur_height, RQ);
+    Canvas.rgbxImage(FBU.x, cur_y, FBU.width, cur_height, RQ, 0);
     RQ.shiftBytes(FBU.width * cur_height * RFB.fb_Bpp);
     FBU.lines -= cur_height;
 
@@ -601,19 +601,18 @@ display_hextile: function() {
         }
 
         /* We know the encoding and have a whole tile */
-        FBU.subencoding = RQ.shift8();
-        FBU.bytes--;
+        FBU.subencoding = RQ[0];
+        idx = 1;
         if (FBU.subencoding === 0) {
             if (FBU.lastsubencoding & 0x01) {
                 /* Weird: ignore blanks after RAW */
                 console.log("     Ignoring blank after RAW");
-                continue;
+            } else {
+                Canvas.fillRect(x, y, w, h, FBU.background);
             }
-            Canvas.fillRect(x, y, w, h, FBU.background);
         } else if (FBU.subencoding & 0x01) { // Raw
-            Canvas.rgbxImage(x, y, w, h, RQ);
+            Canvas.rgbxImage(x, y, w, h, RQ, idx);
         } else {
-            idx = 0;
             if (FBU.subencoding & 0x02) { // Background
                 FBU.background = RQ.slice(idx, idx + RFB.fb_Bpp);
                 idx += RFB.fb_Bpp;

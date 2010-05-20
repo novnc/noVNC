@@ -183,7 +183,7 @@ setTile: function(img, x, y, w, h, color) {
 
 putTile: function(img) {
     if (Canvas.prefer_js) {
-        Canvas.rgbxImage(img.x, img.y, img.width, img.height, img.data);
+        Canvas.rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
         //Canvas.ctx.putImageData(img, img.x, img.y);
     } else {
         // No-op, under gecko already done by setTile
@@ -191,18 +191,18 @@ putTile: function(img) {
 },
 
 
-rgbxImage: function(x, y, width, height, arr) {
-    var img, i, data;
+rgbxImage: function(x, y, width, height, arr, offset) {
+    var img, i, j, data;
+    //console.log("rfbxImage: img: " + img + " x: " + x + " y: " + y + " width: " + width + " height: " + height);
     /* Old firefox and Opera don't support createImageData */
     img = Canvas.ctx.getImageData(0, 0, width, height);
-    //console.log("rfbxImage: img: " + img + " x: " + x + " y: " + y + " width: " + width + " height: " + height);
-    //img.data = arr.slice();
     data = img.data;
-    for (i=0; i < (width * height); i++) {
-        data[i*4 + 0] = arr[i*4 + 0];
-        data[i*4 + 1] = arr[i*4 + 1];
-        data[i*4 + 2] = arr[i*4 + 2];
-        data[i*4 + 3] = 255; // Set Alpha
+    for (i=0; i < (width * height * 4); i=i+4) {
+        j=i+offset;
+        data[i + 0] = arr[j + 0];
+        data[i + 1] = arr[j + 1];
+        data[i + 2] = arr[j + 2];
+        data[i + 3] = 255; // Set Alpha
     }
     Canvas.ctx.putImageData(img, x, y);
 
