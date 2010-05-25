@@ -289,8 +289,8 @@ init_msg: function () {
         RFB.fb_name = RQ.shiftStr(name_length);
 
         Canvas.init('VNC_canvas', RFB.fb_width, RFB.fb_height,
-                RFB.keyDown, RFB.keyUp,
-                RFB.mouseDown, RFB.mouseUp, RFB.mouseMove);
+                RFB.keyDown, RFB.keyUp, RFB.mouseDown, RFB.mouseUp,
+                RFB.mouseMove, RFB.mouseWheel);
 
         response = RFB.pixelFormat();
         response = response.concat(RFB.encodings());
@@ -983,6 +983,29 @@ mouseMove: function(e) {
     //console.log('>> mouseMove ' + x + "," + y);
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 },
+
+mouseWheel: function (e) {
+    var evt, wheelData, bmask;
+    evt = e.event || window.event;
+    //e = e ? e : window.event;
+    x = (evt.clientX - Canvas.c_x);
+    y = (evt.clientY - Canvas.c_y);
+    wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
+    //console.log('>> mouseWheel ' + wheelData +
+    //            " " + x + "," + y);
+
+    if (wheelData > 0) {
+        bmask = 1 << 3;
+    } else {
+        bmask = 1 << 4;
+    }
+    RFB.mouse_buttonMask |= bmask;
+    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
+    RFB.mouse_buttonMask ^= bmask;
+    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
+    RFB.flushClient();
+},
+
 
 clipboardCopyTo: function (text) {
     console.log(">> clipboardCopyTo: " + text.substr(0,40) + "...");

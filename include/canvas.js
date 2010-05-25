@@ -42,6 +42,14 @@ mouseMove: function (e) {
             (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
 },
 
+mouseWheel: function (e) {
+    var evt = e.event || window.event;
+    //e = e ? e : window.event;
+    var wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
+    console.log('mouse scroll by ' + wheelData + ':' +
+            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+},
+
 
 keyDown: function (e) {
     e.stop();
@@ -67,7 +75,7 @@ ctxDisable: function (e) {
 
 
 init: function (id, width, height, keyDown, keyUp,
-                mouseDown, mouseUp, mouseMove) {
+                mouseDown, mouseUp, mouseMove, mouseWheel) {
     console.log(">> Canvas.init");
 
     Canvas.id = id;
@@ -77,6 +85,7 @@ init: function (id, width, height, keyDown, keyUp,
     if (! mouseDown) { mouseDown = Canvas.mouseDown; }
     if (! mouseUp) { mouseUp = Canvas.mouseUp; }
     if (! mouseMove) { mouseMove = Canvas.mouseMove; }
+    if (! mouseWheel) { mouseWheel = Canvas.mouseWheel; }
 
     var c = $(Canvas.id);
     document.addEvent('keydown', keyDown);
@@ -84,6 +93,7 @@ init: function (id, width, height, keyDown, keyUp,
     c.addEvent('mousedown', mouseDown);
     c.addEvent('mouseup', mouseUp);
     c.addEvent('mousemove', mouseMove);
+    c.addEvent('mousewheel', mouseWheel);
 
     /* Work around right and middle click browser behaviors */
     document.addEvent('click', Canvas.ctxDisable);
@@ -122,6 +132,7 @@ stop: function () {
     c.removeEvents('mousedown');
     c.removeEvents('mouseup');
     c.removeEvents('mousemove');
+    c.removeEvents('DOMMouseScroll');
 
     /* Work around right and middle click browser behaviors */
     document.removeEvents('click');

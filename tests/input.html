@@ -1,0 +1,95 @@
+<html>
+    <head><title>Input Test</title></head>
+    <body>
+        <br><br>
+
+        Canvas:<br>
+        <canvas id="canvas" width="640" height="20"
+                style="border-style: dotted; border-width: 1px;">
+            Canvas not supported.
+        </canvas>
+
+        <br>
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
+    </body>
+
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
+
+    <script src="include/mootools.js"></script>
+    <script src="include/util.js"></script>
+    <script src="include/canvas.js"></script>
+
+    <script>
+        var msg_cnt = 0;
+        var width = 800, height = 600;
+        var iterations;
+
+        function message(str) {
+            console.log(str);
+            cell = $('messages');
+            cell.innerHTML += msg_cnt + ": " + str + "\n";
+            cell.scrollTop = cell.scrollHeight;
+        }
+
+        function mouseDown (e) {
+            var msg, evt = e.event || window.event;
+            e.stop();
+            msg = 'mouse ' + evt.which + '/' + evt.button + ' down:' +
+                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y);
+            console.log(msg);
+            message(msg);
+        }
+
+        function mouseUp (e) {
+            var msg, evt = e.event || window.event;
+            e.stop();
+            msg = 'mouse ' + evt.which + '/' + evt.button + ' up:' +
+                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y);
+            console.log(msg);
+            message(msg);
+        }
+
+        function mouseMove (e) {
+            var msg, evt = e.event || window.event;
+            console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
+                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+        }
+
+        function mouseWheel (e) {
+            var evt = e.event || window.event;
+            //e = e ? e : window.event;
+            var wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
+            msg = 'mouse scroll by ' + wheelData + ':' +
+                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y);
+            console.log(msg);
+            message(msg);
+        }
+
+
+        function keyDown (e) {
+            var msg;
+            e.stop();
+            msg = "keydown: " + e.key + "(" + e.code + ")";
+            console.log(msg);
+            message(msg);
+        }
+
+        function keyUp (e) {
+            var msg;
+            e.stop();
+            msg = "keyup: " + e.key + "(" + e.code + ")";
+            console.log(msg);
+            message(msg);
+        }
+
+        window.onload = function() {
+            Canvas.init('canvas', width, height, keyDown, keyUp,
+                        mouseDown, mouseUp, mouseMove, mouseWheel);
+            message("Canvas initialized");
+        }
+    </script>
+</html>
