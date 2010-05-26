@@ -2,7 +2,8 @@
 
 - Implement UI option for VNC shared mode.
 
-- Upgrade to protocol 3.8 
-    - implement ZRLE encoding
+- implement ZRLE encoding
 
 - Get web-socket-js RFC2817 proxying working again.
+
+- Support for Spice protocol.

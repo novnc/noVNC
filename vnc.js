@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
- *
- * Licensed under AGPL-3 (see LICENSE.AGPL-3)
+ * Copyright (C) 2010 Joel Martin
+ * Licensed under LGPL-3 (see LICENSE.LGPL-3)
  *
  * See README.md for usage and integration instructions.
  */

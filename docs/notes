@@ -1,0 +1,38 @@
+Some implementation notes:
+
+There is an included flash object (web-socket-js) that is used to
+emulate websocket support on browsers without websocket support
+(currently only Chrome has WebSocket support).
+
+The performance on Chrome is great. It only takes about 150ms on my
+system to render a complete 800x600 hextile frame. Most updates are
+partial or use copyrect which is much faster.
+
+When using the flash websocket emulator, packets event aren't always
+delivered in order. This may be a bug in the way I'm using the
+FABridge interface. Or a bug in FABridge itself, or just a browser
+event delivery issue. Anyways, to get around this problem, when the
+flash emulator is being used, the client issues the WebSocket GET
+request with the "seq_num" variable. This switches on in-band sequence
+numbering of the packets in the proxy, and the client has a queue of
+out-of-order packets (20 deep currently) that it uses to re-order.
+Gross!
+
+The performance on firefox 3.5 is usable. It takes 2.3 seconds to
+render a 800x600 hextile frame on my system (the initial connect).
+Once the initial first update is done though, it's quite usable (as
+above, most updates are partial or copyrect). I haven't tested firefox
+3.7 yet, it might be a lot faster.
+
+Opera sucks big time. The flash websocket emulator fails to deliver as
+many as 40% of packet events when used on Opera. It may or not be
+Opera's fault, but something goes badly wrong at the FABridge
+boundary.
+
+Javascript doesn't have a bytearray type, so what you get out of
+a WebSocket object is just Javascript strings. I believe that
+Javascript has UTF-16 unicode strings and anything sent through the
+WebSocket gets converted to UTF-8 and vice-versa. So, one additional
+(and necessary) function of the proxy is base64 encoding/decoding what
+is sent to/from the browser. Another option that I want to explore is
+UTF-8 encoding in the proxy.
