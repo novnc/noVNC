@@ -109,7 +109,11 @@ timing         : {
     fbu_total      : 0,
     fbu_total_cnt  : 0,
     full_fbu_total : 0,
-    full_fbu_cnt   : 0
+    full_fbu_cnt   : 0,
+
+    fbu_rt_start   : 0,
+    fbu_rt_total   : 0,
+    fbu_rt_cnt     : 0,
 },
 
 /* Mouse state */
@@ -295,6 +299,7 @@ init_msg: function () {
         response = RFB.pixelFormat();
         response = response.concat(RFB.encodings());
         response = response.concat(RFB.fbUpdateRequest(0));
+        RFB.timing.fbu_rt_start = (new Date()).getTime();
         RFB.send_array(response);
         
         /* Start pushing/polling */
@@ -311,7 +316,7 @@ init_msg: function () {
 normal_msg: function () {
     //console.log(">> normal_msg");
 
-    var RQ = RFB.RQ, FBU = RFB.FBU,
+    var RQ = RFB.RQ, FBU = RFB.FBU, now, fbu_rt_diff,
         ret = true, msg_type, num_colours, msg;
 
     if (FBU.rects > 0) {
@@ -376,8 +381,8 @@ normal_msg: function () {
                 case 2: ret = RFB.display_rre();       break; // RRE
                 case 5: ret = RFB.display_hextile();   break; // hextile
             }
-            RFB.timing.cur_fbu += ((new Date()).getTime() -
-                                   RFB.timing.last_fbu);
+            now = (new Date()).getTime();
+            RFB.timing.cur_fbu += (now - RFB.timing.last_fbu);
             if (FBU.rects === 0) {
                 if ((FBU.width === RFB.fb_width) &&
                         (FBU.height === RFB.fb_height)) {
@@ -389,6 +394,18 @@ normal_msg: function () {
                                 RFB.timing.full_fbu_cnt + ", avg: " +
                                 (RFB.timing.full_fbu_total /
                                  RFB.timing.full_fbu_cnt));
+                    if (RFB.timing.fbu_rt_start > 0) {
+                        fbu_rt_diff = now - RFB.timing.fbu_rt_start;
+                        RFB.timing.fbu_rt_total += fbu_rt_diff;
+                        RFB.timing.fbu_rt_cnt += 1;
+                        console.log("full FBU round-trip, cur: " +
+                                fbu_rt_diff + ", total: " +
+                                RFB.timing.fbu_rt_total + ", cnt: " +
+                                RFB.timing.fbu_rt_cnt + ", avg: " +
+                                (RFB.timing.fbu_rt_total /
+                                 RFB.timing.fbu_rt_cnt));
+                        RFB.timing.fbu_rt_start = 0;
+                    }
                 }
             }
             if (RFB.state !== "normal") { return true; }
