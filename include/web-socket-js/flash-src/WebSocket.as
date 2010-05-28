@@ -219,10 +219,32 @@ public class WebSocket extends EventDispatcher {
         }
       } else {
         if (buffer[pos] == 0xff) {
+        //if (buffer.bytesAvailable > 1) {
           if (buffer.readByte() != 0x00) {
             close();
             main.fatal("data must start with \\x00");
           }
+          /*
+          var data:String = "", byte:uint;
+          while (buffer.bytesAvailable > 1) {
+            byte = buffer[buffer.position];
+            if (byte === 0x00) {
+              // readUTFBytes mishandles 0x00
+              data = data + "\x00";
+              buffer.position++;
+            } else if (byte === 0xff) {
+              // End of WebSocket frame
+              //ExternalInterface.call("console.log", "[WebSocket] early 0xff found");
+              break;
+            } else if ((byte & 0x80) === 0x00) {
+              // One UTF-8 input byte to one output byte
+              data = data + buffer.readUTFBytes(1);
+            } else {
+              // Assume two UTF-8 input bytes to one output byte
+              data = data + buffer.readUTFBytes(2);
+            }
+          }
+          */
           var data:String = buffer.readUTFBytes(pos - 1);
           main.log("received: " + data);
           dispatchEvent(new WebSocketMessageEvent("message", encodeURIComponent(data)));

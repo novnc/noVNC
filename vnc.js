@@ -53,6 +53,7 @@ RFB = {
 ws             : null,  // Web Socket object
 sendID         : null,
 use_seq        : false,
+b64encode      : true,
 
 // Receive and send queues
 RQ             : [],  // Receive Queue
@@ -789,6 +790,27 @@ clientCutText: function (text) {
  * Utility routines
  */
 
+encode_message: function(arr) {
+    if (RFB.b64encode) {
+        RFB.SQ = RFB.SQ + Base64.encode(arr);
+    } else {
+        RFB.SQ = RFB.SQ + arr.map(function (num) {
+                return String.fromCharCode(num); } ).join('');
+    }
+},
+
+decode_message: function(data, offset) {
+    //console.log(">> decode_message: " + data);
+    if (RFB.b64encode) {
+        RFB.RQ = RFB.RQ.concat(Base64.decode(data, offset));
+    } else {
+        RFB.RQ = RFB.RQ.concat(data.split('').slice(offset).
+                map(function (chr) {
+                    return (chr.charCodeAt(0) % 256); }));
+    }
+    //console.log(">> decode_message, RQ: " + RFB.RQ);
+},
+
 recv_message: function(e) {
     //console.log(">> recv_message");
 
@@ -796,7 +818,7 @@ recv_message: function(e) {
         if (RFB.use_seq) {
             RFB.recv_message_reorder(e);
         } else {
-            RFB.RQ = RFB.RQ.concat(Base64.decode(e.data, 0));
+            RFB.decode_message(e.data, 0);
 
             RFB.handle_message();
         }
@@ -819,7 +841,7 @@ recv_message_reorder: function(e) {
     offset = e.data.indexOf(":") + 1;
     seq_num = parseInt(e.data.substr(0, offset-1), 10);
     if (RFB.RQ_seq_num === seq_num) {
-        RFB.RQ = RFB.RQ.concat(Base64.decode(e.data, offset));
+        RFB.decode_message(e.data, offset);
         RFB.RQ_seq_num++;
     } else {
         console.warn("sequence number mismatch: expected " +
@@ -838,9 +860,7 @@ recv_message_reorder: function(e) {
                     /* Remove it from reorder queue, decode it and
                         * add it to the receive queue */
                     console.log("Found re-ordered packet seq_num " + seq_num);
-                    RFB.RQ = RFB.RQ.concat(
-                            Base64.decode(RFB.RQ_reorder.splice(i, 1)[0],
-                                          offset));
+                    RFB.decode_message(RFB.RQ_reorder.splice(i, 1)[0], offset);
                     RFB.RQ_seq_num++;
                     i = 0;  // Start search again for next one
                 } else {
@@ -892,8 +912,7 @@ send_string: function (str) {
 
 send_array: function (arr) {
     //console.log(">> send_array: " + arr);
-    //console.log(">> send_array: " + Base64.encode(arr));
-    RFB.SQ = RFB.SQ + Base64.encode(arr);
+    RFB.encode_message(arr);
     if (RFB.ws.bufferedAmount === 0) {
         RFB.ws.send(RFB.SQ);
         RFB.SQ = "";
@@ -1097,15 +1116,21 @@ updateState: function(state, statusMsg) {
 init_ws: function () {
     console.log(">> init_ws");
 
-    var uri = "";
+    var uri = "", vars = [];
     if (RFB.encrypt) {
         uri = "wss://";
     } else {
         uri = "ws://";
     }
-    uri += RFB.host + ":" + RFB.port + "/?b64encode";
+    uri += RFB.host + ":" + RFB.port + "/";
+    if (RFB.b64encode) {
+        vars.push("b64encode");
+    }
     if (RFB.use_seq) {
-        uri += "&seq_num";
+        vars.push("seq_num");
+    }
+    if (vars.length > 0) {
+        uri += "?" + vars.join("&");
     }
     console.log("connecting to " + uri);
     RFB.ws = new WebSocket(uri);

@@ -33,16 +33,26 @@ def traffic(token="."):
 def decode(buf):
     """ Parse out WebSocket packets. """
     if buf.count('\xff') > 1:
-        return [b64decode(d[1:]) for d in buf.split('\xff')]
+        if client_settings["b64encode"]:
+            return [b64decode(d[1:]) for d in buf.split('\xff')]
+        else:
+            # Modified UTF-8 decode
+            return [d[1:].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1') for d in buf.split('\xff')]
     else:
-        return [b64decode(buf[1:-1])]
+        if client_settings["b64encode"]:
+            return [b64decode(buf[1:-1])]
+        else:
+            return [buf[1:-1].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1')]
 
 def encode(buf):
     global send_seq
-    if client_settings.get("b64encode"):
+    if client_settings["b64encode"]:
         buf = b64encode(buf)
+    else:
+        # Modified UTF-8 encode
+        buf = buf.decode('latin-1').encode('utf-8').replace("\x00", "\xc4\x80")
 
-    if client_settings.get("seq_num"):
+    if client_settings["seq_num"]:
         send_seq += 1
         return "\x00%d:%s\xff" % (send_seq-1, buf)
     else:
@@ -81,7 +91,7 @@ def do_handshake(sock):
 
     # Parse settings from the path
     cvars = path.partition('?')[2].partition('#')[0].split('&')
-    client_settings = {}
+    client_settings = {'b64encode': None, 'seq_num': None}
     for cvar in [c for c in cvars if c]:
         name, _, value = cvar.partition('=')
         client_settings[name] = value and value or True
