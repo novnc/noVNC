@@ -86,7 +86,7 @@
     if (!this.__flash || this.readyState == WebSocket.CONNECTING) {
       throw "INVALID_STATE_ERR: Web Socket connection has not been established";
     }
-    var result = this.__flash.send(data);
+    var result = this.__flash.send(encodeURIComponent(data));
     if (result < 0) { // success
       return true;
     } else {

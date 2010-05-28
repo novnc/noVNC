@@ -104,14 +104,14 @@ public class WebSocket extends EventDispatcher {
   public function send(data:String):int {
     if (readyState == OPEN) {
       socket.writeByte(0x00);
-      socket.writeUTFBytes(data);
+      socket.writeUTFBytes(decodeURIComponent(data));
       socket.writeByte(0xff);
       socket.flush();
       main.log("sent: " + data);
       return -1;
     } else if (readyState == CLOSED) {
       var bytes:ByteArray = new ByteArray();
-      bytes.writeUTFBytes(data);
+      bytes.writeUTFBytes(decodeURIComponent(data));
       bufferedAmount += bytes.length; // not sure whether it should include \x00 and \xff
       // We use return value to let caller know bufferedAmount because we cannot fire
       // stateChange event here which causes weird error:
