@@ -77,6 +77,10 @@ FBU            : {
     background     : null
 },
 
+true_color     : false,
+fb_Bpp         : 4,
+fb_depth       : 3,
+
 // DOM objects
 statusLine     : null,
 connectBtn     : null,
@@ -102,7 +106,6 @@ password       : '',
 fb_width       : 0,
 fb_height      : 0,
 fb_name        : "",
-fb_Bpp         : 4,
 rre_chunk      : 100,
 
 timing         : {
@@ -293,9 +296,17 @@ init_msg: function () {
         name_length   = RQ.shift32();
         RFB.fb_name = RQ.shiftStr(name_length);
 
-        Canvas.init('VNC_canvas', RFB.fb_width, RFB.fb_height,
+        Canvas.init('VNC_canvas', RFB.fb_width, RFB.fb_height, RFB.true_color,
                 RFB.keyDown, RFB.keyUp, RFB.mouseDown, RFB.mouseUp,
                 RFB.mouseMove, RFB.mouseWheel);
+
+        if (RFB.true_color) {
+            RFB.fb_Bpp           = 4;
+            RFB.fb_depth         = 3;
+        } else {
+            RFB.fb_Bpp           = 1;
+            RFB.fb_depth         = 1;
+        }
 
         response = RFB.pixelFormat();
         response = response.concat(RFB.encodings());
@@ -318,7 +329,8 @@ normal_msg: function () {
     //console.log(">> normal_msg");
 
     var RQ = RFB.RQ, FBU = RFB.FBU, now, fbu_rt_diff,
-        ret = true, msg_type, num_colours, msg;
+        ret = true, msg_type, msg,
+        c, first_colour, num_colours, red, green, blue;
 
     if (FBU.rects > 0) {
         msg_type = 0;
@@ -414,11 +426,21 @@ normal_msg: function () {
 
         break;
     case 1:  // SetColourMapEntries
-        console.log("SetColourMapEntries (unsupported)");
+        console.log("SetColourMapEntries");
         RQ.shift8();  // Padding
-        RQ.shift16(); // First colour
+        first_colour = RQ.shift16(); // First colour
         num_colours = RQ.shift16();
-        RQ.shiftBytes(num_colours * 6);
+        for (c=0; c < num_colours; c++) { 
+            red = RQ.shift16();
+            //console.log("red before: " + red);
+            red = parseInt(red / 256, 10);
+            //console.log("red after: " + red);
+            green = parseInt(RQ.shift16() / 256, 10);
+            blue = parseInt(RQ.shift16() / 256, 10);
+            Canvas.colourMap[first_colour + c] = [red, green, blue];
+        }
+        console.log("Registered " + num_colours + " colourMap entries");
+        //console.log("colourMap: " + Canvas.colourMap);
         break;
     case 2:  // Bell
         console.log("Bell (unsupported)");
@@ -477,7 +499,7 @@ display_raw: function () {
     cur_y = FBU.y + (FBU.height - FBU.lines);
     cur_height = Math.min(FBU.lines,
                           Math.floor(RQ.length/(FBU.width * RFB.fb_Bpp)));
-    Canvas.rgbxImage(FBU.x, cur_y, FBU.width, cur_height, RQ, 0);
+    Canvas.blitImage(FBU.x, cur_y, FBU.width, cur_height, RQ, 0);
     RQ.shiftBytes(FBU.width * cur_height * RFB.fb_Bpp);
     FBU.lines -= cur_height;
 
@@ -629,7 +651,7 @@ display_hextile: function() {
                 Canvas.fillRect(x, y, w, h, FBU.background);
             }
         } else if (FBU.subencoding & 0x01) { // Raw
-            Canvas.rgbxImage(x, y, w, h, RQ, idx);
+            Canvas.blitImage(x, y, w, h, RQ, idx);
         } else {
             if (FBU.subencoding & 0x02) { // Background
                 FBU.background = RQ.slice(idx, idx + RFB.fb_Bpp);
@@ -694,9 +716,9 @@ pixelFormat: function () {
     arr.push8(0);  // padding
 
     arr.push8(RFB.fb_Bpp * 8); // bits-per-pixel
-    arr.push8(24); // depth
+    arr.push8(RFB.fb_depth * 8); // depth
     arr.push8(0);  // little-endian
-    arr.push8(1);  // true-color
+    arr.push8(RFB.true_color);  // true-color
 
     arr.push16(255);  // red-max
     arr.push16(255);  // green-max
@@ -1187,7 +1209,7 @@ init_vars: function () {
 },
 
 
-connect: function (host, port, password, encrypt) {
+connect: function (host, port, password, encrypt, true_color) {
     console.log(">> connect");
 
     RFB.host = (host !== undefined)         ? host :
@@ -1198,6 +1220,8 @@ connect: function (host, port, password, encrypt) {
                                               $('VNC_password').value;
     RFB.encrypt = (encrypt !== undefined)   ? encrypt :
                                               $('VNC_encrypt').checked;
+    RFB.true_color = (true_color !== undefined)   ? true_color:
+                                              $('VNC_true_color').checked;
     if ((!RFB.host) || (!RFB.port)) {
         alert("Must set host and port");
         return;
@@ -1253,6 +1277,8 @@ load: function (target) {
         html += '        type="password"></li>';
         html += '    <li>Encrypt: <input id="VNC_encrypt"';
         html += '        type="checkbox"></li>';
+        html += '    <li>True Color: <input id="VNC_true_color"';
+        html += '        type="checkbox" checked></li>';
         html += '    <li><input id="VNC_connect_button" type="button"';
         html += '        value="Loading" disabled></li>';
         html += '  </ul>';

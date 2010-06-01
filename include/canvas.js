@@ -14,6 +14,9 @@ var Canvas = {
 
 prefer_js : false,
 
+true_color : false,
+colourMap  : [],
+
 c_x : 0,
 c_y : 0,
 c_wx : 0,
@@ -74,7 +77,7 @@ ctxDisable: function (e) {
 },
 
 
-init: function (id, width, height, keyDown, keyUp,
+init: function (id, width, height, true_color, keyDown, keyUp,
                 mouseDown, mouseUp, mouseMove, mouseWheel) {
     console.log(">> Canvas.init");
 
@@ -105,6 +108,8 @@ init: function (id, width, height, keyDown, keyUp,
     Canvas.c_y = c.getPosition().y;
     Canvas.c_wx = c.getSize().x;
     Canvas.c_wy = c.getSize().y;
+    Canvas.true_color = true_color;
+    Canvas.colourMap = [];
 
     if (! c.getContext) { return; }
     Canvas.ctx = c.getContext('2d'); 
@@ -147,21 +152,26 @@ stop: function () {
  *   gecko, Javascript array handling is much slower.
  */
 getTile: function(x, y, width, height, color) {
-    var img, data, p, red, green, blue, j, i;
+    var img, data, p, rgb, red, green, blue, j, i;
     img = {'x': x, 'y': y, 'width': width, 'height': height,
            'data': []};
     if (Canvas.prefer_js) {
         data = img.data;
-        red = color[0];
-        green = color[1];
-        blue = color[2];
+        if (Canvas.true_color) {
+            rgb = color;
+        } else {
+            rgb = Canvas.colourMap[color[0]];
+        }
+        red = rgb[0];
+        green = rgb[1];
+        blue = rgb[2];
         for (j = 0; j < height; j++) {
             for (i = 0; i < width; i++) {
                 p = (i + (j * width) ) * 4;
-                img.data[p + 0] = red;
-                img.data[p + 1] = green;
-                img.data[p + 2] = blue;
-                //img.data[p + 3] = 255; // Set Alpha
+                data[p + 0] = red;
+                data[p + 1] = green;
+                data[p + 2] = blue;
+                //data[p + 3] = 255; // Set Alpha
             }   
         } 
     } else {
@@ -171,13 +181,18 @@ getTile: function(x, y, width, height, color) {
 },
 
 setTile: function(img, x, y, w, h, color) {
-    var data, p, red, green, blue, width, j, i;
+    var data, p, rgb, red, green, blue, width, j, i;
     if (Canvas.prefer_js) {
         data = img.data;
         width = img.width;
-        red = color[0];
-        green = color[1];
-        blue = color[2];
+        if (Canvas.true_color) {
+            rgb = color;
+        } else {
+            rgb = Canvas.colourMap[color[0]];
+        }
+        red = rgb[0];
+        green = rgb[1];
+        blue = rgb[2];
         for (j = 0; j < h; j++) {
             for (i = 0; i < w; i++) {
                 p = (x + i + ((y + j) * width) ) * 4;
@@ -208,20 +223,48 @@ rgbxImage: function(x, y, width, height, arr, offset) {
     /* Old firefox and Opera don't support createImageData */
     img = Canvas.ctx.getImageData(0, 0, width, height);
     data = img.data;
-    for (i=0; i < (width * height * 4); i=i+4) {
-        j=i+offset;
+    for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
         data[i + 0] = arr[j + 0];
         data[i + 1] = arr[j + 1];
         data[i + 2] = arr[j + 2];
         data[i + 3] = 255; // Set Alpha
     }
     Canvas.ctx.putImageData(img, x, y);
+},
 
+cmapImage: function(x, y, width, height, arr, offset) {
+    var img, i, j, k, data, rgb, cmap;
+    img = Canvas.ctx.getImageData(0, 0, width, height);
+    data = img.data;
+    cmap = Canvas.colourMap;
+    //console.log("cmapImage x: " + x + ", y: " + y + "arr.slice(0,20): " + arr.slice(0,20));
+    for (i=0, j=offset; i < (width * height * 4); i=i+4, j++) {
+        rgb = cmap[arr[j]];
+        data[i + 0] = rgb[0];
+        data[i + 1] = rgb[1];
+        data[i + 2] = rgb[2];
+        data[i + 3] = 255; // Set Alpha
+    }
+    Canvas.ctx.putImageData(img, x, y);
+},
+
+blitImage: function(x, y, width, height, arr, offset) {
+    if (Canvas.true_color) {
+        Canvas.rgbxImage(x, y, width, height, arr, offset);
+    } else {
+        Canvas.cmapImage(x, y, width, height, arr, offset);
+    }
 },
 
 fillRect: function(x, y, width, height, color) {
-    var newStyle = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
+    var rgb, newStyle;
+    if (Canvas.true_color) {
+        rgb = color;
+    } else {
+        rgb = Canvas.colourMap[color[0]];
+    }
     if (newStyle !== Canvas.prevStyle) {
+        newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
         Canvas.ctx.fillStyle = newStyle;
         Canvas.prevStyle = newStyle;
     }
