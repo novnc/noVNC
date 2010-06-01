@@ -11,11 +11,12 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import sys, socket, ssl
+import sys, socket, ssl, optparse
 from select import select
 from websocket import *
 
 buffer_size = 65536
+rec = None
 
 traffic_legend = """
 Traffic Legend:
@@ -31,6 +32,7 @@ Traffic Legend:
 
 def do_proxy(client, target):
     """ Proxy WebSocket to normal socket. """
+    global rec
     cqueue = []
     cpartial = ""
     tqueue = []
@@ -51,18 +53,19 @@ def do_proxy(client, target):
             else:
                 tqueue.insert(0, dat[sent:])
                 traffic(".>")
-            ##log.write("Target send: %s\n" % map(ord, dat))
+            ##if rec: rec.write("Target send: %s\n" % map(ord, dat))
 
         if client in outs:
             dat = cqueue.pop(0)
             sent = client.send(dat)
             if sent == len(dat):
                 traffic("<")
-                ##log.write("Client send: %s ...\n" % repr(dat[0:80]))
+                ##if rec: rec.write("Client send: %s ...\n" % repr(dat[0:80]))
+                if rec: rec.write("%s,\n" % repr(">" + dat[1:-1]))
             else:
                 cqueue.insert(0, dat[sent:])
                 traffic("<.")
-                ##log.write("Client send partial: %s\n" % repr(dat[0:send]))
+                ##if rec: rec.write("Client send partial: %s\n" % repr(dat[0:send]))
 
 
         if target in ins:
@@ -71,7 +74,7 @@ def do_proxy(client, target):
 
             cqueue.append(encode(buf))
             traffic("{")
-            ##log.write("Target recv (%d): %s\n" % (len(buf), map(ord, buf)))
+            ##if rec: rec.write("Target recv (%d): %s\n" % (len(buf), map(ord, buf)))
 
         if client in ins:
             buf = client.recv(buffer_size)
@@ -81,7 +84,8 @@ def do_proxy(client, target):
                 if buf.count('\xff') > 1:
                     traffic(str(buf.count('\xff')))
                 traffic("}")
-                ##log.write("Client recv (%d): %s\n" % (len(buf), repr(buf)))
+                ##if rec: rec.write("Client recv (%d): %s\n" % (len(buf), repr(buf)))
+                if rec: rec.write("%s,\n" % repr(buf[1:-1]))
                 if cpartial:
                     tqueue.extend(decode(cpartial + buf))
                     cpartial = ""
@@ -89,15 +93,19 @@ def do_proxy(client, target):
                     tqueue.extend(decode(buf))
             else:
                 traffic(".}")
-                ##log.write("Client recv partial (%d): %s\n" % (len(buf), repr(buf)))
+                ##if rec: rec.write("Client recv partial (%d): %s\n" % (len(buf), repr(buf)))
                 cpartial = cpartial + buf
 
 def proxy_handler(client):
-    global target_host, target_port
+    global target_host, target_port, options, rec
 
     print "Connecting to: %s:%s" % (target_host, target_port)
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tsock.connect((target_host, target_port))
+
+    if options.record:
+        print "Opening record file: %s" % options.record
+        rec = open(options.record, 'w')
 
     print traffic_legend
 
@@ -105,16 +113,22 @@ def proxy_handler(client):
         do_proxy(client, tsock)
     except:
         if tsock: tsock.close()
+        if rec: rec.close()
         raise
 
 if __name__ == '__main__':
-    ##log = open("ws.log", 'w')
-    try:
-        if len(sys.argv) != 4: raise
-        listen_port = int(sys.argv[1])
-        target_host = sys.argv[2]
-        target_port = int(sys.argv[3])
-    except:
-        print "Usage: <listen_port> <target_host> <target_port>"
-        sys.exit(1)
+    parser = optparse.OptionParser()
+    parser.add_option("--record", dest="record",
+            help="record session to a file", metavar="FILE")
+    (options, args) = parser.parse_args()
+
+    if len(args) > 3: parser.error("Too many arguments")
+    if len(args) < 3: parser.error("Too few arguments")
+    try:    listen_port = int(args[0])
+    except: parser.error("Error parsing listen port")
+    try:    target_host = args[1]
+    except: parser.error("Error parsing target host")
+    try:    target_port = int(args[2])
+    except: parser.error("Error parsing target port")
+
     start_server(listen_port, proxy_handler)
