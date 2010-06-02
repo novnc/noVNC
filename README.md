@@ -101,3 +101,7 @@ fill. For example:
     </script>
 
 The file `include/plain.css` has a list of stylable elements.
+
+The `vnc.js` also includes other scripts within the `include`
+sub-directory. The `VNC_uri_prefix` variable can be use override the
+URL path to the directory that contains the `include` sub-directory.
