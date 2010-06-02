@@ -93,7 +93,11 @@ fill. For example:
         <div id='vnc'>Loading</div>
     </body>
     <script src='vnc.js'></script>
-    <script> windows.onload = function () { RFB.load('vnc'); }</script>
-
+    <script src="include/default_controls.js"></script>
+    <script>
+        window.onload = function () {
+            DefaultControls.load('vnc');
+            RFB.load(); };
+    </script>
 
 The file `include/plain.css` has a list of stylable elements.
