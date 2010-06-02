@@ -7,19 +7,20 @@
  */
 "use strict";
 
-/*global window, WebSocket, $, Browser, Canvas, Base64, DES */
+/*global window, WebSocket, $, Browser, Canvas, VNC_uri_prefix Base64, DES */
 
 // Globals defined here
 var VNC_native_ws, RFB;
-
 
 /*
  * Load supporting scripts
  */
 (function () {
     var extra, start, end;
+
+    if (typeof VNC_uri_prefix === "undefined") { VNC_uri_prefix=""; }
     extra = "";
-    start = "<script src='";
+    start = "<script src='" + VNC_uri_prefix;
     end = "'><\/script>";
 
     // Uncomment to activate firebug lite
@@ -49,6 +50,122 @@ var VNC_native_ws, RFB;
  */
 
 RFB = {
+
+/* 
+ * External interface variables and methods
+ */
+clipboardFocus : false,
+
+setUpdateState: function(externalUpdateState) {
+    RFB.externalUpdateState = externalUpdateState;
+},
+
+setClipboardReceive: function(clipReceive) {
+    RFB.clipboardCopyTo = clipReceive;
+},
+
+setCanvasID: function(canvasID) {
+    RFB.canvasID = canvasID;
+},
+
+setPassword: function(passwd) {
+    RFB.password = passwd;
+    RFB.state = "Authentication";
+    setTimeout(RFB.init_msg, 1);
+},
+
+load: function () {
+    //console.log(">> load");
+
+    /* Load web-socket-js if no builtin WebSocket support */
+    if (VNC_native_ws) {
+        console.log("Using native WebSockets");
+        RFB.updateState('disconnected', 'Disconnected');
+    } else {
+        console.log("Using web-socket-js flash bridge");
+        if ((! Browser.Plugins.Flash) ||
+            (Browser.Plugins.Flash.version < 9)) {
+            RFB.updateState('failed', "WebSockets or Adobe Flash is required");
+        } else if (location.href.substr(0, 7) === "file://") {
+            RFB.updateState('failed',
+                    "'file://' URL is incompatible with Adobe Flash");
+        } else {
+            WebSocket.__swfLocation = VNC_uri_prefix +
+                        "include/web-socket-js/WebSocketMain.swf";
+            WebSocket.__initialize();
+            RFB.use_seq = true;
+            RFB.updateState('disconnected', 'Disconnected');
+        }
+    }
+
+    //console.log("<< load");
+},
+
+connect: function (host, port, password, encrypt, true_color) {
+    console.log(">> connect");
+
+    RFB.host       = host;
+    RFB.port       = port;
+    RFB.password   = (password !== undefined)   ? password : "";
+    RFB.encrypt    = (encrypt !== undefined)    ? encrypt : true;
+    if ((RFB.encrypt === "0") || 
+        (RFB.encrypt === "no") || 
+        (RFB.encrypt === "false")) { 
+        RFB.encrypt = false; 
+    }
+    RFB.true_color = (true_color !== undefined) ? true_color: true;
+    if ((RFB.true_color === "0") || 
+        (RFB.true_color === "no") || 
+        (RFB.true_color === "false")) { 
+        RFB.true_color = false; 
+    }
+
+    if ((!RFB.host) || (!RFB.port)) {
+        updateState('disconnected', "Must set host and port");
+        return;
+    }
+
+    RFB.init_vars();
+
+    if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
+        RFB.ws.close();
+    }
+    RFB.init_ws();
+
+    RFB.updateState('ProtocolVersion');
+    console.log("<< connect");
+
+},
+
+disconnect: function () {
+    console.log(">> disconnect");
+    if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
+        RFB.updateState('closed');
+        RFB.ws.onmessage = function (e) { return; };
+        RFB.ws.close();
+    }
+    if (Canvas.ctx) {
+        Canvas.stop();
+        if (! /__debug__$/i.test(document.location.href)) {
+            Canvas.clear();
+        }
+    }
+
+    RFB.updateState('disconnected', 'Disconnected');
+    console.log("<< disconnect");
+},
+
+clipboardPasteFrom: function (text) {
+    if (RFB.state !== "normal") { return; }
+    //console.log(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
+    RFB.send_array(RFB.clientCutText(text));
+    //console.log("<< clipboardPasteFrom");
+},
+
+
+/*
+ * Private variables and methods
+ */
 
 ws             : null,  // Web Socket object
 sendID         : null,
@@ -81,18 +198,12 @@ true_color     : false,
 fb_Bpp         : 4,
 fb_depth       : 3,
 
-// DOM objects
-statusLine     : null,
-connectBtn     : null,
-clipboard      : null,
-
 max_version    : 3.8,
 version        : 0,
 auth_scheme    : '',
 state          : 'disconnected',
 cuttext        : 'none', // ServerCutText wait state
 ct_length      : 0,
-clipboardFocus : false,
 
 shared         : 1,
 check_rate     : 217,
@@ -103,6 +214,7 @@ host           : '',
 port           : 5900,
 password       : '',
 
+canvasID       : 'VNC_canvas',
 fb_width       : 0,
 fb_height      : 0,
 fb_name        : "",
@@ -123,7 +235,6 @@ timing         : {
 /* Mouse state */
 mouse_buttonmask : 0,
 mouse_arr        : [],
-
 
 /*
  * Server message handlers
@@ -179,17 +290,13 @@ init_msg: function () {
             }
             types = RQ.shiftBytes(num_types);
             
-            if ((types[0] !== 1) && (types[0] !== 2)) {
+            RFB.auth_scheme = types[0];
+            if ((RFB.auth_scheme !== 1) && (RFB.auth_scheme !== 2)) {
                 RFB.updateState('failed',
                         "Disconnected: invalid security types list: " + types);
                 return;
             }
 
-            if (RFB.password.length === 0) {
-                RFB.auth_scheme = 1;
-            } else {
-                RFB.auth_scheme = types[0];
-            }
             RFB.send_array([RFB.auth_scheme]);
         } else {
             if (RQ.length < 4) {
@@ -220,6 +327,10 @@ init_msg: function () {
                 RFB.updateState('SecurityResult');
                 break;
             case 2:  // VNC authentication
+                if (RFB.password.length === 0) {
+                    RFB.updateState('password', "Password Required");
+                    return;
+                }
                 if (RQ.length < 16) {
                     console.log("   waiting for auth challenge bytes");
                     return;
@@ -296,7 +407,7 @@ init_msg: function () {
         name_length   = RQ.shift32();
         RFB.fb_name = RQ.shiftStr(name_length);
 
-        Canvas.init('VNC_canvas', RFB.fb_width, RFB.fb_height, RFB.true_color,
+        Canvas.init(RFB.canvasID, RFB.fb_width, RFB.fb_height, RFB.true_color,
                 RFB.keyDown, RFB.keyUp, RFB.mouseDown, RFB.mouseUp,
                 RFB.mouseMove, RFB.mouseWheel);
 
@@ -795,7 +906,7 @@ pointerEvent: function (x, y) {
 },
 
 clientCutText: function (text) {
-    console.log(">> clientCutText");
+    //console.log(">> clientCutText");
     var arr;
     arr = [6];     // msg-type
     arr.push8(0);  // padding
@@ -803,7 +914,7 @@ clientCutText: function (text) {
     arr.push8(0);  // padding
     arr.push32(text.length);
     arr.pushStr(text);
-    console.log("<< clientCutText:" + arr);
+    //console.log("<< clientCutText:" + arr);
     return arr;
 },
 
@@ -1066,68 +1177,41 @@ mouseWheel: function (e) {
 
 
 clipboardCopyTo: function (text) {
-    console.log(">> clipboardCopyTo: " + text.substr(0,40) + "...");
-    RFB.clipboard.value = text;
-    console.log("<< clipboardCopyTo");
+    console.log(">> clipboardCopyTo stub");
+    // Stub
 },
 
-clipboardPasteFrom: function () {
-    var text;
-    if (RFB.state !== "normal") { return; }
-    text = RFB.clipboard.value;
-    console.log(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
-    RFB.send_array(RFB.clientCutText(text));
-    console.log("<< clipboardPasteFrom");
-},
-
-clipboardClear: function () {
-    RFB.clipboard.value = '';
-    RFB.clipboardPasteFrom();
+externalUpdateState: function(state, msg) {
+    console.log(">> externalUpdateState stub");
+    // Stub
 },
 
 updateState: function(state, statusMsg) {
-    var s, c, func, klass, cmsg;
-    s = RFB.statusLine;
-    c = RFB.connectBtn;
+    var func, cmsg;
     func = function(msg) { console.log(msg); };
     switch (state) {
         case 'failed':
             func = function(msg) { console.error(msg); };
-            c.disabled = true;
-            klass = "error";
             break;
         case 'normal':
-            c.value = "Disconnect";
-            c.onclick = RFB.disconnect;
-            c.disabled = false;
-            klass = "normal";
             break;
         case 'disconnected':
-            c.value = "Connect";
-            c.onclick = function () { RFB.connect(); };
-
-            c.disabled = false;
-            klass = "normal";
             break;
         default:
             func = function(msg) { console.warn(msg); };
-            c.disabled = true;
-            klass = "warn";
             break;
     }
+
+    cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
+    func("New state '" + state + "'." + cmsg);
 
     if ((RFB.state === 'failed') &&
         ((state === 'disconnected') || (state === 'closed'))) {
         // Leave the failed message
-        return;
-    }
-
-    RFB.state = state;
-    s.setAttribute("class", "VNC_status_" + klass);
-    cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
-    func("New state '" + state + "'." + cmsg);
-    if (typeof(statusMsg) !== 'undefined') {
-        s.innerHTML = statusMsg;
+        RFB.externalUpdateState(state)
+    } else {
+        RFB.state = state;
+        RFB.externalUpdateState(state, statusMsg)
     }
 },
 
@@ -1206,157 +1290,6 @@ init_vars: function () {
     RFB.FBU.tiles        = 0;  // HEXTILE
     RFB.mouse_buttonmask = 0;
     RFB.mouse_arr        = [];
-},
-
-
-connect: function (host, port, password, encrypt, true_color) {
-    console.log(">> connect");
-
-    RFB.host = (host !== undefined)         ? host :
-                                              $('VNC_host').value;
-    RFB.port = (port !== undefined)         ? port :
-                                              $('VNC_port').value;
-    RFB.password = (password !== undefined) ? password :
-                                              $('VNC_password').value;
-    RFB.encrypt = (encrypt !== undefined)   ? encrypt :
-                                              $('VNC_encrypt').checked;
-    RFB.true_color = (true_color !== undefined)   ? true_color:
-                                              $('VNC_true_color').checked;
-    if ((!RFB.host) || (!RFB.port)) {
-        alert("Must set host and port");
-        return;
-    }
-
-    RFB.init_vars();
-
-    if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
-        RFB.ws.close();
-    }
-    RFB.init_ws();
-
-    RFB.updateState('ProtocolVersion');
-    console.log("<< connect");
-
-},
-
-disconnect: function () {
-    console.log(">> disconnect");
-    if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
-        RFB.updateState('closed');
-        RFB.ws.onmessage = function (e) { return; };
-        RFB.ws.close();
-    }
-    if (Canvas.ctx) {
-        Canvas.stop();
-        if (! /__debug__$/i.test(document.location.href)) {
-            Canvas.clear();
-        }
-    }
-
-    RFB.updateState('disconnected', 'Disconnected');
-    console.log("<< disconnect");
-},
-
-/* 
- * Load the controls
- */
-load: function (target) {
-    //console.log(">> load");
-    var html, url;
-
-    if (!target) { target = 'vnc'; }
-
-    /* Populate the 'vnc' div */
-    html = "";
-    if ($('VNC_controls') === null) {
-        html += '<div id="VNC_controls">';
-        html += '  <ul>';
-        html += '    <li>Host: <input id="VNC_host"></li>';
-        html += '    <li>Port: <input id="VNC_port"></li>';
-        html += '    <li>Password: <input id="VNC_password"';
-        html += '        type="password"></li>';
-        html += '    <li>Encrypt: <input id="VNC_encrypt"';
-        html += '        type="checkbox"></li>';
-        html += '    <li>True Color: <input id="VNC_true_color"';
-        html += '        type="checkbox" checked></li>';
-        html += '    <li><input id="VNC_connect_button" type="button"';
-        html += '        value="Loading" disabled></li>';
-        html += '  </ul>';
-        html += '</div>';
-    }
-    if ($('VNC_screen') === null) {
-        html += '<div id="VNC_screen">';
-        html += '</div>';
-    }
-    if ($('VNC_clipboard') === null) {
-        html += '<br><br>';
-        html += '<div id="VNC_clipboard">';
-        html += '  VNC Clipboard:';
-        html += '  <input id="VNC_clipboard_clear_button"';
-        html += '      type="button" value="Clear">';
-        html += '  <br>';
-        html += '  <textarea id="VNC_clipboard_text" cols=80 rows=5>';
-        html += '      </textarea>';
-        html += '</div>';
-    }
-    $(target).innerHTML = html;
-
-    html = "";
-    if ($('VNC_status') === null) {
-        html += '<div id="VNC_status">Loading</div>';
-    }
-    if ($('VNC_canvas') === null) {
-        html += '<canvas id="VNC_canvas" width="640px" height="20px">';
-        html += '    Canvas not supported.';
-        html += '</canvas>';
-    }
-    $('VNC_screen').innerHTML += html;
-
-    /* DOM object references */
-    RFB.statusLine = $('VNC_status');
-    RFB.connectBtn = $('VNC_connect_button');
-    RFB.clipboard  = $('VNC_clipboard_text');
-
-    /* Add handlers */
-    $('VNC_clipboard_clear_button').onclick = RFB.clipboardClear;
-    RFB.clipboard.onchange = RFB.clipboardPasteFrom;
-    RFB.clipboard.onfocus = function () { RFB.clipboardFocus = true; };
-    RFB.clipboard.onblur = function () { RFB.clipboardFocus = false; };
-
-    /* Load web-socket-js if no builtin WebSocket support */
-    if (VNC_native_ws) {
-        console.log("Using native WebSockets");
-        RFB.updateState('disconnected', 'Disconnected');
-    } else {
-        console.log("Using web-socket-js flash bridge");
-        if ((! Browser.Plugins.Flash) ||
-            (Browser.Plugins.Flash.version < 9)) {
-            RFB.updateState('failed', "WebSockets or Adobe Flash is required");
-        } else if (location.href.substr(0, 7) === "file://") {
-            RFB.updateState('failed',
-                    "'file://' URL is incompatible with Adobe Flash");
-        } else {
-            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
-            WebSocket.__initialize();
-            RFB.use_seq = true;
-            RFB.updateState('disconnected', 'Disconnected');
-        }
-    }
-
-    /* Populate the controls if defaults are provided in the URL */
-    if (RFB.state === 'disconnected') {
-        url = document.location.href;
-        $('VNC_host').value = (url.match(/host=([A-Za-z0-9.\-]*)/) ||
-                ['',''])[1];
-        $('VNC_port').value = (url.match(/port=([0-9]*)/) ||
-                ['',''])[1];
-        $('VNC_password').value = (url.match(/password=([^&#]*)/) ||
-                ['',''])[1];
-        $('VNC_encrypt').checked = (url.match(/encrypt=([A-Za-z0-9]*)/) ||
-                ['',''])[1];
-    }
-
-    //console.log("<< load");
 }
 
 }; /* End of RFB */

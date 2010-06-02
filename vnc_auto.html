@@ -1,0 +1,73 @@
+<!-- 
+noVNC Example: Automatically connect on page load.
+
+Connect parameters are provided in query string:
+    http://example.com/?host=HOST&port=PORT&encrypt=1&true_color=1
+-->
+<html>
+    <head>
+        <title>VNC Client</title>
+        <link rel="stylesheet" href="include/plain.css">
+    </head>
+
+    <body>
+        <div id="VNC_screen">
+            <div id="VNC_status" style="margin-top: 0px;">Loading</div>
+            <canvas id="VNC_canvas" width="640px" height="20px">
+                Canvas not supported.
+            </canvas>
+        </div>
+    </body>
+
+    <script src="vnc.js"></script>
+    <script>
+        function setPassword() {
+            RFB.setPassword($('password_input').value);
+            return false;
+        }
+        function updateState(state, msg) {
+            var s, klass, html;
+            s = $('VNC_status');
+            switch (state) {
+                case 'failed':       klass = "VNC_status_error"; break;
+                case 'normal':       klass = "VNC_status_normal"; break;
+                case 'disconnected': klass = "VNC_status_normal"; break;
+                default:             klass = "VNC_status_warn"; break;
+            }
+
+            if (typeof(msg) !== 'undefined') {
+                s.setAttribute("class", klass);
+                s.innerHTML = msg;
+            }
+            if (state === 'password') {
+                html  = '<form onsubmit="return setPassword();"';
+                html += '  style="margin-bottom: 0px">';
+                html += 'Password Required: ';
+                html += '<input type=password size=10 id="password_input">';
+                html += '</form>';
+                s.innerHTML = html;
+            }
+        }
+
+        window.onload = function () {
+            var host, port, password, encrypt;
+
+            url = document.location.href;
+            host = (url.match(/host=([A-Za-z0-9.\-]*)/) || ['',''])[1];
+            port = (url.match(/port=([0-9]*)/) || ['',''])[1];
+            password = (url.match(/password=([^&#]*)/) || ['',''])[1];
+            encrypt = (url.match(/encrypt=([A-Za-z0-9]*)/) || ['',1])[1];
+            true_color = (url.match(/true_color=([A-Za-z0-9]*)/) || ['',1])[1];
+            if ((!host) || (!port)) {
+                updateState('failed',
+                    "Must specify host and port in URL");
+                return;
+            }
+
+            RFB.setUpdateState(updateState);
+            RFB.load();
+            RFB.connect(host, port, password, encrypt, true_color);
+        }
+    </script>
+</html>
+

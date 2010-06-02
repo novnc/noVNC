@@ -1,5 +1,7 @@
+<!-- 
+noVNC example: simple example using default controls
+-->
 <html>
-
     <head>
         <title>VNC Client</title>
         <link rel="stylesheet" href="include/plain.css">
@@ -10,8 +12,11 @@
     </body>
 
     <script src="vnc.js"></script>
+    <script src="include/default_controls.js"></script>
     <script>
-        window.onload = function () { RFB.load('vnc'); }
+        window.onload = function () {
+            DefaultControls.load('vnc');
+            RFB.load();
+        }
     </script>
-
 </html>
