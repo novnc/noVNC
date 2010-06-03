@@ -2,7 +2,7 @@
 
 - Implement UI option for VNC shared mode.
 
-- implement ZRLE encoding
+- implement tight and ZRLE encoding
 
 - Get web-socket-js RFC2817 proxying working again.
 
