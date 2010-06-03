@@ -85,9 +85,8 @@ Integration
 The client is designed to be easily integrated with existing web
 structure and style.
 
-At a minimum you must include the script and call the RFB.load()
-function which takes a parameter that is the ID of the DOM element to
-fill. For example:
+At a minimum you must include the `vnc.js` and `default_controls.js`
+scripts and call their load() functions. For example:
 
     <body>
         <div id='vnc'>Loading</div>
@@ -100,7 +99,8 @@ fill. For example:
             RFB.load(); };
     </script>
 
-The file `include/plain.css` has a list of stylable elements.
+See `vnc.html` and `vnc_auto.html` for examples. The file
+`include/plain.css` has a list of stylable elements.
 
 The `vnc.js` also includes other scripts within the `include`
 sub-directory. The `VNC_uri_prefix` variable can be use override the
