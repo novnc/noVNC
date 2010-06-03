@@ -311,7 +311,8 @@ getKeysym: function(e) {
         case 123       : keysym = 0xFFC9; break; // F12
         case 16        : keysym = 0xFFE1; break; // SHIFT
         case 17        : keysym = 0xFFE3; break; // CONTROL
-        case 18        : keysym = 0xFFE7; break; // ALT
+        //case 18        : keysym = 0xFFE7; break; // Left Meta (Mac Option)
+        case 18        : keysym = 0xFFE9; break; // Left ALT (Mac Command)
         default        : keysym = evt.keyCode; break;
     }
 
