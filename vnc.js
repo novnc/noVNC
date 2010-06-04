@@ -956,7 +956,13 @@ recv_message: function(e) {
             RFB.handle_message();
         }
     } catch (exc) {
-        console.log("recv_message, caught exception: " + exc);
+        if (typeof exc.stack !== 'undefined') {
+            console.log("recv_message, caught exception: " + exc.stack);
+        } else if (typeof exc.description !== 'undefined') {
+            console.log("recv_message, caught exception: " + exc.description);
+        } else {
+            console.log("recv_message, caught exception:" + exc);
+        }
         if (typeof exc.name !== 'undefined') {
             RFB.updateState('failed', exc.name + ": " + exc.message);
         } else {
