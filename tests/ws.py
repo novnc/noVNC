@@ -11,7 +11,7 @@ import random, time
 from base64 import b64encode, b64decode
 from select import select
 
-sys.path.insert(0,os.path.dirname(__file__) + "/../")
+sys.path.insert(0,os.path.dirname(__file__) + "/../utils/")
 from websocket import *
 
 buffer_size = 65536

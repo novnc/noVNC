@@ -60,16 +60,16 @@ Usage
 
 * run the python proxy:
 
-    `./wsproxy.py [listen_port] [vnc_host] [vnc_port]`
+    `./utils/wsproxy.py [listen_port] [vnc_host] [vnc_port]`
 
-    `./wsproxy.py 8787 localhost 5901`
+    `./utils/wsproxy.py 8787 localhost 5901`
 
 
 * run the mini python web server to serve the directory:
 
-    `./web.py PORT`
+    `./utils/web.py PORT`
 
-    `./web.py 8080`
+    `./utils/web.py 8080`
 
 * Point your web browser at http://localhost:8080/vnc.html
  (or whatever port you used above to run the web server).
