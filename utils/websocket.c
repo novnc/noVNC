@@ -156,7 +156,8 @@ int ws_socket_free(ws_ctx_t *ctx) {
 
 
 int encode(u_char const *src, size_t srclength, char *target, size_t targsize) {
-    int sz = 0, len = 0;
+    int i, sz = 0, len = 0;
+    unsigned char chr;
     target[sz++] = '\x00';
     if (client_settings.do_seq_num) {
         sz += sprintf(target+sz, "%d:", client_settings.seq_num);
@@ -164,20 +165,39 @@ int encode(u_char const *src, size_t srclength, char *target, size_t targsize) {
     }
     if (client_settings.do_b64encode) {
         len = __b64_ntop(src, srclength, target+sz, targsize-sz);
+        if (len < 0) {
+            return len;
+        }
+        sz += len;
     } else {
-        fatal("UTF-8 not yet implemented");
+        for (i=0; i < srclength; i++) {
+            chr = src[i];
+            if (chr < 128) {
+                if (chr == 0x00) {
+                    target[sz++] = '\xc4';
+                    target[sz++] = '\x80';
+                } else {
+                    target[sz++] = chr;
+                }
+            } else {
+                if (chr < 192) {
+                    target[sz++] = '\xc2';
+                    target[sz++] = chr;
+                } else {
+                    target[sz++] = '\xc3';
+                    target[sz++] = chr - 64;
+                }
+            }
+        }
     }
-    if (len < 0) {
-        return len;
-    }
-    sz += len;
     target[sz++] = '\xff';
     return sz;
 }
 
 int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     char *start, *end;
-    int len, retlen = 0;
+    int i, len, retlen = 0;
+    unsigned char chr;
     if ((src[0] != '\x00') || (src[srclength-1] != '\xff')) {
         fprintf(stderr, "WebSocket framing error\n");
         return -1;
@@ -185,20 +205,38 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     start = src+1; // Skip '\x00' start
     do {
         /* We may have more than one frame */
-        end = strchr(start, '\xff');
+        end = memchr(start, '\xff', srclength);
         if (end < (src+srclength-1)) {
-            printf("More than one frame to decode\n");
+            printf("More than one frame to decode: %p < %p\n", end, src+srclength-1);
         }
         *end = '\x00';
         if (client_settings.do_b64encode) {
             len = __b64_pton(start, target+retlen, targsize-retlen);
+            if (len < 0) {
+                return len;
+            }
+            retlen += len;
         } else {
-            fatal("UTF-8 not yet implemented");
+            for (i=0; i < end-start; i++) {
+                chr = start[i];
+                if (chr < 128) {
+                    target[retlen++] = chr;
+                } else {
+                    i++;
+                    switch (chr) {
+                    case (unsigned char) '\xc2':
+                        target[retlen++] = start[i];
+                        break;
+                    case (unsigned char) '\xc3':
+                        target[retlen++] = start[i] + 64;
+                        break;
+                    case (unsigned char) '\xc4':
+                        target[retlen++] = 0;
+                        break;
+                    }
+                }
+            }
         }
-        if (len < 0) {
-            return len;
-        }
-        retlen += len;
         start = end + 2; // Skip '\xff' end and '\x00' start 
     } while (end < (src+srclength-1));
     return retlen;
@@ -336,9 +374,8 @@ void start_server(int listen_port,
              *    20 for WS '\x00' / '\xff', seq_num and good measure  */
             dbufsize = (bufsize * 3)/4 - 20;
         } else {
-            fatal("UTF-8 not yet implemented");
             /* UTF-8 encoding is up to 2X larger */
-            dbufsize = (bufsize/2) - 15;
+            dbufsize = (bufsize/2) - 20;
         }
 
         handler(ws_ctx);

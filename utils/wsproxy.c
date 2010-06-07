@@ -141,8 +141,8 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
             cend = encode(cbuf_tmp, bytes, cbuf, bufsize);
             /*
             printf("encoded: ");
-            for (i=0; i< bytes; i++) {
-                printf("%d,", *(cbuf+i));
+            for (i=0; i< cend; i++) {
+                printf("%u,", (unsigned char) *(cbuf+i));
             }
             printf("\n");
             */
@@ -164,11 +164,18 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
                 write(recordfd, tbuf_tmp + 1, bytes - 2);
                 write(recordfd, "',\n", 3);
             }
+            /*
+            printf("before decode: ");
+            for (i=0; i< bytes; i++) {
+                printf("%u,", (unsigned char) *(tbuf_tmp+i));
+            }
+            printf("\n");
+            */
             len = decode(tbuf_tmp, bytes, tbuf, bufsize-1);
             /*
             printf("decoded: ");
-            for (i=0; i< bytes; i++) {
-                printf("%d,", *(tbuf+i));
+            for (i=0; i< len; i++) {
+                printf("%u,", (unsigned char) *(tbuf+i));
             }
             printf("\n");
             */
