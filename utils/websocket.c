@@ -195,8 +195,8 @@ int encode(u_char const *src, size_t srclength, char *target, size_t targsize) {
 }
 
 int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
-    char *start, *end;
-    int i, len, retlen = 0;
+    char *start, *end, cntstr[4];
+    int i, len, framecount = 0, retlen = 0;
     unsigned char chr;
     if ((src[0] != '\x00') || (src[srclength-1] != '\xff')) {
         fprintf(stderr, "WebSocket framing error\n");
@@ -206,9 +206,6 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     do {
         /* We may have more than one frame */
         end = memchr(start, '\xff', srclength);
-        if (end < (src+srclength-1)) {
-            printf("More than one frame to decode: %p < %p\n", end, src+srclength-1);
-        }
         *end = '\x00';
         if (client_settings.do_b64encode) {
             len = __b64_pton(start, target+retlen, targsize-retlen);
@@ -238,7 +235,12 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
             }
         }
         start = end + 2; // Skip '\xff' end and '\x00' start 
+        framecount++;
     } while (end < (src+srclength-1));
+    if (framecount > 1) {
+        snprintf(cntstr, 3, "%d", framecount);
+        traffic(cntstr);
+    }
     return retlen;
 }
 
