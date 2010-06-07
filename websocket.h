@@ -7,7 +7,8 @@ typedef struct {
 } ws_ctx_t;
 
 typedef struct {
-    int b64encode;
+    int do_b64encode;
+    int do_seq_num;
     int seq_num;
 } client_settings_t;
 

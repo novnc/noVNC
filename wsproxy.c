@@ -11,7 +11,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/select.h>
-#include <resolv.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "websocket.h"
@@ -35,23 +34,21 @@ void usage() {
 
 char *target_host;
 int target_port;
-client_settings_t client_settings;
 char *record_filename = NULL;
 int recordfd = 0;
-char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
-unsigned int bufsize, dbufsize;
+
+extern char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
+extern unsigned int bufsize, dbufsize;
 
 void do_proxy(ws_ctx_t *ws_ctx, int target) {
     fd_set rlist, wlist, elist;
     struct timeval tv;
-    int maxfd, client = ws_ctx->sockfd;
+    int i, maxfd, client = ws_ctx->sockfd;
     unsigned int tstart, tend, cstart, cend, ret;
     ssize_t len, bytes;
 
     tstart = tend = cstart = cend = 0;
     maxfd = client > target ? client+1 : target+1;
-    // Account for base64 encoding and WebSocket delims:
-    //     49150 = 65536 * 3/4 + 2 - 1
 
     while (1) {
         tv.tv_sec = 1;
@@ -137,18 +134,22 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
         if (FD_ISSET(target, &rlist)) {
             bytes = recv(target, cbuf_tmp, dbufsize , 0);
             if (bytes <= 0) {
-                error("target closed connection");
+                fprintf(stderr, "target closed connection");
                 break;
             }
-            cbuf[0] = '\x00';
             cstart = 0;
-            len = b64_ntop(cbuf_tmp, bytes, cbuf+1, bufsize-1);
-            if (len < 0) {
-                fprintf(stderr, "base64 encoding error\n");
+            cend = encode(cbuf_tmp, bytes, cbuf, bufsize);
+            /*
+            printf("encoded: ");
+            for (i=0; i< bytes; i++) {
+                printf("%d,", *(cbuf+i));
+            }
+            printf("\n");
+            */
+            if (cend < 0) {
+                fprintf(stderr, "encoding error\n");
                 break;
             }
-            cbuf[len+1] = '\xff';
-            cend = len+1+1;
             traffic("{");
         }
 
@@ -158,20 +159,21 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
                 fprintf(stderr, "client closed connection\n");
                 break;
             }
-            if (tbuf_tmp[bytes-1] != '\xff') {
-                //traffic(".}");
-                fprintf(stderr, "Malformed packet\n");
-                break;
-            }
             if (recordfd) {
                 write(recordfd, "'", 1);
                 write(recordfd, tbuf_tmp + 1, bytes - 2);
                 write(recordfd, "',\n", 3);
             }
-            tbuf_tmp[bytes-1] = '\0';
-            len = b64_pton(tbuf_tmp+1, tbuf, bufsize-1);
+            len = decode(tbuf_tmp, bytes, tbuf, bufsize-1);
+            /*
+            printf("decoded: ");
+            for (i=0; i< bytes; i++) {
+                printf("%d,", *(tbuf+i));
+            }
+            printf("\n");
+            */
             if (len < 0) {
-                fprintf(stderr, "base64 decoding error\n");
+                fprintf(stderr, "decoding error\n");
                 break;
             }
             traffic("}");
@@ -187,11 +189,6 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
     struct hostent *thost;
 
     printf("Connecting to: %s:%d\n", target_host, target_port);
-
-    if (client_settings.b64encode) {
-        dbufsize = (bufsize * 3)/4 + 2 - 10; // padding and for good measure
-    } else {
-    }
 
     tsock = socket(AF_INET, SOCK_STREAM, 0);
     if (tsock < 0) {
@@ -260,7 +257,7 @@ int main(int argc, char *argv[])
     if (! (cbuf_tmp = malloc(bufsize)) )
             { fatal("malloc()"); }
 
-    start_server(listen_port, &proxy_handler, &client_settings);
+    start_server(listen_port, &proxy_handler);
 
     free(tbuf);
     free(cbuf);
