@@ -170,7 +170,8 @@ clipboardPasteFrom: function (text) {
 ws             : null,  // Web Socket object
 sendID         : null,
 use_seq        : false,
-b64encode      : true,
+b64encode      : true,  // false means UTF-8 on the wire
+//b64encode      : false,  // false means UTF-8 on the wire
 
 // Receive and send queues
 RQ             : [],  // Receive Queue
@@ -937,9 +938,11 @@ decode_message: function(data, offset) {
     if (RFB.b64encode) {
         RFB.RQ = RFB.RQ.concat(Base64.decode(data, offset));
     } else {
-        RFB.RQ = RFB.RQ.concat(data.split('').slice(offset).
-                map(function (chr) {
-                    return (chr.charCodeAt(0) % 256); }));
+        // A bit faster in firefox
+        var i, length = data.length, RQ = RFB.RQ;
+        for (i=offset; i < length; i++) {
+            RQ.push(data.charCodeAt(i) % 256);
+        }
     }
     //console.log(">> decode_message, RQ: " + RFB.RQ);
 },
@@ -1275,7 +1278,7 @@ init_ws: function () {
     };
     RFB.ws.onerror = function(e) {
         console.error(">> WebSocket.onerror");
-        console.error("   " + e);
+        RFB.updateState('failed', "WebSocket error");
         console.error("<< WebSocket.onerror");
     };
 
