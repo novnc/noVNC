@@ -57,11 +57,11 @@ RFB = {
 clipboardFocus : false,
 
 encodings      : [
+    1,                   // COPYRECT, should always be first
     0x17,                // TIGHT_PNG
     Math.pow(2,32) - 32, // JPEG quality pseudo-encoding
     5,                   // HEXTILE
     2,                   // RRE
-    1,                   // COPYRECT
     0                    // RAW
             ],
 
@@ -834,7 +834,7 @@ display_hextile: function() {
 display_tight_png: function() {
     //console.log(">> display_tight_png");
     var RQ = RFB.RQ, FBU = RFB.FBU, 
-        ctl, cmode, i, clength, color, strdata, img;
+        ctl, cmode, i, clength, color, img;
     //console.log("   FBU.rects: " + FBU.rects);
     //console.log("   RQ.length: " + RQ.length);
     //console.log("   RQ.slice(0,20): " + RQ.slice(0,20));
@@ -902,12 +902,13 @@ display_tight_png: function() {
         //console.log("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
         RQ.shiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
-        img.src = "data:image/" + cmode + "," +
+        img.src = "data:image/" + cmode +
             RFB.extract_data_uri(RQ.shiftBytes(clength[1]));
         img.onload = (function () {
-                var x = FBU.x, y = FBU.y;
-                return function () { Canvas.ctx.drawImage(this, x, y); };
+                var x = FBU.x, y = FBU.y, me = img;
+                return function () { Canvas.ctx.drawImage(me, x, y); };
             })();
+        img = null;
         break;
     }
     FBU.bytes = 0;
@@ -921,7 +922,8 @@ extract_data_uri : function (arr) {
     for (i=0; i< arr.length; i++) {
         stra.push(String.fromCharCode(arr[i]));
     }
-    return escape(stra.join(''));
+    //return "," + escape(stra.join(''));
+    return ";base64," + Base64.encode(arr);
 },
 
 
