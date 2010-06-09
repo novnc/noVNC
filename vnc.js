@@ -902,11 +902,6 @@ display_tight_png: function() {
         //console.log("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
         RQ.shiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
-        /*
-        strdata = RQ.shiftBytes(clength[1]).map(function (num) {
-                return String.fromCharCode(num); } ).join('');
-        img.src = "data:image/" + cmode + "," + escape(strdata);
-        */
         img.src = "data:image/" + cmode + "," +
             RFB.extract_data_uri(RQ.shiftBytes(clength[1]));
         img.onload = (function () {
@@ -922,8 +917,11 @@ display_tight_png: function() {
 },
 
 extract_data_uri : function (arr) {
-    return escape(arr.map(function (num) {
-            return String.fromCharCode(num); } ).join('') );
+    var i, stra = [];
+    for (i=0; i< arr.length; i++) {
+        stra.push(String.fromCharCode(arr[i]));
+    }
+    return escape(stra.join(''));
 },
 
 
