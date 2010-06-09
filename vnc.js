@@ -25,7 +25,7 @@ var VNC_native_ws, RFB;
 
     // Uncomment to activate firebug lite
     //extra += start + "http://getfirebug.com/releases/lite/1.2/" + 
-    //         firebug-lite-compressed.js" + end;
+    //         "firebug-lite-compressed.js" + end;
 
     extra += start + "include/mootools.js" + end;
     extra += start + "include/base64.js" + end;
@@ -55,6 +55,16 @@ RFB = {
  * External interface variables and methods
  */
 clipboardFocus : false,
+
+encodings      : [
+    0x17,                // TIGHT_PNG
+    Math.pow(2,32) - 32, // JPEG quality pseudo-encoding
+    5,                   // HEXTILE
+    2,                   // RRE
+    1,                   // COPYRECT
+    0                    // RAW
+            ],
+
 
 setUpdateState: function(externalUpdateState) {
     RFB.externalUpdateState = externalUpdateState;
@@ -421,7 +431,7 @@ init_msg: function () {
         }
 
         response = RFB.pixelFormat();
-        response = response.concat(RFB.encodings());
+        response = response.concat(RFB.clientEncodings());
         response = response.concat(RFB.fbUpdateRequest(0));
         RFB.timing.fbu_rt_start = (new Date()).getTime();
         RFB.send_array(response);
@@ -464,6 +474,10 @@ normal_msg: function () {
             //console.log("FramebufferUpdate, rects:" + FBU.rects);
             RFB.timing.cur_fbu = 0;
             FBU.bytes = 0;
+            if (RFB.timing.fbu_rt_start > 0) {
+                now = (new Date()).getTime();
+                console.log("First FBU latency: " + (now - RFB.timing.fbu_rt_start));
+            }
         }
 
         while ((FBU.rects > 0) && (RQ.length >= FBU.bytes)) {
@@ -485,9 +499,10 @@ normal_msg: function () {
                           " encoding:" + FBU.encoding
                 switch (FBU.encoding) {
                     case 0: msg += "(RAW)"; break;
-                    case 1: msg += "(COPY-RECT)"; break;
+                    case 1: msg += "(COPYRECT)"; break;
                     case 2: msg += "(RRE)"; break;
-                    case 5: msg += "(HEXTILE " + FBU.tiles + " tiles)"; break;
+                    case 5: msg += "(HEXTILE)"; break;
+                    case 7: msg += "(TIGHT_PNG)"; break;
                     default:
                         RFB.updateState('failed',
                                 "Disconnected: unsupported encoding " +
@@ -502,15 +517,17 @@ normal_msg: function () {
             RFB.timing.last_fbu = (new Date()).getTime();
             switch (FBU.encoding) {
                 case 0: ret = RFB.display_raw();       break; // Raw
-                case 1: ret = RFB.display_copy_rect(); break; // Copy-Rect
+                case 1: ret = RFB.display_copy_rect(); break; // CopyRect
                 case 2: ret = RFB.display_rre();       break; // RRE
                 case 5: ret = RFB.display_hextile();   break; // hextile
+                case 7: ret = RFB.display_tight_png(); break; // tight_png
             }
             now = (new Date()).getTime();
             RFB.timing.cur_fbu += (now - RFB.timing.last_fbu);
             if (FBU.rects === 0) {
-                if ((FBU.width === RFB.fb_width) &&
-                        (FBU.height === RFB.fb_height)) {
+                if (((FBU.width === RFB.fb_width) &&
+                           (FBU.height === RFB.fb_height)) ||
+                        (RFB.timing.fbu_rt_start > 0)) {
                     RFB.timing.full_fbu_total += RFB.timing.cur_fbu;
                     RFB.timing.full_fbu_cnt += 1;
                     console.log("Timing of full FBU, cur: " +
@@ -519,18 +536,18 @@ normal_msg: function () {
                                 RFB.timing.full_fbu_cnt + ", avg: " +
                                 (RFB.timing.full_fbu_total /
                                  RFB.timing.full_fbu_cnt));
-                    if (RFB.timing.fbu_rt_start > 0) {
-                        fbu_rt_diff = now - RFB.timing.fbu_rt_start;
-                        RFB.timing.fbu_rt_total += fbu_rt_diff;
-                        RFB.timing.fbu_rt_cnt += 1;
-                        console.log("full FBU round-trip, cur: " +
-                                fbu_rt_diff + ", total: " +
-                                RFB.timing.fbu_rt_total + ", cnt: " +
-                                RFB.timing.fbu_rt_cnt + ", avg: " +
-                                (RFB.timing.fbu_rt_total /
-                                 RFB.timing.fbu_rt_cnt));
-                        RFB.timing.fbu_rt_start = 0;
-                    }
+                }
+                if (RFB.timing.fbu_rt_start > 0) {
+                    fbu_rt_diff = now - RFB.timing.fbu_rt_start;
+                    RFB.timing.fbu_rt_total += fbu_rt_diff;
+                    RFB.timing.fbu_rt_cnt += 1;
+                    console.log("full FBU round-trip, cur: " +
+                            fbu_rt_diff + ", total: " +
+                            RFB.timing.fbu_rt_total + ", cnt: " +
+                            RFB.timing.fbu_rt_cnt + ", avg: " +
+                            (RFB.timing.fbu_rt_total /
+                                RFB.timing.fbu_rt_cnt));
+                    RFB.timing.fbu_rt_start = 0;
                 }
             }
             if (RFB.state !== "normal") { return true; }
@@ -630,7 +647,7 @@ display_copy_rect: function () {
 
     if (RQ.length < 4) {
         //console.log("   waiting for " +
-        //            (FBU.bytes - RQ.length) + " COPY-RECT bytes");
+        //            (FBU.bytes - RQ.length) + " COPYRECT bytes");
         return;
     }
     old_x = RQ.shift16();
@@ -814,6 +831,101 @@ display_hextile: function() {
 },
 
 
+display_tight_png: function() {
+    //console.log(">> display_tight_png");
+    var RQ = RFB.RQ, FBU = RFB.FBU, 
+        ctl, cmode, i, clength, color, strdata, img;
+    //console.log("   FBU.rects: " + FBU.rects);
+    //console.log("   RQ.length: " + RQ.length);
+    //console.log("   RQ.slice(0,20): " + RQ.slice(0,20));
+
+
+    FBU.bytes = 1; // compression-control byte
+    if (RQ.length < FBU.bytes) {
+        console.log("   waiting for TIGHT compression-control byte");
+        return;
+    }
+
+    // Get 'compact length' header and data size
+    getCLength = function (arr, offset) {
+        var header = 1, data = 0;
+        data += arr[offset + 0] & 0x7f;
+        if (arr[offset + 0] & 0x80) {
+            header++;
+            data += (arr[offset + 1] & 0x7f) << 7;
+            if (arr[offset + 1] & 0x80) {
+                header++;
+                data += arr[offset + 2] << 14;
+            }
+        }
+        return [header, data];
+    }
+
+    ctl = RQ[0];
+    switch (ctl >> 4) {
+        case 0x08: cmode = "fill"; break;
+        case 0x09: cmode = "jpeg"; break;
+        case 0x0A: cmode = "png";  break;
+        default:   throw("Illegal ctl: " + ctl); break;
+    }
+    switch (cmode) {
+        // fill uses fb_depth because TPIXELs drop the padding byte
+        case "fill": FBU.bytes += RFB.fb_depth; break; // TPIXEL
+        case "jpeg": FBU.bytes += 3;            break; // max clength
+        case "png":  FBU.bytes += 3;            break; // max clength
+    }
+
+    if (RQ.length < FBU.bytes) {
+        console.log("   waiting for TIGHT " + cmode + " bytes");
+        return;
+    }
+
+    //console.log("   cmode: " + cmode);
+
+    // Determine FBU.bytes
+    switch (cmode) {
+    case "fill":
+        RQ.shift8(); // shift off ctl
+        color = RQ.shiftBytes(RFB.fb_depth);
+        Canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
+        break;
+    case "jpeg":
+    case "png":
+        clength = getCLength(RQ, 1);
+        FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
+        if (RQ.length < FBU.bytes) {
+            console.log("   waiting for TIGHT " + cmode + " bytes");
+            return;
+        }
+
+        // We have everything, render it
+        //console.log("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
+        RQ.shiftBytes(1 + clength[0]); // shift off ctl + compact length
+        img = new Image();
+        /*
+        strdata = RQ.shiftBytes(clength[1]).map(function (num) {
+                return String.fromCharCode(num); } ).join('');
+        img.src = "data:image/" + cmode + "," + escape(strdata);
+        */
+        img.src = "data:image/" + cmode + "," +
+            RFB.extract_data_uri(RQ.shiftBytes(clength[1]));
+        img.onload = (function () {
+                var x = FBU.x, y = FBU.y;
+                return function () { Canvas.ctx.drawImage(this, x, y); };
+            })();
+        break;
+    }
+    FBU.bytes = 0;
+    FBU.rects --;
+    //console.log("   ending RQ.length: " + RQ.length);
+    //console.log("   ending RQ.slice(0,20): " + RQ.slice(0,20));
+},
+
+extract_data_uri : function (arr) {
+    return escape(arr.map(function (num) {
+            return String.fromCharCode(num); } ).join('') );
+},
+
 
 /*
  * Client message routines
@@ -849,20 +961,18 @@ pixelFormat: function () {
 fixColourMapEntries: function () {
 },
 
-encodings: function () {
+clientEncodings: function () {
     //console.log(">> setEncodings");
-    var arr;
+    var arr, i;
     arr = [2];     // msg-type
     arr.push8(0);  // padding
 
-    //arr.push16(3); // encoding count
-    arr.push16(4); // encoding count
-    arr.push32(5); // hextile encoding
+    arr.push16(RFB.encodings.length); // encoding count
 
-    arr.push32(2); // RRE encoding
-    arr.push32(1); // copy-rect encoding
-    arr.push32(0); // raw encoding
-    //console.log("<< setEncodings");
+    for (i=0; i<RFB.encodings.length; i++) {
+        arr.push32(RFB.encodings[i]);
+    }
+    console.log("<< setEncodings: " + arr);
     return arr;
 },
 
