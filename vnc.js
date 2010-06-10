@@ -56,15 +56,15 @@ RFB = {
  */
 clipboardFocus : false,
 
+// In preference order
 encodings      : [
-    1,                   // COPYRECT, should always be first
-    0x17,                // TIGHT_PNG
-    Math.pow(2,32) - 32, // JPEG quality pseudo-encoding
-    5,                   // HEXTILE
-    2,                   // RRE
-    0                    // RAW
-            ],
-
+    ['COPYRECT',     0x01,                 'display_copy_rect'],
+    ['TIGHT_PNG',    0x17,                 'display_tight_png'],
+    ['HEXTILE',      0x05,                 'display_hextile'],
+    ['RRE',          0x02,                 'display_rre'],
+    ['RAW',          0x00,                 'display_raw'],
+    ['JPEG quality', Math.pow(2,32) - 32,  'set_jpeg_quality'],
+    ['DesktopSize',  Math.pow(2,32) - 223, 'set_desktopsize'] ],
 
 setUpdateState: function(externalUpdateState) {
     RFB.externalUpdateState = externalUpdateState;
@@ -85,6 +85,7 @@ setPassword: function(passwd) {
 },
 
 load: function () {
+    var i;
     //console.log(">> load");
 
     /* Load web-socket-js if no builtin WebSocket support */
@@ -108,6 +109,13 @@ load: function () {
         }
     }
 
+    // Populate encoding lookup tables
+    RFB.encHandlers = {};
+    RFB.encNames = {};
+    for (i=0; i < RFB.encodings.length; i++) {
+        RFB.encHandlers[RFB.encodings[i][1]] = RFB[RFB.encodings[i][2]];
+        RFB.encNames[RFB.encodings[i][1]] = RFB.encodings[i][0];
+    }
     //console.log("<< load");
 },
 
@@ -188,6 +196,9 @@ RQ             : [],  // Receive Queue
 RQ_reorder     : [],  // Receive Queue re-order list
 RQ_seq_num     : 0,   // Expected sequence number
 SQ             : "",  // Send Queue
+
+encHandlers    : {},
+encNames       : {},
 
 // Frame buffer update state
 FBU            : {
@@ -495,33 +506,25 @@ normal_msg: function () {
 
                 // Debug:
                 /*
-                msg = "FramebufferUpdate rects:" + FBU.rects +
-                          " encoding:" + FBU.encoding
-                switch (FBU.encoding) {
-                    case 0: msg += "(RAW)"; break;
-                    case 1: msg += "(COPYRECT)"; break;
-                    case 2: msg += "(RRE)"; break;
-                    case 5: msg += "(HEXTILE)"; break;
-                    case 7: msg += "(TIGHT_PNG)"; break;
-                    default:
-                        RFB.updateState('failed',
-                                "Disconnected: unsupported encoding " +
-                                FBU.encoding);
-                        return false;
+                if (RFB.encNames[FBU.encoding]) {
+                    msg =  "FramebufferUpdate rects:" + FBU.rects;
+                    msg += " encoding:" + FBU.encoding;
+                    msg += "(" + RFB.encNames[FBU.encoding] + ")";
+                    msg += ", RQ.length: " + RQ.length;
+                    console.log(msg);
+                } else {
+                    RFB.updateState('failed',
+                            "Disconnected: unsupported encoding " +
+                            FBU.encoding);
+                    return false;
                 }
-                msg += ", RQ.length: " + RQ.length
-                console.log(msg);
                 */
             }
 
             RFB.timing.last_fbu = (new Date()).getTime();
-            switch (FBU.encoding) {
-                case 0: ret = RFB.display_raw();       break; // Raw
-                case 1: ret = RFB.display_copy_rect(); break; // CopyRect
-                case 2: ret = RFB.display_rre();       break; // RRE
-                case 5: ret = RFB.display_hextile();   break; // hextile
-                case 7: ret = RFB.display_tight_png(); break; // tight_png
-            }
+
+            ret = RFB.encHandlers[FBU.encoding]();
+
             now = (new Date()).getTime();
             RFB.timing.cur_fbu += (now - RFB.timing.last_fbu);
             if (FBU.rects === 0) {
@@ -970,7 +973,7 @@ clientEncodings: function () {
     arr.push16(RFB.encodings.length); // encoding count
 
     for (i=0; i<RFB.encodings.length; i++) {
-        arr.push32(RFB.encodings[i]);
+        arr.push32(RFB.encodings[i][1]);
     }
     console.log("<< setEncodings: " + arr);
     return arr;
