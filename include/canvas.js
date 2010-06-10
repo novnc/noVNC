@@ -17,32 +17,41 @@ prefer_js : false,
 true_color : false,
 colourMap  : [],
 
-c_x : 0,
-c_y : 0,
 c_wx : 0,
 c_wy : 0,
 ctx  : null,
 
 prevStyle: "",
 
+
+getX: function() {
+    var c = $(Canvas.id);
+    return c.getPosition().x - document.getScroll().x;
+},
+
+getY: function() {
+    var c = $(Canvas.id);
+    return c.getPosition().y - document.getScroll().y;
+},
+
 mouseDown: function (e) {
     var evt = e.event || window.event;
     e.stop();
     console.log('mouse ' + evt.which + '/' + evt.button + ' down:' +
-            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+            (evt.clientX - Canvas.getX()) + "," + (evt.clientY - Canvas.getY()));
 },
 
 mouseUp: function (e) {
     var evt = e.event || window.event;
     e.stop();
     console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
-            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+            (evt.clientX - Canvas.getX()) + "," + (evt.clientY - Canvas.getY()));
 },
 
 mouseMove: function (e) {
     var evt = e.event || window.event;
     console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
-            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+            (evt.clientX - Canvas.getX()) + "," + (evt.clientY - Canvas.getY()));
 },
 
 mouseWheel: function (e) {
@@ -50,7 +59,7 @@ mouseWheel: function (e) {
     //e = e ? e : window.event;
     var wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
     console.log('mouse scroll by ' + wheelData + ':' +
-            (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
+            (evt.clientX - Canvas.getX()) + "," + (evt.clientY - Canvas.getY()));
 },
 
 
@@ -67,10 +76,10 @@ keyUp : function (e) {
 ctxDisable: function (e) {
     var evt = e.event || window.event;
     /* Stop propagation if inside canvas area */
-    if ((evt.clientX >= Canvas.c_x) &&
-        (evt.clientY >= Canvas.c_y) &&
-        (evt.clientX < (Canvas.c_x + Canvas.c_wx)) &&
-        (evt.clientY < (Canvas.c_y + Canvas.c_wy))) {
+    if ((evt.clientX >= Canvas.getX()) &&
+        (evt.clientY >= Canvas.getY()) &&
+        (evt.clientX < (Canvas.getX() + Canvas.c_wx)) &&
+        (evt.clientY < (Canvas.getY() + Canvas.c_wy))) {
         e.stop();
         return false;
     }
@@ -103,8 +112,6 @@ init: function (id, width, height, true_color, keyDown, keyUp,
     document.body.addEvent('contextmenu', Canvas.ctxDisable);
 
     Canvas.resize(width, height);
-    Canvas.c_x = c.getPosition().x;
-    Canvas.c_y = c.getPosition().y;
     Canvas.c_wx = c.getSize().x;
     Canvas.c_wy = c.getSize().y;
     Canvas.true_color = true_color;

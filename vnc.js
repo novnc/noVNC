@@ -1274,8 +1274,8 @@ keyUp: function (e) {
 mouseDown: function(e) {
     var evt, x, y;
     evt = e.event || window.event;
-    x = (evt.clientX - Canvas.c_x);
-    y = (evt.clientY - Canvas.c_y);
+    x = (evt.clientX - Canvas.getX());
+    y = (evt.clientY - Canvas.getY());
     //console.log(">> mouseDown " + evt.which + "/" + evt.button +
     //            " " + x + "," + y);
     RFB.mouse_buttonMask |= 1 << evt.button;
@@ -1287,8 +1287,8 @@ mouseDown: function(e) {
 mouseUp: function(e) {
     var evt, x, y;
     evt = e.event || window.event;
-    x = (evt.clientX - Canvas.c_x);
-    y = (evt.clientY - Canvas.c_y);
+    x = (evt.clientX - Canvas.getX());
+    y = (evt.clientY - Canvas.getY());
     //console.log(">> mouseUp " + evt.which + "/" + evt.button +
     //            " " + x + "," + y);
     RFB.mouse_buttonMask ^= 1 << evt.button;
@@ -1300,8 +1300,8 @@ mouseUp: function(e) {
 mouseMove: function(e) {
     var evt, x, y;
     evt = e.event || window.event;
-    x = (evt.clientX - Canvas.c_x);
-    y = (evt.clientY - Canvas.c_y);
+    x = (evt.clientX - Canvas.getX());
+    y = (evt.clientY - Canvas.getY());
     //console.log('>> mouseMove ' + x + "," + y);
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 },
@@ -1310,8 +1310,8 @@ mouseWheel: function (e) {
     var evt, wheelData, bmask;
     evt = e.event || window.event;
     //e = e ? e : window.event;
-    x = (evt.clientX - Canvas.c_x);
-    y = (evt.clientY - Canvas.c_y);
+    x = (evt.clientX - Canvas.getX());
+    y = (evt.clientY - Canvas.getY());
     wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
     //console.log('>> mouseWheel ' + wheelData +
     //            " " + x + "," + y);
