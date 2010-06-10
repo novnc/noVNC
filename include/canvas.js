@@ -102,8 +102,7 @@ init: function (id, width, height, true_color, keyDown, keyUp,
     document.addEvent('click', Canvas.ctxDisable);
     document.body.addEvent('contextmenu', Canvas.ctxDisable);
 
-    c.width = width;
-    c.height = height;
+    Canvas.resize(width, height);
     Canvas.c_x = c.getPosition().x;
     Canvas.c_y = c.getPosition().y;
     Canvas.c_wx = c.getSize().x;
@@ -125,9 +124,13 @@ init: function (id, width, height, true_color, keyDown, keyUp,
 
 clear: function () {
     Canvas.ctx.clearRect(0, 0, Canvas.c_wx, Canvas.c_wy);
+    Canvas.resize(640, 20);
+},
+
+resize: function (width, height) {
     var c = $(Canvas.id);
-    c.width = 640;
-    c.height = 20;
+    c.width = width;
+    c.height = height;
 },
 
 stop: function () {

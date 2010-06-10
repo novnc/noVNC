@@ -58,13 +58,19 @@ clipboardFocus : false,
 
 // In preference order
 encodings      : [
-    ['COPYRECT',     0x01,                 'display_copy_rect'],
-    ['TIGHT_PNG',    0x17,                 'display_tight_png'],
-    ['HEXTILE',      0x05,                 'display_hextile'],
-    ['RRE',          0x02,                 'display_rre'],
-    ['RAW',          0x00,                 'display_raw'],
-    ['JPEG quality', Math.pow(2,32) - 32,  'set_jpeg_quality'],
-    ['DesktopSize',  Math.pow(2,32) - 223, 'set_desktopsize'] ],
+    ['COPYRECT',         0x01, 'display_copy_rect'],
+    ['TIGHT_PNG',        0x17, 'display_tight_png'],
+    ['HEXTILE',          0x05, 'display_hextile'],
+    ['RRE',              0x02, 'display_rre'],
+    ['RAW',              0x00, 'display_raw'],
+    ['DesktopSize',      -223, 'set_desktopsize'],
+
+    // Psuedo-encoding settings
+    ['JPEG_quality_lo',   -32, 'set_jpeg_quality'],
+//    ['JPEG_quality_hi',   -23, 'set_jpeg_quality'],
+    ['compress_lo',      -255, 'set_compress_level']
+//    ['compress_hi',      -247, 'set_compress_level']
+    ],
 
 setUpdateState: function(externalUpdateState) {
     RFB.externalUpdateState = externalUpdateState;
@@ -116,6 +122,8 @@ load: function () {
         RFB.encHandlers[RFB.encodings[i][1]] = RFB[RFB.encodings[i][2]];
         RFB.encNames[RFB.encodings[i][1]] = RFB.encodings[i][0];
     }
+    RFB.encHandlers[0x07] = RFB.display_tight_png;
+    RFB.encNames[0x07] = 'TIGHT';
     //console.log("<< load");
 },
 
@@ -883,6 +891,7 @@ display_tight_png: function() {
         return;
     }
 
+    //console.log("   RQ.slice(0,20): " + RFB.RQ.slice(0,20) + " (" + RFB.RQ.length + ")");
     //console.log("   cmode: " + cmode);
 
     // Determine FBU.bytes
@@ -897,7 +906,7 @@ display_tight_png: function() {
         clength = getCLength(RQ, 1);
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
         if (RQ.length < FBU.bytes) {
-            console.log("   waiting for TIGHT " + cmode + " bytes");
+            //console.log("   waiting for TIGHT " + cmode + " bytes");
             return;
         }
 
@@ -929,13 +938,34 @@ extract_data_uri : function (arr) {
     return ";base64," + Base64.encode(arr);
 },
 
+set_desktopsize : function () {
+    console.log(">> set_desktopsize");
+    RFB.fb_width = RFB.FBU.width;
+    RFB.fb_height = RFB.FBU.height;
+    Canvas.clear();
+    Canvas.resize(RFB.fb_width, RFB.fb_height);
+    RFB.timing.fbu_rt_start = (new Date()).getTime();
+    // Send a new non-incremental request
+    RFB.send_array(RFB.fbUpdateRequest(0));
+    console.log("<< set_desktopsize");
+
+    RFB.FBU.bytes = 0;
+    RFB.FBU.rects --;
+},
+
+set_jpeg_quality : function () {
+    console.log(">> set_jpeg_quality");
+},
+set_compress_level: function () {
+    console.log(">> set_compress_level");
+},
 
 /*
  * Client message routines
  */
 
 pixelFormat: function () {
-    //console.log(">> setPixelFormat");
+    //console.log(">> pixelFormat");
     var arr;
     arr = [0];     // msg-type
     arr.push8(0);  // padding
@@ -957,7 +987,7 @@ pixelFormat: function () {
     arr.push8(0);     // padding
     arr.push8(0);     // padding
     arr.push8(0);     // padding
-    //console.log("<< setPixelFormat");
+    //console.log("<< pixelFormat");
     return arr;
 },
 
@@ -965,7 +995,7 @@ fixColourMapEntries: function () {
 },
 
 clientEncodings: function () {
-    //console.log(">> setEncodings");
+    //console.log(">> clientEncodings");
     var arr, i;
     arr = [2];     // msg-type
     arr.push8(0);  // padding
@@ -975,7 +1005,7 @@ clientEncodings: function () {
     for (i=0; i<RFB.encodings.length; i++) {
         arr.push32(RFB.encodings[i][1]);
     }
-    console.log("<< setEncodings: " + arr);
+    console.log("<< clientEncodings: " + arr);
     return arr;
 },
 
@@ -1133,6 +1163,7 @@ recv_message_reorder: function(e) {
 },
 
 handle_message: function () {
+    //console.log("RQ.slice(0,20): " + RFB.RQ.slice(0,20) + " (" + RFB.RQ.length + ")");
     switch (RFB.state) {
     case 'disconnected':
         console.error("Got data while disconnected");
