@@ -1,9 +1,50 @@
-- Make C version of wsproxy.py
+Medium Term:
+
+- Implement Cursor pseudo-encoding (CSS cursor)
+    http://en.wikipedia.org/wiki/ICO_(file_format)
+    https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
 
 - Implement UI option for VNC shared mode.
 
-- implement tight and ZRLE encoding
+- Status bar buttons:
+    - Isolate menu UI in DefaultControls.js
+    - Icons in status area upper left
+    - Dialogs float over canvas
+    - Turn off events while menu open (but still update display)
+    - Explanatory hover text over buttons
+
+    - Connect/disconnect button
+
+    - Configuration menu:
+        - Store in cookies
+        - Items (move to public settings):
+            - Host
+            - Port
+            - Password
+            - Encrypt
+            - TrueColor
+            - speed vs. bandwidth selection
+            - b64encoding
+            - shared mode
+
+    - Keyboard menu:
+        - Send CtrlAltDel
+        - Ctrl Lock, Alt Lock, SysRq Lock
+        - Highlight menu icon when keys are locked
+
+    - Clipboard button -> popup:
+        - text, clear and send buttons
+
+    - password popup:
+        - when none set, but password required
+        - session only, should not store in cookie
+
+
+Longer Term:
 
 - Get web-socket-js RFC2817 proxying working again.
 
 - Support for Spice protocol.
+
+- Implement tight and ZRLE encoding
+

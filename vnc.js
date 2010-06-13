@@ -54,6 +54,15 @@ RFB = {
 /* 
  * External interface variables and methods
  */
+host           : '',
+port           : 5900,
+password       : '',
+encrypt        : true,
+true_color     : false,
+
+b64encode      : true,  // false means UTF-8 on the wire
+//b64encode      : false,  // false means UTF-8 on the wire
+
 clipboardFocus : false,
 
 // In preference order
@@ -195,9 +204,8 @@ clipboardPasteFrom: function (text) {
 
 ws             : null,  // Web Socket object
 sendID         : null,
+scanID         : null,  // TIGHT_PNG render image scanner
 use_seq        : false,
-b64encode      : true,  // false means UTF-8 on the wire
-//b64encode      : false,  // false means UTF-8 on the wire
 
 // Receive and send queues
 RQ             : [],  // Receive Queue
@@ -221,10 +229,10 @@ FBU            : {
     height         : 0,
     encoding       : 0,
     subencoding    : -1,
-    background     : null
+    background     : null,
+    imgs           : []  // TIGHT_PNG image queue
 },
 
-true_color     : false,
 fb_Bpp         : 4,
 fb_depth       : 3,
 
@@ -237,12 +245,9 @@ ct_length      : 0,
 
 shared         : 1,
 check_rate     : 217,
+scan_imgs_rate : 100,
 req_rate       : 1413,
 last_req       : 0,
-
-host           : '',
-port           : 5900,
-password       : '',
 
 canvasID       : 'VNC_canvas',
 fb_width       : 0,
@@ -457,6 +462,7 @@ init_msg: function () {
         
         /* Start pushing/polling */
         RFB.checkEvents.delay(RFB.check_rate);
+        RFB.scan_tight_imgs.delay(RFB.scan_imgs_rate)
 
         RFB.updateState('normal', "Connected to: " + RFB.fb_name);
         break;
@@ -914,12 +920,16 @@ display_tight_png: function() {
         //console.log("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
         RQ.shiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
+        img.onload = RFB.scan_tight_imgs;
+        FBU.imgs.push([img, FBU.x, FBU.y]);
         img.src = "data:image/" + cmode +
             RFB.extract_data_uri(RQ.shiftBytes(clength[1]));
+        /*
         img.onload = (function () {
                 var x = FBU.x, y = FBU.y, me = img;
                 return function () { Canvas.ctx.drawImage(me, x, y); };
             })();
+        */
         img = null;
         break;
     }
@@ -936,6 +946,18 @@ extract_data_uri : function (arr) {
     }
     //return "," + escape(stra.join(''));
     return ";base64," + Base64.encode(arr);
+},
+
+scan_tight_imgs : function () {
+    var i, imgs;
+    if (RFB.state === 'normal') {
+        imgs = RFB.FBU.imgs;
+        while ((imgs.length > 0) && (imgs[0][0].complete)) {
+            img = imgs.shift();
+            Canvas.ctx.drawImage(img[0], img[1], img[2]);
+        }
+        RFB.scan_tight_imgs.delay(RFB.scan_imgs_rate);
+    }
 },
 
 set_desktopsize : function () {
@@ -1444,6 +1466,7 @@ init_vars: function () {
     RFB.FBU.subrects     = 0;  // RRE and HEXTILE
     RFB.FBU.lines        = 0;  // RAW
     RFB.FBU.tiles        = 0;  // HEXTILE
+    RFB.FBU.imgs         = []; // TIGHT_PNG image queue
     RFB.mouse_buttonmask = 0;
     RFB.mouse_arr        = [];
 }
