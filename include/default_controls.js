@@ -55,6 +55,13 @@ load: function(target) {
             ['',''])[1];
     $('VNC_encrypt').checked = (url.match(/encrypt=([A-Za-z0-9]*)/) ||
             ['',''])[1];
+
+    $('VNC_screen').onmousemove = function () {
+            // Unfocus clipboard when over the VNC area
+            if (RFB.clipboardFocus) {
+                $('VNC_clipboard_text').blur();
+            }
+        };
 },
 
 updateState: function(state, msg) {

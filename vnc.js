@@ -1282,6 +1282,7 @@ mouseDown: function(e) {
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 
     RFB.flushClient();
+    return false;
 },
 
 mouseUp: function(e) {
@@ -1295,6 +1296,7 @@ mouseUp: function(e) {
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 
     RFB.flushClient();
+    return false;
 },
 
 mouseMove: function(e) {
@@ -1326,6 +1328,7 @@ mouseWheel: function (e) {
     RFB.mouse_buttonMask ^= bmask;
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
     RFB.flushClient();
+    return false;
 },
 
 
