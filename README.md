@@ -91,7 +91,7 @@ scripts and call their load() functions. For example:
     <body>
         <div id='vnc'>Loading</div>
     </body>
-    <script src='vnc.js'></script>
+    <script src='include/vnc.js'></script>
     <script src="include/default_controls.js"></script>
     <script>
         window.onload = function () {

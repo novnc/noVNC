@@ -18,7 +18,9 @@ var VNC_native_ws, RFB;
 (function () {
     var extra, start, end;
 
-    if (typeof VNC_uri_prefix === "undefined") { VNC_uri_prefix=""; }
+    if (typeof VNC_uri_prefix === "undefined") {
+        VNC_uri_prefix="include/";
+    }
     extra = "";
     start = "<script src='" + VNC_uri_prefix;
     end = "'><\/script>";
@@ -27,20 +29,20 @@ var VNC_native_ws, RFB;
     //extra += start + "http://getfirebug.com/releases/lite/1.2/" + 
     //         "firebug-lite-compressed.js" + end;
 
-    extra += start + "include/mootools.js" + end;
-    extra += start + "include/base64.js" + end;
-    extra += start + "include/des.js" + end;
-    extra += start + "include/util.js" + end;
-    extra += start + "include/canvas.js" + end;
+    extra += start + "mootools.js" + end;
+    extra += start + "base64.js" + end;
+    extra += start + "des.js" + end;
+    extra += start + "util.js" + end;
+    extra += start + "canvas.js" + end;
 
     /* If no builtin websockets then load web_socket.js */
     if (window.WebSocket) {
         VNC_native_ws = true;
     } else {
         VNC_native_ws = false;
-        extra += start + "include/web-socket-js/swfobject.js" + end;
-        extra += start + "include/web-socket-js/FABridge.js" + end;
-        extra += start + "include/web-socket-js/web_socket.js" + end;
+        extra += start + "web-socket-js/swfobject.js" + end;
+        extra += start + "web-socket-js/FABridge.js" + end;
+        extra += start + "web-socket-js/web_socket.js" + end;
     }
     document.write(extra);
 }());
@@ -117,7 +119,7 @@ load: function () {
                     "'file://' URL is incompatible with Adobe Flash");
         } else {
             WebSocket.__swfLocation = VNC_uri_prefix +
-                        "include/web-socket-js/WebSocketMain.swf";
+                        "web-socket-js/WebSocketMain.swf";
             WebSocket.__initialize();
             RFB.use_seq = true;
             RFB.updateState('disconnected', 'Disconnected');
