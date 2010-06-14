@@ -265,6 +265,14 @@ timing         : {
     fbu_rt_start   : 0,
     fbu_rt_total   : 0,
     fbu_rt_cnt     : 0,
+
+    history        : [],
+    history_start  : 0,
+    h_time         : 0,
+    h_rects        : 0,
+    h_fbus         : 0,
+    h_bytes        : 0,
+    h_pixels       : 0
 },
 
 /* Mouse state */
@@ -463,6 +471,8 @@ init_msg: function () {
         /* Start pushing/polling */
         RFB.checkEvents.delay(RFB.check_rate);
         RFB.scan_tight_imgs.delay(RFB.scan_imgs_rate)
+        RFB.timing.history_start = (new Date()).getTime();
+        RFB.update_timings.delay(1000);
 
         RFB.updateState('normal', "Connected to: " + RFB.fb_name);
         break;
@@ -475,11 +485,10 @@ init_msg: function () {
 normal_msg: function () {
     //console.log(">> normal_msg");
 
-    var RQ = RFB.RQ, FBU = RFB.FBU, now, fbu_rt_diff,
-        ret = true, msg_type, msg,
+    var RQ = RFB.RQ, ret = true, msg_type,
         c, first_colour, num_colours, red, green, blue;
 
-    if (FBU.rects > 0) {
+    if (RFB.FBU.rects > 0) {
         msg_type = 0;
     } else if (RFB.cuttext !== 'none') {
         msg_type = 3;
@@ -488,88 +497,7 @@ normal_msg: function () {
     }
     switch (msg_type) {
     case 0:  // FramebufferUpdate
-        if (FBU.rects === 0) {
-            if (RQ.length < 3) {
-                RQ.unshift(msg_type);
-                //console.log("   waiting for FBU header bytes");
-                return false;
-            }
-            RQ.shift8();
-            FBU.rects = RQ.shift16();
-            //console.log("FramebufferUpdate, rects:" + FBU.rects);
-            RFB.timing.cur_fbu = 0;
-            FBU.bytes = 0;
-            if (RFB.timing.fbu_rt_start > 0) {
-                now = (new Date()).getTime();
-                console.log("First FBU latency: " + (now - RFB.timing.fbu_rt_start));
-            }
-        }
-
-        while ((FBU.rects > 0) && (RQ.length >= FBU.bytes)) {
-            if (FBU.bytes === 0) {
-                if (RQ.length < 12) {
-                    //console.log("   waiting for rect header bytes");
-                    return false;
-                }
-                /* New FramebufferUpdate */
-                FBU.x      = RQ.shift16();
-                FBU.y      = RQ.shift16();
-                FBU.width  = RQ.shift16();
-                FBU.height = RQ.shift16();
-                FBU.encoding = parseInt(RQ.shift32(), 10);
-
-                // Debug:
-                /*
-                if (RFB.encNames[FBU.encoding]) {
-                    msg =  "FramebufferUpdate rects:" + FBU.rects;
-                    msg += " encoding:" + FBU.encoding;
-                    msg += "(" + RFB.encNames[FBU.encoding] + ")";
-                    msg += ", RQ.length: " + RQ.length;
-                    console.log(msg);
-                } else {
-                    RFB.updateState('failed',
-                            "Disconnected: unsupported encoding " +
-                            FBU.encoding);
-                    return false;
-                }
-                */
-            }
-
-            RFB.timing.last_fbu = (new Date()).getTime();
-
-            ret = RFB.encHandlers[FBU.encoding]();
-
-            now = (new Date()).getTime();
-            RFB.timing.cur_fbu += (now - RFB.timing.last_fbu);
-            if (FBU.rects === 0) {
-                if (((FBU.width === RFB.fb_width) &&
-                           (FBU.height === RFB.fb_height)) ||
-                        (RFB.timing.fbu_rt_start > 0)) {
-                    RFB.timing.full_fbu_total += RFB.timing.cur_fbu;
-                    RFB.timing.full_fbu_cnt += 1;
-                    console.log("Timing of full FBU, cur: " +
-                                RFB.timing.cur_fbu + ", total: " +
-                                RFB.timing.full_fbu_total + ", cnt: " +
-                                RFB.timing.full_fbu_cnt + ", avg: " +
-                                (RFB.timing.full_fbu_total /
-                                 RFB.timing.full_fbu_cnt));
-                }
-                if (RFB.timing.fbu_rt_start > 0) {
-                    fbu_rt_diff = now - RFB.timing.fbu_rt_start;
-                    RFB.timing.fbu_rt_total += fbu_rt_diff;
-                    RFB.timing.fbu_rt_cnt += 1;
-                    console.log("full FBU round-trip, cur: " +
-                            fbu_rt_diff + ", total: " +
-                            RFB.timing.fbu_rt_total + ", cnt: " +
-                            RFB.timing.fbu_rt_cnt + ", avg: " +
-                            (RFB.timing.fbu_rt_total /
-                                RFB.timing.fbu_rt_cnt));
-                    RFB.timing.fbu_rt_start = 0;
-                }
-            }
-            if (RFB.state !== "normal") { return true; }
-        }
-
+        ret = RFB.framebufferUpdate();
         break;
     case 1:  // SetColourMapEntries
         console.log("SetColourMapEntries");
@@ -623,6 +551,107 @@ normal_msg: function () {
     return ret;
 },
 
+framebufferUpdate: function() {
+    var RQ = RFB.RQ, FBU = RFB.FBU, timing = RFB.timing,
+        now, fbu_rt_diff, last_rects, last_length,
+        ret = true, msg;
+
+    if (FBU.rects === 0) {
+        if (RQ.length < 3) {
+            RQ.unshift(0);  // FBU msg_type
+            //console.log("   waiting for FBU header bytes");
+            return false;
+        }
+        RQ.shift8();
+        FBU.rects = RQ.shift16();
+        //console.log("FramebufferUpdate, rects:" + FBU.rects);
+        FBU.bytes = 0;
+        timing.cur_fbu = 0;
+        timing.h_fbus += 1;
+        if (timing.fbu_rt_start > 0) {
+            now = (new Date()).getTime();
+            console.log("First FBU latency: " + (now - timing.fbu_rt_start));
+        }
+    }
+
+    while ((FBU.rects > 0) && (RQ.length >= FBU.bytes)) {
+        if (FBU.bytes === 0) {
+            if (RQ.length < 12) {
+                //console.log("   waiting for rect header bytes");
+                return false;
+            }
+            /* New FramebufferUpdate */
+            FBU.x      = RQ.shift16();
+            FBU.y      = RQ.shift16();
+            FBU.width  = RQ.shift16();
+            FBU.height = RQ.shift16();
+            FBU.encoding = parseInt(RQ.shift32(), 10);
+            timing.h_bytes += 12;
+
+            // Debug:
+            /*
+            if (RFB.encNames[FBU.encoding]) {
+                msg =  "FramebufferUpdate rects:" + FBU.rects;
+                msg += " encoding:" + FBU.encoding;
+                msg += "(" + RFB.encNames[FBU.encoding] + ")";
+                msg += ", RQ.length: " + RQ.length;
+                console.log(msg);
+            } else {
+                RFB.updateState('failed',
+                        "Disconnected: unsupported encoding " +
+                        FBU.encoding);
+                return false;
+            }
+            */
+        }
+
+        timing.last_fbu = (new Date()).getTime();
+        last_rects = FBU.rects;
+        last_bytes = RQ.length;
+
+        ret = RFB.encHandlers[FBU.encoding]();
+
+        now = (new Date()).getTime();
+        timing.cur_fbu += (now - timing.last_fbu);
+        timing.h_bytes += last_bytes-RQ.length;
+
+        if (FBU.rects < last_rects) {
+            // Some work was done
+            timing.h_rects += last_rects-FBU.rects;
+            timing.h_pixels += FBU.width*FBU.height;
+        }
+
+        if (FBU.rects === 0) {
+            if (((FBU.width === RFB.fb_width) &&
+                        (FBU.height === RFB.fb_height)) ||
+                    (timing.fbu_rt_start > 0)) {
+                timing.full_fbu_total += timing.cur_fbu;
+                timing.full_fbu_cnt += 1;
+                console.log("Timing of full FBU, cur: " +
+                            timing.cur_fbu + ", total: " +
+                            timing.full_fbu_total + ", cnt: " +
+                            timing.full_fbu_cnt + ", avg: " +
+                            (timing.full_fbu_total /
+                                timing.full_fbu_cnt));
+            }
+            if (timing.fbu_rt_start > 0) {
+                fbu_rt_diff = now - timing.fbu_rt_start;
+                timing.fbu_rt_total += fbu_rt_diff;
+                timing.fbu_rt_cnt += 1;
+                console.log("full FBU round-trip, cur: " +
+                        fbu_rt_diff + ", total: " +
+                        timing.fbu_rt_total + ", cnt: " +
+                        timing.fbu_rt_cnt + ", avg: " +
+                        (timing.fbu_rt_total /
+                            timing.fbu_rt_cnt));
+                timing.fbu_rt_start = 0;
+            }
+        }
+
+        if (RFB.state !== "normal") { return true; }
+    }
+    return ret;
+},
 
 /*
  * FramebufferUpdate encodings
@@ -1381,6 +1410,10 @@ updateState: function(state, statusMsg) {
     cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
     func("New state '" + state + "'." + cmsg);
 
+    if ((state === 'disconnected') && (RFB.state !== 'disconnected')) {
+        RFB.show_timings();
+    }
+
     if ((RFB.state === 'failed') &&
         ((state === 'disconnected') || (state === 'closed'))) {
         // Leave the failed message
@@ -1389,6 +1422,59 @@ updateState: function(state, statusMsg) {
         RFB.state = state;
         RFB.externalUpdateState(state, statusMsg)
     }
+
+
+},
+
+update_timings: function() {
+    var now, timing = RFB.timing, offset;
+    now = (new Date()).getTime();
+    timing.history.push([now,
+            timing.h_fbus,
+            timing.h_rects,
+            timing.h_bytes,
+            timing.h_pixels]);
+    timing.h_fbus = 0;
+    timing.h_rects = 0;
+    timing.h_bytes = 0;
+    timing.h_pixels = 0;
+    if ((RFB.state !== 'disconnected') && (RFB.state !== 'failed')) {
+        // Try for every second
+        offset = (now - timing.history_start) % 1000;
+        if (offset < 500) {
+            RFB.update_timings.delay(1000 - offset);
+        } else {
+            RFB.update_timings.delay(2000 - offset);
+        }
+    }
+},
+
+show_timings: function() {
+    var i, timing = RFB.timing, history, msg,
+        delta, tot_time = 0, tot_fbus = 0, tot_rects = 0,
+        tot_bytes = 0, tot_pixels = 0;
+    console.log(">> show_timings");
+    RFB.update_timings();  // Final accumulate
+    msg = "\nTimings\n";
+    msg += "  time: fbus,rects,bytes,pixels\n";
+    for (i=0; i < timing.history.length; i++) {
+        history = timing.history[i];
+        delta = ((history[0]-timing.history_start)/1000);
+        tot_time = delta;
+        tot_fbus += history[1];
+        tot_rects += history[2];
+        tot_bytes += history[3];
+        tot_pixels += history[4];
+
+        msg += "  " + delta.toFixed(3);
+        msg += ": " + history.slice(1) + "\n";
+    }
+    msg += "\nTotals:\n";
+    msg += "  time: fbus,rects,bytes,pixels\n";
+    msg += "  " + tot_time.toFixed(3);
+    msg += ": " + tot_fbus + "," + tot_rects;
+    msg += "," + tot_bytes + "," + tot_pixels;
+    console.log(msg);
 },
 
 /*
@@ -1467,6 +1553,13 @@ init_vars: function () {
     RFB.FBU.imgs         = []; // TIGHT_PNG image queue
     RFB.mouse_buttonmask = 0;
     RFB.mouse_arr        = [];
+
+    RFB.timing.history_start = 0;
+    RFB.timing.history = [];
+    RFB.timing.h_fbus = 0;
+    RFB.timing.h_rects = 0;
+    RFB.timing.h_bytes = 0;
+    RFB.timing.h_pixels = 0;
 }
 
 }; /* End of RFB */
