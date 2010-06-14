@@ -43,16 +43,16 @@ There a few reasons why a proxy is required:
      the client asks the proxy (using the initial query string) to add
      sequence numbers to each packet.
 
-To encrypt the traffic using the WebSocket 'wss://' URI scheme you
-need to generate a certificate for the proxy to load. You can generate
-a self-signed certificate using openssl. The common name should be the
-hostname of the server where the proxy will be running:
-
-    `openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem`
-
 
 Usage
 -----
+
+* To encrypt the traffic using the WebSocket 'wss://' URI scheme you
+  need to generate a certificate for the proxy to load. You can generate
+  a self-signed certificate using openssl. The common name should be the
+  hostname of the server where the proxy will be running:
+
+    `openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem`
 
 * run a VNC server.
  
