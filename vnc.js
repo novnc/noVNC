@@ -108,7 +108,7 @@ load: function () {
         console.log("Using native WebSockets");
         RFB.updateState('disconnected', 'Disconnected');
     } else {
-        console.log("Using web-socket-js flash bridge");
+        console.warn("Using web-socket-js flash bridge");
         if ((! Browser.Plugins.Flash) ||
             (Browser.Plugins.Flash.version < 9)) {
             RFB.updateState('failed', "WebSockets or Adobe Flash is required");
@@ -137,7 +137,7 @@ load: function () {
 },
 
 connect: function (host, port, password, encrypt, true_color) {
-    console.log(">> connect");
+    //console.log(">> connect");
 
     RFB.host       = host;
     RFB.port       = port;
@@ -168,12 +168,12 @@ connect: function (host, port, password, encrypt, true_color) {
     RFB.init_ws();
 
     RFB.updateState('ProtocolVersion');
-    console.log("<< connect");
+    //console.log("<< connect");
 
 },
 
 disconnect: function () {
-    console.log(">> disconnect");
+    //console.log(">> disconnect");
     if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
         RFB.updateState('closed');
         RFB.ws.onmessage = function (e) { return; };
@@ -187,7 +187,7 @@ disconnect: function () {
     }
 
     RFB.updateState('disconnected', 'Disconnected');
-    console.log("<< disconnect");
+    //console.log("<< disconnect");
 },
 
 clipboardPasteFrom: function (text) {
@@ -277,7 +277,7 @@ mouse_arr        : [],
 
 /* RFB/VNC initialisation */
 init_msg: function () {
-    console.log(">> init_msg [RFB.state '" + RFB.state + "']");
+    //console.log(">> init_msg [RFB.state '" + RFB.state + "']");
 
     var RQ = RFB.RQ, strlen, reason, reason_len,
         sversion, cversion, types, num_types, challenge, response,
@@ -345,11 +345,11 @@ init_msg: function () {
         // Fall through
 
     case 'Authentication' :
-        console.log("Security auth scheme: " + RFB.auth_scheme);
+        //console.log("Security auth scheme: " + RFB.auth_scheme);
         switch (RFB.auth_scheme) {
             case 0:  // connection failed
                 if (RQ.length < 4) {
-                    console.log("   waiting for auth reason bytes");
+                    //console.log("   waiting for auth reason bytes");
                     return;
                 }
                 strlen = RQ.shift32();
@@ -367,7 +367,7 @@ init_msg: function () {
                     return;
                 }
                 if (RQ.length < 16) {
-                    console.log("   waiting for auth challenge bytes");
+                    //console.log("   waiting for auth challenge bytes");
                     return;
                 }
                 challenge = RQ.shiftBytes(16);
@@ -378,7 +378,7 @@ init_msg: function () {
                 //console.log("Response: " + response +
                 //            " (" + response.length + ")");
                 
-                console.log("Sending DES encrypted auth response");
+                //console.log("Sending DES encrypted auth response");
                 RFB.send_array(response);
                 RFB.updateState('SecurityResult');
                 break;
@@ -491,7 +491,7 @@ normal_msg: function () {
         if (FBU.rects === 0) {
             if (RQ.length < 3) {
                 RQ.unshift(msg_type);
-                console.log("   waiting for FBU header bytes");
+                //console.log("   waiting for FBU header bytes");
                 return false;
             }
             RQ.shift8();
@@ -508,7 +508,7 @@ normal_msg: function () {
         while ((FBU.rects > 0) && (RQ.length >= FBU.bytes)) {
             if (FBU.bytes === 0) {
                 if (RQ.length < 12) {
-                    console.log("   waiting for rect header bytes");
+                    //console.log("   waiting for rect header bytes");
                     return false;
                 }
                 /* New FramebufferUpdate */
@@ -599,7 +599,7 @@ normal_msg: function () {
         }
         if (RFB.cuttext === 'header') {
             if (RQ.length < 7) {
-                console.log("waiting for ServerCutText header");
+                //console.log("waiting for ServerCutText header");
                 return false;
             }
             RQ.shiftBytes(3);  // Padding
@@ -607,7 +607,7 @@ normal_msg: function () {
         }
         RFB.cuttext = 'bytes';
         if (RQ.length < RFB.ct_length) {
-            console.log("waiting for ServerCutText bytes");
+            //console.log("waiting for ServerCutText bytes");
             return false;
         }
         RFB.clipboardCopyTo(RQ.shiftStr(RFB.ct_length));
@@ -726,7 +726,7 @@ display_hextile: function() {
     while (FBU.tiles > 0) {
         FBU.bytes = 1;
         if (RQ.length < FBU.bytes) {
-            console.log("   waiting for HEXTILE subencoding byte");
+            //console.log("   waiting for HEXTILE subencoding byte");
             return;
         }
         subencoding = RQ[0];  // Peek
@@ -760,7 +760,7 @@ display_hextile: function() {
                 FBU.bytes++;   // Since we aren't shifting it off
                 if (RQ.length < FBU.bytes) {
                     /* Wait for subrects byte */
-                    console.log("   waiting for hextile subrects header byte");
+                    //console.log("   waiting for hextile subrects header byte");
                     return;
                 }
                 subrects = RQ[FBU.bytes-1]; // Peek
@@ -859,7 +859,7 @@ display_tight_png: function() {
 
     FBU.bytes = 1; // compression-control byte
     if (RQ.length < FBU.bytes) {
-        console.log("   waiting for TIGHT compression-control byte");
+        //console.log("   waiting for TIGHT compression-control byte");
         return;
     }
 
@@ -893,7 +893,7 @@ display_tight_png: function() {
     }
 
     if (RQ.length < FBU.bytes) {
-        console.log("   waiting for TIGHT " + cmode + " bytes");
+        //console.log("   waiting for TIGHT " + cmode + " bytes");
         return;
     }
 
@@ -1027,7 +1027,7 @@ clientEncodings: function () {
     for (i=0; i<RFB.encodings.length; i++) {
         arr.push32(RFB.encodings[i][1]);
     }
-    console.log("<< clientEncodings: " + arr);
+    //console.log("<< clientEncodings: " + arr);
     return arr;
 },
 
@@ -1372,9 +1372,7 @@ updateState: function(state, statusMsg) {
             func = function(msg) { console.error(msg); };
             break;
         case 'normal':
-            break;
         case 'disconnected':
-            break;
         default:
             func = function(msg) { console.warn(msg); };
             break;
@@ -1398,7 +1396,7 @@ updateState: function(state, statusMsg) {
  */
 
 init_ws: function () {
-    console.log(">> init_ws");
+    //console.log(">> init_ws");
 
     var uri = "", vars = [];
     if (RFB.encrypt) {
@@ -1421,7 +1419,7 @@ init_ws: function () {
 
     RFB.ws.onmessage = RFB.recv_message;
     RFB.ws.onopen = function(e) {
-        console.log(">> WebSocket.onopen");
+        //console.log(">> WebSocket.onopen");
         RFB.updateState('ProtocolVersion', "Starting VNC handshake");
         RFB.sendID = setInterval(function() {
                 /*
@@ -1437,13 +1435,13 @@ init_ws: function () {
                     console.log("Delaying send");
                 }
             }, 50);
-        console.log("<< WebSocket.onopen");
+        //console.log("<< WebSocket.onopen");
     };
     RFB.ws.onclose = function(e) {
-        console.log(">> WebSocket.onclose");
+        //console.log(">> WebSocket.onclose");
         clearInterval(RFB.sendID);
         RFB.updateState('disconnected', 'VNC disconnected');
-        console.log("<< WebSocket.onclose");
+        //console.log("<< WebSocket.onclose");
     };
     RFB.ws.onerror = function(e) {
         console.error(">> WebSocket.onerror");
@@ -1451,7 +1449,7 @@ init_ws: function () {
         console.error("<< WebSocket.onerror");
     };
 
-    console.log("<< init_ws");
+    //console.log("<< init_ws");
 },
 
 init_vars: function () {

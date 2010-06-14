@@ -88,7 +88,7 @@ ctxDisable: function (e) {
 
 init: function (id, width, height, true_color, keyDown, keyUp,
                 mouseDown, mouseUp, mouseMove, mouseWheel) {
-    console.log(">> Canvas.init");
+    //console.log(">> Canvas.init");
 
     Canvas.id = id;
 
@@ -126,7 +126,7 @@ init: function (id, width, height, true_color, keyDown, keyUp,
         Canvas.prefer_js = true;
     }
 
-    console.log("<< Canvas.init");
+    //console.log("<< Canvas.init");
 },
 
 clear: function () {
