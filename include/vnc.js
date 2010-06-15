@@ -453,8 +453,7 @@ init_msg: function () {
         RFB.fb_name = RQ.shiftStr(name_length);
 
         Canvas.init(RFB.canvasID, RFB.fb_width, RFB.fb_height, RFB.true_color,
-                RFB.keyDown, RFB.keyUp, RFB.mouseDown, RFB.mouseUp,
-                RFB.mouseMove, RFB.mouseWheel);
+                RFB.keyPress, RFB.mouseButton, RFB.mouseMove);
 
         if (RFB.true_color) {
             RFB.fb_Bpp           = 4;
@@ -955,12 +954,6 @@ display_tight_png: function() {
         FBU.imgs.push([img, FBU.x, FBU.y]);
         img.src = "data:image/" + cmode +
             RFB.extract_data_uri(RQ.shiftBytes(clength[1]));
-        /*
-        img.onload = (function () {
-                var x = FBU.x, y = FBU.y, me = img;
-                return function () { Canvas.ctx.drawImage(me, x, y); };
-            })();
-        */
         img = null;
         break;
     }
@@ -1303,87 +1296,30 @@ checkEvents: function () {
     RFB.checkEvents.delay(RFB.check_rate);
 },
 
-keyX: function (e, down) {
+keyPress: function (keysym, down) {
     var arr;
     if (RFB.clipboardFocus) {
         return true;
     }
-    e.stop();
-    arr = RFB.keyEvent(Canvas.getKeysym(e), down);
+    arr = RFB.keyEvent(keysym, down);
     arr = arr.concat(RFB.fbUpdateRequest(1));
     RFB.send_array(arr);
 },
 
-keyDown: function (e) {
-    //console.log(">> keyDown: " + Canvas.getKeysym(e));
-    RFB.keyX(e, 1);
-},
-
-keyUp: function (e) {
-    //console.log(">> keyUp: " + Canvas.getKeysym(e));
-    RFB.keyX(e, 0);
-},
-
-mouseDown: function(e) {
-    var evt, x, y;
-    evt = e.event || window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
-    //console.log(">> mouseDown " + evt.which + "/" + evt.button +
-    //            " " + x + "," + y);
-    RFB.mouse_buttonMask |= 1 << evt.button;
+mouseButton: function(x, y, down, bmask) {
+    if (down) {
+        RFB.mouse_buttonMask |= bmask;
+    } else {
+        RFB.mouse_buttonMask ^= bmask;
+    }
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
-
     RFB.flushClient();
-    return false;
 },
 
-mouseUp: function(e) {
-    var evt, x, y;
-    evt = e.event || window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
-    //console.log(">> mouseUp " + evt.which + "/" + evt.button +
-    //            " " + x + "," + y);
-    RFB.mouse_buttonMask ^= 1 << evt.button;
-    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
-
-    RFB.flushClient();
-    return false;
-},
-
-mouseMove: function(e) {
-    var evt, x, y;
-    evt = e.event || window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
+mouseMove: function(x, y) {
     //console.log('>> mouseMove ' + x + "," + y);
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 },
-
-mouseWheel: function (e) {
-    var evt, wheelData, bmask;
-    evt = e.event || window.event;
-    //e = e ? e : window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
-    wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
-    //console.log('>> mouseWheel ' + wheelData +
-    //            " " + x + "," + y);
-
-    if (wheelData > 0) {
-        bmask = 1 << 3;
-    } else {
-        bmask = 1 << 4;
-    }
-    RFB.mouse_buttonMask |= bmask;
-    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
-    RFB.mouse_buttonMask ^= bmask;
-    RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
-    RFB.flushClient();
-    return false;
-},
-
 
 clipboardCopyTo: function (text) {
     console.log(">> clipboardCopyTo stub");
