@@ -1,3 +1,21 @@
+/*
+ * noVNC: HTML5 VNC client
+ * Copyright (C) 2010 Joel Martin
+ * Licensed under LGPL-3 (see LICENSE.LGPL-3)
+ *
+ * See README.md for usage and integration instructions.
+ */
+"use strict";
+
+// Load mootools
+(function () {
+    var prefix = (typeof VNC_uri_prefix !== "undefined") ?
+                           VNC_uri_prefix : "include/";
+    document.write("<script src='" + prefix +
+                   "mootools.js'><\/script>");
+}());
+
+
 DefaultControls = {
 
 load: function(target) {
@@ -58,7 +76,7 @@ load: function(target) {
 
     $('VNC_screen').onmousemove = function () {
             // Unfocus clipboard when over the VNC area
-            if (RFB.clipboardFocus) {
+            if (! Canvas.focused) {
                 $('VNC_clipboard_text').blur();
             }
         };
@@ -119,11 +137,11 @@ disconnect: function() {
 },
 
 clipFocus: function() {
-    RFB.clipboardFocus = true;
+    Canvas.focused = false;
 },
 
 clipBlur: function() {
-    RFB.clipboardFocus = false;
+    Canvas.focused = true;
 },
 
 clipClear: function() {

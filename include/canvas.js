@@ -5,9 +5,10 @@
  *
  * See README.md for usage and integration instructions.
  */
-"use strict";
 
-/*global window, $, Browser */
+"use strict";
+/*jslint white: false, bitwise: false */
+/*global window, console, $, Util */
 
 // Everything namespaced inside Canvas
 var Canvas = {
@@ -23,20 +24,21 @@ ctx  : null,
 
 prevStyle: "",
 
+focused     : true,
 keyPress    : null,
 mouseButton : null,
 mouseMove   : null,
 
 onMouseButton: function(e, down) {
     var evt, pos, bmask;
-    evt = e.event || window.event;
-    pos = getEventPosition(e, $(Canvas.id));
+    evt = (e ? e : window.event);
+    pos = Util.getEventPosition(e, $(Canvas.id));
     bmask = 1 << evt.button;
-    //console.log('mouse ' + evt.which + '/' + evt.button + ' down:' + pos.x + "," + pos.y);
+    //console.log('mouse ' + pos.x + "," + pos.y + " down: " + down + " bmask: " + bmask);
     if (Canvas.mouseButton) {
         Canvas.mouseButton(pos.x, pos.y, down, bmask);
     }
-    e.stop();
+    Util.stopEvent(e);
     return false;
 },
 
@@ -49,10 +51,10 @@ onMouseUp: function (e) {
 },
 
 onMouseWheel: function (e) {
-    var evt, pos, bmask;
-    evt = e.event || window.event;
-    pos = getEventPosition(e, $(Canvas.id));
-    var wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
+    var evt, pos, bmask, wheelData;
+    evt = (e ? e : window.event);
+    pos = Util.getEventPosition(e, $(Canvas.id));
+    wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
     if (wheelData > 0) {
         bmask = 1 << 3;
     } else {
@@ -63,15 +65,15 @@ onMouseWheel: function (e) {
         Canvas.mouseButton(pos.x, pos.y, 1, bmask);
         Canvas.mouseButton(pos.x, pos.y, 0, bmask);
     }
-    e.stop();
+    Util.stopEvent(e);
     return false;
 },
 
 
 onMouseMove: function (e) {
     var evt, pos;
-    evt = e.event || window.event;
-    pos = getEventPosition(e, $(Canvas.id));
+    evt = (e ? e : window.event);
+    pos = Util.getEventPosition(e, $(Canvas.id));
     //console.log('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
     if (Canvas.mouseMove) {
         Canvas.mouseMove(pos.x, pos.y);
@@ -79,41 +81,50 @@ onMouseMove: function (e) {
 },
 
 onKeyDown: function (e) {
-    //console.log("keydown: " + e.key + "(" + e.code + ")");
+    //console.log("keydown: " + Canvas.getKeysym(e));
+    if (! Canvas.focused) {
+        return true;
+    }
     if (Canvas.keyPress) {
         Canvas.keyPress(Canvas.getKeysym(e), 1);
     }
-    e.stop();
+    Util.stopEvent(e);
     return false;
 },
 
 onKeyUp : function (e) {
     //console.log("keyup: " + e.key + "(" + e.code + ")");
+    if (! Canvas.focused) {
+        return true;
+    }
     if (Canvas.keyPress) {
         Canvas.keyPress(Canvas.getKeysym(e), 0);
     }
-    e.stop();
+    Util.stopEvent(e);
     return false;
 },
 
 onMouseDisable: function (e) {
     var evt, pos;
-    evt = e.event || window.event;
-    pos = getPosition($(Canvas.id));
+    evt = (e ? e : window.event);
+    pos = Util.getPosition($(Canvas.id));
     /* Stop propagation if inside canvas area */
     if ((evt.clientX >= pos.x) &&
         (evt.clientY >= pos.y) &&
         (evt.clientX < (pos.x + Canvas.c_wx)) &&
         (evt.clientY < (pos.y + Canvas.c_wy))) {
-        e.stop();
+        //console.log("mouse event disabled");
+        Util.stopEvent(e);
         return false;
     }
+    //console.log("mouse event not disabled");
+    return true;
 },
 
 
 init: function (id, width, height, true_color, keyPress,
                 mouseButton, mouseMove) {
-    //console.log(">> Canvas.init");
+    console.log(">> Canvas.init");
 
     Canvas.id = id;
 
@@ -122,20 +133,21 @@ init: function (id, width, height, true_color, keyPress,
     Canvas.mouseMove = mouseMove || null;
 
     var c = $(Canvas.id);
-    document.addEvent('keydown', Canvas.onKeyDown);
-    document.addEvent('keyup', Canvas.onKeyUp);
-    c.addEvent('mousedown', Canvas.onMouseDown);
-    c.addEvent('mouseup', Canvas.onMouseUp);
-    c.addEvent('mousewheel', Canvas.onMouseWheel);
-    c.addEvent('mousemove', Canvas.onMouseMove);
+    Util.addEvent(document, 'keydown', Canvas.onKeyDown);
+    Util.addEvent(document, 'keyup', Canvas.onKeyUp);
+    Util.addEvent(c, 'mousedown', Canvas.onMouseDown);
+    Util.addEvent(c, 'mouseup', Canvas.onMouseUp);
+    Util.addEvent(c, 'mousemove', Canvas.onMouseMove);
+    Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+            Canvas.onMouseWheel);
 
     /* Work around right and middle click browser behaviors */
-    document.addEvent('click', Canvas.onMouseDisable);
-    document.body.addEvent('contextmenu', Canvas.onMouseDisable);
+    Util.addEvent(document, 'click', Canvas.onMouseDisable);
+    Util.addEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
 
     Canvas.resize(width, height);
-    Canvas.c_wx = c.getSize().x;
-    Canvas.c_wy = c.getSize().y;
+    Canvas.c_wx = c.offsetWidth;
+    Canvas.c_wy = c.offsetHeight;
     Canvas.true_color = true_color;
     Canvas.colourMap = [];
 
@@ -143,8 +155,9 @@ init: function (id, width, height, true_color, keyPress,
     Canvas.ctx = c.getContext('2d'); 
     
     Canvas.prevStyle = "";
+    Canvas.focused = true;
 
-    if (Browser.Engine.webkit) {
+    if (Util.Engine.webkit) {
         Canvas.prefer_js = true;
     }
 
@@ -164,16 +177,17 @@ resize: function (width, height) {
 
 stop: function () {
     var c = $(Canvas.id);
-    document.removeEvents('keydown');
-    document.removeEvents('keyup');
-    c.removeEvents('mousedown');
-    c.removeEvents('mouseup');
-    c.removeEvents('mousemove');
-    c.removeEvents('DOMMouseScroll');
+    Util.removeEvent(document, 'keydown', Canvas.onKeyDown);
+    Util.removeEvent(document, 'keyup', Canvas.onKeyUp);
+    Util.removeEvent(c, 'mousedown', Canvas.onMouseDown);
+    Util.removeEvent(c, 'mouseup', Canvas.onMouseUp);
+    Util.removeEvent(c, 'mousemove', Canvas.onMouseMove);
+    Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+            Canvas.onMouseWheel);
 
     /* Work around right and middle click browser behaviors */
-    document.removeEvents('click');
-    document.body.removeEvents('contextmenu');
+    Util.removeEvent(document, 'click', Canvas.onMouseDisable);
+    Util.removeEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
 },
 
 /*
@@ -197,8 +211,8 @@ getTile: function(x, y, width, height, color) {
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
-        for (j = 0; j < height; j++) {
-            for (i = 0; i < width; i++) {
+        for (j = 0; j < height; j += 1) {
+            for (i = 0; i < width; i += 1) {
                 p = (i + (j * width) ) * 4;
                 data[p + 0] = red;
                 data[p + 1] = green;
@@ -225,8 +239,8 @@ setTile: function(img, x, y, w, h, color) {
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
-        for (j = 0; j < h; j++) {
-            for (i = 0; i < w; i++) {
+        for (j = 0; j < h; j += 1) {
+            for (i = 0; i < w; i += 1) {
                 p = (x + i + ((y + j) * width) ) * 4;
                 data[p + 0] = red;
                 data[p + 1] = green;
@@ -265,12 +279,12 @@ rgbxImage: function(x, y, width, height, arr, offset) {
 },
 
 cmapImage: function(x, y, width, height, arr, offset) {
-    var img, i, j, k, data, rgb, cmap;
+    var img, i, j, data, rgb, cmap;
     img = Canvas.ctx.getImageData(0, 0, width, height);
     data = img.data;
     cmap = Canvas.colourMap;
     //console.log("cmapImage x: " + x + ", y: " + y + "arr.slice(0,20): " + arr.slice(0,20));
-    for (i=0, j=offset; i < (width * height * 4); i=i+4, j++) {
+    for (i=0, j=offset; i < (width * height * 4); i=i+4, j += 1) {
         rgb = cmap[arr[j]];
         data[i + 0] = rgb[0];
         data[i + 1] = rgb[1];
@@ -311,7 +325,7 @@ copyImage: function(old_x, old_y, new_x, new_y, width, height) {
 /* Translate DOM key event to keysym value */
 getKeysym: function(e) {
     var evt, keysym;
-    evt = e.event || window.event;
+    evt = (e ? e : window.event);
 
     /* Remap modifier and special keys */
     switch ( evt.keyCode ) {
@@ -354,7 +368,7 @@ getKeysym: function(e) {
         case 187       : keysym = 61; break; // =  (IE)
         case 188       : keysym = 44; break; // ,  (Mozilla, IE)
         case 109       :                     // -  (Mozilla)
-            if (Browser.Engine.gecko) {
+            if (Util.Engine.gecko) {
                          keysym = 45; }
                                       break;
         case 189       : keysym = 45; break; // -  (IE)
