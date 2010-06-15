@@ -25,7 +25,7 @@
 
     <script>
         var msg_cnt = 0;
-        var width = 800, height = 600;
+        var width = 1280, height = 600;
         var iterations;
 
         function message(str) {
@@ -35,60 +35,27 @@
             cell.scrollTop = cell.scrollHeight;
         }
 
-        function mouseDown (e) {
-            var msg, evt = e.event || window.event;
-            e.stop();
-            msg = 'mouse ' + evt.which + '/' + evt.button + ' down:' +
-                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y);
+        function mouseButton(x, y, down, bmask) {
+            msg = 'mouse x,y: ' + x + ',' + y + '  down: ' + down;
+            msg += ' bmask: ' + bmask;
             console.log(msg);
             message(msg);
         }
 
-        function mouseUp (e) {
-            var msg, evt = e.event || window.event;
-            e.stop();
-            msg = 'mouse ' + evt.which + '/' + evt.button + ' up:' +
-                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y);
-            console.log(msg);
-            message(msg);
+        function mouseMove(x, y) {
+            msg = 'mouse x,y: ' + x + ',' + y;
+            //console.log(msg);
         }
 
-        function mouseMove (e) {
-            var msg, evt = e.event || window.event;
-            console.log('mouse ' + evt.which + '/' + evt.button + ' up:' +
-                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y));
-        }
-
-        function mouseWheel (e) {
-            var evt = e.event || window.event;
-            //e = e ? e : window.event;
-            var wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
-            msg = 'mouse scroll by ' + wheelData + ':' +
-                    (evt.clientX - Canvas.c_x) + "," + (evt.clientY - Canvas.c_y);
-            console.log(msg);
-            message(msg);
-        }
-
-
-        function keyDown (e) {
-            var msg;
-            e.stop();
-            msg = "keydown: " + e.key + "(" + e.code + ")";
-            console.log(msg);
-            message(msg);
-        }
-
-        function keyUp (e) {
-            var msg;
-            e.stop();
-            msg = "keyup: " + e.key + "(" + e.code + ")";
+        function keyPress(keysym, down) {
+            msg = "keyPress keysym: " + keysym + " down: " + down;
             console.log(msg);
             message(msg);
         }
 
         window.onload = function() {
-            Canvas.init('canvas', width, height, keyDown, keyUp,
-                        mouseDown, mouseUp, mouseMove, mouseWheel);
+            Canvas.init('canvas', width, height, true, keyPress,
+                        mouseButton, mouseMove);
             message("Canvas initialized");
         }
     </script>

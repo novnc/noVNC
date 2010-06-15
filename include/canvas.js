@@ -27,26 +27,14 @@ keyPress    : null,
 mouseButton : null,
 mouseMove   : null,
 
-
-getX: function() {
-    var c = $(Canvas.id);
-    return c.getPosition().x - document.getScroll().x;
-},
-
-getY: function() {
-    var c = $(Canvas.id);
-    return c.getPosition().y - document.getScroll().y;
-},
-
 onMouseButton: function(e, down) {
-    var evt, x, y, bmask;
+    var evt, pos, bmask;
     evt = e.event || window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
+    pos = getEventPosition(e, $(Canvas.id));
     bmask = 1 << evt.button;
-    //console.log('mouse ' + evt.which + '/' + evt.button + ' down:' + x + "," + y);
+    //console.log('mouse ' + evt.which + '/' + evt.button + ' down:' + pos.x + "," + pos.y);
     if (Canvas.mouseButton) {
-        Canvas.mouseButton(x, y, down, bmask);
+        Canvas.mouseButton(pos.x, pos.y, down, bmask);
     }
     e.stop();
     return false;
@@ -61,21 +49,19 @@ onMouseUp: function (e) {
 },
 
 onMouseWheel: function (e) {
-    var evt, x, y, bmask;
+    var evt, pos, bmask;
     evt = e.event || window.event;
-    //e = e ? e : window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
+    pos = getEventPosition(e, $(Canvas.id));
     var wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
     if (wheelData > 0) {
         bmask = 1 << 3;
     } else {
         bmask = 1 << 4;
     }
-    //console.log('mouse scroll by ' + wheelData + ':' + x + "," + y);
+    //console.log('mouse scroll by ' + wheelData + ':' + pos.x + "," + pos.y);
     if (Canvas.mouseButton) {
-        Canvas.mouseButton(x, y, 1, bmask);
-        Canvas.mouseButton(x, y, 0, bmask);
+        Canvas.mouseButton(pos.x, pos.y, 1, bmask);
+        Canvas.mouseButton(pos.x, pos.y, 0, bmask);
     }
     e.stop();
     return false;
@@ -83,12 +69,12 @@ onMouseWheel: function (e) {
 
 
 onMouseMove: function (e) {
-    var evt = e.event || window.event;
-    x = (evt.clientX - Canvas.getX());
-    y = (evt.clientY - Canvas.getY());
-    //console.log('mouse ' + evt.which + '/' + evt.button + ' up:' + x + "," + y);
-    if (Canvas.keyPress) {
-        Canvas.mouseMove(x, y);
+    var evt, pos;
+    evt = e.event || window.event;
+    pos = getEventPosition(e, $(Canvas.id));
+    //console.log('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
+    if (Canvas.mouseMove) {
+        Canvas.mouseMove(pos.x, pos.y);
     }
 },
 
@@ -111,12 +97,14 @@ onKeyUp : function (e) {
 },
 
 onMouseDisable: function (e) {
-    var evt = e.event || window.event;
+    var evt, pos;
+    evt = e.event || window.event;
+    pos = getPosition($(Canvas.id));
     /* Stop propagation if inside canvas area */
-    if ((evt.clientX >= Canvas.getX()) &&
-        (evt.clientY >= Canvas.getY()) &&
-        (evt.clientX < (Canvas.getX() + Canvas.c_wx)) &&
-        (evt.clientY < (Canvas.getY() + Canvas.c_wy))) {
+    if ((evt.clientX >= pos.x) &&
+        (evt.clientY >= pos.y) &&
+        (evt.clientX < (pos.x + Canvas.c_wx)) &&
+        (evt.clientY < (pos.y + Canvas.c_wy))) {
         e.stop();
         return false;
     }

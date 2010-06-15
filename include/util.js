@@ -28,6 +28,40 @@ function dirObj(obj, depth, parent) {
     return msg;
 }
 
+/*
+ * Cross-browser positioning
+ */
+
+// Get DOM element position on page
+function getPosition(obj) {
+    var x = 0, y = 0;
+    if (obj.offsetParent) {
+        do {
+            x += obj.offsetLeft;
+            y += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+    }
+    return {'x': x, 'y': y};
+}
+
+// Get mouse event position in DOM element
+function getEventPosition(e, obj) {
+    var evt, docX, docY, pos;
+    //if (!e) evt = window.event;
+    evt = e.event || window.event;
+    if (evt.pageX || evt.pageY) {
+        docX = evt.pageX;
+        docY = evt.pageY;
+    } else if (evt.clientX || evt.clientY) {
+        docX = evt.clientX + document.body.scrollLeft +
+            document.documentElement.scrollLeft;
+        docY = evt.clientY + document.body.scrollTop +
+            document.documentElement.scrollTop;
+    }
+    pos = getPosition(obj);
+    return {'x': docX - pos.x, 'y': docY - pos.y};
+}
+
 
 /*
  * Make arrays quack

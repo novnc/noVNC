@@ -1,5 +1,9 @@
 Medium Term:
 
+- Remove mootools dependency from vnc.js and canvas.js.
+    - canvas.js deps:
+        $(), getPosition, getScroll
+
 - Implement Cursor pseudo-encoding (CSS cursor)
     http://en.wikipedia.org/wiki/ICO_(file_format)
     https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
