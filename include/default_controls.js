@@ -49,6 +49,7 @@ load: function(target) {
     html += '      <td><div id="VNC_status">Loading</div></td>';
     html += '      <td width=10%><div id="VNC_buttons">';
     html += '        <input type=button value="Send CtrlAltDel"';
+    html += '          id="sendCtrlAltDelButton"';
     html += '          onclick="DefaultControls.sendCtrlAltDel();"></div></td>';
     html += '    </tr></table>';
     html += '  </div>';
@@ -98,15 +99,18 @@ updateState: function(state, msg) {
     s = $('VNC_status');
     sb = $('VNC_status_bar');
     c = $('VNC_connect_button');
+    cad = $('sendCtrlAltDelButton');
     switch (state) {
         case 'failed':
             c.disabled = true;
+            cad.disabled = true;
             klass = "VNC_status_error";
             break;
         case 'normal':
             c.value = "Disconnect";
             c.onclick = DefaultControls.disconnect;
             c.disabled = false;
+            cad.disabled = false;
             klass = "VNC_status_normal";
             break;
         case 'disconnected':
@@ -114,10 +118,12 @@ updateState: function(state, msg) {
             c.onclick = DefaultControls.connect;
 
             c.disabled = false;
+            cad.disabled = true;
             klass = "VNC_status_normal";
             break;
         default:
             c.disabled = true;
+            cad.disabled = true;
             klass = "VNC_status_warn";
             break;
     }
