@@ -94,10 +94,36 @@ setCanvasID: function(canvasID) {
     RFB.canvasID = canvasID;
 },
 
-setPassword: function(passwd) {
+sendPassword: function(passwd) {
     RFB.password = passwd;
     RFB.state = "Authentication";
     setTimeout(RFB.init_msg, 1);
+},
+
+sendCtrlAltDel: function() {
+    if (RFB.state !== "normal") { return false; }
+    console.log("Sending Ctrl-Alt-Del");
+    var arr = [];
+    arr = arr.concat(RFB.keyEvent(0xFFE3, 1)); // Control
+    arr = arr.concat(RFB.keyEvent(0xFFE9, 1)); // Alt
+    arr = arr.concat(RFB.keyEvent(0xFFFF, 1)); // Delete
+    arr = arr.concat(RFB.keyEvent(0xFFFF, 0)); // Delete
+    arr = arr.concat(RFB.keyEvent(0xFFE9, 0)); // Alt
+    arr = arr.concat(RFB.keyEvent(0xFFE3, 0)); // Control
+    arr = arr.concat(RFB.fbUpdateRequest(1));
+    RFB.send_array(arr);
+},
+
+sendCtrlC: function() {
+    if (RFB.state !== "normal") { return false; }
+    console.log("Sending Ctrl-C");
+   var arr = [];
+    arr = arr.concat(RFB.keyEvent(0xFFE3, 1)); // Control
+    arr = arr.concat(RFB.keyEvent(67, 1));     // C
+    arr = arr.concat(RFB.keyEvent(67, 0));     // C
+    arr = arr.concat(RFB.keyEvent(0xFFE3, 0)); // Control
+    arr = arr.concat(RFB.fbUpdateRequest(1));
+    RFB.send_array(arr);
 },
 
 load: function () {

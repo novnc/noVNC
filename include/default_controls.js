@@ -6,20 +6,20 @@
  * See README.md for usage and integration instructions.
  */
 "use strict";
+/*global console, $, RFB, Canvas, VNC_uri_prefix, Element, Fx */
 
 // Load mootools
 (function () {
-    var prefix = (typeof VNC_uri_prefix !== "undefined") ?
+    var pre = (typeof VNC_uri_prefix !== "undefined") ?
                            VNC_uri_prefix : "include/";
-    document.write("<script src='" + prefix +
-                   "mootools.js'><\/script>");
+    document.write("<script src='" + pre + "mootools.js'><\/script>");
 }());
 
 
-DefaultControls = {
+var DefaultControls = {
 
 load: function(target) {
-    var url;
+    var url, html;
 
     /* Handle state updates */
     RFB.setUpdateState(DefaultControls.updateState);
@@ -44,7 +44,14 @@ load: function(target) {
     html += '  </ul>';
     html += '</div>';
     html += '<div id="VNC_screen">';
-    html += '  <div id="VNC_status">Loading</div>';
+    html += '  <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">';
+    html += '    <table border=0 width=100%><tr>';
+    html += '      <td><div id="VNC_status">Loading</div></td>';
+    html += '      <td width=10%><div id="VNC_buttons">';
+    html += '        <input type=button value="Send CtrlAltDel"';
+    html += '          onclick="DefaultControls.sendCtrlAltDel();"></div></td>';
+    html += '    </tr></table>';
+    html += '  </div>';
     html += '  <canvas id="VNC_canvas" width="640px" height="20px">';
     html += '      Canvas not supported.';
     html += '  </canvas>';
@@ -82,9 +89,14 @@ load: function(target) {
         };
 },
 
+sendCtrlAltDel: function() {
+    RFB.sendCtrlAltDel();
+},
+
 updateState: function(state, msg) {
     var s, c, klass;
     s = $('VNC_status');
+    sb = $('VNC_status_bar');
     c = $('VNC_connect_button');
     switch (state) {
         case 'failed':
@@ -112,6 +124,7 @@ updateState: function(state, msg) {
 
     if (typeof(msg) !== 'undefined') {
         s.setAttribute("class", klass);
+        sb.setAttribute("class", klass);
         s.innerHTML = msg;
     }
 
@@ -125,8 +138,7 @@ connect: function() {
     encrypt = $('VNC_encrypt').checked;
     true_color = $('VNC_true_color').checked;
     if ((!host) || (!port)) {
-        alert("Must set host and port");
-        return;
+        throw("Must set host and port");
     }
 
     RFB.connect(host, port, password, encrypt, true_color);
@@ -162,4 +174,4 @@ clipSend: function() {
     console.log("<< DefaultControls.clipSend");
 }
 
-}
+};

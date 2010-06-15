@@ -45,11 +45,29 @@ body {
     width: 100px;
 }
 
-#VNC_status {
-  padding: 1em;
-  font-weight: bold;
-  text-align: center;
+#VNC_status_bar td {
+    padding: 0px;
+    margin: 0px;
 }
+#VNC_status_bar div {
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0px;
+    padding: 1em;
+}
+#VNC_status_bar input {
+    font-size: 10px;
+    margin: 0px;
+    padding: 0px;
+}
+#VNC_status {
+    text-align: center;
+}
+#VNC_buttons {
+    text-align: right;
+}
+
 .VNC_status_normal {
   color: #fff;
 }

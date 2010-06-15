@@ -10,9 +10,16 @@ Connect parameters are provided in query string:
         <link rel="stylesheet" href="include/plain.css">
     </head>
 
-    <body>
+    <body style="margin: 0px;">
         <div id="VNC_screen">
-            <div id="VNC_status" style="margin-top: 0px;">Loading</div>
+            <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">
+                <table border=0 width=100%><tr>
+                    <td><div id="VNC_status">Loading</div></td>
+                    <td width=10%><div id="VNC_buttons">
+                        <input type=button value="Send CtrlAltDel"
+                            onclick="sendCtrlAltDel();"></div></td>
+                </tr></table>
+            </div>
             <canvas id="VNC_canvas" width="640px" height="20px">
                 Canvas not supported.
             </canvas>
@@ -22,12 +29,16 @@ Connect parameters are provided in query string:
     <script src="include/vnc.js"></script>
     <script>
         function setPassword() {
-            RFB.setPassword($('password_input').value);
+            RFB.sendPassword($('password_input').value);
             return false;
         }
+        function sendCtrlAltDel() {
+            RFB.sendCtrlAltDel();
+        }
         function updateState(state, msg) {
-            var s, klass, html;
+            var s, sb, klass, html;
             s = $('VNC_status');
+            sb = $('VNC_status_bar');
             switch (state) {
                 case 'failed':       klass = "VNC_status_error"; break;
                 case 'normal':       klass = "VNC_status_normal"; break;
@@ -36,14 +47,14 @@ Connect parameters are provided in query string:
             }
 
             if (typeof(msg) !== 'undefined') {
-                s.setAttribute("class", klass);
+                sb.setAttribute("class", klass);
                 s.innerHTML = msg;
             }
             if (state === 'password') {
                 html  = '<form onsubmit="return setPassword();"';
                 html += '  style="margin-bottom: 0px">';
                 html += 'Password Required: ';
-                html += '<input type=password size=10 id="password_input">';
+                html += '<input type=password size=10 id="password_input" class="VNC_status">';
                 html += '</form>';
                 s.innerHTML = html;
             }
