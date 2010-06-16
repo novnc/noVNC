@@ -193,7 +193,6 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
 void proxy_handler(ws_ctx_t *ws_ctx) {
     int tsock = 0;
     struct sockaddr_in taddr;
-    struct hostent *thost;
 
     printf("Connecting to: %s:%d\n", target_host, target_port);
 
@@ -202,18 +201,14 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
         error("Could not create target socket");
         return;
     }
-    thost = gethostbyname(target_host);
-    if (thost == NULL) {
-        error("Could not resolve server");
-        close(tsock);
-        return;
-    }
     bzero((char *) &taddr, sizeof(taddr));
     taddr.sin_family = AF_INET;
-    bcopy((char *) thost->h_addr,
-          (char *) &taddr.sin_addr.s_addr,
-          thost->h_length);
     taddr.sin_port = htons(target_port);
+
+    /* Resolve target address */
+    if (resolve_host(&taddr.sin_addr, target_host) < -1) {
+        fatal("Could not resolve target address");
+    }
 
     if (connect(tsock, (struct sockaddr *) &taddr, sizeof(taddr)) < 0) {
         error("Could not connect to target");

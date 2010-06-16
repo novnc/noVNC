@@ -12,8 +12,8 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <resolv.h>      /* base64 encode/decode */
@@ -54,6 +54,30 @@ void fatal(char *msg)
     perror(msg);
     exit(1);
 }
+
+/* resolve host with also IP address parsing */ 
+int resolve_host(struct in_addr *sin_addr, const char *hostname) 
+{ 
+    if (!inet_aton(hostname, sin_addr)) { 
+        struct addrinfo *ai, *cur; 
+        struct addrinfo hints; 
+        memset(&hints, 0, sizeof(hints)); 
+        hints.ai_family = AF_INET; 
+        if (getaddrinfo(hostname, NULL, &hints, &ai)) 
+            return -1; 
+        for (cur = ai; cur; cur = cur->ai_next) { 
+            if (cur->ai_family == AF_INET) { 
+                *sin_addr = ((struct sockaddr_in *)cur->ai_addr)->sin_addr; 
+                freeaddrinfo(ai); 
+                return 0; 
+            } 
+        } 
+        freeaddrinfo(ai); 
+        return -1; 
+    } 
+    return 0; 
+} 
+
 
 /*
  * SSL Wrapper Code
@@ -331,7 +355,6 @@ void start_server(int listen_port,
                   char *listen_host) {
     int lsock, csock, clilen, sopt = 1, i;
     struct sockaddr_in serv_addr, cli_addr;
-    struct hostent *lhost;
     ws_ctx_t *ws_ctx;
 
     /* Initialize buffers */
@@ -355,15 +378,8 @@ void start_server(int listen_port,
     if ((listen_host == NULL) || (listen_host[0] == '\0')) {
         serv_addr.sin_addr.s_addr = INADDR_ANY;
     } else {
-        lhost = gethostbyname(listen_host);
-        if (lhost == NULL) {
-            fatal("Could not resolve self address");
-        }
-        bcopy((char *) lhost->h_addr,
-            (char *) &serv_addr.sin_addr.s_addr,
-            lhost->h_length);
-        for (i=0; i < strlen(lhost->h_addr); i++) {
-            printf("%d: %d\n", i, lhost->h_addr[i]);
+        if (resolve_host(&serv_addr.sin_addr, listen_host) < -1) {
+            fatal("Could not resolve listen address");
         }
     }
 
