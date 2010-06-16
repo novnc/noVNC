@@ -269,7 +269,7 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     return retlen;
 }
 
-ws_ctx_t *do_handshake(int sock) {
+ws_ctx_t *do_handshake(int sock, int ssl_only) {
     char handshake[4096], response[4096];
     char *scheme, *line, *path, *host, *origin;
     char *args_start, *args_end, *arg_idx;
@@ -296,6 +296,10 @@ ws_ctx_t *do_handshake(int sock) {
         if (! ws_ctx) { return NULL; }
         scheme = "wss";
         printf("Using SSL socket\n");
+    } else if (ssl_only) {
+        printf("Non-SSL connection disallowed");
+        close(sock);
+        return NULL;
     } else {
         ws_ctx = ws_socket(sock);
         if (! ws_ctx) { return NULL; }
@@ -352,7 +356,8 @@ ws_ctx_t *do_handshake(int sock) {
 
 void start_server(int listen_port,
                   void (*handler)(ws_ctx_t*),
-                  char *listen_host) {
+                  char *listen_host,
+                  int ssl_only) {
     int lsock, csock, clilen, sopt = 1, i;
     struct sockaddr_in serv_addr, cli_addr;
     ws_ctx_t *ws_ctx;
@@ -401,9 +406,10 @@ void start_server(int listen_port,
                        &clilen);
         if (csock < 0) {
             error("ERROR on accept");
+            continue;
         }
         printf("Got client connection from %s\n", inet_ntoa(cli_addr.sin_addr));
-        ws_ctx = do_handshake(csock);
+        ws_ctx = do_handshake(csock, ssl_only);
         if (ws_ctx == NULL) {
             close(csock);
             continue;

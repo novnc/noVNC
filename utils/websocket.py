@@ -59,7 +59,7 @@ def encode(buf):
         return "\x00%s\xff" % buf
 
 
-def do_handshake(sock):
+def do_handshake(sock, ssl_only=False):
     global client_settings, send_seq
     send_seq = 0
     # Peek, but don't read the data
@@ -79,6 +79,10 @@ def do_handshake(sock):
                 ssl_version=ssl.PROTOCOL_TLSv1)
         scheme = "wss"
         print "Using SSL/TLS"
+    elif ssl_only:
+        print "Non-SSL connection disallowed"
+        sock.close()
+        return False
     else:
         retsock = sock
         scheme = "ws"
@@ -101,7 +105,7 @@ def do_handshake(sock):
     retsock.send(server_handshake % (origin, scheme, host, path))
     return retsock
 
-def start_server(listen_port, handler, listen_host=''):
+def start_server(listen_port, handler, listen_host='', ssl_only=False):
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     lsock.bind((listen_host, listen_port))
@@ -112,7 +116,7 @@ def start_server(listen_port, handler, listen_host=''):
             print 'waiting for connection on port %s' % listen_port
             startsock, address = lsock.accept()
             print 'Got client connection from %s' % address[0]
-            csock = do_handshake(startsock)
+            csock = do_handshake(startsock, ssl_only=ssl_only)
             if not csock: continue
 
             handler(csock)

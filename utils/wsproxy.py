@@ -120,8 +120,10 @@ if __name__ == '__main__':
     usage = "%prog [--record FILE]"
     usage += " [source_addr:]source_port target_addr:target_port"
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option("--record", dest="record",
+    parser.add_option("--record",
             help="record session to a file", metavar="FILE")
+    parser.add_option("--ssl-only", action="store_true",
+            help="disallow non-encrypted connections")
     (options, args) = parser.parse_args()
 
     if len(args) > 2: parser.error("Too many arguments")
@@ -140,4 +142,5 @@ if __name__ == '__main__':
     try:    target_port = int(target_port)
     except: parser.error("Error parsing target port")
 
-    start_server(listen_port, proxy_handler, listen_host=listen_host)
+    start_server(listen_port, proxy_handler, listen_host=listen_host,
+            ssl_only=options.ssl_only)

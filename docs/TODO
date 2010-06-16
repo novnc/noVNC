@@ -1,7 +1,5 @@
 Medium Term:
 
-- Option to force SSL in proxy.
-
 - Implement Cursor pseudo-encoding (CSS cursor)
     http://en.wikipedia.org/wiki/ICO_(file_format)
     https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property

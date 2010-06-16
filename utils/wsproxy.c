@@ -7,6 +7,7 @@
  */
 #include <stdio.h>
 #include <errno.h>
+#include <getopt.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -27,8 +28,11 @@ Traffic Legend:\n\
     <. - Client send partial\n\
 ";
 
+char USAGE[] = "Usage: [--record FILE] [--ssl-only] " \
+               "[source_addr:]source_port target_addr:target_port";
+
 void usage() {
-    fprintf(stderr,"Usage: [--record FILE] [source_addr:]source_port target_addr:target_port\n");
+    fprintf(stderr, "%s\n", USAGE);
     exit(1);
 }
 
@@ -234,36 +238,52 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 
 int main(int argc, char *argv[])
 {
-    int listen_port, idx = 1;
+    int listen_port, c, option_index = 0;
+    static int ssl_only = 0;
     char *listen_host;
+    static struct option long_options[] = {
+        {"ssl-only", no_argument, &ssl_only, 1},
+        /* ---- */
+        {"record",   required_argument, 0, 'r'},
+        {0, 0, 0, 0}
+    };
 
-    if (argc < 2) {
+    while (1) {
+        c = getopt_long (argc, argv, "r:",
+                         long_options, &option_index);
+
+        /* Detect the end */
+        if (c == -1) { break; }
+
+        switch (c) {
+            case 0:    break; // ignore
+            case 1:    break; // ignore
+            case 'r':  record_filename = optarg; break;
+            default:   usage();
+        }
+    }
+
+    printf("ssl_only: %d\n", ssl_only);
+    printf("record_filename: %s\n", record_filename);
+
+    if ((argc-optind) != 2) {
         usage();
     }
 
-    if (strncmp(argv[idx], "--record", 8) == 0) {
-        idx++;
-        record_filename = argv[idx++];
-    }
-
-    if ((argc-idx) != 2) {
-        usage();
-    }
-
-    if (strstr(argv[idx], ":")) {
-        listen_host = strtok(argv[idx], ":");
+    if (strstr(argv[optind], ":")) {
+        listen_host = strtok(argv[optind], ":");
         listen_port = strtol(strtok(NULL, ":"), NULL, 10);
     } else {
         listen_host = NULL;
-        listen_port = strtol(argv[idx], NULL, 10);
+        listen_port = strtol(argv[optind], NULL, 10);
     }
-    idx++;
+    optind++;
     if ((errno != 0) || (listen_port == 0)) {
         usage();
     }
 
-    if (strstr(argv[idx], ":")) {
-        target_host = strtok(argv[idx], ":");
+    if (strstr(argv[optind], ":")) {
+        target_host = strtok(argv[optind], ":");
         target_port = strtol(strtok(NULL, ":"), NULL, 10);
     } else {
         usage();
@@ -283,7 +303,7 @@ int main(int argc, char *argv[])
     if (! (cbuf_tmp = malloc(bufsize)) )
             { fatal("malloc()"); }
 
-    start_server(listen_port, &proxy_handler, listen_host);
+    start_server(listen_port, &proxy_handler, listen_host, ssl_only);
 
     free(tbuf);
     free(cbuf);
