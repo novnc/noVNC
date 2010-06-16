@@ -114,18 +114,6 @@ sendCtrlAltDel: function() {
     RFB.send_array(arr);
 },
 
-sendCtrlC: function() {
-    if (RFB.state !== "normal") { return false; }
-    console.log("Sending Ctrl-C");
-   var arr = [];
-    arr = arr.concat(RFB.keyEvent(0xFFE3, 1)); // Control
-    arr = arr.concat(RFB.keyEvent(67, 1));     // C
-    arr = arr.concat(RFB.keyEvent(67, 0));     // C
-    arr = arr.concat(RFB.keyEvent(0xFFE3, 0)); // Control
-    arr = arr.concat(RFB.fbUpdateRequest(1));
-    RFB.send_array(arr);
-},
-
 load: function () {
     var i;
     //console.log(">> load");
