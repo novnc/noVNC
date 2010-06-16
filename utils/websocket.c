@@ -12,6 +12,7 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -326,9 +327,11 @@ ws_ctx_t *do_handshake(int sock) {
 }
 
 void start_server(int listen_port,
-                  void (*handler)(ws_ctx_t*)) {
-    int lsock, csock, clilen, sopt = 1;
+                  void (*handler)(ws_ctx_t*),
+                  char *listen_host) {
+    int lsock, csock, clilen, sopt = 1, i;
     struct sockaddr_in serv_addr, cli_addr;
+    struct hostent *lhost;
     ws_ctx_t *ws_ctx;
 
     /* Initialize buffers */
@@ -346,17 +349,37 @@ void start_server(int listen_port,
     if (lsock < 0) { error("ERROR creating listener socket"); }
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(listen_port);
+
+    /* Resolve listen address */
+    if ((listen_host == NULL) || (listen_host[0] == '\0')) {
+        serv_addr.sin_addr.s_addr = INADDR_ANY;
+    } else {
+        lhost = gethostbyname(listen_host);
+        if (lhost == NULL) {
+            fatal("Could not resolve self address");
+        }
+        bcopy((char *) lhost->h_addr,
+            (char *) &serv_addr.sin_addr.s_addr,
+            lhost->h_length);
+        for (i=0; i < strlen(lhost->h_addr); i++) {
+            printf("%d: %d\n", i, lhost->h_addr[i]);
+        }
+    }
+
     setsockopt(lsock, SOL_SOCKET, SO_REUSEADDR, (char *)&sopt, sizeof(sopt));
     if (bind(lsock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        error("ERROR on binding listener socket");
+        fatal("ERROR on binding listener socket");
     }
     listen(lsock,100);
 
     while (1) {
         clilen = sizeof(cli_addr);
-        printf("waiting for connection on port %d\n", listen_port);
+        if (listen_host) {
+            printf("waiting for connection on %s:%d\n", listen_host, listen_port);
+        } else {
+            printf("waiting for connection on port %d\n", listen_port);
+        }
         csock = accept(lsock, 
                        (struct sockaddr *) &cli_addr, 
                        &clilen);

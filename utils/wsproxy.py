@@ -117,18 +117,27 @@ def proxy_handler(client):
         raise
 
 if __name__ == '__main__':
-    parser = optparse.OptionParser()
+    usage = "%prog [--record FILE]"
+    usage += " [source_addr:]source_port target_addr:target_port"
+    parser = optparse.OptionParser(usage=usage)
     parser.add_option("--record", dest="record",
             help="record session to a file", metavar="FILE")
     (options, args) = parser.parse_args()
 
-    if len(args) > 3: parser.error("Too many arguments")
-    if len(args) < 3: parser.error("Too few arguments")
-    try:    listen_port = int(args[0])
+    if len(args) > 2: parser.error("Too many arguments")
+    if len(args) < 2: parser.error("Too few arguments")
+    if args[0].count(':') > 0:
+        listen_host,listen_port = args[0].split(':')
+    else:
+        listen_host = ''
+        listen_port = args[0]
+    if args[1].count(':') > 0:
+        target_host,target_port = args[1].split(':')
+    else:
+        parser.error("Error parsing target")
+    try:    listen_port = int(listen_port)
     except: parser.error("Error parsing listen port")
-    try:    target_host = args[1]
-    except: parser.error("Error parsing target host")
-    try:    target_port = int(args[2])
+    try:    target_port = int(target_port)
     except: parser.error("Error parsing target port")
 
-    start_server(listen_port, proxy_handler)
+    start_server(listen_port, proxy_handler, listen_host=listen_host)

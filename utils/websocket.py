@@ -101,10 +101,10 @@ def do_handshake(sock):
     retsock.send(server_handshake % (origin, scheme, host, path))
     return retsock
 
-def start_server(listen_port, handler):
+def start_server(listen_port, handler, listen_host=''):
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    lsock.bind(('', listen_port))
+    lsock.bind((listen_host, listen_port))
     lsock.listen(100)
     while True:
         try:

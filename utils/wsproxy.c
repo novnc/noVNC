@@ -28,7 +28,7 @@ Traffic Legend:\n\
 ";
 
 void usage() {
-    fprintf(stderr,"Usage: <listen_port> <target_host> <target_port>\n");
+    fprintf(stderr,"Usage: [--record FILE] [source_addr:]source_port target_addr:target_port\n");
     exit(1);
 }
 
@@ -239,19 +239,43 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 
 int main(int argc, char *argv[])
 {
-    int listen_port, idx=1;
+    int listen_port, idx = 1;
+    char *listen_host;
 
-    if (strcmp(argv[idx], "--record") == 0) {
+    if (argc < 2) {
+        usage();
+    }
+
+    if (strncmp(argv[idx], "--record", 8) == 0) {
         idx++;
         record_filename = argv[idx++];
     }
 
-    if ((argc-idx) != 3) { usage(); }
-    listen_port = strtol(argv[idx++], NULL, 10);
-    if (errno != 0) { usage(); }
-    target_host = argv[idx++];
-    target_port = strtol(argv[idx++], NULL, 10);
-    if (errno != 0) { usage(); }
+    if ((argc-idx) != 2) {
+        usage();
+    }
+
+    if (strstr(argv[idx], ":")) {
+        listen_host = strtok(argv[idx], ":");
+        listen_port = strtol(strtok(NULL, ":"), NULL, 10);
+    } else {
+        listen_host = NULL;
+        listen_port = strtol(argv[idx], NULL, 10);
+    }
+    idx++;
+    if ((errno != 0) || (listen_port == 0)) {
+        usage();
+    }
+
+    if (strstr(argv[idx], ":")) {
+        target_host = strtok(argv[idx], ":");
+        target_port = strtol(strtok(NULL, ":"), NULL, 10);
+    } else {
+        usage();
+    }
+    if ((errno != 0) || (target_port == 0)) {
+        usage();
+    }
 
     /* Initialize buffers */
     bufsize = 65536;
@@ -264,7 +288,7 @@ int main(int argc, char *argv[])
     if (! (cbuf_tmp = malloc(bufsize)) )
             { fatal("malloc()"); }
 
-    start_server(listen_port, &proxy_handler);
+    start_server(listen_port, &proxy_handler, listen_host);
 
     free(tbuf);
     free(cbuf);
