@@ -1,5 +1,10 @@
 Medium Term:
 
+- IE support using excanvas: http://excanvas.sourceforge.net/
+
+- Timing delta between frames in proxy record log, for playback
+  support (for demo and test).
+
 - Implement Cursor pseudo-encoding (CSS cursor)
     http://en.wikipedia.org/wiki/ICO_(file_format)
     https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
