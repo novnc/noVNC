@@ -29,8 +29,12 @@ Traffic Legend:\n\
     <. - Client send partial\n\
 ";
 
-char USAGE[] = "Usage: [--record FILE] [--ssl-only] " \
-               "[source_addr:]source_port target_addr:target_port";
+char USAGE[] = "Usage: [options] " \
+               "[source_addr:]source_port target_addr:target_port\n\n" \
+               "  --record REC       record traffic to REC\n" \
+               "  --cert CERT        load CERT as SSL certificate\n" \
+               "  --foreground|-f    run in the foreground\n" \
+               "  --ssl-only         disallow non-SSL connections";
 
 #define usage(fmt, args...) \
     fprintf(stderr, "%s\n\n", USAGE); \
@@ -284,7 +288,7 @@ int main(int argc, char *argv[])
                 }
                 break;
             default:
-                usage("Invalid option %c\n", c);
+                usage("");
         }
     }
     settings.ssl_only  = ssl_only;

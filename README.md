@@ -60,9 +60,9 @@ Usage
 
 * run the python proxy:
 
-    `./utils/wsproxy.py source_port target_addr:target_port
+    `./utils/wsproxy.py -f source_port target_addr:target_port
 
-    `./utils/wsproxy.py 8787 localhost:5901`
+    `./utils/wsproxy.py -f 8787 localhost:5901`
 
 
 * run the mini python web server to serve the directory:
