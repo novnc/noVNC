@@ -36,11 +36,11 @@ void usage() {
     exit(1);
 }
 
-char *target_host;
+char target_host[256];
 int target_port;
-char *record_filename = NULL;
 int recordfd = 0;
 
+extern settings_t settings;
 extern char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
 extern unsigned int bufsize, dbufsize;
 
@@ -198,6 +198,11 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
     int tsock = 0;
     struct sockaddr_in taddr;
 
+    if (settings.record) {
+        recordfd = open(settings.record, O_WRONLY | O_CREAT | O_TRUNC,
+                        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    }
+
     printf("Connecting to: %s:%d\n", target_host, target_port);
 
     tsock = socket(AF_INET, SOCK_STREAM, 0);
@@ -220,11 +225,6 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
         return;
     }
 
-    if (record_filename) {
-        recordfd = open(record_filename, O_WRONLY | O_CREAT | O_TRUNC,
-                        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    }
-
     printf("%s", traffic_legend);
 
     do_proxy(ws_ctx, tsock);
@@ -239,52 +239,74 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 int main(int argc, char *argv[])
 {
     int listen_port, c, option_index = 0;
-    static int ssl_only = 0;
-    char *listen_host;
+    static int ssl_only = 0, foreground = 0;
+    char *found;
     static struct option long_options[] = {
-        {"ssl-only", no_argument, &ssl_only, 1},
+        {"ssl-only",   no_argument,       &ssl_only,    1 },
+        {"foreground", no_argument,       &foreground, 'f'},
         /* ---- */
-        {"record",   required_argument, 0, 'r'},
+        {"record",     required_argument, 0,           'r'},
+        {"cert",       required_argument, 0,           'c'},
         {0, 0, 0, 0}
     };
 
+    settings.record[0] = '\0';
+    strcpy(settings.cert, "self.pem");
+
     while (1) {
-        c = getopt_long (argc, argv, "r:",
+        c = getopt_long (argc, argv, "fr:c:",
                          long_options, &option_index);
 
         /* Detect the end */
         if (c == -1) { break; }
 
         switch (c) {
-            case 0:    break; // ignore
-            case 1:    break; // ignore
-            case 'r':  record_filename = optarg; break;
-            default:   usage();
+            case 0:
+                break; // ignore
+            case 1:
+                break; // ignore
+            case 'f':
+                foreground = 1;
+                break;
+            case 'r':
+                memcpy(settings.record, optarg, sizeof(settings.record));
+                break;
+            case 'c':
+                memcpy(settings.cert, optarg, sizeof(settings.cert));
+                break;
+            default:
+                usage();
         }
     }
+    settings.ssl_only  = ssl_only;
+    settings.daemon    = foreground ? 0: 1;
 
-    printf("ssl_only: %d\n", ssl_only);
-    printf("record_filename: %s\n", record_filename);
+    printf("  ssl_only: %d\n", settings.ssl_only);
+    printf("  daemon: %d\n",   settings.daemon);
+    printf("  record: %s\n",   settings.record);
+    printf("  cert: %s\n",     settings.cert);
 
     if ((argc-optind) != 2) {
         usage();
     }
 
-    if (strstr(argv[optind], ":")) {
-        listen_host = strtok(argv[optind], ":");
-        listen_port = strtol(strtok(NULL, ":"), NULL, 10);
+    found = strstr(argv[optind], ":");
+    if (found) {
+        memcpy(settings.listen_host, argv[optind], found-argv[optind]);
+        settings.listen_port = strtol(found+1, NULL, 10);
     } else {
-        listen_host = NULL;
-        listen_port = strtol(argv[optind], NULL, 10);
+        settings.listen_host[0] = '\0';
+        settings.listen_port = strtol(argv[optind], NULL, 10);
     }
     optind++;
     if ((errno != 0) || (listen_port == 0)) {
         usage();
     }
 
-    if (strstr(argv[optind], ":")) {
-        target_host = strtok(argv[optind], ":");
-        target_port = strtol(strtok(NULL, ":"), NULL, 10);
+    found = strstr(argv[optind], ":");
+    if (found) {
+        memcpy(target_host, argv[optind], found-argv[optind]);
+        target_port = strtol(found+1, NULL, 10);
     } else {
         usage();
     }
@@ -303,7 +325,8 @@ int main(int argc, char *argv[])
     if (! (cbuf_tmp = malloc(bufsize)) )
             { fatal("malloc()"); }
 
-    start_server(listen_port, &proxy_handler, listen_host, ssl_only);
+    settings.handler = proxy_handler; 
+    start_server();
 
     free(tbuf);
     free(cbuf);

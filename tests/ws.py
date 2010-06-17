@@ -159,4 +159,7 @@ if __name__ == '__main__':
     for i in range(0, 100000):
         rand_array.append(random.randint(0, 9))
 
-    start_server(listen_port, test_handler)
+    settings['listen_port'] = listen_port
+    settings['daemon'] = False
+    settings['handler'] = test_handler
+    start_server()

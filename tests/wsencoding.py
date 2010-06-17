@@ -81,4 +81,7 @@ if __name__ == '__main__':
         print "Usage: <listen_port>"
         sys.exit(1)
 
-    start_server(listen_port, responder)
+    settings['listen_port'] = listen_port
+    settings['daemon'] = False
+    settings['handler'] = responder
+    start_server()

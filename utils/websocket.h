@@ -1,10 +1,21 @@
 #include <openssl/ssl.h>
+#include <unistd.h>
 
 typedef struct {
     int      sockfd;
     SSL_CTX *ssl_ctx;
     SSL     *ssl;
 } ws_ctx_t;
+
+typedef struct {
+    char listen_host[256];
+    int listen_port;
+    void (*handler)(ws_ctx_t*);
+    int ssl_only;
+    int daemon;
+    char record[1024];
+    char cert[1024];
+} settings_t;
 
 typedef struct {
     int do_b64encode;

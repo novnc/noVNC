@@ -99,13 +99,13 @@ def do_proxy(client, target):
 def proxy_handler(client):
     global target_host, target_port, options, rec
 
+    if settings['record']:
+        print "Opening record file: %s" % settings['record']
+        rec = open(settings['record'], 'w')
+
     print "Connecting to: %s:%s" % (target_host, target_port)
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tsock.connect((target_host, target_port))
-
-    if options.record:
-        print "Opening record file: %s" % options.record
-        rec = open(options.record, 'w')
 
     print traffic_legend
 
@@ -122,25 +122,35 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("--record",
             help="record session to a file", metavar="FILE")
+    parser.add_option("--foreground", "-f",
+            dest="daemon", default=True, action="store_false",
+            help="stay in foreground, do not daemonize")
     parser.add_option("--ssl-only", action="store_true",
             help="disallow non-encrypted connections")
+    parser.add_option("--cert", default="self.pem",
+            help="SSL certificate")
     (options, args) = parser.parse_args()
 
     if len(args) > 2: parser.error("Too many arguments")
     if len(args) < 2: parser.error("Too few arguments")
     if args[0].count(':') > 0:
-        listen_host,listen_port = args[0].split(':')
+        host,port = args[0].split(':')
     else:
-        listen_host = ''
-        listen_port = args[0]
+        host,port = '',args[0]
     if args[1].count(':') > 0:
         target_host,target_port = args[1].split(':')
     else:
         parser.error("Error parsing target")
-    try:    listen_port = int(listen_port)
+    try:    port = int(port)
     except: parser.error("Error parsing listen port")
     try:    target_port = int(target_port)
     except: parser.error("Error parsing target port")
 
-    start_server(listen_port, proxy_handler, listen_host=listen_host,
-            ssl_only=options.ssl_only)
+    settings['listen_host'] = host
+    settings['listen_port'] = port
+    settings['handler'] = proxy_handler
+    settings['cert'] = os.path.abspath(options.cert)
+    settings['ssl_only'] = options.ssl_only
+    settings['daemon'] = options.daemon
+    settings['record'] = os.path.abspath(options.record)
+    start_server()

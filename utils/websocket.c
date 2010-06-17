@@ -14,6 +14,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <signal.h> // daemonizing
+#include <fcntl.h>  // daemonizing
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <resolv.h>      /* base64 encode/decode */
@@ -37,6 +39,7 @@ const char policy_response[] = "<cross-domain-policy><allow-access-from domain=\
 int ssl_initialized = 0;
 char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
 unsigned int bufsize, dbufsize;
+settings_t settings;
 client_settings_t client_settings;
 
 void traffic(char * token) {
@@ -269,7 +272,7 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     return retlen;
 }
 
-ws_ctx_t *do_handshake(int sock, int ssl_only) {
+ws_ctx_t *do_handshake(int sock) {
     char handshake[4096], response[4096];
     char *scheme, *line, *path, *host, *origin;
     char *args_start, *args_end, *arg_idx;
@@ -281,6 +284,7 @@ ws_ctx_t *do_handshake(int sock, int ssl_only) {
     client_settings.do_seq_num = 0;
     client_settings.seq_num = 0;
 
+    // Peek, but don't read the data
     len = recv(sock, handshake, 1024, MSG_PEEK);
     handshake[len] = 0;
     if (bcmp(handshake, "<policy-file-request/>", 22) == 0) {
@@ -292,11 +296,11 @@ ws_ctx_t *do_handshake(int sock, int ssl_only) {
         return NULL;
     } else if (bcmp(handshake, "\x16", 1) == 0) {
         // SSL
-        ws_ctx = ws_socket_ssl(sock, "self.pem");
+        ws_ctx = ws_socket_ssl(sock, settings.cert);
         if (! ws_ctx) { return NULL; }
         scheme = "wss";
-        printf("Using SSL socket\n");
-    } else if (ssl_only) {
+        printf("  using SSL socket\n");
+    } else if (settings.ssl_only) {
         printf("Non-SSL connection disallowed");
         close(sock);
         return NULL;
@@ -304,7 +308,7 @@ ws_ctx_t *do_handshake(int sock, int ssl_only) {
         ws_ctx = ws_socket(sock);
         if (! ws_ctx) { return NULL; }
         scheme = "ws";
-        printf("Using plain (not SSL) socket\n");
+        printf("  using plain (not SSL) socket\n");
     }
     len = ws_recv(ws_ctx, handshake, 4096);
     handshake[len] = 0;
@@ -327,7 +331,7 @@ ws_ctx_t *do_handshake(int sock, int ssl_only) {
     //printf("host: %s\n", host);
     //printf("origin: %s\n", origin);
     
-    // TODO: parse out client settings
+    // Parse client settings from the GET path
     args_start = strstr(path, "?");
     if (args_start) {
         if (strstr(args_start, "#")) {
@@ -337,30 +341,69 @@ ws_ctx_t *do_handshake(int sock, int ssl_only) {
         }
         arg_idx = strstr(args_start, "b64encode");
         if (arg_idx && arg_idx < args_end) {
-            //printf("setting b64encode\n");
+            printf("  b64encode=1\n");
             client_settings.do_b64encode = 1;
         }
         arg_idx = strstr(args_start, "seq_num");
         if (arg_idx && arg_idx < args_end) {
-            //printf("setting seq_num\n");
+            printf("  seq_num=1\n");
             client_settings.do_seq_num = 1;
         }
     }
 
     sprintf(response, server_handshake, origin, scheme, host, path);
-    printf("response: %s\n", response);
+    //printf("response: %s\n", response);
     ws_send(ws_ctx, response, strlen(response));
 
     return ws_ctx;
 }
 
-void start_server(int listen_port,
-                  void (*handler)(ws_ctx_t*),
-                  char *listen_host,
-                  int ssl_only) {
+void signal_handler(sig) {
+    switch (sig) {
+        case SIGHUP: break; // ignore
+        case SIGTERM: exit(0); break;
+    }
+}
+
+void daemonize() {
+    int pid, i;
+
+    umask(0);
+    chdir('/');
+    setgid(getgid());
+    setuid(getuid());
+
+    /* Double fork to daemonize */
+    pid = fork();
+    if (pid<0) { fatal("fork error"); }
+    if (pid>0) { exit(0); }  // parent exits
+    setsid();                // Obtain new process group
+    pid = fork();
+    if (pid<0) { fatal("fork error"); }
+    if (pid>0) { exit(0); }  // parent exits
+
+    /* Signal handling */
+    signal(SIGHUP, signal_handler);   // catch HUP
+    signal(SIGTERM, signal_handler);  // catch kill
+
+    /* Close open files */
+    for (i=getdtablesize(); i>=0; --i) {
+        close(i);
+    }
+    i=open("/dev/null", O_RDWR);  // Redirect stdin
+    dup(i);                       // Redirect stdout
+    dup(i);                       // Redirect stderr
+}
+
+
+void start_server() {
     int lsock, csock, clilen, sopt = 1, i;
     struct sockaddr_in serv_addr, cli_addr;
     ws_ctx_t *ws_ctx;
+
+    if (settings.daemon) {
+        daemonize();
+    }
 
     /* Initialize buffers */
     bufsize = 65536;
@@ -377,15 +420,15 @@ void start_server(int listen_port,
     if (lsock < 0) { error("ERROR creating listener socket"); }
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(listen_port);
+    serv_addr.sin_port = htons(settings.listen_port);
 
     /* Resolve listen address */
-    if ((listen_host == NULL) || (listen_host[0] == '\0')) {
-        serv_addr.sin_addr.s_addr = INADDR_ANY;
-    } else {
-        if (resolve_host(&serv_addr.sin_addr, listen_host) < -1) {
+    if (settings.listen_host && (settings.listen_host[0] != '\0')) {
+        if (resolve_host(&serv_addr.sin_addr, settings.listen_host) < -1) {
             fatal("Could not resolve listen address");
         }
+    } else {
+        serv_addr.sin_addr.s_addr = INADDR_ANY;
     }
 
     setsockopt(lsock, SOL_SOCKET, SO_REUSEADDR, (char *)&sopt, sizeof(sopt));
@@ -396,10 +439,12 @@ void start_server(int listen_port,
 
     while (1) {
         clilen = sizeof(cli_addr);
-        if (listen_host) {
-            printf("waiting for connection on %s:%d\n", listen_host, listen_port);
+        if (settings.listen_host && settings.listen_host[0] != '\0') {
+            printf("waiting for connection on %s:%d\n",
+                   settings.listen_host, settings.listen_port);
         } else {
-            printf("waiting for connection on port %d\n", listen_port);
+            printf("waiting for connection on port %d\n",
+                   settings.listen_port);
         }
         csock = accept(lsock, 
                        (struct sockaddr *) &cli_addr, 
@@ -409,7 +454,7 @@ void start_server(int listen_port,
             continue;
         }
         printf("Got client connection from %s\n", inet_ntoa(cli_addr.sin_addr));
-        ws_ctx = do_handshake(csock, ssl_only);
+        ws_ctx = do_handshake(csock);
         if (ws_ctx == NULL) {
             close(csock);
             continue;
@@ -425,7 +470,7 @@ void start_server(int listen_port,
             dbufsize = (bufsize/2) - 20;
         }
 
-        handler(ws_ctx);
+        settings.handler(ws_ctx);
         close(csock);
     }
 
