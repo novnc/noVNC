@@ -101,7 +101,7 @@ def proxy_handler(client):
 
     if settings['record']:
         print "Opening record file: %s" % settings['record']
-        rec = open(settings['record'], 'w')
+        rec = open(settings['record'], 'a')
 
     print "Connecting to: %s:%s" % (target_host, target_port)
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -152,5 +152,6 @@ if __name__ == '__main__':
     settings['cert'] = os.path.abspath(options.cert)
     settings['ssl_only'] = options.ssl_only
     settings['daemon'] = options.daemon
-    settings['record'] = os.path.abspath(options.record)
+    if options.record:
+        settings['record'] = os.path.abspath(options.record)
     start_server()

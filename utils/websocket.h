@@ -1,5 +1,4 @@
 #include <openssl/ssl.h>
-#include <unistd.h>
 
 typedef struct {
     int      sockfd;
@@ -13,8 +12,8 @@ typedef struct {
     void (*handler)(ws_ctx_t*);
     int ssl_only;
     int daemon;
-    char record[1024];
-    char cert[1024];
+    char *record;
+    char *cert;
 } settings_t;
 
 typedef struct {

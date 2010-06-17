@@ -7,6 +7,7 @@
  */
 #include <stdio.h>
 #include <errno.h>
+#include <limits.h>
 #include <getopt.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -198,8 +199,8 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
     int tsock = 0;
     struct sockaddr_in taddr;
 
-    if (settings.record) {
-        recordfd = open(settings.record, O_WRONLY | O_CREAT | O_TRUNC,
+    if (settings.record && settings.record[0] != '\0') {
+        recordfd = open(settings.record, O_WRONLY | O_CREAT | O_APPEND,
                         S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     }
 
@@ -238,7 +239,7 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 
 int main(int argc, char *argv[])
 {
-    int listen_port, c, option_index = 0;
+    int listen_port, fd, c, option_index = 0;
     static int ssl_only = 0, foreground = 0;
     char *found;
     static struct option long_options[] = {
@@ -250,8 +251,8 @@ int main(int argc, char *argv[])
         {0, 0, 0, 0}
     };
 
-    settings.record[0] = '\0';
-    strcpy(settings.cert, "self.pem");
+    settings.record = NULL;
+    settings.cert = realpath("self.pem", NULL);
 
     while (1) {
         c = getopt_long (argc, argv, "fr:c:",
@@ -269,10 +270,18 @@ int main(int argc, char *argv[])
                 foreground = 1;
                 break;
             case 'r':
-                memcpy(settings.record, optarg, sizeof(settings.record));
+                if ((fd = open(optarg, O_CREAT,
+                               S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < -1) {
+                    fatal("Could not access %s\n", optarg);
+                }
+                close(fd);
+                settings.record = realpath(optarg, NULL);
                 break;
             case 'c':
-                memcpy(settings.cert, optarg, sizeof(settings.cert));
+                settings.cert = realpath(optarg, NULL);
+                if (! settings.cert) {
+                    fatal("No cert file at %s\n", optarg);
+                }
                 break;
             default:
                 usage();
@@ -313,17 +322,6 @@ int main(int argc, char *argv[])
     if ((errno != 0) || (target_port == 0)) {
         usage();
     }
-
-    /* Initialize buffers */
-    bufsize = 65536;
-    if (! (tbuf = malloc(bufsize)) )
-            { fatal("malloc()"); }
-    if (! (cbuf = malloc(bufsize)) )
-            { fatal("malloc()"); }
-    if (! (tbuf_tmp = malloc(bufsize)) )
-            { fatal("malloc()"); }
-    if (! (cbuf_tmp = malloc(bufsize)) )
-            { fatal("malloc()"); }
 
     settings.handler = proxy_handler; 
     start_server();

@@ -296,12 +296,13 @@ ws_ctx_t *do_handshake(int sock) {
         return NULL;
     } else if (bcmp(handshake, "\x16", 1) == 0) {
         // SSL
+        if (! settings.cert) { return NULL; }
         ws_ctx = ws_socket_ssl(sock, settings.cert);
         if (! ws_ctx) { return NULL; }
         scheme = "wss";
         printf("  using SSL socket\n");
     } else if (settings.ssl_only) {
-        printf("Non-SSL connection disallowed");
+        printf("Non-SSL connection disallowed\n");
         close(sock);
         return NULL;
     } else {
@@ -401,10 +402,6 @@ void start_server() {
     struct sockaddr_in serv_addr, cli_addr;
     ws_ctx_t *ws_ctx;
 
-    if (settings.daemon) {
-        daemonize();
-    }
-
     /* Initialize buffers */
     bufsize = 65536;
     if (! (tbuf = malloc(bufsize)) )
@@ -415,6 +412,10 @@ void start_server() {
             { fatal("malloc()"); }
     if (! (cbuf_tmp = malloc(bufsize)) )
             { fatal("malloc()"); }
+
+    if (settings.daemon) {
+        daemonize();
+    }
 
     lsock = socket(AF_INET, SOCK_STREAM, 0);
     if (lsock < 0) { error("ERROR creating listener socket"); }
