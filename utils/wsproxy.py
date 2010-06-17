@@ -146,6 +146,9 @@ if __name__ == '__main__':
     try:    target_port = int(target_port)
     except: parser.error("Error parsing target port")
 
+    if options.ssl_only and not os.path.exists(options.cert):
+        parser.error("SSL only and %s not found" % options.cert)
+
     settings['listen_host'] = host
     settings['listen_port'] = port
     settings['handler'] = proxy_handler

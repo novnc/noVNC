@@ -32,10 +32,10 @@ Traffic Legend:\n\
 char USAGE[] = "Usage: [--record FILE] [--ssl-only] " \
                "[source_addr:]source_port target_addr:target_port";
 
-void usage() {
-    fprintf(stderr, "%s\n", USAGE);
+#define usage(fmt, args...) \
+    fprintf(stderr, "%s\n\n", USAGE); \
+    fprintf(stderr, fmt , ## args); \
     exit(1);
-}
 
 char target_host[256];
 int target_port;
@@ -217,7 +217,7 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 
     /* Resolve target address */
     if (resolve_host(&taddr.sin_addr, target_host) < -1) {
-        fatal("Could not resolve target address");
+        error("Could not resolve target address");
     }
 
     if (connect(tsock, (struct sockaddr *) &taddr, sizeof(taddr)) < 0) {
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
             case 'r':
                 if ((fd = open(optarg, O_CREAT,
                                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < -1) {
-                    fatal("Could not access %s\n", optarg);
+                    usage("Could not access %s\n", optarg);
                 }
                 close(fd);
                 settings.record = realpath(optarg, NULL);
@@ -280,23 +280,18 @@ int main(int argc, char *argv[])
             case 'c':
                 settings.cert = realpath(optarg, NULL);
                 if (! settings.cert) {
-                    fatal("No cert file at %s\n", optarg);
+                    usage("No cert file at %s\n", optarg);
                 }
                 break;
             default:
-                usage();
+                usage("Invalid option %c\n", c);
         }
     }
     settings.ssl_only  = ssl_only;
     settings.daemon    = foreground ? 0: 1;
 
-    printf("  ssl_only: %d\n", settings.ssl_only);
-    printf("  daemon: %d\n",   settings.daemon);
-    printf("  record: %s\n",   settings.record);
-    printf("  cert: %s\n",     settings.cert);
-
     if ((argc-optind) != 2) {
-        usage();
+        usage("Invalid number of arguments\n");
     }
 
     found = strstr(argv[optind], ":");
@@ -308,8 +303,8 @@ int main(int argc, char *argv[])
         settings.listen_port = strtol(argv[optind], NULL, 10);
     }
     optind++;
-    if ((errno != 0) || (listen_port == 0)) {
-        usage();
+    if (listen_port == 0) {
+        usage("Could not parse listen_port\n");
     }
 
     found = strstr(argv[optind], ":");
@@ -317,11 +312,23 @@ int main(int argc, char *argv[])
         memcpy(target_host, argv[optind], found-argv[optind]);
         target_port = strtol(found+1, NULL, 10);
     } else {
-        usage();
+        usage("Target argument must be host:port\n");
     }
-    if ((errno != 0) || (target_port == 0)) {
-        usage();
+    if (target_port == 0) {
+        usage("Could not parse target port\n");
     }
+
+    if (ssl_only) {
+        printf("cert: %s\n", settings.cert);
+        if (!settings.cert || !access(settings.cert)) {
+            usage("SSL only and cert file not found\n");
+        }
+    }
+
+    //printf("  ssl_only: %d\n", settings.ssl_only);
+    //printf("  daemon: %d\n",   settings.daemon);
+    //printf("  record: %s\n",   settings.record);
+    //printf("  cert: %s\n",     settings.cert);
 
     settings.handler = proxy_handler; 
     start_server();
