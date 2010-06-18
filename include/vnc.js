@@ -64,6 +64,7 @@ true_color     : false,
 
 b64encode      : true,  // false means UTF-8 on the wire
 //b64encode      : false,  // false means UTF-8 on the wire
+connectTimeout : 1000,  // time to wait for connection
 
 
 // In preference order
@@ -1475,6 +1476,13 @@ init_ws: function () {
         RFB.updateState('failed', "WebSocket error");
         console.error("<< WebSocket.onerror");
     };
+
+    setTimeout(function () {
+            if (RFB.ws.readyState === WebSocket.CONNECTING) {
+                RFB.updateState('failed', "Connect timeout");
+                RFB.ws.close();
+            }
+        }, RFB.connectTimeout);
 
     //console.log("<< init_ws");
 },
