@@ -13,9 +13,18 @@
 // Globals defined here
 var Util = {}, $;
 
-if ((!window.console) || (! /__debug__$/i.test(document.location.href))) {
-    // non-debug mode, an empty function  
+// Debug routines
+if (typeof window.console === "undefined") {
     window.console = window.console || {};  
+}
+if (/__debug__$/i.test(document.location.href)) {
+    if (typeof window.opera !== "undefined") {
+        window.console.log = window.opera.postError;
+        window.console.warn = window.opera.postError;
+        window.console.error = window.opera.postError;
+    }
+} else {
+    // non-debug mode, an empty function  
     window.console.log = function (message) {}; 
     window.console.warn = function (message) {}; 
     window.console.error = function (message) {}; 
@@ -217,5 +226,4 @@ Util.Flash = (function(){
     version = v.match(/\d+/g);
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
 }()); 
-
 
