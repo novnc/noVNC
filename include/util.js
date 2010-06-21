@@ -15,7 +15,10 @@ var Util = {}, $;
 
 // Debug routines
 if (typeof window.console === "undefined") {
-    window.console = window.console || {};  
+    window.console = {
+        'log': function(m) {},
+        'warn': function(m) {},
+        'error': function(m) {}};
 }
 if (/__debug__$/i.test(document.location.href)) {
     if (typeof window.opera !== "undefined") {
@@ -24,10 +27,12 @@ if (/__debug__$/i.test(document.location.href)) {
         window.console.error = window.opera.postError;
     }
 } else {
+    /*
     // non-debug mode, an empty function  
     window.console.log = function (message) {}; 
     window.console.warn = function (message) {}; 
     window.console.error = function (message) {}; 
+    */
 }
 
 // Simple DOM selector by ID
@@ -207,7 +212,9 @@ Util.Engine = {
     'trident': (function() {
             return (!window.ActiveXObject) ? false : ((window.XMLHttpRequest) ? ((document.querySelectorAll) ? 6 : 5) : 4); }()),
     'webkit': (function() {
-            return (navigator.taintEnabled) ? false : ((Util.Features.xpath) ? ((Util.Features.query) ? 525 : 420) : 419); }()),
+            try { return (navigator.taintEnabled) ? false : ((Util.Features.xpath) ? ((Util.Features.query) ? 525 : 420) : 419); } catch (e) { return false; } }()),
+    //'webkit': (function() {
+    //        return ((typeof navigator.taintEnabled !== "unknown") && navigator.taintEnabled) ? false : ((Util.Features.xpath) ? ((Util.Features.query) ? 525 : 420) : 419); }()),
     'gecko': (function() {
             return (!document.getBoxObjectFor && !window.mozInnerScreenX) ? false : ((document.getElementsByClassName) ? 19 : 18); }())
 };
