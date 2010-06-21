@@ -79,6 +79,18 @@ Usage
   button and enjoy!
 
 
+Browser Support
+---------------
+
+I only currently test under Linux. Here are the current results:
+
+* Chrome 5.0.* beta: Works great. Native WebSockets support. Very fast.
+* firefox 3.5, 3.7: Works. Uses flash WebSockets emulator. Large
+  desktops with full-color image backgrounds are slow.
+* Opera 10.10: Unusable: drops web-socket-js events.
+* Opera 10.60: Unusable: throws "WRONG_ARGUMENTS_ERR" on connect.
+
+
 Integration
 -----------
 

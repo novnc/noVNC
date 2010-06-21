@@ -27,8 +27,8 @@ function get_VNC_uri_prefix() {
     end = "'><\/script>";
 
     // Uncomment to activate firebug lite
-    //extra += start + "http://getfirebug.com/releases/lite/1.2/" + 
-    //         "firebug-lite-compressed.js" + end;
+    //extra += "<script src='http://getfirebug.com/releases/lite/1.2/" + 
+    //         "firebug-lite-compressed.js'><\/script>";
 
     extra += start + "util.js" + end;
     extra += start + "base64.js" + end;
