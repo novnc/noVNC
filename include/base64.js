@@ -49,7 +49,7 @@ base64Pad     : '=',
 
 encode: function (data) {
     var result = '';
-    var chrTable = Base64.toBase64Table;
+    var chrTable = Base64.toBase64Table.split('');
     var pad = Base64.base64Pad;
     var length = data.length;
     var i;
@@ -107,11 +107,11 @@ decode: function (data, offset) {
     // Convert one by one.
     var idx = 0;
     for (var i = offset; i < data.length; i++) {
-        var c = binTable[data[i].charCodeAt(0) & 0x7f];
-        var padding = (data[i] == pad);
+        var c = binTable[data.charCodeAt(i) & 0x7f];
+        var padding = (data.charAt(i) == pad);
         // Skip illegal characters and whitespace
         if (c == -1) {
-            console.log("Illegal character '" + data[i].charCodeAt(0) + "'");
+            console.log("Illegal character '" + data.charCodeAt(i) + "'");
             continue;
         }
         

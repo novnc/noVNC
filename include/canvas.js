@@ -10,10 +10,22 @@
 /*jslint white: false, bitwise: false */
 /*global window, console, $, Util */
 
-// Everything namespaced inside Canvas
-var Canvas = {
+var Canvas, Canvas_native;
 
-prefer_js : false,
+(function () {
+    var pre, extra = "", start, end;
+    if (document.createElement('canvas').getContext) {
+        Canvas_native = true;
+    } else {
+        Canvas_native = false;
+        document.write("<script src='excanvas'><\/script>");
+    }
+}());
+
+// Everything namespaced inside Canvas
+Canvas = {
+
+prefer_js  : false,
 
 true_color : false,
 colourMap  : [],
@@ -93,7 +105,7 @@ onKeyDown: function (e) {
 },
 
 onKeyUp : function (e) {
-    //console.log("keyup: " + e.key + "(" + e.code + ")");
+    //console.log("keyup: " + Canvas.getKeysym(e));
     if (! Canvas.focused) {
         return true;
     }
@@ -122,17 +134,86 @@ onMouseDisable: function (e) {
 },
 
 
-init: function (id, width, height, true_color, keyPress,
-                mouseButton, mouseMove) {
+init: function (id) {
+    var c, imgTest, arora;
     console.log(">> Canvas.init");
 
     Canvas.id = id;
+    c = $(Canvas.id);
 
+    if (Canvas_native) {
+        console.log("Using native canvas");
+        // Use default Canvas functions
+    } else {
+        console.warn("Using excanvas canvas emulation");
+        G_vmlCanvasManager.initElement(c);
+    }
+
+    if (! c.getContext) { throw("No getContext method"); }
+    Canvas.ctx = c.getContext('2d'); 
+
+    Canvas.clear();
+
+
+    /*
+     * Determine browser feature support and most optimal rendering
+     * methods
+     */
+    tval = 0;
+    try {
+        imgTest = Canvas.ctx.getImageData(0, 0, 1,1);
+        imgTest.data[0] = 123;
+        imgTest.data[3] = 255;
+        Canvas.ctx.putImageData(imgTest, 0, 0);
+        tval = Canvas.ctx.getImageData(0, 0, 1, 1).data[0];
+    } catch (exc) {
+    }
+    if (tval === 123) {
+        Canvas._rgbxImage = Canvas._rgbxImageData;
+        Canvas._cmapImage = Canvas._cmapImageData;
+        if (Canvas.ctx.createImageData) {
+            // If it's there, it's faster
+            console.log("Using Canvas createImageData");
+            Canvas._imageData = Canvas._imageDataCreate;
+        } else if (Canvas.ctx.getImageData) {
+            console.log("Using Canvas getImageData");
+            Canvas._imageData = Canvas._imageDataGet;
+        } else {
+            console.log("No imageData support");
+            return false;
+        }
+        if (Util.Engine.webkit) {
+            console.log("Prefering javascript operations");
+            Canvas.prefer_js = true;
+        } else {
+            console.log("Prefering Canvas operations");
+            Canvas.prefer_js = false;
+        }
+    } else {
+        console.log("No imageData, using fillRect (slow)");
+        Canvas._rgbxImage = Canvas._rgbxImageFill;
+        Canvas._cmapImage = Canvas._cmapImageFill;
+        Canvas.prefer_js = false;
+    }
+
+    Canvas.colourMap = [];
+    Canvas.prevStyle = "";
+    Canvas.focused = true;
+
+    //console.log("<< Canvas.init");
+    return true;
+},
+    
+
+start: function (keyPress, mouseButton, mouseMove) {
+    var c;
+    console.log(">> Canvas.start");
+
+    c = $(Canvas.id);
     Canvas.keyPress = keyPress || null;
     Canvas.mouseButton = mouseButton || null;
     Canvas.mouseMove = mouseMove || null;
 
-    var c = $(Canvas.id);
     Util.addEvent(document, 'keydown', Canvas.onKeyDown);
     Util.addEvent(document, 'keyup', Canvas.onKeyUp);
     Util.addEvent(c, 'mousedown', Canvas.onMouseDown);
@@ -145,34 +226,26 @@ init: function (id, width, height, true_color, keyPress,
     Util.addEvent(document, 'click', Canvas.onMouseDisable);
     Util.addEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
 
-    Canvas.resize(width, height);
-    Canvas.c_wx = c.offsetWidth;
-    Canvas.c_wy = c.offsetHeight;
-    Canvas.true_color = true_color;
-    Canvas.colourMap = [];
-
-    if (! c.getContext) { return; }
-    Canvas.ctx = c.getContext('2d'); 
-    
-    Canvas.prevStyle = "";
-    Canvas.focused = true;
-
-    if (Util.Engine.webkit) {
-        Canvas.prefer_js = true;
-    }
-
-    //console.log("<< Canvas.init");
+    //console.log("<< Canvas.start");
 },
 
 clear: function () {
-    Canvas.ctx.clearRect(0, 0, Canvas.c_wx, Canvas.c_wy);
     Canvas.resize(640, 20);
+    Canvas.ctx.clearRect(0, 0, Canvas.c_wx, Canvas.c_wy);
 },
 
-resize: function (width, height) {
+resize: function (width, height, true_color) {
     var c = $(Canvas.id);
+
+    if (typeof true_color !== "undefined") {
+        Canvas.true_color = true_color;
+    }
+
     c.width = width;
     c.height = height;
+
+    Canvas.c_wx = c.offsetWidth;
+    Canvas.c_wy = c.offsetHeight;
 },
 
 stop: function () {
@@ -226,7 +299,7 @@ getTile: function(x, y, width, height, color) {
     return img;
 },
 
-setTile: function(img, x, y, w, h, color) {
+setSubTile: function(img, x, y, w, h, color) {
     var data, p, rgb, red, green, blue, width, j, i;
     if (Canvas.prefer_js) {
         data = img.data;
@@ -255,19 +328,25 @@ setTile: function(img, x, y, w, h, color) {
 
 putTile: function(img) {
     if (Canvas.prefer_js) {
-        Canvas.rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
-        //Canvas.ctx.putImageData(img, img.x, img.y);
+        Canvas._rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
     } else {
-        // No-op, under gecko already done by setTile
+        // No-op, under gecko already done by setSubTile
     }
 },
 
+_imageDataGet: function(width, height) {
+    return Canvas.ctx.getImageData(0, 0, width, height);
+},
+_imageDataCreate: function(width, height) {
+    return Canvas.ctx.createImageData(width, height);
+},
+_imageDataRaw: function(width, height) {
+    return {'data': [], 'width': width, 'height': height};
+},
 
-rgbxImage: function(x, y, width, height, arr, offset) {
+_rgbxImageData: function(x, y, width, height, arr, offset) {
     var img, i, j, data;
-    //console.log("rfbxImage: img: " + img + " x: " + x + " y: " + y + " width: " + width + " height: " + height);
-    /* Old firefox and Opera don't support createImageData */
-    img = Canvas.ctx.getImageData(0, 0, width, height);
+    img = Canvas._imageData(width, height);
     data = img.data;
     for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
         data[i + 0] = arr[j + 0];
@@ -278,13 +357,25 @@ rgbxImage: function(x, y, width, height, arr, offset) {
     Canvas.ctx.putImageData(img, x, y);
 },
 
-cmapImage: function(x, y, width, height, arr, offset) {
+// really slow fallback if we don't have imageData
+_rgbxImageFill: function(x, y, width, height, arr, offset) {
+    var sx = 0, sy = 0;
+    for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
+        Canvas.fillRect(x+sx, y+sy, 1, 1, [arr[j+0], arr[j+1], arr[j+2]]);
+        sx += 1;
+        if ((sx % width) === 0) {
+            sx = 0;
+            sy += 1;
+        }
+    }
+},
+
+_cmapImageData: function(x, y, width, height, arr, offset) {
     var img, i, j, data, rgb, cmap;
-    img = Canvas.ctx.getImageData(0, 0, width, height);
+    img = Canvas._imageData(width, height);
     data = img.data;
     cmap = Canvas.colourMap;
-    //console.log("cmapImage x: " + x + ", y: " + y + "arr.slice(0,20): " + arr.slice(0,20));
-    for (i=0, j=offset; i < (width * height * 4); i=i+4, j += 1) {
+    for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
         rgb = cmap[arr[j]];
         data[i + 0] = rgb[0];
         data[i + 1] = rgb[1];
@@ -294,15 +385,36 @@ cmapImage: function(x, y, width, height, arr, offset) {
     Canvas.ctx.putImageData(img, x, y);
 },
 
-blitImage: function(x, y, width, height, arr, offset) {
-    if (Canvas.true_color) {
-        Canvas.rgbxImage(x, y, width, height, arr, offset);
-    } else {
-        Canvas.cmapImage(x, y, width, height, arr, offset);
+_cmapImageFill: function(x, y, width, height, arr, offset) {
+    var sx = 0, sy = 0;
+    cmap = Canvas.colourMap;
+    console.log("here1: arr[2]: " + arr[2] + ", cmap[arr[2]]: " + cmap[arr[2]]);
+    for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
+        Canvas.fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
+        sx += 1;
+        if ((sx % width) === 0) {
+            sx = 0;
+            sy += 1;
+        }
     }
 },
 
-fillRect: function(x, y, width, height, color) {
+
+blitImage: function(x, y, width, height, arr, offset) {
+    if (Canvas.true_color) {
+        Canvas._rgbxImage(x, y, width, height, arr, offset);
+    } else {
+        Canvas._cmapImage(x, y, width, height, arr, offset);
+    }
+},
+
+blitStringImage: function(str, x, y) {
+    var img = new Image();
+    img.onload = function () { Canvas.ctx.drawImage(img, x, y); };
+    img.src = str;
+},
+
+setFillColor: function(color) {
     var rgb, newStyle;
     if (Canvas.true_color) {
         rgb = color;
@@ -314,6 +426,10 @@ fillRect: function(x, y, width, height, color) {
         Canvas.ctx.fillStyle = newStyle;
         Canvas.prevStyle = newStyle;
     }
+},
+
+fillRect: function(x, y, width, height, color) {
+    Canvas.setFillColor(color);
     Canvas.ctx.fillRect(x, y, width, height);
 },
 

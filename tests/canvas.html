@@ -3,13 +3,16 @@
     <body>
         Iterations: <input id='iterations' style='width:50' value="100">&nbsp;
 
-        <input id='startButton' type='button' value='Start' style='width:100px'
-            onclick="start();">&nbsp;
+        Width: <input id='width' style='width:50' value="640">&nbsp;
+        Height: <input id='height' style='width:50' value="480">&nbsp;
+
+        <input id='startButton' type='button' value='Do Performance Test'
+            style='width:150px' onclick="begin();">&nbsp;
 
         <br><br>
 
-        Canvas:<br>
-        <canvas id="canvas" width="640" height="20"
+        <b>Canvas</b> (should see three squares and two happy faces):<br>
+        <canvas id="canvas" width="200" height="100"
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
         </canvas>
@@ -23,14 +26,12 @@
     <script type='text/javascript' 
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
-
-    <script src="include/mootools.js"></script>
     <script src="include/util.js"></script>
     <script src="include/canvas.js"></script>
-
+    <script src="face.png.js"></script>
     <script>
         var msg_cnt = 0;
-        var width = 800, height = 600;
+        var start_width = 300, start_height = 100;
         var iterations;
 
         function message(str) {
@@ -40,35 +41,39 @@
             cell.scrollTop = cell.scrollHeight;
         }
 
-        function draw () {
+        function test_functions () {
             var img, x, y;
-            /* Border */
-            Canvas.ctx.stroke();  
-            Canvas.ctx.rect(0, 0, Canvas.c_wx, Canvas.c_wy);
-            Canvas.ctx.stroke();  
+            Canvas.fillRect(0, 0, Canvas.c_wx, Canvas.c_wy, [240,240,240]);
 
-            /*
-            // Does not work in firefox
+            Canvas.blitStringImage("data:image/png;base64," + face64, 150, 40);
+
             var himg = new Image();
-            himg.src = "head_ani2.gif"
-            Canvas.ctx.drawImage(himg, 10, 10);
-            */
+            himg.onload = function () {
+                Canvas.ctx.drawImage(himg, 200, 10); };
+            himg.src = "face.png";
 
             /* Test array image data */
-            //img = Canvas.ctx.createImageData(50, 50);
-            img = Canvas.ctx.getImageData(0, 0, 50, 50);
+            data = [];
             for (y=0; y< 50; y++) {
                 for (x=0; x< 50; x++) {
-                    img.data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y, 10);
-                    img.data[(y*50 + x)*4 + 1] = parseInt((255 / 50) * y, 10);
-                    img.data[(y*50 + x)*4 + 2] = parseInt((255 / 50) * x, 10);
-                    img.data[(y*50 + x)*4 + 3] = 255;
+                    data[(y*50 + x)*4 + 0] = 255 - parseInt((255 / 50) * y, 10);
+                    data[(y*50 + x)*4 + 1] = parseInt((255 / 50) * y, 10);
+                    data[(y*50 + x)*4 + 2] = parseInt((255 / 50) * x, 10);
+                    data[(y*50 + x)*4 + 3] = 255;
                 }
             }
-            Canvas.ctx.putImageData(img, 100, 100);
+            Canvas.blitImage(30, 10, 50, 50, data, 0);
+
+            //Canvas.prefer_js = false;
+            img = Canvas.getTile(5,5,16,16,[0,128,128]);
+            Canvas.putTile(img);
+
+            img = Canvas.getTile(90,15,16,16,[0,0,0]);
+            Canvas.setSubTile(img, 0,0,16,16,[128,128,0]);
+            Canvas.putTile(img);
         }
 
-        function start () {
+        function begin () {
             $('startButton').value = "Running";
             $('startButton').disabled = true;
             setTimeout(start_delayed, 250);
@@ -89,18 +94,26 @@
             message("prefer Canvas ops: " + time2 + "ms total, " +
                     (time2 / iterations) + "ms per frame");
 
+            Canvas.resize(start_width, start_height, true);
+            test_functions();
             $('startButton').disabled = false;
             $('startButton').value = "Start";
         }
 
         function run_test () {
-            var color, start_time = (new Date()).getTime();
+            var width, height;
+            width = $('width').value;
+            height = $('height').value;
+            Canvas.resize(width, height);
+            var color, start_time = (new Date()).getTime(), w, h;
             for (var i=0; i < iterations; i++) {
                 color = [128, 128, (255 / iterations) * i, 0];
                 for (var x=0; x < width; x = x + 16) {
-                    for (var y=0; y < width; y = y + 16) {
-                        var tile = Canvas.getTile(x, y, 16, 16, color);
-                        Canvas.setTile(tile, 0, 0, 16, 16, color);
+                    for (var y=0; y < height; y = y + 16) {
+                        w = Math.min(16, width - x);
+                        h = Math.min(16, height - y);
+                        var tile = Canvas.getTile(x, y, w, h, color);
+                        Canvas.setSubTile(tile, 0, 0, w, h, color);
                         Canvas.putTile(tile);
                     }
                 }
@@ -110,11 +123,11 @@
         }
 
         window.onload = function() {
-            Canvas.init('canvas', width, height);
-            Canvas.stop();   // Shut-off event interception
             $('iterations').value = 10;
-            draw();
+            Canvas.init('canvas');
+            Canvas.resize(start_width, start_height, true);
             message("Canvas initialized");
+            test_functions();
         }
     </script>
 </html>

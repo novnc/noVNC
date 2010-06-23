@@ -64,7 +64,7 @@ true_color     : false,
 
 b64encode      : true,  // false means UTF-8 on the wire
 //b64encode      : false,  // false means UTF-8 on the wire
-connectTimeout : 1000,  // time to wait for connection
+connectTimeout : 3000,  // time to wait for connection
 
 
 // In preference order
@@ -139,6 +139,9 @@ load: function () {
             RFB.updateState('disconnected', 'Disconnected');
         }
     }
+
+    // Initialize canvas/fxcanvas
+    Canvas.init(RFB.canvasID);
 
     // Populate encoding lookup tables
     RFB.encHandlers = {};
@@ -466,8 +469,8 @@ init_msg: function () {
         name_length   = RQ.shift32();
         RFB.fb_name = RQ.shiftStr(name_length);
 
-        Canvas.init(RFB.canvasID, RFB.fb_width, RFB.fb_height, RFB.true_color,
-                RFB.keyPress, RFB.mouseButton, RFB.mouseMove);
+        Canvas.resize(RFB.fb_width, RFB.fb_height, RFB.true_color);
+        Canvas.start(RFB.keyPress, RFB.mouseButton, RFB.mouseMove);
 
         if (RFB.true_color) {
             RFB.fb_Bpp           = 4;
@@ -873,7 +876,7 @@ display_hextile: function() {
                     sw = (wh >> 4)   + 1;
                     sh = (wh & 0x0f) + 1;
 
-                    Canvas.setTile(tile, sx, sy, sw, sh, color);
+                    Canvas.setSubTile(tile, sx, sy, sw, sh, color);
                 }
             }
             Canvas.putTile(tile);
@@ -1191,7 +1194,7 @@ recv_message_reorder: function(e) {
     } else {
         console.warn("sequence number mismatch: expected " +
                      RFB.RQ_seq_num + ", got " + seq_num);
-        if (RFB.RQ_reorder.length > 20) {
+        if (RFB.RQ_reorder.length > 40) {
             RFB.updateState('failed', "Re-order queue too long");
         } else {
             RFB.RQ_reorder = RFB.RQ_reorder.concat(e.data.substr(0));

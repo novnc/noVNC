@@ -171,24 +171,24 @@ Util.getEventPosition = function (e, obj) {
 
 // Event registration. Based on: http://www.scottandrew.com/weblog/articles/cbs-events
 Util.addEvent = function (obj, evType, fn){
-    if (obj.addEventListener){
-        obj.addEventListener(evType, fn, false); 
-        return true;
-    } else if (obj.attachEvent){
+    if (obj.attachEvent){
         var r = obj.attachEvent("on"+evType, fn);
         return r;
+    } else if (obj.addEventListener){
+        obj.addEventListener(evType, fn, false); 
+        return true;
     } else {
         throw("Handler could not be attached");
     }
 };
 
 Util.removeEvent = function(obj, evType, fn){
-    if (obj.removeEventListener){
-        obj.removeEventListener(evType, fn, false);
-        return true;
-    } else if (obj.detachEvent){
+    if (obj.detachEvent){
         var r = obj.detachEvent("on"+evType, fn);
         return r;
+    } else if (obj.removeEventListener){
+        obj.removeEventListener(evType, fn, false);
+        return true;
     } else {
         throw("Handler could not be removed");
     }
