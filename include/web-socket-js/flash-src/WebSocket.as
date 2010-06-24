@@ -187,6 +187,7 @@ public class WebSocket extends EventDispatcher {
     main.log("request header:\n" + req);
     socket.writeUTFBytes(req);
     main.log("sent key3: " + key3);
+    main.log("expected digest: " + expectedDigest);
     writeBytes(key3);
     socket.flush();
   }
@@ -250,20 +251,18 @@ public class WebSocket extends EventDispatcher {
           pos = -1;
         }
       } else if (headerState == 4) {
-        if (pos == 15) {
-          var replyDigest:String = readBytes(buffer, 16);
-          main.log("reply digest: " + replyDigest);
-          if (replyDigest != expectedDigest) {
-            onError("digest doesn't match: " + replyDigest + " != " + expectedDigest);
-            return;
-          }
-          headerState = 5;
-          makeBufferCompact();
-          pos = -1;
-          readyState = OPEN;
-          notifyStateChange();
-          dispatchEvent(new Event("open"));
+        var replyDigest:String = readBytes(buffer, 16);
+        main.log("reply digest: " + replyDigest);
+        if (replyDigest != expectedDigest) {
+          onError("digest doesn't match: " + replyDigest + " != " + expectedDigest);
+          return;
         }
+        headerState = 5;
+        makeBufferCompact();
+        pos = -1;
+        readyState = OPEN;
+        notifyStateChange();
+        dispatchEvent(new Event("open"));
       } else {
         if (buffer[pos] == 0xff) {
         //if (buffer.bytesAvailable > 1) {
