@@ -105,7 +105,7 @@ def do_handshake(sock):
         scheme = "ws"
         print "  using plain (not SSL) socket"
     handshake = retsock.recv(4096)
-    print "handshake: " + repr(handshake)
+    #print "handshake: " + repr(handshake)
     h = parse_handshake(handshake)
 
     # Parse client settings from the GET path
@@ -127,8 +127,7 @@ def do_handshake(sock):
     response = server_handshake % (pre, h['Origin'], pre, scheme,
             h['Host'], h['path'], pre, trailer)
 
-    print "sending response:", repr(response)
-
+    #print "sending response:", repr(response)
     retsock.send(response)
     return retsock
 
@@ -157,15 +156,7 @@ def gen_md5(keys):
     num1 = int("".join([c for c in key1 if c.isdigit()])) / spaces1
     num2 = int("".join([c for c in key2 if c.isdigit()])) / spaces2
 
-    packed = struct.pack('>II8s', num1, num2, key3)
-    digest = md5(packed).digest()
-    print "num1:", num1
-    print "num2:", num2
-    print "key3:", repr(key3)
-    print "packed:", packed
-    print "digest:", repr(digest)
-
-    return digest
+    return md5(struct.pack('>II8s', num1, num2, key3)).digest()
 
 def daemonize():
     os.umask(0)
