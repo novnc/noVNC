@@ -5,7 +5,9 @@ Canvas Browser Compatibility:
     http://philip.html5.org/tests/canvas/suite/tests/results.html
 
 WebSockets API standard:
+    http://www.whatwg.org/specs/web-apps/current-work/complete.html#websocket
     http://dev.w3.org/html5/websockets/
+    http://www.ietf.org/id/draft-ietf-hybi-thewebsocketprotocol-00.txt
 
 Browser Keyboard Events detailed:
     http://unixpapa.com/js/key.html
