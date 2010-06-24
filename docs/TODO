@@ -2,7 +2,7 @@ Medium Term:
 
 - Support WebSockets version 76 in proxy (Chrome 6 and Safari 5).
 
-- Support Arora 0.5 and Opera 10.60.
+- Support Opera 10.60.
 
 - Possibly support IE using excanvas: http://excanvas.sourceforge.net/
 
