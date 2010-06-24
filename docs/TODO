@@ -1,10 +1,16 @@
-Medium Term:
+Short Term:
+
+- Test on IE 9 preview 3.
 
 - Support WebSockets version 76 in proxy (Chrome 6 and Safari 5).
 
 - Support Opera 10.60.
 
-- Possibly support IE using excanvas: http://excanvas.sourceforge.net/
+- Possibly support IE <= 8.0 using excanvas:
+  http://excanvas.sourceforge.net/
+
+
+Medium Term:
 
 - Timing delta between frames in proxy record log, for playback
   support (for demo and test).
