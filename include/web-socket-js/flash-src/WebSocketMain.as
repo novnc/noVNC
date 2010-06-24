@@ -1,5 +1,5 @@
 // Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
-// Lincense: New BSD Lincense
+// License: New BSD License
 // Reference: http://dev.w3.org/html5/websockets/
 // Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-31
 
@@ -71,6 +71,10 @@ public class WebSocketMain extends Sprite {
 
   public function log(message:String):void {
     ExternalInterface.call("webSocketLog", encodeURIComponent("[WebSocket] " + message));
+  }
+
+  public function error(message:String):void {
+    ExternalInterface.call("webSocketError", encodeURIComponent("[WebSocket] " + message));
   }
 
   public function fatal(message:String):void {

@@ -1,5 +1,5 @@
 // Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
-// Lincense: New BSD Lincense
+// License: New BSD License
 // Reference: http://dev.w3.org/html5/websockets/
 // Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol
 
@@ -58,12 +58,20 @@
             var e;
             if (window.MessageEvent) {
               e = document.createEvent("MessageEvent");
-              e.initMessageEvent("message", false, false, data, null, null, window);
+              e.initMessageEvent("message", false, false, data, null, null, window, null);
             } else { // IE
               e = {data: data};
             }
             self.onmessage(e);
           }
+        } catch (e) {
+          console.error(e.toString());
+        }
+      });
+
+      self.__flash.addEventListener("error", function(fe) {
+        try {
+          if (self.onerror) self.onerror();
         } catch (e) {
           console.error(e.toString());
         }
@@ -242,7 +250,8 @@
 
   WebSocket.CONNECTING = 0;
   WebSocket.OPEN = 1;
-  WebSocket.CLOSED = 2;
+  WebSocket.CLOSING = 2;
+  WebSocket.CLOSED = 3;
 
   WebSocket.__tasks = [];
 
@@ -293,14 +302,14 @@
   }
 
   // called from Flash
-  function webSocketLog(message) {
+  window.webSocketLog = function(message) {
     console.log(decodeURIComponent(message));
-  }
+  };
 
   // called from Flash
-  function webSocketError(message) {
+  window.webSocketError = function(message) {
     console.error(decodeURIComponent(message));
-  }
+  };
 
   /*
   if (window.addEventListener) {

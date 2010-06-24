@@ -1,5 +1,5 @@
 // Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
-// Lincense: New BSD Lincense
+// License: New BSD License
 // Reference: http://dev.w3.org/html5/websockets/
 // Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-31
 
@@ -20,16 +20,19 @@ import com.hurlant.crypto.tls.TLSSocket;
 import com.hurlant.crypto.tls.TLSConfig;
 import com.hurlant.crypto.tls.TLSEngine;
 import com.hurlant.crypto.tls.TLSSecurityParameters;
+import com.gsolo.encryption.MD5;
 
 [Event(name="message", type="WebSocketMessageEvent")]
 [Event(name="open", type="flash.events.Event")]
 [Event(name="close", type="flash.events.Event")]
+[Event(name="error", type="flash.events.Event")]
 [Event(name="stateChange", type="WebSocketStateEvent")]
 public class WebSocket extends EventDispatcher {
   
   private static var CONNECTING:int = 0;
   private static var OPEN:int = 1;
-  private static var CLOSED:int = 2;
+  private static var CLOSING:int = 2;
+  private static var CLOSED:int = 3;
   
   //private var rawSocket:RFC2817Socket;
   private var rawSocket:Socket;
@@ -37,6 +40,7 @@ public class WebSocket extends EventDispatcher {
   private var tlsConfig:TLSConfig;
   private var socket:Socket;
   private var main:WebSocketMain;
+  private var url:String;
   private var scheme:String;
   private var host:String;
   private var port:uint;
@@ -48,14 +52,18 @@ public class WebSocket extends EventDispatcher {
   private var readyState:int = CONNECTING;
   private var bufferedAmount:int = 0;
   private var headers:String;
+  private var noiseChars:Array;
+  private var expectedDigest:String;
 
   public function WebSocket(
       main:WebSocketMain, url:String, protocol:String,
       proxyHost:String = null, proxyPort:int = 0,
       headers:String = null) {
     this.main = main;
+    initNoiseChars();
+    this.url = url;
     var m:Array = url.match(/^(\w+):\/\/([^\/:]+)(:(\d+))?(\/.*)?$/);
-    if (!m) main.fatal("invalid url: " + url);
+    if (!m) main.fatal("SYNTAX_ERR: invalid url: " + url);
     this.scheme = m[1];
     this.host = m[2];
     this.port = parseInt(m[4] || "80");
@@ -118,7 +126,7 @@ public class WebSocket extends EventDispatcher {
       // > You are trying to call recursively into the Flash Player which is not allowed.
       return bufferedAmount;
     } else {
-      main.fatal("invalid state");
+      main.fatal("INVALID_STATE_ERR: invalid state");
       return 0;
     }
   }
@@ -155,6 +163,10 @@ public class WebSocket extends EventDispatcher {
     if (main.getCallerHost() == host) {
       cookie = ExternalInterface.call("function(){return document.cookie}");
     }
+    var key1:String = generateKey();
+    var key2:String = generateKey();
+    var key3:String = generateKey3();
+    expectedDigest = getSecurityDigest(key1, key2, key3);
     var opt:String = "";
     if (protocol) opt += "WebSocket-Protocol: " + protocol + "\r\n";
     // if caller passes additional headers they must end with "\r\n"
@@ -166,12 +178,16 @@ public class WebSocket extends EventDispatcher {
       "Connection: Upgrade\r\n" +
       "Host: {1}\r\n" +
       "Origin: {2}\r\n" +
-      "Cookie: {4}\r\n" +
-      "{3}" +
+      "Cookie: {3}\r\n" +
+      "Sec-WebSocket-Key1: {4}\r\n" +
+      "Sec-WebSocket-Key2: {5}\r\n" +
+      "{6}" +
       "\r\n",
-      path, hostValue, origin, opt, cookie);
+      path, hostValue, origin, cookie, key1, key2, opt);
     main.log("request header:\n" + req);
     socket.writeUTFBytes(req);
+    main.log("sent key3: " + key3);
+    writeBytes(key3);
     socket.flush();
   }
 
@@ -183,22 +199,41 @@ public class WebSocket extends EventDispatcher {
   }
 
   private function onSocketIoError(event:IOErrorEvent):void {
-    close();
-    main.fatal("failed to connect Web Socket server (IoError)");
+    var message:String;
+    if (readyState == CONNECTING) {
+      message = "cannot connect to Web Socket server at " + url + " (IoError)";
+    } else {
+      message = "error communicating with Web Socket server at " + url + " (IoError)";
+    }
+    onError(message);
   }
 
   private function onSocketSecurityError(event:SecurityErrorEvent):void {
+    var message:String;
+    if (readyState == CONNECTING) {
+      message =
+          "cannot connect to Web Socket server at " + url + " (SecurityError)\n" +
+          "make sure the server is running and Flash socket policy file is correctly placed";
+    } else {
+      message = "error communicating with Web Socket server at " + url + " (SecurityError)";
+    }
+    onError(message);
+  }
+  
+  private function onError(message:String):void {
+    var state:int = readyState;
+    if (state == CLOSED) return;
+    main.error(message);
     close();
-    main.fatal(
-      "failed to connect Web Socket server (SecurityError)\n" +
-      "make sure the server is running and Flash socket policy file is correctly placed");
+    notifyStateChange();
+    dispatchEvent(new Event(state == CONNECTING ? "close" : "error"));
   }
 
   private function onSocketData(event:ProgressEvent):void {
     var pos:int = buffer.length;
     socket.readBytes(buffer, pos);
     for (; pos < buffer.length; ++pos) {
-      if (headerState != 4) {
+      if (headerState < 4) {
         // try to find "\r\n\r\n"
         if ((headerState == 0 || headerState == 2) && buffer[pos] == 0x0d) {
           ++headerState;
@@ -210,7 +245,19 @@ public class WebSocket extends EventDispatcher {
         if (headerState == 4) {
           var headerStr:String = buffer.readUTFBytes(pos + 1);
           main.log("response header:\n" + headerStr);
-          validateHeader(headerStr);
+          if (!validateHeader(headerStr)) return;
+          makeBufferCompact();
+          pos = -1;
+        }
+      } else if (headerState == 4) {
+        if (pos == 15) {
+          var replyDigest:String = readBytes(buffer, 16);
+          main.log("reply digest: " + replyDigest);
+          if (replyDigest != expectedDigest) {
+            onError("digest doesn't match: " + replyDigest + " != " + expectedDigest);
+            return;
+          }
+          headerState = 5;
           makeBufferCompact();
           pos = -1;
           readyState = OPEN;
@@ -221,8 +268,8 @@ public class WebSocket extends EventDispatcher {
         if (buffer[pos] == 0xff) {
         //if (buffer.bytesAvailable > 1) {
           if (buffer.readByte() != 0x00) {
-            close();
-            main.fatal("data must start with \\x00");
+            onError("data must start with \\x00");
+            return;
           }
           /*
           var data:String = "", byte:uint;
@@ -256,40 +303,41 @@ public class WebSocket extends EventDispatcher {
     }
   }
   
-  private function validateHeader(headerStr:String):void {
+  private function validateHeader(headerStr:String):Boolean {
     var lines:Array = headerStr.split(/\r\n/);
     if (!lines[0].match(/^HTTP\/1.1 101 /)) {
-      close();
-      main.fatal("bad response: " + lines[0]);
+      onError("bad response: " + lines[0]);
+      return false;
     }
     var header:Object = {};
     for (var i:int = 1; i < lines.length; ++i) {
       if (lines[i].length == 0) continue;
       var m:Array = lines[i].match(/^(\S+): (.*)$/);
       if (!m) {
-        close();
-        main.fatal("failed to parse response header line: " + lines[i]);
+        onError("failed to parse response header line: " + lines[i]);
+        return false;
       }
       header[m[1]] = m[2];
     }
     if (header["Upgrade"] != "WebSocket") {
-      close();
-      main.fatal("invalid Upgrade: " + header["Upgrade"]);
+      onError("invalid Upgrade: " + header["Upgrade"]);
+      return false;
     }
     if (header["Connection"] != "Upgrade") {
-      close();
-      main.fatal("invalid Connection: " + header["Connection"]);
+      onError("invalid Connection: " + header["Connection"]);
+      return false;
     }
-    var resOrigin:String = header["WebSocket-Origin"].toLowerCase();
+    var resOrigin:String = header["Sec-WebSocket-Origin"].toLowerCase();
     if (resOrigin != origin) {
-      close();
-      main.fatal("origin doesn't match: '" + resOrigin + "' != '" + origin + "'");
+      onError("origin doesn't match: '" + resOrigin + "' != '" + origin + "'");
+      return false;
     }
-    if (protocol && header["WebSocket-Protocol"] != protocol) {
-      close();
-      main.fatal("protocol doesn't match: '" +
+    if (protocol && header["Sec-WebSocket-Protocol"] != protocol) {
+      onError("protocol doesn't match: '" +
         header["WebSocket-Protocol"] + "' != '" + protocol + "'");
+      return false;
     }
+    return true;
   }
 
   private function makeBufferCompact():void {
@@ -302,7 +350,92 @@ public class WebSocket extends EventDispatcher {
   private function notifyStateChange():void {
     dispatchEvent(new WebSocketStateEvent("stateChange", readyState, bufferedAmount));
   }
+  
+  private function initNoiseChars():void {
+    noiseChars = new Array();
+    for (var i:int = 0x21; i <= 0x2f; ++i) {
+      noiseChars.push(String.fromCharCode(i));
+    }
+    for (var j:int = 0x3a; j <= 0x7a; ++j) {
+      noiseChars.push(String.fromCharCode(j));
+    }
+  }
+  
+  private function generateKey():String {
+    var spaces:uint = randomInt(1, 12);
+    var max:uint = uint.MAX_VALUE / spaces;
+    var number:uint = randomInt(0, max);
+    var key:String = (number * spaces).toString();
+    var noises:int = randomInt(1, 12);
+    var pos:int;
+    for (var i:int = 0; i < noises; ++i) {
+      var char:String = noiseChars[randomInt(0, noiseChars.length - 1)];
+      pos = randomInt(0, key.length);
+      key = key.substr(0, pos) + char + key.substr(pos);
+    }
+    for (var j:int = 0; j < spaces; ++j) {
+      pos = randomInt(1, key.length - 1);
+      key = key.substr(0, pos) + " " + key.substr(pos);
+    }
+    return key;
+  }
+  
+  private function generateKey3():String {
+    var key3:String = "";
+    for (var i:int = 0; i < 8; ++i) {
+      key3 += String.fromCharCode(randomInt(0, 255));
+    }
+    return key3;
+  }
+  
+  private function getSecurityDigest(key1:String, key2:String, key3:String):String {
+    var bytes1:String = keyToBytes(key1);
+    var bytes2:String = keyToBytes(key2);
+    return MD5.rstr_md5(bytes1 + bytes2 + key3);
+  }
+  
+  private function keyToBytes(key:String):String {
+    var keyNum:uint = parseInt(key.replace(/[^\d]/g, ""));
+    var spaces:uint = 0;
+    for (var i:int = 0; i < key.length; ++i) {
+      if (key.charAt(i) == " ") ++spaces;
+    }
+    var resultNum:uint = keyNum / spaces;
+    var bytes:String = "";
+    for (var j:int = 3; j >= 0; --j) {
+      bytes += String.fromCharCode((resultNum >> (j * 8)) & 0xff);
+    }
+    return bytes;
+  }
+  
+  private function writeBytes(bytes:String):void {
+    for (var i:int = 0; i < bytes.length; ++i) {
+      socket.writeByte(bytes.charCodeAt(i));
+    }
+  }
+  
+  private function readBytes(buffer:ByteArray, numBytes:int):String {
+    var bytes:String = "";
+    for (var i:int = 0; i < numBytes; ++i) {
+      // & 0xff is to make \x80-\xff positive number.
+      bytes += String.fromCharCode(buffer.readByte() & 0xff);
+    }
+    return bytes;
+  }
+  
+  private function randomInt(min:uint, max:uint):uint {
+    return min + Math.floor(Math.random() * (Number(max) - min + 1));
+  }
 
+  // for debug
+  private function dumpBytes(bytes:String):void {
+    var output:String = "";
+    for (var i:int = 0; i < bytes.length; ++i) {
+      output += bytes.charCodeAt(i).toString() + ", ";
+    }
+    main.log(output);
+  }
+  
 }
 
 }
