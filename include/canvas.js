@@ -13,12 +13,14 @@
 var Canvas, Canvas_native;
 
 (function () {
-    var pre, extra = "", start, end;
+    var pre, start = "<script src='", end = "'><\/script>";
     if (document.createElement('canvas').getContext) {
         Canvas_native = true;
     } else {
+        pre = (typeof VNC_uri_prefix !== "undefined") ?
+                            VNC_uri_prefix : "include/";
+        document.write(start + pre + "excanvas.js" + end);
         Canvas_native = false;
-        document.write("<script src='excanvas'><\/script>");
     }
 }());
 
@@ -146,6 +148,7 @@ init: function (id) {
         // Use default Canvas functions
     } else {
         console.warn("Using excanvas canvas emulation");
+        //G_vmlCanvasManager.init(c);
         G_vmlCanvasManager.initElement(c);
     }
 
@@ -154,21 +157,25 @@ init: function (id) {
 
     Canvas.clear();
 
-
     /*
-     * Determine browser feature support and most optimal rendering
-     * methods
+     * Determine browser Canvas feature support
+     * and select fastest rendering methods
      */
     tval = 0;
+    Canvas.has_imageData = false;
     try {
         imgTest = Canvas.ctx.getImageData(0, 0, 1,1);
         imgTest.data[0] = 123;
         imgTest.data[3] = 255;
         Canvas.ctx.putImageData(imgTest, 0, 0);
         tval = Canvas.ctx.getImageData(0, 0, 1, 1).data[0];
-    } catch (exc) {
-    }
-    if (tval === 123) {
+        if (tval === 123) {
+            Canvas.has_imageData = true;
+        }
+    } catch (exc) {}
+
+    if (Canvas.has_imageData) {
+        console.log("Canvas supports imageData");
         Canvas._rgbxImage = Canvas._rgbxImageData;
         Canvas._cmapImage = Canvas._cmapImageData;
         if (Canvas.ctx.createImageData) {
@@ -178,9 +185,6 @@ init: function (id) {
         } else if (Canvas.ctx.getImageData) {
             console.log("Using Canvas getImageData");
             Canvas._imageData = Canvas._imageDataGet;
-        } else {
-            console.log("No imageData support");
-            return false;
         }
         if (Util.Engine.webkit) {
             console.log("Prefering javascript operations");
@@ -190,7 +194,7 @@ init: function (id) {
             Canvas.prefer_js = false;
         }
     } else {
-        console.log("No imageData, using fillRect (slow)");
+        console.log("Canvas lacks imageData, using fillRect (slow)");
         Canvas._rgbxImage = Canvas._rgbxImageFill;
         Canvas._cmapImage = Canvas._cmapImageFill;
         Canvas.prefer_js = false;
