@@ -15,6 +15,7 @@ sys.path.insert(0,os.path.dirname(__file__) + "/../utils/")
 from websocket import *
 
 buffer_size = 65536
+max_packet_size = 10000
 recv_cnt = send_cnt = 0
 
 
@@ -76,8 +77,8 @@ def check(buf):
 
 def generate():
     global send_cnt, rand_array
-    length = random.randint(10, 100000)
-    numlist = rand_array[100000-length:]
+    length = random.randint(10, max_packet_size)
+    numlist = rand_array[max_packet_size-length:]
     # Error in length
     #numlist.append(5)
     chksum = sum(numlist)
@@ -156,7 +157,7 @@ if __name__ == '__main__':
 
     print "Prepopulating random array"
     rand_array = []
-    for i in range(0, 100000):
+    for i in range(0, max_packet_size):
         rand_array.append(random.randint(0, 9))
 
     settings['listen_port'] = listen_port

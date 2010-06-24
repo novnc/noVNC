@@ -1,6 +1,18 @@
 <html>
 
-    <head><title>WebSockets Test</title></head>
+    <head>
+        <title>WebSockets Test</title>
+        <script src="include/mootools.js"></script>
+        <script src="include/base64.js"></script>
+        <script src="include/util.js"></script>
+        <!-- Uncomment to activate firebug lite -->
+        <!--
+        <script type='text/javascript' 
+            src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+        -->
+
+
+    </head>
 
     <body>
 
@@ -30,16 +42,6 @@
         <textarea id="error" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
-
-    <!-- Uncomment to activate firebug lite -->
-    <!--
-    <script type='text/javascript' 
-        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
-    -->
-
-    <script src="include/mootools.js"></script>
-    <script src="include/base64.js"></script>
-    <script src="include/util.js"></script>
 
     <script>
 
@@ -226,7 +228,10 @@
 
 
         /* If no builtin websockets then load web_socket.js */
-        if (! window.WebSocket) {
+        if (window.WebSocket) {
+            VNC_native_ws = true;
+        } else {
+            VNC_native_ws = false;
             console.log("Loading web-socket-js flash bridge");
             var extra = "<script src='include/web-socket-js/swfobject.js'><\/script>";
             extra += "<script src='include/web-socket-js/FABridge.js'><\/script>";
@@ -236,7 +241,11 @@
 
         window.onload = function() {
             console.log("onload");
-            WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
+            if (!VNC_native_ws) {
+                console.log("initializing web-socket-js flash bridge");
+                WebSocket.__swfLocation = "include/web-socket-js/WebSocketMain.swf";
+                WebSocket.__initialize();
+            }
             var url = document.location.href;
             $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
             $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];

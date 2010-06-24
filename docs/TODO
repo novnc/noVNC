@@ -2,8 +2,6 @@ Short Term:
 
 - Test on IE 9 preview 3.
 
-- Support WebSockets version 76 in proxy (Chrome 6 and Safari 5).
-
 - Support Opera 10.60.
 
 - Possibly support IE <= 8.0 using excanvas:

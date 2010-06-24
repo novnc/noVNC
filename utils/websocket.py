@@ -9,9 +9,10 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import sys, socket, ssl, traceback
+import sys, socket, ssl, struct, traceback
 import os, resource, errno, signal # daemonizing
 from base64 import b64encode, b64decode
+from hashlib import md5
 
 settings = {
     'listen_host' : '',
@@ -30,11 +31,11 @@ send_seq = 0
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
 Connection: Upgrade\r
-WebSocket-Origin: %s\r
-WebSocket-Location: %s://%s%s\r
-WebSocket-Protocol: sample\r
+%sWebSocket-Origin: %s\r
+%sWebSocket-Location: %s://%s%s\r
+%sWebSocket-Protocol: sample\r
 \r
-"""
+%s"""
 
 policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>\n"""
 
@@ -104,13 +105,11 @@ def do_handshake(sock):
         scheme = "ws"
         print "  using plain (not SSL) socket"
     handshake = retsock.recv(4096)
-    req_lines = handshake.split("\r\n")
-    _, path, _ = req_lines[0].split(" ")
-    _, origin = req_lines[4].split(" ")
-    _, host = req_lines[3].split(" ")
+    print "handshake: " + repr(handshake)
+    h = parse_handshake(handshake)
 
     # Parse client settings from the GET path
-    cvars = path.partition('?')[2].partition('#')[0].split('&')
+    cvars = h['path'].partition('?')[2].partition('#')[0].split('&')
     for cvar in [c for c in cvars if c]:
         name, _, val = cvar.partition('=')
         if name not in ['b64encode', 'seq_num']: continue
@@ -118,8 +117,55 @@ def do_handshake(sock):
         client_settings[name] = value
         print "  %s=%s" % (name, value)
 
-    retsock.send(server_handshake % (origin, scheme, host, path))
+    if h.get('key3'):
+        trailer = gen_md5(h)
+        pre = "Sec-"
+    else:
+        trailer = ""
+        pre = ""
+
+    response = server_handshake % (pre, h['Origin'], pre, scheme,
+            h['Host'], h['path'], pre, trailer)
+
+    print "sending response:", repr(response)
+
+    retsock.send(response)
     return retsock
+
+def parse_handshake(handshake):
+    ret = {}
+    req_lines = handshake.split("\r\n")
+    if not req_lines[0].startswith("GET "):
+        raise "Invalid handshake: no GET request line"
+    ret['path'] = req_lines[0].split(" ")[1]
+    for line in req_lines[1:]:
+        if line == "": break
+        var, delim, val = line.partition(": ")
+        ret[var] = val
+
+    if req_lines[-2] == "":
+        ret['key3'] = req_lines[-1]
+
+    return ret
+
+def gen_md5(keys):
+    key1 = keys['Sec-WebSocket-Key1']
+    key2 = keys['Sec-WebSocket-Key2']
+    key3 = keys['key3']
+    spaces1 = key1.count(" ")
+    spaces2 = key2.count(" ")
+    num1 = int("".join([c for c in key1 if c.isdigit()])) / spaces1
+    num2 = int("".join([c for c in key2 if c.isdigit()])) / spaces2
+
+    packed = struct.pack('>II8s', num1, num2, key3)
+    digest = md5(packed).digest()
+    print "num1:", num1
+    print "num2:", num2
+    print "key3:", repr(key3)
+    print "packed:", packed
+    print "digest:", repr(digest)
+
+    return digest
 
 def daemonize():
     os.umask(0)

@@ -36,3 +36,9 @@ WebSocket gets converted to UTF-8 and vice-versa. So, one additional
 (and necessary) function of the proxy is base64 encoding/decoding what
 is sent to/from the browser. Another option that I want to explore is
 UTF-8 encoding in the proxy.
+
+
+Building web-socket-js emulator:
+
+cd include/web-socket-js/flash-src
+mxmlc -static-link-runtime-shared-libraries WebSocketMain.as
