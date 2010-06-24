@@ -21,6 +21,7 @@ public class WebSocketMain extends Sprite {
 
   private var policyLoaded:Boolean = false;
   private var callerUrl:String;
+  private var debug:Boolean = false;
 
   public function WebSocketMain() {
     
@@ -40,6 +41,10 @@ public class WebSocketMain extends Sprite {
   
   public function setCallerUrl(url:String):void {
     callerUrl = url;
+  }
+
+  public function setDebug(val:Boolean):void {
+    debug = val;
   }
 
   public function create(
@@ -70,7 +75,9 @@ public class WebSocketMain extends Sprite {
   }
 
   public function log(message:String):void {
-    ExternalInterface.call("webSocketLog", encodeURIComponent("[WebSocket] " + message));
+    if (debug) {
+        ExternalInterface.call("webSocketLog", encodeURIComponent("[WebSocket] " + message));
+    }
   }
 
   public function error(message:String):void {

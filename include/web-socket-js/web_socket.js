@@ -255,7 +255,7 @@
 
   WebSocket.__tasks = [];
 
-  WebSocket.__initialize = function() {
+  WebSocket.__initialize = function(debug) {
     if (!WebSocket.__swfLocation) {
       console.error("[WebSocket] set WebSocket.__swfLocation to location of WebSocketMain.swf");
       return;
@@ -283,6 +283,9 @@
         //console.log("[WebSocket] FABridge initializad");
         WebSocket.__flash = FABridge.webSocket.root();
         WebSocket.__flash.setCallerUrl(location.href);
+        if (typeof debug !== "undefined") {
+          WebSocket.__flash.setDebug(debug);
+        }
         for (var i = 0; i < WebSocket.__tasks.length; ++i) {
           WebSocket.__tasks[i]();
         }
