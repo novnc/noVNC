@@ -75,7 +75,7 @@ package com.gsolo.encryption {
 		  var bkey:Array = rstr2binl (key);
 		  if (bkey.length > 16) bkey = binl_md5 (bkey, key.length * 8);
 		
-		  var ipad:Array = Array(16), opad:Array = Array(16);
+		  var ipad:Array = new Array(16), opad:Array = new Array(16);
 		  for(var i:Number = 0; i < 16; i++) {
 		    ipad[i] = bkey[i] ^ 0x36363636;
 		    opad[i] = bkey[i] ^ 0x5C5C5C5C;
@@ -128,7 +128,7 @@ package com.gsolo.encryption {
 		  var i:Number, q:Number, x:Number, quotient:Array;
 		
 		  /* Convert to an array of 16-bit big-endian values, forming the dividend */
-		  var dividend:Array = Array(input.length / 2);
+		  var dividend:Array = new Array(input.length / 2);
 		  for(i = 0; i < dividend.length; i++) {
 		    dividend[i] = (input.charCodeAt(i * 2) << 8) | input.charCodeAt(i * 2 + 1);
 		  }
@@ -222,10 +222,10 @@ package com.gsolo.encryption {
 		 * Characters >255 have their high-byte silently ignored.
 		 */
 		public static function rstr2binl (input:String):Array {
-		  var output:Array = Array(input.length >> 2);
+		  var output:Array = new Array(input.length >> 2);
 		  for(var i:Number = 0; i < output.length; i++)
 		    output[i] = 0;
-		  for(var i:Number = 0; i < input.length * 8; i += 8)
+		  for(i = 0; i < input.length * 8; i += 8)
 		    output[i>>5] |= (input.charCodeAt(i / 8) & 0xFF) << (i%32);
 		  return output;
 		}
