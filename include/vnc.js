@@ -64,7 +64,7 @@ true_color     : false,
 
 b64encode      : true,  // false means UTF-8 on the wire
 //b64encode      : false,  // false means UTF-8 on the wire
-connectTimeout : 3000,  // time to wait for connection
+connectTimeout : 2000,  // time to wait for connection
 
 
 // In preference order
@@ -306,9 +306,9 @@ mouse_arr        : [],
 init_msg: function () {
     //console.log(">> init_msg [RFB.state '" + RFB.state + "']");
 
-    var RQ = RFB.RQ, strlen, reason, reason_len,
-        sversion, cversion, types, num_types, challenge, response,
-        bpp, depth, big_endian, true_color, name_length;
+    var RQ = RFB.RQ, strlen, reason, reason_len, sversion, cversion,
+        i, types, num_types, challenge, response, bpp, depth,
+        big_endian, true_color, name_length;
 
     //console.log("RQ (" + RQ.length + ") " + RQ);
     switch (RFB.state) {
@@ -350,15 +350,19 @@ init_msg: function () {
                         "Disconnected: security failure: " + reason);
                 return;
             }
+            RFB.auth_scheme = 0;
             types = RQ.shiftBytes(num_types);
-            
-            RFB.auth_scheme = types[0];
-            if ((RFB.auth_scheme !== 1) && (RFB.auth_scheme !== 2)) {
+            for (i=0; i < types.length; i+=1) {
+                if ((types[i] > RFB.auth_scheme) && (types[i] < 3)) {
+                    RFB.auth_scheme = types[i];
+                }
+            }
+            if (RFB.auth_scheme === 0) {
                 RFB.updateState('failed',
-                        "Disconnected: invalid security types list: " + types);
+                        "Disconnected: unsupported security types: " + types);
                 return;
             }
-
+            
             RFB.send_array([RFB.auth_scheme]);
         } else {
             if (RQ.length < 4) {
