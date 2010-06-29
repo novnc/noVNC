@@ -2,20 +2,23 @@ Short Term:
 
 - Test on IE 9 preview 3.
 
-- Support Opera 10.60.
+- Support Opera 10.60 (WebSocket frames dropped).
 
-- Possibly support IE <= 8.0 using excanvas:
+- Possibly support IE <= 8.0 using excanvas of fxcanvas:
   http://excanvas.sourceforge.net/
-
-
-Medium Term:
+  http://code.google.com/p/fxcanvas/
 
 - Timing delta between frames in proxy record log, for playback
   support (for demo and test).
 
+
+Medium Term:
+
 - Implement Cursor pseudo-encoding (CSS cursor)
     http://en.wikipedia.org/wiki/ICO_(file_format)
     https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
+
+- Viewport and/or scaling support.
 
 - Status bar buttons:
     - Isolate menu UI in DefaultControls.js
@@ -56,7 +59,11 @@ Longer Term:
 
 - Get web-socket-js RFC2817 proxying working again.
 
+- Implement tight and ZRLE encoding
+
 - Support for Spice protocol.
 
-- Implement tight and ZRLE encoding
+- Consider RDP protocol.
+
+- Consider NX protocol.
 

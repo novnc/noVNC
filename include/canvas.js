@@ -28,6 +28,7 @@ var Canvas, Canvas_native;
 Canvas = {
 
 prefer_js  : false,
+force_canvas : false,
 
 true_color : false,
 colourMap  : [],
@@ -176,8 +177,7 @@ init: function (id) {
 
     if (Canvas.has_imageData) {
         console.log("Canvas supports imageData");
-        Canvas._rgbxImage = Canvas._rgbxImageData;
-        Canvas._cmapImage = Canvas._cmapImageData;
+        Canvas.force_canvas = false;
         if (Canvas.ctx.createImageData) {
             // If it's there, it's faster
             console.log("Using Canvas createImageData");
@@ -186,18 +186,21 @@ init: function (id) {
             console.log("Using Canvas getImageData");
             Canvas._imageData = Canvas._imageDataGet;
         }
-        if (Util.Engine.webkit) {
+        if (Util.Engine.webkit || Util.Engine.gecko) {
             console.log("Prefering javascript operations");
             Canvas.prefer_js = true;
         } else {
             console.log("Prefering Canvas operations");
             Canvas.prefer_js = false;
         }
+        Canvas._rgbxImage = Canvas._rgbxImageData;
+        Canvas._cmapImage = Canvas._cmapImageData;
     } else {
         console.log("Canvas lacks imageData, using fillRect (slow)");
+        Canvas.force_canvas = true;
+        Canvas.prefer_js = false;
         Canvas._rgbxImage = Canvas._rgbxImageFill;
         Canvas._cmapImage = Canvas._cmapImageFill;
-        Canvas.prefer_js = false;
     }
 
     Canvas.colourMap = [];
