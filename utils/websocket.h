@@ -22,6 +22,15 @@ typedef struct {
     int seq_num;
 } client_settings_t;
 
+typedef struct {
+    char path[1024+1];
+    char host[1024+1];
+    char origin[1024+1];
+    char key1[1024+1];
+    char key2[1024+1];
+    char key3[8+1];
+} headers_t;
+
 
 ssize_t ws_recv(ws_ctx_t *ctx, void *buf, size_t len);
 

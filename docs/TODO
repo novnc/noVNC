@@ -4,7 +4,7 @@ Short Term:
 
 - Support Opera 10.60 (WebSocket frames dropped).
 
-- Possibly support IE <= 8.0 using excanvas of fxcanvas:
+- Possibly support IE <= 8.0 using excanvas or fxcanvas:
   http://excanvas.sourceforge.net/
   http://code.google.com/p/fxcanvas/
 

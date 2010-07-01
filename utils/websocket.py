@@ -43,20 +43,6 @@ def traffic(token="."):
     sys.stdout.write(token)
     sys.stdout.flush()
 
-def decode(buf):
-    """ Parse out WebSocket packets. """
-    if buf.count('\xff') > 1:
-        if client_settings['b64encode']:
-            return [b64decode(d[1:]) for d in buf.split('\xff')]
-        else:
-            # Modified UTF-8 decode
-            return [d[1:].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1') for d in buf.split('\xff')]
-    else:
-        if client_settings['b64encode']:
-            return [b64decode(buf[1:-1])]
-        else:
-            return [buf[1:-1].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1')]
-
 def encode(buf):
     global send_seq
     if client_settings['b64encode']:
@@ -71,6 +57,47 @@ def encode(buf):
     else:
         return "\x00%s\xff" % buf
 
+def decode(buf):
+    """ Parse out WebSocket packets. """
+    if buf.count('\xff') > 1:
+        if client_settings['b64encode']:
+            return [b64decode(d[1:]) for d in buf.split('\xff')]
+        else:
+            # Modified UTF-8 decode
+            return [d[1:].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1') for d in buf.split('\xff')]
+    else:
+        if client_settings['b64encode']:
+            return [b64decode(buf[1:-1])]
+        else:
+            return [buf[1:-1].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1')]
+
+def parse_handshake(handshake):
+    ret = {}
+    req_lines = handshake.split("\r\n")
+    if not req_lines[0].startswith("GET "):
+        raise Exception("Invalid handshake: no GET request line")
+    ret['path'] = req_lines[0].split(" ")[1]
+    for line in req_lines[1:]:
+        if line == "": break
+        var, delim, val = line.partition(": ")
+        ret[var] = val
+
+    if req_lines[-2] == "":
+        ret['key3'] = req_lines[-1]
+
+    return ret
+
+def gen_md5(keys):
+    key1 = keys['Sec-WebSocket-Key1']
+    key2 = keys['Sec-WebSocket-Key2']
+    key3 = keys['key3']
+    spaces1 = key1.count(" ")
+    spaces2 = key2.count(" ")
+    num1 = int("".join([c for c in key1 if c.isdigit()])) / spaces1
+    num2 = int("".join([c for c in key2 if c.isdigit()])) / spaces2
+
+    return md5(struct.pack('>II8s', num1, num2, key3)).digest()
+
 
 def do_handshake(sock):
     global client_settings, send_seq
@@ -82,7 +109,11 @@ def do_handshake(sock):
     # Peek, but don't read the data
     handshake = sock.recv(1024, socket.MSG_PEEK)
     #print "Handshake [%s]" % repr(handshake)
-    if handshake.startswith("<policy-file-request/>"):
+    if handshake == "":
+        print "Ignoring empty handshake"
+        sock.close()
+        return False
+    elif handshake.startswith("<policy-file-request/>"):
         handshake = sock.recv(1024)
         print "Sending flash policy response"
         sock.send(policy_response)
@@ -120,9 +151,11 @@ def do_handshake(sock):
     if h.get('key3'):
         trailer = gen_md5(h)
         pre = "Sec-"
+        print "  using protocol version 76"
     else:
         trailer = ""
         pre = ""
+        print "  using protocol version 75"
 
     response = server_handshake % (pre, h['Origin'], pre, scheme,
             h['Host'], h['path'], pre, trailer)
@@ -130,33 +163,6 @@ def do_handshake(sock):
     #print "sending response:", repr(response)
     retsock.send(response)
     return retsock
-
-def parse_handshake(handshake):
-    ret = {}
-    req_lines = handshake.split("\r\n")
-    if not req_lines[0].startswith("GET "):
-        raise "Invalid handshake: no GET request line"
-    ret['path'] = req_lines[0].split(" ")[1]
-    for line in req_lines[1:]:
-        if line == "": break
-        var, delim, val = line.partition(": ")
-        ret[var] = val
-
-    if req_lines[-2] == "":
-        ret['key3'] = req_lines[-1]
-
-    return ret
-
-def gen_md5(keys):
-    key1 = keys['Sec-WebSocket-Key1']
-    key2 = keys['Sec-WebSocket-Key2']
-    key3 = keys['key3']
-    spaces1 = key1.count(" ")
-    spaces2 = key2.count(" ")
-    num1 = int("".join([c for c in key1 if c.isdigit()])) / spaces1
-    num2 = int("".join([c for c in key2 if c.isdigit()])) / spaces2
-
-    return md5(struct.pack('>II8s', num1, num2, key3)).digest()
 
 def daemonize():
     os.umask(0)

@@ -24,10 +24,10 @@
 const char server_handshake[] = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n\
 Upgrade: WebSocket\r\n\
 Connection: Upgrade\r\n\
-WebSocket-Origin: %s\r\n\
-WebSocket-Location: %s://%s%s\r\n\
-WebSocket-Protocol: sample\r\n\
-\r\n";
+%sWebSocket-Origin: %s\r\n\
+%sWebSocket-Location: %s://%s%s\r\n\
+%sWebSocket-Protocol: sample\r\n\
+\r\n%s";
 
 const char policy_response[] = "<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\" /></cross-domain-policy>\n";
 
@@ -272,11 +272,113 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     return retlen;
 }
 
+int parse_handshake(char *handshake, headers_t *headers) {
+    char *start, *end;
+
+    if ((strlen(handshake) < 92) || (bcmp(handshake, "GET ", 4) != 0)) {
+        return 0;
+    }
+    start = handshake+4;
+    end = strstr(start, " HTTP/1.1");
+    if (!end) { return 0; }
+    strncpy(headers->path, start, end-start);
+    headers->path[end-start] = '\0';
+
+    start = strstr(handshake, "\r\nHost: ");
+    if (!start) { return 0; }
+    start += 8;
+    end = strstr(start, "\r\n");
+    strncpy(headers->host, start, end-start);
+    headers->host[end-start] = '\0';
+
+    start = strstr(handshake, "\r\nOrigin: ");
+    if (!start) { return 0; }
+    start += 10;
+    end = strstr(start, "\r\n");
+    strncpy(headers->origin, start, end-start);
+    headers->origin[end-start] = '\0';
+   
+    start = strstr(handshake, "\r\n\r\n");
+    if (!start) { return 0; }
+    start += 4;
+    if (strlen(start) == 8) {
+        strncpy(headers->key3, start, 8);
+        headers->key3[8] = '\0';
+
+        start = strstr(handshake, "\r\nSec-WebSocket-Key1: ");
+        if (!start) { return 0; }
+        start += 22;
+        end = strstr(start, "\r\n");
+        strncpy(headers->key1, start, end-start);
+        headers->key1[end-start] = '\0';
+    
+        start = strstr(handshake, "\r\nSec-WebSocket-Key2: ");
+        if (!start) { return 0; }
+        start += 22;
+        end = strstr(start, "\r\n");
+        strncpy(headers->key2, start, end-start);
+        headers->key2[end-start] = '\0';
+    } else {
+        headers->key1[0] = '\0';
+        headers->key2[0] = '\0';
+        headers->key3[0] = '\0';
+    }
+
+    return 1;
+}
+
+int gen_md5(headers_t *headers, char *target) {
+    unsigned int i, spaces1 = 0, spaces2 = 0;
+    unsigned long num1 = 0, num2 = 0;
+    unsigned char buf[17];
+    for (i=0; i < strlen(headers->key1); i++) {
+        if (headers->key1[i] == ' ') {
+            spaces1 += 1;
+        }
+        if ((headers->key1[i] >= 48) && (headers->key1[i] <= 57)) {
+            num1 = num1 * 10 + (headers->key1[i] - 48);
+        }
+    }
+    num1 = num1 / spaces1;
+
+    for (i=0; i < strlen(headers->key2); i++) {
+        if (headers->key2[i] == ' ') {
+            spaces2 += 1;
+        }
+        if ((headers->key2[i] >= 48) && (headers->key2[i] <= 57)) {
+            num2 = num2 * 10 + (headers->key2[i] - 48);
+        }
+    }
+    num2 = num2 / spaces2;
+
+    /* Pack it big-endian */
+    buf[0] = (num1 & 0xff000000) >> 24;
+    buf[1] = (num1 & 0xff0000) >> 16;
+    buf[2] = (num1 & 0xff00) >> 8;
+    buf[3] =  num1 & 0xff;
+
+    buf[4] = (num2 & 0xff000000) >> 24;
+    buf[5] = (num2 & 0xff0000) >> 16;
+    buf[6] = (num2 & 0xff00) >> 8;
+    buf[7] =  num2 & 0xff;
+
+    strncpy(buf+8, headers->key3, 8);
+    buf[16] = '\0';
+
+    md5_buffer(buf, 16, target);
+    target[16] = '\0';
+
+    return 1;
+}
+
+    
+
 ws_ctx_t *do_handshake(int sock) {
-    char handshake[4096], response[4096];
-    char *scheme, *line, *path, *host, *origin;
+    char handshake[4096], response[4096], trailer[17];
+    char *scheme, *pre;
+    headers_t headers;
     char *args_start, *args_end, *arg_idx;
-    int len;
+    int len, ret;
     ws_ctx_t * ws_ctx;
 
     // Reset settings
@@ -287,7 +389,11 @@ ws_ctx_t *do_handshake(int sock) {
     // Peek, but don't read the data
     len = recv(sock, handshake, 1024, MSG_PEEK);
     handshake[len] = 0;
-    if (bcmp(handshake, "<policy-file-request/>", 22) == 0) {
+    if (len == 0) {
+        printf("Ignoring empty handshake\n");
+        close(sock);
+        return NULL;
+    } else if (bcmp(handshake, "<policy-file-request/>", 22) == 0) {
         len = recv(sock, handshake, 1024, 0);
         handshake[len] = 0;
         printf("Sending flash policy response\n");
@@ -313,27 +419,25 @@ ws_ctx_t *do_handshake(int sock) {
     }
     len = ws_recv(ws_ctx, handshake, 4096);
     handshake[len] = 0;
-    //printf("handshake: %s\n", handshake);
-    if ((len < 92) || (bcmp(handshake, "GET ", 4) != 0)) {
+
+    if (!parse_handshake(handshake, &headers)) {
         fprintf(stderr, "Invalid WS request\n");
+        close(sock);
         return NULL;
     }
-    strtok(handshake, " ");      // Skip "GET "
-    path = strtok(NULL, " ");    // Extract path
-    strtok(NULL, "\n");          // Skip to Upgrade line
-    strtok(NULL, "\n");          // Skip to Connection line
-    strtok(NULL, "\n");          // Skip to Host line
-    strtok(NULL, " ");           // Skip "Host: "
-    host = strtok(NULL, "\r");   // Extract host
-    strtok(NULL, " ");           // Skip "Origin: "
-    origin = strtok(NULL, "\r"); // Extract origin
 
-    //printf("path: %s\n", path);
-    //printf("host: %s\n", host);
-    //printf("origin: %s\n", origin);
+    if (headers.key3[0] != '\0') {
+        gen_md5(&headers, trailer);
+        pre = "Sec-";
+        printf("  using protocol version 76\n");
+    } else {
+        trailer[0] = '\0';
+        pre = "";
+        printf("  using protocol version 75\n");
+    }
     
     // Parse client settings from the GET path
-    args_start = strstr(path, "?");
+    args_start = strstr(headers.path, "?");
     if (args_start) {
         if (strstr(args_start, "#")) {
             args_end = strstr(args_start, "#");
@@ -352,7 +456,8 @@ ws_ctx_t *do_handshake(int sock) {
         }
     }
 
-    sprintf(response, server_handshake, origin, scheme, host, path);
+    sprintf(response, server_handshake, pre, headers.origin, pre, scheme,
+            headers.host, headers.path, pre, trailer);
     //printf("response: %s\n", response);
     ws_send(ws_ctx, response, strlen(response));
 
