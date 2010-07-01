@@ -36,8 +36,16 @@
         WebSocket.__flash.create(url, protocol, proxyHost || null, proxyPort || 0, headers || null);
 
       self.__flash.addEventListener("open", function(fe) {
+        console.log("web-socket.js open");
         try {
-          if (self.onopen) self.onopen();
+          if (self.onopen) {
+            self.onopen();
+          } else {
+            // If "open" comes back in the same thread, then the
+            // caller will not have set the onopen handler yet.
+            setTimeout(function () {
+                if (self.onopen) { self.onopen(); } }, 10);
+          }
         } catch (e) {
           console.error(e.toString());
         }
@@ -95,6 +103,7 @@
   }
 
   WebSocket.prototype.send = function(data) {
+    this.readyState = this.__flash.getReadyState();
     if (!this.__flash || this.readyState == WebSocket.CONNECTING) {
       throw "INVALID_STATE_ERR: Web Socket connection has not been established";
     }
@@ -109,6 +118,7 @@
 
   WebSocket.prototype.close = function() {
     if (!this.__flash) return;
+    this.readyState = this.__flash.getReadyState();
     if (this.readyState != WebSocket.OPEN) return;
     this.__flash.close();
     // Sets/calls them manually here because Flash WebSocketConnection.close cannot fire events
