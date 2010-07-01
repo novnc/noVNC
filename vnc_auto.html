@@ -8,6 +8,11 @@ Connect parameters are provided in query string:
     <head>
         <title>VNC Client</title>
         <link rel="stylesheet" href="include/plain.css">
+        <!--
+        <script type='text/javascript' 
+            src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+        -->
+        <script src="include/vnc.js"></script>
     </head>
 
     <body style="margin: 0px;">
@@ -27,7 +32,6 @@ Connect parameters are provided in query string:
         </div>
     </body>
 
-    <script src="include/vnc.js"></script>
     <script>
         function setPassword() {
             RFB.sendPassword($('password_input').value);

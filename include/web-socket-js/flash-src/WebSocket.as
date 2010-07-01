@@ -48,6 +48,7 @@ public class WebSocket extends EventDispatcher {
   private var origin:String;
   private var protocol:String;
   private var buffer:ByteArray = new ByteArray();
+  private var dataQueue:Array;
   private var headerState:int = 0;
   private var readyState:int = CONNECTING;
   private var bufferedAmount:int = 0;
@@ -61,6 +62,7 @@ public class WebSocket extends EventDispatcher {
       headers:String = null) {
     this.main = main;
     initNoiseChars();
+    dataQueue = [];
     this.url = url;
     var m:Array = url.match(/^(\w+):\/\/([^\/:]+)(:(\d+))?(\/.*)?$/);
     if (!m) main.fatal("SYNTAX_ERR: invalid url: " + url);
@@ -270,36 +272,25 @@ public class WebSocket extends EventDispatcher {
             onError("data must start with \\x00");
             return;
           }
-          /*
-          var data:String = "", byte:uint;
-          while (buffer.bytesAvailable > 1) {
-            byte = buffer[buffer.position];
-            if (byte === 0x00) {
-              // readUTFBytes mishandles 0x00
-              data = data + "\x00";
-              buffer.position++;
-            } else if (byte === 0xff) {
-              // End of WebSocket frame
-              //ExternalInterface.call("console.log", "[WebSocket] early 0xff found");
-              break;
-            } else if ((byte & 0x80) === 0x00) {
-              // One UTF-8 input byte to one output byte
-              data = data + buffer.readUTFBytes(1);
-            } else {
-              // Assume two UTF-8 input bytes to one output byte
-              data = data + buffer.readUTFBytes(2);
-            }
-          }
-          */
           var data:String = buffer.readUTFBytes(pos - 1);
           main.log("received: " + data);
-          dispatchEvent(new WebSocketMessageEvent("message", encodeURIComponent(data)));
+          dataQueue.push(encodeURIComponent(data));
+          dispatchEvent(new WebSocketMessageEvent("message", data.length.toString()));
           buffer.readByte();
           makeBufferCompact();
           pos = -1;
         }
       }
     }
+  }
+
+  public function readSocketData():Array {
+    var q:Array = dataQueue;
+    if (dataQueue.length > 0) {
+        // Reset to empty
+        dataQueue = [];
+    }
+    return q;
   }
   
   private function validateHeader(headerStr:String):Boolean {

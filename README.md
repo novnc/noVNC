@@ -90,9 +90,9 @@ I only currently test under Linux. Here are the current results:
   full-color images are slow.
 * Arora 0.50: Works. Broken putImageData so large full-color images
   are slow.
+* Opera 10.60: Works. Uses flash WebSockets emulator. Large full-color
+  images are slow.
 
-* Opera 10.10: Unusable: drops web-socket-js events.
-* Opera 10.60: Broken: throws "WRONG_ARGUMENTS_ERR" on connect.
 * Konqueror 4.2.2: Broken: flash WebSockets emulator never connects.
 
 
@@ -105,11 +105,13 @@ structure and style.
 At a minimum you must include the `vnc.js` and `default_controls.js`
 scripts and call their load() functions. For example:
 
+    <head>
+        <script src='include/vnc.js'></script>
+        <script src="include/default_controls.js"></script>
+    </head>
     <body>
         <div id='vnc'>Loading</div>
     </body>
-    <script src='include/vnc.js'></script>
-    <script src="include/default_controls.js"></script>
     <script>
         window.onload = function () {
             DefaultControls.load('vnc');

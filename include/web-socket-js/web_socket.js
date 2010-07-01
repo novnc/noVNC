@@ -52,20 +52,24 @@
       });
 
       self.__flash.addEventListener("message", function(fe) {
-        var data = decodeURIComponent(fe.getData());
-        try {
-          if (self.onmessage) {
-            var e;
-            if (window.MessageEvent) {
-              e = document.createEvent("MessageEvent");
-              e.initMessageEvent("message", false, false, data, null, null, window, null);
-            } else { // IE
-              e = {data: data};
+        var i, arr, data;
+        arr = self.__flash.readSocketData();
+        for (i=0; i < arr.length; i++) {
+          data = decodeURIComponent(arr[i]);
+          try {
+            if (self.onmessage) {
+              var e;
+              if (window.MessageEvent) {
+                e = document.createEvent("MessageEvent");
+                e.initMessageEvent("message", false, false, data, null, null, window, null);
+              } else { // IE
+                e = {data: data};
+              }
+              self.onmessage(e);
             }
-            self.onmessage(e);
+          } catch (e) {
+            console.error(e.toString());
           }
-        } catch (e) {
-          console.error(e.toString());
         }
       });
 
