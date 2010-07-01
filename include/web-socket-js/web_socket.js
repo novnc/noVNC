@@ -35,31 +35,7 @@
       self.__flash =
         WebSocket.__flash.create(url, protocol, proxyHost || null, proxyPort || 0, headers || null);
 
-      self.__flash.addEventListener("open", function(fe) {
-        console.log("web-socket.js open");
-        try {
-          if (self.onopen) {
-            self.onopen();
-          } else {
-            // If "open" comes back in the same thread, then the
-            // caller will not have set the onopen handler yet.
-            setTimeout(function () {
-                if (self.onopen) { self.onopen(); } }, 10);
-          }
-        } catch (e) {
-          console.error(e.toString());
-        }
-      });
-
-      self.__flash.addEventListener("close", function(fe) {
-        try {
-          if (self.onclose) self.onclose();
-        } catch (e) {
-          console.error(e.toString());
-        }
-      });
-
-      self.__flash.addEventListener("message", function(fe) {
+      self.__messageHandler = function() {
         var i, arr, data;
         arr = self.__flash.readSocketData();
         for (i=0; i < arr.length; i++) {
@@ -79,9 +55,53 @@
             console.error(e.toString());
           }
         }
+      };
+
+      self.__flash.addEventListener("open", function(fe) {
+        self.readyState = self.__flash.getReadyState();
+
+        // For browsers (like Opera) that drop events, also poll for
+        // message data
+        if (self.__messageHandlerID) {
+          clearInterval(self.__messageHandlerID);
+        }
+        self.__messageHandlerID = setInterval(function () {
+            //console.log("polling for message data");
+            self.__messageHandler; }, 500);
+
+        try {
+          if (self.onopen) {
+            self.onopen();
+          } else {
+            // If "open" comes back in the same thread, then the
+            // caller will not have set the onopen handler yet.
+            setTimeout(function () {
+                if (self.onopen) { self.onopen(); } }, 10);
+          }
+        } catch (e) {
+          console.error(e.toString());
+        }
       });
 
+      self.__flash.addEventListener("close", function(fe) {
+        self.readyState = self.__flash.getReadyState();
+
+        if (self.__messageHandlerID) {
+          clearInterval(self.__messageHandlerID);
+        }
+        try {
+          if (self.onclose) self.onclose();
+        } catch (e) {
+          console.error(e.toString());
+        }
+      });
+
+      self.__flash.addEventListener("message", self.__messageHandler);
+
       self.__flash.addEventListener("error", function(fe) {
+        if (self.__messageHandlerID) {
+          clearInterval(self.__messageHandlerID);
+        }
         try {
           if (self.onerror) self.onerror();
         } catch (e) {
@@ -125,6 +145,9 @@
     // which causes weird error:
     // > You are trying to call recursively into the Flash Player which is not allowed.
     this.readyState = WebSocket.CLOSED;
+    if (this.__messageHandlerID) {
+      clearInterval(this.__messageHandlerID);
+    }
     if (this.onclose) this.onclose();
   };
 

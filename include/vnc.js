@@ -194,9 +194,9 @@ connect: function (host, port, password, encrypt, true_color) {
 disconnect: function () {
     //console.log(">> disconnect");
     if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
+        RFB.ws.close();
         RFB.updateState('closed');
         RFB.ws.onmessage = function (e) { return; };
-        RFB.ws.close();
     }
     if (Canvas.ctx) {
         Canvas.stop();
