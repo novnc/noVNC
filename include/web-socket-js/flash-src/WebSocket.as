@@ -62,7 +62,6 @@ public class WebSocket extends EventDispatcher {
       headers:String = null) {
     this.main = main;
     initNoiseChars();
-    dataQueue = [];
     this.url = url;
     var m:Array = url.match(/^(\w+):\/\/([^\/:]+)(:(\d+))?(\/.*)?$/);
     if (!m) main.fatal("SYNTAX_ERR: invalid url: " + url);
@@ -135,6 +134,7 @@ public class WebSocket extends EventDispatcher {
   
   public function close():void {
     main.log("close");
+    dataQueue = [];
     try {
       socket.close();
     } catch (ex:Error) { }
@@ -160,6 +160,7 @@ public class WebSocket extends EventDispatcher {
         tlsSocket.startTLS(rawSocket, host, tlsConfig);
     }
     
+    dataQueue = [];
     var hostValue:String = host + (port == 80 ? "" : ":" + port);
     var cookie:String = "";
     if (main.getCallerHost() == host) {
