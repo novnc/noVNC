@@ -86,15 +86,16 @@ I only currently test under Linux. Here are the current results:
 
 * Chrome 5.0.375.29 beta: Works great. Native WebSockets support. Very
   fast.
-* firefox 3.5, 3.7: Works well. Large full-color images are slow
-  mostly due to flash WebSockets emulator overhead.
-* Opera 10.60: Works. Rendering performance between firefox 3.5 and
-  Chrome. However, flash WebSockets emulator interaction causes
-  inconsistence overall performance and occasional hangs.
+* firefox 3.5: Works well. Large full-color images are slow mostly due
+  to flash WebSockets emulator overhead.
+* Opera 10.60: Works. Rendering performance is between firefox 3.5 and
+  Chrome. However flash WebSockets emulator interaction causes overall
+  performance to be lower than firefox 3.5 and causes occasional
+  hangs.
 * Arora 0.50: Works. Broken putImageData so large full-color images
   are slow.
 
-* Konqueror 4.2.2: Broken: flash WebSockets emulator never connects.
+* Konqueror 4.2.2: Broken: flash WebSockets emulator never loads.
 
 
 Integration
