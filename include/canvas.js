@@ -186,13 +186,8 @@ init: function (id) {
             console.log("Using Canvas getImageData");
             Canvas._imageData = Canvas._imageDataGet;
         }
-        if (Util.Engine.webkit || Util.Engine.gecko) {
-            console.log("Prefering javascript operations");
-            Canvas.prefer_js = true;
-        } else {
-            console.log("Prefering Canvas operations");
-            Canvas.prefer_js = false;
-        }
+        console.log("Prefering javascript operations");
+        Canvas.prefer_js = true;
         Canvas._rgbxImage = Canvas._rgbxImageData;
         Canvas._cmapImage = Canvas._cmapImageData;
     } else {
