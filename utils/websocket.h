@@ -18,8 +18,6 @@ typedef struct {
 
 typedef struct {
     int do_b64encode;
-    int do_seq_num;
-    int seq_num;
 } client_settings_t;
 
 typedef struct {

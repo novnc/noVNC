@@ -135,7 +135,6 @@ load: function () {
             WebSocket.__swfLocation = get_VNC_uri_prefix() +
                         "web-socket-js/WebSocketMain.swf";
             WebSocket.__initialize();
-            RFB.use_seq = true;
             RFB.updateState('disconnected', 'Disconnected');
         }
     }
@@ -224,12 +223,9 @@ clipboardPasteFrom: function (text) {
 ws             : null,  // Web Socket object
 sendID         : null,
 scanID         : null,  // TIGHT_PNG render image scanner
-use_seq        : false,
 
 // Receive and send queues
 RQ             : [],  // Receive Queue
-RQ_reorder     : [],  // Receive Queue re-order list
-RQ_seq_num     : 0,   // Expected sequence number
 SQ             : "",  // Send Queue
 
 encHandlers    : {},
@@ -1161,13 +1157,8 @@ recv_message: function(e) {
     //console.log(">> recv_message");
 
     try {
-        if (RFB.use_seq) {
-            RFB.recv_message_reorder(e);
-        } else {
-            RFB.decode_message(e.data, 0);
-
-            RFB.handle_message();
-        }
+        RFB.decode_message(e.data, 0);
+        RFB.handle_message();
     } catch (exc) {
         if (typeof exc.stack !== 'undefined') {
             console.log("recv_message, caught exception: " + exc.stack);
@@ -1183,50 +1174,6 @@ recv_message: function(e) {
         }
     }
     //console.log("<< recv_message");
-},
-
-recv_message_reorder: function(e) {
-    //console.log(">> recv_message_reorder");
-
-    var offset, seq_num, i;
-
-    offset = e.data.indexOf(":") + 1;
-    seq_num = parseInt(e.data.substr(0, offset-1), 10);
-    if (RFB.RQ_seq_num === seq_num) {
-        RFB.decode_message(e.data, offset);
-        RFB.RQ_seq_num += 1;
-    } else {
-        console.warn("sequence number mismatch: expected " +
-                     RFB.RQ_seq_num + ", got " + seq_num);
-        if (RFB.RQ_reorder.length > 40) {
-            RFB.updateState('failed', "Re-order queue too long");
-        } else {
-            RFB.RQ_reorder = RFB.RQ_reorder.concat(e.data.substr(0));
-            i = 0;
-            while (i < RFB.RQ_reorder.length) {
-                offset = RFB.RQ_reorder[i].indexOf(":") + 1;
-                seq_num = parseInt(RFB.RQ_reorder[i].substr(0, offset-1), 10);
-                //console.log("Searching reorder list item " +
-                //            i + ", seq_num " + seq_num);
-                if (seq_num === RFB.RQ_seq_num) {
-                    /* Remove it from reorder queue, decode it and
-                        * add it to the receive queue */
-                    console.log("Found re-ordered packet seq_num " + seq_num);
-                    RFB.decode_message(RFB.RQ_reorder.splice(i, 1)[0], offset);
-                    RFB.RQ_seq_num += 1;
-                    i = 0;  // Start search again for next one
-                } else {
-                    i += 1;
-                }
-            }
-            
-        }
-    }
-
-    if (RFB.RQ.length > 0) {
-        RFB.handle_message();
-    }
-    //console.log("<< recv_message_reorder");
 },
 
 handle_message: function () {
@@ -1443,9 +1390,6 @@ init_ws: function () {
     if (RFB.b64encode) {
         vars.push("b64encode");
     }
-    if (RFB.use_seq) {
-        vars.push("seq_num");
-    }
     if (vars.length > 0) {
         uri += "?" + vars.join("&");
     }
@@ -1499,8 +1443,6 @@ init_vars: function () {
     RFB.cuttext          = 'none';
     RFB.ct_length        = 0;
     RFB.RQ               = [];
-    RFB.RQ_reorder       = [];
-    RFB.RQ_seq_num       = 0;
     RFB.SQ               = "";
     RFB.FBU.rects        = 0;
     RFB.FBU.subrects     = 0;  // RRE and HEXTILE

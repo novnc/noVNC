@@ -187,10 +187,6 @@ int encode(u_char const *src, size_t srclength, char *target, size_t targsize) {
     int i, sz = 0, len = 0;
     unsigned char chr;
     target[sz++] = '\x00';
-    if (client_settings.do_seq_num) {
-        sz += sprintf(target+sz, "%d:", client_settings.seq_num);
-        client_settings.seq_num++;
-    }
     if (client_settings.do_b64encode) {
         len = __b64_ntop(src, srclength, target+sz, targsize-sz);
         if (len < 0) {
@@ -383,8 +379,6 @@ ws_ctx_t *do_handshake(int sock) {
 
     // Reset settings
     client_settings.do_b64encode = 0;
-    client_settings.do_seq_num = 0;
-    client_settings.seq_num = 0;
 
     // Peek, but don't read the data
     len = recv(sock, handshake, 1024, MSG_PEEK);
@@ -448,11 +442,6 @@ ws_ctx_t *do_handshake(int sock) {
         if (arg_idx && arg_idx < args_end) {
             printf("  b64encode=1\n");
             client_settings.do_b64encode = 1;
-        }
-        arg_idx = strstr(args_start, "seq_num");
-        if (arg_idx && arg_idx < args_end) {
-            printf("  seq_num=1\n");
-            client_settings.do_seq_num = 1;
         }
     }
 
@@ -569,7 +558,7 @@ void start_server() {
         /* Calculate dbufsize based on client_settings */
         if (client_settings.do_b64encode) {
             /* base64 is 4 bytes for every 3
-             *    20 for WS '\x00' / '\xff', seq_num and good measure  */
+             *    20 for WS '\x00' / '\xff' and good measure  */
             dbufsize = (bufsize * 3)/4 - 20;
         } else {
             /* UTF-8 encoding is up to 2X larger */

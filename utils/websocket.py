@@ -23,10 +23,7 @@ settings = {
     'daemon'      : True,
     'record'      : None, }
 client_settings = {
-    'b64encode'   : False,
-    'seq_num'     : False, }
-
-send_seq = 0
+    'b64encode'   : False, }
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
@@ -44,18 +41,13 @@ def traffic(token="."):
     sys.stdout.flush()
 
 def encode(buf):
-    global send_seq
     if client_settings['b64encode']:
         buf = b64encode(buf)
     else:
         # Modified UTF-8 encode
         buf = buf.decode('latin-1').encode('utf-8').replace("\x00", "\xc4\x80")
 
-    if client_settings['seq_num']:
-        send_seq += 1
-        return "\x00%d:%s\xff" % (send_seq-1, buf)
-    else:
-        return "\x00%s\xff" % buf
+    return "\x00%s\xff" % buf
 
 def decode(buf):
     """ Parse out WebSocket packets. """
@@ -100,11 +92,9 @@ def gen_md5(keys):
 
 
 def do_handshake(sock):
-    global client_settings, send_seq
+    global client_settings
 
     client_settings['b64encode'] = False
-    client_settings['seq_num'] = False
-    send_seq = 0
 
     # Peek, but don't read the data
     handshake = sock.recv(1024, socket.MSG_PEEK)
@@ -143,7 +133,7 @@ def do_handshake(sock):
     cvars = h['path'].partition('?')[2].partition('#')[0].split('&')
     for cvar in [c for c in cvars if c]:
         name, _, val = cvar.partition('=')
-        if name not in ['b64encode', 'seq_num']: continue
+        if name not in ['b64encode']: continue
         value = val and val or True
         client_settings[name] = value
         print "  %s=%s" % (name, value)
