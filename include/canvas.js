@@ -19,7 +19,7 @@ var Canvas, Canvas_native;
     } else {
         pre = (typeof VNC_uri_prefix !== "undefined") ?
                             VNC_uri_prefix : "include/";
-        document.write(start + pre + "excanvas.js" + end);
+        //document.write(start + pre + "excanvas.js" + end);
         Canvas_native = false;
     }
 }());
@@ -150,7 +150,7 @@ init: function (id) {
     } else {
         console.warn("Using excanvas canvas emulation");
         //G_vmlCanvasManager.init(c);
-        G_vmlCanvasManager.initElement(c);
+        //G_vmlCanvasManager.initElement(c);
     }
 
     if (! c.getContext) { throw("No getContext method"); }

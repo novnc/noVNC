@@ -9,10 +9,6 @@ Short Term:
 - Timing delta between frames in proxy record log, for playback
   support (for demo and test).
 
-- Opera hang after second disconnect.
-
-- Opera event issues: keyboard not stopped. Middle mouse sticks.
-
 
 Medium Term:
 
