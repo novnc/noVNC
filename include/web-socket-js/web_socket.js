@@ -293,6 +293,9 @@
   WebSocket.__tasks = [];
 
   WebSocket.__initialize = function() {
+    if (WebSocket__swfLocation) {
+        WebSocket.__swfLocation = WebSocket__swfLocation;
+    }
     if (!WebSocket.__swfLocation) {
       console.error("[WebSocket] set WebSocket.__swfLocation to location of WebSocketMain.swf");
       return;
