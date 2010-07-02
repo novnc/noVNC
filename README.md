@@ -85,29 +85,27 @@ There a few reasons why a proxy is required:
         <th> Status </th>
         <th> Notes </th>
     </tr> <tr>
-        <td> Ubuntu 9.04 </td> <td> Chrome 5.0.375.29 </td>
-        <td style="background-color: #e0ffe0;"> Works great </td>
+        <td> Jaunty </td> <td> Chrome 5.0.375.29 </td>
+        <td> Works great </td>
         <td> Very fast. Native WebSockets. </td>
     </tr> <tr>
-        <td> Ubuntu 9.04 </td> <td> Firefox 3.5 </td>
-        <td style="background-color: #e0ffe0;"> Works well </td>
+        <td> Jaunty </td> <td> Firefox 3.5 </td>
+        <td> Works well </td>
         <td> Large full-color images are somewhat slow due to
              web-socket-js overhead. </td>
     </tr> <tr>
-        <td> Ubuntu 9.04 </td> <td> Opera 10.60 </td>
-        <td style="background-color: #ffffe0;"> Works </td>
-        <td> Rendering performance is between firefox 3.5 and
-             Chrome. However web-socket-js interaction causes overall
-             performance to be lower than firefox 3.5 and causes
-             occasional hangs. </td>
+        <td> Jaunty </td> <td> Opera 10.60 </td>
+        <td> Works </td>
+        <td> web-socket-js interaction makes it slower than firefox
+             and causes occasional hangs. </td>
     </tr> <tr>
-        <td> Ubuntu 9.04 </td> <td> Arora 0.5 </td>
-        <td style="background-color: #ffffe0;"> Works </td>
+        <td> Jaunty </td> <td> Arora 0.5 </td>
+        <td> Works </td>
         <td> Broken putImageData so large full-color images
              are slow. Uses web-socket-js. </td>
     </tr> <tr>
-        <td> Ubuntu 9.04 </td> <td> Konqueror 4.2.2 </td>
-        <td style="background-color: #ffe0e0;"> Broken </td>
+        <td> Jaunty </td> <td> Konqueror 4.2.2 </td>
+        <td> <em>Broken</em> </td>
         <td> web-socket-js never loads </td>
     </tr> <tr>
         <td> </td>
@@ -115,22 +113,21 @@ There a few reasons why a proxy is required:
         <td> </td>
         <td> </td>
     </tr> <tr>
-        <td> Windows XP </td> <td> Chrome 5.0.375.99 </td>
-        <td style="background-color: #e0ffe0;"> Works great </td>
+        <td> WinXP </td> <td> Chrome 5.0.375.99 </td>
+        <td> Works great </td>
         <td> Very fast. Native WebSockets. </td>
     </tr> <tr>
-        <td> Windows XP </td> <td> Firefox 3.0.19 </td>
-        <td style="background-color: #e0ffe0;"> Works well </td>
+        <td> WinXP </td> <td> Firefox 3.0.19 </td>
+        <td> Works well </td>
         <td> Some overhead from web-socket-js. </td>
     </tr> <tr>
-        <td> Windows XP </td> <td> Safari 5.0 </td>
-        <td style="background-color: #ffffe0;"> Works </td>
-        <td> Fast. Native WebSockets. However 'wss://'
-             (SSL/TLS) does not work because client sends strange
-             handshake. </td>
+        <td> WinXP </td> <td> Safari 5.0 </td>
+        <td> Works </td>
+        <td> Fast. Native WebSockets. Broken 'wss://'
+             (SSL) - weird client header </td>
     </tr> <tr>
-        <td> Windows XP </td> <td> Internet Explorer 6, 7, 8</td>
-        <td style="background-color: #ffe0e0;"> Non-starter </td>
+        <td> WinXP </td> <td> IE 6, 7, 8</td>
+        <td> <em>Non-starter</em> </td>
         <td> No basic Canvas support. Javascript painfully slow. </td>
     </tr>
 </table>
