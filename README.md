@@ -1,9 +1,7 @@
-noVNC: HTML5 VNC Client
-======================
+## noVNC: HTML5 VNC Client
 
 
-Description
------------
+### Description
 
 noVNC is a VNC client implemented using HTML5 technologies,
 specifically Canvas and WebSocket (supports 'wss://' encryption).
@@ -17,8 +15,7 @@ WebSocket SSL/TLS encryption, i.e. the "wss://" URI scheme.
 (http://github.com/lyokato/as3crypto_patched).
 
 
-Requirements
-------------
+### Requirements
 
 Until there is VNC server support for WebSocket connections, you need
 to use a WebSocket to TCP socket proxy. There is a python proxy
@@ -44,8 +41,7 @@ There a few reasons why a proxy is required:
      sequence numbers to each packet.
 
 
-Usage
------
+### Usage
 
 * To encrypt the traffic using the WebSocket 'wss://' URI scheme you
   need to generate a certificate for the proxy to load. You can generate
@@ -79,27 +75,35 @@ Usage
   button and enjoy!
 
 
-Browser Support
----------------
+### Browser Support
 
-I only currently test under Linux. Here are the current results:
+#### Linux (Ubuntu 9.04)
 
-* Chrome 5.0.375.29 beta: Works great. Native WebSockets support. Very
-  fast.
-* firefox 3.5: Works well. Large full-color images are slow mostly due
-  to flash WebSockets emulator overhead.
+* Chrome 5.0.375.29: Works great. Very fast. Native WebSockets.
+* Firefox 3.5: Works well. Large full-color images are slow mostly due
+  to web-socket-js overhead.
 * Opera 10.60: Works. Rendering performance is between firefox 3.5 and
-  Chrome. However flash WebSockets emulator interaction causes overall
-  performance to be lower than firefox 3.5 and causes occasional
-  hangs.
+  Chrome. However web-socket-js interaction causes overall performance
+  to be lower than firefox 3.5 and causes occasional hangs.
 * Arora 0.50: Works. Broken putImageData so large full-color images
-  are slow.
+  are slow. Uses web-socket-js.
 
-* Konqueror 4.2.2: Broken: flash WebSockets emulator never loads.
+* Konqueror 4.2.2: Broken: web-socket-js never loads.
 
 
-Integration
------------
+#### Windows (XP)
+
+* Chrome 5.0.375.99: Works great. Very fast. Native WebSockets.
+* Firefox 3.0.19: Works well. Some overhead from web-socket-js.
+* Safari 5.0: Works. Fast. Native WebSockets support. However 'wss://'
+  (SSL/TLS) does not work because client sends a strange handshake.
+
+* Internet Explorer 6, 7 and 8: Non-starter: not even basic Canvas
+  support.
+
+
+
+### Integration
 
 The client is designed to be easily integrated with existing web
 structure and style.
