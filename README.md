@@ -91,22 +91,20 @@ In the following table Jaunty is Ubuntu 9.04 and WinXP is Windows XP.
         <td>Excellent</td>
         <td>Very fast. Native WebSockets.</td>
     </tr> <tr>
-        <td>Jaunty</td> <td> Firefox 3.5</td>
+        <td>Jaunty</td> <td>Firefox 3.5</td>
         <td>Good</td>
-        <td>Large full-color images are somewhat slow due to
-             web-socket-js overhead.</td>
+        <td>Large full-color images are somewhat slow from web-socket-js overhead.</td>
     </tr> <tr>
-        <td>Jaunty</td> <td> Opera 10.60</td>
-        <td>Fair</td>
-        <td>web-socket-js interaction problems: slower than firefox,
-            occasional hangs.</td>
+        <td>Jaunty</td> <td>Opera 10.60</td>
+        <td>Poor</td>
+        <td>web-socket-js problems, mouse/keyboard issues. See note 1</td>
     </tr> <tr>
-        <td>Jaunty</td> <td> Arora 0.5</td>
+        <td>Jaunty</td> <td>Arora 0.5</td>
         <td>Good</td>
         <td>Broken putImageData so large full-color images
             are slow. Uses web-socket-js.</td>
     </tr> <tr>
-        <td>Jaunty</td> <td> Konqueror 4.2.2</td>
+        <td>Jaunty</td> <td>Konqueror 4.2.2</td>
         <td><strong>Broken</strong></td>
         <td>web-socket-js never loads</td>
     </tr> <tr>
@@ -115,24 +113,31 @@ In the following table Jaunty is Ubuntu 9.04 and WinXP is Windows XP.
         <td></td>
         <td></td>
     </tr> <tr>
-        <td>WinXP</td> <td> Chrome 5.0.375.99</td>
+        <td>WinXP</td> <td>Chrome 5.0.375.99</td>
         <td>Excellent</td>
         <td>Very fast. Native WebSockets.</td>
     </tr> <tr>
-        <td>WinXP</td> <td> Firefox 3.0.19</td>
+        <td>WinXP</td> <td>Firefox 3.0.19</td>
         <td>Good</td>
         <td>Some overhead from web-socket-js.</td>
     </tr> <tr>
-        <td>WinXP</td> <td> Safari 5.0</td>
+        <td>WinXP</td> <td>Safari 5.0</td>
         <td>Fair</td>
-        <td>Fast. Native WebSockets. Broken 'wss://'
-            (SSL) - weird client header</td>
+        <td>Fast. Native WebSockets. Broken 'wss://' (SSL) - weird client header</td>
     </tr> <tr>
-        <td>WinXP</td> <td> IE 6, 7, 8</td>
+        <td>WinXP</td> <td>IE 6, 7, 8</td>
         <td><strong>Non-starter</strong></td>
         <td>No basic Canvas support. Javascript painfully slow.</td>
     </tr>
 </table>
+
+
+* Note 1: Opera interacts poorly with web-socket-js. After two
+  disconnects the browser tab or Flash often hang. Although Javascript
+  is faster than Firefox 3.5, the high variability of web-socket-js
+  performance results in overall performance being lower. Middle mouse
+  clicks and keyboard events need some work to work properly under
+  Opera.
 
 
 ### Integration
