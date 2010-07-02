@@ -1,7 +1,7 @@
 // Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
 // License: New BSD License
 // Reference: http://dev.w3.org/html5/websockets/
-// Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-31
+// Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
 
 package {
 
@@ -34,7 +34,6 @@ public class WebSocket extends EventDispatcher {
   private static var CLOSING:int = 2;
   private static var CLOSED:int = 3;
   
-  //private var rawSocket:RFC2817Socket;
   private var rawSocket:Socket;
   private var tlsSocket:TLSSocket;
   private var tlsConfig:TLSConfig;
@@ -76,51 +75,49 @@ public class WebSocket extends EventDispatcher {
     // "Header1: xxx\r\nHeader2: yyyy\r\n"
     this.headers = headers;
     
-    /*
-    socket = new RFC2817Socket();
-            
-    // if no proxy information is supplied, it acts like a normal Socket
-    // @see RFC2817Socket::connect
-    if (proxyHost != null && proxyPort != 0){      
-      socket.setProxyInfo(proxyHost, proxyPort);
-    } 
-    */
-
-    ExternalInterface.call("console.log", "[WebSocket] scheme: " + scheme);
-    rawSocket = new Socket();
-
-    rawSocket.addEventListener(Event.CLOSE, onSocketClose);
-    rawSocket.addEventListener(Event.CONNECT, onSocketConnect);
-    rawSocket.addEventListener(IOErrorEvent.IO_ERROR, onSocketIoError);
-    rawSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSocketSecurityError);
-    if (scheme == "wss") {
+    if (proxyHost != null && proxyPort != 0){
+      if (scheme == "wss") {
+        main.fatal("wss with proxy is not supported");
+      }
+      var proxySocket:RFC2817Socket = new RFC2817Socket();
+      proxySocket.setProxyInfo(proxyHost, proxyPort);
+      proxySocket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
+      rawSocket = socket = proxySocket;
+    } else {
+      rawSocket = new Socket();
+      if (scheme == "wss") {
         tlsConfig= new TLSConfig(TLSEngine.CLIENT,
             null, null, null, null, null,
             TLSSecurityParameters.PROTOCOL_VERSION);
         tlsConfig.trustSelfSignedCertificates = true;
         tlsConfig.ignoreCommonNameMismatch = true;
-
         tlsSocket = new TLSSocket();
         tlsSocket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
-        socket = (tlsSocket as Socket);
-    } else {
+        socket = tlsSocket;
+      } else {
         rawSocket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
-        socket = (rawSocket as Socket);
+        socket = rawSocket;
+      }
     }
+    rawSocket.addEventListener(Event.CLOSE, onSocketClose);
+    rawSocket.addEventListener(Event.CONNECT, onSocketConnect);
+    rawSocket.addEventListener(IOErrorEvent.IO_ERROR, onSocketIoError);
+    rawSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSocketSecurityError);
     rawSocket.connect(host, port);
   }
   
-  public function send(data:String):int {
+  public function send(encData:String):int {
+    var data:String = decodeURIComponent(encData);
     if (readyState == OPEN) {
       socket.writeByte(0x00);
-      socket.writeUTFBytes(decodeURIComponent(data));
+      socket.writeUTFBytes(data);
       socket.writeByte(0xff);
       socket.flush();
       main.log("sent: " + data);
       return -1;
     } else if (readyState == CLOSED) {
       var bytes:ByteArray = new ByteArray();
-      bytes.writeUTFBytes(decodeURIComponent(data));
+      bytes.writeUTFBytes(data);
       bufferedAmount += bytes.length; // not sure whether it should include \x00 and \xff
       // We use return value to let caller know bufferedAmount because we cannot fire
       // stateChange event here which causes weird error:
@@ -136,6 +133,9 @@ public class WebSocket extends EventDispatcher {
     main.log("close");
     dataQueue = [];
     try {
+      socket.writeByte(0xff);
+      socket.writeByte(0x00);
+      socket.flush();
       socket.close();
     } catch (ex:Error) { }
     readyState = CLOSED;
@@ -156,8 +156,8 @@ public class WebSocket extends EventDispatcher {
     main.log("connected");
 
     if (scheme == "wss") {
-        ExternalInterface.call("console.log", "[WebSocket] starting SSL/TLS");
-        tlsSocket.startTLS(rawSocket, host, tlsConfig);
+      main.log("starting SSL/TLS");
+      tlsSocket.startTLS(rawSocket, host, tlsConfig);
     }
     
     dataQueue = [];
@@ -190,7 +190,6 @@ public class WebSocket extends EventDispatcher {
     main.log("request header:\n" + req);
     socket.writeUTFBytes(req);
     main.log("sent key3: " + key3);
-    main.log("expected digest: " + expectedDigest);
     writeBytes(key3);
     socket.flush();
   }
@@ -247,39 +246,49 @@ public class WebSocket extends EventDispatcher {
           headerState = 0;
         }
         if (headerState == 4) {
+          buffer.position = 0;
           var headerStr:String = buffer.readUTFBytes(pos + 1);
           main.log("response header:\n" + headerStr);
           if (!validateHeader(headerStr)) return;
-          makeBufferCompact();
+          removeBufferBefore(pos + 1);
           pos = -1;
         }
       } else if (headerState == 4) {
-        var replyDigest:String = readBytes(buffer, 16);
-        main.log("reply digest: " + replyDigest);
-        if (replyDigest != expectedDigest) {
-          onError("digest doesn't match: " + replyDigest + " != " + expectedDigest);
-          return;
+        if (pos == 15) {
+          buffer.position = 0;
+          var replyDigest:String = readBytes(buffer, 16);
+          main.log("reply digest: " + replyDigest);
+          if (replyDigest != expectedDigest) {
+            onError("digest doesn't match: " + replyDigest + " != " + expectedDigest);
+            return;
+          }
+          headerState = 5;
+          removeBufferBefore(pos + 1);
+          pos = -1;
+          readyState = OPEN;
+          notifyStateChange();
+          dispatchEvent(new Event("open"));
         }
-        headerState = 5;
-        makeBufferCompact();
-        pos = -1;
-        readyState = OPEN;
-        notifyStateChange();
-        dispatchEvent(new Event("open"));
       } else {
-        if (buffer[pos] == 0xff) {
-        //if (buffer.bytesAvailable > 1) {
-          if (buffer.readByte() != 0x00) {
+        if (buffer[pos] == 0xff && pos > 0) {
+          if (buffer[0] != 0x00) {
             onError("data must start with \\x00");
             return;
           }
+          buffer.position = 1;
           var data:String = buffer.readUTFBytes(pos - 1);
           main.log("received: " + data);
           dataQueue.push(encodeURIComponent(data));
           dispatchEvent(new WebSocketMessageEvent("message", data.length.toString()));
-          buffer.readByte();
-          makeBufferCompact();
+          removeBufferBefore(pos + 1);
           pos = -1;
+        } else if (pos == 1 && buffer[0] == 0xff && buffer[1] == 0x00) { // closing
+          main.log("received closing packet");
+          removeBufferBefore(pos + 1);
+          pos = -1;
+          close();
+          notifyStateChange();
+          dispatchEvent(new Event("close"));
         }
       }
     }
@@ -318,6 +327,18 @@ public class WebSocket extends EventDispatcher {
       onError("invalid Connection: " + header["Connection"]);
       return false;
     }
+    if (!header["Sec-WebSocket-Origin"]) {
+      if (header["WebSocket-Origin"]) {
+        onError(
+          "The WebSocket server speaks old WebSocket protocol, " +
+          "which is not supported by web-socket-js. " +
+          "It requires WebSocket protocol 76 or later. " +
+          "Try newer version of the server if available.");
+      } else {
+        onError("header Sec-WebSocket-Origin is missing");
+      }
+      return false;
+    }
     var resOrigin:String = header["Sec-WebSocket-Origin"].toLowerCase();
     if (resOrigin != origin) {
       onError("origin doesn't match: '" + resOrigin + "' != '" + origin + "'");
@@ -331,9 +352,10 @@ public class WebSocket extends EventDispatcher {
     return true;
   }
 
-  private function makeBufferCompact():void {
-    if (buffer.position == 0) return;
+  private function removeBufferBefore(pos:int):void {
+    if (pos == 0) return;
     var nextBuffer:ByteArray = new ByteArray();
+    buffer.position = pos;
     buffer.readBytes(nextBuffer);
     buffer = nextBuffer;
   }
@@ -399,12 +421,16 @@ public class WebSocket extends EventDispatcher {
     return bytes;
   }
   
+  // Writes byte sequence to socket.
+  // bytes is String in special format where bytes[i] is i-th byte, not i-th character.
   private function writeBytes(bytes:String):void {
     for (var i:int = 0; i < bytes.length; ++i) {
       socket.writeByte(bytes.charCodeAt(i));
     }
   }
   
+  // Reads specified number of bytes from buffer, and returns it as special format String
+  // where bytes[i] is i-th byte (not i-th character).
   private function readBytes(buffer:ByteArray, numBytes:int):String {
     var bytes:String = "";
     for (var i:int = 0; i < numBytes; ++i) {

@@ -67,10 +67,11 @@ The class RFC2817Socket (by Christian Cantrell) effectively lets us implement th
 
 * How to build WebSocketMain.swf
 
-Install Flex SDK.
+Install Flex 4 SDK:
+http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4
 
 $ cd flash-src
-$ mxmlc -output=../WebSocketMain.swf WebSocketMain.as
+$ ./build.sh
 
 
 * License
