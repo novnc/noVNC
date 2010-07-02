@@ -79,12 +79,39 @@ There a few reasons why a proxy is required:
 
 #### Linux (Ubuntu 9.04)
 
+<table>
+    <tr>
+        <th>
+            OS
+        </th>
+        <th>
+            Browser
+        </th>
+        <th>
+            Status
+        </th>
+    </tr>
+        <td>
+            Ubuntu 9.04
+        </td>
+        <td>
+            Chrome 5.0.375.29
+        </td>
+        <td bgcolor="#e0ffe0">
+            Works great
+        </td>
+    </tr>
+</table>
+
 * Chrome 5.0.375.29: Works great. Very fast. Native WebSockets.
+
 * Firefox 3.5: Works well. Large full-color images are slow mostly due
   to web-socket-js overhead.
+
 * Opera 10.60: Works. Rendering performance is between firefox 3.5 and
   Chrome. However web-socket-js interaction causes overall performance
   to be lower than firefox 3.5 and causes occasional hangs.
+
 * Arora 0.50: Works. Broken putImageData so large full-color images
   are slow. Uses web-socket-js.
 
