@@ -1,13 +1,15 @@
 Short Term:
 
+- Timing delta between frames in proxy record log, for playback
+  support (for demo and test).
+
+- Playback/demo on website.
+
 - Test on IE 9 preview 3.
 
 - Possibly support IE <= 8.0 using excanvas or fxcanvas:
   http://excanvas.sourceforge.net/
   http://code.google.com/p/fxcanvas/
-
-- Timing delta between frames in proxy record log, for playback
-  support (for demo and test).
 
 
 Medium Term:

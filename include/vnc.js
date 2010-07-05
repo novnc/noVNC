@@ -40,6 +40,8 @@ function get_VNC_uri_prefix() {
         VNC_native_ws = true;
     } else {
         VNC_native_ws = false;
+        WebSocket__swfLocation = get_VNC_uri_prefix() +
+                    "web-socket-js/WebSocketMain.swf";
         extra += start + "web-socket-js/swfobject.js" + end;
         extra += start + "web-socket-js/FABridge.js" + end;
         extra += start + "web-socket-js/web_socket.js" + end;
@@ -132,9 +134,6 @@ load: function () {
             RFB.updateState('failed',
                     "'file://' URL is incompatible with Adobe Flash");
         } else {
-            WebSocket.__swfLocation = get_VNC_uri_prefix() +
-                        "web-socket-js/WebSocketMain.swf";
-            WebSocket.__initialize();
             RFB.updateState('disconnected', 'Disconnected');
         }
     }
