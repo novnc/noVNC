@@ -167,3 +167,23 @@ See `vnc.html` and `vnc_auto.html` for examples. The file
 The `vnc.js` also includes other scripts within the `include`
 sub-directory. The `VNC_uri_prefix` variable can be use override the
 URL path to the directory that contains the `include` sub-directory.
+
+
+### Troubleshooting
+
+You will need console logging support in the browser. Recent Chrome
+and Opera versions have built in support. Firefox has a nice extension
+called "firebug" that gives console logging support.
+
+First, load the noVNC page with `logging=debug` added to the query string.
+For example `vnc.html?logging=debug`.
+
+Then, activate the console logger in your browser.  With Chrome it can
+be activate using Ctrl+Shift+J and then switching to the "Console"
+tab. With firefox+firebug, it can be activated using Ctrl+F12.
+
+Now reproduce the problem. The console log output will give more
+information about what is going wrong and where in the code the
+problem is located. If you file a issue/bug, it can be very helpful to
+copy the last page of console output leading up the problem into the
+issue report.
