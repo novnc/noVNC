@@ -8,14 +8,6 @@
 "use strict";
 /*global $, RFB, Canvas, VNC_uri_prefix, Element, Fx */
 
-// Load mootools
-(function () {
-    var pre = (typeof VNC_uri_prefix !== "undefined") ?
-                           VNC_uri_prefix : "include/";
-    document.write("<script src='" + pre + "mootools.js'><\/script>");
-}());
-
-
 var DefaultControls = {
 
 load: function(target) {

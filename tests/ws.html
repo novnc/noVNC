@@ -172,12 +172,12 @@
             };
             ws.onopen = function(e) {
                 console.log(">> WebSockets.onopen");
-                send_ref = send.periodical(sendDelay);
+                send_ref = setInterval(send, sendDelay);
                 console.log("<< WebSockets.onopen");
             };
             ws.onclose = function(e) {
                 console.log(">> WebSockets.onclose");
-                $clear(send_ref);
+                clearInterval(send_ref);
                 console.log("<< WebSockets.onclose");
             };
             ws.onerror = function(e) {
@@ -203,7 +203,7 @@
                 ws.close();
             }
             init_ws();
-            update_ref = update_stats.periodical(1);
+            update_ref = setInterval(update_stats, 1);
 
             $('connectButton').value = "Stop";
             $('connectButton').onclick = disconnect;
@@ -216,7 +216,7 @@
                 ws.close();
             }
 
-            $clear(update_ref);
+            clearInterval(update_ref);
             update_stats(); // Final numbers
             recv_seq = 0;
             send_seq = 0;
