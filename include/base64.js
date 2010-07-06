@@ -111,7 +111,7 @@ decode: function (data, offset) {
         var padding = (data.charAt(i) == pad);
         // Skip illegal characters and whitespace
         if (c == -1) {
-            console.log("Illegal character '" + data.charCodeAt(i) + "'");
+            console.error("Illegal character '" + data.charCodeAt(i) + "'");
             continue;
         }
         

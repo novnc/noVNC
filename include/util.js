@@ -13,27 +13,36 @@
 // Globals defined here
 var Util = {}, $;
 
-// Debug routines
+
+// Logging/debug routines
 if (typeof window.console === "undefined") {
-    window.console = {
-        'log': function(m) {},
-        'warn': function(m) {},
-        'error': function(m) {}};
-}
-if (/__debug__$/i.test(document.location.href)) {
     if (typeof window.opera !== "undefined") {
-        window.console.log = window.opera.postError;
-        window.console.warn = window.opera.postError;
-        window.console.error = window.opera.postError;
+        window.console = {
+            'log'  : window.opera.postError,
+            'warn' : window.opera.postError,
+            'error': window.opera.postError };
+    } else {
+        window.console = {
+            'log'  : function(m) {},
+            'warn' : function(m) {},
+            'error': function(m) {}};
     }
-} else {
-    /*
-    // non-debug mode, an empty function  
-    window.console.log = function (message) {}; 
-    window.console.warn = function (message) {}; 
-    window.console.error = function (message) {}; 
-    */
 }
+
+Util.Debug = Util.Info = Util.Warn = Util.Error = function (msg) {};
+
+Util.logging = (document.location.href.match(
+        /logging=([A-Za-z0-9\._\-]*)/) || ['', 'warn'])[1];
+switch (Util.logging) {
+    case 'debug': Util.Debug = function (msg) { console.log(msg); };
+    case 'info':  Util.Info  = function (msg) { console.log(msg); };
+    case 'warn':  Util.Warn  = function (msg) { console.warn(msg); };
+    case 'error': Util.Error = function (msg) { console.error(msg); };
+        break;
+    default:
+        throw("invalid logging type '" + Util.logging + "'");
+}
+
 
 // Simple DOM selector by ID
 if (!window.$) {

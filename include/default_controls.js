@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 "use strict";
-/*global console, $, RFB, Canvas, VNC_uri_prefix, Element, Fx */
+/*global $, RFB, Canvas, VNC_uri_prefix, Element, Fx */
 
 // Load mootools
 (function () {
@@ -168,16 +168,16 @@ clipClear: function() {
 },
 
 clipReceive: function(text) {
-    console.log(">> DefaultControls.clipReceive: " + text.substr(0,40) + "...");
+    Util.Debug(">> DefaultControls.clipReceive: " + text.substr(0,40) + "...");
     $('VNC_clipboard_text').value = text;
-    console.log("<< DefaultControls.clipReceive");
+    Util.Debug("<< DefaultControls.clipReceive");
 },
 
 clipSend: function() {
     var text = $('VNC_clipboard_text').value;
-    console.log(">> DefaultControls.clipSend: " + text.substr(0,40) + "...");
+    Util.Debug(">> DefaultControls.clipSend: " + text.substr(0,40) + "...");
     RFB.clipboardPasteFrom(text);
-    console.log("<< DefaultControls.clipSend");
+    Util.Debug("<< DefaultControls.clipSend");
 }
 
 };

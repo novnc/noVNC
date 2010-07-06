@@ -8,7 +8,7 @@
 
 "use strict";
 /*jslint white: false, bitwise: false */
-/*global window, console, $, Util */
+/*global window, $, Util */
 
 var Canvas, Canvas_native;
 
@@ -49,7 +49,7 @@ onMouseButton: function(e, down) {
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, $(Canvas.id));
     bmask = 1 << evt.button;
-    //console.log('mouse ' + pos.x + "," + pos.y + " down: " + down + " bmask: " + bmask);
+    //Util.Debug('mouse ' + pos.x + "," + pos.y + " down: " + down + " bmask: " + bmask);
     if (Canvas.mouseButton) {
         Canvas.mouseButton(pos.x, pos.y, down, bmask);
     }
@@ -75,7 +75,7 @@ onMouseWheel: function (e) {
     } else {
         bmask = 1 << 4;
     }
-    //console.log('mouse scroll by ' + wheelData + ':' + pos.x + "," + pos.y);
+    //Util.Debug('mouse scroll by ' + wheelData + ':' + pos.x + "," + pos.y);
     if (Canvas.mouseButton) {
         Canvas.mouseButton(pos.x, pos.y, 1, bmask);
         Canvas.mouseButton(pos.x, pos.y, 0, bmask);
@@ -89,14 +89,14 @@ onMouseMove: function (e) {
     var evt, pos;
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, $(Canvas.id));
-    //console.log('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
+    //Util.Debug('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
     if (Canvas.mouseMove) {
         Canvas.mouseMove(pos.x, pos.y);
     }
 },
 
 onKeyDown: function (e) {
-    //console.log("keydown: " + Canvas.getKeysym(e));
+    //Util.Debug("keydown: " + Canvas.getKeysym(e));
     if (! Canvas.focused) {
         return true;
     }
@@ -108,7 +108,7 @@ onKeyDown: function (e) {
 },
 
 onKeyUp : function (e) {
-    //console.log("keyup: " + Canvas.getKeysym(e));
+    //Util.Debug("keyup: " + Canvas.getKeysym(e));
     if (! Canvas.focused) {
         return true;
     }
@@ -128,27 +128,27 @@ onMouseDisable: function (e) {
         (evt.clientY >= pos.y) &&
         (evt.clientX < (pos.x + Canvas.c_wx)) &&
         (evt.clientY < (pos.y + Canvas.c_wy))) {
-        //console.log("mouse event disabled");
+        //Util.Debug("mouse event disabled");
         Util.stopEvent(e);
         return false;
     }
-    //console.log("mouse event not disabled");
+    //Util.Debug("mouse event not disabled");
     return true;
 },
 
 
 init: function (id) {
     var c, imgTest, arora;
-    console.log(">> Canvas.init");
+    Util.Debug(">> Canvas.init");
 
     Canvas.id = id;
     c = $(Canvas.id);
 
     if (Canvas_native) {
-        console.log("Using native canvas");
+        Util.Info("Using native canvas");
         // Use default Canvas functions
     } else {
-        console.warn("Using excanvas canvas emulation");
+        Util.Warn("Using excanvas canvas emulation");
         //G_vmlCanvasManager.init(c);
         //G_vmlCanvasManager.initElement(c);
     }
@@ -176,22 +176,22 @@ init: function (id) {
     } catch (exc) {}
 
     if (Canvas.has_imageData) {
-        console.log("Canvas supports imageData");
+        Util.Info("Canvas supports imageData");
         Canvas.force_canvas = false;
         if (Canvas.ctx.createImageData) {
             // If it's there, it's faster
-            console.log("Using Canvas createImageData");
+            Util.Info("Using Canvas createImageData");
             Canvas._imageData = Canvas._imageDataCreate;
         } else if (Canvas.ctx.getImageData) {
-            console.log("Using Canvas getImageData");
+            Util.Info("Using Canvas getImageData");
             Canvas._imageData = Canvas._imageDataGet;
         }
-        console.log("Prefering javascript operations");
+        Util.Info("Prefering javascript operations");
         Canvas.prefer_js = true;
         Canvas._rgbxImage = Canvas._rgbxImageData;
         Canvas._cmapImage = Canvas._cmapImageData;
     } else {
-        console.log("Canvas lacks imageData, using fillRect (slow)");
+        Util.Warn("Canvas lacks imageData, using fillRect (slow)");
         Canvas.force_canvas = true;
         Canvas.prefer_js = false;
         Canvas._rgbxImage = Canvas._rgbxImageFill;
@@ -202,14 +202,14 @@ init: function (id) {
     Canvas.prevStyle = "";
     Canvas.focused = true;
 
-    //console.log("<< Canvas.init");
+    Util.Debug("<< Canvas.init");
     return true;
 },
     
 
 start: function (keyPress, mouseButton, mouseMove) {
     var c;
-    console.log(">> Canvas.start");
+    Util.Debug(">> Canvas.start");
 
     c = $(Canvas.id);
     Canvas.keyPress = keyPress || null;
@@ -228,7 +228,7 @@ start: function (keyPress, mouseButton, mouseMove) {
     Util.addEvent(document, 'click', Canvas.onMouseDisable);
     Util.addEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
 
-    //console.log("<< Canvas.start");
+    Util.Debug("<< Canvas.start");
 },
 
 clear: function () {
@@ -390,7 +390,6 @@ _cmapImageData: function(x, y, width, height, arr, offset) {
 _cmapImageFill: function(x, y, width, height, arr, offset) {
     var sx = 0, sy = 0;
     cmap = Canvas.colourMap;
-    console.log("here1: arr[2]: " + arr[2] + ", cmap[arr[2]]: " + cmap[arr[2]]);
     for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
         Canvas.fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
         sx += 1;

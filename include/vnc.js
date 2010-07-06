@@ -8,7 +8,7 @@
 
 "use strict";
 /*jslint white: false, nomen: false, browser: true, bitwise: false */
-/*global window, console, WebSocket, Util, Canvas, VNC_uri_prefix, Base64, DES */
+/*global window, WebSocket, Util, Canvas, VNC_uri_prefix, Base64, DES */
 
 // Globals defined here
 var VNC_native_ws, RFB;
@@ -105,7 +105,7 @@ sendPassword: function(passwd) {
 
 sendCtrlAltDel: function() {
     if (RFB.state !== "normal") { return false; }
-    console.log("Sending Ctrl-Alt-Del");
+    Util.Info("Sending Ctrl-Alt-Del");
     var arr = [];
     arr = arr.concat(RFB.keyEvent(0xFFE3, 1)); // Control
     arr = arr.concat(RFB.keyEvent(0xFFE9, 1)); // Alt
@@ -119,14 +119,14 @@ sendCtrlAltDel: function() {
 
 load: function () {
     var i;
-    //console.log(">> load");
+    //Util.Debug(">> load");
 
     /* Load web-socket-js if no builtin WebSocket support */
     if (VNC_native_ws) {
-        console.log("Using native WebSockets");
+        Util.Info("Using native WebSockets");
         RFB.updateState('disconnected', 'Disconnected');
     } else {
-        console.warn("Using web-socket-js flash bridge");
+        Util.Warn("Using web-socket-js flash bridge");
         if ((! Util.Flash) ||
             (Util.Flash.version < 9)) {
             RFB.updateState('failed', "WebSockets or Adobe Flash is required");
@@ -150,11 +150,11 @@ load: function () {
     }
     RFB.encHandlers[0x07] = RFB.display_tight_png;
     RFB.encNames[0x07] = 'TIGHT';
-    //console.log("<< load");
+    //Util.Debug("<< load");
 },
 
 connect: function (host, port, password, encrypt, true_color) {
-    //console.log(">> connect");
+    //Util.Debug(">> connect");
 
     RFB.host       = host;
     RFB.port       = port;
@@ -185,12 +185,12 @@ connect: function (host, port, password, encrypt, true_color) {
     RFB.init_ws();
 
     RFB.updateState('ProtocolVersion');
-    //console.log("<< connect");
+    //Util.Debug("<< connect");
 
 },
 
 disconnect: function () {
-    //console.log(">> disconnect");
+    //Util.Debug(">> disconnect");
     if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
         RFB.ws.close();
         RFB.updateState('closed');
@@ -204,14 +204,14 @@ disconnect: function () {
     }
 
     RFB.updateState('disconnected', 'Disconnected');
-    //console.log("<< disconnect");
+    //Util.Debug("<< disconnect");
 },
 
 clipboardPasteFrom: function (text) {
     if (RFB.state !== "normal") { return; }
-    //console.log(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
+    //Util.Debug(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
     RFB.send_array(RFB.clientCutText(text));
-    //console.log("<< clipboardPasteFrom");
+    //Util.Debug("<< clipboardPasteFrom");
 },
 
 
@@ -299,13 +299,13 @@ mouse_arr        : [],
 
 /* RFB/VNC initialisation */
 init_msg: function () {
-    //console.log(">> init_msg [RFB.state '" + RFB.state + "']");
+    //Util.Debug(">> init_msg [RFB.state '" + RFB.state + "']");
 
     var RQ = RFB.RQ, strlen, reason, reason_len, sversion, cversion,
         i, types, num_types, challenge, response, bpp, depth,
         big_endian, true_color, name_length;
 
-    //console.log("RQ (" + RQ.length + ") " + RQ);
+    //Util.Debug("RQ (" + RQ.length + ") " + RQ);
     switch (RFB.state) {
 
     case 'ProtocolVersion' :
@@ -315,7 +315,7 @@ init_msg: function () {
             return;
         }
         sversion = RQ.shiftStr(12).substr(4,7);
-        console.log("Server ProtocolVersion: " + sversion);
+        Util.Info("Server ProtocolVersion: " + sversion);
         switch (sversion) {
             case "003.003": RFB.version = 3.3; break;
             case "003.007": RFB.version = 3.7; break;
@@ -371,11 +371,11 @@ init_msg: function () {
         // Fall through
 
     case 'Authentication' :
-        //console.log("Security auth scheme: " + RFB.auth_scheme);
+        //Util.Debug("Security auth scheme: " + RFB.auth_scheme);
         switch (RFB.auth_scheme) {
             case 0:  // connection failed
                 if (RQ.length < 4) {
-                    //console.log("   waiting for auth reason bytes");
+                    //Util.Debug("   waiting for auth reason bytes");
                     return;
                 }
                 strlen = RQ.shift32();
@@ -393,18 +393,18 @@ init_msg: function () {
                     return;
                 }
                 if (RQ.length < 16) {
-                    //console.log("   waiting for auth challenge bytes");
+                    //Util.Debug("   waiting for auth challenge bytes");
                     return;
                 }
                 challenge = RQ.shiftBytes(16);
-                //console.log("Password: " + RFB.password);
-                //console.log("Challenge: " + challenge +
-                //            " (" + challenge.length + ")");
+                //Util.Debug("Password: " + RFB.password);
+                //Util.Debug("Challenge: " + challenge +
+                //           " (" + challenge.length + ")");
                 response = RFB.DES(RFB.password, challenge);
-                //console.log("Response: " + response +
-                //            " (" + response.length + ")");
+                //Util.Debug("Response: " + response +
+                //           " (" + response.length + ")");
                 
-                //console.log("Sending DES encrypted auth response");
+                //Util.Debug("Sending DES encrypted auth response");
                 RFB.send_array(response);
                 RFB.updateState('SecurityResult');
                 break;
@@ -458,10 +458,10 @@ init_msg: function () {
         big_endian     = RQ.shift8();
         true_color     = RQ.shift8();
 
-        console.log("Screen: " + RFB.fb_width + "x" + RFB.fb_height + 
-                    ", bpp: " + bpp + ", depth: " + depth +
-                    ", big_endian: " + big_endian +
-                    ", true_color: " + true_color);
+        Util.Info("Screen: " + RFB.fb_width + "x" + RFB.fb_height + 
+                  ", bpp: " + bpp + ", depth: " + depth +
+                  ", big_endian: " + big_endian +
+                  ", true_color: " + true_color);
 
         /* Connection name/title */
         RQ.shiftStr(12);
@@ -494,13 +494,13 @@ init_msg: function () {
         RFB.updateState('normal', "Connected to: " + RFB.fb_name);
         break;
     }
-    //console.log("<< init_msg");
+    //Util.Debug("<< init_msg");
 },
 
 
 /* Normal RFB/VNC server messages */
 normal_msg: function () {
-    //console.log(">> normal_msg");
+    //Util.Debug(">> normal_msg");
 
     var RQ = RFB.RQ, ret = true, msg_type,
         c, first_colour, num_colours, red, green, blue;
@@ -517,34 +517,34 @@ normal_msg: function () {
         ret = RFB.framebufferUpdate();
         break;
     case 1:  // SetColourMapEntries
-        console.log("SetColourMapEntries");
+        Util.Debug("SetColourMapEntries");
         RQ.shift8();  // Padding
         first_colour = RQ.shift16(); // First colour
         num_colours = RQ.shift16();
         for (c=0; c < num_colours; c+=1) { 
             red = RQ.shift16();
-            //console.log("red before: " + red);
+            //Util.Debug("red before: " + red);
             red = parseInt(red / 256, 10);
-            //console.log("red after: " + red);
+            //Util.Debug("red after: " + red);
             green = parseInt(RQ.shift16() / 256, 10);
             blue = parseInt(RQ.shift16() / 256, 10);
             Canvas.colourMap[first_colour + c] = [red, green, blue];
         }
-        console.log("Registered " + num_colours + " colourMap entries");
-        //console.log("colourMap: " + Canvas.colourMap);
+        Util.Info("Registered " + num_colours + " colourMap entries");
+        //Util.Debug("colourMap: " + Canvas.colourMap);
         break;
     case 2:  // Bell
-        console.log("Bell (unsupported)");
+        Util.Warn("Bell (unsupported)");
         break;
     case 3:  // ServerCutText
-        console.log("ServerCutText");
-        console.log("RQ:" + RQ.slice(0,20));
+        Util.Debug("ServerCutText");
+        Util.Debug("RQ:" + RQ.slice(0,20));
         if (RFB.cuttext === 'none') {
             RFB.cuttext = 'header';
         }
         if (RFB.cuttext === 'header') {
             if (RQ.length < 7) {
-                //console.log("waiting for ServerCutText header");
+                //Util.Debug("waiting for ServerCutText header");
                 return false;
             }
             RQ.shiftBytes(3);  // Padding
@@ -552,7 +552,7 @@ normal_msg: function () {
         }
         RFB.cuttext = 'bytes';
         if (RQ.length < RFB.ct_length) {
-            //console.log("waiting for ServerCutText bytes");
+            //Util.Debug("waiting for ServerCutText bytes");
             return false;
         }
         RFB.clipboardCopyTo(RQ.shiftStr(RFB.ct_length));
@@ -561,10 +561,10 @@ normal_msg: function () {
     default:
         RFB.updateState('failed',
                 "Disconnected: illegal server message type " + msg_type);
-        console.log("RQ.slice(0,30):" + RQ.slice(0,30));
+        Util.Debug("RQ.slice(0,30):" + RQ.slice(0,30));
         break;
     }
-    //console.log("<< normal_msg");
+    //Util.Debug("<< normal_msg");
     return ret;
 },
 
@@ -576,25 +576,25 @@ framebufferUpdate: function() {
     if (FBU.rects === 0) {
         if (RQ.length < 3) {
             RQ.unshift(0);  // FBU msg_type
-            //console.log("   waiting for FBU header bytes");
+            //Util.Debug("   waiting for FBU header bytes");
             return false;
         }
         RQ.shift8();
         FBU.rects = RQ.shift16();
-        //console.log("FramebufferUpdate, rects:" + FBU.rects);
+        //Util.Debug("FramebufferUpdate, rects:" + FBU.rects);
         FBU.bytes = 0;
         timing.cur_fbu = 0;
         timing.h_fbus += 1;
         if (timing.fbu_rt_start > 0) {
             now = (new Date()).getTime();
-            console.log("First FBU latency: " + (now - timing.fbu_rt_start));
+            Util.Info("First FBU latency: " + (now - timing.fbu_rt_start));
         }
     }
 
     while ((FBU.rects > 0) && (RQ.length >= FBU.bytes)) {
         if (FBU.bytes === 0) {
             if (RQ.length < 12) {
-                //console.log("   waiting for rect header bytes");
+                //Util.Debug("   waiting for rect header bytes");
                 return false;
             }
             /* New FramebufferUpdate */
@@ -612,7 +612,7 @@ framebufferUpdate: function() {
                 msg += " encoding:" + FBU.encoding;
                 msg += "(" + RFB.encNames[FBU.encoding] + ")";
                 msg += ", RQ.length: " + RQ.length;
-                console.log(msg);
+                Util.Debug(msg);
             } else {
                 RFB.updateState('failed',
                         "Disconnected: unsupported encoding " +
@@ -644,23 +644,23 @@ framebufferUpdate: function() {
                     (timing.fbu_rt_start > 0)) {
                 timing.full_fbu_total += timing.cur_fbu;
                 timing.full_fbu_cnt += 1;
-                console.log("Timing of full FBU, cur: " +
-                            timing.cur_fbu + ", total: " +
-                            timing.full_fbu_total + ", cnt: " +
-                            timing.full_fbu_cnt + ", avg: " +
-                            (timing.full_fbu_total /
-                                timing.full_fbu_cnt));
+                Util.Info("Timing of full FBU, cur: " +
+                          timing.cur_fbu + ", total: " +
+                          timing.full_fbu_total + ", cnt: " +
+                          timing.full_fbu_cnt + ", avg: " +
+                          (timing.full_fbu_total /
+                              timing.full_fbu_cnt));
             }
             if (timing.fbu_rt_start > 0) {
                 fbu_rt_diff = now - timing.fbu_rt_start;
                 timing.fbu_rt_total += fbu_rt_diff;
                 timing.fbu_rt_cnt += 1;
-                console.log("full FBU round-trip, cur: " +
-                        fbu_rt_diff + ", total: " +
-                        timing.fbu_rt_total + ", cnt: " +
-                        timing.fbu_rt_cnt + ", avg: " +
-                        (timing.fbu_rt_total /
-                            timing.fbu_rt_cnt));
+                Util.Info("full FBU round-trip, cur: " +
+                          fbu_rt_diff + ", total: " +
+                          timing.fbu_rt_total + ", cnt: " +
+                          timing.fbu_rt_cnt + ", avg: " +
+                          (timing.fbu_rt_total /
+                              timing.fbu_rt_cnt));
                 timing.fbu_rt_start = 0;
             }
         }
@@ -675,7 +675,7 @@ framebufferUpdate: function() {
  */
 
 display_raw: function () {
-    //console.log(">> display_raw");
+    //Util.Debug(">> display_raw");
 
     var RQ = RFB.RQ, FBU = RFB.FBU, cur_y, cur_height; 
 
@@ -684,8 +684,8 @@ display_raw: function () {
     }
     FBU.bytes = FBU.width * RFB.fb_Bpp; // At least a line
     if (RQ.length < FBU.bytes) {
-        //console.log("   waiting for " +
-        //            (FBU.bytes - RQ.length) + " RAW bytes");
+        //Util.Debug("   waiting for " +
+        //           (FBU.bytes - RQ.length) + " RAW bytes");
         return;
     }
     cur_y = FBU.y + (FBU.height - FBU.lines);
@@ -704,13 +704,13 @@ display_raw: function () {
 },
 
 display_copy_rect: function () {
-    //console.log(">> display_copy_rect");
+    //Util.Debug(">> display_copy_rect");
 
     var RQ = RFB.RQ, FBU = RFB.FBU, old_x, old_y;
 
     if (RQ.length < 4) {
-        //console.log("   waiting for " +
-        //            (FBU.bytes - RQ.length) + " COPYRECT bytes");
+        //Util.Debug("   waiting for " +
+        //           (FBU.bytes - RQ.length) + " COPYRECT bytes");
         return;
     }
     old_x = RQ.shift16();
@@ -721,12 +721,12 @@ display_copy_rect: function () {
 },
 
 display_rre: function () {
-    //console.log(">> display_rre (" + RFB.RQ.length + " bytes)");
+    //Util.Debug(">> display_rre (" + RFB.RQ.length + " bytes)");
     var RQ = RFB.RQ, FBU = RFB.FBU, color, x, y, width, height, chunk;
     if (FBU.subrects === 0) {
         if (RQ.length < 4 + RFB.fb_Bpp) {
-            //console.log("   waiting for " +
-            //            (4 + RFB.fb_Bpp - RQ.length) + " RRE bytes");
+            //Util.Debug("   waiting for " +
+            //           (4 + RFB.fb_Bpp - RQ.length) + " RRE bytes");
             return;
         }
         FBU.subrects = RQ.shift32();
@@ -742,8 +742,8 @@ display_rre: function () {
         Canvas.fillRect(FBU.x + x, FBU.y + y, width, height, color);
         FBU.subrects -= 1;
     }
-    //console.log("   display_rre: rects: " + FBU.rects +
-    //            ", FBU.subrects: " + FBU.subrects);
+    //Util.Debug("   display_rre: rects: " + FBU.rects +
+    //           ", FBU.subrects: " + FBU.subrects);
 
     if (FBU.subrects > 0) {
         chunk = Math.min(RFB.rre_chunk, FBU.subrects);
@@ -752,11 +752,11 @@ display_rre: function () {
         FBU.rects -= 1;
         FBU.bytes = 0;
     }
-    //console.log("<< display_rre, FBU.bytes: " + FBU.bytes);
+    //Util.Debug("<< display_rre, FBU.bytes: " + FBU.bytes);
 },
 
 display_hextile: function() {
-    //console.log(">> display_hextile");
+    //Util.Debug(">> display_hextile");
     var RQ = RFB.RQ, FBU = RFB.FBU,
         subencoding, subrects, idx, tile, color, cur_tile,
         tile_x, x, w, tile_y, y, h, xy, s, sx, sy, wh, sw, sh;
@@ -772,14 +772,14 @@ display_hextile: function() {
     while (FBU.tiles > 0) {
         FBU.bytes = 1;
         if (RQ.length < FBU.bytes) {
-            //console.log("   waiting for HEXTILE subencoding byte");
+            //Util.Debug("   waiting for HEXTILE subencoding byte");
             return;
         }
         subencoding = RQ[0];  // Peek
         if (subencoding > 30) { // Raw
             RFB.updateState('failed',
                     "Disconnected: illegal hextile subencoding " + subencoding);
-            console.log("RQ.slice(0,30):" + RQ.slice(0,30));
+            Util.Debug("RQ.slice(0,30):" + RQ.slice(0,30));
             return;
         }
         subrects = 0;
@@ -793,7 +793,7 @@ display_hextile: function() {
 
         /* Figure out how much we are expecting */
         if (subencoding & 0x01) { // Raw
-            //console.log("   Raw subencoding");
+            //Util.Debug("   Raw subencoding");
             FBU.bytes += w * h * RFB.fb_Bpp;
         } else {
             if (subencoding & 0x02) { // Background
@@ -806,7 +806,7 @@ display_hextile: function() {
                 FBU.bytes += 1;   // Since we aren't shifting it off
                 if (RQ.length < FBU.bytes) {
                     /* Wait for subrects byte */
-                    //console.log("   waiting for hextile subrects header byte");
+                    //Util.Debug("   waiting for hextile subrects header byte");
                     return;
                 }
                 subrects = RQ[FBU.bytes-1]; // Peek
@@ -818,17 +818,17 @@ display_hextile: function() {
             }
         }
 
-        //console.log("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) +
-        //            ", subencoding:" + subencoding +
-        //            "(last: " + FBU.lastsubencoding + "), subrects:" +
-        //            subrects + ", tile:" + tile_x + "," + tile_y +
-        //            " [" + x + "," + y + "]@" + w + "x" + h +
-        //            ", d.length:" + RQ.length + ", bytes:" + FBU.bytes +
-        //            " last:" + RQ.slice(FBU.bytes-10, FBU.bytes) +
-        //            " next:" + RQ.slice(FBU.bytes-1, FBU.bytes+10));
+        //Util.Debug("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) +
+        //      ", subencoding:" + subencoding +
+        //      "(last: " + FBU.lastsubencoding + "), subrects:" +
+        //      subrects + ", tile:" + tile_x + "," + tile_y +
+        //      " [" + x + "," + y + "]@" + w + "x" + h +
+        //      ", d.length:" + RQ.length + ", bytes:" + FBU.bytes +
+        //      " last:" + RQ.slice(FBU.bytes-10, FBU.bytes) +
+        //      " next:" + RQ.slice(FBU.bytes-1, FBU.bytes+10));
         if (RQ.length < FBU.bytes) {
-            //console.log("   waiting for " +
-            //            (FBU.bytes - RQ.length) + " hextile bytes");
+            //Util.Debug("   waiting for " +
+            //           (FBU.bytes - RQ.length) + " hextile bytes");
             return;
         }
 
@@ -838,7 +838,7 @@ display_hextile: function() {
         if (FBU.subencoding === 0) {
             if (FBU.lastsubencoding & 0x01) {
                 /* Weird: ignore blanks after RAW */
-                console.log("     Ignoring blank after RAW");
+                Util.Debug("     Ignoring blank after RAW");
             } else {
                 Canvas.fillRect(x, y, w, h, FBU.background);
             }
@@ -890,22 +890,22 @@ display_hextile: function() {
         FBU.rects -= 1;
     }
 
-    //console.log("<< display_hextile");
+    //Util.Debug("<< display_hextile");
 },
 
 
 display_tight_png: function() {
-    //console.log(">> display_tight_png");
+    //Util.Debug(">> display_tight_png");
     var RQ = RFB.RQ, FBU = RFB.FBU, 
         ctl, cmode, clength, getCLength, color, img;
-    //console.log("   FBU.rects: " + FBU.rects);
-    //console.log("   RQ.length: " + RQ.length);
-    //console.log("   RQ.slice(0,20): " + RQ.slice(0,20));
+    //Util.Debug("   FBU.rects: " + FBU.rects);
+    //Util.Debug("   RQ.length: " + RQ.length);
+    //Util.Debug("   RQ.slice(0,20): " + RQ.slice(0,20));
 
 
     FBU.bytes = 1; // compression-control byte
     if (RQ.length < FBU.bytes) {
-        //console.log("   waiting for TIGHT compression-control byte");
+        //Util.Debug("   waiting for TIGHT compression-control byte");
         return;
     }
 
@@ -939,12 +939,12 @@ display_tight_png: function() {
     }
 
     if (RQ.length < FBU.bytes) {
-        //console.log("   waiting for TIGHT " + cmode + " bytes");
+        //Util.Debug("   waiting for TIGHT " + cmode + " bytes");
         return;
     }
 
-    //console.log("   RQ.slice(0,20): " + RFB.RQ.slice(0,20) + " (" + RFB.RQ.length + ")");
-    //console.log("   cmode: " + cmode);
+    //Util.Debug("   RQ.slice(0,20): " + RFB.RQ.slice(0,20) + " (" + RFB.RQ.length + ")");
+    //Util.Debug("   cmode: " + cmode);
 
     // Determine FBU.bytes
     switch (cmode) {
@@ -958,12 +958,12 @@ display_tight_png: function() {
         clength = getCLength(RQ, 1);
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
         if (RQ.length < FBU.bytes) {
-            //console.log("   waiting for TIGHT " + cmode + " bytes");
+            //Util.Debug("   waiting for TIGHT " + cmode + " bytes");
             return;
         }
 
         // We have everything, render it
-        //console.log("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
+        //Util.Debug("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
         RQ.shiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
         img.onload = RFB.scan_tight_imgs;
@@ -975,8 +975,9 @@ display_tight_png: function() {
     }
     FBU.bytes = 0;
     FBU.rects -= 1;
-    //console.log("   ending RQ.length: " + RQ.length);
-    //console.log("   ending RQ.slice(0,20): " + RQ.slice(0,20));
+    //Util.Debug("   ending RQ.length: " + RQ.length);
+    //Util.Debug("   ending RQ.slice(0,20): " + RQ.slice(0,20));
+    //Util.Debug("<< display_tight_png");
 },
 
 extract_data_uri : function (arr) {
@@ -1001,7 +1002,7 @@ scan_tight_imgs : function () {
 },
 
 set_desktopsize : function () {
-    console.log(">> set_desktopsize");
+    Util.Debug(">> set_desktopsize");
     RFB.fb_width = RFB.FBU.width;
     RFB.fb_height = RFB.FBU.height;
     Canvas.clear();
@@ -1009,17 +1010,17 @@ set_desktopsize : function () {
     RFB.timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request
     RFB.send_array(RFB.fbUpdateRequest(0));
-    console.log("<< set_desktopsize");
+    Util.Debug("<< set_desktopsize");
 
     RFB.FBU.bytes = 0;
     RFB.FBU.rects -= 1;
 },
 
 set_jpeg_quality : function () {
-    console.log(">> set_jpeg_quality");
+    Util.Debug(">> set_jpeg_quality");
 },
 set_compress_level: function () {
-    console.log(">> set_compress_level");
+    Util.Debug(">> set_compress_level");
 },
 
 /*
@@ -1027,7 +1028,7 @@ set_compress_level: function () {
  */
 
 pixelFormat: function () {
-    //console.log(">> pixelFormat");
+    //Util.Debug(">> pixelFormat");
     var arr;
     arr = [0];     // msg-type
     arr.push8(0);  // padding
@@ -1049,7 +1050,7 @@ pixelFormat: function () {
     arr.push8(0);     // padding
     arr.push8(0);     // padding
     arr.push8(0);     // padding
-    //console.log("<< pixelFormat");
+    //Util.Debug("<< pixelFormat");
     return arr;
 },
 
@@ -1057,7 +1058,7 @@ fixColourMapEntries: function () {
 },
 
 clientEncodings: function () {
-    //console.log(">> clientEncodings");
+    //Util.Debug(">> clientEncodings");
     var arr, i;
     arr = [2];     // msg-type
     arr.push8(0);  // padding
@@ -1067,12 +1068,12 @@ clientEncodings: function () {
     for (i=0; i<RFB.encodings.length; i += 1) {
         arr.push32(RFB.encodings[i][1]);
     }
-    //console.log("<< clientEncodings: " + arr);
+    //Util.Debug("<< clientEncodings: " + arr);
     return arr;
 },
 
 fbUpdateRequest: function (incremental, x, y, xw, yw) {
-    //console.log(">> fbUpdateRequest");
+    //Util.Debug(">> fbUpdateRequest");
     if (!x) { x = 0; }
     if (!y) { y = 0; }
     if (!xw) { xw = RFB.fb_width; }
@@ -1084,35 +1085,35 @@ fbUpdateRequest: function (incremental, x, y, xw, yw) {
     arr.push16(y);
     arr.push16(xw);
     arr.push16(yw);
-    //console.log("<< fbUpdateRequest");
+    //Util.Debug("<< fbUpdateRequest");
     return arr;
 },
 
 keyEvent: function (keysym, down) {
-    //console.log(">> keyEvent, keysym: " + keysym + ", down: " + down);
+    //Util.Debug(">> keyEvent, keysym: " + keysym + ", down: " + down);
     var arr;
     arr = [4];  // msg-type
     arr.push8(down);
     arr.push16(0);
     arr.push32(keysym);
-    //console.log("<< keyEvent");
+    //Util.Debug("<< keyEvent");
     return arr;
 },
 
 pointerEvent: function (x, y) {
-    //console.log(">> pointerEvent, x,y: " + x + "," + y +
-    //            " , mask: " + RFB.mouse_buttonMask);
+    //Util.Debug(">> pointerEvent, x,y: " + x + "," + y +
+    //           " , mask: " + RFB.mouse_buttonMask);
     var arr;
     arr = [5];  // msg-type
     arr.push8(RFB.mouse_buttonMask);
     arr.push16(x);
     arr.push16(y);
-    //console.log("<< pointerEvent");
+    //Util.Debug("<< pointerEvent");
     return arr;
 },
 
 clientCutText: function (text) {
-    //console.log(">> clientCutText");
+    //Util.Debug(">> clientCutText");
     var arr;
     arr = [6];     // msg-type
     arr.push8(0);  // padding
@@ -1120,7 +1121,7 @@ clientCutText: function (text) {
     arr.push8(0);  // padding
     arr.push32(text.length);
     arr.pushStr(text);
-    //console.log("<< clientCutText:" + arr);
+    //Util.Debug("<< clientCutText:" + arr);
     return arr;
 },
 
@@ -1139,7 +1140,7 @@ encode_message: function(arr) {
 },
 
 decode_message: function(data, offset) {
-    //console.log(">> decode_message: " + data);
+    //Util.Debug(">> decode_message: " + data);
     if (RFB.b64encode) {
         RFB.RQ = RFB.RQ.concat(Base64.decode(data, offset));
     } else {
@@ -1149,22 +1150,22 @@ decode_message: function(data, offset) {
             RQ.push(data.charCodeAt(i) % 256);
         }
     }
-    //console.log(">> decode_message, RQ: " + RFB.RQ);
+    //Util.Debug(">> decode_message, RQ: " + RFB.RQ);
 },
 
 recv_message: function(e) {
-    //console.log(">> recv_message");
+    //Util.Debug(">> recv_message");
 
     try {
         RFB.decode_message(e.data, 0);
         RFB.handle_message();
     } catch (exc) {
         if (typeof exc.stack !== 'undefined') {
-            console.log("recv_message, caught exception: " + exc.stack);
+            Util.Warn("recv_message, caught exception: " + exc.stack);
         } else if (typeof exc.description !== 'undefined') {
-            console.log("recv_message, caught exception: " + exc.description);
+            Util.Warn("recv_message, caught exception: " + exc.description);
         } else {
-            console.log("recv_message, caught exception:" + exc);
+            Util.Warn("recv_message, caught exception:" + exc);
         }
         if (typeof exc.name !== 'undefined') {
             RFB.updateState('failed', exc.name + ": " + exc.message);
@@ -1172,17 +1173,17 @@ recv_message: function(e) {
             RFB.updateState('failed', exc);
         }
     }
-    //console.log("<< recv_message");
+    //Util.Debug("<< recv_message");
 },
 
 handle_message: function () {
-    //console.log("RQ.slice(0,20): " + RFB.RQ.slice(0,20) + " (" + RFB.RQ.length + ")");
+    //Util.Debug("RQ.slice(0,20): " + RFB.RQ.slice(0,20) + " (" + RFB.RQ.length + ")");
     switch (RFB.state) {
     case 'disconnected':
-        console.error("Got data while disconnected");
+        Util.Error("Got data while disconnected");
         break;
     case 'failed':
-        console.log("Giving up!");
+        Util.Warn("Giving up!");
         RFB.disconnect();
         break;
     case 'normal':
@@ -1190,7 +1191,7 @@ handle_message: function () {
         /*
         while (RFB.RQ.length > 0) {
             if (RFB.normal_msg() && RFB.state === 'normal') {
-                console.log("More to process");
+                Util.Debug("More to process");
             } else {
                 break;
             }
@@ -1204,19 +1205,19 @@ handle_message: function () {
 },
 
 send_string: function (str) {
-    //console.log(">> send_string: " + str);
+    //Util.Debug(">> send_string: " + str);
     RFB.send_array(str.split('').map(
         function (chr) { return chr.charCodeAt(0); } ) );
 },
 
 send_array: function (arr) {
-    //console.log(">> send_array: " + arr);
+    //Util.Debug(">> send_array: " + arr);
     RFB.encode_message(arr);
     if (RFB.ws.bufferedAmount === 0) {
         RFB.ws.send(RFB.SQ);
         RFB.SQ = "";
     } else {
-        console.log("Delaying send");
+        Util.Debug("Delaying send");
     }
 },
 
@@ -1281,26 +1282,26 @@ mouseButton: function(x, y, down, bmask) {
 },
 
 mouseMove: function(x, y) {
-    //console.log('>> mouseMove ' + x + "," + y);
+    //Util.Debug('>> mouseMove ' + x + "," + y);
     RFB.mouse_arr = RFB.mouse_arr.concat( RFB.pointerEvent(x, y) );
 },
 
 clipboardCopyTo: function (text) {
-    console.log(">> clipboardCopyTo stub");
+    Util.Debug(">> clipboardCopyTo stub");
     // Stub
 },
 
 externalUpdateState: function(state, msg) {
-    console.log(">> externalUpdateState stub");
+    Util.Debug(">> externalUpdateState stub");
     // Stub
 },
 
 updateState: function(state, statusMsg) {
     var func, cmsg;
     if (state === 'failed') {
-        func = function(msg) { console.error(msg); };
+        func = Util.Error;
     } else {
-        func = function(msg) { console.warn(msg); };
+        func = Util.Warn;
     }
 
     cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
@@ -1348,7 +1349,7 @@ show_timings: function() {
         delta, tot_time = 0, tot_fbus = 0, tot_rects = 0,
         tot_bytes = 0, tot_pixels = 0;
     if (timing.history_start === 0) { return; }
-    console.log(">> show_timings");
+    //Util.Debug(">> show_timings");
     RFB.update_timings();  // Final accumulate
     msg = "\nTimings\n";
     msg += "  time: fbus,rects,bytes,pixels\n";
@@ -1369,7 +1370,8 @@ show_timings: function() {
     msg += "  " + tot_time.toFixed(3);
     msg += ": " + tot_fbus + "," + tot_rects;
     msg += "," + tot_bytes + "," + tot_pixels;
-    console.log(msg);
+    Util.Info(msg);
+    //Util.Debug("<< show_timings");
 },
 
 /*
@@ -1377,7 +1379,7 @@ show_timings: function() {
  */
 
 init_ws: function () {
-    //console.log(">> init_ws");
+    //Util.Debug(">> init_ws");
 
     var uri = "", vars = [];
     if (RFB.encrypt) {
@@ -1392,12 +1394,12 @@ init_ws: function () {
     if (vars.length > 0) {
         uri += "?" + vars.join("&");
     }
-    console.log("connecting to " + uri);
+    Util.Info("connecting to " + uri);
     RFB.ws = new WebSocket(uri);
 
     RFB.ws.onmessage = RFB.recv_message;
     RFB.ws.onopen = function(e) {
-        //console.log(">> WebSocket.onopen");
+        Util.Debug(">> WebSocket.onopen");
         RFB.updateState('ProtocolVersion', "Starting VNC handshake");
         RFB.sendID = setInterval(function() {
                 /*
@@ -1410,21 +1412,21 @@ init_ws: function () {
                         RFB.SQ = "";
                     }
                 } else {
-                    console.log("Delaying send");
+                    Util.Debug("Delaying send");
                 }
             }, 50);
-        //console.log("<< WebSocket.onopen");
+        Util.Debug("<< WebSocket.onopen");
     };
     RFB.ws.onclose = function(e) {
-        //console.log(">> WebSocket.onclose");
+        Util.Debug(">> WebSocket.onclose");
         clearInterval(RFB.sendID);
         RFB.updateState('disconnected', 'VNC disconnected');
-        //console.log("<< WebSocket.onclose");
+        Util.Debug("<< WebSocket.onclose");
     };
     RFB.ws.onerror = function(e) {
-        console.error(">> WebSocket.onerror");
+        Util.Debug(">> WebSocket.onerror");
         RFB.updateState('failed', "WebSocket error");
-        console.error("<< WebSocket.onerror");
+        Util.Debug("<< WebSocket.onerror");
     };
 
     setTimeout(function () {
@@ -1434,7 +1436,7 @@ init_ws: function () {
             }
         }, RFB.connectTimeout);
 
-    //console.log("<< init_ws");
+    //Util.Debug("<< init_ws");
 },
 
 init_vars: function () {
