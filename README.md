@@ -7,12 +7,12 @@ noVNC is a VNC client implemented using HTML5 technologies,
 specifically Canvas and WebSocket (supports 'wss://' encryption).
 
 For browsers that do not have builtin WebSocket support, the project
-includes web-socket-js, a WebSocket emulator using Adobe Flash
-(http://github.com/gimite/web-socket-js).
+includes [web-socket-js](http://github.com/gimite/web-socket-js),
+a WebSocket emulator using Adobe Flash .
 
-In addition, as3crypto has been added to web-socket-js to implement
-WebSocket SSL/TLS encryption, i.e. the "wss://" URI scheme.
-(http://github.com/lyokato/as3crypto_patched).
+In addition, [as3crypto](http://github.com/lyokato/as3crypto_patched)
+has been added to web-socket-js to implement WebSocket SSL/TLS
+encryption, i.e. the "wss://" URI scheme.
 
 
 ### Requirements
