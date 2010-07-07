@@ -1,3 +1,7 @@
+New tight PNG protocol:
+    http://wiki.qemu.org/VNC_Tight_PNG
+    http://xf.iksaif.net/blog/index.php?post/2010/06/14/QEMU:-Tight-PNG-and-some-profiling
+
 RFB protocol and extensions:
     http://tigervnc.org/cgi-bin/rfbproto
 
