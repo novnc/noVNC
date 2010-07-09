@@ -14,6 +14,7 @@ In addition, [as3crypto](http://github.com/lyokato/as3crypto_patched)
 has been added to web-socket-js to implement WebSocket SSL/TLS
 encryption, i.e. the "wss://" URI scheme.
 
+<img src="http://kanaka.github.com/noVNC/img/noVNC-1.jpg" width=200>&nbsp;<img src="http://kanaka.github.com/noVNC/img/noVNC-2.jpg" width=200>
 
 ### Requirements
 
