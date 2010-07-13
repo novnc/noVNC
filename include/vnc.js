@@ -72,7 +72,7 @@ connectTimeout : 2000,  // time to wait for connection
 // In preference order
 encodings      : [
     ['COPYRECT',         0x01, 'display_copy_rect'],
-    ['TIGHT_PNG',        0x17, 'display_tight_png'],
+    ['TIGHT_PNG',        -260, 'display_tight_png'],
     ['HEXTILE',          0x05, 'display_hextile'],
     ['RRE',              0x02, 'display_rre'],
     ['RAW',              0x00, 'display_raw'],
@@ -148,8 +148,6 @@ load: function () {
         RFB.encHandlers[RFB.encodings[i][1]] = RFB[RFB.encodings[i][2]];
         RFB.encNames[RFB.encodings[i][1]] = RFB.encodings[i][0];
     }
-    RFB.encHandlers[0x07] = RFB.display_tight_png;
-    RFB.encNames[0x07] = 'TIGHT';
     //Util.Debug("<< load");
 },
 
@@ -505,6 +503,8 @@ normal_msg: function () {
     var RQ = RFB.RQ, ret = true, msg_type,
         c, first_colour, num_colours, red, green, blue;
 
+    //Util.Debug(">> msg RQ.slice(0,10): " + RQ.slice(0,20));
+    //Util.Debug(">> msg RQ.slice(-10,-1): " + RQ.slice(RQ.length-10,RQ.length));
     if (RFB.FBU.rects > 0) {
         msg_type = 0;
     } else if (RFB.cuttext !== 'none') {
@@ -574,9 +574,10 @@ framebufferUpdate: function() {
         ret = true, msg;
 
     if (FBU.rects === 0) {
+        //Util.Debug("New FBU: RQ.slice(0,20): " + RQ.slice(0,20));
         if (RQ.length < 3) {
             RQ.unshift(0);  // FBU msg_type
-            //Util.Debug("   waiting for FBU header bytes");
+            Util.Debug("   waiting for FBU header bytes");
             return false;
         }
         RQ.shift8();
@@ -605,21 +606,23 @@ framebufferUpdate: function() {
             FBU.encoding = parseInt(RQ.shift32(), 10);
             timing.h_bytes += 12;
 
-            // Debug:
-            /*
             if (RFB.encNames[FBU.encoding]) {
+                // Debug:
+                /*
                 msg =  "FramebufferUpdate rects:" + FBU.rects;
+                msg += " x: " + FBU.x + " y: " + FBU.y
+                msg += " width: " + FBU.width + " height: " + FBU.height;
                 msg += " encoding:" + FBU.encoding;
                 msg += "(" + RFB.encNames[FBU.encoding] + ")";
                 msg += ", RQ.length: " + RQ.length;
                 Util.Debug(msg);
+                */
             } else {
                 RFB.updateState('failed',
                         "Disconnected: unsupported encoding " +
                         FBU.encoding);
                 return false;
             }
-            */
         }
 
         timing.last_fbu = (new Date()).getTime();
@@ -905,7 +908,7 @@ display_tight_png: function() {
 
     FBU.bytes = 1; // compression-control byte
     if (RQ.length < FBU.bytes) {
-        //Util.Debug("   waiting for TIGHT compression-control byte");
+        Util.Debug("   waiting for TIGHT compression-control byte");
         return;
     }
 
@@ -929,7 +932,7 @@ display_tight_png: function() {
         case 0x08: cmode = "fill"; break;
         case 0x09: cmode = "jpeg"; break;
         case 0x0A: cmode = "png";  break;
-        default:   throw("Illegal ctl: " + ctl);
+        default:   throw("Illegal basic compression received, ctl: " + ctl);
     }
     switch (cmode) {
         // fill uses fb_depth because TPIXELs drop the padding byte
@@ -939,7 +942,7 @@ display_tight_png: function() {
     }
 
     if (RQ.length < FBU.bytes) {
-        //Util.Debug("   waiting for TIGHT " + cmode + " bytes");
+        Util.Debug("   waiting for TIGHT " + cmode + " bytes");
         return;
     }
 
@@ -958,7 +961,7 @@ display_tight_png: function() {
         clength = getCLength(RQ, 1);
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
         if (RQ.length < FBU.bytes) {
-            //Util.Debug("   waiting for TIGHT " + cmode + " bytes");
+            Util.Debug("   waiting for TIGHT " + cmode + " bytes");
             return;
         }
 
@@ -981,10 +984,10 @@ display_tight_png: function() {
 },
 
 extract_data_uri : function (arr) {
-    var i, stra = [];
-    for (i=0; i< arr.length; i += 1) {
-        stra.push(String.fromCharCode(arr[i]));
-    }
+    //var i, stra = [];
+    //for (i=0; i< arr.length; i += 1) {
+    //    stra.push(String.fromCharCode(arr[i]));
+    //}
     //return "," + escape(stra.join(''));
     return ";base64," + Base64.encode(arr);
 },
@@ -1139,14 +1142,15 @@ encode_message: function(arr) {
     }
 },
 
-decode_message: function(data, offset) {
+decode_message: function(data) {
+    var raw, i, length, RQ = RFB.RQ;
     //Util.Debug(">> decode_message: " + data);
     if (RFB.b64encode) {
-        RFB.RQ = RFB.RQ.concat(Base64.decode(data, offset));
+        RFB.RQ = RFB.RQ.concat(Base64.decode(data, 0));
     } else {
         // A bit faster in firefox
-        var i, length = data.length, RQ = RFB.RQ;
-        for (i=offset; i < length; i += 1) {
+        length = data.length;
+        for (i=0; i < length; i += 1) {
             RQ.push(data.charCodeAt(i) % 256);
         }
     }
@@ -1157,7 +1161,7 @@ recv_message: function(e) {
     //Util.Debug(">> recv_message");
 
     try {
-        RFB.decode_message(e.data, 0);
+        RFB.decode_message(e.data);
         RFB.handle_message();
     } catch (exc) {
         if (typeof exc.stack !== 'undefined') {
@@ -1214,6 +1218,8 @@ send_array: function (arr) {
     //Util.Debug(">> send_array: " + arr);
     RFB.encode_message(arr);
     if (RFB.ws.bufferedAmount === 0) {
+        //Util.Debug("arr: " + arr);
+        //Util.Debug("RFB.SQ: " + RFB.SQ);
         RFB.ws.send(RFB.SQ);
         RFB.SQ = "";
     } else {

@@ -14,6 +14,8 @@ In addition, [as3crypto](http://github.com/lyokato/as3crypto_patched)
 has been added to web-socket-js to implement WebSocket SSL/TLS
 encryption, i.e. the "wss://" URI scheme.
 
+Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
+sponsoring ongoing development of this project (and for employing me).
 
 ### Screenshots
 
