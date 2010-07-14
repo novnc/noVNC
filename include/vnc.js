@@ -1135,10 +1135,17 @@ clientCutText: function (text) {
 
 encode_message: function(arr) {
     if (RFB.b64encode) {
+        /* base64 encode */
         RFB.SQ = RFB.SQ + Base64.encode(arr);
     } else {
+        /* UTF-8 encode. 0 -> 256 to avoid WebSockets framing */
         RFB.SQ = RFB.SQ + arr.map(function (num) {
-                return String.fromCharCode(num); } ).join('');
+                if (num === 0) {
+                    return String.fromCharCode(256);
+                } else {
+                    return String.fromCharCode(num);
+                }
+            } ).join('');
     }
 },
 
@@ -1146,9 +1153,10 @@ decode_message: function(data) {
     var raw, i, length, RQ = RFB.RQ;
     //Util.Debug(">> decode_message: " + data);
     if (RFB.b64encode) {
+        /* base64 decode */
         RFB.RQ = RFB.RQ.concat(Base64.decode(data, 0));
     } else {
-        // A bit faster in firefox
+        /* UTF-8 decode. 256 -> 0 to WebSockets framing */
         length = data.length;
         for (i=0; i < length; i += 1) {
             RQ.push(data.charCodeAt(i) % 256);
@@ -1162,7 +1170,11 @@ recv_message: function(e) {
 
     try {
         RFB.decode_message(e.data);
-        RFB.handle_message();
+        if (RFB.RQ.length > 0) {
+            RFB.handle_message();
+        } else {
+            Util.Debug("Ignoring empty message");
+        }
     } catch (exc) {
         if (typeof exc.stack !== 'undefined') {
             Util.Warn("recv_message, caught exception: " + exc.stack);
