@@ -1,5 +1,5 @@
-noVNC is licensed under the LGPL version 3 (see LICENSE.GPL-3 and
-LICENSE.LGPL-3) with the following exceptions:
+noVNC is licensed under the LGPL version 3 (see docs/LICENSE.GPL-3 and
+docs/LICENSE.LGPL-3) with the following exceptions:
 
     include/as3crypto_patched/ : various BSD style licenses
 
