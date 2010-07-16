@@ -124,22 +124,26 @@ load: function () {
     /* Load web-socket-js if no builtin WebSocket support */
     if (VNC_native_ws) {
         Util.Info("Using native WebSockets");
-        RFB.updateState('disconnected', 'Disconnected');
+        RFB.updateState('loaded', 'noVNC ready (using native WebSockets)');
     } else {
         Util.Warn("Using web-socket-js flash bridge");
         if ((! Util.Flash) ||
             (Util.Flash.version < 9)) {
-            RFB.updateState('failed', "WebSockets or Adobe Flash is required");
+            RFB.updateState('fatal', "WebSockets or Adobe Flash is required");
         } else if (document.location.href.substr(0, 7) === "file://") {
-            RFB.updateState('failed',
+            RFB.updateState('fatal',
                     "'file://' URL is incompatible with Adobe Flash");
         } else {
-            RFB.updateState('disconnected', 'Disconnected');
+            RFB.updateState('loaded', 'noVNC ready (using Flash WebSockets emulation)');
         }
     }
 
     // Initialize canvas/fxcanvas
-    Canvas.init(RFB.canvasID);
+    try {
+        Canvas.init(RFB.canvasID);
+    } catch (exc) {
+        RFB.updateState('fatal', "No working Canvas");
+    }
 
     // Populate encoding lookup tables
     RFB.encHandlers = {};
@@ -171,36 +175,17 @@ connect: function (host, port, password, encrypt, true_color) {
     }
 
     if ((!RFB.host) || (!RFB.port)) {
-        RFB.updateState('disconnected', "Must set host and port");
+        RFB.updateState('failed', "Must set host and port");
         return;
     }
 
-    RFB.init_vars();
-
-    if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
-        RFB.ws.close();
-    }
-    RFB.init_ws();
-
-    RFB.updateState('ProtocolVersion');
+    RFB.updateState('connect');
     //Util.Debug("<< connect");
 
 },
 
 disconnect: function () {
     //Util.Debug(">> disconnect");
-    if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
-        RFB.ws.close();
-        RFB.updateState('closed');
-        RFB.ws.onmessage = function (e) { return; };
-    }
-    if (Canvas.ctx) {
-        Canvas.stop();
-        if (! /__debug__$/i.test(document.location.href)) {
-            Canvas.clear();
-        }
-    }
-
     RFB.updateState('disconnected', 'Disconnected');
     //Util.Debug("<< disconnect");
 },
@@ -326,6 +311,21 @@ init_msg: function () {
         if (RFB.version > RFB.max_version) { 
             RFB.version = RFB.max_version;
         }
+
+        RFB.sendID = setInterval(function() {
+                /*
+                 * Send updates either at a rate of one update every 50ms,
+                 * or whatever slower rate the network can handle
+                 */
+                if (RFB.ws.bufferedAmount === 0) {
+                    if (RFB.SQ) {
+                        RFB.ws.send(RFB.SQ);
+                        RFB.SQ = "";
+                    }
+                } else {
+                    Util.Debug("Delaying send");
+                }
+            }, 50);
 
         cversion = "00" + parseInt(RFB.version,10) +
                    ".00" + ((RFB.version * 10) % 10);
@@ -782,7 +782,7 @@ display_hextile: function() {
         if (subencoding > 30) { // Raw
             RFB.updateState('failed',
                     "Disconnected: illegal hextile subencoding " + subencoding);
-            Util.Debug("RQ.slice(0,30):" + RQ.slice(0,30));
+            //Util.Debug("RQ.slice(0,30):" + RQ.slice(0,30));
             return;
         }
         subrects = 0;
@@ -1314,27 +1314,134 @@ externalUpdateState: function(state, msg) {
     // Stub
 },
 
+/*
+ * Running states:
+ *   disconnected - idle state
+ *   normal       - connected
+ *
+ * Page states:
+ *   loaded       - page load, equivalent to disconnected
+ *   connect      - starting initialization
+ *   password     - waiting for password
+ *   failed       - abnormal transition to disconnected
+ *   fatal        - failed to load page, or fatal error
+ *
+ * VNC initialization states:
+ *   ProtocolVersion
+ *   Security
+ *   Authentication
+ *   SecurityResult
+ *   ServerInitialization
+ */
 updateState: function(state, statusMsg) {
-    var func, cmsg;
-    if (state === 'failed') {
+    var func, cmsg, oldstate = RFB.state;
+    if (state === oldstate) {
+        /* Already here, ignore */
+        Util.Debug("Already in state '" + state + "', ignoring.");
+        return;
+    }
+
+    if (oldstate === 'fatal') {
+        Util.Error("Fatal error, cannot continue");
+    }
+
+    if ((state === 'failed') || (state === 'fatal')) {
         func = Util.Error;
     } else {
         func = Util.Warn;
     }
 
     cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
-    func("New state '" + state + "'." + cmsg);
+    func("New state '" + state + "', was '" + oldstate + "'." + cmsg);
 
-    if ((state === 'disconnected') && (RFB.state !== 'disconnected')) {
-        RFB.show_timings();
+    if ((oldstate === 'failed') && (state === 'disconnected')) {
+        // Do disconnect action, but stay in failed state.
+        RFB.state = 'failed';
+    } else {
+        RFB.state = state;
     }
 
-    if ((RFB.state === 'failed') &&
-        ((state === 'disconnected') || (state === 'closed'))) {
+    switch (state) {
+    case 'loaded':
+    case 'disconnected':
+
+        if (RFB.sendID) {
+            clearInterval(RFB.sendID);
+            RFB.sendID = null;
+        }
+
+        if (RFB.ws) {
+            if (RFB.ws.readyState === WebSocket.OPEN) {
+                RFB.ws.close();
+            }
+            RFB.ws.onmessage = function (e) { return; };
+        }
+
+        if (Canvas.ctx) {
+            Canvas.stop();
+            if (! /__debug__$/i.test(document.location.href)) {
+                Canvas.clear();
+            }
+        }
+
+        RFB.show_timings();
+
+        break;
+
+
+    case 'connect':
+        RFB.init_vars();
+
+        if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
+            RFB.ws.close();
+        }
+        RFB.init_ws(); // onopen transitions to 'ProtocolVersion'
+
+        break;
+
+
+    case 'password':
+        // Ignore password state by default
+        break;
+
+
+    case 'normal':
+        if ((oldstate === 'disconnected') || (oldstate === 'failed')) {
+            Util.Error("Invalid transition from 'disconnected' or 'failed' to 'normal'");
+        }
+
+        break;
+
+
+    case 'failed':
+        if (oldstate === 'disconnected') {
+            Util.Error("Invalid transition from 'disconnected' to 'failed'");
+        }
+        if (oldstate === 'normal') {
+            Util.Error("Error while connected.");
+        }
+        if (oldstate === 'init') {
+            Util.Error("Error while initializing.");
+        }
+
+        if ((RFB.ws) && (RFB.ws.readyState === WebSocket.OPEN)) {
+            RFB.ws.close();
+        }
+        // Make sure we transition to disconnected
+        setTimeout(function() { RFB.updateState('disconnected'); }, 50);
+
+        break;
+
+
+    default:
+        // Invalid state transition
+
+    }
+
+    if ((oldstate === 'failed') && (state === 'disconnected')) {
         // Leave the failed message
         RFB.externalUpdateState(state);
     } else {
-        RFB.state = state;
         RFB.externalUpdateState(state, statusMsg);
     }
 },
@@ -1418,27 +1525,20 @@ init_ws: function () {
     RFB.ws.onmessage = RFB.recv_message;
     RFB.ws.onopen = function(e) {
         Util.Debug(">> WebSocket.onopen");
-        RFB.updateState('ProtocolVersion', "Starting VNC handshake");
-        RFB.sendID = setInterval(function() {
-                /*
-                 * Send updates either at a rate of one update every 50ms,
-                 * or whatever slower rate the network can handle
-                 */
-                if (RFB.ws.bufferedAmount === 0) {
-                    if (RFB.SQ) {
-                        RFB.ws.send(RFB.SQ);
-                        RFB.SQ = "";
-                    }
-                } else {
-                    Util.Debug("Delaying send");
-                }
-            }, 50);
+        if (RFB.state === "connect") {
+            RFB.updateState('ProtocolVersion', "Starting VNC handshake");
+        } else {
+            RFB.updateState('failed', "Got unexpected WebSockets connection");
+        }
         Util.Debug("<< WebSocket.onopen");
     };
     RFB.ws.onclose = function(e) {
         Util.Debug(">> WebSocket.onclose");
-        clearInterval(RFB.sendID);
-        RFB.updateState('disconnected', 'VNC disconnected');
+        if (RFB.state === 'normal') {
+            RFB.updateState('failed', 'Server disconnected');
+        } else  {
+            RFB.updateState('disconnected', 'VNC disconnected');
+        }
         Util.Debug("<< WebSocket.onclose");
     };
     RFB.ws.onerror = function(e) {
@@ -1450,7 +1550,6 @@ init_ws: function () {
     setTimeout(function () {
             if (RFB.ws.readyState === WebSocket.CONNECTING) {
                 RFB.updateState('failed', "Connect timeout");
-                RFB.ws.close();
             }
         }, RFB.connectTimeout);
 

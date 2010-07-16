@@ -46,10 +46,26 @@ Connect parameters are provided in query string:
             sb = $('VNC_status_bar');
             cad = $('sendCtrlAltDelButton');
             switch (state) {
-                case 'failed':       klass = "VNC_status_error";  break;
-                case 'normal':       klass = "VNC_status_normal"; break;
-                case 'disconnected': klass = "VNC_status_normal"; break;
-                default:             klass = "VNC_status_warn";  break;
+                case 'failed':
+                case 'fatal':
+                    klass = "VNC_status_error";
+                    break;
+                case 'normal':
+                    klass = "VNC_status_normal";
+                    break;
+                case 'disconnected':
+                case 'loaded':
+                    klass = "VNC_status_normal";
+                    break;
+                case 'password':
+                    msg = '<form onsubmit="return setPassword();"';
+                    msg += '  style="margin-bottom: 0px">';
+                    msg += 'Password Required: ';
+                    msg += '<input type=password size=10 id="password_input" class="VNC_status">';
+                    msg += '</form>';
+                    // Fall through
+                default:
+                    klass = "VNC_status_warn";
             }
 
             if (state === "normal") { cad.disabled = false; }
@@ -58,14 +74,6 @@ Connect parameters are provided in query string:
             if (typeof(msg) !== 'undefined') {
                 sb.setAttribute("class", klass);
                 s.innerHTML = msg;
-            }
-            if (state === 'password') {
-                html  = '<form onsubmit="return setPassword();"';
-                html += '  style="margin-bottom: 0px">';
-                html += 'Password Required: ';
-                html += '<input type=password size=10 id="password_input" class="VNC_status">';
-                html += '</form>';
-                s.innerHTML = html;
             }
         }
 

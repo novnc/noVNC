@@ -82,6 +82,12 @@ load: function(target) {
         };
 },
 
+setPassword: function() {
+    console.log("setPassword");
+    RFB.sendPassword($('VNC_password').value);
+    return false;
+},
+
 sendCtrlAltDel: function() {
     RFB.sendCtrlAltDel();
 },
@@ -94,6 +100,7 @@ updateState: function(state, msg) {
     cad = $('sendCtrlAltDelButton');
     switch (state) {
         case 'failed':
+        case 'fatal':
             c.disabled = true;
             cad.disabled = true;
             klass = "VNC_status_error";
@@ -106,12 +113,21 @@ updateState: function(state, msg) {
             klass = "VNC_status_normal";
             break;
         case 'disconnected':
+        case 'loaded':
             c.value = "Connect";
             c.onclick = DefaultControls.connect;
 
             c.disabled = false;
             cad.disabled = true;
             klass = "VNC_status_normal";
+            break;
+        case 'password':
+            c.value = "Send Password";
+            c.onclick = DefaultControls.setPassword;
+
+            c.disabled = false;
+            cad.disabled = true;
+            klass = "VNC_status_warn";
             break;
         default:
             c.disabled = true;
