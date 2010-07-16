@@ -106,6 +106,10 @@ In the following table Jaunty is Ubuntu 9.04 and WinXP is Windows XP.
         <td>Good</td>
         <td>Large full-color images are somewhat slow from web-socket-js overhead.</td>
     </tr> <tr>
+        <td>Jaunty</td> <td>Firefox 3.0.17</td>
+        <td>Fair</td>
+        <td>Works fine but is slow.</td>
+    </tr> <tr>
         <td>Jaunty</td> <td>Opera 10.60</td>
         <td>Poor</td>
         <td>web-socket-js problems, mouse/keyboard issues. See note 1</td>
