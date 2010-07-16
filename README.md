@@ -4,14 +4,14 @@
 ### Description
 
 noVNC is a VNC client implemented using HTML5 technologies,
-specifically Canvas and WebSocket (supports 'wss://' encryption).
+specifically Canvas and WebSockets (supports 'wss://' encryption).
 
-For browsers that do not have builtin WebSocket support, the project
+For browsers that do not have builtin WebSockets support, the project
 includes [web-socket-js](http://github.com/gimite/web-socket-js),
-a WebSocket emulator using Adobe Flash .
+a WebSockets emulator using Adobe Flash .
 
 In addition, [as3crypto](http://github.com/lyokato/as3crypto_patched)
-has been added to web-socket-js to implement WebSocket SSL/TLS
+has been added to web-socket-js to implement WebSockets SSL/TLS
 encryption, i.e. the "wss://" URI scheme.
 
 Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
@@ -28,51 +28,79 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 
 ### Requirements
 
-Until there is VNC server support for WebSocket connections, you need
-to use a WebSocket to TCP socket proxy. There is a python proxy
-included ('wsproxy'). One advantage of using the proxy is that it has
-builtin support for SSL/TLS encryption (i.e. "wss://").
+Unless you are using a VNC server with support for WebSockets
+connections (only my [fork of libvncserver](http://github.com/kanaka/libvncserver)
+currently), you need to use a WebSockets to TCP socket proxy. There is
+a python proxy included ('wsproxy'). One advantage of using the proxy
+is that it has builtin support for SSL/TLS encryption (i.e. "wss://").
 
 There a few reasons why a proxy is required:
 
-  1. WebSocket is not a pure socket protocol. There is an initial HTTP
+  1. WebSockets is not a pure socket protocol. There is an initial HTTP
      like handshake to allow easy hand-off by web servers and allow
-     some origin policy exchange. Also, each WebSocket frame begins
+     some origin policy exchange. Also, each WebSockets frame begins
      with 0 ('\x00') and ends with 255 ('\xff').
 
   2. Javascript itself does not have the ability to handle pure byte
-     strings (Unicode encoding messes with it) even though you can
-     read them with WebSocket. The python proxy encodes the data so
-     that the Javascript client can base64 decode the data into an
-     array.
-
-  3. When using the web-socket-js as a fallback, WebSocket 'onmessage'
-     events may arrive out of order. In order to compensate for this
-     the client asks the proxy (using the initial query string) to add
-     sequence numbers to each packet.
+     arrays. The python proxy base64 encodes the data so that
+     the Javascript client can decode the data as an integer array.
 
 
-### Usage
+### Quick Start
+
+* Use the launch script to start a mini-webserver and the WebSockets
+  proxy. The `--vnc` option is used to specify the location of
+  a running VNC server:
+
+    `./utils/launch.sh --vnc localhost:5901`
+
+* Point your browser to the cut-and-paste URL that is output by the
+  launch script. Enter a password if the VNC server has one
+  configured. Hit the Connect button and enjoy!
+
+
+### Advanced usage
 
 * To encrypt the traffic using the WebSocket 'wss://' URI scheme you
-  need to generate a certificate for the proxy to load. You can generate
-  a self-signed certificate using openssl. The common name should be the
-  hostname of the server where the proxy will be running:
+  need to generate a certificate for the proxy to load. By default the
+  proxy loads a certificate file name `self.pem` but the --cert=CERT
+  option can override it. You can generate a self-signed certificate
+  using openssl. When asked for the common name, use the hostname of
+  the server where the proxy will be running:
 
     `openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem`
 
-* run a VNC server.
- 
+* `tightvnc` provide a nice startup script that can be used to run
+  a separate X desktop that is served by VNC. To install and run the
+  server under Ubuntu you would do something like this:
+
+    `sudo apt-get install tightvncserver`
     `vncserver :1`
 
-* run the python proxy:
+    The VNC server will run in the background. The port that it runs
+    on is the display number + 5900 (i.e. 5901 in the case above).
+
+* `x11vnc` can be used to share your current X desktop. Note that if
+  you run noVNC on the X desktop you are connecting to via VNC you
+  will get a neat hall of mirrors effect, but the the client and
+  server will fight over the mouse.
+
+    `sudo apt-get install x11vnc`
+    `x11vnc -forever -display :0`
+
+  Without the `-forever` option, x11vnc will exit after the first
+  disconnect. The `-display` option indicates the exiting X display to
+  share. The port that it runs on is the display number + 5900 (i.e.
+  5900 in the case above).
+
+* To run the python proxy directly without using launch script (to
+  pass additional options for example):
 
     `./utils/wsproxy.py -f source_port target_addr:target_port
 
     `./utils/wsproxy.py -f 8787 localhost:5901`
 
-
-* run the mini python web server to serve the directory:
+* To run the mini python web server without the launch script:
 
     `./utils/web.py PORT`
 
@@ -82,8 +110,7 @@ There a few reasons why a proxy is required:
  (or whatever port you used above to run the web server).
 
 * Specify the host and port where the proxy is running and the
-  password that the vnc server is using (if any). Hit the Connect
-  button and enjoy!
+  password that the vnc server is using (if any).
 
 
 ### Browser Support
