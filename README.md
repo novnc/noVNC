@@ -42,8 +42,8 @@ There a few reasons why a proxy is required:
      with 0 ('\x00') and ends with 255 ('\xff').
 
   2. Javascript itself does not have the ability to handle pure byte
-     arrays. The python proxy base64 encodes the data so that
-     the Javascript client can decode the data as an integer array.
+     arrays. The python proxy encodes the data as base64 so that the
+     Javascript client can decode the data as an integer array.
 
 
 ### Quick Start
@@ -63,10 +63,10 @@ There a few reasons why a proxy is required:
 
 * To encrypt the traffic using the WebSocket 'wss://' URI scheme you
   need to generate a certificate for the proxy to load. By default the
-  proxy loads a certificate file name `self.pem` but the --cert=CERT
-  option can override it. You can generate a self-signed certificate
-  using openssl. When asked for the common name, use the hostname of
-  the server where the proxy will be running:
+  proxy loads a certificate file name `self.pem` but the `--cert=CERT`
+  option can override the file name. You can generate a self-signed
+  certificate using openssl. When asked for the common name, use the
+  hostname of the server where the proxy will be running:
 
     `openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem`
 
@@ -96,7 +96,7 @@ There a few reasons why a proxy is required:
 * To run the python proxy directly without using launch script (to
   pass additional options for example):
 
-    `./utils/wsproxy.py -f source_port target_addr:target_port
+    `./utils/wsproxy.py -f source_port target_addr:target_port`
 
     `./utils/wsproxy.py -f 8787 localhost:5901`
 
@@ -107,10 +107,9 @@ There a few reasons why a proxy is required:
     `./utils/web.py 8080`
 
 * Point your web browser at http://localhost:8080/vnc.html
- (or whatever port you used above to run the web server).
-
-* Specify the host and port where the proxy is running and the
-  password that the vnc server is using (if any).
+ (or whatever port you used above to run the web server). Specify the
+ host and port where the proxy is running and the password that the
+ vnc server is using (if any). Hit the Connect button.
 
 
 ### Browser Support
