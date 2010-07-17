@@ -245,7 +245,7 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 
 int main(int argc, char *argv[])
 {
-    int listen_port, fd, c, option_index = 0;
+    int fd, c, option_index = 0;
     static int ssl_only = 0, foreground = 0;
     char *found;
     static struct option long_options[] = {
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
         settings.listen_port = strtol(argv[optind], NULL, 10);
     }
     optind++;
-    if (listen_port == 0) {
+    if (settings.listen_port == 0) {
         usage("Could not parse listen_port\n");
     }
 
