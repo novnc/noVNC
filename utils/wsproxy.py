@@ -3,7 +3,7 @@
 '''
 A WebSocket to TCP socket proxy with support for "wss://" encryption.
 Copyright 2010 Joel Martin
-Licensed under LGPL version 3 (see LICENSE.LGPL-3)
+Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
 
 You can make a cert/key with openssl using:
 openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem

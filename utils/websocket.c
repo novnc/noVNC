@@ -1,5 +1,7 @@
 /*
  * WebSocket lib with support for "wss://" encryption.
+ * Copyright 2010 Joel Martin
+ * Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
  *
  * You can make a cert/key with openssl using:
  * openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem
@@ -460,7 +462,7 @@ void signal_handler(sig) {
     }
 }
 
-void daemonize() {
+void daemonize(int keepfd) {
     int pid, i;
 
     umask(0);
@@ -483,7 +485,11 @@ void daemonize() {
 
     /* Close open files */
     for (i=getdtablesize(); i>=0; --i) {
-        close(i);
+        if (i != keepfd) {
+            close(i);
+        } else {
+            printf("keeping fd %d\n", keepfd);
+        }
     }
     i=open("/dev/null", O_RDWR);  // Redirect stdin
     dup(i);                       // Redirect stdout
@@ -507,10 +513,6 @@ void start_server() {
     if (! (cbuf_tmp = malloc(bufsize)) )
             { fatal("malloc()"); }
 
-    if (settings.daemon) {
-        daemonize();
-    }
-
     lsock = socket(AF_INET, SOCK_STREAM, 0);
     if (lsock < 0) { error("ERROR creating listener socket"); }
     bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -531,6 +533,10 @@ void start_server() {
         fatal("ERROR on binding listener socket");
     }
     listen(lsock,100);
+
+    if (settings.daemon) {
+        daemonize(lsock);
+    }
 
     while (1) {
         clilen = sizeof(cli_addr);

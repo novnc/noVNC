@@ -2,6 +2,8 @@
 
 '''
 Python WebSocket library with support for "wss://" encryption.
+Copyright 2010 Joel Martin
+Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
 
 You can make a cert/key with openssl using:
 openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem
@@ -154,7 +156,7 @@ def do_handshake(sock):
     retsock.send(response)
     return retsock
 
-def daemonize():
+def daemonize(keepfd=None):
     os.umask(0)
     os.chdir('/')
     os.setgid(os.getgid())  # relinquish elevations
@@ -175,7 +177,10 @@ def daemonize():
     if maxfd == resource.RLIM_INFINITY: maxfd = 256
     for fd in reversed(range(maxfd)):
         try:
-            os.close(fd)
+            if fd != keepfd:
+                os.close(fd)
+            else:
+                print "Keeping fd: %d" % fd
         except OSError, exc:
             if exc.errno != errno.EBADF: raise
 
@@ -187,12 +192,13 @@ def daemonize():
 
 def start_server():
 
-    if settings['daemon']: daemonize()
-
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     lsock.bind((settings['listen_host'], settings['listen_port']))
     lsock.listen(100)
+
+    if settings['daemon']: daemonize(keepfd=lsock.fileno())
+
     while True:
         try:
             csock = startsock = None
