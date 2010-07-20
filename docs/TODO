@@ -1,5 +1,8 @@
 Short Term:
 
+- Proper Javascript namespacing for Canvas and RFB (using function for
+    true local variables and functions).
+
 - Timing delta between frames in proxy record log, for playback
   support (for demo and test).
 
@@ -13,10 +16,6 @@ Short Term:
 
 
 Medium Term:
-
-- Implement Cursor pseudo-encoding (CSS cursor)
-    http://en.wikipedia.org/wiki/ICO_(file_format)
-    https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
 
 - Viewport and/or scaling support.
 

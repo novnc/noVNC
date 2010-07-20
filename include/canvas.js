@@ -27,8 +27,9 @@ var Canvas, Canvas_native;
 // Everything namespaced inside Canvas
 Canvas = {
 
-prefer_js  : false,
-force_canvas : false,
+prefer_js    : false, // make private
+force_canvas : false, // make private
+cursor_uri   : true,  // make private, create getter
 
 true_color : false,
 colourMap  : [],
@@ -138,7 +139,7 @@ onMouseDisable: function (e) {
 
 
 init: function (id) {
-    var c, imgTest, arora;
+    var c, imgTest, tval, i, curTest, curSave;
     Util.Debug(">> Canvas.init");
 
     Canvas.id = id;
@@ -197,6 +198,25 @@ init: function (id) {
         Canvas._rgbxImage = Canvas._rgbxImageFill;
         Canvas._cmapImage = Canvas._cmapImageFill;
     }
+
+    /*
+     * Determine browser support for setting the cursor via data URI
+     * scheme
+     */
+    curDat = [];
+    for (i=0; i < 8 * 8 * 4; i++) {
+        curDat.push(255);
+    }
+    curSave = c.style.cursor;
+    Canvas.setCursor(curDat, curDat, 2, 2, 8, 8);
+    if (c.style.cursor) {
+        Util.Info("Data URI scheme cursor supported");
+    } else {
+        Canvas.cursor_uri = false;
+        Util.Warn("Data URI scheme cursor not supported");
+    }
+    c.style.cursor = curSave;
+
 
     Canvas.colourMap = [];
     Canvas.prevStyle = "";
@@ -263,6 +283,11 @@ stop: function () {
     /* Work around right and middle click browser behaviors */
     Util.removeEvent(document, 'click', Canvas.onMouseDisable);
     Util.removeEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
+
+    // Turn off cursor rendering
+    if (Canvas.cursor_uri) {
+        c.style.cursor = "default";
+    }
 },
 
 /*
@@ -530,8 +555,89 @@ getKeysym: function(e) {
     } 
 
     return keysym;
-}
+},
 
+
+isCursor: function() {
+    return Canvas.cursor_uri;
+},
+
+setCursor: function(pixels, mask, hotx, hoty, w, h) {
+    var cur = [], cmap, IHDRsz, ANDsz, XORsz, url, idx, x, y;
+    //Util.Debug(">> setCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
+    
+    if (!Canvas.cursor_uri) {
+        Util.Warn("setCursor called but no cursor data URI support");
+        return;
+    }
+
+    cmap = Canvas.colourMap;
+    IHDRsz = 40;
+    ANDsz = w * h * 4;
+    XORsz = Math.ceil( (w * h) / 8.0 );
+
+    // Main header
+    cur.push16le(0);      // Reserved
+    cur.push16le(2);      // .CUR type
+    cur.push16le(1);      // Number of images, 1 for non-animated ico
+
+    // Cursor #1 header
+    cur.push(w);          // width
+    cur.push(h);          // height
+    cur.push(0);          // colors, 0 -> true-color
+    cur.push(0);          // reserved
+    cur.push16le(hotx);   // hotspot x coordinate
+    cur.push16le(hoty);   // hotspot y coordinate
+    cur.push32le(IHDRsz + XORsz + ANDsz); // cursor data byte size
+    cur.push32le(22);     // offset of cursor data in the file
+
+    // Cursor #1 InfoHeader
+    cur.push32le(IHDRsz); // Infoheader size
+    cur.push32le(w);      // Cursor width
+    cur.push32le(h*2);    // XOR+AND height
+    cur.push16le(1);      // number of planes
+    cur.push16le(32);     // bits per pixel
+    cur.push32le(0);      // Type of compression
+    cur.push32le(XORsz + ANDsz); // Size of Image
+    cur.push32le(0);
+    cur.push32le(0);
+    cur.push32le(0);
+    cur.push32le(0);
+
+    // XOR/color data
+    for (y = h-1; y >= 0; y--) {
+        for (x = 0; x < w; x++) {
+            idx = y * Math.ceil(w / 8) + Math.floor(x/8);
+            alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
+
+            if (Canvas.true_color) {
+                idx = ((w * y) + x) * 4;
+                cur.push(pixels[idx + 2]); // blue
+                cur.push(pixels[idx + 1]); // green
+                cur.push(pixels[idx + 0]); // red
+                cur.push(alpha); // red
+            } else {
+                idx = (w * y) + x;
+                rgb = cmap[pixels[idx]];
+                cur.push(rgb[2]);          // blue
+                cur.push(rgb[1]);          // green
+                cur.push(rgb[0]);          // red
+                cur.push(alpha);           // alpha
+            }
+        }
+    }
+
+    // AND/bitmask data (ignored, just needs to be right size)
+    for (y = 0; y < h; y++) {
+        for (x = 0; x < Math.ceil(w / 8); x++) {
+            cur.push(0x00);
+        }
+    }
+
+    url = "data:image/x-icon;base64," + Base64.encode(cur);
+    $(Canvas.id).style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
+    //Util.Debug("<< setCursor, cur.length: " + cur.length);
+}
 
 };
 

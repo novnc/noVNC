@@ -85,6 +85,10 @@ encodings      : [
 //    ['compress_hi',      -247, 'set_compress_level']
     ],
 
+encodingCursor :
+    ['Cursor',           -239, 'set_cursor'],
+
+
 setUpdateState: function(externalUpdateState) {
     RFB.externalUpdateState = externalUpdateState;
 },
@@ -144,6 +148,14 @@ load: function () {
     } catch (exc) {
         RFB.updateState('fatal', "No working Canvas");
     }
+
+    // Add Cursor pseudo-encoding if supported
+/*
+    if (Canvas.isCursor()) {
+        Util.Debug("Adding Cursor pseudo-encoding to encoding list");
+        RFB.encodings.push(RFB.encodingCursor);
+    }
+*/
 
     // Populate encoding lookup tables
     RFB.encHandlers = {};
@@ -1013,10 +1025,40 @@ set_desktopsize : function () {
     RFB.timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request
     RFB.send_array(RFB.fbUpdateRequest(0));
-    Util.Debug("<< set_desktopsize");
 
     RFB.FBU.bytes = 0;
     RFB.FBU.rects -= 1;
+
+    Util.Debug("<< set_desktopsize");
+},
+
+set_cursor: function () {
+    var x, y, w, h, pixelslength, masklength;
+    //Util.Debug(">> set_cursor");
+    x = RFB.FBU.x;  // hotspot-x
+    y = RFB.FBU.y;  // hotspot-y
+    w = RFB.FBU.width;
+    h = RFB.FBU.height;
+
+    pixelslength = w * h * RFB.fb_Bpp;
+    masklength = Math.floor((w + 7) / 8) * h;
+
+    if (RFB.RQ.length < (pixelslength + masklength)) {
+        //Util.Debug("waiting for cursor encoding bytes");
+        RFB.FBU.bytes = pixelslength + masklength;
+        return false;
+    }
+
+    //Util.Debug("   set_cursor, x: " + x + ", y: " + y + ", w: " + w + ", h: " + h);
+
+    Canvas.setCursor(RFB.RQ.shiftBytes(pixelslength),
+                     RFB.RQ.shiftBytes(masklength),
+                     x, y, w, h);
+
+    RFB.FBU.bytes = 0;
+    RFB.FBU.rects -= 1;
+
+    //Util.Debug("<< set_cursor");
 },
 
 set_jpeg_quality : function () {

@@ -178,7 +178,9 @@ In the following table Jaunty is Ubuntu 9.04 and WinXP is Windows XP.
   is faster than Firefox 3.5, the high variability of web-socket-js
   performance results in overall performance being lower. Middle mouse
   clicks and keyboard events need some work to work properly under
-  Opera.
+  Opera. Also, Opera does not have support for setting the cursor
+  style url to a data URI scheme, so cursor pseudo-encoding is
+  disabled.
 
 
 ### Integration

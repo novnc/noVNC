@@ -77,6 +77,10 @@ Array.prototype.push16 = function (num) {
     this.push((num >> 8) & 0xFF,
               (num     ) & 0xFF  );
 };
+Array.prototype.push16le = function (num) {
+    this.push((num     ) & 0xFF,
+              (num >> 8) & 0xFF  );
+};
 
 
 Array.prototype.shift32 = function () {
@@ -97,6 +101,13 @@ Array.prototype.push32 = function (num) {
               (num >>  8) & 0xFF,
               (num      ) & 0xFF  );
 };
+Array.prototype.push32le = function (num) {
+    this.push((num      ) & 0xFF,
+              (num >>  8) & 0xFF,
+              (num >> 16) & 0xFF,
+              (num >> 24) & 0xFF  );
+};
+
 
 Array.prototype.shiftStr = function (len) {
     var arr = this.splice(0, len);

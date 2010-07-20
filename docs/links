@@ -29,6 +29,11 @@ TLS Protocol:
 Generate self-signed certificate:
     http://docs.python.org/dev/library/ssl.html#certificates
 
+Cursor appearance/style (for Cursor pseudo-encoding):
+    http://en.wikipedia.org/wiki/ICO_(file_format)
+    http://www.daubnet.com/en/file-format-cur
+    https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
+
 
 Related projects:
     
