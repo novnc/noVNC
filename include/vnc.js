@@ -1578,6 +1578,8 @@ init_ws: function () {
         Util.Debug(">> WebSocket.onclose");
         if (RFB.state === 'normal') {
             RFB.updateState('failed', 'Server disconnected');
+        } else if (RFB.state === 'ProtocolVersion') {
+            RFB.updateState('failed', 'Failed to connect to server');
         } else  {
             RFB.updateState('disconnected', 'VNC disconnected');
         }
