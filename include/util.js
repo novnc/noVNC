@@ -160,6 +160,14 @@ Util.dirObj = function (obj, depth, parent) {
     return msg;
 };
 
+// Read a query string variable
+Util.getQueryVar = function(name, defVal) {
+    var re = new RegExp('[?][^#]*' + name + '=([^&#]*)');
+    if (typeof defVal === 'undefined') { defVal = null; }
+    return (document.location.href.match(re) || ['',defVal])[1];
+};
+
+
 /*
  * Cross-browser routines
  */
@@ -264,6 +272,7 @@ Util.Flash = (function(){
 /*
  * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
  */
+
 // No days means only for this browser session
 Util.createCookie = function(name,value,days) {
     var date, expires;

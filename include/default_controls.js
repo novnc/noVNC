@@ -126,12 +126,6 @@ load: function(target) {
         };
 },
 
-// Read a query string variable
-getQueryVar: function(name) {
-    var re = new RegExp('[?].*' + name + '=([^&#]*)');
-    return (document.location.href.match(re) || ['',null])[1];
-},
-
 // Read form control compatible setting from cookie
 getSetting: function(name) {
     var val, ctrl = $('VNC_' + name);
@@ -188,14 +182,14 @@ saveSetting: function(name) {
 
 // Initial page load read/initialization of settings
 initSetting: function(name, defVal) {
-    var val, DC = DefaultControls;
+    var val;
 
     // Check Query string followed by cookie
-    val = DC.getQueryVar(name);
+    val = Util.getQueryVar(name);
     if (val === null) {
         val = Util.readCookie(name, defVal);
     }
-    DC.updateSetting(name, val);
+    DefaultControls.updateSetting(name, val);
     Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
     return val;
 },
@@ -206,7 +200,7 @@ initSetting: function(name, defVal) {
 //   On close, settings are applied
 clickSettingsMenu: function() {
     var DC = DefaultControls;
-    if (DefaultControls.settingsOpen) {
+    if (DC.settingsOpen) {
         DC.settingsApply();
 
         DC.closeSettingsMenu();

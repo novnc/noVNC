@@ -40,6 +40,7 @@ Connect parameters are provided in query string:
         }
         function sendCtrlAltDel() {
             RFB.sendCtrlAltDel();
+            return false;
         }
         function updateState(state, msg) {
             var s, sb, klass, html;
@@ -81,20 +82,19 @@ Connect parameters are provided in query string:
         window.onload = function () {
             var host, port, password;
 
-            url = document.location.href;
-            host = (url.match(/host=([A-Za-z0-9.\-]*)/) || ['',''])[1];
-            port = (url.match(/port=([0-9]*)/) || ['',''])[1];
-            password = (url.match(/password=([^&#]*)/) || ['',''])[1];
+            host = Util.getQueryVar('host', null);
+            port = Util.getQueryVar('port', null);
+            password = Util.getQueryVar('password', '');
             if ((!host) || (!port)) {
                 updateState('failed',
                     "Must specify host and port in URL");
                 return;
             }
 
-            RFB.setEncrypt((url.match(/encrypt=([A-Za-z0-9]*)/) || ['',1])[1]);
-            RFB.setBase64((url.match(/base64=([A-Za-z0-9]*)/) || ['',1])[1]);
-            RFB.setTrueColor((url.match(/true_color=([A-Za-z0-9]*)/) || ['',1])[1]);
-            RFB.setCursor((url.match(/cursor=([A-Za-z0-9]*)/) || ['',true])[1]);
+            RFB.setEncrypt(Util.getQueryVar('encrypt', true));
+            RFB.setBase64(Util.getQueryVar('base64', true));
+            RFB.setTrueColor(Util.getQueryVar('true_color', true));
+            RFB.setCursor(Util.getQueryVar('cursor', true));
             RFB.setUpdateState(updateState);
 
             RFB.load();
