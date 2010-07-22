@@ -218,7 +218,7 @@ clickSettingsMenu: function() {
         if (Canvas.isCursor()) {
             DC.updateSetting('cursor');
         } else {
-            DC.updateSettings('cursor', false);
+            DC.updateSetting('cursor', false);
             $('VNC_cursor').disabled = true;
         }
         DC.updateSetting('stylesheet');
@@ -248,7 +248,7 @@ settingsDisabled: function(disabled) {
     if (Canvas.isCursor()) {
         $('VNC_cursor').disabled = disabled;
     } else {
-        DefaultControls.updateSettings('cursor', false);
+        DefaultControls.updateSetting('cursor', false);
         $('VNC_cursor').disabled = true;
     }
 },
