@@ -8,7 +8,7 @@
 
 "use strict";
 /*jslint bitwise: false, white: false */
-/*global window, document, navigator, ActiveXObject*/
+/*global window, console, document, navigator, ActiveXObject*/
 
 // Globals defined here
 var Util = {}, $;
@@ -43,7 +43,7 @@ Util.init_logging = function (level) {
         default:
             throw("invalid logging type '" + level + "'");
     }
-}
+};
 // Initialize logging level
 Util.init_logging( (document.location.href.match(
                     /logging=([A-Za-z0-9\._\-]*)/) ||
@@ -266,12 +266,15 @@ Util.Flash = (function(){
  */
 // No days means only for this browser session
 Util.createCookie = function(name,value,days) {
+    var date, expires;
     if (days) {
-        var date = new Date();
+        date = new Date();
         date.setTime(date.getTime()+(days*24*60*60*1000));
-        var expires = "; expires="+date.toGMTString();
+        expires = "; expires="+date.toGMTString();
     }
-    else var expires = "";
+    else {
+        expires = "";
+    }
     document.cookie = name+"="+value+expires+"; path=/";
 };
 
@@ -280,21 +283,21 @@ Util.readCookie = function(name, defaultValue) {
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++) {
         var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        while (c.charAt(0) === ' ') { c = c.substring(1,c.length); }
+        if (c.indexOf(nameEQ) === 0) { return c.substring(nameEQ.length,c.length); }
     }
     return (typeof defaultValue !== 'undefined') ? defaultValue : null;
 };
 
 Util.eraseCookie = function(name) {
-    createCookie(name,"",-1);
+    Util.createCookie(name,"",-1);
 };
 
 /*
  * Alternate stylesheet selection
  */
 Util.getStylesheets = function() { var i, links, sheets = [];
-    links = document.getElementsByTagName("link")
+    links = document.getElementsByTagName("link");
     for (i = 0; i < links.length; i++) {
         if (links[i].title &&
             links[i].rel.toUpperCase().indexOf("STYLESHEET") > -1) {

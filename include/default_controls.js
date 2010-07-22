@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 "use strict";
-/*global $, RFB, Canvas, VNC_uri_prefix, Element, Fx */
+/*global $, Util, RFB, Canvas, VNC_uri_prefix, Element, Fx */
 
 var DefaultControls = {
 
@@ -14,8 +14,7 @@ settingsOpen : false,
 
 // Render default controls and initialize settings menu
 load: function(target) {
-    var url, html, encrypt, cursor, base64, i, sheet, sheets,
-        DC = DefaultControls;
+    var html, i, DC = DefaultControls, sheet, sheets, llevels;
 
     /* Handle state updates */
     RFB.setUpdateState(DC.updateState);
@@ -129,7 +128,7 @@ load: function(target) {
 
 // Read a query string variable
 getQueryVar: function(name) {
-    var re = new RegExp('[\?].*' + name + '=([^\&\#]*)');
+    var re = new RegExp('[?].*' + name + '=([^&#]*)');
     return (document.location.href.match(re) || ['',null])[1];
 },
 
@@ -189,7 +188,7 @@ saveSetting: function(name) {
 
 // Initial page load read/initialization of settings
 initSetting: function(name, defVal) {
-    var val, ctrl = $('VNC_' + name), DC = DefaultControls;
+    var val, DC = DefaultControls;
 
     // Check Query string followed by cookie
     val = DC.getQueryVar(name);
@@ -256,7 +255,7 @@ settingsDisabled: function(disabled) {
 // Save/apply settings when 'Apply' button is pressed
 settingsApply: function() {
     Util.Debug(">> settingsApply");
-    var curSS, newSS, DC = DefaultControls;
+    var DC = DefaultControls;
     DC.saveSetting('encrypt');
     DC.saveSetting('base64');
     DC.saveSetting('true_color');
@@ -276,7 +275,6 @@ settingsApply: function() {
 
 
 setPassword: function() {
-    console.log("setPassword");
     RFB.sendPassword($('VNC_password').value);
     return false;
 },
@@ -286,7 +284,7 @@ sendCtrlAltDel: function() {
 },
 
 updateState: function(state, msg) {
-    var s, c, klass;
+    var s, sb, c, cad, klass;
     s = $('VNC_status');
     sb = $('VNC_status_bar');
     c = $('VNC_connect_button');
