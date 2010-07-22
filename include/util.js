@@ -14,37 +14,44 @@
 var Util = {}, $;
 
 
-// Logging/debug routines
-if (typeof window.console === "undefined") {
-    if (typeof window.opera !== "undefined") {
-        window.console = {
-            'log'  : window.opera.postError,
-            'warn' : window.opera.postError,
-            'error': window.opera.postError };
-    } else {
-        window.console = {
-            'log'  : function(m) {},
-            'warn' : function(m) {},
-            'error': function(m) {}};
+/*
+ * Logging/debug routines
+ */
+
+Util.init_logging = function (level) {
+    if (typeof window.console === "undefined") {
+        if (typeof window.opera !== "undefined") {
+            window.console = {
+                'log'  : window.opera.postError,
+                'warn' : window.opera.postError,
+                'error': window.opera.postError };
+        } else {
+            window.console = {
+                'log'  : function(m) {},
+                'warn' : function(m) {},
+                'error': function(m) {}};
+        }
+    }
+
+    Util.Debug = Util.Info = Util.Warn = Util.Error = function (msg) {};
+    switch (level) {
+        case 'debug': Util.Debug = function (msg) { console.log(msg); };
+        case 'info':  Util.Info  = function (msg) { console.log(msg); };
+        case 'warn':  Util.Warn  = function (msg) { console.warn(msg); };
+        case 'error': Util.Error = function (msg) { console.error(msg); };
+            break;
+        default:
+            throw("invalid logging type '" + level + "'");
     }
 }
+// Initialize logging level
+Util.init_logging( (document.location.href.match(
+                    /logging=([A-Za-z0-9\._\-]*)/) ||
+                    ['', 'warn'])[1] );
 
-Util.Debug = Util.Info = Util.Warn = Util.Error = function (msg) {};
-
-Util.logging = (document.location.href.match(
-        /logging=([A-Za-z0-9\._\-]*)/) || ['', 'warn'])[1];
-switch (Util.logging) {
-    case 'debug': Util.Debug = function (msg) { console.log(msg); };
-    case 'info':  Util.Info  = function (msg) { console.log(msg); };
-    case 'warn':  Util.Warn  = function (msg) { console.warn(msg); };
-    case 'error': Util.Error = function (msg) { console.error(msg); };
-        break;
-    default:
-        throw("invalid logging type '" + Util.logging + "'");
-}
-
-
-// Simple DOM selector by ID
+/*
+ * Simple DOM selector by ID
+ */
 if (!window.$) {
     $ = function (id) {
         if (document.getElementById) {
@@ -253,4 +260,70 @@ Util.Flash = (function(){
     version = v.match(/\d+/g);
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
 }()); 
+
+/*
+ * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
+ */
+// No days means only for this browser session
+Util.createCookie = function(name,value,days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime()+(days*24*60*60*1000));
+        var expires = "; expires="+date.toGMTString();
+    }
+    else var expires = "";
+    document.cookie = name+"="+value+expires+"; path=/";
+};
+
+Util.readCookie = function(name, defaultValue) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return (typeof defaultValue !== 'undefined') ? defaultValue : null;
+};
+
+Util.eraseCookie = function(name) {
+    createCookie(name,"",-1);
+};
+
+/*
+ * Alternate stylesheet selection
+ */
+Util.getStylesheets = function() { var i, links, sheets = [];
+    links = document.getElementsByTagName("link")
+    for (i = 0; i < links.length; i++) {
+        if (links[i].title &&
+            links[i].rel.toUpperCase().indexOf("STYLESHEET") > -1) {
+            sheets.push(links[i]);
+        }
+    }
+    return sheets;
+};
+
+// No sheet means try and use value from cookie, null sheet used to
+// clear all alternates.
+Util.selectStylesheet = function(sheet) {
+    var i, link, sheets = Util.getStylesheets();
+    if (typeof sheet === 'undefined') {
+        sheet = 'default';
+    }
+    for (i=0; i < sheets.length; i++) {
+        link = sheets[i];
+        if (link.title === sheet) {    
+            Util.Debug("Using stylesheet " + sheet);
+            link.disabled = false;
+        } else {
+            Util.Debug("Skipping stylesheet " + link.title);
+            link.disabled = true;
+        }
+    }
+    return sheet;
+};
+
+// call once to disable alternates and get around webkit bug
+Util.selectStylesheet(null);
 

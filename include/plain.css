@@ -36,7 +36,7 @@
     margin: 0px;
     padding: 0px;
 }
-#VNC_status_bar input {
+.VNC_status_button {
     font-size: 10px;
     margin: 0px;
     padding: 0px;
@@ -44,10 +44,28 @@
 #VNC_status {
     text-align: center;
 }
-#VNC_buttons {
-    text-align: right;
+#VNC_settings_menu {
+    display: none;
+    position: absolute;
+    width: 12em;
+    border: 1px solid #888;
+    background-color: #f0f2f6;
+    padding: 5px; margin: 3px;
+    z-index: 100; opacity: 1;
+    text-align: left; white-space: normal;
+}
+#VNC_settings_menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
+.VNC_buttons_right {
+    text-align: right;
+}
+.VNC_buttons_left {
+    text-align: left;
+}
 .VNC_status_normal {
     background: #eee;
 }

@@ -1,5 +1,14 @@
 <html>
-    <head><title>Canvas Performance Test</title></head>
+    <head>
+        <title>Canvas Performance Test</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=8,chrome=1">
+        <script type='text/javascript' 
+            src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+        <script src="include/util.js"></script>
+        <script src="include/base64.js"></script>
+        <script src="include/canvas.js"></script>
+        <script src="face.png.js"></script>
+    </head>
     <body>
         Iterations: <input id='iterations' style='width:50' value="100">&nbsp;
 
@@ -22,13 +31,6 @@
         <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
-    <!--
-    <script type='text/javascript' 
-        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
-    -->
-    <script src="include/util.js"></script>
-    <script src="include/canvas.js"></script>
-    <script src="face.png.js"></script>
     <script>
         var msg_cnt = 0;
         var start_width = 300, start_height = 100;
@@ -39,17 +41,18 @@
             cell = $('messages');
             cell.innerHTML += msg_cnt + ": " + str + "\n";
             cell.scrollTop = cell.scrollHeight;
+            msg_cnt += 1;
         }
 
         function test_functions () {
             var img, x, y;
             Canvas.fillRect(0, 0, Canvas.c_wx, Canvas.c_wy, [240,240,240]);
 
-            Canvas.blitStringImage("data:image/png;base64," + face64, 150, 40);
+            Canvas.blitStringImage("data:image/png;base64," + face64, 150, 10);
 
             var himg = new Image();
             himg.onload = function () {
-                Canvas.ctx.drawImage(himg, 200, 10); };
+                Canvas.ctx.drawImage(himg, 200, 40); };
             himg.src = "face.png";
 
             /* Test array image data */
@@ -123,6 +126,7 @@
         }
 
         window.onload = function() {
+            message("in onload");
             $('iterations').value = 10;
             Canvas.init('canvas');
             Canvas.resize(start_width, start_height, true);

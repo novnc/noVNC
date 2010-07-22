@@ -21,7 +21,7 @@ Connect parameters are provided in query string:
             <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">
                 <table border=0 width=100%><tr>
                     <td><div id="VNC_status">Loading</div></td>
-                    <td width=10%><div id="VNC_buttons">
+                    <td width=1%><div id="VNC_buttons">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton"
                             onclick="sendCtrlAltDel();"></div></td>
@@ -79,23 +79,26 @@ Connect parameters are provided in query string:
         }
 
         window.onload = function () {
-            var host, port, password, encrypt;
+            var host, port, password;
 
             url = document.location.href;
             host = (url.match(/host=([A-Za-z0-9.\-]*)/) || ['',''])[1];
             port = (url.match(/port=([0-9]*)/) || ['',''])[1];
             password = (url.match(/password=([^&#]*)/) || ['',''])[1];
-            encrypt = (url.match(/encrypt=([A-Za-z0-9]*)/) || ['',1])[1];
-            true_color = (url.match(/true_color=([A-Za-z0-9]*)/) || ['',1])[1];
             if ((!host) || (!port)) {
                 updateState('failed',
                     "Must specify host and port in URL");
                 return;
             }
 
+            RFB.setEncrypt((url.match(/encrypt=([A-Za-z0-9]*)/) || ['',1])[1]);
+            RFB.setBase64((url.match(/base64=([A-Za-z0-9]*)/) || ['',1])[1]);
+            RFB.setTrueColor((url.match(/true_color=([A-Za-z0-9]*)/) || ['',1])[1]);
+            RFB.setCursor((url.match(/cursor=([A-Za-z0-9]*)/) || ['',true])[1]);
             RFB.setUpdateState(updateState);
+
             RFB.load();
-            RFB.connect(host, port, password, encrypt, true_color);
+            RFB.connect(host, port, password);
         }
     </script>
 </html>

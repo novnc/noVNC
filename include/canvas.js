@@ -29,7 +29,7 @@ Canvas = {
 
 prefer_js    : false, // make private
 force_canvas : false, // make private
-cursor_uri   : true,  // make private, create getter
+cursor_uri   : true,  // make private
 
 true_color : false,
 colourMap  : [],
@@ -47,6 +47,9 @@ mouseMove   : null,
 
 onMouseButton: function(e, down) {
     var evt, pos, bmask;
+    if (! Canvas.focused) {
+        return true;
+    }
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, $(Canvas.id));
     bmask = 1 << evt.button;
@@ -122,6 +125,9 @@ onKeyUp : function (e) {
 
 onMouseDisable: function (e) {
     var evt, pos;
+    if (! Canvas.focused) {
+        return true;
+    }
     evt = (e ? e : window.event);
     pos = Util.getPosition($(Canvas.id));
     /* Stop propagation if inside canvas area */
@@ -208,7 +214,7 @@ init: function (id) {
         curDat.push(255);
     }
     curSave = c.style.cursor;
-    Canvas.setCursor(curDat, curDat, 2, 2, 8, 8);
+    Canvas.changeCursor(curDat, curDat, 2, 2, 8, 8);
     if (c.style.cursor) {
         Util.Info("Data URI scheme cursor supported");
     } else {
@@ -561,13 +567,12 @@ getKeysym: function(e) {
 isCursor: function() {
     return Canvas.cursor_uri;
 },
-
-setCursor: function(pixels, mask, hotx, hoty, w, h) {
+changeCursor: function(pixels, mask, hotx, hoty, w, h) {
     var cur = [], cmap, IHDRsz, ANDsz, XORsz, url, idx, x, y;
-    //Util.Debug(">> setCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
+    //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
     
     if (!Canvas.cursor_uri) {
-        Util.Warn("setCursor called but no cursor data URI support");
+        Util.Warn("changeCursor called but no cursor data URI support");
         return;
     }
 
@@ -636,7 +641,7 @@ setCursor: function(pixels, mask, hotx, hoty, w, h) {
 
     url = "data:image/x-icon;base64," + Base64.encode(cur);
     $(Canvas.id).style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
-    //Util.Debug("<< setCursor, cur.length: " + cur.length);
+    //Util.Debug("<< changeCursor, cur.length: " + cur.length);
 }
 
 };
