@@ -105,7 +105,7 @@ load: function(target) {
     $(target).innerHTML = html;
 
     // Settings with immediate effects
-    DC.initSetting('logging', 'default');
+    DC.initSetting('logging', 'warn');
     Util.init_logging(DC.getSetting('logging'));
     DC.initSetting('stylesheet', 'default');
     Util.selectStylesheet(DC.getSetting('stylesheet'));
