@@ -227,6 +227,9 @@ tab. With firefox+firebug, it can be activated using Ctrl+F12.
 
 Now reproduce the problem. The console log output will give more
 information about what is going wrong and where in the code the
-problem is located. If you file a issue/bug, it can be very helpful to
-copy the last page of console output leading up the problem into the
-issue report.
+problem is located.
+
+If you file a issue/bug, it is very helpful for me to have the last
+page of console output leading up the problem in the issue report.
+Other helpful issue/bug information: browser version, OS version,
+noVNC git version, and VNC server name/version.
