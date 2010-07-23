@@ -213,7 +213,7 @@ See `vnc.html` and `vnc_auto.html` for examples. The file
 
 The `vnc.js` also includes other scripts within the `include`
 sub-directory. The `VNC_uri_prefix` variable can be use override the
-URL path to the directory that contains the `include` sub-directory.
+URL path to the `include` sub-directory.
 
 
 ### Troubleshooting
