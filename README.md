@@ -17,6 +17,10 @@ encryption, i.e. the "wss://" URI scheme.
 Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
 sponsoring ongoing development of this project (and for employing me).
 
+Notable commits, announcements and news are posted to
+@<a href="http://www.twitter.com/noVNC">noVNC</a>
+
+
 ### Screenshots
 
 Running in Chrome before and after connecting:
