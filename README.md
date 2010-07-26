@@ -79,6 +79,7 @@ There a few reasons why a proxy is required:
   server under Ubuntu you would do something like this:
 
     `sudo apt-get install tightvncserver`
+
     `vncserver :1`
 
     The VNC server will run in the background. The port that it runs
@@ -90,6 +91,7 @@ There a few reasons why a proxy is required:
   server will fight over the mouse.
 
     `sudo apt-get install x11vnc`
+
     `x11vnc -forever -display :0`
 
   Without the `-forever` option, x11vnc will exit after the first
