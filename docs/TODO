@@ -10,38 +10,22 @@ Short Term:
 
 - Test on IE 9 preview 3.
 
-- Possibly support IE <= 8.0 using excanvas or fxcanvas:
-  http://excanvas.sourceforge.net/
-  http://code.google.com/p/fxcanvas/
-
 - Fix cursor URI detection in Arora:
     - allows data URI, but doesn't actually work
 
 
 Medium Term:
 
-- Viewport and/or scaling support.
+- Viewport support
 
-- Status bar buttons:
-    - Isolate menu UI in DefaultControls.js
-    - Icons in status area upper left
-    - Dialogs float over canvas
-    - Turn off events while menu open (but still update display)
+- Status bar menu/buttons:
     - Explanatory hover text over buttons
 
-    - Connect/disconnect button
-
     - Configuration menu:
-        - Store in cookies
-        - Items (move to public settings):
-            - Host
-            - Port
-            - Password
-            - Encrypt
-            - TrueColor
-            - speed vs. bandwidth selection
-            - b64encoding
-            - shared mode
+        - Tunable: speed vs. bandwidth selection
+        - Tunable: CPU use versus latency.
+        - shared mode
+        - Scaling
 
     - Keyboard menu:
         - Ctrl Lock, Alt Lock, SysRq Lock
@@ -49,10 +33,6 @@ Medium Term:
 
     - Clipboard button -> popup:
         - text, clear and send buttons
-
-    - password popup:
-        - when none set, but password required
-        - session only, should not store in cookie
 
 
 Longer Term:
