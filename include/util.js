@@ -167,6 +167,26 @@ Util.getQueryVar = function(name, defVal) {
     return (document.location.href.match(re) || ['',defVal])[1];
 };
 
+// Set defaults for Crockford style function namespaces
+Util.conf_default = function(cfg, api, v, val) {
+    if (typeof cfg[v] === 'undefined') {
+        cfg[v] = val;
+    }
+    // Default getter
+    if (typeof api['get_' + v] === 'undefined') {
+        api['get_' + v] = function () {
+                return cfg[v];
+            };
+    }
+    // Default setter
+    if (typeof api['set_' + v] === 'undefined') {
+        api['set_' + v] = function (val) {
+                cfg[v] = val;
+            };
+    }
+};
+
+
 
 /*
  * Cross-browser routines
@@ -186,7 +206,7 @@ Util.getPosition = function (obj) {
 };
 
 // Get mouse event position in DOM element
-Util.getEventPosition = function (e, obj) {
+Util.getEventPosition = function (e, obj, scale) {
     var evt, docX, docY, pos;
     //if (!e) evt = window.event;
     evt = (e ? e : window.event);
@@ -200,7 +220,10 @@ Util.getEventPosition = function (e, obj) {
             document.documentElement.scrollTop;
     }
     pos = Util.getPosition(obj);
-    return {'x': docX - pos.x, 'y': docY - pos.y};
+    if (typeof scale === "undefined") {
+        scale = 1;
+    }
+    return {'x': (docX - pos.x) / scale, 'y': (docY - pos.y) / scale};
 };
 
 
