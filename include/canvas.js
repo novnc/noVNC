@@ -194,15 +194,20 @@ init: function (id) {
     for (i=0; i < 8 * 8 * 4; i++) {
         curDat.push(255);
     }
-    curSave = c.style.cursor;
-    Canvas.changeCursor(curDat, curDat, 2, 2, 8, 8);
-    if (c.style.cursor) {
-        Util.Info("Data URI scheme cursor supported");
-    } else {
-        Canvas.cursor_uri = false;
-        Util.Warn("Data URI scheme cursor not supported");
+    try {
+        curSave = c.style.cursor;
+        Canvas.changeCursor(curDat, curDat, 2, 2, 8, 8);
+        if (c.style.cursor) {
+            Util.Info("Data URI scheme cursor supported");
+        } else {
+            Canvas.cursor_uri = false;
+            Util.Warn("Data URI scheme cursor not supported");
+        }
+        c.style.cursor = curSave;
+    } catch (exc2) {
+        Util.Error("Data URI scheme cursor test exception: " + exc2);
+        conf.cursor_uri = false;
     }
-    c.style.cursor = curSave;
 
     Canvas.colourMap = [];
     Canvas.prevStyle = "";
