@@ -195,7 +195,7 @@ The client is designed to be easily integrated with existing web
 structure and style.
 
 At a minimum you must include the `vnc.js` and `default_controls.js`
-scripts and call their load() functions. For example:
+scripts and call DefaultControls.load(). For example:
 
     <head>
         <script src='include/vnc.js'></script>
@@ -203,12 +203,13 @@ scripts and call their load() functions. For example:
     </head>
     <body>
         <div id='vnc'>Loading</div>
+
+        <script>
+            window.onload = function () {
+                DefaultControls.load('vnc');
+            }
+        </script>
     </body>
-    <script>
-        window.onload = function () {
-            DefaultControls.load('vnc');
-            RFB.load(); };
-    </script>
 
 See `vnc.html` and `vnc_auto.html` for examples. The file
 `include/plain.css` has a list of stylable elements.

@@ -46,14 +46,16 @@
         }
 
         function test_functions () {
-            var img, x, y;
-            Canvas.fillRect(0, 0, Canvas.c_wx, Canvas.c_wy, [240,240,240]);
+            var img, x, y, w, h, ctx = canvas.getContext();
+            w = canvas.get_width();
+            h = canvas.get_height();
+            canvas.fillRect(0, 0, w, h, [240,240,240]);
 
-            Canvas.blitStringImage("data:image/png;base64," + face64, 150, 10);
+            canvas.blitStringImage("data:image/png;base64," + face64, 150, 10);
 
             var himg = new Image();
             himg.onload = function () {
-                Canvas.ctx.drawImage(himg, 200, 40); };
+                ctx.drawImage(himg, 200, 40); };
             himg.src = "face.png";
 
             /* Test array image data */
@@ -66,15 +68,14 @@
                     data[(y*50 + x)*4 + 3] = 255;
                 }
             }
-            Canvas.blitImage(30, 10, 50, 50, data, 0);
+            canvas.blitImage(30, 10, 50, 50, data, 0);
 
-            //Canvas.prefer_js = false;
-            img = Canvas.getTile(5,5,16,16,[0,128,128]);
-            Canvas.putTile(img);
+            img = canvas.getTile(5,5,16,16,[0,128,128]);
+            canvas.putTile(img);
 
-            img = Canvas.getTile(90,15,16,16,[0,0,0]);
-            Canvas.setSubTile(img, 0,0,16,16,[128,128,0]);
-            Canvas.putTile(img);
+            img = canvas.getTile(90,15,16,16,[0,0,0]);
+            canvas.setSubTile(img, 0,0,16,16,[128,128,0]);
+            canvas.putTile(img);
         }
 
         function begin () {
@@ -85,30 +86,35 @@
         }
 
         function start_delayed () {
+            var ret;
 
-            message("Running test: prefer Javascript");
-            Canvas.prefer_js = true;
-            var time1 = run_test();
-            message("prefer Javascript: " + time1 + "ms total, " +
-                    (time1 / iterations) + "ms per frame");
+            ret = canvas.set_prefer_js(true);
+            if (ret) {
+                message("Running test: prefer Javascript ops");
+                var time1 = run_test();
+                message("prefer Javascript ops: " + time1 + "ms total, " +
+                        (time1 / iterations) + "ms per frame");
+            } else {
+                message("Could not run: prefer Javascript ops");
+            }
 
+            canvas.set_prefer_js(false);
             message("Running test: prefer Canvas ops");
-            Canvas.prefer_js = false;
             var time2 = run_test();
             message("prefer Canvas ops: " + time2 + "ms total, " +
                     (time2 / iterations) + "ms per frame");
 
-            Canvas.resize(start_width, start_height, true);
+            canvas.resize(start_width, start_height, true);
             test_functions();
             $('startButton').disabled = false;
-            $('startButton').value = "Start";
+            $('startButton').value = "Do Performance Test";
         }
 
         function run_test () {
             var width, height;
             width = $('width').value;
             height = $('height').value;
-            Canvas.resize(width, height);
+            canvas.resize(width, height);
             var color, start_time = (new Date()).getTime(), w, h;
             for (var i=0; i < iterations; i++) {
                 color = [128, 128, (255 / iterations) * i, 0];
@@ -116,9 +122,9 @@
                     for (var y=0; y < height; y = y + 16) {
                         w = Math.min(16, width - x);
                         h = Math.min(16, height - y);
-                        var tile = Canvas.getTile(x, y, w, h, color);
-                        Canvas.setSubTile(tile, 0, 0, w, h, color);
-                        Canvas.putTile(tile);
+                        var tile = canvas.getTile(x, y, w, h, color);
+                        canvas.setSubTile(tile, 0, 0, w, h, color);
+                        canvas.putTile(tile);
                     }
                 }
             }
@@ -129,8 +135,8 @@
         window.onload = function() {
             message("in onload");
             $('iterations').value = 10;
-            Canvas.init('canvas');
-            Canvas.resize(start_width, start_height, true);
+            canvas = Canvas({'target' : 'canvas'});
+            canvas.resize(start_width, start_height, true);
             message("Canvas initialized");
             test_functions();
         }

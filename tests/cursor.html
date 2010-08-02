@@ -105,10 +105,10 @@
  
     window.onload = function() {
         debug("onload");
-        var cross, cursor, cursor64;
+        var canvas, cross, cursor, cursor64;
 
-        Canvas.init("testcanvas");
-        debug("Canvas.init() indicates Data URI cursor support is: " + Canvas.isCursor());
+        canvas = new Canvas({'target' : "testcanvas"});
+        debug("canvas indicates Data URI cursor support is: " + canvas.get_cursor_uri());
 
         $('button1').style.cursor="url(face.png), default";
 

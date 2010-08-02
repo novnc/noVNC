@@ -19,6 +19,7 @@
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
     <script src="include/util.js"></script>
+    <script src="include/base64.js"></script>
     <script src="include/canvas.js"></script>
     <script>
         var msg_cnt = 0;
@@ -51,9 +52,9 @@
         }
 
         window.onload = function() {
-            Canvas.init('canvas');
-            Canvas.resize(width, height);
-            Canvas.start(keyPress, mouseButton, mouseMove);
+            var canvas = Canvas({'target' : 'canvas'});
+            canvas.resize(width, height, true);
+            canvas.start(keyPress, mouseButton, mouseMove);
             message("Canvas initialized");
         }
     </script>

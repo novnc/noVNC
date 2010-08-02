@@ -7,8 +7,7 @@ Connect parameters are provided in query string:
 <html>
     <head>
         <title>VNC Client</title>
-        <link rel="stylesheet" href="include/plain.css" TITLE="plain">
-        <link rel="Alternate StyleSheet" href="include/black.css" TITLE="Black">
+        <link rel="stylesheet" href="include/plain.css" title="plain">
         <!--
         <script type='text/javascript' 
             src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
@@ -19,31 +18,36 @@ Connect parameters are provided in query string:
     <body style="margin: 0px;">
         <div id="VNC_screen">
             <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">
-                <table border=0 width=100%><tr>
+                <table border=0 width="100%"><tr>
                     <td><div id="VNC_status">Loading</div></td>
-                    <td width=1%><div id="VNC_buttons">
+                    <td width="1%"><div id="VNC_buttons">
                         <input type=button value="Send CtrlAltDel"
-                            id="sendCtrlAltDelButton"
-                            onclick="sendCtrlAltDel();"></div></td>
+                            id="sendCtrlAltDelButton">
+                            </div></td>
                 </tr></table>
             </div>
             <canvas id="VNC_canvas" width="640px" height="20px">
                 Canvas not supported.
             </canvas>
         </div>
-    </body>
 
-    <script>
+        <script>
+        /*jslint white: false */
+        /*global window, $, Util, RFB, */
+        "use strict";
+
+        var rfb;
+
         function setPassword() {
-            RFB.sendPassword($('password_input').value);
+            rfb.sendPassword($('password_input').value);
             return false;
         }
         function sendCtrlAltDel() {
-            RFB.sendCtrlAltDel();
+            rfb.sendCtrlAltDel();
             return false;
         }
-        function updateState(state, msg) {
-            var s, sb, klass, html;
+        function updateState(rfb, state, oldstate, msg) {
+            var s, sb, cad, klass;
             s = $('VNC_status');
             sb = $('VNC_status_bar');
             cad = $('sendCtrlAltDelButton');
@@ -64,8 +68,9 @@ Connect parameters are provided in query string:
                     msg += '  style="margin-bottom: 0px">';
                     msg += 'Password Required: ';
                     msg += '<input type=password size=10 id="password_input" class="VNC_status">';
-                    msg += '</form>';
-                    // Fall through
+                    msg += '<\/form>';
+                    klass = "VNC_status_warn";
+                    break;
                 default:
                     klass = "VNC_status_warn";
             }
@@ -82,6 +87,8 @@ Connect parameters are provided in query string:
         window.onload = function () {
             var host, port, password;
 
+            $('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+
             host = Util.getQueryVar('host', null);
             port = Util.getQueryVar('port', null);
             password = Util.getQueryVar('password', '');
@@ -91,15 +98,15 @@ Connect parameters are provided in query string:
                 return;
             }
 
-            RFB.setEncrypt(Util.getQueryVar('encrypt', true));
-            RFB.setBase64(Util.getQueryVar('base64', true));
-            RFB.setTrueColor(Util.getQueryVar('true_color', true));
-            RFB.setCursor(Util.getQueryVar('cursor', true));
-            RFB.setUpdateState(updateState);
+            rfb = new RFB({'encrypt':      Util.getQueryVar('encrypt', true),
+                       'b64encode':    Util.getQueryVar('base64', true),
+                       'true_color':   Util.getQueryVar('true_color', true),
+                       'local_cursor': Util.getQueryVar('cursor', true),
+                       'updateState':  updateState});
+            rfb.connect(host, port, password);
+        };
+        </script>
 
-            RFB.load();
-            RFB.connect(host, port, password);
-        }
-    </script>
+    </body>
 </html>
 

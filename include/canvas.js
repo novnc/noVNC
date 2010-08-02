@@ -7,183 +7,142 @@
  */
 
 "use strict";
-/*jslint white: false, bitwise: false */
-/*global window, $, Util, Base64 */
+/*jslint browser: true, white: false, bitwise: false */
+/*global window, Util, Base64 */
 
-// Globals defined here
-var Canvas;
+function Canvas(conf) {
 
-// Everything namespaced inside Canvas
-Canvas = {
+conf               = conf || {}; // Configuration
+var that           = {},         // Public API interface
 
-prefer_js    : false, // make private
-force_canvas : false, // make private
-cursor_uri   : true,  // make private
+    // Pre-declare functions used before definitions (jslint)jslint
+    setFillColor, fillRect,
 
-true_color   : true,
-colourMap    : [],
+    // Private Canvas namespace variables
+    c_forceCanvas = false,
 
-scale        : 1,
-c_wx         : 0,
-c_wy         : 0,
-ctx          : null,
+    c_width        = 0,
+    c_height       = 0,
 
-prevStyle    : "",
+    c_prevStyle    = "",
 
-focused      : true,
-keyPress     : null,
-mouseButton  : null,
-mouseMove    : null,
-
-onMouseButton: function(e, down) {
-    var evt, pos, bmask;
-    if (! Canvas.focused) {
-        return true;
-    }
-    evt = (e ? e : window.event);
-    pos = Util.getEventPosition(e, $(Canvas.id), Canvas.scale);
-    bmask = 1 << evt.button;
-    //Util.Debug('mouse ' + pos.x + "," + pos.y + " down: " + down + " bmask: " + bmask);
-    if (Canvas.mouseButton) {
-        Canvas.mouseButton(pos.x, pos.y, down, bmask);
-    }
-    Util.stopEvent(e);
-    return false;
-},
-
-onMouseDown: function (e) {
-    Canvas.onMouseButton(e, 1);
-},
-
-onMouseUp: function (e) {
-    Canvas.onMouseButton(e, 0);
-},
-
-onMouseWheel: function (e) {
-    var evt, pos, bmask, wheelData;
-    evt = (e ? e : window.event);
-    pos = Util.getEventPosition(e, $(Canvas.id), Canvas.scale);
-    wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
-    if (wheelData > 0) {
-        bmask = 1 << 3;
-    } else {
-        bmask = 1 << 4;
-    }
-    //Util.Debug('mouse scroll by ' + wheelData + ':' + pos.x + "," + pos.y);
-    if (Canvas.mouseButton) {
-        Canvas.mouseButton(pos.x, pos.y, 1, bmask);
-        Canvas.mouseButton(pos.x, pos.y, 0, bmask);
-    }
-    Util.stopEvent(e);
-    return false;
-},
+    c_keyPress     = null,
+    c_mouseButton  = null,
+    c_mouseMove    = null;
 
 
-onMouseMove: function (e) {
-    var evt, pos;
-    evt = (e ? e : window.event);
-    pos = Util.getEventPosition(e, $(Canvas.id), Canvas.scale);
-    //Util.Debug('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
-    if (Canvas.mouseMove) {
-        Canvas.mouseMove(pos.x, pos.y);
-    }
-},
+// Capability settings, default can be overridden
+Util.conf_default(conf, that, 'prefer_js', null);
+Util.conf_default(conf, that, 'cursor_uri', null);
 
-onKeyDown: function (e) {
-    //Util.Debug("keydown: " + Canvas.getKeysym(e));
-    if (! Canvas.focused) {
-        return true;
-    }
-    if (Canvas.keyPress) {
-        Canvas.keyPress(Canvas.getKeysym(e), 1);
-    }
-    Util.stopEvent(e);
-    return false;
-},
+// Configuration settings
+Util.conf_default(conf, that, 'target', null);
+Util.conf_default(conf, that, 'true_color', true);
+Util.conf_default(conf, that, 'focused', true);
+Util.conf_default(conf, that, 'colourMap', []);
+Util.conf_default(conf, that, 'scale', 1);
 
-onKeyUp : function (e) {
-    //Util.Debug("keyup: " + Canvas.getKeysym(e));
-    if (! Canvas.focused) {
-        return true;
-    }
-    if (Canvas.keyPress) {
-        Canvas.keyPress(Canvas.getKeysym(e), 0);
-    }
-    Util.stopEvent(e);
-    return false;
-},
-
-onMouseDisable: function (e) {
-    var evt, pos;
-    if (! Canvas.focused) {
-        return true;
-    }
-    evt = (e ? e : window.event);
-    pos = Util.getPosition($(Canvas.id));
-    /* Stop propagation if inside canvas area */
-    if ((evt.clientX >= pos.x) &&
-        (evt.clientY >= pos.y) &&
-        (evt.clientX < (pos.x + Canvas.c_wx)) &&
-        (evt.clientY < (pos.y + Canvas.c_wy))) {
-        //Util.Debug("mouse event disabled");
-        Util.stopEvent(e);
+// Override some specific getters/setters
+that.set_prefer_js = function(val) {
+    if (val && c_forceCanvas) {
+        Util.Warn("Preferring Javascript to Canvas ops is not supported");
         return false;
     }
-    //Util.Debug("mouse event not disabled");
+    conf.prefer_js = val;
     return true;
-},
+};
+
+that.get_colourMap = function(idx) {
+    if (typeof idx === 'undefined') {
+        return conf.colourMap;
+    } else {
+        return conf.colourMap[idx];
+    }
+};
+
+that.set_colourMap = function(val, idx) {
+    if (typeof idx === 'undefined') {
+        conf.colourMap = val;
+    } else {
+        conf.colourMap[idx] = val;
+    }
+};
+
+// Add some other getters/setters
+that.get_width = function() {
+    return c_width;
+};
+that.get_height = function() {
+    return c_height;
+};
 
 
-init: function (id) {
-    var c, imgTest, tval, i, curDat, curSave;
+
+//
+// Private functions
+//
+
+// Create the public API interface
+function constructor() {
     Util.Debug(">> Canvas.init");
 
-    Canvas.id = id;
-    c = $(Canvas.id);
+    var c, ctx, imgTest, tval, i, curDat, curSave,
+        has_imageData = false;
 
-    if (! c.getContext) { throw("No getContext method"); }
-    Canvas.ctx = c.getContext('2d'); 
+    if (! conf.target) { throw("target must be set"); }
 
-    Canvas.clear();
+    if (typeof conf.target === 'string') {
+        conf.target = window.$(conf.target);
+    }
+
+    c = conf.target;
+
+    if (! c.getContext) { throw("no getContext method"); }
+
+    if (! conf.ctx) { conf.ctx = c.getContext('2d'); }
+    ctx = conf.ctx;
+
+    that.clear();
 
     /*
      * Determine browser Canvas feature support
      * and select fastest rendering methods
      */
     tval = 0;
-    Canvas.has_imageData = false;
     try {
-        imgTest = Canvas.ctx.getImageData(0, 0, 1,1);
+        imgTest = ctx.getImageData(0, 0, 1,1);
         imgTest.data[0] = 123;
         imgTest.data[3] = 255;
-        Canvas.ctx.putImageData(imgTest, 0, 0);
-        tval = Canvas.ctx.getImageData(0, 0, 1, 1).data[0];
+        ctx.putImageData(imgTest, 0, 0);
+        tval = ctx.getImageData(0, 0, 1, 1).data[0];
         if (tval === 123) {
-            Canvas.has_imageData = true;
+            has_imageData = true;
         }
-    } catch (exc) {}
+    } catch (exc1) {}
 
-    if (Canvas.has_imageData) {
+    if (has_imageData) {
         Util.Info("Canvas supports imageData");
-        Canvas.force_canvas = false;
-        if (Canvas.ctx.createImageData) {
+        c_forceCanvas = false;
+        if (ctx.createImageData) {
             // If it's there, it's faster
             Util.Info("Using Canvas createImageData");
-            Canvas._imageData = Canvas._imageDataCreate;
-        } else if (Canvas.ctx.getImageData) {
+            that.imageData = that.imageDataCreate;
+        } else if (ctx.getImageData) {
             Util.Info("Using Canvas getImageData");
-            Canvas._imageData = Canvas._imageDataGet;
+            that.imageData = that.imageDataGet;
         }
         Util.Info("Prefering javascript operations");
-        Canvas.prefer_js = true;
-        Canvas._rgbxImage = Canvas._rgbxImageData;
-        Canvas._cmapImage = Canvas._cmapImageData;
+        if (conf.prefer_js === null) {
+            conf.prefer_js = true;
+        }
+        that.rgbxImage = that.rgbxImageData;
+        that.cmapImage = that.cmapImageData;
     } else {
         Util.Warn("Canvas lacks imageData, using fillRect (slow)");
-        Canvas.force_canvas = true;
-        Canvas.prefer_js = false;
-        Canvas._rgbxImage = Canvas._rgbxImageFill;
-        Canvas._cmapImage = Canvas._cmapImageFill;
+        c_forceCanvas = true;
+        conf.prefer_js = false;
+        that.rgbxImage = that.rgbxImageFill;
+        that.cmapImage = that.cmapImageFill;
     }
 
     /*
@@ -191,300 +150,37 @@ init: function (id) {
      * scheme
      */
     curDat = [];
-    for (i=0; i < 8 * 8 * 4; i++) {
+    for (i=0; i < 8 * 8 * 4; i += 1) {
         curDat.push(255);
     }
     try {
         curSave = c.style.cursor;
-        Canvas.changeCursor(curDat, curDat, 2, 2, 8, 8);
+        that.changeCursor(curDat, curDat, 2, 2, 8, 8);
         if (c.style.cursor) {
+            if (conf.cursor_uri === null) {
+                conf.cursor_uri = true;
+            }
             Util.Info("Data URI scheme cursor supported");
         } else {
-            Canvas.cursor_uri = false;
+            if (conf.cursor_uri === null) {
+                conf.cursor_uri = false;
+            }
             Util.Warn("Data URI scheme cursor not supported");
         }
         c.style.cursor = curSave;
-    } catch (exc2) {
+    } catch (exc2) { 
         Util.Error("Data URI scheme cursor test exception: " + exc2);
         conf.cursor_uri = false;
     }
 
-    Canvas.colourMap = [];
-    Canvas.prevStyle = "";
-    Canvas.focused = true;
+    conf.focused = true;
 
     Util.Debug("<< Canvas.init");
-    return true;
-},
-    
-
-start: function (keyPress, mouseButton, mouseMove) {
-    var c;
-    Util.Debug(">> Canvas.start");
-
-    c = $(Canvas.id);
-    Canvas.keyPress = keyPress || null;
-    Canvas.mouseButton = mouseButton || null;
-    Canvas.mouseMove = mouseMove || null;
-
-    Util.addEvent(document, 'keydown', Canvas.onKeyDown);
-    Util.addEvent(document, 'keyup', Canvas.onKeyUp);
-    Util.addEvent(c, 'mousedown', Canvas.onMouseDown);
-    Util.addEvent(c, 'mouseup', Canvas.onMouseUp);
-    Util.addEvent(c, 'mousemove', Canvas.onMouseMove);
-    Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-            Canvas.onMouseWheel);
-
-    /* Work around right and middle click browser behaviors */
-    Util.addEvent(document, 'click', Canvas.onMouseDisable);
-    Util.addEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
-
-    Util.Debug("<< Canvas.start");
-},
-
-clear: function () {
-    Canvas.resize(640, 20);
-    Canvas.ctx.clearRect(0, 0, Canvas.c_wx, Canvas.c_wy);
-},
-
-resize: function (width, height, true_color) {
-    var c = $(Canvas.id);
-
-    if (typeof true_color !== "undefined") {
-        Canvas.true_color = true_color;
-    }
-
-    c.width = width;
-    c.height = height;
-
-    Canvas.c_wx = c.offsetWidth;
-    Canvas.c_wy = c.offsetHeight;
-
-    //Canvas.rescale(Canvas.scale);
-},
-
-rescale: function (factor) {
-    var c, tp, x, y, 
-        properties = ['transform', 'WebkitTransform', 'MozTransform', null];
-    c = $(Canvas.id);
-    while (tp = properties.shift()) {
-        if (typeof c.style[tp] != 'undefined') {
-            break;
-        }
-    }
-
-    if (tp === null) {
-        Util.Debug("No scaling support");
-        return;
-    }
-
-    if (Canvas.scale === factor) {
-        //Util.Debug("Canvas already scaled to '" + factor + "'");
-        return;
-    }
-
-    Canvas.scale = factor;
-    x = c.width - c.width * factor;
-    y = c.height - c.height * factor;
-    c.style[tp] = "scale(" + Canvas.scale + ") translate(-" + x + "px, -" + y + "px)";
-},
-
-stop: function () {
-    var c = $(Canvas.id);
-    Util.removeEvent(document, 'keydown', Canvas.onKeyDown);
-    Util.removeEvent(document, 'keyup', Canvas.onKeyUp);
-    Util.removeEvent(c, 'mousedown', Canvas.onMouseDown);
-    Util.removeEvent(c, 'mouseup', Canvas.onMouseUp);
-    Util.removeEvent(c, 'mousemove', Canvas.onMouseMove);
-    Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-            Canvas.onMouseWheel);
-
-    /* Work around right and middle click browser behaviors */
-    Util.removeEvent(document, 'click', Canvas.onMouseDisable);
-    Util.removeEvent(document.body, 'contextmenu', Canvas.onMouseDisable);
-
-    // Turn off cursor rendering
-    if (Canvas.cursor_uri) {
-        c.style.cursor = "default";
-    }
-},
-
-/*
- * Tile rendering functions optimized for rendering engines.
- *
- * - In Chrome/webkit, Javascript image data array manipulations are
- *   faster than direct Canvas fillStyle, fillRect rendering. In
- *   gecko, Javascript array handling is much slower.
- */
-getTile: function(x, y, width, height, color) {
-    var img, data, p, rgb, red, green, blue, j, i;
-    img = {'x': x, 'y': y, 'width': width, 'height': height,
-           'data': []};
-    if (Canvas.prefer_js) {
-        data = img.data;
-        if (Canvas.true_color) {
-            rgb = color;
-        } else {
-            rgb = Canvas.colourMap[color[0]];
-        }
-        red = rgb[0];
-        green = rgb[1];
-        blue = rgb[2];
-        for (j = 0; j < height; j += 1) {
-            for (i = 0; i < width; i += 1) {
-                p = (i + (j * width) ) * 4;
-                data[p + 0] = red;
-                data[p + 1] = green;
-                data[p + 2] = blue;
-                //data[p + 3] = 255; // Set Alpha
-            }   
-        } 
-    } else {
-        Canvas.fillRect(x, y, width, height, color);
-    }
-    return img;
-},
-
-setSubTile: function(img, x, y, w, h, color) {
-    var data, p, rgb, red, green, blue, width, j, i;
-    if (Canvas.prefer_js) {
-        data = img.data;
-        width = img.width;
-        if (Canvas.true_color) {
-            rgb = color;
-        } else {
-            rgb = Canvas.colourMap[color[0]];
-        }
-        red = rgb[0];
-        green = rgb[1];
-        blue = rgb[2];
-        for (j = 0; j < h; j += 1) {
-            for (i = 0; i < w; i += 1) {
-                p = (x + i + ((y + j) * width) ) * 4;
-                data[p + 0] = red;
-                data[p + 1] = green;
-                data[p + 2] = blue;
-                //img.data[p + 3] = 255; // Set Alpha
-            }   
-        } 
-    } else {
-        Canvas.fillRect(img.x + x, img.y + y, w, h, color);
-    }
-},
-
-putTile: function(img) {
-    if (Canvas.prefer_js) {
-        Canvas._rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
-    } else {
-        // No-op, under gecko already done by setSubTile
-    }
-},
-
-_imageDataGet: function(width, height) {
-    return Canvas.ctx.getImageData(0, 0, width, height);
-},
-_imageDataCreate: function(width, height) {
-    return Canvas.ctx.createImageData(width, height);
-},
-_imageDataRaw: function(width, height) {
-    return {'data': [], 'width': width, 'height': height};
-},
-
-_rgbxImageData: function(x, y, width, height, arr, offset) {
-    var img, i, j, data;
-    img = Canvas._imageData(width, height);
-    data = img.data;
-    for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
-        data[i + 0] = arr[j + 0];
-        data[i + 1] = arr[j + 1];
-        data[i + 2] = arr[j + 2];
-        data[i + 3] = 255; // Set Alpha
-    }
-    Canvas.ctx.putImageData(img, x, y);
-},
-
-// really slow fallback if we don't have imageData
-_rgbxImageFill: function(x, y, width, height, arr, offset) {
-    var i, j, sx = 0, sy = 0;
-    for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
-        Canvas.fillRect(x+sx, y+sy, 1, 1, [arr[j+0], arr[j+1], arr[j+2]]);
-        sx += 1;
-        if ((sx % width) === 0) {
-            sx = 0;
-            sy += 1;
-        }
-    }
-},
-
-_cmapImageData: function(x, y, width, height, arr, offset) {
-    var img, i, j, data, rgb, cmap;
-    img = Canvas._imageData(width, height);
-    data = img.data;
-    cmap = Canvas.colourMap;
-    for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
-        rgb = cmap[arr[j]];
-        data[i + 0] = rgb[0];
-        data[i + 1] = rgb[1];
-        data[i + 2] = rgb[2];
-        data[i + 3] = 255; // Set Alpha
-    }
-    Canvas.ctx.putImageData(img, x, y);
-},
-
-_cmapImageFill: function(x, y, width, height, arr, offset) {
-    var i, j, sx = 0, sy = 0, cmap;
-    cmap = Canvas.colourMap;
-    for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
-        Canvas.fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
-        sx += 1;
-        if ((sx % width) === 0) {
-            sx = 0;
-            sy += 1;
-        }
-    }
-},
-
-
-blitImage: function(x, y, width, height, arr, offset) {
-    if (Canvas.true_color) {
-        Canvas._rgbxImage(x, y, width, height, arr, offset);
-    } else {
-        Canvas._cmapImage(x, y, width, height, arr, offset);
-    }
-},
-
-blitStringImage: function(str, x, y) {
-    var img = new Image();
-    img.onload = function () { Canvas.ctx.drawImage(img, x, y); };
-    img.src = str;
-},
-
-setFillColor: function(color) {
-    var rgb, newStyle;
-    if (Canvas.true_color) {
-        rgb = color;
-    } else {
-        rgb = Canvas.colourMap[color[0]];
-    }
-    if (newStyle !== Canvas.prevStyle) {
-        newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-        Canvas.ctx.fillStyle = newStyle;
-        Canvas.prevStyle = newStyle;
-    }
-},
-
-fillRect: function(x, y, width, height, color) {
-    Canvas.setFillColor(color);
-    Canvas.ctx.fillRect(x, y, width, height);
-},
-
-copyImage: function(old_x, old_y, new_x, new_y, width, height) {
-    Canvas.ctx.drawImage($(Canvas.id), old_x, old_y, width, height,
-                                       new_x, new_y, width, height);
-},
+    return that ;
+}
 
 /* Translate DOM key event to keysym value */
-getKeysym: function(e) {
+function getKeysym(e) {
     var evt, keysym;
     evt = (e ? e : window.event);
 
@@ -574,22 +270,389 @@ getKeysym: function(e) {
     } 
 
     return keysym;
-},
+}
+
+function onMouseButton(e, down) {
+    var evt, pos, bmask;
+    if (! conf.focused) {
+        return true;
+    }
+    evt = (e ? e : window.event);
+    pos = Util.getEventPosition(e, conf.target, conf.scale);
+    bmask = 1 << evt.button;
+    //Util.Debug('mouse ' + pos.x + "," + pos.y + " down: " + down + " bmask: " + bmask);
+    if (c_mouseButton) {
+        c_mouseButton(pos.x, pos.y, down, bmask);
+    }
+    Util.stopEvent(e);
+    return false;
+}
+
+function onMouseDown(e) {
+    onMouseButton(e, 1);
+}
+
+function onMouseUp(e) {
+    onMouseButton(e, 0);
+}
+
+function onMouseWheel(e) {
+    var evt, pos, bmask, wheelData;
+    evt = (e ? e : window.event);
+    pos = Util.getEventPosition(e, conf.target, conf.scale);
+    wheelData = evt.detail ? evt.detail * -1 : evt.wheelDelta / 40;
+    if (wheelData > 0) {
+        bmask = 1 << 3;
+    } else {
+        bmask = 1 << 4;
+    }
+    //Util.Debug('mouse scroll by ' + wheelData + ':' + pos.x + "," + pos.y);
+    if (c_mouseButton) {
+        c_mouseButton(pos.x, pos.y, 1, bmask);
+        c_mouseButton(pos.x, pos.y, 0, bmask);
+    }
+    Util.stopEvent(e);
+    return false;
+}
+
+function onMouseMove(e) {
+    var evt, pos;
+    evt = (e ? e : window.event);
+    pos = Util.getEventPosition(e, conf.target, conf.scale);
+    //Util.Debug('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
+    if (c_mouseMove) {
+        c_mouseMove(pos.x, pos.y);
+    }
+}
+
+function onKeyDown(e) {
+    //Util.Debug("keydown: " + getKeysym(e));
+    if (! conf.focused) {
+        return true;
+    }
+    if (c_keyPress) {
+        c_keyPress(getKeysym(e), 1);
+    }
+    Util.stopEvent(e);
+    return false;
+}
+
+function onKeyUp(e) {
+    //Util.Debug("keyup: " + getKeysym(e));
+    if (! conf.focused) {
+        return true;
+    }
+    if (c_keyPress) {
+        c_keyPress(getKeysym(e), 0);
+    }
+    Util.stopEvent(e);
+    return false;
+}
+
+function onMouseDisable(e) {
+    var evt, pos;
+    if (! conf.focused) {
+        return true;
+    }
+    evt = (e ? e : window.event);
+    pos = Util.getPosition(conf.target);
+    /* Stop propagation if inside canvas area */
+    if ((evt.clientX >= pos.x) &&
+        (evt.clientY >= pos.y) &&
+        (evt.clientX < (pos.x + c_width)) &&
+        (evt.clientY < (pos.y + c_height))) {
+        //Util.Debug("mouse event disabled");
+        Util.stopEvent(e);
+        return false;
+    }
+    //Util.Debug("mouse event not disabled");
+    return true;
+}
+
+//
+// Public API interface functions
+//
+
+that.getContext = function () {
+    return conf.ctx;
+};
+
+that.start = function(keyPressFunc, mouseButtonFunc, mouseMoveFunc) {
+    var c;
+    Util.Debug(">> Canvas.start");
+
+    c = conf.target;
+    c_keyPress = keyPressFunc || null;
+    c_mouseButton = mouseButtonFunc || null;
+    c_mouseMove = mouseMoveFunc || null;
+
+    Util.addEvent(document, 'keydown', onKeyDown);
+    Util.addEvent(document, 'keyup', onKeyUp);
+    Util.addEvent(c, 'mousedown', onMouseDown);
+    Util.addEvent(c, 'mouseup', onMouseUp);
+    Util.addEvent(c, 'mousemove', onMouseMove);
+    Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+            onMouseWheel);
+
+    /* Work around right and middle click browser behaviors */
+    Util.addEvent(document, 'click', onMouseDisable);
+    Util.addEvent(document.body, 'contextmenu', onMouseDisable);
+
+    Util.Debug("<< Canvas.start");
+};
+
+that.rescale = function(factor) {
+    var c, tp, x, y, 
+        properties = ['transform', 'WebkitTransform', 'MozTransform', null];
+    c = conf.target;
+    tp = properties.shift();
+    while (tp) {
+        if (typeof c.style[tp] !== 'undefined') {
+            break;
+        }
+        tp = properties.shift();
+    }
+
+    if (tp === null) {
+        Util.Debug("No scaling support");
+        return;
+    }
+
+    if (conf.scale === factor) {
+        //Util.Debug("Canvas already scaled to '" + factor + "'");
+        return;
+    }
+
+    conf.scale = factor;
+    x = c.width - c.width * factor;
+    y = c.height - c.height * factor;
+    c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
+};
+
+that.resize = function(width, height, true_color) {
+    var c = conf.target;
+
+    if (typeof true_color !== "undefined") {
+        conf.true_color = true_color;
+    }
+
+    c.width = width;
+    c.height = height;
+
+    c_width  = c.offsetWidth;
+    c_height = c.offsetHeight;
+
+    that.rescale(conf.scale);
+};
+
+that.clear = function() {
+    that.resize(640, 20);
+    conf.ctx.clearRect(0, 0, c_width, c_height);
+};
+
+that.stop = function() {
+    var c = conf.target;
+    Util.removeEvent(document, 'keydown', onKeyDown);
+    Util.removeEvent(document, 'keyup', onKeyUp);
+    Util.removeEvent(c, 'mousedown', onMouseDown);
+    Util.removeEvent(c, 'mouseup', onMouseUp);
+    Util.removeEvent(c, 'mousemove', onMouseMove);
+    Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+            onMouseWheel);
+
+    /* Work around right and middle click browser behaviors */
+    Util.removeEvent(document, 'click', onMouseDisable);
+    Util.removeEvent(document.body, 'contextmenu', onMouseDisable);
+
+    // Turn off cursor rendering
+    if (conf.cursor_uri) {
+        c.style.cursor = "default";
+    }
+};
+
+setFillColor = function(color) {
+    var rgb, newStyle;
+    if (conf.true_color) {
+        rgb = color;
+    } else {
+        rgb = conf.colourMap[color[0]];
+    }
+    if (newStyle !== c_prevStyle) {
+        newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+        conf.ctx.fillStyle = newStyle;
+        c_prevStyle = newStyle;
+    }
+};
+that.setFillColor = setFillColor;
+
+fillRect = function(x, y, width, height, color) {
+    setFillColor(color);
+    conf.ctx.fillRect(x, y, width, height);
+};
+that.fillRect = fillRect;
+
+that.copyImage = function(old_x, old_y, new_x, new_y, width, height) {
+    conf.ctx.drawImage(conf.target, old_x, old_y, width, height,
+                                       new_x, new_y, width, height);
+};
+
+/*
+ * Tile rendering functions optimized for rendering engines.
+ *
+ * - In Chrome/webkit, Javascript image data array manipulations are
+ *   faster than direct Canvas fillStyle, fillRect rendering. In
+ *   gecko, Javascript array handling is much slower.
+ */
+that.getTile = function(x, y, width, height, color) {
+    var img, data, p, rgb, red, green, blue, j, i;
+    img = {'x': x, 'y': y, 'width': width, 'height': height,
+           'data': []};
+    if (conf.prefer_js) {
+        data = img.data;
+        if (conf.true_color) {
+            rgb = color;
+        } else {
+            rgb = conf.colourMap[color[0]];
+        }
+        red = rgb[0];
+        green = rgb[1];
+        blue = rgb[2];
+        for (j = 0; j < height; j += 1) {
+            for (i = 0; i < width; i += 1) {
+                p = (i + (j * width) ) * 4;
+                data[p + 0] = red;
+                data[p + 1] = green;
+                data[p + 2] = blue;
+                //data[p + 3] = 255; // Set Alpha
+            }   
+        } 
+    } else {
+        fillRect(x, y, width, height, color);
+    }
+    return img;
+};
+
+that.setSubTile = function(img, x, y, w, h, color) {
+    var data, p, rgb, red, green, blue, width, j, i;
+    if (conf.prefer_js) {
+        data = img.data;
+        width = img.width;
+        if (conf.true_color) {
+            rgb = color;
+        } else {
+            rgb = conf.colourMap[color[0]];
+        }
+        red = rgb[0];
+        green = rgb[1];
+        blue = rgb[2];
+        for (j = 0; j < h; j += 1) {
+            for (i = 0; i < w; i += 1) {
+                p = (x + i + ((y + j) * width) ) * 4;
+                data[p + 0] = red;
+                data[p + 1] = green;
+                data[p + 2] = blue;
+                //img.data[p + 3] = 255; // Set Alpha
+            }   
+        } 
+    } else {
+        fillRect(img.x + x, img.y + y, w, h, color);
+    }
+};
+
+that.putTile = function(img) {
+    if (conf.prefer_js) {
+        that.rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
+    } else {
+        // No-op, under gecko already done by setSubTile
+    }
+};
+
+that.imageDataGet = function(width, height) {
+    return conf.ctx.getImageData(0, 0, width, height);
+};
+that.imageDataCreate = function(width, height) {
+    return conf.ctx.createImageData(width, height);
+};
+
+that.rgbxImageData = function(x, y, width, height, arr, offset) {
+    var img, i, j, data;
+    img = that.imageData(width, height);
+    data = img.data;
+    for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
+        data[i + 0] = arr[j + 0];
+        data[i + 1] = arr[j + 1];
+        data[i + 2] = arr[j + 2];
+        data[i + 3] = 255; // Set Alpha
+    }
+    conf.ctx.putImageData(img, x, y);
+};
+
+// really slow fallback if we don't have imageData
+that.rgbxImageFill = function(x, y, width, height, arr, offset) {
+    var i, j, sx = 0, sy = 0;
+    for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
+        fillRect(x+sx, y+sy, 1, 1, [arr[j+0], arr[j+1], arr[j+2]]);
+        sx += 1;
+        if ((sx % width) === 0) {
+            sx = 0;
+            sy += 1;
+        }
+    }
+};
+
+that.cmapImageData = function(x, y, width, height, arr, offset) {
+    var img, i, j, data, rgb, cmap;
+    img = that.imageData(width, height);
+    data = img.data;
+    cmap = conf.colourMap;
+    for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
+        rgb = cmap[arr[j]];
+        data[i + 0] = rgb[0];
+        data[i + 1] = rgb[1];
+        data[i + 2] = rgb[2];
+        data[i + 3] = 255; // Set Alpha
+    }
+    conf.ctx.putImageData(img, x, y);
+};
+
+that.cmapImageFill = function(x, y, width, height, arr, offset) {
+    var i, j, sx = 0, sy = 0, cmap;
+    cmap = conf.colourMap;
+    for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
+        fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
+        sx += 1;
+        if ((sx % width) === 0) {
+            sx = 0;
+            sy += 1;
+        }
+    }
+};
 
 
-isCursor: function() {
-    return Canvas.cursor_uri;
-},
-changeCursor: function(pixels, mask, hotx, hoty, w, h) {
+that.blitImage = function(x, y, width, height, arr, offset) {
+    if (conf.true_color) {
+        that.rgbxImage(x, y, width, height, arr, offset);
+    } else {
+        that.cmapImage(x, y, width, height, arr, offset);
+    }
+};
+
+that.blitStringImage = function(str, x, y) {
+    var img = new Image();
+    img.onload = function () { conf.ctx.drawImage(img, x, y); };
+    img.src = str;
+};
+
+that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
     var cur = [], cmap, rgb, IHDRsz, ANDsz, XORsz, url, idx, alpha, x, y;
     //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
     
-    if (!Canvas.cursor_uri) {
+    if (conf.cursor_uri === false) {
         Util.Warn("changeCursor called but no cursor data URI support");
         return;
     }
 
-    cmap = Canvas.colourMap;
+    cmap = conf.colourMap;
     IHDRsz = 40;
     ANDsz = w * h * 4;
     XORsz = Math.ceil( (w * h) / 8.0 );
@@ -623,12 +686,12 @@ changeCursor: function(pixels, mask, hotx, hoty, w, h) {
     cur.push32le(0);
 
     // XOR/color data
-    for (y = h-1; y >= 0; y--) {
-        for (x = 0; x < w; x++) {
+    for (y = h-1; y >= 0; y -= 1) {
+        for (x = 0; x < w; x += 1) {
             idx = y * Math.ceil(w / 8) + Math.floor(x/8);
             alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
 
-            if (Canvas.true_color) {
+            if (conf.true_color) {
                 idx = ((w * y) + x) * 4;
                 cur.push(pixels[idx + 2]); // blue
                 cur.push(pixels[idx + 1]); // green
@@ -646,16 +709,20 @@ changeCursor: function(pixels, mask, hotx, hoty, w, h) {
     }
 
     // AND/bitmask data (ignored, just needs to be right size)
-    for (y = 0; y < h; y++) {
-        for (x = 0; x < Math.ceil(w / 8); x++) {
+    for (y = 0; y < h; y += 1) {
+        for (x = 0; x < Math.ceil(w / 8); x += 1) {
             cur.push(0x00);
         }
     }
 
     url = "data:image/x-icon;base64," + Base64.encode(cur);
-    $(Canvas.id).style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
+    conf.target.style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
     //Util.Debug("<< changeCursor, cur.length: " + cur.length);
-}
-
 };
+
+
+
+return constructor();  // Return the public API interface
+
+}  // End of Canvas()
 
