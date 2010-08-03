@@ -44,7 +44,7 @@ load: function(target) {
     html += '          onmouseout="DefaultControls.canvasFocus();">';
     html += '          <ul>';
     html += '            <li><input id="VNC_encrypt"';
-    html += '                type="checkbox" checked> Encrypt</li>';
+    html += '                type="checkbox"> Encrypt</li>';
     html += '            <li><input id="VNC_base64"';
     html += '                type="checkbox" checked> Base64 Encode</li>';
     html += '            <li><input id="VNC_true_color"';
@@ -112,7 +112,7 @@ load: function(target) {
     DC.initSetting('host', '');
     DC.initSetting('port', '');
     DC.initSetting('password', '');
-    DC.initSetting('encrypt', true);
+    DC.initSetting('encrypt', false);
     DC.initSetting('base64', true);
     DC.initSetting('true_color', true);
     DC.initSetting('cursor', true);

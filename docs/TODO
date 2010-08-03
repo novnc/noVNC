@@ -1,8 +1,5 @@
 Short Term:
 
-- Proper Javascript namespacing for Canvas and RFB (using function for
-    true local variables and functions).
-
 - Timing delta between frames in proxy record log, for playback
   support (for demo and test).
 
