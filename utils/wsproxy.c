@@ -169,6 +169,11 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
             if (bytes <= 0) {
                 fprintf(stderr, "client closed connection\n");
                 break;
+            } else if ((bytes == 2) &&
+                       (tbuf_tmp[0] == '\xff') && 
+                       (tbuf_tmp[1] == '\x00')) {
+                fprintf(stderr, "client sent orderly close frame");
+                break;
             }
             if (recordfd) {
                 write(recordfd, "'", 1);

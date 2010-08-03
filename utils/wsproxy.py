@@ -80,7 +80,9 @@ def do_proxy(client, target):
             buf = client.recv(buffer_size)
             if len(buf) == 0: raise Exception("Client closed")
 
-            if buf[-1] == '\xff':
+            if buf == '\xff\x00':
+                raise Exception("Client sent orderly close frame")
+            elif buf[-1] == '\xff':
                 if buf.count('\xff') > 1:
                     traffic(str(buf.count('\xff')))
                 traffic("}")
