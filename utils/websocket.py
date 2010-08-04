@@ -15,6 +15,7 @@ import sys, socket, ssl, struct, traceback
 import os, resource, errno, signal # daemonizing
 from base64 import b64encode, b64decode
 from hashlib import md5
+from urlparse import urlsplit, parse_qsl
 
 settings = {
     'listen_host' : '',
@@ -73,7 +74,7 @@ def parse_handshake(handshake):
     ret['path'] = req_lines[0].split(" ")[1]
     for line in req_lines[1:]:
         if line == "": break
-        var, delim, val = line.partition(": ")
+        var, val = line.split(": ")
         ret[var] = val
 
     if req_lines[-2] == "":
@@ -132,9 +133,8 @@ def do_handshake(sock):
     h = parse_handshake(handshake)
 
     # Parse client settings from the GET path
-    cvars = h['path'].partition('?')[2].partition('#')[0].split('&')
-    for cvar in [c for c in cvars if c]:
-        name, _, val = cvar.partition('=')
+    cvars = parse_qsl(urlsplit(h['path'])[3], True)
+    for name, val in cvars:
         if name not in ['b64encode']: continue
         value = val and val or True
         client_settings[name] = value
