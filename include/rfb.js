@@ -453,7 +453,7 @@ function decode_message(data) {
 
 function handle_message() {
     //Util.Debug("RQ.slice(0,20): " + RQ.slice(0,20) + " (" + RQ.length + ")");
-    if (RQ.length == 0) {
+    if (RQ.length === 0) {
         Util.Warn("handle_message called on empty receive queue");
         return;
     }
