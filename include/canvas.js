@@ -37,11 +37,12 @@ Util.conf_default(conf, that, 'cursor_uri', null);
 
 // Configuration settings
 Util.conf_default(conf, that, 'target', null);
+// Area that traps keyboard input
+Util.conf_default(conf, that, 'focusContainer', document);
 Util.conf_default(conf, that, 'true_color', true);
 Util.conf_default(conf, that, 'focused', true);
 Util.conf_default(conf, that, 'colourMap', []);
 Util.conf_default(conf, that, 'scale', 1);
-Util.conf_default(conf, that, 'currentDocument', document);
 
 // Override some specific getters/setters
 that.set_prefer_js = function(val) {
@@ -387,8 +388,8 @@ that.start = function(keyPressFunc, mouseButtonFunc, mouseMoveFunc) {
     c_mouseButton = mouseButtonFunc || null;
     c_mouseMove = mouseMoveFunc || null;
 
-    Util.addEvent(conf.currentDocument, 'keydown', onKeyDown);
-    Util.addEvent(conf.currentDocument, 'keyup', onKeyUp);
+    Util.addEvent(conf.focusContainer, 'keydown', onKeyDown);
+    Util.addEvent(conf.focusContainer, 'keyup', onKeyUp);
     Util.addEvent(c, 'mousedown', onMouseDown);
     Util.addEvent(c, 'mouseup', onMouseUp);
     Util.addEvent(c, 'mousemove', onMouseMove);
@@ -396,8 +397,8 @@ that.start = function(keyPressFunc, mouseButtonFunc, mouseMoveFunc) {
             onMouseWheel);
 
     /* Work around right and middle click browser behaviors */
-    Util.addEvent(conf.currentDocument, 'click', onMouseDisable);
-    Util.addEvent(conf.currentDocument.body, 'contextmenu', onMouseDisable);
+    Util.addEvent(conf.focusContainer, 'click', onMouseDisable);
+    Util.addEvent(conf.focusContainer.body, 'contextmenu', onMouseDisable);
 
     Util.Debug("<< Canvas.start");
 };
@@ -453,8 +454,8 @@ that.clear = function() {
 
 that.stop = function() {
     var c = conf.target;
-    Util.removeEvent(conf.currentDocument, 'keydown', onKeyDown);
-    Util.removeEvent(conf.currentDocument, 'keyup', onKeyUp);
+    Util.removeEvent(conf.focusContainer, 'keydown', onKeyDown);
+    Util.removeEvent(conf.focusContainer, 'keyup', onKeyUp);
     Util.removeEvent(c, 'mousedown', onMouseDown);
     Util.removeEvent(c, 'mouseup', onMouseUp);
     Util.removeEvent(c, 'mousemove', onMouseMove);
@@ -462,8 +463,8 @@ that.stop = function() {
             onMouseWheel);
 
     /* Work around right and middle click browser behaviors */
-    Util.removeEvent(conf.currentDocument, 'click', onMouseDisable);
-    Util.removeEvent(conf.currentDocument.body, 'contextmenu', onMouseDisable);
+    Util.removeEvent(conf.focusContainer, 'click', onMouseDisable);
+    Util.removeEvent(conf.focusContainer.body, 'contextmenu', onMouseDisable);
 
     // Turn off cursor rendering
     if (conf.cursor_uri) {
