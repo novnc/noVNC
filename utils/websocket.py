@@ -14,8 +14,12 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 import sys, socket, ssl, struct, traceback
 import os, resource, errno, signal # daemonizing
 from base64 import b64encode, b64decode
-from hashlib import md5
-from urlparse import urlsplit, parse_qsl
+try:
+    from hashlib import md5
+except:
+    from md5 import md5  # Support python 2.4
+from urlparse import urlsplit
+from cgi import parse_qsl
 
 settings = {
     'listen_host' : '',
