@@ -11,7 +11,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import sys, socket, ssl, optparse
+import socket, optparse
 from select import select
 from websocket import *
 
