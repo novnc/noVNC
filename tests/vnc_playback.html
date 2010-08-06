@@ -1,0 +1,164 @@
+<html>
+    <head>
+        <title>VNC Test</title>
+        <link rel="stylesheet" href="include/plain.css">
+    </head>
+    <body>
+
+        Iterations: <input id='iterations' style='width:50' value="3">&nbsp;
+
+        <input id='startButton' type='button' value='Start' style='width:100px'
+            onclick="start();" disabled>&nbsp;
+
+        <br><br>
+
+        <div id="VNC_screen">
+            <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">
+                <table border=0 width=100%><tr>
+                    <td><div id="VNC_status">Loading</div></td>
+                </tr></table>
+            </div>
+            <canvas id="VNC_canvas" width="640px" height="20px">
+                Canvas not supported.
+            </canvas>
+        </div>
+
+        <br>
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
+    </body>
+
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
+
+    <script src="include/vnc.js"></script>
+
+    <script>
+        var rfb, fname, test_state, frame_idx, frame_length, iteration,
+            iterations, start_time, packetID, waitTimer;
+
+        function message(str) {
+            console.log(str);
+            cell = $('messages');
+            cell.innerHTML += str + "\n";
+            cell.scrollTop = cell.scrollHeight;
+        }
+
+        fname = (document.location.href.match(
+                 /data=([A-Za-z0-9\._\-]*)/) ||
+                 ['', ''])[1];
+
+        if (fname) {
+            message("Loading " + fname);
+            document.write('<script src="' + fname + '"><\/script>');
+        } else {
+            message("Must specify data=FOO in query string.");
+        }
+
+        // Override send_array
+        send_array = function (arr) {
+            // Stub out send_array
+        }
+
+        updateState = function (rfb, state, oldstate, msg) {
+            switch (state) {
+                case 'failed':
+                case 'fatal':
+                    message("noVNC sent '" + state + "' state during iteration " + iteration);
+                    test_state = 'failed';
+                    break;
+                case 'loaded': 
+                    $('startButton').disabled = false;
+                    break;
+            }
+            if (typeof msg !== 'undefined') {
+                $('VNC_status').innerHTML = msg;
+            }
+        }
+
+        function start () {
+            $('startButton').value = "Running";
+            $('startButton').disabled = true;
+            test_state = 'running';
+
+            iterations = $('iterations').value;
+            iteration = 0;
+            frame_length = VNC_frame_data.length;
+            total_time = 0;
+            start_time = (new Date()).getTime();
+
+            setTimeout(next_iteration, 1);
+        }
+
+        function next_iteration () {
+            var time, iter_time, end_time;
+
+            if (test_state !== 'running') { return; }
+
+            if (iteration !== 0) {
+                rfb.disconnect();
+            }
+            
+            iteration++;
+            if (iteration > iterations) {
+                // Finished with all iterations
+                var end_time = (new Date()).getTime();
+                total_time = end_time - start_time;
+
+                iter_time = parseInt(total_time / iterations, 10);
+                message(iterations + " iterations took " + total_time + "ms, " +
+                        iter_time + "ms per iteration");
+                rfb.get_canvas().stop();   // Shut-off event interception
+                $('startButton').disabled = false;
+                $('startButton').value = "Start";
+                return;
+            }
+
+            frame_idx = 0;
+            rfb.connect('test', 0, "bogus");
+
+            setTimeout(do_packet, 1);
+
+        }
+
+        function do_packet () {
+            var frame;
+            if (test_state !== 'running') { return; }
+
+            frame = VNC_frame_data[frame_idx];
+            while (frame.charAt(0) === "}") {
+                //message("Send frame " + frame_idx);
+                frame_idx ++;
+                frame = VNC_frame_data[frame_idx];
+                if (frame_idx >= frame_length) {
+                    break;
+                }
+            }
+
+
+            //message("Processing frame: " + frame_idx);
+            if (frame) {
+                rfb.recv_message({'data' : frame.slice(frame.indexOf('{', 1)+1)});
+                frame_idx++;
+            }
+
+            if (frame_idx >= frame_length) {
+                next_iteration();
+            } else {
+                setTimeout(do_packet, 1);
+            }
+        }
+
+        window.onload = function() {
+            if (fname) {
+                message("VNC_frame_data.length: " + VNC_frame_data.length);
+                rfb = RFB({'target': 'VNC_canvas',
+                        'updateState': updateState});
+                rfb.testMode(send_array);
+                rfb.init();
+            }
+        }
+    </script>
+</html>

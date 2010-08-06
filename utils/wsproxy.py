@@ -11,7 +11,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import socket, optparse
+import socket, optparse, time
 from select import select
 from websocket import *
 
@@ -37,9 +37,11 @@ def do_proxy(client, target):
     cpartial = ""
     tqueue = []
     rlist = [client, target]
+    tstart = int(time.time()*1000)
 
     while True:
         wlist = []
+        tdelta = int(time.time()*1000) - tstart
         if tqueue: wlist.append(target)
         if cqueue: wlist.append(client)
         ins, outs, excepts = select(rlist, wlist, [], 1)
@@ -61,7 +63,7 @@ def do_proxy(client, target):
             if sent == len(dat):
                 traffic("<")
                 ##if rec: rec.write("Client send: %s ...\n" % repr(dat[0:80]))
-                if rec: rec.write("%s,\n" % repr(">" + dat[1:-1]))
+                if rec: rec.write("%s,\n" % repr("{%s{" % tdelta + dat[1:-1]))
             else:
                 cqueue.insert(0, dat[sent:])
                 traffic("<.")
@@ -87,7 +89,7 @@ def do_proxy(client, target):
                     traffic(str(buf.count('\xff')))
                 traffic("}")
                 ##if rec: rec.write("Client recv (%d): %s\n" % (len(buf), repr(buf)))
-                if rec: rec.write("%s,\n" % repr(buf[1:-1]))
+                if rec: rec.write("%s,\n" % (repr("}%s}" % tdelta + buf[1:-1])))
                 if cpartial:
                     tqueue.extend(decode(cpartial + buf))
                     cpartial = ""

@@ -64,7 +64,8 @@ var that           = {},         // Public API interface
 
     ws             = null,  // Web Socket object
     canvas         = null,  // Canvas object
-    sendID         = null,  // Send Queue check timer
+    sendTimer      = null,  // Send Queue check timer
+    msgTimer       = null,  // queued handle_message timer
 
     // Receive and send queues
     RQ             = [],  // Receive Queue
@@ -341,9 +342,9 @@ updateState = function(state, statusMsg) {
     case 'loaded':
     case 'disconnected':
 
-        if (sendID) {
-            clearInterval(sendID);
-            sendID = null;
+        if (sendTimer) {
+            clearInterval(sendTimer);
+            sendTimer = null;
         }
 
         if (ws) {
@@ -471,9 +472,16 @@ function handle_message() {
     case 'normal':
         if (normal_msg() && RQ.length > 0) {
             // true means we can continue processing
-            Util.Debug("More data to process");
             // Give other events a chance to run
-            setTimeout(handle_message, 10);
+            if (msgTimer === null) {
+                Util.Debug("More data to process, creating timer");
+                msgTimer = setTimeout(function () {
+                            msgTimer = null;
+                            handle_message();
+                        }, 10);
+            } else {
+                Util.Debug("More data to process, existing timer");
+            }
         }
         break;
     default:
@@ -686,7 +694,7 @@ init_msg = function() {
         }
 
         if (! test_mode) {
-            sendID = setInterval(function() {
+            sendTimer = setInterval(function() {
                     // Send updates either at a rate of one update
                     // every 50ms, or whatever slower rate the network
                     // can handle.
@@ -948,7 +956,7 @@ normal_msg = function() {
 };
 
 framebufferUpdate = function() {
-    var now, fbu_rt_diff, last_bytes, last_rects, ret = true;
+    var now, hdr, fbu_rt_diff, last_bytes, last_rects, ret = true;
 
     if (FBU.rects === 0) {
         //Util.Debug("New FBU: RQ.slice(0,20): " + RQ.slice(0,20));
@@ -982,11 +990,14 @@ framebufferUpdate = function() {
                 return false;
             }
             /* New FramebufferUpdate */
-            FBU.x      = RQ.shift16();
-            FBU.y      = RQ.shift16();
-            FBU.width  = RQ.shift16();
-            FBU.height = RQ.shift16();
-            FBU.encoding = parseInt(RQ.shift32(), 10);
+
+            hdr = RQ.shiftBytes(12);
+            FBU.x      = (hdr[0] << 8) + hdr[1];
+            FBU.y      = (hdr[2] << 8) + hdr[3];
+            FBU.width  = (hdr[4] << 8) + hdr[5];
+            FBU.height = (hdr[6] << 8) + hdr[7];
+            FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
+                                    (hdr[10] << 8) +  hdr[11], 10);
             timing.h_bytes += 12;
 
             if (encNames[FBU.encoding]) {
