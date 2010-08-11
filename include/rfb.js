@@ -682,6 +682,7 @@ init_msg = function() {
         Util.Info("Server ProtocolVersion: " + sversion);
         switch (sversion) {
             case "003.003": rfb_version = 3.3; break;
+            case "003.006": rfb_version = 3.3; break;  // UltraVNC
             case "003.007": rfb_version = 3.7; break;
             case "003.008": rfb_version = 3.8; break;
             default:
