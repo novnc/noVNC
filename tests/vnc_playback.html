@@ -140,7 +140,11 @@
 
             //message("Processing frame: " + frame_idx);
             if (frame) {
-                rfb.recv_message({'data' : frame.slice(frame.indexOf('{', 1)+1)});
+                if (frame === 'EOF') {
+                    //message("Found EOF");
+                } else {
+                    rfb.recv_message({'data' : frame.slice(frame.indexOf('{', 1)+1)});
+                }
                 frame_idx++;
             }
 

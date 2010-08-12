@@ -105,7 +105,8 @@ def proxy_handler(client):
 
     if settings['record']:
         print "Opening record file: %s" % settings['record']
-        rec = open(settings['record'], 'a')
+        rec = open(settings['record'], 'w+')
+        rec.write("var VNC_frame_data = [\n")
 
     print "Connecting to: %s:%s" % (target_host, target_port)
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -117,7 +118,9 @@ def proxy_handler(client):
         do_proxy(client, tsock)
     except:
         if tsock: tsock.close()
-        if rec: rec.close()
+        if rec:
+            rec.write("'EOF']\n")
+            rec.close()
         raise
 
 if __name__ == '__main__':
