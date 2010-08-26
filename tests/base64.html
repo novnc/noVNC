@@ -3,6 +3,7 @@
   <head> 
     <title>Native Base64 Tests</title> 
     <script src="include/util.js"></script> 
+    <script src="include/base64.js"></script> 
   </head> 
   <body> 
         <h1>Native Base64 Tests</h1> 
@@ -40,19 +41,19 @@
         return true;
     }
 
+    function Base64_decode(data) {
+        var arr = Base64.decode (data);
+        return arr.map(function (num) {
+            return String.fromCharCode(num); } ).join('');
+
+    }
+
     window.onload = function() {
         var str;
         debug('onload');
         fail = 0;
         pass = 0;
         assertRun('window.btoa("hello world")', 'aGVsbG8gd29ybGQ=');
-        assertRun('window.atob("aGVsbG8gd29ybGQ=")', 'hello world');
-        assertRun('window.atob("YQ==")', 'a');
-        assertRun('window.atob("YWI=")', 'ab');
-        assertRun('window.atob("YWJj")', 'abc');
-        assertRun('window.atob("YWJjZA==")', 'abcd');
-        assertRun('window.atob("YWJjZGU=")', 'abcde');
-        assertRun('window.atob("YWJjZGVm")', 'abcdef');
         assertRun('window.btoa("a")', 'YQ==');
         assertRun('window.btoa("ab")', 'YWI=');
         assertRun('window.btoa("abc")', 'YWJj');
@@ -61,6 +62,21 @@
         assertRun('window.btoa("abcdef")', 'YWJjZGVm');
         assertRun('window.btoa("abcdefg")', 'YWJjZGVmZw==');
         assertRun('window.btoa("abcdefgh")', 'YWJjZGVmZ2g=');
+
+        assertRun('window.atob("aGVsbG8gd29ybGQ=")', 'hello world');
+        assertRun('Base64_decode("aGVsbG8gd29ybGQ=")', 'hello world');
+        assertRun('window.atob("YQ==")', 'a');
+        assertRun('Base64_decode("YQ==")', 'a');
+        assertRun('window.atob("YWI=")', 'ab');
+        assertRun('Base64_decode("YWI=")', 'ab');
+        assertRun('window.atob("YWJj")', 'abc');
+        assertRun('Base64_decode("YWJj")', 'abc');
+        assertRun('window.atob("YWJjZA==")', 'abcd');
+        assertRun('Base64_decode("YWJjZA==")', 'abcd');
+        assertRun('window.atob("YWJjZGU=")', 'abcde');
+        assertRun('Base64_decode("YWJjZGU=")', 'abcde');
+        assertRun('window.atob("YWJjZGVm")', 'abcdef');
+        assertRun('Base64_decode("YWJjZGVm")', 'abcdef');
 
         assertRun('typeof window.btoa', 'function');
         assertRun('window.btoa("")', '');
