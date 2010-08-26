@@ -654,6 +654,18 @@ that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
         return;
     }
 
+    // Push multi-byte little-endian values
+    cur.push16le = function (num) {
+        this.push((num     ) & 0xFF,
+                  (num >> 8) & 0xFF  );
+    };
+    cur.push32le = function (num) {
+        this.push((num      ) & 0xFF,
+                  (num >>  8) & 0xFF,
+                  (num >> 16) & 0xFF,
+                  (num >> 24) & 0xFF  );
+    };
+
     cmap = conf.colourMap;
     IHDRsz = 40;
     ANDsz = w * h * 4;

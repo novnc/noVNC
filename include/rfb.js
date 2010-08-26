@@ -69,6 +69,7 @@ var that           = {},         // Public API interface
 
     // Receive and send queues
     RQ             = [],  // Receive Queue
+    RQi            = 0,   // Receive Queue Index
     SQ             = "",  // Send Queue
 
     // Frame buffer update state
@@ -100,6 +101,7 @@ var that           = {},         // Public API interface
     scan_imgs_rate = 100,
     last_req_time  = 0,
     rre_chunk_sz   = 100,
+    maxRQlen       = 100000,
 
     timing         = {
         last_fbu       : 0,
@@ -155,7 +157,7 @@ Util.conf_default(conf, that, 'updateState', function () {
         Util.Debug(">> externalUpdateState stub"); });
 // clipboard contents received callback
 Util.conf_default(conf, that, 'clipboardReceive', function () {
-    Util.Debug(">> clipboardReceive stub"); });
+        Util.Debug(">> clipboardReceive stub"); });
 
 
 // Override/add some specific getters/setters
@@ -183,13 +185,42 @@ that.get_canvas = function() {
 //
 
 //
+// Receive Queue functions
+//
+RQlen = function() {
+    return RQ.length - RQi;
+}
+
+RQshift16 = function() {
+    return (RQ[RQi++] <<  8) +
+           (RQ[RQi++]      );
+}
+RQshift32 = function() {
+    return (RQ[RQi++] << 24) +
+           (RQ[RQi++] << 16) +
+           (RQ[RQi++] <<  8) +
+           (RQ[RQi++]      );
+}
+RQshiftStr = function(len) {
+    var arr = RQ.slice(RQi, RQi + len);
+    RQi += len;
+    return arr.map(function (num) {
+            return String.fromCharCode(num); } ).join('');
+
+}
+RQshiftBytes = function(len) {
+    RQi += len;
+    return RQ.slice(RQi-len, RQi);
+}
+
+//
 // Setup routines
 //
 
 // Create the public API interface
 function constructor() {
     var i;
-    //Util.Debug(">> init");
+    Util.Debug(">> RFB.constructor");
 
     // Create lookup tables based encoding number
     for (i=0; i < encodings.length; i+=1) {
@@ -205,12 +236,12 @@ function constructor() {
         updateState('fatal', "No working Canvas");
     }
 
-    //Util.Debug("<< init");
+    Util.Debug("<< RFB.constructor");
     return that;  // Return the public API interface
 }
 
 function init_ws() {
-    //Util.Debug(">> init_ws");
+    Util.Debug(">> RFB.init_ws");
 
     var uri = "", vars = [];
     if (conf.encrypt) {
@@ -261,7 +292,7 @@ function init_ws() {
             }
         }, conf.connectTimeout);
 
-    //Util.Debug("<< init_ws");
+    Util.Debug("<< RFB.init_ws");
 }
 
 init_vars = function() {
@@ -269,6 +300,7 @@ init_vars = function() {
     cuttext          = 'none';
     cuttext_length   = 0;
     RQ               = [];
+    RQi              = 0;
     SQ               = "";
     FBU.rects        = 0;
     FBU.subrects     = 0;  // RRE and HEXTILE
@@ -456,8 +488,8 @@ function decode_message(data) {
 }
 
 function handle_message() {
-    //Util.Debug("RQ.slice(0,20): " + RQ.slice(0,20) + " (" + RQ.length + ")");
-    if (RQ.length === 0) {
+    //Util.Debug("RQ.slice(RQi,RQi+20): " + RQ.slice(RQi,RQi+20) + " (" + RQlen() + ")");
+    if (RQlen() === 0) {
         Util.Warn("handle_message called on empty receive queue");
         return;
     }
@@ -470,7 +502,7 @@ function handle_message() {
         that.disconnect();
         break;
     case 'normal':
-        if (normal_msg() && RQ.length > 0) {
+        if (normal_msg() && RQlen() > 0) {
             // true means we can continue processing
             // Give other events a chance to run
             if (msgTimer === null) {
@@ -482,6 +514,12 @@ function handle_message() {
             } else {
                 Util.Debug("More data to process, existing timer");
             }
+        }
+        // Compact the queue
+        if (RQ.length > maxRQlen) {
+            //Util.Debug("Compacting receive queue");
+            RQ = RQ.slice(RQi);
+            RQi = 0;
         }
         break;
     default:
@@ -495,7 +533,7 @@ recv_message = function(e) {
 
     try {
         decode_message(e.data);
-        if (RQ.length > 0) {
+        if (RQlen() > 0) {
             handle_message();
         } else {
             Util.Debug("Ignoring empty message");
@@ -669,16 +707,16 @@ init_msg = function() {
         i, types, num_types, challenge, response, bpp, depth,
         big_endian, true_color, name_length;
 
-    //Util.Debug("RQ (" + RQ.length + ") " + RQ);
+    //Util.Debug("RQ (" + RQlen() + ") " + RQ);
     switch (rfb_state) {
 
     case 'ProtocolVersion' :
-        if (RQ.length < 12) {
+        if (RQlen() < 12) {
             updateState('failed',
                     "Disconnected: incomplete protocol version");
             return;
         }
-        sversion = RQ.shiftStr(12).substr(4,7);
+        sversion = RQshiftStr(12).substr(4,7);
         Util.Info("Server ProtocolVersion: " + sversion);
         switch (sversion) {
             case "003.003": rfb_version = 3.3; break;
@@ -718,16 +756,16 @@ init_msg = function() {
 
     case 'Security' :
         if (rfb_version >= 3.7) {
-            num_types = RQ.shift8();
+            num_types = RQ[RQi++];
             if (num_types === 0) {
-                strlen = RQ.shift32();
-                reason = RQ.shiftStr(strlen);
+                strlen = RQshift32();
+                reason = RQshiftStr(strlen);
                 updateState('failed',
                         "Disconnected: security failure: " + reason);
                 return;
             }
             rfb_auth_scheme = 0;
-            types = RQ.shiftBytes(num_types);
+            types = RQshiftBytes(num_types);
             Util.Debug("Server security types: " + types);
             for (i=0; i < types.length; i+=1) {
                 if ((types[i] > rfb_auth_scheme) && (types[i] < 3)) {
@@ -742,11 +780,11 @@ init_msg = function() {
             
             send_array([rfb_auth_scheme]);
         } else {
-            if (RQ.length < 4) {
+            if (RQlen() < 4) {
                 updateState('failed', "Invalid security frame");
                 return;
             }
-            rfb_auth_scheme = RQ.shift32();
+            rfb_auth_scheme = RQshift32();
         }
         updateState('Authentication',
                 "Authenticating using scheme: " + rfb_auth_scheme);
@@ -757,12 +795,12 @@ init_msg = function() {
         //Util.Debug("Security auth scheme: " + rfb_auth_scheme);
         switch (rfb_auth_scheme) {
             case 0:  // connection failed
-                if (RQ.length < 4) {
+                if (RQlen() < 4) {
                     //Util.Debug("   waiting for auth reason bytes");
                     return;
                 }
-                strlen = RQ.shift32();
-                reason = RQ.shiftStr(strlen);
+                strlen = RQshift32();
+                reason = RQshiftStr(strlen);
                 updateState('failed',
                         "Disconnected: auth failure: " + reason);
                 return;
@@ -774,11 +812,11 @@ init_msg = function() {
                     updateState('password', "Password Required");
                     return;
                 }
-                if (RQ.length < 16) {
+                if (RQlen() < 16) {
                     //Util.Debug("   waiting for auth challenge bytes");
                     return;
                 }
-                challenge = RQ.shiftBytes(16);
+                challenge = RQshiftBytes(16);
                 //Util.Debug("Password: " + rfb_password);
                 //Util.Debug("Challenge: " + challenge +
                 //           " (" + challenge.length + ")");
@@ -799,18 +837,18 @@ init_msg = function() {
         break;
 
     case 'SecurityResult' :
-        if (RQ.length < 4) {
+        if (RQlen() < 4) {
             updateState('failed', "Invalid VNC auth response");
             return;
         }
-        switch (RQ.shift32()) {
+        switch (RQshift32()) {
             case 0:  // OK
                 updateState('ServerInitialisation', "Authentication OK");
                 break;
             case 1:  // failed
                 if (rfb_version >= 3.8) {
-                    reason_len = RQ.shift32();
-                    reason = RQ.shiftStr(reason_len);
+                    reason_len = RQshift32();
+                    reason = RQshiftStr(reason_len);
                     updateState('failed', reason);
                 } else {
                     updateState('failed', "Authentication failed");
@@ -825,20 +863,20 @@ init_msg = function() {
         break;
 
     case 'ServerInitialisation' :
-        if (RQ.length < 24) {
+        if (RQlen() < 24) {
             updateState('failed', "Invalid server initialisation");
             return;
         }
 
         /* Screen size */
-        fb_width  = RQ.shift16();
-        fb_height = RQ.shift16();
+        fb_width  = RQshift16();
+        fb_height = RQshift16();
 
         /* PIXEL_FORMAT */
-        bpp            = RQ.shift8();
-        depth          = RQ.shift8();
-        big_endian     = RQ.shift8();
-        true_color     = RQ.shift8();
+        bpp            = RQ[RQi++];
+        depth          = RQ[RQi++];
+        big_endian     = RQ[RQi++];
+        true_color     = RQ[RQi++];
 
         Util.Info("Screen: " + fb_width + "x" + fb_height + 
                   ", bpp: " + bpp + ", depth: " + depth +
@@ -846,9 +884,9 @@ init_msg = function() {
                   ", true_color: " + true_color);
 
         /* Connection name/title */
-        RQ.shiftStr(12);
-        name_length   = RQ.shift32();
-        fb_name = RQ.shiftStr(name_length);
+        RQshiftStr(12);
+        name_length   = RQshift32();
+        fb_name = RQshiftStr(name_length);
 
         canvas.resize(fb_width, fb_height, conf.true_color);
         canvas.start(keyPress, mouseButton, mouseMove);
@@ -891,14 +929,12 @@ normal_msg = function() {
     var ret = true, msg_type,
         c, first_colour, num_colours, red, green, blue;
 
-    //Util.Debug(">> msg RQ.slice(0,10): " + RQ.slice(0,20));
-    //Util.Debug(">> msg RQ.slice(-10,-1): " + RQ.slice(RQ.length-10,RQ.length));
     if (FBU.rects > 0) {
         msg_type = 0;
     } else if (cuttext !== 'none') {
         msg_type = 3;
     } else {
-        msg_type = RQ.shift8();
+        msg_type = RQ[RQi++];
     }
     switch (msg_type) {
     case 0:  // FramebufferUpdate
@@ -906,16 +942,16 @@ normal_msg = function() {
         break;
     case 1:  // SetColourMapEntries
         Util.Debug("SetColourMapEntries");
-        RQ.shift8();  // Padding
-        first_colour = RQ.shift16(); // First colour
-        num_colours = RQ.shift16();
+        RQ[RQi++];  // Padding
+        first_colour = RQshift16(); // First colour
+        num_colours = RQshift16();
         for (c=0; c < num_colours; c+=1) { 
-            red = RQ.shift16();
+            red = RQshift16();
             //Util.Debug("red before: " + red);
             red = parseInt(red / 256, 10);
             //Util.Debug("red after: " + red);
-            green = parseInt(RQ.shift16() / 256, 10);
-            blue = parseInt(RQ.shift16() / 256, 10);
+            green = parseInt(RQshift16() / 256, 10);
+            blue = parseInt(RQshift16() / 256, 10);
             canvas.set_colourMap([red, green, blue], first_colour + c);
         }
         Util.Info("Registered " + num_colours + " colourMap entries");
@@ -931,19 +967,19 @@ normal_msg = function() {
             cuttext = 'header';
         }
         if (cuttext === 'header') {
-            if (RQ.length < 7) {
+            if (RQlen() < 7) {
                 //Util.Debug("waiting for ServerCutText header");
                 return false;
             }
-            RQ.shiftBytes(3);  // Padding
-            cuttext_length = RQ.shift32();
+            RQshiftBytes(3);  // Padding
+            cuttext_length = RQshift32();
         }
         cuttext = 'bytes';
-        if (RQ.length < cuttext_length) {
+        if (RQlen() < cuttext_length) {
             //Util.Debug("waiting for ServerCutText bytes");
             return false;
         }
-        conf.clipboardReceive(that, RQ.shiftStr(cuttext_length));
+        conf.clipboardReceive(that, RQshiftStr(cuttext_length));
         cuttext = 'none';
         break;
     default:
@@ -961,13 +997,17 @@ framebufferUpdate = function() {
 
     if (FBU.rects === 0) {
         //Util.Debug("New FBU: RQ.slice(0,20): " + RQ.slice(0,20));
-        if (RQ.length < 3) {
-            RQ.unshift(0);  // FBU msg_type
-            Util.Debug("   waiting for FBU header bytes");
+        if (RQlen() < 3) {
+            if (RQi === 0) {
+                RQ.unshift(0);  // FBU msg_type
+            } else {
+                RQi -= 1;
+            }
+            //Util.Debug("   waiting for FBU header bytes");
             return false;
         }
-        RQ.shift8();
-        FBU.rects = RQ.shift16();
+        RQ[RQi++];
+        FBU.rects = RQshift16();
         //Util.Debug("FramebufferUpdate, rects:" + FBU.rects);
         FBU.bytes = 0;
         timing.cur_fbu = 0;
@@ -982,17 +1022,18 @@ framebufferUpdate = function() {
         if (rfb_state !== "normal") {
             return false;
         }
-        if (RQ.length < FBU.bytes) {
+        if (RQlen() < FBU.bytes) {
+            //Util.Debug("   waiting for " + (FBU.bytes - RQlen()) + " FBU bytes");
             return false;
         }
         if (FBU.bytes === 0) {
-            if (RQ.length < 12) {
+            if (RQlen() < 12) {
                 //Util.Debug("   waiting for rect header bytes");
                 return false;
             }
             /* New FramebufferUpdate */
 
-            hdr = RQ.shiftBytes(12);
+            hdr = RQshiftBytes(12);
             FBU.x      = (hdr[0] << 8) + hdr[1];
             FBU.y      = (hdr[2] << 8) + hdr[3];
             FBU.width  = (hdr[4] << 8) + hdr[5];
@@ -1009,7 +1050,7 @@ framebufferUpdate = function() {
                 msg += " width: " + FBU.width + " height: " + FBU.height;
                 msg += " encoding:" + FBU.encoding;
                 msg += "(" + encNames[FBU.encoding] + ")";
-                msg += ", RQ.length: " + RQ.length;
+                msg += ", RQlen(): " + RQlen();
                 Util.Debug(msg);
                 */
             } else {
@@ -1021,7 +1062,7 @@ framebufferUpdate = function() {
         }
 
         timing.last_fbu = (new Date()).getTime();
-        last_bytes = RQ.length;
+        last_bytes = RQlen();
         last_rects = FBU.rects;
 
         // false ret means need more data
@@ -1029,7 +1070,7 @@ framebufferUpdate = function() {
 
         now = (new Date()).getTime();
         timing.cur_fbu += (now - timing.last_fbu);
-        timing.h_bytes += last_bytes-RQ.length;
+        timing.h_bytes += last_bytes-RQlen();
 
         if (FBU.rects < last_rects) {
             // Some work was done
@@ -1063,6 +1104,9 @@ framebufferUpdate = function() {
                 timing.fbu_rt_start = 0;
             }
         }
+        if (! ret) {
+            break; // false ret means need more data
+        }
     }
     return ret;
 };
@@ -1080,16 +1124,16 @@ encHandlers.RAW = function display_raw() {
         FBU.lines = FBU.height;
     }
     FBU.bytes = FBU.width * fb_Bpp; // At least a line
-    if (RQ.length < FBU.bytes) {
+    if (RQlen() < FBU.bytes) {
         //Util.Debug("   waiting for " +
-        //           (FBU.bytes - RQ.length) + " RAW bytes");
+        //           (FBU.bytes - RQlen()) + " RAW bytes");
         return false;
     }
     cur_y = FBU.y + (FBU.height - FBU.lines);
     cur_height = Math.min(FBU.lines,
-                          Math.floor(RQ.length/(FBU.width * fb_Bpp)));
-    canvas.blitImage(FBU.x, cur_y, FBU.width, cur_height, RQ, 0);
-    RQ.shiftBytes(FBU.width * cur_height * fb_Bpp);
+                          Math.floor(RQlen()/(FBU.width * fb_Bpp)));
+    canvas.blitImage(FBU.x, cur_y, FBU.width, cur_height, RQ, RQi);
+    RQshiftBytes(FBU.width * cur_height * fb_Bpp);
     FBU.lines -= cur_height;
 
     if (FBU.lines > 0) {
@@ -1106,13 +1150,13 @@ encHandlers.COPYRECT = function display_copy_rect() {
 
     var old_x, old_y;
 
-    if (RQ.length < 4) {
+    if (RQlen() < 4) {
         //Util.Debug("   waiting for " +
-        //           (FBU.bytes - RQ.length) + " COPYRECT bytes");
+        //           (FBU.bytes - RQlen()) + " COPYRECT bytes");
         return false;
     }
-    old_x = RQ.shift16();
-    old_y = RQ.shift16();
+    old_x = RQshift16();
+    old_y = RQshift16();
     canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
     FBU.rects -= 1;
     FBU.bytes = 0;
@@ -1120,25 +1164,25 @@ encHandlers.COPYRECT = function display_copy_rect() {
 };
 
 encHandlers.RRE = function display_rre() {
-    //Util.Debug(">> display_rre (" + RQ.length + " bytes)");
+    //Util.Debug(">> display_rre (" + RQlen() + " bytes)");
     var color, x, y, width, height, chunk;
 
     if (FBU.subrects === 0) {
-        if (RQ.length < 4 + fb_Bpp) {
+        if (RQlen() < 4 + fb_Bpp) {
             //Util.Debug("   waiting for " +
-            //           (4 + fb_Bpp - RQ.length) + " RRE bytes");
+            //           (4 + fb_Bpp - RQlen()) + " RRE bytes");
             return false;
         }
-        FBU.subrects = RQ.shift32();
-        color = RQ.shiftBytes(fb_Bpp); // Background
+        FBU.subrects = RQshift32();
+        color = RQshiftBytes(fb_Bpp); // Background
         canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
     }
-    while ((FBU.subrects > 0) && (RQ.length >= (fb_Bpp + 8))) {
-        color = RQ.shiftBytes(fb_Bpp);
-        x = RQ.shift16();
-        y = RQ.shift16();
-        width = RQ.shift16();
-        height = RQ.shift16();
+    while ((FBU.subrects > 0) && (RQlen() >= (fb_Bpp + 8))) {
+        color = RQshiftBytes(fb_Bpp);
+        x = RQshift16();
+        y = RQshift16();
+        width = RQshift16();
+        height = RQshift16();
         canvas.fillRect(FBU.x + x, FBU.y + y, width, height, color);
         FBU.subrects -= 1;
     }
@@ -1158,7 +1202,7 @@ encHandlers.RRE = function display_rre() {
 
 encHandlers.HEXTILE = function display_hextile() {
     //Util.Debug(">> display_hextile");
-    var subencoding, subrects, idx, tile, color, cur_tile,
+    var subencoding, subrects, tile, color, cur_tile,
         tile_x, x, w, tile_y, y, h, xy, s, sx, sy, wh, sw, sh;
 
     if (FBU.tiles === 0) {
@@ -1168,14 +1212,15 @@ encHandlers.HEXTILE = function display_hextile() {
         FBU.tiles = FBU.total_tiles;
     }
 
-    /* FBU.bytes comes in as 1, RQ.length at least 1 */
+    /* FBU.bytes comes in as 1, RQlen() at least 1 */
     while (FBU.tiles > 0) {
         FBU.bytes = 1;
-        if (RQ.length < FBU.bytes) {
+        if (RQlen() < FBU.bytes) {
             //Util.Debug("   waiting for HEXTILE subencoding byte");
             return false;
         }
-        subencoding = RQ[0];  // Peek
+        //Util.Debug("   2 RQ length: " + RQlen() + " RQ[RQi]: " + RQ[RQi] + " RQ.slice(RQi,RQi+20): " + RQ.slice(RQi,RQi+20) + ", FBU.rects: " + FBU.rects + ", FBU.tiles: " + FBU.tiles);
+        subencoding = RQ[RQi];  // Peek
         if (subencoding > 30) { // Raw
             updateState('failed',
                     "Disconnected: illegal hextile subencoding " + subencoding);
@@ -1204,12 +1249,12 @@ encHandlers.HEXTILE = function display_hextile() {
             }
             if (subencoding & 0x08) { // AnySubrects
                 FBU.bytes += 1;   // Since we aren't shifting it off
-                if (RQ.length < FBU.bytes) {
+                if (RQlen() < FBU.bytes) {
                     /* Wait for subrects byte */
                     //Util.Debug("   waiting for hextile subrects header byte");
                     return false;
                 }
-                subrects = RQ[FBU.bytes-1]; // Peek
+                subrects = RQ[RQi + FBU.bytes-1]; // Peek
                 if (subencoding & 0x10) { // SubrectsColoured
                     FBU.bytes += subrects * (fb_Bpp + 2);
                 } else {
@@ -1218,23 +1263,26 @@ encHandlers.HEXTILE = function display_hextile() {
             }
         }
 
-        //Util.Debug("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) +
-        //      ", subencoding:" + subencoding +
-        //      "(last: " + FBU.lastsubencoding + "), subrects:" +
-        //      subrects + ", tile:" + tile_x + "," + tile_y +
-        //      " [" + x + "," + y + "]@" + w + "x" + h +
-        //      ", d.length:" + RQ.length + ", bytes:" + FBU.bytes +
-        //      " last:" + RQ.slice(FBU.bytes-10, FBU.bytes) +
-        //      " next:" + RQ.slice(FBU.bytes-1, FBU.bytes+10));
-        if (RQ.length < FBU.bytes) {
+        /*
+        Util.Debug("   tile:" + cur_tile + "/" + (FBU.total_tiles - 1) +
+              " (" + tile_x + "," + tile_y + ")" +
+              " [" + x + "," + y + "]@" + w + "x" + h +
+              ", subenc:" + subencoding +
+              "(last: " + FBU.lastsubencoding + "), subrects:" +
+              subrects +
+              ", RQlen():" + RQlen() + ", FBU.bytes:" + FBU.bytes +
+              " last:" + RQ.slice(FBU.bytes-10, FBU.bytes) +
+              " next:" + RQ.slice(FBU.bytes-1, FBU.bytes+10));
+        */
+        if (RQlen() < FBU.bytes) {
             //Util.Debug("   waiting for " +
-            //           (FBU.bytes - RQ.length) + " hextile bytes");
+            //           (FBU.bytes - RQlen()) + " hextile bytes");
             return false;
         }
 
         /* We know the encoding and have a whole tile */
-        FBU.subencoding = RQ[0];
-        idx = 1;
+        FBU.subencoding = RQ[RQi];
+        RQi += 1;
         if (FBU.subencoding === 0) {
             if (FBU.lastsubencoding & 0x01) {
                 /* Weird: ignore blanks after RAW */
@@ -1243,35 +1291,36 @@ encHandlers.HEXTILE = function display_hextile() {
                 canvas.fillRect(x, y, w, h, FBU.background);
             }
         } else if (FBU.subencoding & 0x01) { // Raw
-            canvas.blitImage(x, y, w, h, RQ, idx);
+            canvas.blitImage(x, y, w, h, RQ, RQi);
+            RQi += FBU.bytes - 1;
         } else {
             if (FBU.subencoding & 0x02) { // Background
-                FBU.background = RQ.slice(idx, idx + fb_Bpp);
-                idx += fb_Bpp;
+                FBU.background = RQ.slice(RQi, RQi + fb_Bpp);
+                RQi += fb_Bpp;
             }
             if (FBU.subencoding & 0x04) { // Foreground
-                FBU.foreground = RQ.slice(idx, idx + fb_Bpp);
-                idx += fb_Bpp;
+                FBU.foreground = RQ.slice(RQi, RQi + fb_Bpp);
+                RQi += fb_Bpp;
             }
 
             tile = canvas.getTile(x, y, w, h, FBU.background);
             if (FBU.subencoding & 0x08) { // AnySubrects
-                subrects = RQ[idx];
-                idx += 1;
+                subrects = RQ[RQi];
+                RQi += 1;
                 for (s = 0; s < subrects; s += 1) {
                     if (FBU.subencoding & 0x10) { // SubrectsColoured
-                        color = RQ.slice(idx, idx + fb_Bpp);
-                        idx += fb_Bpp;
+                        color = RQ.slice(RQi, RQi + fb_Bpp);
+                        RQi += fb_Bpp;
                     } else {
                         color = FBU.foreground;
                     }
-                    xy = RQ[idx];
-                    idx += 1;
+                    xy = RQ[RQi];
+                    RQi += 1;
                     sx = (xy >> 4);
                     sy = (xy & 0x0f);
 
-                    wh = RQ[idx];
-                    idx += 1;
+                    wh = RQ[RQi];
+                    RQi += 1;
                     sw = (wh >> 4)   + 1;
                     sh = (wh & 0x0f) + 1;
 
@@ -1280,7 +1329,7 @@ encHandlers.HEXTILE = function display_hextile() {
             }
             canvas.putTile(tile);
         }
-        RQ.shiftBytes(FBU.bytes);
+        //RQshiftBytes(FBU.bytes);
         FBU.lastsubencoding = FBU.subencoding;
         FBU.bytes = 0;
         FBU.tiles -= 1;
@@ -1299,12 +1348,12 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
     //Util.Debug(">> display_tight_png");
     var ctl, cmode, clength, getCLength, color, img;
     //Util.Debug("   FBU.rects: " + FBU.rects);
-    //Util.Debug("   RQ.length: " + RQ.length);
+    //Util.Debug("   RQlen(): " + RQlen());
     //Util.Debug("   RQ.slice(0,20): " + RQ.slice(0,20));
 
 
     FBU.bytes = 1; // compression-control byte
-    if (RQ.length < FBU.bytes) {
+    if (RQlen() < FBU.bytes) {
         Util.Debug("   waiting for TIGHT compression-control byte");
         return false;
     }
@@ -1324,7 +1373,7 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
         return [header, data];
     };
 
-    ctl = RQ[0];
+    ctl = RQ[RQi];
     switch (ctl >> 4) {
         case 0x08: cmode = "fill"; break;
         case 0x09: cmode = "jpeg"; break;
@@ -1338,44 +1387,44 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
         case "png":  FBU.bytes += 3;            break; // max clength
     }
 
-    if (RQ.length < FBU.bytes) {
+    if (RQlen() < FBU.bytes) {
         Util.Debug("   waiting for TIGHT " + cmode + " bytes");
         return false;
     }
 
-    //Util.Debug("   RQ.slice(0,20): " + RQ.slice(0,20) + " (" + RQ.length + ")");
+    //Util.Debug("   RQ.slice(0,20): " + RQ.slice(0,20) + " (" + RQlen() + ")");
     //Util.Debug("   cmode: " + cmode);
 
     // Determine FBU.bytes
     switch (cmode) {
     case "fill":
-        RQ.shift8(); // shift off ctl
-        color = RQ.shiftBytes(fb_depth);
+        RQ[RQi++]; // shift off ctl
+        color = RQshiftBytes(fb_depth);
         canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
         break;
     case "jpeg":
     case "png":
         clength = getCLength(RQ, 1);
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
-        if (RQ.length < FBU.bytes) {
+        if (RQlen() < FBU.bytes) {
             Util.Debug("   waiting for TIGHT " + cmode + " bytes");
             return false;
         }
 
         // We have everything, render it
-        //Util.Debug("   png, RQ.length: " + RQ.length + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
-        RQ.shiftBytes(1 + clength[0]); // shift off ctl + compact length
+        //Util.Debug("   png, RQlen(): " + RQlen() + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
+        RQshiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
         img.onload = scan_tight_imgs;
         FBU.imgs.push([img, FBU.x, FBU.y]);
         img.src = "data:image/" + cmode +
-            extract_data_uri(RQ.shiftBytes(clength[1]));
+            extract_data_uri(RQshiftBytes(clength[1]));
         img = null;
         break;
     }
     FBU.bytes = 0;
     FBU.rects -= 1;
-    //Util.Debug("   ending RQ.length: " + RQ.length);
+    //Util.Debug("   ending RQlen(): " + RQlen());
     //Util.Debug("   ending RQ.slice(0,20): " + RQ.slice(0,20));
     //Util.Debug("<< display_tight_png");
     return true;
@@ -1431,7 +1480,7 @@ encHandlers.Cursor = function set_cursor() {
     pixelslength = w * h * fb_Bpp;
     masklength = Math.floor((w + 7) / 8) * h;
 
-    if (RQ.length < (pixelslength + masklength)) {
+    if (RQlen() < (pixelslength + masklength)) {
         //Util.Debug("waiting for cursor encoding bytes");
         FBU.bytes = pixelslength + masklength;
         return false;
@@ -1439,8 +1488,8 @@ encHandlers.Cursor = function set_cursor() {
 
     //Util.Debug("   set_cursor, x: " + x + ", y: " + y + ", w: " + w + ", h: " + h);
 
-    canvas.changeCursor(RQ.shiftBytes(pixelslength),
-                            RQ.shiftBytes(masklength),
+    canvas.changeCursor(RQshiftBytes(pixelslength),
+                            RQshiftBytes(masklength),
                             x, y, w, h);
 
     FBU.bytes = 0;
@@ -1556,13 +1605,16 @@ pointerEvent = function(x, y) {
 
 clientCutText = function(text) {
     //Util.Debug(">> clientCutText");
-    var arr;
+    var arr, i, n;
     arr = [6];     // msg-type
     arr.push8(0);  // padding
     arr.push8(0);  // padding
     arr.push8(0);  // padding
     arr.push32(text.length);
-    arr.pushStr(text);
+    n = text.length;
+    for (i=0; i < n; i+=1) {
+        arr.push(text.charCodeAt(i));
+    }
     //Util.Debug("<< clientCutText:" + arr);
     return arr;
 };

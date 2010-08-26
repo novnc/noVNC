@@ -34,67 +34,19 @@ if (!window.$) {
  * Make arrays quack
  */
 
-Array.prototype.shift8 = function () {
-    return this.shift();
-};
 Array.prototype.push8 = function (num) {
     this.push(num & 0xFF);
 };
 
-Array.prototype.shift16 = function () {
-    return (this.shift() << 8) +
-           (this.shift()     );
-};
 Array.prototype.push16 = function (num) {
     this.push((num >> 8) & 0xFF,
               (num     ) & 0xFF  );
-};
-Array.prototype.push16le = function (num) {
-    this.push((num     ) & 0xFF,
-              (num >> 8) & 0xFF  );
-};
-
-
-Array.prototype.shift32 = function () {
-    return (this.shift() << 24) +
-           (this.shift() << 16) +
-           (this.shift() <<  8) +
-           (this.shift()      );
-};
-Array.prototype.get32 = function (off) {
-    return (this[off    ] << 24) +
-           (this[off + 1] << 16) +
-           (this[off + 2] <<  8) +
-           (this[off + 3]      );
 };
 Array.prototype.push32 = function (num) {
     this.push((num >> 24) & 0xFF,
               (num >> 16) & 0xFF,
               (num >>  8) & 0xFF,
               (num      ) & 0xFF  );
-};
-Array.prototype.push32le = function (num) {
-    this.push((num      ) & 0xFF,
-              (num >>  8) & 0xFF,
-              (num >> 16) & 0xFF,
-              (num >> 24) & 0xFF  );
-};
-
-
-Array.prototype.shiftStr = function (len) {
-    var arr = this.splice(0, len);
-    return arr.map(function (num) {
-            return String.fromCharCode(num); } ).join('');
-};
-Array.prototype.pushStr = function (str) {
-    var i, n = str.length;
-    for (i=0; i < n; i+=1) {
-        this.push(str.charCodeAt(i));
-    }
-};
-
-Array.prototype.shiftBytes = function (len) {
-    return this.splice(0, len);
 };
 
 /* 
