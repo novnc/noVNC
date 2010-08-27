@@ -1348,9 +1348,7 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
     //Util.Debug(">> display_tight_png");
     var ctl, cmode, clength, getCLength, color, img;
     //Util.Debug("   FBU.rects: " + FBU.rects);
-    //Util.Debug("   RQlen(): " + RQlen());
-    //Util.Debug("   RQ.slice(0,20): " + RQ.slice(0,20));
-
+    //Util.Debug("   starting RQ.slice(RQi,RQi+20): " + RQ.slice(RQi,RQi+20) + " (" + RQlen() + ")");
 
     FBU.bytes = 1; // compression-control byte
     if (RQlen() < FBU.bytes) {
@@ -1398,13 +1396,13 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
     // Determine FBU.bytes
     switch (cmode) {
     case "fill":
-        RQ[RQi++]; // shift off ctl
+        RQi++; // shift off ctl
         color = RQshiftBytes(fb_depth);
         canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
         break;
     case "jpeg":
     case "png":
-        clength = getCLength(RQ, 1);
+        clength = getCLength(RQ, RQi+1);
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
         if (RQlen() < FBU.bytes) {
             Util.Debug("   waiting for TIGHT " + cmode + " bytes");
@@ -1424,8 +1422,7 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
     }
     FBU.bytes = 0;
     FBU.rects -= 1;
-    //Util.Debug("   ending RQlen(): " + RQlen());
-    //Util.Debug("   ending RQ.slice(0,20): " + RQ.slice(0,20));
+    //Util.Debug("   ending RQ.slice(RQi,RQi+20): " + RQ.slice(RQi,RQi+20) + " (" + RQlen() + ")");
     //Util.Debug("<< display_tight_png");
     return true;
 };
