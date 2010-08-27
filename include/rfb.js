@@ -18,7 +18,7 @@ var that           = {},         // Public API interface
 
     // Pre-declare private functions used before definitions (jslint)
     init_vars, updateState, init_msg, normal_msg, recv_message,
-    framebufferUpdate, show_timings,
+    framebufferUpdate,
 
     pixelFormat, clientEncodings, fbUpdateRequest,
     keyEvent, pointerEvent, clientCutText,
@@ -309,13 +309,6 @@ init_vars = function() {
     FBU.imgs         = []; // TIGHT_PNG image queue
     mouse_buttonMask = 0;
     mouse_arr        = [];
-
-    timing.history_start = 0;
-    timing.history       = [];
-    timing.h_fbus        = 0;
-    timing.h_rects       = 0;
-    timing.h_bytes       = 0;
-    timing.h_pixels      = 0;
 };
 
 //
@@ -392,8 +385,6 @@ updateState = function(state, statusMsg) {
                 canvas.clear();
             }
         }
-
-        show_timings();
 
         break;
 
@@ -642,59 +633,6 @@ function mouseMove(x, y) {
 }
 
 
-function update_timings() {
-    var now, offset;
-    now = (new Date()).getTime();
-    timing.history.push([now,
-            timing.h_fbus,
-            timing.h_rects,
-            timing.h_bytes,
-            timing.h_pixels]);
-    timing.h_fbus = 0;
-    timing.h_rects = 0;
-    timing.h_bytes = 0;
-    timing.h_pixels = 0;
-    if ((rfb_state !== 'disconnected') && (rfb_state !== 'failed')) {
-        // Try for every second
-        offset = (now - timing.history_start) % 1000;
-        if (offset < 500) {
-            setTimeout(update_timings, 1000 - offset);
-        } else {
-            setTimeout(update_timings, 2000 - offset);
-        }
-    }
-}
-
-show_timings = function() {
-    var i, history, msg,
-        delta, tot_time = 0, tot_fbus = 0, tot_rects = 0,
-        tot_bytes = 0, tot_pixels = 0;
-    if (timing.history_start === 0) { return; }
-    //Util.Debug(">> show_timings");
-    update_timings();  // Final accumulate
-    msg = "\nTimings\n";
-    msg += "  time: fbus,rects,bytes,pixels\n";
-    for (i=0; i < timing.history.length; i += 1) {
-        history = timing.history[i];
-        delta = ((history[0]-timing.history_start)/1000);
-        tot_time = delta;
-        tot_fbus += history[1];
-        tot_rects += history[2];
-        tot_bytes += history[3];
-        tot_pixels += history[4];
-
-        msg += "  " + delta.toFixed(3);
-        msg += ": " + history.slice(1) + "\n";
-    }
-    msg += "\nTotals:\n";
-    msg += "  time: fbus,rects,bytes,pixels\n";
-    msg += "  " + tot_time.toFixed(3);
-    msg += ": " + tot_fbus + "," + tot_rects;
-    msg += "," + tot_bytes + "," + tot_pixels;
-    Util.Info(msg);
-    //Util.Debug("<< show_timings");
-};
-
 //
 // Server message handlers
 //
@@ -908,8 +846,6 @@ init_msg = function() {
         /* Start pushing/polling */
         setTimeout(checkEvents, conf.check_rate);
         setTimeout(scan_tight_imgs, scan_imgs_rate);
-        timing.history_start = (new Date()).getTime();
-        setTimeout(update_timings, 1000);
 
         if (conf.encrypt) {
             updateState('normal', "Connected (encrypted) to: " + fb_name);
@@ -1011,7 +947,6 @@ framebufferUpdate = function() {
         //Util.Debug("FramebufferUpdate, rects:" + FBU.rects);
         FBU.bytes = 0;
         timing.cur_fbu = 0;
-        timing.h_fbus += 1;
         if (timing.fbu_rt_start > 0) {
             now = (new Date()).getTime();
             Util.Info("First FBU latency: " + (now - timing.fbu_rt_start));
@@ -1040,7 +975,6 @@ framebufferUpdate = function() {
             FBU.height = (hdr[6] << 8) + hdr[7];
             FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
                                     (hdr[10] << 8) +  hdr[11], 10);
-            timing.h_bytes += 12;
 
             if (encNames[FBU.encoding]) {
                 // Debug:
@@ -1070,13 +1004,6 @@ framebufferUpdate = function() {
 
         now = (new Date()).getTime();
         timing.cur_fbu += (now - timing.last_fbu);
-        timing.h_bytes += last_bytes-RQlen();
-
-        if (FBU.rects < last_rects) {
-            // Some work was done
-            timing.h_rects += last_rects-FBU.rects;
-            timing.h_pixels += FBU.width*FBU.height;
-        }
 
         if (FBU.rects === 0) {
             if (((FBU.width === fb_width) &&
