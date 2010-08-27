@@ -157,10 +157,7 @@
             if ($('encrypt').checked) {
                 scheme = "wss://";
             }
-            var uri = scheme + host + ":" + port + "/?b64encode";
-            //if (RFB.use_seq) {
-            //    uri += "&seq_num";
-            //}
+            var uri = scheme + host + ":" + port;
             console.log("connecting to " + uri);
             ws = new WebSocket(uri);
 

@@ -42,7 +42,6 @@ int ssl_initialized = 0;
 char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
 unsigned int bufsize, dbufsize;
 settings_t settings;
-client_settings_t client_settings;
 
 void traffic(char * token) {
     fprintf(stdout, "%s", token);
@@ -189,33 +188,11 @@ int encode(u_char const *src, size_t srclength, char *target, size_t targsize) {
     int i, sz = 0, len = 0;
     unsigned char chr;
     target[sz++] = '\x00';
-    if (client_settings.do_b64encode) {
-        len = __b64_ntop(src, srclength, target+sz, targsize-sz);
-        if (len < 0) {
-            return len;
-        }
-        sz += len;
-    } else {
-        for (i=0; i < srclength; i++) {
-            chr = src[i];
-            if (chr < 128) {
-                if (chr == 0x00) {
-                    target[sz++] = '\xc4';
-                    target[sz++] = '\x80';
-                } else {
-                    target[sz++] = chr;
-                }
-            } else {
-                if (chr < 192) {
-                    target[sz++] = '\xc2';
-                    target[sz++] = chr;
-                } else {
-                    target[sz++] = '\xc3';
-                    target[sz++] = chr - 64;
-                }
-            }
-        }
+    len = __b64_ntop(src, srclength, target+sz, targsize-sz);
+    if (len < 0) {
+        return len;
     }
+    sz += len;
     target[sz++] = '\xff';
     return sz;
 }
@@ -233,33 +210,11 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
         /* We may have more than one frame */
         end = memchr(start, '\xff', srclength);
         *end = '\x00';
-        if (client_settings.do_b64encode) {
-            len = __b64_pton(start, target+retlen, targsize-retlen);
-            if (len < 0) {
-                return len;
-            }
-            retlen += len;
-        } else {
-            for (i=0; i < end-start; i++) {
-                chr = start[i];
-                if (chr < 128) {
-                    target[retlen++] = chr;
-                } else {
-                    i++;
-                    switch (chr) {
-                    case (unsigned char) '\xc2':
-                        target[retlen++] = start[i];
-                        break;
-                    case (unsigned char) '\xc3':
-                        target[retlen++] = start[i] + 64;
-                        break;
-                    case (unsigned char) '\xc4':
-                        target[retlen++] = 0;
-                        break;
-                    }
-                }
-            }
+        len = __b64_pton(start, target+retlen, targsize-retlen);
+        if (len < 0) {
+            return len;
         }
+        retlen += len;
         start = end + 2; // Skip '\xff' end and '\x00' start 
         framecount++;
     } while (end < (src+srclength-1));
@@ -375,12 +330,8 @@ ws_ctx_t *do_handshake(int sock) {
     char handshake[4096], response[4096], trailer[17];
     char *scheme, *pre;
     headers_t headers;
-    char *args_start, *args_end, *arg_idx;
     int len, ret;
     ws_ctx_t * ws_ctx;
-
-    // Reset settings
-    client_settings.do_b64encode = 0;
 
     // Peek, but don't read the data
     len = recv(sock, handshake, 1024, MSG_PEEK);
@@ -432,21 +383,6 @@ ws_ctx_t *do_handshake(int sock) {
         printf("  using protocol version 75\n");
     }
     
-    // Parse client settings from the GET path
-    args_start = strstr(headers.path, "?");
-    if (args_start) {
-        if (strstr(args_start, "#")) {
-            args_end = strstr(args_start, "#");
-        } else {
-            args_end = args_start + strlen(args_start);
-        }
-        arg_idx = strstr(args_start, "b64encode");
-        if (arg_idx && arg_idx < args_end) {
-            printf("  b64encode=1\n");
-            client_settings.do_b64encode = 1;
-        }
-    }
-
     sprintf(response, server_handshake, pre, headers.origin, pre, scheme,
             headers.host, headers.path, pre, trailer);
     //printf("response: %s\n", response);
@@ -561,15 +497,9 @@ void start_server() {
             continue;
         }
 
-        /* Calculate dbufsize based on client_settings */
-        if (client_settings.do_b64encode) {
-            /* base64 is 4 bytes for every 3
-             *    20 for WS '\x00' / '\xff' and good measure  */
-            dbufsize = (bufsize * 3)/4 - 20;
-        } else {
-            /* UTF-8 encoding is up to 2X larger */
-            dbufsize = (bufsize/2) - 20;
-        }
+        /* base64 is 4 bytes for every 3
+         *    20 for WS '\x00' / '\xff' and good measure  */
+        dbufsize = (bufsize * 3)/4 - 20;
 
         settings.handler(ws_ctx);
         close(csock);

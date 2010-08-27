@@ -45,8 +45,6 @@ load: function(target) {
     html += '          <ul>';
     html += '            <li><input id="VNC_encrypt"';
     html += '                type="checkbox"> Encrypt</li>';
-    html += '            <li><input id="VNC_base64"';
-    html += '                type="checkbox" checked> Base64 Encode</li>';
     html += '            <li><input id="VNC_true_color"';
     html += '                type="checkbox" checked> True Color</li>';
     html += '            <li><input id="VNC_cursor"';
@@ -113,7 +111,6 @@ load: function(target) {
     DC.initSetting('port', '');
     DC.initSetting('password', '');
     DC.initSetting('encrypt', false);
-    DC.initSetting('base64', true);
     DC.initSetting('true_color', true);
     DC.initSetting('cursor', true);
 
@@ -212,7 +209,6 @@ clickSettingsMenu: function() {
         DC.closeSettingsMenu();
     } else {
         DC.updateSetting('encrypt');
-        DC.updateSetting('base64');
         DC.updateSetting('true_color');
         if (DC.rfb.get_canvas().get_cursor_uri()) {
             DC.updateSetting('cursor');
@@ -243,7 +239,6 @@ closeSettingsMenu: function() {
 settingsDisabled: function(disabled) {
     var DC = DefaultControls;
     $('VNC_encrypt').disabled = disabled;
-    $('VNC_base64').disabled = disabled;
     $('VNC_true_color').disabled = disabled;
     if (DC.rfb && DC.rfb.get_canvas().get_cursor_uri()) {
         $('VNC_cursor').disabled = disabled;
@@ -258,7 +253,6 @@ settingsApply: function() {
     //Util.Debug(">> settingsApply");
     var DC = DefaultControls;
     DC.saveSetting('encrypt');
-    DC.saveSetting('base64');
     DC.saveSetting('true_color');
     if (DC.rfb.get_canvas().get_cursor_uri()) {
         DC.saveSetting('cursor');
@@ -361,7 +355,6 @@ connect: function() {
     }
 
     DC.rfb.set_encrypt(DC.getSetting('encrypt'));
-    DC.rfb.set_b64encode(DC.getSetting('base64'));
     DC.rfb.set_true_color(DC.getSetting('true_color'));
     DC.rfb.set_local_cursor(DC.getSetting('cursor'));
 

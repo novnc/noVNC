@@ -29,8 +29,6 @@ settings = {
     'ssl_only'    : False,
     'daemon'      : True,
     'record'      : None, }
-client_settings = {
-    'b64encode'   : False, }
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
@@ -48,27 +46,16 @@ def traffic(token="."):
     sys.stdout.flush()
 
 def encode(buf):
-    if client_settings['b64encode']:
-        buf = b64encode(buf)
-    else:
-        # Modified UTF-8 encode
-        buf = buf.decode('latin-1').encode('utf-8').replace("\x00", "\xc4\x80")
+    buf = b64encode(buf)
 
     return "\x00%s\xff" % buf
 
 def decode(buf):
     """ Parse out WebSocket packets. """
     if buf.count('\xff') > 1:
-        if client_settings['b64encode']:
-            return [b64decode(d[1:]) for d in buf.split('\xff')]
-        else:
-            # Modified UTF-8 decode
-            return [d[1:].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1') for d in buf.split('\xff')]
+        return [b64decode(d[1:]) for d in buf.split('\xff')]
     else:
-        if client_settings['b64encode']:
-            return [b64decode(buf[1:-1])]
-        else:
-            return [buf[1:-1].replace("\xc4\x80", "\x00").decode('utf-8').encode('latin-1')]
+        return [b64decode(buf[1:-1])]
 
 def parse_handshake(handshake):
     ret = {}
@@ -99,9 +86,6 @@ def gen_md5(keys):
 
 
 def do_handshake(sock):
-    global client_settings
-
-    client_settings['b64encode'] = False
 
     # Peek, but don't read the data
     handshake = sock.recv(1024, socket.MSG_PEEK)
@@ -135,14 +119,6 @@ def do_handshake(sock):
     handshake = retsock.recv(4096)
     #print "handshake: " + repr(handshake)
     h = parse_handshake(handshake)
-
-    # Parse client settings from the GET path
-    cvars = parse_qsl(urlsplit(h['path'])[3], True)
-    for name, val in cvars:
-        if name not in ['b64encode']: continue
-        value = val and val or True
-        client_settings[name] = value
-        print "  %s=%s" % (name, value)
 
     if h.get('key3'):
         trailer = gen_md5(h)

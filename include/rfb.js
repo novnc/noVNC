@@ -141,8 +141,6 @@ Util.conf_default(conf, that, 'focusContainer', document);
 
 Util.conf_default(conf, that, 'encrypt',        false, true);
 Util.conf_default(conf, that, 'true_color',     true, true);
-// false means UTF-8 on the wire
-Util.conf_default(conf, that, 'b64encode',      true, true);
 Util.conf_default(conf, that, 'local_cursor',   true, true);
 
 // time to wait for connection
@@ -250,12 +248,6 @@ function init_ws() {
         uri = "ws://";
     }
     uri += rfb_host + ":" + rfb_port + "/";
-    if (conf.b64encode) {
-        vars.push("b64encode");
-    }
-    if (vars.length > 0) {
-        uri += "?" + vars.join("&");
-    }
     Util.Info("connecting to " + uri);
     ws = new WebSocket(uri);
 
@@ -447,34 +439,15 @@ updateState = function(state, statusMsg) {
 };
 
 function encode_message(arr) {
-    if (conf.b64encode) {
-        /* base64 encode */
-        SQ = SQ + Base64.encode(arr);
-    } else {
-        /* UTF-8 encode. 0 -> 256 to avoid WebSockets framing */
-        SQ = SQ + arr.map(function (num) {
-                if (num === 0) {
-                    return String.fromCharCode(256);
-                } else {
-                    return String.fromCharCode(num);
-                }
-            } ).join('');
-    }
+    /* base64 encode */
+    SQ = SQ + Base64.encode(arr);
 }
 
 function decode_message(data) {
     var i, length;
     //Util.Debug(">> decode_message: " + data);
-    if (conf.b64encode) {
-        /* base64 decode */
-        RQ = RQ.concat(Base64.decode(data, 0));
-    } else {
-        /* UTF-8 decode. 256 -> 0 to WebSockets framing */
-        length = data.length;
-        for (i=0; i < length; i += 1) {
-            RQ.push(data.charCodeAt(i) % 256);
-        }
-    }
+    /* base64 decode */
+    RQ = RQ.concat(Base64.decode(data, 0));
     //Util.Debug(">> decode_message, RQ: " + RQ);
 }
 

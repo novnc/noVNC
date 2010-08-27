@@ -32,20 +32,6 @@ the proxy to add sequence numbers to every WebSockets frame so that
 the browser can reorder them.
 
 
-UTF-8 encoding:
-
-In addition to the base64 encoding of the data, the proxy also
-supports UTF-8 encoding of the data (the native WebSockets encoding).
-However, in order to not burden the browser too much, the encoding
-doesn't use the full UTF-8 value space, but only uses the first 256
-values. This actually makes UTF-8 encoding slightly less space
-efficient than base64. Also, flash cannot handle byte arrays with 0's
-in them properly, so the values are actually 1-256 (rather than 0-255)
-and the browser does modulus 256 on the data. For these two reasons,
-base64 is the default and is indicated in the GET string by
-"base64=1".
-
-
 Flash security policy:
 
 The proxy detects flash security policy requests (again by sniffing

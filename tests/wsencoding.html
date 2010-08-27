@@ -68,10 +68,6 @@
                 scheme = "wss://";
             }
             var uri = scheme + host + ":" + port;
-            //var uri = scheme + host + ":" + port + "/?b64encode";
-            //if (RFB.use_seq) {
-            //    uri += "&seq_num";
-            //}
             console.log("connecting to " + uri);
             ws = new WebSocket(uri);
 

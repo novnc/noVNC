@@ -1,7 +1,6 @@
 Short Term:
 
-- Timing delta between frames in proxy record log, for playback
-  support (for demo and test).
+- Add realtime playback of recordings.
 
 - Playback/demo on website.
 

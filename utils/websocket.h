@@ -17,10 +17,6 @@ typedef struct {
 } settings_t;
 
 typedef struct {
-    int do_b64encode;
-} client_settings_t;
-
-typedef struct {
     char path[1024+1];
     char host[1024+1];
     char origin[1024+1];
