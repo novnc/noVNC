@@ -113,14 +113,6 @@ var that           = {},         // Public API interface
         fbu_rt_start   : 0,
         fbu_rt_total   : 0,
         fbu_rt_cnt     : 0,
-
-        history        : [],
-        history_start  : 0,
-        h_time         : 0,
-        h_rects        : 0,
-        h_fbus         : 0,
-        h_bytes        : 0,
-        h_pixels       : 0
     },
 
     test_mode        = false,
