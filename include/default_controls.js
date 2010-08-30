@@ -117,7 +117,6 @@ load: function(target) {
     DC.rfb = RFB({'target': 'VNC_canvas',
                   'updateState': DC.updateState,
                   'clipboardReceive': DC.clipReceive});
-    DC.rfb.init();
 
     // Unfocus clipboard when over the VNC area
     $('VNC_screen').onmousemove = function () {

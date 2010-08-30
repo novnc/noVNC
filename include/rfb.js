@@ -215,7 +215,7 @@ RQshiftBytes = function(len) {
 // Setup routines
 //
 
-// Create the public API interface
+// Create the public API interface and initialize
 function constructor() {
     var i;
     Util.Debug(">> RFB.constructor");
@@ -232,6 +232,25 @@ function constructor() {
     } catch (exc) {
         Util.Error("Canvas exception: " + exc);
         updateState('fatal', "No working Canvas");
+    }
+
+    init_vars();
+
+    /* Check web-socket-js if no builtin WebSocket support */
+    if (VNC_native_ws) {
+        Util.Info("Using native WebSockets");
+        updateState('loaded', 'noVNC ready (using native WebSockets)');
+    } else {
+        Util.Warn("Using web-socket-js flash bridge");
+        if ((! Util.Flash) ||
+            (Util.Flash.version < 9)) {
+            updateState('fatal', "WebSockets or Adobe Flash is required");
+        } else if (document.location.href.substr(0, 7) === "file://") {
+            updateState('fatal',
+                    "'file://' URL is incompatible with Adobe Flash");
+        } else {
+            updateState('loaded', 'noVNC ready (using Flash WebSockets emulation)');
+        }
     }
 
     Util.Debug("<< RFB.constructor");
@@ -1522,35 +1541,8 @@ clientCutText = function(text) {
 // Public API interface functions
 //
 
-that.init = function () {
-
-    init_vars();
-
-    /* Check web-socket-js if no builtin WebSocket support */
-    if (VNC_native_ws) {
-        Util.Info("Using native WebSockets");
-        updateState('loaded', 'noVNC ready (using native WebSockets)');
-    } else {
-        Util.Warn("Using web-socket-js flash bridge");
-        if ((! Util.Flash) ||
-            (Util.Flash.version < 9)) {
-            updateState('fatal', "WebSockets or Adobe Flash is required");
-        } else if (document.location.href.substr(0, 7) === "file://") {
-            updateState('fatal',
-                    "'file://' URL is incompatible with Adobe Flash");
-        } else {
-            updateState('loaded', 'noVNC ready (using Flash WebSockets emulation)');
-        }
-    }
-};
-
 that.connect = function(host, port, password) {
     //Util.Debug(">> connect");
-
-    // Make sure we have done init checks
-    if ((rfb_state !== 'loaded') && (rfb_state !== 'fatal')) {
-        that.init();
-    }
 
     rfb_host       = host;
     rfb_port       = port;
