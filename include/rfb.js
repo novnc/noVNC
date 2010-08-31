@@ -23,7 +23,7 @@ var that           = {},         // Public API interface
     pixelFormat, clientEncodings, fbUpdateRequest,
     keyEvent, pointerEvent, clientCutText,
 
-    extract_data_uri, scan_tight_imgs,
+    extract_data_uri, scan_tight_imgQ,
 
     send_array, checkEvents,  // Overridable for testing
 
@@ -62,15 +62,16 @@ var that           = {},         // Public API interface
     encHandlers    = {},
     encNames       = {}, 
 
-    ws             = null,  // Web Socket object
-    canvas         = null,  // Canvas object
-    sendTimer      = null,  // Send Queue check timer
-    msgTimer       = null,  // queued handle_message timer
+    ws             = null,   // Web Socket object
+    canvas         = null,   // Canvas object
+    sendTimer      = null,   // Send Queue check timer
+    msgTimer       = null,   // queued handle_message timer
 
     // Receive and send queues
-    rQ             = [],  // Receive Queue
-    rQi            = 0,   // Receive Queue Index
-    sQ             = "",  // Send Queue
+    rQ             = [],     // Receive Queue
+    rQi            = 0,      // Receive Queue Index
+    rQmax          = 100000, // Max size before compacting
+    sQ             = "",     // Send Queue
 
     // Frame buffer update state
     FBU            = {
@@ -86,7 +87,7 @@ var that           = {},         // Public API interface
         encoding       : 0,
         subencoding    : -1,
         background     : null,
-        imgs           : []  // TIGHT_PNG image queue
+        imgQ           : []   // TIGHT_PNG image queue
     },
 
     fb_Bpp         = 4,
@@ -98,10 +99,9 @@ var that           = {},         // Public API interface
     cuttext        = 'none', // ServerCutText wait state
     cuttext_length = 0,
 
-    scan_imgs_rate = 100,
+    scan_imgQ_rate = 100,
     last_req_time  = 0,
     rre_chunk_sz   = 100,
-    rQmaxlen       = 100000,
 
     timing         = {
         last_fbu       : 0,
@@ -309,7 +309,7 @@ init_vars = function() {
     FBU.subrects     = 0;  // RRE and HEXTILE
     FBU.lines        = 0;  // RAW
     FBU.tiles        = 0;  // HEXTILE
-    FBU.imgs         = []; // TIGHT_PNG image queue
+    FBU.imgQ         = []; // TIGHT_PNG image queue
     mouse_buttonMask = 0;
     mouse_arr        = [];
 };
@@ -490,7 +490,7 @@ function handle_message() {
             }
         }
         // Compact the queue
-        if (rQ.length > rQmaxlen) {
+        if (rQ.length > rQmax) {
             //Util.Debug("Compacting receive queue");
             rQ = rQ.slice(rQi);
             rQi = 0;
@@ -828,7 +828,7 @@ init_msg = function() {
         
         /* Start pushing/polling */
         setTimeout(checkEvents, conf.check_rate);
-        setTimeout(scan_tight_imgs, scan_imgs_rate);
+        setTimeout(scan_tight_imgQ, scan_imgQ_rate);
 
         if (conf.encrypt) {
             updateState('normal', "Connected (encrypted) to: " + fb_name);
@@ -1323,8 +1323,8 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
         //Util.Debug("   png, rQlen(): " + rQlen() + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
         rQshiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
-        img.onload = scan_tight_imgs;
-        FBU.imgs.push([img, FBU.x, FBU.y]);
+        img.onload = scan_tight_imgQ;
+        FBU.imgQ.push([img, FBU.x, FBU.y]);
         img.src = "data:image/" + cmode +
             extract_data_uri(rQshiftBytes(clength[1]));
         img = null;
@@ -1346,16 +1346,16 @@ extract_data_uri = function(arr) {
     return ";base64," + Base64.encode(arr);
 };
 
-scan_tight_imgs = function() {
-    var img, imgs, ctx;
+scan_tight_imgQ = function() {
+    var img, imgQ, ctx;
     ctx = canvas.getContext();
     if (rfb_state === 'normal') {
-        imgs = FBU.imgs;
-        while ((imgs.length > 0) && (imgs[0][0].complete)) {
-            img = imgs.shift();
+        imgQ = FBU.imgQ;
+        while ((imgQ.length > 0) && (imgQ[0][0].complete)) {
+            img = imgQ.shift();
             ctx.drawImage(img[0], img[1], img[2]);
         }
-        setTimeout(scan_tight_imgs, scan_imgs_rate);
+        setTimeout(scan_tight_imgQ, scan_imgQ_rate);
     }
 };
 
