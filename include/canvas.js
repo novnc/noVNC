@@ -357,12 +357,10 @@ function onMouseDisable(e) {
         return true;
     }
     evt = (e ? e : window.event);
-    pos = Util.getPosition(conf.target);
+    pos = Util.getEventPosition(e, conf.target, conf.scale);
     /* Stop propagation if inside canvas area */
-    if ((evt.clientX >= pos.x) &&
-        (evt.clientY >= pos.y) &&
-        (evt.clientX < (pos.x + c_width)) &&
-        (evt.clientY < (pos.y + c_height))) {
+    if ((pos.x >= 0) && (pos.y >= 0) &&
+        (pos.x < c_width) && (pos.y < c_height)) {
         //Util.Debug("mouse event disabled");
         Util.stopEvent(e);
         return false;
