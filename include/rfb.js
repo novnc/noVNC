@@ -678,6 +678,11 @@ init_msg = function() {
     case 'Security' :
         if (rfb_version >= 3.7) {
             num_types = rQ[rQi++];
+            if (rQlen() < num_types) {
+                rQi--;
+                Util.Debug("   waiting for security types");
+                return;
+            }
             if (num_types === 0) {
                 strlen = rQshift32();
                 reason = rQshiftStr(strlen);
@@ -702,7 +707,7 @@ init_msg = function() {
             send_array([rfb_auth_scheme]);
         } else {
             if (rQlen() < 4) {
-                updateState('failed', "Invalid security frame");
+                Util.Debug("   waiting for security scheme bytes");
                 return;
             }
             rfb_auth_scheme = rQshift32();
@@ -717,7 +722,7 @@ init_msg = function() {
         switch (rfb_auth_scheme) {
             case 0:  // connection failed
                 if (rQlen() < 4) {
-                    //Util.Debug("   waiting for auth reason bytes");
+                    Util.Debug("   waiting for auth reason bytes");
                     return;
                 }
                 strlen = rQshift32();
@@ -734,7 +739,7 @@ init_msg = function() {
                     return;
                 }
                 if (rQlen() < 16) {
-                    //Util.Debug("   waiting for auth challenge bytes");
+                    Util.Debug("   waiting for auth challenge bytes");
                     return;
                 }
                 challenge = rQshiftBytes(16);
