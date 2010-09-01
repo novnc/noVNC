@@ -5,10 +5,17 @@
     </head>
     <body>
 
-        Iterations: <input id='iterations' style='width:50' value="3">&nbsp;
+        Iterations: <input id='iterations' style='width:50'>&nbsp;
+        Perftest:<input type='radio' id='mode1' name='mode' checked>&nbsp;
+        Realtime:<input type='radio' id='mode2' name='mode'>&nbsp;&nbsp;
 
         <input id='startButton' type='button' value='Start' style='width:100px'
             onclick="start();" disabled>&nbsp;
+
+        <br><br>
+
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
 
         <br><br>
 
@@ -23,9 +30,6 @@
             </canvas>
         </div>
 
-        <br>
-        Results:<br>
-        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
     </body>
 
     <!--
@@ -34,32 +38,25 @@
     -->
 
     <script src="include/vnc.js"></script>
+    <script src="playback.js"></script>
 
     <script>
-        var rfb, fname, test_state, frame_idx, frame_length, iteration,
-            iterations, start_time, packetID, waitTimer;
+        var fname, start_time;
 
         function message(str) {
             console.log(str);
-            cell = $('messages');
+            var cell = $('messages');
             cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
 
-        fname = (document.location.href.match(
-                 /data=([A-Za-z0-9\._\-]*)/) ||
-                 ['', ''])[1];
+        fname = Util.getQueryVar('data', null);
 
         if (fname) {
             message("Loading " + fname);
             document.write('<script src="' + fname + '"><\/script>');
         } else {
             message("Must specify data=FOO in query string.");
-        }
-
-        // Override send_array
-        send_array = function (arr) {
-            // Stub out send_array
         }
 
         updateState = function (rfb, state, oldstate, msg) {
@@ -69,7 +66,7 @@
                     message("noVNC sent '" + state + "' state during iteration " + iteration);
                     test_state = 'failed';
                     break;
-                case 'loaded': 
+                case 'loaded':
                     $('startButton').disabled = false;
                     break;
             }
@@ -78,90 +75,53 @@
             }
         }
 
-        function start () {
+        function start() {
             $('startButton').value = "Running";
             $('startButton').disabled = true;
-            test_state = 'running';
 
             iterations = $('iterations').value;
             iteration = 0;
-            frame_length = VNC_frame_data.length;
-            total_time = 0;
             start_time = (new Date()).getTime();
 
-            setTimeout(next_iteration, 1);
-        }
-
-        function next_iteration () {
-            var time, iter_time, end_time;
-
-            if (test_state !== 'running') { return; }
-
-            if (iteration !== 0) {
-                rfb.disconnect();
-            }
-            
-            iteration++;
-            if (iteration > iterations) {
-                // Finished with all iterations
-                var end_time = (new Date()).getTime();
-                total_time = end_time - start_time;
-
-                iter_time = parseInt(total_time / iterations, 10);
-                message(iterations + " iterations took " + total_time + "ms, " +
-                        iter_time + "ms per iteration");
-                rfb.get_canvas().stop();   // Shut-off event interception
-                $('startButton').disabled = false;
-                $('startButton').value = "Start";
-                return;
-            }
-
-            frame_idx = 0;
-            rfb.connect('test', 0, "bogus");
-
-            setTimeout(do_packet, 1);
-
-        }
-
-        function do_packet () {
-            var frame;
-            if (test_state !== 'running') { return; }
-
-            frame = VNC_frame_data[frame_idx];
-            while (frame.charAt(0) === "}") {
-                //message("Send frame " + frame_idx);
-                frame_idx ++;
-                frame = VNC_frame_data[frame_idx];
-                if (frame_idx >= frame_length) {
-                    break;
-                }
-            }
-
-
-            //message("Processing frame: " + frame_idx);
-            if (frame) {
-                if (frame === 'EOF') {
-                    //message("Found EOF");
-                } else {
-                    rfb.recv_message({'data' : frame.slice(frame.indexOf('{', 1)+1)});
-                }
-                frame_idx++;
-            }
-
-            if (frame_idx >= frame_length) {
-                next_iteration();
+            if ($('mode1').checked) {
+                message("Starting performance playback (fullspeed) [" + iterations + " iteration(s)]");
+                mode = 'perftest';
             } else {
-                setTimeout(do_packet, 1);
+                message("Starting realtime playback [" + iterations + " iteration(s)]");
+                mode = 'realtime';
             }
+
+            next_iteration();
+        }
+
+        function finish() {
+            // Finished with all iterations
+            var total_time, end_time = (new Date()).getTime();
+            total_time = end_time - start_time;
+
+            iter_time = parseInt(total_time / iterations, 10);
+            message(iterations + " iterations took " + total_time + "ms, " +
+                    iter_time + "ms per iteration");
+            rfb.get_canvas().stop();   // Shut-off event interception
+            $('startButton').disabled = false;
+            $('startButton').value = "Start";
+
         }
 
         window.onload = function() {
+            iterations = Util.getQueryVar('iterations', 3);
+            $('iterations').value = iterations;
+            mode = Util.getQueryVar('mode', 3);
+            if (mode === 'realtime') {
+                $('mode2').checked = true;
+            } else {
+                $('mode1').checked = true;
+            }
             if (fname) {
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
                 rfb = RFB({'target': 'VNC_canvas',
                         'updateState': updateState});
                 rfb.testMode(send_array);
-                rfb.init();
             }
         }
     </script>
