@@ -6,6 +6,8 @@ Short Term:
 
 - Test on IE 9 preview 3.
 
+- Test firefox 4
+
 - Fix cursor URI detection in Arora:
     - allows data URI, but doesn't actually work
 
@@ -33,15 +35,4 @@ Medium Term:
 
 Longer Term:
 
-- Implement UI option for VNC shared mode.
-
 - Get web-socket-js RFC2817 proxying working again.
-
-- Implement tight and ZRLE encoding
-
-- Support for Spice protocol.
-
-- Consider RDP protocol.
-
-- Consider NX protocol.
-
