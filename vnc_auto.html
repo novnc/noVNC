@@ -98,7 +98,7 @@ Connect parameters are provided in query string:
                 return;
             }
 
-            rfb = new RFB({'encrypt':      Util.getQueryVar('encrypt', true),
+            rfb = new RFB({'encrypt':      Util.getQueryVar('encrypt', false),
                        'true_color':   Util.getQueryVar('true_color', true),
                        'local_cursor': Util.getQueryVar('cursor', true),
                        'updateState':  updateState});
