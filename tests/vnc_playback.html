@@ -63,7 +63,7 @@
             switch (state) {
                 case 'failed':
                 case 'fatal':
-                    message("noVNC sent '" + state + "' state during iteration " + iteration);
+                    message("noVNC sent '" + state + "' state during iteration " + iteration + " frame " + frame_idx);
                     test_state = 'failed';
                     break;
                 case 'loaded':
