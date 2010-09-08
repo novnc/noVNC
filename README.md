@@ -5,14 +5,12 @@
 
 noVNC is a VNC client implemented using HTML5 technologies,
 specifically Canvas and WebSockets (supports 'wss://' encryption).
+noVNC is licensed under the
+[LGPLv3](http://www.gnu.org/licenses/lgpl.html).
 
 For browsers that do not have builtin WebSockets support, the project
 includes [web-socket-js](http://github.com/gimite/web-socket-js),
 a WebSockets emulator using Adobe Flash .
-
-In addition, [as3crypto](http://github.com/lyokato/as3crypto_patched)
-has been added to web-socket-js to implement WebSockets SSL/TLS
-encryption, i.e. the "wss://" URI scheme.
 
 Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
 sponsoring ongoing development of this project (and for employing me).

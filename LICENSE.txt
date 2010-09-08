@@ -5,5 +5,6 @@ docs/LICENSE.LGPL-3) with the following exceptions:
    
     incluee/des.js             : Various BSD style licenses
 
-    include/web-socket-js/     : New BSD license
+    include/web-socket-js/     : New BSD license. Source code at
+                                 http://github.com/gimite/web-socket-js
 
