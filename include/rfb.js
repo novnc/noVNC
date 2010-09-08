@@ -112,7 +112,7 @@ var that           = {},         // Public API interface
 
         fbu_rt_start   : 0,
         fbu_rt_total   : 0,
-        fbu_rt_cnt     : 0,
+        fbu_rt_cnt     : 0
     },
 
     test_mode        = false,

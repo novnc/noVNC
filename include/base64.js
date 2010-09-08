@@ -41,18 +41,22 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Base64 = {
+"use strict";
+/*jslint white: false, bitwise: false, plusplus: false */
+/*global console */
+
+var Base64 = {
 
 /* Convert data (an array of integers) to a Base64 string. */
 toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
 base64Pad     : '=',
 
 encode: function (data) {
-    var result = '';
-    var chrTable = Base64.toBase64Table.split('');
-    var pad = Base64.base64Pad;
-    var length = data.length;
-    var i;
+    var result = '',
+        chrTable = Base64.toBase64Table.split(''),
+        pad = Base64.base64Pad,
+        length = data.length,
+        i;
     // Convert every three bytes to 4 ascii characters.
     for (i = 0; i < (length - 2); i += 3) {
         result += chrTable[data[i] >> 2];
@@ -65,7 +69,7 @@ encode: function (data) {
     if (length%3) {
         i = length - (length%3);
         result += chrTable[data[i] >> 2];
-        if ((length%3) == 2) {
+        if ((length%3) === 2) {
             result += chrTable[((data[i] & 0x03) << 4) + (data[i+1] >> 4)];
             result += chrTable[(data[i+1] & 0x0f) << 2];
             result += pad;
@@ -91,26 +95,26 @@ toBinaryTable : [
 ],
 
 decode: function (data, offset) {
-    offset = typeof(offset) != 'undefined' ? offset : 0;
-    var binTable = Base64.toBinaryTable;
-    var pad = Base64.base64Pad;
-    var leftbits = 0; // number of bits decoded, but yet to be appended
-    var leftdata = 0; // bits decoded, but yet to be appended
+    offset = typeof(offset) !== 'undefined' ? offset : 0;
+    var binTable = Base64.toBinaryTable,
+        pad = Base64.base64Pad,
+        result, result_length, idx, i, c, padding,
+        leftbits = 0, // number of bits decoded, but yet to be appended
+        leftdata = 0, // bits decoded, but yet to be appended
+        data_length = data.indexOf('=') - offset;
+
+    if (data_length < 0) { data_length = data.length - offset; }
 
     /* Every four characters is 3 resulting numbers */
-    var data_length = data.indexOf('=') - offset;
-    if (data_length < 0) data_length = data.length - offset;
-
-    var result_length = (data_length >> 2) * 3 + Math.floor((data_length%4)/1.5);
-    var result = new Array(result_length);
+    result_length = (data_length >> 2) * 3 + Math.floor((data_length%4)/1.5);
+    result = new Array(result_length);
 
     // Convert one by one.
-    var idx = 0;
-    for (var i = offset; i < data.length; i++) {
-        var c = binTable[data.charCodeAt(i) & 0x7f];
-        var padding = (data.charAt(i) == pad);
+    for (idx = 0, i = offset; i < data.length; i++) {
+        c = binTable[data.charCodeAt(i) & 0x7f];
+        padding = (data.charAt(i) === pad);
         // Skip illegal characters and whitespace
-        if (c == -1) {
+        if (c === -1) {
             console.error("Illegal character '" + data.charCodeAt(i) + "'");
             continue;
         }
@@ -123,16 +127,18 @@ decode: function (data, offset) {
         if (leftbits >= 8) {
             leftbits -= 8;
             // Append if not padding.
-            if (!padding)
+            if (!padding) {
                 result[idx++] = (leftdata >> leftbits) & 0xff;
+            }
             leftdata &= (1 << leftbits) - 1;
         }
     }
 
     // If there are any bits left, the base64 string was corrupted
-    if (leftbits)
+    if (leftbits) {
         throw {name: 'Base64-Error', 
                message: 'Corrupted base64 string'};
+    }
 
     return result;
 }

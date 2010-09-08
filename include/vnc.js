@@ -7,7 +7,8 @@
  */
 
 "use strict";
-/*global window, VNC_uri_prefix */
+/*jslint evil: true */
+/*global window, document, VNC_uri_prefix */
 
 // Globals defined here
 var VNC_native_ws, WebSocket__swfLocation;

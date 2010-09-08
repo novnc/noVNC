@@ -1,14 +1,25 @@
+/*
+ * noVNC: HTML5 VNC client
+ * Copyright (C) 2010 Joel Martin
+ * Licensed under LGPL-3 (see LICENSE.LGPL-3)
+ */
+
+"use strict";
+/*jslint browser: true, white: false */
+/*global Util, VNC_frame_data, finish */
+
 var rfb, mode, test_state, frame_idx, frame_length,
-    iteration, iterations, istart_time;
+    iteration, iterations, istart_time,
+
+    // Pre-declarations for jslint
+    send_array, next_iteration, queue_next_packet, do_packet;
 
 // Override send_array
 send_array = function (arr) {
     // Stub out send_array
-}
+};
 
-function next_iteration () {
-    var time, iter_time, end_time;
-
+next_iteration = function () {
     if (iteration === 0) {
         frame_length = VNC_frame_data.length;
         test_state = 'running';
@@ -18,7 +29,7 @@ function next_iteration () {
     
     if (test_state !== 'running') { return; }
 
-    iteration++;
+    iteration += 1;
     if (iteration > iterations) {
         finish();
         return;
@@ -30,10 +41,10 @@ function next_iteration () {
 
     queue_next_packet();
 
-}
+};
 
-function queue_next_packet () {
-    var frame, now, foffset, toffset, delay;
+queue_next_packet = function () {
+    var frame, foffset, toffset, delay;
     if (test_state !== 'running') { return; }
 
     frame = VNC_frame_data[frame_idx];
@@ -66,14 +77,14 @@ function queue_next_packet () {
     } else {
         setTimeout(do_packet, 1);
     }
-}
+};
 
-function do_packet () {
+do_packet = function () {
     //Util.Debug("Processing frame: " + frame_idx);
-    frame = VNC_frame_data[frame_idx];
-    rfb.recv_message({'data' : frame.slice(frame.indexOf('{', 1)+1)});
+    var frame = VNC_frame_data[frame_idx];
+    rfb.recv_message({'data' : frame.slice(frame.indexOf('{', 1) + 1)});
     frame_idx += 1;
 
     queue_next_packet();
-}
+};
 

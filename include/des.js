@@ -77,7 +77,10 @@
  * fine Java utilities: http://www.acme.com/java/
  */
 
-DES = {
+"use strict";
+/*jslint white: false, bitwise: false, plusplus: false */
+
+var DES = {
 
     // Tables, permutations, S-boxes, etc.
 
@@ -107,7 +110,7 @@ DES = {
         46, 54, 29, 39, 50, 44,
         32, 47, 43, 48, 38, 55,
         33, 52, 45, 41, 49, 35,
-        28, 31, ],
+        28, 31 ],
     SP1 : [ 0x01010400, 0x00000000, 0x00010000,
         0x01010404, 0x01010004, 0x00010404, 0x00000004, 0x00010000,
         0x00000400, 0x01010400, 0x01010404, 0x00000400, 0x01000404,
@@ -237,52 +240,57 @@ DES = {
 
     // Turn an 8-byte key into internal keys.
     deskey : function(keyBlock, encrypting, KnL) {
-        var i, j, l, m, n;
-        var pc1m = new Array(56);
-        var pcr = new Array(56);
-        var kn = new Array(32);
+        var i, j, l, m, n,
+            pc1m = new Array(56),
+            pcr = new Array(56),
+            kn = new Array(32);
 
         for (j = 0; j < 56; ++j) {
             l = DES.pc1[j];
-            m = l & 07;
-            pc1m[j] = ((keyBlock[l >>> 3] & DES.bytebit[m]) != 0) ? 1: 0;
+            m = l & 0x7;
+            pc1m[j] = ((keyBlock[l >>> 3] & DES.bytebit[m]) !== 0) ? 1: 0;
         }
 
         for (i = 0; i < 16; ++i) {
-            if (encrypting)
+            if (encrypting) {
                 m = i << 1;
-            else
+            } else {
                 m = (15- i) << 1;
+            }
             n = m + 1;
             kn[m] = kn[n] = 0;
             for (j = 0; j < 28; ++j) {
                 l = j + DES.totrot[i];
-                if (l < 28)
+                if (l < 28) {
                     pcr[j] = pc1m[l];
-                else
+                } else {
                     pcr[j] = pc1m[l - 28];
+                }
             }
             for (j = 28; j < 56; ++j) {
                 l = j + DES.totrot[i];
-                if (l < 56)
+                if (l < 56) {
                     pcr[j] = pc1m[l];
-                else
+                } else {
                     pcr[j] = pc1m[l - 28];
+                }
             }
             for (j = 0; j < 24; ++j) {
-                if (pcr[DES.pc2[j]] != 0)
+                if (pcr[DES.pc2[j]] !== 0) {
                     kn[m] |= DES.bigbyte[j];
-                if (pcr[DES.pc2[j + 24]] != 0)
+                }
+                if (pcr[DES.pc2[j + 24]] !== 0) {
                     kn[n] |= DES.bigbyte[j];
+                }
             }
         }
         DES.cookey(kn, KnL);
     },
 
     cookey: function(raw, KnL) {
-        var raw0, raw1;
-        var rawi, KnLi;
-        var i;
+        var raw0, raw1,
+            rawi, KnLi,
+            i;
 
         for (i = 0, rawi = 0, KnLi = 0; i < 16; ++i) {
             raw0 = raw[rawi++];
@@ -320,9 +328,9 @@ DES = {
 
     // The DES function.
     des: function(inInts, outInts, keys) {
-        var fval, work, right, leftt;
-        var round;
-        var keysi = 0;
+        var fval, work, right, leftt,
+            round,
+            keysi = 0;
 
         leftt = inInts[0];
         right = inInts[1];
@@ -401,25 +409,26 @@ DES = {
 
     // / Squash bytes down to ints.
     squashBytesToInts: function (inBytes, inOff, outInts, outOff, intLen) {
-        for (var i = 0; i < intLen; ++i)
+        for (var i = 0; i < intLen; ++i) {
             outInts[outOff + i] = ((inBytes[inOff + i * 4] & 0xff) << 24)
                     | ((inBytes[inOff + i * 4+ 1] & 0xff) << 16)
                     | ((inBytes[inOff + i * 4+ 2] & 0xff) << 8)
                     | (inBytes[inOff + i * 4+ 3] & 0xff);
+        }
     },
 
     // / Spread ints into unsigned bytes.
     spreadIntsToBytes: function (inInts, inOff, outBytes, outOff, intLen) {
-        for (var i = 0; i < intLen; ++i) {
+        var i, j, idx;
+        for (i = 0; i < intLen; ++i) {
             outBytes[outOff + i * 4] =    (inInts[inOff + i] >>> 24) % 256;
             outBytes[outOff + i * 4+ 1] = (inInts[inOff + i] >>> 16) % 256;
             outBytes[outOff + i * 4+ 2] = (inInts[inOff + i] >>> 8) % 256;
             outBytes[outOff + i * 4+ 3] = (inInts[inOff + i]) % 256;
         }
         /* Make unsigned */
-        var idx;
-        for (var i = 0; i < intLen; ++i) {
-            for (var j = 0; j < 4; j++) {
+        for (i = 0; i < intLen; ++i) {
+            for (j = 0; j < 4; j++) {
                 idx = outOff + i * 4 + j;
                 if (outBytes[idx] < 0) {
                     outBytes[idx] += 256;
@@ -428,4 +437,4 @@ DES = {
         }
     }
 
-}
+};
