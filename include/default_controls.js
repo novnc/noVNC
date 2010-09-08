@@ -235,16 +235,17 @@ closeSettingsMenu: function() {
 },
 
 // Disable/enable controls depending on connection state
-settingsDisabled: function(disabled) {
-    var DC = DefaultControls;
+settingsDisabled: function(disabled, rfb) {
+    //Util.Debug(">> settingsDisabled");
     $('VNC_encrypt').disabled = disabled;
     $('VNC_true_color').disabled = disabled;
-    if (DC.rfb && DC.rfb.get_canvas().get_cursor_uri()) {
+    if (rfb && rfb.get_canvas().get_cursor_uri()) {
         $('VNC_cursor').disabled = disabled;
     } else {
         DefaultControls.updateSetting('cursor', false);
         $('VNC_cursor').disabled = true;
     }
+    //Util.Debug("<< settingsDisabled");
 },
 
 // Save/apply settings when 'Apply' button is pressed
@@ -288,7 +289,7 @@ updateState: function(rfb, state, oldstate, msg) {
         case 'fatal':
             c.disabled = true;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(true);
+            DefaultControls.settingsDisabled(true, rfb);
             klass = "VNC_status_error";
             break;
         case 'normal':
@@ -296,7 +297,7 @@ updateState: function(rfb, state, oldstate, msg) {
             c.onclick = DefaultControls.disconnect;
             c.disabled = false;
             cad.disabled = false;
-            DefaultControls.settingsDisabled(true);
+            DefaultControls.settingsDisabled(true, rfb);
             klass = "VNC_status_normal";
             break;
         case 'disconnected':
@@ -306,7 +307,7 @@ updateState: function(rfb, state, oldstate, msg) {
 
             c.disabled = false;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(false);
+            DefaultControls.settingsDisabled(false, rfb);
             klass = "VNC_status_normal";
             break;
         case 'password':
@@ -315,13 +316,13 @@ updateState: function(rfb, state, oldstate, msg) {
 
             c.disabled = false;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(true);
+            DefaultControls.settingsDisabled(true, rfb);
             klass = "VNC_status_warn";
             break;
         default:
             c.disabled = true;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(true);
+            DefaultControls.settingsDisabled(true, rfb);
             klass = "VNC_status_warn";
             break;
     }
