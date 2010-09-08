@@ -11,7 +11,7 @@
 /*global window, document, VNC_uri_prefix */
 
 // Globals defined here
-var VNC_native_ws, WebSocket__swfLocation;
+var VNC_native_ws, WEB_SOCKET_SWF_LOCATION;
 
 /*
  * Load supporting scripts
@@ -41,7 +41,7 @@ function get_VNC_uri_prefix() {
         VNC_native_ws = true;
     } else {
         VNC_native_ws = false;
-        WebSocket__swfLocation = get_VNC_uri_prefix() +
+        WEB_SOCKET_SWF_LOCATION = get_VNC_uri_prefix() +
                     "web-socket-js/WebSocketMain.swf";
         extra += start + "web-socket-js/swfobject.js" + end;
         extra += start + "web-socket-js/FABridge.js" + end;

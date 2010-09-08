@@ -10,123 +10,103 @@
   var console = window.console;
   if (!console) console = {log: function(){ }, error: function(){ }};
 
-  function hasFlash() {
-    if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']) {
-      return !!navigator.plugins['Shockwave Flash'].description;
-    }
-    if ('ActiveXObject' in window) {
-      try {
-        return !!new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
-      } catch (e) {}
-    }
-    return false;
-  }
-  
-  if (!hasFlash()) {
+  if (!swfobject.hasFlashPlayerVersion("9.0.0")) {
     console.error("Flash Player is not installed.");
     return;
+  }
+  if (location.protocol == "file:") {
+    console.error(
+      "WARNING: web-socket-js doesn't work in file:///... URL " +
+      "unless you set Flash Security Settings properly. " +
+      "Open the page via Web server i.e. http://...");
   }
 
   WebSocket = function(url, protocol, proxyHost, proxyPort, headers) {
     var self = this;
     self.readyState = WebSocket.CONNECTING;
     self.bufferedAmount = 0;
-    WebSocket.__addTask(function() {
-      self.__flash =
-        WebSocket.__flash.create(url, protocol, proxyHost || null, proxyPort || 0, headers || null);
-
-      self.__messageHandler = function() {
-        var i, arr, data;
-        arr = self.__flash.readSocketData();
-        for (i=0; i < arr.length; i++) {
-          data = decodeURIComponent(arr[i]);
-          try {
-            if (self.onmessage) {
-              var e;
-              if (window.MessageEvent) {
-                e = document.createEvent("MessageEvent");
-                e.initMessageEvent("message", false, false, data, null, null, window, null);
-              } else { // IE
-                e = {data: data};
-              }
-              self.onmessage(e);
-            }
-          } catch (e) {
-            console.error(e.toString());
-          }
-        }
-      };
-
-      self.__flash.addEventListener("open", function(fe) {
-        self.readyState = self.__flash.getReadyState();
-
-        // For browsers (like Opera) that drop events, also poll for
-        // message data
-        if (self.__messageHandlerID) {
-          clearInterval(self.__messageHandlerID);
-        }
-        self.__messageHandlerID = setInterval(function () {
-            //console.log("polling for message data");
-            self.__messageHandler; }, 500);
-
-        try {
-          if (self.onopen) {
-            self.onopen();
-          } else {
-            // If "open" comes back in the same thread, then the
-            // caller will not have set the onopen handler yet.
-            setTimeout(function () {
-                if (self.onopen) { self.onopen(); } }, 10);
-          }
-        } catch (e) {
-          console.error(e.toString());
-        }
+    // Uses setTimeout() to make sure __createFlash() runs after the caller sets ws.onopen etc.
+    // Otherwise, when onopen fires immediately, onopen is called before it is set.
+    setTimeout(function() {
+      WebSocket.__addTask(function() {
+        self.__createFlash(url, protocol, proxyHost, proxyPort, headers);
       });
-
-      self.__flash.addEventListener("close", function(fe) {
-        self.readyState = self.__flash.getReadyState();
-
-        if (self.__messageHandlerID) {
-          clearInterval(self.__messageHandlerID);
-        }
-        try {
-          if (self.onclose) self.onclose();
-        } catch (e) {
-          console.error(e.toString());
-        }
-      });
-
-      self.__flash.addEventListener("message", self.__messageHandler);
-
-      self.__flash.addEventListener("error", function(fe) {
-        if (self.__messageHandlerID) {
-          clearInterval(self.__messageHandlerID);
-        }
-        try {
-          if (self.onerror) self.onerror();
-        } catch (e) {
-          console.error(e.toString());
-        }
-      });
-
-      self.__flash.addEventListener("stateChange", function(fe) {
-        try {
-          self.readyState = fe.getReadyState();
-          self.bufferedAmount = fe.getBufferedAmount();
-        } catch (e) {
-          console.error(e.toString());
-        }
-      });
-
-      //console.log("[WebSocket] Flash object is ready");
-    });
+    }, 1);
   }
+  
+  WebSocket.prototype.__createFlash = function(url, protocol, proxyHost, proxyPort, headers) {
+    var self = this;
+    self.__flash =
+      WebSocket.__flash.create(url, protocol, proxyHost || null, proxyPort || 0, headers || null);
+
+    self.__flash.addEventListener("open", function(fe) {
+      try {
+        self.readyState = self.__flash.getReadyState();
+        if (self.__timer) clearInterval(self.__timer);
+        if (window.opera) {
+          // Workaround for weird behavior of Opera which sometimes drops events.
+          self.__timer = setInterval(function () {
+            self.__handleMessages();
+          }, 500);
+        }
+        if (self.onopen) self.onopen();
+      } catch (e) {
+        console.error(e.toString());
+      }
+    });
+
+    self.__flash.addEventListener("close", function(fe) {
+      try {
+        self.readyState = self.__flash.getReadyState();
+        if (self.__timer) clearInterval(self.__timer);
+        if (self.onclose) self.onclose();
+      } catch (e) {
+        console.error(e.toString());
+      }
+    });
+
+    self.__flash.addEventListener("message", function() {
+      try {
+        self.__handleMessages();
+      } catch (e) {
+        console.error(e.toString());
+      }
+    });
+
+    self.__flash.addEventListener("error", function(fe) {
+      try {
+        if (self.__timer) clearInterval(self.__timer);
+        if (self.onerror) self.onerror();
+      } catch (e) {
+        console.error(e.toString());
+      }
+    });
+
+    self.__flash.addEventListener("stateChange", function(fe) {
+      try {
+        self.readyState = self.__flash.getReadyState();
+        self.bufferedAmount = fe.getBufferedAmount();
+      } catch (e) {
+        console.error(e.toString());
+      }
+    });
+
+    //console.log("[WebSocket] Flash object is ready");
+  };
 
   WebSocket.prototype.send = function(data) {
-    this.readyState = this.__flash.getReadyState();
+    if (this.__flash) {
+      this.readyState = this.__flash.getReadyState();
+    }
     if (!this.__flash || this.readyState == WebSocket.CONNECTING) {
       throw "INVALID_STATE_ERR: Web Socket connection has not been established";
     }
+    // We use encodeURIComponent() here, because FABridge doesn't work if
+    // the argument includes some characters. We don't use escape() here
+    // because of this:
+    // https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Functions#escape_and_unescape_Functions
+    // But it looks decodeURIComponent(encodeURIComponent(s)) doesn't
+    // preserve all Unicode characters either e.g. "\uffff" in Firefox.
     var result = this.__flash.send(encodeURIComponent(data));
     if (result < 0) { // success
       return true;
@@ -145,9 +125,7 @@
     // which causes weird error:
     // > You are trying to call recursively into the Flash Player which is not allowed.
     this.readyState = WebSocket.CLOSED;
-    if (this.__messageHandlerID) {
-      clearInterval(this.__messageHandlerID);
-    }
+    if (this.__timer) clearInterval(this.__timer);
     if (this.onclose) this.onclose();
   };
 
@@ -167,7 +145,7 @@
       this.__events[type] = [];
       if ('function' == typeof this['on' + type]) {
         this.__events[type].defaultHandler = this['on' + type];
-        this['on' + type] = WebSocket_FireEvent(this, type);
+        this['on' + type] = this.__createEventHandler(this, type);
       }
     }
     this.__events[type].push(listener);
@@ -216,12 +194,35 @@
     }
   };
 
+  WebSocket.prototype.__handleMessages = function() {
+    // Gets data using readSocketData() instead of getting it from event object
+    // of Flash event. This is to make sure to keep message order.
+    // It seems sometimes Flash events don't arrive in the same order as they are sent.
+    var arr = this.__flash.readSocketData();
+    for (var i = 0; i < arr.length; i++) {
+      var data = decodeURIComponent(arr[i]);
+      try {
+        if (this.onmessage) {
+          var e;
+          if (window.MessageEvent) {
+            e = document.createEvent("MessageEvent");
+            e.initMessageEvent("message", false, false, data, null, null, window, null);
+          } else { // IE
+            e = {data: data};
+          }
+          this.onmessage(e);
+        }
+      } catch (e) {
+        console.error(e.toString());
+      }
+    }
+  };
+
   /**
-   *
    * @param {object} object
    * @param {string} type
    */
-  function WebSocket_FireEvent(object, type) {
+  WebSocket.prototype.__createEventHandler = function(object, type) {
     return function(data) {
       var event = new WebSocketEvent();
       event.initEvent(type, true, true);
@@ -293,27 +294,39 @@
   WebSocket.__tasks = [];
 
   WebSocket.__initialize = function() {
-    if (WebSocket__swfLocation) {
-        WebSocket.__swfLocation = WebSocket__swfLocation;
+    if (WebSocket.__swfLocation) {
+      // For backword compatibility.
+      window.WEB_SOCKET_SWF_LOCATION = WebSocket.__swfLocation;
     }
-    if (!WebSocket.__swfLocation) {
-      console.error("[WebSocket] set WebSocket.__swfLocation to location of WebSocketMain.swf");
+    if (!window.WEB_SOCKET_SWF_LOCATION) {
+      console.error("[WebSocket] set WEB_SOCKET_SWF_LOCATION to location of WebSocketMain.swf");
       return;
     }
     var container = document.createElement("div");
     container.id = "webSocketContainer";
-    // Puts the Flash out of the window. Note that we cannot use display: none or visibility: hidden
-    // here because it prevents Flash from loading at least in IE.
+    // Hides Flash box. We cannot use display: none or visibility: hidden because it prevents
+    // Flash from loading at least in IE. So we move it out of the screen at (-100, -100).
+    // But this even doesn't work with Flash Lite (e.g. in Droid Incredible). So with Flash
+    // Lite, we put it at (0, 0). This shows 1x1 box visible at left-top corner but this is
+    // the best we can do as far as we know now.
     container.style.position = "absolute";
-    container.style.left = "-100px";
-    container.style.top = "-100px";
+    if (WebSocket.__isFlashLite()) {
+      container.style.left = "0px";
+      container.style.top = "0px";
+    } else {
+      container.style.left = "-100px";
+      container.style.top = "-100px";
+    }
     var holder = document.createElement("div");
     holder.id = "webSocketFlash";
     container.appendChild(holder);
     document.body.appendChild(container);
+    // See this article for hasPriority:
+    // http://help.adobe.com/en_US/as3/mobile/WS4bebcd66a74275c36cfb8137124318eebc6-7ffd.html
     swfobject.embedSWF(
-      WebSocket.__swfLocation, "webSocketFlash", "8", "8", "9.0.0",
-      null, {bridgeName: "webSocket"}, null, null,
+      WEB_SOCKET_SWF_LOCATION, "webSocketFlash",
+      "1" /* width */, "1" /* height */, "9.0.0" /* SWF version */,
+      null, {bridgeName: "webSocket"}, {hasPriority: true, allowScriptAccess: "always"}, null,
       function(e) {
         if (!e.success) console.error("[WebSocket] swfobject.embedSWF failed");
       }
@@ -323,7 +336,7 @@
         //console.log("[WebSocket] FABridge initializad");
         WebSocket.__flash = FABridge.webSocket.root();
         WebSocket.__flash.setCallerUrl(location.href);
-        WebSocket.__flash.setDebug(!!WebSocket.__debug);
+        WebSocket.__flash.setDebug(!!window.WEB_SOCKET_DEBUG);
         for (var i = 0; i < WebSocket.__tasks.length; ++i) {
           WebSocket.__tasks[i]();
         }
@@ -340,7 +353,14 @@
     } else {
       WebSocket.__tasks.push(task);
     }
-  }
+  };
+  
+  WebSocket.__isFlashLite = function() {
+    if (!window.navigator || !window.navigator.mimeTypes) return false;
+    var mimeType = window.navigator.mimeTypes["application/x-shockwave-flash"];
+    if (!mimeType || !mimeType.enabledPlugin || !mimeType.enabledPlugin.filename) return false;
+    return mimeType.enabledPlugin.filename.match(/flashlite/i) ? true : false;
+  };
 
   // called from Flash
   window.webSocketLog = function(message) {
@@ -352,7 +372,7 @@
     console.error(decodeURIComponent(message));
   };
 
-  if (!WebSocket.__disableAutoInitialization) {
+  if (!window.WEB_SOCKET_DISABLE_AUTO_INITIALIZATION) {
     if (window.addEventListener) {
       window.addEventListener("load", WebSocket.__initialize, false);
     } else {
