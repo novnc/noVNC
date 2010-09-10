@@ -33,7 +33,6 @@ Traffic Legend:\n\
 
 char USAGE[] = "Usage: [options] " \
                "[source_addr:]source_port target_addr:target_port\n\n" \
-               "  --record REC       record traffic to REC\n" \
                "  --cert CERT        load CERT as SSL certificate\n" \
                "  --foreground|-f    run in the foreground\n" \
                "  --ssl-only         disallow non-SSL connections";
@@ -45,7 +44,6 @@ char USAGE[] = "Usage: [options] " \
 
 char target_host[256];
 int target_port;
-int recordfd = 0;
 
 extern settings_t settings;
 extern char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
@@ -132,11 +130,6 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
             if (cstart >= cend) {
                 cstart = cend = 0;
                 traffic("<");
-                if (recordfd) {
-                    write(recordfd, "'>", 2);
-                    write(recordfd, cbuf + cstart + 1, bytes - 2);
-                    write(recordfd, "',\n", 3);
-                }
             } else {
                 traffic("<.");
             }
@@ -175,11 +168,6 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
                 fprintf(stderr, "client sent orderly close frame");
                 break;
             }
-            if (recordfd) {
-                write(recordfd, "'", 1);
-                write(recordfd, tbuf_tmp + 1, bytes - 2);
-                write(recordfd, "',\n", 3);
-            }
             /*
             printf("before decode: ");
             for (i=0; i< bytes; i++) {
@@ -210,11 +198,6 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
     int tsock = 0;
     struct sockaddr_in taddr;
 
-    if (settings.record && settings.record[0] != '\0') {
-        recordfd = open(settings.record, O_WRONLY | O_CREAT | O_APPEND,
-                        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    }
-
     printf("Connecting to: %s:%d\n", target_host, target_port);
 
     tsock = socket(AF_INET, SOCK_STREAM, 0);
@@ -242,10 +225,6 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
     do_proxy(ws_ctx, tsock);
 
     close(tsock);
-    if (recordfd) {
-        close(recordfd);
-        recordfd = 0;
-    }
 }
 
 int main(int argc, char *argv[])
@@ -257,12 +236,10 @@ int main(int argc, char *argv[])
         {"ssl-only",   no_argument,       &ssl_only,    1 },
         {"foreground", no_argument,       &foreground, 'f'},
         /* ---- */
-        {"record",     required_argument, 0,           'r'},
         {"cert",       required_argument, 0,           'c'},
         {0, 0, 0, 0}
     };
 
-    settings.record = NULL;
     settings.cert = realpath("self.pem", NULL);
 
     while (1) {
@@ -286,7 +263,6 @@ int main(int argc, char *argv[])
                     usage("Could not access %s\n", optarg);
                 }
                 close(fd);
-                settings.record = realpath(optarg, NULL);
                 break;
             case 'c':
                 settings.cert = realpath(optarg, NULL);
@@ -338,7 +314,6 @@ int main(int argc, char *argv[])
 
     //printf("  ssl_only: %d\n", settings.ssl_only);
     //printf("  daemon: %d\n",   settings.daemon);
-    //printf("  record: %s\n",   settings.record);
     //printf("  cert: %s\n",     settings.cert);
 
     settings.handler = proxy_handler; 
