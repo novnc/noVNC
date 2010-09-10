@@ -504,12 +504,6 @@ void start_server() {
         }
         handler_msg("got client connection from %s\n",
                     inet_ntoa(cli_addr.sin_addr));
-        ws_ctx = do_handshake(csock);
-        if (ws_ctx == NULL) {
-            close(csock);
-            continue;
-        }
-
         /* base64 is 4 bytes for every 3
          *    20 for WS '\x00' / '\xff' and good measure  */
         dbufsize = (bufsize * 3)/4 - 20;
@@ -520,6 +514,17 @@ void start_server() {
         }
 
         if (pid == 0) {  // handler process
+            ws_ctx = do_handshake(csock);
+            if (ws_ctx == NULL) {
+                close(csock);
+                if (settings.multiprocess) {
+                    handler_msg("No connection after handshake");
+                    break;   // Child process exits
+                } else {
+                    continue;
+                }
+            }
+
             settings.handler(ws_ctx);
             if (pipe_error) {
                 handler_emsg("Closing due to SIGPIPE\n");

@@ -208,14 +208,19 @@ def start_server():
                         settings['listen_host'], settings['listen_port'])
             startsock, address = lsock.accept()
             handler_msg('got client connection from %s' % address[0])
-            csock = do_handshake(startsock)
-            if not csock: continue
 
             if settings['multiprocess']:
                 handler_msg("forking handler process")
                 pid = os.fork()
 
             if pid == 0:  # handler process
+                csock = do_handshake(startsock)
+                if not csock:
+                    if settings['multiprocess']:
+                        handler_msg("No connection after handshake");
+                        break
+                    else:
+                        continue
                 settings['handler'](csock)
             else:         # parent process
                 settings['handler_id'] += 1
