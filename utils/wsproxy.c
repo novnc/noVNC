@@ -45,6 +45,7 @@ char USAGE[] = "Usage: [options] " \
 char target_host[256];
 int target_port;
 
+extern pipe_error;
 extern settings_t settings;
 extern char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
 extern unsigned int bufsize, dbufsize;
@@ -86,29 +87,32 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
         }
 
         ret = select(maxfd, &rlist, &wlist, &elist, &tv);
+        if (pipe_error) { break; }
 
         if (FD_ISSET(target, &elist)) {
-            fprintf(stderr, "target exception\n");
+            handler_emsg("target exception\n");
             break;
         }
         if (FD_ISSET(client, &elist)) {
-            fprintf(stderr, "client exception\n");
+            handler_emsg("client exception\n");
             break;
         }
 
         if (ret == -1) {
-            error("select()");
+            handler_emsg("select(): %s\n", strerror(errno));
             break;
         } else if (ret == 0) {
-            //fprintf(stderr, "select timeout\n");
+            //handler_emsg("select timeout\n");
             continue;
         }
 
         if (FD_ISSET(target, &wlist)) {
             len = tend-tstart;
             bytes = send(target, tbuf + tstart, len, 0);
+            if (pipe_error) { break; }
             if (bytes < 0) {
-                error("target connection error");
+                handler_emsg("target connection error: %s\n",
+                             strerror(errno));
                 break;
             }
             tstart += bytes;
@@ -123,8 +127,9 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
         if (FD_ISSET(client, &wlist)) {
             len = cend-cstart;
             bytes = ws_send(ws_ctx, cbuf + cstart, len);
+            if (pipe_error) { break; }
             if (len < 3) {
-                fprintf(stderr, "len: %d, bytes: %d: %d\n", len, bytes, *(cbuf + cstart));
+                handler_emsg("len: %d, bytes: %d: %d\n", len, bytes, *(cbuf + cstart));
             }
             cstart += bytes;
             if (cstart >= cend) {
@@ -137,8 +142,9 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
 
         if (FD_ISSET(target, &rlist)) {
             bytes = recv(target, cbuf_tmp, dbufsize , 0);
+            if (pipe_error) { break; }
             if (bytes <= 0) {
-                fprintf(stderr, "target closed connection");
+                handler_emsg("target closed connection\n");
                 break;
             }
             cstart = 0;
@@ -151,7 +157,7 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
             printf("\n");
             */
             if (cend < 0) {
-                fprintf(stderr, "encoding error\n");
+                handler_emsg("encoding error\n");
                 break;
             }
             traffic("{");
@@ -159,13 +165,14 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
 
         if (FD_ISSET(client, &rlist)) {
             bytes = ws_recv(ws_ctx, tbuf_tmp, bufsize-1);
+            if (pipe_error) { break; }
             if (bytes <= 0) {
-                fprintf(stderr, "client closed connection\n");
+                handler_emsg("client closed connection\n");
                 break;
             } else if ((bytes == 2) &&
                        (tbuf_tmp[0] == '\xff') && 
                        (tbuf_tmp[1] == '\x00')) {
-                fprintf(stderr, "client sent orderly close frame");
+                handler_emsg("client sent orderly close frame\n");
                 break;
             }
             /*
@@ -184,7 +191,7 @@ void do_proxy(ws_ctx_t *ws_ctx, int target) {
             printf("\n");
             */
             if (len < 0) {
-                fprintf(stderr, "decoding error\n");
+                handler_emsg("decoding error\n");
                 break;
             }
             traffic("}");
@@ -198,11 +205,12 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
     int tsock = 0;
     struct sockaddr_in taddr;
 
-    printf("Connecting to: %s:%d\n", target_host, target_port);
+    handler_msg("connecting to: %s:%d\n", target_host, target_port);
 
     tsock = socket(AF_INET, SOCK_STREAM, 0);
     if (tsock < 0) {
-        error("Could not create target socket");
+        handler_emsg("Could not create target socket: %s\n",
+                     strerror(errno));
         return;
     }
     bzero((char *) &taddr, sizeof(taddr));
@@ -211,16 +219,20 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 
     /* Resolve target address */
     if (resolve_host(&taddr.sin_addr, target_host) < -1) {
-        error("Could not resolve target address");
+        handler_emsg("Could not resolve target address: %s\n",
+                     strerror(errno));
     }
 
     if (connect(tsock, (struct sockaddr *) &taddr, sizeof(taddr)) < 0) {
-        error("Could not connect to target");
+        handler_emsg("Could not connect to target: %s\n",
+                     strerror(errno));
         close(tsock);
         return;
     }
 
-    printf("%s", traffic_legend);
+    if ((! settings.daemon) && (! settings.multiprocess)) {
+        printf("%s", traffic_legend);
+    }
 
     do_proxy(ws_ctx, tsock);
 
@@ -230,11 +242,12 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 int main(int argc, char *argv[])
 {
     int fd, c, option_index = 0;
-    static int ssl_only = 0, foreground = 0;
+    static int ssl_only = 0, foreground = 0, multi = 0;
     char *found;
     static struct option long_options[] = {
         {"ssl-only",   no_argument,       &ssl_only,    1 },
         {"foreground", no_argument,       &foreground, 'f'},
+        {"multiprocess", no_argument,     &multi,      'm'},
         /* ---- */
         {"cert",       required_argument, 0,           'c'},
         {0, 0, 0, 0}
@@ -243,7 +256,7 @@ int main(int argc, char *argv[])
     settings.cert = realpath("self.pem", NULL);
 
     while (1) {
-        c = getopt_long (argc, argv, "fr:c:",
+        c = getopt_long (argc, argv, "fmc:",
                          long_options, &option_index);
 
         /* Detect the end */
@@ -256,6 +269,9 @@ int main(int argc, char *argv[])
                 break; // ignore
             case 'f':
                 foreground = 1;
+                break;
+            case 'm':
+                multi = 1;
                 break;
             case 'r':
                 if ((fd = open(optarg, O_CREAT,
@@ -274,8 +290,9 @@ int main(int argc, char *argv[])
                 usage("");
         }
     }
-    settings.ssl_only  = ssl_only;
-    settings.daemon    = foreground ? 0: 1;
+    settings.ssl_only     = ssl_only;
+    settings.daemon       = foreground ? 0: 1;
+    settings.multiprocess = multi;
 
     if ((argc-optind) != 2) {
         usage("Invalid number of arguments\n");
@@ -314,6 +331,7 @@ int main(int argc, char *argv[])
 
     //printf("  ssl_only: %d\n", settings.ssl_only);
     //printf("  daemon: %d\n",   settings.daemon);
+    //printf("  multiproces: %d\n",   settings.multiprocess);
     //printf("  cert: %s\n",     settings.cert);
 
     settings.handler = proxy_handler; 

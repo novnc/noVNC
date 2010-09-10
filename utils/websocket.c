@@ -39,13 +39,16 @@ const char policy_response[] = "<cross-domain-policy><allow-access-from domain=\
  *   Warning: not thread safe
  */
 int ssl_initialized = 0;
+int pipe_error = 0;
 char *tbuf, *cbuf, *tbuf_tmp, *cbuf_tmp;
 unsigned int bufsize, dbufsize;
 settings_t settings;
 
 void traffic(char * token) {
-    fprintf(stdout, "%s", token);
-    fflush(stdout);
+    if ((! settings.daemon) && (! settings.multiprocess)) {
+        fprintf(stdout, "%s", token);
+        fflush(stdout);
+    }
 }
 
 void error(char *msg)
@@ -89,7 +92,7 @@ int resolve_host(struct in_addr *sin_addr, const char *hostname)
 
 ssize_t ws_recv(ws_ctx_t *ctx, void *buf, size_t len) {
     if (ctx->ssl) {
-        //printf("SSL recv\n");
+        //handler_msg("SSL recv\n");
         return SSL_read(ctx->ssl, buf, len);
     } else {
         return recv(ctx->sockfd, buf, len, 0);
@@ -98,7 +101,7 @@ ssize_t ws_recv(ws_ctx_t *ctx, void *buf, size_t len) {
 
 ssize_t ws_send(ws_ctx_t *ctx, const void *buf, size_t len) {
     if (ctx->ssl) {
-        //printf("SSL send\n");
+        //handler_msg("SSL send\n");
         return SSL_write(ctx->ssl, buf, len);
     } else {
         return send(ctx->sockfd, buf, len, 0);
@@ -202,7 +205,7 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
     int i, len, framecount = 0, retlen = 0;
     unsigned char chr;
     if ((src[0] != '\x00') || (src[srclength-1] != '\xff')) {
-        fprintf(stderr, "WebSocket framing error\n");
+        handler_emsg("WebSocket framing error\n");
         return -1;
     }
     start = src+1; // Skip '\x00' start
@@ -337,13 +340,13 @@ ws_ctx_t *do_handshake(int sock) {
     len = recv(sock, handshake, 1024, MSG_PEEK);
     handshake[len] = 0;
     if (len == 0) {
-        printf("Ignoring empty handshake\n");
+        handler_msg("ignoring empty handshake\n");
         close(sock);
         return NULL;
     } else if (bcmp(handshake, "<policy-file-request/>", 22) == 0) {
         len = recv(sock, handshake, 1024, 0);
         handshake[len] = 0;
-        printf("Sending flash policy response\n");
+        handler_msg("sending flash policy response\n");
         send(sock, policy_response, sizeof(policy_response), 0);
         close(sock);
         return NULL;
@@ -353,22 +356,22 @@ ws_ctx_t *do_handshake(int sock) {
         ws_ctx = ws_socket_ssl(sock, settings.cert);
         if (! ws_ctx) { return NULL; }
         scheme = "wss";
-        printf("  using SSL socket\n");
+        handler_msg("using SSL socket\n");
     } else if (settings.ssl_only) {
-        printf("Non-SSL connection disallowed\n");
+        handler_msg("non-SSL connection disallowed\n");
         close(sock);
         return NULL;
     } else {
         ws_ctx = ws_socket(sock);
         if (! ws_ctx) { return NULL; }
         scheme = "ws";
-        printf("  using plain (not SSL) socket\n");
+        handler_msg("using plain (not SSL) socket\n");
     }
     len = ws_recv(ws_ctx, handshake, 4096);
     handshake[len] = 0;
 
     if (!parse_handshake(handshake, &headers)) {
-        fprintf(stderr, "Invalid WS request\n");
+        handler_emsg("Invalid WS request\n");
         close(sock);
         return NULL;
     }
@@ -376,16 +379,16 @@ ws_ctx_t *do_handshake(int sock) {
     if (headers.key3[0] != '\0') {
         gen_md5(&headers, trailer);
         pre = "Sec-";
-        printf("  using protocol version 76\n");
+        handler_msg("using protocol version 76\n");
     } else {
         trailer[0] = '\0';
         pre = "";
-        printf("  using protocol version 75\n");
+        handler_msg("using protocol version 75\n");
     }
     
     sprintf(response, server_handshake, pre, headers.origin, pre, scheme,
             headers.host, headers.path, pre, trailer);
-    //printf("response: %s\n", response);
+    //handler_msg("response: %s\n", response);
     ws_send(ws_ctx, response, strlen(response));
 
     return ws_ctx;
@@ -393,7 +396,8 @@ ws_ctx_t *do_handshake(int sock) {
 
 void signal_handler(sig) {
     switch (sig) {
-        case SIGHUP: break; // ignore
+        case SIGHUP: break; // ignore for now
+        case SIGPIPE: pipe_error = 1; break; // handle inline
         case SIGTERM: exit(0); break;
     }
 }
@@ -434,7 +438,7 @@ void daemonize(int keepfd) {
 
 
 void start_server() {
-    int lsock, csock, clilen, sopt = 1, i;
+    int lsock, csock, pid, clilen, sopt = 1, i;
     struct sockaddr_in serv_addr, cli_addr;
     ws_ctx_t *ws_ctx;
 
@@ -470,18 +474,26 @@ void start_server() {
     }
     listen(lsock,100);
 
+    signal(SIGPIPE, signal_handler);  // catch pipe
+
     if (settings.daemon) {
         daemonize(lsock);
     }
 
+    if (settings.multiprocess) {
+        printf("Waiting for connections on %s:%d\n",
+                settings.listen_host, settings.listen_port);
+        // Reep zombies
+        signal(SIGCHLD, SIG_IGN);
+    }
+
     while (1) {
         clilen = sizeof(cli_addr);
-        if (settings.listen_host && settings.listen_host[0] != '\0') {
-            printf("waiting for connection on %s:%d\n",
+        pipe_error = 0;
+        pid = 0;
+        if (! settings.multiprocess) {
+            printf("Waiting for connection on %s:%d\n",
                    settings.listen_host, settings.listen_port);
-        } else {
-            printf("waiting for connection on port %d\n",
-                   settings.listen_port);
         }
         csock = accept(lsock, 
                        (struct sockaddr *) &cli_addr, 
@@ -490,7 +502,8 @@ void start_server() {
             error("ERROR on accept");
             continue;
         }
-        printf("Got client connection from %s\n", inet_ntoa(cli_addr.sin_addr));
+        handler_msg("got client connection from %s\n",
+                    inet_ntoa(cli_addr.sin_addr));
         ws_ctx = do_handshake(csock);
         if (ws_ctx == NULL) {
             close(csock);
@@ -501,8 +514,24 @@ void start_server() {
          *    20 for WS '\x00' / '\xff' and good measure  */
         dbufsize = (bufsize * 3)/4 - 20;
 
-        settings.handler(ws_ctx);
-        close(csock);
+        if (settings.multiprocess) {
+            handler_msg("forking handler process\n");
+            pid = fork();
+        }
+
+        if (pid == 0) {  // handler process
+            settings.handler(ws_ctx);
+            if (pipe_error) {
+                handler_emsg("Closing due to SIGPIPE\n");
+            }
+            close(csock);
+            if (settings.multiprocess) {
+                handler_msg("handler exit\n");
+                break;   // Child process exits
+            }
+        } else {         // parent process
+            settings.handler_id += 1;
+        }
     }
 
 }

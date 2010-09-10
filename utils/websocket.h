@@ -10,8 +10,10 @@ typedef struct {
     char listen_host[256];
     int listen_port;
     void (*handler)(ws_ctx_t*);
+    int handler_id;
     int ssl_only;
     int daemon;
+    int multiprocess;
     char *record;
     char *cert;
 } settings_t;
@@ -33,4 +35,17 @@ ssize_t ws_send(ws_ctx_t *ctx, const void *buf, size_t len);
 /* base64.c declarations */
 //int b64_ntop(u_char const *src, size_t srclength, char *target, size_t targsize);
 //int b64_pton(char const *src, u_char *target, size_t targsize);
+
+#define gen_handler_msg(stream, ...) \
+    if (! settings.daemon) { \
+        if (settings.multiprocess) { \
+            fprintf(stream, "  %d: ", settings.handler_id); \
+        } else { \
+            fprintf(stream, "  "); \
+        } \
+        fprintf(stream, __VA_ARGS__); \
+    }
+
+#define handler_msg(...) gen_handler_msg(stdout, __VA_ARGS__);
+#define handler_emsg(...) gen_handler_msg(stderr, __VA_ARGS__);
 

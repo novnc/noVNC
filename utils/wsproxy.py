@@ -72,7 +72,7 @@ def do_proxy(client, target):
 
         if target in ins:
             buf = target.recv(buffer_size)
-            if len(buf) == 0: raise Exception("Target closed")
+            if len(buf) == 0: raise EClose("Target closed")
 
             cqueue.append(encode(buf))
             traffic("{")
@@ -80,10 +80,10 @@ def do_proxy(client, target):
 
         if client in ins:
             buf = client.recv(buffer_size)
-            if len(buf) == 0: raise Exception("Client closed")
+            if len(buf) == 0: raise EClose("Client closed")
 
             if buf == '\xff\x00':
-                raise Exception("Client sent orderly close frame")
+                raise EClose("Client sent orderly close frame")
             elif buf[-1] == '\xff':
                 if buf.count('\xff') > 1:
                     traffic(str(buf.count('\xff')))
@@ -104,15 +104,16 @@ def proxy_handler(client):
     global target_host, target_port, options, rec
 
     if settings['record']:
-        print "Opening record file: %s" % settings['record']
+        handler_msg("opening record file: %s" % settings['record'])
         rec = open(settings['record'], 'w+')
         rec.write("var VNC_frame_data = [\n")
 
-    print "Connecting to: %s:%s" % (target_host, target_port)
+    handler_msg("connecting to: %s:%s" % (target_host, target_port))
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tsock.connect((target_host, target_port))
 
-    print traffic_legend
+    if not settings['daemon'] and not settings['multiprocess']:
+        print traffic_legend
 
     try:
         do_proxy(client, tsock)
@@ -132,6 +133,9 @@ if __name__ == '__main__':
     parser.add_option("--foreground", "-f",
             dest="daemon", default=True, action="store_false",
             help="stay in foreground, do not daemonize")
+    parser.add_option("--multiprocess", "-m",
+            dest="multiprocess", action="store_true",
+            help="fork handler processes")
     parser.add_option("--ssl-only", action="store_true",
             help="disallow non-encrypted connections")
     parser.add_option("--cert", default="self.pem",
@@ -162,6 +166,7 @@ if __name__ == '__main__':
     settings['cert'] = os.path.abspath(options.cert)
     settings['ssl_only'] = options.ssl_only
     settings['daemon'] = options.daemon
+    settings['multiprocess'] = options.multiprocess
     if options.record:
         settings['record'] = os.path.abspath(options.record)
     start_server()

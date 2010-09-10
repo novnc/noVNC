@@ -25,9 +25,11 @@ settings = {
     'listen_host' : '',
     'listen_port' : None,
     'handler'     : None,
+    'handler_id'  : 1,
     'cert'        : None,
     'ssl_only'    : False,
     'daemon'      : True,
+    'multiprocess': False,
     'record'      : None, }
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
@@ -41,9 +43,20 @@ Connection: Upgrade\r
 
 policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>\n"""
 
+class EClose(Exception):
+    pass
+
 def traffic(token="."):
-    sys.stdout.write(token)
-    sys.stdout.flush()
+    if not settings['daemon'] and not settings['multiprocess']:
+        sys.stdout.write(token)
+        sys.stdout.flush()
+
+def handler_msg(msg):
+    if not settings['daemon']:
+        if settings['multiprocess']:
+            print "  %d: %s" % (settings['handler_id'], msg)
+        else:
+            print "  %s" % msg
 
 def encode(buf):
     buf = b64encode(buf)
@@ -89,14 +102,14 @@ def do_handshake(sock):
 
     # Peek, but don't read the data
     handshake = sock.recv(1024, socket.MSG_PEEK)
-    #print "Handshake [%s]" % repr(handshake)
+    #handler_msg("Handshake [%s]" % repr(handshake))
     if handshake == "":
-        print "Ignoring empty handshake"
+        handler_msg("ignoring empty handshake")
         sock.close()
         return False
     elif handshake.startswith("<policy-file-request/>"):
         handshake = sock.recv(1024)
-        print "Sending flash policy response"
+        handler_msg("Sending flash policy response")
         sock.send(policy_response)
         sock.close()
         return False
@@ -107,32 +120,32 @@ def do_handshake(sock):
                 certfile=settings['cert'],
                 ssl_version=ssl.PROTOCOL_TLSv1)
         scheme = "wss"
-        print "  using SSL/TLS"
+        handler_msg("using SSL/TLS")
     elif settings['ssl_only']:
-        print "Non-SSL connection disallowed"
+        handler_msg("non-SSL connection disallowed")
         sock.close()
         return False
     else:
         retsock = sock
         scheme = "ws"
-        print "  using plain (not SSL) socket"
+        handler_msg("using plain (not SSL) socket")
     handshake = retsock.recv(4096)
-    #print "handshake: " + repr(handshake)
+    #handler_msg("handshake: " + repr(handshake))
     h = parse_handshake(handshake)
 
     if h.get('key3'):
         trailer = gen_md5(h)
         pre = "Sec-"
-        print "  using protocol version 76"
+        handler_msg("using protocol version 76")
     else:
         trailer = ""
         pre = ""
-        print "  using protocol version 75"
+        handler_msg("using protocol version 75")
 
     response = server_handshake % (pre, h['Origin'], pre, scheme,
             h['Host'], h['path'], pre, trailer)
 
-    #print "sending response:", repr(response)
+    #handler_msg("sending response:", repr(response))
     retsock.send(response)
     return retsock
 
@@ -177,21 +190,44 @@ def start_server():
     lsock.bind((settings['listen_host'], settings['listen_port']))
     lsock.listen(100)
 
-    if settings['daemon']: daemonize(keepfd=lsock.fileno())
+    if settings['daemon']:
+        daemonize(keepfd=lsock.fileno())
+
+    if settings['multiprocess']:
+        print 'Waiting for connections on %s:%s' % (
+                settings['listen_host'], settings['listen_port'])
+        # Reep zombies
+        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
     while True:
         try:
             csock = startsock = None
-            print 'waiting for connection on port %s' % settings['listen_port']
+            pid = 0
+            if not settings['multiprocess']:
+                print 'Waiting for connection on %s:%s' % (
+                        settings['listen_host'], settings['listen_port'])
             startsock, address = lsock.accept()
-            print 'Got client connection from %s' % address[0]
+            handler_msg('got client connection from %s' % address[0])
             csock = do_handshake(startsock)
             if not csock: continue
 
-            settings['handler'](csock)
+            if settings['multiprocess']:
+                handler_msg("forking handler process")
+                pid = os.fork()
 
-        except Exception:
-            print "Ignoring exception:"
-            print traceback.format_exc()
+            if pid == 0:  # handler process
+                settings['handler'](csock)
+            else:         # parent process
+                settings['handler_id'] += 1
+
+        except EClose, exc:
+            handler_msg("handler exit: %s" % exc.args)
+        except Exception, exc:
+            handler_msg("handler exception: %s" % str(exc))
+            #handler_msg(traceback.format_exc())
+
+        if pid == 0:
             if csock: csock.close()
             if startsock and startsock != csock: startsock.close()
+
+            if settings['multiprocess']: break # Child process exits
