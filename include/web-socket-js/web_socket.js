@@ -126,7 +126,11 @@
     // > You are trying to call recursively into the Flash Player which is not allowed.
     this.readyState = WebSocket.CLOSED;
     if (this.__timer) clearInterval(this.__timer);
-    if (this.onclose) this.onclose();
+    if (this.onclose) {
+        // Make it asynchronous so that it looks more like an actual
+        // close event
+        setTimeout(this.onclose, 1);
+    }
   };
 
   /**
