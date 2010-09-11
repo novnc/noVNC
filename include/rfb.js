@@ -65,6 +65,8 @@ var that           = {},         // Public API interface
     ws             = null,   // Web Socket object
     canvas         = null,   // Canvas object
     sendTimer      = null,   // Send Queue check timer
+    connTimer      = null,   // connection timer
+    disconnTimer   = null,   // disconnection timer
     msgTimer       = null,   // queued handle_message timer
 
     // Receive and send queues
@@ -137,6 +139,8 @@ Util.conf_default(conf, that, 'local_cursor',   true, true);
 
 // time to wait for connection
 Util.conf_default(conf, that, 'connectTimeout', 2000);
+// time to wait for disconnection
+Util.conf_default(conf, that, 'disconnectTimeout', 3000);
 // frequency to check for send/receive
 Util.conf_default(conf, that, 'check_rate',     217);
 // frequency to send frameBufferUpdate requests
@@ -274,12 +278,14 @@ function init_ws() {
     };
     ws.onclose = function(e) {
         Util.Debug(">> WebSocket.onclose");
-        if (rfb_state === 'normal') {
-            updateState('failed', 'Server disconnected');
+        if (rfb_state === 'disconnect') {
+            updateState('disconnected', 'VNC disconnected');
         } else if (rfb_state === 'ProtocolVersion') {
             updateState('failed', 'Failed to connect to server');
+        } else if (rfb_state in {'failed':1, 'disconnected':1}) {
+            Util.Error("Received onclose while disconnected");
         } else  {
-            updateState('disconnected', 'VNC disconnected');
+            updateState('failed', 'Server disconnected');
         }
         Util.Debug("<< WebSocket.onclose");
     };
@@ -288,12 +294,6 @@ function init_ws() {
         updateState('failed', "WebSocket error");
         Util.Debug("<< WebSocket.onerror");
     };
-
-    setTimeout(function () {
-            if (ws.readyState === WebSocket.CONNECTING) {
-                updateState('failed', "Connect timeout");
-            }
-        }, conf.connectTimeout);
 
     Util.Debug("<< RFB.init_ws");
 }
@@ -327,7 +327,7 @@ init_vars = function() {
  * Page states:
  *   loaded       - page load, equivalent to disconnected
  *   connect      - starting initialization
- *   password     - waiting for password
+ *   disconnect   - starting disconnect
  *   failed       - abnormal transition to disconnected
  *   fatal        - failed to load page, or fatal error
  *
@@ -335,15 +335,50 @@ init_vars = function() {
  *   ProtocolVersion
  *   Security
  *   Authentication
+ *   password     - waiting for password, not part of RFB
  *   SecurityResult
  *   ServerInitialization
  */
 updateState = function(state, statusMsg) {
     var func, cmsg, oldstate = rfb_state;
+
     if (state === oldstate) {
         /* Already here, ignore */
         Util.Debug("Already in state '" + state + "', ignoring.");
         return;
+    }
+
+    /* 
+     * These are disconnected states. A previous connect may
+     * asynchronously cause a connection so make sure we are closed.
+     */
+    if (state in {'disconnected':1, 'loaded':1, 'connect':1,
+                  'disconnect':1, 'failed':1, 'fatal':1}) {
+        if (sendTimer) {
+            clearInterval(sendTimer);
+            sendTimer = null;
+        }
+
+        if (msgTimer) {
+            clearInterval(msgTimer);
+            msgTimer = null;
+        }
+
+        if (canvas && canvas.getContext()) {
+            canvas.stop();
+            if (! /__debug__$/i.test(document.location.href)) {
+                canvas.clear();
+            }
+        }
+
+        if (ws) {
+            if ((ws.readyState === WebSocket.OPEN) || 
+               (ws.readyState === WebSocket.CONNECTING)) {
+                Util.Info("Closing WebSocket connection");
+                ws.close();
+            }
+            ws.onmessage = function (e) { return; };
+        }
     }
 
     if (oldstate === 'fatal') {
@@ -356,9 +391,6 @@ updateState = function(state, statusMsg) {
         func = Util.Warn;
     }
 
-    cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
-    func("New state '" + state + "', was '" + oldstate + "'." + cmsg);
-
     if ((oldstate === 'failed') && (state === 'disconnected')) {
         // Do disconnect action, but stay in failed state.
         rfb_state = 'failed';
@@ -366,53 +398,50 @@ updateState = function(state, statusMsg) {
         rfb_state = state;
     }
 
+    cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
+    func("New state '" + rfb_state + "', was '" + oldstate + "'." + cmsg);
+
+    if (connTimer && (rfb_state !== 'connect')) {
+        Util.Debug("Clearing connect timer");
+        clearInterval(connTimer);
+        connTimer = null;
+    }
+
+    if (disconnTimer && (rfb_state !== 'disconnect')) {
+        Util.Debug("Clearing disconnect timer");
+        clearInterval(disconnTimer);
+        disconnTimer = null;
+    }
+
     switch (state) {
-    case 'loaded':
-    case 'disconnected':
-
-        if (sendTimer) {
-            clearInterval(sendTimer);
-            sendTimer = null;
-        }
-
-        if (ws) {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.close();
-            }
-            ws.onmessage = function (e) { return; };
-        }
-
-        if (canvas && canvas.getContext()) {
-            canvas.stop();
-            if (! /__debug__$/i.test(document.location.href)) {
-                canvas.clear();
-            }
+    case 'normal':
+        if ((oldstate === 'disconnected') || (oldstate === 'failed')) {
+            Util.Error("Invalid transition from 'disconnected' or 'failed' to 'normal'");
         }
 
         break;
 
 
     case 'connect':
+        
+        connTimer = setTimeout(function () {
+                updateState('failed', "Connect timeout");
+            }, conf.connectTimeout);
+
         init_vars();
+        init_ws();
 
-        if ((ws) && (ws.readyState === WebSocket.OPEN)) {
-            ws.close();
-        }
-        init_ws(); // onopen transitions to 'ProtocolVersion'
-
+        // WebSocket.onopen transitions to 'ProtocolVersion'
         break;
 
 
-    case 'password':
-        // Ignore password state by default
-        break;
+    case 'disconnect':
 
+        disconnTimer = setTimeout(function () {
+                updateState('failed', "Disconnect timeout");
+            }, conf.disconnectTimeout);
 
-    case 'normal':
-        if ((oldstate === 'disconnected') || (oldstate === 'failed')) {
-            Util.Error("Invalid transition from 'disconnected' or 'failed' to 'normal'");
-        }
-
+        // WebSocket.onclose transitions to 'disconnected'
         break;
 
 
@@ -427,9 +456,6 @@ updateState = function(state, statusMsg) {
             Util.Error("Error while initializing.");
         }
 
-        if ((ws) && (ws.readyState === WebSocket.OPEN)) {
-            ws.close();
-        }
         // Make sure we transition to disconnected
         setTimeout(function() { updateState('disconnected'); }, 50);
 
@@ -437,7 +463,7 @@ updateState = function(state, statusMsg) {
 
 
     default:
-        // Invalid state transition
+        // No state change action to take
 
     }
 
@@ -469,11 +495,8 @@ function handle_message() {
     }
     switch (rfb_state) {
     case 'disconnected':
-        Util.Error("Got data while disconnected");
-        break;
     case 'failed':
-        Util.Warn("Giving up!");
-        that.disconnect();
+        Util.Error("Got data while disconnected");
         break;
     case 'normal':
         if (normal_msg() && rQlen() > 0) {
@@ -1556,7 +1579,7 @@ that.connect = function(host, port, password) {
 
 that.disconnect = function() {
     //Util.Debug(">> disconnect");
-    updateState('disconnected', 'Disconnected');
+    updateState('disconnect', 'Disconnecting');
     //Util.Debug("<< disconnect");
 };
 
