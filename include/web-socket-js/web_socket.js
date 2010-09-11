@@ -119,7 +119,10 @@
   WebSocket.prototype.close = function() {
     if (!this.__flash) return;
     this.readyState = this.__flash.getReadyState();
-    if (this.readyState != WebSocket.OPEN) return;
+    if ((this.readyState === WebSocket.CLOSED) ||
+        (this.readState === WebSocket.CLOSING)) {
+        return;
+    }
     this.__flash.close();
     // Sets/calls them manually here because Flash WebSocketConnection.close cannot fire events
     // which causes weird error:
