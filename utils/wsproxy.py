@@ -112,7 +112,7 @@ def proxy_handler(client):
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tsock.connect((target_host, target_port))
 
-    if not settings['daemon'] and not settings['multiprocess']:
+    if settings['verbose'] and not settings['daemon']:
         print traffic_legend
 
     try:
@@ -128,14 +128,13 @@ if __name__ == '__main__':
     usage = "%prog [--record FILE]"
     usage += " [source_addr:]source_port target_addr:target_port"
     parser = optparse.OptionParser(usage=usage)
+    parser.add_option("--verbose", "-v", action="store_true",
+            help="verbose messages and per frame traffic")
     parser.add_option("--record",
             help="record session to a file", metavar="FILE")
     parser.add_option("--foreground", "-f",
             dest="daemon", default=True, action="store_false",
             help="stay in foreground, do not daemonize")
-    parser.add_option("--multiprocess", "-m",
-            dest="multiprocess", action="store_true",
-            help="fork handler processes")
     parser.add_option("--ssl-only", action="store_true",
             help="disallow non-encrypted connections")
     parser.add_option("--cert", default="self.pem",
@@ -160,13 +159,13 @@ if __name__ == '__main__':
     if options.ssl_only and not os.path.exists(options.cert):
         parser.error("SSL only and %s not found" % options.cert)
 
+    settings['verbose'] = options.verbose
     settings['listen_host'] = host
     settings['listen_port'] = port
     settings['handler'] = proxy_handler
     settings['cert'] = os.path.abspath(options.cert)
     settings['ssl_only'] = options.ssl_only
     settings['daemon'] = options.daemon
-    settings['multiprocess'] = options.multiprocess
     if options.record:
         settings['record'] = os.path.abspath(options.record)
     start_server()

@@ -45,7 +45,7 @@ unsigned int bufsize, dbufsize;
 settings_t settings;
 
 void traffic(char * token) {
-    if ((! settings.daemon) && (! settings.multiprocess)) {
+    if ((settings.verbose) && (! settings.daemon)) {
         fprintf(stdout, "%s", token);
         fflush(stdout);
     }
@@ -427,7 +427,7 @@ void daemonize(int keepfd) {
     for (i=getdtablesize(); i>=0; --i) {
         if (i != keepfd) {
             close(i);
-        } else {
+        } else if (settings.verbose) {
             printf("keeping fd %d\n", keepfd);
         }
     }
@@ -480,21 +480,16 @@ void start_server() {
         daemonize(lsock);
     }
 
-    if (settings.multiprocess) {
-        printf("Waiting for connections on %s:%d\n",
-                settings.listen_host, settings.listen_port);
-        // Reep zombies
-        signal(SIGCHLD, SIG_IGN);
-    }
+    // Reep zombies
+    signal(SIGCHLD, SIG_IGN);
+
+    printf("Waiting for connections on %s:%d\n",
+            settings.listen_host, settings.listen_port);
 
     while (1) {
         clilen = sizeof(cli_addr);
         pipe_error = 0;
         pid = 0;
-        if (! settings.multiprocess) {
-            printf("Waiting for connection on %s:%d\n",
-                   settings.listen_host, settings.listen_port);
-        }
         csock = accept(lsock, 
                        (struct sockaddr *) &cli_addr, 
                        &clilen);
@@ -508,21 +503,15 @@ void start_server() {
          *    20 for WS '\x00' / '\xff' and good measure  */
         dbufsize = (bufsize * 3)/4 - 20;
 
-        if (settings.multiprocess) {
-            handler_msg("forking handler process\n");
-            pid = fork();
-        }
+        handler_msg("forking handler process\n");
+        pid = fork();
 
         if (pid == 0) {  // handler process
             ws_ctx = do_handshake(csock);
             if (ws_ctx == NULL) {
                 close(csock);
-                if (settings.multiprocess) {
-                    handler_msg("No connection after handshake");
-                    break;   // Child process exits
-                } else {
-                    continue;
-                }
+                handler_msg("No connection after handshake");
+                break;   // Child process exits
             }
 
             settings.handler(ws_ctx);
@@ -530,10 +519,8 @@ void start_server() {
                 handler_emsg("Closing due to SIGPIPE\n");
             }
             close(csock);
-            if (settings.multiprocess) {
-                handler_msg("handler exit\n");
-                break;   // Child process exits
-            }
+            handler_msg("handler exit\n");
+            break;   // Child process exits
         } else {         // parent process
             settings.handler_id += 1;
         }

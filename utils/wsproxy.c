@@ -230,7 +230,7 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
         return;
     }
 
-    if ((! settings.daemon) && (! settings.multiprocess)) {
+    if ((settings.verbose) && (! settings.daemon)) {
         printf("%s", traffic_legend);
     }
 
@@ -242,12 +242,12 @@ void proxy_handler(ws_ctx_t *ws_ctx) {
 int main(int argc, char *argv[])
 {
     int fd, c, option_index = 0;
-    static int ssl_only = 0, foreground = 0, multi = 0;
+    static int ssl_only = 0, foreground = 0, verbose = 0;
     char *found;
     static struct option long_options[] = {
+        {"verbose",    no_argument,       &verbose,    'v'},
         {"ssl-only",   no_argument,       &ssl_only,    1 },
         {"foreground", no_argument,       &foreground, 'f'},
-        {"multiprocess", no_argument,     &multi,      'm'},
         /* ---- */
         {"cert",       required_argument, 0,           'c'},
         {0, 0, 0, 0}
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
     settings.cert = realpath("self.pem", NULL);
 
     while (1) {
-        c = getopt_long (argc, argv, "fmc:",
+        c = getopt_long (argc, argv, "vfc:",
                          long_options, &option_index);
 
         /* Detect the end */
@@ -267,11 +267,11 @@ int main(int argc, char *argv[])
                 break; // ignore
             case 1:
                 break; // ignore
+            case 'v':
+                verbose = 1;
+                break;
             case 'f':
                 foreground = 1;
-                break;
-            case 'm':
-                multi = 1;
                 break;
             case 'r':
                 if ((fd = open(optarg, O_CREAT,
@@ -290,9 +290,9 @@ int main(int argc, char *argv[])
                 usage("");
         }
     }
+    settings.verbose      = verbose;
     settings.ssl_only     = ssl_only;
     settings.daemon       = foreground ? 0: 1;
-    settings.multiprocess = multi;
 
     if ((argc-optind) != 2) {
         usage("Invalid number of arguments\n");
@@ -329,9 +329,9 @@ int main(int argc, char *argv[])
         }
     }
 
+    //printf("  verbose: %d\n",   settings.verbose);
     //printf("  ssl_only: %d\n", settings.ssl_only);
     //printf("  daemon: %d\n",   settings.daemon);
-    //printf("  multiproces: %d\n",   settings.multiprocess);
     //printf("  cert: %s\n",     settings.cert);
 
     settings.handler = proxy_handler; 

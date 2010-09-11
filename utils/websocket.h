@@ -7,13 +7,13 @@ typedef struct {
 } ws_ctx_t;
 
 typedef struct {
+    int verbose;
     char listen_host[256];
     int listen_port;
     void (*handler)(ws_ctx_t*);
     int handler_id;
     int ssl_only;
     int daemon;
-    int multiprocess;
     char *record;
     char *cert;
 } settings_t;
@@ -38,11 +38,7 @@ ssize_t ws_send(ws_ctx_t *ctx, const void *buf, size_t len);
 
 #define gen_handler_msg(stream, ...) \
     if (! settings.daemon) { \
-        if (settings.multiprocess) { \
-            fprintf(stream, "  %d: ", settings.handler_id); \
-        } else { \
-            fprintf(stream, "  "); \
-        } \
+        fprintf(stream, "  %d: ", settings.handler_id); \
         fprintf(stream, __VA_ARGS__); \
     }
 

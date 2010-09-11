@@ -22,6 +22,7 @@ from urlparse import urlsplit
 from cgi import parse_qsl
 
 settings = {
+    'verbose'     : False,
     'listen_host' : '',
     'listen_port' : None,
     'handler'     : None,
@@ -29,7 +30,6 @@ settings = {
     'cert'        : None,
     'ssl_only'    : False,
     'daemon'      : True,
-    'multiprocess': False,
     'record'      : None, }
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
@@ -47,16 +47,13 @@ class EClose(Exception):
     pass
 
 def traffic(token="."):
-    if not settings['daemon'] and not settings['multiprocess']:
+    if settings['verbose'] and not settings['daemon']:
         sys.stdout.write(token)
         sys.stdout.flush()
 
 def handler_msg(msg):
     if not settings['daemon']:
-        if settings['multiprocess']:
-            print "  %d: %s" % (settings['handler_id'], msg)
-        else:
-            print "  %s" % msg
+        print "  %d: %s" % (settings['handler_id'], msg)
 
 def encode(buf):
     buf = b64encode(buf)
@@ -172,7 +169,7 @@ def daemonize(keepfd=None):
         try:
             if fd != keepfd:
                 os.close(fd)
-            else:
+            elif settings['verbose']:
                 print "Keeping fd: %d" % fd
         except OSError, exc:
             if exc.errno != errno.EBADF: raise
@@ -193,34 +190,27 @@ def start_server():
     if settings['daemon']:
         daemonize(keepfd=lsock.fileno())
 
-    if settings['multiprocess']:
-        print 'Waiting for connections on %s:%s' % (
-                settings['listen_host'], settings['listen_port'])
-        # Reep zombies
-        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+    # Reep zombies
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+
+    print 'Waiting for connections on %s:%s' % (
+            settings['listen_host'], settings['listen_port'])
 
     while True:
         try:
             csock = startsock = None
             pid = 0
-            if not settings['multiprocess']:
-                print 'Waiting for connection on %s:%s' % (
-                        settings['listen_host'], settings['listen_port'])
             startsock, address = lsock.accept()
             handler_msg('got client connection from %s' % address[0])
 
-            if settings['multiprocess']:
-                handler_msg("forking handler process")
-                pid = os.fork()
+            handler_msg("forking handler process")
+            pid = os.fork()
 
             if pid == 0:  # handler process
                 csock = do_handshake(startsock)
                 if not csock:
-                    if settings['multiprocess']:
-                        handler_msg("No connection after handshake");
-                        break
-                    else:
-                        continue
+                    handler_msg("No connection after handshake");
+                    break
                 settings['handler'](csock)
             else:         # parent process
                 settings['handler_id'] += 1
@@ -234,5 +224,4 @@ def start_server():
         if pid == 0:
             if csock: csock.close()
             if startsock and startsock != csock: startsock.close()
-
-            if settings['multiprocess']: break # Child process exits
+            break # Child process exits
