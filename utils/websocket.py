@@ -110,12 +110,11 @@ def do_handshake(sock):
         sock.send(policy_response)
         sock.close()
         return False
-    elif handshake.startswith("\x16"):
+    elif handshake[0] in ("\x16", "\x80"):
         retsock = ssl.wrap_socket(
                 sock,
                 server_side=True,
-                certfile=settings['cert'],
-                ssl_version=ssl.PROTOCOL_TLSv1)
+                certfile=settings['cert'])
         scheme = "wss"
         handler_msg("using SSL/TLS")
     elif settings['ssl_only']:
@@ -128,6 +127,8 @@ def do_handshake(sock):
         handler_msg("using plain (not SSL) socket")
     handshake = retsock.recv(4096)
     #handler_msg("handshake: " + repr(handshake))
+    if len(handshake) == 0:
+        raise EClose("Client closed during handshake")
     h = parse_handshake(handshake)
 
     if h.get('key3'):
