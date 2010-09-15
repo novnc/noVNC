@@ -350,7 +350,8 @@ ws_ctx_t *do_handshake(int sock) {
         send(sock, policy_response, sizeof(policy_response), 0);
         close(sock);
         return NULL;
-    } else if (bcmp(handshake, "\x16", 1) == 0) {
+    } else if ((bcmp(handshake, "\x16", 1) == 0) ||
+               (bcmp(handshake, "\x80", 1) == 0)) {
         // SSL
         if (! settings.cert) { return NULL; }
         ws_ctx = ws_socket_ssl(sock, settings.cert);
@@ -368,6 +369,11 @@ ws_ctx_t *do_handshake(int sock) {
         handler_msg("using plain (not SSL) socket\n");
     }
     len = ws_recv(ws_ctx, handshake, 4096);
+    if (len == 0) {
+        handler_emsg("Client closed during handshake\n");
+        close(sock);
+        return NULL;
+    }
     handshake[len] = 0;
 
     if (!parse_handshake(handshake, &headers)) {
