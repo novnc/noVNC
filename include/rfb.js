@@ -1603,6 +1603,23 @@ that.sendCtrlAltDel = function() {
     send_array(arr);
 };
 
+// Send a key press. If 'down' is not specified then send a down key
+// followed by an up key.
+that.sendKey = function(code, down) {
+    if (rfb_state !== "normal") { return false; }
+    var arr = [];
+    if (typeof down !== 'undefined') {
+        Util.Info("Sending key code (" + (down ? "down" : "up") + "): " + code);
+        arr = arr.concat(keyEvent(code, down ? 1 : 0));
+    } else {
+        Util.Info("Sending key code (down + up): " + code);
+        arr = arr.concat(keyEvent(code, 1));
+        arr = arr.concat(keyEvent(code, 0));
+    }
+    arr = arr.concat(fbUpdateRequest(1));
+    send_array(arr);
+};
+
 that.clipboardPasteFrom = function(text) {
     if (rfb_state !== "normal") { return; }
     //Util.Debug(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
