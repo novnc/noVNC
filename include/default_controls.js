@@ -48,7 +48,7 @@ load: function(target) {
     html += '            <li><input id="VNC_true_color"';
     html += '                type="checkbox" checked> True Color</li>';
     html += '            <li><input id="VNC_cursor"';
-    html += '                type="checkbox" checked> Local Cursor</li>';
+    html += '                type="checkbox"> Local Cursor</li>';
     html += '            <hr>';
 
     // Stylesheet selection dropdown
@@ -112,7 +112,7 @@ load: function(target) {
     DC.initSetting('password', '');
     DC.initSetting('encrypt', false);
     DC.initSetting('true_color', true);
-    DC.initSetting('cursor', true);
+    DC.initSetting('cursor', false);
 
     DC.rfb = RFB({'target': 'VNC_canvas',
                   'updateState': DC.updateState,

@@ -135,7 +135,7 @@ Util.conf_default(conf, that, 'focusContainer', document);
 
 Util.conf_default(conf, that, 'encrypt',        false, true);
 Util.conf_default(conf, that, 'true_color',     true, true);
-Util.conf_default(conf, that, 'local_cursor',   true, true);
+Util.conf_default(conf, that, 'local_cursor',   false, true);
 
 // time to wait for connection
 Util.conf_default(conf, that, 'connectTimeout', 2000);
