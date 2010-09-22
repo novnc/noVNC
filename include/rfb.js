@@ -366,7 +366,7 @@ updateState = function(state, statusMsg) {
 
         if (canvas && canvas.getContext()) {
             canvas.stop();
-            if (! /__debug__$/i.test(document.location.href)) {
+            if (Util.get_logging() !== 'debug') {
                 canvas.clear();
             }
         }

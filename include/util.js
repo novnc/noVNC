@@ -59,7 +59,16 @@ Array.prototype.push32 = function (num) {
  * Logging/debug routines
  */
 
+Util._log_level = 'warn';
 Util.init_logging = function (level) {
+    if (typeof level === 'undefined') {
+        Util._log_level = (document.location.href.match(
+                /logging=([A-Za-z0-9\._\-]*)/) ||
+                ['', Util._log_level])[1];
+        level = Util._log_level;
+    } else {
+        Util._log_level = level;
+    }
     if (typeof window.console === "undefined") {
         if (typeof window.opera !== "undefined") {
             window.console = {
@@ -86,10 +95,11 @@ Util.init_logging = function (level) {
             throw("invalid logging type '" + level + "'");
     }
 };
+Util.get_logging = function () {
+        return Util._log_level;
+    }
 // Initialize logging level
-Util.init_logging( (document.location.href.match(
-                    /logging=([A-Za-z0-9\._\-]*)/) ||
-                    ['', 'warn'])[1] );
+Util.init_logging();
 
 Util.dirObj = function (obj, depth, parent) {
     var i, msg = "", val = "";
