@@ -797,6 +797,11 @@ init_msg = function() {
             case 1:  // failed
                 if (rfb_version >= 3.8) {
                     reason_len = rQshift32();
+                    if (rQlen() < reason_len) {
+                        Util.Debug("   waiting for SecurityResult reason bytes");
+                        rQi -= 8; // Unshift the status and length
+                        return;
+                    }
                     reason = rQshiftStr(reason_len);
                     updateState('failed', reason);
                 } else {
