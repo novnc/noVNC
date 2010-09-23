@@ -89,7 +89,7 @@ function constructor() {
     Util.Debug(">> Canvas.init");
 
     var c, ctx, imgTest, tval, i, curDat, curSave,
-        has_imageData = false;
+        has_imageData = false, UE = Util.Engine;
 
     if (! conf.target) { throw("target must be set"); }
 
@@ -103,6 +103,11 @@ function constructor() {
 
     if (! conf.ctx) { conf.ctx = c.getContext('2d'); }
     ctx = conf.ctx;
+
+    if (UE.gecko) { Util.Debug("Browser: gecko " + UE.gecko); }
+    if (UE.webkit) { Util.Debug("Browser: webkit " + UE.webkit); }
+    if (UE.trident) { Util.Debug("Browser: webkit " + UE.trident); }
+    if (UE.presto) { Util.Debug("Browser: webkit " + UE.presto); }
 
     that.clear();
 

@@ -104,8 +104,10 @@
             message("prefer Canvas ops: " + time2 + "ms total, " +
                     (time2 / iterations) + "ms per frame");
 
-            canvas.resize(start_width, start_height, true);
-            test_functions();
+            if (Util.get_logging() !== 'debug') {
+                canvas.resize(start_width, start_height, true);
+                test_functions();
+            }
             $('startButton').disabled = false;
             $('startButton').value = "Do Performance Test";
         }

@@ -105,7 +105,8 @@ def proxy_handler(client):
 
     if settings['record']:
         handler_msg("opening record file: %s" % settings['record'])
-        rec = open(settings['record'], 'w+')
+        rec = open("%s.%s" % (settings['record'],
+                              settings['handler_id']), 'w+')
         rec.write("var VNC_frame_data = [\n")
 
     handler_msg("connecting to: %s:%s" % (target_host, target_port))
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     parser.add_option("--verbose", "-v", action="store_true",
             help="verbose messages and per frame traffic")
     parser.add_option("--record",
-            help="record session to a file", metavar="FILE")
+            help="record sessions to FILE.[session_number]", metavar="FILE")
     parser.add_option("--foreground", "-f",
             dest="daemon", default=True, action="store_false",
             help="stay in foreground, do not daemonize")
