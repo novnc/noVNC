@@ -127,31 +127,27 @@ var that           = {},         // Public API interface
 //
 // Configuration settings
 //
+function cdef(v, type, defval, desc) {
+    Util.conf_default(conf, that, v, type, defval, desc); }
 
-// VNC viewport rendering Canvas
-Util.conf_default(conf, that, 'target', 'VNC_canvas');
-// Area that traps keyboard input
-Util.conf_default(conf, that, 'focusContainer', document);
+cdef('target',         'str', 'VNC_canvas', 'VNC viewport rendering Canvas');
+cdef('focusContainer', 'dom', document, 'Area that traps keyboard input');
 
-Util.conf_default(conf, that, 'encrypt',        false, true);
-Util.conf_default(conf, that, 'true_color',     true, true);
-Util.conf_default(conf, that, 'local_cursor',   false, true);
+cdef('encrypt',        'bool', false, 'Use TLS/SSL/wss encryption');
+cdef('true_color',     'bool', true,  'Request true color pixel data');
+cdef('local_cursor',   'bool', false, 'Request locally rendered cursor');
 
-// time to wait for connection
-Util.conf_default(conf, that, 'connectTimeout', 2000);
-// time to wait for disconnection
-Util.conf_default(conf, that, 'disconnectTimeout', 3000);
-// frequency to check for send/receive
-Util.conf_default(conf, that, 'check_rate',     217);
-// frequency to send frameBufferUpdate requests
-Util.conf_default(conf, that, 'fbu_req_rate',   1413);
+cdef('connectTimeout',    'int', 2,    'Time (s) to wait for connection');
+cdef('disconnectTimeout', 'int', 3,    'Time (s) to wait for disconnection');
+cdef('check_rate',        'int', 217,  'Timing (ms) of send/receive check');
+cdef('fbu_req_rate',      'int', 1413, 'Timing (ms) of frameBufferUpdate requests');
 
-// state update callback
-Util.conf_default(conf, that, 'updateState', function () {
-        Util.Debug(">> externalUpdateState stub"); });
-// clipboard contents received callback
-Util.conf_default(conf, that, 'clipboardReceive', function () {
-        Util.Debug(">> clipboardReceive stub"); });
+cdef('updateState',
+     'func', function() { Util.Debug("updateState stub"); },
+     'callback: state update');
+cdef('clipboardReceive',
+     'func', function() { Util.Debug("clipboardReceive stub"); },
+     'callback: clipboard contents received');
 
 
 // Override/add some specific getters/setters
@@ -426,7 +422,7 @@ updateState = function(state, statusMsg) {
         
         connTimer = setTimeout(function () {
                 updateState('failed', "Connect timeout");
-            }, conf.connectTimeout);
+            }, conf.connectTimeout * 1000);
 
         init_vars();
         init_ws();
@@ -437,9 +433,11 @@ updateState = function(state, statusMsg) {
 
     case 'disconnect':
 
-        disconnTimer = setTimeout(function () {
-                updateState('failed', "Disconnect timeout");
-            }, conf.disconnectTimeout);
+        if (! test_mode) {
+            disconnTimer = setTimeout(function () {
+                    updateState('failed', "Disconnect timeout");
+                }, conf.disconnectTimeout * 1000);
+        }
 
         // WebSocket.onclose transitions to 'disconnected'
         break;
@@ -526,7 +524,7 @@ function handle_message() {
 }
 
 recv_message = function(e) {
-    //Util.Debug(">> recv_message");
+    //Util.Debug(">> recv_message: " + e.data.length);
 
     try {
         decode_message(e.data);

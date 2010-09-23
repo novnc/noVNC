@@ -22,8 +22,11 @@
 }
 #VNC_encrypt {
 }
+#VNC_connectTimeout {
+    width: 30;
+}
 #VNC_connect_button {
-    width: 100px;
+    width: 110px;
 }
 
 #VNC_status_bar td {

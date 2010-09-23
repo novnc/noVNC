@@ -131,10 +131,9 @@ Util.getQueryVar = function(name, defVal) {
 };
 
 // Set defaults for Crockford style function namespaces
-Util.conf_default = function(cfg, api, v, val, force_bool) {
-    if (typeof cfg[v] === 'undefined') {
-        cfg[v] = val;
-    }
+Util.conf_default = function(cfg, api, v, type, defval, desc) {
+    // Description
+    api['get_' + v + '_desc'] = desc;
     // Default getter
     if (typeof api['get_' + v] === 'undefined') {
         api['get_' + v] = function () {
@@ -144,15 +143,25 @@ Util.conf_default = function(cfg, api, v, val, force_bool) {
     // Default setter
     if (typeof api['set_' + v] === 'undefined') {
         api['set_' + v] = function (val) {
-                if (force_bool) {
+                if (type in {'boolean':1, 'bool':1}) {
                     if ((!val) || (val in {'0':1, 'no':1, 'false':1})) {
                         val = false;
                     } else {
                         val = true;
                     }
+                } else if (type in {'integer':1, 'int':1}) {
+                    val = parseInt(val, 10);
                 }
                 cfg[v] = val;
             };
+    }
+
+    if (typeof cfg[v] === 'undefined') {
+        // Set to default
+        api['set_' + v](defval);
+    } else {
+        // Coerce existing setting to the right type
+        api['set_' + v](cfg[v]);
     }
 };
 
