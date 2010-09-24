@@ -26,9 +26,6 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 
 ### Browser Requirements
 
-<a href="http://github.com/kanaka/noVNC/blob/master/docs/browsers.md">
-Detailed browser status/testing</a>.
-
 * HTML5 Canvas: Except for Internet Explorer, most
   browsers have had Canvas support for quite some time. Internet
   Explorer 9 will have Canvas support (finally).
@@ -42,6 +39,10 @@ Detailed browser status/testing</a>.
   functionality so it will run on older browsers, but decode and
   rendering happen in Javascript, so a slow Javascript engine will
   mean noVNC is painfully slow.
+
+* I maintain a more detailed list of browser compatibility <a
+  href="http://github.com/kanaka/noVNC/blob/master/docs/browsers.md">here</a>.
+
 
 ### Server Requirements
 
