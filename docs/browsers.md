@@ -6,7 +6,7 @@
     <tr>
         <th>Browser</th>
         <th>Status</th>
-        <th>Notes</th>
+        <th>Performance/Notes</th>
     </tr> <tr>
         <td>Chrome 7.0.510.0</td>
         <td><strong>Broken</strong></td>
@@ -24,13 +24,13 @@
         <td>Good</td>
         <td>Slowed by web-socket-js overhead. Local cursor causes segfault.</td>
     </tr> <tr>
+        <td>Arora 0.10.1</td>
+        <td>Fair</td>
+        <td>Slow due to broken putImageData and web-socket-js.</td>
+    </tr> <tr>
         <td>Opera 10.60</td>
         <td>Poor</td>
         <td>web-socket-js problems, mouse/keyboard issues (see note 1)</td>
-    </tr> <tr>
-        <td>Arora 0.10.1</td>
-        <td>Good</td>
-        <td>Slow due to broken putImageData and web-socket-js.</td>
     </tr> <tr>
         <td>Konqueror 4.3.2</td>
         <td><strong>Broken</strong></td>
@@ -45,7 +45,7 @@
     <tr>
         <th>Browser</th>
         <th>Status</th>
-        <th>Notes</th>
+        <th>Performance/Notes</th>
     </tr> <tr>
         <td>Chrome 5.0.375.29</td>
         <td>Excellent</td>
@@ -59,13 +59,13 @@
         <td>Fair</td>
         <td>Works fine but is slow.</td>
     </tr> <tr>
+        <td>Arora 0.5</td>
+        <td>Fair</td>
+        <td>Slow due to broken putImageData and web-socket-js.</td>
+    </tr> <tr>
         <td>Opera 10.60</td>
         <td>Poor</td>
         <td>web-socket-js problems, mouse/keyboard issues (see note 1)</td>
-    </tr> <tr>
-        <td>Arora 0.5</td>
-        <td>Good</td>
-        <td>Slow due to broken putImageData and web-socket-js.</td>
     </tr> <tr>
         <td>Konqueror 4.2.2</td>
         <td><strong>Broken</strong></td>
@@ -80,19 +80,19 @@
     <tr>
         <th>Browser</th>
         <th>Status</th>
-        <th>Notes</th>
+        <th>Performance/Notes</th>
     </tr> <tr>
         <td>Chrome 5.0.375.99</td>
         <td>Excellent</td>
         <td>Very fast. Native WebSockets.</td>
     </tr> <tr>
+        <td>Safari 5.0</td>
+        <td>Excellent</td>
+        <td>Fast. Native WebSockets.</td>
+    </tr> <tr>
         <td>Firefox 3.0.19</td>
         <td>Good</td>
         <td>Some overhead from web-socket-js.</td>
-    </tr> <tr>
-        <td>Safari 5.0</td>
-        <td>Fair</td>
-        <td>Fast. Native WebSockets.</td>
     </tr> <tr>
         <td>IE 6, 7, 8</td>
         <td><strong>Non-starter</strong></td>

@@ -8,10 +8,6 @@ specifically Canvas and WebSockets (supports 'wss://' encryption).
 noVNC is licensed under the
 [LGPLv3](http://www.gnu.org/licenses/lgpl.html).
 
-For browsers that do not have builtin WebSockets support, the project
-includes [web-socket-js](http://github.com/gimite/web-socket-js),
-a WebSockets emulator using Adobe Flash .
-
 Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
 sponsoring ongoing development of this project (and for employing me).
 
@@ -28,7 +24,26 @@ Running in Chrome before and after connecting:
 See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">here</a>.
 
 
-### Requirements
+### Browser Requirements
+
+<a href="http://github.com/kanaka/noVNC/blob/master/docs/browsers.md">
+Detailed browser status/testing</a>.
+
+* HTML5 Canvas: Except for Internet Explorer, most
+  browsers have had Canvas support for quite some time. Internet
+  Explorer 9 will have Canvas support (finally).
+
+* HTML5 WebSockets: For browsers that do not have builtin
+  WebSockets support, the project includes
+  <a href="http://github.com/gimite/web-socket-js">web-socket-js</a>,
+  a WebSockets emulator using Adobe Flash.
+
+* Fast Javascript Engine: noVNC avoids using new Javascript
+  functionality so it will run on older browsers, but decode and
+  rendering happen in Javascript, so a slow Javascript engine will
+  mean noVNC is painfully slow.
+
+### Server Requirements
 
 Unless you are using a VNC server with support for WebSockets
 connections (only my [fork of libvncserver](http://github.com/kanaka/libvncserver)
@@ -114,77 +129,6 @@ There a few reasons why a proxy is required:
  (or whatever port you used above to run the web server). Specify the
  host and port where the proxy is running and the password that the
  vnc server is using (if any). Hit the Connect button.
-
-
-### Browser Support
-
-In the following table Jaunty is Ubuntu 9.04 and WinXP is Windows XP.
-
-#### Linux (Ubuntu 9.04)
-
-<table>
-    <tr>
-        <th>OS</th> <th>Browser</th>
-        <th>Status</th>
-        <th>Notes</th>
-    </tr> <tr>
-        <td>Jaunty</td> <td>Chrome 5.0.375.29</td>
-        <td>Excellent</td>
-        <td>Very fast. Native WebSockets.</td>
-    </tr> <tr>
-        <td>Jaunty</td> <td>Firefox 3.5</td>
-        <td>Good</td>
-        <td>Large full-color images are somewhat slow from web-socket-js overhead.</td>
-    </tr> <tr>
-        <td>Jaunty</td> <td>Firefox 3.0.17</td>
-        <td>Fair</td>
-        <td>Works fine but is slow.</td>
-    </tr> <tr>
-        <td>Jaunty</td> <td>Opera 10.60</td>
-        <td>Poor</td>
-        <td>web-socket-js problems, mouse/keyboard issues. See note 1</td>
-    </tr> <tr>
-        <td>Jaunty</td> <td>Arora 0.5</td>
-        <td>Good</td>
-        <td>Broken putImageData so large full-color images
-            are slow. Uses web-socket-js.</td>
-    </tr> <tr>
-        <td>Jaunty</td> <td>Konqueror 4.2.2</td>
-        <td><strong>Broken</strong></td>
-        <td>web-socket-js never loads</td>
-    </tr> <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr> <tr>
-        <td>WinXP</td> <td>Chrome 5.0.375.99</td>
-        <td>Excellent</td>
-        <td>Very fast. Native WebSockets.</td>
-    </tr> <tr>
-        <td>WinXP</td> <td>Firefox 3.0.19</td>
-        <td>Good</td>
-        <td>Some overhead from web-socket-js.</td>
-    </tr> <tr>
-        <td>WinXP</td> <td>Safari 5.0</td>
-        <td>Fair</td>
-        <td>Fast. Native WebSockets. Broken 'wss://' (SSL) - weird client header</td>
-    </tr> <tr>
-        <td>WinXP</td> <td>IE 6, 7, 8</td>
-        <td><strong>Non-starter</strong></td>
-        <td>No basic Canvas support. Javascript painfully slow.</td>
-    </tr>
-</table>
-
-
-* Note 1: Opera interacts poorly with web-socket-js. After two
-  disconnects the browser tab or Flash often hang. Although Javascript
-  is faster than Firefox 3.5, the high variability of web-socket-js
-  performance results in overall performance being lower. Middle mouse
-  clicks and keyboard events need some work to work properly under
-  Opera. Also, Opera does not have support for setting the cursor
-  style url to a data URI scheme, so cursor pseudo-encoding is
-  disabled.
 
 
 ### Integration
