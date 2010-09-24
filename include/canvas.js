@@ -46,6 +46,8 @@ cdef('focused',        'bool', true, 'Capture and send key strokes');
 cdef('colourMap',      'raw',  [], 'Colour map array (not true color)');
 cdef('scale',          'float', 1, 'VNC viewport scale factor');
 
+cdef('render_mode',    'str', '', 'Canvas rendering mode (read-only)');
+
 // Override some specific getters/setters
 that.set_prefer_js = function(val) {
     if (val && c_forceCanvas) {
@@ -71,6 +73,8 @@ that.set_colourMap = function(val, idx) {
         conf.colourMap[idx] = val;
     }
 };
+
+that.set_render_mode = function () { throw("render_mode is read-only"); };
 
 // Add some other getters/setters
 that.get_width = function() {
@@ -135,9 +139,12 @@ function constructor() {
         if (ctx.createImageData) {
             // If it's there, it's faster
             Util.Info("Using Canvas createImageData");
+            conf.render_mode = "createImageData rendering";
             that.imageData = that.imageDataCreate;
         } else if (ctx.getImageData) {
+            // I think this is mostly just Opera
             Util.Info("Using Canvas getImageData");
+            conf.render_mode = "getImageData rendering";
             that.imageData = that.imageDataGet;
         }
         Util.Info("Prefering javascript operations");
@@ -148,6 +155,7 @@ function constructor() {
         that.cmapImage = that.cmapImageData;
     } else {
         Util.Warn("Canvas lacks imageData, using fillRect (slow)");
+        conf.render_mode = "fillRect rendering (slow)";
         c_forceCanvas = true;
         conf.prefer_js = false;
         that.rgbxImage = that.rgbxImageFill;

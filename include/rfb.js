@@ -209,7 +209,7 @@ function rQshiftBytes(len) {
 
 // Create the public API interface and initialize
 function constructor() {
-    var i;
+    var i, rmode;
     Util.Debug(">> RFB.constructor");
 
     // Create lookup tables based encoding number
@@ -225,13 +225,14 @@ function constructor() {
         Util.Error("Canvas exception: " + exc);
         updateState('fatal', "No working Canvas");
     }
+    rmode = canvas.get_render_mode();
 
     init_vars();
 
     /* Check web-socket-js if no builtin WebSocket support */
     if (VNC_native_ws) {
         Util.Info("Using native WebSockets");
-        updateState('loaded', 'noVNC ready (using native WebSockets)');
+        updateState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
     } else {
         Util.Warn("Using web-socket-js flash bridge");
         if ((! Util.Flash) ||
@@ -241,7 +242,7 @@ function constructor() {
             updateState('fatal',
                     "'file://' URL is incompatible with Adobe Flash");
         } else {
-            updateState('loaded', 'noVNC ready (using Flash WebSockets emulation)');
+            updateState('loaded', 'noVNC ready: WebSockets emulation, ' + rmode);
         }
     }
 
