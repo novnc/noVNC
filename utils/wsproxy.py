@@ -101,12 +101,13 @@ def do_proxy(client, target):
                 cpartial = cpartial + buf
 
 def proxy_handler(client):
-    global target_host, target_port, options, rec
+    global target_host, target_port, options, rec, fname
 
     if settings['record']:
-        handler_msg("opening record file: %s" % settings['record'])
-        rec = open("%s.%s" % (settings['record'],
-                              settings['handler_id']), 'w+')
+        fname = "%s.%s" % (settings['record'],
+                            settings['handler_id'])
+        handler_msg("opening record file: %s" % fname)
+        rec = open(fname, 'w+')
         rec.write("var VNC_frame_data = [\n")
 
     handler_msg("connecting to: %s:%s" % (target_host, target_port))
