@@ -10,7 +10,7 @@
 /*jslint browser: true, white: false, bitwise: false */
 /*global window, Util, Base64 */
 
-function Canvas(conf) {
+var Canvas = function(conf) {
 
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
@@ -38,15 +38,12 @@ function cdef(v, type, defval, desc) {
 // Capability settings, default can be overridden
 cdef('prefer_js',      'raw', null, 'Prefer Javascript over canvas methods');
 cdef('cursor_uri',     'raw', null, 'Can we render cursor using data URI');
-
 cdef('target',         'dom',  null, 'Canvas element for VNC viewport');
 cdef('focusContainer', 'dom',  document, 'DOM element that traps keyboard input');
 cdef('true_color',     'bool', true, 'Request true color pixel data');
 cdef('focused',        'bool', true, 'Capture and send key strokes');
 cdef('colourMap',      'raw',  [], 'Colour map array (not true color)');
 cdef('scale',          'float', 1, 'VNC viewport scale factor');
-
-cdef('render_mode',    'str', '', 'Canvas rendering mode (read-only)');
 
 // Override some specific getters/setters
 that.set_prefer_js = function(val) {
@@ -74,8 +71,6 @@ that.set_colourMap = function(val, idx) {
     }
 };
 
-that.set_render_mode = function () { throw("render_mode is read-only"); };
-
 // Add some other getters/setters
 that.get_width = function() {
     return c_width;
@@ -83,8 +78,6 @@ that.get_width = function() {
 that.get_height = function() {
     return c_height;
 };
-
-
 
 //
 // Private functions
@@ -139,12 +132,9 @@ function constructor() {
         if (ctx.createImageData) {
             // If it's there, it's faster
             Util.Info("Using Canvas createImageData");
-            conf.render_mode = "createImageData rendering";
             that.imageData = that.imageDataCreate;
         } else if (ctx.getImageData) {
-            // I think this is mostly just Opera
             Util.Info("Using Canvas getImageData");
-            conf.render_mode = "getImageData rendering";
             that.imageData = that.imageDataGet;
         }
         Util.Info("Prefering javascript operations");
@@ -155,7 +145,6 @@ function constructor() {
         that.cmapImage = that.cmapImageData;
     } else {
         Util.Warn("Canvas lacks imageData, using fillRect (slow)");
-        conf.render_mode = "fillRect rendering (slow)";
         c_forceCanvas = true;
         conf.prefer_js = false;
         that.rgbxImage = that.rgbxImageFill;
@@ -418,30 +407,44 @@ that.start = function(keyPressFunc, mouseButtonFunc, mouseMoveFunc) {
 
 that.rescale = function(factor) {
     var c, tp, x, y, 
-        properties = ['transform', 'WebkitTransform', 'MozTransform', null];
+        properties = ['transform', 'WebkitTransform', 'MozTransform', 'oTransform', null],
+        origin = ['transformOrigin', 'WebkitTransformOrigin', 'MozTransformOrigin', 'oTransformOrigin', null];
+        
+    if (conf.scale === factor) {
+        return;
+    }
+    
     c = conf.target;
-    tp = properties.shift();
-    while (tp) {
-        if (typeof c.style[tp] !== 'undefined') {
+    conf.scale = factor;
+    x = c.width - c.width * factor;
+    y = c.height - c.height * factor;
+    
+    //tp = properties.shift();
+    
+    if (typeof(c.style.zoom) != "undefined") {
+        c.style.zoom = conf.scale;
+        return
+    }
+        
+    while (tp = properties.shift()) {
+        if (typeof c.style[tp] != 'undefined') {
             break;
         }
-        tp = properties.shift();
     }
-
+    
+    while (tpo = origin.shift()) {
+        if (typeof c.style[tpo] != 'undefined') {
+            break;
+        }
+    }
+    
     if (tp === null) {
         Util.Debug("No scaling support");
         return;
     }
-
-    if (conf.scale === factor) {
-        //Util.Debug("Canvas already scaled to '" + factor + "'");
-        return;
-    }
-
-    conf.scale = factor;
-    x = c.width - c.width * factor;
-    y = c.height - c.height * factor;
-    c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
+    
+    c.style[tpo] = "top left";
+    c.style[tp] = "scale(" + conf.scale + ")";
 };
 
 that.resize = function(width, height, true_color) {

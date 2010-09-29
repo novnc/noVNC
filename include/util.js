@@ -8,27 +8,11 @@
 
 "use strict";
 /*jslint bitwise: false, white: false */
-/*global window, console, document, navigator, ActiveXObject*/
+/*global window, document, navigator, ActiveXObject*/
 
 // Globals defined here
-var Util = {}, $;
+var Util = {};
 
-
-/*
- * Simple DOM selector by ID
- */
-if (!window.$) {
-    $ = function (id) {
-        if (document.getElementById) {
-            return document.getElementById(id);
-        } else if (document.all) {
-            return document.all[id];
-        } else if (document.layers) {
-            return document.layers[id];
-        }
-        return undefined;
-    };
-}
 
 /*
  * Make arrays quack
@@ -49,22 +33,16 @@ Array.prototype.push32 = function (num) {
               (num      ) & 0xFF  );
 };
 
-/* 
- * ------------------------------------------------------
- * Namespaced in Util
- * ------------------------------------------------------
- */
+
 
 /*
  * Logging/debug routines
  */
 
 Util._log_level = 'warn';
+
 Util.init_logging = function (level) {
-    if (typeof level === 'undefined') {
-        Util._log_level = (document.location.href.match(
-                /logging=([A-Za-z0-9\._\-]*)/) ||
-                ['', Util._log_level])[1];
+    if (typeof level === 'undefined' || !level) {
         level = Util._log_level;
     } else {
         Util._log_level = level;
@@ -85,50 +63,30 @@ Util.init_logging = function (level) {
 
     Util.Debug = Util.Info = Util.Warn = Util.Error = function (msg) {};
     switch (level) {
-        case 'debug': Util.Debug = function (msg) { console.log(msg); };
-        case 'info':  Util.Info  = function (msg) { console.log(msg); };
-        case 'warn':  Util.Warn  = function (msg) { console.warn(msg); };
-        case 'error': Util.Error = function (msg) { console.error(msg); };
+        case 'debug':
+            Util.Debug = function (msg) { console.log(msg); };
+            break;
+        case 'info':
+            Util.Info  = function (msg) { console.log(msg); };
+            break;
+        case 'warn':
+            Util.Warn  = function (msg) { console.warn(msg); };
+            break;
+        case 'error':
+            Util.Error = function (msg) { console.error(msg); };
+            break;
         case 'none':
             break;
         default:
             throw("invalid logging type '" + level + "'");
     }
 };
+
 Util.get_logging = function () {
-        return Util._log_level;
-    }
-// Initialize logging level
-Util.init_logging();
+    return Util._log_level;
+}
 
-Util.dirObj = function (obj, depth, parent) {
-    var i, msg = "", val = "";
-    if (! depth) { depth=2; }
-    if (! parent) { parent= ""; }
 
-    // Print the properties of the passed-in object 
-    for (i in obj) {
-        if ((depth > 1) && (typeof obj[i] === "object")) { 
-            // Recurse attributes that are objects
-            msg += Util.dirObj(obj[i], depth-1, parent + "." + i);
-        } else {
-            //val = new String(obj[i]).replace("\n", " ");
-            val = obj[i].toString().replace("\n", " ");
-            if (val.length > 30) {
-                val = val.substr(0,30) + "...";
-            } 
-            msg += parent + "." + i + ": " + val + "\n";
-        }
-    }
-    return msg;
-};
-
-// Read a query string variable
-Util.getQueryVar = function(name, defVal) {
-    var re = new RegExp('[?][^#]*' + name + '=([^&#]*)');
-    if (typeof defVal === 'undefined') { defVal = null; }
-    return (document.location.href.match(re) || ['',defVal])[1];
-};
 
 // Set defaults for Crockford style function namespaces
 Util.conf_default = function(cfg, api, v, type, defval, desc) {
@@ -240,6 +198,7 @@ Util.stopEvent = function(e) {
 };
 
 
+
 // Set browser engine versions. Based on mootools.
 Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !!(document.querySelector)};
 
@@ -269,70 +228,9 @@ Util.Flash = (function(){
     }
     version = v.match(/\d+/g);
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
-}()); 
+}());
 
-/*
- * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
- */
 
-// No days means only for this browser session
-Util.createCookie = function(name,value,days) {
-    var date, expires;
-    if (days) {
-        date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        expires = "; expires="+date.toGMTString();
-    }
-    else {
-        expires = "";
-    }
-    document.cookie = name+"="+value+expires+"; path=/";
-};
 
-Util.readCookie = function(name, defaultValue) {
-    var i, c, nameEQ = name + "=", ca = document.cookie.split(';');
-    for(i=0; i < ca.length; i += 1) {
-        c = ca[i];
-        while (c.charAt(0) === ' ') { c = c.substring(1,c.length); }
-        if (c.indexOf(nameEQ) === 0) { return c.substring(nameEQ.length,c.length); }
-    }
-    return (typeof defaultValue !== 'undefined') ? defaultValue : null;
-};
 
-Util.eraseCookie = function(name) {
-    Util.createCookie(name,"",-1);
-};
 
-/*
- * Alternate stylesheet selection
- */
-Util.getStylesheets = function() { var i, links, sheets = [];
-    links = document.getElementsByTagName("link");
-    for (i = 0; i < links.length; i += 1) {
-        if (links[i].title &&
-            links[i].rel.toUpperCase().indexOf("STYLESHEET") > -1) {
-            sheets.push(links[i]);
-        }
-    }
-    return sheets;
-};
-
-// No sheet means try and use value from cookie, null sheet used to
-// clear all alternates.
-Util.selectStylesheet = function(sheet) {
-    var i, link, sheets = Util.getStylesheets();
-    if (typeof sheet === 'undefined') {
-        sheet = 'default';
-    }
-    for (i=0; i < sheets.length; i += 1) {
-        link = sheets[i];
-        if (link.title === sheet) {    
-            Util.Debug("Using stylesheet " + sheet);
-            link.disabled = false;
-        } else {
-            //Util.Debug("Skipping stylesheet " + link.title);
-            link.disabled = true;
-        }
-    }
-    return sheet;
-};

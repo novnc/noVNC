@@ -50,7 +50,7 @@
             cell.scrollTop = cell.scrollHeight;
         }
 
-        fname = Util.getQueryVar('data', null);
+        fname = WebUtil.getQueryVar('data', null);
 
         if (fname) {
             message("Loading " + fname);
@@ -109,9 +109,9 @@
         }
 
         window.onload = function() {
-            iterations = Util.getQueryVar('iterations', 3);
+            iterations = WebUtil.getQueryVar('iterations', 3);
             $('iterations').value = iterations;
-            mode = Util.getQueryVar('mode', 3);
+            mode = WebUtil.getQueryVar('mode', 3);
             if (mode === 'realtime') {
                 $('mode2').checked = true;
             } else {

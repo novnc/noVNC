@@ -7,18 +7,17 @@
  */
 
 "use strict";
-/*jslint white: false, browser: true, bitwise: false, plusplus: false */
+/*jslint white: false, browser: true, bitwise: false */
 /*global window, WebSocket, Util, Canvas, VNC_native_ws, Base64, DES */
 
 
-function RFB(conf) {
-
+var RFB = function(conf) {
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
 
     // Pre-declare private functions used before definitions (jslint)
     init_vars, updateState, init_msg, normal_msg, recv_message,
-    framebufferUpdate, print_stats,
+    framebufferUpdate,
 
     pixelFormat, clientEncodings, fbUpdateRequest,
     keyEvent, pointerEvent, clientCutText,
@@ -61,7 +60,6 @@ var that           = {},         // Public API interface
 
     encHandlers    = {},
     encNames       = {}, 
-    encStats       = {},     // [rectCnt, rectCntTot]
 
     ws             = null,   // Web Socket object
     canvas         = null,   // Canvas object
@@ -210,14 +208,13 @@ function rQshiftBytes(len) {
 
 // Create the public API interface and initialize
 function constructor() {
-    var i, rmode;
+    var i;
     Util.Debug(">> RFB.constructor");
 
     // Create lookup tables based encoding number
     for (i=0; i < encodings.length; i+=1) {
         encHandlers[encodings[i][1]] = encHandlers[encodings[i][0]];
         encNames[encodings[i][1]] = encodings[i][0];
-        encStats[encodings[i][1]] = [0, 0];
     }
     // Initialize canvas
     try {
@@ -227,25 +224,15 @@ function constructor() {
         Util.Error("Canvas exception: " + exc);
         updateState('fatal', "No working Canvas");
     }
-    rmode = canvas.get_render_mode();
 
     init_vars();
 
     /* Check web-socket-js if no builtin WebSocket support */
     if (VNC_native_ws) {
         Util.Info("Using native WebSockets");
-        updateState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
+        updateState('loaded', 'noVNC ready (using native WebSockets)');
     } else {
-        Util.Warn("Using web-socket-js flash bridge");
-        if ((! Util.Flash) ||
-            (Util.Flash.version < 9)) {
-            updateState('fatal', "WebSockets or Adobe Flash is required");
-        } else if (document.location.href.substr(0, 7) === "file://") {
-            updateState('fatal',
-                    "'file://' URL is incompatible with Adobe Flash");
-        } else {
-            updateState('loaded', 'noVNC ready: WebSockets emulation, ' + rmode);
-        }
+        throw new Error("This version doesn't support WebSocket of other type than native websocket");
     }
 
     Util.Debug("<< RFB.constructor");
@@ -311,32 +298,6 @@ init_vars = function() {
     FBU.imgQ         = []; // TIGHT_PNG image queue
     mouse_buttonMask = 0;
     mouse_arr        = [];
-
-    // Clear the per connection encoding stats
-    for (i=0; i < encodings.length; i+=1) {
-        encStats[encodings[i][1]][0] = 0;
-    }
-};
-
-// Print statistics
-print_stats = function() {
-    var i, encName, s;
-    Util.Info("Encoding stats for this connection:");
-    for (i=0; i < encodings.length; i+=1) {
-        s = encStats[encodings[i][1]];
-        if ((s[0] + s[1]) > 0) {
-            Util.Info("    " + encodings[i][0] + ": " +
-                      s[0] + " rects");
-        }
-    }
-    Util.Info("Encoding stats since page load:");
-    for (i=0; i < encodings.length; i+=1) {
-        s = encStats[encodings[i][1]];
-        if ((s[0] + s[1]) > 0) {
-            Util.Info("    " + encodings[i][0] + ": "
-                      + s[1] + " rects");
-        }
-    }
 };
 
 //
@@ -467,9 +428,6 @@ updateState = function(state, statusMsg) {
                     updateState('failed', "Disconnect timeout");
                 }, conf.disconnectTimeout * 1000);
         }
-
-        print_stats();
-
         // WebSocket.onclose transitions to 'disconnected'
         break;
 
@@ -974,7 +932,7 @@ normal_msg = function() {
 };
 
 framebufferUpdate = function() {
-    var now, hdr, fbu_rt_diff, ret = true, ctx;
+    var now, hdr, fbu_rt_diff, last_bytes, last_rects, ret = true;
 
     if (FBU.rects === 0) {
         //Util.Debug("New FBU: rQ.slice(0,20): " + rQ.slice(0,20));
@@ -1041,16 +999,14 @@ framebufferUpdate = function() {
         }
 
         timing.last_fbu = (new Date()).getTime();
+        last_bytes = rQlen();
+        last_rects = FBU.rects;
 
+        // false ret means need more data
         ret = encHandlers[FBU.encoding]();
 
         now = (new Date()).getTime();
         timing.cur_fbu += (now - timing.last_fbu);
-
-        if (ret) {
-            encStats[FBU.encoding][0] += 1;
-            encStats[FBU.encoding][1] += 1;
-        }
 
         if (FBU.rects === 0) {
             if (((FBU.width === fb_width) &&
@@ -1090,7 +1046,7 @@ framebufferUpdate = function() {
 //
 
 encHandlers.RAW = function display_raw() {
-    //Util.Debug(">> display_raw (" + rQlen() + " bytes)");
+    //Util.Debug(">> display_raw");
 
     var cur_y, cur_height; 
 
@@ -1116,7 +1072,6 @@ encHandlers.RAW = function display_raw() {
         FBU.rects -= 1;
         FBU.bytes = 0;
     }
-    //Util.Debug("<< display_raw (" + rQlen() + " bytes)");
     return true;
 };
 
@@ -1617,6 +1572,12 @@ that.connect = function(host, port, password) {
 that.disconnect = function() {
     //Util.Debug(">> disconnect");
     updateState('disconnect', 'Disconnecting');
+    //Util.Debug("<< disconnect");
+};
+
+that.force_disconnect = function() {
+    //Util.Debug(">> disconnect");
+    updateState('disconnected', 'Disconnected');
     //Util.Debug("<< disconnect");
 };
 
