@@ -83,34 +83,20 @@
 var DES = {
 
     // Tables, permutations, S-boxes, etc.
-
     bytebit : [0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80],
     bigbyte : [ 0x800000, 0x400000, 0x200000, 0x100000,
         0x080000, 0x040000, 0x020000, 0x010000, 0x008000, 0x004000,
         0x002000, 0x001000, 0x000800, 0x000400, 0x000200, 0x000100,
         0x000080, 0x000040, 0x000020, 0x000010, 0x000008, 0x000004,
         0x000002, 0x000001],
-    pc1 : [ 56, 48, 40, 32,
-        24, 16, 8, 0, 57, 49,
-        41, 33, 25, 17, 9, 1,
-        58, 50, 42, 34, 26, 18,
-        10, 2, 59, 51, 43, 35,
-        62, 54, 46, 38, 30, 22,
-        14, 6, 61, 53, 45, 37,
-        29, 21, 13, 5, 60, 52,
-        44, 36, 28, 20, 12, 4,
-        27, 19, 11, 3 ],
-    totrot : [ 1, 2, 4, 6, 8, 10, 12, 14, 15, 17, 19, 21,
-        23, 25, 27, 28],
-    pc2 : [ 13, 16, 10, 23,
-        0, 4, 2, 27, 14, 5,
-        20, 9, 22, 18, 11, 3,
-        25, 7, 15, 6, 26, 19,
-        12, 1, 40, 51, 30, 36,
-        46, 54, 29, 39, 50, 44,
-        32, 47, 43, 48, 38, 55,
-        33, 52, 45, 41, 49, 35,
-        28, 31 ],
+    pc1 : [56,48,40,32,24,16, 8, 0,57,49,41,33,25,17, 9, 1,
+           58,50,42,34,26,18,10, 2,59,51,43,35,62,54,46,38,
+           30,22,14,6, 61,53,45,37,29,21,13, 5,60,52,44,36,
+           28,20,12, 4,27,19,11, 3],
+    pc2 : [13,16,10,23, 0, 4, 2,27,14, 5,20, 9,22,18,11, 3,
+           25, 7,15, 6,26,19,12, 1,40,51,30,36,46,54,29,39,
+           50,44,32,47,43,48,38,55,33,52,45,41,49,35,28,31 ],
+    totrot : [ 1, 2, 4, 6, 8,10,12,14,15,17,19,21,23,25,27,28],
     SP1 : [ 0x01010400, 0x00000000, 0x00010000,
         0x01010404, 0x01010004, 0x00010404, 0x00000004, 0x00010000,
         0x00000400, 0x01010400, 0x01010404, 0x00000400, 0x01000404,
@@ -224,26 +210,12 @@ var DES = {
         0x00041000, 0x00001040, 0x00001040, 0x00040040, 0x10000000,
         0x10041000],
 
-    // Key routines.
+    keys : [],
 
-    encryptKeys : [],
-    decryptKeys : [],
-
-    // / Set the key.
-    setKeys : function(key) {
-        DES.encryptKeys = new Array(32);
-        DES.decryptKeys = new Array(32);
-            
-        DES.deskey(key, true, DES.encryptKeys);
-        DES.deskey(key, false, DES.decryptKeys);
-    },
-
-    // Turn an 8-byte key into internal keys.
-    deskey : function(keyBlock, encrypting, KnL) {
-        var i, j, l, m, n,
-            pc1m = new Array(56),
-            pcr = new Array(56),
-            kn = new Array(32);
+    // Set the key.
+    setKeys : function(keyBlock) {
+        var i, j, l, m, n, pc1m = [], pcr = [], kn = [],
+            raw0, raw1, rawi, KnLi;
 
         for (j = 0; j < 56; ++j) {
             l = DES.pc1[j];
@@ -252,11 +224,7 @@ var DES = {
         }
 
         for (i = 0; i < 16; ++i) {
-            if (encrypting) {
-                m = i << 1;
-            } else {
-                m = (15- i) << 1;
-            }
+            m = i << 1;
             n = m + 1;
             kn[m] = kn[n] = 0;
             for (j = 0; j < 28; ++j) {
@@ -284,56 +252,33 @@ var DES = {
                 }
             }
         }
-        DES.cookey(kn, KnL);
-    },
 
-    cookey: function(raw, KnL) {
-        var raw0, raw1,
-            rawi, KnLi,
-            i;
-
+        // cookey
         for (i = 0, rawi = 0, KnLi = 0; i < 16; ++i) {
-            raw0 = raw[rawi++];
-            raw1 = raw[rawi++];
-            KnL[KnLi] = (raw0 & 0x00fc0000) << 6;
-            KnL[KnLi] |= (raw0 & 0x00000fc0) << 10;
-            KnL[KnLi] |= (raw1 & 0x00fc0000) >>> 10;
-            KnL[KnLi] |= (raw1 & 0x00000fc0) >>> 6;
+            raw0 = kn[rawi++];
+            raw1 = kn[rawi++];
+            DES.keys[KnLi] = (raw0 & 0x00fc0000) << 6;
+            DES.keys[KnLi] |= (raw0 & 0x00000fc0) << 10;
+            DES.keys[KnLi] |= (raw1 & 0x00fc0000) >>> 10;
+            DES.keys[KnLi] |= (raw1 & 0x00000fc0) >>> 6;
             ++KnLi;
-            KnL[KnLi] = (raw0 & 0x0003f000) << 12;
-            KnL[KnLi] |= (raw0 & 0x0000003f) << 16;
-            KnL[KnLi] |= (raw1 & 0x0003f000) >>> 4;
-            KnL[KnLi] |= (raw1 & 0x0000003f);
+            DES.keys[KnLi] = (raw0 & 0x0003f000) << 12;
+            DES.keys[KnLi] |= (raw0 & 0x0000003f) << 16;
+            DES.keys[KnLi] |= (raw1 & 0x0003f000) >>> 4;
+            DES.keys[KnLi] |= (raw1 & 0x0000003f);
             ++KnLi;
         }
     },
 
-    // Block encryption routines.
+    // Encrypt 8 bytes of text starting at offset
+    encrypt8: function(text, offset) {
+        var i, b = text, o, outInts =[],
+            fval, work, right, leftt, round, keysi = 0;
 
-    // / Encrypt a block of eight bytes.
-    encrypt: function(clearText, clearOff, cipherText, cipherOff) {
-        var tempInts = new Array(12);
-        DES.squashBytesToInts(clearText, clearOff, tempInts, 0, 2);
-        DES.des(tempInts, tempInts, DES.encryptKeys);
-        DES.spreadIntsToBytes(tempInts, 0, cipherText, cipherOff, 2);
-    },
-
-    // / Decrypt a block of eight bytes.
-    decrypt: function(cipherText, cipherOff, clearText, clearOff) {
-        var tempInts = new Array(12);
-        DES.squashBytesToInts(cipherText, cipherOff, tempInts, 0, 2);
-        DES.des(tempInts, tempInts, DES.decryptKeys);
-        DES.spreadIntsToBytes(tempInts, 0, clearText, clearOff, 2);
-    },
-
-    // The DES function.
-    des: function(inInts, outInts, keys) {
-        var fval, work, right, leftt,
-            round,
-            keysi = 0;
-
-        leftt = inInts[0];
-        right = inInts[1];
+        // Squash 8 bytes down to 2 ints
+        o = offset;
+        leftt = b[o++]<<24 | b[o++]<<16 | b[o++]<<8 | b[o++];
+        right = b[o++]<<24 | b[o++]<<16 | b[o++]<<8 | b[o++];
 
         work = ((leftt >>> 4) ^ right) & 0x0f0f0f0f;
         right ^= work;
@@ -359,24 +304,24 @@ var DES = {
 
         for (round = 0; round < 8; ++round) {
             work = (right << 28) | (right >>> 4);
-            work ^= keys[keysi++];
+            work ^= DES.keys[keysi++];
             fval =  DES.SP7[work & 0x0000003f];
             fval |= DES.SP5[(work >>> 8) & 0x0000003f];
             fval |= DES.SP3[(work >>> 16) & 0x0000003f];
             fval |= DES.SP1[(work >>> 24) & 0x0000003f];
-            work = right ^ keys[keysi++];
+            work = right ^ DES.keys[keysi++];
             fval |= DES.SP8[work & 0x0000003f];
             fval |= DES.SP6[(work >>> 8) & 0x0000003f];
             fval |= DES.SP4[(work >>> 16) & 0x0000003f];
             fval |= DES.SP2[(work >>> 24) & 0x0000003f];
             leftt ^= fval;
             work = (leftt << 28) | (leftt >>> 4);
-            work ^= keys[keysi++];
+            work ^= DES.keys[keysi++];
             fval =  DES.SP7[work & 0x0000003f];
             fval |= DES.SP5[(work >>> 8) & 0x0000003f];
             fval |= DES.SP3[(work >>> 16) & 0x0000003f];
             fval |= DES.SP1[(work >>> 24) & 0x0000003f];
-            work = leftt ^ keys[keysi++];
+            work = leftt ^ DES.keys[keysi++];
             fval |= DES.SP8[work & 0x0000003f];
             fval |= DES.SP6[(work >>> 8) & 0x0000003f];
             fval |= DES.SP4[(work >>> 16) & 0x0000003f];
@@ -403,38 +348,21 @@ var DES = {
         right ^= (work << 4);
         outInts[0] = right;
         outInts[1] = leftt;
-    },
 
-    // Routines taken from other parts of the Acme utilities.
-
-    // / Squash bytes down to ints.
-    squashBytesToInts: function (inBytes, inOff, outInts, outOff, intLen) {
-        for (var i = 0; i < intLen; ++i) {
-            outInts[outOff + i] = ((inBytes[inOff + i * 4] & 0xff) << 24)
-                    | ((inBytes[inOff + i * 4+ 1] & 0xff) << 16)
-                    | ((inBytes[inOff + i * 4+ 2] & 0xff) << 8)
-                    | (inBytes[inOff + i * 4+ 3] & 0xff);
+        // Spread ints to bytes
+        o = offset;
+        for (i = 0; i < 8; i++) {
+            b[o+i] = (outInts[i>>>2] >>> (8*(3 - (i%4)))) % 256;
+            if (b[o+i] < 0) { b[o+i] += 256; } // unsigned
         }
     },
 
-    // / Spread ints into unsigned bytes.
-    spreadIntsToBytes: function (inInts, inOff, outBytes, outOff, intLen) {
-        var i, j, idx;
-        for (i = 0; i < intLen; ++i) {
-            outBytes[outOff + i * 4] =    (inInts[inOff + i] >>> 24) % 256;
-            outBytes[outOff + i * 4+ 1] = (inInts[inOff + i] >>> 16) % 256;
-            outBytes[outOff + i * 4+ 2] = (inInts[inOff + i] >>> 8) % 256;
-            outBytes[outOff + i * 4+ 3] = (inInts[inOff + i]) % 256;
-        }
-        /* Make unsigned */
-        for (i = 0; i < intLen; ++i) {
-            for (j = 0; j < 4; j++) {
-                idx = outOff + i * 4 + j;
-                if (outBytes[idx] < 0) {
-                    outBytes[idx] += 256;
-                }
-            }
-        }
+    // Encrypt 16 bytes of text using passwd as key
+    encrypt: function(passwd, text) {
+        var i, cipher = text.slice();
+        DES.setKeys(passwd);
+        DES.encrypt8(cipher, 0);
+        DES.encrypt8(cipher, 8);
+        return cipher;
     }
-
 };

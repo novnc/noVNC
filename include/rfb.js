@@ -602,17 +602,11 @@ function send_string(str) {
 }
 
 function genDES(password, challenge) {
-    var i, passwd, response;
-    passwd = [];
-    response = challenge.slice();
+    var i, passwd = [];
     for (i=0; i < password.length; i += 1) {
         passwd.push(password.charCodeAt(i));
     }
-
-    DES.setKeys(passwd);
-    DES.encrypt(response, 0, response, 0);
-    DES.encrypt(response, 8, response, 8);
-    return response;
+    return DES.encrypt(passwd, challenge);
 }
 
 function flushClient() {
