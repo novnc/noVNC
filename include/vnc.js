@@ -31,6 +31,7 @@ function get_VNC_uri_prefix() {
     //         "firebug-lite-compressed.js'><\/script>";
 
     extra += start + "util.js" + end;
+    extra += start + "webutil.js" + end;
     extra += start + "base64.js" + end;
     extra += start + "des.js" + end;
     extra += start + "canvas.js" + end;
