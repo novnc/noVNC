@@ -56,8 +56,8 @@ load: function(target) {
     // Stylesheet selection dropdown
     html += '            <li><select id="VNC_stylesheet" name="vncStyle">';
     html += '              <option value="default">default</option>';
-    sheet = Util.selectStylesheet();
-    sheets = Util.getStylesheets();
+    sheet = WebUtil.selectStylesheet();
+    sheets = WebUtil.getStylesheets();
     for (i = 0; i < sheets.length; i += 1) {
         html += '<option value="' + sheets[i].title + '">' + sheets[i].title + '</option>';
     }
@@ -102,11 +102,11 @@ load: function(target) {
 
     // Settings with immediate effects
     DC.initSetting('logging', 'warn');
-    Util.init_logging(DC.getSetting('logging'));
+    WebUtil.init_logging(DC.getSetting('logging'));
     DC.initSetting('stylesheet', 'default');
 
-    Util.selectStylesheet(null); // call twice to get around webkit bug
-    Util.selectStylesheet(DC.getSetting('stylesheet'));
+    WebUtil.selectStylesheet(null); // call twice to get around webkit bug
+    WebUtil.selectStylesheet(DC.getSetting('stylesheet'));
 
     /* Populate the controls if defaults are provided in the URL */
     DC.initSetting('host', '');
@@ -134,7 +134,7 @@ load: function(target) {
 // Read form control compatible setting from cookie
 getSetting: function(name) {
     var val, ctrl = $('VNC_' + name);
-    val = Util.readCookie(name);
+    val = WebUtil.readCookie(name);
     if (ctrl.type === 'checkbox') {
         if (val.toLowerCase() in {'0':1, 'no':1, 'false':1}) {
             val = false;
@@ -151,7 +151,7 @@ updateSetting: function(name, value) {
     var i, ctrl = $('VNC_' + name);
     // Save the cookie for this session
     if (typeof value !== 'undefined') {
-        Util.createCookie(name, value);
+        WebUtil.createCookie(name, value);
     }
 
     // Update the settings control
@@ -180,7 +180,7 @@ saveSetting: function(name) {
     } else {
         val = ctrl.value;
     }
-    Util.createCookie(name, val);
+    WebUtil.createCookie(name, val);
     //Util.Debug("Setting saved '" + name + "=" + val + "'");
     return val;
 },
@@ -190,9 +190,9 @@ initSetting: function(name, defVal) {
     var val;
 
     // Check Query string followed by cookie
-    val = Util.getQueryVar(name);
+    val = WebUtil.getQueryVar(name);
     if (val === null) {
-        val = Util.readCookie(name, defVal);
+        val = WebUtil.readCookie(name, defVal);
     }
     DefaultControls.updateSetting(name, val);
     //Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
@@ -267,8 +267,8 @@ settingsApply: function() {
     DC.saveSetting('logging');
 
     // Settings with immediate (non-connected related) effect
-    Util.selectStylesheet(DC.getSetting('stylesheet'));
-    Util.init_logging(DC.getSetting('logging'));
+    WebUtil.selectStylesheet(DC.getSetting('stylesheet'));
+    WebUtil.init_logging(DC.getSetting('logging'));
 
     //Util.Debug("<< settingsApply");
 },
