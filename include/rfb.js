@@ -313,7 +313,7 @@ init_vars = function() {
     mouse_arr        = [];
 
     // Clear the per connection encoding stats
-    for (i=0; i < encodings.length; i+=1) {
+    for (var i=0; i < encodings.length; i+=1) {
         encStats[encodings[i][1]][0] = 0;
     }
 };
@@ -602,11 +602,11 @@ function send_string(str) {
 }
 
 function genDES(password, challenge) {
-    var i, passwd = [];
+    var i, passwd = [], des;
     for (i=0; i < password.length; i += 1) {
         passwd.push(password.charCodeAt(i));
     }
-    return DES.encrypt(passwd, challenge);
+    return (new DES(passwd)).encrypt(challenge);
 }
 
 function flushClient() {
