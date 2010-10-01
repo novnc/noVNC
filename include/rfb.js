@@ -99,9 +99,6 @@ var that           = {},         // Public API interface
     fb_height      = 0,
     fb_name        = "",
 
-    cuttext        = 'none', // ServerCutText wait state
-    cuttext_length = 0,
-
     scan_imgQ_rate = 100,
     last_req_time  = 0,
     rre_chunk_sz   = 100,
@@ -204,6 +201,27 @@ function rQshiftBytes(len) {
     return rQ.slice(rQi-len, rQi);
 }
 
+// Check to see if we must wait for 'num' bytes (default to FBU.bytes)
+// to be available in the receive queue. Return true if we need to
+// wait (and possibly print a debug message), otherwise false.
+function rQwait(msg, num, goback) {
+    if (typeof num !== 'number') { num = FBU.bytes; }
+    var rQlen = rQ.length - rQi; // Skip rQlen() function call
+    if (rQlen < num) {
+        if (goback) {
+            if (rQi < goback) {
+                throw("rQwait cannot backup " + goback + " bytes");
+            }
+            rQi -= goback;
+        }
+        //Util.Debug("   waiting for " + (num-rQlen) +
+        //           " " + msg + " byte(s)");
+        return true;  // true means need more data
+    }
+    return false;
+}
+
+
 //
 // Setup routines
 //
@@ -299,8 +317,6 @@ function init_ws() {
 
 init_vars = function() {
     /* Reset state */
-    cuttext          = 'none';
-    cuttext_length   = 0;
     rQ               = [];
     rQi              = 0;
     sQ               = "";
@@ -670,7 +686,7 @@ function mouseMove(x, y) {
 init_msg = function() {
     //Util.Debug(">> init_msg [rfb_state '" + rfb_state + "']");
 
-    var strlen, reason, reason_len, sversion, cversion,
+    var strlen, reason, length, sversion, cversion,
         i, types, num_types, challenge, response, bpp, depth,
         big_endian, true_color, name_length;
 
@@ -724,11 +740,7 @@ init_msg = function() {
     case 'Security' :
         if (rfb_version >= 3.7) {
             num_types = rQ[rQi++];
-            if (rQlen() < num_types) {
-                rQi--;
-                Util.Debug("   waiting for security types");
-                return;
-            }
+            if (rQwait("security type", num_types, 1)) { return false; }
             if (num_types === 0) {
                 strlen = rQshift32();
                 reason = rQshiftStr(strlen);
@@ -752,10 +764,7 @@ init_msg = function() {
             
             send_array([rfb_auth_scheme]);
         } else {
-            if (rQlen() < 4) {
-                Util.Debug("   waiting for security scheme bytes");
-                return;
-            }
+            if (rQwait("security scheme", 4)) { return false; }
             rfb_auth_scheme = rQshift32();
         }
         updateState('Authentication',
@@ -767,10 +776,7 @@ init_msg = function() {
         //Util.Debug("Security auth scheme: " + rfb_auth_scheme);
         switch (rfb_auth_scheme) {
             case 0:  // connection failed
-                if (rQlen() < 4) {
-                    Util.Debug("   waiting for auth reason bytes");
-                    return;
-                }
+                if (rQwait("auth reason", 4)) { return false; }
                 strlen = rQshift32();
                 reason = rQshiftStr(strlen);
                 updateState('failed',
@@ -784,10 +790,7 @@ init_msg = function() {
                     updateState('password', "Password Required");
                     return;
                 }
-                if (rQlen() < 16) {
-                    Util.Debug("   waiting for auth challenge bytes");
-                    return;
-                }
+                if (rQwait("auth challenge", 16)) { return false; }
                 challenge = rQshiftBytes(16);
                 //Util.Debug("Password: " + rfb_password);
                 //Util.Debug("Challenge: " + challenge +
@@ -819,11 +822,9 @@ init_msg = function() {
                 break;
             case 1:  // failed
                 if (rfb_version >= 3.8) {
-                    reason_len = rQshift32();
-                    if (rQlen() < reason_len) {
-                        Util.Debug("   waiting for SecurityResult reason bytes");
-                        rQi -= 8; // Unshift the status and length
-                        return;
+                    length = rQshift32();
+                    if (rQwait("SecurityResult reason", length, 8)) {
+                        return false;
                     }
                     reason = rQshiftStr(reason_len);
                     updateState('failed', reason);
@@ -901,13 +902,11 @@ init_msg = function() {
 normal_msg = function() {
     //Util.Debug(">> normal_msg");
 
-    var ret = true, msg_type,
+    var ret = true, msg_type, length,
         c, first_colour, num_colours, red, green, blue;
 
     if (FBU.rects > 0) {
         msg_type = 0;
-    } else if (cuttext !== 'none') {
-        msg_type = 3;
     } else {
         msg_type = rQ[rQi++];
     }
@@ -937,25 +936,12 @@ normal_msg = function() {
         break;
     case 3:  // ServerCutText
         Util.Debug("ServerCutText");
-        Util.Debug("rQ:" + rQ.slice(0,20));
-        if (cuttext === 'none') {
-            cuttext = 'header';
-        }
-        if (cuttext === 'header') {
-            if (rQlen() < 7) {
-                //Util.Debug("waiting for ServerCutText header");
-                return false;
-            }
-            rQshiftBytes(3);  // Padding
-            cuttext_length = rQshift32();
-        }
-        cuttext = 'bytes';
-        if (rQlen() < cuttext_length) {
-            //Util.Debug("waiting for ServerCutText bytes");
-            return false;
-        }
-        conf.clipboardReceive(that, rQshiftStr(cuttext_length));
-        cuttext = 'none';
+        if (rQwait("ServerCutText header", 7, 1)) { return false; }
+        rQshiftBytes(3);  // Padding
+        length = rQshift32();
+        if (rQwait("ServerCutText", length, 8)) { return false; }
+
+        conf.clipboardReceive(that, rQshiftStr(length));
         break;
     default:
         updateState('failed',
@@ -972,13 +958,12 @@ framebufferUpdate = function() {
 
     if (FBU.rects === 0) {
         //Util.Debug("New FBU: rQ.slice(0,20): " + rQ.slice(0,20));
-        if (rQlen() < 3) {
+        if (rQwait("FBU header", 3)) {
             if (rQi === 0) {
                 rQ.unshift(0);  // FBU msg_type
             } else {
                 rQi -= 1;
             }
-            //Util.Debug("   waiting for FBU header bytes");
             return false;
         }
         rQi++;
@@ -996,15 +981,9 @@ framebufferUpdate = function() {
         if (rfb_state !== "normal") {
             return false;
         }
-        if (rQlen() < FBU.bytes) {
-            //Util.Debug("   waiting for " + (FBU.bytes - rQlen()) + " FBU bytes");
-            return false;
-        }
+        if (rQwait("FBU")) { return false; }
         if (FBU.bytes === 0) {
-            if (rQlen() < 12) {
-                //Util.Debug("   waiting for rect header bytes");
-                return false;
-            }
+            if (rQwait("rect header", 12)) { return false; }
             /* New FramebufferUpdate */
 
             hdr = rQshiftBytes(12);
@@ -1092,11 +1071,7 @@ encHandlers.RAW = function display_raw() {
         FBU.lines = FBU.height;
     }
     FBU.bytes = FBU.width * fb_Bpp; // At least a line
-    if (rQlen() < FBU.bytes) {
-        //Util.Debug("   waiting for " +
-        //           (FBU.bytes - rQlen()) + " RAW bytes");
-        return false;
-    }
+    if (rQwait("RAW")) { return false; }
     cur_y = FBU.y + (FBU.height - FBU.lines);
     cur_height = Math.min(FBU.lines,
                           Math.floor(rQlen()/(FBU.width * fb_Bpp)));
@@ -1119,11 +1094,7 @@ encHandlers.COPYRECT = function display_copy_rect() {
 
     var old_x, old_y;
 
-    if (rQlen() < 4) {
-        //Util.Debug("   waiting for " +
-        //           (FBU.bytes - rQlen()) + " COPYRECT bytes");
-        return false;
-    }
+    if (rQwait("COPYRECT", 4)) { return false; }
     old_x = rQshift16();
     old_y = rQshift16();
     canvas.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
@@ -1137,11 +1108,7 @@ encHandlers.RRE = function display_rre() {
     var color, x, y, width, height, chunk;
 
     if (FBU.subrects === 0) {
-        if (rQlen() < 4 + fb_Bpp) {
-            //Util.Debug("   waiting for " +
-            //           (4 + fb_Bpp - rQlen()) + " RRE bytes");
-            return false;
-        }
+        if (rQwait("RRE", 4+fb_Bpp)) { return false; }
         FBU.subrects = rQshift32();
         color = rQshiftBytes(fb_Bpp); // Background
         canvas.fillRect(FBU.x, FBU.y, FBU.width, FBU.height, color);
@@ -1184,10 +1151,7 @@ encHandlers.HEXTILE = function display_hextile() {
     /* FBU.bytes comes in as 1, rQlen() at least 1 */
     while (FBU.tiles > 0) {
         FBU.bytes = 1;
-        if (rQlen() < FBU.bytes) {
-            //Util.Debug("   waiting for HEXTILE subencoding byte");
-            return false;
-        }
+        if (rQwait("HEXTILE subencoding")) { return false; }
         //Util.Debug("   2 rQ length: " + rQlen() + " rQ[rQi]: " + rQ[rQi] + " rQ.slice(rQi,rQi+20): " + rQ.slice(rQi,rQi+20) + ", FBU.rects: " + FBU.rects + ", FBU.tiles: " + FBU.tiles);
         subencoding = rQ[rQi];  // Peek
         if (subencoding > 30) { // Raw
@@ -1218,11 +1182,7 @@ encHandlers.HEXTILE = function display_hextile() {
             }
             if (subencoding & 0x08) { // AnySubrects
                 FBU.bytes += 1;   // Since we aren't shifting it off
-                if (rQlen() < FBU.bytes) {
-                    /* Wait for subrects byte */
-                    //Util.Debug("   waiting for hextile subrects header byte");
-                    return false;
-                }
+                if (rQwait("hextile subrects header")) { return false; }
                 subrects = rQ[rQi + FBU.bytes-1]; // Peek
                 if (subencoding & 0x10) { // SubrectsColoured
                     FBU.bytes += subrects * (fb_Bpp + 2);
@@ -1243,11 +1203,7 @@ encHandlers.HEXTILE = function display_hextile() {
               " last:" + rQ.slice(FBU.bytes-10, FBU.bytes) +
               " next:" + rQ.slice(FBU.bytes-1, FBU.bytes+10));
         */
-        if (rQlen() < FBU.bytes) {
-            //Util.Debug("   waiting for " +
-            //           (FBU.bytes - rQlen()) + " hextile bytes");
-            return false;
-        }
+        if (rQwait("hextile")) { return false; }
 
         /* We know the encoding and have a whole tile */
         FBU.subencoding = rQ[rQi];
@@ -1320,10 +1276,7 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
     //Util.Debug("   starting rQ.slice(rQi,rQi+20): " + rQ.slice(rQi,rQi+20) + " (" + rQlen() + ")");
 
     FBU.bytes = 1; // compression-control byte
-    if (rQlen() < FBU.bytes) {
-        Util.Debug("   waiting for TIGHT compression-control byte");
-        return false;
-    }
+    if (rQwait("TIGHT compression-control")) { return false; }
 
     // Get 'compact length' header and data size
     getCLength = function (arr, offset) {
@@ -1354,10 +1307,7 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
         case "png":  FBU.bytes += 3;            break; // max clength
     }
 
-    if (rQlen() < FBU.bytes) {
-        Util.Debug("   waiting for TIGHT " + cmode + " bytes");
-        return false;
-    }
+    if (rQwait("TIGHT " + cmode)) { return false; }
 
     //Util.Debug("   rQ.slice(0,20): " + rQ.slice(0,20) + " (" + rQlen() + ")");
     //Util.Debug("   cmode: " + cmode);
@@ -1373,10 +1323,7 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
     case "png":
         clength = getCLength(rQ, rQi+1);
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
-        if (rQlen() < FBU.bytes) {
-            Util.Debug("   waiting for TIGHT " + cmode + " bytes");
-            return false;
-        }
+        if (rQwait("TIGHT " + cmode)) { return false; }
 
         // We have everything, render it
         //Util.Debug("   png, rQlen(): " + rQlen() + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
@@ -1446,11 +1393,8 @@ encHandlers.Cursor = function set_cursor() {
     pixelslength = w * h * fb_Bpp;
     masklength = Math.floor((w + 7) / 8) * h;
 
-    if (rQlen() < (pixelslength + masklength)) {
-        //Util.Debug("waiting for cursor encoding bytes");
-        FBU.bytes = pixelslength + masklength;
-        return false;
-    }
+    FBU.bytes = pixelslength + masklength;
+    if (rQwait("cursor encoding")) { return false; }
 
     //Util.Debug("   set_cursor, x: " + x + ", y: " + y + ", w: " + w + ", h: " + h);
 
