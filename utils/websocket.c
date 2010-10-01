@@ -22,6 +22,7 @@
 #include <openssl/ssl.h>
 #include <resolv.h>      /* base64 encode/decode */
 #include "websocket.h"
+#include "md5.h"
 
 const char server_handshake[] = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n\
 Upgrade: WebSocket\r\n\
@@ -283,46 +284,38 @@ int parse_handshake(char *handshake, headers_t *headers) {
     return 1;
 }
 
+static long int ws_compute_key(const char *value)
+{
+	const char *pValue;
+	long long int val = 0;
+	int spaces = 0;
+	
+	for (pValue = value; *pValue != '\0'; pValue++) {
+		if (*pValue >= 48 && *pValue <= 57) {
+			val = (val * 10) + (*pValue-48);
+		} else if (*pValue == ' ') {
+			spaces++;
+		}
+	}
+	if (spaces == 0) {
+		return 0;
+	}
+
+	return val / spaces;
+}
+
 int gen_md5(headers_t *headers, char *target) {
-    unsigned int i, spaces1 = 0, spaces2 = 0;
-    unsigned long num1 = 0, num2 = 0;
-    unsigned char buf[17];
-    for (i=0; i < strlen(headers->key1); i++) {
-        if (headers->key1[i] == ' ') {
-            spaces1 += 1;
-        }
-        if ((headers->key1[i] >= 48) && (headers->key1[i] <= 57)) {
-            num1 = num1 * 10 + (headers->key1[i] - 48);
-        }
-    }
-    num1 = num1 / spaces1;
+    md5_context ctx;
+    long int ckey1 = htonl(ws_compute_key(headers->key1));
+    long int ckey2 = htonl(ws_compute_key(headers->key2));
+    md5_starts(&ctx);
 
-    for (i=0; i < strlen(headers->key2); i++) {
-        if (headers->key2[i] == ' ') {
-            spaces2 += 1;
-        }
-        if ((headers->key2[i] >= 48) && (headers->key2[i] <= 57)) {
-            num2 = num2 * 10 + (headers->key2[i] - 48);
-        }
-    }
-    num2 = num2 / spaces2;
+    md5_update(&ctx, (uint8 *)&ckey1, 4);
+    md5_update(&ctx, (uint8 *)&ckey2, 4);
+    md5_update(&ctx, (uint8 *)headers->key3, 8);
 
-    /* Pack it big-endian */
-    buf[0] = (num1 & 0xff000000) >> 24;
-    buf[1] = (num1 & 0xff0000) >> 16;
-    buf[2] = (num1 & 0xff00) >> 8;
-    buf[3] =  num1 & 0xff;
+    md5_finish(&ctx, target);
 
-    buf[4] = (num2 & 0xff000000) >> 24;
-    buf[5] = (num2 & 0xff0000) >> 16;
-    buf[6] = (num2 & 0xff00) >> 8;
-    buf[7] =  num2 & 0xff;
-
-    strncpy(buf+8, headers->key3, 8);
-    buf[16] = '\0';
-
-    md5_buffer(buf, 16, target);
-    target[16] = '\0';
 
     return 1;
 }
