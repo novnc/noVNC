@@ -817,7 +817,7 @@ init_msg = function() {
                     if (rQwait("SecurityResult reason", length, 8)) {
                         return false;
                     }
-                    reason = rQshiftStr(reason_len);
+                    reason = rQshiftStr(length);
                     fail(reason);
                 } else {
                     fail("Authentication failed");
