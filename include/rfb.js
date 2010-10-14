@@ -79,7 +79,7 @@ var that           = {},         // Public API interface
     // Frame buffer update state
     FBU            = {
         rects          : 0,
-        subrects       : 0,  // RRE and HEXTILE
+        subrects       : 0,  // RRE
         lines          : 0,  // RAW
         tiles          : 0,  // HEXTILE
         bytes          : 0,
@@ -289,7 +289,7 @@ function init_ws() {
         if (rfb_state === "connect") {
             updateState('ProtocolVersion', "Starting VNC handshake");
         } else {
-            updateState('failed', "Got unexpected WebSockets connection");
+            fail("Got unexpected WebSockets connection");
         }
         Util.Debug("<< WebSocket.onopen");
     };
@@ -298,17 +298,17 @@ function init_ws() {
         if (rfb_state === 'disconnect') {
             updateState('disconnected', 'VNC disconnected');
         } else if (rfb_state === 'ProtocolVersion') {
-            updateState('failed', 'Failed to connect to server');
+            fail('Failed to connect to server');
         } else if (rfb_state in {'failed':1, 'disconnected':1}) {
             Util.Error("Received onclose while disconnected");
         } else  {
-            updateState('failed', 'Server disconnected');
+            fail('Server disconnected');
         }
         Util.Debug("<< WebSocket.onclose");
     };
     ws.onerror = function(e) {
         Util.Debug(">> WebSocket.onerror");
-        updateState('failed', "WebSocket error");
+        fail("WebSocket error");
         Util.Debug("<< WebSocket.onerror");
     };
 
@@ -466,7 +466,7 @@ updateState = function(state, statusMsg) {
     case 'connect':
         
         connTimer = setTimeout(function () {
-                updateState('failed', "Connect timeout");
+                fail("Connect timeout");
             }, conf.connectTimeout * 1000);
 
         init_vars();
@@ -480,7 +480,7 @@ updateState = function(state, statusMsg) {
 
         if (! test_mode) {
             disconnTimer = setTimeout(function () {
-                    updateState('failed', "Disconnect timeout");
+                    fail("Disconnect timeout");
                 }, conf.disconnectTimeout * 1000);
         }
 
@@ -519,6 +519,10 @@ updateState = function(state, statusMsg) {
         conf.updateState(that, state, oldstate, statusMsg);
     }
 };
+function fail(msg) {
+    updateState('failed', msg);
+    return false;
+}
 
 function encode_message(arr) {
     /* base64 encode */
@@ -589,9 +593,9 @@ recv_message = function(e) {
             Util.Warn("recv_message, caught exception:" + exc);
         }
         if (typeof exc.name !== 'undefined') {
-            updateState('failed', exc.name + ": " + exc.message);
+            fail(exc.name + ": " + exc.message);
         } else {
-            updateState('failed', exc);
+            fail(exc);
         }
     }
     //Util.Debug("<< recv_message");
@@ -695,9 +699,7 @@ init_msg = function() {
 
     case 'ProtocolVersion' :
         if (rQlen() < 12) {
-            updateState('failed',
-                    "Disconnected: incomplete protocol version");
-            return;
+            return fail("Incomplete protocol version");
         }
         sversion = rQshiftStr(12).substr(4,7);
         Util.Info("Server ProtocolVersion: " + sversion);
@@ -707,9 +709,7 @@ init_msg = function() {
             case "003.007": rfb_version = 3.7; break;
             case "003.008": rfb_version = 3.8; break;
             default:
-                updateState('failed',
-                        "Invalid server version " + sversion);
-                return;
+                return fail("Invalid server version " + sversion);
         }
         if (rfb_version > rfb_max_version) { 
             rfb_version = rfb_max_version;
@@ -744,9 +744,7 @@ init_msg = function() {
             if (num_types === 0) {
                 strlen = rQshift32();
                 reason = rQshiftStr(strlen);
-                updateState('failed',
-                        "Disconnected: security failure: " + reason);
-                return;
+                return fail("Security failure: " + reason);
             }
             rfb_auth_scheme = 0;
             types = rQshiftBytes(num_types);
@@ -757,9 +755,7 @@ init_msg = function() {
                 }
             }
             if (rfb_auth_scheme === 0) {
-                updateState('failed',
-                        "Disconnected: unsupported security types: " + types);
-                return;
+                return fail("Unsupported security types: " + types);
             }
             
             send_array([rfb_auth_scheme]);
@@ -779,9 +775,7 @@ init_msg = function() {
                 if (rQwait("auth reason", 4)) { return false; }
                 strlen = rQshift32();
                 reason = rQshiftStr(strlen);
-                updateState('failed',
-                        "Disconnected: auth failure: " + reason);
-                return;
+                return fail("Auth failure: " + reason);
             case 1:  // no authentication
                 updateState('SecurityResult');
                 break;
@@ -804,17 +798,14 @@ init_msg = function() {
                 updateState('SecurityResult');
                 break;
             default:
-                updateState('failed',
-                        "Disconnected: unsupported auth scheme: " +
-                        rfb_auth_scheme);
+                fail("Unsupported auth scheme: " + rfb_auth_scheme);
                 return;
         }
         break;
 
     case 'SecurityResult' :
         if (rQlen() < 4) {
-            updateState('failed', "Invalid VNC auth response");
-            return;
+            return fail("Invalid VNC auth response");
         }
         switch (rQshift32()) {
             case 0:  // OK
@@ -827,23 +818,20 @@ init_msg = function() {
                         return false;
                     }
                     reason = rQshiftStr(reason_len);
-                    updateState('failed', reason);
+                    fail(reason);
                 } else {
-                    updateState('failed', "Authentication failed");
+                    fail("Authentication failed");
                 }
                 return;
             case 2:  // too-many
-                updateState('failed',
-                        "Disconnected: too many auth attempts");
-                return;
+                return fail("Too many auth attempts");
         }
         send_array([rfb_shared]); // ClientInitialisation
         break;
 
     case 'ServerInitialisation' :
         if (rQlen() < 24) {
-            updateState('failed', "Invalid server initialisation");
-            return;
+            return fail("Invalid server initialisation");
         }
 
         /* Screen size */
@@ -944,8 +932,7 @@ normal_msg = function() {
         conf.clipboardReceive(that, rQshiftStr(length));
         break;
     default:
-        updateState('failed',
-                "Disconnected: illegal server message type " + msg_type);
+        fail("Disconnected: illegal server message type " + msg_type);
         Util.Debug("rQ.slice(0,30):" + rQ.slice(0,30));
         break;
     }
@@ -954,7 +941,7 @@ normal_msg = function() {
 };
 
 framebufferUpdate = function() {
-    var now, hdr, fbu_rt_diff, ret = true, ctx;
+    var now, hdr, fbu_rt_diff, ret = true;
 
     if (FBU.rects === 0) {
         //Util.Debug("New FBU: rQ.slice(0,20): " + rQ.slice(0,20));
@@ -1006,9 +993,8 @@ framebufferUpdate = function() {
                 Util.Debug(msg);
                 */
             } else {
-                updateState('failed',
-                        "Disconnected: unsupported encoding " +
-                        FBU.encoding);
+                fail("Disconnected: unsupported encoding " +
+                    FBU.encoding);
                 return false;
             }
         }
@@ -1052,10 +1038,10 @@ framebufferUpdate = function() {
             }
         }
         if (! ret) {
-            break; // false ret means need more data
+            return ret; // false ret means need more data
         }
     }
-    return ret;
+    return true; // We finished this FBU
 };
 
 //
@@ -1155,8 +1141,7 @@ encHandlers.HEXTILE = function display_hextile() {
         //Util.Debug("   2 rQ length: " + rQlen() + " rQ[rQi]: " + rQ[rQi] + " rQ.slice(rQi,rQi+20): " + rQ.slice(rQi,rQi+20) + ", FBU.rects: " + FBU.rects + ", FBU.tiles: " + FBU.tiles);
         subencoding = rQ[rQi];  // Peek
         if (subencoding > 30) { // Raw
-            updateState('failed',
-                    "Disconnected: illegal hextile subencoding " + subencoding);
+            fail("Disconnected: illegal hextile subencoding " + subencoding);
             //Util.Debug("rQ.slice(0,30):" + rQ.slice(0,30));
             return false;
         }
@@ -1543,8 +1528,7 @@ that.connect = function(host, port, password) {
     rfb_password   = (password !== undefined)   ? password : "";
 
     if ((!rfb_host) || (!rfb_port)) {
-        updateState('failed', "Must set host and port");
-        return;
+        return fail("Must set host and port");
     }
 
     updateState('connect');
