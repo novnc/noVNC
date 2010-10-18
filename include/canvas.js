@@ -15,9 +15,6 @@ function Canvas(conf) {
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
 
-    // Pre-declare functions used before definitions (jslint)jslint
-    setFillColor, fillRect,
-
     // Private Canvas namespace variables
     c_forceCanvas = false,
 
@@ -450,6 +447,7 @@ that.resize = function(width, height, true_color) {
     if (typeof true_color !== "undefined") {
         conf.true_color = true_color;
     }
+    c_prevStyle    = "";
 
     c.width = width;
     c.height = height;
@@ -485,26 +483,24 @@ that.stop = function() {
     }
 };
 
-setFillColor = function(color) {
+that.setFillColor = function(color) {
     var rgb, newStyle;
     if (conf.true_color) {
         rgb = color;
     } else {
         rgb = conf.colourMap[color[0]];
     }
+    newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
     if (newStyle !== c_prevStyle) {
-        newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
         conf.ctx.fillStyle = newStyle;
         c_prevStyle = newStyle;
     }
 };
-that.setFillColor = setFillColor;
 
-fillRect = function(x, y, width, height, color) {
-    setFillColor(color);
+that.fillRect = function(x, y, width, height, color) {
+    that.setFillColor(color);
     conf.ctx.fillRect(x, y, width, height);
 };
-that.fillRect = fillRect;
 
 that.copyImage = function(old_x, old_y, new_x, new_y, width, height) {
     conf.ctx.drawImage(conf.target, old_x, old_y, width, height,
@@ -519,11 +515,10 @@ that.copyImage = function(old_x, old_y, new_x, new_y, width, height) {
  *   gecko, Javascript array handling is much slower.
  */
 that.getTile = function(x, y, width, height, color) {
-    var img, data, p, rgb, red, green, blue, j, i;
+    var img, data = [], p, rgb, red, green, blue, j, i;
     img = {'x': x, 'y': y, 'width': width, 'height': height,
-           'data': []};
+           'data': data};
     if (conf.prefer_js) {
-        data = img.data;
         if (conf.true_color) {
             rgb = color;
         } else {
@@ -532,23 +527,19 @@ that.getTile = function(x, y, width, height, color) {
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
-        for (j = 0; j < height; j += 1) {
-            for (i = 0; i < width; i += 1) {
-                p = (i + (j * width) ) * 4;
-                data[p + 0] = red;
-                data[p + 1] = green;
-                data[p + 2] = blue;
-                //data[p + 3] = 255; // Set Alpha
-            }   
-        } 
+        for (i = 0; i < (width * height * 4); i+=4) {
+            data[i    ] = red;
+            data[i + 1] = green;
+            data[i + 2] = blue;
+        }
     } else {
-        fillRect(x, y, width, height, color);
+        that.fillRect(x, y, width, height, color);
     }
     return img;
 };
 
 that.setSubTile = function(img, x, y, w, h, color) {
-    var data, p, rgb, red, green, blue, width, j, i;
+    var data, p, rgb, red, green, blue, width, j, i, xend, yend;
     if (conf.prefer_js) {
         data = img.data;
         width = img.width;
@@ -560,17 +551,18 @@ that.setSubTile = function(img, x, y, w, h, color) {
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
-        for (j = 0; j < h; j += 1) {
-            for (i = 0; i < w; i += 1) {
-                p = (x + i + ((y + j) * width) ) * 4;
-                data[p + 0] = red;
+        xend = x + w;
+        yend = y + h;
+        for (j = y; j < yend; j += 1) {
+            for (i = x; i < xend; i += 1) {
+                p = (i + (j * width) ) * 4;
+                data[p    ] = red;
                 data[p + 1] = green;
                 data[p + 2] = blue;
-                //img.data[p + 3] = 255; // Set Alpha
             }   
         } 
     } else {
-        fillRect(img.x + x, img.y + y, w, h, color);
+        that.fillRect(img.x + x, img.y + y, w, h, color);
     }
 };
 
@@ -606,7 +598,7 @@ that.rgbxImageData = function(x, y, width, height, arr, offset) {
 that.rgbxImageFill = function(x, y, width, height, arr, offset) {
     var i, j, sx = 0, sy = 0;
     for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
-        fillRect(x+sx, y+sy, 1, 1, [arr[j+0], arr[j+1], arr[j+2]]);
+        that.fillRect(x+sx, y+sy, 1, 1, [arr[j+0], arr[j+1], arr[j+2]]);
         sx += 1;
         if ((sx % width) === 0) {
             sx = 0;
@@ -634,7 +626,7 @@ that.cmapImageFill = function(x, y, width, height, arr, offset) {
     var i, j, sx = 0, sy = 0, cmap;
     cmap = conf.colourMap;
     for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
-        fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
+        that.fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
         sx += 1;
         if ((sx % width) === 0) {
             sx = 0;
