@@ -6,8 +6,6 @@ Short Term:
 
 - Test on IE 9 preview 3.
 
-- Test firefox 4
-
 - Fix cursor URI detection in Arora:
     - allows data URI, but doesn't actually work
 
@@ -22,7 +20,6 @@ Medium Term:
     - Configuration menu:
         - Tunable: speed vs. bandwidth selection
         - Tunable: CPU use versus latency.
-        - shared mode
         - Scaling
 
     - Keyboard menu:

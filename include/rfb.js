@@ -39,7 +39,6 @@ var that           = {},         // Public API interface
     rfb_version    = 0,
     rfb_max_version= 3.8,
     rfb_auth_scheme= '',
-    rfb_shared     = 1,
 
 
     // In preference order
@@ -134,6 +133,7 @@ cdef('focusContainer', 'dom', document, 'Area that traps keyboard input');
 cdef('encrypt',        'bool', false, 'Use TLS/SSL/wss encryption');
 cdef('true_color',     'bool', true,  'Request true color pixel data');
 cdef('local_cursor',   'bool', false, 'Request locally rendered cursor');
+cdef('shared',         'bool', true,  'Request shared mode');
 
 cdef('connectTimeout',    'int', 2,    'Time (s) to wait for connection');
 cdef('disconnectTimeout', 'int', 3,    'Time (s) to wait for disconnection');
@@ -826,7 +826,7 @@ init_msg = function() {
             case 2:  // too-many
                 return fail("Too many auth attempts");
         }
-        send_array([rfb_shared]); // ClientInitialisation
+        send_array([conf.shared ? 1 : 0]); // ClientInitialisation
         break;
 
     case 'ServerInitialisation' :

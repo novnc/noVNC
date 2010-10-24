@@ -101,9 +101,10 @@
             }
 
             rfb = new RFB({'encrypt':      WebUtil.getQueryVar('encrypt', false),
-                       'true_color':   WebUtil.getQueryVar('true_color', true),
-                       'local_cursor': WebUtil.getQueryVar('cursor', true),
-                       'updateState':  updateState});
+                           'true_color':   WebUtil.getQueryVar('true_color', true),
+                           'local_cursor': WebUtil.getQueryVar('cursor', true),
+                           'shared':       WebUtil.getQueryVar('shared', true),
+                           'updateState':  updateState});
             rfb.connect(host, port, password);
         };
         </script>
