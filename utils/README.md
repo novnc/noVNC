@@ -84,10 +84,16 @@ Here is the feature support matrix for the wsproxy implementations:
 * Download, build the ssl module and symlink to it:
 
     `cd noVNC/utils`
+
     `wget http://pypi.python.org/packages/source/s/ssl/ssl-1.15.tar.gz`
+
     `tar xvzf ssl-1.15.tar.gz`
+
     `cd ssl-1.15`
+
     `make`
+
     `cd ../`
+
     `ln -sf ssl-1.15/build/lib.linux-*/ssl ssl`
 
