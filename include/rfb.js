@@ -378,6 +378,7 @@ print_stats = function() {
  *   Authentication
  *   password     - waiting for password, not part of RFB
  *   SecurityResult
+ *   ClientInitialization - not triggered by server message
  *   ServerInitialization
  */
 updateState = function(state, statusMsg) {
@@ -734,11 +735,12 @@ init_msg = function() {
         cversion = "00" + parseInt(rfb_version,10) +
                    ".00" + ((rfb_version * 10) % 10);
         send_string("RFB " + cversion + "\n");
-        updateState('Security', "Sent ProtocolVersion: " + sversion);
+        updateState('Security', "Sent ProtocolVersion: " + cversion);
         break;
 
     case 'Security' :
         if (rfb_version >= 3.7) {
+            // Server sends supported list, client decides 
             num_types = rQ[rQi++];
             if (rQwait("security type", num_types, 1)) { return false; }
             if (num_types === 0) {
@@ -760,6 +762,7 @@ init_msg = function() {
             
             send_array([rfb_auth_scheme]);
         } else {
+            // Server decides
             if (rQwait("security scheme", 4)) { return false; }
             rfb_auth_scheme = rQshift32();
         }
@@ -768,6 +771,7 @@ init_msg = function() {
         init_msg();  // Recursive fallthrough (workaround JSLint complaint)
         break;
 
+    // Triggered by fallthough, not by server message
     case 'Authentication' :
         //Util.Debug("Security auth scheme: " + rfb_auth_scheme);
         switch (rfb_auth_scheme) {
@@ -777,7 +781,12 @@ init_msg = function() {
                 reason = rQshiftStr(strlen);
                 return fail("Auth failure: " + reason);
             case 1:  // no authentication
-                updateState('SecurityResult');
+                if (rfb_version >= 3.8) {
+                    updateState('SecurityResult');
+                    return;
+                } else {
+                    // Fall through to ClientInitialisation
+                }
                 break;
             case 2:  // VNC authentication
                 if (rfb_password.length === 0) {
@@ -796,11 +805,13 @@ init_msg = function() {
                 //Util.Debug("Sending DES encrypted auth response");
                 send_array(response);
                 updateState('SecurityResult');
-                break;
+                return;
             default:
                 fail("Unsupported auth scheme: " + rfb_auth_scheme);
                 return;
         }
+        updateState('ClientInitialisation', "No auth required");
+        init_msg();  // Recursive fallthrough (workaround JSLint complaint)
         break;
 
     case 'SecurityResult' :
@@ -809,7 +820,7 @@ init_msg = function() {
         }
         switch (rQshift32()) {
             case 0:  // OK
-                updateState('ServerInitialisation', "Authentication OK");
+                // Fall through to ClientInitialisation
                 break;
             case 1:  // failed
                 if (rfb_version >= 3.8) {
@@ -826,7 +837,14 @@ init_msg = function() {
             case 2:  // too-many
                 return fail("Too many auth attempts");
         }
+        updateState('ClientInitialisation', "Authentication OK");
+        init_msg();  // Recursive fallthrough (workaround JSLint complaint)
+        break;
+
+    // Triggered by fallthough, not by server message
+    case 'ClientInitialisation' :
         send_array([conf.shared ? 1 : 0]); // ClientInitialisation
+        updateState('ServerInitialisation', "Authentication OK");
         break;
 
     case 'ServerInitialisation' :
