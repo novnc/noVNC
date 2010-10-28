@@ -131,6 +131,11 @@ There a few reasons why a proxy is required:
  host and port where the proxy is running and the password that the
  vnc server is using (if any). Hit the Connect button.
 
+* If you are using python 2.3 or 2.4 and you want wsproxy to support
+  'wss://' (TLS) then see the
+  [wsproxy README](http://github.com/kanaka/noVNC/blob/master/utils/README.md)
+  for instructions on building the ssl module.
+
 
 ### Integration
 

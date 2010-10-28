@@ -116,9 +116,9 @@
   accepting the certificate. Then return to noVNC and connect
   normally.
 
-* Note 3: Browsers using WebKit build 66396 or later
-  (Chrome/Chromium after build 57838) have a Canvas rendering bug. The
-  WebKit bug is <a
+* Note 3: Browsers using WebKit build 66396 through 68867
+  (Chrome/Chromium build 57968 through 61278) have a Canvas rendering
+  bug. The WebKit bug is <a
   href="https://bugs.webkit.org/show_bug.cgi?id=46319">#46319</a>.
   The noVNC bug is <a
   href="http://github.com/kanaka/novnc/issues/#issue/28">#28</a>.
