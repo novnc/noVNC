@@ -33,9 +33,11 @@ Traffic Legend:\n\
 
 char USAGE[] = "Usage: [options] " \
                "[source_addr:]source_port target_addr:target_port\n\n" \
-               "  --cert CERT        load CERT as SSL certificate\n" \
-               "  --foreground|-f    run in the foreground\n" \
-               "  --ssl-only         disallow non-SSL connections";
+               "  --verbose|-v       verbose messages and per frame traffic\n" \
+               "  --foreground|-f    stay in foreground, do not daemonize\n" \
+               "  --cert CERT        SSL certificate file\n" \
+               "  --key KEY          SSL key file (if separate from cert)\n" \
+               "  --ssl-only         disallow non-encrypted connections";
 
 #define usage(fmt, args...) \
     fprintf(stderr, "%s\n\n", USAGE); \
@@ -250,13 +252,15 @@ int main(int argc, char *argv[])
         {"foreground", no_argument,       &foreground, 'f'},
         /* ---- */
         {"cert",       required_argument, 0,           'c'},
+        {"key",        required_argument, 0,           'k'},
         {0, 0, 0, 0}
     };
 
     settings.cert = realpath("self.pem", NULL);
+    settings.key = "";
 
     while (1) {
-        c = getopt_long (argc, argv, "vfc:",
+        c = getopt_long (argc, argv, "vfc:k:",
                          long_options, &option_index);
 
         /* Detect the end */
@@ -277,6 +281,12 @@ int main(int argc, char *argv[])
                 settings.cert = realpath(optarg, NULL);
                 if (! settings.cert) {
                     usage("No cert file at %s\n", optarg);
+                }
+                break;
+            case 'k':
+                settings.key = realpath(optarg, NULL);
+                if (! settings.key) {
+                    usage("No key file at %s\n", optarg);
                 }
                 break;
             default:
@@ -316,16 +326,16 @@ int main(int argc, char *argv[])
     }
 
     if (ssl_only) {
-        printf("cert: %s\n", settings.cert);
         if (!settings.cert || !access(settings.cert, R_OK)) {
             usage("SSL only and cert file not found\n");
         }
     }
 
     //printf("  verbose: %d\n",   settings.verbose);
-    //printf("  ssl_only: %d\n", settings.ssl_only);
-    //printf("  daemon: %d\n",   settings.daemon);
-    //printf("  cert: %s\n",     settings.cert);
+    //printf("  ssl_only: %d\n",  settings.ssl_only);
+    //printf("  daemon: %d\n",    settings.daemon);
+    //printf("  cert: %s\n",      settings.cert);
+    //printf("  key: %s\n",       settings.key);
 
     settings.handler = proxy_handler; 
     start_server();

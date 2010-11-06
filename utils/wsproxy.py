@@ -137,10 +137,12 @@ if __name__ == '__main__':
     parser.add_option("--foreground", "-f",
             dest="daemon", default=True, action="store_false",
             help="stay in foreground, do not daemonize")
+    parser.add_option("--cert", default="self.pem",
+            help="SSL certificate file")
+    parser.add_option("--key", default=None,
+            help="SSL key file (if separate from cert)")
     parser.add_option("--ssl-only", action="store_true",
             help="disallow non-encrypted connections")
-    parser.add_option("--cert", default="self.pem",
-            help="SSL certificate")
     (options, args) = parser.parse_args()
 
     if len(args) > 2: parser.error("Too many arguments")
@@ -166,6 +168,8 @@ if __name__ == '__main__':
     settings['listen_port'] = port
     settings['handler'] = proxy_handler
     settings['cert'] = os.path.abspath(options.cert)
+    if settings['key']:
+        settings['key'] = os.path.abspath(options.key)
     settings['ssl_only'] = options.ssl_only
     settings['daemon'] = options.daemon
     if options.record:

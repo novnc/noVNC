@@ -28,6 +28,7 @@ settings = {
     'handler'     : None,
     'handler_id'  : 1,
     'cert'        : None,
+    'key'         : None,
     'ssl_only'    : False,
     'daemon'      : True,
     'record'      : None, }
@@ -114,7 +115,8 @@ def do_handshake(sock):
         retsock = ssl.wrap_socket(
                 sock,
                 server_side=True,
-                certfile=settings['cert'])
+                certfile=settings['cert'],
+                keyfile=settings['key'])
         scheme = "wss"
         handler_msg("using SSL/TLS")
     elif settings['ssl_only']:
