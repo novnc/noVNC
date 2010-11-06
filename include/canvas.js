@@ -25,8 +25,10 @@ var that           = {},         // Public API interface
 
     c_keyPress     = null,
     c_mouseButton  = null,
-    c_mouseMove    = null;
+    c_mouseMove    = null,
 
+    c_webkit_bug   = false,
+    c_flush_timer  = null;
 
 // Configuration settings
 function cdef(v, type, defval, desc) {
@@ -91,7 +93,7 @@ that.get_height = function() {
 function constructor() {
     Util.Debug(">> Canvas.init");
 
-    var c, ctx, imgTest, tval, i, curDat, curSave,
+    var c, ctx, func, origfunc, imgTest, tval, i, curDat, curSave,
         has_imageData = false, UE = Util.Engine;
 
     if (! conf.target) { throw("target must be set"); }
@@ -157,6 +159,26 @@ function constructor() {
         conf.prefer_js = false;
         that.rgbxImage = that.rgbxImageFill;
         that.cmapImage = that.cmapImageFill;
+    }
+
+    if (UE.webkit && UE.webkit >= 534.7 && UE.webkit <= 534.9) {
+        // Workaround WebKit canvas rendering bug #46319
+        conf.render_mode += ", webkit bug workaround";
+        Util.Debug("Working around WebKit bug #46319");
+        c_webkit_bug = true;
+        for (func in {"fillRect":1, "copyImage":1, "rgbxImage":1,
+                "cmapImage":1, "blitStringImage":1}) {
+            that[func] = (function() {
+                var myfunc = that[func]; // Save original function
+                //Util.Debug("Wrapping " + func);
+                return function() {
+                    myfunc.apply(this, arguments);
+                    if (!c_flush_timer) {
+                        c_flush_timer = setTimeout(that.flush, 100);
+                    }
+                };
+            })();
+        }
     }
 
     /*
@@ -481,6 +503,18 @@ that.stop = function() {
     if (conf.cursor_uri) {
         c.style.cursor = "default";
     }
+};
+
+that.flush = function() {
+    var old_val;
+    //Util.Debug(">> flush");
+    // Force canvas redraw (for webkit bug #46319 workaround)
+    old_val = conf.target.style.marginRight;
+    conf.target.style.marginRight = "1";
+    c_flush_timer = null;
+    setTimeout(function () {
+            conf.target.style.marginRight = old_val;
+        }, 1);
 };
 
 that.setFillColor = function(color) {

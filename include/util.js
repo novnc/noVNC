@@ -208,6 +208,14 @@ Util.Engine = {
     'gecko': (function() {
             return (!document.getBoxObjectFor && window.mozInnerScreenX == null) ? false : ((document.getElementsByClassName) ? 19 : 18); }())
 };
+if (Util.Engine.webkit) {
+    // Extract actual webkit version if available
+    Util.Engine.webkit = (function(v) {
+            var re = new RegExp('WebKit/([0-9\.]*) ');
+            v = (navigator.userAgent.match(re) || ['', v])[1];
+            return parseFloat(v, 10);
+        })(Util.Engine.webkit);
+}
 
 Util.Flash = (function(){
     var v, version;
