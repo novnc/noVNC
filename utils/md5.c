@@ -36,6 +36,10 @@
 # endif
 #endif
 
+#ifndef __THROW
+#define __THROW
+#endif
+
 #include "md5.h"
 
 #ifdef _LIBC

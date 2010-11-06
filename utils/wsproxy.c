@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 
     if (ssl_only) {
         printf("cert: %s\n", settings.cert);
-        if (!settings.cert || !access(settings.cert)) {
+        if (!settings.cert || !access(settings.cert, R_OK)) {
             usage("SSL only and cert file not found\n");
         }
     }

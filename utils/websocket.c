@@ -191,7 +191,7 @@ int encode(u_char const *src, size_t srclength, char *target, size_t targsize) {
     int i, sz = 0, len = 0;
     unsigned char chr;
     target[sz++] = '\x00';
-    len = __b64_ntop(src, srclength, target+sz, targsize-sz);
+    len = b64_ntop(src, srclength, target+sz, targsize-sz);
     if (len < 0) {
         return len;
     }
@@ -213,7 +213,7 @@ int decode(char *src, size_t srclength, u_char *target, size_t targsize) {
         /* We may have more than one frame */
         end = memchr(start, '\xff', srclength);
         *end = '\x00';
-        len = __b64_pton(start, target+retlen, targsize-retlen);
+        len = b64_pton(start, target+retlen, targsize-retlen);
         if (len < 0) {
             return len;
         }
