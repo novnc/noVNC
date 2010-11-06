@@ -247,7 +247,7 @@ settingsDisabled: function(disabled, rfb) {
     //Util.Debug(">> settingsDisabled");
     $('VNC_encrypt').disabled = disabled;
     $('VNC_true_color').disabled = disabled;
-    if (rfb && rfb.get_canvas().get_cursor_uri()) {
+    if (rfb && rfb.get_canvas() && rfb.get_canvas().get_cursor_uri()) {
         $('VNC_cursor').disabled = disabled;
     } else {
         DefaultControls.updateSetting('cursor', false);

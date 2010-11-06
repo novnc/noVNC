@@ -16,7 +16,7 @@ conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
 
     // Private Canvas namespace variables
-    c_forceCanvas = false,
+    c_forceCanvas  = false,
 
     c_width        = 0,
     c_height       = 0,
@@ -109,8 +109,8 @@ function constructor() {
 
     if (UE.gecko) { Util.Debug("Browser: gecko " + UE.gecko); }
     if (UE.webkit) { Util.Debug("Browser: webkit " + UE.webkit); }
-    if (UE.trident) { Util.Debug("Browser: webkit " + UE.trident); }
-    if (UE.presto) { Util.Debug("Browser: webkit " + UE.presto); }
+    if (UE.trident) { Util.Debug("Browser: trident " + UE.trident); }
+    if (UE.presto) { Util.Debug("Browser: presto " + UE.presto); }
 
     that.clear();
 
