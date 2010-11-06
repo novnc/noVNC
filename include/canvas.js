@@ -510,7 +510,7 @@ that.flush = function() {
     //Util.Debug(">> flush");
     // Force canvas redraw (for webkit bug #46319 workaround)
     old_val = conf.target.style.marginRight;
-    conf.target.style.marginRight = "1";
+    conf.target.style.marginRight = "1px";
     c_flush_timer = null;
     setTimeout(function () {
             conf.target.style.marginRight = old_val;
