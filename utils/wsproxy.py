@@ -168,7 +168,7 @@ if __name__ == '__main__':
     settings['listen_port'] = port
     settings['handler'] = proxy_handler
     settings['cert'] = os.path.abspath(options.cert)
-    if settings['key']:
+    if options.key:
         settings['key'] = os.path.abspath(options.key)
     settings['ssl_only'] = options.ssl_only
     settings['daemon'] = options.daemon
