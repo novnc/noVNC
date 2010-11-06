@@ -56,6 +56,10 @@
 # define md5_read_ctx __md5_read_ctx
 # define md5_stream __md5_stream
 # define md5_buffer __md5_buffer
+#else
+/* Squelch compiler complaints */
+void md5_process_bytes (const void *buffer, size_t len, struct md5_ctx *ctx);
+void md5_process_block (const void *buffer, size_t len, struct md5_ctx *ctx);
 #endif
 
 #ifdef WORDS_BIGENDIAN

@@ -14,7 +14,6 @@ typedef struct {
     int handler_id;
     int ssl_only;
     int daemon;
-    char *record;
     char *cert;
 } settings_t;
 

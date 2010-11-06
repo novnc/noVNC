@@ -273,13 +273,6 @@ int main(int argc, char *argv[])
             case 'f':
                 foreground = 1;
                 break;
-            case 'r':
-                if ((fd = open(optarg, O_CREAT,
-                               S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < -1) {
-                    usage("Could not access %s\n", optarg);
-                }
-                close(fd);
-                break;
             case 'c':
                 settings.cert = realpath(optarg, NULL);
                 if (! settings.cert) {
