@@ -40,8 +40,8 @@ These are not necessary for the basic operation.
 
 ### Implementations
 
-There are two implementations of wsproxy included: a python
-implementation and a C implementation.
+There are three implementations of wsproxy included: python, C, and
+Node (node.js).
 
 Here is the feature support matrix for the wsproxy implementations:
 
@@ -50,12 +50,14 @@ Here is the feature support matrix for the wsproxy implementations:
     <tr>
         <th>Implementation</th>
         <th>Basic Proxying</th>
+        <th>Multi-process</th>
         <th>Daemonizing</th>
         <th>SSL/wss</th>
         <th>Flash Policy Server</th>
         <th>Session Recording</th>
     </tr> <tr>
         <td>python</td>
+        <td>yes</td>
         <td>yes</td>
         <td>yes</td>
         <td>yes 1</td>
@@ -67,6 +69,16 @@ Here is the feature support matrix for the wsproxy implementations:
         <td>yes</td>
         <td>yes</td>
         <td>yes</td>
+        <td>yes</td>
+        <td>no</td>
+    </tr>
+    </tr> <tr>
+        <td>Node (node.js)</td>
+        <td>yes</td>
+        <td>yes</td>
+        <td>no</td>
+        <td>no</td>
+        <td>no</td>
         <td>no</td>
     </tr>
 </table>
