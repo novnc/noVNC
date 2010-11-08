@@ -42,17 +42,37 @@ function encode(buf) {
            String.fromCharCode(255);
 }
 
+function decode(data) {
+    var i, len = 0, strs, retstrs = [],
+        buf = new Buffer(data.length),
+        str = data.toString('binary', 1, data.length-1);
 
-function decode(str) {
-    var buf = new Buffer(str.length);
-    len = buf.write(str.substring(1, str.length-1), 0, 'base64');
-    return buf.toString('binary', 0, len);
+    if (str.indexOf('\xff') > -1) {
+        // We've gotten multiple frames at once
+        strs = str.split('\xff\x00')
+        for (i = 0; i < strs.length; i++) {
+            len = buf.write(strs[i], 0, 'base64');
+            retstrs.push(buf.toString('binary', 0, len));
+        }
+        return retstrs.join("");
+    } else {
+        len = buf.write(str, 0, 'base64');
+        return buf.toString('binary', 0, len);
+    }
 }
 
 
 var server = net.createServer(function (client) {
     var handshake = "", headers = {}, header,
         version, path, k1, k2, k3, target = null;
+
+    function cleanup() {
+        client.end();
+        if (target) {
+            target.end();
+            target = null;
+        }
+    }
 
     function do_handshake(data) {
         var i, idx, dlen = data.length, lines, location, rheaders,
@@ -88,8 +108,8 @@ var server = net.createServer(function (client) {
                 client.end();
                 return;
             }
-            header = lines[i].substring(0, idx).toLowerCase();
-            headers[header] = lines[i].substring(idx+2);
+            header = lines[i].slice(0, idx).toLowerCase();
+            headers[header] = lines[i].slice(idx+2);
         }
         //console.dir(headers);
         //sys.log("k3: " + k3 + ", k3.length: " + k3.length);
@@ -130,7 +150,7 @@ var server = net.createServer(function (client) {
 
         // Switch listener to normal data path
         client.on('data', client_data);
-        client.setEncoding('utf8');
+        //client.setEncoding('utf8');
         client.removeListener('data', do_handshake);
         // Do not delay writes
         client.setNoDelay(true);
@@ -150,26 +170,26 @@ var server = net.createServer(function (client) {
         target.on('data', target_data);
         target.on('end', function () {
             sys.log("received target end");
-            client.end();
-            if (target) {
-                target.end();
-                target = null;
-            }
+            cleanup();
+        });
+        target.on('error', function (exc) {
+            sys.log("received target error: " + exc);
+            cleanup();
         });
     }
 
     function client_data(data) {
+        var ret;
         //sys.log("received client data: " + data);
         //sys.log("             decoded: " + decode(data));
         try {
-            target.write(decode(data), 'binary');
+            ret = target.write(decode(data), 'binary');
+            if (! ret) {
+                sys.log("target write returned false");
+            }
         } catch(e) {
             sys.log("fatal error writing to target");
-            client.end();
-            if (target) {
-                target.end();
-                target = null;
-            }
+            cleanup();
         }
     }
 
@@ -180,9 +200,7 @@ var server = net.createServer(function (client) {
             client.write(encode(data), 'binary');
         } catch(e) {
             sys.log("fatal error writing to client");
-            client.end();
-            target.end();
-            target = null;
+            cleanup();
         }
     }
 
@@ -192,11 +210,11 @@ var server = net.createServer(function (client) {
     client.on('data', do_handshake);
     client.on('end', function () {
         sys.log("recieved client end");
-        client.end();
-        if (target) {
-            target.end();
-            target = null;
-        }
+        cleanup();
+    });
+    client.on('error', function (exc) {
+        sys.log("recieved client error: " + exc);
+        cleanup();
     });
 });
 
@@ -208,8 +226,8 @@ try {
     var idx;
     idx = source_arg.indexOf(":");
     if (idx >= 0) {
-        source_host = source_arg.substring(0, idx);
-        source_port = parseInt(source_arg.substring(idx+1), 10);
+        source_host = source_arg.slice(0, idx);
+        source_port = parseInt(source_arg.slice(idx+1), 10);
     } else {
         source_host = "";
         source_port = parseInt(source_arg, 10);
@@ -219,8 +237,8 @@ try {
     if (idx < 0) {
         throw("target must be host:port");
     }
-    target_host = target_arg.substring(0, idx);
-    target_port = parseInt(target_arg.substring(idx+1), 10);
+    target_host = target_arg.slice(0, idx);
+    target_port = parseInt(target_arg.slice(idx+1), 10);
 
     if (isNaN(source_port) || isNaN(target_port)) {
         throw("illegal port");
