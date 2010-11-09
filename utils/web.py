@@ -17,6 +17,7 @@ import SimpleHTTPServer as server  # python 2.X
 def do_request(connstream, from_addr):
     x = object()
     server.SimpleHTTPRequestHandler(connstream, from_addr, x)
+    connstream.close()
 
 def serve():
     bindsocket = socket.socket()

@@ -15,12 +15,26 @@ settingsOpen : false,
 
 // Render default controls and initialize settings menu
 load: function(target) {
-    var html, i, DC = DefaultControls, sheet, sheets, llevels;
+    var html = '', i, DC = DefaultControls, sheet, sheets, llevels;
 
     /* Populate the 'target' DOM element with default controls */
     if (!target) { target = 'vnc'; }
 
-    html = "";
+    if ((!document.createElement('canvas').getContext) &&
+        window.ActiveXObject) {
+        // Suggest Chrome frame for Internet Explorer users
+        html += '<center><div style="text-align: left; width: 400px">';
+        html += '  You are using a version of Internet Explorer ';
+        html += '  that does not have HTML5 Canvas support. ';
+        html += '  To use noVNC you must use a browser with HTML5 ';
+        html += '  Canvas support or install ';
+        html += '  <a href="http://google.com/chromeframe" target="cframe">';
+        html += '  Google Chrome Frame.</a>';
+        html += '</div></center>';
+        $(target).innerHTML = html;
+        return;
+    }
+
     html += '<div id="VNC_controls">';
     html += '  <ul>';
     html += '    <li>Host: <input id="VNC_host"></li>';
