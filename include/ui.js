@@ -9,15 +9,15 @@
 /*jslint white: false */
 /*global $, Util, RFB, Canvas, VNC_uri_prefix, Element, Fx */
 
-var DefaultControls = {
+var UI = {
 
 settingsOpen : false,
 
-// Render default controls and initialize settings menu
+// Render default UI and initialize settings menu
 load: function(target) {
-    var html = '', i, DC = DefaultControls, sheet, sheets, llevels;
+    var html = '', i, sheet, sheets, llevels;
 
-    /* Populate the 'target' DOM element with default controls */
+    /* Populate the 'target' DOM element with default UI */
     if (!target) { target = 'vnc'; }
 
     if ((!document.createElement('canvas').getContext) &&
@@ -52,10 +52,10 @@ load: function(target) {
     html += '      <td width=1%><div class="VNC_buttons_right">';
     html += '        <input type=button class="VNC_status_button" value="Settings"';
     html += '          id="menuButton"';
-    html += '          onclick="DefaultControls.clickSettingsMenu();">';
+    html += '          onclick="UI.clickSettingsMenu();">';
     html += '        <span id="VNC_settings_menu"';
-    html += '          onmouseover="DefaultControls.canvasBlur();"';
-    html += '          onmouseout="DefaultControls.canvasFocus();">';
+    html += '          onmouseover="UI.canvasBlur();"';
+    html += '          onmouseout="UI.canvasFocus();">';
     html += '          <ul>';
     html += '            <li><input id="VNC_encrypt"';
     html += '                type="checkbox"> Encrypt</li>';
@@ -89,13 +89,13 @@ load: function(target) {
 
     html += '            <hr>';
     html += '            <li><input type="button" id="VNC_apply" value="Apply"';
-    html += '                onclick="DefaultControls.settingsApply()"></li>';
+    html += '                onclick="UI.settingsApply()"></li>';
     html += '          </ul>';
     html += '        </span></div></td>';
     html += '      <td width=1%><div class="VNC_buttons_right">';
     html += '        <input type=button class="VNC_status_button" value="Send CtrlAltDel"';
     html += '          id="sendCtrlAltDelButton"';
-    html += '          onclick="DefaultControls.sendCtrlAltDel();"></div></td>';
+    html += '          onclick="UI.sendCtrlAltDel();"></div></td>';
     html += '    </tr></table>';
     html += '  </div>';
     html += '  <canvas id="VNC_canvas" width="640px" height="20px">';
@@ -107,40 +107,40 @@ load: function(target) {
     html += '  VNC Clipboard:';
     html += '  <input id="VNC_clipboard_clear_button"';
     html += '      type="button" value="Clear"';
-    html += '      onclick="DefaultControls.clipClear();">';
+    html += '      onclick="UI.clipClear();">';
     html += '  <br>';
     html += '  <textarea id="VNC_clipboard_text" cols=80 rows=5';
-    html += '    onfocus="DefaultControls.canvasBlur();"';
-    html += '    onblur="DefaultControls.canvasFocus();"';
-    html += '    onchange="DefaultControls.clipSend();"></textarea>';
+    html += '    onfocus="UI.canvasBlur();"';
+    html += '    onblur="UI.canvasFocus();"';
+    html += '    onchange="UI.clipSend();"></textarea>';
     html += '</div>';
     $(target).innerHTML = html;
 
     // Settings with immediate effects
-    DC.initSetting('logging', 'warn');
-    WebUtil.init_logging(DC.getSetting('logging'));
-    DC.initSetting('stylesheet', 'default');
+    UI.initSetting('logging', 'warn');
+    WebUtil.init_logging(UI.getSetting('logging'));
+    UI.initSetting('stylesheet', 'default');
 
     WebUtil.selectStylesheet(null); // call twice to get around webkit bug
-    WebUtil.selectStylesheet(DC.getSetting('stylesheet'));
+    WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
     /* Populate the controls if defaults are provided in the URL */
-    DC.initSetting('host', '');
-    DC.initSetting('port', '');
-    DC.initSetting('password', '');
-    DC.initSetting('encrypt', false);
-    DC.initSetting('true_color', true);
-    DC.initSetting('cursor', false);
-    DC.initSetting('shared', true);
-    DC.initSetting('connectTimeout', 2);
+    UI.initSetting('host', '');
+    UI.initSetting('port', '');
+    UI.initSetting('password', '');
+    UI.initSetting('encrypt', false);
+    UI.initSetting('true_color', true);
+    UI.initSetting('cursor', false);
+    UI.initSetting('shared', true);
+    UI.initSetting('connectTimeout', 2);
 
-    DC.rfb = RFB({'target': 'VNC_canvas',
-                  'updateState': DC.updateState,
-                  'clipboardReceive': DC.clipReceive});
+    UI.rfb = RFB({'target': 'VNC_canvas',
+                  'updateState': UI.updateState,
+                  'clipboardReceive': UI.clipReceive});
 
     // Unfocus clipboard when over the VNC area
     $('VNC_screen').onmousemove = function () {
-            var canvas = DC.rfb.get_canvas();
+            var canvas = UI.rfb.get_canvas();
             if ((! canvas) || (! canvas.get_focused())) {
                 $('VNC_clipboard_text').blur();
             }
@@ -172,7 +172,7 @@ updateSetting: function(name, value) {
     }
 
     // Update the settings control
-    value = DefaultControls.getSetting(name);
+    value = UI.getSetting(name);
     if (ctrl.type === 'checkbox') {
         ctrl.checked = value;
     } else if (typeof ctrl.options !== 'undefined') {
@@ -211,7 +211,7 @@ initSetting: function(name, defVal) {
     if (val === null) {
         val = WebUtil.readCookie(name, defVal);
     }
-    DefaultControls.updateSetting(name, val);
+    UI.updateSetting(name, val);
     //Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
     return val;
 },
@@ -221,39 +221,38 @@ initSetting: function(name, defVal) {
 //   On open, settings are refreshed from saved cookies.
 //   On close, settings are applied
 clickSettingsMenu: function() {
-    var DC = DefaultControls;
-    if (DC.settingsOpen) {
-        DC.settingsApply();
+    if (UI.settingsOpen) {
+        UI.settingsApply();
 
-        DC.closeSettingsMenu();
+        UI.closeSettingsMenu();
     } else {
-        DC.updateSetting('encrypt');
-        DC.updateSetting('true_color');
-        if (DC.rfb.get_canvas().get_cursor_uri()) {
-            DC.updateSetting('cursor');
+        UI.updateSetting('encrypt');
+        UI.updateSetting('true_color');
+        if (UI.rfb.get_canvas().get_cursor_uri()) {
+            UI.updateSetting('cursor');
         } else {
-            DC.updateSetting('cursor', false);
+            UI.updateSetting('cursor', false);
             $('VNC_cursor').disabled = true;
         }
-        DC.updateSetting('shared');
-        DC.updateSetting('connectTimeout');
-        DC.updateSetting('stylesheet');
-        DC.updateSetting('logging');
+        UI.updateSetting('shared');
+        UI.updateSetting('connectTimeout');
+        UI.updateSetting('stylesheet');
+        UI.updateSetting('logging');
 
-        DC.openSettingsMenu();
+        UI.openSettingsMenu();
     }
 },
 
 // Open menu
 openSettingsMenu: function() {
     $('VNC_settings_menu').style.display = "block";
-    DefaultControls.settingsOpen = true;
+    UI.settingsOpen = true;
 },
 
 // Close menu (without applying settings)
 closeSettingsMenu: function() {
     $('VNC_settings_menu').style.display = "none";
-    DefaultControls.settingsOpen = false;
+    UI.settingsOpen = false;
 },
 
 // Disable/enable controls depending on connection state
@@ -264,7 +263,7 @@ settingsDisabled: function(disabled, rfb) {
     if (rfb && rfb.get_canvas() && rfb.get_canvas().get_cursor_uri()) {
         $('VNC_cursor').disabled = disabled;
     } else {
-        DefaultControls.updateSetting('cursor', false);
+        UI.updateSetting('cursor', false);
         $('VNC_cursor').disabled = true;
     }
     $('VNC_shared').disabled = disabled;
@@ -275,20 +274,19 @@ settingsDisabled: function(disabled, rfb) {
 // Save/apply settings when 'Apply' button is pressed
 settingsApply: function() {
     //Util.Debug(">> settingsApply");
-    var DC = DefaultControls;
-    DC.saveSetting('encrypt');
-    DC.saveSetting('true_color');
-    if (DC.rfb.get_canvas().get_cursor_uri()) {
-        DC.saveSetting('cursor');
+    UI.saveSetting('encrypt');
+    UI.saveSetting('true_color');
+    if (UI.rfb.get_canvas().get_cursor_uri()) {
+        UI.saveSetting('cursor');
     }
-    DC.saveSetting('shared');
-    DC.saveSetting('connectTimeout');
-    DC.saveSetting('stylesheet');
-    DC.saveSetting('logging');
+    UI.saveSetting('shared');
+    UI.saveSetting('connectTimeout');
+    UI.saveSetting('stylesheet');
+    UI.saveSetting('logging');
 
     // Settings with immediate (non-connected related) effect
-    WebUtil.selectStylesheet(DC.getSetting('stylesheet'));
-    WebUtil.init_logging(DC.getSetting('logging'));
+    WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
+    WebUtil.init_logging(UI.getSetting('logging'));
 
     //Util.Debug("<< settingsApply");
 },
@@ -296,12 +294,12 @@ settingsApply: function() {
 
 
 setPassword: function() {
-    DefaultControls.rfb.sendPassword($('VNC_password').value);
+    UI.rfb.sendPassword($('VNC_password').value);
     return false;
 },
 
 sendCtrlAltDel: function() {
-    DefaultControls.rfb.sendCtrlAltDel();
+    UI.rfb.sendCtrlAltDel();
 },
 
 updateState: function(rfb, state, oldstate, msg) {
@@ -315,40 +313,40 @@ updateState: function(rfb, state, oldstate, msg) {
         case 'fatal':
             c.disabled = true;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(true, rfb);
+            UI.settingsDisabled(true, rfb);
             klass = "VNC_status_error";
             break;
         case 'normal':
             c.value = "Disconnect";
-            c.onclick = DefaultControls.disconnect;
+            c.onclick = UI.disconnect;
             c.disabled = false;
             cad.disabled = false;
-            DefaultControls.settingsDisabled(true, rfb);
+            UI.settingsDisabled(true, rfb);
             klass = "VNC_status_normal";
             break;
         case 'disconnected':
         case 'loaded':
             c.value = "Connect";
-            c.onclick = DefaultControls.connect;
+            c.onclick = UI.connect;
 
             c.disabled = false;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(false, rfb);
+            UI.settingsDisabled(false, rfb);
             klass = "VNC_status_normal";
             break;
         case 'password':
             c.value = "Send Password";
-            c.onclick = DefaultControls.setPassword;
+            c.onclick = UI.setPassword;
 
             c.disabled = false;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(true, rfb);
+            UI.settingsDisabled(true, rfb);
             klass = "VNC_status_warn";
             break;
         default:
             c.disabled = true;
             cad.disabled = true;
-            DefaultControls.settingsDisabled(true, rfb);
+            UI.settingsDisabled(true, rfb);
             klass = "VNC_status_warn";
             break;
     }
@@ -362,16 +360,16 @@ updateState: function(rfb, state, oldstate, msg) {
 },
 
 clipReceive: function(rfb, text) {
-    Util.Debug(">> DefaultControls.clipReceive: " + text.substr(0,40) + "...");
+    Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
     $('VNC_clipboard_text').value = text;
-    Util.Debug("<< DefaultControls.clipReceive");
+    Util.Debug("<< UI.clipReceive");
 },
 
 
 connect: function() {
-    var host, port, password, DC = DefaultControls;
+    var host, port, password;
 
-    DC.closeSettingsMenu();
+    UI.closeSettingsMenu();
 
     host = $('VNC_host').value;
     port = $('VNC_port').value;
@@ -380,39 +378,39 @@ connect: function() {
         throw("Must set host and port");
     }
 
-    DC.rfb.set_encrypt(DC.getSetting('encrypt'));
-    DC.rfb.set_true_color(DC.getSetting('true_color'));
-    DC.rfb.set_local_cursor(DC.getSetting('cursor'));
-    DC.rfb.set_shared(DC.getSetting('shared'));
-    DC.rfb.set_connectTimeout(DC.getSetting('connectTimeout'));
+    UI.rfb.set_encrypt(UI.getSetting('encrypt'));
+    UI.rfb.set_true_color(UI.getSetting('true_color'));
+    UI.rfb.set_local_cursor(UI.getSetting('cursor'));
+    UI.rfb.set_shared(UI.getSetting('shared'));
+    UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
 
-    DC.rfb.connect(host, port, password);
+    UI.rfb.connect(host, port, password);
 },
 
 disconnect: function() {
-    DefaultControls.closeSettingsMenu();
+    UI.closeSettingsMenu();
 
-    DefaultControls.rfb.disconnect();
+    UI.rfb.disconnect();
 },
 
 canvasBlur: function() {
-    DefaultControls.rfb.get_canvas().set_focused(false);
+    UI.rfb.get_canvas().set_focused(false);
 },
 
 canvasFocus: function() {
-    DefaultControls.rfb.get_canvas().set_focused(true);
+    UI.rfb.get_canvas().set_focused(true);
 },
 
 clipClear: function() {
     $('VNC_clipboard_text').value = "";
-    DefaultControls.rfb.clipboardPasteFrom("");
+    UI.rfb.clipboardPasteFrom("");
 },
 
 clipSend: function() {
     var text = $('VNC_clipboard_text').value;
-    Util.Debug(">> DefaultControls.clipSend: " + text.substr(0,40) + "...");
-    DefaultControls.rfb.clipboardPasteFrom(text);
-    Util.Debug("<< DefaultControls.clipSend");
+    Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
+    UI.rfb.clipboardPasteFrom(text);
+    Util.Debug("<< UI.clipSend");
 }
 
 };

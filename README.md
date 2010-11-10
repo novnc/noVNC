@@ -142,19 +142,19 @@ There a few reasons why a proxy is required:
 The client is designed to be easily integrated with existing web
 structure and style.
 
-At a minimum you must include the `vnc.js` and `default_controls.js`
-scripts and call DefaultControls.load(). For example:
+At a minimum you must include the `vnc.js` and `ui.js` scripts and
+call UI.load(). For example:
 
     <head>
         <script src='include/vnc.js'></script>
-        <script src="include/default_controls.js"></script>
+        <script src="include/ui.js"></script>
     </head>
     <body>
         <div id='vnc'>Loading</div>
 
         <script>
             window.onload = function () {
-                DefaultControls.load('vnc');
+                UI.load('vnc');
             }
         </script>
     </body>
