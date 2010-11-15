@@ -73,7 +73,7 @@ var that           = {},         // Public API interface
     rQ             = [],     // Receive Queue
     rQi            = 0,      // Receive Queue Index
     rQmax          = 100000, // Max size before compacting
-    sQ             = "",     // Send Queue
+    sQ             = [],     // Send Queue
 
     // Frame buffer update state
     FBU            = {
@@ -319,7 +319,7 @@ init_vars = function() {
     /* Reset state */
     rQ               = [];
     rQi              = 0;
-    sQ               = "";
+    sQ               = [];
     FBU.rects        = 0;
     FBU.subrects     = 0;  // RRE and HEXTILE
     FBU.lines        = 0;  // RAW
@@ -525,9 +525,9 @@ function fail(msg) {
     return false;
 }
 
-function encode_message(arr) {
+function encode_message() {
     /* base64 encode */
-    sQ = sQ + Base64.encode(arr);
+    return Base64.encode(sQ);
 }
 
 function decode_message(data) {
@@ -605,12 +605,12 @@ recv_message = function(e) {
 // overridable for testing
 send_array = function(arr) {
     //Util.Debug(">> send_array: " + arr);
-    encode_message(arr);
+    sQ = sQ.concat(arr);
     if (ws.bufferedAmount === 0) {
         //Util.Debug("arr: " + arr);
         //Util.Debug("sQ: " + sQ);
-        ws.send(sQ);
-        sQ = "";
+        ws.send(encode_message(sQ));
+        sQ = [];
     } else {
         Util.Debug("Delaying send");
     }
@@ -723,8 +723,8 @@ init_msg = function() {
                     // can handle.
                     if (ws.bufferedAmount === 0) {
                         if (sQ) {
-                            ws.send(sQ);
-                            sQ = "";
+                            ws.send(encode_message(sQ));
+                            sQ = [];
                         }
                     } else {
                         Util.Debug("Delaying send");
