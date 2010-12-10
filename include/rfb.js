@@ -127,13 +127,13 @@ var that           = {},         // Public API interface
 function cdef(v, type, defval, desc) {
     Util.conf_default(conf, that, v, type, defval, desc); }
 
-cdef('target',         'str', 'VNC_canvas', 'VNC viewport rendering Canvas');
-cdef('focusContainer', 'dom', document, 'Area that traps keyboard input');
+cdef('target',            'str', null, 'VNC viewport rendering Canvas');
+cdef('focusContainer',    'dom', document, 'Area that traps keyboard input');
 
-cdef('encrypt',        'bool', false, 'Use TLS/SSL/wss encryption');
-cdef('true_color',     'bool', true,  'Request true color pixel data');
-cdef('local_cursor',   'bool', false, 'Request locally rendered cursor');
-cdef('shared',         'bool', true,  'Request shared mode');
+cdef('encrypt',         'bool', false, 'Use TLS/SSL/wss encryption');
+cdef('true_color',      'bool', true,  'Request true color pixel data');
+cdef('local_cursor',    'bool', false, 'Request locally rendered cursor');
+cdef('shared',          'bool', true,  'Request shared mode');
 
 cdef('connectTimeout',    'int', 2,    'Time (s) to wait for connection');
 cdef('disconnectTimeout', 'int', 3,    'Time (s) to wait for disconnection');

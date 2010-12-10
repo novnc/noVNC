@@ -47,7 +47,7 @@
 
         function error(str) {
             console.error(str);
-            cell = $('error');
+            cell = $D('error');
             cell.innerHTML += errors + ": " + str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -147,15 +147,15 @@
         }
 
         function update_stats() {
-            $('sent').innerHTML = sent;
-            $('received').innerHTML = received;
-            $('errors').innerHTML = errors;
+            $D('sent').innerHTML = sent;
+            $D('received').innerHTML = received;
+            $D('errors').innerHTML = errors;
         }
 
         function init_ws() {
             console.log(">> init_ws");
             var scheme = "ws://";
-            if ($('encrypt').checked) {
+            if ($D('encrypt').checked) {
                 scheme = "wss://";
             }
             var uri = scheme + host + ":" + port;
@@ -188,9 +188,9 @@
 
         function connect() {
             console.log(">> connect");
-            host = $('host').value;
-            port = $('port').value;
-            sendDelay = parseInt($('sendDelay').value, 10);
+            host = $D('host').value;
+            port = $D('port').value;
+            sendDelay = parseInt($D('sendDelay').value, 10);
             if ((!host) || (!port)) {
                 console.log("must set host and port");
                 return;
@@ -202,8 +202,8 @@
             init_ws();
             update_ref = setInterval(update_stats, 1);
 
-            $('connectButton').value = "Stop";
-            $('connectButton').onclick = disconnect;
+            $D('connectButton').value = "Stop";
+            $D('connectButton').onclick = disconnect;
             console.log("<< connect");
         }
 
@@ -218,8 +218,8 @@
             recv_seq = 0;
             send_seq = 0;
 
-            $('connectButton').value = "Start";
-            $('connectButton').onclick = connect;
+            $D('connectButton').value = "Start";
+            $D('connectButton').onclick = connect;
             console.log("<< disconnect");
         }
 
@@ -244,8 +244,8 @@
                 WebSocket.__initialize();
             }
             var url = document.location.href;
-            $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
-            $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
+            $D('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
+            $D('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
         }
     </script>
 

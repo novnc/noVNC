@@ -34,7 +34,7 @@
   <script> 
     function debug(str) {
         console.log(str);
-        cell = $('debug');
+        cell = $D('debug');
         cell.innerHTML += str + "\n";
         cell.scrollTop = cell.scrollHeight;
     }
@@ -119,16 +119,16 @@
         debug("onload");
         var canvas, cross, cursor, cursor64;
 
-        canvas = new Canvas({'target' : "testcanvas"});
+        canvas = new Canvas({'target' : $D("testcanvas")});
         debug("canvas indicates Data URI cursor support is: " + canvas.get_cursor_uri());
 
-        $('button1').style.cursor="url(face.png), default";
+        $D('button1').style.cursor="url(face.png), default";
 
         cursor = makeCursor();
         cursor64 = Base64.encode(cursor);
         //debug("cursor: " + cursor.slice(0,100) + " (" + cursor.length + ")");
         //debug("cursor64: " + cursor64.slice(0,100) + " (" + cursor64.length + ")");
-        $('button2').style.cursor="url(data:image/x-icon;base64," + cursor64 + "), default";
+        $D('button2').style.cursor="url(data:image/x-icon;base64," + cursor64 + "), default";
 
         debug("onload complete");
     }

@@ -45,7 +45,7 @@
 
         function message(str) {
             console.log(str);
-            var cell = $('messages');
+            var cell = $D('messages');
             cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -67,23 +67,23 @@
                     test_state = 'failed';
                     break;
                 case 'loaded':
-                    $('startButton').disabled = false;
+                    $D('startButton').disabled = false;
                     break;
             }
             if (typeof msg !== 'undefined') {
-                $('VNC_status').innerHTML = msg;
+                $D('VNC_status').innerHTML = msg;
             }
         }
 
         function start() {
-            $('startButton').value = "Running";
-            $('startButton').disabled = true;
+            $D('startButton').value = "Running";
+            $D('startButton').disabled = true;
 
-            iterations = $('iterations').value;
+            iterations = $D('iterations').value;
             iteration = 0;
             start_time = (new Date()).getTime();
 
-            if ($('mode1').checked) {
+            if ($D('mode1').checked) {
                 message("Starting performance playback (fullspeed) [" + iterations + " iteration(s)]");
                 mode = 'perftest';
             } else {
@@ -103,24 +103,24 @@
             message(iterations + " iterations took " + total_time + "ms, " +
                     iter_time + "ms per iteration");
             rfb.get_canvas().stop();   // Shut-off event interception
-            $('startButton').disabled = false;
-            $('startButton').value = "Start";
+            $D('startButton').disabled = false;
+            $D('startButton').value = "Start";
 
         }
 
         window.onload = function() {
             iterations = WebUtil.getQueryVar('iterations', 3);
-            $('iterations').value = iterations;
+            $D('iterations').value = iterations;
             mode = WebUtil.getQueryVar('mode', 3);
             if (mode === 'realtime') {
-                $('mode2').checked = true;
+                $D('mode2').checked = true;
             } else {
-                $('mode1').checked = true;
+                $D('mode1').checked = true;
             }
             if (fname) {
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
-                rfb = RFB({'target': 'VNC_canvas',
-                        'updateState': updateState});
+                rfb = new RFB({'target': $D('VNC_canvas'),
+                               'updateState': updateState});
                 rfb.testMode(send_array);
             }
         }

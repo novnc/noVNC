@@ -29,7 +29,7 @@
 
         function message(str) {
             console.log(str);
-            cell = $('messages');
+            cell = $D('messages');
             cell.innerHTML += msg_cnt + ": " + str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -53,7 +53,7 @@
         }
 
         window.onload = function() {
-            var canvas = Canvas({'target' : 'canvas'});
+            var canvas = new Canvas({'target' : $D('canvas')});
             canvas.resize(width, height, true);
             canvas.start(keyPress, mouseButton, mouseMove);
             message("Canvas initialized");

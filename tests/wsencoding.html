@@ -34,7 +34,7 @@
 
         function message(str) {
             console.log(str);
-            cell = $('messages');
+            cell = $D('messages');
             cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -65,7 +65,7 @@
         function init_ws() {
             console.log(">> init_ws");
             var scheme = "ws://";
-            if ($('encrypt').checked) {
+            if ($D('encrypt').checked) {
                 scheme = "wss://";
             }
             var uri = scheme + host + ":" + port;
@@ -97,8 +97,8 @@
 
         function connect() {
             console.log(">> connect");
-            host = $('host').value;
-            port = $('port').value;
+            host = $D('host').value;
+            port = $D('port').value;
             if ((!host) || (!port)) {
                 console.log("must set host and port");
                 return;
@@ -109,8 +109,8 @@
             }
             init_ws();
 
-            $('connectButton').value = "Stop";
-            $('connectButton').onclick = disconnect;
+            $D('connectButton').value = "Stop";
+            $D('connectButton').onclick = disconnect;
             console.log("<< connect");
         }
 
@@ -120,8 +120,8 @@
                 ws.close();
             }
 
-            $('connectButton').value = "Start";
-            $('connectButton').onclick = connect;
+            $D('connectButton').value = "Start";
+            $D('connectButton').onclick = connect;
             console.log("<< disconnect");
         }
 
@@ -143,8 +143,8 @@
                 WebSocket.__initialize();
             }
             var url = document.location.href;
-            $('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
-            $('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
+            $D('host').value = (url.match(/host=([^&#]*)/) || ['',''])[1];
+            $D('port').value = (url.match(/port=([^&#]*)/) || ['',''])[1];
         }
     </script>
 

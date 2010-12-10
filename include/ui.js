@@ -18,7 +18,11 @@ load: function(target) {
     var html = '', i, sheet, sheets, llevels;
 
     /* Populate the 'target' DOM element with default UI */
-    if (!target) { target = 'vnc'; }
+    if (!target) {
+        target = $D('vnc');
+    } else if (typeof target === 'string') {
+        target = $D(target);
+    }
 
     if ((!document.createElement('canvas').getContext) &&
         window.ActiveXObject) {
@@ -31,7 +35,7 @@ load: function(target) {
         html += '  <a href="http://google.com/chromeframe" target="cframe">';
         html += '  Google Chrome Frame.</a>';
         html += '</div></center>';
-        $(target).innerHTML = html;
+        target.innerHTML = html;
         return;
     }
 
@@ -114,7 +118,7 @@ load: function(target) {
     html += '    onblur="UI.canvasFocus();"';
     html += '    onchange="UI.clipSend();"></textarea>';
     html += '</div>';
-    $(target).innerHTML = html;
+    target.innerHTML = html;
 
     // Settings with immediate effects
     UI.initSetting('logging', 'warn');
@@ -134,15 +138,15 @@ load: function(target) {
     UI.initSetting('shared', true);
     UI.initSetting('connectTimeout', 2);
 
-    UI.rfb = RFB({'target': 'VNC_canvas',
+    UI.rfb = RFB({'target': $D('VNC_canvas'),
                   'updateState': UI.updateState,
                   'clipboardReceive': UI.clipReceive});
 
     // Unfocus clipboard when over the VNC area
-    $('VNC_screen').onmousemove = function () {
+    $D('VNC_screen').onmousemove = function () {
             var canvas = UI.rfb.get_canvas();
             if ((! canvas) || (! canvas.get_focused())) {
-                $('VNC_clipboard_text').blur();
+                $D('VNC_clipboard_text').blur();
             }
         };
 
@@ -150,7 +154,7 @@ load: function(target) {
 
 // Read form control compatible setting from cookie
 getSetting: function(name) {
-    var val, ctrl = $('VNC_' + name);
+    var val, ctrl = $D('VNC_' + name);
     val = WebUtil.readCookie(name);
     if (ctrl.type === 'checkbox') {
         if (val.toLowerCase() in {'0':1, 'no':1, 'false':1}) {
@@ -165,7 +169,7 @@ getSetting: function(name) {
 // Update cookie and form control setting. If value is not set, then
 // updates from control to current cookie setting.
 updateSetting: function(name, value) {
-    var i, ctrl = $('VNC_' + name);
+    var i, ctrl = $D('VNC_' + name);
     // Save the cookie for this session
     if (typeof value !== 'undefined') {
         WebUtil.createCookie(name, value);
@@ -189,7 +193,7 @@ updateSetting: function(name, value) {
 
 // Save control setting to cookie
 saveSetting: function(name) {
-    var val, ctrl = $('VNC_' + name);
+    var val, ctrl = $D('VNC_' + name);
     if (ctrl.type === 'checkbox') {
         val = ctrl.checked;
     } else if (typeof ctrl.options !== 'undefined') {
@@ -232,7 +236,7 @@ clickSettingsMenu: function() {
             UI.updateSetting('cursor');
         } else {
             UI.updateSetting('cursor', false);
-            $('VNC_cursor').disabled = true;
+            $D('VNC_cursor').disabled = true;
         }
         UI.updateSetting('shared');
         UI.updateSetting('connectTimeout');
@@ -245,29 +249,29 @@ clickSettingsMenu: function() {
 
 // Open menu
 openSettingsMenu: function() {
-    $('VNC_settings_menu').style.display = "block";
+    $D('VNC_settings_menu').style.display = "block";
     UI.settingsOpen = true;
 },
 
 // Close menu (without applying settings)
 closeSettingsMenu: function() {
-    $('VNC_settings_menu').style.display = "none";
+    $D('VNC_settings_menu').style.display = "none";
     UI.settingsOpen = false;
 },
 
 // Disable/enable controls depending on connection state
 settingsDisabled: function(disabled, rfb) {
     //Util.Debug(">> settingsDisabled");
-    $('VNC_encrypt').disabled = disabled;
-    $('VNC_true_color').disabled = disabled;
+    $D('VNC_encrypt').disabled = disabled;
+    $D('VNC_true_color').disabled = disabled;
     if (rfb && rfb.get_canvas() && rfb.get_canvas().get_cursor_uri()) {
-        $('VNC_cursor').disabled = disabled;
+        $D('VNC_cursor').disabled = disabled;
     } else {
         UI.updateSetting('cursor', false);
-        $('VNC_cursor').disabled = true;
+        $D('VNC_cursor').disabled = true;
     }
-    $('VNC_shared').disabled = disabled;
-    $('VNC_connectTimeout').disabled = disabled;
+    $D('VNC_shared').disabled = disabled;
+    $D('VNC_connectTimeout').disabled = disabled;
     //Util.Debug("<< settingsDisabled");
 },
 
@@ -294,7 +298,7 @@ settingsApply: function() {
 
 
 setPassword: function() {
-    UI.rfb.sendPassword($('VNC_password').value);
+    UI.rfb.sendPassword($D('VNC_password').value);
     return false;
 },
 
@@ -304,10 +308,10 @@ sendCtrlAltDel: function() {
 
 updateState: function(rfb, state, oldstate, msg) {
     var s, sb, c, cad, klass;
-    s = $('VNC_status');
-    sb = $('VNC_status_bar');
-    c = $('VNC_connect_button');
-    cad = $('sendCtrlAltDelButton');
+    s = $D('VNC_status');
+    sb = $D('VNC_status_bar');
+    c = $D('VNC_connect_button');
+    cad = $D('sendCtrlAltDelButton');
     switch (state) {
         case 'failed':
         case 'fatal':
@@ -361,7 +365,7 @@ updateState: function(rfb, state, oldstate, msg) {
 
 clipReceive: function(rfb, text) {
     Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
-    $('VNC_clipboard_text').value = text;
+    $D('VNC_clipboard_text').value = text;
     Util.Debug("<< UI.clipReceive");
 },
 
@@ -371,9 +375,9 @@ connect: function() {
 
     UI.closeSettingsMenu();
 
-    host = $('VNC_host').value;
-    port = $('VNC_port').value;
-    password = $('VNC_password').value;
+    host = $D('VNC_host').value;
+    port = $D('VNC_port').value;
+    password = $D('VNC_password').value;
     if ((!host) || (!port)) {
         throw("Must set host and port");
     }
@@ -402,12 +406,12 @@ canvasFocus: function() {
 },
 
 clipClear: function() {
-    $('VNC_clipboard_text').value = "";
+    $D('VNC_clipboard_text').value = "";
     UI.rfb.clipboardPasteFrom("");
 },
 
 clipSend: function() {
-    var text = $('VNC_clipboard_text').value;
+    var text = $D('VNC_clipboard_text').value;
     Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
     UI.rfb.clipboardPasteFrom(text);
     Util.Debug("<< UI.clipSend");

@@ -47,7 +47,7 @@
 
         function msg(str) {
             console.log(str);
-            var cell = $('messages');
+            var cell = $D('messages');
             cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -68,20 +68,20 @@
                     test_state = 'failed';
                     break;
                 case 'loaded':
-                    $('startButton').disabled = false;
+                    $D('startButton').disabled = false;
                     break;
             }
             if (typeof mesg !== 'undefined') {
-                $('VNC_status').innerHTML = mesg;
+                $D('VNC_status').innerHTML = mesg;
             }
         }
 
         function start() {
-            $('startButton').value = "Running";
-            $('startButton').disabled = true;
+            $D('startButton').value = "Running";
+            $D('startButton').disabled = true;
 
             mode = 'perftest'; // full-speed
-            passes = $('passes').value;
+            passes = $D('passes').value;
             pass = 1;
             encIdx = 0;
 
@@ -123,8 +123,8 @@
                 if (pass > passes) {
                     // We are finished
                     rfb.get_canvas().stop();   // Shut-off event interception
-                    $('startButton').disabled = false;
-                    $('startButton').value = "Start";
+                    $D('startButton').disabled = false;
+                    $D('startButton').value = "Start";
                     finish_passes();
                     return; // We are finished, terminate
                 }
@@ -189,8 +189,8 @@
                 enc = encOrder[i];
                 dbgmsg("  " + enc + ": " + VNC_frame_data_multi[enc].length);
             }
-            rfb = RFB({'target': 'VNC_canvas',
-                    'updateState': updateState});
+            rfb = new RFB({'target': $D('VNC_canvas'),
+                           'updateState': updateState});
             rfb.testMode(send_array);
         }
     </script>

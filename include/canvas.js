@@ -99,7 +99,7 @@ function constructor() {
     if (! conf.target) { throw("target must be set"); }
 
     if (typeof conf.target === 'string') {
-        conf.target = window.$(conf.target);
+        throw("target must be a DOM element");
     }
 
     c = conf.target;
@@ -215,7 +215,7 @@ function constructor() {
     return that ;
 }
 
-/* Translate DOM key event to keysym value */
+/* Translate DOM key down/up event to keysym value */
 function getKeysym(e) {
     var evt, keysym;
     evt = (e ? e : window.event);

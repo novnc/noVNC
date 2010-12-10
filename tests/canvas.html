@@ -40,7 +40,7 @@
 
         function message(str) {
             console.log(str);
-            cell = $('messages');
+            cell = $D('messages');
             cell.innerHTML += msg_cnt + ": " + str + "\n";
             cell.scrollTop = cell.scrollHeight;
             msg_cnt += 1;
@@ -80,10 +80,10 @@
         }
 
         function begin () {
-            $('startButton').value = "Running";
-            $('startButton').disabled = true;
+            $D('startButton').value = "Running";
+            $D('startButton').disabled = true;
             setTimeout(start_delayed, 250);
-            iterations = $('iterations').value;
+            iterations = $D('iterations').value;
         }
 
         function start_delayed () {
@@ -109,14 +109,14 @@
                 canvas.resize(start_width, start_height, true);
                 test_functions();
             }
-            $('startButton').disabled = false;
-            $('startButton').value = "Do Performance Test";
+            $D('startButton').disabled = false;
+            $D('startButton').value = "Do Performance Test";
         }
 
         function run_test () {
             var width, height;
-            width = $('width').value;
-            height = $('height').value;
+            width = $D('width').value;
+            height = $D('height').value;
             canvas.resize(width, height);
             var color, start_time = (new Date()).getTime(), w, h;
             for (var i=0; i < iterations; i++) {
@@ -137,8 +137,8 @@
 
         window.onload = function() {
             message("in onload");
-            $('iterations').value = 10;
-            canvas = Canvas({'target' : 'canvas'});
+            $D('iterations').value = 10;
+            canvas = new Canvas({'target' : $D('canvas')});
             canvas.resize(start_width, start_height, true);
             message("Canvas initialized");
             test_functions();
