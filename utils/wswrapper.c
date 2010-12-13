@@ -1,3 +1,13 @@
+/*
+ * wswrap/wswrapper: Add WebSockets support to any service.
+ * Copyright 2010 Joel Martin
+ * Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
+ *
+ * Use wswrap to run a program using the wrapper.
+ */
+
+/* WARNING: multi-threaded programs are not supported */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -47,14 +57,25 @@ Connection: Upgrade\r\n\
 %sWebSocket-Protocol: sample\r\n\
 \r\n%s";
 
-/* WARNING: threading not supported */
+/*
+ * If WSWRAP_PORT environment variable is set then listen to the bind fd that
+ * matches WSWRAP_PORT, otherwise listen to the first socket fd that bind is
+ * called on.
+ */
+int   _WS_listen_fd  = 0;
+int   _WS_sockfd     = 0;
+
+typedef struct {
+    char _WS_rbuf[65536];
+    char _WS_sbuf[65536];
+} _WS_connection;
+
 int   _WS_bufsize    = 65536;
 char *_WS_rbuf       = NULL;
 char *_WS_sbuf       = NULL;
 int   _WS_rcarry_cnt = 0;
 char  _WS_rcarry[3]  = "";
 int   _WS_newframe   = 1;
-int   _WS_sockfd     = 0;
 
 int _WS_init() {
     if (! (_WS_rbuf = malloc(_WS_bufsize)) ) {
@@ -525,16 +546,48 @@ int socket(int domain, int type, int protocol)
 
     return (int) func(domain, type, protocol);
 }
+*/
 
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
     static void * (*func)();
+    struct sockaddr_in * addr_in = (struct sockaddr_in *)addr;
+    char * WSWRAP_PORT, * end;
+    int fd, envport, bindport = htons(addr_in->sin_port);
     if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "bind");
     DEBUG("bind(%d, _, %d) called\n", sockfd, addrlen);
 
-    return (int) func(sockfd, addr, addrlen);
+    fd = (int) func(sockfd, addr, addrlen);
+
+    if (addr_in->sin_family != AF_INET) {
+        // TODO: handle IPv6
+        DEBUG("bind, ignoring non-IPv4 socket\n");
+        return fd;
+    }
+
+    WSWRAP_PORT = getenv("WSWRAP_PORT");
+    if ((! WSWRAP_PORT) || (*WSWRAP_PORT == '\0')) {
+        // TODO: interpose on all sockets
+        DEBUG("bind, not interposing: WSWRAP_PORT is not set\n");
+        return fd;
+    }
+
+    envport = strtol(WSWRAP_PORT, &end, 10);
+    if ((envport == 0) || (*end != '\0')) {
+        MSG("bind, not interposing: WSWRAP_PORT is not a number\n");
+        return fd;
+    }
+
+    if (envport != bindport) {
+        DEBUG("bind, not interposing on port %d\n", bindport);
+        return fd;
+    }
+
+    MSG("bind, interposing on port: %d\n", envport);
+    _WS_listen_fd = envport;
+
+    return fd;
 }
-*/
 
 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
@@ -545,7 +598,13 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 
     fd = (int) func(sockfd, addr, addrlen);
 
+    if (_WS_listen_fd == 0) {
+        DEBUG("not interposing\n");
+        return fd;
+    }
+
     if (_WS_sockfd == 0) {
+        // TODO: not just first connection
         _WS_sockfd = fd;
 
         if (!_WS_rbuf) {
