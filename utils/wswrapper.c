@@ -6,18 +6,13 @@
  * Use wswrap to run a program using the wrapper.
  */
 
-/* WARNING: multi-threaded programs are not supported */
+/* WARNING: multi-threaded programs may not work */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #define __USE_GNU 1 // Pull in RTLD_NEXT
 #include <dlfcn.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include <fcntl.h>
 #include <errno.h>
@@ -48,7 +43,8 @@
     return -1;
 
 
-const char _WS_response[] = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n\
+const char _WS_response[] = "\
+HTTP/1.1 101 Web Socket Protocol Handshake\r\n\
 Upgrade: WebSocket\r\n\
 Connection: Upgrade\r\n\
 %sWebSocket-Origin: %s\r\n\
@@ -58,6 +54,7 @@ Connection: Upgrade\r\n\
 
 #define WS_BUFSIZE 65536
 
+/* Buffers and state for each wrapped WebSocket connection */
 typedef struct {
     char rbuf[WS_BUFSIZE];
     char sbuf[WS_BUFSIZE];
@@ -72,20 +69,21 @@ typedef struct {
  * matches WSWRAP_PORT, otherwise listen to the first socket fd that bind is
  * called on.
  */
-int   _WS_listen_fd  = 0;
-int   _WS_sockfd     = 0;
-
-_WS_connection * _WS_connections[65546];
+int              _WS_listen_fd  = 0;
+_WS_connection  *_WS_connections[65546];
 
 
 /* 
  * WebSocket handshake routines
  */
 
+/* For WebSockets v76, use key1, key2 and key3 to generate md5 hash */
 int _WS_gen_md5(char *key1, char *key2, char *key3, char *target) {
     unsigned int i, spaces1 = 0, spaces2 = 0;
     unsigned long num1 = 0, num2 = 0;
     unsigned char buf[17];
+
+    /* Parse number 1 from key 1 */
     for (i=0; i < strlen(key1); i++) {
         if (key1[i] == ' ') {
             spaces1 += 1;
@@ -96,6 +94,7 @@ int _WS_gen_md5(char *key1, char *key2, char *key3, char *target) {
     }
     num1 = num1 / spaces1;
 
+    /* Parse number 2 from key 2 */
     for (i=0; i < strlen(key2); i++) {
         if (key2[i] == ' ') {
             spaces2 += 1;
@@ -106,7 +105,7 @@ int _WS_gen_md5(char *key1, char *key2, char *key3, char *target) {
     }
     num2 = num2 / spaces2;
 
-    /* Pack it big-endian */
+    /* Pack it big-endian as the first 8 bytes */
     buf[0] = (num1 & 0xff000000) >> 24;
     buf[1] = (num1 & 0xff0000) >> 16;
     buf[2] = (num1 & 0xff00) >> 8;
@@ -117,16 +116,18 @@ int _WS_gen_md5(char *key1, char *key2, char *key3, char *target) {
     buf[6] = (num2 & 0xff00) >> 8;
     buf[7] =  num2 & 0xff;
 
+    /* Add key 3 as the last 8 bytes */
     strncpy(buf+8, key3, 8);
     buf[16] = '\0';
 
+    /* md5 hash all 16 bytes to generate 16 byte target */
     md5_buffer(buf, 16, target);
     target[16] = '\0';
 
     return 1;
 }
 
-
+/* Do v75 and v76 handshake on WebSocket connection */
 int _WS_handshake(int sockfd)
 {
     int sz = 0, len, idx;
@@ -162,7 +163,7 @@ int _WS_handshake(int sockfd)
             continue;
         }
         if (strstr(handshake, "GET ") != handshake) {
-            // We got something but it wasn't a WebSockets client
+            MSG("Got non-WebSockets client connection\n");
             break;
         }
         last = strstr(handshake, "\r\n\r\n");
@@ -174,7 +175,7 @@ int _WS_handshake(int sockfd)
             break;
         }
 
-        // Now parse out the data
+        /* Now parse out the data elements */
         start = handshake+4;
         end = strstr(start, " HTTP/1.1");
         if (!end) { break; }
@@ -213,7 +214,7 @@ int _WS_handshake(int sockfd)
             _WS_gen_md5(key1, key2, key3, chksum);
 
             //DEBUG("Got handshake (v76): %s\n", handshake);
-            MSG("Got handshake (v76)\n");
+            MSG("New WebSockets client (v76)\n");
 
         } else {
             sprintf(prefix, "");
@@ -223,7 +224,7 @@ int _WS_handshake(int sockfd)
             sprintf(chksum, "");
 
             //DEBUG("Got handshake (v75): %s\n", handshake);
-            MSG("Got handshake (v75)\n");
+            MSG("New WebSockets client (v75)\n");
         }
         sprintf(response, _WS_response, prefix, origin, prefix, scheme,
                 host, path, prefix, chksum);
@@ -243,7 +244,7 @@ int _WS_handshake(int sockfd)
 }
 
 /*
- * WebSockets recv and read interposer routine
+ * WebSockets recv/read interposer routine
  */
 ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
                  size_t len, int flags)
@@ -276,7 +277,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
     left = len;
     retlen = 0;
 
-    // first copy in any carry-over bytes
+    /* first copy in carry-over bytes from previous recv/read */
     if (ws->rcarry_cnt) {
         if (ws->rcarry_cnt == 1) {
             DEBUG("Using carry byte: %u (", ws->rcarry[0]);
@@ -300,7 +301,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
         }
     }
 
-    // Determine the number of base64 encoded bytes needed
+    /* Determine the number of base64 encoded bytes needed */
     rawcount = (left * 4) / 3 + 3;
     rawcount -= rawcount%4;
 
@@ -310,7 +311,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
 
     i = 0;
     while (1) {
-        // Peek at everything available
+        /* Peek at everything available */
         rawlen = (int) rfunc(sockfd, ws->rbuf, WS_BUFSIZE-1,
                             flags | MSG_PEEK);
         if (rawlen <= 0) {
@@ -319,12 +320,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
         }
         fstart = ws->rbuf;
 
-        /*
-        while (rawlen >= 2 && fstart[0] == '\x00' && fstart[1] == '\xff') {
-            fstart += 2;
-            rawlen -= 2;
-        }
-        */
+        /* Strip empty frames */
         if (rawlen >= 2 && fstart[0] == '\x00' && fstart[1] == '\xff') {
             rawlen = (int) rfunc(sockfd, ws->rbuf, 2, flags);
             if (rawlen != 2) {
@@ -336,17 +332,17 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
         fstart[rawlen] = '\x00';
 
         if (rawlen - ws->newframe >= 4) {
-            // We have enough to base64 decode at least 1 byte
+            /* We have enough to base64 decode at least 1 byte */
             break;
         }
-        // Not enough to base64 decode
+        /* Not enough to base64 decode */
         if (sockflags & O_NONBLOCK) {
-            // Just tell the caller to call again
+            /* Just tell the caller to call again */
             DEBUG("_WS_recv: returning because O_NONBLOCK, rawlen %d\n", rawlen);
             errno = EAGAIN;
             return -1;
         }
-        // Repeat until at least 1 byte (4 raw bytes) to decode
+        /* Repeat until at least 1 byte (4 raw bytes) to decode */
         i++;
         if (i > 1000000) { 
             MSG("Could not send final part of frame\n");
@@ -385,7 +381,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
         }
     }
 
-    // How much should we consume
+    /* Determine amount to consume */
     if (rawcount < fend - fstart) {
         ws->newframe = 0;
         deccount = rawcount;
@@ -393,7 +389,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
         deccount = fend - fstart;
     }
 
-    // Now consume what we processed
+    /* Now consume what was processed */
     if (flags & MSG_PEEK) {
         MSG("*** Got MSG_PEEK ***\n");
     } else {
@@ -402,19 +398,20 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
 
     fstart[deccount] = '\x00'; // base64 terminator
 
-    // Do direct base64 decode, instead of decode()
+    /* Do base64 decode into the return buffer */
     decodelen = b64_pton(fstart, (char *) buf + retlen, deccount);
     if (decodelen <= 0) {
         RET_ERROR(EPROTO, "Base64 decode error\n");
     }
 
+    /* Calculate return length and carry-over */
     if (decodelen <= left) {
         retlen += decodelen;
     } else {
         retlen += left;
 
         if (! (flags & MSG_PEEK)) {
-            // Add anything left over to the carry-over
+            /* Add anything left over to the carry-over */
             ws->rcarry_cnt = decodelen - left;
             if (ws->rcarry_cnt > 2) {
                 RET_ERROR(EPROTO, "Got too much base64 data\n");
@@ -474,7 +471,7 @@ ssize_t _WS_send(int sendf, int sockfd, const void *buf,
         RET_ERROR(ENOMEM, "send of %d bytes is larger than send buffer\n", len);
     }
 
-    // base64 encode and add frame markers
+    /* base64 encode and add frame markers */
     rawlen = 0;
     ws->sbuf[rawlen++] = '\x00';
     enclen = b64_ntop(buf, len, ws->sbuf+rawlen, WS_BUFSIZE-rawlen);
@@ -487,12 +484,14 @@ ssize_t _WS_send(int sendf, int sockfd, const void *buf,
     rlen = (int) sfunc(sockfd, ws->sbuf, rawlen, flags);
 
     if (rlen <= 0) {
+        /* Couldn't send, just return */
         return rlen;
     } else if (rlen < rawlen) {
-        // Spin until we can send a whole base64 chunck and frame end
+        /* Spin until we can send a whole base64 chunck and frame end */
         over = (rlen - 1) % 4;  
         left = (4 - over) % 4 + 1; // left to send
-        DEBUG("_WS_send: rlen: %d (over: %d, left: %d), rawlen: %d\n", rlen, over, left, rawlen);
+        DEBUG("_WS_send: rlen: %d (over: %d, left: %d), rawlen: %d\n",
+              rlen, over, left, rawlen);
         rlen += left;
         ws->sbuf[rlen-1] = '\xff';
         i = 0;
@@ -519,13 +518,15 @@ ssize_t _WS_send(int sendf, int sockfd, const void *buf,
      * Report back the number of original characters sent,
      * not the raw number sent
      */
-    // Adjust for framing
+
+    /* Adjust for framing */
     retlen = rlen - 2;
-    // Adjust for base64 padding
+
+    /* Adjust for base64 padding */
     if (ws->sbuf[rlen-1] == '=') { retlen --; }
     if (ws->sbuf[rlen-2] == '=') { retlen --; }
 
-    // Adjust for base64 encoding
+    /* Scale return value for base64 encoding size */
     retlen = (retlen*3)/4;
 
     /*
@@ -612,6 +613,7 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
     if (_WS_connections[fd]) {
         MSG("error, already interposing on fd %d\n", fd);
     } else {
+        /* It's a port we're interposing on so allocate memory for it */
         if (! (_WS_connections[fd] = malloc(sizeof(_WS_connection)))) {
             RET_ERROR(ENOMEM, "Could not allocate interposer memory\n");
         }
