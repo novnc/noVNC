@@ -69,7 +69,7 @@ typedef struct {
  * matches WSWRAP_PORT, otherwise listen to the first socket fd that bind is
  * called on.
  */
-int              _WS_listen_fd  = 0;
+int              _WS_listen_fd  = -1;
 _WS_connection  *_WS_connections[65546];
 
 
@@ -560,40 +560,40 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     static void * (*func)();
     struct sockaddr_in * addr_in = (struct sockaddr_in *)addr;
     char * WSWRAP_PORT, * end;
-    int fd, envport, bindport = htons(addr_in->sin_port);
+    int ret, envport, bindport = htons(addr_in->sin_port);
     if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "bind");
     DEBUG("bind(%d, _, %d) called\n", sockfd, addrlen);
 
-    fd = (int) func(sockfd, addr, addrlen);
+    ret = (int) func(sockfd, addr, addrlen);
 
     if (addr_in->sin_family != AF_INET) {
         // TODO: handle IPv6
         DEBUG("bind, ignoring non-IPv4 socket\n");
-        return fd;
+        return ret;
     }
 
     WSWRAP_PORT = getenv("WSWRAP_PORT");
     if ((! WSWRAP_PORT) || (*WSWRAP_PORT == '\0')) {
         // TODO: interpose on all sockets
         DEBUG("bind, not interposing: WSWRAP_PORT is not set\n");
-        return fd;
+        return ret;
     }
 
     envport = strtol(WSWRAP_PORT, &end, 10);
     if ((envport == 0) || (*end != '\0')) {
         MSG("bind, not interposing: WSWRAP_PORT is not a number\n");
-        return fd;
+        return ret;
     }
 
     if (envport != bindport) {
-        DEBUG("bind, not interposing on port %d\n", bindport);
-        return fd;
+        DEBUG("bind, not interposing on port: %d (fd %d)\n", bindport, sockfd);
+        return ret;
     }
 
-    MSG("bind, interposing on port: %d\n", envport);
-    _WS_listen_fd = envport;
+    MSG("bind, interposing on port: %d (fd %d)\n", envport, sockfd);
+    _WS_listen_fd = sockfd;
 
-    return fd;
+    return ret;
 }
 
 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
@@ -605,10 +605,16 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 
     fd = (int) func(sockfd, addr, addrlen);
 
-    if (_WS_listen_fd == 0) {
+    if (_WS_listen_fd == -1) {
         DEBUG("not interposing\n");
         return fd;
     }
+
+    if (_WS_listen_fd != sockfd) {
+        DEBUG("not interposing on fd %d\n", sockfd);
+        return fd;
+    }
+
 
     if (_WS_connections[fd]) {
         MSG("error, already interposing on fd %d\n", fd);
