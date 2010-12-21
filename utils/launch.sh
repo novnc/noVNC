@@ -73,6 +73,18 @@ netstat -ltn | grep -qs "${PROXY_PORT}.*LISTEN" \
 
 trap "cleanup" TERM QUIT INT EXIT
 
+# Find vnc.html
+if [ -e "$(pwd)/vnc.html" ]; then
+    TOP=$(pwd)
+elif [ -e "${HERE}/../vnc.html" ]; then
+    TOP=${HERE}/../
+elif [ -e "${HERE}/vnc.html" ]; then
+    TOP=${HERE}
+else
+    die "Could not find vnc.html"
+fi
+cd ${TOP}
+
 echo "Starting webserver on port ${WEB_PORT}"
 ${HERE}/web.py ${WEB_PORT} >/dev/null &
 web_pid="$!"
