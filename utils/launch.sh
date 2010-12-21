@@ -20,7 +20,7 @@ usage() {
 }
 
 NAME="$(basename $0)"
-HERE=$(readlink -f $(dirname $0))
+HERE="$(cd "$(dirname "$0")" && pwd)"
 WEB_PORT="6080"
 PROXY_PORT="6081"
 VNC_DEST="localhost:5900"
