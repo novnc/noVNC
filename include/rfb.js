@@ -815,9 +815,7 @@ init_msg = function() {
         break;
 
     case 'SecurityResult' :
-        if (rQlen() < 4) {
-            return fail("Invalid VNC auth response");
-        }
+        if (rQwait("VNC auth response ", 24)) { return false; }
         switch (rQshift32()) {
             case 0:  // OK
                 // Fall through to ClientInitialisation
@@ -848,9 +846,7 @@ init_msg = function() {
         break;
 
     case 'ServerInitialisation' :
-        if (rQlen() < 24) {
-            return fail("Invalid server initialisation");
-        }
+        if (rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
         fb_width  = rQshift16();
