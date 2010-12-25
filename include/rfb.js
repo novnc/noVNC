@@ -815,7 +815,7 @@ init_msg = function() {
         break;
 
     case 'SecurityResult' :
-        if (rQwait("VNC auth response ", 24)) { return false; }
+        if (rQwait("VNC auth response ", 4)) { return false; }
         switch (rQshift32()) {
             case 0:  // OK
                 // Fall through to ClientInitialisation
