@@ -13,6 +13,9 @@
  * - programs using ppoll or epoll will not work correctly
  */
 
+#define DO_DEBUG 1
+#define DO_TRACE 1
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -24,18 +27,54 @@
 #include <errno.h>
 #include <string.h>
 #include <resolv.h>      /* base64 encode/decode */
+#include <sys/time.h>
 #include "md5.h"
 #include "wswrapper.h"
 
 /*
  * If WSWRAP_PORT environment variable is set then listen to the bind fd that
- * matches WSWRAP_PORT, otherwise listen to the first socket fd that bind is
- * called on.
+ * matches WSWRAP_PORT
  */
 int              _WS_listen_fd  = -1;
 int              _WS_nfds       = 0;
 int              _WS_fds[WS_MAX_FDS];
 _WS_connection  *_WS_connections[65536];
+
+
+/* 
+ * Utillity routines
+ */
+    
+/*
+ * Subtract the `struct timeval' values X and Y, storing the
+ * result in RESULT. If TS is set then RESULT and X are really
+ * type-cast `struct timespec` so scale them appropriately.
+ * Return 1 if the difference is negative, otherwise 0.
+ */
+int _WS_subtract_time (result, x, y, ts)
+    struct timeval *result, *x, *y;
+{
+    int scale = ts ? 1000 : 1;
+    /* Perform the carry for the later subtraction by updating y. */
+    if ((x->tv_usec / scale) < y->tv_usec) {
+        int sec = (y->tv_usec - (x->tv_usec / scale)) / 1000000 + 1;
+        y->tv_usec -= 1000000 * sec;
+        y->tv_sec += sec;
+    }
+    if ((x->tv_usec / scale) - y->tv_usec > 1000000) {
+        int sec = ((x->tv_usec / scale) - y->tv_usec) / 1000000;
+        y->tv_usec += 1000000 * sec;
+        y->tv_sec -= sec;
+    }
+
+    /* Compute the time remaining to wait.
+     * tv_usec is certainly positive. */
+    result->tv_sec = x->tv_sec - y->tv_sec;
+    result->tv_usec = x->tv_usec - (y->tv_usec * scale);
+
+    /* Return 1 if result is negative. */
+    return x->tv_sec < y->tv_sec;
+}
 
 
 /* 
@@ -209,9 +248,9 @@ int _WS_handshake(int sockfd)
 }
 
 /* 
- * Check WebSockets socket and return a positive value if there is enough data
- * to base64 decode (a 4 byte chunk). If nonblock is not set then it will
- * block until there is enough data (or until an error occurs).
+ * Strip empty WebSockets frames and return a positive value if there is
+ * enough data to base64 decode (a 4 byte chunk). If nonblock is not set then
+ * it will block until there is enough data (or until an error occurs).
  */
 ssize_t _WS_ready(int sockfd, int nonblock)
 {
@@ -402,7 +441,7 @@ ssize_t _WS_recv(int recvf, int sockfd, const void *buf,
         deccount = fend - fstart;
     }
 
-    /* Now consume what was processed */
+    /* Now consume what was processed (if not MSG_PEEK) */
     if (flags & MSG_PEEK) {
         DEBUG("_WS_recv(%d, _, %d) MSG_PEEK, not consuming\n", sockfd, len);
     } else {
@@ -547,28 +586,28 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
 {
     _WS_connection *ws;
     fd_set carryfds, savefds;
-    struct timeval savetv;
-    struct timespec savets;
+    /* Assumes timeptr is two longs whether timeval or timespec */
+    struct timeval savetv, starttv, nowtv, difftv;
     int carrycnt = 0;
-    int ret, i, ready, fd;
-    static void * (*func)(), * (*func2)();
-    if (!func) func   = (void *(*)()) dlsym(RTLD_NEXT, "select");
-    if (!func2) func2 = (void *(*)()) dlsym(RTLD_NEXT, "pselect");
+    int ret, less, i, ready, fd;
+    static void * (*func0)(), * (*func1)();
+    if (!func0) func0 = (void *(*)()) dlsym(RTLD_NEXT, "select");
+    if (!func1) func1 = (void *(*)()) dlsym(RTLD_NEXT, "pselect");
 
     if ((_WS_listen_fd == -1) || (_WS_nfds == 0)) {
         if (mode == 0) {
-            ret = (int) func(nfds, readfds, writefds, exceptfds,
-                                (struct timeval *)timeptr);
+            ret = (int) func0(nfds, readfds, writefds, exceptfds,
+                              (struct timeval *)timeptr);
         } else if (mode == 1) {
-            ret = (int) func2(nfds, readfds, writefds, exceptfds,
-                                (struct timespec *)timeptr, sigmask);
+            ret = (int) func1(nfds, readfds, writefds, exceptfds,
+                              (struct timespec *)timeptr, sigmask);
         }
         return ret;
     }
 
     TRACE(">> _WS_select(%d, %d, _, _, _, _) called\n", mode, nfds);
     memcpy(&savetv, timeptr, sizeof(savetv));
-    memcpy(&savets, timeptr, sizeof(savets));
+    gettimeofday(&starttv, NULL);
 
     /* If we have carry-over return it right away */
     FD_ZERO(&carryfds);
@@ -597,11 +636,14 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     }
 
     do {
+        TRACE("   _WS_select(%d, %d, _, _, _, _) tv/ts: %ld:%ld\n", mode, nfds,
+              ((struct timeval *) timeptr)->tv_sec,
+              ((struct timeval *) timeptr)->tv_usec);
         if (mode == 0) {
-            ret = (int) func(nfds, readfds, writefds, exceptfds,
-                             (struct timeval *)timeptr);
+            ret = (int) func0(nfds, readfds, writefds, exceptfds,
+                              (struct timeval *)timeptr);
         } else if (mode == 1) {
-            ret = (int) func2(nfds, readfds, writefds, exceptfds,
+            ret = (int) func1(nfds, readfds, writefds, exceptfds,
                               (struct timespec *)timeptr, sigmask);
         }
         if (! readfds) {
@@ -630,16 +672,30 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
 
         /*
          * If all the ready readfds were WebSockets, but none of
-         * them were really ready (empty frames) then repeat.
+         * them were really ready (empty frames) then we select again.
          */
+
         if (ret == 0) {
-            /* Restore original values*/
-            /* TODO: fix timeptr for repeat */
-            memcpy(timeptr, &savetv, sizeof(savetv));
-            memcpy(timeptr, &savets, sizeof(savets));
+            /* Restore original values less passage of time */
             memcpy(readfds, &savefds, sizeof(savefds));
+            gettimeofday(&nowtv, NULL);
+            /* Amount of time that has passed */
+            _WS_subtract_time(&difftv, &nowtv, &starttv, mode);
+            /* Subtract from original timout */
+            less = _WS_subtract_time((struct timeval *) timeptr,
+                                     &savetv, &difftv, mode);
+            if (less) {
+                /* Timer has expired */
+                TRACE("  _WS_select expired timer\n", mode, nfds);
+                break;
+            }
         }
     } while (ret == 0);
+
+    /* Restore original time value for pselect glibc does */
+    if (mode == 1) {
+        memcpy(timeptr, &savetv, sizeof(savetv));
+    }
 
     TRACE("<< _WS_select(%d, %d, _, _, _, _) ret %d, errno %d\n",
           mode, nfds, ret, errno);

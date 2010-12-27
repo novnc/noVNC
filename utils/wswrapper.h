@@ -7,9 +7,6 @@
  * wswrapper.so.
  */
 
-//#define DO_DEBUG 1
-//#define DO_TRACE 1
-
 #ifdef DO_DEBUG
 #define DEBUG(...) \
     if (DO_DEBUG) { \
