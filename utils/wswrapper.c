@@ -13,8 +13,8 @@
  * - programs using ppoll or epoll will not work correctly
  */
 
-#define DO_DEBUG 1
-#define DO_TRACE 1
+//#define DO_DEBUG 1
+//#define DO_TRACE 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +23,7 @@
 #include <dlfcn.h>
 
 #include <poll.h>
+#include <sys/poll.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -49,7 +50,7 @@ _WS_connection  *_WS_connections[65536];
  * Subtract the `struct timeval' values X and Y, storing the
  * result in RESULT. If TS is set then RESULT and X are really
  * type-cast `struct timespec` so scale them appropriately.
- * Return 1 if the difference is negative, otherwise 0.
+ * Return 1 if the difference is negative or 0, otherwise 0.
  */
 int _WS_subtract_time (result, x, y, ts)
     struct timeval *result, *x, *y;
@@ -72,8 +73,8 @@ int _WS_subtract_time (result, x, y, ts)
     result->tv_sec = x->tv_sec - y->tv_sec;
     result->tv_usec = x->tv_usec - (y->tv_usec * scale);
 
-    /* Return 1 if result is negative. */
-    return x->tv_sec < y->tv_sec;
+    /* Return 1 if result is negative or 0. */
+    return x->tv_sec <= y->tv_sec;
 }
 
 
@@ -580,6 +581,17 @@ ssize_t _WS_send(int sendf, int sockfd, const void *buf,
     return (ssize_t) retlen;
 }
 
+/*
+ * Interpose select/pselect/poll.
+ *
+ * WebSocket descriptors are not ready until we have received a frame start
+ * ('\x00') and at least 4 bytes of base64 encoded data. In addition we may
+ * have carry-over data from the last 4 bytes of base64 data in which case the
+ * WebSockets socket is ready even though there might not be data in the raw
+ * socket itself.
+ */
+
+/* Interpose on select (mode==0) and pselect (mode==1) */
 int _WS_select(int mode, int nfds, fd_set *readfds,
                fd_set *writefds, fd_set *exceptfds,
                void *timeptr, const sigset_t *sigmask)
@@ -588,8 +600,8 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     fd_set carryfds, savefds;
     /* Assumes timeptr is two longs whether timeval or timespec */
     struct timeval savetv, starttv, nowtv, difftv;
-    int carrycnt = 0;
-    int ret, less, i, ready, fd;
+    int carrycnt = 0, less = 0;
+    int ret, i, ready, fd;
     static void * (*func0)(), * (*func1)();
     if (!func0) func0 = (void *(*)()) dlsym(RTLD_NEXT, "select");
     if (!func1) func1 = (void *(*)()) dlsym(RTLD_NEXT, "pselect");
@@ -597,15 +609,15 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     if ((_WS_listen_fd == -1) || (_WS_nfds == 0)) {
         if (mode == 0) {
             ret = (int) func0(nfds, readfds, writefds, exceptfds,
-                              (struct timeval *)timeptr);
+                              timeptr);
         } else if (mode == 1) {
             ret = (int) func1(nfds, readfds, writefds, exceptfds,
-                              (struct timespec *)timeptr, sigmask);
+                              timeptr, sigmask);
         }
         return ret;
     }
 
-    TRACE(">> _WS_select(%d, %d, _, _, _, _) called\n", mode, nfds);
+    TRACE(">> _WS_select(%d, %d, _, _, _, _)\n", mode, nfds);
     memcpy(&savetv, timeptr, sizeof(savetv));
     gettimeofday(&starttv, NULL);
 
@@ -641,10 +653,10 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
               ((struct timeval *) timeptr)->tv_usec);
         if (mode == 0) {
             ret = (int) func0(nfds, readfds, writefds, exceptfds,
-                              (struct timeval *)timeptr);
+                              timeptr);
         } else if (mode == 1) {
             ret = (int) func1(nfds, readfds, writefds, exceptfds,
-                              (struct timespec *)timeptr, sigmask);
+                              timeptr, sigmask);
         }
         if (! readfds) {
             break;
@@ -670,17 +682,16 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
         }
         errno = 0; /* errno could be set by _WS_ready */
 
-        /*
-         * If all the ready readfds were WebSockets, but none of
-         * them were really ready (empty frames) then we select again.
-         */
-
         if (ret == 0) {
-            /* Restore original values less passage of time */
+            /*
+             * If all the ready readfds were WebSockets, but none of
+             * them were really ready (empty frames) then we select again. But
+             * first restore original values less passage of time.
+             */
             memcpy(readfds, &savefds, sizeof(savefds));
             gettimeofday(&nowtv, NULL);
             /* Amount of time that has passed */
-            _WS_subtract_time(&difftv, &nowtv, &starttv, mode);
+            _WS_subtract_time(&difftv, &nowtv, &starttv, 0);
             /* Subtract from original timout */
             less = _WS_subtract_time((struct timeval *) timeptr,
                                      &savetv, &difftv, mode);
@@ -702,20 +713,124 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     return ret;
 }
 
+/* Interpose on poll (mode==0) and ppoll (mode==1) */
+int _WS_poll(int mode, struct pollfd *fds, nfds_t nfds, int timeout,
+             struct timespec *ptimeout, sigset_t *sigmask)
+{
+    _WS_connection *ws;
+    int savetimeout;
+    struct timespec savets;
+    struct timeval starttv, nowtv, difftv;
+    struct pollfd *pfd;
+    int carrycnt = 0, less = 0;
+    int ret, i, ready, fd;
+    static void * (*func0)(), * (*func1)();
+    if (!func0) func0 = (void *(*)()) dlsym(RTLD_NEXT, "poll");
+    if (!func1) func1 = (void *(*)()) dlsym(RTLD_NEXT, "ppoll");
+
+    if ((_WS_listen_fd == -1) || (_WS_nfds == 0)) {
+        if (mode == 0) {
+            ret = (int) func0(fds, nfds, timeout);
+        } else if (mode == 1) {
+            ret = (int) func1(fds, nfds, ptimeout, sigmask);
+        }
+        return ret;
+    }
+
+    TRACE(">> _WS_poll(%d, %ld, _, _, _, _)\n", mode, nfds);
+    if (mode == 0) {
+        savetimeout = timeout;
+    } else if (mode == 1) {
+        memcpy(&savets, ptimeout, sizeof(savets));
+    }
+    gettimeofday(&starttv, NULL);
+
+    do {
+        TRACE("   _WS_poll(%d, %ld, _, _, _, _) tv/ts: %ld:%ld\n", mode, nfds,
+              ptimeout->tv_sec, ptimeout->tv_nsec);
+
+        if (mode == 0) {
+            ret = (int) func0(fds, nfds, timeout);
+        } else if (mode == 1) {
+            ret = (int) func1(fds, nfds, ptimeout, sigmask);
+        }
+        if (ret <= 0) {
+            break;
+        }
+
+        for (i = 0; i < nfds; i++) {
+            pfd = &fds[i];
+            if (! (pfd->events & POLLIN)) {
+                continue;
+            }
+            ws = _WS_connections[pfd->fd];
+            if (! ws) {
+                continue;
+            }
+            if (ws->rcarry_cnt) {
+                if (! (pfd->revents & POLLIN)) {
+                    pfd->revents |= POLLIN;
+                    ret++;
+                }
+            } else if (pfd->revents & POLLIN) {
+                ready = _WS_ready(pfd->fd, 1);
+                if (ready == 0) {
+                    /* 0 means EOF which is also a ready condition */
+                    DEBUG("_WS_poll: detected %d is closed\n", fd);
+                } else if (ready < 0) {
+                    DEBUG("_WS_poll: not enough to decode\n", fd);
+                    pfd->revents -= POLLIN;
+                    ret--;
+                }
+            }
+        }
+        errno = 0; /* errno could be set by _WS_ready */
+
+        if (ret == 0) {
+            /*
+             * If all the ready readfds were WebSockets, but none of
+             * them were really ready (empty frames) then we select again. But
+             * first restore original values less passage of time.
+             */
+            gettimeofday(&nowtv, NULL);
+            /* Amount of time that has passed */
+            _WS_subtract_time(&difftv, &nowtv, &starttv, 0);
+            if (mode == 0) {
+                if (timeout < 0) {
+                    /* Negative timeout means infinite */
+                    continue;
+                }
+                timeout -= difftv.tv_sec * 1000 + difftv.tv_usec / 1000;
+                if (timeout <= 0) {
+                    less = 1;
+                }
+            } else if (mode == 1) {
+                /* Subtract from original timout */
+                less = _WS_subtract_time((struct timeval *) ptimeout,
+                                         (struct timeval *) &savets,
+                                         &difftv, 1);
+            }
+            if (less) {
+                /* Timer has expired */
+                TRACE("  _WS_poll expired timer\n", mode, nfds);
+                break;
+            }
+        }
+    } while (ret == 0);
+
+    /* Restore original time value for pselect glibc does */
+    if (mode == 1) {
+        memcpy(ptimeout, &savets, sizeof(savets));
+    }
+
+    TRACE("<< _WS_poll(%d, %ld, _, _, _, _) ret %d, errno %d\n",
+          mode, nfds, ret, errno);
+    return ret;
+}
+
 /*
  * Overload (LD_PRELOAD) standard library network routines
  */
-
-/*
-int socket(int domain, int type, int protocol)
-{
-    static void * (*func)();
-    if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "socket");
-    DEBUG("socket(_, %d, _) called\n", type);
-
-    return (int) func(domain, type, protocol);
-}
-*/
 
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
@@ -724,7 +839,7 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     char * WSWRAP_PORT, * end;
     int ret, envport, bindport = htons(addr_in->sin_port);
     if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "bind");
-    TRACE(">> bind(%d, _, %d) called\n", sockfd, addrlen);
+    TRACE(">> bind(%d, _, %d)\n", sockfd, addrlen);
 
     ret = (int) func(sockfd, addr, addrlen);
 
@@ -763,7 +878,7 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
     int fd, ret, envfd;
     static void * (*func)();
     if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "accept");
-    TRACE("<< accept(%d, _, _) called\n", sockfd);
+    TRACE("<< accept(%d, _, _)\n", sockfd);
 
     fd = (int) func(sockfd, addr, addrlen);
 
@@ -882,9 +997,13 @@ int pselect(int nfds, fd_set *readfds, fd_set *writefds,
 
 int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
-    //TRACE("poll(_, %d, _) called\n", nfds);
-    static void * (*func)();
-    if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "poll");
+    TRACE("poll(_, %ld, %d) called\n", nfds, timeout);
+    return _WS_poll(0, fds, nfds, timeout, NULL, NULL);
+}
 
-    return (int) func(fds, nfds, timeout);
+int ppoll(struct pollfd *fds, nfds_t nfds,
+          const struct timespec *timeout, const sigset_t *sigmask)
+{
+    TRACE("ppoll(_, %ld, _, _) called\n", nfds);
+    return _WS_poll(0, fds, nfds, 0, timeout, sigmask);
 }
