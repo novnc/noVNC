@@ -1,7 +1,20 @@
-## wsproxy: WebSockets to TCP Proxy
+## WebSockets Utilities: wswrapper and wsproxy
 
 
-### How it works
+### wswrapper
+
+wswrapper is an LD_PRELOAD library that converts a TCP listen socket
+of an existing program to a be a WebSockets socket. The `wswrap`
+script can be used to easily launch a program using wswrapper. Here is
+an example of using wswrapper with vncserver. wswrapper will convert
+the socket listening on port 5901 to be a WebSockets port:
+
+    `cd noVNC/utils`
+
+    `./wswrap 5901 vncserver -geometry 640x480 :1`
+
+
+### wsproxy
 
 At the most basic level, wsproxy just translates WebSockets traffic
 to normal socket traffic. wsproxy accepts the WebSockets handshake,
@@ -15,7 +28,7 @@ case the data from the client is not a full WebSockets frame (i.e.
 does not end in 255).
 
 
-### Additional features
+#### Additional wsproxy features
 
 These are not necessary for the basic operation.
 
@@ -38,7 +51,7 @@ These are not necessary for the basic operation.
   option.
 
 
-### Implementations
+#### Implementations of wsproxy
 
 There are three implementations of wsproxy included: python, C, and
 Node (node.js).

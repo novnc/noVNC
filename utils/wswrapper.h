@@ -7,6 +7,14 @@
  * wswrapper.so.
  */
 
+#ifdef DO_MSG
+#define MSG(...) \
+    fprintf(stderr, "wswrapper: "); \
+    fprintf(stderr, __VA_ARGS__);
+#else
+#define MSG(...)
+#endif
+
 #ifdef DO_DEBUG
 #define DEBUG(...) \
     if (DO_DEBUG) { \
@@ -26,10 +34,6 @@
 #else
 #define TRACE(...)
 #endif
-
-#define MSG(...) \
-    fprintf(stderr, "wswrapper: "); \
-    fprintf(stderr, __VA_ARGS__);
 
 #define RET_ERROR(eno, ...) \
     fprintf(stderr, "wswrapper error: "); \
