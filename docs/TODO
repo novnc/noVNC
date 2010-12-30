@@ -1,18 +1,9 @@
 Short Term:
 
-- Playback/demo on website.
-
-- VNC performance and regression playback suite.
+- Keyboard layout/internationalization support
+    - convert keyCode into proper charCode
 
 - Test on IE 9 preview 3.
-
-- Fix cursor URI detection in Arora:
-    - allows data URI, but doesn't actually work
-
-
-Medium Term:
-
-- Viewport support
 
 - Status bar menu/buttons:
     - Explanatory hover text over buttons
@@ -29,7 +20,20 @@ Medium Term:
     - Clipboard button -> popup:
         - text, clear and send buttons
 
+- wswrapper:
+    - Flash policy request support.
+    - SSL/TLS support.
+    - Tests suite:
+        - test pselect/poll/ppoll
 
-Longer Term:
+Medium Term:
 
-- Get web-socket-js RFC2817 proxying working again.
+- VNC performance and regression playback suite.
+
+- Viewport support
+
+- Touchscreen testing/support.
+
+- wswrapper:
+    - epoll_* support
+

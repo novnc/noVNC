@@ -53,32 +53,36 @@ These are not necessary for the basic operation.
 
 #### Implementations of wsproxy
 
-There are three implementations of wsproxy included: python, C, and
-Node (node.js).
+There are three implementations of wsproxy: python, C, and Node
+(node.js). wswrapper is only implemented in C.
 
-Here is the feature support matrix for the wsproxy implementations:
+Here is the feature support matrix for the the wsproxy implementations
+and wswrapper:
 
 
 <table>
     <tr>
-        <th>Implementation</th>
-        <th>Basic Proxying</th>
+        <th>Application</th>
+        <th>Language</th>
+        <th>Proxy or Interposer</th>
         <th>Multi-process</th>
         <th>Daemonizing</th>
         <th>SSL/wss</th>
         <th>Flash Policy Server</th>
         <th>Session Recording</th>
     </tr> <tr>
+        <td>wsproxy</td>
         <td>python</td>
-        <td>yes</td>
+        <td>proxy</td>
         <td>yes</td>
         <td>yes</td>
         <td>yes 1</td>
         <td>yes</td>
         <td>yes</td>
     </tr> <tr>
+        <td>wsproxy</td>
         <td>C</td>
-        <td>yes</td>
+        <td>proxy</td>
         <td>yes</td>
         <td>yes</td>
         <td>yes</td>
@@ -86,10 +90,21 @@ Here is the feature support matrix for the wsproxy implementations:
         <td>no</td>
     </tr>
     </tr> <tr>
+        <td>wsproxy</td>
         <td>Node (node.js)</td>
-        <td>yes</td>
+        <td>proxy</td>
         <td>yes</td>
         <td>no</td>
+        <td>no</td>
+        <td>no</td>
+        <td>no</td>
+    </tr>
+    </tr> <tr>
+        <td>wswrapper</td>
+        <td>C</td>
+        <td>interposer</td>
+        <td>indirectly</td>
+        <td>indirectly</td>
         <td>no</td>
         <td>no</td>
         <td>no</td>
