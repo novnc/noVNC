@@ -216,7 +216,7 @@ function constructor() {
 }
 
 /* Translate DOM key down/up event to keysym value */
-function getKeysym(e) {
+that.getKeysym = function(e) {
     var evt, keysym;
     evt = (e ? e : window.event);
 
@@ -362,24 +362,24 @@ function onMouseMove(e) {
 }
 
 function onKeyDown(e) {
-    //Util.Debug("keydown: " + getKeysym(e));
+    //Util.Debug("keydown: " + that.getKeysym(e));
     if (! conf.focused) {
         return true;
     }
     if (c_keyPress) {
-        c_keyPress(getKeysym(e), 1);
+        c_keyPress(that.getKeysym(e), 1);
     }
     Util.stopEvent(e);
     return false;
 }
 
 function onKeyUp(e) {
-    //Util.Debug("keyup: " + getKeysym(e));
+    //Util.Debug("keyup: " + that.getKeysym(e));
     if (! conf.focused) {
         return true;
     }
     if (c_keyPress) {
-        c_keyPress(getKeysym(e), 0);
+        c_keyPress(that.getKeysym(e), 0);
     }
     Util.stopEvent(e);
     return false;
