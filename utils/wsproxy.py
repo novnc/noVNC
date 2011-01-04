@@ -162,6 +162,8 @@ if __name__ == '__main__':
 
     if options.ssl_only and not os.path.exists(options.cert):
         parser.error("SSL only and %s not found" % options.cert)
+    elif not os.path.exists(options.cert):
+        print "Warning: %s not found" % options.cert
 
     settings['verbose'] = options.verbose
     settings['listen_host'] = host

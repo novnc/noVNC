@@ -112,6 +112,11 @@ def do_handshake(sock):
         sock.close()
         return False
     elif handshake[0] in ("\x16", "\x80"):
+        if not os.path.exists(settings['cert']):
+            handler_msg("SSL connection but '%s' not found"
+                    % settings['cert'])
+            sock.close()
+            return False
         retsock = ssl.wrap_socket(
                 sock,
                 server_side=True,
