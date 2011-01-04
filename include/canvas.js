@@ -109,6 +109,7 @@ function constructor() {
     if (! conf.ctx) { conf.ctx = c.getContext('2d'); }
     ctx = conf.ctx;
 
+    Util.Debug("User Agent: " + navigator.userAgent);
     if (UE.gecko) { Util.Debug("Browser: gecko " + UE.gecko); }
     if (UE.webkit) { Util.Debug("Browser: webkit " + UE.webkit); }
     if (UE.trident) { Util.Debug("Browser: trident " + UE.trident); }
