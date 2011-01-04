@@ -254,7 +254,8 @@ function constructor() {
         Util.Info("Using native WebSockets");
         updateState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
     } else {
-        Util.Warn("Using web-socket-js flash bridge");
+        Util.Warn("Using web-socket-js bridge. Flash version: " +
+                  Util.Flash.version);
         if ((! Util.Flash) ||
             (Util.Flash.version < 9)) {
             updateState('fatal', "WebSockets or Adobe Flash is required");
