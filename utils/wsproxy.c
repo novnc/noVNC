@@ -257,6 +257,10 @@ int main(int argc, char *argv[])
     };
 
     settings.cert = realpath("self.pem", NULL);
+    if (!settings.cert) {
+        /* Make sure it's always set to something */
+        settings.cert = "self.pem";
+    }
     settings.key = "";
 
     while (1) {
@@ -326,9 +330,11 @@ int main(int argc, char *argv[])
     }
 
     if (ssl_only) {
-        if (!settings.cert || !access(settings.cert, R_OK)) {
-            usage("SSL only and cert file not found\n");
+        if (!access(settings.cert, R_OK)) {
+            usage("SSL only and cert file '%s' not found\n", settings.cert);
         }
+    } else if (access(settings.cert, R_OK) != 0) {
+        fprintf(stderr, "Warning: '%s' not found\n", settings.cert);
     }
 
     //printf("  verbose: %d\n",   settings.verbose);

@@ -1,0 +1,67 @@
+<html>
+    <head><title>Input Test</title></head>
+    <body>
+        <br><br>
+
+        Canvas:<br>
+        <canvas id="canvas" width="640" height="20"
+                style="border-style: dotted; border-width: 1px;">
+            Canvas not supported.
+        </canvas>
+
+        <br>
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
+    </body>
+
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
+    <script src="include/util.js"></script>
+    <script src="include/webutil.js"></script> 
+    <script src="include/base64.js"></script>
+    <script src="include/canvas.js"></script>
+    <script>
+        var msg_cnt = 0;
+        var width = 400, height = 200;
+        var canvas;
+
+        function message(str) {
+            console.log(str);
+            msg_cnt++;
+            cell = $D('messages');
+            cell.innerHTML += msg_cnt + ": " + str + "\n";
+            cell.scrollTop = cell.scrollHeight;
+        }
+
+        function keyDown(evt) {
+            var e = (evt ? evt : window.event);
+            msg = "Dn: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " ksym:" + canvas.getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
+            message(msg);
+        }
+
+        function keyUp(evt) {
+            var e = (evt ? evt : window.event);
+            msg = "Up: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " ksym:" + canvas.getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
+            message(msg);
+        }
+
+        function keyPress(evt) {
+            var e = (evt ? evt : window.event);
+            msg = "Pr: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " ksym:" + canvas.getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
+            message(msg);
+        }
+
+        window.onload = function() {
+            var c = $D('canvas');
+            canvas = new Canvas({'target' : c});
+            canvas.resize(width, height, true);
+            //canvas.start(keyPress);
+            Util.addEvent(document, 'keydown', keyDown);
+            Util.addEvent(document, 'keyup', keyUp);
+            Util.addEvent(document, 'keypress', keyPress);
+            message("Canvas initialized");
+        }
+    </script>
+</html>
