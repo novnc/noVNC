@@ -24,6 +24,23 @@ Running in Chrome before and after connecting:
 See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">here</a>.
 
 
+### Projects/Companies using noVNC
+
+* [Sentry Data Systems](http://www.sentryds.com): uses noVNC in the
+  [Datanex Cloud Computing Platform](http://www.sentryds.com/products/datanex/).
+
+* [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr):
+  Feature [#1935](http://code.osuosl.org/issues/1935).
+
+* [Archipel](http://archipelproject.org):
+  [Video demo](http://antoinemercadal.fr/archipelblog/wp-content/themes/ArchipelWPTemplate/video_youtube.php?title=VNC%20Demonstration&id=te_bzW574Zo)
+
+* [openQRM](http://www.openqrm.com/): VNC plugin available
+  by request. Probably included in [version
+  4.8](http://www.openqrm.com/?q=node/15). [Video
+    demo](http://www.openqrm-enterprise.com/news/details/article/remote-vm-console-plugin-available.html).
+
+
 ### Browser Requirements
 
 * HTML5 Canvas: Except for Internet Explorer, most
@@ -120,7 +137,7 @@ There a few reasons why a proxy is required:
 
     `./utils/wsproxy.py -f 8787 localhost:5901`
 
-* To run the mini python web server without the launch script:
+* To run a mini python web server without the launch script:
 
     `./utils/web.py PORT`
 

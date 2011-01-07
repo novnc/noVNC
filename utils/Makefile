@@ -6,6 +6,7 @@ all: $(TARGETS)
 wsproxy: wsproxy.o websocket.o md5.o
 	$(CC) $(LDFLAGS) $^ -lssl -lcrypto -lresolv -o $@
 
+wswrapper.o: wswrapper.h
 wswrapper.so: wswrapper.o md5.o
 	$(CC) $(LDFLAGS) $^ -shared -fPIC -ldl -lresolv -o $@
 

@@ -35,6 +35,10 @@ Cursor appearance/style (for Cursor pseudo-encoding):
     https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
 
 
+RDP Protocol specification:
+    http://msdn.microsoft.com/en-us/library/cc240445(v=PROT.10).aspx
+
+
 Related projects:
     
     guacamole: http://guacamole.sourceforge.net/

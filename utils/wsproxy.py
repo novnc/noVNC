@@ -143,6 +143,8 @@ if __name__ == '__main__':
             help="SSL key file (if separate from cert)")
     parser.add_option("--ssl-only", action="store_true",
             help="disallow non-encrypted connections")
+    parser.add_option("--web", default=None, metavar="DIR",
+            help="run webserver on same port. Serve files from DIR.")
     (options, args) = parser.parse_args()
 
     if len(args) > 2: parser.error("Too many arguments")
@@ -162,6 +164,8 @@ if __name__ == '__main__':
 
     if options.ssl_only and not os.path.exists(options.cert):
         parser.error("SSL only and %s not found" % options.cert)
+    elif not os.path.exists(options.cert):
+        print "Warning: %s not found" % options.cert
 
     settings['verbose'] = options.verbose
     settings['listen_host'] = host
@@ -174,4 +178,7 @@ if __name__ == '__main__':
     settings['daemon'] = options.daemon
     if options.record:
         settings['record'] = os.path.abspath(options.record)
+    if options.web:
+        os.chdir = options.web
+        settings['web'] = options.web
     start_server()

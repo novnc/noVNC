@@ -21,6 +21,7 @@ def do_request(connstream, from_addr):
 
 def serve():
     bindsocket = socket.socket()
+    bindsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     #bindsocket.bind(('localhost', PORT))
     bindsocket.bind(('', PORT))
     bindsocket.listen(5)

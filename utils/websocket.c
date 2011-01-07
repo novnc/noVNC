@@ -187,6 +187,7 @@ int ws_socket_free(ws_ctx_t *ctx) {
         ctx->ssl_ctx = NULL;
     }
     if (ctx->sockfd) {
+        shutdown(ctx->sockfd, SHUT_RDWR);
         close(ctx->sockfd);
         ctx->sockfd = 0;
     }
@@ -350,26 +351,30 @@ ws_ctx_t *do_handshake(int sock) {
     handshake[len] = 0;
     if (len == 0) {
         handler_msg("ignoring empty handshake\n");
-        close(sock);
         return NULL;
     } else if (bcmp(handshake, "<policy-file-request/>", 22) == 0) {
         len = recv(sock, handshake, 1024, 0);
         handshake[len] = 0;
         handler_msg("sending flash policy response\n");
         send(sock, policy_response, sizeof(policy_response), 0);
-        close(sock);
         return NULL;
     } else if ((bcmp(handshake, "\x16", 1) == 0) ||
                (bcmp(handshake, "\x80", 1) == 0)) {
         // SSL
-        if (! settings.cert) { return NULL; }
+        if (!settings.cert) {
+            handler_msg("SSL connection but no cert specified\n");
+            return NULL;
+        } else if (access(settings.cert, R_OK) != 0) {
+            handler_msg("SSL connection but '%s' not found\n",
+                        settings.cert);
+            return NULL;
+        }
         ws_ctx = ws_socket_ssl(sock, settings.cert, settings.key);
         if (! ws_ctx) { return NULL; }
         scheme = "wss";
         handler_msg("using SSL socket\n");
     } else if (settings.ssl_only) {
         handler_msg("non-SSL connection disallowed\n");
-        close(sock);
         return NULL;
     } else {
         ws_ctx = ws_socket(sock);
@@ -380,14 +385,12 @@ ws_ctx_t *do_handshake(int sock) {
     len = ws_recv(ws_ctx, handshake, 4096);
     if (len == 0) {
         handler_emsg("Client closed during handshake\n");
-        close(sock);
         return NULL;
     }
     handshake[len] = 0;
 
     if (!parse_handshake(handshake, &headers)) {
         handler_emsg("Invalid WS request\n");
-        close(sock);
         return NULL;
     }
 
@@ -524,8 +527,7 @@ void start_server() {
         if (pid == 0) {  // handler process
             ws_ctx = do_handshake(csock);
             if (ws_ctx == NULL) {
-                close(csock);
-                handler_msg("No connection after handshake");
+                handler_msg("No connection after handshake\n");
                 break;   // Child process exits
             }
 
@@ -533,12 +535,21 @@ void start_server() {
             if (pipe_error) {
                 handler_emsg("Closing due to SIGPIPE\n");
             }
-            close(csock);
-            handler_msg("handler exit\n");
             break;   // Child process exits
         } else {         // parent process
             settings.handler_id += 1;
         }
+    }
+    if (pid == 0) {
+        if (ws_ctx) {
+            ws_socket_free(ws_ctx);
+        } else {
+            shutdown(csock, SHUT_RDWR);
+            close(csock);
+        }
+        handler_msg("handler exit\n");
+    } else {
+        handler_msg("wsproxy exit\n");
     }
 
 }

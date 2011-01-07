@@ -13,6 +13,8 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 import sys, socket, ssl, struct, traceback
 import os, resource, errno, signal # daemonizing
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+from cStringIO import StringIO
 from base64 import b64encode, b64decode
 try:
     from hashlib import md5
@@ -31,7 +33,8 @@ settings = {
     'key'         : None,
     'ssl_only'    : False,
     'daemon'      : True,
-    'record'      : None, }
+    'record'      : None,
+    'web'         : False, }
 
 server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
@@ -47,6 +50,29 @@ policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports
 class EClose(Exception):
     pass
 
+# HTTP handler with request from a string and response to a socket
+class SplitHTTPHandler(SimpleHTTPRequestHandler):
+    def __init__(self, req, resp, addr):
+        # Save the response socket
+        self.response = resp
+        SimpleHTTPRequestHandler.__init__(self, req, addr, object())
+
+    def setup(self):
+        self.connection = self.response
+        # Duck type request string to file object
+        self.rfile = StringIO(self.request)
+        self.wfile = self.connection.makefile('wb', self.wbufsize)
+
+    def send_response(self, code, message=None):
+        # Save the status code
+        self.last_code = code
+        SimpleHTTPRequestHandler.send_response(self, code, message)
+
+    def log_message(self, f, *args):
+        # Save instead of printing
+        self.last_message = f % args
+
+
 def traffic(token="."):
     if settings['verbose'] and not settings['daemon']:
         sys.stdout.write(token)
@@ -54,7 +80,10 @@ def traffic(token="."):
 
 def handler_msg(msg):
     if not settings['daemon']:
-        print "  %d: %s" % (settings['handler_id'], msg)
+        print "% 3d: %s" % (settings['handler_id'], msg)
+
+def handler_vmsg(msg):
+    if settings['verbose']: handler_msg(msg)
 
 def encode(buf):
     buf = b64encode(buf)
@@ -96,51 +125,77 @@ def gen_md5(keys):
     return md5(struct.pack('>II8s', num1, num2, key3)).digest()
 
 
-def do_handshake(sock):
+def do_handshake(sock, address):
+    stype = ""
 
     # Peek, but don't read the data
     handshake = sock.recv(1024, socket.MSG_PEEK)
     #handler_msg("Handshake [%s]" % repr(handshake))
     if handshake == "":
-        handler_msg("ignoring empty handshake")
-        sock.close()
-        return False
+        raise EClose("ignoring empty handshake")
     elif handshake.startswith("<policy-file-request/>"):
         handshake = sock.recv(1024)
-        handler_msg("Sending flash policy response")
         sock.send(policy_response)
-        sock.close()
-        return False
+        raise EClose("Sending flash policy response")
     elif handshake[0] in ("\x16", "\x80"):
-        retsock = ssl.wrap_socket(
-                sock,
-                server_side=True,
-                certfile=settings['cert'],
-                keyfile=settings['key'])
+        if not os.path.exists(settings['cert']):
+            raise EClose("SSL connection but '%s' not found"
+                         % settings['cert'])
+        try:
+            retsock = ssl.wrap_socket(
+                    sock,
+                    server_side=True,
+                    certfile=settings['cert'],
+                    keyfile=settings['key'])
+        except ssl.SSLError, x:
+            if x.args[0] == ssl.SSL_ERROR_EOF:
+                raise EClose("")
+            else:
+                raise
+
         scheme = "wss"
-        handler_msg("using SSL/TLS")
+        stype = "SSL/TLS (wss://)"
     elif settings['ssl_only']:
-        handler_msg("non-SSL connection disallowed")
-        sock.close()
-        return False
+        raise EClose("non-SSL connection received but disallowed")
     else:
         retsock = sock
         scheme = "ws"
-        handler_msg("using plain (not SSL) socket")
+        stype = "Plain non-SSL (ws://)"
+
+    # Now get the data from the socket
     handshake = retsock.recv(4096)
     #handler_msg("handshake: " + repr(handshake))
+
     if len(handshake) == 0:
         raise EClose("Client closed during handshake")
+
+    # Handle normal web requests
+    if handshake.startswith('GET ') and \
+        handshake.find('Upgrade: WebSocket\r\n') == -1:
+        if not settings['web']:
+            raise EClose("Normal web request received but disallowed")
+        sh = SplitHTTPHandler(handshake, retsock, address)
+        if sh.last_code < 200 or sh.last_code >= 300:
+            raise EClose(sh.last_message)
+        elif settings['verbose']:
+            raise EClose(sh.last_message)
+        else:
+            raise EClose("")
+
+    # Do WebSockets handshake and return the socket
     h = parse_handshake(handshake)
 
     if h.get('key3'):
         trailer = gen_md5(h)
         pre = "Sec-"
-        handler_msg("using protocol version 76")
+        ver = 76
     else:
         trailer = ""
         pre = ""
-        handler_msg("using protocol version 75")
+        ver = 75
+
+    handler_msg("%s WebSocket connection (version %s) from %s"
+                % (stype, ver, address[0]))
 
     response = server_handshake % (pre, h['Origin'], pre, scheme,
             h['Host'], h['path'], pre, trailer)
@@ -172,8 +227,8 @@ def daemonize(keepfd=None):
         try:
             if fd != keepfd:
                 os.close(fd)
-            elif settings['verbose']:
-                print "Keeping fd: %d" % fd
+            else:
+                handler_vmsg("Keeping fd: %d" % fd)
         except OSError, exc:
             if exc.errno != errno.EBADF: raise
 
@@ -204,25 +259,25 @@ def start_server():
             csock = startsock = None
             pid = 0
             startsock, address = lsock.accept()
-            handler_msg('got client connection from %s' % address[0])
-
-            handler_msg("forking handler process")
+            handler_vmsg('%s: forking handler' % address[0])
             pid = os.fork()
 
             if pid == 0:  # handler process
-                csock = do_handshake(startsock)
-                if not csock:
-                    handler_msg("No connection after handshake");
-                    break
+                csock = do_handshake(startsock, address)
                 settings['handler'](csock)
             else:         # parent process
                 settings['handler_id'] += 1
 
         except EClose, exc:
-            handler_msg("handler exit: %s" % exc.args)
+            if csock and csock != startsock:
+                csock.close()
+            startsock.close()
+            if exc.args[0]:
+                handler_msg("%s: %s" % (address[0], exc.args[0]))
         except Exception, exc:
             handler_msg("handler exception: %s" % str(exc))
-            #handler_msg(traceback.format_exc())
+            if settings['verbose']:
+                handler_msg(traceback.format_exc())
 
         if pid == 0:
             if csock: csock.close()
