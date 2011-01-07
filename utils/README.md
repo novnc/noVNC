@@ -62,49 +62,64 @@ and wswrapper:
 
 <table>
     <tr>
-        <th>Application</th>
+        <th>Feature\Program</th>
+        <th>wsproxy.py</th>
+        <th>wsproxy</th>
+        <th>wsproxy.js</th>
+        <th>wswrap/wswrapper</th>
+    </tr>
+    <tr>
         <th>Language</th>
-        <th>Proxy or Interposer</th>
-        <th>Multi-process</th>
-        <th>Daemonizing</th>
-        <th>SSL/wss</th>
-        <th>Flash Policy Server</th>
-        <th>Session Recording</th>
-    </tr> <tr>
-        <td>wsproxy</td>
         <td>python</td>
+        <td>C</td>
+        <td>Node (node.js)</td>
+        <td>C</td>
+    </tr>
+    <tr>
+        <th>Primary Function</th>
         <td>proxy</td>
+        <td>proxy</td>
+        <td>proxy</td>
+        <td>interposer</td>
+    </tr>
+    <tr>
+        <th>Multi-process</th>
         <td>yes</td>
         <td>yes</td>
+        <td>yes</td>
+        <td>indirectly</td>
+    </tr>
+    <tr>
+        <th>Daemonize</th>
+        <td>yes</td>
+        <td>yes</td>
+        <td>no</td>
+        <td>indirectly</td>
+    </tr>
+    <tr>
+        <th>SSL/wss</th>
         <td>yes 1</td>
         <td>yes</td>
-        <td>yes</td>
-    </tr> <tr>
-        <td>wsproxy</td>
-        <td>C</td>
-        <td>proxy</td>
-        <td>yes</td>
-        <td>yes</td>
-        <td>yes</td>
-        <td>yes</td>
+        <td>no</td>
         <td>no</td>
     </tr>
-    </tr> <tr>
-        <td>wsproxy</td>
-        <td>Node (node.js)</td>
-        <td>proxy</td>
+    <tr>
+        <th>Flash Policy Server</th>
+        <td>yes</td>
         <td>yes</td>
         <td>no</td>
+        <td>no</td>
+    </tr>
+    <tr>
+        <th>Web Server</th>
+        <td>yes</td>
         <td>no</td>
         <td>no</td>
         <td>no</td>
     </tr>
-    </tr> <tr>
-        <td>wswrapper</td>
-        <td>C</td>
-        <td>interposer</td>
-        <td>indirectly</td>
-        <td>indirectly</td>
+    <tr>
+        <th>Session Recording</th>
+        <td>yes</td>
         <td>no</td>
         <td>no</td>
         <td>no</td>
