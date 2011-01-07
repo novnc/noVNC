@@ -143,6 +143,8 @@ if __name__ == '__main__':
             help="SSL key file (if separate from cert)")
     parser.add_option("--ssl-only", action="store_true",
             help="disallow non-encrypted connections")
+    parser.add_option("--web", default=None, metavar="DIR",
+            help="run webserver on same port. Serve files from DIR.")
     (options, args) = parser.parse_args()
 
     if len(args) > 2: parser.error("Too many arguments")
@@ -176,4 +178,7 @@ if __name__ == '__main__':
     settings['daemon'] = options.daemon
     if options.record:
         settings['record'] = os.path.abspath(options.record)
+    if options.web:
+        os.chdir = options.web
+        settings['web'] = options.web
     start_server()

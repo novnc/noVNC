@@ -137,7 +137,7 @@ There a few reasons why a proxy is required:
 
     `./utils/wsproxy.py -f 8787 localhost:5901`
 
-* To run the mini python web server without the launch script:
+* To run a mini python web server without the launch script:
 
     `./utils/web.py PORT`
 

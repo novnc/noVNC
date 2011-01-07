@@ -5,26 +5,25 @@ usage() {
         echo "$*"
         echo
     fi
-    echo "Usage: ${NAME} [--web WEB_PORT] [--proxy PROXY_PORT] [--vnc VNC_HOST:PORT]"
+    echo "Usage: ${NAME} [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT]"
     echo
     echo "Starts a mini-webserver and the WebSockets proxy and"
     echo "provides a cut and paste URL to go to."
     echo 
-    echo "    --web WEB_PORT        Port to serve web pages at"
-    echo "                          Default: 8080"
-    echo "    --proxy PROXY_PORT    Port for proxy to listen on"
-    echo "                          Default: 8081"
+    echo "    --listen PORT         Port for webserver/proxy to listen on"
+    echo "                          Default: 6080"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
     echo "                          Default: localhost:5900"
+    echo "    --cert CERT           Path to combined cert/key file"
+    echo "                          Default: self.pem"
     exit 2
 }
 
 NAME="$(basename $0)"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-WEB_PORT="6080"
-PROXY_PORT="6081"
+PORT="6080"
 VNC_DEST="localhost:5900"
-web_pid=""
+CERT=""
 proxy_pid=""
 
 die() {
@@ -36,10 +35,6 @@ cleanup() {
     trap - TERM QUIT INT EXIT
     trap "true" CHLD   # Ignore cleanup messages
     echo
-    if [ -n "${web_pid}" ]; then
-        echo "Terminating webserver (${web_pid})"
-        kill ${web_pid}
-    fi
     if [ -n "${proxy_pid}" ]; then
         echo "Terminating WebSockets proxy (${proxy_pid})"
         kill ${proxy_pid}
@@ -52,12 +47,12 @@ cleanup() {
 while [ "$*" ]; do
     param=$1; shift; OPTARG=$1
     case $param in
-    --web)   WEB_PORT="${OPTARG}"; shift          ;;
-    --proxy) PROXY_PORT="${OPTARG}"; shift        ;;
-    --vnc)   VNC_DEST="${OPTARG}"; shift          ;;
-    -h|--help) usage ;;
+    --listen)  PORT="${OPTARG}"; shift            ;;
+    --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
+    --cert)    CERT="${OPTARG}"; shift            ;;
+    -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
-    *) break ;;
+    *) break                                      ;;
     esac
 done
 
@@ -65,40 +60,39 @@ done
 which netstat >/dev/null 2>&1 \
     || die "Must have netstat installed"
 
-netstat -ltn | grep -qs "${WEB_PORT}.*LISTEN" \
-    && die "Port ${WEB_PORT} in use. Try --web WEB_PORT"
-
-netstat -ltn | grep -qs "${PROXY_PORT}.*LISTEN" \
-    && die "Port ${PROXY_PORT} in use. Try --proxy PROXY_PORT"
+netstat -ltn | grep -qs "${PORT}.*LISTEN" \
+    && die "Port ${PORT} in use. Try --listen PORT"
 
 trap "cleanup" TERM QUIT INT EXIT
 
 # Find vnc.html
 if [ -e "$(pwd)/vnc.html" ]; then
-    TOP=$(pwd)
+    WEB=$(pwd)
 elif [ -e "${HERE}/../vnc.html" ]; then
-    TOP=${HERE}/../
+    WEB=${HERE}/../
 elif [ -e "${HERE}/vnc.html" ]; then
-    TOP=${HERE}
+    WEB=${HERE}
 else
     die "Could not find vnc.html"
 fi
-cd ${TOP}
 
-echo "Starting webserver on port ${WEB_PORT}"
-${HERE}/web.py ${WEB_PORT} >/dev/null &
-web_pid="$!"
-sleep 1
-if ps -p ${web_pid} >/dev/null; then
-    echo "Started webserver (pid: ${web_pid})"
+# Find self.pem
+if [ -n "${CERT}" ]; then
+    if [ ! -e "${CERT}" ]; then
+        die "Could not find ${CERT}"
+    fi
+elif [ -e "$(pwd)/self.pem" ]; then
+    CERT="$(pwd)/self.pem"
+elif [ -e "${HERE}/../self.pem" ]; then
+    CERT="${HERE}/../self.pem"
+elif [ -e "${HERE}/self.pem" ]; then
+    CERT="${HERE}/self.pem"
 else
-    web_pid=
-    echo "Failed to start webserver"
-    exit 1
+    echo "Warning: could not find self.pem"
 fi
 
-echo "Starting WebSockets proxy on port ${PROXY_PORT}"
-${HERE}/wsproxy.py -f ${PROXY_PORT} ${VNC_DEST} &
+echo "Starting webserver and WebSockets proxy on port ${PORT}"
+${HERE}/wsproxy.py -f --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
 proxy_pid="$!"
 sleep 1
 if ps -p ${proxy_pid} >/dev/null; then
@@ -110,8 +104,7 @@ else
 fi
 
 echo -e "\n\nNavigate to to this URL:\n"
-echo -e "    http://$(hostname):${WEB_PORT}/vnc.html?host=$(hostname)&port=${PROXY_PORT}\n"
+echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
 echo -e "Press Ctrl-C to exit\n\n"
 
-wait ${web_pid}
-
+wait ${proxy_pid}
