@@ -59,72 +59,62 @@ There are three implementations of wsproxy: python, C, and Node
 Here is the feature support matrix for the the wsproxy implementations
 and wswrapper:
 
-
 <table>
     <tr>
-        <th>Feature\Program</th>
-        <th>wsproxy.py</th>
-        <th>wsproxy</th>
-        <th>wsproxy.js</th>
-        <th>wswrap/wswrapper</th>
-    </tr>
-    <tr>
+        <th>Program</th>
         <th>Language</th>
-        <td>python</td>
-        <td>C</td>
-        <td>Node (node.js)</td>
-        <td>C</td>
-    </tr>
-    <tr>
-        <th>Primary Function</th>
-        <td>proxy</td>
-        <td>proxy</td>
-        <td>proxy</td>
-        <td>interposer</td>
-    </tr>
-    <tr>
-        <th>Multi-process</th>
-        <td>yes</td>
-        <td>yes</td>
-        <td>yes</td>
-        <td>indirectly</td>
-    </tr>
-    <tr>
+        <th>Proxy or Interposer</th>
+        <th>Multiprocess</th>
         <th>Daemonize</th>
-        <td>yes</td>
-        <td>yes</td>
-        <td>no</td>
-        <td>indirectly</td>
-    </tr>
-    <tr>
         <th>SSL/wss</th>
+        <th>Flash Policy Server</th>
+        <th>Session Record</th>
+        <th>Web Server</th>
+    </tr> <tr>
+        <td>wsproxy.py</td>
+        <td>python</td>
+        <td>proxy</td>
+        <td>yes</td>
+        <td>yes</td>
         <td>yes 1</td>
         <td>yes</td>
-        <td>no</td>
-        <td>no</td>
-    </tr>
-    <tr>
-        <th>Flash Policy Server</th>
+        <td>yes</td>
+        <td>yes</td>
+    </tr> <tr>
+        <td>wsproxy</td>
+        <td>C</td>
+        <td>proxy</td>
+        <td>yes</td>
+        <td>yes</td>
         <td>yes</td>
         <td>yes</td>
         <td>no</td>
         <td>no</td>
     </tr>
-    <tr>
-        <th>Web Server</th>
+    </tr> <tr>
+        <td>wsproxy.js</td>
+        <td>Node (node.js)</td>
+        <td>proxy</td>
         <td>yes</td>
+        <td>no</td>
+        <td>no</td>
         <td>no</td>
         <td>no</td>
         <td>no</td>
     </tr>
-    <tr>
-        <th>Session Recording</th>
-        <td>yes</td>
+    </tr> <tr>
+        <td>wswrap/wswrapper.so</td>
+        <td>shell/C</td>
+        <td>interposer</td>
+        <td>indirectly</td>
+        <td>indirectly</td>
+        <td>no</td>
         <td>no</td>
         <td>no</td>
         <td>no</td>
     </tr>
 </table>
+
 
 * Note 1: to use SSL/wss with python 2.5 or older, see the following
   section on *Building the Python ssl module*.
