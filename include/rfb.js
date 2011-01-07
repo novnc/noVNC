@@ -1385,7 +1385,7 @@ encHandlers.DesktopSize = function set_desktopsize() {
     FBU.bytes = 0;
     FBU.rects -= 1;
     
-    conf.desktopSizeChanged(that, {"width": fb_width, "height": fb_height});
+    conf.desktopSizeChanged(that, FBU);
     Util.Debug("<< set_desktopsize");
     return true;
 };
