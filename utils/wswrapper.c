@@ -13,6 +13,7 @@
  * - programs using ppoll or epoll will not work correctly
  */
 
+#define DO_MSG 1
 //#define DO_DEBUG 1
 //#define DO_TRACE 1
 
@@ -827,6 +828,7 @@ int _WS_poll(int mode, struct pollfd *fds, nfds_t nfds, int timeout,
           mode, nfds, ret, errno);
     return ret;
 }
+
 
 /*
  * Overload (LD_PRELOAD) standard library network routines
