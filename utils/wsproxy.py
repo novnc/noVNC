@@ -11,14 +11,21 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import socket, optparse, time
+import socket, optparse, time, os
 from select import select
-from websocket import *
+from websocket import WebSocketServer
 
-buffer_size = 65536
-rec = None
+class WebSocketProxy(WebSocketServer):
+    """
+    Proxy traffic to and from a WebSockets client to a normal TCP
+    socket server target. All traffic to/from the client is base64
+    encoded/decoded to allow binary data to be sent/received to/from
+    the target.
+    """
 
-traffic_legend = """
+    buffer_size = 65536
+
+    traffic_legend = """
 Traffic Legend:
     }  - Client receive
     }. - Client receive partial
@@ -30,101 +37,122 @@ Traffic Legend:
     <. - Client send partial
 """
 
-def do_proxy(client, target):
-    """ Proxy WebSocket to normal socket. """
-    global rec
-    cqueue = []
-    cpartial = ""
-    tqueue = []
-    rlist = [client, target]
-    tstart = int(time.time()*1000)
+    def __init__(self, *args, **kwargs):
+        # Save off the target host:port
+        self.target_host = kwargs.pop('target_host')
+        self.target_port = kwargs.pop('target_port')
+        WebSocketServer.__init__(self, *args, **kwargs)
 
-    while True:
-        wlist = []
-        tdelta = int(time.time()*1000) - tstart
-        if tqueue: wlist.append(target)
-        if cqueue: wlist.append(client)
-        ins, outs, excepts = select(rlist, wlist, [], 1)
-        if excepts: raise Exception("Socket exception")
+    def handler(self, client):
+        """
+        Called after a new WebSocket connection has been established.
+        """
 
-        if target in outs:
-            dat = tqueue.pop(0)
-            sent = target.send(dat)
-            if sent == len(dat):
-                traffic(">")
-            else:
-                tqueue.insert(0, dat[sent:])
-                traffic(".>")
-            ##if rec: rec.write("Target send: %s\n" % map(ord, dat))
+        self.rec = None
+        if self.record:
+            # Record raw frame data as a JavaScript compatible file
+            fname = "%s.%s" % (self.record,
+                                self.handler_id)
+            self.msg("opening record file: %s" % fname)
+            self.rec = open(fname, 'w+')
+            self.rec.write("var VNC_frame_data = [\n")
 
-        if client in outs:
-            dat = cqueue.pop(0)
-            sent = client.send(dat)
-            if sent == len(dat):
-                traffic("<")
-                ##if rec: rec.write("Client send: %s ...\n" % repr(dat[0:80]))
-                if rec: rec.write("%s,\n" % repr("{%s{" % tdelta + dat[1:-1]))
-            else:
-                cqueue.insert(0, dat[sent:])
-                traffic("<.")
-                ##if rec: rec.write("Client send partial: %s\n" % repr(dat[0:send]))
+        # Connect to the target
+        self.msg("connecting to: %s:%s" % (
+                 self.target_host, self.target_port))
+        tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tsock.connect((self.target_host, self.target_port))
 
+        if self.verbose and not self.daemon:
+            print self.traffic_legend
 
-        if target in ins:
-            buf = target.recv(buffer_size)
-            if len(buf) == 0: raise EClose("Target closed")
+        # Stat proxying
+        try:
+            self.do_proxy(client, tsock)
+        except:
+            if tsock: tsock.close()
+            if self.rec:
+                self.rec.write("'EOF']\n")
+                self.rec.close()
+            raise
 
-            cqueue.append(encode(buf))
-            traffic("{")
-            ##if rec: rec.write("Target recv (%d): %s\n" % (len(buf), map(ord, buf)))
+    def do_proxy(self, client, target):
+        """
+        Proxy client WebSocket to normal target socket.
+        """
+        cqueue = []
+        cpartial = ""
+        tqueue = []
+        rlist = [client, target]
+        tstart = int(time.time()*1000)
 
-        if client in ins:
-            buf = client.recv(buffer_size)
-            if len(buf) == 0: raise EClose("Client closed")
+        while True:
+            wlist = []
+            tdelta = int(time.time()*1000) - tstart
 
-            if buf == '\xff\x00':
-                raise EClose("Client sent orderly close frame")
-            elif buf[-1] == '\xff':
-                if buf.count('\xff') > 1:
-                    traffic(str(buf.count('\xff')))
-                traffic("}")
-                ##if rec: rec.write("Client recv (%d): %s\n" % (len(buf), repr(buf)))
-                if rec: rec.write("%s,\n" % (repr("}%s}" % tdelta + buf[1:-1])))
-                if cpartial:
-                    tqueue.extend(decode(cpartial + buf))
-                    cpartial = ""
+            if tqueue: wlist.append(target)
+            if cqueue: wlist.append(client)
+            ins, outs, excepts = select(rlist, wlist, [], 1)
+            if excepts: raise Exception("Socket exception")
+
+            if target in outs:
+                # Send queued client data to the target
+                dat = tqueue.pop(0)
+                sent = target.send(dat)
+                if sent == len(dat):
+                    self.traffic(">")
                 else:
-                    tqueue.extend(decode(buf))
-            else:
-                traffic(".}")
-                ##if rec: rec.write("Client recv partial (%d): %s\n" % (len(buf), repr(buf)))
-                cpartial = cpartial + buf
+                    # requeue the remaining data
+                    tqueue.insert(0, dat[sent:])
+                    self.traffic(".>")
 
-def proxy_handler(client):
-    global target_host, target_port, options, rec, fname
+            if client in outs:
+                # Send queued target data to the client
+                dat = cqueue.pop(0)
+                sent = client.send(dat)
+                if sent == len(dat):
+                    self.traffic("<")
+                    if self.rec:
+                        self.rec.write("%s,\n" %
+                                repr("{%s{" % tdelta + dat[1:-1]))
+                else:
+                    cqueue.insert(0, dat[sent:])
+                    self.traffic("<.")
 
-    if settings['record']:
-        fname = "%s.%s" % (settings['record'],
-                            settings['handler_id'])
-        handler_msg("opening record file: %s" % fname)
-        rec = open(fname, 'w+')
-        rec.write("var VNC_frame_data = [\n")
 
-    handler_msg("connecting to: %s:%s" % (target_host, target_port))
-    tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    tsock.connect((target_host, target_port))
+            if target in ins:
+                # Receive target data, encode it and queue for client
+                buf = target.recv(self.buffer_size)
+                if len(buf) == 0: raise self.EClose("Target closed")
 
-    if settings['verbose'] and not settings['daemon']:
-        print traffic_legend
+                cqueue.append(self.encode(buf))
+                self.traffic("{")
 
-    try:
-        do_proxy(client, tsock)
-    except:
-        if tsock: tsock.close()
-        if rec:
-            rec.write("'EOF']\n")
-            rec.close()
-        raise
+            if client in ins:
+                # Receive client data, decode it, and queue for target
+                buf = client.recv(self.buffer_size)
+                if len(buf) == 0: raise self.EClose("Client closed")
+
+                if buf == '\xff\x00':
+                    raise self.EClose("Client sent orderly close frame")
+                elif buf[-1] == '\xff':
+                    if buf.count('\xff') > 1:
+                        self.traffic(str(buf.count('\xff')))
+                    self.traffic("}")
+                    if self.rec:
+                        self.rec.write("%s,\n" %
+                                (repr("}%s}" % tdelta + buf[1:-1])))
+                    if cpartial:
+                        # Prepend saved partial and decode frame(s)
+                        tqueue.extend(self.decode(cpartial + buf))
+                        cpartial = ""
+                    else:
+                        # decode frame(s)
+                        tqueue.extend(self.decode(buf))
+                else:
+                    # Save off partial WebSockets frame
+                    self.traffic(".}")
+                    cpartial = cpartial + buf
 
 if __name__ == '__main__':
     usage = "%prog [--record FILE]"
@@ -145,40 +173,31 @@ if __name__ == '__main__':
             help="disallow non-encrypted connections")
     parser.add_option("--web", default=None, metavar="DIR",
             help="run webserver on same port. Serve files from DIR.")
-    (options, args) = parser.parse_args()
+    (opts, args) = parser.parse_args()
 
+    # Sanity checks
     if len(args) > 2: parser.error("Too many arguments")
     if len(args) < 2: parser.error("Too few arguments")
+
+    if opts.ssl_only and not os.path.exists(opts.cert):
+        parser.error("SSL only and %s not found" % opts.cert)
+    elif not os.path.exists(opts.cert):
+        print "Warning: %s not found" % opts.cert
+
+    # Parse host:port and convert ports to numbers
     if args[0].count(':') > 0:
-        host,port = args[0].split(':')
+        opts.listen_host, opts.listen_port = args[0].split(':')
     else:
-        host,port = '',args[0]
+        opts.listen_host, opts.listen_port = '', args[0]
     if args[1].count(':') > 0:
-        target_host,target_port = args[1].split(':')
+        opts.target_host, opts.target_port = args[1].split(':')
     else:
         parser.error("Error parsing target")
-    try:    port = int(port)
+    try:    opts.listen_port = int(opts.listen_port)
     except: parser.error("Error parsing listen port")
-    try:    target_port = int(target_port)
+    try:    opts.target_port = int(opts.target_port)
     except: parser.error("Error parsing target port")
 
-    if options.ssl_only and not os.path.exists(options.cert):
-        parser.error("SSL only and %s not found" % options.cert)
-    elif not os.path.exists(options.cert):
-        print "Warning: %s not found" % options.cert
-
-    settings['verbose'] = options.verbose
-    settings['listen_host'] = host
-    settings['listen_port'] = port
-    settings['handler'] = proxy_handler
-    settings['cert'] = os.path.abspath(options.cert)
-    if options.key:
-        settings['key'] = os.path.abspath(options.key)
-    settings['ssl_only'] = options.ssl_only
-    settings['daemon'] = options.daemon
-    if options.record:
-        settings['record'] = os.path.abspath(options.record)
-    if options.web:
-        os.chdir = options.web
-        settings['web'] = options.web
-    start_server()
+    # Create and start the WebSockets proxy
+    server = WebSocketProxy(**opts.__dict__)
+    server.start_server()
