@@ -61,6 +61,7 @@ typedef struct {
     int  rcarry_cnt;
     char rcarry[3];
     int  newframe;
+    int  refcnt;
 } _WS_connection;
 
 

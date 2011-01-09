@@ -11,11 +11,12 @@
  * Limitations:
  * - multi-threaded programs may not work
  * - programs using ppoll or epoll will not work correctly
+ * - doesn't support fopencookie, streams, putc, etc.
  */
 
 #define DO_MSG 1
-//#define DO_DEBUG 1
-//#define DO_TRACE 1
+#define DO_DEBUG 1
+#define DO_TRACE 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,6 +77,55 @@ int _WS_subtract_time (result, x, y, ts)
 
     /* Return 1 if result is negative or 0. */
     return x->tv_sec <= y->tv_sec;
+}
+
+int _WS_alloc(int fd) {
+    if (_WS_connections[fd]) {
+        RET_ERROR(ENOMEM, "Memory already allocated for fd %d\n", fd);
+    }
+    if (! (_WS_connections[fd] = malloc(sizeof(_WS_connection)))) {
+        RET_ERROR(ENOMEM, "Could not allocate interposer memory\n");
+    }
+    _WS_connections[fd]->rcarry_cnt = 0;
+    _WS_connections[fd]->rcarry[0]  = '\0';
+    _WS_connections[fd]->newframe   = 1;
+    _WS_connections[fd]->refcnt     = 1;
+
+    /* Add to search list for select/pselect */
+    _WS_fds[_WS_nfds] = fd;
+    _WS_nfds++;
+
+    return 0;
+}
+
+int _WS_free(int fd) {
+    int i;
+    _WS_connection * wsptr;
+    wsptr = _WS_connections[fd];
+    if (wsptr) {
+        TRACE(">> _WS_free(%d)\n", fd);
+
+        wsptr->refcnt--;
+        if (wsptr->refcnt <= 0) {
+            free(wsptr);
+            DEBUG("freed memory for fd %d\n", fd);
+        }
+        _WS_connections[fd] = NULL;
+
+        /* Remove from the search list for select/pselect */
+        for (i = 0; i < _WS_nfds; i++) {
+            if (_WS_fds[i] == fd) {
+                break;
+            }
+        }
+        if (_WS_nfds - i - 1 > 0) {
+            memmove(_WS_fds + i, _WS_fds + i + 1, _WS_nfds - i - 1);
+        }
+        _WS_nfds--;
+
+        MSG("finished interposing on fd %d\n", fd);
+        TRACE("<< _WS_free(%d)\n", fd);
+    }
 }
 
 
@@ -619,8 +669,10 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     }
 
     TRACE(">> _WS_select(%d, %d, _, _, _, _)\n", mode, nfds);
-    memcpy(&savetv, timeptr, sizeof(savetv));
-    gettimeofday(&starttv, NULL);
+    if (timeptr) {
+        memcpy(&savetv, timeptr, sizeof(savetv));
+        gettimeofday(&starttv, NULL);
+    }
 
     /* If we have carry-over return it right away */
     FD_ZERO(&carryfds);
@@ -649,9 +701,11 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     }
 
     do {
-        TRACE("   _WS_select(%d, %d, _, _, _, _) tv/ts: %ld:%ld\n", mode, nfds,
-              ((struct timeval *) timeptr)->tv_sec,
-              ((struct timeval *) timeptr)->tv_usec);
+        if (timeptr) {
+            TRACE("   _WS_select tv/ts: %ld:%ld\n",
+                ((struct timeval *) timeptr)->tv_sec,
+                ((struct timeval *) timeptr)->tv_usec);
+        }
         if (mode == 0) {
             ret = (int) func0(nfds, readfds, writefds, exceptfds,
                               timeptr);
@@ -689,6 +743,10 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
              * them were really ready (empty frames) then we select again. But
              * first restore original values less passage of time.
              */
+            if (! timeptr) {
+                /* No timeout, spin forever */
+                continue;
+            }
             memcpy(readfds, &savefds, sizeof(savefds));
             gettimeofday(&nowtv, NULL);
             /* Amount of time that has passed */
@@ -871,7 +929,7 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 
     _WS_listen_fd = sockfd;
 
-    TRACE("<< bind, interposing on port: %d (fd %d)\n", envport, sockfd);
+    TRACE("<< bind, listening for WebSockets connections on port: %d (fd %d)\n", envport, sockfd);
     return ret;
 }
 
@@ -902,21 +960,13 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
         if (_WS_nfds >= WS_MAX_FDS) {
             RET_ERROR(ENOMEM, "Too many interposer fds\n");
         }
-        if (! (_WS_connections[fd] = malloc(sizeof(_WS_connection)))) {
-            RET_ERROR(ENOMEM, "Could not allocate interposer memory\n");
+        if (_WS_alloc(fd) < 0) {
+            return -1;
         }
-        _WS_connections[fd]->rcarry_cnt = 0;
-        _WS_connections[fd]->rcarry[0]  = '\0';
-        _WS_connections[fd]->newframe   = 1;
-
-        /* Add to search list for select/pselect */
-        _WS_fds[_WS_nfds] = fd;
-        _WS_nfds++;
 
         ret = _WS_handshake(fd);
         if (ret < 0) {
-            free(_WS_connections[fd]);
-            _WS_connections[fd] = NULL;
+            _WS_free(fd);
             errno = EPROTO;
             TRACE("<< accept(%d, _, _): ret %d\n", sockfd, ret);
             return ret;
@@ -929,61 +979,45 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 
 int close(int fd)
 {
-    int i;
     static void * (*func)();
     if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "close");
 
-    if (_WS_connections[fd]) {
-        TRACE(">> close(%d)\n", fd);
-        free(_WS_connections[fd]);
-        _WS_connections[fd] = NULL;
+    TRACE("close(%d) called\n", fd);
 
-        /* Remove from the search list for select/pselect */
-        for (i = 0; i < _WS_nfds; i++) {
-            if (_WS_fds[i] == fd) {
-                break;
-            }
-        }
-        if (_WS_nfds - i - 1 > 0) {
-            memmove(_WS_fds + i, _WS_fds + i + 1, _WS_nfds - i - 1);
-        }
-        _WS_nfds--;
+    _WS_free(fd);
 
-        MSG("finished interposing on fd %d (freed memory)\n", fd);
-        TRACE("<< close(%d)\n", fd);
-    }
     return (int) func(fd);
 }
 
 
 ssize_t read(int fd, void *buf, size_t count)
 {
-    //TRACE("read(%d, _, %d) called\n", fd, count);
+    TRACE("read(%d, _, %d) called\n", fd, count);
     return (ssize_t) _WS_recv(0, fd, buf, count, 0);
 }
 
 ssize_t write(int fd, const void *buf, size_t count)
 {
-    //TRACE("write(%d, _, %d) called\n", fd, count);
+    TRACE("write(%d, _, %d) called\n", fd, count);
     return (ssize_t) _WS_send(0, fd, buf, count, 0);
 }
 
 ssize_t recv(int sockfd, void *buf, size_t len, int flags)
 {
-    //TRACE("recv(%d, _, %d, %d) called\n", sockfd, len, flags);
+    TRACE("recv(%d, _, %d, %d) called\n", sockfd, len, flags);
     return (ssize_t) _WS_recv(1, sockfd, buf, len, flags);
 }
 
 ssize_t send(int sockfd, const void *buf, size_t len, int flags)
 {
-    //TRACE("send(%d, _, %d, %d) called\n", sockfd, len, flags);
+    TRACE("send(%d, _, %d, %d) called\n", sockfd, len, flags);
     return (ssize_t) _WS_send(1, sockfd, buf, len, flags);
 }
 
 int select(int nfds, fd_set *readfds, fd_set *writefds,
            fd_set *exceptfds, struct timeval *timeout)
 {
-    //TRACE("select(%d, _, _, _, _) called\n", nfds);
+    TRACE("select(%d, _, _, _, _) called\n", nfds);
     return _WS_select(0, nfds, readfds, writefds, exceptfds,
                       (void *) timeout, NULL);
 }
@@ -1007,5 +1041,43 @@ int ppoll(struct pollfd *fds, nfds_t nfds,
           const struct timespec *timeout, const sigset_t *sigmask)
 {
     TRACE("ppoll(_, %ld, _, _) called\n", nfds);
-    return _WS_poll(0, fds, nfds, 0, timeout, sigmask);
+    return _WS_poll(0, fds, nfds, 0, (struct timespec *)timeout,
+                    (sigset_t *)sigmask);
+}
+
+int dup2(int oldfd, int newfd) {
+    int ret;
+    static void * (*func)();
+    if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "dup2");
+
+    TRACE("dup2(%d, %d) called\n", oldfd, newfd);
+
+    ret = (int) func(oldfd, newfd);
+    if (! _WS_connections[oldfd]) {
+        return ret;
+    }
+
+    if (ret < 0) {
+        return ret;
+    }
+    if (oldfd == newfd) {
+        return newfd;
+    }
+    
+    /* dup2 behavior is to close newfd if it's open */
+    if (_WS_connections[newfd]) {
+        _WS_free(newfd);
+    }
+
+    /* oldfd and newfd are now descriptors for the same socket,
+     * re-use the same context memory area */
+    _WS_connections[newfd] = _WS_connections[oldfd];
+    _WS_connections[newfd]->refcnt++;
+
+    /* Add to search list for select/pselect */
+    _WS_fds[_WS_nfds] = newfd;
+    _WS_nfds++;
+
+    return ret;
+
 }
