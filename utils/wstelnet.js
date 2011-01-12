@@ -3,7 +3,7 @@
  * Copyright (C) 2011 Joel Martin
  * Licensed under LGPL-3 (see LICENSE.txt)
  *
- * Incorporates VT100.js from:
+ * Includes VT100.js from:
  *   http://code.google.com/p/sshconsole
  * Which was modified from:
  *   http://fzort.org/bi/o.php#vt100_js
