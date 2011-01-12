@@ -2,9 +2,6 @@
  * wswrap/wswrapper: Add WebSockets support to any service.
  * Copyright 2010 Joel Martin
  * Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
- *
- * wswrapper.so is meant to be LD preloaded. Use wswrap to run a program using
- * wswrapper.so.
  */
 
 #ifdef DO_MSG

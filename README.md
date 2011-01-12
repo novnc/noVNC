@@ -133,20 +133,20 @@ There a few reasons why a proxy is required:
 * To run the python proxy directly without using launch script (to
   pass additional options for example):
 
-    `./utils/wsproxy.py -f source_port target_addr:target_port`
+    `./utils/wsproxy.py source_port target_addr:target_port`
 
-    `./utils/wsproxy.py -f 8787 localhost:5901`
+    `./utils/wsproxy.py 8787 localhost:5901`
 
-* To run a mini python web server without the launch script:
+* To activate the mini-webserver in wsproxy.py use the `--web DIR`
+  option:
 
-    `./utils/web.py PORT`
+    `./utils/wsproxy.py --web ./ 8787 localhost:5901`
 
-    `./utils/web.py 8080`
 
-* Point your web browser at http://localhost:8080/vnc.html
- (or whatever port you used above to run the web server). Specify the
- host and port where the proxy is running and the password that the
- vnc server is using (if any). Hit the Connect button.
+* Point your web browser at http://localhost:8787/vnc.html. On the
+  page enter the location where the proxy is running (localhost and
+  8787) and the password that the vnc server is using (if any). Hit
+  the Connect button.
 
 * If you are using python 2.3 or 2.4 and you want wsproxy to support
   'wss://' (TLS) then see the

@@ -1,4 +1,4 @@
-TARGETS=wsproxy wswrapper.so 
+TARGETS=wsproxy wswrapper.so rebind.so
 CFLAGS += -fPIC
 
 all: $(TARGETS)
@@ -9,6 +9,9 @@ wsproxy: wsproxy.o websocket.o md5.o
 wswrapper.o: wswrapper.h
 wswrapper.so: wswrapper.o md5.o
 	$(CC) $(LDFLAGS) $^ -shared -fPIC -ldl -lresolv -o $@
+
+rebind.so: rebind.o
+	$(CC) $(LDFLAGS) $^ -shared -fPIC -ldl -o $@
 
 websocket.o: websocket.c websocket.h md5.h
 wsproxy.o: wsproxy.c websocket.h

@@ -7,10 +7,10 @@ usage() {
     fi
     echo "Usage: ${NAME} [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT]"
     echo
-    echo "Starts a mini-webserver and the WebSockets proxy and"
-    echo "provides a cut and paste URL to go to."
+    echo "Starts the WebSockets proxy and a mini-webserver and "
+    echo "provides a cut-and-paste URL to go to."
     echo 
-    echo "    --listen PORT         Port for webserver/proxy to listen on"
+    echo "    --listen PORT         Port for proxy/webserver to listen on"
     echo "                          Default: 6080"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
     echo "                          Default: localhost:5900"
@@ -92,12 +92,10 @@ else
 fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
-${HERE}/wsproxy.py -f --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+${HERE}/wsproxy.py --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
 proxy_pid="$!"
 sleep 1
-if ps -p ${proxy_pid} >/dev/null; then
-    echo "Started WebSockets proxy (pid: ${proxy_pid})"
-else
+if ! ps -p ${proxy_pid} >/dev/null; then
     proxy_pid=
     echo "Failed to start WebSockets proxy"
     exit 1

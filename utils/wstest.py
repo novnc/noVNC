@@ -32,7 +32,7 @@ class WebSocketTest(WebSocketServer):
 
         WebSocketServer.__init__(self, *args, **kwargs)
 
-    def handler(self, client):
+    def new_client(self, client):
         self.send_cnt = 0
         self.recv_cnt = 0
 

@@ -3,15 +3,27 @@
  * Copyright 2010 Joel Martin
  * Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
  *
- * wswrapper.so is meant to be LD preloaded. Use wswrap to run a program using
- * wswrapper.so.
- */
-
-/* 
- * Limitations:
+ * wswrapper is an LD_PRELOAD library that converts a TCP listen socket of an
+ * existing program to a be a WebSockets socket. The `wswrap` script can be
+ * used to easily launch a program using wswrapper. Here is an example of
+ * using wswrapper with vncserver. wswrapper will convert the socket listening
+ * on port 5901 to be a WebSockets port:
+ *
+ *  cd noVNC/utils
+ *  ./wswrap 5901 vncserver -geometry 640x480 :1
+ *
+ * This is tricky a subtle process so there are some serious limitations:
  * - multi-threaded programs may not work
+ * - programs that fork may behave in strange and mysterious ways (such as
+ *   fork bombing your system)
  * - programs using ppoll or epoll will not work correctly
  * - doesn't support fopencookie, streams, putc, etc.
+ *
+ * **********************************************************************
+ * WARNING:
+ * Due to the above limitations, this code should be considered an experiment
+ * only. Consider using the program wrap mode of wsproxy.py instead.
+ * **********************************************************************
  */
 
 #define DO_MSG 1
@@ -322,8 +334,8 @@ ssize_t _WS_ready(int sockfd, int nonblock)
     while (1) {
         len = (int) rfunc(sockfd, buf, count, flags);
         if (len < 1) {
-            TRACE("<< _WS_ready(%d, %d) len < 1, errno: %d\n",
-                  sockfd, nonblock, errno);
+            TRACE("<< _WS_ready(%d, %d) len %d, errno: %d\n",
+                  sockfd, nonblock, len, errno);
             return len;
         }
         if (len >= 2 && buf[0] == '\x00' && buf[1] == '\xff') {
@@ -668,7 +680,21 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
         return ret;
     }
 
+#ifdef DO_TRACE
     TRACE(">> _WS_select(%d, %d, _, _, _, _)\n", mode, nfds);
+    for (i = 0; i < _WS_nfds; i++) {
+        fd = _WS_fds[i];
+        if (readfds && (FD_ISSET(fd, readfds))) {
+            TRACE("   WS %d is in readfds\n", fd, nfds);
+        }
+        if (writefds && (FD_ISSET(fd, writefds))) {
+            TRACE("   WS %d is in writefds\n", fd, nfds);
+        }
+        if (exceptfds && (FD_ISSET(fd, exceptfds))) {
+            TRACE("   WS %d is in exceptfds\n", fd, nfds);
+        }
+    }
+#endif
     if (timeptr) {
         memcpy(&savetv, timeptr, sizeof(savetv));
         gettimeofday(&starttv, NULL);
@@ -763,12 +789,26 @@ int _WS_select(int mode, int nfds, fd_set *readfds,
     } while (ret == 0);
 
     /* Restore original time value for pselect glibc does */
-    if (mode == 1) {
+    if (timeptr && mode == 1) {
         memcpy(timeptr, &savetv, sizeof(savetv));
     }
 
+#ifdef DO_TRACE
     TRACE("<< _WS_select(%d, %d, _, _, _, _) ret %d, errno %d\n",
           mode, nfds, ret, errno);
+    for (i = 0; i < _WS_nfds; i++) {
+        fd = _WS_fds[i];
+        if (readfds && (FD_ISSET(fd, readfds))) {
+            TRACE("   WS %d is set in readfds\n", fd, nfds);
+        }
+        if (writefds && (FD_ISSET(fd, writefds))) {
+            TRACE("   WS %d is set in writefds\n", fd, nfds);
+        }
+        if (exceptfds && (FD_ISSET(fd, exceptfds))) {
+            TRACE("   WS %d is set in exceptfds\n", fd, nfds);
+        }
+    }
+#endif
     return ret;
 }
 
@@ -1045,23 +1085,35 @@ int ppoll(struct pollfd *fds, nfds_t nfds,
                     (sigset_t *)sigmask);
 }
 
+int dup(int oldfd) {
+    int ret;
+    static void * (*func)();
+    if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "dup");
+
+    TRACE(">> dup(%d) called\n", oldfd);
+
+    ret = (int) func(oldfd);
+
+    TRACE("<< dup(%d) ret %d\n", oldfd, ret);
+    return ret;
+}
+
 int dup2(int oldfd, int newfd) {
     int ret;
     static void * (*func)();
     if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "dup2");
 
-    TRACE("dup2(%d, %d) called\n", oldfd, newfd);
+    TRACE(">> dup2(%d, %d) called\n", oldfd, newfd);
 
     ret = (int) func(oldfd, newfd);
-    if (! _WS_connections[oldfd]) {
+    if ((! _WS_connections[oldfd]) && (! _WS_connections[newfd])) {
         return ret;
     }
 
-    if (ret < 0) {
+    if ((ret < 0) || (oldfd == newfd) ||
+        (_WS_connections[oldfd] == _WS_connections[newfd])) {
+        TRACE("<< dup2(%d, %d) ret %d\n", oldfd, newfd, ret);
         return ret;
-    }
-    if (oldfd == newfd) {
-        return newfd;
     }
     
     /* dup2 behavior is to close newfd if it's open */
@@ -1069,6 +1121,12 @@ int dup2(int oldfd, int newfd) {
         _WS_free(newfd);
     }
 
+    if (! _WS_connections[oldfd]) {
+        TRACE("<< dup2(%d, %d) ret %d\n", oldfd, newfd, ret);
+        return ret;
+    }
+
+    MSG("interposing on duplicated fd %d\n", newfd);
     /* oldfd and newfd are now descriptors for the same socket,
      * re-use the same context memory area */
     _WS_connections[newfd] = _WS_connections[oldfd];
@@ -1078,6 +1136,21 @@ int dup2(int oldfd, int newfd) {
     _WS_fds[_WS_nfds] = newfd;
     _WS_nfds++;
 
+    TRACE("<< dup2(%d, %d) ret %d\n", oldfd, newfd, ret);
     return ret;
 
 }
+
+int dup3(int oldfd, int newfd, int flags) {
+    int ret;
+    static void * (*func)();
+    if (!func) func = (void *(*)()) dlsym(RTLD_NEXT, "dup3");
+
+    TRACE(">> dup3(%d, %d, %d) called\n", oldfd, newfd, flags);
+
+    ret = (int) func(oldfd, newfd, flags);
+
+    TRACE("<< dup3(%d, %d, %d) ret %d\n", oldfd, newfd, flags, ret);
+    return ret;
+}
+

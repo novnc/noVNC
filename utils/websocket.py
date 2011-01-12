@@ -11,7 +11,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import sys, socket, ssl, struct, traceback
+import sys, socket, ssl, struct, traceback, select
 import os, resource, errno, signal # daemonizing
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from cStringIO import StringIO
@@ -26,7 +26,7 @@ from cgi import parse_qsl
 class WebSocketServer():
     """
     WebSockets server class.
-    Must be sub-classed with handler method definition.
+    Must be sub-classed with new_client method definition.
     """
 
     server_handshake = """HTTP/1.1 101 Web Socket Protocol Handshake\r
@@ -69,6 +69,21 @@ Connection: Upgrade\r
             os.chdir(self.web)
 
         self.handler_id  = 1
+
+        print "WebSocket server settings:"
+        print "  - Listen on %s:%s" % (
+                self.listen_host, self.listen_port)
+        print "  - Flash security policy server"
+        if self.web:
+            print "  - Web server"
+        if os.path.exists(self.cert):
+            print "  - SSL/TLS support"
+            if self.ssl_only:
+                print "  - Deny non-SSL/TLS connections"
+        else:
+            print "  - No SSL/TLS support (no cert file)"
+        if self.daemon:
+            print "  - Backgrounding (daemon)"
 
     #
     # WebSocketServer static methods
@@ -284,16 +299,34 @@ Connection: Upgrade\r
         return retsock
 
 
-    def handler(self, client):
+    #
+    # Events that can/should be overridden in sub-classes
+    #
+    def started(self):
+        """ Called after WebSockets startup """
+        self.vmsg("WebSockets server started")
+
+    def poll(self):
+        """ Run periodically while waiting for connections. """
+        self.msg("Running poll()")
+
+    def do_SIGCHLD(self, sig, stack):
+        self.vmsg("Got SIGCHLD, ignoring")
+
+    def do_SIGINT(self, sig, stack):
+        self.msg("Got SIGINT, exiting")
+        sys.exit(0)
+
+    def new_client(self, client):
         """ Do something with a WebSockets client connection. """
-        raise("WebSocketServer.handler() must be overloaded")
+        raise("WebSocketServer.new_client() must be overloaded")
 
     def start_server(self):
         """
         Daemonize if requested. Listen for for connections. Run
         do_handshake() method for each connection. If the connection
-        is a WebSockets client then call handler() method (which must
-        be overridden) for each connection.
+        is a WebSockets client then call new_client() method (which must
+        be overridden) for each new client connection.
         """
 
         lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -301,37 +334,46 @@ Connection: Upgrade\r
         lsock.bind((self.listen_host, self.listen_port))
         lsock.listen(100)
 
-        print "WebSocket server settings:"
-        print "  - Listening on %s:%s" % (
-                self.listen_host, self.listen_port)
-        if self.daemon:
-            print "  - Backgrounding (daemon)"
-        print "  - Flash security policy server"
-        if self.web:
-            print "  - Web server"
-        if os.path.exists(self.cert):
-            print "  - SSL/TLS support"
-            if self.ssl_only:
-                print "  - Deny non-SSL/TLS connections"
-
         if self.daemon:
             self.daemonize(self, keepfd=lsock.fileno())
 
+        self.started()  # Some things need to happen after daemonizing
+
         # Reep zombies
-        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        signal.signal(signal.SIGCHLD, self.do_SIGCHLD)
+        signal.signal(signal.SIGINT, self.do_SIGINT)
 
         while True:
             try:
                 csock = startsock = None
-                pid = 0
-                startsock, address = lsock.accept()
+                pid = err = 0
+
+                try:
+                    self.poll()
+
+                    ready = select.select([lsock], [], [], 1)[0];
+                    if lsock in ready:
+                        startsock, address = lsock.accept()
+                    else:
+                        continue
+                except Exception, exc:
+                    if hasattr(exc, 'errno'):
+                        err = exc.errno
+                    elif type(exc) == select.error:
+                        err = exc[0]
+                    if err == errno.EINTR:
+                        self.vmsg("Ignoring interrupted syscall()")
+                        continue
+                    else:
+                        raise
+
                 self.vmsg('%s: forking handler' % address[0])
                 pid = os.fork()
 
                 if pid == 0:
                     # handler process
                     csock = self.do_handshake(startsock, address)
-                    self.handler(csock)
+                    self.new_client(csock)
                 else:
                     # parent process
                     self.handler_id += 1

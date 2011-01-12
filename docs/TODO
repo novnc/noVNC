@@ -20,11 +20,7 @@ Short Term:
     - Clipboard button -> popup:
         - text, clear and send buttons
 
-- wswrapper:
-    - Flash policy request support.
-    - SSL/TLS support.
-    - Tests suite:
-        - test pselect/poll/ppoll
+- wstelnet: support CSI L and CSI M
 
 Medium Term:
 
