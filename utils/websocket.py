@@ -23,7 +23,7 @@ except:
 from urlparse import urlsplit
 from cgi import parse_qsl
 
-class WebSocketServer():
+class WebSocketServer(object):
     """
     WebSockets server class.
     Must be sub-classed with new_client method definition.
@@ -345,49 +345,51 @@ Connection: Upgrade\r
 
         while True:
             try:
-                csock = startsock = None
-                pid = err = 0
-
                 try:
-                    self.poll()
+                    csock = startsock = None
+                    pid = err = 0
 
-                    ready = select.select([lsock], [], [], 1)[0];
-                    if lsock in ready:
-                        startsock, address = lsock.accept()
+                    try:
+                        self.poll()
+
+                        ready = select.select([lsock], [], [], 1)[0];
+                        if lsock in ready:
+                            startsock, address = lsock.accept()
+                        else:
+                            continue
+                    except Exception, exc:
+                        if hasattr(exc, 'errno'):
+                            err = exc.errno
+                        else:
+                            err = exc[0]
+                        if err == errno.EINTR:
+                            self.vmsg("Ignoring interrupted syscall")
+                            continue
+                        else:
+                            raise
+
+                    self.vmsg('%s: forking handler' % address[0])
+                    pid = os.fork()
+
+                    if pid == 0:
+                        # handler process
+                        csock = self.do_handshake(startsock, address)
+                        self.new_client(csock)
                     else:
-                        continue
+                        # parent process
+                        self.handler_id += 1
+
+                except self.EClose, exc:
+                    # Connection was not a WebSockets connection
+                    if exc.args[0]:
+                        self.msg("%s: %s" % (address[0], exc.args[0]))
+                except KeyboardInterrupt, exc:
+                    pass
                 except Exception, exc:
-                    if hasattr(exc, 'errno'):
-                        err = exc.errno
-                    elif type(exc) == select.error:
-                        err = exc[0]
-                    if err == errno.EINTR:
-                        self.vmsg("Ignoring interrupted syscall()")
-                        continue
-                    else:
-                        raise
+                    self.msg("handler exception: %s" % str(exc))
+                    if self.verbose:
+                        self.msg(traceback.format_exc())
 
-                self.vmsg('%s: forking handler' % address[0])
-                pid = os.fork()
-
-                if pid == 0:
-                    # handler process
-                    csock = self.do_handshake(startsock, address)
-                    self.new_client(csock)
-                else:
-                    # parent process
-                    self.handler_id += 1
-
-            except self.EClose, exc:
-                # Connection was not a WebSockets connection
-                if exc.args[0]:
-                    self.msg("%s: %s" % (address[0], exc.args[0]))
-            except KeyboardInterrupt, exc:
-                pass
-            except Exception, exc:
-                self.msg("handler exception: %s" % str(exc))
-                if self.verbose:
-                    self.msg(traceback.format_exc())
             finally:
                 if csock and csock != startsock:
                     csock.close()
