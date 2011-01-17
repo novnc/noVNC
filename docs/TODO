@@ -20,8 +20,6 @@ Short Term:
     - Clipboard button -> popup:
         - text, clear and send buttons
 
-- wstelnet: support CSI L and CSI M
-
 Medium Term:
 
 - VNC performance and regression playback suite.
@@ -29,7 +27,3 @@ Medium Term:
 - Viewport support
 
 - Touchscreen testing/support.
-
-- wswrapper:
-    - epoll_* support
-
