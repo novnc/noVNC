@@ -10,7 +10,7 @@
 /*jslint browser: true, white: false, bitwise: false */
 /*global window, Util, Base64 */
 
-Canvas = function(conf) {
+function Canvas(conf) {
 
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
@@ -391,6 +391,9 @@ that.resize = function(width, height, true_color) {
 that.clear = function() {
     that.resize(640, 20);
     conf.ctx.clearRect(0, 0, c_width, c_height);
+
+    // No benefit over default ("source-over") in Chrome and firefox
+    //conf.ctx.globalCompositeOperation = "copy";
 };
 
 that.stop = function() {
