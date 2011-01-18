@@ -779,7 +779,24 @@ function getKeysym(e) {
     } else if ((keysym >= 65) && (keysym <=90)) {
         /* Remap unshifted A-Z */
         keysym += 32;
-    } 
+    } else if (evt.keyLocation === 3) {
+        // numpad keys
+        switch (keysym) {
+            case 96 : keysym = 48; break; // 0
+            case 97 : keysym = 49; break; // 1
+            case 98 : keysym = 50; break; // 2
+            case 99 : keysym = 51; break; // 3
+            case 100: keysym = 52; break; // 4
+            case 101: keysym = 53; break; // 5
+            case 102: keysym = 54; break; // 6
+            case 103: keysym = 55; break; // 7
+            case 104: keysym = 56; break; // 8
+            case 105: keysym = 57; break; // 9
+            case 109: keysym = 45; break; // -
+            case 110: keysym = 46; break; // .
+            case 111: keysym = 47; break; // /
+        }
+    }
 
     return keysym;
 }
