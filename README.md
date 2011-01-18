@@ -58,7 +58,7 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   mean noVNC is painfully slow.
 
 * I maintain a more detailed list of browser compatibility <a
-  href="https://github.com/kanaka/noVNC/wiki/Browser-support">here</a>.
+  href="wiki/Browser-support">here</a>.
 
 
 ### Server Requirements
@@ -66,8 +66,9 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 Unless you are using a VNC server with support for WebSockets
 connections (only my [fork of libvncserver](http://github.com/kanaka/libvncserver)
 currently), you need to use a WebSockets to TCP socket proxy. There is
-a python proxy included ('wsproxy'). One advantage of using the proxy
-is that it has builtin support for SSL/TLS encryption (i.e. "wss://").
+a python proxy included ('websockify'). One advantage of using the
+proxy is that it has builtin support for SSL/TLS encryption (i.e.
+"wss://").
 
 There a few reasons why a proxy is required:
 
@@ -84,7 +85,7 @@ There a few reasons why a proxy is required:
 ### Quick Start
 
 * Use the launch script to start a mini-webserver and the WebSockets
-  proxy. The `--vnc` option is used to specify the location of
+  proxy (websockify). The `--vnc` option is used to specify the location of
   a running VNC server:
 
     `./utils/launch.sh --vnc localhost:5901`
@@ -94,114 +95,13 @@ There a few reasons why a proxy is required:
   configured. Hit the Connect button and enjoy!
 
 
-### Advanced usage
+### Other Pages
 
-* To encrypt the traffic using the WebSocket 'wss://' URI scheme you
-  need to generate a certificate for the proxy to load. By default the
-  proxy loads a certificate file name `self.pem` but the `--cert=CERT`
-  option can override the file name. You can generate a self-signed
-  certificate using openssl. When asked for the common name, use the
-  hostname of the server where the proxy will be running:
+* [Advanced Usage](wiki/Advanced-usage). Generating an SSL
+  certificate, starting a VNC server, advanced websockify usage, etc.
 
-    `openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem`
+* [Integrating noVNC](wiki/Integration) into existing projects.
 
-* `tightvnc` provide a nice startup script that can be used to run
-  a separate X desktop that is served by VNC. To install and run the
-  server under Ubuntu you would do something like this:
-
-    `sudo apt-get install tightvncserver`
-
-    `vncserver :1`
-
-    The VNC server will run in the background. The port that it runs
-    on is the display number + 5900 (i.e. 5901 in the case above).
-
-* `x11vnc` can be used to share your current X desktop. Note that if
-  you run noVNC on the X desktop you are connecting to via VNC you
-  will get a neat hall of mirrors effect, but the the client and
-  server will fight over the mouse.
-
-    `sudo apt-get install x11vnc`
-
-    `x11vnc -forever -display :0`
-
-  Without the `-forever` option, x11vnc will exit after the first
-  disconnect. The `-display` option indicates the exiting X display to
-  share. The port that it runs on is the display number + 5900 (i.e.
-  5900 in the case above).
-
-* To run the python proxy directly without using launch script (to
-  pass additional options for example):
-
-    `./utils/wsproxy.py source_port target_addr:target_port`
-
-    `./utils/wsproxy.py 8787 localhost:5901`
-
-* To activate the mini-webserver in wsproxy.py use the `--web DIR`
-  option:
-
-    `./utils/wsproxy.py --web ./ 8787 localhost:5901`
+* [Troubleshooting noVNC problems](wiki/Troubleshooting).
 
 
-* Point your web browser at http://localhost:8787/vnc.html. On the
-  page enter the location where the proxy is running (localhost and
-  8787) and the password that the vnc server is using (if any). Hit
-  the Connect button.
-
-* If you are using python 2.3 or 2.4 and you want wsproxy to support
-  'wss://' (TLS) then see the
-  [wsproxy README](http://github.com/kanaka/noVNC/blob/master/utils/README.md)
-  for instructions on building the ssl module.
-
-
-### Integration
-
-The client is designed to be easily integrated with existing web
-structure and style.
-
-At a minimum you must include the `vnc.js` and `ui.js` scripts and
-call UI.load(). For example:
-
-    <head>
-        <script src='include/vnc.js'></script>
-        <script src="include/ui.js"></script>
-    </head>
-    <body>
-        <div id='vnc'>Loading</div>
-
-        <script>
-            window.onload = function () {
-                UI.load('vnc');
-            }
-        </script>
-    </body>
-
-See `vnc.html` and `vnc_auto.html` for examples. The file
-`include/plain.css` has a list of stylable elements.
-
-The `vnc.js` also includes other scripts within the `include`
-sub-directory. The `VNC_uri_prefix` variable can be use override the
-URL path to the `include` sub-directory.
-
-
-### Troubleshooting
-
-You will need console logging support in the browser. Recent Chrome
-and Opera versions have built in support. Firefox has a nice extension
-called "firebug" that gives console logging support.
-
-First, load the noVNC page with `logging=debug` added to the query string.
-For example `vnc.html?logging=debug`.
-
-Then, activate the console logger in your browser.  With Chrome it can
-be activate using Ctrl+Shift+J and then switching to the "Console"
-tab. With firefox+firebug, it can be activated using Ctrl+F12.
-
-Now reproduce the problem. The console log output will give more
-information about what is going wrong and where in the code the
-problem is located.
-
-If you file a issue/bug, it is very helpful for me to have the last
-page of console output leading up the problem in the issue report.
-Other helpful issue/bug information: browser version, OS version,
-noVNC git version, and VNC server name/version.
