@@ -58,7 +58,7 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   mean noVNC is painfully slow.
 
 * I maintain a more detailed list of browser compatibility <a
-  href="http://github.com/kanaka/noVNC/blob/master/docs/browsers.md">here</a>.
+  href="https://github.com/kanaka/noVNC/wiki/Browser-support">here</a>.
 
 
 ### Server Requirements
