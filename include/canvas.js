@@ -291,6 +291,17 @@ function onKeyUp(e) {
     return false;
 }
 
+function onKeyPress(e) {
+    //Util.Debug("keypress: " + e.charCode);
+    if (! conf.focused) {
+        return true;
+    }
+    // Stop keypress events. Necessary for Opera because stopping
+    // keydown and keyup events still results in a keypress event.
+    Util.stopEvent(e);
+    return false;
+}
+
 function onMouseDisable(e) {
     var evt, pos;
     if (! conf.focused) {
@@ -328,6 +339,7 @@ that.start = function(keyPressFunc, mouseButtonFunc, mouseMoveFunc) {
 
     Util.addEvent(conf.focusContainer, 'keydown', onKeyDown);
     Util.addEvent(conf.focusContainer, 'keyup', onKeyUp);
+    Util.addEvent(conf.focusContainer, 'keypress', onKeyPress);
     Util.addEvent(c, 'mousedown', onMouseDown);
     Util.addEvent(c, 'mouseup', onMouseUp);
     Util.addEvent(c, 'mousemove', onMouseMove);
@@ -339,6 +351,27 @@ that.start = function(keyPressFunc, mouseButtonFunc, mouseMoveFunc) {
     Util.addEvent(conf.focusContainer.body, 'contextmenu', onMouseDisable);
 
     Util.Debug("<< Canvas.start");
+};
+
+that.stop = function() {
+    var c = conf.target;
+    Util.removeEvent(conf.focusContainer, 'keydown', onKeyDown);
+    Util.removeEvent(conf.focusContainer, 'keyup', onKeyUp);
+    Util.removeEvent(conf.focusContainer, 'keypress', onKeyPress);
+    Util.removeEvent(c, 'mousedown', onMouseDown);
+    Util.removeEvent(c, 'mouseup', onMouseUp);
+    Util.removeEvent(c, 'mousemove', onMouseMove);
+    Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+            onMouseWheel);
+
+    /* Work around right and middle click browser behaviors */
+    Util.removeEvent(conf.focusContainer, 'click', onMouseDisable);
+    Util.removeEvent(conf.focusContainer.body, 'contextmenu', onMouseDisable);
+
+    // Turn off cursor rendering
+    if (conf.cursor_uri) {
+        c.style.cursor = "default";
+    }
 };
 
 that.rescale = function(factor) {
@@ -392,26 +425,6 @@ that.clear = function() {
 
     // No benefit over default ("source-over") in Chrome and firefox
     //conf.ctx.globalCompositeOperation = "copy";
-};
-
-that.stop = function() {
-    var c = conf.target;
-    Util.removeEvent(conf.focusContainer, 'keydown', onKeyDown);
-    Util.removeEvent(conf.focusContainer, 'keyup', onKeyUp);
-    Util.removeEvent(c, 'mousedown', onMouseDown);
-    Util.removeEvent(c, 'mouseup', onMouseUp);
-    Util.removeEvent(c, 'mousemove', onMouseMove);
-    Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-            onMouseWheel);
-
-    /* Work around right and middle click browser behaviors */
-    Util.removeEvent(conf.focusContainer, 'click', onMouseDisable);
-    Util.removeEvent(conf.focusContainer.body, 'contextmenu', onMouseDisable);
-
-    // Turn off cursor rendering
-    if (conf.cursor_uri) {
-        c.style.cursor = "default";
-    }
 };
 
 that.flush = function() {
@@ -706,9 +719,7 @@ function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
     }
 
     url = "data:image/x-icon;base64," + Base64.encode(cur);
-    Util.Info(url);
     target.style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
-    //conf.target.style.cursor = "url(" + url + "), default";
     //Util.Debug("<< changeCursor, cur.length: " + cur.length);
 };
 
