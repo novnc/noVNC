@@ -83,8 +83,6 @@ that.get_height = function() {
     return c_height;
 };
 
-
-
 //
 // Private functions
 //
@@ -192,7 +190,7 @@ function constructor() {
     }
     try {
         curSave = c.style.cursor;
-        that.changeCursor(curDat, curDat, 2, 2, 8, 8);
+        changeCursor(conf.target, curDat, curDat, 2, 2, 8, 8);
         if (c.style.cursor) {
             if (conf.cursor_uri === null) {
                 conf.cursor_uri = true;
@@ -596,14 +594,28 @@ that.blitStringImage = function(str, x, y) {
 };
 
 that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
-    var cur = [], cmap, rgb, IHDRsz, ANDsz, XORsz, url, idx, alpha, x, y;
-    //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
-    
     if (conf.cursor_uri === false) {
         Util.Warn("changeCursor called but no cursor data URI support");
         return;
     }
 
+    if (conf.true_color) {
+        changeCursor(conf.target, pixels, mask, hotx, hoty, w, h);
+    } else {
+        changeCursor(conf.target, pixels, mask, hotx, hoty, w, h, conf.colourMap);
+    }
+}
+
+return constructor();  // Return the public API interface
+
+}  // End of Canvas()
+
+
+/* Set CSS cursor property using data URI encoded cursor file */
+function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
+    var cur = [], rgb, IHDRsz, RGBsz, ANDsz, XORsz, url, idx, alpha, x, y;
+    //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
+    
     // Push multi-byte little-endian values
     cur.push16le = function (num) {
         this.push((num     ) & 0xFF,
@@ -616,63 +628,77 @@ that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
                   (num >> 24) & 0xFF  );
     };
 
-    cmap = conf.colourMap;
     IHDRsz = 40;
-    ANDsz = w * h * 4;
+    RGBsz = w * h * 4;
     XORsz = Math.ceil( (w * h) / 8.0 );
+    ANDsz = Math.ceil( (w * h) / 8.0 );
 
     // Main header
-    cur.push16le(0);      // Reserved
-    cur.push16le(2);      // .CUR type
-    cur.push16le(1);      // Number of images, 1 for non-animated ico
+    cur.push16le(0);      // 0: Reserved
+    cur.push16le(2);      // 2: .CUR type
+    cur.push16le(1);      // 4: Number of images, 1 for non-animated ico
 
-    // Cursor #1 header
-    cur.push(w);          // width
-    cur.push(h);          // height
-    cur.push(0);          // colors, 0 -> true-color
-    cur.push(0);          // reserved
-    cur.push16le(hotx);   // hotspot x coordinate
-    cur.push16le(hoty);   // hotspot y coordinate
-    cur.push32le(IHDRsz + XORsz + ANDsz); // cursor data byte size
-    cur.push32le(22);     // offset of cursor data in the file
+    // Cursor #1 header (ICONDIRENTRY)
+    cur.push(w);          // 6: width
+    cur.push(h);          // 7: height
+    cur.push(0);          // 8: colors, 0 -> true-color
+    cur.push(0);          // 9: reserved
+    cur.push16le(hotx);   // 10: hotspot x coordinate
+    cur.push16le(hoty);   // 12: hotspot y coordinate
+    cur.push32le(IHDRsz + RGBsz + XORsz + ANDsz);
+                          // 14: cursor data byte size
+    cur.push32le(22);     // 18: offset of cursor data in the file
 
-    // Cursor #1 InfoHeader
-    cur.push32le(IHDRsz); // Infoheader size
-    cur.push32le(w);      // Cursor width
-    cur.push32le(h*2);    // XOR+AND height
-    cur.push16le(1);      // number of planes
-    cur.push16le(32);     // bits per pixel
-    cur.push32le(0);      // Type of compression
-    cur.push32le(XORsz + ANDsz); // Size of Image
-    cur.push32le(0);
-    cur.push32le(0);
-    cur.push32le(0);
-    cur.push32le(0);
 
-    // XOR/color data
+    // Cursor #1 InfoHeader (ICONIMAGE/BITMAPINFO)
+    cur.push32le(IHDRsz); // 22: Infoheader size
+    cur.push32le(w);      // 26: Cursor width
+    cur.push32le(h*2);    // 30: XOR+AND height
+    cur.push16le(1);      // 34: number of planes
+    cur.push16le(32);     // 36: bits per pixel
+    cur.push32le(0);      // 38: Type of compression
+
+    cur.push32le(XORsz + ANDsz); // 43: Size of Image
+                                 // Gimp leaves this as 0
+
+    cur.push32le(0);      // 46: reserved
+    cur.push32le(0);      // 50: reserved
+    cur.push32le(0);      // 54: reserved
+    cur.push32le(0);      // 58: reserved
+
+    // 62: color data (RGBQUAD icColors[])
     for (y = h-1; y >= 0; y -= 1) {
         for (x = 0; x < w; x += 1) {
             idx = y * Math.ceil(w / 8) + Math.floor(x/8);
             alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
 
-            if (conf.true_color) {
-                idx = ((w * y) + x) * 4;
-                cur.push(pixels[idx + 2]); // blue
-                cur.push(pixels[idx + 1]); // green
-                cur.push(pixels[idx + 0]); // red
-                cur.push(alpha); // red
-            } else {
+            if (cmap) {
                 idx = (w * y) + x;
                 rgb = cmap[pixels[idx]];
                 cur.push(rgb[2]);          // blue
                 cur.push(rgb[1]);          // green
                 cur.push(rgb[0]);          // red
                 cur.push(alpha);           // alpha
+            } else {
+                idx = ((w * y) + x) * 4;
+                cur.push(pixels[idx + 2]); // blue
+                cur.push(pixels[idx + 1]); // green
+                cur.push(pixels[idx + 0]); // red
+                cur.push(alpha);           // alpha
             }
         }
     }
 
-    // AND/bitmask data (ignored, just needs to be right size)
+    // XOR/bitmask data (BYTE icXOR[])
+    // (ignored, just needs to be right size)
+    for (y = 0; y < h; y += 1) {
+        for (x = 0; x < Math.ceil(w / 8); x += 1) {
+            cur.push(0x00);
+        }
+    }
+
+    // AND/bitmask data (BYTE icAND[])
+    // (ignored, just needs to be right size)
     for (y = 0; y < h; y += 1) {
         for (x = 0; x < Math.ceil(w / 8); x += 1) {
             cur.push(0x00);
@@ -680,15 +706,12 @@ that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
     }
 
     url = "data:image/x-icon;base64," + Base64.encode(cur);
-    conf.target.style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
+    Util.Info(url);
+    target.style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
+    //conf.target.style.cursor = "url(" + url + "), default";
     //Util.Debug("<< changeCursor, cur.length: " + cur.length);
 };
 
-
-
-return constructor();  // Return the public API interface
-
-}  // End of Canvas()
 
 
 /* Translate DOM key down/up event to keysym value */

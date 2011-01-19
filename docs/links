@@ -35,6 +35,11 @@ Cursor appearance/style (for Cursor pseudo-encoding):
     https://developer.mozilla.org/en/Using_URL_values_for_the_cursor_property
     http://www.fileformat.info/format/bmp/egff.htm
 
+Icon/Cursor file format:
+    http://msdn.microsoft.com/en-us/library/ms997538
+    http://msdn.microsoft.com/en-us/library/aa921550.aspx
+    http://msdn.microsoft.com/en-us/library/aa930622.aspx
+
 
 RDP Protocol specification:
     http://msdn.microsoft.com/en-us/library/cc240445(v=PROT.10).aspx
