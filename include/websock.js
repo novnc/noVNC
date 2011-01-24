@@ -169,7 +169,7 @@ function flush() {
     if (websocket.bufferedAmount !== 0) {
         Util.Debug("bufferedAmount: " + websocket.bufferedAmount);
     }
-    if (websocket.bufferedAmount < 1000) {
+    if (websocket.bufferedAmount < api.maxBufferedAmount) {
         //Util.Debug("arr: " + arr);
         //Util.Debug("sQ: " + sQ);
         if (sQ) {
@@ -281,6 +281,9 @@ function close() {
 }
 
 function constructor() {
+    // Configuration settings
+    api.maxBufferedAmount = 200;
+
     // Direct access to send and receive queues
     api.get_sQ       = get_sQ;
     api.get_rQ       = get_rQ;

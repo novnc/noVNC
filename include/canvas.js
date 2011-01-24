@@ -770,8 +770,8 @@ function getKeysym(e) {
         case 186       : keysym = 59; break; // ;  (IE)
         case 187       : keysym = 61; break; // =  (IE)
         case 188       : keysym = 44; break; // ,  (Mozilla, IE)
-        case 109       :                     // -  (Mozilla)
-            if (Util.Engine.gecko) {
+        case 109       :                     // -  (Mozilla, Opera)
+            if (Util.Engine.gecko || Util.Engine.presto) {
                          keysym = 45; }
                                       break;
         case 189       : keysym = 45; break; // -  (IE)
