@@ -188,7 +188,7 @@ function flush() {
 function send(arr) {
     //Util.Debug(">> send_array: " + arr);
     sQ = sQ.concat(arr);
-    flush();
+    return flush();
 };
 
 function send_string(str) {
