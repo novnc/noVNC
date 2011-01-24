@@ -166,7 +166,10 @@ function decode_message(data) {
 //
 
 function flush() {
-    if (websocket.bufferedAmount === 0) {
+    if (websocket.bufferedAmount !== 0) {
+        Util.Debug("bufferedAmount: " + websocket.bufferedAmount);
+    }
+    if (websocket.bufferedAmount < 1000) {
         //Util.Debug("arr: " + arr);
         //Util.Debug("sQ: " + sQ);
         if (sQ) {
@@ -175,7 +178,8 @@ function flush() {
         }
         return true;
     } else {
-        Util.Debug("Delaying send");
+        Util.Info("Delaying send, bufferedAmount: " +
+                websocket.bufferedAmount);
         return false;
     }
 }
