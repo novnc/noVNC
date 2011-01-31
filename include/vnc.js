@@ -8,7 +8,7 @@
 
 "use strict";
 /*jslint evil: true */
-/*global window, document, VNC_uri_prefix */
+/*global window, document, INCLUDE_URI */
 
 // Globals defined here
 var VNC_native_ws, WEB_SOCKET_SWF_LOCATION;
@@ -16,14 +16,14 @@ var VNC_native_ws, WEB_SOCKET_SWF_LOCATION;
 /*
  * Load supporting scripts
  */
-function get_VNC_uri_prefix() {
-    return (typeof VNC_uri_prefix !== "undefined") ? VNC_uri_prefix : "include/";
+function get_INCLUDE_URI() {
+    return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
 }
 
 (function () {
     var extra = "", start, end;
 
-    start = "<script src='" + get_VNC_uri_prefix();
+    start = "<script src='" + get_INCLUDE_URI();
     end = "'><\/script>";
 
     // Uncomment to activate firebug lite

@@ -7,7 +7,7 @@
  */
 "use strict";
 /*jslint white: false */
-/*global $, Util, RFB, Canvas, VNC_uri_prefix, Element, Fx */
+/*global $, Util, RFB, Canvas, Element, Fx */
 
 var UI = {
 

@@ -3,7 +3,9 @@ Short Term:
 - Keyboard layout/internationalization support
     - convert keyCode into proper charCode
 
-- Test on IE 9 preview 3.
+- IE 9 improvements.
+    - https://github.com/gimite/web-socket-js/issues#issue/41
+    - try window.atob instead of decode for better performance
 
 - Status bar menu/buttons:
     - Explanatory hover text over buttons

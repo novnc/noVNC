@@ -32,7 +32,11 @@ if (window.WebSocket) {
             end = "'><\/script>", extra = "";
 
         WEB_SOCKET_SWF_LOCATION = get_INCLUDE_URI() +
-                    "web-socket-js/WebSocketMain.swf";
+                    "web-socket-js/WebSocketMain.swf?" + Math.random();
+        if (Util.Engine.trident) {
+            Util.Debug("Forcing uncached load of WebSocketMain.swf");
+            WEB_SOCKET_SWF_LOCATION += "?" + Math.random();
+        }
         extra += start + "web-socket-js/swfobject.js" + end;
         extra += start + "web-socket-js/FABridge.js" + end;
         extra += start + "web-socket-js/web_socket.js" + end;
