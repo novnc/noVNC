@@ -102,6 +102,6 @@ There a few reasons why a proxy is required:
 
 * [Integrating noVNC](wiki/Integration) into existing projects.
 
-* [Troubleshooting noVNC problems](wiki/Troubleshooting).
+* [Troubleshooting noVNC](wiki/Troubleshooting) problems.
 
 

@@ -256,7 +256,6 @@ Connection: Upgrade\r
 
         # Now get the data from the socket
         handshake = retsock.recv(4096)
-        #self.msg("handshake: " + repr(handshake))
 
         if len(handshake) == 0:
             raise self.EClose("Client closed during handshake")
@@ -274,6 +273,7 @@ Connection: Upgrade\r
             else:
                 raise self.EClose("")
 
+        #self.msg("handshake: " + repr(handshake))
         # Parse client WebSockets handshake
         h = self.parse_handshake(handshake)
 
