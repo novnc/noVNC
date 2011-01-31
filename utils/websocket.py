@@ -213,7 +213,11 @@ Connection: Upgrade\r
 
         stype = ""
 
-        # Peek, but don't read the data
+        ready = select.select([sock], [], [], 3)[0]
+        if not ready:
+            raise self.EClose("ignoring socket not ready")
+        # Peek, but do not read the data so that we have a opportunity
+        # to SSL wrap the socket first
         handshake = sock.recv(1024, socket.MSG_PEEK)
         #self.msg("Handshake [%s]" % repr(handshake))
 
@@ -308,10 +312,18 @@ Connection: Upgrade\r
 
     def poll(self):
         """ Run periodically while waiting for connections. """
-        self.msg("Running poll()")
+        #self.vmsg("Running poll()")
+        pass
+
+
+    def top_SIGCHLD(self, sig, stack):
+        # Reap zombies after calling child SIGCHLD handler
+        self.do_SIGCHLD(sig, stack)
+        self.vmsg("Got SIGCHLD, reaping zombies")
+        os.waitpid(-1, os.WNOHANG)
 
     def do_SIGCHLD(self, sig, stack):
-        self.vmsg("Got SIGCHLD, ignoring")
+        pass
 
     def do_SIGINT(self, sig, stack):
         self.msg("Got SIGINT, exiting")
@@ -340,7 +352,7 @@ Connection: Upgrade\r
         self.started()  # Some things need to happen after daemonizing
 
         # Reep zombies
-        signal.signal(signal.SIGCHLD, self.do_SIGCHLD)
+        signal.signal(signal.SIGCHLD, self.top_SIGCHLD)
         signal.signal(signal.SIGINT, self.do_SIGINT)
 
         while True:

@@ -160,7 +160,10 @@ Traffic Legend:
         try:
             self.do_proxy(client, tsock)
         except:
-            if tsock: tsock.close()
+            if tsock:
+                tsock.close()
+                self.vmsg("%s:%s: Target closed" %(
+                    self.target_host, self.target_port))
             if self.rec:
                 self.rec.write("'EOF']\n")
                 self.rec.close()
