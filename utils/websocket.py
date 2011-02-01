@@ -147,7 +147,10 @@ Connection: Upgrade\r
         ret['path'] = req_lines[0].split(" ")[1]
         for line in req_lines[1:]:
             if line == "": break
-            var, val = line.split(": ")
+            try:
+                var, val = line.split(": ")
+            except:
+                raise Exception("Invalid handshake header: %s" % line)
             ret[var] = val
 
         if req_lines[-2] == "":
@@ -315,12 +318,17 @@ Connection: Upgrade\r
         #self.vmsg("Running poll()")
         pass
 
-
     def top_SIGCHLD(self, sig, stack):
         # Reap zombies after calling child SIGCHLD handler
         self.do_SIGCHLD(sig, stack)
         self.vmsg("Got SIGCHLD, reaping zombies")
-        os.waitpid(-1, os.WNOHANG)
+        try:
+            result = os.waitpid(-1, os.WNOHANG)
+            while result[0]:
+                self.vmsg("Reaped child process %s" % result[0])
+                result = os.waitpid(-1, os.WNOHANG)
+        except (OSError):
+            pass
 
     def do_SIGCHLD(self, sig, stack):
         pass
