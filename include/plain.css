@@ -3,8 +3,8 @@
 }
 #VNC_controls ul {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
 }
 #VNC_controls li {
     float: left;
@@ -12,18 +12,18 @@
 }
 
 #VNC_host {
-    width: 100;
+    width: 100px;
 }
 #VNC_port {
-    width: 50;
+    width: 50px;
 }
 #VNC_password {
-    width: 80;
+    width: 80px;
 }
 #VNC_encrypt {
 }
 #VNC_connectTimeout {
-    width: 30;
+    width: 30px;
 }
 #VNC_connect_button {
     width: 110px;
@@ -59,8 +59,8 @@
 }
 #VNC_settings_menu ul {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
 }
 
 .VNC_buttons_right {
@@ -92,6 +92,6 @@
 #VNC_clipboard_clear_button {
 }
 #VNC_clipboard_text {
-    font-size: 9;
+    font-size: 9px;
 }
 

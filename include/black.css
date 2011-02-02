@@ -1,5 +1,5 @@
 body {
-  margin: 0;
+  margin: 0px;
   font-size: 13px;
   color: #111;
   font-family: "Helvetica";
@@ -16,12 +16,12 @@ body {
 #VNC_controls ul {
   list-style:none;
   list-style-position: outside;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
 }
 #VNC_controls li {
   margin-right: 15px;
-  padding: 2px 0;
+  padding: 2px 0px;
   float: left;
 }
 #VNC_controls li input[type=text],
@@ -30,13 +30,13 @@ body {
 }
 
 #VNC_host {
-    width: 100;
+    width: 100px;
 }
 #VNC_port {
-    width: 50;
+    width: 50px;
 }
 #VNC_password {
-    width: 80;
+    width: 80px;
 }
 #VNC_encrypt {
 }
@@ -66,8 +66,10 @@ body {
 #VNC_settings_menu {
     display: none;
     position: absolute;
-    width: 12em;
+    width: 13em;
     border: 1px solid #888;
+    color: #111;
+    font-weight: normal;
     background-color: #f0f2f6;
     padding: 5px; margin: 3px;
     z-index: 100; opacity: 1;
@@ -75,8 +77,8 @@ body {
 }
 #VNC_settings_menu ul {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
 }
 
 .VNC_buttons_right {
