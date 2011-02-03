@@ -1,5 +1,26 @@
 Short Term:
 
+- VNC performance and regression playback suite.
+    - WebSockets
+        - expand latency test
+        - add absolute timers (every 500 packets)
+        - try 1 ms delay
+        - stop at 4000 packets
+        - small and large packets test
+
+    - JavaScript
+        - just base64 decode
+        - everything except Canvas
+
+    - Full test
+        - Without WebSockets
+        - With replay from python tester
+        - add higher-resolution multi test
+
+    - websockify test with echo and playback functionality
+      - choosen by client test page on connect
+
+
 - Keyboard layout/internationalization support
     - convert keyCode into proper charCode
 
@@ -23,8 +44,6 @@ Short Term:
         - text, clear and send buttons
 
 Medium Term:
-
-- VNC performance and regression playback suite.
 
 - Viewport support
 

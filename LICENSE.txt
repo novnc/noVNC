@@ -8,3 +8,7 @@ docs/LICENSE.LGPL-3) with the following exceptions:
     include/web-socket-js/     : New BSD license. Source code at
                                  http://github.com/gimite/web-socket-js
 
+    images/                    : Creative Commons Attribution-ShareAlike
+                                 http://creativecommons.org/licenses/by-sa/3.0/
+                                 Uses of the work must be attributed
+                                 to the noVNC project.

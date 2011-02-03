@@ -8,7 +8,7 @@
 
 "use strict";
 /*jslint white: false, browser: true, bitwise: false, plusplus: false */
-/*global window, WebSocket, Util, Canvas, VNC_native_ws, Base64, DES */
+/*global window, Util, Canvas, VNC_native_ws, Base64, DES */
 
 
 function RFB(conf) {
@@ -346,6 +346,16 @@ updateState = function(state, statusMsg) {
             canvas.stop();
             if (Util.get_logging() !== 'debug') {
                 canvas.clear();
+            }
+
+            if ((Util.get_logging() !== 'debug') ||
+                (state === 'loaded')) {
+                // Show noVNC logo on load and when disconnected if
+                // debug is off
+                if (noVNC_logo) {
+                    canvas.resize(noVNC_logo.width, noVNC_logo.height);
+                    canvas.blitStringImage(noVNC_logo.data, 0, 0);
+                }
             }
         }
 
