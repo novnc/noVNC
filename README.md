@@ -40,6 +40,9 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   4.8](http://www.openqrm.com/?q=node/15). [Video
     demo](http://www.openqrm-enterprise.com/news/details/article/remote-vm-console-plugin-available.html).
 
+* [OpenNode](http://www.opennodecloud.com/): uses noVNC in
+  [OpenNode Management Console](http://opennode.activesys.org/about/software-included-in-opennode/).
+  [OMC Screencast](http://opennode.activesys.org/about/opennode-management-console-screencast/).
 
 ### Browser Requirements
 

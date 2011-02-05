@@ -1,5 +1,8 @@
 Short Term:
 
+- Test normal arrays vs TypedArrays vs imageData arrays.
+    - Blog post about it.
+
 - VNC performance and regression playback suite.
     - WebSockets
         - expand latency test
