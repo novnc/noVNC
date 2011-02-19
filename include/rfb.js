@@ -6,19 +6,19 @@
  * See README.md for usage and integration instructions.
  */
 
-"use strict";
 /*jslint white: false, browser: true, bitwise: false, plusplus: false */
-/*global window, Util, Canvas, VNC_native_ws, Base64, DES */
+/*global window, Util, Canvas, Websock, Websock_native, Base64, DES, noVNC_logo */
 
 
 function RFB(conf) {
+    "use strict";
 
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
 
     // Pre-declare private functions used before definitions (jslint)
-    init_vars, updateState, init_msg, normal_msg,
-    framebufferUpdate, print_stats,
+    init_vars, updateState, fail, handle_message,
+    init_msg, normal_msg, framebufferUpdate, print_stats,
 
     pixelFormat, clientEncodings, fbUpdateRequest,
     keyEvent, pointerEvent, clientCutText,
@@ -229,6 +229,8 @@ function connect() {
 }
 
 init_vars = function() {
+    var i;
+
     /* Reset state */
     ws = new Websock();
     ws.init();
@@ -265,14 +267,14 @@ init_vars = function() {
     mouse_arr        = [];
 
     // Clear the per connection encoding stats
-    for (var i=0; i < encodings.length; i+=1) {
+    for (i=0; i < encodings.length; i+=1) {
         encStats[encodings[i][1]][0] = 0;
     }
 };
 
 // Print statistics
 print_stats = function() {
-    var i, encName, s;
+    var i, s;
     Util.Info("Encoding stats for this connection:");
     for (i=0; i < encodings.length; i+=1) {
         s = encStats[encodings[i][1]];
@@ -285,8 +287,8 @@ print_stats = function() {
     for (i=0; i < encodings.length; i+=1) {
         s = encStats[encodings[i][1]];
         if ((s[0] + s[1]) > 0) {
-            Util.Info("    " + encodings[i][0] + ": "
-                      + s[1] + " rects");
+            Util.Info("    " + encodings[i][0] + ": " +
+                      s[1] + " rects");
         }
     }
 };
@@ -459,12 +461,13 @@ updateState = function(state, statusMsg) {
         conf.updateState(that, state, oldstate, statusMsg);
     }
 };
-function fail(msg) {
+
+fail = function(msg) {
     updateState('failed', msg);
     return false;
-}
+};
 
-function handle_message() {
+handle_message = function() {
     //Util.Debug(">> handle_message ws.rQlen(): " + ws.rQlen());
     //Util.Debug("ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
     if (ws.rQlen() === 0) {
@@ -495,11 +498,11 @@ function handle_message() {
         init_msg();
         break;
     }
-}
+};
 
 
 function genDES(password, challenge) {
-    var i, passwd = [], des;
+    var i, passwd = [];
     for (i=0; i < password.length; i += 1) {
         passwd.push(password.charCodeAt(i));
     }
@@ -653,9 +656,8 @@ init_msg = function() {
                 if (rfb_version >= 3.8) {
                     updateState('SecurityResult');
                     return;
-                } else {
-                    // Fall through to ClientInitialisation
                 }
+                // Fall through to ClientInitialisation
                 break;
             case 2:  // VNC authentication
                 if (rfb_password.length === 0) {

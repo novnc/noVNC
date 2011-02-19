@@ -6,11 +6,11 @@
  * See README.md for usage and integration instructions.
  */
 
-"use strict";
 /*jslint browser: true, white: false, bitwise: false */
-/*global window, Util, Base64 */
+/*global window, Util, Base64, changeCursor, getKeysym */
 
 function Canvas(conf) {
+    "use strict";
 
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
@@ -176,7 +176,7 @@ function constructor() {
                         c_flush_timer = setTimeout(that.flush, 100);
                     }
                 };
-            })();
+            }());
         }
     }
 
@@ -617,7 +617,7 @@ that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
     } else {
         changeCursor(conf.target, pixels, mask, hotx, hoty, w, h, conf.colourMap);
     }
-}
+};
 
 return constructor();  // Return the public API interface
 
@@ -721,7 +721,7 @@ function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
     url = "data:image/x-icon;base64," + Base64.encode(cur);
     target.style.cursor = "url(" + url + ") " + hotx + " " + hoty + ", default";
     //Util.Debug("<< changeCursor, cur.length: " + cur.length);
-};
+}
 
 
 

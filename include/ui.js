@@ -5,9 +5,10 @@
  *
  * See README.md for usage and integration instructions.
  */
+
 "use strict";
-/*jslint white: false */
-/*global $, Util, RFB, Canvas, Element, Fx */
+/*jslint white: false, browser: true */
+/*global window, $D, Util, WebUtil, RFB, Canvas, Element, Fx */
 
 var UI = {
 

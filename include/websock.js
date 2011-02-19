@@ -78,7 +78,7 @@ function get_rQi() {
 }
 set_rQi = function(val) {
     rQi = val;
-}
+};
 
 function rQlen() {
     return rQ.length - rQi;
@@ -193,7 +193,7 @@ function send(arr) {
     //Util.Debug(">> send_array: " + arr);
     sQ = sQ.concat(arr);
     return flush();
-};
+}
 
 function send_string(str) {
     //Util.Debug(">> send_string: " + str);
@@ -210,7 +210,7 @@ function recv_message(e) {
     try {
         decode_message(e.data);
         if (rQlen() > 0) {
-            eventHandlers['message']();
+            eventHandlers.message();
             // Compact the receive queue
             if (rQ.length > rQmax) {
                 //Util.Debug("Compacting receive queue");
@@ -229,13 +229,13 @@ function recv_message(e) {
             Util.Warn("recv_message, caught exception:" + exc);
         }
         if (typeof exc.name !== 'undefined') {
-            eventHandlers['error'](exc.name + ": " + exc.message);
+            eventHandlers.error(exc.name + ": " + exc.message);
         } else {
-            eventHandlers['error'](exc);
+            eventHandlers.error(exc);
         }
     }
     //Util.Debug("<< recv_message");
-};
+}
 
 
 // Set event handlers
@@ -258,19 +258,19 @@ function open(uri) {
     websocket.onmessage = recv_message;
     websocket.onopen = function(e) {
         Util.Debug(">> WebSock.onopen");
-        eventHandlers['open']();
+        eventHandlers.open();
         Util.Debug("<< WebSock.onopen");
-    }
+    };
     websocket.onclose = function(e) {
         Util.Debug(">> WebSock.onclose");
-        eventHandlers['close']();
+        eventHandlers.close();
         Util.Debug("<< WebSock.onclose");
-    }
+    };
     websocket.onerror = function(e) {
         Util.Debug("<< WebSock.onerror: " + e);
-        eventHandlers['error'](e);
+        eventHandlers.error(e);
         Util.Debug("<< WebSock.onerror: ");
-    }
+    };
 }
 
 function close() {
