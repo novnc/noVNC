@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+
+'''
+Use matplotlib to generate performance charts
+Copyright 2011 Joel Martin
+Licensed under GPL version 3 (see docs/LICENSE.GPL-3)
+'''
+
 # a bar plot with errorbars
 import sys, json, pprint
 import numpy as np

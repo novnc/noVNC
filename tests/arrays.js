@@ -1,3 +1,9 @@
+/*
+ * Javascript binary array performance tests
+ * Copyright (C) 2011 Joel Martin
+ * Licensed under LGPL-3 (see LICENSE.txt)
+ */
+
 var ctx, i, j, randlist,
     new_normal, new_imageData, new_arrayBuffer,
     browser = Browser.browser + " " +
