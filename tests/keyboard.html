@@ -37,20 +37,53 @@
 
         function keyDown(evt) {
             var e = (evt ? evt : window.event);
-            msg = "Dn: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " ksym:" + canvas.getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
+            msg = "Dn: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " id:" + e.keyIdentifier + " ksym:" + getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
             message(msg);
+
+            /*
+            if (e.stopPropagation) { e.stopPropagation(); }
+            else                   { e.cancelBubble = true; }
+
+            if (e.preventDefault)  { Util.Debug("here1"); e.preventDefault(); }
+            else                   { Util.Debug("here2"); e.returnValue = false; }
+
+            return false;
+            */
+
         }
 
         function keyUp(evt) {
             var e = (evt ? evt : window.event);
-            msg = "Up: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " ksym:" + canvas.getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
+            msg = "Up: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " id:" + e.keyIdentifier + " ksym:" + getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
             message(msg);
+
+            /*
+            if (e.stopPropagation) { e.stopPropagation(); }
+            else                   { e.cancelBubble = true; }
+
+            if (e.preventDefault)  { e.preventDefault(); }
+            else                   { e.returnValue = false; }
+
+            return false;
+            */
+
         }
 
         function keyPress(evt) {
             var e = (evt ? evt : window.event);
-            msg = "Pr: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " ksym:" + canvas.getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
+            msg = "Pr: key:" + e.keyCode + " char:" + e.charCode + " which:" + e.which + " id:" + e.keyIdentifier + " ksym:" + getKeysym(evt) + " alt:" + e.altKey + " shift:" + e.shiftKey + " ctrl:" + e.ctrlKey;
             message(msg);
+
+            /*
+            if (e.stopPropagation) { e.stopPropagation(); }
+            else                   { e.cancelBubble = true; }
+
+            if (e.preventDefault)  { e.preventDefault(); }
+            else                   { e.returnValue = false; }
+
+            return false;
+            */
+
         }
 
         window.onload = function() {
