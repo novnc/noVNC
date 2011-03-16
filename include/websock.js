@@ -38,7 +38,6 @@ if (window.WebSocket) {
             WEB_SOCKET_SWF_LOCATION += "?" + Math.random();
         }
         extra += start + "web-socket-js/swfobject.js" + end;
-        extra += start + "web-socket-js/FABridge.js" + end;
         extra += start + "web-socket-js/web_socket.js" + end;
         document.write(extra);
     }());
