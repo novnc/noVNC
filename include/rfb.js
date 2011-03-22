@@ -129,7 +129,11 @@ cdef('true_color',      'bool', true,  'Request true color pixel data');
 cdef('local_cursor',    'bool', false, 'Request locally rendered cursor');
 cdef('shared',          'bool', true,  'Request shared mode');
 
-cdef('connectTimeout',    'int', 2,    'Time (s) to wait for connection');
+if (Websock_native) {
+    cdef('connectTimeout',    'int', 2,    'Time (s) to wait for connection');
+} else {
+    cdef('connectTimeout',    'int', 5,    'Time (s) to wait for connection');
+}
 cdef('disconnectTimeout', 'int', 3,    'Time (s) to wait for disconnection');
 cdef('check_rate',        'int', 217,  'Timing (ms) of send/receive check');
 cdef('fbu_req_rate',      'int', 1413, 'Timing (ms) of frameBufferUpdate requests');

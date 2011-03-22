@@ -10,9 +10,6 @@
 /*jslint evil: true */
 /*global window, document, INCLUDE_URI */
 
-// Globals defined here
-var VNC_native_ws, WEB_SOCKET_SWF_LOCATION;
-
 /*
  * Load supporting scripts
  */
