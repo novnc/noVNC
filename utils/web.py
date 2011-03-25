@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 '''
 A super simple HTTP/HTTPS webserver for python. Automatically detect
 
