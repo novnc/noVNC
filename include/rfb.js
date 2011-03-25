@@ -358,7 +358,7 @@ updateState = function(state, statusMsg) {
                 (state === 'loaded')) {
                 // Show noVNC logo on load and when disconnected if
                 // debug is off
-                if (noVNC_logo) {
+                if (typeof noVNC_logo !== 'undefined' && noVNC_logo) {
                     canvas.resize(noVNC_logo.width, noVNC_logo.height);
                     canvas.blitStringImage(noVNC_logo.data, 0, 0);
                 }
