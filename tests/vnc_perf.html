@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>VNC Performance Benchmark</title>
@@ -8,7 +9,7 @@
         Passes: <input id='passes' style='width:50' value=3>&nbsp;
 
         <input id='startButton' type='button' value='Start' style='width:100px'
-            onclick="start();" disabled>&nbsp;
+            onclick="do_test();" disabled>&nbsp;
 
         <br><br>
 
@@ -79,7 +80,7 @@
             }
         }
 
-        function start() {
+        function do_test() {
             $D('startButton').value = "Running";
             $D('startButton').disabled = true;
 

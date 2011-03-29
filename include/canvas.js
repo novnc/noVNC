@@ -221,8 +221,17 @@ function onMouseButton(e, down) {
     }
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
-    bmask = 1 << evt.button;
-    //Util.Debug('mouse ' + pos.x + "," + pos.y + " down: " + down + " bmask: " + bmask);
+    if (evt.which) {
+        /* everything except IE */
+        bmask = 1 << evt.button;
+    } else {
+        /* IE including 9 */
+        bmask = (evt.button & 0x1) +      // Left
+                (evt.button & 0x2) * 2 +  // Right
+                (evt.button & 0x4) / 2;   // Middle
+    }
+    //Util.Debug("mouse " + pos.x + "," + pos.y + " down: " + down +
+    //           " bmask: " + bmask + "(evt.button: " + evt.button + ")");
     if (c_mouseButton) {
         c_mouseButton(pos.x, pos.y, down, bmask);
     }

@@ -203,7 +203,7 @@ function constructor() {
                   Util.Flash.version);
         if ((! Util.Flash) ||
             (Util.Flash.version < 9)) {
-            updateState('fatal', "WebSockets or Adobe Flash is required");
+            updateState('fatal', "WebSockets or <a href='http://get.adobe.com/flashplayer'>Adobe Flash<\/a> is required");
         } else if (document.location.href.substr(0, 7) === "file://") {
             updateState('fatal',
                     "'file://' URL is incompatible with Adobe Flash");
