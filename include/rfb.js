@@ -165,6 +165,13 @@ that.set_local_cursor = function(cursor) {
 that.get_canvas = function() {
     return canvas;
 };
+that.get_keyboard = function() {
+    return keyboard;
+};
+that.get_mouse = function() {
+    return mouse;
+};
+
 
 
 

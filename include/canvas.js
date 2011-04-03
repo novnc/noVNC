@@ -37,7 +37,6 @@ cdef('cursor_uri',     'raw', null, 'Can we render cursor using data URI');
 cdef('target',         'dom',  null, 'Canvas element for VNC viewport');
 cdef('focusContainer', 'dom',  document, 'DOM element that traps keyboard input');
 cdef('true_color',     'bool', true, 'Request true color pixel data');
-cdef('focused',        'bool', true, 'Capture and send key strokes');
 cdef('colourMap',      'raw',  [], 'Colour map array (not true color)');
 cdef('scale',          'float', 1, 'VNC viewport scale factor');
 
@@ -203,8 +202,6 @@ function constructor() {
         Util.Error("Data URI scheme cursor test exception: " + exc2);
         conf.cursor_uri = false;
     }
-
-    conf.focused = true;
 
     Util.Debug("<< Canvas.init");
     return that ;

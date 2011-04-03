@@ -145,8 +145,8 @@ load: function(target) {
 
     // Unfocus clipboard when over the VNC area
     $D('VNC_screen').onmousemove = function () {
-            var canvas = UI.rfb.get_canvas();
-            if ((! canvas) || (! canvas.get_focused())) {
+            var keyboard = UI.rfb.get_keyboard();
+            if ((! keyboard) || (! keyboard.get_focused())) {
                 $D('VNC_clipboard_text').blur();
             }
         };
@@ -399,11 +399,13 @@ disconnect: function() {
 },
 
 canvasBlur: function() {
-    UI.rfb.get_canvas().set_focused(false);
+    UI.rfb.get_keyboard().set_focused(false);
+    UI.rfb.get_mouse().set_focused(false);
 },
 
 canvasFocus: function() {
-    UI.rfb.get_canvas().set_focused(true);
+    UI.rfb.get_keyboard().set_focused(true);
+    UI.rfb.get_mouse().set_focused(true);
 },
 
 clipClear: function() {
