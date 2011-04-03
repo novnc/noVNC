@@ -33,6 +33,7 @@ function get_INCLUDE_URI() {
     extra += start + "base64.js" + end;
     extra += start + "websock.js" + end;
     extra += start + "des.js" + end;
+    extra += start + "input.js" + end;
     extra += start + "canvas.js" + end;
     extra += start + "rfb.js" + end;
 

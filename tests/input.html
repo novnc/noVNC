@@ -22,6 +22,7 @@
     <script src="../include/util.js"></script>
     <script src="../include/webutil.js"></script> 
     <script src="../include/base64.js"></script>
+    <script src="../include/input.js"></script> 
     <script src="../include/canvas.js"></script>
     <script>
         var msg_cnt = 0;
@@ -55,8 +56,14 @@
 
         window.onload = function() {
             var canvas = new Canvas({'target' : $D('canvas')});
+            keyboard = new Keyboard({'target': document,
+                                    'keyPress': keyPress});
+            mouse    = new Mouse({'target': $D('canvas'),
+                                'mouseButton': mouseButton,
+                                'mouseMove': mouseMove});
             canvas.resize(width, height, true);
-            canvas.start(keyPress, mouseButton, mouseMove);
+            keyboard.grab();
+            mouse.grab();
             message("Canvas initialized");
         }
     </script>
