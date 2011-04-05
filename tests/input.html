@@ -29,17 +29,22 @@
         var width = 400, height = 200;
         var iterations;
 
+        var newline = "\n";
+        if (Util.Engine.trident) {
+            var newline = "<br>\n";
+        }
+
         function message(str) {
             console.log(str);
             cell = $D('messages');
-            cell.innerHTML += msg_cnt + ": " + str + "\n";
+            cell.innerHTML += msg_cnt + ": " + str + newline;
             cell.scrollTop = cell.scrollHeight;
+            msg_cnt++;
         }
 
         function mouseButton(x, y, down, bmask) {
             msg = 'mouse x,y: ' + x + ',' + y + '  down: ' + down;
             msg += ' bmask: ' + bmask;
-            console.log(msg);
             message(msg);
         }
 
@@ -48,9 +53,11 @@
             //console.log(msg);
         }
 
-        function keyPress(keysym, down) {
-            msg = "keyPress keysym: " + keysym + " down: " + down;
-            console.log(msg);
+        function keyPress(keysym, down, e) {
+            var d = down ? "down" : " up ";
+            msg = "keyPress " + d + " keysym: " + keysym +
+                  " (key: " + e.keyCode + ", char: " + e.charCode +
+                  ", which: " + e.which +")";
             message(msg);
         }
 

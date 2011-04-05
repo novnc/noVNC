@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Convert "U+..." commented entries in /usr/include/X11/keysymdef.h
+# into JavaScript for use by noVNC.  Note this is likely to produce
+# a few duplicate properties with clashing values, that will need
+# resolving manually.
+#
+# Colin Dean <colin@xvpsource.org>
+#
+
+regex="^#define[ \t]+XK_[A-Za-z0-9_]+[ \t]+0x([0-9a-fA-F]+)[ \t]+\/\*[ \t]+U\+([0-9a-fA-F]+)[ \t]+[^*]+.[ \t]+\*\/[ \t]*$"
+echo "unicodeTable = {"
+while read line; do
+    if echo "${line}" | egrep -qs "${regex}"; then
+
+        x11=$(echo "${line}" | sed -r "s/${regex}/\1/")
+        vnc=$(echo "${line}" | sed -r "s/${regex}/\2/")
+	
+	if echo "${vnc}" | egrep -qs "^00[2-9A-F][0-9A-F]$"; then
+	    : # skip ISO Latin-1 (U+0020 to U+00FF) as 1-to-1 mapping
+	else
+	    # note 1-to-1 is possible (e.g. for Euro symbol, U+20AC)
+	    echo "    0x${vnc} : 0x${x11},"
+	fi
+    fi
+done < /usr/include/X11/keysymdef.h | uniq
+echo "};"
+
