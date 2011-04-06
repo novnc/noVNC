@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
 def usage():
-    print "%s json_file level1 level2 level3\n\n" % sys.argv[0]
+    print "%s json_file level1 level2 level3 [legend_height]\n\n" % sys.argv[0]
     print "Description:\n"
     print "level1, level2, and level3 are one each of the following:\n";
     print "  select=ITEM - select only ITEM at this level";
