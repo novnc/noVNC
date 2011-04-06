@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Convert "U+..." commented entries in /usr/include/X11/keysymdef.h
 # into JavaScript for use by noVNC.  Note this is likely to produce

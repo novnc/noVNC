@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 usage() {
     echo "Usage: $(basename $0) OLD_PORT NEW_PORT COMMAND_LINE"
