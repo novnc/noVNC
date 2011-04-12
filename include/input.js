@@ -42,35 +42,45 @@ that.set_target = function () { throw("target cannot be changed"); }
 // From the event keyCode return the keysym value for keys that need
 // to be suppressed otherwise they may trigger unintended browser
 // actions
-function getKeysymSpecial(evt, kind) {
+function getKeysymSpecial(evt) {
     var keysym = null;
 
+    /*
     switch ( evt.keyCode ) {
+        // These generate a keyDown and keyPress in Firefox and Opera
         case 8         : keysym = 0xFF08; break; // BACKSPACE
-        case 9         : keysym = 0xFF09; break; // TAB
         case 13        : keysym = 0xFF0D; break; // ENTER
-        case 27        : keysym = 0xFF1B; break; // ESCAPE
-        case 46        : keysym = 0xFFFF; break; // DELETE
-        case 36        : keysym = 0xFF50; break; // HOME
-        case 35        : keysym = 0xFF57; break; // END
-        case 33        : keysym = 0xFF55; break; // PAGE_UP
-        case 34        : keysym = 0xFF56; break; // PAGE_DOWN
-        case 37        : keysym = 0xFF51; break; // LEFT
-        case 38        : keysym = 0xFF52; break; // UP
-        case 39        : keysym = 0xFF53; break; // RIGHT
-        case 40        : keysym = 0xFF54; break; // DOWN
-        case 16        : keysym = 0xFFE1; break; // SHIFT
-        case 17        : keysym = 0xFFE3; break; // CONTROL
-        //case 18        : keysym = 0xFFE7; break; // Left Meta (Mac Option)
-        case 18        : keysym = 0xFFE9; break; // Left ALT (Mac Command)
 
+        // This generates a keyDown and keyPress in Opera
+        case 9         : keysym = 0xFF09; break; // TAB
         default        :                  break;
     }
+    */
 
-    if (kind === 'down') {
+    if (evt.type === 'keydown') {
         switch ( evt.keyCode ) {
+            case 8         : keysym = 0xFF08; break; // BACKSPACE
+            case 13        : keysym = 0xFF0D; break; // ENTER
+            case 9         : keysym = 0xFF09; break; // TAB
+
+            case 27        : keysym = 0xFF1B; break; // ESCAPE
+            case 46        : keysym = 0xFFFF; break; // DELETE
+
+            case 36        : keysym = 0xFF50; break; // HOME
+            case 35        : keysym = 0xFF57; break; // END
+            case 33        : keysym = 0xFF55; break; // PAGE_UP
+            case 34        : keysym = 0xFF56; break; // PAGE_DOWN
             case 45        : keysym = 0xFF63; break; // INSERT
                                                      // '-' during keyPress
+            case 37        : keysym = 0xFF51; break; // LEFT
+            case 38        : keysym = 0xFF52; break; // UP
+            case 39        : keysym = 0xFF53; break; // RIGHT
+            case 40        : keysym = 0xFF54; break; // DOWN
+            case 16        : keysym = 0xFFE1; break; // SHIFT
+            case 17        : keysym = 0xFFE3; break; // CONTROL
+            //case 18        : keysym = 0xFFE7; break; // Left Meta (Mac Option)
+            case 18        : keysym = 0xFFE9; break; // Left ALT (Mac Command)
+
             case 112       : keysym = 0xFFBE; break; // F1
             case 113       : keysym = 0xFFBF; break; // F2
             case 114       : keysym = 0xFFC0; break; // F3
@@ -205,7 +215,7 @@ function show_keyDownList(kind) {
 }
 
 function copyKeyEvent(evt) {
-    var members = ['keyCode', 'charCode', 'which',
+    var members = ['type', 'keyCode', 'charCode', 'which',
                    'altKey', 'ctrlKey', 'shiftKey',
                    'keyLocation', 'keyIdentifier'], i, obj = {};
     for (i = 0; i < members.length; i++) {
@@ -302,7 +312,7 @@ function onKeyDown(e) {
 
     fevt = copyKeyEvent(evt);
 
-    keysym = getKeysymSpecial(evt, 'down');
+    keysym = getKeysymSpecial(evt);
     // Save keysym decoding for use in keyUp
     fevt.keysym = keysym;
     if (keysym) {
@@ -343,12 +353,12 @@ function onKeyPress(e) {
     Util.Debug("onKeyPress kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
     
     if (((evt.which !== "undefined") && (evt.which === 0)) ||
-        (getKeysymSpecial(evt, 'press'))) {
+        (getKeysymSpecial(evt))) {
         // Firefox and Opera generate a keyPress event even if keyDown
         // is suppressed. But the keys we want to suppress will have
         // either:
         //     - the which attribute set to 0
-        //     - getKeysymSpecial(..., 'press') will identify it
+        //     - getKeysymSpecial() will identify it
         Util.Debug("Ignoring special key in keyPress");
         Util.stopEvent(e);
         return false;
