@@ -45,7 +45,6 @@ that.set_target = function () { throw("target cannot be changed"); }
 function getKeysymSpecial(evt) {
     var keysym = null;
 
-    /*
     switch ( evt.keyCode ) {
         // These generate a keyDown and keyPress in Firefox and Opera
         case 8         : keysym = 0xFF08; break; // BACKSPACE
@@ -55,7 +54,6 @@ function getKeysymSpecial(evt) {
         case 9         : keysym = 0xFF09; break; // TAB
         default        :                  break;
     }
-    */
 
     if (evt.type === 'keydown') {
         switch ( evt.keyCode ) {
