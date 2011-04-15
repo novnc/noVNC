@@ -57,10 +57,6 @@ function getKeysymSpecial(evt) {
 
     if (evt.type === 'keydown') {
         switch ( evt.keyCode ) {
-            case 8         : keysym = 0xFF08; break; // BACKSPACE
-            case 13        : keysym = 0xFF0D; break; // ENTER
-            case 9         : keysym = 0xFF09; break; // TAB
-
             case 27        : keysym = 0xFF1B; break; // ESCAPE
             case 46        : keysym = 0xFFFF; break; // DELETE
 
