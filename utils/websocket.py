@@ -282,10 +282,10 @@ Connection: Upgrade\r
 
         #self.msg("handshake: " + repr(handshake))
         # Parse client WebSockets handshake
-        h = self.parse_handshake(handshake)
+        self.headers = self.parse_handshake(handshake)
 
-        if h.get('key3'):
-            trailer = self.gen_md5(h)
+        if self.headers.get('key3'):
+            trailer = self.gen_md5(self.headers)
             pre = "Sec-"
             ver = 76
         else:
@@ -297,8 +297,10 @@ Connection: Upgrade\r
                     % (address[0], stype, ver))
 
         # Send server WebSockets handshake response
-        response = self.server_handshake % (pre, h['Origin'], pre,
-                scheme, h['Host'], h['path'], pre, trailer)
+        response = self.server_handshake % (pre,
+                self.headers['Origin'], pre, scheme,
+                self.headers['Host'], self.headers['path'], pre,
+                trailer)
         #self.msg("sending response:", repr(response))
         retsock.send(response)
 
