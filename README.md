@@ -61,7 +61,7 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   mean noVNC is painfully slow.
 
 * I maintain a more detailed list of browser compatibility <a
-  href="wiki/Browser-support">here</a>.
+  href="https://github.com/kanaka/noVNC/wiki/Browser-support">here</a>.
 
 
 ### Server Requirements
@@ -100,11 +100,11 @@ There a few reasons why a proxy is required:
 
 ### Other Pages
 
-* [Advanced Usage](wiki/Advanced-usage). Generating an SSL
+* [Advanced Usage](https://github.com/kanaka/noVNC/wiki/Advanced-usage). Generating an SSL
   certificate, starting a VNC server, advanced websockify usage, etc.
 
-* [Integrating noVNC](wiki/Integration) into existing projects.
+* [Integrating noVNC](https://github.com/kanaka/noVNC/wiki/Integration) into existing projects.
 
-* [Troubleshooting noVNC](wiki/Troubleshooting) problems.
+* [Troubleshooting noVNC](https://github.com/kanaka/noVNC/wiki/Troubleshooting) problems.
 
 
