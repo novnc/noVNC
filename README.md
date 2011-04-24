@@ -44,6 +44,10 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   [OpenNode Management Console](http://opennode.activesys.org/about/software-included-in-opennode/).
   [OMC Screencast](http://opennode.activesys.org/about/opennode-management-console-screencast/).
 
+* [OpenStack](http://www.openstack.org): uses noVNC in Cactus release
+  of [OpenStack Compute (Nova)](http://nova.openstack.org/runnova/vncconsole.html).
+  [OpenStack Screencast](http://player.vimeo.com/video/20787736?autoplay=1) with noVNC shown at about 2:17.
+
 ### Browser Requirements
 
 * HTML5 Canvas: Except for Internet Explorer, most
