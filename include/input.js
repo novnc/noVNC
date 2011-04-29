@@ -460,6 +460,7 @@ function cdef(v, type, defval, desc) {
 // Capability settings, default can be overridden
 cdef('target',         'dom',  document, 'DOM element that grabs mouse input');
 cdef('focused',        'bool', true, 'Capture and send mouse clicks/movement');
+cdef('scale',          'float', 1.0, 'Viewport scale factor 0.0 - 1.0');
 
 cdef('mouseButton',    'func', null, 'Handler for mouse button click/release');
 cdef('mouseMove',      'func', null, 'Handler for mouse movement');

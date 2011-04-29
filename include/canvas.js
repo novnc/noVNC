@@ -38,7 +38,7 @@ cdef('target',         'dom',  null, 'Canvas element for VNC viewport');
 cdef('focusContainer', 'dom',  document, 'DOM element that traps keyboard input');
 cdef('true_color',     'bool', true, 'Request true color pixel data');
 cdef('colourMap',      'raw',  [], 'Colour map array (not true color)');
-cdef('scale',          'float', 1, 'VNC viewport scale factor');
+cdef('scale',          'float', 1.0, 'Viewport scale factor 0.0 - 1.0');
 
 cdef('render_mode',    'str', '', 'Canvas rendering mode (read-only)');
 
@@ -69,6 +69,9 @@ that.set_colourMap = function(val, idx) {
 };
 
 that.set_render_mode = function () { throw("render_mode is read-only"); };
+
+that.set_scale = function(scale) { that.rescale(scale); };
+
 
 // Add some other getters/setters
 that.get_width = function() {
