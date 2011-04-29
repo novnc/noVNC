@@ -38,7 +38,7 @@ cdef('target',         'dom',  null, 'Canvas element for VNC viewport');
 cdef('focusContainer', 'dom',  document, 'DOM element that traps keyboard input');
 cdef('true_color',     'bool', true, 'Request true color pixel data');
 cdef('colourMap',      'raw',  [], 'Colour map array (not true color)');
-cdef('scale',          'float', 1.0, 'Viewport scale factor 0.0 - 1.0');
+cdef('scale',          'float', 1.0, 'Viewport scale factor 0.1 - 1.0');
 
 cdef('render_mode',    'str', '', 'Canvas rendering mode (read-only)');
 
@@ -233,6 +233,12 @@ that.rescale = function(factor) {
     if (tp === null) {
         Util.Debug("No scaling support");
         return;
+    }
+
+    if (factor > 1.0) {
+        factor = 1.0;
+    } else if (factor < 0.1) {
+        factor = 0.1;
     }
 
     if (conf.scale === factor) {
