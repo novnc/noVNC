@@ -175,7 +175,7 @@ function flush() {
     if (websocket.bufferedAmount < api.maxBufferedAmount) {
         //Util.Debug("arr: " + arr);
         //Util.Debug("sQ: " + sQ);
-        if (sQ) {
+        if (sQ.length > 0) {
             websocket.send(encode_message(sQ));
             sQ = [];
         }
