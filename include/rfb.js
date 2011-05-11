@@ -10,11 +10,11 @@
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, noVNC_logo */
 
 
-function RFB(conf) {
+function RFB(defaults) {
 "use strict";
 
-conf               = conf || {}; // Configuration
-var that           = {},         // Public API interface
+var that           = {},  // Public API methods
+    conf           = {},  // Configuration attributes
 
     // Pre-declare private functions used before definitions (jslint)
     init_vars, updateState, fail, handle_message,
@@ -113,56 +113,51 @@ var that           = {},         // Public API interface
 
     test_mode        = false,
 
+    def_con_timeout  = Websock_native ? 2 : 5,
+
     /* Mouse state */
     mouse_buttonMask = 0,
     mouse_arr        = [];
 
+// Configuration attributes
+Util.conf_defaults(conf, that, defaults, [
+    ['target',             'wo', 'dom', null, 'VNC display rendering Canvas object'],
+    ['focusContainer',     'wo', 'dom', document, 'DOM element that captures keyboard input'],
 
-//
-// Configuration settings
-//
-function cdef(v, type, defval, desc) {
-    Util.conf_default(conf, that, v, type, defval, desc); }
+    ['encrypt',            'rw', 'bool', false, 'Use TLS/SSL/wss encryption'],
+    ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
+    ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
+    ['shared',             'rw', 'bool', true,  'Request shared mode'],
 
-cdef('target',          'dom', null, 'VNC display rendering Canvas object');
-cdef('focusContainer',  'dom', document, 'DOM element that captures keyboard input');
+    ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
+    ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
 
-cdef('encrypt',         'bool', false, 'Use TLS/SSL/wss encryption');
-cdef('true_color',      'bool', true,  'Request true color pixel data');
-cdef('local_cursor',    'bool', false, 'Request locally rendered cursor');
-cdef('shared',          'bool', true,  'Request shared mode');
+    ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
+    ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
 
-if (Websock_native) {
-    cdef('connectTimeout',    'int', 2,    'Time (s) to wait for connection');
-} else {
-    cdef('connectTimeout',    'int', 5,    'Time (s) to wait for connection');
-}
-cdef('disconnectTimeout', 'int', 3,    'Time (s) to wait for disconnection');
-cdef('check_rate',        'int', 217,  'Timing (ms) of send/receive check');
-cdef('fbu_req_rate',      'int', 1413, 'Timing (ms) of frameBufferUpdate requests');
+    // Callback functions
+    ['onUpdateState',      'rw', 'func', function() { },
+        'onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change '],
+    ['onPasswordRequired', 'rw', 'func', function() { },
+        'onPasswordRequired(rfb): VNC password is required '],
+    ['onClipboard',        'rw', 'func', function() { },
+        'onClipboard(rfb, text): RFB clipboard contents received'],
+    ['onBell',             'rw', 'func', function() { },
+        'onBell(rfb): RFB Bell message received '],
+    ['onFBUReceive',       'rw', 'func', function() { },
+        'onFBUReceive(rfb, fbu): RFB FBU received but not yet processed '],
+    ['onFBUComplete',      'rw', 'func', function() { },
+        'onFBUComplete(rfb, fbu): RFB FBU received and processed '],
 
-// Callback functions
-cdef('onUpdateState',      'func', function() { },
-     'onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change ');
-cdef('onPasswordRequired', 'func', function() { },
-     'onPasswordRequired(rfb): VNC password is required ');
-cdef('onClipboard',        'func', function() { },
-     'onClipboard(rfb, text): RFB clipboard contents received');
-cdef('onBell',             'func', function() { },
-     'onBell(rfb): RFB Bell message received ');
-cdef('onFBUReceive',       'func', function() { },
-     'onFBUReceive(rfb, fbu): RFB FBU received but not yet processed ');
-cdef('onFBUComplete',      'func', function() { },
-     'onFBUComplete(rfb, fbu): RFB FBU received and processed ');
-
-// These callback names are deprecated
-cdef('updateState',        'func', function() { },
-     'obsolete, use onUpdateState');
-cdef('clipboardReceive',   'func', function() { },
-     'obsolete, use onClipboard');
+    // These callback names are deprecated
+    ['updateState',        'rw', 'func', function() { },
+        'obsolete, use onUpdateState'],
+    ['clipboardReceive',   'rw', 'func', function() { },
+        'obsolete, use onClipboard']
+    ]);
 
 
-// Override/add some specific getters/setters
+// Override/add some specific configuration getters/setters
 that.set_local_cursor = function(cursor) {
     if ((!cursor) || (cursor in {'0':1, 'no':1, 'false':1})) {
         conf.local_cursor = false;
@@ -175,18 +170,12 @@ that.set_local_cursor = function(cursor) {
     }
 };
 
-that.get_display = function() {
-    return display;
-};
-that.get_keyboard = function() {
-    return keyboard;
-};
-that.get_mouse = function() {
-    return mouse;
-};
+// These are fake configuration getters
+that.get_display = function() { return display; };
 
+that.get_keyboard = function() { return keyboard; };
 
-
+that.get_mouse = function() { return mouse; };
 
 
 

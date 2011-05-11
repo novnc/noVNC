@@ -12,32 +12,27 @@
 // Keyboard event handler
 //
 
-function Keyboard(conf) {
+function Keyboard(defaults) {
 "use strict";
 
-conf               = conf || {}; // Configuration
-var that           = {},         // Public API interface
+var that           = {},  // Public API methods
+    conf           = {},  // Configuration attributes
 
     keyDownList    = [];         // List of depressed keys 
                                  // (even if they are happy)
 
+// Configuration attributes
+Util.conf_defaults(conf, that, defaults, [
+    ['target',      'wo', 'dom',  document, 'DOM element that captures keyboard input'],
+    ['focused',     'rw', 'bool', true, 'Capture and send key events'],
 
-// Configuration settings
-function cdef(v, type, defval, desc) {
-    Util.conf_default(conf, that, v, type, defval, desc); }
+    ['onKeyPress',  'rw', 'func', null, 'Handler for key press/release']
+    ]);
 
-// Capability settings, default can be overridden
-cdef('target',         'dom',  document, 'DOM element that captures keyboard input');
-cdef('focused',        'bool', true, 'Capture and send key events');
-
-cdef('onKeyPress',     'func', null, 'Handler for key press/release');
-
-that.set_target = function() { throw("target cannot be changed"); };
 
 // 
 // Private functions
 //
-
 
 // From the event keyCode return the keysym value for keys that need
 // to be suppressed otherwise they may trigger unintended browser
@@ -452,26 +447,22 @@ return that;  // Return the public API interface
 // Mouse event handler
 //
 
-function Mouse(conf) {
+function Mouse(defaults) {
 "use strict";
 
-conf               = conf || {}; // Configuration
-var that           = {};         // Public API interface
+var that           = {},  // Public API methods
+    conf           = {};  // Configuration attributes
 
+// Configuration attributes
+Util.conf_defaults(conf, that, defaults, [
+    ['target',         'ro', 'dom',  document, 'DOM element that captures mouse input'],
+    ['focused',        'rw', 'bool', true, 'Capture and send mouse clicks/movement'],
+    ['scale',          'rw', 'float', 1.0, 'Viewport scale factor 0.0 - 1.0'],
 
-// Configuration settings
-function cdef(v, type, defval, desc) {
-    Util.conf_default(conf, that, v, type, defval, desc); }
+    ['onMouseButton',  'rw', 'func', null, 'Handler for mouse button click/release'],
+    ['onMouseMove',    'rw', 'func', null, 'Handler for mouse movement']
+    ]);
 
-// Capability settings, default can be overridden
-cdef('target',         'dom',  document, 'DOM element that captures mouse input');
-cdef('focused',        'bool', true, 'Capture and send mouse clicks/movement');
-cdef('scale',          'float', 1.0, 'Viewport scale factor 0.0 - 1.0');
-
-cdef('onMouseButton',  'func', null, 'Handler for mouse button click/release');
-cdef('onMouseMove',    'func', null, 'Handler for mouse movement');
-
-that.set_target = function() { throw("target cannot be changed"); };
 
 // 
 // Private functions

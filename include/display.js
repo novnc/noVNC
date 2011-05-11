@@ -9,11 +9,11 @@
 /*jslint browser: true, white: false, bitwise: false */
 /*global Util, Base64, changeCursor */
 
-function Display(conf) {
+function Display(defaults) {
 "use strict";
 
-conf               = conf || {}; // Configuration
-var that           = {},         // Public API interface
+var that           = {},  // Public API methods
+    conf           = {},  // Configuration attributes
 
     // Private Display namespace variables
     c_ctx          = null,
@@ -33,38 +33,25 @@ var that           = {},         // Public API interface
     c_webkit_bug   = false,
     c_flush_timer  = null;
 
-// Configuration settings
-function cdef(v, type, defval, desc) {
-    Util.conf_default(conf, that, v, type, defval, desc); }
-function cdef_ro(v, type, defval, desc) {
-    Util.conf_default({}, that, v, type, defval, desc); }
+// Configuration attributes
+Util.conf_defaults(conf, that, defaults, [
+    ['target',      'wo', 'dom',  null, 'Canvas element for rendering'],
+    ['context',     'ro', 'raw',  null, 'Canvas 2D context for rendering (read-only)'],
+    ['logo',        'rw', 'raw',  null, 'Logo to display when cleared: {"width": width, "height": height, "data": data}'],
+    ['true_color',  'rw', 'bool', true, 'Use true-color pixel data'],
+    ['colourMap',   'rw', 'arr',  [], 'Colour map array (when not true-color)'],
+    ['scale',       'rw', 'float', 1.0, 'Display area scale factor 0.0 - 1.0'],
+    ['width',       'rw', 'int', null, 'Display area width'],
+    ['height',      'rw', 'int', null, 'Display area height'],
 
-// Capability settings, default can be overridden
-cdef('target',         'dom',  null, 'Canvas element for rendering');
-cdef_ro('context',     'raw',  null, 'Canvas 2D context for rendering (read-only)');
-cdef('logo',           'raw',  null, 'Logo to display when cleared: {"width": width, "height": height, "data": data}');
-cdef('true_color',     'bool', true, 'Use true-color pixel data');
-cdef('colourMap',      'arr',  [], 'Colour map array (when not true-color)');
-cdef('scale',          'float', 1.0, 'Display area scale factor 0.0 - 1.0');
-cdef_ro('width',       'int', null, 'Display area width (read-only)');
-cdef_ro('height',      'int', null, 'Display area height (read-only)');
+    ['render_mode', 'ro', 'str', '', 'Canvas rendering mode (read-only)'],
 
-cdef_ro('render_mode', 'str', '', 'Canvas rendering mode (read-only)');
-
-cdef('prefer_js',      'str', null, 'Prefer Javascript over canvas methods');
-cdef('cursor_uri',     'raw', null, 'Can we render cursor using data URI');
+    ['prefer_js',   'rw', 'str', null, 'Prefer Javascript over canvas methods'],
+    ['cursor_uri',  'rw', 'raw', null, 'Can we render cursor using data URI']
+    ]);
 
 // Override some specific getters/setters
-that.set_prefer_js = function(val) {
-    if (val && c_forceCanvas) {
-        Util.Warn("Preferring Javascript to Canvas ops is not supported");
-        return false;
-    }
-    conf.prefer_js = val;
-    return true;
-};
-
-that.set_render_mode = function () { throw("render_mode is read-only"); };
+that.get_context = function () { return c_ctx; };
 
 that.set_scale = function(scale) { rescale(scale); };
 
@@ -74,8 +61,15 @@ that.get_width = function() { return c_width; };
 that.set_height = function (val) { that.resize(c_width, val); };
 that.get_height = function() { return c_height; };
 
-that.set_context = function () { throw("context is read-only"); };
-that.get_context = function () { return c_ctx; };
+that.set_prefer_js = function(val) {
+    if (val && c_forceCanvas) {
+        Util.Warn("Preferring Javascript to Canvas ops is not supported");
+        return false;
+    }
+    conf.prefer_js = val;
+    return true;
+};
+
 
 
 //

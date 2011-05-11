@@ -83,60 +83,83 @@ Util.get_logging = function () {
 Util.init_logging();
 
 
-// Set defaults for Crockford style function namespaces
-Util.conf_default = function(cfg, api, v, type, defval, desc) {
-    // Description
-    api['get_' + v + '_desc'] = desc;
-    // Default getter
-    if (typeof api['get_' + v] === 'undefined') {
-        api['get_' + v] = function (idx) {
-            if ((type in {'arr':1, 'array':1}) &&
-                (typeof idx !== 'undefined')) {
-                return cfg[v][idx];
-            } else {
-                return cfg[v];
-            }
-        };
-    }
+// Set configuration default for Crockford style function namespaces
+Util.conf_default = function(cfg, api, defaults, v, mode, type, defval, desc) {
+    var getter, setter;
 
-    // Default setter
-    if (typeof api['set_' + v] === 'undefined') {
-        api['set_' + v] = function (val, idx) {
-            if (type in {'boolean':1, 'bool':1}) {
-                if ((!val) || (val in {'0':1, 'no':1, 'false':1})) {
-                    val = false;
-                } else {
-                    val = true;
-                }
-            } else if (type in {'integer':1, 'int':1}) {
-                val = parseInt(val, 10);
-            } else if (type === 'func') {
-                if (!val) {
-                    val = function () {};
-                }
-            }
-            if (typeof idx !== 'undefined') {
-                cfg[v][idx] = val;
-            } else {
-                cfg[v] = val;
-            }
-        };
-    }
+    // Default getter function
+    getter = function (idx) {
+        if ((type in {'arr':1, 'array':1}) &&
+            (typeof idx !== 'undefined')) {
+            return cfg[v][idx];
+        } else {
+            return cfg[v];
+        }
+    };
 
-    if (typeof cfg[v] === 'undefined') {
-        // Set to default
-        if (type in {'arr':1, 'array':1}) {
-            if (! (defval instanceof Array)) {
-                defval = [];
+    // Default setter function
+    setter = function (val, idx) {
+        if (type in {'boolean':1, 'bool':1}) {
+            if ((!val) || (val in {'0':1, 'no':1, 'false':1})) {
+                val = false;
+            } else {
+                val = true;
+            }
+        } else if (type in {'integer':1, 'int':1}) {
+            val = parseInt(val, 10);
+        } else if (type === 'func') {
+            if (!val) {
+                val = function () {};
             }
         }
-        api['set_' + v](defval);
-    } else {
-        // Coerce existing setting to the right type
-        api['set_' + v](cfg[v]);
+        if (typeof idx !== 'undefined') {
+            cfg[v][idx] = val;
+        } else {
+            cfg[v] = val;
+        }
+    };
+
+    // Set the description
+    api[v + '_description'] = desc;
+
+    // Set the getter function
+    if (typeof api['get_' + v] === 'undefined') {
+        api['get_' + v] = getter;
     }
+
+    // Set the setter function with extra sanity checks
+    if (typeof api['set_' + v] === 'undefined') {
+        api['set_' + v] = function (val, idx) {
+            if (mode in {'RO':1, 'ro':1}) {
+                throw(v + " is read-only");
+            } else if ((mode in {'WO':1, 'wo':1}) &&
+                       (typeof cfg[v] !== 'undefined')) {
+                throw(v + " can only be set once");
+            }
+            setter(val, idx);
+        };
+    }
+
+    // Set the default value
+    if (typeof defaults[v] !== 'undefined') {
+        defval = defaults[v];
+    } else if ((type in {'arr':1, 'array':1}) &&
+            (! (defval instanceof Array))) {
+        defval = [];
+    }
+    // Coerce existing setting to the right type
+    //Util.Debug("v: " + v + ", defval: " + defval + ", defaults[v]: " + defaults[v]);
+    setter(defval);
 };
 
+// Set group of configuration defaults
+Util.conf_defaults = function(cfg, api, defaults, arr) {
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        Util.conf_default(cfg, api, defaults, arr[i][0], arr[i][1],
+                arr[i][2], arr[i][3], arr[i][4]);
+    }
+}
 
 
 /*
