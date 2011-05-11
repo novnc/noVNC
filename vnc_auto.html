@@ -42,6 +42,16 @@
 
         var rfb;
 
+        function passwordRequired(rfb) {
+            var msg;
+            msg = '<form onsubmit="return setPassword();"';
+            msg += '  style="margin-bottom: 0px">';
+            msg += 'Password Required: ';
+            msg += '<input type=password size=10 id="password_input" class="VNC_status">';
+            msg += '<\/form>';
+            $D('VNC_status_bar').setAttribute("class", "VNC_status_warn");
+            $D('VNC_status').innerHTML = msg;
+        }
         function setPassword() {
             rfb.sendPassword($D('password_input').value);
             return false;
@@ -51,39 +61,24 @@
             return false;
         }
         function updateState(rfb, state, oldstate, msg) {
-            var s, sb, cad, klass;
+            var s, sb, cad, level;
             s = $D('VNC_status');
             sb = $D('VNC_status_bar');
             cad = $D('sendCtrlAltDelButton');
             switch (state) {
-                case 'failed':
-                case 'fatal':
-                    klass = "VNC_status_error";
-                    break;
-                case 'normal':
-                    klass = "VNC_status_normal";
-                    break;
-                case 'disconnected':
-                case 'loaded':
-                    klass = "VNC_status_normal";
-                    break;
-                case 'password':
-                    msg = '<form onsubmit="return setPassword();"';
-                    msg += '  style="margin-bottom: 0px">';
-                    msg += 'Password Required: ';
-                    msg += '<input type=password size=10 id="password_input" class="VNC_status">';
-                    msg += '<\/form>';
-                    klass = "VNC_status_warn";
-                    break;
-                default:
-                    klass = "VNC_status_warn";
+                case 'failed':       level = "error";  break;
+                case 'fatal':        level = "error";  break;
+                case 'normal':       level = "normal"; break;
+                case 'disconnected': level = "normal"; break;
+                case 'loaded':       level = "normal"; break;
+                default:             level = "warn";   break;
             }
 
             if (state === "normal") { cad.disabled = false; }
             else                    { cad.disabled = true; }
 
             if (typeof(msg) !== 'undefined') {
-                sb.setAttribute("class", klass);
+                sb.setAttribute("class", "VNC_status_" + level);
                 s.innerHTML = msg;
             }
         }
@@ -107,7 +102,8 @@
                            'true_color':   WebUtil.getQueryVar('true_color', true),
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
-                           'updateState':  updateState});
+                           'updateState':  updateState,
+                           'onPasswordRequired':  passwordRequired});
             rfb.connect(host, port, password);
         };
         </script>

@@ -8,7 +8,7 @@
 
 "use strict";
 /*jslint white: false, browser: true */
-/*global window, $D, Util, WebUtil, RFB, Canvas, Element, Fx */
+/*global window, $D, Util, WebUtil, RFB, Display */
 
 var UI = {
 
@@ -59,8 +59,8 @@ load: function(target) {
     html += '          id="menuButton"';
     html += '          onclick="UI.clickSettingsMenu();">';
     html += '        <span id="VNC_settings_menu"';
-    html += '          onmouseover="UI.canvasBlur();"';
-    html += '          onmouseout="UI.canvasFocus();">';
+    html += '          onmouseover="UI.displayBlur();"';
+    html += '          onmouseout="UI.displayFocus();">';
     html += '          <ul>';
     html += '            <li><input id="VNC_encrypt"';
     html += '                type="checkbox"> Encrypt</li>';
@@ -115,8 +115,8 @@ load: function(target) {
     html += '      onclick="UI.clipClear();">';
     html += '  <br>';
     html += '  <textarea id="VNC_clipboard_text" cols=80 rows=5';
-    html += '    onfocus="UI.canvasBlur();"';
-    html += '    onblur="UI.canvasFocus();"';
+    html += '    onfocus="UI.displayBlur();"';
+    html += '    onblur="UI.displayFocus();"';
     html += '    onchange="UI.clipSend();"></textarea>';
     html += '</div>';
     target.innerHTML = html;
@@ -140,8 +140,8 @@ load: function(target) {
     UI.initSetting('connectTimeout', 2);
 
     UI.rfb = RFB({'target': $D('VNC_canvas'),
-                  'updateState': UI.updateState,
-                  'clipboardReceive': UI.clipReceive});
+                  'onUpdateState': UI.updateState,
+                  'onClipboard': UI.clipReceive});
 
     // Unfocus clipboard when over the VNC area
     $D('VNC_screen').onmousemove = function () {
@@ -233,7 +233,7 @@ clickSettingsMenu: function() {
     } else {
         UI.updateSetting('encrypt');
         UI.updateSetting('true_color');
-        if (UI.rfb.get_canvas().get_cursor_uri()) {
+        if (UI.rfb.get_display().get_cursor_uri()) {
             UI.updateSetting('cursor');
         } else {
             UI.updateSetting('cursor', false);
@@ -265,7 +265,7 @@ settingsDisabled: function(disabled, rfb) {
     //Util.Debug(">> settingsDisabled");
     $D('VNC_encrypt').disabled = disabled;
     $D('VNC_true_color').disabled = disabled;
-    if (rfb && rfb.get_canvas() && rfb.get_canvas().get_cursor_uri()) {
+    if (rfb && rfb.get_display() && rfb.get_display().get_cursor_uri()) {
         $D('VNC_cursor').disabled = disabled;
     } else {
         UI.updateSetting('cursor', false);
@@ -281,7 +281,7 @@ settingsApply: function() {
     //Util.Debug(">> settingsApply");
     UI.saveSetting('encrypt');
     UI.saveSetting('true_color');
-    if (UI.rfb.get_canvas().get_cursor_uri()) {
+    if (UI.rfb.get_display().get_cursor_uri()) {
         UI.saveSetting('cursor');
     }
     UI.saveSetting('shared');
@@ -398,12 +398,12 @@ disconnect: function() {
     UI.rfb.disconnect();
 },
 
-canvasBlur: function() {
+displayBlur: function() {
     UI.rfb.get_keyboard().set_focused(false);
     UI.rfb.get_mouse().set_focused(false);
 },
 
-canvasFocus: function() {
+displayFocus: function() {
     UI.rfb.get_keyboard().set_focused(true);
     UI.rfb.get_mouse().set_focused(true);
 },

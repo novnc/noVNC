@@ -9,14 +9,21 @@
 /*jslint browser: true, white: false, bitwise: false */
 /*global Util, Base64, changeCursor */
 
-function Canvas(conf) {
-    "use strict";
+function Display(conf) {
+"use strict";
 
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
 
-    // Private Canvas namespace variables
+    // Private Display namespace variables
+    c_ctx          = null,
     c_forceCanvas  = false,
+
+    c_imageData, c_rgbxImage, c_cmapImage,
+
+    // Predefine function variables (jslint)
+    imageDataCreate, imageDataGet, rgbxImageData, cmapImageData,
+    rgbxImageFill, cmapImageFill, setFillColor, rescale, flush,
 
     c_width        = 0,
     c_height       = 0,
@@ -29,18 +36,23 @@ var that           = {},         // Public API interface
 // Configuration settings
 function cdef(v, type, defval, desc) {
     Util.conf_default(conf, that, v, type, defval, desc); }
+function cdef_ro(v, type, defval, desc) {
+    Util.conf_default({}, that, v, type, defval, desc); }
 
 // Capability settings, default can be overridden
-cdef('prefer_js',      'raw', null, 'Prefer Javascript over canvas methods');
+cdef('target',         'dom',  null, 'Canvas element for rendering');
+cdef_ro('context',     'raw',  null, 'Canvas 2D context for rendering (read-only)');
+cdef('logo',           'raw',  null, 'Logo to display when cleared: {"width": width, "height": height, "data": data}');
+cdef('true_color',     'bool', true, 'Use true-color pixel data');
+cdef('colourMap',      'arr',  [], 'Colour map array (when not true-color)');
+cdef('scale',          'float', 1.0, 'Display area scale factor 0.0 - 1.0');
+cdef_ro('width',       'int', null, 'Display area width (read-only)');
+cdef_ro('height',      'int', null, 'Display area height (read-only)');
+
+cdef_ro('render_mode', 'str', '', 'Canvas rendering mode (read-only)');
+
+cdef('prefer_js',      'str', null, 'Prefer Javascript over canvas methods');
 cdef('cursor_uri',     'raw', null, 'Can we render cursor using data URI');
-
-cdef('target',         'dom',  null, 'Canvas element for VNC viewport');
-cdef('focusContainer', 'dom',  document, 'DOM element that traps keyboard input');
-cdef('true_color',     'bool', true, 'Request true color pixel data');
-cdef('colourMap',      'raw',  [], 'Colour map array (not true color)');
-cdef('scale',          'float', 1.0, 'Viewport scale factor 0.1 - 1.0');
-
-cdef('render_mode',    'str', '', 'Canvas rendering mode (read-only)');
 
 // Override some specific getters/setters
 that.set_prefer_js = function(val) {
@@ -52,34 +64,19 @@ that.set_prefer_js = function(val) {
     return true;
 };
 
-that.get_colourMap = function(idx) {
-    if (typeof idx === 'undefined') {
-        return conf.colourMap;
-    } else {
-        return conf.colourMap[idx];
-    }
-};
-
-that.set_colourMap = function(val, idx) {
-    if (typeof idx === 'undefined') {
-        conf.colourMap = val;
-    } else {
-        conf.colourMap[idx] = val;
-    }
-};
-
 that.set_render_mode = function () { throw("render_mode is read-only"); };
 
-that.set_scale = function(scale) { that.rescale(scale); };
+that.set_scale = function(scale) { rescale(scale); };
 
+that.set_width = function (val) { that.resize(val, c_height); };
+that.get_width = function() { return c_width; };
 
-// Add some other getters/setters
-that.get_width = function() {
-    return c_width;
-};
-that.get_height = function() {
-    return c_height;
-};
+that.set_height = function (val) { that.resize(c_width, val); };
+that.get_height = function() { return c_height; };
+
+that.set_context = function () { throw("context is read-only"); };
+that.get_context = function () { return c_ctx; };
+
 
 //
 // Private functions
@@ -87,9 +84,9 @@ that.get_height = function() {
 
 // Create the public API interface
 function constructor() {
-    Util.Debug(">> Canvas.init");
+    Util.Debug(">> Display.constructor");
 
-    var c, ctx, func, imgTest, tval, i, curDat, curSave,
+    var c, func, imgTest, tval, i, curDat, curSave,
         has_imageData = false, UE = Util.Engine;
 
     if (! conf.target) { throw("target must be set"); }
@@ -102,8 +99,7 @@ function constructor() {
 
     if (! c.getContext) { throw("no getContext method"); }
 
-    if (! conf.ctx) { conf.ctx = c.getContext('2d'); }
-    ctx = conf.ctx;
+    if (! c_ctx) { c_ctx = c.getContext('2d'); }
 
     Util.Debug("User Agent: " + navigator.userAgent);
     if (UE.gecko) { Util.Debug("Browser: gecko " + UE.gecko); }
@@ -119,11 +115,11 @@ function constructor() {
      */
     tval = 0;
     try {
-        imgTest = ctx.getImageData(0, 0, 1,1);
+        imgTest = c_ctx.getImageData(0, 0, 1,1);
         imgTest.data[0] = 123;
         imgTest.data[3] = 255;
-        ctx.putImageData(imgTest, 0, 0);
-        tval = ctx.getImageData(0, 0, 1, 1).data[0];
+        c_ctx.putImageData(imgTest, 0, 0);
+        tval = c_ctx.getImageData(0, 0, 1, 1).data[0];
         if (tval === 123) {
             has_imageData = true;
         }
@@ -132,30 +128,30 @@ function constructor() {
     if (has_imageData) {
         Util.Info("Canvas supports imageData");
         c_forceCanvas = false;
-        if (ctx.createImageData) {
+        if (c_ctx.createImageData) {
             // If it's there, it's faster
             Util.Info("Using Canvas createImageData");
             conf.render_mode = "createImageData rendering";
-            that.imageData = that.imageDataCreate;
-        } else if (ctx.getImageData) {
+            c_imageData = imageDataCreate;
+        } else if (c_ctx.getImageData) {
             // I think this is mostly just Opera
             Util.Info("Using Canvas getImageData");
             conf.render_mode = "getImageData rendering";
-            that.imageData = that.imageDataGet;
+            c_imageData = imageDataGet;
         }
         Util.Info("Prefering javascript operations");
         if (conf.prefer_js === null) {
             conf.prefer_js = true;
         }
-        that.rgbxImage = that.rgbxImageData;
-        that.cmapImage = that.cmapImageData;
+        c_rgbxImage = rgbxImageData;
+        c_cmapImage = cmapImageData;
     } else {
         Util.Warn("Canvas lacks imageData, using fillRect (slow)");
         conf.render_mode = "fillRect rendering (slow)";
         c_forceCanvas = true;
         conf.prefer_js = false;
-        that.rgbxImage = that.rgbxImageFill;
-        that.cmapImage = that.cmapImageFill;
+        c_rgbxImage = rgbxImageFill;
+        c_cmapImage = cmapImageFill;
     }
 
     if (UE.webkit && UE.webkit >= 534.7 && UE.webkit <= 534.9) {
@@ -171,7 +167,7 @@ function constructor() {
                 return function() {
                     myfunc.apply(this, arguments);
                     if (!c_flush_timer) {
-                        c_flush_timer = setTimeout(that.flush, 100);
+                        c_flush_timer = setTimeout(flush, 100);
                     }
                 };
             }());
@@ -206,19 +202,11 @@ function constructor() {
         conf.cursor_uri = false;
     }
 
-    Util.Debug("<< Canvas.init");
+    Util.Debug("<< Display.constructor");
     return that ;
 }
 
-//
-// Public API interface functions
-//
-
-that.getContext = function () {
-    return conf.ctx;
-};
-
-that.rescale = function(factor) {
+rescale = function(factor) {
     var c, tp, x, y, 
         properties = ['transform', 'WebkitTransform', 'MozTransform', null];
     c = conf.target;
@@ -242,7 +230,7 @@ that.rescale = function(factor) {
     }
 
     if (conf.scale === factor) {
-        //Util.Debug("Canvas already scaled to '" + factor + "'");
+        //Util.Debug("Display already scaled to '" + factor + "'");
         return;
     }
 
@@ -252,35 +240,10 @@ that.rescale = function(factor) {
     c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
 };
 
-that.resize = function(width, height, true_color) {
-    var c = conf.target;
-
-    if (typeof true_color !== "undefined") {
-        conf.true_color = true_color;
-    }
-    c_prevStyle    = "";
-
-    c.width = width;
-    c.height = height;
-
-    c_width  = c.offsetWidth;
-    c_height = c.offsetHeight;
-
-    that.rescale(conf.scale);
-};
-
-that.clear = function() {
-    that.resize(640, 20);
-    conf.ctx.clearRect(0, 0, c_width, c_height);
-
-    // No benefit over default ("source-over") in Chrome and firefox
-    //conf.ctx.globalCompositeOperation = "copy";
-};
-
-that.flush = function() {
+// Force canvas redraw (for webkit bug #46319 workaround)
+flush = function() {
     var old_val;
     //Util.Debug(">> flush");
-    // Force canvas redraw (for webkit bug #46319 workaround)
     old_val = conf.target.style.marginRight;
     conf.target.style.marginRight = "1px";
     c_flush_timer = null;
@@ -289,7 +252,7 @@ that.flush = function() {
         }, 1);
 };
 
-that.setFillColor = function(color) {
+setFillColor = function(color) {
     var rgb, newStyle;
     if (conf.true_color) {
         rgb = color;
@@ -298,18 +261,51 @@ that.setFillColor = function(color) {
     }
     newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
     if (newStyle !== c_prevStyle) {
-        conf.ctx.fillStyle = newStyle;
+        c_ctx.fillStyle = newStyle;
         c_prevStyle = newStyle;
     }
 };
 
+
+//
+// Public API interface functions
+//
+
+that.resize = function(width, height) {
+    var c = conf.target;
+
+    c_prevStyle    = "";
+
+    c.width = width;
+    c.height = height;
+
+    c_width  = c.offsetWidth;
+    c_height = c.offsetHeight;
+
+    rescale(conf.scale);
+};
+
+that.clear = function() {
+
+    if (conf.logo) {
+        that.resize(conf.logo.width, conf.logo.height);
+        that.blitStringImage(conf.logo.data, 0, 0);
+    } else {
+        that.resize(640, 20);
+        c_ctx.clearRect(0, 0, c_width, c_height);
+    }
+
+    // No benefit over default ("source-over") in Chrome and firefox
+    //c_ctx.globalCompositeOperation = "copy";
+};
+
 that.fillRect = function(x, y, width, height, color) {
-    that.setFillColor(color);
-    conf.ctx.fillRect(x, y, width, height);
+    setFillColor(color);
+    c_ctx.fillRect(x, y, width, height);
 };
 
 that.copyImage = function(old_x, old_y, new_x, new_y, width, height) {
-    conf.ctx.drawImage(conf.target, old_x, old_y, width, height,
+    c_ctx.drawImage(conf.target, old_x, old_y, width, height,
                                        new_x, new_y, width, height);
 };
 
@@ -374,36 +370,36 @@ that.setSubTile = function(img, x, y, w, h, color) {
 
 that.putTile = function(img) {
     if (conf.prefer_js) {
-        that.rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
+        c_rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
     }
     // else: No-op, under gecko already done by setSubTile
 };
 
-that.imageDataGet = function(width, height) {
-    return conf.ctx.getImageData(0, 0, width, height);
+imageDataGet = function(width, height) {
+    return c_ctx.getImageData(0, 0, width, height);
 };
-that.imageDataCreate = function(width, height) {
-    return conf.ctx.createImageData(width, height);
+imageDataCreate = function(width, height) {
+    return c_ctx.createImageData(width, height);
 };
 
-that.rgbxImageData = function(x, y, width, height, arr, offset) {
+rgbxImageData = function(x, y, width, height, arr, offset) {
     var img, i, j, data;
-    img = that.imageData(width, height);
+    img = c_imageData(width, height);
     data = img.data;
     for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
-        data[i + 0] = arr[j + 0];
+        data[i    ] = arr[j    ];
         data[i + 1] = arr[j + 1];
         data[i + 2] = arr[j + 2];
         data[i + 3] = 255; // Set Alpha
     }
-    conf.ctx.putImageData(img, x, y);
+    c_ctx.putImageData(img, x, y);
 };
 
 // really slow fallback if we don't have imageData
-that.rgbxImageFill = function(x, y, width, height, arr, offset) {
+rgbxImageFill = function(x, y, width, height, arr, offset) {
     var i, j, sx = 0, sy = 0;
     for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
-        that.fillRect(x+sx, y+sy, 1, 1, [arr[j+0], arr[j+1], arr[j+2]]);
+        that.fillRect(x+sx, y+sy, 1, 1, [arr[j], arr[j+1], arr[j+2]]);
         sx += 1;
         if ((sx % width) === 0) {
             sx = 0;
@@ -412,22 +408,22 @@ that.rgbxImageFill = function(x, y, width, height, arr, offset) {
     }
 };
 
-that.cmapImageData = function(x, y, width, height, arr, offset) {
+cmapImageData = function(x, y, width, height, arr, offset) {
     var img, i, j, data, rgb, cmap;
-    img = that.imageData(width, height);
+    img = c_imageData(width, height);
     data = img.data;
     cmap = conf.colourMap;
     for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
         rgb = cmap[arr[j]];
-        data[i + 0] = rgb[0];
+        data[i    ] = rgb[0];
         data[i + 1] = rgb[1];
         data[i + 2] = rgb[2];
         data[i + 3] = 255; // Set Alpha
     }
-    conf.ctx.putImageData(img, x, y);
+    c_ctx.putImageData(img, x, y);
 };
 
-that.cmapImageFill = function(x, y, width, height, arr, offset) {
+cmapImageFill = function(x, y, width, height, arr, offset) {
     var i, j, sx = 0, sy = 0, cmap;
     cmap = conf.colourMap;
     for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
@@ -443,15 +439,15 @@ that.cmapImageFill = function(x, y, width, height, arr, offset) {
 
 that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        that.rgbxImage(x, y, width, height, arr, offset);
+        c_rgbxImage(x, y, width, height, arr, offset);
     } else {
-        that.cmapImage(x, y, width, height, arr, offset);
+        c_cmapImage(x, y, width, height, arr, offset);
     }
 };
 
 that.blitStringImage = function(str, x, y) {
     var img = new Image();
-    img.onload = function () { conf.ctx.drawImage(img, x, y); };
+    img.onload = function () { c_ctx.drawImage(img, x, y); };
     img.src = str;
 };
 
@@ -469,16 +465,17 @@ that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
 };
 
 that.defaultCursor = function() {
-        conf.target.style.cursor = "default";
+    conf.target.style.cursor = "default";
 };
 
 return constructor();  // Return the public API interface
 
-}  // End of Canvas()
+}  // End of Display()
 
 
 /* Set CSS cursor property using data URI encoded cursor file */
 function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
+    "use strict";
     var cur = [], rgb, IHDRsz, RGBsz, ANDsz, XORsz, url, idx, alpha, x, y;
     //Util.Debug(">> changeCursor, x: " + hotx + ", y: " + hoty + ", w: " + w + ", h: " + h);
     
@@ -549,7 +546,7 @@ function changeCursor(target, pixels, mask, hotx, hoty, w, h, cmap) {
                 idx = ((w * y) + x) * 4;
                 cur.push(pixels[idx + 2]); // blue
                 cur.push(pixels[idx + 1]); // green
-                cur.push(pixels[idx + 0]); // red
+                cur.push(pixels[idx    ]); // red
                 cur.push(alpha);           // alpha
             }
         }

@@ -6,7 +6,6 @@
  * See README.md for usage and integration instructions.
  */
 
-"use strict";
 /*jslint evil: true */
 /*global window, document, INCLUDE_URI */
 
@@ -18,6 +17,8 @@ function get_INCLUDE_URI() {
 }
 
 (function () {
+    "use strict";
+
     var extra = "", start, end;
 
     start = "<script src='" + get_INCLUDE_URI();
@@ -34,7 +35,7 @@ function get_INCLUDE_URI() {
     extra += start + "websock.js" + end;
     extra += start + "des.js" + end;
     extra += start + "input.js" + end;
-    extra += start + "canvas.js" + end;
+    extra += start + "display.js" + end;
     extra += start + "rfb.js" + end;
 
     document.write(extra);

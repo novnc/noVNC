@@ -13,7 +13,7 @@
 //
 
 function Keyboard(conf) {
-    "use strict";
+"use strict";
 
 conf               = conf || {}; // Configuration
 var that           = {},         // Public API interface
@@ -27,12 +27,12 @@ function cdef(v, type, defval, desc) {
     Util.conf_default(conf, that, v, type, defval, desc); }
 
 // Capability settings, default can be overridden
-cdef('target',         'dom',  document, 'DOM element that grabs keyboard input');
-cdef('focused',        'bool', true, 'Capture and send key strokes');
+cdef('target',         'dom',  document, 'DOM element that captures keyboard input');
+cdef('focused',        'bool', true, 'Capture and send key events');
 
-cdef('keyPress',       'func', null, 'Handler for key press/release');
+cdef('onKeyPress',     'func', null, 'Handler for key press/release');
 
-that.set_target = function () { throw("target cannot be changed"); }
+that.set_target = function() { throw("target cannot be changed"); };
 
 // 
 // Private functions
@@ -187,7 +187,7 @@ function getKeysym(evt) {
     }
 
     if ((keysym > 255) && (keysym < 0xFF00)) {
-        msg = "Mapping keysym " + keysym;
+        msg = "Mapping character code " + keysym;
         // Map Unicode outside Latin 1 to X11 keysyms
         keysym = unicodeTable[keysym];
         if (typeof(keysym) === 'undefined') {
@@ -200,12 +200,13 @@ function getKeysym(evt) {
 }
 
 function show_keyDownList(kind) {
+    var c;
     var msg = "keyDownList (" + kind + "):\n";
-    for (var c = 0; c < keyDownList.length; c++) {
+    for (c = 0; c < keyDownList.length; c++) {
         msg = msg + "    " + c + " - keyCode: " + keyDownList[c].keyCode +
               " - which: " + keyDownList[c].which + "\n";
     }
-    //Util.Debug(msg);
+    Util.Debug(msg);
 }
 
 function copyKeyEvent(evt) {
@@ -302,7 +303,7 @@ function onKeyDown(e) {
     }
     var fevt = null, evt = (e ? e : window.event),
         keysym = null, suppress = false;
-    Util.Debug("onKeyDown kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
+    //Util.Debug("onKeyDown kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
 
     fevt = copyKeyEvent(evt);
 
@@ -313,10 +314,11 @@ function onKeyDown(e) {
         // If it is a key or key combination that might trigger
         // browser behaviors or it has no corresponding keyPress
         // event, then send it immediately
-        if (conf.keyPress && !ignoreKeyEvent(evt)) {
-            Util.Debug("keyPress down 1, keysym: " + keysym +
-                  " (key: " + evt.keyCode + ", which: " + evt.which + ")");
-            conf.keyPress(keysym, 1, evt);
+        if (conf.onKeyPress && !ignoreKeyEvent(evt)) {
+            Util.Debug("onKeyPress down, keysym: " + keysym +
+                   " (onKeyDown key: " + evt.keyCode +
+                   ", which: " + evt.which + ")");
+            conf.onKeyPress(keysym, 1, evt);
         }
         suppress = true;
     }
@@ -324,7 +326,7 @@ function onKeyDown(e) {
     if (! ignoreKeyEvent(evt)) {
         // Add it to the list of depressed keys
         pushKeyEvent(fevt);
-        show_keyDownList('down');
+        //show_keyDownList('down');
     }
 
     if (suppress) {
@@ -344,7 +346,7 @@ function onKeyPress(e) {
     }
     var evt = (e ? e : window.event),
         kdlen = keyDownList.length, keysym = null;
-    Util.Debug("onKeyPress kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
+    //Util.Debug("onKeyPress kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
     
     if (((evt.which !== "undefined") && (evt.which === 0)) ||
         (getKeysymSpecial(evt))) {
@@ -369,13 +371,14 @@ function onKeyPress(e) {
         Util.Warn("keyDownList empty when keyPress triggered");
     }
 
-    show_keyDownList('press');
+    //show_keyDownList('press');
     
     // Send the translated keysym
-    if (conf.keyPress && (keysym > 0)) {
-        Util.Debug("keyPress down 2, keysym: " + keysym +
-                " (key: " + evt.keyCode + ", which: " + evt.which + ")");
-        conf.keyPress(keysym, 1, evt);
+    if (conf.onKeyPress && (keysym > 0)) {
+        Util.Debug("onKeyPress down, keysym: " + keysym +
+                   " (onKeyPress key: " + evt.keyCode +
+                   ", which: " + evt.which + ")");
+        conf.onKeyPress(keysym, 1, evt);
     }
 
     // Stop keypress events just in case
@@ -387,8 +390,8 @@ function onKeyUp(e) {
     if (! conf.focused) {
         return true;
     }
-    var fevt = null, evt = (e ? e : window.event), i, keysym;
-    Util.Debug("onKeyUp   kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
+    var fevt = null, evt = (e ? e : window.event), keysym;
+    //Util.Debug("onKeyUp   kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
 
     fevt = getKeyEvent(evt.keyCode, true);
     
@@ -400,12 +403,15 @@ function onKeyUp(e) {
         keysym = 0;
     }
 
-    show_keyDownList('up');
+    //show_keyDownList('up');
 
-    if (conf.keyPress && (keysym > 0)) {
-        Util.Debug("keyPress up,   keysym: " + keysym +
-                " (key: " + evt.keyCode + ", which: " + evt.which + ")");
-        conf.keyPress(keysym, 0, evt);
+    if (conf.onKeyPress && (keysym > 0)) {
+        //Util.Debug("keyPress up,   keysym: " + keysym +
+        //        " (key: " + evt.keyCode + ", which: " + evt.which + ")");
+        Util.Debug("onKeyPress up, keysym: " + keysym +
+                   " (onKeyPress key: " + evt.keyCode +
+                   ", which: " + evt.which + ")");
+        conf.onKeyPress(keysym, 0, evt);
     }
     Util.stopEvent(e);
     return false;
@@ -447,7 +453,7 @@ return that;  // Return the public API interface
 //
 
 function Mouse(conf) {
-    "use strict";
+"use strict";
 
 conf               = conf || {}; // Configuration
 var that           = {};         // Public API interface
@@ -458,14 +464,14 @@ function cdef(v, type, defval, desc) {
     Util.conf_default(conf, that, v, type, defval, desc); }
 
 // Capability settings, default can be overridden
-cdef('target',         'dom',  document, 'DOM element that grabs mouse input');
+cdef('target',         'dom',  document, 'DOM element that captures mouse input');
 cdef('focused',        'bool', true, 'Capture and send mouse clicks/movement');
 cdef('scale',          'float', 1.0, 'Viewport scale factor 0.0 - 1.0');
 
-cdef('mouseButton',    'func', null, 'Handler for mouse button click/release');
-cdef('mouseMove',      'func', null, 'Handler for mouse movement');
+cdef('onMouseButton',  'func', null, 'Handler for mouse button click/release');
+cdef('onMouseMove',    'func', null, 'Handler for mouse movement');
 
-that.set_target = function () { throw("target cannot be changed"); }
+that.set_target = function() { throw("target cannot be changed"); };
 
 // 
 // Private functions
@@ -489,8 +495,10 @@ function onMouseButton(e, down) {
     }
     //Util.Debug("mouse " + pos.x + "," + pos.y + " down: " + down +
     //           " bmask: " + bmask + "(evt.button: " + evt.button + ")");
-    if (conf.mouseButton) {
-        conf.mouseButton(pos.x, pos.y, down, bmask);
+    if (conf.onMouseButton) {
+        Util.Debug("onMouseButton " + (down ? "down" : "up") +
+                   ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
+        conf.onMouseButton(pos.x, pos.y, down, bmask);
     }
     Util.stopEvent(e);
     return false;
@@ -518,9 +526,9 @@ function onMouseWheel(e) {
         bmask = 1 << 4;
     }
     //Util.Debug('mouse scroll by ' + wheelData + ':' + pos.x + "," + pos.y);
-    if (conf.mouseButton) {
-        conf.mouseButton(pos.x, pos.y, 1, bmask);
-        conf.mouseButton(pos.x, pos.y, 0, bmask);
+    if (conf.onMouseButton) {
+        conf.onMouseButton(pos.x, pos.y, 1, bmask);
+        conf.onMouseButton(pos.x, pos.y, 0, bmask);
     }
     Util.stopEvent(e);
     return false;
@@ -534,8 +542,8 @@ function onMouseMove(e) {
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
     //Util.Debug('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
-    if (conf.mouseMove) {
-        conf.mouseMove(pos.x, pos.y);
+    if (conf.onMouseMove) {
+        conf.onMouseMove(pos.x, pos.y);
     }
 }
 
@@ -1862,5 +1870,5 @@ unicodeTable = {
     0x28fc : 0x10028fc,
     0x28fd : 0x10028fd,
     0x28fe : 0x10028fe,
-    0x28ff : 0x10028ff,
+    0x28ff : 0x10028ff
 };

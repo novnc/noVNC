@@ -45,6 +45,7 @@ if (window.WebSocket) {
 
 
 function Websock() {
+"use strict";
 
 var api = {},         // Public API
     websocket = null, // WebSocket object
@@ -75,7 +76,7 @@ function get_rQ() {
 function get_rQi() {
     return rQi;
 }
-set_rQi = function(val) {
+function set_rQi(val) {
     rQi = val;
 };
 
@@ -252,23 +253,28 @@ function init() {
 function open(uri) {
     init();
 
-    websocket = new WebSocket(uri);
+    websocket = new WebSocket(uri, 'base64');
+    // TODO: future native binary support
+    //websocket = new WebSocket(uri, ['binary', 'base64']);
 
     websocket.onmessage = recv_message;
-    websocket.onopen = function(e) {
+    websocket.onopen = function() {
         Util.Debug(">> WebSock.onopen");
+        if (websocket.protocol) {
+            Util.Info("Server chose sub-protocol: " + websocket.protocol);
+        }
         eventHandlers.open();
         Util.Debug("<< WebSock.onopen");
     };
     websocket.onclose = function(e) {
         Util.Debug(">> WebSock.onclose");
-        eventHandlers.close();
+        eventHandlers.close(e);
         Util.Debug("<< WebSock.onclose");
     };
     websocket.onerror = function(e) {
-        Util.Debug("<< WebSock.onerror: " + e);
+        Util.Debug(">> WebSock.onerror: " + e);
         eventHandlers.error(e);
-        Util.Debug("<< WebSock.onerror: ");
+        Util.Debug("<< WebSock.onerror");
     };
 }
 
@@ -309,7 +315,6 @@ function constructor() {
     api.send         = send;
     api.send_string  = send_string;
 
-    api.recv_message = recv_message;
     api.on           = on;
     api.init         = init;
     api.open         = open;

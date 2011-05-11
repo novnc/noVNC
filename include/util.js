@@ -89,32 +89,47 @@ Util.conf_default = function(cfg, api, v, type, defval, desc) {
     api['get_' + v + '_desc'] = desc;
     // Default getter
     if (typeof api['get_' + v] === 'undefined') {
-        api['get_' + v] = function () {
+        api['get_' + v] = function (idx) {
+            if ((type in {'arr':1, 'array':1}) &&
+                (typeof idx !== 'undefined')) {
+                return cfg[v][idx];
+            } else {
                 return cfg[v];
-            };
+            }
+        };
     }
+
     // Default setter
     if (typeof api['set_' + v] === 'undefined') {
-        api['set_' + v] = function (val) {
-                if (type in {'boolean':1, 'bool':1}) {
-                    if ((!val) || (val in {'0':1, 'no':1, 'false':1})) {
-                        val = false;
-                    } else {
-                        val = true;
-                    }
-                } else if (type in {'integer':1, 'int':1}) {
-                    val = parseInt(val, 10);
-                } else if (type === 'func') {
-                    if (!val) {
-                        val = function () {};
-                    }
+        api['set_' + v] = function (val, idx) {
+            if (type in {'boolean':1, 'bool':1}) {
+                if ((!val) || (val in {'0':1, 'no':1, 'false':1})) {
+                    val = false;
+                } else {
+                    val = true;
                 }
+            } else if (type in {'integer':1, 'int':1}) {
+                val = parseInt(val, 10);
+            } else if (type === 'func') {
+                if (!val) {
+                    val = function () {};
+                }
+            }
+            if (typeof idx !== 'undefined') {
+                cfg[v][idx] = val;
+            } else {
                 cfg[v] = val;
-            };
+            }
+        };
     }
 
     if (typeof cfg[v] === 'undefined') {
         // Set to default
+        if (type in {'arr':1, 'array':1}) {
+            if (! (defval instanceof Array)) {
+                defval = [];
+            }
+        }
         api['set_' + v](defval);
     } else {
         // Coerce existing setting to the right type

@@ -41,7 +41,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"use strict";
 /*jslint white: false, bitwise: false, plusplus: false */
 /*global console */
 
@@ -52,6 +51,7 @@ toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+
 base64Pad     : '=',
 
 encode: function (data) {
+    "use strict";
     var result = '',
         chrTable = Base64.toBase64Table.split(''),
         pad = Base64.base64Pad,
@@ -95,6 +95,7 @@ toBinaryTable : [
 ],
 
 decode: function (data, offset) {
+    "use strict";
     offset = typeof(offset) !== 'undefined' ? offset : 0;
     var binTable = Base64.toBinaryTable,
         pad = Base64.base64Pad,
