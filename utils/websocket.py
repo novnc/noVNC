@@ -478,7 +478,7 @@ Sec-WebSocket-Accept: %s\r
         # Peek, but do not read the data so that we have a opportunity
         # to SSL wrap the socket first
         handshake = sock.recv(1024, socket.MSG_PEEK)
-        self.msg("Handshake [%s]" % handshake)
+        #self.msg("Handshake [%s]" % handshake)
 
         if handshake == "":
             raise self.EClose("ignoring empty handshake")
@@ -605,7 +605,7 @@ Sec-WebSocket-Accept: %s\r
             self.version, self.base64))
 
         # Send server WebSockets handshake response
-        self.msg("sending response [%s]" % response)
+        #self.msg("sending response [%s]" % response)
         retsock.send(response)
 
         # Return the WebSockets socket which may be SSL wrapped
