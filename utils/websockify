@@ -133,7 +133,7 @@ Traffic Legend:
     # will be run in a separate forked process for each connection.
     #
 
-    def new_client(self, client):
+    def new_client(self):
         """
         Called after a new WebSocket connection has been established.
         """
@@ -156,9 +156,9 @@ Traffic Legend:
         if self.verbose and not self.daemon:
             print self.traffic_legend
 
-        # Stat proxying
+        # Start proxying
         try:
-            self.do_proxy(client, tsock)
+            self.do_proxy(tsock)
         except:
             if tsock:
                 tsock.close()
@@ -169,14 +169,14 @@ Traffic Legend:
                 self.rec.close()
             raise
 
-    def do_proxy(self, client, target):
+    def do_proxy(self, target):
         """
         Proxy client WebSocket to normal target socket.
         """
         cqueue = []
-        cpartial = ""
+        c_pend = 0
         tqueue = []
-        rlist = [client, target]
+        rlist = [self.client, target]
         tstart = int(time.time()*1000)
 
         while True:
@@ -184,7 +184,7 @@ Traffic Legend:
             tdelta = int(time.time()*1000) - tstart
 
             if tqueue: wlist.append(target)
-            if cqueue: wlist.append(client)
+            if cqueue or c_pend: wlist.append(self.client)
             ins, outs, excepts = select(rlist, wlist, [], 1)
             if excepts: raise Exception("Socket exception")
 
@@ -199,53 +199,40 @@ Traffic Legend:
                     tqueue.insert(0, dat[sent:])
                     self.traffic(".>")
 
-            if client in outs:
-                # Send queued target data to the client
-                dat = cqueue.pop(0)
-                sent = client.send(dat)
-                if sent == len(dat):
-                    self.traffic("<")
-                    if self.rec:
-                        self.rec.write("%s,\n" %
-                                repr("{%s{" % tdelta + dat[1:-1]))
-                else:
-                    cqueue.insert(0, dat[sent:])
-                    self.traffic("<.")
-
 
             if target in ins:
                 # Receive target data, encode it and queue for client
                 buf = target.recv(self.buffer_size)
                 if len(buf) == 0: raise self.EClose("Target closed")
 
-                cqueue.append(self.encode(buf))
+                cqueue.append(buf)
                 self.traffic("{")
 
-            if client in ins:
-                # Receive client data, decode it, and queue for target
-                buf = client.recv(self.buffer_size)
-                if len(buf) == 0: raise self.EClose("Client closed")
 
-                if buf == '\xff\x00':
-                    raise self.EClose("Client sent orderly close frame")
-                elif buf[-1] == '\xff':
-                    if buf.count('\xff') > 1:
-                        self.traffic(str(buf.count('\xff')))
-                    self.traffic("}")
-                    if self.rec:
-                        self.rec.write("%s,\n" %
-                                (repr("}%s}" % tdelta + buf[1:-1])))
-                    if cpartial:
-                        # Prepend saved partial and decode frame(s)
-                        tqueue.extend(self.decode(cpartial + buf))
-                        cpartial = ""
-                    else:
-                        # decode frame(s)
-                        tqueue.extend(self.decode(buf))
-                else:
-                    # Save off partial WebSockets frame
-                    self.traffic(".}")
-                    cpartial = cpartial + buf
+            if self.client in outs:
+                # Send queued target data to the client
+                c_pend = self.send_frames(cqueue)
+                cqueue = []
+
+                #if self.rec:
+                #    self.rec.write("%s,\n" %
+                #            repr("{%s{" % tdelta + dat[1:-1]))
+
+
+            if self.client in ins:
+                # Receive client data, decode it, and queue for target
+                bufs, closed = self.recv_frames()
+                tqueue.extend(bufs)
+
+                #if self.rec:
+                #    for b in bufs:
+                #        self.rec.write(
+                #                repr("}%s}%s" % (tdelta, b)) + ",\n")
+
+                if closed:
+                    # TODO: What about blocking on client socket?
+                    self.send_close()
+                    raise self.EClose(closed)
 
 if __name__ == '__main__':
     usage = "\n    %prog [options]"
