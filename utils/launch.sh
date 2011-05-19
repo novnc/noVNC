@@ -101,7 +101,7 @@ if ! ps -p ${proxy_pid} >/dev/null; then
     exit 1
 fi
 
-echo -e "\n\nNavigate to to this URL:\n"
+echo -e "\n\nNavigate to this URL:\n"
 echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
 echo -e "Press Ctrl-C to exit\n\n"
 
