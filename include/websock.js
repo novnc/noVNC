@@ -253,7 +253,7 @@ function init() {
 function open(uri) {
     init();
 
-    websocket = new WebSocket(uri, 'base64');
+    websocket = new WebSocket(uri);
     // TODO: future native binary support
     //websocket = new WebSocket(uri, ['binary', 'base64']);
 
