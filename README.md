@@ -49,8 +49,8 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   OpenStack [Screencast](http://player.vimeo.com/video/20787736?autoplay=1) with noVNC shown at about 2:17.
 
 * [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/):
-  incorporates noVNC keyboard/input handling code.
-  [Code commit](http://mail.gnome.org/archives/commits-list/2011-April/msg06623.html). Broadway [broadway.js](http://git.gnome.org/browse/gtk+/tree/gdk/broadway/broadway.js) source file.
+  uses noVNC keyboard/input handling code.
+  [Commit email](http://mail.gnome.org/archives/commits-list/2011-April/msg06623.html). Source file: [broadway.js](http://git.gnome.org/browse/gtk+/tree/gdk/broadway/broadway.js).
 
 ### Browser Requirements
 
