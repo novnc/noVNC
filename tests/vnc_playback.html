@@ -95,6 +95,7 @@
                 mode = 'realtime';
             }
 
+            recv_message = rfb.testMode(send_array);
             next_iteration();
         }
 
@@ -106,7 +107,9 @@
             iter_time = parseInt(total_time / iterations, 10);
             message(iterations + " iterations took " + total_time + "ms, " +
                     iter_time + "ms per iteration");
-            rfb.get_canvas().stop();   // Shut-off event interception
+            // Shut-off event interception
+            rfb.get_mouse().ungrab();
+            rfb.get_keyboard().ungrab();
             $D('startButton').disabled = false;
             $D('startButton').value = "Start";
 
@@ -125,7 +128,6 @@
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
                 rfb = new RFB({'target': $D('VNC_canvas'),
                                'updateState': updateState});
-                rfb.testMode(send_array);
             }
         }
     </script>

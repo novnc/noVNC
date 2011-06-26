@@ -1512,12 +1512,10 @@ that.clipboardPasteFrom = function(text) {
     //Util.Debug("<< clipboardPasteFrom");
 };
 
+// Override internal functions for testing
 that.testMode = function(override_send) {
-    // Overridable internal functions for testing
     test_mode = true;
-    // TODO figure out what to do here
-    ws.send = override_send;
-    that.recv_message = ws.recv_message;  // Expose it
+    that.recv_message = ws.testMode(override_send);
 
     checkEvents = function () { /* Stub Out */ };
     that.connect = function(host, port, password) {
