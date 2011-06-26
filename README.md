@@ -11,6 +11,9 @@ noVNC is licensed under the
 Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
 sponsoring ongoing development of this project (and for employing me).
 
+There are many companies/projects that have integrated noVNC into
+their products including: [Sentry Data Systems](http://www.sentryds.com), [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), and [OpenNebula](http://opennebula.org/). See [this wiki page](https://github.com/kanaka/noVNC/wiki/Browser-support) for more info.
+
 Notable commits, announcements and news are posted to
 @<a href="http://www.twitter.com/noVNC">noVNC</a>
 
@@ -23,34 +26,6 @@ Running in Chrome before and after connecting:
 
 See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">here</a>.
 
-
-### Projects/Companies using noVNC
-
-* [Sentry Data Systems](http://www.sentryds.com): uses noVNC in the
-  [Datanex Cloud Computing Platform](http://www.sentryds.com/products/datanex/).
-
-* [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr):
-  Feature [#1935](http://code.osuosl.org/issues/1935).
-
-* [Archipel](http://archipelproject.org):
-  Demo [video](http://antoinemercadal.fr/archipelblog/wp-content/themes/ArchipelWPTemplate/video_youtube.php?title=VNC%20Demonstration&id=te_bzW574Zo)
-
-* [openQRM](http://www.openqrm.com/): VNC plugin available
-  by request. Probably included in [version
-  4.8](http://www.openqrm.com/?q=node/15). Demo
-  [video](http://www.openqrm-enterprise.com/news/details/article/remote-vm-console-plugin-available.html).
-
-* [OpenNode](http://www.opennodecloud.com/): uses noVNC in
-  [OpenNode Management Console](http://opennode.activesys.org/about/software-included-in-opennode/).
-  OMC [Screencast](http://opennode.activesys.org/about/opennode-management-console-screencast/).
-
-* [OpenStack](http://www.openstack.org): uses noVNC in Cactus release
-  of [OpenStack Compute (Nova)](http://nova.openstack.org/runnova/vncconsole.html).
-  OpenStack [Screencast](http://player.vimeo.com/video/20787736?autoplay=1) with noVNC shown at about 2:17.
-
-* [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/):
-  uses noVNC keyboard/input handling code.
-  [Commit email](http://mail.gnome.org/archives/commits-list/2011-April/msg06623.html). Source file: [broadway.js](http://git.gnome.org/browse/gtk+/tree/gdk/broadway/broadway.js).
 
 ### Browser Requirements
 
