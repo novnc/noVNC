@@ -35,6 +35,7 @@ var that           = {},  // Public API methods
     rfb_host       = '',
     rfb_port       = 5900,
     rfb_password   = '',
+    rfb_uri        = '',
 
     rfb_state      = 'disconnected',
     rfb_version    = 0,
@@ -272,7 +273,7 @@ function connect() {
     } else {
         uri = "ws://";
     }
-    uri += rfb_host + ":" + rfb_port + "/";
+    uri += rfb_host + ":" + rfb_port + "/" + rfb_uri;
     Util.Info("connecting to " + uri);
     ws.open(uri);
 
@@ -1446,12 +1447,13 @@ clientCutText = function(text) {
 // Public API interface functions
 //
 
-that.connect = function(host, port, password) {
+that.connect = function(host, port, password, uri) {
     //Util.Debug(">> connect");
 
     rfb_host       = host;
     rfb_port       = port;
     rfb_password   = (password !== undefined)   ? password : "";
+    rfb_uri        = (uri !== undefined) ? uri : "";
 
     if ((!rfb_host) || (!rfb_port)) {
         return fail("Must set host and port");
