@@ -596,7 +596,8 @@ init_msg = function() {
 
     var strlen, reason, length, sversion, cversion,
         i, types, num_types, challenge, response, bpp, depth,
-        big_endian, true_color, name_length;
+        big_endian, red_max, green_max, blue_max, red_shift,
+        green_shift, blue_shift, true_color, name_length;
 
     //Util.Debug("ws.rQ (" + ws.rQlen() + ") " + ws.rQslice(0));
     switch (rfb_state) {
@@ -756,13 +757,26 @@ init_msg = function() {
         big_endian     = ws.rQshift8();
         true_color     = ws.rQshift8();
 
+        red_max        = ws.rQshift16();
+        green_max      = ws.rQshift16();
+        blue_max       = ws.rQshift16();
+        red_shift      = ws.rQshift8();
+        green_shift    = ws.rQshift8();
+        blue_shift     = ws.rQshift8();
+        ws.rQshiftStr(3); // padding
+
         Util.Info("Screen: " + fb_width + "x" + fb_height + 
                   ", bpp: " + bpp + ", depth: " + depth +
                   ", big_endian: " + big_endian +
-                  ", true_color: " + true_color);
+                  ", true_color: " + true_color +
+                  ", red_max: " + red_max +
+                  ", green_max: " + green_max +
+                  ", blue_max: " + blue_max +
+                  ", red_shift: " + red_shift +
+                  ", green_shift: " + green_shift +
+                  ", blue_shift: " + blue_shift);
 
         /* Connection name/title */
-        ws.rQshiftStr(12);
         name_length   = ws.rQshift32();
         fb_name = ws.rQshiftStr(name_length);
 
