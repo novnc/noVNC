@@ -259,10 +259,10 @@ if __name__ == '__main__':
         opts.listen_host, sep, opts.listen_port = args[0].rpartition(':')
     else:
         opts.listen_host, opts.listen_port = '', args[0]
-    
+
     try:    opts.listen_port = int(opts.listen_port)
     except: parser.error("Error parsing listen port")
-    
+
     if opts.wrap_cmd:
         opts.target_host = None
         opts.target_port = None

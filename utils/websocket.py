@@ -142,15 +142,17 @@ Sec-WebSocket-Accept: %s\r
     #
     # WebSocketServer static methods
     #
-    
+
     @staticmethod
     def addrinfo(host, port=None):
         """ Resolve a host (and optional port) to an IPv4 or IPv6 address.
         Returns: family, socktype, proto, canonname, sockaddr
         """
+        if not host:
+            host = 'localhost'
         addrs = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         if not addrs:
-            raise Exception("Could resolve host '%s'" % self.target_host)
+            raise Exception("Could resolve host '%s'" % host)
         return addrs[0]
 
     @staticmethod
@@ -492,7 +494,7 @@ Sec-WebSocket-Accept: %s\r
             if code != None:
                 msg = struct.pack(">H%ds" % (len(reason)), code)
 
-            buf = self.encode_hybi(msg, opcode=0x08, base64=False)
+            buf, h, t = self.encode_hybi(msg, opcode=0x08, base64=False)
             self.client.send(buf)
 
         elif self.version == "hixie-76":
@@ -596,8 +598,8 @@ Sec-WebSocket-Accept: %s\r
             if sys.hexversion < 0x2060000 or not numpy:
                 raise self.EClose("Python >= 2.6 and numpy module is required for HyBi-07 or greater")
 
-            if ver == '7':
-                self.version = "hybi-07"
+            if ver in ['7', '8', '9']:
+                self.version = "hybi-0" + ver
             else:
                 raise self.EClose('Unsupported protocol version %s' % ver)
 
