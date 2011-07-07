@@ -87,17 +87,17 @@ Sec-WebSocket-Accept: %s\r
     class EClose(Exception):
         pass
 
-    def __init__(self, listen_host='', listen_port=None,
+    def __init__(self, listen_host='', listen_port=None, source_is_ipv6=False,
             verbose=False, cert='', key='', ssl_only=None,
             daemon=False, record='', web=''):
 
         # settings
-        self.verbose     = verbose
-        self.listen_host = listen_host
-        self.listen_port = listen_port
-        self.ssl_only    = ssl_only
-        self.daemon      = daemon
-        self.handler_id  = 1
+        self.verbose        = verbose
+        self.listen_host    = listen_host
+        self.listen_port    = listen_port
+        self.ssl_only       = ssl_only
+        self.daemon         = daemon
+        self.handler_id     = 1
 
         # Make paths settings absolute
         self.cert = os.path.abspath(cert)
@@ -113,7 +113,7 @@ Sec-WebSocket-Accept: %s\r
             os.chdir(self.web)
 
         # Sanity checks
-        if ssl and self.ssl_only:
+        if not ssl and self.ssl_only:
             raise Exception("No 'ssl' module and SSL-only specified")
         if self.daemon and not resource:
             raise Exception("Module 'resource' required to daemonize")
@@ -142,6 +142,17 @@ Sec-WebSocket-Accept: %s\r
     #
     # WebSocketServer static methods
     #
+    
+    @staticmethod
+    def addrinfo(host, port=None):
+        """ Resolve a host (and optional port) to an IPv4 or IPv6 address.
+        Returns: family, socktype, proto, canonname, sockaddr
+        """
+        addrs = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM, socket.IPPROTO_TCP)
+        if not addrs:
+            raise Exception("Could resolve host '%s'" % self.target_host)
+        return addrs[0]
+
     @staticmethod
     def daemonize(keepfd=None, chdir='/'):
         os.umask(0)
@@ -534,6 +545,7 @@ Sec-WebSocket-Accept: %s\r
             if not os.path.exists(self.cert):
                 raise self.EClose("SSL connection but '%s' not found"
                                   % self.cert)
+            retsock = None
             try:
                 retsock = ssl.wrap_socket(
                         sock,
@@ -724,8 +736,8 @@ Sec-WebSocket-Accept: %s\r
         is a WebSockets client then call new_client() method (which must
         be overridden) for each new client connection.
         """
-
-        lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        addr = self.addrinfo(self.listen_host, self.listen_port)
+        lsock = socket.socket(addr[0], addr[1])
         lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         lsock.bind((self.listen_host, self.listen_port))
         lsock.listen(100)

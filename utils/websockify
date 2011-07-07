@@ -39,10 +39,10 @@ Traffic Legend:
 
     def __init__(self, *args, **kwargs):
         # Save off proxy specific options
-        self.target_host   = kwargs.pop('target_host')
-        self.target_port   = kwargs.pop('target_port')
-        self.wrap_cmd      = kwargs.pop('wrap_cmd')
-        self.wrap_mode     = kwargs.pop('wrap_mode')
+        self.target_host    = kwargs.pop('target_host')
+        self.target_port    = kwargs.pop('target_port')
+        self.wrap_cmd       = kwargs.pop('wrap_cmd')
+        self.wrap_mode      = kwargs.pop('wrap_mode')
         # Last 3 timestamps command was run
         self.wrap_times    = [0, 0, 0]
 
@@ -141,7 +141,8 @@ Traffic Legend:
         # Connect to the target
         self.msg("connecting to: %s:%s" % (
                  self.target_host, self.target_port))
-        tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        addr = self.addrinfo(self.target_host, self.target_port)
+        tsock = socket.socket(addr[0], addr[1])
         tsock.connect((self.target_host, self.target_port))
 
         if self.verbose and not self.daemon:
@@ -255,18 +256,19 @@ if __name__ == '__main__':
 
     # Parse host:port and convert ports to numbers
     if args[0].count(':') > 0:
-        opts.listen_host, opts.listen_port = args[0].split(':')
+        opts.listen_host, sep, opts.listen_port = args[0].rpartition(':')
     else:
         opts.listen_host, opts.listen_port = '', args[0]
+    
     try:    opts.listen_port = int(opts.listen_port)
     except: parser.error("Error parsing listen port")
-
+    
     if opts.wrap_cmd:
         opts.target_host = None
         opts.target_port = None
     else:
         if args[1].count(':') > 0:
-            opts.target_host, opts.target_port = args[1].split(':')
+            opts.target_host, sep, opts.target_port = args[1].rpartition(':')
         else:
             parser.error("Error parsing target")
         try:    opts.target_port = int(opts.target_port)
