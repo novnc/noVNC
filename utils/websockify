@@ -141,9 +141,8 @@ Traffic Legend:
         # Connect to the target
         self.msg("connecting to: %s:%s" % (
                  self.target_host, self.target_port))
-        addr = self.addrinfo(self.target_host, self.target_port)
-        tsock = socket.socket(addr[0], addr[1])
-        tsock.connect((self.target_host, self.target_port))
+        tsock = self.socket(self.target_host, self.target_port,
+                connect=True)
 
         if self.verbose and not self.daemon:
             print(self.traffic_legend)
