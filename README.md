@@ -12,7 +12,7 @@ Special thanks to [Sentry Data Systems](http://www.sentryds.com) for
 sponsoring ongoing development of this project (and for employing me).
 
 There are many companies/projects that have integrated noVNC into
-their products including: [Sentry Data Systems](http://www.sentryds.com), [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), and [OpenNebula](http://opennebula.org/). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
+their products including: [Sentry Data Systems](http://www.sentryds.com), [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/) and [CloudSigma](www.cloudsigma.com/). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
 
 Notable commits, announcements and news are posted to
 @<a href="http://www.twitter.com/noVNC">noVNC</a>
