@@ -124,7 +124,7 @@ Sec-WebSocket-Accept: %s\r
                 self.listen_host, self.listen_port))
         print("  - Flash security policy server")
         if self.web:
-            print("  - Web server")
+            print("  - Web server. Web root: %s" % self.web)
         if ssl:
             if os.path.exists(self.cert):
                 print("  - SSL/TLS support")
@@ -146,11 +146,14 @@ Sec-WebSocket-Accept: %s\r
     @staticmethod
     def socket(host, port=None, connect=False, prefer_ipv6=False):
         """ Resolve a host (and optional port) to an IPv4 or IPv6
-        address. Create a socket. Bind to it if listen is set. Return
-        a socket that is ready for listen or connect.
+        address. Create a socket. Bind to it if listen is set,
+        otherwise connect to it. Return the socket.
         """
         flags = 0
-        if host == '': host = None
+        if host == '':
+            host = None
+        if connect and not port:
+            raise Exception("Connect mode requires a port")
         if not connect:
             flags = flags | socket.AI_PASSIVE
         addrs = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM,
