@@ -776,6 +776,16 @@ init_msg = function() {
                   ", green_shift: " + green_shift +
                   ", blue_shift: " + blue_shift);
 
+        if (big_endian !== 0) {
+            Util.Warn("Server native endian is not little endian");
+        }
+        if (red_shift !== 16) {
+            Util.Warn("Server native red-shift is not 16");
+        }
+        if (blue_shift !== 0) {
+            Util.Warn("Server native blue-shift is not 0");
+        }
+
         /* Connection name/title */
         name_length   = ws.rQshift32();
         fb_name = ws.rQshiftStr(name_length);
@@ -842,9 +852,9 @@ normal_msg = function() {
             //Util.Debug("red after: " + red);
             green = parseInt(ws.rQshift16() / 256, 10);
             blue = parseInt(ws.rQshift16() / 256, 10);
-            Util.Debug("*** colourMap: " + display.get_colourMap());
-            display.set_colourMap([red, green, blue], first_colour + c);
+            display.set_colourMap([blue, green, red], first_colour + c);
         }
+        Util.Debug("*** colourMap: " + display.get_colourMap());
         Util.Info("Registered " + num_colours + " colourMap entries");
         //Util.Debug("colourMap: " + display.get_colourMap());
         break;
@@ -1378,9 +1388,9 @@ pixelFormat = function() {
     arr.push16(255);  // red-max
     arr.push16(255);  // green-max
     arr.push16(255);  // blue-max
-    arr.push8(0);     // red-shift
+    arr.push8(16);    // red-shift
     arr.push8(8);     // green-shift
-    arr.push8(16);    // blue-shift
+    arr.push8(0);     // blue-shift
 
     arr.push8(0);     // padding
     arr.push8(0);     // padding

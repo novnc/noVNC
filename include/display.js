@@ -19,11 +19,11 @@ var that           = {},  // Public API methods
     c_ctx          = null,
     c_forceCanvas  = false,
 
-    c_imageData, c_rgbxImage, c_cmapImage,
+    c_imageData, c_bgrxImage, c_cmapImage,
 
     // Predefine function variables (jslint)
-    imageDataCreate, imageDataGet, rgbxImageData, cmapImageData,
-    rgbxImageFill, cmapImageFill, setFillColor, rescale, flush,
+    imageDataCreate, imageDataGet, bgrxImageData, cmapImageData,
+    bgrxImageFill, cmapImageFill, setFillColor, rescale, flush,
 
     c_width        = 0,
     c_height       = 0,
@@ -137,14 +137,14 @@ function constructor() {
         if (conf.prefer_js === null) {
             conf.prefer_js = true;
         }
-        c_rgbxImage = rgbxImageData;
+        c_bgrxImage = bgrxImageData;
         c_cmapImage = cmapImageData;
     } else {
         Util.Warn("Canvas lacks imageData, using fillRect (slow)");
         conf.render_mode = "fillRect rendering (slow)";
         c_forceCanvas = true;
         conf.prefer_js = false;
-        c_rgbxImage = rgbxImageFill;
+        c_bgrxImage = bgrxImageFill;
         c_cmapImage = cmapImageFill;
     }
 
@@ -153,7 +153,7 @@ function constructor() {
         conf.render_mode += ", webkit bug workaround";
         Util.Debug("Working around WebKit bug #46319");
         c_webkit_bug = true;
-        for (func in {"fillRect":1, "copyImage":1, "rgbxImage":1,
+        for (func in {"fillRect":1, "copyImage":1, "bgrxImage":1,
                 "cmapImage":1, "blitStringImage":1}) {
             that[func] = (function() {
                 var myfunc = that[func]; // Save original function
@@ -247,13 +247,13 @@ flush = function() {
 };
 
 setFillColor = function(color) {
-    var rgb, newStyle;
+    var bgr, newStyle;
     if (conf.true_color) {
-        rgb = color;
+        bgr = color;
     } else {
-        rgb = conf.colourMap[color[0]];
+        bgr = conf.colourMap[color[0]];
     }
-    newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    newStyle = "rgb(" + bgr[2] + "," + bgr[1] + "," + bgr[0] + ")";
     if (newStyle !== c_prevStyle) {
         c_ctx.fillStyle = newStyle;
         c_prevStyle = newStyle;
@@ -311,22 +311,23 @@ that.copyImage = function(old_x, old_y, new_x, new_y, width, height) {
  *   gecko, Javascript array handling is much slower.
  */
 that.getTile = function(x, y, width, height, color) {
-    var img, data = [], rgb, red, green, blue, i;
+    var img, data = [], bgr, red, green, blue, i;
     img = {'x': x, 'y': y, 'width': width, 'height': height,
            'data': data};
     if (conf.prefer_js) {
         if (conf.true_color) {
-            rgb = color;
+            bgr = color;
         } else {
-            rgb = conf.colourMap[color[0]];
+            bgr = conf.colourMap[color[0]];
         }
-        red = rgb[0];
-        green = rgb[1];
-        blue = rgb[2];
+        // Keep in BGR order because bgrxImage will flip it
+        red = bgr[2];
+        green = bgr[1];
+        blue = bgr[0];
         for (i = 0; i < (width * height * 4); i+=4) {
-            data[i    ] = red;
+            data[i    ] = blue;
             data[i + 1] = green;
-            data[i + 2] = blue;
+            data[i + 2] = red;
         }
     } else {
         that.fillRect(x, y, width, height, color);
@@ -335,26 +336,27 @@ that.getTile = function(x, y, width, height, color) {
 };
 
 that.setSubTile = function(img, x, y, w, h, color) {
-    var data, p, rgb, red, green, blue, width, j, i, xend, yend;
+    var data, p, bgr, red, green, blue, width, j, i, xend, yend;
     if (conf.prefer_js) {
         data = img.data;
         width = img.width;
         if (conf.true_color) {
-            rgb = color;
+            bgr = color;
         } else {
-            rgb = conf.colourMap[color[0]];
+            bgr = conf.colourMap[color[0]];
         }
-        red = rgb[0];
-        green = rgb[1];
-        blue = rgb[2];
+        // Keep in BGR order because bgrxImage will flip it
+        red = bgr[2];
+        green = bgr[1];
+        blue = bgr[0];
         xend = x + w;
         yend = y + h;
         for (j = y; j < yend; j += 1) {
             for (i = x; i < xend; i += 1) {
                 p = (i + (j * width) ) * 4;
-                data[p    ] = red;
+                data[p    ] = blue;
                 data[p + 1] = green;
-                data[p + 2] = blue;
+                data[p + 2] = red;
             }   
         } 
     } else {
@@ -364,7 +366,7 @@ that.setSubTile = function(img, x, y, w, h, color) {
 
 that.putTile = function(img) {
     if (conf.prefer_js) {
-        c_rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
+        c_bgrxImage(img.x, img.y, img.width, img.height, img.data, 0);
     }
     // else: No-op, under gecko already done by setSubTile
 };
@@ -376,21 +378,21 @@ imageDataCreate = function(width, height) {
     return c_ctx.createImageData(width, height);
 };
 
-rgbxImageData = function(x, y, width, height, arr, offset) {
+bgrxImageData = function(x, y, width, height, arr, offset) {
     var img, i, j, data;
     img = c_imageData(width, height);
     data = img.data;
     for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
-        data[i    ] = arr[j    ];
+        data[i    ] = arr[j + 2];
         data[i + 1] = arr[j + 1];
-        data[i + 2] = arr[j + 2];
+        data[i + 2] = arr[j    ];
         data[i + 3] = 255; // Set Alpha
     }
     c_ctx.putImageData(img, x, y);
 };
 
 // really slow fallback if we don't have imageData
-rgbxImageFill = function(x, y, width, height, arr, offset) {
+bgrxImageFill = function(x, y, width, height, arr, offset) {
     var i, j, sx = 0, sy = 0;
     for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
         that.fillRect(x+sx, y+sy, 1, 1, [arr[j], arr[j+1], arr[j+2]]);
@@ -403,15 +405,15 @@ rgbxImageFill = function(x, y, width, height, arr, offset) {
 };
 
 cmapImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data, rgb, cmap;
+    var img, i, j, data, bgr, cmap;
     img = c_imageData(width, height);
     data = img.data;
     cmap = conf.colourMap;
     for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
-        rgb = cmap[arr[j]];
-        data[i    ] = rgb[0];
-        data[i + 1] = rgb[1];
-        data[i + 2] = rgb[2];
+        bgr = cmap[arr[j]];
+        data[i    ] = bgr[2];
+        data[i + 1] = bgr[1];
+        data[i + 2] = bgr[0];
         data[i + 3] = 255; // Set Alpha
     }
     c_ctx.putImageData(img, x, y);
@@ -433,7 +435,7 @@ cmapImageFill = function(x, y, width, height, arr, offset) {
 
 that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        c_rgbxImage(x, y, width, height, arr, offset);
+        c_bgrxImage(x, y, width, height, arr, offset);
     } else {
         c_cmapImage(x, y, width, height, arr, offset);
     }

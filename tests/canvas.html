@@ -9,7 +9,7 @@
         <script src="../include/util.js"></script>
         <script src="../include/webutil.js"></script>
         <script src="../include/base64.js"></script>
-        <script src="../include/canvas.js"></script>
+        <script src="../include/display.js"></script>
         <script src="face.png.js"></script>
     </head>
     <body>
@@ -36,7 +36,7 @@
 
     <script>
         var msg_cnt = 0;
-        var start_width = 300, start_height = 100;
+        var display, start_width = 300, start_height = 100;
         var iterations;
 
         function message(str) {
@@ -48,12 +48,12 @@
         }
 
         function test_functions () {
-            var img, x, y, w, h, ctx = canvas.getContext();
-            w = canvas.get_width();
-            h = canvas.get_height();
-            canvas.fillRect(0, 0, w, h, [240,240,240]);
+            var img, x, y, w, h, ctx = display.get_context();
+            w = display.get_width();
+            h = display.get_height();
+            display.fillRect(0, 0, w, h, [240,240,240]);
 
-            canvas.blitStringImage("data:image/png;base64," + face64, 150, 10);
+            display.blitStringImage("data:image/png;base64," + face64, 150, 10);
 
             var himg = new Image();
             himg.onload = function () {
@@ -70,14 +70,14 @@
                     data[(y*50 + x)*4 + 3] = 255;
                 }
             }
-            canvas.blitImage(30, 10, 50, 50, data, 0);
+            display.blitImage(30, 10, 50, 50, data, 0);
 
-            img = canvas.getTile(5,5,16,16,[0,128,128]);
-            canvas.putTile(img);
+            img = display.getTile(5,5,16,16,[0,128,128]);
+            display.putTile(img);
 
-            img = canvas.getTile(90,15,16,16,[0,0,0]);
-            canvas.setSubTile(img, 0,0,16,16,[128,128,0]);
-            canvas.putTile(img);
+            img = display.getTile(90,15,16,16,[0,0,0]);
+            display.setSubTile(img, 0,0,16,16,[128,128,0]);
+            display.putTile(img);
         }
 
         function begin () {
@@ -90,7 +90,7 @@
         function start_delayed () {
             var ret;
 
-            ret = canvas.set_prefer_js(true);
+            ret = display.set_prefer_js(true);
             if (ret) {
                 message("Running test: prefer Javascript ops");
                 var time1 = run_test();
@@ -100,14 +100,14 @@
                 message("Could not run: prefer Javascript ops");
             }
 
-            canvas.set_prefer_js(false);
+            display.set_prefer_js(false);
             message("Running test: prefer Canvas ops");
             var time2 = run_test();
             message("prefer Canvas ops: " + time2 + "ms total, " +
                     (time2 / iterations) + "ms per frame");
 
             if (Util.get_logging() !== 'debug') {
-                canvas.resize(start_width, start_height, true);
+                display.resize(start_width, start_height, true);
                 test_functions();
             }
             $D('startButton').disabled = false;
@@ -118,7 +118,7 @@
             var width, height;
             width = $D('width').value;
             height = $D('height').value;
-            canvas.resize(width, height);
+            display.resize(width, height);
             var color, start_time = (new Date()).getTime(), w, h;
             for (var i=0; i < iterations; i++) {
                 color = [128, 128, (255 / iterations) * i, 0];
@@ -126,9 +126,9 @@
                     for (var y=0; y < height; y = y + 16) {
                         w = Math.min(16, width - x);
                         h = Math.min(16, height - y);
-                        var tile = canvas.getTile(x, y, w, h, color);
-                        canvas.setSubTile(tile, 0, 0, w, h, color);
-                        canvas.putTile(tile);
+                        var tile = display.getTile(x, y, w, h, color);
+                        display.setSubTile(tile, 0, 0, w, h, color);
+                        display.putTile(tile);
                     }
                 }
             }
@@ -139,8 +139,8 @@
         window.onload = function() {
             message("in onload");
             $D('iterations').value = 10;
-            canvas = new Canvas({'target' : $D('canvas')});
-            canvas.resize(start_width, start_height, true);
+            display = new Display({'target' : $D('canvas')});
+            display.resize(start_width, start_height, true);
             message("Canvas initialized");
             test_functions();
         }
