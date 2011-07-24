@@ -184,6 +184,7 @@ Util.getEventPosition = function (e, obj, scale) {
     var evt, docX, docY, pos;
     //if (!e) evt = window.event;
     evt = (e ? e : window.event);
+    evt = (evt.changedTouches ? evt.changedTouches[0] : evt.touches ? evt.touches[0] : evt);
     if (evt.pageX || evt.pageY) {
         docX = evt.pageX;
         docY = evt.pageY;

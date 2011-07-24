@@ -54,6 +54,19 @@ load: function(target) {
     html += '  <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">';
     html += '    <table border=0 width=100%><tr>';
     html += '      <td><div id="VNC_status">Loading</div></td>';
+
+    // Mouse button selectors for touch devices
+    html += '      <td width=1%><div class="VNC_buttons_right">';
+    html += '        <nobr><span id="VNC_mouse_buttons" style="display: none;">';
+    html += '          <input type="button" class="VNC_status_button"';
+    html += '            id="VNC_mouse_button1" value="L" onclick="UI.setMouseButton(1);"';
+    html += '            ><input type="button" class="VNC_status_button"';
+    html += '            id="VNC_mouse_button2" value="M" onclick="UI.setMouseButton(2);"';
+    html += '            ><input type="button" class="VNC_status_button"';
+    html += '            id="VNC_mouse_button4" value="R" onclick="UI.setMouseButton(4);">';
+    html += '        </span></nobr></div></td>';
+
+    // Settings drop-down menu
     html += '      <td width=1%><div class="VNC_buttons_right">';
     html += '        <input type=button class="VNC_status_button" value="Settings"';
     html += '          id="menuButton"';
@@ -97,10 +110,13 @@ load: function(target) {
     html += '                onclick="UI.settingsApply()"></li>';
     html += '          </ul>';
     html += '        </span></div></td>';
+
+    // CtrlAltDel Button
     html += '      <td width=1%><div class="VNC_buttons_right">';
-    html += '        <input type=button class="VNC_status_button" value="Send CtrlAltDel"';
+    html += '        <input type=button class="VNC_status_button" value="CtrlAltDel"';
     html += '          id="sendCtrlAltDelButton"';
     html += '          onclick="UI.sendCtrlAltDel();"></div></td>';
+
     html += '    </tr></table>';
     html += '  </div>';
     html += '  <canvas id="VNC_canvas" width="640px" height="20px">';
@@ -150,6 +166,12 @@ load: function(target) {
                 $D('VNC_clipboard_text').blur();
             }
         };
+
+    // Show mouse selector buttons on touch screen devices
+    if ('ontouchstart' in document.documentElement) {
+        $D('VNC_mouse_buttons').style.display = "inline";
+        UI.setMouseButton();
+    }
 
 },
 
@@ -305,6 +327,35 @@ setPassword: function() {
 
 sendCtrlAltDel: function() {
     UI.rfb.sendCtrlAltDel();
+},
+
+setMouseButton: function(num) {
+    var b, blist = [1,2,4], button,
+        mouse = UI.rfb.get_mouse();
+
+    if (typeof num === 'undefined') {
+        // Show the default
+        num = mouse.get_touchButton();
+    } else if (num === mouse.get_touchButton()) {
+        // Set all buttons off (no clicks)
+        mouse.set_touchButton(0);
+        num = 0;
+    } else {
+        // Turn on one button
+        mouse.set_touchButton(num);
+    }
+
+    for (b = 0; b < blist.length; b++) {
+        button = $D('VNC_mouse_button' + blist[b]);
+        if (blist[b] === num) {
+            button.style.backgroundColor = "black";
+            button.style.color = "lightgray";
+        } else {
+            button.style.backgroundColor = "";
+            button.style.color = "";
+        }
+    }
+
 },
 
 updateState: function(rfb, state, oldstate, msg) {

@@ -460,7 +460,8 @@ Util.conf_defaults(conf, that, defaults, [
     ['scale',          'rw', 'float', 1.0, 'Viewport scale factor 0.0 - 1.0'],
 
     ['onMouseButton',  'rw', 'func', null, 'Handler for mouse button click/release'],
-    ['onMouseMove',    'rw', 'func', null, 'Handler for mouse movement']
+    ['onMouseMove',    'rw', 'func', null, 'Handler for mouse movement'],
+    ['touchButton',    'rw', 'int', 1, 'Button mask (1, 2, 4) for touch devices (0 means ignore clicks)']
     ]);
 
 
@@ -475,7 +476,11 @@ function onMouseButton(e, down) {
     }
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
-    if (evt.which) {
+    if (e.touches || e.changedTouches) {
+        // Touch device
+        bmask = conf.touchButton;
+        // If bmask is set
+    } else if (evt.which) {
         /* everything except IE */
         bmask = 1 << evt.button;
     } else {
@@ -486,7 +491,7 @@ function onMouseButton(e, down) {
     }
     //Util.Debug("mouse " + pos.x + "," + pos.y + " down: " + down +
     //           " bmask: " + bmask + "(evt.button: " + evt.button + ")");
-    if (conf.onMouseButton) {
+    if (bmask > 0 && conf.onMouseButton) {
         Util.Debug("onMouseButton " + (down ? "down" : "up") +
                    ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
         conf.onMouseButton(pos.x, pos.y, down, bmask);
@@ -536,6 +541,8 @@ function onMouseMove(e) {
     if (conf.onMouseMove) {
         conf.onMouseMove(pos.x, pos.y);
     }
+    Util.stopEvent(e);
+    return false;
 }
 
 function onMouseDisable(e) {
@@ -565,11 +572,17 @@ that.grab = function() {
     //Util.Debug(">> Mouse.grab");
     var c = conf.target;
 
-    Util.addEvent(c, 'mousedown', onMouseDown);
-    Util.addEvent(c, 'mouseup', onMouseUp);
-    Util.addEvent(c, 'mousemove', onMouseMove);
-    Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-            onMouseWheel);
+    if ('ontouchstart' in document.documentElement) {
+        Util.addEvent(c, 'touchstart', onMouseDown);
+        Util.addEvent(c, 'touchend', onMouseUp);
+        Util.addEvent(c, 'touchmove', onMouseMove);
+    } else {
+        Util.addEvent(c, 'mousedown', onMouseDown);
+        Util.addEvent(c, 'mouseup', onMouseUp);
+        Util.addEvent(c, 'mousemove', onMouseMove);
+        Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+                onMouseWheel);
+    }
 
     /* Work around right and middle click browser behaviors */
     Util.addEvent(document, 'click', onMouseDisable);
@@ -582,11 +595,17 @@ that.ungrab = function() {
     //Util.Debug(">> Mouse.ungrab");
     var c = conf.target;
 
-    Util.removeEvent(c, 'mousedown', onMouseDown);
-    Util.removeEvent(c, 'mouseup', onMouseUp);
-    Util.removeEvent(c, 'mousemove', onMouseMove);
-    Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-            onMouseWheel);
+    if ('ontouchstart' in document.documentElement) {
+        Util.removeEvent(c, 'touchstart', onMouseDown);
+        Util.removeEvent(c, 'touchend', onMouseUp);
+        Util.removeEvent(c, 'touchmove', onMouseMove);
+    } else {
+        Util.removeEvent(c, 'mousedown', onMouseDown);
+        Util.removeEvent(c, 'mouseup', onMouseUp);
+        Util.removeEvent(c, 'mousemove', onMouseMove);
+        Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+                onMouseWheel);
+    }
 
     /* Work around right and middle click browser behaviors */
     Util.removeEvent(document, 'click', onMouseDisable);

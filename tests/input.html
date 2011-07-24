@@ -4,7 +4,11 @@
     <body>
         <br><br>
 
-        Canvas:<br>
+        Canvas:
+        <span id="button-selection" style="display: none;">
+            <input id="button1" type="button" value="L"><input id="button2" type="button" value="M"><input id="button4" type="button" value="R">
+        </span>
+        <br>
         <canvas id="canvas" width="640" height="20"
                 style="border-style: dotted; border-width: 1px;">
             Canvas not supported.
@@ -23,11 +27,11 @@
     <script src="../include/webutil.js"></script> 
     <script src="../include/base64.js"></script>
     <script src="../include/input.js"></script> 
-    <script src="../include/canvas.js"></script>
+    <script src="../include/display.js"></script>
     <script>
-        var msg_cnt = 0;
-        var width = 400, height = 200;
-        var iterations;
+        var msg_cnt = 0, iterations,
+            width = 400, height = 200,
+            canvas, keyboard, mouse;
 
         var newline = "\n";
         if (Util.Engine.trident) {
@@ -61,17 +65,54 @@
             message(msg);
         }
 
+        function selectButton(num) {
+            var b, blist = [1,2,4];
+
+            if (typeof num === 'undefined') {
+                // Show the default
+                num = mouse.get_touchButton();
+            } else if (num === mouse.get_touchButton()) {
+                // Set all buttons off (no clicks)
+                mouse.set_touchButton(0);
+                num = 0;
+            } else {
+                // Turn on one button
+                mouse.set_touchButton(num);
+            }
+
+            for (b = 0; b < blist.length; b++) {
+                if (blist[b] === num) {
+                    $D('button' + blist[b]).style.backgroundColor = "black";
+                    $D('button' + blist[b]).style.color = "lightgray";
+                } else {
+                    $D('button' + blist[b]).style.backgroundColor = "";
+                    $D('button' + blist[b]).style.color = "";
+                }
+            }
+        }
+
         window.onload = function() {
-            var canvas = new Canvas({'target' : $D('canvas')});
+            canvas = new Display({'target' : $D('canvas')});
             keyboard = new Keyboard({'target': document,
-                                    'keyPress': keyPress});
+                                    'onKeyPress': keyPress});
             mouse    = new Mouse({'target': $D('canvas'),
-                                'mouseButton': mouseButton,
-                                'mouseMove': mouseMove});
+                                'onMouseButton': mouseButton,
+                                'onMouseMove': mouseMove});
+
             canvas.resize(width, height, true);
             keyboard.grab();
             mouse.grab();
-            message("Canvas initialized");
+            message("Display initialized");
+
+            if ('ontouchstart' in document.documentElement) {
+                message("Touch device detected");
+                $D('button-selection').style.display = "inline";
+                $D('button1').onclick = function(){ selectButton(1) };
+                $D('button2').onclick = function(){ selectButton(2) };
+                $D('button4').onclick = function(){ selectButton(4) };
+                selectButton();
+            }
+
         }
     </script>
 </html>
