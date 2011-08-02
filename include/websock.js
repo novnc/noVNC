@@ -19,6 +19,9 @@
 
 if (window.WebSocket) {
     Websock_native = true;
+} else if (window.MozWebSocket) {
+    Websock_native = true;
+    window.WebSocket = window.MozWebSocket;
 } else {
     /* no builtin WebSocket so load web_socket.js */
     Websock_native = false;
