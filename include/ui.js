@@ -64,6 +64,7 @@ load: function(target) {
     html += '            id="VNC_mouse_button2" value="M" onclick="UI.setMouseButton(2);"';
     html += '            ><input type="button" class="VNC_status_button"';
     html += '            id="VNC_mouse_button4" value="R" onclick="UI.setMouseButton(4);">';
+	html += '        <input type="button" id="showKeyboard" onclick="showkeyboard()" value="Keyboard" />';
     html += '        </span></nobr></div></td>';
 
     // Settings drop-down menu
@@ -122,6 +123,7 @@ load: function(target) {
     html += '  <canvas id="VNC_canvas" width="640px" height="20px">';
     html += '      Canvas not supported.';
     html += '  </canvas>';
+	html += '<input id="keyboardinput" style="border:none;" type="text" onKeyDown="onKeyDown(event);"/>';
     html += '</div>';
     html += '<br><br>';
     html += '<div id="VNC_clipboard">';
@@ -472,3 +474,40 @@ clipSend: function() {
 }
 
 };
+
+/*
+  Functions for use of mobile devices native keyboards
+  Added by Chris Gordon
+  http://www.chrisgordon.com.au
+  Date: 23/08/2011
+*/
+
+function showkeyboard(){
+//Get Current Scroll Position of Browser
+var scrollx = (document.all)?document.body.scrollLeft:window.pageXOffset;   
+var scrolly = (document.all)?document.body.scrollTop:window.pageYOffset; 
+
+//Stop browser zooming on textbox when focus is set.
+zoomDisable();
+
+//Focus on hidden textbox to bring up native keyboard.
+document.getElementById('keyboardinput').focus();
+
+//Set scroll position of browser to the same position it was prior to focus.
+scroll(scrollx,scrolly);
+
+//Renable user zooming.
+zoomEnable();
+} 
+
+function zoomDisable(){
+  //Change viewport meta data to disable zooming.
+  $('head meta[name=viewport]').remove();
+  $('head').prepend('<meta name="viewport" content="user-scalable=0" />');
+}
+
+function zoomEnable(){
+  //Change viewport meta data to enable user zooming.
+  $('head meta[name=viewport]').remove();
+  $('head').prepend('<meta name="viewport" content="user-scalable=1" />');
+}
