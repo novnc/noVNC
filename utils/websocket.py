@@ -8,7 +8,7 @@ Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
 Supports following protocol versions:
     - http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-75
     - http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
-    - http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-07
+    - http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-10
 
 You can make a cert/key with openssl using:
 openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem
@@ -49,8 +49,7 @@ else:
 
 # Degraded functionality if these imports are missing
 for mod, sup in [('numpy', 'HyBi protocol'),
-        ('ctypes', 'HyBi protocol'), ('ssl', 'TLS/SSL/wss'),
-        ('resource', 'daemonizing')]:
+        ('ssl', 'TLS/SSL/wss'), ('resource', 'daemonizing')]:
     try:
         globals()[mod] = __import__(mod)
     except ImportError:
@@ -298,9 +297,9 @@ Sec-WebSocket-Accept: %s\r
             f['mask'] = buf[f['hlen']:f['hlen']+4]
             b = c = ''
             if f['length'] >= 4:
-                mask = numpy.frombuffer(buf, dtype=numpy.dtype('<L4'),
+                mask = numpy.frombuffer(buf, dtype=numpy.dtype('<u4'),
                         offset=f['hlen'], count=1)
-                data = numpy.frombuffer(buf, dtype=numpy.dtype('<L4'),
+                data = numpy.frombuffer(buf, dtype=numpy.dtype('<u4'),
                         offset=f['hlen'] + 4, count=int(f['length'] / 4))
                 #b = numpy.bitwise_xor(data, mask).data
                 b = numpy.bitwise_xor(data, mask).tostring()
@@ -615,7 +614,9 @@ Sec-WebSocket-Accept: %s\r
             if sys.hexversion < 0x2060000 or not numpy:
                 raise self.EClose("Python >= 2.6 and numpy module is required for HyBi-07 or greater")
 
-            if ver in ['7', '8', '9']:
+            # HyBi-07 report version 7
+            # HyBi-08 - HyBi-10 report version 8
+            if ver in ['7', '8']:
                 self.version = "hybi-0" + ver
             else:
                 raise self.EClose('Unsupported protocol version %s' % ver)
