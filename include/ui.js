@@ -502,12 +502,28 @@ zoomEnable();
 
 function zoomDisable(){
   //Change viewport meta data to disable zooming.
-  $('head meta[name=viewport]').remove();
-  $('head').prepend('<meta name="viewport" content="user-scalable=0" />');
+  changeViewportMeta("user-scalable=0");
 }
 
 function zoomEnable(){
   //Change viewport meta data to enable user zooming.
-  $('head meta[name=viewport]').remove();
-  $('head').prepend('<meta name="viewport" content="user-scalable=1" />');
+  changeViewportMeta("user-scalable=1");
+}
+
+function changeViewportMeta(newattributes) {
+
+	// First, get the array of meta-tag elements
+   var metatags = document.getElementsByTagName("meta");
+
+    // Update only the Viewport meta tag
+    for (var cnt = 0; cnt < metatags.length; cnt++)
+    {
+	
+        var name = metatags[cnt].getAttribute("name");
+        var content = metatags[cnt].getAttribute("content");
+
+        // Update the Viewport meta tag
+        if (metatags[cnt].getAttribute("name") == "viewport")
+              metatags[cnt].setAttribute("content", newattributes);
+    }
 }
