@@ -305,7 +305,7 @@ Sec-WebSocket-Accept: %s\r
                 b = numpy.bitwise_xor(data, mask).tostring()
 
             if f['length'] % 4:
-                print("Partial unmask")
+                #print("Partial unmask")
                 mask = numpy.frombuffer(buf, dtype=numpy.dtype('B'),
                         offset=f['hlen'], count=(f['length'] % 4))
                 data = numpy.frombuffer(buf, dtype=numpy.dtype('B'),
