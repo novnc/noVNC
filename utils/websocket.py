@@ -225,7 +225,7 @@ Sec-WebSocket-Accept: %s\r
         payload_len = len(buf)
         if payload_len <= 125:
             header = struct.pack('>BB', b1, payload_len)
-        elif payload_len > 125 and payload_len <= 65536:
+        elif payload_len > 125 and payload_len < 65536:
             header = struct.pack('>BBH', b1, 126, payload_len)
         elif payload_len >= 65536:
             header = struct.pack('>BBQ', b1, 127, payload_len)
