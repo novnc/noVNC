@@ -615,9 +615,10 @@ Sec-WebSocket-Accept: %s\r
                 raise self.EClose("Python >= 2.6 and numpy module is required for HyBi-07 or greater")
 
             # HyBi-07 report version 7
-            # HyBi-08 - HyBi-10 report version 8
-            if ver in ['7', '8']:
-                self.version = "hybi-0" + ver
+            # HyBi-08 - HyBi-12 report version 8
+            # HyBi-13 reports version 13
+            if ver in ['7', '8', '13']:
+                self.version = "hybi-%02d" % int(ver)
             else:
                 raise self.EClose('Unsupported protocol version %s' % ver)
 
