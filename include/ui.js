@@ -10,13 +10,30 @@
 /*jslint white: false, browser: true */
 /*global window, $D, Util, WebUtil, RFB, Display */
 
+var msg_cnt = 0, iterations,
+            //fb_width = 800,
+            //fb_height = 768,
+            fb_width=1920,
+            fb_height=900,
+            viewport = {'x': 0, 'y': 0, 'w' : 0, 'h' : 0 },
+            cleanRect = {},
+            penDown = false, doMove = false,
+            inMove = false, lastPos = {},
+            canvas, ctx, keyboard, mouse;
+            
+var newline = "\n";
+
 var UI = {
 
 settingsOpen : false,
 
 // Render default UI and initialize settings menu
 load: function(target) {
-    var html = '', i, sheet, sheets, llevels;
+    if (Util.Engine.trident) {
+        var newline = "<br>\n";
+    }
+    
+    var html = '', i, val, sheet, sheets, llevels;
 
     /* Populate the 'target' DOM element with default UI */
     if (!target) {
@@ -39,17 +56,18 @@ load: function(target) {
         target.innerHTML = html;
         return;
     }
-
-    html += '<div id="VNC_controls">';
-    html += '  <ul>';
-    html += '    <li>Host: <input id="VNC_host"></li>';
-    html += '    <li>Port: <input id="VNC_port"></li>';
-    html += '    <li>Password: <input id="VNC_password"';
-    html += '        type="password"></li>';
-    html += '    <li><input id="VNC_connect_button" type="button"';
-    html += '        value="Loading" disabled></li>';
-    html += '  </ul>';
-    html += '</div>';
+    
+    html+='<table border="0"><tr>';
+    html+='   <td width="150pt">Host: <input id="VNC_host"/></td>';
+    html+='   <td width="100pt">Port: <input id="VNC_port"/></td>';
+    html+='   <td><div id="VNC_passwdField">';
+    html+='	<form onsubmit="return UI.connect();">';
+    html+='		Password: <input id="VNC_password" type="password"/>';
+    html+='	</form>';
+    html+='	<input id="VNC_connect_button" type="button"/>';
+    html+='   </div></td>';
+    html+='</tr></table>';
+    
     html += '<div id="VNC_screen">';
     html += '  <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">';
     html += '    <table border=0 width=100%><tr>';
@@ -86,7 +104,15 @@ load: function(target) {
     html += '            <li><input id="VNC_connectTimeout"';
     html += '                type="input"> Connect Timeout (s)</li>';
     html += '            <hr>';
-
+    
+    // Scale selection dropdown
+    html += '            <li><select id="VNC_scale">';
+    for (i = 10; i >= 1; i -= 1) {
+        val = (i/10).toFixed(1);    
+        html += '<option value="' + val + '">' + val + '</option>';
+    }
+    html += '              </select> Scale</li>';
+    
     // Stylesheet selection dropdown
     html += '            <li><select id="VNC_stylesheet" name="vncStyle">';
     html += '              <option value="default">default</option>';
@@ -140,6 +166,7 @@ load: function(target) {
     // Settings with immediate effects
     UI.initSetting('logging', 'warn');
     WebUtil.init_logging(UI.getSetting('logging'));
+    UI.initSetting('scale', 1.0);
     UI.initSetting('stylesheet', 'default');
 
     WebUtil.selectStylesheet(null); // call twice to get around webkit bug
@@ -158,7 +185,7 @@ load: function(target) {
     UI.rfb = RFB({'target': $D('VNC_canvas'),
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive});
-
+                  
     // Unfocus clipboard when over the VNC area
     $D('VNC_screen').onmousemove = function () {
             var keyboard = UI.rfb.get_keyboard();
@@ -172,7 +199,8 @@ load: function(target) {
         $D('VNC_mouse_buttons').style.display = "inline";
         UI.setMouseButton();
     }
-
+    
+    ctx=UI.rfb.get_display().get_context();
 },
 
 // Read form control compatible setting from cookie
@@ -264,6 +292,7 @@ clickSettingsMenu: function() {
         UI.updateSetting('shared');
         UI.updateSetting('connectTimeout');
         UI.updateSetting('stylesheet');
+        UI.updateSetting('scale');
         UI.updateSetting('logging');
 
         UI.openSettingsMenu();
@@ -300,6 +329,7 @@ settingsDisabled: function(disabled, rfb) {
 
 // Save/apply settings when 'Apply' button is pressed
 settingsApply: function() {
+    var scale = UI.getSetting('scale');
     //Util.Debug(">> settingsApply");
     UI.saveSetting('encrypt');
     UI.saveSetting('true_color');
@@ -308,10 +338,17 @@ settingsApply: function() {
     }
     UI.saveSetting('shared');
     UI.saveSetting('connectTimeout');
+    UI.saveSetting('scale');
     UI.saveSetting('stylesheet');
     UI.saveSetting('logging');
 
     // Settings with immediate (non-connected related) effect
+    if (UI.rfb) {
+        //Util.Debug("scale: " + scale);
+        //UI.rfb.get_display().set_scale(UI.getSetting('scale'));
+        //UI.rfb.get_mouse().set_scale(UI.getSetting('scale'));
+        UI.resize();
+    }
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
     WebUtil.init_logging(UI.getSetting('logging'));
 
@@ -359,22 +396,25 @@ setMouseButton: function(num) {
 },
 
 updateState: function(rfb, state, oldstate, msg) {
-    var s, sb, c, cad, klass;
+    var link, host, port, password, html;
+    var s, sb, cad, klass;
     s = $D('VNC_status');
     sb = $D('VNC_status_bar');
-    c = $D('VNC_connect_button');
     cad = $D('sendCtrlAltDelButton');
+    
     switch (state) {
         case 'failed':
         case 'fatal':
-            c.disabled = true;
             cad.disabled = true;
             UI.settingsDisabled(true, rfb);
             klass = "VNC_status_error";
             break;
         case 'normal':
-            c.value = "Disconnect";
-            c.onclick = UI.disconnect;
+            $D('VNC_passwdField').innerHTML='<input id="VNC_connect_button" type="button"/>';
+            var c=$D('VNC_connect_button');
+            
+            c.value="Disconnect";
+            c.onclick=UI.disconnect;
             c.disabled = false;
             cad.disabled = false;
             UI.settingsDisabled(true, rfb);
@@ -382,25 +422,21 @@ updateState: function(rfb, state, oldstate, msg) {
             break;
         case 'disconnected':
         case 'loaded':
-            c.value = "Connect";
-            c.onclick = UI.connect;
-
-            c.disabled = false;
+	    html='<form onsubmit="return UI.connect();">';
+	    html+='	Password: <input id="VNC_password" type="password"/>';
+	    html+='</form>';
+	    $D('VNC_passwdField').innerHTML=html;
+	    
             cad.disabled = true;
             UI.settingsDisabled(false, rfb);
             klass = "VNC_status_normal";
             break;
         case 'password':
-            c.value = "Send Password";
-            c.onclick = UI.setPassword;
-
-            c.disabled = false;
             cad.disabled = true;
             UI.settingsDisabled(true, rfb);
             klass = "VNC_status_warn";
             break;
         default:
-            c.disabled = true;
             cad.disabled = true;
             UI.settingsDisabled(true, rfb);
             klass = "VNC_status_warn";
@@ -412,15 +448,36 @@ updateState: function(rfb, state, oldstate, msg) {
         sb.setAttribute("class", klass);
         s.innerHTML = msg;
     }
-
 },
+
+/* updateState: function(rfb, state, oldstate, msg) {
+            var link, s, sb, cad, level;
+            s = $D('VNC_status');
+            sb = $D('VNC_status_bar');
+            cad = $D('sendCtrlAltDelButton');
+            switch (state) {
+                case 'failed':       level = "error";  break;
+                case 'fatal':        level = "error";  break;
+                case 'normal':       level = "normal"; break;
+                case 'disconnected': level = "normal"; break;
+                case 'loaded':       level = "normal"; break;
+                default:             level = "warn";   break;
+            }
+
+            if (state === "normal") { cad.disabled = false; }
+            else                    { cad.disabled = true; }
+
+            if (typeof(msg) !== 'undefined') {
+                sb.setAttribute("class", "VNC_status_" + level);
+                s.innerHTML = msg;
+            }
+}, */
 
 clipReceive: function(rfb, text) {
     Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
     $D('VNC_clipboard_text').value = text;
     Util.Debug("<< UI.clipReceive");
 },
-
 
 connect: function() {
     var host, port, password;
@@ -439,13 +496,17 @@ connect: function() {
     UI.rfb.set_local_cursor(UI.getSetting('cursor'));
     UI.rfb.set_shared(UI.getSetting('shared'));
     UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
-
+    
     UI.rfb.connect(host, port, password);
+    
+    UI.message("resizing...");
+    UI.resize();
+    
+    return false;
 },
 
 disconnect: function() {
     UI.closeSettingsMenu();
-
     UI.rfb.disconnect();
 },
 
@@ -469,6 +530,65 @@ clipSend: function() {
     Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
     UI.rfb.clipboardPasteFrom(text);
     Util.Debug("<< UI.clipSend");
-}
+},
 
+
+        
+message: function(str) {
+            console.log(str);
+            var cell = $D('messages');
+            cell.innerHTML += msg_cnt + ": " + str + newline;
+            cell.scrollTop = cell.scrollHeight;
+            msg_cnt++;
+        },
+        
+/* Test graphics (repeating pattern). */
+drawArea: function(x, y, w, h) {
+            this.message("draw "+x+","+y+" ("+w+","+h+")");
+            var imgData = ctx.createImageData(w, h),
+                data = imgData.data, pixel, realX, realY;
+
+            for (var i = 0; i < w; i++) {
+                realX = viewport.x + x + i;
+                for (var j = 0; j < h; j++) {
+                    realY = viewport.y + y + j;
+                    pixel = (j * w * 4 + i * 4);
+                    data[pixel + 0] = ((realX * realY) / 13) % 256;
+                    data[pixel + 1] = ((realX * realY) + 392) % 256;
+                    data[pixel + 2] = ((realX + realY) + 256) % 256;
+                    data[pixel + 3] = 255;
+                }
+            }
+            //message("i: " + i + ", j: " + j + ", pixel: " + pixel);
+            ctx.putImageData(imgData, x, y);
+        },
+        
+resize: function() {
+            var v = viewport,
+                cw = $D('vnc').offsetWidth,
+                ch = $D('vnc').offsetHeight;
+                //cw = target.offsetWidth,
+                //ch = target.offsetHeight;
+                
+            this.message("container: " + cw + "," + ch);
+            
+            if (cw > fb_width) {
+                cw = fb_width;
+            }
+            if (ch > fb_height) {
+                ch = fb_height;
+            }
+            if ((cw !== v.w) || (ch !== v.h)) {
+                v.w = cw;
+                v.h = ch;
+                this.message("new viewport: " + v.w + "," + v.h);
+                //$D('VNC_canvas').resize(v.w, v.h);
+                //UI.canvas.resize(v.w, v.h);
+                UI.rfb.get_display().resize(v.w, v.h);
+                //UI.rfb.get_display().get_context().updateState
+                //UI.updateState("loaded");
+                //UI.drawArea(0, 0, v.w, v.h);
+            }
+            this.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
+        }
 };
