@@ -8,6 +8,7 @@
     <head>
         <title>noVNC</title>
         <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <link rel="stylesheet" href="../include/mobile.css">
         <link rel="stylesheet" href="include/plain.css">
         <link rel="alternate stylesheet" href="include/black.css" TITLE="Black">
         <!--
@@ -19,12 +20,94 @@
     </head>
 
     <body>
-        <div id='vnc'>Loading</div>
+        <div id="vnc" class="flex-box">Loading...</div>
+        <div>
+            <br>
+            Results:<br>
+            <textarea id="messages" font="9pt" cols=80 rows=8></textarea>
+        </div>
 
         <script>
-        window.onload = function () {
-            UI.load('vnc');
+        /* var msg_cnt = 0, iterations,
+            fb_width = 800,
+            fb_height = 768,
+            viewport = {'x': 0, 'y': 0, 'w' : 0, 'h' : 0 },
+            cleanRect = {},
+            penDown = false, doMove = false,
+            inMove = false, lastPos = {},
+            canvas, ctx, keyboard, mouse;
+            
+        var newline = "\n";
+        if (Util.Engine.trident) {
+            var newline = "<br>\n";
+        }
+        
+        function message(str) {
+            console.log(str);
+            cell = $D('messages');
+            cell.innerHTML += msg_cnt + ": " + str + newline;
+            cell.scrollTop = cell.scrollHeight;
+            msg_cnt++;
+        }
+        
+        function drawArea(x, y, w, h) {
+            message("draw "+x+","+y+" ("+w+","+h+")");
+            var imgData = ctx.createImageData(w, h),
+                data = imgData.data, pixel, realX, realY;
+
+            for (var i = 0; i < w; i++) {
+                realX = viewport.x + x + i;
+                for (var j = 0; j < h; j++) {
+                    realY = viewport.y + y + j;
+                    pixel = (j * w * 4 + i * 4);
+                    data[pixel + 0] = ((realX * realY) / 13) % 256;
+                    data[pixel + 1] = ((realX * realY) + 392) % 256;
+                    data[pixel + 2] = ((realX + realY) + 256) % 256;
+                    data[pixel + 3] = 255;
+                }
+            }
+            //message("i: " + i + ", j: " + j + ", pixel: " + pixel);
+            ctx.putImageData(imgData, x, y);
+        }
+        
+        window.onresize = function() {
+            var v = viewport,
+                cw = $D('container').offsetWidth,
+                ch = $D('container').offsetHeight;
+
+            message("container: " + cw + "," + ch + "; framebuffer: "+fb_width+","+fb_height);
+
+            if (cw > fb_width) {
+                cw = fb_width;
+            }
+            if (ch > fb_height) {
+                ch = fb_height;
+            }
+            if ((cw !== v.w) || (ch !== v.h)) {
+                v.w = cw;
+                v.h = ch;
+                message("new viewport: " + v.w + "," + v.h);
+                canvas.resize(v.w, v.h);
+                drawArea(0, 0, v.w, v.h);
+            }
         };
+        
+        window.onload = function () {
+            UI.load('container');
+            canvas = new Display({'target' : $D('VNC_canvas')});
+            ctx = canvas.get_context();
+//            mouse    = new Mouse({'target': $D('VNC_canvas'),
+//                                'onMouseButton': mouseButton,
+//                                'onMouseMove': mouseMove});
+            
+            window.onresize();
+            //mouse.grab();
+        }; */
+        
+        //if (!UI) {window.onload();}
+        
+        window.onresize=function() {UI.resize();};
+        window.onload=function() {UI.load('vnc');};
         </script>
 
     </body>
