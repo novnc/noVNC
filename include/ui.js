@@ -355,8 +355,6 @@ settingsApply: function() {
     //Util.Debug("<< settingsApply");
 },
 
-
-
 setPassword: function() {
     UI.rfb.sendPassword($D('VNC_password').value);
     return false;
@@ -533,62 +531,61 @@ clipSend: function() {
 },
 
 
-        
 message: function(str) {
-            console.log(str);
-            var cell = $D('messages');
-            cell.innerHTML += msg_cnt + ": " + str + newline;
-            cell.scrollTop = cell.scrollHeight;
-            msg_cnt++;
-        },
+    console.log(str);
+    var cell = $D('messages');
+    cell.innerHTML += msg_cnt + ": " + str + newline;
+    cell.scrollTop = cell.scrollHeight;
+    msg_cnt++;
+},
         
 /* Test graphics (repeating pattern). */
 drawArea: function(x, y, w, h) {
-            this.message("draw "+x+","+y+" ("+w+","+h+")");
-            var imgData = ctx.createImageData(w, h),
-                data = imgData.data, pixel, realX, realY;
+    this.message("draw "+x+","+y+" ("+w+","+h+")");
+    var imgData = ctx.createImageData(w, h),
+        data = imgData.data, pixel, realX, realY;
 
-            for (var i = 0; i < w; i++) {
-                realX = viewport.x + x + i;
-                for (var j = 0; j < h; j++) {
-                    realY = viewport.y + y + j;
-                    pixel = (j * w * 4 + i * 4);
-                    data[pixel + 0] = ((realX * realY) / 13) % 256;
-                    data[pixel + 1] = ((realX * realY) + 392) % 256;
-                    data[pixel + 2] = ((realX + realY) + 256) % 256;
-                    data[pixel + 3] = 255;
-                }
-            }
-            //message("i: " + i + ", j: " + j + ", pixel: " + pixel);
-            ctx.putImageData(imgData, x, y);
-        },
+    for (var i = 0; i < w; i++) {
+        realX = viewport.x + x + i;
+        for (var j = 0; j < h; j++) {
+            realY = viewport.y + y + j;
+            pixel = (j * w * 4 + i * 4);
+            data[pixel + 0] = ((realX * realY) / 13) % 256;
+            data[pixel + 1] = ((realX * realY) + 392) % 256;
+            data[pixel + 2] = ((realX + realY) + 256) % 256;
+            data[pixel + 3] = 255;
+        }
+    }
+    //message("i: " + i + ", j: " + j + ", pixel: " + pixel);
+    ctx.putImageData(imgData, x, y);
+},
         
 resize: function() {
-            var v = viewport,
-                cw = $D('vnc').offsetWidth,
-                ch = $D('vnc').offsetHeight;
-                //cw = target.offsetWidth,
-                //ch = target.offsetHeight;
-                
-            this.message("container: " + cw + "," + ch);
-            
-            if (cw > fb_width) {
-                cw = fb_width;
-            }
-            if (ch > fb_height) {
-                ch = fb_height;
-            }
-            if ((cw !== v.w) || (ch !== v.h)) {
-                v.w = cw;
-                v.h = ch;
-                this.message("new viewport: " + v.w + "," + v.h);
-                //$D('VNC_canvas').resize(v.w, v.h);
-                //UI.canvas.resize(v.w, v.h);
-                UI.rfb.get_display().resize(v.w, v.h);
-                //UI.rfb.get_display().get_context().updateState
-                //UI.updateState("loaded");
-                //UI.drawArea(0, 0, v.w, v.h);
-            }
-            this.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
-        }
+    var v = viewport,
+    cw = $D('vnc').offsetWidth,
+    ch = $D('vnc').offsetHeight;
+    //cw = target.offsetWidth,
+    //ch = target.offsetHeight;
+    
+    this.message("container: " + cw + "," + ch);
+    
+    if (cw > fb_width) {
+        cw = fb_width;
+    }
+    if (ch > fb_height) {
+        ch = fb_height;
+    }
+    if ((cw !== v.w) || (ch !== v.h)) {
+        v.w = cw;
+        v.h = ch;
+        this.message("new viewport: " + v.w + "," + v.h);
+        //$D('VNC_canvas').resize(v.w, v.h);
+        //UI.canvas.resize(v.w, v.h);
+        UI.rfb.get_display().resize(v.w, v.h);
+        //UI.rfb.get_display().get_context().updateState
+        //UI.updateState("loaded");
+        //UI.drawArea(0, 0, v.w, v.h);
+    }
+    this.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
+}
 };
