@@ -13,132 +13,26 @@
 var UI = {
 
 settingsOpen : false,
+ConnSettingsOpen : true,
+clipboardOpen: false,
 
 // Render default UI and initialize settings menu
-load: function(target) {
+load: function() {
     var html = '', i, sheet, sheets, llevels;
 
-    /* Populate the 'target' DOM element with default UI */
-    if (!target) {
-        target = $D('vnc');
-    } else if (typeof target === 'string') {
-        target = $D(target);
-    }
-
-    if ((!document.createElement('canvas').getContext) &&
-        window.ActiveXObject) {
-        // Suggest Chrome frame for Internet Explorer users
-        html += '<center><div style="text-align: left; width: 400px">';
-        html += '  You are using a version of Internet Explorer ';
-        html += '  that does not have HTML5 Canvas support. ';
-        html += '  To use noVNC you must use a browser with HTML5 ';
-        html += '  Canvas support or install ';
-        html += '  <a href="http://google.com/chromeframe" target="cframe">';
-        html += '  Google Chrome Frame.</a>';
-        html += '</div></center>';
-        target.innerHTML = html;
-        return;
-    }
-
-    html += '<div id="VNC_controls">';
-    html += '  <ul>';
-    html += '    <li>Host: <input id="VNC_host"></li>';
-    html += '    <li>Port: <input id="VNC_port"></li>';
-    html += '    <li>Password: <input id="VNC_password"';
-    html += '        type="password"></li>';
-    html += '    <li><input id="VNC_connect_button" type="button"';
-    html += '        value="Loading" disabled></li>';
-    html += '  </ul>';
-    html += '</div>';
-    html += '<div id="VNC_screen">';
-    html += '  <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">';
-    html += '    <table border=0 width=100%><tr>';
-    html += '      <td><div id="VNC_status">Loading</div></td>';
-
-    // Mouse button selectors for touch devices
-    html += '      <td width=1%><div class="VNC_buttons_right">';
-    html += '        <nobr><span id="VNC_mouse_buttons" style="display: none;">';
-    html += '          <input type="button" class="VNC_status_button"';
-    html += '            id="VNC_mouse_button1" value="L" onclick="UI.setMouseButton(1);"';
-    html += '            ><input type="button" class="VNC_status_button"';
-    html += '            id="VNC_mouse_button2" value="M" onclick="UI.setMouseButton(2);"';
-    html += '            ><input type="button" class="VNC_status_button"';
-    html += '            id="VNC_mouse_button4" value="R" onclick="UI.setMouseButton(4);">';
-	html += '        <input type="button" id="showKeyboard" onclick="showkeyboard()" value="Keyboard" />';
-    html += '        </span></nobr></div></td>';
-
-    // Settings drop-down menu
-    html += '      <td width=1%><div class="VNC_buttons_right">';
-    html += '        <input type=button class="VNC_status_button" value="Settings"';
-    html += '          id="menuButton"';
-    html += '          onclick="UI.clickSettingsMenu();">';
-    html += '        <span id="VNC_settings_menu"';
-    html += '          onmouseover="UI.displayBlur();"';
-    html += '          onmouseout="UI.displayFocus();">';
-    html += '          <ul>';
-    html += '            <li><input id="VNC_encrypt"';
-    html += '                type="checkbox"> Encrypt</li>';
-    html += '            <li><input id="VNC_true_color"';
-    html += '                type="checkbox" checked> True Color</li>';
-    html += '            <li><input id="VNC_cursor"';
-    html += '                type="checkbox"> Local Cursor</li>';
-    html += '            <li><input id="VNC_shared"';
-    html += '                type="checkbox"> Shared Mode</li>';
-    html += '            <li><input id="VNC_connectTimeout"';
-    html += '                type="input"> Connect Timeout (s)</li>';
-    html += '            <hr>';
-
-    // Stylesheet selection dropdown
-    html += '            <li><select id="VNC_stylesheet" name="vncStyle">';
-    html += '              <option value="default">default</option>';
+    // Stylesheet selection dropdown	
     sheet = WebUtil.selectStylesheet();
     sheets = WebUtil.getStylesheets();
     for (i = 0; i < sheets.length; i += 1) {
-        html += '<option value="' + sheets[i].title + '">' + sheets[i].title + '</option>';
+		addOption($D('noVNC_stylesheet'),sheets[i].title, sheets[i].title);
     }
-    html += '              </select> Style</li>';
 
     // Logging selection dropdown
-    html += '            <li><select id="VNC_logging" name="vncLogging">';
     llevels = ['error', 'warn', 'info', 'debug'];
     for (i = 0; i < llevels.length; i += 1) {
-        html += '<option value="' + llevels[i] + '">' + llevels[i] + '</option>';
+		addOption($D('noVNC_logging'),llevels[i], llevels[i]);
     }
-    html += '              </select> Logging</li>';
-
-    html += '            <hr>';
-    html += '            <li><input type="button" id="VNC_apply" value="Apply"';
-    html += '                onclick="UI.settingsApply()"></li>';
-    html += '          </ul>';
-    html += '        </span></div></td>';
-
-    // CtrlAltDel Button
-    html += '      <td width=1%><div class="VNC_buttons_right">';
-    html += '        <input type=button class="VNC_status_button" value="CtrlAltDel"';
-    html += '          id="sendCtrlAltDelButton"';
-    html += '          onclick="UI.sendCtrlAltDel();"></div></td>';
-
-    html += '    </tr></table>';
-    html += '  </div>';
-    html += '  <canvas id="VNC_canvas" width="640px" height="20px">';
-    html += '      Canvas not supported.';
-    html += '  </canvas>';
-	html += '<input id="keyboardinput" style="border:none;" type="text" onKeyDown="onKeyDown(event);"/>';
-    html += '</div>';
-    html += '<br><br>';
-    html += '<div id="VNC_clipboard">';
-    html += '  VNC Clipboard:';
-    html += '  <input id="VNC_clipboard_clear_button"';
-    html += '      type="button" value="Clear"';
-    html += '      onclick="UI.clipClear();">';
-    html += '  <br>';
-    html += '  <textarea id="VNC_clipboard_text" cols=80 rows=5';
-    html += '    onfocus="UI.displayBlur();"';
-    html += '    onblur="UI.displayFocus();"';
-    html += '    onchange="UI.clipSend();"></textarea>';
-    html += '</div>';
-    target.innerHTML = html;
-
+	
     // Settings with immediate effects
     UI.initSetting('logging', 'warn');
     WebUtil.init_logging(UI.getSetting('logging'));
@@ -148,38 +42,46 @@ load: function(target) {
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
     /* Populate the controls if defaults are provided in the URL */
-    UI.initSetting('host', '');
+    UI.initSetting('host', ''); 
     UI.initSetting('port', '');
     UI.initSetting('password', '');
     UI.initSetting('encrypt', false);
     UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
-    UI.initSetting('shared', true);
+    UI.initSetting('shared', true); 
     UI.initSetting('connectTimeout', 2);
 
-    UI.rfb = RFB({'target': $D('VNC_canvas'),
+    UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive});
-
+ 
     // Unfocus clipboard when over the VNC area
-    $D('VNC_screen').onmousemove = function () {
-            var keyboard = UI.rfb.get_keyboard();
-            if ((! keyboard) || (! keyboard.get_focused())) {
-                $D('VNC_clipboard_text').blur();
-            }
-        };
-
+    //$D('VNC_screen').onmousemove = function () {
+    //         var keyboard = UI.rfb.get_keyboard();
+    //        if ((! keyboard) || (! keyboard.get_focused())) {
+    //            $D('VNC_clipboard_text').blur();
+    //         }
+    //    };
+		
     // Show mouse selector buttons on touch screen devices
     if ('ontouchstart' in document.documentElement) {
-        $D('VNC_mouse_buttons').style.display = "inline";
+        $D('noVNC_mobile_buttons').style.display = "inline";
         UI.setMouseButton();
+		window.scrollTo(0, 1); 
     }
+
+	//iOS Safari does not support CSS position:fixed. This detects iOS devices and enables javascript workaround.  
+	if((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i))) {	
+		alert("here");
+	setOnscroll();
+		setResize();
+	}
 
 },
 
 // Read form control compatible setting from cookie
 getSetting: function(name) {
-    var val, ctrl = $D('VNC_' + name);
+    var val, ctrl = $D('noVNC_' + name);
     val = WebUtil.readCookie(name);
     if (ctrl.type === 'checkbox') {
         if (val.toLowerCase() in {'0':1, 'no':1, 'false':1}) {
@@ -194,16 +96,23 @@ getSetting: function(name) {
 // Update cookie and form control setting. If value is not set, then
 // updates from control to current cookie setting.
 updateSetting: function(name, value) {
-    var i, ctrl = $D('VNC_' + name);
+
+    var i, ctrl = $D('noVNC_' + name);
     // Save the cookie for this session
     if (typeof value !== 'undefined') {
         WebUtil.createCookie(name, value);
     }
-
+	if(name === 'host')
+	{
+		
+		
+	}
     // Update the settings control
     value = UI.getSetting(name);
+
     if (ctrl.type === 'checkbox') {
         ctrl.checked = value;
+		
     } else if (typeof ctrl.options !== 'undefined') {
         for (i = 0; i < ctrl.options.length; i += 1) {
             if (ctrl.options[i].value === value) {
@@ -212,13 +121,18 @@ updateSetting: function(name, value) {
             }
         }
     } else {
+		/*Weird IE9 error leads to 'null' appearring in textboxes instead of ''.*/
+		if(value === null)
+		{
+			value = "";
+		}
         ctrl.value = value;
     }
 },
 
 // Save control setting to cookie
 saveSetting: function(name) {
-    var val, ctrl = $D('VNC_' + name);
+    var val, ctrl = $D('noVNC_' + name);
     if (ctrl.type === 'checkbox') {
         val = ctrl.checked;
     } else if (typeof ctrl.options !== 'undefined') {
@@ -261,7 +175,7 @@ clickSettingsMenu: function() {
             UI.updateSetting('cursor');
         } else {
             UI.updateSetting('cursor', false);
-            $D('VNC_cursor').disabled = true;
+            $D('noVNC_cursor').disabled = true;
         }
         UI.updateSetting('shared');
         UI.updateSetting('connectTimeout');
@@ -274,29 +188,37 @@ clickSettingsMenu: function() {
 
 // Open menu
 openSettingsMenu: function() {
-    $D('VNC_settings_menu').style.display = "block";
+	if(UI.clipboardOpen == true)
+	{	
+		UI.showClipboard(); 
+	} 
+	//Close connection settings if open
+	if(UI.ConnSettingsOpen == true) {
+		connectPanelbutton();
+	}
+	$D('noVNC_Settings').style.display = "block";
     UI.settingsOpen = true;
 },
 
 // Close menu (without applying settings)
 closeSettingsMenu: function() {
-    $D('VNC_settings_menu').style.display = "none";
+    $D('noVNC_Settings').style.display = "none";
     UI.settingsOpen = false;
 },
 
 // Disable/enable controls depending on connection state
 settingsDisabled: function(disabled, rfb) {
     //Util.Debug(">> settingsDisabled");
-    $D('VNC_encrypt').disabled = disabled;
-    $D('VNC_true_color').disabled = disabled;
+    $D('noVNC_encrypt').disabled = disabled;
+    $D('noVNC_true_color').disabled = disabled;
     if (rfb && rfb.get_display() && rfb.get_display().get_cursor_uri()) {
-        $D('VNC_cursor').disabled = disabled;
+        $D('noVNC_cursor').disabled = disabled;
     } else {
         UI.updateSetting('cursor', false);
-        $D('VNC_cursor').disabled = true;
+        $D('noVNC_cursor').disabled = true;
     }
-    $D('VNC_shared').disabled = disabled;
-    $D('VNC_connectTimeout').disabled = disabled;
+    $D('noVNC_shared').disabled = disabled;
+    $D('noVNC_connectTimeout').disabled = disabled;
     //Util.Debug("<< settingsDisabled");
 },
 
@@ -316,14 +238,13 @@ settingsApply: function() {
     // Settings with immediate (non-connected related) effect
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
     WebUtil.init_logging(UI.getSetting('logging'));
-
     //Util.Debug("<< settingsApply");
 },
 
 
 
 setPassword: function() {
-    UI.rfb.sendPassword($D('VNC_password').value);
+    UI.rfb.sendPassword($D('noVNC_password').value);
     return false;
 },
 
@@ -348,7 +269,7 @@ setMouseButton: function(num) {
     }
 
     for (b = 0; b < blist.length; b++) {
-        button = $D('VNC_mouse_button' + blist[b]);
+        button = $D('noVNC_mouse_button' + blist[b]);
         if (blist[b] === num) {
             button.style.backgroundColor = "black";
             button.style.color = "lightgray";
@@ -357,14 +278,13 @@ setMouseButton: function(num) {
             button.style.color = "";
         }
     }
-
 },
 
 updateState: function(rfb, state, oldstate, msg) {
     var s, sb, c, cad, klass;
-    s = $D('VNC_status');
-    sb = $D('VNC_status_bar');
-    c = $D('VNC_connect_button');
+    s = $D('noVNC_status');
+    sb = $D('noVNC_status_bar');
+    c = $D('noVNC_connect_button');
     cad = $D('sendCtrlAltDelButton');
     switch (state) {
         case 'failed':
@@ -372,7 +292,7 @@ updateState: function(rfb, state, oldstate, msg) {
             c.disabled = true;
             cad.disabled = true;
             UI.settingsDisabled(true, rfb);
-            klass = "VNC_status_error";
+            klass = "noVNC_status_error";
             break;
         case 'normal':
             c.value = "Disconnect";
@@ -380,9 +300,10 @@ updateState: function(rfb, state, oldstate, msg) {
             c.disabled = false;
             cad.disabled = false;
             UI.settingsDisabled(true, rfb);
-            klass = "VNC_status_normal";
+            klass = "noVNC_status_normal";
             break;
         case 'disconnected':
+				$D('noVNC_defaultScreen').style.display = "block";
         case 'loaded':
             c.value = "Connect";
             c.onclick = UI.connect;
@@ -390,7 +311,7 @@ updateState: function(rfb, state, oldstate, msg) {
             c.disabled = false;
             cad.disabled = true;
             UI.settingsDisabled(false, rfb);
-            klass = "VNC_status_normal";
+            klass = "noVNC_status_normal";
             break;
         case 'password':
             c.value = "Send Password";
@@ -399,13 +320,13 @@ updateState: function(rfb, state, oldstate, msg) {
             c.disabled = false;
             cad.disabled = true;
             UI.settingsDisabled(true, rfb);
-            klass = "VNC_status_warn";
+            klass = "noVNC_status_warn";
             break;
         default:
             c.disabled = true;
             cad.disabled = true;
             UI.settingsDisabled(true, rfb);
-            klass = "VNC_status_warn";
+            klass = "noVNC_status_warn";
             break;
     }
 
@@ -419,7 +340,7 @@ updateState: function(rfb, state, oldstate, msg) {
 
 clipReceive: function(rfb, text) {
     Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
-    $D('VNC_clipboard_text').value = text;
+    $D('noVNC_clipboard_text').value = text;
     Util.Debug("<< UI.clipReceive");
 },
 
@@ -428,10 +349,10 @@ connect: function() {
     var host, port, password;
 
     UI.closeSettingsMenu();
-
-    host = $D('VNC_host').value;
-    port = $D('VNC_port').value;
-    password = $D('VNC_password').value;
+	connectPanelbutton();
+    host = $D('noVNC_host').value;
+    port = $D('noVNC_port').value;
+    password = $D('noVNC_password').value;
     if ((!host) || (!port)) {
         throw("Must set host and port");
     }
@@ -443,12 +364,16 @@ connect: function() {
     UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
 
     UI.rfb.connect(host, port, password);
+	//Close dialog.
+	setTimeout("setBarPosition()",100);
+	$D('noVNC_defaultScreen').style.display = "none";
 },
 
 disconnect: function() {
     UI.closeSettingsMenu();
-
     UI.rfb.disconnect();
+	$D('noVNC_defaultScreen').style.display = "block";
+	UI.openSettingsMenu();
 },
 
 displayBlur: function() {
@@ -462,41 +387,70 @@ displayFocus: function() {
 },
 
 clipClear: function() {
-    $D('VNC_clipboard_text').value = "";
+    $D('noVNC_clipboard_text').value = "";
     UI.rfb.clipboardPasteFrom("");
 },
 
 clipSend: function() {
-    var text = $D('VNC_clipboard_text').value;
+    var text = $D('noVNC_clipboard_text').value;
     Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
     UI.rfb.clipboardPasteFrom(text);
     Util.Debug("<< UI.clipSend");
+},
+
+showClipboard: function() {
+	//Close settings if open
+	if(UI.settingsOpen == true) {
+		UI.closeSettingsMenu();
+	}
+	//Close connection settings if open
+	if(UI.ConnSettingsOpen == true) {
+		connectPanelbutton();
+	}
+	//Toggle Connection Panel
+	if(UI.clipboardOpen == true)
+	{	$D('noVNC_clipboard').style.display = "none";
+		UI.clipboardOpen = false;
+	} else {
+		$D('noVNC_clipboard').style.display = "block";
+		UI.clipboardOpen = true;
+	}
 }
 
 };
 
-/*
-  Functions for use of mobile devices native keyboards
-  Added by Chris Gordon
-  http://www.chrisgordon.com.au
-  Date: 23/08/2011
-*/
+function connectPanelbutton() {
+	//Close connection settings if open
+	if(UI.settingsOpen == true) {
+		UI.closeSettingsMenu();
+	}
+	if(UI.clipboardOpen == true)
+	{	
+		UI.showClipboard(); 
+	} 
+	
+	//Toggle Connection Panel
+	if(UI.ConnSettingsOpen == true)
+	{	
+		$D('noVNC_controls').style.display = "none";
+		UI.ConnSettingsOpen = false;
+	} else {
+		$D('noVNC_controls').style.display = "block";
+		UI.ConnSettingsOpen = true;
+	}
+}
 
 function showkeyboard(){
-//Get Current Scroll Position of Browser
+//Get Current Scroll Position
 var scrollx = (document.all)?document.body.scrollLeft:window.pageXOffset;   
 var scrolly = (document.all)?document.body.scrollTop:window.pageYOffset; 
 
-//Stop browser zooming on textbox when focus is set.
+
+//Stop browser zooming on textbox.
 zoomDisable();
-
-//Focus on hidden textbox to bring up native keyboard.
-document.getElementById('keyboardinput').focus();
-
-//Set scroll position of browser to the same position it was prior to focus.
-scroll(scrollx,scrolly);
-
-//Renable user zooming.
+		$D('keyboardinput').focus();
+		scroll(scrollx,scrolly);
+//Renable user zoom.
 zoomEnable();
 } 
 
@@ -526,4 +480,36 @@ function changeViewportMeta(newattributes) {
         if (metatags[cnt].getAttribute("name") == "viewport")
               metatags[cnt].setAttribute("content", newattributes);
     }
+}
+
+//iOS < Version 5 does not support position fixed. Javascript workaround:
+function setOnscroll() {
+	window.onscroll = function() {
+		setBarPosition();
+	};
+}
+
+function setResize() {
+	window.onResize = function() {
+		setBarPosition();
+	};
+}
+
+function setBarPosition() {
+  $D('VNC_mobile_bar').style.top = (window.pageYOffset) + 'px';
+  $D('VNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
+   
+  $D('VNC_mobile_buttons_right').style.right = 0 + 'px'; 
+  
+   var vncwidth = $('#VNC_screen').width();
+   $D('VNC_mobile_bar').style.width = vncwidth + 'px';
+}
+
+//Helper to add options to dropdown.
+function addOption(selectbox,text,value )
+{
+	var optn = document.createElement("OPTION");
+	optn.text = text;
+	optn.value = value;
+	selectbox.options.add(optn);
 }
