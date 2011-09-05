@@ -72,11 +72,10 @@ load: function() {
 
 	//iOS Safari does not support CSS position:fixed. This detects iOS devices and enables javascript workaround.  
 	if((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i))) {	
-		alert("here");
-	setOnscroll();
-		setResize();
+ 
+		setOnscroll();
+		setResize(); 
 	}
-
 },
 
 // Read form control compatible setting from cookie
@@ -445,7 +444,6 @@ function showkeyboard(){
 var scrollx = (document.all)?document.body.scrollLeft:window.pageXOffset;   
 var scrolly = (document.all)?document.body.scrollTop:window.pageYOffset; 
 
-
 //Stop browser zooming on textbox.
 zoomDisable();
 		$D('keyboardinput').focus();
@@ -496,13 +494,12 @@ function setResize() {
 }
 
 function setBarPosition() {
-  $D('VNC_mobile_bar').style.top = (window.pageYOffset) + 'px';
-  $D('VNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-   
-  $D('VNC_mobile_buttons_right').style.right = 0 + 'px'; 
+  $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
+  $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
+  $D('noVNC_mobile_buttons_right').style.right = 0 + 'px'; 
   
-   var vncwidth = $('#VNC_screen').width();
-   $D('VNC_mobile_bar').style.width = vncwidth + 'px';
+   var vncwidth = $('#noVNC_screen').width();
+   $D('noVNC-control-bar').style.width = vncwidth + 'px';
 }
 
 //Helper to add options to dropdown.
