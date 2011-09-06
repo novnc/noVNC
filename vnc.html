@@ -28,7 +28,8 @@
         </div>
 
         <script>
-            window.onresize=function() {UI.resize();};
+            window.onresize=function() {UI.rfb.get_display().resize(); UI.rfb.get_display().refresh();};
+            //window.onresize=function() {UI.rfb.get_display().resize();};
             window.onload=function() {UI.load('vnc');};
         </script>
     </body>

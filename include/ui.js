@@ -23,9 +23,14 @@ var msg_cnt = 0, iterations,
             
 var newline = "\n";
 
+
 var UI = {
 
 settingsOpen : false,
+
+host: '',
+port: '',
+password: '',
 
 // Render default UI and initialize settings menu
 load: function(target) {
@@ -347,7 +352,7 @@ settingsApply: function() {
         //Util.Debug("scale: " + scale);
         //UI.rfb.get_display().set_scale(UI.getSetting('scale'));
         //UI.rfb.get_mouse().set_scale(UI.getSetting('scale'));
-        UI.resize();
+        UI.rfb.get_display().resize();
     }
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
     WebUtil.init_logging(UI.getSetting('logging'));
@@ -394,8 +399,8 @@ setMouseButton: function(num) {
 },
 
 updateState: function(rfb, state, oldstate, msg) {
-    var link, host, port, password, html;
-    var s, sb, cad, klass;
+    //var link, host, port, password;
+    var html, s, sb, cad, klass;
     s = $D('VNC_status');
     sb = $D('VNC_status_bar');
     cad = $D('sendCtrlAltDelButton');
@@ -481,7 +486,7 @@ connect: function() {
     var host, port, password;
 
     UI.closeSettingsMenu();
-
+    
     host = $D('VNC_host').value;
     port = $D('VNC_port').value;
     password = $D('VNC_password').value;
@@ -497,13 +502,46 @@ connect: function() {
     
     UI.rfb.connect(host, port, password);
     
-    UI.message("resizing...");
-    UI.resize();
-    
     return false;
 },
 
+/* connect: function() {
+    UI.closeSettingsMenu();
+    //UI.rfb.disconnect();
+    
+    // Reconnect using existing credentials when they are available, otherwise set credentials and connect.
+    //   Upon disconnect or on page load, the credentials will not be available, and user will be shown a login screen, 
+    //   where the proper credentials must be supplied.
+    UI.message("!password? "+!UI.password);
+    if (!UI.host || !UI.port || !UI.password) {
+        //if ($D('VNC_host').value.length>0 && $D('VNC_port').value.length>0 && $D('VNC_password').value.length>0) {
+        UI.host = $D('VNC_host').value;
+        UI.port = $D('VNC_port').value;
+        UI.password = $D('VNC_password').value;
+        if ((!UI.host) || (!UI.port)) {
+            throw("Must set host and port");
+        }
+    UI.message("password: "+UI.password);
+
+    UI.rfb.set_encrypt(UI.getSetting('encrypt'));
+    UI.rfb.set_true_color(UI.getSetting('true_color'));
+    UI.rfb.set_local_cursor(UI.getSetting('cursor'));
+    UI.rfb.set_shared(UI.getSetting('shared'));
+    UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
+    
+    //UI.rfb.disconnect();
+    UI.rfb.connect(UI.host, UI.port, UI.password);
+    
+    //UI.message("resizing...");
+    //UI.rfb.get_display().resize();
+        //}
+    }
+    
+    return false;
+}, */
+
 disconnect: function() {
+    UI.password=null;
     UI.closeSettingsMenu();
     UI.rfb.disconnect();
 },
@@ -537,55 +575,5 @@ message: function(str) {
     cell.innerHTML += msg_cnt + ": " + str + newline;
     cell.scrollTop = cell.scrollHeight;
     msg_cnt++;
-},
-        
-/* Test graphics (repeating pattern). */
-drawArea: function(x, y, w, h) {
-    this.message("draw "+x+","+y+" ("+w+","+h+")");
-    var imgData = ctx.createImageData(w, h),
-        data = imgData.data, pixel, realX, realY;
-
-    for (var i = 0; i < w; i++) {
-        realX = viewport.x + x + i;
-        for (var j = 0; j < h; j++) {
-            realY = viewport.y + y + j;
-            pixel = (j * w * 4 + i * 4);
-            data[pixel + 0] = ((realX * realY) / 13) % 256;
-            data[pixel + 1] = ((realX * realY) + 392) % 256;
-            data[pixel + 2] = ((realX + realY) + 256) % 256;
-            data[pixel + 3] = 255;
-        }
-    }
-    //message("i: " + i + ", j: " + j + ", pixel: " + pixel);
-    ctx.putImageData(imgData, x, y);
-},
-        
-resize: function() {
-    var v = viewport,
-    cw = $D('vnc').offsetWidth,
-    ch = $D('vnc').offsetHeight;
-    //cw = target.offsetWidth,
-    //ch = target.offsetHeight;
-    
-    this.message("container: " + cw + "," + ch);
-    
-    if (cw > fb_width) {
-        cw = fb_width;
-    }
-    if (ch > fb_height) {
-        ch = fb_height;
-    }
-    if ((cw !== v.w) || (ch !== v.h)) {
-        v.w = cw;
-        v.h = ch;
-        this.message("new viewport: " + v.w + "," + v.h);
-        //$D('VNC_canvas').resize(v.w, v.h);
-        //UI.canvas.resize(v.w, v.h);
-        UI.rfb.get_display().resize(v.w, v.h);
-        //UI.rfb.get_display().get_context().updateState
-        //UI.updateState("loaded");
-        //UI.drawArea(0, 0, v.w, v.h);
-    }
-    this.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
 }
 };

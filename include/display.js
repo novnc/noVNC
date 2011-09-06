@@ -265,7 +265,7 @@ setFillColor = function(color) {
 // Public API interface functions
 //
 
-that.resize = function(width, height) {
+/* that.resize1 = function(width, height) {
     var c = conf.target;
 
     c_prevStyle    = "";
@@ -277,10 +277,137 @@ that.resize = function(width, height) {
     c_height = c.offsetHeight;
 
     rescale(conf.scale);
+}; */
+
+/* Test graphics (repeating pattern). */
+that.drawArea = function(x, y, w, h) {
+    UI.message("draw "+x+","+y+" ("+w+","+h+")");
+    var imgData = ctx.createImageData(w, h),
+        data = imgData.data, pixel, realX, realY;
+
+    for (var i = 0; i < w; i++) {
+        realX = viewport.x + x + i;
+        for (var j = 0; j < h; j++) {
+            realY = viewport.y + y + j;
+            pixel = (j * w * 4 + i * 4);
+            data[pixel + 0] = ((realX * realY) / 13) % 256;
+            data[pixel + 1] = ((realX * realY) + 392) % 256;
+            data[pixel + 2] = ((realX + realY) + 256) % 256;
+            data[pixel + 3] = 255;
+        }
+    }
+    //UI.message("i: " + i + ", j: " + j + ", pixel: " + pixel);
+    ctx.putImageData(imgData, x, y);
+};
+        
+that.resize = function() {
+    //UI.message("width: "+width+"; height: "+height);
+    //alert("width: "+width+"; height: "+height);
+    
+    /* Save current image data. */
+    var d = c_ctx.getImageData(0, 0, conf.target.width,conf.target.height);
+    
+    //if (!width && !height) {
+    //var v = viewport,
+    //    cw = $D('vnc').offsetWidth,
+    //    ch = $D('vnc').offsetHeight;
+    var c=$D('vnc');
+    //conf.target=c;
+    var v = viewport,
+        cw = c.offsetWidth,
+        ch = c.offsetHeight;
+    
+    UI.message("container: " + cw + "," + ch);
+    
+    if (cw > fb_width) {
+        cw = fb_width;
+    }
+    if (ch > fb_height) {
+        ch = fb_height;
+    }
+    if ((cw !== v.w) || (ch !== v.h)) {
+        v.w = cw;
+        v.h = ch;
+        UI.message("new viewport: " + v.w + "," + v.h);
+        //$D('VNC_canvas').resize(v.w, v.h);
+        //UI.canvas.resize(v.w, v.h);
+        //UI.rfb.get_display().resize(v.w, v.h);
+        //that.resize1(v.w, v.h);
+        //UI.rfb.get_display().get_context().updateState
+        //UI.updateState("loaded");
+        //UI.drawArea(0, 0, v.w, v.h);
+        
+        c = conf.target;
+
+        //c_prevStyle    = "";
+
+        c.width = v.w;
+        c.height = v.h;
+
+        //c_width  = c.offsetWidth;
+        //c_height = c.offsetHeight;
+
+        rescale(conf.scale);
+        //that.refresh();
+        //that.clear();
+        //c_ctx.putImageData(d, 0, 0);
+        //c_rgbxImage(0, 0, v.w, v.h, c.data, 0);
+        //rgbxImageData(0, 0, v.w, v.h, c.data, 0);
+    }
+    UI.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
+    //} else {
+    /* var c = conf.target;
+
+    c_prevStyle    = "";
+
+    c.width = width;
+    c.height = height;
+
+    c_width  = c.offsetWidth;
+    c_height = c.offsetHeight;
+
+    rescale(conf.scale); */
+    //}
+};
+
+/* Screen refresh. */
+that.refresh = function() {
+    //that=new Display({'target': conf.target});
+    //c_rgbxImage = rgbxImageData;
+    //c_rgbxImage(0, 0, conf.target.width, conf.target.height);	//,conf.target.data,0);
+    //if (UI.rfb) {
+        //UI.rfb.disconnect();
+        //UI.message("host: "+UI.rfb.rfb_host+", port: "+UI.rfb.rfb_port+", password: "+UI.rfb.rfb_password+", uri: "+UI.rfb.rfb_uri);
+        //UI.rfb.connect(UI.rfb.rfb_host, UI.rfb.rfb_port, UI.rfb.rfb_password, UI.rfb.rfb_uri);
+    //}
+    UI.message("host: "+UI.host+", port: "+UI.port+", password: "+UI.password);
+    //UI.message(UI.connect);
+    //UI.connect();
+    //if (UI.rfb) {UI.message('rfb.connect: '+UI.rfb.connect);}
+    //UI.message(typeof(UI.rfb.connect));
+    //UI.connect();
+    
+    //if (UI.rfb && UI.rfb.connect) {
+        //UI.disconnect();
+        
+    if (UI.rfb) {
+        //alert('about to refresh...');
+        UI.rfb.refresh();
+        //UI.rfb.connect(UI.host,UI.port,UI.password);
+        //UI.rfb.sendPassword(UI.password);
+    }
+    
+    //var d = c_ctx.getImageData(0, 0, conf.target.width,conf.target.height);
+    //c_ctx.putImageData(d, 0, 0);
+    //if(conf.logo) {
+    //that.blitStringImage(conf.logo.data, 0, 0);
+    //}
+
+    UI.message('screen refreshed.');
+    Util.Debug('screen refreshed.');
 };
 
 that.clear = function() {
-
     if (conf.logo) {
         that.resize(conf.logo.width, conf.logo.height);
         that.blitStringImage(conf.logo.data, 0, 0);

@@ -428,7 +428,6 @@ updateState = function(state, statusMsg) {
 
 
     case 'connect':
-        
         connTimer = setTimeout(function () {
                 fail("Connect timeout");
             }, conf.connectTimeout * 1000);
@@ -1503,6 +1502,19 @@ that.sendPassword = function(passwd) {
     rfb_password = passwd;
     rfb_state = "Authentication";
     setTimeout(init_msg, 1);
+};
+
+that.refresh = function() {
+    //that.disconnect();
+    /* updateState('connect','refreshing...');
+    if (rfb_state!=='normal') {
+        //setTimeout(function () {that.refresh();}, conf.connectTimeout * 1000);
+        setTimeout(function () {that.refresh();}, 1000);
+    } */
+    
+    setTimeout(function () {updateState('connect','refreshing...');}, 10);
+    if (rfb_state!=='normal') {that.refresh();}
+    UI.message('state: '+rfb_state);
 };
 
 that.sendCtrlAltDel = function() {
