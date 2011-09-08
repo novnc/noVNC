@@ -20,26 +20,26 @@ clipboardOpen: false,
 load: function() {
     var html = '', i, sheet, sheets, llevels;
 
-    // Stylesheet selection dropdown	
+    // Stylesheet selection dropdown
     sheet = WebUtil.selectStylesheet();
     sheets = WebUtil.getStylesheets();
     for (i = 0; i < sheets.length; i += 1) {
-		UI.addOption($D('noVNC_stylesheet'),sheets[i].title, sheets[i].title);
+        UI.addOption($D('noVNC_stylesheet'),sheets[i].title, sheets[i].title);
     }
 
     // Logging selection dropdown
     llevels = ['error', 'warn', 'info', 'debug'];
     for (i = 0; i < llevels.length; i += 1) {
-		UI.addOption($D('noVNC_logging'),llevels[i], llevels[i]);
+        UI.addOption($D('noVNC_logging'),llevels[i], llevels[i]);
     }
-	
+
     // Settings with immediate effects
     UI.initSetting('logging', 'warn');
     WebUtil.init_logging(UI.getSetting('logging'));
     UI.initSetting('stylesheet', 'default');
 
     WebUtil.selectStylesheet(null); 
-	// call twice to get around webkit bug
+    // call twice to get around webkit bug
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
     /* Populate the controls if defaults are provided in the URL */
@@ -63,24 +63,24 @@ load: function() {
     //            $D('VNC_clipboard_text').blur();
     //         }
     //    };
-		
+
     // Show mouse selector buttons on touch screen devices
     if ('ontouchstart' in document.documentElement) {
         $D('noVNC_mobile_buttons').style.display = "inline";
         UI.setMouseButton();
-		window.scrollTo(0, 1); 
+        window.scrollTo(0, 1); 
     }
 
-	//iOS Safari does not support CSS position:fixed. 
-	//This detects iOS devices and enables javascript workaround.  
-	if((navigator.userAgent.match(/iPhone/i)) 
-	||(navigator.userAgent.match(/iPod/i)) 
-	|| (navigator.userAgent.match(/iPad/i))) {	
-		UI.setOnscroll();
-		UI.setResize(); 
-	}
-	
-	$D('noVNC_host').focus();
+    //iOS Safari does not support CSS position:fixed. 
+    //This detects iOS devices and enables javascript workaround.  
+    if ((navigator.userAgent.match(/iPhone/i)) ||
+        (navigator.userAgent.match(/iPod/i)) || 
+        (navigator.userAgent.match(/iPad/i))) {
+        UI.setOnscroll();
+        UI.setResize(); 
+    }
+    
+    $D('noVNC_host').focus();
 },
 
 // Read form control compatible setting from cookie
@@ -106,17 +106,13 @@ updateSetting: function(name, value) {
     if (typeof value !== 'undefined') {
         WebUtil.createCookie(name, value);
     }
-	if(name === 'host')
-	{
-		
-		
-	}
+
     // Update the settings control
     value = UI.getSetting(name);
 
     if (ctrl.type === 'checkbox') {
         ctrl.checked = value;
-		
+
     } else if (typeof ctrl.options !== 'undefined') {
         for (i = 0; i < ctrl.options.length; i += 1) {
             if (ctrl.options[i].value === value) {
@@ -125,12 +121,11 @@ updateSetting: function(name, value) {
             }
         }
     } else {
-	/*Weird IE9 error leads to 'null' appearring 
-	in textboxes instead of ''.*/
-		if(value === null)
-		{
-			value = "";
-		}
+        /*Weird IE9 error leads to 'null' appearring 
+        in textboxes instead of ''.*/
+        if (value === null) {
+            value = "";
+        }
         ctrl.value = value;
     }
 },
@@ -193,15 +188,14 @@ clickSettingsMenu: function() {
 
 // Open menu
 openSettingsMenu: function() {
-	if(UI.clipboardOpen == true)
-	{	
-		UI.showClipboard(); 
-	} 
-	//Close connection settings if open
-	if(UI.connSettingsOpen == true) {
-		UI.connectPanelbutton();
-	}
-	$D('noVNC_Settings').style.display = "block";
+    if (UI.clipboardOpen == true) {
+        UI.showClipboard(); 
+    } 
+    //Close connection settings if open
+    if (UI.connSettingsOpen == true) {
+        UI.connectPanelbutton();
+    }
+    $D('noVNC_Settings').style.display = "block";
     UI.settingsOpen = true;
 },
 
@@ -250,11 +244,11 @@ settingsApply: function() {
 
 setPassword: function() {
     UI.rfb.sendPassword($D('noVNC_password').value);
-	//Reset connect button.
-	$D('noVNC_connect_button').value = "Connect";
+    //Reset connect button.
+    $D('noVNC_connect_button').value = "Connect";
     $D('noVNC_connect_button').onclick = UI.Connect;
-	//Hide connection panel.
-	UI.connectPanelbutton();
+    //Hide connection panel.
+    UI.connectPanelbutton();
     return false;
 },
 
@@ -304,7 +298,7 @@ updateState: function(rfb, state, oldstate, msg) {
             UI.settingsDisabled(true, rfb);
             klass = "noVNC_status_error";
             break;
-        case 'normal':	
+        case 'normal':
             c.value = "Disconnect";
             c.onclick = UI.disconnect;
             c.disabled = false;
@@ -313,8 +307,8 @@ updateState: function(rfb, state, oldstate, msg) {
             klass = "noVNC_status_normal";
             break;
         case 'disconnected':
-			$D('noVNC_defaultScreen').style.display = "block";
-			c.value = "Connection";
+            $D('noVNC_defaultScreen').style.display = "block";
+            c.value = "Connection";
             c.onclick = UI.connectPanelbutton;
         case 'loaded':
             c.value = "Connection";
@@ -325,12 +319,12 @@ updateState: function(rfb, state, oldstate, msg) {
             klass = "noVNC_status_normal";
             break;
         case 'password':
-			UI.connectPanelbutton();
+            UI.connectPanelbutton();
 
             $D('noVNC_connect_button').value = "Send Password";
             $D('noVNC_connect_button').onclick = UI.setPassword;
-			$D('noVNC_password').focus();
-			
+            $D('noVNC_password').focus();
+
             c.disabled = false;
             cad.style.display = "none";
             UI.settingsDisabled(true, rfb);
@@ -363,7 +357,7 @@ connect: function() {
     var host, port, password;
 
     UI.closeSettingsMenu();
-	UI.connectPanelbutton();
+    UI.connectPanelbutton();
 
     host = $D('noVNC_host').value;
     port = $D('noVNC_port').value;
@@ -379,18 +373,18 @@ connect: function() {
     UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
 
     UI.rfb.connect(host, port, password);
-	//Close dialog.
-	setTimeout("setBarPosition()",100);
-	$D('noVNC_defaultScreen').style.display = "none";
+    //Close dialog.
+    setTimeout("setBarPosition()",100);
+    $D('noVNC_defaultScreen').style.display = "none";
 },
 
 disconnect: function() {
     UI.closeSettingsMenu();
     UI.rfb.disconnect();
-	
-	$D('noVNC_defaultScreen').style.display = "block";
-	UI.connSettingsOpen = false;
-	UI.connectPanelbutton();
+
+    $D('noVNC_defaultScreen').style.display = "block";
+    UI.connSettingsOpen = false;
+    UI.connectPanelbutton();
 },
 
 displayBlur: function() {
@@ -416,38 +410,38 @@ clipSend: function() {
 },
 
 showClipboard: function() {
-	//Close settings if open
-	if(UI.settingsOpen == true) {
-		UI.closeSettingsMenu();
-	}
-	//Close connection settings if open
-	if(UI.connSettingsOpen == true) {
-		UI.connectPanelbutton();
-	}
-	//Toggle Connection Panel
-	if(UI.clipboardOpen == true)
-	{	$D('noVNC_clipboard').style.display = "none";
-		UI.clipboardOpen = false;
-	} else {
-		$D('noVNC_clipboard').style.display = "block";
-		UI.clipboardOpen = true;
-	}
+    //Close settings if open
+    if (UI.settingsOpen == true) {
+        UI.closeSettingsMenu();
+    }
+    //Close connection settings if open
+    if (UI.connSettingsOpen == true) {
+        UI.connectPanelbutton();
+    }
+    //Toggle Connection Panel
+    if (UI.clipboardOpen == true) {
+        $D('noVNC_clipboard').style.display = "none";
+        UI.clipboardOpen = false;
+    } else {
+        $D('noVNC_clipboard').style.display = "block";
+        UI.clipboardOpen = true;
+    }
 },
 
 
 showKeyboard: function() {
-	//Get Current Scroll Position
-	var scrollx = 
-	(document.all)?document.body.scrollLeft:window.pageXOffset;   
-	var scrolly = 
-	(document.all)?document.body.scrollTop:window.pageYOffset; 
+    //Get Current Scroll Position
+    var scrollx = 
+    (document.all)?document.body.scrollLeft:window.pageXOffset;   
+    var scrolly = 
+    (document.all)?document.body.scrollTop:window.pageYOffset; 
 
-	//Stop browser zooming on textbox.
-	UI.zoomDisable();
-			$D('keyboardinput').focus();
-			scroll(scrollx,scrolly);
-	//Renable user zoom.
-	UI.zoomEnable();
+    //Stop browser zooming on textbox.
+    UI.zoomDisable();
+                    $D('keyboardinput').focus();
+                    scroll(scrollx,scrolly);
+    //Renable user zoom.
+    UI.zoomEnable();
 },
 
 zoomDisable: function() {
@@ -462,73 +456,71 @@ zoomEnable: function(){
 
 changeViewportMeta: function (newattributes) {
 
-	// First, get the array of meta-tag elements
+    // First, get the array of meta-tag elements
     var metatags = document.getElementsByTagName("meta");
 
     // Update only the Viewport meta tag
     for (var cnt = 0; cnt < metatags.length; cnt++)
     {
-	
         var name = metatags[cnt].getAttribute("name");
         var content = metatags[cnt].getAttribute("content");
 
         // Update the Viewport meta tag
-        if (metatags[cnt].getAttribute("name") == "viewport")
-              metatags[cnt].setAttribute("content", newattributes);
+        if (metatags[cnt].getAttribute("name") == "viewport") {
+            metatags[cnt].setAttribute("content", newattributes);
+        }
     }
 },
 
 //iOS < Version 5 does not support position fixed. Javascript workaround:
 setOnscroll: function() {
-	window.onscroll = function() {
-		UI.setBarPosition();
-	};
+    window.onscroll = function() {
+        UI.setBarPosition();
+    };
 },
 
 setResize: function () {
-	window.onResize = function() {
-		UI.setBarPosition();
-	};
+    window.onResize = function() {
+        UI.setBarPosition();
+    };
 },
 
 //Helper to add options to dropdown.
 addOption: function(selectbox,text,value )
 {
-	var optn = document.createElement("OPTION");
-	optn.text = text;
-	optn.value = value;
-	selectbox.options.add(optn);
+    var optn = document.createElement("OPTION");
+    optn.text = text;
+    optn.value = value;
+    selectbox.options.add(optn);
 },
 
 setBarPosition: function() {
-  $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
-  $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-  $D('noVNC_mobile_buttons_right').style.right = 0 + 'px'; 
-  
-   var vncwidth = $('#noVNC_screen').width();
-   $D('noVNC-control-bar').style.width = vncwidth + 'px';
+    $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
+    $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
+    $D('noVNC_mobile_buttons_right').style.right = 0 + 'px'; 
+    
+    var vncwidth = $('#noVNC_screen').width();
+    $D('noVNC-control-bar').style.width = vncwidth + 'px';
 },
 
 connectPanelbutton: function() {
-	//Close connection settings if open
-	if(UI.settingsOpen == true) {
-		UI.closeSettingsMenu();
-	}
-	if(UI.clipboardOpen == true)
-	{	
-		UI.showClipboard(); 
-	} 
+    //Close connection settings if open
+    if (UI.settingsOpen == true) {
+        UI.closeSettingsMenu();
+    }
+    if (UI.clipboardOpen == true) {
+        UI.showClipboard(); 
+    } 
 
-	//Toggle Connection Panel
-	if(UI.connSettingsOpen == true)
-	{	
-		$D('noVNC_controls').style.display = "none";
-		UI.connSettingsOpen = false;
-	} else {
-		$D('noVNC_controls').style.display = "block";
-		UI.connSettingsOpen = true;
-		$D('noVNC_host').focus();
-	}
+    //Toggle Connection Panel
+    if (UI.connSettingsOpen == true) {
+        $D('noVNC_controls').style.display = "none";
+        UI.connSettingsOpen = false;
+    } else {
+        $D('noVNC_controls').style.display = "block";
+        UI.connSettingsOpen = true;
+        $D('noVNC_host').focus();
+    }
 }
 
 };

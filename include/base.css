@@ -1,62 +1,62 @@
 body {
-	margin:0;
-	padding:0;
-	font-family: Helvetica;
-	/*Background image with light grey curve.*/
-	background-color:#494949;
-	background-repeat:no-repeat;
-	background-position:right bottom;
-	height:100%;
+  margin:0;
+  padding:0;
+  font-family: Helvetica;
+  /*Background image with light grey curve.*/
+  background-color:#494949;
+  background-repeat:no-repeat;
+  background-position:right bottom;
+  height:100%;
 }
 
 html {
-	height:100%;
+  height:100%;
 }
 
 #noVNC_controls ul {
-    list-style: none;
-    margin: 0px;
-    padding: 0px;
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
 }
 #noVNC_controls li {
-	padding-bottom:8px;
+  padding-bottom:8px;
 }
 
 #noVNC_host {
-	width:150px;
-}	
+  width:150px;
+}
 #noVNC_port {
-    width: 80px;
+  width: 80px;
 }
 #noVNC_password {
-    width: 150px;
+  width: 150px;
 }
 #noVNC_encrypt {
 }
 #noVNC_connectTimeout {
-    width: 30px;
+  width: 30px;
 }
 #noVNC_connect_button {
-    width: 110px;
-	float:right;
+  width: 110px;
+  float:right;
 }
 
 /*Mobile buttons bar.*/
 #noVNC-control-bar {
   position:fixed;
   background-color:#6d84a2;
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.5, rgb(109,132,162)),
-		color-stop(1, rgb(140,157,179))
-	);
-	background-image: -moz-linear-gradient(
-		center bottom,
-		rgb(109,132,162) 50%,
-		rgb(140,157,179) 100%
-	);
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.5, rgb(109,132,162)),
+    color-stop(1, rgb(140,157,179))
+  );
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(109,132,162) 50%,
+    rgb(140,157,179) 100%
+  );
   display:block;
   height:44px;
   left:0;
@@ -66,182 +66,182 @@ html {
 } 
 
 #noVNC_mobile_buttons {
-	position:fixed;
-	padding-left:10px;
-	padding-top:9px;
-	display: none;
+  position:fixed;
+  padding-left:10px;
+  padding-top:9px;
+  display: none;
 }
-	
+
 .noVNC_mobile_buttons_right {
-	position:fixed;
-	padding-right:10px;
-	padding-top:9px;
-	right:0;
+  position:fixed;
+  padding-right:10px;
+  padding-top:9px;
+  right:0;
 }
 
 #noVNC_status_bar {
-    margin-top: 15px;
-    padding: 0px;
+  margin-top: 15px;
+  padding: 0px;
 }
 
 #noVNC_status_bar div {
-    font-size: 12px;
-    padding-top: 4px;
-	width:100%;
-	margin-top: 2px;
+  font-size: 12px;
+  padding-top: 4px;
+  width:100%;
+  margin-top: 2px;
 }
 
 .VNC_status_button, #clipboardbutton, #connectbutton {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 #noVNC_status {
-	height:20px;
-    text-align: center;
+  height:20px;
+  text-align: center;
 }
 #noVNC_settings_menu {
-	margin: 3px;
-    text-align: left;
+  margin: 3px;
+  text-align: left;
 }
 #noVNC_settings_menu ul {
-    list-style: none;
-    margin: 0px;
-    padding: 0px;
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
 }
 
 #noVNC_apply {
-	float:right;
+  float:right;
 }
 
 .VNC_buttons_right {
-    text-align: right;
+  text-align: right;
 }
 .VNC_buttons_left {
-    text-align: left;
+  text-align: left;
 }
 .noVNC_status_normal {
-    background: #eee;
+  background: #eee;
 }
 .noVNC_status_error {
-    background: #f44;
+  background: #f44;
 }
-.norVNC_status_warn {
-    background: #ff4;
+.noVNC_status_warn {
+  background: #ff4;
 }
 
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect
  * scaling will occur. Canvas resizes to remote VNC settings */
 #noVNC_screen {
-	padding-top:40px;
-    text-align: center;
-    display: table;
-	width:100%;
-	height:100%;
-	background-color:#313131;
-	border-bottom-right-radius: 800px 600px;
-	/*border-top-left-radius: 800px 600px;*/
+  padding-top:40px;
+  text-align: center;
+  display: table;
+  width:100%;
+  height:100%;
+  background-color:#313131;
+  border-bottom-right-radius: 800px 600px;
+  /*border-top-left-radius: 800px 600px;*/
 }
 #VNC_canvas {
-    background: #eee;
+  background: #eee;
 }
 
 #VNC_clipboard_clear_button {
-	float:right;
+  float:right;
 }
 #VNC_clipboard_text {
-    font-size: 11px;
+  font-size: 11px;
 }
 
 #noVNC_Settings {
-	width:200px;
+  width:200px;
 }
 
 #noVNC_clipboard_clear_button {
-	float:right;
+  float:right;
 }
 
 /*Settings Bubble*/
 .triangle-right {
-	position:relative;
-	padding:15px;
-	margin:1em 0 3em;
-	color:#fff;
-	background:#fff; /* default background for browsers without gradient support */
-	/* css3 */
-	/*background:-webkit-gradient(linear, 0 0, 0 100%, from(#2e88c4), to(#075698));
-	background:-moz-linear-gradient(#2e88c4, #075698);
-	background:-o-linear-gradient(#2e88c4, #075698);
-	background:linear-gradient(#2e88c4, #075698);*/
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	border-radius:10px;
-	color:#000;
-	border:2px solid #E0E0E0;
+  position:relative;
+  padding:15px;
+  margin:1em 0 3em;
+  color:#fff;
+  background:#fff; /* default background for browsers without gradient support */
+  /* css3 */
+  /*background:-webkit-gradient(linear, 0 0, 0 100%, from(#2e88c4), to(#075698));
+  background:-moz-linear-gradient(#2e88c4, #075698);
+  background:-o-linear-gradient(#2e88c4, #075698);
+  background:linear-gradient(#2e88c4, #075698);*/
+  -webkit-border-radius:10px;
+  -moz-border-radius:10px;
+  border-radius:10px;
+  color:#000;
+  border:2px solid #E0E0E0;
 }
 
 .triangle-right.top:after {
-    border-color: transparent #E0E0E0;
-    border-width: 20px 20px 0 0;
-    bottom: auto;
-    left: auto;
-    right: 50px;
-    top: -20px;
+  border-color: transparent #E0E0E0;
+  border-width: 20px 20px 0 0;
+  bottom: auto;
+  left: auto;
+  right: 50px;
+  top: -20px;
 }
 
 .triangle-right:after {
-	content:"";
-	position:absolute;
-	bottom:-20px; /* value = - border-top-width - border-bottom-width */
-	left:50px; /* controls horizontal position */
-	border-width:20px 0 0 20px; /* vary these values to change the angle of the vertex */
-	border-style:solid;
-	border-color:#E0E0E0 transparent; 
-    /* reduce the damage in FF3.0 */
-    display:block; 
-    width:0;
+  content:"";
+  position:absolute;
+  bottom:-20px; /* value = - border-top-width - border-bottom-width */
+  left:50px; /* controls horizontal position */
+  border-width:20px 0 0 20px; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color:#E0E0E0 transparent; 
+  /* reduce the damage in FF3.0 */
+  display:block; 
+  width:0;
 }
 
 .triangle-right.top:after {
-	top:-40px; /* value = - border-top-width - border-bottom-width */
-	right:50px; /* controls horizontal position */
-	bottom:auto;
-	left:auto;
-	border-width:40px 40px 0 0; /* vary these values to change the angle of the vertex */
-	border-color:transparent #E0E0E0; 
+  top:-40px; /* value = - border-top-width - border-bottom-width */
+  right:50px; /* controls horizontal position */
+  bottom:auto;
+  left:auto;
+  border-width:40px 40px 0 0; /* vary these values to change the angle of the vertex */
+  border-color:transparent #E0E0E0; 
 }
 
 /*Bubble contents divs*/
 #noVNC_Settings {
-	margin-top:72px;
-	position:fixed;
-	right:100px;
-	display:none; 
+  margin-top:72px;
+  position:fixed;
+  right:100px;
+  display:none; 
 }
 
 #noVNC_controls {
-	margin-top:72px;
-	position:fixed;
-	right:10px;
+  margin-top:72px;
+  position:fixed;
+  right:10px;
 }
 
 #noVNC_clipboard {
-	display:none; 
-	margin-top:72px;
-	position:fixed;
-	right:180px;
+  display:none; 
+  margin-top:72px;
+  position:fixed;
+  right:180px;
 }
 
 /*Default noVNC screen.*/
 #noVNC_defaultScreen {
-	width:400px;
-	margin-left:auto;
-	margin-right:auto;
-	font-size:160px;
-	color:yellow;
-	text-align:left;
-	font-family: 'Orbitron', sans-serif;
-	line-height:90%;
-    text-shadow:
+  width:400px;
+  margin-left:auto;
+  margin-right:auto;
+  font-size:160px;
+  color:yellow;
+  text-align:left;
+  font-family: 'Orbitron', sans-serif;
+  line-height:90%;
+  text-shadow:
        5px 5px 0 #000,
       -1px -1px 0 #000,
        1px -1px 0 #000,
@@ -250,16 +250,16 @@ html {
 }
 
 #noVNC_defaultScreen span{
-	color:green;
+  color:green;
 }
 
 #keyboardinput {
-	width:0px;
-	height:0px;
-	background-color:#313131;
-	border:0;
+  width:0px;
+  height:0px;
+  background-color:#313131;
+  border:0;
 }
 
 .noVNC_status_warn {
-	background-color:yellow;
+  background-color:yellow;
 }

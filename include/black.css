@@ -1,21 +1,21 @@
 #noVNC-control-bar {
-	background-color:#000;
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.5, rgb(0,0,0)),
-		color-stop(0.5, rgb(20,20,20))
-	);
-	background-image: -moz-linear-gradient(
-		center bottom,
-		rgb(0,0,0) 50%,
-		rgb(20,20,20) 50%
-	);
+  background-color:#000;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.5, rgb(0,0,0)),
+    color-stop(0.5, rgb(20,20,20))
+  );
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(0,0,0) 50%,
+    rgb(20,20,20) 50%
+  );
 }
 
 .triangle-right {
-		border:2px solid #fff;
-		background:#000;
-		color:#fff;
+  border:2px solid #fff;
+  background:#000;
+  color:#fff;
 }
