@@ -374,7 +374,7 @@ connect: function() {
 
     UI.rfb.connect(host, port, password);
     //Close dialog.
-    setTimeout("setBarPosition()",100);
+    setTimeout(UI.setBarPosition, 100);
     $D('noVNC_defaultScreen').style.display = "none";
 },
 
@@ -497,9 +497,9 @@ addOption: function(selectbox,text,value )
 setBarPosition: function() {
     $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
     $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-    $D('noVNC_mobile_buttons_right').style.right = 0 + 'px'; 
+    $D('noVNC_buttons_right').style.right = 0 + 'px'; 
     
-    var vncwidth = $('#noVNC_screen').width();
+    var vncwidth = $D('noVNC_screen').style.offsetWidth;
     $D('noVNC-control-bar').style.width = vncwidth + 'px';
 },
 

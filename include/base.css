@@ -72,7 +72,7 @@ html {
   display: none;
 }
 
-.noVNC_mobile_buttons_right {
+#noVNC_buttons_right {
   position:fixed;
   padding-right:10px;
   padding-top:9px;
