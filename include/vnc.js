@@ -30,7 +30,6 @@ function get_INCLUDE_URI() {
 
     extra += start + "util.js" + end;
     extra += start + "webutil.js" + end;
-    extra += start + "logo.js" + end;
     extra += start + "base64.js" + end;
     extra += start + "websock.js" + end;
     extra += start + "des.js" + end;

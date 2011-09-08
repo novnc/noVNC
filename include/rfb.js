@@ -7,7 +7,7 @@
  */
 
 /*jslint white: false, browser: true, bitwise: false, plusplus: false */
-/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, noVNC_logo */
+/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES */
 
 
 function RFB(defaults) {
@@ -210,10 +210,6 @@ function constructor() {
                             'onMouseMove': mouseMove});
 
     rmode = display.get_render_mode();
-
-    if (typeof noVNC_logo !== 'undefined') {
-        display.set_logo(noVNC_logo);
-    }
 
     ws = new Websock();
     ws.on('message', handle_message);
