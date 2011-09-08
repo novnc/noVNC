@@ -1,5 +1,17 @@
 #noVNC-control-bar {
-	  background-position:50% 100%;
+	background-color:#000;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.5, rgb(0,0,0)),
+		color-stop(0.5, rgb(20,20,20))
+	);
+	background-image: -moz-linear-gradient(
+		center bottom,
+		rgb(0,0,0) 50%,
+		rgb(20,20,20) 50%
+	);
 }
 
 .triangle-right {

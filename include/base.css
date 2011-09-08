@@ -3,10 +3,10 @@ body {
 	padding:0;
 	font-family: Helvetica;
 	/*Background image with light grey curve.*/
-	background-image:url('../images/screenbg.png');
-	background-color:#313131;
+	background-color:#494949;
 	background-repeat:no-repeat;
 	background-position:right bottom;
+	height:100%;
 }
 
 html {
@@ -44,17 +44,19 @@ html {
 /*Mobile buttons bar.*/
 #noVNC-control-bar {
   position:fixed;
-  background-attachment:initial;
-  background-clip:initial;
-  background-color:initial;
-  background-image:url(../images/bg.png);
-  background-origin:initial;
-  background-position:50% 0;
-  /*
-  For Black:
-  background-position:50% 100%;
-  */
-  background-repeat:repeat no-repeat;
+  background-color:#6d84a2;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.5, rgb(109,132,162)),
+		color-stop(1, rgb(140,157,179))
+	);
+	background-image: -moz-linear-gradient(
+		center bottom,
+		rgb(109,132,162) 50%,
+		rgb(140,157,179) 100%
+	);
   display:block;
   height:44px;
   left:0;
@@ -135,6 +137,9 @@ html {
     display: table;
 	width:100%;
 	height:100%;
+	background-color:#313131;
+	border-bottom-right-radius: 800px 600px;
+	/*border-top-left-radius: 800px 600px;*/
 }
 #VNC_canvas {
     background: #eee;
@@ -246,4 +251,15 @@ html {
 
 #noVNC_defaultScreen span{
 	color:green;
+}
+
+#keyboardinput {
+	width:0px;
+	height:0px;
+	background-color:#313131;
+	border:0;
+}
+
+.noVNC_status_warn {
+	background-color:yellow;
 }
