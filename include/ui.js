@@ -13,7 +13,7 @@
 var UI = {
 
 settingsOpen : false,
-ConnSettingsOpen : true,
+connSettingsOpen : true,
 clipboardOpen: false,
 
 // Render default UI and initialize settings menu
@@ -24,13 +24,13 @@ load: function() {
     sheet = WebUtil.selectStylesheet();
     sheets = WebUtil.getStylesheets();
     for (i = 0; i < sheets.length; i += 1) {
-		addOption($D('noVNC_stylesheet'),sheets[i].title, sheets[i].title);
+		UI.addOption($D('noVNC_stylesheet'),sheets[i].title, sheets[i].title);
     }
 
     // Logging selection dropdown
     llevels = ['error', 'warn', 'info', 'debug'];
     for (i = 0; i < llevels.length; i += 1) {
-		addOption($D('noVNC_logging'),llevels[i], llevels[i]);
+		UI.addOption($D('noVNC_logging'),llevels[i], llevels[i]);
     }
 	
     // Settings with immediate effects
@@ -38,7 +38,8 @@ load: function() {
     WebUtil.init_logging(UI.getSetting('logging'));
     UI.initSetting('stylesheet', 'default');
 
-    WebUtil.selectStylesheet(null); // call twice to get around webkit bug
+    WebUtil.selectStylesheet(null); 
+	// call twice to get around webkit bug
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
     /* Populate the controls if defaults are provided in the URL */
@@ -70,12 +71,16 @@ load: function() {
 		window.scrollTo(0, 1); 
     }
 
-	//iOS Safari does not support CSS position:fixed. This detects iOS devices and enables javascript workaround.  
-	if((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i))) {	
- 
-		setOnscroll();
-		setResize(); 
+	//iOS Safari does not support CSS position:fixed. 
+	//This detects iOS devices and enables javascript workaround.  
+	if((navigator.userAgent.match(/iPhone/i)) 
+	||(navigator.userAgent.match(/iPod/i)) 
+	|| (navigator.userAgent.match(/iPad/i))) {	
+		UI.setOnscroll();
+		UI.setResize(); 
 	}
+	
+	$D('noVNC_host').focus();
 },
 
 // Read form control compatible setting from cookie
@@ -120,7 +125,8 @@ updateSetting: function(name, value) {
             }
         }
     } else {
-		/*Weird IE9 error leads to 'null' appearring in textboxes instead of ''.*/
+	/*Weird IE9 error leads to 'null' appearring 
+	in textboxes instead of ''.*/
 		if(value === null)
 		{
 			value = "";
@@ -154,7 +160,7 @@ initSetting: function(name, defVal) {
         val = WebUtil.readCookie(name, defVal);
     }
     UI.updateSetting(name, val);
-    //Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
+ //Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
     return val;
 },
 
@@ -192,8 +198,8 @@ openSettingsMenu: function() {
 		UI.showClipboard(); 
 	} 
 	//Close connection settings if open
-	if(UI.ConnSettingsOpen == true) {
-		connectPanelbutton();
+	if(UI.connSettingsOpen == true) {
+		UI.connectPanelbutton();
 	}
 	$D('noVNC_Settings').style.display = "block";
     UI.settingsOpen = true;
@@ -244,6 +250,11 @@ settingsApply: function() {
 
 setPassword: function() {
     UI.rfb.sendPassword($D('noVNC_password').value);
+	//Reset connect button.
+	$D('noVNC_connect_button').value = "Connect";
+    $D('noVNC_connect_button').onclick = UI.Connect;
+	//Hide connection panel.
+	UI.connectPanelbutton();
     return false;
 },
 
@@ -283,47 +294,51 @@ updateState: function(rfb, state, oldstate, msg) {
     var s, sb, c, cad, klass;
     s = $D('noVNC_status');
     sb = $D('noVNC_status_bar');
-    c = $D('noVNC_connect_button');
+    c = $D('connectPanelbutton');
     cad = $D('sendCtrlAltDelButton');
     switch (state) {
         case 'failed':
         case 'fatal':
             c.disabled = true;
-            cad.disabled = true;
+            cad.style.display = "none";
             UI.settingsDisabled(true, rfb);
             klass = "noVNC_status_error";
             break;
-        case 'normal':
+        case 'normal':	
             c.value = "Disconnect";
             c.onclick = UI.disconnect;
             c.disabled = false;
-            cad.disabled = false;
+            cad.style.display = "block";
             UI.settingsDisabled(true, rfb);
             klass = "noVNC_status_normal";
             break;
         case 'disconnected':
-				$D('noVNC_defaultScreen').style.display = "block";
+			$D('noVNC_defaultScreen').style.display = "block";
+			c.value = "Connection";
+            c.onclick = UI.connectPanelbutton;
         case 'loaded':
-            c.value = "Connect";
-            c.onclick = UI.connect;
-
+            c.value = "Connection";
+            c.onclick = UI.connectPanelbutton;
             c.disabled = false;
-            cad.disabled = true;
+            cad.style.display = "none";
             UI.settingsDisabled(false, rfb);
             klass = "noVNC_status_normal";
             break;
         case 'password':
-            c.value = "Send Password";
-            c.onclick = UI.setPassword;
+			UI.connectPanelbutton();
 
+            $D('noVNC_connect_button').value = "Send Password";
+            $D('noVNC_connect_button').onclick = UI.setPassword;
+			$D('noVNC_password').focus();
+			
             c.disabled = false;
-            cad.disabled = true;
+            cad.style.display = "none";
             UI.settingsDisabled(true, rfb);
             klass = "noVNC_status_warn";
             break;
         default:
             c.disabled = true;
-            cad.disabled = true;
+            cad.style.display = "none";
             UI.settingsDisabled(true, rfb);
             klass = "noVNC_status_warn";
             break;
@@ -348,7 +363,8 @@ connect: function() {
     var host, port, password;
 
     UI.closeSettingsMenu();
-	connectPanelbutton();
+	UI.connectPanelbutton();
+
     host = $D('noVNC_host').value;
     port = $D('noVNC_port').value;
     password = $D('noVNC_password').value;
@@ -371,8 +387,10 @@ connect: function() {
 disconnect: function() {
     UI.closeSettingsMenu();
     UI.rfb.disconnect();
+	
 	$D('noVNC_defaultScreen').style.display = "block";
-	UI.openSettingsMenu();
+	UI.connSettingsOpen = false;
+	UI.connectPanelbutton();
 },
 
 displayBlur: function() {
@@ -403,8 +421,8 @@ showClipboard: function() {
 		UI.closeSettingsMenu();
 	}
 	//Close connection settings if open
-	if(UI.ConnSettingsOpen == true) {
-		connectPanelbutton();
+	if(UI.connSettingsOpen == true) {
+		UI.connectPanelbutton();
 	}
 	//Toggle Connection Panel
 	if(UI.clipboardOpen == true)
@@ -414,58 +432,38 @@ showClipboard: function() {
 		$D('noVNC_clipboard').style.display = "block";
 		UI.clipboardOpen = true;
 	}
-}
+},
 
-};
 
-function connectPanelbutton() {
-	//Close connection settings if open
-	if(UI.settingsOpen == true) {
-		UI.closeSettingsMenu();
-	}
-	if(UI.clipboardOpen == true)
-	{	
-		UI.showClipboard(); 
-	} 
-	
-	//Toggle Connection Panel
-	if(UI.ConnSettingsOpen == true)
-	{	
-		$D('noVNC_controls').style.display = "none";
-		UI.ConnSettingsOpen = false;
-	} else {
-		$D('noVNC_controls').style.display = "block";
-		UI.ConnSettingsOpen = true;
-	}
-}
+showKeyboard: function() {
+	//Get Current Scroll Position
+	var scrollx = 
+	(document.all)?document.body.scrollLeft:window.pageXOffset;   
+	var scrolly = 
+	(document.all)?document.body.scrollTop:window.pageYOffset; 
 
-function showkeyboard(){
-//Get Current Scroll Position
-var scrollx = (document.all)?document.body.scrollLeft:window.pageXOffset;   
-var scrolly = (document.all)?document.body.scrollTop:window.pageYOffset; 
+	//Stop browser zooming on textbox.
+	UI.zoomDisable();
+			$D('keyboardinput').focus();
+			scroll(scrollx,scrolly);
+	//Renable user zoom.
+	UI.zoomEnable();
+},
 
-//Stop browser zooming on textbox.
-zoomDisable();
-		$D('keyboardinput').focus();
-		scroll(scrollx,scrolly);
-//Renable user zoom.
-zoomEnable();
-} 
-
-function zoomDisable(){
+zoomDisable: function() {
   //Change viewport meta data to disable zooming.
-  changeViewportMeta("user-scalable=0");
-}
+  UI.changeViewportMeta("user-scalable=0");
+},
 
-function zoomEnable(){
+zoomEnable: function(){
   //Change viewport meta data to enable user zooming.
-  changeViewportMeta("user-scalable=1");
-}
+  UI.changeViewportMeta("user-scalable=1");
+},
 
-function changeViewportMeta(newattributes) {
+changeViewportMeta: function (newattributes) {
 
 	// First, get the array of meta-tag elements
-   var metatags = document.getElementsByTagName("meta");
+    var metatags = document.getElementsByTagName("meta");
 
     // Update only the Viewport meta tag
     for (var cnt = 0; cnt < metatags.length; cnt++)
@@ -478,35 +476,63 @@ function changeViewportMeta(newattributes) {
         if (metatags[cnt].getAttribute("name") == "viewport")
               metatags[cnt].setAttribute("content", newattributes);
     }
-}
+},
 
 //iOS < Version 5 does not support position fixed. Javascript workaround:
-function setOnscroll() {
+setOnscroll: function() {
 	window.onscroll = function() {
-		setBarPosition();
+		UI.setBarPosition();
 	};
-}
+},
 
-function setResize() {
+setResize: function () {
 	window.onResize = function() {
-		setBarPosition();
+		UI.setBarPosition();
 	};
-}
+},
 
-function setBarPosition() {
+//Helper to add options to dropdown.
+addOption: function(selectbox,text,value )
+{
+	var optn = document.createElement("OPTION");
+	optn.text = text;
+	optn.value = value;
+	selectbox.options.add(optn);
+},
+
+setBarPosition: function() {
   $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
   $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
   $D('noVNC_mobile_buttons_right').style.right = 0 + 'px'; 
   
    var vncwidth = $('#noVNC_screen').width();
    $D('noVNC-control-bar').style.width = vncwidth + 'px';
+},
+
+connectPanelbutton: function() {
+	//Close connection settings if open
+	if(UI.settingsOpen == true) {
+		UI.closeSettingsMenu();
+	}
+	if(UI.clipboardOpen == true)
+	{	
+		UI.showClipboard(); 
+	} 
+
+	//Toggle Connection Panel
+	if(UI.connSettingsOpen == true)
+	{	
+		$D('noVNC_controls').style.display = "none";
+		UI.connSettingsOpen = false;
+	} else {
+		$D('noVNC_controls').style.display = "block";
+		UI.connSettingsOpen = true;
+		$D('noVNC_host').focus();
+	}
 }
 
-//Helper to add options to dropdown.
-function addOption(selectbox,text,value )
-{
-	var optn = document.createElement("OPTION");
-	optn.text = text;
-	optn.value = value;
-	selectbox.options.add(optn);
-}
+};
+
+
+
+

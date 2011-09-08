@@ -23,7 +23,8 @@
 	<!-- Stylesheets -->
 	<link rel="stylesheet" href="include/base.css" />
     <link rel="alternate stylesheet" href="include/black.css" TITLE="Black" />
-		
+	<link rel="alternate stylesheet" href="include/blue.css" TITLE="Blue" />
+	
 	<!-- Google web fonts -->
 	<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz|Nova+Square|Orbitron:400,500,700,900|Nova+Round|Nova+Mono|Nova+Slim|Nova+Oval|Nova+Flat|Nova+Cut' rel='stylesheet' type='text/css'>       
    
@@ -58,18 +59,18 @@
 						<input type="button" class="noVNC_status_button" id="noVNC_mouse_button1" value="L" onclick="UI.setMouseButton(1);">
 						<input type="button" class="noVNC_status_button" id="noVNC_mouse_button2" value="M" onclick="UI.setMouseButton(2);">
 						<input type="button" class="noVNC_status_button" id="noVNC_mouse_button4" value="R" onclick="UI.setMouseButton(4);">
-						<input type="button" class="noVNC_status_button" value="CtrlAltDel" id="sendCtrlAltDelButton" onclick="UI.sendCtrlAltDel();">
-						<input type="button" id="showKeyboard" onclick="showkeyboard()" value="Keyboard" class="noVNC_status_button"/>
+						<input type="button" id="showKeyboard" onclick="UI.showKeyboard()" value="Keyboard" class="noVNC_status_button"/>
 					</span>
 				</nobr>
 			</div>
 			
 			<!--noVNC Buttons-->
 			<div class="noVNC_mobile_buttons_right">
+					<input type="button" class="noVNC_status_button" style="float:left;" value="CtrlAltDel" id="sendCtrlAltDelButton" onclick="UI.sendCtrlAltDel();">
 					<input type="button" id="clipboardbutton" onclick="UI.showClipboard();" value="Clipboard" />
 					<input type="button" class="VNC_status_button" value="Settings" id="menuButton" onclick="UI.clickSettingsMenu();">
-					<input type="button" id="connectPanelbutton" class="VNC_status_button" onclick="connectPanelbutton()" value="Connection" />
-			</div>
+					<input type="button" id="connectPanelbutton" class="VNC_status_button"  style="width:100px;" onclick="UI.connectPanelbutton()" value="Connection" />
+				</div>
 			
 			<!-- Clipboard Panel -->
 			<div id="noVNC_clipboard" class="triangle-right top">
@@ -113,7 +114,7 @@
 					<li><label><strong>Host: </strong><input id="noVNC_host" /></label></li>
 					<li><label><strong>Port: </strong><input id="noVNC_port" /></label></li>
 					<li><label><strong>Password: </strong><input id="noVNC_password" type="password" /></label></li>
-					<li><input id="noVNC_connect_button" type="button" value="Loading" disabled></li>
+					<li><input id="noVNC_connect_button" type="button" value="Connect" onclick="UI.connect();"></li>
 			 </ul>
 		</div>
 		
@@ -130,7 +131,7 @@
 			 Canvas not supported.
 		</canvas>
 		
-		<input id="keyboardinput" style="width:0px;height:0px;background-color:#313131;" type="text" onKeyDown="onKeyDown(event);"/>
+		<input id="keyboardinput" type="text" onKeyDown="onKeyDown(event);"/>
 	</div>
   
 	 <script>
