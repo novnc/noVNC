@@ -8,7 +8,7 @@ Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
 Supports following protocol versions:
     - http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-75
     - http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
-    - http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-07
+    - http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-10
 
 You can make a cert/key with openssl using:
 openssl req -new -x509 -days 365 -nodes -out self.pem -keyout self.pem
@@ -49,8 +49,7 @@ else:
 
 # Degraded functionality if these imports are missing
 for mod, sup in [('numpy', 'HyBi protocol'),
-        ('ctypes', 'HyBi protocol'), ('ssl', 'TLS/SSL/wss'),
-        ('resource', 'daemonizing')]:
+        ('ssl', 'TLS/SSL/wss'), ('resource', 'daemonizing')]:
     try:
         globals()[mod] = __import__(mod)
     except ImportError:
@@ -226,7 +225,7 @@ Sec-WebSocket-Accept: %s\r
         payload_len = len(buf)
         if payload_len <= 125:
             header = struct.pack('>BB', b1, payload_len)
-        elif payload_len > 125 and payload_len <= 65536:
+        elif payload_len > 125 and payload_len < 65536:
             header = struct.pack('>BBH', b1, 126, payload_len)
         elif payload_len >= 65536:
             header = struct.pack('>BBQ', b1, 127, payload_len)
@@ -298,15 +297,15 @@ Sec-WebSocket-Accept: %s\r
             f['mask'] = buf[f['hlen']:f['hlen']+4]
             b = c = ''
             if f['length'] >= 4:
-                mask = numpy.frombuffer(buf, dtype=numpy.dtype('<L4'),
+                mask = numpy.frombuffer(buf, dtype=numpy.dtype('<u4'),
                         offset=f['hlen'], count=1)
-                data = numpy.frombuffer(buf, dtype=numpy.dtype('<L4'),
+                data = numpy.frombuffer(buf, dtype=numpy.dtype('<u4'),
                         offset=f['hlen'] + 4, count=int(f['length'] / 4))
                 #b = numpy.bitwise_xor(data, mask).data
                 b = numpy.bitwise_xor(data, mask).tostring()
 
             if f['length'] % 4:
-                print("Partial unmask")
+                #print("Partial unmask")
                 mask = numpy.frombuffer(buf, dtype=numpy.dtype('B'),
                         offset=f['hlen'], count=(f['length'] % 4))
                 data = numpy.frombuffer(buf, dtype=numpy.dtype('B'),
@@ -615,8 +614,11 @@ Sec-WebSocket-Accept: %s\r
             if sys.hexversion < 0x2060000 or not numpy:
                 raise self.EClose("Python >= 2.6 and numpy module is required for HyBi-07 or greater")
 
-            if ver in ['7', '8', '9']:
-                self.version = "hybi-0" + ver
+            # HyBi-07 report version 7
+            # HyBi-08 - HyBi-12 report version 8
+            # HyBi-13 reports version 13
+            if ver in ['7', '8', '13']:
+                self.version = "hybi-%02d" % int(ver)
             else:
                 raise self.EClose('Unsupported protocol version %s' % ver)
 

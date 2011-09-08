@@ -1,21 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head><title>Viewport Test</title></head>
+    <head><title>Viewport Test</title>
+        <link rel="stylesheet" href="../include/mobile.css">
+        <!--
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        -->
+        <meta name=viewport content="width=device-width, initial-scale=1.0, user-scalable=no">
+    </head>
     <body>
-        <br><br>
+        <div class="fullscreen flex-layout">
 
-        Canvas:
-            <input id="move-selector" type="button" value="Move"
-                onclick="toggleMove();">
-        <br>
-        <canvas id="canvas" width="640" height="20"
-                style="border-style: dotted; border-width: 1px;">
-            Canvas not supported.
-        </canvas>
+        <div>
+            Canvas:
+                <input id="move-selector" type="button" value="Move"
+                    onclick="toggleMove();">
+            <br>
+        </div>
+        <div id="container" class="flex-box">
+            <canvas id="canvas"
+                    style="border-style: dotted; border-width: 1px;">
+                Canvas not supported.
+            </canvas>
+            <br>
+        </div>
+        <div>
+            <br>
+            Results:<br>
+            <textarea id="messages" style="font-size: 9;" cols=80 rows=8></textarea>
+        </div>
 
-        <br>
-        Results:<br>
-        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
+        </div>
+
     </body>
 
     <!--
@@ -30,10 +46,8 @@
     <script>
         var msg_cnt = 0, iterations,
             fb_width = 800,
-            fb_height = 600,
-            viewport = {
-                'x': 0, 'y': 0,
-                'w' : 400, 'h' : 200 },
+            fb_height = 768,
+            viewport = {'x': 0, 'y': 0, 'w' : 0, 'h' : 0 },
             cleanRect = {},
             penDown = false, doMove = false,
             inMove = false, lastPos = {},
@@ -112,17 +126,24 @@
                 deltaX = - v.x;
             }
             if ((vx2 + deltaX) >= fb_width) {
-                deltaX -= ((vx2 + deltaX) - fb_width);
+                deltaX -= ((vx2 + deltaX) - fb_width + 1);
             }
-            v.x += deltaX;
-            vx2 += deltaX;
 
             if ((v.y + deltaY) < 0) {
                 deltaY = - v.y;
             }
             if ((vy2 + deltaY) >= fb_height) {
-                deltaY -= ((vy2 + deltaY) - fb_height);
+                deltaY -= ((vy2 + deltaY) - fb_height + 1);
             }
+
+            if ((deltaX === 0) && (deltaY === 0)) {
+                //message("skipping");
+                return;
+            }
+            message("deltaX: " + deltaX + ", deltaY: " + deltaY);
+
+            v.x += deltaX;
+            vx2 += deltaX;
             v.y += deltaY;
             vy2 += deltaY;
 
@@ -197,6 +218,7 @@
         }
 
         function drawArea(x, y, w, h) {
+            message("draw "+x+","+y+" ("+w+","+h+")");
             var imgData = ctx.createImageData(w, h),
                 data = imgData.data, pixel, realX, realY;
 
@@ -227,6 +249,28 @@
             }
         }
 
+        window.onresize = function() {
+            var v = viewport,
+                cw = $D('container').offsetWidth,
+                ch = $D('container').offsetHeight;
+
+            message("container: " + cw + "," + ch);
+
+            if (cw > fb_width) {
+                cw = fb_width;
+            }
+            if (ch > fb_height) {
+                ch = fb_height;
+            }
+            if ((cw !== v.w) || (ch !== v.h)) {
+                v.w = cw;
+                v.h = ch;
+                message("new viewport: " + v.w + "," + v.h);
+                canvas.resize(v.w, v.h);
+                drawArea(0, 0, v.w, v.h);
+            }
+        };
+
         window.onload = function() {
             canvas = new Display({'target' : $D('canvas')});
             ctx = canvas.get_context();
@@ -234,11 +278,10 @@
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
 
-            canvas.resize(viewport.w, viewport.h, true);
+            window.onresize();
             mouse.grab();
-            message("Display initialized");
 
-            drawArea(0, 0, viewport.w, viewport.h);
-        }
+            message("Display initialized");
+        };
     </script>
 </html>
