@@ -28,10 +28,6 @@ var UI = {
 
 settingsOpen : false,
 
-host: '',
-port: '',
-password: '',
-
 // Render default UI and initialize settings menu
 load: function(target) {
     if (Util.Engine.trident) {
@@ -181,8 +177,11 @@ load: function(target) {
     UI.initSetting('host', '');
     UI.initSetting('port', '');
     UI.initSetting('password', '');
+    //TODO: Dynamically detect URI to determine encryption mode.
+    //UI.initSetting('encrypt', false);
     UI.initSetting('encrypt', false);
-    UI.initSetting('true_color', true);
+    //UI.initSetting('true_color', true);
+    UI.initSetting('true_color', false);
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true);
     UI.initSetting('connectTimeout', 2);
@@ -190,7 +189,9 @@ load: function(target) {
     UI.rfb = RFB({'target': $D('VNC_canvas'),
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive});
-                  
+    
+    UI.message('uri: '+UI.rfb.rfb_uri);
+    
     // Unfocus clipboard when over the VNC area
     $D('VNC_screen').onmousemove = function () {
             var keyboard = UI.rfb.get_keyboard();
@@ -206,6 +207,7 @@ load: function(target) {
     }
     
     ctx=UI.rfb.get_display().get_context();
+    UI.rfb.get_display().resizeAuto();
 },
 
 // Read form control compatible setting from cookie
@@ -350,9 +352,10 @@ settingsApply: function() {
     // Settings with immediate (non-connected related) effect
     if (UI.rfb) {
         //Util.Debug("scale: " + scale);
-        //UI.rfb.get_display().set_scale(UI.getSetting('scale'));
-        //UI.rfb.get_mouse().set_scale(UI.getSetting('scale'));
-        UI.rfb.get_display().resize();
+        UI.rfb.get_display().set_scale(UI.getSetting('scale'));
+        UI.rfb.get_mouse().set_scale(UI.getSetting('scale'));
+        //UI.rfb.get_display().resize();
+        UI.rfb.get_display().resizeAuto();
     }
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
     WebUtil.init_logging(UI.getSetting('logging'));
@@ -505,43 +508,7 @@ connect: function() {
     return false;
 },
 
-/* connect: function() {
-    UI.closeSettingsMenu();
-    //UI.rfb.disconnect();
-    
-    // Reconnect using existing credentials when they are available, otherwise set credentials and connect.
-    //   Upon disconnect or on page load, the credentials will not be available, and user will be shown a login screen, 
-    //   where the proper credentials must be supplied.
-    UI.message("!password? "+!UI.password);
-    if (!UI.host || !UI.port || !UI.password) {
-        //if ($D('VNC_host').value.length>0 && $D('VNC_port').value.length>0 && $D('VNC_password').value.length>0) {
-        UI.host = $D('VNC_host').value;
-        UI.port = $D('VNC_port').value;
-        UI.password = $D('VNC_password').value;
-        if ((!UI.host) || (!UI.port)) {
-            throw("Must set host and port");
-        }
-    UI.message("password: "+UI.password);
-
-    UI.rfb.set_encrypt(UI.getSetting('encrypt'));
-    UI.rfb.set_true_color(UI.getSetting('true_color'));
-    UI.rfb.set_local_cursor(UI.getSetting('cursor'));
-    UI.rfb.set_shared(UI.getSetting('shared'));
-    UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
-    
-    //UI.rfb.disconnect();
-    UI.rfb.connect(UI.host, UI.port, UI.password);
-    
-    //UI.message("resizing...");
-    //UI.rfb.get_display().resize();
-        //}
-    }
-    
-    return false;
-}, */
-
 disconnect: function() {
-    UI.password=null;
     UI.closeSettingsMenu();
     UI.rfb.disconnect();
 },

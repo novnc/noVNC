@@ -223,10 +223,10 @@ rescale = function(factor) {
         factor = 0.1;
     }
 
-    if (conf.scale === factor) {
+    /* if (conf.scale === factor) {
         //Util.Debug("Display already scaled to '" + factor + "'");
         return;
-    }
+    } */
 
     conf.scale = factor;
     x = c.width - c.width * factor;
@@ -264,8 +264,7 @@ setFillColor = function(color) {
 //
 // Public API interface functions
 //
-
-/* that.resize1 = function(width, height) {
+that.resize = function(width, height) {
     var c = conf.target;
 
     c_prevStyle    = "";
@@ -277,7 +276,41 @@ setFillColor = function(color) {
     c_height = c.offsetHeight;
 
     rescale(conf.scale);
-}; */
+};
+
+that.resizeAuto = function() {
+    var c=$D('vnc');
+    var v = viewport,
+        cw = c.offsetWidth,
+        ch = c.offsetHeight;
+    
+    UI.message("container: " + cw + "," + ch);
+    
+    if (cw > fb_width) {
+        cw = fb_width;
+    }
+    if (ch > fb_height) {
+        ch = fb_height;
+    }
+    if ((cw !== v.w) || (ch !== v.h)) {
+        v.w = cw;
+        v.h = ch;
+        UI.message("new viewport: " + v.w + "," + v.h);
+        
+        c = conf.target;
+        c.width = v.w;
+        c.height = v.h;
+        
+        conf.scale=v.w/fb_width;
+        UI.message("fb_width: "+fb_width+", c.width: "+c.offsetWidth+", viewport width: "+v.w+", scale: "+conf.scale);
+        UI.rfb.get_display().set_scale(conf.scale);
+        UI.rfb.get_mouse().set_scale(conf.scale);
+        rescale(conf.scale);
+        //rescale(1.0);
+        that.refresh();
+    }
+    UI.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
+};
 
 /* Test graphics (repeating pattern). */
 that.drawArea = function(x, y, w, h) {
@@ -299,111 +332,11 @@ that.drawArea = function(x, y, w, h) {
     //UI.message("i: " + i + ", j: " + j + ", pixel: " + pixel);
     ctx.putImageData(imgData, x, y);
 };
-        
-that.resize = function() {
-    //UI.message("width: "+width+"; height: "+height);
-    //alert("width: "+width+"; height: "+height);
-    
-    /* Save current image data. */
-    var d = c_ctx.getImageData(0, 0, conf.target.width,conf.target.height);
-    
-    //if (!width && !height) {
-    //var v = viewport,
-    //    cw = $D('vnc').offsetWidth,
-    //    ch = $D('vnc').offsetHeight;
-    var c=$D('vnc');
-    //conf.target=c;
-    var v = viewport,
-        cw = c.offsetWidth,
-        ch = c.offsetHeight;
-    
-    UI.message("container: " + cw + "," + ch);
-    
-    if (cw > fb_width) {
-        cw = fb_width;
-    }
-    if (ch > fb_height) {
-        ch = fb_height;
-    }
-    if ((cw !== v.w) || (ch !== v.h)) {
-        v.w = cw;
-        v.h = ch;
-        UI.message("new viewport: " + v.w + "," + v.h);
-        //$D('VNC_canvas').resize(v.w, v.h);
-        //UI.canvas.resize(v.w, v.h);
-        //UI.rfb.get_display().resize(v.w, v.h);
-        //that.resize1(v.w, v.h);
-        //UI.rfb.get_display().get_context().updateState
-        //UI.updateState("loaded");
-        //UI.drawArea(0, 0, v.w, v.h);
-        
-        c = conf.target;
-
-        //c_prevStyle    = "";
-
-        c.width = v.w;
-        c.height = v.h;
-
-        //c_width  = c.offsetWidth;
-        //c_height = c.offsetHeight;
-
-        rescale(conf.scale);
-        //that.refresh();
-        //that.clear();
-        //c_ctx.putImageData(d, 0, 0);
-        //c_rgbxImage(0, 0, v.w, v.h, c.data, 0);
-        //rgbxImageData(0, 0, v.w, v.h, c.data, 0);
-    }
-    UI.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
-    //} else {
-    /* var c = conf.target;
-
-    c_prevStyle    = "";
-
-    c.width = width;
-    c.height = height;
-
-    c_width  = c.offsetWidth;
-    c_height = c.offsetHeight;
-
-    rescale(conf.scale); */
-    //}
-};
 
 /* Screen refresh. */
 that.refresh = function() {
-    //that=new Display({'target': conf.target});
-    //c_rgbxImage = rgbxImageData;
-    //c_rgbxImage(0, 0, conf.target.width, conf.target.height);	//,conf.target.data,0);
-    //if (UI.rfb) {
-        //UI.rfb.disconnect();
-        //UI.message("host: "+UI.rfb.rfb_host+", port: "+UI.rfb.rfb_port+", password: "+UI.rfb.rfb_password+", uri: "+UI.rfb.rfb_uri);
-        //UI.rfb.connect(UI.rfb.rfb_host, UI.rfb.rfb_port, UI.rfb.rfb_password, UI.rfb.rfb_uri);
-    //}
-    UI.message("host: "+UI.host+", port: "+UI.port+", password: "+UI.password);
-    //UI.message(UI.connect);
-    //UI.connect();
-    //if (UI.rfb) {UI.message('rfb.connect: '+UI.rfb.connect);}
-    //UI.message(typeof(UI.rfb.connect));
-    //UI.connect();
-    
-    //if (UI.rfb && UI.rfb.connect) {
-        //UI.disconnect();
-        
-    if (UI.rfb) {
-        //alert('about to refresh...');
-        UI.rfb.refresh();
-        //UI.rfb.connect(UI.host,UI.port,UI.password);
-        //UI.rfb.sendPassword(UI.password);
-    }
-    
-    //var d = c_ctx.getImageData(0, 0, conf.target.width,conf.target.height);
-    //c_ctx.putImageData(d, 0, 0);
-    //if(conf.logo) {
-    //that.blitStringImage(conf.logo.data, 0, 0);
-    //}
+    if (UI.rfb) {UI.rfb.refresh();}
 
-    UI.message('screen refreshed.');
     Util.Debug('screen refreshed.');
 };
 
