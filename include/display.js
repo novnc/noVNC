@@ -23,7 +23,7 @@ var that           = {},  // Public API methods
 
     // Predefine function variables (jslint)
     imageDataCreate, imageDataGet, rgbxImageData, cmapImageData,
-    rgbxImageFill, cmapImageFill, setFillColor, rescale, flush,
+    rgbxImageFill, cmapImageFill, setFillColor, rescale, rescaleAuto, flush,
 
     c_width        = 0,
     c_height       = 0,
@@ -223,15 +223,53 @@ rescale = function(factor) {
         factor = 0.1;
     }
 
-    /* if (conf.scale === factor) {
+    if (conf.scale === factor) {
         //Util.Debug("Display already scaled to '" + factor + "'");
+        UI.message("Display already scaled to '" + factor + "'");
         return;
-    } */
+    }
 
-    conf.scale = factor;
     x = c.width - c.width * factor;
     y = c.height - c.height * factor;
     c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
+    UI.message("scale: "+conf.scale+", x: "+x+", y: "+y);
+};
+
+rescaleAuto = function() {
+    var c, tp, x, y, xFactor, yFactor, factor,
+        properties = ['transform', 'WebkitTransform', 'MozTransform', null];
+    
+    c = conf.target;
+    tp = properties.shift();
+    while (tp) {
+        if (typeof c.style[tp] !== 'undefined') {
+            break;
+        }
+        tp = properties.shift();
+    }
+    
+    if (tp === null) {
+        Util.Debug("No scaling support");
+        return;
+    }
+    
+    xFactor=viewport.w/fb_width;
+    yFactor=viewport.h/fb_height;
+    UI.message("xFactor: "+xFactor+", yFactor: "+yFactor+", viewport.h: "+viewport.h+", fb_height: "+fb_height);
+    
+    if (xFactor > 1.0) {xFactor = 1.0;}
+    else if (xFactor < 0.1) {xFactor = 0.1;}
+    
+    if (yFactor > 1.0) {yFactor = 1.0;}
+    else if (yFactor < 0.1) {yFactor = 0.1;}
+    
+    /* Rescale screen to whichever factor that is smaller (so we get to see the whole screen). */
+    factor=xFactor<yFactor?xFactor:yFactor;
+    
+    c.style.MozTransform = "scale(" + factor + ")";
+    c.style.MozTransformOrigin = "top left";
+    
+    UI.rfb.get_mouse().set_scale(factor);
 };
 
 // Force canvas redraw (for webkit bug #46319 workaround)
@@ -278,11 +316,11 @@ that.resize = function(width, height) {
     rescale(conf.scale);
 };
 
-that.resizeAuto = function() {
-    var c=$D('vnc');
+that.resizeAuto = function(canvas) {
+    var c=canvas;
     var v = viewport,
-        cw = c.offsetWidth,
-        ch = c.offsetHeight;
+        cw=window.innerWidth,
+        ch=window.innerHeight;
     
     UI.message("container: " + cw + "," + ch);
     
@@ -301,12 +339,7 @@ that.resizeAuto = function() {
         c.width = v.w;
         c.height = v.h;
         
-        conf.scale=v.w/fb_width;
-        UI.message("fb_width: "+fb_width+", c.width: "+c.offsetWidth+", viewport width: "+v.w+", scale: "+conf.scale);
-        UI.rfb.get_display().set_scale(conf.scale);
-        UI.rfb.get_mouse().set_scale(conf.scale);
-        rescale(conf.scale);
-        //rescale(1.0);
+        rescaleAuto();
         that.refresh();
     }
     UI.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
@@ -337,6 +370,7 @@ that.drawArea = function(x, y, w, h) {
 that.refresh = function() {
     if (UI.rfb) {UI.rfb.refresh();}
 
+    UI.message('screen refreshed.');
     Util.Debug('screen refreshed.');
 };
 

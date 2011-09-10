@@ -23,13 +23,13 @@
         <div id="vnc" class="flex-box">Loading...</div>
         <div>
             <br>
-            Results:<br>
+            Log:<br>
             <textarea id="messages" font="9pt" cols=80 rows=8></textarea>
         </div>
 
         <script>
             //window.onresize=function() {UI.rfb.get_display().resize(); UI.rfb.get_display().refresh();};
-            window.onresize=function() {UI.rfb.get_display().resizeAuto();};
+            window.onresize=function() {UI.rfb.get_display().resizeAuto($D('vnc'));};
             window.onload=function() {UI.load('vnc');};
         </script>
     </body>

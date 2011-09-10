@@ -14,7 +14,7 @@ var msg_cnt = 0, iterations,
             //fb_width = 800,
             //fb_height = 768,
             fb_width=1920,
-            fb_height=900,
+            fb_height=1200,
             viewport = {'x': 0, 'y': 0, 'w' : 0, 'h' : 0 },
             cleanRect = {},
             penDown = false, doMove = false,
@@ -178,10 +178,8 @@ load: function(target) {
     UI.initSetting('port', '');
     UI.initSetting('password', '');
     //TODO: Dynamically detect URI to determine encryption mode.
-    //UI.initSetting('encrypt', false);
     UI.initSetting('encrypt', false);
-    //UI.initSetting('true_color', true);
-    UI.initSetting('true_color', false);
+    UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true);
     UI.initSetting('connectTimeout', 2);
@@ -189,9 +187,7 @@ load: function(target) {
     UI.rfb = RFB({'target': $D('VNC_canvas'),
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive});
-    
-    UI.message('uri: '+UI.rfb.rfb_uri);
-    
+                  
     // Unfocus clipboard when over the VNC area
     $D('VNC_screen').onmousemove = function () {
             var keyboard = UI.rfb.get_keyboard();
@@ -207,7 +203,7 @@ load: function(target) {
     }
     
     ctx=UI.rfb.get_display().get_context();
-    UI.rfb.get_display().resizeAuto();
+    UI.rfb.get_display().resizeAuto(target);
 },
 
 // Read form control compatible setting from cookie
@@ -355,7 +351,7 @@ settingsApply: function() {
         UI.rfb.get_display().set_scale(UI.getSetting('scale'));
         UI.rfb.get_mouse().set_scale(UI.getSetting('scale'));
         //UI.rfb.get_display().resize();
-        UI.rfb.get_display().resizeAuto();
+        UI.rfb.get_display().resizeAuto($D('vnc'));
     }
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
     WebUtil.init_logging(UI.getSetting('logging'));
