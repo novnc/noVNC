@@ -265,6 +265,7 @@ rescaleAuto = function() {
     
     /* Rescale screen to whichever factor that is smaller (so we get to see the whole screen). */
     factor=xFactor<yFactor?xFactor:yFactor;
+    factor-=0.01;
     
     c.style.MozTransform = "scale(" + factor + ")";
     c.style.MozTransformOrigin = "top left";
