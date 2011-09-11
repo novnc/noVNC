@@ -132,6 +132,7 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
+    ['refreshTimeout',  'rw', 'int', 2,    'Time (s) to wait for a refresh'],
 
     ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
     ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
@@ -1512,7 +1513,7 @@ that.refresh = function() {
         updateState('connect','refreshing...');
         setTimeout(function () {
             if (rfb_state!=='normal') {that.refresh();}
-        }, 1000);
+        }, conf.refreshTimeout * 1000);
     }
     UI.message('state: '+rfb_state);
 };
