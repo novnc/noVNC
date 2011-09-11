@@ -267,8 +267,8 @@ rescaleAuto = function() {
     factor=xFactor<yFactor?xFactor:yFactor;
     factor-=0.01;
     
-    c.style.MozTransform = "scale(" + factor + ")";
-    c.style.MozTransformOrigin = "top left";
+    c.style[tp] = "scale(" + factor + ")";
+    c.style[tp+'Origin'] = "top left";
     
     UI.rfb.get_mouse().set_scale(factor);
 };
