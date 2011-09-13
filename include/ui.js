@@ -307,7 +307,7 @@ updateState: function(rfb, state, oldstate, msg) {
             klass = "noVNC_status_normal";
             break;
         case 'disconnected':
-            $D('noVNC_defaultScreen').style.display = "block";
+            $D('noVNC_logo').style.display = "block";
             c.value = "Connection";
             c.onclick = UI.connectPanelbutton;
         case 'loaded':
@@ -375,14 +375,14 @@ connect: function() {
     UI.rfb.connect(host, port, password);
     //Close dialog.
     setTimeout(UI.setBarPosition, 100);
-    $D('noVNC_defaultScreen').style.display = "none";
+    $D('noVNC_logo').style.display = "none";
 },
 
 disconnect: function() {
     UI.closeSettingsMenu();
     UI.rfb.disconnect();
 
-    $D('noVNC_defaultScreen').style.display = "block";
+    $D('noVNC_logo').style.display = "block";
     UI.connSettingsOpen = false;
     UI.connectPanelbutton();
 },

@@ -78,8 +78,8 @@
                 value="Settings" id="menuButton"
                 onclick="UI.clickSettingsMenu();">
             <input type="button" id="connectPanelbutton"
-                class="VNC_status_button"  style="width:100px;"
-                onclick="UI.connectPanelbutton()" value="Connection" />
+                value="Connection" class="VNC_status_button"
+                onclick="UI.connectPanelbutton()" />
         </div>
 
         <!-- Clipboard Panel -->
@@ -135,13 +135,16 @@
 
     </div> <!-- End of noVNC-control-bar -->
 
+
     <div id="noVNC_screen">
-        <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
+        <div id="noVNC_screen_pad"></div>
+
+        <div id="noVNC_status_bar" class="noVNC_status_bar">
                 <div id="noVNC_status">Loading</div>
         </div>
         
         <!-- HTML5 Canvas -->
-        <h1 id="noVNC_defaultScreen"><span>no</span><br />VNC</h1>
+        <h1 id="noVNC_logo"><span>no</span><br />VNC</h1>
         <canvas id="noVNC_canvas" width="640px" height="20px">
                     Canvas not supported.
         </canvas>

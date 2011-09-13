@@ -80,7 +80,7 @@ html {
 }
 
 #noVNC_status_bar {
-  margin-top: 15px;
+  margin-top: 0px;
   padding: 0px;
 }
 
@@ -88,7 +88,6 @@ html {
   font-size: 12px;
   padding-top: 4px;
   width:100%;
-  margin-top: 2px;
 }
 
 .VNC_status_button, #clipboardbutton, #connectbutton {
@@ -131,8 +130,12 @@ html {
 
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect
  * scaling will occur. Canvas resizes to remote VNC settings */
+#noVNC_screen_pad {
+  margin: 0px;
+  padding: 0px;
+  height: 44px;
+}
 #noVNC_screen {
-  margin-top:40px;
   text-align: center;
   display: table;
   width:100%;
@@ -231,8 +234,8 @@ html {
   right:180px;
 }
 
-/*Default noVNC screen.*/
-#noVNC_defaultScreen {
+/*Default noVNC logo.*/
+#noVNC_logo {
   width:400px;
   margin-left:auto;
   margin-right:auto;
@@ -249,7 +252,7 @@ html {
        1px 1px 0 #000;
 }
 
-#noVNC_defaultScreen span{
+#noVNC_logo span{
   color:green;
 }
 
