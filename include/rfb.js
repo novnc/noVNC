@@ -782,6 +782,7 @@ init_msg = function() {
 
         display.set_true_color(conf.true_color);
         display.resize(fb_width, fb_height);
+        display.viewportChange(0, 0, fb_width, fb_height);
         keyboard.grab();
         mouse.grab();
 
@@ -1312,6 +1313,7 @@ encHandlers.DesktopSize = function set_desktopsize() {
     fb_width = FBU.width;
     fb_height = FBU.height;
     display.resize(fb_width, fb_height);
+    display.viewportChange(0, 0, fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request
     ws.send(fbUpdateRequest(0));
