@@ -9,29 +9,25 @@
         <meta name=viewport content="width=device-width, initial-scale=1.0, user-scalable=no">
     </head>
     <body>
-        <div class="fullscreen flex-layout">
-
-        <div>
-            Canvas:
-                <input id="move-selector" type="button" value="Move"
-                    onclick="toggleMove();">
-            <br>
+        <div class="flex-layout">
+            <div>
+                Canvas:
+                    <input id="move-selector" type="button" value="Move"
+                        onclick="toggleMove();">
+                <br>
+            </div>
+            <div class="container flex-box">
+                <canvas id="canvas" class="canvas">
+                    Canvas not supported.
+                </canvas>
+                <br>
+            </div>
+            <div>
+                <br>
+                Results:<br>
+                <textarea id="messages" style="font-size: 9;" cols=80 rows=8></textarea>
+            </div>
         </div>
-        <div id="container" class="flex-box">
-            <canvas id="canvas"
-                    style="border-style: dotted; border-width: 1px;">
-                Canvas not supported.
-            </canvas>
-            <br>
-        </div>
-        <div>
-            <br>
-            Results:<br>
-            <textarea id="messages" style="font-size: 9;" cols=80 rows=8></textarea>
-        </div>
-
-        </div>
-
     </body>
 
     <!--
@@ -45,13 +41,10 @@
     <script src="../include/display.js"></script>
     <script>
         var msg_cnt = 0, iterations,
-            fb_width = 800,
-            fb_height = 768,
-            viewport = {'x': 0, 'y': 0, 'w' : 0, 'h' : 0 },
-            cleanRect = {},
             penDown = false, doMove = false,
             inMove = false, lastPos = {},
-            canvas, ctx, keyboard, mouse;
+            padW = 0, padH = 0,
+            display, ctx, keyboard, mouse;
 
         var newline = "\n";
         if (Util.Engine.trident) {
@@ -75,14 +68,9 @@
                 if (down && !inMove) {
                     inMove = true;
                     lastPos = {'x': x, 'y': y};
-                    cleanRect = {
-                        'x1': viewport.x,
-                        'y1': viewport.y,
-                        'x2': viewport.x + viewport.w - 1,
-                        'y2': viewport.y + viewport.h - 1};
                 } else if (!down && inMove) {
                     inMove = false;
-                    dirtyRedraw();
+                    //dirtyRedraw();
                 }
                 return;
             }
@@ -101,7 +89,13 @@
             var deltaX, deltaY, x1, y1;
 
             if (inMove) {
-                viewportMove(x, y);
+                //deltaX = x - lastPos.x; // drag viewport
+                deltaX = lastPos.x - x; // drag frame buffer
+                //deltaY = y - lastPos.y; // drag viewport
+                deltaY = lastPos.y - y; // drag frame buffer
+                lastPos = {'x': x, 'y': y};
+
+                display.viewportChange(deltaX, deltaY);
                 return;
             }
 
@@ -111,130 +105,38 @@
             }
         }
 
-        function viewportMove(x, y) {
-            var v = viewport, c = cleanRect,
-                vx2 = v.x + v.w - 1, vy2 = v.y + v.h - 1,
-                deltaX, deltaY, w, h;
-
-            //deltaX = x - lastPos.x; // drag viewport
-            deltaX = lastPos.x - x; // drag frame buffer
-            //deltaY = y - lastPos.y; // drag viewport
-            deltaY = lastPos.y - y; // drag frame buffer
-            lastPos = {'x': x, 'y': y};
-
-            if ((deltaX < 0) && ((v.x + deltaX) < 0)) {
-                deltaX = - v.x;
-            }
-            if ((vx2 + deltaX) >= fb_width) {
-                deltaX -= ((vx2 + deltaX) - fb_width + 1);
-            }
-
-            if ((v.y + deltaY) < 0) {
-                deltaY = - v.y;
-            }
-            if ((vy2 + deltaY) >= fb_height) {
-                deltaY -= ((vy2 + deltaY) - fb_height + 1);
-            }
-
-            if ((deltaX === 0) && (deltaY === 0)) {
-                //message("skipping");
+        function dirtyRedraw() {
+            if (inMove) {
+                // Wait for user to stop moving viewport
                 return;
             }
-            message("deltaX: " + deltaX + ", deltaY: " + deltaY);
 
-            v.x += deltaX;
-            vx2 += deltaX;
-            v.y += deltaY;
-            vy2 += deltaY;
+            var d = display.getCleanDirtyReset();
 
-            // Update the clean rectangle
-            if (v.x > c.x1) {
-                c.x1 = v.x;
-            }
-            if (vx2 < c.x2) {
-                c.x2 = vx2;
-            }
-            if (v.y > c.y1) {
-                c.y1 = v.y;
-            }
-            if (vy2 < c.y2) {
-                c.y2 = vy2;
-            }
-
-            if (deltaX < 0) {
-                // Shift viewport left, redraw left section
-                x1 = 0;
-                w = - deltaX;
-            } else {
-                // Shift viewport right, redraw right section
-                x1 = v.w - deltaX;
-                w = deltaX;
-            }
-            if (deltaY < 0) {
-                // Shift viewport up, redraw top section
-                y1 = 0;
-                h = - deltaY;
-            } else {
-                // Shift viewport down, redraw bottom section
-                y1 = v.h - deltaY;
-                h = deltaY;
-            }
-            if (deltaX !== 0) {
-                canvas.copyImage(0, 0, -deltaX, 0, v.w, v.h);
-                canvas.fillRect(x1, 0, w, v.h, [255,255,255]);
-            }
-            if (deltaY !== 0) {
-                canvas.copyImage(0, 0, 0, -deltaY, v.w, v.h);
-                canvas.fillRect(0, y1, v.w, h, [255,255,255]);
+            for (i = 0; i < d.dirtyBoxes.length; i++) {
+                //showBox(d.dirtyBoxes[i], "dirty[" + i + "]: ");
+                drawArea(d.dirtyBoxes[i]);
             }
         }
 
-        function dirtyRedraw() {
-            var v = viewport, c = cleanRect,
-                vx2 = v.x + v.w - 1, vy2 = v.y + v.h - 1;
+        function drawArea(b) {
+            var data = [], pixel, x, y;
 
-            if ((c.x1 >= c.x2) || (c.y1 >= c.y2)) {
-                // Nothing clean, redraw everything
-                drawArea(0, 0, v.w, v.h);
-            } else {
-                // Redraw dirty regions
-                if (v.x < c.x1) {
-                    // redraw left side dirty region
-                    drawArea(0, 0, c.x1 - v.x, v.h);
-                }
-                if (vx2 > c.x2) {
-                    // redraw right side dirty region
-                    drawArea(v.w - (vx2 - c.x2), 0, vx2 - c.x2, v.h);
-                }
-                if (v.y < c.y1) {
-                    // redraw top/middle dirty region
-                    drawArea(c.x1 - v.x, 0, c.x2 - c.x1 + 1, c.y1 - v.y);
-                }
-                if (vy2 > c.y2) {
-                    // redraw bottom/middle dirty region
-                    drawArea(c.x1 - v.x, c.y2 - v.y, c.x2 - c.x1 + 1, v.h - (c.y2 - v.y));
-                }
-            }
-        }
+            //message("draw "+b.x+","+b.y+" ("+b.w+","+b.h+")");
 
-        function drawArea(x, y, w, h) {
-            message("draw "+x+","+y+" ("+w+","+h+")");
-            var imgData = ctx.createImageData(w, h),
-                data = imgData.data, pixel, realX, realY;
-
-            for (var i = 0; i < w; i++) {
-                realX = viewport.x + x + i;
-                for (var j = 0; j < h; j++) {
-                    realY = viewport.y + y + j;
-                    pixel = (j * w * 4 + i * 4);
-                    data[pixel + 0] = ((realX * realY) / 13) % 256;
-                    data[pixel + 1] = ((realX * realY) + 392) % 256;
-                    data[pixel + 2] = ((realX + realY) + 256) % 256;
+            for (var i = 0; i < b.w; i++) {
+                x = b.x + i;
+                for (var j = 0; j < b.h; j++) {
+                    y = b.y + j;
+                    pixel = (j * b.w * 4 + i * 4);
+                    data[pixel + 0] = ((x * y) / 13) % 256;
+                    data[pixel + 1] = ((x * y) + 392) % 256;
+                    data[pixel + 2] = ((x + y) + 256) % 256;
                     data[pixel + 3] = 255;
                 }
             }
             //message("i: " + i + ", j: " + j + ", pixel: " + pixel);
-            ctx.putImageData(imgData, x, y);
+            display.blitImage(b.x, b.y, b.w, b.h, data, 0);
         }
 
         function toggleMove() {
@@ -249,36 +151,37 @@
             }
         }
 
-        window.onresize = function() {
-            var v = viewport,
-                cw = $D('container').offsetWidth,
-                ch = $D('container').offsetHeight;
+        function detectPad() {
+            var c = $D('canvas'), p = c.parentNode;
+            c.width = 10;
+            c.height = 10;
+            padW = c.offsetWidth - 10;
+            padH = c.offsetHeight - 10;
+            message("padW: " + padW + ", padH: " + padH);
+        }
 
-            message("container: " + cw + "," + ch);
-
-            if (cw > fb_width) {
-                cw = fb_width;
-            }
-            if (ch > fb_height) {
-                ch = fb_height;
-            }
-            if ((cw !== v.w) || (ch !== v.h)) {
-                v.w = cw;
-                v.h = ch;
-                message("new viewport: " + v.w + "," + v.h);
-                canvas.resize(v.w, v.h);
-                drawArea(0, 0, v.w, v.h);
-            }
-        };
+        function doResize() {
+            var p = $D('canvas').parentNode;
+            message("doResize1: [" + (p.offsetWidth - padW) +
+                    "," + (p.offsetHeight - padH) + "]");
+            display.viewportChange(0, 0,
+                p.offsetWidth - padW, p.offsetHeight - padH);
+        }
 
         window.onload = function() {
-            canvas = new Display({'target' : $D('canvas')});
-            ctx = canvas.get_context();
+            detectPad();
+            display = new Display({'target': $D('canvas')});
+            display.resize(1600, 1024);
+            //display.resize(800, 600);
+            ctx = display.get_context();
             mouse    = new Mouse({'target': $D('canvas'),
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
 
-            window.onresize();
+            Util.addEvent(window, 'resize', doResize);
+            //doResize();
+            setTimeout(doResize, 1);
+            setInterval(dirtyRedraw, 50);
             mouse.grab();
 
             message("Display initialized");

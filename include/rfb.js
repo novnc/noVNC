@@ -778,6 +778,7 @@ init_msg = function() {
 
         display.set_true_color(conf.true_color);
         display.resize(fb_width, fb_height);
+        display.viewportChange(0, 0, fb_width, fb_height);
         keyboard.grab();
         mouse.grab();
 
@@ -840,7 +841,7 @@ normal_msg = function() {
             blue = parseInt(ws.rQshift16() / 256, 10);
             display.set_colourMap([red, green, blue], first_colour + c);
         }
-        Util.Debug("*** colourMap: " + display.get_colourMap());
+        Util.Debug("colourMap: " + display.get_colourMap());
         Util.Info("Registered " + num_colours + " colourMap entries");
         //Util.Debug("colourMap: " + display.get_colourMap());
         break;
@@ -1308,6 +1309,7 @@ encHandlers.DesktopSize = function set_desktopsize() {
     fb_width = FBU.width;
     fb_height = FBU.height;
     display.resize(fb_width, fb_height);
+    display.viewportChange(0, 0, fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request
     ws.send(fbUpdateRequest(0));

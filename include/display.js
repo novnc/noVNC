@@ -25,8 +25,12 @@ var that           = {},  // Public API methods
     imageDataCreate, imageDataGet, rgbxImageData, cmapImageData,
     rgbxImageFill, cmapImageFill, setFillColor, rescale, flush,
 
-    c_width        = 0,
-    c_height       = 0,
+    // The full frame buffer (logical canvas) size
+    fb_width        = 0,
+    fb_height       = 0,
+    // The visible "physical canvas" viewport
+    viewport       = {'x': 0, 'y': 0, 'w' : 0, 'h' : 0 },
+    cleanRect      = {'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1},
 
     c_prevStyle    = "",
 
@@ -55,11 +59,11 @@ that.get_context = function () { return c_ctx; };
 
 that.set_scale = function(scale) { rescale(scale); };
 
-that.set_width = function (val) { that.resize(val, c_height); };
-that.get_width = function() { return c_width; };
+that.set_width = function (val) { that.resize(val, fb_height); };
+that.get_width = function() { return fb_width; };
 
-that.set_height = function (val) { that.resize(c_width, val); };
-that.get_height = function() { return c_height; };
+that.set_height = function (val) { that.resize(fb_width, val); };
+that.get_height = function() { return fb_height; };
 
 that.set_prefer_js = function(val) {
     if (val && c_forceCanvas) {
@@ -217,7 +221,10 @@ rescale = function(factor) {
         return;
     }
 
-    if (factor > 1.0) {
+
+    if (typeof(factor) === "undefined") {
+        factor = conf.scale;
+    } else if (factor > 1.0) {
         factor = 1.0;
     } else if (factor < 0.1) {
         factor = 0.1;
@@ -233,6 +240,174 @@ rescale = function(factor) {
     y = c.height - c.height * factor;
     c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
 };
+
+that.viewportChange = function(deltaX, deltaY, width, height) {
+    var c = conf.target, v = viewport, cr = cleanRect,
+        saveImg = null, saveStyle, x1, y1, vx2, vy2, w, h;
+
+    if (typeof(deltaX) === "undefined") { deltaX = 0; }
+    if (typeof(deltaY) === "undefined") { deltaY = 0; }
+    if (typeof(width) === "undefined") { width = v.w; }
+    if (typeof(height) === "undefined") { height = v.h; }
+
+    // Size change
+
+    if (width > fb_width) { width = fb_width; }
+    if (height > fb_height) { height = fb_height; }
+
+    if ((v.w !== width) || (v.h !== height)) {
+        // Change width
+        if ((width < v.w) && (cr.x2 > v.x + width -1)) {
+            cr.x2 = v.x + width - 1;
+        }
+        v.w = width;
+
+        // Change height
+        if ((height < v.h) && (cr.y2 > v.y + height -1)) {
+            cr.y2 = v.y + height - 1;
+        }
+        v.h = height;
+
+
+        if (v.w > 0 && v.h > 0) {
+            saveImg = c_ctx.getImageData(0, 0,
+                    (c.width < v.w) ? c.width : v.w,
+                    (c.height < v.h) ? c.height : v.h);
+        }
+
+        c.width = v.w;
+        c.height = v.h;
+
+        if (saveImg) {
+            c_ctx.putImageData(saveImg, 0, 0);
+        }
+    }
+
+    vx2 = v.x + v.w - 1;
+    vy2 = v.y + v.h - 1;
+
+
+    // Position change
+
+    if ((deltaX < 0) && ((v.x + deltaX) < 0)) {
+        deltaX = - v.x;
+    }
+    if ((vx2 + deltaX) >= fb_width) {
+        deltaX -= ((vx2 + deltaX) - fb_width + 1);
+    }
+
+    if ((v.y + deltaY) < 0) {
+        deltaY = - v.y;
+    }
+    if ((vy2 + deltaY) >= fb_height) {
+        deltaY -= ((vy2 + deltaY) - fb_height + 1);
+    }
+
+    if ((deltaX === 0) && (deltaY === 0)) {
+        //message("skipping");
+        return;
+    }
+    message("deltaX: " + deltaX + ", deltaY: " + deltaY);
+
+    v.x += deltaX;
+    vx2 += deltaX;
+    v.y += deltaY;
+    vy2 += deltaY;
+
+    // Update the clean rectangle
+    if (v.x > cr.x1) {
+        cr.x1 = v.x;
+    }
+    if (vx2 < cr.x2) {
+        cr.x2 = vx2;
+    }
+    if (v.y > cr.y1) {
+        cr.y1 = v.y;
+    }
+    if (vy2 < cr.y2) {
+        cr.y2 = vy2;
+    }
+
+    if (deltaX < 0) {
+        // Shift viewport left, redraw left section
+        x1 = 0;
+        w = - deltaX;
+    } else {
+        // Shift viewport right, redraw right section
+        x1 = v.w - deltaX;
+        w = deltaX;
+    }
+    if (deltaY < 0) {
+        // Shift viewport up, redraw top section
+        y1 = 0;
+        h = - deltaY;
+    } else {
+        // Shift viewport down, redraw bottom section
+        y1 = v.h - deltaY;
+        h = deltaY;
+    }
+
+    // Copy the valid part of the viewport to the shifted location
+    saveStyle = c_ctx.fillStyle;
+    c_ctx.fillStyle = "rgb(255,255,255)";
+    if (deltaX !== 0) {
+        //that.copyImage(0, 0, -deltaX, 0, v.w, v.h);
+        //that.fillRect(x1, 0, w, v.h, [255,255,255]);
+        c_ctx.drawImage(c, 0, 0, v.w, v.h, -deltaX, 0, v.w, v.h);
+        c_ctx.fillRect(x1, 0, w, v.h);
+    }
+    if (deltaY !== 0) {
+        //that.copyImage(0, 0, 0, -deltaY, v.w, v.h);
+        //that.fillRect(0, y1, v.w, h, [255,255,255]);
+        c_ctx.drawImage(c, 0, 0, v.w, v.h, 0, -deltaY, v.w, v.h);
+        c_ctx.fillRect(0, y1, v.w, h);
+    }
+    c_ctx.fillStyle = saveStyle;
+}
+
+that.getCleanDirtyReset = function() {
+    var v = viewport, c = cleanRect, cleanBox, dirtyBoxes = [],
+        vx2 = v.x + v.w - 1, vy2 = v.y + v.h - 1;
+
+
+    // Copy the cleanRect
+    cleanBox = {'x': c.x1, 'y': c.y1,
+                'w': c.x2 - c.x1 + 1, 'h': c.y2 - c.y1 + 1};
+
+    if ((c.x1 >= c.x2) || (c.y1 >= c.y2)) {
+        // Whole viewport is dirty
+        dirtyBoxes.push({'x': v.x, 'y': v.y, 'w': v.w, 'h': v.h});
+    } else {
+        // Redraw dirty regions
+        if (v.x < c.x1) {
+            // left side dirty region
+            dirtyBoxes.push({'x': v.x, 'y': v.y,
+                             'w': c.x1 - v.x + 1, 'h': v.h});
+        }
+        if (vx2 > c.x2) {
+            // right side dirty region
+            dirtyBoxes.push({'x': c.x2 + 1, 'y': v.y,
+                             'w': vx2 - c.x2, 'h': v.h});
+        }
+        if (v.y < c.y1) {
+            // top/middle dirty region
+            dirtyBoxes.push({'x': c.x1, 'y': v.y,
+                             'w': c.x2 - c.x1 + 1, 'h': c.y1 - v.y});
+        }
+        if (vy2 > c.y2) {
+            // bottom/middle dirty region
+            dirtyBoxes.push({'x': c.x1, 'y': c.y2 + 1,
+                             'w': c.x2 - c.x1 + 1, 'h': vy2 - c.y2});
+        }
+    }
+
+    // Reset the cleanRect to the whole viewport
+    cleanRect = {'x1': v.x, 'y1': v.y,
+                 'x2': v.x + v.w - 1, 'y2': v.y + v.h - 1};
+
+    return {'cleanBox': cleanBox, 'dirtyBoxes': dirtyBoxes};
+}
+
 
 // Force canvas redraw (for webkit bug #46319 workaround)
 flush = function() {
@@ -266,27 +441,25 @@ setFillColor = function(color) {
 //
 
 that.resize = function(width, height) {
-    var c = conf.target;
-
     c_prevStyle    = "";
 
-    c.width = width;
-    c.height = height;
-
-    c_width  = c.offsetWidth;
-    c_height = c.offsetHeight;
+    fb_width = width;
+    fb_height = height;
 
     rescale(conf.scale);
+    that.viewportChange();
 };
 
 that.clear = function() {
 
     if (conf.logo) {
         that.resize(conf.logo.width, conf.logo.height);
+        that.viewportChange(0, 0, conf.logo.width, conf.logo.height);
         that.blitStringImage(conf.logo.data, 0, 0);
     } else {
         that.resize(640, 20);
-        c_ctx.clearRect(0, 0, c_width, c_height);
+        that.viewportChange(0, 0, 640, 20);
+        c_ctx.clearRect(0, 0, viewport.w, viewport.h);
     }
 
     // No benefit over default ("source-over") in Chrome and firefox
@@ -295,12 +468,13 @@ that.clear = function() {
 
 that.fillRect = function(x, y, width, height, color) {
     setFillColor(color);
-    c_ctx.fillRect(x, y, width, height);
+    c_ctx.fillRect(x - viewport.x, y - viewport.y, width, height);
 };
 
-that.copyImage = function(old_x, old_y, new_x, new_y, width, height) {
-    c_ctx.drawImage(conf.target, old_x, old_y, width, height,
-                                       new_x, new_y, width, height);
+that.copyImage = function(old_x, old_y, new_x, new_y, w, h) {
+    var x1 = old_x - viewport.x, y1 = old_y - viewport.y,
+        x2 = new_x - viewport.x, y2 = new_y  - viewport.y;
+    c_ctx.drawImage(conf.target, x1, y1, w, h, x2, y2, w, h);
 };
 
 /*
@@ -386,7 +560,7 @@ rgbxImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = arr[j + 2];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x, y);
+    c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
 };
 
 // really slow fallback if we don't have imageData
@@ -414,7 +588,7 @@ cmapImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = rgb[2];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x, y);
+    c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
 };
 
 cmapImageFill = function(x, y, width, height, arr, offset) {
@@ -441,7 +615,9 @@ that.blitImage = function(x, y, width, height, arr, offset) {
 
 that.blitStringImage = function(str, x, y) {
     var img = new Image();
-    img.onload = function () { c_ctx.drawImage(img, x, y); };
+    img.onload = function () {
+        c_ctx.drawImage(img, x - viewport.x, y - viewport.y);
+    };
     img.src = str;
 };
 
