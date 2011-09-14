@@ -304,10 +304,10 @@ that.viewportChange = function(deltaX, deltaY, width, height) {
     }
 
     if ((deltaX === 0) && (deltaY === 0)) {
-        //message("skipping");
+        //Util.Debug("skipping viewport change");
         return;
     }
-    message("deltaX: " + deltaX + ", deltaY: " + deltaY);
+    Util.Debug("viewportChange deltaX: " + deltaX + ", deltaY: " + deltaY);
 
     v.x += deltaX;
     vx2 += deltaX;
@@ -363,7 +363,7 @@ that.viewportChange = function(deltaX, deltaY, width, height) {
         c_ctx.fillRect(0, y1, v.w, h);
     }
     c_ctx.fillStyle = saveStyle;
-}
+};
 
 that.getCleanDirtyReset = function() {
     var v = viewport, c = cleanRect, cleanBox, dirtyBoxes = [],

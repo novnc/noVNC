@@ -302,7 +302,7 @@ updateState: function(rfb, state, oldstate, msg) {
             c.value = "Disconnect";
             c.onclick = UI.disconnect;
             c.disabled = false;
-            cad.style.display = "block";
+            cad.style.display = "";
             UI.settingsDisabled(true, rfb);
             klass = "noVNC_status_normal";
             break;
@@ -497,7 +497,6 @@ addOption: function(selectbox,text,value )
 setBarPosition: function() {
     $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
     $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-    $D('noVNC_buttons_right').style.right = 0 + 'px'; 
     
     var vncwidth = $D('noVNC_screen').style.offsetWidth;
     $D('noVNC-control-bar').style.width = vncwidth + 'px';

@@ -66,17 +66,20 @@ html {
 } 
 
 #noVNC_mobile_buttons {
-  position:fixed;
-  padding-left:10px;
-  padding-top:9px;
   display: none;
 }
 
-#noVNC_buttons_right {
+.noVNC-buttons-left {
   position:fixed;
+  padding-left:10px;
+  padding-top:9px;
+}
+
+.noVNC-buttons-right {
+  float:right;
+  right: 0px;
   padding-right:10px;
   padding-top:9px;
-  right:0;
 }
 
 #noVNC_status_bar {
@@ -90,7 +93,7 @@ html {
   width:100%;
 }
 
-.VNC_status_button, #clipboardbutton, #connectbutton {
+.noVNC_status_button, #clipboardbutton, #connectbutton {
   font-size: 14px;
 }
 
@@ -112,12 +115,6 @@ html {
   float:right;
 }
 
-.VNC_buttons_right {
-  text-align: right;
-}
-.VNC_buttons_left {
-  text-align: left;
-}
 .noVNC_status_normal {
   background: #eee;
 }
