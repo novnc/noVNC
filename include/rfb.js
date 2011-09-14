@@ -1414,10 +1414,10 @@ clientEncodings = function() {
 
 fbUpdateRequest = function(incremental, x, y, xw, yw) {
     //Util.Debug(">> fbUpdateRequest");
-    if (typeof(x) !== "undefined") { x = 0; }
-    if (typeof(y) !== "undefined") { y = 0; }
-    if (typeof(xw) !== "undefined") { xw = fb_width; }
-    if (typeof(yw) !== "undefined") { yw = fb_height; }
+    if (typeof(x) === "undefined") { x = 0; }
+    if (typeof(y) === "undefined") { y = 0; }
+    if (typeof(xw) === "undefined") { xw = fb_width; }
+    if (typeof(yw) === "undefined") { yw = fb_height; }
     var arr;
     arr = [3];  // msg-type
     arr.push8(incremental);
