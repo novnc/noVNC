@@ -65,21 +65,27 @@ html {
   z-index:200;
 } 
 
+#noVNC_view_drag_button {
+  display: none;
+}
+#sendCtrlAltDelButton {
+  display: none;
+}
 #noVNC_mobile_buttons {
   display: none;
 }
 
 .noVNC-buttons-left {
-  position:fixed;
+  float: left;
   padding-left:10px;
-  padding-top:9px;
+  padding-top:4px;
 }
 
 .noVNC-buttons-right {
   float:right;
   right: 0px;
   padding-right:10px;
-  padding-top:9px;
+  padding-top:4px;
 }
 
 #noVNC_status_bar {
@@ -91,10 +97,6 @@ html {
   font-size: 12px;
   padding-top: 4px;
   width:100%;
-}
-
-.noVNC_status_button, #clipboardbutton, #connectbutton {
-  font-size: 14px;
 }
 
 #noVNC_status {
@@ -141,8 +143,14 @@ html {
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
 }
-#VNC_canvas {
-  background: #eee;
+
+#noVNC_container, #noVNC_canvas {
+    margin: 0px;
+    padding: 0px;
+}
+
+#noVNC_canvas {
+  left: 0px;
 }
 
 #VNC_clipboard_clear_button {
@@ -150,10 +158,6 @@ html {
 }
 #VNC_clipboard_text {
   font-size: 11px;
-}
-
-#noVNC_Settings {
-  width:200px;
 }
 
 #noVNC_clipboard_clear_button {
@@ -211,32 +215,36 @@ html {
 }
 
 /*Bubble contents divs*/
-#noVNC_Settings {
-  margin-top:72px;
-  position:fixed;
-  right:100px;
+#noVNC_settings {
   display:none; 
+  margin-top:72px;
+  right:10px;
+  position:fixed;
 }
 
 #noVNC_controls {
   margin-top:72px;
-  position:fixed;
   right:10px;
+  position:fixed;
+}
+#noVNC_controls.top:after  {
+  right:15px;
 }
 
 #noVNC_clipboard {
   display:none; 
   margin-top:72px;
+  right:20px;
   position:fixed;
-  right:180px;
+}
+#noVNC_clipboard.top:after {
+  right:85px;
 }
 
 /*Default noVNC logo.*/
 #noVNC_logo {
-  width:400px;
-  margin-left:auto;
-  margin-right:auto;
-  font-size:160px;
+  margin-top: 170px;
+  margin-left: 10px;
   color:yellow;
   text-align:left;
   font-family: 'Orbitron', sans-serif;
@@ -249,17 +257,80 @@ html {
        1px 1px 0 #000;
 }
 
+
 #noVNC_logo span{
   color:green;
 }
 
 #keyboardinput {
-  width:0px;
-  height:0px;
-  background-color:#313131;
+  width:1px;
+  height:1px;
+  background-color:#6d84a2;
   border:0;
 }
 
 .noVNC_status_warn {
   background-color:yellow;
+}
+
+/* ----------------------------------------
+ * Media sizing
+ * ----------------------------------------
+ */
+
+
+.noVNC_status_button {
+  font-size: 12px;
+  padding: 2px;
+  vertical-align: middle;
+}
+#noVNC_clipboard_text {
+  width: 500px;
+  border-color: red;
+}
+
+#noVNC_logo {
+  font-size: 180px;
+}
+
+@media screen and (min-width: 481px) and (max-width: 640px) {
+  .noVNC_status_button {
+    font-size: 10px;
+    padding: 1px;
+  }
+  #noVNC_clipboard_text {
+    width: 410px;
+    border-color: yellow;
+  }
+  #noVNC_logo {
+    font-size: 150px;
+  }
+}
+
+@media screen and (min-width: 321px) and (max-width: 480px) {
+  .noVNC_status_button {
+    font-size: 10px;
+    padding: 0px;
+  }
+  #noVNC_clipboard_text {
+    width: 250px;
+    border-color: green;
+  }
+  #noVNC_logo {
+    font-size: 110px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .noVNC_status_button {
+    font-size: 9px;
+    padding: 0px;
+  }
+  #noVNC_clipboard_text {
+    width: 220px;
+    border-color: blue;
+  }
+  #noVNC_logo {
+    font-size: 90px;
+  }
 }

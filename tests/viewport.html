@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head><title>Viewport Test</title>
-        <link rel="stylesheet" href="../include/mobile.css">
+        <link rel="stylesheet" href="viewport.css">
         <!--
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -166,23 +166,35 @@
                     "," + (p.offsetHeight - padH) + "]");
             display.viewportChange(0, 0,
                 p.offsetWidth - padW, p.offsetHeight - padH);
+            /*
+            var pos, new_w, new_h;pos
+            pos = Util.getPosition($D('canvas').parentNode);
+            new_w = window.innerWidth - pos.x;
+            new_h = window.innerHeight - pos.y;
+            display.viewportChange(0, 0, new_w, new_h);
+            */
         }
 
         window.onload = function() {
             detectPad();
+
             display = new Display({'target': $D('canvas')});
             display.resize(1600, 1024);
-            //display.resize(800, 600);
+            display.set_viewport(true);
             ctx = display.get_context();
+
             mouse    = new Mouse({'target': $D('canvas'),
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
+            mouse.grab();
+
 
             Util.addEvent(window, 'resize', doResize);
-            //doResize();
+            // Shrink viewport for first resize call so that the
+            // scrollbars are disabled
+            display.viewportChange(0, 0, 10, 10);
             setTimeout(doResize, 1);
             setInterval(dirtyRedraw, 50);
-            mouse.grab();
 
             message("Display initialized");
         };

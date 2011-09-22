@@ -118,7 +118,9 @@ var that           = {},  // Public API methods
 
     /* Mouse state */
     mouse_buttonMask = 0,
-    mouse_arr        = [];
+    mouse_arr        = [],
+    viewportDragging = false,
+    viewportDragPos  = {};
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -132,6 +134,8 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
+
+    ['viewportDrag',       'rw', 'bool', false, 'Move the viewport on mouse drags'],
 
     ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
     ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
@@ -547,7 +551,7 @@ function flushClient() {
 // overridable for testing
 checkEvents = function() {
     var now;
-    if (rfb_state === 'normal') {
+    if (rfb_state === 'normal' && !viewportDragging) {
         if (! flushClient()) {
             now = new Date().getTime();
             if (now > last_req_time + conf.fbu_req_rate) {
@@ -572,13 +576,43 @@ mouseButton = function(x, y, down, bmask) {
     } else {
         mouse_buttonMask ^= bmask;
     }
-    mouse_arr = mouse_arr.concat( pointerEvent(x, y) );
+
+    if (conf.viewportDrag) {
+        if (down && !viewportDragging) {
+            viewportDragging = true;
+            viewportDragPos = {'x': x, 'y': y};
+
+            // Skip sending mouse events
+            return;
+        } else {
+            viewportDragging = false;
+        }
+    }
+
+    mouse_arr = mouse_arr.concat(
+            pointerEvent(display.absX(x), display.absY(y)) );
     flushClient();
 };
 
 mouseMove = function(x, y) {
     //Util.Debug('>> mouseMove ' + x + "," + y);
-    mouse_arr = mouse_arr.concat( pointerEvent(x, y) );
+    var deltaX, deltaY;
+
+    if (viewportDragging) {
+        //deltaX = x - viewportDragPos.x; // drag viewport
+        deltaX = viewportDragPos.x - x; // drag frame buffer
+        //deltaY = y - viewportDragPos.y; // drag viewport
+        deltaY = viewportDragPos.y - y; // drag frame buffer
+        viewportDragPos = {'x': x, 'y': y};
+
+        display.viewportChange(deltaX, deltaY);
+
+        // Skip sending mouse events
+        return;
+    }
+
+    mouse_arr = mouse_arr.concat(
+            pointerEvent(display.absX(x), display.absY(y)) );
 };
 
 
@@ -778,7 +812,6 @@ init_msg = function() {
 
         display.set_true_color(conf.true_color);
         display.resize(fb_width, fb_height);
-        display.viewportChange(0, 0, fb_width, fb_height);
         keyboard.grab();
         mouse.grab();
 
@@ -1309,7 +1342,6 @@ encHandlers.DesktopSize = function set_desktopsize() {
     fb_width = FBU.width;
     fb_height = FBU.height;
     display.resize(fb_width, fb_height);
-    display.viewportChange(0, 0, fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request
     ws.send(fbUpdateRequests());

@@ -45,6 +45,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['true_color',  'rw', 'bool', true, 'Use true-color pixel data'],
     ['colourMap',   'rw', 'arr',  [], 'Colour map array (when not true-color)'],
     ['scale',       'rw', 'float', 1.0, 'Display area scale factor 0.0 - 1.0'],
+    ['viewport',    'rw', 'bool', false, 'Use a viewport set with viewportChange()'],
     ['width',       'rw', 'int', null, 'Display area width'],
     ['height',      'rw', 'int', null, 'Display area height'],
 
@@ -245,6 +246,14 @@ that.viewportChange = function(deltaX, deltaY, width, height) {
     var c = conf.target, v = viewport, cr = cleanRect,
         saveImg = null, saveStyle, x1, y1, vx2, vy2, w, h;
 
+    if (!conf.viewport) {
+        Util.Debug("Setting viewport to full display region");
+        deltaX = -v.w; // Clamped later if out of bounds
+        deltaY = -v.h; // Clamped later if out of bounds
+        width = fb_width;
+        height = fb_height;
+    }
+
     if (typeof(deltaX) === "undefined") { deltaX = 0; }
     if (typeof(deltaY) === "undefined") { deltaY = 0; }
     if (typeof(width) === "undefined") { width = v.w; }
@@ -269,7 +278,10 @@ that.viewportChange = function(deltaX, deltaY, width, height) {
         v.h = height;
 
 
-        if (v.w > 0 && v.h > 0) {
+        if (v.w > 0 && v.h > 0 && c.width > 0 && c.height > 0) {
+            console.log("here1:",
+                    ((c.width < v.w) ? c.width : v.w),
+                    ((c.height < v.h) ? c.height : v.h));
             saveImg = c_ctx.getImageData(0, 0,
                     (c.width < v.w) ? c.width : v.w,
                     (c.height < v.h) ? c.height : v.h);
@@ -406,6 +418,13 @@ that.getCleanDirtyReset = function() {
                  'x2': v.x + v.w - 1, 'y2': v.y + v.h - 1};
 
     return {'cleanBox': cleanBox, 'dirtyBoxes': dirtyBoxes};
+};
+
+that.absX = function(x) {
+    return x + viewport.x;
+}
+that.absY = function(y) {
+    return y + viewport.y;
 }
 
 
@@ -454,11 +473,9 @@ that.clear = function() {
 
     if (conf.logo) {
         that.resize(conf.logo.width, conf.logo.height);
-        that.viewportChange(0, 0, conf.logo.width, conf.logo.height);
         that.blitStringImage(conf.logo.data, 0, 0);
     } else {
         that.resize(640, 20);
-        that.viewportChange(0, 0, 640, 20);
         c_ctx.clearRect(0, 0, viewport.w, viewport.h);
     }
 
@@ -551,7 +568,15 @@ imageDataCreate = function(width, height) {
 };
 
 rgbxImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data;
+    var img, i, j, data, v = viewport;
+    /*
+    if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
+        (x - v.x + width < 0) || (y - v.y + height < 0)) {
+        //console.log("skipping, out of bounds: ", x, y);
+        // Skipping because outside of viewport
+        return;
+    }
+    */
     img = c_imageData(width, height);
     data = img.data;
     for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
@@ -560,7 +585,7 @@ rgbxImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = arr[j + 2];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
+    c_ctx.putImageData(img, x - v.x, y - v.y);
 };
 
 // really slow fallback if we don't have imageData

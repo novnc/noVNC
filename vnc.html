@@ -15,11 +15,18 @@
                 Remove this if you use the .htaccess -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <meta name="viewport" content="user-scalable=1" />
+    <!-- Apple iOS Safari settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- App Start Icon  -->
+    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" /> 
+    <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
+    <link rel="apple-touch-icon" href="images/screen_57x57.png">
     <!--
-    <meta name="viewport" content="width=device-width,height=device-height" />
+    <link rel="apple-touch-icon-precomposed" href="images/screen_57x57.png" /> 
     -->
+
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="include/base.css" />
@@ -28,13 +35,6 @@
 
     <!-- Google web fonts -->
     <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz|Nova+Square|Orbitron:400,500,700,900|Nova+Round|Nova+Mono|Nova+Slim|Nova+Oval|Nova+Flat|Nova+Cut' rel='stylesheet' type='text/css'>       
-    <!-- App Start Icon  -->
-    <link rel="apple-touch-startup-image" href="images/screen_640x435.png" /> 
-
-    <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
-    <link rel="apple-touch-icon" href="images/mobileicon.png">
-    <link rel="apple-touch-icon-precomposed" href="images/mobileicon.png" /> 
-
     <!--
     <script type='text/javascript'  
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
@@ -48,43 +48,60 @@
 <body>
     <div id="noVNC-control-bar">
         <!--noVNC Mobile Device only Buttons-->
-        <div id="noVNC_mobile_buttons" class="noVNC-buttons-left">
-            <nobr>
-                <span class="noVNC_mouse_buttons">
-                    <input type="button" class="noVNC_status_button"
-                        id="noVNC_mouse_button1" value="L"
-                        onclick="UI.setMouseButton(1);">
-                    <input type="button" class="noVNC_status_button"
-                        id="noVNC_mouse_button2" value="M"
-                        onclick="UI.setMouseButton(2);">
-                    <input type="button" class="noVNC_status_button"
-                        id="noVNC_mouse_button4" value="R"
-                        onclick="UI.setMouseButton(4);">
-                    <input type="button" id="showKeyboard"
-                        value="Keyboard" class="noVNC_status_button"
-                        onclick="UI.showKeyboard()"/>
-                </span>
-            </nobr>
+        <div class="noVNC-buttons-left">
+            <input type="image" src="images/move.png"
+                id="noVNC_view_drag_button" class="noVNC_status_button"
+                value="Move" title="Move/Drag Viewport"
+                onclick="UI.setViewDrag();">
+            <div id="noVNC_mobile_buttons">
+                <input type="button" class="noVNC_status_button"
+                    id="noVNC_mouse_button0" value=" "
+                    onclick="UI.setMouseButton(1);">
+                <input type="button" class="noVNC_status_button"
+                    id="noVNC_mouse_button1" value="L"
+                    onclick="UI.setMouseButton(2);">
+                <input type="button" class="noVNC_status_button"
+                    id="noVNC_mouse_button2" value="M"
+                    onclick="UI.setMouseButton(4);">
+                <input type="button" class="noVNC_status_button"
+                    id="noVNC_mouse_button4" value="R"
+                    onclick="UI.setMouseButton(0);">
+                <input type="image" src="images/keyboard.png"
+                    id="showKeyboard" class="noVNC_status_button" 
+                    value="Keyboard" title="Show Keyboard"
+                    onclick="UI.showKeyboard()"/>
+                <input type="text"
+                    id="keyboardinput" class="noVNC_status_button"
+                    onKeyDown="onKeyDown(event);"/>
+            </div>
         </div>
 
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
             <input type="button" class="noVNC_status_button"
                 value="CtrlAltDel" id="sendCtrlAltDelButton"
-                onclick="UI.sendCtrlAltDel();">
-            <input type="button" id="clipboardbutton" value="Clipboard"
-                onclick="UI.showClipboard();"/>
-            <input type="button" class="noVNC_status_button"
-                value="Settings" id="menuButton"
-                onclick="UI.clickSettingsMenu();">
-            <input type="button" id="connectPanelbutton"
-                value="Connection" class="noVNC_status_button"
+                onclick="UI.sendCtrlAltDel();" />
+            <input type="image" src="images/clipboard.png"
+                id="clipboardButton" class="noVNC_status_button"
+                value="Clipboard" title="Clipboard"
+                onclick="UI.showClipboard();" />
+            <input type="image" src="images/settings.png"
+                id="menuButton" class="noVNC_status_button"
+                value="Settings" title="Settings"
+                onclick="UI.clickSettingsMenu();" />
+            <input type="image" src="images/connect.png"
+                id="connectPanelbutton" class="noVNC_status_button"
+                value="Connect" title="Connect"
                 onclick="UI.connectPanelbutton()" />
+            <input type="image" src="images/disconnect.png"
+                id="disconnectButton" class="noVNC_status_button"
+                value="Disconnect" title="Disconnect"
+                onclick="UI.disconnect()" />
         </div>
 
         <!-- Clipboard Panel -->
         <div id="noVNC_clipboard" class="triangle-right top">
-            <textarea id="noVNC_clipboard_text" cols=88 rows=5
+            <textarea id="noVNC_clipboard_text" rows=5
                 onfocus="UI.displayBlur();" onblur="UI.displayFocus();"
                 onchange="UI.clipSend();">
             </textarea>
@@ -94,13 +111,14 @@
         </div>
 
         <!-- Settings Panel -->
-        <div id="noVNC_Settings" class="triangle-right top">
+        <div id="noVNC_settings" class="triangle-right top">
             <span id="noVNC_settings_menu" onmouseover="UI.displayBlur();"
                                            onmouseout="UI.displayFocus();">
                 <ul>
                     <li><input id="noVNC_encrypt" type="checkbox"> Encrypt</li>
                     <li><input id="noVNC_true_color" type="checkbox" checked> True Color</li>
                     <li><input id="noVNC_cursor" type="checkbox"> Local Cursor</li>
+                    <li><input id="noVNC_clip" type="checkbox"> Clip to window</li>
                     <li><input id="noVNC_shared" type="checkbox"> Shared Mode</li>
                     <li><input id="noVNC_connectTimeout" type="input"> Connect Timeout (s)</li>
                     <hr>
@@ -143,13 +161,15 @@
                 <div id="noVNC_status">Loading</div>
         </div>
         
-        <!-- HTML5 Canvas -->
         <h1 id="noVNC_logo"><span>no</span><br />VNC</h1>
-        <canvas id="noVNC_canvas" width="640px" height="20px">
-                    Canvas not supported.
-        </canvas>
-        
-        <input id="keyboardinput" type="text" onKeyDown="onKeyDown(event);"/>
+
+        <!-- HTML5 Canvas -->
+        <div id="noVNC_container">
+            <canvas id="noVNC_canvas" width="640px" height="20px">
+                        Canvas not supported.
+            </canvas>
+        </div>
+
     </div>
   
     <script>
