@@ -500,11 +500,14 @@ function onMouseButton(e, down) {
     return false;
 }
 
+var mouse_state = 0;
 function onMouseDown(e) {
+    mouse_state = 1;
     onMouseButton(e, 1);
 }
 
 function onMouseUp(e) {
+    mouse_state = 0;
     onMouseButton(e, 0);
 }
 
@@ -538,7 +541,18 @@ function onMouseMove(e) {
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
     //Util.Debug('mouse ' + evt.which + '/' + evt.button + ' up:' + pos.x + "," + pos.y);
-    if (conf.onMouseMove) {
+    // If we are currently dragging the mouse (ie. mouse button pressed while moving),
+    // automatically "release" the mouse button when we are about to exit the viewport.
+    if (mouse_state == 1 && conf.onMouseButton) {
+        if (pos.y < 2 || pos.y >= conf.target.clientHeight - 2
+            || pos.x < 2 || pos.x >= conf.target.clientWidth - 2)
+        {
+            conf.onMouseButton(pos.x, pos.y, 0, 0);
+            mouse_state = 0;
+        } else {
+            conf.onMouseButton(pos.x, pos.y, 1, 1);
+        }
+    } else if (conf.onMouseMove) {
         conf.onMouseMove(pos.x, pos.y);
     }
     Util.stopEvent(e);
