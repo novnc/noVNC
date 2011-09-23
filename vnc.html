@@ -8,6 +8,7 @@
     <head>
         <title>noVNC</title>
         <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <link rel="stylesheet" href="../include/mobile.css">
         <link rel="stylesheet" href="include/plain.css">
         <link rel="alternate stylesheet" href="include/black.css" TITLE="Black">
         <!--
@@ -19,13 +20,17 @@
     </head>
 
     <body>
-        <div id='vnc'>Loading</div>
+        <div id="vnc" class="flex-box">Loading...</div>
+        <div>
+            <br>
+            Log:<br>
+            <textarea id="messages" font="9pt" cols=80 rows=8></textarea>
+        </div>
 
         <script>
-        window.onload = function () {
-            UI.load('vnc');
-        };
+            //window.onresize=function() {UI.rfb.get_display().resize(); UI.rfb.get_display().refresh();};
+            window.onresize=function() {UI.rfb.get_display().resizeAuto($D('vnc'));};
+            window.onload=function() {UI.load('vnc');};
         </script>
-
     </body>
 </html>

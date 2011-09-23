@@ -132,6 +132,7 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
+    ['refreshTimeout',  'rw', 'int', 2,    'Time (s) to wait for a refresh'],
 
     ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
     ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
@@ -428,7 +429,6 @@ updateState = function(state, statusMsg) {
 
 
     case 'connect':
-        
         connTimer = setTimeout(function () {
                 fail("Connect timeout");
             }, conf.connectTimeout * 1000);
@@ -441,7 +441,8 @@ updateState = function(state, statusMsg) {
 
 
     case 'disconnect':
-
+        rfb_password='';
+        
         if (! test_mode) {
             disconnTimer = setTimeout(function () {
                     fail("Disconnect timeout");
@@ -449,7 +450,8 @@ updateState = function(state, statusMsg) {
         }
 
         print_stats();
-
+        display.clear();
+        
         // WebSocket.onclose transitions to 'disconnected'
         break;
 
@@ -1525,6 +1527,17 @@ that.sendPassword = function(passwd) {
     rfb_password = passwd;
     rfb_state = "Authentication";
     setTimeout(init_msg, 1);
+};
+
+that.refresh = function() {
+    // Refresh only when already connected, i.e. don't refresh during disconnected or loaded states.
+    if (rfb_state!='loaded' && rfb_password.length>0) {
+        updateState('connect','refreshing...');
+        setTimeout(function () {
+            if (rfb_state!=='normal') {that.refresh();}
+        }, conf.refreshTimeout * 1000);
+    }
+    UI.message('state: '+rfb_state);
 };
 
 that.sendCtrlAltDel = function() {

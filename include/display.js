@@ -23,7 +23,7 @@ var that           = {},  // Public API methods
 
     // Predefine function variables (jslint)
     imageDataCreate, imageDataGet, rgbxImageData, cmapImageData,
-    rgbxImageFill, cmapImageFill, setFillColor, rescale, flush,
+    rgbxImageFill, cmapImageFill, setFillColor, rescale, rescaleAuto, flush,
 
     // The full frame buffer (logical canvas) size
     fb_width        = 0,
@@ -232,13 +232,52 @@ rescale = function(factor) {
 
     if (conf.scale === factor) {
         //Util.Debug("Display already scaled to '" + factor + "'");
+        UI.message("Display already scaled to '" + factor + "'");
         return;
     }
 
-    conf.scale = factor;
     x = c.width - c.width * factor;
     y = c.height - c.height * factor;
     c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
+    UI.message("scale: "+conf.scale+", x: "+x+", y: "+y);
+};
+
+rescaleAuto = function() {
+    var c, tp, x, y, xFactor, yFactor, factor,
+        properties = ['transform', 'WebkitTransform', 'MozTransform', null];
+    
+    c = conf.target;
+    tp = properties.shift();
+    while (tp) {
+        if (typeof c.style[tp] !== 'undefined') {
+            break;
+        }
+        tp = properties.shift();
+    }
+    
+    if (tp === null) {
+        Util.Debug("No scaling support");
+        return;
+    }
+    
+    xFactor=viewport.w/fb_width;
+    yFactor=viewport.h/fb_height;
+    UI.message("xFactor: "+xFactor+", yFactor: "+yFactor+", viewport.h: "+viewport.h+", fb_height: "+fb_height);
+    
+    if (xFactor > 1.0) {xFactor = 1.0;}
+    else if (xFactor < 0.1) {xFactor = 0.1;}
+    
+    if (yFactor > 1.0) {yFactor = 1.0;}
+    else if (yFactor < 0.1) {yFactor = 0.1;}
+    
+    /* Rescale screen to whichever factor that is smaller (so we get to see the whole screen). */
+    factor=xFactor<yFactor?xFactor:yFactor;
+    factor-=0.01;
+    
+    c.style[tp] = "scale(" + factor + ")";
+    c.style[tp+'Origin'] = "top left";
+    
+    UI.rfb.get_mouse().set_scale(factor);
 };
 
 that.viewportChange = function(deltaX, deltaY, width, height) {
@@ -439,7 +478,6 @@ setFillColor = function(color) {
 //
 // Public API interface functions
 //
-
 that.resize = function(width, height) {
     c_prevStyle    = "";
 
@@ -450,8 +488,65 @@ that.resize = function(width, height) {
     that.viewportChange();
 };
 
-that.clear = function() {
+that.resizeAuto = function(canvas) {
+    var c=canvas;
+    var v = viewport,
+        cw=window.innerWidth,
+        ch=window.innerHeight;
+    
+    UI.message("container: " + cw + "," + ch);
+    
+    if (cw > fb_width) {
+        cw = fb_width;
+    }
+    if (ch > fb_height) {
+        ch = fb_height;
+    }
+    if ((cw !== v.w) || (ch !== v.h)) {
+        v.w = cw;
+        v.h = ch;
+        UI.message("new viewport: " + v.w + "," + v.h);
+        
+        c = conf.target;
+        c.width = v.w;
+        c.height = v.h;
+        
+        rescaleAuto();
+        that.refresh();
+    }
+    UI.message("framebuffer: "+fb_width+","+fb_height+"; viewport: "+v.w+","+v.h);
+};
 
+/* Test graphics (repeating pattern). */
+that.drawArea = function(x, y, w, h) {
+    UI.message("draw "+x+","+y+" ("+w+","+h+")");
+    var imgData = ctx.createImageData(w, h),
+        data = imgData.data, pixel, realX, realY;
+
+    for (var i = 0; i < w; i++) {
+        realX = viewport.x + x + i;
+        for (var j = 0; j < h; j++) {
+            realY = viewport.y + y + j;
+            pixel = (j * w * 4 + i * 4);
+            data[pixel + 0] = ((realX * realY) / 13) % 256;
+            data[pixel + 1] = ((realX * realY) + 392) % 256;
+            data[pixel + 2] = ((realX + realY) + 256) % 256;
+            data[pixel + 3] = 255;
+        }
+    }
+    //UI.message("i: " + i + ", j: " + j + ", pixel: " + pixel);
+    ctx.putImageData(imgData, x, y);
+};
+
+/* Screen refresh. */
+that.refresh = function() {
+    if (UI.rfb) {UI.rfb.refresh();}
+
+    UI.message('screen refreshed.');
+    Util.Debug('screen refreshed.');
+};
+
+that.clear = function() {
     if (conf.logo) {
         that.resize(conf.logo.width, conf.logo.height);
         that.viewportChange(0, 0, conf.logo.width, conf.logo.height);
