@@ -286,7 +286,6 @@ html {
 }
 #noVNC_clipboard_text {
   width: 500px;
-  border-color: red;
 }
 
 #noVNC_logo {
@@ -300,7 +299,6 @@ html {
   }
   #noVNC_clipboard_text {
     width: 410px;
-    border-color: yellow;
   }
   #noVNC_logo {
     font-size: 150px;
@@ -314,7 +312,6 @@ html {
   }
   #noVNC_clipboard_text {
     width: 250px;
-    border-color: green;
   }
   #noVNC_logo {
     font-size: 110px;
@@ -328,7 +325,6 @@ html {
   }
   #noVNC_clipboard_text {
     width: 220px;
-    border-color: blue;
   }
   #noVNC_logo {
     font-size: 90px;

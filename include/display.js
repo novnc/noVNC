@@ -279,9 +279,6 @@ that.viewportChange = function(deltaX, deltaY, width, height) {
 
 
         if (v.w > 0 && v.h > 0 && c.width > 0 && c.height > 0) {
-            console.log("here1:",
-                    ((c.width < v.w) ? c.width : v.w),
-                    ((c.height < v.h) ? c.height : v.h));
             saveImg = c_ctx.getImageData(0, 0,
                     (c.width < v.w) ? c.width : v.w,
                     (c.height < v.h) ? c.height : v.h);
