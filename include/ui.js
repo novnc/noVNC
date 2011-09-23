@@ -73,7 +73,7 @@ load: function() {
         UI.setMouseButton();
         // Remove the address bar
         setTimeout(function() { window.scrollTo(0, 1); }, 100);
-        UI.initSetting('clip', true);
+        UI.forceSetting('clip', true);
         $D('noVNC_clip').disabled = true;
     } else {
         UI.initSetting('clip', false);
@@ -174,6 +174,12 @@ initSetting: function(name, defVal) {
     }
     UI.updateSetting(name, val);
  //Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
+    return val;
+},
+
+// Force a setting to be a certain value
+forceSetting: function(name, val) {
+    UI.updateSetting(name, val);
     return val;
 },
 
@@ -392,9 +398,11 @@ updateVisualState: function() {
     if (connected) {
         UI.setViewClip();
         UI.setMouseButton(1);
+        $D('showKeyboard').style.display = "inline";
         $D('sendCtrlAltDelButton').style.display = "inline";
     } else {
         UI.setMouseButton();
+        $D('showKeyboard').style.display = "none";
         $D('sendCtrlAltDelButton').style.display = "none";
     }
     // State change disables viewport dragging.
@@ -495,8 +503,8 @@ setViewClip: function(clip) {
 
     cur_clip = display.get_viewport();
 
-    if (typeof(clip) !== 'undefined') {
-        // Nothing
+    if (typeof(clip) !== 'boolean') {
+        // Use current setting
         clip = UI.getSetting('clip');
     }
 
