@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>VNC Performance Benchmark</title>
-        <link rel="stylesheet" href="../include/plain.css">
+        <link rel="stylesheet" href="../include/base.css">
     </head>
     <body>
 
@@ -41,7 +41,7 @@
     </script>
     <script src="../include/vnc.js"></script>
     <script src="../include/playback.js"></script>
-    <script src="data/multi.js"></script>
+    <script src="../data/multi.js"></script>
 
     <script>
         var start_time, VNC_frame_data, pass, passes, encIdx,
@@ -126,7 +126,9 @@
                 pass += 1;
                 if (pass > passes) {
                     // We are finished
-                    rfb.get_canvas().stop();   // Shut-off event interception
+                    // Shut-off event interception
+                    rfb.get_mouse().ungrab();
+                    rfb.get_keyboard().ungrab();
                     $D('startButton').disabled = false;
                     $D('startButton').value = "Start";
                     finish_passes();
