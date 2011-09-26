@@ -182,6 +182,26 @@ rescale = function(factor) {
     c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
 };
 
+setFillColor = function(color) {
+    var rgb, newStyle;
+    if (conf.true_color) {
+        rgb = color;
+    } else {
+        rgb = conf.colourMap[color[0]];
+    }
+    newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    if (newStyle !== c_prevStyle) {
+        c_ctx.fillStyle = newStyle;
+        c_prevStyle = newStyle;
+    }
+};
+
+
+//
+// Public API interface functions
+//
+
+// Shift and/or resize the visible viewport
 that.viewportChange = function(deltaX, deltaY, width, height) {
     var c = conf.target, v = viewport, cr = cleanRect,
         saveImg = null, saveStyle, x1, y1, vx2, vy2, w, h;
@@ -314,6 +334,12 @@ that.viewportChange = function(deltaX, deltaY, width, height) {
     c_ctx.fillStyle = saveStyle;
 };
 
+
+// Return a map of clean and dirty areas of the viewport and reset the
+// tracking of clean and dirty areas.
+//
+// Returns: {'cleanBox':   {'x': x, 'y': y, 'w': w, 'h': h},
+//           'dirtyBoxes': [{'x': x, 'y': y, 'w': w, 'h': h}, ...]}
 that.getCleanDirtyReset = function() {
     var v = viewport, c = cleanRect, cleanBox, dirtyBoxes = [],
         vx2 = v.x + v.w - 1, vy2 = v.y + v.h - 1;
@@ -357,6 +383,7 @@ that.getCleanDirtyReset = function() {
     return {'cleanBox': cleanBox, 'dirtyBoxes': dirtyBoxes};
 };
 
+// Translate viewport coordinates to absolute coordinates
 that.absX = function(x) {
     return x + viewport.x;
 }
@@ -364,25 +391,6 @@ that.absY = function(y) {
     return y + viewport.y;
 }
 
-
-setFillColor = function(color) {
-    var rgb, newStyle;
-    if (conf.true_color) {
-        rgb = color;
-    } else {
-        rgb = conf.colourMap[color[0]];
-    }
-    newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-    if (newStyle !== c_prevStyle) {
-        c_ctx.fillStyle = newStyle;
-        c_prevStyle = newStyle;
-    }
-};
-
-
-//
-// Public API interface functions
-//
 
 that.resize = function(width, height) {
     c_prevStyle    = "";
@@ -419,13 +427,8 @@ that.copyImage = function(old_x, old_y, new_x, new_y, w, h) {
     c_ctx.drawImage(conf.target, x1, y1, w, h, x2, y2, w, h);
 };
 
-/*
- * Tile rendering functions optimized for rendering engines.
- *
- * - In Chrome/webkit, Javascript image data array manipulations are
- *   faster than direct Canvas fillStyle, fillRect rendering. In
- *   gecko, Javascript array handling is much slower.
- */
+
+// Start updating a tile
 that.startTile = function(x, y, width, height, color) {
     var data, rgb, red, green, blue, i;
     tile_x = x;
@@ -456,6 +459,7 @@ that.startTile = function(x, y, width, height, color) {
     }
 };
 
+// Update sub-rectangle of the current tile
 that.subTile = function(x, y, w, h, color) {
     var data, p, rgb, red, green, blue, width, j, i, xend, yend;
     if (conf.prefer_js) {
@@ -485,6 +489,7 @@ that.subTile = function(x, y, w, h, color) {
     }
 };
 
+// Draw the current tile to the screen
 that.finishTile = function() {
     if (conf.prefer_js) {
         c_ctx.putImageData(tile, tile_x - viewport.x, tile_y - viewport.y)
