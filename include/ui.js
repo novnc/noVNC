@@ -508,7 +508,6 @@ setViewClip: function(clip) {
         clip = UI.getSetting('clip');
     }
 
-    console.log("clip:" + clip + " cur_clip: " + cur_clip);
     if (clip && !cur_clip) {
         // Turn clipping on
         UI.updateSetting('clip', true);
