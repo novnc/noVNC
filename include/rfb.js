@@ -1096,7 +1096,7 @@ encHandlers.RRE = function display_rre() {
 
 encHandlers.HEXTILE = function display_hextile() {
     //Util.Debug(">> display_hextile");
-    var subencoding, subrects, tile, color, cur_tile,
+    var subencoding, subrects, color, cur_tile,
         tile_x, x, w, tile_y, y, h, xy, s, sx, sy, wh, sw, sh,
         rQ = ws.get_rQ(), rQi = ws.get_rQi(); 
 
@@ -1185,7 +1185,7 @@ encHandlers.HEXTILE = function display_hextile() {
                 rQi += fb_Bpp;
             }
 
-            tile = display.getTile(x, y, w, h, FBU.background);
+            display.startTile(x, y, w, h, FBU.background);
             if (FBU.subencoding & 0x08) { // AnySubrects
                 subrects = rQ[rQi];
                 rQi += 1;
@@ -1206,10 +1206,10 @@ encHandlers.HEXTILE = function display_hextile() {
                     sw = (wh >> 4)   + 1;
                     sh = (wh & 0x0f) + 1;
 
-                    display.setSubTile(tile, sx, sy, sw, sh, color);
+                    display.subTile(sx, sy, sw, sh, color);
                 }
             }
-            display.putTile(tile);
+            display.finishTile();
         }
         ws.set_rQi(rQi);
         FBU.lastsubencoding = FBU.subencoding;

@@ -19,11 +19,9 @@ var that           = {},  // Public API methods
     c_ctx          = null,
     c_forceCanvas  = false,
 
-    c_imageData, c_rgbxImage, c_cmapImage,
-
     // Predefine function variables (jslint)
-    imageDataCreate, imageDataGet, rgbxImageData, cmapImageData,
-    rgbxImageFill, cmapImageFill, setFillColor, rescale, flush,
+    imageDataGet, rgbxImageData, cmapImageData,
+    setFillColor, rescale,
 
     // The full frame buffer (logical canvas) size
     fb_width        = 0,
@@ -33,9 +31,11 @@ var that           = {},  // Public API methods
     cleanRect      = {'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1},
 
     c_prevStyle    = "",
+    tile           = null,
+    tile16x16      = null,
+    tile_x         = 0,
+    tile_y         = 0;
 
-    c_webkit_bug   = false,
-    c_flush_timer  = null;
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -66,15 +66,6 @@ that.get_width = function() { return fb_width; };
 that.set_height = function (val) { that.resize(fb_width, val); };
 that.get_height = function() { return fb_height; };
 
-that.set_prefer_js = function(val) {
-    if (val && c_forceCanvas) {
-        Util.Warn("Preferring Javascript to Canvas ops is not supported");
-        return false;
-    }
-    conf.prefer_js = val;
-    return true;
-};
-
 
 
 //
@@ -85,7 +76,7 @@ that.set_prefer_js = function(val) {
 function constructor() {
     Util.Debug(">> Display.constructor");
 
-    var c, func, imgTest, tval, i, curDat, curSave,
+    var c, func, i, curDat, curSave,
         has_imageData = false, UE = Util.Engine;
 
     if (! conf.target) { throw("target must be set"); }
@@ -108,70 +99,19 @@ function constructor() {
 
     that.clear();
 
-    /*
-     * Determine browser Canvas feature support
-     * and select fastest rendering methods
-     */
-    tval = 0;
-    try {
-        imgTest = c_ctx.getImageData(0, 0, 1,1);
-        imgTest.data[0] = 123;
-        imgTest.data[3] = 255;
-        c_ctx.putImageData(imgTest, 0, 0);
-        tval = c_ctx.getImageData(0, 0, 1, 1).data[0];
-        if (tval === 123) {
-            has_imageData = true;
-        }
-    } catch (exc1) {}
-
-    if (has_imageData) {
-        Util.Info("Canvas supports imageData");
-        c_forceCanvas = false;
-        if (c_ctx.createImageData) {
-            // If it's there, it's faster
-            Util.Info("Using Canvas createImageData");
-            conf.render_mode = "createImageData rendering";
-            c_imageData = imageDataCreate;
-        } else if (c_ctx.getImageData) {
-            // I think this is mostly just Opera
-            Util.Info("Using Canvas getImageData");
-            conf.render_mode = "getImageData rendering";
-            c_imageData = imageDataGet;
-        }
-        Util.Info("Prefering javascript operations");
-        if (conf.prefer_js === null) {
-            conf.prefer_js = true;
-        }
-        c_rgbxImage = rgbxImageData;
-        c_cmapImage = cmapImageData;
+    // Check canvas features
+    if ('createImageData' in c_ctx) {
+        conf.render_mode = "canvas rendering";
     } else {
-        Util.Warn("Canvas lacks imageData, using fillRect (slow)");
-        conf.render_mode = "fillRect rendering (slow)";
-        c_forceCanvas = true;
-        conf.prefer_js = false;
-        c_rgbxImage = rgbxImageFill;
-        c_cmapImage = cmapImageFill;
+        throw("Canvas does not support createImageData");
+    }
+    if (conf.prefer_js === null) {
+        Util.Info("Prefering javascript operations");
+        conf.prefer_js = true;
     }
 
-    if (UE.webkit && UE.webkit >= 534.7 && UE.webkit <= 534.9) {
-        // Workaround WebKit canvas rendering bug #46319
-        conf.render_mode += ", webkit bug workaround";
-        Util.Debug("Working around WebKit bug #46319");
-        c_webkit_bug = true;
-        for (func in {"fillRect":1, "copyImage":1, "rgbxImage":1,
-                "cmapImage":1, "blitStringImage":1}) {
-            that[func] = (function() {
-                var myfunc = that[func]; // Save original function
-                //Util.Debug("Wrapping " + func);
-                return function() {
-                    myfunc.apply(this, arguments);
-                    if (!c_flush_timer) {
-                        c_flush_timer = setTimeout(flush, 100);
-                    }
-                };
-            }());
-        }
-    }
+    // Initialize cached tile imageData
+    tile16x16 = c_ctx.createImageData(16, 16);
 
     /*
      * Determine browser support for setting the cursor via data URI
@@ -425,18 +365,6 @@ that.absY = function(y) {
 }
 
 
-// Force canvas redraw (for webkit bug #46319 workaround)
-flush = function() {
-    var old_val;
-    //Util.Debug(">> flush");
-    old_val = conf.target.style.marginRight;
-    conf.target.style.marginRight = "1px";
-    c_flush_timer = null;
-    setTimeout(function () {
-            conf.target.style.marginRight = old_val;
-        }, 1);
-};
-
 setFillColor = function(color) {
     var rgb, newStyle;
     if (conf.true_color) {
@@ -498,10 +426,16 @@ that.copyImage = function(old_x, old_y, new_x, new_y, w, h) {
  *   faster than direct Canvas fillStyle, fillRect rendering. In
  *   gecko, Javascript array handling is much slower.
  */
-that.getTile = function(x, y, width, height, color) {
-    var img, data = [], rgb, red, green, blue, i;
-    img = {'x': x, 'y': y, 'width': width, 'height': height,
-           'data': data};
+that.startTile = function(x, y, width, height, color) {
+    var data, rgb, red, green, blue, i;
+    tile_x = x;
+    tile_y = y;
+    if ((width === 16) && (height === 16)) {
+        tile = tile16x16;
+    } else {
+        tile = c_ctx.createImageData(width, height);
+    }
+    data = tile.data;
     if (conf.prefer_js) {
         if (conf.true_color) {
             rgb = color;
@@ -515,18 +449,18 @@ that.getTile = function(x, y, width, height, color) {
             data[i    ] = red;
             data[i + 1] = green;
             data[i + 2] = blue;
+            data[i + 3] = 255;
         }
     } else {
         that.fillRect(x, y, width, height, color);
     }
-    return img;
 };
 
-that.setSubTile = function(img, x, y, w, h, color) {
+that.subTile = function(x, y, w, h, color) {
     var data, p, rgb, red, green, blue, width, j, i, xend, yend;
     if (conf.prefer_js) {
-        data = img.data;
-        width = img.width;
+        data = tile.data;
+        width = tile.width;
         if (conf.true_color) {
             rgb = color;
         } else {
@@ -543,25 +477,19 @@ that.setSubTile = function(img, x, y, w, h, color) {
                 data[p    ] = red;
                 data[p + 1] = green;
                 data[p + 2] = blue;
+                data[p + 3] = 255;
             }   
         } 
     } else {
-        that.fillRect(img.x + x, img.y + y, w, h, color);
+        that.fillRect(tile_x + x, tile_y + y, w, h, color);
     }
 };
 
-that.putTile = function(img) {
+that.finishTile = function() {
     if (conf.prefer_js) {
-        c_rgbxImage(img.x, img.y, img.width, img.height, img.data, 0);
+        c_ctx.putImageData(tile, tile_x - viewport.x, tile_y - viewport.y)
     }
-    // else: No-op, under gecko already done by setSubTile
-};
-
-imageDataGet = function(width, height) {
-    return c_ctx.getImageData(0, 0, width, height);
-};
-imageDataCreate = function(width, height) {
-    return c_ctx.createImageData(width, height);
+    // else: No-op, if not prefer_js then already done by setSubTile
 };
 
 rgbxImageData = function(x, y, width, height, arr, offset) {
@@ -569,12 +497,11 @@ rgbxImageData = function(x, y, width, height, arr, offset) {
     /*
     if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
         (x - v.x + width < 0) || (y - v.y + height < 0)) {
-        //console.log("skipping, out of bounds: ", x, y);
         // Skipping because outside of viewport
         return;
     }
     */
-    img = c_imageData(width, height);
+    img = c_ctx.createImageData(width, height);
     data = img.data;
     for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
         data[i    ] = arr[j    ];
@@ -585,22 +512,9 @@ rgbxImageData = function(x, y, width, height, arr, offset) {
     c_ctx.putImageData(img, x - v.x, y - v.y);
 };
 
-// really slow fallback if we don't have imageData
-rgbxImageFill = function(x, y, width, height, arr, offset) {
-    var i, j, sx = 0, sy = 0;
-    for (i=0, j=offset; i < (width * height); i+=1, j+=4) {
-        that.fillRect(x+sx, y+sy, 1, 1, [arr[j], arr[j+1], arr[j+2]]);
-        sx += 1;
-        if ((sx % width) === 0) {
-            sx = 0;
-            sy += 1;
-        }
-    }
-};
-
 cmapImageData = function(x, y, width, height, arr, offset) {
     var img, i, j, data, rgb, cmap;
-    img = c_imageData(width, height);
+    img = c_ctx.createImageData(width, height);
     data = img.data;
     cmap = conf.colourMap;
     for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
@@ -613,25 +527,11 @@ cmapImageData = function(x, y, width, height, arr, offset) {
     c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
 };
 
-cmapImageFill = function(x, y, width, height, arr, offset) {
-    var i, j, sx = 0, sy = 0, cmap;
-    cmap = conf.colourMap;
-    for (i=0, j=offset; i < (width * height); i+=1, j+=1) {
-        that.fillRect(x+sx, y+sy, 1, 1, [arr[j]]);
-        sx += 1;
-        if ((sx % width) === 0) {
-            sx = 0;
-            sy += 1;
-        }
-    }
-};
-
-
 that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        c_rgbxImage(x, y, width, height, arr, offset);
+        rgbxImageData(x, y, width, height, arr, offset);
     } else {
-        c_cmapImage(x, y, width, height, arr, offset);
+        cmapImageData(x, y, width, height, arr, offset);
     }
 };
 
