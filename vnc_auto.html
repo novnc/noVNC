@@ -11,7 +11,7 @@
     <head>
         <title>noVNC</title>
         <meta http-equiv="X-UA-Compatible" content="chrome=1">
-        <link rel="stylesheet" href="include/plain.css" title="plain">
+        <link rel="stylesheet" href="include/base.css" title="plain">
         <!--
         <script type='text/javascript' 
             src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
@@ -19,18 +19,18 @@
         <script src="include/vnc.js"></script>
     </head>
 
-    <body style="margin: 0px;" onKeyDown="onKeyDown(event);">
-        <div id="VNC_screen">
-            <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">
+    <body style="margin: 0px;">
+        <div id="noVNC_screen">
+            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
                 <table border=0 width="100%"><tr>
-                    <td><div id="VNC_status">Loading</div></td>
-                    <td width="1%"><div id="VNC_buttons">
+                    <td><div id="noVNC_status">Loading</div></td>
+                    <td width="1%"><div id="noVNC_buttons">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
                             </div></td>
                 </tr></table>
             </div>
-            <canvas id="VNC_canvas" width="640px" height="20px">
+            <canvas id="noVNC_canvas" width="640px" height="20px">
                 Canvas not supported.
             </canvas>
         </div>
@@ -47,10 +47,10 @@
             msg = '<form onsubmit="return setPassword();"';
             msg += '  style="margin-bottom: 0px">';
             msg += 'Password Required: ';
-            msg += '<input type=password size=10 id="password_input" class="VNC_status">';
+            msg += '<input type=password size=10 id="password_input" class="noVNC_status">';
             msg += '<\/form>';
-            $D('VNC_status_bar').setAttribute("class", "VNC_status_warn");
-            $D('VNC_status').innerHTML = msg;
+            $D('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+            $D('noVNC_status').innerHTML = msg;
         }
         function setPassword() {
             rfb.sendPassword($D('password_input').value);
@@ -62,8 +62,8 @@
         }
         function updateState(rfb, state, oldstate, msg) {
             var s, sb, cad, level;
-            s = $D('VNC_status');
-            sb = $D('VNC_status_bar');
+            s = $D('noVNC_status');
+            sb = $D('noVNC_status_bar');
             cad = $D('sendCtrlAltDelButton');
             switch (state) {
                 case 'failed':       level = "error";  break;
@@ -78,34 +78,36 @@
             else                    { cad.disabled = true; }
 
             if (typeof(msg) !== 'undefined') {
-                sb.setAttribute("class", "VNC_status_" + level);
+                sb.setAttribute("class", "noVNC_status_" + level);
                 s.innerHTML = msg;
             }
         }
 
         window.onload = function () {
-            var host, port, password;
+            var host, port, password, path;
 
+            $D('sendCtrlAltDelButton').style.display = "inline";
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
             document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
             host = WebUtil.getQueryVar('host', null);
             port = WebUtil.getQueryVar('port', null);
             password = WebUtil.getQueryVar('password', '');
+            path = WebUtil.getQueryVar('path', '');
             if ((!host) || (!port)) {
                 updateState('failed',
                     "Must specify host and port in URL");
                 return;
             }
 
-            rfb = new RFB({'target':       $D('VNC_canvas'),
+            rfb = new RFB({'target':       $D('noVNC_canvas'),
                            'encrypt':      WebUtil.getQueryVar('encrypt', false),
                            'true_color':   WebUtil.getQueryVar('true_color', true),
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
                            'updateState':  updateState,
                            'onPasswordRequired':  passwordRequired});
-            rfb.connect(host, port, password);
+            rfb.connect(host, port, password, path);
         };
         </script>
 
