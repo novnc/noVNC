@@ -245,12 +245,21 @@ html {
 }
 
 /*Default noVNC logo.*/
+/* From: http://fonts.googleapis.com/css?family=Orbitron:700 */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 700;
+  src: local('?'), url('Orbitron700.woff') format('woff'),
+                   url('Orbitron700.ttf') format('truetype');
+}
+
 #noVNC_logo {
   margin-top: 170px;
   margin-left: 10px;
   color:yellow;
   text-align:left;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
   line-height:90%;
   text-shadow:
        5px 5px 0 #000,
