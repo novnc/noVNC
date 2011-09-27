@@ -36,6 +36,9 @@ html {
 #noVNC_connectTimeout {
   width: 30px;
 }
+#noVNC_path {
+  width: 100px;
+}
 #noVNC_connect_button {
   width: 110px;
   float:right;

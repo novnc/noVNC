@@ -52,6 +52,7 @@ load: function() {
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true); 
     UI.initSetting('connectTimeout', 2);
+    UI.initSetting('path', ''); 
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
@@ -246,6 +247,7 @@ toggleSettingsPanel: function() {
         UI.updateSetting('clip');
         UI.updateSetting('shared');
         UI.updateSetting('connectTimeout');
+        UI.updateSetting('path');
         UI.updateSetting('stylesheet');
         UI.updateSetting('logging');
 
@@ -283,6 +285,7 @@ settingsApply: function() {
     UI.saveSetting('clip');
     UI.saveSetting('shared');
     UI.saveSetting('connectTimeout');
+    UI.saveSetting('path');
     UI.saveSetting('stylesheet');
     UI.saveSetting('logging');
 
@@ -394,6 +397,7 @@ updateVisualState: function() {
     }
     $D('noVNC_shared').disabled = connected;
     $D('noVNC_connectTimeout').disabled = connected;
+    $D('noVNC_path').disabled = connected;
 
     if (connected) {
         UI.setViewClip();
@@ -435,7 +439,7 @@ clipReceive: function(rfb, text) {
 
 
 connect: function() {
-    var host, port, password;
+    var host, port, password, path;
 
     UI.closeSettingsMenu();
     UI.toggleConnectPanel();
@@ -443,6 +447,7 @@ connect: function() {
     host = $D('noVNC_host').value;
     port = $D('noVNC_port').value;
     password = $D('noVNC_password').value;
+    path = $D('noVNC_path').value;
     if ((!host) || (!port)) {
         throw("Must set host and port");
     }
@@ -453,7 +458,7 @@ connect: function() {
     UI.rfb.set_shared(UI.getSetting('shared'));
     UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
 
-    UI.rfb.connect(host, port, password);
+    UI.rfb.connect(host, port, password, path);
     //Close dialog.
     setTimeout(UI.setBarPosition, 100);
     $D('noVNC_logo').style.display = "none";
