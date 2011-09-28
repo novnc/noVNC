@@ -5,25 +5,29 @@ Please refer to the individual source files and/or to the noVNC commit
 history: https://github.com/kanaka/noVNC/commits/master
 
 noVNC is licensed under the LGPL (GNU Lesser General Public License)
-version 3 with the following exceptions:
+version 3 with the following exceptions (all LGPL compatible):
 
     include/input.js           : LGPL-2 or any later version
    
     include/base64.js          : Dual GPL-2 or LGPL-2.1
    
-    incluee/des.js             : Various BSD style licenses
+    include/des.js             : Various BSD style licenses
 
     include/web-socket-js/     : New BSD license. Source code at
                                  http://github.com/gimite/web-socket-js
+
+    include/Orbitron*          : SIL Open Font License 1.1
+                                 (Copyright 2009 Matt McInerney)
 
     images/                    : Creative Commons Attribution-ShareAlike
                                  http://creativecommons.org/licenses/by-sa/3.0/
                                  Uses of the work must be attributed
                                  to the noVNC project.
 
-The LGPL-3 license text is included at:
+The LGPL-3 and OFL license texts are included at:
     docs/LICENSE.LGPL-3 and
     docs/LICENSE.GPL-3
+    docs/LICENSE.OFL-1.1
 
 Or alternatively the LGPL-3 license text may be found here:
     http://www.gnu.org/licenses/lgpl.html and

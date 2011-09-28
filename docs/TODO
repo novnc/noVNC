@@ -1,53 +1,19 @@
-Short Term:
+- Use requestAnimationFrame for frameBufferUpdate polling
 
-- Test normal arrays vs TypedArrays vs imageData arrays.
-    - Blog post about it.
+- Use WebSocket binary API when available.
 
-- VNC performance and regression playback suite.
-    - WebSockets
-        - expand latency test
-        - add absolute timers (every 500 packets)
-        - try 1 ms delay
-        - stop at 4000 packets
-        - small and large packets test
+- Scaling support
 
-    - JavaScript
-        - just base64 decode
-        - everything except Canvas
-
-    - Full test
-        - Without WebSockets
-        - With replay from python tester
-        - add higher-resolution multi test
-
-    - websockify test with echo and playback functionality
-      - choosen by client test page on connect
-
-
-- Keyboard layout/internationalization support
-    - convert keyCode into proper charCode
+---
 
 - IE 9 improvements.
     - https://github.com/gimite/web-socket-js/issues#issue/41
     - try window.atob instead of decode for better performance
 
-- Status bar menu/buttons:
-    - Explanatory hover text over buttons
+- Keyboard menu/panel:
+    - Move CtrlAltDel button here
+    - direct text entry with Send/Paste button
+    - Ctrl Once/Lock, Alt Once/Lock, SysRq Once/Lock
+    - Highlight menu icon when keys are locked
 
-    - Configuration menu:
-        - Tunable: speed vs. bandwidth selection
-        - Tunable: CPU use versus latency.
-        - Scaling
-
-    - Keyboard menu:
-        - Ctrl Lock, Alt Lock, SysRq Lock
-        - Highlight menu icon when keys are locked
-
-    - Clipboard button -> popup:
-        - text, clear and send buttons
-
-Medium Term:
-
-- Viewport support
-
-- Touchscreen testing/support.
+- zlib/tight support (even if slow)
