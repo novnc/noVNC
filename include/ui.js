@@ -16,7 +16,7 @@ rfb_state : 'loaded',
 settingsOpen : false,
 connSettingsOpen : true,
 clipboardOpen: false,
-
+keyboardVisible: false,
 // Render default UI and initialize settings menu
 load: function() {
     var html = '', i, sheet, sheets, llevels;
@@ -199,9 +199,11 @@ toggleClipboardPanel: function() {
     //Toggle Clipboard Panel
     if (UI.clipboardOpen == true) {
         $D('noVNC_clipboard').style.display = "none";
+        $D('clipboardButton').className = "noVNC_status_button";
         UI.clipboardOpen = false;
     } else {
         $D('noVNC_clipboard').style.display = "block";
+        $D('clipboardButton').className = "noVNC_status_button_selected";
         UI.clipboardOpen = true;
     }
 },
@@ -212,6 +214,7 @@ toggleConnectPanel: function() {
     if (UI.settingsOpen == true) {
         UI.settingsApply();
         UI.closeSettingsMenu();
+        $D('connectButton').className = "noVNC_status_button";
     }
     if (UI.clipboardOpen == true) {
         UI.toggleClipboardPanel(); 
@@ -220,9 +223,11 @@ toggleConnectPanel: function() {
     //Toggle Connection Panel
     if (UI.connSettingsOpen == true) {
         $D('noVNC_controls').style.display = "none";
+        $D('connectButton').className = "noVNC_status_button";
         UI.connSettingsOpen = false;
     } else {
         $D('noVNC_controls').style.display = "block";
+        $D('connectButton').className = "noVNC_status_button_selected";
         UI.connSettingsOpen = true;
         $D('noVNC_host').focus();
     }
@@ -265,12 +270,14 @@ openSettingsMenu: function() {
         UI.toggleConnectPanel();
     }
     $D('noVNC_settings').style.display = "block";
+    $D('settingsButton').className = "noVNC_status_button_selected";
     UI.settingsOpen = true;
 },
 
 // Close menu (without applying settings)
 closeSettingsMenu: function() {
     $D('noVNC_settings').style.display = "none";
+    $D('settingsButton').className = "noVNC_status_button";
     UI.settingsOpen = false;
 },
 
@@ -551,21 +558,43 @@ setViewDrag: function(drag) {
         drag = !UI.rfb.get_viewportDrag();
     }
     if (drag) {
-        vmb.style.backgroundColor = "black";
-        vmb.style.color = "lightgray";
+        $D('noVNC_view_drag_button').className = "noVNC_status_button_selected";
         UI.rfb.set_viewportDrag(true);
     } else {
-        vmb.style.backgroundColor = "";
-        vmb.style.color = "";
+        $D('noVNC_view_drag_button').className = "noVNC_status_button";
         UI.rfb.set_viewportDrag(false);
     }
 },
 
 // On touch devices, show the OS keyboard
 showKeyboard: function() {
-    $D('keyboardinput').focus();
+    if(UI.keyboardVisible == false) {
+    	$D('keyboardinput').focus();
+    	UI.keyboardVisible = true;
+    	$D('showKeyboard').className = 
+        "noVNC_status_button_selected";
+    } else if(UI.keyboardVisible == true) {
+    	$D('keyboardinput').blur();
+    	$D('showKeyboard').className = 
+        "noVNC_status_button";
+    	UI.keyboardVisible = false;	
+    }
+    
 },
 
+keyInputBlur: function() {
+	$D('showKeyboard').className = 
+        "noVNC_status_button";
+        //Weird bug in iOS if you change keyboardVisible
+        //here it does not actually occur so next time 
+        //you click keyboard icon it doesnt work.
+        var t=setTimeout("UI.setKeyboard()",100)
+       
+},
+
+setKeyboard: function() {
+	UI.keyboardVisible = false;	
+},
 
 // iOS < Version 5 does not support position fixed. Javascript workaround:
 setOnscroll: function() {

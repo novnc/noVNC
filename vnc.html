@@ -47,52 +47,57 @@
     <div id="noVNC-control-bar">
         <!--noVNC Mobile Device only Buttons-->
         <div class="noVNC-buttons-left">
-            <input type="image" src="images/move.png"
+            <input type="image" src="images/drag_sml.png"
                 id="noVNC_view_drag_button" class="noVNC_status_button"
-                value="Move" title="Move/Drag Viewport"
+                title="Move/Drag Viewport"
                 onclick="UI.setViewDrag();">
             <div id="noVNC_mobile_buttons">
-                <input type="button" class="noVNC_status_button"
-                    id="noVNC_mouse_button0" value=" "
+                <input type="image" src="images/nobutton_mouse.png"
+                    class="noVNC_status_button"
+                    id="noVNC_mouse_button0"
                     onclick="UI.setMouseButton(1);">
-                <input type="button" class="noVNC_status_button"
-                    id="noVNC_mouse_button1" value="L"
+                <input type="image" src="images/left_mouse.png"
+                    class="noVNC_status_button"
+                    id="noVNC_mouse_button1"
                     onclick="UI.setMouseButton(2);">
-                <input type="button" class="noVNC_status_button"
-                    id="noVNC_mouse_button2" value="M"
+                <input type="image" src="images/middle_mouse.png"
+                    class="noVNC_status_button"
+                    id="noVNC_mouse_button2"
                     onclick="UI.setMouseButton(4);">
-                <input type="button" class="noVNC_status_button"
-                    id="noVNC_mouse_button4" value="R"
+                <input type="image" src="images/right_mouse.png"
+                    class="noVNC_status_button"
+                    id="noVNC_mouse_button4"
                     onclick="UI.setMouseButton(0);">
-                <input type="image" src="images/keyboard.png"
+                <input type="image" src="images/keyboard_sml.png"
                     id="showKeyboard" class="noVNC_status_button" 
                     value="Keyboard" title="Show Keyboard"
                     onclick="UI.showKeyboard()"/>
                 <input type="url"
                     autocapitalize="off" autocorrect="off"
                     id="keyboardinput" class="noVNC_status_button"
-                    onKeyDown="onKeyDown(event);"/>
+                    onKeyDown="onKeyDown(event);" onblur="UI.keyInputBlur();"/>
             </div>
         </div>
 
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
-            <input type="button" class="noVNC_status_button"
+            <input type="image" src="images/ctrlaltdel_sml.png"
+                class="noVNC_status_button"
                 value="CtrlAltDel" id="sendCtrlAltDelButton"
                 onclick="UI.sendCtrlAltDel();" />
-            <input type="image" src="images/clipboard.png"
+            <input type="image" src="images/clipboard_sml.png"
                 id="clipboardButton" class="noVNC_status_button"
                 value="Clipboard" title="Clipboard"
                 onclick="UI.toggleClipboardPanel();" />
-            <input type="image" src="images/settings.png"
+            <input type="image" src="images/settings_sml.png"
                 id="settingsButton" class="noVNC_status_button"
                 value="Settings" title="Settings"
                 onclick="UI.toggleSettingsPanel();" />
-            <input type="image" src="images/connect.png"
-                id="connectButton" class="noVNC_status_button"
+            <input type="image" src="images/connect_sml.png"
+                id="connectButton" class="noVNC_status_button_selected"
                 value="Connect" title="Connect"
                 onclick="UI.toggleConnectPanel()" />
-            <input type="image" src="images/disconnect.png"
+            <input type="image" src="images/disconnect_sml.png"
                 id="disconnectButton" class="noVNC_status_button"
                 value="Disconnect" title="Disconnect"
                 onclick="UI.disconnect()" />
