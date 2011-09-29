@@ -22,28 +22,28 @@ Notable commits, announcements and news are posted to
 
 Running in Chrome before and after connecting:
 
-<img src="http://kanaka.github.com/noVNC/img/noVNC-1.jpg" width=400>&nbsp;<img src="http://kanaka.github.com/noVNC/img/noVNC-2.jpg" width=400>
+<img src="http://kanaka.github.com/noVNC/img/noVNC-5.jpg" width=400>&nbsp;<img src="http://kanaka.github.com/noVNC/img/noVNC-7.jpg" width=400>
 
 See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">here</a>.
 
 
 ### Browser Requirements
 
-* HTML5 Canvas: Except for Internet Explorer, most
-  browsers have had Canvas support for quite some time. Internet
-  Explorer 9 will have Canvas support (finally).
+* HTML5 Canvas (with createImageData): Chrome, Firefox 3.6+, iOS
+  Safari, Opera 11+, Internet Explorer 9+, etc.
 
 * HTML5 WebSockets: For browsers that do not have builtin
   WebSockets support, the project includes
   <a href="http://github.com/gimite/web-socket-js">web-socket-js</a>,
-  a WebSockets emulator using Adobe Flash.
+  a WebSockets emulator using Adobe Flash. iOS 4.2+ has built-in
+  WebSocket support.
 
 * Fast Javascript Engine: noVNC avoids using new Javascript
   functionality so it will run on older browsers, but decode and
   rendering happen in Javascript, so a slow Javascript engine will
   mean noVNC is painfully slow.
 
-* I maintain a more detailed list of browser compatibility <a
+* I maintain a more detailed browser compatibility list <a
   href="https://github.com/kanaka/noVNC/wiki/Browser-support">here</a>.
 
 
