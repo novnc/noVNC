@@ -226,6 +226,10 @@ if __name__ == '__main__':
     parser.add_option("--daemon", "-D",
             dest="daemon", action="store_true",
             help="become a daemon (background process)")
+    parser.add_option("--run-once", action="store_true",
+            help="handle a single WebSocket connection and exit")
+    parser.add_option("--timeout", type=int, default=0,
+            help="after TIMEOUT seconds exit when not connected")
     parser.add_option("--cert", default="self.pem",
             help="SSL certificate file")
     parser.add_option("--key", default=None,
