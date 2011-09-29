@@ -22,7 +22,7 @@ Notable commits, announcements and news are posted to
 
 Running in Chrome before and after connecting:
 
-<img src="http://kanaka.github.com/noVNC/img/noVNC-5.jpg" width=400>&nbsp;<img src="http://kanaka.github.com/noVNC/img/noVNC-7.jpg" width=400>
+<img src="http://kanaka.github.com/noVNC/img/noVNC-5.png" width=400>&nbsp;<img src="http://kanaka.github.com/noVNC/img/noVNC-7.jpg" width=400>
 
 See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">here</a>.
 
