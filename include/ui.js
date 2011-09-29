@@ -17,6 +17,7 @@ settingsOpen : false,
 connSettingsOpen : true,
 clipboardOpen: false,
 keyboardVisible: false,
+
 // Render default UI and initialize settings menu
 load: function() {
     var html = '', i, sheet, sheets, llevels;
@@ -39,26 +40,26 @@ load: function() {
     WebUtil.init_logging(UI.getSetting('logging'));
 
     UI.initSetting('stylesheet', 'default');
-    WebUtil.selectStylesheet(null); 
+    WebUtil.selectStylesheet(null);
     // call twice to get around webkit bug
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
     /* Populate the controls if defaults are provided in the URL */
-    UI.initSetting('host', ''); 
+    UI.initSetting('host', '');
     UI.initSetting('port', '');
     UI.initSetting('password', '');
     UI.initSetting('encrypt', false);
     UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
-    UI.initSetting('shared', true); 
+    UI.initSetting('shared', true);
     UI.initSetting('connectTimeout', 2);
-    UI.initSetting('path', ''); 
+    UI.initSetting('path', '');
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive});
     UI.updateVisualState();
- 
+
     // Unfocus clipboard when over the VNC area
     //$D('VNC_screen').onmousemove = function () {
     //         var keyboard = UI.rfb.get_keyboard();
@@ -80,15 +81,15 @@ load: function() {
         UI.initSetting('clip', false);
     }
 
-    //iOS Safari does not support CSS position:fixed. 
-    //This detects iOS devices and enables javascript workaround.  
+    //iOS Safari does not support CSS position:fixed.
+    //This detects iOS devices and enables javascript workaround.
     if ((navigator.userAgent.match(/iPhone/i)) ||
-        (navigator.userAgent.match(/iPod/i)) || 
+        (navigator.userAgent.match(/iPod/i)) ||
         (navigator.userAgent.match(/iPad/i))) {
         //UI.setOnscroll();
-        //UI.setResize(); 
+        //UI.setResize();
     }
-    
+
     $D('noVNC_host').focus();
 
     UI.setViewClip();
@@ -140,7 +141,7 @@ updateSetting: function(name, value) {
             }
         }
     } else {
-        /*Weird IE9 error leads to 'null' appearring 
+        /*Weird IE9 error leads to 'null' appearring
         in textboxes instead of ''.*/
         if (value === null) {
             value = "";
@@ -217,8 +218,8 @@ toggleConnectPanel: function() {
         $D('connectButton').className = "noVNC_status_button";
     }
     if (UI.clipboardOpen == true) {
-        UI.toggleClipboardPanel(); 
-    } 
+        UI.toggleClipboardPanel();
+    }
 
     //Toggle Connection Panel
     if (UI.connSettingsOpen == true) {
@@ -263,8 +264,8 @@ toggleSettingsPanel: function() {
 // Open menu
 openSettingsMenu: function() {
     if (UI.clipboardOpen == true) {
-        UI.toggleClipboardPanel(); 
-    } 
+        UI.toggleClipboardPanel();
+    }
     //Close connection settings if open
     if (UI.connSettingsOpen == true) {
         UI.toggleConnectPanel();
@@ -548,9 +549,9 @@ setViewDrag: function(drag) {
 
     if (UI.rfb_state === 'normal' &&
         UI.rfb.get_display().get_viewport()) {
-        $D('noVNC_view_drag_button').style.display = "inline";
+        vmb.style.display = "inline";
     } else {
-        $D('noVNC_view_drag_button').style.display = "none";
+        vmb.style.display = "none";
     }
 
     if (typeof(drag) === "undefined") {
@@ -558,10 +559,10 @@ setViewDrag: function(drag) {
         drag = !UI.rfb.get_viewportDrag();
     }
     if (drag) {
-        $D('noVNC_view_drag_button').className = "noVNC_status_button_selected";
+        vmb.className = "noVNC_status_button_selected";
         UI.rfb.set_viewportDrag(true);
     } else {
-        $D('noVNC_view_drag_button').className = "noVNC_status_button";
+        vmb.className = "noVNC_status_button";
         UI.rfb.set_viewportDrag(false);
     }
 },
@@ -569,31 +570,26 @@ setViewDrag: function(drag) {
 // On touch devices, show the OS keyboard
 showKeyboard: function() {
     if(UI.keyboardVisible == false) {
-    	$D('keyboardinput').focus();
-    	UI.keyboardVisible = true;
-    	$D('showKeyboard').className = 
-        "noVNC_status_button_selected";
+        $D('keyboardinput').focus();
+        UI.keyboardVisible = true;
+        $D('showKeyboard').className = "noVNC_status_button_selected";
     } else if(UI.keyboardVisible == true) {
-    	$D('keyboardinput').blur();
-    	$D('showKeyboard').className = 
-        "noVNC_status_button";
-    	UI.keyboardVisible = false;	
+        $D('keyboardinput').blur();
+        $D('showKeyboard').className = "noVNC_status_button";
+        UI.keyboardVisible = false;
     }
-    
 },
 
 keyInputBlur: function() {
-	$D('showKeyboard').className = 
-        "noVNC_status_button";
-        //Weird bug in iOS if you change keyboardVisible
-        //here it does not actually occur so next time 
-        //you click keyboard icon it doesnt work.
-        var t=setTimeout("UI.setKeyboard()",100)
-       
+    $D('showKeyboard').className = "noVNC_status_button";
+    //Weird bug in iOS if you change keyboardVisible
+    //here it does not actually occur so next time
+    //you click keyboard icon it doesnt work.
+    setTimeout("UI.setKeyboard()",100)
 },
 
 setKeyboard: function() {
-	UI.keyboardVisible = false;	
+    UI.keyboardVisible = false;
 },
 
 // iOS < Version 5 does not support position fixed. Javascript workaround:
@@ -621,7 +617,7 @@ addOption: function(selectbox,text,value )
 setBarPosition: function() {
     $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
     $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-    
+
     var vncwidth = $D('noVNC_screen').style.offsetWidth;
     $D('noVNC-control-bar').style.width = vncwidth + 'px';
 }

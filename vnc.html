@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.1//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile11.dtd">
-<html>    
+<html>
 <head>
 
-   <!-- 
+   <!--
     noVNC example: simple example using default UI
     Copyright (C) 2011 Joel Martin
     Licensed under LGPL-3 (see LICENSE.txt)
@@ -20,59 +20,55 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <!-- App Start Icon  -->
-    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" /> 
+    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
     <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
     <link rel="apple-touch-icon" href="images/screen_57x57.png">
     <!--
-    <link rel="apple-touch-icon-precomposed" href="images/screen_57x57.png" /> 
+    <link rel="apple-touch-icon-precomposed" href="images/screen_57x57.png" />
     -->
 
-    
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="include/base.css" />
     <link rel="alternate stylesheet" href="include/black.css" TITLE="Black" />
     <link rel="alternate stylesheet" href="include/blue.css" TITLE="Blue" />
 
     <!--
-    <script type='text/javascript'  
+    <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
 
     <script src="include/vnc.js"></script>
     <script src="include/ui.js"></script>
 
-</head> 
+</head>
 
 <body>
     <div id="noVNC-control-bar">
         <!--noVNC Mobile Device only Buttons-->
         <div class="noVNC-buttons-left">
-            <input type="image" src="images/drag_sml.png"
+            <input type="image" src="images/drag.png"
                 id="noVNC_view_drag_button" class="noVNC_status_button"
                 title="Move/Drag Viewport"
                 onclick="UI.setViewDrag();">
             <div id="noVNC_mobile_buttons">
-                <input type="image" src="images/nobutton_mouse.png"
-                    class="noVNC_status_button"
-                    id="noVNC_mouse_button0"
+                <input type="image" src="images/mouse_none.png"
+                    id="noVNC_mouse_button0" class="noVNC_status_button"
                     onclick="UI.setMouseButton(1);">
-                <input type="image" src="images/left_mouse.png"
-                    class="noVNC_status_button"
-                    id="noVNC_mouse_button1"
+                <input type="image" src="images/mouse_left.png"
+                    id="noVNC_mouse_button1" class="noVNC_status_button"
                     onclick="UI.setMouseButton(2);">
-                <input type="image" src="images/middle_mouse.png"
-                    class="noVNC_status_button"
-                    id="noVNC_mouse_button2"
+                <input type="image" src="images/mouse_middle.png"
+                    id="noVNC_mouse_button2" class="noVNC_status_button"
                     onclick="UI.setMouseButton(4);">
-                <input type="image" src="images/right_mouse.png"
-                    class="noVNC_status_button"
-                    id="noVNC_mouse_button4"
+                <input type="image" src="images/mouse_right.png"
+                    id="noVNC_mouse_button4" class="noVNC_status_button"
                     onclick="UI.setMouseButton(0);">
-                <input type="image" src="images/keyboard_sml.png"
-                    id="showKeyboard" class="noVNC_status_button" 
+                <input type="image" src="images/keyboard.png"
+                    id="showKeyboard" class="noVNC_status_button"
                     value="Keyboard" title="Show Keyboard"
                     onclick="UI.showKeyboard()"/>
-                <input type="url"
+                <input type="email"
                     autocapitalize="off" autocorrect="off"
                     id="keyboardinput" class="noVNC_status_button"
                     onKeyDown="onKeyDown(event);" onblur="UI.keyInputBlur();"/>
@@ -81,25 +77,25 @@
 
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
-            <input type="image" src="images/ctrlaltdel_sml.png"
-                class="noVNC_status_button"
-                value="CtrlAltDel" id="sendCtrlAltDelButton"
+            <input type="image" src="images/ctrlaltdel.png"
+                 id="sendCtrlAltDelButton" class="noVNC_status_button"
+                title="Send Ctrl-Alt-Del"
                 onclick="UI.sendCtrlAltDel();" />
-            <input type="image" src="images/clipboard_sml.png"
+            <input type="image" src="images/clipboard.png"
                 id="clipboardButton" class="noVNC_status_button"
-                value="Clipboard" title="Clipboard"
+                title="Clipboard"
                 onclick="UI.toggleClipboardPanel();" />
-            <input type="image" src="images/settings_sml.png"
+            <input type="image" src="images/settings.png"
                 id="settingsButton" class="noVNC_status_button"
-                value="Settings" title="Settings"
+                title="Settings"
                 onclick="UI.toggleSettingsPanel();" />
-            <input type="image" src="images/connect_sml.png"
+            <input type="image" src="images/connect.png"
                 id="connectButton" class="noVNC_status_button_selected"
-                value="Connect" title="Connect"
+                title="Connect"
                 onclick="UI.toggleConnectPanel()" />
-            <input type="image" src="images/disconnect_sml.png"
+            <input type="image" src="images/disconnect.png"
                 id="disconnectButton" class="noVNC_status_button"
-                value="Disconnect" title="Disconnect"
+                title="Disconnect"
                 onclick="UI.disconnect()" />
         </div>
 
@@ -165,7 +161,7 @@
         <div id="noVNC_status_bar" class="noVNC_status_bar">
                 <div id="noVNC_status">Loading</div>
         </div>
-        
+
         <h1 id="noVNC_logo"><span>no</span><br />VNC</h1>
 
         <!-- HTML5 Canvas -->
@@ -176,7 +172,7 @@
         </div>
 
     </div>
-  
+
     <script>
         window.onload = UI.load;
     </script>
