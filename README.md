@@ -38,10 +38,8 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
   a WebSockets emulator using Adobe Flash. iOS 4.2+ has built-in
   WebSocket support.
 
-* Fast Javascript Engine: noVNC avoids using new Javascript
-  functionality so it will run on older browsers, but decode and
-  rendering happen in Javascript, so a slow Javascript engine will
-  mean noVNC is painfully slow.
+* Fast Javascript Engine: this is not strictly a requirement, but
+  without a fast Javascript engine, noVNC might be painfully slow.
 
 * I maintain a more detailed browser compatibility list <a
   href="https://github.com/kanaka/noVNC/wiki/Browser-support">here</a>.
@@ -50,22 +48,11 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 ### Server Requirements
 
 Unless you are using a VNC server with support for WebSockets
-connections (only my [fork of libvncserver](http://github.com/kanaka/libvncserver)
-currently), you need to use a WebSockets to TCP socket proxy. There is
+connections (such as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/)),
+you need to use a WebSockets to TCP socket proxy. There is
 a python proxy included ('websockify'). One advantage of using the
 proxy is that it has builtin support for SSL/TLS encryption (i.e.
 "wss://").
-
-There a few reasons why a proxy is required:
-
-  1. WebSockets is not a pure socket protocol. There is an initial HTTP
-     like handshake to allow easy hand-off by web servers and allow
-     some origin policy exchange. Also, each WebSockets frame begins
-     with 0 ('\x00') and ends with 255 ('\xff').
-
-  2. Javascript itself does not have the ability to handle pure byte
-     arrays. The python proxy encodes the data as base64 so that the
-     Javascript client can decode the data as an integer array.
 
 
 ### Quick Start
