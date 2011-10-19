@@ -52,6 +52,7 @@ load: function() {
     UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true);
+    UI.initSetting('view_only',false);
     UI.initSetting('connectTimeout', 2);
     UI.initSetting('path', '');
 
