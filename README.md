@@ -10,7 +10,7 @@ noVNC is licensed under the
 [LGPLv3](http://www.gnu.org/licenses/lgpl.html).
 
 There are many companies/projects that have integrated noVNC into
-their products including: [Sentry Data Systems](http://www.sentryds.com), [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/), [CloudSigma](http://www.cloudsigma.com/), [Zentyal (formerly eBox)](http://www.zentyal.org/), and [SlapOS](http://www.slapos.org). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
+their products including: [Sentry Data Systems](http://www.sentryds.com), [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/), [CloudSigma](http://www.cloudsigma.com/), [Zentyal (formerly eBox)](http://www.zentyal.org/), [SlapOS](http://www.slapos.org), and [Amahi](http://amahi.org). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
 
 Notable commits, announcements and news are posted to
 @<a href="http://www.twitter.com/noVNC">noVNC</a>
