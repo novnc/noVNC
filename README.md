@@ -6,14 +6,26 @@
 noVNC is a HTML5 VNC client that runs well in any modern browser
 including mobile browsers (iPhone/iPad and Android).
 
-noVNC is licensed under the
-[LGPLv3](http://www.gnu.org/licenses/lgpl.html).
+Notable commits, announcements and news are posted to
+@<a href="http://www.twitter.com/noVNC">noVNC</a>
 
 There are many companies/projects that have integrated noVNC into
 their products including: [Sentry Data Systems](http://www.sentryds.com), [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/), [CloudSigma](http://www.cloudsigma.com/), [Zentyal (formerly eBox)](http://www.zentyal.org/), [SlapOS](http://www.slapos.org), [Intel MeshCentral](https://meshcentral.com), and [Amahi](http://amahi.org). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
 
-Notable commits, announcements and news are posted to
-@<a href="http://www.twitter.com/noVNC">noVNC</a>
+
+### Features
+
+* Supports all modern browsers including mobile (iOS, Android)
+* Supported VNC encodings: raw, copyrect, rre, hextile, tightPNG
+* WebSocket SSL/TLS encryption (i.e. "wss://") support
+* 24-bit true color and 8 bit colour mapped
+* Supports desktop resize notification/pseudo-encoding
+* Local or remote cursor
+* Clipboard copy/paste
+* Clipping or scolling modes for large remote screens
+* Easy site integration and theming (3 example themes included)
+* Licensed under the [LGPLv3](http://www.gnu.org/licenses/lgpl.html)
+
 
 
 ### Screenshots
@@ -48,9 +60,7 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 Unless you are using a VNC server with support for WebSockets
 connections (such as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/)),
 you need to use a WebSockets to TCP socket proxy. There is
-a python proxy included ('websockify'). One advantage of using the
-proxy is that it has builtin support for SSL/TLS encryption (i.e.
-"wss://").
+a python proxy included ('websockify').
 
 
 ### Quick Start
