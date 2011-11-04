@@ -1,0 +1,8 @@
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\bin\Debug\MELT Command Websocket.exe
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\bin\Debug\MELT Command Websocket.pdb
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\obj\x86\Debug\MELT_Command_Websocket.ProjectInstaller.resources
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\obj\x86\Debug\ResGen.read.1.tlog
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\obj\x86\Debug\ResGen.write.1.tlog
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\obj\x86\Debug\MELT Command Websocket.exe
+c:\users\gordoncj\documents\visual studio 2010\Projects\MELT Command Websocket\MELT Command Websocket\obj\x86\Debug\MELT Command Websocket.pdb
