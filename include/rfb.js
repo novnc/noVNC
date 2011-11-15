@@ -131,6 +131,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
+    ['view_only',          'rw', 'bool', false, 'Disable client mouse/keyboard'],
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
@@ -175,6 +176,22 @@ that.set_local_cursor = function(cursor) {
     }
 };
 
+that.set_view_only = function(enabled) {
+    if(!enabled) {
+      conf.view_only = false;
+      keyboard = new Keyboard({'target': conf.focusContainer,
+                                'onKeyPress': keyPress});
+      mouse    = new Mouse({'target': conf.target,
+                            'onMouseButton': mouseButton,
+                            'onMouseMove': mouseMove});
+    }
+    else {
+      conf.view_only = true;
+      keyboard = new Keyboard({'target': conf.focusContainer});
+      mouse    = new Mouse({'target': conf.target});  
+    }
+};
+
 // These are fake configuration getters
 that.get_display = function() { return display; };
 
@@ -207,11 +224,8 @@ function constructor() {
         Util.Error("Display exception: " + exc);
         updateState('fatal', "No working Display");
     }
-    keyboard = new Keyboard({'target': conf.focusContainer,
-                                'onKeyPress': keyPress});
-    mouse    = new Mouse({'target': conf.target,
-                            'onMouseButton': mouseButton,
-                            'onMouseMove': mouseMove});
+    
+    that.set_view_only(conf.view_only);
 
     rmode = display.get_render_mode();
 
@@ -1556,7 +1570,7 @@ that.sendPassword = function(passwd) {
 };
 
 that.sendCtrlAltDel = function() {
-    if (rfb_state !== "normal") { return false; }
+    if (rfb_state !== "normal" || conf.view_only) { return false; }
     Util.Info("Sending Ctrl-Alt-Del");
     var arr = [];
     arr = arr.concat(keyEvent(0xFFE3, 1)); // Control

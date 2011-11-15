@@ -105,6 +105,7 @@
                            'true_color':   WebUtil.getQueryVar('true_color', true),
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
+                           'view_only':    WebUtil.getQueryVar('view_only',false),
                            'updateState':  updateState,
                            'onPasswordRequired':  passwordRequired});
             rfb.connect(host, port, password, path);
