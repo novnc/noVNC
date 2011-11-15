@@ -176,6 +176,22 @@ that.set_local_cursor = function(cursor) {
     }
 };
 
+that.set_view_only = function(enabled) {
+    if(!enabled) {
+      conf.view_only = false;
+      keyboard = new Keyboard({'target': conf.focusContainer,
+                                'onKeyPress': keyPress});
+      mouse    = new Mouse({'target': conf.target,
+                            'onMouseButton': mouseButton,
+                            'onMouseMove': mouseMove});
+    }
+    else {
+      conf.view_only = true;
+      keyboard = new Keyboard({'target': conf.focusContainer});
+      mouse    = new Mouse({'target': conf.target});  
+    }
+};
+
 // These are fake configuration getters
 that.get_display = function() { return display; };
 
@@ -208,17 +224,8 @@ function constructor() {
         Util.Error("Display exception: " + exc);
         updateState('fatal', "No working Display");
     }
-    if(!conf.view_only) {
-      keyboard = new Keyboard({'target': conf.focusContainer,
-                                'onKeyPress': keyPress});
-      mouse    = new Mouse({'target': conf.target,
-                            'onMouseButton': mouseButton,
-                            'onMouseMove': mouseMove});
-    }
-    else {
-      keyboard = new Keyboard({'target': conf.focusContainer});
-      mouse    = new Mouse({'target': conf.target});  
-    }
+    
+    that.set_view_only(conf.view_only);
 
     rmode = display.get_render_mode();
 

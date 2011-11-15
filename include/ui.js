@@ -253,7 +253,7 @@ toggleSettingsPanel: function() {
         }
         UI.updateSetting('clip');
         UI.updateSetting('shared');
-	UI.updateSetting('view_only');
+        UI.updateSetting('view_only');
         UI.updateSetting('connectTimeout');
         UI.updateSetting('path');
         UI.updateSetting('stylesheet');
@@ -467,6 +467,7 @@ connect: function() {
     UI.rfb.set_encrypt(UI.getSetting('encrypt'));
     UI.rfb.set_true_color(UI.getSetting('true_color'));
     UI.rfb.set_local_cursor(UI.getSetting('cursor'));
+    UI.rfb.set_view_only(UI.getSetting('view_only'));
     UI.rfb.set_shared(UI.getSetting('shared'));
     UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
 
