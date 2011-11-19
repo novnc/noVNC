@@ -242,7 +242,7 @@ Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !
 Util.Engine = {
     // Version detection break in Opera 11.60 (errors on arguments.callee.caller reference)
     //'presto': (function() {
--   //         return (!window.opera) ? false : ((arguments.callee.caller) ? 960 : ((document.getElementsByClassName) ? 950 : 925)); }()),
+    //         return (!window.opera) ? false : ((arguments.callee.caller) ? 960 : ((document.getElementsByClassName) ? 950 : 925)); }()),
     'presto': (function() { return (!window.opera) ? false : true; }()),
 
     'trident': (function() {
