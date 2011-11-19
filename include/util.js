@@ -240,8 +240,11 @@ Util.stopEvent = function(e) {
 Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !!(document.querySelector)};
 
 Util.Engine = {
-    'presto': (function() {
-            return (!window.opera) ? false : ((arguments.callee.caller) ? 960 : ((document.getElementsByClassName) ? 950 : 925)); }()),
+    // Version detection break in Opera 11.60 (errors on arguments.callee.caller reference)
+    //'presto': (function() {
+-   //         return (!window.opera) ? false : ((arguments.callee.caller) ? 960 : ((document.getElementsByClassName) ? 950 : 925)); }()),
+    'presto': (function() { return (!window.opera) ? false : true; }()),
+
     'trident': (function() {
             return (!window.ActiveXObject) ? false : ((window.XMLHttpRequest) ? ((document.querySelectorAll) ? 6 : 5) : 4); }()),
     'webkit': (function() {
