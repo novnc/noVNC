@@ -131,6 +131,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
+    ['view_only',          'rw', 'bool', false, 'Disable client mouse/keyboard'],
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
@@ -565,6 +566,9 @@ checkEvents = function() {
 
 keyPress = function(keysym, down) {
     var arr;
+
+    if (conf.view_only) { return; } // View only, skip keyboard events
+
     arr = keyEvent(keysym, down);
     arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
@@ -586,8 +590,11 @@ mouseButton = function(x, y, down, bmask) {
             return;
         } else {
             viewportDragging = false;
+            ws.send(fbUpdateRequests()); // Force immediate redraw
         }
     }
+
+    if (conf.view_only) { return; } // View only, skip mouse events
 
     mouse_arr = mouse_arr.concat(
             pointerEvent(display.absX(x), display.absY(y)) );
@@ -610,6 +617,8 @@ mouseMove = function(x, y) {
         // Skip sending mouse events
         return;
     }
+
+    if (conf.view_only) { return; } // View only, skip mouse events
 
     mouse_arr = mouse_arr.concat(
             pointerEvent(display.absX(x), display.absY(y)) );
@@ -1556,7 +1565,7 @@ that.sendPassword = function(passwd) {
 };
 
 that.sendCtrlAltDel = function() {
-    if (rfb_state !== "normal") { return false; }
+    if (rfb_state !== "normal" || conf.view_only) { return false; }
     Util.Info("Sending Ctrl-Alt-Del");
     var arr = [];
     arr = arr.concat(keyEvent(0xFFE3, 1)); // Control
@@ -1572,7 +1581,7 @@ that.sendCtrlAltDel = function() {
 // Send a key press. If 'down' is not specified then send a down key
 // followed by an up key.
 that.sendKey = function(code, down) {
-    if (rfb_state !== "normal") { return false; }
+    if (rfb_state !== "normal" || conf.view_only) { return false; }
     var arr = [];
     if (typeof down !== 'undefined') {
         Util.Info("Sending key code (" + (down ? "down" : "up") + "): " + code);
