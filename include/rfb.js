@@ -225,7 +225,10 @@ function constructor() {
             fail("Got unexpected WebSockets connection");
         }
     });
-    ws.on('close', function() {
+    ws.on('close', function(e) {
+        if (e.code) {
+            Util.Info("Close code: " + e.code + ", reason: " + e.reason + ", wasClean: " + e.wasClean);
+        }
         if (rfb_state === 'disconnect') {
             updateState('disconnected', 'VNC disconnected');
         } else if (rfb_state === 'ProtocolVersion') {

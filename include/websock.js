@@ -24,6 +24,10 @@ if (window.WebSocket) {
     window.WebSocket = window.MozWebSocket;
 } else {
     /* no builtin WebSocket so load web_socket.js */
+
+    // To enable debug:
+    // window.WEB_SOCKET_DEBUG=1;
+
     Websock_native = false;
     (function () {
         function get_INCLUDE_URI() {
