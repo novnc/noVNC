@@ -586,7 +586,7 @@ Sec-WebSocket-Accept: %s\r
             sock.send(s2b(self.policy_response))
             raise self.EClose("Sending flash policy response")
 
-        elif handshake[0] in ("\x16", "\x80"):
+        elif handshake[0] in ("\x16", "\x80", 22, 128):
             # SSL wrap the connection
             if not ssl:
                 raise self.EClose("SSL connection but no 'ssl' module")
