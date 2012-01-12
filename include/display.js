@@ -20,7 +20,7 @@ var that           = {},  // Public API methods
     c_forceCanvas  = false,
 
     // Predefine function variables (jslint)
-    imageDataGet, rgbxImageData, cmapImageData,
+    imageDataGet, bgrxImageData, cmapImageData,
     setFillColor, rescale,
 
     // The full frame buffer (logical canvas) size
@@ -183,13 +183,13 @@ rescale = function(factor) {
 };
 
 setFillColor = function(color) {
-    var rgb, newStyle;
+    var bgr, newStyle;
     if (conf.true_color) {
-        rgb = color;
+        bgr = color;
     } else {
-        rgb = conf.colourMap[color[0]];
+        bgr = conf.colourMap[color[0]];
     }
-    newStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    newStyle = "rgb(" + bgr[2] + "," + bgr[1] + "," + bgr[0] + ")";
     if (newStyle !== c_prevStyle) {
         c_ctx.fillStyle = newStyle;
         c_prevStyle = newStyle;
@@ -430,7 +430,7 @@ that.copyImage = function(old_x, old_y, new_x, new_y, w, h) {
 
 // Start updating a tile
 that.startTile = function(x, y, width, height, color) {
-    var data, rgb, red, green, blue, i;
+    var data, bgr, red, green, blue, i;
     tile_x = x;
     tile_y = y;
     if ((width === 16) && (height === 16)) {
@@ -441,13 +441,13 @@ that.startTile = function(x, y, width, height, color) {
     data = tile.data;
     if (conf.prefer_js) {
         if (conf.true_color) {
-            rgb = color;
+            bgr = color;
         } else {
-            rgb = conf.colourMap[color[0]];
+            bgr = conf.colourMap[color[0]];
         }
-        red = rgb[0];
-        green = rgb[1];
-        blue = rgb[2];
+        red = bgr[2];
+        green = bgr[1];
+        blue = bgr[0];
         for (i = 0; i < (width * height * 4); i+=4) {
             data[i    ] = red;
             data[i + 1] = green;
@@ -461,18 +461,18 @@ that.startTile = function(x, y, width, height, color) {
 
 // Update sub-rectangle of the current tile
 that.subTile = function(x, y, w, h, color) {
-    var data, p, rgb, red, green, blue, width, j, i, xend, yend;
+    var data, p, bgr, red, green, blue, width, j, i, xend, yend;
     if (conf.prefer_js) {
         data = tile.data;
         width = tile.width;
         if (conf.true_color) {
-            rgb = color;
+            bgr = color;
         } else {
-            rgb = conf.colourMap[color[0]];
+            bgr = conf.colourMap[color[0]];
         }
-        red = rgb[0];
-        green = rgb[1];
-        blue = rgb[2];
+        red = bgr[2];
+        green = bgr[1];
+        blue = bgr[0];
         xend = x + w;
         yend = y + h;
         for (j = y; j < yend; j += 1) {
@@ -497,7 +497,7 @@ that.finishTile = function() {
     // else: No-op, if not prefer_js then already done by setSubTile
 };
 
-rgbxImageData = function(x, y, width, height, arr, offset) {
+bgrxImageData = function(x, y, width, height, arr, offset) {
     var img, i, j, data, v = viewport;
     /*
     if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
@@ -509,24 +509,24 @@ rgbxImageData = function(x, y, width, height, arr, offset) {
     img = c_ctx.createImageData(width, height);
     data = img.data;
     for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+4) {
-        data[i    ] = arr[j    ];
+        data[i    ] = arr[j + 2];
         data[i + 1] = arr[j + 1];
-        data[i + 2] = arr[j + 2];
+        data[i + 2] = arr[j    ];
         data[i + 3] = 255; // Set Alpha
     }
     c_ctx.putImageData(img, x - v.x, y - v.y);
 };
 
 cmapImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data, rgb, cmap;
+    var img, i, j, data, bgr, cmap;
     img = c_ctx.createImageData(width, height);
     data = img.data;
     cmap = conf.colourMap;
     for (i=0, j=offset; i < (width * height * 4); i+=4, j+=1) {
-        rgb = cmap[arr[j]];
-        data[i    ] = rgb[0];
-        data[i + 1] = rgb[1];
-        data[i + 2] = rgb[2];
+        bgr = cmap[arr[j]];
+        data[i    ] = bgr[2];
+        data[i + 1] = bgr[1];
+        data[i + 2] = bgr[0];
         data[i + 3] = 255; // Set Alpha
     }
     c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
@@ -534,7 +534,7 @@ cmapImageData = function(x, y, width, height, arr, offset) {
 
 that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        rgbxImageData(x, y, width, height, arr, offset);
+        bgrxImageData(x, y, width, height, arr, offset);
     } else {
         cmapImageData(x, y, width, height, arr, offset);
     }
