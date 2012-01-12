@@ -52,6 +52,9 @@ function getKeysymSpecial(evt) {
 
     if (evt.type === 'keydown') {
         switch ( evt.keyCode ) {
+            // AltGR on French keyboard support:
+            case 0         : keysym = 0xFFEA; break; // Right ALT
+                
             case 27        : keysym = 0xFF1B; break; // ESCAPE
             case 46        : keysym = 0xFFFF; break; // DELETE
 
