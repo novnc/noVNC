@@ -655,6 +655,7 @@ init_msg = function() {
             case "003.006": rfb_version = 3.3; break;  // UltraVNC
             case "003.007": rfb_version = 3.7; break;
             case "003.008": rfb_version = 3.8; break;
+            case "004.000": rfb_version = 3.8; break;  // Intel AMT KVM
             default:
                 return fail("Invalid server version " + sversion);
         }
@@ -821,6 +822,12 @@ init_msg = function() {
         /* Connection name/title */
         name_length   = ws.rQshift32();
         fb_name = ws.rQshiftStr(name_length);
+        
+        if (conf.true_color && fb_name === "Intel(r) AMT KVM")
+        {
+            Util.Warn("Intel AMT KVM only support 8/16 bit depths. Disabling true color");
+            conf.true_color = false;
+        }
 
         display.set_true_color(conf.true_color);
         display.resize(fb_width, fb_height);
@@ -877,6 +884,8 @@ normal_msg = function() {
         ws.rQshift8();  // Padding
         first_colour = ws.rQshift16(); // First colour
         num_colours = ws.rQshift16();
+        if (ws.rQwait("SetColourMapEntries", num_colours*6, 6)) { return false; }
+        
         for (c=0; c < num_colours; c+=1) { 
             red = ws.rQshift16();
             //Util.Debug("red before: " + red);
