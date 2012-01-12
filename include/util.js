@@ -159,7 +159,7 @@ Util.conf_defaults = function(cfg, api, defaults, arr) {
         Util.conf_default(cfg, api, defaults, arr[i][0], arr[i][1],
                 arr[i][2], arr[i][3], arr[i][4]);
     }
-}
+};
 
 
 /*

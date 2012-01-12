@@ -386,10 +386,10 @@ that.getCleanDirtyReset = function() {
 // Translate viewport coordinates to absolute coordinates
 that.absX = function(x) {
     return x + viewport.x;
-}
+};
 that.absY = function(y) {
     return y + viewport.y;
-}
+};
 
 
 that.resize = function(width, height) {
@@ -492,7 +492,7 @@ that.subTile = function(x, y, w, h, color) {
 // Draw the current tile to the screen
 that.finishTile = function() {
     if (conf.prefer_js) {
-        c_ctx.putImageData(tile, tile_x - viewport.x, tile_y - viewport.y)
+        c_ctx.putImageData(tile, tile_x - viewport.x, tile_y - viewport.y);
     }
     // else: No-op, if not prefer_js then already done by setSubTile
 };

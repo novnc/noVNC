@@ -1339,7 +1339,7 @@ scan_tight_imgQ = function() {
         imgQ = FBU.imgQ;
         while ((imgQ.length > 0) && (imgQ[0].img.complete)) {
             data = imgQ.shift();
-            if (data['type'] === 'fill') {
+            if (data.type === 'fill') {
                 display.fillRect(data.x, data.y, data.width, data.height, data.color);
             } else {
                 ctx.drawImage(data.img, data.x, data.y);

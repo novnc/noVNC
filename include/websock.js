@@ -14,6 +14,9 @@
  * read binary data off of the receive queue.
  */
 
+/*jslint browser: true, bitwise: false, plusplus: false */
+/*global Util, Base64 */
+
 
 // Load Flash WebSocket emulator if needed
 
@@ -38,11 +41,11 @@ if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
         var start = "<script src='" + get_INCLUDE_URI(),
             end = "'><\/script>", extra = "";
 
-        WEB_SOCKET_SWF_LOCATION = get_INCLUDE_URI() +
+        window.WEB_SOCKET_SWF_LOCATION = get_INCLUDE_URI() +
                     "web-socket-js/WebSocketMain.swf";
         if (Util.Engine.trident) {
             Util.Debug("Forcing uncached load of WebSocketMain.swf");
-            WEB_SOCKET_SWF_LOCATION += "?" + Math.random();
+            window.WEB_SOCKET_SWF_LOCATION += "?" + Math.random();
         }
         extra += start + "web-socket-js/swfobject.js" + end;
         extra += start + "web-socket-js/web_socket.js" + end;
@@ -87,7 +90,7 @@ function get_rQi() {
 }
 function set_rQi(val) {
     rQi = val;
-};
+}
 
 function rQlen() {
     return rQ.length - rQi;
