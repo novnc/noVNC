@@ -36,6 +36,7 @@ function get_INCLUDE_URI() {
     extra += start + "input.js" + end;
     extra += start + "display.js" + end;
     extra += start + "rfb.js" + end;
+    extra += start + "jsunzip.js" + end;
 
     document.write(extra);
 }());

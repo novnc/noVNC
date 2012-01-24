@@ -46,6 +46,7 @@ var that           = {},  // Public API methods
     // In preference order
     encodings      = [
         ['COPYRECT',         0x01 ],
+        ['TIGHT',            0x07 ],
         ['TIGHT_PNG',        -260 ],
         ['HEXTILE',          0x05 ],
         ['RRE',              0x02 ],
@@ -87,7 +88,9 @@ var that           = {},  // Public API methods
         encoding       : 0,
         subencoding    : -1,
         background     : null,
-        imgQ           : []   // TIGHT_PNG image queue
+        imgQ           : [],  // TIGHT_PNG image queue
+        zlibs          : [],  // TIGHT zlib streams
+        palette        : null
     },
 
     fb_Bpp         = 4,
@@ -296,12 +299,18 @@ init_vars = function() {
     FBU.lines        = 0;  // RAW
     FBU.tiles        = 0;  // HEXTILE
     FBU.imgQ         = []; // TIGHT_PNG image queue
+    FBU.streams      = []; // TIGHT zlib encoders
     mouse_buttonMask = 0;
     mouse_arr        = [];
 
     // Clear the per connection encoding stats
     for (i=0; i < encodings.length; i+=1) {
         encStats[encodings[i][1]][0] = 0;
+    }
+    
+    for (i=0; i < 4; i++) {
+        FBU.zlibs[i] = new TINF();
+        FBU.zlibs[i].init();
     }
 };
 
@@ -1257,6 +1266,176 @@ encHandlers.HEXTILE = function display_hextile() {
 };
 
 
+encHandlers.TIGHT = function display_tight() {
+    Util.Debug(">> display_tight");
+    var ctl, cmode, clength, getCLength, color, img, data;
+    var filterId = -1, resetStreams = 0, streamId = -1;
+    var rQ = ws.get_rQ(), rQi = ws.get_rQi(); 
+
+    FBU.bytes = 1; // compression-control byte
+    if (ws.rQwait("TIGHT compression-control", FBU.bytes)) { return false; }
+    
+    // Get 'compact length' header and data size
+    getCLength = function (arr) {
+        var header = 1, data = 0;
+        data += arr[0] & 0x7f;
+        if (arr[0] & 0x80) {
+            header += 1;
+            data += (arr[1] & 0x7f) << 7;
+            if (arr[1] & 0x80) {
+                header += 1;
+                data += arr[2] << 14;
+            }
+        }
+        return [header, data];
+    };
+
+    var decompress = function(data) {
+        // TODO: process resetStreams here
+        var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
+        /*if (uncompressed.status != 0)
+            throw("Invalid data in zlib stream");*/                
+        return uncompressed.data;
+    }
+
+    var handlePalette = function() {
+        var numColors = rQ[rQi + 2] + 1;
+        var paletteSize = numColors * fb_depth; 
+        FBU.bytes += paletteSize;
+
+        if (ws.rQwait("TIGHT palette " + cmode, FBU.bytes)) { return false; }
+
+        FBU.palette = ws.rQslice(3, 3 + paletteSize);
+
+        var bpp = (numColors <= 2) ? 1 : 8;
+        var rowSize = Math.floor((FBU.width * bpp + 7) / 8);
+        if (rowSize * FBU.height < 12)
+            clength = [0, rowSize * FBU.height];
+        else
+            clength = getCLength(ws.rQslice(3 + paletteSize, 3 + paletteSize + 3));
+        FBU.bytes += clength[0] + clength[1];
+        if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
+
+        // Shift ctl, filter id, num colors, palette entries, and clength off
+        ws.rQshiftBytes(3 + paletteSize + clength[0]);
+        
+        // Process data
+        if (clength[1] < 12)
+            data = ws.rQshiftBytes(clength[1]);
+        else
+            data = decompress(ws.rQshiftBytes(clength[1]));
+        
+        return true;
+    }
+
+    var handleCopy = function() {
+        var uncompressedSize = FBU.width * FBU.height * fb_depth;
+        if (uncompressedSize < 12)
+            clength = [0, uncompressedSize];
+        else
+            clength = getCLength(ws.rQslice(1, 4));
+        FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + zlib-data
+        if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
+
+        ws.rQshiftBytes(1 + clength[0]);  // ctl + clength
+        if (clength[1] < 12)
+            data = ws.rQshiftBytes(clength[1]);
+        else
+            data = decompress(ws.rQshiftBytes(clength[1]));
+
+        FBU.imgQ.push({
+                'type': 'rgb',
+                'img':  {'complete': true, 'data': data},
+                'x': FBU.x,
+                'y': FBU.y,
+                'width': FBU.width,
+                'height': FBU.height});
+        return true;
+    }
+    
+    ctl = ws.rQpeek8();
+    
+    // Keep tight reset bits
+    resetStreams = ctl & 0xF;
+   
+    // Figure out filter
+    ctl = ctl >> 4; 
+    streamId = ctl & 0x3;
+
+    if (ctl == 0x08) cmode = "fill";
+    else if (ctl == 0x09) cmode = "jpeg";
+    else if (ctl & 0x04) cmode = "filter";
+    else if (ctl < 0x04) cmode = "copy";
+    else throw("Illegal tight compression received, ctl: " + ctl);
+    
+    switch (cmode) {
+        // fill uses fb_depth because TPIXELs drop the padding byte
+        case "fill": FBU.bytes += fb_depth; break; // TPIXEL
+        case "jpeg": FBU.bytes += 3;        break; // max clength
+        case "filter": FBU.bytes += 2;      break; // filter id + num colors if palette
+        case "copy":                        break;
+    }
+
+    if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
+
+    //Util.Debug("   ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
+    //Util.Debug("   cmode: " + cmode);
+
+    // Determine FBU.bytes
+    switch (cmode) {
+    case "fill":
+        ws.rQshift8(); // shift off ctl
+        color = ws.rQshiftBytes(fb_depth);
+        FBU.imgQ.push({
+                'type': 'fill',
+                'img': {'complete': true},
+                'x': FBU.x,
+                'y': FBU.y,
+                'width': FBU.width,
+                'height': FBU.height,
+                'color': color});
+        break;
+    case "jpeg":
+        clength = getCLength(ws.rQslice(1, 4));
+        FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
+        if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
+
+        // We have everything, render it
+        //Util.Debug("   png, ws.rQlen(): " + ws.rQlen() + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
+        ws.rQshiftBytes(1 + clength[0]); // shift off ctl + compact length
+        img = new Image();
+        //img.onload = scan_tight_imgQ;
+        FBU.imgQ.push({
+                'type': 'img',
+                'img': img,
+                'x': FBU.x,
+                'y': FBU.y});
+        img.src = "data:image/" + cmode +
+            extract_data_uri(ws.rQshiftBytes(clength[1]));
+        img = null;
+        break;
+    case "filter":
+        filterId = rQ[rQi + 1];
+        if (filterId == 1) {
+            if (!handlePalette()) { return false; }
+        } else {
+            // Filter 0, Copy could be valid here, but servers don't send it as an explicit filter
+            // Filter 2, Gradient is valid but not used if jpeg is enabled
+            throw("Unsupported tight subencoding received, filter: " + filterId);                
+        }
+        break;
+    case "copy":
+        if (!handleCopy()) { return false; }
+        break;
+    }
+    
+    FBU.bytes = 0;
+    FBU.rects -= 1;
+    //Util.Debug("   ending ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
+    //Util.Debug("<< display_tight_png");
+    return true;
+};
+
 encHandlers.TIGHT_PNG = function display_tight_png() {
     //Util.Debug(">> display_tight_png");
     var ctl, cmode, clength, getCLength, color, img;
@@ -1360,6 +1539,8 @@ scan_tight_imgQ = function() {
             data = imgQ.shift();
             if (data.type === 'fill') {
                 display.fillRect(data.x, data.y, data.width, data.height, data.color);
+            } else if (data.type === 'rgb') {
+                // TODO  
             } else {
                 ctx.drawImage(data.img, data.x, data.y);
             }
