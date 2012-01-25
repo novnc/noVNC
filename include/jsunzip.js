@@ -197,8 +197,10 @@ function JSUnzip() {
  * emoller@opera.com
  */
 
+"use strict";
+ 
 function TINF() {
-
+    
 this.OK = 0;
 this.DATA_ERROR = (-3);
 this.WINDOW_SIZE = 32768;
@@ -392,7 +394,7 @@ this.decode_symbol = function(d, t)
 this.decode_trees = function(d, lt, dt)
 {
    var code_tree = new this.TREE();
-   lengths = new Array(288+32);
+   var lengths = new Array(288+32);
    var hlit, hdist, hclen;
    var i, num, length;
 
@@ -518,6 +520,13 @@ this.inflate_uncompressed_block = function(d)
    var length, invlength;
    var i;
 
+   if (d.bitcount > 7) {
+       var overflow = Math.floor(d.bitcount / 8);
+       d.sourceIndex -= overflow;
+       d.bitcount = 0;
+       d.tag = 0;
+   }
+   
    /* get length */
    length = d.source[d.sourceIndex+1];
    length = 256*length + d.source[d.sourceIndex];
@@ -605,7 +614,11 @@ this.uncompress = function(source, offset)
    // Skip zlib header at start of stream
    if (typeof this.header == 'undefined') {
        this.header = this.read_bits(d, 16, 0);
+       /* byte 0: 0x78, 7 = 32k window size, 8 = deflate */
+       /* byte 1: check bits for header and other flags */
    }
+
+   var blocks = 0;
    
    do {
 
@@ -638,21 +651,18 @@ this.uncompress = function(source, offset)
       }
 
       if (res != this.OK) return { 'status' : this.DATA_ERROR };
+      blocks++;
+      
+   } while (!bfinal && d.sourceIndex < d.source.length);
 
-   } while (!bfinal && d.sourceIndex < d.source.length - 3);
-
+   if (blocks != 2) throw ("Unexpected number of blocks");
+   
    if (Object.prototype.toString.call(source) !== '[object Array]') {
        d.dest = d.dest.join('');
    }
    else {
-       if (d.dest.length >= this.WINDOW_SIZE) {
-           d.history = d.dest.slice(d.dest.length - this.WINDOW_SIZE); 
-       } else {
-           var overflow = d.history.length + d.dest.length - this.WINDOW_SIZE;
-           if (overflow > 0)
-               d.history = d.history.slice(overflow);
-       }
        d.history.push.apply(d.history, d.dest);
+       d.history = d.history.slice(-this.WINDOW_SIZE);
    }
    
    return { 'status' : this.OK, 'data' : d.dest };

@@ -299,7 +299,7 @@ init_vars = function() {
     FBU.lines        = 0;  // RAW
     FBU.tiles        = 0;  // HEXTILE
     FBU.imgQ         = []; // TIGHT_PNG image queue
-    FBU.streams      = []; // TIGHT zlib encoders
+    FBU.zlibs        = []; // TIGHT zlib encoders
     mouse_buttonMask = 0;
     mouse_arr        = [];
 
@@ -1290,11 +1290,22 @@ encHandlers.TIGHT = function display_tight() {
         return [header, data];
     };
 
+    var checksum = function(data) {
+        var sum=0, i;
+        for (i=0; i<data.length;i++) {
+            sum += data[i];
+            if (sum > 65536) sum -= 65536;
+        }
+        return sum;
+    }
+    
     var decompress = function(data) {
         // TODO: process resetStreams here
         var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
         if (uncompressed.status != 0)
-            throw("Invalid data in zlib stream");                
+            throw("Invalid data in zlib stream");
+        Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
+            checksum(data) + ":" + checksum(uncompressed.data));
         return uncompressed.data;
     }
 
@@ -1319,6 +1330,8 @@ encHandlers.TIGHT = function display_tight() {
         // Shift ctl, filter id, num colors, palette entries, and clength off
         ws.rQshiftBytes(3 + paletteSize + clength[0]);
         
+        if (streamId == 0) throw ("Wrong stream");
+
         // Process data
         if (clength[1] < 12)
             data = ws.rQshiftBytes(clength[1]);
@@ -1337,6 +1350,8 @@ encHandlers.TIGHT = function display_tight() {
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + zlib-data
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
+        if (streamId != 0) throw ("Wrong stream");
+        
         ws.rQshiftBytes(1 + clength[0]);  // ctl + clength
         if (clength[1] < 12)
             data = ws.rQshiftBytes(clength[1]);
@@ -1357,7 +1372,8 @@ encHandlers.TIGHT = function display_tight() {
     
     // Keep tight reset bits
     resetStreams = ctl & 0xF;
-   
+    if (resetStreams) throw ("Tight reset");
+    
     // Figure out filter
     ctl = ctl >> 4; 
     streamId = ctl & 0x3;
@@ -1540,7 +1556,7 @@ scan_tight_imgQ = function() {
             if (data.type === 'fill') {
                 display.fillRect(data.x, data.y, data.width, data.height, data.color);
             } else if (data.type === 'rgb') {
-                // TODO  
+                display.blitRgbImage(data.x, data.y, data.width, data.height, data.img.data, 0);
             } else {
                 ctx.drawImage(data.img, data.x, data.y);
             }
