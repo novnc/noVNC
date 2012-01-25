@@ -201,6 +201,7 @@ function TINF() {
 
 this.OK = 0;
 this.DATA_ERROR = (-3);
+this.WINDOW_SIZE = 32768;
 
 /* ------------------------------ *
  * -- internal data structures -- *
@@ -218,6 +219,8 @@ this.DATA = function(that) {
    this.bitcount = 0;
 
    this.dest = [];
+   
+   this.history = [];
 
    this.ltree = new that.TREE(); /* dynamic length/symbol tree */
    this.dtree = new that.TREE(); /* dynamic distance tree */
@@ -482,7 +485,7 @@ this.inflate_block_data = function(d, lt, dt)
 
       if (sym < 256)
       {
-         ddest[ddestlength++] = String.fromCharCode(sym);
+         ddest[ddestlength++] = sym; // ? String.fromCharCode(sym);
       } else {
 
          var length, dist, offs;
@@ -500,7 +503,10 @@ this.inflate_block_data = function(d, lt, dt)
 
          /* copy match */
          for (i = offs; i < offs + length; ++i) {
-            ddest[ddestlength++] = ddest[i];
+            if (i < 0)
+                ddest[ddestlength++] = d.history[d.history.length + i];
+            else
+                ddest[ddestlength++] = ddest[i];
          }
       }
    }
@@ -576,7 +582,7 @@ this.init = function()
 this.reset = function()
 {
    this.d = new this.DATA(this);
-   this.header = null;
+   delete this.header;
 }
 
 /* inflate stream from source to dest */
@@ -597,9 +603,9 @@ this.uncompress = function(source, offset)
    d.dest = [];
 
    // Skip zlib header at start of stream
-   /*if (typeof header == 'undefined') {
-       header = this.read_bits(d, 16, 0);
-   }*/
+   if (typeof this.header == 'undefined') {
+       this.header = this.read_bits(d, 16, 0);
+   }
    
    do {
 
@@ -633,12 +639,22 @@ this.uncompress = function(source, offset)
 
       if (res != this.OK) return { 'status' : this.DATA_ERROR };
 
-   } while (!bfinal);
+   } while (!bfinal && d.sourceIndex < d.source.length - 3);
 
    if (Object.prototype.toString.call(source) !== '[object Array]') {
        d.dest = d.dest.join('');
    }
-
+   else {
+       if (d.dest.length >= this.WINDOW_SIZE) {
+           d.history = d.dest.slice(d.dest.length - this.WINDOW_SIZE); 
+       } else {
+           var overflow = d.history.length + d.dest.length - this.WINDOW_SIZE;
+           if (overflow > 0)
+               d.history = d.history.slice(overflow);
+       }
+       d.history.push.apply(d.history, d.dest);
+   }
+   
    return { 'status' : this.OK, 'data' : d.dest };
 }
 

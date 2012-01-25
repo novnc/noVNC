@@ -1293,8 +1293,8 @@ encHandlers.TIGHT = function display_tight() {
     var decompress = function(data) {
         // TODO: process resetStreams here
         var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
-        /*if (uncompressed.status != 0)
-            throw("Invalid data in zlib stream");*/                
+        if (uncompressed.status != 0)
+            throw("Invalid data in zlib stream");                
         return uncompressed.data;
     }
 
