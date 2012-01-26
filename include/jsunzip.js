@@ -337,7 +337,7 @@ this.getbit = function(d)
    if (!d.bitcount--)
    {
       /* load next tag */
-      d.tag = d.source.charCodeAt(d.sourceIndex++) & 0xff;
+      d.tag = d.source[d.sourceIndex++] & 0xff;
       d.bitcount = 7;
    }
 
@@ -355,11 +355,11 @@ this.read_bits = function(d, num, base)
         return base;
 
     var val = 0;
-    while (d.bitcount < 24) {
-        d.tag = d.tag | (d.source.charCodeAt(d.sourceIndex++) & 0xff) << d.bitcount;
+    while (d.bitcount < num) {
+        d.tag = d.tag | (d.source[d.sourceIndex++] & 0xff) << d.bitcount;
         d.bitcount += 8;
     }
-    val = d.tag & (0xff >> (8 - num));
+    val = d.tag & (0xffff >> (16 - num));
     d.tag >>= num;
     d.bitcount -= num;
     return val + base;
@@ -368,8 +368,8 @@ this.read_bits = function(d, num, base)
 /* given a data stream and a tree, decode a symbol */
 this.decode_symbol = function(d, t)
 {
-    while (d.bitcount < 24) {
-        d.tag = d.tag | (d.source.charCodeAt(d.sourceIndex++) & 0xff) << d.bitcount;
+    while (d.bitcount < 10) {
+        d.tag = d.tag | (d.source[d.sourceIndex++] & 0xff) << d.bitcount;
         d.bitcount += 8;
     }
     
@@ -488,6 +488,7 @@ this.inflate_block_data = function(d, lt, dt)
       if (sym < 256)
       {
          ddest[ddestlength++] = sym; // ? String.fromCharCode(sym);
+         d.history.push(sym);
       } else {
 
          var length, dist, offs;
@@ -503,12 +504,14 @@ this.inflate_block_data = function(d, lt, dt)
          /* possibly get more bits from distance code */
          offs = ddestlength - this.read_bits(d, this.dist_bits[dist], this.dist_base[dist]);
 
+         if (offs < 0)
+             throw ("Invalid zlib offset " + offs);
+         
          /* copy match */
          for (i = offs; i < offs + length; ++i) {
-            if (i < 0)
-                ddest[ddestlength++] = d.history[d.history.length + i];
-            else
-                ddest[ddestlength++] = ddest[i];
+            ddest[ddestlength++] = ddest[i];
+            //ddest[ddestlength++] = d.history[i];
+            //d.history.push(d.history[i]);
          }
       }
    }
@@ -541,8 +544,10 @@ this.inflate_uncompressed_block = function(d)
    d.sourceIndex += 4;
 
    /* copy block */
-   for (i = length; i; --i)
+   for (i = length; i; --i) {
+       d.history.push(d.source[d.sourceIndex]);
        d.dest[d.dest.length] = d.source[d.sourceIndex++];
+   }
 
    /* make sure we start next block on a byte boundary */
    d.bitcount = 0;
@@ -597,13 +602,10 @@ this.reset = function()
 /* inflate stream from source to dest */
 this.uncompress = function(source, offset)
 {
+
    var d = this.d;
    var bfinal;
 
-   if (Object.prototype.toString.call(source) === '[object Array]') {
-       source.charCodeAt = function(id) {  return this[id]; }
-   }
-   
    /* initialise data */
    d.source = source;
    d.sourceIndex = offset;
@@ -655,15 +657,8 @@ this.uncompress = function(source, offset)
       
    } while (!bfinal && d.sourceIndex < d.source.length);
 
-   if (blocks != 2) throw ("Unexpected number of blocks");
-   
-   if (Object.prototype.toString.call(source) !== '[object Array]') {
-       d.dest = d.dest.join('');
-   }
-   else {
-       d.history.push.apply(d.history, d.dest);
-       d.history = d.history.slice(-this.WINDOW_SIZE);
-   }
+   //d.history.push.apply(d.history, d.dest);
+   d.history = d.history.slice(-this.WINDOW_SIZE);
    
    return { 'status' : this.OK, 'data' : d.dest };
 }
