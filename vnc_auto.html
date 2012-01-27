@@ -93,7 +93,7 @@
             host = WebUtil.getQueryVar('host', null);
             port = WebUtil.getQueryVar('port', null);
             password = WebUtil.getQueryVar('password', '');
-            path = WebUtil.getQueryVar('path', '');
+            path = WebUtil.getQueryVar('path', 'websockify');
             if ((!host) || (!port)) {
                 updateState('failed',
                     "Must specify host and port in URL");
