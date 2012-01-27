@@ -54,7 +54,7 @@ load: function() {
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
     UI.initSetting('connectTimeout', 2);
-    UI.initSetting('path', '');
+    UI.initSetting('path', UI.getCurrentPath());
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
@@ -626,6 +626,11 @@ setBarPosition: function() {
 
     var vncwidth = $D('noVNC_screen').style.offsetWidth;
     $D('noVNC-control-bar').style.width = vncwidth + 'px';
+},
+
+getCurrentPath: function() {
+  var pathname = window.location.pathname;
+  return pathname.substring(1, pathname.lastIndexOf('/'));
 }
 
 };
