@@ -198,7 +198,7 @@ function JSUnzip() {
  */
 
 "use strict";
- 
+
 function TINF() {
     
 this.OK = 0;
@@ -502,16 +502,16 @@ this.inflate_block_data = function(d, lt, dt)
          dist = this.decode_symbol(d, dt);
 
          /* possibly get more bits from distance code */
-         offs = ddestlength - this.read_bits(d, this.dist_bits[dist], this.dist_base[dist]);
+         offs = d.history.length - this.read_bits(d, this.dist_bits[dist], this.dist_base[dist]);
 
          if (offs < 0)
              throw ("Invalid zlib offset " + offs);
          
          /* copy match */
          for (i = offs; i < offs + length; ++i) {
-            ddest[ddestlength++] = ddest[i];
-            //ddest[ddestlength++] = d.history[i];
-            //d.history.push(d.history[i]);
+            //ddest[ddestlength++] = ddest[i];
+            ddest[ddestlength++] = d.history[i];
+            d.history.push(d.history[i]);
          }
       }
    }
@@ -657,7 +657,6 @@ this.uncompress = function(source, offset)
       
    } while (!bfinal && d.sourceIndex < d.source.length);
 
-   //d.history.push.apply(d.history, d.dest);
    d.history = d.history.slice(-this.WINDOW_SIZE);
    
    return { 'status' : this.OK, 'data' : d.dest };
