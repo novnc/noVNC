@@ -309,6 +309,7 @@ init_vars = function() {
     }
     
     for (i=0; i < 4; i++) {
+        //FBU.zlibs[i] = new InflateStream();
         FBU.zlibs[i] = new TINF();
         FBU.zlibs[i].init();
     }
@@ -1302,10 +1303,21 @@ encHandlers.TIGHT = function display_tight() {
     var decompress = function(data) {
         // TODO: process resetStreams here
         var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
-        if (uncompressed.status != 0)
+        if (uncompressed.status !== 0)
             throw("Invalid data in zlib stream");
         Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
             checksum(data) + ":" + checksum(uncompressed.data));
+
+        /* 
+        var i;
+        var uncompressed2 = zip_inflate(data);
+        for (i=0;i<uncompressed.length;i++)
+        if (uncompressed[i] !== uncompressed2[i]) {
+            Util.Warn("Decompression difference at " + i);
+            break;
+        }
+        */
+        
         return uncompressed.data;
     }
 
@@ -1320,8 +1332,11 @@ encHandlers.TIGHT = function display_tight() {
 
         var bpp = (numColors <= 2) ? 1 : 8;
         var rowSize = Math.floor((FBU.width * bpp + 7) / 8);
-        if (rowSize * FBU.height < 12)
+        var raw = false;
+        if (rowSize * FBU.height < 12) {
+            raw = true;
             clength = [0, rowSize * FBU.height];
+        }
         else
             clength = getCLength(ws.rQslice(3 + paletteSize, 3 + paletteSize + 3));
         FBU.bytes += clength[0] + clength[1];
@@ -1333,7 +1348,7 @@ encHandlers.TIGHT = function display_tight() {
         if (streamId == 0) throw ("Wrong stream");
 
         // Process data
-        if (clength[1] < 12)
+        if (raw)
             data = ws.rQshiftBytes(clength[1]);
         else
             data = decompress(ws.rQshiftBytes(clength[1]));
@@ -1342,9 +1357,12 @@ encHandlers.TIGHT = function display_tight() {
     }
 
     var handleCopy = function() {
+        var raw = false;
         var uncompressedSize = FBU.width * FBU.height * fb_depth;
-        if (uncompressedSize < 12)
+        if (uncompressedSize < 12) {
+            raw = true;
             clength = [0, uncompressedSize];
+        }
         else
             clength = getCLength(ws.rQslice(1, 4));
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + zlib-data
@@ -1353,7 +1371,7 @@ encHandlers.TIGHT = function display_tight() {
         if (streamId != 0) throw ("Wrong stream");
         
         ws.rQshiftBytes(1 + clength[0]);  // ctl + clength
-        if (clength[1] < 12)
+        if (raw)
             data = ws.rQshiftBytes(clength[1]);
         else
             data = decompress(ws.rQshiftBytes(clength[1]));
