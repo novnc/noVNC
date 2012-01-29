@@ -1315,10 +1315,7 @@ encHandlers.TIGHT = function display_tight() {
         var numColors = rQ[rQi + 2] + 1;
         var paletteSize = numColors * fb_depth; 
         FBU.bytes += paletteSize;
-
         if (ws.rQwait("TIGHT palette " + cmode, FBU.bytes)) { return false; }
-
-        FBU.palette = ws.rQslice(3, 3 + paletteSize);
 
         var bpp = (numColors <= 2) ? 1 : 8;
         var rowSize = Math.floor((FBU.width * bpp + 7) / 8);
@@ -1333,14 +1330,16 @@ encHandlers.TIGHT = function display_tight() {
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
         // Shift ctl, filter id, num colors, palette entries, and clength off
-        ws.rQshiftBytes(3 + paletteSize + clength[0]);
+        ws.rQshiftBytes(3); 
+        FBU.palette = ws.rQshiftBytes(paletteSize);
+        ws.rQshiftBytes(clength[0]);
         
-        // Decompress data
         if (raw)
             data = ws.rQshiftBytes(clength[1]);
         else
             data = decompress(ws.rQshiftBytes(clength[1]));
 
+        // Convert indexed (palette based) image data to RGB
         var dest = [];
         var x, y, b;
         if (numColors == 2) {
@@ -1395,10 +1394,12 @@ encHandlers.TIGHT = function display_tight() {
         }
         else
             clength = getCLength(ws.rQslice(1, 4));
-        FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + zlib-data
+        FBU.bytes = 1 + clength[0] + clength[1];
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
-        ws.rQshiftBytes(1 + clength[0]);  // ctl + clength
+        // Shift ctl, clength off
+        ws.rQshiftBytes(1 + clength[0]);
+
         if (raw)
             data = ws.rQshiftBytes(clength[1]);
         else
