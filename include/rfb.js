@@ -1307,16 +1307,6 @@ encHandlers.TIGHT = function display_tight() {
             throw("Invalid data in zlib stream");
         Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
             checksum(data) + ":" + checksum(uncompressed.data));
-
-        /* 
-        var i;
-        var uncompressed2 = zip_inflate(data);
-        for (i=0;i<uncompressed.length;i++)
-        if (uncompressed[i] !== uncompressed2[i]) {
-            Util.Warn("Decompression difference at " + i);
-            break;
-        }
-        */
         
         return uncompressed.data;
     }
@@ -1345,14 +1335,54 @@ encHandlers.TIGHT = function display_tight() {
         // Shift ctl, filter id, num colors, palette entries, and clength off
         ws.rQshiftBytes(3 + paletteSize + clength[0]);
         
-        if (streamId == 0) throw ("Wrong stream");
-
-        // Process data
+        // Decompress data
         if (raw)
             data = ws.rQshiftBytes(clength[1]);
         else
             data = decompress(ws.rQshiftBytes(clength[1]));
-        
+
+        var dest = [];
+        var x, y, b;
+        if (numColors == 2) {
+          var w = Math.floor((FBU.width + 7) / 8);
+          var w1 = Math.floor(FBU.width / 8);
+          for (y = 0; y < FBU.height; y++) {
+            for (x = 0; x < w1; x++) {
+              for (b = 7; b >= 0; b--) {
+                  var dp = (y*FBU.width + x*8 + 7-b) * 3;
+                  var sp = (data[y*w + x] >> b & 1) * 3;
+                  dest[dp  ] = FBU.palette[sp  ];    
+                  dest[dp+1] = FBU.palette[sp+1];    
+                  dest[dp+2] = FBU.palette[sp+2];    
+              }
+              for (b = 7; b >= 8 - FBU.width % 8; b--) {
+                var dp = (y*FBU.width + x*8 + 7-b) * 3;
+                var sp = (data[y*w + x] >> b & 1) * 3;
+                dest[dp  ] = FBU.palette[sp  ];    
+                dest[dp+1] = FBU.palette[sp+1];    
+                dest[dp+2] = FBU.palette[sp+2];    
+              }
+            }
+          }
+        } else {
+          for (y = 0; y < FBU.height; y++) {
+            for (x = 0; x < FBU.width; x++) {
+              var dp = (y*FBU.width + x) * 3;
+              var sp = data[y*FBU.width + x] * 3;
+              dest[dp  ] = FBU.palette[sp  ];
+              dest[dp+1] = FBU.palette[sp+1];    
+              dest[dp+2] = FBU.palette[sp+2];    
+            }
+          }
+        }
+  
+        FBU.imgQ.push({
+                'type': 'rgb',
+                'img':  {'complete': true, 'data': dest},
+                'x': FBU.x,
+                'y': FBU.y,
+                'width': FBU.width,
+                'height': FBU.height});
         return true;
     }
 
@@ -1368,8 +1398,6 @@ encHandlers.TIGHT = function display_tight() {
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + zlib-data
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
-        if (streamId != 0) throw ("Wrong stream");
-        
         ws.rQshiftBytes(1 + clength[0]);  // ctl + clength
         if (raw)
             data = ws.rQshiftBytes(clength[1]);

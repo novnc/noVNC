@@ -355,7 +355,7 @@ this.read_bits = function(d, num, base)
         return base;
 
     var val = 0;
-    while (d.bitcount < num) {
+    while (d.bitcount < 24) {
         d.tag = d.tag | (d.source[d.sourceIndex++] & 0xff) << d.bitcount;
         d.bitcount += 8;
     }
@@ -368,7 +368,7 @@ this.read_bits = function(d, num, base)
 /* given a data stream and a tree, decode a symbol */
 this.decode_symbol = function(d, t)
 {
-    while (d.bitcount < 10) {
+    while (d.bitcount < 16) {
         d.tag = d.tag | (d.source[d.sourceIndex++] & 0xff) << d.bitcount;
         d.bitcount += 8;
     }
