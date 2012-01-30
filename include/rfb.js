@@ -55,10 +55,12 @@ var that           = {},  // Public API methods
         ['Cursor',           -239 ],
 
         // Psuedo-encoding settings
-        ['JPEG_quality_lo',   -32 ],
+        //['JPEG_quality_lo',   -32 ],
+        ['JPEG_quality_med',    -26 ],
         //['JPEG_quality_hi',   -23 ],
-        ['compress_lo',      -255 ]
-        //['compress_hi',      -247 ]
+        //['compress_lo',      -255 ],
+        ['compress_hi',        -247 ],
+        ['last_rect',          -224 ]
         ],
 
     encHandlers    = {},
@@ -986,6 +988,11 @@ framebufferUpdate = function() {
                      'encoding': FBU.encoding,
                      'encodingName': encNames[FBU.encoding]});
 
+            if (encNames[FBU.encoding] == 'last_rect') {
+                FBU.rects = 0;
+                break;
+            }
+            
             if (encNames[FBU.encoding]) {
                 // Debug:
                 /*
@@ -1354,13 +1361,13 @@ encHandlers.TIGHT = function display_tight() {
                   dest[dp+1] = FBU.palette[sp+1];    
                   dest[dp+2] = FBU.palette[sp+2];    
               }
-              for (b = 7; b >= 8 - FBU.width % 8; b--) {
-                var dp = (y*FBU.width + x*8 + 7-b) * 3;
-                var sp = (data[y*w + x] >> b & 1) * 3;
-                dest[dp  ] = FBU.palette[sp  ];    
-                dest[dp+1] = FBU.palette[sp+1];    
-                dest[dp+2] = FBU.palette[sp+2];    
-              }
+            }
+            for (b = 7; b >= 8 - FBU.width % 8; b--) {
+              var dp = (y*FBU.width + x*8 + 7-b) * 3;
+              var sp = (data[y*w + x] >> b & 1) * 3;
+              dest[dp  ] = FBU.palette[sp  ];    
+              dest[dp+1] = FBU.palette[sp+1];    
+              dest[dp+2] = FBU.palette[sp+2];    
             }
           }
         } else {
@@ -1456,7 +1463,7 @@ encHandlers.TIGHT = function display_tight() {
                 'y': FBU.y,
                 'width': FBU.width,
                 'height': FBU.height,
-                'color': color});
+                'color': [color[2], color[1], color[0]] });
         break;
     case "jpeg":
         clength = getCLength(ws.rQslice(1, 4));
