@@ -1312,8 +1312,8 @@ encHandlers.TIGHT = function display_tight() {
         var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
         if (uncompressed.status !== 0)
             throw("Invalid data in zlib stream");
-        Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
-            checksum(data) + ":" + checksum(uncompressed.data));
+        //Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
+        //    checksum(data) + ":" + checksum(uncompressed.data));
         
         return uncompressed.data;
     }
@@ -1347,6 +1347,7 @@ encHandlers.TIGHT = function display_tight() {
             data = decompress(ws.rQshiftBytes(clength[1]));
 
         // Convert indexed (palette based) image data to RGB
+        // TODO: reduce number of calculations inside loop
         var dest = [];
         var x, y, b;
         if (numColors == 2) {
