@@ -1276,6 +1276,11 @@ encHandlers.HEXTILE = function display_hextile() {
 
 encHandlers.TIGHT = function display_tight() {
     Util.Debug(">> display_tight");
+
+    if (fb_depth == 1) {
+        fail("Tight protocol handler only implements true color mode");
+    }
+
     var ctl, cmode, clength, getCLength, color, img, data;
     var filterId = -1, resetStreams = 0, streamId = -1;
     var rQ = ws.get_rQ(), rQi = ws.get_rQi(); 
@@ -1308,10 +1313,15 @@ encHandlers.TIGHT = function display_tight() {
     }
     
     var decompress = function(data) {
-        // TODO: process resetStreams here
+        for (var i=0; i<4; i++) {
+            if ((resetStreams >> i) & 1) {
+                FBU.zlibs[i].reset();
+                Util.Info("Reset zlib stream " + i);
+            }
+        }
         var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
         if (uncompressed.status !== 0)
-            throw("Invalid data in zlib stream");
+            Util.Error("Invalid data in zlib stream");
         //Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
         //    checksum(data) + ":" + checksum(uncompressed.data));
         
@@ -1427,7 +1437,6 @@ encHandlers.TIGHT = function display_tight() {
     
     // Keep tight reset bits
     resetStreams = ctl & 0xF;
-    if (resetStreams) throw ("Tight reset");
     
     // Figure out filter
     ctl = ctl >> 4; 
