@@ -54,7 +54,7 @@ load: function() {
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
     UI.initSetting('connectTimeout', 2);
-    UI.initSetting('path', '');
+    UI.initSetting('path', 'websockify');
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
