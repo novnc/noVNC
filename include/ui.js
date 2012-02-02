@@ -48,7 +48,7 @@ load: function() {
     UI.initSetting('host', '');
     UI.initSetting('port', '');
     UI.initSetting('password', '');
-    UI.initSetting('encrypt', false);
+    UI.initSetting('encrypt', (window.location.protocol === "https:"));
     UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true);

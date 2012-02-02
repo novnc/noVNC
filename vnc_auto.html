@@ -101,7 +101,8 @@
             }
 
             rfb = new RFB({'target':       $D('noVNC_canvas'),
-                           'encrypt':      WebUtil.getQueryVar('encrypt', false),
+                           'encrypt':      WebUtil.getQueryVar('encrypt',
+                                    (window.location.protocol === "https:")),
                            'true_color':   WebUtil.getQueryVar('true_color', true),
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
