@@ -17,7 +17,7 @@ var WebUtil = {}, $D;
  * Simple DOM selector by ID
  */
 if (!window.$D) {
-    $D = function (id) {
+    window.$D = function (id) {
         if (document.getElementById) {
             return document.getElementById(id);
         } else if (document.all) {
