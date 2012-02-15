@@ -153,12 +153,30 @@ html {
 }
 
 #noVNC_controls {
+  display:none;
   margin-top:77px;
   right:12px;
   position:fixed;
 }
 #noVNC_controls.top:after  {
   right:15px;
+}
+
+#noVNC_description {
+  display:none;
+  position:fixed;
+
+  margin-top:77px;
+  right:20px;
+  left:20px;
+  padding:15px;
+  color:#000;
+  background:#eee; /* default background for browsers without gradient support */
+
+  border:2px solid #E0E0E0;
+  -webkit-border-radius:10px;
+  -moz-border-radius:10px;
+  border-radius:10px;
 }
 
 #noVNC_clipboard {
