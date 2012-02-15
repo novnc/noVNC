@@ -438,6 +438,16 @@ that.ungrab = function() {
     //Util.Debug(">> Keyboard.ungrab");
 };
 
+that.set_handler = function(handlers) {
+	if (!handlers)
+		return;
+
+	for (var name in handlers) {
+		if (name == 'onKeyPress')
+			conf[name] = handlers[name];
+	}
+};
+
 return that;  // Return the public API interface
 
 }  // End of Keyboard()
@@ -612,6 +622,16 @@ that.ungrab = function() {
     Util.removeEvent(document.body, 'contextmenu', onMouseDisable);
 
     //Util.Debug(">> Mouse.ungrab");
+};
+
+that.set_handler = function(handlers) {
+	if (!handlers)
+		return;
+
+	for (var name in handlers) {
+		if (name == 'onMouseButton' || name == 'onMouseMove')
+			conf[name] = handlers[name];
+	}
 };
 
 return that;  // Return the public API interface
