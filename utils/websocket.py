@@ -603,7 +603,10 @@ Sec-WebSocket-Accept: %s\r
             except ssl.SSLError:
                 _, x, _ = sys.exc_info()
                 if x.args[0] == ssl.SSL_ERROR_EOF:
-                    raise self.EClose("")
+                    if len(x.args) > 1:
+                        raise self.EClose(x.args[1])
+                    else:
+                        raise self.EClose("Got SSL_ERROR_EOF")
                 else:
                     raise
 
