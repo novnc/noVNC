@@ -27,7 +27,6 @@ their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/g
 * Licensed under the [LGPLv3](http://www.gnu.org/licenses/lgpl.html)
 
 
-
 ### Screenshots
 
 Running in Chrome before and after connecting:
