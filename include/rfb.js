@@ -1617,6 +1617,16 @@ that.sendKey = function(code, down) {
     ws.send(arr);
 };
 
+// Sending UP keys for all control keys, used because of the keypress and hold effect issues VNC.
+that.resetKeyboard = function(code, down) {
+	that.sendKey(0xffe9, 0); // alt ( left )
+	that.sendKey(0xffea, 0); // alt ( right )
+	that.sendKey(0xffe3, 0); // ctrl( left )
+	that.sendKey(0xffe4, 0); // ctrl ( right )
+	that.sendKey(0xffe2, 0); // shift ( right )
+	that.sendKey(0xffe1, 0); // shift ( right )
+};
+
 that.clipboardPasteFrom = function(text) {
     if (rfb_state !== "normal") { return; }
     //Util.Debug(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
