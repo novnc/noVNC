@@ -195,6 +195,9 @@ function JSUnzip() {
 /*
  * tinflate javascript port by Erik Moller in May 2011.
  * emoller@opera.com
+ * 
+ * read_bits() patched by mike@imidio.com to allow
+ * reading more then 8 bits (needed in some zlib streams)
  */
 
 "use strict";

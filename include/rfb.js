@@ -4,6 +4,9 @@
  * Licensed under LGPL-3 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
+ *
+ * TIGHT decoder portion:
+ * (c) 2012 Michael Tinglof, Joe Balaz, Les Piech (Mercuri.ca)
  */
 
 /*jslint white: false, browser: true, bitwise: false, plusplus: false */
@@ -275,14 +278,18 @@ function constructor() {
 
 function connect() {
     Util.Debug(">> RFB.connect");
-
-    var uri = "";
-    if (conf.encrypt) {
-        uri = "wss://";
+    var uri;
+    
+    if (typeof UsingSocketIO !== "undefined") {
+        uri = "http://" + rfb_host + ":" + rfb_port + "/" + rfb_path;
     } else {
-        uri = "ws://";
+        if (conf.encrypt) {
+            uri = "wss://";
+        } else {
+            uri = "ws://";
+        }
+        uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
     }
-    uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
     Util.Info("connecting to " + uri);
     ws.open(uri);
 

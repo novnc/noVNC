@@ -26,7 +26,7 @@ their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/g
 * Easy site integration and theming (3 example themes included)
 * Licensed under the [LGPLv3](http://www.gnu.org/licenses/lgpl.html)
 
-
+* Support for tight encoding (contributed by Mercuri.ca)
 
 ### Screenshots
 
