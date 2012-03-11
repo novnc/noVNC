@@ -117,7 +117,8 @@ var that           = {},  // Public API methods
 
         fbu_rt_start   : 0,
         fbu_rt_total   : 0,
-        fbu_rt_cnt     : 0
+        fbu_rt_cnt     : 0,
+        pixels         : 0
     },
 
     test_mode        = false,
@@ -995,11 +996,6 @@ framebufferUpdate = function() {
                      'encoding': FBU.encoding,
                      'encodingName': encNames[FBU.encoding]});
 
-            if (encNames[FBU.encoding] == 'last_rect') {
-                FBU.rects = 0;
-                break;
-            }
-            
             if (encNames[FBU.encoding]) {
                 // Debug:
                 /*
@@ -1028,9 +1024,10 @@ framebufferUpdate = function() {
         if (ret) {
             encStats[FBU.encoding][0] += 1;
             encStats[FBU.encoding][1] += 1;
+            timing.pixels += FBU.width * FBU.height;
         }
 
-        if (FBU.rects === 0) {
+        if (FBU.rects === 0 || (timing.pixels >= (fb_width * fb_height))) {
             if (((FBU.width === fb_width) &&
                         (FBU.height === fb_height)) ||
                     (timing.fbu_rt_start > 0)) {
@@ -1634,6 +1631,13 @@ scan_tight_imgQ = function() {
         }
         setTimeout(scan_tight_imgQ, scan_imgQ_rate);
     }
+};
+
+encHandlers.last_rect = function last_rect() {
+    Util.Debug(">> set_desktopsize");
+    FBU.rects = 0;
+    Util.Debug("<< set_desktopsize");
+    return true;
 };
 
 encHandlers.DesktopSize = function set_desktopsize() {
