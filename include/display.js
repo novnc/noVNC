@@ -20,7 +20,7 @@ var that           = {},  // Public API methods
     c_forceCanvas  = false,
 
     // Predefine function variables (jslint)
-    imageDataGet, bgrxImageData, cmapImageData,
+    imageDataGet, rgbImageData, bgrxImageData, cmapImageData,
     setFillColor, rescale,
 
     // The full frame buffer (logical canvas) size
@@ -497,6 +497,26 @@ that.finishTile = function() {
     // else: No-op, if not prefer_js then already done by setSubTile
 };
 
+rgbImageData = function(x, y, width, height, arr, offset) {
+    var img, i, j, data, v = viewport;
+    /*
+    if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
+        (x - v.x + width < 0) || (y - v.y + height < 0)) {
+        // Skipping because outside of viewport
+        return;
+    }
+    */
+    img = c_ctx.createImageData(width, height);
+    data = img.data;
+    for (i=0, j=offset; i < (width * height * 4); i=i+4, j=j+3) {
+        data[i    ] = arr[j    ];
+        data[i + 1] = arr[j + 1];
+        data[i + 2] = arr[j + 2];
+        data[i + 3] = 255; // Set Alpha
+    }
+    c_ctx.putImageData(img, x - v.x, y - v.y);
+};
+
 bgrxImageData = function(x, y, width, height, arr, offset) {
     var img, i, j, data, v = viewport;
     /*
@@ -536,6 +556,15 @@ that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
         bgrxImageData(x, y, width, height, arr, offset);
     } else {
+        cmapImageData(x, y, width, height, arr, offset);
+    }
+};
+
+that.blitRgbImage = function(x, y, width, height, arr, offset) {
+    if (conf.true_color) {
+        rgbImageData(x, y, width, height, arr, offset);
+    } else {
+        // prolly wrong...
         cmapImageData(x, y, width, height, arr, offset);
     }
 };

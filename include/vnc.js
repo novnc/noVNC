@@ -32,10 +32,13 @@ function get_INCLUDE_URI() {
     extra += start + "webutil.js" + end;
     extra += start + "base64.js" + end;
     extra += start + "websock.js" + end;
+    // extra += start + "socketio.js" + end;
     extra += start + "des.js" + end;
     extra += start + "input.js" + end;
     extra += start + "display.js" + end;
+    extra += start + "blowfish.js" + end;
     extra += start + "rfb.js" + end;
+    extra += start + "jsunzip.js" + end;
 
     document.write(extra);
 }());
