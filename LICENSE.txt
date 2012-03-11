@@ -13,6 +13,8 @@ version 3 with the following exceptions (all LGPL-3 compatible):
    
     include/des.js             : Various BSD style licenses
 
+    include/jsunzip.js         : zlib/libpng license
+
     include/web-socket-js/     : New BSD license. Source code at
                                  http://github.com/gimite/web-socket-js
 

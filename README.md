@@ -16,7 +16,7 @@ their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/g
 ### Features
 
 * Supports all modern browsers including mobile (iOS, Android)
-* Supported VNC encodings: raw, copyrect, rre, hextile, tightPNG
+* Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG
 * WebSocket SSL/TLS encryption (i.e. "wss://") support
 * 24-bit true color and 8 bit colour mapped
 * Supports desktop resize notification/pseudo-encoding
@@ -25,8 +25,6 @@ their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/g
 * Clipping or scolling modes for large remote screens
 * Easy site integration and theming (3 example themes included)
 * Licensed under the [LGPLv3](http://www.gnu.org/licenses/lgpl.html)
-
-* Support for tight encoding (contributed by Mercuri.ca)
 
 ### Screenshots
 
@@ -84,5 +82,21 @@ a python proxy included ('websockify').
 * [Integrating noVNC](https://github.com/kanaka/noVNC/wiki/Integration) into existing projects.
 
 * [Troubleshooting noVNC](https://github.com/kanaka/noVNC/wiki/Troubleshooting) problems.
+
+
+### Authors/Contributors
+
+* noVNC : Joel Martin (github@martintribe.org)
+    * New UI and Icons : Chris Gordon
+    * Original Logo : Michael Sersen
+    * tight encoding : Michael Tinglof (Mercuri.ca)
+
+* Included libraries:
+    * web-socket-js : Hiroshi Ichikawa (github.com/gimite/web-socket-js)
+    * as3crypto : Henri Torgemane (code.google.com/p/as3crypto)
+    * base64 : Martijn Pieters (Digital Creations 2), Samuel Sieb (sieb.net)
+    * jsunzip : Erik Moller (github.com/operasoftware/jsunzip),
+    * tinflate : Joergen Ibsen (ibsensoftware.com)
+    * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
 
 
