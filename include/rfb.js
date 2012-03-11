@@ -26,7 +26,7 @@ var that           = {},  // Public API methods
     pixelFormat, clientEncodings, fbUpdateRequest, fbUpdateRequests,
     keyEvent, pointerEvent, clientCutText,
 
-    extract_data_uri, scan_tight_imgQ,
+    getTightCLength, extract_data_uri, scan_tight_imgQ,
     keyPress, mouseButton, mouseMove,
 
     checkEvents,  // Overridable for testing
@@ -94,8 +94,7 @@ var that           = {},  // Public API methods
         subencoding    : -1,
         background     : null,
         imgQ           : [],  // TIGHT_PNG image queue
-        zlibs          : [],  // TIGHT zlib streams
-        palette        : null
+        zlibs          : []   // TIGHT zlib streams
     },
 
     fb_Bpp         = 4,
@@ -1278,34 +1277,34 @@ encHandlers.HEXTILE = function display_hextile() {
 };
 
 
+// Get 'compact length' header and data size
+getTightCLength = function (arr) {
+    var header = 1, data = 0;
+    data += arr[0] & 0x7f;
+    if (arr[0] & 0x80) {
+        header += 1;
+        data += (arr[1] & 0x7f) << 7;
+        if (arr[1] & 0x80) {
+            header += 1;
+            data += arr[2] << 14;
+        }
+    }
+    return [header, data];
+};
+
 encHandlers.TIGHT = function display_tight() {
     Util.Debug(">> display_tight");
 
-    if (fb_depth == 1) {
+    if (fb_depth === 1) {
         fail("Tight protocol handler only implements true color mode");
     }
 
-    var ctl, cmode, clength, getCLength, color, img, data;
+    var ctl, cmode, clength, color, img, data;
     var filterId = -1, resetStreams = 0, streamId = -1;
     var rQ = ws.get_rQ(), rQi = ws.get_rQi(); 
 
     FBU.bytes = 1; // compression-control byte
     if (ws.rQwait("TIGHT compression-control", FBU.bytes)) { return false; }
-    
-    // Get 'compact length' header and data size
-    getCLength = function (arr) {
-        var header = 1, data = 0;
-        data += arr[0] & 0x7f;
-        if (arr[0] & 0x80) {
-            header += 1;
-            data += (arr[1] & 0x7f) << 7;
-            if (arr[1] & 0x80) {
-                header += 1;
-                data += arr[2] << 14;
-            }
-        }
-        return [header, data];
-    };
 
     var checksum = function(data) {
         var sum=0, i;
@@ -1315,7 +1314,7 @@ encHandlers.TIGHT = function display_tight() {
         }
         return sum;
     }
-    
+
     var decompress = function(data) {
         for (var i=0; i<4; i++) {
             if ((resetStreams >> i) & 1) {
@@ -1324,11 +1323,13 @@ encHandlers.TIGHT = function display_tight() {
             }
         }
         var uncompressed = FBU.zlibs[streamId].uncompress(data, 0);
-        if (uncompressed.status !== 0)
+        if (uncompressed.status !== 0) {
             Util.Error("Invalid data in zlib stream");
-        //Util.Warn("Decompressed " + data.length + " to " + uncompressed.data.length + " checksums " + 
+        }
+        //Util.Warn("Decompressed " + data.length + " to " +
+        //    uncompressed.data.length + " checksums " +
         //    checksum(data) + ":" + checksum(uncompressed.data));
-        
+
         return uncompressed.data;
     }
 
@@ -1344,59 +1345,61 @@ encHandlers.TIGHT = function display_tight() {
         if (rowSize * FBU.height < 12) {
             raw = true;
             clength = [0, rowSize * FBU.height];
+        } else {
+            clength = getTightCLength(ws.rQslice(3 + paletteSize,
+                                                 3 + paletteSize + 3));
         }
-        else
-            clength = getCLength(ws.rQslice(3 + paletteSize, 3 + paletteSize + 3));
         FBU.bytes += clength[0] + clength[1];
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
         // Shift ctl, filter id, num colors, palette entries, and clength off
         ws.rQshiftBytes(3); 
-        FBU.palette = ws.rQshiftBytes(paletteSize);
+        var palette = ws.rQshiftBytes(paletteSize);
         ws.rQshiftBytes(clength[0]);
-        
-        if (raw)
+
+        if (raw) {
             data = ws.rQshiftBytes(clength[1]);
-        else
+        } else {
             data = decompress(ws.rQshiftBytes(clength[1]));
+        }
 
         // Convert indexed (palette based) image data to RGB
         // TODO: reduce number of calculations inside loop
         var dest = [];
-        var x, y, b;
-        if (numColors == 2) {
-          var w = Math.floor((FBU.width + 7) / 8);
-          var w1 = Math.floor(FBU.width / 8);
-          for (y = 0; y < FBU.height; y++) {
-            for (x = 0; x < w1; x++) {
-              for (b = 7; b >= 0; b--) {
-                  var dp = (y*FBU.width + x*8 + 7-b) * 3;
-                  var sp = (data[y*w + x] >> b & 1) * 3;
-                  dest[dp  ] = FBU.palette[sp  ];    
-                  dest[dp+1] = FBU.palette[sp+1];    
-                  dest[dp+2] = FBU.palette[sp+2];    
-              }
+        var x, y, b, w, w1, dp, sp;
+        if (numColors === 2) {
+            w = Math.floor((FBU.width + 7) / 8);
+            w1 = Math.floor(FBU.width / 8);
+            for (y = 0; y < FBU.height; y++) {
+                for (x = 0; x < w1; x++) {
+                    for (b = 7; b >= 0; b--) {
+                        dp = (y*FBU.width + x*8 + 7-b) * 3;
+                        sp = (data[y*w + x] >> b & 1) * 3;
+                        dest[dp  ] = palette[sp  ];
+                        dest[dp+1] = palette[sp+1];
+                        dest[dp+2] = palette[sp+2];
+                    }
+                }
+                for (b = 7; b >= 8 - FBU.width % 8; b--) {
+                    dp = (y*FBU.width + x*8 + 7-b) * 3;
+                    sp = (data[y*w + x] >> b & 1) * 3;
+                    dest[dp  ] = palette[sp  ];
+                    dest[dp+1] = palette[sp+1];
+                    dest[dp+2] = palette[sp+2];
+                }
             }
-            for (b = 7; b >= 8 - FBU.width % 8; b--) {
-              var dp = (y*FBU.width + x*8 + 7-b) * 3;
-              var sp = (data[y*w + x] >> b & 1) * 3;
-              dest[dp  ] = FBU.palette[sp  ];    
-              dest[dp+1] = FBU.palette[sp+1];    
-              dest[dp+2] = FBU.palette[sp+2];    
-            }
-          }
         } else {
-          for (y = 0; y < FBU.height; y++) {
-            for (x = 0; x < FBU.width; x++) {
-              var dp = (y*FBU.width + x) * 3;
-              var sp = data[y*FBU.width + x] * 3;
-              dest[dp  ] = FBU.palette[sp  ];
-              dest[dp+1] = FBU.palette[sp+1];    
-              dest[dp+2] = FBU.palette[sp+2];    
+            for (y = 0; y < FBU.height; y++) {
+                for (x = 0; x < FBU.width; x++) {
+                    dp = (y*FBU.width + x) * 3;
+                    sp = data[y*FBU.width + x] * 3;
+                    dest[dp  ] = palette[sp  ];
+                    dest[dp+1] = palette[sp+1];
+                    dest[dp+2] = palette[sp+2];
+                }
             }
-          }
         }
-  
+
         FBU.imgQ.push({
                 'type': 'rgb',
                 'img':  {'complete': true, 'data': dest},
@@ -1413,19 +1416,20 @@ encHandlers.TIGHT = function display_tight() {
         if (uncompressedSize < 12) {
             raw = true;
             clength = [0, uncompressedSize];
+        } else {
+            clength = getTightCLength(ws.rQslice(1, 4));
         }
-        else
-            clength = getCLength(ws.rQslice(1, 4));
         FBU.bytes = 1 + clength[0] + clength[1];
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
         // Shift ctl, clength off
         ws.rQshiftBytes(1 + clength[0]);
 
-        if (raw)
+        if (raw) {
             data = ws.rQshiftBytes(clength[1]);
-        else
+        } else {
             data = decompress(ws.rQshiftBytes(clength[1]));
+        }
 
         FBU.imgQ.push({
                 'type': 'rgb',
@@ -1436,34 +1440,34 @@ encHandlers.TIGHT = function display_tight() {
                 'height': FBU.height});
         return true;
     }
-    
+
     ctl = ws.rQpeek8();
-    
+
     // Keep tight reset bits
     resetStreams = ctl & 0xF;
-    
+
     // Figure out filter
     ctl = ctl >> 4; 
     streamId = ctl & 0x3;
 
-    if (ctl == 0x08) cmode = "fill";
-    else if (ctl == 0x09) cmode = "jpeg";
-    else if (ctl & 0x04) cmode = "filter";
-    else if (ctl < 0x04) cmode = "copy";
+    if (ctl === 0x08)      cmode = "fill";
+    else if (ctl === 0x09) cmode = "jpeg";
+    else if (ctl & 0x04)   cmode = "filter";
+    else if (ctl < 0x04)   cmode = "copy";
     else throw("Illegal tight compression received, ctl: " + ctl);
-    
+
     switch (cmode) {
         // fill uses fb_depth because TPIXELs drop the padding byte
-        case "fill": FBU.bytes += fb_depth; break; // TPIXEL
-        case "jpeg": FBU.bytes += 3;        break; // max clength
-        case "filter": FBU.bytes += 2;      break; // filter id + num colors if palette
-        case "copy":                        break;
+        case "fill":   FBU.bytes += fb_depth; break; // TPIXEL
+        case "jpeg":   FBU.bytes += 3;        break; // max clength
+        case "filter": FBU.bytes += 2;        break; // filter id + num colors if palette
+        case "copy":                          break;
     }
 
     if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
     //Util.Debug("   ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
-    //Util.Debug("   cmode: " + cmode);
+    Util.Debug("   cmode: " + cmode);
 
     // Determine FBU.bytes
     switch (cmode) {
@@ -1480,12 +1484,13 @@ encHandlers.TIGHT = function display_tight() {
                 'color': [color[2], color[1], color[0]] });
         break;
     case "jpeg":
-        clength = getCLength(ws.rQslice(1, 4));
+        clength = getTightCLength(ws.rQslice(1, 4));
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
         // We have everything, render it
-        //Util.Debug("   png, ws.rQlen(): " + ws.rQlen() + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
+        //Util.Debug("   jpeg, ws.rQlen(): " + ws.rQlen() + ", clength[0]: " +
+        //           clength[0] + ", clength[1]: " + clength[1]);
         ws.rQshiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
         //img.onload = scan_tight_imgQ;
@@ -1500,19 +1505,19 @@ encHandlers.TIGHT = function display_tight() {
         break;
     case "filter":
         filterId = rQ[rQi + 1];
-        if (filterId == 1) {
+        if (filterId === 1) {
             if (!handlePalette()) { return false; }
         } else {
             // Filter 0, Copy could be valid here, but servers don't send it as an explicit filter
             // Filter 2, Gradient is valid but not used if jpeg is enabled
-            throw("Unsupported tight subencoding received, filter: " + filterId);                
+            throw("Unsupported tight subencoding received, filter: " + filterId);
         }
         break;
     case "copy":
         if (!handleCopy()) { return false; }
         break;
     }
-    
+
     FBU.bytes = 0;
     FBU.rects -= 1;
     //Util.Debug("   ending ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
@@ -1522,27 +1527,12 @@ encHandlers.TIGHT = function display_tight() {
 
 encHandlers.TIGHT_PNG = function display_tight_png() {
     //Util.Debug(">> display_tight_png");
-    var ctl, cmode, clength, getCLength, color, img;
+    var ctl, cmode, clength, color, img;
     //Util.Debug("   FBU.rects: " + FBU.rects);
     //Util.Debug("   starting ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
 
     FBU.bytes = 1; // compression-control byte
     if (ws.rQwait("TIGHT compression-control", FBU.bytes)) { return false; }
-
-    // Get 'compact length' header and data size
-    getCLength = function (arr) {
-        var header = 1, data = 0;
-        data += arr[0] & 0x7f;
-        if (arr[0] & 0x80) {
-            header += 1;
-            data += (arr[1] & 0x7f) << 7;
-            if (arr[1] & 0x80) {
-                header += 1;
-                data += arr[2] << 14;
-            }
-        }
-        return [header, data];
-    };
 
     ctl = ws.rQpeek8();
     switch (ctl >> 4) {
@@ -1579,12 +1569,13 @@ encHandlers.TIGHT_PNG = function display_tight_png() {
         break;
     case "jpeg":
     case "png":
-        clength = getCLength(ws.rQslice(1, 4));
+        clength = getTightCLength(ws.rQslice(1, 4));
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
         if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
         // We have everything, render it
-        //Util.Debug("   png, ws.rQlen(): " + ws.rQlen() + ", clength[0]: " + clength[0] + ", clength[1]: " + clength[1]);
+        //Util.Debug("   jpeg/png, ws.rQlen(): " + ws.rQlen() + ", clength[0]: " +
+        //           clength[0] + ", clength[1]: " + clength[1]);
         ws.rQshiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
         //img.onload = scan_tight_imgQ;
