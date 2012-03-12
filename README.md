@@ -86,7 +86,7 @@ a python proxy included ('websockify').
 
 ### Authors/Contributors
 
-* noVNC : Joel Martin (github@martintribe.org)
+* noVNC : Joel Martin (github.com/kanaka)
     * New UI and Icons : Chris Gordon
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
