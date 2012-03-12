@@ -1292,7 +1292,7 @@ getTightCLength = function (arr) {
     return [header, data];
 };
 
-encHandlers.TIGHT = function display_tight() {
+function display_tight(isTightPNG) {
     Util.Debug(">> display_tight");
 
     if (fb_depth === 1) {
@@ -1452,14 +1452,20 @@ encHandlers.TIGHT = function display_tight() {
 
     if (ctl === 0x08)      cmode = "fill";
     else if (ctl === 0x09) cmode = "jpeg";
+    else if (ctl === 0x0A) cmode = "png";
     else if (ctl & 0x04)   cmode = "filter";
     else if (ctl < 0x04)   cmode = "copy";
     else throw("Illegal tight compression received, ctl: " + ctl);
+
+    if (isTightPNG && (cmode === "filter" || cmode === "copy")) {
+        throw("filter/copy received in tightPNG mode");
+    }
 
     switch (cmode) {
         // fill uses fb_depth because TPIXELs drop the padding byte
         case "fill":   FBU.bytes += fb_depth; break; // TPIXEL
         case "jpeg":   FBU.bytes += 3;        break; // max clength
+        case "png":    FBU.bytes += 3;        break; // max clength
         case "filter": FBU.bytes += 2;        break; // filter id + num colors if palette
         case "copy":                          break;
     }
@@ -1483,6 +1489,7 @@ encHandlers.TIGHT = function display_tight() {
                 'height': FBU.height,
                 'color': [color[2], color[1], color[0]] });
         break;
+    case "png":
     case "jpeg":
         clength = getTightCLength(ws.rQslice(1, 4));
         FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
@@ -1523,78 +1530,7 @@ encHandlers.TIGHT = function display_tight() {
     //Util.Debug("   ending ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
     //Util.Debug("<< display_tight_png");
     return true;
-};
-
-encHandlers.TIGHT_PNG = function display_tight_png() {
-    //Util.Debug(">> display_tight_png");
-    var ctl, cmode, clength, color, img;
-    //Util.Debug("   FBU.rects: " + FBU.rects);
-    //Util.Debug("   starting ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
-
-    FBU.bytes = 1; // compression-control byte
-    if (ws.rQwait("TIGHT compression-control", FBU.bytes)) { return false; }
-
-    ctl = ws.rQpeek8();
-    switch (ctl >> 4) {
-        case 0x08: cmode = "fill"; break;
-        case 0x09: cmode = "jpeg"; break;
-        case 0x0A: cmode = "png";  break;
-        default:   throw("Illegal basic compression received, ctl: " + ctl);
-    }
-    switch (cmode) {
-        // fill uses fb_depth because TPIXELs drop the padding byte
-        case "fill": FBU.bytes += fb_depth; break; // TPIXEL
-        case "jpeg": FBU.bytes += 3;            break; // max clength
-        case "png":  FBU.bytes += 3;            break; // max clength
-    }
-
-    if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
-
-    //Util.Debug("   ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
-    //Util.Debug("   cmode: " + cmode);
-
-    // Determine FBU.bytes
-    switch (cmode) {
-    case "fill":
-        ws.rQshift8(); // shift off ctl
-        color = ws.rQshiftBytes(fb_depth);
-        FBU.imgQ.push({
-                'type': 'fill',
-                'img': {'complete': true},
-                'x': FBU.x,
-                'y': FBU.y,
-                'width': FBU.width,
-                'height': FBU.height,
-                'color': color});
-        break;
-    case "jpeg":
-    case "png":
-        clength = getTightCLength(ws.rQslice(1, 4));
-        FBU.bytes = 1 + clength[0] + clength[1]; // ctl + clength size + jpeg-data
-        if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
-
-        // We have everything, render it
-        //Util.Debug("   jpeg/png, ws.rQlen(): " + ws.rQlen() + ", clength[0]: " +
-        //           clength[0] + ", clength[1]: " + clength[1]);
-        ws.rQshiftBytes(1 + clength[0]); // shift off ctl + compact length
-        img = new Image();
-        //img.onload = scan_tight_imgQ;
-        FBU.imgQ.push({
-                'type': 'img',
-                'img': img,
-                'x': FBU.x,
-                'y': FBU.y});
-        img.src = "data:image/" + cmode +
-            extract_data_uri(ws.rQshiftBytes(clength[1]));
-        img = null;
-        break;
-    }
-    FBU.bytes = 0;
-    FBU.rects -= 1;
-    //Util.Debug("   ending ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
-    //Util.Debug("<< display_tight_png");
-    return true;
-};
+}
 
 extract_data_uri = function(arr) {
     //var i, stra = [];
@@ -1623,6 +1559,9 @@ scan_tight_imgQ = function() {
         setTimeout(scan_tight_imgQ, scan_imgQ_rate);
     }
 };
+
+encHandlers.TIGHT = function () { return display_tight(false); };
+encHandlers.TIGHT_PNG = function () { return display_tight(true); };
 
 encHandlers.last_rect = function last_rect() {
     Util.Debug(">> set_desktopsize");
