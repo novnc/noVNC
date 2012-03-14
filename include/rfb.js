@@ -1293,7 +1293,7 @@ getTightCLength = function (arr) {
 };
 
 function display_tight(isTightPNG) {
-    Util.Debug(">> display_tight");
+    //Util.Debug(">> display_tight");
 
     if (fb_depth === 1) {
         fail("Tight protocol handler only implements true color mode");
@@ -1473,7 +1473,7 @@ function display_tight(isTightPNG) {
     if (ws.rQwait("TIGHT " + cmode, FBU.bytes)) { return false; }
 
     //Util.Debug("   ws.rQslice(0,20): " + ws.rQslice(0,20) + " (" + ws.rQlen() + ")");
-    Util.Debug("   cmode: " + cmode);
+    //Util.Debug("   cmode: " + cmode);
 
     // Determine FBU.bytes
     switch (cmode) {
