@@ -412,6 +412,26 @@ function onKeyUp(e) {
     return false;
 }
 
+function allKeysUp() {
+    Util.Debug(">> Keyboard.allKeysUp");
+    if (keyDownList.length > 0) {
+        Util.Info("Releasing pressed/down keys");
+    }
+    var i, keysym, fevt = null;
+    for (i = keyDownList.length-1; i >= 0; i--) {
+        fevt = keyDownList.splice(i, 1)[0];
+        keysym = fevt.keysym;
+        if (conf.onKeyPress && (keysym > 0)) {
+            Util.Debug("allKeysUp, keysym: " + keysym +
+                    " (keyCode: " + fevt.keyCode +
+                    ", which: " + fevt.which + ")");
+            conf.onKeyPress(keysym, 0, fevt);
+        }
+    }
+    Util.Debug("<< Keyboard.allKeysUp");
+    return;
+}
+
 //
 // Public API interface functions
 //
@@ -424,6 +444,9 @@ that.grab = function() {
     Util.addEvent(c, 'keyup', onKeyUp);
     Util.addEvent(c, 'keypress', onKeyPress);
 
+    // Release (key up) if window loses focus
+    Util.addEvent(window, 'blur', allKeysUp);
+
     //Util.Debug("<< Keyboard.grab");
 };
 
@@ -434,6 +457,10 @@ that.ungrab = function() {
     Util.removeEvent(c, 'keydown', onKeyDown);
     Util.removeEvent(c, 'keyup', onKeyUp);
     Util.removeEvent(c, 'keypress', onKeyPress);
+    Util.removeEvent(window, 'blur', allKeysUp);
+
+    // Release (key up) all keys that are in a down state
+    allKeysUp();
 
     //Util.Debug(">> Keyboard.ungrab");
 };
