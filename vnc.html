@@ -193,6 +193,9 @@
 
     <script>
         window.onload = UI.load;
+		window.onblur = function() {
+			rfb.resetKeyboard();
+		};
     </script>
  </body>
 </html>

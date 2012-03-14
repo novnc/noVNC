@@ -60,6 +60,9 @@
             rfb.sendCtrlAltDel();
             return false;
         }
+		window.onblur = function() {
+			rfb.resetKeyboard();
+		}
         function updateState(rfb, state, oldstate, msg) {
             var s, sb, cad, level;
             s = $D('noVNC_status');
