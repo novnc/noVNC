@@ -26,4 +26,5 @@ include/util.js   /usr/share/novnc/include
 include/vnc.js   /usr/share/novnc/include
 include/websock.js   /usr/share/novnc/include
 include/webutil.js   /usr/share/novnc/include
+include/jsunzip.js   /usr/share/novnc/include
 include/web-socket-js/*   /usr/share/novnc/include/web-socket-js
