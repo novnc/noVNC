@@ -672,6 +672,7 @@ init_msg = function() {
         switch (sversion) {
             case "003.003": rfb_version = 3.3; break;
             case "003.006": rfb_version = 3.3; break;  // UltraVNC
+            case "003.889": rfb_version = 3.3; break;  // Apple Remote Desktop
             case "003.007": rfb_version = 3.7; break;
             case "003.008": rfb_version = 3.8; break;
             case "004.000": rfb_version = 3.8; break;  // Intel AMT KVM
