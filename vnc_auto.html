@@ -90,17 +90,14 @@
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
             document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
-            host = WebUtil.getQueryVar('host', null);
-            port = WebUtil.getQueryVar('port', null);
+            // By default, use the host and port of server that served this file
+            host = WebUtil.getQueryVar('host', window.location.hostname);
+            port = WebUtil.getQueryVar('port', window.location.port);
 
             // If a token variable is passed in, set the parameter in a cookie.
             // This is used by nova-novncproxy.
             token = WebUtil.getQueryVar('token', null);
             if (token) {
-                // If token is set, we are using nova-novncproxy.
-                // Use host and port of server that served this file.
-                host = window.location.hostname;
-                port = window.location.port;
                 WebUtil.createCookie('token', token, 1)
             }
 
