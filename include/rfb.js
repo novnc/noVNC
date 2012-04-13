@@ -234,21 +234,26 @@ function constructor() {
         }
     });
     ws.on('close', function(e) {
+        var msg = "";
         if (e.code) {
-            Util.Info("Close code: " + e.code + ", reason: " + e.reason + ", wasClean: " + e.wasClean);
+            msg = " (code: " + e.code;
+            if (e.reason) {
+                msg += ", reason: " + e.reason;
+            }
+            msg += ")";
         }
         if (rfb_state === 'disconnect') {
-            updateState('disconnected', 'VNC disconnected');
+            updateState('disconnected', 'VNC disconnected' + msg);
         } else if (rfb_state === 'ProtocolVersion') {
-            fail('Failed to connect to server');
+            fail('Failed to connect to server' + msg);
         } else if (rfb_state in {'failed':1, 'disconnected':1}) {
-            Util.Error("Received onclose while disconnected");
+            Util.Error("Received onclose while disconnected" + msg);
         } else  {
-            fail('Server disconnected');
+            fail('Server disconnected' + msg);
         }
     });
     ws.on('error', function(e) {
-        fail("WebSock error: " + e);
+        fail("WebSock reported an error");
     });
 
 
