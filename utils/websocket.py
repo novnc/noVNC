@@ -92,7 +92,12 @@ Sec-WebSocket-Accept: %s\r
 
     policy_response = """<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>\n"""
 
+    # An exception before the WebSocket connection was established
     class EClose(Exception):
+        pass
+
+    # An exception while the WebSocket client was connected
+    class CClose(Exception):
         pass
 
     def __init__(self, listen_host='', listen_port=None, source_is_ipv6=False,
@@ -303,8 +308,8 @@ Sec-WebSocket-Accept: %s\r
              'length'       : 0,
              'payload'      : None,
              'left'         : 0,
-             'close_code'   : None,
-             'close_reason' : None}
+             'close_code'   : 1000,
+             'close_reason' : ''}
 
         blen = len(buf)
         f['left'] = blen
@@ -470,7 +475,7 @@ Sec-WebSocket-Accept: %s\r
 
         buf = self.client.recv(self.buffer_size)
         if len(buf) == 0:
-            closed = "Client closed abruptly"
+            closed = {'code': 1000, 'reason': "Client closed abruptly"}
             return bufs, closed
 
         if self.recv_part:
@@ -492,14 +497,14 @@ Sec-WebSocket-Accept: %s\r
                     break
                 else:
                     if frame['opcode'] == 0x8: # connection close
-                        closed = "Client closed, reason: %s - %s" % (
-                                frame['close_code'],
-                                frame['close_reason'])
+                        closed = {'code': frame['close_code'],
+                                  'reason': frame['close_reason']}
                         break
 
             else:
                 if buf[0:2] == s2b('\xff\x00'):
-                    closed = "Client sent orderly close frame"
+                    closed = {'code': 1000,
+                              'reason': "Client sent orderly close frame"}
                     break
 
                 elif buf[0:2] == s2b('\x00\xff'):
@@ -532,13 +537,11 @@ Sec-WebSocket-Accept: %s\r
 
         return bufs, closed
 
-    def send_close(self, code=None, reason=''):
+    def send_close(self, code=1000, reason=''):
         """ Send a WebSocket orderly close frame. """
 
         if self.version.startswith("hybi"):
-            msg = s2b('')
-            if code != None:
-                msg = pack(">H%ds" % (len(reason)), code)
+            msg = pack(">H%ds" % len(reason), code, reason)
 
             buf, h, t = self.encode_hybi(msg, opcode=0x08, base64=False)
             self.client.send(buf)
@@ -762,6 +765,11 @@ Sec-WebSocket-Accept: %s\r
 
                 self.ws_connection = True
                 self.new_client()
+            except self.CClose as e:
+                # Close the client
+                _, exc, _ = sys.exc_info()
+                if self.client:
+                    self.send_close(exc.args[0], exc.args[1])
             except self.EClose:
                 _, exc, _ = sys.exc_info()
                 # Connection was not a WebSockets connection
@@ -778,6 +786,8 @@ Sec-WebSocket-Accept: %s\r
                 self.rec.close()
 
             if self.client and self.client != startsock:
+                # Close the SSL wrapped socket
+                # Original socket closed by caller
                 self.client.close()
 
     def new_client(self):
