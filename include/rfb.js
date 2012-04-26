@@ -234,6 +234,7 @@ function constructor() {
         }
     });
     ws.on('close', function(e) {
+        Util.Warn("WebSocket on-close event");
         var msg = "";
         if (e.code) {
             msg = " (code: " + e.code;
@@ -253,7 +254,8 @@ function constructor() {
         }
     });
     ws.on('error', function(e) {
-        fail("WebSock reported an error");
+        Util.Warn("WebSocket on-error event");
+        //fail("WebSock reported an error");
     });
 
 
@@ -424,15 +426,15 @@ updateState = function(state, statusMsg) {
         func = Util.Warn;
     }
 
+    cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
+    func("New state '" + state + "', was '" + oldstate + "'." + cmsg);
+
     if ((oldstate === 'failed') && (state === 'disconnected')) {
-        // Do disconnect action, but stay in failed state.
+        // Do disconnect action, but stay in failed state
         rfb_state = 'failed';
     } else {
         rfb_state = state;
     }
-
-    cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
-    func("New state '" + rfb_state + "', was '" + oldstate + "'." + cmsg);
 
     if (connTimer && (rfb_state !== 'connect')) {
         Util.Debug("Clearing connect timer");
