@@ -67,6 +67,11 @@ opts = [
 FLAGS = flags.FLAGS
 FLAGS.register_cli_opts(opts)
 
+# As of nova commit 0b11668e64450039dc071a4a123abd02206f865f we must
+# manually register the rpc library
+if hasattr(rpc, 'register_opts'):
+    rpc.register_opts(FLAGS)
+
 
 class NovaWebSocketProxy(wsproxy.WebSocketProxy):
     def __init__(self, *args, **kwargs):
