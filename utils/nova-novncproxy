@@ -69,10 +69,8 @@ FLAGS.register_cli_opts(opts)
 
 # As of nova commit 0b11668e64450039dc071a4a123abd02206f865f we must
 # manually register the rpc library
-try:
+if hasattr(rpc, 'register_opts'):
     rpc.register_opts(FLAGS)
-except:
-    pass
 
 
 class NovaWebSocketProxy(wsproxy.WebSocketProxy):
