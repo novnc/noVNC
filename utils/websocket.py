@@ -765,10 +765,12 @@ Sec-WebSocket-Accept: %s\r
 
                 self.ws_connection = True
                 self.new_client()
-            except self.CClose as e:
+            except self.CClose:
                 # Close the client
                 _, exc, _ = sys.exc_info()
                 if self.client:
+                    print exc
+                    print repr(exc.args)
                     self.send_close(exc.args[0], exc.args[1])
             except self.EClose:
                 _, exc, _ = sys.exc_info()
