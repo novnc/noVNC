@@ -577,6 +577,12 @@ that.blitStringImage = function(str, x, y) {
     img.src = str;
 };
 
+// Wrap ctx.drawImage but relative to viewport
+that.drawImage = function(img, x, y) {
+    c_ctx.drawImage(img, x - viewport.x, y - viewport.y);
+};
+
+
 that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
     if (conf.cursor_uri === false) {
         Util.Warn("changeCursor called but no cursor data URI support");

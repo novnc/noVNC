@@ -1562,7 +1562,7 @@ scan_tight_imgQ = function() {
             } else if (data.type === 'rgb') {
                 display.blitRgbImage(data.x, data.y, data.width, data.height, data.img.data, 0);
             } else {
-                ctx.drawImage(data.img, data.x, data.y);
+                display.drawImage(data.img, data.x, data.y);
             }
         }
         setTimeout(scan_tight_imgQ, scan_imgQ_rate);
