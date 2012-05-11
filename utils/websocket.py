@@ -362,7 +362,7 @@ Sec-WebSocket-Accept: %s\r
 
         if f['opcode'] == 0x08:
             if f['length'] >= 2:
-                f['close_code'] = unpack_from(">H", f['payload'])
+                f['close_code'] = unpack_from(">H", f['payload'])[0]
             if f['length'] > 3:
                 f['close_reason'] = f['payload'][2:]
 
@@ -769,8 +769,6 @@ Sec-WebSocket-Accept: %s\r
                 # Close the client
                 _, exc, _ = sys.exc_info()
                 if self.client:
-                    print exc
-                    print repr(exc.args)
                     self.send_close(exc.args[0], exc.args[1])
             except self.EClose:
                 _, exc, _ = sys.exc_info()
