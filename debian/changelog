@@ -1,3 +1,13 @@
+novnc (0.3) maverick; urgency=low
+
+  * add tight encoding support
+  * release pressed key when focus lost (fixes locked Alt key)
+  * Support Apple Remote Desktop
+  * Add nova/openstack proxy wrapper
+  * Better connection close handling/reporting
+
+ -- Joel Martin <github@martintribe.org>  Fri, 11 May 2012 03:00:00 -0600
+
 novnc (0.2) maverick; urgency=low
 
   * Mobile device support with viewport clipping
