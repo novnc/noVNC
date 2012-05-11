@@ -1,7 +1,8 @@
 - Update and commit docs/VERSION and debian/changelog
 - Create version tag and tarball from tag
     WVER=0.3
-    git tag ${WVER}
+    git tag v${WVER}
+    git push --all --tags
     git archive --format=tar --prefix=novnc-${WVER}/ v${WVER} > novnc-${WVER}.tar
     gzip novnc-${WVER}.tar
 - Upload tarball to repo
