@@ -1464,10 +1464,10 @@ function display_tight(isTightPNG) {
     else if (ctl === 0x0A) cmode = "png";
     else if (ctl & 0x04)   cmode = "filter";
     else if (ctl < 0x04)   cmode = "copy";
-    else throw("Illegal tight compression received, ctl: " + ctl);
+    else return fail("Illegal tight compression received, ctl: " + ctl);
 
     if (isTightPNG && (cmode === "filter" || cmode === "copy")) {
-        throw("filter/copy received in tightPNG mode");
+        return fail("filter/copy received in tightPNG mode");
     }
 
     switch (cmode) {
