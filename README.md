@@ -76,8 +76,9 @@ a python proxy included ('websockify').
 
 ### Other Pages
 
-* [Advanced Usage](https://github.com/kanaka/noVNC/wiki/Advanced-usage). Generating an SSL
-  certificate, starting a VNC server, advanced websockify usage, etc.
+* [Encrypted Connections](https://github.com/kanaka/websockify/wiki/Encrypted-Connections). How to setup websockify so that you can use encrypted connections from noVNC.
+
+* [Advanced Usage](https://github.com/kanaka/noVNC/wiki/Advanced-usage). Starting a VNC server, advanced websockify usage, etc.
 
 * [Integrating noVNC](https://github.com/kanaka/noVNC/wiki/Integration) into existing projects.
 
