@@ -26,7 +26,7 @@ var that           = {},  // Public API methods
     pixelFormat, clientEncodings, fbUpdateRequest, fbUpdateRequests,
     keyEvent, pointerEvent, clientCutText,
 
-    getTightCLength, extract_data_uri, scan_tight_imgQ,
+    getTightCLength, extract_data_uri,
     keyPress, mouseButton, mouseMove,
 
     checkEvents,  // Overridable for testing
@@ -93,7 +93,6 @@ var that           = {},  // Public API methods
         encoding       : 0,
         subencoding    : -1,
         background     : null,
-        imgQ           : [],  // TIGHT_PNG image queue
         zlibs          : []   // TIGHT zlib streams
     },
 
@@ -103,7 +102,6 @@ var that           = {},  // Public API methods
     fb_height      = 0,
     fb_name        = "",
 
-    scan_imgQ_rate = 40, // 25 times per second or so
     last_req_time  = 0,
     rre_chunk_sz   = 100,
 
@@ -314,7 +312,6 @@ init_vars = function() {
     FBU.subrects     = 0;  // RRE and HEXTILE
     FBU.lines        = 0;  // RAW
     FBU.tiles        = 0;  // HEXTILE
-    FBU.imgQ         = []; // TIGHT_PNG image queue
     FBU.zlibs        = []; // TIGHT zlib encoders
     mouse_buttonMask = 0;
     mouse_arr        = [];
@@ -888,7 +885,6 @@ init_msg = function() {
         
         /* Start pushing/polling */
         setTimeout(checkEvents, conf.check_rate);
-        setTimeout(scan_tight_imgQ, scan_imgQ_rate);
 
         if (conf.encrypt) {
             updateState('normal', "Connected (encrypted) to: " + fb_name);
@@ -1409,9 +1405,9 @@ function display_tight(isTightPNG) {
             }
         }
 
-        FBU.imgQ.push({
-                'type': 'rgb',
-                'img':  {'complete': true, 'data': dest},
+        display.renderQ_push({
+                'type': 'blitRgb',
+                'data': dest,
                 'x': FBU.x,
                 'y': FBU.y,
                 'width': FBU.width,
@@ -1440,9 +1436,9 @@ function display_tight(isTightPNG) {
             data = decompress(ws.rQshiftBytes(clength[1]));
         }
 
-        FBU.imgQ.push({
-                'type': 'rgb',
-                'img':  {'complete': true, 'data': data},
+        display.renderQ_push({
+                'type': 'blitRgb',
+                'data': data,
                 'x': FBU.x,
                 'y': FBU.y,
                 'width': FBU.width,
@@ -1489,9 +1485,8 @@ function display_tight(isTightPNG) {
     case "fill":
         ws.rQshift8(); // shift off ctl
         color = ws.rQshiftBytes(fb_depth);
-        FBU.imgQ.push({
+        display.renderQ_push({
                 'type': 'fill',
-                'img': {'complete': true},
                 'x': FBU.x,
                 'y': FBU.y,
                 'width': FBU.width,
@@ -1509,14 +1504,13 @@ function display_tight(isTightPNG) {
         //           clength[0] + ", clength[1]: " + clength[1]);
         ws.rQshiftBytes(1 + clength[0]); // shift off ctl + compact length
         img = new Image();
-        //img.onload = scan_tight_imgQ;
-        FBU.imgQ.push({
+        img.src = "data:image/" + cmode +
+            extract_data_uri(ws.rQshiftBytes(clength[1]));
+        display.renderQ_push({
                 'type': 'img',
                 'img': img,
                 'x': FBU.x,
                 'y': FBU.y});
-        img.src = "data:image/" + cmode +
-            extract_data_uri(ws.rQshiftBytes(clength[1]));
         img = null;
         break;
     case "filter":
@@ -1548,25 +1542,6 @@ extract_data_uri = function(arr) {
     //}
     //return "," + escape(stra.join(''));
     return ";base64," + Base64.encode(arr);
-};
-
-scan_tight_imgQ = function() {
-    var data, imgQ, ctx;
-    ctx = display.get_context();
-    if (rfb_state === 'normal') {
-        imgQ = FBU.imgQ;
-        while ((imgQ.length > 0) && (imgQ[0].img.complete)) {
-            data = imgQ.shift();
-            if (data.type === 'fill') {
-                display.fillRect(data.x, data.y, data.width, data.height, data.color);
-            } else if (data.type === 'rgb') {
-                display.blitRgbImage(data.x, data.y, data.width, data.height, data.img.data, 0);
-            } else {
-                display.drawImage(data.img, data.x, data.y);
-            }
-        }
-        setTimeout(scan_tight_imgQ, scan_imgQ_rate);
-    }
 };
 
 encHandlers.TIGHT = function () { return display_tight(false); };
