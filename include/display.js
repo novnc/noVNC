@@ -590,7 +590,9 @@ that.drawImage = function(img, x, y) {
 that.renderQ_push = function(action) {
     renderQ.push(action);
     if (renderQ.length === 1) {
-        // Check if it can be rendered immediately
+        // If this can be rendered immediately it will be, otherwise
+        // the scanner will start polling the queue (every
+        // requestAnimationFrame interval)
         scan_renderQ();
     }
 };

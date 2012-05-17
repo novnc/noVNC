@@ -1109,9 +1109,14 @@ encHandlers.COPYRECT = function display_copy_rect() {
     var old_x, old_y;
 
     if (ws.rQwait("COPYRECT", 4)) { return false; }
-    old_x = ws.rQshift16();
-    old_y = ws.rQshift16();
-    display.copyImage(old_x, old_y, FBU.x, FBU.y, FBU.width, FBU.height);
+    display.renderQ_push({
+            'type': 'copy',
+            'old_x': ws.rQshift16(),
+            'old_y': ws.rQshift16(),
+            'x': FBU.x,
+            'y': FBU.y,
+            'width': FBU.width,
+            'height': FBU.height});
     FBU.rects -= 1;
     FBU.bytes = 0;
     return true;
