@@ -1573,9 +1573,9 @@ encHandlers.TIGHT = function () { return display_tight(false); };
 encHandlers.TIGHT_PNG = function () { return display_tight(true); };
 
 encHandlers.last_rect = function last_rect() {
-    Util.Debug(">> set_desktopsize");
+    //Util.Debug(">> last_rect");
     FBU.rects = 0;
-    Util.Debug("<< set_desktopsize");
+    //Util.Debug("<< last_rect");
     return true;
 };
 
@@ -1597,7 +1597,7 @@ encHandlers.DesktopSize = function set_desktopsize() {
 
 encHandlers.Cursor = function set_cursor() {
     var x, y, w, h, pixelslength, masklength;
-    //Util.Debug(">> set_cursor");
+    Util.Debug(">> set_cursor");
     x = FBU.x;  // hotspot-x
     y = FBU.y;  // hotspot-y
     w = FBU.width;
@@ -1618,7 +1618,7 @@ encHandlers.Cursor = function set_cursor() {
     FBU.bytes = 0;
     FBU.rects -= 1;
 
-    //Util.Debug("<< set_cursor");
+    Util.Debug("<< set_cursor");
     return true;
 };
 
