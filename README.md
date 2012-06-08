@@ -10,7 +10,7 @@ Notable commits, announcements and news are posted to
 @<a href="http://www.twitter.com/noVNC">noVNC</a>
 
 There are many companies/projects that have integrated noVNC into
-their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/), [CloudSigma](http://www.cloudsigma.com/), [Zentyal (formerly eBox)](http://www.zentyal.org/), [SlapOS](http://www.slapos.org), [Intel MeshCentral](https://meshcentral.com), [Amahi](http://amahi.org), [Brightbox](http://brightbox.com/), [Foreman](http://theforeman.org) and [LibVNCServer](http://libvncserver.sourceforge.net). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
+their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/), [CloudSigma](http://www.cloudsigma.com/), [Zentyal (formerly eBox)](http://www.zentyal.org/), [SlapOS](http://www.slapos.org), [Intel MeshCentral](https://meshcentral.com), [Amahi](http://amahi.org), [Brightbox](http://brightbox.com/), [Foreman](http://theforeman.org), [LibVNCServer](http://libvncserver.sourceforge.net) and [PocketVNC](http://www.pocketvnc.com/blog/?page_id=866). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
 
 
 ### Features
@@ -56,7 +56,8 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 ### Server Requirements
 
 Unless you are using a VNC server with support for WebSockets
-connections (such as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/)),
+connections (such as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/) or
+[PocketVNC](http://www.pocketvnc.com/blog/?page_id=866)),
 you need to use a WebSockets to TCP socket proxy. There is
 a python proxy included ('websockify').
 
