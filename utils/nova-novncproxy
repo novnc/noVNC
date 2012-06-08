@@ -132,8 +132,7 @@ if __name__ == '__main__':
         parser.error("SSL only and %s not found" % FLAGS.cert)
 
     # Setup flags
-    utils.default_cfgfile()
-    FLAGS(sys.argv)
+    flags.parse_args(sys.argv)
 
     # Create and start the NovaWebSockets proxy
     server = NovaWebSocketProxy(listen_host=FLAGS.novncproxy_host,
