@@ -30,9 +30,9 @@ import wsproxy
 
 from nova import context
 from nova import flags
-from nova import rpc
 from nova import utils
 from nova.openstack.common import cfg
+from nova.openstack.common import rpc
 
 
 opts = [
