@@ -146,6 +146,8 @@ Util.conf_default = function(cfg, api, defaults, v, mode, type, defval, desc) {
             }
         } else if (type in {'integer':1, 'int':1}) {
             val = parseInt(val, 10);
+        } else if (type === 'string') {
+            val = String(val);
         } else if (type === 'func') {
             if (!val) {
                 val = function () {};

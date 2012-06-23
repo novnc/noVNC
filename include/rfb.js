@@ -39,7 +39,6 @@ var that           = {},  // Public API methods
     rfb_port       = 5900,
     rfb_password   = '',
     rfb_path       = '',
-    rfb_repeaterID = '',
 
     rfb_state      = 'disconnected',
     rfb_version    = 0,
@@ -135,6 +134,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['focusContainer',     'wo', 'dom', document, 'DOM element that captures keyboard input'],
 
     ['encrypt',            'rw', 'bool', false, 'Use TLS/SSL/wss encryption'],
+    ['repeaterID',         'rw', 'string', '', 'RepeaterID to connect to'],
     ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
@@ -688,7 +688,7 @@ init_msg = function() {
                 return fail("Invalid server version " + sversion);
         }
         if (is_repeater) { 
-            repeaterID = rfb_repeaterID;
+            repeaterID = conf.repeaterID;
             while(repeaterID.length < 250)
                 repeaterID += "\0";
             ws.send_string(repeaterID);
@@ -1759,14 +1759,13 @@ clientCutText = function(text) {
 // Public API interface functions
 //
 
-that.connect = function(host, port, password, path, repeaterID) {
+that.connect = function(host, port, password, path) {
     //Util.Debug(">> connect");
 
     rfb_host       = host;
     rfb_port       = port;
     rfb_password   = (password !== undefined)   ? password : "";
     rfb_path       = (path !== undefined) ? path : "";
-    rfb_repeaterID = (repeaterID !== undefined) ? repeaterID : "";
 
     if ((!rfb_host) || (!rfb_port)) {
         return fail("Must set host and port");
