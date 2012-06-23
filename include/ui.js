@@ -49,13 +49,13 @@ load: function() {
     UI.initSetting('port', window.location.port);
     UI.initSetting('password', '');
     UI.initSetting('encrypt', (window.location.protocol === "https:"));
-    UI.initSetting('repeaterID', '');
     UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
     UI.initSetting('connectTimeout', 2);
     UI.initSetting('path', 'websockify');
+    UI.initSetting('repeaterID', '');
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
@@ -259,7 +259,6 @@ toggleSettingsPanel: function() {
         UI.closeSettingsMenu();
     } else {
         UI.updateSetting('encrypt');
-        UI.updateSetting('repeaterID');
         UI.updateSetting('true_color');
         if (UI.rfb.get_display().get_cursor_uri()) {
             UI.updateSetting('cursor');
@@ -272,6 +271,7 @@ toggleSettingsPanel: function() {
         UI.updateSetting('view_only');
         UI.updateSetting('connectTimeout');
         UI.updateSetting('path');
+        UI.updateSetting('repeaterID');
         UI.updateSetting('stylesheet');
         UI.updateSetting('logging');
 
@@ -306,7 +306,6 @@ closeSettingsMenu: function() {
 settingsApply: function() {
     //Util.Debug(">> settingsApply");
     UI.saveSetting('encrypt');
-    UI.saveSetting('repeaterID');
     UI.saveSetting('true_color');
     if (UI.rfb.get_display().get_cursor_uri()) {
         UI.saveSetting('cursor');
@@ -316,6 +315,7 @@ settingsApply: function() {
     UI.saveSetting('view_only');
     UI.saveSetting('connectTimeout');
     UI.saveSetting('path');
+    UI.saveSetting('repeaterID');
     UI.saveSetting('stylesheet');
     UI.saveSetting('logging');
 
@@ -418,7 +418,6 @@ updateVisualState: function() {
 
     //Util.Debug(">> updateVisualState");
     $D('noVNC_encrypt').disabled = connected;
-    $D('noVNC_repeaterID').disabled = connected;
     $D('noVNC_true_color').disabled = connected;
     if (UI.rfb && UI.rfb.get_display() &&
         UI.rfb.get_display().get_cursor_uri()) {
@@ -431,6 +430,7 @@ updateVisualState: function() {
     $D('noVNC_view_only').disabled = connected;
     $D('noVNC_connectTimeout').disabled = connected;
     $D('noVNC_path').disabled = connected;
+    $D('noVNC_repeaterID').disabled = connected;
 
     if (connected) {
         UI.setViewClip();
@@ -488,14 +488,15 @@ connect: function() {
     }
 
     UI.rfb.set_encrypt(UI.getSetting('encrypt'));
-    UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
     UI.rfb.set_true_color(UI.getSetting('true_color'));
     UI.rfb.set_local_cursor(UI.getSetting('cursor'));
     UI.rfb.set_shared(UI.getSetting('shared'));
     UI.rfb.set_view_only(UI.getSetting('view_only'));
     UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
+    UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 
     UI.rfb.connect(host, port, password, path);
+
     //Close dialog.
     setTimeout(UI.setBarPosition, 100);
     $D('noVNC_logo').style.display = "none";

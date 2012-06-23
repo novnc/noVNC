@@ -134,7 +134,6 @@ Util.conf_defaults(conf, that, defaults, [
     ['focusContainer',     'wo', 'dom', document, 'DOM element that captures keyboard input'],
 
     ['encrypt',            'rw', 'bool', false, 'Use TLS/SSL/wss encryption'],
-    ['repeaterID',         'rw', 'string', '', 'RepeaterID to connect to'],
     ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
@@ -142,6 +141,9 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
+
+    // UltraVNC repeater ID to connect to
+    ['repeaterID',         'rw', 'str',  '',    'RepeaterID to connect to'],
 
     ['viewportDrag',       'rw', 'bool', false, 'Move the viewport on mouse drags'],
 
@@ -689,8 +691,9 @@ init_msg = function() {
         }
         if (is_repeater) { 
             repeaterID = conf.repeaterID;
-            while(repeaterID.length < 250)
+            while (repeaterID.length < 250) {
                 repeaterID += "\0";
+            }
             ws.send_string(repeaterID);
             break;
         }
@@ -740,7 +743,6 @@ init_msg = function() {
             // Server decides
             if (ws.rQwait("security scheme", 4)) { return false; }
             rfb_auth_scheme = ws.rQshift32();
-            //rfb_auth_scheme = ws.rQshiftStr(12);
         }
         updateState('Authentication',
                 "Authenticating using scheme: " + rfb_auth_scheme);
