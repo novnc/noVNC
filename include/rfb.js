@@ -134,6 +134,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['focusContainer',     'wo', 'dom', document, 'DOM element that captures keyboard input'],
 
     ['encrypt',            'rw', 'bool', false, 'Use TLS/SSL/wss encryption'],
+    ['repeaterID',         'rw', 'string', '', 'RepeaterID to connect to'],
     ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
@@ -659,10 +660,10 @@ mouseMove = function(x, y) {
 init_msg = function() {
     //Util.Debug(">> init_msg [rfb_state '" + rfb_state + "']");
 
-    var strlen, reason, length, sversion, cversion,
+    var strlen, reason, length, sversion, cversion, repeaterID,
         i, types, num_types, challenge, response, bpp, depth,
         big_endian, red_max, green_max, blue_max, red_shift,
-        green_shift, blue_shift, true_color, name_length;
+        green_shift, blue_shift, true_color, name_length, is_repeater;
 
     //Util.Debug("ws.rQ (" + ws.rQlen() + ") " + ws.rQslice(0));
     switch (rfb_state) {
@@ -673,7 +674,9 @@ init_msg = function() {
         }
         sversion = ws.rQshiftStr(12).substr(4,7);
         Util.Info("Server ProtocolVersion: " + sversion);
+        is_repeater = 0;
         switch (sversion) {
+            case "000.000": is_repeater = 1; break; // UltraVNC repeater
             case "003.003": rfb_version = 3.3; break;
             case "003.006": rfb_version = 3.3; break;  // UltraVNC
             case "003.889": rfb_version = 3.3; break;  // Apple Remote Desktop
@@ -683,6 +686,13 @@ init_msg = function() {
             case "004.001": rfb_version = 3.8; break;  // RealVNC 4.6
             default:
                 return fail("Invalid server version " + sversion);
+        }
+        if (is_repeater) { 
+            repeaterID = conf.repeaterID;
+            while(repeaterID.length < 250)
+                repeaterID += "\0";
+            ws.send_string(repeaterID);
+            break;
         }
         if (rfb_version > rfb_max_version) { 
             rfb_version = rfb_max_version;
@@ -730,6 +740,7 @@ init_msg = function() {
             // Server decides
             if (ws.rQwait("security scheme", 4)) { return false; }
             rfb_auth_scheme = ws.rQshift32();
+            //rfb_auth_scheme = ws.rQshiftStr(12);
         }
         updateState('Authentication',
                 "Authenticating using scheme: " + rfb_auth_scheme);

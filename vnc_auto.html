@@ -103,6 +103,7 @@
 
             password = WebUtil.getQueryVar('password', '');
             path = WebUtil.getQueryVar('path', 'websockify');
+            
             if ((!host) || (!port)) {
                 updateState('failed',
                     "Must specify host and port in URL");
@@ -112,6 +113,7 @@
             rfb = new RFB({'target':       $D('noVNC_canvas'),
                            'encrypt':      WebUtil.getQueryVar('encrypt',
                                     (window.location.protocol === "https:")),
+                           'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
                            'true_color':   WebUtil.getQueryVar('true_color', true),
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
