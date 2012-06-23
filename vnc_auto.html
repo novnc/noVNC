@@ -84,7 +84,7 @@
         }
 
         window.onload = function () {
-            var host, port, password, path, token, repeaterID;
+            var host, port, password, path, token;
 
             $D('sendCtrlAltDelButton').style.display = "inline";
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
@@ -103,7 +103,6 @@
 
             password = WebUtil.getQueryVar('password', '');
             path = WebUtil.getQueryVar('path', 'websockify');
-            repeaterID = WebUtil.getQueryVar('repeaterid','');
             
             if ((!host) || (!port)) {
                 updateState('failed',
@@ -114,13 +113,14 @@
             rfb = new RFB({'target':       $D('noVNC_canvas'),
                            'encrypt':      WebUtil.getQueryVar('encrypt',
                                     (window.location.protocol === "https:")),
+                           'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
                            'true_color':   WebUtil.getQueryVar('true_color', true),
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
                            'view_only':    WebUtil.getQueryVar('view_only', false),
                            'updateState':  updateState,
                            'onPasswordRequired':  passwordRequired});
-            rfb.connect(host, port, password, path, repeaterID);
+            rfb.connect(host, port, password, path);
         };
         </script>
 
