@@ -49,6 +49,7 @@ load: function() {
     UI.initSetting('port', window.location.port);
     UI.initSetting('password', '');
     UI.initSetting('encrypt', (window.location.protocol === "https:"));
+    UI.initSetting('repeaterID', '');
     UI.initSetting('true_color', true);
     UI.initSetting('cursor', false);
     UI.initSetting('shared', true);
@@ -258,6 +259,7 @@ toggleSettingsPanel: function() {
         UI.closeSettingsMenu();
     } else {
         UI.updateSetting('encrypt');
+        UI.updateSetting('repeaterID');
         UI.updateSetting('true_color');
         if (UI.rfb.get_display().get_cursor_uri()) {
             UI.updateSetting('cursor');
@@ -304,6 +306,7 @@ closeSettingsMenu: function() {
 settingsApply: function() {
     //Util.Debug(">> settingsApply");
     UI.saveSetting('encrypt');
+    UI.saveSetting('repeaterID');
     UI.saveSetting('true_color');
     if (UI.rfb.get_display().get_cursor_uri()) {
         UI.saveSetting('cursor');
@@ -415,6 +418,7 @@ updateVisualState: function() {
 
     //Util.Debug(">> updateVisualState");
     $D('noVNC_encrypt').disabled = connected;
+    $D('noVNC_repeaterID').disabled = connected;
     $D('noVNC_true_color').disabled = connected;
     if (UI.rfb && UI.rfb.get_display() &&
         UI.rfb.get_display().get_cursor_uri()) {
@@ -484,6 +488,7 @@ connect: function() {
     }
 
     UI.rfb.set_encrypt(UI.getSetting('encrypt'));
+    UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
     UI.rfb.set_true_color(UI.getSetting('true_color'));
     UI.rfb.set_local_cursor(UI.getSetting('cursor'));
     UI.rfb.set_shared(UI.getSetting('shared'));
