@@ -1,6 +1,6 @@
 /*
  * Websock: high-performance binary WebSockets
- * Copyright (C) 2011 Joel Martin
+ * Copyright (C) 2012 Joel Martin
  * Licensed under LGPL-3 (see LICENSE.txt)
  *
  * Websock is similar to the standard WebSocket object but Websock

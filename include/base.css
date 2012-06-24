@@ -1,3 +1,10 @@
+/*
+ * noVNC base CSS
+ * Copyright (C) 2012 Joel Martin
+ * noVNC is licensed under the LGPL-3 (see LICENSE.txt)
+ * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+ */
+
 body {
   margin:0;
   padding:0;
