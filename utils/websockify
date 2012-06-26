@@ -242,6 +242,9 @@ def websockify_init():
             choices=["exit", "ignore", "respawn"],
             help="action to take when the wrapped program exits "
             "or daemonizes: exit (default), ignore, respawn")
+    parser.add_option("--prefer-ipv6", "-6",
+            action="store_true", dest="source_is_ipv6",
+            help="prefer IPv6 when resolving source_addr")
     (opts, args) = parser.parse_args()
 
     # Sanity checks

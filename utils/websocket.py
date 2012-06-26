@@ -109,6 +109,7 @@ Sec-WebSocket-Accept: %s\r
         self.verbose        = verbose
         self.listen_host    = listen_host
         self.listen_port    = listen_port
+        self.prefer_ipv6    = source_is_ipv6
         self.ssl_only       = ssl_only
         self.daemon         = daemon
         self.run_once       = run_once
@@ -801,7 +802,7 @@ Sec-WebSocket-Accept: %s\r
         is a WebSockets client then call new_client() method (which must
         be overridden) for each new client connection.
         """
-        lsock = self.socket(self.listen_host, self.listen_port)
+        lsock = self.socket(self.listen_host, self.listen_port, False, self.prefer_ipv6)
 
         if self.daemon:
             self.daemonize(keepfd=lsock.fileno(), chdir=self.web)
