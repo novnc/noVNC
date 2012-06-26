@@ -21,9 +21,9 @@
 // Load Flash WebSocket emulator if needed
 
 // To force WebSocket emulator even when native WebSocket available
-window.WEB_SOCKET_FORCE_FLASH = true;
+//window.WEB_SOCKET_FORCE_FLASH = true;
 // To enable WebSocket emulator debug:
-window.WEB_SOCKET_DEBUG=1;
+//window.WEB_SOCKET_DEBUG=1;
 
 if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
     Websock_native = true;
