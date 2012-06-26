@@ -260,6 +260,7 @@ def websockify_init():
     # Parse host:port and convert ports to numbers
     if args[0].count(':') > 0:
         opts.listen_host, opts.listen_port = args[0].rsplit(':', 1)
+        opts.listen_host = opts.listen_host.strip('[]')
     else:
         opts.listen_host, opts.listen_port = '', args[0]
 
@@ -272,6 +273,7 @@ def websockify_init():
     else:
         if args[1].count(':') > 0:
             opts.target_host, opts.target_port = args[1].rsplit(':', 1)
+            opts.target_host = opts.target_host.strip('[]')
         else:
             parser.error("Error parsing target")
         try:    opts.target_port = int(opts.target_port)
