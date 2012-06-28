@@ -894,6 +894,7 @@ init_msg = function() {
         response = response.concat(clientEncodings());
         response = response.concat(fbUpdateRequests());
         timing.fbu_rt_start = (new Date()).getTime();
+        timing.pixels = 0;
         ws.send(response);
         
         /* Start pushing/polling */
@@ -1044,7 +1045,7 @@ framebufferUpdate = function() {
             timing.pixels += FBU.width * FBU.height;
         }
 
-        if (FBU.rects === 0 || (timing.pixels >= (fb_width * fb_height))) {
+        if (timing.pixels >= (fb_width * fb_height)) {
             if (((FBU.width === fb_width) &&
                         (FBU.height === fb_height)) ||
                     (timing.fbu_rt_start > 0)) {
