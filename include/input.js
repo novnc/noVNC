@@ -83,6 +83,7 @@ function getKeysymSpecial(evt) {
             case 122       : keysym = 0xFFC8; break; // F11
             case 123       : keysym = 0xFFC9; break; // F12
 
+            case 225       : keysym = 0xFE03; break; // AltGr
             default        :                  break;
         }
     }
