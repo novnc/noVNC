@@ -18,6 +18,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 import os, sys, time, errno, signal, socket, traceback, select
 import array, struct
+from cgi import parse_qsl
 from base64 import b64encode, b64decode
 
 # Imports that vary by python version
@@ -35,6 +36,8 @@ try:    from io import StringIO
 except: from cStringIO import StringIO
 try:    from http.server import SimpleHTTPRequestHandler
 except: from SimpleHTTPServer import SimpleHTTPRequestHandler
+try:    from urllib.parse import urlsplit
+except: from urlparse import urlsplit
 
 # python 2.6 differences
 try:    from hashlib import md5, sha1
@@ -72,7 +75,6 @@ class WebSocketServer(object):
 
     buffer_size = 65536
 
-
     server_handshake_hixie = """HTTP/1.1 101 Web Socket Protocol Handshake\r
 Upgrade: WebSocket\r
 Connection: Upgrade\r
@@ -107,12 +109,11 @@ Sec-WebSocket-Accept: %s\r
         self.verbose        = verbose
         self.listen_host    = listen_host
         self.listen_port    = listen_port
-        self.prefer_ipv6    = source_is_ipv6
         self.ssl_only       = ssl_only
         self.daemon         = daemon
         self.run_once       = run_once
         self.timeout        = timeout
-        
+
         self.launch_time    = time.time()
         self.ws_connection  = False
         self.handler_id     = 1
@@ -162,7 +163,7 @@ Sec-WebSocket-Accept: %s\r
     #
 
     @staticmethod
-    def socket(host, port=None, connect=False, prefer_ipv6=False, unix_socket=None, use_ssl=False):
+    def socket(host, port=None, connect=False, prefer_ipv6=False):
         """ Resolve a host (and optional port) to an IPv4 or IPv6
         address. Create a socket. Bind to it if listen is set,
         otherwise connect to it. Return the socket.
@@ -170,36 +171,24 @@ Sec-WebSocket-Accept: %s\r
         flags = 0
         if host == '':
             host = None
-        if connect and not (port or unix_socket):
+        if connect and not port:
             raise Exception("Connect mode requires a port")
-        if use_ssl and not ssl:
-            raise Exception("SSL socket requested but Python SSL module not loaded.");
-        if not connect and use_ssl:
-            raise Exception("SSL only supported in connect mode (for now)")
         if not connect:
             flags = flags | socket.AI_PASSIVE
-            
-        if not unix_socket:
-            addrs = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM,
-                    socket.IPPROTO_TCP, flags)
-            if not addrs:
-                raise Exception("Could not resolve host '%s'" % host)
-            addrs.sort(key=lambda x: x[0])
-            if prefer_ipv6:
-                addrs.reverse()
-            sock = socket.socket(addrs[0][0], addrs[0][1])
-            if connect:
-                sock.connect(addrs[0][4])
-                if use_ssl:
-                    sock = ssl.wrap_socket(sock)
-            else:
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                sock.bind(addrs[0][4])
-                sock.listen(100)
-        else:    
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.connect(unix_socket)
-
+        addrs = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM,
+                socket.IPPROTO_TCP, flags)
+        if not addrs:
+            raise Exception("Could resolve host '%s'" % host)
+        addrs.sort(key=lambda x: x[0])
+        if prefer_ipv6:
+            addrs.reverse()
+        sock = socket.socket(addrs[0][0], addrs[0][1])
+        if connect:
+            sock.connect(addrs[0][4])
+        else:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind(addrs[0][4])
+            sock.listen(100)
         return sock
 
     @staticmethod
@@ -563,9 +552,93 @@ Sec-WebSocket-Accept: %s\r
 
         # No orderly close for 75
 
-    def do_websocket_handshake(self, headers, path):
-        h = self.headers = headers
-        self.path = path
+    def do_handshake(self, sock, address):
+        """
+        do_handshake does the following:
+        - Peek at the first few bytes from the socket.
+        - If the connection is Flash policy request then answer it,
+          close the socket and return.
+        - If the connection is an HTTPS/SSL/TLS connection then SSL
+          wrap the socket.
+        - Read from the (possibly wrapped) socket.
+        - If we have received a HTTP GET request and the webserver
+          functionality is enabled, answer it, close the socket and
+          return.
+        - Assume we have a WebSockets connection, parse the client
+          handshake data.
+        - Send a WebSockets handshake server response.
+        - Return the socket for this WebSocket client.
+        """
+
+        stype = ""
+
+        ready = select.select([sock], [], [], 3)[0]
+        if not ready:
+            raise self.EClose("ignoring socket not ready")
+        # Peek, but do not read the data so that we have a opportunity
+        # to SSL wrap the socket first
+        handshake = sock.recv(1024, socket.MSG_PEEK)
+        #self.msg("Handshake [%s]" % handshake)
+
+        if handshake == "":
+            raise self.EClose("ignoring empty handshake")
+
+        elif handshake.startswith(s2b("<policy-file-request/>")):
+            # Answer Flash policy request
+            handshake = sock.recv(1024)
+            sock.send(s2b(self.policy_response))
+            raise self.EClose("Sending flash policy response")
+
+        elif handshake[0] in ("\x16", "\x80", 22, 128):
+            # SSL wrap the connection
+            if not ssl:
+                raise self.EClose("SSL connection but no 'ssl' module")
+            if not os.path.exists(self.cert):
+                raise self.EClose("SSL connection but '%s' not found"
+                                  % self.cert)
+            retsock = None
+            try:
+                retsock = ssl.wrap_socket(
+                        sock,
+                        server_side=True,
+                        certfile=self.cert,
+                        keyfile=self.key)
+            except ssl.SSLError:
+                _, x, _ = sys.exc_info()
+                if x.args[0] == ssl.SSL_ERROR_EOF:
+                    if len(x.args) > 1:
+                        raise self.EClose(x.args[1])
+                    else:
+                        raise self.EClose("Got SSL_ERROR_EOF")
+                else:
+                    raise
+
+            scheme = "wss"
+            stype = "SSL/TLS (wss://)"
+
+        elif self.ssl_only:
+            raise self.EClose("non-SSL connection received but disallowed")
+
+        else:
+            retsock = sock
+            scheme = "ws"
+            stype = "Plain non-SSL (ws://)"
+
+        wsh = WSRequestHandler(retsock, address, not self.web)
+        if wsh.last_code == 101:
+            # Continue on to handle WebSocket upgrade
+            pass
+        elif wsh.last_code == 405:
+            raise self.EClose("Normal web request received but disallowed")
+        elif wsh.last_code < 200 or wsh.last_code >= 300:
+            raise self.EClose(wsh.last_message)
+        elif self.verbose:
+            raise self.EClose(wsh.last_message)
+        else:
+            raise self.EClose("")
+
+        h = self.headers = wsh.headers
+        path = self.path = wsh.path
 
         prot = 'WebSocket-Protocol'
         protocols = h.get('Sec-'+prot, h.get(prot, '')).split(',')
@@ -618,103 +691,13 @@ Sec-WebSocket-Accept: %s\r
             self.base64 = True
 
             response = self.server_handshake_hixie % (pre,
-                    h['Origin'], pre, self.scheme, h['Host'], path)
+                    h['Origin'], pre, scheme, h['Host'], path)
 
             if 'base64' in protocols:
                 response += "%sWebSocket-Protocol: base64\r\n" % pre
             else:
                 self.msg("Warning: client does not report 'base64' protocol support")
             response += "\r\n" + trailer
-
-        return response
-
-
-    def do_handshake(self, sock, address):
-        """
-        do_handshake does the following:
-        - Peek at the first few bytes from the socket.
-        - If the connection is Flash policy request then answer it,
-          close the socket and return.
-        - If the connection is an HTTPS/SSL/TLS connection then SSL
-          wrap the socket.
-        - Read from the (possibly wrapped) socket.
-        - If we have received a HTTP GET request and the webserver
-          functionality is enabled, answer it, close the socket and
-          return.
-        - Assume we have a WebSockets connection, parse the client
-          handshake data.
-        - Send a WebSockets handshake server response.
-        - Return the socket for this WebSocket client.
-        """
-        stype = ""
-        ready = select.select([sock], [], [], 3)[0]
-
-        
-        if not ready:
-            raise self.EClose("ignoring socket not ready")
-        # Peek, but do not read the data so that we have a opportunity
-        # to SSL wrap the socket first
-        handshake = sock.recv(1024, socket.MSG_PEEK)
-        #self.msg("Handshake [%s]" % handshake)
-
-        if handshake == "":
-            raise self.EClose("ignoring empty handshake")
-
-        elif handshake.startswith(s2b("<policy-file-request/>")):
-            # Answer Flash policy request
-            handshake = sock.recv(1024)
-            sock.send(s2b(self.policy_response))
-            raise self.EClose("Sending flash policy response")
-
-        elif handshake[0] in ("\x16", "\x80", 22, 128):
-            # SSL wrap the connection
-            if not ssl:
-                raise self.EClose("SSL connection but no 'ssl' module")
-            if not os.path.exists(self.cert):
-                raise self.EClose("SSL connection but '%s' not found"
-                                  % self.cert)
-            retsock = None
-            try:
-                retsock = ssl.wrap_socket(
-                        sock,
-                        server_side=True,
-                        certfile=self.cert,
-                        keyfile=self.key)
-            except ssl.SSLError:
-                _, x, _ = sys.exc_info()
-                if x.args[0] == ssl.SSL_ERROR_EOF:
-                    if len(x.args) > 1:
-                        raise self.EClose(x.args[1])
-                    else:
-                        raise self.EClose("Got SSL_ERROR_EOF")
-                else:
-                    raise
-
-            self.scheme = "wss"
-            stype = "SSL/TLS (wss://)"
-
-        elif self.ssl_only:
-            raise self.EClose("non-SSL connection received but disallowed")
-
-        else:
-            retsock = sock
-            self.scheme = "ws"
-            stype = "Plain non-SSL (ws://)"
-
-        wsh = WSRequestHandler(retsock, address, not self.web)
-        if wsh.last_code == 101:
-            # Continue on to handle WebSocket upgrade
-            pass
-        elif wsh.last_code == 405:
-            raise self.EClose("Normal web request received but disallowed")
-        elif wsh.last_code < 200 or wsh.last_code >= 300:
-            raise self.EClose(wsh.last_message)
-        elif self.verbose:
-            raise self.EClose(wsh.last_message)
-        else:
-            raise self.EClose("")
-
-        response = self.do_websocket_handshake(wsh.headers, wsh.path)
 
         self.msg("%s: %s WebSocket connection" % (address[0], stype))
         self.msg("%s: Version %s, base64: '%s'" % (address[0],
@@ -767,7 +750,7 @@ Sec-WebSocket-Accept: %s\r
         self.rec        = None
         self.start_time = int(time.time()*1000)
 
-        # handler process        
+        # handler process
         try:
             try:
                 self.client = self.do_handshake(startsock, address)
@@ -818,7 +801,7 @@ Sec-WebSocket-Accept: %s\r
         is a WebSockets client then call new_client() method (which must
         be overridden) for each new client connection.
         """
-        lsock = self.socket(self.listen_host, self.listen_port, False, self.prefer_ipv6)
+        lsock = self.socket(self.listen_host, self.listen_port)
 
         if self.daemon:
             self.daemonize(keepfd=lsock.fileno(), chdir=self.web)
@@ -865,7 +848,7 @@ Sec-WebSocket-Accept: %s\r
                             continue
                         else:
                             raise
-                    
+
                     if self.run_once:
                         # Run in same process if run_once
                         self.top_new_client(startsock, address)
@@ -944,3 +927,4 @@ class WSRequestHandler(SimpleHTTPRequestHandler):
     def log_message(self, f, *args):
         # Save instead of printing
         self.last_message = f % args
+

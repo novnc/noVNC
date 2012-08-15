@@ -61,8 +61,6 @@ function Websock() {
 
 var api = {},         // Public API
     websocket = null, // WebSocket object
-    protocols,        // Protocols to request in priority order
-    mode = 'base64',
     rQ = [],          // Receive queue
     rQi = 0,          // Receive queue index
     rQmax = 10000,    // Max receive queue size before compacting
@@ -125,46 +123,26 @@ function rQshift32() {
            (rQ[rQi++] <<  8) +
            (rQ[rQi++]      );
 }
-function rQslice(start, end) {
-    if (mode === 'binary') {
-        if (end) {
-            return rQ.subarray(rQi + start, rQi + end);
-        } else {
-            return rQ.subarray(rQi + start);
-        }
-    } else {
-        if (end) {
-            return rQ.slice(rQi + start, rQi + end);
-        } else {
-            return rQ.slice(rQi + start);
-        }
-    }
-}
-
 function rQshiftStr(len) {
     if (typeof(len) === 'undefined') { len = rQlen(); }
-    var arr = rQslice(0, len);
+    var arr = rQ.slice(rQi, rQi + len);
     rQi += len;
-    return String.fromCharCode.apply(null, arr);
+    return arr.map(function (num) {
+            return String.fromCharCode(num); } ).join('');
+
 }
 function rQshiftBytes(len) {
     if (typeof(len) === 'undefined') { len = rQlen(); }
-    var a = rQslice(0, len), b = [];
-    if (mode === 'binary') {
-        // Convert to plain array
-        b.push.apply(b, a);
-    } else {
-        // Already plain array, just return the original
-        b = a
-    }
     rQi += len;
-    return b;
+    return rQ.slice(rQi-len, rQi);
 }
-function rQshiftArray(len) {
-    if (typeof(len) === 'undefined') { len = rQlen(); }
-    var a = rQslice(0, len);
-    rQi += len;
-    return a;
+
+function rQslice(start, end) {
+    if (end) {
+        return rQ.slice(rQi + start, rQi + end);
+    } else {
+        return rQ.slice(rQi + start);
+    }
 }
 
 // Check to see if we must wait for 'num' bytes (default to FBU.bytes)
@@ -192,26 +170,13 @@ function rQwait(msg, num, goback) {
 
 function encode_message() {
     /* base64 encode */
-    if (mode === 'binary') {
-        return (new Uint8Array(sQ)).buffer;
-    } else {
-        return Base64.encode(sQ);
-    }
+    return Base64.encode(sQ);
 }
 
 function decode_message(data) {
     //Util.Debug(">> decode_message: " + data);
-    if (mode === 'binary') {
-        // Create new arraybuffer and dump old and new data into it 
-        // TODO: this could be far more efficient and re-use the array
-        var new_rQ = new Uint8Array(rQ.length + data.byteLength);
-        new_rQ.set(rQ);
-        new_rQ.set(new Uint8Array(data), rQ.length);
-        rQ = new_rQ;
-    } else {
-        /* base64 decode and concat to the end */
-        rQ = rQ.concat(Base64.decode(data, 0));
-    }
+    /* base64 decode */
+    rQ = rQ.concat(Base64.decode(data, 0));
     //Util.Debug(">> decode_message, rQ: " + rQ);
 }
 
@@ -265,7 +230,7 @@ function recv_message(e) {
             // Compact the receive queue
             if (rQ.length > rQmax) {
                 //Util.Debug("Compacting receive queue");
-                rQ = rQslice(rQi);
+                rQ = rQ.slice(rQi);
                 rQi = 0;
             }
         } else {
@@ -298,32 +263,7 @@ function init() {
     rQ         = [];
     rQi        = 0;
     sQ         = [];
-    websocket  = null,
-    protocols  = "base64";
-
-    var bt = false,
-        wsbt = false;
-
-    if (('Uint8Array' in window) &&
-        ('set' in Uint8Array.prototype)) {
-        bt = true;
-    }
-    // TODO: this sucks, the property should exist on the prototype
-    // but it does not.
-    try {
-        if (bt && ('binaryType' in (new WebSocket("ws://localhost:17523")))) {
-            wsbt = true;
-        }
-    } catch (exc) {
-        // Just ignore failed test localhost connections
-    }
-    if (bt && wsbt) {
-        Util.Info("Detected binaryType support in WebSockets");
-        protocols = ['binary', 'base64'];
-    } else {
-        Util.Info("No binaryType support in WebSockets, using base64 encoding");
-        protocols = 'base64';
-    }
+    websocket  = null;
 }
 
 function open(uri) {
@@ -332,21 +272,18 @@ function open(uri) {
     if (test_mode) {
         websocket = {};
     } else {
-        websocket = new WebSocket(uri, protocols);
+        websocket = new WebSocket(uri, 'base64');
+        // TODO: future native binary support
+        //websocket = new WebSocket(uri, ['binary', 'base64']);
     }
 
     websocket.onmessage = recv_message;
     websocket.onopen = function() {
         Util.Debug(">> WebSock.onopen");
         if (websocket.protocol) {
-            mode = websocket.protocol;
             Util.Info("Server chose sub-protocol: " + websocket.protocol);
         } else {
-            mode = 'base64';
             Util.Error("Server select no sub-protocol!: " + websocket.protocol);
-        }
-        if (mode === 'binary') {
-            websocket.binaryType = 'arraybuffer';
         }
         eventHandlers.open();
         Util.Debug("<< WebSock.onopen");
