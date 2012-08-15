@@ -1252,11 +1252,11 @@ encHandlers.HEXTILE = function display_hextile() {
             rQi += FBU.bytes - 1;
         } else {
             if (FBU.subencoding & 0x02) { // Background
-                FBU.background = rQ.slice(rQi, rQi + fb_Bpp);
+                FBU.background = rQ.subarray(rQi, rQi + fb_Bpp);
                 rQi += fb_Bpp;
             }
             if (FBU.subencoding & 0x04) { // Foreground
-                FBU.foreground = rQ.slice(rQi, rQi + fb_Bpp);
+                FBU.foreground = rQ.subarray(rQi, rQi + fb_Bpp);
                 rQi += fb_Bpp;
             }
 
@@ -1266,7 +1266,7 @@ encHandlers.HEXTILE = function display_hextile() {
                 rQi += 1;
                 for (s = 0; s < subrects; s += 1) {
                     if (FBU.subencoding & 0x10) { // SubrectsColoured
-                        color = rQ.slice(rQi, rQi + fb_Bpp);
+                        color = rQ.subarray(rQi, rQi + fb_Bpp);
                         rQi += fb_Bpp;
                     } else {
                         color = FBU.foreground;
