@@ -299,7 +299,8 @@ function connect() {
         uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
     }
     Util.Info("connecting to " + uri);
-    ws.open(uri);
+    // TODO: make protocols a configurable
+    ws.open(uri, ['binary', 'base64']);
 
     Util.Debug("<< RFB.connect");
 }
@@ -1252,11 +1253,11 @@ encHandlers.HEXTILE = function display_hextile() {
             rQi += FBU.bytes - 1;
         } else {
             if (FBU.subencoding & 0x02) { // Background
-                FBU.background = rQ.subarray(rQi, rQi + fb_Bpp);
+                FBU.background = rQ.slice(rQi, rQi + fb_Bpp);
                 rQi += fb_Bpp;
             }
             if (FBU.subencoding & 0x04) { // Foreground
-                FBU.foreground = rQ.subarray(rQi, rQi + fb_Bpp);
+                FBU.foreground = rQ.slice(rQi, rQi + fb_Bpp);
                 rQi += fb_Bpp;
             }
 
@@ -1266,7 +1267,7 @@ encHandlers.HEXTILE = function display_hextile() {
                 rQi += 1;
                 for (s = 0; s < subrects; s += 1) {
                     if (FBU.subencoding & 0x10) { // SubrectsColoured
-                        color = rQ.subarray(rQi, rQi + fb_Bpp);
+                        color = rQ.slice(rQi, rQi + fb_Bpp);
                         rQi += fb_Bpp;
                     } else {
                         color = FBU.foreground;

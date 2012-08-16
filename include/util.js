@@ -18,10 +18,6 @@ var Util = {};
  * Make arrays quack
  */
 
-Array.prototype.subarray = function (start, end) {
-    this.slice(start, end);
-};
-
 Array.prototype.push8 = function (num) {
     this.push(num & 0xFF);
 };
