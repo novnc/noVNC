@@ -6,11 +6,37 @@
 noVNC is a HTML5 VNC client that runs well in any modern browser
 including mobile browsers (iPhone/iPad and Android).
 
+More than 16 companies/projects have integrated noVNC into their
+products including [Ganeti Web
+Manager](http://code.osuosl.org/projects/ganeti-webmgr),
+[OpenStack](http://www.openstack.org), and
+[OpenNebula](http://opennebula.org/). See [the Projects and Companies
+wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC)
+for more complete list.
+
+### News/help/contact
+
 Notable commits, announcements and news are posted to
 @<a href="http://www.twitter.com/noVNC">noVNC</a>
 
-There are many companies/projects that have integrated noVNC into
-their products including: [Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr), [Archipel](http://archipelproject.org), [openQRM](http://www.openqrm.com/), [OpenNode](http://www.opennodecloud.com/), [OpenStack](http://www.openstack.org), [Broadway (HTML5 GDK/GTK+ backend)](http://blogs.gnome.org/alexl/2011/03/15/gtk-html-backend-update/), [OpenNebula](http://opennebula.org/), [CloudSigma](http://www.cloudsigma.com/), [Zentyal (formerly eBox)](http://www.zentyal.org/), [SlapOS](http://www.slapos.org), [Intel MeshCentral](https://meshcentral.com), [Amahi](http://amahi.org), [Brightbox](http://brightbox.com/), [Foreman](http://theforeman.org), [LibVNCServer](http://libvncserver.sourceforge.net) and [PocketVNC](http://www.pocketvnc.com/blog/?page_id=866). See [this wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC) for more info and links.
+If you are a noVNC developer/integrator/user (or want to be) please
+join the <a
+href="https://groups.google.com/forum/?fromgroups#!forum/novnc">noVNC
+discussion group</a>
+
+Bugs and feature requests can be submitted via [github
+issues](https://github.com/kanaka/noVNC/issues). If you are looking
+for a place to start contributing to noVNC, a good place to start
+would be the issues that I have marked as
+["patchwelcome"](https://github.com/kanaka/noVNC/issues?labels=patchwelcome).
+
+If you want to show appreciation for noVNC you could buy something off
+my [Amazon wishlist](http://www.amazon.com/registry/wishlist/XTXFXK39IA8C/?reveal=unpurchased&sort=priority&layout=compact) or you could donate to a great non-profits such as: [Compassion
+International](http://www.compassion.com/), [SIL](http://www.sil.org),
+[Habitat for Humanity](http://www.habitat.org), [Electronic Frontier
+Foundation](https://www.eff.org/), [Against Malaria
+Foundation](http://www.againstmalaria.com/), [Nothing But
+Nets](http://www.nothingbutnets.net/), etc.
 
 
 ### Features
@@ -89,7 +115,7 @@ a python proxy included ('websockify').
 ### Authors/Contributors
 
 * noVNC : Joel Martin (github.com/kanaka)
-    * New UI and Icons : Chris Gordon
+    * UI and Icons : Chris Gordon
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
 
