@@ -174,11 +174,6 @@ rescale = function(factor) {
         factor = 0.1;
     }
 
-    if (conf.scale === factor) {
-        //Util.Debug("Display already scaled to '" + factor + "'");
-        return;
-    }
-
     conf.scale = factor;
     x = c.width - c.width * factor;
     y = c.height - c.height * factor;
