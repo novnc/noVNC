@@ -37,11 +37,14 @@ if (!window.$D) {
  */
 
 // init log level reading the logging HTTP param
-WebUtil.init_logging = function() {
-    Util._log_level = (document.location.href.match(
-         /logging=([A-Za-z0-9\._\-]*)/) ||
-         ['', Util._log_level])[1];
-    
+WebUtil.init_logging = function(level) {
+    if (typeof level === 'undefined') {
+        Util._log_level = (document.location.href.match(
+             /logging=([A-Za-z0-9\._\-]*)/) ||
+             ['', Util._log_level])[1];
+    } else {
+        Util._log_level = level;
+    }
     Util.init_logging();
 };
 WebUtil.init_logging();
