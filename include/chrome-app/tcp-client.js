@@ -28,15 +28,17 @@ Author: Boris Smus (smus@chromium.org)
    * @param {String} host The remote host to connect to
    * @param {Number} port The port to connect to at the remote host
    */
-  function TcpClient(host, port) {
+  function TcpClient(host, port, pollInterval) {
     this.host = host;
     this.port = port;
+    this.pollInterval = pollInterval || 15;
 
     // Callback functions.
     this.callbacks = {
       connect: null,    // Called when socket is connected.
       disconnect: null, // Called when socket is disconnected.
-      recv: null,       // Called when client receives data from server.
+      recvBuffer: null, // Called (as ArrayBuffer) when client receives data from server.
+      recvString: null, // Called (as string) when client receives data from server.
       sent: null        // Called when client sends data to server.
     };
 
@@ -65,14 +67,46 @@ Author: Boris Smus (smus@chromium.org)
   };
 
   /**
-   * Sends a message down the wire to the remote side
+   * Sends an arraybuffer/view down the wire to the remote side
    *
    * @see http://developer.chrome.com/trunk/apps/socket.html#method-write
-   * @param {String} msg The message to send
+   * @param {String} msg The arraybuffer/view to send
    * @param {Function} callback The function to call when the message has sent
    */
-  TcpClient.prototype.sendMessage = function(msg, callback) {
-    this._stringToArrayBuffer(msg + '\n', function(arrayBuffer) {
+  TcpClient.prototype.sendBuffer = function(buf, callback) {
+    if (buf.buffer) {
+        buf = buf.buffer;
+    }
+
+    /*
+    // Debug
+    var bytes = [], u8 = new Uint8Array(buf);
+    for (var i = 0; i < u8.length; i++) {
+        bytes.push(u8[i]);
+    }
+    log("sending bytes: " + (bytes.join(',')));
+    */
+    
+    socket.write(this.socketId, buf, this._onWriteComplete.bind(this));
+
+    // Register sent callback.
+    this.callbacks.sent = callback;
+  };
+
+  /**
+   * Sends a string down the wire to the remote side
+   *
+   * @see http://developer.chrome.com/trunk/apps/socket.html#method-write
+   * @param {String} msg The string to send
+   * @param {Function} callback The function to call when the message has sent
+   */
+  TcpClient.prototype.sendString = function(msg, callback) {
+    /*
+    // Debug
+    log("sending string: " + msg);
+    */
+
+    this._stringToArrayBuffer(msg, function(arrayBuffer) {
       socket.write(this.socketId, arrayBuffer, this._onWriteComplete.bind(this));
     }.bind(this));
 
@@ -84,10 +118,29 @@ Author: Boris Smus (smus@chromium.org)
    * Sets the callback for when a message is received
    *
    * @param {Function} callback The function to call when a message has arrived
+   * @param {String} type The callback argument type: "arraybuffer" or "string"
    */
-  TcpClient.prototype.addResponseListener = function(callback) {
+  TcpClient.prototype.addResponseListener = function(callback, type) {
+    if (typeof type === "undefined") {
+        type = "arraybuffer";
+    }
     // Register received callback.
-    this.callbacks.recv = callback;
+    if (type === "string") {
+      this.callbacks.recvString = callback;
+    } else {
+      this.callbacks.recvBuffer = callback;
+    }
+  };
+
+  /**
+   * Sets the callback for when the socket disconnects
+   *
+   * @param {Function} callback The function to call when the socket disconnects
+   * @param {String} type The callback argument type: "arraybuffer" or "string"
+   */
+  TcpClient.prototype.addDisconnectListener = function(callback) {
+    // Register disconnect callback.
+    this.callbacks.disconnect = callback;
   };
 
   /**
@@ -96,8 +149,14 @@ Author: Boris Smus (smus@chromium.org)
    * @see http://developer.chrome.com/trunk/apps/socket.html#method-disconnect
    */
   TcpClient.prototype.disconnect = function() {
-    socket.disconnect(this.socketId);
-    this.isConnected = false;
+    if (this.isConnected) {
+      this.isConnected = false;
+      socket.disconnect(this.socketId);
+      if (this.callbacks.disconnect) {
+        this.callbacks.disconnect();
+      }
+      log('socket disconnected');
+    }
   };
 
   /**
@@ -113,7 +172,6 @@ Author: Boris Smus (smus@chromium.org)
     this.socketId = createInfo.socketId;
     if (this.socketId > 0) {
       socket.connect(this.socketId, this.addr, this.port, this._onConnectComplete.bind(this));
-      this.isConnected = true;
     } else {
       error('Unable to create socket');
     }
@@ -129,10 +187,11 @@ Author: Boris Smus (smus@chromium.org)
    */
   TcpClient.prototype._onConnectComplete = function(resultCode) {
     // Start polling for reads.
-    setInterval(this._periodicallyRead.bind(this), 500);
+    this.isConnected = true;
+    setTimeout(this._periodicallyRead.bind(this), this.pollInterval);
 
     if (this.callbacks.connect) {
-      console.log('connect complete');
+      log('connect complete');
       this.callbacks.connect();
     }
     log('onConnectComplete');
@@ -144,7 +203,16 @@ Author: Boris Smus (smus@chromium.org)
    * @see http://developer.chrome.com/trunk/apps/socket.html#method-read
    */
   TcpClient.prototype._periodicallyRead = function() {
-    socket.read(this.socketId, null, this._onDataRead.bind(this));
+    var that = this;
+    socket.getInfo(this.socketId, function (info) {
+      if (info.connected) {
+        setTimeout(that._periodicallyRead.bind(that), that.pollInterval);
+        socket.read(that.socketId, null, that._onDataRead.bind(that));
+      } else if (that.isConnected) {
+        log('socket disconnect detected');
+        that.disconnect();
+      }
+   });
   };
 
   /**
@@ -159,12 +227,28 @@ Author: Boris Smus (smus@chromium.org)
    */
   TcpClient.prototype._onDataRead = function(readInfo) {
     // Call received callback if there's data in the response.
-    if (readInfo.resultCode > 0 && this.callbacks.recv) {
+    if (readInfo.resultCode > 0) {
       log('onDataRead');
-      // Convert ArrayBuffer to string.
-      this._arrayBufferToString(readInfo.data, function(str) {
-        this.callbacks.recv(str);
-      }.bind(this));
+
+      /*
+      // Debug
+      var bytes = [], u8 = new Uint8Array(readInfo.data);
+      for (var i = 0; i < u8.length; i++) {
+          bytes.push(u8[i]);
+      }
+      log("received bytes: " + (bytes.join(',')));
+      */
+      
+      if (this.callbacks.recvBuffer) {
+        // Return raw ArrayBuffer directly.
+        this.callbacks.recvBuffer(readInfo.data);
+      }
+      if (this.callbacks.recvString) {
+        // Convert ArrayBuffer to string.
+        this._arrayBufferToString(readInfo.data, function(str) {
+          this.callbacks.recvString(str);
+        }.bind(this));
+      }
     }
   };
 
