@@ -59,6 +59,9 @@ licenses (all LGPL-3 compatible):
     include/web-socket-js/     : New BSD license (3-clause). Source code at
                                  http://github.com/gimite/web-socket-js
 
+    include/chrome-app/tcp-stream.js
+                               : Apache 2.0 license
+
 The following license texts are included:
 
     docs/LICENSE.LGPL-3 and
@@ -68,6 +71,7 @@ The following license texts are included:
     docs/LICENSE.BSD-2-Clause (Simplified BSD / FreeBSD)
     docs/LICENSE.zlib
     docs/LICENSE.MPL-2.0
+    docs/LICENSE.Apache-2.0
 
 Or alternatively the license texts may be found here:
 
