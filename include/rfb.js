@@ -163,6 +163,8 @@ Util.conf_defaults(conf, that, defaults, [
         'onFBUReceive(rfb, fbu): RFB FBU received but not yet processed '],
     ['onFBUComplete',      'rw', 'func', function() { },
         'onFBUComplete(rfb, fbu): RFB FBU received and processed '],
+    ['onFBResize',         'rw', 'func', function() { },
+        'onFBResize(rfb, width, height): frame buffer resized'],
 
     // These callback names are deprecated
     ['updateState',        'rw', 'func', function() { },
@@ -879,6 +881,7 @@ init_msg = function() {
         }
 
         display.set_true_color(conf.true_color);
+        conf.onFBResize(that, fb_width, fb_height);
         display.resize(fb_width, fb_height);
         keyboard.grab();
         mouse.grab();
@@ -1578,6 +1581,7 @@ encHandlers.DesktopSize = function set_desktopsize() {
     Util.Debug(">> set_desktopsize");
     fb_width = FBU.width;
     fb_height = FBU.height;
+    conf.onFBResize(that, fb_width, fb_height);
     display.resize(fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request
