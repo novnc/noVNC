@@ -41,38 +41,34 @@
 
     <script src="include/vnc.js"></script>
     <script src="include/ui.js"></script>
+    <script src="include/start.js"></script>
 
 </head>
 
 <body>
     <div id="noVNC-control-bar">
+        <div id="noVNC-menu-bar" style="display:none;">
+        </div>
         <!--noVNC Mobile Device only Buttons-->
         <div class="noVNC-buttons-left">
             <input type="image" src="images/drag.png"
                 id="noVNC_view_drag_button" class="noVNC_status_button"
-                title="Move/Drag Viewport"
-                onclick="UI.setViewDrag();">
+                title="Move/Drag Viewport">
             <div id="noVNC_mobile_buttons">
                 <input type="image" src="images/mouse_none.png"
-                    id="noVNC_mouse_button0" class="noVNC_status_button"
-                    onclick="UI.setMouseButton(1);">
+                    id="noVNC_mouse_button0" class="noVNC_status_button">
                 <input type="image" src="images/mouse_left.png"
-                    id="noVNC_mouse_button1" class="noVNC_status_button"
-                    onclick="UI.setMouseButton(2);">
+                    id="noVNC_mouse_button1" class="noVNC_status_button">
                 <input type="image" src="images/mouse_middle.png"
-                    id="noVNC_mouse_button2" class="noVNC_status_button"
-                    onclick="UI.setMouseButton(4);">
+                    id="noVNC_mouse_button2" class="noVNC_status_button">
                 <input type="image" src="images/mouse_right.png"
-                    id="noVNC_mouse_button4" class="noVNC_status_button"
-                    onclick="UI.setMouseButton(0);">
+                    id="noVNC_mouse_button4" class="noVNC_status_button">
                 <input type="image" src="images/keyboard.png"
                     id="showKeyboard" class="noVNC_status_button"
-                    value="Keyboard" title="Show Keyboard"
-                    onclick="UI.showKeyboard()"/>
+                    value="Keyboard" title="Show Keyboard"/>
                 <input type="email"
                     autocapitalize="off" autocorrect="off"
-                    id="keyboardinput" class="noVNC_status_button"
-                    onKeyDown="onKeyDown(event);" onblur="UI.keyInputBlur();"/>
+                    id="keyboardinput" class="noVNC_status_button"/>
             </div>
         </div>
 
@@ -80,24 +76,19 @@
         <div class="noVNC-buttons-right">
             <input type="image" src="images/ctrlaltdel.png"
                  id="sendCtrlAltDelButton" class="noVNC_status_button"
-                title="Send Ctrl-Alt-Del"
-                onclick="UI.sendCtrlAltDel();" />
+                title="Send Ctrl-Alt-Del" />
             <input type="image" src="images/clipboard.png"
                 id="clipboardButton" class="noVNC_status_button"
-                title="Clipboard"
-                onclick="UI.toggleClipboardPanel();" />
+                title="Clipboard" />
             <input type="image" src="images/settings.png"
                 id="settingsButton" class="noVNC_status_button"
-                title="Settings"
-                onclick="UI.toggleSettingsPanel();" />
+                title="Settings" />
             <input type="image" src="images/connect.png"
                 id="connectButton" class="noVNC_status_button"
-                title="Connect"
-                onclick="UI.toggleConnectPanel()" />
+                title="Connect" />
             <input type="image" src="images/disconnect.png"
                 id="disconnectButton" class="noVNC_status_button"
-                title="Disconnect"
-                onclick="UI.disconnect()" />
+                title="Disconnect" />
         </div>
 
         <!-- Description Panel -->
@@ -113,25 +104,21 @@
             and <a href="http://kanaka.github.com/noVNC">website</a>
             for more information.
             <br />
-            <input type="button" value="Close"
-                onclick="UI.toggleConnectPanel();">
+            <input id="descriptionButton" type="button" value="Close">
         </div>
 
         <!-- Clipboard Panel -->
         <div id="noVNC_clipboard" class="triangle-right top">
-            <textarea id="noVNC_clipboard_text" rows=5
-                onfocus="UI.displayBlur();" onblur="UI.displayFocus();"
-                onchange="UI.clipSend();">
+            <textarea id="noVNC_clipboard_text" rows=5>
             </textarea>
             <br />
             <input id="noVNC_clipboard_clear_button" type="button"
-                value="Clear" onclick="UI.clipClear();">
+                value="Clear">
         </div>
 
         <!-- Settings Panel -->
         <div id="noVNC_settings" class="triangle-right top">
-            <span id="noVNC_settings_menu" onmouseover="UI.displayBlur();"
-                                           onmouseout="UI.displayFocus();">
+            <span id="noVNC_settings_menu">
                 <ul>
                     <li><input id="noVNC_encrypt" type="checkbox"> Encrypt</li>
                     <li><input id="noVNC_true_color" type="checkbox" checked> True Color</li>
@@ -156,8 +143,7 @@
                         </select></label>
                     </li>
                     <hr>
-                    <li><input type="button" id="noVNC_apply" value="Apply"
-                         onclick="UI.settingsApply()"></li>
+                    <li><input type="button" id="noVNC_apply" value="Apply"></li>
                 </ul>
             </span>
         </div>
@@ -168,7 +154,7 @@
                 <li><label><strong>Host: </strong><input id="noVNC_host" /></label></li>
                 <li><label><strong>Port: </strong><input id="noVNC_port" /></label></li>
                 <li><label><strong>Password: </strong><input id="noVNC_password" type="password" /></label></li>
-                <li><input id="noVNC_connect_button" type="button" value="Connect" onclick="UI.connect();"></li>
+                <li><input id="noVNC_connect_button" type="button" value="Connect"></li>
             </ul>
         </div>
 
@@ -192,9 +178,5 @@
         </div>
 
     </div>
-
-    <script>
-        window.onload = UI.load;
-    </script>
  </body>
 </html>

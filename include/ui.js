@@ -118,9 +118,42 @@ start: function(callback) {
         UI.toggleConnectPanel();
     }
 
+    // Add mouse event click/focus/blur event handlers to the UI
+    UI.addMouseHandlers();
+
     if (typeof callback === "function") {
         callback(UI.rfb);
     }
+},
+
+addMouseHandlers: function() {
+    // Setup interface handlers that can't be inline
+    $D("noVNC_view_drag_button").onclick = UI.setViewDrag;
+    $D("noVNC_mouse_button0").onclick = function () { UI.setMouseButton(1); };
+    $D("noVNC_mouse_button1").onclick = function () { UI.setMouseButton(2); };
+    $D("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
+    $D("noVNC_mouse_button4").onclick = function () { UI.setMouseButton(0); };
+    $D("showKeyboard").onclick = UI.showKeyboard;
+    //$D("keyboardinput").onkeydown = function (event) { onKeyDown(event); };
+    $D("keyboardinput").onblur = UI.keyInputBlur;
+
+    $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
+    $D("clipboardButton").onclick = UI.toggleClipboardPanel;
+    $D("settingsButton").onclick = UI.toggleSettingsPanel;
+    $D("connectButton").onclick = UI.toggleConnectPanel;
+    $D("disconnectButton").onclick = UI.disconnect;
+    $D("descriptionButton").onclick = UI.toggleConnectPanel;
+
+    $D("noVNC_clipboard_text").onfocus = UI.displayBlur;
+    $D("noVNC_clipboard_text").onblur = UI.displayFocus;
+    $D("noVNC_clipboard_text").onchange = UI.clipSend;
+    $D("noVNC_clipboard_clear_button").onclick = UI.clipClear;
+
+    $D("noVNC_settings_menu").onmouseover = UI.displayBlur;
+    $D("noVNC_settings_menu").onmouseover = UI.displayFocus;
+    $D("noVNC_apply").onclick = UI.settingsApply;
+
+    $D("noVNC_connect_button").onclick = UI.connect;
 },
 
 // Read form control compatible setting from cookie
