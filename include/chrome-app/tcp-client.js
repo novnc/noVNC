@@ -249,6 +249,9 @@ Author: Boris Smus (smus@chromium.org)
           this.callbacks.recvString(str);
         }.bind(this));
       }
+
+      // Trigger another read right away
+      setTimeout(this._periodicallyRead.bind(this), 0);
     }
   };
 
