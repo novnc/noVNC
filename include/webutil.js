@@ -119,6 +119,67 @@ WebUtil.eraseCookie = function(name) {
 };
 
 /*
+ * Setting handling.
+ */
+
+WebUtil.initSettings = function(callback) {
+    var callbackArgs = Array.prototype.slice.call(arguments, 1);
+    if (chrome && chrome.storage) {
+        chrome.storage.sync.get(function (cfg) {
+            WebUtil.settings = cfg;
+            console.log(WebUtil.settings);
+            if (callback) {
+                callback.apply(this, callbackArgs);
+            }
+        });
+    } else {
+        // No-op
+        if (callback) {
+            callback.apply(this, callbackArgs);
+        }
+    }
+};
+
+// No days means only for this browser session
+WebUtil.writeSetting = function(name, value) {
+    if (chrome && chrome.storage) {
+        //console.log("writeSetting:", name, value);
+        if (WebUtil.settings[name] !== value) {
+            WebUtil.settings[name] = value;
+            chrome.storage.sync.set(WebUtil.settings);
+        }
+    } else {
+        localStorage.setItem(name, value);
+    }
+};
+
+WebUtil.readSetting = function(name, defaultValue) {
+    var value;
+    if (chrome && chrome.storage) {
+        value = WebUtil.settings[name];
+    } else {
+        value = localStorage.getItem(name);
+    }
+    if (typeof value === "undefined") {
+        value = null;
+    }
+    if (value === null && typeof defaultValue !== undefined) {
+        return defaultValue;
+    } else {
+        return value;
+    }
+};
+
+WebUtil.eraseSetting = function(name) {
+    if (chrome && chrome.storage) {
+        chrome.storage.sync.remove(name);
+        delete WebUtil.settings[name];
+    } else {
+        localStorage.removeItem(name);
+    }
+};
+
+/*
  * Alternate stylesheet selection
  */
 WebUtil.getStylesheets = function() { var i, links, sheets = [];
