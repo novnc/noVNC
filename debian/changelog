@@ -1,3 +1,11 @@
+novnc (0.4) maverick; urgency=low
+
+  * Clarify permissive licenses of HTML, CSS, images.
+  * Use render queue and requestAnimationFrame
+  * UltraVNC repeater support
+
+ -- Joel Martin <github@martintribe.org>  Fri, 14 Sep 2012 05:00:00 -0600
+
 novnc (0.3) maverick; urgency=low
 
   * add tight encoding support
