@@ -15,29 +15,21 @@
 function get_INCLUDE_URI() {
     return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
 }
+/*
+ * Dynamically load a script without using document.write()
+ * Reference: http://unixpapa.com/js/dyna.html
+ */
+function load_scripts(base, files) {
+    var head = document.getElementsByTagName('head')[0];
+    for (var i=0; i<files.length; i++) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = base + files[i];
+        head.appendChild(script);
+    }
+}
 
-(function () {
-    "use strict";
-
-    var extra = "", start, end;
-
-    start = "<script src='" + get_INCLUDE_URI();
-    end = "'><\/script>";
-
-    // Uncomment to activate firebug lite
-    //extra += "<script src='http://getfirebug.com/releases/lite/1.2/" + 
-    //         "firebug-lite-compressed.js'><\/script>";
-
-    extra += start + "util.js" + end;
-    extra += start + "webutil.js" + end;
-    extra += start + "base64.js" + end;
-    extra += start + "websock.js" + end;
-    extra += start + "des.js" + end;
-    extra += start + "input.js" + end;
-    extra += start + "display.js" + end;
-    extra += start + "rfb.js" + end;
-    extra += start + "jsunzip.js" + end;
-
-    document.write(extra);
-}());
+load_scripts(get_INCLUDE_URI(),
+    ["util.js", "webutil.js", "base64.js", "websock.js", "des.js",
+     "input.js", "display.js", "rfb.js", "jsunzip.js"]);
 
