@@ -97,6 +97,7 @@ start: function(callback) {
         //UI.setOnscroll();
         //UI.setResize();
     }
+    UI.setBarPosition();
 
     $D('noVNC_host').focus();
 
