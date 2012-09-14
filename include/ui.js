@@ -18,8 +18,14 @@ connSettingsOpen : false,
 clipboardOpen: false,
 keyboardVisible: false,
 
+// Setup rfb object, load settings from browser storage, then call
+// UI.init to setup the UI/menus
+load: function (callback) {
+    WebUtil.initSettings(UI.start, callback);
+},
+
 // Render default UI and initialize settings menu
-load: function() {
+start: function(callback) {
     var html = '', i, sheet, sheets, llevels;
 
     // Stylesheet selection dropdown
@@ -111,14 +117,18 @@ load: function() {
         // Open the connect panel on first load
         UI.toggleConnectPanel();
     }
+
+    if (typeof callback === "function") {
+        callback(UI.rfb);
+    }
 },
 
 // Read form control compatible setting from cookie
 getSetting: function(name) {
     var val, ctrl = $D('noVNC_' + name);
-    val = WebUtil.readCookie(name);
-    if (ctrl.type === 'checkbox') {
-        if (val.toLowerCase() in {'0':1, 'no':1, 'false':1}) {
+    val = WebUtil.readSetting(name);
+    if (val !== null && ctrl.type === 'checkbox') {
+        if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
             val = false;
         } else {
             val = true;
@@ -134,7 +144,7 @@ updateSetting: function(name, value) {
     var i, ctrl = $D('noVNC_' + name);
     // Save the cookie for this session
     if (typeof value !== 'undefined') {
-        WebUtil.createCookie(name, value);
+        WebUtil.writeSetting(name, value);
     }
 
     // Update the settings control
@@ -170,7 +180,7 @@ saveSetting: function(name) {
     } else {
         val = ctrl.value;
     }
-    WebUtil.createCookie(name, val);
+    WebUtil.writeSetting(name, val);
     //Util.Debug("Setting saved '" + name + "=" + val + "'");
     return val;
 },
@@ -182,7 +192,7 @@ initSetting: function(name, defVal) {
     // Check Query string followed by cookie
     val = WebUtil.getQueryVar(name);
     if (val === null) {
-        val = WebUtil.readCookie(name, defVal);
+        val = WebUtil.readSetting(name, defVal);
     }
     UI.updateSetting(name, val);
  //Util.Debug("Setting '" + name + "' initialized to '" + val + "'");
@@ -240,6 +250,9 @@ toggleConnectPanel: function() {
         $D('noVNC_controls').style.display = "none";
         $D('connectButton').className = "noVNC_status_button";
         UI.connSettingsOpen = false;
+        UI.saveSetting('host');
+        UI.saveSetting('port');
+        //UI.saveSetting('password');
     } else {
         $D('noVNC_controls').style.display = "block";
         $D('connectButton').className = "noVNC_status_button_selected";
