@@ -299,7 +299,8 @@ function connect() {
         uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
     }
     Util.Info("connecting to " + uri);
-    ws.open(uri);
+    // TODO: make protocols a configurable
+    ws.open(uri, ['binary', 'base64']);
 
     Util.Debug("<< RFB.connect");
 }
