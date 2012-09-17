@@ -126,8 +126,8 @@ WebUtil.eraseCookie = function(name) {
 
 WebUtil.initSettings = function(callback) {
     var callbackArgs = Array.prototype.slice.call(arguments, 1);
-    if (chrome && chrome.storage) {
-        chrome.storage.sync.get(function (cfg) {
+    if (window.chrome && window.chrome.storage) {
+        window.chrome.storage.sync.get(function (cfg) {
             WebUtil.settings = cfg;
             console.log(WebUtil.settings);
             if (callback) {
@@ -144,11 +144,11 @@ WebUtil.initSettings = function(callback) {
 
 // No days means only for this browser session
 WebUtil.writeSetting = function(name, value) {
-    if (chrome && chrome.storage) {
+    if (window.chrome && window.chrome.storage) {
         //console.log("writeSetting:", name, value);
         if (WebUtil.settings[name] !== value) {
             WebUtil.settings[name] = value;
-            chrome.storage.sync.set(WebUtil.settings);
+            window.chrome.storage.sync.set(WebUtil.settings);
         }
     } else {
         localStorage.setItem(name, value);
@@ -157,7 +157,7 @@ WebUtil.writeSetting = function(name, value) {
 
 WebUtil.readSetting = function(name, defaultValue) {
     var value;
-    if (chrome && chrome.storage) {
+    if (window.chrome && window.chrome.storage) {
         value = WebUtil.settings[name];
     } else {
         value = localStorage.getItem(name);
@@ -173,8 +173,8 @@ WebUtil.readSetting = function(name, defaultValue) {
 };
 
 WebUtil.eraseSetting = function(name) {
-    if (chrome && chrome.storage) {
-        chrome.storage.sync.remove(name);
+    if (window.chrome && window.chrome.storage) {
+        window.chrome.storage.sync.remove(name);
         delete WebUtil.settings[name];
     } else {
         localStorage.removeItem(name);
