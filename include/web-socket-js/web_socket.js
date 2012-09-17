@@ -1,49 +1,69 @@
 // Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
 // License: New BSD License
 // Reference: http://dev.w3.org/html5/websockets/
-// Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol
+// Reference: http://tools.ietf.org/html/rfc6455
 
 (function() {
   
-  if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) return;
-
-  var console = window.console;
-  if (!console || !console.log || !console.error) {
-    console = {log: function(){ }, error: function(){ }};
+  if (window.WEB_SOCKET_FORCE_FLASH) {
+    // Keeps going.
+  } else if (window.WebSocket) {
+    return;
+  } else if (window.MozWebSocket) {
+    // Firefox.
+    window.WebSocket = MozWebSocket;
+    return;
   }
   
-  if (!swfobject.hasFlashPlayerVersion("10.0.0")) {
-    console.error("Flash Player >= 10.0.0 is required.");
+  var logger;
+  if (window.WEB_SOCKET_LOGGER) {
+    logger = WEB_SOCKET_LOGGER;
+  } else if (window.console && window.console.log && window.console.error) {
+    // In some environment, console is defined but console.log or console.error is missing.
+    logger = window.console;
+  } else {
+    logger = {log: function(){ }, error: function(){ }};
+  }
+  
+  // swfobject.hasFlashPlayerVersion("10.0.0") doesn't work with Gnash.
+  if (swfobject.getFlashPlayerVersion().major < 10) {
+    logger.error("Flash Player >= 10.0.0 is required.");
     return;
   }
   if (location.protocol == "file:") {
-    console.error(
+    logger.error(
       "WARNING: web-socket-js doesn't work in file:///... URL " +
       "unless you set Flash Security Settings properly. " +
       "Open the page via Web server i.e. http://...");
   }
 
   /**
-   * This class represents a faux web socket.
+   * Our own implementation of WebSocket class using Flash.
    * @param {string} url
-   * @param {string} protocol
+   * @param {array or string} protocols
    * @param {string} proxyHost
    * @param {int} proxyPort
    * @param {string} headers
    */
-  WebSocket = function(url, protocol, proxyHost, proxyPort, headers) {
+  window.WebSocket = function(url, protocols, proxyHost, proxyPort, headers) {
     var self = this;
     self.__id = WebSocket.__nextId++;
     WebSocket.__instances[self.__id] = self;
     self.readyState = WebSocket.CONNECTING;
     self.bufferedAmount = 0;
     self.__events = {};
+    if (!protocols) {
+      protocols = [];
+    } else if (typeof protocols == "string") {
+      protocols = [protocols];
+    }
     // Uses setTimeout() to make sure __createFlash() runs after the caller sets ws.onopen etc.
     // Otherwise, when onopen fires immediately, onopen is called before it is set.
-    setTimeout(function() {
+    self.__createTask = setTimeout(function() {
       WebSocket.__addTask(function() {
+        self.__createTask = null;
         WebSocket.__flash.create(
-            self.__id, url, protocol, proxyHost || null, proxyPort || 0, headers || null);
+            self.__id, url, protocols, proxyHost || null, proxyPort || 0, headers || null);
       });
     }, 0);
   };
@@ -78,6 +98,12 @@
    * Close this web socket gracefully.
    */
   WebSocket.prototype.close = function() {
+    if (this.__createTask) {
+      clearTimeout(this.__createTask);
+      this.__createTask = null;
+      this.readyState = WebSocket.CLOSED;
+      return;
+    }
     if (this.readyState == WebSocket.CLOSED || this.readyState == WebSocket.CLOSING) {
       return;
     }
@@ -131,7 +157,7 @@
       events[i](event);
     }
     var handler = this["on" + event.type];
-    if (handler) handler(event);
+    if (handler) handler.apply(this, [event]);
   };
 
   /**
@@ -139,16 +165,22 @@
    * @param {Object} flashEvent
    */
   WebSocket.prototype.__handleEvent = function(flashEvent) {
+    
     if ("readyState" in flashEvent) {
       this.readyState = flashEvent.readyState;
+    }
+    if ("protocol" in flashEvent) {
+      this.protocol = flashEvent.protocol;
     }
     
     var jsEvent;
     if (flashEvent.type == "open" || flashEvent.type == "error") {
       jsEvent = this.__createSimpleEvent(flashEvent.type);
     } else if (flashEvent.type == "close") {
-      // TODO implement jsEvent.wasClean
       jsEvent = this.__createSimpleEvent("close");
+      jsEvent.wasClean = flashEvent.wasClean ? true : false;
+      jsEvent.code = flashEvent.code;
+      jsEvent.reason = flashEvent.reason;
     } else if (flashEvent.type == "message") {
       var data = decodeURIComponent(flashEvent.message);
       jsEvent = this.__createMessageEvent("message", data);
@@ -157,6 +189,7 @@
     }
     
     this.dispatchEvent(jsEvent);
+    
   };
   
   WebSocket.prototype.__createSimpleEvent = function(type) {
@@ -188,6 +221,9 @@
   WebSocket.CLOSING = 2;
   WebSocket.CLOSED = 3;
 
+  // Field to check implementation of WebSocket.
+  WebSocket.__isFlashImplementation = true;
+  WebSocket.__initialized = false;
   WebSocket.__flash = null;
   WebSocket.__instances = {};
   WebSocket.__tasks = [];
@@ -207,15 +243,30 @@
    * Loads WebSocketMain.swf and creates WebSocketMain object in Flash.
    */
   WebSocket.__initialize = function() {
-    if (WebSocket.__flash) return;
+    
+    if (WebSocket.__initialized) return;
+    WebSocket.__initialized = true;
     
     if (WebSocket.__swfLocation) {
       // For backword compatibility.
       window.WEB_SOCKET_SWF_LOCATION = WebSocket.__swfLocation;
     }
     if (!window.WEB_SOCKET_SWF_LOCATION) {
-      console.error("[WebSocket] set WEB_SOCKET_SWF_LOCATION to location of WebSocketMain.swf");
+      logger.error("[WebSocket] set WEB_SOCKET_SWF_LOCATION to location of WebSocketMain.swf");
       return;
+    }
+    if (!window.WEB_SOCKET_SUPPRESS_CROSS_DOMAIN_SWF_ERROR &&
+        !WEB_SOCKET_SWF_LOCATION.match(/(^|\/)WebSocketMainInsecure\.swf(\?.*)?$/) &&
+        WEB_SOCKET_SWF_LOCATION.match(/^\w+:\/\/([^\/]+)/)) {
+      var swfHost = RegExp.$1;
+      if (location.host != swfHost) {
+        logger.error(
+            "[WebSocket] You must host HTML and WebSocketMain.swf in the same host " +
+            "('" + location.host + "' != '" + swfHost + "'). " +
+            "See also 'How to host HTML file and SWF file in different domains' section " +
+            "in README.md. If you use WebSocketMainInsecure.swf, you can suppress this message " +
+            "by WEB_SOCKET_SUPPRESS_CROSS_DOMAIN_SWF_ERROR = true;");
+      }
     }
     var container = document.createElement("div");
     container.id = "webSocketContainer";
@@ -250,9 +301,11 @@
       null,
       function(e) {
         if (!e.success) {
-          console.error("[WebSocket] swfobject.embedSWF failed");
+          logger.error("[WebSocket] swfobject.embedSWF failed");
         }
-      });
+      }
+    );
+    
   };
   
   /**
@@ -287,7 +340,7 @@
           WebSocket.__instances[events[i].webSocketId].__handleEvent(events[i]);
         }
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       }
     }, 0);
     return true;
@@ -295,12 +348,12 @@
   
   // Called by Flash.
   WebSocket.__log = function(message) {
-    console.log(decodeURIComponent(message));
+    logger.log(decodeURIComponent(message));
   };
   
   // Called by Flash.
   WebSocket.__error = function(message) {
-    console.error(decodeURIComponent(message));
+    logger.error(decodeURIComponent(message));
   };
   
   WebSocket.__addTask = function(task) {
@@ -327,15 +380,12 @@
   };
   
   if (!window.WEB_SOCKET_DISABLE_AUTO_INITIALIZATION) {
-    if (window.addEventListener) {
-      window.addEventListener("load", function(){
-        WebSocket.__initialize();
-      }, false);
-    } else {
-      window.attachEvent("onload", function(){
-        WebSocket.__initialize();
-      });
-    }
+    // NOTE:
+    //   This fires immediately if web_socket.js is dynamically loaded after
+    //   the document is loaded.
+    swfobject.addDomLoadEvent(function() {
+      WebSocket.__initialize();
+    });
   }
   
 })();

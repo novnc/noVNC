@@ -13,9 +13,11 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 import socket, optparse, time, os, sys, subprocess
 from select import select
-from websocket import WebSocketServer
+import websocket
+try:    from urllib.parse import parse_qs, urlparse
+except: from urlparse import parse_qs, urlparse
 
-class WebSocketProxy(WebSocketServer):
+class WebSocketProxy(websocket.WebSocketServer):
     """
     Proxy traffic to and from a WebSockets client to a normal TCP
     socket server target. All traffic to/from the client is base64
@@ -43,6 +45,9 @@ Traffic Legend:
         self.target_port    = kwargs.pop('target_port')
         self.wrap_cmd       = kwargs.pop('wrap_cmd')
         self.wrap_mode      = kwargs.pop('wrap_mode')
+        self.unix_target    = kwargs.pop('unix_target')
+        self.ssl_target     = kwargs.pop('ssl_target')
+        self.target_cfg     = kwargs.pop('target_cfg')
         # Last 3 timestamps command was run
         self.wrap_times    = [0, 0, 0]
 
@@ -58,6 +63,7 @@ Traffic Legend:
 
             if not self.rebinder:
                 raise Exception("rebind.so not found, perhaps you need to run make")
+            self.rebinder = os.path.abspath(self.rebinder)
 
             self.target_host = "127.0.0.1"  # Loopback
             # Find a free high port
@@ -71,7 +77,10 @@ Traffic Legend:
                 "REBIND_OLD_PORT": str(kwargs['listen_port']),
                 "REBIND_NEW_PORT": str(self.target_port)})
 
-        WebSocketServer.__init__(self, *args, **kwargs)
+        if self.target_cfg:
+            self.target_cfg = os.path.abspath(self.target_cfg)
+
+        websocket.WebSocketServer.__init__(self, *args, **kwargs)
 
     def run_wrap_cmd(self):
         print("Starting '%s'" % " ".join(self.wrap_cmd))
@@ -88,14 +97,26 @@ Traffic Legend:
         # Need to call wrapped command after daemonization so we can
         # know when the wrapped command exits
         if self.wrap_cmd:
-            print("  - proxying from %s:%s to '%s' (port %s)\n" % (
-                    self.listen_host, self.listen_port,
-                    " ".join(self.wrap_cmd), self.target_port))
-            self.run_wrap_cmd()
+            dst_string = "'%s' (port %s)" % (" ".join(self.wrap_cmd), self.target_port)
+        elif self.unix_target:
+            dst_string = self.unix_target
         else:
-            print("  - proxying from %s:%s to %s:%s\n" % (
-                    self.listen_host, self.listen_port,
-                    self.target_host, self.target_port))
+            dst_string = "%s:%s" % (self.target_host, self.target_port)
+
+        if self.target_cfg:
+            msg = "  - proxying from %s:%s to targets in %s" % (
+                self.listen_host, self.listen_port, self.target_cfg)
+        else:
+            msg = "  - proxying from %s:%s to %s" % (
+                self.listen_host, self.listen_port, dst_string)
+
+        if self.ssl_target:
+            msg += " (using SSL)"
+
+        print(msg + "\n")
+
+        if self.wrap_cmd:
+            self.run_wrap_cmd()
 
     def poll(self):
         # If we are wrapping a command, check it's status
@@ -137,12 +158,26 @@ Traffic Legend:
         """
         Called after a new WebSocket connection has been established.
         """
+        # Checks if we receive a token, and look
+        # for a valid target for it then
+        if self.target_cfg:
+            (self.target_host, self.target_port) = self.get_target(self.target_cfg, self.path)
 
         # Connect to the target
-        self.msg("connecting to: %s:%s" % (
-                 self.target_host, self.target_port))
+        if self.wrap_cmd:
+            msg = "connecting to command: %s" % (" ".join(self.wrap_cmd), self.target_port)
+        elif self.unix_target:
+            msg = "connecting to unix socket: %s" % self.unix_target
+        else:
+            msg = "connecting to: %s:%s" % (
+                                    self.target_host, self.target_port)
+        
+        if self.ssl_target:
+            msg += " (using SSL)"
+        self.msg(msg)
+
         tsock = self.socket(self.target_host, self.target_port,
-                connect=True)
+                connect=True, use_ssl=self.ssl_target, unix_socket=self.unix_target)
 
         if self.verbose and not self.daemon:
             print(self.traffic_legend)
@@ -154,9 +189,48 @@ Traffic Legend:
             if tsock:
                 tsock.shutdown(socket.SHUT_RDWR)
                 tsock.close()
-                self.vmsg("%s:%s: Target closed" %(
+                self.vmsg("%s:%s: Closed target" %(
                     self.target_host, self.target_port))
             raise
+
+    def get_target(self, target_cfg, path):
+        """
+        Parses the path, extracts a token, and looks for a valid
+        target for that token in the configuration file(s). Sets
+        target_host and target_port if successful
+        """
+        # The files in targets contain the lines
+        # in the form of token: host:port
+
+        # Extract the token parameter from url
+        args = parse_qs(urlparse(path)[4]) # 4 is the query from url
+
+        if not len(args['token']):
+            raise self.EClose("Token not present")
+
+        token = args['token'][0].rstrip('\n')
+
+        # target_cfg can be a single config file or directory of
+        # config files
+        if os.path.isdir(target_cfg):
+            cfg_files = [os.path.join(target_cfg, f)
+                         for f in os.listdir(target_cfg)]
+        else:
+            cfg_files = [target_cfg]
+
+        targets = {}
+        for f in cfg_files:
+            for line in [l.strip() for l in file(f).readlines()]:
+                if line and not line.startswith('#'):
+                    ttoken, target = line.split(': ')
+                    targets[ttoken] = target.strip()
+
+        self.vmsg("Target config: %s" % repr(targets))
+
+        if targets.has_key(token):
+            return targets[token].split(':')
+        else:
+            raise self.EClose("Token '%s' not found" % token)
 
     def do_proxy(self, target):
         """
@@ -191,6 +265,8 @@ Traffic Legend:
                 # Receive target data, encode it and queue for client
                 buf = target.recv(self.buffer_size)
                 if len(buf) == 0:
+                    self.vmsg("%s:%s: Target closed connection" %(
+                        self.target_host, self.target_port))
                     raise self.CClose(1000, "Target closed")
 
                 cqueue.append(buf)
@@ -211,11 +287,13 @@ Traffic Legend:
 
                 if closed:
                     # TODO: What about blocking on client socket?
+                    self.vmsg("%s:%s: Client closed connection" %(
+                        self.target_host, self.target_port))
                     raise self.CClose(closed['code'], closed['reason'])
 
 def websockify_init():
     usage = "\n    %prog [options]"
-    usage += " [source_addr:]source_port target_addr:target_port"
+    usage += " [source_addr:]source_port [target_addr:target_port]"
     usage += "\n    %prog [options]"
     usage += " [source_addr:]source_port -- WRAP_COMMAND_LINE"
     parser = optparse.OptionParser(usage=usage)
@@ -230,22 +308,37 @@ def websockify_init():
             help="handle a single WebSocket connection and exit")
     parser.add_option("--timeout", type=int, default=0,
             help="after TIMEOUT seconds exit when not connected")
+    parser.add_option("--idle-timeout", type=int, default=0,
+            help="server exits after TIMEOUT seconds if there are no "
+                 "active connections")
     parser.add_option("--cert", default="self.pem",
             help="SSL certificate file")
     parser.add_option("--key", default=None,
             help="SSL key file (if separate from cert)")
     parser.add_option("--ssl-only", action="store_true",
-            help="disallow non-encrypted connections")
+            help="disallow non-encrypted client connections")
+    parser.add_option("--ssl-target", action="store_true",
+            help="connect to SSL target as SSL client")
+    parser.add_option("--unix-target",
+            help="connect to unix socket target", metavar="FILE")
     parser.add_option("--web", default=None, metavar="DIR",
             help="run webserver on same port. Serve files from DIR.")
     parser.add_option("--wrap-mode", default="exit", metavar="MODE",
             choices=["exit", "ignore", "respawn"],
             help="action to take when the wrapped program exits "
             "or daemonizes: exit (default), ignore, respawn")
+    parser.add_option("--prefer-ipv6", "-6",
+            action="store_true", dest="source_is_ipv6",
+            help="prefer IPv6 when resolving source_addr")
+    parser.add_option("--target-config", metavar="FILE",
+            dest="target_cfg",
+            help="Configuration file containing valid targets "
+            "in the form 'token: host:port' or, alternatively, a "
+            "directory containing configuration files of this form")
     (opts, args) = parser.parse_args()
 
     # Sanity checks
-    if len(args) < 2:
+    if len(args) < 2 and not opts.target_cfg:
         parser.error("Too few arguments")
     if sys.argv.count('--'):
         opts.wrap_cmd = args[1:]
@@ -254,24 +347,29 @@ def websockify_init():
         if len(args) > 2:
             parser.error("Too many arguments")
 
+    if not websocket.ssl and opts.ssl_target:
+        parser.error("SSL target requested and Python SSL module not loaded.");
+        
     if opts.ssl_only and not os.path.exists(opts.cert):
         parser.error("SSL only and %s not found" % opts.cert)
 
     # Parse host:port and convert ports to numbers
     if args[0].count(':') > 0:
         opts.listen_host, opts.listen_port = args[0].rsplit(':', 1)
+        opts.listen_host = opts.listen_host.strip('[]')
     else:
         opts.listen_host, opts.listen_port = '', args[0]
 
     try:    opts.listen_port = int(opts.listen_port)
     except: parser.error("Error parsing listen port")
 
-    if opts.wrap_cmd:
+    if opts.wrap_cmd or opts.unix_target or opts.target_cfg:
         opts.target_host = None
         opts.target_port = None
     else:
         if args[1].count(':') > 0:
             opts.target_host, opts.target_port = args[1].rsplit(':', 1)
+            opts.target_host = opts.target_host.strip('[]')
         else:
             parser.error("Error parsing target")
         try:    opts.target_port = int(opts.target_port)

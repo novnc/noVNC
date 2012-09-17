@@ -128,9 +128,7 @@ function rQshiftStr(len) {
     if (typeof(len) === 'undefined') { len = rQlen(); }
     var arr = rQ.slice(rQi, rQi + len);
     rQi += len;
-    return arr.map(function (num) {
-            return String.fromCharCode(num); } ).join('');
-
+    return String.fromCharCode.apply(null, arr);
 }
 function rQshiftBytes(len) {
     if (typeof(len) === 'undefined') { len = rQlen(); }
@@ -313,10 +311,18 @@ function init(protocols) {
             throw("WebSocket binary sub-protocol requested but not supported");
         }
         if (typeof(protocols) === "object") {
+            var new_protocols = [];
             for (var i = 0; i < protocols.length; i++) {
                 if (protocols[i] === 'binary') {
-                    throw("WebSocket binary sub-protocol requested but not supported");
+                    Util.Error("Skipping unsupported WebSocket binary sub-protocol");
+                } else {
+                    new_protocols.push(protocols[i]);
                 }
+            }
+            if (new_protocols.length > 0) {
+                protocols = new_protocols;
+            } else {
+                throw("Only WebSocket binary sub-protocol was requested and not supported.");
             }
         }
     }
