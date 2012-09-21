@@ -45,9 +45,9 @@ Traffic Legend:
         self.target_port    = kwargs.pop('target_port')
         self.wrap_cmd       = kwargs.pop('wrap_cmd')
         self.wrap_mode      = kwargs.pop('wrap_mode')
-        self.unix_target    = kwargs.pop('unix_target')
-        self.ssl_target     = kwargs.pop('ssl_target')
-        self.target_cfg     = kwargs.pop('target_cfg')
+        self.unix_target    = kwargs.pop('unix_target', None)
+        self.ssl_target     = kwargs.pop('ssl_target', None)
+        self.target_cfg     = kwargs.pop('target_cfg', None)
         # Last 3 timestamps command was run
         self.wrap_times    = [0, 0, 0]
 
