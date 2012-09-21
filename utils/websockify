@@ -41,13 +41,13 @@ Traffic Legend:
 
     def __init__(self, *args, **kwargs):
         # Save off proxy specific options
-        self.target_host    = kwargs.pop('target_host')
-        self.target_port    = kwargs.pop('target_port')
-        self.wrap_cmd       = kwargs.pop('wrap_cmd')
-        self.wrap_mode      = kwargs.pop('wrap_mode')
-        self.unix_target    = kwargs.pop('unix_target')
-        self.ssl_target     = kwargs.pop('ssl_target')
-        self.target_cfg     = kwargs.pop('target_cfg')
+        self.target_host    = kwargs.pop('target_host', None)
+        self.target_port    = kwargs.pop('target_port', None)
+        self.wrap_cmd       = kwargs.pop('wrap_cmd', None)
+        self.wrap_mode      = kwargs.pop('wrap_mode', None)
+        self.unix_target    = kwargs.pop('unix_target', None)
+        self.ssl_target     = kwargs.pop('ssl_target', None)
+        self.target_cfg     = kwargs.pop('target_cfg', None)
         # Last 3 timestamps command was run
         self.wrap_times    = [0, 0, 0]
 
