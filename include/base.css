@@ -129,6 +129,7 @@ html {
   background-color:#313131;
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
+  ime-mode: disabled;
 }
 
 #noVNC_container, #noVNC_canvas {
