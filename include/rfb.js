@@ -601,7 +601,17 @@ keyPress = function(keysym, down) {
 
     if (conf.view_only) { return; } // View only, skip keyboard events
 
-    arr = keyEvent(keysym, down);
+    if (down === 2) {
+        // keypress event
+        // Send a keyup event here to avoid letting the server side generate
+        // repeated-key events. Otherwise, both sides will independently
+        // generate key down and press events against the same key.
+        arr = keyEvent(keysym, 1);
+        arr = arr.concat(keyEvent(keysym, 0));
+    } else {
+        // keydown or keyup event
+        arr = keyEvent(keysym, down);
+    }
     arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };

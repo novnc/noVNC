@@ -18,7 +18,7 @@ function Keyboard(defaults) {
 var that           = {},  // Public API methods
     conf           = {},  // Configuration attributes
 
-    keyDownList    = [];         // List of depressed keys 
+    keyDownList    = {};         // List of depressed keys 
                                  // (even if they are happy)
 
 // Configuration attributes
@@ -195,11 +195,14 @@ function getKeysym(evt) {
 }
 
 function show_keyDownList(kind) {
-    var c;
+    var c = 0;
+    var keyCode, fevt;
     var msg = "keyDownList (" + kind + "):\n";
-    for (c = 0; c < keyDownList.length; c++) {
-        msg = msg + "    " + c + " - keyCode: " + keyDownList[c].keyCode +
-              " - which: " + keyDownList[c].which + "\n";
+    for (keyCode in keyDownList) {
+        fevt = getKeyEvent(keyCode, false);
+        msg = msg + "    " + c + " - keyCode: " + fevt.keyCode +
+              " - which: " + fevt.which + "\n";
+        c++;
     }
     Util.Debug(msg);
 }
@@ -217,20 +220,15 @@ function copyKeyEvent(evt) {
 }
 
 function pushKeyEvent(fevt) {
-    keyDownList.push(fevt);
+    keyDownList[fevt.keyCode] = fevt;
 }
 
 function getKeyEvent(keyCode, pop) {
-    var i, fevt = null;
-    for (i = keyDownList.length-1; i >= 0; i--) {
-        if (keyDownList[i].keyCode === keyCode) {
-            if ((typeof(pop) !== "undefined") && (pop)) {
-                fevt = keyDownList.splice(i, 1)[0];
-            } else {
-                fevt = keyDownList[i];
-            }
-            break;
-        }
+    var fevt = keyDownList[keyCode];
+    if (typeof(fevt) === 'undefined') {
+        fevt = null;
+    } else if ((typeof(pop) !== "undefined") && (pop)) {
+        delete keyDownList[keyCode];
     }
     return fevt;
 }
@@ -314,14 +312,9 @@ function onKeyDown(e) {
                    " (onKeyDown key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
             conf.onKeyPress(keysym, 1, evt);
+            pushKeyEvent(fevt);
         }
         suppress = true;
-    }
-
-    if (! ignoreKeyEvent(evt)) {
-        // Add it to the list of depressed keys
-        pushKeyEvent(fevt);
-        //show_keyDownList('down');
     }
 
     if (suppress) {
@@ -357,15 +350,6 @@ function onKeyPress(e) {
 
     keysym = getKeysym(evt);
 
-    // Modify the the which attribute in the depressed keys list so
-    // that the keyUp event will be able to have the character code
-    // translation available.
-    if (kdlen > 0) {
-        keyDownList[kdlen-1].keysym = keysym;
-    } else {
-        Util.Warn("keyDownList empty when keyPress triggered");
-    }
-
     //show_keyDownList('press');
     
     // Send the translated keysym
@@ -373,7 +357,7 @@ function onKeyPress(e) {
         Util.Debug("onKeyPress down, keysym: " + keysym +
                    " (onKeyPress key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
-        conf.onKeyPress(keysym, 1, evt);
+        conf.onKeyPress(keysym, 2, evt);
     }
 
     // Stop keypress events just in case
@@ -414,12 +398,9 @@ function onKeyUp(e) {
 
 function allKeysUp() {
     Util.Debug(">> Keyboard.allKeysUp");
-    if (keyDownList.length > 0) {
-        Util.Info("Releasing pressed/down keys");
-    }
-    var i, keysym, fevt = null;
-    for (i = keyDownList.length-1; i >= 0; i--) {
-        fevt = keyDownList.splice(i, 1)[0];
+    var keyCode, keysym, fevt;
+    for (keyCode in keyDownList) {
+        fevt = getKeyEvent(keyCode, true);
         keysym = fevt.keysym;
         if (conf.onKeyPress && (keysym > 0)) {
             Util.Debug("allKeysUp, keysym: " + keysym +
