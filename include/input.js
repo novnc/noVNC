@@ -18,7 +18,7 @@ function Keyboard(defaults) {
 var that           = {},  // Public API methods
     conf           = {},  // Configuration attributes
 
-    keyDownList    = [];         // List of depressed keys 
+    keyDownMap     = {};         // List of depressed keys 
                                  // (even if they are happy)
 
 // Configuration attributes
@@ -198,12 +198,15 @@ function getKeysym(evt) {
     return keysym;
 }
 
-function show_keyDownList(kind) {
-    var c;
-    var msg = "keyDownList (" + kind + "):\n";
-    for (c = 0; c < keyDownList.length; c++) {
-        msg = msg + "    " + c + " - keyCode: " + keyDownList[c].keyCode +
-              " - which: " + keyDownList[c].which + "\n";
+function show_keyDownMap(kind) {
+    var c = 0;
+    var keyCode, fevt;
+    var msg = "keyDownMap (" + kind + "):\n";
+    for (keyCode in keyDownMap) {
+        fevt = getKeyEvent(keyCode, false);
+        msg = msg + "    " + c + " - keyCode: " + fevt.keyCode +
+              " - which: " + fevt.which + "\n";
+        c++;
     }
     Util.Debug(msg);
 }
@@ -221,20 +224,15 @@ function copyKeyEvent(evt) {
 }
 
 function pushKeyEvent(fevt) {
-    keyDownList.push(fevt);
+    keyDownMap[fevt.keyCode] = fevt;
 }
 
 function getKeyEvent(keyCode, pop) {
-    var i, fevt = null;
-    for (i = keyDownList.length-1; i >= 0; i--) {
-        if (keyDownList[i].keyCode === keyCode) {
-            if ((typeof(pop) !== "undefined") && (pop)) {
-                fevt = keyDownList.splice(i, 1)[0];
-            } else {
-                fevt = keyDownList[i];
-            }
-            break;
-        }
+    var fevt = keyDownMap[keyCode];
+    if (typeof(fevt) === 'undefined') {
+        fevt = null;
+    } else if ((typeof(pop) !== "undefined") && (pop)) {
+        delete keyDownMap[keyCode];
     }
     return fevt;
 }
@@ -318,14 +316,9 @@ function onKeyDown(e) {
                    " (onKeyDown key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
             conf.onKeyPress(keysym, 1, evt);
+            pushKeyEvent(fevt);
         }
         suppress = true;
-    }
-
-    if (! ignoreKeyEvent(evt)) {
-        // Add it to the list of depressed keys
-        pushKeyEvent(fevt);
-        //show_keyDownList('down');
     }
 
     if (suppress) {
@@ -344,7 +337,7 @@ function onKeyPress(e) {
         return true;
     }
     var evt = (e ? e : window.event),
-        kdlen = keyDownList.length, keysym = null;
+        kdlen = keyDownMap.length, keysym = null;
     //Util.Debug("onKeyPress kC:" + evt.keyCode + " cC:" + evt.charCode + " w:" + evt.which);
     
     if (((evt.which !== "undefined") && (evt.which === 0)) ||
@@ -361,23 +354,17 @@ function onKeyPress(e) {
 
     keysym = getKeysym(evt);
 
-    // Modify the the which attribute in the depressed keys list so
-    // that the keyUp event will be able to have the character code
-    // translation available.
-    if (kdlen > 0) {
-        keyDownList[kdlen-1].keysym = keysym;
-    } else {
-        Util.Warn("keyDownList empty when keyPress triggered");
-    }
-
-    //show_keyDownList('press');
+    //show_keyDownMap('press');
     
     // Send the translated keysym
     if (conf.onKeyPress && (keysym > 0)) {
         Util.Debug("onKeyPress down, keysym: " + keysym +
                    " (onKeyPress key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
-        conf.onKeyPress(keysym, 1, evt);
+        Util.Debug("onKeyPress up, keysym: " + keysym +
+                   " (onKeyPress key: " + evt.keyCode +
+                   ", which: " + evt.which + ")");
+        conf.onKeyPress(keysym, 2, evt);
     }
 
     // Stop keypress events just in case
@@ -397,12 +384,12 @@ function onKeyUp(e) {
     if (fevt) {
         keysym = fevt.keysym;
     } else {
-        Util.Warn("Key event (keyCode = " + evt.keyCode +
-                ") not found on keyDownList");
+        //Util.Debug("Key event (keyCode = " + evt.keyCode +
+        //        ") not found on keyDownMap");
         keysym = 0;
     }
 
-    //show_keyDownList('up');
+    //show_keyDownMap('up');
 
     if (conf.onKeyPress && (keysym > 0)) {
         //Util.Debug("keyPress up,   keysym: " + keysym +
@@ -418,12 +405,9 @@ function onKeyUp(e) {
 
 function allKeysUp() {
     Util.Debug(">> Keyboard.allKeysUp");
-    if (keyDownList.length > 0) {
-        Util.Info("Releasing pressed/down keys");
-    }
-    var i, keysym, fevt = null;
-    for (i = keyDownList.length-1; i >= 0; i--) {
-        fevt = keyDownList.splice(i, 1)[0];
+    var keyCode, keysym, fevt;
+    for (keyCode in keyDownMap) {
+        fevt = getKeyEvent(keyCode, true);
         keysym = fevt.keysym;
         if (conf.onKeyPress && (keysym > 0)) {
             Util.Debug("allKeysUp, keysym: " + keysym +
