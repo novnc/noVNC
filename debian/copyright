@@ -2,35 +2,36 @@ Upstream Project: https://github.com/kanaka/noVNC/
 
 --------------------- Original LICENSE.txt ---------------------------
 
-noVNC is Copyright (C) 2011 Joel Martin <github@martintribe.org>
+noVNC is Copyright (C) 2012 Joel Martin <github@martintribe.org>
 
 Some portions of noVNC are copyright to their individual authors.
 Please refer to the individual source files and/or to the noVNC commit
 history: https://github.com/kanaka/noVNC/commits/master
 
-noVNC is licensed under the LGPL (GNU Lesser General Public License)
-version 3 with the following exceptions:
+noVNC is licensed under the MPL 2.0 (Mozilla Public License) with the
+following exceptions:
 
-    include/input.js           : LGPL-2 or any later version
-   
-    include/base64.js          : Dual GPL-2 or LGPL-2.1
-   
-    incluee/des.js             : Various BSD style licenses
+    *.html, *.css              : 2-Clause BSD license
 
-    include/web-socket-js/     : New BSD license. Source code at
-                                 http://github.com/gimite/web-socket-js
+    include/Orbitron*          : SIL Open Font License 1.1
+                                 (Copyright 2009 Matt McInerney)
 
     images/                    : Creative Commons Attribution-ShareAlike
                                  http://creativecommons.org/licenses/by-sa/3.0/
-                                 Uses of the work must be attributed
-                                 to the noVNC project.
+
+    include/base64.js          : MPL 2.0
+   
+    include/des.js             : Various BSD style licenses
+
+    include/jsunzip.js         : zlib/libpng license
+
+    include/web-socket-js/     : New BSD license (3-clause). Source code at
+                                 http://github.com/gimite/web-socket-js
+
+    include/chrome-app/tcp-stream.js
+                               : Apache 2.0 license
 
 ----------------------------------------------------------------------
 
-The LGPL-3 license text is located at:
-    /usr/share/common-licenses/LGPL-3 and
-    /usr/share/common-licenses/GPL-3
-
-Or alternatively the LGPL-3 license text may be found here:
-    http://www.gnu.org/licenses/lgpl.html and
-    http://www.gnu.org/licenses/gpl.html
+The MPL-2.0 license text may be found here:
+    http://www.mozilla.org/MPL/2.0/

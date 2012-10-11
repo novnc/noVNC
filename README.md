@@ -50,7 +50,7 @@ Nets](http://www.nothingbutnets.net/), etc.
 * Clipboard copy/paste
 * Clipping or scolling modes for large remote screens
 * Easy site integration and theming (3 example themes included)
-* Licensed under the [LGPLv3](http://www.gnu.org/licenses/lgpl.html)
+* Licensed under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/)
 
 ### Screenshots
 

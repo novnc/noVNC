@@ -1,7 +1,7 @@
 /*
  * Javascript binary array performance tests
- * Copyright (C) 2011 Joel Martin
- * Licensed under LGPL-3 (see LICENSE.txt)
+ * Copyright (C) 2012 Joel Martin
+ * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 
 var ctx, i, j, randlist,

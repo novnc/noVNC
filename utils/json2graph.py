@@ -3,7 +3,7 @@
 '''
 Use matplotlib to generate performance charts
 Copyright 2011 Joel Martin
-Licensed under GPL version 3 (see docs/LICENSE.GPL-3)
+Licensed under MPL-2.0 (see docs/LICENSE.MPL-2.0)
 '''
 
 # a bar plot with errorbars

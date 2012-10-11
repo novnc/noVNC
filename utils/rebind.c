@@ -1,7 +1,7 @@
 /*
  * rebind: Intercept bind calls and bind to a different port
  * Copyright 2010 Joel Martin
- * Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
+ * Licensed under MPL-2.0 (see docs/LICENSE.MPL-2.0)
  *
  * Overload (LD_PRELOAD) bind system call. If REBIND_PORT_OLD and
  * REBIND_PORT_NEW environment variables are set then bind on the new

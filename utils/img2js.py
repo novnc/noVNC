@@ -3,7 +3,7 @@
 #
 # Convert image to Javascript compatible base64 Data URI
 # Copyright 2011 Joel Martin
-# Licensed under LGPL version 3 (see docs/LICENSE.LGPL-3)
+# Licensed under MPL 2.0 (see docs/LICENSE.MPL-2.0)
 #
 
 import sys, base64
