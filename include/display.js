@@ -502,8 +502,8 @@ that.finishTile = function() {
     // else: No-op, if not prefer_js then already done by setSubTile
 };
 
-rgbImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data, v = viewport;
+rgbImageData = function(x, y, vx, vy, width, height, arr, offset) {
+    var img, i, j, data;
     /*
     if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
         (x - v.x + width < 0) || (y - v.y + height < 0)) {
@@ -519,11 +519,11 @@ rgbImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = arr[j + 2];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - v.x, y - v.y);
+    c_ctx.putImageData(img, x - vx, y - vy);
 };
 
-bgrxImageData = function(x, y, width, height, arr, offset) {
-    var img, i, j, data, v = viewport;
+bgrxImageData = function(x, y, vx, vy, width, height, arr, offset) {
+    var img, i, j, data;
     /*
     if ((x - v.x >= v.w) || (y - v.y >= v.h) ||
         (x - v.x + width < 0) || (y - v.y + height < 0)) {
@@ -539,10 +539,10 @@ bgrxImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = arr[j    ];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - v.x, y - v.y);
+    c_ctx.putImageData(img, x - vx, y - vy);
 };
 
-cmapImageData = function(x, y, width, height, arr, offset) {
+cmapImageData = function(x, y, vx, vy, width, height, arr, offset) {
     var img, i, j, data, bgr, cmap;
     img = c_ctx.createImageData(width, height);
     data = img.data;
@@ -554,23 +554,23 @@ cmapImageData = function(x, y, width, height, arr, offset) {
         data[i + 2] = bgr[0];
         data[i + 3] = 255; // Set Alpha
     }
-    c_ctx.putImageData(img, x - viewport.x, y - viewport.y);
+    c_ctx.putImageData(img, x - vx, y - vy);
 };
 
 that.blitImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        bgrxImageData(x, y, width, height, arr, offset);
+        bgrxImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     } else {
-        cmapImageData(x, y, width, height, arr, offset);
+        cmapImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     }
 };
 
 that.blitRgbImage = function(x, y, width, height, arr, offset) {
     if (conf.true_color) {
-        rgbImageData(x, y, width, height, arr, offset);
+        rgbImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     } else {
         // prolly wrong...
-        cmapImageData(x, y, width, height, arr, offset);
+        cmapImageData(x, y, viewport.x, viewport.y, width, height, arr, offset);
     }
 };
 

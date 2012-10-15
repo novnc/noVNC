@@ -352,20 +352,28 @@ this.getbit = function(d)
 }
 
 /* read a num bit value from a stream and add base */
+function read_bits_direct(source, bitcount, tag, idx, num)
+{
+    var val = 0;
+    while (bitcount < 24) {
+        tag = tag | (source[idx++] & 0xff) << bitcount;
+        bitcount += 8;
+    }
+    val = tag & (0xffff >> (16 - num));
+    tag >>= num;
+    bitcount -= num;
+    return [bitcount, tag, idx, val];
+}
 this.read_bits = function(d, num, base)
 {
     if (!num)
         return base;
 
-    var val = 0;
-    while (d.bitcount < 24) {
-        d.tag = d.tag | (d.source[d.sourceIndex++] & 0xff) << d.bitcount;
-        d.bitcount += 8;
-    }
-    val = d.tag & (0xffff >> (16 - num));
-    d.tag >>= num;
-    d.bitcount -= num;
-    return val + base;
+    var ret = read_bits_direct(d.source, d.bitcount, d.tag, d.sourceIndex, num);
+    d.bitcount = ret[0];
+    d.tag = ret[1];
+    d.sourceIndex = ret[2];
+    return ret[3] + base;
 }
 
 /* given a data stream and a tree, decode a symbol */

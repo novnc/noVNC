@@ -10,16 +10,16 @@
 var Base64 = {
 
 /* Convert data (an array of integers) to a Base64 string. */
-toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split(''),
+toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),
 base64Pad     : '=',
 
 encode: function (data) {
     "use strict";
     var result = '';
     var toBase64Table = Base64.toBase64Table;
-    var base64Pad = Base64.base64Pad;
-    var length = data.length;
-    var i;
+    var length = data.length
+    var lengthpad = (length%3);
+    var i = 0, j = 0;
     // Convert every three bytes to 4 ascii characters.
   /* BEGIN LOOP */
     for (i = 0; i < (length - 2); i += 3) {
@@ -31,17 +31,18 @@ encode: function (data) {
   /* END LOOP */
 
     // Convert the remaining 1 or 2 bytes, pad out to 4 characters.
-    if (length%3) {
-        i = length - (length%3);
-        result += toBase64Table[data[i] >> 2];
-        if ((length%3) === 2) {
-            result += toBase64Table[((data[i] & 0x03) << 4) + (data[i+1] >> 4)];
-            result += toBase64Table[(data[i+1] & 0x0f) << 2];
-            result += base64Pad;
-        } else {
-            result += toBase64Table[(data[i] & 0x03) << 4];
-            result += base64Pad + base64Pad;
-        }
+    if (lengthpad === 2) {
+        j = length - lengthpad;
+        result += toBase64Table[data[j] >> 2];
+        result += toBase64Table[((data[j] & 0x03) << 4) + (data[j+1] >> 4)];
+        result += toBase64Table[(data[j+1] & 0x0f) << 2];
+        result += toBase64Table[64];
+    } else if (lengthpad === 1) {
+        j = length - lengthpad;
+        result += toBase64Table[data[j] >> 2];
+        result += toBase64Table[(data[j] & 0x03) << 4];
+        result += toBase64Table[64];
+        result += toBase64Table[64];
     }
 
     return result;

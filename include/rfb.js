@@ -1361,6 +1361,45 @@ function display_tight(isTightPNG) {
         return uncompressed.data;
     }
 
+    var indexedToRGB = function (data, numColors, palette, width, height) {
+        // Convert indexed (palette based) image data to RGB
+        // TODO: reduce number of calculations inside loop
+        var dest = [];
+        var x, y, b, w, w1, dp, sp;
+        if (numColors === 2) {
+            w = Math.floor((width + 7) / 8);
+            w1 = Math.floor(width / 8);
+            for (y = 0; y < height; y++) {
+                for (x = 0; x < w1; x++) {
+                    for (b = 7; b >= 0; b--) {
+                        dp = (y*width + x*8 + 7-b) * 3;
+                        sp = (data[y*w + x] >> b & 1) * 3;
+                        dest[dp  ] = palette[sp  ];
+                        dest[dp+1] = palette[sp+1];
+                        dest[dp+2] = palette[sp+2];
+                    }
+                }
+                for (b = 7; b >= 8 - width % 8; b--) {
+                    dp = (y*width + x*8 + 7-b) * 3;
+                    sp = (data[y*w + x] >> b & 1) * 3;
+                    dest[dp  ] = palette[sp  ];
+                    dest[dp+1] = palette[sp+1];
+                    dest[dp+2] = palette[sp+2];
+                }
+            }
+        } else {
+            for (y = 0; y < height; y++) {
+                for (x = 0; x < width; x++) {
+                    dp = (y*width + x) * 3;
+                    sp = data[y*width + x] * 3;
+                    dest[dp  ] = palette[sp  ];
+                    dest[dp+1] = palette[sp+1];
+                    dest[dp+2] = palette[sp+2];
+                }
+            }
+        }
+        return dest;
+    };
     var handlePalette = function() {
         var numColors = rQ[rQi + 2] + 1;
         var paletteSize = numColors * fb_depth; 
@@ -1392,45 +1431,12 @@ function display_tight(isTightPNG) {
         }
 
         // Convert indexed (palette based) image data to RGB
-        // TODO: reduce number of calculations inside loop
-        var dest = [];
-        var x, y, b, w, w1, dp, sp;
-        if (numColors === 2) {
-            w = Math.floor((FBU.width + 7) / 8);
-            w1 = Math.floor(FBU.width / 8);
-            for (y = 0; y < FBU.height; y++) {
-                for (x = 0; x < w1; x++) {
-                    for (b = 7; b >= 0; b--) {
-                        dp = (y*FBU.width + x*8 + 7-b) * 3;
-                        sp = (data[y*w + x] >> b & 1) * 3;
-                        dest[dp  ] = palette[sp  ];
-                        dest[dp+1] = palette[sp+1];
-                        dest[dp+2] = palette[sp+2];
-                    }
-                }
-                for (b = 7; b >= 8 - FBU.width % 8; b--) {
-                    dp = (y*FBU.width + x*8 + 7-b) * 3;
-                    sp = (data[y*w + x] >> b & 1) * 3;
-                    dest[dp  ] = palette[sp  ];
-                    dest[dp+1] = palette[sp+1];
-                    dest[dp+2] = palette[sp+2];
-                }
-            }
-        } else {
-            for (y = 0; y < FBU.height; y++) {
-                for (x = 0; x < FBU.width; x++) {
-                    dp = (y*FBU.width + x) * 3;
-                    sp = data[y*FBU.width + x] * 3;
-                    dest[dp  ] = palette[sp  ];
-                    dest[dp+1] = palette[sp+1];
-                    dest[dp+2] = palette[sp+2];
-                }
-            }
-        }
+        var rgb = indexedToRGB(data, numColors, palette, FBU.width, FBU.height);
 
+        // Add it to the render queue
         display.renderQ_push({
                 'type': 'blitRgb',
-                'data': dest,
+                'data': rgb,
                 'x': FBU.x,
                 'y': FBU.y,
                 'width': FBU.width,
