@@ -25,34 +25,27 @@
 // To enable WebSocket emulator debug:
 //window.WEB_SOCKET_DEBUG=1;
 
-if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
-    Websock_native = true;
-} else if (window.MozWebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
-    Websock_native = true;
-    window.WebSocket = window.MozWebSocket;
-} else {
-    /* no builtin WebSocket so load web_socket.js */
+function _init_websock() {
+    if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
+        Websock_native = true;
+    } else if (window.MozWebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
+        Websock_native = true;
+        window.WebSocket = window.MozWebSocket;
+    } else {
+        /* no builtin WebSocket so load web_socket.js */
 
-    Websock_native = false;
-    (function () {
-        function get_INCLUDE_URI() {
-            return (typeof INCLUDE_URI !== "undefined") ?
-                INCLUDE_URI : "include/";
-        }
-
-        var start = "<script src='" + get_INCLUDE_URI(),
-            end = "'><\/script>", extra = "";
-
-        window.WEB_SOCKET_SWF_LOCATION = get_INCLUDE_URI() +
-                    "web-socket-js/WebSocketMain.swf";
-        if (Util.Engine.trident) {
-            Util.Debug("Forcing uncached load of WebSocketMain.swf");
-            window.WEB_SOCKET_SWF_LOCATION += "?" + Math.random();
-        }
-        extra += start + "web-socket-js/swfobject.js" + end;
-        extra += start + "web-socket-js/web_socket.js" + end;
-        document.write(extra);
-    }());
+        Websock_native = false;
+        (function () {
+            window.WEB_SOCKET_SWF_LOCATION = get_INCLUDE_URI() +
+                        "web-socket-js/WebSocketMain.swf";
+            if (Util.Engine.trident) {
+                Util.Debug("Forcing uncached load of WebSocketMain.swf");
+                window.WEB_SOCKET_SWF_LOCATION += "?" + Math.random();
+            }
+            load_scripts(get_INCLUDE_URI() + "web-socket-js/",
+                    ["swfobject.js", "web_socket.js"]);
+        }());
+    }
 }
 
 

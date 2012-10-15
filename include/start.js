@@ -1,1 +1,1 @@
-window.onload = UI.load;
+NoVnc.onload = UI.load;
