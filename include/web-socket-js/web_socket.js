@@ -3,7 +3,7 @@
 // Reference: http://dev.w3.org/html5/websockets/
 // Reference: http://tools.ietf.org/html/rfc6455
 
-(function() {
+function _init_web_socket() {
   
   if (window.WEB_SOCKET_FORCE_FLASH) {
     // Keeps going.
@@ -388,4 +388,4 @@
     });
   }
   
-})();
+}
