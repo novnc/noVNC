@@ -1,1 +1,0 @@
-window.onload = UI.load;

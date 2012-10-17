@@ -17,7 +17,7 @@
         <script type='text/javascript' 
             src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
         -->
-        <script src="include/vnc.js"></script>
+        <script src="include/util.js"></script>
     </head>
 
     <body style="margin: 0px;">
@@ -40,6 +40,10 @@
         /*jslint white: false */
         /*global window, $, Util, RFB, */
         "use strict";
+
+        // Load supporting scripts
+        Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
+                           "input.js", "display.js", "jsunzip.js", "rfb.js"]);
 
         var rfb;
 
@@ -84,7 +88,7 @@
             }
         }
 
-        window.onload = function () {
+        window.onscriptsload = function () {
             var host, port, password, path, token;
 
             $D('sendCtrlAltDelButton').style.display = "inline";

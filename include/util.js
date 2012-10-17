@@ -207,6 +207,45 @@ Util.conf_defaults = function(cfg, api, defaults, arr) {
  * Cross-browser routines
  */
 
+
+// Dynamically load scripts without using document.write()
+// Reference: http://unixpapa.com/js/dyna.html
+//
+// Handles the case where load_scripts is invoked from a script that
+// itself is loaded via load_scripts. Once all scripts are loaded the
+// window.onscriptsloaded handler is called (if set).
+Util.get_include_uri = function() {
+    return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
+}
+Util._pending_scripts = [];
+Util.load_scripts = function(files) {
+    var head = document.getElementsByTagName('head')[0],
+        ps = Util._pending_scripts;
+    for (var f=0; f<files.length; f++) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = Util.get_include_uri() + files[f];
+        //console.log("loading script: " + Util.get_include_uri() +  files[f]);
+        head.appendChild(script);
+        ps.push(script);
+        script.onload = script.onreadystatechange = function (e) {
+            if (!this.readyState || 
+                this.readyState == 'complete' ||
+                this.readyState == 'loaded') {
+                this.onload = this.onreadystatechange = null;
+                if (ps.indexOf(this) >= 0) {
+                    //console.log("loaded script: " + this.src);
+                    ps.splice(ps.indexOf(this), 1);
+                }
+                // Call window.onscriptsload after last script loads
+                if (ps.length === 0 && window.onscriptsload) {
+                    window.onscriptsload();
+                }
+            }
+        }
+    }
+}
+
 // Get DOM element position on page
 Util.getPosition = function (obj) {
     var x = 0, y = 0;

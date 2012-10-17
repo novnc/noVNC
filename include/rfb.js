@@ -1841,15 +1841,16 @@ that.clipboardPasteFrom = function(text) {
 };
 
 // Override internal functions for testing
-that.testMode = function(override_send) {
+that.testMode = function(override_send, data_mode) {
     test_mode = true;
-    that.recv_message = ws.testMode(override_send);
+    that.recv_message = ws.testMode(override_send, data_mode);
 
     checkEvents = function () { /* Stub Out */ };
     that.connect = function(host, port, password) {
             rfb_host = host;
             rfb_port = port;
             rfb_password = password;
+            init_vars();
             updateState('ProtocolVersion', "Starting VNC handshake");
         };
 };
