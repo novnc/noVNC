@@ -9,6 +9,10 @@
 /*jslint evil: true */
 /*global window, document, INCLUDE_URI */
 
+var NoVnc = {};
+NoVnc.onload = null;
+NoVnc.init_scripts = [];
+
 /*
  * Load supporting scripts
  */
@@ -20,13 +24,38 @@ function get_INCLUDE_URI() {
  * Reference: http://unixpapa.com/js/dyna.html
  */
 function load_scripts(base, files) {
-    var head = document.getElementsByTagName('head')[0];
-    for (var i=0; i<files.length; i++) {
+    function onloadhook () {
+        if (this.initState)  //Already initialized
+            return;
+        this.initState = true;
+        NoVnc.init_scripts.splice(0, 1);
+        if (NoVnc.init_scripts.length > 0)
+            start_loading();
+        else if (!!NoVnc.onload) {
+            NoVnc.onload();
+            NoVnc.onload = null;
+        }
+    }
+    function start_loading() {
+        var head = document.getElementsByTagName('head')[0];
         var script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = base + files[i];
+        script.onload = onloadhook;
+        script.onreadystatechange = function () {
+            if (this.readyState == 'complete' || this.readyState == 'loaded')
+                this.onload();
+        }
+        script.initState = false;
+        script.src = NoVnc.init_scripts[0];
         head.appendChild(script);
     }
+
+    var needtokick = (NoVnc.init_scripts.length === 0);
+    for (var i=0; i<files.length; i++) {
+        NoVnc.init_scripts = NoVnc.init_scripts.concat([base + files[i]]);
+    }
+    if (needtokick)
+        start_loading();
 }
 
 load_scripts(get_INCLUDE_URI(),
