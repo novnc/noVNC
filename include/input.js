@@ -69,7 +69,6 @@ function getKeysymSpecial(evt) {
             case 17        : keysym = 0xFFE3; break; // CONTROL
             //case 18        : keysym = 0xFFE7; break; // Left Meta (Mac Option)
             case 18        : keysym = 0xFFE9; break; // Left ALT (Mac Command)
-            case 225       : keysym = 0xFFEA; break; // ALTGR
 
             case 112       : keysym = 0xFFBE; break; // F1
             case 113       : keysym = 0xFFBF; break; // F2
