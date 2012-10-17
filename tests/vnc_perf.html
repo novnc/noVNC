@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>VNC Performance Benchmark</title>
-        <link rel="stylesheet" href="../include/base.css">
     </head>
     <body>
 
@@ -38,6 +37,8 @@
 
     <script type="text/javascript">
         var INCLUDE_URI= "../include/";
+        // TODO: Data file should override
+        var VNC_frame_encoding = "base64";
     </script>
     <script src="../include/util.js"></script>
     <script src="../include/playback.js"></script>
@@ -201,7 +202,7 @@
             }
             rfb = new RFB({'target': $D('VNC_canvas'),
                            'updateState': updateState});
-            rfb.testMode(send_array);
+            rfb.testMode(send_array, VNC_frame_encoding);
         }
     </script>
 </html>

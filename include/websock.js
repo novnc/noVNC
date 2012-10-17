@@ -371,8 +371,9 @@ function close() {
 
 // Override internal functions for testing
 // Takes a send function, returns reference to recv function
-function testMode(override_send) {
+function testMode(override_send, data_mode) {
     test_mode = true;
+    mode = data_mode;
     api.send = override_send;
     api.close = function () {};
     return recv_message;
