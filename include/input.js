@@ -84,6 +84,10 @@ function getKeysymSpecial(evt) {
             case 122       : keysym = 0xFFC8; break; // F11
             case 123       : keysym = 0xFFC9; break; // F12
 
+            case 225       : keysym = 0xFE03; break; // AltGr
+            case 91       : keysym = 0xFFEC; break; // Super_R (Win Key)
+            case 93       : keysym = 0xFF67; break; // Menu (Win Menu)
+
             default        :                  break;
         }
     }
