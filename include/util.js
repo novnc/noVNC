@@ -218,17 +218,31 @@ Util.get_include_uri = function() {
     return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
 }
 Util._pending_scripts = [];
+Util.load_script = function(file, onload) {
+    var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = Util.get_include_uri() + file;
+    // In order script execution for webkit and firefox    
+    // https://developer.mozilla.org/en-US/docs/HTML/Element/script
+    script.async = false;
+    if (Util.Engine.trident) {
+        // In order script execution for IE 9
+        // http://ui.cognifide.com/slides/async-js/template/#26
+        script.defer = true;
+    }
+    //console.log("loading script: " + Util.get_include_uri() +  files[f]);
+    head.appendChild(script);
+    if (typeof onload !== "undefined") {
+        script.onload = script.onreadystatechange = onload;
+    }
+    return script;
+};
 Util.load_scripts = function(files) {
     var head = document.getElementsByTagName('head')[0],
         ps = Util._pending_scripts;
     for (var f=0; f<files.length; f++) {
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = Util.get_include_uri() + files[f];
-        //console.log("loading script: " + Util.get_include_uri() +  files[f]);
-        head.appendChild(script);
-        ps.push(script);
-        script.onload = script.onreadystatechange = function (e) {
+        var script = Util.load_script(files[f], function (e) {
             if (!this.readyState || 
                 this.readyState == 'complete' ||
                 this.readyState == 'loaded') {
@@ -242,7 +256,8 @@ Util.load_scripts = function(files) {
                     window.onscriptsload();
                 }
             }
-        }
+        });
+        ps.push(script);
     }
 }
 
