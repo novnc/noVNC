@@ -636,7 +636,8 @@ setViewDrag: function(drag) {
         vmb.style.display = "none";
     }
 
-    if (typeof(drag) === "undefined") {
+    if (typeof(drag) === "undefined" ||
+        typeof(drag) === "object") {
         // If not specified, then toggle
         drag = !UI.rfb.get_viewportDrag();
     }
