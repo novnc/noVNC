@@ -1674,6 +1674,11 @@ clientEncodings = function() {
         if ((encodings[i][0] === "Cursor") &&
             (! conf.local_cursor)) {
             Util.Debug("Skipping Cursor pseudo-encoding");
+
+        // TODO: remove this when we have tight+non-true-color
+        } else if ((encodings[i][0] === "TIGHT") && 
+                   (! conf.true_color)) {
+            Util.Warn("Skipping tight, only support with true color");
         } else {
             //Util.Debug("Adding encoding: " + encodings[i][0]);
             encList.push(encodings[i][1]);
