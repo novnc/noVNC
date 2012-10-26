@@ -172,7 +172,10 @@ function decode_message(data) {
     //Util.Debug(">> decode_message: " + data);
     if (mode === 'binary') {
         // push arraybuffer values onto the end
-        rQ.push.apply(rQ, (new Uint8Array(data)));
+        var u8 = new Uint8Array(data);
+        for (var i = 0; i < u8.length; i++) {
+            rQ.push(u8[i]);
+        }
     } else {
         // base64 decode and concat to the end
         rQ = rQ.concat(Base64.decode(data, 0));
