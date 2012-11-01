@@ -16,6 +16,8 @@ usage() {
     echo "                          Default: localhost:5900"
     echo "    --cert CERT           Path to combined cert/key file"
     echo "                          Default: self.pem"
+    echo "    --web WEB             Path to web files (e.g. vnc.html)"
+    echo "                          Default: ./"
     exit 2
 }
 
@@ -24,6 +26,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 PORT="6080"
 VNC_DEST="localhost:5900"
 CERT=""
+WEB=""
 proxy_pid=""
 
 die() {
@@ -50,6 +53,7 @@ while [ "$*" ]; do
     --listen)  PORT="${OPTARG}"; shift            ;;
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
+    --web)     WEB="${OPTARG}"; shift            ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -66,12 +70,18 @@ netstat -ltn | grep -qs "${PORT} .*LISTEN" \
 trap "cleanup" TERM QUIT INT EXIT
 
 # Find vnc.html
-if [ -e "$(pwd)/vnc.html" ]; then
+if [ -n "${WEB}" ]; then
+    if [ ! -e "${WEB}/vnc.html" ]; then
+        die "Could not find ${WEB}/vnc.html"
+    fi
+elif [ -e "$(pwd)/vnc.html" ]; then
     WEB=$(pwd)
 elif [ -e "${HERE}/../vnc.html" ]; then
     WEB=${HERE}/../
 elif [ -e "${HERE}/vnc.html" ]; then
     WEB=${HERE}
+elif [ -e "${HERE}/../share/novnc/vnc.html" ]; then
+    WEB=${HERE}/../share/novnc/
 else
     die "Could not find vnc.html"
 fi
