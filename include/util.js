@@ -242,10 +242,11 @@ Util.load_scripts = function(files) {
                     this.onload = this.onreadystatechange = null;
                     //console.log("completed script: " + this.src);
                     ps.splice(ps.indexOf(this), 1);
-                }
-                // Call window.onscriptsload after last script loads
-                if (ps.length === 0 && window.onscriptsload) {
-                    window.onscriptsload();
+
+                    // Call window.onscriptsload after last script loads
+                    if (ps.length === 0 && window.onscriptsload) {
+                        window.onscriptsload();
+                    }
                 }
             }
         };
