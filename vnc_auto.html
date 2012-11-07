@@ -49,6 +49,14 @@
 
         var rfb;
 
+        var buttons = [
+            {name: 'sendBackslashButton', onclick: function() {
+                rfb.sendKey(0x5C);
+                return false;
+            }},
+            {name: 'sendCtrlAltDelButton', onclick: sendCtrlAltDel}
+        ];
+
         function passwordRequired(rfb) {
             var msg;
             msg = '<form onsubmit="return setPassword();"';
@@ -68,11 +76,9 @@
             return false;
         }
         function updateState(rfb, state, oldstate, msg) {
-            var s, sb, bs, cad, level;
+            var s, sb, level;
             s = $D('noVNC_status');
             sb = $D('noVNC_status_bar');
-            bs = $D('sendBackslashButton');
-            cad = $D('sendCtrlAltDelButton');
             switch (state) {
                 case 'failed':       level = "error";  break;
                 case 'fatal':        level = "error";  break;
@@ -82,12 +88,14 @@
                 default:             level = "warn";   break;
             }
 
-            if (state === "normal") {
-                bs.disabled = false;
-                cad.disabled = false;
-            } else {
-                bs.disabled = true;
-                cad.disabled = true;
+            var i;
+            for (i = 0; i < buttons.length; i++) {
+                var elem = $D(buttons[i].name);
+                if (state === "normal") {
+                    elem.disabled = false;
+                } else {
+                    elem.disabled = true;
+                }
             }
 
             if (typeof(msg) !== 'undefined') {
@@ -99,13 +107,12 @@
         window.onscriptsload = function () {
             var host, port, password, path, token;
 
-            $D('sendBackslashButton').style.display = "inline";
-            $D('sendBackslashButton').onclick = function() {
-                rfb.sendKey(0x5C);
-                return false;
+            var i;
+            for (i = 0; i < buttons.length; i++) {
+                var button = buttons[i];
+                $D(button.name).style.display = "inline";
+                $D(button.name).onclick = button.onclick;
             }
-            $D('sendCtrlAltDelButton').style.display = "inline";
-            $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
             document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
