@@ -26,6 +26,8 @@
                 <table border=0 width="100%"><tr>
                     <td><div id="noVNC_status">Loading</div></td>
                     <td width="1%"><div id="noVNC_buttons">
+                        <input type=button value="Send Backslash"
+                            id="sendBackslashButton">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
                             </div></td>
@@ -66,9 +68,10 @@
             return false;
         }
         function updateState(rfb, state, oldstate, msg) {
-            var s, sb, cad, level;
+            var s, sb, bs, cad, level;
             s = $D('noVNC_status');
             sb = $D('noVNC_status_bar');
+            bs = $D('sendBackslashButton');
             cad = $D('sendCtrlAltDelButton');
             switch (state) {
                 case 'failed':       level = "error";  break;
@@ -79,8 +82,13 @@
                 default:             level = "warn";   break;
             }
 
-            if (state === "normal") { cad.disabled = false; }
-            else                    { cad.disabled = true; }
+            if (state === "normal") {
+                bs.disabled = false;
+                cad.disabled = false;
+            } else {
+                bs.disabled = true;
+                cad.disabled = true;
+            }
 
             if (typeof(msg) !== 'undefined') {
                 sb.setAttribute("class", "noVNC_status_" + level);
@@ -91,6 +99,11 @@
         window.onscriptsload = function () {
             var host, port, password, path, token;
 
+            $D('sendBackslashButton').style.display = "inline";
+            $D('sendBackslashButton').onclick = function() {
+                rfb.sendKey(0x5C);
+                return false;
+            }
             $D('sendCtrlAltDelButton').style.display = "inline";
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
