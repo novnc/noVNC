@@ -28,8 +28,8 @@ import sys
 
 import wsproxy
 
+from nova import config
 from nova import context
-from nova import flags
 from nova import utils
 from nova.openstack.common import cfg
 from nova.openstack.common import rpc
@@ -64,13 +64,13 @@ opts = [
                default=6080,
                help='Port on which to listen for incoming requests'),
     ]
-FLAGS = flags.FLAGS
-FLAGS.register_cli_opts(opts)
+CONF = config.CONF
+CONF.register_cli_opts(opts)
 
 # As of nova commit 0b11668e64450039dc071a4a123abd02206f865f we must
 # manually register the rpc library
 if hasattr(rpc, 'register_opts'):
-    rpc.register_opts(FLAGS)
+    rpc.register_opts(CONF)
 
 
 class NovaWebSocketProxy(wsproxy.WebSocketProxy):
@@ -128,23 +128,23 @@ class NovaWebSocketProxy(wsproxy.WebSocketProxy):
 
 
 if __name__ == '__main__':
-    if FLAGS.ssl_only and not os.path.exists(FLAGS.cert):
-        parser.error("SSL only and %s not found" % FLAGS.cert)
+    if CONF.ssl_only and not os.path.exists(CONF.cert):
+        parser.error("SSL only and %s not found" % CONF.cert)
 
     # Setup flags
-    flags.parse_args(sys.argv)
+    config.parse_args(sys.argv)
 
     # Create and start the NovaWebSockets proxy
-    server = NovaWebSocketProxy(listen_host=FLAGS.novncproxy_host,
-                                listen_port=FLAGS.novncproxy_port,
-                                source_is_ipv6=FLAGS.source_is_ipv6,
-                                verbose=FLAGS.verbose,
-                                cert=FLAGS.cert,
-                                key=FLAGS.key,
-                                ssl_only=FLAGS.ssl_only,
-                                daemon=FLAGS.daemon,
-                                record=FLAGS.record,
-                                web=FLAGS.web,
+    server = NovaWebSocketProxy(listen_host=CONF.novncproxy_host,
+                                listen_port=CONF.novncproxy_port,
+                                source_is_ipv6=CONF.source_is_ipv6,
+                                verbose=CONF.verbose,
+                                cert=CONF.cert,
+                                key=CONF.key,
+                                ssl_only=CONF.ssl_only,
+                                daemon=CONF.daemon,
+                                record=CONF.record,
+                                web=CONF.web,
                                 target_host='ignore',
                                 target_port='ignore',
                                 wrap_mode='exit',
