@@ -143,6 +143,7 @@ addMouseHandlers: function() {
     //$D("keyboardinput").onkeydown = function (event) { onKeyDown(event); };
     $D("keyboardinput").onblur = UI.keyInputBlur;
 
+    $D("sendBackslashButton").onclick = UI.sendBackslash;
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
     $D("clipboardButton").onclick = UI.toggleClipboardPanel;
     $D("settingsButton").onclick = UI.toggleSettingsPanel;
@@ -391,6 +392,11 @@ setPassword: function() {
     return false;
 },
 
+sendBackslash: function() {
+    UI.rfb.sendKey(0x5C);
+    return false;
+},
+
 sendCtrlAltDel: function() {
     UI.rfb.sendCtrlAltDel();
 },
@@ -489,11 +495,13 @@ updateVisualState: function() {
         UI.setMouseButton(1);
         $D('clipboardButton').style.display = "inline";
         $D('showKeyboard').style.display = "inline";
+        $D('sendBackslashButton').style.display = "inline";
         $D('sendCtrlAltDelButton').style.display = "inline";
     } else {
         UI.setMouseButton();
         $D('clipboardButton').style.display = "none";
         $D('showKeyboard').style.display = "none";
+        $D('sendBackslashButton').style.display = "none";
         $D('sendCtrlAltDelButton').style.display = "none";
     }
     // State change disables viewport dragging.
