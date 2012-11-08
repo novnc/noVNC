@@ -126,7 +126,12 @@ var that           = {},  // Public API methods
     mouse_buttonMask = 0,
     mouse_arr        = [],
     viewportDragging = false,
-    viewportDragPos  = {};
+    viewportDragPos  = {},
+
+    /* Soft key */
+    wrapWithSoftKeyLock,
+    softKeyState = {},
+    softKey = { CtrlLock: 0xFFE3, AltLock: 0xFFE9 };
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -596,12 +601,26 @@ checkEvents = function() {
     setTimeout(checkEvents, conf.check_rate);
 };
 
+wrapWithSoftKeyLock = function(arr) {
+    var k;
+    for (k in softKeyState) {
+        if (softKeyState[k]) {
+            arr = keyEvent(softKey[k], 1).concat(arr);
+            arr = arr.concat(keyEvent(softKey[k], 0));
+        }
+    }
+    return arr;
+}
+
 keyPress = function(keysym, down) {
     var arr;
 
     if (conf.view_only) { return; } // View only, skip keyboard events
 
     arr = keyEvent(keysym, down);
+    if (down) {
+        arr = wrapWithSoftKeyLock(arr);
+    }
     arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };
@@ -1829,13 +1848,21 @@ that.sendKey = function(code, down) {
     if (typeof down !== 'undefined') {
         Util.Info("Sending key code (" + (down ? "down" : "up") + "): " + code);
         arr = arr.concat(keyEvent(code, down ? 1 : 0));
+        if (down) {
+            arr = wrapWithSoftKeyLock(arr);
+        }
     } else {
         Util.Info("Sending key code (down + up): " + code);
         arr = arr.concat(keyEvent(code, 1));
+        arr = wrapWithSoftKeyLock(arr);
         arr = arr.concat(keyEvent(code, 0));
     }
     arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
+};
+
+that.updateSoftKeyState = function(name, value) {
+    softKeyState[name] = value;
 };
 
 that.clipboardPasteFrom = function(text) {
