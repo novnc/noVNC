@@ -331,6 +331,9 @@ function open(uri, protocols) {
         websocket = {};
     } else {
         websocket = new WebSocket(uri, protocols);
+        if (protocols.indexOf('binary') >= 0) {
+            websocket.binaryType = 'arraybuffer';
+        }
     }
 
     websocket.onmessage = recv_message;
@@ -342,9 +345,6 @@ function open(uri, protocols) {
         } else {
             mode = 'base64';
             Util.Error("Server select no sub-protocol!: " + websocket.protocol);
-        }
-        if (mode === 'binary') {
-            websocket.binaryType = 'arraybuffer';
         }
         eventHandlers.open();
         Util.Debug("<< WebSock.onopen");
