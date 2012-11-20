@@ -64,7 +64,7 @@ opts = [
                default=6080,
                help='Port on which to listen for incoming requests'),
     ]
-CONF = config.CONF
+CONF = cfg.CONF
 CONF.register_cli_opts(opts)
 
 # As of nova commit 0b11668e64450039dc071a4a123abd02206f865f we must
