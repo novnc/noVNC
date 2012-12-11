@@ -29,6 +29,10 @@ Util.conf_defaults(conf, that, defaults, [
     ['onKeyPress',  'rw', 'func', null, 'Handler for key press/release']
     ]);
 
+// CTRL/ALT/SHIFT/ALTGR key status.
+var keyModifiers   = {'altKey': false, 'ctrlKey': false, 'shiftKey': false,
+         'altgrKey': false, 'altgrKey_fake': false, 'altgrKey_native': false};
+
 
 // 
 // Private functions
@@ -92,6 +96,10 @@ function getKeysymSpecial(evt) {
     }
 
     if ((!keysym) && (evt.ctrlKey || evt.altKey)) {
+        if (evt.ctrlKey && evt.altKey) {
+            // This is a key event with ALTGR.
+            return keysym;
+        }
         if ((typeof(evt.which) !== "undefined") && (evt.which > 0)) {
             keysym = evt.which;
         } else {
@@ -248,6 +256,81 @@ function ignoreKeyEvent(evt) {
     return false;
 }
 
+// 1. Save the current status of modifier keys to enable the keypress event
+//    handler to refer the status. Some browers may not fire keyup events
+//    pairing with some keydown events for modifier keys like CTRL, ALT and
+//    SHIFT keys. noVNC is expected to detect this situation to issue fake
+//    keyup events to fix it up.
+// 2. Emulate ALTGR key events. Most browsers generate two key events
+//    when hitting an ALTGR key, events which are CTRL and ALT ones.
+//    But unfortunately there exist some vnc servers that can't handle
+//    them as an emulated ALTGR key event. noVNC has to convert them into
+//    one ALTGR key event on behalf of vnc servers.
+function saveKeyModifiers(evt, keysym) {
+    var km = keyModifiers;
+    km.shiftKey = evt.shiftKey;
+
+    if (evt.type === 'keydown') {
+        switch (keysym) {
+            // If this event is ALT or CTRL down and both evt.ctrlKey and
+            // evt.altKey get true, pass the decision to the next key event
+            // that whether it should be turned into an ALTGR key event.
+            case 0xFFE3 :
+                if (evt.ctrlKey && evt.altKey) break;
+                km.ctrlKey = true;
+                break;
+            case 0xFFE9 :
+                if (evt.ctrlKey && evt.altKey) break;
+                km.altKey = true;
+                break;
+            default     :
+                switch (keysym) {
+                    case 0xFFE1 : km.shiftKey = true; break;
+                    case 0xFE03 : km.altgrKey_native = true; break;
+                }
+                km.altKey = evt.altKey;
+                km.ctrlKey = evt.ctrlKey;
+                break;
+        }
+        if (!(keysym) && km.ctrlKey && km.altKey) {
+            // Turn the ALT and CTRL events into an ALTGR. The keycode will
+            // be translated by the ALTGR even if it is an emulated one.
+            km.altgrKey_fake = true;
+            km.ctrlKey = km.altKey = false;
+        } else {
+            km.altgrKey_fake = false;
+        }
+    } else {    // keyup event
+        switch (keysym) {
+            // Notice: FireFox 15 for linux doesn't set evt.altKey and
+            //     evt.ctrlKey false even when this is an ALT or CTRL keyup
+            //     event. Don't use evt.altKey and evt.ctrlKey here.
+            case 0xFFE3 : km.ctrlKey = false; break;
+            case 0xFFE9 : km.altKey = false; break;
+            default     :
+                switch (keysym) {
+                    case 0xFFE1 : km.shiftKey = false; break;
+                    case 0xFE03 : km.altgrKey_native = false; break;
+                }
+                km.altKey = evt.altKey;
+                km.ctrlKey = evt.ctrlKey;
+                break;
+        }
+        if (km.altgrKey_fake) {
+            if (keysym == 0xFFE3 || keysym == 0xFFE9) {
+                // This is a part of an emulated ALTGR keyup event.
+                // Don't let ALT or CTRL down yet.
+                km.altgrKey_fake = false;
+                km.ctrlKey = km.altKey = false;
+            } else if (km.altKey && km.ctrlKey) {
+                km.ctrlKey = km.altKey = false;
+            } else {
+                km.altgrKey_fake = false;
+            }
+        }
+    }
+    km.altgrKey = km.altgrKey_fake || km.altgrKey_native;
+};
 
 //
 // Key Event Handling:
@@ -307,6 +390,7 @@ function onKeyDown(e) {
     keysym = getKeysymSpecial(evt);
     // Save keysym decoding for use in keyUp
     fevt.keysym = keysym;
+    saveKeyModifiers(evt, keysym);
     if (keysym) {
         // If it is a key or key combination that might trigger
         // browser behaviors or it has no corresponding keyPress
@@ -315,7 +399,7 @@ function onKeyDown(e) {
             Util.Debug("onKeyPress down, keysym: " + keysym +
                    " (onKeyDown key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
-            conf.onKeyPress(keysym, 1, evt);
+            conf.onKeyPress(keysym, 1, keyModifiers);
             pushKeyEvent(fevt);
         }
         suppress = true;
@@ -356,6 +440,11 @@ function onKeyPress(e) {
 
     //show_keyDownMap('press');
     
+    if (Util.Engine.presto && (evt.ctrlKey || evt.altKey)) {
+        // Opera may fire two keypress events againt one keydown when
+        // hitting a key with some modifiers. Just ignore the first one.
+        return false;
+    }
     // Send the translated keysym
     if (conf.onKeyPress && (keysym > 0)) {
         Util.Debug("onKeyPress down, keysym: " + keysym +
@@ -364,7 +453,7 @@ function onKeyPress(e) {
         Util.Debug("onKeyPress up, keysym: " + keysym +
                    " (onKeyPress key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
-        conf.onKeyPress(keysym, 2, evt);
+        conf.onKeyPress(keysym, 2, keyModifiers);
     }
 
     // Stop keypress events just in case
@@ -388,6 +477,7 @@ function onKeyUp(e) {
         //        ") not found on keyDownMap");
         keysym = 0;
     }
+    saveKeyModifiers(evt, keysym);
 
     //show_keyDownMap('up');
 
@@ -397,7 +487,7 @@ function onKeyUp(e) {
         Util.Debug("onKeyPress up, keysym: " + keysym +
                    " (onKeyPress key: " + evt.keyCode +
                    ", which: " + evt.which + ")");
-        conf.onKeyPress(keysym, 0, evt);
+        conf.onKeyPress(keysym, 0, keyModifiers);
     }
     Util.stopEvent(e);
     return false;
@@ -406,6 +496,8 @@ function onKeyUp(e) {
 function allKeysUp() {
     Util.Debug(">> Keyboard.allKeysUp");
     var keyCode, keysym, fevt;
+    keyModifiers = {'altKey': false, 'ctrlKey': false, 'shiftKey': false,
+        'altgrKey': false, 'altgrKey_fake': false, 'altgrKey_native': false};
     for (keyCode in keyDownMap) {
         fevt = getKeyEvent(keyCode, true);
         keysym = fevt.keysym;
@@ -413,7 +505,7 @@ function allKeysUp() {
             Util.Debug("allKeysUp, keysym: " + keysym +
                     " (keyCode: " + fevt.keyCode +
                     ", which: " + fevt.which + ")");
-            conf.onKeyPress(keysym, 0, fevt);
+            conf.onKeyPress(keysym, 0, keyModifiers);
         }
     }
     Util.Debug("<< Keyboard.allKeysUp");

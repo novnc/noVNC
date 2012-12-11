@@ -596,21 +596,48 @@ checkEvents = function() {
     setTimeout(checkEvents, conf.check_rate);
 };
 
-keyPress = function(keysym, down) {
-    var arr;
+// The status of the VNC server side key modifers.
+var remote_status = {shift: false, ctrl: false, alt: false, altgr: false};
+
+keyPress = function(keysym, down, km) {
+    var arr = [];
 
     if (conf.view_only) { return; } // View only, skip keyboard events
 
-    if (down === 2) {
-        // keypress event
+    // Generate all modifier keys' events on demand.
+    // Send key events for modifiers to the vnc server when:
+    //  1. the status of modifers have been changed
+    //  2. this is a repeated keydown event for a modifer
+    if (remote_status.ctrl !== km.ctrlKey || keysym === 0xFFE3) {
+        arr = arr.concat(keyEvent(0xFFE3, km.ctrlKey));		// CTRL
+        remote_status.ctrl = km.ctrlKey;
+    }
+    if (remote_status.alt !== km.altKey || keysym === 0xFFE9) {
+        arr = arr.concat(keyEvent(0xFFE9, km.altKey));		// ALT
+        remote_status.alt = km.altKey;
+    }
+    if (remote_status.altgr !== km.altgrKey || keysym === 0xFE03) {
+        arr = arr.concat(keyEvent(0xFE03, km.altgrKey));	// ALTGR
+        remote_status.altgr = km.altgrKey;
+    }
+    if (remote_status.shift !== km.shiftKey || keysym === 0xFFE1) {
+        arr = arr.concat(keyEvent(0xFFE1, km.shiftKey));	// SHIFT
+        remote_status.shift = km.shiftKey;
+    }
+
+    if (keysym === 0xFFE1 || keysym === 0xFFE3
+                || keysym === 0xFFE9 || keysym === 0xFE03) {
+        // SHIFT, CTRL, ALT and ALTGR events are already set in arr[].
+    } else if (down === 2) {
+        // This is a keypress event.
         // Send a keyup event here to avoid letting the server side generate
         // repeated-key events. Otherwise, both sides will independently
         // generate key down and press events against the same key.
-        arr = keyEvent(keysym, 1);
+        arr = arr.concat(keyEvent(keysym, 1));
         arr = arr.concat(keyEvent(keysym, 0));
     } else {
-        // keydown or keyup event
-        arr = keyEvent(keysym, down);
+        // This is a keydown or keyup event.
+        arr = arr.concat(keyEvent(keysym, down));
     }
     arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
