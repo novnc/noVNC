@@ -126,7 +126,9 @@ var that           = {},  // Public API methods
     mouse_buttonMask = 0,
     mouse_arr        = [],
     viewportDragging = false,
-    viewportDragPos  = {};
+    viewportDragPos  = {},
+
+    keymap   = null;
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -604,6 +606,11 @@ keyPress = function(keysym, down, km) {
 
     if (conf.view_only) { return; } // View only, skip keyboard events
 
+    // Remap the modifiers with apppropriate ones depending on the
+    // keyboard type of the vnc server if this is a presskey event.
+    if (!!keymap && down === 2)
+        km = remapModifiers(km, keysym);
+
     // Generate all modifier keys' events on demand.
     // Send key events for modifiers to the vnc server when:
     //  1. the status of modifers have been changed
@@ -639,9 +646,43 @@ keyPress = function(keysym, down, km) {
         // This is a keydown or keyup event.
         arr = arr.concat(keyEvent(keysym, down));
     }
+
+    if (!!keymap && down === 2) {
+        // Turn off SHIFT and ALTGR every time when emulating modifiers.
+        if (remote_status.shift) {
+            arr = arr.concat(keyEvent(0xFFE1, 0));		// SHIFT up
+            remote_status.shift = false;
+        }
+        if (remote_status.altgr) {
+            arr = arr.concat(keyEvent(0xFE03, 0));		// ALTGR up
+            remote_status.altgr = false;
+        }
+    }
+
     arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };
+
+// Remap the modifiers depending on keyboard types. It depends on keyboards
+// whether a certain keycode should be issued with modifiers. For example,
+// the US keyboard issues '@' with SHIFT, the Japanese keyboard issues '@'
+// without any modifers, and the German keyboard issues '@' with ALTGR.
+// When the keyboard types are different between the viewer and the vnc
+// server, the server is expected to generate fake modifer key events
+// if needed. But unfortunately there are a lot of VNC servers that can't
+// handle this. Then there is no choice but to make noVNC take care of it
+// on behalf of them.
+function remapModifiers(km, keysym)
+{
+    var remap = {'altKey': km.altKey, 'ctrlKey': km.ctrlKey,
+                 'shiftKey': km.shiftKey, 'altgrKey': km.altgrKey};
+    var key = keymap[keysym];
+    if (typeof key !== "undefined") {
+        remap.altgrKey = key.altgr;
+        remap.shiftKey = key.shift;
+    }
+    return remap;
+}
 
 mouseButton = function(x, y, down, bmask) {
     if (down) {
@@ -1895,6 +1936,14 @@ that.testMode = function(override_send, data_mode) {
             init_vars();
             updateState('ProtocolVersion', "Starting VNC handshake");
         };
+};
+
+that.setKeymap = function(kb) {
+    if (!kb || kb === 'default') {
+        keymap = null;
+    } else {
+        keymap = Kmap.getKeymap(kb);
+    }
 };
 
 

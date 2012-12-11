@@ -17,6 +17,7 @@ is not limited to):
     include/vnc.js
     include/websock.js
     include/webutil.js
+    include/keymap.js
 
 The HTML, CSS, font and images files that included with the noVNC
 source distibution (or repository) are not considered part of the
