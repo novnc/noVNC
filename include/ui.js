@@ -164,6 +164,8 @@ addMouseHandlers: function() {
     $D("connectButton").onclick = UI.toggleConnectPanel;
     $D("disconnectButton").onclick = UI.disconnect;
     $D("descriptionButton").onclick = UI.toggleConnectPanel;
+    $D("ctrlLockCheckBox").onclick = UI.updateSoftKeyState;
+    $D("altLockCheckBox").onclick = UI.updateSoftKeyState;
 
     $D("noVNC_clipboard_text").onfocus = UI.displayBlur;
     $D("noVNC_clipboard_text").onblur = UI.displayFocus;
@@ -413,6 +415,10 @@ sendCtrlAltDel: function() {
     UI.rfb.sendCtrlAltDel();
 },
 
+updateSoftKeyState: function() {
+    UI.rfb.updateSoftKeyState(this.value, this.checked);
+},
+
 setMouseButton: function(num) {
     var b, blist = [0, 1,2,4], button;
 
@@ -508,11 +514,19 @@ updateVisualState: function() {
         $D('clipboardButton').style.display = "inline";
         $D('showKeyboard').style.display = "inline";
         $D('sendCtrlAltDelButton').style.display = "inline";
+        $D('ctrlLockCheckBox').style.display = "inline";
+        $D('altLockCheckBox').style.display = "inline";
+        $D('ctrlLockLabel').style.display = "inline";
+        $D('altLockLabel').style.display = "inline";
     } else {
         UI.setMouseButton();
         $D('clipboardButton').style.display = "none";
         $D('showKeyboard').style.display = "none";
         $D('sendCtrlAltDelButton').style.display = "none";
+        $D('ctrlLockCheckBox').style.display = "none";
+        $D('altLockCheckBox').style.display = "none";
+        $D('ctrlLockLabel').style.display = "none";
+        $D('altLockLabel').style.display = "none";
     }
     // State change disables viewport dragging.
     // It is enabled (toggled) by direct click on the button

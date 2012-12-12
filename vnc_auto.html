@@ -25,10 +25,20 @@
             <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
                 <table border=0 width="100%"><tr>
                     <td><div id="noVNC_status">Loading</div></td>
-                    <td width="1%"><div id="noVNC_buttons">
+                    <td width="300pt"><div id="noVNC_buttons">
+                      <span style="float: right">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
-                            </div></td>
+                      </span>
+                      <span style="float: right">
+                        <input type=checkbox value="ctrlKey"
+                            id="ctrlLockCheckBox">
+                        <label for="ctrlLockCheckBox">CtrlLock</label>
+                        <input type=checkbox value="altKey"
+                            id="altLockCheckBox">
+                        <label for="altLockCheckBox">AltLock</label>
+                      </span>
+                    </div></td>
                 </tr></table>
             </div>
             <canvas id="noVNC_canvas" width="640px" height="20px">
@@ -47,6 +57,11 @@
                            "keymap.js"]);
 
         var rfb;
+        var buttons = [
+            {name: 'ctrlLockCheckBox', onclick: updateSoftKeyState},
+            {name: 'altLockCheckBox', onclick: updateSoftKeyState},
+            {name: 'sendCtrlAltDelButton', onclick: sendCtrlAltDel}
+        ];
 
         function passwordRequired(rfb) {
             var msg;
@@ -66,11 +81,14 @@
             rfb.sendCtrlAltDel();
             return false;
         }
+        function updateSoftKeyState() {
+            rfb.updateSoftKeyState(this.value, this.checked);
+            return true;
+        }
         function updateState(rfb, state, oldstate, msg) {
-            var s, sb, cad, level;
+            var s, sb, level;
             s = $D('noVNC_status');
             sb = $D('noVNC_status_bar');
-            cad = $D('sendCtrlAltDelButton');
             switch (state) {
                 case 'failed':       level = "error";  break;
                 case 'fatal':        level = "error";  break;
@@ -80,8 +98,15 @@
                 default:             level = "warn";   break;
             }
 
-            if (state === "normal") { cad.disabled = false; }
-            else                    { cad.disabled = true; }
+            var i;
+            for (i = 0; i < buttons.length; i++) {
+                var elem = $D(buttons[i].name);
+                if (state === "normal") {
+                    elem.disabled = false;
+                } else {
+                    elem.disabled = true;
+                }
+            }
 
             if (typeof(msg) !== 'undefined') {
                 sb.setAttribute("class", "noVNC_status_" + level);
@@ -90,10 +115,15 @@
         }
 
         window.onscriptsload = function () {
-            var host, port, password, path, token;
+            var host, port, password, path, token, i;
 
-            $D('sendCtrlAltDelButton').style.display = "inline";
-            $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+            for (i = 0; i < buttons.length; i++) {
+                var button = buttons[i];
+                $D(button.name).style.display = "inline";
+                if (button.onclick) {
+                    $D(button.name).onclick = button.onclick;
+                }
+            }
 
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
             document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
