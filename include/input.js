@@ -110,6 +110,10 @@ function getKeysymSpecial(evt) {
                 if (Util.Engine.gecko || Util.Engine.presto) {
                             keysym = 45; }
                                         break;
+            case 173       :                     // -  (Mozilla)
+                if (Util.Engine.gecko) {
+                            keysym = 45; }
+                                        break;
             case 189       : keysym = 45; break; // -  (IE)
             case 190       : keysym = 46; break; // .  (Mozilla, IE)
             case 191       : keysym = 47; break; // /  (Mozilla, IE)
