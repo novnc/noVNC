@@ -609,10 +609,12 @@ that.grab = function() {
 
     if ('ontouchstart' in document.documentElement) {
         Util.addEvent(c, 'touchstart', onMouseDown);
+        Util.addEvent(window, 'touchend', onMouseUp);
         Util.addEvent(c, 'touchend', onMouseUp);
         Util.addEvent(c, 'touchmove', onMouseMove);
     } else {
         Util.addEvent(c, 'mousedown', onMouseDown);
+        Util.addEvent(window, 'mouseup', onMouseUp);
         Util.addEvent(c, 'mouseup', onMouseUp);
         Util.addEvent(c, 'mousemove', onMouseMove);
         Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
@@ -632,10 +634,12 @@ that.ungrab = function() {
 
     if ('ontouchstart' in document.documentElement) {
         Util.removeEvent(c, 'touchstart', onMouseDown);
+        Util.removeEvent(window, 'touchend', onMouseUp);
         Util.removeEvent(c, 'touchend', onMouseUp);
         Util.removeEvent(c, 'touchmove', onMouseMove);
     } else {
         Util.removeEvent(c, 'mousedown', onMouseDown);
+        Util.removeEvent(window, 'mouseup', onMouseUp);
         Util.removeEvent(c, 'mouseup', onMouseUp);
         Util.removeEvent(c, 'mousemove', onMouseMove);
         Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
