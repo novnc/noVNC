@@ -55,7 +55,8 @@ Util.conf_defaults(conf, that, defaults, [
     ['render_mode', 'ro', 'str', '', 'Canvas rendering mode (read-only)'],
 
     ['prefer_js',   'rw', 'str', null, 'Prefer Javascript over canvas methods'],
-    ['cursor_uri',  'rw', 'raw', null, 'Can we render cursor using data URI']
+    ['cursor_uri',  'rw', 'raw', null, 'Can we render cursor using data URI'],
+    ['default_cursor', 'wo', 'str', null, 'Default cursor']
     ]);
 
 // Override some specific getters/setters
@@ -648,7 +649,7 @@ that.changeCursor = function(pixels, mask, hotx, hoty, w, h) {
 };
 
 that.defaultCursor = function() {
-    conf.target.style.cursor = "default";
+    conf.target.style.cursor = conf.default_cursor;
 };
 
 return constructor();  // Return the public API interface

@@ -142,6 +142,8 @@ Util.conf_defaults(conf, that, defaults, [
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
 
+    ['default_cursor',     'wo', 'str', 'default', 'Default cursor'],
+
     // UltraVNC repeater ID to connect to
     ['repeaterID',         'rw', 'str',  '',    'RepeaterID to connect to'],
 
@@ -214,7 +216,7 @@ function constructor() {
     }
     // Initialize display, mouse, keyboard, and websock
     try {
-        display   = new Display({'target': conf.target});
+        display   = new Display({'target': conf.target, 'default_cursor': conf.default_cursor});
     } catch (exc) {
         Util.Error("Display exception: " + exc);
         updateState('fatal', "No working Display");
