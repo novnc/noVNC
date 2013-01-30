@@ -298,7 +298,9 @@ Util.getEventPosition = function (e, obj, scale) {
     if (typeof scale === "undefined") {
         scale = 1;
     }
-    return {'x': (docX - pos.x) / scale, 'y': (docY - pos.y) / scale};
+    var x = Math.max(Math.min(docX - pos.x, obj.width-1), 0);
+	var y = Math.max(Math.min(docY - pos.y, obj.height-1), 0);
+    return {'x': x / scale, 'y': y / scale};
 };
 
 

@@ -486,7 +486,8 @@ function Mouse(defaults) {
 "use strict";
 
 var that           = {},  // Public API methods
-    conf           = {};  // Configuration attributes
+    conf           = {},  // Configuration attributes
+    mouseCaptured  = false;
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -499,7 +500,23 @@ Util.conf_defaults(conf, that, defaults, [
     ['touchButton',    'rw', 'int', 1, 'Button mask (1, 2, 4) for touch devices (0 means ignore clicks)']
     ]);
 
+function captureMouse() {
+    // capturing the mouse ensures we get the mouseup event
+    if (conf.target.setCapture) {
+        conf.target.setCapture();
+    }
 
+    // some browsers give us mouseup events regardless,
+    // so if we never captured the mouse, we can disregard the event
+    mouseCaptured = true;
+}
+
+function releaseMouse() {
+    if (conf.target.releaseCapture) {
+        conf.target.releaseCapture();
+    }
+    mouseCaptured = false;
+}
 // 
 // Private functions
 //
@@ -536,11 +553,17 @@ function onMouseButton(e, down) {
 }
 
 function onMouseDown(e) {
+    captureMouse();
     onMouseButton(e, 1);
 }
 
 function onMouseUp(e) {
+    if (!mouseCaptured) {
+        return;
+    }
+
     onMouseButton(e, 0);
+    releaseMouse();
 }
 
 function onMouseWheel(e) {
@@ -609,10 +632,12 @@ that.grab = function() {
 
     if ('ontouchstart' in document.documentElement) {
         Util.addEvent(c, 'touchstart', onMouseDown);
+        Util.addEvent(window, 'touchend', onMouseUp);
         Util.addEvent(c, 'touchend', onMouseUp);
         Util.addEvent(c, 'touchmove', onMouseMove);
     } else {
         Util.addEvent(c, 'mousedown', onMouseDown);
+        Util.addEvent(window, 'mouseup', onMouseUp);
         Util.addEvent(c, 'mouseup', onMouseUp);
         Util.addEvent(c, 'mousemove', onMouseMove);
         Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
@@ -632,10 +657,12 @@ that.ungrab = function() {
 
     if ('ontouchstart' in document.documentElement) {
         Util.removeEvent(c, 'touchstart', onMouseDown);
+        Util.removeEvent(window, 'touchend', onMouseUp);
         Util.removeEvent(c, 'touchend', onMouseUp);
         Util.removeEvent(c, 'touchmove', onMouseMove);
     } else {
         Util.removeEvent(c, 'mousedown', onMouseDown);
+        Util.removeEvent(window, 'mouseup', onMouseUp);
         Util.removeEvent(c, 'mouseup', onMouseUp);
         Util.removeEvent(c, 'mousemove', onMouseMove);
         Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
