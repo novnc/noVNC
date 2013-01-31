@@ -70,6 +70,12 @@
 
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
+            <input type=checkbox value="ctrlKey"
+                id="ctrlLockCheckBox">
+            <label for="ctrlLockCheckBox" id="ctrlLockLabel">CtrlLock</label>
+            <input type=checkbox value="altKey"
+                id="altLockCheckBox">
+            <label for="altLockCheckBox" id="altLockLabel" >AltLock</label>
             <input type="image" src="images/ctrlaltdel.png"
                  id="sendCtrlAltDelButton" class="noVNC_status_button"
                 title="Send Ctrl-Alt-Del" />
@@ -136,6 +142,12 @@
                     <!-- Logging selection dropdown -->
                     <li><label><strong>Logging: </strong>
                         <select id="noVNC_logging" name="vncLogging">
+                        </select></label>
+                    </li>
+
+                    <!-- keyboard selection dropdown -->
+                    <li><label><strong>Keyboard: </strong>
+                        <select id="noVNC_keymap" name="vncKeymap">
                         </select></label>
                     </li>
                     <hr>

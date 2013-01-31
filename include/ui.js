@@ -13,7 +13,8 @@
 // Load supporting scripts
 window.onscriptsload = function () { UI.load(); };
 Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                   "input.js", "display.js", "jsunzip.js", "rfb.js"]);
+                   "input.js", "display.js", "jsunzip.js", "rfb.js",
+                   "keymap.js"]);
 
 var UI = {
 
@@ -31,7 +32,7 @@ load: function (callback) {
 
 // Render default UI and initialize settings menu
 start: function(callback) {
-    var html = '', i, sheet, sheets, llevels;
+    var html = '', i, sheet, sheets, llevels, kbtypes;
 
     // Stylesheet selection dropdown
     sheet = WebUtil.selectStylesheet();
@@ -45,6 +46,19 @@ start: function(callback) {
     for (i = 0; i < llevels.length; i += 1) {
         UI.addOption($D('noVNC_logging'),llevels[i], llevels[i]);
     }
+
+    // Keyboard type selection dropdown
+    kbtypes = ['default', 'ar', 'bepo', 'da', 'de', 'de-ch', 'en-gb',
+               'en-us', 'es', 'et', 'fi', 'fo', 'fr', 'fr-be', 'fr-ca',
+               'fr-ch', 'hr', 'hu', 'is', 'it', 'ja', 'lt', 'lv', 'mk',
+               'nl', 'nl-be', 'no', 'pl', 'pt', 'pt-br', 'ru', 'sl',
+               'sv', 'th', 'tr'];
+
+    for (i = 0; i < kbtypes.length; i += 1) {
+        UI.addOption($D('noVNC_keymap'), kbtypes[i], kbtypes[i]);
+    }
+
+    UI.initSetting('keymap', 'default');
 
     // Settings with immediate effects
     UI.initSetting('logging', 'warn');
@@ -71,6 +85,7 @@ start: function(callback) {
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive});
+    UI.rfb.setKeymap(UI.getSetting('keymap'));
     UI.updateVisualState();
 
     // Unfocus clipboard when over the VNC area
@@ -149,6 +164,8 @@ addMouseHandlers: function() {
     $D("connectButton").onclick = UI.toggleConnectPanel;
     $D("disconnectButton").onclick = UI.disconnect;
     $D("descriptionButton").onclick = UI.toggleConnectPanel;
+    $D("ctrlLockCheckBox").onclick = UI.updateSoftKeyState;
+    $D("altLockCheckBox").onclick = UI.updateSoftKeyState;
 
     $D("noVNC_clipboard_text").onfocus = UI.displayBlur;
     $D("noVNC_clipboard_text").onblur = UI.displayFocus;
@@ -326,6 +343,7 @@ toggleSettingsPanel: function() {
         UI.updateSetting('repeaterID');
         UI.updateSetting('stylesheet');
         UI.updateSetting('logging');
+        UI.updateSetting('keymap');
 
         UI.openSettingsMenu();
     }
@@ -370,8 +388,10 @@ settingsApply: function() {
     UI.saveSetting('repeaterID');
     UI.saveSetting('stylesheet');
     UI.saveSetting('logging');
+    UI.saveSetting('keymap');
 
     // Settings with immediate (non-connected related) effect
+    UI.rfb.setKeymap(UI.getSetting('keymap'));
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
     WebUtil.init_logging(UI.getSetting('logging'));
     UI.setViewClip();
@@ -393,6 +413,10 @@ setPassword: function() {
 
 sendCtrlAltDel: function() {
     UI.rfb.sendCtrlAltDel();
+},
+
+updateSoftKeyState: function() {
+    UI.rfb.updateSoftKeyState(this.value, this.checked);
 },
 
 setMouseButton: function(num) {
@@ -490,11 +514,19 @@ updateVisualState: function() {
         $D('clipboardButton').style.display = "inline";
         $D('showKeyboard').style.display = "inline";
         $D('sendCtrlAltDelButton').style.display = "inline";
+        $D('ctrlLockCheckBox').style.display = "inline";
+        $D('altLockCheckBox').style.display = "inline";
+        $D('ctrlLockLabel').style.display = "inline";
+        $D('altLockLabel').style.display = "inline";
     } else {
         UI.setMouseButton();
         $D('clipboardButton').style.display = "none";
         $D('showKeyboard').style.display = "none";
         $D('sendCtrlAltDelButton').style.display = "none";
+        $D('ctrlLockCheckBox').style.display = "none";
+        $D('altLockCheckBox').style.display = "none";
+        $D('ctrlLockLabel').style.display = "none";
+        $D('altLockLabel').style.display = "none";
     }
     // State change disables viewport dragging.
     // It is enabled (toggled) by direct click on the button
