@@ -135,6 +135,7 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['encrypt',            'rw', 'bool', false, 'Use TLS/SSL/wss encryption'],
     ['true_color',         'rw', 'bool', true,  'Request true color pixel data'],
+    ['raw_encoding',       'rw', 'bool', false, 'Request raw pixel data'],
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
     ['view_only',          'rw', 'bool', false, 'Disable client mouse/keyboard'],
@@ -1674,6 +1675,11 @@ clientEncodings = function() {
         if ((encodings[i][0] === "Cursor") &&
             (! conf.local_cursor)) {
             Util.Debug("Skipping Cursor pseudo-encoding");
+        } else if ((encodings[i][0] === "RAW") &&
+            (conf.raw_encoding)) {
+            encList.reverse()
+            encList.push(encodings[i][1]);
+            encList.reverse()
 
         // TODO: remove this when we have tight+non-true-color
         } else if ((encodings[i][0] === "TIGHT") && 
