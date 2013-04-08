@@ -23,6 +23,7 @@ Leverages wsproxy.py by Joel Martin
 '''
 
 import Cookie
+from oslo.config import cfg
 import socket
 import sys
 
@@ -31,7 +32,6 @@ import wsproxy
 from nova import config
 from nova import context
 from nova import utils
-from nova.openstack.common import cfg
 from nova.openstack.common import rpc
 
 
