@@ -6,7 +6,6 @@ utils/Makefile   /usr/share/novnc/utils
 utils/launch.sh   /usr/share/novnc/utils
 utils/websocket.py   /usr/share/novnc/utils
 utils/websockify   /usr/share/novnc/utils
-utils/wsproxy.py  /usr/share/novnc/utils
 utils/rebind.c  /usr/share/novnc/utils
 utils/rebind.so  /usr/share/novnc/utils
 images  /usr/share/novnc

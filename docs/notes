@@ -8,7 +8,7 @@ Javascript doesn't have a bytearray type, so what you get out of
 a WebSocket object is just Javascript strings.  Javascript has UTF-16
 unicode strings and anything sent through the WebSocket gets converted
 to UTF-8 and vice-versa. So, one additional (and necessary) function
-of wsproxy is base64 encoding/decoding what is sent to/from the
+of websockify is base64 encoding/decoding what is sent to/from the
 browser.
 
 Building web-socket-js emulator:

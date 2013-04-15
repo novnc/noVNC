@@ -19,7 +19,7 @@
 
 '''
 Websocket proxy that is compatible with Openstack Nova.
-Leverages wsproxy.py by Joel Martin
+Leverages websockify by Joel Martin
 '''
 
 import Cookie
@@ -27,7 +27,7 @@ from oslo.config import cfg
 import socket
 import sys
 
-import wsproxy
+import websockify
 
 from nova import config
 from nova import context
@@ -73,9 +73,9 @@ if hasattr(rpc, 'register_opts'):
     rpc.register_opts(CONF)
 
 
-class NovaWebSocketProxy(wsproxy.WebSocketProxy):
+class NovaWebSocketProxy(websockify.WebSocketProxy):
     def __init__(self, *args, **kwargs):
-        wsproxy.WebSocketProxy.__init__(self, *args, **kwargs)
+        websockify.WebSocketProxy.__init__(self, *args, **kwargs)
 
     def new_client(self):
         """
