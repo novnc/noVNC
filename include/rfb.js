@@ -1126,6 +1126,7 @@ encHandlers.COPYRECT = function display_copy_rect() {
 
     var old_x, old_y;
 
+    FBU.bytes = 1;
     if (ws.rQwait("COPYRECT", 4)) { return false; }
     display.renderQ_push({
             'type': 'copy',
