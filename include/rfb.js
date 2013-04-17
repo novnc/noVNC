@@ -1126,7 +1126,7 @@ encHandlers.COPYRECT = function display_copy_rect() {
 
     var old_x, old_y;
 
-    FBU.bytes = 1;
+    FBU.bytes = 4;
     if (ws.rQwait("COPYRECT", 4)) { return false; }
     display.renderQ_push({
             'type': 'copy',
@@ -1146,6 +1146,7 @@ encHandlers.RRE = function display_rre() {
     var color, x, y, width, height, chunk;
 
     if (FBU.subrects === 0) {
+        FBU.bytes = 4+fb_Bpp;
         if (ws.rQwait("RRE", 4+fb_Bpp)) { return false; }
         FBU.subrects = ws.rQshift32();
         color = ws.rQshiftBytes(fb_Bpp); // Background
