@@ -55,6 +55,18 @@ start: function(callback) {
     // call twice to get around webkit bug
     WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
+    // if port == 80 (or 443) then it won't be present and should be
+    // set manually
+    port = window.location.port;
+    if (!port) {
+        if (window.location.protocol.substring(0,4) == 'http') {            
+            port = 80;
+        }
+        else if (window.location.protocol.substring(0,5) == 'https') {            
+            port = 443;
+        }
+    }
+
     /* Populate the controls if defaults are provided in the URL */
     UI.initSetting('host', window.location.hostname);
     UI.initSetting('port', window.location.port);
