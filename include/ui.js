@@ -69,7 +69,7 @@ start: function(callback) {
 
     /* Populate the controls if defaults are provided in the URL */
     UI.initSetting('host', window.location.hostname);
-    UI.initSetting('port', window.location.port);
+    UI.initSetting('port', port);
     UI.initSetting('password', '');
     UI.initSetting('encrypt', (window.location.protocol === "https:"));
     UI.initSetting('true_color', true);
