@@ -122,6 +122,17 @@
             host = WebUtil.getQueryVar('host', window.location.hostname);
             port = WebUtil.getQueryVar('port', window.location.port);
 
+            // if port == 80 (or 443) then it won't be present and should be
+            // set manually
+            if (!port) {
+                if (window.location.protocol.substring(0,4) == 'http') {            
+                    port = 80;
+                }
+                else if (window.location.protocol.substring(0,5) == 'https') {            
+                    port = 443;
+                }
+            }
+
             // If a token variable is passed in, set the parameter in a cookie.
             // This is used by nova-novncproxy.
             token = WebUtil.getQueryVar('token', null);
