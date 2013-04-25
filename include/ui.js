@@ -31,7 +31,7 @@ load: function (callback) {
 
 // Render default UI and initialize settings menu
 start: function(callback) {
-    var html = '', i, sheet, sheets, llevels;
+    var html = '', i, sheet, sheets, llevels, port;
 
     // Stylesheet selection dropdown
     sheet = WebUtil.selectStylesheet();
@@ -59,11 +59,11 @@ start: function(callback) {
     // set manually
     port = window.location.port;
     if (!port) {
-        if (window.location.protocol.substring(0,4) == 'http') {            
-            port = 80;
-        }
-        else if (window.location.protocol.substring(0,5) == 'https') {            
+        if (window.location.protocol.substring(0,5) == 'https') {            
             port = 443;
+        }
+        else if (window.location.protocol.substring(0,4) == 'http') {            
+            port = 80;
         }
     }
 
