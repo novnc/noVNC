@@ -98,6 +98,9 @@ Sec-WebSocket-Accept: %s\r
     class CClose(Exception):
         pass
 
+    class Terminate(Exception):
+        pass
+
     def __init__(self, listen_host='', listen_port=None, source_is_ipv6=False,
             verbose=False, cert='', key='', ssl_only=None,
             daemon=False, record='', web='',
@@ -751,6 +754,9 @@ Sec-WebSocket-Accept: %s\r
         #self.vmsg("Running poll()")
         pass
 
+    def terminate(self):
+        raise self.Terminate()
+
     def fallback_SIGCHLD(self, sig, stack):
         # Reap zombies when using os.fork() (python 2.4)
         self.vmsg("Got SIGCHLD, reaping zombies")
@@ -764,11 +770,11 @@ Sec-WebSocket-Accept: %s\r
 
     def do_SIGINT(self, sig, stack):
         self.msg("Got SIGINT, exiting")
-        sys.exit(0)
+        self.terminate()
 
     def do_SIGTERM(self, sig, stack):
         self.msg("Got SIGTERM, exiting")
-        sys.exit(0)
+        self.terminate()
 
     def top_new_client(self, startsock, address):
         """ Do something with a WebSockets client connection. """
@@ -893,6 +899,8 @@ Sec-WebSocket-Accept: %s\r
                                 startsock, address = lsock.accept()
                             else:
                                 continue
+                        except self.Terminate:
+                            raise
                         except Exception:
                             _, exc, _ = sys.exc_info()
                             if hasattr(exc, 'errno'):
@@ -937,7 +945,7 @@ Sec-WebSocket-Accept: %s\r
                         _, exc, _ = sys.exc_info()
                         print("In KeyboardInterrupt")
                         pass
-                    except SystemExit:
+                    except (self.Terminate, SystemExit):
                         _, exc, _ = sys.exc_info()
                         print("In SystemExit")
                         break
