@@ -16,7 +16,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
-import os, sys, time, errno, signal, socket, traceback, select
+import os, sys, time, errno, signal, socket, select, logging
 import array, struct
 from base64 import b64encode, b64decode
 
@@ -70,6 +70,8 @@ class WebSocketServer(object):
     Must be sub-classed with new_client method definition.
     """
 
+    log_prefix = "novnc"
+
     buffer_size = 65536
 
 
@@ -121,6 +123,8 @@ Sec-WebSocket-Accept: %s\r
         self.ws_connection  = False
         self.handler_id     = 1
 
+        self.logger = self.get_logger()
+
         # Make paths settings absolute
         self.cert = os.path.abspath(cert)
         self.key = self.web = self.record = ''
@@ -141,29 +145,34 @@ Sec-WebSocket-Accept: %s\r
             raise Exception("Module 'resource' required to daemonize")
 
         # Show configuration
-        print("WebSocket server settings:")
-        print("  - Listen on %s:%s" % (
-                self.listen_host, self.listen_port))
-        print("  - Flash security policy server")
+        self.logger.info("WebSocket server settings:")
+        self.logger.info("  - Listen on %s:%s",
+                self.listen_host, self.listen_port)
+        self.logger.info("  - Flash security policy server")
         if self.web:
-            print("  - Web server. Web root: %s" % self.web)
+            self.logger.info("  - Web server. Web root: %s", self.web)
         if ssl:
             if os.path.exists(self.cert):
-                print("  - SSL/TLS support")
+                self.logger.info("  - SSL/TLS support")
                 if self.ssl_only:
-                    print("  - Deny non-SSL/TLS connections")
+                    self.logger.info("  - Deny non-SSL/TLS connections")
             else:
-                print("  - No SSL/TLS support (no cert file)")
+                self.logger.info("  - No SSL/TLS support (no cert file)")
         else:
-            print("  - No SSL/TLS support (no 'ssl' module)")
+            self.logger.info("  - No SSL/TLS support (no 'ssl' module)")
         if self.daemon:
-            print("  - Backgrounding (daemon)")
+            self.logger.info("  - Backgrounding (daemon)")
         if self.record:
-            print("  - Recording to '%s.*'" % self.record)
+            self.logger.info("  - Recording to '%s.*'", self.record)
 
     #
     # WebSocketServer static methods
     #
+
+    @staticmethod
+    def get_logger():
+        return logging.getLogger("%s.%s" % (
+            WebSocketServer.log_prefix, WebSocketServer.__class__.__name__))
 
     @staticmethod
     def socket(host, port=None, connect=False, prefer_ipv6=False, unix_socket=None, use_ssl=False):
@@ -326,6 +335,8 @@ Sec-WebSocket-Accept: %s\r
              'close_code'   : 1000,
              'close_reason' : ''}
 
+        logger = WebSocketServer.get_logger()
+
         blen = len(buf)
         f['left'] = blen
 
@@ -364,15 +375,16 @@ Sec-WebSocket-Accept: %s\r
             f['payload'] = WebSocketServer.unmask(buf, f['hlen'],
                                                   f['length'])
         else:
-            print("Unmasked frame: %s" % repr(buf))
+            logger.debug("Unmasked frame: %s", repr(buf))
             f['payload'] = buf[(f['hlen'] + f['masked'] * 4):full_len]
 
         if base64 and f['opcode'] in [1, 2]:
             try:
                 f['payload'] = b64decode(f['payload'])
             except:
-                print("Exception while b64decoding buffer: %s" %
+                logger.warning("Exception while b64decoding buffer: %s",
                         repr(buf))
+                logger.debug('Exception', exc_info=True)
                 raise
 
         if f['opcode'] == 0x08:
@@ -416,20 +428,20 @@ Sec-WebSocket-Accept: %s\r
     #
 
     def traffic(self, token="."):
-        """ Show traffic flow in verbose mode. """
-        if self.verbose and not self.daemon:
-            sys.stdout.write(token)
-            sys.stdout.flush()
+        """ Show traffic flow mode. """
+        self.logger.debug("%s", token)
 
-    def msg(self, msg):
+    def log(self, lvl, msg, *args, **kwargs):
+        self.logger.log(lvl, "% 3d: %s" % (self.handler_id, msg),
+            *args, **kwargs)
+
+    def msg(self, *args, **kwargs):
         """ Output message with handler_id prefix. """
-        if not self.daemon:
-            print("% 3d: %s" % (self.handler_id, msg))
+        self.log(logging.INFO, *args, **kwargs)
 
-    def vmsg(self, msg):
-        """ Same as msg() but only if verbose. """
-        if self.verbose:
-            self.msg(msg)
+    def vmsg(self, *args, **kwargs):
+        """ Same as msg() but as debug. """
+        self.log(logging.DEBUG, *args, **kwargs)
 
     #
     # Main WebSocketServer methods
@@ -817,8 +829,7 @@ Sec-WebSocket-Accept: %s\r
             except Exception:
                 _, exc, _ = sys.exc_info()
                 self.msg("handler exception: %s" % str(exc))
-                if self.verbose:
-                    self.msg(traceback.format_exc())
+                self.vmsg("exception", exc_info=True)
         finally:
             if self.rec:
                 self.rec.write("'EOF'];\n")
@@ -951,17 +962,16 @@ Sec-WebSocket-Accept: %s\r
                         break
                     except Exception:
                         _, exc, _ = sys.exc_info()
-                        self.msg("handler exception: %s" % str(exc))
-                        if self.verbose:
-                            self.msg(traceback.format_exc())
+                        self.msg("handler exception: %s", str(exc))
+                        self.vmsg("exception", exc_info=True)
 
                 finally:
                     if startsock:
                         startsock.close()
         finally:
             # Close listen port
-            self.vmsg("Closing socket listening at %s:%s"
-                    % (self.listen_host, self.listen_port))
+            self.vmsg("Closing socket listening at %s:%s",
+                    self.listen_host, self.listen_port)
             lsock.close()
 
             # Restore signals
