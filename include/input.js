@@ -611,9 +611,9 @@ function onMouseDisable(e) {
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
     /* Stop propagation if inside canvas area */
-    if ((pos.x >= 0) && (pos.y >= 0) &&
-        (pos.x < conf.target.offsetWidth) &&
-        (pos.y < conf.target.offsetHeight)) {
+    if ((pos.realx >= 0) && (pos.realy >= 0) &&
+        (pos.realx < conf.target.offsetWidth) &&
+        (pos.realy < conf.target.offsetHeight)) {
         //Util.Debug("mouse event disabled");
         Util.stopEvent(e);
         return false;
