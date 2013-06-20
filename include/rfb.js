@@ -63,7 +63,8 @@ var that           = {},  // Public API methods
         //['JPEG_quality_hi',   -23 ],
         //['compress_lo',      -255 ],
         ['compress_hi',        -247 ],
-        ['last_rect',          -224 ]
+        ['last_rect',          -224 ],
+        ['ext_desktop_size',   -308 ]
         ],
 
     encHandlers    = {},
@@ -119,6 +120,10 @@ var that           = {},  // Public API methods
     },
 
     test_mode        = false,
+
+    supportsSetDesktopSize = false,
+    screen_id              = 0,
+    screen_flags           = 0,
 
     def_con_timeout  = Websock_native ? 2 : 5,
 
@@ -1585,6 +1590,45 @@ encHandlers.last_rect = function last_rect() {
     return true;
 };
 
+encHandlers.ext_desktop_size = function () {
+    //Util.Debug(">> ext_desktop_size");    
+    if (ws.rQwait("ext_desktop_size", 4)) { return false; }
+
+    var number_of_screens = ws.rQshift8();
+
+    ws.rQshift8();  // padding
+    ws.rQshift16(); // padding
+    
+    for (var i=0; i<number_of_screens; i += 1) {
+	screen_id = ws.rQshift32();    // id
+	ws.rQshift16();                // x-position
+	ws.rQshift16();                // y-position
+	ws.rQshift16();                // width
+	ws.rQshift16();                // height
+	screen_flags = ws.rQshift32(); // flags
+    }
+
+    if (FBU.x == 0) {
+        fb_width = FBU.width;
+        fb_height = FBU.height;
+        conf.onFBResize(that, fb_width, fb_height);
+        display.resize(fb_width, fb_height);
+        timing.fbu_rt_start = (new Date()).getTime();
+        // Send a new non-incremental request
+        ws.send(fbUpdateRequests());
+
+        if (FBU.y == 0) {
+            supportsSetDesktopSize = true;
+        }
+    }
+
+    FBU.bytes = 0;
+    FBU.rects -= 1;
+
+    //Util.Debug("<< ext_desktop_size");
+    return true;
+};
+
 encHandlers.DesktopSize = function set_desktopsize() {
     Util.Debug(">> set_desktopsize");
     fb_width = FBU.width;
@@ -1845,6 +1889,31 @@ that.clipboardPasteFrom = function(text) {
     //Util.Debug(">> clipboardPasteFrom: " + text.substr(0,40) + "...");
     ws.send(clientCutText(text));
     //Util.Debug("<< clipboardPasteFrom");
+};
+
+that.setDesktopSize = function(width, height) {
+    if (rfb_state !== "normal") { return; }
+    
+    if (supportsSetDesktopSize) {
+	
+        var arr = [251];    // msg-type
+        arr.push8(0);       // padding
+        arr.push16(width);  // width
+        arr.push16(height); // height
+
+        arr.push8(1);       // number-of-screens
+        arr.push8(0);       // padding
+
+        // screen array
+        arr.push32(screen_id);    // id
+        arr.push16(0);            // x-position
+        arr.push16(0);            // y-position
+        arr.push16(width);        // width
+        arr.push16(height);       // height
+        arr.push32(screen_flags); // flags 
+
+        ws.send(arr);
+    }
 };
 
 // Override internal functions for testing

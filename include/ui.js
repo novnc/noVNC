@@ -10,8 +10,12 @@
 /*jslint white: false, browser: true */
 /*global window, $D, Util, WebUtil, RFB, Display */
 
+var resizeTimeout;
+
 // Load supporting scripts
 window.onscriptsload = function () { UI.load(); };
+window.onresize = function () { UI.onresize(); };
+
 Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
                    "input.js", "display.js", "jsunzip.js", "rfb.js"]);
 
@@ -27,6 +31,19 @@ keyboardVisible: false,
 // UI.init to setup the UI/menus
 load: function (callback) {
     WebUtil.initSettings(UI.start, callback);
+},
+
+// When the window has been resized, wait until the size remains
+// the same for 0.5 seconds before sending the request for changing 
+// the resolution of the session
+onresize: function (callback) {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function(){
+	// Control-bar height: 44px +
+	// Status-bar height: 24px + 
+	// border height: 5px = 73px to be deducted from the height
+	UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 73);
+    }, 500);
 },
 
 // Render default UI and initialize settings menu
@@ -445,6 +462,11 @@ updateState: function(rfb, state, oldstate, msg) {
             klass = "noVNC_status_error";
             break;
         case 'normal':
+            // When reconnecting to an existing session, 
+            // make sure the resolution is updated to the window size
+            if (oldstate === 'ServerInitialisation') {
+        	onresize();
+            }
             klass = "noVNC_status_normal";
             break;
         case 'disconnected':
