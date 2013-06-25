@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -1594,33 +1595,36 @@ encHandlers.ext_desktop_size = function () {
     //Util.Debug(">> ext_desktop_size");    
     if (ws.rQwait("ext_desktop_size", 4)) { return false; }
 
+    supportsSetDesktopSize = true;
+
     var number_of_screens = ws.rQshift8();
 
     ws.rQshift8();  // padding
     ws.rQshift16(); // padding
     
     for (var i=0; i<number_of_screens; i += 1) {
-	screen_id = ws.rQshift32();    // id
-	ws.rQshift16();                // x-position
-	ws.rQshift16();                // y-position
-	ws.rQshift16();                // width
-	ws.rQshift16();                // height
-	screen_flags = ws.rQshift32(); // flags
-    }
-
-    if (FBU.x == 0) {
-        fb_width = FBU.width;
-        fb_height = FBU.height;
-        conf.onFBResize(that, fb_width, fb_height);
-        display.resize(fb_width, fb_height);
-        timing.fbu_rt_start = (new Date()).getTime();
-        // Send a new non-incremental request
-        ws.send(fbUpdateRequests());
-
-        if (FBU.y == 0) {
-            supportsSetDesktopSize = true;
+        // Save the id and flags of the first screen
+        if (i == 0) {
+            screen_id = ws.rQshift32();    // id
+            ws.rQshift16();                // x-position
+            ws.rQshift16();                // y-position
+            ws.rQshift16();                // width
+            ws.rQshift16();                // height
+            screen_flags = ws.rQshift32(); // flags
+        } else {
+            ws.rQshiftBytes(16);
         }
     }
+
+    if (FBU.x == 0 && FBU.y != 0) { return false; }
+
+    fb_width = FBU.width;
+    fb_height = FBU.height;
+    conf.onFBResize(that, fb_width, fb_height);
+    display.resize(fb_width, fb_height);
+    timing.fbu_rt_start = (new Date()).getTime();
+    // Send a new non-incremental request
+    ws.send(fbUpdateRequests());
 
     FBU.bytes = 0;
     FBU.rects -= 1;

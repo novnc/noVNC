@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -39,10 +40,10 @@ load: function (callback) {
 onresize: function (callback) {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function(){
-	// Control-bar height: 44px +
-	// Status-bar height: 24px + 
-	// border height: 5px = 73px to be deducted from the height
-	UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 73);
+        // Control-bar height: 44px +
+        // Status-bar height: 24px + 
+        // border height: 5px = 73px to be deducted from the height
+        UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 73);
     }, 500);
 },
 
@@ -465,7 +466,7 @@ updateState: function(rfb, state, oldstate, msg) {
             // When reconnecting to an existing session, 
             // make sure the resolution is updated to the window size
             if (oldstate === 'ServerInitialisation') {
-        	onresize();
+                onresize();
             }
             klass = "noVNC_status_normal";
             break;
