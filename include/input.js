@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
@@ -489,6 +490,9 @@ var that           = {},  // Public API methods
     conf           = {},  // Configuration attributes
     mouseCaptured  = false;
 
+var doubleClickTimer = null,
+    lastClickPos = null;
+
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
     ['target',         'ro', 'dom',  document, 'DOM element that captures mouse input'],
@@ -521,6 +525,10 @@ function releaseMouse() {
 // Private functions
 //
 
+function resetDoubleClickTimer() {
+    doubleClickTimer = null;
+}
+
 function onMouseButton(e, down) {
     var evt, pos, bmask;
     if (! conf.focused) {
@@ -528,6 +536,28 @@ function onMouseButton(e, down) {
     }
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
+
+    // When two clicks occur within 500 ms of each other and are
+    // closer than 50 pixels together a double click is triggered.
+    if (down == 1) {
+        if (doubleClickTimer == null) {
+            lastClickPos = pos;
+        } else {
+            clearTimeout(doubleClickTimer); 
+
+            var xs = lastClickPos.x - pos.x;
+            var ys = lastClickPos.y - pos.y;
+            var d = Math.sqrt((xs * xs) + (ys * ys));
+
+            // When the distance between the two clicks is less than 50 pixels
+            // force the position of the latter click to the position of the first
+            if (d < 50) {
+                pos = lastClickPos;
+            }
+        }
+        doubleClickTimer = setTimeout(resetDoubleClickTimer, 500);
+    }
+
     if (e.touches || e.changedTouches) {
         // Touch device
         bmask = conf.touchButton;
