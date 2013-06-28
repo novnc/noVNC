@@ -233,10 +233,6 @@ html {
   z-index: -1;
 }
 
-.noVNC_status_warn {
-  background-color:yellow;
-}
-
 /*
  * Advanced Styling
  */
