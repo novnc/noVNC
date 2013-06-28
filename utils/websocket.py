@@ -853,7 +853,8 @@ Sec-WebSocket-Accept: %s\r
                     pid = err = 0
                     child_count = 0
 
-                    if multiprocessing and self.idle_timeout:
+                    if multiprocessing:
+                        # Collect zombie child processes
                         child_count = len(multiprocessing.active_children())
 
                     time_elapsed = time.time() - self.launch_time
