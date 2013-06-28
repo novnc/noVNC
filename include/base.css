@@ -65,7 +65,6 @@ html {
 .noVNC-buttons-left {
   float: left;
   padding-left:10px;
-  padding-top:4px;
   z-index: 1;
   position: relative;
 }
@@ -74,7 +73,6 @@ html {
   float:right;
   right: 0px;
   padding-right:10px;
-  padding-top:4px;
   z-index: 1;
   position: relative;
 }
@@ -93,7 +91,7 @@ html {
 }
 
 #noVNC_status {
-  height:20px;
+  height:32px;
   text-align: center;
 }
 #noVNC_settings_menu {
@@ -125,7 +123,7 @@ html {
 #noVNC_screen_pad {
   margin: 0px;
   padding: 0px;
-  height: 44px;
+  height: 36px;
 }
 #noVNC_screen {
   text-align: center;
@@ -160,14 +158,14 @@ html {
 /*Bubble contents divs*/
 #noVNC_settings {
   display:none;
-  margin-top:77px;
+  margin-top:73px;
   right:20px;
   position:fixed;
 }
 
 #noVNC_controls {
   display:none;
-  margin-top:77px;
+  margin-top:73px;
   right:12px;
   position:fixed;
 }
@@ -179,7 +177,7 @@ html {
   display:none;
   position:fixed;
 
-  margin-top:77px;
+  margin-top:73px;
   right:20px;
   left:20px;
   padding:15px;
@@ -214,7 +212,7 @@ html {
 
 #noVNC_clipboard {
   display:none;
-  margin-top:77px;
+  margin-top:73px;
   right:30px;
   position:fixed;
 }
@@ -249,7 +247,7 @@ html {
   background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
 
   display:block;
-  height:44px;
+  height:36px;
   left:0;
   top:0;
   width:100%;
