@@ -66,6 +66,8 @@ html {
   float: left;
   padding-left:10px;
   padding-top:4px;
+  z-index: 1;
+  position: relative;
 }
 
 .noVNC-buttons-right {
@@ -73,17 +75,21 @@ html {
   right: 0px;
   padding-right:10px;
   padding-top:4px;
+  z-index: 1;
+  position: relative;
 }
 
 #noVNC_status_bar {
   margin-top: 0px;
   padding: 0px;
+  z-index: 0;
+  position: absolute;
+  width: 100%;
 }
 
 #noVNC_status_bar div {
   font-size: 12px;
   padding-top: 4px;
-  width:100%;
 }
 
 #noVNC_status {
@@ -105,13 +111,13 @@ html {
 }
 
 .noVNC_status_normal {
-  background: #eee;
+  background: transparent;
 }
 .noVNC_status_error {
-  background: #f44;
+  background: rgba(240,64,64,0.5);
 }
 .noVNC_status_warn {
-  background: #ff4;
+  background: rgba(240,240,64,0.5);
 }
 
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect
@@ -181,6 +187,26 @@ html {
   background:#eee; /* default background for browsers without gradient support */
 
   border:2px solid #E0E0E0;
+  -webkit-border-radius:10px;
+  -moz-border-radius:10px;
+  border-radius:10px;
+}
+
+#noVNC_popup_status_panel {
+  display:none;
+  position: fixed;
+
+  margin:15px;
+  margin-top:60px;
+  padding:15px;
+  width:auto;
+
+  text-align:center;
+  font-weight:bold;
+  word-wrap:break-word;
+  color:#fff;
+  background:rgba(0,0,0,0.65);
+
   -webkit-border-radius:10px;
   -moz-border-radius:10px;
   border-radius:10px;
