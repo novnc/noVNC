@@ -1592,13 +1592,16 @@ encHandlers.last_rect = function last_rect() {
 };
 
 encHandlers.ext_desktop_size = function () {
-    //Util.Debug(">> ext_desktop_size");    
-    if (ws.rQwait("ext_desktop_size", 4)) { return false; }
+    FBU.bytes = 1;
+    if (ws.rQwait("ext_desktop_size", FBU.bytes)) { return false; }
 
     supportsSetDesktopSize = true;
+    var number_of_screens = ws.rQpeek8();
 
-    var number_of_screens = ws.rQshift8();
-
+    FBU.bytes = 4 + (number_of_screens * 16);
+    if (ws.rQwait("ext_desktop_size", FBU.bytes)) { return false; }
+    
+    ws.rQshift8();  // number-of-screens
     ws.rQshift8();  // padding
     ws.rQshift16(); // padding
     
@@ -1616,20 +1619,16 @@ encHandlers.ext_desktop_size = function () {
         }
     }
 
-    if (FBU.x == 0 && FBU.y != 0) { return false; }
+    if (FBU.x == 0 && FBU.y != 0) { return true; }
 
     fb_width = FBU.width;
     fb_height = FBU.height;
     conf.onFBResize(that, fb_width, fb_height);
     display.resize(fb_width, fb_height);
-    timing.fbu_rt_start = (new Date()).getTime();
-    // Send a new non-incremental request
-    ws.send(fbUpdateRequests());
 
     FBU.bytes = 0;
     FBU.rects -= 1;
 
-    //Util.Debug("<< ext_desktop_size");
     return true;
 };
 

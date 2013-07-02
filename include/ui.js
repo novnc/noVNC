@@ -15,7 +15,15 @@ var resizeTimeout;
 
 // Load supporting scripts
 window.onscriptsload = function () { UI.load(); };
-window.onresize = function () { UI.onresize(); };
+window.onresize = function () { 
+    // When the window has been resized, wait until the size remains
+    // the same for 0.5 seconds before sending the request for changing 
+    // the resolution of the session
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function(){
+        UI.onresize(); 
+    }, 500);
+};
 
 Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
                    "input.js", "display.js", "jsunzip.js", "rfb.js"]);
@@ -34,17 +42,11 @@ load: function (callback) {
     WebUtil.initSettings(UI.start, callback);
 },
 
-// When the window has been resized, wait until the size remains
-// the same for 0.5 seconds before sending the request for changing 
-// the resolution of the session
 onresize: function (callback) {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(function(){
-        // Control-bar height: 44px +
-        // Status-bar height: 24px + 
-        // border height: 5px = 73px to be deducted from the height
-        UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 73);
-    }, 500);
+    // Control-bar height: 44px +
+    // Status-bar height: 24px + 
+    // border height: 5px = 73px to be deducted from the height
+    UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 73);
 },
 
 // Render default UI and initialize settings menu
@@ -100,7 +102,8 @@ start: function(callback) {
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
-                  'onClipboard': UI.clipReceive});
+                  'onClipboard': UI.clipReceive,
+                  'onFBUComplete': UI.FBUComplete});
     UI.updateVisualState();
 
     // Unfocus clipboard when over the VNC area
@@ -463,11 +466,6 @@ updateState: function(rfb, state, oldstate, msg) {
             klass = "noVNC_status_error";
             break;
         case 'normal':
-            // When reconnecting to an existing session, 
-            // make sure the resolution is updated to the window size
-            if (oldstate === 'ServerInitialisation') {
-                onresize();
-            }
             klass = "noVNC_status_normal";
             break;
         case 'disconnected':
@@ -550,6 +548,17 @@ updateVisualState: function() {
     }
 
     //Util.Debug("<< updateVisualState");
+},
+
+
+// This resize can not be done until we know from the first Frame Buffer Update
+// if it is supported or not.
+// The resize is needed to make sure the server desktop size is updated to the
+// corresponding size of the current local window when reconnecting to an
+// existing session.
+FBUComplete: function(rfb, fbu) {
+    onresize();
+    UI.rfb.set_onFBUComplete(function() { });
 },
 
 
