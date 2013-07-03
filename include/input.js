@@ -491,7 +491,7 @@ var that           = {},  // Public API methods
     mouseCaptured  = false;
 
 var doubleClickTimer = null,
-    lastClickPos = null;
+    lastTouchPos = null;
 
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
@@ -537,29 +537,29 @@ function onMouseButton(e, down) {
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
 
-    // When two clicks occur within 500 ms of each other and are
-    // closer than 50 pixels together a double click is triggered.
-    if (down == 1) {
-        if (doubleClickTimer == null) {
-            lastClickPos = pos;
-        } else {
-            clearTimeout(doubleClickTimer); 
-
-            var xs = lastClickPos.x - pos.x;
-            var ys = lastClickPos.y - pos.y;
-            var d = Math.sqrt((xs * xs) + (ys * ys));
-
-            // When the distance between the two clicks is less than 50 pixels
-            // force the position of the latter click to the position of the first
-            if (d < 50) {
-                pos = lastClickPos;
-            }
-        }
-        doubleClickTimer = setTimeout(resetDoubleClickTimer, 500);
-    }
-
     if (e.touches || e.changedTouches) {
         // Touch device
+
+        // When two touches occur within 500 ms of each other and are
+        // closer than 50 pixels together a double click is triggered.
+        if (down == 1) {
+            if (doubleClickTimer == null) {
+                lastTouchPos = pos;
+            } else {
+                clearTimeout(doubleClickTimer); 
+
+                var xs = lastTouchPos.x - pos.x;
+                var ys = lastTouchPos.y - pos.y;
+                var d = Math.sqrt((xs * xs) + (ys * ys));
+
+                // When the distance between the two touches is less than 50 pixels
+                // force the position of the latter touch to the position of the first
+                if (d < 50) {
+                    pos = lastTouchPos;
+                }
+            }
+            doubleClickTimer = setTimeout(resetDoubleClickTimer, 500);
+        }
         bmask = conf.touchButton;
         // If bmask is set
     } else if (evt.which) {
