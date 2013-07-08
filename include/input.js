@@ -541,20 +541,25 @@ function onMouseButton(e, down) {
         // Touch device
 
         // When two touches occur within 500 ms of each other and are
-        // closer than 50 pixels together a double click is triggered.
+        // closer than 20 pixels together a double click is triggered.
         if (down == 1) {
             if (doubleClickTimer == null) {
                 lastTouchPos = pos;
             } else {
                 clearTimeout(doubleClickTimer); 
 
+                // When the distance between the two touches is less than
+                // 20 physical pixels force the position of the latter touch 
+                // to the position of the first.
+
                 var xs = lastTouchPos.x - pos.x;
                 var ys = lastTouchPos.y - pos.y;
                 var d = Math.sqrt((xs * xs) + (ys * ys));
 
-                // When the distance between the two touches is less than 50 pixels
-                // force the position of the latter touch to the position of the first
-                if (d < 50) {
+                // The devicePixelRatio is the ratio between logical pixels and
+                // physical pixels. A devicePixelRatio of 2 means that the
+                // physical linear resolution is double the logical resolution.
+                if (d < 20 * window.devicePixelRatio) {
                     pos = lastTouchPos;
                 }
             }
