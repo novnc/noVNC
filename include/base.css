@@ -93,6 +93,8 @@ html {
 #noVNC_status {
   height:32px;
   text-align: center;
+  font-weight: bold;
+  color: #fff;
 }
 #noVNC_settings_menu {
   margin: 3px;
