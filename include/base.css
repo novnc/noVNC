@@ -195,6 +195,7 @@ html {
 #noVNC_popup_status_panel {
   display:none;
   position: fixed;
+  z-index: 1;
 
   margin:15px;
   margin-top:60px;
