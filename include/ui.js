@@ -158,7 +158,7 @@ addMouseHandlers: function() {
     $D("keyboardinput").onblur = UI.keyInputBlur;
 
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
-    $D("noVNC_status_bar").onclick = UI.togglePopupStatusPanel;
+    $D("noVNC_status").onclick = UI.togglePopupStatusPanel;
     $D("noVNC_popup_status_panel").onclick = UI.togglePopupStatusPanel;
     $D("clipboardButton").onclick = UI.toggleClipboardPanel;
     $D("settingsButton").onclick = UI.toggleSettingsPanel;
@@ -470,8 +470,6 @@ setMouseButton: function(num) {
 updateState: function(rfb, state, oldstate, msg) {
     var s, sb, c, d, cad, vd, klass;
     UI.rfb_state = state;
-    s = $D('noVNC_status');
-    sb = $D('noVNC_status_bar');
     switch (state) {
         case 'failed':
         case 'fatal':
@@ -501,9 +499,8 @@ updateState: function(rfb, state, oldstate, msg) {
     }
 
     if (typeof(msg) !== 'undefined') {
-        s.setAttribute("class", klass);
-        sb.setAttribute("class", klass);
-        s.innerHTML = msg;
+        $D('noVNC-control-bar').setAttribute("class", klass);
+        $D('noVNC_status').innerHTML = msg;
     }
 
     UI.updateVisualState();
