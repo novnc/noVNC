@@ -21,6 +21,7 @@ var UI = {
 rfb_state : 'loaded',
 settingsOpen : false,
 connSettingsOpen : false,
+popupStatusOpen : false,
 clipboardOpen: false,
 keyboardVisible: false,
 
@@ -158,6 +159,8 @@ addMouseHandlers: function() {
     $D("keyboardinput").onblur = UI.keyInputBlur;
 
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
+    $D("noVNC_status").onclick = UI.togglePopupStatusPanel;
+    $D("noVNC_popup_status_panel").onclick = UI.togglePopupStatusPanel;
     $D("clipboardButton").onclick = UI.toggleClipboardPanel;
     $D("settingsButton").onclick = UI.toggleSettingsPanel;
     $D("connectButton").onclick = UI.toggleConnectPanel;
@@ -259,20 +262,39 @@ forceSetting: function(name, val) {
 },
 
 
+// Show the popup status panel
+togglePopupStatusPanel: function() {
+    var psp = $D('noVNC_popup_status_panel');
+    if (UI.popupStatusOpen === true) {
+        psp.style.display = "none";
+        UI.popupStatusOpen = false;
+    } else {
+        psp.innerHTML = $D('noVNC_status').innerHTML;
+        psp.style.display = "block";
+        psp.style.left = window.innerWidth/2 - 
+            parseInt(window.getComputedStyle(psp, false).width)/2 -30 + "px";
+        UI.popupStatusOpen = true;
+    }
+},
+
 // Show the clipboard panel
 toggleClipboardPanel: function() {
     // Close the description panel
     $D('noVNC_description').style.display = "none";
-    //Close settings if open
+    // Close settings if open
     if (UI.settingsOpen === true) {
         UI.settingsApply();
         UI.closeSettingsMenu();
     }
-    //Close connection settings if open
+    // Close connection settings if open
     if (UI.connSettingsOpen === true) {
         UI.toggleConnectPanel();
     }
-    //Toggle Clipboard Panel
+    // Close popup status panel if open
+    if (UI.popupStatusOpen === true) {
+        UI.togglePopupStatusPanel();
+    }
+    // Toggle Clipboard Panel
     if (UI.clipboardOpen === true) {
         $D('noVNC_clipboard').style.display = "none";
         $D('clipboardButton').className = "noVNC_status_button";
@@ -288,17 +310,22 @@ toggleClipboardPanel: function() {
 toggleConnectPanel: function() {
     // Close the description panel
     $D('noVNC_description').style.display = "none";
-    //Close connection settings if open
+    // Close connection settings if open
     if (UI.settingsOpen === true) {
         UI.settingsApply();
         UI.closeSettingsMenu();
         $D('connectButton').className = "noVNC_status_button";
     }
+    // Close clipboard panel if open
     if (UI.clipboardOpen === true) {
         UI.toggleClipboardPanel();
     }
+    // Close popup status panel if open
+    if (UI.popupStatusOpen === true) {
+        UI.togglePopupStatusPanel();
+    }
 
-    //Toggle Connection Panel
+    // Toggle Connection Panel
     if (UI.connSettingsOpen === true) {
         $D('noVNC_controls').style.display = "none";
         $D('connectButton').className = "noVNC_status_button";
@@ -349,12 +376,17 @@ toggleSettingsPanel: function() {
 openSettingsMenu: function() {
     // Close the description panel
     $D('noVNC_description').style.display = "none";
+    // Close clipboard panel if open
     if (UI.clipboardOpen === true) {
         UI.toggleClipboardPanel();
     }
-    //Close connection settings if open
+    // Close connection settings if open
     if (UI.connSettingsOpen === true) {
         UI.toggleConnectPanel();
+    }
+    // Close popup status panel if open
+    if (UI.popupStatusOpen === true) {
+        UI.togglePopupStatusPanel();
     }
     $D('noVNC_settings').style.display = "block";
     $D('settingsButton').className = "noVNC_status_button_selected";
@@ -439,8 +471,6 @@ setMouseButton: function(num) {
 updateState: function(rfb, state, oldstate, msg) {
     var s, sb, c, d, cad, vd, klass;
     UI.rfb_state = state;
-    s = $D('noVNC_status');
-    sb = $D('noVNC_status_bar');
     switch (state) {
         case 'failed':
         case 'fatal':
@@ -470,9 +500,8 @@ updateState: function(rfb, state, oldstate, msg) {
     }
 
     if (typeof(msg) !== 'undefined') {
-        s.setAttribute("class", klass);
-        sb.setAttribute("class", klass);
-        s.innerHTML = msg;
+        $D('noVNC-control-bar').setAttribute("class", klass);
+        $D('noVNC_status').innerHTML = msg;
     }
 
     UI.updateVisualState();

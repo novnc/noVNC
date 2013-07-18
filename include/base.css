@@ -1,6 +1,7 @@
 /*
  * noVNC base CSS
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -51,7 +52,6 @@ html {
   float:right;
 }
 
-
 #noVNC_view_drag_button {
   display: none;
 }
@@ -64,32 +64,26 @@ html {
 
 .noVNC-buttons-left {
   float: left;
-  padding-left:10px;
-  padding-top:4px;
+  z-index: 1;
+  position: relative;
 }
 
 .noVNC-buttons-right {
   float:right;
   right: 0px;
-  padding-right:10px;
-  padding-top:4px;
-}
-
-#noVNC_status_bar {
-  margin-top: 0px;
-  padding: 0px;
-}
-
-#noVNC_status_bar div {
-  font-size: 12px;
-  padding-top: 4px;
-  width:100%;
+  z-index: 2;
+  position: absolute;
 }
 
 #noVNC_status {
-  height:20px;
+  font-size: 12px;
+  padding-top: 4px;
+  height:32px;
   text-align: center;
+  font-weight: bold;
+  color: #fff;
 }
+
 #noVNC_settings_menu {
   margin: 3px;
   text-align: left;
@@ -104,22 +98,12 @@ html {
   float:right;
 }
 
-.noVNC_status_normal {
-  background: #eee;
-}
-.noVNC_status_error {
-  background: #f44;
-}
-.noVNC_status_warn {
-  background: #ff4;
-}
-
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect
  * scaling will occur. Canvas resizes to remote VNC settings */
 #noVNC_screen_pad {
   margin: 0px;
   padding: 0px;
-  height: 44px;
+  height: 36px;
 }
 #noVNC_screen {
   text-align: center;
@@ -154,14 +138,14 @@ html {
 /*Bubble contents divs*/
 #noVNC_settings {
   display:none;
-  margin-top:77px;
+  margin-top:73px;
   right:20px;
   position:fixed;
 }
 
 #noVNC_controls {
   display:none;
-  margin-top:77px;
+  margin-top:73px;
   right:12px;
   position:fixed;
 }
@@ -173,7 +157,7 @@ html {
   display:none;
   position:fixed;
 
-  margin-top:77px;
+  margin-top:73px;
   right:20px;
   left:20px;
   padding:15px;
@@ -186,9 +170,30 @@ html {
   border-radius:10px;
 }
 
+#noVNC_popup_status_panel {
+  display:none;
+  position: fixed;
+  z-index: 1;
+
+  margin:15px;
+  margin-top:60px;
+  padding:15px;
+  width:auto;
+
+  text-align:center;
+  font-weight:bold;
+  word-wrap:break-word;
+  color:#fff;
+  background:rgba(0,0,0,0.65);
+
+  -webkit-border-radius:10px;
+  -moz-border-radius:10px;
+  border-radius:10px;
+}
+
 #noVNC_clipboard {
   display:none;
-  margin-top:77px;
+  margin-top:73px;
   right:30px;
   position:fixed;
 }
@@ -207,17 +212,11 @@ html {
   z-index: -1;
 }
 
-.noVNC_status_warn {
-  background-color:yellow;
-}
-
 /*
  * Advanced Styling
  */
 
-/* Control bar */
-#noVNC-control-bar {
-  position:fixed;
+.noVNC_status_normal {
   background: #b2bdcd; /* Old browsers */
   background: -moz-linear-gradient(top, #b2bdcd 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b2bdcd), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
@@ -225,9 +224,32 @@ html {
   background: -o-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
   background: -ms-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
   background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+}
+.noVNC_status_error {
+  background: #f04040; /* Old browsers */
+  background: -moz-linear-gradient(top, #f04040 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f04040), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
+  background: linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+}
+.noVNC_status_warn {
+  background: #f0f040; /* Old browsers */
+  background: -moz-linear-gradient(top, #f0f040 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f040), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
+  background: linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+}
 
+/* Control bar */
+#noVNC-control-bar {
+  position:fixed;
+  
   display:block;
-  height:44px;
+  height:36px;
   left:0;
   top:0;
   width:100%;
@@ -368,10 +390,39 @@ html {
   font-size: 180px;
 }
 
-@media screen and (min-width: 481px) and (max-width: 640px) {
+.noVNC-buttons-left {
+  padding-left: 10px;
+}
+
+.noVNC-buttons-right {
+  padding-right: 10px;
+}
+
+#noVNC_status {
+  z-index: 0;
+  position: absolute;
+  width: 100%;
+}
+
+@media screen and (max-width: 640px){
   .noVNC_status_button {
     font-size: 10px;
   }
+  .noVNC-buttons-left {
+    padding-left: 0px;
+  }
+  .noVNC-buttons-right {
+    padding-right: 0px;
+  }
+  #noVNC_status {
+    z-index: 1;
+    position: relative;
+    width: auto;
+    float: left;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 640px) {
   #noVNC_clipboard_text {
     width: 410px;
   }
@@ -381,9 +432,6 @@ html {
 }
 
 @media screen and (min-width: 321px) and (max-width: 480px) {
-  .noVNC_status_button {
-    font-size: 10px;
-  }
   #noVNC_clipboard_text {
     width: 250px;
   }
