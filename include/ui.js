@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -82,7 +83,8 @@ start: function(callback) {
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
-                  'onClipboard': UI.clipReceive});
+                  'onClipboard': UI.clipReceive,
+                  'onDesktopName': UI.updateDocumentTitle});
     UI.updateVisualState();
 
     // Unfocus clipboard when over the VNC area
@@ -527,6 +529,12 @@ updateVisualState: function() {
     }
 
     //Util.Debug("<< updateVisualState");
+},
+
+
+// Display the desktop name in the document title
+updateDocumentTitle: function(rfb, name) {
+    document.title = name + " - noVNC";
 },
 
 
