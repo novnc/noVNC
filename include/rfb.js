@@ -171,6 +171,8 @@ Util.conf_defaults(conf, that, defaults, [
         'onFBUComplete(rfb, fbu): RFB FBU received and processed '],
     ['onFBResize',         'rw', 'func', function() { },
         'onFBResize(rfb, width, height): frame buffer resized'],
+    ['onDesktopName',      'rw', 'func', function() { },
+        'onDesktopName(rfb, name): desktop name received'],
 
     // These callback names are deprecated
     ['updateState',        'rw', 'func', function() { },
@@ -879,6 +881,7 @@ init_msg = function() {
         /* Connection name/title */
         name_length   = ws.rQshift32();
         fb_name = ws.rQshiftStr(name_length);
+        conf.onDesktopName(that, fb_name);
         
         if (conf.true_color && fb_name === "Intel(r) AMT KVM")
         {
