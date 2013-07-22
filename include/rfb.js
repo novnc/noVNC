@@ -103,7 +103,6 @@ var that           = {},  // Public API methods
     fb_height      = 0,
     fb_name        = "",
 
-    last_req_time  = 0,
     rre_chunk_sz   = 100,
 
     timing         = {
@@ -147,9 +146,6 @@ Util.conf_defaults(conf, that, defaults, [
     ['repeaterID',         'rw', 'str',  '',    'RepeaterID to connect to'],
 
     ['viewportDrag',       'rw', 'bool', false, 'Move the viewport on mouse drags'],
-
-    ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
-    ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
 
     // Callback functions
     ['onUpdateState',      'rw', 'func', function() { },
@@ -569,44 +565,18 @@ function genDES(password, challenge) {
     return (new DES(passwd)).encrypt(challenge);
 }
 
-function flushClient() {
-    if (mouse_arr.length > 0) {
-        //send(mouse_arr.concat(fbUpdateRequests()));
-        ws.send(mouse_arr);
-        setTimeout(function() {
-                ws.send(fbUpdateRequests());
-            }, 50);
-
-        mouse_arr = [];
-        return true;
-    } else {
-        return false;
-    }
-}
-
 // overridable for testing
 checkEvents = function() {
-    var now;
-    if (rfb_state === 'normal' && !viewportDragging) {
-        if (! flushClient()) {
-            now = new Date().getTime();
-            if (now > last_req_time + conf.fbu_req_rate) {
-                last_req_time = now;
-                ws.send(fbUpdateRequests());
-            }
-        }
+    if (rfb_state === 'normal' && !viewportDragging && mouse_arr.length > 0) {
+        ws.send(mouse_arr);
+        mouse_arr = [];
     }
-    setTimeout(checkEvents, conf.check_rate);
 };
 
 keyPress = function(keysym, down) {
-    var arr;
-
     if (conf.view_only) { return; } // View only, skip keyboard events
 
-    arr = keyEvent(keysym, down);
-    arr = arr.concat(fbUpdateRequests());
-    ws.send(arr);
+    ws.send(keyEvent(keysym, down));
 };
 
 mouseButton = function(x, y, down, bmask) {
@@ -633,7 +603,8 @@ mouseButton = function(x, y, down, bmask) {
 
     mouse_arr = mouse_arr.concat(
             pointerEvent(display.absX(x), display.absY(y)) );
-    flushClient();
+    ws.send(mouse_arr);
+    mouse_arr = [];
 };
 
 mouseMove = function(x, y) {
@@ -656,7 +627,9 @@ mouseMove = function(x, y) {
     if (conf.view_only) { return; } // View only, skip mouse events
 
     mouse_arr = mouse_arr.concat(
-            pointerEvent(display.absX(x), display.absY(y)) );
+            pointerEvent(display.absX(x), display.absY(y)));
+    
+    checkEvents();
 };
 
 
@@ -905,8 +878,7 @@ init_msg = function() {
         timing.pixels = 0;
         ws.send(response);
         
-        /* Start pushing/polling */
-        setTimeout(checkEvents, conf.check_rate);
+        checkEvents();
 
         if (conf.encrypt) {
             updateState('normal', "Connected (encrypted) to: " + fb_name);
@@ -934,6 +906,9 @@ normal_msg = function() {
     switch (msg_type) {
     case 0:  // FramebufferUpdate
         ret = framebufferUpdate(); // false means need more data
+        if (ret) {
+            ws.send(fbUpdateRequests());
+        }
         break;
     case 1:  // SetColourMapEntries
         Util.Debug("SetColourMapEntries");
