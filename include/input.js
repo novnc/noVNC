@@ -543,7 +543,7 @@ function onMouseButton(e, down) {
     }
     //Util.Debug("mouse " + pos.x + "," + pos.y + " down: " + down +
     //           " bmask: " + bmask + "(evt.button: " + evt.button + ")");
-    if (bmask > 0 && conf.onMouseButton) {
+    if (conf.onMouseButton) {
         Util.Debug("onMouseButton " + (down ? "down" : "up") +
                    ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
         conf.onMouseButton(pos.x, pos.y, down, bmask);
