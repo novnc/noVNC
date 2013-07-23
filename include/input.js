@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
@@ -489,6 +490,9 @@ var that           = {},  // Public API methods
     conf           = {},  // Configuration attributes
     mouseCaptured  = false;
 
+var doubleClickTimer = null,
+    lastTouchPos = null;
+
 // Configuration attributes
 Util.conf_defaults(conf, that, defaults, [
     ['target',         'ro', 'dom',  document, 'DOM element that captures mouse input'],
@@ -521,6 +525,10 @@ function releaseMouse() {
 // Private functions
 //
 
+function resetDoubleClickTimer() {
+    doubleClickTimer = null;
+}
+
 function onMouseButton(e, down) {
     var evt, pos, bmask;
     if (! conf.focused) {
@@ -528,8 +536,34 @@ function onMouseButton(e, down) {
     }
     evt = (e ? e : window.event);
     pos = Util.getEventPosition(e, conf.target, conf.scale);
+
     if (e.touches || e.changedTouches) {
         // Touch device
+
+        // When two touches occur within 500 ms of each other and are
+        // closer than 20 pixels together a double click is triggered.
+        if (down == 1) {
+            if (doubleClickTimer == null) {
+                lastTouchPos = pos;
+            } else {
+                clearTimeout(doubleClickTimer); 
+
+                // When the distance between the two touches is small enough
+                // force the position of the latter touch to the position of
+                // the first.
+
+                var xs = lastTouchPos.x - pos.x;
+                var ys = lastTouchPos.y - pos.y;
+                var d = Math.sqrt((xs * xs) + (ys * ys));
+
+                // The goal is to trigger on a certain physical width, the
+                // devicePixelRatio brings us a bit closer but is not optimal.
+                if (d < 20 * window.devicePixelRatio) {
+                    pos = lastTouchPos;
+                }
+            }
+            doubleClickTimer = setTimeout(resetDoubleClickTimer, 500);
+        }
         bmask = conf.touchButton;
         // If bmask is set
     } else if (evt.which) {
