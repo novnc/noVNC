@@ -413,14 +413,6 @@ html {
   margin-left: 0px;
 }
 
-#noVNC_extra_keys {
-  float: none;
-  top: 0px;
-}
-#noVNC_extra_keys li {  
-  display: inline;
-}
-
 #showExtraKeysButton { display: none; }
 #toggleCtrlButton { display: inline; }
 #toggleAltButton {  display: inline; }
@@ -454,19 +446,34 @@ html {
   .noVNC-buttons-right {
     padding-right: 0px;
   }
-  #noVNC_extra_keys {
-    float: right;
-    top: -35px;
-  }
-  #noVNC_extra_keys li {
-    display: block;
-  }
   /* collapse the extra keys on lower resolutions */
-  #showExtraKeysButton { display: inline; }
-  #toggleCtrlButton { display: none; }
-  #toggleAltButton {  display: none; }
-  #sendTabButton { display: none; }
-  #sendEscButton { display: none; }
+  #showExtraKeysButton {
+    display: inline;
+  }
+  #toggleCtrlButton {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0px;
+  }
+  #toggleAltButton {
+    display: none;
+    position: absolute;
+    top: 65px;
+    left: 0px;
+  }
+  #sendTabButton {
+    display: none;
+    position: absolute;
+    top: 100px;
+    left: 0px;
+  }
+  #sendEscButton {
+    display: none;
+    position: absolute;
+    top: 135px;
+    left: 0px;
+  }
 }
 
 @media screen and (min-width: 321px) and (max-width: 480px) {
