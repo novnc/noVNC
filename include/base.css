@@ -410,34 +410,41 @@ html {
   z-index: 0;
   position: absolute;
   width: 100%;
+  margin-left: 0px;
 }
 
 #noVNC_extra_keys {
   float: none;
   top: 0px;
 }
-
 #noVNC_extra_keys li {  
   display: inline;
 }
 
-#showExtraKeysButton {
-  display: none;
-}
-#toggleCtrlButton {
-  display: inline;
-}
-#toggleAltButton {
-  display: inline;
-}
-#sendTabButton {
-  display: inline;
-}
-#sendEscButton {
-  display: inline;
+#showExtraKeysButton { display: none; }
+#toggleCtrlButton { display: inline; }
+#toggleAltButton {  display: inline; }
+#sendTabButton { display: inline; }
+#sendEscButton { display: inline; }
+
+/* left-align the status text on lower resolutions */
+@media screen and (max-width: 800px){
+  #noVNC_status {
+    z-index: 1;
+    position: relative;
+    width: auto;
+    float: left;
+    margin-left: 4px;
+  }
 }
 
 @media screen and (max-width: 640px){
+  #noVNC_clipboard_text {
+    width: 410px;
+  }
+  #noVNC_logo {
+    font-size: 150px;
+  }
   .noVNC_status_button {
     font-size: 10px;
   }
@@ -447,12 +454,6 @@ html {
   .noVNC-buttons-right {
     padding-right: 0px;
   }
-  #noVNC_status {
-    z-index: 1;
-    position: relative;
-    width: auto;
-    float: left;
-  }
   #noVNC_extra_keys {
     float: right;
     top: -35px;
@@ -460,30 +461,12 @@ html {
   #noVNC_extra_keys li {
     display: block;
   }
-  #showExtraKeysButton {
-    display: inline;
-  }
-  #toggleCtrlButton {
-    display: none;
-  }
-  #toggleAltButton {
-    display: none;
-  }
-  #sendTabButton {
-    display: none;
-  }
-  #sendEscButton {
-    display: none;
-  }
-}
-
-@media screen and (min-width: 481px) and (max-width: 640px) {
-  #noVNC_clipboard_text {
-    width: 410px;
-  }
-  #noVNC_logo {
-    font-size: 150px;
-  }
+  /* collapse the extra keys on lower resolutions */
+  #showExtraKeysButton { display: inline; }
+  #toggleCtrlButton { display: none; }
+  #toggleAltButton {  display: none; }
+  #sendTabButton { display: none; }
+  #sendEscButton { display: none; }
 }
 
 @media screen and (min-width: 321px) and (max-width: 480px) {
