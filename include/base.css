@@ -62,6 +62,14 @@ html {
   display: none;
 }
 
+#noVNC_extra_keys {
+  display: inline;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+  position: relative;
+}
+
 .noVNC-buttons-left {
   float: left;
   z-index: 1;
@@ -404,6 +412,31 @@ html {
   width: 100%;
 }
 
+#noVNC_extra_keys {
+  float: none;
+  top: 0px;
+}
+
+#noVNC_extra_keys li {  
+  display: inline;
+}
+
+#showExtraKeysButton {
+  display: none;
+}
+#toggleCtrlButton {
+  display: inline;
+}
+#toggleAltButton {
+  display: inline;
+}
+#sendTabButton {
+  display: inline;
+}
+#sendEscButton {
+  display: inline;
+}
+
 @media screen and (max-width: 640px){
   .noVNC_status_button {
     font-size: 10px;
@@ -419,6 +452,28 @@ html {
     position: relative;
     width: auto;
     float: left;
+  }
+  #noVNC_extra_keys {
+    float: right;
+    top: -35px;
+  }
+  #noVNC_extra_keys li {
+    display: block;
+  }
+  #showExtraKeysButton {
+    display: inline;
+  }
+  #toggleCtrlButton {
+    display: none;
+  }
+  #toggleAltButton {
+    display: none;
+  }
+  #sendTabButton {
+    display: none;
+  }
+  #sendEscButton {
+    display: none;
   }
 }
 
