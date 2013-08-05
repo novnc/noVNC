@@ -285,7 +285,7 @@ Traffic Legend:
         targets = {}
         db=MySQLdb.connect(passwd=sqlconfig['passwd'],db=sqlconfig['db'],user=sqlconfig['user'])
         c=db.cursor()
-        c.execute(sqlconfig['match_query'].replace('_TOKEN_', token))
+        c.execute(sqlconfig['match_query'].replace('_TOKEN_', db.escape_string(token)))
         results = c.fetchone()
         targets[token] = results[0]
         c.close()
