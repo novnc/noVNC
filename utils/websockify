@@ -206,12 +206,12 @@ Traffic Legend:
         # in the form of token: host:port
 
         # Extract the token parameter from url
-        args = parse_qs(urlparse(path)[4]) # 4 is the query from url
+        token = urlparse(path)[4] # 4 is the query from url
+        print(token)
+        #if not 'token' in args or not len(args['token']):
+        #    raise self.EClose("Token not present")
 
-        if not args.has_key('token') or not len(args['token']):
-            raise self.EClose("Token not present")
-
-        token = args['token'][0].rstrip('\n')
+        #token = args['token'][0].rstrip('\n')
 
         # target_cfg can be a single config file or directory of
         # config files
@@ -221,19 +221,14 @@ Traffic Legend:
         else:
             cfg_files = [target_cfg]
 
-        targets = {}
         for f in cfg_files:
-            for line in [l.strip() for l in file(f).readlines()]:
+            for line in [l.strip() for l in open(f)]:
                 if line and not line.startswith('#'):
-                    ttoken, target = line.split(': ')
-                    targets[ttoken] = target.strip()
-
-        self.vmsg("Target config: %s" % repr(targets))
-
-        if targets.has_key(token):
-            return targets[token].split(':')
-        else:
-            raise self.EClose("Token '%s' not found" % token)
+                    ftoken, target = line.split(': ')
+                    if ftoken == token:
+                       print(target)
+                       return target.split(':')
+        raise self.EClose("Token '%s' not found" % token)
 
     def do_proxy(self, target):
         """
