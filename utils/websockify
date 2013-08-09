@@ -207,6 +207,8 @@ Traffic Legend:
 
         # Extract the token parameter from url
         token = urlparse(path)[4] # 4 is the query from url
+        if not token:
+          raise self.EClose("Token not present")
 
         # target_cfg can be a single config file or directory of
         # config files
@@ -221,7 +223,6 @@ Traffic Legend:
                 if line and not line.startswith('#'):
                     ftoken, target = line.split(': ')
                     if ftoken == token:
-                       print(target)
                        return target.split(':')
         raise self.EClose("Token '%s' not found" % token)
 
