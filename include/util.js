@@ -266,18 +266,53 @@ Util.load_scripts = function(files) {
     }
 }
 
+
 // Get DOM element position on page
-Util.getPosition = function (obj) {
-    var x = 0, y = 0;
-    if (obj.offsetParent) {
-        do {
-            x += obj.offsetLeft;
-            y += obj.offsetTop;
-            obj = obj.offsetParent;
-        } while (obj);
+//  This solution is based based on http://www.greywyvern.com/?post=331
+//  Thanks to Brian Huisman AKA GreyWyvern!
+Util.getPosition = (function() {
+    function getStyle(obj, styleProp) {
+        if (obj.currentStyle) {
+            var y = obj.currentStyle[styleProp];
+        } else if (window.getComputedStyle)
+            var y = window.getComputedStyle(obj, null)[styleProp];
+        return y;
+    };
+
+    function scrollDist() {
+        var html = document.getElementsByTagName('html')[0];
+        if (html.scrollTop && document.documentElement.scrollTop) {
+            return [html.scrollLeft, html.scrollTop];
+        } else if (html.scrollTop || document.documentElement.scrollTop) {
+            return [
+                html.scrollLeft + document.documentElement.scrollLeft,
+                html.scrollTop + document.documentElement.scrollTop
+            ];
+        } else if (document.body.scrollTop)
+            return [document.body.scrollLeft, document.body.scrollTop];
+        return [0, 0];
+    };
+
+    return function (obj) {
+      var curleft = 0, curtop = 0, scr = obj, fixed = false;
+      while ((scr = scr.parentNode) && scr != document.body) {
+        curleft -= scr.scrollLeft || 0;
+        curtop -= scr.scrollTop || 0;
+        if (getStyle(scr, "position") == "fixed") fixed = true;
+      }
+      if (fixed && !window.opera) {
+        var scrDist = scrollDist();
+        curleft += scrDist[0];
+        curtop += scrDist[1];
+      }
+      do {
+        curleft += obj.offsetLeft;
+        curtop += obj.offsetTop;
+      } while (obj = obj.offsetParent);
+      return {'x': curleft, 'y': curtop};
     }
-    return {'x': x, 'y': y};
-};
+})();
+
 
 // Get mouse event position in DOM element
 Util.getEventPosition = function (e, obj, scale) {
