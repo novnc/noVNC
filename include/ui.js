@@ -764,39 +764,43 @@ showExtraKeys: function() {
 },
 
 toggleCtrl: function() {
+    var ctrlKeysum = 0xFFE3;
     UI.keepKeyboard();
     if(UI.ctrlOn === false) {
-        UI.rfb.sendKey(0xFFE3, true);
+        UI.rfb.sendKey(ctrlKeysum, true);
         $D('toggleCtrlButton').className = "noVNC_status_button_selected";
         UI.ctrlOn = true;
     } else if(UI.ctrlOn === true) {
-        UI.rfb.sendKey(0xFFE3, false);
+        UI.rfb.sendKey(ctrlKeysum, false);
         $D('toggleCtrlButton').className = "noVNC_status_button";
         UI.ctrlOn = false;
     }
 },
 
 toggleAlt: function() {
+    var altKeysum = 0xFFE9;
     UI.keepKeyboard();
     if(UI.altOn === false) {
-        UI.rfb.sendKey(0xFFE9, true);
+        UI.rfb.sendKey(altKeysum, true);
         $D('toggleAltButton').className = "noVNC_status_button_selected";
         UI.altOn = true;
     } else if(UI.altOn === true) {
-        UI.rfb.sendKey(0xFFE9, false);
+        UI.rfb.sendKey(altKeysum, false);
         $D('toggleAltButton').className = "noVNC_status_button";
         UI.altOn = false;
     }
 },
 
 sendTab: function() {
+    var tabKeysum = 0xFF09;
     UI.keepKeyboard();
-    UI.rfb.sendKey(0xFF09);
+    UI.rfb.sendKey(tabKeysum);
 },
 
 sendEsc: function() {
+    var escKeysum = 0xFF1B;
     UI.keepKeyboard();
-    UI.rfb.sendKey(0xFF1B);
+    UI.rfb.sendKey(escKeysum);
 },
 
 setKeyboard: function() {
