@@ -408,7 +408,7 @@ updateState = function(state, statusMsg) {
         }
 
         if (msgTimer) {
-            clearInterval(msgTimer);
+            clearTimeout(msgTimer);
             msgTimer = null;
         }
 
@@ -449,13 +449,13 @@ updateState = function(state, statusMsg) {
 
     if (connTimer && (rfb_state !== 'connect')) {
         Util.Debug("Clearing connect timer");
-        clearInterval(connTimer);
+        clearTimeout(connTimer);
         connTimer = null;
     }
 
     if (disconnTimer && (rfb_state !== 'disconnect')) {
         Util.Debug("Clearing disconnect timer");
-        clearInterval(disconnTimer);
+        clearTimeout(disconnTimer);
         disconnTimer = null;
     }
 
