@@ -44,10 +44,9 @@ load: function (callback) {
 },
 
 onresize: function (callback) {
-    // Control-bar height: 44px +
-    // Status-bar height: 24px + 
-    // border height: 5px = 73px to be deducted from the height
-    UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 73);
+    // Control-bar height: 36px +
+    // border height: 5px = 41px to be deducted from the height
+    UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 41);
 },
 
 // Render default UI and initialize settings menu
