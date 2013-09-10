@@ -21,7 +21,7 @@ window.onresize = function () {
     // the resolution of the session
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function(){
-        UI.onresize(); 
+        UI.onresize();
     }, 500);
 };
 
