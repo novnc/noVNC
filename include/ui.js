@@ -17,7 +17,7 @@ var resizeTimeout;
 window.onscriptsload = function () { UI.load(); };
 window.onresize = function () { 
     // When the window has been resized, wait until the size remains
-    // the same for 0.5 seconds before sending the request for changing 
+    // the same for 0.5 seconds before sending the request for changing
     // the resolution of the session
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function(){

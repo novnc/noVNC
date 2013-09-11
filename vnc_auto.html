@@ -71,7 +71,18 @@
                            "input.js", "display.js", "jsunzip.js", "rfb.js"]);
 
         var rfb;
+        var resizeTimeout;
 
+
+        function UIresize() {
+            // Control-bar height: 36px +
+            // border height: 5px = 41px to be deducted from the height
+            rfb.setDesktopSize(window.innerWidth, window.innerHeight - 41);
+        }
+        function FBUComplete(rfb, fbu) {
+            UIresize();
+            rfb.set_onFBUComplete(function() { });
+        }
         function passwordRequired(rfb) {
             var msg;
             msg = '<form onsubmit="return setPassword();"';
@@ -113,6 +124,16 @@
             }
         }
 
+        window.onresize = function () {
+            // When the window has been resized, wait until the size remains
+            // the same for 0.5 seconds before sending the request for changing
+            // the resolution of the session
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function(){
+                UIresize();
+            }, 500);
+        };
+
         window.onscriptsload = function () {
             var host, port, password, path, token;
 
@@ -128,10 +149,10 @@
             // if port == 80 (or 443) then it won't be present and should be
             // set manually
             if (!port) {
-                if (window.location.protocol.substring(0,4) == 'http') {            
+                if (window.location.protocol.substring(0,4) == 'http') {
                     port = 80;
                 }
-                else if (window.location.protocol.substring(0,5) == 'https') {            
+                else if (window.location.protocol.substring(0,5) == 'https') {
                     port = 443;
                 }
             }
@@ -161,7 +182,8 @@
                            'shared':       WebUtil.getQueryVar('shared', true),
                            'view_only':    WebUtil.getQueryVar('view_only', false),
                            'updateState':  updateState,
-                           'onPasswordRequired':  passwordRequired});
+                           'onPasswordRequired':  passwordRequired,
+                           'onFBUComplete': FBUComplete});
             rfb.connect(host, port, password, path);
         };
         </script>
