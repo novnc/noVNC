@@ -155,7 +155,8 @@ addMouseHandlers: function() {
     $D("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
     $D("noVNC_mouse_button4").onclick = function () { UI.setMouseButton(0); };
     $D("showKeyboard").onclick = UI.showKeyboard;
-    //$D("keyboardinput").onkeydown = function (event) { onKeyDown(event); };
+
+    $D("keyboardinput").oninput = UI.keyInput;
     $D("keyboardinput").onblur = UI.keyInputBlur;
 
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
@@ -701,15 +702,49 @@ setViewDrag: function(drag) {
 
 // On touch devices, show the OS keyboard
 showKeyboard: function() {
+    var kbi, skb, l;
+    kbi = $D('keyboardinput');
+    skb = $D('showKeyboard');
+    l = kbi.value.length;
     if(UI.keyboardVisible === false) {
-        $D('keyboardinput').focus();
+        kbi.focus();
+        kbi.setSelectionRange(l, l); // Move the caret to the end
         UI.keyboardVisible = true;
-        $D('showKeyboard').className = "noVNC_status_button_selected";
+        skb.className = "noVNC_status_button_selected";
     } else if(UI.keyboardVisible === true) {
-        $D('keyboardinput').blur();
-        $D('showKeyboard').className = "noVNC_status_button";
+        kbi.blur();
+        skb.className = "noVNC_status_button";
         UI.keyboardVisible = false;
     }
+},
+
+// When keypress events are left uncought, catch the input events from
+// the keyboardinput element instead and send the corresponding key events.
+keyInput: function(event) {
+    var elem, input, len;
+    elem = $D('keyboardinput');
+    input = event.target.value;
+    len = (elem.selectionStart > input.length) ? elem.selectionStart : input.length;
+
+    if (len < 1) { // something removed?
+        UI.rfb.sendKey(0xff08); // send BACKSPACE
+    } else if (len > 1) { // new input?
+        for (var i = len-1; i > 0; i -= 1) {
+            // HTML does not consider trailing whitespaces as a part of the string
+            // and they are therefore undefined.
+            if (input[len-i] !== undefined) {
+                UI.rfb.sendKey(input.charCodeAt(len-i)); // send charCode
+            } else {
+                UI.rfb.sendKey(0x0020); // send SPACE
+            }
+        }
+    }
+
+    // In order to be able to delete text which has been written in
+    // another session there has to always be text in the
+    // keyboardinput element with which backspace can interact.
+    // We also need to reset the input field text to avoid overflow.
+    elem.value = "x";
 },
 
 keyInputBlur: function() {
