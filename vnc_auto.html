@@ -128,11 +128,11 @@
             // if port == 80 (or 443) then it won't be present and should be
             // set manually
             if (!port) {
-                if (window.location.protocol.substring(0,4) == 'http') {            
-                    port = 80;
-                }
-                else if (window.location.protocol.substring(0,5) == 'https') {            
+                if (window.location.protocol.substring(0,5) == 'https') {            
                     port = 443;
+                }
+                else if (window.location.protocol.substring(0,4) == 'http') {            
+                    port = 80;
                 }
             }
 
