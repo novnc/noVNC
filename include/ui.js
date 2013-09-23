@@ -75,7 +75,7 @@ start: function(callback) {
     UI.initSetting('password', '');
     UI.initSetting('encrypt', (window.location.protocol === "https:"));
     UI.initSetting('true_color', true);
-    UI.initSetting('cursor', false);
+    UI.initSetting('cursor', true);
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
     UI.initSetting('connectTimeout', 2);
@@ -356,8 +356,8 @@ toggleSettingsPanel: function() {
         if (UI.rfb.get_display().get_cursor_uri()) {
             UI.updateSetting('cursor');
         } else {
-            UI.updateSetting('cursor', false);
-            $D('noVNC_cursor').disabled = true;
+            UI.updateSetting('cursor', true);
+            $D('noVNC_cursor').disabled = false;
         }
         UI.updateSetting('clip');
         UI.updateSetting('shared');
@@ -518,8 +518,8 @@ updateVisualState: function() {
         UI.rfb.get_display().get_cursor_uri()) {
         $D('noVNC_cursor').disabled = connected;
     } else {
-        UI.updateSetting('cursor', false);
-        $D('noVNC_cursor').disabled = true;
+        UI.updateSetting('cursor', true);
+        $D('noVNC_cursor').disabled = false;
     }
     $D('noVNC_shared').disabled = connected;
     $D('noVNC_view_only').disabled = connected;
