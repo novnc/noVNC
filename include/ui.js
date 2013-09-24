@@ -24,6 +24,7 @@ connSettingsOpen : false,
 popupStatusOpen : false,
 clipboardOpen: false,
 keyboardVisible: false,
+isTouchDevice: false,
 
 // Setup rfb object, load settings from browser storage, then call
 // UI.init to setup the UI/menus
@@ -34,6 +35,8 @@ load: function (callback) {
 // Render default UI and initialize settings menu
 start: function(callback) {
     var html = '', i, sheet, sheets, llevels, port;
+
+    UI.isTouchDevice = 'ontouchstart' in document.documentElement;
 
     // Stylesheet selection dropdown
     sheet = WebUtil.selectStylesheet();
@@ -75,7 +78,7 @@ start: function(callback) {
     UI.initSetting('password', '');
     UI.initSetting('encrypt', (window.location.protocol === "https:"));
     UI.initSetting('true_color', true);
-    UI.initSetting('cursor', true);
+    UI.initSetting('cursor', !UI.isTouchDevice);
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
     UI.initSetting('connectTimeout', 2);
@@ -97,7 +100,7 @@ start: function(callback) {
     //    };
 
     // Show mouse selector buttons on touch screen devices
-    if ('ontouchstart' in document.documentElement) {
+    if (UI.isTouchDevice) {
         // Show mobile buttons
         $D('noVNC_mobile_buttons').style.display = "inline";
         UI.setMouseButton();
@@ -356,8 +359,8 @@ toggleSettingsPanel: function() {
         if (UI.rfb.get_display().get_cursor_uri()) {
             UI.updateSetting('cursor');
         } else {
-            UI.updateSetting('cursor', true);
-            $D('noVNC_cursor').disabled = false;
+            UI.updateSetting('cursor', !UI.isTouchDevice);
+            $D('noVNC_cursor').disabled = true;
         }
         UI.updateSetting('clip');
         UI.updateSetting('shared');
@@ -518,8 +521,8 @@ updateVisualState: function() {
         UI.rfb.get_display().get_cursor_uri()) {
         $D('noVNC_cursor').disabled = connected;
     } else {
-        UI.updateSetting('cursor', true);
-        $D('noVNC_cursor').disabled = false;
+        UI.updateSetting('cursor', !UI.isTouchDevice);
+        $D('noVNC_cursor').disabled = true;
     }
     $D('noVNC_shared').disabled = connected;
     $D('noVNC_view_only').disabled = connected;
