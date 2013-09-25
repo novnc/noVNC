@@ -26,6 +26,7 @@ var RFB;
         this._rfb_port = 5900;
         this._rfb_password = '';
         this._rfb_path = '';
+        this._rfb_queryargs = '';
 
         this._rfb_state = 'disconnected';
         this._rfb_version = 0;
@@ -224,11 +225,12 @@ var RFB;
 
     RFB.prototype = {
         // Public methods
-        connect: function (host, port, password, path) {
+        connect: function (host, port, password, path, queryargs) {
             this._rfb_host = host;
             this._rfb_port = port;
             this._rfb_password = (password !== undefined) ? password : "";
             this._rfb_path = (path !== undefined) ? path : "";
+            this._rfb_queryargs = (path !== undefined) ? queryargs : null;
 
             if (!this._rfb_host || !this._rfb_port) {
                 return this._fail("Must set host and port");
@@ -314,6 +316,10 @@ var RFB;
             }
 
             uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
+            if (self._rfb_queryargs != null) {
+                var querystr = WebUtil.objToQueryString(self._rfb_queryargs);
+                uri += "?" _ querystr;
+            }
             Util.Info("connecting to " + uri);
 
             this._sock.open(uri, this._wsProtocols);
