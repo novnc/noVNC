@@ -114,7 +114,7 @@
         }
 
         window.onscriptsload = function () {
-            var host, port, password, path, token;
+            var host, port, password, path, token, queryargs;
 
             $D('sendCtrlAltDelButton').style.display = "inline";
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
@@ -140,6 +140,7 @@
             // This is used by nova-novncproxy.
             token = WebUtil.getQueryVar('token', null);
             if (token) {
+                queryargs = {token: token};
                 WebUtil.createCookie('token', token, 1)
             }
 
@@ -162,7 +163,7 @@
                            'view_only':    WebUtil.getQueryVar('view_only', false),
                            'updateState':  updateState,
                            'onPasswordRequired':  passwordRequired});
-            rfb.connect(host, port, password, path);
+            rfb.connect(host, port, password, path, queryargs);
         };
         </script>
 
