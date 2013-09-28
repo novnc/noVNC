@@ -191,6 +191,16 @@ html {
   border-radius:10px;
 }
 
+#noVNC_xvp {
+  display:none;
+  margin-top:73px;
+  right:30px;
+  position:fixed;
+}
+#noVNC_xvp.top:after {
+  right:125px;
+}
+
 #noVNC_clipboard {
   display:none;
   margin-top:73px;

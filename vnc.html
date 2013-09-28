@@ -72,12 +72,15 @@
         </div>
 
         <div id="noVNC_status">Loading</div>
-
+e
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
             <input type="image" src="images/ctrlaltdel.png"
                  id="sendCtrlAltDelButton" class="noVNC_status_button"
                 title="Send Ctrl-Alt-Del" />
+            <input type="image" src="images/power.png"
+                id="xvpButton" class="noVNC_status_button"
+                title="Shutdown/Reboot..." />
             <input type="image" src="images/clipboard.png"
                 id="clipboardButton" class="noVNC_status_button"
                 title="Clipboard" />
@@ -119,6 +122,15 @@
             <br />
             <input id="noVNC_clipboard_clear_button" type="button"
                 value="Clear">
+        </div>
+
+        <!-- XVP Shutdown/Reboot Panel -->
+        <div id="noVNC_xvp" class="triangle-right top">
+            <span id="noVNC_xvp_menu">
+                <input type="button" id="xvpShutdownButton" value="Shutdown" />
+                <input type="button" id="xvpRebootButton" value="Reboot" />
+                <input type="button" id="xvpResetButton" value="Reset" />
+            </span>
         </div>
 
         <!-- Settings Panel -->
