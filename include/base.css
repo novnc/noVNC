@@ -49,10 +49,17 @@ html {
   float:right;
 }
 
+#noVNC_buttons {
+  white-space: nowrap;
+}
+
 #noVNC_view_drag_button {
   display: none;
 }
 #sendCtrlAltDelButton {
+  display: none;
+}
+#noVNC_xvp_buttons {
   display: none;
 }
 #noVNC_mobile_buttons {
@@ -194,6 +201,16 @@ html {
   -webkit-border-radius:10px;
   -moz-border-radius:10px;
   border-radius:10px;
+}
+
+#noVNC_xvp {
+  display:none;
+  margin-top:73px;
+  right:30px;
+  position:fixed;
+}
+#noVNC_xvp.top:after {
+  right:125px;
 }
 
 #noVNC_clipboard {
