@@ -136,6 +136,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
     ['view_only',          'rw', 'bool', false, 'Disable client mouse/keyboard'],
+    ['xvp_password_sep',   'rw', 'str',  '@',   'Separator for XVP password fields'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
 
     // UltraVNC repeater ID to connect to
@@ -630,7 +631,8 @@ init_msg = function() {
     var strlen, reason, length, sversion, cversion, repeaterID,
         i, types, num_types, challenge, response, bpp, depth,
         big_endian, red_max, green_max, blue_max, red_shift,
-        green_shift, blue_shift, true_color, name_length, is_repeater;
+        green_shift, blue_shift, true_color, name_length, is_repeater,
+        xvp_sep, xvp_auth, xvp_auth_str;
 
     //Util.Debug("ws.rQ (" + ws.rQlen() + ") " + ws.rQslice(0));
     switch (rfb_state) {
@@ -695,7 +697,7 @@ init_msg = function() {
             types = ws.rQshiftBytes(num_types);
             Util.Debug("Server security types: " + types);
             for (i=0; i < types.length; i+=1) {
-                if ((types[i] > rfb_auth_scheme) && (types[i] <= 16)) {
+                if ((types[i] > rfb_auth_scheme) && (types[i] <= 16 || types[i] == 22)) {
                     rfb_auth_scheme = types[i];
                 }
             }
@@ -730,6 +732,23 @@ init_msg = function() {
                 }
                 // Fall through to ClientInitialisation
                 break;
+            case 22:  // XVP authentication
+                xvp_sep = conf.xvp_password_sep;
+                xvp_auth = rfb_password.split(xvp_sep);
+                if (xvp_auth.length < 3) {
+                    updateState('password', "XVP credentials required (user" + xvp_sep +
+                                "target" + xvp_sep + "password) -- got only " + rfb_password);
+                    conf.onPasswordRequired(that);
+                    return;
+                }
+                xvp_auth_str = String.fromCharCode(xvp_auth[0].length) +
+                               String.fromCharCode(xvp_auth[1].length) +
+                               xvp_auth[0] +
+                               xvp_auth[1];
+                ws.send_string(xvp_auth_str);
+                rfb_password = xvp_auth.slice(2).join(xvp_sep);
+                rfb_auth_scheme = 2;
+                // Fall through to standard VNC authentication with remaining part of password
             case 2:  // VNC authentication
                 if (rfb_password.length === 0) {
                     // Notify via both callbacks since it is kind of
