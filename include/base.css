@@ -52,10 +52,17 @@ html {
   float:right;
 }
 
+#noVNC_buttons {
+  white-space: nowrap;
+}
+
 #noVNC_view_drag_button {
   display: none;
 }
 #sendCtrlAltDelButton {
+  display: none;
+}
+#noVNC_xvp_buttons {
   display: none;
 }
 #noVNC_mobile_buttons {

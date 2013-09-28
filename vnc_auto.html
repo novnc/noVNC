@@ -50,10 +50,10 @@
                     <td><div id="noVNC_status" style="position: relative; height: auto;">
                         Loading
                     </div></td>
-                    <td width="1%"><div id="noVNC_buttons" style="white-space: nowrap">
+                    <td width="1%"><div id="noVNC_buttons">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
-                        <span id="xvp_buttons" style="display: none">
+                        <span id="noVNC_xvp_buttons">
                         <input type=button value="Shutdown"
                             id="xvpShutdownButton">
                         <input type=button value="Reboot"
@@ -139,7 +139,7 @@
 
         function xvpInit(ver) {
             var xvpbuttons;
-            xvpbuttons = $D('xvp_buttons');
+            xvpbuttons = $D('noVNC_xvp_buttons');
             if (ver >= 1) {
                 xvpbuttons.style.display = 'inline';
             } else {
