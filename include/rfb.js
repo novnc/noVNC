@@ -47,6 +47,8 @@ var that           = {},  // Public API methods
     rfb_auth_scheme= '',
     rfb_tightvnc   = false,
 
+    rfb_xvp_ver    = 0,
+
 
     // In preference order
     encodings      = [
@@ -65,7 +67,8 @@ var that           = {},  // Public API methods
         //['JPEG_quality_hi',   -23 ],
         //['compress_lo',      -255 ],
         ['compress_hi',        -247 ],
-        ['last_rect',          -224 ]
+        ['last_rect',          -224 ],
+        ['xvp',                -309 ]
         ],
 
     encHandlers    = {},
@@ -161,6 +164,8 @@ Util.conf_defaults(conf, that, defaults, [
         'onFBResize(rfb, width, height): frame buffer resized'],
     ['onDesktopName',      'rw', 'func', function() { },
         'onDesktopName(rfb, name): desktop name received'],
+    ['onXvpInit',          'rw', 'func', function() { },
+        'onXvpInit(version): XVP extensions active for this connection'],
 
     // These callback names are deprecated
     ['updateState',        'rw', 'func', function() { },
@@ -991,7 +996,8 @@ normal_msg = function() {
     //Util.Debug(">> normal_msg");
 
     var ret = true, msg_type, length, text,
-        c, first_colour, num_colours, red, green, blue;
+        c, first_colour, num_colours, red, green, blue,
+        xvp_ver, xvp_msg;
 
     if (FBU.rects > 0) {
         msg_type = 0;
@@ -1040,6 +1046,24 @@ normal_msg = function() {
         text = ws.rQshiftStr(length);
         conf.clipboardReceive(that, text); // Obsolete
         conf.onClipboard(that, text);
+        break;
+    case 250:  // XVP
+        ws.rQshift8();  // Padding
+        xvp_ver = ws.rQshift8();
+        xvp_msg = ws.rQshift8();
+        switch (xvp_msg) {
+        case 0:  // XVP_FAIL
+            updateState(rfb_state, "Operation failed");
+            break;
+        case 1:  // XVP_INIT
+            rfb_xvp_ver = xvp_ver;
+            Util.Info("XVP extensions enabled (version " + rfb_xvp_ver + ")");
+            conf.onXvpInit(rfb_xvp_ver);
+            break;
+        default:
+            fail("Disconnected: illegal server XVP message " + xvp_msg);
+            break;
+        }
         break;
     default:
         fail("Disconnected: illegal server message type " + msg_type);
@@ -1893,6 +1917,25 @@ that.sendCtrlAltDel = function() {
     arr = arr.concat(keyEvent(0xFFE9, 0)); // Alt
     arr = arr.concat(keyEvent(0xFFE3, 0)); // Control
     ws.send(arr);
+};
+
+that.xvpOp = function(ver, op) {
+    if (rfb_xvp_ver < ver) { return false; }
+    Util.Info("Sending XVP operation " + op + " (version " + ver + ")")
+    ws.send_string("\xFA\x00" + String.fromCharCode(ver) + String.fromCharCode(op));
+    return true;
+};
+
+that.xvpShutdown = function() {
+    return that.xvpOp(1, 2);
+};
+
+that.xvpReboot = function() {
+    return that.xvpOp(1, 3);
+};
+
+that.xvpReset = function() {
+    return that.xvpOp(1, 4);
 };
 
 // Send a key press. If 'down' is not specified then send a down key
