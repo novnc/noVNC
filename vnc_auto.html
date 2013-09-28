@@ -50,9 +50,17 @@
                     <td><div id="noVNC_status" style="position: relative; height: auto;">
                         Loading
                     </div></td>
-                    <td width="1%"><div id="noVNC_buttons">
+                    <td width="1%"><div id="noVNC_buttons" style="white-space: nowrap">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
+                        <span id="xvp_buttons" style="display: none">
+                        <input type=button value="Shutdown"
+                            id="xvpShutdownButton">
+                        <input type=button value="Reboot"
+                            id="xvpRebootButton">
+                        <input type=button value="Reset"
+                            id="xvpResetButton">
+                        </span>
                             </div></td>
                 </tr></table>
             </div>
@@ -90,6 +98,18 @@
             rfb.sendCtrlAltDel();
             return false;
         }
+        function xvpShutdown() {
+            rfb.xvpShutdown();
+            return false;
+        }
+        function xvpReboot() {
+            rfb.xvpReboot();
+            return false;
+        }
+        function xvpReset() {
+            rfb.xvpReset();
+            return false;
+        }
         function updateState(rfb, state, oldstate, msg) {
             var s, sb, cad, level;
             s = $D('noVNC_status');
@@ -104,12 +124,26 @@
                 default:             level = "warn";   break;
             }
 
-            if (state === "normal") { cad.disabled = false; }
-            else                    { cad.disabled = true; }
+            if (state === "normal") {
+                cad.disabled = false;
+            } else {
+                cad.disabled = true;
+                xvpInit(0);
+            }
 
             if (typeof(msg) !== 'undefined') {
                 sb.setAttribute("class", "noVNC_status_" + level);
                 s.innerHTML = msg;
+            }
+        }
+
+        function xvpInit(ver) {
+            var xvpbuttons;
+            xvpbuttons = $D('xvp_buttons');
+            if (ver >= 1) {
+                xvpbuttons.style.display = 'inline';
+            } else {
+                xvpbuttons.style.display = 'none';
             }
         }
 
@@ -118,6 +152,9 @@
 
             $D('sendCtrlAltDelButton').style.display = "inline";
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+            $D('xvpShutdownButton').onclick = xvpShutdown;
+            $D('xvpRebootButton').onclick = xvpReboot;
+            $D('xvpResetButton').onclick = xvpReset;
 
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
             document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
@@ -161,6 +198,7 @@
                            'shared':       WebUtil.getQueryVar('shared', true),
                            'view_only':    WebUtil.getQueryVar('view_only', false),
                            'updateState':  updateState,
+                           'onXvpInit':    xvpInit,
                            'onPasswordRequired':  passwordRequired});
             rfb.connect(host, port, password, path);
         };
