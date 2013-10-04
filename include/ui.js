@@ -33,7 +33,7 @@ load: function (callback) {
 
 // Render default UI and initialize settings menu
 start: function(callback) {
-    var html = '', i, sheet, sheets, llevels, port;
+    var html = '', i, sheet, sheets, llevels, port, autoconnect;
 
     // Stylesheet selection dropdown
     sheet = WebUtil.selectStylesheet();
@@ -86,6 +86,15 @@ start: function(callback) {
                   'onUpdateState': UI.updateState,
                   'onClipboard': UI.clipReceive,
                   'onDesktopName': UI.updateDocumentTitle});
+
+    autoconnect = WebUtil.getQueryVar('autoconnect', false);
+    if (autoconnect === 'true' || autoconnect == '1') {
+        autoconnect = true;
+        UI.connect();
+    } else {
+        autoconnect = false;
+    }
+
     UI.updateVisualState();
 
     // Unfocus clipboard when over the VNC area
@@ -135,8 +144,10 @@ start: function(callback) {
         // Open the description dialog
         $D('noVNC_description').style.display = "block";
     } else {
-        // Open the connect panel on first load
-        UI.toggleConnectPanel();
+        // Show the connect panel on first load unless autoconnecting
+        if (autoconnect === UI.connSettingsOpen) {
+            UI.toggleConnectPanel();
+        }
     }
 
     // Add mouse event click/focus/blur event handlers to the UI
