@@ -36,6 +36,7 @@ connSettingsOpen : false,
 popupStatusOpen : false,
 clipboardOpen: false,
 keyboardVisible: false,
+isTouchDevice: false,
 
 // Setup rfb object, load settings from browser storage, then call
 // UI.init to setup the UI/menus
@@ -51,7 +52,9 @@ onresize: function (callback) {
 
 // Render default UI and initialize settings menu
 start: function(callback) {
-    var html = '', i, sheet, sheets, llevels, port;
+    var html = '', i, sheet, sheets, llevels, port, autoconnect;
+
+    UI.isTouchDevice = 'ontouchstart' in document.documentElement;
 
     // Stylesheet selection dropdown
     sheet = WebUtil.selectStylesheet();
@@ -93,7 +96,7 @@ start: function(callback) {
     UI.initSetting('password', '');
     UI.initSetting('encrypt', (window.location.protocol === "https:"));
     UI.initSetting('true_color', true);
-    UI.initSetting('cursor', false);
+    UI.initSetting('cursor', !UI.isTouchDevice);
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
     UI.initSetting('connectTimeout', 2);
@@ -105,6 +108,15 @@ start: function(callback) {
                   'onClipboard': UI.clipReceive,
                   'onFBUComplete': UI.FBUComplete,
                   'onDesktopName': UI.updateDocumentTitle});
+
+    autoconnect = WebUtil.getQueryVar('autoconnect', false);
+    if (autoconnect === 'true' || autoconnect == '1') {
+        autoconnect = true;
+        UI.connect();
+    } else {
+        autoconnect = false;
+    }
+
     UI.updateVisualState();
 
     // Unfocus clipboard when over the VNC area
@@ -116,7 +128,7 @@ start: function(callback) {
     //    };
 
     // Show mouse selector buttons on touch screen devices
-    if ('ontouchstart' in document.documentElement) {
+    if (UI.isTouchDevice) {
         // Show mobile buttons
         $D('noVNC_mobile_buttons').style.display = "inline";
         UI.setMouseButton();
@@ -154,8 +166,10 @@ start: function(callback) {
         // Open the description dialog
         $D('noVNC_description').style.display = "block";
     } else {
-        // Open the connect panel on first load
-        UI.toggleConnectPanel();
+        // Show the connect panel on first load unless autoconnecting
+        if (autoconnect === UI.connSettingsOpen) {
+            UI.toggleConnectPanel();
+        }
     }
 
     // Add mouse event click/focus/blur event handlers to the UI
@@ -174,7 +188,8 @@ addMouseHandlers: function() {
     $D("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
     $D("noVNC_mouse_button4").onclick = function () { UI.setMouseButton(0); };
     $D("showKeyboard").onclick = UI.showKeyboard;
-    //$D("keyboardinput").onkeydown = function (event) { onKeyDown(event); };
+
+    $D("keyboardinput").oninput = UI.keyInput;
     $D("keyboardinput").onblur = UI.keyInputBlur;
 
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
@@ -375,7 +390,7 @@ toggleSettingsPanel: function() {
         if (UI.rfb.get_display().get_cursor_uri()) {
             UI.updateSetting('cursor');
         } else {
-            UI.updateSetting('cursor', false);
+            UI.updateSetting('cursor', !UI.isTouchDevice);
             $D('noVNC_cursor').disabled = true;
         }
         UI.updateSetting('clip');
@@ -537,7 +552,7 @@ updateVisualState: function() {
         UI.rfb.get_display().get_cursor_uri()) {
         $D('noVNC_cursor').disabled = connected;
     } else {
-        UI.updateSetting('cursor', false);
+        UI.updateSetting('cursor', !UI.isTouchDevice);
         $D('noVNC_cursor').disabled = true;
     }
     $D('noVNC_shared').disabled = connected;
@@ -731,15 +746,49 @@ setViewDrag: function(drag) {
 
 // On touch devices, show the OS keyboard
 showKeyboard: function() {
+    var kbi, skb, l;
+    kbi = $D('keyboardinput');
+    skb = $D('showKeyboard');
+    l = kbi.value.length;
     if(UI.keyboardVisible === false) {
-        $D('keyboardinput').focus();
+        kbi.focus();
+        kbi.setSelectionRange(l, l); // Move the caret to the end
         UI.keyboardVisible = true;
-        $D('showKeyboard').className = "noVNC_status_button_selected";
+        skb.className = "noVNC_status_button_selected";
     } else if(UI.keyboardVisible === true) {
-        $D('keyboardinput').blur();
-        $D('showKeyboard').className = "noVNC_status_button";
+        kbi.blur();
+        skb.className = "noVNC_status_button";
         UI.keyboardVisible = false;
     }
+},
+
+// When keypress events are left uncought, catch the input events from
+// the keyboardinput element instead and send the corresponding key events.
+keyInput: function(event) {
+    var elem, input, len;
+    elem = $D('keyboardinput');
+    input = event.target.value;
+    len = (elem.selectionStart > input.length) ? elem.selectionStart : input.length;
+
+    if (len < 1) { // something removed?
+        UI.rfb.sendKey(0xff08); // send BACKSPACE
+    } else if (len > 1) { // new input?
+        for (var i = len-1; i > 0; i -= 1) {
+            // HTML does not consider trailing whitespaces as a part of the string
+            // and they are therefore undefined.
+            if (input[len-i] !== undefined) {
+                UI.rfb.sendKey(input.charCodeAt(len-i)); // send charCode
+            } else {
+                UI.rfb.sendKey(0x0020); // send SPACE
+            }
+        }
+    }
+
+    // In order to be able to delete text which has been written in
+    // another session there has to always be text in the
+    // keyboardinput element with which backspace can interact.
+    // We also need to reset the input field text to avoid overflow.
+    elem.value = "x";
 },
 
 keyInputBlur: function() {
