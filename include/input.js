@@ -718,7 +718,7 @@ return that;  // Return the public API interface
 /*
  * Browser keypress to X11 keysym for Unicode characters > U+00FF
  */
-unicodeTable = {
+var unicodeTable = {
     0x0104 : 0x01a1,
     0x02D8 : 0x01a2,
     0x0141 : 0x01a3,
