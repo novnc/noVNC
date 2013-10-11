@@ -10,6 +10,7 @@ is not limited to):
     include/display.js
     include/input.js
     include/jsunzip.js
+    include/keysym.js
     include/logo.js
     include/rfb.js
     include/ui.js

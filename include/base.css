@@ -62,6 +62,14 @@ html {
   display: none;
 }
 
+#noVNC_extra_keys {
+  display: inline;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+  position: relative;
+}
+
 .noVNC-buttons-left {
   float: left;
   z-index: 1;
@@ -402,9 +410,33 @@ html {
   z-index: 0;
   position: absolute;
   width: 100%;
+  margin-left: 0px;
+}
+
+#showExtraKeysButton { display: none; }
+#toggleCtrlButton { display: inline; }
+#toggleAltButton {  display: inline; }
+#sendTabButton { display: inline; }
+#sendEscButton { display: inline; }
+
+/* left-align the status text on lower resolutions */
+@media screen and (max-width: 800px){
+  #noVNC_status {
+    z-index: 1;
+    position: relative;
+    width: auto;
+    float: left;
+    margin-left: 4px;
+  }
 }
 
 @media screen and (max-width: 640px){
+  #noVNC_clipboard_text {
+    width: 410px;
+  }
+  #noVNC_logo {
+    font-size: 150px;
+  }
   .noVNC_status_button {
     font-size: 10px;
   }
@@ -414,20 +446,33 @@ html {
   .noVNC-buttons-right {
     padding-right: 0px;
   }
-  #noVNC_status {
-    z-index: 1;
-    position: relative;
-    width: auto;
-    float: left;
+  /* collapse the extra keys on lower resolutions */
+  #showExtraKeysButton {
+    display: inline;
   }
-}
-
-@media screen and (min-width: 481px) and (max-width: 640px) {
-  #noVNC_clipboard_text {
-    width: 410px;
+  #toggleCtrlButton {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0px;
   }
-  #noVNC_logo {
-    font-size: 150px;
+  #toggleAltButton {
+    display: none;
+    position: absolute;
+    top: 65px;
+    left: 0px;
+  }
+  #sendTabButton {
+    display: none;
+    position: absolute;
+    top: 100px;
+    left: 0px;
+  }
+  #sendEscButton {
+    display: none;
+    position: absolute;
+    top: 135px;
+    left: 0px;
   }
 }
 
