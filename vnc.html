@@ -5,6 +5,7 @@
     <!--
     noVNC example: simple example using default UI
     Copyright (C) 2012 Joel Martin
+    Copyright (C) 2013 Samuel Mannehed for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -65,11 +66,29 @@
                 <input type="image" src="images/keyboard.png"
                     id="showKeyboard" class="noVNC_status_button"
                     value="Keyboard" title="Show Keyboard"/>
-                <input type="email"
-                    autocapitalize="off" autocorrect="off"
-                    id="keyboardinput" class="noVNC_status_button"/>
+                <input type="text" autocapitalize="off" autocorrect="off"
+                    id="keyboardinput" class=""/>
+                <div id="noVNC_extra_keys">
+                    <input type="image" src="images/showextrakeys.png"
+                        id="showExtraKeysButton"
+                        class="noVNC_status_button">
+                    <input type="image" src="images/ctrl.png"
+                        id="toggleCtrlButton"
+                        class="noVNC_status_button">
+                    <input type="image" src="images/alt.png"
+                        id="toggleAltButton"
+                        class="noVNC_status_button">
+                    <input type="image" src="images/tab.png"
+                        id="sendTabButton"
+                        class="noVNC_status_button">
+                    <input type="image" src="images/esc.png"
+                        id="sendEscButton"
+                        class="noVNC_status_button">
+                </div>
             </div>
         </div>
+
+        <div id="noVNC_status">Loading</div>
 
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
@@ -104,6 +123,10 @@
             for more information.
             <br />
             <input id="descriptionButton" type="button" value="Close">
+        </div>
+
+        <!-- Popup Status Panel -->
+        <div id="noVNC_popup_status_panel" class="">
         </div>
 
         <!-- Clipboard Panel -->
@@ -162,10 +185,6 @@
 
     <div id="noVNC_screen">
         <div id="noVNC_screen_pad"></div>
-
-        <div id="noVNC_status_bar" class="noVNC_status_bar">
-                <div id="noVNC_status">Loading</div>
-        </div>
 
         <h1 id="noVNC_logo"><span>no</span><br />VNC</h1>
 

@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -102,7 +103,6 @@ var that           = {},  // Public API methods
     fb_height      = 0,
     fb_name        = "",
 
-    last_req_time  = 0,
     rre_chunk_sz   = 100,
 
     timing         = {
@@ -147,9 +147,6 @@ Util.conf_defaults(conf, that, defaults, [
 
     ['viewportDrag',       'rw', 'bool', false, 'Move the viewport on mouse drags'],
 
-    ['check_rate',         'rw', 'int', 217,  'Timing (ms) of send/receive check'],
-    ['fbu_req_rate',       'rw', 'int', 1413, 'Timing (ms) of frameBufferUpdate requests'],
-
     // Callback functions
     ['onUpdateState',      'rw', 'func', function() { },
         'onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change '],
@@ -165,6 +162,8 @@ Util.conf_defaults(conf, that, defaults, [
         'onFBUComplete(rfb, fbu): RFB FBU received and processed '],
     ['onFBResize',         'rw', 'func', function() { },
         'onFBResize(rfb, width, height): frame buffer resized'],
+    ['onDesktopName',      'rw', 'func', function() { },
+        'onDesktopName(rfb, name): desktop name received'],
 
     // These callback names are deprecated
     ['updateState',        'rw', 'func', function() { },
@@ -400,7 +399,7 @@ updateState = function(state, statusMsg) {
         }
 
         if (msgTimer) {
-            clearInterval(msgTimer);
+            clearTimeout(msgTimer);
             msgTimer = null;
         }
 
@@ -441,13 +440,13 @@ updateState = function(state, statusMsg) {
 
     if (connTimer && (rfb_state !== 'connect')) {
         Util.Debug("Clearing connect timer");
-        clearInterval(connTimer);
+        clearTimeout(connTimer);
         connTimer = null;
     }
 
     if (disconnTimer && (rfb_state !== 'disconnect')) {
         Util.Debug("Clearing disconnect timer");
-        clearInterval(disconnTimer);
+        clearTimeout(disconnTimer);
         disconnTimer = null;
     }
 
@@ -566,44 +565,18 @@ function genDES(password, challenge) {
     return (new DES(passwd)).encrypt(challenge);
 }
 
-function flushClient() {
-    if (mouse_arr.length > 0) {
-        //send(mouse_arr.concat(fbUpdateRequests()));
-        ws.send(mouse_arr);
-        setTimeout(function() {
-                ws.send(fbUpdateRequests());
-            }, 50);
-
-        mouse_arr = [];
-        return true;
-    } else {
-        return false;
-    }
-}
-
 // overridable for testing
 checkEvents = function() {
-    var now;
-    if (rfb_state === 'normal' && !viewportDragging) {
-        if (! flushClient()) {
-            now = new Date().getTime();
-            if (now > last_req_time + conf.fbu_req_rate) {
-                last_req_time = now;
-                ws.send(fbUpdateRequests());
-            }
-        }
+    if (rfb_state === 'normal' && !viewportDragging && mouse_arr.length > 0) {
+        ws.send(mouse_arr);
+        mouse_arr = [];
     }
-    setTimeout(checkEvents, conf.check_rate);
 };
 
 keyPress = function(keysym, down) {
-    var arr;
-
     if (conf.view_only) { return; } // View only, skip keyboard events
 
-    arr = keyEvent(keysym, down);
-    arr = arr.concat(fbUpdateRequests());
-    ws.send(arr);
+    ws.send(keyEvent(keysym, down));
 };
 
 mouseButton = function(x, y, down, bmask) {
@@ -622,7 +595,6 @@ mouseButton = function(x, y, down, bmask) {
             return;
         } else {
             viewportDragging = false;
-            ws.send(fbUpdateRequests()); // Force immediate redraw
         }
     }
 
@@ -630,7 +602,8 @@ mouseButton = function(x, y, down, bmask) {
 
     mouse_arr = mouse_arr.concat(
             pointerEvent(display.absX(x), display.absY(y)) );
-    flushClient();
+    ws.send(mouse_arr);
+    mouse_arr = [];
 };
 
 mouseMove = function(x, y) {
@@ -653,7 +626,9 @@ mouseMove = function(x, y) {
     if (conf.view_only) { return; } // View only, skip mouse events
 
     mouse_arr = mouse_arr.concat(
-            pointerEvent(display.absX(x), display.absY(y)) );
+            pointerEvent(display.absX(x), display.absY(y)));
+    
+    checkEvents();
 };
 
 
@@ -873,6 +848,7 @@ init_msg = function() {
         /* Connection name/title */
         name_length   = ws.rQshift32();
         fb_name = ws.rQshiftStr(name_length);
+        conf.onDesktopName(that, fb_name);
         
         if (conf.true_color && fb_name === "Intel(r) AMT KVM")
         {
@@ -896,13 +872,12 @@ init_msg = function() {
 
         response = pixelFormat();
         response = response.concat(clientEncodings());
-        response = response.concat(fbUpdateRequests());
+        response = response.concat(fbUpdateRequests()); // initial fbu-request
         timing.fbu_rt_start = (new Date()).getTime();
         timing.pixels = 0;
         ws.send(response);
         
-        /* Start pushing/polling */
-        setTimeout(checkEvents, conf.check_rate);
+        checkEvents();
 
         if (conf.encrypt) {
             updateState('normal', "Connected (encrypted) to: " + fb_name);
@@ -930,6 +905,10 @@ normal_msg = function() {
     switch (msg_type) {
     case 0:  // FramebufferUpdate
         ret = framebufferUpdate(); // false means need more data
+        if (ret) {
+            // only allow one outstanding fbu-request at a time
+            ws.send(fbUpdateRequests());
+        }
         break;
     case 1:  // SetColourMapEntries
         Util.Debug("SetColourMapEntries");
@@ -1592,8 +1571,6 @@ encHandlers.DesktopSize = function set_desktopsize() {
     conf.onFBResize(that, fb_width, fb_height);
     display.resize(fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
-    // Send a new non-incremental request
-    ws.send(fbUpdateRequests());
 
     FBU.bytes = 0;
     FBU.rects -= 1;
@@ -1819,7 +1796,6 @@ that.sendCtrlAltDel = function() {
     arr = arr.concat(keyEvent(0xFFFF, 0)); // Delete
     arr = arr.concat(keyEvent(0xFFE9, 0)); // Alt
     arr = arr.concat(keyEvent(0xFFE3, 0)); // Control
-    arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };
 
@@ -1836,7 +1812,6 @@ that.sendKey = function(code, down) {
         arr = arr.concat(keyEvent(code, 1));
         arr = arr.concat(keyEvent(code, 0));
     }
-    arr = arr.concat(fbUpdateRequests());
     ws.send(arr);
 };
 
