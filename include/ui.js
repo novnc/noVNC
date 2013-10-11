@@ -14,7 +14,8 @@
 // Load supporting scripts
 window.onscriptsload = function () { UI.load(); };
 Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                   "input.js", "display.js", "jsunzip.js", "rfb.js"]);
+                   "input.js", "display.js", "jsunzip.js", "rfb.js",
+                   "keysym.js"]);
 
 var UI = {
 
@@ -24,6 +25,10 @@ connSettingsOpen : false,
 popupStatusOpen : false,
 clipboardOpen: false,
 keyboardVisible: false,
+hideKeyboardTimeout: null,
+extraKeysVisible: false,
+ctrlOn: false,
+altOn: false,
 isTouchDevice: false,
 
 // Setup rfb object, load settings from browser storage, then call
@@ -172,6 +177,12 @@ addMouseHandlers: function() {
 
     $D("keyboardinput").oninput = UI.keyInput;
     $D("keyboardinput").onblur = UI.keyInputBlur;
+
+    $D("showExtraKeysButton").onclick = UI.showExtraKeys;
+    $D("toggleCtrlButton").onclick = UI.toggleCtrl;
+    $D("toggleAltButton").onclick = UI.toggleAlt;
+    $D("sendTabButton").onclick = UI.sendTab;
+    $D("sendEscButton").onclick = UI.sendEsc;
 
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
     $D("noVNC_status").onclick = UI.togglePopupStatusPanel;
@@ -547,13 +558,16 @@ updateVisualState: function() {
         UI.setMouseButton(1);
         $D('clipboardButton').style.display = "inline";
         $D('showKeyboard').style.display = "inline";
+        $D('noVNC_extra_keys').style.display = "";
         $D('sendCtrlAltDelButton').style.display = "inline";
     } else {
         UI.setMouseButton();
         $D('clipboardButton').style.display = "none";
         $D('showKeyboard').style.display = "none";
+        $D('noVNC_extra_keys').style.display = "none";
         $D('sendCtrlAltDelButton').style.display = "none";
     }
+    
     // State change disables viewport dragging.
     // It is enabled (toggled) by direct click on the button
     UI.setViewDrag(false);
@@ -732,6 +746,17 @@ showKeyboard: function() {
     }
 },
 
+keepKeyboard: function() {
+    clearTimeout(UI.hideKeyboardTimeout);
+    if(UI.keyboardVisible === true) {
+        $D('keyboardinput').focus();
+        $D('showKeyboard').className = "noVNC_status_button_selected";
+    } else if(UI.keyboardVisible === false) {
+        $D('keyboardinput').blur();
+        $D('showKeyboard').className = "noVNC_status_button";
+    }
+},
+
 // When keypress events are left uncought, catch the input events from
 // the keyboardinput element instead and send the corresponding key events.
 keyInput: function(event) {
@@ -766,7 +791,62 @@ keyInputBlur: function() {
     //Weird bug in iOS if you change keyboardVisible
     //here it does not actually occur so next time
     //you click keyboard icon it doesnt work.
-    setTimeout(function() { UI.setKeyboard(); },100);
+    UI.hideKeyboardTimeout = setTimeout(function() { UI.setKeyboard(); },100);
+},
+
+showExtraKeys: function() {
+    UI.keepKeyboard();
+    if(UI.extraKeysVisible === false) {
+        $D('toggleCtrlButton').style.display = "inline";
+        $D('toggleAltButton').style.display = "inline";
+        $D('sendTabButton').style.display = "inline";
+        $D('sendEscButton').style.display = "inline";
+        $D('showExtraKeysButton').className = "noVNC_status_button_selected";
+        UI.extraKeysVisible = true;
+    } else if(UI.extraKeysVisible === true) {
+        $D('toggleCtrlButton').style.display = "";
+        $D('toggleAltButton').style.display = "";
+        $D('sendTabButton').style.display = "";
+        $D('sendEscButton').style.display = "";
+        $D('showExtraKeysButton').className = "noVNC_status_button";
+        UI.extraKeysVisible = false;
+    }
+},
+
+toggleCtrl: function() {
+    UI.keepKeyboard();
+    if(UI.ctrlOn === false) {
+        UI.rfb.sendKey(XK_Control_L, true);
+        $D('toggleCtrlButton').className = "noVNC_status_button_selected";
+        UI.ctrlOn = true;
+    } else if(UI.ctrlOn === true) {
+        UI.rfb.sendKey(XK_Control_L, false);
+        $D('toggleCtrlButton').className = "noVNC_status_button";
+        UI.ctrlOn = false;
+    }
+},
+
+toggleAlt: function() {
+    UI.keepKeyboard();
+    if(UI.altOn === false) {
+        UI.rfb.sendKey(XK_Alt_L, true);
+        $D('toggleAltButton').className = "noVNC_status_button_selected";
+        UI.altOn = true;
+    } else if(UI.altOn === true) {
+        UI.rfb.sendKey(XK_Alt_L, false);
+        $D('toggleAltButton').className = "noVNC_status_button";
+        UI.altOn = false;
+    }
+},
+
+sendTab: function() {
+    UI.keepKeyboard();
+    UI.rfb.sendKey(XK_Tab);
+},
+
+sendEsc: function() {
+    UI.keepKeyboard();
+    UI.rfb.sendKey(XK_Escape);
 },
 
 setKeyboard: function() {
