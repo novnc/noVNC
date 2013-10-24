@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <!--
+    Keyboard handling unit tests
+    To run, I used npm (from node.js) to install the libraries chai and mocha in $(PWD)
+    Installing the libraries in any other old way should work as well, provided you update the script paths below
+  -->
+  <div id="mocha"></div>
+  <script src="node_modules/chai/chai.js"></script>
+  <script src="node_modules/mocha/mocha.js"></script>
+  <script>mocha.setup('bdd')</script>
+  <script src="../src/keysymdef.js"></script>
+  <script src="../src/keyboard.js"></script>
+  <script src="../src/helper.js"></script>
+  <script src="test.keyboard.js"></script>
+  <script src="test.helper.js"></script>
+  <script>
+    mocha.checkLeaks();
+    mocha.globals(['navigator']);
+    mocha.run();
+  </script>
+</body>
+</html>
