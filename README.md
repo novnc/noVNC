@@ -6,18 +6,19 @@
 noVNC is a HTML5 VNC client that runs well in any modern browser
 including mobile browsers (iPhone/iPad and Android).
 
-More than 16 companies/projects have integrated noVNC into their
-products including [Ganeti Web
+Many companies/projects have integrated noVNC including [Ganeti Web
 Manager](http://code.osuosl.org/projects/ganeti-webmgr),
-[OpenStack](http://www.openstack.org), and
-[OpenNebula](http://opennebula.org/). See [the Projects and Companies
-wiki page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC)
-for more complete list.
+[OpenStack](http://www.openstack.org),
+[OpenNebula](http://opennebula.org/), and
+[LibVNCServer](http://libvncserver.sourceforge.net). See [the Projects
+and Companies wiki
+page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC)
+for a more complete list with additional info and links.
 
 ### News/help/contact
 
 Notable commits, announcements and news are posted to
-@<a href="http://www.twitter.com/noVNC">noVNC</a>
+<a href="http://www.twitter.com/noVNC">@noVNC</a>
 
 If you are a noVNC developer/integrator/user (or want to be) please
 join the <a
@@ -27,16 +28,17 @@ discussion group</a>
 Bugs and feature requests can be submitted via [github
 issues](https://github.com/kanaka/noVNC/issues). If you are looking
 for a place to start contributing to noVNC, a good place to start
-would be the issues that I have marked as
+would be the issues that are have marked as
 ["patchwelcome"](https://github.com/kanaka/noVNC/issues?labels=patchwelcome).
 
-If you want to show appreciation for noVNC you could buy something off
-my [Amazon wishlist](http://www.amazon.com/registry/wishlist/XTXFXK39IA8C/?reveal=unpurchased&sort=priority&layout=compact) or you could donate to a great non-profits such as: [Compassion
+If you want to show appreciation for noVNC you could donate to a great
+non-profits such as: [Compassion
 International](http://www.compassion.com/), [SIL](http://www.sil.org),
 [Habitat for Humanity](http://www.habitat.org), [Electronic Frontier
 Foundation](https://www.eff.org/), [Against Malaria
 Foundation](http://www.againstmalaria.com/), [Nothing But
-Nets](http://www.nothingbutnets.net/), etc.
+Nets](http://www.nothingbutnets.net/), etc. Please tweet <a
+href="http://www.twitter.com/noVNC">@noVNC</a> if you do.
 
 
 ### Features
@@ -75,17 +77,18 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 * Fast Javascript Engine: this is not strictly a requirement, but
   without a fast Javascript engine, noVNC might be painfully slow.
 
-* I maintain a more detailed browser compatibility list <a
-  href="https://github.com/kanaka/noVNC/wiki/Browser-support">here</a>.
+* See the more detailed [browser compatibility wiki page](https://github.com/kanaka/noVNC/wiki/Browser-support).
 
 
 ### Server Requirements
 
 Unless you are using a VNC server with support for WebSockets
-connections (such as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/) or
-[PocketVNC](http://www.pocketvnc.com/blog/?page_id=866)),
-you need to use a WebSockets to TCP socket proxy. There is
-a python proxy included ('websockify').
+connections (such as
+[x11vnc/libvncserver](http://libvncserver.sourceforge.net/),
+[QEMU](http://www.qemu.org/), or
+[PocketVNC](http://www.pocketvnc.com/blog/?page_id=866)), you need to
+use a WebSockets to TCP socket proxy. There is a python proxy included
+('websockify').
 
 
 ### Quick Start
@@ -114,7 +117,13 @@ a python proxy included ('websockify').
 
 ### Authors/Contributors
 
-* noVNC : Joel Martin (github.com/kanaka)
+* Core team:
+    * [Joel Martin](https://github.com/kanaka)
+    * [Samuel Mannehed](https://github.com/samhed) (Cendio)
+    * [Peter Åstrand](https://github.com/astrand) (Cendio)
+    * [Solly Ross](https://github.com/DirectXMan12) (Red Hat / OpenStack)
+
+* Notable contributions:
     * UI and Icons : Chris Gordon
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
@@ -126,5 +135,3 @@ a python proxy included ('websockify').
     * jsunzip : Erik Moller (github.com/operasoftware/jsunzip),
     * tinflate : Joergen Ibsen (ibsensoftware.com)
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
-
-
