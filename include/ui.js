@@ -148,7 +148,7 @@ start: function(callback) {
     } );
 
     // Show description by default when hosted at for kanaka.github.com
-    if (location.host === "kanaka.github.com") {
+    if (location.host === "kanaka.github.io") {
         // Open the description dialog
         $D('noVNC_description').style.display = "block";
     } else {
