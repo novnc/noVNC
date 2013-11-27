@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Keytest</title>
+</head>
+<body>
+  <script src="../src/keysymdef.js"></script>
+  <script src="../src/keyboard.js"></script>
+  <script src="../src/helper.js"></script>
+  <div><em>Type some stuff and see what happens</em></div>
+<input id="clear" type="button" value="Clear" />
+<div style="width: 100%; height: 600px; border-style:solid; border-width: 1px;"><pre id="log" /></div>
+
+<script>
+var elem = document.getElementById('log');
+var textProp = (elem.textContent !== undefined ? "textContent" : "innerText");
+function write() {
+    //console.log(arguments);
+    // for each in args, jsonify and print
+    for (var i = 0; i < arguments.length; ++i) {
+        var val = typeof(arguments[i]) === 'string' ? arguments[i] : JSON.stringify(arguments[i]);
+        elem[textProp] += val + ", ";
+    }
+    if (arguments.length != 0) {
+        elem[textProp] += '\n';
+    }
+}
+
+document.getElementById('clear').onclick = function() { elem[textProp] = "";}
+
+
+var k = KeyEventDecoder(ModifierSync(),
+    VerifyCharModifier(
+        TrackKeyState(
+            EscapeModifiers(function(evt) {
+                write(evt.type, evt.keysym.keyname);
+            })
+        )
+    )
+);
+
+function suppress(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (window.event) {
+        window.event.cancelBubble = true;
+    }
+    //return false;
+}
+
+window.onkeydown = function(evt) {
+    if (k.keydown(evt)) { suppress(evt); }
+};
+window.onkeypress = function(evt) {
+    if (k.keypress(evt)) { suppress(evt); }
+};
+window.onkeyup = function(evt) {
+    if (k.keyup(evt)) { suppress(evt); }
+};
+        
+</script>
+</body>
+</html>
