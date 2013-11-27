@@ -222,7 +222,8 @@ function constructor() {
                                 'onKeyPress': keyPress});
     mouse    = new Mouse({'target': conf.target,
                             'onMouseButton': mouseButton,
-                            'onMouseMove': mouseMove});
+                            'onMouseMove': mouseMove,
+                            'notify': keyboard.sync});
 
     rmode = display.get_render_mode();
 
