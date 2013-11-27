@@ -26,6 +26,8 @@
     <script src="../include/util.js"></script>
     <script src="../include/webutil.js"></script> 
     <script src="../include/base64.js"></script>
+    <script src="../include/keysymdef.js"></script> 
+    <script src="../include/keyboard.js"></script> 
     <script src="../include/input.js"></script> 
     <script src="../include/display.js"></script>
     <script>
@@ -57,9 +59,17 @@
             //console.log(msg);
         }
 
-        function keyPress(keysym, down, e) {
+        function rfbKeyPress(keysym, down) {
             var d = down ? "down" : " up ";
-            msg = "keyPress " + d + " keysym: " + keysym +
+            var key = keysyms.lookup(keysym);
+            var msg = "RFB keypress " + d + " keysym: " + keysym;
+            if (key && key.keyname) {
+                msg += " key name: " + key.keyname;
+            }
+            message(msg);
+        }
+        function rawKey(e) {
+            msg = "raw key event " + e.type +
                   " (key: " + e.keyCode + ", char: " + e.charCode +
                   ", which: " + e.which +")";
             message(msg);
@@ -94,7 +104,10 @@
         window.onload = function() {
             canvas = new Display({'target' : $D('canvas')});
             keyboard = new Keyboard({'target': document,
-                                    'onKeyPress': keyPress});
+                                    'onKeyPress': rfbKeyPress});
+           Util.addEvent(document, 'keypress', rawKey);
+           Util.addEvent(document, 'keydown', rawKey);
+           Util.addEvent(document, 'keyup', rawKey);
             mouse    = new Mouse({'target': $D('canvas'),
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
