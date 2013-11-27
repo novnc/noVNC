@@ -42,6 +42,18 @@ describe('Helpers', function() {
         });
     });
 
+    describe('substituteCodepoint', function() {
+        it('should replace characters which don\'t have a keysym', function() {
+            expect(kbdUtil.substituteCodepoint('Ș'.charCodeAt())).to.equal('Ş'.charCodeAt());
+            expect(kbdUtil.substituteCodepoint('ș'.charCodeAt())).to.equal('ş'.charCodeAt());
+            expect(kbdUtil.substituteCodepoint('Ț'.charCodeAt())).to.equal('Ţ'.charCodeAt());
+            expect(kbdUtil.substituteCodepoint('ț'.charCodeAt())).to.equal('ţ'.charCodeAt());
+        });
+        it('should pass other characters through unchanged', function() {
+            expect(kbdUtil.substituteCodepoint('T'.charCodeAt())).to.equal('T'.charCodeAt());
+        });
+    });
+
     describe('nonCharacterKey', function() {
         it('should  recognize the right keys', function() {
             expect(kbdUtil.nonCharacterKey({keyCode: 0xd}), 'enter').to.be.defined;
@@ -76,6 +88,9 @@ describe('Helpers', function() {
         it('should use which if no keyCode', function() {
             expect(kbdUtil.getKeysym({which: 0x43, shiftKey: false})).to.have.property('keysym', 0x63);
             expect(kbdUtil.getKeysym({which: 0x43, shiftKey: true})).to.have.property('keysym', 0x43);
+        });
+        it('should substitute where applicable', function() {
+            expect(kbdUtil.getKeysym({char : 'Ș'})).to.have.property('keysym', 0x1aa);
         });
     });
 
