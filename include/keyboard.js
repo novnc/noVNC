@@ -1,6 +1,22 @@
 var kbdUtil = (function() {
     "use strict";
 
+    function substituteCodepoint(cp) {
+        // Any Unicode code points which do not have corresponding keysym entries
+        // can be swapped out for another code point by adding them to this table
+        var substitutions = {
+            // {S,s} with comma below -> {S,s} with cedilla
+            0x218 : 0x15e,
+            0x219 : 0x15f,
+            // {T,t} with comma below -> {T,t} with cedilla
+            0x21a : 0x162,
+            0x21b : 0x163
+        };
+
+        var sub = substitutions[cp];
+        return sub ? sub : cp;
+    };
+
     function isMac() {
         return navigator && !!(/macintosh/i).exec(navigator.appVersion);
     }
@@ -156,7 +172,7 @@ var kbdUtil = (function() {
         }
 
         if (codepoint) {
-            var res = keysyms.fromUnicode(codepoint);
+            var res = keysyms.fromUnicode(substituteCodepoint(codepoint));
             if (res) {
                 return res;
             }
@@ -258,7 +274,8 @@ var kbdUtil = (function() {
         getKey : getKey,
         getKeysym : getKeysym,
         keysymFromKeyCode : keysymFromKeyCode,
-        nonCharacterKey : nonCharacterKey
+        nonCharacterKey : nonCharacterKey,
+        substituteCodepoint : substituteCodepoint
     };
 })();
 
