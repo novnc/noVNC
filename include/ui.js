@@ -113,6 +113,9 @@ start: function(callback) {
     //         }
     //    };
 
+    //UI.initSetting('fullsize',false);
+    UI.initSetting('scale',true);
+
     // Show mouse selector buttons on touch screen devices
     if (UI.isTouchDevice) {
         // Show mobile buttons
@@ -120,7 +123,8 @@ start: function(callback) {
         UI.setMouseButton();
         // Remove the address bar
         setTimeout(function() { window.scrollTo(0, 1); }, 100);
-        UI.forceSetting('clip', true);
+        if(!UI.getSetting('scale'))// && !UI.getSetting('fullsize'))
+            UI.forceSetting('clip', true);
         $D('noVNC_clip').disabled = true;
     } else {
         UI.initSetting('clip', false);
@@ -209,7 +213,7 @@ addMouseHandlers: function() {
 getSetting: function(name) {
     var val, ctrl = $D('noVNC_' + name);
     val = WebUtil.readSetting(name);
-    if (val !== null && ctrl.type === 'checkbox') {
+    if (val !== null && (ctrl.type === 'checkbox' || ctrl.type === 'radio')) {
         if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
             val = false;
         } else {
@@ -228,13 +232,10 @@ updateSetting: function(name, value) {
     if (typeof value !== 'undefined') {
         WebUtil.writeSetting(name, value);
     }
-
     // Update the settings control
     value = UI.getSetting(name);
-
-    if (ctrl.type === 'checkbox') {
+    if (ctrl.type === 'checkbox' || ctrl.type === 'radio') {
         ctrl.checked = value;
-
     } else if (typeof ctrl.options !== 'undefined') {
         for (i = 0; i < ctrl.options.length; i += 1) {
             if (ctrl.options[i].value === value) {
@@ -255,7 +256,7 @@ updateSetting: function(name, value) {
 // Save control setting to cookie
 saveSetting: function(name) {
     var val, ctrl = $D('noVNC_' + name);
-    if (ctrl.type === 'checkbox') {
+    if (ctrl.type === 'checkbox' || ctrl.type === 'radio') {
         val = ctrl.checked;
     } else if (typeof ctrl.options !== 'undefined') {
         val = ctrl.options[ctrl.selectedIndex].value;
@@ -385,6 +386,8 @@ toggleSettingsPanel: function() {
             UI.updateSetting('cursor', !UI.isTouchDevice);
             $D('noVNC_cursor').disabled = true;
         }
+        //UI.updateSetting('fullsize');
+        UI.updateSetting('scale');
         UI.updateSetting('clip');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
@@ -434,6 +437,8 @@ settingsApply: function() {
     if (UI.rfb.get_display().get_cursor_uri()) {
         UI.saveSetting('cursor');
     }
+    //UI.saveSetting('fullsize');
+    UI.saveSetting('scale');
     UI.saveSetting('clip');
     UI.saveSetting('shared');
     UI.saveSetting('view_only');
@@ -663,6 +668,30 @@ clipSend: function() {
     Util.Debug("<< UI.clipSend");
 },
 
+scale: function() {
+    var my_width = window.innerWidth-5;
+    var my_height = window.innerHeight-5;
+     
+    if($D('noVNC-control-bar')!=null) {
+       my_height -= 36; //CSS height value of 'noVNC-control-bar'
+    }
+    
+    var display = UI.rfb.get_display();
+    var fbratio = display.get_width() / display.get_height();
+    var myratio = my_width / my_height;
+
+    if(fbratio>=myratio) {
+        UI.rfb.get_mouse().set_scale(my_width/display.get_width());
+        $D('noVNC_canvas').style.width = my_width + "px";
+        $D('noVNC_canvas').style.height = (my_width/fbratio) + "px";
+    }
+    else {
+        UI.rfb.get_mouse().set_scale(my_height/display.get_height());
+        $D('noVNC_canvas').style.width = (my_height*fbratio) + "px";
+        $D('noVNC_canvas').style.height = my_height + "px";
+    }
+    Util.Debug("SetScale: "+UI.rfb.get_mouse().get_scale());
+ },
 
 // Enable/disable and configure viewport clipping
 setViewClip: function(clip) {
@@ -700,6 +729,9 @@ setViewClip: function(clip) {
         display.set_viewport(true);
         display.viewportChange(0, 0, new_w, new_h);
     }
+
+    if(UI.getSetting('scale'))
+        UI.scale();
 },
 
 // Toggle/set/unset the viewport drag/move button
