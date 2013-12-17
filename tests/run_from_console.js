@@ -15,8 +15,8 @@ program
   .option('-c, --color', 'Explicitly enable color (default is to use color when not outputting to a pipe)')
   .option('-i, --auto-inject <includefiles>', 'Treat the test list as a set of mocha JS files, and automatically generate HTML files with which to test test.  \'includefiles\' should be a comma-separated list of paths to javascript files to include in each of the generated HTML files', make_list, null)
   .option('-p, --provider <name>', 'Use the given provider (defaults to "casper").  Currently, may be "casper" or "zombie"', 'casper')
-  .option('-g, --generate-html', 'Instead of running the tests, just return the path to the generated HTML file, then wait for user interaction to exit (should be used with -i)')
-  .option('-o, --output-html', 'Instead of running the tests, just output the generated HTML source to STDOUT (should be used with -i)')
+  .option('-g, --generate-html', 'Instead of running the tests, just return the path to the generated HTML file, then wait for user interaction to exit (should be used with .js tests)')
+  .option('-o, --output-html', 'Instead of running the tests, just output the generated HTML source to STDOUT (should be used with .js tests)')
   .option('-d, --debug', 'Show debug output (the "console" event) from the provider')
   .parse(process.argv);
 
@@ -26,6 +26,29 @@ if (program.tests.length === 0) {
 }
 
 var file_paths = [];
+
+var all_js = program.tests.reduce(function(a,e) { return a && e.slice(-3) == '.js'; }, true);
+
+if (all_js && !program.autoInject) {
+  var all_modules = {};
+
+  // uses the first instance of the string 'requires local modules: '
+  program.tests.forEach(function (testname) {
+    var full_path = path.resolve(process.cwd(), testname);
+    var content = fs.readFileSync(full_path).toString();
+    var ind = content.indexOf('requires local modules: ');
+    if (ind > -1) {
+      ind += 'requires local modules: '.length;
+      var eol = content.indexOf('\n', ind);
+      var modules = content.slice(ind, eol).split(/,\s*/);
+      modules.forEach(function (mod) {
+        all_modules[path.resolve(__dirname, '../include/', mod)+'.js'] = 1;
+      });
+    }
+  });
+
+  program.autoInject = Object.keys(all_modules);
+}
 
 if (program.autoInject) {
   var temp = require('temp');
