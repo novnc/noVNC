@@ -2,6 +2,7 @@
 var ansi = require('ansi');
 var program = require('commander');
 var path = require('path');
+var fs = require('fs');
 
 var make_list = function(val) {
   return val.split(',');
@@ -19,11 +20,15 @@ program
   .option('-d, --debug', 'Show debug output (the "console" event) from the provider')
   .parse(process.argv);
 
+if (program.tests.length === 0) {
+  program.tests = fs.readdirSync(__dirname).filter(function(f) { return (/^test\.(\w|\.|-)+\.js$/).test(f); });
+  console.log('using files %s', program.tests);
+}
+
 var file_paths = [];
 
 if (program.autoInject) {
   var temp = require('temp');
-  var fs = require('fs');
   temp.track();
 
   var template = {
@@ -70,7 +75,6 @@ else if (process.stdout.isTTY) use_ansi = true;
 var cursor = ansi(process.stdout, { enabled: use_ansi });
 
 if (program.outputHtml) {
-  var fs = require('fs');
   file_paths.forEach(function(path, path_ind) {
     fs.readFile(path, function(err, data) {
       if (err) {
