@@ -248,5 +248,13 @@ describe('Helpers', function() {
                 })).to.be.deep.equal([{keysym: keysyms.lookup(0xffe9), type: 'keydown'}]);
             });
         });
+        describe('do not treat shift as a modifier key', function() {
+            it('should not treat shift as a shortcut modifier', function() {
+                expect(kbdUtil.hasShortcutModifier([], {0xffe1 : true})).to.be.false;
+            });
+            it('should not treat shift as a char modifier', function() {
+                expect(kbdUtil.hasCharModifier([], {0xffe1 : true})).to.be.false;
+            });
+        });
     });
 });
