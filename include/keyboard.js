@@ -31,7 +31,7 @@ var kbdUtil = (function() {
     function hasShortcutModifier(charModifier, currentModifiers) {
         var mods = {};
         for (var key in currentModifiers) {
-            if (key !== 0xffe1) {
+            if (parseInt(key) !== 0xffe1) {
                 mods[key] = currentModifiers[key];
             }
         }
