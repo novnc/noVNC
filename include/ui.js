@@ -92,6 +92,7 @@ start: function(callback) {
 
     UI.rfb = RFB({'target': $D('noVNC_canvas'),
                   'onUpdateState': UI.updateState,
+                  'onXvpInit': UI.updateXvpVisualState,
                   'onClipboard': UI.clipReceive,
                   'onDesktopName': UI.updateDocumentTitle});
 
@@ -185,8 +186,12 @@ addMouseHandlers: function() {
     $D("sendEscButton").onclick = UI.sendEsc;
 
     $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
+    $D("xvpShutdownButton").onclick = UI.xvpShutdown;
+    $D("xvpRebootButton").onclick = UI.xvpReboot;
+    $D("xvpResetButton").onclick = UI.xvpReset;
     $D("noVNC_status").onclick = UI.togglePopupStatusPanel;
     $D("noVNC_popup_status_panel").onclick = UI.togglePopupStatusPanel;
+    $D("xvpButton").onclick = UI.toggleXvpPanel;
     $D("clipboardButton").onclick = UI.toggleClipboardPanel;
     $D("settingsButton").onclick = UI.toggleSettingsPanel;
     $D("connectButton").onclick = UI.toggleConnectPanel;
@@ -303,6 +308,39 @@ togglePopupStatusPanel: function() {
     }
 },
 
+// Show the XVP panel
+toggleXvpPanel: function() {
+    // Close the description panel
+    $D('noVNC_description').style.display = "none";
+    // Close settings if open
+    if (UI.settingsOpen === true) {
+        UI.settingsApply();
+        UI.closeSettingsMenu();
+    }
+    // Close connection settings if open
+    if (UI.connSettingsOpen === true) {
+        UI.toggleConnectPanel();
+    }
+    // Close popup status panel if open
+    if (UI.popupStatusOpen === true) {
+        UI.togglePopupStatusPanel();
+    }
+    // Close clipboard panel if open
+    if (UI.clipboardOpen === true) {
+        UI.toggleClipboardPanel();
+    }
+    // Toggle XVP panel
+    if (UI.xvpOpen === true) {
+        $D('noVNC_xvp').style.display = "none";
+        $D('xvpButton').className = "noVNC_status_button";
+        UI.xvpOpen = false;
+    } else {
+        $D('noVNC_xvp').style.display = "block";
+        $D('xvpButton').className = "noVNC_status_button_selected";
+        UI.xvpOpen = true;
+    }
+},
+
 // Show the clipboard panel
 toggleClipboardPanel: function() {
     // Close the description panel
@@ -319,6 +357,10 @@ toggleClipboardPanel: function() {
     // Close popup status panel if open
     if (UI.popupStatusOpen === true) {
         UI.togglePopupStatusPanel();
+    }
+    // Close XVP panel if open
+    if (UI.xvpOpen === true) {
+        UI.toggleXvpPanel();
     }
     // Toggle Clipboard Panel
     if (UI.clipboardOpen === true) {
@@ -349,6 +391,10 @@ toggleConnectPanel: function() {
     // Close popup status panel if open
     if (UI.popupStatusOpen === true) {
         UI.togglePopupStatusPanel();
+    }
+    // Close XVP panel if open
+    if (UI.xvpOpen === true) {
+        UI.toggleXvpPanel();
     }
 
     // Toggle Connection Panel
@@ -414,6 +460,10 @@ openSettingsMenu: function() {
     if (UI.popupStatusOpen === true) {
         UI.togglePopupStatusPanel();
     }
+    // Close XVP panel if open
+    if (UI.xvpOpen === true) {
+        UI.toggleXvpPanel();
+    }
     $D('noVNC_settings').style.display = "block";
     $D('settingsButton').className = "noVNC_status_button_selected";
     UI.settingsOpen = true;
@@ -465,6 +515,18 @@ setPassword: function() {
 
 sendCtrlAltDel: function() {
     UI.rfb.sendCtrlAltDel();
+},
+
+xvpShutdown: function() {
+    UI.rfb.xvpShutdown();
+},
+
+xvpReboot: function() {
+    UI.rfb.xvpReboot();
+},
+
+xvpReset: function() {
+    UI.rfb.xvpReset();
 },
 
 setMouseButton: function(num) {
@@ -566,6 +628,7 @@ updateVisualState: function() {
         $D('showKeyboard').style.display = "none";
         $D('noVNC_extra_keys').style.display = "none";
         $D('sendCtrlAltDelButton').style.display = "none";
+        UI.updateXvpVisualState(0);
     }
     
     // State change disables viewport dragging.
@@ -587,6 +650,19 @@ updateVisualState: function() {
     }
 
     //Util.Debug("<< updateVisualState");
+},
+
+// Disable/enable XVP button
+updateXvpVisualState: function(ver) {
+    if (ver >= 1) {
+        $D('xvpButton').style.display = 'inline';
+    } else {
+        $D('xvpButton').style.display = 'none';
+        // Close XVP panel if open
+        if (UI.xvpOpen === true) {
+            UI.toggleXvpPanel();
+        }
+    }
 },
 
 

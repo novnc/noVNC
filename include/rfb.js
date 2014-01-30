@@ -46,6 +46,8 @@ var that           = {},  // Public API methods
     rfb_max_version= 3.8,
     rfb_auth_scheme= '',
 
+    rfb_xvp_ver    = 0,
+
 
     // In preference order
     encodings      = [
@@ -64,7 +66,8 @@ var that           = {},  // Public API methods
         //['JPEG_quality_hi',   -23 ],
         //['compress_lo',      -255 ],
         ['compress_hi',        -247 ],
-        ['last_rect',          -224 ]
+        ['last_rect',          -224 ],
+        ['xvp',                -309 ]
         ],
 
     encHandlers    = {},
@@ -138,6 +141,7 @@ Util.conf_defaults(conf, that, defaults, [
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
     ['view_only',          'rw', 'bool', false, 'Disable client mouse/keyboard'],
+    ['xvp_password_sep',   'rw', 'str',  '@',   'Separator for XVP password fields'],
 
     ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
@@ -164,6 +168,8 @@ Util.conf_defaults(conf, that, defaults, [
         'onFBResize(rfb, width, height): frame buffer resized'],
     ['onDesktopName',      'rw', 'func', function() { },
         'onDesktopName(rfb, name): desktop name received'],
+    ['onXvpInit',          'rw', 'func', function() { },
+        'onXvpInit(version): XVP extensions active for this connection'],
 
     // These callback names are deprecated
     ['updateState',        'rw', 'func', function() { },
@@ -644,7 +650,8 @@ init_msg = function() {
     var strlen, reason, length, sversion, cversion, repeaterID,
         i, types, num_types, challenge, response, bpp, depth,
         big_endian, red_max, green_max, blue_max, red_shift,
-        green_shift, blue_shift, true_color, name_length, is_repeater;
+        green_shift, blue_shift, true_color, name_length, is_repeater,
+        xvp_sep, xvp_auth, xvp_auth_str;
 
     //Util.Debug("ws.rQ (" + ws.rQlen() + ") " + ws.rQslice(0));
     switch (rfb_state) {
@@ -709,7 +716,7 @@ init_msg = function() {
             types = ws.rQshiftBytes(num_types);
             Util.Debug("Server security types: " + types);
             for (i=0; i < types.length; i+=1) {
-                if ((types[i] > rfb_auth_scheme) && (types[i] < 3)) {
+                if ((types[i] > rfb_auth_scheme) && (types[i] < 3 || types[i] == 22)) {
                     rfb_auth_scheme = types[i];
                 }
             }
@@ -744,6 +751,23 @@ init_msg = function() {
                 }
                 // Fall through to ClientInitialisation
                 break;
+            case 22:  // XVP authentication
+                xvp_sep = conf.xvp_password_sep;
+                xvp_auth = rfb_password.split(xvp_sep);
+                if (xvp_auth.length < 3) {
+                    updateState('password', "XVP credentials required (user" + xvp_sep +
+                                "target" + xvp_sep + "password) -- got only " + rfb_password);
+                    conf.onPasswordRequired(that);
+                    return;
+                }
+                xvp_auth_str = String.fromCharCode(xvp_auth[0].length) +
+                               String.fromCharCode(xvp_auth[1].length) +
+                               xvp_auth[0] +
+                               xvp_auth[1];
+                ws.send_string(xvp_auth_str);
+                rfb_password = xvp_auth.slice(2).join(xvp_sep);
+                rfb_auth_scheme = 2;
+                // Fall through to standard VNC authentication with remaining part of password
             case 2:  // VNC authentication
                 if (rfb_password.length === 0) {
                     // Notify via both callbacks since it is kind of
@@ -896,7 +920,8 @@ normal_msg = function() {
     //Util.Debug(">> normal_msg");
 
     var ret = true, msg_type, length, text,
-        c, first_colour, num_colours, red, green, blue;
+        c, first_colour, num_colours, red, green, blue,
+        xvp_ver, xvp_msg;
 
     if (FBU.rects > 0) {
         msg_type = 0;
@@ -945,6 +970,24 @@ normal_msg = function() {
         text = ws.rQshiftStr(length);
         conf.clipboardReceive(that, text); // Obsolete
         conf.onClipboard(that, text);
+        break;
+    case 250:  // XVP
+        ws.rQshift8();  // Padding
+        xvp_ver = ws.rQshift8();
+        xvp_msg = ws.rQshift8();
+        switch (xvp_msg) {
+        case 0:  // XVP_FAIL
+            updateState(rfb_state, "Operation failed");
+            break;
+        case 1:  // XVP_INIT
+            rfb_xvp_ver = xvp_ver;
+            Util.Info("XVP extensions enabled (version " + rfb_xvp_ver + ")");
+            conf.onXvpInit(rfb_xvp_ver);
+            break;
+        default:
+            fail("Disconnected: illegal server XVP message " + xvp_msg);
+            break;
+        }
         break;
     default:
         fail("Disconnected: illegal server message type " + msg_type);
@@ -1798,6 +1841,25 @@ that.sendCtrlAltDel = function() {
     arr = arr.concat(keyEvent(0xFFE9, 0)); // Alt
     arr = arr.concat(keyEvent(0xFFE3, 0)); // Control
     ws.send(arr);
+};
+
+that.xvpOp = function(ver, op) {
+    if (rfb_xvp_ver < ver) { return false; }
+    Util.Info("Sending XVP operation " + op + " (version " + ver + ")")
+    ws.send_string("\xFA\x00" + String.fromCharCode(ver) + String.fromCharCode(op));
+    return true;
+};
+
+that.xvpShutdown = function() {
+    return that.xvpOp(1, 2);
+};
+
+that.xvpReboot = function() {
+    return that.xvpOp(1, 3);
+};
+
+that.xvpReset = function() {
+    return that.xvpOp(1, 4);
 };
 
 // Send a key press. If 'down' is not specified then send a down key
