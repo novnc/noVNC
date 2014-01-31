@@ -45,6 +45,7 @@ var that           = {},  // Public API methods
     rfb_version    = 0,
     rfb_max_version= 3.8,
     rfb_auth_scheme= '',
+    rfb_tightvnc   = false,
 
 
     // In preference order
@@ -709,7 +710,7 @@ init_msg = function() {
             types = ws.rQshiftBytes(num_types);
             Util.Debug("Server security types: " + types);
             for (i=0; i < types.length; i+=1) {
-                if ((types[i] > rfb_auth_scheme) && (types[i] < 3)) {
+                if ((types[i] > rfb_auth_scheme) && (types[i] <= 16)) {
                     rfb_auth_scheme = types[i];
                 }
             }
@@ -764,6 +765,68 @@ init_msg = function() {
                 //Util.Debug("Sending DES encrypted auth response");
                 ws.send(response);
                 updateState('SecurityResult');
+                return;
+            case 16: // TightVNC Security Type
+                if (ws.rQwait("num tunnels", 4)) { return false; }
+                var numTunnels = ws.rQshift32();
+                //console.log("Number of tunnels: "+numTunnels);
+
+                rfb_tightvnc = true;
+
+                if (numTunnels != 0)
+                {
+                    fail("Protocol requested tunnels, not currently supported. numTunnels: " + numTunnels);
+                    return;
+                }
+
+                var clientSupportedTypes = {
+                    'STDVNOAUTH__': 1,
+                    'STDVVNCAUTH_': 2
+                };
+
+                var serverSupportedTypes = [];
+
+                if (ws.rQwait("sub auth count", 4)) { return false; }
+                var subAuthCount = ws.rQshift32();
+                //console.log("Sub auth count: "+subAuthCount);
+                for (var i=0;i<subAuthCount;i++)
+                {
+
+                    if (ws.rQwait("sub auth capabilities "+i, 16)) { return false; }
+                    var capNum = ws.rQshift32();
+                    var capabilities = ws.rQshiftStr(12);
+                    //console.log("queue: "+ws.rQlen());
+                    //console.log("auth type: "+capNum+": "+capabilities);
+
+                    serverSupportedTypes.push(capabilities);
+                }
+
+                for (var authType in clientSupportedTypes)
+                {
+                    if (serverSupportedTypes.indexOf(authType) != -1)
+                    {
+                        //console.log("selected authType "+authType);
+                        ws.send([0,0,0,clientSupportedTypes[authType]]);
+
+                        switch (authType)
+                        {
+                            case 'STDVNOAUTH__':
+                                // No authentication
+                                updateState('SecurityResult');
+                                return;
+                            case 'STDVVNCAUTH_':
+                                // VNC Authentication.  Reenter auth handler to complete auth
+                                rfb_auth_scheme = 2;
+                                init_msg();
+                                return;
+                            default:
+                                fail("Unsupported tiny auth scheme: " + authType);
+                                return;
+                        }
+                    }
+                }
+
+
                 return;
             default:
                 fail("Unsupported auth scheme: " + rfb_auth_scheme);
@@ -855,6 +918,34 @@ init_msg = function() {
         {
             Util.Warn("Intel AMT KVM only support 8/16 bit depths. Disabling true color");
             conf.true_color = false;
+        }
+
+        if (rfb_tightvnc)
+        {
+            // In TightVNC mode, ServerInit message is extended
+            var numServerMessages = ws.rQshift16();
+            var numClientMessages = ws.rQshift16();
+            var numEncodings = ws.rQshift16();
+            ws.rQshift16(); // padding
+            //console.log("numServerMessages "+numServerMessages);
+            //console.log("numClientMessages "+numClientMessages);
+            //console.log("numEncodings "+numEncodings);
+
+            for (var i=0;i<numServerMessages;i++)
+            {
+                var srvMsg = ws.rQshiftStr(16);
+                //console.log("server message: "+srvMsg);
+            }
+            for (var i=0;i<numClientMessages;i++)
+            {
+                var clientMsg = ws.rQshiftStr(16);
+                //console.log("client message: "+clientMsg);
+            }
+            for (var i=0;i<numEncodings;i++)
+            {
+                var encoding = ws.rQshiftStr(16);
+                //console.log("encoding: "+encoding);
+            }
         }
 
         display.set_true_color(conf.true_color);
