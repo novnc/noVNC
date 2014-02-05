@@ -1,0 +1,11 @@
+#MySQL Configuration File
+#
+# database connection settings
+db=YOURDB
+user=YOURUSER
+passwd=YOURPASS
+# query to validate the token
+#  _TOKEN_  will be replaced with the token
+#  should return 0 rows if the token does not match,
+#  and the first field should be the IP:Port they are authenticated to connect to
+match_query=select as_data, substr(as_data, 1, locate(':',as_data) - 1) as ip, substr(as_data, locate(':',as_data)+1) as port from appsession where concat(as_sid,'_',as_location)='_TOKEN_'

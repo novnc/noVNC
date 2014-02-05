@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+    
 '''
 A WebSocket to TCP socket proxy with support for "wss://" encryption.
 Copyright 2011 Joel Martin
@@ -11,6 +11,8 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 '''
 
+import MySQLdb
+from MySQLdb.constants import FIELD_TYPE
 import signal, socket, optparse, time, os, sys, subprocess
 from select import select
 import websocket
@@ -50,9 +52,11 @@ Traffic Legend:
         self.wrap_mode      = kwargs.pop('wrap_mode', None)
         self.unix_target    = kwargs.pop('unix_target', None)
         self.ssl_target     = kwargs.pop('ssl_target', None)
+        self.target_sql_cfg = kwargs.pop('target_sql_cfg', None)
         self.target_cfg     = kwargs.pop('target_cfg', None)
         # Last 3 timestamps command was run
         self.wrap_times    = [0, 0, 0]
+        #logging.info("NEW_SCORE: %s", score)
 
         if self.wrap_cmd:
             rebinder_path = ['./', os.path.dirname(sys.argv[0])]
@@ -83,6 +87,9 @@ Traffic Legend:
         if self.target_cfg:
             self.target_cfg = os.path.abspath(self.target_cfg)
 
+        if self.target_sql_cfg:
+            self.target_sql_cfg = os.path.abspath(self.target_sql_cfg)
+
         websocket.WebSocketServer.__init__(self, *args, **kwargs)
 
     def run_wrap_cmd(self):
@@ -109,6 +116,9 @@ Traffic Legend:
         if self.target_cfg:
             msg = "  - proxying from %s:%s to targets in %s" % (
                 self.listen_host, self.listen_port, self.target_cfg)
+        elif self.target_sql_cfg:
+            msg = "  - proxying from %s:%s to targets via database lookups defined in %s" % (
+                self.listen_host, self.listen_port, self.target_sql_cfg)
         else:
             msg = "  - proxying from %s:%s to %s" % (
                 self.listen_host, self.listen_port, dst_string)
@@ -165,6 +175,9 @@ Traffic Legend:
         # for a valid target for it then
         if self.target_cfg:
             (self.target_host, self.target_port) = self.get_target(self.target_cfg, self.path)
+
+        if self.target_sql_cfg:
+            (self.target_host, self.target_port) = self.get_sql_target(self.target_sql_cfg, self.path)
 
         # Connect to the target
         if self.wrap_cmd:
@@ -229,6 +242,55 @@ Traffic Legend:
                     targets[ttoken] = target.strip()
 
         self.vmsg("Target config: %s" % repr(targets))
+
+        if targets.has_key(token):
+            return targets[token].split(':')
+        else:
+            raise self.EClose("Token '%s' not found" % token)
+
+    def get_sql_target(self, target_sql_cfg, path):
+        """
+        Parses the path, extracts a token, and performs a database
+        query to validate the token.  database information is read
+        from the configuration file. Sets
+        target_host and target_port if successful
+        """
+        sqlconfig = {}
+        my_conv = { FIELD_TYPE.LONG: int }
+        # The files in target contain the lines
+        # in the form of setting=value
+        #
+        # db=YOURDB
+        # user=YOURUSER
+        # passwd=YOURPASS
+        # match_query=YOUR_QUERY
+        #
+        #  _TOKEN_ in the match_query will be replaced with the token
+        #  should return 0 rows if the token does not match,
+        #  and the first field should be the IP:Port they are authenticated to connect to
+
+        # Extract the token parameter from url
+        args = parse_qs(urlparse(path)[4]) # 4 is the query from url
+
+        if not args.has_key('token') or not len(args['token']):
+            raise self.EClose("Token not present")
+
+        for line in [l.strip() for l in file(target_sql_cfg).readlines()]:
+            if line and not line.startswith('#'):
+                line = line.split('=',1)
+                sqlconfig[line[0]] = line[1]
+
+        #print sqlconfig
+        token = args['token'][0].rstrip('\n')
+        targets = {}
+        db=MySQLdb.connect(passwd=sqlconfig['passwd'],db=sqlconfig['db'],user=sqlconfig['user'])
+        c=db.cursor()
+        c.execute(sqlconfig['match_query'].replace('_TOKEN_', db.escape_string(token)))
+        results = c.fetchone()
+        targets[token] = results[0]
+        c.close()
+
+        self.vmsg("SQL Query Result: %s" % repr(targets))
 
         if targets.has_key(token):
             return targets[token].split(':')
@@ -345,10 +407,16 @@ def websockify_init():
             help="Configuration file containing valid targets "
             "in the form 'token: host:port' or, alternatively, a "
             "directory containing configuration files of this form")
+    parser.add_option("--sql-target-config", metavar="FILE",
+            dest="target_sql_cfg",
+            help="Configuration file containing valid connection "
+            "information and a squery that will need to validate "
+            "the token.   The first field in the response from   "
+            "the database need in the form of IP:Port")
     (opts, args) = parser.parse_args()
 
     # Sanity checks
-    if len(args) < 2 and not (opts.target_cfg or opts.unix_target):
+    if len(args) < 2 and not (opts.target_cfg or opts.unix_target or opts.target_sql_cfg):
         parser.error("Too few arguments")
     if sys.argv.count('--'):
         opts.wrap_cmd = args[1:]
@@ -373,7 +441,7 @@ def websockify_init():
     try:    opts.listen_port = int(opts.listen_port)
     except: parser.error("Error parsing listen port")
 
-    if opts.wrap_cmd or opts.unix_target or opts.target_cfg:
+    if opts.wrap_cmd or opts.unix_target or opts.target_cfg or opts.target_sql_cfg:
         opts.target_host = None
         opts.target_port = None
     else:
