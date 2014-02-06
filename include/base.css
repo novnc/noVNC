@@ -41,9 +41,6 @@ html {
 }
 #noVNC_encrypt {
 }
-#noVNC_connectTimeout {
-  width: 30px;
-}
 #noVNC_path {
   width: 100px;
 }

@@ -76,7 +76,6 @@ var that           = {},  // Public API methods
     keyboard       = null,   // Keyboard input handler object
     mouse          = null,   // Mouse input handler object
     sendTimer      = null,   // Send Queue check timer
-    connTimer      = null,   // connection timer
     disconnTimer   = null,   // disconnection timer
     msgTimer       = null,   // queued handle_message timer
 
@@ -120,8 +119,6 @@ var that           = {},  // Public API methods
 
     test_mode        = false,
 
-    def_con_timeout  = Websock_native ? 2 : 5,
-
     /* Mouse state */
     mouse_buttonMask = 0,
     mouse_arr        = [],
@@ -138,8 +135,6 @@ Util.conf_defaults(conf, that, defaults, [
     ['local_cursor',       'rw', 'bool', false, 'Request locally rendered cursor'],
     ['shared',             'rw', 'bool', true,  'Request shared mode'],
     ['view_only',          'rw', 'bool', false, 'Disable client mouse/keyboard'],
-
-    ['connectTimeout',     'rw', 'int', def_con_timeout, 'Time (s) to wait for connection'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
 
     // UltraVNC repeater ID to connect to
@@ -439,12 +434,6 @@ updateState = function(state, statusMsg) {
         rfb_state = state;
     }
 
-    if (connTimer && (rfb_state !== 'connect')) {
-        Util.Debug("Clearing connect timer");
-        clearTimeout(connTimer);
-        connTimer = null;
-    }
-
     if (disconnTimer && (rfb_state !== 'disconnect')) {
         Util.Debug("Clearing disconnect timer");
         clearTimeout(disconnTimer);
@@ -461,10 +450,6 @@ updateState = function(state, statusMsg) {
 
 
     case 'connect':
-        
-        connTimer = setTimeout(function () {
-                fail("Connect timeout");
-            }, conf.connectTimeout * 1000);
 
         init_vars();
         connect();
