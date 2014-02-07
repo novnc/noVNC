@@ -86,7 +86,6 @@ start: function(callback) {
     UI.initSetting('cursor', !UI.isTouchDevice);
     UI.initSetting('shared', true);
     UI.initSetting('view_only', false);
-    UI.initSetting('connectTimeout', 2);
     UI.initSetting('path', 'websockify');
     UI.initSetting('repeaterID', '');
 
@@ -388,7 +387,6 @@ toggleSettingsPanel: function() {
         UI.updateSetting('clip');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
-        UI.updateSetting('connectTimeout');
         UI.updateSetting('path');
         UI.updateSetting('repeaterID');
         UI.updateSetting('stylesheet');
@@ -437,7 +435,6 @@ settingsApply: function() {
     UI.saveSetting('clip');
     UI.saveSetting('shared');
     UI.saveSetting('view_only');
-    UI.saveSetting('connectTimeout');
     UI.saveSetting('path');
     UI.saveSetting('repeaterID');
     UI.saveSetting('stylesheet');
@@ -549,7 +546,6 @@ updateVisualState: function() {
     }
     $D('noVNC_shared').disabled = connected;
     $D('noVNC_view_only').disabled = connected;
-    $D('noVNC_connectTimeout').disabled = connected;
     $D('noVNC_path').disabled = connected;
     $D('noVNC_repeaterID').disabled = connected;
 
@@ -622,7 +618,6 @@ connect: function() {
     UI.rfb.set_local_cursor(UI.getSetting('cursor'));
     UI.rfb.set_shared(UI.getSetting('shared'));
     UI.rfb.set_view_only(UI.getSetting('view_only'));
-    UI.rfb.set_connectTimeout(UI.getSetting('connectTimeout'));
     UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 
     UI.rfb.connect(host, port, password, path);
