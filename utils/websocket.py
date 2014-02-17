@@ -814,6 +814,17 @@ Sec-WebSocket-Accept: %s\r
                             self.msg('%s: exiting due to --run-once'
                                     % address[0])
                             break
+                    elif sys.platform == 'win32':
+                        import threading
+                        self.vmsg('%s: new handler Thread' % address[0])
+                        import pickle
+                        selfcopy = pickle.loads(pickle.dumps(self))
+                        p = threading.Thread(
+                                target=selfcopy.top_new_client,
+                                args=(startsock, address))
+                        p.daemon = True
+                        p.start()
+                        startsock = None
                     elif multiprocessing:
                         self.vmsg('%s: new handler Process' % address[0])
                         p = multiprocessing.Process(
