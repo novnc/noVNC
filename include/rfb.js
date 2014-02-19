@@ -142,6 +142,9 @@ Util.conf_defaults(conf, that, defaults, [
     ['xvp_password_sep',   'rw', 'str',  '@',   'Separator for XVP password fields'],
     ['disconnectTimeout',  'rw', 'int', 3,    'Time (s) to wait for disconnection'],
 
+    ['wsProtocols',        'rw', 'arr', ['binary', 'base64'],
+        'Protocols to use in the WebSocket connection'],
+
     // UltraVNC repeater ID to connect to
     ['repeaterID',         'rw', 'str',  '',    'RepeaterID to connect to'],
 
@@ -304,7 +307,7 @@ function connect() {
     }
     Util.Info("connecting to " + uri);
     // TODO: make protocols a configurable
-    ws.open(uri, ['binary', 'base64']);
+    ws.open(uri, conf.wsProtocols);
 
     Util.Debug("<< RFB.connect");
 }
