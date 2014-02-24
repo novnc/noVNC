@@ -40,6 +40,7 @@ var that           = {},  // Public API methods
     rfb_port       = 5900,
     rfb_password   = '',
     rfb_path       = '',
+    rfb_queryargs  = '',
 
     rfb_state      = 'disconnected',
     rfb_version    = 0,
@@ -304,6 +305,12 @@ function connect() {
             uri = "ws://";
         }
         uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
+    }
+    if (rfb_queryargs != null) {
+        var querystr = WebUtil.objToQueryString(rfb_queryargs);
+        if (querystr != "") {
+            uri += "?" + querystr;
+        }
     }
     Util.Info("connecting to " + uri);
     // TODO: make protocols a configurable
@@ -1880,13 +1887,14 @@ clientCutText = function(text) {
 // Public API interface functions
 //
 
-that.connect = function(host, port, password, path) {
+that.connect = function(host, port, password, path, queryargs) {
     //Util.Debug(">> connect");
 
     rfb_host       = host;
     rfb_port       = port;
     rfb_password   = (password !== undefined)   ? password : "";
     rfb_path       = (path !== undefined) ? path : "";
+    rfb_queryargs  = (queryargs !== undefined) ? queryargs : null;
 
     if ((!rfb_host) || (!rfb_port)) {
         return fail("Must set host and port");

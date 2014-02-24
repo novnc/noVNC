@@ -219,3 +219,12 @@ WebUtil.selectStylesheet = function(sheet) {
     }
     return sheet;
 };
+
+// Method to help create query string from simple map
+WebUtil.objToQueryString = function(obj) {
+    var str = [];
+    for(var p in obj) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    }
+    return str.join("&");
+}
