@@ -296,17 +296,13 @@ function connect() {
     var uri;
     
     if (typeof UsingSocketIO !== "undefined") {
-        uri = "http://" + rfb_host + ":" + rfb_port + "/" + rfb_path;
+        uri = "http";
     } else {
-        if (conf.encrypt) {
-            uri = "wss://";
-        } else {
-            uri = "ws://";
-        }
-        uri += rfb_host + ":" + rfb_port + "/" + rfb_path;
+        uri = conf.encrypt ? "wss" : "ws";
     }
+    uri += "://" + rfb_host + ":" + rfb_port + "/" + rfb_path;
     Util.Info("connecting to " + uri);
-    // TODO: make protocols a configurable
+
     ws.open(uri, conf.wsProtocols);
 
     Util.Debug("<< RFB.connect");
