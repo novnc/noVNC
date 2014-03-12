@@ -152,11 +152,14 @@ var kbdUtil = (function() {
     // Get a key ID from a keyboard event
     // May be a string or an integer depending on the available properties
     function getKey(evt){
-        if (evt.key) {
-            return evt.key;
+        if ('keyCode' in evt && 'key' in evt) {
+            return evt.key + ':' + evt.keyCode;
+        }
+        else if ('keyCode' in evt) {
+            return evt.keyCode;
         }
         else {
-            return evt.keyCode;
+            return evt.key;
         }
     }
 
