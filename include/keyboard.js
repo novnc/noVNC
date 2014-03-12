@@ -18,13 +18,13 @@ var kbdUtil = (function() {
     };
 
     function isMac() {
-        return navigator && !!(/macintosh/i).exec(navigator.appVersion);
+        return navigator && !!(/mac/i).exec(navigator.platform);
     }
     function isWindows() {
-        return navigator && !!(/windows/i).exec(navigator.appVersion);
+        return navigator && !!(/win/i).exec(navigator.platform);
     }
     function isLinux() {
-        return navigator && !!(/linux/i).exec(navigator.appVersion);
+        return navigator && !!(/linux/i).exec(navigator.platform);
     }
 
     // Return true if a modifier which is not the specified char modifier (and is not shift) is down
