@@ -202,6 +202,14 @@ Util.conf_defaults = function(cfg, api, defaults, arr) {
     }
 };
 
+/*
+ * Decode from UTF-8
+ */
+Util.decodeUTF8 = function(utf8string) {
+    return decodeURIComponent(escape(utf8string));
+}
+
+
 
 /*
  * Cross-browser routines
