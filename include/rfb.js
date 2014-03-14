@@ -923,7 +923,7 @@ init_msg = function() {
 
         /* Connection name/title */
         name_length   = ws.rQshift32();
-        fb_name = ws.rQshiftStr(name_length);
+        fb_name = decodeURIComponent(escape(ws.rQshiftStr(name_length)));
         conf.onDesktopName(that, fb_name);
         
         if (conf.true_color && fb_name === "Intel(r) AMT KVM")
