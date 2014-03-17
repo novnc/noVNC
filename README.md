@@ -28,7 +28,7 @@ discussion group</a>
 Bugs and feature requests can be submitted via [github
 issues](https://github.com/kanaka/noVNC/issues). If you are looking
 for a place to start contributing to noVNC, a good place to start
-would be the issues that are have marked as
+would be the issues that are marked as
 ["patchwelcome"](https://github.com/kanaka/noVNC/issues?labels=patchwelcome).
 
 If you want to show appreciation for noVNC you could donate to a great
