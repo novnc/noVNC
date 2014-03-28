@@ -854,7 +854,7 @@ keyInput: function(event) {
     // another session there has to always be text in the
     // keyboardinput element with which backspace can interact.
     // We also need to reset the input field text to avoid overflow.
-    elem.value = "x";
+    elem.value = '\u00a0';
 },
 
 keyInputBlur: function() {
