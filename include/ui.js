@@ -13,6 +13,7 @@
 
 // Load supporting scripts
 window.onscriptsload = function () { UI.load(); };
+window.onload = function () { UI.keyboardinputReset(); };
 Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
                    "keysymdef.js", "keyboard.js", "input.js", "display.js",
                    "jsunzip.js", "rfb.js", "keysym.js"]);
@@ -26,6 +27,8 @@ popupStatusOpen : false,
 clipboardOpen: false,
 keyboardVisible: false,
 hideKeyboardTimeout: null,
+lastKeyboardinput: null,
+defaultKeyboardinputLen: 100,
 extraKeysVisible: false,
 ctrlOn: false,
 altOn: false,
@@ -807,7 +810,8 @@ showKeyboard: function() {
     l = kbi.value.length;
     if(UI.keyboardVisible === false) {
         kbi.focus();
-        kbi.setSelectionRange(l, l); // Move the caret to the end
+        try { kbi.setSelectionRange(l, l); } // Move the caret to the end
+        catch (err) {} // setSelectionRange is undefined in Google Chrome
         UI.keyboardVisible = true;
         skb.className = "noVNC_status_button_selected";
     } else if(UI.keyboardVisible === true) {
@@ -828,33 +832,71 @@ keepKeyboard: function() {
     }
 },
 
-// When keypress events are left uncought, catch the input events from
-// the keyboardinput element instead and send the corresponding key events.
-keyInput: function(event) {
-    var elem, input, len;
-    elem = $D('keyboardinput');
-    input = event.target.value;
-    len = (elem.selectionStart > input.length) ? elem.selectionStart : input.length;
+keyboardinputReset: function() {
+    var kbi = $D('keyboardinput');
+    kbi.value = Array(UI.defaultKeyboardinputLen).join("_");
+    UI.lastKeyboardinput = kbi.value;
+},
 
-    if (len < 1) { // something removed?
-        UI.rfb.sendKey(0xff08); // send BACKSPACE
-    } else if (len > 1) { // new input?
-        for (var i = len-1; i > 0; i -= 1) {
-            // HTML does not consider trailing whitespaces as a part of the string
-            // and they are therefore undefined.
-            if (input[len-i] !== undefined) {
-                UI.rfb.sendKey(input.charCodeAt(len-i)); // send charCode
-            } else {
-                UI.rfb.sendKey(0x0020); // send SPACE
-            }
+// When normal keyboard events are left uncought, use the input events from
+// the keyboardinput element instead and generate the corresponding key events.
+// This code is required since some browsers on Android are inconsistent in
+// sending keyCodes in the normal keyboard events when using on screen keyboards.
+keyInput: function(event) {
+    var newValue, oldValue, newLen, oldLen;
+    newValue = event.target.value;
+    oldValue = UI.lastKeyboardinput;
+
+    try {
+        // Try to check caret position since whitespace at the end
+        // will not be considered by value.length in some browsers
+        newLen = Math.max(event.target.selectionStart, newValue.length);
+    } catch (err) {
+        // selectionStart is undefined in Google Chrome
+        newLen = newValue.length;
+    }
+    oldLen = oldValue.length;
+
+    var backspaces;
+    var inputs = newLen - oldLen;
+    if (inputs < 0)
+        backspaces = -inputs;
+    else
+        backspaces = 0;
+
+    // Compare the old string with the new to account for
+    // text-corrections or other input that modify existing text
+    for (var i = 0; i < Math.min(oldLen, newLen); i++) {
+        if (newValue.charAt(i) != oldValue.charAt(i)) {
+            inputs = newLen - i;
+            backspaces = oldLen - i;
+            break;
         }
     }
 
-    // In order to be able to delete text which has been written in
-    // another session there has to always be text in the
-    // keyboardinput element with which backspace can interact.
-    // We also need to reset the input field text to avoid overflow.
-    elem.value = '\u00a0';
+    // Send the key events
+    for (var i = 0; i < backspaces; i++)
+        UI.rfb.sendKey(XK_BackSpace);
+    for (var i = newLen - inputs; i < newLen; i++)
+        UI.rfb.sendKey(newValue.charCodeAt(i));
+
+    // Control the text content length in the keyboardinput element
+    if (newLen > 2 * UI.defaultKeyboardinputLen) {
+        UI.keyboardinputReset();
+    } else if (newLen < 1) {
+        // There always have to be some text in the keyboardinput
+        // element with which backspace can interact.
+        UI.keyboardinputReset();
+        // This sometimes causes the keyboard to disappear for a second
+        // but it is required for the android keyboard to recognize that
+        // text has been added to the field
+        event.target.blur();
+        // This has to be ran outside of the input handler in order to work
+        setTimeout(function() { UI.keepKeyboard(); }, 0);
+
+    } else {
+        UI.lastKeyboardinput = newValue;
+    }
 },
 
 keyInputBlur: function() {
