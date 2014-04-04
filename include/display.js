@@ -180,9 +180,9 @@ rescale = function(factor) {
     }
 
     conf.scale = factor;
-    x = c.width - c.width * factor;
-    y = c.height - c.height * factor;
-    c.style[tp] = "scale(" + conf.scale + ") translate(-" + x + "px, -" + y + "px)";
+    x = -((c.width - c.width * factor) / 2 / factor);
+    y = -((c.height - c.height * factor) / 2 / factor);
+    c.style[tp] = "scale(" + conf.scale + ") translate(" + x + "px, " + y + "px)";
 };
 
 setFillColor = function(color) {
