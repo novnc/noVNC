@@ -64,9 +64,10 @@
                 <input type="image" alt="Keyboard" src="images/keyboard.png"
                     id="showKeyboard" class="noVNC_status_button"
                     value="Keyboard" title="Show Keyboard"/>
-                <!-- There is a problem with the "Enter"-key on Android in Chrome,
-                     when pressed the on screen keyboard is closed, this could be
-                     fixed if Chrome implemented the ime-mode style for example -->
+                <!-- Note that Google Chrome on Android doesn't respect any of these,
+                     html attributes which attempt to disable text suggestions on the
+                     on-screen keyboard. Let's hope Chrome implements the ime-mode
+                     style for example -->
                 <textarea id="keyboardinput" autocapitalize="off"
                     autocorrect="off" autocomplete="off" spellcheck="false"
                     mozactionhint="Enter" onsubmit="return false;"
