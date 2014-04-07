@@ -67,10 +67,10 @@
                 <!-- There is a problem with the "Enter"-key on Android in Chrome,
                      when pressed the on screen keyboard is closed, this could be
                      fixed if Chrome implemented the ime-mode style for example -->
-                <input type="password" id="keyboardinput" autocapitalize="off"
+                <textarea id="keyboardinput" autocapitalize="off"
                     autocorrect="off" autocomplete="off" spellcheck="false"
                     mozactionhint="Enter" onsubmit="return false;"
-                    style="ime-mode: disabled;">
+                    style="ime-mode: disabled;"></textarea>
                 <div id="noVNC_extra_keys">
                     <input type="image" alt="Extra keys" src="images/showextrakeys.png"
                         id="showExtraKeysButton" class="noVNC_status_button">
