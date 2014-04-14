@@ -173,7 +173,10 @@ var kbdUtil = (function() {
         else if (evt.charCode) {
             codepoint = evt.charCode;
         }
-
+        else if (evt.keyCode && evt.type === 'keypress') {
+            // IE10 stores the char code as keyCode, and has no other useful properties
+            codepoint = evt.keyCode;
+        }
         if (codepoint) {
             var res = keysyms.fromUnicode(substituteCodepoint(codepoint));
             if (res) {
