@@ -262,7 +262,7 @@ function on(evt, handler) {
     eventHandlers[evt] = handler;
 }
 
-function init(protocols, ws_schema) {
+function init(protocols) {
     rQ         = [];
     rQi        = 0;
     sQ         = [];
@@ -278,14 +278,11 @@ function init(protocols, ws_schema) {
         bt = true;
     }
 
-    // Check for full binary type support in WebSocket
-    // Inspired by:
-    // https://github.com/Modernizr/Modernizr/issues/370
-    // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/websockets/binary.js
+    // Check for full binary type support in WebSockets
+    // TODO: this sucks, the property should exist on the prototype
+    // but it does not.
     try {
-        if (bt &&
-            ('binaryType' in WebSocket.prototype ||
-            !!(new WebSocket(ws_schema + '://.').binaryType))) {
+        if (bt && ('binaryType' in (new WebSocket("ws://localhost:17523")))) {
             Util.Info("Detected binaryType support in WebSockets");
             wsbt = true;
         }
@@ -328,8 +325,7 @@ function init(protocols, ws_schema) {
 }
 
 function open(uri, protocols) {
-    var ws_schema = uri.match(/^([a-z]+):\/\//)[1];
-    protocols = init(protocols, ws_schema);
+    protocols = init(protocols);
 
     if (test_mode) {
         websocket = {};
