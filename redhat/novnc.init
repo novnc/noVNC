@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# /etc/rc.d/init.d/novnc
+#
+# Start the novnc vnc to html5 proxy.
+# This init script is based on the example found at
+# http://www.sensi.org/~alec/unix/redhat/sysvinit.html 
+#
+# chkconfig: 345 99 0
+# description: The novnc proxy. 
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+WEBSOCKIFY=/usr/share/novnc/utils/websockify
+WEBSOCKIFYARGS="--web /usr/share/novnc/html/ 6080 localhost:5901"
+
+if [ -e /etc/sysconfig/novnc ]; then
+    source /etc/sysconfig/novnc
+fi
+
+
+case "$1" in
+    start)
+	echo -n "Starting novnc services: "
+	daemon --user nobody $WEBSOCKIFY -D $WEBSOCKIFYARGS 
+	touch /var/lock/subsys/novnc
+	;;
+    stop)
+	echo -n "Shutting down novnc services: "
+	ps -ef | grep $WEBSOCKIFY | awk '{print $2}' | xargs kill
+	rm -f /var/lock/subsys/novnc
+	echo "[OK]"
+	;;
+    status)
+	ps -ef | grep websockify
+	;;
+    restart)
+	$0 stop; $0 start
+	;;
+    reload)
+	$0 stop; $0 start
+	;;
+    *)
+	echo "Usage: novnc {start|stop|status|reload|restart"
+	exit 1
+	;;
+esac
