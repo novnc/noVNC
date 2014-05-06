@@ -78,7 +78,7 @@ WebUtil.dirObj = function (obj, depth, parent) {
 
 // Read a query string variable
 WebUtil.getQueryVar = function(name, defVal) {
-    var re = new RegExp('[?][^#]*' + name + '=([^&#]*)'),
+    var re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
         match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
     if (match) {
