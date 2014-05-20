@@ -322,6 +322,7 @@ init_vars = function() {
     FBU.zlibs        = []; // TIGHT zlib encoders
     mouse_buttonMask = 0;
     mouse_arr        = [];
+    rfb_tightvnc     = false;
 
     // Clear the per connection encoding stats
     for (i=0; i < encodings.length; i+=1) {
@@ -775,22 +776,50 @@ init_msg = function() {
                 updateState('SecurityResult');
                 return;
             case 16: // TightVNC Security Type
-                if (ws.rQwait("num tunnels", 4)) { return false; }
-                var numTunnels = ws.rQshift32();
-                //console.log("Number of tunnels: "+numTunnels);
+                if (!rfb_tightvnc) {
+                    // we haven't been through this before, so assume
+                    // we need to check for tunnel support
+                    if (ws.rQwait("num tunnels", 4)) { return false; }
+                    var numTunnels = ws.rQshift32();
+                    //console.log("Number of tunnels: "+numTunnels);
 
-                rfb_tightvnc = true;
+                    rfb_tightvnc = true;
 
-                if (numTunnels != 0)
-                {
-                    fail("Protocol requested tunnels, not currently supported. numTunnels: " + numTunnels);
-                    return;
-                }
+                    var clientSupportedTunnelTypes = {
+                        0: { vender: 'TGHT', signature: 'NOTUNNEL' }
+                    };
+
+                    if (numTunnels > 0) {
+                        var serverSupportedTunnelTypes = {}
+                        // receive tunnel capabilities
+                        for (var i = 0; i < numTunnels; i++) {
+                            if (ws.rQwait("tunnel " + i.toString() + " capability", 16)) { return false; }
+
+                            var cap_code = ws.rQshift32();
+                            var cap_vendor = ws.rQshiftStr(4);
+                            var cap_signature = ws.rQshiftStr(8);
+                            serverSupportedTunnelTypes[cap_code] = { vendor: cap_vendor, signature: cap_signature };
+                        }
+
+                        // choose an auth type
+                        for (var cap_code in clientSupportedTunnelTypes) {
+                            if (serverSupportedTunnelTypes[cap_code] != undefined) {
+                                // TODO(directxman12): convert capcode back to U32
+                                ws.send([0,0,0,cap_code]);
+                                return;
+                            }
+                        }
+                        
+                        fail("No supported tunnel types");
+                        return;
+                    }
+                } // otherwise, we've dealt with tunnels, so jump right into auth
 
                 var clientSupportedTypes = {
                     'STDVNOAUTH__': 1,
                     'STDVVNCAUTH_': 2
                 };
+
 
                 var serverSupportedTypes = [];
 
