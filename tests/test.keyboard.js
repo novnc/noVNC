@@ -1,7 +1,8 @@
+// requires local modules: input, keyboard, keysymdef
 var assert = chai.assert;
 var expect = chai.expect;
 
-
+/* jshint newcap: false, expr: true */
 describe('Key Event Pipeline Stages', function() {
     "use strict";
     describe('Decode Keyboard Events', function() {
@@ -50,7 +51,7 @@ describe('Key Event Pipeline Stages', function() {
             KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
                 expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown'});
                 done();
-            }).keydown({keyCode: 0x41})
+            }).keydown({keyCode: 0x41});
         });
         it('should forward keyup events with the right type', function(done) {
             KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {

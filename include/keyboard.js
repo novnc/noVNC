@@ -15,7 +15,7 @@ var kbdUtil = (function() {
 
         var sub = substitutions[cp];
         return sub ? sub : cp;
-    };
+    }
 
     function isMac() {
         return navigator && !!(/mac/i).exec(navigator.platform);
@@ -387,17 +387,22 @@ function VerifyCharModifier(next) {
         if (timer) {
             return;
         }
+
+        var delayProcess = function () {
+            clearTimeout(timer);
+            timer = null;
+            process();
+        };
+
         while (queue.length !== 0) {
             var cur = queue[0];
             queue = queue.splice(1);
             switch (cur.type) {
             case 'stall':
                 // insert a delay before processing available events.
-                timer = setTimeout(function() {
-                    clearTimeout(timer);
-                    timer = null;
-                    process();
-                }, 5);
+                /* jshint loopfunc: true */
+                timer = setTimeout(delayProcess, 5);
+                /* jshint loopfunc: false */
                 return;
             case 'keydown':
                 // is the next element a keypress? Then we should merge the two
@@ -489,23 +494,25 @@ function TrackKeyState(next) {
 
             var item = state.splice(idx, 1)[0];
             // for each keysym tracked by this key entry, clone the current event and override the keysym
+            var clone = (function(){
+                function Clone(){}
+                return function (obj) { Clone.prototype=obj; return new Clone(); };
+            }());
             for (var key in item.keysyms) {
-                var clone = (function(){
-                    function Clone(){}
-                    return function (obj) { Clone.prototype=obj; return new Clone(); };
-                }());
                 var out = clone(evt);
                 out.keysym = item.keysyms[key];
                 next(out);
             }
             break;
         case 'releaseall':
+            /* jshint shadow: true */
             for (var i = 0; i < state.length; ++i) {
                 for (var key in state[i].keysyms) {
                     var keysym = state[i].keysyms[key];
                     next({keyId: 0, keysym: keysym, type: 'keyup'});
                 }
             }
+            /* jshint shadow: false */
             state = [];
         }
     };
@@ -527,8 +534,10 @@ function EscapeModifiers(next) {
         // send the character event
         next(evt);
         // redo modifiers
+        /* jshint shadow: true */
         for (var i = 0; i < evt.escape.length; ++i) {
             next({type: 'keydown', keyId: 0, keysym: keysyms.lookup(evt.escape[i])});
         }
+        /* jshint shadow: false */
     };
 }

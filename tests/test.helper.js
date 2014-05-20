@@ -1,4 +1,6 @@
-﻿var assert = chai.assert;
+﻿// requires local modules: keysym, keysymdef, keyboard
+
+var assert = chai.assert;
 var expect = chai.expect;
 
 describe('Helpers', function() {
