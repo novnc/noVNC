@@ -24,13 +24,13 @@ describe('Utils', function() {
 
         describe('push16', function () {
             it('should push two bytes on to the array', function () {
-                var arr = [1];        
+                var arr = [1];
                 arr.push16(0xABCD);
                 expect(arr).to.deep.equal([1, 0xAB, 0xCD]);
             });
 
             it('should only use the two least significant bytes of any number passed in', function () {
-                var arr = [1];        
+                var arr = [1];
                 arr.push16(0xABCDEF);
                 expect(arr).to.deep.equal([1, 0xCD, 0xEF]);
             });
@@ -38,19 +38,19 @@ describe('Utils', function() {
 
         describe('push32', function () {
             it('should push four bytes on to the array', function () {
-                var arr = [1];        
+                var arr = [1];
                 arr.push32(0xABCDEF12);
                 expect(arr).to.deep.equal([1, 0xAB, 0xCD, 0xEF, 0x12]);
             });
 
             it('should only use the four least significant bytes of any number passed in', function () {
-                var arr = [1];        
+                var arr = [1];
                 arr.push32(0xABCDEF1234);
                 expect(arr).to.deep.equal([1, 0xCD, 0xEF, 0x12, 0x34]);
             });
         });
     });
-    
+
     describe('logging functions', function () {
         beforeEach(function () {
             sinon.spy(console, 'log');
@@ -98,7 +98,7 @@ describe('Utils', function() {
     // TODO(directxman12): test decodeUTF8
     // TODO(directxman12): test the event methods (addEvent, removeEvent, stopEvent)
     // TODO(directxman12): figure out a good way to test getPosition and getEventPosition
-    // TODO(directxman12): figure out how to test the browser detection functions properly    
+    // TODO(directxman12): figure out how to test the browser detection functions properly
     //                     (we can't really test them against the browsers, except for Gecko
     //                     via PhantomJS, the default test driver)
     // TODO(directxman12): figure out how to test Util.Flash
