@@ -919,7 +919,7 @@ init_msg = function() {
 
         /* Connection name/title */
         name_length   = ws.rQshift32();
-        fb_name = Util.decodeUTF8(ws.rQshiftUStr(name_length));
+        fb_name = Util.decodeUTF8(ws.rQshiftUTFStr(name_length));
         conf.onDesktopName(that, fb_name);
         
         if (conf.true_color && fb_name === "Intel(r) AMT KVM")
