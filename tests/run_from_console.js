@@ -297,9 +297,15 @@ if (!program.outputHtml && !program.generateHtml) {
 
   if (program.debug) {
     provider.on('console', function(line) {
-      console.log(line);
+      // log to stderr
+      console.error(line);
     });
   }
+
+  provider.on('error', function(line) {
+    // log to stderr
+    console.error('ERROR: ' + line);
+  });
 
   /*gprom.finally(function(ph) {
     ph.exit();
