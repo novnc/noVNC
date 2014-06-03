@@ -15,7 +15,8 @@ program
   .option('-c, --color', 'Explicitly enable color (default is to use color when not outputting to a pipe)')
   .option('-i, --auto-inject <includefiles>', 'Treat the test list as a set of mocha JS files, and automatically generate HTML files with which to test test.  \'includefiles\' should be a comma-separated list of paths to javascript files to include in each of the generated HTML files', make_list, null)
   .option('-p, --provider <name>', 'Use the given provider (defaults to "casper").  Currently, may be "casper" or "zombie"', 'casper')
-  .option('-g, --generate-html', 'Instead of running the tests, just return the path to the generated HTML file, then wait for user interaction to exit (should be used with .js tests)')
+  .option('-g, --generate-html', 'Instead of running the tests, just return the path to the generated HTML file, then wait for user interaction to exit (should be used with .js tests).')
+  .option('-o, --open-in-browser', 'Open the generated HTML files in a web browser using the "open" module (must be used with the "-g"/"--generate-html" option).')
   .option('-o, --output-html', 'Instead of running the tests, just output the generated HTML source to STDOUT (should be used with .js tests)')
   .option('-d, --debug', 'Show debug output (the "console" event) from the provider')
   .parse(process.argv);
@@ -119,6 +120,11 @@ if (program.outputHtml) {
 }
 
 if (program.generateHtml) {
+  var open_browser;
+  if (program.openInBrowser) {
+    open_browser = require('open');
+  }
+
   file_paths.forEach(function(path, path_ind) {
     cursor
       .bold()
@@ -127,6 +133,10 @@ if (program.generateHtml) {
       .reset()
       .write(path)
       .write("\n");
+
+    if (program.openInBrowser) {
+      open_browser(path);
+    }
   });
   console.log('');
 }
