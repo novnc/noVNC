@@ -47,7 +47,7 @@ if (all_js && !program.autoInject) {
       });
     }
 
-    var fakes_ind = content.indexOf('requires test files: ');
+    var fakes_ind = content.indexOf('requires test modules: ');
     if (fakes_ind > -1) {
       fakes_ind += 'requires test modules: '.length;
       var fakes_eol = content.indexOf('\n', fakes_ind);
