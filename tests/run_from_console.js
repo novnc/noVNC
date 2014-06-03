@@ -46,6 +46,16 @@ if (all_js && !program.autoInject) {
         all_modules[path.resolve(__dirname, '../include/', mod)+'.js'] = 1;
       });
     }
+
+    var fakes_ind = content.indexOf('requires test files: ');
+    if (fakes_ind > -1) {
+      fakes_ind += 'requires test modules: '.length;
+      var fakes_eol = content.indexOf('\n', fakes_ind);
+      var fakes_modules = content.slice(fakes_ind, fakes_eol).split(/,\s*/);
+      fakes_modules.forEach(function (mod) {
+        all_modules[path.resolve(__dirname, mod) + '.js'] = 1;
+      });
+    }
   });
 
   program.autoInject = Object.keys(all_modules);
@@ -64,6 +74,7 @@ if (program.autoInject) {
   template.header += "\n" + template.script_tag(path.resolve(__dirname, 'node_modules/chai/chai.js'));
   template.header += "\n" + template.script_tag(path.resolve(__dirname, 'node_modules/mocha/mocha.js'));
   template.header += "\n" + template.script_tag(path.resolve(__dirname, 'node_modules/sinon/pkg/sinon.js'));
+  template.header += "\n" + template.script_tag(path.resolve(__dirname, 'node_modules/sinon-chai/lib/sinon-chai.js'));
   template.header += "\n" + template.script_tag(path.resolve(__dirname, 'node_modules/sinon-chai/lib/sinon-chai.js'));
   template.header += "\n<script>mocha.setup('bdd');</script>";
 
