@@ -26,7 +26,10 @@ var provide_emitter = function(file_paths) {
 
     file_paths.forEach(function(file_path, path_ind) {
       spooky.thenOpen('file://'+file_path);
-      spooky.then([{ path_ind: path_ind }, function() {
+      spooky.waitFor(function() {
+        return this.getGlobal('__mocha_done') === true;
+      },
+      [{ path_ind: path_ind }, function() {
         var res_json = {
           file_ind: path_ind
         };

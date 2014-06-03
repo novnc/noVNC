@@ -68,7 +68,7 @@ if (program.autoInject) {
   var template = {
     header: "<html>\n<head>\n<meta charset='utf-8' />\n<link rel='stylesheet' href='" + path.resolve(__dirname, 'node_modules/mocha/mocha.css') + "'/>\n</head>\n<body><div id='mocha'></div>",
     script_tag: function(p) { return "<script src='" + p + "'></script>"; },
-    footer: "<script>\nmocha.checkLeaks();\nmocha.globals(['navigator', 'create', 'ClientUtils', '__utils__']);\nmocha.run();\n</script>\n</body>\n</html>"
+    footer: "<script>\nmocha.checkLeaks();\nmocha.globals(['navigator', 'create', 'ClientUtils', '__utils__']);\nmocha.run(function () { window.__mocha_done = true; });\n</script>\n</body>\n</html>"
   };
 
   template.header += "\n" + template.script_tag(path.resolve(__dirname, 'node_modules/chai/chai.js'));
