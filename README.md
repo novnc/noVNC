@@ -1,4 +1,4 @@
-## noVNC: HTML5 VNC Client
+## noVNC: HTML5 VNC Client [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=51343)](https://www.bountysource.com/trackers/51343-novnc?utm_source=51343&utm_medium=shield&utm_campaign=TRACKER_BADGE)
 
 
 ### Description
