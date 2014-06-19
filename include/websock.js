@@ -100,6 +100,14 @@ function Websock() {
             return this._rQ[this._rQi++];
         },
 
+        rQskip8: function () {
+            this._rQi++;
+        },
+
+        rQskipBytes: function (num) {
+            this._rQi += num;
+        },
+
         rQunshift8: function (num) {
             if (this._rQi === 0) {
                 this._rQ.unshift(num);
