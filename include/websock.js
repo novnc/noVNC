@@ -158,13 +158,13 @@ function rQwait(msg, num, goback) {
 // Private utility routines
 //
 
-function encode_message() {
+function encode_message(sendQueue) {
     if (mode === 'binary') {
         // Put in a binary arraybuffer
-        return (new Uint8Array(sQ)).buffer;
+        return (new Uint8Array(sendQueue)).buffer;
     } else {
         // base64 encode
-        return Base64.encode(sQ);
+        return Base64.encode(sendQueue);
     }
 }
 
