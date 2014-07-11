@@ -321,12 +321,15 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should support drawing images via #imageRect', function (done) {
-            display.imageRect(0, 0, "image/png", make_image_png(checked_data));
+            const img = display.imageRect(0, 0, "image/png", make_image_png(checked_data));
+            img.dispatchEvent(new CustomEvent('load', {}));
             display.flip();
             display.onflush = () => {
                 expect(display).to.have.displayed(checked_data);
+                expect(img.completeAndLoaded).to.equal(true);
                 done();
             };
+
             display.flush();
         });
 
@@ -422,7 +425,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should wait until an image is loaded to attempt to draw it and the rest of the queue', function () {
-            const img = { complete: false, addEventListener: sinon.spy() };
+            const img = { completeAndLoaded: false };
             display._renderQ = [{ type: 'img', x: 3, y: 4, img: img },
                                 { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
             display.drawImage = sinon.spy();
@@ -431,13 +434,11 @@ describe('Display/Canvas Helper', function () {
             display._scan_renderQ();
             expect(display.drawImage).to.not.have.been.called;
             expect(display.fillRect).to.not.have.been.called;
-            expect(img.addEventListener).to.have.been.calledOnce;
 
-            display._renderQ[0].img.complete = true;
+            display._renderQ[0].img.completeAndLoaded = true;
             display._scan_renderQ();
             expect(display.drawImage).to.have.been.calledOnce;
             expect(display.fillRect).to.have.been.calledOnce;
-            expect(img.addEventListener).to.have.been.calledOnce;
         });
 
         it('should call callback when queue is flushed', function () {
@@ -478,9 +479,9 @@ describe('Display/Canvas Helper', function () {
 
         it('should draw an image from an image object on type "img" (if complete)', function () {
             display.drawImage = sinon.spy();
-            display._renderQ_push({ type: 'img', x: 3, y: 4, img: { complete: true } });
+            display._renderQ_push({ type: 'img', x: 3, y: 4, img: { completeAndLoaded: true } });
             expect(display.drawImage).to.have.been.calledOnce;
-            expect(display.drawImage).to.have.been.calledWith({ complete: true }, 3, 4);
+            expect(display.drawImage).to.have.been.calledWith({ completeAndLoaded: true }, 3, 4);
         });
     });
 });

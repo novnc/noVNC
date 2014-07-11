@@ -375,13 +375,16 @@ export default class Display {
 
     imageRect(x, y, mime, arr) {
         const img = new Image();
+        img._noVNC_display = this;
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+        img.addEventListener('load', this._resume_renderQ);
         this._renderQ_push({
             'type': 'img',
             'img': img,
             'x': x,
             'y': y
         });
+        return img;
     }
 
     // start updating a tile
@@ -602,6 +605,7 @@ export default class Display {
         // "this" is the object that is ready, not the
         // display object
         this.removeEventListener('load', this._noVNC_display._resume_renderQ);
+        this.completeAndLoaded = true;
         this._noVNC_display._scan_renderQ();
     }
 
@@ -629,11 +633,9 @@ export default class Display {
                     this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
-                    if (a.img.complete) {
+                    if (a.img.completeAndLoaded) {
                         this.drawImage(a.img, a.x, a.y);
                     } else {
-                        a.img._noVNC_display = this;
-                        a.img.addEventListener('load', this._resume_renderQ);
                         // We need to wait for this image to 'load'
                         // to keep things in-order
                         ready = false;
