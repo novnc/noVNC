@@ -193,8 +193,8 @@ function flush() {
         Util.Debug("bufferedAmount: " + websocket.bufferedAmount);
     }
     if (websocket.bufferedAmount < api.maxBufferedAmount) {
-        //Util.Debug("arr: " + arr);
-        //Util.Debug("sQ: " + sQ);
+        // Util.Debug("arr: " + arr);
+        Util.Debug("sQ: " + sQ);
         if (sQ.length > 0) {
             websocket.send(encode_message(sQ));
             sQ = [];
@@ -209,15 +209,34 @@ function flush() {
 
 // overridable for testing
 function send(arr) {
-    //Util.Debug(">> send_array: " + arr);
+    Util.Debug(">> send_array: " + arr);
     sQ = sQ.concat(arr);
     return flush();
+}
+
+function send_binary(data) {
+    websocket.send(data);
+    sQ = [];
 }
 
 function send_string(str) {
     //Util.Debug(">> send_string: " + str);
     api.send(str.split('').map(
         function (chr) { return chr.charCodeAt(0); } ) );
+}
+
+function send_auth(str1, str2) {
+    var authdata = new Uint8Array(48);
+    for( var i = 0; i < str1.length; i++ ){
+	authdata[i] = str1.charCodeAt(i);
+    }
+    authdata[str1.length] = 0;
+
+    for( var i = 0; i < str2.length; i++ ){
+        authdata[i + 24] = str2.charCodeAt(i);
+    }
+    authdata[str2.length + 24] = 0;
+    send_binary(authdata);
 }
 
 //
@@ -407,6 +426,8 @@ function constructor() {
     api.flush        = flush;
     api.send         = send;
     api.send_string  = send_string;
+    api.send_binary  = send_binary;
+    api.send_auth    = send_auth;
 
     api.on           = on;
     api.init         = init;
