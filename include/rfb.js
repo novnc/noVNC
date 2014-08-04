@@ -25,12 +25,14 @@ var that           = {},  // Public API methods
     init_msg, normal_msg, framebufferUpdate, print_stats,
 
     pixelFormat, clientEncodings, fbUpdateRequest, fbUpdateRequests,
-    keyEvent, pointerEvent, clientCutText,
+    keyEvent, pointerEvent, clientCutText, send_auth_packet,
 
     getTightCLength, extract_data_uri,
     keyPress, mouseButton, mouseMove,
 
     checkEvents,  // Overridable for testing
+
+    first_auth = 0,
 
 
     //
@@ -777,7 +779,7 @@ init_msg = function() {
             case 16: // TightVNC Security Type
                 if (ws.rQwait("num tunnels", 4)) { return false; }
                 var numTunnels = ws.rQshift32();
-                //console.log("Number of tunnels: "+numTunnels);
+                console.log("Number of tunnels: "+numTunnels);
 
                 rfb_tightvnc = true;
 
@@ -796,19 +798,19 @@ init_msg = function() {
 
                 if (ws.rQwait("sub auth count", 4)) { return false; }
                 var subAuthCount = ws.rQshift32();
-                //console.log("Sub auth count: "+subAuthCount);
+                console.log("Sub auth count: "+subAuthCount);
                 for (var i=0;i<subAuthCount;i++)
                 {
 
                     if (ws.rQwait("sub auth capabilities "+i, 16)) { return false; }
                     var capNum = ws.rQshift32();
                     var capabilities = ws.rQshiftStr(12);
-                    //console.log("queue: "+ws.rQlen());
-                    //console.log("auth type: "+capNum+": "+capabilities);
+                    console.log("queue: "+ws.rQlen());
+                    console.log("auth type: "+capNum+": "+capabilities);
 
                     serverSupportedTypes.push(capabilities);
                 }
-
+/*
                 for (var authType in clientSupportedTypes)
                 {
                     if (serverSupportedTypes.indexOf(authType) != -1)
@@ -833,8 +835,9 @@ init_msg = function() {
                         }
                     }
                 }
-
-
+*/
+		// ws.send(["phsrhiysnamruhqy","phsrhiysnamruhqy"]);
+		send_auth_packet()
                 return;
             default:
                 fail("Unsupported auth scheme: " + rfb_auth_scheme);
@@ -871,13 +874,15 @@ init_msg = function() {
 
     // Triggered by fallthough, not by server message
     case 'ClientInitialisation' :
-        ws.send([conf.shared ? 1 : 0]); // ClientInitialisation
+        // ws.send([0]); // ClientInitialisation
         updateState('ServerInitialisation', "Authentication OK");
         break;
 
     case 'ServerInitialisation' :
         if (ws.rQwait("server initialization", 24)) { return false; }
 
+	var padding1 = ws.rQshift32();
+	var padding2 = ws.rQshift32();
         /* Screen size */
         fb_width  = ws.rQshift16();
         fb_height = ws.rQshift16();
@@ -918,9 +923,13 @@ init_msg = function() {
         }
 
         /* Connection name/title */
-        name_length   = ws.rQshift32();
-        fb_name = Util.decodeUTF8(ws.rQshiftStr(name_length));
-        conf.onDesktopName(that, fb_name);
+	// this code bug!
+        // name_length   = ws.rQshift32();
+        // fb_name = Util.decodeUTF8(ws.rQshiftStr(name_length));
+        // conf.onDesktopName(that, fb_name);
+	name_length = 6;
+	fb_name = "sample";
+	conf.onDesktopName(that, fb_name);
         
         if (conf.true_color && fb_name === "Intel(r) AMT KVM")
         {
@@ -1868,6 +1877,26 @@ clientCutText = function(text) {
     }
     //Util.Debug("<< clientCutText:" + arr);
     return arr;
+};
+
+//
+// Add Tempolary Patches
+//
+
+send_auth_packet = function() {
+  var auth_id = "iadzhsspacxvdldb";
+  var auth_pass = "iadzhsspacxvdldb";
+  if( first_auth == 0 ){
+    ws.send_auth(auth_id, auth_pass);
+    first_auth ++;
+  }
+  else{
+    var auth_ok = new Uint8Array(1);
+    auth_ok[0] = 0;
+    ws.send_binary(auth_ok);
+    rfb_auth_scheme = 1;
+    init_msg();
+  }
 };
 
 
