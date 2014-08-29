@@ -121,6 +121,46 @@ function rQshiftStr(len) {
     rQi += len;
     return String.fromCharCode.apply(null, arr);
 }
+function rQshiftUTFStr(len) {
+    if (typeof(len) === 'undefined') { len = rQlen(); }
+    var arr = [];
+    for(var i = rQi; i < rQi + len; i++) {
+        var code = rQ[i];
+        // 1-byte
+        if(code <= 0x7f) {
+            arr.push(code);
+            continue;
+        }
+        // 2-byte
+        if(code <= 0xdf) {
+            var sec = rQ[++i];
+            code = ((code & 0x1c) << 6) | (sec & 0x3f);
+            arr.push(code);
+            continue;
+        }
+        // 3-byte
+        if(code <= 0xef) {
+            var sec = rQ[++i];
+            var thi = rQ[++i];
+            code = ((((code & 0xf) << 4) | ((sec & 0x3c) >> 2)) << 8) | (((sec & 0x3) << 6) | (thi & 0x3f));
+            arr.push(code);
+            continue;
+        }
+        // 4-byte
+        if(code <= 0xf7) {
+            var sec = rQ[++i];
+            var thi = rQ[++i];
+            var fou = rQ[++i];
+            var z = ((code & 0x7) << 2) | ((sec & 0x30) >> 4);
+            var y = ((sec & 0xf) << 4) | ((thi & 0x3c) >> 2);
+            var x = ((thi & 0x3) << 6) | (fou & 0x3f);
+            code = (z << 16) | (y << 8) | x;
+            arr.push(code);
+        }
+    }
+    rQi += len;
+    return String.fromCharCode.apply(null, arr);
+}
 function rQshiftBytes(len) {
     if (typeof(len) === 'undefined') { len = rQlen(); }
     rQi += len;
@@ -389,32 +429,33 @@ function constructor() {
     api.maxBufferedAmount = 200;
 
     // Direct access to send and receive queues
-    api.get_sQ       = get_sQ;
-    api.get_rQ       = get_rQ;
-    api.get_rQi      = get_rQi;
-    api.set_rQi      = set_rQi;
+    api.get_sQ        = get_sQ;
+    api.get_rQ        = get_rQ;
+    api.get_rQi       = get_rQi;
+    api.set_rQi       = set_rQi;
 
     // Routines to read from the receive queue
-    api.rQlen        = rQlen;
-    api.rQpeek8      = rQpeek8;
-    api.rQshift8     = rQshift8;
-    api.rQunshift8   = rQunshift8;
-    api.rQshift16    = rQshift16;
-    api.rQshift32    = rQshift32;
-    api.rQshiftStr   = rQshiftStr;
-    api.rQshiftBytes = rQshiftBytes;
-    api.rQslice      = rQslice;
-    api.rQwait       = rQwait;
+    api.rQlen         = rQlen;
+    api.rQpeek8       = rQpeek8;
+    api.rQshift8      = rQshift8;
+    api.rQunshift8    = rQunshift8;
+    api.rQshift16     = rQshift16;
+    api.rQshift32     = rQshift32;
+    api.rQshiftStr    = rQshiftStr;
+    api.rQshiftUTFStr = rQshiftUTFStr;
+    api.rQshiftBytes  = rQshiftBytes;
+    api.rQslice       = rQslice;
+    api.rQwait        = rQwait;
 
-    api.flush        = flush;
-    api.send         = send;
-    api.send_string  = send_string;
+    api.flush         = flush;
+    api.send          = send;
+    api.send_string   = send_string;
 
-    api.on           = on;
-    api.init         = init;
-    api.open         = open;
-    api.close        = close;
-    api.testMode     = testMode;
+    api.on            = on;
+    api.init          = init;
+    api.open          = open;
+    api.close         = close;
+    api.testMode      = testMode;
 
     return api;
 }
