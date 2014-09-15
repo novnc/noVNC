@@ -23,6 +23,7 @@ program
 
 if (program.tests.length === 0) {
   program.tests = fs.readdirSync(__dirname).filter(function(f) { return (/^test\.(\w|\.|-)+\.js$/).test(f); });
+  program.tests = program.tests.map(function (f) { return path.resolve(__dirname, f); }); // add full paths in
   console.log('using files %s', program.tests);
 }
 
