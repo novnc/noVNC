@@ -7,8 +7,7 @@
  * See README.md for usage and integration instructions.
  */
 
-"use strict";
-/*jslint bitwise: false, white: false */
+/*jslint bitwise: false, white: false, browser: true, devel: true */
 /*global Util, window, document */
 
 // Globals defined here
@@ -31,45 +30,47 @@ if (!window.$D) {
 }
 
 
-/* 
+/*
  * ------------------------------------------------------
  * Namespaced in WebUtil
  * ------------------------------------------------------
  */
 
 // init log level reading the logging HTTP param
-WebUtil.init_logging = function(level) {
+WebUtil.init_logging = function (level) {
+    "use strict";
     if (typeof level !== "undefined") {
         Util._log_level = level;
     } else {
-        Util._log_level = (document.location.href.match(
-            /logging=([A-Za-z0-9\._\-]*)/) ||
-            ['', Util._log_level])[1];
+        var param = document.location.href.match(/logging=([A-Za-z0-9\._\-]*)/);
+        Util._log_level = (param || ['', Util._log_level])[1];
     }
     Util.init_logging();
 };
 
 
 WebUtil.dirObj = function (obj, depth, parent) {
-    var i, msg = "", val = "";
-    if (! depth) { depth=2; }
-    if (! parent) { parent= ""; }
+    "use strict";
+    if (! depth) { depth = 2; }
+    if (! parent) { parent = ""; }
 
-    // Print the properties of the passed-in object 
-    for (i in obj) {
-        if ((depth > 1) && (typeof obj[i] === "object")) { 
+    // Print the properties of the passed-in object
+    var msg = "";
+    for (var i in obj) {
+        if ((depth > 1) && (typeof obj[i] === "object")) {
             // Recurse attributes that are objects
-            msg += WebUtil.dirObj(obj[i], depth-1, parent + "." + i);
+            msg += WebUtil.dirObj(obj[i], depth - 1, parent + "." + i);
         } else {
             //val = new String(obj[i]).replace("\n", " ");
+            var val = "";
             if (typeof(obj[i]) === "undefined") {
                 val = "undefined";
             } else {
                 val = obj[i].toString().replace("\n", " ");
             }
             if (val.length > 30) {
-                val = val.substr(0,30) + "...";
-            } 
+                val = val.substr(0, 30) + "...";
+            }
             msg += parent + "." + i + ": " + val + "\n";
         }
     }
@@ -77,7 +78,8 @@ WebUtil.dirObj = function (obj, depth, parent) {
 };
 
 // Read a query string variable
-WebUtil.getQueryVar = function(name, defVal) {
+WebUtil.getQueryVar = function (name, defVal) {
+    "use strict";
     var re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
         match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
@@ -94,42 +96,50 @@ WebUtil.getQueryVar = function(name, defVal) {
  */
 
 // No days means only for this browser session
-WebUtil.createCookie = function(name,value,days) {
-    var date, expires, secure;
+WebUtil.createCookie = function (name, value, days) {
+    "use strict";
+    var date, expires;
     if (days) {
         date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        expires = "; expires="+date.toGMTString();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
     } else {
         expires = "";
     }
+
+    var secure;
     if (document.location.protocol === "https:") {
         secure = "; secure";
     } else {
         secure = "";
     }
-    document.cookie = name+"="+value+expires+"; path=/"+secure;
+    document.cookie = name + "=" + value + expires + "; path=/" + secure;
 };
 
-WebUtil.readCookie = function(name, defaultValue) {
-    var i, c, nameEQ = name + "=", ca = document.cookie.split(';');
-    for(i=0; i < ca.length; i += 1) {
-        c = ca[i];
-        while (c.charAt(0) === ' ') { c = c.substring(1,c.length); }
-        if (c.indexOf(nameEQ) === 0) { return c.substring(nameEQ.length,c.length); }
+WebUtil.readCookie = function (name, defaultValue) {
+    "use strict";
+    var nameEQ = name + "=",
+        ca = document.cookie.split(';');
+
+    for (var i = 0; i < ca.length; i += 1) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') { c = c.substring(1, c.length); }
+        if (c.indexOf(nameEQ) === 0) { return c.substring(nameEQ.length, c.length); }
     }
     return (typeof defaultValue !== 'undefined') ? defaultValue : null;
 };
 
-WebUtil.eraseCookie = function(name) {
-    WebUtil.createCookie(name,"",-1);
+WebUtil.eraseCookie = function (name) {
+    "use strict";
+    WebUtil.createCookie(name, "", -1);
 };
 
 /*
  * Setting handling.
  */
 
-WebUtil.initSettings = function(callback) {
+WebUtil.initSettings = function (callback /*, ...callbackArgs */) {
+    "use strict";
     var callbackArgs = Array.prototype.slice.call(arguments, 1);
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.get(function (cfg) {
@@ -148,7 +158,8 @@ WebUtil.initSettings = function(callback) {
 };
 
 // No days means only for this browser session
-WebUtil.writeSetting = function(name, value) {
+WebUtil.writeSetting = function (name, value) {
+    "use strict";
     if (window.chrome && window.chrome.storage) {
         //console.log("writeSetting:", name, value);
         if (WebUtil.settings[name] !== value) {
@@ -160,7 +171,8 @@ WebUtil.writeSetting = function(name, value) {
     }
 };
 
-WebUtil.readSetting = function(name, defaultValue) {
+WebUtil.readSetting = function (name, defaultValue) {
+    "use strict";
     var value;
     if (window.chrome && window.chrome.storage) {
         value = WebUtil.settings[name];
@@ -177,7 +189,8 @@ WebUtil.readSetting = function(name, defaultValue) {
     }
 };
 
-WebUtil.eraseSetting = function(name) {
+WebUtil.eraseSetting = function (name) {
+    "use strict";
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.remove(name);
         delete WebUtil.settings[name];
@@ -189,9 +202,12 @@ WebUtil.eraseSetting = function(name) {
 /*
  * Alternate stylesheet selection
  */
-WebUtil.getStylesheets = function() { var i, links, sheets = [];
-    links = document.getElementsByTagName("link");
-    for (i = 0; i < links.length; i += 1) {
+WebUtil.getStylesheets = function () {
+    "use strict";
+    var links = document.getElementsByTagName("link");
+    var sheets = [];
+
+    for (var i = 0; i < links.length; i += 1) {
         if (links[i].title &&
             links[i].rel.toUpperCase().indexOf("STYLESHEET") > -1) {
             sheets.push(links[i]);
@@ -202,14 +218,16 @@ WebUtil.getStylesheets = function() { var i, links, sheets = [];
 
 // No sheet means try and use value from cookie, null sheet used to
 // clear all alternates.
-WebUtil.selectStylesheet = function(sheet) {
-    var i, link, sheets = WebUtil.getStylesheets();
+WebUtil.selectStylesheet = function (sheet) {
+    "use strict";
     if (typeof sheet === 'undefined') {
         sheet = 'default';
     }
-    for (i=0; i < sheets.length; i += 1) {
-        link = sheets[i];
-        if (link.title === sheet) {    
+
+    var sheets = WebUtil.getStylesheets();
+    for (var i = 0; i < sheets.length; i += 1) {
+        var link = sheets[i];
+        if (link.title === sheet) {
             Util.Debug("Using stylesheet " + sheet);
             link.disabled = false;
         } else {
