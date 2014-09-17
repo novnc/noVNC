@@ -341,6 +341,10 @@ Util.set_defaults = function (obj, conf, defaults) {
 
     for (i = 0; i < keys.length; i++) {
         var setter = obj['_raw_set_' + keys[i]];
+        if (!setter) {
+          Util.Warn('Invalid property ' + keys[i]);
+          continue;
+        }
 
         if (conf[keys[i]]) {
             setter.call(obj, conf[keys[i]]);
