@@ -131,7 +131,7 @@
             if (fname) {
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
                 rfb = new RFB({'target': $D('VNC_canvas'),
-                               'updateState': updateState});
+                               'onUpdateState': updateState});
             }
         }
     </script>
