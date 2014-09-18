@@ -17,7 +17,7 @@ function make_rfb (extra_opts) {
 chai.use(function (_chai, utils) {
     _chai.Assertion.addMethod('displayed', function (target_data) {
         var obj = this._obj;
-        var data_cl = obj._drawCtx.getImageData(0, 0, obj._fb_width, obj._fb_height).data;
+        var data_cl = obj._drawCtx.getImageData(0, 0, obj._viewportLoc.w, obj._viewportLoc.h).data;
         // NB(directxman12): PhantomJS 1.x doesn't implement Uint8ClampedArray, so work around that
         var data = new Uint8Array(data_cl);
         this.assert(utils.eql(data, target_data),
@@ -1209,8 +1209,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     // a really small frame
                     client._fb_width = 4;
                     client._fb_height = 4;
-                    client._display._fb_width = 4;
-                    client._display._fb_height = 4;
+                    client._display.resize(4, 4);
                     client._fb_Bpp = 4;
                 });
 
@@ -1284,8 +1283,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         // a really small frame
                         client._fb_width = 4;
                         client._fb_height = 4;
-                        client._display._fb_width = 4;
-                        client._display._fb_height = 4;
+                        client._display.resize(4, 4);
                         client._fb_Bpp = 4;
                     });
 
