@@ -202,7 +202,7 @@
                 dbgmsg("  " + enc + ": " + VNC_frame_data_multi[enc].length);
             }
             rfb = new RFB({'target': $D('VNC_canvas'),
-                           'updateState': updateState});
+                           'onUpdateState': updateState});
             rfb.testMode(send_array, VNC_frame_encoding);
         }
     </script>
