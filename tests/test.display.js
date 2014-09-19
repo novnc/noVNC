@@ -26,6 +26,40 @@ describe('Display/Canvas Helper', function () {
         return canvas;
     }
 
+    describe('checking for cursor uri support', function () {
+        beforeEach(function () {
+            this._old_change_cursor = Display.changeCursor;
+        });
+
+        it('should disable cursor URIs if there is no support', function () {
+            Display.changeCursor = function(target) {
+                target.style.cursor = undefined;
+            };
+            var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
+            expect(display._cursor_uri).to.be.false;
+        });
+
+        it('should enable cursor URIs if there is support', function () {
+            Display.changeCursor = function(target) {
+                target.style.cursor = 'pointer';
+            };
+            var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
+            expect(display._cursor_uri).to.be.true;
+        });
+
+        it('respect the cursor_uri option if there is support', function () {
+            Display.changeCursor = function(target) {
+                target.style.cursor = 'pointer';
+            };
+            var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false, cursor_uri: false });
+            expect(display._cursor_uri).to.be.false;
+        });
+
+        afterEach(function () {
+            Display.changeCursor = this._old_change_cursor;
+        });
+    });
+
     describe('viewport handling', function () {
         var display;
         beforeEach(function () {

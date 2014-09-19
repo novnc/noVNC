@@ -89,12 +89,12 @@ var Display;
             var curSave = this._target.style.cursor;
             Display.changeCursor(this._target, curDat, curDat, 2, 2, 8, 8);
             if (this._target.style.cursor) {
-                if (this._cursor_uri === null) {
+                if (this._cursor_uri === null || this._cursor_uri === undefined) {
                     this._cursor_uri = true;
                 }
                 Util.Info("Data URI scheme cursor supported");
             } else {
-                if (this._cursor_uri === null) {
+                if (this._cursor_uri === null || this._cursor_uri === undefined) {
                     this._cursor_uri = false;
                 }
                 Util.Warn("Data URI scheme cursor not supported");
