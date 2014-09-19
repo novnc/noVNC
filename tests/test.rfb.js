@@ -1512,6 +1512,20 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._sock.send).to.have.been.calledWith(pointer_msg);
             });
 
+            it('should send a mask of 1 on mousedown', function () {
+                client._mouse._onMouseButton(10, 12, 1, 0x001);
+                expect(client._sock.send).to.have.been.calledOnce;
+                var pointer_msg = RFB.messages.pointerEvent(10, 12, 0x001);
+                expect(client._sock.send).to.have.been.calledWith(pointer_msg);
+            });
+
+            it('should send a mask of 0 on mouseup', function () {
+                client._mouse._onMouseButton(10, 12, 0, 0x001);
+                expect(client._sock.send).to.have.been.calledOnce;
+                var pointer_msg = RFB.messages.pointerEvent(10, 12, 0x000);
+                expect(client._sock.send).to.have.been.calledWith(pointer_msg);
+            });
+
             it('should send a pointer event on mouse movement', function () {
                 client._mouse._onMouseMove(10, 12);
                 expect(client._sock.send).to.have.been.calledOnce;

@@ -550,7 +550,7 @@ var RFB;
             if (down) {
                 this._mouse_buttonMask |= bmask;
             } else {
-                this._mouse_buttonMaks ^= bmask;
+                this._mouse_buttonMask ^= bmask;
             }
 
             if (this._viewportDrag) {
