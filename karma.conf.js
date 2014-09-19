@@ -109,6 +109,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser (loaded in order)
     files: [
       'tests/fake.*.js',
+      'tests/assertions.js',
       'include/util.js',  // load first to avoid issues, since methods are called immediately
       //'../include/*.js',
       'include/base64.js',
