@@ -346,7 +346,7 @@ Util.set_defaults = function (obj, conf, defaults) {
           continue;
         }
 
-        if (conf[keys[i]]) {
+        if (keys[i] in conf) {
             setter.call(obj, conf[keys[i]]);
         } else {
             setter.call(obj, defaults[keys[i]]);
