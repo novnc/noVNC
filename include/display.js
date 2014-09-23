@@ -312,6 +312,12 @@ var Display;
                 this.resize(this._logo.width, this._logo.height);
                 this.blitStringImage(this._logo.data, 0, 0);
             } else {
+                if (Util.Engine.trident === 6) {
+                    // NB(directxman12): there's a bug in IE10 where we can fail to actually
+                    //                   clear the canvas here because of the resize.
+                    //                   Clearing the current viewport first fixes the issue
+                    this._drawCtx.clearRect(0, 0, this._viewportLoc.w, this._viewportLoc.h);
+                }
                 this.resize(640, 20);
                 this._drawCtx.clearRect(0, 0, this._viewportLoc.w, this._viewportLoc.h);
             }
