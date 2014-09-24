@@ -21,12 +21,15 @@ Array.prototype.push8 = function (num) {
     "use strict";
     this.push(num & 0xFF);
 };
+Object.defineProperty(Array.prototype, 'push8', {enumerable: false});
 
 Array.prototype.push16 = function (num) {
     "use strict";
     this.push((num >> 8) & 0xFF,
               num & 0xFF);
 };
+Object.defineProperty(Array.prototype, 'push16', {enumerable: false});
+
 Array.prototype.push32 = function (num) {
     "use strict";
     this.push((num >> 24) & 0xFF,
@@ -34,6 +37,7 @@ Array.prototype.push32 = function (num) {
               (num >>  8) & 0xFF,
               num & 0xFF);
 };
+Object.defineProperty(Array.prototype, 'push32', {enumerable: false});
 
 // IE does not support map (even in IE9)
 //This prototype is provided by the Mozilla foundation and
