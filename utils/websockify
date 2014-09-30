@@ -90,7 +90,7 @@ Traffic Legend:
         # Extract the token parameter from url
         args = parse_qs(urlparse(path)[4]) # 4 is the query from url
 
-        if not args.has_key('token') or not len(args['token']):
+        if not 'token' in args or not len(args['token']):
             raise self.EClose("Token not present")
 
         token = args['token'][0].rstrip('\n')
@@ -105,14 +105,14 @@ Traffic Legend:
 
         targets = {}
         for f in cfg_files:
-            for line in [l.strip() for l in file(f).readlines()]:
+            for line in [l.strip() for l in open(f).readlines()]:
                 if line and not line.startswith('#'):
                     ttoken, target = line.split(': ')
                     targets[ttoken] = target.strip()
 
         self.vmsg("Target config: %s" % repr(targets))
 
-        if targets.has_key(token):
+        if token in targets:
             return targets[token].split(':')
         else:
             raise self.EClose("Token '%s' not found" % token)
