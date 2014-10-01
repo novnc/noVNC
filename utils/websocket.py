@@ -388,7 +388,7 @@ class WebSocketRequestHandler(SimpleHTTPRequestHandler):
     def send_close(self, code=1000, reason=''):
         """ Send a WebSocket orderly close frame. """
 
-        msg = pack(">H%ds" % len(reason), code, reason)
+        msg = pack(">H%ds" % len(reason), code, s2b(reason))
         buf, h, t = self.encode_hybi(msg, opcode=0x08, base64=False)
         self.request.send(buf)
 
