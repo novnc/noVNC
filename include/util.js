@@ -17,72 +17,75 @@ var Util = {};
  * Make arrays quack
  */
 
-Array.prototype.push8 = function (num) {
-    "use strict";
-    this.push(num & 0xFF);
+var addFunc = function (cl, name, func) {
+    if (!cl.prototype[name]) {
+        Object.defineProperty(cl.prototype, name, { enumerable: false, value: func });
+    }
 };
 
-Array.prototype.push16 = function (num) {
+addFunc(Array, 'push8', function (num) {
+    "use strict";
+    this.push(num & 0xFF);
+});
+
+addFunc(Array, 'push16', function (num) {
     "use strict";
     this.push((num >> 8) & 0xFF,
               num & 0xFF);
-};
-Array.prototype.push32 = function (num) {
+});
+
+addFunc(Array, 'push32', function (num) {
     "use strict";
     this.push((num >> 24) & 0xFF,
               (num >> 16) & 0xFF,
               (num >>  8) & 0xFF,
               num & 0xFF);
-};
+});
 
 // IE does not support map (even in IE9)
 //This prototype is provided by the Mozilla foundation and
 //is distributed under the MIT license.
 //http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-if (!Array.prototype.map) {
-    Array.prototype.map = function (fun /*, thisp*/) {
-        "use strict";
-        var len = this.length;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
+addFunc(Array, 'map', function (fun /*, thisp*/) {
+    "use strict";
+    var len = this.length;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
 
-        var res = new Array(len);
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                res[i] = fun.call(thisp, this[i], i, this);
-            }
+    var res = new Array(len);
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++) {
+        if (i in this) {
+            res[i] = fun.call(thisp, this[i], i, this);
         }
+    }
 
-        return res;
-    };
-}
+    return res;
+});
 
 // IE <9 does not support indexOf
 //This prototype is provided by the Mozilla foundation and
 //is distributed under the MIT license.
 //http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (elt /*, from*/) {
-        "use strict";
-        var len = this.length >>> 0;
+addFunc(Array, 'indexOf', function (elt /*, from*/) {
+    "use strict";
+    var len = this.length >>> 0;
 
-        var from = Number(arguments[1]) || 0;
-        from = (from < 0) ? Math.ceil(from) : Math.floor(from);
-        if (from < 0) {
-            from += len;
-        }
+    var from = Number(arguments[1]) || 0;
+    from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+    if (from < 0) {
+        from += len;
+    }
 
-        for (; from < len; from++) {
-            if (from in this &&
-                    this[from] === elt) {
-                return from;
-            }
+    for (; from < len; from++) {
+        if (from in this &&
+                this[from] === elt) {
+            return from;
         }
-        return -1;
-    };
-}
+    }
+    return -1;
+});
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 if (!Object.keys) {
@@ -131,30 +134,28 @@ if (!Object.keys) {
 //This prototype is provided by the Mozilla foundation and
 //is distributed under the MIT license.
 //http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-if (!Function.prototype.bind) {
-    Function.prototype.bind = function (oThis) {
-        if (typeof this !== "function") {
-            // closest thing possible to the ECMAScript 5
-            // internal IsCallable function
-            throw new TypeError("Function.prototype.bind - " +
-                                "what is trying to be bound is not callable");
-        }
+addFunc(Function, 'bind', function (oThis) {
+    if (typeof this !== "function") {
+        // closest thing possible to the ECMAScript 5
+        // internal IsCallable function
+        throw new TypeError("Function.prototype.bind - " +
+                            "what is trying to be bound is not callable");
+    }
 
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-                fToBind = this,
-                fNOP = function () {},
-                fBound = function () {
-                    return fToBind.apply(this instanceof fNOP && oThis ? this
-                                                                       : oThis,
-                                         aArgs.concat(Array.prototype.slice.call(arguments)));
-                };
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () {},
+            fBound = function () {
+                return fToBind.apply(this instanceof fNOP && oThis ? this
+                                                                   : oThis,
+                                     aArgs.concat(Array.prototype.slice.call(arguments)));
+            };
 
-        fNOP.prototype = this.prototype;
-        fBound.prototype = new fNOP();
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
 
-        return fBound;
-    };
-}
+    return fBound;
+});
 
 //
 // requestAnimationFrame shim with setTimeout fallback
