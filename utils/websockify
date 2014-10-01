@@ -42,9 +42,12 @@ Traffic Legend:
         """
         Called after a new WebSocket connection has been established.
         """
+        # Gets the target host and port directly from path
+        if self.server.target_direct:
+            (self.server.target_host, self.server.target_port) = self.get_target_direct(self.path)
         # Checks if we receive a token, and look
         # for a valid target for it then
-        if self.server.target_cfg:
+        elif self.server.target_cfg:
             (self.server.target_host, self.server.target_port) = self.get_target(self.server.target_cfg, self.path)
 
         # Connect to the target
@@ -78,6 +81,19 @@ Traffic Legend:
                             self.server.target_host, self.server.target_port)
             raise
 
+    def get_target_direct(self, path):
+        args = parse_qs(urlparse(path)[4])  # 4 is the query from url
+
+        if not 'host' in args or not args['host']:
+            raise self.EClose("Host not present")
+        if not 'port' in args or not args['port']:
+            raise self.EClose("Port not present")
+
+        host = args['host'][0].rstrip('\n')
+        port = args['port'][0].rstrip('\n')
+
+        return host, port
+
     def get_target(self, target_cfg, path):
         """
         Parses the path, extracts a token, and looks for a valid
@@ -90,7 +106,7 @@ Traffic Legend:
         # Extract the token parameter from url
         args = parse_qs(urlparse(path)[4]) # 4 is the query from url
 
-        if not args.has_key('token') or not len(args['token']):
+        if not 'token' in args or not len(args['token']):
             raise self.EClose("Token not present")
 
         token = args['token'][0].rstrip('\n')
@@ -105,14 +121,14 @@ Traffic Legend:
 
         targets = {}
         for f in cfg_files:
-            for line in [l.strip() for l in file(f).readlines()]:
+            for line in [l.strip() for l in open(f).readlines()]:
                 if line and not line.startswith('#'):
                     ttoken, target = line.split(': ')
                     targets[ttoken] = target.strip()
 
         self.vmsg("Target config: %s" % repr(targets))
 
-        if targets.has_key(token):
+        if token in targets:
             return targets[token].split(':')
         else:
             raise self.EClose("Token '%s' not found" % token)
@@ -195,6 +211,7 @@ class WebSocketProxy(websocket.WebSocketServer):
         self.wrap_mode      = kwargs.pop('wrap_mode', None)
         self.unix_target    = kwargs.pop('unix_target', None)
         self.ssl_target     = kwargs.pop('ssl_target', None)
+        self.target_direct  = kwargs.pop('target_direct', None)
         self.target_cfg     = kwargs.pop('target_cfg', None)
         # Last 3 timestamps command was run
         self.wrap_times    = [0, 0, 0]
@@ -352,6 +369,9 @@ def websockify_init():
     parser.add_option("--prefer-ipv6", "-6",
             action="store_true", dest="source_is_ipv6",
             help="prefer IPv6 when resolving source_addr")
+    parser.add_option("--target-direct", action="store_true",
+            dest="target_direct",
+            help="Accept target host and port directly from path")
     parser.add_option("--target-config", metavar="FILE",
             dest="target_cfg",
             help="Configuration file containing valid targets "
@@ -365,7 +385,7 @@ def websockify_init():
         logging.getLogger(WebSocketProxy.log_prefix).setLevel(logging.DEBUG)
 
     # Sanity checks
-    if len(args) < 2 and not (opts.target_cfg or opts.unix_target):
+    if len(args) < 2 and not (opts.target_direct or opts.target_cfg or opts.unix_target):
         parser.error("Too few arguments")
     if sys.argv.count('--'):
         opts.wrap_cmd = args[1:]
@@ -390,7 +410,7 @@ def websockify_init():
     try:    opts.listen_port = int(opts.listen_port)
     except: parser.error("Error parsing listen port")
 
-    if opts.wrap_cmd or opts.unix_target or opts.target_cfg:
+    if opts.wrap_cmd or opts.unix_target or opts.target_direct or opts.target_cfg:
         opts.target_host = None
         opts.target_port = None
     else:
@@ -433,6 +453,7 @@ class LibProxyServer(ForkingMixIn, HTTPServer):
         self.wrap_mode      = kwargs.pop('wrap_mode', None)
         self.unix_target    = kwargs.pop('unix_target', None)
         self.ssl_target     = kwargs.pop('ssl_target', None)
+        self.target_direct  = kwargs.pop('target_direct', None)
         self.target_cfg     = kwargs.pop('target_cfg', None)
         self.daemon = False
         self.target_cfg = None
