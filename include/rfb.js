@@ -316,7 +316,7 @@ var RFB;
             uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
             Util.Info("connecting to " + uri);
 
-            this._sock.open(uri, this._sockProtocols);
+            this._sock.open(uri, this._wsProtocols);
 
             Util.Debug("<< RFB.connect");
         },
