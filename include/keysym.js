@@ -376,3 +376,80 @@ XK_udiaeresis =                  0x00fc, /* U+00FC LATIN SMALL LETTER U WITH DIA
 XK_yacute =                      0x00fd, /* U+00FD LATIN SMALL LETTER Y WITH ACUTE */
 XK_thorn =                       0x00fe, /* U+00FE LATIN SMALL LETTER THORN */
 XK_ydiaeresis =                  0x00ff; /* U+00FF LATIN SMALL LETTER Y WITH DIAERESIS */
+
+var XK2HID = {};
+
+// F{1..12}
+for (var i = XK_F1; i <= XK_F12; i++) {
+    XK2HID[i]			= 0x3a + (i - XK_F1);
+}
+// A-Za-z
+for (var i = XK_A; i <= XK_Z; i++) {
+    XK2HID[i]			= 0x04 + (i - XK_A);
+    XK2HID[i + (XK_a - XK_A)]	= 0x04 + (i - XK_A);
+}
+// 1-9
+for (var i = XK_1; i <= XK_9; i++) {
+    XK2HID[i]			= 0x1e + (i - XK_1);
+}
+
+XK2HID[XK_0]		= 0x27;
+XK2HID[XK_Return]	= 0x28;
+XK2HID[XK_Escape]	= 0x29;
+XK2HID[XK_BackSpace]	= 0x2a;
+XK2HID[XK_Tab]		= 0x2b;
+XK2HID[XK_space]	= 0x2c;
+XK2HID[XK_minus]	= 0x2d;
+XK2HID[XK_equal]	= 0x2e;
+XK2HID[XK_bracketleft]	= 0x2f;
+XK2HID[XK_bracketright]	= 0x30;
+XK2HID[XK_backslash]	= 0x31;
+XK2HID[XK_semicolon]	= 0x33;
+XK2HID[XK_apostrophe]	= 0x34;
+XK2HID[XK_grave]	= 0x35;
+XK2HID[XK_comma]	= 0x36;
+XK2HID[XK_period]	= 0x37;
+XK2HID[XK_slash]	= 0x38;
+
+XK2HID[XK_Print]	= 0x46;
+XK2HID[XK_Scroll_Lock]	= 0x47;
+XK2HID[XK_Pause]	= 0x48;
+XK2HID[XK_Insert]	= 0x49;
+XK2HID[XK_Home]		= 0x4a;
+XK2HID[XK_Page_Up]	= 0x4b;
+XK2HID[XK_Delete]	= 0x4c;
+XK2HID[XK_End]		= 0x4d;
+XK2HID[XK_Page_Down]	= 0x4e;
+XK2HID[XK_Right]	= 0x4f;
+XK2HID[XK_Left]		= 0x50;
+XK2HID[XK_Down]		= 0x51;
+XK2HID[XK_Up]		= 0x52;
+
+XK2HID[XK_Control_L]	= 0xe0;
+XK2HID[XK_Control_R]	= XK2HID[XK_Control_L];
+XK2HID[XK_Shift_L]	= 0xe1;
+XK2HID[XK_Shift_R]	= XK2HID[XK_Shift_L];
+XK2HID[XK_Alt_L]	= 0xe2;
+XK2HID[XK_Alt_R]	= XK2HID[XK_Alt_L];
+XK2HID[XK_Super_L]	= 0xe3;
+XK2HID[XK_Super_R]	= XK2HID[XK_Super_L];
+
+XK2HID[XK_Caps_Lock]	= 0x39;
+
+// locale hardcoded hack
+XK2HID[XK_less]		= XK2HID[XK_comma];
+XK2HID[XK_greater]	= XK2HID[XK_period];
+XK2HID[XK_exclam]	= XK2HID[XK_1];
+XK2HID[XK_at]		= XK2HID[XK_2];
+XK2HID[XK_numbersign]	= XK2HID[XK_3];
+XK2HID[XK_dollar]	= XK2HID[XK_4];
+XK2HID[XK_percent]	= XK2HID[XK_5];
+XK2HID[XK_asciicircum]	= XK2HID[XK_6];
+XK2HID[XK_ampersand]	= XK2HID[XK_7];
+XK2HID[XK_asterisk]	= XK2HID[XK_8];
+XK2HID[XK_parenleft]	= XK2HID[XK_9];
+XK2HID[XK_parenright]	= XK2HID[XK_0];
+XK2HID[XK_underscore]	= XK2HID[XK_minus];
+XK2HID[XK_bar]		= XK2HID[XK_backslash];
+XK2HID[XK_quotedbl]	= XK2HID[XK_apostrophe];
+XK2HID[XK_asciitilde]	= XK2HID[XK_grave];
