@@ -873,6 +873,51 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(client._rfb_state).to.equal('failed');
                 });
             });
+
+            describe('ATEN iKVM Authentication Handler', function () {
+                var client;
+
+                beforeEach(function () {
+                    client = make_rfb();
+                    client.connect('host', 8675);
+                    client._sock._websocket._open();
+                    client._rfb_state = 'Security';
+                    client._rfb_version = 3.8;
+                    send_security(16, client);
+                    client._sock._websocket._get_sent_data();  // skip the security reply
+                    client._rfb_password = 'test1:test2';
+                });
+
+                var auth = [
+                    116, 101, 115, 116,  49,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0,
+                    116, 101, 115, 116,  50,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0];
+
+                it('via old style method', function () {
+                    client._sock._websocket._receive_data(new Uint8Array([
+                        0xaf, 0xf9, 0x0f, 0xb0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0]));
+                    expect(client._rfb_tightvnc).to.be.false;
+                    expect(client._rfb_atenikvm).to.be.true;
+                    expect(client._sock).to.have.sent(auth);
+                });
+
+                it('via new style method', function () {
+                    client._sock._websocket._receive_data(new Uint8Array([
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0]));
+                    expect(client._rfb_tightvnc).to.be.false;
+                    expect(client._rfb_atenikvm).to.be.true;
+                    expect(client._sock).to.have.sent(auth);
+                });
+            });
         });
 
         describe('SecurityResult', function () {
@@ -1017,6 +1062,25 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 }
                 client._sock._websocket._receive_data(tight_data);
 
+                expect(client._rfb_state).to.equal('normal');
+            });
+
+            it('should handle an ATEN iKVM server initialization', function () {
+                RFB.ATEN_INIT_WIDTH = 1;
+                RFB.ATEN_INIT_HEIGHT = 1;
+                client._rfb_atenikvm = true;
+                send_server_init({ true_color: 1, bpp: 32 }, client);
+                client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
+                expect(client._pixelFormat.bpp).to.equal(16);
+                expect(client._pixelFormat.depth).to.equal(15);
+                expect(client._pixelFormat.red_max).to.equal(31);
+                expect(client._pixelFormat.green_max).to.equal(31);
+                expect(client._pixelFormat.blue_max).to.equal(31);
+                expect(client._pixelFormat.red_shift).to.equal(10);
+                expect(client._pixelFormat.green_shift).to.equal(5);
+                expect(client._pixelFormat.blue_shift).to.equal(0);
+                expect(client._pixelFormat.Bpp).to.equal(2);
+                expect(client._pixelFormat.Bdepth).to.equal(2);
                 expect(client._rfb_state).to.equal('normal');
             });
 
@@ -1560,6 +1624,97 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 it.skip('should handle the TIGHT_PNG encoding', function () {
                     // TODO(directxman12): test this
+                });
+
+                describe('the ATEN encoding handler', function () {
+                    var client;
+                    beforeEach(function () {
+                        client = make_rfb();
+                        client.connect('host', 8675);
+                        client._sock._websocket._open();
+                        client._rfb_state = 'normal';
+                        client._fb_name = 'some device';
+                        client._rfb_atenikvm = true;
+                        // start large, then go small
+                        client._fb_width = 10000;
+                        client._fb_height = 10000;
+                        client._display._fb_width = 10000;
+                        client._display._fb_height = 10000;
+                        client._display._viewportLoc.w = 10000;
+                        client._display._viewportLoc.h = 10000;
+                        client._convertColor = true;
+                        client._pixelFormat.Bpp = 2;
+                        client._pixelFormat.big_endian = false;
+                        client._pixelFormat.red_shift = 10;
+                        client._pixelFormat.red_max = 31;
+                        client._pixelFormat.green_shift = 5;
+                        client._pixelFormat.green_max = 31;
+                        client._pixelFormat.blue_shift = 0;
+                        client._pixelFormat.blue_max = 31;
+                        client._destBuff = new Uint8Array(client._fb_width * client._fb_height * 4);
+                    });
+
+                    var aten_target_data_arr = [0xa8, 0xe8, 0xf8, 0xff];
+                    var aten_target_data;
+
+                    before(function () {
+                        for (var i = 0; i < 10; i++) {
+                            aten_target_data_arr = aten_target_data_arr.concat(aten_target_data_arr);
+                        }
+                        aten_target_data = new Uint8Array(aten_target_data_arr);
+                    });
+
+                    it('should handle subtype subrect encoding', function () {
+                        var info = [{ x: 0, y: 0, width: 32, height: 32, encoding: 0x59 }];
+                        var rect = [];
+
+                        rect.push32(0);     // padding
+                        rect.push32(2082);  // 10 + 32x32x2Bpp + 6*(num of subrects)
+
+                        rect.push8(0);      // type
+                        rect.push8(0);      // padding
+
+                        rect.push32(4);     // num of subrects (32/16)*(32/16)
+                        rect.push32(2082);  // length (again)
+
+                        for (var y = 0; y < 2; y++) {
+                            for (var x = 0; x < 2; x++) {
+                                rect.push16(0); // a
+                                rect.push16(0); // b
+                                rect.push8(y);
+                                rect.push8(x);
+
+                                for (var i = 0; i < 16*16; i++) {
+                                    rect.push16(0xbf57);
+                                }
+                            }
+                        }
+
+                        send_fbu_msg(info, [rect], client);
+                        expect(client._display).to.have.displayed(aten_target_data);
+                    });
+
+                    it('should handle subtype RAW encoding', function () {
+                        // do not use encoding=0x59 here, as rfb.js should override it
+                        var info = [{ x: 0, y: 0, width: 32, height: 32, encoding: 0x00 }];
+                        var rect = [];
+
+                        rect.push32(0);     // padding
+                        rect.push32(2058);  // 10 + 32x32x2Bpp
+
+                        rect.push8(1);      // type
+                        rect.push8(0);      // padding
+
+                        rect.push32(0);     // padding
+                        rect.push32(2058);  // length (again)
+
+                        for (var i = 0; i < 32*32; i++) {
+                            rect.push16(0xbf57);
+                        }
+
+                        send_fbu_msg(info, [rect], client);
+                        expect(client._display).to.have.displayed(aten_target_data);
+                    });
                 });
 
                 it('should handle the DesktopSize pseduo-encoding', function () {
