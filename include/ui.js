@@ -88,7 +88,7 @@ var UI;
             UI.initSetting('port', port);
             UI.initSetting('password', '');
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
-            UI.initSetting('true_color', true);
+            UI.initSetting('convertColor', false);
             UI.initSetting('cursor', !UI.isTouchDevice);
             UI.initSetting('shared', true);
             UI.initSetting('view_only', false);
@@ -418,7 +418,7 @@ var UI;
                 UI.closeSettingsMenu();
             } else {
                 UI.updateSetting('encrypt');
-                UI.updateSetting('true_color');
+                UI.updateSetting('convertColor');
                 if (UI.rfb.get_display().get_cursor_uri()) {
                     UI.updateSetting('cursor');
                 } else {
@@ -473,7 +473,7 @@ var UI;
         settingsApply: function() {
             //Util.Debug(">> settingsApply");
             UI.saveSetting('encrypt');
-            UI.saveSetting('true_color');
+            UI.saveSetting('convertColor');
             if (UI.rfb.get_display().get_cursor_uri()) {
                 UI.saveSetting('cursor');
             }
@@ -586,7 +586,7 @@ var UI;
 
             //Util.Debug(">> updateVisualState");
             $D('noVNC_encrypt').disabled = connected;
-            $D('noVNC_true_color').disabled = connected;
+            $D('noVNC_convertColor').disabled = connected;
             if (UI.rfb && UI.rfb.get_display() &&
                 UI.rfb.get_display().get_cursor_uri()) {
                 $D('noVNC_cursor').disabled = connected;
@@ -673,7 +673,7 @@ var UI;
             }
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
-            UI.rfb.set_true_color(UI.getSetting('true_color'));
+            UI.rfb.set_convertColor(UI.getSetting('convertColor'));
             UI.rfb.set_local_cursor(UI.getSetting('cursor'));
             UI.rfb.set_shared(UI.getSetting('shared'));
             UI.rfb.set_view_only(UI.getSetting('view_only'));

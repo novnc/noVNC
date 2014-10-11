@@ -414,17 +414,8 @@ var Display;
 
         blitImage: function (x, y, width, height, arr, offset) {
             if (this._true_color) {
-                this._bgrxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                this._imageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             } else {
-                this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
-            }
-        },
-
-        blitRgbImage: function (x, y , width, height, arr, offset) {
-            if (this._true_color) {
-                this._rgbImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
-            } else {
-                // probably wrong?
                 this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             }
         },
@@ -542,25 +533,13 @@ var Display;
             }
         },
 
-        _rgbImageData: function (x, y, vx, vy, width, height, arr, offset) {
+        _imageData: function (x, y, vx, vy, width, height, arr, offset) {
             var img = this._drawCtx.createImageData(width, height);
             var data = img.data;
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
                 data[i]     = arr[j];
                 data[i + 1] = arr[j + 1];
                 data[i + 2] = arr[j + 2];
-                data[i + 3] = 255;  // Alpha
-            }
-            this._drawCtx.putImageData(img, x - vx, y - vy);
-        },
-
-        _bgrxImageData: function (x, y, vx, vy, width, height, arr, offset) {
-            var img = this._drawCtx.createImageData(width, height);
-            var data = img.data;
-            for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
-                data[i]     = arr[j + 2];
-                data[i + 1] = arr[j + 1];
-                data[i + 2] = arr[j];
                 data[i + 3] = 255;  // Alpha
             }
             this._drawCtx.putImageData(img, x - vx, y - vy);
@@ -593,9 +572,6 @@ var Display;
                         break;
                     case 'blit':
                         this.blitImage(a.x, a.y, a.width, a.height, a.data, 0);
-                        break;
-                    case 'blitRgb':
-                        this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0);
                         break;
                     case 'img':
                         if (a.img.complete) {
