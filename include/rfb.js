@@ -33,6 +33,7 @@ var RFB;
         this._rfb_auth_scheme = '';
 
         this._rfb_tightvnc = false;
+        this._rfb_atenikvm = false;
         this._rfb_xvp_ver = 0;
 
         // In preference order
@@ -43,6 +44,7 @@ var RFB;
             ['HEXTILE',          0x05 ],
             ['RRE',              0x02 ],
             ['RAW',              0x00 ],
+            ['ATEN',             0x59 ],
             ['DesktopSize',      -223 ],
             ['Cursor',           -239 ],
 
@@ -74,6 +76,8 @@ var RFB;
             subrects: 0,            // RRE
             lines: 0,               // RAW
             tiles: 0,               // HEXTILE
+            aten_len: -1,           // ATEN
+            aten_type: -1,          // ATEN
             bytes: 0,
             x: 0,
             y: 0,
@@ -120,6 +124,7 @@ var RFB;
             'local_cursor': false,                  // Request locally rendered cursor
             'shared': true,                         // Request shared mode
             'view_only': false,                     // Disable client mouse/keyboard
+            'aten_password_sep': ':',               // Separator for ATEN iKVM password fields
             'xvp_password_sep': '@',                // Separator for XVP password fields
             'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
             'wsProtocols': ['binary', 'base64'],    // Protocols to use in the WebSocket connection
@@ -329,9 +334,12 @@ var RFB;
             this._FBU.lines        = 0;  // RAW
             this._FBU.tiles        = 0;  // HEXTILE
             this._FBU.zlibs        = []; // TIGHT zlib encoders
+            this._FBU.aten_len     = -1  // ATEN
+            this._FBU.aten_type    = -1; // ATEN
             this._mouse_buttonMask = 0;
             this._mouse_arr        = [];
             this._rfb_tightvnc     = false;
+            this._rfb_atenikvm     = false;
 
             // Clear the per connection encoding stats
             var i;
@@ -683,6 +691,36 @@ var RFB;
         },
 
         // authentication
+        _negotiate_aten_auth: function () {
+            var aten_sep = this._aten_password_sep;
+            var aten_auth = this._rfb_password.split(aten_sep);
+            if (aten_auth.length < 2) {
+                this._updateState('password', 'ATEN iKVM credentials required (user' + aten_sep +
+                                  'password) -- got only ' + this._rfb_password);
+                this._onPasswordRequired(this);
+                return false;
+            }
+
+            this._rfb_atenikvm = true;
+
+            if (this._rfb_tightvnc) {
+                this._rfb_tightvnc = false;
+            } else {
+                this._sock.rQskipBytes(4);
+            }
+
+            this._sock.rQskipBytes(16);
+
+            var username = aten_auth[0];
+            username += Array(24-username.length+1).join("\x00");
+            var password = aten_auth.slice(1).join(aten_sep);
+            password += Array(24-password.length+1).join("\x00");
+
+            this._sock.send_string(username+password);
+            this._updateState("SecurityResult");
+            return true;
+        },
+
         _negotiate_xvp_auth: function () {
             var xvp_sep = this._xvp_password_sep;
             var xvp_auth = this._rfb_password.split(xvp_sep);
@@ -750,6 +788,7 @@ var RFB;
             if (!this._rfb_tightvnc) {  // first pass, do the tunnel negotiation
                 if (this._sock.rQwait("num tunnels", 4)) { return false; }
                 var numTunnels = this._sock.rQshift32();
+                if (this._rfb_version === 3.8 && (numTunnels & 0xffff0ff0) >>> 0 === 0xaff90fb0) { return this._negotiate_aten_auth(); }
                 if (numTunnels > 0 && this._sock.rQwait("tunnel capabilities", 16 * numTunnels, 4)) { return false; }
 
                 this._rfb_tightvnc = true;
@@ -764,6 +803,12 @@ var RFB;
             if (this._sock.rQwait("sub auth count", 4)) { return false; }
             var subAuthCount = this._sock.rQshift32();
             if (this._sock.rQwait("sub auth capabilities", 16 * subAuthCount, 4)) { return false; }
+
+            // Newer X10 Supermicro motherboards get here
+            if (this._rfb_version === 3.8 && numTunnels === 0 && subAuthCount === 0) {
+                Util.Warn("Newer ATEN iKVM detected, you may get an 'unsupported encoding 87'");
+                return this._negotiate_aten_auth();
+            }
 
             var clientSupportedTypes = {
                 'STDVNOAUTH__': 1,
@@ -851,6 +896,7 @@ var RFB;
 
         _negotiate_server_init: function () {
             if (this._sock.rQwait("server initialization", 24)) { return false; }
+            if (this._rfb_atenikvm && this._sock.rQwait("ATEN server initialization", 36)) { return false; }
 
             /* Screen size */
             this._fb_width                = this._sock.rQshift16();
@@ -877,6 +923,14 @@ var RFB;
             var name_length = this._sock.rQshift32();
             if (this._sock.rQwait('server init name', name_length, 24)) { return false; }
             this._fb_name = Util.decodeUTF8(this._sock.rQshiftStr(name_length));
+
+            if (this._rfb_atenikvm) {
+                this._sock.rQskipBytes(8); // unknown
+                this._sock.rQskip8(); // IKVMVideoEnable
+                this._sock.rQskip8(); // IKVMKMEnable
+                this._sock.rQskip8(); // IKVMKickEnable
+                this._sock.rQskip8(); // VUSBEnable
+            }
 
             if (this._rfb_tightvnc) {
                 if (this._sock.rQwait('TightVNC extended server init header', 8, 24 + name_length)) { return false; }
@@ -922,6 +976,83 @@ var RFB;
             if (this._fb_name === "Intel(r) AMT KVM") {
                 Util.Warn("Intel AMT KVM only supports 8/16 bit depths, using server pixel format");
                 this._convertColor = true;
+            }
+
+            // ATEN 'wisdom' from chicken-aten-ikvm:lens/lens.rb
+            // tested against the following Supermicro motherboards
+            // (use 'dmidecode -s baseboard-product-name' for model):
+            // - X7SPA-F
+            // - X8DTL
+            // - X8SIE-F
+            // - X9SCL/X9SCM
+            // - X9SCM-F
+            // - X9DRD-iF
+            // - X9SRE/X9SRE-3F/X9SRi/X9SRi-3F
+            // - X9DRL-3F/X9DRL-6F
+            // - X10SLD
+            //
+            // Not supported (uses encoding 87):
+            // - X10SL7-F
+            // - X10SLD-F
+            // - X10SLM-F
+            // - X10SLE
+            //
+            // Simply does not work:
+            // Hermon (WPMC450) [hangs at login]:
+            // - X7SB3-F
+            // - X8DTU-F
+            // - X8STi-3F
+            // Peppercon (Raritan/Kira100) [connection refused]:
+            // - X7SBi
+            //
+            // Thanks to Brian Rak and Erik Smit for testing
+            if (this._rfb_atenikvm) {
+                // we do not know the resolution till the first fbupdate so go large
+                // although, not necessary, saves a pointless full screen refresh
+                this._fb_width                = 10000;
+                this._fb_height               = 10000;
+
+                // lies about what it supports
+                Util.Warn("ATEN iKVM lies and only does 15 bit depth with RGB555");
+                this._convertColor            = true;
+                this._pixelFormat.bpp         = 16;
+                this._pixelFormat.depth       = 15;
+                this._pixelFormat.red_max     = (1 << 5) - 1;
+                this._pixelFormat.green_max   = (1 << 5) - 1;
+                this._pixelFormat.blue_max    = (1 << 5) - 1;
+                this._pixelFormat.red_shift   = 10;
+                this._pixelFormat.green_shift = 5;
+                this._pixelFormat.blue_shift  = 0;
+
+                // changes to protocol format
+                RFB.messages.keyEvent = function (keysym, down) {
+                    if (XK2HID[keysym] === undefined) {
+                        Util.Warn("XK2HID["+keysym+"] returns undefined");
+                        return;
+                    }
+
+                    var arr = [4];
+                    arr.push8(0);
+                    arr.push8(down);
+                    arr.push16(0);
+                    arr.push32(XK2HID[keysym]);
+                    arr.push32(0);
+                    arr.push32(0);
+                    arr.push8(0);
+                    return arr;
+                };
+                RFB.messages.pointerEvent = function (x, y, mask) {
+                    var arr = [5];
+                    arr.push8(0);
+                    arr.push8(mask);
+                    arr.push16(x);
+                    arr.push16(y);
+                    arr.push32(0);
+                    arr.push32(0);
+                    arr.push16(0);
+                    arr.push8(0);
+                    return arr;
+                };
             }
 
             if (this._convertColor)
@@ -1093,6 +1224,42 @@ var RFB;
                 msg_type = this._sock.rQshift8();
             }
 
+            if (this._rfb_atenikvm) {
+                switch (msg_type) {
+                    case 4:  // Front Ground Event
+                        Util.Debug("ATEN iKVM Front Ground Event");
+                        this._sock.rQskipBytes(20);
+                        return true;
+
+                    case 22:  // Keep Alive Event
+                        Util.Debug("ATEN iKVM Keep Alive Event");
+                        this._sock.rQskipBytes(1);
+                        return true;
+
+                    case 51:  // Video Get Info
+                        Util.Debug("ATEN iKVM Video Get Info");
+                        this._sock.rQskipBytes(4);
+                        return true;
+               
+                    case 55:  // Mouse Get Info
+                        Util.Debug("ATEN iKVM Mouse Get Info");
+                        this._sock.rQskipBytes(2);
+                        return true;
+
+                    case 57:  // Session Message
+                        Util.Debug("ATEN iKVM Session Message");
+                        this._sock.rQskipBytes(4); // u32
+                        this._sock.rQskipBytes(4); // u32
+                        this._sock.rQskipBytes(256);
+                        return true;
+ 
+                    case 60:  // Get Viewer Lang
+                        Util.Debug("ATEN iKVM Get Viewer Lang");
+                        this._sock.rQskipBytes(8);
+                        return true;
+                }
+            }
+
             switch (msg_type) {
                 case 0:  // FramebufferUpdate
                     var ret = this._framebufferUpdate();
@@ -1165,6 +1332,11 @@ var RFB;
                         this._fail("Disconnected: unsupported encoding " +
                                    this._FBU.encoding);
                         return false;
+                    }
+
+                    // ATEN uses 0x00 even when it is meant to be 0x59
+                    if (this._rfb_atenikvm && this._FBU.encoding === 0x00) {
+                        this._FBU.encoding = 0x59;
                     }
                 }
 
@@ -1272,6 +1444,7 @@ var RFB;
         ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
         ['shared', 'rw', 'bool'],               // Request shared mode
         ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
+        ['aten_password_sep', 'rw', 'str'],     // Separator for ATEN iKVM password fields
         ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
         ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
         ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
@@ -1967,6 +2140,92 @@ var RFB;
 
         compress_lo: function () {
             Util.Error("Server sent compress level pseudo-encoding");
+        },
+
+        ATEN: function () {
+            if (this._FBU.aten_len === - 1) {
+                this._FBU.bytes = 8;
+                if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                this._FBU.bytes = 0;
+                this._sock.rQskipBytes(4);
+                this._FBU.aten_len = this._sock.rQshift32();
+
+                if (this._FBU.width === 64896 && this._FBU.height === 65056) {
+                    Util.Info("ATEN iKVM screen is probably off");
+                    if (this._FBU.aten_len !== 10) {
+                        Util.Debug(">> ATEN iKVM screen off (aten_len="+this._FBU.aten_len+")");
+                        this._fail('expected aten_len to be 10 when screen is off');
+                    }
+                    this._FBU.aten_len -= 10;
+                    return true;
+                }
+                if (this._fb_width !== this._FBU.width && this._fb_height !== this._FBU.height) {
+                    Util.Debug(">> ATEN resize desktop");
+                    this._fb_width = this._FBU.width;
+                    this._fb_height = this._FBU.height;
+                    this._onFBResize(this, this._fb_width, this._fb_height);
+                    this._display.resize(this._fb_width, this._fb_height);
+                    Util.Debug("<< ATEN resize desktop");
+                }
+            }
+
+            if (this._FBU.aten_type === -1) {
+                this._FBU.bytes = 10;
+                if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                this._FBU.bytes = 0;
+                this._FBU.aten_type = this._sock.rQshift8();
+                this._sock.rQskip8();
+
+                this._sock.rQshift32(); // number of subrects
+                if (this._FBU.aten_len !== this._sock.rQshift32()) {
+                    return this._fail('ATEN RAW len mis-match');
+                }
+                this._FBU.aten_len -= 10;
+            }
+
+            while (this._FBU.aten_len > 0) {
+                switch (this._FBU.aten_type) {
+                    case 0: // Subrects
+                        this._FBU.bytes = 6 + (16 * 16 * this._pixelFormat.Bpp);  // at least a subrect
+                        if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                        var a = this._sock.rQshift16();
+                        var b = this._sock.rQshift16();
+                        var y = this._sock.rQshift8();
+                        var x = this._sock.rQshift8();
+                        this._display.renderQ_push({
+                            'type': 'blit',
+                            'data': this._convert_color(this._sock.rQshiftBytes(this._FBU.bytes - 6)),
+                            'x': x * 16,
+                            'y': y * 16,
+                            'width': 16,
+                            'height': 16
+                        });
+                        this._FBU.aten_len -= this._FBU.bytes;
+                        this._FBU.bytes = 0;
+                        break;
+                    case 1: // RAW
+                        var olines = (this._FBU.lines === 0) ? this._FBU.height : this._FBU.lines;
+                        this._encHandlers.RAW();
+                        this._FBU.aten_len -= (olines - this._FBU.lines) * this._FBU.width * this._pixelFormat.Bpp;
+                        if (this._FBU.bytes > 0) return false;
+                        break;
+                    default:
+                        return this._fail('unknown ATEN type: '+this._FBU.aten_type);
+                }
+            }
+
+            if (this._FBU.aten_len < 0) {
+                this._fail('aten_len dropped below zero');
+            }
+
+            if (this._FBU.aten_type === 0) { 
+                this._FBU.rects--;
+            }
+
+            this._FBU.aten_len = -1;
+            this._FBU.aten_type = -1;
+
+            return true;
         }
     };
 })();

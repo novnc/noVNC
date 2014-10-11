@@ -128,7 +128,7 @@ use a WebSockets to TCP socket proxy. There is a python proxy included
     * UI and Icons : Chris Gordon
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
-    * pixel format conversion : [Alexander Clouter](http://www.digriz.org.uk/)
+    * pixel format conversion and ATEN iKVM support : [Alexander Clouter](http://www.digriz.org.uk/)
 
 * Included libraries:
     * web-socket-js : Hiroshi Ichikawa (github.com/gimite/web-socket-js)
