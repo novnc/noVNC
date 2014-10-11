@@ -324,18 +324,12 @@ describe('Display/Canvas Helper', function () {
                     data[i * 4 + 2] = checked_data[i * 4];
                     data[i * 4 + 3] = checked_data[i * 4 + 3];
                 }
-                display.blitImage(0, 0, 4, 4, data, 0);
+                display.blitImage(0, 0, 4, 4, data, 0, false);
                 expect(display).to.have.displayed(checked_data);
             });
 
-            it('should support drawing RGB blit images with true color via #blitRgbImage', function () {
-                var data = [];
-                for (var i = 0; i < 16; i++) {
-                    data[i * 3] = checked_data[i * 4];
-                    data[i * 3 + 1] = checked_data[i * 4 + 1];
-                    data[i * 3 + 2] = checked_data[i * 4 + 2];
-                }
-                display.blitRgbImage(0, 0, 4, 4, data, 0);
+            it('should support drawing RGBX blit images with true color via #blitImage', function () {
+                display.blitImage(0, 0, 4, 4, checked_data, 0, true);
                 expect(display).to.have.displayed(checked_data);
             });
 
@@ -423,18 +417,18 @@ describe('Display/Canvas Helper', function () {
             expect(display.fillRect).to.have.been.calledOnce;
         });
 
-        it('should draw a blit image on type "blit"', function () {
+        it('should draw a blit image on type "blit" with "rgb" set to false', function () {
             display.blitImage = sinon.spy();
-            display.renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
+            display.renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9], rgb: false });
             expect(display.blitImage).to.have.been.calledOnce;
-            expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
+            expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0, false);
         });
 
-        it('should draw a blit RGB image on type "blitRgb"', function () {
-            display.blitRgbImage = sinon.spy();
-            display.renderQ_push({ type: 'blitRgb', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
-            expect(display.blitRgbImage).to.have.been.calledOnce;
-            expect(display.blitRgbImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
+        it('should draw a blit RGBX image on type "blit" with "rgb" set to true', function () {
+            display.blitImage = sinon.spy();
+            display.renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9, 10], rgb: true });
+            expect(display.blitImage).to.have.been.calledOnce;
+            expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9, 10], 0, true);
         });
 
         it('should copy a region on type "copy"', function () {
