@@ -261,6 +261,46 @@ var RFB;
             this._sock.send(arr);
         },
 
+        sendCtrlAltBackspace: function () {
+            if (this._rfb_state !== 'normal' || this._view_only) { return false; }
+            Util.Info("Sending Ctrl-Alt-Backspace");
+
+            var arr = [];
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE3, 1)); // Control
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 1)); // Alt
+            arr = arr.concat(RFB.messages.keyEvent(0xFF08, 1)); // Backspace
+            arr = arr.concat(RFB.messages.keyEvent(0xFF08, 0)); // Backspace
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 0)); // Alt
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE3, 0)); // Control
+            this._sock.send(arr);
+        },
+
+        sendCtrlAltF: function (number) {
+            if (this._rfb_state !== 'normal' || this._view_only) { return false; }
+            Util.Info("Sending Ctrl-Alt-F" + number);
+
+            var arr = [];
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE3, 1)); // Control
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 1)); // Alt
+            arr = arr.concat(RFB.messages.keyEvent(0xFFBD + number, 1)); // Fx
+            arr = arr.concat(RFB.messages.keyEvent(0xFFBD + number, 0)); // Fx
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 0)); // Alt
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE3, 0)); // Control
+            this._sock.send(arr);
+        },
+
+        sendAltF: function (number) {
+            if (this._rfb_state !== 'normal' || this._view_only) { return false; }
+            Util.Info("Sending Alt-F" + number);
+
+            var arr = [];
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 1)); // Alt
+            arr = arr.concat(RFB.messages.keyEvent(0xFFBD + number, 1)); // Fx
+            arr = arr.concat(RFB.messages.keyEvent(0xFFBD + number, 0)); // Fx
+            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 0)); // Alt
+            this._sock.send(arr);
+        },
+
         xvpOp: function (ver, op) {
             if (this._rfb_xvp_ver < ver) { return false; }
             Util.Info("Sending XVP operation " + op + " (version " + ver + ")");
