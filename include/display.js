@@ -713,6 +713,12 @@ var Display;
                         cur.push(rgb[1]);  // green
                         cur.push(rgb[0]);  // red
                         cur.push(alpha);   // alpha
+                    } else {
+                        idx = ((w0 * y) + x) * 4;
+                        cur.push(pixels[idx + 2]); // blue
+                        cur.push(pixels[idx + 1]); // green
+                        cur.push(pixels[idx]);     // red
+                        cur.push(alpha);           // alpha
                     }
                 }
             }
