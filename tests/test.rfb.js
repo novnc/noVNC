@@ -1312,6 +1312,21 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         expect(client._display).to.have.displayed(new Uint8Array(expected));
                     });
 
+                    it('should handle a tile with only bg specified and an empty frame afterwards', function () {
+                        var info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
+                        var rect = [];
+                        rect.push(0x02);
+                        rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                        send_fbu_msg(info, [rect], client);
+                        rect.push(0x00);
+                        send_fbu_msg(info, [rect], client);
+
+                        var expected = [];
+                        for (var i = 0; i < 16; i++) { expected.push32(0xff00ff); }     // rect 1: solid
+                        for (var i = 16; i < 32; i++) { expected.push32(0xff00ff); }    // rect 2: same bkground color
+                        expect(client._display).to.have.displayed(new Uint8Array(expected));
+                    });
+
                     it('should handle a tile with bg and coloured subrects', function () {
                         var info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
                         var rect = [];
