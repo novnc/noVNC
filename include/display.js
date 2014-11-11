@@ -318,7 +318,7 @@ var Display;
                     //                   Clearing the current viewport first fixes the issue
                     this._drawCtx.clearRect(0, 0, this._viewportLoc.w, this._viewportLoc.h);
                 }
-                this.resize(640, 20);
+                this.resize(240, 20);
                 this._drawCtx.clearRect(0, 0, this._viewportLoc.w, this._viewportLoc.h);
             }
 
