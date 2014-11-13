@@ -22,7 +22,7 @@ var UI;
                        "keysymdef.js", "keyboard.js", "input.js", "display.js",
                        "jsunzip.js", "rfb.js", "keysym.js"]);
 
-    var UI = {
+    UI = {
 
         rfb_state : 'loaded',
         settingsOpen : false,
