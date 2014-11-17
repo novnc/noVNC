@@ -1083,8 +1083,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should send an update request if there is sufficient data', function () {
                 var expected_cdr = { cleanBox: { x: 0, y: 0, w: 0, h: 0 },
-                                     dirtyBoxes: [ { x: 0, y: 0, w: 640, h: 20 } ] };
-                var expected_msg = RFB.messages.fbUpdateRequests(expected_cdr, 640, 20);
+                                     dirtyBoxes: [ { x: 0, y: 0, w: 240, h: 20 } ] };
+                var expected_msg = RFB.messages.fbUpdateRequests(expected_cdr, 240, 20);
 
                 client._framebufferUpdate = function () { return true; };
                 client._sock._websocket._receive_data(new Uint8Array([0]));
@@ -1099,8 +1099,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should resume receiving an update if we previously did not have enough data', function () {
                 var expected_cdr = { cleanBox: { x: 0, y: 0, w: 0, h: 0 },
-                                     dirtyBoxes: [ { x: 0, y: 0, w: 640, h: 20 } ] };
-                var expected_msg = RFB.messages.fbUpdateRequests(expected_cdr, 640, 20);
+                                     dirtyBoxes: [ { x: 0, y: 0, w: 240, h: 20 } ] };
+                var expected_msg = RFB.messages.fbUpdateRequests(expected_cdr, 240, 20);
 
                 // just enough to set FBU.rects
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 3]));
