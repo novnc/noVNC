@@ -1491,14 +1491,9 @@ var RFB;
                 // We know the encoding and have a whole tile
                 this._FBU.subencoding = rQ[rQi];
                 rQi++;
-                if (this._FBU.subencoding === 0) {
-                    if (this._FBU.lastsubencoding & 0x01) {
-                        // Weird: ignore blanks are RAW
-                        Util.Debug("     Ignoring blank after RAW");
-                    } else {
-                        this._display.fillRect(x, y, w, h, rQ, rQi);
-                        rQi += this._FBU.bytes - 1;
-                    }
+                if ((this._FBU.subencoding === 0) && (this._FBU.lastsubencoding & 0x01)) {
+                    // Weird: ignore blanks are RAW
+                    Util.Debug("     Ignoring blank after RAW");
                 } else if (this._FBU.subencoding & 0x01) {  // Raw
                     this._display.blitImage(x, y, w, h, rQ, rQi);
                     rQi += this._FBU.bytes - 1;
