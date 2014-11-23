@@ -1496,7 +1496,7 @@ var RFB;
                         // Weird: ignore blanks are RAW
                         Util.Debug("     Ignoring blank after RAW");
                     } else {
-                        this._display.fillRect(x, y, w, h, FBU.background);
+                        this._display.fillRect(x, y, w, h, this._FBU.background);
                     }
                 } else if (this._FBU.subencoding & 0x01) {  // Raw
                     this._display.blitImage(x, y, w, h, rQ, rQi);
