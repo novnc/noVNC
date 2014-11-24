@@ -1318,7 +1318,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         client._display._fb_width = 8;
                         client._display._viewportLoc.w = 8;
 
-                        var info = [{ x: 0, y: 0, width: 8, height: 4, encoding: 0x05 }];
+                        var info = [{ x: 0, y: 0, width: 32, height: 4, encoding: 0x05 }];
 
                         var rect = [];
 
