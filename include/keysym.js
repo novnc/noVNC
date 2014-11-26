@@ -170,6 +170,8 @@ XK_Super_R =                     0xffec, /* Right super */
 XK_Hyper_L =                     0xffed, /* Left hyper */
 XK_Hyper_R =                     0xffee, /* Right hyper */
 
+XK_ISO_Level3_Shift =            0xfe03, /* AltGr */
+
 /*
  * Latin 1
  * (ISO/IEC 8859-1 = Unicode U+0020..U+00FF)
