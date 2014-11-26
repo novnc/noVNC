@@ -252,12 +252,12 @@ var RFB;
             Util.Info("Sending Ctrl-Alt-Del");
 
             var arr = [];
-            arr = arr.concat(RFB.messages.keyEvent(0xFFE3, 1)); // Control
-            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 1)); // Alt
-            arr = arr.concat(RFB.messages.keyEvent(0xFFFF, 1)); // Delete
-            arr = arr.concat(RFB.messages.keyEvent(0xFFFF, 0)); // Delete
-            arr = arr.concat(RFB.messages.keyEvent(0xFFE9, 0)); // Alt
-            arr = arr.concat(RFB.messages.keyEvent(0xFFE3, 0)); // Control
+            arr = arr.concat(RFB.messages.keyEvent(XK_Control_L, 1));
+            arr = arr.concat(RFB.messages.keyEvent(XK_Alt_L, 1));
+            arr = arr.concat(RFB.messages.keyEvent(XK_Delete, 1));
+            arr = arr.concat(RFB.messages.keyEvent(XK_Delete, 0));
+            arr = arr.concat(RFB.messages.keyEvent(XK_Alt_L, 0));
+            arr = arr.concat(RFB.messages.keyEvent(XK_Control_L, 0));
             this._sock.send(arr);
         },
 

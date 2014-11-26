@@ -31,7 +31,7 @@ var kbdUtil = (function() {
     function hasShortcutModifier(charModifier, currentModifiers) {
         var mods = {};
         for (var key in currentModifiers) {
-            if (parseInt(key) !== 0xffe1) {
+            if (parseInt(key) !== XK_Shift_L) {
                 mods[key] = currentModifiers[key];
             }
         }
@@ -65,24 +65,18 @@ var kbdUtil = (function() {
     // Helper object tracking modifier key state
     // and generates fake key events to compensate if it gets out of sync
     function ModifierSync(charModifier) {
-        var ctrl = 0xffe3;
-        var alt = 0xffe9;
-        var altGr = 0xfe03;
-        var shift = 0xffe1;
-        var meta = 0xffe7;
-
         if (!charModifier) {
             if (isMac()) {
                 // on Mac, Option (AKA Alt) is used as a char modifier
-                charModifier = [alt];
+                charModifier = [XK_Alt_L];
             }
             else if (isWindows()) {
                 // on Windows, Ctrl+Alt is used as a char modifier
-                charModifier = [alt, ctrl];
+                charModifier = [XK_Alt_L, XK_Control_L];
             }
             else if (isLinux()) {
-                // on Linux, AltGr is used as a char modifier
-                charModifier = [altGr];
+                // on Linux, ISO Level 3 Shift (AltGr) is used as a char modifier
+                charModifier = [XK_ISO_Level3_Shift];
             }
             else {
                 charModifier = [];
@@ -90,11 +84,11 @@ var kbdUtil = (function() {
         }
 
         var state = {};
-        state[ctrl] = false;
-        state[alt] = false;
-        state[altGr] = false;
-        state[shift] = false;
-        state[meta] = false;
+        state[XK_Control_L] = false;
+        state[XK_Alt_L] = false;
+        state[XK_ISO_Level3_Shift] = false;
+        state[XK_Shift_L] = false;
+        state[XK_Meta_L] = false;
 
         function sync(evt, keysym) {
             var result = [];
@@ -102,25 +96,30 @@ var kbdUtil = (function() {
                 return {keysym: keysyms.lookup(keysym), type: state[keysym] ? 'keydown' : 'keyup'};
             }
 
-            if (evt.ctrlKey !== undefined && evt.ctrlKey !== state[ctrl] && keysym !== ctrl) {
-                state[ctrl] = evt.ctrlKey;
-                result.push(syncKey(ctrl));
+            if (evt.ctrlKey !== undefined &&
+                evt.ctrlKey !== state[XK_Control_L] && keysym !== XK_Control_L) {
+                state[XK_Control_L] = evt.ctrlKey;
+                result.push(syncKey(XK_Control_L));
             }
-            if (evt.altKey !== undefined && evt.altKey !== state[alt] && keysym !== alt) {
-                state[alt] = evt.altKey;
-                result.push(syncKey(alt));
+            if (evt.altKey !== undefined &&
+                evt.altKey !== state[XK_Alt_L] && keysym !== XK_Alt_L) {
+                state[XK_Alt_L] = evt.altKey;
+                result.push(syncKey(XK_Alt_L));
             }
-            if (evt.altGraphKey !== undefined && evt.altGraphKey !== state[altGr] && keysym !== altGr) {
-                state[altGr] = evt.altGraphKey;
-                result.push(syncKey(altGr));
+            if (evt.altGraphKey !== undefined &&
+                evt.altGraphKey !== state[XK_ISO_Level3_Shift] && keysym !== XK_ISO_Level3_Shift) {
+                state[XK_ISO_Level3_Shift] = evt.altGraphKey;
+                result.push(syncKey(XK_ISO_Level3_Shift));
             }
-            if (evt.shiftKey !== undefined && evt.shiftKey !== state[shift] && keysym !== shift) {
-                state[shift] = evt.shiftKey;
-                result.push(syncKey(shift));
+            if (evt.shiftKey !== undefined &&
+                evt.shiftKey !== state[XK_Shift_L] && keysym !== XK_Shift_L) {
+                state[XK_Shift_L] = evt.shiftKey;
+                result.push(syncKey(XK_Shift_L));
             }
-            if (evt.metaKey !== undefined && evt.metaKey !== state[meta] && keysym !== meta) {
-                state[meta] = evt.metaKey;
-                result.push(syncKey(meta));
+            if (evt.metaKey !== undefined &&
+                evt.metaKey !== state[XK_Meta_L] && keysym !== XK_Meta_L) {
+                state[XK_Meta_L] = evt.metaKey;
+                result.push(syncKey(XK_Meta_L));
             }
             return result;
         }
@@ -211,21 +210,21 @@ var kbdUtil = (function() {
             return shiftPressed ? keycode : keycode + 32; // A-Z
         }
         if (keycode >= 0x60 && keycode <= 0x69) {
-            return 0xffb0 + (keycode - 0x60); // numpad 0-9
+            return XK_KP_0 + (keycode - 0x60); // numpad 0-9
         }
 
         switch(keycode) {
-            case 0x20: return 0x20; // space
-            case 0x6a: return 0xffaa; // multiply
-            case 0x6b: return 0xffab; // add
-            case 0x6c: return 0xffac; // separator
-            case 0x6d: return 0xffad; // subtract
-            case 0x6e: return 0xffae; // decimal
-            case 0x6f: return 0xffaf; // divide
-            case 0xbb: return 0x2b; // +
-            case 0xbc: return 0x2c; // ,
-            case 0xbd: return 0x2d; // -
-            case 0xbe: return 0x2e; // .
+            case 0x20: return XK_space;
+            case 0x6a: return XK_KP_Multiply;
+            case 0x6b: return XK_KP_Add;
+            case 0x6c: return XK_KP_Separator;
+            case 0x6d: return XK_KP_Subtract;
+            case 0x6e: return XK_KP_Decimal;
+            case 0x6f: return XK_KP_Divide;
+            case 0xbb: return XK_plus;
+            case 0xbc: return XK_comma;
+            case 0xbd: return XK_minus;
+            case 0xbe: return XK_period;
         }
 
         return nonCharacterKey({keyCode: keycode});
@@ -239,43 +238,44 @@ var kbdUtil = (function() {
         var keycode = evt.keyCode;
 
         if (keycode >= 0x70 && keycode <= 0x87) {
-            return 0xffbe + keycode - 0x70; // F1-F24
+            return XK_F1 + keycode - 0x70; // F1-F24
         }
         switch (keycode) {
 
-            case 8 : return 0xFF08; // BACKSPACE
-            case 13 : return 0xFF0D; // ENTER
+            case 8 : return XK_BackSpace;
+            case 13 : return XK_Return;
 
-            case 9 : return 0xFF09; // TAB
+            case 9 : return XK_Tab;
 
-            case 27 : return 0xFF1B; // ESCAPE
-            case 46 : return 0xFFFF; // DELETE
+            case 27 : return XK_Escape;
+            case 46 : return XK_Delete;
 
-            case 36 : return 0xFF50; // HOME
-            case 35 : return 0xFF57; // END
-            case 33 : return 0xFF55; // PAGE_UP
-            case 34 : return 0xFF56; // PAGE_DOWN
-            case 45 : return 0xFF63; // INSERT
+            case 36 : return XK_Home;
+            case 35 : return XK_End;
+            case 33 : return XK_Page_Up;
+            case 34 : return XK_Page_Down;
+            case 45 : return XK_Insert;
 
-            case 37 : return 0xFF51; // LEFT
-            case 38 : return 0xFF52; // UP
-            case 39 : return 0xFF53; // RIGHT
-            case 40 : return 0xFF54; // DOWN
-            case 16 : return 0xFFE1; // SHIFT
-            case 17 : return 0xFFE3; // CONTROL
-            case 18 : return 0xFFE9; // Left ALT (Mac Option)
+            case 37 : return XK_Left;
+            case 38 : return XK_Up;
+            case 39 : return XK_Right;
+            case 40 : return XK_Down;
 
-            case 224 : return 0xFE07; // Meta
-            case 225 : return 0xFE03; // AltGr
-            case 91 : return 0xFFEC; // Super_L (Win Key)
-            case 92 : return 0xFFED; // Super_R (Win Key)
-            case 93 : return 0xFF67; // Menu (Win Menu), Mac Command
+            case 16 : return XK_Shift_L;
+            case 17 : return XK_Control_L;
+            case 18 : return XK_Alt_L; // also: Option-key on Mac
+
+            case 224 : return XK_Meta_L;
+            case 225 : return XK_ISO_Level3_Shift; // AltGr
+            case 91 : return XK_Super_L; // also: Windows-key
+            case 92 : return XK_Super_R; // also: Windows-key
+            case 93 : return XK_Menu; // also: Windows-Menu, Command on Mac
             default: return null;
         }
     }
     return {
         hasShortcutModifier : hasShortcutModifier,
-        hasCharModifier :  hasCharModifier,
+        hasCharModifier : hasCharModifier,
         ModifierSync : ModifierSync,
         getKey : getKey,
         getKeysym : getKeysym,
