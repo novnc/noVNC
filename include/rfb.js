@@ -197,6 +197,7 @@ var RFB;
             } else {
                 this._fail("Server disconnected" + msg);
             }
+            this._sock.off('close');
         }.bind(this));
         this._sock.on('error', function (e) {
             Util.Warn("WebSocket on-error event");
@@ -239,6 +240,9 @@ var RFB;
 
         disconnect: function () {
             this._updateState('disconnect', 'Disconnecting');
+            this._sock.off('error');
+            this._sock.off('message');
+            this._sock.off('open');
         },
 
         sendPassword: function (passwd) {
