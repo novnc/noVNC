@@ -411,7 +411,9 @@ var RFB;
                 if (this._display && this._display.get_context()) {
                     this._keyboard.ungrab();
                     this._mouse.ungrab();
-                    this._display.defaultCursor();
+                    if (state !== 'connect' && state !== 'loaded') {
+                        this._display.defaultCursor();
+                    }
                     if (Util.get_logging() !== 'debug' || state === 'loaded') {
                         // Show noVNC logo on load and when disconnected, unless in
                         // debug mode
@@ -1215,6 +1217,7 @@ var RFB;
     RFB.prototype.set_local_cursor = function (cursor) {
         if (!cursor || (cursor in {'0': 1, 'no': 1, 'false': 1})) {
             this._local_cursor = false;
+            this._display.disableLocalCursor(); //Only show server-side cursor
         } else {
             if (this._display.get_cursor_uri()) {
                 this._local_cursor = true;

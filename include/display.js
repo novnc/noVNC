@@ -93,13 +93,14 @@ var Display;
                     this._cursor_uri = true;
                 }
                 Util.Info("Data URI scheme cursor supported");
+                this._target.style.cursor = curSave;
             } else {
                 if (this._cursor_uri === null || this._cursor_uri === undefined) {
                     this._cursor_uri = false;
                 }
                 Util.Warn("Data URI scheme cursor not supported");
+                this._target.style.cursor = "none";
             }
-            this._target.style.cursor = curSave;
         } catch (exc) {
             Util.Error("Data URI scheme cursor test exception: " + exc);
             this._cursor_uri = false;
@@ -468,6 +469,10 @@ var Display;
 
         defaultCursor: function () {
             this._target.style.cursor = "default";
+        },
+
+        disableLocalCursor: function () {
+            this._target.style.cursor = "none";
         },
 
         // Overridden getters/setters
