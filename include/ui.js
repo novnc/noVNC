@@ -122,6 +122,7 @@ var UI;
                               'onXvpInit': UI.updateXvpVisualState,
                               'onClipboard': UI.clipReceive,
                               'onFBUComplete': UI.FBUComplete,
+                              'onFBResize': UI.updateViewDragButton,
                               'onDesktopName': UI.updateDocumentTitle});
 
             var autoconnect = WebUtil.getQueryVar('autoconnect', false);
@@ -789,27 +790,33 @@ var UI;
 
         // Toggle/set/unset the viewport drag/move button
         setViewDrag: function(drag) {
-            var vmb = $D('noVNC_view_drag_button');
             if (!UI.rfb) { return; }
 
-            if (UI.rfb_state === 'normal' &&
-                UI.rfb.get_display().get_viewport()) {
-                vmb.style.display = "inline";
-            } else {
-                vmb.style.display = "none";
-            }
+            UI.updateViewDragButton();
 
             if (typeof(drag) === "undefined" ||
                 typeof(drag) === "object") {
                 // If not specified, then toggle
                 drag = !UI.rfb.get_viewportDrag();
             }
+            var vmb = $D('noVNC_view_drag_button');
             if (drag) {
                 vmb.className = "noVNC_status_button_selected";
                 UI.rfb.set_viewportDrag(true);
             } else {
                 vmb.className = "noVNC_status_button";
                 UI.rfb.set_viewportDrag(false);
+            }
+        },
+
+        updateViewDragButton: function() {
+            var vmb = $D('noVNC_view_drag_button');
+            if (UI.rfb_state === 'normal' &&
+                UI.rfb.get_display().get_viewport() &&
+                UI.rfb.get_display().fbuClip()) {
+                vmb.style.display = "inline";
+            } else {
+                vmb.style.display = "none";
             }
         },
 

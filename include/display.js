@@ -136,12 +136,10 @@ var Display;
                     cr.y2 = vp.y + this._fb_height - 1;
                 }
 
-                if (this._viewport) {
+                if (this.fbuClip()) {
                     // clipping
-                    vp.w = Math.min(this._fb_width, window.innerWidth);
-                    var control_bar_h = $D('noVNC-control-bar').scrollHeight;
-                    var max_vp_h = window.innerHeight - control_bar_h - 5;
-                    vp.h = Math.min(this._fb_height, max_vp_h);
+                    vp.w = window.innerWidth;
+                    vp.h = window.innerHeight - $D('noVNC-control-bar').scrollHeight - 5;
                 } else {
                     // scrollbars
                     vp.w = this._fb_width;
@@ -475,6 +473,13 @@ var Display;
 
         disableLocalCursor: function () {
             this._target.style.cursor = "none";
+        },
+
+        fbuClip: function () {
+            var control_bar_h = $D('noVNC-control-bar').scrollHeight;
+            var max_vp_h = window.innerHeight - control_bar_h - 5;
+            return (this._viewport &&
+                    (this._fb_width > window.innerWidth || this._fb_height > max_vp_h));
         },
 
         // Overridden getters/setters

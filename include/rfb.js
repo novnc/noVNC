@@ -971,8 +971,8 @@ var RFB;
             }
 
             this._display.set_true_color(this._true_color);
-            this._onFBResize(this, this._fb_width, this._fb_height);
             this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
             this._keyboard.grab();
             this._mouse.grab();
 
@@ -1898,8 +1898,8 @@ var RFB;
 
             this._fb_width = this._FBU.width;
             this._fb_height = this._FBU.height;
-            this._onFBResize(this, this._fb_width, this._fb_height);
             this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
 
             this._FBU.bytes = 0;
             this._FBU.rects -= 1;
@@ -1911,8 +1911,8 @@ var RFB;
             Util.Debug(">> set_desktopsize");
             this._fb_width = this._FBU.width;
             this._fb_height = this._FBU.height;
-            this._onFBResize(this, this._fb_width, this._fb_height);
             this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
             this._timing.fbu_rt_start = (new Date()).getTime();
 
             this._FBU.bytes = 0;
