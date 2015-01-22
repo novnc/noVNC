@@ -396,7 +396,6 @@ that.absY = function(y) {
 
 
 that.resize = function(width, height) {
-    console.log("resize");
     c_prevStyle = "";
 
     fb_width = width;
@@ -404,7 +403,6 @@ that.resize = function(width, height) {
 
     rescale(conf.scale);
     that.viewportChange(0, 0, width, height);
-    //that.viewportChange();
 };
 
 that.clear = function() {

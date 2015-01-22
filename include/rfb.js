@@ -64,8 +64,8 @@ var that           = {},  // Public API methods
         //['JPEG_quality_hi',   -23 ],
         //['compress_lo',      -255 ],
         ['compress_hi',        -247 ],
-        ['last_rect',          -224 ]
-        //['ext_desktop_size',   -308 ]
+        ['last_rect',          -224 ],
+        ['ext_desktop_size',   -308 ]
         ],
 
     encHandlers    = {},
@@ -1627,7 +1627,6 @@ encHandlers.ext_desktop_size = function () {
     fb_width = FBU.width;
     fb_height = FBU.height;
     conf.onFBResize(that, fb_width, fb_height);
-    console.log("extended");
     display.resize(fb_width, fb_height);
 
     FBU.bytes = 0;
@@ -1641,7 +1640,6 @@ encHandlers.DesktopSize = function set_desktopsize() {
     fb_width = FBU.width;
     fb_height = FBU.height;
     conf.onFBResize(that, fb_width, fb_height);
-    console.log("desktop");
     display.resize(fb_width, fb_height);
     timing.fbu_rt_start = (new Date()).getTime();
     // Send a new non-incremental request

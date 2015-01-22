@@ -47,7 +47,7 @@ load: function (callback) {
 onresize: function (callback) {
     // Control-bar height: 36px +
     // border height: 5px = 41px to be deducted from the height
-    //UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 41);
+    UI.rfb.setDesktopSize(window.innerWidth, window.innerHeight - 41);
 },
 
 // Render default UI and initialize settings menu
@@ -298,10 +298,6 @@ forceSetting: function(name, val) {
 
 // Show the popup status panel
 togglePopupStatusPanel: function() {
-
-
-    console.log("clip: " + UI.getSetting('clip'));
-    console.log("cur_clip: " + UI.rfb.get_display().get_viewport());
     var psp = $D('noVNC_popup_status_panel');
     if (UI.popupStatusOpen === true) {
         psp.style.display = "none";
@@ -700,9 +696,6 @@ setViewClip: function(clip) {
         // Use current setting
         clip = UI.getSetting('clip');
     }
-
-    console.log("clip: " + clip);
-    console.log("cur_clip: " + cur_clip);
 
     if (clip && !cur_clip) {
         // Turn clipping on
