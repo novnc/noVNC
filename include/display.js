@@ -127,18 +127,26 @@ var Display;
 
             // Size change
             if (vp.w !== this._fb_width || vp.h !== this._fb_height) {
-                // Change width
+
                 if (this._fb_width < vp.w &&  cr.x2 > vp.x + this._fb_width - 1) {
                     cr.x2 = vp.x + this._fb_width - 1;
                 }
-                vp.w = Math.min(this._fb_width, window.innerWidth);
 
-                // Change height
                 if (this._fb_height < vp.h &&  cr.y2 > vp.y + this._fb_height - 1) {
                     cr.y2 = vp.y + this._fb_height - 1;
                 }
-                var max_vp_height = window.innerHeight - $D('noVNC-control-bar').scrollHeight - 5;
-                vp.h = Math.min(this._fb_height, max_vp_height);
+
+                if (this._viewport) {
+                    // clipping
+                    vp.w = Math.min(this._fb_width, window.innerWidth);
+                    var control_bar_h = $D('noVNC-control-bar').scrollHeight;
+                    var max_vp_h = window.innerHeight - control_bar_h - 5;
+                    vp.h = Math.min(this._fb_height, max_vp_h);
+                } else {
+                    // scrollbars
+                    vp.w = this._fb_width;
+                    vp.h = this._fb_height;
+                }
 
                 var saveImg = null;
                 if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
