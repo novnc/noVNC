@@ -58,12 +58,12 @@ var UI;
         },
 
         onresize: function (callback) {
-            var width = window.innerWidth;
-            var height = window.innerHeight;
+            var innerWidth = window.innerWidth;
+            var innerHeight = window.innerHeight;
             var controlBarHeight = $D('noVNC-control-bar').scrollHeight;
             var borderHeight = 5;
-            if (width !== undefined && height !== undefined)
-                UI.rfb.setDesktopSize(width, height - controlBarHeight - borderHeight);
+            if (innerWidth !== undefined && innerHeight !== undefined)
+                UI.rfb.setDesktopSize(innerWidth, innerHeight - controlBarHeight - borderHeight);
         },
 
         // Render default UI and initialize settings menu

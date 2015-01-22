@@ -84,9 +84,12 @@
 
 
         function UIresize() {
-            // Control-bar height: 36px +
-            // border height: 5px = 41px to be deducted from the height
-            rfb.setDesktopSize(window.innerWidth, window.innerHeight - 41);
+            var innerWidth = window.innerWidth;
+            var innerHeight = window.innerHeight;
+            var controlBarHeight = $D('noVNC-control-bar').scrollHeight;
+            var borderHeight = 5;
+            if (innerWidth !== undefined && innerHeight !== undefined)
+                rfb.setDesktopSize(innerWidth, innerHeight - controlBarHeight - borderHeight);
         }
         function FBUComplete(rfb, fbu) {
             UIresize();

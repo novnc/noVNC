@@ -1000,7 +1000,7 @@ var RFB;
             if (this._encrypt) {
                 this._updateState('normal', 'Connected (encrypted) to: ' + this._fb_name);
             } else {
-                this._updateState('normal', 'Connected (encrypted) to: ' + this._fb_name);
+                this._updateState('normal', 'Connected (unencrypted) to: ' + this._fb_name);
             }
         },
 
