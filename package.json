@@ -1,0 +1,50 @@
+{
+  "name": "noVNC",
+  "version": "0.5.0",
+  "description": "An HTML5 VNC client",
+  "main": "karma.conf.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "karma start karma.conf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kanaka/noVNC.git"
+  },
+  "author": "Joel Martin <github@martintribe.org> (https://github.com/kanaka)",
+  "contributors": [
+    "Solly Ross <sross@redhat.com> (https://github.com/directxman12)",
+    "Peter Åstrand <astrand@cendio.se> (https://github.com/astrand)",
+    "Samuel Mannehed <samuel@cendio.se> (https://github.com/samhed)"
+  ],
+  "license": "MPL 2.0",
+  "bugs": {
+    "url": "https://github.com/kanaka/noVNC/issues"
+  },
+  "homepage": "https://github.com/kanaka/noVNC",
+  "devDependencies": {
+    "ansi": "^0.3.0",
+    "casperjs": "^1.1.0-beta3",
+    "chai": "^1.10.0",
+    "commander": "^2.5.0",
+    "karma": "^0.12.25",
+    "karma-chai": "^0.1.0",
+    "karma-mocha": "^0.1.9",
+    "karma-mocha-reporter": "^0.3.1",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-sauce-launcher": "^0.2.10",
+    "karma-sinon": "^1.0.3",
+    "karma-sinon-chai-latest": "^0.1.0",
+    "mocha": "^2.0.1",
+    "open": "^0.0.5",
+    "phantom": "^0.7.0",
+    "phantomjs": "^1.9.12",
+    "sinon": "^1.12.1",
+    "sinon-chai": "^2.6.0",
+    "spooky": "^0.2.5",
+    "temp": "^0.8.1"
+  }
+}

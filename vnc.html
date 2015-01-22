@@ -47,27 +47,43 @@
 
 <body>
     <div id="noVNC-control-bar">
-        <div id="noVNC-menu-bar" style="display:none;">
-        </div>
         <!--noVNC Mobile Device only Buttons-->
         <div class="noVNC-buttons-left">
-            <input type="image" src="images/drag.png"
+            <input type="image" alt="viewport drag" src="images/drag.png"
                 id="noVNC_view_drag_button" class="noVNC_status_button"
                 title="Move/Drag Viewport">
             <div id="noVNC_mobile_buttons">
-                <input type="image" src="images/mouse_none.png"
+                <input type="image" alt="No mousebutton" src="images/mouse_none.png"
                     id="noVNC_mouse_button0" class="noVNC_status_button">
-                <input type="image" src="images/mouse_left.png"
+                <input type="image" alt="Left mousebutton" src="images/mouse_left.png"
                     id="noVNC_mouse_button1" class="noVNC_status_button">
-                <input type="image" src="images/mouse_middle.png"
+                <input type="image" alt="Middle mousebutton" src="images/mouse_middle.png"
                     id="noVNC_mouse_button2" class="noVNC_status_button">
-                <input type="image" src="images/mouse_right.png"
+                <input type="image" alt="Right mousebutton" src="images/mouse_right.png"
                     id="noVNC_mouse_button4" class="noVNC_status_button">
-                <input type="image" src="images/keyboard.png"
+                <input type="image" alt="Keyboard" src="images/keyboard.png"
                     id="showKeyboard" class="noVNC_status_button"
                     value="Keyboard" title="Show Keyboard"/>
-                <input type="text" autocapitalize="off" autocorrect="off"
-                    id="keyboardinput" class="" value="&nbsp;"/>
+                <!-- Note that Google Chrome on Android doesn't respect any of these,
+                     html attributes which attempt to disable text suggestions on the
+                     on-screen keyboard. Let's hope Chrome implements the ime-mode
+                     style for example -->
+                <textarea id="keyboardinput" autocapitalize="off"
+                    autocorrect="off" autocomplete="off" spellcheck="false"
+                    mozactionhint="Enter" onsubmit="return false;"
+                    style="ime-mode: disabled;"></textarea>
+                <div id="noVNC_extra_keys">
+                    <input type="image" alt="Extra keys" src="images/showextrakeys.png"
+                        id="showExtraKeysButton" class="noVNC_status_button">
+                    <input type="image" alt="Ctrl" src="images/ctrl.png"
+                        id="toggleCtrlButton" class="noVNC_status_button">
+                    <input type="image" alt="Alt" src="images/alt.png"
+                        id="toggleAltButton" class="noVNC_status_button">
+                    <input type="image" alt="Tab" src="images/tab.png"
+                        id="sendTabButton" class="noVNC_status_button">
+                    <input type="image" alt="Esc" src="images/esc.png"
+                        id="sendEscButton" class="noVNC_status_button">
+                </div>
             </div>
         </div>
 
@@ -75,26 +91,29 @@
 
         <!--noVNC Buttons-->
         <div class="noVNC-buttons-right">
-            <input type="image" src="images/ctrlaltdel.png"
-                 id="sendCtrlAltDelButton" class="noVNC_status_button"
+            <input type="image" alt="Ctrl+Alt+Del" src="images/ctrlaltdel.png"
+                id="sendCtrlAltDelButton" class="noVNC_status_button"
                 title="Send Ctrl-Alt-Del" />
-            <input type="image" src="images/clipboard.png"
+            <input type="image" alt="Shutdown/Reboot" src="images/power.png"
+                id="xvpButton" class="noVNC_status_button"
+                title="Shutdown/Reboot..." />
+            <input type="image" alt="Clipboard" src="images/clipboard.png"
                 id="clipboardButton" class="noVNC_status_button"
                 title="Clipboard" />
-            <input type="image" src="images/settings.png"
+            <input type="image" alt="Settings" src="images/settings.png"
                 id="settingsButton" class="noVNC_status_button"
                 title="Settings" />
-            <input type="image" src="images/connect.png"
+            <input type="image" alt="Connect" src="images/connect.png"
                 id="connectButton" class="noVNC_status_button"
                 title="Connect" />
-            <input type="image" src="images/disconnect.png"
+            <input type="image" alt="Disconnect" src="images/disconnect.png"
                 id="disconnectButton" class="noVNC_status_button"
                 title="Disconnect" />
         </div>
 
         <!-- Description Panel -->
         <!-- Shown by default when hosted at for kanaka.github.com -->
-        <div id="noVNC_description" style="display:none;" class="">
+        <div id="noVNC_description" class="">
             noVNC is a browser based VNC client implemented using HTML5 Canvas
             and WebSockets. You will either need a VNC server with WebSockets
             support (such as <a href="http://libvncserver.sourceforge.net/">libvncserver</a>)
@@ -121,6 +140,15 @@
                 value="Clear">
         </div>
 
+        <!-- XVP Shutdown/Reboot Panel -->
+        <div id="noVNC_xvp" class="triangle-right top">
+            <span id="noVNC_xvp_menu">
+                <input type="button" id="xvpShutdownButton" value="Shutdown" />
+                <input type="button" id="xvpRebootButton" value="Reboot" />
+                <input type="button" id="xvpResetButton" value="Reset" />
+            </span>
+        </div>
+
         <!-- Settings Panel -->
         <div id="noVNC_settings" class="triangle-right top">
             <span id="noVNC_settings_menu">
@@ -131,7 +159,6 @@
                     <li><input id="noVNC_clip" type="checkbox"> Clip to Window</li>
                     <li><input id="noVNC_shared" type="checkbox"> Shared Mode</li>
                     <li><input id="noVNC_view_only" type="checkbox"> View Only</li>
-                    <li><input id="noVNC_connectTimeout" type="input"> Connect Timeout (s)</li>
                     <li><input id="noVNC_path" type="input" value="websockify"> Path</li>
                     <li><input id="noVNC_repeaterID" type="input" value=""> Repeater ID</li>
                     <hr>

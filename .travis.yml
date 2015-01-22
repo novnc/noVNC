@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- '0.11.13'
+env:
+  matrix:
+  - TEST_BROWSER_NAME=PhantomJS
+  - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 7,Linux'
+  - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Windows 7,Linux' TEST_BROWSER_VERSION='30,26'
+  - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 7' TEST_BROWSER_VERSION=10
+  - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 8.1' TEST_BROWSER_VERSION=11
+  - TEST_BROWSER_NAME=safari TEST_BROWSER_OS='OS X 10.8' TEST_BROWSER_VERSION=6
+  - TEST_BROWSER_NAME=safari TEST_BROWSER_OS='OS X 10.9' TEST_BROWSER_VERSION=7
+  global:
+  - secure: QE5GqGd2hrpQsIgd8dlv3oRUUHqZayomzzQjNXOB81VQi241uz/ru+3GtBZLB5WLZCq/Gj89vbLnR0LN4ixlmPaWv3/WJQGyDGuRD/vMnccVl+rBUP/Hh2zdYwiISIGcrywNAE+KLus/lyt/ahVgzbaRaDSzrM1HaZFT/rndGck=
+  - secure: g75sdctEwj0hoLW0Y08Tdv8s5scNzplB6a9EtaJ2vJD9S/bK+AsPqbWesGv1UlrFPCWdbV7Vg61vkmoUjcmb5xhqFIjcM9TlYJoKWeOTsOmnQoSIkIq6gMF1k02+LmKInbPgIzrp3m3jluS1qaOs/EzFpDnJp9hWBiAfXa12Jxk=
+before_script: npm install -g karma-cli

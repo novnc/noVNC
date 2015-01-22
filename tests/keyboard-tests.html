@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <!--
+    To run tests
+    cd .../noVNC/tests
+    npm install chai mocha
+    open keyboard-tests.html in a browser
+  -->
+  <div id="mocha"></div>
+  <script src="node_modules/chai/chai.js"></script>
+  <script src="node_modules/mocha/mocha.js"></script>
+  <script>mocha.setup('bdd')</script>
+  <script src="../include/keysymdef.js"></script>
+  <script src="../include/keyboard.js"></script>
+  <script src="test.keyboard.js"></script>
+  <script src="test.helper.js"></script>
+  <script>
+    mocha.checkLeaks();
+    mocha.globals(['navigator']);
+    mocha.run();
+  </script>
+</body>
+</html>

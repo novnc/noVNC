@@ -60,8 +60,8 @@
             message("Loading " + fname);
             // Load supporting scripts
             Util.load_scripts(["base64.js", "websock.js", "des.js",
-                            "input.js", "display.js", "jsunzip.js", "rfb.js",
-                            "playback.js", fname]);
+                            "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                            "jsunzip.js", "rfb.js", "playback.js", fname]);
 
         } else {
             message("Must specify data=FOO in query string.");
@@ -131,7 +131,7 @@
             if (fname) {
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
                 rfb = new RFB({'target': $D('VNC_canvas'),
-                               'updateState': updateState});
+                               'onUpdateState': updateState});
             }
         }
     </script>
