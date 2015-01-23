@@ -86,7 +86,7 @@
         function UIresize() {
             var innerWidth = window.innerWidth;
             var innerHeight = window.innerHeight;
-            var controlBarHeight = $D('noVNC-control-bar').scrollHeight;
+            var controlBarHeight = $D('noVNC_status_bar').scrollHeight;
             var borderHeight = 5;
             if (innerWidth !== undefined && innerHeight !== undefined)
                 rfb.setDesktopSize(innerWidth, innerHeight - controlBarHeight - borderHeight);
