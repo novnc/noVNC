@@ -612,7 +612,7 @@ var RFB;
                 var deltaY = this._viewportDragPos.y - y;
                 this._viewportDragPos = {'x': x, 'y': y};
 
-                this._display.viewportChange(deltaX, deltaY);
+                this._display.viewportChangePos(deltaX, deltaY);
 
                 // Skip sending mouse events
                 return;

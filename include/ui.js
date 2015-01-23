@@ -775,7 +775,7 @@ var UI;
                 UI.updateSetting('clip', false);
                 display.set_viewport(false);
                 $D('noVNC_canvas').style.position = 'static';
-                display.viewportChange();
+                display.viewportChangeSize();
             }
             if (UI.getSetting('clip')) {
                 // If clipping, update clipping settings
@@ -784,7 +784,7 @@ var UI;
                 var new_w = window.innerWidth - pos.x;
                 var new_h = window.innerHeight - pos.y;
                 display.set_viewport(true);
-                display.resize(new_w, new_h);
+                display.viewportChangeSize(new_w, new_h);
             }
         },
 
