@@ -62,6 +62,24 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._updateState).to.have.been.calledOnce;
                 expect(client._updateState).to.have.been.calledWith('disconnect');
             });
+
+            it('should unregister error event handler', function () {
+                sinon.spy(client._sock, 'off');
+                client.disconnect();
+                expect(client._sock.off).to.have.been.calledWith('error');
+            });
+
+            it('should unregister message event handler', function () {
+                sinon.spy(client._sock, 'off');
+                client.disconnect();
+                expect(client._sock.off).to.have.been.calledWith('message');
+            });
+
+            it('should unregister open event handler', function () {
+                sinon.spy(client._sock, 'off');
+                client.disconnect();
+                expect(client._sock.off).to.have.been.calledWith('open');
+            });
         });
 
         describe('#sendPassword', function () {
@@ -1708,6 +1726,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._rfb_state = 'normal';
                 client._sock._websocket.close();
                 expect(client._rfb_state).to.equal('failed');
+            });
+
+            it('should unregister close event handler', function () {
+                sinon.spy(client._sock, 'off');
+                client.connect('host', 8675);
+                client._rfb_state = 'disconnect';
+                client._sock._websocket.close();
+                expect(client._sock.off).to.have.been.calledWith('close');
             });
 
             // error events do nothing
