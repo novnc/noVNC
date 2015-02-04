@@ -80,7 +80,21 @@
                            "jsunzip.js", "rfb.js", "keysym.js"]);
 
         var rfb;
+        var resizeTimeout;
 
+
+        function UIresize() {
+            var innerWidth = window.innerWidth;
+            var innerHeight = window.innerHeight;
+            var controlBarHeight = $D('noVNC_status_bar').scrollHeight;
+            var borderHeight = 5;
+            if (innerWidth !== undefined && innerHeight !== undefined)
+                rfb.setDesktopSize(innerWidth, innerHeight - controlBarHeight - borderHeight);
+        }
+        function FBUComplete(rfb, fbu) {
+            UIresize();
+            rfb.set_onFBUComplete(function() { });
+        }
         function passwordRequired(rfb) {
             var msg;
             msg = '<form onsubmit="return setPassword();"';
@@ -137,6 +151,16 @@
                 s.innerHTML = msg;
             }
         }
+
+        window.onresize = function () {
+            // When the window has been resized, wait until the size remains
+            // the same for 0.5 seconds before sending the request for changing
+            // the resolution of the session
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function(){
+                UIresize();
+            }, 500);
+        };
 
         function xvpInit(ver) {
             var xvpbuttons;
@@ -198,9 +222,10 @@
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
                            'view_only':    WebUtil.getQueryVar('view_only', false),
-                           'onUpdateState':  updateState,
+                           'updateState':  updateState,
                            'onXvpInit':    xvpInit,
-                           'onPasswordRequired':  passwordRequired});
+                           'onPasswordRequired':  passwordRequired,
+                           'onFBUComplete': FBUComplete});
             rfb.connect(host, port, password, path);
         };
         </script>

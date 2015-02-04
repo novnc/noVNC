@@ -53,7 +53,8 @@ var RFB;
             //['compress_lo',      -255 ],
             ['compress_hi',        -247 ],
             ['last_rect',          -224 ],
-            ['xvp',                -309 ]
+            ['xvp',                -309 ],
+            ['ext_desktop_size',   -308 ]
         ];
 
         this._encHandlers = {};
@@ -105,6 +106,10 @@ var RFB;
             fbu_rt_cnt: 0,
             pixels: 0
         };
+
+        this._supportsSetDesktopSize = false;
+        this._screen_id = 0;
+        this._screen_flags = 0;
 
         // Mouse state
         this._mouse_buttonMask = 0;
@@ -304,6 +309,32 @@ var RFB;
             if (this._rfb_state !== 'normal') { return; }
             this._sock.send(RFB.messages.clientCutText(text));
         },
+
+        setDesktopSize: function (width, height) {
+            if (this._rfb_state !== "normal") { return; }
+
+            if (this._supportsSetDesktopSize) {
+
+                var arr = [251];    // msg-type
+                arr.push8(0);       // padding
+                arr.push16(width);  // width
+                arr.push16(height); // height
+
+                arr.push8(1);       // number-of-screens
+                arr.push8(0);       // padding
+
+                // screen array
+                arr.push32(this._screen_id);    // id
+                arr.push16(0);                  // x-position
+                arr.push16(0);                  // y-position
+                arr.push16(width);              // width
+                arr.push16(height);             // height
+                arr.push32(this._screen_flags); // flags
+
+                this._sock.send(arr);
+            }
+        },
+
 
         // Private methods
 
@@ -585,7 +616,7 @@ var RFB;
                 var deltaY = this._viewportDragPos.y - y;
                 this._viewportDragPos = {'x': x, 'y': y};
 
-                this._display.viewportChange(deltaX, deltaY);
+                this._display.viewportChangePos(deltaX, deltaY);
 
                 // Skip sending mouse events
                 return;
@@ -944,8 +975,8 @@ var RFB;
             }
 
             this._display.set_true_color(this._true_color);
-            this._onFBResize(this, this._fb_width, this._fb_height);
             this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
             this._keyboard.grab();
             this._mouse.grab();
 
@@ -1839,12 +1870,53 @@ var RFB;
             return true;
         },
 
+        ext_desktop_size: function () {
+            this._FBU.bytes = 1;
+            if (this._sock.rQwait("ext_desktop_size", this._FBU.bytes)) { return false; }
+
+            this._supportsSetDesktopSize = true;
+            var number_of_screens = this._sock.rQpeek8();
+
+            this._FBU.bytes = 4 + (number_of_screens * 16);
+            if (this._sock.rQwait("ext_desktop_size", this._FBU.bytes)) { return false; }
+
+            this._sock.rQshift8();  // number-of-screens
+            this._sock.rQshift8();  // padding
+            this._sock.rQshift16(); // padding
+
+            for (var i=0; i<number_of_screens; i += 1) {
+                // Save the id and flags of the first screen
+                if (i == 0) {
+                    this._screen_id = this._sock.rQshift32();    // id
+                    this._sock.rQshift16();                      // x-position
+                    this._sock.rQshift16();                      // y-position
+                    this._sock.rQshift16();                      // width
+                    this._sock.rQshift16();                      // height
+                    this._screen_flags = this._sock.rQshift32(); // flags
+                } else {
+                    this._sock.rQshiftBytes(16);
+                }
+            }
+
+            if (this._FBU.x == 0 && this._FBU.y != 0) { return true; }
+
+            this._fb_width = this._FBU.width;
+            this._fb_height = this._FBU.height;
+            this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
+
+            this._FBU.bytes = 0;
+            this._FBU.rects -= 1;
+
+            return true;
+        },
+
         DesktopSize: function () {
             Util.Debug(">> set_desktopsize");
             this._fb_width = this._FBU.width;
             this._fb_height = this._FBU.height;
-            this._onFBResize(this, this._fb_width, this._fb_height);
             this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
             this._timing.fbu_rt_start = (new Date()).getTime();
 
             this._FBU.bytes = 0;

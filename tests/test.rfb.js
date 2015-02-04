@@ -1593,7 +1593,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should not send movement messages when viewport dragging', function () {
                 client._viewportDragging = true;
-                client._display.viewportChange = sinon.spy();
+                client._display.viewportChangePos = sinon.spy();
                 client._mouse._onMouseMove(13, 9);
                 expect(client._sock.send).to.not.have.been.called;
             });
@@ -1622,14 +1622,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._viewportDrag = true;
                 client._viewportDragging = true;
                 client._viewportDragPos = { x: 13, y: 9 };
-                client._display.viewportChange = sinon.spy();
+                client._display.viewportChangePos = sinon.spy();
 
                 client._mouse._onMouseMove(10, 4);
 
                 expect(client._viewportDragging).to.be.true;
                 expect(client._viewportDragPos).to.deep.equal({ x: 10, y: 4 });
-                expect(client._display.viewportChange).to.have.been.calledOnce;
-                expect(client._display.viewportChange).to.have.been.calledWith(3, 5);
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(3, 5);
             });
         });
 
