@@ -65,13 +65,15 @@ describe('Display/Canvas Helper', function () {
         beforeEach(function () {
             display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
             display.resize(5, 5);
-            display.viewportChange(1, 1, 3, 3);
+            display.viewportChangeSize(3, 3);
+            display.viewportChangePos(1, 1);
             display.getCleanDirtyReset();
         });
 
         it('should take viewport location into consideration when drawing images', function () {
-            display.resize(4, 4);
-            display.viewportChange(0, 0, 2, 2);
+            display.set_width(4);
+            display.set_height(4);
+            display.viewportChangeSize(2, 2);
             display.drawImage(make_image_canvas(basic_data), 1, 1);
 
             var expected = new Uint8Array(16);
@@ -82,7 +84,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should redraw the left side when shifted left', function () {
-            display.viewportChange(-1, 0, 3, 3);
+            display.viewportChangePos(-1, 0);
             var cdr = display.getCleanDirtyReset();
             expect(cdr.cleanBox).to.deep.equal({ x: 1, y: 1, w: 2, h: 3 });
             expect(cdr.dirtyBoxes).to.have.length(1);
@@ -90,7 +92,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should redraw the right side when shifted right', function () {
-            display.viewportChange(1, 0, 3, 3);
+            display.viewportChangePos(1, 0);
             var cdr = display.getCleanDirtyReset();
             expect(cdr.cleanBox).to.deep.equal({ x: 2, y: 1, w: 2, h: 3 });
             expect(cdr.dirtyBoxes).to.have.length(1);
@@ -98,7 +100,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should redraw the top part when shifted up', function () {
-            display.viewportChange(0, -1, 3, 3);
+            display.viewportChangePos(0, -1);
             var cdr = display.getCleanDirtyReset();
             expect(cdr.cleanBox).to.deep.equal({ x: 1, y: 1, w: 3, h: 2 });
             expect(cdr.dirtyBoxes).to.have.length(1);
@@ -106,7 +108,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should redraw the bottom part when shifted down', function () {
-            display.viewportChange(0, 1, 3, 3);
+            display.viewportChangePos(0, 1);
             var cdr = display.getCleanDirtyReset();
             expect(cdr.cleanBox).to.deep.equal({ x: 1, y: 2, w: 3, h: 2 });
             expect(cdr.dirtyBoxes).to.have.length(1);
@@ -114,7 +116,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should reset the entire viewport to being clean after calculating the clean/dirty boxes', function () {
-            display.viewportChange(0, 1, 3, 3);
+            display.viewportChangePos(0, 1);
             var cdr1 = display.getCleanDirtyReset();
             var cdr2 = display.getCleanDirtyReset();
             expect(cdr1).to.not.deep.equal(cdr2);
@@ -146,9 +148,9 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should update the viewport dimensions', function () {
-            sinon.spy(display, 'viewportChange');
+            sinon.spy(display, 'viewportChangeSize');
             display.resize(2, 2);
-            expect(display.viewportChange).to.have.been.calledOnce;
+            expect(display.viewportChangeSize).to.have.been.calledOnce;
         });
     });
 
