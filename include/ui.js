@@ -17,7 +17,6 @@ var UI;
 
     // Load supporting scripts
     window.onscriptsload = function () { UI.load(); };
-    window.onload = function () { UI.keyboardinputReset(); };
     Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
                        "keysymdef.js", "keyboard.js", "input.js", "display.js",
                        "jsunzip.js", "rfb.js", "keysym.js"]);
@@ -138,6 +137,8 @@ var UI;
 
             UI.setViewClip();
             Util.addEvent(window, 'resize', UI.setViewClip);
+
+            Util.addEvent(window, 'load', UI.keyboardinputReset);
 
             Util.addEvent(window, 'beforeunload', function () {
                 if (UI.rfb_state === 'normal') {
