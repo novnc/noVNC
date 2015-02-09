@@ -208,26 +208,14 @@ describe('Display/Canvas Helper', function () {
                 expect(display).to.have.displayed(checked_data);
             });
 
-            it('should support drawing BGRX blit images with true color via #blitImage', function () {
-                var data = [];
-                for (var i = 0; i < 16; i++) {
-                    data[i * 4] = checked_data[i * 4 + 2];
-                    data[i * 4 + 1] = checked_data[i * 4 + 1];
-                    data[i * 4 + 2] = checked_data[i * 4];
-                    data[i * 4 + 3] = checked_data[i * 4 + 3];
-                }
-                display.blitImage(0, 0, 4, 4, data, 0);
-                expect(display).to.have.displayed(checked_data);
-            });
-
-            it('should support drawing RGB blit images with true color via #blitRgbImage', function () {
+            it('should support drawing RGB blit images with true color via #blitImage', function () {
                 var data = [];
                 for (var i = 0; i < 16; i++) {
                     data[i * 3] = checked_data[i * 4];
                     data[i * 3 + 1] = checked_data[i * 4 + 1];
                     data[i * 3 + 2] = checked_data[i * 4 + 2];
                 }
-                display.blitRgbImage(0, 0, 4, 4, data, 0);
+                display.blitImage(0, 0, 4, 4, data, 0);
                 expect(display).to.have.displayed(checked_data);
             });
 
@@ -320,13 +308,6 @@ describe('Display/Canvas Helper', function () {
             display.renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
             expect(display.blitImage).to.have.been.calledOnce;
             expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
-        });
-
-        it('should draw a blit RGB image on type "blitRgb"', function () {
-            display.blitRgbImage = sinon.spy();
-            display.renderQ_push({ type: 'blitRgb', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
-            expect(display.blitRgbImage).to.have.been.calledOnce;
-            expect(display.blitRgbImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
         });
 
         it('should copy a region on type "copy"', function () {
