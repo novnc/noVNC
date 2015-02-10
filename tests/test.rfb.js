@@ -195,6 +195,48 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
         });
 
+        describe("#setDesktopSize", function () {
+            beforeEach(function() {
+                client._sock = new Websock();
+                client._sock.open('ws://', 'binary');
+                client._sock._websocket._open();
+                sinon.spy(client._sock, 'send');
+                client._rfb_state = "normal";
+                client._view_only = false;
+                client._supportsSetDesktopSize = true;
+            });
+
+            it('should send the request with the given width and height', function () {
+                var expected = [251];
+                expected.push8(0);  // padding
+                expected.push16(1); // width
+                expected.push16(2); // height
+                expected.push8(1);  // number-of-screens
+                expected.push8(0);  // padding before screen array
+                expected.push32(0); // id
+                expected.push16(0); // x-position
+                expected.push16(0); // y-position
+                expected.push16(1); // width
+                expected.push16(2); // height
+                expected.push32(0); // flags
+
+                client.setDesktopSize(1, 2);
+                expect(client._sock).to.have.sent(expected);
+            });
+
+            it('should not send the request if the client has not recieved a ExtendedDesktopSize rectangle', function () {
+                client._supportsSetDesktopSize = false;
+                client.setDesktopSize(1,2);
+                expect(client._sock.send).to.not.have.been.called;
+            });
+
+            it('should not send the request if we are not in a normal state', function () {
+                client._rfb_state = "broken";
+                client.setDesktopSize(1,2);
+                expect(client._sock.send).to.not.have.been.called;
+            });
+        });
+
         describe("XVP operations", function () {
             beforeEach(function () {
                 client._sock = new Websock();
@@ -1441,6 +1483,122 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                     expect(client._display.resize).to.have.been.calledOnce;
                     expect(client._display.resize).to.have.been.calledWith(20, 50);
+                });
+
+                describe('the ExtendedDesktopSize pseudo-encoding handler', function () {
+                    var client;
+
+                    beforeEach(function () {
+                        client = make_rfb();
+                        client.connect('host', 8675);
+                        client._sock._websocket._open();
+                        client._rfb_state = 'normal';
+                        client._fb_name = 'some device';
+                        client._supportsSetDesktopSize = false;
+                        // a really small frame
+                        client._fb_width = 4;
+                        client._fb_height = 4;
+                        client._display._fb_width = 4;
+                        client._display._fb_height = 4;
+                        client._display._viewportLoc.w = 4;
+                        client._display._viewportLoc.h = 4;
+                        client._fb_Bpp = 4;
+                        sinon.spy(client._display, 'resize');
+                        client.set_onFBResize(sinon.spy());
+                    });
+
+                    function make_screen_data (nr_of_screens) {
+                        var data = [];
+                        data.push8(nr_of_screens);   // number-of-screens
+                        data.push8(0);               // padding
+                        data.push16(0);              // padding
+                        for (var i=0; i<nr_of_screens; i += 1) {
+                            data.push32(0);  // id
+                            data.push16(0);  // x-position
+                            data.push16(0);  // y-position
+                            data.push16(20); // width
+                            data.push16(50); // height
+                            data.push32(0);  // flags
+                        }
+                        return data;
+                    }
+
+                    it('should handle a resize requested by this client', function () {
+                        var reason_for_change = 1; // requested by this client
+                        var status_code       = 0; // No error
+
+                        send_fbu_msg([{ x: reason_for_change, y: status_code,
+                                        width: 20, height: 50, encoding: -308 }],
+                                     make_screen_data(1), client);
+
+                        expect(client._supportsSetDesktopSize).to.be.true;
+                        expect(client._fb_width).to.equal(20);
+                        expect(client._fb_height).to.equal(50);
+
+                        expect(client._display.resize).to.have.been.calledOnce;
+                        expect(client._display.resize).to.have.been.calledWith(20, 50);
+
+                        var spy = client.get_onFBResize();
+                        expect(spy).to.have.been.calledOnce;
+                        expect(spy).to.have.been.calledWith(sinon.match.any, 20, 50);
+                    });
+
+                    it('should handle a resize requested by another client', function () {
+                        var reason_for_change = 2; // requested by another client
+                        var status_code       = 0; // No error
+
+                        send_fbu_msg([{ x: reason_for_change, y: status_code,
+                                        width: 20, height: 50, encoding: -308 }],
+                                     make_screen_data(1), client);
+
+                        expect(client._supportsSetDesktopSize).to.be.true;
+                        expect(client._fb_width).to.equal(20);
+                        expect(client._fb_height).to.equal(50);
+
+                        expect(client._display.resize).to.have.been.calledOnce;
+                        expect(client._display.resize).to.have.been.calledWith(20, 50);
+
+                        var spy = client.get_onFBResize();
+                        expect(spy).to.have.been.calledOnce;
+                        expect(spy).to.have.been.calledWith(sinon.match.any, 20, 50);
+                    });
+
+                    it('should be able to recieve requests which contain data for multiple screens', function () {
+                        var reason_for_change = 2; // requested by another client
+                        var status_code       = 0; // No error
+
+                        send_fbu_msg([{ x: reason_for_change, y: status_code,
+                                        width: 60, height: 50, encoding: -308 }],
+                                     make_screen_data(3), client);
+
+                        expect(client._supportsSetDesktopSize).to.be.true;
+                        expect(client._fb_width).to.equal(60);
+                        expect(client._fb_height).to.equal(50);
+
+                        expect(client._display.resize).to.have.been.calledOnce;
+                        expect(client._display.resize).to.have.been.calledWith(60, 50);
+
+                        var spy = client.get_onFBResize();
+                        expect(spy).to.have.been.calledOnce;
+                        expect(spy).to.have.been.calledWith(sinon.match.any, 60, 50);
+                    });
+
+                    it('should not handle a failed request', function () {
+                        var reason_for_change = 0; // non-incremental
+                        var status_code       = 1; // Resize is administratively prohibited
+
+                        send_fbu_msg([{ x: reason_for_change, y: status_code,
+                                        width: 20, height: 50, encoding: -308 }],
+                                     make_screen_data(1), client);
+
+                        expect(client._fb_width).to.equal(4);
+                        expect(client._fb_height).to.equal(4);
+
+                        expect(client._display.resize).to.not.have.been.called;
+
+                        var spy = client.get_onFBResize();
+                        expect(spy).to.not.have.been.called;
+                    });
                 });
 
                 it.skip('should handle the Cursor pseudo-encoding', function () {
