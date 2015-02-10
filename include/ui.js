@@ -15,6 +15,8 @@ var UI;
 (function () {
     "use strict";
 
+    var resizeTimeout;
+
     // Load supporting scripts
     window.onscriptsload = function () { UI.load(); };
     Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
@@ -41,6 +43,19 @@ var UI;
         // UI.init to setup the UI/menus
         load: function (callback) {
             WebUtil.initSettings(UI.start, callback);
+        },
+
+        onresize: function (callback) {
+            if (UI.getSetting('resize')) {
+                var innerW = window.innerWidth;
+                var innerH = window.innerHeight;
+                var controlbarH = $D('noVNC-control-bar').offsetHeight;
+                // For some unknown reason the container is higher than the canvas,
+                // 5px higher in Firefox and 4px higher in Chrome
+                var padding = 5;
+                if (innerW !== undefined && innerH !== undefined)
+                    UI.rfb.setDesktopSize(innerW, innerH - controlbarH - padding);
+            }
         },
 
         // Render default UI and initialize settings menu
@@ -89,6 +104,7 @@ var UI;
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
             UI.initSetting('true_color', true);
             UI.initSetting('cursor', !UI.isTouchDevice);
+            UI.initSetting('resize', false);
             UI.initSetting('shared', true);
             UI.initSetting('view_only', false);
             UI.initSetting('path', 'websockify');
@@ -98,6 +114,8 @@ var UI;
                               'onUpdateState': UI.updateState,
                               'onXvpInit': UI.updateXvpVisualState,
                               'onClipboard': UI.clipReceive,
+                              'onFBUComplete': UI.FBUComplete,
+                              'onFBResize': UI.updateViewDragButton,
                               'onDesktopName': UI.updateDocumentTitle});
 
             var autoconnect = WebUtil.getQueryVar('autoconnect', false);
@@ -118,7 +136,6 @@ var UI;
                 // Remove the address bar
                 setTimeout(function() { window.scrollTo(0, 1); }, 100);
                 UI.forceSetting('clip', true);
-                $D('noVNC_clip').disabled = true;
             } else {
                 UI.initSetting('clip', false);
             }
@@ -136,7 +153,17 @@ var UI;
             $D('noVNC_host').focus();
 
             UI.setViewClip();
-            Util.addEvent(window, 'resize', UI.setViewClip);
+
+            Util.addEvent(window, 'resize', function () {
+                UI.setViewClip();
+                // When the window has been resized, wait until the size remains
+                // the same for 0.5 seconds before sending the request for changing
+                // the resolution of the session
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function(){
+                    UI.onresize();
+                }, 500);
+            } );
 
             Util.addEvent(window, 'load', UI.keyboardinputReset);
 
@@ -212,7 +239,7 @@ var UI;
         getSetting: function(name) {
             var ctrl = $D('noVNC_' + name);
             var val = WebUtil.readSetting(name);
-            if (val !== null && ctrl.type === 'checkbox') {
+            if (typeof val !== 'undefined' && val !== null && ctrl.type === 'checkbox') {
                 if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
                     val = false;
                 } else {
@@ -427,6 +454,7 @@ var UI;
                     $D('noVNC_cursor').disabled = true;
                 }
                 UI.updateSetting('clip');
+                UI.updateSetting('resize');
                 UI.updateSetting('shared');
                 UI.updateSetting('view_only');
                 UI.updateSetting('path');
@@ -479,6 +507,7 @@ var UI;
                 UI.saveSetting('cursor');
             }
             UI.saveSetting('clip');
+            UI.saveSetting('resize');
             UI.saveSetting('shared');
             UI.saveSetting('view_only');
             UI.saveSetting('path');
@@ -595,6 +624,8 @@ var UI;
                 UI.updateSetting('cursor', !UI.isTouchDevice);
                 $D('noVNC_cursor').disabled = true;
             }
+            $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
+            $D('noVNC_resize').disabled = connected;
             $D('noVNC_shared').disabled = connected;
             $D('noVNC_view_only').disabled = connected;
             $D('noVNC_path').disabled = connected;
@@ -650,6 +681,16 @@ var UI;
             }
         },
 
+        // This resize can not be done until we know from the first Frame Buffer Update
+        // if it is supported or not.
+        // The resize is needed to make sure the server desktop size is updated to the
+        // corresponding size of the current local window when reconnecting to an
+        // existing session.
+        FBUComplete: function(rfb, fbu) {
+            UI.onresize();
+            UI.rfb.set_onFBUComplete(function() { });
+        },
+
         // Display the desktop name in the document title
         updateDocumentTitle: function(rfb, name) {
             document.title = name + " - noVNC";
@@ -690,6 +731,9 @@ var UI;
         disconnect: function() {
             UI.closeSettingsMenu();
             UI.rfb.disconnect();
+
+            // Restore the callback used for initial resize
+            UI.rfb.set_onFBUComplete(UI.FBUComplete);
 
             $D('noVNC_logo').style.display = "block";
             UI.connSettingsOpen = false;
@@ -742,7 +786,7 @@ var UI;
                 UI.updateSetting('clip', false);
                 display.set_viewport(false);
                 $D('noVNC_canvas').style.position = 'static';
-                display.viewportChange();
+                display.viewportChangeSize();
             }
             if (UI.getSetting('clip')) {
                 // If clipping, update clipping settings
@@ -751,33 +795,39 @@ var UI;
                 var new_w = window.innerWidth - pos.x;
                 var new_h = window.innerHeight - pos.y;
                 display.set_viewport(true);
-                display.viewportChange(0, 0, new_w, new_h);
+                display.viewportChangeSize(new_w, new_h);
             }
         },
 
         // Toggle/set/unset the viewport drag/move button
         setViewDrag: function(drag) {
-            var vmb = $D('noVNC_view_drag_button');
             if (!UI.rfb) { return; }
 
-            if (UI.rfb_state === 'normal' &&
-                UI.rfb.get_display().get_viewport()) {
-                vmb.style.display = "inline";
-            } else {
-                vmb.style.display = "none";
-            }
+            UI.updateViewDragButton();
 
             if (typeof(drag) === "undefined" ||
                 typeof(drag) === "object") {
                 // If not specified, then toggle
                 drag = !UI.rfb.get_viewportDrag();
             }
+            var vmb = $D('noVNC_view_drag_button');
             if (drag) {
                 vmb.className = "noVNC_status_button_selected";
                 UI.rfb.set_viewportDrag(true);
             } else {
                 vmb.className = "noVNC_status_button";
                 UI.rfb.set_viewportDrag(false);
+            }
+        },
+
+        updateViewDragButton: function() {
+            var vmb = $D('noVNC_view_drag_button');
+            if (UI.rfb_state === 'normal' &&
+                UI.rfb.get_display().get_viewport() &&
+                UI.rfb.get_display().fbuClip()) {
+                vmb.style.display = "inline";
+            } else {
+                vmb.style.display = "none";
             }
         },
 

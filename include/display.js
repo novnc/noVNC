@@ -111,54 +111,12 @@ var Display;
 
     Display.prototype = {
         // Public methods
-        viewportChange: function (deltaX, deltaY, width, height) {
+        viewportChangePos: function (deltaX, deltaY) {
             var vp = this._viewportLoc;
-            var cr = this._cleanRect;
-            var canvas = this._target;
 
             if (!this._viewport) {
-                Util.Debug("Setting viewport to full display region");
                 deltaX = -vp.w;  // clamped later of out of bounds
                 deltaY = -vp.h;
-                width = this._fb_width;
-                height = this._fb_height;
-            }
-
-            if (typeof(deltaX) === "undefined") { deltaX = 0; }
-            if (typeof(deltaY) === "undefined") { deltaY = 0; }
-            if (typeof(width) === "undefined") { width = vp.w; }
-            if (typeof(height) === "undefined") { height = vp.h; }
-
-            // Size change
-            if (width > this._fb_width) { width = this._fb_width; }
-            if (height > this._fb_height) { height = this._fb_height; }
-
-            if (vp.w !== width || vp.h !== height) {
-                // Change width
-                if (width < vp.w &&  cr.x2 > vp.x + width - 1) {
-                    cr.x2 = vp.x + width - 1;
-                }
-                vp.w = width;
-
-                // Change height
-                if (height < vp.h &&  cr.y2 > vp.y + height - 1) {
-                    cr.y2 = vp.y + height - 1;
-                }
-                vp.h = height;
-
-                var saveImg = null;
-                if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
-                    var img_width = canvas.width < vp.w ? canvas.width : vp.w;
-                    var img_height = canvas.height < vp.h ? canvas.height : vp.h;
-                    saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
-                }
-
-                canvas.width = vp.w;
-                canvas.height = vp.h;
-
-                if (saveImg) {
-                    this._drawCtx.putImageData(saveImg, 0, 0);
-                }
             }
 
             var vx2 = vp.x + vp.w - 1;
@@ -191,6 +149,7 @@ var Display;
             vy2 += deltaY;
 
             // Update the clean rectangle
+            var cr = this._cleanRect;
             if (vp.x > cr.x1) {
                 cr.x1 = vp.x;
             }
@@ -228,6 +187,7 @@ var Display;
 
             // Copy the valid part of the viewport to the shifted location
             var saveStyle = this._drawCtx.fillStyle;
+            var canvas = this._target;
             this._drawCtx.fillStyle = "rgb(255,255,255)";
             if (deltaX !== 0) {
                 this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, -deltaX, 0, vp.w, vp.h);
@@ -238,6 +198,58 @@ var Display;
                 this._drawCtx.fillRect(0, y1, vp.w, h);
             }
             this._drawCtx.fillStyle = saveStyle;
+        },
+
+        viewportChangeSize: function(width, height) {
+
+            if (!this._viewport ||
+                typeof(width) === "undefined" || typeof(height) === "undefined") {
+
+                Util.Debug("Setting viewport to full display region");
+                width = this._fb_width;
+                height = this._fb_height;
+            }
+
+            var vp = this._viewportLoc;
+            if (vp.w !== width || vp.h !== height) {
+
+                var cr = this._cleanRect;
+
+                if (width < vp.w &&  cr.x2 > vp.x + width - 1) {
+                    cr.x2 = vp.x + width - 1;
+                }
+
+                if (height < vp.h &&  cr.y2 > vp.y + height - 1) {
+                    cr.y2 = vp.y + height - 1;
+                }
+
+                if (this.fbuClip()) {
+                    // clipping
+                    vp.w = window.innerWidth;
+                    var cb = document.getElementById('noVNC-control-bar');
+                    var controlbar_h = (cb !== null) ? cb.offsetHeight : 0;
+                    vp.h = window.innerHeight - controlbar_h - 5;
+                } else {
+                    // scrollbars
+                    vp.w = width;
+                    vp.h = height;
+                }
+
+                var saveImg = null;
+                var canvas = this._target;
+                if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
+                    var img_width = canvas.width < vp.w ? canvas.width : vp.w;
+                    var img_height = canvas.height < vp.h ? canvas.height : vp.h;
+                    saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
+                }
+
+                canvas.width = vp.w;
+                canvas.height = vp.h;
+
+                if (saveImg) {
+                    this._drawCtx.putImageData(saveImg, 0, 0);
+                }
+            }
         },
 
         // Return a map of clean and dirty areas of the viewport and reset the
@@ -305,7 +317,7 @@ var Display;
 
             this._rescale(this._scale);
 
-            this.viewportChange();
+            this.viewportChangeSize();
         },
 
         clear: function () {
@@ -475,6 +487,14 @@ var Display;
             this._target.style.cursor = "none";
         },
 
+        fbuClip: function () {
+            var cb = document.getElementById('noVNC-control-bar');
+            var controlbar_h = (cb !== null) ? cb.offsetHeight : 0;
+            return (this._viewport &&
+                    (this._fb_width > window.innerWidth
+                     || this._fb_height > window.innerHeight - controlbar_h - 5));
+        },
+
         // Overridden getters/setters
         get_context: function () {
             return this._drawCtx;
@@ -485,14 +505,14 @@ var Display;
         },
 
         set_width: function (w) {
-            this.resize(w, this._fb_height);
+            this._fb_width = w;
         },
         get_width: function () {
             return this._fb_width;
         },
 
         set_height: function (h) {
-            this.resize(this._fb_width, h);
+            this._fb_height =  h;
         },
         get_height: function () {
             return this._fb_height;
