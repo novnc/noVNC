@@ -102,7 +102,14 @@ else
 fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
+if [ -e "${HERE}/websockify" ]; then
 ${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+elif [ -e "${WEB}/utils/websockify" ]; then
+${WEB}/utils/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+else
+    echo "Warning: could not find websockify"
+fi
+
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
