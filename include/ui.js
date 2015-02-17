@@ -46,7 +46,7 @@ var UI;
         },
 
         onresize: function (callback) {
-            if (UI.getSetting('resize')) {
+            if (UI.getSetting('resize') === 'remote') {
                 var innerW = window.innerWidth;
                 var innerH = window.innerHeight;
                 var controlbarH = $D('noVNC-control-bar').offsetHeight;
@@ -104,7 +104,7 @@ var UI;
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
             UI.initSetting('true_color', true);
             UI.initSetting('cursor', !UI.isTouchDevice);
-            UI.initSetting('resize', false);
+            UI.initSetting('resize', 'off');
             UI.initSetting('shared', true);
             UI.initSetting('view_only', false);
             UI.initSetting('path', 'websockify');
