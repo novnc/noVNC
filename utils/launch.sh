@@ -9,7 +9,7 @@ usage() {
     echo
     echo "Starts the WebSockets proxy and a mini-webserver and "
     echo "provides a cut-and-paste URL to go to."
-    echo 
+    echo
     echo "    --listen PORT         Port for proxy/webserver to listen on"
     echo "                          Default: 6080"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
@@ -101,8 +101,40 @@ else
     echo "Warning: could not find self.pem"
 fi
 
+# try to find websockify (prefer local, try global, then download local)
+if [[ -e ${HERE}/websockify ]]; then
+    WEBSOCKIFY=${HERE}/websockify/run
+
+    if [[ ! -x $WEBSOCKIFY ]]; then
+        echo "The path ${HERE}/websockify exists, but $WEBSOCKIFY either does not exist or is not executable."
+        echo "If you inteded to use an installed websockify package, please remove ${HERE}/websockify."
+        exit 1
+    fi
+
+    echo "Using local websockify at $WEBSOCKIFY"
+else
+    WEBSOCKIFY=$(which websockify 2>/dev/null)
+
+    if [[ $? -ne 0 ]]; then
+        echo "No installed websockify, attempting to clone websockify..."
+        WEBSOCKIFY=${HERE}/websockify/run
+        git clone https://github.com/kanaka/websockify
+        git update-index --assume-unchanged websockify
+
+        if [[ ! -e $WEBSOCKIFY ]]; then
+            echo "Unable to locate ${HERE}/websockify/run after downloading"
+            exit 1
+        fi
+
+        echo "Using local websockify at $WEBSOCKIFY"
+    else
+        echo "Using installed websockify at $WEBSOCKIFY"
+    fi
+fi
+
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
-${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+#${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+${WEBSOCKIFY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
