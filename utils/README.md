@@ -1,5 +1,9 @@
 ## WebSockets Proxy/Bridge
 
+Websockify has been forked out into its own project.  `launch.sh` wil
+automatically download it here if it is not already present and not
+installed as system-wide.
+
 For more detailed description and usage information please refer to
 the [websockify README](https://github.com/kanaka/websockify/blob/master/README.md).
 
