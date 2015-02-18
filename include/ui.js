@@ -46,15 +46,29 @@ var UI;
         },
 
         onresize: function (callback) {
-            if (UI.getSetting('resize') === 'remote') {
-                var innerW = window.innerWidth;
-                var innerH = window.innerHeight;
-                var controlbarH = $D('noVNC-control-bar').offsetHeight;
-                // For some unknown reason the container is higher than the canvas,
-                // 5px higher in Firefox and 4px higher in Chrome
-                var padding = 5;
-                if (innerW !== undefined && innerH !== undefined)
-                    UI.rfb.setDesktopSize(innerW, innerH - controlbarH - padding);
+            var innerW = window.innerWidth;
+            var innerH = window.innerHeight;
+            var controlbarH = $D('noVNC-control-bar').offsetHeight;
+            // For some unknown reason the container is higher than the canvas,
+            // 5px higher in Firefox and 4px higher in Chrome
+            var padding = 5;
+            var effectiveH = innerH - controlbarH - padding;
+
+            var display = UI.rfb.get_display();
+
+            if (innerW !== undefined && innerH !== undefined) {
+                var scaleType = UI.getSetting('resize');
+                if (scaleType === 'remote') {
+                    // use remote resizing
+                    Util.Debug('Attempting setDesktopSize(' + innerW + ', ' + effectiveH + ')');
+                    UI.rfb.setDesktopSize(innerW, effectiveH);
+                } else if (scaleType === 'scale' || scaleType === 'downscale') {
+                    // use local scaling
+                    var downscaleOnly = scaleType === 'downscale';
+                    var scaleRatio = display.autoscale(innerW, effectiveH, downscaleOnly);
+                    UI.rfb.get_mouse().set_scale(scaleRatio);
+                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+                }
             }
         },
 
@@ -237,6 +251,11 @@ var UI;
             $D("noVNC_apply").onclick = UI.settingsApply;
 
             $D("noVNC_connect_button").onclick = UI.connect;
+
+            $D("noVNC_resize").onchange = function () {
+                var connected = UI.rfb_state === 'normal' ? true : false;
+                UI.enableDisableClip(connected);
+            };
         },
 
         // Read form control compatible setting from cookie
@@ -510,8 +529,14 @@ var UI;
             if (UI.rfb.get_display().get_cursor_uri()) {
                 UI.saveSetting('cursor');
             }
-            UI.saveSetting('clip');
+
             UI.saveSetting('resize');
+
+            if (UI.getSetting('resize') === 'downscale' || UI.getSetting('resize') === 'scale') {
+                UI.forceSetting('clip', false);
+            }
+
+            UI.saveSetting('clip');
             UI.saveSetting('shared');
             UI.saveSetting('view_only');
             UI.saveSetting('path');
@@ -635,7 +660,8 @@ var UI;
                 UI.updateSetting('cursor', !UI.isTouchDevice);
                 $D('noVNC_cursor').disabled = true;
             }
-            $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
+
+            UI.enableDisableClip(connected);
             $D('noVNC_resize').disabled = connected;
             $D('noVNC_shared').disabled = connected;
             $D('noVNC_view_only').disabled = connected;
@@ -693,6 +719,19 @@ var UI;
                 // Close XVP panel if open
                 if (UI.xvpOpen === true) {
                     UI.toggleXvpPanel();
+                }
+            }
+        },
+
+        enableDisableClip: function (connected) {
+            var resizeElem = $D('noVNC_resize');
+            if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
+                UI.forceSetting('clip', false);
+                $D('noVNC_clip').disabled = true;
+            } else {
+                $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
+                if (UI.isTouchDevice) {
+                    UI.forceSetting('clip', true);
                 }
             }
         },

@@ -435,8 +435,12 @@ Util.load_scripts = function (files) {
 
 Util.getPosition = function(obj) {
     "use strict";
+    // NB(sross): the Mozilla developer reference seems to indicate that
+    // getBoundingClientRect includes border and padding, so the canvas
+    // style should NOT include either.
     var objPosition = obj.getBoundingClientRect();
-    return {'x': objPosition.left + window.pageXOffset, 'y': objPosition.top + window.pageYOffset};
+    return {'x': objPosition.left + window.pageXOffset, 'y': objPosition.top + window.pageYOffset,
+            'width': objPosition.width, 'height': objPosition.height};
 };
 
 
@@ -462,8 +466,8 @@ Util.getEventPosition = function (e, obj, scale) {
     }
     var realx = docX - pos.x;
     var realy = docY - pos.y;
-    var x = Math.max(Math.min(realx, obj.width - 1), 0);
-    var y = Math.max(Math.min(realy, obj.height - 1), 0);
+    var x = Math.max(Math.min(realx, pos.width - 1), 0);
+    var y = Math.max(Math.min(realy, pos.height - 1), 0);
     return {'x': x / scale, 'y': y / scale, 'realx': realx / scale, 'realy': realy / scale};
 };
 

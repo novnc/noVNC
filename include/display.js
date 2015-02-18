@@ -518,38 +518,48 @@ var Display;
             return this._fb_height;
         },
 
+        autoscale: function (containerWidth, containerHeight, downscaleOnly) {
+            var targetAspectRatio = containerWidth / containerHeight;
+            var fbAspectRatio = this._fb_width / this._fb_height;
+
+            var scaleRatio;
+            if (fbAspectRatio >= targetAspectRatio) {
+                scaleRatio = containerWidth / this._fb_width;
+            } else {
+                scaleRatio = containerHeight / this._fb_height;
+            }
+
+            var targetW, targetH;
+            if (scaleRatio > 1.0 && downscaleOnly) {
+                targetW = this._fb_width;
+                targetH = this._fb_height;
+                scaleRatio = 1.0;
+            } else if (fbAspectRatio >= targetAspectRatio) {
+                targetW = containerWidth;
+                targetH = Math.round(containerWidth / fbAspectRatio);
+            } else {
+                targetW = Math.round(containerHeight * fbAspectRatio);
+                targetH = containerHeight;
+            }
+
+            // NB(directxman12): If you set the width directly, or set the
+            //                   style width to a number, the canvas is cleared.
+            //                   However, if you set the style width to a string
+            //                   ('NNNpx'), the canvas is scaled without clearing.
+            this._target.style.width = targetW + 'px';
+            this._target.style.height = targetH + 'px';
+
+            this._scale = scaleRatio;
+
+            return scaleRatio;  // so that the mouse, etc scale can be set
+        },
+
         // Private Methods
         _rescale: function (factor) {
-            var canvas = this._target;
-            var properties = ['transform', 'WebkitTransform', 'MozTransform'];
-            var transform_prop;
-            while ((transform_prop = properties.shift())) {
-                if (typeof canvas.style[transform_prop] !== 'undefined') {
-                    break;
-                }
-            }
-
-            if (transform_prop === null) {
-                Util.Debug("No scaling support");
-                return;
-            }
-
-            if (typeof(factor) === "undefined") {
-                factor = this._scale;
-            } else if (factor > 1.0) {
-                factor = 1.0;
-            } else if (factor < 0.1) {
-                factor = 0.1;
-            }
-
-            if (this._scale === factor) {
-                return;
-            }
-
             this._scale = factor;
-            var x = canvas.width - (canvas.width * factor);
-            var y = canvas.height - (canvas.height * factor);
-            canvas.style[transform_prop] = 'scale(' + this._scale + ') translate(-' + x + 'px, -' + y + 'px)';
+
+            this._target.style.width = Math.round(factor * this._fb_width) + 'px';
+            this._target.style.height = Math.round(factor * this._fb_height) + 'px';
         },
 
         _setFillColor: function (color) {
