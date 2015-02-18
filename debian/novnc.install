@@ -2,12 +2,9 @@ vnc.html	/usr/share/novnc
 vnc_auto.html	/usr/share/novnc
 README.md  /usr/share/doc/novnc
 LICENSE.txt  /usr/share/doc/novnc
-utils/Makefile   /usr/share/novnc/utils
 utils/launch.sh   /usr/share/novnc/utils
 utils/websocket.py   /usr/share/novnc/utils
 utils/websockify   /usr/share/novnc/utils
-utils/rebind.c  /usr/share/novnc/utils
-utils/rebind.so  /usr/share/novnc/utils
 images  /usr/share/novnc
 images/favicon.ico  /usr/share/novnc
 include/base64.js   /usr/share/novnc/include
