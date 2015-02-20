@@ -1,4 +1,4 @@
-- Update and commit docs/VERSION and debian/changelog
+- Update and commit docs/VERSION
 - Create version tag and tarball from tag
     WVER=0.3
     git tag v${WVER}
