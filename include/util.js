@@ -436,7 +436,7 @@ Util.load_scripts = function (files) {
 Util.getPosition = function(obj) {
     "use strict";
     var objPosition = obj.getBoundingClientRect();
-    return {'x': objPosition.left, 'y': objPosition.top};
+    return {'x': objPosition.left + window.pageXOffset, 'y': objPosition.top + window.pageYOffset};
 };
 
 
