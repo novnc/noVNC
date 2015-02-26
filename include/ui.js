@@ -110,13 +110,7 @@ var UI;
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
 
-            UI.rfb = new RFB({'target': $D('noVNC_canvas'),
-                              'onUpdateState': UI.updateState,
-                              'onXvpInit': UI.updateXvpVisualState,
-                              'onClipboard': UI.clipReceive,
-                              'onFBUComplete': UI.FBUComplete,
-                              'onFBResize': UI.updateViewDragButton,
-                              'onDesktopName': UI.updateDocumentTitle});
+            UI.initRFB();
 
             var autoconnect = WebUtil.getQueryVar('autoconnect', false);
             if (autoconnect === 'true' || autoconnect == '1') {
@@ -190,6 +184,16 @@ var UI;
             if (typeof callback === "function") {
                 callback(UI.rfb);
             }
+        },
+
+        initRFB: function () {
+            UI.rfb = new RFB({'target': $D('noVNC_canvas'),
+                              'onUpdateState': UI.updateState,
+                              'onXvpInit': UI.updateXvpVisualState,
+                              'onClipboard': UI.clipReceive,
+                              'onFBUComplete': UI.FBUComplete,
+                              'onFBResize': UI.updateViewDragButton,
+                              'onDesktopName': UI.updateDocumentTitle});
         },
 
         addMouseHandlers: function() {
@@ -602,6 +606,13 @@ var UI;
                     break;
             }
 
+            switch (state) {
+                case 'fatal':
+                case 'failed':
+                case 'disconnected':
+                    UI.initRFB();
+            }
+
             if (typeof(msg) !== 'undefined') {
                 $D('noVNC-control-bar').setAttribute("class", klass);
                 $D('noVNC_status').innerHTML = msg;
@@ -654,8 +665,13 @@ var UI;
             switch (UI.rfb_state) {
                 case 'fatal':
                 case 'failed':
-                case 'loaded':
                 case 'disconnected':
+                    $D('connectButton').style.display = "";
+                    $D('disconnectButton').style.display = "none";
+                    UI.connSettingsOpen = false;
+                    UI.toggleConnectPanel();
+                    break;
+                case 'loaded':
                     $D('connectButton').style.display = "";
                     $D('disconnectButton').style.display = "none";
                     break;
@@ -736,8 +752,7 @@ var UI;
             UI.rfb.set_onFBUComplete(UI.FBUComplete);
 
             $D('noVNC_logo').style.display = "block";
-            UI.connSettingsOpen = false;
-            UI.toggleConnectPanel();
+            // Don't display the connection settings until we're actually disconnected
         },
 
         displayBlur: function() {

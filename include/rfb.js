@@ -482,6 +482,7 @@ var RFB;
                 Util.Debug("Clearing disconnect timer");
                 clearTimeout(this._disconnTimer);
                 this._disconnTimer = null;
+                this._sock.off('close');  // make sure we don't get a double event
             }
 
             switch (state) {
