@@ -178,7 +178,10 @@ module.exports = function(config) {
 
     // Increase timeout in case connection is slow/we run more browsers than possible
     // (we currently get 3 for free, and we try to run 7, so it can take a while)
-    captureTimeout: 240000
+    captureTimeout: 240000,
+
+    // similarly to above
+    browserNoActivityTimeout: 100000,
   };
 
   if (useSauce) {
