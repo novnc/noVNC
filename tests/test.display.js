@@ -154,6 +154,84 @@ describe('Display/Canvas Helper', function () {
         });
     });
 
+    describe('rescaling', function () {
+        var display;
+        var canvas;
+
+        beforeEach(function () {
+            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
+            display.resize(4, 3);
+            canvas = display.get_target();
+            document.body.appendChild(canvas);
+        });
+
+        afterEach(function () {
+            document.body.removeChild(canvas);
+        });
+
+        it('should not change the bitmap size of the canvas', function () {
+            display.set_scale(0.5);
+            expect(canvas.width).to.equal(4);
+            expect(canvas.height).to.equal(3);
+        });
+
+        it('should change the effective rendered size of the canvas', function () {
+            display.set_scale(0.5);
+            expect(canvas.clientWidth).to.equal(2);
+            expect(canvas.clientHeight).to.equal(2);
+        });
+    });
+
+    describe('autoscaling', function () {
+        var display;
+        var canvas;
+
+        beforeEach(function () {
+            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
+            display.resize(4, 3);
+            canvas = display.get_target();
+            document.body.appendChild(canvas);
+        });
+
+        afterEach(function () {
+            document.body.removeChild(canvas);
+        });
+
+        it('should preserve aspect ratio while autoscaling', function () {
+            display.autoscale(16, 9);
+            expect(canvas.clientWidth / canvas.clientHeight).to.equal(4 / 3);
+        });
+
+        it('should use width to determine scale when the current aspect ratio is wider than the target', function () {
+            expect(display.autoscale(9, 16)).to.equal(9 / 4);
+            expect(canvas.clientWidth).to.equal(9);
+            expect(canvas.clientHeight).to.equal(7); // round 9 / (4 / 3)
+        });
+
+        it('should use height to determine scale when the current aspect ratio is taller than the target', function () {
+            expect(display.autoscale(16, 9)).to.equal(3); // 9 / 3
+            expect(canvas.clientWidth).to.equal(12);  // 16 * (4 / 3)
+            expect(canvas.clientHeight).to.equal(9);
+
+        });
+
+        it('should not change the bitmap size of the canvas', function () {
+            display.autoscale(16, 9);
+            expect(canvas.width).to.equal(4);
+            expect(canvas.height).to.equal(3);
+        });
+
+        it('should not upscale when downscaleOnly is true', function () {
+            expect(display.autoscale(2, 2, true)).to.equal(0.5);
+            expect(canvas.clientWidth).to.equal(2);
+            expect(canvas.clientHeight).to.equal(2);
+
+            expect(display.autoscale(16, 9, true)).to.equal(1.0);
+            expect(canvas.clientWidth).to.equal(4);
+            expect(canvas.clientHeight).to.equal(3);
+        });
+    });
+
     describe('drawing', function () {
 
         // TODO(directxman12): improve the tests for each of the drawing functions to cover more than just the
