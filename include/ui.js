@@ -925,8 +925,15 @@ var UI;
         // This code is required since some browsers on Android are inconsistent in
         // sending keyCodes in the normal keyboard events when using on screen keyboards.
         keyInput: function(event) {
+
+            if (!UI.rfb) { return; }
+
             var newValue = event.target.value;
-            var oldValue = UI.lastKeyboardinput;
+
+            if (!UI.lastKeyboardinput) {
+                UI.keyboardinputReset();
+            }
+            var oldvalue = UI.lastKeyboardinput;
 
             var newLen;
             try {
