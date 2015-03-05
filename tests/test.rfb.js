@@ -1584,7 +1584,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     });
 
                     it('should not handle a failed request', function () {
-                        var reason_for_change = 0; // non-incremental
+                        var reason_for_change = 1; // requested by this client
                         var status_code       = 1; // Resize is administratively prohibited
 
                         send_fbu_msg([{ x: reason_for_change, y: status_code,
