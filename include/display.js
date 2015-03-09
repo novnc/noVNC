@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2015 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -23,6 +24,10 @@ var Display;
         // the full frame buffer (logical canvas) size
         this._fb_width = 0;
         this._fb_height = 0;
+
+        // the size limit of the viewport (start disabled)
+        this._maxWidth = 0;
+        this._maxHeight = 0;
 
         // the visible "physical canvas" viewport
         this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
@@ -202,8 +207,7 @@ var Display;
 
         viewportChangeSize: function(width, height) {
 
-            if (!this._viewport ||
-                typeof(width) === "undefined" || typeof(height) === "undefined") {
+            if (typeof(width) === "undefined" || typeof(height) === "undefined") {
 
                 Util.Debug("Setting viewport to full display region");
                 width = this._fb_width;
@@ -213,41 +217,49 @@ var Display;
             var vp = this._viewportLoc;
             if (vp.w !== width || vp.h !== height) {
 
+                if (this._viewport) {
+                    if (this._maxWidth !== 0 && width > this._maxWidth) {
+                        width = this._maxWidth;
+                    }
+                    if (this._maxHeight !== 0 && height > this._maxHeight) {
+                        height = this._maxHeight;
+                    }
+                }
+
                 var cr = this._cleanRect;
 
                 if (width < vp.w &&  cr.x2 > vp.x + width - 1) {
                     cr.x2 = vp.x + width - 1;
                 }
-
                 if (height < vp.h &&  cr.y2 > vp.y + height - 1) {
                     cr.y2 = vp.y + height - 1;
                 }
 
-                if (this.fbuClip()) {
-                    // clipping
-                    vp.w = window.innerWidth;
-                    var cb = document.getElementById('noVNC-control-bar');
-                    var controlbar_h = (cb !== null) ? cb.offsetHeight : 0;
-                    vp.h = window.innerHeight - controlbar_h - 5;
-                } else {
-                    // scrollbars
-                    vp.w = width;
-                    vp.h = height;
-                }
+                vp.w = width;
+                vp.h = height;
 
-                var saveImg = null;
                 var canvas = this._target;
-                if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
-                    var img_width = canvas.width < vp.w ? canvas.width : vp.w;
-                    var img_height = canvas.height < vp.h ? canvas.height : vp.h;
-                    saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
-                }
+                if (canvas.width !== width || canvas.height !== height) {
 
-                canvas.width = vp.w;
-                canvas.height = vp.h;
+                    // We have to save the canvas data since changing the size will clear it
+                    var saveImg = null;
+                    if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
+                        var img_width = canvas.width < vp.w ? canvas.width : vp.w;
+                        var img_height = canvas.height < vp.h ? canvas.height : vp.h;
+                        saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
+                    }
 
-                if (saveImg) {
-                    this._drawCtx.putImageData(saveImg, 0, 0);
+                    if (canvas.width  !== width)  { canvas.width  = width; }
+                    if (canvas.height !== height) { canvas.height = height; }
+
+                    if (this._viewport) {
+                        canvas.style.height = height + 'px';
+                        canvas.style.width = width + 'px';
+                    }
+
+                    if (saveImg) {
+                        this._drawCtx.putImageData(saveImg, 0, 0);
+                    }
                 }
             }
         },
@@ -487,12 +499,18 @@ var Display;
             this._target.style.cursor = "none";
         },
 
-        fbuClip: function () {
-            var cb = document.getElementById('noVNC-control-bar');
-            var controlbar_h = (cb !== null) ? cb.offsetHeight : 0;
-            return (this._viewport &&
-                    (this._fb_width > window.innerWidth
-                     || this._fb_height > window.innerHeight - controlbar_h - 5));
+        clippingDisplay: function () {
+            var vp = this._viewportLoc;
+
+            var fbClip = this._fb_width > vp.w || this._fb_height > vp.h;
+            var limitedVp = this._maxWidth !== 0 && this._maxHeight !== 0;
+            var clipping = false;
+
+            if (limitedVp) {
+                clipping = vp.w > this._maxWidth || vp.h > this._maxHeight;
+            }
+
+            return fbClip || (limitedVp && clipping);
         },
 
         // Overridden getters/setters
@@ -558,8 +576,20 @@ var Display;
         _rescale: function (factor) {
             this._scale = factor;
 
-            this._target.style.width = Math.round(factor * this._fb_width) + 'px';
-            this._target.style.height = Math.round(factor * this._fb_height) + 'px';
+            var w;
+            var h;
+
+            if (this._viewport &&
+                this._maxWidth !== 0 && this._maxHeight !== 0) {
+                w = Math.min(this._fb_width, this._maxWidth);
+                h = Math.min(this._fb_height, this._maxHeight);
+            } else {
+                w = this._fb_width;
+                h = this._fb_height;
+            }
+
+            this._target.style.width = Math.round(factor * w) + 'px';
+            this._target.style.height = Math.round(factor * h) + 'px';
         },
 
         _setFillColor: function (color) {
@@ -661,9 +691,11 @@ var Display;
         ['true_color', 'rw', 'bool'],  // Use true-color pixel data
         ['colourMap', 'rw', 'arr'],    // Colour map array (when not true-color)
         ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0
-        ['viewport', 'rw', 'bool'],    // Use a viewport set with viewportChange()
+        ['viewport', 'rw', 'bool'],    // Use viewport clipping
         ['width', 'rw', 'int'],        // Display area width
         ['height', 'rw', 'int'],       // Display area height
+        ['maxWidth', 'rw', 'int'],     // Viewport max width (0 if disabled)
+        ['maxHeight', 'rw', 'int'],    // Viewport max height (0 if disabled)
 
         ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
 

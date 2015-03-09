@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2013 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2015 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -43,33 +43,6 @@ var UI;
         // UI.init to setup the UI/menus
         load: function (callback) {
             WebUtil.initSettings(UI.start, callback);
-        },
-
-        onresize: function (callback) {
-            var innerW = window.innerWidth;
-            var innerH = window.innerHeight;
-            var controlbarH = $D('noVNC-control-bar').offsetHeight;
-            // For some unknown reason the container is higher than the canvas,
-            // 5px higher in Firefox and 4px higher in Chrome
-            var padding = 5;
-            var effectiveH = innerH - controlbarH - padding;
-
-            var display = UI.rfb.get_display();
-
-            if (innerW !== undefined && innerH !== undefined) {
-                var scaleType = UI.getSetting('resize');
-                if (scaleType === 'remote') {
-                    // use remote resizing
-                    Util.Debug('Attempting setDesktopSize(' + innerW + ', ' + effectiveH + ')');
-                    UI.rfb.setDesktopSize(innerW, effectiveH);
-                } else if (scaleType === 'scale' || scaleType === 'downscale') {
-                    // use local scaling
-                    var downscaleOnly = scaleType === 'downscale';
-                    var scaleRatio = display.autoscale(innerW, effectiveH, downscaleOnly);
-                    UI.rfb.get_mouse().set_scale(scaleRatio);
-                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
-                }
-            }
         },
 
         // Render default UI and initialize settings menu
@@ -136,6 +109,8 @@ var UI;
 
             UI.updateVisualState();
 
+            $D('noVNC_host').focus();
+
             // Show mouse selector buttons on touch screen devices
             if (UI.isTouchDevice) {
                 // Show mobile buttons
@@ -148,29 +123,14 @@ var UI;
                 UI.initSetting('clip', false);
             }
 
-            //iOS Safari does not support CSS position:fixed.
-            //This detects iOS devices and enables javascript workaround.
-            if ((navigator.userAgent.match(/iPhone/i)) ||
-                (navigator.userAgent.match(/iPod/i)) ||
-                (navigator.userAgent.match(/iPad/i))) {
-                //UI.setOnscroll();
-                //UI.setResize();
-            }
+            UI.setViewClip();
             UI.setBarPosition();
 
-            $D('noVNC_host').focus();
-
-            UI.setViewClip();
-
             Util.addEvent(window, 'resize', function () {
+                UI.onresize();
                 UI.setViewClip();
-                // When the window has been resized, wait until the size remains
-                // the same for 0.5 seconds before sending the request for changing
-                // the resolution of the session
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(function(){
-                    UI.onresize();
-                }, 500);
+                UI.updateViewDragButton();
+                UI.setBarPosition();
             } );
 
             Util.addEvent(window, 'load', UI.keyboardinputReset);
@@ -256,6 +216,55 @@ var UI;
                 var connected = UI.rfb_state === 'normal' ? true : false;
                 UI.enableDisableClip(connected);
             };
+        },
+
+        onresize: function (callback) {
+            var size = UI.getCanvasLimit();
+
+            if (size && UI.rfb_state === 'normal' && UI.rfb.get_display()) {
+                var display = UI.rfb.get_display();
+                var scaleType = UI.getSetting('resize');
+                if (scaleType === 'remote') {
+                    // use remote resizing
+
+                    // When the local window has been resized, wait until the size remains
+                    // the same for 0.5 seconds before sending the request for changing
+                    // the resolution of the session
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(function(){
+                        display.set_maxWidth(size.w);
+                        display.set_maxHeight(size.h);
+                        Util.Debug('Attempting setDesktopSize(' +
+                                   size.w + ', ' + size.h + ')');
+                        UI.rfb.setDesktopSize(size.w, size.h);
+                    }, 500);
+                } else if (scaleType === 'scale' || scaleType === 'downscale') {
+                    // use local scaling
+
+                    var downscaleOnly = scaleType === 'downscale';
+                    var scaleRatio = display.autoscale(size.w, size.h, downscaleOnly);
+                    UI.rfb.get_mouse().set_scale(scaleRatio);
+                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+                }
+            }
+        },
+
+        getCanvasLimit: function () {
+            var container = $D('noVNC_container');
+
+            // Hide the scrollbars until the size is calculated
+            container.style.overflow = "hidden";
+
+            var w = Util.getPosition(container).width;
+            var h = Util.getPosition(container).height;
+
+            container.style.overflow = "visible";
+
+            if (isNaN(w) || isNaN(h)) {
+                return false;
+            } else {
+                return {w: w, h: h};
+            }
         },
 
         // Read form control compatible setting from cookie
@@ -613,6 +622,7 @@ var UI;
                     break;
                 case 'disconnected':
                     $D('noVNC_logo').style.display = "block";
+                    $D('noVNC_container').style.display = "none";
                     /* falls through */
                 case 'loaded':
                     klass = "noVNC_status_normal";
@@ -781,6 +791,7 @@ var UI;
             //Close dialog.
             setTimeout(UI.setBarPosition, 100);
             $D('noVNC_logo').style.display = "none";
+            $D('noVNC_container').style.display = "inline";
         },
 
         disconnect: function() {
@@ -791,6 +802,8 @@ var UI;
             UI.rfb.set_onFBUComplete(UI.FBUComplete);
 
             $D('noVNC_logo').style.display = "block";
+            $D('noVNC_container').style.display = "none";
+
             // Don't display the connection settings until we're actually disconnected
         },
 
@@ -839,17 +852,30 @@ var UI;
                 // Turn clipping off
                 UI.updateSetting('clip', false);
                 display.set_viewport(false);
-                $D('noVNC_canvas').style.position = 'static';
+                display.set_maxWidth(0);
+                display.set_maxHeight(0);
                 display.viewportChangeSize();
             }
             if (UI.getSetting('clip')) {
                 // If clipping, update clipping settings
-                $D('noVNC_canvas').style.position = 'absolute';
-                var pos = Util.getPosition($D('noVNC_canvas'));
-                var new_w = window.innerWidth - pos.x;
-                var new_h = window.innerHeight - pos.y;
                 display.set_viewport(true);
-                display.viewportChangeSize(new_w, new_h);
+
+                var size = UI.getCanvasLimit();
+                if (size) {
+                    display.set_maxWidth(size.w);
+                    display.set_maxHeight(size.h);
+
+                    // Hide potential scrollbars that can skew the position
+                    $D('noVNC_container').style.overflow = "hidden";
+
+                    // The x position marks the left margin of the canvas,
+                    // remove the margin from both sides to keep it centered
+                    var new_w = size.w - (2 * Util.getPosition($D('noVNC_canvas')).x);
+
+                    $D('noVNC_container').style.overflow = "visible";
+
+                    display.viewportChangeSize(new_w, size.h);
+                }
             }
         },
 
@@ -878,7 +904,7 @@ var UI;
             var vmb = $D('noVNC_view_drag_button');
             if (UI.rfb_state === 'normal' &&
                 UI.rfb.get_display().get_viewport() &&
-                UI.rfb.get_display().fbuClip()) {
+                UI.rfb.get_display().clippingDisplay()) {
                 vmb.style.display = "inline";
             } else {
                 vmb.style.display = "none";
@@ -1056,19 +1082,6 @@ var UI;
 
         setKeyboard: function() {
             UI.keyboardVisible = false;
-        },
-
-        // iOS < Version 5 does not support position fixed. Javascript workaround:
-        setOnscroll: function() {
-            window.onscroll = function() {
-                UI.setBarPosition();
-            };
-        },
-
-        setResize: function () {
-            window.onResize = function() {
-                UI.setBarPosition();
-            };
         },
 
         //Helper to add options to dropdown.

@@ -112,13 +112,7 @@ html {
 
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect
  * scaling will occur. Canvas resizes to remote VNC settings */
-#noVNC_screen_pad {
-  margin: 0px;
-  padding: 0px;
-  height: 36px;
-}
 #noVNC_screen {
-  text-align: center;
   display: table;
   width:100%;
   height:100%;
@@ -127,13 +121,25 @@ html {
   /*border-top-left-radius: 800px 600px;*/
 }
 
-#noVNC_container, #noVNC_canvas {
+#noVNC_container {
+  display: none;
+  position: absolute;
   margin: 0px;
   padding: 0px;
+  bottom: 0px;
+  top: 36px; /* the height of the control bar */
+  left: 0px;
+  right: 0px;
+  width: auto;
+  height: auto;
 }
 
 #noVNC_canvas {
-  left: 0px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #VNC_clipboard_clear_button {
