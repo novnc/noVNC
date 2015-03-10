@@ -134,6 +134,40 @@ describe('Display/Canvas Helper', function () {
         });
     });
 
+    describe('clipping', function () {
+        var display;
+        beforeEach(function () {
+            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
+            display.resize(4, 3);
+        });
+
+        it('should report true when no max-size and framebuffer > viewport', function () {
+            display.viewportChangeSize(2,2);
+            var clipping = display.clippingDisplay();
+            expect(clipping).to.be.true;
+        });
+
+        it('should report false when no max-size and framebuffer = viewport', function () {
+            var clipping = display.clippingDisplay();
+            expect(clipping).to.be.false;
+        });
+
+        it('should report true when viewport > max-size and framebuffer > viewport', function () {
+            display.viewportChangeSize(2,2);
+            display.set_maxWidth(1);
+            display.set_maxHeight(2);
+            var clipping = display.clippingDisplay();
+            expect(clipping).to.be.true;
+        });
+
+        it('should report true when viewport > max-size and framebuffer = viewport', function () {
+            display.set_maxWidth(1);
+            display.set_maxHeight(2);
+            var clipping = display.clippingDisplay();
+            expect(clipping).to.be.true;
+        });
+    });
+
     describe('resizing', function () {
         var display;
         beforeEach(function () {

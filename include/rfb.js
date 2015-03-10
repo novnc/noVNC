@@ -37,24 +37,24 @@ var RFB;
 
         // In preference order
         this._encodings = [
-            ['COPYRECT',         0x01 ],
-            ['TIGHT',            0x07 ],
-            ['TIGHT_PNG',        -260 ],
-            ['HEXTILE',          0x05 ],
-            ['RRE',              0x02 ],
-            ['RAW',              0x00 ],
-            ['DesktopSize',      -223 ],
-            ['Cursor',           -239 ],
+            ['COPYRECT',            0x01 ],
+            ['TIGHT',               0x07 ],
+            ['TIGHT_PNG',           -260 ],
+            ['HEXTILE',             0x05 ],
+            ['RRE',                 0x02 ],
+            ['RAW',                 0x00 ],
+            ['DesktopSize',         -223 ],
+            ['Cursor',              -239 ],
 
             // Psuedo-encoding settings
-            //['JPEG_quality_lo',   -32 ],
-            ['JPEG_quality_med',    -26 ],
-            //['JPEG_quality_hi',   -23 ],
-            //['compress_lo',      -255 ],
-            ['compress_hi',        -247 ],
-            ['last_rect',          -224 ],
-            ['xvp',                -309 ],
-            ['ext_desktop_size',   -308 ]
+            //['JPEG_quality_lo',    -32 ],
+            ['JPEG_quality_med',     -26 ],
+            //['JPEG_quality_hi',    -23 ],
+            //['compress_lo',       -255 ],
+            ['compress_hi',         -247 ],
+            ['last_rect',           -224 ],
+            ['xvp',                 -309 ],
+            ['ExtendedDesktopSize', -308 ]
         ];
 
         this._encHandlers = {};
@@ -1871,15 +1871,27 @@ var RFB;
             return true;
         },
 
-        ext_desktop_size: function () {
+        handle_FB_resize: function () {
+            this._fb_width = this._FBU.width;
+            this._fb_height = this._FBU.height;
+            this._display.resize(this._fb_width, this._fb_height);
+            this._onFBResize(this, this._fb_width, this._fb_height);
+            this._timing.fbu_rt_start = (new Date()).getTime();
+
+            this._FBU.bytes = 0;
+            this._FBU.rects -= 1;
+            return true;
+        },
+
+        ExtendedDesktopSize: function () {
             this._FBU.bytes = 1;
-            if (this._sock.rQwait("ext_desktop_size", this._FBU.bytes)) { return false; }
+            if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
 
             this._supportsSetDesktopSize = true;
             var number_of_screens = this._sock.rQpeek8();
 
             this._FBU.bytes = 4 + (number_of_screens * 16);
-            if (this._sock.rQwait("ext_desktop_size", this._FBU.bytes)) { return false; }
+            if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
 
             this._sock.rQskipBytes(1);  // number-of-screens
             this._sock.rQskipBytes(3);  // padding
@@ -1898,31 +1910,42 @@ var RFB;
                 }
             }
 
-            if (this._FBU.x == 0 && this._FBU.y != 0) { return true; }
+            /*
+             * The x-position indicates the reason for the change:
+             *
+             *  0 - server resized on its own
+             *  1 - this client requested the resize
+             *  2 - another client requested the resize
+             */
 
-            this._fb_width = this._FBU.width;
-            this._fb_height = this._FBU.height;
-            this._display.resize(this._fb_width, this._fb_height);
-            this._onFBResize(this, this._fb_width, this._fb_height);
+            // We need to handle errors when we requested the resize.
+            if (this._FBU.x == 1 && this._FBU.y != 0) {
+                var msg = "";
+                // The y-position indicates the status code from the server
+                switch (this._FBU.y) {
+                case 1:
+                    msg = "Resize is administratively prohibited";
+                    break;
+                case 2:
+                    msg = "Out of resources";
+                    break;
+                case 3:
+                    msg = "Invalid screen layout";
+                    break;
+                default:
+                    msg = "Unknown reason";
+                    break;
+                }
+                Util.Info("Server did not accept the resize request: " + msg);
+                return true;
+            }
 
-            this._FBU.bytes = 0;
-            this._FBU.rects -= 1;
-
+            this._encHandlers.handle_FB_resize();
             return true;
         },
 
         DesktopSize: function () {
-            Util.Debug(">> set_desktopsize");
-            this._fb_width = this._FBU.width;
-            this._fb_height = this._FBU.height;
-            this._display.resize(this._fb_width, this._fb_height);
-            this._onFBResize(this, this._fb_width, this._fb_height);
-            this._timing.fbu_rt_start = (new Date()).getTime();
-
-            this._FBU.bytes = 0;
-            this._FBU.rects--;
-
-            Util.Debug("<< set_desktopsize");
+            this._encHandlers.handle_FB_resize();
             return true;
         },
 
