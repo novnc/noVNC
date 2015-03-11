@@ -255,8 +255,9 @@ var UI;
             // Hide the scrollbars until the size is calculated
             container.style.overflow = "hidden";
 
-            var w = Util.getPosition(container).width;
-            var h = Util.getPosition(container).height;
+            var pos = Util.getPosition(container);
+            var w = pos.width;
+            var h = pos.height;
 
             container.style.overflow = "visible";
 
