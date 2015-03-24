@@ -97,8 +97,6 @@ var UI;
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
 
-            UI.initRFB();
-
             var autoconnect = WebUtil.getQueryVar('autoconnect', false);
             if (autoconnect === 'true' || autoconnect == '1') {
                 autoconnect = true;
@@ -136,7 +134,7 @@ var UI;
             Util.addEvent(window, 'load', UI.keyboardinputReset);
 
             Util.addEvent(window, 'beforeunload', function () {
-                if (UI.rfb_state === 'normal') {
+                if (UI.rfb && UI.rfb_state === 'normal') {
                     return "You are currently connected.";
                 }
             } );
@@ -213,12 +211,14 @@ var UI;
             $D("noVNC_connect_button").onclick = UI.connect;
 
             $D("noVNC_resize").onchange = function () {
-                var connected = UI.rfb_state === 'normal' ? true : false;
+                var connected = UI.rfb && UI.rfb_state === 'normal';
                 UI.enableDisableClip(connected);
             };
         },
 
         onresize: function (callback) {
+            if (!UI.rfb) return;
+
             var size = UI.getCanvasLimit();
 
             if (size && UI.rfb_state === 'normal' && UI.rfb.get_display()) {
@@ -480,7 +480,7 @@ var UI;
             } else {
                 UI.updateSetting('encrypt');
                 UI.updateSetting('true_color');
-                if (UI.rfb.get_display().get_cursor_uri()) {
+                if (Util.browserSupportsCursorURIs()) {
                     UI.updateSetting('cursor');
                 } else {
                     UI.updateSetting('cursor', !UI.isTouchDevice);
@@ -536,7 +536,7 @@ var UI;
             //Util.Debug(">> settingsApply");
             UI.saveSetting('encrypt');
             UI.saveSetting('true_color');
-            if (UI.rfb.get_display().get_cursor_uri()) {
+            if (Util.browserSupportsCursorURIs()) {
                 UI.saveSetting('cursor');
             }
 
@@ -558,7 +558,7 @@ var UI;
             WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
             WebUtil.init_logging(UI.getSetting('logging'));
             UI.setViewClip();
-            UI.setViewDrag(UI.rfb.get_viewportDrag());
+            UI.setViewDrag(UI.rfb && UI.rfb.get_viewportDrag());
             //Util.Debug("<< settingsApply");
         },
 
@@ -642,13 +642,6 @@ var UI;
                     break;
             }
 
-            switch (state) {
-                case 'fatal':
-                case 'failed':
-                case 'disconnected':
-                    UI.initRFB();
-            }
-
             if (typeof(msg) !== 'undefined') {
                 $D('noVNC-control-bar').setAttribute("class", klass);
                 $D('noVNC_status').innerHTML = msg;
@@ -659,13 +652,12 @@ var UI;
 
         // Disable/enable controls depending on connection state
         updateVisualState: function() {
-            var connected = UI.rfb_state === 'normal' ? true : false;
+            var connected = UI.rfb && UI.rfb_state === 'normal';
 
             //Util.Debug(">> updateVisualState");
             $D('noVNC_encrypt').disabled = connected;
             $D('noVNC_true_color').disabled = connected;
-            if (UI.rfb && UI.rfb.get_display() &&
-                UI.rfb.get_display().get_cursor_uri()) {
+            if (Util.browserSupportsCursorURIs()) {
                 $D('noVNC_cursor').disabled = connected;
             } else {
                 UI.updateSetting('cursor', !UI.isTouchDevice);
@@ -780,6 +772,8 @@ var UI;
                 throw new Error("Must set host and port");
             }
 
+            UI.initRFB();
+
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));
             UI.rfb.set_local_cursor(UI.getSetting('cursor'));
@@ -809,11 +803,15 @@ var UI;
         },
 
         displayBlur: function() {
+            if (!UI.rfb) return;
+
             UI.rfb.get_keyboard().set_focused(false);
             UI.rfb.get_mouse().set_focused(false);
         },
 
         displayFocus: function() {
+            if (!UI.rfb) return;
+
             UI.rfb.get_keyboard().set_focused(true);
             UI.rfb.get_mouse().set_focused(true);
         },
@@ -882,7 +880,7 @@ var UI;
 
         // Toggle/set/unset the viewport drag/move button
         setViewDrag: function(drag) {
-            if (!UI.rfb) { return; }
+            if (!UI.rfb) return;
 
             UI.updateViewDragButton();
 
@@ -953,7 +951,7 @@ var UI;
         // sending keyCodes in the normal keyboard events when using on screen keyboards.
         keyInput: function(event) {
 
-            if (!UI.rfb) { return; }
+            if (!UI.rfb) return;
 
             var newValue = event.target.value;
 
