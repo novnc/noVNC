@@ -159,13 +159,19 @@ var UI;
         },
 
         initRFB: function () {
-            UI.rfb = new RFB({'target': $D('noVNC_canvas'),
-                              'onUpdateState': UI.updateState,
-                              'onXvpInit': UI.updateXvpVisualState,
-                              'onClipboard': UI.clipReceive,
-                              'onFBUComplete': UI.FBUComplete,
-                              'onFBResize': UI.updateViewDragButton,
-                              'onDesktopName': UI.updateDocumentTitle});
+            try {
+                UI.rfb = new RFB({'target': $D('noVNC_canvas'),
+                                  'onUpdateState': UI.updateState,
+                                  'onXvpInit': UI.updateXvpVisualState,
+                                  'onClipboard': UI.clipReceive,
+                                  'onFBUComplete': UI.FBUComplete,
+                                  'onFBResize': UI.updateViewDragButton,
+                                  'onDesktopName': UI.updateDocumentTitle});
+                return true;
+            } catch (exc) {
+                UI.updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                return false;
+            }
         },
 
         addMouseHandlers: function() {
@@ -772,7 +778,7 @@ var UI;
                 throw new Error("Must set host and port");
             }
 
-            UI.initRFB();
+            if (!UI.initRFB()) return;
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));

@@ -216,18 +216,24 @@
                 return;
             }
 
-            rfb = new RFB({'target':       $D('noVNC_canvas'),
-                           'encrypt':      WebUtil.getQueryVar('encrypt',
-                                    (window.location.protocol === "https:")),
-                           'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
-                           'true_color':   WebUtil.getQueryVar('true_color', true),
-                           'local_cursor': WebUtil.getQueryVar('cursor', true),
-                           'shared':       WebUtil.getQueryVar('shared', true),
-                           'view_only':    WebUtil.getQueryVar('view_only', false),
-                           'onUpdateState':  updateState,
-                           'onXvpInit':    xvpInit,
-                           'onPasswordRequired':  passwordRequired,
-                           'onFBUComplete': FBUComplete});
+            try {
+                rfb = new RFB({'target':       $D('noVNC_canvas'),
+                               'encrypt':      WebUtil.getQueryVar('encrypt',
+                                        (window.location.protocol === "https:")),
+                               'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
+                               'true_color':   WebUtil.getQueryVar('true_color', true),
+                               'local_cursor': WebUtil.getQueryVar('cursor', true),
+                               'shared':       WebUtil.getQueryVar('shared', true),
+                               'view_only':    WebUtil.getQueryVar('view_only', false),
+                               'onUpdateState':  updateState,
+                               'onXvpInit':    xvpInit,
+                               'onPasswordRequired':  passwordRequired,
+                               'onFBUComplete': FBUComplete});
+            } catch (exc) {
+                UI.updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                return; // don't continue trying to connect
+            }
+
             rfb.connect(host, port, password, path);
         };
         </script>
