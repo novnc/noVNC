@@ -22,7 +22,8 @@ usage() {
 }
 
 NAME="$(basename $0)"
-HERE="$(cd "$(dirname "$0")" && pwd)"
+REAL_NAME="$(readlink -f $0)"
+HERE="$(cd "$(dirname "$REAL_NAME")" && pwd)"
 PORT="6080"
 VNC_DEST="localhost:5900"
 CERT=""
