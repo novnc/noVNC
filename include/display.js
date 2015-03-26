@@ -86,29 +86,9 @@ var Display;
         }
 
         // Determine browser support for setting the cursor via data URI scheme
-        var curDat = [];
-        for (var i = 0; i < 8 * 8 * 4; i++) {
-            curDat.push(255);
-        }
-        try {
-            var curSave = this._target.style.cursor;
-            Display.changeCursor(this._target, curDat, curDat, 2, 2, 8, 8);
-            if (this._target.style.cursor) {
-                if (this._cursor_uri === null || this._cursor_uri === undefined) {
-                    this._cursor_uri = true;
-                }
-                Util.Info("Data URI scheme cursor supported");
-                this._target.style.cursor = curSave;
-            } else {
-                if (this._cursor_uri === null || this._cursor_uri === undefined) {
-                    this._cursor_uri = false;
-                }
-                Util.Warn("Data URI scheme cursor not supported");
-                this._target.style.cursor = "none";
-            }
-        } catch (exc) {
-            Util.Error("Data URI scheme cursor test exception: " + exc);
-            this._cursor_uri = false;
+        if (this._cursor_uri || this._cursor_uri === null ||
+                this._cursor_uri === undefined) {
+            this._cursor_uri = Util.browserSupportsCursorURIs(this._target);
         }
 
         Util.Debug("<< Display.constructor");

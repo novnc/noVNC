@@ -28,35 +28,29 @@ describe('Display/Canvas Helper', function () {
 
     describe('checking for cursor uri support', function () {
         beforeEach(function () {
-            this._old_change_cursor = Display.changeCursor;
+            this._old_browser_supports_cursor_uris = Util.browserSupportsCursorURIs;
         });
 
         it('should disable cursor URIs if there is no support', function () {
-            Display.changeCursor = function(target) {
-                target.style.cursor = undefined;
-            };
+            Util.browserSupportsCursorURIs = function () { return false; };
             var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
             expect(display._cursor_uri).to.be.false;
         });
 
         it('should enable cursor URIs if there is support', function () {
-            Display.changeCursor = function(target) {
-                target.style.cursor = 'pointer';
-            };
+            Util.browserSupportsCursorURIs = function () { return true; };
             var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
             expect(display._cursor_uri).to.be.true;
         });
 
         it('respect the cursor_uri option if there is support', function () {
-            Display.changeCursor = function(target) {
-                target.style.cursor = 'pointer';
-            };
+            Util.browserSupportsCursorURIs = function () { return false; };
             var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false, cursor_uri: false });
             expect(display._cursor_uri).to.be.false;
         });
 
         afterEach(function () {
-            Display.changeCursor = this._old_change_cursor;
+            Util.browserSupportsCursorURIs = this._old_browser_supports_cursor_uris;
         });
     });
 
