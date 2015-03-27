@@ -159,11 +159,13 @@ var RFB;
             this._encStats[this._encodings[i][1]] = [0, 0];
         }
 
+        // NB: nothing that needs explicit teardown should be done
+        // before this point, since this can throw an exception
         try {
             this._display = new Display({target: this._target});
         } catch (exc) {
             Util.Error("Display exception: " + exc);
-            this._updateState('fatal', "No working Display");
+            throw exc;
         }
 
         this._keyboard = new Keyboard({target: this._focusContainer,
@@ -217,9 +219,11 @@ var RFB;
         } else {
             Util.Warn("Using web-socket-js bridge.  Flash version: " + Util.Flash.version);
             if (!Util.Flash || Util.Flash.version < 9) {
-                this._updateState('fatal', "WebSockets or <a href='http://get.adobe.com/flashplayer'>Adobe Flash</a> is required");
+                this._cleanupSocket('fatal');
+                throw new Exception("WebSockets or <a href='http://get.adobe.com/flashplayer'>Adobe Flash</a> is required");
             } else if (document.location.href.substr(0, 7) === 'file://') {
-                this._updateState('fatal', "'file://' URL is incompatible with Adobe Flash");
+                this._cleanupSocket('fatal');
+                throw new Exception("'file://' URL is incompatible with Adobe Flash");
             } else {
                 this._updateState('loaded', 'noVNC ready: WebSockets emulation, ' + rmode);
             }
@@ -398,6 +402,32 @@ var RFB;
             }
         },
 
+        _cleanupSocket: function (state) {
+            if (this._sendTimer) {
+                clearInterval(this._sendTimer);
+                this._sendTimer = null;
+            }
+
+            if (this._msgTimer) {
+                clearInterval(this._msgTimer);
+                this._msgTimer = null;
+            }
+
+            if (this._display && this._display.get_context()) {
+                this._keyboard.ungrab();
+                this._mouse.ungrab();
+                if (state !== 'connect' && state !== 'loaded') {
+                    this._display.defaultCursor();
+                }
+                if (Util.get_logging() !== 'debug' || state === 'loaded') {
+                    // Show noVNC logo on load and when disconnected, unless in
+                    // debug mode
+                    this._display.clear();
+                }
+            }
+
+            this._sock.close();
+        },
 
         /*
          * Page states:
@@ -432,31 +462,7 @@ var RFB;
              */
             if (state in {'disconnected': 1, 'loaded': 1, 'connect': 1,
                           'disconnect': 1, 'failed': 1, 'fatal': 1}) {
-
-                if (this._sendTimer) {
-                    clearInterval(this._sendTimer);
-                    this._sendTimer = null;
-                }
-
-                if (this._msgTimer) {
-                    clearInterval(this._msgTimer);
-                    this._msgTimer = null;
-                }
-
-                if (this._display && this._display.get_context()) {
-                    this._keyboard.ungrab();
-                    this._mouse.ungrab();
-                    if (state !== 'connect' && state !== 'loaded') {
-                        this._display.defaultCursor();
-                    }
-                    if (Util.get_logging() !== 'debug' || state === 'loaded') {
-                        // Show noVNC logo on load and when disconnected, unless in
-                        // debug mode
-                        this._display.clear();
-                    }
-                }
-
-                this._sock.close();
+                this._cleanupSocket(state);
             }
 
             if (oldstate === 'fatal') {

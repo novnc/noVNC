@@ -508,6 +508,29 @@ Util.stopEvent = function (e) {
     else                   { e.returnValue = false; }
 };
 
+Util._cursor_uris_supported = null;
+
+Util.browserSupportsCursorURIs = function () {
+    if (Util._cursor_uris_supported === null) {
+        try {
+            var target = document.createElement('canvas');
+            target.style.cursor = 'url("data:image/x-icon;base64,AAACAAEACAgAAAIAAgA4AQAAFgAAACgAAAAIAAAAEAAAAAEAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAD/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAA==") 2 2, default';
+
+            if (target.style.cursor) {
+                Util.Info("Data URI scheme cursor supported");
+                Util._cursor_uris_supported = true;
+            } else {
+                Util.Warn("Data URI scheme cursor not supported");
+                Util._cursor_uris_supported = false;
+            }
+        } catch (exc) {
+            Util.Error("Data URI scheme cursor test exception: " + exc);
+            Util._cursor_uris_supported = false;
+        }
+    }
+
+    return Util._cursor_uris_supported;
+};
 
 // Set browser engine versions. Based on mootools.
 Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !!(document.querySelector)};
