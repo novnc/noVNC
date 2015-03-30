@@ -1,0 +1,54 @@
+Summary: VNC client using HTML5 (Web Sockets, Canvas) with encryption (wss://) support.
+Name: novnc
+Version: %version%
+Release: 3
+License: MPL 2.0
+Group: Applications/Internet
+URL: http://novnc.com
+Source0: %{name}-%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+noVNC is a HTML5 VNC client that runs well in any modern browser including mobile browsers (iPhone/iPad and Android).
+
+
+%prep
+%setup -q
+
+%build
+
+%install
+rm -rf $RPM_BUILD_ROOT
+target=$RPM_BUILD_ROOT/usr/share/novnc
+mkdir -p $target/{utils,html/include,doc}
+
+
+cp vnc.html	$target/html
+cp vnc_auto.html	$target/html
+cp README.md  $target/doc
+cp LICENSE.txt  $target/doc
+cp utils/Makefile   $target/utils
+cp utils/launch.sh   $target/utils
+cp utils/websocket.py   $target/utils
+cp utils/websockify   $target/utils
+cp -r images  $target/html/
+cp -r include   $target/html/
+
+mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
+cp redhat/novnc.init $RPM_BUILD_ROOT/etc/rc.d/init.d/novnc
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
+%files
+%defattr(-,root,root,-)
+%doc /usr/share/novnc/doc/README.md
+%dir /usr/share/novnc
+/usr/
+/etc/
+
+%changelog
+* Wed Apr 23 2014 Roy Dragseth <royd@stallo-2.local> - 
+- Initial build.
+
