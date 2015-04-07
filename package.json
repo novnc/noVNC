@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "karma start karma.conf.js"
+    "test": "PATH=$PATH:node_modules/karma/bin karma start karma.conf.js"
   },
   "repository": {
     "type": "git",
