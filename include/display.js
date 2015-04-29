@@ -88,7 +88,7 @@ var Display;
         // Determine browser support for setting the cursor via data URI scheme
         if (this._cursor_uri || this._cursor_uri === null ||
                 this._cursor_uri === undefined) {
-            this._cursor_uri = Util.browserSupportsCursorURIs(this._target);
+            this._cursor_uri = Util.browserSupportsCursorURIs();
         }
 
         Util.Debug("<< Display.constructor");
