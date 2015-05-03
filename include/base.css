@@ -238,6 +238,7 @@ html {
   position: relative;
   left: -40px;
   z-index: -1;
+  ime-mode: disabled;
 }
 
 /*
