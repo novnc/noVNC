@@ -185,6 +185,7 @@ var UI;
 
             $D("keyboardinput").oninput = UI.keyInput;
             $D("keyboardinput").onblur = UI.keyInputBlur;
+            $D("keyboardinput").onsubmit = function () { return false; };
 
             $D("showExtraKeysButton").onclick = UI.showExtraKeys;
             $D("toggleCtrlButton").onclick = UI.toggleCtrl;
