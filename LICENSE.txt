@@ -12,10 +12,10 @@ is not limited to):
     include/jsunzip.js
     include/keysym.js
     include/logo.js
+    include/playback.js
     include/rfb.js
     include/ui.js
     include/util.js
-    include/vnc.js
     include/websock.js
     include/webutil.js
 
