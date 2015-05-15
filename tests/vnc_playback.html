@@ -59,7 +59,7 @@
         if (fname) {
             message("Loading " + fname);
             // Load supporting scripts
-            Util.load_scripts(["base64.js", "websock.js", "des.js",
+            Util.load_scripts(["base64.js", "websock.js", "des.js", "keysym.js",
                             "keysymdef.js", "keyboard.js", "input.js", "display.js",
                             "jsunzip.js", "rfb.js", "playback.js", fname]);
 
@@ -75,7 +75,6 @@
                     test_state = 'failed';
                     break;
                 case 'loaded':
-                    $D('startButton').disabled = false;
                     break;
             }
             if (typeof msg !== 'undefined') {
@@ -99,7 +98,8 @@
                 mode = 'realtime';
             }
 
-            recv_message = rfb.testMode(send_array, VNC_frame_encoding);
+            //recv_message = rfb.testMode(send_array, VNC_frame_encoding);
+
             next_iteration();
         }
 
@@ -130,9 +130,8 @@
             }
             if (fname) {
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
-                rfb = new RFB({'target': $D('VNC_canvas'),
-                               'onUpdateState': updateState});
             }
+            $D('startButton').disabled = false;
         }
     </script>
 </html>
