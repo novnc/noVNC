@@ -1,4 +1,4 @@
-// requires local modules: util, base64, websock, rfb, keyboard, keysym, keysymdef, input, jsunzip, des, display
+// requires local modules: util, base64, websock, rfb, keyboard, keysym, keysymdef, input, inflator, des, display
 // requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;

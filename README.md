@@ -133,6 +133,5 @@ use a WebSockets to TCP socket proxy. There is a python proxy included
     * web-socket-js : Hiroshi Ichikawa (github.com/gimite/web-socket-js)
     * as3crypto : Henri Torgemane (code.google.com/p/as3crypto)
     * base64 : Martijn Pieters (Digital Creations 2), Samuel Sieb (sieb.net)
-    * jsunzip : Erik Moller (github.com/operasoftware/jsunzip),
-    * tinflate : Joergen Ibsen (ibsensoftware.com)
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
+    * Pako : Vitaly Puzrin (https://github.com/nodeca/pako)

@@ -380,8 +380,9 @@ var RFB;
             }
 
             for (i = 0; i < 4; i++) {
-                this._FBU.zlibs[i] = new TINF();
-                this._FBU.zlibs[i].init();
+                //this._FBU.zlibs[i] = new TINF();
+                //this._FBU.zlibs[i].init();
+                this._FBU.zlibs[i] = new inflator.Inflate();
             }
         },
 
@@ -1181,7 +1182,14 @@ var RFB;
 
                 this._timing.last_fbu = (new Date()).getTime();
 
-                ret = this._encHandlers[this._FBU.encoding]();
+                var handler = this._encHandlers[this._FBU.encoding];
+                try {
+                    //ret = this._encHandlers[this._FBU.encoding]();
+                    ret = handler();
+                } catch (ex)  {
+                    console.log("missed " + this._FBU.encoding + ": " + handler);
+                    ret = this._encHandlers[this._FBU.encoding]();
+                }
 
                 now = (new Date()).getTime();
                 this._timing.cur_fbu += (now - this._timing.last_fbu);
@@ -1639,12 +1647,14 @@ var RFB;
                     }
                 }
 
-                var uncompressed = this._FBU.zlibs[streamId].uncompress(data, 0);
-                if (uncompressed.status !== 0) {
+                //var uncompressed = this._FBU.zlibs[streamId].uncompress(data, 0);
+                var uncompressed = this._FBU.zlibs[streamId].inflate(data, true);
+                /*if (uncompressed.status !== 0) {
                     Util.Error("Invalid data in zlib stream");
-                }
+                }*/
 
-                return uncompressed.data;
+                //return uncompressed.data;
+                return uncompressed;
             }.bind(this);
 
             var indexedToRGB = function (data, numColors, palette, width, height) {

@@ -15,3 +15,9 @@ Building web-socket-js emulator:
 
 cd include/web-socket-js/flash-src
 mxmlc -static-link-runtime-shared-libraries WebSocketMain.as
+
+Rebuilding inflator.js
+
+- Download pako from npm
+- Install browserify using npm
+- browserify utils/inflator.partial.js -o include/inflator.js
