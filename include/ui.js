@@ -961,6 +961,10 @@ var UI;
             if (!UI.rfb) return;
 
             var newValue = event.target.value;
+
+            if (!UI.lastKeyboardinput) {
+                UI.keyboardinputReset();
+            }
             var oldValue = UI.lastKeyboardinput;
 
             var newLen;
