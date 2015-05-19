@@ -91,6 +91,7 @@ var RFB;
         this._fb_width = 0;
         this._fb_height = 0;
         this._fb_name = "";
+        this._dest_buff = null;
 
         this._rre_chunk_sz = 100;
 
@@ -901,6 +902,7 @@ var RFB;
             /* Screen size */
             this._fb_width  = this._sock.rQshift16();
             this._fb_height = this._sock.rQshift16();
+            this._dest_buff = new Uint8Array(this._fb_width * this._fb_height * 4);
 
             /* PIXEL_FORMAT */
             var bpp         = this._sock.rQshift8();
@@ -1660,7 +1662,7 @@ var RFB;
             var indexedToRGB = function (data, numColors, palette, width, height) {
                 // Convert indexed (palette based) image data to RGB
                 // TODO: reduce number of calculations inside loop
-                var dest = [];
+                var dest = this._dest_buff;
                 var x, y, dp, sp;
                 if (numColors === 2) {
                     var w = Math.floor((width + 7) / 8);
@@ -1687,14 +1689,12 @@ var RFB;
                         }
                     }
                 } else {
-                    for (y = 0; y < height; y++) {
-                        for (x = 0; x < width; x++) {
-                            dp = (y * width + x) * 3;
-                            sp = data[y * width + x] * 3;
-                            dest[dp] = palette[sp];
-                            dest[dp + 1] = palette[sp + 1];
-                            dest[dp + 2] = palette[sp + 2];
-                        }
+                    var total = width * height * 3;
+                    for (var i = 0, j = 0; i < total; i += 3, j++) {
+                        sp = data[j] * 3;
+                        dest[i] = palette[sp];
+                        dest[i + 1] = palette[sp + 1];
+                        dest[i + 2] = palette[sp + 2];
                     }
                 }
 
@@ -1891,6 +1891,7 @@ var RFB;
         handle_FB_resize: function () {
             this._fb_width = this._FBU.width;
             this._fb_height = this._FBU.height;
+            this._dest_buff = new Uint8Array(this._fb_width * this._fb_height * 4);
             this._display.resize(this._fb_width, this._fb_height);
             this._onFBResize(this, this._fb_width, this._fb_height);
             this._timing.fbu_rt_start = (new Date()).getTime();
