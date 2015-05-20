@@ -129,7 +129,7 @@ var RFB;
             'view_only': false,                     // Disable client mouse/keyboard
             'xvp_password_sep': '@',                // Separator for XVP password fields
             'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
-            'wsProtocols': ['binary', 'base64'],    // Protocols to use in the WebSocket connection
+            'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
             'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
             'viewportDrag': false,                  // Move the viewport on mouse drags
 
@@ -218,16 +218,8 @@ var RFB;
             Util.Info("Using native WebSockets");
             this._updateState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
         } else {
-            Util.Warn("Using web-socket-js bridge.  Flash version: " + Util.Flash.version);
-            if (!Util.Flash || Util.Flash.version < 9) {
-                this._cleanupSocket('fatal');
-                throw new Exception("WebSockets or <a href='http://get.adobe.com/flashplayer'>Adobe Flash</a> is required");
-            } else if (document.location.href.substr(0, 7) === 'file://') {
-                this._cleanupSocket('fatal');
-                throw new Exception("'file://' URL is incompatible with Adobe Flash");
-            } else {
-                this._updateState('loaded', 'noVNC ready: WebSockets emulation, ' + rmode);
-            }
+            this._cleanupSocket('fatal');
+            throw new Error("WebSocket support is required to use noVNC");
         }
 
         Util.Debug("<< RFB.constructor");
@@ -363,8 +355,6 @@ var RFB;
 
         _init_vars: function () {
             // reset state
-            this._sock.init();
-
             this._FBU.rects        = 0;
             this._FBU.subrects     = 0;  // RRE and HEXTILE
             this._FBU.lines        = 0;  // RAW
@@ -760,7 +750,8 @@ var RFB;
 
             if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
-            var challenge = this._sock.rQshiftBytes(16);
+            // TODO(directxman12): make genDES not require an Array
+            var challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
             var response = RFB.genDES(this._rfb_password, challenge);
             this._sock.send(response);
             this._updateState("SecurityResult");
@@ -1559,11 +1550,21 @@ var RFB;
                     rQi += this._FBU.bytes - 1;
                 } else {
                     if (this._FBU.subencoding & 0x02) {  // Background
-                        this._FBU.background = rQ.slice(rQi, rQi + this._fb_Bpp);
+                        if (this._fb_Bpp == 1) {
+                            this._FBU.background = rQ[rQi];
+                        } else {
+                            // fb_Bpp is 4
+                            this._FBU.background = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
+                        }
                         rQi += this._fb_Bpp;
                     }
                     if (this._FBU.subencoding & 0x04) {  // Foreground
-                        this._FBU.foreground = rQ.slice(rQi, rQi + this._fb_Bpp);
+                        if (this._fb_Bpp == 1) {
+                            this._FBU.foreground = rQ[rQi];
+                        } else {
+                            // this._fb_Bpp is 4
+                            this._FBU.foreground = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
+                        }
                         rQi += this._fb_Bpp;
                     }
 
@@ -1575,7 +1576,12 @@ var RFB;
                         for (var s = 0; s < subrects; s++) {
                             var color;
                             if (this._FBU.subencoding & 0x10) {  // SubrectsColoured
-                                color = rQ.slice(rQi, rQi + this._fb_Bpp);
+                                if (this._fb_Bpp === 1) {
+                                    color = rQ[rQi];
+                                } else {
+                                    // _fb_Bpp is 4
+                                    color = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
+                                }
                                 rQi += this._fb_Bpp;
                             } else {
                                 color = this._FBU.foreground;

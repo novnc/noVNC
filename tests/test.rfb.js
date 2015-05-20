@@ -1,4 +1,4 @@
-// requires local modules: util, base64, websock, rfb, keyboard, keysym, keysymdef, input, inflator, des, display
+// requires local modules: util, websock, rfb, keyboard, keysym, keysymdef, input, inflator, des, display
 // requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
@@ -17,6 +17,25 @@ describe('Remote Frame Buffer Protocol Client', function() {
     "use strict";
     before(FakeWebSocket.replace);
     after(FakeWebSocket.restore);
+
+    before(function () {
+        this.clock = sinon.useFakeTimers();
+        // Use a single set of buffers instead of reallocating to
+        // speed up tests
+        var sock = new Websock();
+        var rQ = new Uint8Array(sock._rQbufferSize);
+
+        Websock.prototype._old_allocate_buffers = Websock.prototype._allocate_buffers;
+        Websock.prototype._allocate_buffers = function () {
+            this._rQ = rQ;
+        };
+
+    });
+
+    after(function () {
+        Websock.prototype._allocate_buffers = Websock.prototype._old_allocate_buffers;
+        this.clock.restore();
+    });
 
     describe('Public API Basic Behavior', function () {
         var client;
@@ -1826,7 +1845,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client.connect('host', 8675);
                 client._rfb_state = 'normal';
                 client._normal_msg = sinon.spy();
-                client._sock._websocket._receive_data(Base64.encode([]));
+                client._sock._websocket._receive_data(new Uint8Array([]));
                 expect(client._normal_msg).to.not.have.been.called;
             });
 
@@ -1834,7 +1853,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client.connect('host', 8675);
                 client._rfb_state = 'normal';
                 client._normal_msg = sinon.spy();
-                client._sock._websocket._receive_data(Base64.encode([1, 2, 3]));
+                client._sock._websocket._receive_data(new Uint8Array([1, 2, 3]));
                 expect(client._normal_msg).to.have.been.calledOnce;
             });
 
@@ -1842,7 +1861,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client.connect('host', 8675);
                 client._rfb_state = 'ProtocolVersion';
                 client._init_msg = sinon.spy();
-                client._sock._websocket._receive_data(Base64.encode([1, 2, 3]));
+                client._sock._websocket._receive_data(new Uint8Array([1, 2, 3]));
                 expect(client._init_msg).to.have.been.calledOnce;
             });
 

@@ -30,6 +30,7 @@ enable_test_mode = function () {
         this._rfb_port = port;
         this._rfb_password = (password !== undefined) ? password : "";
         this._rfb_path = (path !== undefined) ? path : "";
+        this._sock.init('binary', 'ws');
         this._updateState('ProtocolVersion', "Starting VNC handshake");
     };
 };
@@ -43,7 +44,7 @@ next_iteration = function () {
         frame_length = VNC_frame_data.length;
         test_state = 'running';
     }
-    
+
     if (test_state !== 'running') { return; }
 
     iteration += 1;

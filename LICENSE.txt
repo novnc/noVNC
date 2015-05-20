@@ -51,9 +51,6 @@ licenses (all MPL 2.0 compatible):
 
     include/jsunzip.js         : zlib/libpng license
 
-    include/web-socket-js/     : New BSD license (3-clause). Source code at
-                                 http://github.com/gimite/web-socket-js
-
     include/chrome-app/tcp-stream.js
                                : Apache 2.0 license
 
