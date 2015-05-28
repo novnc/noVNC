@@ -20,6 +20,7 @@ program
   .option('--output-html', 'Instead of running the tests, just output the generated HTML source to STDOUT (should be used with .js tests)')
   .option('-d, --debug', 'Show debug output (the "console" event) from the provider')
   .option('-r, --relative', 'Use relative paths in the generated HTML file')
+  .option('--debugger <port>', 'Enable the remote debugger for CasperJS')
   .parse(process.argv);
 
 if (program.tests.length === 0) {
@@ -202,7 +203,7 @@ if (!program.outputHtml && !program.generateHtml) {
     .write("\n");
   //console.log("Running tests %s using provider %s", program.tests.join(', '), prov.name);
 
-  var provider = prov.provide_emitter(file_paths);
+  var provider = prov.provide_emitter(file_paths, program.debugger);
   provider.on('test_ready', function(test_json) {
     console.log('');
 
