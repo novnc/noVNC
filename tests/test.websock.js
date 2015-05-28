@@ -173,7 +173,8 @@ describe('Websock', function() {
             it('should actually send on the websocket if the websocket does not have too much buffered', function () {
                 sock.maxBufferedAmount = 10;
                 sock._websocket.bufferedAmount = 8;
-                sock._sQ = [1, 2, 3];
+                sock._sQ = new Uint8Array([1, 2, 3]);
+                sock._sQlen = 3;
                 var encoded = sock._encode_message();
 
                 sock.flush();
@@ -189,7 +190,7 @@ describe('Websock', function() {
             });
 
             it('should not call send if we do not have anything queued up', function () {
-                sock._sQ = [];
+                sock._sQlen = 0;
                 sock.maxBufferedAmount = 10;
                 sock._websocket.bufferedAmount = 8;
 
@@ -215,7 +216,7 @@ describe('Websock', function() {
             it('should add to the send queue', function () {
                 sock.send([1, 2, 3]);
                 var sq = sock.get_sQ();
-                expect(sock.get_sQ().slice(sq.length - 3)).to.deep.equal([1, 2, 3]);
+                expect(new Uint8Array(sq.buffer, sock._sQlen - 3, 3)).to.array.equal(new Uint8Array([1, 2, 3]));
             });
 
             it('should call flush', function () {
@@ -425,15 +426,16 @@ describe('Websock', function() {
                 sock._websocket._open();
             });
 
-            it('should convert the send queue into an ArrayBuffer', function () {
-                sock._sQ = [1, 2, 3];
-                var res = sock._encode_message();  // An ArrayBuffer
-                expect(new Uint8Array(res)).to.deep.equal(new Uint8Array(res));
+            it('should only send the send queue up to the send queue length', function () {
+                sock._sQ = new Uint8Array([1, 2, 3, 4, 5]);
+                sock._sQlen = 3;
+                var res = sock._encode_message();
+                expect(res).to.array.equal(new Uint8Array([1, 2, 3]));
             });
 
             it('should properly pass the encoded data off to the actual WebSocket', function () {
                 sock.send([1, 2, 3]);
-                expect(sock._websocket._get_sent_data()).to.deep.equal([1, 2, 3]);
+                expect(sock._websocket._get_sent_data()).to.array.equal(new Uint8Array([1, 2, 3]));
             });
         });
     });

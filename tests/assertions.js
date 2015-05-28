@@ -24,6 +24,12 @@ chai.use(function (_chai, utils) {
 
     _chai.Assertion.addMethod('sent', function (target_data) {
         var obj = this._obj;
+        obj.inspect = function () {
+            var res = { _websocket: obj._websocket, rQi: obj._rQi, _rQ: new Uint8Array(obj._rQ.buffer, 0, obj._rQlen),
+                        _sQ: new Uint8Array(obj._sQ.buffer, 0, obj._sQlen) };
+            res.prototype = obj;
+            return res;
+        };
         var data = obj._websocket._get_sent_data();
         var same = true;
         for (var i = 0; i < obj.length; i++) {
@@ -38,8 +44,8 @@ chai.use(function (_chai, utils) {
         this.assert(same,
             "expected #{this} to have sent the data #{exp}, but it actually sent #{act}",
             "expected #{this} not to have sent the data #{act}",
-            target_data,
-            data);
+            Array.prototype.slice.call(target_data),
+            Array.prototype.slice.call(data));
     });
 
     _chai.Assertion.addProperty('array', function () {

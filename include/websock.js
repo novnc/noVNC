@@ -45,9 +45,13 @@ function Websock() {
     this._rQlen = 0;         // Next write position in the receive queue
     this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
     this._rQmax = this._rQbufferSize / 8;
-    this._sQ = [];           // Send queue
     // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
     this._rQ = null; // Receive queue
+
+    this._sQbufferSize = 1024 * 10;  // 10 KiB
+    // called in init: this._sQ = new Uint8Array(this._sQbufferSize);
+    this._sQlen = 0;
+    this._sQ = null;  // Send queue
 
     this._mode = 'binary';    // Current WebSocket mode: 'binary', 'base64'
     this.maxBufferedAmount = 200;
@@ -183,9 +187,9 @@ function Websock() {
             }
 
             if (this._websocket.bufferedAmount < this.maxBufferedAmount) {
-                if (this._sQ.length > 0) {
+                if (this._sQlen > 0) {
                     this._websocket.send(this._encode_message());
-                    this._sQ = [];
+                    this._sQlen = 0;
                 }
 
                 return true;
@@ -197,8 +201,9 @@ function Websock() {
         },
 
         send: function (arr) {
-           this._sQ = this._sQ.concat(arr);
-           return this.flush();
+            this._sQ.set(arr, this._sQlen);
+            this._sQlen += arr.length;
+            return this.flush();
         },
 
         send_string: function (str) {
@@ -218,12 +223,12 @@ function Websock() {
 
         _allocate_buffers: function () {
             this._rQ = new Uint8Array(this._rQbufferSize);
+            this._sQ = new Uint8Array(this._sQbufferSize);
         },
 
         init: function (protocols, ws_schema) {
             this._allocate_buffers();
             this._rQi = 0;
-            this._sQ = [];
             this._websocket = null;
 
             // Check for full typed array support
@@ -327,7 +332,8 @@ function Websock() {
         // private methods
         _encode_message: function () {
             // Put in a binary arraybuffer
-            return (new Uint8Array(this._sQ)).buffer;
+            // according to the spec, you can send ArrayBufferViews with the send method
+            return new Uint8Array(this._sQ.buffer, 0, this._sQlen);
         },
 
         _decode_message: function (data) {
