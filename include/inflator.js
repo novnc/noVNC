@@ -2386,7 +2386,7 @@ var Inflate = function () {
 
 Inflate.prototype = {
     inflate: function (data, flush) {
-        this.strm.input = new Uint8Array(data);
+        this.strm.input = data;
         this.strm.avail_in = this.strm.input.length;
         this.strm.next_in = 0;
         this.strm.next_out = 0;

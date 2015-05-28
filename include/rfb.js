@@ -91,7 +91,9 @@ var RFB;
         this._fb_width = 0;
         this._fb_height = 0;
         this._fb_name = "";
-        this._dest_buff = null;
+
+        this._destBuff = null;
+        this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
 
         this._rre_chunk_sz = 100;
 
@@ -1665,43 +1667,77 @@ var RFB;
                 return uncompressed;
             }.bind(this);
 
-            var indexedToRGB = function (data, numColors, palette, width, height) {
+            var indexedToRGBX2Color = function (data, palette, width, height) {
                 // Convert indexed (palette based) image data to RGB
                 // TODO: reduce number of calculations inside loop
-                var dest = this._dest_buff;
-                var x, y, dp, sp;
-                if (numColors === 2) {
-                    var w = Math.floor((width + 7) / 8);
-                    var w1 = Math.floor(width / 8);
+                var dest = this._destBuff;
+                var w = Math.floor((width + 7) / 8);
+                var w1 = Math.floor(width / 8);
 
-                    for (y = 0; y < height; y++) {
-                        var b;
-                        for (x = 0; x < w1; x++) {
-                            for (b = 7; b >= 0; b--) {
-                                dp = (y * width + x * 8 + 7 - b) * 3;
-                                sp = (data[y * w + x] >> b & 1) * 3;
-                                dest[dp] = palette[sp];
-                                dest[dp + 1] = palette[sp + 1];
-                                dest[dp + 2] = palette[sp + 2];
-                            }
-                        }
-
-                        for (b = 7; b >= 8 - width % 8; b--) {
-                            dp = (y * width + x * 8 + 7 - b) * 3;
-                            sp = (data[y * w + x] >> b & 1) * 3;
+                /*for (var y = 0; y < height; y++) {
+                    var b, x, dp, sp;
+                    var yoffset = y * width;
+                    var ybitoffset = y * w;
+                    var xoffset, targetbyte;
+                    for (x = 0; x < w1; x++) {
+                        xoffset = yoffset + x * 8;
+                        targetbyte = data[ybitoffset + x];
+                        for (b = 7; b >= 0; b--) {
+                            dp = (xoffset + 7 - b) * 3;
+                            sp = (targetbyte >> b & 1) * 3;
                             dest[dp] = palette[sp];
                             dest[dp + 1] = palette[sp + 1];
                             dest[dp + 2] = palette[sp + 2];
                         }
                     }
-                } else {
-                    var total = width * height * 3;
-                    for (var i = 0, j = 0; i < total; i += 3, j++) {
-                        sp = data[j] * 3;
-                        dest[i] = palette[sp];
-                        dest[i + 1] = palette[sp + 1];
-                        dest[i + 2] = palette[sp + 2];
+
+                    xoffset = yoffset + x * 8;
+                    targetbyte = data[ybitoffset + x];
+                    for (b = 7; b >= 8 - width % 8; b--) {
+                        dp = (xoffset + 7 - b) * 3;
+                        sp = (targetbyte >> b & 1) * 3;
+                        dest[dp] = palette[sp];
+                        dest[dp + 1] = palette[sp + 1];
+                        dest[dp + 2] = palette[sp + 2];
                     }
+                }*/
+
+                for (var y = 0; y < height; y++) {
+                    var b, x, dp, sp;
+                    for (x = 0; x < w1; x++) {
+                        for (b = 7; b >= 0; b--) {
+                            dp = (y * width + x * 8 + 7 - b) * 4;
+                            sp = (data[y * w + x] >> b & 1) * 3;
+                            dest[dp] = palette[sp];
+                            dest[dp + 1] = palette[sp + 1];
+                            dest[dp + 2] = palette[sp + 2];
+                            dest[dp + 3] = 255;
+                        }
+                    }
+
+                    for (b = 7; b >= 8 - width % 8; b--) {
+                        dp = (y * width + x * 8 + 7 - b) * 4;
+                        sp = (data[y * w + x] >> b & 1) * 3;
+                        dest[dp] = palette[sp];
+                        dest[dp + 1] = palette[sp + 1];
+                        dest[dp + 2] = palette[sp + 2];
+                        dest[dp + 3] = 255;
+                    }
+                }
+
+                return dest;
+            }.bind(this);
+
+            var indexedToRGBX = function (data, palette, width, height) {
+                // Convert indexed (palette based) image data to RGB
+                var dest = this._destBuff;
+                var total = width * height * 4;
+                for (var i = 0, j = 0; i < total; i += 4, j++) {
+                    var sp = data[j] * 3;
+                    dest[i] = palette[sp];
+                    dest[i + 1] = palette[sp + 1];
+                    dest[i + 2] = palette[sp + 2];
+                    dest[i + 3] = 255;
                 }
 
                 return dest;
@@ -1709,7 +1745,8 @@ var RFB;
 
             var rQ = this._sock.get_rQ();
             var rQi = this._sock.get_rQi();
-            var cmode, clength, data;
+            var cmode, data;
+            var cl_header, cl_data;
 
             var handlePalette = function () {
                 var numColors = rQ[rQi + 2] + 1;
@@ -1722,37 +1759,69 @@ var RFB;
                 var raw = false;
                 if (rowSize * this._FBU.height < 12) {
                     raw = true;
-                    clength = [0, rowSize * this._FBU.height];
+                    cl_header = 0;
+                    cl_data = rowSize * this._FBU.height;
+                    //clength = [0, rowSize * this._FBU.height];
                 } else {
-                    clength = RFB.encodingHandlers.getTightCLength(this._sock.rQslice(3 + paletteSize,
-                                                                                      3 + paletteSize + 3));
+                    // begin inline getTightCLength (returning two-item arrays is bad for performance with GC)
+                    var cl_offset = rQi + 3 + paletteSize;
+                    cl_header = 1;
+                    cl_data = 0;
+                    cl_data += rQ[cl_offset] & 0x7f;
+                    if (rQ[cl_offset] & 0x80) {
+                        cl_header++;
+                        cl_data += (rQ[cl_offset + 1] & 0x7f) << 7;
+                        if (rQ[cl_offset + 1] & 0x80) {
+                            cl_header++;
+                            cl_data += rQ[cl_offset + 2] << 14;
+                        }
+                    }
+                    // end inline getTightCLength
                 }
 
-                this._FBU.bytes += clength[0] + clength[1];
+                this._FBU.bytes += cl_header + cl_data;
                 if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
 
                 // Shift ctl, filter id, num colors, palette entries, and clength off
                 this._sock.rQskipBytes(3);
-                var palette = this._sock.rQshiftBytes(paletteSize);
-                this._sock.rQskipBytes(clength[0]);
+                //var palette = this._sock.rQshiftBytes(paletteSize);
+                this._sock.rQshiftTo(this._paletteBuff, paletteSize);
+                this._sock.rQskipBytes(cl_header);
 
                 if (raw) {
-                    data = this._sock.rQshiftBytes(clength[1]);
+                    data = this._sock.rQshiftBytes(cl_data);
                 } else {
-                    data = decompress(this._sock.rQshiftBytes(clength[1]));
+                    data = decompress(this._sock.rQshiftBytes(cl_data));
                 }
 
                 // Convert indexed (palette based) image data to RGB
-                var rgb = indexedToRGB(data, numColors, palette, this._FBU.width, this._FBU.height);
+                var rgbx;
+                if (numColors == 2) {
+                    rgbx = indexedToRGBX2Color(data, this._paletteBuff, this._FBU.width, this._FBU.height);
 
-                this._display.renderQ_push({
-                    'type': 'blitRgb',
-                    'data': rgb,
-                    'x': this._FBU.x,
-                    'y': this._FBU.y,
-                    'width': this._FBU.width,
-                    'height': this._FBU.height
-                });
+                    /*this._display.renderQ_push({
+                        'type': 'blitRgbx',
+                        'data': rgbx,
+                        'x': this._FBU.x,
+                        'y': this._FBU.y,
+                        'width': this._FBU.width,
+                        'height': this._FBU.height
+                    });*/
+                    this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0);
+                } else {
+                    rgbx = indexedToRGBX(data, this._paletteBuff, this._FBU.width, this._FBU.height);
+
+                    /*this._display.renderQ_push({
+                        'type': 'blitRgbx',
+                        'data': rgbx,
+                        'x': this._FBU.x,
+                        'y': this._FBU.y,
+                        'width': this._FBU.width,
+                        'height': this._FBU.height
+                    });*/
+                    this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0);
+                }
+
 
                 return true;
             }.bind(this);
@@ -1762,20 +1831,34 @@ var RFB;
                 var uncompressedSize = this._FBU.width * this._FBU.height * this._fb_depth;
                 if (uncompressedSize < 12) {
                     raw = true;
-                    clength = [0, uncompressedSize];
+                    cl_header = 0;
+                    cl_data = uncompressedSize;
                 } else {
-                    clength = RFB.encodingHandlers.getTightCLength(this._sock.rQslice(1, 4));
+                    // begin inline getTightCLength (returning two-item arrays is for peformance with GC)
+                    var cl_offset = rQi + 1;
+                    cl_header = 1;
+                    cl_data = 0;
+                    cl_data += rQ[cl_offset] & 0x7f;
+                    if (rQ[cl_offset] & 0x80) {
+                        cl_header++;
+                        cl_data += (rQ[cl_offset + 1] & 0x7f) << 7;
+                        if (rQ[cl_offset + 1] & 0x80) {
+                            cl_header++;
+                            cl_data += rQ[cl_offset + 2] << 14;
+                        }
+                    }
+                    // end inline getTightCLength
                 }
-                this._FBU.bytes = 1 + clength[0] + clength[1];
+                this._FBU.bytes = 1 + cl_header + cl_data;
                 if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
 
                 // Shift ctl, clength off
-                this._sock.rQshiftBytes(1 + clength[0]);
+                this._sock.rQshiftBytes(1 + cl_header);
 
                 if (raw) {
-                    data = this._sock.rQshiftBytes(clength[1]);
+                    data = this._sock.rQshiftBytes(cl_data);
                 } else {
-                    data = decompress(this._sock.rQshiftBytes(clength[1]));
+                    data = decompress(this._sock.rQshiftBytes(cl_data));
                 }
 
                 this._display.renderQ_push({
@@ -1846,15 +1929,28 @@ var RFB;
                     break;
                 case "png":
                 case "jpeg":
-                    clength = RFB.encodingHandlers.getTightCLength(this._sock.rQslice(1, 4));
-                    this._FBU.bytes = 1 + clength[0] + clength[1];  // ctl + clength size + jpeg-data
+                    // begin inline getTightCLength (returning two-item arrays is for peformance with GC)
+                    var cl_offset = rQi + 1;
+                    cl_header = 1;
+                    cl_data = 0;
+                    cl_data += rQ[cl_offset] & 0x7f;
+                    if (rQ[cl_offset] & 0x80) {
+                        cl_header++;
+                        cl_data += (rQ[cl_offset + 1] & 0x7f) << 7;
+                        if (rQ[cl_offset + 1] & 0x80) {
+                            cl_header++;
+                            cl_data += rQ[cl_offset + 2] << 14;
+                        }
+                    }
+                    // end inline getTightCLength
+                    this._FBU.bytes = 1 + cl_header + cl_data;  // ctl + clength size + jpeg-data
                     if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
 
                     // We have everything, render it
-                    this._sock.rQskipBytes(1 + clength[0]);  // shift off clt + compact length
+                    this._sock.rQskipBytes(1 + cl_header);  // shift off clt + compact length
                     var img = new Image();
                     img.src = "data: image/" + cmode +
-                        RFB.extract_data_uri(this._sock.rQshiftBytes(clength[1]));
+                        RFB.extract_data_uri(this._sock.rQshiftBytes(cl_data));
                     this._display.renderQ_push({
                         'type': 'img',
                         'img': img,
@@ -1897,7 +1993,7 @@ var RFB;
         handle_FB_resize: function () {
             this._fb_width = this._FBU.width;
             this._fb_height = this._FBU.height;
-            this._dest_buff = new Uint8Array(this._fb_width * this._fb_height * 4);
+            this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
             this._display.resize(this._fb_width, this._fb_height);
             this._onFBResize(this, this._fb_width, this._fb_height);
             this._timing.fbu_rt_start = (new Date()).getTime();

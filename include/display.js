@@ -15,6 +15,14 @@ var Display;
 (function () {
     "use strict";
 
+    var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
+    try {
+        new ImageData(new Uint8ClampedArray(1), 1, 1);
+        SUPPORTS_IMAGEDATA_CONSTRUCTOR = true;
+    } catch (ex) {
+        // ignore failure
+    }
+
     Display = function (defaults) {
         this._drawCtx = null;
         this._c_forceCanvas = false;
@@ -435,6 +443,10 @@ var Display;
             }
         },
 
+        blitRgbxImage: function (x, y, width, height, arr, offset) {
+            this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+        },
+
         blitStringImage: function (str, x, y) {
             var img = new Image();
             img.onload = function () {
@@ -612,6 +624,19 @@ var Display;
             this._drawCtx.putImageData(img, x - vx, y - vy);
         },
 
+        _rgbxImageData: function (x, y, vx, vy, width, height, arr, offset) {
+            // NB(directxman12): arr must be an Type Array view
+            // NB(directxman12): this only works
+            var img;
+            if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
+                img = new ImageData(new Uint8ClampedArray(arr.buffer, 0, width * height * 4), width, height);
+            } else {
+                img = this._drawCtx.createImageData(width, height);
+                img.data.set(new Uint8ClampedArray(arr.buffer, 0, width * height * 4));
+            }
+            this._drawCtx.putImageData(img, x - vx, y - vy);
+        },
+
         _cmapImageData: function (x, y, vx, vy, width, height, arr, offset) {
             var img = this._drawCtx.createImageData(width, height);
             var data = img.data;
@@ -642,6 +667,9 @@ var Display;
                         break;
                     case 'blitRgb':
                         this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0);
+                        break;
+                    case 'blitRgbx':
+                        this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0);
                         break;
                     case 'img':
                         if (a.img.complete) {
