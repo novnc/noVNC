@@ -339,18 +339,41 @@ var Display;
             this._renderQ = [];
         },
 
-        fillRect: function (x, y, width, height, color) {
-            this._setFillColor(color);
-            this._drawCtx.fillRect(x - this._viewportLoc.x, y - this._viewportLoc.y, width, height);
+        fillRect: function (x, y, width, height, color, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this.renderQ_push({
+                    'type': 'fill',
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                    'color': color
+                });
+            } else {
+                this._setFillColor(color);
+                this._drawCtx.fillRect(x - this._viewportLoc.x, y - this._viewportLoc.y, width, height);
+            }
         },
 
-        copyImage: function (old_x, old_y, new_x, new_y, w, h) {
-            var x1 = old_x - this._viewportLoc.x;
-            var y1 = old_y - this._viewportLoc.y;
-            var x2 = new_x - this._viewportLoc.x;
-            var y2 = new_y - this._viewportLoc.y;
+        copyImage: function (old_x, old_y, new_x, new_y, w, h, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this.renderQ_push({
+                    'type': 'copy',
+                    'old_x': old_x,
+                    'old_y': old_y,
+                    'x': new_x,
+                    'y': new_y,
+                    'width': w,
+                    'height': h,
+                });
+            } else {
+                var x1 = old_x - this._viewportLoc.x;
+                var y1 = old_y - this._viewportLoc.y;
+                var x2 = new_x - this._viewportLoc.x;
+                var y2 = new_y - this._viewportLoc.y;
 
-            this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
+                this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
+            }
         },
 
         // start updating a tile
@@ -382,7 +405,7 @@ var Display;
                     data[i + 3] = 255;
                 }
             } else {
-                this.fillRect(x, y, width, height, color);
+                this.fillRect(x, y, width, height, color, true);
             }
         },
 
@@ -413,7 +436,7 @@ var Display;
                     }
                 }
             } else {
-                this.fillRect(this._tile_x + x, this._tile_y + y, w, h, color);
+                this.fillRect(this._tile_x + x, this._tile_y + y, w, h, color, true);
             }
         },
 
@@ -426,16 +449,34 @@ var Display;
             // else: No-op -- already done by setSubTile
         },
 
-        blitImage: function (x, y, width, height, arr, offset) {
-            if (this._true_color) {
+        blitImage: function (x, y, width, height, arr, offset, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this.renderQ_push({
+                    'type': 'blit',
+                    'data': arr,
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                });
+            } else if (this._true_color) {
                 this._bgrxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             } else {
                 this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             }
         },
 
-        blitRgbImage: function (x, y , width, height, arr, offset) {
-            if (this._true_color) {
+        blitRgbImage: function (x, y , width, height, arr, offset, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this.renderQ_push({
+                    'type': 'blitRgb',
+                    'data': arr,
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                });
+            } else if (this._true_color) {
                 this._rgbImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             } else {
                 // probably wrong?
@@ -443,8 +484,24 @@ var Display;
             }
         },
 
-        blitRgbxImage: function (x, y, width, height, arr, offset) {
-            this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+        blitRgbxImage: function (x, y, width, height, arr, offset, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays, but it
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 4);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
+                this.renderQ_push({
+                    'type': 'blitRgbx',
+                    'data': new_arr,
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                });
+            } else {
+                this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+            }
         },
 
         blitStringImage: function (str, x, y) {
@@ -626,13 +683,12 @@ var Display;
 
         _rgbxImageData: function (x, y, vx, vy, width, height, arr, offset) {
             // NB(directxman12): arr must be an Type Array view
-            // NB(directxman12): this only works
             var img;
             if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
-                img = new ImageData(new Uint8ClampedArray(arr.buffer, 0, width * height * 4), width, height);
+                img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
             } else {
                 img = this._drawCtx.createImageData(width, height);
-                img.data.set(new Uint8ClampedArray(arr.buffer, 0, width * height * 4));
+                img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
             }
             this._drawCtx.putImageData(img, x - vx, y - vy);
         },
@@ -657,19 +713,19 @@ var Display;
                 var a = this._renderQ[0];
                 switch (a.type) {
                     case 'copy':
-                        this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height);
+                        this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
                         break;
                     case 'fill':
-                        this.fillRect(a.x, a.y, a.width, a.height, a.color);
+                        this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                         break;
                     case 'blit':
-                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0);
+                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                         break;
                     case 'blitRgb':
-                        this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0);
+                        this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                         break;
                     case 'blitRgbx':
-                        this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0);
+                        this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                         break;
                     case 'img':
                         if (a.img.complete) {

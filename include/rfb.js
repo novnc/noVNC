@@ -1483,15 +1483,10 @@ var RFB;
         COPYRECT: function () {
             this._FBU.bytes = 4;
             if (this._sock.rQwait("COPYRECT", 4)) { return false; }
-            this._display.renderQ_push({
-                'type': 'copy',
-                'old_x': this._sock.rQshift16(),
-                'old_y': this._sock.rQshift16(),
-                'x': this._FBU.x,
-                'y': this._FBU.y,
-                'width': this._FBU.width,
-                'height': this._FBU.height
-            });
+            this._display.copyImage(this._sock.rQshift16(), this._sock.rQshift16(),
+                                    this._FBU.x, this._FBU.y, this._FBU.width,
+                                    this._FBU.height);
+
             this._FBU.rects--;
             this._FBU.bytes = 0;
             return true;
@@ -1842,28 +1837,10 @@ var RFB;
                 var rgbx;
                 if (numColors == 2) {
                     rgbx = indexedToRGBX2Color(data, this._paletteBuff, this._FBU.width, this._FBU.height);
-
-                    /*this._display.renderQ_push({
-                        'type': 'blitRgbx',
-                        'data': rgbx,
-                        'x': this._FBU.x,
-                        'y': this._FBU.y,
-                        'width': this._FBU.width,
-                        'height': this._FBU.height
-                    });*/
-                    this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0);
+                    this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
                 } else {
                     rgbx = indexedToRGBX(data, this._paletteBuff, this._FBU.width, this._FBU.height);
-
-                    /*this._display.renderQ_push({
-                        'type': 'blitRgbx',
-                        'data': rgbx,
-                        'x': this._FBU.x,
-                        'y': this._FBU.y,
-                        'width': this._FBU.width,
-                        'height': this._FBU.height
-                    });*/
-                    this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0);
+                    this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
                 }
 
 
@@ -1905,14 +1882,7 @@ var RFB;
                     data = decompress(this._sock.rQshiftBytes(cl_data));
                 }
 
-                this._display.renderQ_push({
-                    'type': 'blitRgb',
-                    'data': data,
-                    'x': this._FBU.x,
-                    'y': this._FBU.y,
-                    'width': this._FBU.width,
-                    'height': this._FBU.height
-                });
+                this._display.blitRgbImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, data, 0, false);
 
                 return true;
             }.bind(this);
@@ -1960,16 +1930,9 @@ var RFB;
             // Determine FBU.bytes
             switch (cmode) {
                 case "fill":
-                    this._sock.rQskip8();  // shift off ctl
-                    var color = this._sock.rQshiftBytes(this._fb_depth);
-                    this._display.renderQ_push({
-                        'type': 'fill',
-                        'x': this._FBU.x,
-                        'y': this._FBU.y,
-                        'width': this._FBU.width,
-                        'height': this._FBU.height,
-                        'color': [color[2], color[1], color[0]]
-                    });
+                    // skip ctl byte
+                    this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, [rQ[rQi + 3], rQ[rQi + 2], rQ[rQi + 1]], false);
+                    this._sock.rQskipBytes(4);
                     break;
                 case "png":
                 case "jpeg":
