@@ -211,8 +211,7 @@
             path = WebUtil.getQueryVar('path', 'websockify');
 
             if ((!host) || (!port)) {
-                updateState('failed',
-                    "Must specify host and port in URL");
+                updateState(null, 'fatal', null, 'Must specify host and port in URL');
                 return;
             }
 
@@ -230,7 +229,7 @@
                                'onPasswordRequired':  passwordRequired,
                                'onFBUComplete': FBUComplete});
             } catch (exc) {
-                UI.updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
                 return; // don't continue trying to connect
             }
 
