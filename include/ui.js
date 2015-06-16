@@ -697,6 +697,7 @@ var UI;
             // State change disables viewport dragging.
             // It is enabled (toggled) by direct click on the button
             UI.setViewDrag(false);
+            UI.updateViewDragButton();
 
             switch (UI.rfb_state) {
                 case 'fatal':
@@ -889,8 +890,6 @@ var UI;
         setViewDrag: function(drag) {
             if (!UI.rfb) return;
 
-            UI.updateViewDragButton();
-
             if (typeof(drag) === "undefined" ||
                 typeof(drag) === "object") {
                 // If not specified, then toggle
@@ -911,8 +910,18 @@ var UI;
             if (UI.rfb_state === 'normal' &&
                 UI.rfb.get_display().get_viewport() &&
                 UI.rfb.get_display().clippingDisplay()) {
+                // Enable the viewport drag button
                 vmb.style.display = "inline";
+                vmb.disabled = false;
+
+            } else if (UI.rfb_state === 'normal' &&
+                       UI.isTouchDevice) {
+                // Disable the viewport drag button
+                vmb.style.display = "inline";
+                vmb.disabled = true;
+
             } else {
+                // Hide the viewport drag button
                 vmb.style.display = "none";
             }
         },
