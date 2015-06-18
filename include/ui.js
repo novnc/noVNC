@@ -131,6 +131,19 @@ var UI;
                 UI.setBarPosition();
             } );
 
+            // Hide the button if fullscreen isn't supported
+            if (!document.documentElement.requestFullscreen &&
+                !document.documentElement.mozRequestFullScreen &&
+                !document.documentElement.webkitRequestFullscreen &&
+                !document.body.msRequestFullscreen) {
+                $D('fullscreenButton').style.display = "none";
+            } else {
+                Util.addEvent(window, 'fullscreenchange', UI.updateFullscreenButton);
+                Util.addEvent(window, 'mozfullscreenchange', UI.updateFullscreenButton);
+                Util.addEvent(window, 'webkitfullscreenchange', UI.updateFullscreenButton);
+                Util.addEvent(window, 'msfullscreenchange', UI.updateFullscreenButton);
+            }
+
             Util.addEvent(window, 'load', UI.keyboardinputReset);
 
             Util.addEvent(window, 'beforeunload', function () {
@@ -201,6 +214,7 @@ var UI;
             $D("noVNC_popup_status").onclick = UI.togglePopupStatus;
             $D("xvpButton").onclick = UI.toggleXvpPanel;
             $D("clipboardButton").onclick = UI.toggleClipboardPanel;
+            $D("fullscreenButton").onclick = UI.toggleFullscreen;
             $D("settingsButton").onclick = UI.toggleSettingsPanel;
             $D("connectButton").onclick = UI.toggleConnectPanel;
             $D("disconnectButton").onclick = UI.disconnect;
@@ -434,6 +448,46 @@ var UI;
                 $D('noVNC_clipboard').style.display = "block";
                 $D('clipboardButton').className = "noVNC_status_button_selected";
                 UI.clipboardOpen = true;
+            }
+        },
+
+        // Toggle fullscreen mode
+        toggleFullscreen: function() {
+            if (document.fullscreenElement || // alternative standard method
+                document.mozFullScreenElement || // currently working methods
+                document.webkitFullscreenElement ||
+                document.msFullscreenElement ) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            } else {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                } else if (document.body.msRequestFullscreen) {
+                    document.body.msRequestFullscreen();
+                }
+            }
+            UI.updateFullscreenButton();
+        },
+
+        updateFullscreenButton: function() {
+            if (document.fullscreenElement || // alternative standard method
+                document.mozFullScreenElement || // currently working methods
+                document.webkitFullscreenElement ||
+                document.msFullscreenElement ) {
+                $D('fullscreenButton').className = "noVNC_status_button_selected";
+            } else {
+                $D('fullscreenButton').className = "noVNC_status_button";
             }
         },
 
