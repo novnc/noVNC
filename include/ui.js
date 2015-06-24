@@ -127,7 +127,7 @@ var UI;
             Util.addEvent(window, 'resize', function () {
                 UI.onresize();
                 UI.setViewClip();
-                UI.updateViewDragButton();
+                UI.updateViewDrag();
                 UI.setBarPosition();
             } );
 
@@ -165,7 +165,7 @@ var UI;
                                   'onXvpInit': UI.updateXvpVisualState,
                                   'onClipboard': UI.clipReceive,
                                   'onFBUComplete': UI.FBUComplete,
-                                  'onFBResize': UI.updateViewDragButton,
+                                  'onFBResize': UI.updateViewDrag,
                                   'onDesktopName': UI.updateDocumentTitle});
                 return true;
             } catch (exc) {
@@ -176,7 +176,7 @@ var UI;
 
         addMouseHandlers: function() {
             // Setup interface handlers that can't be inline
-            $D("noVNC_view_drag_button").onclick = UI.setViewDrag;
+            $D("noVNC_view_drag_button").onclick = UI.toggleViewDrag;
             $D("noVNC_mouse_button0").onclick = function () { UI.setMouseButton(1); };
             $D("noVNC_mouse_button1").onclick = function () { UI.setMouseButton(2); };
             $D("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
@@ -565,7 +565,7 @@ var UI;
             WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
             WebUtil.init_logging(UI.getSetting('logging'));
             UI.setViewClip();
-            UI.setViewDrag(UI.rfb && UI.rfb.get_viewportDrag());
+            UI.updateViewDrag();
             //Util.Debug("<< settingsApply");
         },
 
@@ -696,8 +696,7 @@ var UI;
 
             // State change disables viewport dragging.
             // It is enabled (toggled) by direct click on the button
-            UI.setViewDrag(false);
-            UI.updateViewDragButton();
+            UI.updateViewDrag(false);
 
             switch (UI.rfb_state) {
                 case 'fatal':
@@ -859,6 +858,7 @@ var UI;
                 // Turn clipping off
                 UI.updateSetting('clip', false);
                 display.set_viewport(false);
+                // Disable max dimensions
                 display.set_maxWidth(0);
                 display.set_maxHeight(0);
                 display.viewportChangeSize();
@@ -886,43 +886,64 @@ var UI;
             }
         },
 
-        // Toggle/set/unset the viewport drag/move button
-        setViewDrag: function(drag) {
+        // Update the viewport drag/move button
+        updateViewDrag: function(drag) {
             if (!UI.rfb) return;
 
-            if (typeof(drag) === "undefined" ||
-                typeof(drag) === "object") {
-                // If not specified, then toggle
-                drag = !UI.rfb.get_viewportDrag();
-            }
             var vmb = $D('noVNC_view_drag_button');
-            if (drag) {
-                vmb.className = "noVNC_status_button_selected";
-                UI.rfb.set_viewportDrag(true);
-            } else {
-                vmb.className = "noVNC_status_button";
-                UI.rfb.set_viewportDrag(false);
-            }
-        },
 
-        updateViewDragButton: function() {
-            var vmb = $D('noVNC_view_drag_button');
+            // Check if viewport drag is possible
             if (UI.rfb_state === 'normal' &&
                 UI.rfb.get_display().get_viewport() &&
                 UI.rfb.get_display().clippingDisplay()) {
-                // Enable the viewport drag button
+
+                // Show and enable the drag button
                 vmb.style.display = "inline";
                 vmb.disabled = false;
 
-            } else if (UI.rfb_state === 'normal' &&
-                       UI.isTouchDevice) {
-                // Disable the viewport drag button
-                vmb.style.display = "inline";
-                vmb.disabled = true;
-
             } else {
-                // Hide the viewport drag button
-                vmb.style.display = "none";
+                // The VNC content is the same size as
+                // or smaller than the display
+
+                if (UI.rfb.get_viewportDrag) {
+                    // Turn off viewport drag when it's
+                    // active since it can't be used here
+                    vmb.className = "noVNC_status_button";
+                    UI.rfb.set_viewportDrag(false);
+                }
+
+                // Disable or hide the drag button
+                if (UI.rfb_state === 'normal' && UI.isTouchDevice) {
+                    vmb.style.display = "inline";
+                    vmb.disabled = true;
+                } else {
+                    vmb.style.display = "none";
+                }
+                return;
+            }
+
+            if (typeof(drag) !== "undefined" &&
+                typeof(drag) !== "object") {
+                if (drag) {
+                    vmb.className = "noVNC_status_button_selected";
+                    UI.rfb.set_viewportDrag(true);
+                } else {
+                    vmb.className = "noVNC_status_button";
+                    UI.rfb.set_viewportDrag(false);
+                }
+            }
+        },
+
+        toggleViewDrag: function() {
+            if (!UI.rfb) return;
+
+            var vmb = $D('noVNC_view_drag_button');
+            if (UI.rfb.get_viewportDrag()) {
+                vmb.className = "noVNC_status_button";
+                UI.rfb.set_viewportDrag(false);
+            } else {
+                vmb.className = "noVNC_status_button_selected";
+                UI.rfb.set_viewportDrag(true);
             }
         },
 
