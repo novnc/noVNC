@@ -38,6 +38,7 @@ var UI;
         ctrlOn: false,
         altOn: false,
         isTouchDevice: false,
+        rememberedClipSetting: null,
 
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
@@ -131,13 +132,17 @@ var UI;
                 UI.setBarPosition();
             } );
 
-            // Hide the button if fullscreen isn't supported
-            if (!document.documentElement.requestFullscreen &&
-                !document.documentElement.mozRequestFullScreen &&
-                !document.documentElement.webkitRequestFullscreen &&
-                !document.body.msRequestFullscreen) {
-                $D('fullscreenButton').style.display = "none";
-            } else {
+            var isSafari = (navigator.userAgent.indexOf('Safari') != -1 &&
+                            navigator.userAgent.indexOf('Chrome') == -1);
+
+            // Only show the button if fullscreen is properly supported
+            // * Safari doesn't support alphanumerical input while in fullscreen
+            if (!isSafari &&
+                (document.documentElement.requestFullscreen ||
+                 document.documentElement.mozRequestFullScreen ||
+                 document.documentElement.webkitRequestFullscreen ||
+                 document.body.msRequestFullscreen)) {
+                $D('fullscreenButton').style.display = "inline";
                 Util.addEvent(window, 'fullscreenchange', UI.updateFullscreenButton);
                 Util.addEvent(window, 'mozfullscreenchange', UI.updateFullscreenButton);
                 Util.addEvent(window, 'webkitfullscreenchange', UI.updateFullscreenButton);
@@ -231,10 +236,7 @@ var UI;
 
             $D("noVNC_connect_button").onclick = UI.connect;
 
-            $D("noVNC_resize").onchange = function () {
-                var connected = UI.rfb && UI.rfb_state === 'normal';
-                UI.enableDisableViewClip(connected);
-            };
+            $D("noVNC_resize").onchange = UI.enableDisableViewClip;
         },
 
         onresize: function (callback) {
@@ -456,7 +458,7 @@ var UI;
             if (document.fullscreenElement || // alternative standard method
                 document.mozFullScreenElement || // currently working methods
                 document.webkitFullscreenElement ||
-                document.msFullscreenElement ) {
+                document.msFullscreenElement) {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.mozCancelFullScreen) {
@@ -477,6 +479,7 @@ var UI;
                     document.body.msRequestFullscreen();
                 }
             }
+            UI.enableDisableViewClip();
             UI.updateFullscreenButton();
         },
 
@@ -718,7 +721,7 @@ var UI;
                 $D('noVNC_cursor').disabled = true;
             }
 
-            UI.enableDisableViewClip(connected);
+            UI.enableDisableViewClip();
             $D('noVNC_resize').disabled = connected;
             $D('noVNC_shared').disabled = connected;
             $D('noVNC_view_only').disabled = connected;
@@ -875,6 +878,7 @@ var UI;
             if (UI.rfb) {
                 display = UI.rfb.get_display();
             } else {
+                UI.forceSetting('clip', clip);
                 return;
             }
 
@@ -921,15 +925,30 @@ var UI;
         },
 
         // Handle special cases where clipping is forced on/off or locked
-        enableDisableViewClip: function (connected) {
+        enableDisableViewClip: function () {
             var resizeElem = $D('noVNC_resize');
+            var connected = UI.rfb && UI.rfb_state === 'normal';
+
             if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
-                UI.forceSetting('clip', false);
+                // Disable clipping if we are scaling
+                UI.setViewClip(false);
                 $D('noVNC_clip').disabled = true;
+            } else if (document.msFullscreenElement) {
+                // The browser is IE and we are in fullscreen mode.
+                // - We need to force clipping while in fullscreen since
+                //   scrollbars doesn't work.
+                UI.togglePopupStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
+                UI.rememberedClipSetting = UI.getSetting('clip');
+                UI.setViewClip(true);
+                $D('noVNC_clip').disabled = true;
+            } else if (document.body.msRequestFullscreen && UI.rememberedClip !== null) {
+                // Restore view clip to what it was before fullscreen on IE
+                UI.setViewClip(UI.rememberedClipSetting);
+                $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
             } else {
                 $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
                 if (UI.isTouchDevice) {
-                    UI.forceSetting('clip', true);
+                    UI.setViewClip(true);
                 }
             }
         },

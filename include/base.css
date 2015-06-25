@@ -59,6 +59,9 @@ html {
 #sendCtrlAltDelButton {
   display: none;
 }
+#fullscreenButton {
+  display: none;
+}
 #noVNC_xvp_buttons {
   display: none;
 }
