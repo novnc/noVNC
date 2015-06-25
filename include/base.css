@@ -188,7 +188,7 @@ html {
   border-radius:10px;
 }
 
-#noVNC_popup_status_panel {
+#noVNC_popup_status {
   display:none;
   position: fixed;
   z-index: 1;

@@ -28,8 +28,7 @@ var UI;
         rfb_state : 'loaded',
         settingsOpen : false,
         connSettingsOpen : false,
-        popupStatusOpen : false,
-        popupTimeout: null,
+        popupStatusTimeout: null,
         clipboardOpen: false,
         keyboardVisible: false,
         hideKeyboardTimeout: null,
@@ -198,8 +197,8 @@ var UI;
             $D("xvpShutdownButton").onclick = UI.xvpShutdown;
             $D("xvpRebootButton").onclick = UI.xvpReboot;
             $D("xvpResetButton").onclick = UI.xvpReset;
-            $D("noVNC_status").onclick = UI.togglePopupStatusPanel;
-            $D("noVNC_popup_status_panel").onclick = UI.togglePopupStatusPanel;
+            $D("noVNC_status").onclick = UI.togglePopupStatus;
+            $D("noVNC_popup_status").onclick = UI.togglePopupStatus;
             $D("xvpButton").onclick = UI.toggleXvpPanel;
             $D("clipboardButton").onclick = UI.toggleClipboardPanel;
             $D("settingsButton").onclick = UI.toggleSettingsPanel;
@@ -356,19 +355,13 @@ var UI;
         },
 
 
-        // Show the popup status panel
-        togglePopupStatusPanel: function(text) {
-            var psp = $D('noVNC_popup_status_panel');
+        // Show the popup status
+        togglePopupStatus: function(text) {
+            var psp = $D('noVNC_popup_status');
 
-            var closePopup = function() {
-                psp.style.display = "none";
-                UI.popupStatusOpen = false;
-            };
+            var closePopup = function() { psp.style.display = "none"; };
 
-            if (UI.popupStatusOpen === true) {
-                clearTimeout(UI.popupTimeout);
-                closePopup();
-            } else {
+            if (window.getComputedStyle(psp).display === 'none') {
                 if (typeof text === 'text') {
                     psp.innerHTML = text;
                 } else {
@@ -376,11 +369,13 @@ var UI;
                 }
                 psp.style.display = "block";
                 psp.style.left = window.innerWidth/2 -
-                    parseInt(window.getComputedStyle(psp, false).width)/2 -30 + "px";
-                UI.popupStatusOpen = true;
+                    parseInt(window.getComputedStyle(psp).width)/2 -30 + "px";
 
                 // Show the popup for a maximum of 1.5 seconds
-                UI.popupTimeout = setTimeout(function() { closePopup(); }, 1500);
+                UI.popupStatusTimeout = setTimeout(function() { closePopup(); }, 1500);
+            } else {
+                clearTimeout(UI.popupStatusTimeout);
+                closePopup();
             }
         },
 
@@ -396,10 +391,6 @@ var UI;
             // Close connection settings if open
             if (UI.connSettingsOpen === true) {
                 UI.toggleConnectPanel();
-            }
-            // Close popup status panel if open
-            if (UI.popupStatusOpen === true) {
-                UI.togglePopupStatusPanel();
             }
             // Close clipboard panel if open
             if (UI.clipboardOpen === true) {
@@ -430,10 +421,6 @@ var UI;
             if (UI.connSettingsOpen === true) {
                 UI.toggleConnectPanel();
             }
-            // Close popup status panel if open
-            if (UI.popupStatusOpen === true) {
-                UI.togglePopupStatusPanel();
-            }
             // Close XVP panel if open
             if (UI.xvpOpen === true) {
                 UI.toggleXvpPanel();
@@ -463,10 +450,6 @@ var UI;
             // Close clipboard panel if open
             if (UI.clipboardOpen === true) {
                 UI.toggleClipboardPanel();
-            }
-            // Close popup status panel if open
-            if (UI.popupStatusOpen === true) {
-                UI.togglePopupStatusPanel();
             }
             // Close XVP panel if open
             if (UI.xvpOpen === true) {
@@ -531,10 +514,6 @@ var UI;
             // Close connection settings if open
             if (UI.connSettingsOpen === true) {
                 UI.toggleConnectPanel();
-            }
-            // Close popup status panel if open
-            if (UI.popupStatusOpen === true) {
-                UI.togglePopupStatusPanel();
             }
             // Close XVP panel if open
             if (UI.xvpOpen === true) {
