@@ -29,6 +29,7 @@ var UI;
         settingsOpen : false,
         connSettingsOpen : false,
         popupStatusOpen : false,
+        popupTimeout: null,
         clipboardOpen: false,
         keyboardVisible: false,
         hideKeyboardTimeout: null,
@@ -356,17 +357,30 @@ var UI;
 
 
         // Show the popup status panel
-        togglePopupStatusPanel: function() {
+        togglePopupStatusPanel: function(text) {
             var psp = $D('noVNC_popup_status_panel');
-            if (UI.popupStatusOpen === true) {
+
+            var closePopup = function() {
                 psp.style.display = "none";
                 UI.popupStatusOpen = false;
+            };
+
+            if (UI.popupStatusOpen === true) {
+                clearTimeout(UI.popupTimeout);
+                closePopup();
             } else {
-                psp.innerHTML = $D('noVNC_status').innerHTML;
+                if (typeof text === 'text') {
+                    psp.innerHTML = text;
+                } else {
+                    psp.innerHTML = $D('noVNC_status').innerHTML;
+                }
                 psp.style.display = "block";
                 psp.style.left = window.innerWidth/2 -
                     parseInt(window.getComputedStyle(psp, false).width)/2 -30 + "px";
                 UI.popupStatusOpen = true;
+
+                // Show the popup for a maximum of 1.5 seconds
+                UI.popupTimeout = setTimeout(function() { closePopup(); }, 1500);
             }
         },
 
