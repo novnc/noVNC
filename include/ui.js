@@ -362,7 +362,7 @@ var UI;
             var closePopup = function() { psp.style.display = "none"; };
 
             if (window.getComputedStyle(psp).display === 'none') {
-                if (typeof text === 'text') {
+                if (typeof text === 'string') {
                     psp.innerHTML = text;
                 } else {
                     psp.innerHTML = $D('noVNC_status').innerHTML;
