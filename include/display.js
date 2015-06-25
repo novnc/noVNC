@@ -229,12 +229,13 @@ var Display;
                         saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
                     }
 
-                    if (canvas.width  !== width)  { canvas.width  = width; }
-                    if (canvas.height !== height) { canvas.height = height; }
-
-                    if (this._viewport) {
-                        canvas.style.height = height + 'px';
+                    if (canvas.width !== width) {
+                        canvas.width = width;
                         canvas.style.width = width + 'px';
+                    }
+                    if (canvas.height !== height) {
+                        canvas.height = height;
+                        canvas.style.height = height + 'px';
                     }
 
                     if (saveImg) {
