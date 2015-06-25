@@ -220,7 +220,7 @@ var UI;
 
             $D("noVNC_resize").onchange = function () {
                 var connected = UI.rfb && UI.rfb_state === 'normal';
-                UI.enableDisableClip(connected);
+                UI.enableDisableViewClip(connected);
             };
         },
 
@@ -685,7 +685,7 @@ var UI;
                 $D('noVNC_cursor').disabled = true;
             }
 
-            UI.enableDisableClip(connected);
+            UI.enableDisableViewClip(connected);
             $D('noVNC_resize').disabled = connected;
             $D('noVNC_shared').disabled = connected;
             $D('noVNC_view_only').disabled = connected;
@@ -743,19 +743,6 @@ var UI;
                 // Close XVP panel if open
                 if (UI.xvpOpen === true) {
                     UI.toggleXvpPanel();
-                }
-            }
-        },
-
-        enableDisableClip: function (connected) {
-            var resizeElem = $D('noVNC_resize');
-            if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
-                UI.forceSetting('clip', false);
-                $D('noVNC_clip').disabled = true;
-            } else {
-                $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
-                if (UI.isTouchDevice) {
-                    UI.forceSetting('clip', true);
                 }
             }
         },
@@ -849,7 +836,7 @@ var UI;
             Util.Debug("<< UI.clipSend");
         },
 
-        // Enable/disable and configure viewport clipping
+        // Set and configure viewport clipping
         setViewClip: function(clip) {
             var display;
             if (UI.rfb) {
@@ -896,6 +883,20 @@ var UI;
                     $D('noVNC_container').style.overflow = "visible";
 
                     display.viewportChangeSize(new_w, size.h);
+                }
+            }
+        },
+
+        // Handle special cases where clipping is forced on/off or locked
+        enableDisableViewClip: function (connected) {
+            var resizeElem = $D('noVNC_resize');
+            if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
+                UI.forceSetting('clip', false);
+                $D('noVNC_clip').disabled = true;
+            } else {
+                $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
+                if (UI.isTouchDevice) {
+                    UI.forceSetting('clip', true);
                 }
             }
         },
