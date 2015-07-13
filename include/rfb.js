@@ -142,6 +142,7 @@ var RFB;
             'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
             'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
             'onXvpInit': function () { },           // onXvpInit(version): XVP extensions active for this connection
+            'onInteraction': function () { },       // onInteraction(): Callback invoked on mouse button press or keyboard press
         });
 
         // main setup
@@ -587,6 +588,7 @@ var RFB;
 
         _handleKeyPress: function (keysym, down) {
             if (this._view_only) { return; } // View only, skip keyboard, events
+            this._onInteraction();  // Interaction callback
             this._sock.send(RFB.messages.keyEvent(keysym, down));
         },
 
@@ -614,6 +616,7 @@ var RFB;
             this._mouse_arr = this._mouse_arr.concat(
                     RFB.messages.pointerEvent(this._display.absX(x), this._display.absY(y), this._mouse_buttonMask));
             this._sock.send(this._mouse_arr);
+            this._onInteraction();
             this._mouse_arr = [];
         },
 
@@ -1254,6 +1257,7 @@ var RFB;
         ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
         ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
         ['onXvpInit', 'rw', 'func'],            // onXvpInit(version): XVP extensions active for this connection
+        ['onInteraction', 'rw', 'func'],        // onInteraction(): Mouse mutton or keyboard key pressed
     ]);
 
     RFB.prototype.set_local_cursor = function (cursor) {
