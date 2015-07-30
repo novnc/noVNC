@@ -175,7 +175,7 @@ function Websock() {
             }
 
             if (this._websocket.bufferedAmount < this.maxBufferedAmount) {
-                if (this._sQ.length > 0 && this._websocket.readyState === 1) {
+                if (this._sQ.length > 0 && this._websocket.readyState === WebSocket.OPEN) {
                     this._websocket.send(this._encode_message());
                     this._sQ = [];
                 }
