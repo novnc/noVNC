@@ -180,6 +180,7 @@ describe('Websock', function() {
             it('should actually send on the websocket if the websocket does not have too much buffered', function () {
                 sock.maxBufferedAmount = 10;
                 sock._websocket.bufferedAmount = 8;
+                sock._websocket.readyState = 1;
                 sock._sQ = [1, 2, 3];
                 var encoded = sock._encode_message();
 
