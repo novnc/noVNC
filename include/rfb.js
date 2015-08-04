@@ -1903,9 +1903,9 @@ var RFB;
             this._sock.rQskipBytes(1);  // number-of-screens
             this._sock.rQskipBytes(3);  // padding
 
-            for (var i=0; i<number_of_screens; i += 1) {
+            for (var i = 0; i < number_of_screens; i += 1) {
                 // Save the id and flags of the first screen
-                if (i == 0) {
+                if (i === 0) {
                     this._screen_id = this._sock.rQshiftBytes(4);    // id
                     this._sock.rQskipBytes(2);                       // x-position
                     this._sock.rQskipBytes(2);                       // y-position
@@ -1926,7 +1926,7 @@ var RFB;
              */
 
             // We need to handle errors when we requested the resize.
-            if (this._FBU.x == 1 && this._FBU.y != 0) {
+            if (this._FBU.x === 1 && this._FBU.y !== 0) {
                 var msg = "";
                 // The y-position indicates the status code from the server
                 switch (this._FBU.y) {
