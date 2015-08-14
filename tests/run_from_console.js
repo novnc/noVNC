@@ -20,6 +20,7 @@ program
   .option('--output-html', 'Instead of running the tests, just output the generated HTML source to STDOUT (should be used with .js tests)')
   .option('-d, --debug', 'Show debug output (the "console" event) from the provider')
   .option('-r, --relative', 'Use relative paths in the generated HTML file')
+  .option('--debugger <port>', 'Enable the remote debugger for CasperJS')
   .parse(process.argv);
 
 if (program.tests.length === 0) {
@@ -202,7 +203,7 @@ if (!program.outputHtml && !program.generateHtml) {
     .write("\n");
   //console.log("Running tests %s using provider %s", program.tests.join(', '), prov.name);
 
-  var provider = prov.provide_emitter(file_paths);
+  var provider = prov.provide_emitter(file_paths, program.debugger);
   provider.on('test_ready', function(test_json) {
     console.log('');
 
@@ -249,6 +250,24 @@ if (!program.outputHtml && !program.generateHtml) {
     console.log('');
 
     if (test_json.num_fails > 0 || program.printAll) {
+      var extract_error_lines = function (err) {
+        // the split is to avoid a weird thing where in PhantomJS where we get a stack trace too
+        var err_lines = err.split('\n');
+        if (err_lines.length == 1) {
+          return err_lines[0];
+        } else {
+          var ind;
+          for (ind = 0; ind < err_lines.length; ind++) {
+            var at_ind = err_lines[ind].trim().indexOf('at ');
+            if (at_ind === 0) {
+              break;
+            }
+          }
+
+          return err_lines.slice(0, ind).join('\n');
+        }
+      };
+
       var traverse_tree = function(indentation, node) {
         if (node.type == 'suite') {
           if (!node.has_subfailures && !program.printAll) return;
@@ -280,7 +299,7 @@ if (!program.outputHtml && !program.generateHtml) {
             cursor.magenta();
             console.log('- failed: '+node.text+test_json.replay);
             cursor.red();
-            console.log('          '+node.error.split("\n")[0]);  // the split is to avoid a weird thing where in PhantomJS where we get a stack trace too
+            console.log('          '+extract_error_lines(node.error));
             cursor.reset();
             console.log('');
           }
