@@ -98,6 +98,8 @@ var Display;
         // Public methods
         viewportChangePos: function (deltaX, deltaY) {
             var vp = this._viewportLoc;
+            deltaX = Math.floor(deltaX);
+            deltaY = Math.floor(deltaY);
 
             if (!this._viewport) {
                 deltaX = -vp.w;  // clamped later of out of bounds
@@ -170,16 +172,34 @@ var Display;
                 h = deltaY;
             }
 
-            // Copy the valid part of the viewport to the shifted location
             var saveStyle = this._drawCtx.fillStyle;
             var canvas = this._target;
             this._drawCtx.fillStyle = "rgb(255,255,255)";
+
+            // Due to this bug among others [1] we need to disable the image-smoothing to
+            // avoid getting a blur effect when panning.
+            //
+            // 1. https://bugzilla.mozilla.org/show_bug.cgi?id=1194719
+            //
+            // We need to set these every time since all properties are reset
+            // when the the size is changed
+            if (this._drawCtx.mozImageSmoothingEnabled) {
+                this._drawCtx.mozImageSmoothingEnabled = false;
+            } else if (this._drawCtx.webkitImageSmoothingEnabled) {
+                this._drawCtx.webkitImageSmoothingEnabled = false;
+            } else if (this._drawCtx.msImageSmoothingEnabled) {
+                this._drawCtx.msImageSmoothingEnabled = false;
+            } else if (this._drawCtx.imageSmoothingEnabled) {
+                this._drawCtx.imageSmoothingEnabled = false;
+            }
+
+            // Copy the valid part of the viewport to the shifted location
+            this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, -deltaX, -deltaY, vp.w, vp.h);
+
             if (deltaX !== 0) {
-                this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, -deltaX, 0, vp.w, vp.h);
                 this._drawCtx.fillRect(x1, 0, w, vp.h);
             }
             if (deltaY !== 0) {
-                this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, 0, -deltaY, vp.w, vp.h);
                 this._drawCtx.fillRect(0, y1, vp.w, h);
             }
             this._drawCtx.fillStyle = saveStyle;
