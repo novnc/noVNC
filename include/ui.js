@@ -625,7 +625,7 @@ var UI;
             UI.rfb.sendPassword($D('noVNC_password').value);
             //Reset connect button.
             $D('noVNC_connect_button').value = "Connect";
-            $D('noVNC_connect_button').onclick = UI.Connect;
+            $D('noVNC_connect_button').onclick = UI.connect;
             //Hide connection panel.
             UI.toggleConnectPanel();
             return false;
