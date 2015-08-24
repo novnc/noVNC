@@ -667,7 +667,7 @@ var Display;
             if (this._true_color) {
                 bgr = color;
             } else {
-                bgr = this._colourMap[color[0]];
+                bgr = this._colourMap[color];
             }
 
             var newStyle = 'rgb(' + bgr[2] + ',' + bgr[1] + ',' + bgr[0] + ')';
