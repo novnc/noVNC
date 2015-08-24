@@ -6,10 +6,15 @@ chai.use(function (_chai, utils) {
         // NB(directxman12): PhantomJS 1.x doesn't implement Uint8ClampedArray, so work around that
         var data = new Uint8Array(data_cl);
         var same = true;
-        for (var i = 0; i < obj.length; i++) {
-            if (data[i] != target_data[i]) {
-                same = false;
-                break;
+        var len = data_cl.length;
+        if (len != target_data.length) {
+            same = false;
+        } else {
+            for (var i = 0; i < len; i++) {
+                if (data[i] != target_data[i]) {
+                    same = false;
+                    break;
+                }
             }
         }
         if (!same) {
