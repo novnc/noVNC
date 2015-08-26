@@ -154,6 +154,10 @@ function Websock() {
             this._rQi += len;
         },
 
+        rQwhole: function () {
+            return new Uint8Array(this._rQ.buffer, 0, this._rQlen);
+        },
+
         rQslice: function (start, end) {
             if (end) {
                 return new Uint8Array(this._rQ.buffer, this._rQi + start, end - start);

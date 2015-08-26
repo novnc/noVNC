@@ -1782,8 +1782,8 @@ var RFB;
                 return dest;
             }.bind(this);
 
-            var rQ = this._sock.get_rQ();
             var rQi = this._sock.get_rQi();
+            var rQ = this._sock.rQwhole();
             var cmode, data;
             var cl_header, cl_data;
 
