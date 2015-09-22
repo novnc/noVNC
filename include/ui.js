@@ -15,8 +15,6 @@ var UI;
 (function () {
     "use strict";
 
-    var resizeTimeout;
-
     // Load supporting scripts
     window.onscriptsload = function () { UI.load(); };
     Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
@@ -25,9 +23,10 @@ var UI;
 
     UI = {
 
-        rfb_state : 'loaded',
-        settingsOpen : false,
-        connSettingsOpen : false,
+        rfb_state: 'loaded',
+        resizeTimeout: null,
+        settingsOpen: false,
+        connSettingsOpen: false,
         popupStatusTimeout: null,
         clipboardOpen: false,
         keyboardVisible: false,
@@ -253,8 +252,8 @@ var UI;
                     // When the local window has been resized, wait until the size remains
                     // the same for 0.5 seconds before sending the request for changing
                     // the resolution of the session
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(function(){
+                    clearTimeout(UI.resizeTimeout);
+                    UI.resizeTimeout = setTimeout(function(){
                         display.set_maxWidth(size.w);
                         display.set_maxHeight(size.h);
                         Util.Debug('Attempting setDesktopSize(' +
