@@ -1688,16 +1688,17 @@ var RFB;
 
             var resetStreams = 0;
             var streamId = -1;
-            var decompress = function (data) {
+            var decompress = function (data, expected) {
                 for (var i = 0; i < 4; i++) {
                     if ((resetStreams >> i) & 1) {
                         this._FBU.zlibs[i].reset();
+                        console.debug('RESET!');
                         Util.Info("Reset zlib stream " + i);
                     }
                 }
 
                 //var uncompressed = this._FBU.zlibs[streamId].uncompress(data, 0);
-                var uncompressed = this._FBU.zlibs[streamId].inflate(data, true);
+                var uncompressed = this._FBU.zlibs[streamId].inflate(data, true, expected);
                 /*if (uncompressed.status !== 0) {
                     Util.Error("Invalid data in zlib stream");
                 }*/
@@ -1830,7 +1831,7 @@ var RFB;
                 if (raw) {
                     data = this._sock.rQshiftBytes(cl_data);
                 } else {
-                    data = decompress(this._sock.rQshiftBytes(cl_data));
+                    data = decompress(this._sock.rQshiftBytes(cl_data), rowSize * this._FBU.height);
                 }
 
                 // Convert indexed (palette based) image data to RGB
@@ -1879,7 +1880,7 @@ var RFB;
                 if (raw) {
                     data = this._sock.rQshiftBytes(cl_data);
                 } else {
-                    data = decompress(this._sock.rQshiftBytes(cl_data));
+                    data = decompress(this._sock.rQshiftBytes(cl_data), uncompressedSize);
                 }
 
                 this._display.blitRgbImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, data, 0, false);
