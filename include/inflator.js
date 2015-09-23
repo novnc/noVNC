@@ -234,7 +234,8 @@ module.exports = function inflate_fast(strm, start) {
   var wsize;                  /* window size or zero if not using window */
   var whave;                  /* valid bytes in the window */
   var wnext;                  /* window write index */
-  var window;                 /* allocated sliding window, if wsize != 0 */
+  // Use `s_window` instead `window`, avoid conflict with instrumentation tools
+  var s_window;               /* allocated sliding window, if wsize != 0 */
   var hold;                   /* local strm.hold */
   var bits;                   /* local strm.bits */
   var lcode;                  /* local strm.lencode */
@@ -268,7 +269,7 @@ module.exports = function inflate_fast(strm, start) {
   wsize = state.wsize;
   whave = state.whave;
   wnext = state.wnext;
-  window = state.window;
+  s_window = state.window;
   hold = state.hold;
   bits = state.bits;
   lcode = state.lencode;
@@ -386,13 +387,13 @@ module.exports = function inflate_fast(strm, start) {
 //#endif
               }
               from = 0; // window index
-              from_source = window;
+              from_source = s_window;
               if (wnext === 0) {           /* very common case */
                 from += wsize - op;
                 if (op < len) {         /* some from window */
                   len -= op;
                   do {
-                    output[_out++] = window[from++];
+                    output[_out++] = s_window[from++];
                   } while (--op);
                   from = _out - dist;  /* rest from output */
                   from_source = output;
@@ -404,14 +405,14 @@ module.exports = function inflate_fast(strm, start) {
                 if (op < len) {         /* some from end of window */
                   len -= op;
                   do {
-                    output[_out++] = window[from++];
+                    output[_out++] = s_window[from++];
                   } while (--op);
                   from = 0;
                   if (wnext < len) {  /* some from start of window */
                     op = wnext;
                     len -= op;
                     do {
-                      output[_out++] = window[from++];
+                      output[_out++] = s_window[from++];
                     } while (--op);
                     from = _out - dist;      /* rest from output */
                     from_source = output;
@@ -423,7 +424,7 @@ module.exports = function inflate_fast(strm, start) {
                 if (op < len) {         /* some from window */
                   len -= op;
                   do {
-                    output[_out++] = window[from++];
+                    output[_out++] = s_window[from++];
                   } while (--op);
                   from = _out - dist;  /* rest from output */
                   from_source = output;
@@ -2371,9 +2372,9 @@ function ZStream() {
 
 module.exports = ZStream;
 
-},{}],"/partial_inflator.js":[function(require,module,exports){
-var zlib = require('./lib/zlib/inflate.js');
-var ZStream = require('./lib/zlib/zstream.js');
+},{}],8:[function(require,module,exports){
+var zlib = require('../node_modules/pako/lib/zlib/inflate.js');
+var ZStream = require('../node_modules/pako/lib/zlib/zstream.js');
 
 var Inflate = function () {
     this.strm = new ZStream();
@@ -2385,11 +2386,19 @@ var Inflate = function () {
 };
 
 Inflate.prototype = {
-    inflate: function (data, flush) {
+    inflate: function (data, flush, expected) {
         this.strm.input = data;
         this.strm.avail_in = this.strm.input.length;
         this.strm.next_in = 0;
         this.strm.next_out = 0;
+
+        // resize our output buffer if it's too small
+        // (we could just use multiple chunks, but that would cause an extra
+        // allocation each time to flatten the chunks)
+        if (expected > this.chunkSize) {
+            this.chunkSize = expected;
+            this.strm.output = new Uint8Array(this.chunkSize);
+        }
 
         this.strm.avail_out = this.chunkSize;
 
@@ -2405,5 +2414,5 @@ Inflate.prototype = {
 
 module.exports = {Inflate: Inflate};
 
-},{"./lib/zlib/inflate.js":5,"./lib/zlib/zstream.js":7}]},{},[])("/partial_inflator.js")
+},{"../node_modules/pako/lib/zlib/inflate.js":5,"../node_modules/pako/lib/zlib/zstream.js":7}]},{},[8])(8)
 });
