@@ -260,3 +260,27 @@ WebUtil.selectStylesheet = function (sheet) {
     }
     return sheet;
 };
+
+WebUtil.injectParamIfMissing = function (path, param, value) {
+    // force pretend that we're dealing with a relative path
+    // (assume that we wanted an extra if we pass one in)
+    path = "/" + path;
+
+    var elem = document.createElement('a');
+    elem.href = path;
+
+    var param_eq = encodeURIComponent(param) + "=";
+    var query;
+    if (elem.search) {
+        query = elem.search.slice(1).split('&');
+    } else {
+        query = [];
+    }
+
+    if (!query.some(function (v) { return v.startsWith(param_eq); })) {
+        query.push(param_eq + encodeURIComponent(value));
+        elem.search = "?" + query.join("&");
+    }
+
+    return elem.pathname.slice(1) + elem.search + elem.hash;
+};

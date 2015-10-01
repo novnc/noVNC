@@ -202,15 +202,19 @@
                 }
             }
 
+            password = WebUtil.getConfigVar('password', '');
+            path = WebUtil.getConfigVar('path', 'websockify');
+
             // If a token variable is passed in, set the parameter in a cookie.
             // This is used by nova-novncproxy.
             token = WebUtil.getConfigVar('token', null);
             if (token) {
+
+                // if token is already present in the path we should use it
+                path = WebUtil.injectParamIfMissing(path, "token", token);
+
                 WebUtil.createCookie('token', token, 1)
             }
-
-            password = WebUtil.getConfigVar('password', '');
-            path = WebUtil.getConfigVar('path', 'websockify');
 
             if ((!host) || (!port)) {
                 updateState(null, 'fatal', null, 'Must specify host and port in URL');
