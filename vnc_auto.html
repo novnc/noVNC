@@ -208,11 +208,14 @@
             token = WebUtil.getQueryVar('token', null);
             if (token) {
 
-                if (path.indexOf("?") > -1)
-                    path += "&token=" + token; //there is a query string already
-                else
-                    path += "?token=" + token;
-                    
+                //if token is already present in the path we should use it
+                if (!(path.indexOf("token") > -1)){
+                    if (path.indexOf("?") > -1)
+                        path += "&token=" + token; //there is a query string already
+                    else
+                        path += "?token=" + token;
+                  }
+
                 WebUtil.createCookie('token', token, 1)
             }
 
