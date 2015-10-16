@@ -739,6 +739,7 @@ var RFB;
                 // an RFB state change and a UI interface issue
                 this._updateState('password', "Password Required");
                 this._onPasswordRequired(this);
+                return false;
             }
 
             if (this._sock.rQwait("auth challenge", 16)) { return false; }
