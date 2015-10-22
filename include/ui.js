@@ -97,7 +97,7 @@ var UI;
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
 
-            var autoconnect = WebUtil.getQueryVar('autoconnect', false);
+            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
             if (autoconnect === 'true' || autoconnect == '1') {
                 autoconnect = true;
                 UI.connect();
@@ -355,7 +355,7 @@ var UI;
         // Initial page load read/initialization of settings
         initSetting: function(name, defVal) {
             // Check Query string followed by cookie
-            var val = WebUtil.getQueryVar(name);
+            var val = WebUtil.getConfigVar(name);
             if (val === null) {
                 val = WebUtil.readSetting(name, defVal);
             }
