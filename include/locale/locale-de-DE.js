@@ -1,0 +1,20 @@
+Language = {
+    connectedUnencrypted:   'Verbunden mit (unverschlüsselt)',
+    connectedEncrypted:     'Verbunden mit (verschlüsselt)',
+    errorHostPort:          'Richten Sie Host und Port ein',
+    ready:                  'NoVNC bereit: Native WebSockets',
+    readyEmulation:         'NoVNC bereit: Emulierte WebSockets',
+    authentication:         'Authentifizierung',
+    errorFatal:             'Schwerwiegender Fehler. Die Verbindung kann nicht hergestellt werden.',
+    errorTimeout:           'Timeout. Verbindung unterbrochen',
+    errorConnected:         'Fehler beim Verbinden',
+    errorInitializing:      'Fehler beim Initialisieren',
+    startingVNC:            'Starte VNC Authentifizierung',
+    errorDisconnected:      'Verbindung zum Server getrennt',
+    errorConnection:        'Verbindung zum Server konnte nicht hergestellt werden',
+    errorProtocolVerion:    'Unvollständige Protokollversion',
+    errorServerVersion:     'Ungültige Serverversion',
+    errorSecurity:          'Sicherheitsfehler',
+    errorAuthFailure:       'Authentifizierungsfehler',
+    errorAuthAttempts:      'Zu viele Authentifizierungsversuche'
+};

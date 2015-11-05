@@ -1,0 +1,20 @@
+Language = {
+    connectedUnencrypted:   'Verbonden met (onversleuteld)',
+    connectedEncrypted:     'Verbonden met (versleuteld)',
+    errorHostPort:          'Stel host en poort in',
+    ready:                  'NoVNC gereed: geïntegreerde WebSockets',
+    readyEmulation:         'NoVNC gereed: geëmuleerde WebSocktets',
+    authentication:         'Authenticatie',
+    errorFatal:             'Onherstelbare fout',
+    errorTimeout:           'Timeout tijdens verbreken van verbinding',
+    errorConnected:         'Fout tijdens verbinding',
+    errorInitializing:      'Fout tijdens initializatie',
+    startingVNC:            'Starten van VNC handshake',
+    errorDisconnected:      'Verbindng met server verbroken',
+    errorConnection:        'Kon geen verbinding met de server maken',
+    errorProtocolVerion:    'Protocol versie is incompleet',
+    errorServerVersion:     'Ongeldige server versie',
+    errorSecurity:          'Beveiligingsfout',
+    errorAuthFailure:       'Authenticatie fout',
+    errorAuthAttempts:      'Te veel Authenticatie pogingen'
+};
