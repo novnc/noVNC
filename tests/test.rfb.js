@@ -107,10 +107,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
             beforeEach(function () { this.clock = sinon.useFakeTimers(); });
             afterEach(function () { this.clock.restore(); });
 
-            it('should set the state to "Authentication"', function () {
+            it('should set the state to "{authentication}"', function () {
                 client._rfb_state = "blah";
                 client.sendPassword('pass');
-                expect(client._rfb_state).to.equal('Authentication');
+                expect(client._rfb_state).to.equal('{authentication}');
             });
 
             it('should call init_msg "soon"', function () {
@@ -637,7 +637,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock._websocket._receive_data(failure_data);
 
                 expect(client._fail).to.have.been.calledTwice;
-                expect(client._fail).to.have.been.calledWith('Security failure: whoops');
+                expect(client._fail).to.have.been.calledWith('{errorSecurity}');
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
@@ -677,7 +677,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receive_data(new Uint8Array(data));
                 expect(client._rfb_state).to.equal('failed');
-                expect(client._fail).to.have.been.calledWith('Auth failure: Whoopsies');
+                expect(client._fail).to.have.been.calledWith('{errorAuthFailure}');
             });
 
             it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.8', function () {
