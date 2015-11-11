@@ -637,7 +637,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock._websocket._receive_data(failure_data);
 
                 expect(client._fail).to.have.been.calledTwice;
-                expect(client._fail).to.have.been.calledWith('{errorSecurity}');
+                expect(client._fail).to.have.been.calledWith('{errorSecurity}: whoops');
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
@@ -677,7 +677,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receive_data(new Uint8Array(data));
                 expect(client._rfb_state).to.equal('failed');
-                expect(client._fail).to.have.been.calledWith('{errorAuthFailure}');
+                expect(client._fail).to.have.been.calledWith('{errorAuthFailure}: Whoopsies');
             });
 
             it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.8', function () {
