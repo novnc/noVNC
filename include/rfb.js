@@ -1958,14 +1958,16 @@ var RFB;
                     // We have everything, render it
                     this._sock.rQskipBytes(1 + cl_header);  // shift off clt + compact length
                     var img = new Image();
-                    img.src = "data: image/" + cmode +
+                    img.onload = function (img, x, y) {
+                        this._display.renderQ_push({
+                            'type': 'img',
+                            'img': img,
+                            'x': x,
+                            'y': y
+                        });
+                    }.bind(this, img, this._FBU.x, this._FBU.y);
+                    img.src = "data:image/" + cmode +
                         RFB.extract_data_uri(this._sock.rQshiftBytes(cl_data));
-                    this._display.renderQ_push({
-                        'type': 'img',
-                        'img': img,
-                        'x': this._FBU.x,
-                        'y': this._FBU.y
-                    });
                     img = null;
                     break;
                 case "filter":
