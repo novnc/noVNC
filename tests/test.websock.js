@@ -404,6 +404,20 @@ describe('Websock', function() {
             expect(sock.get_rQi()).to.equal(0);
         });
 
+        it('should automatically resize the receive queue if the incoming message is too large', function () {
+            sock._rQ = new Uint8Array(20);
+            sock._rQlen = 0;
+            sock.set_rQi(0);
+            sock._rQbufferSize = 20;
+            sock._rQmax = 2;
+            var msg = { data: new Uint8Array(30).buffer };
+            sock._mode = 'binary';
+            sock._recv_message(msg);
+            expect(sock._rQlen).to.equal(30);
+            expect(sock.get_rQi()).to.equal(0);
+            expect(sock._rQ.length).to.equal(240);  // keep the invariant that rQbufferSize / 8 >= rQlen
+        });
+
         it('should call the error event handler on an exception', function () {
             sock._eventHandlers.error = sinon.spy();
             sock._eventHandlers.message = sinon.stub().throws();
