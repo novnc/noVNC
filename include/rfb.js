@@ -795,6 +795,11 @@ var RFB;
             // second pass, do the sub-auth negotiation
             if (this._sock.rQwait("sub auth count", 4)) { return false; }
             var subAuthCount = this._sock.rQshift32();
+            if (subAuthCount === 0) {  // empty sub-auth list received means 'no auth' subtype selected
+                this._updateState('SecurityResult');
+                return true;
+            }
+
             if (this._sock.rQwait("sub auth capabilities", 16 * subAuthCount, 4)) { return false; }
 
             var clientSupportedTypes = {
