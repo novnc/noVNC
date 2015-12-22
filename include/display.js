@@ -32,6 +32,7 @@ var Display;
         // the full frame buffer (logical canvas) size
         this._fb_width = 0;
         this._fb_height = 0;
+        this._fb_cache = null;
 
         // the size limit of the viewport (start disabled)
         this._maxWidth = 0;
@@ -335,6 +336,7 @@ var Display;
 
             this._fb_width = width;
             this._fb_height = height;
+            this._fb_cache = new ArrayBuffer(width * height * 4);
 
             this._rescale(this._scale);
 
@@ -678,7 +680,8 @@ var Display;
         },
 
         _rgbImageData: function (x, y, vx, vy, width, height, arr, offset) {
-            var img = this._drawCtx.createImageData(width, height);
+            //var img = this._drawCtx.createImageData(width, height);
+            var img = new ImageData(new Uint8ClampedArray(this._fb_cache, 0, width * height * 4), width, height);
             var data = img.data;
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
                 data[i]     = arr[j];
@@ -690,7 +693,8 @@ var Display;
         },
 
         _bgrxImageData: function (x, y, vx, vy, width, height, arr, offset) {
-            var img = this._drawCtx.createImageData(width, height);
+            //var img = this._drawCtx.createImageData(width, height);
+            var img = new ImageData(new Uint8ClampedArray(this._fb_cache, 0, width * height * 4), width, height);
             var data = img.data;
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
                 data[i]     = arr[j + 2];
