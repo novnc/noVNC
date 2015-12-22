@@ -67,6 +67,11 @@ function Websock() {
 (function () {
     "use strict";
 
+    // this has performance issues in some versions Chromium, and
+    // doesn't gain a tremendous amount of performance increase in Firefox
+    // at the moment.  It may be valuable to turn it on in the future.
+    var ENABLE_COPYWITHIN = false;
+
     var typedArrayToString = (function () {
         // This is only for PhantomJS, which doesn't like apply-ing
         // with Typed Arrays
@@ -364,8 +369,7 @@ function Websock() {
                             this._rQ = new Uint8Array(this._rQbufferSize);
                             this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi));
                         } else {
-                            if (this._rQ.copyWithin) {
-                                // Firefox only, ATM
+                            if (ENABLE_COPYWITHIN) {
                                 this._rQ.copyWithin(0, this._rQi);
                             } else {
                                 this._rQ.set(new Uint8Array(this._rQ.buffer, this._rQi));
