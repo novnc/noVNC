@@ -374,8 +374,6 @@ var RFB;
             }
 
             for (i = 0; i < 4; i++) {
-                //this._FBU.zlibs[i] = new TINF();
-                //this._FBU.zlibs[i].init();
                 this._FBU.zlibs[i] = new inflator.Inflate();
             }
         },
