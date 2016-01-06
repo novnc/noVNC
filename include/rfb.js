@@ -920,18 +920,17 @@ var RFB;
                 var totalMessagesLength = (numServerMessages + numClientMessages + numEncodings) * 16;
                 if (this._sock.rQwait('TightVNC extended server init header', totalMessagesLength, 32 + name_length)) { return false; }
 
-                var i;
-                for (i = 0; i < numServerMessages; i++) {
-                    var srvMsg = this._sock.rQshiftStr(16);
-                }
+                // we don't actually do anything with the capability information that TIGHT sends,
+                // so we just skip the all of this.
 
-                for (i = 0; i < numClientMessages; i++) {
-                    var clientMsg = this._sock.rQshiftStr(16);
-                }
+                // TIGHT server message capabilities
+                this._sock.rQskipBytes(16 * numServerMessages);
 
-                for (i = 0; i < numEncodings; i++) {
-                    var encoding = this._sock.rQshiftStr(16);
-                }
+                // TIGHT client message capabilities
+                this._sock.rQskipBytes(16 * numClientMessages);
+
+                // TIGHT encoding capabilities
+                this._sock.rQskipBytes(16 * numEncodings);
             }
 
             // NB(directxman12): these are down here so that we don't run them multiple times
