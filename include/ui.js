@@ -96,6 +96,7 @@ var UI;
             UI.initSetting('view_only', false);
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
+            UI.initSetting('token', '');
 
             var autoconnect = WebUtil.getQueryVar('autoconnect', false);
             if (autoconnect === 'true' || autoconnect == '1') {
@@ -519,6 +520,7 @@ var UI;
                 UI.connSettingsOpen = false;
                 UI.saveSetting('host');
                 UI.saveSetting('port');
+                UI.saveSetting('token');
                 //UI.saveSetting('password');
             } else {
                 $D('noVNC_controls').style.display = "block";
@@ -810,7 +812,17 @@ var UI;
             var host = $D('noVNC_host').value;
             var port = $D('noVNC_port').value;
             var password = $D('noVNC_password').value;
+            var token = $D('noVNC_token').value;
             var path = $D('noVNC_path').value;
+
+            //if token is in path then ignore the new token variable
+            if (token && !(path.indexOf("token") > -1)){
+              if (path.indexOf("?") > -1)
+                  path += "&token=" + token; //there is a query string already
+              else
+                  path += "?token=" + token;
+            }
+
             if ((!host) || (!port)) {
                 throw new Error("Must set host and port");
             }
