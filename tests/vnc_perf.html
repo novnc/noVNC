@@ -38,17 +38,23 @@
     <script type="text/javascript">
         var INCLUDE_URI= "../include/";
         // TODO: Data file should override
-        var VNC_frame_encoding = "base64";
+        var VNC_frame_encoding = "binary";
     </script>
     <script src="../include/util.js"></script>
-    <script src="../include/playback.js"></script>
-    <script src="../data/multi.js"></script>
+    <script src="../include/webutil.js"></script>
 
     <script>
-        // Load supporting scripts
-        Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                           "keysymdef.js", "keyboard.js", "input.js", "display.js",
-                           "jsunzip.js", "rfb.js"]);
+        var fname = WebUtil.getQueryVar('data', null);
+        if (fname) {
+            msg("Loading " + fname);
+
+            // Load supporting scripts
+            Util.load_scripts(["base64.js", "websock.js", "des.js", "keysym.js",
+                            "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                            "rfb.js", "playback.js", "inflator.js", fname]);
+        } else {
+            msg("Must specifiy data=FOO.js in query string.");
+        }
 
         var start_time, VNC_frame_data, pass, passes, encIdx,
             encOrder = ['raw', 'rre', 'hextile', 'tightpng', 'copyrect'],
@@ -201,9 +207,7 @@
                 enc = encOrder[i];
                 dbgmsg("  " + enc + ": " + VNC_frame_data_multi[enc].length);
             }
-            rfb = new RFB({'target': $D('VNC_canvas'),
-                           'onUpdateState': updateState});
-            rfb.testMode(send_array, VNC_frame_encoding);
+            $D('startButton').disabled = false;
         }
     </script>
 </html>

@@ -9,7 +9,6 @@ is not limited to):
     include/des.js
     include/display.js
     include/input.js
-    include/jsunzip.js
     include/keysym.js
     include/logo.js
     include/playback.js
@@ -48,8 +47,6 @@ licenses (all MPL 2.0 compatible):
     include/base64.js          : MPL 2.0
    
     include/des.js             : Various BSD style licenses
-
-    include/jsunzip.js         : zlib/libpng license
 
     include/chrome-app/tcp-stream.js
                                : Apache 2.0 license
