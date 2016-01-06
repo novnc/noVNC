@@ -90,6 +90,29 @@ WebUtil.getQueryVar = function (name, defVal) {
     }
 };
 
+// Read a hash fragment variable
+WebUtil.getHashVar = function (name, defVal) {
+    "use strict";
+    var re = new RegExp('.*[&#]' + name + '=([^&]*)'),
+        match = document.location.hash.match(re);
+    if (typeof defVal === 'undefined') { defVal = null; }
+    if (match) {
+        return decodeURIComponent(match[1]);
+    } else {
+        return defVal;
+    }
+};
+
+// Read a variable from the fragment or the query string
+// Fragment takes precedence
+WebUtil.getConfigVar = function (name, defVal) {
+    "use strict";
+    var val = WebUtil.getHashVar(name);
+    if (val === null) {
+        val = WebUtil.getQueryVar(name, defVal);
+    }
+    return val;
+};
 
 /*
  * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
