@@ -33,6 +33,7 @@ var RFB;
         this._rfb_auth_scheme = '';
 
         this._rfb_tightvnc = false;
+        this._rfb_atenikvm = false;
         this._rfb_xvp_ver = 0;
 
         // In preference order
@@ -43,6 +44,7 @@ var RFB;
             ['HEXTILE',             0x05 ],
             ['RRE',                 0x02 ],
             ['RAW',                 0x00 ],
+            ['ATEN',                0x59 ],
             ['DesktopSize',         -223 ],
             ['Cursor',              -239 ],
 
@@ -75,6 +77,8 @@ var RFB;
             subrects: 0,            // RRE
             lines: 0,               // RAW
             tiles: 0,               // HEXTILE
+            aten_len: -1,           // ATEN
+            aten_type: -1,          // ATEN
             bytes: 0,
             x: 0,
             y: 0,
@@ -86,14 +90,14 @@ var RFB;
             zlib: []                // TIGHT zlib streams
         };
 
-        this._fb_Bpp = 4;
-        this._fb_depth = 3;
+        this._pixelFormat = {};
         this._fb_width = 0;
         this._fb_height = 0;
         this._fb_name = "";
 
         this._destBuff = null;
-        this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
+        this._paletteRawBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
+        this._paletteConvertedBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * rgbx bytes-per-pixel)
 
         this._rre_chunk_sz = 100;
 
@@ -125,10 +129,11 @@ var RFB;
             'target': 'null',                       // VNC display rendering Canvas object
             'focusContainer': document,             // DOM element that captures keyboard input
             'encrypt': false,                       // Use TLS/SSL/wss encryption
-            'true_color': true,                     // Request true color pixel data
+            'convertColor': false,                  // Client will not honor request for native color
             'local_cursor': false,                  // Request locally rendered cursor
             'shared': true,                         // Request shared mode
             'view_only': false,                     // Disable client mouse/keyboard
+            'aten_password_sep': ':',               // Separator for ATEN iKVM password fields
             'xvp_password_sep': '@',                // Separator for XVP password fields
             'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
             'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
@@ -363,9 +368,12 @@ var RFB;
             this._FBU.lines        = 0;  // RAW
             this._FBU.tiles        = 0;  // HEXTILE
             this._FBU.zlibs        = []; // TIGHT zlib encoders
+            this._FBU.aten_len     = -1; // ATEN
+            this._FBU.aten_type    = -1; // ATEN
             this._mouse_buttonMask = 0;
             this._mouse_arr        = [];
             this._rfb_tightvnc     = false;
+            this._rfb_atenikvm     = false;
 
             // Clear the per connection encoding stats
             var i;
@@ -713,6 +721,36 @@ var RFB;
         },
 
         // authentication
+        _negotiate_aten_auth: function () {
+            var aten_sep = this._aten_password_sep;
+            var aten_auth = this._rfb_password.split(aten_sep);
+            if (aten_auth.length < 2) {
+                this._updateState('password', 'ATEN iKVM credentials required (user' + aten_sep +
+                                  'password) -- got only ' + this._rfb_password);
+                this._onPasswordRequired(this);
+                return false;
+            }
+
+            this._rfb_atenikvm = true;
+
+            if (this._rfb_tightvnc) {
+                this._rfb_tightvnc = false;
+            } else {
+                this._sock.rQskipBytes(4);
+            }
+
+            this._sock.rQskipBytes(16);
+
+            var username = aten_auth[0];
+            username += new Array(24 - username.length+1).join("\x00");
+            var password = aten_auth.slice(1).join(aten_sep);
+            password += new Array(24 - password.length+1).join("\x00");
+
+            this._sock.send_string(username + password);
+            this._updateState("SecurityResult");
+            return true;
+        },
+
         _negotiate_xvp_auth: function () {
             var xvp_sep = this._xvp_password_sep;
             var xvp_auth = this._rfb_password.split(xvp_sep);
@@ -779,9 +817,12 @@ var RFB;
         },
 
         _negotiate_tight_auth: function () {
+            var numTunnels;  // NB(directxman12): this is only in scope within the following block,
+                             //                   or if equal to zero (necessary for ATEN iKVM support)
             if (!this._rfb_tightvnc) {  // first pass, do the tunnel negotiation
                 if (this._sock.rQwait("num tunnels", 4)) { return false; }
-                var numTunnels = this._sock.rQshift32();
+                numTunnels = this._sock.rQshift32();
+                if (this._rfb_version === 3.8 && (numTunnels & 0xffff0ff0) >>> 0 === 0xaff90fb0) { return this._negotiate_aten_auth(); }
                 if (numTunnels > 0 && this._sock.rQwait("tunnel capabilities", 16 * numTunnels, 4)) { return false; }
 
                 this._rfb_tightvnc = true;
@@ -796,6 +837,12 @@ var RFB;
             if (this._sock.rQwait("sub auth count", 4)) { return false; }
             var subAuthCount = this._sock.rQshift32();
             if (this._sock.rQwait("sub auth capabilities", 16 * subAuthCount, 4)) { return false; }
+
+            // Newer X10 Supermicro motherboards get here
+            if (this._rfb_version === 3.8 && numTunnels === 0 && subAuthCount === 0) {
+                Util.Warn("Newer ATEN iKVM detected, you may get an 'unsupported encoding 87'");
+                return this._negotiate_aten_auth();
+            }
 
             var clientSupportedTypes = {
                 'STDVNOAUTH__': 1,
@@ -883,24 +930,25 @@ var RFB;
 
         _negotiate_server_init: function () {
             if (this._sock.rQwait("server initialization", 24)) { return false; }
+            if (this._rfb_atenikvm && this._sock.rQwait("ATEN server initialization", 36)) { return false; }
 
             /* Screen size */
-            this._fb_width  = this._sock.rQshift16();
-            this._fb_height = this._sock.rQshift16();
-            this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
+            this._fb_width                = this._sock.rQshift16();
+            this._fb_height               = this._sock.rQshift16();
+            this._destBuff                = new Uint8Array(this._fb_width * this._fb_height * 4);
 
             /* PIXEL_FORMAT */
-            var bpp         = this._sock.rQshift8();
-            var depth       = this._sock.rQshift8();
-            var big_endian  = this._sock.rQshift8();
-            var true_color  = this._sock.rQshift8();
+            this._pixelFormat.bpp         = this._sock.rQshift8();
+            this._pixelFormat.depth       = this._sock.rQshift8();
+            this._pixelFormat.big_endian  = (this._sock.rQshift8() === 1) ? true : false;
+            this._pixelFormat.true_color  = (this._sock.rQshift8() === 1) ? true : false;
 
-            var red_max     = this._sock.rQshift16();
-            var green_max   = this._sock.rQshift16();
-            var blue_max    = this._sock.rQshift16();
-            var red_shift   = this._sock.rQshift8();
-            var green_shift = this._sock.rQshift8();
-            var blue_shift  = this._sock.rQshift8();
+            this._pixelFormat.red_max     = this._sock.rQshift16();
+            this._pixelFormat.green_max   = this._sock.rQshift16();
+            this._pixelFormat.blue_max    = this._sock.rQshift16();
+            this._pixelFormat.red_shift   = this._sock.rQshift8();
+            this._pixelFormat.green_shift = this._sock.rQshift8();
+            this._pixelFormat.blue_shift  = this._sock.rQshift8();
             this._sock.rQskipBytes(3);  // padding
 
             // NB(directxman12): we don't want to call any callbacks or print messages until
@@ -910,6 +958,14 @@ var RFB;
             var name_length = this._sock.rQshift32();
             if (this._sock.rQwait('server init name', name_length, 24)) { return false; }
             this._fb_name = Util.decodeUTF8(this._sock.rQshiftStr(name_length));
+
+            if (this._rfb_atenikvm) {
+                this._sock.rQskipBytes(8); // unknown
+                this._sock.rQskip8(); // IKVMVideoEnable
+                this._sock.rQskip8(); // IKVMKMEnable
+                this._sock.rQskip8(); // IKVMKickEnable
+                this._sock.rQskip8(); // VUSBEnable
+            }
 
             if (this._rfb_tightvnc) {
                 if (this._sock.rQwait('TightVNC extended server init header', 8, 24 + name_length)) { return false; }
@@ -939,52 +995,134 @@ var RFB;
             // NB(directxman12): these are down here so that we don't run them multiple times
             //                   if we backtrack
             Util.Info("Screen: " + this._fb_width + "x" + this._fb_height +
-                      ", bpp: " + bpp + ", depth: " + depth +
-                      ", big_endian: " + big_endian +
-                      ", true_color: " + true_color +
-                      ", red_max: " + red_max +
-                      ", green_max: " + green_max +
-                      ", blue_max: " + blue_max +
-                      ", red_shift: " + red_shift +
-                      ", green_shift: " + green_shift +
-                      ", blue_shift: " + blue_shift);
-
-            if (big_endian !== 0) {
-                Util.Warn("Server native endian is not little endian");
-            }
-
-            if (red_shift !== 16) {
-                Util.Warn("Server native red-shift is not 16");
-            }
-
-            if (blue_shift !== 0) {
-                Util.Warn("Server native blue-shift is not 0");
-            }
+                      ", bpp: " + this._pixelFormat.bpp + ", depth: " + this._pixelFormat.depth +
+                      ", big_endian: " + this._pixelFormat.big_endian +
+                      ", true_color: " + this._pixelFormat.true_color +
+                      ", red_max: " + this._pixelFormat.red_max +
+                      ", green_max: " + this._pixelFormat.green_max +
+                      ", blue_max: " + this._pixelFormat.blue_max +
+                      ", red_shift: " + this._pixelFormat.red_shift +
+                      ", green_shift: " + this._pixelFormat.green_shift +
+                      ", blue_shift: " + this._pixelFormat.blue_shift);
 
             // we're past the point where we could backtrack, so it's safe to call this
             this._onDesktopName(this, this._fb_name);
 
-            if (this._true_color && this._fb_name === "Intel(r) AMT KVM") {
-                Util.Warn("Intel AMT KVM only supports 8/16 bit depths.  Disabling true color");
-                this._true_color = false;
+            if (this._fb_name === "Intel(r) AMT KVM") {
+                Util.Warn("Intel AMT KVM only supports 8/16 bit depths, using server pixel format");
+                this._convertColor = true;
             }
 
-            this._display.set_true_color(this._true_color);
+            // ATEN 'wisdom' from chicken-aten-ikvm:lens/lens.rb
+            // tested against the following Supermicro motherboards
+            // (use 'dmidecode -s baseboard-product-name' for model):
+            // - X7SPA-F
+            // - X8DTL
+            // - X8SIE-F
+            // - X9SCL/X9SCM
+            // - X9SCM-F
+            // - X9DRD-iF
+            // - X9SRE/X9SRE-3F/X9SRi/X9SRi-3F
+            // - X9DRL-3F/X9DRL-6F
+            // - X10SLD
+            //
+            // Not supported (uses encoding 87):
+            // - X10SL7-F
+            // - X10SLD-F
+            // - X10SLM-F
+            // - X10SLE
+            //
+            // Simply does not work:
+            // Hermon (WPMC450) [hangs at login]:
+            // - X7SB3-F
+            // - X8DTU-F
+            // - X8STi-3F
+            // Peppercon (Raritan/Kira100) [connection refused]:
+            // - X7SBi
+            //
+            // Thanks to Brian Rak and Erik Smit for testing
+            if (this._rfb_atenikvm) {
+                // we do not know the resolution till the first fbupdate so go large
+                // although, not necessary, saves a pointless full screen refresh
+                this._fb_width                = RFB.ATEN_INIT_WIDTH;
+                this._fb_height               = RFB.ATEN_INIT_HEIGHT;
+
+                // lies about what it supports
+                Util.Warn("ATEN iKVM lies and only does 15 bit depth with RGB555");
+                this._convertColor            = true;
+                this._pixelFormat.bpp         = 16;
+                this._pixelFormat.depth       = 15;
+                this._pixelFormat.red_max     = (1 << 5) - 1;
+                this._pixelFormat.green_max   = (1 << 5) - 1;
+                this._pixelFormat.blue_max    = (1 << 5) - 1;
+                this._pixelFormat.red_shift   = 10;
+                this._pixelFormat.green_shift = 5;
+                this._pixelFormat.blue_shift  = 0;
+
+                // changes to protocol format
+                RFB.messages.keyEvent = RFB.messages.atenKeyEvent;
+                RFB.messages.pointerEvent = RFB.messages.atenPointerEvent;
+            }
+
+            if (this._convertColor)
+                this._display.set_true_color(this._pixelFormat.true_color);
             this._display.resize(this._fb_width, this._fb_height);
             this._onFBResize(this, this._fb_width, this._fb_height);
             this._keyboard.grab();
             this._mouse.grab();
 
-            if (this._true_color) {
-                this._fb_Bpp = 4;
-                this._fb_depth = 3;
-            } else {
-                this._fb_Bpp = 1;
-                this._fb_depth = 1;
+            // only send if not native, and we think the server will honor the conversion
+            if (!this._convertColor) {
+                if (this._pixelFormat.big_endian !== false ||
+                        this._pixelFormat.red_max !== 255 ||
+                        this._pixelFormat.green_max !== 255 ||
+                        this._pixelFormat.blue_max !== 255 ||
+                        this._pixelFormat.red_shift !== 16 ||
+                        this._pixelFormat.green_shift !== 8 ||
+                        this._pixelFormat.blue_shift !== 0 ||
+                        !(this._pixelFormat.bpp === 32 &&
+                            this._pixelFormat.depth === 24 &&
+                            this._pixelFormat.true_color === true) ||
+                        !(this._pixelFormat.bpp === 8 &&
+                            this._pixelFormat.depth === 8 &&
+                            this._pixelFormat.true_color === false)) {
+                    this._pixelFormat.big_endian = false;
+                    this._pixelFormat.red_max = 255;
+                    this._pixelFormat.green_max = 255;
+                    this._pixelFormat.blue_max = 255;
+                    this._pixelFormat.red_shift = 16;
+                    this._pixelFormat.green_shift = 8;
+                    this._pixelFormat.blue_shift = 0;
+                    if (this._pixelFormat.true_color) {
+                        this._pixelFormat.bpp = 32;
+                        this._pixelFormat.depth = 24;
+                    } else {
+                        this._pixelFormat.bpp = 8;
+                        this._pixelFormat.depth = 8;
+                    }
+                    RFB.messages.pixelFormat(this._sock, this._pixelFormat);
+                } else {
+                    Util.Warn("Server pixel format matches our preferred native, disabling color conversion");
+                    this._convertColor = false;
+                }
             }
 
-            RFB.messages.pixelFormat(this._sock, this._fb_Bpp, this._fb_depth, this._true_color);
-            RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor, this._true_color);
+            this._pixelFormat.Bpp = this._pixelFormat.bpp / 8;
+            this._pixelFormat.Bdepth = Math.ceil(this._pixelFormat.depth / 8);
+
+            if (this._pixelFormat.bpp < this._pixelFormat.depth) {
+                return this._fail('server claims greater depth than bpp');
+            }
+
+            var max_depth = Math.ceil(Math.log(this._pixelFormat.red_max)/Math.LN2) +
+                            Math.ceil(Math.log(this._pixelFormat.green_max)/Math.LN2) +
+                            Math.ceil(Math.log(this._pixelFormat.blue_max)/Math.LN2);
+
+            if (this._pixelFormat.true_color && this._pixelFormat.depth > max_depth) {
+                return this._fail('server claims greater depth than sum of RGB maximums');
+            }
+
+            RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor, this._pixelFormat._true_color);
             RFB.messages.fbUpdateRequests(this._sock, this._display.getCleanDirtyReset(), this._fb_width, this._fb_height);
 
             this._timing.fbu_rt_start = (new Date()).getTime();
@@ -1087,6 +1225,42 @@ var RFB;
                 msg_type = this._sock.rQshift8();
             }
 
+            if (this._rfb_atenikvm) {
+                switch (msg_type) {
+                    case 4:  // Front Ground Event
+                        Util.Debug("ATEN iKVM Front Ground Event");
+                        this._sock.rQskipBytes(20);
+                        return true;
+
+                    case 22:  // Keep Alive Event
+                        Util.Debug("ATEN iKVM Keep Alive Event");
+                        this._sock.rQskipBytes(1);
+                        return true;
+
+                    case 51:  // Video Get Info
+                        Util.Debug("ATEN iKVM Video Get Info");
+                        this._sock.rQskipBytes(4);
+                        return true;
+
+                    case 55:  // Mouse Get Info
+                        Util.Debug("ATEN iKVM Mouse Get Info");
+                        this._sock.rQskipBytes(2);
+                        return true;
+
+                    case 57:  // Session Message
+                        Util.Debug("ATEN iKVM Session Message");
+                        this._sock.rQskipBytes(4); // u32
+                        this._sock.rQskipBytes(4); // u32
+                        this._sock.rQskipBytes(256);
+                        return true;
+
+                    case 60:  // Get Viewer Lang
+                        Util.Debug("ATEN iKVM Get Viewer Lang");
+                        this._sock.rQskipBytes(8);
+                        return true;
+                }
+            }
+
             switch (msg_type) {
                 case 0:  // FramebufferUpdate
                     var ret = this._framebufferUpdate();
@@ -1160,6 +1334,11 @@ var RFB;
                                    this._FBU.encoding);
                         return false;
                     }
+
+                    // ATEN uses 0x00 even when it is meant to be 0x59
+                    if (this._rfb_atenikvm && this._FBU.encoding === 0x00) {
+                        this._FBU.encoding = 0x59;
+                    }
                 }
 
                 this._timing.last_fbu = (new Date()).getTime();
@@ -1218,16 +1397,100 @@ var RFB;
 
             return true;  // We finished this FBU
         },
+
+        // like _convert_color, but always outputs bgr, and for only one pixel
+        _convert_one_color: function (arr, offset, Bpp) {
+            if (Bpp === undefined) {
+                Bpp = this._pixelFormat.Bpp;
+            }
+
+            if (offset === undefined) {
+                offset = 0;
+            }
+
+            if (!this._convertColor ||
+                    // HACK? Xtightvnc needs this and I have no idea why
+                    (this._FBU.encoding === 0x07 && this._pixelFormat.depth === 24)) {
+                if (Bpp === 4) {
+                    return [arr[offset + 0], arr[offset + 1], arr[offset + 2], arr[offset + 3]];
+                } else if (Bpp === 3) {
+                    return [arr[offset + 2], arr[offset + 1], arr[offset + 0]];
+                } else {
+                    Util.Error('convert color disabled, but Bpp is not 3 or 4!');
+                }
+            }
+
+            var bgr = new Array(3);
+
+            var redMult = 256/(this._pixelFormat.red_max + 1);
+            var greenMult = 256/(this._pixelFormat.red_max + 1);
+            var blueMult = 256/(this._pixelFormat.blue_max + 1);
+
+            var pix = 0;
+            for (var k = 0; k < Bpp; k++) {
+                if (this._pixelFormat.big_endian) {
+                    pix = (pix << 8) | arr[k + offset];
+                } else {
+                    pix = (arr[k + offset] << (k*8)) | pix;
+                }
+            }
+
+            bgr[2] = ((pix >>> this._pixelFormat.red_shift) & this._pixelFormat.red_max) * redMult;
+            bgr[1] = ((pix >>> this._pixelFormat.green_shift) & this._pixelFormat.green_max) * greenMult;
+            bgr[0] = ((pix >>> this._pixelFormat.blue_shift) & this._pixelFormat.blue_max) * blueMult;
+
+            return bgr;
+        },
+
+        // takes a byte stream in the pixel format, and outputs rgbx into the output buffer
+        _convert_color: function (out_arr, in_arr, Bpp) {
+            if (Bpp === undefined) {
+                Bpp = this._pixelFormat.Bpp;
+            }
+
+            if (!this._convertColor ||
+                    // HACK? Xtightvnc needs this and I have no idea why
+                    (this._FBU.encoding === 0x07 && this._pixelFormat.depth === 24)) {
+                if (Bpp !== 4 && Bpp !== 3) {
+                    Util.Error('convert color disabled, but Bpp is not 3 or 4!');
+                } else {
+                    out_arr.set(in_arr);
+                    return;
+                }
+            }
+
+            var redMult = 256/(this._pixelFormat.red_max + 1);
+            var greenMult = 256/(this._pixelFormat.red_max + 1);
+            var blueMult = 256/(this._pixelFormat.blue_max + 1);
+
+            for (var i = 0, j = 0; i < in_arr.length; i += Bpp, j += 4) {
+                var pix = 0;
+
+                for (var k = 0; k < Bpp; k++) {
+                    if (this._pixelFormat.big_endian) {
+                        pix = (pix << 8) | in_arr[i + k];
+                    } else {
+                        pix = (in_arr[i + k] << (k*8)) | pix;
+                    }
+                }
+
+                out_arr[j] = ((pix >>> this._pixelFormat.red_shift) & this._pixelFormat.red_max) * redMult;
+                out_arr[j + 1] = ((pix >>> this._pixelFormat.green_shift) & this._pixelFormat.green_max) * greenMult;
+                out_arr[j + 2] = ((pix >>> this._pixelFormat.blue_shift) & this._pixelFormat.blue_max) * blueMult;
+                out_arr[j + 3] = 255;
+            }
+        },
     };
 
     Util.make_properties(RFB, [
         ['target', 'wo', 'dom'],                // VNC display rendering Canvas object
         ['focusContainer', 'wo', 'dom'],        // DOM element that captures keyboard input
         ['encrypt', 'rw', 'bool'],              // Use TLS/SSL/wss encryption
-        ['true_color', 'rw', 'bool'],           // Request true color pixel data
+        ['convertColor', 'rw', 'bool'],         // Client will not honor request for native color
         ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
         ['shared', 'rw', 'bool'],               // Request shared mode
         ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
+        ['aten_password_sep', 'rw', 'str'],     // Separator for ATEN iKVM password fields
         ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
         ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
         ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
@@ -1264,6 +1527,11 @@ var RFB;
     RFB.prototype.get_keyboard = function () { return this._keyboard; };
     RFB.prototype.get_mouse = function () { return this._mouse; };
 
+    // ATEN iKVM doesn't send the resolution until the first refresh, so start big
+    // to avoid a repaint
+    RFB.ATEN_INIT_WIDTH = 10000;
+    RFB.ATEN_INIT_HEIGHT = 10000;
+
     // Class Methods
     RFB.messages = {
         keyEvent: function (sock, keysym, down) {
@@ -1282,6 +1550,70 @@ var RFB;
             buff[offset + 7] = keysym;
 
             sock._sQlen += 8;
+        },
+
+        atenKeyEvent: function (sock, keysym, down) {
+            var ks = XK2HID[keysym];
+            var buff = sock._sQ;
+            var offset = sock._sQlen;
+
+            buff[offset] = 4;
+            buff[offset + 1] = 0;
+            buff[offset + 2] = down;
+
+            buff[offset + 3] = 0;
+            buff[offset + 4] = 0;
+            
+            buff[offset + 5] = (ks >> 24);
+            buff[offset + 6] = (ks >> 16);
+            buff[offset + 7] = (ks >> 8);
+            buff[offset + 8] = ks;
+
+            buff[offset + 9] = 0;
+            buff[offset + 10] = 0;
+            buff[offset + 11] = 0;
+            buff[offset + 12] = 0;
+
+            buff[offset + 13] = 0;
+            buff[offset + 14] = 0;
+            buff[offset + 15] = 0;
+            buff[offset + 16] = 0;
+
+            buff[offset + 17] = 0;
+
+            sock._sQlen += 18;
+        },
+
+        atenPointerEvent: function (sock, x, y, mask) {
+            var buff = sock._sQ;
+            var offset = sock._sQlen;
+
+            buff[offset] = 5;
+            buff[offset + 1] = 0;
+            buff[offset + 2] = mask;
+
+            buff[offset + 3] = x >> 8;
+            buff[offset + 4] = x;
+            
+            buff[offset + 5] = y >> 8;
+            buff[offset + 6] = y;
+
+            buff[offset + 7] = 0;
+            buff[offset + 8] = 0;
+            buff[offset + 9] = 0;
+            buff[offset + 10] = 0;
+
+            buff[offset + 11] = 0;
+            buff[offset + 12] = 0;
+            buff[offset + 13] = 0;
+            buff[offset + 14] = 0;
+
+            buff[offset + 15] = 0;
+            buff[offset + 16] = 0;
+
+            buff[offset + 17] = 0;
+
+            sock._sQlen += 18;
         },
 
         pointerEvent: function (sock, x, y, mask) {
@@ -1326,7 +1658,7 @@ var RFB;
             sock._sQlen += 8 + n;
         },
 
-        pixelFormat: function (sock, bpp, depth, true_color) {
+        pixelFormat: function (sock, pf) {
             var buff = sock._sQ;
             var offset = sock._sQlen;
 
@@ -1336,23 +1668,23 @@ var RFB;
             buff[offset + 2] = 0; // padding
             buff[offset + 3] = 0; // padding
 
-            buff[offset + 4] = bpp * 8;             // bits-per-pixel
-            buff[offset + 5] = depth * 8;           // depth
-            buff[offset + 6] = 0;                   // little-endian
-            buff[offset + 7] = true_color ? 1 : 0;  // true-color
+            buff[offset + 4] = pf.bpp * 8;             // bits-per-pixel
+            buff[offset + 5] = pf.depth * 8;           // depth
+            buff[offset + 6] = pf.big_endian ? 1 : 0;  // big-endian
+            buff[offset + 7] = pf.true_color ? 1 : 0;  // true-color
 
-            buff[offset + 8] = 0;    // red-max
-            buff[offset + 9] = 255;  // red-max
+            buff[offset + 8] = (pf.red_max >> 8) & 0xFF;    // red-max
+            buff[offset + 9] = pf.red_max & 0xFF;           // red-max
 
-            buff[offset + 10] = 0;   // green-max
-            buff[offset + 11] = 255; // green-max
+            buff[offset + 10] = (pf.green_max >> 8) & 0xFF;   // green-max
+            buff[offset + 11] = pf.green_max & 0xFF;          // green-max
 
-            buff[offset + 12] = 0;   // blue-max
-            buff[offset + 13] = 255; // blue-max
+            buff[offset + 12] = (pf.blue_max >> 8) & 0xFF;    // blue-max
+            buff[offset + 13] = (pf.blue_max) & 0xFF;         // blue-max
 
-            buff[offset + 14] = 16;  // red-shift
-            buff[offset + 15] = 8;   // green-shift
-            buff[offset + 16] = 0;   // blue-shift
+            buff[offset + 14] = pf.red_shift;     // red-shift
+            buff[offset + 15] = pf.green_shift;   // green-shift
+            buff[offset + 16] = pf.blue_shift;    // blue-shift
 
             buff[offset + 17] = 0;   // padding
             buff[offset + 18] = 0;   // padding
@@ -1460,19 +1792,21 @@ var RFB;
                 this._FBU.lines = this._FBU.height;
             }
 
-            this._FBU.bytes = this._FBU.width * this._fb_Bpp;  // at least a line
+            this._FBU.bytes = this._FBU.width * this._pixelFormat.Bpp;  // at least a line
             if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
             var cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
             var curr_height = Math.min(this._FBU.lines,
-                                       Math.floor(this._sock.rQlen() / (this._FBU.width * this._fb_Bpp)));
-            this._display.blitImage(this._FBU.x, cur_y, this._FBU.width,
-                                    curr_height, this._sock.get_rQ(),
-                                    this._sock.get_rQi());
-            this._sock.rQskipBytes(this._FBU.width * curr_height * this._fb_Bpp);
+                                       Math.floor(this._sock.rQlen() / (this._FBU.width * this._pixelFormat.Bpp)));
+
+            // NB(directxman12): renderQ_push automatically clones the data is we have to push
+            //                   to the render queue
+            this._convert_color(this._destBuff, this._sock.rQshiftBytes(curr_height * this._FBU.width * this._pixelFormat.Bpp));
+            this._display.blitImage(this._FBU.x, cur_y, this._FBU.width, curr_height, this._destBuff, 0, this._convertColor || this._pixelFormat.Bpp === 3, false);
+
             this._FBU.lines -= curr_height;
 
             if (this._FBU.lines > 0) {
-                this._FBU.bytes = this._FBU.width * this._fb_Bpp;  // At least another line
+                this._FBU.bytes = this._FBU.width * this._pixelFormat.Bpp;  // At least another line
             } else {
                 this._FBU.rects--;
                 this._FBU.bytes = 0;
@@ -1496,15 +1830,15 @@ var RFB;
         RRE: function () {
             var color;
             if (this._FBU.subrects === 0) {
-                this._FBU.bytes = 4 + this._fb_Bpp;
-                if (this._sock.rQwait("RRE", 4 + this._fb_Bpp)) { return false; }
+                this._FBU.bytes = 4 + this._pixelFormat.Bpp;
+                if (this._sock.rQwait("RRE", 4 + this._pixelFormat.Bpp)) { return false; }
                 this._FBU.subrects = this._sock.rQshift32();
-                color = this._sock.rQshiftBytes(this._fb_Bpp);  // Background
+                color = this._convert_one_color(this._sock.rQshiftBytes(this._pixelFormat.Bpp));  // Background
                 this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, color);
             }
 
-            while (this._FBU.subrects > 0 && this._sock.rQlen() >= (this._fb_Bpp + 8)) {
-                color = this._sock.rQshiftBytes(this._fb_Bpp);
+            while (this._FBU.subrects > 0 && this._sock.rQlen() >= (this._pixelFormat.Bpp + 8)) {
+                color = this._convert_one_color(this._sock.rQshiftBytes(this._pixelFormat.Bpp));
                 var x = this._sock.rQshift16();
                 var y = this._sock.rQshift16();
                 var width = this._sock.rQshift16();
@@ -1515,7 +1849,7 @@ var RFB;
 
             if (this._FBU.subrects > 0) {
                 var chunk = Math.min(this._rre_chunk_sz, this._FBU.subrects);
-                this._FBU.bytes = (this._fb_Bpp + 8) * chunk;
+                this._FBU.bytes = (this._pixelFormat.Bpp + 8) * chunk;
             } else {
                 this._FBU.rects--;
                 this._FBU.bytes = 0;
@@ -1555,20 +1889,20 @@ var RFB;
 
                 // Figure out how much we are expecting
                 if (subencoding & 0x01) {  // Raw
-                    this._FBU.bytes += w * h * this._fb_Bpp;
+                    this._FBU.bytes += w * h * this._pixelFormat.Bpp;
                 } else {
                     if (subencoding & 0x02) {  // Background
-                        this._FBU.bytes += this._fb_Bpp;
+                        this._FBU.bytes += this._pixelFormat.Bpp;
                     }
                     if (subencoding & 0x04) {  // Foreground
-                        this._FBU.bytes += this._fb_Bpp;
+                        this._FBU.bytes += this._pixelFormat.Bpp;
                     }
                     if (subencoding & 0x08) {  // AnySubrects
                         this._FBU.bytes++;  // Since we aren't shifting it off
                         if (this._sock.rQwait("hextile subrects header", this._FBU.bytes)) { return false; }
                         subrects = rQ[rQi + this._FBU.bytes - 1];  // Peek
                         if (subencoding & 0x10) {  // SubrectsColoured
-                            this._FBU.bytes += subrects * (this._fb_Bpp + 2);
+                            this._FBU.bytes += subrects * (this._pixelFormat.Bpp + 2);
                         } else {
                             this._FBU.bytes += subrects * 2;
                         }
@@ -1588,26 +1922,19 @@ var RFB;
                         this._display.fillRect(x, y, w, h, this._FBU.background);
                     }
                 } else if (this._FBU.subencoding & 0x01) {  // Raw
-                    this._display.blitImage(x, y, w, h, rQ, rQi);
+                    // NB(directxman12): renderQ_push automatically clones the data is we have to push
+                    //                   to the render queue
+                    this._convert_color(this._destBuff, new Uint8Array(rQ.buffer, rQi, this._FBU.bytes - 1));
+                    this._display.blitImage(x, y, w, h, this._destBuff, 0, this._convertColor || this._pixelFormat.Bpp === 3, false);
                     rQi += this._FBU.bytes - 1;
                 } else {
                     if (this._FBU.subencoding & 0x02) {  // Background
-                        if (this._fb_Bpp == 1) {
-                            this._FBU.background = rQ[rQi];
-                        } else {
-                            // fb_Bpp is 4
-                            this._FBU.background = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                        }
-                        rQi += this._fb_Bpp;
+                        this._FBU.background = this._convert_one_color(rQ, rQi);
+                        rQi += this._pixelFormat.Bpp;
                     }
                     if (this._FBU.subencoding & 0x04) {  // Foreground
-                        if (this._fb_Bpp == 1) {
-                            this._FBU.foreground = rQ[rQi];
-                        } else {
-                            // this._fb_Bpp is 4
-                            this._FBU.foreground = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                        }
-                        rQi += this._fb_Bpp;
+                        this._FBU.foreground = this._convert_one_color(rQ, rQi);
+                        rQi += this._pixelFormat.Bpp;
                     }
 
                     this._display.startTile(x, y, w, h, this._FBU.background);
@@ -1618,13 +1945,8 @@ var RFB;
                         for (var s = 0; s < subrects; s++) {
                             var color;
                             if (this._FBU.subencoding & 0x10) {  // SubrectsColoured
-                                if (this._fb_Bpp === 1) {
-                                    color = rQ[rQi];
-                                } else {
-                                    // _fb_Bpp is 4
-                                    color = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                                }
-                                rQi += this._fb_Bpp;
+                                color = this._convert_one_color(rQ, rQi);
+                                rQi += this._pixelFormat.Bpp;
                             } else {
                                 color = this._FBU.foreground;
                             }
@@ -1671,7 +1993,7 @@ var RFB;
         },
 
         display_tight: function (isTightPNG) {
-            if (this._fb_depth === 1) {
+            if (this._pixelFormat.Bdepth === 1) {
                 this._fail("Tight protocol handler only implements true color mode");
             }
 
@@ -1791,7 +2113,7 @@ var RFB;
 
             var handlePalette = function () {
                 var numColors = rQ[rQi + 2] + 1;
-                var paletteSize = numColors * this._fb_depth;
+                var paletteSize = numColors * this._pixelFormat.Bdepth;
                 this._FBU.bytes += paletteSize;
                 if (this._sock.rQwait("TIGHT palette " + cmode, this._FBU.bytes)) { return false; }
 
@@ -1825,8 +2147,8 @@ var RFB;
 
                 // Shift ctl, filter id, num colors, palette entries, and clength off
                 this._sock.rQskipBytes(3);
-                //var palette = this._sock.rQshiftBytes(paletteSize);
-                this._sock.rQshiftTo(this._paletteBuff, paletteSize);
+                this._sock.rQshiftTo(this._paletteRawBuff, paletteSize);
+                this._convert_color(this._paletteConvertedBuff, this._paletteRawBuff, this._pixelFormat.Bdepth);
                 this._sock.rQskipBytes(cl_header);
 
                 if (raw) {
@@ -1838,10 +2160,10 @@ var RFB;
                 // Convert indexed (palette based) image data to RGB
                 var rgbx;
                 if (numColors == 2) {
-                    rgbx = indexedToRGBX2Color(data, this._paletteBuff, this._FBU.width, this._FBU.height);
+                    rgbx = indexedToRGBX2Color(data, this._paletteConvertedBuff, this._FBU.width, this._FBU.height);
                     this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
                 } else {
-                    rgbx = indexedToRGBX(data, this._paletteBuff, this._FBU.width, this._FBU.height);
+                    rgbx = indexedToRGBX(data, this._paletteConvertedBuff, this._FBU.width, this._FBU.height);
                     this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
                 }
 
@@ -1851,7 +2173,7 @@ var RFB;
 
             var handleCopy = function () {
                 var raw = false;
-                var uncompressedSize = this._FBU.width * this._FBU.height * this._fb_depth;
+                var uncompressedSize = this._FBU.width * this._FBU.height * this._pixelFormat.Bdepth;
                 if (uncompressedSize < 12) {
                     raw = true;
                     cl_header = 0;
@@ -1884,7 +2206,8 @@ var RFB;
                     data = decompress(this._sock.rQshiftBytes(cl_data), uncompressedSize);
                 }
 
-                this._display.blitRgbImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, data, 0, false);
+                this._convert_color(this._destBuff, data, this._pixelFormat.Bdepth);
+                this._display.blitImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, this._destBuff, 0, this._convertColor || this._pixelFormat.Bpp === 3, false);
 
                 return true;
             }.bind(this);
@@ -1912,7 +2235,7 @@ var RFB;
             switch (cmode) {
                 // fill use fb_depth because TPIXELs drop the padding byte
                 case "fill":  // TPIXEL
-                    this._FBU.bytes += this._fb_depth;
+                    this._FBU.bytes += this._pixelFormat.Bdepth;
                     break;
                 case "jpeg":  // max clength
                     this._FBU.bytes += 3;
@@ -1933,8 +2256,9 @@ var RFB;
             switch (cmode) {
                 case "fill":
                     // skip ctl byte
-                    this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, [rQ[rQi + 3], rQ[rQi + 2], rQ[rQi + 1]], false);
-                    this._sock.rQskipBytes(4);
+                    var color = this._convert_one_color(rQ, rQi + 1, this._pixelFormat.Bdepth);
+                    this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, color, false);
+                    this._sock.rQskipBytes(this._pixelFormat.Bdepth + 1);
                     break;
                 case "png":
                 case "jpeg":
@@ -2085,7 +2409,7 @@ var RFB;
             var w = this._FBU.width;
             var h = this._FBU.height;
 
-            var pixelslength = w * h * this._fb_Bpp;
+            var pixelslength = w * h * this._pixelFormat.Bpp;
             var masklength = Math.floor((w + 7) / 8) * h;
 
             this._FBU.bytes = pixelslength + masklength;
@@ -2108,6 +2432,86 @@ var RFB;
 
         compress_lo: function () {
             Util.Error("Server sent compress level pseudo-encoding");
+        },
+
+        ATEN: function () {
+            if (this._FBU.aten_len === -1) {
+                this._FBU.bytes = 8;
+                if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                this._FBU.bytes = 0;
+                this._sock.rQskipBytes(4);
+                this._FBU.aten_len = this._sock.rQshift32();
+
+                if (this._FBU.width === 64896 && this._FBU.height === 65056) {
+                    Util.Info("ATEN iKVM screen is probably off");
+                    if (this._FBU.aten_len !== 10 && this._FBU.aten_len !== 0) {
+                        Util.Debug(">> ATEN iKVM screen off (aten_len="+this._FBU.aten_len+")");
+                        this._fail('expected aten_len to be 10 when screen is off');
+                    }
+                    this._FBU.aten_len = 0;
+                    return true;
+                }
+                if (this._fb_width !== this._FBU.width && this._fb_height !== this._FBU.height) {
+                    Util.Debug(">> ATEN resize desktop");
+                    this._fb_width = this._FBU.width;
+                    this._fb_height = this._FBU.height;
+                    this._onFBResize(this, this._fb_width, this._fb_height);
+                    this._display.resize(this._fb_width, this._fb_height);
+                    Util.Debug("<< ATEN resize desktop");
+                }
+            }
+
+            if (this._FBU.aten_type === -1) {
+                this._FBU.bytes = 10;
+                if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                this._FBU.bytes = 0;
+                this._FBU.aten_type = this._sock.rQshift8();
+                this._sock.rQskip8();
+
+                this._sock.rQskipBytes(4); // number of subrects
+                if (this._FBU.aten_len !== this._sock.rQshift32()) {
+                    return this._fail('ATEN RAW len mis-match');
+                }
+                this._FBU.aten_len -= 10;
+            }
+
+            while (this._FBU.aten_len > 0) {
+                switch (this._FBU.aten_type) {
+                    case 0: // Subrects
+                        this._FBU.bytes = 6 + (16 * 16 * this._pixelFormat.Bpp);  // at least a subrect
+                        if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                        var a = this._sock.rQshift16();
+                        var b = this._sock.rQshift16();
+                        var y = this._sock.rQshift8();
+                        var x = this._sock.rQshift8();
+                        this._convert_color(this._destBuff, this._sock.rQshiftBytes(this._FBU.bytes - 6));
+                        this._display.blitImage(x * 16, y * 16, 16, 16, this._destBuff, 0, true, false);
+                        this._FBU.aten_len -= this._FBU.bytes;
+                        this._FBU.bytes = 0;
+                        break;
+                    case 1: // RAW
+                        var olines = (this._FBU.lines === 0) ? this._FBU.height : this._FBU.lines;
+                        this._encHandlers.RAW();
+                        this._FBU.aten_len -= (olines - this._FBU.lines) * this._FBU.width * this._pixelFormat.Bpp;
+                        if (this._FBU.bytes > 0) return false;
+                        break;
+                    default:
+                        return this._fail('unknown ATEN type: '+this._FBU.aten_type);
+                }
+            }
+
+            if (this._FBU.aten_len < 0) {
+                this._fail('aten_len dropped below zero');
+            }
+
+            if (this._FBU.aten_type === 0) {
+                this._FBU.rects--;
+            }
+
+            this._FBU.aten_len = -1;
+            this._FBU.aten_type = -1;
+
+            return true;
         }
     };
 })();

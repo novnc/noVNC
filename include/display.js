@@ -469,41 +469,35 @@ var Display;
             // else: No-op -- already done by setSubTile
         },
 
-        blitImage: function (x, y, width, height, arr, offset, from_queue) {
+        blitImage: function (x, y, width, height, arr, offset, isRgb, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays, but it
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 4);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
                 this.renderQ_push({
                     'type': 'blit',
-                    'data': arr,
+                    'data': new_arr,
                     'x': x,
                     'y': y,
                     'width': width,
                     'height': height,
+                    'isRgb': isRgb,
                 });
             } else if (this._true_color) {
-                this._bgrxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                if (isRgb) {
+                    this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                } else {
+                    this._bgrxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                }
             } else {
                 this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             }
         },
 
-        blitRgbImage: function (x, y , width, height, arr, offset, from_queue) {
-            if (this._renderQ.length !== 0 && !from_queue) {
-                this.renderQ_push({
-                    'type': 'blitRgb',
-                    'data': arr,
-                    'x': x,
-                    'y': y,
-                    'width': width,
-                    'height': height,
-                });
-            } else if (this._true_color) {
-                this._rgbImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
-            } else {
-                // probably wrong?
-                this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
-            }
-        },
-
+        // this is different from the above in that it assumes the data is always rgbx format, instead
+        // of dealing with the possibility of cmap data
         blitRgbxImage: function (x, y, width, height, arr, offset, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
                 // NB(directxman12): it's technically more performant here to use preallocated arrays, but it
@@ -739,10 +733,7 @@ var Display;
                         this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                         break;
                     case 'blit':
-                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
-                        break;
-                    case 'blitRgb':
-                        this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
+                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, a.rgb, true);
                         break;
                     case 'blitRgbx':
                         this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
