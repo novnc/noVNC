@@ -211,13 +211,13 @@ Util.init_logging = function (level) {
     /* jshint -W086 */
     switch (level) {
         case 'debug':
-            Util.Debug = function (msg) { console.log(msg); };
+            Util.Debug = console.debug.bind(window.console);
         case 'info':
-            Util.Info  = function (msg) { console.log(msg); };
+            Util.Info  = console.info.bind(window.console);
         case 'warn':
-            Util.Warn  = function (msg) { console.warn(msg); };
+            Util.Warn  = console.warn.bind(window.console);
         case 'error':
-            Util.Error = function (msg) { console.error(msg); };
+            Util.Error = console.error.bind(window.console);
         case 'none':
             break;
         default:
