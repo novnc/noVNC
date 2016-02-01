@@ -318,7 +318,7 @@ var RFB;
             uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
             if (self._rfb_queryargs != null) {
                 var querystr = WebUtil.objToQueryString(self._rfb_queryargs);
-                uri += "?" _ querystr;
+                uri += "?" + querystr;
             }
             Util.Info("connecting to " + uri);
 
