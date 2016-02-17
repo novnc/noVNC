@@ -15,12 +15,22 @@ var Display;
 (function () {
     "use strict";
 
-    var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
+    var SUPPORTS_UINT8CLAMPEDARRAY = false;
     try {
-        new ImageData(new Uint8ClampedArray(1), 1, 1);
-        SUPPORTS_IMAGEDATA_CONSTRUCTOR = true;
+        new Uint8ClampedArray(1);
+        SUPPORTS_UINT8CLAMPEDARRAY = true;
     } catch (ex) {
         // ignore failure
+    }
+
+    var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
+    if (SUPPORTS_UINT8CLAMPEDARRAY) {
+        try {
+            new ImageData(new Uint8ClampedArray(1), 1, 1);
+            SUPPORTS_IMAGEDATA_CONSTRUCTOR = true;
+        } catch (ex) {
+            // ignore failure
+        }
     }
 
     Display = function (defaults) {
@@ -706,9 +716,18 @@ var Display;
             var img;
             if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
                 img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
-            } else {
+            } else if (SUPPORTS_UINT8CLAMPEDARRAY) {
                 img = this._drawCtx.createImageData(width, height);
                 img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
+            } else {
+                img = this._drawCtx.createImageData(width, height);
+                var data = img.data;
+                for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
+                    data[i]     = arr[j];
+                    data[i + 1] = arr[j + 1];
+                    data[i + 2] = arr[j + 2];
+                    data[i + 3] = 255;  // Alpha
+                }
             }
             this._drawCtx.putImageData(img, x - vx, y - vy);
         },
