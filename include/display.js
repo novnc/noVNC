@@ -471,9 +471,14 @@ var Display;
 
         blitImage: function (x, y, width, height, arr, offset, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays,
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 4);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
                 this.renderQ_push({
                     'type': 'blit',
-                    'data': arr,
+                    'data': new_arr,
                     'x': x,
                     'y': y,
                     'width': width,
@@ -488,9 +493,14 @@ var Display;
 
         blitRgbImage: function (x, y , width, height, arr, offset, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays,
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 4);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
                 this.renderQ_push({
                     'type': 'blitRgb',
-                    'data': arr,
+                    'data': new_arr,
                     'x': x,
                     'y': y,
                     'width': width,
@@ -506,7 +516,7 @@ var Display;
 
         blitRgbxImage: function (x, y, width, height, arr, offset, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
-                // NB(directxman12): it's technically more performant here to use preallocated arrays, but it
+                // NB(directxman12): it's technically more performant here to use preallocated arrays,
                 // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 4);
