@@ -51,14 +51,9 @@ var FakeWebSocket;
         },
 
         _get_sent_data: function () {
-            var arr = [];
-            for (var i = 0; i < this.bufferedAmount; i++) {
-                arr[i] = this._send_queue[i];
-            }
-
+            var res = new Uint8Array(this._send_queue.buffer, 0, this.bufferedAmount);
             this.bufferedAmount = 0;
-
-            return arr;
+            return res;
         },
 
         _open: function (data) {

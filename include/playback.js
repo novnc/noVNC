@@ -12,21 +12,39 @@ var rfb, mode, test_state, frame_idx, frame_length,
     iteration, iterations, istart_time,
 
     // Pre-declarations for jslint
-    send_array, next_iteration, queue_next_packet, do_packet;
+    send_array, next_iteration, queue_next_packet, do_packet, enable_test_mode;
 
 // Override send_array
 send_array = function (arr) {
     // Stub out send_array
 };
 
+enable_test_mode = function () {
+    rfb._sock._mode = VNC_frame_encoding;
+    rfb._sock.send = send_array;
+    rfb._sock.close = function () {};
+    rfb._sock.flush = function () {};
+    rfb._checkEvents = function () {};
+    rfb.connect = function (host, port, password, path) {
+        this._rfb_host = host;
+        this._rfb_port = port;
+        this._rfb_password = (password !== undefined) ? password : "";
+        this._rfb_path = (path !== undefined) ? path : "";
+        this._sock.init('binary', 'ws');
+        this._updateState('ProtocolVersion', "Starting VNC handshake");
+    };
+};
+
 next_iteration = function () {
+    rfb = new RFB({'target': $D('VNC_canvas'),
+                   'onUpdateState': updateState});
+    enable_test_mode();
+
     if (iteration === 0) {
         frame_length = VNC_frame_data.length;
         test_state = 'running';
-    } else {
-        rfb.disconnect();
     }
-    
+
     if (test_state !== 'running') { return; }
 
     iteration += 1;
@@ -91,9 +109,9 @@ do_packet = function () {
         for (var i = 0; i < frame.length - start; i++) {
             u8[i] = frame.charCodeAt(start + i);
         }
-        rfb.recv_message({'data' : u8});
+        rfb._sock._recv_message({'data' : u8});
     } else {
-        rfb.recv_message({'data' : frame.slice(start)});
+        rfb._sock._recv_message({'data' : frame.slice(start)});
     }
     frame_idx += 1;
 

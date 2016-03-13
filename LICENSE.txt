@@ -9,7 +9,6 @@ is not limited to):
     include/des.js
     include/display.js
     include/input.js
-    include/jsunzip.js
     include/keysym.js
     include/logo.js
     include/playback.js
@@ -49,16 +48,14 @@ licenses (all MPL 2.0 compatible):
    
     include/des.js             : Various BSD style licenses
 
-    include/jsunzip.js         : zlib/libpng license
-
-    include/web-socket-js/     : New BSD license (3-clause). Source code at
-                                 http://github.com/gimite/web-socket-js
-
     include/chrome-app/tcp-stream.js
                                : Apache 2.0 license
 
     utils/websockify
     utils/websocket.py         : LGPL 3
+    
+    utils/inflator.partial.js
+    include/inflator.js        : MIT (for pako)
 
 The following license texts are included:
 
@@ -70,6 +67,7 @@ The following license texts are included:
     docs/LICENSE.BSD-2-Clause (Simplified BSD / FreeBSD)
     docs/LICENSE.zlib
     docs/LICENSE.Apache-2.0
+    docs/LICENSE.pako
 
 Or alternatively the license texts may be found here:
 

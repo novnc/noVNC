@@ -11,6 +11,8 @@
 
     Connect parameters are provided in query string:
         http://example.com/?host=HOST&port=PORT&encrypt=1&true_color=1
+    or the fragment:
+        http://example.com/#host=HOST&port=PORT&encrypt=1&true_color=1
     -->
     <title>noVNC</title>
 
@@ -197,6 +199,7 @@
                 <li><label><strong>Host: </strong><input id="noVNC_host" /></label></li>
                 <li><label><strong>Port: </strong><input id="noVNC_port" /></label></li>
                 <li><label><strong>Password: </strong><input id="noVNC_password" type="password" /></label></li>
+                <li><label><strong>Token: </strong><input id="noVNC_token"/></label></li>
                 <li><input id="noVNC_connect_button" type="button" value="Connect"></li>
             </ul>
         </div>

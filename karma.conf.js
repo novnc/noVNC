@@ -119,9 +119,9 @@ module.exports = function(config) {
       'include/input.js',
       'include/websock.js',
       'include/rfb.js',
-      'include/jsunzip.js',
       'include/des.js',
       'include/display.js',
+      'include/inflator.js',
       'tests/test.*.js'
     ],
 

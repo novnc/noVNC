@@ -1,5 +1,5 @@
-// requires local modules: websock, base64, util
-// requires test modules: fake.websocket
+// requires local modules: websock, util
+// requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
@@ -9,13 +9,14 @@ describe('Websock', function() {
 
     describe('Queue methods', function () {
         var sock;
-        var RQ_TEMPLATE = [0, 1, 2, 3, 4, 5, 6, 7];
+        var RQ_TEMPLATE = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]);
 
         beforeEach(function () {
             sock = new Websock();
-            for (var i = RQ_TEMPLATE.length - 1; i >= 0; i--) {
-               sock.rQunshift8(RQ_TEMPLATE[i]);
-            }
+            // skip init
+            sock._allocate_buffers();
+            sock._rQ.set(RQ_TEMPLATE);
+            sock._rQlen = RQ_TEMPLATE.length;
         });
         describe('rQlen', function () {
             it('should return the length of the receive queue', function () {
@@ -49,14 +50,6 @@ describe('Websock', function() {
             });
         });
 
-        describe('rQunshift8', function () {
-            it('should place a byte at the front of the queue', function () {
-                sock.rQunshift8(255);
-                expect(sock.rQpeek8()).to.equal(255);
-                expect(sock.rQlen()).to.equal(RQ_TEMPLATE.length + 1);
-            });
-        });
-
         describe('rQshift16', function () {
             it('should pop two bytes from the receive queue and return a single number', function () {
                 var bef_len = sock.rQlen();
@@ -84,7 +77,7 @@ describe('Websock', function() {
                 var bef_rQi = sock.get_rQi();
                 var shifted = sock.rQshiftStr(3);
                 expect(shifted).to.be.a('string');
-                expect(shifted).to.equal(String.fromCharCode.apply(null, RQ_TEMPLATE.slice(bef_rQi, bef_rQi + 3)));
+                expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, bef_rQi, 3))));
                 expect(sock.rQlen()).to.equal(bef_len - 3);
             });
 
@@ -99,8 +92,8 @@ describe('Websock', function() {
                 var bef_len = sock.rQlen();
                 var bef_rQi = sock.get_rQi();
                 var shifted = sock.rQshiftBytes(3);
-                expect(shifted).to.be.an.instanceof(Array);
-                expect(shifted).to.deep.equal(RQ_TEMPLATE.slice(bef_rQi, bef_rQi + 3));
+                expect(shifted).to.be.an.instanceof(Uint8Array);
+                expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, bef_rQi, 3));
                 expect(sock.rQlen()).to.equal(bef_len - 3);
             });
 
@@ -123,19 +116,19 @@ describe('Websock', function() {
 
             it('should return an array containing the given slice of the receive queue', function () {
                 var sl = sock.rQslice(0, 2);
-                expect(sl).to.be.an.instanceof(Array);
-                expect(sl).to.deep.equal(RQ_TEMPLATE.slice(0, 2));
+                expect(sl).to.be.an.instanceof(Uint8Array);
+                expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 0, 2));
             });
 
             it('should use the rest of the receive queue if no end is given', function () {
                 var sl = sock.rQslice(1);
                 expect(sl).to.have.length(RQ_TEMPLATE.length - 1);
-                expect(sl).to.deep.equal(RQ_TEMPLATE.slice(1));
+                expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1));
             });
 
             it('should take the current rQi in to account', function () {
                 sock.set_rQi(1);
-                expect(sock.rQslice(0, 2)).to.deep.equal(RQ_TEMPLATE.slice(1, 3));
+                expect(sock.rQslice(0, 2)).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1, 2));
             });
         });
 
@@ -180,7 +173,8 @@ describe('Websock', function() {
             it('should actually send on the websocket if the websocket does not have too much buffered', function () {
                 sock.maxBufferedAmount = 10;
                 sock._websocket.bufferedAmount = 8;
-                sock._sQ = [1, 2, 3];
+                sock._sQ = new Uint8Array([1, 2, 3]);
+                sock._sQlen = 3;
                 var encoded = sock._encode_message();
 
                 sock.flush();
@@ -196,7 +190,7 @@ describe('Websock', function() {
             });
 
             it('should not call send if we do not have anything queued up', function () {
-                sock._sQ = [];
+                sock._sQlen = 0;
                 sock.maxBufferedAmount = 10;
                 sock._websocket.bufferedAmount = 8;
 
@@ -222,7 +216,7 @@ describe('Websock', function() {
             it('should add to the send queue', function () {
                 sock.send([1, 2, 3]);
                 var sq = sock.get_sQ();
-                expect(sock.get_sQ().slice(sq.length - 3)).to.deep.equal([1, 2, 3]);
+                expect(new Uint8Array(sq.buffer, sock._sQlen - 3, 3)).to.array.equal(new Uint8Array([1, 2, 3]));
             });
 
             it('should call flush', function () {
@@ -257,6 +251,8 @@ describe('Websock', function() {
            WebSocket.CONNECTING = old_WS.CONNECTING;
            WebSocket.CLOSING = old_WS.CLOSING;
            WebSocket.CLOSED = old_WS.CLOSED;
+
+           WebSocket.prototype.binaryType = 'arraybuffer';
         });
 
         describe('opening', function () {
@@ -265,22 +261,14 @@ describe('Websock', function() {
             });
 
             it('should open the actual websocket', function () {
-                sock.open('ws://localhost:8675', 'base64');
-                expect(WebSocket).to.have.been.calledWith('ws://localhost:8675', 'base64');
+                sock.open('ws://localhost:8675', 'binary');
+                expect(WebSocket).to.have.been.calledWith('ws://localhost:8675', 'binary');
             });
 
-            it('should fail if we try to use binary but do not support it', function () {
-                expect(function () { sock.open('ws:///', 'binary'); }).to.throw(Error);
+            it('should fail if we specify a protocol besides binary', function () {
+                expect(function () { sock.open('ws:///', 'base64'); }).to.throw(Error);
             });
 
-            it('should fail if we specified an array with only binary and we do not support it', function () {
-                expect(function () { sock.open('ws:///', ['binary']); }).to.throw(Error);
-            });
-
-            it('should skip binary if we have multiple options for encoding and do not support binary', function () {
-                sock.open('ws:///', ['binary', 'base64']);
-                expect(WebSocket).to.have.been.calledWith('ws:///', ['base64']);
-            });
             // it('should initialize the event handlers')?
         });
 
@@ -340,16 +328,15 @@ describe('Websock', function() {
                 expect(sock._recv_message).to.have.been.calledOnce;
             });
 
-            it('should copy the mode over upon opening', function () {
-                sock._websocket.protocol = 'cheese';
-                sock._websocket.onopen();
-                expect(sock._mode).to.equal('cheese');
+            it('should fail if a protocol besides binary is requested', function () {
+                sock._websocket.protocol = 'base64';
+                expect(sock._websocket.onopen).to.throw(Error);
             });
 
-            it('should assume base64 if no protocol was available on opening', function () {
+            it('should assume binary if no protocol was available on opening', function () {
                 sock._websocket.protocol = null;
                 sock._websocket.onopen();
-                expect(sock._mode).to.equal('base64');
+                expect(sock._mode).to.equal('binary');
             });
 
             it('should call the open event handler on opening', function () {
@@ -377,13 +364,7 @@ describe('Websock', function() {
         var sock;
         beforeEach(function () {
            sock = new Websock();
-        });
-
-        it('should support decoding base64 string data to add it to the receive queue', function () {
-            var msg = { data: Base64.encode([1, 2, 3]) };
-            sock._mode = 'base64';
-            sock._recv_message(msg);
-            expect(sock.rQshiftStr(3)).to.equal('\x01\x02\x03');
+           sock._allocate_buffers();
         });
 
         it('should support adding binary Uint8Array data to the receive queue', function () {
@@ -395,16 +376,16 @@ describe('Websock', function() {
 
         it('should call the message event handler if present', function () {
             sock._eventHandlers.message = sinon.spy();
-            var msg = { data: Base64.encode([1, 2, 3]) };
-            sock._mode = 'base64';
+            var msg = { data: new Uint8Array([1, 2, 3]).buffer };
+            sock._mode = 'binary';
             sock._recv_message(msg);
             expect(sock._eventHandlers.message).to.have.been.calledOnce;
         });
 
         it('should not call the message event handler if there is nothing in the receive queue', function () {
             sock._eventHandlers.message = sinon.spy();
-            var msg = { data: Base64.encode([]) };
-            sock._mode = 'base64';
+            var msg = { data: new Uint8Array([]).buffer };
+            sock._mode = 'binary';
             sock._recv_message(msg);
             expect(sock._eventHandlers.message).not.to.have.been.called;
         });
@@ -412,21 +393,36 @@ describe('Websock', function() {
         it('should compact the receive queue', function () {
             // NB(sross): while this is an internal implementation detail, it's important to
             //            test, otherwise the receive queue could become very large very quickly
-            sock._rQ = [0, 1, 2, 3, 4, 5];
+            sock._rQ = new Uint8Array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0]);
+            sock._rQlen = 6;
             sock.set_rQi(6);
             sock._rQmax = 3;
-            var msg = { data: Base64.encode([1, 2, 3]) };
-            sock._mode = 'base64';
+            var msg = { data: new Uint8Array([1, 2, 3]).buffer };
+            sock._mode = 'binary';
             sock._recv_message(msg);
-            expect(sock._rQ.length).to.equal(3);
+            expect(sock._rQlen).to.equal(3);
             expect(sock.get_rQi()).to.equal(0);
+        });
+
+        it('should automatically resize the receive queue if the incoming message is too large', function () {
+            sock._rQ = new Uint8Array(20);
+            sock._rQlen = 0;
+            sock.set_rQi(0);
+            sock._rQbufferSize = 20;
+            sock._rQmax = 2;
+            var msg = { data: new Uint8Array(30).buffer };
+            sock._mode = 'binary';
+            sock._recv_message(msg);
+            expect(sock._rQlen).to.equal(30);
+            expect(sock.get_rQi()).to.equal(0);
+            expect(sock._rQ.length).to.equal(240);  // keep the invariant that rQbufferSize / 8 >= rQlen
         });
 
         it('should call the error event handler on an exception', function () {
             sock._eventHandlers.error = sinon.spy();
             sock._eventHandlers.message = sinon.stub().throws();
-            var msg = { data: Base64.encode([1, 2, 3]) };
-            sock._mode = 'base64';
+            var msg = { data: new Uint8Array([1, 2, 3]).buffer };
+            sock._mode = 'binary';
             sock._recv_message(msg);
             expect(sock._eventHandlers.error).to.have.been.calledOnce;
         });
@@ -444,37 +440,17 @@ describe('Websock', function() {
                 sock._websocket._open();
             });
 
-            it('should convert the send queue into an ArrayBuffer', function () {
-                sock._sQ = [1, 2, 3];
-                var res = sock._encode_message();  // An ArrayBuffer
-                expect(new Uint8Array(res)).to.deep.equal(new Uint8Array(res));
+            it('should only send the send queue up to the send queue length', function () {
+                sock._sQ = new Uint8Array([1, 2, 3, 4, 5]);
+                sock._sQlen = 3;
+                var res = sock._encode_message();
+                expect(res).to.array.equal(new Uint8Array([1, 2, 3]));
             });
 
             it('should properly pass the encoded data off to the actual WebSocket', function () {
                 sock.send([1, 2, 3]);
-                expect(sock._websocket._get_sent_data()).to.deep.equal([1, 2, 3]);
+                expect(sock._websocket._get_sent_data()).to.array.equal(new Uint8Array([1, 2, 3]));
             });
         });
-
-        describe('as Base64 data', function () {
-            var sock;
-            beforeEach(function () {
-                sock = new Websock();
-                sock.open('ws://', 'base64');
-                sock._websocket._open();
-            });
-
-            it('should convert the send queue into a Base64-encoded string', function () {
-                sock._sQ = [1, 2, 3];
-                expect(sock._encode_message()).to.equal(Base64.encode([1, 2, 3]));
-            });
-
-            it('should properly pass the encoded data off to the actual WebSocket', function () {
-                sock.send([1, 2, 3]);
-                expect(sock._websocket._get_sent_data()).to.deep.equal([1, 2, 3]);
-            });
-
-        });
-
     });
 });

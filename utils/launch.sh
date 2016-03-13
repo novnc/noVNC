@@ -108,7 +108,7 @@ if [[ -e ${HERE}/websockify ]]; then
 
     if [[ ! -x $WEBSOCKIFY ]]; then
         echo "The path ${HERE}/websockify exists, but $WEBSOCKIFY either does not exist or is not executable."
-        echo "If you inteded to use an installed websockify package, please remove ${HERE}/websockify."
+        echo "If you intended to use an installed websockify package, please remove ${HERE}/websockify."
         exit 1
     fi
 

@@ -353,9 +353,9 @@ describe('Display/Canvas Helper', function () {
             it('should support drawing solid colors with color maps', function () {
                 display._true_color = false;
                 display.set_colourMap({ 0: [0xff, 0, 0], 1: [0, 0xff, 0] });
-                display.fillRect(0, 0, 4, 4, [1]);
-                display.fillRect(0, 0, 2, 2, [0]);
-                display.fillRect(2, 2, 2, 2, [0]);
+                display.fillRect(0, 0, 4, 4, 1);
+                display.fillRect(0, 0, 2, 2, 0);
+                display.fillRect(2, 2, 2, 2, 0);
                 expect(display).to.have.displayed(checked_data);
             });
 
