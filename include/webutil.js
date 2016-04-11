@@ -282,5 +282,10 @@ WebUtil.injectParamIfMissing = function (path, param, value) {
         elem.search = "?" + query.join("&");
     }
 
-    return elem.pathname.slice(1) + elem.search + elem.hash;
+    // some browsers (e.g. IE11) may occasionally omit the leading slash
+    // in the elem.pathname string. Handle that case gracefully.
+    if (elem.pathname.charAt(0) == "/") {
+        return elem.pathname.slice(1) + elem.search + elem.hash;
+    } else {
+        return elem.pathname + elem.search + elem.hash;
 };
