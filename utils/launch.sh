@@ -5,7 +5,7 @@ usage() {
         echo "$*"
         echo
     fi
-    echo "Usage: ${NAME} [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT]"
+    echo "Usage: ${NAME} [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT] [--ssl-only]"
     echo
     echo "Starts the WebSockets proxy and a mini-webserver and "
     echo "provides a cut-and-paste URL to go to."
@@ -18,6 +18,8 @@ usage() {
     echo "                          Default: self.pem"
     echo "    --web WEB             Path to web files (e.g. vnc.html)"
     echo "                          Default: ./"
+    echo "    --ssl-only            Disable non-https connections."
+    echo "                                    "
     exit 2
 }
 
@@ -29,6 +31,7 @@ VNC_DEST="localhost:5900"
 CERT=""
 WEB=""
 proxy_pid=""
+SSLONLY=""
 
 die() {
     echo "$*"
@@ -55,6 +58,7 @@ while [ "$*" ]; do
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
     --web)     WEB="${OPTARG}"; shift            ;;
+    --ssl-only) SSLONLY="--ssl-only"             ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -134,7 +138,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
