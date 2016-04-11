@@ -148,7 +148,12 @@ if ! ps -p ${proxy_pid} >/dev/null; then
 fi
 
 echo -e "\n\nNavigate to this URL:\n"
-echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+if [ "x$SSLONLY" == "x" ]; then
+    echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+else
+    echo -e "    https://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+fi
+
 echo -e "Press Ctrl-C to exit\n\n"
 
 wait ${proxy_pid}
