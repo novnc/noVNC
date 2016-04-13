@@ -119,6 +119,7 @@ var RFB;
         this._mouse_arr = [];
         this._viewportDragging = false;
         this._viewportDragPos = {};
+        this._viewportHasMoved = false;
 
         // set the default value on user-facing properties
         Util.set_defaults(this, defaults, {
@@ -593,6 +594,13 @@ var RFB;
                     return;
                 } else {
                     this._viewportDragging = false;
+
+                    // If the viewport didn't actually move, then treat as a mouse click event
+                    // Send the button down event here, as the button up event is sent at the end of this function
+                    if (!this._viewportHasMoved && !this._view_only) {
+                        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
+                    }
+                    this._viewportHasMoved = false;
                 }
             }
 
@@ -607,6 +615,11 @@ var RFB;
                 var deltaX = this._viewportDragPos.x - x;
                 var deltaY = this._viewportDragPos.y - y;
                 this._viewportDragPos = {'x': x, 'y': y};
+
+                // if there is actually viewport move, set the HasMoved flag to true
+                 if (deltaX != 0 || deltaY != 0) {
+                     this._viewportHasMoved = true;
+                 }
 
                 this._display.viewportChangePos(deltaX, deltaY);
 
