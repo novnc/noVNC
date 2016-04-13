@@ -270,6 +270,8 @@ var UI;
                     Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
                 }
             }
+            // This is our hook to add/remove the control bar
+            UI.updateFullscreenButton();
         },
 
         getCanvasLimit: function () {
@@ -489,8 +491,12 @@ var UI;
                 document.webkitFullscreenElement ||
                 document.msFullscreenElement ) {
                 $D('fullscreenButton').className = "noVNC_status_button_selected";
+                document.getElementById("noVNC-control-bar").style.visibility = "hidden";
+                document.getElementById("noVNC_container").style.top = "0px";
             } else {
                 $D('fullscreenButton').className = "noVNC_status_button";
+                document.getElementById("noVNC-control-bar").style.visibility = "visible";
+                document.getElementById("noVNC_container").style.top = "36px";
             }
         },
 
