@@ -288,4 +288,5 @@ WebUtil.injectParamIfMissing = function (path, param, value) {
         return elem.pathname.slice(1) + elem.search + elem.hash;
     } else {
         return elem.pathname + elem.search + elem.hash;
+    }
 };
