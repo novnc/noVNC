@@ -24,20 +24,25 @@ var UI;
     UI = {
 
         rfb_state: 'loaded',
+
         resizeTimeout: null,
+        popupStatusTimeout: null,
+        hideKeyboardTimeout: null,
+
         settingsOpen: false,
         connSettingsOpen: false,
-        popupStatusTimeout: null,
         clipboardOpen: false,
         keyboardVisible: false,
-        hideKeyboardTimeout: null,
-        lastKeyboardinput: null,
-        defaultKeyboardinputLen: 100,
-        extraKeysVisible: false,
-        ctrlOn: false,
-        altOn: false,
+
         isTouchDevice: false,
         rememberedClipSetting: null,
+        lastKeyboardinput: null,
+        defaultKeyboardinputLen: 100,
+
+        shiftDown: false,
+        ctrlDown: false,
+        altDown: false,
+        altGrDown: false,
 
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
