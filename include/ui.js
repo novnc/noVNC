@@ -35,6 +35,7 @@ var UI;
         keyboardVisible: false,
 
         isTouchDevice: false,
+        isSafari: false,
         rememberedClipSetting: null,
         lastKeyboardinput: null,
         defaultKeyboardinputLen: 100,
@@ -137,12 +138,12 @@ var UI;
                 UI.setBarPosition();
             } );
 
-            var isSafari = (navigator.userAgent.indexOf('Safari') != -1 &&
-                            navigator.userAgent.indexOf('Chrome') == -1);
+            UI.isSafari = (navigator.userAgent.indexOf('Safari') != -1 &&
+                           navigator.userAgent.indexOf('Chrome') == -1);
 
             // Only show the button if fullscreen is properly supported
             // * Safari doesn't support alphanumerical input while in fullscreen
-            if (!isSafari &&
+            if (!UI.isSafari &&
                 (document.documentElement.requestFullscreen ||
                  document.documentElement.mozRequestFullScreen ||
                  document.documentElement.webkitRequestFullscreen ||
@@ -942,7 +943,12 @@ var UI;
             var resizeElem = $D('noVNC_resize');
             var connected = UI.rfb && UI.rfb_state === 'normal';
 
-            if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
+            if (UI.isSafari) {
+                // Safari auto-hides the scrollbars which makes them
+                // impossible to use in most cases
+                UI.setViewClip(true);
+                $D('noVNC_clip').disabled = true;
+            } else if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
                 // Disable clipping if we are scaling
                 UI.setViewClip(false);
                 $D('noVNC_clip').disabled = true;
