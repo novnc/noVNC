@@ -186,7 +186,7 @@ var UI;
             try {
                 UI.rfb = new RFB({'target': $D('noVNC_canvas'),
                                   'onUpdateState': UI.updateState,
-                                  'onXvpInit': UI.updateXvpVisualState,
+                                  'onXvpInit': UI.updateXvpButton,
                                   'onClipboard': UI.clipReceive,
                                   'onFBUComplete': UI.initialResize,
                                   'onFBResize': UI.updateViewDrag,
@@ -319,7 +319,7 @@ var UI;
                 $D('showKeyboard').style.display = "none";
                 $D('noVNC_extra_keys').style.display = "none";
                 $D('sendCtrlAltDelButton').style.display = "none";
-                UI.updateXvpVisualState(0);
+                UI.updateXvpButton(0);
             }
 
             // State change disables viewport dragging.
@@ -537,6 +537,19 @@ var UI;
                 $D('noVNC_xvp').style.display = "block";
                 $D('xvpButton').className = "noVNC_status_button_selected";
                 UI.xvpOpen = true;
+            }
+        },
+
+        // Disable/enable XVP button
+        updateXvpButton: function(ver) {
+            if (ver >= 1) {
+                $D('xvpButton').style.display = 'inline';
+            } else {
+                $D('xvpButton').style.display = 'none';
+                // Close XVP panel if open
+                if (UI.xvpOpen === true) {
+                    UI.toggleXvpPanel();
+                }
             }
         },
 
@@ -768,19 +781,6 @@ var UI;
                     button.style.display = "";
                 } else {
                     button.style.display = "none";
-                }
-            }
-        },
-
-        // Disable/enable XVP button
-        updateXvpVisualState: function(ver) {
-            if (ver >= 1) {
-                $D('xvpButton').style.display = 'inline';
-            } else {
-                $D('xvpButton').style.display = 'none';
-                // Close XVP panel if open
-                if (UI.xvpOpen === true) {
-                    UI.toggleXvpPanel();
                 }
             }
         },
