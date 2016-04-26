@@ -984,38 +984,36 @@ var UI;
             }
         },
 
-        // Update the viewport drag/move button
+        // Update the viewport drag state
         updateViewDrag: function(drag) {
             if (!UI.rfb) return;
 
-            var vmb = $D('noVNC_view_drag_button');
+            var viewDragButton = $D('noVNC_view_drag_button');
 
-            // Check if viewport drag is possible
+            // Check if viewport drag is possible. It is only possible
+            // if the remote display is clipping the client display.
             if (UI.rfb_state === 'normal' &&
                 UI.rfb.get_display().get_viewport() &&
                 UI.rfb.get_display().clippingDisplay()) {
 
-                // Show and enable the drag button
-                vmb.style.display = "inline";
-                vmb.disabled = false;
+                viewDragButton.style.display = "inline";
+                viewDragButton.disabled = false;
 
             } else {
-                // The VNC content is the same size as
-                // or smaller than the display
-
+                // The size of the remote display is the same or smaller
+                // than the client display. Make sure viewport drag isn't
+                // active when it can't be used.
                 if (UI.rfb.get_viewportDrag) {
-                    // Turn off viewport drag when it's
-                    // active since it can't be used here
-                    vmb.className = "noVNC_status_button";
+                    viewDragButton.className = "noVNC_status_button";
                     UI.rfb.set_viewportDrag(false);
                 }
 
-                // Disable or hide the drag button
+                // The button is disabled instead of hidden on touch devices
                 if (UI.rfb_state === 'normal' && UI.isTouchDevice) {
-                    vmb.style.display = "inline";
-                    vmb.disabled = true;
+                    viewDragButton.style.display = "inline";
+                    viewDragButton.disabled = true;
                 } else {
-                    vmb.style.display = "none";
+                    viewDragButton.style.display = "none";
                 }
                 return;
             }
@@ -1023,10 +1021,10 @@ var UI;
             if (typeof(drag) !== "undefined" &&
                 typeof(drag) !== "object") {
                 if (drag) {
-                    vmb.className = "noVNC_status_button_selected";
+                    viewDragButton.className = "noVNC_status_button_selected";
                     UI.rfb.set_viewportDrag(true);
                 } else {
-                    vmb.className = "noVNC_status_button";
+                    viewDragButton.className = "noVNC_status_button";
                     UI.rfb.set_viewportDrag(false);
                 }
             }
@@ -1035,12 +1033,12 @@ var UI;
         toggleViewDrag: function() {
             if (!UI.rfb) return;
 
-            var vmb = $D('noVNC_view_drag_button');
+            var viewDragButton = $D('noVNC_view_drag_button');
             if (UI.rfb.get_viewportDrag()) {
-                vmb.className = "noVNC_status_button";
+                viewDragButton.className = "noVNC_status_button";
                 UI.rfb.set_viewportDrag(false);
             } else {
-                vmb.className = "noVNC_status_button_selected";
+                viewDragButton.className = "noVNC_status_button_selected";
                 UI.rfb.set_viewportDrag(true);
             }
         },
