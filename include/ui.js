@@ -248,7 +248,7 @@ var UI;
         onresize: function (callback) {
             if (!UI.rfb) return;
 
-            var size = UI.getCanvasLimit();
+            var size = UI.screenSize();
 
             if (size && UI.rfb_state === 'normal' && UI.rfb.get_display()) {
                 var display = UI.rfb.get_display();
@@ -278,17 +278,19 @@ var UI;
             }
         },
 
-        getCanvasLimit: function () {
-            var container = $D('noVNC_container');
+        // The screen is always the same size as the available
+        // viewport minus the height of the control bar
+        screenSize: function () {
+            var screen = $D('noVNC_screen');
 
             // Hide the scrollbars until the size is calculated
-            container.style.overflow = "hidden";
+            screen.style.overflow = "hidden";
 
-            var pos = Util.getPosition(container);
+            var pos = Util.getPosition(screen);
             var w = pos.width;
             var h = pos.height;
 
-            container.style.overflow = "visible";
+            screen.style.overflow = "visible";
 
             if (isNaN(w) || isNaN(h)) {
                 return false;
@@ -687,7 +689,7 @@ var UI;
                     break;
                 case 'disconnected':
                     $D('noVNC_logo').style.display = "block";
-                    $D('noVNC_container').style.display = "none";
+                    $D('noVNC_screen').style.display = "none";
                     /* falls through */
                 case 'loaded':
                     klass = "noVNC_status_normal";
@@ -844,7 +846,7 @@ var UI;
             //Close dialog.
             setTimeout(UI.setBarPosition, 100);
             $D('noVNC_logo').style.display = "none";
-            $D('noVNC_container').style.display = "inline";
+            $D('noVNC_screen').style.display = "inline";
         },
 
         disconnect: function() {
@@ -855,7 +857,7 @@ var UI;
             UI.rfb.set_onFBUComplete(UI.FBUComplete);
 
             $D('noVNC_logo').style.display = "block";
-            $D('noVNC_container').style.display = "none";
+            $D('noVNC_screen').style.display = "none";
 
             // Don't display the connection settings until we're actually disconnected
         },
@@ -919,19 +921,19 @@ var UI;
                 // If clipping, update clipping settings
                 display.set_viewport(true);
 
-                var size = UI.getCanvasLimit();
+                var size = UI.screenSize();
                 if (size) {
                     display.set_maxWidth(size.w);
                     display.set_maxHeight(size.h);
 
                     // Hide potential scrollbars that can skew the position
-                    $D('noVNC_container').style.overflow = "hidden";
+                    $D('noVNC_screen').style.overflow = "hidden";
 
                     // The x position marks the left margin of the canvas,
                     // remove the margin from both sides to keep it centered
                     var new_w = size.w - (2 * Util.getPosition($D('noVNC_canvas')).x);
 
-                    $D('noVNC_container').style.overflow = "visible";
+                    $D('noVNC_screen').style.overflow = "visible";
 
                     display.viewportChangeSize(new_w, size.h);
                 }
@@ -1218,7 +1220,7 @@ var UI;
             $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
             $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
 
-            var vncwidth = $D('noVNC_screen').style.offsetWidth;
+            var vncwidth = $D('noVNC_container').style.offsetWidth;
             $D('noVNC-control-bar').style.width = vncwidth + 'px';
         }
 
