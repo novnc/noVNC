@@ -218,9 +218,9 @@ var UI;
             $D("sendEscButton").onclick = UI.sendEsc;
 
             $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
-            $D("xvpShutdownButton").onclick = UI.xvpShutdown;
-            $D("xvpRebootButton").onclick = UI.xvpReboot;
-            $D("xvpResetButton").onclick = UI.xvpReset;
+            $D("xvpShutdownButton").onclick = function() { UI.rfb.xvpShutdown(); },
+            $D("xvpRebootButton").onclick = function() { UI.rfb.xvpReboot(); },
+            $D("xvpResetButton").onclick = function() { UI.rfb.xvpReset(); },
             $D("noVNC_status").onclick = UI.popupStatus;
             $D("noVNC_popup_status").onclick = UI.closePopup;
             $D("xvpButton").onclick = UI.toggleXvpPanel;
@@ -747,18 +747,6 @@ var UI;
             //Hide connection panel.
             UI.toggleConnectPanel();
             return false;
-        },
-
-        xvpShutdown: function() {
-            UI.rfb.xvpShutdown();
-        },
-
-        xvpReboot: function() {
-            UI.rfb.xvpReboot();
-        },
-
-        xvpReset: function() {
-            UI.rfb.xvpReset();
         },
 
         // Display the desktop name in the document title
