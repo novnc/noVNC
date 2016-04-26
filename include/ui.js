@@ -728,7 +728,7 @@ var UI;
             UI.rfb.connect(host, port, password, path);
 
             //Close dialog.
-            setTimeout(UI.setBarPosition, 100);
+            setTimeout(function () { UI.setBarPosition; } );
             $D('noVNC_logo').style.display = "none";
             $D('noVNC_screen').style.display = "inline";
         },
