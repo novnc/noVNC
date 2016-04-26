@@ -47,7 +47,7 @@ var UI;
 
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
-        load: function (callback) {
+        load: function(callback) {
             WebUtil.initSettings(UI.start, callback);
         },
 
@@ -182,7 +182,7 @@ var UI;
             }
         },
 
-        initRFB: function () {
+        initRFB: function() {
             try {
                 UI.rfb = new RFB({'target': $D('noVNC_canvas'),
                                   'onUpdateState': UI.updateState,
@@ -825,7 +825,7 @@ var UI;
 
 
         // Apply remote resizing or local scaling
-        applyResizeMode: function () {
+        applyResizeMode: function() {
             if (!UI.rfb) return;
 
             var screen = UI.screenSize();
@@ -867,7 +867,7 @@ var UI;
 
         // The screen is always the same size as the available viewport
         // in the browser window minus the height of the control bar
-        screenSize: function () {
+        screenSize: function() {
             var screen = $D('noVNC_screen');
 
             // Hide the scrollbars until the size is calculated
@@ -951,7 +951,7 @@ var UI;
         },
 
         // Handle special cases where clipping is forced on/off or locked
-        enableDisableViewClip: function () {
+        enableDisableViewClip: function() {
             var resizeElem = $D('noVNC_resize');
             var connected = UI.rfb && UI.rfb_state === 'normal';
 
