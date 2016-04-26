@@ -311,6 +311,8 @@ var RFB;
             this._sock.flush();
         },
 
+        // Requests a change of remote desktop size. This message is an extension
+        // and may only be sent if we have received an ExtendedDesktopSize message
         setDesktopSize: function (width, height) {
             if (this._rfb_state !== "normal") { return; }
 

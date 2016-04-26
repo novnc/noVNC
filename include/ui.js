@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2015 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2016 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -132,7 +132,7 @@ var UI;
             UI.setBarPosition();
 
             Util.addEvent(window, 'resize', function () {
-                UI.onresize();
+                UI.applyResizeMode();
                 UI.setViewClip();
                 UI.updateViewDrag();
                 UI.setBarPosition();
@@ -188,7 +188,7 @@ var UI;
                                   'onUpdateState': UI.updateState,
                                   'onXvpInit': UI.updateXvpVisualState,
                                   'onClipboard': UI.clipReceive,
-                                  'onFBUComplete': UI.FBUComplete,
+                                  'onFBUComplete': UI.initialResize,
                                   'onFBResize': UI.updateViewDrag,
                                   'onDesktopName': UI.updateDocumentTitle});
                 return true;
@@ -243,60 +243,6 @@ var UI;
             $D("noVNC_connect_button").onclick = UI.connect;
 
             $D("noVNC_resize").onchange = UI.enableDisableViewClip;
-        },
-
-        onresize: function (callback) {
-            if (!UI.rfb) return;
-
-            var size = UI.screenSize();
-
-            if (size && UI.rfb_state === 'normal' && UI.rfb.get_display()) {
-                var display = UI.rfb.get_display();
-                var scaleType = UI.getSetting('resize');
-                if (scaleType === 'remote') {
-                    // use remote resizing
-
-                    // When the local window has been resized, wait until the size remains
-                    // the same for 0.5 seconds before sending the request for changing
-                    // the resolution of the session
-                    clearTimeout(UI.resizeTimeout);
-                    UI.resizeTimeout = setTimeout(function(){
-                        display.set_maxWidth(size.w);
-                        display.set_maxHeight(size.h);
-                        Util.Debug('Attempting setDesktopSize(' +
-                                   size.w + ', ' + size.h + ')');
-                        UI.rfb.setDesktopSize(size.w, size.h);
-                    }, 500);
-                } else if (scaleType === 'scale' || scaleType === 'downscale') {
-                    // use local scaling
-
-                    var downscaleOnly = scaleType === 'downscale';
-                    var scaleRatio = display.autoscale(size.w, size.h, downscaleOnly);
-                    UI.rfb.get_mouse().set_scale(scaleRatio);
-                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
-                }
-            }
-        },
-
-        // The screen is always the same size as the available
-        // viewport minus the height of the control bar
-        screenSize: function () {
-            var screen = $D('noVNC_screen');
-
-            // Hide the scrollbars until the size is calculated
-            screen.style.overflow = "hidden";
-
-            var pos = Util.getPosition(screen);
-            var w = pos.width;
-            var h = pos.height;
-
-            screen.style.overflow = "visible";
-
-            if (isNaN(w) || isNaN(h)) {
-                return false;
-            } else {
-                return {w: w, h: h};
-            }
         },
 
         // Read form control compatible setting from cookie
@@ -792,16 +738,6 @@ var UI;
             }
         },
 
-        // This resize can not be done until we know from the first Frame Buffer Update
-        // if it is supported or not.
-        // The resize is needed to make sure the server desktop size is updated to the
-        // corresponding size of the current local window when reconnecting to an
-        // existing session.
-        FBUComplete: function(rfb, fbu) {
-            UI.onresize();
-            UI.rfb.set_onFBUComplete(function() { });
-        },
-
         // Display the desktop name in the document title
         updateDocumentTitle: function(rfb, name) {
             document.title = name + " - noVNC";
@@ -854,7 +790,7 @@ var UI;
             UI.rfb.disconnect();
 
             // Restore the callback used for initial resize
-            UI.rfb.set_onFBUComplete(UI.FBUComplete);
+            UI.rfb.set_onFBUComplete(UI.initialResize);
 
             $D('noVNC_logo').style.display = "block";
             $D('noVNC_screen').style.display = "none";
@@ -886,6 +822,81 @@ var UI;
             Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
             UI.rfb.clipboardPasteFrom(text);
             Util.Debug("<< UI.clipSend");
+        },
+
+
+        // Apply remote resizing or local scaling
+        applyResizeMode: function () {
+            if (!UI.rfb) return;
+
+            var screen = UI.screenSize();
+
+            if (screen && UI.rfb_state === 'normal' && UI.rfb.get_display()) {
+
+                var display = UI.rfb.get_display();
+                var resizeMode = UI.getSetting('resize');
+
+                if (resizeMode === 'remote') {
+
+                    // Request changing the resolution of the remote display to
+                    // the size of the local browser viewport.
+
+                    // In order to not send multiple requests before the browser-resize
+                    // is finished we wait 0.5 seconds before sending the request.
+                    clearTimeout(UI.resizeTimeout);
+                    UI.resizeTimeout = setTimeout(function(){
+
+                        // Limit the viewport to the size of the browser window
+                        display.set_maxWidth(screen.w);
+                        display.set_maxHeight(screen.h);
+
+                        Util.Debug('Attempting setDesktopSize(' +
+                                   screen.w + ', ' + screen.h + ')');
+
+                        // Request a remote size covering the viewport
+                        UI.rfb.setDesktopSize(screen.w, screen.h);
+                    }, 500);
+
+                } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
+                    var downscaleOnly = resizeMode === 'downscale';
+                    var scaleRatio = display.autoscale(screen.w, screen.h, downscaleOnly);
+                    UI.rfb.get_mouse().set_scale(scaleRatio);
+                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+                }
+            }
+        },
+
+        // The screen is always the same size as the available viewport
+        // in the browser window minus the height of the control bar
+        screenSize: function () {
+            var screen = $D('noVNC_screen');
+
+            // Hide the scrollbars until the size is calculated
+            screen.style.overflow = "hidden";
+
+            var pos = Util.getPosition(screen);
+            var w = pos.width;
+            var h = pos.height;
+
+            screen.style.overflow = "visible";
+
+            if (isNaN(w) || isNaN(h)) {
+                return false;
+            } else {
+                return {w: w, h: h};
+            }
+        },
+
+        // Normally we only apply the current resize mode after a window resize
+        // event. This means that when a new connection is opened, there is no
+        // resize mode active.
+        // We have to wait until the first FBU because this is where the client
+        // will find the supported encodings of the server. Some calls later in
+        // the chain is dependant on knowing the server-capabilities.
+        initialResize: function(rfb, fbu) {
+            UI.applyResizeMode();
+            // After doing this once, we remove the callback.
+            UI.rfb.set_onFBUComplete(function() { });
         },
 
         // Set and configure viewport clipping
