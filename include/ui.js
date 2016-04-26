@@ -187,7 +187,7 @@ var UI;
                 UI.rfb = new RFB({'target': $D('noVNC_canvas'),
                                   'onUpdateState': UI.updateState,
                                   'onXvpInit': UI.updateXvpButton,
-                                  'onClipboard': UI.clipReceive,
+                                  'onClipboard': UI.clipboardReceive,
                                   'onFBUComplete': UI.initialResize,
                                   'onFBResize': UI.updateViewDrag,
                                   'onDesktopName': UI.updateDocumentTitle});
@@ -233,8 +233,8 @@ var UI;
 
             $D("noVNC_clipboard_text").onfocus = UI.displayBlur;
             $D("noVNC_clipboard_text").onblur = UI.displayFocus;
-            $D("noVNC_clipboard_text").onchange = UI.clipSend;
-            $D("noVNC_clipboard_clear_button").onclick = UI.clipClear;
+            $D("noVNC_clipboard_text").onchange = UI.clipboardSend;
+            $D("noVNC_clipboard_clear_button").onclick = UI.clipboardClear;
 
             $D("noVNC_settings_menu").onmouseover = UI.displayBlur;
             $D("noVNC_settings_menu").onmouseover = UI.displayFocus;
@@ -637,22 +637,22 @@ var UI;
             }
         },
 
-        clipReceive: function(rfb, text) {
-            Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
+        clipboardReceive: function(rfb, text) {
+            Util.Debug(">> UI.clipboardReceive: " + text.substr(0,40) + "...");
             $D('noVNC_clipboard_text').value = text;
-            Util.Debug("<< UI.clipReceive");
+            Util.Debug("<< UI.clipboardReceive");
         },
 
-        clipClear: function() {
+        clipboardClear: function() {
             $D('noVNC_clipboard_text').value = "";
             UI.rfb.clipboardPasteFrom("");
         },
 
-        clipSend: function() {
+        clipboardSend: function() {
             var text = $D('noVNC_clipboard_text').value;
-            Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
+            Util.Debug(">> UI.clipboardSend: " + text.substr(0,40) + "...");
             UI.rfb.clipboardPasteFrom(text);
-            Util.Debug("<< UI.clipSend");
+            Util.Debug("<< UI.clipboardSend");
         },
 
 /* ------^-------
