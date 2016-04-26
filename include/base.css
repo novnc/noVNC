@@ -442,7 +442,7 @@ html {
   margin-left: 0px;
 }
 
-#showExtraKeysButton { display: none; }
+#toggleExtraKeysButton { display: none; }
 #toggleCtrlButton { display: inline; }
 #toggleAltButton {  display: inline; }
 #sendTabButton { display: inline; }
@@ -476,7 +476,7 @@ html {
     padding-right: 0px;
   }
   /* collapse the extra keys on lower resolutions */
-  #showExtraKeysButton {
+  #toggleExtraKeysButton {
     display: inline;
   }
   #toggleCtrlButton {

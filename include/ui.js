@@ -211,7 +211,7 @@ var UI;
             $D("keyboardinput").onblur = UI.keyInputBlur;
             $D("keyboardinput").onsubmit = function () { return false; };
 
-            $D("showExtraKeysButton").onclick = UI.showExtraKeys;
+            $D("toggleExtraKeysButton").onclick = UI.toggleExtraKeys;
             $D("toggleCtrlButton").onclick = UI.toggleCtrl;
             $D("toggleAltButton").onclick = UI.toggleAlt;
             $D("sendTabButton").onclick = UI.sendTab;
@@ -1159,21 +1159,21 @@ var UI;
             UI.hideKeyboardTimeout = setTimeout(function() { UI.setKeyboard(); },100);
         },
 
-        showExtraKeys: function() {
+        toggleExtraKeys: function() {
             UI.keepKeyboard();
             if(UI.extraKeysVisible === false) {
                 $D('toggleCtrlButton').style.display = "inline";
                 $D('toggleAltButton').style.display = "inline";
                 $D('sendTabButton').style.display = "inline";
                 $D('sendEscButton').style.display = "inline";
-                $D('showExtraKeysButton').className = "noVNC_status_button_selected";
+                $D('toggleExtraKeysButton').className = "noVNC_status_button_selected";
                 UI.extraKeysVisible = true;
             } else if(UI.extraKeysVisible === true) {
                 $D('toggleCtrlButton').style.display = "";
                 $D('toggleAltButton').style.display = "";
                 $D('sendTabButton').style.display = "";
                 $D('sendEscButton').style.display = "";
-                $D('showExtraKeysButton').className = "noVNC_status_button";
+                $D('toggleExtraKeysButton').className = "noVNC_status_button";
                 UI.extraKeysVisible = false;
             }
         },
