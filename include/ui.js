@@ -348,17 +348,14 @@ var UI;
             //Util.Debug("<< updateVisualState");
         },
 
-        // Read form control compatible setting from cookie
-        getSetting: function(name) {
-            var ctrl = $D('noVNC_' + name);
-            var val = WebUtil.readSetting(name);
-            if (typeof val !== 'undefined' && val !== null && ctrl.type === 'checkbox') {
-                if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
-                    val = false;
-                } else {
-                    val = true;
-                }
+        // Initial page load read/initialization of settings
+        initSetting: function(name, defVal) {
+            // Check Query string followed by cookie
+            var val = WebUtil.getConfigVar(name);
+            if (val === null) {
+                val = WebUtil.readSetting(name, defVal);
             }
+            UI.updateSetting(name, val);
             return val;
         },
 
@@ -410,21 +407,83 @@ var UI;
             return val;
         },
 
-        // Initial page load read/initialization of settings
-        initSetting: function(name, defVal) {
-            // Check Query string followed by cookie
-            var val = WebUtil.getConfigVar(name);
-            if (val === null) {
-                val = WebUtil.readSetting(name, defVal);
-            }
-            UI.updateSetting(name, val);
-            return val;
-        },
-
         // Force a setting to be a certain value
         forceSetting: function(name, val) {
             UI.updateSetting(name, val);
             return val;
+        },
+
+        // Read form control compatible setting from cookie
+        getSetting: function(name) {
+            var ctrl = $D('noVNC_' + name);
+            var val = WebUtil.readSetting(name);
+            if (typeof val !== 'undefined' && val !== null && ctrl.type === 'checkbox') {
+                if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
+                    val = false;
+                } else {
+                    val = true;
+                }
+            }
+            return val;
+        },
+
+        // Open menu
+        openSettingsMenu: function() {
+            // Close the description panel
+            $D('noVNC_description').style.display = "none";
+            // Close clipboard panel if open
+            if (UI.clipboardOpen === true) {
+                UI.toggleClipboardPanel();
+            }
+            // Close connection settings if open
+            if (UI.connSettingsOpen === true) {
+                UI.toggleConnectPanel();
+            }
+            // Close XVP panel if open
+            if (UI.xvpOpen === true) {
+                UI.toggleXvpPanel();
+            }
+            $D('noVNC_settings').style.display = "block";
+            $D('settingsButton').className = "noVNC_status_button_selected";
+            UI.settingsOpen = true;
+        },
+
+        // Close menu (without applying settings)
+        closeSettingsMenu: function() {
+            $D('noVNC_settings').style.display = "none";
+            $D('settingsButton').className = "noVNC_status_button";
+            UI.settingsOpen = false;
+        },
+
+        // Toggle the settings menu:
+        //   On open, settings are refreshed from saved cookies.
+        //   On close, settings are applied
+        toggleSettingsPanel: function() {
+            // Close the description panel
+            $D('noVNC_description').style.display = "none";
+            if (UI.settingsOpen) {
+                UI.settingsApply();
+                UI.closeSettingsMenu();
+            } else {
+                UI.updateSetting('encrypt');
+                UI.updateSetting('true_color');
+                if (Util.browserSupportsCursorURIs()) {
+                    UI.updateSetting('cursor');
+                } else {
+                    UI.updateSetting('cursor', !UI.isTouchDevice);
+                    $D('noVNC_cursor').disabled = true;
+                }
+                UI.updateSetting('clip');
+                UI.updateSetting('resize');
+                UI.updateSetting('shared');
+                UI.updateSetting('view_only');
+                UI.updateSetting('path');
+                UI.updateSetting('repeaterID');
+                UI.updateSetting('stylesheet');
+                UI.updateSetting('logging');
+
+                UI.openSettingsMenu();
+            }
         },
 
 
@@ -585,65 +644,6 @@ var UI;
                 UI.connSettingsOpen = true;
                 $D('noVNC_host').focus();
             }
-        },
-
-        // Toggle the settings menu:
-        //   On open, settings are refreshed from saved cookies.
-        //   On close, settings are applied
-        toggleSettingsPanel: function() {
-            // Close the description panel
-            $D('noVNC_description').style.display = "none";
-            if (UI.settingsOpen) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-            } else {
-                UI.updateSetting('encrypt');
-                UI.updateSetting('true_color');
-                if (Util.browserSupportsCursorURIs()) {
-                    UI.updateSetting('cursor');
-                } else {
-                    UI.updateSetting('cursor', !UI.isTouchDevice);
-                    $D('noVNC_cursor').disabled = true;
-                }
-                UI.updateSetting('clip');
-                UI.updateSetting('resize');
-                UI.updateSetting('shared');
-                UI.updateSetting('view_only');
-                UI.updateSetting('path');
-                UI.updateSetting('repeaterID');
-                UI.updateSetting('stylesheet');
-                UI.updateSetting('logging');
-
-                UI.openSettingsMenu();
-            }
-        },
-
-        // Open menu
-        openSettingsMenu: function() {
-            // Close the description panel
-            $D('noVNC_description').style.display = "none";
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
-            $D('noVNC_settings').style.display = "block";
-            $D('settingsButton').className = "noVNC_status_button_selected";
-            UI.settingsOpen = true;
-        },
-
-        // Close menu (without applying settings)
-        closeSettingsMenu: function() {
-            $D('noVNC_settings').style.display = "none";
-            $D('settingsButton').className = "noVNC_status_button";
-            UI.settingsOpen = false;
         },
 
         // Save/apply settings when 'Apply' button is pressed
