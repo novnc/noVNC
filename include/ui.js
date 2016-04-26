@@ -245,6 +245,12 @@ var UI;
             $D("noVNC_resize").onchange = UI.enableDisableViewClip;
         },
 
+/* ------^-------
+ *     /INIT
+ * ==============
+ *     VISUAL
+ * ------v------*/
+
         updateState: function(rfb, state, oldstate, msg) {
             UI.rfb_state = state;
             var klass;
@@ -373,6 +379,12 @@ var UI;
             $D('noVNC_popup_status').style.display = "none";
         },
 
+/* ------^-------
+ *    /VISUAL
+ * ==============
+ *    SETTINGS
+ * ------v------*/
+
         // Initial page load read/initialization of settings
         initSetting: function(name, defVal) {
             // Check Query string followed by cookie
@@ -452,6 +464,37 @@ var UI;
             return val;
         },
 
+        // Save/apply settings when 'Apply' button is pressed
+        settingsApply: function() {
+            //Util.Debug(">> settingsApply");
+            UI.saveSetting('encrypt');
+            UI.saveSetting('true_color');
+            if (Util.browserSupportsCursorURIs()) {
+                UI.saveSetting('cursor');
+            }
+
+            UI.saveSetting('resize');
+
+            if (UI.getSetting('resize') === 'downscale' || UI.getSetting('resize') === 'scale') {
+                UI.forceSetting('clip', false);
+            }
+
+            UI.saveSetting('clip');
+            UI.saveSetting('shared');
+            UI.saveSetting('view_only');
+            UI.saveSetting('path');
+            UI.saveSetting('repeaterID');
+            UI.saveSetting('stylesheet');
+            UI.saveSetting('logging');
+
+            // Settings with immediate (non-connected related) effect
+            WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
+            WebUtil.init_logging(UI.getSetting('logging'));
+            UI.setViewClip();
+            UI.updateViewDrag();
+            //Util.Debug("<< settingsApply");
+        },
+
         // Open menu
         openSettingsMenu: function() {
             // Close the description panel
@@ -511,6 +554,12 @@ var UI;
             }
         },
 
+/* ------^-------
+ *   /SETTINGS
+ * ==============
+ *      XVP
+ * ------v------*/
+
         // Show the XVP panel
         toggleXvpPanel: function() {
             // Close the description panel
@@ -553,6 +602,12 @@ var UI;
             }
         },
 
+/* ------^-------
+ *     /XVP
+ * ==============
+ *   CLIPBOARD
+ * ------v------*/
+
         // Show the clipboard panel
         toggleClipboardPanel: function() {
             // Close the description panel
@@ -581,6 +636,30 @@ var UI;
                 UI.clipboardOpen = true;
             }
         },
+
+        clipReceive: function(rfb, text) {
+            Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
+            $D('noVNC_clipboard_text').value = text;
+            Util.Debug("<< UI.clipReceive");
+        },
+
+        clipClear: function() {
+            $D('noVNC_clipboard_text').value = "";
+            UI.rfb.clipboardPasteFrom("");
+        },
+
+        clipSend: function() {
+            var text = $D('noVNC_clipboard_text').value;
+            Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
+            UI.rfb.clipboardPasteFrom(text);
+            Util.Debug("<< UI.clipSend");
+        },
+
+/* ------^-------
+ *  /CLIPBOARD
+ * ==============
+ *  CONNECTION
+ * ------v------*/
 
         // Show the connection settings panel/menu
         toggleConnectPanel: function() {
@@ -667,6 +746,22 @@ var UI;
             // Don't display the connection settings until we're actually disconnected
         },
 
+        setPassword: function() {
+            UI.rfb.sendPassword($D('noVNC_password').value);
+            //Reset connect button.
+            $D('noVNC_connect_button').value = "Connect";
+            $D('noVNC_connect_button').onclick = UI.connect;
+            //Hide connection panel.
+            UI.toggleConnectPanel();
+            return false;
+        },
+
+/* ------^-------
+ *  /CONNECTION
+ * ==============
+ *   FULLSCREEN
+ * ------v------*/
+
         toggleFullscreen: function() {
             if (document.fullscreenElement || // alternative standard method
                 document.mozFullScreenElement || // currently working methods
@@ -707,85 +802,11 @@ var UI;
             }
         },
 
-        // Save/apply settings when 'Apply' button is pressed
-        settingsApply: function() {
-            //Util.Debug(">> settingsApply");
-            UI.saveSetting('encrypt');
-            UI.saveSetting('true_color');
-            if (Util.browserSupportsCursorURIs()) {
-                UI.saveSetting('cursor');
-            }
-
-            UI.saveSetting('resize');
-
-            if (UI.getSetting('resize') === 'downscale' || UI.getSetting('resize') === 'scale') {
-                UI.forceSetting('clip', false);
-            }
-
-            UI.saveSetting('clip');
-            UI.saveSetting('shared');
-            UI.saveSetting('view_only');
-            UI.saveSetting('path');
-            UI.saveSetting('repeaterID');
-            UI.saveSetting('stylesheet');
-            UI.saveSetting('logging');
-
-            // Settings with immediate (non-connected related) effect
-            WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
-            WebUtil.init_logging(UI.getSetting('logging'));
-            UI.setViewClip();
-            UI.updateViewDrag();
-            //Util.Debug("<< settingsApply");
-        },
-
-
-        setPassword: function() {
-            UI.rfb.sendPassword($D('noVNC_password').value);
-            //Reset connect button.
-            $D('noVNC_connect_button').value = "Connect";
-            $D('noVNC_connect_button').onclick = UI.connect;
-            //Hide connection panel.
-            UI.toggleConnectPanel();
-            return false;
-        },
-
-        // Display the desktop name in the document title
-        updateDocumentTitle: function(rfb, name) {
-            document.title = name + " - noVNC";
-        },
-
-        clipReceive: function(rfb, text) {
-            Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
-            $D('noVNC_clipboard_text').value = text;
-            Util.Debug("<< UI.clipReceive");
-        },
-
-        displayBlur: function() {
-            if (!UI.rfb) return;
-
-            UI.rfb.get_keyboard().set_focused(false);
-            UI.rfb.get_mouse().set_focused(false);
-        },
-
-        displayFocus: function() {
-            if (!UI.rfb) return;
-
-            UI.rfb.get_keyboard().set_focused(true);
-            UI.rfb.get_mouse().set_focused(true);
-        },
-
-        clipClear: function() {
-            $D('noVNC_clipboard_text').value = "";
-            UI.rfb.clipboardPasteFrom("");
-        },
-
-        clipSend: function() {
-            var text = $D('noVNC_clipboard_text').value;
-            Util.Debug(">> UI.clipSend: " + text.substr(0,40) + "...");
-            UI.rfb.clipboardPasteFrom(text);
-            Util.Debug("<< UI.clipSend");
-        },
-
+/* ------^-------
+ *  /FULLSCREEN
+ * ==============
+ *     RESIZE
+ * ------v------*/
 
         // Apply remote resizing or local scaling
         applyResizeMode: function() {
@@ -860,6 +881,12 @@ var UI;
             // After doing this once, we remove the callback.
             UI.rfb.set_onFBUComplete(function() { });
         },
+
+/* ------^-------
+ *    /RESIZE
+ * ==============
+ *    CLIPPING
+ * ------v------*/
 
         // Set and configure viewport clipping
         setViewClip: function(clip) {
@@ -947,6 +974,12 @@ var UI;
             }
         },
 
+/* ------^-------
+ *   /CLIPPING
+ * ==============
+ *    VIEWDRAG
+ * ------v------*/
+
         // Update the viewport drag state
         updateViewDrag: function(drag) {
             if (!UI.rfb) return;
@@ -1006,25 +1039,11 @@ var UI;
             }
         },
 
-        setMouseButton: function(num) {
-            if (typeof num === 'undefined') {
-                // Disable mouse buttons
-                num = -1;
-            }
-            if (UI.rfb) {
-                UI.rfb.get_mouse().set_touchButton(num);
-            }
-
-            var blist = [0, 1,2,4];
-            for (var b = 0; b < blist.length; b++) {
-                var button = $D('noVNC_mouse_button' + blist[b]);
-                if (blist[b] === num) {
-                    button.style.display = "";
-                } else {
-                    button.style.display = "none";
-                }
-            }
-        },
+/* ------^-------
+ *   /VIEWDRAG
+ * ==============
+ *    KEYBOARD
+ * ------v------*/
 
         // On touch devices, show the OS keyboard
         showKeyboard: function() {
@@ -1201,6 +1220,51 @@ var UI;
             UI.rfb.sendCtrlAltDel();
         },
 
+/* ------^-------
+ *   /KEYBOARD
+ * ==============
+ *     MISC
+ * ------v------*/
+
+        setMouseButton: function(num) {
+            if (typeof num === 'undefined') {
+                // Disable mouse buttons
+                num = -1;
+            }
+            if (UI.rfb) {
+                UI.rfb.get_mouse().set_touchButton(num);
+            }
+
+            var blist = [0, 1,2,4];
+            for (var b = 0; b < blist.length; b++) {
+                var button = $D('noVNC_mouse_button' + blist[b]);
+                if (blist[b] === num) {
+                    button.style.display = "";
+                } else {
+                    button.style.display = "none";
+                }
+            }
+        },
+
+        displayBlur: function() {
+            if (!UI.rfb) return;
+
+            UI.rfb.get_keyboard().set_focused(false);
+            UI.rfb.get_mouse().set_focused(false);
+        },
+
+        displayFocus: function() {
+            if (!UI.rfb) return;
+
+            UI.rfb.get_keyboard().set_focused(true);
+            UI.rfb.get_mouse().set_focused(true);
+        },
+
+        // Display the desktop name in the document title
+        updateDocumentTitle: function(rfb, name) {
+            document.title = name + " - noVNC";
+        },
+
         //Helper to add options to dropdown.
         addOption: function(selectbox, text, value) {
             var optn = document.createElement("OPTION");
@@ -1217,5 +1281,9 @@ var UI;
             $D('noVNC-control-bar').style.width = vncwidth + 'px';
         }
 
+/* ------^-------
+ *    /MISC
+ * ==============
+ */
     };
 })();
