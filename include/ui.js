@@ -208,7 +208,7 @@ var UI;
             $D("showKeyboard").onclick = UI.showKeyboard;
 
             $D("keyboardinput").oninput = UI.keyInput;
-            $D("keyboardinput").onblur = UI.keyInputBlur;
+            $D("keyboardinput").onblur = UI.hideKeyboard;
             $D("keyboardinput").onsubmit = function () { return false; };
 
             $D("toggleExtraKeysButton").onclick = UI.toggleExtraKeys;
@@ -749,10 +749,6 @@ var UI;
             return false;
         },
 
-        sendCtrlAltDel: function() {
-            UI.rfb.sendCtrlAltDel();
-        },
-
         xvpShutdown: function() {
             UI.rfb.xvpShutdown();
         },
@@ -763,26 +759,6 @@ var UI;
 
         xvpReset: function() {
             UI.rfb.xvpReset();
-        },
-
-        setMouseButton: function(num) {
-            if (typeof num === 'undefined') {
-                // Disable mouse buttons
-                num = -1;
-            }
-            if (UI.rfb) {
-                UI.rfb.get_mouse().set_touchButton(num);
-            }
-
-            var blist = [0, 1,2,4];
-            for (var b = 0; b < blist.length; b++) {
-                var button = $D('noVNC_mouse_button' + blist[b]);
-                if (blist[b] === num) {
-                    button.style.display = "";
-                } else {
-                    button.style.display = "none";
-                }
-            }
         },
 
         // Display the desktop name in the document title
@@ -1042,6 +1018,26 @@ var UI;
             }
         },
 
+        setMouseButton: function(num) {
+            if (typeof num === 'undefined') {
+                // Disable mouse buttons
+                num = -1;
+            }
+            if (UI.rfb) {
+                UI.rfb.get_mouse().set_touchButton(num);
+            }
+
+            var blist = [0, 1,2,4];
+            for (var b = 0; b < blist.length; b++) {
+                var button = $D('noVNC_mouse_button' + blist[b]);
+                if (blist[b] === num) {
+                    button.style.display = "";
+                } else {
+                    button.style.display = "none";
+                }
+            }
+        },
+
         // On touch devices, show the OS keyboard
         showKeyboard: function() {
             var kbi = $D('keyboardinput');
@@ -1058,6 +1054,16 @@ var UI;
                 skb.className = "noVNC_status_button";
                 UI.keyboardVisible = false;
             }
+        },
+
+        hideKeyboard: function() {
+            $D('showKeyboard').className = "noVNC_status_button";
+            //Weird bug in iOS if you change keyboardVisible
+            //here it does not actually occur so next time
+            //you click keyboard icon it doesnt work.
+            UI.hideKeyboardTimeout = setTimeout(function() {
+                UI.keyboardVisible = false;
+            },100);
         },
 
         keepKeyboard: function() {
@@ -1148,14 +1154,6 @@ var UI;
             }
         },
 
-        keyInputBlur: function() {
-            $D('showKeyboard').className = "noVNC_status_button";
-            //Weird bug in iOS if you change keyboardVisible
-            //here it does not actually occur so next time
-            //you click keyboard icon it doesnt work.
-            UI.hideKeyboardTimeout = setTimeout(function() { UI.setKeyboard(); },100);
-        },
-
         toggleExtraKeys: function() {
             UI.keepKeyboard();
             if(UI.extraKeysVisible === false) {
@@ -1173,6 +1171,16 @@ var UI;
                 $D('toggleExtraKeysButton').className = "noVNC_status_button";
                 UI.extraKeysVisible = false;
             }
+        },
+
+        sendEsc: function() {
+            UI.keepKeyboard();
+            UI.rfb.sendKey(XK_Escape);
+        },
+
+        sendTab: function() {
+            UI.keepKeyboard();
+            UI.rfb.sendKey(XK_Tab);
         },
 
         toggleCtrl: function() {
@@ -1201,18 +1209,8 @@ var UI;
             }
         },
 
-        sendTab: function() {
-            UI.keepKeyboard();
-            UI.rfb.sendKey(XK_Tab);
-        },
-
-        sendEsc: function() {
-            UI.keepKeyboard();
-            UI.rfb.sendKey(XK_Escape);
-        },
-
-        setKeyboard: function() {
-            UI.keyboardVisible = false;
+        sendCtrlAltDel: function() {
+            UI.rfb.sendCtrlAltDel();
         },
 
         //Helper to add options to dropdown.
