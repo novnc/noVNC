@@ -569,7 +569,91 @@ var UI;
             }
         },
 
-        // Toggle fullscreen mode
+        // Show the connection settings panel/menu
+        toggleConnectPanel: function() {
+            // Close the description panel
+            $D('noVNC_description').style.display = "none";
+            // Close connection settings if open
+            if (UI.settingsOpen === true) {
+                UI.settingsApply();
+                UI.closeSettingsMenu();
+                $D('connectButton').className = "noVNC_status_button";
+            }
+            // Close clipboard panel if open
+            if (UI.clipboardOpen === true) {
+                UI.toggleClipboardPanel();
+            }
+            // Close XVP panel if open
+            if (UI.xvpOpen === true) {
+                UI.toggleXvpPanel();
+            }
+
+            // Toggle Connection Panel
+            if (UI.connSettingsOpen === true) {
+                $D('noVNC_controls').style.display = "none";
+                $D('connectButton').className = "noVNC_status_button";
+                UI.connSettingsOpen = false;
+                UI.saveSetting('host');
+                UI.saveSetting('port');
+                UI.saveSetting('token');
+                //UI.saveSetting('password');
+            } else {
+                $D('noVNC_controls').style.display = "block";
+                $D('connectButton').className = "noVNC_status_button_selected";
+                UI.connSettingsOpen = true;
+                $D('noVNC_host').focus();
+            }
+        },
+
+        connect: function() {
+            UI.closeSettingsMenu();
+            UI.toggleConnectPanel();
+
+            var host = $D('noVNC_host').value;
+            var port = $D('noVNC_port').value;
+            var password = $D('noVNC_password').value;
+            var token = $D('noVNC_token').value;
+            var path = $D('noVNC_path').value;
+
+            //if token is in path then ignore the new token variable
+            if (token) {
+                path = WebUtil.injectParamIfMissing(path, "token", token);
+            }
+
+            if ((!host) || (!port)) {
+                throw new Error("Must set host and port");
+            }
+
+            if (!UI.initRFB()) return;
+
+            UI.rfb.set_encrypt(UI.getSetting('encrypt'));
+            UI.rfb.set_true_color(UI.getSetting('true_color'));
+            UI.rfb.set_local_cursor(UI.getSetting('cursor'));
+            UI.rfb.set_shared(UI.getSetting('shared'));
+            UI.rfb.set_view_only(UI.getSetting('view_only'));
+            UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
+
+            UI.rfb.connect(host, port, password, path);
+
+            //Close dialog.
+            setTimeout(UI.setBarPosition, 100);
+            $D('noVNC_logo').style.display = "none";
+            $D('noVNC_screen').style.display = "inline";
+        },
+
+        disconnect: function() {
+            UI.closeSettingsMenu();
+            UI.rfb.disconnect();
+
+            // Restore the callback used for initial resize
+            UI.rfb.set_onFBUComplete(UI.initialResize);
+
+            $D('noVNC_logo').style.display = "block";
+            $D('noVNC_screen').style.display = "none";
+
+            // Don't display the connection settings until we're actually disconnected
+        },
+
         toggleFullscreen: function() {
             if (document.fullscreenElement || // alternative standard method
                 document.mozFullScreenElement || // currently working methods
@@ -607,42 +691,6 @@ var UI;
                 $D('fullscreenButton').className = "noVNC_status_button_selected";
             } else {
                 $D('fullscreenButton').className = "noVNC_status_button";
-            }
-        },
-
-        // Show the connection settings panel/menu
-        toggleConnectPanel: function() {
-            // Close the description panel
-            $D('noVNC_description').style.display = "none";
-            // Close connection settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-                $D('connectButton').className = "noVNC_status_button";
-            }
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
-
-            // Toggle Connection Panel
-            if (UI.connSettingsOpen === true) {
-                $D('noVNC_controls').style.display = "none";
-                $D('connectButton').className = "noVNC_status_button";
-                UI.connSettingsOpen = false;
-                UI.saveSetting('host');
-                UI.saveSetting('port');
-                UI.saveSetting('token');
-                //UI.saveSetting('password');
-            } else {
-                $D('noVNC_controls').style.display = "block";
-                $D('connectButton').className = "noVNC_status_button_selected";
-                UI.connSettingsOpen = true;
-                $D('noVNC_host').focus();
             }
         },
 
@@ -746,55 +794,6 @@ var UI;
             Util.Debug(">> UI.clipReceive: " + text.substr(0,40) + "...");
             $D('noVNC_clipboard_text').value = text;
             Util.Debug("<< UI.clipReceive");
-        },
-
-        connect: function() {
-            UI.closeSettingsMenu();
-            UI.toggleConnectPanel();
-
-            var host = $D('noVNC_host').value;
-            var port = $D('noVNC_port').value;
-            var password = $D('noVNC_password').value;
-            var token = $D('noVNC_token').value;
-            var path = $D('noVNC_path').value;
-
-            //if token is in path then ignore the new token variable
-            if (token) {
-                path = WebUtil.injectParamIfMissing(path, "token", token);
-            }
-
-            if ((!host) || (!port)) {
-                throw new Error("Must set host and port");
-            }
-
-            if (!UI.initRFB()) return;
-
-            UI.rfb.set_encrypt(UI.getSetting('encrypt'));
-            UI.rfb.set_true_color(UI.getSetting('true_color'));
-            UI.rfb.set_local_cursor(UI.getSetting('cursor'));
-            UI.rfb.set_shared(UI.getSetting('shared'));
-            UI.rfb.set_view_only(UI.getSetting('view_only'));
-            UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
-
-            UI.rfb.connect(host, port, password, path);
-
-            //Close dialog.
-            setTimeout(UI.setBarPosition, 100);
-            $D('noVNC_logo').style.display = "none";
-            $D('noVNC_screen').style.display = "inline";
-        },
-
-        disconnect: function() {
-            UI.closeSettingsMenu();
-            UI.rfb.disconnect();
-
-            // Restore the callback used for initial resize
-            UI.rfb.set_onFBUComplete(UI.initialResize);
-
-            $D('noVNC_logo').style.display = "block";
-            $D('noVNC_screen').style.display = "none";
-
-            // Don't display the connection settings until we're actually disconnected
         },
 
         displayBlur: function() {
