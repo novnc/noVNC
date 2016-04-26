@@ -221,8 +221,8 @@ var UI;
             $D("xvpShutdownButton").onclick = UI.xvpShutdown;
             $D("xvpRebootButton").onclick = UI.xvpReboot;
             $D("xvpResetButton").onclick = UI.xvpReset;
-            $D("noVNC_status").onclick = UI.togglePopupStatus;
-            $D("noVNC_popup_status").onclick = UI.togglePopupStatus;
+            $D("noVNC_status").onclick = UI.popupStatus;
+            $D("noVNC_popup_status").onclick = UI.closePopup;
             $D("xvpButton").onclick = UI.toggleXvpPanel;
             $D("clipboardButton").onclick = UI.toggleClipboardPanel;
             $D("fullscreenButton").onclick = UI.toggleFullscreen;
@@ -346,6 +346,31 @@ var UI;
             }
 
             //Util.Debug("<< updateVisualState");
+        },
+
+        popupStatus: function(text) {
+            var psp = $D('noVNC_popup_status');
+
+            clearTimeout(UI.popupStatusTimeout);
+
+            if (typeof text === 'string') {
+                psp.innerHTML = text;
+            } else {
+                psp.innerHTML = $D('noVNC_status').innerHTML;
+            }
+            psp.style.display = "block";
+            psp.style.left = window.innerWidth/2 -
+                parseInt(window.getComputedStyle(psp).width)/2 -30 + "px";
+
+            // Show the popup for a maximum of 1.5 seconds
+            UI.popupStatusTimeout = setTimeout(function() {
+                UI.closePopup();
+            }, 1500);
+        },
+
+        closePopup: function() {
+            clearTimeout(UI.popupStatusTimeout);
+            $D('noVNC_popup_status').style.display = "none";
         },
 
         // Initial page load read/initialization of settings
@@ -483,31 +508,6 @@ var UI;
                 UI.updateSetting('logging');
 
                 UI.openSettingsMenu();
-            }
-        },
-
-
-        // Show the popup status
-        togglePopupStatus: function(text) {
-            var psp = $D('noVNC_popup_status');
-
-            var closePopup = function() { psp.style.display = "none"; };
-
-            if (window.getComputedStyle(psp).display === 'none') {
-                if (typeof text === 'string') {
-                    psp.innerHTML = text;
-                } else {
-                    psp.innerHTML = $D('noVNC_status').innerHTML;
-                }
-                psp.style.display = "block";
-                psp.style.left = window.innerWidth/2 -
-                    parseInt(window.getComputedStyle(psp).width)/2 -30 + "px";
-
-                // Show the popup for a maximum of 1.5 seconds
-                UI.popupStatusTimeout = setTimeout(function() { closePopup(); }, 1500);
-            } else {
-                clearTimeout(UI.popupStatusTimeout);
-                closePopup();
             }
         },
 
@@ -968,7 +968,7 @@ var UI;
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
                 //   scrollbars doesn't work.
-                UI.togglePopupStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
+                UI.popupStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
                 UI.rememberedClipSetting = UI.getSetting('clip');
                 UI.setViewClip(true);
                 $D('noVNC_clip').disabled = true;
