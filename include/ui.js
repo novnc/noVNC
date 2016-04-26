@@ -245,6 +245,109 @@ var UI;
             $D("noVNC_resize").onchange = UI.enableDisableViewClip;
         },
 
+        updateState: function(rfb, state, oldstate, msg) {
+            UI.rfb_state = state;
+            var klass;
+            switch (state) {
+                case 'failed':
+                case 'fatal':
+                    klass = "noVNC_status_error";
+                    break;
+                case 'normal':
+                    klass = "noVNC_status_normal";
+                    break;
+                case 'disconnected':
+                    $D('noVNC_logo').style.display = "block";
+                    $D('noVNC_screen').style.display = "none";
+                    /* falls through */
+                case 'loaded':
+                    klass = "noVNC_status_normal";
+                    break;
+                case 'password':
+                    UI.toggleConnectPanel();
+
+                    $D('noVNC_connect_button').value = "Send Password";
+                    $D('noVNC_connect_button').onclick = UI.setPassword;
+                    $D('noVNC_password').focus();
+
+                    klass = "noVNC_status_warn";
+                    break;
+                default:
+                    klass = "noVNC_status_warn";
+                    break;
+            }
+
+            if (typeof(msg) !== 'undefined') {
+                $D('noVNC-control-bar').setAttribute("class", klass);
+                $D('noVNC_status').innerHTML = msg;
+            }
+
+            UI.updateVisualState();
+        },
+
+        // Disable/enable controls depending on connection state
+        updateVisualState: function() {
+            var connected = UI.rfb && UI.rfb_state === 'normal';
+
+            //Util.Debug(">> updateVisualState");
+            $D('noVNC_encrypt').disabled = connected;
+            $D('noVNC_true_color').disabled = connected;
+            if (Util.browserSupportsCursorURIs()) {
+                $D('noVNC_cursor').disabled = connected;
+            } else {
+                UI.updateSetting('cursor', !UI.isTouchDevice);
+                $D('noVNC_cursor').disabled = true;
+            }
+
+            UI.enableDisableViewClip();
+            $D('noVNC_resize').disabled = connected;
+            $D('noVNC_shared').disabled = connected;
+            $D('noVNC_view_only').disabled = connected;
+            $D('noVNC_path').disabled = connected;
+            $D('noVNC_repeaterID').disabled = connected;
+
+            if (connected) {
+                UI.setViewClip();
+                UI.setMouseButton(1);
+                $D('clipboardButton').style.display = "inline";
+                $D('showKeyboard').style.display = "inline";
+                $D('noVNC_extra_keys').style.display = "";
+                $D('sendCtrlAltDelButton').style.display = "inline";
+            } else {
+                UI.setMouseButton();
+                $D('clipboardButton').style.display = "none";
+                $D('showKeyboard').style.display = "none";
+                $D('noVNC_extra_keys').style.display = "none";
+                $D('sendCtrlAltDelButton').style.display = "none";
+                UI.updateXvpVisualState(0);
+            }
+
+            // State change disables viewport dragging.
+            // It is enabled (toggled) by direct click on the button
+            UI.updateViewDrag(false);
+
+            switch (UI.rfb_state) {
+                case 'fatal':
+                case 'failed':
+                case 'disconnected':
+                    $D('connectButton').style.display = "";
+                    $D('disconnectButton').style.display = "none";
+                    UI.connSettingsOpen = false;
+                    UI.toggleConnectPanel();
+                    break;
+                case 'loaded':
+                    $D('connectButton').style.display = "";
+                    $D('disconnectButton').style.display = "none";
+                    break;
+                default:
+                    $D('connectButton').style.display = "none";
+                    $D('disconnectButton').style.display = "";
+                    break;
+            }
+
+            //Util.Debug("<< updateVisualState");
+        },
+
         // Read form control compatible setting from cookie
         getSetting: function(name) {
             var ctrl = $D('noVNC_' + name);
@@ -575,7 +678,6 @@ var UI;
         },
 
 
-
         setPassword: function() {
             UI.rfb.sendPassword($D('noVNC_password').value);
             //Reset connect button.
@@ -620,109 +722,6 @@ var UI;
                     button.style.display = "none";
                 }
             }
-        },
-
-        updateState: function(rfb, state, oldstate, msg) {
-            UI.rfb_state = state;
-            var klass;
-            switch (state) {
-                case 'failed':
-                case 'fatal':
-                    klass = "noVNC_status_error";
-                    break;
-                case 'normal':
-                    klass = "noVNC_status_normal";
-                    break;
-                case 'disconnected':
-                    $D('noVNC_logo').style.display = "block";
-                    $D('noVNC_screen').style.display = "none";
-                    /* falls through */
-                case 'loaded':
-                    klass = "noVNC_status_normal";
-                    break;
-                case 'password':
-                    UI.toggleConnectPanel();
-
-                    $D('noVNC_connect_button').value = "Send Password";
-                    $D('noVNC_connect_button').onclick = UI.setPassword;
-                    $D('noVNC_password').focus();
-
-                    klass = "noVNC_status_warn";
-                    break;
-                default:
-                    klass = "noVNC_status_warn";
-                    break;
-            }
-
-            if (typeof(msg) !== 'undefined') {
-                $D('noVNC-control-bar').setAttribute("class", klass);
-                $D('noVNC_status').innerHTML = msg;
-            }
-
-            UI.updateVisualState();
-        },
-
-        // Disable/enable controls depending on connection state
-        updateVisualState: function() {
-            var connected = UI.rfb && UI.rfb_state === 'normal';
-
-            //Util.Debug(">> updateVisualState");
-            $D('noVNC_encrypt').disabled = connected;
-            $D('noVNC_true_color').disabled = connected;
-            if (Util.browserSupportsCursorURIs()) {
-                $D('noVNC_cursor').disabled = connected;
-            } else {
-                UI.updateSetting('cursor', !UI.isTouchDevice);
-                $D('noVNC_cursor').disabled = true;
-            }
-
-            UI.enableDisableViewClip();
-            $D('noVNC_resize').disabled = connected;
-            $D('noVNC_shared').disabled = connected;
-            $D('noVNC_view_only').disabled = connected;
-            $D('noVNC_path').disabled = connected;
-            $D('noVNC_repeaterID').disabled = connected;
-
-            if (connected) {
-                UI.setViewClip();
-                UI.setMouseButton(1);
-                $D('clipboardButton').style.display = "inline";
-                $D('showKeyboard').style.display = "inline";
-                $D('noVNC_extra_keys').style.display = "";
-                $D('sendCtrlAltDelButton').style.display = "inline";
-            } else {
-                UI.setMouseButton();
-                $D('clipboardButton').style.display = "none";
-                $D('showKeyboard').style.display = "none";
-                $D('noVNC_extra_keys').style.display = "none";
-                $D('sendCtrlAltDelButton').style.display = "none";
-                UI.updateXvpVisualState(0);
-            }
-
-            // State change disables viewport dragging.
-            // It is enabled (toggled) by direct click on the button
-            UI.updateViewDrag(false);
-
-            switch (UI.rfb_state) {
-                case 'fatal':
-                case 'failed':
-                case 'disconnected':
-                    $D('connectButton').style.display = "";
-                    $D('disconnectButton').style.display = "none";
-                    UI.connSettingsOpen = false;
-                    UI.toggleConnectPanel();
-                    break;
-                case 'loaded':
-                    $D('connectButton').style.display = "";
-                    $D('disconnectButton').style.display = "none";
-                    break;
-                default:
-                    $D('connectButton').style.display = "none";
-                    $D('disconnectButton').style.display = "";
-                    break;
-            }
-
-            //Util.Debug("<< updateVisualState");
         },
 
         // Disable/enable XVP button
