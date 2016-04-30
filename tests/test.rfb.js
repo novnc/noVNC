@@ -1810,7 +1810,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._mouse._onMouseMove(10, 4);
 
                 expect(client._viewportDragging).to.be.true;
-                expect(client._viewportHasMoved.to.be.true;
+                expect(client._viewportHasMoved).to.be.true;
                 expect(client._viewportDragPos).to.deep.equal({ x: 10, y: 4 });
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
                 expect(client._display.viewportChangePos).to.have.been.calledWith(13, 5);
