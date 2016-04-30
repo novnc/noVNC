@@ -60,13 +60,13 @@ var UI;
             var sheets = WebUtil.getStylesheets();
             var i;
             for (i = 0; i < sheets.length; i += 1) {
-                UI.addOption($D('noVNC_stylesheet'),sheets[i].title, sheets[i].title);
+                UI.addOption($D('noVNC_setting_stylesheet'),sheets[i].title, sheets[i].title);
             }
 
             // Logging selection dropdown
             var llevels = ['error', 'warn', 'info', 'debug'];
             for (i = 0; i < llevels.length; i += 1) {
-                UI.addOption($D('noVNC_logging'),llevels[i], llevels[i]);
+                UI.addOption($D('noVNC_setting_logging'),llevels[i], llevels[i]);
             }
 
             // Settings with immediate effects
@@ -114,7 +114,7 @@ var UI;
 
             UI.updateVisualState();
 
-            $D('noVNC_host').focus();
+            $D('noVNC_setting_host').focus();
 
             // Show mouse selector buttons on touch screen devices
             if (UI.isTouchDevice) {
@@ -238,11 +238,11 @@ var UI;
 
             $D("noVNC_settings_menu").onmouseover = UI.displayBlur;
             $D("noVNC_settings_menu").onmouseover = UI.displayFocus;
-            $D("noVNC_apply").onclick = UI.settingsApply;
+            $D("noVNC_settings_apply").onclick = UI.settingsApply;
 
             $D("noVNC_connect_button").onclick = UI.connect;
 
-            $D("noVNC_resize").onchange = UI.enableDisableViewClip;
+            $D("noVNC_setting_resize").onchange = UI.enableDisableViewClip;
         },
 
 /* ------^-------
@@ -274,7 +274,7 @@ var UI;
 
                     $D('noVNC_connect_button').value = "Send Password";
                     $D('noVNC_connect_button').onclick = UI.setPassword;
-                    $D('noVNC_password').focus();
+                    $D('noVNC_setting_password').focus();
 
                     klass = "noVNC_status_warn";
                     break;
@@ -296,21 +296,21 @@ var UI;
             var connected = UI.rfb && UI.rfb_state === 'normal';
 
             //Util.Debug(">> updateVisualState");
-            $D('noVNC_encrypt').disabled = connected;
-            $D('noVNC_true_color').disabled = connected;
+            $D('noVNC_setting_encrypt').disabled = connected;
+            $D('noVNC_setting_true_color').disabled = connected;
             if (Util.browserSupportsCursorURIs()) {
-                $D('noVNC_cursor').disabled = connected;
+                $D('noVNC_setting_cursor').disabled = connected;
             } else {
                 UI.updateSetting('cursor', !UI.isTouchDevice);
-                $D('noVNC_cursor').disabled = true;
+                $D('noVNC_setting_cursor').disabled = true;
             }
 
             UI.enableDisableViewClip();
-            $D('noVNC_resize').disabled = connected;
-            $D('noVNC_shared').disabled = connected;
-            $D('noVNC_view_only').disabled = connected;
-            $D('noVNC_path').disabled = connected;
-            $D('noVNC_repeaterID').disabled = connected;
+            $D('noVNC_setting_resize').disabled = connected;
+            $D('noVNC_setting_shared').disabled = connected;
+            $D('noVNC_setting_view_only').disabled = connected;
+            $D('noVNC_setting_path').disabled = connected;
+            $D('noVNC_setting_repeaterID').disabled = connected;
 
             if (connected) {
                 UI.setViewClip();
@@ -408,7 +408,7 @@ var UI;
             // Update the settings control
             value = UI.getSetting(name);
 
-            var ctrl = $D('noVNC_' + name);
+            var ctrl = $D('noVNC_setting_' + name);
             if (ctrl.type === 'checkbox') {
                 ctrl.checked = value;
 
@@ -431,7 +431,7 @@ var UI;
 
         // Save control setting to cookie
         saveSetting: function(name) {
-            var val, ctrl = $D('noVNC_' + name);
+            var val, ctrl = $D('noVNC_setting_' + name);
             if (ctrl.type === 'checkbox') {
                 val = ctrl.checked;
             } else if (typeof ctrl.options !== 'undefined') {
@@ -452,7 +452,7 @@ var UI;
 
         // Read form control compatible setting from cookie
         getSetting: function(name) {
-            var ctrl = $D('noVNC_' + name);
+            var ctrl = $D('noVNC_setting_' + name);
             var val = WebUtil.readSetting(name);
             if (typeof val !== 'undefined' && val !== null && ctrl.type === 'checkbox') {
                 if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
@@ -539,7 +539,7 @@ var UI;
                     UI.updateSetting('cursor');
                 } else {
                     UI.updateSetting('cursor', !UI.isTouchDevice);
-                    $D('noVNC_cursor').disabled = true;
+                    $D('noVNC_setting_cursor').disabled = true;
                 }
                 UI.updateSetting('clip');
                 UI.updateSetting('resize');
@@ -693,7 +693,7 @@ var UI;
                 $D('noVNC_controls').style.display = "block";
                 $D('connectButton').className = "noVNC_status_button_selected";
                 UI.connSettingsOpen = true;
-                $D('noVNC_host').focus();
+                $D('noVNC_setting_host').focus();
             }
         },
 
@@ -701,11 +701,11 @@ var UI;
             UI.closeSettingsMenu();
             UI.toggleConnectPanel();
 
-            var host = $D('noVNC_host').value;
-            var port = $D('noVNC_port').value;
-            var password = $D('noVNC_password').value;
-            var token = $D('noVNC_token').value;
-            var path = $D('noVNC_path').value;
+            var host = $D('noVNC_setting_host').value;
+            var port = $D('noVNC_setting_port').value;
+            var password = $D('noVNC_setting_password').value;
+            var token = $D('noVNC_setting_token').value;
+            var path = $D('noVNC_setting_path').value;
 
             //if token is in path then ignore the new token variable
             if (token) {
@@ -747,7 +747,7 @@ var UI;
         },
 
         setPassword: function() {
-            UI.rfb.sendPassword($D('noVNC_password').value);
+            UI.rfb.sendPassword($D('noVNC_setting_password').value);
             //Reset connect button.
             $D('noVNC_connect_button').value = "Connect";
             $D('noVNC_connect_button').onclick = UI.connect;
@@ -942,18 +942,18 @@ var UI;
 
         // Handle special cases where clipping is forced on/off or locked
         enableDisableViewClip: function() {
-            var resizeElem = $D('noVNC_resize');
+            var resizeSetting = $D('noVNC_setting_resize');
             var connected = UI.rfb && UI.rfb_state === 'normal';
 
             if (UI.isSafari) {
                 // Safari auto-hides the scrollbars which makes them
                 // impossible to use in most cases
                 UI.setViewClip(true);
-                $D('noVNC_clip').disabled = true;
-            } else if (resizeElem.value === 'downscale' || resizeElem.value === 'scale') {
+                $D('noVNC_setting_clip').disabled = true;
+            } else if (resizeSetting.value === 'downscale' || resizeSetting.value === 'scale') {
                 // Disable clipping if we are scaling
                 UI.setViewClip(false);
-                $D('noVNC_clip').disabled = true;
+                $D('noVNC_setting_clip').disabled = true;
             } else if (document.msFullscreenElement) {
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
@@ -961,13 +961,13 @@ var UI;
                 UI.popupStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
                 UI.rememberedClipSetting = UI.getSetting('clip');
                 UI.setViewClip(true);
-                $D('noVNC_clip').disabled = true;
+                $D('noVNC_setting_clip').disabled = true;
             } else if (document.body.msRequestFullscreen && UI.rememberedClip !== null) {
                 // Restore view clip to what it was before fullscreen on IE
                 UI.setViewClip(UI.rememberedClipSetting);
-                $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
+                $D('noVNC_setting_clip').disabled = connected || UI.isTouchDevice;
             } else {
-                $D('noVNC_clip').disabled = connected || UI.isTouchDevice;
+                $D('noVNC_setting_clip').disabled = connected || UI.isTouchDevice;
                 if (UI.isTouchDevice) {
                     UI.setViewClip(true);
                 }

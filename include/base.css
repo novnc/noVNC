@@ -1,7 +1,7 @@
 /*
  * noVNC base CSS
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2013 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2016 Samuel Mannehed for Cendio AB
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -30,18 +30,18 @@ html {
   padding-bottom:8px;
 }
 
-#noVNC_host {
+#noVNC_setting_host {
   width:150px;
 }
-#noVNC_port {
+#noVNC_setting_port {
   width: 80px;
 }
-#noVNC_password {
+#noVNC_setting_password {
   width: 150px;
 }
-#noVNC_encrypt {
+#noVNC_setting_encrypt {
 }
-#noVNC_path {
+#noVNC_setting_path {
   width: 100px;
 }
 #noVNC_connect_button {
@@ -109,7 +109,7 @@ html {
   padding: 0px;
 }
 
-#noVNC_apply {
+#noVNC_settings_apply {
   float:right;
 }
 
