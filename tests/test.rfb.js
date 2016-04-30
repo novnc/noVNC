@@ -1803,15 +1803,17 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('if enabled, viewportDragging should occur on mouse movement while a button is down', function () {
                 client._viewportDrag = true;
                 client._viewportDragging = true;
-                client._viewportDragPos = { x: 13, y: 9 };
+                client._viewportHasMoved = false;
+                client._viewportDragPos = { x: 23, y: 9 };
                 client._display.viewportChangePos = sinon.spy();
 
                 client._mouse._onMouseMove(10, 4);
 
                 expect(client._viewportDragging).to.be.true;
+                expect(client._viewportHasMoved.to.be.true;
                 expect(client._viewportDragPos).to.deep.equal({ x: 10, y: 4 });
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
-                expect(client._display.viewportChangePos).to.have.been.calledWith(3, 5);
+                expect(client._display.viewportChangePos).to.have.been.calledWith(13, 5);
             });
         });
 
