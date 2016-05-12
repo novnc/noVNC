@@ -617,7 +617,7 @@ var RFB;
 
                 // The goal is to trigger on a certain physical width, the
                 // devicePixelRatio brings us a bit closer but is not optimal.
-                var dragThreshold = 10 * window.devicePixelRatio;
+                var dragThreshold = 10 * (window.devicePixelRatio || 1);
 
                 if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
                                                Math.abs(deltaY) > dragThreshold)) {

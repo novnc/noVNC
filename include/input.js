@@ -212,7 +212,7 @@ var Keyboard, Mouse;
                 // Touch device
 
                 // When two touches occur within 500 ms of each other and are
-                // closer than 20 pixels together a double click is triggered.
+                // close enough together a double click is triggered.
                 if (down == 1) {
                     if (this._doubleClickTimer === null) {
                         this._lastTouchPos = pos;
@@ -229,7 +229,8 @@ var Keyboard, Mouse;
 
                         // The goal is to trigger on a certain physical width, the
                         // devicePixelRatio brings us a bit closer but is not optimal.
-                        if (d < 20 * window.devicePixelRatio) {
+                        var threshold = 20 * (window.devicePixelRatio || 1);
+                        if (d < threshold) {
                             pos = this._lastTouchPos;
                         }
                     }
