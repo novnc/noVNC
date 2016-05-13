@@ -53,7 +53,10 @@ var UI;
 
         // Render default UI and initialize settings menu
         start: function(callback) {
-            UI.isTouchDevice = 'ontouchstart' in document.documentElement;
+            UI.isTouchDevice = (('ontouchstart' in window)
+                                // required for MS Surface
+                                || (navigator.maxTouchPoints > 0)
+                                || (navigator.msMaxTouchPoints > 0));
 
             // Stylesheet selection dropdown
             var sheet = WebUtil.selectStylesheet();
