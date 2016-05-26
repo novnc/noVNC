@@ -148,7 +148,7 @@ var UI;
                  document.documentElement.mozRequestFullScreen ||
                  document.documentElement.webkitRequestFullscreen ||
                  document.body.msRequestFullscreen)) {
-                $D('fullscreenButton').style.display = "inline";
+                $D('noVNC_fullscreen_button').style.display = "inline";
                 Util.addEvent(window, 'fullscreenchange', UI.updateFullscreenButton);
                 Util.addEvent(window, 'mozfullscreenchange', UI.updateFullscreenButton);
                 Util.addEvent(window, 'webkitfullscreenchange', UI.updateFullscreenButton);
@@ -205,31 +205,31 @@ var UI;
             $D("noVNC_mouse_button1").onclick = function () { UI.setMouseButton(2); };
             $D("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
             $D("noVNC_mouse_button4").onclick = function () { UI.setMouseButton(0); };
-            $D("showKeyboard").onclick = UI.showKeyboard;
+            $D("noVNC_keyboard_button").onclick = UI.showKeyboard;
 
-            $D("keyboardinput").oninput = UI.keyInput;
-            $D("keyboardinput").onblur = UI.hideKeyboard;
-            $D("keyboardinput").onsubmit = function () { return false; };
+            $D("noVNC_keyboardinput").oninput = UI.keyInput;
+            $D("noVNC_keyboardinput").onblur = UI.hideKeyboard;
+            $D("noVNC_keyboardinput").onsubmit = function () { return false; };
 
-            $D("toggleExtraKeysButton").onclick = UI.toggleExtraKeys;
-            $D("toggleCtrlButton").onclick = UI.toggleCtrl;
-            $D("toggleAltButton").onclick = UI.toggleAlt;
-            $D("sendTabButton").onclick = UI.sendTab;
-            $D("sendEscButton").onclick = UI.sendEsc;
+            $D("noVNC_toggleExtraKeys_button").onclick = UI.toggleExtraKeys;
+            $D("noVNC_toggleCtrl_button").onclick = UI.toggleCtrl;
+            $D("noVNC_toggleAlt_button").onclick = UI.toggleAlt;
+            $D("noVNC_sendTab_button").onclick = UI.sendTab;
+            $D("noVNC_sendEsc_button").onclick = UI.sendEsc;
 
-            $D("sendCtrlAltDelButton").onclick = UI.sendCtrlAltDel;
-            $D("xvpShutdownButton").onclick = function() { UI.rfb.xvpShutdown(); },
-            $D("xvpRebootButton").onclick = function() { UI.rfb.xvpReboot(); },
-            $D("xvpResetButton").onclick = function() { UI.rfb.xvpReset(); },
+            $D("noVNC_sendCtrlAltDel_button").onclick = UI.sendCtrlAltDel;
+            $D("noVNC_xvpShutdown_button").onclick = function() { UI.rfb.xvpShutdown(); },
+            $D("noVNC_xvpReboot_button").onclick = function() { UI.rfb.xvpReboot(); },
+            $D("noVNC_xvpReset_button").onclick = function() { UI.rfb.xvpReset(); },
             $D("noVNC_status").onclick = UI.popupStatus;
             $D("noVNC_popup_status").onclick = UI.closePopup;
-            $D("xvpButton").onclick = UI.toggleXvpPanel;
-            $D("clipboardButton").onclick = UI.toggleClipboardPanel;
-            $D("fullscreenButton").onclick = UI.toggleFullscreen;
-            $D("settingsButton").onclick = UI.toggleSettingsPanel;
-            $D("connectButton").onclick = UI.toggleConnectPanel;
-            $D("disconnectButton").onclick = UI.disconnect;
-            $D("descriptionButton").onclick = UI.toggleConnectPanel;
+            $D("noVNC_toggleXvp_button").onclick = UI.toggleXvpPanel;
+            $D("noVNC_clipboard_button").onclick = UI.toggleClipboardPanel;
+            $D("noVNC_fullscreen_button").onclick = UI.toggleFullscreen;
+            $D("noVNC_settings_button").onclick = UI.toggleSettingsPanel;
+            $D("noVNC_connectPanel_button").onclick = UI.toggleConnectPanel;
+            $D("noVNC_disconnect_button").onclick = UI.disconnect;
+            $D("noVNC_description_button").onclick = UI.toggleConnectPanel;
 
             $D("noVNC_clipboard_text").onfocus = UI.displayBlur;
             $D("noVNC_clipboard_text").onblur = UI.displayFocus;
@@ -284,7 +284,7 @@ var UI;
             }
 
             if (typeof(msg) !== 'undefined') {
-                $D('noVNC-control-bar').setAttribute("class", klass);
+                $D('noVNC_control_bar').setAttribute("class", klass);
                 $D('noVNC_status').innerHTML = msg;
             }
 
@@ -315,16 +315,16 @@ var UI;
             if (connected) {
                 UI.setViewClip();
                 UI.setMouseButton(1);
-                $D('clipboardButton').style.display = "inline";
-                $D('showKeyboard').style.display = "inline";
+                $D('noVNC_clipboard_button').style.display = "inline";
+                $D('noVNC_keyboard_button').style.display = "inline";
                 $D('noVNC_extra_keys').style.display = "";
-                $D('sendCtrlAltDelButton').style.display = "inline";
+                $D('noVNC_sendCtrlAltDel_button').style.display = "inline";
             } else {
                 UI.setMouseButton();
-                $D('clipboardButton').style.display = "none";
-                $D('showKeyboard').style.display = "none";
+                $D('noVNC_clipboard_button').style.display = "none";
+                $D('noVNC_keyboard_button').style.display = "none";
                 $D('noVNC_extra_keys').style.display = "none";
-                $D('sendCtrlAltDelButton').style.display = "none";
+                $D('noVNC_sendCtrlAltDel_button').style.display = "none";
                 UI.updateXvpButton(0);
             }
 
@@ -336,18 +336,18 @@ var UI;
                 case 'fatal':
                 case 'failed':
                 case 'disconnected':
-                    $D('connectButton').style.display = "";
-                    $D('disconnectButton').style.display = "none";
+                    $D('noVNC_connectPanel_button').style.display = "";
+                    $D('noVNC_disconnect_button').style.display = "none";
                     UI.connSettingsOpen = false;
                     UI.toggleConnectPanel();
                     break;
                 case 'loaded':
-                    $D('connectButton').style.display = "";
-                    $D('disconnectButton').style.display = "none";
+                    $D('noVNC_connectPanel_button').style.display = "";
+                    $D('noVNC_disconnect_button').style.display = "none";
                     break;
                 default:
-                    $D('connectButton').style.display = "none";
-                    $D('disconnectButton').style.display = "";
+                    $D('noVNC_connectPanel_button').style.display = "none";
+                    $D('noVNC_disconnect_button').style.display = "";
                     break;
             }
 
@@ -512,14 +512,14 @@ var UI;
                 UI.toggleXvpPanel();
             }
             $D('noVNC_settings').style.display = "block";
-            $D('settingsButton').className = "noVNC_status_button_selected";
+            $D('noVNC_settings_button').className = "noVNC_status_button_selected";
             UI.settingsOpen = true;
         },
 
         // Close menu (without applying settings)
         closeSettingsMenu: function() {
             $D('noVNC_settings').style.display = "none";
-            $D('settingsButton').className = "noVNC_status_button";
+            $D('noVNC_settings_button').className = "noVNC_status_button";
             UI.settingsOpen = false;
         },
 
@@ -580,11 +580,11 @@ var UI;
             // Toggle XVP panel
             if (UI.xvpOpen === true) {
                 $D('noVNC_xvp').style.display = "none";
-                $D('xvpButton').className = "noVNC_status_button";
+                $D('noVNC_toggleXvp_button').className = "noVNC_status_button";
                 UI.xvpOpen = false;
             } else {
                 $D('noVNC_xvp').style.display = "block";
-                $D('xvpButton').className = "noVNC_status_button_selected";
+                $D('noVNC_toggleXvp_button').className = "noVNC_status_button_selected";
                 UI.xvpOpen = true;
             }
         },
@@ -592,9 +592,9 @@ var UI;
         // Disable/enable XVP button
         updateXvpButton: function(ver) {
             if (ver >= 1) {
-                $D('xvpButton').style.display = 'inline';
+                $D('noVNC_toggleXvp_button').style.display = 'inline';
             } else {
-                $D('xvpButton').style.display = 'none';
+                $D('noVNC_toggleXvp_button').style.display = 'none';
                 // Close XVP panel if open
                 if (UI.xvpOpen === true) {
                     UI.toggleXvpPanel();
@@ -628,11 +628,11 @@ var UI;
             // Toggle Clipboard Panel
             if (UI.clipboardOpen === true) {
                 $D('noVNC_clipboard').style.display = "none";
-                $D('clipboardButton').className = "noVNC_status_button";
+                $D('noVNC_clipboard_button').className = "noVNC_status_button";
                 UI.clipboardOpen = false;
             } else {
                 $D('noVNC_clipboard').style.display = "block";
-                $D('clipboardButton').className = "noVNC_status_button_selected";
+                $D('noVNC_clipboard_button').className = "noVNC_status_button_selected";
                 UI.clipboardOpen = true;
             }
         },
@@ -669,7 +669,7 @@ var UI;
             if (UI.settingsOpen === true) {
                 UI.settingsApply();
                 UI.closeSettingsMenu();
-                $D('connectButton').className = "noVNC_status_button";
+                $D('noVNC_connectPanel_button').className = "noVNC_status_button";
             }
             // Close clipboard panel if open
             if (UI.clipboardOpen === true) {
@@ -683,7 +683,7 @@ var UI;
             // Toggle Connection Panel
             if (UI.connSettingsOpen === true) {
                 $D('noVNC_controls').style.display = "none";
-                $D('connectButton').className = "noVNC_status_button";
+                $D('noVNC_connectPanel_button').className = "noVNC_status_button";
                 UI.connSettingsOpen = false;
                 UI.saveSetting('host');
                 UI.saveSetting('port');
@@ -691,7 +691,7 @@ var UI;
                 //UI.saveSetting('password');
             } else {
                 $D('noVNC_controls').style.display = "block";
-                $D('connectButton').className = "noVNC_status_button_selected";
+                $D('noVNC_connectPanel_button').className = "noVNC_status_button_selected";
                 UI.connSettingsOpen = true;
                 $D('noVNC_setting_host').focus();
             }
@@ -796,9 +796,9 @@ var UI;
                 document.mozFullScreenElement || // currently working methods
                 document.webkitFullscreenElement ||
                 document.msFullscreenElement ) {
-                $D('fullscreenButton').className = "noVNC_status_button_selected";
+                $D('noVNC_fullscreen_button').className = "noVNC_status_button_selected";
             } else {
-                $D('fullscreenButton').className = "noVNC_status_button";
+                $D('noVNC_fullscreen_button').className = "noVNC_status_button";
             }
         },
 
@@ -1047,8 +1047,8 @@ var UI;
 
         // On touch devices, show the OS keyboard
         showKeyboard: function() {
-            var kbi = $D('keyboardinput');
-            var skb = $D('showKeyboard');
+            var kbi = $D('noVNC_keyboardinput');
+            var skb = $D('noVNC_keyboard_button');
             var l = kbi.value.length;
             if(UI.keyboardVisible === false) {
                 kbi.focus();
@@ -1064,7 +1064,7 @@ var UI;
         },
 
         hideKeyboard: function() {
-            $D('showKeyboard').className = "noVNC_status_button";
+            $D('noVNC_keyboard_button').className = "noVNC_status_button";
             //Weird bug in iOS if you change keyboardVisible
             //here it does not actually occur so next time
             //you click keyboard icon it doesnt work.
@@ -1076,16 +1076,16 @@ var UI;
         keepKeyboard: function() {
             clearTimeout(UI.hideKeyboardTimeout);
             if(UI.keyboardVisible === true) {
-                $D('keyboardinput').focus();
-                $D('showKeyboard').className = "noVNC_status_button_selected";
+                $D('noVNC_keyboardinput').focus();
+                $D('noVNC_keyboard_button').className = "noVNC_status_button_selected";
             } else if(UI.keyboardVisible === false) {
-                $D('keyboardinput').blur();
-                $D('showKeyboard').className = "noVNC_status_button";
+                $D('noVNC_keyboardinput').blur();
+                $D('noVNC_keyboard_button').className = "noVNC_status_button";
             }
         },
 
         keyboardinputReset: function() {
-            var kbi = $D('keyboardinput');
+            var kbi = $D('noVNC_keyboardinput');
             kbi.value = new Array(UI.defaultKeyboardinputLen).join("_");
             UI.lastKeyboardinput = kbi.value;
         },
@@ -1164,18 +1164,18 @@ var UI;
         toggleExtraKeys: function() {
             UI.keepKeyboard();
             if(UI.extraKeysVisible === false) {
-                $D('toggleCtrlButton').style.display = "inline";
-                $D('toggleAltButton').style.display = "inline";
-                $D('sendTabButton').style.display = "inline";
-                $D('sendEscButton').style.display = "inline";
-                $D('toggleExtraKeysButton').className = "noVNC_status_button_selected";
+                $D('noVNC_toggleCtrl_button').style.display = "inline";
+                $D('noVNC_toggleAlt_button').style.display = "inline";
+                $D('noVNC_sendTab_button').style.display = "inline";
+                $D('noVNC_sendEsc_button').style.display = "inline";
+                $D('noVNC_toggleExtraKeys_button').className = "noVNC_status_button_selected";
                 UI.extraKeysVisible = true;
             } else if(UI.extraKeysVisible === true) {
-                $D('toggleCtrlButton').style.display = "";
-                $D('toggleAltButton').style.display = "";
-                $D('sendTabButton').style.display = "";
-                $D('sendEscButton').style.display = "";
-                $D('toggleExtraKeysButton').className = "noVNC_status_button";
+                $D('noVNC_toggleCtrl_button').style.display = "";
+                $D('noVNC_toggleAlt_button').style.display = "";
+                $D('noVNC_sendTab_button').style.display = "";
+                $D('noVNC_sendEsc_button').style.display = "";
+                $D('noVNC_toggleExtraKeys_button').className = "noVNC_status_button";
                 UI.extraKeysVisible = false;
             }
         },
@@ -1194,11 +1194,11 @@ var UI;
             UI.keepKeyboard();
             if(UI.ctrlOn === false) {
                 UI.rfb.sendKey(XK_Control_L, true);
-                $D('toggleCtrlButton').className = "noVNC_status_button_selected";
+                $D('noVNC_toggleCtrl_button').className = "noVNC_status_button_selected";
                 UI.ctrlOn = true;
             } else if(UI.ctrlOn === true) {
                 UI.rfb.sendKey(XK_Control_L, false);
-                $D('toggleCtrlButton').className = "noVNC_status_button";
+                $D('noVNC_toggleCtrl_button').className = "noVNC_status_button";
                 UI.ctrlOn = false;
             }
         },
@@ -1207,11 +1207,11 @@ var UI;
             UI.keepKeyboard();
             if(UI.altOn === false) {
                 UI.rfb.sendKey(XK_Alt_L, true);
-                $D('toggleAltButton').className = "noVNC_status_button_selected";
+                $D('noVNC_toggleAlt_button').className = "noVNC_status_button_selected";
                 UI.altOn = true;
             } else if(UI.altOn === true) {
                 UI.rfb.sendKey(XK_Alt_L, false);
-                $D('toggleAltButton').className = "noVNC_status_button";
+                $D('noVNC_toggleAlt_button').className = "noVNC_status_button";
                 UI.altOn = false;
             }
         },
@@ -1274,11 +1274,11 @@ var UI;
         },
 
         setBarPosition: function() {
-            $D('noVNC-control-bar').style.top = (window.pageYOffset) + 'px';
+            $D('noVNC_control_bar').style.top = (window.pageYOffset) + 'px';
             $D('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
 
             var vncwidth = $D('noVNC_container').style.offsetWidth;
-            $D('noVNC-control-bar').style.width = vncwidth + 'px';
+            $D('noVNC_control_bar').style.width = vncwidth + 'px';
         }
 
 /* ------^-------

@@ -48,9 +48,9 @@
 </head>
 
 <body>
-    <div id="noVNC-control-bar" class="noVNC_status_normal">
+    <div id="noVNC_control_bar" class="noVNC_status_normal">
         <!--noVNC Mobile Device only Buttons-->
-        <div class="noVNC-buttons-left">
+        <div class="noVNC_buttons_left">
             <input type="image" alt="viewport drag" src="images/drag.png"
                 id="noVNC_view_drag_button" class="noVNC_status_button"
                 title="Move/Drag Viewport">
@@ -64,26 +64,26 @@
                 <input type="image" alt="Right mousebutton" src="images/mouse_right.png"
                     id="noVNC_mouse_button4" class="noVNC_status_button">
                 <input type="image" alt="Keyboard" src="images/keyboard.png"
-                    id="showKeyboard" class="noVNC_status_button"
+                    id="noVNC_keyboard_button" class="noVNC_status_button"
                     value="Keyboard" title="Show Keyboard"/>
                 <!-- Note that Google Chrome on Android doesn't respect any of these,
                      html attributes which attempt to disable text suggestions on the
                      on-screen keyboard. Let's hope Chrome implements the ime-mode
                      style for example -->
-                <textarea id="keyboardinput" autocapitalize="off"
+                <textarea id="noVNC_keyboardinput" autocapitalize="off"
                     autocorrect="off" autocomplete="off" spellcheck="false"
                     mozactionhint="Enter"></textarea>
                 <div id="noVNC_extra_keys">
                     <input type="image" alt="Extra keys" src="images/toggleextrakeys.png"
-                        id="toggleExtraKeysButton" class="noVNC_status_button">
+                        id="noVNC_toggleExtraKeys_button" class="noVNC_status_button">
                     <input type="image" alt="Ctrl" src="images/ctrl.png"
-                        id="toggleCtrlButton" class="noVNC_status_button">
+                        id="noVNC_toggleCtrl_button" class="noVNC_status_button">
                     <input type="image" alt="Alt" src="images/alt.png"
-                        id="toggleAltButton" class="noVNC_status_button">
+                        id="noVNC_toggleAlt_button" class="noVNC_status_button">
                     <input type="image" alt="Tab" src="images/tab.png"
-                        id="sendTabButton" class="noVNC_status_button">
+                        id="noVNC_sendTab_button" class="noVNC_status_button">
                     <input type="image" alt="Esc" src="images/esc.png"
-                        id="sendEscButton" class="noVNC_status_button">
+                        id="noVNC_sendEsc_button" class="noVNC_status_button">
                 </div>
             </div>
         </div>
@@ -91,27 +91,27 @@
         <div id="noVNC_status"></div>
 
         <!--noVNC Buttons-->
-        <div class="noVNC-buttons-right">
+        <div class="noVNC_buttons_right">
             <input type="image" alt="Ctrl+Alt+Del" src="images/ctrlaltdel.png"
-                id="sendCtrlAltDelButton" class="noVNC_status_button"
+                id="noVNC_sendCtrlAltDel_button" class="noVNC_status_button"
                 title="Send Ctrl-Alt-Del" />
             <input type="image" alt="Shutdown/Reboot" src="images/power.png"
-                id="xvpButton" class="noVNC_status_button"
+                id="noVNC_toggleXvp_button" class="noVNC_status_button"
                 title="Shutdown/Reboot..." />
             <input type="image" alt="Clipboard" src="images/clipboard.png"
-                id="clipboardButton" class="noVNC_status_button"
+                id="noVNC_clipboard_button" class="noVNC_status_button"
                 title="Clipboard" />
             <input type="image" alt="Fullscreen" src="images/fullscreen.png"
-                id="fullscreenButton" class="noVNC_status_button"
+                id="noVNC_fullscreen_button" class="noVNC_status_button"
                 title="Fullscreen" />
             <input type="image" alt="Settings" src="images/settings.png"
-                id="settingsButton" class="noVNC_status_button"
+                id="noVNC_settings_button" class="noVNC_status_button"
                 title="Settings" />
             <input type="image" alt="Connect" src="images/connect.png"
-                id="connectButton" class="noVNC_status_button"
+                id="noVNC_connectPanel_button" class="noVNC_status_button"
                 title="Connect" />
             <input type="image" alt="Disconnect" src="images/disconnect.png"
-                id="disconnectButton" class="noVNC_status_button"
+                id="noVNC_disconnect_button" class="noVNC_status_button"
                 title="Disconnect" />
         </div>
 
@@ -128,7 +128,7 @@
             and <a href="http://kanaka.github.com/noVNC">website</a>
             for more information.
             <br />
-            <input id="descriptionButton" type="button" value="Close">
+            <input id="noVNC_description_button" type="button" value="Close">
         </div>
 
         <!-- Popup Status -->
@@ -147,9 +147,9 @@
         <!-- XVP Shutdown/Reboot Panel -->
         <div id="noVNC_xvp" class="triangle-right top">
             <span id="noVNC_xvp_menu">
-                <input type="button" id="xvpShutdownButton" value="Shutdown" />
-                <input type="button" id="xvpRebootButton" value="Reboot" />
-                <input type="button" id="xvpResetButton" value="Reset" />
+                <input type="button" id="noVNC_xvpShutdown_button" value="Shutdown" />
+                <input type="button" id="noVNC_xvpReboot_button" value="Reboot" />
+                <input type="button" id="noVNC_xvpReset_button" value="Reset" />
             </span>
         </div>
 
@@ -204,7 +204,7 @@
             </ul>
         </div>
 
-    </div> <!-- End of noVNC-control-bar -->
+    </div> <!-- End of noVNC_control_bar -->
 
 
     <div id="noVNC_container">

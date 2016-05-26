@@ -56,10 +56,10 @@ html {
 #noVNC_view_drag_button {
   display: none;
 }
-#sendCtrlAltDelButton {
+#noVNC_sendCtrlAltDel_button {
   display: none;
 }
-#fullscreenButton {
+#noVNC_fullscreen_button {
   display: none;
 }
 #noVNC_xvp_buttons {
@@ -77,13 +77,13 @@ html {
   position: relative;
 }
 
-.noVNC-buttons-left {
+.noVNC_buttons_left {
   float: left;
   z-index: 1;
   position: relative;
 }
 
-.noVNC-buttons-right {
+.noVNC_buttons_right {
   float:right;
   right: 0px;
   z-index: 2;
@@ -233,7 +233,7 @@ html {
   right:85px;
 }
 
-#keyboardinput {
+#noVNC_keyboardinput {
   width:1px;
   height:1px;
   background-color:#fff;
@@ -278,7 +278,7 @@ html {
 }
 
 /* Control bar */
-#noVNC-control-bar {
+#noVNC_control_bar {
   position:fixed;
   
   display:block;
@@ -427,11 +427,11 @@ html {
   font-size: 180px;
 }
 
-.noVNC-buttons-left {
+.noVNC_buttons_left {
   padding-left: 10px;
 }
 
-.noVNC-buttons-right {
+.noVNC_buttons_right {
   padding-right: 10px;
 }
 
@@ -442,11 +442,11 @@ html {
   margin-left: 0px;
 }
 
-#toggleExtraKeysButton { display: none; }
-#toggleCtrlButton { display: inline; }
-#toggleAltButton {  display: inline; }
-#sendTabButton { display: inline; }
-#sendEscButton { display: inline; }
+#noVNC_toggleExtraKeys_button { display: none; }
+#noVNC_toggleCtrl_button { display: inline; }
+#noVNC_toggleAlt_button {  display: inline; }
+#noVNC_sendTab_button { display: inline; }
+#noVNC_sendEsc_button { display: inline; }
 
 /* left-align the status text on lower resolutions */
 @media screen and (max-width: 800px){
@@ -469,35 +469,35 @@ html {
   .noVNC_status_button {
     font-size: 10px;
   }
-  .noVNC-buttons-left {
+  .noVNC_buttons_left {
     padding-left: 0px;
   }
-  .noVNC-buttons-right {
+  .noVNC_buttons_right {
     padding-right: 0px;
   }
   /* collapse the extra keys on lower resolutions */
-  #toggleExtraKeysButton {
+  #noVNC_toggleExtraKeys_button {
     display: inline;
   }
-  #toggleCtrlButton {
+  #noVNC_toggleCtrl_button {
     display: none;
     position: absolute;
     top: 30px;
     left: 0px;
   }
-  #toggleAltButton {
+  #noVNC_toggleAlt_button {
     display: none;
     position: absolute;
     top: 65px;
     left: 0px;
   }
-  #sendTabButton {
+  #noVNC_sendTab_button {
     display: none;
     position: absolute;
     top: 100px;
     left: 0px;
   }
-  #sendEscButton {
+  #noVNC_sendEsc_button {
     display: none;
     position: absolute;
     top: 135px;
