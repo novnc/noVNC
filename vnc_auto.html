@@ -92,7 +92,7 @@
                 var controlbarH = $D('noVNC_status_bar').offsetHeight;
                 var padding = 5;
                 if (innerW !== undefined && innerH !== undefined)
-                    rfb.setDesktopSize(innerW, innerH - controlbarH - padding);
+                    rfb.requestDesktopSize(innerW, innerH - controlbarH - padding);
             }
         }
         function FBUComplete(rfb, fbu) {

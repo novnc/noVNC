@@ -219,7 +219,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
         });
 
-        describe("#setDesktopSize", function () {
+        describe("#requestDesktopSize", function () {
             beforeEach(function() {
                 client._sock = new Websock();
                 client._sock.open('ws://', 'binary');
@@ -244,19 +244,19 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expected.push16(2); // height
                 expected.push32(0); // flags
 
-                client.setDesktopSize(1, 2);
+                client.requestDesktopSize(1, 2);
                 expect(client._sock).to.have.sent(new Uint8Array(expected));
             });
 
             it('should not send the request if the client has not recieved a ExtendedDesktopSize rectangle', function () {
                 client._supportsSetDesktopSize = false;
-                client.setDesktopSize(1,2);
+                client.requestDesktopSize(1,2);
                 expect(client._sock.flush).to.not.have.been.called;
             });
 
             it('should not send the request if we are not in a normal state', function () {
                 client._rfb_state = "broken";
-                client.setDesktopSize(1,2);
+                client.requestDesktopSize(1,2);
                 expect(client._sock.flush).to.not.have.been.called;
             });
         });
