@@ -56,7 +56,8 @@ var RFB;
             ['last_rect',           -224 ],
             ['Cursor',              -239 ],
             ['ExtendedDesktopSize', -308 ],
-            ['xvp',                 -309 ]
+            ['xvp',                 -309 ],
+            ['Fence',               -312 ]
         ];
 
         this._encHandlers = {};
@@ -69,6 +70,8 @@ var RFB;
         this._mouse = null;             // Mouse input handler object
         this._disconnTimer = null;      // disconnection timer
         this._msgTimer = null;          // queued handle_msg timer
+
+        this._supportsFence = false;
 
         // Frame buffer update state
         this._FBU = {
@@ -1041,6 +1044,42 @@ var RFB;
             return true;
         },
 
+        _handle_server_fence_msg: function() {
+            if (this._sock.rQwait("ServerFence header", 8, 1)) { return false; }
+            this._sock.rQskipBytes(3); // Padding
+            var flags = this._sock.rQshift32();
+            var length = this._sock.rQshift8();
+
+            if (this._sock.rQwait("ServerFence payload", length, 9)) { return false; }
+            var payload = this._sock.rQshiftStr(length); // FIXME: 64 bytes max
+
+            this._supportsFence = true;
+
+            /*
+             * Fence flags
+             *
+             *  (1<<0)  - BlockBefore
+             *  (1<<1)  - BlockAfter
+             *  (1<<2)  - SyncNext
+             *  (1<<31) - Request
+             */
+
+            if (!(flags & (1<<31))) {
+                return this._fail("Unexpected fence response");
+            }
+
+            // Filter out unsupported flags
+            // FIXME: support syncNext
+            flags &= (1<<0) | (1<<1);
+
+            // BlockBefore and BlockAfter are automatically handled by
+            // the fact that we process each incoming message
+            // synchronuosly.
+            RFB.messages.clientFence(this._sock, flags, payload);
+
+            return true;
+        },
+
         _handle_xvp_msg: function () {
             if (this._sock.rQwait("XVP version and message", 3, 1)) { return false; }
             this._sock.rQskip8();  // Padding
@@ -1091,6 +1130,9 @@ var RFB;
 
                 case 3:  // ServerCutText
                     return this._handle_server_cut_text();
+
+                case 248: // ServerFence
+                    return this._handle_server_fence_msg();
 
                 case 250:  // XVP
                     return this._handle_xvp_msg();
@@ -1347,6 +1389,33 @@ var RFB;
             buff[offset + 23] = flags;
 
             sock._sQlen += 24;
+            sock.flush();
+        },
+
+        clientFence: function (sock, flags, payload) {
+            var buff = sock._sQ;
+            var offset = sock._sQlen;
+
+            buff[offset] = 248; // msg-type
+
+            buff[offset + 1] = 0; // padding
+            buff[offset + 2] = 0; // padding
+            buff[offset + 3] = 0; // padding
+
+            buff[offset + 4] = flags >> 24; // flags
+            buff[offset + 5] = flags >> 16;
+            buff[offset + 6] = flags >> 8;
+            buff[offset + 7] = flags;
+
+            var n = payload.length;
+
+            buff[offset + 8] = n; // length
+
+            for (var i = 0; i < n; i++) {
+                buff[offset + 9 + i] = payload.charCodeAt(i);
+            }
+
+            sock._sQlen += 9 + n;
             sock.flush();
         },
 

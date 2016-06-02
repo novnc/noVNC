@@ -1705,6 +1705,31 @@ describe('Remote Frame Buffer Protocol Client', function() {
             expect(client.get_onBell()).to.have.been.calledOnce;
         });
 
+        it('should respond correctly to ServerFence', function () {
+            var expected_msg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: function() {}};
+            var incoming_msg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: function() {}};
+
+            var payload = "foo\x00ab9";
+
+            // ClientFence and ServerFence are identical in structure
+            RFB.messages.clientFence(expected_msg, (1<<0) | (1<<1), payload);
+            RFB.messages.clientFence(incoming_msg, 0xffffffff, payload);
+
+            client._sock._websocket._receive_data(incoming_msg._sQ);
+
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+
+            expected_msg._sQlen = 0;
+            incoming_msg._sQlen = 0;
+
+            RFB.messages.clientFence(expected_msg, (1<<0), payload);
+            RFB.messages.clientFence(incoming_msg, (1<<0) | (1<<31), payload);
+
+            client._sock._websocket._receive_data(incoming_msg._sQ);
+
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+        });
+
         it('should fail on an unknown message type', function () {
             client._sock._websocket._receive_data(new Uint8Array([87]));
             expect(client._rfb_state).to.equal('failed');
