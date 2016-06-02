@@ -263,9 +263,9 @@ var UI;
                     UI.resizeTimeout = setTimeout(function(){
                         display.set_maxWidth(size.w);
                         display.set_maxHeight(size.h);
-                        Util.Debug('Attempting setDesktopSize(' +
+                        Util.Debug('Attempting requestDesktopSize(' +
                                    size.w + ', ' + size.h + ')');
-                        UI.rfb.setDesktopSize(size.w, size.h);
+                        UI.rfb.requestDesktopSize(size.w, size.h);
                     }, 500);
                 } else if (scaleType === 'scale' || scaleType === 'downscale') {
                     // use local scaling

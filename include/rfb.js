@@ -311,28 +311,13 @@ var RFB;
             this._sock.flush();
         },
 
-        setDesktopSize: function (width, height) {
+        requestDesktopSize: function (width, height) {
             if (this._rfb_state !== "normal") { return; }
 
             if (this._supportsSetDesktopSize) {
-
-                var arr = [251];    // msg-type
-                arr.push8(0);       // padding
-                arr.push16(width);  // width
-                arr.push16(height); // height
-
-                arr.push8(1);       // number-of-screens
-                arr.push8(0);       // padding
-
-                // screen array
-                arr.push32(this._screen_id);    // id
-                arr.push16(0);                  // x-position
-                arr.push16(0);                  // y-position
-                arr.push16(width);              // width
-                arr.push16(height);             // height
-                arr.push32(this._screen_flags); // flags
-
-                this._sock.send(arr);
+                RFB.messages.setDesktopSize(this._sock, width, height,
+                                            this._screen_id, this._screen_flags);
+                this._sock.flush();
             }
         },
 
@@ -1338,6 +1323,41 @@ var RFB;
             }
 
             sock._sQlen += 8 + n;
+        },
+
+        setDesktopSize: function (sock, width, height, id, flags) {
+            var buff = sock._sQ;
+            var offset = sock._sQlen;
+
+            buff[offset] = 251;              // msg-type
+            buff[offset + 1] = 0;            // padding
+            buff[offset + 2] = width >> 8;   // width
+            buff[offset + 3] = width;
+            buff[offset + 4] = height >> 8;  // height
+            buff[offset + 5] = height;
+
+            buff[offset + 6] = 1;            // number-of-screens
+            buff[offset + 7] = 0;            // padding
+
+            // screen array
+            buff[offset + 8] = id >> 24;     // id
+            buff[offset + 9] = id >> 16;
+            buff[offset + 10] = id >> 8;
+            buff[offset + 11] = id;
+            buff[offset + 12] = 0;           // x-position
+            buff[offset + 13] = 0;
+            buff[offset + 14] = 0;           // y-position
+            buff[offset + 15] = 0;
+            buff[offset + 16] = width >> 8;  // width
+            buff[offset + 17] = width;
+            buff[offset + 18] = height >> 8; // height
+            buff[offset + 19] = height;
+            buff[offset + 20] = flags >> 24; // flags
+            buff[offset + 21] = flags >> 16;
+            buff[offset + 22] = flags >> 8;
+            buff[offset + 23] = flags;
+
+            sock._sQlen += 24;
         },
 
         pixelFormat: function (sock, bpp, depth, true_color) {
