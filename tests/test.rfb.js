@@ -1197,6 +1197,33 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._sock).to.have.sent(expected_msg._sQ);
             });
 
+            it('should only request non-incremental rects in continuous updates mode', function () {
+                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 120, h: 20 },
+                                     dirtyBoxes: [ { x: 120, y: 0, w: 120, h: 20 } ] };
+
+                RFB.messages.fbUpdateRequest(expected_msg, false, 120, 0, 120, 20);
+
+                client._enabledContinuousUpdates = true;
+                client._framebufferUpdate = function () { return true; };
+                client._display.getCleanDirtyReset = function () { return expected_cdr; };
+                client._sock._websocket._receive_data(new Uint8Array([0]));
+
+                expect(client._sock).to.have.sent(expected_msg._sQ);
+            });
+
+            it('should not send a request in continuous updates mode when clean', function () {
+                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 240, h: 20 },
+                                     dirtyBoxes: [] };
+
+                client._enabledContinuousUpdates = true;
+                client._framebufferUpdate = function () { return true; };
+                client._display.getCleanDirtyReset = function () { return expected_cdr; };
+                client._sock._websocket._receive_data(new Uint8Array([0]));
+
+                expect(client._sock._websocket._get_sent_data()).to.have.length(0);
+            });
+
             it('should parse out information from a header before any actual data comes in', function () {
                 client.set_onFBUReceive(sinon.spy());
                 var rect_info = { x: 8, y: 11, width: 27, height: 32, encoding: 0x02, encodingName: 'RRE' };
@@ -1726,6 +1753,49 @@ describe('Remote Frame Buffer Protocol Client', function() {
             RFB.messages.clientFence(incoming_msg, (1<<0) | (1<<31), payload);
 
             client._sock._websocket._receive_data(incoming_msg._sQ);
+
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+        });
+
+        it('should enable continuous updates on first EndOfContinousUpdates', function () {
+            var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+
+            RFB.messages.enableContinuousUpdates(expected_msg, true, 0, 0, 640, 20);
+
+            expect(client._enabledContinuousUpdates).to.be.false;
+
+            client._sock._websocket._receive_data(new Uint8Array([150]));
+
+            expect(client._enabledContinuousUpdates).to.be.true;
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+        });
+
+        it('should disable continuous updates on subsequent EndOfContinousUpdates', function () {
+            client._enabledContinuousUpdates = true;
+            client._supportsContinuousUpdates = true;
+
+            client._sock._websocket._receive_data(new Uint8Array([150]));
+
+            expect(client._enabledContinuousUpdates).to.be.false;
+        });
+
+        it('should update continuous updates on resize', function () {
+            var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+            RFB.messages.enableContinuousUpdates(expected_msg, true, 0, 0, 90, 700);
+
+            client._FBU.width = 450;
+            client._FBU.height = 160;
+
+            client._encHandlers.handle_FB_resize();
+
+            expect(client._sock._websocket._get_sent_data()).to.have.length(0);
+
+            client._enabledContinuousUpdates = true;
+
+            client._FBU.width = 90;
+            client._FBU.height = 700;
+
+            client._encHandlers.handle_FB_resize();
 
             expect(client._sock).to.have.sent(expected_msg._sQ);
         });

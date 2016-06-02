@@ -57,7 +57,8 @@ var RFB;
             ['Cursor',              -239 ],
             ['ExtendedDesktopSize', -308 ],
             ['xvp',                 -309 ],
-            ['Fence',               -312 ]
+            ['Fence',               -312 ],
+            ['ContinuousUpdates',   -313 ]
         ];
 
         this._encHandlers = {};
@@ -72,6 +73,9 @@ var RFB;
         this._msgTimer = null;          // queued handle_msg timer
 
         this._supportsFence = false;
+
+        this._supportsContinuousUpdates = false;
+        this._enabledContinuousUpdates = false;
 
         // Frame buffer update state
         this._FBU = {
@@ -975,7 +979,7 @@ var RFB;
 
             RFB.messages.pixelFormat(this._sock, this._fb_Bpp, this._fb_depth, this._true_color);
             RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor, this._true_color);
-            RFB.messages.fbUpdateRequests(this._sock, this._display.getCleanDirtyReset(), this._fb_width, this._fb_height);
+            RFB.messages.fbUpdateRequests(this._sock, false, this._display.getCleanDirtyReset(), this._fb_width, this._fb_height);
 
             this._timing.fbu_rt_start = (new Date()).getTime();
             this._timing.pixels = 0;
@@ -1051,7 +1055,13 @@ var RFB;
             var length = this._sock.rQshift8();
 
             if (this._sock.rQwait("ServerFence payload", length, 9)) { return false; }
-            var payload = this._sock.rQshiftStr(length); // FIXME: 64 bytes max
+
+            if (length > 64) {
+                Util.Warn("Bad payload length (" + length + ") in fence response");
+                length = 64;
+            }
+
+            var payload = this._sock.rQshiftStr(length);
 
             this._supportsFence = true;
 
@@ -1116,7 +1126,10 @@ var RFB;
                 case 0:  // FramebufferUpdate
                     var ret = this._framebufferUpdate();
                     if (ret) {
-                        RFB.messages.fbUpdateRequests(this._sock, this._display.getCleanDirtyReset(), this._fb_width, this._fb_height);
+                        RFB.messages.fbUpdateRequests(this._sock,
+                                                      this._enabledContinuousUpdates,
+                                                      this._display.getCleanDirtyReset(),
+                                                      this._fb_width, this._fb_height);
                     }
                     return ret;
 
@@ -1130,6 +1143,20 @@ var RFB;
 
                 case 3:  // ServerCutText
                     return this._handle_server_cut_text();
+
+                case 150: // EndOfContinuousUpdates
+                    var first = !(this._supportsContinuousUpdates);
+                    this._supportsContinuousUpdates = true;
+                    this._enabledContinuousUpdates = false;
+                    if (first) {
+                        this._enabledContinuousUpdates = true;
+                        this._updateContinuousUpdates();
+                        Util.Info("Enabling continuous updates.");
+                    } else {
+                        // FIXME: We need to send a framebufferupdaterequest here
+                        // if we add support for turning off continuous updates
+                    }
+                    return true;
 
                 case 248: // ServerFence
                     return this._handle_server_fence_msg();
@@ -1245,6 +1272,13 @@ var RFB;
 
             return true;  // We finished this FBU
         },
+
+        _updateContinuousUpdates: function() {
+            if (!this._enabledContinuousUpdates) { return; }
+
+            RFB.messages.enableContinuousUpdates(this._sock, true, 0, 0,
+                                                 this._fb_width, this._fb_height);
+        }
     };
 
     Util.make_properties(RFB, [
@@ -1419,6 +1453,26 @@ var RFB;
             sock.flush();
         },
 
+        enableContinuousUpdates: function (sock, enable, x, y, width, height) {
+            var buff = sock._sQ;
+            var offset = sock._sQlen;
+
+            buff[offset] = 150;             // msg-type
+            buff[offset + 1] = enable;      // enable-flag
+
+            buff[offset + 2] = x >> 8;      // x
+            buff[offset + 3] = x;
+            buff[offset + 4] = y >> 8;      // y
+            buff[offset + 5] = y;
+            buff[offset + 6] = width >> 8;  // width
+            buff[offset + 7] = width;
+            buff[offset + 8] = height >> 8; // height
+            buff[offset + 9] = height;
+
+            sock._sQlen += 10;
+            sock.flush();
+        },
+
         pixelFormat: function (sock, bpp, depth, true_color) {
             var buff = sock._sQ;
             var offset = sock._sQlen;
@@ -1490,12 +1544,12 @@ var RFB;
             sock.flush();
         },
 
-        fbUpdateRequests: function (sock, cleanDirty, fb_width, fb_height) {
+        fbUpdateRequests: function (sock, onlyNonInc, cleanDirty, fb_width, fb_height) {
             var offsetIncrement = 0;
 
             var cb = cleanDirty.cleanBox;
             var w, h;
-            if (cb.w > 0 && cb.h > 0) {
+            if (!onlyNonInc && (cb.w > 0 && cb.h > 0)) {
                 w = typeof cb.w === "undefined" ? fb_width : cb.w;
                 h = typeof cb.h === "undefined" ? fb_height : cb.h;
                 // Request incremental for clean box
@@ -2102,6 +2156,7 @@ var RFB;
             this._display.resize(this._fb_width, this._fb_height);
             this._onFBResize(this, this._fb_width, this._fb_height);
             this._timing.fbu_rt_start = (new Date()).getTime();
+            this._updateContinuousUpdates();
 
             this._FBU.bytes = 0;
             this._FBU.rects -= 1;
