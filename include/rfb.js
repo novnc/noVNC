@@ -255,7 +255,7 @@ var RFB;
         sendPassword: function (passwd) {
             this._rfb_password = passwd;
             this._rfb_state = 'Authentication';
-            setTimeout(this._init_msg.bind(this), 1);
+            setTimeout(this._init_msg.bind(this), 0);
         },
 
         sendCtrlAltDel: function () {
@@ -549,7 +549,7 @@ var RFB;
                             this._msgTimer = setTimeout(function () {
                                 this._msgTimer = null;
                                 this._handle_message();
-                            }.bind(this), 10);
+                            }.bind(this), 0);
                         } else {
                             Util.Debug("More data to process, existing timer");
                         }
