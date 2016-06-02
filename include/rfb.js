@@ -43,18 +43,20 @@ var RFB;
             ['HEXTILE',             0x05 ],
             ['RRE',                 0x02 ],
             ['RAW',                 0x00 ],
-            ['DesktopSize',         -223 ],
-            ['Cursor',              -239 ],
 
             // Psuedo-encoding settings
+
             //['JPEG_quality_lo',    -32 ],
             ['JPEG_quality_med',     -26 ],
             //['JPEG_quality_hi',    -23 ],
             //['compress_lo',       -255 ],
             ['compress_hi',         -247 ],
+
+            ['DesktopSize',         -223 ],
             ['last_rect',           -224 ],
-            ['xvp',                 -309 ],
-            ['ExtendedDesktopSize', -308 ]
+            ['Cursor',              -239 ],
+            ['ExtendedDesktopSize', -308 ],
+            ['xvp',                 -309 ]
         ];
 
         this._encHandlers = {};
