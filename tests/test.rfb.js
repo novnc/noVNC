@@ -1741,7 +1741,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should send a mask of 1 on mousedown', function () {
                 client._mouse._onMouseButton(10, 12, 1, 0x001);
                 var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0};
-                RFB.messages.pointerEvent(pointer_msg, 0, 10, 12, 0x001);
+                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
