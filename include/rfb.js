@@ -2011,8 +2011,7 @@ var RFB;
                     } else {
                         // Filter 0, Copy could be valid here, but servers don't send it as an explicit filter
                         // Filter 2, Gradient is valid but not use if jpeg is enabled
-                        // TODO(directxman12): why aren't we just calling '_fail' here
-                        throw new Error("Unsupported tight subencoding received, filter: " + filterId);
+                        this._fail("Unsupported tight subencoding received, filter: " + filterId);
                     }
                     break;
                 case "copy":
