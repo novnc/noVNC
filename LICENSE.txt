@@ -57,6 +57,10 @@ licenses (all MPL 2.0 compatible):
     utils/inflator.partial.js
     include/inflator.js        : MIT (for pako)
 
+Any other files not mentioned above are typically marked with
+a copyright/license header at the top of the file. The default noVNC
+license is MPL-2.0.
+
 The following license texts are included:
 
     docs/LICENSE.MPL-2.0
