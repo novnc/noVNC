@@ -369,9 +369,7 @@ var UI;
                 parseInt(window.getComputedStyle(psp).width)/2 -30 + "px";
 
             // Show the popup for a maximum of 1.5 seconds
-            UI.popupStatusTimeout = setTimeout(function() {
-                UI.closePopup();
-            }, 1500);
+            UI.popupStatusTimeout = setTimeout(UI.closePopup, 1500);
         },
 
         closePopup: function() {
@@ -728,7 +726,7 @@ var UI;
             UI.rfb.connect(host, port, password, path);
 
             //Close dialog.
-            setTimeout(function () { UI.setBarPosition; } );
+            setTimeout(UI.setBarPosition, 100);
             $D('noVNC_logo').style.display = "none";
             $D('noVNC_screen').style.display = "inline";
         },
@@ -1155,7 +1153,7 @@ var UI;
                 // text has been added to the field
                 event.target.blur();
                 // This has to be ran outside of the input handler in order to work
-                setTimeout(function() { UI.keepKeyboard(); }, 0);
+                setTimeout(UI.keepKeyboard, 0);
             } else {
                 UI.lastKeyboardinput = newValue;
             }
