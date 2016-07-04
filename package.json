@@ -1,6 +1,6 @@
 {
   "name": "noVNC",
-  "version": "0.5.1",
+  "version": "0.6.1",
   "description": "An HTML5 VNC client",
   "main": "karma.conf.js",
   "directories": {
