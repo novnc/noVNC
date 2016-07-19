@@ -38,11 +38,7 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="include/base.css" title="plain">
 
-     <!--
-    <script type='text/javascript'
-        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
-    -->
-        <script src="include/util.js"></script>
+    <script src="include/util.js"></script>
 </head>
 
 <body style="margin: 0px;">
@@ -53,8 +49,8 @@
                         Loading
                     </div></td>
                     <td width="1%"><div id="noVNC_buttons">
-                        <input type=button value="Send CtrlAltDel"
-                            id="sendCtrlAltDelButton">
+                        <!--<input type=button value="Send CtrlAltDel"
+                            id="sendCtrlAltDelButton">-->
                         <span id="noVNC_xvp_buttons">
                         <!--
                         <input type=button value="Shutdown"
@@ -68,9 +64,18 @@
                             </div></td>
                 </tr></table>
             </div>
-            <canvas id="noVNC_canvas" width="640px" height="20px">
-                Canvas not supported.
-            </canvas>
+            <div>
+                <div id="vnc-input" tabindex="-1" style="display:inline-block; float:left; margin:10px;">
+                    <canvas id="noVNC_canvas" width="640px" height="20px" style="position:inherit;">
+                        Canvas not supported.
+                    </canvas>
+                </div>
+                <div style="width:20%; display:inline-block; float:left; margin:10px;">
+                    <h3 style="color:white; margin:10px;">Remote Clipboard</h3>
+                    <textarea id="copyBox" style="height:752px;width:98%;overflow:scroll;"></textarea>
+                </div>
+            </div>
+            
         </div>
 
         <script>
@@ -135,7 +140,7 @@
             var s, sb, cad, level;
             s = $D('noVNC_status');
             sb = $D('noVNC_status_bar');
-            cad = $D('sendCtrlAltDelButton');
+            //cad = $D('sendCtrlAltDelButton');
             switch (state) {
                 case 'failed':       level = "error";  break;
                 case 'fatal':        level = "error";  break;
@@ -146,9 +151,9 @@
             }
 
             if (state === "normal") {
-                cad.disabled = false;
+                //cad.disabled = false;
             } else {
-                cad.disabled = true;
+                //cad.disabled = true;
                 xvpInit(0);
             }
 
@@ -177,15 +182,27 @@
                 xvpbuttons.style.display = 'none';
             }
         }
+        
+        function onClipboard(rfb, text){
+            $D('copyBox').value = text
+        }
 
         window.onscriptsload = function () {
             var host, port, password, path, token;
 
-            $D('sendCtrlAltDelButton').style.display = "inline";
-            $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
-            $D('xvpShutdownButton').onclick = xvpShutdown;
-            $D('xvpRebootButton').onclick = xvpReboot;
-            $D('xvpResetButton').onclick = xvpReset;
+            //$D('sendCtrlAltDelButton').style.display = "inline";
+            //$D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+            //$D('xvpShutdownButton').onclick = xvpShutdown;
+            //$D('xvpRebootButton').onclick = xvpReboot;
+            //$D('xvpResetButton').onclick = xvpReset;
+            $D('noVNC_canvas').addEventListener('click',function(){
+                $D('vnc-input').focus();
+            });
+            function updateClipboard(){
+                rfb.clipboardPasteFrom($D('copyBox').value);
+            }
+            $D('copyBox').addEventListener('change', updateClipboard);
+            $D('copyBox').addEventListener('paste', updateClipboard);
 
             WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
             document.title = unescape(WebUtil.getConfigVar('title', 'noVNC'));
@@ -225,8 +242,8 @@
 
             try {
                 rfb = new RFB({'target':       $D('noVNC_canvas'),
-                               'encrypt':      WebUtil.getConfigVar('encrypt',
-                                        (window.location.protocol === "https:")),
+                               'focusContainer': $D("vnc-input"),
+                               'encrypt':      WebUtil.getConfigVar('encrypt',(window.location.protocol === "https:")),
                                'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
                                'true_color':   WebUtil.getConfigVar('true_color', false),
                                'local_cursor': WebUtil.getConfigVar('cursor', true),
@@ -235,7 +252,9 @@
                                'onUpdateState':  updateState,
                                'onXvpInit':    xvpInit,
                                'onPasswordRequired':  passwordRequired,
-                               'onFBUComplete': FBUComplete});
+                               'onFBUComplete': FBUComplete,
+                               'onClipboard': onClipboard
+                });
             } catch (exc) {
                 updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
                 return; // don't continue trying to connect
