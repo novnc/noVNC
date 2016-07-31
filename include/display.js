@@ -496,7 +496,7 @@ var Display;
                 // NB(directxman12): it's technically more performant here to use preallocated arrays,
                 // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
                 // this probably isn't getting called *nearly* as much
-                var new_arr = new Uint8Array(width * height * 4);
+                var new_arr = new Uint8Array(width * height * 3);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
                 this.renderQ_push({
                     'type': 'blitRgb',
