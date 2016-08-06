@@ -2,13 +2,15 @@
   "name": "noVNC",
   "version": "0.6.1",
   "description": "An HTML5 VNC client",
-  "main": "karma.conf.js",
+  "main": "./include/index.js",
   "directories": {
     "doc": "docs",
     "test": "tests"
   },
   "scripts": {
-    "test": "PATH=$PATH:node_modules/karma/bin karma start karma.conf.js"
+    "test": "./node_modules/.bin/karma start karma.conf.js",
+    "build": "./node_modules/.bin/webpack",
+    "start": "./utils/launch.sh --vnc localhost:5901"
   },
   "repository": {
     "type": "git",
@@ -30,14 +32,19 @@
     "casperjs": "^1.1.0-beta3",
     "chai": "^2.1.0",
     "commander": "^2.6.0",
-    "karma": "^0.12.31",
+    "expose-loader": "^0.7.1",
+    "istanbul-instrumenter-loader": "^0.2.0",
+    "karma": "^1.1.2",
     "karma-chai": "^0.1.0",
+    "karma-coverage": "^1.1.1",
     "karma-mocha": "^0.1.10",
     "karma-mocha-reporter": "^1.0.0",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-sauce-launcher": "^0.2.10",
     "karma-sinon": "^1.0.4",
     "karma-sinon-chai-latest": "^0.1.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^1.7.0",
     "mocha": "^2.1.0",
     "open": "^0.0.5",
     "phantom": "^0.7.2",
@@ -45,6 +52,11 @@
     "sinon": "^1.12.2",
     "sinon-chai": "^2.7.0",
     "spooky": "^0.2.5",
-    "temp": "^0.8.1"
+    "temp": "^0.8.1",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  },
+  "dependencies": {
+    "pako": "^0.2.6"
   }
 }

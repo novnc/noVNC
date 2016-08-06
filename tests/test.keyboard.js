@@ -1,4 +1,12 @@
 // requires local modules: input, keyboard, keysymdef
+
+var keysyms = require('../include/keysymdef');
+var kbdUtil = require('../include/keyboard').kbdUtil;
+var KeyEventDecoder = require('../include/keyboard').KeyEventDecoder;
+var VerifyCharModifier = require('../include/keyboard').VerifyCharModifier;
+var TrackKeyState = require('../include/keyboard').TrackKeyState;
+var EscapeModifiers = require('../include/keyboard').EscapeModifiers;
+
 var assert = chai.assert;
 var expect = chai.expect;
 

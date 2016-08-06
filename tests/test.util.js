@@ -1,6 +1,8 @@
 // requires local modules: util
 /* jshint expr: true */
 
+var Util = require('../include/util');
+
 var assert = chai.assert;
 var expect = chai.expect;
 

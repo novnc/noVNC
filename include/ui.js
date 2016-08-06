@@ -10,16 +10,15 @@
 /* jslint white: false, browser: true */
 /* global window, $D, Util, WebUtil, RFB, Display */
 
+var WebUtil = require('./webutil');
+var Util = require('./util');
+var RFB = require('./rfb')
+var Keys = require('./keysym');
+
 var UI;
 
 (function () {
     "use strict";
-
-    // Load supporting scripts
-    window.onscriptsload = function () { UI.load(); };
-    Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                       "keysymdef.js", "keyboard.js", "input.js", "display.js",
-                       "rfb.js", "keysym.js", "inflator.js"]);
 
     UI = {
 
@@ -1135,7 +1134,7 @@ var UI;
 
             // Send the key events
             for (i = 0; i < backspaces; i++) {
-                UI.rfb.sendKey(XK_BackSpace);
+                UI.rfb.sendKey(Keys.XK_BackSpace);
             }
             for (i = newLen - inputs; i < newLen; i++) {
                 UI.rfb.sendKey(newValue.charCodeAt(i));
@@ -1180,22 +1179,22 @@ var UI;
 
         sendEsc: function() {
             UI.keepKeyboard();
-            UI.rfb.sendKey(XK_Escape);
+            UI.rfb.sendKey(Keys.XK_Escape);
         },
 
         sendTab: function() {
             UI.keepKeyboard();
-            UI.rfb.sendKey(XK_Tab);
+            UI.rfb.sendKey(Keys.XK_Tab);
         },
 
         toggleCtrl: function() {
             UI.keepKeyboard();
             if(UI.ctrlOn === false) {
-                UI.rfb.sendKey(XK_Control_L, true);
+                UI.rfb.sendKey(Keys.XK_Control_L, true);
                 $D('noVNC_toggleCtrl_button').className = "noVNC_status_button_selected";
                 UI.ctrlOn = true;
             } else if(UI.ctrlOn === true) {
-                UI.rfb.sendKey(XK_Control_L, false);
+                UI.rfb.sendKey(Keys.XK_Control_L, false);
                 $D('noVNC_toggleCtrl_button').className = "noVNC_status_button";
                 UI.ctrlOn = false;
             }
@@ -1204,11 +1203,11 @@ var UI;
         toggleAlt: function() {
             UI.keepKeyboard();
             if(UI.altOn === false) {
-                UI.rfb.sendKey(XK_Alt_L, true);
+                UI.rfb.sendKey(Keys.XK_Alt_L, true);
                 $D('noVNC_toggleAlt_button').className = "noVNC_status_button_selected";
                 UI.altOn = true;
             } else if(UI.altOn === true) {
-                UI.rfb.sendKey(XK_Alt_L, false);
+                UI.rfb.sendKey(Keys.XK_Alt_L, false);
                 $D('noVNC_toggleAlt_button').className = "noVNC_status_button";
                 UI.altOn = false;
             }
@@ -1285,3 +1284,5 @@ var UI;
  */
     };
 })();
+
+module.exports = UI;

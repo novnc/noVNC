@@ -274,3 +274,5 @@ function DES(passwd) {
     return {'encrypt': encrypt}; // Public interface
 
 } // function DES
+
+module.exports = DES;

@@ -10,6 +10,8 @@
 /*jslint bitwise: false, white: false, browser: true, devel: true */
 /*global Util, window, document */
 
+var Util = require('./util');
+
 // Globals defined here
 var WebUtil = {}, $D;
 
@@ -290,3 +292,5 @@ WebUtil.injectParamIfMissing = function (path, param, value) {
         return elem.pathname + elem.search + elem.hash;
     }
 };
+
+module.exports = WebUtil;
