@@ -7,7 +7,6 @@
  */
 
 /* jshint white: false, nonstandard: true */
-/*global window, console, document, navigator, ActiveXObject, INCLUDE_URI */
 
 // Globals defined here
 var Util = {};

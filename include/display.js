@@ -8,7 +8,6 @@
  */
 
 /*jslint browser: true, white: false */
-/*global Util, Base64, changeCursor */
 
 var Util = require('./util');
 

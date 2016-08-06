@@ -8,7 +8,6 @@
  */
 
 /* jslint white: false, browser: true */
-/* global window, $D, Util, WebUtil, RFB, Display */
 
 var WebUtil = require('./webutil');
 var Util = require('./util');

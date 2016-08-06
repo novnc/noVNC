@@ -11,7 +11,6 @@
  */
 
 /*jslint white: false, browser: true */
-/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES */
 
 var Util = require('./util');
 var Display = require('./display');

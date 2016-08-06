@@ -15,7 +15,8 @@
  */
 
 /*jslint browser: true, bitwise: true */
-/*global Util*/
+
+var Util = require('./util');
 
 
 // Load Flash WebSocket emulator if needed
@@ -24,8 +25,6 @@
 //window.WEB_SOCKET_FORCE_FLASH = true;
 // To enable WebSocket emulator debug:
 //window.WEB_SOCKET_DEBUG=1;
-
-var Util = require('./util');
 
 if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
     Websock_native = true;

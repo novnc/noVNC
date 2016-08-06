@@ -6,7 +6,6 @@
  */
 
 /*jslint browser: true, white: false */
-/*global window, Util */
 
 var Util = require('./util');
 var kbdUtil = require('./keyboard').kbdUtil;
