@@ -1,1 +1,1 @@
-require('./rfb')
+module.exports = require('./rfb')
