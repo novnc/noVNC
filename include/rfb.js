@@ -184,7 +184,7 @@ var RFB;
         this._sock.on('message', this._handle_message.bind(this));
         this._sock.on('open', function () {
             if (this._rfb_state === 'connect') {
-                this._updateState('ProtocolVersion', "Starting VNC handshake");
+                this._updateState('ProtocolVersion', Util.Localisation.get('startingVNC'));
             } else {
                 this._fail("Got unexpected WebSocket connection");
             }
@@ -202,11 +202,11 @@ var RFB;
             if (this._rfb_state === 'disconnect') {
                 this._updateState('disconnected', 'VNC disconnected' + msg);
             } else if (this._rfb_state === 'ProtocolVersion') {
-                this._fail('Failed to connect to server' + msg);
+                this._fail(Util.Localisation.get('errorConnection') + msg);
             } else if (this._rfb_state in {'failed': 1, 'disconnected': 1}) {
                 Util.Error("Received onclose while disconnected" + msg);
             } else {
-                this._fail("Server disconnected" + msg);
+                this._fail(Util.Localisation.get('errorDisconnected') + msg);
             }
             this._sock.off('close');
         }.bind(this));
@@ -219,7 +219,7 @@ var RFB;
         var rmode = this._display.get_render_mode();
         if (Websock_native) {
             Util.Info("Using native WebSockets");
-            this._updateState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
+            this._updateState('loaded', Util.Localisation.get('ready')+', ' + rmode);
         } else {
             this._cleanupSocket('fatal');
             throw new Error("WebSocket support is required to use noVNC");
@@ -237,7 +237,7 @@ var RFB;
             this._rfb_path = (path !== undefined) ? path : "";
 
             if (!this._rfb_host || !this._rfb_port) {
-                return this._fail("Must set host and port");
+                return this._fail(Util.Localisation.get('errorHostPort'));
             }
 
             this._updateState('connect');
@@ -252,7 +252,7 @@ var RFB;
 
         sendPassword: function (passwd) {
             this._rfb_password = passwd;
-            this._rfb_state = 'Authentication';
+            this._rfb_state = Util.Localisation.get('authentication');
             setTimeout(this._init_msg.bind(this), 1);
         },
 
@@ -487,7 +487,7 @@ var RFB;
 
                 case 'disconnect':
                     this._disconnTimer = setTimeout(function () {
-                        this._fail("Disconnect timeout");
+                        this._fail(Util.Localisation.get('errorTimeout'));
                     }.bind(this), this._disconnectTimeout * 1000);
 
                     this._print_stats();
@@ -499,9 +499,9 @@ var RFB;
                     if (oldstate === 'disconnected') {
                         Util.Error("Invalid transition from 'disconnected' to 'failed'");
                     } else if (oldstate === 'normal') {
-                        Util.Error("Error while connected.");
+                        Util.Error(Util.Localisation.get('errorConnected'));
                     } else if (oldstate === 'init') {
-                        Util.Error("Error while initializing.");
+                        Util.Error(Util.Localisation.get('errorInitializing'));
                     }
 
                     // Make sure we transition to disconnected
@@ -628,7 +628,7 @@ var RFB;
 
         _negotiate_protocol_version: function () {
             if (this._sock.rQlen() < 12) {
-                return this._fail("Incomplete protocol version");
+                return this._fail(Util.Localisation.get('errorProtocolVerion'));
             }
 
             var sversion = this._sock.rQshiftStr(12).substr(4, 7);
@@ -652,7 +652,7 @@ var RFB;
                     this._rfb_version = 3.8;
                     break;
                 default:
-                    return this._fail("Invalid server version " + sversion);
+                    return this._fail(Util.Localisation.get('errorServerVerion') + ' ' + sversion);
             }
 
             if (is_repeater) {
@@ -687,7 +687,7 @@ var RFB;
                 if (num_types === 0) {
                     var strlen = this._sock.rQshift32();
                     var reason = this._sock.rQshiftStr(strlen);
-                    return this._fail("Security failure: " + reason);
+                    return this._fail(Util.Localisation.get('errorSecurity') + ': ' + reason);
                 }
 
                 this._rfb_auth_scheme = 0;
@@ -838,7 +838,7 @@ var RFB;
                     if (this._sock.rQwait("auth reason", 4)) { return false; }
                     var strlen = this._sock.rQshift32();
                     var reason = this._sock.rQshiftStr(strlen);
-                    return this._fail("Auth failure: " + reason);
+                    return this._fail(Util.Localisation.get('errorAuthFailure') + ': ' + reason);
 
                 case 1:  // no auth
                     if (this._rfb_version >= 3.8) {
@@ -875,11 +875,11 @@ var RFB;
                         var reason = this._sock.rQshiftStr(length);
                         return this._fail(reason);
                     } else {
-                        return this._fail("Authentication failure");
+                        return this._fail(Util.Localisation.get('errorAuthFailure'));
                     }
                     return false;
                 case 2:
-                    return this._fail("Too many auth attempts");
+                    return this._fail(Util.Localisation.get('errorAuthAttempts'));
             }
         },
 
@@ -993,9 +993,9 @@ var RFB;
             this._sock.flush();
 
             if (this._encrypt) {
-                this._updateState('normal', 'Connected (encrypted) to: ' + this._fb_name);
+                this._updateState('normal', Util.Localisation.get('connectedEncrypted') + ': ' + this._fb_name);
             } else {
-                this._updateState('normal', 'Connected (unencrypted) to: ' + this._fb_name);
+                this._updateState('normal', Util.Localisation.get('connectedUnencrypted') + ': ' + this._fb_name);
             }
         },
 

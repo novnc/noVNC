@@ -1,0 +1,20 @@
+Language = {
+    connectedUnencrypted:   'Connected to (unencrypted)',
+    connectedEncrypted:     'Connected to (encrypted)',
+    errorHostPort:          'Must set host and port',
+    ready:                  'noVNC ready: native WebSockets',
+    readyEmulation:         'noVNC ready: WebSockets emulation',
+    authentication:         'Authentication',
+    errorFatal:             'Fatal error, cannot continue',
+    errorTimeout:           'Disconnect timeout',
+    errorConnected:         'Error while connected',
+    errorInitializing:      'Error while initializing',
+    startingVNC:            'Starting VNC handshake',
+    errorDisconnected:      'Server disconnected',
+    errorConnection:        'Failed to connect to server',
+    errorProtocolVerion:    'Incomplete protocol version',
+    errorServerVersion:     'Invalid server version',
+    errorSecurity:          'Security failure',
+    errorAuthFailure:       'Authentication failure',
+    errorAuthAttempts:      'Too many authentication attempts'
+};
