@@ -39,8 +39,6 @@ html {
 #noVNC_setting_password {
   width: 150px;
 }
-#noVNC_setting_encrypt {
-}
 #noVNC_setting_path {
   width: 100px;
 }
@@ -142,12 +140,6 @@ html {
   margin-right: auto;
 }
 
-#VNC_clipboard_clear_button {
-  float:right;
-}
-#VNC_clipboard_text {
-  font-size: 11px;
-}
 
 #noVNC_clipboard_clear_button {
   float:right;
