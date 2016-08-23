@@ -1165,14 +1165,7 @@ var RFB;
 
                 this._timing.last_fbu = (new Date()).getTime();
 
-                var handler = this._encHandlers[this._FBU.encoding];
-                try {
-                    //ret = this._encHandlers[this._FBU.encoding]();
-                    ret = handler();
-                } catch (ex)  {
-                    console.log("missed " + this._FBU.encoding + ": " + handler);
-                    ret = this._encHandlers[this._FBU.encoding]();
-                }
+                ret = this._encHandlers[this._FBU.encoding]();
 
                 now = (new Date()).getTime();
                 this._timing.cur_fbu += (now - this._timing.last_fbu);

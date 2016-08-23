@@ -17,7 +17,7 @@ var Display;
 
     var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
     try {
-        new ImageData(new Uint8ClampedArray(1), 1, 1);
+        new ImageData(new Uint8ClampedArray(4), 1, 1);
         SUPPORTS_IMAGEDATA_CONSTRUCTOR = true;
     } catch (ex) {
         // ignore failure
