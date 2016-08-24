@@ -76,7 +76,7 @@ var UI;
             if (UI.isTouchDevice) {
                 // Show mobile buttons
                 document.getElementById('noVNC_mobile_buttons').style.display = "inline";
-                UI.setMouseButton();
+                UI.hideMouseButton();
                 // Remove the address bar
                 setTimeout(function() { window.scrollTo(0, 1); }, 100);
                 UI.forceSetting('clip', true);
@@ -105,7 +105,7 @@ var UI;
                 }
             }
 
-            UI.setViewClip();
+            UI.updateViewClip();
             UI.setBarPosition();
 
             UI.updateVisualState();
@@ -179,7 +179,7 @@ var UI;
         setupWindowEvents: function() {
             window.addEventListener( 'resize', function () {
                 UI.applyResizeMode();
-                UI.setViewClip();
+                UI.updateViewClip();
                 UI.updateViewDrag();
                 UI.setBarPosition();
             } );
@@ -381,14 +381,14 @@ var UI;
             document.getElementById('noVNC_setting_repeaterID').disabled = connected;
 
             if (connected) {
-                UI.setViewClip();
+                UI.updateViewClip();
                 UI.setMouseButton(1);
                 document.getElementById('noVNC_clipboard_button').style.display = "inline";
                 document.getElementById('noVNC_keyboard_button').style.display = "inline";
                 document.getElementById('noVNC_extra_keys').style.display = "";
                 document.getElementById('noVNC_sendCtrlAltDel_button').style.display = "inline";
             } else {
-                UI.setMouseButton();
+                UI.hideMouseButton();
                 document.getElementById('noVNC_clipboard_button').style.display = "none";
                 document.getElementById('noVNC_keyboard_button').style.display = "none";
                 document.getElementById('noVNC_extra_keys').style.display = "none";
@@ -398,7 +398,7 @@ var UI;
 
             // State change disables viewport dragging.
             // It is enabled (toggled) by direct click on the button
-            UI.updateViewDrag(false);
+            UI.setViewDrag(false);
 
             switch (UI.rfb_state) {
                 case 'fatal':
@@ -556,7 +556,7 @@ var UI;
             // Settings with immediate (non-connected related) effect
             WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
             WebUtil.init_logging(UI.getSetting('logging'));
-            UI.setViewClip();
+            UI.updateViewClip();
             UI.updateViewDrag();
             //Util.Debug("<< settingsApply");
         },
@@ -956,53 +956,51 @@ var UI;
 
         // Set and configure viewport clipping
         setViewClip: function(clip) {
+            UI.updateSetting('clip', clip);
+            UI.updateViewClip();
+        },
+
+        // Update parameters that depend on the clip setting
+        updateViewClip: function() {
             var display;
-            if (UI.rfb) {
-                display = UI.rfb.get_display();
-            } else {
-                UI.forceSetting('clip', clip);
+            if (!UI.rfb) {
                 return;
             }
 
+            var display = UI.rfb.get_display();
             var cur_clip = display.get_viewport();
+            var new_clip = UI.getSetting('clip');
 
-            if (typeof(clip) !== 'boolean') {
-                // Use current setting
-                clip = UI.getSetting('clip');
+            if (cur_clip !== new_clip) {
+                display.set_viewport(new_clip);
             }
 
-            if (clip && !cur_clip) {
-                // Turn clipping on
-                UI.updateSetting('clip', true);
-            } else if (!clip && cur_clip) {
-                // Turn clipping off
-                UI.updateSetting('clip', false);
-                display.set_viewport(false);
+            var size = UI.screenSize();
+
+            if (new_clip && size) {
+                // When clipping is enabled, the screen is limited to
+                // the size of the browser window.
+                display.set_maxWidth(size.w);
+                display.set_maxHeight(size.h);
+
+                var screen = document.getElementById('noVNC_screen');
+                var canvas = document.getElementById('noVNC_canvas');
+
+                // Hide potential scrollbars that can skew the position
+                screen.style.overflow = "hidden";
+
+                // The x position marks the left margin of the canvas,
+                // remove the margin from both sides to keep it centered.
+                var new_w = size.w - (2 * Util.getPosition(canvas).x);
+
+                screen.style.overflow = "visible";
+
+                display.viewportChangeSize(new_w, size.h);
+            } else {
                 // Disable max dimensions
                 display.set_maxWidth(0);
                 display.set_maxHeight(0);
                 display.viewportChangeSize();
-            }
-            if (UI.getSetting('clip')) {
-                // If clipping, update clipping settings
-                display.set_viewport(true);
-
-                var size = UI.screenSize();
-                if (size) {
-                    display.set_maxWidth(size.w);
-                    display.set_maxHeight(size.h);
-
-                    // Hide potential scrollbars that can skew the position
-                    document.getElementById('noVNC_screen').style.overflow = "hidden";
-
-                    // The x position marks the left margin of the canvas,
-                    // remove the margin from both sides to keep it centered
-                    var new_w = size.w - (2 * Util.getPosition(document.getElementById('noVNC_canvas')).x);
-
-                    document.getElementById('noVNC_screen').style.overflow = "visible";
-
-                    display.viewportChangeSize(new_w, size.h);
-                }
             }
         },
 
@@ -1046,62 +1044,72 @@ var UI;
  *    VIEWDRAG
  * ------v------*/
 
-        // Update the viewport drag state
-        updateViewDrag: function(drag) {
+        toggleViewDrag: function() {
             if (!UI.rfb) return;
 
-            var viewDragButton = document.getElementById('noVNC_view_drag_button');
+            var drag = UI.rfb.get_viewportDrag();
+            UI.setViewDrag(!drag);
+         },
+
+        // Set the view drag mode which moves the viewport on mouse drags
+        setViewDrag: function(drag) {
+            if (!UI.rfb) return;
+
+            UI.rfb.set_viewportDrag(drag);
+
+            UI.updateViewDrag();
+        },
+
+        updateViewDrag: function() {
+            var clipping = false;
 
             // Check if viewport drag is possible. It is only possible
             // if the remote display is clipping the client display.
             if (UI.rfb_state === 'normal' &&
                 UI.rfb.get_display().get_viewport() &&
                 UI.rfb.get_display().clippingDisplay()) {
-
-                viewDragButton.style.display = "inline";
-                viewDragButton.disabled = false;
-
-            } else {
-                // The size of the remote display is the same or smaller
-                // than the client display. Make sure viewport drag isn't
-                // active when it can't be used.
-                if (UI.rfb.get_viewportDrag) {
-                    viewDragButton.className = "noVNC_status_button";
-                    UI.rfb.set_viewportDrag(false);
-                }
-
-                // The button is disabled instead of hidden on touch devices
-                if (UI.rfb_state === 'normal' && UI.isTouchDevice) {
-                    viewDragButton.style.display = "inline";
-                    viewDragButton.disabled = true;
-                } else {
-                    viewDragButton.style.display = "none";
-                }
-                return;
+                clipping = true;
             }
-
-            if (typeof(drag) !== "undefined" &&
-                typeof(drag) !== "object") {
-                if (drag) {
-                    viewDragButton.className = "noVNC_status_button_selected";
-                    UI.rfb.set_viewportDrag(true);
-                } else {
-                    viewDragButton.className = "noVNC_status_button";
-                    UI.rfb.set_viewportDrag(false);
-                }
-            }
-        },
-
-        toggleViewDrag: function() {
-            if (!UI.rfb) return;
 
             var viewDragButton = document.getElementById('noVNC_view_drag_button');
-            if (UI.rfb.get_viewportDrag()) {
-                viewDragButton.className = "noVNC_status_button";
-                UI.rfb.set_viewportDrag(false);
+
+            if (UI.rfb_state !== 'normal') {
+                // Always hide when not connected
+                viewDragButton.style.display = "none";
             } else {
-                viewDragButton.className = "noVNC_status_button_selected";
-                UI.rfb.set_viewportDrag(true);
+                if (!clipping &&
+                    UI.rfb.get_viewportDrag()) {
+                    // The size of the remote display is the same or smaller
+                    // than the client display. Make sure viewport drag isn't
+                    // active when it can't be used.
+                    UI.rfb.set_viewportDrag(false);
+                }
+
+                if (UI.rfb.get_viewportDrag()) {
+                    viewDragButton.className = "noVNC_status_button_selected";
+                } else {
+                    viewDragButton.className = "noVNC_status_button";
+                }
+
+                // Different behaviour for touch vs non-touch
+                // The button is disabled instead of hidden on touch devices
+                if (UI.isTouchDevice) {
+                    viewDragButton.style.display = "inline";
+
+                    if (clipping) {
+                        viewDragButton.disabled = false;
+                    } else {
+                        viewDragButton.disabled = true;
+                    }
+                } else {
+                    viewDragButton.disabled = false;
+
+                    if (clipping) {
+                        viewDragButton.style.display = "inline";
+                    } else {
+                        viewDragButton.style.display = "none";
+                    }
+                }
             }
         },
 
@@ -1292,11 +1300,11 @@ var UI;
  *     MISC
  * ------v------*/
 
+        hideMouseButton: function() {
+            UI.setMouseButton(-1);
+        },
+
         setMouseButton: function(num) {
-            if (typeof num === 'undefined') {
-                // Disable mouse buttons
-                num = -1;
-            }
             if (UI.rfb) {
                 UI.rfb.get_mouse().set_touchButton(num);
             }
