@@ -148,14 +148,14 @@ html {
 /*Bubble contents divs*/
 #noVNC_settings {
   display:none;
-  margin-top:73px;
+  top:73px;
   right:20px;
   position:fixed;
 }
 
 #noVNC_controls {
   display:none;
-  margin-top:73px;
+  top:73px;
   right:12px;
   position:fixed;
 }
@@ -167,7 +167,7 @@ html {
   display:none;
   position:fixed;
 
-  margin-top:73px;
+  top:73px;
   right:20px;
   left:20px;
   padding:15px;
@@ -186,7 +186,7 @@ html {
   z-index: 1;
 
   margin:15px;
-  margin-top:60px;
+  top:60px;
   padding:15px;
   width:auto;
 
@@ -203,7 +203,7 @@ html {
 
 #noVNC_xvp {
   display:none;
-  margin-top:73px;
+  top:73px;
   right:30px;
   position:fixed;
 }
@@ -213,7 +213,7 @@ html {
 
 #noVNC_clipboard {
   display:none;
-  margin-top:73px;
+  top:73px;
   right:30px;
   position:fixed;
 }
@@ -321,7 +321,6 @@ html {
 .triangle-right {
   position:relative;
   padding:15px;
-  margin:1em 0 3em;
   color:#fff;
   background:#fff; /* default background for browsers without gradient support */
   /* css3 */
