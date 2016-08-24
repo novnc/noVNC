@@ -115,14 +115,6 @@ var UI;
             UI.initSetting('repeaterID', '');
             UI.initSetting('token', '');
 
-            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
-            if (autoconnect === 'true' || autoconnect == '1') {
-                autoconnect = true;
-                UI.connect();
-            } else {
-                autoconnect = false;
-            }
-
             UI.updateVisualState();
 
             document.getElementById('noVNC_setting_host').focus();
@@ -193,6 +185,14 @@ var UI;
 
             // Add mouse event click/focus/blur event handlers to the UI
             UI.addMouseHandlers();
+
+            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
+            if (autoconnect === 'true' || autoconnect == '1') {
+                autoconnect = true;
+                UI.connect();
+            } else {
+                autoconnect = false;
+            }
 
             if (typeof callback === "function") {
                 callback(UI.rfb);
