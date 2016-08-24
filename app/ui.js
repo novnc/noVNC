@@ -64,8 +64,68 @@ var UI;
 
         // Render default UI and initialize settings menu
         start: function(callback) {
-            UI.isTouchDevice = 'ontouchstart' in document.documentElement;
 
+            // Setup global variables first
+            UI.isTouchDevice = 'ontouchstart' in document.documentElement;
+            UI.isSafari = (navigator.userAgent.indexOf('Safari') !== -1 &&
+                           navigator.userAgent.indexOf('Chrome') === -1);
+
+            UI.initSettings();
+
+            // Show mouse selector buttons on touch screen devices
+            if (UI.isTouchDevice) {
+                // Show mobile buttons
+                document.getElementById('noVNC_mobile_buttons').style.display = "inline";
+                UI.setMouseButton();
+                // Remove the address bar
+                setTimeout(function() { window.scrollTo(0, 1); }, 100);
+                UI.forceSetting('clip', true);
+            } else {
+                UI.initSetting('clip', false);
+            }
+
+            // Setup and initialize event handlers
+            UI.setupWindowEvents();
+            UI.setupFullscreen();
+            UI.addControlbarHandlers();
+            UI.addTouchSpecificHandlers();
+            UI.addXvpHandlers();
+            UI.addConnectionControlHandlers();
+            UI.addClipboardHandlers();
+            UI.addSettingsHandlers();
+
+            // Show description by default when hosted at for kanaka.github.com
+            if (location.host === "kanaka.github.io") {
+                // Open the description dialog
+                document.getElementById('noVNC_description').style.display = "block";
+            } else {
+                // Show the connect panel on first load unless autoconnecting
+                if (autoconnect === UI.connSettingsOpen) {
+                    UI.toggleConnectPanel();
+                }
+            }
+
+            UI.setViewClip();
+            UI.setBarPosition();
+
+            UI.updateVisualState();
+
+            document.getElementById('noVNC_setting_host').focus();
+
+            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
+            if (autoconnect === 'true' || autoconnect == '1') {
+                autoconnect = true;
+                UI.connect();
+            } else {
+                autoconnect = false;
+            }
+
+            if (typeof callback === "function") {
+                callback(UI.rfb);
+            }
+        },
+
+        initSettings: function() {
             // Stylesheet selection dropdown
             var sheet = WebUtil.selectStylesheet();
             var sheets = WebUtil.getStylesheets();
@@ -114,51 +174,15 @@ var UI;
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
             UI.initSetting('token', '');
+        },
 
-            UI.updateVisualState();
-
-            document.getElementById('noVNC_setting_host').focus();
-
-            // Show mouse selector buttons on touch screen devices
-            if (UI.isTouchDevice) {
-                // Show mobile buttons
-                document.getElementById('noVNC_mobile_buttons').style.display = "inline";
-                UI.setMouseButton();
-                // Remove the address bar
-                setTimeout(function() { window.scrollTo(0, 1); }, 100);
-                UI.forceSetting('clip', true);
-            } else {
-                UI.initSetting('clip', false);
-            }
-
-            UI.setViewClip();
-            UI.setBarPosition();
-
-            window.addEventListener('resize', function () {
+        setupWindowEvents: function() {
+            window.addEventListener( 'resize', function () {
                 UI.applyResizeMode();
                 UI.setViewClip();
                 UI.updateViewDrag();
                 UI.setBarPosition();
             } );
-
-            UI.isSafari = (navigator.userAgent.indexOf('Safari') != -1 &&
-                           navigator.userAgent.indexOf('Chrome') == -1);
-
-            // Only show the button if fullscreen is properly supported
-            // * Safari doesn't support alphanumerical input while in fullscreen
-            if (!UI.isSafari &&
-                (document.documentElement.requestFullscreen ||
-                 document.documentElement.mozRequestFullScreen ||
-                 document.documentElement.webkitRequestFullscreen ||
-                 document.body.msRequestFullscreen)) {
-                document.getElementById('noVNC_fullscreen_button').style.display = "inline";
-                window.addEventListener('fullscreenchange', UI.updateFullscreenButton);
-                window.addEventListener('mozfullscreenchange', UI.updateFullscreenButton);
-                window.addEventListener('webkitfullscreenchange', UI.updateFullscreenButton);
-                window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
-            }
-
-            window.addEventListener('load', UI.keyboardinputReset);
 
             // While connected we want to display a confirmation dialogue
             // if the user tries to leave the page
@@ -171,54 +195,35 @@ var UI;
                     return void 0; // To prevent the dialogue when disconnected
                 }
             });
+        },
 
-            // Show description by default when hosted at for kanaka.github.com
-            if (location.host === "kanaka.github.io") {
-                // Open the description dialog
-                document.getElementById('noVNC_description').style.display = "block";
-            } else {
-                // Show the connect panel on first load unless autoconnecting
-                if (autoconnect === UI.connSettingsOpen) {
-                    UI.toggleConnectPanel();
-                }
-            }
-
-            // Add mouse event click/focus/blur event handlers to the UI
-            UI.addMouseHandlers();
-
-            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
-            if (autoconnect === 'true' || autoconnect == '1') {
-                autoconnect = true;
-                UI.connect();
-            } else {
-                autoconnect = false;
-            }
-
-            if (typeof callback === "function") {
-                callback(UI.rfb);
+        setupFullscreen: function() {
+            // Only show the button if fullscreen is properly supported
+            // * Safari doesn't support alphanumerical input while in fullscreen
+            if (!UI.isSafari &&
+                (document.documentElement.requestFullscreen ||
+                 document.documentElement.mozRequestFullScreen ||
+                 document.documentElement.webkitRequestFullscreen ||
+                 document.body.msRequestFullscreen)) {
+                document.getElementById('noVNC_fullscreen_button').style.display = "inline";
+                UI.addFullscreenHandlers();
             }
         },
 
-        initRFB: function() {
-            try {
-                UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
-                                  'onUpdateState': UI.updateState,
-                                  'onXvpInit': UI.updateXvpButton,
-                                  'onClipboard': UI.clipboardReceive,
-                                  'onFBUComplete': UI.initialResize,
-                                  'onFBResize': UI.updateViewDrag,
-                                  'onDesktopName': UI.updateDocumentTitle});
-                return true;
-            } catch (exc) {
-                UI.updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
-                return false;
-            }
-        },
-
-        addMouseHandlers: function() {
-            // Setup interface handlers that can't be inline
+        addControlbarHandlers: function() {
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
+            document.getElementById("noVNC_sendCtrlAltDel_button")
+                .addEventListener('click', UI.sendCtrlAltDel);
+            document.getElementById("noVNC_status")
+                .addEventListener('click', UI.popupStatus);
+            document.getElementById("noVNC_popup_status")
+                .addEventListener('click', UI.closePopup);
+            document.getElementById("noVNC_description_button")
+                .addEventListener('click', UI.toggleConnectPanel);
+        },
+
+        addTouchSpecificHandlers: function() {
             document.getElementById("noVNC_mouse_button0")
                 .addEventListener('click', function () { UI.setMouseButton(1); });
             document.getElementById("noVNC_mouse_button1")
@@ -237,6 +242,8 @@ var UI;
             document.getElementById("noVNC_keyboardinput")
                 .addEventListener('submit', function () { return false; });
 
+            window.addEventListener('load', UI.keyboardinputReset);
+
             document.getElementById("noVNC_toggleExtraKeys_button")
                 .addEventListener('click', UI.toggleExtraKeys);
             document.getElementById("noVNC_toggleCtrl_button")
@@ -247,34 +254,31 @@ var UI;
                 .addEventListener('click', UI.sendTab);
             document.getElementById("noVNC_sendEsc_button")
                 .addEventListener('click', UI.sendEsc);
+        },
 
-            document.getElementById("noVNC_sendCtrlAltDel_button")
-                .addEventListener('click', UI.sendCtrlAltDel);
+        addXvpHandlers: function() {
             document.getElementById("noVNC_xvpShutdown_button")
                 .addEventListener('click', function() { UI.rfb.xvpShutdown(); });
             document.getElementById("noVNC_xvpReboot_button")
                 .addEventListener('click', function() { UI.rfb.xvpReboot(); });
             document.getElementById("noVNC_xvpReset_button")
                 .addEventListener('click', function() { UI.rfb.xvpReset(); });
-            document.getElementById("noVNC_status")
-                .addEventListener('click', UI.popupStatus);
-            document.getElementById("noVNC_popup_status")
-                .addEventListener('click', UI.closePopup);
             document.getElementById("noVNC_toggleXvp_button")
                 .addEventListener('click', UI.toggleXvpPanel);
-            document.getElementById("noVNC_clipboard_button")
-                .addEventListener('click', UI.toggleClipboardPanel);
-            document.getElementById("noVNC_fullscreen_button")
-                .addEventListener('click', UI.toggleFullscreen);
-            document.getElementById("noVNC_settings_button")
-                .addEventListener('click', UI.toggleSettingsPanel);
+        },
+
+        addConnectionControlHandlers: function() {
             document.getElementById("noVNC_connectPanel_button")
                 .addEventListener('click', UI.toggleConnectPanel);
             document.getElementById("noVNC_disconnect_button")
                 .addEventListener('click', UI.disconnect);
-            document.getElementById("noVNC_description_button")
-                .addEventListener('click', UI.toggleConnectPanel);
+            document.getElementById("noVNC_connect_button")
+                .addEventListener('click', UI.connect);
+        },
 
+        addClipboardHandlers: function() {
+            document.getElementById("noVNC_clipboard_button")
+                .addEventListener('click', UI.toggleClipboardPanel);
             document.getElementById("noVNC_clipboard_text")
                 .addEventListener('focus', UI.displayBlur);
             document.getElementById("noVNC_clipboard_text")
@@ -283,15 +287,42 @@ var UI;
                 .addEventListener('change', UI.clipboardSend);
             document.getElementById("noVNC_clipboard_clear_button")
                 .addEventListener('click', UI.clipboardClear);
+        },
 
+        addSettingsHandlers: function() {
+            document.getElementById("noVNC_settings_button")
+                .addEventListener('click', UI.toggleSettingsPanel);
             document.getElementById("noVNC_settings_apply")
                 .addEventListener('click', UI.settingsApply);
 
-            document.getElementById("noVNC_connect_button")
-                .addEventListener('click', UI.connect);
-
             document.getElementById("noVNC_setting_resize")
                 .addEventListener('change', UI.enableDisableViewClip);
+        },
+
+        addFullscreenHandlers: function() {
+            document.getElementById("noVNC_fullscreen_button")
+                .addEventListener('click', UI.toggleFullscreen);
+
+            window.addEventListener('fullscreenchange', UI.updateFullscreenButton);
+            window.addEventListener('mozfullscreenchange', UI.updateFullscreenButton);
+            window.addEventListener('webkitfullscreenchange', UI.updateFullscreenButton);
+            window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
+        },
+
+        initRFB: function() {
+            try {
+                UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
+                                  'onUpdateState': UI.updateState,
+                                  'onXvpInit': UI.updateXvpButton,
+                                  'onClipboard': UI.clipboardReceive,
+                                  'onFBUComplete': UI.initialResize,
+                                  'onFBResize': UI.updateViewDrag,
+                                  'onDesktopName': UI.updateDocumentTitle});
+                return true;
+            } catch (exc) {
+                UI.updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                return false;
+            }
         },
 
 /* ------^-------
