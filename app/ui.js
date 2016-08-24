@@ -217,47 +217,81 @@ var UI;
 
         addMouseHandlers: function() {
             // Setup interface handlers that can't be inline
-            document.getElementById("noVNC_view_drag_button").onclick = UI.toggleViewDrag;
-            document.getElementById("noVNC_mouse_button0").onclick = function () { UI.setMouseButton(1); };
-            document.getElementById("noVNC_mouse_button1").onclick = function () { UI.setMouseButton(2); };
-            document.getElementById("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
-            document.getElementById("noVNC_mouse_button4").onclick = function () { UI.setMouseButton(0); };
-            document.getElementById("noVNC_keyboard_button").onclick = UI.showKeyboard;
+            document.getElementById("noVNC_view_drag_button")
+                .addEventListener('click', UI.toggleViewDrag);
+            document.getElementById("noVNC_mouse_button0")
+                .addEventListener('click', function () { UI.setMouseButton(1); });
+            document.getElementById("noVNC_mouse_button1")
+                .addEventListener('click', function () { UI.setMouseButton(2); });
+            document.getElementById("noVNC_mouse_button2")
+                .addEventListener('click', function () { UI.setMouseButton(4); });
+            document.getElementById("noVNC_mouse_button4")
+                .addEventListener('click', function () { UI.setMouseButton(0); });
+            document.getElementById("noVNC_keyboard_button")
+                .addEventListener('click', UI.showKeyboard);
 
-            document.getElementById("noVNC_keyboardinput").oninput = UI.keyInput;
-            document.getElementById("noVNC_keyboardinput").onblur = UI.hideKeyboard;
-            document.getElementById("noVNC_keyboardinput").onsubmit = function () { return false; };
+            document.getElementById("noVNC_keyboardinput")
+                .addEventListener('input', UI.keyInput);
+            document.getElementById("noVNC_keyboardinput")
+                .addEventListener('blur', UI.hideKeyboard);
+            document.getElementById("noVNC_keyboardinput")
+                .addEventListener('submit', function () { return false; });
 
-            document.getElementById("noVNC_toggleExtraKeys_button").onclick = UI.toggleExtraKeys;
-            document.getElementById("noVNC_toggleCtrl_button").onclick = UI.toggleCtrl;
-            document.getElementById("noVNC_toggleAlt_button").onclick = UI.toggleAlt;
-            document.getElementById("noVNC_sendTab_button").onclick = UI.sendTab;
-            document.getElementById("noVNC_sendEsc_button").onclick = UI.sendEsc;
+            document.getElementById("noVNC_toggleExtraKeys_button")
+                .addEventListener('click', UI.toggleExtraKeys);
+            document.getElementById("noVNC_toggleCtrl_button")
+                .addEventListener('click', UI.toggleCtrl);
+            document.getElementById("noVNC_toggleAlt_button")
+                .addEventListener('click', UI.toggleAlt);
+            document.getElementById("noVNC_sendTab_button")
+                .addEventListener('click', UI.sendTab);
+            document.getElementById("noVNC_sendEsc_button")
+                .addEventListener('click', UI.sendEsc);
 
-            document.getElementById("noVNC_sendCtrlAltDel_button").onclick = UI.sendCtrlAltDel;
-            document.getElementById("noVNC_xvpShutdown_button").onclick = function() { UI.rfb.xvpShutdown(); },
-            document.getElementById("noVNC_xvpReboot_button").onclick = function() { UI.rfb.xvpReboot(); },
-            document.getElementById("noVNC_xvpReset_button").onclick = function() { UI.rfb.xvpReset(); },
-            document.getElementById("noVNC_status").onclick = UI.popupStatus;
-            document.getElementById("noVNC_popup_status").onclick = UI.closePopup;
-            document.getElementById("noVNC_toggleXvp_button").onclick = UI.toggleXvpPanel;
-            document.getElementById("noVNC_clipboard_button").onclick = UI.toggleClipboardPanel;
-            document.getElementById("noVNC_fullscreen_button").onclick = UI.toggleFullscreen;
-            document.getElementById("noVNC_settings_button").onclick = UI.toggleSettingsPanel;
-            document.getElementById("noVNC_connectPanel_button").onclick = UI.toggleConnectPanel;
-            document.getElementById("noVNC_disconnect_button").onclick = UI.disconnect;
-            document.getElementById("noVNC_description_button").onclick = UI.toggleConnectPanel;
+            document.getElementById("noVNC_sendCtrlAltDel_button")
+                .addEventListener('click', UI.sendCtrlAltDel);
+            document.getElementById("noVNC_xvpShutdown_button")
+                .addEventListener('click', function() { UI.rfb.xvpShutdown(); });
+            document.getElementById("noVNC_xvpReboot_button")
+                .addEventListener('click', function() { UI.rfb.xvpReboot(); });
+            document.getElementById("noVNC_xvpReset_button")
+                .addEventListener('click', function() { UI.rfb.xvpReset(); });
+            document.getElementById("noVNC_status")
+                .addEventListener('click', UI.popupStatus);
+            document.getElementById("noVNC_popup_status")
+                .addEventListener('click', UI.closePopup);
+            document.getElementById("noVNC_toggleXvp_button")
+                .addEventListener('click', UI.toggleXvpPanel);
+            document.getElementById("noVNC_clipboard_button")
+                .addEventListener('click', UI.toggleClipboardPanel);
+            document.getElementById("noVNC_fullscreen_button")
+                .addEventListener('click', UI.toggleFullscreen);
+            document.getElementById("noVNC_settings_button")
+                .addEventListener('click', UI.toggleSettingsPanel);
+            document.getElementById("noVNC_connectPanel_button")
+                .addEventListener('click', UI.toggleConnectPanel);
+            document.getElementById("noVNC_disconnect_button")
+                .addEventListener('click', UI.disconnect);
+            document.getElementById("noVNC_description_button")
+                .addEventListener('click', UI.toggleConnectPanel);
 
-            document.getElementById("noVNC_clipboard_text").onfocus = UI.displayBlur;
-            document.getElementById("noVNC_clipboard_text").onblur = UI.displayFocus;
-            document.getElementById("noVNC_clipboard_text").onchange = UI.clipboardSend;
-            document.getElementById("noVNC_clipboard_clear_button").onclick = UI.clipboardClear;
+            document.getElementById("noVNC_clipboard_text")
+                .addEventListener('focus', UI.displayBlur);
+            document.getElementById("noVNC_clipboard_text")
+                .addEventListener('blur', UI.displayFocus);
+            document.getElementById("noVNC_clipboard_text")
+                .addEventListener('change', UI.clipboardSend);
+            document.getElementById("noVNC_clipboard_clear_button")
+                .addEventListener('click', UI.clipboardClear);
 
-            document.getElementById("noVNC_settings_apply").onclick = UI.settingsApply;
+            document.getElementById("noVNC_settings_apply")
+                .addEventListener('click', UI.settingsApply);
 
-            document.getElementById("noVNC_connect_button").onclick = UI.connect;
+            document.getElementById("noVNC_connect_button")
+                .addEventListener('click', UI.connect);
 
-            document.getElementById("noVNC_setting_resize").onchange = UI.enableDisableViewClip;
+            document.getElementById("noVNC_setting_resize")
+                .addEventListener('change', UI.enableDisableViewClip);
         },
 
 /* ------^-------
