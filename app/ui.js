@@ -39,7 +39,7 @@ var UI;
         rfb_state: 'loaded',
 
         resizeTimeout: null,
-        popupStatusTimeout: null,
+        statusTimeout: null,
         hideKeyboardTimeout: null,
 
         keyboardVisible: false,
@@ -175,6 +175,9 @@ var UI;
                 UI.updateViewDrag();
                 UI.setBarPosition();
             } );
+
+            document.getElementById("noVNC_status")
+                .addEventListener('click', UI.hideStatus);
         },
 
         setupFullscreen: function() {
@@ -196,10 +199,6 @@ var UI;
                 .addEventListener('click', UI.toggleViewDrag);
             document.getElementById("noVNC_send_ctrl_alt_del_button")
                 .addEventListener('click', UI.sendCtrlAltDel);
-            document.getElementById("noVNC_status")
-                .addEventListener('click', UI.popupStatus);
-            document.getElementById("noVNC_popup_status")
-                .addEventListener('click', UI.closePopup);
         },
 
         addTouchSpecificHandlers: function() {
@@ -313,10 +312,12 @@ var UI;
         updateState: function(rfb, state, oldstate, msg) {
             UI.rfb_state = state;
             var klass;
+            var timeout;
             switch (state) {
                 case 'failed':
                 case 'fatal':
                     klass = "noVNC_status_error";
+                    timeout = 0; // zero means no timeout
                     break;
                 case 'normal':
                     klass = "noVNC_status_normal";
@@ -341,8 +342,12 @@ var UI;
             }
 
             if (typeof(msg) !== 'undefined') {
-                document.getElementById('noVNC_control_bar').setAttribute("class", klass);
-                document.getElementById('noVNC_status').innerHTML = msg;
+                document.getElementById('noVNC_status')
+                    .classList.remove("noVNC_status_normal",
+                                      "noVNC_status_warn",
+                                      "noVNC_status_error");
+                document.getElementById('noVNC_status').classList.add(klass);
+                UI.showStatus(msg, timeout);
             }
 
             UI.updateVisualState();
@@ -432,27 +437,28 @@ var UI;
             //Util.Debug("<< updateVisualState");
         },
 
-        popupStatus: function(text) {
-            var psp = document.getElementById('noVNC_popup_status');
+        showStatus: function(text, time) {
+            var statusElem = document.getElementById('noVNC_status');
 
-            clearTimeout(UI.popupStatusTimeout);
+            clearTimeout(UI.statusTimeout);
 
-            if (typeof text === 'string') {
-                psp.innerHTML = text;
-            } else {
-                psp.innerHTML = document.getElementById('noVNC_status').innerHTML;
+            statusElem.innerHTML = text;
+            statusElem.classList.add("noVNC_open");
+
+            // If no time was specified, show the status for 1.5 seconds
+            if (typeof time === 'undefined') {
+                time = 1500;
             }
-            psp.classList.remove("noVNC_hidden");
-            psp.style.left = window.innerWidth/2 -
-                parseInt(window.getComputedStyle(psp).width)/2 -30 + "px";
 
-            // Show the popup for a maximum of 1.5 seconds
-            UI.popupStatusTimeout = setTimeout(UI.closePopup, 1500);
+            // A specified time of zero means no timeout
+            if (time != 0) {
+                UI.statusTimeout = window.setTimeout(UI.hideStatus, time);
+            }
         },
 
-        closePopup: function() {
-            clearTimeout(UI.popupStatusTimeout);
-            document.getElementById('noVNC_popup_status').classList.add("noVNC_hidden");
+        hideStatus: function() {
+            clearTimeout(UI.statusTimeout);
+            document.getElementById('noVNC_status').classList.remove("noVNC_open");
         },
 
 /* ------^-------
@@ -1022,7 +1028,7 @@ var UI;
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
                 //   scrollbars doesn't work.
-                UI.popupStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
+                UI.showStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
                 UI.rememberedClipSetting = UI.getSetting('clip');
                 UI.setViewClip(true);
                 document.getElementById('noVNC_setting_clip').disabled = true;

@@ -39,6 +39,14 @@ html {
   top: 0;
   width: 100%;
   z-index: 200;
+
+  background: #b2bdcd; /* Old browsers */
+  background: -moz-linear-gradient(top, #b2bdcd 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b2bdcd), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
+  background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
 }
 
 /* General button style */
@@ -167,47 +175,6 @@ html {
   padding-left: 10px;
 }
 
-/* Center status display */
-#noVNC_status {
-  font-size: 12px;
-  padding-top: 4px;
-  height:32px;
-  text-align: center;
-  font-weight: bold;
-  color: #fff;
-  z-index: 0;
-  position: absolute;
-  width: 100%;
-  margin-left: 0px;
-}
-.noVNC_status_normal {
-  background: #b2bdcd; /* Old browsers */
-  background: -moz-linear-gradient(top, #b2bdcd 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b2bdcd), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
-  background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
-}
-.noVNC_status_error {
-  background: #f04040; /* Old browsers */
-  background: -moz-linear-gradient(top, #f04040 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f04040), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
-  background: linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
-}
-.noVNC_status_warn {
-  background: #f0f040; /* Old browsers */
-  background: -moz-linear-gradient(top, #f0f040 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f040), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
-  background: linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
-}
-
 /* Right side buttons */
 .noVNC_buttons_right {
   float: right;
@@ -295,28 +262,60 @@ html {
   float: right;
 }
 
-/* Popup Status */
-#noVNC_popup_status {
+/* ----------------------------------------
+ * Status Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_status {
+  display: none;
   position: fixed;
-  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3;
 
-  margin: 15px;
-  top: 60px;
-  padding: 15px;
-  width: auto;
+  padding: 5px;
 
-  text-align: center;
-  font-weight: bold;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+
+  line-height: 25px;
   word-wrap: break-word;
   color: #fff;
-  background: rgba(0,0,0,0.65);
 
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
 }
-#noVNC_popup_status.noVNC_hidden {
-  display: none;
+#noVNC_status.noVNC_open {
+  display: flex;
+}
+
+#noVNC_status::before {
+  content: "";
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+}
+
+#noVNC_status.noVNC_status_normal {
+  background: rgba(128,128,128,0.9);
+}
+#noVNC_status.noVNC_status_normal::before {
+  content: url("../images/info.svg") " ";
+}
+#noVNC_status.noVNC_status_error {
+  background: rgba(200,55,55,0.9);
+}
+#noVNC_status.noVNC_status_error::before {
+  content: url("../images/error.svg") " ";
+}
+#noVNC_status.noVNC_status_warn {
+  background: rgba(180,180,30,0.9);
+}
+#noVNC_status.noVNC_status_warn::before {
+  content: url("../images/warning.svg") " ";
 }
 
 /* ----------------------------------------
@@ -397,17 +396,6 @@ html {
  * Media sizing
  * ----------------------------------------
  */
-
-/* left-align the status text on lower resolutions */
-@media screen and (max-width: 800px){
-  #noVNC_status {
-    z-index: 1;
-    position: relative;
-    width: auto;
-    float: left;
-    margin-left: 4px;
-  }
-}
 
 @media screen and (max-width: 640px){
   #noVNC_clipboard_text {
