@@ -265,21 +265,12 @@ input[type=button]:active, select:active {
   display: inline;
 }
 
-/* Left side buttons */
-.noVNC_buttons_left {
-  float: left;
+.noVNC_buttons {
+  float: right;
   z-index: 1;
   position: relative;
-  padding-left: 10px;
-}
-
-/* Right side buttons */
-.noVNC_buttons_right {
-  float: right;
-  right: 0px;
-  z-index: 2;
-  position: absolute;
   padding-right: 10px;
+  padding-left: 10px;
 }
 
 /* XVP Shutdown/Reboot */
