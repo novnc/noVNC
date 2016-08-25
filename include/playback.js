@@ -6,7 +6,8 @@
 
 "use strict";
 /*jslint browser: true, white: false */
-/*global Util, VNC_frame_data, finish */
+
+var Util = require('./util');
 
 var rfb, mode, test_state, frame_idx, frame_length,
     iteration, iterations, istart_time,

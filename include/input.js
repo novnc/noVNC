@@ -6,7 +6,13 @@
  */
 
 /*jslint browser: true, white: false */
-/*global window, Util */
+
+var Util = require('./util');
+var kbdUtil = require('./keyboard').kbdUtil;
+var KeyEventDecoder = require('./keyboard').KeyEventDecoder;
+var VerifyCharModifier = require('./keyboard').VerifyCharModifier;
+var TrackKeyState = require('./keyboard').TrackKeyState;
+var EscapeModifiers = require('./keyboard').EscapeModifiers;
 
 var Keyboard, Mouse;
 
@@ -387,3 +393,5 @@ var Keyboard, Mouse;
         ['touchButton',    'rw', 'int']    // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
     ]);
 })();
+
+module.exports = { Keyboard: Keyboard, Mouse: Mouse };

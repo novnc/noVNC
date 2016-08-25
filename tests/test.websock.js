@@ -1,6 +1,10 @@
 // requires local modules: websock, util
 // requires test modules: fake.websocket, assertions
 /* jshint expr: true */
+
+var Websock = require('../include/websock').Websock;
+var Util = require('../include/util');
+
 var assert = chai.assert;
 var expect = chai.expect;
 

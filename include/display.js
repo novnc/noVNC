@@ -8,7 +8,8 @@
  */
 
 /*jslint browser: true, white: false */
-/*global Util, Base64, changeCursor */
+
+var Util = require('./util');
 
 var Display;
 
@@ -906,3 +907,5 @@ var Display;
         target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
     };
 })();
+
+module.exports = Display;

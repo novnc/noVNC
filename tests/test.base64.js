@@ -1,4 +1,6 @@
 // requires local modules: base64
+var Base64 = require('../include/base64');
+
 var assert = chai.assert;
 var expect = chai.expect;
 

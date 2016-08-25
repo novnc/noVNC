@@ -15,7 +15,8 @@
  */
 
 /*jslint browser: true, bitwise: true */
-/*global Util*/
+
+var Util = require('./util');
 
 
 // Load Flash WebSocket emulator if needed
@@ -438,3 +439,5 @@ function Websock() {
         }
     };
 })();
+
+module.exports = { Websock_native: Websock_native, Websock: Websock }

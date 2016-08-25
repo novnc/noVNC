@@ -11,7 +11,17 @@
  */
 
 /*jslint white: false, browser: true */
-/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES */
+
+var Util = require('./util');
+var Display = require('./display');
+var Keyboard = require('./input').Keyboard;
+var Mouse = require('./input').Mouse;
+var Websock = require('./websock').Websock;
+var Websock_native = require('./websock').Websock_native;
+var Base64 = require('./base64');
+var DES = require('./des');
+var Keys = require('./keysym');
+var inflator = require('pako');
 
 var RFB;
 
@@ -260,12 +270,12 @@ var RFB;
             if (this._rfb_state !== 'normal' || this._view_only) { return false; }
             Util.Info("Sending Ctrl-Alt-Del");
 
-            RFB.messages.keyEvent(this._sock, XK_Control_L, 1);
-            RFB.messages.keyEvent(this._sock, XK_Alt_L, 1);
-            RFB.messages.keyEvent(this._sock, XK_Delete, 1);
-            RFB.messages.keyEvent(this._sock, XK_Delete, 0);
-            RFB.messages.keyEvent(this._sock, XK_Alt_L, 0);
-            RFB.messages.keyEvent(this._sock, XK_Control_L, 0);
+            RFB.messages.keyEvent(this._sock, Keys.XK_Control_L, 1);
+            RFB.messages.keyEvent(this._sock, Keys.XK_Alt_L, 1);
+            RFB.messages.keyEvent(this._sock, Keys.XK_Delete, 1);
+            RFB.messages.keyEvent(this._sock, Keys.XK_Delete, 0);
+            RFB.messages.keyEvent(this._sock, Keys.XK_Alt_L, 0);
+            RFB.messages.keyEvent(this._sock, Keys.XK_Control_L, 0);
 
             this._sock.flush();
         },
@@ -2139,3 +2149,5 @@ var RFB;
         }
     };
 })();
+
+module.exports = RFB;

@@ -111,3 +111,5 @@ var Base64 = {
         return result;
     }
 }; /* End of Base64 namespace */
+
+module.exports = Base64;

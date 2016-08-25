@@ -1,3 +1,6 @@
+var keysyms = require('./keysymdef');
+var Keys = require('./keysym')
+
 var kbdUtil = (function() {
     "use strict";
 
@@ -31,7 +34,7 @@ var kbdUtil = (function() {
     function hasShortcutModifier(charModifier, currentModifiers) {
         var mods = {};
         for (var key in currentModifiers) {
-            if (parseInt(key) !== XK_Shift_L) {
+            if (parseInt(key) !== Keys.XK_Shift_L) {
                 mods[key] = currentModifiers[key];
             }
         }
@@ -68,15 +71,15 @@ var kbdUtil = (function() {
         if (!charModifier) {
             if (isMac()) {
                 // on Mac, Option (AKA Alt) is used as a char modifier
-                charModifier = [XK_Alt_L];
+                charModifier = [Keys.XK_Alt_L];
             }
             else if (isWindows()) {
                 // on Windows, Ctrl+Alt is used as a char modifier
-                charModifier = [XK_Alt_L, XK_Control_L];
+                charModifier = [Keys.XK_Alt_L, Keys.XK_Control_L];
             }
             else if (isLinux()) {
                 // on Linux, ISO Level 3 Shift (AltGr) is used as a char modifier
-                charModifier = [XK_ISO_Level3_Shift];
+                charModifier = [Keys.XK_ISO_Level3_Shift];
             }
             else {
                 charModifier = [];
@@ -84,11 +87,11 @@ var kbdUtil = (function() {
         }
 
         var state = {};
-        state[XK_Control_L] = false;
-        state[XK_Alt_L] = false;
-        state[XK_ISO_Level3_Shift] = false;
-        state[XK_Shift_L] = false;
-        state[XK_Meta_L] = false;
+        state[Keys.XK_Control_L] = false;
+        state[Keys.XK_Alt_L] = false;
+        state[Keys.XK_ISO_Level3_Shift] = false;
+        state[Keys.XK_Shift_L] = false;
+        state[Keys.XK_Meta_L] = false;
 
         function sync(evt, keysym) {
             var result = [];
@@ -97,29 +100,29 @@ var kbdUtil = (function() {
             }
 
             if (evt.ctrlKey !== undefined &&
-                evt.ctrlKey !== state[XK_Control_L] && keysym !== XK_Control_L) {
-                state[XK_Control_L] = evt.ctrlKey;
-                result.push(syncKey(XK_Control_L));
+                evt.ctrlKey !== state[Keys.XK_Control_L] && keysym !== Keys.XK_Control_L) {
+                state[Keys.XK_Control_L] = evt.ctrlKey;
+                result.push(syncKey(Keys.XK_Control_L));
             }
             if (evt.altKey !== undefined &&
-                evt.altKey !== state[XK_Alt_L] && keysym !== XK_Alt_L) {
-                state[XK_Alt_L] = evt.altKey;
-                result.push(syncKey(XK_Alt_L));
+                evt.altKey !== state[Keys.XK_Alt_L] && keysym !== Keys.XK_Alt_L) {
+                state[Keys.XK_Alt_L] = evt.altKey;
+                result.push(syncKey(Keys.XK_Alt_L));
             }
             if (evt.altGraphKey !== undefined &&
-                evt.altGraphKey !== state[XK_ISO_Level3_Shift] && keysym !== XK_ISO_Level3_Shift) {
-                state[XK_ISO_Level3_Shift] = evt.altGraphKey;
-                result.push(syncKey(XK_ISO_Level3_Shift));
+                evt.altGraphKey !== state[Keys.XK_ISO_Level3_Shift] && keysym !== Keys.XK_ISO_Level3_Shift) {
+                state[Keys.XK_ISO_Level3_Shift] = evt.altGraphKey;
+                result.push(syncKey(Keys.XK_ISO_Level3_Shift));
             }
             if (evt.shiftKey !== undefined &&
-                evt.shiftKey !== state[XK_Shift_L] && keysym !== XK_Shift_L) {
-                state[XK_Shift_L] = evt.shiftKey;
-                result.push(syncKey(XK_Shift_L));
+                evt.shiftKey !== state[Keys.XK_Shift_L] && keysym !== Keys.XK_Shift_L) {
+                state[Keys.XK_Shift_L] = evt.shiftKey;
+                result.push(syncKey(Keys.XK_Shift_L));
             }
             if (evt.metaKey !== undefined &&
-                evt.metaKey !== state[XK_Meta_L] && keysym !== XK_Meta_L) {
-                state[XK_Meta_L] = evt.metaKey;
-                result.push(syncKey(XK_Meta_L));
+                evt.metaKey !== state[Keys.XK_Meta_L] && keysym !== Keys.XK_Meta_L) {
+                state[Keys.XK_Meta_L] = evt.metaKey;
+                result.push(syncKey(Keys.XK_Meta_L));
             }
             return result;
         }
@@ -210,21 +213,21 @@ var kbdUtil = (function() {
             return shiftPressed ? keycode : keycode + 32; // A-Z
         }
         if (keycode >= 0x60 && keycode <= 0x69) {
-            return XK_KP_0 + (keycode - 0x60); // numpad 0-9
+            return Keys.XK_KP_0 + (keycode - 0x60); // numpad 0-9
         }
 
         switch(keycode) {
-            case 0x20: return XK_space;
-            case 0x6a: return XK_KP_Multiply;
-            case 0x6b: return XK_KP_Add;
-            case 0x6c: return XK_KP_Separator;
-            case 0x6d: return XK_KP_Subtract;
-            case 0x6e: return XK_KP_Decimal;
-            case 0x6f: return XK_KP_Divide;
-            case 0xbb: return XK_plus;
-            case 0xbc: return XK_comma;
-            case 0xbd: return XK_minus;
-            case 0xbe: return XK_period;
+            case 0x20: return Keys.XK_space;
+            case 0x6a: return Keys.XK_KP_Multiply;
+            case 0x6b: return Keys.XK_KP_Add;
+            case 0x6c: return Keys.XK_KP_Separator;
+            case 0x6d: return Keys.XK_KP_Subtract;
+            case 0x6e: return Keys.XK_KP_Decimal;
+            case 0x6f: return Keys.XK_KP_Divide;
+            case 0xbb: return Keys.XK_plus;
+            case 0xbc: return Keys.XK_comma;
+            case 0xbd: return Keys.XK_minus;
+            case 0xbe: return Keys.XK_period;
         }
 
         return nonCharacterKey({keyCode: keycode});
@@ -238,38 +241,38 @@ var kbdUtil = (function() {
         var keycode = evt.keyCode;
 
         if (keycode >= 0x70 && keycode <= 0x87) {
-            return XK_F1 + keycode - 0x70; // F1-F24
+            return Keys.XK_F1 + keycode - 0x70; // F1-F24
         }
         switch (keycode) {
 
-            case 8 : return XK_BackSpace;
-            case 13 : return XK_Return;
+            case 8 : return Keys.XK_BackSpace;
+            case 13 : return Keys.XK_Return;
 
-            case 9 : return XK_Tab;
+            case 9 : return Keys.XK_Tab;
 
-            case 27 : return XK_Escape;
-            case 46 : return XK_Delete;
+            case 27 : return Keys.XK_Escape;
+            case 46 : return Keys.XK_Delete;
 
-            case 36 : return XK_Home;
-            case 35 : return XK_End;
-            case 33 : return XK_Page_Up;
-            case 34 : return XK_Page_Down;
-            case 45 : return XK_Insert;
+            case 36 : return Keys.XK_Home;
+            case 35 : return Keys.XK_End;
+            case 33 : return Keys.XK_Page_Up;
+            case 34 : return Keys.XK_Page_Down;
+            case 45 : return Keys.XK_Insert;
 
-            case 37 : return XK_Left;
-            case 38 : return XK_Up;
-            case 39 : return XK_Right;
-            case 40 : return XK_Down;
+            case 37 : return Keys.XK_Left;
+            case 38 : return Keys.XK_Up;
+            case 39 : return Keys.XK_Right;
+            case 40 : return Keys.XK_Down;
 
-            case 16 : return XK_Shift_L;
-            case 17 : return XK_Control_L;
-            case 18 : return XK_Alt_L; // also: Option-key on Mac
+            case 16 : return Keys.XK_Shift_L;
+            case 17 : return Keys.XK_Control_L;
+            case 18 : return Keys.XK_Alt_L; // also: Option-key on Mac
 
-            case 224 : return XK_Meta_L;
-            case 225 : return XK_ISO_Level3_Shift; // AltGr
-            case 91 : return XK_Super_L; // also: Windows-key
-            case 92 : return XK_Super_R; // also: Windows-key
-            case 93 : return XK_Menu; // also: Windows-Menu, Command on Mac
+            case 224 : return Keys.XK_Meta_L;
+            case 225 : return Keys.XK_ISO_Level3_Shift; // AltGr
+            case 91 : return Keys.XK_Super_L; // also: Windows-key
+            case 92 : return Keys.XK_Super_R; // also: Windows-key
+            case 93 : return Keys.XK_Menu; // also: Windows-Menu, Command on Mac
             default: return null;
         }
     }
@@ -540,4 +543,12 @@ function EscapeModifiers(next) {
         }
         /* jshint shadow: false */
     };
+}
+
+module.exports = {
+  kbdUtil: kbdUtil,
+  KeyEventDecoder: KeyEventDecoder,
+  VerifyCharModifier: VerifyCharModifier,
+  TrackKeyState: TrackKeyState,
+  EscapeModifiers: EscapeModifiers
 }

@@ -1,5 +1,9 @@
 ﻿// requires local modules: keysym, keysymdef, keyboard
 
+var kbdUtil = require('../include/keyboard').kbdUtil;
+var keysyms = require('../include/keysymdef');
+var Keys = require('../include/keysym');
+
 var assert = chai.assert;
 var expect = chai.expect;
 

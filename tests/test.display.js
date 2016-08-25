@@ -1,6 +1,11 @@
 // requires local modules: util, base64, display
 // requires test modules: assertions
 /* jshint expr: true */
+
+var Util = require('../include/util');
+var Base64 = require('../include/base64');
+var Display = require('../include/display');
+
 var expect = chai.expect;
 
 describe('Display/Canvas Helper', function () {

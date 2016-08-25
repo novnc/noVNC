@@ -1,5 +1,7 @@
 // Karma configuration
 
+var path = require('path');
+
 module.exports = function(config) {
   /*var customLaunchers = {
     sl_chrome_win7: {
@@ -110,18 +112,7 @@ module.exports = function(config) {
     files: [
       'tests/fake.*.js',
       'tests/assertions.js',
-      'include/util.js',  // load first to avoid issues, since methods are called immediately
       //'../include/*.js',
-      'include/base64.js',
-      'include/keysym.js',
-      'include/keysymdef.js',
-      'include/keyboard.js',
-      'include/input.js',
-      'include/websock.js',
-      'include/rfb.js',
-      'include/des.js',
-      'include/display.js',
-      'include/inflator.js',
       'tests/test.*.js'
     ],
 
@@ -146,15 +137,41 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-
+      'tests/test.*.js': ['webpack', 'sourcemap']
     },
 
+    webpack: {
+      // karma watches the test entry points
+      // (you don't need to specify the entry option)
+      // webpack watches dependencies
+      // webpack configuration
+      logLevel:  'NONE',
+      module: {
+        preLoaders: [
+          // instrument only testing sources with Istanbul
+          {
+            test: /\.js$/,
+            include: path.resolve('include/'),
+            loader: 'istanbul-instrumenter'
+          }
+        ]
+      },
+      devtool: 'inline-source-map'
+    },
+    
+    webpackMiddleware: { quiet: true, noInfo: true },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['mocha', 'saucelabs'],
+    reporters: ['mocha', 'saucelabs', 'coverage'],
 
+    coverageReporter: {
+      reporters: [
+        { type: 'html', dir: 'coverage/' },
+        { type: 'text-summary' }
+      ],
+    },
 
     // web server port
     port: 9876,
@@ -167,7 +184,6 @@ module.exports = function(config) {
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
-
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,

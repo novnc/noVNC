@@ -1,6 +1,10 @@
 // requires local modules: util, websock, rfb, keyboard, keysym, keysymdef, input, inflator, des, display
 // requires test modules: fake.websocket, assertions
 /* jshint expr: true */
+
+var RFB = require('../include/rfb');
+var Websock = require('../include/websock').Websock;
+
 var assert = chai.assert;
 var expect = chai.expect;
 

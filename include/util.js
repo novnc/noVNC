@@ -7,7 +7,6 @@
  */
 
 /* jshint white: false, nonstandard: true */
-/*global window, console, document, navigator, ActiveXObject, INCLUDE_URI */
 
 // Globals defined here
 var Util = {};
@@ -620,3 +619,5 @@ Util.Flash = (function () {
     version = v.match(/\d+/g);
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
 }());
+
+module.exports = Util;
