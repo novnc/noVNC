@@ -84,6 +84,7 @@ var UI;
             UI.setupFullscreen();
             UI.addControlbarHandlers();
             UI.addTouchSpecificHandlers();
+            UI.addExtraKeysHandlers();
             UI.addXvpHandlers();
             UI.addConnectionControlHandlers();
             UI.addClipboardHandlers();
@@ -218,7 +219,9 @@ var UI;
                 .addEventListener('submit', function () { return false; });
 
             window.addEventListener('load', UI.keyboardinputReset);
+        },
 
+        addExtraKeysHandlers: function() {
             document.getElementById("noVNC_toggle_extra_keys_button")
                 .addEventListener('click', UI.toggleExtraKeys);
             document.getElementById("noVNC_toggle_ctrl_button")
