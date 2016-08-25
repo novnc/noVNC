@@ -44,7 +44,7 @@
   color:#fff;
 }
 
-.noVNC_status_button {
+.noVNC_button {
   font-size: 12px;
   vertical-align: middle;
   border:1px solid #4c4c4c;
@@ -59,7 +59,7 @@
   background: linear-gradient(top, #4c4c4c 0%,#2c2c2c 50%,#000000 51%,#131313 100%); /* W3C */
 }
 
-.noVNC_status_button_selected {
+.noVNC_button_selected {
   background: #9dd53a; /* Old browsers */
   background: -moz-linear-gradient(top, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9dd53a), color-stop(50%,#a1d54f), color-stop(51%,#80c217), color-stop(100%,#7cbc0a)); /* Chrome,Safari4+ */

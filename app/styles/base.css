@@ -42,7 +42,7 @@ html {
 }
 
 /* General button style */
-.noVNC_status_button {
+.noVNC_button {
   padding: 4px 4px;
   vertical-align: middle;
   border:1px solid #869dbc;
@@ -60,7 +60,7 @@ html {
   /*box-shadow:inset 0.4px 0.4px 0.4px #000000;*/
   font-size: 12px;
 }
-.noVNC_status_button_selected {
+.noVNC_button_selected {
   padding: 4px 4px;
   vertical-align: middle;
   border:1px solid #4366a9;
@@ -76,10 +76,10 @@ html {
   background: linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* W3C */
  /*box-shadow:inset 0.4px 0.4px 0.4px #000000;*/
 }
-.noVNC_status_button:disabled {
+.noVNC_button:disabled {
   opacity: 0.4;
 }
-.noVNC_status_button.noVNC_hidden {
+.noVNC_button.noVNC_hidden {
   display: none;
 }
 
@@ -134,7 +134,7 @@ html {
   ime-mode: disabled;
 }
 
-#noVNC_toggleExtraKeys_button {
+#noVNC_toggle_extra_keys_button {
   display: none;
 }
 
@@ -148,16 +148,16 @@ html {
 #noVNC_extra_keys.noVNC_hidden {
   display: none;
 }
-#noVNC_toggleCtrl_button {
+#noVNC_toggle_ctrl_button {
   display: inline;
 }
-#noVNC_toggleAlt_button {
+#noVNC_toggle_alt_button {
   display: inline;
 }
-#noVNC_sendTab_button {
+#noVNC_send_tab_button {
   display: inline;
 }
-#noVNC_sendEsc_button {
+#noVNC_send_esc_button {
   display: inline;
 }
 #noVNC_modifiers {
@@ -270,20 +270,20 @@ html {
 }
 
 /* Connection Controls */
-#noVNC_controls {
+#noVNC_connect_controls {
   top: 73px;
   right: 12px;
   position: fixed;
 }
-#noVNC_controls:after  {
+#noVNC_connect_controls:after  {
   right:15px;
 }
-#noVNC_controls ul {
+#noVNC_connect_controls ul {
   list-style: none;
   margin: 0px;
   padding: 0px;
 }
-#noVNC_controls li {
+#noVNC_connect_controls li {
   padding-bottom:8px;
 }
 #noVNC_setting_host {
@@ -421,7 +421,7 @@ html {
   #noVNC_logo {
     font-size: 150px;
   }
-  .noVNC_status_button {
+  .noVNC_button {
     font-size: 10px;
   }
   .noVNC_buttons_left {
@@ -431,7 +431,7 @@ html {
     padding-right: 0px;
   }
   /* collapse the extra keys on lower resolutions */
-  #noVNC_toggleExtraKeys_button {
+  #noVNC_toggle_extra_keys_button {
     display: inline;
   }
   #noVNC_modifiers {
@@ -440,22 +440,22 @@ html {
   #noVNC_modifiers.noVNC_open {
     display: inline;
   }
-  #noVNC_toggleCtrl_button {
+  #noVNC_toggle_ctrl_button {
     position: absolute;
     top: 30px;
     left: 0px;
   }
-  #noVNC_toggleAlt_button {
+  #noVNC_toggle_alt_button {
     position: absolute;
     top: 65px;
     left: 0px;
   }
-  #noVNC_sendTab_button {
+  #noVNC_send_tab_button {
     position: absolute;
     top: 100px;
     left: 0px;
   }
-  #noVNC_sendEsc_button {
+  #noVNC_send_esc_button {
     position: absolute;
     top: 135px;
     left: 0px;
@@ -472,7 +472,7 @@ html {
 }
 
 @media screen and (max-width: 320px) {
-  .noVNC_status_button {
+  .noVNC_button {
     font-size: 9px;
   }
   #noVNC_clipboard_text {

@@ -197,7 +197,7 @@ var UI;
         addControlbarHandlers: function() {
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
-            document.getElementById("noVNC_sendCtrlAltDel_button")
+            document.getElementById("noVNC_send_ctrl_alt_del_button")
                 .addEventListener('click', UI.sendCtrlAltDel);
             document.getElementById("noVNC_status")
                 .addEventListener('click', UI.popupStatus);
@@ -226,31 +226,31 @@ var UI;
 
             window.addEventListener('load', UI.keyboardinputReset);
 
-            document.getElementById("noVNC_toggleExtraKeys_button")
+            document.getElementById("noVNC_toggle_extra_keys_button")
                 .addEventListener('click', UI.toggleExtraKeys);
-            document.getElementById("noVNC_toggleCtrl_button")
+            document.getElementById("noVNC_toggle_ctrl_button")
                 .addEventListener('click', UI.toggleCtrl);
-            document.getElementById("noVNC_toggleAlt_button")
+            document.getElementById("noVNC_toggle_alt_button")
                 .addEventListener('click', UI.toggleAlt);
-            document.getElementById("noVNC_sendTab_button")
+            document.getElementById("noVNC_send_tab_button")
                 .addEventListener('click', UI.sendTab);
-            document.getElementById("noVNC_sendEsc_button")
+            document.getElementById("noVNC_send_esc_button")
                 .addEventListener('click', UI.sendEsc);
         },
 
         addXvpHandlers: function() {
-            document.getElementById("noVNC_xvpShutdown_button")
+            document.getElementById("noVNC_xvp_shutdown_button")
                 .addEventListener('click', function() { UI.rfb.xvpShutdown(); });
-            document.getElementById("noVNC_xvpReboot_button")
+            document.getElementById("noVNC_xvp_reboot_button")
                 .addEventListener('click', function() { UI.rfb.xvpReboot(); });
-            document.getElementById("noVNC_xvpReset_button")
+            document.getElementById("noVNC_xvp_reset_button")
                 .addEventListener('click', function() { UI.rfb.xvpReset(); });
-            document.getElementById("noVNC_toggleXvp_button")
+            document.getElementById("noVNC_xvp_button")
                 .addEventListener('click', UI.toggleXvpPanel);
         },
 
         addConnectionControlHandlers: function() {
-            document.getElementById("noVNC_connectPanel_button")
+            document.getElementById("noVNC_connect_controls_button")
                 .addEventListener('click', UI.toggleConnectPanel);
             document.getElementById("noVNC_disconnect_button")
                 .addEventListener('click', UI.disconnect);
@@ -385,7 +385,7 @@ var UI;
                     .classList.remove("noVNC_hidden");
                 document.getElementById('noVNC_extra_keys')
                     .classList.remove("noVNC_hidden");
-                document.getElementById('noVNC_sendCtrlAltDel_button')
+                document.getElementById('noVNC_send_ctrl_alt_del_button')
                     .classList.remove("noVNC_hidden");
             } else {
                 document.getElementById('noVNC_logo')
@@ -399,7 +399,7 @@ var UI;
                     .classList.add("noVNC_hidden");
                 document.getElementById('noVNC_extra_keys')
                     .classList.add("noVNC_hidden");
-                document.getElementById('noVNC_sendCtrlAltDel_button')
+                document.getElementById('noVNC_send_ctrl_alt_del_button')
                     .classList.add("noVNC_hidden");
                 UI.updateXvpButton(0);
             }
@@ -412,7 +412,7 @@ var UI;
                 case 'fatal':
                 case 'failed':
                 case 'disconnected':
-                    document.getElementById('noVNC_connectPanel_button')
+                    document.getElementById('noVNC_connect_controls_button')
                         .classList.remove("noVNC_hidden");
                     document.getElementById('noVNC_disconnect_button')
                         .classList.add("noVNC_hidden");
@@ -420,13 +420,13 @@ var UI;
                     UI.toggleConnectPanel();
                     break;
                 case 'loaded':
-                    document.getElementById('noVNC_connectPanel_button')
+                    document.getElementById('noVNC_connect_controls_button')
                         .classList.remove("noVNC_hidden");
                     document.getElementById('noVNC_disconnect_button')
                         .classList.add("noVNC_hidden");
                     break;
                 default:
-                    document.getElementById('noVNC_connectPanel_button')
+                    document.getElementById('noVNC_connect_controls_button')
                         .classList.add("noVNC_hidden");
                     document.getElementById('noVNC_disconnect_button')
                         .classList.remove("noVNC_hidden");
@@ -592,7 +592,7 @@ var UI;
             document.getElementById('noVNC_settings')
                 .classList.add("noVNC_open");
             document.getElementById('noVNC_settings_button')
-                .className = "noVNC_status_button_selected";
+                .className = "noVNC_button_selected";
             UI.settingsOpen = true;
         },
 
@@ -601,7 +601,7 @@ var UI;
             document.getElementById('noVNC_settings')
                 .classList.remove("noVNC_open");
             document.getElementById('noVNC_settings_button')
-                .className = "noVNC_status_button";
+                .className = "noVNC_button";
             UI.settingsOpen = false;
         },
 
@@ -659,14 +659,14 @@ var UI;
             if (UI.xvpOpen === true) {
                 document.getElementById('noVNC_xvp')
                     .classList.remove("noVNC_open");
-                document.getElementById('noVNC_toggleXvp_button')
-                    .className = "noVNC_status_button";
+                document.getElementById('noVNC_xvp_button')
+                    .className = "noVNC_button";
                 UI.xvpOpen = false;
             } else {
                 document.getElementById('noVNC_xvp')
                     .classList.add("noVNC_open");
-                document.getElementById('noVNC_toggleXvp_button')
-                    .className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_xvp_button')
+                    .className = "noVNC_button_selected";
                 UI.xvpOpen = true;
             }
         },
@@ -674,10 +674,10 @@ var UI;
         // Disable/enable XVP button
         updateXvpButton: function(ver) {
             if (ver >= 1) {
-                document.getElementById('noVNC_toggleXvp_button')
+                document.getElementById('noVNC_xvp_button')
                     .classList.remove("noVNC_hidden");
             } else {
-                document.getElementById('noVNC_toggleXvp_button')
+                document.getElementById('noVNC_xvp_button')
                     .classList.add("noVNC_hidden");
                 // Close XVP panel if open
                 if (UI.xvpOpen === true) {
@@ -712,13 +712,13 @@ var UI;
                 document.getElementById('noVNC_clipboard')
                     .classList.remove("noVNC_open");
                 document.getElementById('noVNC_clipboard_button')
-                    .className = "noVNC_status_button";
+                    .className = "noVNC_button";
                 UI.clipboardOpen = false;
             } else {
                 document.getElementById('noVNC_clipboard')
                     .classList.add("noVNC_open");
                 document.getElementById('noVNC_clipboard_button')
-                    .className = "noVNC_status_button_selected";
+                    .className = "noVNC_button_selected";
                 UI.clipboardOpen = true;
             }
         },
@@ -753,7 +753,8 @@ var UI;
             if (UI.settingsOpen === true) {
                 UI.settingsApply();
                 UI.closeSettingsMenu();
-                document.getElementById('noVNC_connectPanel_button').className = "noVNC_status_button";
+                document.getElementById('noVNC_connect_controls_button')
+                    .className = "noVNC_button";
             }
             // Close clipboard panel if open
             if (UI.clipboardOpen === true) {
@@ -766,20 +767,20 @@ var UI;
 
             // Toggle Connection Panel
             if (UI.connSettingsOpen === true) {
-                document.getElementById('noVNC_controls')
+                document.getElementById('noVNC_connect_controls')
                     .classList.remove("noVNC_open");
-                document.getElementById('noVNC_connectPanel_button')
-                    .className = "noVNC_status_button";
+                document.getElementById('noVNC_connect_controls_button')
+                    .className = "noVNC_button";
                 UI.connSettingsOpen = false;
                 UI.saveSetting('host');
                 UI.saveSetting('port');
                 UI.saveSetting('token');
                 //UI.saveSetting('password');
             } else {
-                document.getElementById('noVNC_controls')
+                document.getElementById('noVNC_connect_controls')
                     .classList.add("noVNC_open");
-                document.getElementById('noVNC_connectPanel_button')
-                    .className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_connect_controls_button')
+                    .className = "noVNC_button_selected";
                 UI.connSettingsOpen = true;
                 document.getElementById('noVNC_setting_host').focus();
             }
@@ -879,9 +880,11 @@ var UI;
                 document.mozFullScreenElement || // currently working methods
                 document.webkitFullscreenElement ||
                 document.msFullscreenElement ) {
-                document.getElementById('noVNC_fullscreen_button').className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_fullscreen_button')
+                    .className = "noVNC_button_selected";
             } else {
-                document.getElementById('noVNC_fullscreen_button').className = "noVNC_status_button";
+                document.getElementById('noVNC_fullscreen_button')
+                    .className = "noVNC_button";
             }
         },
 
@@ -1103,9 +1106,9 @@ var UI;
                 }
 
                 if (UI.rfb.get_viewportDrag()) {
-                    viewDragButton.className = "noVNC_status_button_selected";
+                    viewDragButton.className = "noVNC_button_selected";
                 } else {
-                    viewDragButton.className = "noVNC_status_button";
+                    viewDragButton.className = "noVNC_button";
                 }
 
                 // Different behaviour for touch vs non-touch
@@ -1146,16 +1149,17 @@ var UI;
                 try { kbi.setSelectionRange(l, l); } // Move the caret to the end
                 catch (err) {} // setSelectionRange is undefined in Google Chrome
                 UI.keyboardVisible = true;
-                skb.className = "noVNC_status_button_selected";
+                skb.className = "noVNC_button_selected";
             } else if(UI.keyboardVisible === true) {
                 kbi.blur();
-                skb.className = "noVNC_status_button";
+                skb.className = "noVNC_button";
                 UI.keyboardVisible = false;
             }
         },
 
         hideKeyboard: function() {
-            document.getElementById('noVNC_keyboard_button').className = "noVNC_status_button";
+            document.getElementById('noVNC_keyboard_button')
+                .className = "noVNC_button";
             //Weird bug in iOS if you change keyboardVisible
             //here it does not actually occur so next time
             //you click keyboard icon it doesnt work.
@@ -1168,10 +1172,12 @@ var UI;
             clearTimeout(UI.hideKeyboardTimeout);
             if(UI.keyboardVisible === true) {
                 document.getElementById('noVNC_keyboardinput').focus();
-                document.getElementById('noVNC_keyboard_button').className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_keyboard_button')
+                    .className = "noVNC_button_selected";
             } else if(UI.keyboardVisible === false) {
                 document.getElementById('noVNC_keyboardinput').blur();
-                document.getElementById('noVNC_keyboard_button').className = "noVNC_status_button";
+                document.getElementById('noVNC_keyboard_button')
+                    .className = "noVNC_button";
             }
         },
 
@@ -1257,14 +1263,14 @@ var UI;
             if(UI.extraKeysVisible === false) {
                 document.getElementById('noVNC_modifiers')
                     .classList.add("noVNC_open");
-                document.getElementById('noVNC_toggleExtraKeys_button')
-                    .className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_toggle_extra_keys_button')
+                    .className = "noVNC_button_selected";
                 UI.extraKeysVisible = true;
             } else if(UI.extraKeysVisible === true) {
                 document.getElementById('noVNC_modifiers')
                     .classList.remove("noVNC_open");
-                document.getElementById('noVNC_toggleExtraKeys_button')
-                    .className = "noVNC_status_button";
+                document.getElementById('noVNC_toggle_extra_keys_button')
+                    .className = "noVNC_button";
                 UI.extraKeysVisible = false;
             }
         },
@@ -1283,11 +1289,13 @@ var UI;
             UI.keepKeyboard();
             if(UI.ctrlOn === false) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, true);
-                document.getElementById('noVNC_toggleCtrl_button').className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_toggle_ctrl_button')
+                    .className = "noVNC_button_selected";
                 UI.ctrlOn = true;
             } else if(UI.ctrlOn === true) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, false);
-                document.getElementById('noVNC_toggleCtrl_button').className = "noVNC_status_button";
+                document.getElementById('noVNC_toggle_ctrl_button')
+                    .className = "noVNC_button";
                 UI.ctrlOn = false;
             }
         },
@@ -1296,11 +1304,13 @@ var UI;
             UI.keepKeyboard();
             if(UI.altOn === false) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
-                document.getElementById('noVNC_toggleAlt_button').className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_toggle_alt_button')
+                    .className = "noVNC_button_selected";
                 UI.altOn = true;
             } else if(UI.altOn === true) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, false);
-                document.getElementById('noVNC_toggleAlt_button').className = "noVNC_status_button";
+                document.getElementById('noVNC_toggle_alt_button')
+                    .className = "noVNC_button";
                 UI.altOn = false;
             }
         },

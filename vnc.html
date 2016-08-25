@@ -56,21 +56,21 @@
 
             <!-- Drag/Pan the viewport -->
             <input type="image" alt="viewport drag" src="app/images/drag.png"
-                id="noVNC_view_drag_button" class="noVNC_status_button noVNC_hidden"
+                id="noVNC_view_drag_button" class="noVNC_button noVNC_hidden"
                 title="Move/Drag Viewport" />
 
             <!--noVNC Touch Device only buttons-->
             <div id="noVNC_mobile_buttons" class="noVNC_hidden">
                 <input type="image" alt="No mousebutton" src="app/images/mouse_none.png"
-                    id="noVNC_mouse_button0" class="noVNC_status_button" />
+                    id="noVNC_mouse_button0" class="noVNC_button" />
                 <input type="image" alt="Left mousebutton" src="app/images/mouse_left.png"
-                    id="noVNC_mouse_button1" class="noVNC_status_button" />
+                    id="noVNC_mouse_button1" class="noVNC_button" />
                 <input type="image" alt="Middle mousebutton" src="app/images/mouse_middle.png"
-                    id="noVNC_mouse_button2" class="noVNC_status_button" />
+                    id="noVNC_mouse_button2" class="noVNC_button" />
                 <input type="image" alt="Right mousebutton" src="app/images/mouse_right.png"
-                    id="noVNC_mouse_button4" class="noVNC_status_button" />
+                    id="noVNC_mouse_button4" class="noVNC_button" />
                 <input type="image" alt="Keyboard" src="app/images/keyboard.png"
-                    id="noVNC_keyboard_button" class="noVNC_status_button"
+                    id="noVNC_keyboard_button" class="noVNC_button"
                     value="Keyboard" title="Show Keyboard" />
                 <!-- Note that Google Chrome on Android doesn't respect any of these,
                      html attributes which attempt to disable text suggestions on the
@@ -81,16 +81,16 @@
                     mozactionhint="Enter"></textarea>
                 <div id="noVNC_extra_keys">
                     <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.png"
-                        id="noVNC_toggleExtraKeys_button" class="noVNC_status_button" />
+                        id="noVNC_toggle_extra_keys_button" class="noVNC_button" />
                     <div id="noVNC_modifiers">
                         <input type="image" alt="Ctrl" src="app/images/ctrl.png"
-                            id="noVNC_toggleCtrl_button" class="noVNC_status_button" />
+                            id="noVNC_toggle_ctrl_button" class="noVNC_button" />
                         <input type="image" alt="Alt" src="app/images/alt.png"
-                            id="noVNC_toggleAlt_button" class="noVNC_status_button" />
+                            id="noVNC_toggle_alt_button" class="noVNC_button" />
                         <input type="image" alt="Tab" src="app/images/tab.png"
-                            id="noVNC_sendTab_button" class="noVNC_status_button" />
+                            id="noVNC_send_tab_button" class="noVNC_button" />
                         <input type="image" alt="Esc" src="app/images/esc.png"
-                            id="noVNC_sendEsc_button" class="noVNC_status_button" />
+                            id="noVNC_send_esc_button" class="noVNC_button" />
                     </div>
                 </div>
             </div>
@@ -101,22 +101,22 @@
         <div class="noVNC_buttons_right">
             <!-- Send Ctrl+Alt+Delete -->
             <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.png"
-                id="noVNC_sendCtrlAltDel_button" class="noVNC_status_button"
+                id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
                 title="Send Ctrl-Alt-Del" />
 
             <!-- XVP Shutdown/Reboot -->
             <input type="image" alt="Shutdown/Reboot" src="app/images/power.png"
-                id="noVNC_toggleXvp_button" class="noVNC_status_button"
+                id="noVNC_xvp_button" class="noVNC_button"
                 title="Shutdown/Reboot..." />
             <div id="noVNC_xvp" class="noVNC_panel">
-                <input type="button" id="noVNC_xvpShutdown_button" value="Shutdown" />
-                <input type="button" id="noVNC_xvpReboot_button" value="Reboot" />
-                <input type="button" id="noVNC_xvpReset_button" value="Reset" />
+                <input type="button" id="noVNC_xvp_shutdown_button" value="Shutdown" />
+                <input type="button" id="noVNC_xvp_reboot_button" value="Reboot" />
+                <input type="button" id="noVNC_xvp_reset_button" value="Reset" />
             </div>
 
             <!-- Clipboard -->
             <input type="image" alt="Clipboard" src="app/images/clipboard.png"
-                id="noVNC_clipboard_button" class="noVNC_status_button"
+                id="noVNC_clipboard_button" class="noVNC_button"
                 title="Clipboard" />
             <div id="noVNC_clipboard" class="noVNC_panel">
                 <textarea id="noVNC_clipboard_text" rows=5>
@@ -128,12 +128,12 @@
 
             <!-- Toggle fullscreen -->
             <input type="image" alt="Fullscreen" src="app/images/fullscreen.png"
-                id="noVNC_fullscreen_button" class="noVNC_status_button noVNC_hidden"
+                id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
                 title="Fullscreen" />
 
             <!-- Settings -->
             <input type="image" alt="Settings" src="app/images/settings.png"
-                id="noVNC_settings_button" class="noVNC_status_button"
+                id="noVNC_settings_button" class="noVNC_button"
                 title="Settings" />
             <div id="noVNC_settings" class="noVNC_panel">
                 <ul>
@@ -173,12 +173,12 @@
 
             <!-- Connection Controls -->
             <input type="image" alt="Connect" src="app/images/connect.png"
-                id="noVNC_connectPanel_button" class="noVNC_status_button"
+                id="noVNC_connect_controls_button" class="noVNC_button"
                 title="Connect" />
             <input type="image" alt="Disconnect" src="app/images/disconnect.png"
-                id="noVNC_disconnect_button" class="noVNC_status_button"
+                id="noVNC_disconnect_button" class="noVNC_button"
                 title="Disconnect" />
-            <div id="noVNC_controls" class="noVNC_panel">
+            <div id="noVNC_connect_controls" class="noVNC_panel">
                 <ul>
                     <li><label><strong>Host: </strong><input id="noVNC_setting_host" /></label></li>
                     <li><label><strong>Port: </strong><input id="noVNC_setting_port" /></label></li>
