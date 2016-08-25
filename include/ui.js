@@ -33,6 +33,7 @@ var UI;
         connSettingsOpen: false,
         clipboardOpen: false,
         keyboardVisible: false,
+	extraKeysVisible: false,
 
         isTouchDevice: false,
         isSafari: false,
@@ -40,10 +41,8 @@ var UI;
         lastKeyboardinput: null,
         defaultKeyboardinputLen: 100,
 
-        shiftDown: false,
-        ctrlDown: false,
-        altDown: false,
-        altGrDown: false,
+        ctrlOn: false,
+        altOn: false,
 
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
