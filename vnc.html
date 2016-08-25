@@ -6,6 +6,7 @@
     noVNC example: simple example using default UI
     Copyright (C) 2012 Joel Martin
     Copyright (C) 2016 Samuel Mannehed for Cendio AB
+    Copyright (C) 2016 Pierre Ossman for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -81,14 +82,16 @@
                 <div id="noVNC_extra_keys">
                     <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.png"
                         id="noVNC_toggleExtraKeys_button" class="noVNC_status_button" />
-                    <input type="image" alt="Ctrl" src="app/images/ctrl.png"
-                        id="noVNC_toggleCtrl_button" class="noVNC_status_button" />
-                    <input type="image" alt="Alt" src="app/images/alt.png"
-                        id="noVNC_toggleAlt_button" class="noVNC_status_button" />
-                    <input type="image" alt="Tab" src="app/images/tab.png"
-                        id="noVNC_sendTab_button" class="noVNC_status_button" />
-                    <input type="image" alt="Esc" src="app/images/esc.png"
-                        id="noVNC_sendEsc_button" class="noVNC_status_button" />
+                    <div id="noVNC_modifiers">
+                        <input type="image" alt="Ctrl" src="app/images/ctrl.png"
+                            id="noVNC_toggleCtrl_button" class="noVNC_status_button" />
+                        <input type="image" alt="Alt" src="app/images/alt.png"
+                            id="noVNC_toggleAlt_button" class="noVNC_status_button" />
+                        <input type="image" alt="Tab" src="app/images/tab.png"
+                            id="noVNC_sendTab_button" class="noVNC_status_button" />
+                        <input type="image" alt="Esc" src="app/images/esc.png"
+                            id="noVNC_sendEsc_button" class="noVNC_status_button" />
+                    </div>
                 </div>
             </div>
         </div>

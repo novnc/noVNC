@@ -2,6 +2,7 @@
  * noVNC base CSS
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2016 Pierre Ossman for Cendio AB
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -149,6 +150,9 @@ html {
   display: inline;
 }
 #noVNC_sendEsc_button {
+  display: inline;
+}
+#noVNC_modifiers {
   display: inline;
 }
 
@@ -430,26 +434,25 @@ html {
   #noVNC_toggleExtraKeys_button {
     display: inline;
   }
-  #noVNC_toggleCtrl_button {
+  #noVNC_modifiers {
     display: none;
+  }
+  #noVNC_toggleCtrl_button {
     position: absolute;
     top: 30px;
     left: 0px;
   }
   #noVNC_toggleAlt_button {
-    display: none;
     position: absolute;
     top: 65px;
     left: 0px;
   }
   #noVNC_sendTab_button {
-    display: none;
     position: absolute;
     top: 100px;
     left: 0px;
   }
   #noVNC_sendEsc_button {
-    display: none;
     position: absolute;
     top: 135px;
     left: 0px;

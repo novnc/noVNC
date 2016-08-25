@@ -2,6 +2,7 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2016 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -1216,17 +1217,11 @@ var UI;
         toggleExtraKeys: function() {
             UI.keepKeyboard();
             if(UI.extraKeysVisible === false) {
-                document.getElementById('noVNC_toggleCtrl_button').style.display = "inline";
-                document.getElementById('noVNC_toggleAlt_button').style.display = "inline";
-                document.getElementById('noVNC_sendTab_button').style.display = "inline";
-                document.getElementById('noVNC_sendEsc_button').style.display = "inline";
+                document.getElementById('noVNC_modifiers').style.display = "inline";
                 document.getElementById('noVNC_toggleExtraKeys_button').className = "noVNC_status_button_selected";
                 UI.extraKeysVisible = true;
             } else if(UI.extraKeysVisible === true) {
-                document.getElementById('noVNC_toggleCtrl_button').style.display = "";
-                document.getElementById('noVNC_toggleAlt_button').style.display = "";
-                document.getElementById('noVNC_sendTab_button').style.display = "";
-                document.getElementById('noVNC_sendEsc_button').style.display = "";
+                document.getElementById('noVNC_modifiers').style.display = "";
                 document.getElementById('noVNC_toggleExtraKeys_button').className = "noVNC_status_button";
                 UI.extraKeysVisible = false;
             }
