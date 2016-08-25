@@ -325,24 +325,6 @@ html {
   float: right;
 }
 
-/* Description Panel */
-#noVNC_description {
-  display: none;
-  position: fixed;
-
-  top: 73px;
-  right: 20px;
-  left: 20px;
-  padding: 15px;
-  color: #000;
-  background: #eee; /* default background for browsers without gradient support */
-
-  border: 2px solid #E0E0E0;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-}
-
 /* Popup Status */
 #noVNC_popup_status {
   display: none;

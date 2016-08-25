@@ -94,16 +94,9 @@ var UI;
             UI.addClipboardHandlers();
             UI.addSettingsHandlers();
 
-            // Show description by default when hosted at for kanaka.github.com
-            if (location.host === "kanaka.github.io") {
-                // Open the description dialog
-                document.getElementById('noVNC_description').style.display = "block";
-            } else {
-                // Show the connect panel on first load unless autoconnecting
-                if (autoconnect === UI.connSettingsOpen) {
-                    UI.toggleConnectPanel();
-                }
-            }
+            // Show the connect panel on first load unless autoconnecting
+            if (!autoconnect && !UI.connSettingsOpen)
+                UI.toggleConnectPanel();
 
             UI.updateViewClip();
             UI.setBarPosition();
@@ -207,8 +200,6 @@ var UI;
                 .addEventListener('click', UI.popupStatus);
             document.getElementById("noVNC_popup_status")
                 .addEventListener('click', UI.closePopup);
-            document.getElementById("noVNC_description_button")
-                .addEventListener('click', UI.toggleConnectPanel);
         },
 
         addTouchSpecificHandlers: function() {
@@ -563,8 +554,6 @@ var UI;
 
         // Open menu
         openSettingsMenu: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
             // Close clipboard panel if open
             if (UI.clipboardOpen === true) {
                 UI.toggleClipboardPanel();
@@ -593,8 +582,6 @@ var UI;
         //   On open, settings are refreshed from saved cookies.
         //   On close, settings are applied
         toggleSettingsPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
             if (UI.settingsOpen) {
                 UI.settingsApply();
                 UI.closeSettingsMenu();
@@ -628,8 +615,6 @@ var UI;
 
         // Show the XVP panel
         toggleXvpPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
             // Close settings if open
             if (UI.settingsOpen === true) {
                 UI.settingsApply();
@@ -676,8 +661,6 @@ var UI;
 
         // Show the clipboard panel
         toggleClipboardPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
             // Close settings if open
             if (UI.settingsOpen === true) {
                 UI.settingsApply();
@@ -729,8 +712,6 @@ var UI;
 
         // Show the connection settings panel/menu
         toggleConnectPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
             // Close connection settings if open
             if (UI.settingsOpen === true) {
                 UI.settingsApply();
