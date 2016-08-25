@@ -88,33 +88,30 @@ html {
 
 /* Panels */
 .noVNC_panel {
-  display: none;
-  position: relative;
+  position: fixed;
+  top: 46px;
+  right: 15px;
+  transform: translate(0, -50px);
+
+  transition: 0.5s ease-in-out;
+
+  visibility: hidden;
+  opacity: 0;
+
   padding: 15px;
-  color: #fff;
-  background: #fff; /* default background for browsers without gradient support */
-  /* css3 */
-  /*background: -webkit-gradient(linear, 0 0, 0 100%, from(#2e88c4), to(#075698));
-  background: -moz-linear-gradient(#2e88c4, #075698);
-  background: -o-linear-gradient(#2e88c4, #075698);
-  background: linear-gradient(#2e88c4, #075698);*/
+
+  background: #fff;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-radius: 10px;
   color: #000;
   border: 2px solid #E0E0E0;
-}
-.noVNC_panel:after {
-  content: "";
-  position: absolute;
-  top: -40px; /* value = - border-top-width - border-bottom-width */
-  right: 50px; /* controls horizontal position */
-  border-style: solid;
-  border-width: 40px 40px 0 0; /* vary these values to change the angle of the vertex */
-  border-color: transparent #E0E0E0;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 .noVNC_panel.noVNC_open {
-  display: block;
+  visibility: visible;
+  opacity: 1;
+  transform: translate(0, 0);
 }
 
 /* noVNC Touch Device only buttons */
@@ -186,12 +183,6 @@ html {
 
 /* XVP Shutdown/Reboot */
 #noVNC_xvp {
-  top: 73px;
-  right: 30px;
-  position: fixed;
-}
-#noVNC_xvp:after {
-  right: 125px;
 }
 #noVNC_xvp_buttons {
   display: none;
@@ -199,12 +190,6 @@ html {
 
 /* Clipboard */
 #noVNC_clipboard {
-  top: 73px;
-  right: 30px;
-  position: fixed;
-}
-#noVNC_clipboard:after {
-  right: 85px;
 }
 #noVNC_clipboard_text {
   width: 500px;
@@ -215,9 +200,6 @@ html {
 
 /* Settings */
 #noVNC_settings {
-  top: 73px;
-  right: 20px;
-  position: fixed;
 }
 #noVNC_settings ul {
   list-style: none;
@@ -233,12 +215,6 @@ html {
 
 /* Connection Controls */
 #noVNC_connect_controls {
-  top: 73px;
-  right: 12px;
-  position: fixed;
-}
-#noVNC_connect_controls:after  {
-  right:15px;
 }
 #noVNC_connect_controls ul {
   list-style: none;
@@ -268,15 +244,21 @@ html {
  */
 
 #noVNC_status {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 3;
+  transform: translateY(-100%);
+
+  transition: 0.5s ease-in-out;
+
+  visibility: hidden;
+  opacity: 0;
 
   padding: 5px;
 
+  display: flex;
   flex-direction: row;
   justify-content: center;
   align-content: center;
@@ -288,7 +270,9 @@ html {
   border-bottom: 1px solid rgba(0, 0, 0, 0.9);
 }
 #noVNC_status.noVNC_open {
-  display: flex;
+  transform: translateY(0);
+  visibility: visible;
+  opacity: 1;
 }
 
 #noVNC_status::before {
