@@ -241,6 +241,18 @@ Util.stopEvent = function (e) {
     e.preventDefault();
 };
 
+// Touch detection
+Util.isTouchDevice = ('ontouchstart' in document.documentElement) ||
+                     // requried for Chrome debugger
+                     (document.ontouchstart !== undefined) ||
+                     // required for MS Surface
+                     (navigator.maxTouchPoints > 0) ||
+                     (navigator.msMaxTouchPoints > 0);
+window.addEventListener('touchstart', function onFirstTouch() {
+    Util.isTouchDevice = true;
+    window.removeEventListener('touchstart', onFirstTouch, false);
+}, false);
+
 Util._cursor_uris_supported = null;
 
 Util.browserSupportsCursorURIs = function () {

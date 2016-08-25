@@ -346,7 +346,7 @@
         grab: function () {
             var c = this._target;
 
-            if ('ontouchstart' in document.documentElement) {
+            if (Util.isTouchDevice) {
                 c.addEventListener('touchstart', this._eventHandlers.mousedown);
                 window.addEventListener('touchend', this._eventHandlers.mouseup);
                 c.addEventListener('touchend', this._eventHandlers.mouseup);
@@ -368,7 +368,7 @@
         ungrab: function () {
             var c = this._target;
 
-            if ('ontouchstart' in document.documentElement) {
+            if (Util.isTouchDevice) {
                 c.removeEventListener('touchstart', this._eventHandlers.mousedown);
                 window.removeEventListener('touchend', this._eventHandlers.mouseup);
                 c.removeEventListener('touchend', this._eventHandlers.mouseup);
