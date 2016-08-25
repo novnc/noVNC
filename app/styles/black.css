@@ -38,7 +38,7 @@
   background: linear-gradient(top, #f0f040 0%,#2c2c2c 50%,#000000 51%,#131313 100%); /* W3C */
 }
 
-.triangle-right {
+.noVNC_panel {
   border:2px solid #fff;
   background:#000;
   color:#fff;

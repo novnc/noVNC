@@ -80,7 +80,7 @@ html {
 }
 
 /* Panels */
-.triangle-right {
+.noVNC_panel {
   position: relative;
   padding: 15px;
   color: #fff;
@@ -96,31 +96,12 @@ html {
   color: #000;
   border: 2px solid #E0E0E0;
 }
-.triangle-right.top:after {
-  border-color: transparent #E0E0E0;
-  border-width: 20px 20px 0 0;
-  bottom: auto;
-  left: auto;
-  right: 50px;
-  top: -20px;
-}
-.triangle-right:after {
+.noVNC_panel:after {
   content: "";
   position: absolute;
-  bottom: -20px; /* value = - border-top-width - border-bottom-width */
-  left: 50px; /* controls horizontal position */
-  border-width: 20px 0 0 20px; /* vary these values to change the angle of the vertex */
-  border-style: solid;
-  border-color: #E0E0E0 transparent;
-  /* reduce the damage in FF3.0 */
-  display: block;
-  width: 0;
-}
-.triangle-right.top:after {
   top: -40px; /* value = - border-top-width - border-bottom-width */
   right: 50px; /* controls horizontal position */
-  bottom: auto;
-  left: auto;
+  border-style: solid;
   border-width: 40px 40px 0 0; /* vary these values to change the angle of the vertex */
   border-color: transparent #E0E0E0;
 }
@@ -241,7 +222,7 @@ html {
   right: 30px;
   position: fixed;
 }
-#noVNC_xvp.top:after {
+#noVNC_xvp:after {
   right: 125px;
 }
 #noVNC_xvp_buttons {
@@ -255,7 +236,7 @@ html {
   right: 30px;
   position: fixed;
 }
-#noVNC_clipboard.top:after {
+#noVNC_clipboard:after {
   right: 85px;
 }
 #noVNC_clipboard_text {
@@ -300,7 +281,7 @@ html {
   right: 12px;
   position: fixed;
 }
-#noVNC_controls.top:after  {
+#noVNC_controls:after  {
   right:15px;
 }
 #noVNC_controls ul {
