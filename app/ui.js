@@ -322,8 +322,6 @@ var UI;
                     klass = "noVNC_status_normal";
                     break;
                 case 'disconnected':
-                    document.getElementById('noVNC_logo').style.display = "block";
-                    document.getElementById('noVNC_screen').style.display = "none";
                     /* falls through */
                 case 'loaded':
                     klass = "noVNC_status_normal";
@@ -372,6 +370,8 @@ var UI;
             document.getElementById('noVNC_setting_repeaterID').disabled = connected;
 
             if (connected) {
+                document.getElementById('noVNC_logo').style.display = "none";
+                document.getElementById('noVNC_screen').style.display = "inline";
                 UI.updateViewClip();
                 UI.setMouseButton(1);
                 document.getElementById('noVNC_clipboard_button').style.display = "inline";
@@ -379,6 +379,8 @@ var UI;
                 document.getElementById('noVNC_extra_keys').style.display = "";
                 document.getElementById('noVNC_sendCtrlAltDel_button').style.display = "inline";
             } else {
+                document.getElementById('noVNC_logo').style.display = "block";
+                document.getElementById('noVNC_screen').style.display = "none";
                 UI.hideMouseButton();
                 document.getElementById('noVNC_clipboard_button').style.display = "none";
                 document.getElementById('noVNC_keyboard_button').style.display = "none";
@@ -776,8 +778,6 @@ var UI;
 
             //Close dialog.
             setTimeout(UI.setBarPosition, 100);
-            document.getElementById('noVNC_logo').style.display = "none";
-            document.getElementById('noVNC_screen').style.display = "inline";
         },
 
         disconnect: function() {
@@ -786,9 +786,6 @@ var UI;
 
             // Restore the callback used for initial resize
             UI.rfb.set_onFBUComplete(UI.initialResize);
-
-            document.getElementById('noVNC_logo').style.display = "block";
-            document.getElementById('noVNC_screen').style.display = "none";
 
             // Don't display the connection settings until we're actually disconnected
         },
