@@ -72,13 +72,6 @@
                 <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
                     id="noVNC_keyboard_button" class="noVNC_button"
                     value="Keyboard" title="Show Keyboard" />
-                <!-- Note that Google Chrome on Android doesn't respect any of these,
-                     html attributes which attempt to disable text suggestions on the
-                     on-screen keyboard. Let's hope Chrome implements the ime-mode
-                     style for example -->
-                <textarea id="noVNC_keyboardinput" autocapitalize="off"
-                    autocorrect="off" autocomplete="off" spellcheck="false"
-                    mozactionhint="Enter"></textarea>
                 <div id="noVNC_extra_keys">
                     <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
                         id="noVNC_toggle_extra_keys_button" class="noVNC_button" />
@@ -197,6 +190,14 @@
 
         <!-- HTML5 Canvas -->
         <div id="noVNC_screen" class="noVNC_hidden">
+            <!-- Note that Google Chrome on Android doesn't respect any of these,
+                 html attributes which attempt to disable text suggestions on the
+                 on-screen keyboard. Let's hope Chrome implements the ime-mode
+                 style for example -->
+            <textarea id="noVNC_keyboardinput" autocapitalize="off"
+                autocorrect="off" autocomplete="off" spellcheck="false"
+                mozactionhint="Enter"></textarea>
+
             <canvas id="noVNC_canvas" width="0" height="0">
                         Canvas not supported.
             </canvas>
