@@ -33,7 +33,7 @@ var UI;
         connSettingsOpen: false,
         clipboardOpen: false,
         keyboardVisible: false,
-	extraKeysVisible: false,
+        extraKeysVisible: false,
 
         isTouchDevice: false,
         isSafari: false,
