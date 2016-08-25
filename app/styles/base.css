@@ -179,6 +179,13 @@ input[type=button]:active, select:active {
 .noVNC_button:disabled {
   opacity: 0.4;
 }
+.noVNC_button:focus {
+  outline: none;
+}
+.noVNC_button:active {
+  padding-top: 5px;
+  padding-bottom: 3px;
+}
 .noVNC_button.noVNC_hidden {
   display: none;
 }
