@@ -42,11 +42,7 @@ var UI;
         popupStatusTimeout: null,
         hideKeyboardTimeout: null,
 
-        settingsOpen: false,
-        connSettingsOpen: false,
-        clipboardOpen: false,
         keyboardVisible: false,
-        extraKeysVisible: false,
 
         isTouchDevice: false,
         isSafari: false,
@@ -97,8 +93,9 @@ var UI;
             UI.addSettingsHandlers();
 
             // Show the connect panel on first load unless autoconnecting
-            if (!autoconnect && !UI.connSettingsOpen)
-                UI.toggleConnectPanel();
+            if (!autoconnect) {
+                UI.openConnectPanel();
+            }
 
             UI.updateViewClip();
             UI.setBarPosition();
@@ -416,8 +413,7 @@ var UI;
                         .classList.remove("noVNC_hidden");
                     document.getElementById('noVNC_disconnect_button')
                         .classList.add("noVNC_hidden");
-                    UI.connSettingsOpen = false;
-                    UI.toggleConnectPanel();
+                    UI.openConnectPanel();
                     break;
                 case 'loaded':
                     document.getElementById('noVNC_connect_controls_button')
@@ -575,62 +571,68 @@ var UI;
             //Util.Debug("<< settingsApply");
         },
 
-        // Open menu
-        openSettingsMenu: function() {
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
+/* ------^-------
+ *   /SETTINGS
+ * ==============
+ *    PANELS
+ * ------v------*/
+
+        closeAllPanels: function() {
+            UI.closeSettingsPanel();
+            UI.closeXvpPanel();
+            UI.closeClipboardPanel();
+            UI.closeConnectPanel();
+        },
+
+/* ------^-------
+ *   /PANELS
+ * ==============
+ * SETTINGS (panel)
+ * ------v------*/
+
+        openSettingsPanel: function() {
+            UI.closeAllPanels();
+
+            UI.updateSetting('encrypt');
+            UI.updateSetting('true_color');
+            if (Util.browserSupportsCursorURIs()) {
+                UI.updateSetting('cursor');
+            } else {
+                UI.updateSetting('cursor', !UI.isTouchDevice);
+                document.getElementById('noVNC_setting_cursor').disabled = true;
             }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
+            UI.updateSetting('clip');
+            UI.updateSetting('resize');
+            UI.updateSetting('shared');
+            UI.updateSetting('view_only');
+            UI.updateSetting('path');
+            UI.updateSetting('repeaterID');
+            UI.updateSetting('stylesheet');
+            UI.updateSetting('logging');
+
             document.getElementById('noVNC_settings')
                 .classList.add("noVNC_open");
             document.getElementById('noVNC_settings_button')
                 .classList.add("noVNC_selected");
-            UI.settingsOpen = true;
         },
 
-        // Close menu (without applying settings)
-        closeSettingsMenu: function() {
+        closeSettingsPanel: function() {
             document.getElementById('noVNC_settings')
                 .classList.remove("noVNC_open");
             document.getElementById('noVNC_settings_button')
                 .classList.remove("noVNC_selected");
-            UI.settingsOpen = false;
         },
 
         // Toggle the settings menu:
         //   On open, settings are refreshed from saved cookies.
         //   On close, settings are applied
         toggleSettingsPanel: function() {
-            if (UI.settingsOpen) {
+            if (document.getElementById('noVNC_settings')
+                .classList.contains("noVNC_open")) {
                 UI.settingsApply();
-                UI.closeSettingsMenu();
+                UI.closeSettingsPanel();
             } else {
-                UI.updateSetting('encrypt');
-                UI.updateSetting('true_color');
-                if (Util.browserSupportsCursorURIs()) {
-                    UI.updateSetting('cursor');
-                } else {
-                    UI.updateSetting('cursor', !UI.isTouchDevice);
-                    document.getElementById('noVNC_setting_cursor').disabled = true;
-                }
-                UI.updateSetting('clip');
-                UI.updateSetting('resize');
-                UI.updateSetting('shared');
-                UI.updateSetting('view_only');
-                UI.updateSetting('path');
-                UI.updateSetting('repeaterID');
-                UI.updateSetting('stylesheet');
-                UI.updateSetting('logging');
-
-                UI.openSettingsMenu();
+                UI.openSettingsPanel();
             }
         },
 
@@ -640,34 +642,28 @@ var UI;
  *      XVP
  * ------v------*/
 
-        // Show the XVP panel
+        openXvpPanel: function() {
+            UI.closeAllPanels();
+
+            document.getElementById('noVNC_xvp')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_xvp_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeXvpPanel: function() {
+            document.getElementById('noVNC_xvp')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_xvp_button')
+                .classList.remove("noVNC_selected");
+        },
+
         toggleXvpPanel: function() {
-            // Close settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-            }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Toggle XVP panel
-            if (UI.xvpOpen === true) {
-                document.getElementById('noVNC_xvp')
-                    .classList.remove("noVNC_open");
-                document.getElementById('noVNC_xvp_button')
-                    .classList.remove("noVNC_selected");
-                UI.xvpOpen = false;
+            if (document.getElementById('noVNC_xvp')
+                .classList.contains("noVNC_open")) {
+                UI.closeXvpPanel();
             } else {
-                document.getElementById('noVNC_xvp')
-                    .classList.add("noVNC_open");
-                document.getElementById('noVNC_xvp_button')
-                    .classList.add("noVNC_selected");
-                UI.xvpOpen = true;
+                UI.openXvpPanel();
             }
         },
 
@@ -680,9 +676,7 @@ var UI;
                 document.getElementById('noVNC_xvp_button')
                     .classList.add("noVNC_hidden");
                 // Close XVP panel if open
-                if (UI.xvpOpen === true) {
-                    UI.toggleXvpPanel();
-                }
+                UI.closeXvpPanel();
             }
         },
 
@@ -692,34 +686,28 @@ var UI;
  *   CLIPBOARD
  * ------v------*/
 
-        // Show the clipboard panel
+        openClipboardPanel: function() {
+            UI.closeAllPanels();
+
+            document.getElementById('noVNC_clipboard')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_clipboard_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeClipboardPanel: function() {
+            document.getElementById('noVNC_clipboard')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_clipboard_button')
+                .classList.remove("noVNC_selected");
+        },
+
         toggleClipboardPanel: function() {
-            // Close settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-            }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
-            // Toggle Clipboard Panel
-            if (UI.clipboardOpen === true) {
-                document.getElementById('noVNC_clipboard')
-                    .classList.remove("noVNC_open");
-                document.getElementById('noVNC_clipboard_button')
-                    .classList.remove("noVNC_selected");
-                UI.clipboardOpen = false;
+            if (document.getElementById('noVNC_clipboard')
+                .classList.contains("noVNC_open")) {
+                UI.closeClipboardPanel();
             } else {
-                document.getElementById('noVNC_clipboard')
-                    .classList.add("noVNC_open");
-                document.getElementById('noVNC_clipboard_button')
-                    .classList.add("noVNC_selected");
-                UI.clipboardOpen = true;
+                UI.openClipboardPanel();
             }
         },
 
@@ -747,48 +735,40 @@ var UI;
  *  CONNECTION
  * ------v------*/
 
-        // Show the connection settings panel/menu
-        toggleConnectPanel: function() {
-            // Close connection settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-                document.getElementById('noVNC_connect_controls_button')
-                    .classList.remove("noVNC_selected");
-            }
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
+        openConnectPanel: function() {
+            UI.closeAllPanels();
 
-            // Toggle Connection Panel
-            if (UI.connSettingsOpen === true) {
-                document.getElementById('noVNC_connect_controls')
-                    .classList.remove("noVNC_open");
-                document.getElementById('noVNC_connect_controls_button')
-                    .classList.remove("noVNC_selected");
-                UI.connSettingsOpen = false;
-                UI.saveSetting('host');
-                UI.saveSetting('port');
-                UI.saveSetting('token');
-                //UI.saveSetting('password');
+            document.getElementById('noVNC_connect_controls')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_connect_controls_button')
+                .classList.add("noVNC_selected");
+
+            document.getElementById('noVNC_setting_host').focus();
+        },
+
+        closeConnectPanel: function() {
+            document.getElementById('noVNC_connect_controls')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_connect_controls_button')
+                .classList.remove("noVNC_selected");
+
+            UI.saveSetting('host');
+            UI.saveSetting('port');
+            UI.saveSetting('token');
+            //UI.saveSetting('password');
+        },
+
+        toggleConnectPanel: function() {
+            if (document.getElementById('noVNC_connect_controls')
+                .classList.contains("noVNC_open")) {
+                UI.closeConnectPanel();
             } else {
-                document.getElementById('noVNC_connect_controls')
-                    .classList.add("noVNC_open");
-                document.getElementById('noVNC_connect_controls_button')
-                    .classList.add("noVNC_selected");
-                UI.connSettingsOpen = true;
-                document.getElementById('noVNC_setting_host').focus();
+                UI.openConnectPanel();
             }
         },
 
         connect: function() {
-            UI.closeSettingsMenu();
-            UI.toggleConnectPanel();
+            UI.closeAllPanels();
 
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
@@ -821,7 +801,7 @@ var UI;
         },
 
         disconnect: function() {
-            UI.closeSettingsMenu();
+            UI.closeAllPanels();
             UI.rfb.disconnect();
 
             // Restore the callback used for initial resize
@@ -1258,20 +1238,27 @@ var UI;
             }
         },
 
+        openExtraKeys: function() {
+            document.getElementById('noVNC_modifiers')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeExtraKeys: function() {
+            document.getElementById('noVNC_modifiers')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.remove("noVNC_selected");
+        },
+
         toggleExtraKeys: function() {
             UI.keepKeyboard();
-            if(UI.extraKeysVisible === false) {
-                document.getElementById('noVNC_modifiers')
-                    .classList.add("noVNC_open");
-                document.getElementById('noVNC_toggle_extra_keys_button')
-                    .classList.add("noVNC_selected");
-                UI.extraKeysVisible = true;
-            } else if(UI.extraKeysVisible === true) {
-                document.getElementById('noVNC_modifiers')
-                    .classList.remove("noVNC_open");
-                document.getElementById('noVNC_toggle_extra_keys_button')
-                    .classList.remove("noVNC_selected");
-                UI.extraKeysVisible = false;
+            if(document.getElementById('noVNC_modifiers')
+                .classList.contains("noVNC_open")) {
+                UI.closeExtraKeys();
+            } else  {
+                UI.openExtraKeys();
             }
         },
 
