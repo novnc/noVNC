@@ -60,12 +60,8 @@ html {
   /*box-shadow:inset 0.4px 0.4px 0.4px #000000;*/
   font-size: 12px;
 }
-.noVNC_button_selected {
-  padding: 4px 4px;
-  vertical-align: middle;
-  border:1px solid #4366a9;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
+.noVNC_button.noVNC_selected {
+  border-color: #4366a9;
   background: #779ced; /* Old browsers */
   background: -moz-linear-gradient(top, #779ced 0%, #3970e0 49%, #2160dd 51%, #2463df 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#779ced), color-stop(49%,#3970e0), color-stop(51%,#2160dd), color-stop(100%,#2463df)); /* Chrome,Safari4+ */
@@ -74,7 +70,6 @@ html {
   background: -ms-linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* IE10+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#779ced', endColorstr='#2463df',GradientType=0 ); /* IE6-9 */
   background: linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* W3C */
- /*box-shadow:inset 0.4px 0.4px 0.4px #000000;*/
 }
 .noVNC_button:disabled {
   opacity: 0.4;

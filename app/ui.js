@@ -592,7 +592,7 @@ var UI;
             document.getElementById('noVNC_settings')
                 .classList.add("noVNC_open");
             document.getElementById('noVNC_settings_button')
-                .className = "noVNC_button_selected";
+                .classList.add("noVNC_selected");
             UI.settingsOpen = true;
         },
 
@@ -601,7 +601,7 @@ var UI;
             document.getElementById('noVNC_settings')
                 .classList.remove("noVNC_open");
             document.getElementById('noVNC_settings_button')
-                .className = "noVNC_button";
+                .classList.remove("noVNC_selected");
             UI.settingsOpen = false;
         },
 
@@ -660,13 +660,13 @@ var UI;
                 document.getElementById('noVNC_xvp')
                     .classList.remove("noVNC_open");
                 document.getElementById('noVNC_xvp_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
                 UI.xvpOpen = false;
             } else {
                 document.getElementById('noVNC_xvp')
                     .classList.add("noVNC_open");
                 document.getElementById('noVNC_xvp_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
                 UI.xvpOpen = true;
             }
         },
@@ -712,13 +712,13 @@ var UI;
                 document.getElementById('noVNC_clipboard')
                     .classList.remove("noVNC_open");
                 document.getElementById('noVNC_clipboard_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
                 UI.clipboardOpen = false;
             } else {
                 document.getElementById('noVNC_clipboard')
                     .classList.add("noVNC_open");
                 document.getElementById('noVNC_clipboard_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
                 UI.clipboardOpen = true;
             }
         },
@@ -754,7 +754,7 @@ var UI;
                 UI.settingsApply();
                 UI.closeSettingsMenu();
                 document.getElementById('noVNC_connect_controls_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
             }
             // Close clipboard panel if open
             if (UI.clipboardOpen === true) {
@@ -770,7 +770,7 @@ var UI;
                 document.getElementById('noVNC_connect_controls')
                     .classList.remove("noVNC_open");
                 document.getElementById('noVNC_connect_controls_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
                 UI.connSettingsOpen = false;
                 UI.saveSetting('host');
                 UI.saveSetting('port');
@@ -780,7 +780,7 @@ var UI;
                 document.getElementById('noVNC_connect_controls')
                     .classList.add("noVNC_open");
                 document.getElementById('noVNC_connect_controls_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
                 UI.connSettingsOpen = true;
                 document.getElementById('noVNC_setting_host').focus();
             }
@@ -881,10 +881,10 @@ var UI;
                 document.webkitFullscreenElement ||
                 document.msFullscreenElement ) {
                 document.getElementById('noVNC_fullscreen_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
             } else {
                 document.getElementById('noVNC_fullscreen_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
             }
         },
 
@@ -1106,9 +1106,9 @@ var UI;
                 }
 
                 if (UI.rfb.get_viewportDrag()) {
-                    viewDragButton.className = "noVNC_button_selected";
+                    viewDragButton.classList.add("noVNC_selected");
                 } else {
-                    viewDragButton.className = "noVNC_button";
+                    viewDragButton.classList.remove("noVNC_selected");
                 }
 
                 // Different behaviour for touch vs non-touch
@@ -1149,17 +1149,17 @@ var UI;
                 try { kbi.setSelectionRange(l, l); } // Move the caret to the end
                 catch (err) {} // setSelectionRange is undefined in Google Chrome
                 UI.keyboardVisible = true;
-                skb.className = "noVNC_button_selected";
+                skb.classList.add("noVNC_selected");
             } else if(UI.keyboardVisible === true) {
                 kbi.blur();
-                skb.className = "noVNC_button";
+                skb.classList.remove("noVNC_selected");
                 UI.keyboardVisible = false;
             }
         },
 
         hideKeyboard: function() {
             document.getElementById('noVNC_keyboard_button')
-                .className = "noVNC_button";
+                .classList.remove("noVNC_selected");
             //Weird bug in iOS if you change keyboardVisible
             //here it does not actually occur so next time
             //you click keyboard icon it doesnt work.
@@ -1173,11 +1173,11 @@ var UI;
             if(UI.keyboardVisible === true) {
                 document.getElementById('noVNC_keyboardinput').focus();
                 document.getElementById('noVNC_keyboard_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
             } else if(UI.keyboardVisible === false) {
                 document.getElementById('noVNC_keyboardinput').blur();
                 document.getElementById('noVNC_keyboard_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
             }
         },
 
@@ -1264,13 +1264,13 @@ var UI;
                 document.getElementById('noVNC_modifiers')
                     .classList.add("noVNC_open");
                 document.getElementById('noVNC_toggle_extra_keys_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
                 UI.extraKeysVisible = true;
             } else if(UI.extraKeysVisible === true) {
                 document.getElementById('noVNC_modifiers')
                     .classList.remove("noVNC_open");
                 document.getElementById('noVNC_toggle_extra_keys_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
                 UI.extraKeysVisible = false;
             }
         },
@@ -1290,12 +1290,12 @@ var UI;
             if(UI.ctrlOn === false) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, true);
                 document.getElementById('noVNC_toggle_ctrl_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
                 UI.ctrlOn = true;
             } else if(UI.ctrlOn === true) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, false);
                 document.getElementById('noVNC_toggle_ctrl_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
                 UI.ctrlOn = false;
             }
         },
@@ -1305,12 +1305,12 @@ var UI;
             if(UI.altOn === false) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
                 document.getElementById('noVNC_toggle_alt_button')
-                    .className = "noVNC_button_selected";
+                    .classList.add("noVNC_selected");
                 UI.altOn = true;
             } else if(UI.altOn === true) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, false);
                 document.getElementById('noVNC_toggle_alt_button')
-                    .className = "noVNC_button";
+                    .classList.remove("noVNC_selected");
                 UI.altOn = false;
             }
         },
