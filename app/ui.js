@@ -253,8 +253,6 @@ var UI;
             document.getElementById("noVNC_clipboard_text").onchange = UI.clipboardSend;
             document.getElementById("noVNC_clipboard_clear_button").onclick = UI.clipboardClear;
 
-            document.getElementById("noVNC_settings_menu").onmouseover = UI.displayBlur;
-            document.getElementById("noVNC_settings_menu").onmouseover = UI.displayFocus;
             document.getElementById("noVNC_settings_apply").onclick = UI.settingsApply;
 
             document.getElementById("noVNC_connect_button").onclick = UI.connect;
