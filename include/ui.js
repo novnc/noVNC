@@ -158,12 +158,12 @@ var UI;
 
             // While connected we want to display a confirmation dialogue
             // if the user tries to leave the page
-            Util.addEvent(window, 'beforeunload', function () {
+            Util.addEvent(window, 'beforeunload', function (e) {
                 if (UI.rfb && UI.rfb_state === 'normal') {
                     var msg = "You are currently connected.";
                     e.returnValue = msg;
                     return msg;
-                else {
+                } else {
                     return void 0; // To prevent the dialogue when disconnected
                 }
             });
