@@ -50,9 +50,6 @@ var UI;
         lastKeyboardinput: null,
         defaultKeyboardinputLen: 100,
 
-        ctrlOn: false,
-        altOn: false,
-
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
         load: function(callback) {
@@ -1280,31 +1277,25 @@ var UI;
 
         toggleCtrl: function() {
             UI.keepKeyboard();
-            if(UI.ctrlOn === false) {
-                UI.rfb.sendKey(KeyTable.XK_Control_L, true);
-                document.getElementById('noVNC_toggle_ctrl_button')
-                    .classList.add("noVNC_selected");
-                UI.ctrlOn = true;
-            } else if(UI.ctrlOn === true) {
+            var btn = document.getElementById('noVNC_toggle_ctrl_button');
+            if (btn.classList.contains("noVNC_selected")) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, false);
-                document.getElementById('noVNC_toggle_ctrl_button')
-                    .classList.remove("noVNC_selected");
-                UI.ctrlOn = false;
+                btn.classList.remove("noVNC_selected");
+            } else {
+                UI.rfb.sendKey(KeyTable.XK_Control_L, true);
+                btn.classList.add("noVNC_selected");
             }
         },
 
         toggleAlt: function() {
             UI.keepKeyboard();
-            if(UI.altOn === false) {
-                UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
-                document.getElementById('noVNC_toggle_alt_button')
-                    .classList.add("noVNC_selected");
-                UI.altOn = true;
-            } else if(UI.altOn === true) {
+            var btn = document.getElementById('noVNC_toggle_alt_button');
+            if (btn.classList.contains("noVNC_selected")) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, false);
-                document.getElementById('noVNC_toggle_alt_button')
-                    .classList.remove("noVNC_selected");
-                UI.altOn = false;
+                btn.classList.remove("noVNC_selected");
+            } else {
+                UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
+                btn.classList.add("noVNC_selected");
             }
         },
 
