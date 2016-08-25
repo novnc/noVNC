@@ -79,9 +79,13 @@ html {
 .noVNC_status_button:disabled {
   opacity: 0.4;
 }
+.noVNC_status_button.noVNC_hidden {
+  display: none;
+}
 
 /* Panels */
 .noVNC_panel {
+  display: none;
   position: relative;
   padding: 15px;
   color: #fff;
@@ -106,14 +110,15 @@ html {
   border-width: 40px 40px 0 0; /* vary these values to change the angle of the vertex */
   border-color: transparent #E0E0E0;
 }
-
-/* Drag/Pan button */
-#noVNC_view_drag_button {
-  display: none;
+.noVNC_panel.noVNC_open {
+  display: block;
 }
 
 /* noVNC Touch Device only buttons */
 #noVNC_mobile_buttons {
+  display: inline;
+}
+#noVNC_mobile_buttons.noVNC_hidden {
   display: none;
 }
 
@@ -139,6 +144,9 @@ html {
   padding: 0px;
   margin: 0px;
   position: relative;
+}
+#noVNC_extra_keys.noVNC_hidden {
+  display: none;
 }
 #noVNC_toggleCtrl_button {
   display: inline;
@@ -214,14 +222,8 @@ html {
   padding-right: 10px;
 }
 
-/* Send Ctrl+Alt+Delete */
-#noVNC_sendCtrlAltDel_button {
-  display: none;
-}
-
 /* XVP Shutdown/Reboot */
 #noVNC_xvp {
-  display: none;
   top: 73px;
   right: 30px;
   position: fixed;
@@ -235,7 +237,6 @@ html {
 
 /* Clipboard */
 #noVNC_clipboard {
-  display: none;
   top: 73px;
   right: 30px;
   position: fixed;
@@ -250,14 +251,8 @@ html {
   float: right;
 }
 
-/* Toggle fullscreen */
-#noVNC_fullscreen_button {
-  display: none;
-}
-
 /* Settings */
 #noVNC_settings {
-  display: none;
   top: 73px;
   right: 20px;
   position: fixed;
@@ -276,7 +271,6 @@ html {
 
 /* Connection Controls */
 #noVNC_controls {
-  display: none;
   top: 73px;
   right: 12px;
   position: fixed;
@@ -308,7 +302,6 @@ html {
 
 /* Popup Status */
 #noVNC_popup_status {
-  display: none;
   position: fixed;
   z-index: 1;
 
@@ -327,6 +320,9 @@ html {
   -moz-border-radius: 10px;
   border-radius: 10px;
 }
+#noVNC_popup_status.noVNC_hidden {
+  display: none;
+}
 
 /* ----------------------------------------
  * Main Area
@@ -344,7 +340,6 @@ html {
 
 /* HTML5 Canvas */
 #noVNC_screen {
-  display: none;
   position: absolute;
   margin: 0px;
   padding: 0px;
@@ -354,6 +349,9 @@ html {
   right: 0px;
   width: auto;
   height: auto;
+}
+#noVNC_screen.noVNC_hidden {
+  display: none;
 }
 
 /* Do not set width/height for VNC_canvas or incorrect
@@ -392,7 +390,9 @@ html {
       -1px 1px 0 #000,
        1px 1px 0 #000;
 }
-
+#noVNC_logo.noVNC_hidden {
+  display: none;
+}
 
 #noVNC_logo span{
   color:green;
@@ -436,6 +436,9 @@ html {
   }
   #noVNC_modifiers {
     display: none;
+  }
+  #noVNC_modifiers.noVNC_open {
+    display: inline;
   }
   #noVNC_toggleCtrl_button {
     position: absolute;

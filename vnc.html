@@ -56,11 +56,11 @@
 
             <!-- Drag/Pan the viewport -->
             <input type="image" alt="viewport drag" src="app/images/drag.png"
-                id="noVNC_view_drag_button" class="noVNC_status_button"
+                id="noVNC_view_drag_button" class="noVNC_status_button noVNC_hidden"
                 title="Move/Drag Viewport" />
 
             <!--noVNC Touch Device only buttons-->
-            <div id="noVNC_mobile_buttons">
+            <div id="noVNC_mobile_buttons" class="noVNC_hidden">
                 <input type="image" alt="No mousebutton" src="app/images/mouse_none.png"
                     id="noVNC_mouse_button0" class="noVNC_status_button" />
                 <input type="image" alt="Left mousebutton" src="app/images/mouse_left.png"
@@ -128,7 +128,7 @@
 
             <!-- Toggle fullscreen -->
             <input type="image" alt="Fullscreen" src="app/images/fullscreen.png"
-                id="noVNC_fullscreen_button" class="noVNC_status_button"
+                id="noVNC_fullscreen_button" class="noVNC_status_button noVNC_hidden"
                 title="Fullscreen" />
 
             <!-- Settings -->
@@ -190,7 +190,7 @@
         </div>
 
         <!-- Popup Status -->
-        <div id="noVNC_popup_status" class="">
+        <div id="noVNC_popup_status" class="noVNC_hidden">
         </div>
 
     </div> <!-- End of noVNC_control_bar -->
@@ -199,7 +199,7 @@
         <h1 id="noVNC_logo"><span>no</span><br />VNC</h1>
 
         <!-- HTML5 Canvas -->
-        <div id="noVNC_screen">
+        <div id="noVNC_screen" class="noVNC_hidden">
             <canvas id="noVNC_canvas" width="0" height="0">
                         Canvas not supported.
             </canvas>
