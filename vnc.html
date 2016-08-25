@@ -106,11 +106,9 @@
                 id="noVNC_toggleXvp_button" class="noVNC_status_button"
                 title="Shutdown/Reboot..." />
             <div id="noVNC_xvp" class="noVNC_panel">
-                <span id="noVNC_xvp_menu">
-                    <input type="button" id="noVNC_xvpShutdown_button" value="Shutdown" />
-                    <input type="button" id="noVNC_xvpReboot_button" value="Reboot" />
-                    <input type="button" id="noVNC_xvpReset_button" value="Reset" />
-                </span>
+                <input type="button" id="noVNC_xvpShutdown_button" value="Shutdown" />
+                <input type="button" id="noVNC_xvpReboot_button" value="Reboot" />
+                <input type="button" id="noVNC_xvpReset_button" value="Reset" />
             </div>
 
             <!-- Clipboard -->
@@ -135,41 +133,39 @@
                 id="noVNC_settings_button" class="noVNC_status_button"
                 title="Settings" />
             <div id="noVNC_settings" class="noVNC_panel">
-                <span id="noVNC_settings_menu">
-                    <ul>
-                        <li><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</li>
-                        <li><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</li>
-                        <li><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</li>
-                        <li><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</li>
-                        <li><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</li>
-                        <li><input id="noVNC_setting_view_only" type="checkbox" /> View Only</li>
-                        <hr>
-                        <li><input id="noVNC_setting_path" type="input" value="websockify" /> Path</li>
-                        <li><label>
-                                <select id="noVNC_setting_resize" name="vncResize">
-                                    <option value="off">None</option>
-                                    <option value="scale">Local Scaling</option>
-                                    <option value="downscale">Local Downscaling</option>
-                                    <option value="remote">Remote Resizing</option>
-                                </select> Scaling Mode</label>
-                        </li>
-                        <li><input id="noVNC_setting_repeaterID" type="input" value="" /> Repeater ID</li>
-                        <hr>
-                        <!-- Stylesheet selection dropdown -->
-                        <li><label><strong>Style: </strong>
-                                <select id="noVNC_setting_stylesheet" name="vncStyle">
-                                    <option value="default">default</option>
-                            </select></label>
-                        </li>
-                        <!-- Logging selection dropdown -->
-                        <li><label><strong>Logging: </strong>
-                                <select id="noVNC_setting_logging" name="vncLogging">
-                            </select></label>
-                        </li>
-                        <hr>
-                        <li><input type="button" id="noVNC_settings_apply" value="Apply" /></li>
-                    </ul>
-                </span>
+                <ul>
+                    <li><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</li>
+                    <li><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</li>
+                    <li><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</li>
+                    <li><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</li>
+                    <li><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</li>
+                    <li><input id="noVNC_setting_view_only" type="checkbox" /> View Only</li>
+                    <hr>
+                    <li><input id="noVNC_setting_path" type="input" value="websockify" /> Path</li>
+                    <li><label>
+                            <select id="noVNC_setting_resize" name="vncResize">
+                                <option value="off">None</option>
+                                <option value="scale">Local Scaling</option>
+                                <option value="downscale">Local Downscaling</option>
+                                <option value="remote">Remote Resizing</option>
+                            </select> Scaling Mode</label>
+                    </li>
+                    <li><input id="noVNC_setting_repeaterID" type="input" value="" /> Repeater ID</li>
+                    <hr>
+                    <!-- Stylesheet selection dropdown -->
+                    <li><label><strong>Style: </strong>
+                            <select id="noVNC_setting_stylesheet" name="vncStyle">
+                                <option value="default">default</option>
+                        </select></label>
+                    </li>
+                    <!-- Logging selection dropdown -->
+                    <li><label><strong>Logging: </strong>
+                            <select id="noVNC_setting_logging" name="vncLogging">
+                        </select></label>
+                    </li>
+                    <hr>
+                    <li><input type="button" id="noVNC_settings_apply" value="Apply" /></li>
+                </ul>
             </div>
 
             <!-- Connection Controls -->

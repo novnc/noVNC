@@ -258,13 +258,9 @@ html {
   right: 20px;
   position: fixed;
 }
-#noVNC_settings_menu {
-  margin: 3px;
-  text-align: left;
-}
-#noVNC_settings_menu ul {
+#noVNC_settings ul {
   list-style: none;
-  margin: 0px;
+  margin: 3px;
   padding: 0px;
 }
 #noVNC_setting_path {
