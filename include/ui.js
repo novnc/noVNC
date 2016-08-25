@@ -156,11 +156,17 @@ var UI;
 
             Util.addEvent(window, 'load', UI.keyboardinputReset);
 
+            // While connected we want to display a confirmation dialogue
+            // if the user tries to leave the page
             Util.addEvent(window, 'beforeunload', function () {
                 if (UI.rfb && UI.rfb_state === 'normal') {
-                    return "You are currently connected.";
+                    var msg = "You are currently connected.";
+                    e.returnValue = msg;
+                    return msg;
+                else {
+                    return void 0; // To prevent the dialogue when disconnected
                 }
-            } );
+            });
 
             // Show description by default when hosted at for kanaka.github.com
             if (location.host === "kanaka.github.io") {
