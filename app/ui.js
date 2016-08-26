@@ -198,6 +198,9 @@ var UI;
             document.getElementById("noVNC_control_bar")
                 .addEventListener('keypress', UI.activateControlbar);
 
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('click', UI.toggleControlbar);
+
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
             document.getElementById("noVNC_send_ctrl_alt_del_button")
@@ -474,6 +477,26 @@ var UI;
                 .classList.add("noVNC_idle");
         },
 
+        openControlbar: function() {
+            document.getElementById('noVNC_control_bar')
+                .classList.add("noVNC_open");
+        },
+
+        closeControlbar: function() {
+            UI.closeAllPanels();
+            document.getElementById('noVNC_control_bar')
+                .classList.remove("noVNC_open");
+        },
+
+        toggleControlbar: function() {
+            if (document.getElementById('noVNC_control_bar')
+                .classList.contains("noVNC_open")) {
+                UI.closeControlbar();
+            } else {
+                UI.openControlbar();
+            }
+        },
+
 /* ------^-------
  *    /VISUAL
  * ==============
@@ -612,6 +635,7 @@ var UI;
 
         openSettingsPanel: function() {
             UI.closeAllPanels();
+            UI.openControlbar();
 
             UI.updateSetting('encrypt');
             UI.updateSetting('true_color');
@@ -664,6 +688,7 @@ var UI;
 
         openXvpPanel: function() {
             UI.closeAllPanels();
+            UI.openControlbar();
 
             document.getElementById('noVNC_xvp')
                 .classList.add("noVNC_open");
@@ -708,6 +733,7 @@ var UI;
 
         openClipboardPanel: function() {
             UI.closeAllPanels();
+            UI.openControlbar();
 
             document.getElementById('noVNC_clipboard')
                 .classList.add("noVNC_open");
@@ -757,6 +783,7 @@ var UI;
 
         openConnectPanel: function() {
             UI.closeAllPanels();
+            UI.openControlbar();
 
             document.getElementById('noVNC_connect_controls')
                 .classList.add("noVNC_open");
@@ -789,6 +816,7 @@ var UI;
 
         connect: function() {
             UI.closeAllPanels();
+            UI.closeControlbar();
 
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
@@ -1250,6 +1278,7 @@ var UI;
 
         openExtraKeys: function() {
             UI.closeAllPanels();
+            UI.openControlbar();
 
             document.getElementById('noVNC_modifiers')
                 .classList.add("noVNC_open");

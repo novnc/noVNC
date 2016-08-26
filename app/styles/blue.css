@@ -12,6 +12,6 @@
   color:#fff;
 }
 
-#noVNC_control_bar {
+#noVNC_control_bar, #noVNC_control_bar_handle {
   background: #080F80;
 }

@@ -153,17 +153,54 @@ input[type=button]:active, select:active {
 
 #noVNC_control_bar {
   position: relative;
-  left: -30px;
+  /* left: calc(-35px - 10px - 5px - 30px), but IE doesn't animate calc */
+  left: -80px;
+
+  transition: 0.5s ease-in-out;
 
   background-color: rgb(110, 132, 163);
   border-radius: 0 10px 10px 0;
-
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 
   /* The extra border is to get a proper shadow */
   border-color: rgb(110, 132, 163);
   border-style: solid;
   border-width: 0 0 0 30px;
+}
+#noVNC_control_bar.noVNC_open {
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  left: -30px;
+}
+
+#noVNC_control_bar_handle {
+  position: absolute;
+  right: -15px;
+  top: 10%;
+  width: 50px;
+  height: 50px;
+  z-index: -2;
+  cursor: pointer;
+  border-radius: 0 5px 5px 0;
+  background-color: rgb(83, 99, 122);
+  background-image: url("../images/handle_bg.svg");
+  background-repeat: no-repeat;
+  background-position: right;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+}
+#noVNC_control_bar_handle:after {
+  content: "";
+  transition: 0.5s ease-in-out;
+  background: url("../images/handle.svg");
+  position: absolute;
+  top: 22px; /* (50px-6px)/2 */
+  right: 5px;
+  width: 5px;
+  height: 6px;
+}
+#noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+  transform: translateX(1px) rotate(180deg);
+}
+:root:not(.noVNC_connected) #noVNC_control_bar_handle {
+  display: none;
 }
 
 #noVNC_control_bar .noVNC_scroll {
