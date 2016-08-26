@@ -22,10 +22,6 @@ html {
   height:100%;
 }
 
-#noVNC_buttons {
-  white-space: nowrap;
-}
-
 /* ----------------------------------------
  * Input Elements
  * ----------------------------------------
@@ -122,59 +118,70 @@ input[type=button]:active, select:active {
 .noVNC_center > * {
   pointer-events: auto;
 }
+.noVNC_vcenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  pointer-events: none;
+}
+.noVNC_vcenter > * {
+  pointer-events: auto;
+}
 
 /* ----------------------------------------
  * Control Bar
  * ----------------------------------------
  */
 
-#noVNC_control_bar {
+#noVNC_control_bar_anchor {
+  /* The anchor is needed to get z-stacking to work */
   position: fixed;
-  display: block;
-  height: 36px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  z-index: 200;
+  z-index: 2;
 
-  background: #b2bdcd; /* Old browsers */
-  background: -moz-linear-gradient(top, #b2bdcd 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b2bdcd), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
-  background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+  /* Edge misrenders animations wihthout this */
+  transform: translateX(0);
+}
+
+#noVNC_control_bar {
+  position: relative;
+  left: -30px;
+
+  background-color: rgb(110, 132, 163);
+  border-radius: 0 10px 10px 0;
+
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+
+  /* The extra border is to get a proper shadow */
+  border-color: rgb(110, 132, 163);
+  border-style: solid;
+  border-width: 0 0 0 30px;
+}
+
+#noVNC_control_bar .noVNC_scroll {
+  max-height: 100vh; /* Chrome is buggy with 100% */
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 10px 0 5px;
 }
 
 /* General button style */
 .noVNC_button {
+  display: block;
   padding: 4px 4px;
+  margin: 10px 0;
   vertical-align: middle;
-  border:1px solid #869dbc;
+  border:1px solid rgba(255, 255, 255, 0.2);
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px;
-  background: #b2bdcd; /* Old browsers */
-  background: -moz-linear-gradient(top, #b2bdcd 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b2bdcd), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b2bdcd', endColorstr='#6e84a3',GradientType=0 ); /* IE6-9 */
-  background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
-  /*box-shadow:inset 0.4px 0.4px 0.4px #000000;*/
-  font-size: 12px;
 }
 .noVNC_button.noVNC_selected {
-  border-color: #4366a9;
-  background: #779ced; /* Old browsers */
-  background: -moz-linear-gradient(top, #779ced 0%, #3970e0 49%, #2160dd 51%, #2463df 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#779ced), color-stop(49%,#3970e0), color-stop(51%,#2160dd), color-stop(100%,#2463df)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* Opera11.10+ */
-  background: -ms-linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* IE10+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#779ced', endColorstr='#2463df',GradientType=0 ); /* IE6-9 */
-  background: linear-gradient(top, #779ced 0%,#3970e0 49%,#2160dd 51%,#2463df 100%); /* W3C */
+  border-color: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.5);
 }
 .noVNC_button:disabled {
   opacity: 0.4;
@@ -192,12 +199,13 @@ input[type=button]:active, select:active {
 
 /* Panels */
 .noVNC_panel {
-  position: fixed;
-  top: 46px;
-  right: 15px;
-  transform: translate(0, -50px);
+  transform: translateX(25px);
 
   transition: 0.5s ease-in-out;
+
+  max-height: 100vh; /* Chrome is buggy with 100% */
+  overflow-x: hidden;
+  overflow-y: auto;
 
   visibility: hidden;
   opacity: 0;
@@ -215,7 +223,7 @@ input[type=button]:active, select:active {
 .noVNC_panel.noVNC_open {
   visibility: visible;
   opacity: 1;
-  transform: translate(0, 0);
+  transform: translateX(75px);
 }
 
 .noVNC_submit {
@@ -227,9 +235,6 @@ input[type=button]:active, select:active {
 }
 
 /* noVNC Touch Device only buttons */
-#noVNC_mobile_buttons {
-  display: inline;
-}
 :root:not(.noVNC_connected) #noVNC_mobile_buttons {
   display: none;
 }
@@ -249,47 +254,20 @@ input[type=button]:active, select:active {
   ime-mode: disabled;
 }
 
+/* Extra manual keys */
 :root:not(.noVNC_connected) #noVNC_extra_keys {
   display: none;
-}
-
-#noVNC_extra_keys {
-  display: inline;
-  list-style-type: none;
-  padding: 0px;
-  margin: 0px;
-  position: relative;
-}
-#noVNC_extra_keys.noVNC_hidden {
-  display: none;
-}
-#noVNC_toggle_ctrl_button {
-  display: inline;
-}
-#noVNC_toggle_alt_button {
-  display: inline;
-}
-#noVNC_send_tab_button {
-  display: inline;
-}
-#noVNC_send_esc_button {
-  display: inline;
-}
-#noVNC_modifiers {
-  display: inline;
-}
-
-.noVNC_buttons {
-  float: right;
-  z-index: 1;
-  position: relative;
-  padding-right: 10px;
-  padding-left: 10px;
 }
 
 /* Send Ctrl+Alt+Delete */
 :root:not(.noVNC_connected) #noVNC_send_ctrl_alt_del_button {
   display: none;
+}
+
+#noVNC_modifiers {
+  background-color: rgb(92, 92, 92);
+  border: none;
+  padding: 0 10px;
 }
 
 /* XVP Shutdown/Reboot */
@@ -307,9 +285,12 @@ input[type=button]:active, select:active {
   display: none;
 }
 #noVNC_clipboard {
+  /* Full screen, minus padding and left and right margins */
+  max-width: calc(100vw - 2*15px - 75px - 25px);
 }
 #noVNC_clipboard_text {
   width: 500px;
+  max-width: 100%;
 }
 
 /* Settings */
@@ -456,7 +437,7 @@ input[type=button]:active, select:active {
   margin: 0px;
   padding: 0px;
   bottom: 0px;
-  top: 36px; /* the height of the control bar */
+  top: 0px;
   left: 0px;
   right: 0px;
   width: auto;
@@ -488,8 +469,8 @@ input[type=button]:active, select:active {
 }
 
 #noVNC_logo {
-  margin-top: 170px;
-  margin-left: 10px;
+  margin-top: 60px;
+  margin-left: 60px;
   color:yellow;
   text-align:left;
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
@@ -516,69 +497,18 @@ input[type=button]:active, select:active {
  */
 
 @media screen and (max-width: 640px){
-  #noVNC_clipboard_text {
-    width: 410px;
-  }
   #noVNC_logo {
     font-size: 150px;
-  }
-  .noVNC_button {
-    font-size: 10px;
-  }
-  .noVNC_buttons_left {
-    padding-left: 0px;
-  }
-  .noVNC_buttons_right {
-    padding-right: 0px;
-  }
-  /* collapse the extra keys on lower resolutions */
-  #noVNC_toggle_extra_keys_button {
-    display: inline;
-  }
-  #noVNC_modifiers {
-    display: none;
-  }
-  #noVNC_modifiers.noVNC_open {
-    display: inline;
-  }
-  #noVNC_toggle_ctrl_button {
-    position: absolute;
-    top: 30px;
-    left: 0px;
-  }
-  #noVNC_toggle_alt_button {
-    position: absolute;
-    top: 65px;
-    left: 0px;
-  }
-  #noVNC_send_tab_button {
-    position: absolute;
-    top: 100px;
-    left: 0px;
-  }
-  #noVNC_send_esc_button {
-    position: absolute;
-    top: 135px;
-    left: 0px;
   }
 }
 
 @media screen and (min-width: 321px) and (max-width: 480px) {
-  #noVNC_clipboard_text {
-    width: 250px;
-  }
   #noVNC_logo {
     font-size: 110px;
   }
 }
 
 @media screen and (max-width: 320px) {
-  .noVNC_button {
-    font-size: 9px;
-  }
-  #noVNC_clipboard_text {
-    width: 220px;
-  }
   #noVNC_logo {
     font-size: 90px;
   }

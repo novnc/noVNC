@@ -50,10 +50,9 @@
 
 <body>
     <!-- noVNC Control Bar -->
-    <div id="noVNC_control_bar" class="noVNC_status_normal">
+    <div id="noVNC_control_bar_anchor" class="noVNC_vcenter">
 
-        <div class="noVNC_buttons">
-
+        <div id="noVNC_control_bar"><div class="noVNC_scroll">
             <!-- Drag/Pan the viewport -->
             <input type="image" alt="viewport drag" src="app/images/drag.svg"
                 id="noVNC_view_drag_button" class="noVNC_button noVNC_hidden"
@@ -78,7 +77,8 @@
             <div id="noVNC_extra_keys">
                 <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
                     id="noVNC_toggle_extra_keys_button" class="noVNC_button" />
-                <div id="noVNC_modifiers">
+                <div class="noVNC_vcenter">
+                <div id="noVNC_modifiers" class="noVNC_panel">
                     <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
                         id="noVNC_toggle_ctrl_button" class="noVNC_button" />
                     <input type="image" alt="Alt" src="app/images/alt.svg"
@@ -87,6 +87,7 @@
                         id="noVNC_send_tab_button" class="noVNC_button" />
                     <input type="image" alt="Esc" src="app/images/esc.svg"
                         id="noVNC_send_esc_button" class="noVNC_button" />
+                </div>
                 </div>
             </div>
 
@@ -99,22 +100,26 @@
             <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
                 id="noVNC_xvp_button" class="noVNC_button"
                 title="Shutdown/Reboot..." />
+            <div class="noVNC_vcenter">
             <div id="noVNC_xvp" class="noVNC_panel">
                 <input type="button" id="noVNC_xvp_shutdown_button" value="Shutdown" />
                 <input type="button" id="noVNC_xvp_reboot_button" value="Reboot" />
                 <input type="button" id="noVNC_xvp_reset_button" value="Reset" />
+            </div>
             </div>
 
             <!-- Clipboard -->
             <input type="image" alt="Clipboard" src="app/images/clipboard.svg"
                 id="noVNC_clipboard_button" class="noVNC_button"
                 title="Clipboard" />
+            <div class="noVNC_vcenter">
             <div id="noVNC_clipboard" class="noVNC_panel">
                 <textarea id="noVNC_clipboard_text" rows=5>
                 </textarea>
                 <br />
                 <input id="noVNC_clipboard_clear_button" type="button"
                     value="Clear" class="noVNC_submit" />
+            </div>
             </div>
 
             <!-- Toggle fullscreen -->
@@ -126,6 +131,7 @@
             <input type="image" alt="Settings" src="app/images/settings.svg"
                 id="noVNC_settings_button" class="noVNC_button"
                 title="Settings" />
+            <div class="noVNC_vcenter">
             <div id="noVNC_settings" class="noVNC_panel">
                 <ul>
                     <li><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</li>
@@ -161,6 +167,7 @@
                     <li><input type="button" id="noVNC_settings_apply" value="Apply" class="noVNC_submit" /></li>
                 </ul>
             </div>
+            </div>
 
             <!-- Connection Controls -->
             <input type="image" alt="Connect" src="app/images/connect.svg"
@@ -169,6 +176,7 @@
             <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
                 id="noVNC_disconnect_button" class="noVNC_button"
                 title="Disconnect" />
+            <div class="noVNC_vcenter">
             <div id="noVNC_connect_controls" class="noVNC_panel">
                 <ul>
                     <li><label><strong>Host: </strong><input id="noVNC_setting_host" /></label></li>
@@ -178,7 +186,8 @@
                     <li><input id="noVNC_connect_button" type="button" value="Connect" class="noVNC_submit" /></li>
                 </ul>
             </div>
-        </div>
+            </div>
+        </div></div>
 
     </div> <!-- End of noVNC_control_bar -->
 

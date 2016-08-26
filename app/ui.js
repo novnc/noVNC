@@ -93,7 +93,6 @@ var UI;
             }
 
             UI.updateViewClip();
-            UI.setBarPosition();
 
             UI.updateVisualState();
 
@@ -168,7 +167,6 @@ var UI;
                 UI.applyResizeMode();
                 UI.updateViewClip();
                 UI.updateViewDrag();
-                UI.setBarPosition();
             } );
 
             document.getElementById("noVNC_status")
@@ -570,6 +568,7 @@ var UI;
             UI.closeXvpPanel();
             UI.closeClipboardPanel();
             UI.closeConnectPanel();
+            UI.closeExtraKeys();
         },
 
 /* ------^-------
@@ -783,9 +782,6 @@ var UI;
             UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 
             UI.rfb.connect(host, port, password, path);
-
-            //Close dialog.
-            setTimeout(UI.setBarPosition, 100);
         },
 
         disconnect: function() {
@@ -1220,6 +1216,8 @@ var UI;
         },
 
         openExtraKeys: function() {
+            UI.closeAllPanels();
+
             document.getElementById('noVNC_modifiers')
                 .classList.add("noVNC_open");
             document.getElementById('noVNC_toggle_extra_keys_button')
@@ -1329,14 +1327,6 @@ var UI;
             optn.value = value;
             selectbox.options.add(optn);
         },
-
-        setBarPosition: function() {
-            document.getElementById('noVNC_control_bar').style.top = (window.pageYOffset) + 'px';
-            document.getElementById('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-
-            var vncwidth = document.getElementById('noVNC_container').style.offsetWidth;
-            document.getElementById('noVNC_control_bar').style.width = vncwidth + 'px';
-        }
 
 /* ------^-------
  *    /MISC
