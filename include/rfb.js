@@ -1836,7 +1836,6 @@ var RFB;
                 for (var i = 0; i < 4; i++) {
                     if ((resetStreams >> i) & 1) {
                         this._FBU.zlibs[i].reset();
-                        console.debug('RESET!');
                         Util.Info("Reset zlib stream " + i);
                     }
                 }
