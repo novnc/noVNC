@@ -35,7 +35,8 @@
     this._rfb_password = '';
     this._rfb_path = '';
 
-    this._rfb_state = 'disconnected';
+    this._rfb_connection_state = 'disconnected';
+    this._rfb_init_state = '';
     this._rfb_version = 0;
     this._rfb_max_version = 3.8;
     this._rfb_auth_scheme = '';
@@ -204,8 +205,10 @@
     this._sock = new Websock();
     this._sock.on('message', this._handle_message.bind(this));
     this._sock.on('open', function () {
-        if (this._rfb_state === 'connect') {
-            this._updateState('ProtocolVersion', "Starting VNC handshake");
+        if ((this._rfb_connection_state === 'connect') &&
+            (this._rfb_init_state === '')) {
+            this._rfb_init_state = 'ProtocolVersion';
+            Util.Debug("Starting VNC handshake");
         } else {
             this._fail("Got unexpected WebSocket connection");
         }
@@ -220,14 +223,20 @@
             }
             msg += ")";
         }
-        if (this._rfb_state === 'disconnect') {
-            this._updateState('disconnected', 'VNC disconnected' + msg);
-        } else if (this._rfb_state === 'ProtocolVersion') {
-            this._fail('Failed to connect to server' + msg);
-        } else if (this._rfb_state in {'failed': 1, 'disconnected': 1}) {
-            Util.Error("Received onclose while disconnected" + msg);
-        } else {
-            this._fail("Server disconnected" + msg);
+        switch (this._rfb_connection_state) {
+            case 'disconnect':
+                this._updateConnectionState('disconnected', 'VNC disconnected' + msg);
+                break;
+            case 'connect':
+                this._fail('Failed to connect to server' + msg);
+                break;
+            case 'failed':
+            case 'disconnected':
+                Util.Error("Received onclose while disconnected" + msg);
+                break;
+            default:
+                this._fail("Server disconnected" + msg);
+                break;
         }
         this._sock.off('close');
     }.bind(this));
@@ -239,7 +248,7 @@
 
     var rmode = this._display.get_render_mode();
     Util.Info("Using native WebSockets");
-    this._updateState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
+    this._updateConnectionState('loaded', 'noVNC ready: native WebSockets, ' + rmode);
 
     Util.Debug("<< RFB.constructor");
 };
@@ -257,12 +266,13 @@
                 return this._fail("Must set host and port");
             }
 
-            this._updateState('connect');
+            this._rfb_init_state = '';
+            this._updateConnectionState('connect');
             return true;
         },
 
         disconnect: function () {
-            this._updateState('disconnect', 'Disconnecting');
+            this._updateConnectionState('disconnect', 'Disconnecting');
             this._sock.off('error');
             this._sock.off('message');
             this._sock.off('open');
@@ -274,7 +284,7 @@
         },
 
         sendCtrlAltDel: function () {
-            if (this._rfb_state !== 'normal' || this._view_only) { return false; }
+            if (this._rfb_connection_state !== 'normal' || this._view_only) { return false; }
             Util.Info("Sending Ctrl-Alt-Del");
 
             RFB.messages.keyEvent(this._sock, KeyTable.XK_Control_L, 1);
@@ -308,7 +318,7 @@
         // Send a key press. If 'down' is not specified then send a down key
         // followed by an up key.
         sendKey: function (code, down) {
-            if (this._rfb_state !== "normal" || this._view_only) { return false; }
+            if (this._rfb_connection_state !== "normal" || this._view_only) { return false; }
             if (typeof down !== 'undefined') {
                 Util.Info("Sending key code (" + (down ? "down" : "up") + "): " + code);
                 RFB.messages.keyEvent(this._sock, code, down ? 1 : 0);
@@ -321,14 +331,14 @@
         },
 
         clipboardPasteFrom: function (text) {
-            if (this._rfb_state !== 'normal') { return; }
+            if (this._rfb_connection_state !== 'normal') { return; }
             RFB.messages.clientCutText(this._sock, text);
         },
 
         // Requests a change of remote desktop size. This message is an extension
         // and may only be sent if we have received an ExtendedDesktopSize message
         requestDesktopSize: function (width, height) {
-            if (this._rfb_state !== "normal") { return; }
+            if (this._rfb_connection_state !== "normal") { return; }
 
             if (this._supportsSetDesktopSize) {
                 RFB.messages.setDesktopSize(this._sock, width, height,
@@ -420,25 +430,17 @@
         },
 
         /*
-         * Page states:
+         * Connection states:
          *   loaded       - page load, equivalent to disconnected
          *   disconnected - idle state
-         *   connect      - starting to connect (to ProtocolVersion)
+         *   connect      - starting to connect
          *   normal       - connected
          *   disconnect   - starting to disconnect
          *   failed       - abnormal disconnect
          *   fatal        - failed to load page, or fatal error
-         *
-         * RFB protocol initialization states:
-         *   ProtocolVersion
-         *   Security
-         *   Authentication
-         *   SecurityResult
-         *   ClientInitialization - not triggered by server message
-         *   ServerInitialization (to normal)
          */
-        _updateState: function (state, statusMsg) {
-            var oldstate = this._rfb_state;
+        _updateConnectionState: function (state, statusMsg) {
+            var oldstate = this._rfb_connection_state;
 
             if (state === oldstate) {
                 // Already here, ignore
@@ -446,7 +448,7 @@
                 return;
             }
 
-            this._rfb_state = state;
+            this._rfb_connection_state = state;
 
             /*
              * These are disconnected states. A previous connect may
@@ -516,7 +518,7 @@
             if (oldstate === 'failed' && state === 'disconnected') {
                 // do disconnect action, but stay in failed state and
                 // keep the previous status message
-                this._rfb_state = 'failed';
+                this._rfb_connection_state = 'failed';
                 this._onUpdateState(this, state, oldstate);
             } else {
                 this._onUpdateState(this, state, oldstate, statusMsg);
@@ -524,12 +526,12 @@
 
             // Make sure we transition to disconnected
             if (state === 'failed') {
-                this._updateState('disconnected');
+                this._updateConnectionState('disconnected');
             }
         },
 
         _fail: function (msg) {
-            this._updateState('failed', msg);
+            this._updateConnectionState('failed', msg);
             return false;
         },
 
@@ -566,7 +568,7 @@
                 return;
             }
 
-            switch (this._rfb_state) {
+            switch (this._rfb_connection_state) {
                 case 'disconnected':
                 case 'failed':
                     Util.Error("Got data while disconnected");
@@ -638,7 +640,7 @@
 
             if (this._view_only) { return; } // View only, skip mouse events
 
-            if (this._rfb_state !== "normal") { return; }
+            if (this._rfb_connection_state !== "normal") { return; }
             RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
         },
 
@@ -665,7 +667,7 @@
 
             if (this._view_only) { return; } // View only, skip mouse events
 
-            if (this._rfb_state !== "normal") { return; }
+            if (this._rfb_connection_state !== "normal") { return; }
             RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
         },
 
@@ -717,7 +719,9 @@
             var cversion = "00" + parseInt(this._rfb_version, 10) +
                            ".00" + ((this._rfb_version * 10) % 10);
             this._sock.send_string("RFB " + cversion + "\n");
-            this._updateState('Security', 'Sent ProtocolVersion: ' + cversion);
+            Util.Debug('Sent ProtocolVersion: ' + cversion);
+
+            this._rfb_init_state = 'Security';
         },
 
         _negotiate_security: function () {
@@ -761,7 +765,9 @@
                 this._rfb_auth_scheme = this._sock.rQshift32();
             }
 
-            this._updateState('Authentication', 'Authenticating using scheme: ' + this._rfb_auth_scheme);
+            this._rfb_init_state = 'Authentication';
+            Util.Debug('Authenticating using scheme: ' + this._rfb_auth_scheme);
+
             return this._init_msg(); // jump to authentication
         },
 
@@ -798,7 +804,7 @@
             var challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
             var response = RFB.genDES(this._rfb_password, challenge);
             this._sock.send(response);
-            this._updateState("SecurityResult");
+            this._rfb_init_state = "SecurityResult";
             return true;
         },
 
@@ -871,7 +877,7 @@
 
                     switch (authType) {
                         case 'STDVNOAUTH__':  // no auth
-                            this._updateState('SecurityResult');
+                            this._rfb_init_state = 'SecurityResult';
                             return true;
                         case 'STDVVNCAUTH_': // VNC auth
                             this._rfb_auth_scheme = 2;
@@ -895,10 +901,10 @@
 
                 case 1:  // no auth
                     if (this._rfb_version >= 3.8) {
-                        this._updateState('SecurityResult');
+                        this._rfb_init_state = 'SecurityResult';
                         return true;
                     }
-                    this._updateState('ClientInitialisation', "No auth required");
+                    this._rfb_init_state = 'ClientInitialisation';
                     return this._init_msg();
 
                 case 22:  // XVP auth
@@ -919,7 +925,8 @@
             if (this._sock.rQwait('VNC auth response ', 4)) { return false; }
             switch (this._sock.rQshift32()) {
                 case 0:  // OK
-                    this._updateState('ClientInitialisation', 'Authentication OK');
+                    this._rfb_init_state = 'ClientInitialisation';
+                    Util.Debug('Authentication OK');
                     return this._init_msg();
                 case 1:  // failed
                     if (this._rfb_version >= 3.8) {
@@ -1047,15 +1054,23 @@
             this._timing.pixels = 0;
 
             if (this._encrypt) {
-                this._updateState('normal', 'Connected (encrypted) to: ' + this._fb_name);
+                this._updateConnectionState('normal', 'Connected (encrypted) to: ' + this._fb_name);
             } else {
-                this._updateState('normal', 'Connected (unencrypted) to: ' + this._fb_name);
+                this._updateConnectionState('normal', 'Connected (unencrypted) to: ' + this._fb_name);
             }
             return true;
         },
 
+        /* RFB protocol initialization states:
+         *   ProtocolVersion
+         *   Security
+         *   Authentication
+         *   SecurityResult
+         *   ClientInitialization - not triggered by server message
+         *   ServerInitialization
+         */
         _init_msg: function () {
-            switch (this._rfb_state) {
+            switch (this._rfb_init_state) {
                 case 'ProtocolVersion':
                     return this._negotiate_protocol_version();
 
@@ -1070,14 +1085,15 @@
 
                 case 'ClientInitialisation':
                     this._sock.send([this._shared ? 1 : 0]); // ClientInitialisation
-                    this._updateState('ServerInitialisation', "Authentication OK");
+                    this._rfb_init_state = 'ServerInitialisation';
                     return true;
 
                 case 'ServerInitialisation':
                     return this._negotiate_server_init();
 
                 default:
-                    return this._fail("Unknown state: " + this._rfb_state);
+                    return this._fail("Unknown init state: " +
+                                      this._rfb_init_state);
             }
         },
 
@@ -1255,7 +1271,7 @@
             }
 
             while (this._FBU.rects > 0) {
-                if (this._rfb_state !== "normal") { return false; }
+                if (this._rfb_connection_state !== "normal") { return false; }
 
                 if (this._sock.rQwait("FBU", this._FBU.bytes)) { return false; }
                 if (this._FBU.bytes === 0) {
