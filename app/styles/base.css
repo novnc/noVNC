@@ -468,14 +468,22 @@ input[type=button]:active, select:active {
                    url('Orbitron700.ttf') format('truetype');
 }
 
-#noVNC_logo {
-  margin-top: 60px;
-  margin-left: 60px;
+.noVNC_logo {
   color:yellow;
   text-align:left;
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
-  font-size: 180px;
+  font-size: 13px;
   line-height:90%;
+  text-shadow: 1px 1px 0 #000;
+}
+.noVNC_logo span{
+  color:green;
+}
+
+#noVNC_logo {
+  margin-top: 60px;
+  margin-left: 60px;
+  font-size: 180px;
   text-shadow:
        5px 5px 0 #000,
       -1px -1px 0 #000,
@@ -485,10 +493,6 @@ input[type=button]:active, select:active {
 }
 :root.noVNC_connected #noVNC_logo {
   display: none;
-}
-
-#noVNC_logo span{
-  color:green;
 }
 
 /* ----------------------------------------
