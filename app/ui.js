@@ -210,8 +210,6 @@ var UI;
 
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
-            document.getElementById("noVNC_send_ctrl_alt_del_button")
-                .addEventListener('click', UI.sendCtrlAltDel);
 
             document.getElementById("noVNC_control_bar_handle")
                 .addEventListener('mousedown', UI.controlbarHandleMouseDown);
@@ -277,6 +275,8 @@ var UI;
                 .addEventListener('click', UI.sendTab);
             document.getElementById("noVNC_send_esc_button")
                 .addEventListener('click', UI.sendEsc);
+            document.getElementById("noVNC_send_ctrl_alt_del_button")
+                .addEventListener('click', UI.sendCtrlAltDel);
         },
 
         addXvpHandlers: function() {
@@ -1462,6 +1462,7 @@ var UI;
         },
 
         sendCtrlAltDel: function() {
+            UI.keepKeyboard();
             UI.rfb.sendCtrlAltDel();
         },
 

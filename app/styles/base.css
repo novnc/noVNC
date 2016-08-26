@@ -316,11 +316,6 @@ input[type=button]:active, select:active {
   display: none;
 }
 
-/* Send Ctrl+Alt+Delete */
-:root:not(.noVNC_connected) #noVNC_send_ctrl_alt_del_button {
-  display: none;
-}
-
 #noVNC_modifiers {
   background-color: rgb(92, 92, 92);
   border: none;
