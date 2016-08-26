@@ -132,7 +132,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should sent ctrl[down]-alt[down]-del[down] then del[up]-alt[up]-ctrl[up]', function () {
-                var expected = {_sQ: new Uint8Array(48), _sQlen: 0};
+                var expected = {_sQ: new Uint8Array(48), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(expected, 0xFFE3, 1);
                 RFB.messages.keyEvent(expected, 0xFFE9, 1);
                 RFB.messages.keyEvent(expected, 0xFFFF, 1);
@@ -168,14 +168,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should send a single key with the given code and state (down = true)', function () {
-                var expected = {_sQ: new Uint8Array(8), _sQlen: 0};
+                var expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(expected, 123, 1);
                 client.sendKey(123, true);
                 expect(client._sock).to.have.sent(expected._sQ);
             });
 
             it('should send both a down and up event if the state is not specified', function () {
-                var expected = {_sQ: new Uint8Array(16), _sQlen: 0};
+                var expected = {_sQ: new Uint8Array(16), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(expected, 123, 1);
                 RFB.messages.keyEvent(expected, 123, 0);
                 client.sendKey(123);
@@ -206,7 +206,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should send the given text in a paste event', function () {
-                var expected = {_sQ: new Uint8Array(11), _sQlen: 0};
+                var expected = {_sQ: new Uint8Array(11), _sQlen: 0, flush: function () {}};
                 RFB.messages.clientCutText(expected, 'abc');
                 client.clipboardPasteFrom('abc');
                 expect(client._sock).to.have.sent(expected._sQ);
@@ -569,13 +569,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 send_ver('003.008', client);
                 expect(client._rfb_version).to.equal(3.8);
-            });
-
-            it('should initialize the flush interval', function () {
-                client._sock.flush = sinon.spy();
-                send_ver('003.008', client);
-                this.clock.tick(100);
-                expect(client._sock.flush).to.have.been.calledThrice;
             });
 
             it('should send back the interpreted version', function () {
@@ -1070,12 +1063,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client.set_true_color(true);
                 client.set_local_cursor(false);
                 // we skip the cursor encoding
-                var expected = {_sQ: new Uint8Array(34 + 4 * (client._encodings.length - 1)), _sQlen: 0};
+                var expected = {_sQ: new Uint8Array(34 + 4 * (client._encodings.length - 1)),
+                                _sQlen: 0,
+                                flush: function () {}};
                 RFB.messages.pixelFormat(expected, 4, 3, true);
                 RFB.messages.clientEncodings(expected, client._encodings, false, true);
-                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 0, h: 0 },
-                                     dirtyBoxes: [ { x: 0, y: 0, w: 27, h: 32 } ] };
-                RFB.messages.fbUpdateRequests(expected, expected_cdr, 27, 32);
+                RFB.messages.fbUpdateRequest(expected, false, 0, 0, 27, 32);
 
                 send_server_init({ width: 27, height: 32 }, client);
                 expect(client._sock).to.have.sent(expected._sQ);
@@ -1161,10 +1154,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
             }
 
             it('should send an update request if there is sufficient data', function () {
-                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0};
-                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 0, h: 0 },
-                                     dirtyBoxes: [ { x: 0, y: 0, w: 240, h: 20 } ] };
-                RFB.messages.fbUpdateRequests(expected_msg, expected_cdr, 240, 20);
+                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+                RFB.messages.fbUpdateRequest(expected_msg, false, 0, 0, 240, 20);
 
                 client._framebufferUpdate = function () { return true; };
                 client._sock._websocket._receive_data(new Uint8Array([0]));
@@ -1178,10 +1169,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should resume receiving an update if we previously did not have enough data', function () {
-                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0};
-                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 0, h: 0 },
-                                     dirtyBoxes: [ { x: 0, y: 0, w: 240, h: 20 } ] };
-                RFB.messages.fbUpdateRequests(expected_msg, expected_cdr, 240, 20);
+                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+                RFB.messages.fbUpdateRequest(expected_msg, false, 0, 0, 240, 20);
 
                 // just enough to set FBU.rects
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 3]));
@@ -1191,6 +1180,48 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 // 247 should *not* be used as the message type here
                 client._sock._websocket._receive_data(new Uint8Array([247]));
                 expect(client._sock).to.have.sent(expected_msg._sQ);
+            });
+
+            it('should send a request for both clean and dirty areas', function () {
+                var expected_msg = {_sQ: new Uint8Array(20), _sQlen: 0, flush: function() {}};
+                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 120, h: 20 },
+                                     dirtyBoxes: [ { x: 120, y: 0, w: 120, h: 20 } ] };
+
+                RFB.messages.fbUpdateRequest(expected_msg, true, 0, 0, 120, 20);
+                RFB.messages.fbUpdateRequest(expected_msg, false, 120, 0, 120, 20);
+
+                client._framebufferUpdate = function () { return true; };
+                client._display.getCleanDirtyReset = function () { return expected_cdr; };
+                client._sock._websocket._receive_data(new Uint8Array([0]));
+
+                expect(client._sock).to.have.sent(expected_msg._sQ);
+            });
+
+            it('should only request non-incremental rects in continuous updates mode', function () {
+                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 120, h: 20 },
+                                     dirtyBoxes: [ { x: 120, y: 0, w: 120, h: 20 } ] };
+
+                RFB.messages.fbUpdateRequest(expected_msg, false, 120, 0, 120, 20);
+
+                client._enabledContinuousUpdates = true;
+                client._framebufferUpdate = function () { return true; };
+                client._display.getCleanDirtyReset = function () { return expected_cdr; };
+                client._sock._websocket._receive_data(new Uint8Array([0]));
+
+                expect(client._sock).to.have.sent(expected_msg._sQ);
+            });
+
+            it('should not send a request in continuous updates mode when clean', function () {
+                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 240, h: 20 },
+                                     dirtyBoxes: [] };
+
+                client._enabledContinuousUpdates = true;
+                client._framebufferUpdate = function () { return true; };
+                client._display.getCleanDirtyReset = function () { return expected_cdr; };
+                client._sock._websocket._receive_data(new Uint8Array([0]));
+
+                expect(client._sock._websocket._get_sent_data()).to.have.length(0);
             });
 
             it('should parse out information from a header before any actual data comes in', function () {
@@ -1701,6 +1732,74 @@ describe('Remote Frame Buffer Protocol Client', function() {
             expect(client.get_onBell()).to.have.been.calledOnce;
         });
 
+        it('should respond correctly to ServerFence', function () {
+            var expected_msg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: function() {}};
+            var incoming_msg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: function() {}};
+
+            var payload = "foo\x00ab9";
+
+            // ClientFence and ServerFence are identical in structure
+            RFB.messages.clientFence(expected_msg, (1<<0) | (1<<1), payload);
+            RFB.messages.clientFence(incoming_msg, 0xffffffff, payload);
+
+            client._sock._websocket._receive_data(incoming_msg._sQ);
+
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+
+            expected_msg._sQlen = 0;
+            incoming_msg._sQlen = 0;
+
+            RFB.messages.clientFence(expected_msg, (1<<0), payload);
+            RFB.messages.clientFence(incoming_msg, (1<<0) | (1<<31), payload);
+
+            client._sock._websocket._receive_data(incoming_msg._sQ);
+
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+        });
+
+        it('should enable continuous updates on first EndOfContinousUpdates', function () {
+            var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+
+            RFB.messages.enableContinuousUpdates(expected_msg, true, 0, 0, 640, 20);
+
+            expect(client._enabledContinuousUpdates).to.be.false;
+
+            client._sock._websocket._receive_data(new Uint8Array([150]));
+
+            expect(client._enabledContinuousUpdates).to.be.true;
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+        });
+
+        it('should disable continuous updates on subsequent EndOfContinousUpdates', function () {
+            client._enabledContinuousUpdates = true;
+            client._supportsContinuousUpdates = true;
+
+            client._sock._websocket._receive_data(new Uint8Array([150]));
+
+            expect(client._enabledContinuousUpdates).to.be.false;
+        });
+
+        it('should update continuous updates on resize', function () {
+            var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
+            RFB.messages.enableContinuousUpdates(expected_msg, true, 0, 0, 90, 700);
+
+            client._FBU.width = 450;
+            client._FBU.height = 160;
+
+            client._encHandlers.handle_FB_resize();
+
+            expect(client._sock._websocket._get_sent_data()).to.have.length(0);
+
+            client._enabledContinuousUpdates = true;
+
+            client._FBU.width = 90;
+            client._FBU.height = 700;
+
+            client._encHandlers.handle_FB_resize();
+
+            expect(client._sock).to.have.sent(expected_msg._sQ);
+        });
+
         it('should fail on an unknown message type', function () {
             client._sock._websocket._receive_data(new Uint8Array([87]));
             expect(client._rfb_state).to.equal('failed');
@@ -1733,29 +1832,29 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should send a pointer event on mouse button presses', function () {
                 client._mouse._onMouseButton(10, 12, 1, 0x001);
-                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0};
+                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: function () {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
             it('should send a mask of 1 on mousedown', function () {
                 client._mouse._onMouseButton(10, 12, 1, 0x001);
-                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0};
-                RFB.messages.pointerEvent(pointer_msg, 0, 10, 12, 0x001);
+                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: function () {}};
+                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
             it('should send a mask of 0 on mouseup', function () {
                 client._mouse_buttonMask = 0x001;
                 client._mouse._onMouseButton(10, 12, 0, 0x001);
-                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0};
+                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: function () {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x000);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
             it('should send a pointer event on mouse movement', function () {
                 client._mouse._onMouseMove(10, 12);
-                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0};
+                var pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: function () {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x000);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
@@ -1763,7 +1862,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should set the button mask so that future mouse movements use it', function () {
                 client._mouse._onMouseButton(10, 12, 1, 0x010);
                 client._mouse._onMouseMove(13, 9);
-                var pointer_msg = {_sQ: new Uint8Array(12), _sQlen: 0};
+                var pointer_msg = {_sQ: new Uint8Array(12), _sQlen: 0, flush: function () {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x010);
                 RFB.messages.pointerEvent(pointer_msg, 13, 9, 0x010);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
@@ -1829,7 +1928,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should send a key message on a key press', function () {
                 client._keyboard._onKeyPress(1234, 1);
-                var key_msg = {_sQ: new Uint8Array(8), _sQlen: 0};
+                var key_msg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(key_msg, 1234, 1);
                 expect(client._sock).to.have.sent(key_msg._sQ);
             });
