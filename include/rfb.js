@@ -153,7 +153,7 @@ var RFB;
             'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
             'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
             'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
-            'onXvpInit': function () { },           // onXvpInit(version): XVP extensions active for this connection
+            'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
         });
 
         // main setup
@@ -1297,7 +1297,7 @@ var RFB;
         ['onFBUComplete', 'rw', 'func'],        // onFBUComplete(rfb, fbu): RFB FBU received and processed
         ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
         ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
-        ['onXvpInit', 'rw', 'func'],            // onXvpInit(version): XVP extensions active for this connection
+        ['onXvpInit', 'rw', 'func']             // onXvpInit(version): XVP extensions active for this connection
     ]);
 
     RFB.prototype.set_local_cursor = function (cursor) {
