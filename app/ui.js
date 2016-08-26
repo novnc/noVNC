@@ -41,6 +41,7 @@ var UI;
         resizeTimeout: null,
         statusTimeout: null,
         hideKeyboardTimeout: null,
+        controlbarTimeout: null,
 
         keyboardVisible: false,
 
@@ -188,6 +189,15 @@ var UI;
         },
 
         addControlbarHandlers: function() {
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mousemove', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mouseup', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mousedown', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('keypress', UI.activateControlbar);
+
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
             document.getElementById("noVNC_send_ctrl_alt_del_button")
@@ -212,6 +222,15 @@ var UI;
                 .addEventListener('blur', UI.hideKeyboard);
             document.getElementById("noVNC_keyboardinput")
                 .addEventListener('submit', function () { return false; });
+
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchstart', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchmove', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchend', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('input', UI.activateControlbar);
 
             window.addEventListener('load', UI.keyboardinputReset);
         },
@@ -439,6 +458,20 @@ var UI;
         hideStatus: function() {
             clearTimeout(UI.statusTimeout);
             document.getElementById('noVNC_status').classList.remove("noVNC_open");
+        },
+
+        activateControlbar: function() {
+            clearTimeout(UI.controlbarTimeout);
+            // We manipulate the anchor instead of the actual control
+            // bar in order to avoid creating new a stacking group
+            document.getElementById('noVNC_control_bar_anchor')
+                .classList.remove("noVNC_idle");
+            UI.controlbarTimeout = window.setTimeout(UI.idleControlbar, 2000);
+        },
+
+        idleControlbar: function() {
+            document.getElementById('noVNC_control_bar_anchor')
+                .classList.add("noVNC_idle");
         },
 
 /* ------^-------

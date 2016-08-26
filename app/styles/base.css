@@ -142,8 +142,13 @@ input[type=button]:active, select:active {
   position: fixed;
   z-index: 2;
 
+  transition: 0.5s ease-in-out;
+
   /* Edge misrenders animations wihthout this */
   transform: translateX(0);
+}
+:root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
+  opacity: 0.8;
 }
 
 #noVNC_control_bar {
