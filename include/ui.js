@@ -18,8 +18,9 @@ var UI;
     // Load supporting scripts
     window.onscriptsload = function () { UI.load(); };
     Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                       "keysymdef.js", "keyboard.js", "input.js", "display.js",
-                       "rfb.js", "keysym.js", "inflator.js"]);
+                       "keysymdef.js", "xtscancodes.js", "keyboard.js",
+                       "input.js", "display.js", "rfb.js", "keysym.js",
+                       "inflator.js"]);
 
     UI = {
 

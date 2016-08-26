@@ -17,6 +17,7 @@ is not limited to):
     include/util.js
     include/websock.js
     include/webutil.js
+    include/xtscancodes.js
 
 The HTML, CSS, font and images files that included with the noVNC
 source distibution (or repository) are not considered part of the
@@ -45,7 +46,7 @@ the noVNC core library. Here is a list of those files and the original
 licenses (all MPL 2.0 compatible):
 
     include/base64.js          : MPL 2.0
-   
+
     include/des.js             : Various BSD style licenses
 
     include/chrome-app/tcp-stream.js
@@ -53,7 +54,7 @@ licenses (all MPL 2.0 compatible):
 
     utils/websockify
     utils/websocket.py         : LGPL 3
-    
+
     utils/inflator.partial.js
     include/inflator.js        : MIT (for pako)
 
