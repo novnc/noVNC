@@ -249,6 +249,7 @@ var RFB;
             }
 
             this._updateState('connect');
+            return true;
         },
 
         disconnect: function () {
@@ -274,6 +275,7 @@ var RFB;
             RFB.messages.keyEvent(this._sock, XK_Delete, 0);
             RFB.messages.keyEvent(this._sock, XK_Alt_L, 0);
             RFB.messages.keyEvent(this._sock, XK_Control_L, 0);
+            return true;
         },
 
         xvpOp: function (ver, op) {
@@ -307,6 +309,7 @@ var RFB;
                 RFB.messages.keyEvent(this._sock, code, 1);
                 RFB.messages.keyEvent(this._sock, code, 0);
             }
+            return true;
         },
 
         clipboardPasteFrom: function (text) {
@@ -822,7 +825,7 @@ var RFB;
                 }
             }
 
-            this._fail("No supported sub-auth types!");
+            return this._fail("No supported sub-auth types!");
         },
 
         _negotiate_authentication: function () {
@@ -873,6 +876,8 @@ var RFB;
                     return false;
                 case 2:
                     return this._fail("Too many auth attempts");
+                default:
+                    return this._fail("Unknown SecurityResult");
             }
         },
 
@@ -989,6 +994,7 @@ var RFB;
             } else {
                 this._updateState('normal', 'Connected (unencrypted) to: ' + this._fb_name);
             }
+            return true;
         },
 
         _init_msg: function () {
@@ -1012,6 +1018,9 @@ var RFB;
 
                 case 'ServerInitialisation':
                     return this._negotiate_server_init();
+
+                default:
+                    return this._fail("Unknown state: " + this._rfb_state);
             }
         },
 
