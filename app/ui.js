@@ -308,43 +308,33 @@ var UI;
 
         updateState: function(rfb, state, oldstate, msg) {
             UI.rfb_state = state;
-            var klass;
-            var timeout;
-            switch (state) {
-                case 'failed':
-                case 'fatal':
-                    klass = "noVNC_status_error";
-                    timeout = 0; // zero means no timeout
-                    break;
-                case 'normal':
-                    klass = "noVNC_status_normal";
-                    break;
-                case 'disconnected':
-                    /* falls through */
-                case 'loaded':
-                    klass = "noVNC_status_normal";
-                    break;
-                case 'password':
-                    UI.toggleConnectPanel();
-
-                    document.getElementById('noVNC_connect_button').value = "Send Password";
-                    document.getElementById('noVNC_connect_button').onclick = UI.setPassword;
-                    document.getElementById('noVNC_setting_password').focus();
-
-                    klass = "noVNC_status_warn";
-                    break;
-                default:
-                    klass = "noVNC_status_warn";
-                    break;
-            }
 
             if (typeof(msg) !== 'undefined') {
-                document.getElementById('noVNC_status')
-                    .classList.remove("noVNC_status_normal",
-                                      "noVNC_status_warn",
-                                      "noVNC_status_error");
-                document.getElementById('noVNC_status').classList.add(klass);
-                UI.showStatus(msg, timeout);
+                switch (state) {
+                    case 'failed':
+                    case 'fatal':
+                        // zero means no timeout
+                        UI.showStatus(msg, 'error', 0);
+                        break;
+                    case 'normal':
+                        /* falls through */
+                    case 'disconnected':
+                    case 'loaded':
+                        UI.showStatus(msg, 'normal');
+                        break;
+                    case 'password':
+                        UI.toggleConnectPanel();
+
+                        document.getElementById('noVNC_connect_button').value = "Send Password";
+                        document.getElementById('noVNC_connect_button').onclick = UI.setPassword;
+                        document.getElementById('noVNC_setting_password').focus();
+
+                        UI.showStatus(msg, 'warn');
+                        break;
+                    default:
+                        UI.showStatus(msg, 'warn');
+                        break;
+                }
             }
 
             UI.updateVisualState();
@@ -434,10 +424,33 @@ var UI;
             //Util.Debug("<< updateVisualState");
         },
 
-        showStatus: function(text, time) {
+        showStatus: function(text, status_type, time) {
             var statusElem = document.getElementById('noVNC_status');
 
             clearTimeout(UI.statusTimeout);
+
+            if (typeof status_type === 'undefined') {
+                status_type = 'normal';
+            }
+
+            statusElem.classList.remove("noVNC_status_normal",
+                                        "noVNC_status_warn",
+                                        "noVNC_status_error");
+
+            switch (status_type) {
+                case 'warning':
+                case 'warn':
+                    statusElem.classList.add("noVNC_status_warn");
+                    break;
+                case 'error':
+                    statusElem.classList.add("noVNC_status_error");
+                    break;
+                case 'normal':
+                case 'info':
+                default:
+                    statusElem.classList.add("noVNC_status_normal");
+                    break;
+            }
 
             statusElem.innerHTML = text;
             statusElem.classList.add("noVNC_open");
