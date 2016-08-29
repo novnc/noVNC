@@ -161,6 +161,9 @@
                 s.innerHTML = msg;
             }
         }
+        function notification(rfb, msg, level, options) {
+            $D('noVNC_status').innerHTML = msg;
+        }
 
         window.onresize = function () {
             // When the window has been resized, wait until the size remains
@@ -236,6 +239,7 @@
                                'local_cursor': WebUtil.getConfigVar('cursor', true),
                                'shared':       WebUtil.getConfigVar('shared', true),
                                'view_only':    WebUtil.getConfigVar('view_only', false),
+                               'onNotification:  notification,
                                'onUpdateState':  updateState,
                                'onXvpInit':    xvpInit,
                                'onPasswordRequired':  passwordRequired,

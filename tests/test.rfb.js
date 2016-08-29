@@ -338,6 +338,28 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._disconnTimer).to.be.null;
             });
         });
+
+        describe('#_notification', function () {
+            var client;
+            beforeEach(function () { client = make_rfb(); });
+
+            it('should call the notification callback', function () {
+                client.set_onNotification(sinon.spy());
+                client._notification('notify!', 'warn');
+                var spy = client.get_onNotification();
+                expect(spy).to.have.been.calledOnce;
+                expect(spy.args[0][1]).to.equal('notify!');
+                expect(spy.args[0][2]).to.equal('warn');
+            });
+
+            it('should not call the notification callback when level is invalid', function () {
+                client.set_onNotification(sinon.spy());
+                client._notification('notify!', 'invalid');
+                var spy = client.get_onNotification();
+                expect(spy).to.not.have.been.called;
+            });
+        });
+
     });
 
     describe('Page States', function () {
@@ -1730,11 +1752,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._fb_height = 32;
             });
 
-            it('should call updateState with a message on XVP_FAIL, but keep the same state', function () {
-                client._updateState = sinon.spy();
+            it('should send a notification on XVP_FAIL', function () {
+                client.set_onNotification(sinon.spy());
                 client._sock._websocket._receive_data(new Uint8Array([250, 0, 10, 0]));
-                expect(client._updateState).to.have.been.calledOnce;
-                expect(client._updateState).to.have.been.calledWith('normal', 'Operation Failed');
+                var spy = client.get_onNotification();
+                expect(spy).to.have.been.calledOnce;
+                expect(spy.args[0][1]).to.equal('XVP Operation Failed');
             });
 
             it('should set the XVP version and fire the callback with the version on XVP_INIT', function () {

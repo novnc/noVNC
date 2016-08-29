@@ -338,6 +338,7 @@ var UI;
         initRFB: function() {
             try {
                 UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
+                                  'onNotification': UI.notification,
                                   'onUpdateState': UI.updateState,
                                   'onPasswordRequired': UI.passwordRequired,
                                   'onXvpInit': UI.updateXvpButton,
@@ -484,6 +485,10 @@ var UI;
         hideStatus: function() {
             clearTimeout(UI.statusTimeout);
             document.getElementById('noVNC_status').classList.remove("noVNC_open");
+        },
+
+        notification: function (rfb, msg, level, options) {
+            UI.showStatus(msg, level);
         },
 
         activateControlbar: function(event) {
