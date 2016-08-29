@@ -107,10 +107,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
             beforeEach(function () { this.clock = sinon.useFakeTimers(); });
             afterEach(function () { this.clock.restore(); });
 
-            it('should set the state to "Authentication"', function () {
-                client._rfb_state = "blah";
+            it('should set the rfb password properly"', function () {
                 client.sendPassword('pass');
-                expect(client._rfb_state).to.equal('Authentication');
+                expect(client._rfb_password).to.equal('pass');
             });
 
             it('should call init_msg "soon"', function () {
@@ -704,9 +703,13 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._rfb_version = 3.8;
                 });
 
-                it('should transition to the "password" state if missing a password', function () {
+                it('should call the passwordRequired callback if missing a password', function () {
+                    client.set_onPasswordRequired(sinon.spy());
                     send_security(2, client);
-                    expect(client._rfb_state).to.equal('password');
+
+                    var spy = client.get_onPasswordRequired();
+                    expect(client._rfb_password.length).to.equal(0);
+                    expect(spy).to.have.been.calledOnce;
                 });
 
                 it('should encrypt the password with DES and then send it back', function () {
@@ -753,15 +756,23 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(client._negotiate_std_vnc_auth).to.have.been.calledOnce;
                 });
 
-                it('should transition to the "password" state if the passwords is missing', function() {
+                it('should call the passwordRequired callback if the password is missing', function() {
+                    client.set_onPasswordRequired(sinon.spy());
+                    client._rfb_password = '';
                     send_security(22, client);
-                    expect(client._rfb_state).to.equal('password');
+
+                    var spy = client.get_onPasswordRequired();
+                    expect(client._rfb_password.length).to.equal(0);
+                    expect(spy).to.have.been.calledOnce;
                 });
 
-                it('should transition to the "password" state if the passwords is improperly formatted', function() {
+                it('should call the passwordRequired callback if the password is improperly formatted', function() {
+                    client.set_onPasswordRequired(sinon.spy());
                     client._rfb_password = 'user@target';
                     send_security(22, client);
-                    expect(client._rfb_state).to.equal('password');
+
+                    var spy = client.get_onPasswordRequired();
+                    expect(spy).to.have.been.calledOnce;
                 });
 
                 it('should split the password, send the first two parts, and pass on the last part', function () {

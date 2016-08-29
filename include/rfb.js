@@ -265,7 +265,6 @@ var RFB;
 
         sendPassword: function (passwd) {
             this._rfb_password = passwd;
-            this._rfb_state = 'Authentication';
             setTimeout(this._init_msg.bind(this), 0);
         },
 
@@ -429,7 +428,6 @@ var RFB;
          *   ProtocolVersion
          *   Security
          *   Authentication
-         *   password     - waiting for password, not part of RFB
          *   SecurityResult
          *   ClientInitialization - not triggered by server message
          *   ServerInitialization (to normal)
@@ -732,8 +730,8 @@ var RFB;
             var xvp_sep = this._xvp_password_sep;
             var xvp_auth = this._rfb_password.split(xvp_sep);
             if (xvp_auth.length < 3) {
-                this._updateState('password', 'XVP credentials required (user' + xvp_sep +
-                                  'target' + xvp_sep + 'password) -- got only ' + this._rfb_password);
+                Util.Debug('XVP credentials required (user' + xvp_sep +
+                           'target' + xvp_sep + 'password) -- got only ' + this._rfb_password);
                 this._onPasswordRequired(this);
                 return false;
             }
@@ -750,9 +748,6 @@ var RFB;
 
         _negotiate_std_vnc_auth: function () {
             if (this._rfb_password.length === 0) {
-                // Notify via both callbacks since it's kind of
-                // an RFB state change and a UI interface issue
-                this._updateState('password', "Password Required");
                 this._onPasswordRequired(this);
                 return false;
             }
