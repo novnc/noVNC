@@ -98,6 +98,32 @@ input[type=button]:active, select:active {
 }
 
 /* ----------------------------------------
+ * WebKit centering hacks
+ * ----------------------------------------
+ */
+
+.noVNC_center {
+  /*
+   * This is a workaround because webkit misrenders transforms and
+   * uses non-integer coordinates, resulting in blurry content.
+   * Ideally we'd use "top: 50%; transform: translateY(-50%);" on
+   * the objects instead.
+   */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.noVNC_center > * {
+  pointer-events: auto;
+}
+
+/* ----------------------------------------
  * Control Bar
  * ----------------------------------------
  */
@@ -365,6 +391,29 @@ input[type=button]:active, select:active {
 }
 #noVNC_status.noVNC_status_warn::before {
   content: url("../images/warning.svg") " ";
+}
+
+/* ----------------------------------------
+ * Password Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_password_dlg {
+  transform: translateY(-50px);
+}
+#noVNC_password_dlg.noVNC_open {
+  transform: translateY(0);
+}
+#noVNC_password_dlg ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+#noVNC_password_dlg li {
+  padding-bottom:8px;
+}
+#noVNC_password_input {
+  width: 150px;
 }
 
 /* ----------------------------------------

@@ -249,6 +249,9 @@ var UI;
                 .addEventListener('click', UI.disconnect);
             document.getElementById("noVNC_connect_button")
                 .addEventListener('click', UI.connect);
+
+            document.getElementById("noVNC_password_button")
+                .addEventListener('click', UI.setPassword);
         },
 
         addClipboardHandlers: function() {
@@ -323,11 +326,11 @@ var UI;
                         UI.showStatus(msg, 'normal');
                         break;
                     case 'password':
-                        UI.toggleConnectPanel();
-
-                        document.getElementById('noVNC_connect_button').value = "Send Password";
-                        document.getElementById('noVNC_connect_button').onclick = UI.setPassword;
-                        document.getElementById('noVNC_setting_password').focus();
+                        document.getElementById('noVNC_password_dlg')
+                            .classList.add('noVNC_open');
+                        setTimeout(function () {
+                                document.getElementById(('noVNC_password_input').focus());
+                            }, 100);
 
                         UI.showStatus(msg, 'warn');
                         break;
@@ -396,6 +399,10 @@ var UI;
             // State change disables viewport dragging.
             // It is enabled (toggled) by direct click on the button
             UI.setViewDrag(false);
+
+            // State change also closes the password dialog
+            document.getElementById('noVNC_password_dlg')
+                .classList.remove('noVNC_open');
 
             switch (UI.rfb_state) {
                 case 'fatal':
@@ -827,12 +834,9 @@ var UI;
         },
 
         setPassword: function() {
-            UI.rfb.sendPassword(document.getElementById('noVNC_setting_password').value);
-            //Reset connect button.
-            document.getElementById('noVNC_connect_button').value = "Connect";
-            document.getElementById('noVNC_connect_button').onclick = UI.connect;
-            //Hide connection panel.
-            UI.toggleConnectPanel();
+            UI.rfb.sendPassword(document.getElementById('noVNC_password_input').value);
+            document.getElementById('noVNC_password_dlg')
+                .classList.remove('noVNC_open');
             return false;
         },
 
