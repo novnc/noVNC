@@ -343,7 +343,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
     describe('Page States', function () {
         describe('loaded', function () {
             var client;
-            beforeEach(function () { client = make_rfb(); });
+            beforeEach(function () {
+                client = make_rfb();
+                client._rfb_state = 'disconnected';
+            });
 
             it('should close any open WebSocket connection', function () {
                 sinon.spy(client._sock, 'close');
