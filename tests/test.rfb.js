@@ -677,7 +677,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receive_data(failure_data);
 
-                expect(client._fail).to.have.been.calledTwice;
+                expect(client._fail).to.have.been.calledOnce;
                 expect(client._fail).to.have.been.calledWith('Security failure: whoops');
             });
 
