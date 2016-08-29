@@ -339,6 +339,7 @@ var UI;
             try {
                 UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
                                   'onUpdateState': UI.updateState,
+                                  'onPasswordRequired': UI.passwordRequired,
                                   'onXvpInit': UI.updateXvpButton,
                                   'onClipboard': UI.clipboardReceive,
                                   'onFBUComplete': UI.initialResize,
@@ -372,15 +373,6 @@ var UI;
                     case 'disconnected':
                     case 'loaded':
                         UI.showStatus(msg, 'normal');
-                        break;
-                    case 'password':
-                        document.getElementById('noVNC_password_dlg')
-                            .classList.add('noVNC_open');
-                        setTimeout(function () {
-                                document.getElementById(('noVNC_password_input').focus());
-                            }, 100);
-
-                        UI.showStatus(msg, 'warn');
                         break;
                     default:
                         UI.showStatus(msg, 'warn');
@@ -977,6 +969,27 @@ var UI;
             // Don't display the connection settings until we're actually disconnected
         },
 
+/* ------^-------
+ *  /CONNECTION
+ * ==============
+ *   PASSWORD
+ * ------v------*/
+
+        passwordRequired: function(rfb, msg) {
+
+            document.getElementById('noVNC_password_dlg')
+                .classList.add('noVNC_open');
+
+            setTimeout(function () {
+                    document.getElementById('noVNC_password_input').focus();
+                }, 100);
+
+            if (typeof msg === 'undefined') {
+                msg = "Password is required";
+            }
+            UI.updateState(null, "warning", null, msg);
+        },
+
         setPassword: function() {
             UI.rfb.sendPassword(document.getElementById('noVNC_password_input').value);
             document.getElementById('noVNC_password_dlg')
@@ -985,7 +998,7 @@ var UI;
         },
 
 /* ------^-------
- *  /CONNECTION
+ *  /PASSWORD
  * ==============
  *   FULLSCREEN
  * ------v------*/

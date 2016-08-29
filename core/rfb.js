@@ -158,7 +158,7 @@
 
         // Callback functions
         'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate, statusMsg): state update/change
-        'onPasswordRequired': function () { },  // onPasswordRequired(rfb): VNC password is required
+        'onPasswordRequired': function () { },  // onPasswordRequired(rfb, msg): VNC password is required
         'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
         'onBell': function () { },              // onBell(rfb): RFB Bell message received
         'onFBUReceive': function () { },        // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed
@@ -269,7 +269,6 @@
 
         sendPassword: function (passwd) {
             this._rfb_password = passwd;
-            this._rfb_state = 'Authentication';
             setTimeout(this._init_msg.bind(this), 0);
         },
 
@@ -433,7 +432,6 @@
          *   ProtocolVersion
          *   Security
          *   Authentication
-         *   password     - waiting for password, not part of RFB
          *   SecurityResult
          *   ClientInitialization - not triggered by server message
          *   ServerInitialization (to normal)
@@ -737,9 +735,9 @@
             var xvp_sep = this._xvp_password_sep;
             var xvp_auth = this._rfb_password.split(xvp_sep);
             if (xvp_auth.length < 3) {
-                this._updateState('password', 'XVP credentials required (user' + xvp_sep +
-                                  'target' + xvp_sep + 'password) -- got only ' + this._rfb_password);
-                this._onPasswordRequired(this);
+                var msg = 'XVP credentials required (user' + xvp_sep +
+                    'target' + xvp_sep + 'password) -- got only ' + this._rfb_password;
+                this._onPasswordRequired(this, msg);
                 return false;
             }
 
@@ -755,9 +753,6 @@
 
         _negotiate_std_vnc_auth: function () {
             if (this._rfb_password.length === 0) {
-                // Notify via both callbacks since it's kind of
-                // an RFB state change and a UI interface issue
-                this._updateState('password', "Password Required");
                 this._onPasswordRequired(this);
                 return false;
             }
@@ -1326,7 +1321,7 @@
 
         // Callback functions
         ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change
-        ['onPasswordRequired', 'rw', 'func'],   // onPasswordRequired(rfb): VNC password is required
+        ['onPasswordRequired', 'rw', 'func'],   // onPasswordRequired(rfb, msg): VNC password is required
         ['onClipboard', 'rw', 'func'],          // onClipboard(rfb, text): RFB clipboard contents received
         ['onBell', 'rw', 'func'],               // onBell(rfb): RFB Bell message received
         ['onFBUReceive', 'rw', 'func'],         // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed

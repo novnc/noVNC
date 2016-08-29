@@ -102,15 +102,18 @@
             UIresize();
             rfb.set_onFBUComplete(function() { });
         }
-        function passwordRequired(rfb) {
-            var msg;
-            msg = '<form onsubmit="return setPassword();"';
-            msg += '  style="margin-bottom: 0px">';
-            msg += 'Password Required: ';
-            msg += '<input type=password size=10 id="password_input" class="noVNC_status">';
-            msg += '<\/form>';
+        function passwordRequired(rfb, msg) {
+            if (typeof msg === 'undefined') {
+                msg = 'Password Required: ';
+            }
+            var html;
+            html = '<form onsubmit="return setPassword();"';
+            html += '  style="margin-bottom: 0px">';
+            html += msg;
+            html += '<input type=password size=10 id="password_input" class="noVNC_status">';
+            html += '<\/form>';
             document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
-            document.getElementById('noVNC_status').innerHTML = msg;
+            document.getElementById('noVNC_status').innerHTML = html;
         }
         function setPassword() {
             rfb.sendPassword(document.getElementById('password_input').value);
