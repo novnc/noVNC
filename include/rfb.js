@@ -58,7 +58,8 @@ var RFB;
             ['ExtendedDesktopSize', -308 ],
             ['xvp',                 -309 ],
             ['Fence',               -312 ],
-            ['ContinuousUpdates',   -313 ]
+            ['ContinuousUpdates',   -313 ],
+            ['QEMUExtendedKeyEvent', -258 ]
         ];
 
         this._encHandlers = {};
@@ -128,6 +129,9 @@ var RFB;
         this._viewportDragging = false;
         this._viewportDragPos = {};
         this._viewportHasMoved = false;
+
+        // QEMU Extended Key Event support - default to false
+        this._qemuExtKeyEventSupported = false;
 
         // set the default value on user-facing properties
         Util.set_defaults(this, defaults, {
@@ -560,9 +564,22 @@ var RFB;
             }
         },
 
-        _handleKeyPress: function (keysym, down) {
+        _handleKeyPress: function (keyevent) {
             if (this._view_only) { return; } // View only, skip keyboard, events
-            RFB.messages.keyEvent(this._sock, keysym, down);
+
+            var down = (keyevent.type == 'keydown');
+            if (this._qemuExtKeyEventSupported) {
+                var scancode = XtScancode[keyevent.code];
+                if (scancode) {
+                    var keysym = keyevent.keysym;
+                    RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
+                } else {
+                    Util.Error('Unable to find a xt scancode for code = ' + keyevent.code);
+                }
+            } else {
+                keysym = keyevent.keysym.keysym;
+                RFB.messages.keyEvent(this._sock, keysym, down);
+            }
         },
 
         _handleMouseButton: function (x, y, down, bmask) {
@@ -1345,6 +1362,42 @@ var RFB;
             buff[offset + 7] = keysym;
 
             sock._sQlen += 8;
+            sock.flush();
+        },
+
+        QEMUExtendedKeyEvent: function (sock, keysym, down, keycode) {
+            function getRFBkeycode(xt_scancode) {
+                var upperByte = (keycode >> 8);
+                var lowerByte = (keycode & 0x00ff);
+                if (upperByte === 0xe0 && lowerByte < 0x7f) {
+                    lowerByte = lowerByte | 0x80;
+                    return lowerByte;
+                }
+                return xt_scancode
+            }
+
+            var buff = sock._sQ;
+            var offset = sock._sQlen;
+
+            buff[offset] = 255; // msg-type
+            buff[offset + 1] = 0; // sub msg-type
+
+            buff[offset + 2] = (down >> 8);
+            buff[offset + 3] = down;
+
+            buff[offset + 4] = (keysym >> 24);
+            buff[offset + 5] = (keysym >> 16);
+            buff[offset + 6] = (keysym >> 8);
+            buff[offset + 7] = keysym;
+
+            var RFBkeycode = getRFBkeycode(keycode)
+
+            buff[offset + 8] = (RFBkeycode >> 24);
+            buff[offset + 9] = (RFBkeycode >> 16);
+            buff[offset + 10] = (RFBkeycode >> 8);
+            buff[offset + 11] = RFBkeycode;
+
+            sock._sQlen += 12;
             sock.flush();
         },
 
@@ -2259,6 +2312,16 @@ var RFB;
 
         compress_lo: function () {
             Util.Error("Server sent compress level pseudo-encoding");
-        }
+        },
+
+        QEMUExtendedKeyEvent: function () {
+            this._FBU.rects--;
+
+            var keyboardEvent = document.createEvent("keyboardEvent");
+            if (keyboardEvent.code !== undefined) {
+                this._qemuExtKeyEventSupported = true;
+                this._keyboard.setQEMUVNCKeyboardHandler();
+            }
+        },
     };
 })();

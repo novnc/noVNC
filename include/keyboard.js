@@ -285,6 +285,137 @@ var kbdUtil = (function() {
     };
 })();
 
+function QEMUKeyEventDecoder(modifierState, next) {
+    "use strict";
+
+    function sendAll(evts) {
+        for (var i = 0; i < evts.length; ++i) {
+            next(evts[i]);
+        }
+    }
+
+    var numPadCodes = ["Numpad0", "Numpad1", "Numpad2",
+        "Numpad3", "Numpad4", "Numpad5", "Numpad6",
+        "Numpad7", "Numpad8", "Numpad9", "NumpadDecimal"];
+
+    var numLockOnKeySyms = {
+        "Numpad0": 0xffb0, "Numpad1": 0xffb1, "Numpad2": 0xffb2,
+        "Numpad3": 0xffb3, "Numpad4": 0xffb4, "Numpad5": 0xffb5,
+        "Numpad6": 0xffb6, "Numpad7": 0xffb7, "Numpad8": 0xffb8,
+        "Numpad9": 0xffb9, "NumpadDecimal": 0xffac
+    };
+
+    var numLockOnKeyCodes = [96, 97, 98, 99, 100, 101, 102,
+        103, 104, 105, 108, 110];
+
+    function isNumPadMultiKey(evt) {
+        return (numPadCodes.indexOf(evt.code) !== -1);
+    }
+
+    function getNumPadKeySym(evt) {
+        if (numLockOnKeyCodes.indexOf(evt.keyCode) !== -1) {
+            return numLockOnKeySyms[evt.code];
+        }
+        return 0;
+    }
+
+    function process(evt, type) {
+        var result = {type: type};
+        result.code = evt.code;
+        result.keysym = 0;
+
+        if (isNumPadMultiKey(evt)) {
+            result.keysym = getNumPadKeySym(evt);
+        }
+
+        var hasModifier = modifierState.hasShortcutModifier() || !!modifierState.activeCharModifier();
+        var isShift = evt.keyCode === 0x10 || evt.key === 'Shift';
+
+        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!kbdUtil.nonCharacterKey(evt));
+
+        next(result);
+        return suppress;
+    }
+    return {
+        keydown: function(evt) {
+            sendAll(modifierState.keydown(evt));
+            return process(evt, 'keydown');
+        },
+        keypress: function(evt) {
+            return true;
+        },
+        keyup: function(evt) {
+            sendAll(modifierState.keyup(evt));
+            return process(evt, 'keyup');
+        },
+        syncModifiers: function(evt) {
+            sendAll(modifierState.syncAny(evt));
+        },
+        releaseAll: function() { next({type: 'releaseall'}); }
+    };
+}
+
+function TrackQEMUKeyState(next) {
+    "use strict";
+    var state = [];
+
+    return function (evt) {
+        var last = state.length !== 0 ? state[state.length-1] : null;
+
+        switch (evt.type) {
+        case 'keydown':
+
+            if (!last || last.code !== evt.code) {
+                last = {code: evt.code};
+
+                if (state.length > 0 && state[state.length-1].code == 'ControlLeft') {
+                     if (evt.code !== 'AltRight') {
+                         next({code: 'ControlLeft', type: 'keydown', keysym: 0});
+                     } else {
+                         state.pop();
+                     }
+                }
+                state.push(last);
+            }
+            if (evt.code !== 'ControlLeft') {
+                next(evt);
+            }
+            break;
+
+        case 'keyup':
+            if (state.length === 0) {
+                return;
+            }
+            var idx = null;
+            // do we have a matching key tracked as being down?
+            for (var i = 0; i !== state.length; ++i) {
+                if (state[i].code === evt.code) {
+                    idx = i;
+                    break;
+                }
+            }
+            // if we couldn't find a match (it happens), assume it was the last key pressed
+            if (idx === null) {
+                if (evt.code === 'ControlLeft') {
+                    return;
+                }
+                idx = state.length - 1;
+            }
+
+            state.splice(idx, 1);
+            next(evt);
+            break;
+        case 'releaseall':
+            /* jshint shadow: true */
+            for (var i = 0; i < state.length; ++i) {
+                next({code: state[i].code, keysym: 0, type: 'keyup'});
+            }
+            /* jshint shadow: false */
+            state = [];
+        }
+    };
+}
+
 // Takes a DOM keyboard event and:
 // - determines which keysym it represents
 // - determines a keyId  identifying the key that was pressed (corresponding to the key/keyCode properties on the DOM event)
