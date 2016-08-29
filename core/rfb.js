@@ -739,8 +739,17 @@
                 var types = this._sock.rQshiftBytes(num_types);
                 Util.Debug("Server security types: " + types);
                 for (var i = 0; i < types.length; i++) {
-                    if (types[i] > this._rfb_auth_scheme && (types[i] <= 16 || types[i] == 22)) {
-                        this._rfb_auth_scheme = types[i];
+                    switch (types[i]) {
+                        case 1: // None
+                        case 2: // VNC Authentication
+                        case 16: // Tight
+                        case 22: // XVP
+                            if (types[i] > this._rfb_auth_scheme) {
+                                this._rfb_auth_scheme = types[i];
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
 
