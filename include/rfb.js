@@ -184,13 +184,15 @@ var RFB;
             throw exc;
         }
 
-        this._keyboard = new Keyboard({target: this._focusContainer,
-                                       onKeyPress: this._handleKeyPress.bind(this)});
+        if (!this._view_only) {
+            this._keyboard = new Keyboard({target: this._focusContainer,
+                                           onKeyPress: this._handleKeyPress.bind(this)});
 
-        this._mouse = new Mouse({target: this._target,
-                                 onMouseButton: this._handleMouseButton.bind(this),
-                                 onMouseMove: this._handleMouseMove.bind(this),
-                                 notify: this._keyboard.sync.bind(this._keyboard)});
+            this._mouse = new Mouse({target: this._target,
+                                     onMouseButton: this._handleMouseButton.bind(this),
+                                     onMouseMove: this._handleMouseMove.bind(this),
+                                     notify: this._keyboard.sync.bind(this._keyboard)});
+        }
 
         this._sock = new Websock();
         this._sock.on('message', this._handle_message.bind(this));
