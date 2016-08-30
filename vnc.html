@@ -147,37 +147,62 @@
             <div class="noVNC_vcenter">
             <div id="noVNC_settings" class="noVNC_panel">
                 <ul>
-                    <li><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</li>
-                    <li><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</li>
-                    <li><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</li>
-                    <li><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</li>
-                    <li><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</li>
-                    <li><input id="noVNC_setting_view_only" type="checkbox" /> View Only</li>
-                    <hr>
-                    <li><input id="noVNC_setting_path" type="input" value="websockify" /> Path</li>
-                    <li><label>
-                            <select id="noVNC_setting_resize" name="vncResize">
-                                <option value="off">None</option>
-                                <option value="scale">Local Scaling</option>
-                                <option value="downscale">Local Downscaling</option>
-                                <option value="remote">Remote Resizing</option>
-                            </select> Scaling Mode</label>
+                    <li>
+                        <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
                     </li>
-                    <li><input id="noVNC_setting_repeaterID" type="input" value="" /> Repeater ID</li>
-                    <hr>
+                    <li>
+                        <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_view_only" type="checkbox" /> View Only</label>
+                    </li>
+                    <li><hr></li>
+                    <li>
+                        <label for="noVNC_setting_path">Path:</label>
+                        <input id="noVNC_setting_path" type="input" value="websockify" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_resize">Scaling Mode:</label>
+                        <select id="noVNC_setting_resize" name="vncResize">
+                            <option value="off">None</option>
+                            <option value="scale">Local Scaling</option>
+                            <option value="downscale">Local Downscaling</option>
+                            <option value="remote">Remote Resizing</option>
+                        </select>
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_repeaterID">Repeater ID:</label>
+                        <input id="noVNC_setting_repeaterID" type="input" value="" />
+                    </li>
+                    <li><hr></li>
                     <!-- Stylesheet selection dropdown -->
-                    <li><label><strong>Style: </strong>
+                    <li>
+                        <label>Style:
                             <select id="noVNC_setting_stylesheet" name="vncStyle">
                                 <option value="default">default</option>
-                        </select></label>
+                            </select>
+                        </label>
                     </li>
                     <!-- Logging selection dropdown -->
-                    <li><label><strong>Logging: </strong>
+                    <li>
+                        <label>Logging:
                             <select id="noVNC_setting_logging" name="vncLogging">
-                        </select></label>
+                            </select>
+                        </label>
                     </li>
-                    <hr>
-                    <li><input type="button" id="noVNC_settings_apply" value="Apply" class="noVNC_submit" /></li>
+                    <li><hr></li>
+                    <li>
+                        <input type="button" id="noVNC_settings_apply" value="Apply" class="noVNC_submit" />
+                    </li>
                 </ul>
             </div>
             </div>
@@ -192,11 +217,26 @@
             <div class="noVNC_vcenter">
             <div id="noVNC_connect_controls" class="noVNC_panel">
                 <ul>
-                    <li><label><strong>Host: </strong><input id="noVNC_setting_host" /></label></li>
-                    <li><label><strong>Port: </strong><input id="noVNC_setting_port" /></label></li>
-                    <li><label><strong>Password: </strong><input id="noVNC_setting_password" type="password" /></label></li>
-                    <li><label><strong>Token: </strong><input id="noVNC_setting_token" /></label></li>
-                    <li><input id="noVNC_connect_button" type="button" value="Connect" class="noVNC_submit" /></li>
+                    <li>
+                        <label for="noVNC_setting_host">Host:</label>
+                        <input id="noVNC_setting_host" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_port">Port:</label>
+                        <input id="noVNC_setting_port" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_password">Password:</label>
+                        <input id="noVNC_setting_password" type="password" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_token">Token:</label>
+                        <input id="noVNC_setting_token" />
+                    </li>
+                    <li><hr></li>
+                    <li>
+                        <input id="noVNC_connect_button" type="button" value="Connect" class="noVNC_submit" />
+                    </li>
                 </ul>
             </div>
             </div>
@@ -213,8 +253,13 @@
     <div class="noVNC_center">
     <div id="noVNC_password_dlg" class="noVNC_panel">
         <ul>
-            <li><label><strong>Password: </strong><input id="noVNC_password_input" type="password" /></label></li>
-            <li><input id="noVNC_password_button" type="button" value="Send Password" class="noVNC_submit" /></li>
+            <li>
+                <label>Password:</label>
+                <input id="noVNC_password_input" type="password" />
+            </li>
+            <li>
+                <input id="noVNC_password_button" type="button" value="Send Password" class="noVNC_submit" />
+            </li>
         </ul>
     </div>
     </div>

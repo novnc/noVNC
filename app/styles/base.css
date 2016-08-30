@@ -283,6 +283,15 @@ input[type=button]:active, select:active {
   transform: translateX(75px);
 }
 
+.noVNC_panel hr {
+  border: none;
+  border-top: 1px solid rgb(192, 192, 192);
+}
+
+.noVNC_panel label {
+  display: block;
+}
+
 .noVNC_submit {
   float: right;
 }
@@ -332,6 +341,10 @@ input[type=button]:active, select:active {
   display: none;
 }
 
+#noVNC_xvp input[type=button] {
+  width: 100%;
+}
+
 /* Clipboard */
 :root:not(.noVNC_connected) #noVNC_clipboard_button {
   display: none;
@@ -350,7 +363,7 @@ input[type=button]:active, select:active {
 }
 #noVNC_settings ul {
   list-style: none;
-  margin: 3px;
+  margin: 0px;
   padding: 0px;
 }
 #noVNC_setting_path {
@@ -369,17 +382,8 @@ input[type=button]:active, select:active {
   margin: 0px;
   padding: 0px;
 }
-#noVNC_connect_controls li {
-  padding-bottom:8px;
-}
-#noVNC_setting_host {
-  width:150px;
-}
 #noVNC_setting_port {
   width: 80px;
-}
-#noVNC_setting_password {
-  width: 150px;
 }
 
 /* ----------------------------------------
@@ -461,12 +465,6 @@ input[type=button]:active, select:active {
   list-style: none;
   margin: 0px;
   padding: 0px;
-}
-#noVNC_password_dlg li {
-  padding-bottom:8px;
-}
-#noVNC_password_input {
-  width: 150px;
 }
 
 /* ----------------------------------------
