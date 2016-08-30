@@ -27,6 +27,77 @@ html {
 }
 
 /* ----------------------------------------
+ * Input Elements
+ * ----------------------------------------
+ */
+
+input[type=input], input[type=password], input:not([type]), textarea {
+  /* Disable default rendering */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+
+  margin: 2px;
+  padding: 2px;
+  border: 1px solid rgb(192, 192, 192);
+  border-radius: 5px;
+  color: black;
+  background: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
+}
+
+input[type=button], select {
+  /* Disable default rendering */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+
+  margin: 2px;
+  padding: 2px;
+  border: 1px solid rgb(192, 192, 192);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: black;
+  background: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+
+  /* This avoids it jumping around when :active */
+  vertical-align: middle;
+}
+
+input[type=button] {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+option {
+  color: black;
+  background: white;
+}
+
+input[type=input]:focus, input[type=password]:focus,
+input:not([type]):focus, input[type=button]:focus,
+textarea:focus, select:focus {
+  box-shadow: 0px 0px 3px rgba(74, 144, 217, 0.5);
+  border-color: rgb(74, 144, 217);
+  outline: none;
+}
+
+input[type=button]::-moz-focus-inner {
+  border: none;
+}
+
+input[type=input]:disabled, input[type=password]:disabled,
+input:not([type]):disabled, input[type=button]:disabled,
+textarea:disabled, select:disabled {
+  color: rgb(128, 128, 128);
+  background: rgb(240, 240, 240);
+}
+
+input[type=button]:active, select:active {
+  border-bottom-width: 1px;
+  margin-top: 3px;
+}
+
+/* ----------------------------------------
  * Control Bar
  * ----------------------------------------
  */
@@ -114,6 +185,10 @@ html {
   transform: translate(0, 0);
 }
 
+.noVNC_submit {
+  float: right;
+}
+
 /* noVNC Touch Device only buttons */
 #noVNC_mobile_buttons {
   display: inline;
@@ -194,9 +269,6 @@ html {
 #noVNC_clipboard_text {
   width: 500px;
 }
-#noVNC_clipboard_clear_button {
-  float: right;
-}
 
 /* Settings */
 #noVNC_settings {
@@ -208,9 +280,6 @@ html {
 }
 #noVNC_setting_path {
   width: 100px;
-}
-#noVNC_settings_apply {
-  float: right;
 }
 
 /* Connection Controls */
@@ -232,10 +301,6 @@ html {
 }
 #noVNC_setting_password {
   width: 150px;
-}
-#noVNC_connect_button {
-  width: 110px;
-  float: right;
 }
 
 /* ----------------------------------------
