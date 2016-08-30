@@ -292,6 +292,21 @@ input[type=button]:active, select:active {
   display: block;
 }
 
+.noVNC_panel .noVNC_heading {
+  background-color: rgb(110, 132, 163);
+  border-radius: 5px;
+  padding: 5px;
+  /* Compensate for padding in image */
+  padding-right: 8px;
+  color: white;
+  font-size: 20px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+.noVNC_panel .noVNC_heading img {
+  vertical-align: bottom;
+}
+
 .noVNC_submit {
   float: right;
 }

@@ -12,7 +12,7 @@
   color:#fff;
 }
 
-#noVNC_control_bar, #noVNC_control_bar_handle {
+#noVNC_control_bar, #noVNC_control_bar_handle, .noVNC_panel .noVNC_heading {
   background: #4c4c4c;
 }
 
