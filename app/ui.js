@@ -41,7 +41,8 @@ var UI;
         resizeTimeout: null,
         statusTimeout: null,
         hideKeyboardTimeout: null,
-        controlbarTimeout: null,
+        idleControlbarTimeout: null,
+        closeControlbarTimeout: null,
 
         controlbarGrabbed: false,
         controlbarDrag: false,
@@ -202,6 +203,11 @@ var UI;
             document.getElementById("noVNC_control_bar")
                 .addEventListener('keypress', UI.activateControlbar);
 
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mousedown', UI.keepControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('keypress', UI.keepControlbar);
+
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
             document.getElementById("noVNC_send_ctrl_alt_del_button")
@@ -244,6 +250,11 @@ var UI;
                 .addEventListener('touchend', UI.activateControlbar);
             document.getElementById("noVNC_control_bar")
                 .addEventListener('input', UI.activateControlbar);
+
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchstart', UI.keepControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('input', UI.keepControlbar);
 
             document.getElementById("noVNC_control_bar_handle")
                 .addEventListener('touchstart', UI.controlbarHandleMouseDown);
@@ -405,6 +416,9 @@ var UI;
                 document.documentElement.classList.add("noVNC_connected");
                 UI.updateViewClip();
                 UI.setMouseButton(1);
+
+                // Hide the controlbar after 2 seconds
+                UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
             } else {
                 document.documentElement.classList.remove("noVNC_connected");
                 UI.updateXvpButton(0);
@@ -480,18 +494,22 @@ var UI;
             document.getElementById('noVNC_status').classList.remove("noVNC_open");
         },
 
-        activateControlbar: function() {
-            clearTimeout(UI.controlbarTimeout);
+        activateControlbar: function(event) {
+            clearTimeout(UI.idleControlbarTimeout);
             // We manipulate the anchor instead of the actual control
             // bar in order to avoid creating new a stacking group
             document.getElementById('noVNC_control_bar_anchor')
                 .classList.remove("noVNC_idle");
-            UI.controlbarTimeout = window.setTimeout(UI.idleControlbar, 2000);
+            UI.idleControlbarTimeout = window.setTimeout(UI.idleControlbar, 2000);
         },
 
         idleControlbar: function() {
             document.getElementById('noVNC_control_bar_anchor')
                 .classList.add("noVNC_idle");
+        },
+
+        keepControlbar: function() {
+            clearTimeout(UI.closeControlbarTimeout);
         },
 
         openControlbar: function() {
@@ -923,7 +941,6 @@ var UI;
 
         connect: function() {
             UI.closeAllPanels();
-            UI.closeControlbar();
 
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
