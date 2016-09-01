@@ -192,6 +192,7 @@ var UI;
             try {
                 UI.rfb = new RFB({'target': $D('noVNC_canvas'),
                                   'onUpdateState': UI.updateState,
+                                  'onPasswordRequired': UI.passwordRequired,
                                   'onXvpInit': UI.updateXvpButton,
                                   'onClipboard': UI.clipboardReceive,
                                   'onFBUComplete': UI.initialResize,
@@ -275,23 +276,15 @@ var UI;
                 case 'loaded':
                     klass = "noVNC_status_normal";
                     break;
-                case 'password':
-                    UI.toggleConnectPanel();
-
-                    $D('noVNC_connect_button').value = "Send Password";
-                    $D('noVNC_connect_button').onclick = UI.setPassword;
-                    $D('noVNC_setting_password').focus();
-
-                    klass = "noVNC_status_warn";
-                    break;
                 default:
                     klass = "noVNC_status_warn";
                     break;
             }
 
+            $D('noVNC_control_bar').setAttribute("class", klass);
             if (typeof(msg) !== 'undefined') {
-                $D('noVNC_control_bar').setAttribute("class", klass);
                 $D('noVNC_status').innerHTML = msg;
+
             }
 
             UI.updateVisualState();
@@ -750,6 +743,25 @@ var UI;
             // Don't display the connection settings until we're actually disconnected
         },
 
+/* ------^-------
+ *  /CONNECTION
+ * ==============
+ *   PASSWORD
+ * ------v------*/
+
+        passwordRequired: function(rfb) {
+            UI.connSettingsOpen = false;
+            UI.toggleConnectPanel();
+
+            $D('noVNC_connect_button').value = "Send Password";
+            $D('noVNC_connect_button').onclick = UI.setPassword;
+            $D('noVNC_setting_password').focus();
+
+            var msg = "Password is required";
+            UI.popupStatus(msg);
+            UI.updateState(null, "warning", null, msg);
+        },
+
         setPassword: function() {
             UI.rfb.sendPassword($D('noVNC_setting_password').value);
             //Reset connect button.
@@ -761,7 +773,7 @@ var UI;
         },
 
 /* ------^-------
- *  /CONNECTION
+ *  /PASSWORD
  * ==============
  *   FULLSCREEN
  * ------v------*/
