@@ -1084,11 +1084,11 @@ var UI;
                         display.set_maxWidth(screen.w);
                         display.set_maxHeight(screen.h);
 
-                        Util.Debug('Attempting requestDesktopSize(' +
-                                   screen.w + ', ' + screen.h + ')');
-
                         // Request a remote size covering the viewport
-                        UI.rfb.requestDesktopSize(screen.w, screen.h);
+                        if (UI.rfb.requestDesktopSize(screen.w, screen.h)) {
+                            Util.Debug('Requested new desktop size: ' +
+                                       screen.w + 'x' + screen.h);
+                        }
                     }, 500);
 
                 } else if (resizeMode === 'scale' || resizeMode === 'downscale') {

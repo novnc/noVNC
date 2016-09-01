@@ -339,12 +339,18 @@
         // Requests a change of remote desktop size. This message is an extension
         // and may only be sent if we have received an ExtendedDesktopSize message
         requestDesktopSize: function (width, height) {
-            if (this._rfb_connection_state !== 'connected') { return; }
+            if (this._rfb_connection_state !== 'connected' ||
+                this._view_only) {
+                return;
+            }
 
             if (this._supportsSetDesktopSize) {
                 RFB.messages.setDesktopSize(this._sock, width, height,
                                             this._screen_id, this._screen_flags);
                 this._sock.flush();
+                return true;
+            } else {
+                return false;
             }
         },
 
