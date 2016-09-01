@@ -1373,7 +1373,7 @@ var RFB;
                     lowerByte = lowerByte | 0x80;
                     return lowerByte;
                 }
-                return xt_scancode
+                return xt_scancode;
             }
 
             var buff = sock._sQ;
@@ -1390,7 +1390,7 @@ var RFB;
             buff[offset + 6] = (keysym >> 8);
             buff[offset + 7] = keysym;
 
-            var RFBkeycode = getRFBkeycode(keycode)
+            var RFBkeycode = getRFBkeycode(keycode);
 
             buff[offset + 8] = (RFBkeycode >> 24);
             buff[offset + 9] = (RFBkeycode >> 16);
@@ -2322,6 +2322,6 @@ var RFB;
                 this._qemuExtKeyEventSupported = true;
                 this._keyboard.setQEMUVNCKeyboardHandler();
             }
-        },
+        }
     };
 })();
