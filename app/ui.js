@@ -183,18 +183,6 @@ var UI;
                 UI.updateViewDrag();
                 UI.setBarPosition();
             } );
-
-            // While connected we want to display a confirmation dialogue
-            // if the user tries to leave the page
-            window.addEventListener('beforeunload', function (e) {
-                if (UI.rfb && UI.rfb_state === 'normal') {
-                    var msg = "You are currently connected.";
-                    e.returnValue = msg;
-                    return msg;
-                } else {
-                    return void 0; // To prevent the dialogue when disconnected
-                }
-            });
         },
 
         setupFullscreen: function() {
