@@ -351,7 +351,9 @@ var UI;
                                   'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
-                UI.showStatus('Unable to create RFB client -- ' + exc, 'error');
+                var msg = 'Unable to create RFB client -- ' + exc;
+                Util.Error(msg);
+                UI.showStatus(msg, 'error');
                 return false;
             }
         },
