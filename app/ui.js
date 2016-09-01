@@ -1096,8 +1096,11 @@ var UI;
                 } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
                     var downscaleOnly = resizeMode === 'downscale';
                     var scaleRatio = display.autoscale(screen.w, screen.h, downscaleOnly);
-                    UI.rfb.get_mouse().set_scale(scaleRatio);
-                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+
+                    if (!UI.rfb.get_view_only()) {
+                        UI.rfb.get_mouse().set_scale(scaleRatio);
+                        Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+                    }
                 }
             }
         },
@@ -1513,7 +1516,7 @@ var UI;
  * ------v------*/
 
         setMouseButton: function(num) {
-            if (UI.rfb) {
+            if (UI.rfb && !UI.rfb.get_view_only()) {
                 UI.rfb.get_mouse().set_touchButton(num);
             }
 
@@ -1529,17 +1532,17 @@ var UI;
         },
 
         displayBlur: function() {
-            if (!UI.rfb) return;
-
-            UI.rfb.get_keyboard().set_focused(false);
-            UI.rfb.get_mouse().set_focused(false);
+            if (UI.rfb && !UI.rfb.get_view_only()) {
+                UI.rfb.get_keyboard().set_focused(false);
+                UI.rfb.get_mouse().set_focused(false);
+            }
         },
 
         displayFocus: function() {
-            if (!UI.rfb) return;
-
-            UI.rfb.get_keyboard().set_focused(true);
-            UI.rfb.get_mouse().set_focused(true);
+            if (UI.rfb && !UI.rfb.get_view_only()) {
+                UI.rfb.get_keyboard().set_focused(true);
+                UI.rfb.get_mouse().set_focused(true);
+            }
         },
 
         updateDesktopName: function(rfb, name) {
