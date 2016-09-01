@@ -37,29 +37,29 @@ var RFB;
 
         // In preference order
         this._encodings = [
-            ['COPYRECT',            0x01 ],
-            ['TIGHT',               0x07 ],
-            ['TIGHT_PNG',           -260 ],
-            ['HEXTILE',             0x05 ],
-            ['RRE',                 0x02 ],
-            ['RAW',                 0x00 ],
+            ['COPYRECT',             0x01 ],
+            ['TIGHT',                0x07 ],
+            ['TIGHT_PNG',            -260 ],
+            ['HEXTILE',              0x05 ],
+            ['RRE',                  0x02 ],
+            ['RAW',                  0x00 ],
 
             // Psuedo-encoding settings
 
-            //['JPEG_quality_lo',    -32 ],
-            ['JPEG_quality_med',     -26 ],
-            //['JPEG_quality_hi',    -23 ],
-            //['compress_lo',       -255 ],
-            ['compress_hi',         -247 ],
+            //['JPEG_quality_lo',     -32 ],
+            ['JPEG_quality_med',      -26 ],
+            //['JPEG_quality_hi',     -23 ],
+            //['compress_lo',        -255 ],
+            ['compress_hi',          -247 ],
 
-            ['DesktopSize',         -223 ],
-            ['last_rect',           -224 ],
-            ['Cursor',              -239 ],
+            ['DesktopSize',          -223 ],
+            ['last_rect',            -224 ],
+            ['Cursor',               -239 ],
             ['QEMUExtendedKeyEvent', -258 ],
-            ['ExtendedDesktopSize', -308 ],
-            ['xvp',                 -309 ],
-            ['Fence',               -312 ],
-            ['ContinuousUpdates',   -313 ]
+            ['ExtendedDesktopSize',  -308 ],
+            ['xvp',                  -309 ],
+            ['Fence',                -312 ],
+            ['ContinuousUpdates',    -313 ]
         ];
 
         this._encHandlers = {};
