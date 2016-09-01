@@ -55,11 +55,11 @@ var RFB;
             ['DesktopSize',         -223 ],
             ['last_rect',           -224 ],
             ['Cursor',              -239 ],
+            ['QEMUExtendedKeyEvent', -258 ],
             ['ExtendedDesktopSize', -308 ],
             ['xvp',                 -309 ],
             ['Fence',               -312 ],
-            ['ContinuousUpdates',   -313 ],
-            ['QEMUExtendedKeyEvent', -258 ]
+            ['ContinuousUpdates',   -313 ]
         ];
 
         this._encHandlers = {};
@@ -2306,14 +2306,6 @@ var RFB;
             return true;
         },
 
-        JPEG_quality_lo: function () {
-            Util.Error("Server sent jpeg_quality pseudo-encoding");
-        },
-
-        compress_lo: function () {
-            Util.Error("Server sent compress level pseudo-encoding");
-        },
-
         QEMUExtendedKeyEvent: function () {
             this._FBU.rects--;
 
@@ -2322,6 +2314,14 @@ var RFB;
                 this._qemuExtKeyEventSupported = true;
                 this._keyboard.setQEMUVNCKeyboardHandler();
             }
+        },
+
+        JPEG_quality_lo: function () {
+            Util.Error("Server sent jpeg_quality pseudo-encoding");
+        },
+
+        compress_lo: function () {
+            Util.Error("Server sent compress level pseudo-encoding");
         }
     };
 })();
