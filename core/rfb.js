@@ -463,13 +463,17 @@
                 Util.Error('Fatal error, cannot continue');
             }
 
-            var cmsg = typeof(statusMsg) !== 'undefined' ? (" Msg: " + statusMsg) : "";
-            var fullmsg = "New state '" + state + "', was '" + oldstate + "'." + cmsg;
-            if (state === 'failed' || state === 'fatal') {
-                Util.Error(cmsg);
-            } else {
-                Util.Warn(cmsg);
+            if (typeof(statusMsg) !== 'undefined') {
+                var cmsg = " Msg: " + statusMsg;
+                if (state === 'failed' || state === 'fatal') {
+                    Util.Error(cmsg);
+                } else {
+                    Util.Warn(cmsg);
+                }
             }
+
+            var smsg = "New state '" + state + "', was '" + oldstate + "'.";
+            Util.Debug(smsg);
 
             if (this._disconnTimer && state !== 'disconnect') {
                 Util.Debug("Clearing disconnect timer");
