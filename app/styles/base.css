@@ -49,10 +49,6 @@ html {
   float:right;
 }
 
-#noVNC_buttons {
-  white-space: nowrap;
-}
-
 #noVNC_view_drag_button {
   display: none;
 }
