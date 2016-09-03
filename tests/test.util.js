@@ -12,12 +12,14 @@ describe('Utils', function() {
             sinon.spy(console, 'log');
             sinon.spy(console, 'warn');
             sinon.spy(console, 'error');
+            sinon.spy(console, 'info');
         });
 
         afterEach(function () {
            console.log.restore();
            console.warn.restore();
            console.error.restore();
+           console.info.restore();
         });
 
         it('should use noop for levels lower than the min level', function () {
@@ -27,12 +29,16 @@ describe('Utils', function() {
             expect(console.log).to.not.have.been.called;
         });
 
-        it('should use console.log for Debug and Info', function () {
+        it('should use console.log for Debug', function () {
             Util.init_logging('debug');
             Util.Debug('dbg');
-            Util.Info('inf');
             expect(console.log).to.have.been.calledWith('dbg');
-            expect(console.log).to.have.been.calledWith('inf');
+        });
+        
+        it('should use console.info for Info', function () {
+            Util.init_logging('debug');
+            Util.Info('inf');
+            expect(console.info).to.have.been.calledWith('inf');
         });
 
         it('should use console.warn for Warn', function () {

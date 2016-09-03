@@ -11,22 +11,6 @@
 
 var Util = {};
 
-//
-// requestAnimationFrame shim with setTimeout fallback
-//
-
-window.requestAnimFrame = (function () {
-    "use strict";
-    return  window.requestAnimationFrame       ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.oRequestAnimationFrame      ||
-            window.msRequestAnimationFrame     ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            };
-})();
-
 /*
  * ------------------------------------------------------
  * Namespaced in Util
@@ -45,39 +29,26 @@ Util.init_logging = function (level) {
     } else {
         Util._log_level = level;
     }
-    if (typeof window.console === "undefined") {
-        if (typeof window.opera !== "undefined") {
-            window.console = {
-                'log'  : window.opera.postError,
-                'warn' : window.opera.postError,
-                'error': window.opera.postError
-            };
-        } else {
-            window.console = {
-                'log'  : function (m) {},
-                'warn' : function (m) {},
-                'error': function (m) {}
-            };
-        }
-    }
 
     Util.Debug = Util.Info = Util.Warn = Util.Error = function (msg) {};
-    /* jshint -W086 */
-    switch (level) {
-        case 'debug':
-            Util.Debug = function (msg) { console.log(msg); };
-        case 'info':
-            Util.Info  = function (msg) { console.log(msg); };
-        case 'warn':
-            Util.Warn  = function (msg) { console.warn(msg); };
-        case 'error':
-            Util.Error = function (msg) { console.error(msg); };
-        case 'none':
-            break;
-        default:
-            throw new Error("invalid logging type '" + level + "'");
+    if (typeof window.console !== "undefined") {
+        /* jshint -W086 */
+        switch (level) {
+            case 'debug':
+                Util.Debug = function (msg) { console.log(msg); };
+            case 'info':
+                Util.Info  = function (msg) { console.info(msg); };
+            case 'warn':
+                Util.Warn  = function (msg) { console.warn(msg); };
+            case 'error':
+                Util.Error = function (msg) { console.error(msg); };
+            case 'none':
+                break;
+            default:
+                throw new Error("invalid logging type '" + level + "'");
+        }
+        /* jshint +W086 */
     }
-    /* jshint +W086 */
 };
 Util.get_logging = function () {
     return Util._log_level;

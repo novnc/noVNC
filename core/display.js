@@ -778,7 +778,7 @@
             }
 
             if (this._renderQ.length > 0) {
-                requestAnimFrame(this._scan_renderQ.bind(this));
+                requestAnimationFrame(this._scan_renderQ.bind(this));
             }
         },
     };

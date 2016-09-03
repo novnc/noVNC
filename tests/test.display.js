@@ -384,15 +384,15 @@ describe('Display/Canvas Helper', function () {
             display = new Display({ target: document.createElement('canvas'), prefer_js: false });
             display.resize(4, 4);
             sinon.spy(display, '_scan_renderQ');
-            this.old_requestAnimFrame = window.requestAnimFrame;
-            window.requestAnimFrame = function (cb) {
+            this.old_requestAnimationFrame = window.requestAnimationFrame;
+            window.requestAnimationFrame = function (cb) {
                 this.next_frame_cb = cb;
             }.bind(this);
             this.next_frame = function () { this.next_frame_cb(); };
         });
 
         afterEach(function () {
-            window.requestAnimFrame = this.old_requestAnimFrame;
+            window.requestAnimationFrame = this.old_requestAnimationFrame;
         });
 
         it('should try to process an item when it is pushed on, if nothing else is on the queue', function () {
