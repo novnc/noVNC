@@ -43,6 +43,7 @@
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
         <script src="core/util.js"></script>
+        <script src="app/webutil.js"></script>
 </head>
 
 <body style="margin: 0px;">
@@ -77,7 +78,7 @@
         "use strict";
 
         // Load supporting scripts
-        Util.load_scripts({
+        WebUtil.load_scripts({
             'core': ["base64.js", "websock.js", "des.js", "keysymdef.js",
                      "xtscancodes.js", "keyboard.js", "input.js", "display.js",
                      "inflator.js", "rfb.js", "keysym.js"],

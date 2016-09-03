@@ -44,7 +44,7 @@
 
         function message(str) {
             console.log(str);
-            cell = $D('messages');
+            cell = document.getElementById('messages');
             cell.innerHTML += msg_cnt + ": " + str + newline;
             cell.scrollTop = cell.scrollHeight;
             msg_cnt++;
@@ -94,23 +94,23 @@
 
             for (b = 0; b < blist.length; b++) {
                 if (blist[b] === num) {
-                    $D('button' + blist[b]).style.backgroundColor = "black";
-                    $D('button' + blist[b]).style.color = "lightgray";
+                    document.getElementById('button' + blist[b]).style.backgroundColor = "black";
+                    document.getElementById('button' + blist[b]).style.color = "lightgray";
                 } else {
-                    $D('button' + blist[b]).style.backgroundColor = "";
-                    $D('button' + blist[b]).style.color = "";
+                    document.getElementById('button' + blist[b]).style.backgroundColor = "";
+                    document.getElementById('button' + blist[b]).style.color = "";
                 }
             }
         }
 
         window.onload = function() {
-            canvas = new Display({'target' : $D('canvas')});
+            canvas = new Display({'target' : document.getElementById('canvas')});
             keyboard = new Keyboard({'target': document,
                                     'onKeyPress': rfbKeyPress});
            Util.addEvent(document, 'keypress', rawKey);
            Util.addEvent(document, 'keydown', rawKey);
            Util.addEvent(document, 'keyup', rawKey);
-            mouse    = new Mouse({'target': $D('canvas'),
+            mouse    = new Mouse({'target': document.getElementById('canvas'),
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
 
@@ -121,10 +121,10 @@
 
             if ('ontouchstart' in document.documentElement) {
                 message("Touch device detected");
-                $D('button-selection').style.display = "inline";
-                $D('button1').onclick = function(){ selectButton(1) };
-                $D('button2').onclick = function(){ selectButton(2) };
-                $D('button4').onclick = function(){ selectButton(4) };
+                document.getElementById('button-selection').style.display = "inline";
+                document.getElementById('button1').onclick = function(){ selectButton(1) };
+                document.getElementById('button2').onclick = function(){ selectButton(2) };
+                document.getElementById('button4').onclick = function(){ selectButton(4) };
                 selectButton();
             }
 
