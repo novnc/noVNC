@@ -7,50 +7,6 @@ var expect = chai.expect;
 describe('Utils', function() {
     "use strict";
 
-    describe('Array instance methods', function () {
-        describe('push8', function () {
-            it('should push a byte on to the array', function () {
-                var arr = [1];
-                arr.push8(128);
-                expect(arr).to.deep.equal([1, 128]);
-            });
-
-            it('should only use the least significant byte of any number passed in', function () {
-                var arr = [1];
-                arr.push8(0xABCD);
-                expect(arr).to.deep.equal([1, 0xCD]);
-            });
-        });
-
-        describe('push16', function () {
-            it('should push two bytes on to the array', function () {
-                var arr = [1];
-                arr.push16(0xABCD);
-                expect(arr).to.deep.equal([1, 0xAB, 0xCD]);
-            });
-
-            it('should only use the two least significant bytes of any number passed in', function () {
-                var arr = [1];
-                arr.push16(0xABCDEF);
-                expect(arr).to.deep.equal([1, 0xCD, 0xEF]);
-            });
-        });
-
-        describe('push32', function () {
-            it('should push four bytes on to the array', function () {
-                var arr = [1];
-                arr.push32(0xABCDEF12);
-                expect(arr).to.deep.equal([1, 0xAB, 0xCD, 0xEF, 0x12]);
-            });
-
-            it('should only use the four least significant bytes of any number passed in', function () {
-                var arr = [1];
-                arr.push32(0xABCDEF1234);
-                expect(arr).to.deep.equal([1, 0xCD, 0xEF, 0x12, 0x34]);
-            });
-        });
-    });
-
     describe('logging functions', function () {
         beforeEach(function () {
             sinon.spy(console, 'log');

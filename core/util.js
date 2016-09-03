@@ -12,34 +12,11 @@
 var Util = {};
 
 
-/*
- * Make arrays quack
- */
-
 var addFunc = function (cl, name, func) {
     if (!cl.prototype[name]) {
         Object.defineProperty(cl.prototype, name, { enumerable: false, value: func });
     }
 };
-
-addFunc(Array, 'push8', function (num) {
-    "use strict";
-    this.push(num & 0xFF);
-});
-
-addFunc(Array, 'push16', function (num) {
-    "use strict";
-    this.push((num >> 8) & 0xFF,
-              num & 0xFF);
-});
-
-addFunc(Array, 'push32', function (num) {
-    "use strict";
-    this.push((num >> 24) & 0xFF,
-              (num >> 16) & 0xFF,
-              (num >>  8) & 0xFF,
-              num & 0xFF);
-});
 
 // PhantomJS 1.x doesn't support bind,
 // so leave this in until PhantomJS 2.0 is released

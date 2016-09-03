@@ -13,6 +13,25 @@ function make_rfb (extra_opts) {
     return new RFB(extra_opts);
 }
 
+var push8 = function (arr, num) {
+    "use strict";
+    arr.push(num & 0xFF);
+};
+
+var push16 = function (arr, num) {
+    "use strict";
+    arr.push((num >> 8) & 0xFF,
+              num & 0xFF);
+};
+
+var push32 = function (arr, num) {
+    "use strict";
+    arr.push((num >> 24) & 0xFF,
+              (num >> 16) & 0xFF,
+              (num >>  8) & 0xFF,
+              num & 0xFF);
+};
+
 describe('Remote Frame Buffer Protocol Client', function() {
     "use strict";
     before(FakeWebSocket.replace);
@@ -232,17 +251,17 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should send the request with the given width and height', function () {
                 var expected = [251];
-                expected.push8(0);  // padding
-                expected.push16(1); // width
-                expected.push16(2); // height
-                expected.push8(1);  // number-of-screens
-                expected.push8(0);  // padding before screen array
-                expected.push32(0); // id
-                expected.push16(0); // x-position
-                expected.push16(0); // y-position
-                expected.push16(1); // width
-                expected.push16(2); // height
-                expected.push32(0); // flags
+                push8(expected, 0);  // padding
+                push16(expected, 1); // width
+                push16(expected, 2); // height
+                push8(expected, 1);  // number-of-screens
+                push8(expected, 0);  // padding before screen array
+                push32(expected, 0); // id
+                push16(expected, 0); // x-position
+                push16(expected, 0); // y-position
+                push16(expected, 1); // width
+                push16(expected, 2); // height
+                push32(expected, 0); // flags
 
                 client.requestDesktopSize(1, 2);
                 expect(client._sock).to.have.sent(new Uint8Array(expected));
@@ -662,7 +681,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 var err_msg = "Whoopsies";
                 var data = [0, 0, 0, 0];
                 var err_len = err_msg.length;
-                data.push32(err_len);
+                push32(data, err_len);
                 for (var i = 0; i < err_len; i++) {
                     data.push(err_msg.charCodeAt(i));
                 }
@@ -796,10 +815,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 function send_num_str_pairs(pairs, client) {
                     var pairs_len = pairs.length;
                     var data = [];
-                    data.push32(pairs_len);
+                    push32(data, pairs_len);
 
                     for (var i = 0; i < pairs_len; i++) {
-                        data.push32(pairs[i][0]);
+                        push32(data, pairs[i][0]);
                         var j;
                         for (j = 0; j < 4; j++) {
                             data.push(pairs[i][1].charCodeAt(j));
@@ -948,30 +967,30 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 }
                 var data = [];
 
-                data.push16(full_opts.width);
-                data.push16(full_opts.height);
+                push16(data, full_opts.width);
+                push16(data, full_opts.height);
 
                 data.push(full_opts.bpp);
                 data.push(full_opts.depth);
                 data.push(full_opts.big_endian);
                 data.push(full_opts.true_color);
 
-                data.push16(full_opts.red_max);
-                data.push16(full_opts.green_max);
-                data.push16(full_opts.blue_max);
-                data.push8(full_opts.red_shift);
-                data.push8(full_opts.green_shift);
-                data.push8(full_opts.blue_shift);
+                push16(data, full_opts.red_max);
+                push16(data, full_opts.green_max);
+                push16(data, full_opts.blue_max);
+                push8(data, full_opts.red_shift);
+                push8(data, full_opts.green_shift);
+                push8(data, full_opts.blue_shift);
 
                 // padding
-                data.push8(0);
-                data.push8(0);
-                data.push8(0);
+                push8(data, 0);
+                push8(data, 0);
+                push8(data, 0);
 
                 client._sock._websocket._receive_data(new Uint8Array(data));
 
                 var name_data = [];
-                name_data.push32(full_opts.name.length);
+                push32(name_data, full_opts.name.length);
                 for (var i = 0; i < full_opts.name.length; i++) {
                     name_data.push(full_opts.name.charCodeAt(i));
                 }
@@ -1003,10 +1022,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 send_server_init({}, client);
 
                 var tight_data = [];
-                tight_data.push16(1);
-                tight_data.push16(2);
-                tight_data.push16(3);
-                tight_data.push16(0);
+                push16(tight_data, 1);
+                push16(tight_data, 2);
+                push16(tight_data, 3);
+                push16(tight_data, 0);
                 for (var i = 0; i < 16 + 32 + 48; i++) {
                     tight_data.push(i);
                 }
@@ -1136,16 +1155,16 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     // header
                     data.push(0);  // msg type
                     data.push(0);  // padding
-                    data.push16(rect_cnt || rect_data.length);
+                    push16(data, rect_cnt || rect_data.length);
                 }
 
                 for (var i = 0; i < rect_data.length; i++) {
                     if (rect_info[i]) {
-                        data.push16(rect_info[i].x);
-                        data.push16(rect_info[i].y);
-                        data.push16(rect_info[i].width);
-                        data.push16(rect_info[i].height);
-                        data.push32(rect_info[i].encoding);
+                        push16(data, rect_info[i].x);
+                        push16(data, rect_info[i].y);
+                        push16(data, rect_info[i].width);
+                        push16(data, rect_info[i].height);
+                        push32(data, rect_info[i].encoding);
                     }
                     data = data.concat(rect_data[i]);
                 }
@@ -1339,24 +1358,24 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 it('should handle the RRE encoding', function () {
                     var info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x02 }];
                     var rect = [];
-                    rect.push32(2); // 2 subrects
-                    rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                    push32(rect, 2); // 2 subrects
+                    push32(rect, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
                     rect.push(0xff); // becomes ff0000ff --> #0000FF color
                     rect.push(0x00);
                     rect.push(0x00);
                     rect.push(0xff);
-                    rect.push16(0); // x: 0
-                    rect.push16(0); // y: 0
-                    rect.push16(2); // width: 2
-                    rect.push16(2); // height: 2
+                    push16(rect, 0); // x: 0
+                    push16(rect, 0); // y: 0
+                    push16(rect, 2); // width: 2
+                    push16(rect, 2); // height: 2
                     rect.push(0xff); // becomes ff0000ff --> #0000FF color
                     rect.push(0x00);
                     rect.push(0x00);
                     rect.push(0xff);
-                    rect.push16(2); // x: 2
-                    rect.push16(2); // y: 2
-                    rect.push16(2); // width: 2
-                    rect.push16(2); // height: 2
+                    push16(rect, 2); // x: 2
+                    push16(rect, 2); // y: 2
+                    push16(rect, 2); // width: 2
+                    push16(rect, 2); // height: 2
 
                     send_fbu_msg(info, [rect], client);
                     expect(client._display).to.have.displayed(target_data_check);
@@ -1384,7 +1403,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         var info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
                         var rect = [];
                         rect.push(0x02 | 0x04 | 0x08); // bg spec, fg spec, anysubrects
-                        rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                        push32(rect, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
                         rect.push(0xff); // becomes ff0000ff --> #0000FF fg color
                         rect.push(0x00);
                         rect.push(0x00);
@@ -1416,11 +1435,11 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         var info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
                         var rect = [];
                         rect.push(0x02);
-                        rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                        push32(rect, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
                         send_fbu_msg(info, [rect], client);
 
                         var expected = [];
-                        for (var i = 0; i < 16; i++) { expected.push32(0xff00ff); }
+                        for (var i = 0; i < 16; i++) { push32(expected, 0xff00ff); }
                         expect(client._display).to.have.displayed(new Uint8Array(expected));
                     });
 
@@ -1436,7 +1455,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                         // send a bg frame
                         rect.push(0x02);
-                        rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                        push32(rect, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
 
                         // send an empty frame
                         rect.push(0x00);
@@ -1445,8 +1464,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                         var expected = [];
                         var i;
-                        for (i = 0; i < 16; i++) { expected.push32(0xff00ff); }     // rect 1: solid
-                        for (i = 0; i < 16; i++) { expected.push32(0xff00ff); }    // rect 2: same bkground color
+                        for (i = 0; i < 16; i++) { push32(expected, 0xff00ff); }     // rect 1: solid
+                        for (i = 0; i < 16; i++) { push32(expected, 0xff00ff); }    // rect 2: same bkground color
                         expect(client._display).to.have.displayed(new Uint8Array(expected));
                     });
 
@@ -1454,7 +1473,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         var info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
                         var rect = [];
                         rect.push(0x02 | 0x08 | 0x10); // bg spec, anysubrects, colouredsubrects
-                        rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                        push32(rect, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
                         rect.push(2); // 2 subrects
                         rect.push(0xff); // becomes ff0000ff --> #0000FF fg color
                         rect.push(0x00);
@@ -1480,7 +1499,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         var info = [{ x: 0, y: 0, width: 4, height: 17, encoding: 0x05}];
                         var rect = [];
                         rect.push(0x02 | 0x04 | 0x08); // bg spec, fg spec, anysubrects
-                        rect.push32(0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+                        push32(rect, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
                         rect.push(0xff); // becomes ff0000ff --> #0000FF fg color
                         rect.push(0x00);
                         rect.push(0x00);
@@ -1561,16 +1580,16 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                     function make_screen_data (nr_of_screens) {
                         var data = [];
-                        data.push8(nr_of_screens);   // number-of-screens
-                        data.push8(0);               // padding
-                        data.push16(0);              // padding
+                        push8(data, nr_of_screens);   // number-of-screens
+                        push8(data, 0);               // padding
+                        push16(data, 0);              // padding
                         for (var i=0; i<nr_of_screens; i += 1) {
-                            data.push32(0);  // id
-                            data.push16(0);  // x-position
-                            data.push16(0);  // y-position
-                            data.push16(20); // width
-                            data.push16(50); // height
-                            data.push32(0);  // flags
+                            push32(data, 0);  // id
+                            push16(data, 0);  // x-position
+                            push16(data, 0);  // y-position
+                            push16(data, 20); // width
+                            push16(data, 50); // height
+                            push32(data, 0);  // flags
                         }
                         return data;
                     }
@@ -1672,9 +1691,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
             var i;
             for (i = 0; i < 4; i++) {
                 expected_cm[i + 1] = [i * 10, i * 10 + 1, i * 10 + 2];
-                data.push16(expected_cm[i + 1][2] << 8);
-                data.push16(expected_cm[i + 1][1] << 8);
-                data.push16(expected_cm[i + 1][0] << 8);
+                push16(data, expected_cm[i + 1][2] << 8);
+                push16(data, expected_cm[i + 1][1] << 8);
+                push16(data, expected_cm[i + 1][0] << 8);
             }
 
             client._sock._websocket._receive_data(new Uint8Array(data));
@@ -1716,7 +1735,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         it('should fire the clipboard callback with the retrieved text on ServerCutText', function () {
             var expected_str = 'cheese!';
             var data = [3, 0, 0, 0];
-            data.push32(expected_str.length);
+            push32(data, expected_str.length);
             for (var i = 0; i < expected_str.length; i++) { data.push(expected_str.charCodeAt(i)); }
             client.set_onClipboard(sinon.spy());
 
