@@ -232,41 +232,9 @@ Util.getEventPosition = function (e, obj, scale) {
     return {'x': x / scale, 'y': y / scale, 'realx': realx / scale, 'realy': realy / scale};
 };
 
-
-// Event registration. Based on: http://www.scottandrew.com/weblog/articles/cbs-events
-Util.addEvent = function (obj, evType, fn) {
-    "use strict";
-    if (obj.attachEvent) {
-        var r = obj.attachEvent("on" + evType, fn);
-        return r;
-    } else if (obj.addEventListener) {
-        obj.addEventListener(evType, fn, false);
-        return true;
-    } else {
-        throw new Error("Handler could not be attached");
-    }
-};
-
-Util.removeEvent = function (obj, evType, fn) {
-    "use strict";
-    if (obj.detachEvent) {
-        var r = obj.detachEvent("on" + evType, fn);
-        return r;
-    } else if (obj.removeEventListener) {
-        obj.removeEventListener(evType, fn, false);
-        return true;
-    } else {
-        throw new Error("Handler could not be removed");
-    }
-};
-
 Util.stopEvent = function (e) {
-    "use strict";
-    if (e.stopPropagation) { e.stopPropagation(); }
-    else                   { e.cancelBubble = true; }
-
-    if (e.preventDefault)  { e.preventDefault(); }
-    else                   { e.returnValue = false; }
+    e.stopPropagation();
+    e.preventDefault();
 };
 
 Util._cursor_uris_supported = null;

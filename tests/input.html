@@ -107,9 +107,9 @@
             canvas = new Display({'target' : document.getElementById('canvas')});
             keyboard = new Keyboard({'target': document,
                                     'onKeyPress': rfbKeyPress});
-           Util.addEvent(document, 'keypress', rawKey);
-           Util.addEvent(document, 'keydown', rawKey);
-           Util.addEvent(document, 'keyup', rawKey);
+            document.addEventListener('keypress', rawKey);
+            document.addEventListener('keydown', rawKey);
+            document.addEventListener('keyup', rawKey);
             mouse    = new Mouse({'target': document.getElementById('canvas'),
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
