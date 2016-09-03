@@ -11,41 +11,6 @@
 
 var Util = {};
 
-
-var addFunc = function (cl, name, func) {
-    if (!cl.prototype[name]) {
-        Object.defineProperty(cl.prototype, name, { enumerable: false, value: func });
-    }
-};
-
-// PhantomJS 1.x doesn't support bind,
-// so leave this in until PhantomJS 2.0 is released
-//This prototype is provided by the Mozilla foundation and
-//is distributed under the MIT license.
-//http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-addFunc(Function, 'bind', function (oThis) {
-    if (typeof this !== "function") {
-        // closest thing possible to the ECMAScript 5
-        // internal IsCallable function
-        throw new TypeError("Function.prototype.bind - " +
-                            "what is trying to be bound is not callable");
-    }
-
-    var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () {},
-            fBound = function () {
-                return fToBind.apply(this instanceof fNOP && oThis ? this
-                                                                   : oThis,
-                                     aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-
-    return fBound;
-});
-
 //
 // requestAnimationFrame shim with setTimeout fallback
 //
