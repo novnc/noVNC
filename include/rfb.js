@@ -666,6 +666,7 @@ var RFB;
                 case "003.008":
                 case "004.000":  // Intel AMT KVM
                 case "004.001":  // RealVNC 4.6
+                case "005.000":  // RealVNC 5.3
                     this._rfb_version = 3.8;
                     break;
                 default:
