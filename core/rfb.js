@@ -13,12 +13,12 @@
 /* [module]
  * import Util from "./util";
  * import Display from "./display";
- * import { Keyboard, Mouse } from "./input"
+ * import { Keyboard, Mouse } from "./input/devices"
  * import Websock from "./websock"
  * import Base64 from "./base64";
  * import DES from "./des";
- * import KeyTable from "./keysym";
- * import XtScancode from "./xtscancodes";
+ * import KeyTable from "./input/keysym";
+ * import XtScancode from "./input/xtscancodes";
  * import Inflator from "./inflator.mod";
  */
 /*jslint white: false, browser: true */

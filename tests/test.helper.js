@@ -1,4 +1,4 @@
-﻿// requires local modules: keysym, keysymdef, keyboard
+﻿// requires local modules: input/keysym, input/keysymdef, input/util
 
 var assert = chai.assert;
 var expect = chai.expect;

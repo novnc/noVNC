@@ -96,7 +96,8 @@ var make_lib_files = function (use_require) {
     var b = make_browserify(rfb_file, {});
     b.on('transform', function (tr, file) {
         if (tr._is_make_module) {
-            var new_path = path.join(lib_dir_base, path.basename(file));
+            var new_path = path.join(lib_dir_base, path.relative(core_path, file));
+            fse.ensureDir(path.dirname(new_path));
             console.log("Writing " + new_path)
             var fileStream = fs.createWriteStream(new_path);
 

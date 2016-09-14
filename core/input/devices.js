@@ -9,8 +9,8 @@
 /*global window, Util */
 
 /* [module]
- * import Util from "./util";
- * import KeyboardUtil from "./keyboard";
+ * import Util from "../util";
+ * import KeyboardUtil from "./util";
  */
 
 /* [module] export */ var Keyboard;

@@ -12,7 +12,7 @@
 
 /* [module]
  * import Util from "../core/util";
- * import KeyTable from "../core/keysym";
+ * import KeyTable from "../core/input/keysym";
  * import RFB from "../core/rfb";
  * import Display from "../core/display";
  * import WebUtil from "./webutil";
@@ -26,9 +26,9 @@ var UI;
     /* [begin skip-as-module] */
     // Load supporting scripts
     WebUtil.load_scripts(
-        {'core': ["base64.js", "websock.js", "des.js", "keysymdef.js",
-                  "xtscancodes.js", "keyboard.js", "input.js", "display.js",
-                  "inflator.js", "rfb.js", "keysym.js"]});
+        {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
+                  "input/xtscancodes.js", "input/util.js", "input/devices.js",
+                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
 
     window.onscriptsload = function () { UI.load(); };
     /* [end skip-as-module] */
