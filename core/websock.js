@@ -14,29 +14,15 @@
  * read binary data off of the receive queue.
  */
 
+/* [module]
+ * import Util from "./util";
+ * import Base64 from "./base64";
+ */
+
 /*jslint browser: true, bitwise: true */
 /*global Util*/
 
-
-// Load Flash WebSocket emulator if needed
-
-// To force WebSocket emulator even when native WebSocket available
-//window.WEB_SOCKET_FORCE_FLASH = true;
-// To enable WebSocket emulator debug:
-//window.WEB_SOCKET_DEBUG=1;
-
-if (window.WebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
-    Websock_native = true;
-} else if (window.MozWebSocket && !window.WEB_SOCKET_FORCE_FLASH) {
-    Websock_native = true;
-    window.WebSocket = window.MozWebSocket;
-} else {
-    /* no builtin WebSocket so load web_socket.js */
-
-    Websock_native = false;
-}
-
-function Websock() {
+/* [module] export default */ function Websock() {
     "use strict";
 
     this._websocket = null;  // WebSocket object
@@ -62,7 +48,7 @@ function Websock() {
         'close': function () {},
         'error': function () {}
     };
-}
+};
 
 (function () {
     "use strict";

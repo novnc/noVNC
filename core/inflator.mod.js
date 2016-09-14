@@ -1,7 +1,7 @@
-var zlib = require('../node_modules/pako/lib/zlib/inflate.js');
-var ZStream = require('../node_modules/pako/lib/zlib/zstream.js');
+var zlib = require('pako/lib/zlib/inflate.js');
+var ZStream = require('pako/lib/zlib/zstream.js');
 
-var Inflate = function () {
+function Inflate() {
     this.strm = new ZStream();
     this.chunkSize = 1024 * 10 * 10;
     this.strm.output = new Uint8Array(this.chunkSize);
@@ -37,4 +37,4 @@ Inflate.prototype = {
     }
 };
 
-module.exports = {Inflate: Inflate};
+module.exports = { Inflate: Inflate };

@@ -67,7 +67,7 @@ if (all_js && !program.autoInject) {
       var eol = content.indexOf('\n', ind);
       var modules = content.slice(ind, eol).split(/,\s*/);
       modules.forEach(function (mod) {
-        all_modules[get_path('include/', mod) + '.js'] = 1;
+        all_modules[get_path('core/', mod) + '.js'] = 1;
       });
     }
 

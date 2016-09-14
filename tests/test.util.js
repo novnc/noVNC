@@ -101,5 +101,4 @@ describe('Utils', function() {
     // TODO(directxman12): figure out how to test the browser detection functions properly
     //                     (we can't really test them against the browsers, except for Gecko
     //                     via PhantomJS, the default test driver)
-    // TODO(directxman12): figure out how to test Util.Flash
 });

@@ -10,25 +10,12 @@
 /*jslint bitwise: false, white: false, browser: true, devel: true */
 /*global Util, window, document */
 
-// Globals defined here
-var WebUtil = {}, $D;
-
-/*
- * Simple DOM selector by ID
+/* [module]
+ * import Util from "../core/util";
  */
-if (!window.$D) {
-    window.$D = function (id) {
-        if (document.getElementById) {
-            return document.getElementById(id);
-        } else if (document.all) {
-            return document.all[id];
-        } else if (document.layers) {
-            return document.layers[id];
-        }
-        return undefined;
-    };
-}
 
+// Globals defined here
+var WebUtil = {};
 
 /*
  * ------------------------------------------------------
@@ -290,3 +277,5 @@ WebUtil.injectParamIfMissing = function (path, param, value) {
         return elem.pathname + elem.search + elem.hash;
     }
 };
+
+/* [module] export default WebUtil; */

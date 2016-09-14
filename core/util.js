@@ -9,7 +9,6 @@
 /* jshint white: false, nonstandard: true */
 /*global window, console, document, navigator, ActiveXObject, INCLUDE_URI */
 
-// Globals defined here
 var Util = {};
 
 
@@ -376,12 +375,12 @@ Util.decodeUTF8 = function (utf8string) {
 // Handles the case where load_scripts is invoked from a script that
 // itself is loaded via load_scripts. Once all scripts are loaded the
 // window.onscriptsloaded handler is called (if set).
-Util.get_include_uri = function () {
-    return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
+Util.get_include_uri = function (root_dir) {
+    return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI + root_dir + '/' : root_dir + '/';
 };
 Util._loading_scripts = [];
 Util._pending_scripts = [];
-Util.load_scripts = function (files) {
+Util.load_scripts = function (files_by_dir) {
     "use strict";
     var head = document.getElementsByTagName('head')[0], script,
         ls = Util._loading_scripts, ps = Util._pending_scripts;
@@ -410,25 +409,32 @@ Util.load_scripts = function (files) {
         }
     };
 
-    for (var f = 0; f < files.length; f++) {
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = Util.get_include_uri() + files[f];
-        //console.log("loading script: " + script.src);
-        script.onload = script.onreadystatechange = loadFunc;
-        // In-order script execution tricks
-        if (Util.Engine.trident) {
-            // For IE wait until readyState is 'loaded' before
-            // appending it which will trigger execution
-            // http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
-            ls.push(script);
-        } else {
-            // For webkit and firefox set async=false and append now
-            // https://developer.mozilla.org/en-US/docs/HTML/Element/script
-            script.async = false;
-            head.appendChild(script);
+    var root_dirs = Object.Keys(files_by_dir);
+
+    for (var d = 0; d < root_dirs.length; d++) {
+        var root_dir = root_dirs[d];
+        var files = files_by_dir[root_dir];
+
+        for (var f = 0; f < files.length; f++) {
+            script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = Util.get_include_uri(root_dir) + files[f];
+            //console.log("loading script: " + script.src);
+            script.onload = script.onreadystatechange = loadFunc;
+            // In-order script execution tricks
+            if (Util.Engine.trident) {
+                // For IE wait until readyState is 'loaded' before
+                // appending it which will trigger execution
+                // http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
+                ls.push(script);
+            } else {
+                // For webkit and firefox set async=false and append now
+                // https://developer.mozilla.org/en-US/docs/HTML/Element/script
+                script.async = false;
+                head.appendChild(script);
+            }
+            ps.push(script);
         }
-        ps.push(script);
     }
 };
 
@@ -620,3 +626,5 @@ Util.Flash = (function () {
     version = v.match(/\d+/g);
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
 }());
+
+/* [module] export default Util; */

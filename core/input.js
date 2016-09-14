@@ -8,7 +8,12 @@
 /*jslint browser: true, white: false */
 /*global window, Util */
 
-var Keyboard, Mouse;
+/* [module]
+ * import Util from "./util";
+ * import KeyboardUtil from "./keyboard";
+ */
+
+/* [module] export */ var Keyboard;
 
 (function () {
     "use strict";
@@ -27,10 +32,10 @@ var Keyboard, Mouse;
         });
 
         // create the keyboard handler
-        this._handler = new KeyEventDecoder(kbdUtil.ModifierSync(),
-            VerifyCharModifier( /* jshint newcap: false */
-                TrackKeyState(
-                    EscapeModifiers(this._handleRfbEvent.bind(this))
+        this._handler = new KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(),
+            KeyboardUtil.VerifyCharModifier( /* jshint newcap: false */
+                KeyboardUtil.TrackKeyState(
+                    KeyboardUtil.EscapeModifiers(this._handleRfbEvent.bind(this))
                 )
             )
         ); /* jshint newcap: true */
@@ -56,8 +61,8 @@ var Keyboard, Mouse;
         },
 
         setQEMUVNCKeyboardHandler: function () {
-            this._handler = new QEMUKeyEventDecoder(kbdUtil.ModifierSync(),
-                TrackQEMUKeyState(
+            this._handler = new KeyboardUtil.QEMUKeyEventDecoder(KeyboardUtil.ModifierSync(),
+                KeyboardUtil.TrackQEMUKeyState(
                     this._handleRfbEvent.bind(this)
                 )
             );
@@ -153,11 +158,11 @@ var Keyboard, Mouse;
 
         ['onKeyPress', 'rw', 'func'] // Handler for key press/release
     ]);
+})();
 
-    //
-    // Mouse event handler
-    //
+/* [module] export */ var Mouse;
 
+(function () {
     Mouse = function (defaults) {
         this._mouseCaptured  = false;
 
