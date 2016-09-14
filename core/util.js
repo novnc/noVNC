@@ -204,14 +204,18 @@ Util.getPosition = function(obj) {
             'width': objPosition.width, 'height': objPosition.height};
 };
 
+Util.getPointerEvent = function (e) {
+    var evt;
+    evt = (e ? e : window.event);
+    evt = (evt.changedTouches ? evt.changedTouches[0] : evt.touches ? evt.touches[0] : evt);
+    return evt;
+};
 
 // Get mouse event position in DOM element
 Util.getEventPosition = function (e, obj, scale) {
     "use strict";
     var evt, docX, docY, pos;
-    //if (!e) evt = window.event;
-    evt = (e ? e : window.event);
-    evt = (evt.changedTouches ? evt.changedTouches[0] : evt.touches ? evt.touches[0] : evt);
+    evt = Util.getPointerEvent(e);
     if (evt.pageX || evt.pageY) {
         docX = evt.pageX;
         docY = evt.pageY;

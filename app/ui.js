@@ -43,6 +43,10 @@ var UI;
         hideKeyboardTimeout: null,
         controlbarTimeout: null,
 
+        controlbarGrabbed: false,
+        controlbarDrag: false,
+        controlbarMouseDownClientY: 0,
+        controlbarMouseDownOffsetY: 0,
         keyboardVisible: false,
 
         isTouchDevice: false,
@@ -198,13 +202,19 @@ var UI;
             document.getElementById("noVNC_control_bar")
                 .addEventListener('keypress', UI.activateControlbar);
 
-            document.getElementById("noVNC_control_bar_handle")
-                .addEventListener('click', UI.toggleControlbar);
-
             document.getElementById("noVNC_view_drag_button")
                 .addEventListener('click', UI.toggleViewDrag);
             document.getElementById("noVNC_send_ctrl_alt_del_button")
                 .addEventListener('click', UI.sendCtrlAltDel);
+
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('mousedown', UI.controlbarHandleMouseDown);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('mouseup', UI.controlbarHandleMouseUp);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('mousemove', UI.dragControlbarHandle);
+            // resize events aren't available for elements
+            window.addEventListener('resize', UI.updateControlbarHandle);
         },
 
         addTouchSpecificHandlers: function() {
@@ -234,6 +244,13 @@ var UI;
                 .addEventListener('touchend', UI.activateControlbar);
             document.getElementById("noVNC_control_bar")
                 .addEventListener('input', UI.activateControlbar);
+
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('touchstart', UI.controlbarHandleMouseDown);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('touchend', UI.controlbarHandleMouseUp);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('touchmove', UI.dragControlbarHandle);
 
             window.addEventListener('load', UI.keyboardinputReset);
         },
@@ -495,6 +512,96 @@ var UI;
             } else {
                 UI.openControlbar();
             }
+        },
+
+        dragControlbarHandle: function (e) {
+            if (!UI.controlbarGrabbed) return;
+
+            var ptr = Util.getPointerEvent(e);
+
+            if (!UI.controlbarDrag) {
+                // The goal is to trigger on a certain physical width, the
+                // devicePixelRatio brings us a bit closer but is not optimal.
+                var dragThreshold = 10 * (window.devicePixelRatio || 1);
+                var dragDistance = Math.abs(ptr.clientY - UI.controlbarMouseDownClientY);
+
+                if (dragDistance < dragThreshold) return;
+
+                UI.controlbarDrag = true;
+            }
+
+            var eventY = ptr.clientY - UI.controlbarMouseDownOffsetY;
+
+            UI.moveControlbarHandle(eventY);
+
+            e.preventDefault();
+            e.stopPropagation();
+        },
+
+        // Move the handle but don't allow any position outside the bounds
+        moveControlbarHandle: function (posY) {
+            var handle = document.getElementById("noVNC_control_bar_handle");
+            var handleHeight = Util.getPosition(handle).height;
+            var controlbar = document.getElementById("noVNC_control_bar");
+            var controlbarBounds = Util.getPosition(controlbar);
+            var controlbarTop = controlbarBounds.y;
+            var controlbarBottom = controlbarBounds.y + controlbarBounds.height;
+            var margin = 10;
+
+            var viewportY = posY;
+
+            // Refuse coordinates outside the control bar
+            if (viewportY < controlbarTop + margin) {
+                viewportY = controlbarTop + margin;
+            } else if (viewportY > controlbarBottom - handleHeight - margin) {
+                viewportY = controlbarBottom - handleHeight - margin;
+            }
+
+            // Corner case: control bar too small for stable position
+            if (controlbarBounds.height < (handleHeight + margin * 2)) {
+                viewportY = controlbarTop + (controlbarBounds.height - handleHeight) / 2;
+            }
+
+            var relativeY = viewportY - controlbarTop;
+            handle.style.transform = "translateY(" + relativeY + "px)";
+        },
+
+        updateControlbarHandle: function () {
+            var handle = document.getElementById("noVNC_control_bar_handle");
+            var pos = Util.getPosition(handle);
+            UI.moveControlbarHandle(pos.y);
+        },
+
+        controlbarHandleMouseUp: function(e) {
+            if ((e.type == "mouseup") && (e.button != 0))
+                return;
+
+            // mouseup and mousedown on the same place toggles the controlbar
+            if (UI.controlbarGrabbed && !UI.controlbarDrag) {
+                UI.toggleControlbar();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            UI.controlbarGrabbed = false;
+        },
+
+        controlbarHandleMouseDown: function(e) {
+            if ((e.type == "mousedown") && (e.button != 0))
+                return;
+
+            var ptr = Util.getPointerEvent(e);
+
+            var handle = document.getElementById("noVNC_control_bar_handle");
+            var bounds = handle.getBoundingClientRect();
+
+            WebUtil.setCapture(handle);
+            UI.controlbarGrabbed = true;
+            UI.controlbarDrag = false;
+
+            UI.controlbarMouseDownClientY = ptr.clientY;
+            UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
+            e.preventDefault();
+            e.stopPropagation();
         },
 
 /* ------^-------

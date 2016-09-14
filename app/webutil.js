@@ -278,6 +278,99 @@ WebUtil.injectParamIfMissing = function (path, param, value) {
     }
 };
 
+// Emulate Element.setCapture() when not supported
+
+WebUtil._captureRecursion = false;
+WebUtil._captureProxy = function (e) {
+    // Recursion protection as we'll see our own event
+    if (WebUtil._captureRecursion) return;
+
+    // Clone the event as we cannot dispatch an already dispatched event
+    var newEv = new e.constructor(e.type, e);
+
+    WebUtil._captureRecursion = true;
+    WebUtil._captureElem.dispatchEvent(newEv);
+    WebUtil._captureRecursion = false;
+
+    // Implicitly release the capture on button release
+    if ((e.type === "mouseup") || (e.type === "touchend")) {
+        WebUtil.releaseCapture();
+    }
+};
+
+WebUtil.setCapture = function (elem) {
+    if (elem.setCapture) {
+
+        elem.setCapture();
+
+        // IE releases capture on 'click' events which might not trigger
+        elem.addEventListener('mouseup', WebUtil.releaseCapture);
+        elem.addEventListener('touchend', WebUtil.releaseCapture);
+
+    } else {
+        // Safari on iOS 9 has a broken constructor for TouchEvent.
+        // We are fine in this case however, since Safari seems to
+        // have some sort of implicit setCapture magic anyway.
+        if (window.TouchEvent !== undefined) {
+            try {
+                new TouchEvent("touchstart");
+            } catch (TypeError) {
+                return;
+            }
+        }
+
+        var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+
+        if (captureElem === null) {
+            captureElem = document.createElement("div");
+            captureElem.id = "noVNC_mouse_capture_elem";
+            captureElem.style.position = "fixed";
+            captureElem.style.top = "0px";
+            captureElem.style.left = "0px";
+            captureElem.style.width = "100%";
+            captureElem.style.height = "100%";
+            captureElem.style.zIndex = 10000;
+            captureElem.style.display = "none";
+            document.body.appendChild(captureElem);
+
+            captureElem.addEventListener('mousemove', WebUtil._captureProxy);
+            captureElem.addEventListener('mouseup', WebUtil._captureProxy);
+
+            captureElem.addEventListener('touchmove', WebUtil._captureProxy);
+            captureElem.addEventListener('touchend', WebUtil._captureProxy);
+        }
+
+        WebUtil._captureElem = elem;
+        captureElem.style.display = null;
+
+        // We listen to events on window in order to keep tracking if it
+        // happens to leave the viewport
+        window.addEventListener('mousemove', WebUtil._captureProxy);
+        window.addEventListener('mouseup', WebUtil._captureProxy);
+
+        window.addEventListener('touchmove', WebUtil._captureProxy);
+        window.addEventListener('touchend', WebUtil._captureProxy);
+    }
+};
+
+WebUtil.releaseCapture = function () {
+    if (document.releaseCapture) {
+
+        document.releaseCapture();
+
+    } else {
+        var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+        WebUtil._captureElem = null;
+        captureElem.style.display = "none";
+
+        window.removeEventListener('mousemove', WebUtil._captureProxy);
+        window.removeEventListener('mouseup', WebUtil._captureProxy);
+
+        window.removeEventListener('touchmove', WebUtil._captureProxy);
+        window.removeEventListener('touchend', WebUtil._captureProxy);
+    }
+};
+
 // Dynamically load scripts without using document.write()
 // Reference: http://unixpapa.com/js/dyna.html
 //
