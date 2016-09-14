@@ -222,11 +222,18 @@ input[type=button]:active, select:active {
   float: right;
 }
 
+:root:not(.noVNC_connected) #noVNC_view_drag_button {
+  display: none;
+}
+
 /* noVNC Touch Device only buttons */
 #noVNC_mobile_buttons {
   display: inline;
 }
-#noVNC_mobile_buttons.noVNC_hidden {
+:root:not(.noVNC_connected) #noVNC_mobile_buttons {
+  display: none;
+}
+:root:not(.noVNC_touch) #noVNC_mobile_buttons {
   display: none;
 }
 
@@ -242,7 +249,7 @@ input[type=button]:active, select:active {
   ime-mode: disabled;
 }
 
-#noVNC_toggle_extra_keys_button {
+:root:not(.noVNC_connected) #noVNC_extra_keys {
   display: none;
 }
 
@@ -280,7 +287,15 @@ input[type=button]:active, select:active {
   padding-left: 10px;
 }
 
+/* Send Ctrl+Alt+Delete */
+:root:not(.noVNC_connected) #noVNC_send_ctrl_alt_del_button {
+  display: none;
+}
+
 /* XVP Shutdown/Reboot */
+:root:not(.noVNC_connected) #noVNC_xvp_button {
+  display: none;
+}
 #noVNC_xvp {
 }
 #noVNC_xvp_buttons {
@@ -288,6 +303,9 @@ input[type=button]:active, select:active {
 }
 
 /* Clipboard */
+:root:not(.noVNC_connected) #noVNC_clipboard_button {
+  display: none;
+}
 #noVNC_clipboard {
 }
 #noVNC_clipboard_text {
@@ -307,7 +325,11 @@ input[type=button]:active, select:active {
 }
 
 /* Connection Controls */
-#noVNC_connect_controls {
+:root.noVNC_connected #noVNC_connect_controls_button {
+  display: none;
+}
+:root:not(.noVNC_connected) #noVNC_disconnect_button {
+  display: none;
 }
 #noVNC_connect_controls ul {
   list-style: none;
@@ -440,7 +462,7 @@ input[type=button]:active, select:active {
   width: auto;
   height: auto;
 }
-#noVNC_screen.noVNC_hidden {
+:root:not(.noVNC_connected) #noVNC_screen {
   display: none;
 }
 
@@ -480,7 +502,7 @@ input[type=button]:active, select:active {
       -1px 1px 0 #000,
        1px 1px 0 #000;
 }
-#noVNC_logo.noVNC_hidden {
+:root.noVNC_connected #noVNC_logo {
   display: none;
 }
 

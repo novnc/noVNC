@@ -66,12 +66,9 @@ var UI;
 
             UI.initSettings();
 
-            // Show mouse selector buttons on touch screen devices
+            // Adapt the interface for touch screen devices
             if (UI.isTouchDevice) {
-                // Show mobile buttons
-                document.getElementById('noVNC_mobile_buttons')
-                    .classList.remove("noVNC_hidden");
-                UI.hideMouseButton();
+                document.documentElement.classList.add("noVNC_touch");
                 // Remove the address bar
                 setTimeout(function() { window.scrollTo(0, 1); }, 100);
                 UI.forceSetting('clip', true);
@@ -368,34 +365,11 @@ var UI;
             document.getElementById('noVNC_setting_repeaterID').disabled = connected;
 
             if (connected) {
-                document.getElementById('noVNC_logo')
-                    .classList.add("noVNC_hidden");
-                document.getElementById('noVNC_screen')
-                    .classList.remove("noVNC_hidden");
+                document.documentElement.classList.add("noVNC_connected");
                 UI.updateViewClip();
                 UI.setMouseButton(1);
-                document.getElementById('noVNC_clipboard_button')
-                    .classList.remove("noVNC_hidden");
-                document.getElementById('noVNC_keyboard_button')
-                    .classList.remove("noVNC_hidden");
-                document.getElementById('noVNC_extra_keys')
-                    .classList.remove("noVNC_hidden");
-                document.getElementById('noVNC_send_ctrl_alt_del_button')
-                    .classList.remove("noVNC_hidden");
             } else {
-                document.getElementById('noVNC_logo')
-                    .classList.remove("noVNC_hidden");
-                document.getElementById('noVNC_screen')
-                    .classList.add("noVNC_hidden");
-                UI.hideMouseButton();
-                document.getElementById('noVNC_clipboard_button')
-                    .classList.add("noVNC_hidden");
-                document.getElementById('noVNC_keyboard_button')
-                    .classList.add("noVNC_hidden");
-                document.getElementById('noVNC_extra_keys')
-                    .classList.add("noVNC_hidden");
-                document.getElementById('noVNC_send_ctrl_alt_del_button')
-                    .classList.add("noVNC_hidden");
+                document.documentElement.classList.remove("noVNC_connected");
                 UI.updateXvpButton(0);
             }
 
@@ -411,23 +385,11 @@ var UI;
                 case 'fatal':
                 case 'failed':
                 case 'disconnected':
-                    document.getElementById('noVNC_connect_controls_button')
-                        .classList.remove("noVNC_hidden");
-                    document.getElementById('noVNC_disconnect_button')
-                        .classList.add("noVNC_hidden");
                     UI.openConnectPanel();
                     break;
                 case 'loaded':
-                    document.getElementById('noVNC_connect_controls_button')
-                        .classList.remove("noVNC_hidden");
-                    document.getElementById('noVNC_disconnect_button')
-                        .classList.add("noVNC_hidden");
                     break;
                 default:
-                    document.getElementById('noVNC_connect_controls_button')
-                        .classList.add("noVNC_hidden");
-                    document.getElementById('noVNC_disconnect_button')
-                        .classList.remove("noVNC_hidden");
                     break;
             }
 
@@ -1086,52 +1048,48 @@ var UI;
         updateViewDrag: function() {
             var clipping = false;
 
+            if (UI.rfb_state !== 'normal') return;
+
             // Check if viewport drag is possible. It is only possible
             // if the remote display is clipping the client display.
-            if (UI.rfb_state === 'normal' &&
-                UI.rfb.get_display().get_viewport() &&
+            if (UI.rfb.get_display().get_viewport() &&
                 UI.rfb.get_display().clippingDisplay()) {
                 clipping = true;
             }
 
             var viewDragButton = document.getElementById('noVNC_view_drag_button');
 
-            if (UI.rfb_state !== 'normal') {
-                // Always hide when not connected
-                viewDragButton.classList.add("noVNC_hidden");
+            if (!clipping &&
+                UI.rfb.get_viewportDrag()) {
+                // The size of the remote display is the same or smaller
+                // than the client display. Make sure viewport drag isn't
+                // active when it can't be used.
+                UI.rfb.set_viewportDrag(false);
+            }
+
+            if (UI.rfb.get_viewportDrag()) {
+                viewDragButton.classList.add("noVNC_selected");
             } else {
-                if (!clipping &&
-                    UI.rfb.get_viewportDrag()) {
-                    // The size of the remote display is the same or smaller
-                    // than the client display. Make sure viewport drag isn't
-                    // active when it can't be used.
-                    UI.rfb.set_viewportDrag(false);
-                }
+                viewDragButton.classList.remove("noVNC_selected");
+            }
 
-                if (UI.rfb.get_viewportDrag()) {
-                    viewDragButton.classList.add("noVNC_selected");
-                } else {
-                    viewDragButton.classList.remove("noVNC_selected");
-                }
+            // Different behaviour for touch vs non-touch
+            // The button is disabled instead of hidden on touch devices
+            if (UI.isTouchDevice) {
+                viewDragButton.classList.remove("noVNC_hidden");
 
-                // Different behaviour for touch vs non-touch
-                // The button is disabled instead of hidden on touch devices
-                if (UI.isTouchDevice) {
-                    viewDragButton.classList.remove("noVNC_hidden");
-
-                    if (clipping) {
-                        viewDragButton.disabled = false;
-                    } else {
-                        viewDragButton.disabled = true;
-                    }
-                } else {
+                if (clipping) {
                     viewDragButton.disabled = false;
+                } else {
+                    viewDragButton.disabled = true;
+                }
+            } else {
+                viewDragButton.disabled = false;
 
-                    if (clipping) {
-                        viewDragButton.classList.remove("noVNC_hidden");
-                    } else {
-                        viewDragButton.classList.add("noVNC_hidden");
-                    }
+                if (clipping) {
+                    viewDragButton.classList.remove("noVNC_hidden");
+                } else {
+                    viewDragButton.classList.add("noVNC_hidden");
                 }
             }
         },
@@ -1328,10 +1286,6 @@ var UI;
  * ==============
  *     MISC
  * ------v------*/
-
-        hideMouseButton: function() {
-            UI.setMouseButton(-1);
-        },
 
         setMouseButton: function(num) {
             if (UI.rfb) {
