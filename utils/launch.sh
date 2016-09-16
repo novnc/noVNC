@@ -26,8 +26,7 @@ usage() {
 }
 
 NAME="$(basename $0)"
-REAL_NAME="$(readlink -f $0)"
-HERE="$(cd "$(dirname "$REAL_NAME")" && pwd)"
+HERE="$( cd "$( dirname "$( dirname "$0" )" )" && pwd )"
 PORT="6080"
 VNC_DEST="localhost:5900"
 CERT=""
@@ -123,7 +122,7 @@ else
     if [[ $? -ne 0 ]]; then
         echo "No installed websockify, attempting to clone websockify..."
         WEBSOCKIFY=${HERE}/websockify/run
-        git clone https://github.com/kanaka/websockify ${HERE}/websockify
+        git clone https://github.com/kanaka/websockify "${HERE}/websockify"
 
         if [[ ! -e $WEBSOCKIFY ]]; then
             echo "Unable to locate ${HERE}/websockify/run after downloading"
@@ -138,7 +137,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+"${WEBSOCKIFY}" --web "${WEB}" ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
