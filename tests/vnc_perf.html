@@ -31,17 +31,17 @@
     </body>
 
     <!--
-    <script type='text/javascript' 
+    <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
 
     <script type="text/javascript">
-        var INCLUDE_URI= "../include/";
+        var INCLUDE_URI= "../";
         // TODO: Data file should override
         var VNC_frame_encoding = "binary";
     </script>
-    <script src="../include/util.js"></script>
-    <script src="../include/webutil.js"></script>
+    <script src="../core/util.js"></script>
+    <script src="../app/webutil.js"></script>
 
     <script>
         var fname = WebUtil.getQueryVar('data', null);
@@ -49,10 +49,12 @@
             msg("Loading " + fname);
 
             // Load supporting scripts
-            Util.load_scripts(["base64.js", "websock.js", "des.js", "keysym.js",
-                            "keysymdef.js", "xtscancodes.js", "keyboard.js",
-                            "input.js", "display.js", "rfb.js", "playback.js",
-                            "inflator.js", fname]);
+            WebUtil.load_scripts({
+                'core': ["base64.js", "websock.js", "des.js", "input/keysym.js",
+                         "input/keysymdef.js", "input/xtscancodes.js", "input/util.js",
+                         "input/devices.js", "display.js", "rfb.js", "inflator.js"],
+                'tests': ["playback.js"],
+                'recordings': [fname]});
         } else {
             msg("Must specifiy data=FOO.js in query string.");
         }
@@ -64,7 +66,7 @@
 
         function msg(str) {
             console.log(str);
-            var cell = $D('messages');
+            var cell = document.getElementById('messages');
             cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -85,20 +87,20 @@
                     test_state = 'failed';
                     break;
                 case 'loaded':
-                    $D('startButton').disabled = false;
+                    document.getElementById('startButton').disabled = false;
                     break;
             }
             if (typeof mesg !== 'undefined') {
-                $D('VNC_status').innerHTML = mesg;
+                document.getElementById('VNC_status').innerHTML = mesg;
             }
         }
 
         function do_test() {
-            $D('startButton').value = "Running";
-            $D('startButton').disabled = true;
+            document.getElementById('startButton').value = "Running";
+            document.getElementById('startButton').disabled = true;
 
             mode = 'perftest'; // full-speed
-            passes = $D('passes').value;
+            passes = document.getElementById('passes').value;
             pass = 1;
             encIdx = 0;
 
@@ -142,8 +144,8 @@
                     // Shut-off event interception
                     rfb.get_mouse().ungrab();
                     rfb.get_keyboard().ungrab();
-                    $D('startButton').disabled = false;
-                    $D('startButton').value = "Start";
+                    document.getElementById('startButton').disabled = false;
+                    document.getElementById('startButton').value = "Start";
                     finish_passes();
                     return; // We are finished, terminate
                 }
@@ -190,7 +192,7 @@
                 enc = encOrder[i];
                 avg = (encTot[i] / passes).toFixed(1);
                 msg("  " + enc + ": " + encTot[i] + " ms, " +
-                    encMin[i] + "/" + avg + "/" + encMax[i] + 
+                    encMin[i] + "/" + avg + "/" + encMax[i] +
                     " (min/avg/max)");
 
             }
@@ -208,7 +210,7 @@
                 enc = encOrder[i];
                 dbgmsg("  " + enc + ": " + VNC_frame_data_multi[enc].length);
             }
-            $D('startButton').disabled = false;
+            document.getElementById('startButton').disabled = false;
         }
     </script>
 </html>

@@ -1,7 +1,7 @@
 var Spooky = require('spooky');
 var path = require('path');
 
-var phantom_path = require('phantomjs').path;
+var phantom_path = require('phantomjs-prebuilt').path;
 var casper_path = path.resolve(__dirname, '../node_modules/casperjs/bin/casperjs');
 process.env.PHANTOMJS_EXECUTABLE = phantom_path;
 var casper_opts = {

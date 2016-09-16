@@ -33,24 +33,24 @@
     </body>
 
     <!--
-    <script type='text/javascript' 
+    <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
 
     <script type="text/javascript">
-        var INCLUDE_URI= "../include/";
+        var INCLUDE_URI= "../";
         // TODO: Data file should override
         var VNC_frame_encoding = "binary";
     </script>
-    <script src="../include/util.js"></script>
-    <script src="../include/webutil.js"></script>
+    <script src="../core/util.js"></script>
+    <script src="../app/webutil.js"></script>
 
     <script>
         var fname, start_time;
 
         function message(str) {
             console.log(str);
-            var cell = $D('messages');
+            var cell = document.getElementById('messages');
             cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
@@ -59,10 +59,12 @@
         if (fname) {
             message("Loading " + fname);
             // Load supporting scripts
-            Util.load_scripts(["base64.js", "websock.js", "des.js", "keysym.js",
-                            "keysymdef.js", "xtscancodes.js", "keyboard.js",
-                            "input.js", "display.js", "rfb.js", "playback.js",
-                            "inflator.js", fname]);
+            WebUtil.load_scripts({
+                'core': ["base64.js", "websock.js", "des.js", "input/keysym.js",
+                         "input/keysymdef.js", "input/xtscancodes.js", "input/util.js",
+                         "input/devices.js", "display.js", "rfb.js", "inflator.js"],
+                'tests': ["playback.js"],
+                'recordings': [fname]});
 
         } else {
             message("Must specify data=FOO in query string.");
@@ -79,19 +81,19 @@
                     break;
             }
             if (typeof msg !== 'undefined') {
-                $D('VNC_status').innerHTML = msg;
+                document.getElementById('VNC_status').innerHTML = msg;
             }
         }
 
         function start() {
-            $D('startButton').value = "Running";
-            $D('startButton').disabled = true;
+            document.getElementById('startButton').value = "Running";
+            document.getElementById('startButton').disabled = true;
 
-            iterations = $D('iterations').value;
+            iterations = document.getElementById('iterations').value;
             iteration = 0;
             start_time = (new Date()).getTime();
 
-            if ($D('mode1').checked) {
+            if (document.getElementById('mode1').checked) {
                 message("Starting performance playback (fullspeed) [" + iterations + " iteration(s)]");
                 mode = 'perftest';
             } else {
@@ -115,24 +117,24 @@
             // Shut-off event interception
             rfb.get_mouse().ungrab();
             rfb.get_keyboard().ungrab();
-            $D('startButton').disabled = false;
-            $D('startButton').value = "Start";
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('startButton').value = "Start";
 
         }
 
         window.onscriptsload = function () {
             iterations = WebUtil.getQueryVar('iterations', 3);
-            $D('iterations').value = iterations;
+            document.getElementById('iterations').value = iterations;
             mode = WebUtil.getQueryVar('mode', 3);
             if (mode === 'realtime') {
-                $D('mode2').checked = true;
+                document.getElementById('mode2').checked = true;
             } else {
-                $D('mode1').checked = true;
+                document.getElementById('mode1').checked = true;
             }
             if (fname) {
                 message("VNC_frame_data.length: " + VNC_frame_data.length);
             }
-            $D('startButton').disabled = false;
+            document.getElementById('startButton').disabled = false;
         }
     </script>
 </html>

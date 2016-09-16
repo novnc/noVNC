@@ -67,7 +67,7 @@ if (all_js && !program.autoInject) {
       var eol = content.indexOf('\n', ind);
       var modules = content.slice(ind, eol).split(/,\s*/);
       modules.forEach(function (mod) {
-        all_modules[get_path('include/', mod) + '.js'] = 1;
+        all_modules[get_path('core/', mod) + '.js'] = 1;
       });
     }
 
@@ -92,7 +92,7 @@ if (program.autoInject) {
   var template = {
     header: "<html>\n<head>\n<meta charset='utf-8' />\n<link rel='stylesheet' href='" + get_path('node_modules/mocha/mocha.css') + "'/>\n</head>\n<body><div id='mocha'></div>",
     script_tag: function(p) { return "<script src='" + p + "'></script>"; },
-    footer: "<script>\nmocha.checkLeaks();\nmocha.globals(['navigator', 'create', 'ClientUtils', '__utils__']);\nmocha.run(function () { window.__mocha_done = true; });\n</script>\n</body>\n</html>"
+    footer: "<script>\nmocha.checkLeaks();\nmocha.globals(['navigator', 'create', 'ClientUtils', '__utils__', 'requestAnimationFrame', 'WebSocket']);\nmocha.run(function () { window.__mocha_done = true; });\n</script>\n</body>\n</html>"
   };
 
   template.header += "\n" + template.script_tag(get_path('node_modules/chai/chai.js'));

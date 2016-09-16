@@ -5,19 +5,19 @@ Public License 2.0). The noVNC core library is composed of the
 Javascript code necessary for full noVNC operation. This includes (but
 is not limited to):
 
-    include/base64.js
-    include/des.js
-    include/display.js
-    include/input.js
-    include/keysym.js
-    include/logo.js
-    include/playback.js
-    include/rfb.js
-    include/ui.js
-    include/util.js
-    include/websock.js
-    include/webutil.js
-    include/xtscancodes.js
+    core/base64.js
+    core/des.js
+    core/display.js
+    core/input/devices.js
+    core/input/keysym.js
+    core/logo.js
+    core/playback.js
+    core/rfb.js
+    app/ui.js
+    core/util.js
+    core/websock.js
+    app/webutil.js
+    core/input/xtscancodes.js
 
 The HTML, CSS, font and images files that included with the noVNC
 source distibution (or repository) are not considered part of the
@@ -29,12 +29,12 @@ The HTML, CSS, font and image files are licensed as follows:
 
     *.html                     : 2-Clause BSD license
 
-    include/*.css              : 2-Clause BSD license
+    app/styles/*.css           : 2-Clause BSD license
 
-    include/Orbitron*          : SIL Open Font License 1.1
+    app/styles/Orbitron*       : SIL Open Font License 1.1
                                  (Copyright 2009 Matt McInerney)
 
-    images/                    : Creative Commons Attribution-ShareAlike
+    app/images/                : Creative Commons Attribution-ShareAlike
                                  http://creativecommons.org/licenses/by-sa/3.0/
 
 Some portions of noVNC are copyright to their individual authors.
@@ -45,18 +45,12 @@ The are several files and projects that have been incorporated into
 the noVNC core library. Here is a list of those files and the original
 licenses (all MPL 2.0 compatible):
 
-    include/base64.js          : MPL 2.0
+    core/base64.js          : MPL 2.0
 
-    include/des.js             : Various BSD style licenses
+    core/des.js             : Various BSD style licenses
 
-    include/chrome-app/tcp-stream.js
-                               : Apache 2.0 license
-
-    utils/websockify
-    utils/websocket.py         : LGPL 3
-
-    utils/inflator.partial.js
-    include/inflator.js        : MIT (for pako)
+    utils/inflator.mod.js
+    include/inflator.js     : MIT (for pako)
 
 Any other files not mentioned above are typically marked with
 a copyright/license header at the top of the file. The default noVNC

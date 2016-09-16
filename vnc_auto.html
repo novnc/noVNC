@@ -27,22 +27,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <!-- App Start Icon  -->
-    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
+    <link rel="apple-touch-startup-image" href="app/images/screen_320x460.png" />
     <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
-    <link rel="apple-touch-icon" href="images/screen_57x57.png">
+    <link rel="apple-touch-icon" href="app/images/screen_57x57.png">
     <!--
-    <link rel="apple-touch-icon-precomposed" href="images/screen_57x57.png" />
+    <link rel="apple-touch-icon-precomposed" href="app/images/screen_57x57.png" />
     -->
 
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="include/base.css" title="plain">
+    <link rel="stylesheet" href="app/styles/base.css" title="plain">
 
      <!--
     <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
-        <script src="include/util.js"></script>
+        <script src="core/util.js"></script>
+        <script src="app/webutil.js"></script>
 </head>
 
 <body style="margin: 0px;">
@@ -77,10 +78,11 @@
         "use strict";
 
         // Load supporting scripts
-        Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                           "keysymdef.js", "xtscancodes.js", "keyboard.js",
-                           "input.js", "display.js", "inflator.js", "rfb.js",
-                           "keysym.js"]);
+        WebUtil.load_scripts({
+            'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
+                     "input/xtscancodes.js", "input/util.js", "input/devices.js",
+                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"],
+            'app': ["webutil.js"]});
 
         var rfb;
         var resizeTimeout;
@@ -90,7 +92,7 @@
             if (WebUtil.getConfigVar('resize', false)) {
                 var innerW = window.innerWidth;
                 var innerH = window.innerHeight;
-                var controlbarH = $D('noVNC_status_bar').offsetHeight;
+                var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
                 var padding = 5;
                 if (innerW !== undefined && innerH !== undefined)
                     rfb.requestDesktopSize(innerW, innerH - controlbarH - padding);
@@ -107,11 +109,11 @@
             msg += 'Password Required: ';
             msg += '<input type=password size=10 id="password_input" class="noVNC_status">';
             msg += '<\/form>';
-            $D('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
-            $D('noVNC_status').innerHTML = msg;
+            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+            document.getElementById('noVNC_status').innerHTML = msg;
         }
         function setPassword() {
-            rfb.sendPassword($D('password_input').value);
+            rfb.sendPassword(document.getElementById('password_input').value);
             return false;
         }
         function sendCtrlAltDel() {
@@ -132,9 +134,9 @@
         }
         function updateState(rfb, state, oldstate, msg) {
             var s, sb, cad, level;
-            s = $D('noVNC_status');
-            sb = $D('noVNC_status_bar');
-            cad = $D('sendCtrlAltDelButton');
+            s = document.getElementById('noVNC_status');
+            sb = document.getElementById('noVNC_status_bar');
+            cad = document.getElementById('sendCtrlAltDelButton');
             switch (state) {
                 case 'failed':       level = "error";  break;
                 case 'fatal':        level = "error";  break;
@@ -169,7 +171,7 @@
 
         function xvpInit(ver) {
             var xvpbuttons;
-            xvpbuttons = $D('noVNC_xvp_buttons');
+            xvpbuttons = document.getElementById('noVNC_xvp_buttons');
             if (ver >= 1) {
                 xvpbuttons.style.display = 'inline';
             } else {
@@ -180,11 +182,11 @@
         window.onscriptsload = function () {
             var host, port, password, path, token;
 
-            $D('sendCtrlAltDelButton').style.display = "inline";
-            $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
-            $D('xvpShutdownButton').onclick = xvpShutdown;
-            $D('xvpRebootButton').onclick = xvpReboot;
-            $D('xvpResetButton').onclick = xvpReset;
+            document.getElementById('sendCtrlAltDelButton').style.display = "inline";
+            document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+            document.getElementById('xvpShutdownButton').onclick = xvpShutdown;
+            document.getElementById('xvpRebootButton').onclick = xvpReboot;
+            document.getElementById('xvpResetButton').onclick = xvpReset;
 
             WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
             document.title = unescape(WebUtil.getConfigVar('title', 'noVNC'));
@@ -223,7 +225,7 @@
             }
 
             try {
-                rfb = new RFB({'target':       $D('noVNC_canvas'),
+                rfb = new RFB({'target':       document.getElementById('noVNC_canvas'),
                                'encrypt':      WebUtil.getConfigVar('encrypt',
                                         (window.location.protocol === "https:")),
                                'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),

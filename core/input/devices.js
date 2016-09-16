@@ -8,7 +8,12 @@
 /*jslint browser: true, white: false */
 /*global window, Util */
 
-var Keyboard, Mouse;
+/* [module]
+ * import Util from "../util";
+ * import KeyboardUtil from "./util";
+ */
+
+/* [module] export */ var Keyboard;
 
 (function () {
     "use strict";
@@ -27,10 +32,10 @@ var Keyboard, Mouse;
         });
 
         // create the keyboard handler
-        this._handler = new KeyEventDecoder(kbdUtil.ModifierSync(),
-            VerifyCharModifier( /* jshint newcap: false */
-                TrackKeyState(
-                    EscapeModifiers(this._handleRfbEvent.bind(this))
+        this._handler = new KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(),
+            KeyboardUtil.VerifyCharModifier( /* jshint newcap: false */
+                KeyboardUtil.TrackKeyState(
+                    KeyboardUtil.EscapeModifiers(this._handleRfbEvent.bind(this))
                 )
             )
         ); /* jshint newcap: true */
@@ -56,8 +61,8 @@ var Keyboard, Mouse;
         },
 
         setQEMUVNCKeyboardHandler: function () {
-            this._handler = new QEMUKeyEventDecoder(kbdUtil.ModifierSync(),
-                TrackQEMUKeyState(
+            this._handler = new KeyboardUtil.QEMUKeyEventDecoder(KeyboardUtil.ModifierSync(),
+                KeyboardUtil.TrackQEMUKeyState(
                     this._handleRfbEvent.bind(this)
                 )
             );
@@ -117,12 +122,12 @@ var Keyboard, Mouse;
             //Util.Debug(">> Keyboard.grab");
             var c = this._target;
 
-            Util.addEvent(c, 'keydown', this._eventHandlers.keydown);
-            Util.addEvent(c, 'keyup', this._eventHandlers.keyup);
-            Util.addEvent(c, 'keypress', this._eventHandlers.keypress);
+            c.addEventListener('keydown', this._eventHandlers.keydown);
+            c.addEventListener('keyup', this._eventHandlers.keyup);
+            c.addEventListener('keypress', this._eventHandlers.keypress);
 
             // Release (key up) if window loses focus
-            Util.addEvent(window, 'blur', this._eventHandlers.blur);
+            window.addEventListener('blur', this._eventHandlers.blur);
 
             //Util.Debug("<< Keyboard.grab");
         },
@@ -131,10 +136,10 @@ var Keyboard, Mouse;
             //Util.Debug(">> Keyboard.ungrab");
             var c = this._target;
 
-            Util.removeEvent(c, 'keydown', this._eventHandlers.keydown);
-            Util.removeEvent(c, 'keyup', this._eventHandlers.keyup);
-            Util.removeEvent(c, 'keypress', this._eventHandlers.keypress);
-            Util.removeEvent(window, 'blur', this._eventHandlers.blur);
+            c.removeEventListener('keydown', this._eventHandlers.keydown);
+            c.removeEventListener('keyup', this._eventHandlers.keyup);
+            c.removeEventListener('keypress', this._eventHandlers.keypress);
+            window.removeEventListener('blur', this._eventHandlers.blur);
 
             // Release (key up) all keys that are in a down state
             this._allKeysUp();
@@ -153,11 +158,11 @@ var Keyboard, Mouse;
 
         ['onKeyPress', 'rw', 'func'] // Handler for key press/release
     ]);
+})();
 
-    //
-    // Mouse event handler
-    //
+/* [module] export */ var Mouse;
 
+(function () {
     Mouse = function (defaults) {
         this._mouseCaptured  = false;
 
@@ -342,44 +347,44 @@ var Keyboard, Mouse;
             var c = this._target;
 
             if ('ontouchstart' in document.documentElement) {
-                Util.addEvent(c, 'touchstart', this._eventHandlers.mousedown);
-                Util.addEvent(window, 'touchend', this._eventHandlers.mouseup);
-                Util.addEvent(c, 'touchend', this._eventHandlers.mouseup);
-                Util.addEvent(c, 'touchmove', this._eventHandlers.mousemove);
+                c.addEventListener('touchstart', this._eventHandlers.mousedown);
+                window.addEventListener('touchend', this._eventHandlers.mouseup);
+                c.addEventListener('touchend', this._eventHandlers.mouseup);
+                c.addEventListener('touchmove', this._eventHandlers.mousemove);
             } else {
-                Util.addEvent(c, 'mousedown', this._eventHandlers.mousedown);
-                Util.addEvent(window, 'mouseup', this._eventHandlers.mouseup);
-                Util.addEvent(c, 'mouseup', this._eventHandlers.mouseup);
-                Util.addEvent(c, 'mousemove', this._eventHandlers.mousemove);
-                Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+                c.addEventListener('mousedown', this._eventHandlers.mousedown);
+                window.addEventListener('mouseup', this._eventHandlers.mouseup);
+                c.addEventListener('mouseup', this._eventHandlers.mouseup);
+                c.addEventListener('mousemove', this._eventHandlers.mousemove);
+                c.addEventListener((Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
                               this._eventHandlers.mousewheel);
             }
 
             /* Work around right and middle click browser behaviors */
-            Util.addEvent(document, 'click', this._eventHandlers.mousedisable);
-            Util.addEvent(document.body, 'contextmenu', this._eventHandlers.mousedisable);
+            document.addEventListener('click', this._eventHandlers.mousedisable);
+            document.body.addEventListener('contextmenu', this._eventHandlers.mousedisable);
         },
 
         ungrab: function () {
             var c = this._target;
 
             if ('ontouchstart' in document.documentElement) {
-                Util.removeEvent(c, 'touchstart', this._eventHandlers.mousedown);
-                Util.removeEvent(window, 'touchend', this._eventHandlers.mouseup);
-                Util.removeEvent(c, 'touchend', this._eventHandlers.mouseup);
-                Util.removeEvent(c, 'touchmove', this._eventHandlers.mousemove);
+                c.removeEventListener('touchstart', this._eventHandlers.mousedown);
+                window.removeEventListener('touchend', this._eventHandlers.mouseup);
+                c.removeEventListener('touchend', this._eventHandlers.mouseup);
+                c.removeEventListener('touchmove', this._eventHandlers.mousemove);
             } else {
-                Util.removeEvent(c, 'mousedown', this._eventHandlers.mousedown);
-                Util.removeEvent(window, 'mouseup', this._eventHandlers.mouseup);
-                Util.removeEvent(c, 'mouseup', this._eventHandlers.mouseup);
-                Util.removeEvent(c, 'mousemove', this._eventHandlers.mousemove);
-                Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+                c.removeEventListener('mousedown', this._eventHandlers.mousedown);
+                window.removeEventListener('mouseup', this._eventHandlers.mouseup);
+                c.removeEventListener('mouseup', this._eventHandlers.mouseup);
+                c.removeEventListener('mousemove', this._eventHandlers.mousemove);
+                c.removeEventListener((Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
                                  this._eventHandlers.mousewheel);
             }
 
             /* Work around right and middle click browser behaviors */
-            Util.removeEvent(document, 'click', this._eventHandlers.mousedisable);
-            Util.removeEvent(document.body, 'contextmenu', this._eventHandlers.mousedisable);
+            document.removeEventListener('click', this._eventHandlers.mousedisable);
+            document.body.removeEventListener('contextmenu', this._eventHandlers.mousedisable);
 
         }
     };

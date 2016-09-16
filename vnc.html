@@ -27,18 +27,18 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <!-- App Start Icon  -->
-    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
+    <link rel="apple-touch-startup-image" href="app/images/screen_320x460.png" />
     <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
-    <link rel="apple-touch-icon" href="images/screen_57x57.png" />
+    <link rel="apple-touch-icon" href="app/images/screen_57x57.png" />
     <!--
-    <link rel="apple-touch-icon-precomposed" href="images/screen_57x57.png" />
+    <link rel="apple-touch-icon-precomposed" href="app/images/screen_57x57.png" />
     -->
 
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="include/base.css" />
-    <link rel="alternate stylesheet" href="include/black.css" TITLE="Black" />
-    <link rel="alternate stylesheet" href="include/blue.css" TITLE="Blue" />
+    <link rel="stylesheet" href="app/styles/base.css" />
+    <link rel="alternate stylesheet" href="app/styles/black.css" TITLE="Black" />
+    <link rel="alternate stylesheet" href="app/styles/blue.css" TITLE="Blue" />
 
     <!--
     <script type='text/javascript'
@@ -51,19 +51,19 @@
     <div id="noVNC_control_bar" class="noVNC_status_normal">
         <!--noVNC Mobile Device only Buttons-->
         <div class="noVNC_buttons_left">
-            <input type="image" alt="viewport drag" src="images/drag.png"
+            <input type="image" alt="viewport drag" src="app/images/drag.png"
                 id="noVNC_view_drag_button" class="noVNC_status_button"
                 title="Move/Drag Viewport" />
             <div id="noVNC_mobile_buttons">
-                <input type="image" alt="No mousebutton" src="images/mouse_none.png"
+                <input type="image" alt="No mousebutton" src="app/images/mouse_none.png"
                     id="noVNC_mouse_button0" class="noVNC_status_button" />
-                <input type="image" alt="Left mousebutton" src="images/mouse_left.png"
+                <input type="image" alt="Left mousebutton" src="app/images/mouse_left.png"
                     id="noVNC_mouse_button1" class="noVNC_status_button" />
-                <input type="image" alt="Middle mousebutton" src="images/mouse_middle.png"
+                <input type="image" alt="Middle mousebutton" src="app/images/mouse_middle.png"
                     id="noVNC_mouse_button2" class="noVNC_status_button" />
-                <input type="image" alt="Right mousebutton" src="images/mouse_right.png"
+                <input type="image" alt="Right mousebutton" src="app/images/mouse_right.png"
                     id="noVNC_mouse_button4" class="noVNC_status_button" />
-                <input type="image" alt="Keyboard" src="images/keyboard.png"
+                <input type="image" alt="Keyboard" src="app/images/keyboard.png"
                     id="noVNC_keyboard_button" class="noVNC_status_button"
                     value="Keyboard" title="Show Keyboard" />
                 <!-- Note that Google Chrome on Android doesn't respect any of these,
@@ -74,15 +74,15 @@
                     autocorrect="off" autocomplete="off" spellcheck="false"
                     mozactionhint="Enter"></textarea>
                 <div id="noVNC_extra_keys">
-                    <input type="image" alt="Extra keys" src="images/toggleextrakeys.png"
+                    <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.png"
                         id="noVNC_toggleExtraKeys_button" class="noVNC_status_button" />
-                    <input type="image" alt="Ctrl" src="images/ctrl.png"
+                    <input type="image" alt="Ctrl" src="app/images/ctrl.png"
                         id="noVNC_toggleCtrl_button" class="noVNC_status_button" />
-                    <input type="image" alt="Alt" src="images/alt.png"
+                    <input type="image" alt="Alt" src="app/images/alt.png"
                         id="noVNC_toggleAlt_button" class="noVNC_status_button" />
-                    <input type="image" alt="Tab" src="images/tab.png"
+                    <input type="image" alt="Tab" src="app/images/tab.png"
                         id="noVNC_sendTab_button" class="noVNC_status_button" />
-                    <input type="image" alt="Esc" src="images/esc.png"
+                    <input type="image" alt="Esc" src="app/images/esc.png"
                         id="noVNC_sendEsc_button" class="noVNC_status_button" />
                 </div>
             </div>
@@ -92,25 +92,25 @@
 
         <!--noVNC Buttons-->
         <div class="noVNC_buttons_right">
-            <input type="image" alt="Ctrl+Alt+Del" src="images/ctrlaltdel.png"
+            <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.png"
                 id="noVNC_sendCtrlAltDel_button" class="noVNC_status_button"
                 title="Send Ctrl-Alt-Del" />
-            <input type="image" alt="Shutdown/Reboot" src="images/power.png"
+            <input type="image" alt="Shutdown/Reboot" src="app/images/power.png"
                 id="noVNC_toggleXvp_button" class="noVNC_status_button"
                 title="Shutdown/Reboot..." />
-            <input type="image" alt="Clipboard" src="images/clipboard.png"
+            <input type="image" alt="Clipboard" src="app/images/clipboard.png"
                 id="noVNC_clipboard_button" class="noVNC_status_button"
                 title="Clipboard" />
-            <input type="image" alt="Fullscreen" src="images/fullscreen.png"
+            <input type="image" alt="Fullscreen" src="app/images/fullscreen.png"
                 id="noVNC_fullscreen_button" class="noVNC_status_button"
                 title="Fullscreen" />
-            <input type="image" alt="Settings" src="images/settings.png"
+            <input type="image" alt="Settings" src="app/images/settings.png"
                 id="noVNC_settings_button" class="noVNC_status_button"
                 title="Settings" />
-            <input type="image" alt="Connect" src="images/connect.png"
+            <input type="image" alt="Connect" src="app/images/connect.png"
                 id="noVNC_connectPanel_button" class="noVNC_status_button"
                 title="Connect" />
-            <input type="image" alt="Disconnect" src="images/disconnect.png"
+            <input type="image" alt="Disconnect" src="app/images/disconnect.png"
                 id="noVNC_disconnect_button" class="noVNC_status_button"
                 title="Disconnect" />
         </div>
@@ -218,8 +218,11 @@
         </div>
 
     </div>
-    <script src="include/util.js"></script>
-    <script src="include/ui.js"></script>
+    <!-- begin scripts -->
+    <script src="core/util.js"></script>
+    <script src="app/webutil.js"></script>
+    <script src="app/ui.js"></script>
+    <!-- end scripts -->
 
  </body>
 </html>

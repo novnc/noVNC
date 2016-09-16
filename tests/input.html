@@ -23,15 +23,15 @@
     <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
-    <script src="../include/util.js"></script>
-    <script src="../include/webutil.js"></script>
-    <script src="../include/base64.js"></script>
-    <script src="../include/keysym.js"></script>
-    <script src="../include/keysymdef.js"></script> 
-    <script src="../include/xtscancodes.js"></script>
-    <script src="../include/keyboard.js"></script>
-    <script src="../include/input.js"></script>
-    <script src="../include/display.js"></script>
+    <script src="../core/util.js"></script>
+    <script src="../app/webutil.js"></script>
+    <script src="../core/base64.js"></script>
+    <script src="../core/input/keysym.js"></script>
+    <script src="../core/input/keysymdef.js"></script> 
+    <script src="../core/input/xtscancodes.js"></script>
+    <script src="../core/input/util.js"></script>
+    <script src="../core/input/devices.js"></script>
+    <script src="../core/display.js"></script>
     <script>
         var msg_cnt = 0, iterations,
             width = 400, height = 200,
@@ -44,7 +44,7 @@
 
         function message(str) {
             console.log(str);
-            cell = $D('messages');
+            cell = document.getElementById('messages');
             cell.innerHTML += msg_cnt + ": " + str + newline;
             cell.scrollTop = cell.scrollHeight;
             msg_cnt++;
@@ -94,23 +94,23 @@
 
             for (b = 0; b < blist.length; b++) {
                 if (blist[b] === num) {
-                    $D('button' + blist[b]).style.backgroundColor = "black";
-                    $D('button' + blist[b]).style.color = "lightgray";
+                    document.getElementById('button' + blist[b]).style.backgroundColor = "black";
+                    document.getElementById('button' + blist[b]).style.color = "lightgray";
                 } else {
-                    $D('button' + blist[b]).style.backgroundColor = "";
-                    $D('button' + blist[b]).style.color = "";
+                    document.getElementById('button' + blist[b]).style.backgroundColor = "";
+                    document.getElementById('button' + blist[b]).style.color = "";
                 }
             }
         }
 
         window.onload = function() {
-            canvas = new Display({'target' : $D('canvas')});
+            canvas = new Display({'target' : document.getElementById('canvas')});
             keyboard = new Keyboard({'target': document,
                                     'onKeyPress': rfbKeyPress});
-           Util.addEvent(document, 'keypress', rawKey);
-           Util.addEvent(document, 'keydown', rawKey);
-           Util.addEvent(document, 'keyup', rawKey);
-            mouse    = new Mouse({'target': $D('canvas'),
+            document.addEventListener('keypress', rawKey);
+            document.addEventListener('keydown', rawKey);
+            document.addEventListener('keyup', rawKey);
+            mouse    = new Mouse({'target': document.getElementById('canvas'),
                                 'onMouseButton': mouseButton,
                                 'onMouseMove': mouseMove});
 
@@ -121,10 +121,10 @@
 
             if ('ontouchstart' in document.documentElement) {
                 message("Touch device detected");
-                $D('button-selection').style.display = "inline";
-                $D('button1').onclick = function(){ selectButton(1) };
-                $D('button2').onclick = function(){ selectButton(2) };
-                $D('button4').onclick = function(){ selectButton(4) };
+                document.getElementById('button-selection').style.display = "inline";
+                document.getElementById('button1').onclick = function(){ selectButton(1) };
+                document.getElementById('button2').onclick = function(){ selectButton(2) };
+                document.getElementById('button4').onclick = function(){ selectButton(4) };
                 selectButton();
             }
 

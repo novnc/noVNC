@@ -110,19 +110,19 @@ module.exports = function(config) {
     files: [
       'tests/fake.*.js',
       'tests/assertions.js',
-      'include/util.js',  // load first to avoid issues, since methods are called immediately
-      //'../include/*.js',
-      'include/base64.js',
-      'include/keysym.js',
-      'include/keysymdef.js',
-      'include/xtscancodes.js',
-      'include/keyboard.js',
-      'include/input.js',
-      'include/websock.js',
-      'include/rfb.js',
-      'include/des.js',
-      'include/display.js',
-      'include/inflator.js',
+      'core/util.js',  // load first to avoid issues, since methods are called immediately
+      //'../core/*.js',
+      'core/base64.js',
+      'core/input/keysym.js',
+      'core/input/keysymdef.js',
+      'core/input/xtscancodes.js',
+      'core/input/util.js',
+      'core/input/devices.js',
+      'core/websock.js',
+      'core/rfb.js',
+      'core/des.js',
+      'core/display.js',
+      'core/inflator.js',
       'tests/test.*.js'
     ],
 
@@ -134,8 +134,8 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      '../include/playback.js',
-      '../include/ui.js'
+      '../tests/playback.js',
+      '../app/ui.js'
     ],
 
     customLaunchers: customLaunchers,

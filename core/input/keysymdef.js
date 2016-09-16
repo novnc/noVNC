@@ -2,6 +2,7 @@
 // (and optionally, key names) expected by the RFB protocol
 // How this file was generated:
 // node /Users/jalf/dev/mi/novnc/utils/parse.js /opt/X11/include/X11/keysymdef.h
+
 var keysyms = (function(){
     "use strict";
     var keynames = null;
@@ -13,3 +14,5 @@ var keysyms = (function(){
         lookup : lookup
     };
 })();
+
+/* [module] export default keysyms */

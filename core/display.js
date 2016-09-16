@@ -10,7 +10,89 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-var Display;
+/* [module]
+ * import Util from "./util";
+ * import Base64 from "./base64";
+ */
+
+/* [module] export default */ function Display(defaults) {
+    this._drawCtx = null;
+    this._c_forceCanvas = false;
+
+    this._renderQ = [];  // queue drawing actions for in-oder rendering
+
+    // the full frame buffer (logical canvas) size
+    this._fb_width = 0;
+    this._fb_height = 0;
+
+    // the size limit of the viewport (start disabled)
+    this._maxWidth = 0;
+    this._maxHeight = 0;
+
+    // the visible "physical canvas" viewport
+    this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
+    this._cleanRect = { 'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1 };
+
+    this._prevDrawStyle = "";
+    this._tile = null;
+    this._tile16x16 = null;
+    this._tile_x = 0;
+    this._tile_y = 0;
+
+    Util.set_defaults(this, defaults, {
+        'true_color': true,
+        'colourMap': [],
+        'scale': 1.0,
+        'viewport': false,
+        'render_mode': ''
+    });
+
+    Util.Debug(">> Display.constructor");
+
+    if (!this._target) {
+        throw new Error("Target must be set");
+    }
+
+    if (typeof this._target === 'string') {
+        throw new Error('target must be a DOM element');
+    }
+
+    if (!this._target.getContext) {
+        throw new Error("no getContext method");
+    }
+
+    if (!this._drawCtx) {
+        this._drawCtx = this._target.getContext('2d');
+    }
+
+    Util.Debug("User Agent: " + navigator.userAgent);
+    if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
+    if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
+    if (Util.Engine.trident) { Util.Debug("Browser: trident " + Util.Engine.trident); }
+    if (Util.Engine.presto) { Util.Debug("Browser: presto " + Util.Engine.presto); }
+
+    this.clear();
+
+    // Check canvas features
+    if ('createImageData' in this._drawCtx) {
+        this._render_mode = 'canvas rendering';
+    } else {
+        throw new Error("Canvas does not support createImageData");
+    }
+
+    if (this._prefer_js === null) {
+        Util.Info("Prefering javascript operations");
+        this._prefer_js = true;
+    }
+
+    // Determine browser support for setting the cursor via data URI scheme
+    if (this._cursor_uri || this._cursor_uri === null ||
+            this._cursor_uri === undefined) {
+        this._cursor_uri = Util.browserSupportsCursorURIs();
+    }
+
+    Util.Debug("<< Display.constructor");
+};
 
 (function () {
     "use strict";
@@ -23,84 +105,6 @@ var Display;
         // ignore failure
     }
 
-    Display = function (defaults) {
-        this._drawCtx = null;
-        this._c_forceCanvas = false;
-
-        this._renderQ = [];  // queue drawing actions for in-oder rendering
-
-        // the full frame buffer (logical canvas) size
-        this._fb_width = 0;
-        this._fb_height = 0;
-
-        // the size limit of the viewport (start disabled)
-        this._maxWidth = 0;
-        this._maxHeight = 0;
-
-        // the visible "physical canvas" viewport
-        this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
-        this._cleanRect = { 'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1 };
-
-        this._prevDrawStyle = "";
-        this._tile = null;
-        this._tile16x16 = null;
-        this._tile_x = 0;
-        this._tile_y = 0;
-
-        Util.set_defaults(this, defaults, {
-            'true_color': true,
-            'colourMap': [],
-            'scale': 1.0,
-            'viewport': false,
-            'render_mode': ''
-        });
-
-        Util.Debug(">> Display.constructor");
-
-        if (!this._target) {
-            throw new Error("Target must be set");
-        }
-
-        if (typeof this._target === 'string') {
-            throw new Error('target must be a DOM element');
-        }
-
-        if (!this._target.getContext) {
-            throw new Error("no getContext method");
-        }
-
-        if (!this._drawCtx) {
-            this._drawCtx = this._target.getContext('2d');
-        }
-
-        Util.Debug("User Agent: " + navigator.userAgent);
-        if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
-        if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
-        if (Util.Engine.trident) { Util.Debug("Browser: trident " + Util.Engine.trident); }
-        if (Util.Engine.presto) { Util.Debug("Browser: presto " + Util.Engine.presto); }
-
-        this.clear();
-
-        // Check canvas features
-        if ('createImageData' in this._drawCtx) {
-            this._render_mode = 'canvas rendering';
-        } else {
-            throw new Error("Canvas does not support createImageData");
-        }
-
-        if (this._prefer_js === null) {
-            Util.Info("Prefering javascript operations");
-            this._prefer_js = true;
-        }
-
-        // Determine browser support for setting the cursor via data URI scheme
-        if (this._cursor_uri || this._cursor_uri === null ||
-                this._cursor_uri === undefined) {
-            this._cursor_uri = Util.browserSupportsCursorURIs();
-        }
-
-        Util.Debug("<< Display.constructor");
-    };
 
     Display.prototype = {
         // Public methods
@@ -774,7 +778,7 @@ var Display;
             }
 
             if (this._renderQ.length > 0) {
-                requestAnimFrame(this._scan_renderQ.bind(this));
+                requestAnimationFrame(this._scan_renderQ.bind(this));
             }
         },
     };

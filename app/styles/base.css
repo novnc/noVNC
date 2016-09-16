@@ -280,7 +280,7 @@ html {
 /* Control bar */
 #noVNC_control_bar {
   position:fixed;
-  
+
   display:block;
   height:36px;
   left:0;

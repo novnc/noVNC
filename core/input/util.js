@@ -1,4 +1,11 @@
-var kbdUtil = (function() {
+/* [module]
+ * import KeyTable from "./keysym";
+ * import keysyms from "./keysymdef";
+ */
+
+var KeyboardUtil = {};
+
+(function() {
     "use strict";
 
     function substituteCodepoint(cp) {
@@ -31,7 +38,7 @@ var kbdUtil = (function() {
     function hasShortcutModifier(charModifier, currentModifiers) {
         var mods = {};
         for (var key in currentModifiers) {
-            if (parseInt(key) !== XK_Shift_L) {
+            if (parseInt(key) !== KeyTable.XK_Shift_L) {
                 mods[key] = currentModifiers[key];
             }
         }
@@ -68,15 +75,15 @@ var kbdUtil = (function() {
         if (!charModifier) {
             if (isMac()) {
                 // on Mac, Option (AKA Alt) is used as a char modifier
-                charModifier = [XK_Alt_L];
+                charModifier = [KeyTable.XK_Alt_L];
             }
             else if (isWindows()) {
                 // on Windows, Ctrl+Alt is used as a char modifier
-                charModifier = [XK_Alt_L, XK_Control_L];
+                charModifier = [KeyTable.XK_Alt_L, KeyTable.XK_Control_L];
             }
             else if (isLinux()) {
                 // on Linux, ISO Level 3 Shift (AltGr) is used as a char modifier
-                charModifier = [XK_ISO_Level3_Shift];
+                charModifier = [KeyTable.XK_ISO_Level3_Shift];
             }
             else {
                 charModifier = [];
@@ -84,11 +91,11 @@ var kbdUtil = (function() {
         }
 
         var state = {};
-        state[XK_Control_L] = false;
-        state[XK_Alt_L] = false;
-        state[XK_ISO_Level3_Shift] = false;
-        state[XK_Shift_L] = false;
-        state[XK_Meta_L] = false;
+        state[KeyTable.XK_Control_L] = false;
+        state[KeyTable.XK_Alt_L] = false;
+        state[KeyTable.XK_ISO_Level3_Shift] = false;
+        state[KeyTable.XK_Shift_L] = false;
+        state[KeyTable.XK_Meta_L] = false;
 
         function sync(evt, keysym) {
             var result = [];
@@ -97,29 +104,29 @@ var kbdUtil = (function() {
             }
 
             if (evt.ctrlKey !== undefined &&
-                evt.ctrlKey !== state[XK_Control_L] && keysym !== XK_Control_L) {
-                state[XK_Control_L] = evt.ctrlKey;
-                result.push(syncKey(XK_Control_L));
+                evt.ctrlKey !== state[KeyTable.XK_Control_L] && keysym !== KeyTable.XK_Control_L) {
+                state[KeyTable.XK_Control_L] = evt.ctrlKey;
+                result.push(syncKey(KeyTable.XK_Control_L));
             }
             if (evt.altKey !== undefined &&
-                evt.altKey !== state[XK_Alt_L] && keysym !== XK_Alt_L) {
-                state[XK_Alt_L] = evt.altKey;
-                result.push(syncKey(XK_Alt_L));
+                evt.altKey !== state[KeyTable.XK_Alt_L] && keysym !== KeyTable.XK_Alt_L) {
+                state[KeyTable.XK_Alt_L] = evt.altKey;
+                result.push(syncKey(KeyTable.XK_Alt_L));
             }
             if (evt.altGraphKey !== undefined &&
-                evt.altGraphKey !== state[XK_ISO_Level3_Shift] && keysym !== XK_ISO_Level3_Shift) {
-                state[XK_ISO_Level3_Shift] = evt.altGraphKey;
-                result.push(syncKey(XK_ISO_Level3_Shift));
+                evt.altGraphKey !== state[KeyTable.XK_ISO_Level3_Shift] && keysym !== KeyTable.XK_ISO_Level3_Shift) {
+                state[KeyTable.XK_ISO_Level3_Shift] = evt.altGraphKey;
+                result.push(syncKey(KeyTable.XK_ISO_Level3_Shift));
             }
             if (evt.shiftKey !== undefined &&
-                evt.shiftKey !== state[XK_Shift_L] && keysym !== XK_Shift_L) {
-                state[XK_Shift_L] = evt.shiftKey;
-                result.push(syncKey(XK_Shift_L));
+                evt.shiftKey !== state[KeyTable.XK_Shift_L] && keysym !== KeyTable.XK_Shift_L) {
+                state[KeyTable.XK_Shift_L] = evt.shiftKey;
+                result.push(syncKey(KeyTable.XK_Shift_L));
             }
             if (evt.metaKey !== undefined &&
-                evt.metaKey !== state[XK_Meta_L] && keysym !== XK_Meta_L) {
-                state[XK_Meta_L] = evt.metaKey;
-                result.push(syncKey(XK_Meta_L));
+                evt.metaKey !== state[KeyTable.XK_Meta_L] && keysym !== KeyTable.XK_Meta_L) {
+                state[KeyTable.XK_Meta_L] = evt.metaKey;
+                result.push(syncKey(KeyTable.XK_Meta_L));
             }
             return result;
         }
@@ -210,21 +217,21 @@ var kbdUtil = (function() {
             return shiftPressed ? keycode : keycode + 32; // A-Z
         }
         if (keycode >= 0x60 && keycode <= 0x69) {
-            return XK_KP_0 + (keycode - 0x60); // numpad 0-9
+            return KeyTable.XK_KP_0 + (keycode - 0x60); // numpad 0-9
         }
 
         switch(keycode) {
-            case 0x20: return XK_space;
-            case 0x6a: return XK_KP_Multiply;
-            case 0x6b: return XK_KP_Add;
-            case 0x6c: return XK_KP_Separator;
-            case 0x6d: return XK_KP_Subtract;
-            case 0x6e: return XK_KP_Decimal;
-            case 0x6f: return XK_KP_Divide;
-            case 0xbb: return XK_plus;
-            case 0xbc: return XK_comma;
-            case 0xbd: return XK_minus;
-            case 0xbe: return XK_period;
+            case 0x20: return KeyTable.XK_space;
+            case 0x6a: return KeyTable.XK_KP_Multiply;
+            case 0x6b: return KeyTable.XK_KP_Add;
+            case 0x6c: return KeyTable.XK_KP_Separator;
+            case 0x6d: return KeyTable.XK_KP_Subtract;
+            case 0x6e: return KeyTable.XK_KP_Decimal;
+            case 0x6f: return KeyTable.XK_KP_Divide;
+            case 0xbb: return KeyTable.XK_plus;
+            case 0xbc: return KeyTable.XK_comma;
+            case 0xbd: return KeyTable.XK_minus;
+            case 0xbe: return KeyTable.XK_period;
         }
 
         return nonCharacterKey({keyCode: keycode});
@@ -238,54 +245,53 @@ var kbdUtil = (function() {
         var keycode = evt.keyCode;
 
         if (keycode >= 0x70 && keycode <= 0x87) {
-            return XK_F1 + keycode - 0x70; // F1-F24
+            return KeyTable.XK_F1 + keycode - 0x70; // F1-F24
         }
         switch (keycode) {
 
-            case 8 : return XK_BackSpace;
-            case 13 : return XK_Return;
+            case 8 : return KeyTable.XK_BackSpace;
+            case 13 : return KeyTable.XK_Return;
 
-            case 9 : return XK_Tab;
+            case 9 : return KeyTable.XK_Tab;
 
-            case 27 : return XK_Escape;
-            case 46 : return XK_Delete;
+            case 27 : return KeyTable.XK_Escape;
+            case 46 : return KeyTable.XK_Delete;
 
-            case 36 : return XK_Home;
-            case 35 : return XK_End;
-            case 33 : return XK_Page_Up;
-            case 34 : return XK_Page_Down;
-            case 45 : return XK_Insert;
+            case 36 : return KeyTable.XK_Home;
+            case 35 : return KeyTable.XK_End;
+            case 33 : return KeyTable.XK_Page_Up;
+            case 34 : return KeyTable.XK_Page_Down;
+            case 45 : return KeyTable.XK_Insert;
 
-            case 37 : return XK_Left;
-            case 38 : return XK_Up;
-            case 39 : return XK_Right;
-            case 40 : return XK_Down;
+            case 37 : return KeyTable.XK_Left;
+            case 38 : return KeyTable.XK_Up;
+            case 39 : return KeyTable.XK_Right;
+            case 40 : return KeyTable.XK_Down;
 
-            case 16 : return XK_Shift_L;
-            case 17 : return XK_Control_L;
-            case 18 : return XK_Alt_L; // also: Option-key on Mac
+            case 16 : return KeyTable.XK_Shift_L;
+            case 17 : return KeyTable.XK_Control_L;
+            case 18 : return KeyTable.XK_Alt_L; // also: Option-key on Mac
 
-            case 224 : return XK_Meta_L;
-            case 225 : return XK_ISO_Level3_Shift; // AltGr
-            case 91 : return XK_Super_L; // also: Windows-key
-            case 92 : return XK_Super_R; // also: Windows-key
-            case 93 : return XK_Menu; // also: Windows-Menu, Command on Mac
+            case 224 : return KeyTable.XK_Meta_L;
+            case 225 : return KeyTable.XK_ISO_Level3_Shift; // AltGr
+            case 91 : return KeyTable.XK_Super_L; // also: Windows-key
+            case 92 : return KeyTable.XK_Super_R; // also: Windows-key
+            case 93 : return KeyTable.XK_Menu; // also: Windows-Menu, Command on Mac
             default: return null;
         }
     }
-    return {
-        hasShortcutModifier : hasShortcutModifier,
-        hasCharModifier : hasCharModifier,
-        ModifierSync : ModifierSync,
-        getKey : getKey,
-        getKeysym : getKeysym,
-        keysymFromKeyCode : keysymFromKeyCode,
-        nonCharacterKey : nonCharacterKey,
-        substituteCodepoint : substituteCodepoint
-    };
+
+    KeyboardUtil.hasShortcutModifier = hasShortcutModifier;
+    KeyboardUtil.hasCharModifier = hasCharModifier;
+    KeyboardUtil.ModifierSync = ModifierSync;
+    KeyboardUtil.getKey = getKey;
+    KeyboardUtil.getKeysym = getKeysym;
+    KeyboardUtil.keysymFromKeyCode = keysymFromKeyCode;
+    KeyboardUtil.nonCharacterKey = nonCharacterKey;
+    KeyboardUtil.substituteCodepoint = substituteCodepoint;
 })();
 
-function QEMUKeyEventDecoder(modifierState, next) {
+KeyboardUtil.QEMUKeyEventDecoder = function(modifierState, next) {
     "use strict";
 
     function sendAll(evts) {
@@ -331,7 +337,7 @@ function QEMUKeyEventDecoder(modifierState, next) {
         var hasModifier = modifierState.hasShortcutModifier() || !!modifierState.activeCharModifier();
         var isShift = evt.keyCode === 0x10 || evt.key === 'Shift';
 
-        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!kbdUtil.nonCharacterKey(evt));
+        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!KeyboardUtil.nonCharacterKey(evt));
 
         next(result);
         return suppress;
@@ -353,9 +359,9 @@ function QEMUKeyEventDecoder(modifierState, next) {
         },
         releaseAll: function() { next({type: 'releaseall'}); }
     };
-}
+};
 
-function TrackQEMUKeyState(next) {
+KeyboardUtil.TrackQEMUKeyState = function(next) {
     "use strict";
     var state = [];
 
@@ -414,7 +420,7 @@ function TrackQEMUKeyState(next) {
             state = [];
         }
     };
-}
+};
 
 // Takes a DOM keyboard event and:
 // - determines which keysym it represents
@@ -423,7 +429,7 @@ function TrackQEMUKeyState(next) {
 // - marks each event with an 'escape' property if a modifier was down which should be "escaped"
 // - generates a "stall" event in cases where it might be necessary to wait and see if a keypress event follows a keydown
 // This information is collected into an object which is passed to the next() function. (one call per event)
-function KeyEventDecoder(modifierState, next) {
+KeyboardUtil.KeyEventDecoder = function(modifierState, next) {
     "use strict";
     function sendAll(evts) {
         for (var i = 0; i < evts.length; ++i) {
@@ -432,18 +438,18 @@ function KeyEventDecoder(modifierState, next) {
     }
     function process(evt, type) {
         var result = {type: type};
-        var keyId = kbdUtil.getKey(evt);
+        var keyId = KeyboardUtil.getKey(evt);
         if (keyId) {
             result.keyId = keyId;
         }
 
-        var keysym = kbdUtil.getKeysym(evt);
+        var keysym = KeyboardUtil.getKeysym(evt);
 
         var hasModifier = modifierState.hasShortcutModifier() || !!modifierState.activeCharModifier();
         // Is this a case where we have to decide on the keysym right away, rather than waiting for the keypress?
         // "special" keys like enter, tab or backspace don't send keypress events,
         // and some browsers don't send keypresses at all if a modifier is down
-        if (keysym && (type !== 'keydown' || kbdUtil.nonCharacterKey(evt) || hasModifier)) {
+        if (keysym && (type !== 'keydown' || KeyboardUtil.nonCharacterKey(evt) || hasModifier)) {
             result.keysym = keysym;
         }
 
@@ -452,11 +458,11 @@ function KeyEventDecoder(modifierState, next) {
         // Should we prevent the browser from handling the event?
         // Doing so on a keydown (in most browsers) prevents keypress from being generated
         // so only do that if we have to.
-        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!kbdUtil.nonCharacterKey(evt));
+        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!KeyboardUtil.nonCharacterKey(evt));
 
         // If a char modifier is down on a keydown, we need to insert a stall,
         // so VerifyCharModifier knows to wait and see if a keypress is comnig
-        var stall = type === 'keydown' && modifierState.activeCharModifier() && !kbdUtil.nonCharacterKey(evt);
+        var stall = type === 'keydown' && modifierState.activeCharModifier() && !KeyboardUtil.nonCharacterKey(evt);
 
         // if a char modifier is pressed, get the keys it consists of (on Windows, AltGr is equivalent to Ctrl+Alt)
         var active = modifierState.activeCharModifier();
@@ -502,7 +508,7 @@ function KeyEventDecoder(modifierState, next) {
         },
         releaseAll: function() { next({type: 'releaseall'}); }
     };
-}
+};
 
 // Combines keydown and keypress events where necessary to handle char modifiers.
 // On some OS'es, a char modifier is sometimes used as a shortcut modifier.
@@ -510,7 +516,7 @@ function KeyEventDecoder(modifierState, next) {
 // so when used with the '2' key, Ctrl-Alt counts as a char modifier (and should be escaped), but when used with 'D', it does not.
 // The only way we can distinguish these cases is to wait and see if a keypress event arrives
 // When we receive a "stall" event, wait a few ms before processing the next keydown. If a keypress has also arrived, merge the two
-function VerifyCharModifier(next) {
+KeyboardUtil.VerifyCharModifier = function(next) {
     "use strict";
     var queue = [];
     var timer = null;
@@ -560,14 +566,14 @@ function VerifyCharModifier(next) {
         queue.push(evt);
         process();
     };
-}
+};
 
 // Keeps track of which keys we (and the server) believe are down
 // When a keyup is received, match it against this list, to determine the corresponding keysym(s)
 // in some cases, a single key may produce multiple keysyms, so the corresponding keyup event must release all of these chars
 // key repeat events should be merged into a single entry.
 // Because we can't always identify which entry a keydown or keyup event corresponds to, we sometimes have to guess
-function TrackKeyState(next) {
+KeyboardUtil.TrackKeyState = function(next) {
     "use strict";
     var state = [];
 
@@ -647,11 +653,11 @@ function TrackKeyState(next) {
             state = [];
         }
     };
-}
+};
 
 // Handles "escaping" of modifiers: if a char modifier is used to produce a keysym (such as AltGr-2 to generate an @),
 // then the modifier must be "undone" before sending the @, and "redone" afterwards.
-function EscapeModifiers(next) {
+KeyboardUtil.EscapeModifiers = function(next) {
     "use strict";
     return function(evt) {
         if (evt.type !== 'keydown' || evt.escape === undefined) {
@@ -671,4 +677,6 @@ function EscapeModifiers(next) {
         }
         /* jshint shadow: false */
     };
-}
+};
+
+/* [module] export default KeyboardUtil; */

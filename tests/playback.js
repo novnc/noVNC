@@ -36,7 +36,7 @@ enable_test_mode = function () {
 };
 
 next_iteration = function () {
-    rfb = new RFB({'target': $D('VNC_canvas'),
+    rfb = new RFB({'target': document.getElementById('VNC_canvas'),
                    'onUpdateState': updateState});
     enable_test_mode();
 

@@ -2,4 +2,4 @@ Rebuilding inflator.js
 
 - Download pako from npm
 - Install browserify using npm
-- browserify utils/inflator.partial.js -o include/inflator.js -s inflator
+- browserify core/inflator.mod.js -o core/inflator.js -s Inflator
