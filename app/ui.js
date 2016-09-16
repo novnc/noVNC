@@ -369,7 +369,7 @@ var UI;
                         // zero means no timeout
                         UI.showStatus(msg, 'error', 0);
                         break;
-                    case 'normal':
+                    case 'connected':
                         /* falls through */
                     case 'disconnected':
                     case 'loaded':
@@ -386,7 +386,7 @@ var UI;
 
         // Disable/enable controls depending on connection state
         updateVisualState: function() {
-            var connected = UI.rfb && UI.rfb_state === 'normal';
+            var connected = UI.rfb && UI.rfb_state === 'connected';
 
             //Util.Debug(">> updateVisualState");
             document.getElementById('noVNC_setting_encrypt').disabled = connected;
@@ -1062,7 +1062,7 @@ var UI;
 
             var screen = UI.screenSize();
 
-            if (screen && UI.rfb_state === 'normal' && UI.rfb.get_display()) {
+            if (screen && UI.rfb_state === 'connected' && UI.rfb.get_display()) {
 
                 var display = UI.rfb.get_display();
                 var resizeMode = UI.getSetting('resize');
@@ -1187,7 +1187,7 @@ var UI;
         // Handle special cases where clipping is forced on/off or locked
         enableDisableViewClip: function() {
             var resizeSetting = document.getElementById('noVNC_setting_resize');
-            var connected = UI.rfb && UI.rfb_state === 'normal';
+            var connected = UI.rfb && UI.rfb_state === 'connected';
 
             if (UI.isSafari) {
                 // Safari auto-hides the scrollbars which makes them
@@ -1243,7 +1243,7 @@ var UI;
         updateViewDrag: function() {
             var clipping = false;
 
-            if (UI.rfb_state !== 'normal') return;
+            if (UI.rfb_state !== 'connected') return;
 
             // Check if viewport drag is possible. It is only possible
             // if the remote display is clipping the client display.

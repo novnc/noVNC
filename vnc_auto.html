@@ -143,13 +143,13 @@
             switch (state) {
                 case 'failed':       level = "error";  break;
                 case 'fatal':        level = "error";  break;
-                case 'normal':       level = "normal"; break;
+                case 'connected':    level = "normal"; break;
                 case 'disconnected': level = "normal"; break;
                 case 'loaded':       level = "normal"; break;
                 default:             level = "warn";   break;
             }
 
-            if (state === "normal") {
+            if (state === 'connected') {
                 cad.disabled = false;
             } else {
                 cad.disabled = true;
