@@ -37,10 +37,14 @@ chai.use(function (_chai, utils) {
         };
         var data = obj._websocket._get_sent_data();
         var same = true;
-        for (var i = 0; i < obj.length; i++) {
-            if (data[i] != target_data[i]) {
-                same = false;
-                break;
+        if (data.length != target_data.length) {
+            same = false;
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i] != target_data[i]) {
+                    same = false;
+                    break;
+                }
             }
         }
         if (!same) {

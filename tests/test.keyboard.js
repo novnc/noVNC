@@ -1,4 +1,4 @@
-// requires local modules: input, keyboard, keysymdef
+// requires local modules: input/devices, input/util, input/keysymdef, input/keysym
 var assert = chai.assert;
 var expect = chai.expect;
 
@@ -7,19 +7,19 @@ describe('Key Event Pipeline Stages', function() {
     "use strict";
     describe('Decode Keyboard Events', function() {
         it('should pass events to the next stage', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt).to.be.an.object;
                 done();
             }).keydown({keyCode: 0x41});
         });
         it('should pass the right keysym through', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt.keysym).to.be.deep.equal(keysyms.lookup(0x61));
                 done();
             }).keypress({keyCode: 0x41});
         });
         it('should pass the right keyid through', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt).to.have.property('keyId', 0x41);
                 done();
             }).keydown({keyCode: 0x41});
@@ -27,14 +27,14 @@ describe('Key Event Pipeline Stages', function() {
         it('should not sync modifiers on a keypress', function() {
             // Firefox provides unreliable modifier state on keypress events
             var count = 0;
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 ++count;
             }).keypress({keyCode: 0x41, ctrlKey: true});
             expect(count).to.be.equal(1);
         });
         it('should sync modifiers if necessary', function(done) {
             var count = 0;
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 switch (count) {
                 case 0: // fake a ctrl keydown
                     expect(evt).to.be.deep.equal({keysym: keysyms.lookup(0xffe3), type: 'keydown'});
@@ -48,26 +48,26 @@ describe('Key Event Pipeline Stages', function() {
             }).keydown({keyCode: 0x41, ctrlKey: true});
         });
         it('should forward keydown events with the right type', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown'});
                 done();
             }).keydown({keyCode: 0x41});
         });
         it('should forward keyup events with the right type', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keyup'});
                 done();
             }).keyup({keyCode: 0x41});
         });
         it('should forward keypress events with the right type', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keypress'});
                 done();
             }).keypress({keyCode: 0x41});
         });
         it('should generate stalls if a char modifier is down while a key is pressed', function(done) {
             var count = 0;
-            KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
+            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                 switch (count) {
                 case 0: // fake altgr
                     expect(evt).to.be.deep.equal({keysym: keysyms.lookup(0xfe03), type: 'keydown'});
@@ -92,7 +92,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         describe('suppress the right events at the right time', function() {
             it('should suppress anything while a shortcut modifier is down', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
                 obj.keydown({keyCode: 0x11}); // press ctrl
                 expect(obj.keydown({keyCode: 'A'.charCodeAt()})).to.be.true;
@@ -102,7 +102,7 @@ describe('Key Event Pipeline Stages', function() {
                 expect(obj.keydown({keyCode: 0xde})).to.be.true; // Ø key on DK
             });
             it('should suppress non-character keys', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
                 expect(obj.keydown({keyCode: 0x08}), 'a').to.be.true;
                 expect(obj.keydown({keyCode: 0x09}), 'b').to.be.true;
@@ -110,20 +110,20 @@ describe('Key Event Pipeline Stages', function() {
                 expect(obj.keydown({keyCode: 0x12}), 'e').to.be.true;
             });
             it('should not suppress shift', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
                 expect(obj.keydown({keyCode: 0x10}), 'd').to.be.false;
             });
             it('should generate event for shift keydown', function() {
                 var called = false;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt).to.have.property('keysym');
                     called = true;
                 }).keydown({keyCode: 0x10});
                 expect(called).to.be.true;
             });
             it('should not suppress character keys', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
                 expect(obj.keydown({keyCode: 'A'.charCodeAt()})).to.be.false;
                 expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.false;
@@ -132,7 +132,7 @@ describe('Key Event Pipeline Stages', function() {
                 expect(obj.keydown({keyCode: 0xde})).to.be.false; // Ø key on DK
             });
             it('should not suppress if a char modifier is down', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {});
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {});
 
                 obj.keydown({keyCode: 0xe1}); // press altgr
                 expect(obj.keydown({keyCode: 'A'.charCodeAt()})).to.be.false;
@@ -144,7 +144,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         describe('Keypress and keyup events', function() {
             it('should always suppress event propagation', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
                 expect(obj.keypress({keyCode: 'A'.charCodeAt()})).to.be.true;
                 expect(obj.keypress({keyCode: 0x3c})).to.be.true; // < key on DK Windows
@@ -155,7 +155,7 @@ describe('Key Event Pipeline Stages', function() {
                 expect(obj.keyup({keyCode: 0x11})).to.be.true;
             });
             it('should never generate stalls', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt.type).to.not.be.equal('stall');
                 });
 
@@ -171,7 +171,7 @@ describe('Key Event Pipeline Stages', function() {
         describe('mark events if a char modifier is down', function() {
             it('should not mark modifiers on a keydown event', function() {
                 var times_called = 0;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                     switch (times_called++) {
                     case 0: //altgr
                         break;
@@ -187,7 +187,7 @@ describe('Key Event Pipeline Stages', function() {
 
             it('should indicate on events if a single-key char modifier is down', function(done) {
                 var times_called = 0;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                     switch (times_called++) {
                     case 0: //altgr
                         break;
@@ -208,7 +208,7 @@ describe('Key Event Pipeline Stages', function() {
             });
             it('should indicate on events if a multi-key char modifier is down', function(done) {
                 var times_called = 0;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xffe9, 0xffe3]), function(evt) {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xffe9, 0xffe3]), function(evt) {
                     switch (times_called++) {
                     case 0: //ctrl
                         break;
@@ -231,7 +231,7 @@ describe('Key Event Pipeline Stages', function() {
                 obj.keypress({keyCode: 'A'.charCodeAt()});
             });
             it('should not consider a char modifier to be down on the modifier key itself', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                     expect(evt).to.not.have.property('escape');
                 });
 
@@ -241,13 +241,13 @@ describe('Key Event Pipeline Stages', function() {
         });
         describe('add/remove keysym', function() {
             it('should remove keysym from keydown if a char key and no modifier', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown'});
                 }).keydown({keyCode: 0x41});
             });
             it('should not remove keysym from keydown if a shortcut modifier is down', function() {
                 var times_called = 0;
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     switch (times_called++) {
                     case 1:
                         expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keydown'});
@@ -258,7 +258,7 @@ describe('Key Event Pipeline Stages', function() {
             });
             it('should not remove keysym from keydown if a char modifier is down', function() {
                 var times_called = 0;
-                KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                     switch (times_called++) {
                     case 2:
                         expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keydown'});
@@ -268,21 +268,21 @@ describe('Key Event Pipeline Stages', function() {
                 expect(times_called).to.be.equal(3);
             });
             it('should not remove keysym from keydown if key is noncharacter', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt, 'bacobjpace').to.be.deep.equal({keyId: 0x09, keysym: keysyms.lookup(0xff09), type: 'keydown'});
                 }).keydown({keyCode: 0x09});
 
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt, 'ctrl').to.be.deep.equal({keyId: 0x11, keysym: keysyms.lookup(0xffe3), type: 'keydown'});
                 }).keydown({keyCode: 0x11});
             });
             it('should never remove keysym from keypress', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keypress'});
                 }).keypress({keyCode: 0x41});
             });
             it('should never remove keysym from keyup', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
+                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keyup'});
                 }).keyup({keyCode: 0x41});
             });
@@ -293,25 +293,25 @@ describe('Key Event Pipeline Stages', function() {
 
     describe('Verify that char modifiers are active', function() {
         it('should pass keydown events through if there is no stall', function(done) {
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
                 done();
             })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
         });
         it('should pass keyup events through if there is no stall', function(done) {
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 expect(evt).to.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x41)});
                 done();
             })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x41)});
         });
         it('should pass keypress events through if there is no stall', function(done) {
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 expect(evt).to.deep.equal({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x41)});
                 done();
             })({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x41)});
         });
         it('should not pass stall events through', function(done){
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 // should only be called once, for the keydown
                 expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
                 done();
@@ -322,7 +322,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should merge keydown and keypress events if they come after a stall', function(done) {
             var next_called = false;
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 // should only be called once, for the keydown
                 expect(next_called).to.be.false;
                 next_called = true;
@@ -337,7 +337,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should preserve modifier attribute when merging if keysyms differ', function(done) {
             var next_called = false;
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 // should only be called once, for the keydown
                 expect(next_called).to.be.false;
                 next_called = true;
@@ -351,7 +351,7 @@ describe('Key Event Pipeline Stages', function() {
             expect(next_called).to.be.false;
         });
         it('should not preserve modifier attribute when merging if keysyms are the same', function() {
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 expect(evt).to.not.have.property('escape');
             });
 
@@ -361,7 +361,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should not merge keydown and keypress events if there is no stall', function(done) {
             var times_called = 0;
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 switch(times_called) {
                 case 0:
                     expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
@@ -380,7 +380,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should not merge keydown and keypress events if separated by another event', function(done) {
             var times_called = 0;
-            var obj = VerifyCharModifier(function(evt){
+            var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 switch(times_called) {
                 case 0:
                     expect(evt,1).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
@@ -406,7 +406,7 @@ describe('Key Event Pipeline Stages', function() {
 
     describe('Track Key State', function() {
         it('should do nothing on keyup events if no keys are down', function() {
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 expect(true).to.be.false;
             });
             obj({type: 'keyup', keyId: 0x41});
@@ -415,7 +415,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                 expect(evt).to.have.property('keysym');
@@ -443,7 +443,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -472,7 +472,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -504,7 +504,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -540,7 +540,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -573,7 +573,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -608,7 +608,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -644,7 +644,7 @@ describe('Key Event Pipeline Stages', function() {
             var times_called = 0;
             var elem = null;
             var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
@@ -676,7 +676,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should pop matching key event on keyup', function() {
             var times_called = 0;
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 switch (times_called++) {
                     case 0:
                     case 1:
@@ -697,7 +697,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should pop the first zero keyevent on keyup with zero keyId', function() {
             var times_called = 0;
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 switch (times_called++) {
                     case 0:
                     case 1:
@@ -718,7 +718,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should pop the last keyevents keysym if no match is found for keyId', function() {
             var times_called = 0;
-            var obj = TrackKeyState(function(evt) {
+            var obj = KeyboardUtil.TrackKeyState(function(evt) {
                 switch (times_called++) {
                     case 0:
                     case 1:
@@ -740,7 +740,7 @@ describe('Key Event Pipeline Stages', function() {
         describe('Firefox sends keypress even when keydown is suppressed', function() {
             it('should discard the keypress', function() {
                 var times_called = 0;
-                var obj = TrackKeyState(function(evt) {
+                var obj = KeyboardUtil.TrackKeyState(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
                 });
@@ -753,7 +753,7 @@ describe('Key Event Pipeline Stages', function() {
         describe('releaseAll', function() {
             it('should do nothing if no keys have been pressed', function() {
                 var times_called = 0;
-                var obj = TrackKeyState(function(evt) {
+                var obj = KeyboardUtil.TrackKeyState(function(evt) {
                     ++times_called;
                 });
                 obj({type: 'releaseall'});
@@ -761,7 +761,7 @@ describe('Key Event Pipeline Stages', function() {
             });
             it('should release the keys that have been pressed', function() {
                 var times_called = 0;
-                var obj = TrackKeyState(function(evt) {
+                var obj = KeyboardUtil.TrackKeyState(function(evt) {
                     switch (times_called++) {
                     case 2:
                         expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x41)});
@@ -787,7 +787,7 @@ describe('Key Event Pipeline Stages', function() {
         describe('Keydown', function() {
             it('should pass through when a char modifier is not down', function() {
                 var times_called = 0;
-                EscapeModifiers(function(evt) {
+                KeyboardUtil.EscapeModifiers(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
                     expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
@@ -796,7 +796,7 @@ describe('Key Event Pipeline Stages', function() {
             });
             it('should generate fake undo/redo events when a char modifier is down', function() {
                 var times_called = 0;
-                EscapeModifiers(function(evt) {
+                KeyboardUtil.EscapeModifiers(function(evt) {
                     switch(times_called++) {
                     case 0:
                         expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0xffe9)});
@@ -821,7 +821,7 @@ describe('Key Event Pipeline Stages', function() {
         describe('Keyup', function() {
             it('should pass through when a char modifier is down', function() {
                 var times_called = 0;
-                EscapeModifiers(function(evt) {
+                KeyboardUtil.EscapeModifiers(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
                     expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xfe03]});
@@ -830,7 +830,7 @@ describe('Key Event Pipeline Stages', function() {
             });
             it('should pass through when a char modifier is not down', function() {
                 var times_called = 0;
-                EscapeModifiers(function(evt) {
+                KeyboardUtil.EscapeModifiers(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
                     expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42)});

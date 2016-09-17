@@ -9,169 +9,7 @@
 /* jshint white: false, nonstandard: true */
 /*global window, console, document, navigator, ActiveXObject, INCLUDE_URI */
 
-// Globals defined here
 var Util = {};
-
-
-/*
- * Make arrays quack
- */
-
-var addFunc = function (cl, name, func) {
-    if (!cl.prototype[name]) {
-        Object.defineProperty(cl.prototype, name, { enumerable: false, value: func });
-    }
-};
-
-addFunc(Array, 'push8', function (num) {
-    "use strict";
-    this.push(num & 0xFF);
-});
-
-addFunc(Array, 'push16', function (num) {
-    "use strict";
-    this.push((num >> 8) & 0xFF,
-              num & 0xFF);
-});
-
-addFunc(Array, 'push32', function (num) {
-    "use strict";
-    this.push((num >> 24) & 0xFF,
-              (num >> 16) & 0xFF,
-              (num >>  8) & 0xFF,
-              num & 0xFF);
-});
-
-// IE does not support map (even in IE9)
-//This prototype is provided by the Mozilla foundation and
-//is distributed under the MIT license.
-//http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-addFunc(Array, 'map', function (fun /*, thisp*/) {
-    "use strict";
-    var len = this.length;
-    if (typeof fun != "function") {
-        throw new TypeError();
-    }
-
-    var res = new Array(len);
-    var thisp = arguments[1];
-    for (var i = 0; i < len; i++) {
-        if (i in this) {
-            res[i] = fun.call(thisp, this[i], i, this);
-        }
-    }
-
-    return res;
-});
-
-// IE <9 does not support indexOf
-//This prototype is provided by the Mozilla foundation and
-//is distributed under the MIT license.
-//http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-addFunc(Array, 'indexOf', function (elt /*, from*/) {
-    "use strict";
-    var len = this.length >>> 0;
-
-    var from = Number(arguments[1]) || 0;
-    from = (from < 0) ? Math.ceil(from) : Math.floor(from);
-    if (from < 0) {
-        from += len;
-    }
-
-    for (; from < len; from++) {
-        if (from in this &&
-                this[from] === elt) {
-            return from;
-        }
-    }
-    return -1;
-});
-
-// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-if (!Object.keys) {
-    Object.keys = (function () {
-        'use strict';
-        var hasOwnProperty = Object.prototype.hasOwnProperty,
-            hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
-            dontEnums = [
-                'toString',
-                'toLocaleString',
-                'valueOf',
-                'hasOwnProperty',
-                'isPrototypeOf',
-                'propertyIsEnumerable',
-                'constructor'
-            ],
-            dontEnumsLength = dontEnums.length;
-
-        return function (obj) {
-            if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-                throw new TypeError('Object.keys called on non-object');
-            }
-
-            var result = [], prop, i;
-
-            for (prop in obj) {
-                if (hasOwnProperty.call(obj, prop)) {
-                    result.push(prop);
-                }
-            }
-
-            if (hasDontEnumBug) {
-                for (i = 0; i < dontEnumsLength; i++) {
-                    if (hasOwnProperty.call(obj, dontEnums[i])) {
-                        result.push(dontEnums[i]);
-                    }
-                }
-            }
-            return result;
-        };
-    })();
-}
-
-// PhantomJS 1.x doesn't support bind,
-// so leave this in until PhantomJS 2.0 is released
-//This prototype is provided by the Mozilla foundation and
-//is distributed under the MIT license.
-//http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
-addFunc(Function, 'bind', function (oThis) {
-    if (typeof this !== "function") {
-        // closest thing possible to the ECMAScript 5
-        // internal IsCallable function
-        throw new TypeError("Function.prototype.bind - " +
-                            "what is trying to be bound is not callable");
-    }
-
-    var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () {},
-            fBound = function () {
-                return fToBind.apply(this instanceof fNOP && oThis ? this
-                                                                   : oThis,
-                                     aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-
-    return fBound;
-});
-
-//
-// requestAnimationFrame shim with setTimeout fallback
-//
-
-window.requestAnimFrame = (function () {
-    "use strict";
-    return  window.requestAnimationFrame       ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.oRequestAnimationFrame      ||
-            window.msRequestAnimationFrame     ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            };
-})();
 
 /*
  * ------------------------------------------------------
@@ -191,39 +29,26 @@ Util.init_logging = function (level) {
     } else {
         Util._log_level = level;
     }
-    if (typeof window.console === "undefined") {
-        if (typeof window.opera !== "undefined") {
-            window.console = {
-                'log'  : window.opera.postError,
-                'warn' : window.opera.postError,
-                'error': window.opera.postError
-            };
-        } else {
-            window.console = {
-                'log'  : function (m) {},
-                'warn' : function (m) {},
-                'error': function (m) {}
-            };
-        }
-    }
 
     Util.Debug = Util.Info = Util.Warn = Util.Error = function (msg) {};
-    /* jshint -W086 */
-    switch (level) {
-        case 'debug':
-            Util.Debug = function (msg) { console.log(msg); };
-        case 'info':
-            Util.Info  = function (msg) { console.log(msg); };
-        case 'warn':
-            Util.Warn  = function (msg) { console.warn(msg); };
-        case 'error':
-            Util.Error = function (msg) { console.error(msg); };
-        case 'none':
-            break;
-        default:
-            throw new Error("invalid logging type '" + level + "'");
+    if (typeof window.console !== "undefined") {
+        /* jshint -W086 */
+        switch (level) {
+            case 'debug':
+                Util.Debug = function (msg) { console.log(msg); };
+            case 'info':
+                Util.Info  = function (msg) { console.info(msg); };
+            case 'warn':
+                Util.Warn  = function (msg) { console.warn(msg); };
+            case 'error':
+                Util.Error = function (msg) { console.error(msg); };
+            case 'none':
+                break;
+            default:
+                throw new Error("invalid logging type '" + level + "'");
+        }
+        /* jshint +W086 */
     }
-    /* jshint +W086 */
 };
 Util.get_logging = function () {
     return Util._log_level;
@@ -369,70 +194,6 @@ Util.decodeUTF8 = function (utf8string) {
  * Cross-browser routines
  */
 
-
-// Dynamically load scripts without using document.write()
-// Reference: http://unixpapa.com/js/dyna.html
-//
-// Handles the case where load_scripts is invoked from a script that
-// itself is loaded via load_scripts. Once all scripts are loaded the
-// window.onscriptsloaded handler is called (if set).
-Util.get_include_uri = function () {
-    return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
-};
-Util._loading_scripts = [];
-Util._pending_scripts = [];
-Util.load_scripts = function (files) {
-    "use strict";
-    var head = document.getElementsByTagName('head')[0], script,
-        ls = Util._loading_scripts, ps = Util._pending_scripts;
-
-    var loadFunc = function (e) {
-        while (ls.length > 0 && (ls[0].readyState === 'loaded' ||
-                                 ls[0].readyState === 'complete')) {
-            // For IE, append the script to trigger execution
-            var s = ls.shift();
-            //console.log("loaded script: " + s.src);
-            head.appendChild(s);
-        }
-        if (!this.readyState ||
-            (Util.Engine.presto && this.readyState === 'loaded') ||
-            this.readyState === 'complete') {
-            if (ps.indexOf(this) >= 0) {
-                this.onload = this.onreadystatechange = null;
-                //console.log("completed script: " + this.src);
-                ps.splice(ps.indexOf(this), 1);
-
-                // Call window.onscriptsload after last script loads
-                if (ps.length === 0 && window.onscriptsload) {
-                    window.onscriptsload();
-                }
-            }
-        }
-    };
-
-    for (var f = 0; f < files.length; f++) {
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = Util.get_include_uri() + files[f];
-        //console.log("loading script: " + script.src);
-        script.onload = script.onreadystatechange = loadFunc;
-        // In-order script execution tricks
-        if (Util.Engine.trident) {
-            // For IE wait until readyState is 'loaded' before
-            // appending it which will trigger execution
-            // http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
-            ls.push(script);
-        } else {
-            // For webkit and firefox set async=false and append now
-            // https://developer.mozilla.org/en-US/docs/HTML/Element/script
-            script.async = false;
-            head.appendChild(script);
-        }
-        ps.push(script);
-    }
-};
-
-
 Util.getPosition = function(obj) {
     "use strict";
     // NB(sross): the Mozilla developer reference seems to indicate that
@@ -471,41 +232,9 @@ Util.getEventPosition = function (e, obj, scale) {
     return {'x': x / scale, 'y': y / scale, 'realx': realx / scale, 'realy': realy / scale};
 };
 
-
-// Event registration. Based on: http://www.scottandrew.com/weblog/articles/cbs-events
-Util.addEvent = function (obj, evType, fn) {
-    "use strict";
-    if (obj.attachEvent) {
-        var r = obj.attachEvent("on" + evType, fn);
-        return r;
-    } else if (obj.addEventListener) {
-        obj.addEventListener(evType, fn, false);
-        return true;
-    } else {
-        throw new Error("Handler could not be attached");
-    }
-};
-
-Util.removeEvent = function (obj, evType, fn) {
-    "use strict";
-    if (obj.detachEvent) {
-        var r = obj.detachEvent("on" + evType, fn);
-        return r;
-    } else if (obj.removeEventListener) {
-        obj.removeEventListener(evType, fn, false);
-        return true;
-    } else {
-        throw new Error("Handler could not be removed");
-    }
-};
-
 Util.stopEvent = function (e) {
-    "use strict";
-    if (e.stopPropagation) { e.stopPropagation(); }
-    else                   { e.cancelBubble = true; }
-
-    if (e.preventDefault)  { e.preventDefault(); }
-    else                   { e.returnValue = false; }
+    e.stopPropagation();
+    e.preventDefault();
 };
 
 Util._cursor_uris_supported = null;
@@ -620,3 +349,5 @@ Util.Flash = (function () {
     version = v.match(/\d+/g);
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
 }());
+
+/* [module] export default Util; */
