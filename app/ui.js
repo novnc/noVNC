@@ -36,7 +36,8 @@ var UI;
 
     UI = {
 
-        rfb_state: 'loaded',
+        connected: false,
+        desktopName: "",
 
         resizeTimeout: null,
         statusTimeout: null,
@@ -340,15 +341,16 @@ var UI;
                 UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
                                   'onNotification': UI.notification,
                                   'onUpdateState': UI.updateState,
+                                  'onDisconnected': UI.disconnectFinished,
                                   'onPasswordRequired': UI.passwordRequired,
                                   'onXvpInit': UI.updateXvpButton,
                                   'onClipboard': UI.clipboardReceive,
                                   'onFBUComplete': UI.initialResize,
                                   'onFBResize': UI.updateViewDrag,
-                                  'onDesktopName': UI.updateDocumentTitle});
+                                  'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
-                UI.updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                UI.showStatus('Unable to create RFB client -- ' + exc, 'error');
                 return false;
             }
         },
@@ -359,26 +361,31 @@ var UI;
  *     VISUAL
  * ------v------*/
 
-        updateState: function(rfb, state, oldstate, msg) {
-            UI.rfb_state = state;
-
-            if (typeof(msg) !== 'undefined') {
-                switch (state) {
-                    case 'failed':
-                    case 'fatal':
-                        // zero means no timeout
-                        UI.showStatus(msg, 'error', 0);
-                        break;
-                    case 'connected':
-                        /* falls through */
-                    case 'disconnected':
-                    case 'loaded':
-                        UI.showStatus(msg, 'normal');
-                        break;
-                    default:
-                        UI.showStatus(msg, 'warn');
-                        break;
-                }
+        updateState: function(rfb, state, oldstate) {
+            switch (state) {
+                case 'connecting':
+                    UI.showStatus("Connecting");
+                    break;
+                case 'connected':
+                    UI.connected = true;
+                    if (rfb && rfb.get_encrypt()) {
+                        UI.showStatus("Connected (encrypted) to " +
+                                      UI.desktopName);
+                    } else {
+                        UI.showStatus("Connected (unencrypted) to " +
+                                      UI.desktopName);
+                    }
+                    break;
+                case 'disconnecting':
+                    UI.showStatus("Disconnecting");
+                    break;
+                case 'disconnected':
+                    UI.connected = false;
+                    UI.showStatus("Disconnected");
+                    break;
+                default:
+                    UI.showStatus("Invalid state", 'error');
+                    break;
             }
 
             UI.updateVisualState();
@@ -386,26 +393,24 @@ var UI;
 
         // Disable/enable controls depending on connection state
         updateVisualState: function() {
-            var connected = UI.rfb && UI.rfb_state === 'connected';
-
             //Util.Debug(">> updateVisualState");
-            document.getElementById('noVNC_setting_encrypt').disabled = connected;
-            document.getElementById('noVNC_setting_true_color').disabled = connected;
+            document.getElementById('noVNC_setting_encrypt').disabled = UI.connected;
+            document.getElementById('noVNC_setting_true_color').disabled = UI.connected;
             if (Util.browserSupportsCursorURIs()) {
-                document.getElementById('noVNC_setting_cursor').disabled = connected;
+                document.getElementById('noVNC_setting_cursor').disabled = UI.connected;
             } else {
                 UI.updateSetting('cursor', !UI.isTouchDevice);
                 document.getElementById('noVNC_setting_cursor').disabled = true;
             }
 
             UI.enableDisableViewClip();
-            document.getElementById('noVNC_setting_resize').disabled = connected;
-            document.getElementById('noVNC_setting_shared').disabled = connected;
-            document.getElementById('noVNC_setting_view_only').disabled = connected;
-            document.getElementById('noVNC_setting_path').disabled = connected;
-            document.getElementById('noVNC_setting_repeaterID').disabled = connected;
+            document.getElementById('noVNC_setting_resize').disabled = UI.connected;
+            document.getElementById('noVNC_setting_shared').disabled = UI.connected;
+            document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
+            document.getElementById('noVNC_setting_path').disabled = UI.connected;
+            document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
 
-            if (connected) {
+            if (UI.connected) {
                 document.documentElement.classList.add("noVNC_connected");
                 UI.updateViewClip();
                 UI.setMouseButton(1);
@@ -424,18 +429,6 @@ var UI;
             // State change also closes the password dialog
             document.getElementById('noVNC_password_dlg')
                 .classList.remove('noVNC_open');
-
-            switch (UI.rfb_state) {
-                case 'fatal':
-                case 'failed':
-                case 'disconnected':
-                    UI.openConnectPanel();
-                    break;
-                case 'loaded':
-                    break;
-                default:
-                    break;
-            }
 
             //Util.Debug("<< updateVisualState");
         },
@@ -949,7 +942,8 @@ var UI;
             }
 
             if ((!host) || (!port)) {
-                throw new Error("Must set host and port");
+                UI.showStatus("Must set host and port", 'error');
+                return;
             }
 
             if (!UI.initRFB()) return;
@@ -974,6 +968,13 @@ var UI;
             // Don't display the connection settings until we're actually disconnected
         },
 
+        disconnectFinished: function (rfb, reason) {
+            if (typeof reason !== 'undefined') {
+                UI.showStatus(reason, 'error');
+            }
+            UI.openConnectPanel();
+        },
+
 /* ------^-------
  *  /CONNECTION
  * ==============
@@ -992,7 +993,7 @@ var UI;
             if (typeof msg === 'undefined') {
                 msg = "Password is required";
             }
-            UI.updateState(null, "warning", null, msg);
+            UI.showStatus(msg, "warning");
         },
 
         setPassword: function() {
@@ -1062,7 +1063,7 @@ var UI;
 
             var screen = UI.screenSize();
 
-            if (screen && UI.rfb_state === 'connected' && UI.rfb.get_display()) {
+            if (screen && UI.connected && UI.rfb.get_display()) {
 
                 var display = UI.rfb.get_display();
                 var resizeMode = UI.getSetting('resize');
@@ -1187,7 +1188,6 @@ var UI;
         // Handle special cases where clipping is forced on/off or locked
         enableDisableViewClip: function() {
             var resizeSetting = document.getElementById('noVNC_setting_resize');
-            var connected = UI.rfb && UI.rfb_state === 'connected';
 
             if (UI.isSafari) {
                 // Safari auto-hides the scrollbars which makes them
@@ -1209,9 +1209,11 @@ var UI;
             } else if (document.body.msRequestFullscreen && UI.rememberedClip !== null) {
                 // Restore view clip to what it was before fullscreen on IE
                 UI.setViewClip(UI.rememberedClipSetting);
-                document.getElementById('noVNC_setting_clip').disabled = connected || UI.isTouchDevice;
+                document.getElementById('noVNC_setting_clip').disabled =
+                    UI.connected || UI.isTouchDevice;
             } else {
-                document.getElementById('noVNC_setting_clip').disabled = connected || UI.isTouchDevice;
+                document.getElementById('noVNC_setting_clip').disabled =
+                    UI.connected || UI.isTouchDevice;
                 if (UI.isTouchDevice) {
                     UI.setViewClip(true);
                 }
@@ -1243,7 +1245,7 @@ var UI;
         updateViewDrag: function() {
             var clipping = false;
 
-            if (UI.rfb_state !== 'connected') return;
+            if (!UI.connected) return;
 
             // Check if viewport drag is possible. It is only possible
             // if the remote display is clipping the client display.
@@ -1537,8 +1539,9 @@ var UI;
             UI.rfb.get_mouse().set_focused(true);
         },
 
-        // Display the desktop name in the document title
-        updateDocumentTitle: function(rfb, name) {
+        updateDesktopName: function(rfb, name) {
+            UI.desktopName = name;
+            // Display the desktop name in the document title
             document.title = name + " - noVNC";
         },
 
