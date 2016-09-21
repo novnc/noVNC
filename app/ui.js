@@ -202,6 +202,10 @@ var UI;
         initRFB: function() {
             try {
                 UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
+                                  // If you have qemu guests that are still running with the '-k en-us' (or any other keymap), you'll need
+                                  // to set this to false, or each keypress will result in messages like:
+                                  // Unknown key released (translated set 2, code 0x0 on isa0060/serio0).
+                                  'allowQEMUExtKeyEvent': true,
                                   'onUpdateState': UI.updateState,
                                   'onXvpInit': UI.updateXvpButton,
                                   'onClipboard': UI.clipboardReceive,
