@@ -94,9 +94,8 @@
                 var innerW = window.innerWidth;
                 var innerH = window.innerHeight;
                 var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
-                var padding = 5;
                 if (innerW !== undefined && innerH !== undefined)
-                    rfb.requestDesktopSize(innerW, innerH - controlbarH - padding);
+                    rfb.requestDesktopSize(innerW, innerH - controlbarH);
             }
         }
         function FBUComplete(rfb, fbu) {
