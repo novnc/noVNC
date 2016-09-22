@@ -365,7 +365,7 @@
 
         fillRect: function (x, y, width, height, color, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'fill',
                     'x': x,
                     'y': y,
@@ -381,7 +381,7 @@
 
         copyImage: function (old_x, old_y, new_x, new_y, w, h, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'copy',
                     'old_x': old_x,
                     'old_y': old_y,
@@ -398,6 +398,17 @@
 
                 this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
             }
+        },
+
+        imageRect: function(x, y, mime, arr) {
+            var img = new Image();
+            img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+            this._renderQ_push({
+                'type': 'img',
+                'img': img,
+                'x': x,
+                'y': y
+            });
         },
 
         // start updating a tile
@@ -480,7 +491,7 @@
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 4);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'blit',
                     'data': new_arr,
                     'x': x,
@@ -502,7 +513,7 @@
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 3);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'blitRgb',
                     'data': new_arr,
                     'x': x,
@@ -525,7 +536,7 @@
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 4);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'blitRgbx',
                     'data': new_arr,
                     'x': x,
@@ -550,16 +561,6 @@
         // wrap ctx.drawImage but relative to viewport
         drawImage: function (img, x, y) {
             this._drawCtx.drawImage(img, x - this._viewportLoc.x, y - this._viewportLoc.y);
-        },
-
-        renderQ_push: function (action) {
-            this._renderQ.push(action);
-            if (this._renderQ.length === 1) {
-                // If this can be rendered immediately it will be, otherwise
-                // the scanner will start polling the queue (every
-                // requestAnimationFrame interval)
-                this._scan_renderQ();
-            }
         },
 
         changeCursor: function (pixels, mask, hotx, hoty, w, h) {
@@ -739,6 +740,16 @@
                 data[i + 3] = 255;  // Alpha
             }
             this._drawCtx.putImageData(img, x - vx, y - vy);
+        },
+
+        _renderQ_push: function (action) {
+            this._renderQ.push(action);
+            if (this._renderQ.length === 1) {
+                // If this can be rendered immediately it will be, otherwise
+                // the scanner will start polling the queue (every
+                // requestAnimationFrame interval)
+                this._scan_renderQ();
+            }
         },
 
         _scan_renderQ: function () {

@@ -1692,10 +1692,6 @@
         return (new DES(passwd)).encrypt(challenge);
     };
 
-    RFB.extract_data_uri = function (arr) {
-        return ";base64," + Base64.encode(arr);
-    };
-
     RFB.encodingHandlers = {
         RAW: function () {
             if (this._FBU.lines === 0) {
@@ -2198,16 +2194,8 @@
 
                     // We have everything, render it
                     this._sock.rQskipBytes(1 + cl_header);  // shift off clt + compact length
-                    var img = new Image();
-                    img.src = "data: image/" + cmode +
-                        RFB.extract_data_uri(this._sock.rQshiftBytes(cl_data));
-                    this._display.renderQ_push({
-                        'type': 'img',
-                        'img': img,
-                        'x': this._FBU.x,
-                        'y': this._FBU.y
-                    });
-                    img = null;
+                    data = this._sock.rQshiftBytes(cl_data);
+                    this._display.imageRect(this._FBU.x, this._FBU.y, "image/" + cmode, data);
                     break;
                 case "filter":
                     var filterId = rQ[rQi + 1];
