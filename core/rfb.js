@@ -78,6 +78,7 @@
 
     this._sock = null;              // Websock object
     this._display = null;           // Display object
+    this._flushing = false;         // Display flushing state
     this._keyboard = null;          // Keyboard input handler object
     this._mouse = null;             // Mouse input handler object
     this._disconnTimer = null;      // disconnection timer
@@ -189,7 +190,8 @@
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
     try {
-        this._display = new Display({target: this._target});
+        this._display = new Display({target: this._target,
+                                     onFlush: this._onFlush.bind(this)});
     } catch (exc) {
         Util.Error("Display exception: " + exc);
         throw exc;
@@ -567,7 +569,17 @@
                     Util.Error("Got data while disconnected");
                     break;
                 case 'connected':
-                    while (this._normal_msg() && this._sock.rQlen() > 0);
+                    while (true) {
+                        if (this._flushing) {
+                            break;
+                        }
+                        if (!this._normal_msg()) {
+                            break;
+                        }
+                        if (this._sock.rQlen() === 0) {
+                            break;
+                        }
+                    }
                     break;
                 default:
                     this._init_msg();
@@ -1232,6 +1244,14 @@
             }
         },
 
+        _onFlush: function() {
+            this._flushing = false;
+            // Resume processing
+            if (this._sock.rQlen() > 0) {
+                this._handle_message();
+            }
+        },
+
         _framebufferUpdate: function () {
             var ret = true;
             var now;
@@ -1245,6 +1265,14 @@
                 if (this._timing.fbu_rt_start > 0) {
                     now = (new Date()).getTime();
                     Util.Info("First FBU latency: " + (now - this._timing.fbu_rt_start));
+                }
+
+                // Make sure the previous frame is fully rendered first
+                // to avoid building up an excessive queue
+                if (this._display.pending()) {
+                    this._flushing = true;
+                    this._display.flush();
+                    return false;
                 }
             }
 
