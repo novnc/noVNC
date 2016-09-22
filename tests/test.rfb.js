@@ -1200,7 +1200,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 3]));
                 expect(client._sock._websocket._get_sent_data()).to.have.length(0);
 
-                client._framebufferUpdate = function () { return true; };  // we magically have enough data
+                client._framebufferUpdate = function () { this._sock.rQskip8(); return true; };  // we magically have enough data
                 // 247 should *not* be used as the message type here
                 client._sock._websocket._receive_data(new Uint8Array([247]));
                 expect(client._sock).to.have.sent(expected_msg._sQ);
@@ -2002,14 +2002,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._init_msg).to.have.been.calledOnce;
             });
 
-            it('should split up the handling of muplitle normal messages across 10ms intervals', function () {
+            it('should process all normal messages directly', function () {
                 client.connect('host', 8675);
                 client._sock._websocket._open();
                 client._rfb_state = 'normal';
                 client.set_onBell(sinon.spy());
                 client._sock._websocket._receive_data(new Uint8Array([0x02, 0x02]));
-                expect(client.get_onBell()).to.have.been.calledOnce;
-                this.clock.tick(20);
                 expect(client.get_onBell()).to.have.been.calledTwice;
             });
 
