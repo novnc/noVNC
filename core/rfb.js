@@ -81,7 +81,6 @@
     this._keyboard = null;          // Keyboard input handler object
     this._mouse = null;             // Mouse input handler object
     this._disconnTimer = null;      // disconnection timer
-    this._msgTimer = null;          // queued handle_msg timer
 
     this._supportsFence = false;
 
@@ -415,11 +414,6 @@
         },
 
         _cleanup: function () {
-            if (this._msgTimer) {
-                clearInterval(this._msgTimer);
-                this._msgTimer = null;
-            }
-
             if (this._display && this._display.get_context()) {
                 if (!this._view_only) { this._keyboard.ungrab(); }
                 if (!this._view_only) { this._mouse.ungrab(); }
@@ -573,19 +567,7 @@
                     Util.Error("Got data while disconnected");
                     break;
                 case 'connected':
-                    if (this._normal_msg() && this._sock.rQlen() > 0) {
-                        // true means we can continue processing
-                        // Give other events a chance to run
-                        if (this._msgTimer === null) {
-                            Util.Debug("More data to process, creating timer");
-                            this._msgTimer = setTimeout(function () {
-                                this._msgTimer = null;
-                                this._handle_message();
-                            }.bind(this), 0);
-                        } else {
-                            Util.Debug("More data to process, existing timer");
-                        }
-                    }
+                    while (this._normal_msg() && this._sock.rQlen() > 0);
                     break;
                 default:
                     this._init_msg();
