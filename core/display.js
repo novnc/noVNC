@@ -746,10 +746,16 @@
             this._renderQ.push(action);
             if (this._renderQ.length === 1) {
                 // If this can be rendered immediately it will be, otherwise
-                // the scanner will start polling the queue (every
-                // requestAnimationFrame interval)
+                // the scanner will wait for the relevant event
                 this._scan_renderQ();
             }
+        },
+
+        _resume_renderQ: function() {
+            // "this" is the object that is ready, not the
+            // display object
+            this.removeEventListener('load', this._noVNC_display._resume_renderQ);
+            this._noVNC_display._scan_renderQ();
         },
 
         _scan_renderQ: function () {
@@ -776,6 +782,8 @@
                         if (a.img.complete) {
                             this.drawImage(a.img, a.x, a.y);
                         } else {
+                            a.img._noVNC_display = this;
+                            a.img.addEventListener('load', this._resume_renderQ);
                             // We need to wait for this image to 'load'
                             // to keep things in-order
                             ready = false;
@@ -786,10 +794,6 @@
                 if (ready) {
                     this._renderQ.shift();
                 }
-            }
-
-            if (this._renderQ.length > 0) {
-                requestAnimationFrame(this._scan_renderQ.bind(this));
             }
         },
     };

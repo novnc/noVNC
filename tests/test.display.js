@@ -384,11 +384,6 @@ describe('Display/Canvas Helper', function () {
             display = new Display({ target: document.createElement('canvas'), prefer_js: false });
             display.resize(4, 4);
             sinon.spy(display, '_scan_renderQ');
-            this.old_requestAnimationFrame = window.requestAnimationFrame;
-            window.requestAnimationFrame = function (cb) {
-                this.next_frame_cb = cb;
-            }.bind(this);
-            this.next_frame = function () { this.next_frame_cb(); };
         });
 
         afterEach(function () {
@@ -407,7 +402,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should wait until an image is loaded to attempt to draw it and the rest of the queue', function () {
-            var img = { complete: false };
+            var img = { complete: false, addEventListener: sinon.spy() }
             display._renderQ = [{ type: 'img', x: 3, y: 4, img: img },
                                 { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
             display.drawImage = sinon.spy();
@@ -416,11 +411,13 @@ describe('Display/Canvas Helper', function () {
             display._scan_renderQ();
             expect(display.drawImage).to.not.have.been.called;
             expect(display.fillRect).to.not.have.been.called;
+            expect(img.addEventListener).to.have.been.calledOnce;
 
             display._renderQ[0].img.complete = true;
-            this.next_frame();
+            display._scan_renderQ();
             expect(display.drawImage).to.have.been.calledOnce;
             expect(display.fillRect).to.have.been.calledOnce;
+            expect(img.addEventListener).to.have.been.calledOnce;
         });
 
         it('should draw a blit image on type "blit"', function () {
