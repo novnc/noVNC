@@ -20,6 +20,7 @@
     this._c_forceCanvas = false;
 
     this._renderQ = [];  // queue drawing actions for in-oder rendering
+    this._flushing = false;
 
     // the full frame buffer (logical canvas) size
     this._fb_width = 0;
@@ -44,7 +45,8 @@
         'colourMap': [],
         'scale': 1.0,
         'viewport': false,
-        'render_mode': ''
+        'render_mode': '',
+        "onFlush": function () {},
     });
 
     Util.Debug(">> Display.constructor");
@@ -361,6 +363,18 @@
             }
 
             this._renderQ = [];
+        },
+
+        pending: function() {
+            return this._renderQ.length > 0;
+        },
+
+        flush: function() {
+            if (this._renderQ.length === 0) {
+                this._onFlush();
+            } else {
+                this._flushing = true;
+            }
         },
 
         fillRect: function (x, y, width, height, color, from_queue) {
@@ -795,6 +809,11 @@
                     this._renderQ.shift();
                 }
             }
+
+            if (this._renderQ.length === 0 && this._flushing) {
+                this._flushing = false;
+                this._onFlush();
+            }
         },
     };
 
@@ -814,7 +833,9 @@
         ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
 
         ['prefer_js', 'rw', 'str'],    // Prefer Javascript over canvas methods
-        ['cursor_uri', 'rw', 'raw']    // Can we render cursor using data URI
+        ['cursor_uri', 'rw', 'raw'],   // Can we render cursor using data URI
+
+        ['onFlush', 'rw', 'func'],     // onFlush(): A flush request has finished
     ]);
 
     // Class Methods
