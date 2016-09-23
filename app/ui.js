@@ -231,12 +231,12 @@ var UI;
             document.getElementById("noVNC_mouse_button4")
                 .addEventListener('click', function () { UI.setMouseButton(0); });
             document.getElementById("noVNC_keyboard_button")
-                .addEventListener('click', UI.showKeyboard);
+                .addEventListener('click', UI.toggleVirtualKeyboard);
 
             document.getElementById("noVNC_keyboardinput")
                 .addEventListener('input', UI.keyInput);
             document.getElementById("noVNC_keyboardinput")
-                .addEventListener('blur', UI.hideKeyboard);
+                .addEventListener('blur', UI.onblurVirtualKeyboard);
             document.getElementById("noVNC_keyboardinput")
                 .addEventListener('submit', function () { return false; });
 
@@ -1281,45 +1281,64 @@ var UI;
  *    KEYBOARD
  * ------v------*/
 
-        // On touch devices, show the OS keyboard
-        showKeyboard: function() {
-            var kbi = document.getElementById('noVNC_keyboardinput');
-            var skb = document.getElementById('noVNC_keyboard_button');
-            var l = kbi.value.length;
-            if(UI.keyboardVisible === false) {
-                kbi.focus();
-                try { kbi.setSelectionRange(l, l); } // Move the caret to the end
-                catch (err) {} // setSelectionRange is undefined in Google Chrome
-                UI.keyboardVisible = true;
-                skb.classList.add("noVNC_selected");
-            } else if(UI.keyboardVisible === true) {
-                kbi.blur();
-                skb.classList.remove("noVNC_selected");
-                UI.keyboardVisible = false;
+        showVirtualKeyboard: function() {
+            if (!UI.isTouchDevice)
+                return;
+
+            var input = document.getElementById('noVNC_keyboardinput');
+
+            if (document.activeElement == input)
+                return;
+
+            UI.keyboardVisible = true;
+            document.getElementById('noVNC_keyboard_button')
+                .classList.add("noVNC_selected");
+            input.focus();
+
+            try {
+                var l = input.value.length;
+                // Move the caret to the end
+                input.setSelectionRange(l, l);
+            } catch (err) {} // setSelectionRange is undefined in Google Chrome
+        },
+
+        hideVirtualKeyboard: function() {
+            if (!UI.isTouchDevice)
+                return;
+
+            var input = document.getElementById('noVNC_keyboardinput');
+
+            if (document.activeElement != input)
+                return;
+
+            input.blur();
+        },
+
+        toggleVirtualKeyboard: function () {
+            if (UI.keyboardVisible) {
+                UI.hideVirtualKeyboard();
+            } else {
+                UI.showVirtualKeyboard();
             }
         },
 
-        hideKeyboard: function() {
-            document.getElementById('noVNC_keyboard_button')
-                .classList.remove("noVNC_selected");
+        onblurVirtualKeyboard: function() {
             //Weird bug in iOS if you change keyboardVisible
             //here it does not actually occur so next time
             //you click keyboard icon it doesnt work.
             UI.hideKeyboardTimeout = setTimeout(function() {
                 UI.keyboardVisible = false;
+                document.getElementById('noVNC_keyboard_button')
+			.classList.remove("noVNC_selected");
             },100);
         },
 
         keepKeyboard: function() {
             clearTimeout(UI.hideKeyboardTimeout);
             if(UI.keyboardVisible === true) {
-                document.getElementById('noVNC_keyboardinput').focus();
-                document.getElementById('noVNC_keyboard_button')
-                    .classList.add("noVNC_selected");
+                UI.showVirtualKeyboard();
             } else if(UI.keyboardVisible === false) {
-                document.getElementById('noVNC_keyboardinput').blur();
-                document.getElementById('noVNC_keyboard_button')
-                    .classList.remove("noVNC_selected");
+                UI.hideVirtualKeyboard();
             }
         },
 
@@ -1400,6 +1419,12 @@ var UI;
             }
         },
 
+/* ------^-------
+ *   /KEYBOARD
+ * ==============
+ *   EXTRA KEYS
+ * ------v------*/
+
         openExtraKeys: function() {
             UI.closeAllPanels();
             UI.openControlbar();
@@ -1467,7 +1492,7 @@ var UI;
         },
 
 /* ------^-------
- *   /KEYBOARD
+ *   /EXTRA KEYS
  * ==============
  *     MISC
  * ------v------*/
