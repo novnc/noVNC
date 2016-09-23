@@ -329,7 +329,7 @@ Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !
         'presto': detectPresto(),
         'trident': detectTrident(),
         'webkit': detectInitialWebkit(),
-        'gecko': detectGecko(),
+        'gecko': detectGecko()
     };
 
     if (Util.Engine.webkit) {
