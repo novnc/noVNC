@@ -56,6 +56,9 @@ var UI;
         ctrlOn: false,
         altOn: false,
 
+        reconnect: false,
+        reconnect_delay: 500,
+
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
         load: function(callback) {
@@ -122,6 +125,10 @@ var UI;
             } else {
                 autoconnect = false;
             }
+
+            var reconnect = WebUtil.getConfigVar('reconnect', false);
+            UI.reconnect = reconnect === 'true' || reconnect == '1';
+            UI.reconnect_delay = parseInt(WebUtil.getConfigVar('reconnect_delay', UI.reconnect_delay));
 
             UI.updateVisualState();
 
@@ -282,6 +289,9 @@ var UI;
                 case 'disconnected':
                     document.getElementById('noVNC_logo').style.display = "block";
                     document.getElementById('noVNC_screen').style.display = "none";
+                    if(UI.reconnect) {
+                        setTimeout(UI.connect, UI.reconnect_delay);
+                    }
                     /* falls through */
                 case 'loaded':
                     klass = "noVNC_status_normal";
