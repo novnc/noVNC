@@ -470,8 +470,8 @@ var UI;
                 time = 1500;
             }
 
-            // A specified time of zero means no timeout
-            if (time != 0) {
+            // Error messages do not timeout
+            if (status_type !== 'error') {
                 UI.statusTimeout = window.setTimeout(UI.hideStatus, time);
             }
         },
