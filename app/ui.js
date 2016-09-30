@@ -929,8 +929,6 @@ var UI;
         },
 
         connect: function() {
-            UI.closeAllPanels();
-
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
             var password = document.getElementById('noVNC_setting_password').value;
@@ -948,6 +946,8 @@ var UI;
             }
 
             if (!UI.initRFB()) return;
+
+            UI.closeAllPanels();
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));
