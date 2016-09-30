@@ -2,6 +2,7 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2016 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -38,23 +39,22 @@ var UI;
         rfb_state: 'loaded',
 
         resizeTimeout: null,
-        popupStatusTimeout: null,
+        statusTimeout: null,
         hideKeyboardTimeout: null,
+        idleControlbarTimeout: null,
+        closeControlbarTimeout: null,
 
-        settingsOpen: false,
-        connSettingsOpen: false,
-        clipboardOpen: false,
+        controlbarGrabbed: false,
+        controlbarDrag: false,
+        controlbarMouseDownClientY: 0,
+        controlbarMouseDownOffsetY: 0,
         keyboardVisible: false,
-        extraKeysVisible: false,
 
         isTouchDevice: false,
         isSafari: false,
         rememberedClipSetting: null,
         lastKeyboardinput: null,
         defaultKeyboardinputLen: 100,
-
-        ctrlOn: false,
-        altOn: false,
 
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
@@ -64,8 +64,60 @@ var UI;
 
         // Render default UI and initialize settings menu
         start: function(callback) {
-            UI.isTouchDevice = 'ontouchstart' in document.documentElement;
 
+            // Setup global variables first
+            UI.isTouchDevice = 'ontouchstart' in document.documentElement;
+            UI.isSafari = (navigator.userAgent.indexOf('Safari') !== -1 &&
+                           navigator.userAgent.indexOf('Chrome') === -1);
+
+            UI.initSettings();
+
+            // Adapt the interface for touch screen devices
+            if (UI.isTouchDevice) {
+                document.documentElement.classList.add("noVNC_touch");
+                // Remove the address bar
+                setTimeout(function() { window.scrollTo(0, 1); }, 100);
+                UI.forceSetting('clip', true);
+            } else {
+                UI.initSetting('clip', false);
+            }
+
+            // Setup and initialize event handlers
+            UI.setupWindowEvents();
+            UI.setupFullscreen();
+            UI.addControlbarHandlers();
+            UI.addTouchSpecificHandlers();
+            UI.addExtraKeysHandlers();
+            UI.addXvpHandlers();
+            UI.addConnectionControlHandlers();
+            UI.addClipboardHandlers();
+            UI.addSettingsHandlers();
+
+            // Show the connect panel on first load unless autoconnecting
+            if (!autoconnect) {
+                UI.openConnectPanel();
+            }
+
+            UI.updateViewClip();
+
+            UI.updateVisualState();
+
+            document.getElementById('noVNC_setting_host').focus();
+
+            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
+            if (autoconnect === 'true' || autoconnect == '1') {
+                autoconnect = true;
+                UI.connect();
+            } else {
+                autoconnect = false;
+            }
+
+            if (typeof callback === "function") {
+                callback(UI.rfb);
+            }
+        },
+
+        initSettings: function() {
             // Stylesheet selection dropdown
             var sheet = WebUtil.selectStylesheet();
             var sheets = WebUtil.getStylesheets();
@@ -114,44 +166,20 @@ var UI;
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
             UI.initSetting('token', '');
+        },
 
-            var autoconnect = WebUtil.getConfigVar('autoconnect', false);
-            if (autoconnect === 'true' || autoconnect == '1') {
-                autoconnect = true;
-                UI.connect();
-            } else {
-                autoconnect = false;
-            }
-
-            UI.updateVisualState();
-
-            document.getElementById('noVNC_setting_host').focus();
-
-            // Show mouse selector buttons on touch screen devices
-            if (UI.isTouchDevice) {
-                // Show mobile buttons
-                document.getElementById('noVNC_mobile_buttons').style.display = "inline";
-                UI.setMouseButton();
-                // Remove the address bar
-                setTimeout(function() { window.scrollTo(0, 1); }, 100);
-                UI.forceSetting('clip', true);
-            } else {
-                UI.initSetting('clip', false);
-            }
-
-            UI.setViewClip();
-            UI.setBarPosition();
-
-            window.addEventListener('resize', function () {
+        setupWindowEvents: function() {
+            window.addEventListener( 'resize', function () {
                 UI.applyResizeMode();
-                UI.setViewClip();
+                UI.updateViewClip();
                 UI.updateViewDrag();
-                UI.setBarPosition();
             } );
 
-            UI.isSafari = (navigator.userAgent.indexOf('Safari') != -1 &&
-                           navigator.userAgent.indexOf('Chrome') == -1);
+            document.getElementById("noVNC_status")
+                .addEventListener('click', UI.hideStatus);
+        },
 
+        setupFullscreen: function() {
             // Only show the button if fullscreen is properly supported
             // * Safari doesn't support alphanumerical input while in fullscreen
             if (!UI.isSafari &&
@@ -159,44 +187,152 @@ var UI;
                  document.documentElement.mozRequestFullScreen ||
                  document.documentElement.webkitRequestFullscreen ||
                  document.body.msRequestFullscreen)) {
-                document.getElementById('noVNC_fullscreen_button').style.display = "inline";
-                window.addEventListener('fullscreenchange', UI.updateFullscreenButton);
-                window.addEventListener('mozfullscreenchange', UI.updateFullscreenButton);
-                window.addEventListener('webkitfullscreenchange', UI.updateFullscreenButton);
-                window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
+                document.getElementById('noVNC_fullscreen_button')
+                    .classList.remove("noVNC_hidden");
+                UI.addFullscreenHandlers();
             }
+        },
+
+        addControlbarHandlers: function() {
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mousemove', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mouseup', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mousedown', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('keypress', UI.activateControlbar);
+
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('mousedown', UI.keepControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('keypress', UI.keepControlbar);
+
+            document.getElementById("noVNC_view_drag_button")
+                .addEventListener('click', UI.toggleViewDrag);
+
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('mousedown', UI.controlbarHandleMouseDown);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('mouseup', UI.controlbarHandleMouseUp);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('mousemove', UI.dragControlbarHandle);
+            // resize events aren't available for elements
+            window.addEventListener('resize', UI.updateControlbarHandle);
+        },
+
+        addTouchSpecificHandlers: function() {
+            document.getElementById("noVNC_mouse_button0")
+                .addEventListener('click', function () { UI.setMouseButton(1); });
+            document.getElementById("noVNC_mouse_button1")
+                .addEventListener('click', function () { UI.setMouseButton(2); });
+            document.getElementById("noVNC_mouse_button2")
+                .addEventListener('click', function () { UI.setMouseButton(4); });
+            document.getElementById("noVNC_mouse_button4")
+                .addEventListener('click', function () { UI.setMouseButton(0); });
+            document.getElementById("noVNC_keyboard_button")
+                .addEventListener('click', UI.toggleVirtualKeyboard);
+
+            document.getElementById("noVNC_keyboardinput")
+                .addEventListener('input', UI.keyInput);
+            document.getElementById("noVNC_keyboardinput")
+                .addEventListener('blur', UI.onblurVirtualKeyboard);
+            document.getElementById("noVNC_keyboardinput")
+                .addEventListener('submit', function () { return false; });
+
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchstart', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchmove', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchend', UI.activateControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('input', UI.activateControlbar);
+
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('touchstart', UI.keepControlbar);
+            document.getElementById("noVNC_control_bar")
+                .addEventListener('input', UI.keepControlbar);
+
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('touchstart', UI.controlbarHandleMouseDown);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('touchend', UI.controlbarHandleMouseUp);
+            document.getElementById("noVNC_control_bar_handle")
+                .addEventListener('touchmove', UI.dragControlbarHandle);
 
             window.addEventListener('load', UI.keyboardinputReset);
+        },
 
-            // While connected we want to display a confirmation dialogue
-            // if the user tries to leave the page
-            window.addEventListener('beforeunload', function (e) {
-                if (UI.rfb && UI.rfb_state === 'normal') {
-                    var msg = "You are currently connected.";
-                    e.returnValue = msg;
-                    return msg;
-                } else {
-                    return void 0; // To prevent the dialogue when disconnected
-                }
-            });
+        addExtraKeysHandlers: function() {
+            document.getElementById("noVNC_toggle_extra_keys_button")
+                .addEventListener('click', UI.toggleExtraKeys);
+            document.getElementById("noVNC_toggle_ctrl_button")
+                .addEventListener('click', UI.toggleCtrl);
+            document.getElementById("noVNC_toggle_alt_button")
+                .addEventListener('click', UI.toggleAlt);
+            document.getElementById("noVNC_send_tab_button")
+                .addEventListener('click', UI.sendTab);
+            document.getElementById("noVNC_send_esc_button")
+                .addEventListener('click', UI.sendEsc);
+            document.getElementById("noVNC_send_ctrl_alt_del_button")
+                .addEventListener('click', UI.sendCtrlAltDel);
+        },
 
-            // Show description by default when hosted at for kanaka.github.com
-            if (location.host === "kanaka.github.io") {
-                // Open the description dialog
-                document.getElementById('noVNC_description').style.display = "block";
-            } else {
-                // Show the connect panel on first load unless autoconnecting
-                if (autoconnect === UI.connSettingsOpen) {
-                    UI.toggleConnectPanel();
-                }
-            }
+        addXvpHandlers: function() {
+            document.getElementById("noVNC_xvp_shutdown_button")
+                .addEventListener('click', function() { UI.rfb.xvpShutdown(); });
+            document.getElementById("noVNC_xvp_reboot_button")
+                .addEventListener('click', function() { UI.rfb.xvpReboot(); });
+            document.getElementById("noVNC_xvp_reset_button")
+                .addEventListener('click', function() { UI.rfb.xvpReset(); });
+            document.getElementById("noVNC_xvp_button")
+                .addEventListener('click', UI.toggleXvpPanel);
+        },
 
-            // Add mouse event click/focus/blur event handlers to the UI
-            UI.addMouseHandlers();
+        addConnectionControlHandlers: function() {
+            document.getElementById("noVNC_connect_controls_button")
+                .addEventListener('click', UI.toggleConnectPanel);
+            document.getElementById("noVNC_disconnect_button")
+                .addEventListener('click', UI.disconnect);
+            document.getElementById("noVNC_connect_button")
+                .addEventListener('click', UI.connect);
 
-            if (typeof callback === "function") {
-                callback(UI.rfb);
-            }
+            document.getElementById("noVNC_password_button")
+                .addEventListener('click', UI.setPassword);
+        },
+
+        addClipboardHandlers: function() {
+            document.getElementById("noVNC_clipboard_button")
+                .addEventListener('click', UI.toggleClipboardPanel);
+            document.getElementById("noVNC_clipboard_text")
+                .addEventListener('focus', UI.displayBlur);
+            document.getElementById("noVNC_clipboard_text")
+                .addEventListener('blur', UI.displayFocus);
+            document.getElementById("noVNC_clipboard_text")
+                .addEventListener('change', UI.clipboardSend);
+            document.getElementById("noVNC_clipboard_clear_button")
+                .addEventListener('click', UI.clipboardClear);
+        },
+
+        addSettingsHandlers: function() {
+            document.getElementById("noVNC_settings_button")
+                .addEventListener('click', UI.toggleSettingsPanel);
+            document.getElementById("noVNC_settings_apply")
+                .addEventListener('click', UI.settingsApply);
+
+            document.getElementById("noVNC_setting_resize")
+                .addEventListener('change', UI.enableDisableViewClip);
+        },
+
+        addFullscreenHandlers: function() {
+            document.getElementById("noVNC_fullscreen_button")
+                .addEventListener('click', UI.toggleFullscreen);
+
+            window.addEventListener('fullscreenchange', UI.updateFullscreenButton);
+            window.addEventListener('mozfullscreenchange', UI.updateFullscreenButton);
+            window.addEventListener('webkitfullscreenchange', UI.updateFullscreenButton);
+            window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
         },
 
         initRFB: function() {
@@ -215,53 +351,6 @@ var UI;
             }
         },
 
-        addMouseHandlers: function() {
-            // Setup interface handlers that can't be inline
-            document.getElementById("noVNC_view_drag_button").onclick = UI.toggleViewDrag;
-            document.getElementById("noVNC_mouse_button0").onclick = function () { UI.setMouseButton(1); };
-            document.getElementById("noVNC_mouse_button1").onclick = function () { UI.setMouseButton(2); };
-            document.getElementById("noVNC_mouse_button2").onclick = function () { UI.setMouseButton(4); };
-            document.getElementById("noVNC_mouse_button4").onclick = function () { UI.setMouseButton(0); };
-            document.getElementById("noVNC_keyboard_button").onclick = UI.showKeyboard;
-
-            document.getElementById("noVNC_keyboardinput").oninput = UI.keyInput;
-            document.getElementById("noVNC_keyboardinput").onblur = UI.hideKeyboard;
-            document.getElementById("noVNC_keyboardinput").onsubmit = function () { return false; };
-
-            document.getElementById("noVNC_toggleExtraKeys_button").onclick = UI.toggleExtraKeys;
-            document.getElementById("noVNC_toggleCtrl_button").onclick = UI.toggleCtrl;
-            document.getElementById("noVNC_toggleAlt_button").onclick = UI.toggleAlt;
-            document.getElementById("noVNC_sendTab_button").onclick = UI.sendTab;
-            document.getElementById("noVNC_sendEsc_button").onclick = UI.sendEsc;
-
-            document.getElementById("noVNC_sendCtrlAltDel_button").onclick = UI.sendCtrlAltDel;
-            document.getElementById("noVNC_xvpShutdown_button").onclick = function() { UI.rfb.xvpShutdown(); },
-            document.getElementById("noVNC_xvpReboot_button").onclick = function() { UI.rfb.xvpReboot(); },
-            document.getElementById("noVNC_xvpReset_button").onclick = function() { UI.rfb.xvpReset(); },
-            document.getElementById("noVNC_status").onclick = UI.popupStatus;
-            document.getElementById("noVNC_popup_status").onclick = UI.closePopup;
-            document.getElementById("noVNC_toggleXvp_button").onclick = UI.toggleXvpPanel;
-            document.getElementById("noVNC_clipboard_button").onclick = UI.toggleClipboardPanel;
-            document.getElementById("noVNC_fullscreen_button").onclick = UI.toggleFullscreen;
-            document.getElementById("noVNC_settings_button").onclick = UI.toggleSettingsPanel;
-            document.getElementById("noVNC_connectPanel_button").onclick = UI.toggleConnectPanel;
-            document.getElementById("noVNC_disconnect_button").onclick = UI.disconnect;
-            document.getElementById("noVNC_description_button").onclick = UI.toggleConnectPanel;
-
-            document.getElementById("noVNC_clipboard_text").onfocus = UI.displayBlur;
-            document.getElementById("noVNC_clipboard_text").onblur = UI.displayFocus;
-            document.getElementById("noVNC_clipboard_text").onchange = UI.clipboardSend;
-            document.getElementById("noVNC_clipboard_clear_button").onclick = UI.clipboardClear;
-
-            document.getElementById("noVNC_settings_menu").onmouseover = UI.displayBlur;
-            document.getElementById("noVNC_settings_menu").onmouseover = UI.displayFocus;
-            document.getElementById("noVNC_settings_apply").onclick = UI.settingsApply;
-
-            document.getElementById("noVNC_connect_button").onclick = UI.connect;
-
-            document.getElementById("noVNC_setting_resize").onchange = UI.enableDisableViewClip;
-        },
-
 /* ------^-------
  *     /INIT
  * ==============
@@ -270,39 +359,33 @@ var UI;
 
         updateState: function(rfb, state, oldstate, msg) {
             UI.rfb_state = state;
-            var klass;
-            switch (state) {
-                case 'failed':
-                case 'fatal':
-                    klass = "noVNC_status_error";
-                    break;
-                case 'normal':
-                    klass = "noVNC_status_normal";
-                    break;
-                case 'disconnected':
-                    document.getElementById('noVNC_logo').style.display = "block";
-                    document.getElementById('noVNC_screen').style.display = "none";
-                    /* falls through */
-                case 'loaded':
-                    klass = "noVNC_status_normal";
-                    break;
-                case 'password':
-                    UI.toggleConnectPanel();
-
-                    document.getElementById('noVNC_connect_button').value = "Send Password";
-                    document.getElementById('noVNC_connect_button').onclick = UI.setPassword;
-                    document.getElementById('noVNC_setting_password').focus();
-
-                    klass = "noVNC_status_warn";
-                    break;
-                default:
-                    klass = "noVNC_status_warn";
-                    break;
-            }
 
             if (typeof(msg) !== 'undefined') {
-                document.getElementById('noVNC_control_bar').setAttribute("class", klass);
-                document.getElementById('noVNC_status').innerHTML = msg;
+                switch (state) {
+                    case 'failed':
+                    case 'fatal':
+                        // zero means no timeout
+                        UI.showStatus(msg, 'error', 0);
+                        break;
+                    case 'normal':
+                        /* falls through */
+                    case 'disconnected':
+                    case 'loaded':
+                        UI.showStatus(msg, 'normal');
+                        break;
+                    case 'password':
+                        document.getElementById('noVNC_password_dlg')
+                            .classList.add('noVNC_open');
+                        setTimeout(function () {
+                                document.getElementById(('noVNC_password_input').focus());
+                            }, 100);
+
+                        UI.showStatus(msg, 'warn');
+                        break;
+                    default:
+                        UI.showStatus(msg, 'warn');
+                        break;
+                }
             }
 
             UI.updateVisualState();
@@ -330,68 +413,213 @@ var UI;
             document.getElementById('noVNC_setting_repeaterID').disabled = connected;
 
             if (connected) {
-                UI.setViewClip();
+                document.documentElement.classList.add("noVNC_connected");
+                UI.updateViewClip();
                 UI.setMouseButton(1);
-                document.getElementById('noVNC_clipboard_button').style.display = "inline";
-                document.getElementById('noVNC_keyboard_button').style.display = "inline";
-                document.getElementById('noVNC_extra_keys').style.display = "";
-                document.getElementById('noVNC_sendCtrlAltDel_button').style.display = "inline";
+
+                // Hide the controlbar after 2 seconds
+                UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
             } else {
-                UI.setMouseButton();
-                document.getElementById('noVNC_clipboard_button').style.display = "none";
-                document.getElementById('noVNC_keyboard_button').style.display = "none";
-                document.getElementById('noVNC_extra_keys').style.display = "none";
-                document.getElementById('noVNC_sendCtrlAltDel_button').style.display = "none";
+                document.documentElement.classList.remove("noVNC_connected");
                 UI.updateXvpButton(0);
             }
 
             // State change disables viewport dragging.
             // It is enabled (toggled) by direct click on the button
-            UI.updateViewDrag(false);
+            UI.setViewDrag(false);
+
+            // State change also closes the password dialog
+            document.getElementById('noVNC_password_dlg')
+                .classList.remove('noVNC_open');
 
             switch (UI.rfb_state) {
                 case 'fatal':
                 case 'failed':
                 case 'disconnected':
-                    document.getElementById('noVNC_connectPanel_button').style.display = "";
-                    document.getElementById('noVNC_disconnect_button').style.display = "none";
-                    UI.connSettingsOpen = false;
-                    UI.toggleConnectPanel();
+                    UI.openConnectPanel();
                     break;
                 case 'loaded':
-                    document.getElementById('noVNC_connectPanel_button').style.display = "";
-                    document.getElementById('noVNC_disconnect_button').style.display = "none";
                     break;
                 default:
-                    document.getElementById('noVNC_connectPanel_button').style.display = "none";
-                    document.getElementById('noVNC_disconnect_button').style.display = "";
                     break;
             }
 
             //Util.Debug("<< updateVisualState");
         },
 
-        popupStatus: function(text) {
-            var psp = document.getElementById('noVNC_popup_status');
+        showStatus: function(text, status_type, time) {
+            var statusElem = document.getElementById('noVNC_status');
 
-            clearTimeout(UI.popupStatusTimeout);
+            clearTimeout(UI.statusTimeout);
 
-            if (typeof text === 'string') {
-                psp.innerHTML = text;
-            } else {
-                psp.innerHTML = document.getElementById('noVNC_status').innerHTML;
+            if (typeof status_type === 'undefined') {
+                status_type = 'normal';
             }
-            psp.style.display = "block";
-            psp.style.left = window.innerWidth/2 -
-                parseInt(window.getComputedStyle(psp).width)/2 -30 + "px";
 
-            // Show the popup for a maximum of 1.5 seconds
-            UI.popupStatusTimeout = setTimeout(UI.closePopup, 1500);
+            statusElem.classList.remove("noVNC_status_normal",
+                                        "noVNC_status_warn",
+                                        "noVNC_status_error");
+
+            switch (status_type) {
+                case 'warning':
+                case 'warn':
+                    statusElem.classList.add("noVNC_status_warn");
+                    break;
+                case 'error':
+                    statusElem.classList.add("noVNC_status_error");
+                    break;
+                case 'normal':
+                case 'info':
+                default:
+                    statusElem.classList.add("noVNC_status_normal");
+                    break;
+            }
+
+            statusElem.innerHTML = text;
+            statusElem.classList.add("noVNC_open");
+
+            // If no time was specified, show the status for 1.5 seconds
+            if (typeof time === 'undefined') {
+                time = 1500;
+            }
+
+            // A specified time of zero means no timeout
+            if (time != 0) {
+                UI.statusTimeout = window.setTimeout(UI.hideStatus, time);
+            }
         },
 
-        closePopup: function() {
-            clearTimeout(UI.popupStatusTimeout);
-            document.getElementById('noVNC_popup_status').style.display = "none";
+        hideStatus: function() {
+            clearTimeout(UI.statusTimeout);
+            document.getElementById('noVNC_status').classList.remove("noVNC_open");
+        },
+
+        activateControlbar: function(event) {
+            clearTimeout(UI.idleControlbarTimeout);
+            // We manipulate the anchor instead of the actual control
+            // bar in order to avoid creating new a stacking group
+            document.getElementById('noVNC_control_bar_anchor')
+                .classList.remove("noVNC_idle");
+            UI.idleControlbarTimeout = window.setTimeout(UI.idleControlbar, 2000);
+        },
+
+        idleControlbar: function() {
+            document.getElementById('noVNC_control_bar_anchor')
+                .classList.add("noVNC_idle");
+        },
+
+        keepControlbar: function() {
+            clearTimeout(UI.closeControlbarTimeout);
+        },
+
+        openControlbar: function() {
+            document.getElementById('noVNC_control_bar')
+                .classList.add("noVNC_open");
+        },
+
+        closeControlbar: function() {
+            UI.closeAllPanels();
+            document.getElementById('noVNC_control_bar')
+                .classList.remove("noVNC_open");
+        },
+
+        toggleControlbar: function() {
+            if (document.getElementById('noVNC_control_bar')
+                .classList.contains("noVNC_open")) {
+                UI.closeControlbar();
+            } else {
+                UI.openControlbar();
+            }
+        },
+
+        dragControlbarHandle: function (e) {
+            if (!UI.controlbarGrabbed) return;
+
+            var ptr = Util.getPointerEvent(e);
+
+            if (!UI.controlbarDrag) {
+                // The goal is to trigger on a certain physical width, the
+                // devicePixelRatio brings us a bit closer but is not optimal.
+                var dragThreshold = 10 * (window.devicePixelRatio || 1);
+                var dragDistance = Math.abs(ptr.clientY - UI.controlbarMouseDownClientY);
+
+                if (dragDistance < dragThreshold) return;
+
+                UI.controlbarDrag = true;
+            }
+
+            var eventY = ptr.clientY - UI.controlbarMouseDownOffsetY;
+
+            UI.moveControlbarHandle(eventY);
+
+            e.preventDefault();
+            e.stopPropagation();
+        },
+
+        // Move the handle but don't allow any position outside the bounds
+        moveControlbarHandle: function (posY) {
+            var handle = document.getElementById("noVNC_control_bar_handle");
+            var handleHeight = Util.getPosition(handle).height;
+            var controlbar = document.getElementById("noVNC_control_bar");
+            var controlbarBounds = Util.getPosition(controlbar);
+            var controlbarTop = controlbarBounds.y;
+            var controlbarBottom = controlbarBounds.y + controlbarBounds.height;
+            var margin = 10;
+
+            var viewportY = posY;
+
+            // Refuse coordinates outside the control bar
+            if (viewportY < controlbarTop + margin) {
+                viewportY = controlbarTop + margin;
+            } else if (viewportY > controlbarBottom - handleHeight - margin) {
+                viewportY = controlbarBottom - handleHeight - margin;
+            }
+
+            // Corner case: control bar too small for stable position
+            if (controlbarBounds.height < (handleHeight + margin * 2)) {
+                viewportY = controlbarTop + (controlbarBounds.height - handleHeight) / 2;
+            }
+
+            var relativeY = viewportY - controlbarTop;
+            handle.style.transform = "translateY(" + relativeY + "px)";
+        },
+
+        updateControlbarHandle: function () {
+            var handle = document.getElementById("noVNC_control_bar_handle");
+            var pos = Util.getPosition(handle);
+            UI.moveControlbarHandle(pos.y);
+        },
+
+        controlbarHandleMouseUp: function(e) {
+            if ((e.type == "mouseup") && (e.button != 0))
+                return;
+
+            // mouseup and mousedown on the same place toggles the controlbar
+            if (UI.controlbarGrabbed && !UI.controlbarDrag) {
+                UI.toggleControlbar();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            UI.controlbarGrabbed = false;
+        },
+
+        controlbarHandleMouseDown: function(e) {
+            if ((e.type == "mousedown") && (e.button != 0))
+                return;
+
+            var ptr = Util.getPointerEvent(e);
+
+            var handle = document.getElementById("noVNC_control_bar_handle");
+            var bounds = handle.getBoundingClientRect();
+
+            WebUtil.setCapture(handle);
+            UI.controlbarGrabbed = true;
+            UI.controlbarDrag = false;
+
+            UI.controlbarMouseDownClientY = ptr.clientY;
+            UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
+            e.preventDefault();
+            e.stopPropagation();
         },
 
 /* ------^-------
@@ -505,67 +733,75 @@ var UI;
             // Settings with immediate (non-connected related) effect
             WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
             WebUtil.init_logging(UI.getSetting('logging'));
-            UI.setViewClip();
+            UI.updateViewClip();
             UI.updateViewDrag();
             //Util.Debug("<< settingsApply");
         },
 
-        // Open menu
-        openSettingsMenu: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
-            document.getElementById('noVNC_settings').style.display = "block";
-            document.getElementById('noVNC_settings_button').className = "noVNC_status_button_selected";
-            UI.settingsOpen = true;
+/* ------^-------
+ *   /SETTINGS
+ * ==============
+ *    PANELS
+ * ------v------*/
+
+        closeAllPanels: function() {
+            UI.closeSettingsPanel();
+            UI.closeXvpPanel();
+            UI.closeClipboardPanel();
+            UI.closeConnectPanel();
+            UI.closeExtraKeys();
         },
 
-        // Close menu (without applying settings)
-        closeSettingsMenu: function() {
-            document.getElementById('noVNC_settings').style.display = "none";
-            document.getElementById('noVNC_settings_button').className = "noVNC_status_button";
-            UI.settingsOpen = false;
+/* ------^-------
+ *   /PANELS
+ * ==============
+ * SETTINGS (panel)
+ * ------v------*/
+
+        openSettingsPanel: function() {
+            UI.closeAllPanels();
+            UI.openControlbar();
+
+            UI.updateSetting('encrypt');
+            UI.updateSetting('true_color');
+            if (Util.browserSupportsCursorURIs()) {
+                UI.updateSetting('cursor');
+            } else {
+                UI.updateSetting('cursor', !UI.isTouchDevice);
+                document.getElementById('noVNC_setting_cursor').disabled = true;
+            }
+            UI.updateSetting('clip');
+            UI.updateSetting('resize');
+            UI.updateSetting('shared');
+            UI.updateSetting('view_only');
+            UI.updateSetting('path');
+            UI.updateSetting('repeaterID');
+            UI.updateSetting('stylesheet');
+            UI.updateSetting('logging');
+
+            document.getElementById('noVNC_settings')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_settings_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeSettingsPanel: function() {
+            document.getElementById('noVNC_settings')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_settings_button')
+                .classList.remove("noVNC_selected");
         },
 
         // Toggle the settings menu:
         //   On open, settings are refreshed from saved cookies.
         //   On close, settings are applied
         toggleSettingsPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
-            if (UI.settingsOpen) {
+            if (document.getElementById('noVNC_settings')
+                .classList.contains("noVNC_open")) {
                 UI.settingsApply();
-                UI.closeSettingsMenu();
+                UI.closeSettingsPanel();
             } else {
-                UI.updateSetting('encrypt');
-                UI.updateSetting('true_color');
-                if (Util.browserSupportsCursorURIs()) {
-                    UI.updateSetting('cursor');
-                } else {
-                    UI.updateSetting('cursor', !UI.isTouchDevice);
-                    document.getElementById('noVNC_setting_cursor').disabled = true;
-                }
-                UI.updateSetting('clip');
-                UI.updateSetting('resize');
-                UI.updateSetting('shared');
-                UI.updateSetting('view_only');
-                UI.updateSetting('path');
-                UI.updateSetting('repeaterID');
-                UI.updateSetting('stylesheet');
-                UI.updateSetting('logging');
-
-                UI.openSettingsMenu();
+                UI.openSettingsPanel();
             }
         },
 
@@ -575,45 +811,42 @@ var UI;
  *      XVP
  * ------v------*/
 
-        // Show the XVP panel
+        openXvpPanel: function() {
+            UI.closeAllPanels();
+            UI.openControlbar();
+
+            document.getElementById('noVNC_xvp')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_xvp_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeXvpPanel: function() {
+            document.getElementById('noVNC_xvp')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_xvp_button')
+                .classList.remove("noVNC_selected");
+        },
+
         toggleXvpPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
-            // Close settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-            }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Toggle XVP panel
-            if (UI.xvpOpen === true) {
-                document.getElementById('noVNC_xvp').style.display = "none";
-                document.getElementById('noVNC_toggleXvp_button').className = "noVNC_status_button";
-                UI.xvpOpen = false;
+            if (document.getElementById('noVNC_xvp')
+                .classList.contains("noVNC_open")) {
+                UI.closeXvpPanel();
             } else {
-                document.getElementById('noVNC_xvp').style.display = "block";
-                document.getElementById('noVNC_toggleXvp_button').className = "noVNC_status_button_selected";
-                UI.xvpOpen = true;
+                UI.openXvpPanel();
             }
         },
 
         // Disable/enable XVP button
         updateXvpButton: function(ver) {
             if (ver >= 1) {
-                document.getElementById('noVNC_toggleXvp_button').style.display = 'inline';
+                document.getElementById('noVNC_xvp_button')
+                    .classList.remove("noVNC_hidden");
             } else {
-                document.getElementById('noVNC_toggleXvp_button').style.display = 'none';
+                document.getElementById('noVNC_xvp_button')
+                    .classList.add("noVNC_hidden");
                 // Close XVP panel if open
-                if (UI.xvpOpen === true) {
-                    UI.toggleXvpPanel();
-                }
+                UI.closeXvpPanel();
             }
         },
 
@@ -623,32 +856,29 @@ var UI;
  *   CLIPBOARD
  * ------v------*/
 
-        // Show the clipboard panel
+        openClipboardPanel: function() {
+            UI.closeAllPanels();
+            UI.openControlbar();
+
+            document.getElementById('noVNC_clipboard')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_clipboard_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeClipboardPanel: function() {
+            document.getElementById('noVNC_clipboard')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_clipboard_button')
+                .classList.remove("noVNC_selected");
+        },
+
         toggleClipboardPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
-            // Close settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-            }
-            // Close connection settings if open
-            if (UI.connSettingsOpen === true) {
-                UI.toggleConnectPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
-            // Toggle Clipboard Panel
-            if (UI.clipboardOpen === true) {
-                document.getElementById('noVNC_clipboard').style.display = "none";
-                document.getElementById('noVNC_clipboard_button').className = "noVNC_status_button";
-                UI.clipboardOpen = false;
+            if (document.getElementById('noVNC_clipboard')
+                .classList.contains("noVNC_open")) {
+                UI.closeClipboardPanel();
             } else {
-                document.getElementById('noVNC_clipboard').style.display = "block";
-                document.getElementById('noVNC_clipboard_button').className = "noVNC_status_button_selected";
-                UI.clipboardOpen = true;
+                UI.openClipboardPanel();
             }
         },
 
@@ -676,45 +906,41 @@ var UI;
  *  CONNECTION
  * ------v------*/
 
-        // Show the connection settings panel/menu
-        toggleConnectPanel: function() {
-            // Close the description panel
-            document.getElementById('noVNC_description').style.display = "none";
-            // Close connection settings if open
-            if (UI.settingsOpen === true) {
-                UI.settingsApply();
-                UI.closeSettingsMenu();
-                document.getElementById('noVNC_connectPanel_button').className = "noVNC_status_button";
-            }
-            // Close clipboard panel if open
-            if (UI.clipboardOpen === true) {
-                UI.toggleClipboardPanel();
-            }
-            // Close XVP panel if open
-            if (UI.xvpOpen === true) {
-                UI.toggleXvpPanel();
-            }
+        openConnectPanel: function() {
+            UI.closeAllPanels();
+            UI.openControlbar();
 
-            // Toggle Connection Panel
-            if (UI.connSettingsOpen === true) {
-                document.getElementById('noVNC_controls').style.display = "none";
-                document.getElementById('noVNC_connectPanel_button').className = "noVNC_status_button";
-                UI.connSettingsOpen = false;
-                UI.saveSetting('host');
-                UI.saveSetting('port');
-                UI.saveSetting('token');
-                //UI.saveSetting('password');
+            document.getElementById('noVNC_connect_controls')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_connect_controls_button')
+                .classList.add("noVNC_selected");
+
+            document.getElementById('noVNC_setting_host').focus();
+        },
+
+        closeConnectPanel: function() {
+            document.getElementById('noVNC_connect_controls')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_connect_controls_button')
+                .classList.remove("noVNC_selected");
+
+            UI.saveSetting('host');
+            UI.saveSetting('port');
+            UI.saveSetting('token');
+            //UI.saveSetting('password');
+        },
+
+        toggleConnectPanel: function() {
+            if (document.getElementById('noVNC_connect_controls')
+                .classList.contains("noVNC_open")) {
+                UI.closeConnectPanel();
             } else {
-                document.getElementById('noVNC_controls').style.display = "block";
-                document.getElementById('noVNC_connectPanel_button').className = "noVNC_status_button_selected";
-                UI.connSettingsOpen = true;
-                document.getElementById('noVNC_setting_host').focus();
+                UI.openConnectPanel();
             }
         },
 
         connect: function() {
-            UI.closeSettingsMenu();
-            UI.toggleConnectPanel();
+            UI.closeAllPanels();
 
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
@@ -741,33 +967,22 @@ var UI;
             UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 
             UI.rfb.connect(host, port, password, path);
-
-            //Close dialog.
-            setTimeout(UI.setBarPosition, 100);
-            document.getElementById('noVNC_logo').style.display = "none";
-            document.getElementById('noVNC_screen').style.display = "inline";
         },
 
         disconnect: function() {
-            UI.closeSettingsMenu();
+            UI.closeAllPanels();
             UI.rfb.disconnect();
 
             // Restore the callback used for initial resize
             UI.rfb.set_onFBUComplete(UI.initialResize);
 
-            document.getElementById('noVNC_logo').style.display = "block";
-            document.getElementById('noVNC_screen').style.display = "none";
-
             // Don't display the connection settings until we're actually disconnected
         },
 
         setPassword: function() {
-            UI.rfb.sendPassword(document.getElementById('noVNC_setting_password').value);
-            //Reset connect button.
-            document.getElementById('noVNC_connect_button').value = "Connect";
-            document.getElementById('noVNC_connect_button').onclick = UI.connect;
-            //Hide connection panel.
-            UI.toggleConnectPanel();
+            UI.rfb.sendPassword(document.getElementById('noVNC_password_input').value);
+            document.getElementById('noVNC_password_dlg')
+                .classList.remove('noVNC_open');
             return false;
         },
 
@@ -811,9 +1026,11 @@ var UI;
                 document.mozFullScreenElement || // currently working methods
                 document.webkitFullscreenElement ||
                 document.msFullscreenElement ) {
-                document.getElementById('noVNC_fullscreen_button').className = "noVNC_status_button_selected";
+                document.getElementById('noVNC_fullscreen_button')
+                    .classList.add("noVNC_selected");
             } else {
-                document.getElementById('noVNC_fullscreen_button').className = "noVNC_status_button";
+                document.getElementById('noVNC_fullscreen_button')
+                    .classList.remove("noVNC_selected");
             }
         },
 
@@ -905,53 +1122,51 @@ var UI;
 
         // Set and configure viewport clipping
         setViewClip: function(clip) {
+            UI.updateSetting('clip', clip);
+            UI.updateViewClip();
+        },
+
+        // Update parameters that depend on the clip setting
+        updateViewClip: function() {
             var display;
-            if (UI.rfb) {
-                display = UI.rfb.get_display();
-            } else {
-                UI.forceSetting('clip', clip);
+            if (!UI.rfb) {
                 return;
             }
 
+            var display = UI.rfb.get_display();
             var cur_clip = display.get_viewport();
+            var new_clip = UI.getSetting('clip');
 
-            if (typeof(clip) !== 'boolean') {
-                // Use current setting
-                clip = UI.getSetting('clip');
+            if (cur_clip !== new_clip) {
+                display.set_viewport(new_clip);
             }
 
-            if (clip && !cur_clip) {
-                // Turn clipping on
-                UI.updateSetting('clip', true);
-            } else if (!clip && cur_clip) {
-                // Turn clipping off
-                UI.updateSetting('clip', false);
-                display.set_viewport(false);
+            var size = UI.screenSize();
+
+            if (new_clip && size) {
+                // When clipping is enabled, the screen is limited to
+                // the size of the browser window.
+                display.set_maxWidth(size.w);
+                display.set_maxHeight(size.h);
+
+                var screen = document.getElementById('noVNC_screen');
+                var canvas = document.getElementById('noVNC_canvas');
+
+                // Hide potential scrollbars that can skew the position
+                screen.style.overflow = "hidden";
+
+                // The x position marks the left margin of the canvas,
+                // remove the margin from both sides to keep it centered.
+                var new_w = size.w - (2 * Util.getPosition(canvas).x);
+
+                screen.style.overflow = "visible";
+
+                display.viewportChangeSize(new_w, size.h);
+            } else {
                 // Disable max dimensions
                 display.set_maxWidth(0);
                 display.set_maxHeight(0);
                 display.viewportChangeSize();
-            }
-            if (UI.getSetting('clip')) {
-                // If clipping, update clipping settings
-                display.set_viewport(true);
-
-                var size = UI.screenSize();
-                if (size) {
-                    display.set_maxWidth(size.w);
-                    display.set_maxHeight(size.h);
-
-                    // Hide potential scrollbars that can skew the position
-                    document.getElementById('noVNC_screen').style.overflow = "hidden";
-
-                    // The x position marks the left margin of the canvas,
-                    // remove the margin from both sides to keep it centered
-                    var new_w = size.w - (2 * Util.getPosition(document.getElementById('noVNC_canvas')).x);
-
-                    document.getElementById('noVNC_screen').style.overflow = "visible";
-
-                    display.viewportChangeSize(new_w, size.h);
-                }
             }
         },
 
@@ -973,7 +1188,7 @@ var UI;
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
                 //   scrollbars doesn't work.
-                UI.popupStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
+                UI.showStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
                 UI.rememberedClipSetting = UI.getSetting('clip');
                 UI.setViewClip(true);
                 document.getElementById('noVNC_setting_clip').disabled = true;
@@ -995,62 +1210,68 @@ var UI;
  *    VIEWDRAG
  * ------v------*/
 
-        // Update the viewport drag state
-        updateViewDrag: function(drag) {
-            if (!UI.rfb) return;
-
-            var viewDragButton = document.getElementById('noVNC_view_drag_button');
-
-            // Check if viewport drag is possible. It is only possible
-            // if the remote display is clipping the client display.
-            if (UI.rfb_state === 'normal' &&
-                UI.rfb.get_display().get_viewport() &&
-                UI.rfb.get_display().clippingDisplay()) {
-
-                viewDragButton.style.display = "inline";
-                viewDragButton.disabled = false;
-
-            } else {
-                // The size of the remote display is the same or smaller
-                // than the client display. Make sure viewport drag isn't
-                // active when it can't be used.
-                if (UI.rfb.get_viewportDrag) {
-                    viewDragButton.className = "noVNC_status_button";
-                    UI.rfb.set_viewportDrag(false);
-                }
-
-                // The button is disabled instead of hidden on touch devices
-                if (UI.rfb_state === 'normal' && UI.isTouchDevice) {
-                    viewDragButton.style.display = "inline";
-                    viewDragButton.disabled = true;
-                } else {
-                    viewDragButton.style.display = "none";
-                }
-                return;
-            }
-
-            if (typeof(drag) !== "undefined" &&
-                typeof(drag) !== "object") {
-                if (drag) {
-                    viewDragButton.className = "noVNC_status_button_selected";
-                    UI.rfb.set_viewportDrag(true);
-                } else {
-                    viewDragButton.className = "noVNC_status_button";
-                    UI.rfb.set_viewportDrag(false);
-                }
-            }
-        },
-
         toggleViewDrag: function() {
             if (!UI.rfb) return;
 
+            var drag = UI.rfb.get_viewportDrag();
+            UI.setViewDrag(!drag);
+         },
+
+        // Set the view drag mode which moves the viewport on mouse drags
+        setViewDrag: function(drag) {
+            if (!UI.rfb) return;
+
+            UI.rfb.set_viewportDrag(drag);
+
+            UI.updateViewDrag();
+        },
+
+        updateViewDrag: function() {
+            var clipping = false;
+
+            if (UI.rfb_state !== 'normal') return;
+
+            // Check if viewport drag is possible. It is only possible
+            // if the remote display is clipping the client display.
+            if (UI.rfb.get_display().get_viewport() &&
+                UI.rfb.get_display().clippingDisplay()) {
+                clipping = true;
+            }
+
             var viewDragButton = document.getElementById('noVNC_view_drag_button');
-            if (UI.rfb.get_viewportDrag()) {
-                viewDragButton.className = "noVNC_status_button";
+
+            if (!clipping &&
+                UI.rfb.get_viewportDrag()) {
+                // The size of the remote display is the same or smaller
+                // than the client display. Make sure viewport drag isn't
+                // active when it can't be used.
                 UI.rfb.set_viewportDrag(false);
+            }
+
+            if (UI.rfb.get_viewportDrag()) {
+                viewDragButton.classList.add("noVNC_selected");
             } else {
-                viewDragButton.className = "noVNC_status_button_selected";
-                UI.rfb.set_viewportDrag(true);
+                viewDragButton.classList.remove("noVNC_selected");
+            }
+
+            // Different behaviour for touch vs non-touch
+            // The button is disabled instead of hidden on touch devices
+            if (UI.isTouchDevice) {
+                viewDragButton.classList.remove("noVNC_hidden");
+
+                if (clipping) {
+                    viewDragButton.disabled = false;
+                } else {
+                    viewDragButton.disabled = true;
+                }
+            } else {
+                viewDragButton.disabled = false;
+
+                if (clipping) {
+                    viewDragButton.classList.remove("noVNC_hidden");
+                } else {
+                    viewDragButton.classList.add("noVNC_hidden");
+                }
             }
         },
 
@@ -1060,42 +1281,64 @@ var UI;
  *    KEYBOARD
  * ------v------*/
 
-        // On touch devices, show the OS keyboard
-        showKeyboard: function() {
-            var kbi = document.getElementById('noVNC_keyboardinput');
-            var skb = document.getElementById('noVNC_keyboard_button');
-            var l = kbi.value.length;
-            if(UI.keyboardVisible === false) {
-                kbi.focus();
-                try { kbi.setSelectionRange(l, l); } // Move the caret to the end
-                catch (err) {} // setSelectionRange is undefined in Google Chrome
-                UI.keyboardVisible = true;
-                skb.className = "noVNC_status_button_selected";
-            } else if(UI.keyboardVisible === true) {
-                kbi.blur();
-                skb.className = "noVNC_status_button";
-                UI.keyboardVisible = false;
+        showVirtualKeyboard: function() {
+            if (!UI.isTouchDevice)
+                return;
+
+            var input = document.getElementById('noVNC_keyboardinput');
+
+            if (document.activeElement == input)
+                return;
+
+            UI.keyboardVisible = true;
+            document.getElementById('noVNC_keyboard_button')
+                .classList.add("noVNC_selected");
+            input.focus();
+
+            try {
+                var l = input.value.length;
+                // Move the caret to the end
+                input.setSelectionRange(l, l);
+            } catch (err) {} // setSelectionRange is undefined in Google Chrome
+        },
+
+        hideVirtualKeyboard: function() {
+            if (!UI.isTouchDevice)
+                return;
+
+            var input = document.getElementById('noVNC_keyboardinput');
+
+            if (document.activeElement != input)
+                return;
+
+            input.blur();
+        },
+
+        toggleVirtualKeyboard: function () {
+            if (UI.keyboardVisible) {
+                UI.hideVirtualKeyboard();
+            } else {
+                UI.showVirtualKeyboard();
             }
         },
 
-        hideKeyboard: function() {
-            document.getElementById('noVNC_keyboard_button').className = "noVNC_status_button";
+        onblurVirtualKeyboard: function() {
             //Weird bug in iOS if you change keyboardVisible
             //here it does not actually occur so next time
             //you click keyboard icon it doesnt work.
             UI.hideKeyboardTimeout = setTimeout(function() {
                 UI.keyboardVisible = false;
+                document.getElementById('noVNC_keyboard_button')
+			.classList.remove("noVNC_selected");
             },100);
         },
 
         keepKeyboard: function() {
             clearTimeout(UI.hideKeyboardTimeout);
             if(UI.keyboardVisible === true) {
-                document.getElementById('noVNC_keyboardinput').focus();
-                document.getElementById('noVNC_keyboard_button').className = "noVNC_status_button_selected";
+                UI.showVirtualKeyboard();
             } else if(UI.keyboardVisible === false) {
-                document.getElementById('noVNC_keyboardinput').blur();
-                document.getElementById('noVNC_keyboard_button').className = "noVNC_status_button";
+                UI.hideVirtualKeyboard();
             }
         },
 
@@ -1176,22 +1419,36 @@ var UI;
             }
         },
 
+/* ------^-------
+ *   /KEYBOARD
+ * ==============
+ *   EXTRA KEYS
+ * ------v------*/
+
+        openExtraKeys: function() {
+            UI.closeAllPanels();
+            UI.openControlbar();
+
+            document.getElementById('noVNC_modifiers')
+                .classList.add("noVNC_open");
+            document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.add("noVNC_selected");
+        },
+
+        closeExtraKeys: function() {
+            document.getElementById('noVNC_modifiers')
+                .classList.remove("noVNC_open");
+            document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.remove("noVNC_selected");
+        },
+
         toggleExtraKeys: function() {
             UI.keepKeyboard();
-            if(UI.extraKeysVisible === false) {
-                document.getElementById('noVNC_toggleCtrl_button').style.display = "inline";
-                document.getElementById('noVNC_toggleAlt_button').style.display = "inline";
-                document.getElementById('noVNC_sendTab_button').style.display = "inline";
-                document.getElementById('noVNC_sendEsc_button').style.display = "inline";
-                document.getElementById('noVNC_toggleExtraKeys_button').className = "noVNC_status_button_selected";
-                UI.extraKeysVisible = true;
-            } else if(UI.extraKeysVisible === true) {
-                document.getElementById('noVNC_toggleCtrl_button').style.display = "";
-                document.getElementById('noVNC_toggleAlt_button').style.display = "";
-                document.getElementById('noVNC_sendTab_button').style.display = "";
-                document.getElementById('noVNC_sendEsc_button').style.display = "";
-                document.getElementById('noVNC_toggleExtraKeys_button').className = "noVNC_status_button";
-                UI.extraKeysVisible = false;
+            if(document.getElementById('noVNC_modifiers')
+                .classList.contains("noVNC_open")) {
+                UI.closeExtraKeys();
+            } else  {
+                UI.openExtraKeys();
             }
         },
 
@@ -1207,45 +1464,40 @@ var UI;
 
         toggleCtrl: function() {
             UI.keepKeyboard();
-            if(UI.ctrlOn === false) {
-                UI.rfb.sendKey(KeyTable.XK_Control_L, true);
-                document.getElementById('noVNC_toggleCtrl_button').className = "noVNC_status_button_selected";
-                UI.ctrlOn = true;
-            } else if(UI.ctrlOn === true) {
+            var btn = document.getElementById('noVNC_toggle_ctrl_button');
+            if (btn.classList.contains("noVNC_selected")) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, false);
-                document.getElementById('noVNC_toggleCtrl_button').className = "noVNC_status_button";
-                UI.ctrlOn = false;
+                btn.classList.remove("noVNC_selected");
+            } else {
+                UI.rfb.sendKey(KeyTable.XK_Control_L, true);
+                btn.classList.add("noVNC_selected");
             }
         },
 
         toggleAlt: function() {
             UI.keepKeyboard();
-            if(UI.altOn === false) {
-                UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
-                document.getElementById('noVNC_toggleAlt_button').className = "noVNC_status_button_selected";
-                UI.altOn = true;
-            } else if(UI.altOn === true) {
+            var btn = document.getElementById('noVNC_toggle_alt_button');
+            if (btn.classList.contains("noVNC_selected")) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, false);
-                document.getElementById('noVNC_toggleAlt_button').className = "noVNC_status_button";
-                UI.altOn = false;
+                btn.classList.remove("noVNC_selected");
+            } else {
+                UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
+                btn.classList.add("noVNC_selected");
             }
         },
 
         sendCtrlAltDel: function() {
+            UI.keepKeyboard();
             UI.rfb.sendCtrlAltDel();
         },
 
 /* ------^-------
- *   /KEYBOARD
+ *   /EXTRA KEYS
  * ==============
  *     MISC
  * ------v------*/
 
         setMouseButton: function(num) {
-            if (typeof num === 'undefined') {
-                // Disable mouse buttons
-                num = -1;
-            }
             if (UI.rfb) {
                 UI.rfb.get_mouse().set_touchButton(num);
             }
@@ -1254,9 +1506,9 @@ var UI;
             for (var b = 0; b < blist.length; b++) {
                 var button = document.getElementById('noVNC_mouse_button' + blist[b]);
                 if (blist[b] === num) {
-                    button.style.display = "";
+                    button.classList.remove("noVNC_hidden");
                 } else {
-                    button.style.display = "none";
+                    button.classList.add("noVNC_hidden");
                 }
             }
         },
@@ -1287,14 +1539,6 @@ var UI;
             optn.value = value;
             selectbox.options.add(optn);
         },
-
-        setBarPosition: function() {
-            document.getElementById('noVNC_control_bar').style.top = (window.pageYOffset) + 'px';
-            document.getElementById('noVNC_mobile_buttons').style.left = (window.pageXOffset) + 'px';
-
-            var vncwidth = document.getElementById('noVNC_container').style.offsetWidth;
-            document.getElementById('noVNC_control_bar').style.width = vncwidth + 'px';
-        }
 
 /* ------^-------
  *    /MISC
