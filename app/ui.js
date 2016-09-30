@@ -591,8 +591,7 @@ var UI;
         },
 
         controlbarHandleMouseUp: function(e) {
-            if ((e.type == "mouseup") && (e.button != 0))
-                return;
+            if ((e.type == "mouseup") && (e.button != 0)) return;
 
             // mouseup and mousedown on the same place toggles the controlbar
             if (UI.controlbarGrabbed && !UI.controlbarDrag) {
@@ -604,8 +603,7 @@ var UI;
         },
 
         controlbarHandleMouseDown: function(e) {
-            if ((e.type == "mousedown") && (e.button != 0))
-                return;
+            if ((e.type == "mousedown") && (e.button != 0)) return;
 
             var ptr = Util.getPointerEvent(e);
 
@@ -1129,9 +1127,7 @@ var UI;
         // Update parameters that depend on the clip setting
         updateViewClip: function() {
             var display;
-            if (!UI.rfb) {
-                return;
-            }
+            if (!UI.rfb) return;
 
             var display = UI.rfb.get_display();
             var cur_clip = display.get_viewport();
@@ -1282,13 +1278,11 @@ var UI;
  * ------v------*/
 
         showVirtualKeyboard: function() {
-            if (!UI.isTouchDevice)
-                return;
+            if (!UI.isTouchDevice) return;
 
             var input = document.getElementById('noVNC_keyboardinput');
 
-            if (document.activeElement == input)
-                return;
+            if (document.activeElement == input) return;
 
             UI.keyboardVisible = true;
             document.getElementById('noVNC_keyboard_button')
@@ -1303,13 +1297,11 @@ var UI;
         },
 
         hideVirtualKeyboard: function() {
-            if (!UI.isTouchDevice)
-                return;
+            if (!UI.isTouchDevice) return;
 
             var input = document.getElementById('noVNC_keyboardinput');
 
-            if (document.activeElement != input)
-                return;
+            if (document.activeElement != input) return;
 
             input.blur();
         },
