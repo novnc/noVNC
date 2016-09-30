@@ -341,6 +341,7 @@ var UI;
                                   'onUpdateState': UI.updateState,
                                   'onXvpInit': UI.updateXvpButton,
                                   'onClipboard': UI.clipboardReceive,
+                                  'onBell': UI.bell,
                                   'onFBUComplete': UI.initialResize,
                                   'onFBResize': UI.updateViewDrag,
                                   'onDesktopName': UI.updateDocumentTitle});
@@ -1522,6 +1523,12 @@ var UI;
         // Display the desktop name in the document title
         updateDocumentTitle: function(rfb, name) {
             document.title = name + " - noVNC";
+        },
+
+        bell: function(rfb) {
+            if (WebUtil.getConfigVar('bell', 'on') === 'on') {
+                document.getElementById('noVNC_bell').play();
+            }
         },
 
         //Helper to add options to dropdown.
