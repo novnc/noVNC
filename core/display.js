@@ -20,6 +20,7 @@
     this._c_forceCanvas = false;
 
     this._renderQ = [];  // queue drawing actions for in-oder rendering
+    this._flushing = false;
 
     // the full frame buffer (logical canvas) size
     this._fb_width = 0;
@@ -44,7 +45,8 @@
         'colourMap': [],
         'scale': 1.0,
         'viewport': false,
-        'render_mode': ''
+        'render_mode': '',
+        "onFlush": function () {},
     });
 
     Util.Debug(">> Display.constructor");
@@ -363,9 +365,21 @@
             this._renderQ = [];
         },
 
+        pending: function() {
+            return this._renderQ.length > 0;
+        },
+
+        flush: function() {
+            if (this._renderQ.length === 0) {
+                this._onFlush();
+            } else {
+                this._flushing = true;
+            }
+        },
+
         fillRect: function (x, y, width, height, color, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'fill',
                     'x': x,
                     'y': y,
@@ -381,7 +395,7 @@
 
         copyImage: function (old_x, old_y, new_x, new_y, w, h, from_queue) {
             if (this._renderQ.length !== 0 && !from_queue) {
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'copy',
                     'old_x': old_x,
                     'old_y': old_y,
@@ -398,6 +412,17 @@
 
                 this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
             }
+        },
+
+        imageRect: function(x, y, mime, arr) {
+            var img = new Image();
+            img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+            this._renderQ_push({
+                'type': 'img',
+                'img': img,
+                'x': x,
+                'y': y
+            });
         },
 
         // start updating a tile
@@ -480,7 +505,7 @@
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 4);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'blit',
                     'data': new_arr,
                     'x': x,
@@ -502,7 +527,7 @@
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 3);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'blitRgb',
                     'data': new_arr,
                     'x': x,
@@ -525,7 +550,7 @@
                 // this probably isn't getting called *nearly* as much
                 var new_arr = new Uint8Array(width * height * 4);
                 new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-                this.renderQ_push({
+                this._renderQ_push({
                     'type': 'blitRgbx',
                     'data': new_arr,
                     'x': x,
@@ -550,16 +575,6 @@
         // wrap ctx.drawImage but relative to viewport
         drawImage: function (img, x, y) {
             this._drawCtx.drawImage(img, x - this._viewportLoc.x, y - this._viewportLoc.y);
-        },
-
-        renderQ_push: function (action) {
-            this._renderQ.push(action);
-            if (this._renderQ.length === 1) {
-                // If this can be rendered immediately it will be, otherwise
-                // the scanner will start polling the queue (every
-                // requestAnimationFrame interval)
-                this._scan_renderQ();
-            }
         },
 
         changeCursor: function (pixels, mask, hotx, hoty, w, h) {
@@ -741,6 +756,22 @@
             this._drawCtx.putImageData(img, x - vx, y - vy);
         },
 
+        _renderQ_push: function (action) {
+            this._renderQ.push(action);
+            if (this._renderQ.length === 1) {
+                // If this can be rendered immediately it will be, otherwise
+                // the scanner will wait for the relevant event
+                this._scan_renderQ();
+            }
+        },
+
+        _resume_renderQ: function() {
+            // "this" is the object that is ready, not the
+            // display object
+            this.removeEventListener('load', this._noVNC_display._resume_renderQ);
+            this._noVNC_display._scan_renderQ();
+        },
+
         _scan_renderQ: function () {
             var ready = true;
             while (ready && this._renderQ.length > 0) {
@@ -765,6 +796,8 @@
                         if (a.img.complete) {
                             this.drawImage(a.img, a.x, a.y);
                         } else {
+                            a.img._noVNC_display = this;
+                            a.img.addEventListener('load', this._resume_renderQ);
                             // We need to wait for this image to 'load'
                             // to keep things in-order
                             ready = false;
@@ -777,8 +810,9 @@
                 }
             }
 
-            if (this._renderQ.length > 0) {
-                requestAnimationFrame(this._scan_renderQ.bind(this));
+            if (this._renderQ.length === 0 && this._flushing) {
+                this._flushing = false;
+                this._onFlush();
             }
         },
     };
@@ -799,7 +833,9 @@
         ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
 
         ['prefer_js', 'rw', 'str'],    // Prefer Javascript over canvas methods
-        ['cursor_uri', 'rw', 'raw']    // Can we render cursor using data URI
+        ['cursor_uri', 'rw', 'raw'],   // Can we render cursor using data URI
+
+        ['onFlush', 'rw', 'func'],     // onFlush(): A flush request has finished
     ]);
 
     // Class Methods

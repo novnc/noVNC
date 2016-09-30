@@ -384,11 +384,6 @@ describe('Display/Canvas Helper', function () {
             display = new Display({ target: document.createElement('canvas'), prefer_js: false });
             display.resize(4, 4);
             sinon.spy(display, '_scan_renderQ');
-            this.old_requestAnimationFrame = window.requestAnimationFrame;
-            window.requestAnimationFrame = function (cb) {
-                this.next_frame_cb = cb;
-            }.bind(this);
-            this.next_frame = function () { this.next_frame_cb(); };
         });
 
         afterEach(function () {
@@ -396,18 +391,18 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should try to process an item when it is pushed on, if nothing else is on the queue', function () {
-            display.renderQ_push({ type: 'noop' });  // does nothing
+            display._renderQ_push({ type: 'noop' });  // does nothing
             expect(display._scan_renderQ).to.have.been.calledOnce;
         });
 
         it('should not try to process an item when it is pushed on if we are waiting for other items', function () {
             display._renderQ.length = 2;
-            display.renderQ_push({ type: 'noop' });
+            display._renderQ_push({ type: 'noop' });
             expect(display._scan_renderQ).to.not.have.been.called;
         });
 
         it('should wait until an image is loaded to attempt to draw it and the rest of the queue', function () {
-            var img = { complete: false };
+            var img = { complete: false, addEventListener: sinon.spy() }
             display._renderQ = [{ type: 'img', x: 3, y: 4, img: img },
                                 { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
             display.drawImage = sinon.spy();
@@ -416,44 +411,46 @@ describe('Display/Canvas Helper', function () {
             display._scan_renderQ();
             expect(display.drawImage).to.not.have.been.called;
             expect(display.fillRect).to.not.have.been.called;
+            expect(img.addEventListener).to.have.been.calledOnce;
 
             display._renderQ[0].img.complete = true;
-            this.next_frame();
+            display._scan_renderQ();
             expect(display.drawImage).to.have.been.calledOnce;
             expect(display.fillRect).to.have.been.calledOnce;
+            expect(img.addEventListener).to.have.been.calledOnce;
         });
 
         it('should draw a blit image on type "blit"', function () {
             display.blitImage = sinon.spy();
-            display.renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
+            display._renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
             expect(display.blitImage).to.have.been.calledOnce;
             expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
         });
 
         it('should draw a blit RGB image on type "blitRgb"', function () {
             display.blitRgbImage = sinon.spy();
-            display.renderQ_push({ type: 'blitRgb', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
+            display._renderQ_push({ type: 'blitRgb', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
             expect(display.blitRgbImage).to.have.been.calledOnce;
             expect(display.blitRgbImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
         });
 
         it('should copy a region on type "copy"', function () {
             display.copyImage = sinon.spy();
-            display.renderQ_push({ type: 'copy', x: 3, y: 4, width: 5, height: 6, old_x: 7, old_y: 8 });
+            display._renderQ_push({ type: 'copy', x: 3, y: 4, width: 5, height: 6, old_x: 7, old_y: 8 });
             expect(display.copyImage).to.have.been.calledOnce;
             expect(display.copyImage).to.have.been.calledWith(7, 8, 3, 4, 5, 6);
         });
 
         it('should fill a rect with a given color on type "fill"', function () {
             display.fillRect = sinon.spy();
-            display.renderQ_push({ type: 'fill', x: 3, y: 4, width: 5, height: 6, color: [7, 8, 9]});
+            display._renderQ_push({ type: 'fill', x: 3, y: 4, width: 5, height: 6, color: [7, 8, 9]});
             expect(display.fillRect).to.have.been.calledOnce;
             expect(display.fillRect).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9]);
         });
 
         it('should draw an image from an image object on type "img" (if complete)', function () {
             display.drawImage = sinon.spy();
-            display.renderQ_push({ type: 'img', x: 3, y: 4, img: { complete: true } });
+            display._renderQ_push({ type: 'img', x: 3, y: 4, img: { complete: true } });
             expect(display.drawImage).to.have.been.calledOnce;
             expect(display.drawImage).to.have.been.calledWith({ complete: true }, 3, 4);
         });

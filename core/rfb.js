@@ -76,10 +76,10 @@
 
     this._sock = null;              // Websock object
     this._display = null;           // Display object
+    this._flushing = false;         // Display flushing state
     this._keyboard = null;          // Keyboard input handler object
     this._mouse = null;             // Mouse input handler object
     this._disconnTimer = null;      // disconnection timer
-    this._msgTimer = null;          // queued handle_msg timer
 
     this._supportsFence = false;
 
@@ -186,7 +186,8 @@
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
     try {
-        this._display = new Display({target: this._target});
+        this._display = new Display({target: this._target,
+                                     onFlush: this._onFlush.bind(this)});
     } catch (exc) {
         Util.Error("Display exception: " + exc);
         throw exc;
@@ -398,11 +399,6 @@
         },
 
         _cleanupSocket: function (state) {
-            if (this._msgTimer) {
-                clearInterval(this._msgTimer);
-                this._msgTimer = null;
-            }
-
             if (this._display && this._display.get_context()) {
                 this._keyboard.ungrab();
                 this._mouse.ungrab();
@@ -548,17 +544,15 @@
                     Util.Error("Got data while disconnected");
                     break;
                 case 'normal':
-                    if (this._normal_msg() && this._sock.rQlen() > 0) {
-                        // true means we can continue processing
-                        // Give other events a chance to run
-                        if (this._msgTimer === null) {
-                            Util.Debug("More data to process, creating timer");
-                            this._msgTimer = setTimeout(function () {
-                                this._msgTimer = null;
-                                this._handle_message();
-                            }.bind(this), 0);
-                        } else {
-                            Util.Debug("More data to process, existing timer");
+                    while (true) {
+                        if (this._flushing) {
+                            break;
+                        }
+                        if (!this._normal_msg()) {
+                            break;
+                        }
+                        if (this._sock.rQlen() === 0) {
+                            break;
                         }
                     }
                     break;
@@ -1207,6 +1201,14 @@
             }
         },
 
+        _onFlush: function() {
+            this._flushing = false;
+            // Resume processing
+            if (this._sock.rQlen() > 0) {
+                this._handle_message();
+            }
+        },
+
         _framebufferUpdate: function () {
             var ret = true;
             var now;
@@ -1220,6 +1222,14 @@
                 if (this._timing.fbu_rt_start > 0) {
                     now = (new Date()).getTime();
                     Util.Info("First FBU latency: " + (now - this._timing.fbu_rt_start));
+                }
+
+                // Make sure the previous frame is fully rendered first
+                // to avoid building up an excessive queue
+                if (this._display.pending()) {
+                    this._flushing = true;
+                    this._display.flush();
+                    return false;
                 }
             }
 
@@ -1663,10 +1673,6 @@
             passwd.push(password.charCodeAt(i));
         }
         return (new DES(passwd)).encrypt(challenge);
-    };
-
-    RFB.extract_data_uri = function (arr) {
-        return ";base64," + Base64.encode(arr);
     };
 
     RFB.encodingHandlers = {
@@ -2171,16 +2177,8 @@
 
                     // We have everything, render it
                     this._sock.rQskipBytes(1 + cl_header);  // shift off clt + compact length
-                    var img = new Image();
-                    img.src = "data: image/" + cmode +
-                        RFB.extract_data_uri(this._sock.rQshiftBytes(cl_data));
-                    this._display.renderQ_push({
-                        'type': 'img',
-                        'img': img,
-                        'x': this._FBU.x,
-                        'y': this._FBU.y
-                    });
-                    img = null;
+                    data = this._sock.rQshiftBytes(cl_data);
+                    this._display.imageRect(this._FBU.x, this._FBU.y, "image/" + cmode, data);
                     break;
                 case "filter":
                     var filterId = rQ[rQi + 1];
