@@ -155,6 +155,7 @@
         'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
         'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
         'viewportDrag': false,                  // Move the viewport on mouse drags
+        'allowQEMUExtKeyEvent': true,           // Should the QEMU extended keymap support be available
 
         // Callback functions
         'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate, statusMsg): state update/change
@@ -1323,6 +1324,7 @@
         ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
         ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
         ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
+        ['allowQEMUExtKeyEvent', 'rw', 'bool'], // Should the QEMU keyboard extensions be allowed
 
         // Callback functions
         ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change
@@ -2320,7 +2322,7 @@
             this._FBU.rects--;
 
             var keyboardEvent = document.createEvent("keyboardEvent");
-            if (keyboardEvent.code !== undefined) {
+            if (this.allowQEMUExtKeyEvent && keyboardEvent.code !== undefined) {
                 this._qemuExtKeyEventSupported = true;
                 this._keyboard.setQEMUVNCKeyboardHandler();
             }

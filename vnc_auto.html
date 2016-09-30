@@ -233,10 +233,16 @@
                                'local_cursor': WebUtil.getConfigVar('cursor', true),
                                'shared':       WebUtil.getConfigVar('shared', true),
                                'view_only':    WebUtil.getConfigVar('view_only', false),
+                               // If you have qemu guests that are still running with the '-k en-us' (or any other keymap), you'll need
+                               // to set this to false, or each keypress will result in messages like:
+                               // Unknown key released (translated set 2, code 0x0 on isa0060/serio0).
+                               'allowQEMUExtKeyEvent': true,
+
                                'onUpdateState':  updateState,
                                'onXvpInit':    xvpInit,
                                'onPasswordRequired':  passwordRequired,
-                               'onFBUComplete': FBUComplete});
+                               'onFBUComplete': FBUComplete,
+                });
             } catch (exc) {
                 updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
                 return; // don't continue trying to connect
