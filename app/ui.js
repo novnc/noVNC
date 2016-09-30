@@ -420,6 +420,7 @@ var UI;
             } else {
                 document.documentElement.classList.remove("noVNC_connected");
                 UI.updateXvpButton(0);
+                UI.keepControlbar();
             }
 
             // State change disables viewport dragging.
