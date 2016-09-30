@@ -6,6 +6,7 @@
     noVNC example: simple example using default UI
     Copyright (C) 2012 Joel Martin
     Copyright (C) 2016 Samuel Mannehed for Cendio AB
+    Copyright (C) 2016 Pierre Ossman for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -48,169 +49,245 @@
 </head>
 
 <body>
-    <div id="noVNC_control_bar" class="noVNC_status_normal">
-        <!--noVNC Mobile Device only Buttons-->
-        <div class="noVNC_buttons_left">
-            <input type="image" alt="viewport drag" src="app/images/drag.png"
-                id="noVNC_view_drag_button" class="noVNC_status_button"
+    <!-- noVNC Control Bar -->
+    <div id="noVNC_control_bar_anchor" class="noVNC_vcenter">
+
+        <div id="noVNC_control_bar">
+            <div id="noVNC_control_bar_handle" title="Hide/Show the control bar"><div></div></div>
+
+            <div class="noVNC_scroll">
+
+            <h1 class="noVNC_logo"><span>no</span><br />VNC</h1>
+
+            <!-- Drag/Pan the viewport -->
+            <input type="image" alt="viewport drag" src="app/images/drag.svg"
+                id="noVNC_view_drag_button" class="noVNC_button noVNC_hidden"
                 title="Move/Drag Viewport" />
+
+            <!--noVNC Touch Device only buttons-->
             <div id="noVNC_mobile_buttons">
-                <input type="image" alt="No mousebutton" src="app/images/mouse_none.png"
-                    id="noVNC_mouse_button0" class="noVNC_status_button" />
-                <input type="image" alt="Left mousebutton" src="app/images/mouse_left.png"
-                    id="noVNC_mouse_button1" class="noVNC_status_button" />
-                <input type="image" alt="Middle mousebutton" src="app/images/mouse_middle.png"
-                    id="noVNC_mouse_button2" class="noVNC_status_button" />
-                <input type="image" alt="Right mousebutton" src="app/images/mouse_right.png"
-                    id="noVNC_mouse_button4" class="noVNC_status_button" />
-                <input type="image" alt="Keyboard" src="app/images/keyboard.png"
-                    id="noVNC_keyboard_button" class="noVNC_status_button"
+                <input type="image" alt="No mousebutton" src="app/images/mouse_none.svg"
+                    id="noVNC_mouse_button0" class="noVNC_button"
+                    title="Active Mouse Button"/>
+                <input type="image" alt="Left mousebutton" src="app/images/mouse_left.svg"
+                    id="noVNC_mouse_button1" class="noVNC_button"
+                    title="Active Mouse Button"/>
+                <input type="image" alt="Middle mousebutton" src="app/images/mouse_middle.svg"
+                    id="noVNC_mouse_button2" class="noVNC_button"
+                    title="Active Mouse Button"/>
+                <input type="image" alt="Right mousebutton" src="app/images/mouse_right.svg"
+                    id="noVNC_mouse_button4" class="noVNC_button"
+                    title="Active Mouse Button"/>
+                <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
+                    id="noVNC_keyboard_button" class="noVNC_button"
                     value="Keyboard" title="Show Keyboard" />
-                <!-- Note that Google Chrome on Android doesn't respect any of these,
-                     html attributes which attempt to disable text suggestions on the
-                     on-screen keyboard. Let's hope Chrome implements the ime-mode
-                     style for example -->
-                <textarea id="noVNC_keyboardinput" autocapitalize="off"
-                    autocorrect="off" autocomplete="off" spellcheck="false"
-                    mozactionhint="Enter"></textarea>
-                <div id="noVNC_extra_keys">
-                    <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.png"
-                        id="noVNC_toggleExtraKeys_button" class="noVNC_status_button" />
-                    <input type="image" alt="Ctrl" src="app/images/ctrl.png"
-                        id="noVNC_toggleCtrl_button" class="noVNC_status_button" />
-                    <input type="image" alt="Alt" src="app/images/alt.png"
-                        id="noVNC_toggleAlt_button" class="noVNC_status_button" />
-                    <input type="image" alt="Tab" src="app/images/tab.png"
-                        id="noVNC_sendTab_button" class="noVNC_status_button" />
-                    <input type="image" alt="Esc" src="app/images/esc.png"
-                        id="noVNC_sendEsc_button" class="noVNC_status_button" />
+            </div>
+
+            <!-- Extra manual keys -->
+            <div id="noVNC_extra_keys">
+                <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
+                    id="noVNC_toggle_extra_keys_button" class="noVNC_button"
+                    title="Show Extra Keys"/>
+                <div class="noVNC_vcenter">
+                <div id="noVNC_modifiers" class="noVNC_panel">
+                    <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
+                        id="noVNC_toggle_ctrl_button" class="noVNC_button"
+                        title="Toggle Ctrl"/>
+                    <input type="image" alt="Alt" src="app/images/alt.svg"
+                        id="noVNC_toggle_alt_button" class="noVNC_button"
+                        title="Toggle Alt"/>
+                    <input type="image" alt="Tab" src="app/images/tab.svg"
+                        id="noVNC_send_tab_button" class="noVNC_button"
+                        title="Send Tab"/>
+                    <input type="image" alt="Esc" src="app/images/esc.svg"
+                        id="noVNC_send_esc_button" class="noVNC_button"
+                        title="Send Escape"/>
+                    <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
+                        id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
+                        title="Send Ctrl-Alt-Del" />
+                </div>
                 </div>
             </div>
-        </div>
 
-        <div id="noVNC_status"></div>
-
-        <!--noVNC Buttons-->
-        <div class="noVNC_buttons_right">
-            <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.png"
-                id="noVNC_sendCtrlAltDel_button" class="noVNC_status_button"
-                title="Send Ctrl-Alt-Del" />
-            <input type="image" alt="Shutdown/Reboot" src="app/images/power.png"
-                id="noVNC_toggleXvp_button" class="noVNC_status_button"
+            <!-- XVP Shutdown/Reboot -->
+            <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
+                id="noVNC_xvp_button" class="noVNC_button"
                 title="Shutdown/Reboot..." />
-            <input type="image" alt="Clipboard" src="app/images/clipboard.png"
-                id="noVNC_clipboard_button" class="noVNC_status_button"
+            <div class="noVNC_vcenter">
+            <div id="noVNC_xvp" class="noVNC_panel">
+                <div class="noVNC_heading">
+                    <img src="app/images/power.svg"> Power
+                </div>
+                <input type="button" id="noVNC_xvp_shutdown_button" value="Shutdown" />
+                <input type="button" id="noVNC_xvp_reboot_button" value="Reboot" />
+                <input type="button" id="noVNC_xvp_reset_button" value="Reset" />
+            </div>
+            </div>
+
+            <!-- Clipboard -->
+            <input type="image" alt="Clipboard" src="app/images/clipboard.svg"
+                id="noVNC_clipboard_button" class="noVNC_button"
                 title="Clipboard" />
-            <input type="image" alt="Fullscreen" src="app/images/fullscreen.png"
-                id="noVNC_fullscreen_button" class="noVNC_status_button"
+            <div class="noVNC_vcenter">
+            <div id="noVNC_clipboard" class="noVNC_panel">
+                <div class="noVNC_heading">
+                    <img src="app/images/clipboard.svg"> Clipboard
+                </div>
+                <textarea id="noVNC_clipboard_text" rows=5></textarea>
+                <br />
+                <input id="noVNC_clipboard_clear_button" type="button"
+                    value="Clear" class="noVNC_submit" />
+            </div>
+            </div>
+
+            <!-- Toggle fullscreen -->
+            <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
+                id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
                 title="Fullscreen" />
-            <input type="image" alt="Settings" src="app/images/settings.png"
-                id="noVNC_settings_button" class="noVNC_status_button"
+
+            <!-- Settings -->
+            <input type="image" alt="Settings" src="app/images/settings.svg"
+                id="noVNC_settings_button" class="noVNC_button"
                 title="Settings" />
-            <input type="image" alt="Connect" src="app/images/connect.png"
-                id="noVNC_connectPanel_button" class="noVNC_status_button"
-                title="Connect" />
-            <input type="image" alt="Disconnect" src="app/images/disconnect.png"
-                id="noVNC_disconnect_button" class="noVNC_status_button"
-                title="Disconnect" />
-        </div>
-
-        <!-- Description Panel -->
-        <!-- Shown by default when hosted at for kanaka.github.com -->
-        <div id="noVNC_description" class="">
-            noVNC is a browser based VNC client implemented using HTML5 Canvas
-            and WebSockets. You will either need a VNC server with WebSockets
-            support (such as <a href="http://libvncserver.sourceforge.net/">libvncserver</a>)
-            or you will need to use
-            <a href="https://github.com/kanaka/websockify">websockify</a>
-            to bridge between your browser and VNC server. See the noVNC
-            <a href="https://github.com/kanaka/noVNC">README</a>
-            and <a href="http://kanaka.github.com/noVNC">website</a>
-            for more information.
-            <br />
-            <input id="noVNC_description_button" type="button" value="Close" />
-        </div>
-
-        <!-- Popup Status -->
-        <div id="noVNC_popup_status" class="">
-        </div>
-
-        <!-- Clipboard Panel -->
-        <div id="noVNC_clipboard" class="triangle-right top">
-            <textarea id="noVNC_clipboard_text" rows=5></textarea>
-            <br />
-            <input id="noVNC_clipboard_clear_button" type="button"
-                value="Clear" />
-        </div>
-
-        <!-- XVP Shutdown/Reboot Panel -->
-        <div id="noVNC_xvp" class="triangle-right top">
-            <span id="noVNC_xvp_menu">
-                <input type="button" id="noVNC_xvpShutdown_button" value="Shutdown" />
-                <input type="button" id="noVNC_xvpReboot_button" value="Reboot" />
-                <input type="button" id="noVNC_xvpReset_button" value="Reset" />
-            </span>
-        </div>
-
-        <!-- Settings Panel -->
-        <div id="noVNC_settings" class="triangle-right top">
-            <span id="noVNC_settings_menu">
+            <div class="noVNC_vcenter">
+            <div id="noVNC_settings" class="noVNC_panel">
                 <ul>
-                    <li><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</li>
-                    <li><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</li>
-                    <li><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</li>
-                    <li><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</li>
-                    <li><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</li>
-                    <li><input id="noVNC_setting_view_only" type="checkbox" /> View Only</li>
-                    <hr>
-                    <li><input id="noVNC_setting_path" type="input" value="websockify" /> Path</li>
-                    <li><label>
+                    <li class="noVNC_heading">
+                        <img src="app/images/settings.svg"> Settings
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</label>
+                    </li>
+                    <li>
+                        <label><input id="noVNC_setting_view_only" type="checkbox" /> View Only</label>
+                    </li>
+                    <li><hr></li>
+                    <li>
+                        <label for="noVNC_setting_path">Path:</label>
+                        <input id="noVNC_setting_path" type="input" value="websockify" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_resize">Scaling Mode:</label>
                         <select id="noVNC_setting_resize" name="vncResize">
                             <option value="off">None</option>
                             <option value="scale">Local Scaling</option>
                             <option value="downscale">Local Downscaling</option>
                             <option value="remote">Remote Resizing</option>
-                        </select> Scaling Mode</label>
+                        </select>
                     </li>
-                    <li><input id="noVNC_setting_repeaterID" type="input" value="" /> Repeater ID</li>
-                    <hr>
+                    <li>
+                        <label for="noVNC_setting_repeaterID">Repeater ID:</label>
+                        <input id="noVNC_setting_repeaterID" type="input" value="" />
+                    </li>
+                    <li><hr></li>
                     <!-- Stylesheet selection dropdown -->
-                    <li><label><strong>Style: </strong>
-                        <select id="noVNC_setting_stylesheet" name="vncStyle">
-                            <option value="default">default</option>
-                        </select></label>
+                    <li>
+                        <label>Style:
+                            <select id="noVNC_setting_stylesheet" name="vncStyle">
+                                <option value="default">default</option>
+                            </select>
+                        </label>
                     </li>
-
                     <!-- Logging selection dropdown -->
-                    <li><label><strong>Logging: </strong>
-                        <select id="noVNC_setting_logging" name="vncLogging">
-                        </select></label>
+                    <li>
+                        <label>Logging:
+                            <select id="noVNC_setting_logging" name="vncLogging">
+                            </select>
+                        </label>
                     </li>
-                    <hr>
-                    <li><input type="button" id="noVNC_settings_apply" value="Apply" /></li>
+                    <li><hr></li>
+                    <li>
+                        <input type="button" id="noVNC_settings_apply" value="Apply" class="noVNC_submit" />
+                    </li>
                 </ul>
-            </span>
-        </div>
+            </div>
+            </div>
 
-        <!-- Connection Panel -->
-        <div id="noVNC_controls" class="triangle-right top">
-            <ul>
-                <li><label><strong>Host: </strong><input id="noVNC_setting_host" /></label></li>
-                <li><label><strong>Port: </strong><input id="noVNC_setting_port" /></label></li>
-                <li><label><strong>Password: </strong><input id="noVNC_setting_password" type="password" /></label></li>
-                <li><label><strong>Token: </strong><input id="noVNC_setting_token" /></label></li>
-                <li><input id="noVNC_connect_button" type="button" value="Connect" /></li>
-            </ul>
+            <!-- Connection Controls -->
+            <input type="image" alt="Connect" src="app/images/connect.svg"
+                id="noVNC_connect_controls_button" class="noVNC_button"
+                title="Connect" />
+            <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
+                id="noVNC_disconnect_button" class="noVNC_button"
+                title="Disconnect" />
+            <div class="noVNC_vcenter">
+            <div id="noVNC_connect_controls" class="noVNC_panel">
+                <ul>
+                    <li class="noVNC_heading">
+                        <img src="app/images/connect.svg"> Connection
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_host">Host:</label>
+                        <input id="noVNC_setting_host" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_port">Port:</label>
+                        <input id="noVNC_setting_port" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_password">Password:</label>
+                        <input id="noVNC_setting_password" type="password" />
+                    </li>
+                    <li>
+                        <label for="noVNC_setting_token">Token:</label>
+                        <input id="noVNC_setting_token" />
+                    </li>
+                    <li><hr></li>
+                    <li>
+                        <input id="noVNC_connect_button" type="button" value="Connect" class="noVNC_submit" />
+                    </li>
+                </ul>
+            </div>
+            </div>
+
+            </div>
         </div>
 
     </div> <!-- End of noVNC_control_bar -->
 
+    <!-- Status Dialog -->
+    <div id="noVNC_status"></div>
+
+    <!-- Password Dialog -->
+    <div class="noVNC_center">
+    <div id="noVNC_password_dlg" class="noVNC_panel">
+        <ul>
+            <li>
+                <label>Password:</label>
+                <input id="noVNC_password_input" type="password" />
+            </li>
+            <li>
+                <input id="noVNC_password_button" type="button" value="Send Password" class="noVNC_submit" />
+            </li>
+        </ul>
+    </div>
+    </div>
 
     <div id="noVNC_container">
-        <h1 id="noVNC_logo"><span>no</span><br />VNC</h1>
+        <h1 id="noVNC_logo" class="noVNC_logo"><span>no</span><br />VNC</h1>
 
         <!-- HTML5 Canvas -->
         <div id="noVNC_screen">
+            <!-- Note that Google Chrome on Android doesn't respect any of these,
+                 html attributes which attempt to disable text suggestions on the
+                 on-screen keyboard. Let's hope Chrome implements the ime-mode
+                 style for example -->
+            <textarea id="noVNC_keyboardinput" autocapitalize="off"
+                autocorrect="off" autocomplete="off" spellcheck="false"
+                mozactionhint="Enter"></textarea>
+
             <canvas id="noVNC_canvas" width="0" height="0">
                         Canvas not supported.
             </canvas>

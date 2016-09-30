@@ -1,0 +1,89 @@
+/*
+ * noVNC auto CSS
+ * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+ * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+ */
+
+body {
+  margin:0;
+  padding:0;
+  font-family: Helvetica;
+  /*Background image with light grey curve.*/
+  background-color:#494949;
+  background-repeat:no-repeat;
+  background-position:right bottom;
+  height:100%;
+}
+
+html {
+  height:100%;
+}
+
+#noVNC_container {
+  display: table;
+  width:100%;
+  height:100%;
+  background-color:#313131;
+  border-bottom-right-radius: 800px 600px;
+  /*border-top-left-radius: 800px 600px;*/
+}
+
+#noVNC_status {
+  font-size: 12px;
+  padding-top: 4px;
+  height:32px;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  z-index: 0;
+  position: absolute;
+  width: 100%;
+  margin-left: 0px;
+}
+
+.noVNC_status_normal {
+  background: #b2bdcd; /* Old browsers */
+  background: -moz-linear-gradient(top, #b2bdcd 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b2bdcd), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
+  background: linear-gradient(top, #b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+}
+
+.noVNC_status_error {
+  background: #f04040; /* Old browsers */
+  background: -moz-linear-gradient(top, #f04040 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f04040), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
+  background: linear-gradient(top, #f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+}
+
+.noVNC_status_warn {
+  background: #f0f040; /* Old browsers */
+  background: -moz-linear-gradient(top, #f0f040 0%, #899cb3 49%, #7e93af 51%, #6e84a3 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f040), color-stop(49%,#899cb3), color-stop(51%,#7e93af), color-stop(100%,#6e84a3)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* IE10+ */
+  background: linear-gradient(top, #f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%); /* W3C */
+}
+
+#noVNC_buttons {
+  white-space: nowrap;
+}
+
+/* Do not set width/height for VNC_canvas or incorrect
+ * scaling will occur. Canvas size depends on remote VNC
+ * settings and noVNC settings. */
+#noVNC_canvas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
