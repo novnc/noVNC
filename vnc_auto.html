@@ -86,6 +86,7 @@
 
         var rfb;
         var resizeTimeout;
+        var desktopName;
 
 
         function UIresize() {
@@ -93,24 +94,28 @@
                 var innerW = window.innerWidth;
                 var innerH = window.innerHeight;
                 var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
-                var padding = 5;
                 if (innerW !== undefined && innerH !== undefined)
-                    rfb.requestDesktopSize(innerW, innerH - controlbarH - padding);
+                    rfb.requestDesktopSize(innerW, innerH - controlbarH);
             }
         }
         function FBUComplete(rfb, fbu) {
             UIresize();
             rfb.set_onFBUComplete(function() { });
         }
-        function passwordRequired(rfb) {
-            var msg;
-            msg = '<form onsubmit="return setPassword();"';
-            msg += '  style="margin-bottom: 0px">';
-            msg += 'Password Required: ';
-            msg += '<input type=password size=10 id="password_input" class="noVNC_status">';
-            msg += '<\/form>';
-            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
-            document.getElementById('noVNC_status').innerHTML = msg;
+        function updateDesktopName(rfb, name) {
+            desktopName = name;
+        }
+        function passwordRequired(rfb, msg) {
+            if (typeof msg === 'undefined') {
+                msg = 'Password Required: ';
+            }
+            var html;
+            html = '<form onsubmit="return setPassword();"';
+            html += '  style="margin-bottom: 0px">';
+            html += msg;
+            html += '<input type=password size=10 id="password_input" class="noVNC_status">';
+            html += '<\/form>';
+            status(html, "warn");
         }
         function setPassword() {
             rfb.sendPassword(document.getElementById('password_input').value);
@@ -132,31 +137,54 @@
             rfb.xvpReset();
             return false;
         }
-        function updateState(rfb, state, oldstate, msg) {
-            var s, sb, cad, level;
-            s = document.getElementById('noVNC_status');
-            sb = document.getElementById('noVNC_status_bar');
-            cad = document.getElementById('sendCtrlAltDelButton');
+        function status(text, level) {
+            switch (level) {
+                case 'normal':
+                case 'warn':
+                case 'error':
+                    break;
+                default:
+                    level = "warn";
+            }
+            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
+            document.getElementById('noVNC_status').innerHTML = text;
+        }
+        function updateState(rfb, state, oldstate) {
+            var cad = document.getElementById('sendCtrlAltDelButton');
+            var encrypt = (rfb && rfb.get_encrypt()) ? 'encrypted' : 'unencrypted';
             switch (state) {
-                case 'failed':       level = "error";  break;
-                case 'fatal':        level = "error";  break;
-                case 'normal':       level = "normal"; break;
-                case 'disconnected': level = "normal"; break;
-                case 'loaded':       level = "normal"; break;
-                default:             level = "warn";   break;
+                case 'connecting':
+                    status("Connecting", "normal");
+                    break;
+                case 'connected':
+                    status("Connected (" + encrypt + ") to: " + desktopName, "normal");
+                    break;
+                case 'disconnecting':
+                    status("Disconnecting", "normal");
+                    break;
+                case 'disconnected':
+                    status("Disconnected", "normal");
+                    break;
+                default:
+                    status(state, "warn");
+                    break;
             }
 
-            if (state === "normal") {
+            if (state === 'connected') {
                 cad.disabled = false;
             } else {
                 cad.disabled = true;
                 xvpInit(0);
             }
 
-            if (typeof(msg) !== 'undefined') {
-                sb.setAttribute("class", "noVNC_status_" + level);
-                s.innerHTML = msg;
+        }
+        function disconnected(rfb, reason) {
+            if (typeof(reason) !== 'undefined') {
+                status(reason, "error");
             }
+        }
+        function notification(rfb, msg, level, options) {
+            status(msg, level);
         }
 
         window.onresize = function () {
@@ -220,7 +248,7 @@
             }
 
             if ((!host) || (!port)) {
-                updateState(null, 'fatal', null, 'Must specify host and port in URL');
+                status('Must specify host and port in URL', 'error');
                 return;
             }
 
@@ -233,12 +261,15 @@
                                'local_cursor': WebUtil.getConfigVar('cursor', true),
                                'shared':       WebUtil.getConfigVar('shared', true),
                                'view_only':    WebUtil.getConfigVar('view_only', false),
+                               'onNotification':  notification,
                                'onUpdateState':  updateState,
+                               'onDisconnected': disconnected,
                                'onXvpInit':    xvpInit,
                                'onPasswordRequired':  passwordRequired,
-                               'onFBUComplete': FBUComplete});
+                               'onFBUComplete': FBUComplete,
+                               'onDesktopName': updateDesktopName});
             } catch (exc) {
-                updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                status('Unable to create RFB client -- ' + exc, 'error');
                 return; // don't continue trying to connect
             }
 
