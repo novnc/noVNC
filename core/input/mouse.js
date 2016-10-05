@@ -31,7 +31,6 @@ export default function Mouse(defaults) {
     // Configuration attributes
     set_defaults(this, defaults, {
         'target': document,
-        'focused': true,
         'touchButton': 1
     });
 
@@ -52,8 +51,6 @@ Mouse.prototype = {
     },
 
     _handleMouseButton: function (e, down) {
-        if (!this._focused) { return; }
-
         this._updateMousePosition(e);
         var pos = this._pos;
 
@@ -156,7 +153,7 @@ Mouse.prototype = {
     },
 
     _handleMouseWheel: function (e) {
-        if (!this._focused || !this._onMouseButton) { return; }
+        if (!this._onMouseButton) { return; }
 
         this._resetWheelStepTimers();
 
@@ -201,8 +198,6 @@ Mouse.prototype = {
     },
 
     _handleMouseMove: function (e) {
-        if (! this._focused) { return; }
-
         this._updateMousePosition(e);
         if (this._onMouseMove) {
             this._onMouseMove(this._pos.x, this._pos.y);
@@ -211,8 +206,6 @@ Mouse.prototype = {
     },
 
     _handleMouseDisable: function (e) {
-        if (!this._focused) { return; }
-
         /*
          * Stop propagation if inside canvas area
          * Note: This is only needed for the 'click' event as it fails
@@ -292,7 +285,6 @@ Mouse.prototype = {
 
 make_properties(Mouse, [
     ['target',         'ro', 'dom'],   // DOM element that captures mouse input
-    ['focused',        'rw', 'bool'],  // Capture and send mouse clicks/movement
 
     ['onMouseButton',  'rw', 'func'],  // Handler for mouse button click/release
     ['onMouseMove',    'rw', 'func'],  // Handler for mouse movement

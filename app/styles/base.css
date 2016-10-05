@@ -870,6 +870,9 @@ select:active {
   /* IE miscalculates width without this :( */
   flex-shrink: 0;
 }
+#noVNC_canvas:focus {
+  outline: none;
+}
 
 /*Default noVNC logo.*/
 /* From: http://fonts.googleapis.com/css?family=Orbitron:700 */

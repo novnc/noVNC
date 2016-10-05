@@ -292,6 +292,8 @@ var UI = {
 
         document.documentElement
             .addEventListener('mousedown', UI.keepVirtualKeyboard, true);
+        document.documentElement
+            .addEventListener('touchstart', UI.keepVirtualKeyboard, true);
 
         document.getElementById("noVNC_control_bar")
             .addEventListener('touchstart', UI.activateControlbar);
@@ -356,10 +358,6 @@ var UI = {
     addClipboardHandlers: function() {
         document.getElementById("noVNC_clipboard_button")
             .addEventListener('click', UI.toggleClipboardPanel);
-        document.getElementById("noVNC_clipboard_text")
-            .addEventListener('focus', UI.displayBlur);
-        document.getElementById("noVNC_clipboard_text")
-            .addEventListener('blur', UI.displayFocus);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
         document.getElementById("noVNC_clipboard_clear_button")
@@ -440,6 +438,7 @@ var UI = {
                     msg = _("Connected (unencrypted) to ") + UI.desktopName;
                 }
                 UI.showStatus(msg);
+                document.getElementById('noVNC_canvas').focus();
                 break;
             case 'disconnecting':
                 UI.connected = false;
@@ -1492,7 +1491,14 @@ var UI = {
             }
         }
 
-        event.preventDefault();
+        // The default action of touchstart is to generate other
+        // events, which other elements might depend on. So we can't
+        // blindly prevent that. Instead restore focus right away.
+        if (event.type === "touchstart") {
+            setTimeout(input.focus.bind(input));
+        } else {
+            event.preventDefault();
+        }
     },
 
     keyboardinputReset: function() {
@@ -1659,20 +1665,6 @@ var UI = {
             } else {
                 button.classList.add("noVNC_hidden");
             }
-        }
-    },
-
-    displayBlur: function() {
-        if (UI.rfb && !UI.rfb.get_view_only()) {
-            UI.rfb.get_keyboard().set_focused(false);
-            UI.rfb.get_mouse().set_focused(false);
-        }
-    },
-
-    displayFocus: function() {
-        if (UI.rfb && !UI.rfb.get_view_only()) {
-            UI.rfb.get_keyboard().set_focused(true);
-            UI.rfb.get_mouse().set_focused(true);
         }
     },
 

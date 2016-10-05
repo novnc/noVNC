@@ -120,7 +120,6 @@ export default function RFB(defaults) {
     // set the default value on user-facing properties
     set_defaults(this, defaults, {
         'target': 'null',                       // VNC display rendering Canvas object
-        'focusContainer': document,             // DOM element that captures keyboard input
         'encrypt': false,                       // Use TLS/SSL/wss encryption
         'local_cursor': false,                  // Request locally rendered cursor
         'shared': true,                         // Request shared mode
@@ -171,7 +170,7 @@ export default function RFB(defaults) {
         throw exc;
     }
 
-    this._keyboard = new Keyboard({target: this._focusContainer,
+    this._keyboard = new Keyboard({target: this._target,
                                    onKeyEvent: this._handleKeyEvent.bind(this)});
 
     this._mouse = new Mouse({target: this._target,
@@ -385,11 +384,17 @@ RFB.prototype = {
             }
         }
 
+        // Always grab focus on some kind of click event
+        this._target.addEventListener("mousedown", this._focusCanvas);
+        this._target.addEventListener("touchstart", this._focusCanvas);
+
         Log.Debug("<< RFB.connect");
     },
 
     _disconnect: function () {
         Log.Debug(">> RFB.disconnect");
+        this._target.removeEventListener("mousedown", this._focusCanvas);
+        this._target.removeEventListener("touchstart", this._focusCanvas);
         this._cleanup();
         this._sock.close();
         this._print_stats();
@@ -446,6 +451,13 @@ RFB.prototype = {
             // debug mode
             this._display.clear();
         }
+    },
+
+    // Event handler for canvas so this points to the canvas element
+    _focusCanvas: function(event) {
+        // Respect earlier handlers' request to not do side-effects
+        if (!event.defaultPrevented)
+            this.focus();
     },
 
     /*
@@ -1457,7 +1469,6 @@ RFB.prototype = {
 
 make_properties(RFB, [
     ['target', 'wo', 'dom'],                // VNC display rendering Canvas object
-    ['focusContainer', 'wo', 'dom'],        // DOM element that captures keyboard input
     ['encrypt', 'rw', 'bool'],              // Use TLS/SSL/wss encryption
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
