@@ -457,11 +457,15 @@ select:active {
   padding-top: 5px;
   padding-bottom: 3px;
 }
-:root:not(.noVNC_touch) .noVNC_button.noVNC_selected:hover {
+/* Android browsers don't properly update hover state if touch events
+ * are intercepted, but focus should be safe to display */
+:root:not(.noVNC_touch) .noVNC_button.noVNC_selected:hover,
+.noVNC_button.noVNC_selected:focus {
   border-color: rgba(0, 0, 0, 0.4);
   background: rgba(0, 0, 0, 0.2);
 }
-:root:not(.noVNC_touch) .noVNC_button:hover {
+:root:not(.noVNC_touch) .noVNC_button:hover,
+.noVNC_button:focus {
   background: rgba(255, 255, 255, 0.2);
 }
 .noVNC_button.noVNC_hidden {
