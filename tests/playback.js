@@ -9,7 +9,7 @@
 /*global Util, VNC_frame_data, finish */
 
 var rfb, mode, test_state, frame_idx, frame_length,
-    iteration, iterations, istart_time,
+    iteration, iterations, istart_time, encoding,
 
     // Pre-declarations for jslint
     send_array, next_iteration, queue_next_packet, do_packet, enable_test_mode;
@@ -20,7 +20,6 @@ send_array = function (arr) {
 };
 
 enable_test_mode = function () {
-    rfb._sock._mode = VNC_frame_encoding;
     rfb._sock.send = send_array;
     rfb._sock.close = function () {};
     rfb._sock.flush = function () {};
@@ -39,6 +38,19 @@ next_iteration = function () {
     rfb = new RFB({'target': document.getElementById('VNC_canvas'),
                    'onUpdateState': updateState});
     enable_test_mode();
+
+    // Missing in older recordings
+    if (typeof VNC_frame_encoding === 'undefined') {
+        var frame = VNC_frame_data[0];
+        var start = frame.indexOf('{', 1) + 1;
+        if (frame.slice(start).startsWith('UkZC')) {
+            encoding = 'base64';
+        } else {
+            encoding = 'binary';
+        }
+    } else {
+        encoding = VNC_frame_encoding;
+    }
 
     if (iteration === 0) {
         frame_length = VNC_frame_data.length;
@@ -93,7 +105,7 @@ queue_next_packet = function () {
 
         setTimeout(do_packet, delay);
     } else {
-        setTimeout(do_packet, 1);
+        setTimeout(do_packet, 0);
     }
 };
 
@@ -103,16 +115,18 @@ do_packet = function () {
     //Util.Debug("Processing frame: " + frame_idx);
     var frame = VNC_frame_data[frame_idx],
         start = frame.indexOf('{', 1) + 1;
-    bytes_processed += frame.length - start;
-    if (VNC_frame_encoding === 'binary') {
-        var u8 = new Uint8Array(frame.length - start);
+    var u8;
+    if (encoding === 'base64') {
+        u8 = Base64.decode(frame.slice(start));
+        start = 0;
+    } else {
+        u8 = new Uint8Array(frame.length - start);
         for (var i = 0; i < frame.length - start; i++) {
             u8[i] = frame.charCodeAt(start + i);
         }
-        rfb._sock._recv_message({'data' : u8});
-    } else {
-        rfb._sock._recv_message({'data' : frame.slice(start)});
     }
+    bytes_processed += u8.length;
+    rfb._sock._recv_message({'data' : u8});
     frame_idx += 1;
 
     queue_next_packet();
