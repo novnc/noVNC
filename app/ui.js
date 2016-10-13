@@ -426,6 +426,19 @@ var UI;
                 UI.keepControlbar();
             }
 
+            // Hide input related buttons in view only mode
+            if (UI.rfb && UI.rfb.get_view_only()) {
+                document.getElementById('noVNC_keyboard_button')
+                    .classList.add('noVNC_hidden');
+                document.getElementById('noVNC_toggle_extra_keys_button')
+                    .classList.add('noVNC_hidden');
+            } else {
+                document.getElementById('noVNC_keyboard_button')
+                    .classList.remove('noVNC_hidden');
+                document.getElementById('noVNC_toggle_extra_keys_button')
+                    .classList.remove('noVNC_hidden');
+            }
+
             // State change disables viewport dragging.
             // It is enabled (toggled) by direct click on the button
             UI.setViewDrag(false);
@@ -831,7 +844,7 @@ var UI;
 
         // Disable/enable XVP button
         updateXvpButton: function(ver) {
-            if (ver >= 1) {
+            if (ver >= 1 && !UI.rfb.get_view_only()) {
                 document.getElementById('noVNC_xvp_button')
                     .classList.remove("noVNC_hidden");
             } else {
@@ -1516,14 +1529,16 @@ var UI;
  * ------v------*/
 
         setMouseButton: function(num) {
-            if (UI.rfb && !UI.rfb.get_view_only()) {
+            var view_only = UI.rfb.get_view_only();
+            if (UI.rfb && !view_only) {
                 UI.rfb.get_mouse().set_touchButton(num);
             }
 
             var blist = [0, 1,2,4];
             for (var b = 0; b < blist.length; b++) {
-                var button = document.getElementById('noVNC_mouse_button' + blist[b]);
-                if (blist[b] === num) {
+                var button = document.getElementById('noVNC_mouse_button' +
+                                                     blist[b]);
+                if (blist[b] === num && !view_only) {
                     button.classList.remove("noVNC_hidden");
                 } else {
                     button.classList.add("noVNC_hidden");
