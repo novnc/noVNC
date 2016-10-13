@@ -1147,7 +1147,6 @@ var UI;
 
         // Update parameters that depend on the clip setting
         updateViewClip: function() {
-            var display;
             if (!UI.rfb) return;
 
             var display = UI.rfb.get_display();
