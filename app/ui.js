@@ -14,6 +14,7 @@
 /* [module]
  * import Util from "../core/util";
  * import KeyTable from "../core/input/keysym";
+ * import keysyms from "./keysymdef";
  * import RFB from "../core/rfb";
  * import Display from "../core/display";
  * import WebUtil from "./webutil";
@@ -1411,7 +1412,7 @@ var UI;
                 UI.rfb.sendKey(KeyTable.XK_BackSpace);
             }
             for (i = newLen - inputs; i < newLen; i++) {
-                UI.rfb.sendKey(newValue.charCodeAt(i));
+                UI.rfb.sendKey(keysyms.fromUnicode(newValue.charCodeAt(i)).keysym);
             }
 
             // Control the text content length in the keyboardinput element
