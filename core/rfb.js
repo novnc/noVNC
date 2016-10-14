@@ -318,15 +318,15 @@
 
         // Send a key press. If 'down' is not specified then send a down key
         // followed by an up key.
-        sendKey: function (code, down) {
+        sendKey: function (keysym, down) {
             if (this._rfb_connection_state !== 'connected' || this._view_only) { return false; }
             if (typeof down !== 'undefined') {
-                Util.Info("Sending key code (" + (down ? "down" : "up") + "): " + code);
-                RFB.messages.keyEvent(this._sock, code, down ? 1 : 0);
+                Util.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
+                RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
             } else {
-                Util.Info("Sending key code (down + up): " + code);
-                RFB.messages.keyEvent(this._sock, code, 1);
-                RFB.messages.keyEvent(this._sock, code, 0);
+                Util.Info("Sending keysym (down + up): " + keysym);
+                RFB.messages.keyEvent(this._sock, keysym, 1);
+                RFB.messages.keyEvent(this._sock, keysym, 0);
             }
             return true;
         },
