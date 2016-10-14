@@ -184,10 +184,7 @@ var KeyboardUtil = {};
             codepoint = evt.keyCode;
         }
         if (codepoint) {
-            var res = keysyms.fromUnicode(substituteCodepoint(codepoint));
-            if (res) {
-                return res;
-            }
+            return keysyms.fromUnicode(substituteCodepoint(codepoint));
         }
         // we could check evt.key here.
         // Legal values are defined in http://www.w3.org/TR/DOM-Level-3-Events/#key-values-list,

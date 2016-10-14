@@ -10,7 +10,13 @@ var keysyms = (function(){
 
     function lookup(k) { return k ? {keysym: k, keyname: keynames ? keynames[k] : k} : undefined; }
     return {
-        fromUnicode : function(u) { return lookup(codepoints[u]); },
+        fromUnicode : function(u) {
+            var keysym = codepoints[u];
+            if (keysym === undefined) {
+                keysym = 0x01000000 | u;
+            }
+            return lookup(keysym);
+        },
         lookup : lookup
     };
 })();
