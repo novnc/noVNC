@@ -556,6 +556,11 @@ var UI;
                 .getBoundingClientRect();
             var margin = 10;
 
+            // These heights need to be non-zero for the below logic to work
+            if (handleHeight === 0 || controlbarBounds.height === 0) {
+                return;
+            }
+
             var newY = viewportRelativeY;
 
             // Check if the coordinates are outside the control bar
