@@ -549,37 +549,44 @@ var UI;
         },
 
         // Move the handle but don't allow any position outside the bounds
-        moveControlbarHandle: function (posY) {
+        moveControlbarHandle: function (viewportRelativeY) {
             var handle = document.getElementById("noVNC_control_bar_handle");
-            var handleHeight = Util.getPosition(handle).height;
-            var controlbar = document.getElementById("noVNC_control_bar");
-            var controlbarBounds = Util.getPosition(controlbar);
-            var controlbarTop = controlbarBounds.y;
-            var controlbarBottom = controlbarBounds.y + controlbarBounds.height;
+            var handleHeight = handle.getBoundingClientRect().height;
+            var controlbarBounds = document.getElementById("noVNC_control_bar")
+                .getBoundingClientRect();
             var margin = 10;
 
-            var viewportY = posY;
+            var newY = viewportRelativeY;
 
-            // Refuse coordinates outside the control bar
-            if (viewportY < controlbarTop + margin) {
-                viewportY = controlbarTop + margin;
-            } else if (viewportY > controlbarBottom - handleHeight - margin) {
-                viewportY = controlbarBottom - handleHeight - margin;
+            // Check if the coordinates are outside the control bar
+            if (newY < controlbarBounds.top + margin) {
+                // Force coordinates to be below the top of the control bar
+                newY = controlbarBounds.top + margin;
+
+            } else if (newY > controlbarBounds.top +
+                       controlbarBounds.height - handleHeight - margin) {
+                // Force coordinates to be above the bottom of the control bar
+                newY = controlbarBounds.top +
+                    controlbarBounds.height - handleHeight - margin;
             }
 
             // Corner case: control bar too small for stable position
             if (controlbarBounds.height < (handleHeight + margin * 2)) {
-                viewportY = controlbarTop + (controlbarBounds.height - handleHeight) / 2;
+                newY = controlbarBounds.top +
+                    (controlbarBounds.height - handleHeight) / 2;
             }
 
-            var relativeY = viewportY - controlbarTop;
-            handle.style.transform = "translateY(" + relativeY + "px)";
+            // The transform needs coordinates that are relative to the parent
+            var parentRelativeY = newY - controlbarBounds.top;
+            handle.style.transform = "translateY(" + parentRelativeY + "px)";
         },
 
         updateControlbarHandle: function () {
+            // Since the control bar is fixed on the viewport and not the page,
+            // the move function expects coordinates relative the the viewport.
             var handle = document.getElementById("noVNC_control_bar_handle");
-            var pos = Util.getPosition(handle);
-            UI.moveControlbarHandle(pos.y);
+            var handleBounds = handle.getBoundingClientRect();
+            UI.moveControlbarHandle(handleBounds.top);
         },
 
         controlbarHandleMouseUp: function(e) {
