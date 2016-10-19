@@ -110,8 +110,10 @@ var XtScancode = {
     "PageDown": 0xE051,
     "Insert": 0xE052,
     "Delete": 0xE053,
-    "OSLeft": 0xE05B,
-    "OSRight": 0xE05C,
+    "MetaLeft": 0xE05B,
+    "MetaRight": 0xE05C,
+    "OSLeft": 0xE05B,  // OSLeft and OSRight are kept for compatability since
+    "OSRight": 0xE05C, // Firefox haven't updated to MetaLeft and MetaRight yet
     "ContextMenu": 0xE05D,
     "BrowserSearch": 0xE065,
     "BrowserFavorites": 0xE066,
