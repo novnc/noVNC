@@ -349,7 +349,9 @@ var UI;
                                   'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
-                UI.showStatus('Unable to create RFB client -- ' + exc, 'error');
+                var msg = 'Unable to create RFB client -- ' + exc;
+                Util.Error(msg);
+                UI.showStatus(msg, 'error');
                 return false;
             }
         },
@@ -420,6 +422,19 @@ var UI;
                 document.documentElement.classList.remove("noVNC_connected");
                 UI.updateXvpButton(0);
                 UI.keepControlbar();
+            }
+
+            // Hide input related buttons in view only mode
+            if (UI.rfb && UI.rfb.get_view_only()) {
+                document.getElementById('noVNC_keyboard_button')
+                    .classList.add('noVNC_hidden');
+                document.getElementById('noVNC_toggle_extra_keys_button')
+                    .classList.add('noVNC_hidden');
+            } else {
+                document.getElementById('noVNC_keyboard_button')
+                    .classList.remove('noVNC_hidden');
+                document.getElementById('noVNC_toggle_extra_keys_button')
+                    .classList.remove('noVNC_hidden');
             }
 
             // State change disables viewport dragging.
@@ -839,7 +854,7 @@ var UI;
 
         // Disable/enable XVP button
         updateXvpButton: function(ver) {
-            if (ver >= 1) {
+            if (ver >= 1 && !UI.rfb.get_view_only()) {
                 document.getElementById('noVNC_xvp_button')
                     .classList.remove("noVNC_hidden");
             } else {
@@ -1094,18 +1109,21 @@ var UI;
                         display.set_maxWidth(screen.w);
                         display.set_maxHeight(screen.h);
 
-                        Util.Debug('Attempting requestDesktopSize(' +
-                                   screen.w + ', ' + screen.h + ')');
-
                         // Request a remote size covering the viewport
-                        UI.rfb.requestDesktopSize(screen.w, screen.h);
+                        if (UI.rfb.requestDesktopSize(screen.w, screen.h)) {
+                            Util.Debug('Requested new desktop size: ' +
+                                       screen.w + 'x' + screen.h);
+                        }
                     }, 500);
 
                 } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
                     var downscaleOnly = resizeMode === 'downscale';
                     var scaleRatio = display.autoscale(screen.w, screen.h, downscaleOnly);
-                    UI.rfb.get_mouse().set_scale(scaleRatio);
-                    Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+
+                    if (!UI.rfb.get_view_only()) {
+                        UI.rfb.get_mouse().set_scale(scaleRatio);
+                        Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
+                    }
                 }
             }
         },
@@ -1522,14 +1540,16 @@ var UI;
  * ------v------*/
 
         setMouseButton: function(num) {
-            if (UI.rfb) {
+            var view_only = UI.rfb.get_view_only();
+            if (UI.rfb && !view_only) {
                 UI.rfb.get_mouse().set_touchButton(num);
             }
 
             var blist = [0, 1,2,4];
             for (var b = 0; b < blist.length; b++) {
-                var button = document.getElementById('noVNC_mouse_button' + blist[b]);
-                if (blist[b] === num) {
+                var button = document.getElementById('noVNC_mouse_button' +
+                                                     blist[b]);
+                if (blist[b] === num && !view_only) {
                     button.classList.remove("noVNC_hidden");
                 } else {
                     button.classList.add("noVNC_hidden");
@@ -1538,17 +1558,17 @@ var UI;
         },
 
         displayBlur: function() {
-            if (!UI.rfb) return;
-
-            UI.rfb.get_keyboard().set_focused(false);
-            UI.rfb.get_mouse().set_focused(false);
+            if (UI.rfb && !UI.rfb.get_view_only()) {
+                UI.rfb.get_keyboard().set_focused(false);
+                UI.rfb.get_mouse().set_focused(false);
+            }
         },
 
         displayFocus: function() {
-            if (!UI.rfb) return;
-
-            UI.rfb.get_keyboard().set_focused(true);
-            UI.rfb.get_mouse().set_focused(true);
+            if (UI.rfb && !UI.rfb.get_view_only()) {
+                UI.rfb.get_keyboard().set_focused(true);
+                UI.rfb.get_mouse().set_focused(true);
+            }
         },
 
         updateDesktopName: function(rfb, name) {
