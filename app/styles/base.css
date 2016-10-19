@@ -527,6 +527,7 @@ input[type=button]:active, select:active {
  * scaling will occur. Canvas size depends on remote VNC
  * settings and noVNC settings. */
 #noVNC_canvas {
+  touch-action: none;
   position: absolute;
   left: 0;
   right: 0;
