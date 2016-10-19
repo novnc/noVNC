@@ -1219,7 +1219,8 @@ var UI;
                 UI.rememberedClipSetting = UI.getSetting('clip');
                 UI.setViewClip(true);
                 document.getElementById('noVNC_setting_clip').disabled = true;
-            } else if (document.body.msRequestFullscreen && UI.rememberedClip !== null) {
+            } else if (document.body.msRequestFullscreen &&
+                       UI.rememberedClipSetting !== null) {
                 // Restore view clip to what it was before fullscreen on IE
                 UI.setViewClip(UI.rememberedClipSetting);
                 document.getElementById('noVNC_setting_clip').disabled =
