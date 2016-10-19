@@ -51,7 +51,6 @@ var UI;
         controlbarMouseDownOffsetY: 0,
         keyboardVisible: false,
 
-        isTouchDevice: false,
         isSafari: false,
         rememberedClipSetting: null,
         lastKeyboardinput: null,
@@ -67,14 +66,13 @@ var UI;
         start: function(callback) {
 
             // Setup global variables first
-            UI.isTouchDevice = 'ontouchstart' in document.documentElement;
             UI.isSafari = (navigator.userAgent.indexOf('Safari') !== -1 &&
                            navigator.userAgent.indexOf('Chrome') === -1);
 
             UI.initSettings();
 
             // Adapt the interface for touch screen devices
-            if (UI.isTouchDevice) {
+            if (Util.isTouchDevice) {
                 document.documentElement.classList.add("noVNC_touch");
                 // Remove the address bar
                 setTimeout(function() { window.scrollTo(0, 1); }, 100);
@@ -160,7 +158,7 @@ var UI;
             UI.initSetting('password', '');
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
             UI.initSetting('true_color', true);
-            UI.initSetting('cursor', !UI.isTouchDevice);
+            UI.initSetting('cursor', !Util.isTouchDevice);
             UI.initSetting('resize', 'off');
             UI.initSetting('shared', true);
             UI.initSetting('view_only', false);
@@ -400,7 +398,7 @@ var UI;
             if (Util.browserSupportsCursorURIs()) {
                 document.getElementById('noVNC_setting_cursor').disabled = UI.connected;
             } else {
-                UI.updateSetting('cursor', !UI.isTouchDevice);
+                UI.updateSetting('cursor', !Util.isTouchDevice);
                 document.getElementById('noVNC_setting_cursor').disabled = true;
             }
 
@@ -769,7 +767,7 @@ var UI;
             if (Util.browserSupportsCursorURIs()) {
                 UI.updateSetting('cursor');
             } else {
-                UI.updateSetting('cursor', !UI.isTouchDevice);
+                UI.updateSetting('cursor', !Util.isTouchDevice);
                 document.getElementById('noVNC_setting_cursor').disabled = true;
             }
             UI.updateSetting('clip');
@@ -1224,11 +1222,11 @@ var UI;
                 // Restore view clip to what it was before fullscreen on IE
                 UI.setViewClip(UI.rememberedClipSetting);
                 document.getElementById('noVNC_setting_clip').disabled =
-                    UI.connected || UI.isTouchDevice;
+                    UI.connected || Util.isTouchDevice;
             } else {
                 document.getElementById('noVNC_setting_clip').disabled =
-                    UI.connected || UI.isTouchDevice;
-                if (UI.isTouchDevice) {
+                    UI.connected || Util.isTouchDevice;
+                if (Util.isTouchDevice) {
                     UI.setViewClip(true);
                 }
             }
@@ -1286,7 +1284,7 @@ var UI;
 
             // Different behaviour for touch vs non-touch
             // The button is disabled instead of hidden on touch devices
-            if (UI.isTouchDevice) {
+            if (Util.isTouchDevice) {
                 viewDragButton.classList.remove("noVNC_hidden");
 
                 if (clipping) {
@@ -1312,7 +1310,7 @@ var UI;
  * ------v------*/
 
         showVirtualKeyboard: function() {
-            if (!UI.isTouchDevice) return;
+            if (!Util.isTouchDevice) return;
 
             var input = document.getElementById('noVNC_keyboardinput');
 
@@ -1331,7 +1329,7 @@ var UI;
         },
 
         hideVirtualKeyboard: function() {
-            if (!UI.isTouchDevice) return;
+            if (!Util.isTouchDevice) return;
 
             var input = document.getElementById('noVNC_keyboardinput');
 

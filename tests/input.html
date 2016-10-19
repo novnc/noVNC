@@ -119,7 +119,7 @@
             mouse.grab();
             message("Display initialized");
 
-            if ('ontouchstart' in document.documentElement) {
+            if (Util.isTouchDevice) {
                 message("Touch device detected");
                 document.getElementById('button-selection').style.display = "inline";
                 document.getElementById('button1').onclick = function(){ selectButton(1) };
