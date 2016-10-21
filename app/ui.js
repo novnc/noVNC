@@ -49,7 +49,6 @@ var UI;
         controlbarDrag: false,
         controlbarMouseDownClientY: 0,
         controlbarMouseDownOffsetY: 0,
-        keyboardVisible: false,
 
         isSafari: false,
         rememberedClipSetting: null,
@@ -235,9 +234,14 @@ var UI;
             document.getElementById("noVNC_keyboardinput")
                 .addEventListener('input', UI.keyInput);
             document.getElementById("noVNC_keyboardinput")
+                .addEventListener('focus', UI.onfocusVirtualKeyboard);
+            document.getElementById("noVNC_keyboardinput")
                 .addEventListener('blur', UI.onblurVirtualKeyboard);
             document.getElementById("noVNC_keyboardinput")
                 .addEventListener('submit', function () { return false; });
+
+            document.documentElement
+                .addEventListener('mousedown', UI.keepVirtualKeyboard, true);
 
             document.getElementById("noVNC_control_bar")
                 .addEventListener('touchstart', UI.activateControlbar);
@@ -1334,9 +1338,6 @@ var UI;
 
             if (document.activeElement == input) return;
 
-            UI.keyboardVisible = true;
-            document.getElementById('noVNC_keyboard_button')
-                .classList.add("noVNC_selected");
             input.focus();
 
             try {
@@ -1357,31 +1358,44 @@ var UI;
         },
 
         toggleVirtualKeyboard: function () {
-            if (UI.keyboardVisible) {
+            if (document.getElementById('noVNC_keyboard_button')
+                .classList.contains("noVNC_selected")) {
                 UI.hideVirtualKeyboard();
             } else {
                 UI.showVirtualKeyboard();
             }
         },
 
-        onblurVirtualKeyboard: function() {
-            //Weird bug in iOS if you change keyboardVisible
-            //here it does not actually occur so next time
-            //you click keyboard icon it doesnt work.
-            UI.hideKeyboardTimeout = setTimeout(function() {
-                UI.keyboardVisible = false;
-                document.getElementById('noVNC_keyboard_button')
-			.classList.remove("noVNC_selected");
-            },100);
+        onfocusVirtualKeyboard: function(event) {
+            document.getElementById('noVNC_keyboard_button')
+                .classList.add("noVNC_selected");
         },
 
-        keepKeyboard: function() {
-            clearTimeout(UI.hideKeyboardTimeout);
-            if(UI.keyboardVisible === true) {
-                UI.showVirtualKeyboard();
-            } else if(UI.keyboardVisible === false) {
-                UI.hideVirtualKeyboard();
+        onblurVirtualKeyboard: function(event) {
+            document.getElementById('noVNC_keyboard_button')
+                .classList.remove("noVNC_selected");
+        },
+
+        keepVirtualKeyboard: function(event) {
+            var input = document.getElementById('noVNC_keyboardinput');
+
+            // Only prevent focus change if the virtual keyboard is active
+            if (document.activeElement != input) {
+                return;
             }
+
+            // Allow clicking on links
+            if (event.target.tagName === "a") {
+                return;
+            }
+
+            // And form elements, except standard noVNC buttons
+            if ((event.target.form !== undefined) &&
+                !event.target.classList.contains("noVNC_button")) {
+                return;
+            }
+
+            event.preventDefault();
         },
 
         keyboardinputReset: function() {
@@ -1455,7 +1469,7 @@ var UI;
                 // text has been added to the field
                 event.target.blur();
                 // This has to be ran outside of the input handler in order to work
-                setTimeout(UI.keepKeyboard, 0);
+                setTimeout(event.target.focus.bind(event.target), 0);
             } else {
                 UI.lastKeyboardinput = newValue;
             }
@@ -1485,7 +1499,6 @@ var UI;
         },
 
         toggleExtraKeys: function() {
-            UI.keepKeyboard();
             if(document.getElementById('noVNC_modifiers')
                 .classList.contains("noVNC_open")) {
                 UI.closeExtraKeys();
@@ -1495,17 +1508,14 @@ var UI;
         },
 
         sendEsc: function() {
-            UI.keepKeyboard();
             UI.rfb.sendKey(KeyTable.XK_Escape);
         },
 
         sendTab: function() {
-            UI.keepKeyboard();
             UI.rfb.sendKey(KeyTable.XK_Tab);
         },
 
         toggleCtrl: function() {
-            UI.keepKeyboard();
             var btn = document.getElementById('noVNC_toggle_ctrl_button');
             if (btn.classList.contains("noVNC_selected")) {
                 UI.rfb.sendKey(KeyTable.XK_Control_L, false);
@@ -1517,7 +1527,6 @@ var UI;
         },
 
         toggleAlt: function() {
-            UI.keepKeyboard();
             var btn = document.getElementById('noVNC_toggle_alt_button');
             if (btn.classList.contains("noVNC_selected")) {
                 UI.rfb.sendKey(KeyTable.XK_Alt_L, false);
@@ -1529,7 +1538,6 @@ var UI;
         },
 
         sendCtrlAltDel: function() {
-            UI.keepKeyboard();
             UI.rfb.sendCtrlAltDel();
         },
 
