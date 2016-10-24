@@ -1131,8 +1131,7 @@ var UI;
             }
         },
 
-        // The screen is always the same size as the available viewport
-        // in the browser window minus the height of the control bar
+        // Gets the the size of the available viewport in the browser window
         screenSize: function() {
             var screen = document.getElementById('noVNC_screen');
 
