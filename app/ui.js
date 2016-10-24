@@ -363,6 +363,7 @@ var UI;
  * ------v------*/
 
         updateState: function(rfb, state, oldstate) {
+            var msg;
             switch (state) {
                 case 'connecting':
                     UI.showStatus("Connecting");
@@ -370,12 +371,11 @@ var UI;
                 case 'connected':
                     UI.connected = true;
                     if (rfb && rfb.get_encrypt()) {
-                        UI.showStatus("Connected (encrypted) to " +
-                                      UI.desktopName);
+                        msg = "Connected (encrypted) to " + UI.desktopName;
                     } else {
-                        UI.showStatus("Connected (unencrypted) to " +
-                                      UI.desktopName);
+                        msg = "Connected (unencrypted) to " + UI.desktopName;
                     }
+                    UI.showStatus(msg);
                     break;
                 case 'disconnecting':
                     UI.showStatus("Disconnecting");
