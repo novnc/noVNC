@@ -1024,7 +1024,7 @@ var UI;
             if (typeof msg === 'undefined') {
                 msg = "Password is required";
             }
-            Util.Warning(msg);
+            Util.Warn(msg);
             UI.showStatus(msg, "warning");
         },
 
