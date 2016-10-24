@@ -19,6 +19,42 @@ send_array = function (arr) {
     // Stub out send_array
 };
 
+// Immediate polyfill
+if (window.setImmediate === undefined) {
+    var _immediateIdCounter = 1;
+    var _immediateFuncs = {};
+
+    window.setImmediate = function (func) {
+        var index = Util._immediateIdCounter++;
+        _immediateFuncs[index] = func;
+        window.postMessage("noVNC immediate trigger:" + index, "*");
+        return index;
+    };
+
+    window.clearImmediate = function (id) {
+        _immediateFuncs[id];
+    };
+
+    var _onMessage = function (event) {
+        if ((typeof event.data !== "string") ||
+            (event.data.indexOf("noVNC immediate trigger:") !== 0)) {
+            return;
+        }
+
+        var index = event.data.slice("noVNC immediate trigger:".length);
+
+        var callback = _immediateFuncs[index];
+        if (callback === undefined) {
+            return;
+        }
+
+        delete _immediateFuncs[index];
+
+        callback();
+    };
+    window.addEventListener("message", _onMessage);
+}
+
 enable_test_mode = function () {
     rfb._sock.send = send_array;
     rfb._sock.close = function () {};
@@ -108,7 +144,7 @@ queue_next_packet = function () {
 
         setTimeout(do_packet, delay);
     } else {
-        setTimeout(do_packet, 0);
+        window.setImmediate(do_packet);
     }
 };
 
