@@ -30,13 +30,15 @@ enable_test_mode = function () {
         this._rfb_password = (password !== undefined) ? password : "";
         this._rfb_path = (path !== undefined) ? path : "";
         this._sock.init('binary', 'ws');
-        this._updateState('ProtocolVersion', "Starting VNC handshake");
+        this._rfb_connection_state = 'connecting';
+        this._rfb_init_state = 'ProtocolVersion';
     };
 };
 
 next_iteration = function () {
     rfb = new RFB({'target': document.getElementById('VNC_canvas'),
-                   'onUpdateState': updateState});
+                   'onDisconnected': disconnected,
+                   'onNotification': notification});
     enable_test_mode();
 
     // Missing in older recordings
