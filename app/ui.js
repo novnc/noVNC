@@ -168,11 +168,9 @@ var UI;
         },
 
         setupWindowEvents: function() {
-            window.addEventListener( 'resize', function () {
-                UI.applyResizeMode();
-                UI.updateViewClip();
-                UI.updateViewDrag();
-            } );
+            window.addEventListener('resize', UI.applyResizeMode);
+            window.addEventListener('resize', UI.updateViewClip);
+            window.addEventListener('resize', UI.updateViewDrag);
 
             document.getElementById("noVNC_status")
                 .addEventListener('click', UI.hideStatus);
