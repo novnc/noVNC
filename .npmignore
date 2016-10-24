@@ -1,6 +1,5 @@
 app
 core
-favicon.ico
 .gitmodules
 node_modules
 .*
