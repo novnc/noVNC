@@ -385,7 +385,9 @@ var UI;
                     UI.showStatus("Disconnected");
                     break;
                 default:
-                    UI.showStatus("Invalid state", 'error');
+                    msg = "Invalid UI state";
+                    Util.Error(msg);
+                    UI.showStatus(msg, 'error');
                     break;
             }
 
@@ -967,7 +969,9 @@ var UI;
             }
 
             if ((!host) || (!port)) {
-                UI.showStatus("Must set host and port", 'error');
+                var msg = "Must set host and port";
+                Util.Error(msg);
+                UI.showStatus(msg, 'error');
                 return;
             }
 
@@ -1020,6 +1024,7 @@ var UI;
             if (typeof msg === 'undefined') {
                 msg = "Password is required";
             }
+            Util.Warning(msg);
             UI.showStatus(msg, "warning");
         },
 
@@ -1231,7 +1236,10 @@ var UI;
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
                 //   scrollbars doesn't work.
-                UI.showStatus("Forcing clipping mode since scrollbars aren't supported by IE in fullscreen");
+                var msg = "Forcing clipping mode since scrollbars aren't" +
+                    "supported by IE in fullscreen";
+                Util.Debug(msg);
+                UI.showStatus(msg);
                 UI.rememberedClipSetting = UI.getSetting('clip');
                 UI.setViewClip(true);
                 document.getElementById('noVNC_setting_clip').disabled = true;
