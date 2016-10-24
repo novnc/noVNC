@@ -12,7 +12,8 @@ var rfb, mode, test_state, frame_idx, frame_length,
     iteration, iterations, istart_time, encoding,
 
     // Pre-declarations for jslint
-    send_array, next_iteration, queue_next_packet, do_packet, enable_test_mode;
+    send_array, next_iteration, end_iteration, queue_next_packet,
+    do_packet, enable_test_mode;
 
 // Override send_array
 send_array = function (arr) {
@@ -112,6 +113,20 @@ next_iteration = function () {
 
 };
 
+end_iteration = function () {
+    if (rfb._display.pending()) {
+        rfb._display.set_onFlush(function () {
+            if (rfb._flushing) {
+                rfb._onFlush();
+            }
+            end_iteration();
+        });
+        rfb._display.flush();
+    } else {
+        next_iteration();
+    }
+};
+
 queue_next_packet = function () {
     var frame, foffset, toffset, delay;
     if (test_state !== 'running') { return; }
@@ -125,12 +140,12 @@ queue_next_packet = function () {
 
     if (frame === 'EOF') {
         Util.Debug("Finished, found EOF");
-        next_iteration();
+        end_iteration();
         return;
     }
     if (frame_idx >= frame_length) {
         Util.Debug("Finished, no more frames");
-        next_iteration();
+        end_iteration();
         return;
     }
 
@@ -151,6 +166,16 @@ queue_next_packet = function () {
 var bytes_processed = 0;
 
 do_packet = function () {
+    // Avoid having an excessive queue buildup
+    if (rfb._flushing && (mode !== 'realtime')) {
+        rfb._display.set_onFlush(function () {
+            rfb._display.set_onFlush(rfb._onFlush.bind(rfb));
+            rfb._onFlush();
+            do_packet();
+        });
+        return;
+    }
+
     //Util.Debug("Processing frame: " + frame_idx);
     var frame = VNC_frame_data[frame_idx],
         start = frame.indexOf('{', 1) + 1;
