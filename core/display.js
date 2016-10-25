@@ -69,6 +69,10 @@
     this._backbuffer = document.createElement('canvas');
     this._drawCtx = this._backbuffer.getContext('2d');
 
+    this._damageBounds = { left:0, top:0,
+                           right: this._backbuffer.width,
+                           bottom: this._backbuffer.height };
+
     Util.Debug("User Agent: " + navigator.userAgent);
     if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
     if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
@@ -149,6 +153,8 @@
             vp.x += deltaX;
             vp.y += deltaY;
 
+            this._damage(vp.x, vp.y, vp.w, vp.h);
+
             this.flip();
         },
 
@@ -186,6 +192,7 @@
                         canvas.height = height;
                         canvas.style.height = height + 'px';
                     }
+                    this._damage(vp.x, vp.y, vp.w, vp.h);
                     this.flip();
                 }
             }
@@ -231,6 +238,22 @@
             this.viewportChangeSize();
         },
 
+        // Track what parts of the visible canvas that need updating
+        _damage: function(x, y, w, h) {
+            if (x < this._damageBounds.left) {
+                this._damageBounds.left = x;
+            }
+            if (y < this._damageBounds.top) {
+                this._damageBounds.top = y;
+            }
+            if ((x + w) > this._damageBounds.right) {
+                this._damageBounds.right = x + w;
+            }
+            if ((y + h) > this._damageBounds.bottom) {
+                this._damageBounds.bottom = y + h;
+            }
+        },
+
         // Update the visible canvas with the contents of the
         // rendering canvas
         flip: function(from_queue) {
@@ -239,17 +262,45 @@
                     'type': 'flip'
                 });
             } else {
-                // FIXME: We may need to disable image smoothing here
-                //        as well (see copyImage()), but we haven't
-                //        noticed any problem yet.
-                this._targetCtx.drawImage(this._backbuffer,
-                                          this._viewportLoc.x,
-                                          this._viewportLoc.y,
-                                          this._viewportLoc.w,
-                                          this._viewportLoc.h,
-                                          0, 0,
-                                          this._viewportLoc.w,
-                                          this._viewportLoc.h);
+                var x, y, vx, vy, w, h;
+
+                x = this._damageBounds.left;
+                y = this._damageBounds.top;
+                w = this._damageBounds.right - x;
+                h = this._damageBounds.bottom - y;
+
+                vx = x - this._viewportLoc.x;
+                vy = y - this._viewportLoc.y;
+
+                if (vx < 0) {
+                    w += vx;
+                    x -= vx;
+                    vx = 0;
+                }
+                if (vy < 0) {
+                    h += vy;
+                    y -= vy;
+                    vy = 0;
+                }
+
+                if ((vx + w) > this._viewportLoc.w) {
+                    w = this._viewportLoc.w - vx;
+                }
+                if ((vy + h) > this._viewportLoc.h) {
+                    h = this._viewportLoc.h - vy;
+                }
+
+                if ((w > 0) && (h > 0)) {
+                    // FIXME: We may need to disable image smoothing here
+                    //        as well (see copyImage()), but we haven't
+                    //        noticed any problem yet.
+                    this._targetCtx.drawImage(this._backbuffer,
+                                              x, y, w, h,
+                                              vx, vy, w, h);
+                }
+
+                this._damageBounds.left = this._damageBounds.top = 65535;
+                this._damageBounds.right = this._damageBounds.bottom = 0;
             }
         },
 
@@ -289,6 +340,7 @@
             } else {
                 this._setFillColor(color);
                 this._drawCtx.fillRect(x, y, width, height);
+                this._damage(x, y, width, height);
             }
         },
 
@@ -319,6 +371,7 @@
                 this._drawCtx.drawImage(this._backbuffer,
                                         old_x, old_y, w, h,
                                         new_x, new_y, w, h);
+                this._damage(new_x, new_y, w, h);
             }
         },
 
@@ -401,6 +454,8 @@
         finishTile: function () {
             if (this._prefer_js) {
                 this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
+                this._damage(this._tile_x, this._tile_y,
+                             this._tile.width, this._tile.height);
             }
             // else: No-op -- already done by setSubTile
         },
@@ -472,6 +527,7 @@
 
         drawImage: function (img, x, y) {
             this._drawCtx.drawImage(img, x, y);
+            this._damage(x, y, img.width, img.height);
         },
 
         changeCursor: function (pixels, mask, hotx, hoty, w, h) {
@@ -613,6 +669,7 @@
                 data[i + 3] = 255;  // Alpha
             }
             this._drawCtx.putImageData(img, x, y);
+            this._damage(x, y, img.width, img.height);
         },
 
         _bgrxImageData: function (x, y, width, height, arr, offset) {
@@ -625,6 +682,7 @@
                 data[i + 3] = 255;  // Alpha
             }
             this._drawCtx.putImageData(img, x, y);
+            this._damage(x, y, img.width, img.height);
         },
 
         _rgbxImageData: function (x, y, width, height, arr, offset) {
@@ -637,6 +695,7 @@
                 img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
             }
             this._drawCtx.putImageData(img, x, y);
+            this._damage(x, y, img.width, img.height);
         },
 
         _cmapImageData: function (x, y, width, height, arr, offset) {
@@ -651,6 +710,7 @@
                 data[i + 3] = 255;  // Alpha
             }
             this._drawCtx.putImageData(img, x, y);
+            this._damage(x, y, img.width, img.height);
         },
 
         _renderQ_push: function (action) {
