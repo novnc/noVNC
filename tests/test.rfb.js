@@ -1253,7 +1253,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should send an update request if there is sufficient data', function () {
                 var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
-                RFB.messages.fbUpdateRequest(expected_msg, false, 0, 0, 240, 20);
+                RFB.messages.fbUpdateRequest(expected_msg, true, 0, 0, 640, 20);
 
                 client._framebufferUpdate = function () { return true; };
                 client._sock._websocket._receive_data(new Uint8Array([0]));
@@ -1268,7 +1268,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should resume receiving an update if we previously did not have enough data', function () {
                 var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
-                RFB.messages.fbUpdateRequest(expected_msg, false, 0, 0, 240, 20);
+                RFB.messages.fbUpdateRequest(expected_msg, true, 0, 0, 640, 20);
 
                 // just enough to set FBU.rects
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 3]));
@@ -1280,43 +1280,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._sock).to.have.sent(expected_msg._sQ);
             });
 
-            it('should send a request for both clean and dirty areas', function () {
-                var expected_msg = {_sQ: new Uint8Array(20), _sQlen: 0, flush: function() {}};
-                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 120, h: 20 },
-                                     dirtyBoxes: [ { x: 120, y: 0, w: 120, h: 20 } ] };
-
-                RFB.messages.fbUpdateRequest(expected_msg, true, 0, 0, 120, 20);
-                RFB.messages.fbUpdateRequest(expected_msg, false, 120, 0, 120, 20);
-
-                client._framebufferUpdate = function () { return true; };
-                client._display.getCleanDirtyReset = function () { return expected_cdr; };
-                client._sock._websocket._receive_data(new Uint8Array([0]));
-
-                expect(client._sock).to.have.sent(expected_msg._sQ);
-            });
-
-            it('should only request non-incremental rects in continuous updates mode', function () {
-                var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
-                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 120, h: 20 },
-                                     dirtyBoxes: [ { x: 120, y: 0, w: 120, h: 20 } ] };
-
-                RFB.messages.fbUpdateRequest(expected_msg, false, 120, 0, 120, 20);
-
+            it('should not send a request in continuous updates mode', function () {
                 client._enabledContinuousUpdates = true;
                 client._framebufferUpdate = function () { return true; };
-                client._display.getCleanDirtyReset = function () { return expected_cdr; };
-                client._sock._websocket._receive_data(new Uint8Array([0]));
-
-                expect(client._sock).to.have.sent(expected_msg._sQ);
-            });
-
-            it('should not send a request in continuous updates mode when clean', function () {
-                var expected_cdr = { cleanBox: { x: 0, y: 0, w: 240, h: 20 },
-                                     dirtyBoxes: [] };
-
-                client._enabledContinuousUpdates = true;
-                client._framebufferUpdate = function () { return true; };
-                client._display.getCleanDirtyReset = function () { return expected_cdr; };
                 client._sock._websocket._receive_data(new Uint8Array([0]));
 
                 expect(client._sock._websocket._get_sent_data()).to.have.length(0);

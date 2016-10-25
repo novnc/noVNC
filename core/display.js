@@ -32,7 +32,6 @@
 
     // the visible "physical canvas" viewport
     this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
-    this._cleanRect = { 'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1 };
 
     this._prevDrawStyle = "";
     this._tile = null;
@@ -51,6 +50,7 @@
 
     Util.Debug(">> Display.constructor");
 
+    // The visible canvas
     if (!this._target) {
         throw new Error("Target must be set");
     }
@@ -63,9 +63,11 @@
         throw new Error("no getContext method");
     }
 
-    if (!this._drawCtx) {
-        this._drawCtx = this._target.getContext('2d');
-    }
+    this._targetCtx = this._target.getContext('2d');
+
+    // The hidden canvas, where we do the actual rendering
+    this._backbuffer = document.createElement('canvas');
+    this._drawCtx = this._backbuffer.getContext('2d');
 
     Util.Debug("User Agent: " + navigator.userAgent);
     if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
@@ -145,78 +147,9 @@
             Util.Debug("viewportChange deltaX: " + deltaX + ", deltaY: " + deltaY);
 
             vp.x += deltaX;
-            vx2 += deltaX;
             vp.y += deltaY;
-            vy2 += deltaY;
 
-            // Update the clean rectangle
-            var cr = this._cleanRect;
-            if (vp.x > cr.x1) {
-                cr.x1 = vp.x;
-            }
-            if (vx2 < cr.x2) {
-                cr.x2 = vx2;
-            }
-            if (vp.y > cr.y1) {
-                cr.y1 = vp.y;
-            }
-            if (vy2 < cr.y2) {
-                cr.y2 = vy2;
-            }
-
-            var x1, w;
-            if (deltaX < 0) {
-                // Shift viewport left, redraw left section
-                x1 = 0;
-                w = -deltaX;
-            } else {
-                // Shift viewport right, redraw right section
-                x1 = vp.w - deltaX;
-                w = deltaX;
-            }
-
-            var y1, h;
-            if (deltaY < 0) {
-                // Shift viewport up, redraw top section
-                y1 = 0;
-                h = -deltaY;
-            } else {
-                // Shift viewport down, redraw bottom section
-                y1 = vp.h - deltaY;
-                h = deltaY;
-            }
-
-            var saveStyle = this._drawCtx.fillStyle;
-            var canvas = this._target;
-            this._drawCtx.fillStyle = "rgb(255,255,255)";
-
-            // Due to this bug among others [1] we need to disable the image-smoothing to
-            // avoid getting a blur effect when panning.
-            //
-            // 1. https://bugzilla.mozilla.org/show_bug.cgi?id=1194719
-            //
-            // We need to set these every time since all properties are reset
-            // when the the size is changed
-            if (this._drawCtx.mozImageSmoothingEnabled) {
-                this._drawCtx.mozImageSmoothingEnabled = false;
-            } else if (this._drawCtx.webkitImageSmoothingEnabled) {
-                this._drawCtx.webkitImageSmoothingEnabled = false;
-            } else if (this._drawCtx.msImageSmoothingEnabled) {
-                this._drawCtx.msImageSmoothingEnabled = false;
-            } else if (this._drawCtx.imageSmoothingEnabled) {
-                this._drawCtx.imageSmoothingEnabled = false;
-            }
-
-            // Copy the valid part of the viewport to the shifted location
-            this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, -deltaX, -deltaY, vp.w, vp.h);
-
-            if (deltaX !== 0) {
-                this._drawCtx.fillRect(x1, 0, w, vp.h);
-            }
-            if (deltaY !== 0) {
-                this._drawCtx.fillRect(0, y1, vp.w, h);
-            }
-            this._drawCtx.fillStyle = saveStyle;
+            this.flip();
         },
 
         viewportChangeSize: function(width, height) {
@@ -240,29 +173,11 @@
                     }
                 }
 
-                var cr = this._cleanRect;
-
-                if (width < vp.w &&  cr.x2 > vp.x + width - 1) {
-                    cr.x2 = vp.x + width - 1;
-                }
-                if (height < vp.h &&  cr.y2 > vp.y + height - 1) {
-                    cr.y2 = vp.y + height - 1;
-                }
-
                 vp.w = width;
                 vp.h = height;
 
                 var canvas = this._target;
                 if (canvas.width !== width || canvas.height !== height) {
-
-                    // We have to save the canvas data since changing the size will clear it
-                    var saveImg = null;
-                    if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
-                        var img_width = canvas.width < vp.w ? canvas.width : vp.w;
-                        var img_height = canvas.height < vp.h ? canvas.height : vp.h;
-                        saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
-                    }
-
                     if (canvas.width !== width) {
                         canvas.width = width;
                         canvas.style.width = width + 'px';
@@ -271,61 +186,9 @@
                         canvas.height = height;
                         canvas.style.height = height + 'px';
                     }
-
-                    if (saveImg) {
-                        this._drawCtx.putImageData(saveImg, 0, 0);
-                    }
+                    this.flip();
                 }
             }
-        },
-
-        // Return a map of clean and dirty areas of the viewport and reset the
-        // tracking of clean and dirty areas
-        //
-        // Returns: { 'cleanBox': { 'x': x, 'y': y, 'w': w, 'h': h},
-        //            'dirtyBoxes': [{ 'x': x, 'y': y, 'w': w, 'h': h }, ...] }
-        getCleanDirtyReset: function () {
-            var vp = this._viewportLoc;
-            var cr = this._cleanRect;
-
-            var cleanBox = { 'x': cr.x1, 'y': cr.y1,
-                             'w': cr.x2 - cr.x1 + 1, 'h': cr.y2 - cr.y1 + 1 };
-
-            var dirtyBoxes = [];
-            if (cr.x1 >= cr.x2 || cr.y1 >= cr.y2) {
-                // Whole viewport is dirty
-                dirtyBoxes.push({ 'x': vp.x, 'y': vp.y, 'w': vp.w, 'h': vp.h });
-            } else {
-                // Redraw dirty regions
-                var vx2 = vp.x + vp.w - 1;
-                var vy2 = vp.y + vp.h - 1;
-
-                if (vp.x < cr.x1) {
-                    // left side dirty region
-                    dirtyBoxes.push({'x': vp.x, 'y': vp.y,
-                                     'w': cr.x1 - vp.x + 1, 'h': vp.h});
-                }
-                if (vx2 > cr.x2) {
-                    // right side dirty region
-                    dirtyBoxes.push({'x': cr.x2 + 1, 'y': vp.y,
-                                     'w': vx2 - cr.x2, 'h': vp.h});
-                }
-                if(vp.y < cr.y1) {
-                    // top/middle dirty region
-                    dirtyBoxes.push({'x': cr.x1, 'y': vp.y,
-                                     'w': cr.x2 - cr.x1 + 1, 'h': cr.y1 - vp.y});
-                }
-                if (vy2 > cr.y2) {
-                    // bottom/middle dirty region
-                    dirtyBoxes.push({'x': cr.x1, 'y': cr.y2 + 1,
-                                     'w': cr.x2 - cr.x1 + 1, 'h': vy2 - cr.y2});
-                }
-            }
-
-            this._cleanRect = {'x1': vp.x, 'y1': vp.y,
-                               'x2': vp.x + vp.w - 1, 'y2': vp.y + vp.h - 1};
-
-            return {'cleanBox': cleanBox, 'dirtyBoxes': dirtyBoxes};
         },
 
         absX: function (x) {
@@ -342,9 +205,52 @@
             this._fb_width = width;
             this._fb_height = height;
 
+            var canvas = this._backbuffer;
+            if (canvas.width !== width || canvas.height !== height) {
+
+                // We have to save the canvas data since changing the size will clear it
+                var saveImg = null;
+                if (canvas.width > 0 && canvas.height > 0) {
+                    saveImg = this._drawCtx.getImageData(0, 0, canvas.width, canvas.height);
+                }
+
+                if (canvas.width !== width) {
+                    canvas.width = width;
+                }
+                if (canvas.height !== height) {
+                    canvas.height = height;
+                }
+
+                if (saveImg) {
+                    this._drawCtx.putImageData(saveImg, 0, 0);
+                }
+            }
+
             this._rescale(this._scale);
 
             this.viewportChangeSize();
+        },
+
+        // Update the visible canvas with the contents of the
+        // rendering canvas
+        flip: function(from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this._renderQ_push({
+                    'type': 'flip'
+                });
+            } else {
+                // FIXME: We may need to disable image smoothing here
+                //        as well (see copyImage()), but we haven't
+                //        noticed any problem yet.
+                this._targetCtx.drawImage(this._backbuffer,
+                                          this._viewportLoc.x,
+                                          this._viewportLoc.y,
+                                          this._viewportLoc.w,
+                                          this._viewportLoc.h,
+                                          0, 0,
+                                          this._viewportLoc.w,
+                                          this._viewportLoc.h);
+            }
         },
 
         clear: function () {
@@ -352,17 +258,10 @@
                 this.resize(this._logo.width, this._logo.height);
                 this.imageRect(0, 0, this._logo.type, this._logo.data);
             } else {
-                if (Util.Engine.trident === 6) {
-                    // NB(directxman12): there's a bug in IE10 where we can fail to actually
-                    //                   clear the canvas here because of the resize.
-                    //                   Clearing the current viewport first fixes the issue
-                    this._drawCtx.clearRect(0, 0, this._viewportLoc.w, this._viewportLoc.h);
-                }
                 this.resize(240, 20);
-                this._drawCtx.clearRect(0, 0, this._viewportLoc.w, this._viewportLoc.h);
+                this._drawCtx.clearRect(0, 0, this._fb_width, this._fb_height);
             }
-
-            this._renderQ = [];
+            this.flip();
         },
 
         pending: function() {
@@ -389,7 +288,7 @@
                 });
             } else {
                 this._setFillColor(color);
-                this._drawCtx.fillRect(x - this._viewportLoc.x, y - this._viewportLoc.y, width, height);
+                this._drawCtx.fillRect(x, y, width, height);
             }
         },
 
@@ -405,12 +304,21 @@
                     'height': h,
                 });
             } else {
-                var x1 = old_x - this._viewportLoc.x;
-                var y1 = old_y - this._viewportLoc.y;
-                var x2 = new_x - this._viewportLoc.x;
-                var y2 = new_y - this._viewportLoc.y;
+                // Due to this bug among others [1] we need to disable the image-smoothing to
+                // avoid getting a blur effect when copying data.
+                //
+                // 1. https://bugzilla.mozilla.org/show_bug.cgi?id=1194719
+                //
+                // We need to set these every time since all properties are reset
+                // when the the size is changed
+                this._drawCtx.mozImageSmoothingEnabled = false;
+                this._drawCtx.webkitImageSmoothingEnabled = false;
+                this._drawCtx.msImageSmoothingEnabled = false;
+                this._drawCtx.imageSmoothingEnabled = false;
 
-                this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
+                this._drawCtx.drawImage(this._backbuffer,
+                                        old_x, old_y, w, h,
+                                        new_x, new_y, w, h);
             }
         },
 
@@ -492,8 +400,7 @@
         // draw the current tile to the screen
         finishTile: function () {
             if (this._prefer_js) {
-                this._drawCtx.putImageData(this._tile, this._tile_x - this._viewportLoc.x,
-                                           this._tile_y - this._viewportLoc.y);
+                this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
             }
             // else: No-op -- already done by setSubTile
         },
@@ -514,9 +421,9 @@
                     'height': height,
                 });
             } else if (this._true_color) {
-                this._bgrxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                this._bgrxImageData(x, y, width, height, arr, offset);
             } else {
-                this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                this._cmapImageData(x, y, width, height, arr, offset);
             }
         },
 
@@ -536,10 +443,10 @@
                     'height': height,
                 });
             } else if (this._true_color) {
-                this._rgbImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                this._rgbImageData(x, y, width, height, arr, offset);
             } else {
                 // probably wrong?
-                this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                this._cmapImageData(x, y, width, height, arr, offset);
             }
         },
 
@@ -559,13 +466,12 @@
                     'height': height,
                 });
             } else {
-                this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+                this._rgbxImageData(x, y, width, height, arr, offset);
             }
         },
 
-        // wrap ctx.drawImage but relative to viewport
         drawImage: function (img, x, y) {
-            this._drawCtx.drawImage(img, x - this._viewportLoc.x, y - this._viewportLoc.y);
+            this._drawCtx.drawImage(img, x, y);
         },
 
         changeCursor: function (pixels, mask, hotx, hoty, w, h) {
@@ -697,7 +603,7 @@
             }
         },
 
-        _rgbImageData: function (x, y, vx, vy, width, height, arr, offset) {
+        _rgbImageData: function (x, y, width, height, arr, offset) {
             var img = this._drawCtx.createImageData(width, height);
             var data = img.data;
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
@@ -706,10 +612,10 @@
                 data[i + 2] = arr[j + 2];
                 data[i + 3] = 255;  // Alpha
             }
-            this._drawCtx.putImageData(img, x - vx, y - vy);
+            this._drawCtx.putImageData(img, x, y);
         },
 
-        _bgrxImageData: function (x, y, vx, vy, width, height, arr, offset) {
+        _bgrxImageData: function (x, y, width, height, arr, offset) {
             var img = this._drawCtx.createImageData(width, height);
             var data = img.data;
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
@@ -718,10 +624,10 @@
                 data[i + 2] = arr[j];
                 data[i + 3] = 255;  // Alpha
             }
-            this._drawCtx.putImageData(img, x - vx, y - vy);
+            this._drawCtx.putImageData(img, x, y);
         },
 
-        _rgbxImageData: function (x, y, vx, vy, width, height, arr, offset) {
+        _rgbxImageData: function (x, y, width, height, arr, offset) {
             // NB(directxman12): arr must be an Type Array view
             var img;
             if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
@@ -730,10 +636,10 @@
                 img = this._drawCtx.createImageData(width, height);
                 img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
             }
-            this._drawCtx.putImageData(img, x - vx, y - vy);
+            this._drawCtx.putImageData(img, x, y);
         },
 
-        _cmapImageData: function (x, y, vx, vy, width, height, arr, offset) {
+        _cmapImageData: function (x, y, width, height, arr, offset) {
             var img = this._drawCtx.createImageData(width, height);
             var data = img.data;
             var cmap = this._colourMap;
@@ -744,7 +650,7 @@
                 data[i + 2] = bgr[0];
                 data[i + 3] = 255;  // Alpha
             }
-            this._drawCtx.putImageData(img, x - vx, y - vy);
+            this._drawCtx.putImageData(img, x, y);
         },
 
         _renderQ_push: function (action) {
@@ -768,6 +674,9 @@
             while (ready && this._renderQ.length > 0) {
                 var a = this._renderQ[0];
                 switch (a.type) {
+                    case 'flip':
+                        this.flip(true);
+                        break;
                     case 'copy':
                         this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
                         break;
