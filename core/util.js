@@ -366,4 +366,85 @@ Util.Flash = (function () {
     return {version: parseInt(version[0] || 0 + '.' + version[1], 10) || 0, build: parseInt(version[2], 10) || 0};
 }());
 
+
+Util.Localisation = {
+    defaultLanguage: 'en-GB',
+
+    /*
+     * Not all languages have been translated
+     * Some countries prefer a certain language
+     */
+    supportedLanguages: {
+        'en':    'en-GB',
+        'en-GB': 'en-GB',
+        'en-US': 'en-GB',
+        'nl':    'nl-NL',
+        'nl-NL': 'nl-NL',
+        'nl-BE': 'nl-NL',
+        'de':    'de-DE',
+        'de-DE': 'de-DE'
+    },
+
+    // Get language file location
+    getLanguageFileLocation: function () {
+        return '../app/locale/locale-'+Util.Localisation.getLanguageCode()+'.js';
+    },
+
+    // Get language code from browser and verify it
+    getLanguageCode: function () {
+        var languageCode = Util.Localisation.getUserPreferredLanguage();
+        for (var index = 0; index < languageCode.length; index++) {
+            var supportedLanguageCode = Util.Localisation.getSupportedLanguageCode(languageCode[index]);
+            if (supportedLanguageCode) {
+                return supportedLanguageCode;
+            }
+        }
+		
+        return Util.Localisation.defaultLanguage;
+    },
+
+    /*
+    * Retrieve user preferred languages
+    * Navigator.languages only available in Chrome (32+) and FireFox (32+)
+    * Fall back to navigator.language for other browsers
+    */
+    getUserPreferredLanguage: function () {
+        if (typeof window.navigator.languages == 'object') {
+            return window.navigator.languages;
+        } else {
+            var userLang = navigator.language || navigator.userLanguage;
+            return [userLang];
+        }
+    },
+
+    /*
+    * Verify if languagecode is supported
+    * Return the languagecode of the language to use or null if not available
+    */
+    getSupportedLanguageCode: function (languageCode) {
+        var supportedLanguages = Util.Localisation.supportedLanguages;
+
+        for (var key in supportedLanguages) {
+            if (supportedLanguages.hasOwnProperty(key)) {
+                if (key === languageCode) {
+                    // Return the supported language or good alternative
+                    return supportedLanguages[key];
+                }
+            }
+        }
+
+        // LanguageCode not supported
+        return null;
+    },
+
+    // Retrieve localised text
+    get: function (id) {
+        if (Language[id]) {
+            return Language[id];
+        } else {
+            return id;
+        }
+    }
+};
+
 /* [module] export default Util; */
