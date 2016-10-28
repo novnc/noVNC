@@ -436,7 +436,7 @@ Util.Localisation = {
 
     // Retrieve localised text
     get: function (id) {
-        if (Language[id]) {
+        if (typeof Language !== 'undefined' && Language[id]) {
             return Language[id];
         } else {
             return id;
