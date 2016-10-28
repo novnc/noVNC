@@ -394,7 +394,7 @@ Util.Localisation = {
                 return supportedLanguageCode;
             }
         }
-		
+
         return Util.Localisation.defaultLanguage;
     },
 
