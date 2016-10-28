@@ -348,7 +348,7 @@ var UI;
                                   'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
-                var msg = Util.Localisation.get("Unable to create RFB client -- ") + exc;
+                var msg = "Unable to create RFB client -- " + exc;
                 Util.Error(msg);
                 UI.showStatus(msg, 'error');
                 return false;

@@ -8,6 +8,4 @@ Language = {
     "Connecting": "Connecting",
     "Disconnecting": "Disconnecting",
     "Disconnected": "Disconnected",
-    "Invalid state": "Invalid state",
-    "Unable to create RFB client -- ": "Unable to create RFB client -- ",
 };

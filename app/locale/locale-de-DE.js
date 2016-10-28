@@ -8,6 +8,4 @@ Language = {
     "Connecting": "Verbunden",
     "Disconnecting": "Verbindung trennen",
     "Disconnected": "Verbindung zum Server getrennt",
-    "Invalid state": "Falscher Status",
-    "Unable to create RFB client -- ": "RFB Client kann nicht erstellt werden -- ",
 };

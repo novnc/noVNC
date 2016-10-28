@@ -8,6 +8,4 @@ Language = {
     "Connecting": "Verbinden",
     "Disconnecting": "Verbinding verbreken",
     "Disconnected": "Verbinding verbroken",
-    "Invalid state": "Ongeldige toestand",
-    "Unable to create RFB client -- ": "Kan geen RFB client aanmaken -- ",
 };
