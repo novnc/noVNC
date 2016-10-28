@@ -27,9 +27,10 @@ var UI;
     /* [begin skip-as-module] */
     // Load supporting scripts
     WebUtil.load_scripts(
-        {'core': [Util.Localisation.getLanguageFileLocation(), "base64.js", "websock.js", "des.js", "input/keysymdef.js",
-                  "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
+        {'core': [WebUtil.getLanguageFileLocation(), "base64.js", "websock.js",
+                  "des.js", "input/keysymdef.js", "input/xtscancodes.js",
+                  "input/util.js", "input/devices.js", "display.js",
+                  "inflator.js", "rfb.js", "input/keysym.js"]});
 
     window.onscriptsload = function () { UI.load(); };
     /* [end skip-as-module] */

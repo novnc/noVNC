@@ -371,6 +371,12 @@ WebUtil.releaseCapture = function () {
     }
 };
 
+
+// Get language file location
+WebUtil.getLanguageFileLocation = function () {
+    return '../app/locale/locale-'+Util.Localisation.getLanguageCode()+'.js';
+};
+
 // Dynamically load scripts without using document.write()
 // Reference: http://unixpapa.com/js/dyna.html
 //

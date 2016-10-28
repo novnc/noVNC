@@ -385,11 +385,6 @@ Util.Localisation = {
         'de-DE': 'de-DE'
     },
 
-    // Get language file location
-    getLanguageFileLocation: function () {
-        return '../app/locale/locale-'+Util.Localisation.getLanguageCode()+'.js';
-    },
-
     // Get language code from browser and verify it
     getLanguageCode: function () {
         var languageCode = Util.Localisation.getUserPreferredLanguage();
