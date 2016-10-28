@@ -382,7 +382,9 @@ Util.Localisation = {
         'nl-NL': 'nl-NL',
         'nl-BE': 'nl-NL',
         'de':    'de-DE',
-        'de-DE': 'de-DE'
+        'de-DE': 'de-DE',
+        'sv-SE': 'sv-SE',
+        'sv':    'sv-SE'
     },
 
     // Get language code from browser and verify it
