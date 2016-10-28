@@ -27,7 +27,7 @@ var UI;
     /* [begin skip-as-module] */
     // Load supporting scripts
     WebUtil.load_scripts(
-        {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
+        {'core': [Util.Localisation.getLanguageFileLocation(), "base64.js", "websock.js", "des.js", "input/keysymdef.js",
                   "input/xtscancodes.js", "input/util.js", "input/devices.js",
                   "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
 
@@ -347,7 +347,7 @@ var UI;
                                   'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
-                var msg = 'Unable to create RFB client -- ' + exc;
+                var msg = Util.Localisation.get("Unable to create RFB client -- ") + exc;
                 Util.Error(msg);
                 UI.showStatus(msg, 'error');
                 return false;
@@ -369,9 +369,9 @@ var UI;
                 case 'connected':
                     UI.connected = true;
                     if (rfb && rfb.get_encrypt()) {
-                        msg = "Connected (encrypted) to " + UI.desktopName;
+                        msg = Util.Localisation.get("Connected (encrypted) to ") + UI.desktopName;
                     } else {
-                        msg = "Connected (unencrypted) to " + UI.desktopName;
+                        msg = Util.Localisation.get("Connected (unencrypted) to ") + UI.desktopName;
                     }
                     UI.showStatus(msg);
                     break;
@@ -476,7 +476,7 @@ var UI;
                     break;
             }
 
-            statusElem.innerHTML = text;
+            statusElem.innerHTML = Util.Localisation.get(text);
             statusElem.classList.add("noVNC_open");
 
             // If no time was specified, show the status for 1.5 seconds
