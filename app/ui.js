@@ -365,7 +365,7 @@ var UI;
             var msg;
             switch (state) {
                 case 'connecting':
-                    UI.showStatus("Connecting");
+                    UI.showStatus(Util.Localisation.get("Connecting"));
                     break;
                 case 'connected':
                     UI.connected = true;
@@ -377,11 +377,11 @@ var UI;
                     UI.showStatus(msg);
                     break;
                 case 'disconnecting':
-                    UI.showStatus("Disconnecting");
+                    UI.showStatus(Util.Localisation.get("Disconnecting"));
                     break;
                 case 'disconnected':
                     UI.connected = false;
-                    UI.showStatus("Disconnected");
+                    UI.showStatus(Util.Localisation.get("Disconnected"));
                     break;
                 default:
                     msg = "Invalid UI state";
@@ -477,7 +477,7 @@ var UI;
                     break;
             }
 
-            statusElem.innerHTML = Util.Localisation.get(text);
+            statusElem.innerHTML = text;
             statusElem.classList.add("noVNC_open");
 
             // If no time was specified, show the status for 1.5 seconds
@@ -968,7 +968,7 @@ var UI;
             }
 
             if ((!host) || (!port)) {
-                var msg = "Must set host and port";
+                var msg = Util.Localisation.get("Must set host and port");
                 Util.Error(msg);
                 UI.showStatus(msg, 'error');
                 return;
@@ -1234,8 +1234,9 @@ var UI;
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
                 //   scrollbars doesn't work.
-                var msg = "Forcing clipping mode since scrollbars aren't" +
-                    "supported by IE in fullscreen";
+                var msg = Util.Localisation.get("Forcing clipping mode since " +
+                                                "scrollbars aren't supported " +
+                                                "by IE in fullscreen");
                 Util.Debug(msg);
                 UI.showStatus(msg);
                 UI.rememberedClipSetting = UI.getSetting('clip');
