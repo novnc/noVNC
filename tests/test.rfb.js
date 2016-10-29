@@ -1368,14 +1368,11 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._fb_width = 4;
                 client._fb_height = 4;
                 client._display.resize(4, 4);
-                var initial_data = client._display._drawCtx.createImageData(4, 2);
-                var initial_data_arr = target_data_check_arr.slice(0, 32);
-                for (var i = 0; i < 32; i++) { initial_data.data[i] = initial_data_arr[i]; }
-                client._display._drawCtx.putImageData(initial_data, 0, 0);
+                client._display.blitRgbxImage(0, 0, 4, 2, new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
 
                 var info = [{ x: 0, y: 2, width: 2, height: 2, encoding: 0x01},
                             { x: 2, y: 2, width: 2, height: 2, encoding: 0x01}];
-                // data says [{ old_x: 0, old_y: 0 }, { old_x: 0, old_y: 0 }]
+                // data says [{ old_x: 2, old_y: 0 }, { old_x: 0, old_y: 0 }]
                 var rects = [[0, 2, 0, 0], [0, 0, 0, 0]];
                 send_fbu_msg([info[0]], [rects[0]], client, 2);
                 send_fbu_msg([info[1]], [rects[1]], client, -1);
@@ -1394,10 +1391,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     // a really small frame
                     client._fb_width = 4;
                     client._fb_height = 4;
-                    client._display._fb_width = 4;
-                    client._display._fb_height = 4;
-                    client._display._viewportLoc.w = 4;
-                    client._display._viewportLoc.h = 4;
+                    client._display.resize(4, 4);
                     client._fb_Bpp = 4;
                 });
 
@@ -1418,10 +1412,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 it('should handle the COPYRECT encoding', function () {
                     // seed some initial data to copy
-                    var initial_data = client._display._drawCtx.createImageData(4, 2);
-                    var initial_data_arr = target_data_check_arr.slice(0, 32);
-                    for (var i = 0; i < 32; i++) { initial_data.data[i] = initial_data_arr[i]; }
-                    client._display._drawCtx.putImageData(initial_data, 0, 0);
+                    client._display.blitRgbxImage(0, 0, 4, 2, new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
 
                     var info = [{ x: 0, y: 2, width: 2, height: 2, encoding: 0x01},
                                 { x: 2, y: 2, width: 2, height: 2, encoding: 0x01}];
@@ -1471,10 +1462,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         // a really small frame
                         client._fb_width = 4;
                         client._fb_height = 4;
-                        client._display._fb_width = 4;
-                        client._display._fb_height = 4;
-                        client._display._viewportLoc.w = 4;
-                        client._display._viewportLoc.h = 4;
+                        client._display.resize(4, 4);
                         client._fb_Bpp = 4;
                     });
 
@@ -1525,8 +1513,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     it('should handle a tile with only bg specified and an empty frame afterwards', function () {
                         // set the width so we can have two tiles
                         client._fb_width = 8;
-                        client._display._fb_width = 8;
-                        client._display._viewportLoc.w = 8;
+                        client._display.resize(8, 4);
 
                         var info = [{ x: 0, y: 0, width: 32, height: 4, encoding: 0x05 }];
 
@@ -1649,10 +1636,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         // a really small frame
                         client._fb_width = 4;
                         client._fb_height = 4;
-                        client._display._fb_width = 4;
-                        client._display._fb_height = 4;
-                        client._display._viewportLoc.w = 4;
-                        client._display._viewportLoc.h = 4;
+                        client._display.resize(4, 4);
                         client._fb_Bpp = 4;
                         sinon.spy(client._display, 'resize');
                         client.set_onFBResize(sinon.spy());
