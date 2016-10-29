@@ -458,6 +458,32 @@ input[type=button]:active, select:active {
   float: right;
 }
 
+/* Expanders */
+.noVNC_expander {
+  cursor: pointer;
+}
+.noVNC_expander::before {
+  content: url("../images/expander.svg");
+  display: inline-block;
+  margin-right: 5px;
+  transition: 0.2s ease-in-out;
+}
+.noVNC_expander.noVNC_open::before {
+  transform: rotateZ(90deg);
+}
+.noVNC_expander ~ * {
+  margin: 5px;
+  margin-left: 10px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+}
+.noVNC_expander:not(.noVNC_open) ~ * {
+  display: none;
+}
+
+/* Control bar content */
+
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
   display: none;
 }
@@ -528,6 +554,9 @@ input[type=button]:active, select:active {
   margin: 0px;
   padding: 0px;
 }
+#noVNC_setting_port {
+  width: 80px;
+}
 #noVNC_setting_path {
   width: 100px;
 }
@@ -543,9 +572,6 @@ input[type=button]:active, select:active {
   list-style: none;
   margin: 0px;
   padding: 0px;
-}
-#noVNC_setting_port {
-  width: 80px;
 }
 
 /* ----------------------------------------

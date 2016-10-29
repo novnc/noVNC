@@ -177,9 +177,6 @@
                         <img src="app/images/settings.svg"> Settings
                     </li>
                     <li>
-                        <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
-                    </li>
-                    <li>
                         <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
                     </li>
                     <li>
@@ -196,8 +193,24 @@
                     </li>
                     <li><hr></li>
                     <li>
-                        <label for="noVNC_setting_path">Path:</label>
-                        <input id="noVNC_setting_path" type="input" value="websockify" />
+                        <div class="noVNC_expander">WebSocket</div>
+                        <div><ul>
+                            <li>
+                                <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_host">Host:</label>
+                                <input id="noVNC_setting_host" />
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_port">Port:</label>
+                                <input id="noVNC_setting_port" />
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_path">Path:</label>
+                                <input id="noVNC_setting_path" type="input" value="websockify" />
+                            </li>
+                        </ul></div>
                     </li>
                     <li>
                         <label for="noVNC_setting_resize">Scaling Mode:</label>
@@ -240,14 +253,6 @@
                 <ul>
                     <li class="noVNC_heading">
                         <img src="app/images/connect.svg"> Connection
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_host">Host:</label>
-                        <input id="noVNC_setting_host" />
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_port">Port:</label>
-                        <input id="noVNC_setting_port" />
                     </li>
                     <li>
                         <label for="noVNC_setting_password">Password:</label>

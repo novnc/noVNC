@@ -254,6 +254,11 @@ var UI;
                 .addEventListener('mousemove', UI.dragControlbarHandle);
             // resize events aren't available for elements
             window.addEventListener('resize', UI.updateControlbarHandle);
+
+            var exps = document.getElementsByClassName("noVNC_expander");
+            for (var i = 0;i < exps.length;i++) {
+                exps[i].addEventListener('click', UI.toggleExpander);
+            }
         },
 
         addTouchSpecificHandlers: function() {
@@ -459,6 +464,8 @@ var UI;
             document.getElementById('noVNC_setting_resize').disabled = UI.connected;
             document.getElementById('noVNC_setting_shared').disabled = UI.connected;
             document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
+            document.getElementById('noVNC_setting_host').disabled = UI.connected;
+            document.getElementById('noVNC_setting_port').disabled = UI.connected;
             document.getElementById('noVNC_setting_path').disabled = UI.connected;
             document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
 
@@ -722,6 +729,14 @@ var UI;
             UI.activateControlbar();
         },
 
+        toggleExpander: function(e) {
+            if (this.classList.contains("noVNC_open")) {
+                this.classList.remove("noVNC_open");
+            } else {
+                this.classList.add("noVNC_open");
+            }
+        },
+
 /* ------^-------
  *    /VISUAL
  * ==============
@@ -825,6 +840,8 @@ var UI;
             UI.saveSetting('clip');
             UI.saveSetting('shared');
             UI.saveSetting('view_only');
+            UI.saveSetting('host');
+            UI.saveSetting('port');
             UI.saveSetting('path');
             UI.saveSetting('repeaterID');
             UI.saveSetting('logging');
@@ -1021,8 +1038,6 @@ var UI;
             document.getElementById('noVNC_connect_controls_button')
                 .classList.remove("noVNC_selected");
 
-            UI.saveSetting('host');
-            UI.saveSetting('port');
             //UI.saveSetting('password');
         },
 
