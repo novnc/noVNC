@@ -177,15 +177,6 @@
                         <img src="app/images/settings.svg"> Settings
                     </li>
                     <li>
-                        <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</label>
-                    </li>
-                    <li>
                         <label><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</label>
                     </li>
                     <li>
@@ -193,24 +184,7 @@
                     </li>
                     <li><hr></li>
                     <li>
-                        <div class="noVNC_expander">WebSocket</div>
-                        <div><ul>
-                            <li>
-                                <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_host">Host:</label>
-                                <input id="noVNC_setting_host" />
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_port">Port:</label>
-                                <input id="noVNC_setting_port" />
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_path">Path:</label>
-                                <input id="noVNC_setting_path" type="input" value="websockify" />
-                            </li>
-                        </ul></div>
+                        <label><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</label>
                     </li>
                     <li>
                         <label for="noVNC_setting_resize">Scaling Mode:</label>
@@ -221,17 +195,50 @@
                             <option value="remote">Remote Resizing</option>
                         </select>
                     </li>
-                    <li>
-                        <label for="noVNC_setting_repeaterID">Repeater ID:</label>
-                        <input id="noVNC_setting_repeaterID" type="input" value="" />
-                    </li>
                     <li><hr></li>
-                    <!-- Logging selection dropdown -->
                     <li>
-                        <label>Logging:
-                            <select id="noVNC_setting_logging" name="vncLogging">
-                            </select>
-                        </label>
+                        <div class="noVNC_expander">Advanced</div>
+                        <div><ul>
+                            <li>
+                                <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
+                            </li>
+                            <li>
+                                <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
+                            </li>
+                            <li><hr></li>
+                            <li>
+                                <label for="noVNC_setting_repeaterID">Repeater ID:</label>
+                                <input id="noVNC_setting_repeaterID" type="input" value="" />
+                            </li>
+                            <li>
+                                <div class="noVNC_expander">WebSocket</div>
+                                <div><ul>
+                                    <li>
+                                        <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
+                                    </li>
+                                    <li>
+                                        <label for="noVNC_setting_host">Host:</label>
+                                        <input id="noVNC_setting_host" />
+                                    </li>
+                                    <li>
+                                        <label for="noVNC_setting_port">Port:</label>
+                                        <input id="noVNC_setting_port" />
+                                    </li>
+                                    <li>
+                                        <label for="noVNC_setting_path">Path:</label>
+                                        <input id="noVNC_setting_path" type="input" value="websockify" />
+                                    </li>
+                                </ul></div>
+                            </li>
+                            <li><hr></li>
+                            <!-- Logging selection dropdown -->
+                            <li>
+                                <label>Logging:
+                                    <select id="noVNC_setting_logging" name="vncLogging">
+                                    </select>
+                                </label>
+                            </li>
+                        </ul></div>
                     </li>
                     <li><hr></li>
                     <li>
