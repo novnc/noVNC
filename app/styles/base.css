@@ -670,6 +670,10 @@ input[type=button]:active, select:active {
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
 }
+:root.noVNC_connected #noVNC_container {
+  background-color: rgb(40, 40, 40);
+  border-radius: 0;
+}
 
 /* HTML5 Canvas */
 #noVNC_screen {
