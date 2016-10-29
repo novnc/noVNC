@@ -362,8 +362,6 @@ input[type=button]:active, select:active {
   margin: 10px 0;
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
   border-radius: 6px;
 }
 .noVNC_button.noVNC_selected {
@@ -407,8 +405,6 @@ input[type=button]:active, select:active {
   padding: 15px;
 
   background: #fff;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
   border-radius: 10px;
   color: #000;
   border: 2px solid #E0E0E0;
