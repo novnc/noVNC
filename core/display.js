@@ -350,7 +350,7 @@
         clear: function () {
             if (this._logo) {
                 this.resize(this._logo.width, this._logo.height);
-                this.blitStringImage(this._logo.data, 0, 0);
+                this.imageRect(0, 0, this._logo.type, this._logo.data);
             } else {
                 if (Util.Engine.trident === 6) {
                     // NB(directxman12): there's a bug in IE10 where we can fail to actually
@@ -561,15 +561,6 @@
             } else {
                 this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             }
-        },
-
-        blitStringImage: function (str, x, y) {
-            var img = new Image();
-            img.onload = function () {
-                this._drawCtx.drawImage(img, x - this._viewportLoc.x, y - this._viewportLoc.y);
-            }.bind(this);
-            img.src = str;
-            return img; // for debugging purposes
         },
 
         // wrap ctx.drawImage but relative to viewport
@@ -820,7 +811,7 @@
     Util.make_properties(Display, [
         ['target', 'wo', 'dom'],       // Canvas element for rendering
         ['context', 'ro', 'raw'],      // Canvas 2D context for rendering (read-only)
-        ['logo', 'rw', 'raw'],         // Logo to display when cleared: {"width": w, "height": h, "data": data}
+        ['logo', 'rw', 'raw'],         // Logo to display when cleared: {"width": w, "height": h, "type": mime-type, "data": data}
         ['true_color', 'rw', 'bool'],  // Use true-color pixel data
         ['colourMap', 'rw', 'arr'],    // Colour map array (when not true-color)
         ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0

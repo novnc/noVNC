@@ -26,6 +26,13 @@ describe('Display/Canvas Helper', function () {
         return canvas;
     }
 
+    function make_image_png (input_data) {
+        var canvas = make_image_canvas(input_data);
+        var url = canvas.toDataURL();
+        var data = url.split(",")[1];
+        return Base64.decode(data);
+    }
+
     describe('checking for cursor uri support', function () {
         beforeEach(function () {
             this._old_browser_supports_cursor_uris = Util.browserSupportsCursorURIs;
@@ -282,16 +289,15 @@ describe('Display/Canvas Helper', function () {
             });
 
             it('should draw the logo on #clear with a logo set', function (done) {
-                display._logo = { width: 4, height: 4, data: make_image_canvas(checked_data).toDataURL() };
-                display._drawCtx._act_drawImg = display._drawCtx.drawImage;
-                display._drawCtx.drawImage = function (img, x, y) {
-                    this._act_drawImg(img, x, y);
-                    expect(display).to.have.displayed(checked_data);
-                    done();
-                };
+                display._logo = { width: 4, height: 4, type: "image/png", data: make_image_png(checked_data) };
                 display.clear();
-                expect(display._fb_width).to.equal(4);
-                expect(display._fb_height).to.equal(4);
+                display.set_onFlush(function () {
+                    expect(display).to.have.displayed(checked_data);
+                    expect(display._fb_width).to.equal(4);
+                    expect(display._fb_height).to.equal(4);
+                    done();
+                });
+                display.flush();
             });
 
             it('should support filling a rectangle with particular color via #fillRect', function () {
@@ -306,6 +312,16 @@ describe('Display/Canvas Helper', function () {
                 display.fillRect(0, 0, 2, 2, [0xff, 0, 0x00]);
                 display.copyImage(0, 0, 2, 2, 2, 2);
                 expect(display).to.have.displayed(checked_data);
+            });
+
+            it('should support drawing images via #imageRect', function (done) {
+                display.imageRect(0, 0, "image/png", make_image_png(checked_data));
+                display.flip();
+                display.set_onFlush(function () {
+                    expect(display).to.have.displayed(checked_data);
+                    done();
+                });
+                display.flush();
             });
 
             it('should support drawing tile data with a background color and sub tiles', function () {
@@ -337,17 +353,6 @@ describe('Display/Canvas Helper', function () {
                 }
                 display.blitRgbImage(0, 0, 4, 4, data, 0);
                 expect(display).to.have.displayed(checked_data);
-            });
-
-            it('should support drawing blit images from a data URL via #blitStringImage', function (done) {
-                var img_url = make_image_canvas(checked_data).toDataURL();
-                display._drawCtx._act_drawImg = display._drawCtx.drawImage;
-                display._drawCtx.drawImage = function (img, x, y) {
-                    this._act_drawImg(img, x, y);
-                    expect(display).to.have.displayed(checked_data);
-                    done();
-                };
-                display.blitStringImage(img_url, 0, 0);
             });
 
             it('should support drawing solid colors with color maps', function () {
