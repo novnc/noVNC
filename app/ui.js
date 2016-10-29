@@ -144,6 +144,11 @@ var UI;
 
             UI.openControlbar();
 
+            // Show the connect panel on first load unless autoconnecting
+            if (!autoconnect) {
+                UI.openConnectPanel();
+            }
+
             UI.updateViewClip();
 
             UI.updateVisualState();
@@ -1013,6 +1018,25 @@ var UI;
  *  CONNECTION
  * ------v------*/
 
+        openConnectPanel: function() {
+            document.getElementById('noVNC_connect_dlg')
+                .classList.add("noVNC_open");
+        },
+
+        closeConnectPanel: function() {
+            document.getElementById('noVNC_connect_dlg')
+                .classList.remove("noVNC_open");
+        },
+
+        toggleConnectPanel: function() {
+            if (document.getElementById('noVNC_connect_dlg')
+                .classList.contains("noVNC_open")) {
+                UI.closeConnectPanel();
+            } else {
+                UI.openConnectPanel();
+            }
+        },
+
         connect: function() {
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
@@ -1033,6 +1057,7 @@ var UI;
             if (!UI.initRFB()) return;
 
             UI.closeAllPanels();
+            UI.closeConnectPanel();
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));
@@ -1059,6 +1084,7 @@ var UI;
                 UI.showStatus(reason, 'error');
             }
             UI.openControlbar();
+            UI.openConnectPanel();
         },
 
 /* ------^-------

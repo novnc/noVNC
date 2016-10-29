@@ -249,9 +249,6 @@
             </div>
 
             <!-- Connection Controls -->
-            <input type="image" alt="Connect" src="app/images/connect.svg"
-                id="noVNC_connect_button" class="noVNC_button"
-                title="Connect" />
             <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
                 id="noVNC_disconnect_button" class="noVNC_button"
                 title="Disconnect" />
@@ -263,6 +260,16 @@
 
     <!-- Status Dialog -->
     <div id="noVNC_status"></div>
+
+    <!-- Connect button -->
+    <div class="noVNC_center">
+        <div id="noVNC_connect_dlg">
+            <div class="noVNC_logo" translate="no"><span>no</span>VNC</div>
+            <div id="noVNC_connect_button"><div>
+                <img src="app/images/connect.svg"> Connect
+            </div></div>
+        </div>
+    </div>
 
     <!-- Password Dialog -->
     <div class="noVNC_center">
@@ -286,8 +293,6 @@
     </div>
 
     <div id="noVNC_container">
-        <h1 id="noVNC_logo" class="noVNC_logo" translate="no"><span>no</span><br />VNC</h1>
-
         <!-- HTML5 Canvas -->
         <div id="noVNC_screen">
             <!-- Note that Google Chrome on Android doesn't respect any of these,
