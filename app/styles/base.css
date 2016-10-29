@@ -558,16 +558,11 @@ input[type=button]:active, select:active {
 }
 
 /* Connection Controls */
-:root.noVNC_connected #noVNC_connect_controls_button {
+:root.noVNC_connected #noVNC_connect_button {
   display: none;
 }
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
   display: none;
-}
-#noVNC_connect_controls ul {
-  list-style: none;
-  margin: 0px;
-  padding: 0px;
 }
 
 /* ----------------------------------------

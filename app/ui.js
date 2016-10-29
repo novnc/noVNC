@@ -142,10 +142,7 @@ var UI;
             UI.addClipboardHandlers();
             UI.addSettingsHandlers();
 
-            // Show the connect panel on first load unless autoconnecting
-            if (!autoconnect) {
-                UI.openConnectPanel();
-            }
+            UI.openControlbar();
 
             UI.updateViewClip();
 
@@ -194,7 +191,6 @@ var UI;
             /* Populate the controls if defaults are provided in the URL */
             UI.initSetting('host', window.location.hostname);
             UI.initSetting('port', port);
-            UI.initSetting('password', '');
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
             UI.initSetting('true_color', true);
             UI.initSetting('cursor', !Util.isTouchDevice);
@@ -336,8 +332,6 @@ var UI;
         },
 
         addConnectionControlHandlers: function() {
-            document.getElementById("noVNC_connect_controls_button")
-                .addEventListener('click', UI.toggleConnectPanel);
             document.getElementById("noVNC_disconnect_button")
                 .addEventListener('click', UI.disconnect);
             document.getElementById("noVNC_connect_button")
@@ -863,7 +857,6 @@ var UI;
             UI.closeSettingsPanel();
             UI.closeXvpPanel();
             UI.closeClipboardPanel();
-            UI.closeConnectPanel();
             UI.closeExtraKeys();
         },
 
@@ -1020,41 +1013,15 @@ var UI;
  *  CONNECTION
  * ------v------*/
 
-        openConnectPanel: function() {
-            UI.closeAllPanels();
-            UI.openControlbar();
-
-            document.getElementById('noVNC_connect_controls')
-                .classList.add("noVNC_open");
-            document.getElementById('noVNC_connect_controls_button')
-                .classList.add("noVNC_selected");
-
-            document.getElementById('noVNC_setting_host').focus();
-        },
-
-        closeConnectPanel: function() {
-            document.getElementById('noVNC_connect_controls')
-                .classList.remove("noVNC_open");
-            document.getElementById('noVNC_connect_controls_button')
-                .classList.remove("noVNC_selected");
-
-            //UI.saveSetting('password');
-        },
-
-        toggleConnectPanel: function() {
-            if (document.getElementById('noVNC_connect_controls')
-                .classList.contains("noVNC_open")) {
-                UI.closeConnectPanel();
-            } else {
-                UI.openConnectPanel();
-            }
-        },
-
         connect: function() {
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
-            var password = document.getElementById('noVNC_setting_password').value;
             var path = document.getElementById('noVNC_setting_path').value;
+
+            var password = WebUtil.getConfigVar('password');
+            if (password === null) {
+                password = undefined;
+            }
 
             if ((!host) || (!port)) {
                 var msg = _("Must set host and port");
@@ -1091,7 +1058,7 @@ var UI;
             if (typeof reason !== 'undefined') {
                 UI.showStatus(reason, 'error');
             }
-            UI.openConnectPanel();
+            UI.openControlbar();
         },
 
 /* ------^-------
