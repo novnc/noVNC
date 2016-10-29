@@ -384,7 +384,9 @@ Util.Localisation = {
         'de':    'de-DE',
         'de-DE': 'de-DE',
         'sv-SE': 'sv-SE',
-        'sv':    'sv-SE'
+        'sv':    'sv-SE',
+        'el':    'el-GR',
+        'el-GR': 'el-GR'
     },
 
     // Get language code from browser and verify it
