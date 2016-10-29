@@ -425,6 +425,14 @@ describe('Display/Canvas Helper', function () {
             expect(img.addEventListener).to.have.been.calledOnce;
         });
 
+        it('should call callback when queue is flushed', function () {
+            display.set_onFlush(sinon.spy());
+            display.fillRect(0, 0, 4, 4, [0, 0xff, 0]);
+            expect(display.get_onFlush()).to.not.have.been.called;
+            display.flush();
+            expect(display.get_onFlush()).to.have.been.calledOnce;
+        });
+
         it('should draw a blit image on type "blit"', function () {
             display.blitImage = sinon.spy();
             display._renderQ_push({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
