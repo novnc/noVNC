@@ -214,7 +214,6 @@ var UI;
             UI.initSetting('view_only', false);
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
-            UI.initSetting('token', '');
         },
 
         setupWindowEvents: function() {
@@ -1038,7 +1037,6 @@ var UI;
 
             UI.saveSetting('host');
             UI.saveSetting('port');
-            UI.saveSetting('token');
             //UI.saveSetting('password');
         },
 
@@ -1055,13 +1053,7 @@ var UI;
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
             var password = document.getElementById('noVNC_setting_password').value;
-            var token = document.getElementById('noVNC_setting_token').value;
             var path = document.getElementById('noVNC_setting_path').value;
-
-            //if token is in path then ignore the new token variable
-            if (token) {
-                path = WebUtil.injectParamIfMissing(path, "token", token);
-            }
 
             if ((!host) || (!port)) {
                 var msg = _("Must set host and port");
