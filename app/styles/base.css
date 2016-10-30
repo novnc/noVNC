@@ -696,10 +696,11 @@ input[type=button]:active, select:active {
  * settings and noVNC settings. */
 #noVNC_canvas {
   position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  margin-left: auto;
-  margin-right: auto;
+  bottom: 0;
+  margin: auto;
 }
 
 /*Default noVNC logo.*/
