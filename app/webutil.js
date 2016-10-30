@@ -209,45 +209,6 @@ WebUtil.eraseSetting = function (name) {
     }
 };
 
-/*
- * Alternate stylesheet selection
- */
-WebUtil.getStylesheets = function () {
-    "use strict";
-    var links = document.getElementsByTagName("link");
-    var sheets = [];
-
-    for (var i = 0; i < links.length; i += 1) {
-        if (links[i].title &&
-            links[i].rel.toUpperCase().indexOf("STYLESHEET") > -1) {
-            sheets.push(links[i]);
-        }
-    }
-    return sheets;
-};
-
-// No sheet means try and use value from cookie, null sheet used to
-// clear all alternates.
-WebUtil.selectStylesheet = function (sheet) {
-    "use strict";
-    if (typeof sheet === 'undefined') {
-        sheet = 'default';
-    }
-
-    var sheets = WebUtil.getStylesheets();
-    for (var i = 0; i < sheets.length; i += 1) {
-        var link = sheets[i];
-        if (link.title === sheet) {
-            Util.Debug("Using stylesheet " + sheet);
-            link.disabled = false;
-        } else {
-            //Util.Debug("Skipping stylesheet " + link.title);
-            link.disabled = true;
-        }
-    }
-    return sheet;
-};
-
 WebUtil.injectParamIfMissing = function (path, param, value) {
     // force pretend that we're dealing with a relative path
     // (assume that we wanted an extra if we pass one in)

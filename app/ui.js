@@ -167,13 +167,7 @@ var UI;
         },
 
         initSettings: function() {
-            // Stylesheet selection dropdown
-            var sheet = WebUtil.selectStylesheet();
-            var sheets = WebUtil.getStylesheets();
             var i;
-            for (i = 0; i < sheets.length; i += 1) {
-                UI.addOption(document.getElementById('noVNC_setting_stylesheet'),sheets[i].title, sheets[i].title);
-            }
 
             // Logging selection dropdown
             var llevels = ['error', 'warn', 'info', 'debug'];
@@ -184,11 +178,6 @@ var UI;
             // Settings with immediate effects
             UI.initSetting('logging', 'warn');
             WebUtil.init_logging(UI.getSetting('logging'));
-
-            UI.initSetting('stylesheet', 'default');
-            WebUtil.selectStylesheet(null);
-            // call twice to get around webkit bug
-            WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
             // if port == 80 (or 443) then it won't be present and should be
             // set manually
@@ -838,11 +827,9 @@ var UI;
             UI.saveSetting('view_only');
             UI.saveSetting('path');
             UI.saveSetting('repeaterID');
-            UI.saveSetting('stylesheet');
             UI.saveSetting('logging');
 
             // Settings with immediate (non-connected related) effect
-            WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
             WebUtil.init_logging(UI.getSetting('logging'));
             UI.updateViewClip();
             UI.updateViewDrag();
@@ -887,7 +874,6 @@ var UI;
             UI.updateSetting('view_only');
             UI.updateSetting('path');
             UI.updateSetting('repeaterID');
-            UI.updateSetting('stylesheet');
             UI.updateSetting('logging');
 
             document.getElementById('noVNC_settings')
