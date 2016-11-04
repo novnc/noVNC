@@ -343,7 +343,7 @@
         requestDesktopSize: function (width, height) {
             if (this._rfb_connection_state !== 'connected' ||
                 this._view_only) {
-                return;
+                return false;
             }
 
             if (this._supportsSetDesktopSize) {
