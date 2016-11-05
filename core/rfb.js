@@ -273,9 +273,9 @@
             this._rfb_password = (password !== undefined) ? password : "";
             this._rfb_path = (path !== undefined) ? path : "";
 
-            if (!this._rfb_host || !this._rfb_port) {
+            if (!this._rfb_host) {
                 return this._fail(
-                    _("Must set host and port"));
+                    _("Must set host"));
             }
 
             this._rfb_init_state = '';
@@ -379,7 +379,12 @@
                 uri = this._encrypt ? 'wss' : 'ws';
             }
 
-            uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
+            uri += '://' + this._rfb_host;
+            if(this._rfb_port) {
+                uri += ':' + this._rfb_port;
+            }
+            uri += '/' + this._rfb_path;
+
             Util.Info("connecting to " + uri);
 
             try {
