@@ -372,7 +372,15 @@
             uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
             Util.Info("connecting to " + uri);
 
-            this._sock.open(uri, this._wsProtocols);
+            try {
+                this._sock.open(uri, this._wsProtocols);
+            } catch (e) {
+                if (e.name === 'SyntaxError') {
+                    this._fail("Invalid host or port value given");
+                } else {
+                    this._fail("Error while opening websocket (" + e + ")");
+                }
+            }
 
             Util.Debug("<< RFB.connect");
         },
