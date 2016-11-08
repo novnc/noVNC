@@ -239,7 +239,7 @@
                 this._updateConnectionState('disconnected');
                 break;
             case 'disconnected':
-                Util.Error("Received onclose while disconnected" + msg);
+                this._fail("Received onclose while disconnected" + msg);
                 break;
             default:
                 this._fail("Unexpected server disconnect" + msg);
@@ -473,19 +473,7 @@
                 return;
             }
 
-            this._rfb_connection_state = state;
-
-            var smsg = "New state '" + state + "', was '" + oldstate + "'.";
-            Util.Debug(smsg);
-
-            if (this._disconnTimer && state !== 'disconnecting') {
-                Util.Debug("Clearing disconnect timer");
-                clearTimeout(this._disconnTimer);
-                this._disconnTimer = null;
-                this._sock.off('close');  // make sure we don't get a double event
-            }
-
-            this._onUpdateState(this, state, oldstate);
+            // Ensure proper transitions before doing anything
             switch (state) {
                 case 'connected':
                     if (oldstate !== 'connecting') {
@@ -501,7 +489,50 @@
                                    "previous connection state: " + oldstate);
                         return;
                     }
+                    break;
 
+                case 'connecting':
+                    if (oldstate !== '') {
+                        Util.Error("Bad transition to connecting state, " +
+                                   "previous connection state: " + oldstate);
+                        return;
+                    }
+                    break;
+
+                case 'disconnecting':
+                    if (oldstate !== 'connected' && oldstate !== 'connecting') {
+                        Util.Error("Bad transition to disconnecting state, " +
+                                   "previous connection state: " + oldstate);
+                        return;
+                    }
+                    break;
+
+                default:
+                    Util.Error("Unknown connection state: " + state);
+                    return;
+            }
+
+            // State change actions
+
+            this._rfb_connection_state = state;
+            this._onUpdateState(this, state, oldstate);
+
+            var smsg = "New state '" + state + "', was '" + oldstate + "'.";
+            Util.Debug(smsg);
+
+            if (this._disconnTimer && state !== 'disconnecting') {
+                Util.Debug("Clearing disconnect timer");
+                clearTimeout(this._disconnTimer);
+                this._disconnTimer = null;
+
+                // make sure we don't get a double event
+                this._sock.off('close');
+            }
+
+            switch (state) {
+                case 'disconnected':
+                    // Call onDisconnected callback after onUpdateState since
+                    // we don't know if the UI only displays the latest message
                     if (this._rfb_disconnect_reason !== "") {
                         this._onDisconnected(this, this._rfb_disconnect_reason);
                     } else {
@@ -522,10 +553,6 @@
                         this._updateConnectionState('disconnected');
                     }.bind(this), this._disconnectTimeout * 1000);
                     break;
-
-                default:
-                    Util.Error("Unknown connection state: " + state);
-                    return;
             }
         },
 
