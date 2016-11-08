@@ -572,7 +572,11 @@
                     break;
             }
             this._rfb_disconnect_reason = msg;
+
+            // Transition to disconnected without waiting for socket to close
             this._updateConnectionState('disconnecting');
+            this._updateConnectionState('disconnected');
+
             return false;
         },
 
