@@ -28,6 +28,37 @@ html {
 }
 
 /* ----------------------------------------
+ * Spinner
+ * ----------------------------------------
+ */
+
+.noVNC_spinner {
+  position: relative;
+}
+.noVNC_spinner, .noVNC_spinner::before, .noVNC_spinner::after {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: noVNC_spinner 1.0s ease-in-out alternate infinite;
+}
+.noVNC_spinner::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  animation-delay: -0.2s;
+}
+.noVNC_spinner::after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  animation-delay: 0.2s;
+}
+@keyframes noVNC_spinner {
+  0% { box-shadow: 0 10px 0 white; }
+  100% { box-shadow: 0 30px 0 white; }
+}
+
+/* ----------------------------------------
  * Input Elements
  * ----------------------------------------
  */
@@ -499,6 +530,34 @@ input[type=button]:active, select:active {
  * ----------------------------------------
  */
 
+/* Transition screen */
+#noVNC_transition {
+  display: none;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+
+  /*display: flex;*/
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+:root.noVNC_connecting #noVNC_transition,
+:root.noVNC_disconnecting #noVNC_transition {
+  display: flex;
+}
+#noVNC_transition_text {
+  font-size: 1.5em;
+}
+
+/* Main container */
 #noVNC_container {
   display: table;
   width: 100%;
