@@ -385,6 +385,14 @@
             Util.Debug("<< RFB.connect");
         },
 
+        _disconnect: function () {
+            Util.Debug(">> RFB.disconnect");
+            this._cleanup();
+            this._sock.close();
+            this._print_stats();
+            Util.Debug("<< RFB.disconnect");
+        },
+
         _init_vars: function () {
             // reset state
             this._FBU.rects        = 0;
@@ -503,15 +511,12 @@
                     break;
 
                 case 'disconnecting':
-                    this._cleanup();
-                    this._sock.close(); // transitions to 'disconnected'
+                    this._disconnect();
 
                     this._disconnTimer = setTimeout(function () {
                         this._rfb_disconnect_reason = "Disconnect timeout";
                         this._updateConnectionState('disconnected');
                     }.bind(this), this._disconnectTimeout * 1000);
-
-                    this._print_stats();
                     break;
 
                 default:
