@@ -361,6 +361,7 @@
 
         _connect: function () {
             Util.Debug(">> RFB.connect");
+            this._init_vars();
 
             var uri;
             if (typeof UsingSocketIO !== 'undefined') {
@@ -373,6 +374,7 @@
             Util.Info("connecting to " + uri);
 
             try {
+                // WebSocket.onopen transitions to the RFB init states
                 this._sock.open(uri, this._wsProtocols);
             } catch (e) {
                 if (e.name === 'SyntaxError') {
@@ -504,9 +506,6 @@
                     break;
 
                 case 'connecting':
-                    this._init_vars();
-
-                    // WebSocket.onopen transitions to the RFB init states
                     this._connect();
                     break;
 
