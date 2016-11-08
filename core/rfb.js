@@ -233,11 +233,16 @@
             case 'connecting':
                 this._fail('Failed to connect to server' + msg);
                 break;
+            case 'connected':
+                // Handle disconnects that were initiated server-side
+                this._updateConnectionState('disconnecting');
+                this._updateConnectionState('disconnected');
+                break;
             case 'disconnected':
                 Util.Error("Received onclose while disconnected" + msg);
                 break;
             default:
-                this._fail("Server disconnected" + msg);
+                this._fail("Unexpected server disconnect" + msg);
                 break;
         }
         this._sock.off('close');

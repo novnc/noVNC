@@ -2112,10 +2112,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_connection_state).to.equal('disconnected');
             });
 
-            it('should transition to failed if we get a close event from any non-"disconnection" state', function () {
+            it('should fail if we get a close event while connecting', function () {
                 sinon.spy(client, "_fail");
                 client.connect('host', 8675);
-                client._rfb_connection_state = 'connected';
+                client._rfb_connection_state = 'connecting';
                 client._sock._websocket.close();
                 expect(client._fail).to.have.been.calledOnce;
             });
