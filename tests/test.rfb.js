@@ -406,6 +406,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_disconnect_reason).to.equal('a reason');
             });
 
+            it('should not include details in disconnect_reason', function () {
+                client._rfb_connection_state = 'connected';
+                client._fail('a reason', 'details');
+                expect(client._rfb_disconnect_reason).to.equal('a reason');
+            });
+
             it('should result in disconnect callback with message when reason given', function () {
                 client._rfb_connection_state = 'connected';
                 client.set_onDisconnected(sinon.spy());
@@ -729,7 +735,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock._websocket._receive_data(failure_data);
 
                 expect(client._fail).to.have.been.calledOnce;
-                expect(client._fail).to.have.been.calledWith('Security failure: whoops');
+                expect(client._fail).to.have.been.calledWith(
+                    'Error while negotiating with server','Security failure: whoops');
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
@@ -768,7 +775,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receive_data(new Uint8Array(data));
-                expect(client._fail).to.have.been.calledWith('Auth failure: Whoopsies');
+                expect(client._fail).to.have.been.calledWith(
+                    'Authentication failure', 'Whoopsies');
             });
 
             it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.8', function () {
@@ -1000,7 +1008,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client, '_fail');
                 var failure_data = [0, 0, 0, 1, 0, 0, 0, 6, 119, 104, 111, 111, 112, 115];
                 client._sock._websocket._receive_data(new Uint8Array(failure_data));
-                expect(client._fail).to.have.been.calledWith('whoops');
+                expect(client._fail).to.have.been.calledWith(
+                    'Authentication failure', 'whoops');
             });
 
             it('should fail on an error code of 1 with a standard message for version < 3.8', function () {

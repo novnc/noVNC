@@ -213,7 +213,7 @@
             this._rfb_init_state = 'ProtocolVersion';
             Util.Debug("Starting VNC handshake");
         } else {
-            this._fail("Got unexpected WebSocket connection");
+            this._fail("Unexpected server connection");
         }
     }.bind(this));
     this._sock.on('close', function (e) {
@@ -231,7 +231,7 @@
                 this._updateConnectionState('disconnected');
                 break;
             case 'connecting':
-                this._fail('Failed to connect to server' + msg);
+                this._fail('Failed to connect to server', msg);
                 break;
             case 'connected':
                 // Handle disconnects that were initiated server-side
@@ -239,10 +239,12 @@
                 this._updateConnectionState('disconnected');
                 break;
             case 'disconnected':
-                this._fail("Received onclose while disconnected" + msg);
+                this._fail("Unexpected server disconnect",
+                           "Already disconnected: " + msg);
                 break;
             default:
-                this._fail("Unexpected server disconnect" + msg);
+                this._fail("Unexpected server disconnect",
+                           "Not in any state yet: " + msg);
                 break;
         }
         this._sock.off('close');
@@ -383,9 +385,9 @@
                 this._sock.open(uri, this._wsProtocols);
             } catch (e) {
                 if (e.name === 'SyntaxError') {
-                    this._fail("Invalid host or port value given");
+                    this._fail("Invalid host or port value given", e);
                 } else {
-                    this._fail("Error while opening websocket (" + e + ")");
+                    this._fail("Error while connecting", e);
                 }
             }
 
@@ -556,22 +558,31 @@
             }
         },
 
-        _fail: function (msg) {
+        /* Print errors and disconnect
+         *
+         * The optional parameter 'details' is used for information that
+         * should be logged but not sent to the user interface.
+         */
+        _fail: function (msg, details) {
+            var fullmsg = msg;
+            if (typeof details !== 'undefined') {
+                fullmsg = msg + "(" + details + ")";
+            }
             switch (this._rfb_connection_state) {
                 case 'disconnecting':
-                    Util.Error("Error while disconnecting: " + msg);
+                    Util.Error("Failed when disconnecting: " + fullmsg);
                     break;
                 case 'connected':
-                    Util.Error("Error while connected: " + msg);
+                    Util.Error("Failed while connected: " + fullmsg);
                     break;
                 case 'connecting':
-                    Util.Error("Error while connecting: " + msg);
+                    Util.Error("Failed when connecting: " + fullmsg);
                     break;
                 default:
-                    Util.Error("RFB error: " + msg);
+                    Util.Error("RFB failure: " + fullmsg);
                     break;
             }
-            this._rfb_disconnect_reason = msg;
+            this._rfb_disconnect_reason = msg; //This is sent to the UI
 
             // Transition to disconnected without waiting for socket to close
             this._updateConnectionState('disconnecting');
@@ -717,7 +728,8 @@
 
         _negotiate_protocol_version: function () {
             if (this._sock.rQlen() < 12) {
-                return this._fail("Incomplete protocol version");
+                return this._fail("Error while negotiating with server",
+                                  "Incomplete protocol version");
             }
 
             var sversion = this._sock.rQshiftStr(12).substr(4, 7);
@@ -742,7 +754,8 @@
                     this._rfb_version = 3.8;
                     break;
                 default:
-                    return this._fail("Invalid server version " + sversion);
+                    return this._fail("Unsupported server",
+                                      "Invalid server version: " + sversion);
             }
 
             if (is_repeater) {
@@ -775,7 +788,8 @@
                 if (num_types === 0) {
                     var strlen = this._sock.rQshift32();
                     var reason = this._sock.rQshiftStr(strlen);
-                    return this._fail("Security failure: " + reason);
+                    return this._fail("Error while negotiating with server",
+                                      "Security failure: " + reason);
                 }
 
                 this._rfb_auth_scheme = 0;
@@ -797,7 +811,8 @@
                 }
 
                 if (this._rfb_auth_scheme === 0) {
-                    return this._fail("Unsupported security types: " + types);
+                    return this._fail("Unsupported server",
+                                      "Unsupported security types: " + types);
                 }
 
                 this._sock.send([this._rfb_auth_scheme]);
@@ -867,12 +882,16 @@
             if (serverSupportedTunnelTypes[0]) {
                 if (serverSupportedTunnelTypes[0].vendor != clientSupportedTunnelTypes[0].vendor ||
                     serverSupportedTunnelTypes[0].signature != clientSupportedTunnelTypes[0].signature) {
-                    return this._fail("Client's tunnel type had the incorrect vendor or signature");
+                    return this._fail("Unsupported server",
+                                      "Client's tunnel type had the incorrect " +
+                                      "vendor or signature");
                 }
                 this._sock.send([0, 0, 0, 0]);  // use NOTUNNEL
                 return false; // wait until we receive the sub auth count to continue
             } else {
-                return this._fail("Server wanted tunnels, but doesn't support the notunnel type");
+                return this._fail("Unsupported server",
+                                  "Server wanted tunnels, but doesn't support " +
+                                  "the notunnel type");
             }
         },
 
@@ -925,12 +944,15 @@
                             this._rfb_auth_scheme = 2;
                             return this._init_msg();
                         default:
-                            return this._fail("Unsupported tiny auth scheme: " + authType);
+                            return this._fail("Unsupported server",
+                                              "Unsupported tiny auth scheme: " +
+                                              authType);
                     }
                 }
             }
 
-            return this._fail("No supported sub-auth types!");
+            return this._fail("Unsupported server",
+                              "No supported sub-auth types!");
         },
 
         _negotiate_authentication: function () {
@@ -939,7 +961,7 @@
                     if (this._sock.rQwait("auth reason", 4)) { return false; }
                     var strlen = this._sock.rQshift32();
                     var reason = this._sock.rQshiftStr(strlen);
-                    return this._fail("Auth failure: " + reason);
+                    return this._fail("Authentication failure", reason);
 
                 case 1:  // no auth
                     if (this._rfb_version >= 3.8) {
@@ -959,7 +981,9 @@
                     return this._negotiate_tight_auth();
 
                 default:
-                    return this._fail("Unsupported auth scheme: " + this._rfb_auth_scheme);
+                    return this._fail("Unsupported server",
+                                      "Unsupported auth scheme: " +
+                                      this._rfb_auth_scheme);
             }
         },
 
@@ -975,15 +999,16 @@
                         var length = this._sock.rQshift32();
                         if (this._sock.rQwait("SecurityResult reason", length, 8)) { return false; }
                         var reason = this._sock.rQshiftStr(length);
-                        return this._fail(reason);
+                        return this._fail("Authentication failure", reason);
                     } else {
                         return this._fail("Authentication failure");
                     }
                     return false;
                 case 2:
-                    return this._fail("Too many auth attempts");
+                    return this._fail("Too many authentication attempts");
                 default:
-                    return this._fail("Unknown SecurityResult");
+                    return this._fail("Unsupported server",
+                                      "Unknown SecurityResult");
             }
         },
 
@@ -1131,7 +1156,7 @@
                     return this._negotiate_server_init();
 
                 default:
-                    return this._fail("Unknown init state: " +
+                    return this._fail("Internal error", "Unknown init state: " +
                                       this._rfb_init_state);
             }
         },
@@ -1196,7 +1221,8 @@
              */
 
             if (!(flags & (1<<31))) {
-                return this._fail("Unexpected fence response");
+                return this._fail("Internal error",
+                                  "Unexpected fence response");
             }
 
             // Filter out unsupported flags
@@ -1228,7 +1254,8 @@
                     this._onXvpInit(this._rfb_xvp_ver);
                     break;
                 default:
-                    this._fail("Disconnected: illegal server XVP message " + xvp_msg);
+                    this._fail("Unexpected server message",
+                               "Illegal server XVP message " + xvp_msg);
                     break;
             }
 
@@ -1287,7 +1314,7 @@
                     return this._handle_xvp_msg();
 
                 default:
-                    this._fail("Disconnected: illegal server message type " + msg_type);
+                    this._fail("Unexpected server message", "Type:" + msg_type);
                     Util.Debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
                     return true;
             }
@@ -1348,7 +1375,8 @@
                          'encodingName': this._encNames[this._FBU.encoding]});
 
                     if (!this._encNames[this._FBU.encoding]) {
-                        this._fail("Disconnected: unsupported encoding " +
+                        this._fail("Unexpected server message",
+                                   "Unsupported encoding " +
                                    this._FBU.encoding);
                         return false;
                     }
@@ -1855,7 +1883,8 @@
                 if (this._sock.rQwait("HEXTILE subencoding", this._FBU.bytes)) { return false; }
                 var subencoding = rQ[rQi];  // Peek
                 if (subencoding > 30) {  // Raw
-                    this._fail("Disconnected: illegal hextile subencoding " + subencoding);
+                    this._fail("Unexpected server message",
+                               "Illegal hextile subencoding: " + subencoding);
                     return false;
                 }
 
@@ -1987,7 +2016,9 @@
 
         display_tight: function (isTightPNG) {
             if (this._fb_depth === 1) {
-                this._fail("Tight protocol handler only implements true color mode");
+                this._fail("Internal error",
+                           "Tight protocol handler only implements " +
+                           "true color mode");
             }
 
             this._FBU.bytes = 1;  // compression-control byte
@@ -2217,10 +2248,13 @@
             else if (ctl === 0x0A)  cmode = "png";
             else if (ctl & 0x04)    cmode = "filter";
             else if (ctl < 0x04)    cmode = "copy";
-            else return this._fail("Illegal tight compression received, ctl: " + ctl);
+            else return this._fail("Unexpected server message",
+                                   "Illegal tight compression received, " +
+                                   "ctl: " + ctl);
 
             if (isTightPNG && (cmode === "filter" || cmode === "copy")) {
-                return this._fail("filter/copy received in tightPNG mode");
+                return this._fail("Unexpected server message",
+                                  "filter/copy received in tightPNG mode");
             }
 
             switch (cmode) {
@@ -2281,7 +2315,9 @@
                     } else {
                         // Filter 0, Copy could be valid here, but servers don't send it as an explicit filter
                         // Filter 2, Gradient is valid but not use if jpeg is enabled
-                        this._fail("Unsupported tight subencoding received, filter: " + filterId);
+                        this._fail("Unexpected server message",
+                                   "Unsupported tight subencoding received, " +
+                                   "filter: " + filterId);
                     }
                     break;
                 case "copy":
