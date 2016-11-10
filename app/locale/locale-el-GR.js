@@ -5,7 +5,7 @@ Language = {
 	"Disconnect timeout": "Παρέλευση χρονικού ορίου αποσύνδεσης",
 	"Password is required": "Απαιτείται ο κωδικός",
 	"Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "Εφαρμογή λειτουργίας αποκοπής αφού δεν υποστηρίζονται οι λωρίδες κύλισης σε πλήρη οθόνη στον IE",
-	"Connecting": "Συνδέεται",
-	"Disconnecting": "Aποσυνδέεται",
+	"Connecting...": "Συνδέεται...",
+	"Disconnecting...": "Aποσυνδέεται...",
 	"Disconnected": "Αποσυνδέθηκε",
 };

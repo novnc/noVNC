@@ -367,12 +367,19 @@ var UI;
 
         updateState: function(rfb, state, oldstate) {
             var msg;
+
+            document.documentElement.classList.remove("noVNC_connecting");
+            document.documentElement.classList.remove("noVNC_connected");
+            document.documentElement.classList.remove("noVNC_disconnecting");
+
             switch (state) {
                 case 'connecting':
-                    UI.showStatus(Util.Localisation.get("Connecting"));
+                    document.getElementById("noVNC_transition_text").innerHTML = Util.Localisation.get("Connecting...");
+                    document.documentElement.classList.add("noVNC_connecting");
                     break;
                 case 'connected':
                     UI.connected = true;
+                    document.documentElement.classList.add("noVNC_connected");
                     if (rfb && rfb.get_encrypt()) {
                         msg = Util.Localisation.get("Connected (encrypted) to ") + UI.desktopName;
                     } else {
@@ -381,7 +388,8 @@ var UI;
                     UI.showStatus(msg);
                     break;
                 case 'disconnecting':
-                    UI.showStatus(Util.Localisation.get("Disconnecting"));
+                    document.getElementById("noVNC_transition_text").innerHTML = Util.Localisation.get("Disconnecting...");
+                    document.documentElement.classList.add("noVNC_disconnecting");
                     break;
                 case 'disconnected':
                     UI.connected = false;
@@ -417,14 +425,12 @@ var UI;
             document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
 
             if (UI.connected) {
-                document.documentElement.classList.add("noVNC_connected");
                 UI.updateViewClip();
                 UI.setMouseButton(1);
 
                 // Hide the controlbar after 2 seconds
                 UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
             } else {
-                document.documentElement.classList.remove("noVNC_connected");
                 UI.updateXvpButton(0);
                 UI.keepControlbar();
             }

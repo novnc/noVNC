@@ -5,7 +5,7 @@ Language = {
     "Disconnect timeout": "Timeout tijdens verbreken van verbinding",
     "Password is required": "Wachtwoord is vereist",
     "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-modus in IE niet worden ondersteund",
-    "Connecting": "Verbinden",
-    "Disconnecting": "Verbinding verbreken",
+    "Connecting...": "Verbinden...",
+    "Disconnecting...": "Verbinding verbreken...",
     "Disconnected": "Verbinding verbroken",
 };

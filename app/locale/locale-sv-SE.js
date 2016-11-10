@@ -5,7 +5,7 @@ Language = {
     "Disconnect timeout": "Det tog för lång tid att koppla ner",
     "Password is required": "Lösenord krävs",
     "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "Tvingar 'Clipping mode' eftersom skrollning inte stödjs av IE i fullskärm",
-    "Connecting": "Ansluter",
-    "Disconnecting": "Kopplar ner",
+    "Connecting...": "Ansluter...",
+    "Disconnecting...": "Kopplar ner...",
     "Disconnected": "Frånkopplad",
 };
