@@ -40,7 +40,10 @@ describe('Helpers', function() {
         });
         it('should map unknown codepoints to the Unicode range', function() {
             expect(keysyms.fromUnicode('\n'.charCodeAt())).to.have.property('keysym', 0x100000a);
-            expect(keysyms.fromUnicode('\u{1F686}'.charCodeAt())).to.have.property('keysym', 0x101f686);
+            expect(keysyms.fromUnicode('\u262D'.charCodeAt())).to.have.property('keysym', 0x100262d);
+        });
+        it('should map UCS-4 codepoints to the Unicode range', function() {
+            expect(keysyms.fromUnicode('\u{1F686}'.codePointAt())).to.have.property('keysym', 0x101f686);
         });
     });
 
