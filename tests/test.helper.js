@@ -44,7 +44,7 @@ describe('Helpers', function() {
         });
         // This requires very recent versions of most browsers... skipping for now
         it.skip('should map UCS-4 codepoints to the Unicode range', function() {
-            expect(keysyms.fromUnicode('\u{1F686}'.codePointAt())).to.have.property('keysym', 0x101f686);
+            //expect(keysyms.fromUnicode('\u{1F686}'.codePointAt())).to.have.property('keysym', 0x101f686);
         });
     });
 
