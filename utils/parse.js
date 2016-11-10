@@ -87,7 +87,13 @@ var out = "// This file describes mappings from Unicode codepoints to the keysym
 "\n" +
 "    function lookup(k) { return k ? {keysym: k, keyname: keynames ? keynames[k] : k} : undefined; }\n" +
 "    return {\n" +
-"        fromUnicode : function(u) { return lookup(codepoints[u]); },\n" +
+"        fromUnicode : function(u) {\n" +
+"            var keysym = codepoints[u];\n" +
+"            if (keysym === undefined) {\n" +
+"                keysym = 0x01000000 | u;\n" +
+"            }\n" +
+"            return lookup(keysym);\n" +
+"        },\n" +
 "        lookup : lookup\n" +
 "    };\n" +
 "})();\n";
