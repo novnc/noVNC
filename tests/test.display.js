@@ -71,8 +71,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should take viewport location into consideration when drawing images', function () {
-            display.set_width(4);
-            display.set_height(4);
+            display.resize(4, 4);
             display.viewportChangeSize(2, 2);
             display.drawImage(make_image_canvas(basic_data), 1, 1);
             display.flip();

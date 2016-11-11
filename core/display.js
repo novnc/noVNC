@@ -566,23 +566,12 @@
         },
 
         // Overridden getters/setters
-        get_context: function () {
-            return this._drawCtx;
-        },
-
         set_scale: function (scale) {
             this._rescale(scale);
         },
 
-        set_width: function (w) {
-            this._fb_width = w;
-        },
         get_width: function () {
             return this._fb_width;
-        },
-
-        set_height: function (h) {
-            this._fb_height =  h;
         },
         get_height: function () {
             return this._fb_height;
@@ -785,8 +774,8 @@
         ['colourMap', 'rw', 'arr'],    // Colour map array (when not true-color)
         ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0
         ['viewport', 'rw', 'bool'],    // Use viewport clipping
-        ['width', 'rw', 'int'],        // Display area width
-        ['height', 'rw', 'int'],       // Display area height
+        ['width', 'ro', 'int'],        // Display area width
+        ['height', 'ro', 'int'],       // Display area height
         ['maxWidth', 'rw', 'int'],     // Viewport max width (0 if disabled)
         ['maxHeight', 'rw', 'int'],    // Viewport max height (0 if disabled)
 
