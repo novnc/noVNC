@@ -89,6 +89,20 @@ describe('Display/Canvas Helper', function () {
             expect(display._target.height).to.equal(2);
         });
 
+        it('should move the viewport if necessary', function() {
+            display.viewportChangeSize(5, 5);
+            expect(display.absX(0)).to.equal(0);
+            expect(display.absY(0)).to.equal(0);
+            expect(display._target.width).to.equal(5);
+            expect(display._target.height).to.equal(5);
+        });
+
+        it('should limit the viewport to the framebuffer size', function() {
+            display.viewportChangeSize(6, 6);
+            expect(display._target.width).to.equal(5);
+            expect(display._target.height).to.equal(5);
+        });
+
         it('should redraw when moving the viewport', function () {
             display.flip = sinon.spy();
             display.viewportChangePos(-1, 1);
@@ -111,13 +125,40 @@ describe('Display/Canvas Helper', function () {
             var clipping = display.clippingDisplay();
             expect(clipping).to.be.false;
         });
+
+        it('should show the entire framebuffer when disabling the viewport', function() {
+            display.set_viewport(false);
+            expect(display.absX(0)).to.equal(0);
+            expect(display.absY(0)).to.equal(0);
+            expect(display._target.width).to.equal(5);
+            expect(display._target.height).to.equal(5);
+        });
+
+        it('should ignore viewport changes when the viewport is disabled', function() {
+            display.set_viewport(false);
+            display.viewportChangeSize(2, 2);
+            display.viewportChangePos(1, 1);
+            expect(display.absX(0)).to.equal(0);
+            expect(display.absY(0)).to.equal(0);
+            expect(display._target.width).to.equal(5);
+            expect(display._target.height).to.equal(5);
+        });
+
+        it('should show the entire framebuffer just after enabling the viewport', function() {
+            display.set_viewport(false);
+            display.set_viewport(true);
+            expect(display.absX(0)).to.equal(0);
+            expect(display.absY(0)).to.equal(0);
+            expect(display._target.width).to.equal(5);
+            expect(display._target.height).to.equal(5);
+        });
     });
 
     describe('resizing', function () {
         var display;
         beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
-            display.resize(4, 3);
+            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: false });
+            display.resize(4, 4);
         });
 
         it('should change the size of the logical canvas', function () {
@@ -126,14 +167,8 @@ describe('Display/Canvas Helper', function () {
             expect(display._fb_height).to.equal(7);
         });
 
-        it('should update the viewport dimensions', function () {
-            sinon.spy(display, 'viewportChangeSize');
-            display.resize(2, 2);
-            expect(display.viewportChangeSize).to.have.been.calledOnce;
-        });
-
         it('should keep the framebuffer data', function () {
-            display.fillRect(0, 0, 4, 3, [0, 0, 0xff]);
+            display.fillRect(0, 0, 4, 4, [0, 0, 0xff]);
             display.resize(2, 2);
             display.flip();
             var expected = [];
@@ -144,6 +179,38 @@ describe('Display/Canvas Helper', function () {
             }
             expect(display).to.have.displayed(new Uint8Array(expected));
         });
+
+        describe('viewport', function () {
+            beforeEach(function () {
+                display.set_viewport(true);
+                display.viewportChangeSize(3, 3);
+                display.viewportChangePos(1, 1);
+            });
+
+            it('should keep the viewport position and size if possible', function () {
+                display.resize(6, 6);
+                expect(display.absX(0)).to.equal(1);
+                expect(display.absY(0)).to.equal(1);
+                expect(display._target.width).to.equal(3);
+                expect(display._target.height).to.equal(3);
+            });
+
+            it('should move the viewport if necessary', function () {
+                display.resize(3, 3);
+                expect(display.absX(0)).to.equal(0);
+                expect(display.absY(0)).to.equal(0);
+                expect(display._target.width).to.equal(3);
+                expect(display._target.height).to.equal(3);
+            });
+
+            it('should shrink the viewport if necessary', function () {
+                display.resize(2, 2);
+                expect(display.absX(0)).to.equal(0);
+                expect(display.absY(0)).to.equal(0);
+                expect(display._target.width).to.equal(2);
+                expect(display._target.height).to.equal(2);
+            });
+        });
     });
 
     describe('rescaling', function () {
@@ -152,7 +219,9 @@ describe('Display/Canvas Helper', function () {
 
         beforeEach(function () {
             display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
-            display.resize(4, 3);
+            display.resize(4, 4);
+            display.viewportChangeSize(3, 3);
+            display.viewportChangePos(1, 1);
             canvas = display.get_target();
             document.body.appendChild(canvas);
         });
@@ -162,15 +231,25 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should not change the bitmap size of the canvas', function () {
-            display.set_scale(0.5);
-            expect(canvas.width).to.equal(4);
+            display.set_scale(2.0);
+            expect(canvas.width).to.equal(3);
             expect(canvas.height).to.equal(3);
         });
 
         it('should change the effective rendered size of the canvas', function () {
-            display.set_scale(0.5);
-            expect(canvas.clientWidth).to.equal(2);
-            expect(canvas.clientHeight).to.equal(2);
+            display.set_scale(2.0);
+            expect(canvas.clientWidth).to.equal(6);
+            expect(canvas.clientHeight).to.equal(6);
+        });
+
+        it('should not change when resizing', function () {
+            display.set_scale(2.0);
+            display.resize(5, 5);
+            expect(display.get_scale()).to.equal(2.0);
+            expect(canvas.width).to.equal(3);
+            expect(canvas.height).to.equal(3);
+            expect(canvas.clientWidth).to.equal(6);
+            expect(canvas.clientHeight).to.equal(6);
         });
     });
 

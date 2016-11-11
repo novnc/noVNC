@@ -26,9 +26,6 @@
     this._fb_width = 0;
     this._fb_height = 0;
 
-    // the visible "physical canvas" viewport
-    this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
-
     this._prevDrawStyle = "";
     this._tile = null;
     this._tile16x16 = null;
@@ -60,6 +57,9 @@
     }
 
     this._targetCtx = this._target.getContext('2d');
+
+    // the visible canvas viewport (i.e. what actually gets seen)
+    this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
 
     // The hidden canvas, where we do the actual rendering
     this._backbuffer = document.createElement('canvas');
@@ -156,10 +156,19 @@
 
         viewportChangeSize: function(width, height) {
 
-            if (typeof(width) === "undefined" || typeof(height) === "undefined") {
+            if (!this._viewport ||
+                typeof(width) === "undefined" ||
+                typeof(height) === "undefined") {
 
                 Util.Debug("Setting viewport to full display region");
                 width = this._fb_width;
+                height = this._fb_height;
+            }
+
+            if (width > this._fb_width) {
+                width = this._fb_width;
+            }
+            if (height > this._fb_height) {
                 height = this._fb_height;
             }
 
@@ -169,18 +178,17 @@
                 vp.h = height;
 
                 var canvas = this._target;
-                if (canvas.width !== width || canvas.height !== height) {
-                    if (canvas.width !== width) {
-                        canvas.width = width;
-                        canvas.style.width = width + 'px';
-                    }
-                    if (canvas.height !== height) {
-                        canvas.height = height;
-                        canvas.style.height = height + 'px';
-                    }
-                    this._damage(vp.x, vp.y, vp.w, vp.h);
-                    this.flip();
-                }
+                canvas.width = width;
+                canvas.height = height;
+
+                // The position might need to be updated if we've grown
+                this.viewportChangePos(0, 0);
+
+                this._damage(vp.x, vp.y, vp.w, vp.h);
+                this.flip();
+
+                // Update the visible size of the target canvas
+                this._rescale(this._scale);
             }
         },
 
@@ -219,9 +227,11 @@
                 }
             }
 
-            this._rescale(this._scale);
-
-            this.viewportChangeSize();
+            // Readjust the viewport as it may be incorrectly sized
+            // and positioned
+            var vp = this._viewportLoc;
+            this.viewportChangeSize(vp.w, vp.h);
+            this.viewportChangePos(0, 0);
         },
 
         // Track what parts of the visible canvas that need updating
@@ -545,6 +555,14 @@
         // Overridden getters/setters
         set_scale: function (scale) {
             this._rescale(scale);
+        },
+
+        set_viewport: function (viewport) {
+            this._viewport = viewport;
+            // May need to readjust the viewport dimensions
+            var vp = this._viewportLoc;
+            this.viewportChangeSize(vp.w, vp.h);
+            this.viewportChangePos(0, 0);
         },
 
         get_width: function () {

@@ -1187,22 +1187,7 @@ var UI;
             if (new_clip && size) {
                 // When clipping is enabled, the screen is limited to
                 // the size of the browser window.
-
-                var screen = document.getElementById('noVNC_screen');
-                var canvas = document.getElementById('noVNC_canvas');
-
-                // Hide potential scrollbars that can skew the position
-                screen.style.overflow = "hidden";
-
-                // The x position marks the left margin of the canvas,
-                // remove the margin from both sides to keep it centered.
-                var new_w = size.w - (2 * Util.getPosition(canvas).x);
-
-                screen.style.overflow = "visible";
-
-                display.viewportChangeSize(new_w, size.h);
-            } else {
-                display.viewportChangeSize();
+                display.viewportChangeSize(size.w, size.h);
             }
         },
 
