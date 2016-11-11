@@ -1107,11 +1107,6 @@ var UI;
                     // is finished we wait 0.5 seconds before sending the request.
                     clearTimeout(UI.resizeTimeout);
                     UI.resizeTimeout = setTimeout(function(){
-
-                        // Limit the viewport to the size of the browser window
-                        display.set_maxWidth(screen.w);
-                        display.set_maxHeight(screen.h);
-
                         // Request a remote size covering the viewport
                         if (UI.rfb.requestDesktopSize(screen.w, screen.h)) {
                             Util.Debug('Requested new desktop size: ' +
@@ -1192,8 +1187,6 @@ var UI;
             if (new_clip && size) {
                 // When clipping is enabled, the screen is limited to
                 // the size of the browser window.
-                display.set_maxWidth(size.w);
-                display.set_maxHeight(size.h);
 
                 var screen = document.getElementById('noVNC_screen');
                 var canvas = document.getElementById('noVNC_canvas');
@@ -1209,9 +1202,6 @@ var UI;
 
                 display.viewportChangeSize(new_w, size.h);
             } else {
-                // Disable max dimensions
-                display.set_maxWidth(0);
-                display.set_maxHeight(0);
                 display.viewportChangeSize();
             }
         },

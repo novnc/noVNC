@@ -26,10 +26,6 @@
     this._fb_width = 0;
     this._fb_height = 0;
 
-    // the size limit of the viewport (start disabled)
-    this._maxWidth = 0;
-    this._maxHeight = 0;
-
     // the visible "physical canvas" viewport
     this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
 
@@ -169,16 +165,6 @@
 
             var vp = this._viewportLoc;
             if (vp.w !== width || vp.h !== height) {
-
-                if (this._viewport) {
-                    if (this._maxWidth !== 0 && width > this._maxWidth) {
-                        width = this._maxWidth;
-                    }
-                    if (this._maxHeight !== 0 && height > this._maxHeight) {
-                        height = this._maxHeight;
-                    }
-                }
-
                 vp.w = width;
                 vp.h = height;
 
@@ -553,16 +539,7 @@
 
         clippingDisplay: function () {
             var vp = this._viewportLoc;
-
-            var fbClip = this._fb_width > vp.w || this._fb_height > vp.h;
-            var limitedVp = this._maxWidth !== 0 && this._maxHeight !== 0;
-            var clipping = false;
-
-            if (limitedVp) {
-                clipping = vp.w > this._maxWidth || vp.h > this._maxHeight;
-            }
-
-            return fbClip || (limitedVp && clipping);
+            return this._fb_width > vp.w || this._fb_height > vp.h;
         },
 
         // Overridden getters/setters
@@ -616,21 +593,9 @@
         // Private Methods
         _rescale: function (factor) {
             this._scale = factor;
-
-            var w;
-            var h;
-
-            if (this._viewport &&
-                this._maxWidth !== 0 && this._maxHeight !== 0) {
-                w = Math.min(this._fb_width, this._maxWidth);
-                h = Math.min(this._fb_height, this._maxHeight);
-            } else {
-                w = this._fb_width;
-                h = this._fb_height;
-            }
-
-            this._target.style.width = Math.round(factor * w) + 'px';
-            this._target.style.height = Math.round(factor * h) + 'px';
+            var vp = this._viewportLoc;
+            this._target.style.width = Math.round(factor * vp.w) + 'px';
+            this._target.style.height = Math.round(factor * vp.h) + 'px';
         },
 
         _setFillColor: function (color) {
@@ -776,8 +741,6 @@
         ['viewport', 'rw', 'bool'],    // Use viewport clipping
         ['width', 'ro', 'int'],        // Display area width
         ['height', 'ro', 'int'],       // Display area height
-        ['maxWidth', 'rw', 'int'],     // Viewport max width (0 if disabled)
-        ['maxHeight', 'rw', 'int'],    // Viewport max height (0 if disabled)
 
         ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
 

@@ -83,10 +83,10 @@ describe('Display/Canvas Helper', function () {
             expect(display).to.have.displayed(expected);
         });
 
-        if('should resize the target canvas when resizing the viewport', function() {
+        it('should resize the target canvas when resizing the viewport', function() {
             display.viewportChangeSize(2, 2);
-            expect(canvas.width).to.equal(2);
-            expect(canvas.height).to.equal(2);
+            expect(display._target.width).to.equal(2);
+            expect(display._target.height).to.equal(2);
         });
 
         it('should redraw when moving the viewport', function () {
@@ -100,39 +100,16 @@ describe('Display/Canvas Helper', function () {
             display.viewportChangeSize(2, 2);
             expect(display.flip).to.have.been.calledOnce;
         });
-    });
 
-    describe('clipping', function () {
-        var display;
-        beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
-            display.resize(4, 3);
-        });
-
-        it('should report true when no max-size and framebuffer > viewport', function () {
-            display.viewportChangeSize(2,2);
+        it('should report clipping when framebuffer > viewport', function () {
             var clipping = display.clippingDisplay();
             expect(clipping).to.be.true;
         });
 
-        it('should report false when no max-size and framebuffer = viewport', function () {
+        it('should report not clipping when framebuffer = viewport', function () {
+            display.viewportChangeSize(5, 5);
             var clipping = display.clippingDisplay();
             expect(clipping).to.be.false;
-        });
-
-        it('should report true when viewport > max-size and framebuffer > viewport', function () {
-            display.viewportChangeSize(2,2);
-            display.set_maxWidth(1);
-            display.set_maxHeight(2);
-            var clipping = display.clippingDisplay();
-            expect(clipping).to.be.true;
-        });
-
-        it('should report true when viewport > max-size and framebuffer = viewport', function () {
-            display.set_maxWidth(1);
-            display.set_maxHeight(2);
-            var clipping = display.clippingDisplay();
-            expect(clipping).to.be.true;
         });
     });
 
