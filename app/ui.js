@@ -40,13 +40,20 @@ var UI;
         return false;
     });
 
+    // Set up translations
+    var LINGUAS = ["de", "el", "nl", "sv"];
+    Util.Localisation.setup(LINGUAS);
+    if (Util.Localisation.language !== "en") {
+        WebUtil.load_scripts(
+            {'app': ["locale/" + Util.Localisation.language + ".js"]});
+    }
+
     /* [begin skip-as-module] */
     // Load supporting scripts
     WebUtil.load_scripts(
-        {'core': [WebUtil.getLanguageFileLocation(), "base64.js", "websock.js",
-                  "des.js", "input/keysymdef.js", "input/xtscancodes.js",
-                  "input/util.js", "input/devices.js", "display.js",
-                  "inflator.js", "rfb.js", "input/keysym.js"]});
+        {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
+                  "input/xtscancodes.js", "input/util.js", "input/devices.js",
+                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
 
     window.onscriptsload = function () { UI.load(); };
     /* [end skip-as-module] */

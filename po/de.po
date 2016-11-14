@@ -1,0 +1,58 @@
+# German translations for noVNC package
+# German translation for noVNC.
+# Copyright (C) 2016 Various Authors
+# This file is distributed under the same license as the noVNC package.
+# Loek Janssen <loekjanssen@gmail.com>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: noVNC 0.6.1\n"
+"Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
+"POT-Creation-Date: 2016-11-15 08:11+0100\n"
+"PO-Revision-Date: 2016-11-15 07:51+0100\n"
+"Last-Translator: Loek Janssen <loekjanssen@gmail.com>\n"
+"Language-Team: none\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../app/ui.js:402
+msgid "Connecting..."
+msgstr "Verbunden..."
+
+#: ../app/ui.js:409
+msgid "Connected (encrypted) to "
+msgstr "Verbunden mit (verschlüsselt) "
+
+#: ../app/ui.js:411
+msgid "Connected (unencrypted) to "
+msgstr "Verbunden mit (unverschlüsselt) "
+
+#: ../app/ui.js:416
+msgid "Disconnecting..."
+msgstr "Verbindung trennen..."
+
+#: ../app/ui.js:421
+msgid "Disconnected"
+msgstr "Verbindung zum Server getrennt"
+
+#: ../app/ui.js:1006 ../core/rfb.js:278
+msgid "Must set host and port"
+msgstr "Richten Sie Host und Port ein"
+
+#: ../app/ui.js:1059
+msgid "Password is required"
+msgstr "Passwort ist erforderlich"
+
+#: ../app/ui.js:1272
+msgid ""
+"Forcing clipping mode since scrollbars aren't supported by IE in fullscreen"
+msgstr ""
+"'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht "
+"unterstützt"
+
+#: ../core/rfb.js:556
+msgid "Disconnect timeout"
+msgstr "Timeout beim trennen"
