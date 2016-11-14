@@ -7,6 +7,20 @@
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
+/*
+ * Z index layers:
+ *
+ * 0: Main screen
+ * 10: Control bar
+ * 50: Transition blocker
+ * 60: Connection popups
+ * 100: Status bar
+ * ...
+ * 1000: Javascript crash
+ * ...
+ * 10000: Max (used for polyfills)
+ */
+
 body {
   margin:0;
   padding:0;
@@ -173,13 +187,22 @@ input[type=button]:active, select:active {
 }
 
 /* ----------------------------------------
+ * Layering
+ * ----------------------------------------
+ */
+
+.noVNC_connect_layer {
+  z-index: 60;
+}
+
+/* ----------------------------------------
  * Fallback error
  * ----------------------------------------
  */
 
 #noVNC_fallback_error {
   position: fixed;
-  z-index: 3;
+  z-index: 1000;
   left: 50%;
   transform: translate(-50%, -50px);
   transition: 0.5s ease-in-out;
@@ -234,7 +257,7 @@ input[type=button]:active, select:active {
 #noVNC_control_bar_anchor {
   /* The anchor is needed to get z-stacking to work */
   position: fixed;
-  z-index: 2;
+  z-index: 10;
 
   transition: 0.5s ease-in-out;
 
@@ -294,7 +317,7 @@ input[type=button]:active, select:active {
   transform: translateY(35px);
   width: calc(100% + 30px);
   height: 50px;
-  z-index: -2;
+  z-index: -1;
   cursor: pointer;
   border-radius: 5px;
   background-color: rgb(83, 99, 122);
@@ -576,7 +599,7 @@ input[type=button]:active, select:active {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 3;
+  z-index: 100;
   transform: translateY(-100%);
 
   transition: 0.5s ease-in-out;
@@ -709,6 +732,8 @@ input[type=button]:active, select:active {
  */
 
 #noVNC_password_dlg {
+  position: relative;
+
   transform: translateY(-50px);
 }
 #noVNC_password_dlg.noVNC_open {
@@ -737,7 +762,7 @@ input[type=button]:active, select:active {
 
   color: white;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 50;
 
   /*display: flex;*/
   align-items: center;
