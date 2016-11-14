@@ -173,6 +173,43 @@ input[type=button]:active, select:active {
 }
 
 /* ----------------------------------------
+ * Fallback error
+ * ----------------------------------------
+ */
+
+#noVNC_fallback_error {
+  position: fixed;
+  z-index: 3;
+  left: 50%;
+  transform: translate(-50%, -50px);
+  transition: 0.5s ease-in-out;
+
+  visibility: hidden;
+  opacity: 0;
+
+  top: 60px;
+  padding: 15px;
+  width: auto;
+
+  text-align: center;
+  font-weight: bold;
+  word-wrap: break-word;
+  color: #fff;
+
+  border-radius: 10px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  background: rgba(200,55,55,0.8);
+}
+#noVNC_fallback_error.noVNC_open {
+  transform: translate(-50%, 0);
+  visibility: visible;
+  opacity: 1;
+}
+#noVNC_fallback_errormsg {
+  font-weight: normal;
+}
+
+/* ----------------------------------------
  * Control Bar
  * ----------------------------------------
  */

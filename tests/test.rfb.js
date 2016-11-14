@@ -330,7 +330,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should clear the disconnect timer if the state is not "disconnecting"', function () {
                 var spy = sinon.spy();
                 client._disconnTimer = setTimeout(spy, 50);
-                client._updateConnectionState('connected');
+                client._updateConnectionState('connecting');
                 this.clock.tick(51);
                 expect(spy).to.not.have.been.called;
                 expect(client._disconnTimer).to.be.null;
@@ -338,27 +338,37 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should call the updateState callback', function () {
                 client.set_onUpdateState(sinon.spy());
-                client._updateConnectionState('a specific state');
+                client._updateConnectionState('connecting');
                 var spy = client.get_onUpdateState();
                 expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][1]).to.equal('a specific state');
+                expect(spy.args[0][1]).to.equal('connecting');
             });
 
             it('should set the rfb_connection_state', function () {
-                client._updateConnectionState('a specific state');
-                expect(client._rfb_connection_state).to.equal('a specific state');
+                client._rfb_connection_state = 'disconnecting';
+                client._updateConnectionState('disconnected');
+                expect(client._rfb_connection_state).to.equal('disconnected');
             });
 
             it('should not change the state when we are disconnected', function () {
                 client._rfb_connection_state = 'disconnected';
-                client._updateConnectionState('a specific state');
-                expect(client._rfb_connection_state).to.not.equal('a specific state');
+                client._updateConnectionState('connecting');
+                expect(client._rfb_connection_state).to.not.equal('connecting');
             });
 
             it('should ignore state changes to the same state', function () {
                 client.set_onUpdateState(sinon.spy());
-                client._rfb_connection_state = 'a specific state';
-                client._updateConnectionState('a specific state');
+                client._rfb_connection_state = 'connecting';
+                client._updateConnectionState('connecting');
+                var spy = client.get_onUpdateState();
+                expect(spy).to.not.have.been.called;
+            });
+
+            it('should ignore illegal state changes', function () {
+                client.set_onUpdateState(sinon.spy());
+                client._rfb_connection_state = 'connected';
+                client._updateConnectionState('disconnected');
+                expect(client._rfb_connection_state).to.not.equal('disconnected');
                 var spy = client.get_onUpdateState();
                 expect(spy).to.not.have.been.called;
             });
@@ -391,11 +401,19 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should set disconnect_reason', function () {
+                client._rfb_connection_state = 'connected';
                 client._fail('a reason');
                 expect(client._rfb_disconnect_reason).to.equal('a reason');
             });
 
+            it('should not include details in disconnect_reason', function () {
+                client._rfb_connection_state = 'connected';
+                client._fail('a reason', 'details');
+                expect(client._rfb_disconnect_reason).to.equal('a reason');
+            });
+
             it('should result in disconnect callback with message when reason given', function () {
+                client._rfb_connection_state = 'connected';
                 client.set_onDisconnected(sinon.spy());
                 client._fail('a reason');
                 var spy = client.get_onDisconnected();
@@ -542,7 +560,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should call the updateState callback before the disconnect callback', function () {
                 client.set_onDisconnected(sinon.spy());
                 client.set_onUpdateState(sinon.spy());
-                client._rfb_connection_state = 'other state';
+                client._rfb_connection_state = 'disconnecting';
                 client._updateConnectionState('disconnected');
                 var updateStateSpy = client.get_onUpdateState();
                 var disconnectSpy = client.get_onDisconnected();
@@ -717,7 +735,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock._websocket._receive_data(failure_data);
 
                 expect(client._fail).to.have.been.calledOnce;
-                expect(client._fail).to.have.been.calledWith('Security failure: whoops');
+                expect(client._fail).to.have.been.calledWith(
+                    'Error while negotiating with server','Security failure: whoops');
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
@@ -756,7 +775,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receive_data(new Uint8Array(data));
-                expect(client._fail).to.have.been.calledWith('Auth failure: Whoopsies');
+                expect(client._fail).to.have.been.calledWith(
+                    'Authentication failure', 'Whoopsies');
             });
 
             it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.8', function () {
@@ -988,7 +1008,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client, '_fail');
                 var failure_data = [0, 0, 0, 1, 0, 0, 0, 6, 119, 104, 111, 111, 112, 115];
                 client._sock._websocket._receive_data(new Uint8Array(failure_data));
-                expect(client._fail).to.have.been.calledWith('whoops');
+                expect(client._fail).to.have.been.calledWith(
+                    'Authentication failure', 'whoops');
             });
 
             it('should fail on an error code of 1 with a standard message for version < 3.8', function () {
@@ -2112,10 +2133,18 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_connection_state).to.equal('disconnected');
             });
 
-            it('should transition to failed if we get a close event from any non-"disconnection" state', function () {
+            it('should fail if we get a close event while connecting', function () {
                 sinon.spy(client, "_fail");
                 client.connect('host', 8675);
-                client._rfb_connection_state = 'connected';
+                client._rfb_connection_state = 'connecting';
+                client._sock._websocket.close();
+                expect(client._fail).to.have.been.calledOnce;
+            });
+
+            it('should fail if we get a close event while disconnected', function () {
+                sinon.spy(client, "_fail");
+                client.connect('host', 8675);
+                client._rfb_connection_state = 'disconnected';
                 client._sock._websocket.close();
                 expect(client._fail).to.have.been.calledOnce;
             });
