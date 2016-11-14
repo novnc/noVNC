@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+/*
+ * xgettext-html: HTML gettext parser
+ * Copyright (C) 2016 Pierre Ossman
+ * Licensed under MPL 2.0 (see LICENSE.txt)
+ */
+
+var getopt = require('node-getopt');
+
+var jsdom = require("jsdom");
+var fs = require("fs");
+
+opt = getopt.create([
+    ['o' , 'output=FILE'      , 'write output to specified file'],
+    ['h' , 'help'             , 'display this help'],
+]).bindHelp().parseSystem();
+
+var strings = {};
+
+function addString(str, location) {
+    if (str.length == 0) {
+        return;
+    }
+
+    if (strings[str] === undefined) {
+        strings[str] = {}
+    }
+    strings[str][location] = null;
+}
+
+// See https://html.spec.whatwg.org/multipage/dom.html#attr-translate
+function process(elem, locator, enabled) {
+    function isAnyOf(searchElement, items) {
+        return items.indexOf(searchElement) !== -1;
+    }
+
+    if (elem.hasAttribute("translate")) {
+        if (isAnyOf(elem.getAttribute("translate"), ["", "yes"])) {
+            enabled = true;
+        } else if (isAnyOf(elem.getAttribute("translate"), ["no"])) {
+            enabled = false;
+        }
+    }
+
+    if (enabled) {
+        if (elem.hasAttribute("abbr") &&
+            elem.tagName === "TH") {
+            addString(elem.getAttribute("abbr"), locator(elem));
+        }
+        if (elem.hasAttribute("alt") &&
+            isAnyOf(elem.tagName, ["AREA", "IMG", "INPUT"])) {
+            addString(elem.getAttribute("alt"), locator(elem));
+        }
+        if (elem.hasAttribute("download") &&
+            isAnyOf(elem.tagName, ["A", "AREA"])) {
+            addString(elem.getAttribute("download"), locator(elem));
+        }
+        if (elem.hasAttribute("label") &&
+            isAnyOf(elem.tagName, ["MENUITEM", "MENU", "OPTGROUP",
+                                   "OPTION", "TRACK"])) {
+            addString(elem.getAttribute("label"), locator(elem));
+        }
+        if (elem.hasAttribute("placeholder") &&
+            isAnyOf(elem.tagName in ["INPUT", "TEXTAREA"])) {
+            addString(elem.getAttribute("placeholder"), locator(elem));
+        }
+        if (elem.hasAttribute("title")) {
+            addString(elem.getAttribute("title"), locator(elem));
+        }
+        if (elem.hasAttribute("value") &&
+            elem.tagName === "INPUT" &&
+            isAnyOf(elem.getAttribute("type"), ["reset", "button"])) {
+            addString(elem.getAttribute("value"), locator(elem));
+        }
+    }
+
+    for (var i = 0;i < elem.childNodes.length;i++) {
+        node = elem.childNodes[i];
+        if (node.nodeType === node.ELEMENT_NODE) {
+            process(node, locator, enabled);
+        } else if (node.nodeType === node.TEXT_NODE && enabled) {
+            addString(node.data.trim(), locator(node));
+        }
+    }
+}
+
+for (var i = 0;i < opt.argv.length;i++) {
+    var file;
+
+    fn = opt.argv[i];
+    file = fs.readFileSync(fn, "utf8");
+    doc = jsdom.jsdom(file);
+
+    locator = function (elem) {
+        offset = jsdom.nodeLocation(elem).start;
+        line = file.slice(0, offset).split("\n").length;
+        return fn + ":" + line;
+    };
+
+    process(doc.body, locator, true);
+}
+
+var output = "";
+
+for (str in strings) {
+    output += "#:";
+    for (location in strings[str]) {
+        output += " " + location;
+    }
+    output += "\n";
+
+    output += "msgid " + JSON.stringify(str) + "\n";
+    output += "msgstr \"\"\n";
+    output += "\n";
+}
+
+fs.writeFileSync(opt.options.output, output);

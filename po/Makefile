@@ -17,7 +17,7 @@ update-js: $(JSFILES)
 	./po2js $< $@
 
 update-pot:
-	xgettext --output=noVNC.pot \
+	xgettext --output=noVNC.js.pot \
 		--copyright-holder="Various Authors" \
 		--package-name="noVNC" \
 		--package-version="$(VERSION)" \
@@ -27,3 +27,8 @@ update-pot:
 		../app/*.js \
 		../core/*.js \
 		../core/input/*.js
+	./xgettext-html --output=noVNC.html.pot \
+		../vnc.html
+	msgcat --output-file=noVNC.pot \
+		--sort-by-file noVNC.js.pot noVNC.html.pot
+	rm -f noVNC.js.pot noVNC.html.pot

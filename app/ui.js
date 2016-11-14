@@ -96,6 +96,9 @@ var UI;
 
             UI.initSettings();
 
+            // Translate the DOM
+            Util.Localisation.translateDOM();
+
             // Adapt the interface for touch screen devices
             if (Util.isTouchDevice) {
                 document.documentElement.classList.add("noVNC_touch");

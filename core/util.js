@@ -440,7 +440,81 @@ Util.Localisation = {
         } else {
             return id;
         }
-    }
+    },
+
+    // Traverses the DOM and translates relevant fields
+    // See https://html.spec.whatwg.org/multipage/dom.html#attr-translate
+    translateDOM: function () {
+        function process(elem, enabled) {
+            function isAnyOf(searchElement, items) {
+                return items.indexOf(searchElement) !== -1;
+            }
+
+            function translateAttribute(elem, attr) {
+                var str = elem.getAttribute(attr);
+                str = Util.Localisation.get(str);
+                elem.setAttribute(attr, str);
+            }
+
+            function translateTextNode(node) {
+                var str = node.data.trim();
+                str = Util.Localisation.get(str);
+                node.data = str;
+            }
+
+            if (elem.hasAttribute("translate")) {
+                if (isAnyOf(elem.getAttribute("translate"), ["", "yes"])) {
+                    enabled = true;
+                } else if (isAnyOf(elem.getAttribute("translate"), ["no"])) {
+                    enabled = false;
+                }
+            }
+
+            if (enabled) {
+                if (elem.hasAttribute("abbr") &&
+                    elem.tagName === "TH") {
+                    translateAttribute(elem, "abbr");
+                }
+                if (elem.hasAttribute("alt") &&
+                    isAnyOf(elem.tagName, ["AREA", "IMG", "INPUT"])) {
+                    translateAttribute(elem, "alt");
+                }
+                if (elem.hasAttribute("download") &&
+                    isAnyOf(elem.tagName, ["A", "AREA"])) {
+                    translateAttribute(elem, "download");
+                }
+                if (elem.hasAttribute("label") &&
+                    isAnyOf(elem.tagName, ["MENUITEM", "MENU", "OPTGROUP",
+                                   "OPTION", "TRACK"])) {
+                    translateAttribute(elem, "label");
+                }
+                // FIXME: Should update "lang"
+                if (elem.hasAttribute("placeholder") &&
+                    isAnyOf(elem.tagName in ["INPUT", "TEXTAREA"])) {
+                    translateAttribute(elem, "placeholder");
+                }
+                if (elem.hasAttribute("title")) {
+                    translateAttribute(elem, "title");
+                }
+                if (elem.hasAttribute("value") &&
+                    elem.tagName === "INPUT" &&
+                    isAnyOf(elem.getAttribute("type"), ["reset", "button"])) {
+                    translateAttribute(elem, "value");
+                }
+            }
+
+            for (var i = 0;i < elem.childNodes.length;i++) {
+                node = elem.childNodes[i];
+                if (node.nodeType === node.ELEMENT_NODE) {
+                    process(node, enabled);
+                } else if (node.nodeType === node.TEXT_NODE && enabled) {
+                    translateTextNode(node);
+                }
+            }
+        }
+
+        process(document.body, true);
+    },
 };
 
 /* [module] export default Util; */
