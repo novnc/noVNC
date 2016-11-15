@@ -553,7 +553,7 @@
                     this._disconnect();
 
                     this._disconnTimer = setTimeout(function () {
-                        this._rfb_disconnect_reason = "Disconnect timeout";
+                        this._rfb_disconnect_reason = _("Disconnect timeout");
                         this._updateConnectionState('disconnected');
                     }.bind(this), this._disconnectTimeout * 1000);
                     break;
