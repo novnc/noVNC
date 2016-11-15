@@ -456,6 +456,7 @@ input[type=button]:active, select:active {
 
 .noVNC_panel label {
   display: block;
+  white-space: nowrap;
 }
 
 .noVNC_panel .noVNC_heading {
