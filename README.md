@@ -121,7 +121,7 @@ use a WebSockets to TCP socket proxy. There is a python proxy included
     * [Solly Ross](https://github.com/DirectXMan12) (Red Hat / OpenStack)
 
 * Notable contributions:
-    * UI and Icons : Chris Gordon
+    * UI and Icons : Pierre Ossman, Chris Gordon
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
 
