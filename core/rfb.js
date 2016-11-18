@@ -566,7 +566,7 @@
         _fail: function (msg, details) {
             var fullmsg = msg;
             if (typeof details !== 'undefined') {
-                fullmsg = msg + "(" + details + ")";
+                fullmsg = msg + " (" + details + ")";
             }
             switch (this._rfb_connection_state) {
                 case 'disconnecting':
