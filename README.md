@@ -66,10 +66,9 @@ See more screenshots <a href="http://kanaka.github.com/noVNC/screenshots.html">h
 
 ### Browser Requirements
 
-* HTML5 Canvas (with createImageData): Chrome, Firefox 3.6+, iOS
-  Safari, Opera 11+, Internet Explorer 9+, etc.
+* Chrome 8, Firefox 4, Safari 6, Opera 12, IE 11, Edge 12, etc.
 
-* HTML5 WebSockets and Typed Arrays
+* HTML5 Canvas, WebSockets and Typed Arrays
 
 * Fast Javascript Engine: this is not strictly a requirement, but
   without a fast Javascript engine, noVNC might be painfully slow.
