@@ -104,17 +104,27 @@ WebSockets to TCP socket proxy. There is a python proxy included
 
 ### Other Pages
 
-* [Encrypted Connections](https://github.com/kanaka/websockify/wiki/Encrypted-Connections)
-  - How to setup websockify so that you can use encrypted connections from noVNC.
+* [Modules/API](https://github.com/kanaka/noVNC/wiki/Modules-API) - The library
+  modules and their Javascript API.
 
-* [Advanced Usage](https://github.com/kanaka/noVNC/wiki/Advanced-usage)
-  - Starting a VNC server, advanced websockify usage, etc.
+* [Integration](https://github.com/kanaka/noVNC/wiki/Integration) - Get noVNC
+  to work in existing projects.
 
-* [Integrating noVNC](https://github.com/kanaka/noVNC/wiki/Integration) into
-  existing projects.
+* [Troubleshooting](https://github.com/kanaka/noVNC/wiki/Troubleshooting) - How
+  to troubleshoot problems.
 
-* [Troubleshooting noVNC](https://github.com/kanaka/noVNC/wiki/Troubleshooting)
-  problems.
+* [Encrypted Connections](https://github.com/kanaka/websockify/wiki/Encrypted-Connections) -
+  Setup websockify so that you can use encrypted connections from noVNC.
+
+* [Advanced Usage](https://github.com/kanaka/noVNC/wiki/Advanced-usage) -
+  Generating an SSL certificate, starting a VNC server, advanced websockify
+  usage, etc.
+
+* [Testing](https://github.com/kanaka/noVNC/wiki/Testing) - Run and write
+  tests.
+
+* [Translations](https://github.com/kanaka/noVNC/wiki/Translations) - Add and
+  modify localization for JavaScript and HTML.
 
 
 ### Authors/Contributors
@@ -135,3 +145,5 @@ WebSockets to TCP socket proxy. There is a python proxy included
     * base64 : Martijn Pieters (Digital Creations 2), Samuel Sieb (sieb.net)
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
     * Pako : Vitaly Puzrin (https://github.com/nodeca/pako)
+
+* [Contribution guide](https://github.com/kanaka/noVNC/wiki/Contributing)
