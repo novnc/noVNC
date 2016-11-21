@@ -1414,7 +1414,7 @@ var UI;
             }
 
             // Allow clicking on links
-            if (event.target.tagName === "a") {
+            if (event.target.tagName === "A") {
                 return;
             }
 
