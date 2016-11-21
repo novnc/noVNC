@@ -4,16 +4,16 @@
 
 ### Description
 
-noVNC is a HTML5 VNC client that runs well in any modern browser
-including mobile browsers (iPhone/iPad and Android).
+noVNC is a HTML5 VNC client that runs well in any modern browser including
+mobile browsers (iOS and Android).
 
-Many companies/projects have integrated noVNC including [Ganeti Web
-Manager](http://code.osuosl.org/projects/ganeti-webmgr),
+Many companies, projects and products have integrated noVNC including
+[Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr),
 [OpenStack](http://www.openstack.org),
-[OpenNebula](http://opennebula.org/), and
-[LibVNCServer](http://libvncserver.sourceforge.net). See [the Projects
-and Companies wiki
-page](https://github.com/kanaka/noVNC/wiki/ProjectsCompanies-using-noVNC)
+[OpenNebula](http://opennebula.org/),
+[LibVNCServer](http://libvncserver.sourceforge.net), and
+[ThinLinc](https://cendio.com/thinlinc).
+See [the Projects and Companies wiki page](https://github.com/kanaka/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
 
 ### News/help/contact
