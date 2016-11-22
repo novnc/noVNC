@@ -56,6 +56,47 @@ describe('Utils', function() {
         });
     });
 
+    describe('language selection', function () {
+        it('should use English by default', function() {
+            expect(Util.Localisation.language).to.equal('en');
+        });
+        it('should use English if no user language matches', function() {
+            window.navigator.languages = ["nl", "de"];
+            Util.Localisation.setup(["es", "fr"]);
+            expect(Util.Localisation.language).to.equal('en');
+        });
+        it('should use the most preferred user language', function() {
+            window.navigator.languages = ["nl", "de", "fr"];
+            Util.Localisation.setup(["es", "fr", "de"]);
+            expect(Util.Localisation.language).to.equal('de');
+        });
+        it('should prefer sub-languages languages', function() {
+            window.navigator.languages = ["pt-BR"];
+            Util.Localisation.setup(["pt", "pt-BR"]);
+            expect(Util.Localisation.language).to.equal('pt-BR');
+        });
+        it('should fall back to language "parents"', function() {
+            window.navigator.languages = ["pt-BR"];
+            Util.Localisation.setup(["fr", "pt", "de"]);
+            expect(Util.Localisation.language).to.equal('pt');
+        });
+        it('should not use specific language when user asks for a generic language', function() {
+            window.navigator.languages = ["pt", "de"];
+            Util.Localisation.setup(["fr", "pt-BR", "de"]);
+            expect(Util.Localisation.language).to.equal('de');
+        });
+        it('should handle underscore as a separator', function() {
+            window.navigator.languages = ["pt-BR"];
+            Util.Localisation.setup(["pt_BR"]);
+            expect(Util.Localisation.language).to.equal('pt_BR');
+        });
+        it('should handle difference in case', function() {
+            window.navigator.languages = ["pt-br"];
+            Util.Localisation.setup(["pt-BR"]);
+            expect(Util.Localisation.language).to.equal('pt-BR');
+        });
+    });
+
     // TODO(directxman12): test the conf_default and conf_defaults methods
     // TODO(directxman12): test decodeUTF8
     // TODO(directxman12): test the event methods (addEvent, removeEvent, stopEvent)

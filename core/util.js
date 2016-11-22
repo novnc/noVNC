@@ -368,72 +368,69 @@ Util.Flash = (function () {
 
 
 Util.Localisation = {
-    defaultLanguage: 'en-GB',
+    // Currently configured language
+    language: 'en',
 
-    /*
-     * Not all languages have been translated
-     * Some countries prefer a certain language
-     */
-    supportedLanguages: {
-        'en':    'en-GB',
-        'en-GB': 'en-GB',
-        'en-US': 'en-GB',
-        'nl':    'nl-NL',
-        'nl-NL': 'nl-NL',
-        'nl-BE': 'nl-NL',
-        'de':    'de-DE',
-        'de-DE': 'de-DE',
-        'sv-SE': 'sv-SE',
-        'sv':    'sv-SE',
-        'el':    'el-GR',
-        'el-GR': 'el-GR'
-    },
+    // Configure suitable language based on user preferences
+    setup: function (supportedLanguages) {
+        var userLanguages;
 
-    // Get language code from browser and verify it
-    getLanguageCode: function () {
-        var languageCode = Util.Localisation.getUserPreferredLanguage();
-        for (var index = 0; index < languageCode.length; index++) {
-            var supportedLanguageCode = Util.Localisation.getSupportedLanguageCode(languageCode[index]);
-            if (supportedLanguageCode) {
-                return supportedLanguageCode;
-            }
-        }
+        Util.Localisation.language = 'en'; // Default: US English
 
-        return Util.Localisation.defaultLanguage;
-    },
-
-    /*
-    * Retrieve user preferred languages
-    * Navigator.languages only available in Chrome (32+) and FireFox (32+)
-    * Fall back to navigator.language for other browsers
-    */
-    getUserPreferredLanguage: function () {
+        /*
+         * Navigator.languages only available in Chrome (32+) and FireFox (32+)
+         * Fall back to navigator.language for other browsers
+         */
         if (typeof window.navigator.languages == 'object') {
-            return window.navigator.languages;
+            userLanguages = window.navigator.languages;
         } else {
-            var userLang = navigator.language || navigator.userLanguage;
-            return [userLang];
+            userLanguages = [navigator.language || navigator.userLanguage];
         }
-    },
 
-    /*
-    * Verify if languagecode is supported
-    * Return the languagecode of the language to use or null if not available
-    */
-    getSupportedLanguageCode: function (languageCode) {
-        var supportedLanguages = Util.Localisation.supportedLanguages;
+        for (var i = 0;i < userLanguages.length;i++) {
+            var userLang = userLanguages[i];
+            userLang = userLang.toLowerCase();
+            userLang = userLang.replace("_", "-");
+            userLang = userLang.split("-");
 
-        for (var key in supportedLanguages) {
-            if (supportedLanguages.hasOwnProperty(key)) {
-                if (key === languageCode) {
-                    // Return the supported language or good alternative
-                    return supportedLanguages[key];
-                }
+            // Built-in default?
+            if ((userLang[0] === 'en') &&
+                ((userLang[1] === undefined) || (userLang[1] === 'us'))) {
+                return;
+            }
+
+            // First pass: perfect match
+            for (var j = 0;j < supportedLanguages.length;j++) {
+                var supLang = supportedLanguages[j];
+                supLang = supLang.toLowerCase();
+                supLang = supLang.replace("_", "-");
+                supLang = supLang.split("-");
+
+                if (userLang[0] !== supLang[0])
+                    continue;
+                if (userLang[1] !== supLang[1])
+                    continue;
+
+                Util.Localisation.language = supportedLanguages[j];
+                return;
+            }
+
+            // Second pass: fallback
+            for (var j = 0;j < supportedLanguages.length;j++) {
+                supLang = supportedLanguages[j];
+                supLang = supLang.toLowerCase();
+                supLang = supLang.replace("_", "-");
+                supLang = supLang.split("-");
+
+                if (userLang[0] !== supLang[0])
+                    continue;
+                if (supLang[1] !== undefined)
+                    continue;
+
+                Util.Localisation.language = supportedLanguages[j];
+                return;
             }
         }
-
-        // LanguageCode not supported
-        return null;
     },
 
     // Retrieve localised text
@@ -443,7 +440,81 @@ Util.Localisation = {
         } else {
             return id;
         }
-    }
+    },
+
+    // Traverses the DOM and translates relevant fields
+    // See https://html.spec.whatwg.org/multipage/dom.html#attr-translate
+    translateDOM: function () {
+        function process(elem, enabled) {
+            function isAnyOf(searchElement, items) {
+                return items.indexOf(searchElement) !== -1;
+            }
+
+            function translateAttribute(elem, attr) {
+                var str = elem.getAttribute(attr);
+                str = Util.Localisation.get(str);
+                elem.setAttribute(attr, str);
+            }
+
+            function translateTextNode(node) {
+                var str = node.data.trim();
+                str = Util.Localisation.get(str);
+                node.data = str;
+            }
+
+            if (elem.hasAttribute("translate")) {
+                if (isAnyOf(elem.getAttribute("translate"), ["", "yes"])) {
+                    enabled = true;
+                } else if (isAnyOf(elem.getAttribute("translate"), ["no"])) {
+                    enabled = false;
+                }
+            }
+
+            if (enabled) {
+                if (elem.hasAttribute("abbr") &&
+                    elem.tagName === "TH") {
+                    translateAttribute(elem, "abbr");
+                }
+                if (elem.hasAttribute("alt") &&
+                    isAnyOf(elem.tagName, ["AREA", "IMG", "INPUT"])) {
+                    translateAttribute(elem, "alt");
+                }
+                if (elem.hasAttribute("download") &&
+                    isAnyOf(elem.tagName, ["A", "AREA"])) {
+                    translateAttribute(elem, "download");
+                }
+                if (elem.hasAttribute("label") &&
+                    isAnyOf(elem.tagName, ["MENUITEM", "MENU", "OPTGROUP",
+                                   "OPTION", "TRACK"])) {
+                    translateAttribute(elem, "label");
+                }
+                // FIXME: Should update "lang"
+                if (elem.hasAttribute("placeholder") &&
+                    isAnyOf(elem.tagName in ["INPUT", "TEXTAREA"])) {
+                    translateAttribute(elem, "placeholder");
+                }
+                if (elem.hasAttribute("title")) {
+                    translateAttribute(elem, "title");
+                }
+                if (elem.hasAttribute("value") &&
+                    elem.tagName === "INPUT" &&
+                    isAnyOf(elem.getAttribute("type"), ["reset", "button"])) {
+                    translateAttribute(elem, "value");
+                }
+            }
+
+            for (var i = 0;i < elem.childNodes.length;i++) {
+                node = elem.childNodes[i];
+                if (node.nodeType === node.ELEMENT_NODE) {
+                    process(node, enabled);
+                } else if (node.nodeType === node.TEXT_NODE && enabled) {
+                    translateTextNode(node);
+                }
+            }
+        }
+
+        process(document.body, true);
+    },
 };
 
 /* [module] export default Util; */

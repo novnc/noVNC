@@ -263,6 +263,8 @@
 };
 
 (function() {
+    var _ = Util.Localisation.get;
+
     RFB.prototype = {
         // Public methods
         connect: function (host, port, password, path) {
@@ -273,7 +275,7 @@
 
             if (!this._rfb_host || !this._rfb_port) {
                 return this._fail(
-                    Util.Localisation.get("Must set host and port"));
+                    _("Must set host and port"));
             }
 
             this._rfb_init_state = '';
@@ -551,7 +553,7 @@
                     this._disconnect();
 
                     this._disconnTimer = setTimeout(function () {
-                        this._rfb_disconnect_reason = "Disconnect timeout";
+                        this._rfb_disconnect_reason = _("Disconnect timeout");
                         this._updateConnectionState('disconnected');
                     }.bind(this), this._disconnectTimeout * 1000);
                     break;

@@ -81,8 +81,7 @@
         WebUtil.load_scripts({
             'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
                      "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"],
-            'app': [WebUtil.getLanguageFileLocation(), "webutil.js"]});
+                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
 
         var rfb;
         var resizeTimeout;
@@ -153,24 +152,22 @@
             var cad = document.getElementById('sendCtrlAltDelButton');
             switch (state) {
                 case 'connecting':
-                    status(Util.Localisation.get("Connecting"), "normal");
+                    status("Connecting", "normal");
                     break;
                 case 'connected':
                     if (rfb && rfb.get_encrypt()) {
-                        status(Util.Localisation.
-                                   get("Connected (encrypted) to ") +
+                        status("Connected (encrypted) to " +
                                desktopName, "normal");
                     } else {
-                        status(Util.Localisation.
-                                   get("Connected (unencrypted) to ") +
+                        status("Connected (unencrypted) to " +
                                desktopName, "normal");
                     }
                     break;
                 case 'disconnecting':
-                    status(Util.Localisation.get("Disconnecting"), "normal");
+                    status("Disconnecting", "normal");
                     break;
                 case 'disconnected':
-                    status(Util.Localisation.get("Disconnected"), "normal");
+                    status("Disconnected", "normal");
                     break;
                 default:
                     status(state, "warn");

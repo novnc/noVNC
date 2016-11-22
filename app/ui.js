@@ -40,16 +40,25 @@ var UI;
         return false;
     });
 
+    // Set up translations
+    var LINGUAS = ["de", "el", "nl", "sv"];
+    Util.Localisation.setup(LINGUAS);
+    if (Util.Localisation.language !== "en") {
+        WebUtil.load_scripts(
+            {'app': ["locale/" + Util.Localisation.language + ".js"]});
+    }
+
     /* [begin skip-as-module] */
     // Load supporting scripts
     WebUtil.load_scripts(
-        {'core': [WebUtil.getLanguageFileLocation(), "base64.js", "websock.js",
-                  "des.js", "input/keysymdef.js", "input/xtscancodes.js",
-                  "input/util.js", "input/devices.js", "display.js",
-                  "inflator.js", "rfb.js", "input/keysym.js"]});
+        {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
+                  "input/xtscancodes.js", "input/util.js", "input/devices.js",
+                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
 
     window.onscriptsload = function () { UI.load(); };
     /* [end skip-as-module] */
+
+    var _ = Util.Localisation.get;
 
     UI = {
 
@@ -86,6 +95,9 @@ var UI;
                            navigator.userAgent.indexOf('Chrome') === -1);
 
             UI.initSettings();
+
+            // Translate the DOM
+            Util.Localisation.translateDOM();
 
             // Adapt the interface for touch screen devices
             if (Util.isTouchDevice) {
@@ -390,26 +402,26 @@ var UI;
 
             switch (state) {
                 case 'connecting':
-                    document.getElementById("noVNC_transition_text").innerHTML = Util.Localisation.get("Connecting...");
+                    document.getElementById("noVNC_transition_text").innerHTML = _("Connecting...");
                     document.documentElement.classList.add("noVNC_connecting");
                     break;
                 case 'connected':
                     UI.connected = true;
                     document.documentElement.classList.add("noVNC_connected");
                     if (rfb && rfb.get_encrypt()) {
-                        msg = Util.Localisation.get("Connected (encrypted) to ") + UI.desktopName;
+                        msg = _("Connected (encrypted) to ") + UI.desktopName;
                     } else {
-                        msg = Util.Localisation.get("Connected (unencrypted) to ") + UI.desktopName;
+                        msg = _("Connected (unencrypted) to ") + UI.desktopName;
                     }
                     UI.showStatus(msg);
                     break;
                 case 'disconnecting':
-                    document.getElementById("noVNC_transition_text").innerHTML = Util.Localisation.get("Disconnecting...");
+                    document.getElementById("noVNC_transition_text").innerHTML = _("Disconnecting...");
                     document.documentElement.classList.add("noVNC_disconnecting");
                     break;
                 case 'disconnected':
                     UI.connected = false;
-                    UI.showStatus(Util.Localisation.get("Disconnected"));
+                    UI.showStatus(_("Disconnected"));
                     break;
                 default:
                     msg = "Invalid UI state";
@@ -994,7 +1006,7 @@ var UI;
             }
 
             if ((!host) || (!port)) {
-                var msg = Util.Localisation.get("Must set host and port");
+                var msg = _("Must set host and port");
                 Util.Error(msg);
                 UI.showStatus(msg, 'error');
                 return;
@@ -1047,7 +1059,7 @@ var UI;
                 }, 100);
 
             if (typeof msg === 'undefined') {
-                msg = "Password is required";
+                msg = _("Password is required");
             }
             Util.Warn(msg);
             UI.showStatus(msg, "warning");
@@ -1260,9 +1272,9 @@ var UI;
                 // The browser is IE and we are in fullscreen mode.
                 // - We need to force clipping while in fullscreen since
                 //   scrollbars doesn't work.
-                var msg = Util.Localisation.get("Forcing clipping mode since " +
-                                                "scrollbars aren't supported " +
-                                                "by IE in fullscreen");
+                var msg = _("Forcing clipping mode since " +
+                            "scrollbars aren't supported " +
+                            "by IE in fullscreen");
                 Util.Debug(msg);
                 UI.showStatus(msg);
                 UI.rememberedClipSetting = UI.getSetting('clip');
