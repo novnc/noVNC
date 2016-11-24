@@ -343,7 +343,7 @@ var UI;
                                   'onClipboard': UI.clipboardReceive,
                                   'onBell': UI.bell,
                                   'onFBUComplete': UI.initialResize,
-                                  'onFBResize': UI.updateViewDrag,
+                                  'onFBResize': UI.updateSessionSize,
                                   'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
@@ -1574,6 +1574,11 @@ var UI;
                 UI.rfb.get_keyboard().set_focused(true);
                 UI.rfb.get_mouse().set_focused(true);
             }
+        },
+
+        updateSessionSize: function(rfb, width, height) {
+            UI.updateViewClip();
+            UI.updateViewDrag();
         },
 
         updateDesktopName: function(rfb, name) {
