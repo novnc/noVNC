@@ -576,10 +576,34 @@ var UI;
             }
         },
 
+        toggleControlbarSide: function () {
+            // Temporarily disable animation to avoid weird movement
+            var bar = document.getElementById('noVNC_control_bar');
+            bar.style.transitionDuration = '0s';
+            bar.addEventListener('transitionend', function () { this.style.transitionDuration = ""; });
+
+            var anchor = document.getElementById('noVNC_control_bar_anchor');
+            anchor.classList.toggle("noVNC_right");
+
+            // Consider this a movement of the handle
+            UI.controlbarDrag = true;
+        },
+
         dragControlbarHandle: function (e) {
             if (!UI.controlbarGrabbed) return;
 
             var ptr = Util.getPointerEvent(e);
+
+            var anchor = document.getElementById('noVNC_control_bar_anchor');
+            if (ptr.clientX < (window.innerWidth * 0.1)) {
+                if (anchor.classList.contains("noVNC_right")) {
+                    UI.toggleControlbarSide();
+                }
+            } else if (ptr.clientX > (window.innerWidth * 0.9)) {
+                if (!anchor.classList.contains("noVNC_right")) {
+                    UI.toggleControlbarSide();
+                }
+            }
 
             if (!UI.controlbarDrag) {
                 // The goal is to trigger on a certain physical width, the

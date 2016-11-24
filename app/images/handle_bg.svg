@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="20"
+   width="15"
    height="50"
-   viewBox="0 0 20 50"
+   viewBox="0 0 15 50"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
@@ -29,8 +29,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="16"
-     inkscape:cx="10.515997"
-     inkscape:cy="22.863737"
+     inkscape:cx="-10.001409"
+     inkscape:cy="24.512566"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -77,13 +77,13 @@
        id="rect4249"
        width="1"
        height="1.0000174"
-       x="14.5"
+       x="9.5"
        y="1008.8622"
        ry="1.7382812e-05" />
     <rect
        ry="1.7382812e-05"
        y="1013.8622"
-       x="14.5"
+       x="9.5"
        height="1.0000174"
        width="1"
        id="rect4255"
@@ -91,7 +91,7 @@
     <rect
        ry="1.7382812e-05"
        y="1008.8622"
-       x="9.5"
+       x="4.5"
        height="1.0000174"
        width="1"
        id="rect4261"
@@ -101,13 +101,13 @@
        id="rect4263"
        width="1"
        height="1.0000174"
-       x="9.5"
+       x="4.5"
        y="1013.8622"
        ry="1.7382812e-05" />
     <rect
        ry="1.7382812e-05"
        y="1039.8622"
-       x="14.5"
+       x="9.5"
        height="1.0000174"
        width="1"
        id="rect4265"
@@ -117,7 +117,7 @@
        id="rect4267"
        width="1"
        height="1.0000174"
-       x="14.5"
+       x="9.5"
        y="1044.8622"
        ry="1.7382812e-05" />
     <rect
@@ -125,13 +125,13 @@
        id="rect4269"
        width="1"
        height="1.0000174"
-       x="9.5"
+       x="4.5"
        y="1039.8622"
        ry="1.7382812e-05" />
     <rect
        ry="1.7382812e-05"
        y="1044.8622"
-       x="9.5"
+       x="4.5"
        height="1.0000174"
        width="1"
        id="rect4271"
@@ -141,13 +141,13 @@
        id="rect4273"
        width="1"
        height="1.0000174"
-       x="14.5"
+       x="9.5"
        y="1018.8622"
        ry="1.7382812e-05" />
     <rect
        ry="1.7382812e-05"
        y="1018.8622"
-       x="9.5"
+       x="4.5"
        height="1.0000174"
        width="1"
        id="rect4275"
@@ -157,13 +157,13 @@
        id="rect4277"
        width="1"
        height="1.0000174"
-       x="14.5"
+       x="9.5"
        y="1034.8622"
        ry="1.7382812e-05" />
     <rect
        ry="1.7382812e-05"
        y="1034.8622"
-       x="9.5"
+       x="4.5"
        height="1.0000174"
        width="1"
        id="rect4279"
