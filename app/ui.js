@@ -598,6 +598,8 @@ var UI;
 
             e.preventDefault();
             e.stopPropagation();
+            UI.keepControlbar();
+            UI.activateControlbar();
         },
 
         // Move the handle but don't allow any position outside the bounds
@@ -654,6 +656,8 @@ var UI;
                 UI.toggleControlbar();
                 e.preventDefault();
                 e.stopPropagation();
+                UI.keepControlbar();
+                UI.activateControlbar();
             }
             UI.controlbarGrabbed = false;
         },
@@ -674,6 +678,8 @@ var UI;
             UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
             e.preventDefault();
             e.stopPropagation();
+            UI.keepControlbar();
+            UI.activateControlbar();
         },
 
 /* ------^-------
