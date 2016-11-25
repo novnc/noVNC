@@ -17,18 +17,28 @@ let Info = () => {};
 let Warn = () => {};
 let Error = () => {};
 
-export function init_logging(level) {
-    if (typeof level === 'undefined') {
-        level = _log_level;
-    } else {
-        _log_level = level;
+export function init_logging(param) {
+    Debug = Info = Warn = Error = () => {};
+    let has_custom_logger = false;
+    switch (typeof param) {
+        case 'string':
+            _log_level = param;
+            break;
+        case 'object':
+            let has_custom_logger = true;
+            if ('level' in param) {
+                _log_level = param.level;
+            }
+            if ('debug' in param) { Debug = param.debug; }
+            if ('info' in param) { Info = param.info; }
+            if ('warn' in param) { Warn = param.warn; }
+            if ('error' in param) { Error = param.error; }
+            break;
     }
 
-    Debug = Info = Warn = Error = () => {};
-
-    if (typeof window.console !== "undefined") {
+    if (!has_custom_logger && typeof window.console !== "undefined") {
         /* eslint-disable no-console, no-fallthrough */
-        switch (level) {
+        switch (_log_level) {
             case 'debug':
                 Debug = console.debug.bind(window.console);
             case 'info':
