@@ -109,6 +109,11 @@ var UI;
                 UI.initSetting('clip', false);
             }
 
+            // Restore control bar position
+            if (WebUtil.readSetting('controlbar_pos') === 'right') {
+                UI.toggleControlbarSide();
+            }
+
             // Setup and initialize event handlers
             UI.setupWindowEvents();
             UI.setupFullscreen();
@@ -583,7 +588,13 @@ var UI;
             bar.addEventListener('transitionend', function () { this.style.transitionDuration = ""; });
 
             var anchor = document.getElementById('noVNC_control_bar_anchor');
-            anchor.classList.toggle("noVNC_right");
+            if (anchor.classList.contains("noVNC_right")) {
+                WebUtil.writeSetting('controlbar_pos', 'left');
+                anchor.classList.remove("noVNC_right");
+            } else {
+                WebUtil.writeSetting('controlbar_pos', 'right');
+                anchor.classList.add("noVNC_right");
+            }
 
             // Consider this a movement of the handle
             UI.controlbarDrag = true;
