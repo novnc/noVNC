@@ -433,11 +433,11 @@ var UI;
                     UI.showStatus(msg);
                     break;
                 case 'disconnecting':
+                    UI.connected = false;
                     document.getElementById("noVNC_transition_text").innerHTML = _("Disconnecting...");
                     document.documentElement.classList.add("noVNC_disconnecting");
                     break;
                 case 'disconnected':
-                    UI.connected = false;
                     UI.showStatus(_("Disconnected"));
                     break;
                 default:
