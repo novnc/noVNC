@@ -57,6 +57,19 @@ describe('Utils', function() {
     });
 
     describe('language selection', function () {
+        var origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+            Object.defineProperty(window, "navigator", {value: {}});
+            window.navigator.languages = [];
+        });
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+        });
+
         it('should use English by default', function() {
             expect(Util.Localisation.language).to.equal('en');
         });
