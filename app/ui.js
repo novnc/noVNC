@@ -26,16 +26,29 @@ var UI;
     "use strict";
 
     // Fallback for all uncought errors
-    window.addEventListener('error', function(e) {
+    window.addEventListener('error', function(event) {
         try {
-            var file = e.filename;
-            var line = e.lineno;
-            var col = e.colno;
-            var msg = e.error.message;
+            var msg = "";
+
+            msg += "<div>";
+            msg += event.message;
+            msg += "</div>";
+
+            msg += " <div class=\"noVNC_location\">";
+            msg += event.filename;
+            msg += ":" + event.lineno + ":" + event.colno;
+            msg += "</div>";
+
+            if ((event.error !== undefined) &&
+                (event.error.stack !== undefined)) {
+                msg += "<div class=\"noVNC_stack\">";
+                msg += event.error.stack;
+                msg += "</div>";
+            }
+
             document.getElementById('noVNC_fallback_error')
                 .classList.add("noVNC_open");
-            document.getElementById('noVNC_fallback_errormsg').innerHTML =
-                msg + '<br><br>' + 'at: ' + file + ':' + line + ':' + col;
+            document.getElementById('noVNC_fallback_errormsg').innerHTML = msg;
         } catch (exc) {
             document.write("noVNC encountered an error.");
         }

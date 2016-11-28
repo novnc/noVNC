@@ -205,8 +205,25 @@ input[type=button]:active, select:active {
   visibility: visible;
   opacity: 1;
 }
+
 #noVNC_fallback_errormsg {
   font-weight: normal;
+}
+
+#noVNC_fallback_error .noVNC_location {
+  font-style: italic;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+#noVNC_fallback_error .noVNC_stack {
+  padding: 10px;
+  margin: 10px;
+  font-size: 0.8em;
+  text-align: left;
+  white-space: pre;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* ----------------------------------------
