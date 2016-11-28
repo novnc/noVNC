@@ -99,7 +99,6 @@ if (program.autoInject) {
   template.header += "\n" + template.script_tag(get_path('node_modules/mocha/mocha.js'));
   template.header += "\n" + template.script_tag(get_path('node_modules/sinon/pkg/sinon.js'));
   template.header += "\n" + template.script_tag(get_path('node_modules/sinon-chai/lib/sinon-chai.js'));
-  template.header += "\n" + template.script_tag(get_path('node_modules/sinon-chai/lib/sinon-chai.js'));
   template.header += "\n<script>mocha.setup('bdd');</script>";
 
 
