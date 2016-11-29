@@ -126,6 +126,11 @@ var UI;
                 UI.initSetting('clip', false);
             }
 
+            // Restore control bar position
+            if (WebUtil.readSetting('controlbar_pos') === 'right') {
+                UI.toggleControlbarSide();
+            }
+
             // Setup and initialize event handlers
             UI.setupWindowEvents();
             UI.setupFullscreen();
@@ -593,10 +598,40 @@ var UI;
             }
         },
 
+        toggleControlbarSide: function () {
+            // Temporarily disable animation to avoid weird movement
+            var bar = document.getElementById('noVNC_control_bar');
+            bar.style.transitionDuration = '0s';
+            bar.addEventListener('transitionend', function () { this.style.transitionDuration = ""; });
+
+            var anchor = document.getElementById('noVNC_control_bar_anchor');
+            if (anchor.classList.contains("noVNC_right")) {
+                WebUtil.writeSetting('controlbar_pos', 'left');
+                anchor.classList.remove("noVNC_right");
+            } else {
+                WebUtil.writeSetting('controlbar_pos', 'right');
+                anchor.classList.add("noVNC_right");
+            }
+
+            // Consider this a movement of the handle
+            UI.controlbarDrag = true;
+        },
+
         dragControlbarHandle: function (e) {
             if (!UI.controlbarGrabbed) return;
 
             var ptr = Util.getPointerEvent(e);
+
+            var anchor = document.getElementById('noVNC_control_bar_anchor');
+            if (ptr.clientX < (window.innerWidth * 0.1)) {
+                if (anchor.classList.contains("noVNC_right")) {
+                    UI.toggleControlbarSide();
+                }
+            } else if (ptr.clientX > (window.innerWidth * 0.9)) {
+                if (!anchor.classList.contains("noVNC_right")) {
+                    UI.toggleControlbarSide();
+                }
+            }
 
             if (!UI.controlbarDrag) {
                 // The goal is to trigger on a certain physical width, the
@@ -615,6 +650,8 @@ var UI;
 
             e.preventDefault();
             e.stopPropagation();
+            UI.keepControlbar();
+            UI.activateControlbar();
         },
 
         // Move the handle but don't allow any position outside the bounds
@@ -671,6 +708,8 @@ var UI;
                 UI.toggleControlbar();
                 e.preventDefault();
                 e.stopPropagation();
+                UI.keepControlbar();
+                UI.activateControlbar();
             }
             UI.controlbarGrabbed = false;
         },
@@ -691,6 +730,8 @@ var UI;
             UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
             e.preventDefault();
             e.stopPropagation();
+            UI.keepControlbar();
+            UI.activateControlbar();
         },
 
 /* ------^-------
