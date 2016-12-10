@@ -371,6 +371,56 @@ WebUtil.releaseCapture = function () {
     }
 };
 
+// Seperate elements that outline the form of a target element
+
+WebUtil.createSilhouette = function (target) {
+    var targetForm = target.getBoundingClientRect();
+    var targetStyle = window.getComputedStyle(target);
+
+    var silhouette = document.createElement("div");
+    silhouette.id = target.id + "_silhouette";
+    silhouette.style.borderRadius = targetStyle.borderRadius;
+    silhouette.style.width = targetForm.width + "px";
+    silhouette.style.height = targetForm.height + "px";
+    silhouette.classList.add("noVNC_silhouette");
+
+    document.body.appendChild(silhouette);
+
+    return silhouette;
+};
+
+WebUtil.getSilhouette = function (targetId) {
+    return document.getElementById(targetId + "_silhouette");
+};
+
+WebUtil.updateSilhouette = function (target, alignSide) {
+    var silhouette = WebUtil.getSilhouette(target.id);
+
+    if (silhouette === null) return;
+
+    var form = target.getBoundingClientRect();
+
+    if (alignSide === 'right') {
+        silhouette.style.right = form.left + "px";
+        silhouette.style.left = "auto";
+    } else if (alignSide === 'left') {
+        silhouette.style.left = window.innerWidth - form.right + "px";
+        silhouette.style.right = "auto";
+    }
+    silhouette.style.top = form.top + "px";
+};
+
+WebUtil.flipSilhouette = function (target) {
+    var silhouette = WebUtil.getSilhouette(target.id);
+
+    if (silhouette === null) return;
+
+    if (silhouette.classList.contains("noVNC_flipped")) {
+        silhouette.classList.remove("noVNC_flipped");
+    } else {
+        silhouette.classList.add("noVNC_flipped");
+    }
+};
 
 // Dynamically load scripts without using document.write()
 // Reference: http://unixpapa.com/js/dyna.html

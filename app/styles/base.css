@@ -566,6 +566,29 @@ input[type=button]:active, select:active {
 }
 
 /* ----------------------------------------
+ * Silhouettes
+ * ----------------------------------------
+ */
+
+/* Outline that shows the form of a target element */
+.noVNC_silhouette {
+  /* Two colors to make it easier to see no matter the background */
+  box-shadow: 0 4px 5px white, 0 -4px 5px skyblue;
+  transition: visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+}
+.noVNC_silhouette.noVNC_active {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+.noVNC_silhouette.noVNC_flipped {
+  transform: rotate(180deg);
+}
+
+/* ----------------------------------------
  * Status Dialog
  * ----------------------------------------
  */
