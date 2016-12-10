@@ -289,19 +289,33 @@ input[type=button]:active, select:active {
 
 #noVNC_control_bar_handle {
   position: absolute;
-  left: -15px;
+  left: 100%;
+  right: auto;
   top: 0;
   transform: translateY(35px);
-  width: calc(100% + 30px);
+  width: 15px;
   height: 50px;
   z-index: -2;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 0px 5px 5px 0px;
   background-color: rgb(83, 99, 122);
   background-image: url("../images/handle_bg.svg");
   background-repeat: no-repeat;
   background-position: right;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+}
+#noVNC_control_bar_handle::before {
+  /* This extra element is to get a proper shadow */
+  content: "";
+  position: absolute;
+  height: 3px;
+  width: 3px;
+  left: -3px;
+  top: 100%;
+  box-shadow: 3px 0 0 rgba(0, 0, 0, 0.5);
+}
+.noVNC_right #noVNC_control_bar_handle::before {
+  visibility: hidden;
 }
 #noVNC_control_bar_handle:after {
   content: "";
@@ -321,6 +335,9 @@ input[type=button]:active, select:active {
 }
 .noVNC_right #noVNC_control_bar_handle {
   background-position: left;
+  left: auto;
+  right: 100%;
+  border-radius: 5px 0px 0px 5px;
 }
 .noVNC_right #noVNC_control_bar_handle:after {
   left: 5px;
