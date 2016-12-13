@@ -74,23 +74,18 @@
             }
         }
 
-        updateState = function (rfb, state, oldstate, mesg) {
-            switch (state) {
-                case 'failed':
-                case 'fatal':
-                    msg("noVNC sent '" + state +
-                        "' state during pass " + pass +
-                        ", iteration " + iteration +
-                        " frame " + frame_idx);
-                    test_state = 'failed';
-                    break;
-                case 'loaded':
-                    document.getElementById('startButton').disabled = false;
-                    break;
+        disconnected = function (rfb, reason) {
+            if (reason) {
+                msg("noVNC sent '" + state +
+                    "' state during pass " + pass +
+                    ", iteration " + iteration +
+                    " frame " + frame_idx);
+                test_state = 'failed';
             }
-            if (typeof mesg !== 'undefined') {
-                document.getElementById('VNC_status').innerHTML = mesg;
-            }
+        }
+
+        notification = function (rfb, mesg, level, options) {
+            document.getElementById('VNC_status').innerHTML = mesg;
         }
 
         function do_test() {

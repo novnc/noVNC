@@ -398,7 +398,7 @@ var UI;
                                   'onClipboard': UI.clipboardReceive,
                                   'onBell': UI.bell,
                                   'onFBUComplete': UI.initialResize,
-                                  'onFBResize': UI.updateViewDrag,
+                                  'onFBResize': UI.updateSessionSize,
                                   'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
@@ -1204,11 +1204,6 @@ var UI;
                     // is finished we wait 0.5 seconds before sending the request.
                     clearTimeout(UI.resizeTimeout);
                     UI.resizeTimeout = setTimeout(function(){
-
-                        // Limit the viewport to the size of the browser window
-                        display.set_maxWidth(screen.w);
-                        display.set_maxHeight(screen.h);
-
                         // Request a remote size covering the viewport
                         if (UI.rfb.requestDesktopSize(screen.w, screen.h)) {
                             Util.Debug('Requested new desktop size: ' +
@@ -1289,27 +1284,7 @@ var UI;
             if (new_clip && size) {
                 // When clipping is enabled, the screen is limited to
                 // the size of the browser window.
-                display.set_maxWidth(size.w);
-                display.set_maxHeight(size.h);
-
-                var screen = document.getElementById('noVNC_screen');
-                var canvas = document.getElementById('noVNC_canvas');
-
-                // Hide potential scrollbars that can skew the position
-                screen.style.overflow = "hidden";
-
-                // The x position marks the left margin of the canvas,
-                // remove the margin from both sides to keep it centered.
-                var new_w = size.w - (2 * Util.getPosition(canvas).x);
-
-                screen.style.overflow = "visible";
-
-                display.viewportChangeSize(new_w, size.h);
-            } else {
-                // Disable max dimensions
-                display.set_maxWidth(0);
-                display.set_maxHeight(0);
-                display.viewportChangeSize();
+                display.viewportChangeSize(size.w, size.h);
             }
         },
 
@@ -1676,6 +1651,11 @@ var UI;
                 UI.rfb.get_keyboard().set_focused(true);
                 UI.rfb.get_mouse().set_focused(true);
             }
+        },
+
+        updateSessionSize: function(rfb, width, height) {
+            UI.updateViewClip();
+            UI.updateViewDrag();
         },
 
         updateDesktopName: function(rfb, name) {

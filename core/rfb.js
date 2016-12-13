@@ -1118,7 +1118,7 @@
 
             RFB.messages.pixelFormat(this._sock, this._fb_Bpp, this._fb_depth, this._true_color);
             RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor, this._true_color);
-            RFB.messages.fbUpdateRequests(this._sock, false, this._display.getCleanDirtyReset(), this._fb_width, this._fb_height);
+            RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
             this._timing.fbu_rt_start = (new Date()).getTime();
             this._timing.pixels = 0;
@@ -1276,11 +1276,9 @@
             switch (msg_type) {
                 case 0:  // FramebufferUpdate
                     var ret = this._framebufferUpdate();
-                    if (ret) {
-                        RFB.messages.fbUpdateRequests(this._sock,
-                                                      this._enabledContinuousUpdates,
-                                                      this._display.getCleanDirtyReset(),
-                                                      this._fb_width, this._fb_height);
+                    if (ret && !this._enabledContinuousUpdates) {
+                        RFB.messages.fbUpdateRequest(this._sock, true, 0, 0,
+                                                     this._fb_width, this._fb_height);
                     }
                     return ret;
 
@@ -1424,6 +1422,8 @@
 
                 if (!ret) { return ret; }  // need more data
             }
+
+            this._display.flip();
 
             this._onFBUComplete(this,
                     {'x': this._FBU.x, 'y': this._FBU.y,
@@ -1743,27 +1743,6 @@
             sock.flush();
         },
 
-        fbUpdateRequests: function (sock, onlyNonInc, cleanDirty, fb_width, fb_height) {
-            var offsetIncrement = 0;
-
-            var cb = cleanDirty.cleanBox;
-            var w, h;
-            if (!onlyNonInc && (cb.w > 0 && cb.h > 0)) {
-                w = typeof cb.w === "undefined" ? fb_width : cb.w;
-                h = typeof cb.h === "undefined" ? fb_height : cb.h;
-                // Request incremental for clean box
-                RFB.messages.fbUpdateRequest(sock, 1, cb.x, cb.y, w, h);
-            }
-
-            for (var i = 0; i < cleanDirty.dirtyBoxes.length; i++) {
-                var db = cleanDirty.dirtyBoxes[i];
-                // Force all (non-incremental) for dirty box
-                w = typeof db.w === "undefined" ? fb_width : db.w;
-                h = typeof db.h === "undefined" ? fb_height : db.h;
-                RFB.messages.fbUpdateRequest(sock, 0, db.x, db.y, w, h);
-            }
-        },
-
         fbUpdateRequest: function (sock, incremental, x, y, w, h) {
             var buff = sock._sQ;
             var offset = sock._sQlen;
@@ -1772,7 +1751,7 @@
             if (typeof(y) === "undefined") { y = 0; }
 
             buff[offset] = 3;  // msg-type
-            buff[offset + 1] = incremental;
+            buff[offset + 1] = incremental ? 1 : 0;
 
             buff[offset + 2] = (x >> 8) & 0xFF;
             buff[offset + 3] = x & 0xFF;

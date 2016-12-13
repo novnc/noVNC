@@ -2,7 +2,8 @@
 chai.use(function (_chai, utils) {
     _chai.Assertion.addMethod('displayed', function (target_data) {
         var obj = this._obj;
-        var data_cl = obj._drawCtx.getImageData(0, 0, obj._viewportLoc.w, obj._viewportLoc.h).data;
+        var ctx = obj._target.getContext('2d');
+        var data_cl = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
         // NB(directxman12): PhantomJS 1.x doesn't implement Uint8ClampedArray, so work around that
         var data = new Uint8Array(data_cl);
         var same = true;

@@ -68,19 +68,15 @@
             message("Must specify data=FOO in query string.");
         }
 
-        updateState = function (rfb, state, oldstate, msg) {
-            switch (state) {
-                case 'failed':
-                case 'fatal':
-                    message("noVNC sent '" + state + "' state during iteration " + iteration + " frame " + frame_idx);
-                    test_state = 'failed';
-                    break;
-                case 'loaded':
-                    break;
+        disconnected = function (rfb, reason) {
+            if (reason) {
+                message("noVNC sent '" + state + "' state during iteration " + iteration + " frame " + frame_idx);
+                test_state = 'failed';
             }
-            if (typeof msg !== 'undefined') {
-                document.getElementById('VNC_status').innerHTML = msg;
-            }
+        }
+
+        notification = function (rfb, mesg, level, options) {
+            document.getElementById('VNC_status').innerHTML = mesg;
         }
 
         function start() {
