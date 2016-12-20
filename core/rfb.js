@@ -915,7 +915,7 @@
             if (this._sock.rQwait("sub auth count", 4)) { return false; }
             var subAuthCount = this._sock.rQshift32();
             if (subAuthCount === 0) {  // empty sub-auth list received means 'no auth' subtype selected
-                this._updateState('SecurityResult');
+                this._rfb_init_state = 'SecurityResult';
                 return true;
             }
 
