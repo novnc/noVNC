@@ -60,7 +60,8 @@
         ['JPEG_quality_med',      -26 ],
         //['JPEG_quality_hi',     -23 ],
         //['compress_lo',        -255 ],
-        ['compress_hi',          -247 ],
+        ['compress_hi',          -254 ],
+        //['compress_max',       -247 ],
 
         ['DesktopSize',          -223 ],
         ['last_rect',            -224 ],
