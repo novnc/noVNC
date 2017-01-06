@@ -54,8 +54,6 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/base.css" />
-    <link rel="alternate stylesheet" href="app/styles/black.css" TITLE="Black" />
-    <link rel="alternate stylesheet" href="app/styles/blue.css" TITLE="Blue" />
 
     <!--
     <script type='text/javascript'
@@ -179,18 +177,6 @@
                         <img src="app/images/settings.svg"> Settings
                     </li>
                     <li>
-                        <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</label>
-                    </li>
-                    <li>
                         <label><input id="noVNC_setting_shared" type="checkbox" /> Shared Mode</label>
                     </li>
                     <li>
@@ -198,8 +184,7 @@
                     </li>
                     <li><hr></li>
                     <li>
-                        <label for="noVNC_setting_path">Path:</label>
-                        <input id="noVNC_setting_path" type="input" value="websockify" />
+                        <label><input id="noVNC_setting_clip" type="checkbox" /> Clip to Window</label>
                     </li>
                     <li>
                         <label for="noVNC_setting_resize">Scaling Mode:</label>
@@ -210,25 +195,50 @@
                             <option value="remote">Remote Resizing</option>
                         </select>
                     </li>
-                    <li>
-                        <label for="noVNC_setting_repeaterID">Repeater ID:</label>
-                        <input id="noVNC_setting_repeaterID" type="input" value="" />
-                    </li>
                     <li><hr></li>
-                    <!-- Stylesheet selection dropdown -->
                     <li>
-                        <label>Style:
-                            <select id="noVNC_setting_stylesheet" name="vncStyle">
-                                <option value="default">default</option>
-                            </select>
-                        </label>
-                    </li>
-                    <!-- Logging selection dropdown -->
-                    <li>
-                        <label>Logging:
-                            <select id="noVNC_setting_logging" name="vncLogging">
-                            </select>
-                        </label>
+                        <div class="noVNC_expander">Advanced</div>
+                        <div><ul>
+                            <li>
+                                <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
+                            </li>
+                            <li>
+                                <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
+                            </li>
+                            <li><hr></li>
+                            <li>
+                                <label for="noVNC_setting_repeaterID">Repeater ID:</label>
+                                <input id="noVNC_setting_repeaterID" type="input" value="" />
+                            </li>
+                            <li>
+                                <div class="noVNC_expander">WebSocket</div>
+                                <div><ul>
+                                    <li>
+                                        <label><input id="noVNC_setting_encrypt" type="checkbox" /> Encrypt</label>
+                                    </li>
+                                    <li>
+                                        <label for="noVNC_setting_host">Host:</label>
+                                        <input id="noVNC_setting_host" />
+                                    </li>
+                                    <li>
+                                        <label for="noVNC_setting_port">Port:</label>
+                                        <input id="noVNC_setting_port" />
+                                    </li>
+                                    <li>
+                                        <label for="noVNC_setting_path">Path:</label>
+                                        <input id="noVNC_setting_path" type="input" value="websockify" />
+                                    </li>
+                                </ul></div>
+                            </li>
+                            <li><hr></li>
+                            <!-- Logging selection dropdown -->
+                            <li>
+                                <label>Logging:
+                                    <select id="noVNC_setting_logging" name="vncLogging">
+                                    </select>
+                                </label>
+                            </li>
+                        </ul></div>
                     </li>
                     <li><hr></li>
                     <li>
@@ -239,41 +249,9 @@
             </div>
 
             <!-- Connection Controls -->
-            <input type="image" alt="Connect" src="app/images/connect.svg"
-                id="noVNC_connect_controls_button" class="noVNC_button"
-                title="Connect" />
             <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
                 id="noVNC_disconnect_button" class="noVNC_button"
                 title="Disconnect" />
-            <div class="noVNC_vcenter">
-            <div id="noVNC_connect_controls" class="noVNC_panel">
-                <ul>
-                    <li class="noVNC_heading">
-                        <img src="app/images/connect.svg"> Connection
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_host">Host:</label>
-                        <input id="noVNC_setting_host" />
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_port">Port:</label>
-                        <input id="noVNC_setting_port" />
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_password">Password:</label>
-                        <input id="noVNC_setting_password" type="password" />
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_token">Token:</label>
-                        <input id="noVNC_setting_token" />
-                    </li>
-                    <li><hr></li>
-                    <li>
-                        <input id="noVNC_connect_button" type="button" value="Connect" class="noVNC_submit" />
-                    </li>
-                </ul>
-            </div>
-            </div>
 
             </div>
         </div>
@@ -283,8 +261,18 @@
     <!-- Status Dialog -->
     <div id="noVNC_status"></div>
 
-    <!-- Password Dialog -->
+    <!-- Connect button -->
     <div class="noVNC_center">
+        <div id="noVNC_connect_dlg">
+            <div class="noVNC_logo" translate="no"><span>no</span>VNC</div>
+            <div id="noVNC_connect_button"><div>
+                <img src="app/images/connect.svg"> Connect
+            </div></div>
+        </div>
+    </div>
+
+    <!-- Password Dialog -->
+    <div class="noVNC_center noVNC_connect_layer">
     <div id="noVNC_password_dlg" class="noVNC_panel">
         <ul>
             <li>
@@ -305,8 +293,6 @@
     </div>
 
     <div id="noVNC_container">
-        <h1 id="noVNC_logo" class="noVNC_logo" translate="no"><span>no</span><br />VNC</h1>
-
         <!-- HTML5 Canvas -->
         <div id="noVNC_screen">
             <!-- Note that Google Chrome on Android doesn't respect any of these,

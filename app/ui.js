@@ -142,6 +142,8 @@ var UI;
             UI.addClipboardHandlers();
             UI.addSettingsHandlers();
 
+            UI.openControlbar();
+
             // Show the connect panel on first load unless autoconnecting
             if (!autoconnect) {
                 UI.openConnectPanel();
@@ -167,13 +169,7 @@ var UI;
         },
 
         initSettings: function() {
-            // Stylesheet selection dropdown
-            var sheet = WebUtil.selectStylesheet();
-            var sheets = WebUtil.getStylesheets();
             var i;
-            for (i = 0; i < sheets.length; i += 1) {
-                UI.addOption(document.getElementById('noVNC_setting_stylesheet'),sheets[i].title, sheets[i].title);
-            }
 
             // Logging selection dropdown
             var llevels = ['error', 'warn', 'info', 'debug'];
@@ -184,11 +180,6 @@ var UI;
             // Settings with immediate effects
             UI.initSetting('logging', 'warn');
             WebUtil.init_logging(UI.getSetting('logging'));
-
-            UI.initSetting('stylesheet', 'default');
-            WebUtil.selectStylesheet(null);
-            // call twice to get around webkit bug
-            WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
 
             // if port == 80 (or 443) then it won't be present and should be
             // set manually
@@ -205,7 +196,6 @@ var UI;
             /* Populate the controls if defaults are provided in the URL */
             UI.initSetting('host', window.location.hostname);
             UI.initSetting('port', port);
-            UI.initSetting('password', '');
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
             UI.initSetting('true_color', true);
             UI.initSetting('cursor', !Util.isTouchDevice);
@@ -214,7 +204,6 @@ var UI;
             UI.initSetting('view_only', false);
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
-            UI.initSetting('token', '');
         },
 
         setupWindowEvents: function() {
@@ -266,6 +255,11 @@ var UI;
                 .addEventListener('mousemove', UI.dragControlbarHandle);
             // resize events aren't available for elements
             window.addEventListener('resize', UI.updateControlbarHandle);
+
+            var exps = document.getElementsByClassName("noVNC_expander");
+            for (var i = 0;i < exps.length;i++) {
+                exps[i].addEventListener('click', UI.toggleExpander);
+            }
         },
 
         addTouchSpecificHandlers: function() {
@@ -343,8 +337,6 @@ var UI;
         },
 
         addConnectionControlHandlers: function() {
-            document.getElementById("noVNC_connect_controls_button")
-                .addEventListener('click', UI.toggleConnectPanel);
             document.getElementById("noVNC_disconnect_button")
                 .addEventListener('click', UI.disconnect);
             document.getElementById("noVNC_connect_button")
@@ -471,6 +463,8 @@ var UI;
             document.getElementById('noVNC_setting_resize').disabled = UI.connected;
             document.getElementById('noVNC_setting_shared').disabled = UI.connected;
             document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
+            document.getElementById('noVNC_setting_host').disabled = UI.connected;
+            document.getElementById('noVNC_setting_port').disabled = UI.connected;
             document.getElementById('noVNC_setting_path').disabled = UI.connected;
             document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
 
@@ -734,6 +728,14 @@ var UI;
             UI.activateControlbar();
         },
 
+        toggleExpander: function(e) {
+            if (this.classList.contains("noVNC_open")) {
+                this.classList.remove("noVNC_open");
+            } else {
+                this.classList.add("noVNC_open");
+            }
+        },
+
 /* ------^-------
  *    /VISUAL
  * ==============
@@ -837,13 +839,13 @@ var UI;
             UI.saveSetting('clip');
             UI.saveSetting('shared');
             UI.saveSetting('view_only');
+            UI.saveSetting('host');
+            UI.saveSetting('port');
             UI.saveSetting('path');
             UI.saveSetting('repeaterID');
-            UI.saveSetting('stylesheet');
             UI.saveSetting('logging');
 
             // Settings with immediate (non-connected related) effect
-            WebUtil.selectStylesheet(UI.getSetting('stylesheet'));
             WebUtil.init_logging(UI.getSetting('logging'));
             UI.updateViewClip();
             UI.updateViewDrag();
@@ -860,7 +862,6 @@ var UI;
             UI.closeSettingsPanel();
             UI.closeXvpPanel();
             UI.closeClipboardPanel();
-            UI.closeConnectPanel();
             UI.closeExtraKeys();
         },
 
@@ -888,7 +889,6 @@ var UI;
             UI.updateSetting('view_only');
             UI.updateSetting('path');
             UI.updateSetting('repeaterID');
-            UI.updateSetting('stylesheet');
             UI.updateSetting('logging');
 
             document.getElementById('noVNC_settings')
@@ -1019,31 +1019,17 @@ var UI;
  * ------v------*/
 
         openConnectPanel: function() {
-            UI.closeAllPanels();
-            UI.openControlbar();
-
-            document.getElementById('noVNC_connect_controls')
+            document.getElementById('noVNC_connect_dlg')
                 .classList.add("noVNC_open");
-            document.getElementById('noVNC_connect_controls_button')
-                .classList.add("noVNC_selected");
-
-            document.getElementById('noVNC_setting_host').focus();
         },
 
         closeConnectPanel: function() {
-            document.getElementById('noVNC_connect_controls')
+            document.getElementById('noVNC_connect_dlg')
                 .classList.remove("noVNC_open");
-            document.getElementById('noVNC_connect_controls_button')
-                .classList.remove("noVNC_selected");
-
-            UI.saveSetting('host');
-            UI.saveSetting('port');
-            UI.saveSetting('token');
-            //UI.saveSetting('password');
         },
 
         toggleConnectPanel: function() {
-            if (document.getElementById('noVNC_connect_controls')
+            if (document.getElementById('noVNC_connect_dlg')
                 .classList.contains("noVNC_open")) {
                 UI.closeConnectPanel();
             } else {
@@ -1054,13 +1040,11 @@ var UI;
         connect: function() {
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
-            var password = document.getElementById('noVNC_setting_password').value;
-            var token = document.getElementById('noVNC_setting_token').value;
             var path = document.getElementById('noVNC_setting_path').value;
 
-            //if token is in path then ignore the new token variable
-            if (token) {
-                path = WebUtil.injectParamIfMissing(path, "token", token);
+            var password = WebUtil.getConfigVar('password');
+            if (password === null) {
+                password = undefined;
             }
 
             if ((!host) || (!port)) {
@@ -1073,6 +1057,7 @@ var UI;
             if (!UI.initRFB()) return;
 
             UI.closeAllPanels();
+            UI.closeConnectPanel();
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));
@@ -1098,6 +1083,7 @@ var UI;
             if (typeof reason !== 'undefined') {
                 UI.showStatus(reason, 'error');
             }
+            UI.openControlbar();
             UI.openConnectPanel();
         },
 

@@ -7,6 +7,20 @@
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
+/*
+ * Z index layers:
+ *
+ * 0: Main screen
+ * 10: Control bar
+ * 50: Transition blocker
+ * 60: Connection popups
+ * 100: Status bar
+ * ...
+ * 1000: Javascript crash
+ * ...
+ * 10000: Max (used for polyfills)
+ */
+
 body {
   margin:0;
   padding:0;
@@ -173,13 +187,22 @@ input[type=button]:active, select:active {
 }
 
 /* ----------------------------------------
+ * Layering
+ * ----------------------------------------
+ */
+
+.noVNC_connect_layer {
+  z-index: 60;
+}
+
+/* ----------------------------------------
  * Fallback error
  * ----------------------------------------
  */
 
 #noVNC_fallback_error {
   position: fixed;
-  z-index: 3;
+  z-index: 1000;
   left: 50%;
   transform: translate(-50%, -50px);
   transition: 0.5s ease-in-out;
@@ -234,7 +257,7 @@ input[type=button]:active, select:active {
 #noVNC_control_bar_anchor {
   /* The anchor is needed to get z-stacking to work */
   position: fixed;
-  z-index: 2;
+  z-index: 10;
 
   transition: 0.5s ease-in-out;
 
@@ -294,7 +317,7 @@ input[type=button]:active, select:active {
   transform: translateY(35px);
   width: calc(100% + 30px);
   height: 50px;
-  z-index: -2;
+  z-index: -1;
   cursor: pointer;
   border-radius: 5px;
   background-color: rgb(83, 99, 122);
@@ -362,8 +385,6 @@ input[type=button]:active, select:active {
   margin: 10px 0;
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
   border-radius: 6px;
 }
 .noVNC_button.noVNC_selected {
@@ -407,8 +428,6 @@ input[type=button]:active, select:active {
   padding: 15px;
 
   background: #fff;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
   border-radius: 10px;
   color: #000;
   border: 2px solid #E0E0E0;
@@ -437,6 +456,7 @@ input[type=button]:active, select:active {
 
 .noVNC_panel label {
   display: block;
+  white-space: nowrap;
 }
 
 .noVNC_panel .noVNC_heading {
@@ -456,6 +476,36 @@ input[type=button]:active, select:active {
 
 .noVNC_submit {
   float: right;
+}
+
+/* Expanders */
+.noVNC_expander {
+  cursor: pointer;
+}
+.noVNC_expander::before {
+  content: url("../images/expander.svg");
+  display: inline-block;
+  margin-right: 5px;
+  transition: 0.2s ease-in-out;
+}
+.noVNC_expander.noVNC_open::before {
+  transform: rotateZ(90deg);
+}
+.noVNC_expander ~ * {
+  margin: 5px;
+  margin-left: 10px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+}
+.noVNC_expander:not(.noVNC_open) ~ * {
+  display: none;
+}
+
+/* Control bar content */
+
+#noVNC_control_bar .noVNC_logo {
+  font-size: 13px;
 }
 
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
@@ -528,24 +578,16 @@ input[type=button]:active, select:active {
   margin: 0px;
   padding: 0px;
 }
+#noVNC_setting_port {
+  width: 80px;
+}
 #noVNC_setting_path {
   width: 100px;
 }
 
 /* Connection Controls */
-:root.noVNC_connected #noVNC_connect_controls_button {
-  display: none;
-}
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
   display: none;
-}
-#noVNC_connect_controls ul {
-  list-style: none;
-  margin: 0px;
-  padding: 0px;
-}
-#noVNC_setting_port {
-  width: 80px;
 }
 
 /* ----------------------------------------
@@ -558,7 +600,7 @@ input[type=button]:active, select:active {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 3;
+  z-index: 100;
   transform: translateY(-100%);
 
   transition: 0.5s ease-in-out;
@@ -613,11 +655,86 @@ input[type=button]:active, select:active {
 }
 
 /* ----------------------------------------
+ * Connect Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_connect_dlg {
+  transition: 0.5s ease-in-out;
+
+  transform: scale(0, 0);
+  visibility: hidden;
+  opacity: 0;
+}
+#noVNC_connect_dlg.noVNC_open {
+  transform: scale(1, 1);
+  visibility: visible;
+  opacity: 1;
+}
+#noVNC_connect_dlg .noVNC_logo {
+  transition: 0.5s ease-in-out;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  font-size: 80px;
+  text-align: center;
+
+  border-radius: 5px;
+}
+@media (max-width: 440px) {
+  #noVNC_connect_dlg {
+    max-width: calc(100vw - 100px);
+  }
+  #noVNC_connect_dlg .noVNC_logo {
+    font-size: calc(25vw - 30px);
+  }
+}
+#noVNC_connect_button {
+  cursor: pointer;
+
+  padding: 10px;
+
+  color: white;
+  background-color: rgb(110, 132, 163);
+  border-radius: 12px;
+
+  text-align: center;
+  font-size: 20px;
+
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+#noVNC_connect_button div {
+  margin: 2px;
+  padding: 5px 30px;
+  border: 1px solid rgb(83, 99, 122);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
+
+  /* This avoids it jumping around when :active */
+  vertical-align: middle;
+}
+#noVNC_connect_button div:active {
+  border-bottom-width: 1px;
+  margin-top: 3px;
+}
+:root:not(.noVNC_touch) #noVNC_connect_button div:hover {
+  background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
+}
+
+#noVNC_connect_button img {
+  vertical-align: bottom;
+  height: 1.3em;
+}
+
+/* ----------------------------------------
  * Password Dialog
  * ----------------------------------------
  */
 
 #noVNC_password_dlg {
+  position: relative;
+
   transform: translateY(-50px);
 }
 #noVNC_password_dlg.noVNC_open {
@@ -646,7 +763,7 @@ input[type=button]:active, select:active {
 
   color: white;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 50;
 
   /*display: flex;*/
   align-items: center;
@@ -670,6 +787,10 @@ input[type=button]:active, select:active {
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
 }
+:root.noVNC_connected #noVNC_container {
+  background-color: rgb(40, 40, 40);
+  border-radius: 0;
+}
 
 /* HTML5 Canvas */
 #noVNC_screen {
@@ -692,10 +813,11 @@ input[type=button]:active, select:active {
  * settings and noVNC settings. */
 #noVNC_canvas {
   position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  margin-left: auto;
-  margin-right: auto;
+  bottom: 0;
+  margin: auto;
 }
 
 /*Default noVNC logo.*/
@@ -710,29 +832,12 @@ input[type=button]:active, select:active {
 
 .noVNC_logo {
   color:yellow;
-  text-align:left;
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
-  font-size: 13px;
   line-height:90%;
-  text-shadow: 1px 1px 0 #000;
+  text-shadow: 0.1em 0.1em 0 black;
 }
 .noVNC_logo span{
   color:green;
-}
-
-#noVNC_logo {
-  margin-top: 60px;
-  margin-left: 60px;
-  font-size: 180px;
-  text-shadow:
-       5px 5px 0 #000,
-      -1px -1px 0 #000,
-       1px -1px 0 #000,
-      -1px 1px 0 #000,
-       1px 1px 0 #000;
-}
-:root.noVNC_connected #noVNC_logo {
-  display: none;
 }
 
 #noVNC_bell {
