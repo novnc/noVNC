@@ -444,15 +444,13 @@
         },
 
         _cleanup: function () {
-            if (this._display && this._display.get_context()) {
-                if (!this._view_only) { this._keyboard.ungrab(); }
-                if (!this._view_only) { this._mouse.ungrab(); }
-                this._display.defaultCursor();
-                if (Util.get_logging() !== 'debug') {
-                    // Show noVNC logo on load and when disconnected, unless in
-                    // debug mode
-                    this._display.clear();
-                }
+            if (!this._view_only) { this._keyboard.ungrab(); }
+            if (!this._view_only) { this._mouse.ungrab(); }
+            this._display.defaultCursor();
+            if (Util.get_logging() !== 'debug') {
+                // Show noVNC logo on load and when disconnected, unless in
+                // debug mode
+                this._display.clear();
             }
         },
 
