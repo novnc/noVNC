@@ -771,8 +771,12 @@ input[type=button]:active, select:active {
   flex-direction: column;
 }
 :root.noVNC_connecting #noVNC_transition,
-:root.noVNC_disconnecting #noVNC_transition {
+:root.noVNC_disconnecting #noVNC_transition,
+:root.noVNC_reconnecting #noVNC_transition {
   display: flex;
+}
+:root:not(.noVNC_reconnecting) #noVNC_cancel_reconnect_button {
+  display: none;
 }
 #noVNC_transition_text {
   font-size: 1.5em;
