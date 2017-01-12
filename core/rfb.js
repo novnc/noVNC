@@ -107,6 +107,8 @@
         subrects: 0,            // RRE
         lines: 0,               // RAW
         tiles: 0,               // HEXTILE
+        aten_len: -1,           // ATEN
+        aten_type: -1,          // ATEN
         bytes: 0,
         x: 0,
         y: 0,
@@ -170,7 +172,13 @@
         'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
         'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
         'viewportDrag': false,                  // Move the viewport on mouse drags
-
+        'ast2100_quality': -1,                  // If set, use this quality upon connection to a server
+                                                // using the AST2100 video encoding.  Ranges from 0 (lowest)
+                                                // to 0xB (highest) quality.
+        'ast2100_subsamplingMode': -1,          // If set, use this subsampling mode upon connection to a
+                                                // server using the AST2100 video encoding.  The value may
+                                                // either be 444 or 422 (which is really 4:2:0 subsampling).
+        
         // Callback functions
         'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate): connection state change
         'onNotification': function () { },      // onNotification(rfb, msg, level, options): notification for UI
@@ -182,7 +190,8 @@
         'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
         'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
-        'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
+        'onXvpInit': function () { },           // onXvpInit(version): XVP extensions active for this connection
+        'ast2100_onVideoSettingsChanged': function () { }
     });
 
     // main setup
@@ -312,12 +321,19 @@
             if (this._rfb_connection_state !== 'connected' || this._view_only) { return false; }
             Util.Info("Sending Ctrl-Alt-Del");
 
-            RFB.messages.keyEvent(this._sock, KeyTable.XK_Control_L, 1);
-            RFB.messages.keyEvent(this._sock, KeyTable.XK_Alt_L, 1);
-            RFB.messages.keyEvent(this._sock, KeyTable.XK_Delete, 1);
-            RFB.messages.keyEvent(this._sock, KeyTable.XK_Delete, 0);
-            RFB.messages.keyEvent(this._sock, KeyTable.XK_Alt_L, 0);
-            RFB.messages.keyEvent(this._sock, KeyTable.XK_Control_L, 0);
+            var keyEvent;
+            if (this._rfb_atenikvm) {
+                keyEvent = RFB.messages.atenKeyEvent;
+            } else {
+                keyEvent = RFB.messages.keyEvent;
+            }
+            
+            keyEvent(this._sock, KeyTable.XK_Control_L, 1);
+            keyEvent(this._sock, KeyTable.XK_Alt_L, 1);
+            keyEvent(this._sock, KeyTable.XK_Delete, 1);
+            keyEvent(this._sock, KeyTable.XK_Delete, 0);
+            keyEvent(this._sock, KeyTable.XK_Alt_L, 0);
+            keyEvent(this._sock, KeyTable.XK_Control_L, 0);
             return true;
         },
 
@@ -344,13 +360,21 @@
         // followed by an up key.
         sendKey: function (keysym, down) {
             if (this._rfb_connection_state !== 'connected' || this._view_only) { return false; }
+
+            var keyEvent;
+            if (this._rfb_atenikvm) {
+                keyEvent = RFB.messages.atenKeyEvent;
+            } else {
+                keyEvent = RFB.messages.keyEvent;
+            }
+            
             if (typeof down !== 'undefined') {
                 Util.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
-                RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
+                keyEvent(this._sock, keysym, down ? 1 : 0);
             } else {
                 Util.Info("Sending keysym (down + up): " + keysym);
-                RFB.messages.keyEvent(this._sock, keysym, 1);
-                RFB.messages.keyEvent(this._sock, keysym, 0);
+                keyEvent(this._sock, keysym, 1);
+                keyEvent(this._sock, keysym, 0);
             }
             return true;
         },
@@ -685,7 +709,11 @@
                 }
             } else {
                 keysym = keyevent.keysym.keysym;
-                RFB.messages.keyEvent(this._sock, keysym, down);
+                if (this._rfb_atenikvm) {
+                    RFB.messages.atenKeyEvent(this._sock, keysym, down);
+                } else {
+                    RFB.messages.keyEvent(this._sock, keysym, down);
+                }
             }
         },
 
@@ -709,7 +737,11 @@
                     // If the viewport didn't actually move, then treat as a mouse click event
                     // Send the button down event here, as the button up event is sent at the end of this function
                     if (!this._viewportHasMoved && !this._view_only) {
-                        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
+                        if (this._rfb_atenikvm) {
+                            RFB.messages.atenPointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
+                        } else {
+                            RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
+                        }
                     }
                     this._viewportHasMoved = false;
                 }
@@ -718,7 +750,11 @@
             if (this._view_only) { return; } // View only, skip mouse events
 
             if (this._rfb_connection_state !== 'connected') { return; }
-            RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+            if (this._rfb_atenikvm) {
+                RFB.messages.atenPointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+            } else {
+                RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+            }
         },
 
         _handleMouseMove: function (x, y) {
@@ -745,7 +781,11 @@
             if (this._view_only) { return; } // View only, skip mouse events
 
             if (this._rfb_connection_state !== 'connected') { return; }
-            RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+            if (this._rfb_atenikvm) {
+                RFB.messages.atenPointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+            } else {
+                RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+            }
         },
 
         // Message Handlers
@@ -1233,13 +1273,6 @@
                 this._pixelFormat.red_shift   = 10;
                 this._pixelFormat.green_shift = 5;
                 this._pixelFormat.blue_shift  = 0;
-
-                // XXX(kelleyk): Doing this will break interaction with non-ATEN
-                // servers until the page is reloaded; it also breaks the mouse/
-                // keyboard portions of the test suite!
-                // 
-                RFB.messages.keyEvent = RFB.messages.atenKeyEvent;
-                RFB.messages.pointerEvent = RFB.messages.atenPointerEvent;
             }
 
             if (this._convert_color)
@@ -1771,6 +1804,9 @@
         ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
         ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
         ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
+        ['ast2100_quality', 'rw','int'],        // Ranges from 0 (lowest)  to 0xB (highest) quality.
+        ['ast2100_subsamplingMode', 'rw', 'int'], // Chroma subsampling; either 444 or 422 (which is
+                                                  // really 4:2:0 subsampling).
 
         // Callback functions
         ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate): connection state change
@@ -1783,7 +1819,9 @@
         ['onFBUComplete', 'rw', 'func'],        // onFBUComplete(rfb, fbu): RFB FBU received and processed
         ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
         ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
-        ['onXvpInit', 'rw', 'func']             // onXvpInit(version): XVP extensions active for this connection
+        ['onXvpInit', 'rw', 'func'],            // onXvpInit(version): XVP extensions active for this connection
+        ['ast2100_onVideoSettingsChanged', 'rw', 'func'], // onVideoSettingsChanged(videoSettings): AST2100 video
+                                                          // quality settings changed in latest FBU.
     ]);
 
     RFB.prototype.set_local_cursor = function (cursor) {
@@ -2974,6 +3012,7 @@
             }
 
             if (!this._aten_ast2100_dec) {
+                var _rfb = this;
                 var display = this._display;
                 this._aten_ast2100_dec = new Ast2100Decoder({
                     width: this._FBU.width,
@@ -2985,6 +3024,9 @@
                         // the block to be enqueued instead of being blitted right
                         // away via a call to _rgbxImageData().
                         display.blitRgbxImage(x, y, width, height, buf, 0, true);
+                    },
+                    videoSettingsChangedCallback: function (settings) {
+                        _rfb._ast2100_onVideoSettingsChanged(settings);
                     }
                 });
             }

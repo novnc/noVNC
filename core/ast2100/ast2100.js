@@ -30,6 +30,7 @@ var Ast2100Decoder;
     Ast2100Decoder = function (defaults) {
 
         this._blitCallback = defaults.blitCallback;
+        this._videoSettingsChangedCallback = defaults.videoSettingsChangedCallback;
         this._frame_width = defaults.width;
         this._frame_height = defaults.height;
 
@@ -157,6 +158,18 @@ var Ast2100Decoder;
             this._frame_width = width;
             this._frame_height = height;
         },
+
+        // Each quant table selector is between 0x0 (lowest quality) and 0xB (highest quality).  The ATEN client shows a
+        // single quality slider, which changes both values in tandem.  The server sends all three values with each
+        // FramebufferUpdate message, so these values are updated with every call to decode().  They will be -1 before
+        // the first frame is decoded.
+        getVideoSettings: function () {
+            return {
+                quantTableSelectorLuma: this._loadedQuantTables[0],
+                quantTableSelectorChroma: this._loadedQuantTables[1],
+                subsamplingMode: this.subsamplingMode
+            };
+        },
         
         decode: function (data) {
             
@@ -174,10 +187,13 @@ var Ast2100Decoder;
             var quantTableSelectorLuma = data[0];  // 0 <= x <= 0xB
             var quantTableSelectorChroma = data[1];  // 0 <= x <= 0xB
             var subsamplingMode = (data[2] << 8) | data[3];  // 422u or 444u
+            
+            var changedSettings = false;
             if (this.subsamplingMode != subsamplingMode) {
                 if (verboseVideoSettings)
                     console.log('decode(): new subsampling mode: '+subsamplingMode);
                 this.subsamplingMode = subsamplingMode;
+                changedSettings = true;
             }
 
             // The remainder of the stream is byte-swapped in four-byte chunks.
@@ -193,6 +209,7 @@ var Ast2100Decoder;
                     console.log('decode(): loading new luma quant table: '+fmt_u8(quantTableSelectorLuma));
                 this._loadQuantTable(0, ATEN_QT_LUMA[quantTableSelectorLuma]);
                 this._loadedQuantTables[0] = quantTableSelectorLuma;
+                changedSettings = true;
             }
             if (quantTableSelectorChroma != this._loadedQuantTables[1]) {
                 if (!inRangeIncl(quantTableSelectorChroma, 0, 0xB))
@@ -201,9 +218,14 @@ var Ast2100Decoder;
                     console.log('decode(): loading new chroma quant table: '+fmt_u8(quantTableSelectorChroma));
                 this._loadQuantTable(1, ATEN_QT_CHROMA[quantTableSelectorChroma]);
                 this._loadedQuantTables[1] = quantTableSelectorChroma;
+                changedSettings = true;
             }
+            
             if (this.subsamplingMode != 422 && this.subsamplingMode != 444)
                 throw 'Unexpected value for subsamplingMode: 0x' + fmt_u16(this.subsamplingMode);
+
+            if (changedSettings && this._videoSettingsChangedCallback)
+                this._videoSettingsChangedCallback(this.getVideoSettings());
             
             // The remainder of the stream is byte-swapped in four-byte chunks.  BitStream takes care of this.
             this._stream = new BitStream({data: data});
