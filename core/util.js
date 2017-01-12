@@ -11,6 +11,32 @@
 
 var Util = {};
 
+var addClassFunc = function (cl, name, func) {
+    if (!cl[name]) {
+        Object.defineProperty(cl, name, { enumerable: false, value: func });
+    }
+};
+
+// TODO(kelleyk): There's probably a better way to do this, but TypedArray isn't
+// directly accessible.
+// N.B.(kelleyk): PhantomJS 1.x does not support Uint8ClampedArray or Float64Array,
+// so those are left out.
+[Array, Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array].forEach(
+    function (cls) {
+        var thatCls = cls;
+        addClassFunc(cls, 'from', function (arrayLike,  mapFn, thisArg) {
+            if (typeof(mapFn) !== 'undefined' || typeof(thisArg) !== 'undefined')
+                throw new Error("This version of Array.from() does not support " +
+                                "mapFn or thisArg arguments.");
+    
+            var result = new thatCls(arrayLike.length);
+            for (var i = 0; i < arrayLike.length; ++i)
+                result[i] = arrayLike[i];
+    
+            return result;
+        });
+    });
+
 /*
  * ------------------------------------------------------
  * Namespaced in Util
