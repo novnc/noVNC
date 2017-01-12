@@ -36,7 +36,7 @@ if (Util.Engine.trident) {
 function message(str) {
     //console.log(str);
     cell = $D('messages');
-    cell.innerHTML += str + newline;
+    cell.textContent += str + newline;
     cell.scrollTop = cell.scrollHeight;
 }
 

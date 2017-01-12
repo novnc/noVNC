@@ -44,7 +44,7 @@
         function message(str) {
             console.log(str);
             cell = $D('messages');
-            cell.innerHTML += msg_cnt + ": " + str + newline;
+            cell.textContent += msg_cnt + ": " + str + newline;
             cell.scrollTop = cell.scrollHeight;
             msg_cnt++;
         }

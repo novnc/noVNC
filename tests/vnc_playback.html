@@ -51,7 +51,7 @@
         function message(str) {
             console.log(str);
             var cell = $D('messages');
-            cell.innerHTML += str + "\n";
+            cell.textContent += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
 
@@ -78,7 +78,7 @@
                     break;
             }
             if (typeof msg !== 'undefined') {
-                $D('VNC_status').innerHTML = msg;
+                $D('VNC_status').textContent = msg;
             }
         }
 

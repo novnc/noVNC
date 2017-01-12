@@ -42,7 +42,7 @@
         function message(str) {
             console.log(str);
             cell = $D('messages');
-            cell.innerHTML += msg_cnt + ": " + str + "\n";
+            cell.textContent += msg_cnt + ": " + str + "\n";
             cell.scrollTop = cell.scrollHeight;
             msg_cnt += 1;
         }

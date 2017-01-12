@@ -285,7 +285,7 @@ var UI;
 
             if (typeof(msg) !== 'undefined') {
                 $D('noVNC_control_bar').setAttribute("class", klass);
-                $D('noVNC_status').innerHTML = msg;
+                $D('noVNC_status').textContent = msg;
             }
 
             UI.updateVisualState();
@@ -360,9 +360,9 @@ var UI;
             clearTimeout(UI.popupStatusTimeout);
 
             if (typeof text === 'string') {
-                psp.innerHTML = text;
+                psp.textContent = text;
             } else {
-                psp.innerHTML = $D('noVNC_status').innerHTML;
+                psp.textContent = $D('noVNC_status').textContent;
             }
             psp.style.display = "block";
             psp.style.left = window.innerWidth/2 -
