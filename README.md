@@ -134,6 +134,7 @@ WebSockets to TCP socket proxy. There is a python proxy included
     * [Samuel Mannehed](https://github.com/samhed) (Cendio)
     * [Peter Åstrand](https://github.com/astrand) (Cendio)
     * [Solly Ross](https://github.com/DirectXMan12) (Red Hat / OpenStack)
+    * [Pierre Ossman](https://github.com/CendioOssman) (Cendio)
 
 * Notable contributions:
     * UI and Icons : Pierre Ossman, Chris Gordon
