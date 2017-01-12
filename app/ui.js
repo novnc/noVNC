@@ -48,7 +48,7 @@ var UI;
 
             document.getElementById('noVNC_fallback_error')
                 .classList.add("noVNC_open");
-            document.getElementById('noVNC_fallback_errormsg').innerHTML = msg;
+            document.getElementById('noVNC_fallback_errormsg').textContent = msg;
         } catch (exc) {
             document.write("noVNC encountered an error.");
         }
@@ -416,7 +416,7 @@ var UI;
 
             switch (state) {
                 case 'connecting':
-                    document.getElementById("noVNC_transition_text").innerHTML = _("Connecting...");
+                    document.getElementById("noVNC_transition_text").textContent = _("Connecting...");
                     document.documentElement.classList.add("noVNC_connecting");
                     break;
                 case 'connected':
@@ -431,7 +431,7 @@ var UI;
                     break;
                 case 'disconnecting':
                     UI.connected = false;
-                    document.getElementById("noVNC_transition_text").innerHTML = _("Disconnecting...");
+                    document.getElementById("noVNC_transition_text").textContent = _("Disconnecting...");
                     document.documentElement.classList.add("noVNC_disconnecting");
                     break;
                 case 'disconnected':
@@ -531,7 +531,7 @@ var UI;
                     break;
             }
 
-            statusElem.innerHTML = text;
+            statusElem.textContent = text;
             statusElem.classList.add("noVNC_open");
 
             // If no time was specified, show the status for 1.5 seconds

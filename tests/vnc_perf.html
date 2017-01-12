@@ -65,7 +65,7 @@
         function msg(str) {
             console.log(str);
             var cell = document.getElementById('messages');
-            cell.innerHTML += str + "\n";
+            cell.textContent += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
         function dbgmsg(str) {
@@ -85,7 +85,7 @@
         }
 
         notification = function (rfb, mesg, level, options) {
-            document.getElementById('VNC_status').innerHTML = mesg;
+            document.getElementById('VNC_status').textContent = mesg;
         }
 
         function do_test() {

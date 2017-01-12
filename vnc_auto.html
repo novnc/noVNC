@@ -111,10 +111,14 @@
             var html;
             html = '<form onsubmit="return setPassword();"';
             html += '  style="margin-bottom: 0px">';
-            html += msg;
+            html += '<label></label>'
             html += '<input type=password size=10 id="password_input" class="noVNC_status">';
             html += '<\/form>';
-            status(html, "warn");
+
+            // bypass status() because it sets text content
+            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+            document.getElementById('noVNC_status').innerHTML = html;
+            document.getElementById('noVNC_status').querySelector('label').textContent = msg;
         }
         function setPassword() {
             rfb.sendPassword(document.getElementById('password_input').value);
@@ -146,7 +150,7 @@
                     level = "warn";
             }
             document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
-            document.getElementById('noVNC_status').innerHTML = text;
+            document.getElementById('noVNC_status').textContent = text;
         }
         function updateState(rfb, state, oldstate) {
             var cad = document.getElementById('sendCtrlAltDelButton');

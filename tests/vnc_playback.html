@@ -49,7 +49,7 @@
         function message(str) {
             console.log(str);
             var cell = document.getElementById('messages');
-            cell.innerHTML += str + "\n";
+            cell.textContent += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
 
@@ -76,7 +76,7 @@
         }
 
         notification = function (rfb, mesg, level, options) {
-            document.getElementById('VNC_status').innerHTML = mesg;
+            document.getElementById('VNC_status').textContent = mesg;
         }
 
         function start() {
