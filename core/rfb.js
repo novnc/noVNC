@@ -21,9 +21,11 @@
  * import XK2HID from "./input/keysym";
  * import XtScancode from "./input/xtscancodes";
  * import Inflator from "./inflator.mod";
+ * import Ast2100Decoder from "./ast2100/ast2100";
+ * import arrayEq from "./ast2100/ast2100util";
  */
 /*jslint white: false, browser: true */
-/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
+/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode, Ast2100Decoder, arrayEq */
 
 /* [module] export default */ function RFB(defaults) {
     "use strict";
@@ -44,6 +46,7 @@
     this._rfb_disconnect_reason = "";
 
     this._rfb_tightvnc = false;
+    this._rfb_atenikvm = false;
     this._rfb_xvp_ver = 0;
 
     // In preference order
@@ -54,7 +57,13 @@
         ['HEXTILE',              0x05 ],
         ['RRE',                  0x02 ],
         ['RAW',                  0x00 ],
-        ['ATEN',                 0x59 ],
+
+        // ATEN iKVM encodings
+        ['ATEN_AST2100',        0x57 ],
+        ['ATEN_ASTJPEG',        0x58 ],
+        ['ATEN_HERMON',         0x59 ],
+        ['ATEN_YARKON',         0x60 ],
+        ['ATEN_PILOT3',         0x61 ],
 
         // Psuedo-encoding settings
 
@@ -367,6 +376,13 @@
             } else {
                 return false;
             }
+        },
+
+        // Tell the ATEN iKVM server to change the quantization tables and/or
+        // type of subsampling that it uses to encode video.
+        atenChangeVideoSettings: function (lumaQt, chromaQt, subsamplingMode) {
+            RFB.messages.atenChangeVideoSettings(this._sock, lumaQt, chromaQt, subsamplingMode);
+            this._sock.flush();
         },
 
 
@@ -803,6 +819,8 @@
                 this._rfb_auth_scheme = 0;
                 var types = this._sock.rQshiftBytes(num_types);
                 Util.Debug("Server security types: " + types);
+                // N.B.(kelleyk): Deliberately copy-constructed, since the underlying array is reused.
+                this._rfb_server_supported_security_types = Array.from(types);
                 for (var i = 0; i < types.length; i++) {
                     switch (types[i]) {
                         case 1: // None
@@ -841,8 +859,9 @@
             var aten_sep = this._aten_password_sep;
             var aten_auth = this._rfb_password.split(aten_sep);
             if (aten_auth.length < 2) {
-                this._onPasswordRequired(this, 'ATEN iKVM credentials required (user' + aten_sep +
-                                  'password) -- got only ' + this._rfb_password);
+                this._onPasswordRequired(
+                    this,
+                    'ATEN iKVM credentials required (user' + aten_sep + 'password)');
                 return false;
             }
 
@@ -850,6 +869,7 @@
             this._convert_color = true;
 
             if (this._rfb_tightvnc) {
+                // N.B.(kelleyk): We've already "skipped" the four bytes that we read into numTunnels.
                 this._rfb_tightvnc = false;
             } else {
                 this._sock.rQskipBytes(4);
@@ -904,6 +924,8 @@
         },
 
         _negotiate_tight_tunnels: function (numTunnels) {
+            // N.B.(kelleyk): For a full of known tunnel types, see:
+            // https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#tight-security-type
             var clientSupportedTunnelTypes = {
                 0: { vendor: 'TGHT', signature: 'NOTUNNEL' }
             };
@@ -934,15 +956,30 @@
         },
 
         _negotiate_tight_auth: function () {
-            var numTunnels;  // NB(directxman12): this is only in scope within the following block,
+            var numTunnels = 0;  // NB(directxman12): this is only in scope within the following block,
                              //                   or if equal to zero (necessary for ATEN iKVM support)
             if (!this._rfb_tightvnc) {  // first pass, do the tunnel negotiation
                 if (this._sock.rQwait("num tunnels", 4)) { return false; }
                 numTunnels = this._sock.rQshift32();
-                if (this._rfb_version === 3.8 && (numTunnels & 0xffff0ff0) >>> 0 === 0xaff90fb0) { return this._negotiate_aten_auth(); }
-                if (numTunnels > 0 && this._sock.rQwait("tunnel capabilities", 16 * numTunnels, 4)) { return false; }
-
                 this._rfb_tightvnc = true;
+                
+                // N.B.(kelleyk): I can only find about a half-dozen known tunnel
+                // types, so TightVNC should be sending a relatively small number
+                // here, whereas the ATEN servers send four bytes that, when
+                // interpreted as a u32, represent a very large number.  (The
+                // condition I've chosen below just checks that the first byte
+                // is nonzero.)  Further, TightVNC servers seem to be support
+                // both 0x02 and 0x10 security types, whereas ATEN iKVM servers
+                // advertise only support for 0x10.  (Are there *other* VNC
+                // servers that only support 0x10?)
+                if (this._rfb_version === 3.8 &&
+                        arrayEq(this._rfb_server_supported_security_types, [0x10]) &&
+                        (numTunnels <= 0 || numTunnels > 0x1000000)) {
+                    Util.Info('Detected ATEN iKVM server (using heuristic #0 -- ' +
+                              'older Winbond/Nuvoton or Renesas BMC?).');
+                    return this._negotiate_aten_auth();
+                }
+                if (numTunnels > 0 && this._sock.rQwait("tunnel capabilities", 16 * numTunnels, 4)) { return false; }
 
                 if (numTunnels > 0) {
                     this._negotiate_tight_tunnels(numTunnels);
@@ -960,9 +997,14 @@
 
             if (this._sock.rQwait("sub auth capabilities", 16 * subAuthCount, 4)) { return false; }
 
-            // Newer X10 Supermicro motherboards get here
-            if (this._rfb_version === 3.8 && numTunnels === 0 && subAuthCount === 0) {
-                Util.Warn("Newer ATEN iKVM detected, you may get an 'unsupported encoding 87'");
+            // Newer X10 Supermicro motherboards get here.
+            // N.B.(kelleyk): If we had trouble with this heuristic matching
+            // non-ATEN servers, we could also add the "only security type 0x10
+            // is supported" condition from above.
+            if (this._rfb_version === 3.8 &&
+                    numTunnels === 0 &&
+                    (subAuthCount === 0 || (subAuthCount & 0xFFFF) == 0x0100)) {
+                Util.Info('Detected ATEN iKVM server (using heuristic #1 -- newer AST2400 BMC?).');
                 return this._negotiate_aten_auth();
             }
             
@@ -1156,7 +1198,7 @@
             // - X9DRL-3F/X9DRL-6F
             // - X10SLD
             //
-            // Not supported (uses encoding 87):
+            // Supported using the ATEN "AST2100" encoding (0x57 / 87):
             // - X10SL7-F
             // - X10SLD-F
             // - X10SLM-F
@@ -1177,7 +1219,10 @@
                 this._fb_width                = 10000;
                 this._fb_height               = 10000;
 
-                // lies about what it supports
+                // TODO(kelleyk): This message (and this block of code) is part
+                // of the original ATEN "HERMON" (0x59) support.  The "AST2100"
+                // (0x57) encoding delivers RGB888 color.  I suppose that we should
+                // update this somehow?  What effect does it have?
                 Util.Warn("ATEN iKVM lies and only does 15 bit depth with RGB555");
                 this._convert_color            = true;
                 this._pixelFormat.bpp         = 16;
@@ -1560,6 +1605,9 @@
                         return false;
                     }
 
+                    // TODO(kelleyk): We should probably modify this condition so
+                    // that this can only happen when we are using the ATEN_HERMON
+                    // encoding, and not other ATEN encodings. --
                     // ATEN uses 0x00 even when it is meant to be 0x59
                     if (this._rfb_atenikvm && this._FBU.encoding === 0x00) {
                         this._FBU.encoding = 0x59;
@@ -1875,6 +1923,26 @@
             buff[offset + 17] = 0;
 
             sock._sQlen += 18;
+        },
+
+        atenChangeVideoSettings: function (sock, lumaQt, chromaQt, subsamplingMode) {
+            if (!inRangeIncl(lumaQt, 0, 0xB))
+                throw 'Bad value: must have 0 <= lumaQt <= 0xB';
+            if (!inRangeIncl(chromaQt, 0, 0xB))
+                throw 'Bad value: must have 0 <= chromaQt <= 0xB';
+            if (subsamplingMode != 422 && subsamplingMode != 444)
+                throw 'Bad value: subsamplingMode must be one of 444, 422';
+
+            var buf = sock._sQ;
+            var offset = sock._sQlen;
+
+            buf[offset] = 0x32;
+            buf[offset + 1] = lumaQt;
+            buf[offset + 2] = chromaQt;
+            buf[offset + 3] = subsamplingMode >>> 8;
+            buf[offset + 4] = subsamplingMode;
+
+            sock._sQlen += 5;
         },
 
         pointerEvent: function (sock, x, y, mask) {
@@ -2766,12 +2834,12 @@
             Util.Error("Server sent compress level pseudo-encoding");
         },
 
-        ATEN: function () {
+        ATEN_HERMON: function () {
             if (this._FBU.aten_len === -1) {
                 this._FBU.bytes = 8;
-                if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                if (this._sock.rQwait("ATEN_HERMON", this._FBU.bytes)) { return false; }
                 this._FBU.bytes = 0;
-                this._sock.rQskipBytes(4);
+                this._sock.rQskipBytes(4); // N.B.(kelleyk): This is the "mysteryFlag".
                 this._FBU.aten_len = this._sock.rQshift32();
 
                 if (this._FBU.width === 64896 && this._FBU.height === 65056) {
@@ -2784,25 +2852,25 @@
                     return true;
                 }
                 if (this._fb_width !== this._FBU.width && this._fb_height !== this._FBU.height) {
-                    Util.Debug(">> ATEN resize desktop");
+                    Util.Debug(">> ATEN_HERMON resize desktop");
                     this._fb_width = this._FBU.width;
                     this._fb_height = this._FBU.height;
                     this._onFBResize(this, this._fb_width, this._fb_height);
                     this._display.resize(this._fb_width, this._fb_height);
-                    Util.Debug("<< ATEN resize desktop");
+                    Util.Debug("<< ATEN_HERMON resize desktop");
                 }
             }
 
             if (this._FBU.aten_type === -1) {
                 this._FBU.bytes = 10;
-                if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                if (this._sock.rQwait("ATEN_HERMON", this._FBU.bytes)) { return false; }
                 this._FBU.bytes = 0;
                 this._FBU.aten_type = this._sock.rQshift8();
                 this._sock.rQskip8();
 
                 this._sock.rQskipBytes(4); // number of subrects
                 if (this._FBU.aten_len !== this._sock.rQshift32()) {
-                    return this._fail('ATEN RAW len mis-match');
+                    return this._fail('ATEN_HERMON RAW len mis-match');
                 }
                 this._FBU.aten_len -= 10;
             }
@@ -2811,7 +2879,7 @@
                 switch (this._FBU.aten_type) {
                     case 0: // Subrects
                         this._FBU.bytes = 6 + (16 * 16 * this._pixelFormat.Bpp);  // at least a subrect
-                        if (this._sock.rQwait("ATEN", this._FBU.bytes)) { return false; }
+                        if (this._sock.rQwait("ATEN_HERMON", this._FBU.bytes)) { return false; }
                         var a = this._sock.rQshift16();
                         var b = this._sock.rQshift16();
                         var y = this._sock.rQshift8();
@@ -2828,7 +2896,7 @@
                         if (this._FBU.bytes > 0) return false;
                         break;
                     default:
-                        return this._fail('unknown ATEN type: '+this._FBU.aten_type);
+                        return this._fail('unknown ATEN_HERMON type: '+this._FBU.aten_type);
                 }
             }
 
@@ -2843,6 +2911,97 @@
             this._FBU.aten_len = -1;
             this._FBU.aten_type = -1;
 
+            return true;
+        },
+
+        ATEN_AST2100: function () {
+           
+            if (this._FBU.aten_len === -1) {
+                this._FBU.bytes = 8;
+                if (this._sock.rQwait("ATEN_AST2100", this._FBU.bytes)) { return false; }
+
+                // N.B.(kelleyk): I think that the mysteryFlag is 0 when in
+                // "text mode" (at the BIOS, without X started, etc.) and 1 when
+                // running X.  Perhaps it's something to do with what mode the
+                // "video card" is being used in?
+                var mysteryFlag = this._sock.rQshift32();
+                // if (mysteryFlag != 0)
+                //     console.log('Nonzero mysteryFlag (='+mysteryFlag+')!  When does this occur?');
+                this._FBU.aten_len = this._sock.rQshift32();
+            }
+
+            // Actually read the data.
+            if (this._FBU.aten_len !== 0) {
+                this._FBU.bytes = this._FBU.aten_len;
+                if (this._sock.rQwait("ATEN_AST2100", this._FBU.bytes)) { return false; }
+                var data = this._sock.rQshiftBytes(this._FBU.aten_len);
+            }
+            
+            // Without this, the code in _framebufferUpdate() will keep looping
+            // instead of realizing that it's finished and sending out a
+            // FramebufferUpdateRequest.  It's important to make sure this code
+            // is called as soon as we have read any data we are going to read:
+            // in particular, it must be called BEFORE we might return true
+            // ("we're done").  Otherwise... infinite loop!
+            this._FBU.rects -= 1;
+            if (this._FBU.rects != 0)
+                throw 'Unexpected number of rects in FramebufferUpdate message; should always be 1!';
+            
+            // N.B.(kelleyk): It's also very important for the way that this
+            // function works that aten_len wind up -1 before we ever return
+            // true; otherwise we'll fail to parse the two extra, ATEN-specific
+            // header fields (see above) the next time we get a FramebufferUpdate
+            // message.
+            this._FBU.aten_len = -1;
+
+            // These are -640 and -480 (as int16s), as in the other ATEN encodings.
+            if (this._FBU.width === 64896 && this._FBU.height === 65056) {
+                Util.Debug('Ast2100Decoder: screen is off.');
+                if (this._FBU.aten_len !== 0)
+                    Util.Warn('Ast2100Decoder: warning: framebuffer dimensions ' +
+                              'indicate that screen is off but data length is nonzero.');
+                return true;
+            } else if (this._FBU.aten_len === 0) {
+                // This seems to happen when the display is off (e.g. when you
+                // tell the machine to restart).
+                // TODO(kelleyk): Is there a way to tell noVNC that the display
+                // is "off"?  Should we show a black screen, or otherwise indicate
+                // to the user that this is what is going on?
+                Util.Warn('Ast2100Decoder: warning: data length is zero, but ' +
+                          'framebuffer dimensions are not -640x-480 (which is ' +
+                          'typically given to indicate that the screen is off).');
+                return true;
+            }
+
+            if (!this._aten_ast2100_dec) {
+                var display = this._display;
+                this._aten_ast2100_dec = new Ast2100Decoder({
+                    width: this._FBU.width,
+                    height: this._FBU.height,
+                    blitCallback: function (x, y, width, height, buf) {
+                        // Last arguments here are offset, from_queue.  'from_queue'
+                        // means 'should this block be rendered from the queue?', not
+                        // 'is this block being rendered from the queue?'.  It causes
+                        // the block to be enqueued instead of being blitted right
+                        // away via a call to _rgbxImageData().
+                        display.blitRgbxImage(x, y, width, height, buf, 0, true);
+                    }
+                });
+            }
+            
+            // N.B.(kelleyk): Copied this block from ATEN_HERMON above.
+            if (this._fb_width !== this._FBU.width && this._fb_height !== this._FBU.height) {
+                Util.Debug(">> ATEN_AST2100 resize desktop");
+                this._fb_width = this._FBU.width;
+                this._fb_height = this._FBU.height;
+                this._onFBResize(this, this._fb_width, this._fb_height);
+                this._display.resize(this._fb_width, this._fb_height);
+                Util.Debug("<< ATEN_AST2100 resize desktop");
+                
+                this._aten_ast2100_dec.setSize(this._FBU.width, this._FBU.height);
+            }
+
+            this._aten_ast2100_dec.decode(data);
             return true;
         }
     };

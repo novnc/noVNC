@@ -141,7 +141,8 @@ WebSockets to TCP socket proxy. There is a python proxy included
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
     * pixel format conversion : [Alexander Clouter](http://www.digriz.org.uk/)
-    * ATEN iKVM support : [Alexander Clouter](http://www.digriz.org.uk/)
+    * ATEN iKVM "HARMON" (0x59) support : [Alexander Clouter](http://www.digriz.org.uk/)
+    * ATEN iKVM "AST2100" (0x57) support : [Kevin Kelley](https://github.com/kelleyk)
 
 * Included libraries:
     * as3crypto : Henri Torgemane (code.google.com/p/as3crypto)

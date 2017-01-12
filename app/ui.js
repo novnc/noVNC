@@ -70,7 +70,9 @@ var UI;
     WebUtil.load_scripts(
         {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
                   "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
+                  "display.js", "inflator.js", "rfb.js", "input/keysym.js",
+                  "ast2100/ast2100const.js", "ast2100/ast2100util.js",
+                  "ast2100/ast2100idct.js", "ast2100/ast2100.js"]});
 
     window.onscriptsload = function () { UI.load(); };
     /* [end skip-as-module] */
