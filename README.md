@@ -1,6 +1,6 @@
 ## noVNC: HTML5 VNC Client
 
-[![Build Status](https://travis-ci.org/kanaka/noVNC.svg?branch=master)](https://travis-ci.org/kanaka/noVNC)
+[![Build Status](https://travis-ci.org/novnc/noVNC.svg?branch=master)](https://travis-ci.org/novnc/noVNC)
 
 ### Description
 
@@ -13,7 +13,7 @@ Many companies, projects and products have integrated noVNC including
 [OpenNebula](http://opennebula.org/),
 [LibVNCServer](http://libvncserver.sourceforge.net), and
 [ThinLinc](https://cendio.com/thinlinc). See
-[the Projects and Companies wiki page](https://github.com/kanaka/noVNC/wiki/Projects-and-companies-using-noVNC)
+[the Projects and Companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
 
 ### News/help/contact
@@ -26,10 +26,10 @@ If you are a noVNC developer/integrator/user (or want to be) please join the
 noVNC discussion group</a>.
 
 Bugs and feature requests can be submitted via
-[github issues](https://github.com/kanaka/noVNC/issues).
+[github issues](https://github.com/novnc/noVNC/issues).
 If you are looking for a place to start contributing to noVNC, a good place to
 start would be the issues that are marked as
-["patchwelcome"](https://github.com/kanaka/noVNC/issues?labels=patchwelcome).
+["patchwelcome"](https://github.com/novnc/noVNC/issues?labels=patchwelcome).
 
 If you want to show appreciation for noVNC you could donate to a great non-
 profits such as:
@@ -59,11 +59,12 @@ Please tweet <a href="http://www.twitter.com/noVNC">@noVNC</a> if you do.
 
 Running in Chrome before and after connecting:
 
-<img src="http://kanaka.github.com/noVNC/img/noVNC-5.png" width=400>&nbsp;
-<img src="http://kanaka.github.com/noVNC/img/noVNC-7.jpg" width=400>
+<img src="http://
+.github.com/noVNC/img/noVNC-5.png" width=400>&nbsp;
+<img src="http://novnc.github.com/noVNC/img/noVNC-7.jpg" width=400>
 
 See more screenshots
-<a href="http://kanaka.github.com/noVNC/screenshots.html">here</a>.
+<a href="http://novnc.github.com/noVNC/screenshots.html">here</a>.
 
 
 ### Browser Requirements
@@ -76,7 +77,7 @@ See more screenshots
   fast Javascript engine, noVNC might be painfully slow.
 
 * See the more detailed
-[browser compatibility wiki page](https://github.com/kanaka/noVNC/wiki/Browser-support).
+[browser compatibility wiki page](https://github.com/novnc/noVNC/wiki/Browser-support).
 
 
 ### Server Requirements
@@ -104,26 +105,26 @@ WebSockets to TCP socket proxy. There is a python proxy included
 
 ### Other Pages
 
-* [Modules/API](https://github.com/kanaka/noVNC/wiki/Modules-API) - The library
+* [Modules/API](https://github.com/novnc/noVNC/wiki/Modules-API) - The library
   modules and their Javascript API.
 
-* [Integration](https://github.com/kanaka/noVNC/wiki/Integration) - Get noVNC
+* [Integration](https://github.com/novnc/noVNC/wiki/Integration) - Get noVNC
   to work in existing projects.
 
-* [Troubleshooting](https://github.com/kanaka/noVNC/wiki/Troubleshooting) - How
+* [Troubleshooting](https://github.com/novnc/noVNC/wiki/Troubleshooting) - How
   to troubleshoot problems.
 
-* [Encrypted Connections](https://github.com/kanaka/websockify/wiki/Encrypted-Connections) -
+* [Encrypted Connections](https://github.com/novnc/websockify/wiki/Encrypted-Connections) -
   Setup websockify so that you can use encrypted connections from noVNC.
 
-* [Advanced Usage](https://github.com/kanaka/noVNC/wiki/Advanced-usage) -
+* [Advanced Usage](https://github.com/novnc/noVNC/wiki/Advanced-usage) -
   Generating an SSL certificate, starting a VNC server, advanced websockify
   usage, etc.
 
-* [Testing](https://github.com/kanaka/noVNC/wiki/Testing) - Run and write
+* [Testing](https://github.com/novnc/noVNC/wiki/Testing) - Run and write
   tests.
 
-* [Translations](https://github.com/kanaka/noVNC/wiki/Translations) - Add and
+* [Translations](https://github.com/novnc/noVNC/wiki/Translations) - Add and
   modify localization for JavaScript and HTML.
 
 
@@ -147,4 +148,4 @@ WebSockets to TCP socket proxy. There is a python proxy included
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
     * Pako : Vitaly Puzrin (https://github.com/nodeca/pako)
 
-* [Contribution guide](https://github.com/kanaka/noVNC/wiki/Contributing)
+* [Contribution guide](https://github.com/novnc/noVNC/wiki/Contributing)
