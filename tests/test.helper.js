@@ -101,8 +101,13 @@ describe('Helpers', function() {
     });
 
     describe('Modifier Sync', function() { // return a list of fake events necessary to fix modifier state
+        var sync;
+
+        beforeEach(function() {
+            sync = KeyboardUtil.ModifierSync();
+        });
+
         describe('Toggle all modifiers', function() {
-            var sync = KeyboardUtil.ModifierSync();
             it ('should do nothing if all modifiers are up as expected', function() {
                 expect(sync.keydown({
                     keyCode: 0x41,
@@ -134,6 +139,14 @@ describe('Helpers', function() {
                 expect(keysyms[0xffe7]);
             });
             it ('should do nothing if all modifiers are down as expected', function() {
+                sync.keydown({
+                    keyCode: 0x41,
+                    ctrlKey: true,
+                    altKey: true,
+                    altGraphKey: true,
+                    shiftKey: true,
+                    metaKey: true
+                });
                 expect(sync.keydown({
                     keyCode: 0x41,
                     ctrlKey: true,
@@ -145,7 +158,6 @@ describe('Helpers', function() {
             });
         });
         describe('Toggle Ctrl', function() {
-            var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
                     keyCode: 0x41,
@@ -153,6 +165,10 @@ describe('Helpers', function() {
                 })).to.be.deep.equal([{keysym: keysyms.lookup(0xffe3), type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
+                sync.keydown({
+                    keyCode: 0x41,
+                    ctrlKey: true,
+                });
                 expect(sync.keydown({
                     keyCode: 0x41,
                     ctrlKey: false
@@ -160,7 +176,6 @@ describe('Helpers', function() {
             });
         });
         describe('Toggle Alt', function() {
-            var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
                     keyCode: 0x41,
@@ -168,6 +183,10 @@ describe('Helpers', function() {
                 })).to.be.deep.equal([{keysym: keysyms.lookup(0xffe9), type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
+                sync.keydown({
+                    altKey: 0x41,
+                    ctrlKey: true,
+                });
                 expect(sync.keydown({
                     keyCode: 0x41,
                     altKey: false
@@ -175,7 +194,6 @@ describe('Helpers', function() {
             });
         });
         describe('Toggle AltGr', function() {
-            var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
                     keyCode: 0x41,
@@ -183,6 +201,10 @@ describe('Helpers', function() {
                 })).to.be.deep.equal([{keysym: keysyms.lookup(0xfe03), type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
+                sync.keydown({
+                    keyCode: 0x41,
+                    altGraphKey: true,
+                });
                 expect(sync.keydown({
                     keyCode: 0x41,
                     altGraphKey: false
@@ -190,7 +212,6 @@ describe('Helpers', function() {
             });
         });
         describe('Toggle Shift', function() {
-            var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
                     keyCode: 0x41,
@@ -198,6 +219,10 @@ describe('Helpers', function() {
                 })).to.be.deep.equal([{keysym: keysyms.lookup(0xffe1), type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
+                sync.keydown({
+                    keyCode: 0x41,
+                    shiftKey: true,
+                });
                 expect(sync.keydown({
                     keyCode: 0x41,
                     shiftKey: false
@@ -205,7 +230,6 @@ describe('Helpers', function() {
             });
         });
         describe('Toggle Meta', function() {
-            var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
                     keyCode: 0x41,
@@ -213,6 +237,10 @@ describe('Helpers', function() {
                 })).to.be.deep.equal([{keysym: keysyms.lookup(0xffe7), type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
+                sync.keydown({
+                    keyCode: 0x41,
+                    metaKey: true,
+                });
                 expect(sync.keydown({
                     keyCode: 0x41,
                     metaKey: false
@@ -231,7 +259,6 @@ describe('Helpers', function() {
                 }), 'B').to.be.deep.equal([]);
             })
             it('should update state on modifier keyevents', function() {
-                var sync = KeyboardUtil.ModifierSync();
                 sync.keydown({
                     keyCode: 0x11,
                 });
