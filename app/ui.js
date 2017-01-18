@@ -28,27 +28,35 @@ var UI;
     // Fallback for all uncought errors
     window.addEventListener('error', function(event) {
         try {
-            var msg = "";
+            var msg, div, text;
 
-            msg += "<div>";
-            msg += event.message;
-            msg += "</div>";
+            msg = document.getElementById('noVNC_fallback_errormsg');
 
-            msg += " <div class=\"noVNC_location\">";
-            msg += event.filename;
-            msg += ":" + event.lineno + ":" + event.colno;
-            msg += "</div>";
+            // Only show the initial error
+            if (msg.hasChildNodes()) {
+                return false;
+            }
+
+            div = document.createElement("div");
+            div.appendChild(document.createTextNode(event.message));
+            msg.appendChild(div);
+
+            div = document.createElement("div");
+            div.className = 'noVNC_location';
+            text = event.filename + ":" + event.lineno + ":" + event.colno;
+            div.appendChild(document.createTextNode(text));
+            msg.appendChild(div);
 
             if ((event.error !== undefined) &&
                 (event.error.stack !== undefined)) {
-                msg += "<div class=\"noVNC_stack\">";
-                msg += event.error.stack;
-                msg += "</div>";
+                div = document.createElement("div");
+                div.className = 'noVNC_stack';
+                div.appendChild(document.createTextNode(event.error.stack));
+                msg.appendChild(div);
             }
 
             document.getElementById('noVNC_fallback_error')
                 .classList.add("noVNC_open");
-            document.getElementById('noVNC_fallback_errormsg').textContent = msg;
         } catch (exc) {
             document.write("noVNC encountered an error.");
         }
