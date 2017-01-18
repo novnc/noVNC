@@ -110,11 +110,11 @@ module.exports = function(config) {
     files: [
       'node_modules/requirejs/require.js',
       'tests/test-main.js',
-      'tests/fake.*.js',
       'tests/assertions.js',
       'tests/test.*.js',
       // Only packaged, not included in browser as RequireJS will
       // do the actual loading
+      {pattern: 'tests/fake.*.js', included: false},
       {pattern: 'core/*.js', included: false},
       {pattern: 'core/input/*.js', included: false},
     ],

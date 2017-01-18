@@ -1,4 +1,3 @@
-// requires test modules: assertions
 /* jshint expr: true */
 var expect = chai.expect;
 

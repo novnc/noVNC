@@ -54,78 +54,42 @@ var get_path_cwd = function (/* arguments */) {
   }
 };
 
-if (all_js && !program.autoInject) {
-  var all_modules = {};
+var temp = require('temp');
+temp.track();
 
-  // uses the first instance of the string 'requires local modules: '
-  program.tests.forEach(function (testname) {
-    var full_path = path.resolve(process.cwd(), testname);
-    var content = fs.readFileSync(full_path).toString();
-    var ind = content.indexOf('requires local modules: ');
-    if (ind > -1) {
-      ind += 'requires local modules: '.length;
-      var eol = content.indexOf('\n', ind);
-      var modules = content.slice(ind, eol).split(/,\s*/);
-      modules.forEach(function (mod) {
-        all_modules[get_path('core/', mod) + '.js'] = 1;
-      });
-    }
+var template = {
+  header: "<html>\n<head>\n<meta charset='utf-8' />\n<link rel='stylesheet' href='" + get_path('node_modules/mocha/mocha.css') + "'/>\n</head>\n<body><div id='mocha'></div>",
+  script_tag: function(p) { return "<script src='" + p + "'></script>"; },
+  footer: "<script>\nmocha.checkLeaks();\nmocha.globals(['navigator', 'create', 'ClientUtils', '__utils__', 'requestAnimationFrame', 'WebSocket']);\nmocha.run(function () { window.__mocha_done = true; });\n</script>\n</body>\n</html>"
+};
 
-    var fakes_ind = content.indexOf('requires test modules: ');
-    if (fakes_ind > -1) {
-      fakes_ind += 'requires test modules: '.length;
-      var fakes_eol = content.indexOf('\n', fakes_ind);
-      var fakes_modules = content.slice(fakes_ind, fakes_eol).split(/,\s*/);
-      fakes_modules.forEach(function (mod) {
-        all_modules[get_path('tests/', mod) + '.js'] = 1;
-      });
-    }
-  });
+template.header += "\n" + template.script_tag(get_path('node_modules/chai/chai.js'));
+template.header += "\n" + template.script_tag(get_path('node_modules/mocha/mocha.js'));
+template.header += "\n" + template.script_tag(get_path('node_modules/sinon/pkg/sinon.js'));
+template.header += "\n" + template.script_tag(get_path('node_modules/sinon-chai/lib/sinon-chai.js'));
+template.header += "\n" + template.script_tag(get_path('node_modules/requirejs/require.js'));
+template.header += "\n<script>requirejs.config({ baseUrl: \"" + get_path('.') + "\" });</script>";
+template.header += "\n<script>mocha.setup('bdd');</script>";
 
-  program.autoInject = Object.keys(all_modules);
-}
+template.header += "\n" + template.script_tag(get_path('tests/assertions.js'));
 
 if (program.autoInject) {
-  var temp = require('temp');
-  temp.track();
-
-  var template = {
-    header: "<html>\n<head>\n<meta charset='utf-8' />\n<link rel='stylesheet' href='" + get_path('node_modules/mocha/mocha.css') + "'/>\n</head>\n<body><div id='mocha'></div>",
-    script_tag: function(p) { return "<script src='" + p + "'></script>"; },
-    footer: "<script>\nmocha.checkLeaks();\nmocha.globals(['navigator', 'create', 'ClientUtils', '__utils__', 'requestAnimationFrame', 'WebSocket']);\nmocha.run(function () { window.__mocha_done = true; });\n</script>\n</body>\n</html>"
-  };
-
-  template.header += "\n" + template.script_tag(get_path('node_modules/chai/chai.js'));
-  template.header += "\n" + template.script_tag(get_path('node_modules/mocha/mocha.js'));
-  template.header += "\n" + template.script_tag(get_path('node_modules/sinon/pkg/sinon.js'));
-  template.header += "\n" + template.script_tag(get_path('node_modules/sinon-chai/lib/sinon-chai.js'));
-  template.header += "\n" + template.script_tag(get_path('node_modules/requirejs/require.js'));
-  template.header += "\n<script>requirejs.config({ baseUrl: \"" + get_path('.') + "\" });</script>";
-  template.header += "\n<script>mocha.setup('bdd');</script>";
-
-
   template.header = program.autoInject.reduce(function(acc, sn) {
     return acc + "\n" + template.script_tag(get_path_cwd(sn));
   }, template.header);
-
-  file_paths = program.tests.map(function(jsn, ind) {
-    var templ = template.header;
-    templ += "\n";
-    templ += template.script_tag(get_path_cwd(jsn));
-    templ += template.footer;
-
-    var tempfile = temp.openSync({ prefix: 'novnc-zombie-inject-', suffix: '-file_num-'+ind+'.html' });
-    fs.writeSync(tempfile.fd, templ);
-    fs.closeSync(tempfile.fd);
-    return tempfile.path;
-  });
-
 }
-else {
-  file_paths = program.tests.map(function(fn) {
-    return path.resolve(process.cwd(), fn);
-  });
-}
+
+file_paths = program.tests.map(function(jsn, ind) {
+  var templ = template.header;
+  templ += "\n";
+  templ += template.script_tag(get_path_cwd(jsn));
+  templ += template.footer;
+
+  var tempfile = temp.openSync({ prefix: 'novnc-zombie-inject-', suffix: '-file_num-'+ind+'.html' });
+  fs.writeSync(tempfile.fd, templ);
+  fs.closeSync(tempfile.fd);
+  return tempfile.path;
+});
 
 var use_ansi = false;
 if (program.color) use_ansi = true;

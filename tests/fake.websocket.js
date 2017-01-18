@@ -1,6 +1,6 @@
-var FakeWebSocket;
+"use strict";
 
-(function () {
+define(function () {
     // PhantomJS can't create Event objects directly, so we need to use this
     function make_event(name, props) {
         var evt = document.createEvent('Event');
@@ -12,6 +12,8 @@ var FakeWebSocket;
         }
         return evt;
     }
+
+    var FakeWebSocket;
 
     FakeWebSocket = function (uri, protocols) {
         this.url = uri;
@@ -75,7 +77,7 @@ var FakeWebSocket;
 
     FakeWebSocket.__is_fake = true;
 
-    FakeWebSocket.replace = function () {
+    function replace () {
         if (!WebSocket.__is_fake) {
             var real_version = WebSocket;
             WebSocket = FakeWebSocket;
@@ -83,9 +85,11 @@ var FakeWebSocket;
         }
     };
 
-    FakeWebSocket.restore = function () {
+    function restore () {
         if (WebSocket.__is_fake) {
             WebSocket = WebSocket.__real_version;
         }
     };
-})();
+
+    return { replace: replace, restore: restore };
+});

@@ -1,4 +1,4 @@
-// requires test modules: fake.websocket, assertions
+// requires test modules: assertions
 /* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
@@ -36,18 +36,21 @@ var push32 = function (arr, num) {
 describe('Remote Frame Buffer Protocol Client', function() {
     "use strict";
 
-    before(FakeWebSocket.replace);
-    after(FakeWebSocket.restore);
-
-    var Websock;
+    var Websock, FakeWebSocket;
 
     before(function (done) {
-        requirejs(["core/rfb", "core/websock"],
-        function (r, w) {
+        requirejs(["core/rfb", "core/websock", "tests/fake.websocket"],
+        function (r, w, f) {
             RFB = r.RFB;
             Websock = w.Websock;
+            FakeWebSocket = f;
+            FakeWebSocket.replace();
             done();
         });
+    });
+
+    after(function () {
+        FakeWebSocket.restore();
     });
 
     before(function () {

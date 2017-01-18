@@ -1,4 +1,3 @@
-// requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
@@ -6,12 +5,13 @@ var expect = chai.expect;
 describe('Websock', function() {
     "use strict";
 
-    var Websock;
+    var Websock, FakeWebSocket;
 
     before(function (done) {
-        requirejs(["core/websock"],
-        function (w) {
+        requirejs(["core/websock", "tests/fake.websocket"],
+        function (w, f) {
             Websock = w.Websock;
+            FakeWebSocket = f;
             done();
         });
     });
