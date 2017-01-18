@@ -77,8 +77,9 @@
 
 /* jslint white: false */
 
+"use strict";
+
 /* [module] export default */ function DES(passwd) {
-    "use strict";
 
     // Tables, permutations, S-boxes, etc.
     // jshint -W013

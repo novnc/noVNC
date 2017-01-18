@@ -9,6 +9,8 @@
 /* jshint white: false, nonstandard: true */
 /*global window, console, document, navigator, ActiveXObject, INCLUDE_URI */
 
+"use strict";
+
 var Util = {};
 
 /*
@@ -23,7 +25,6 @@ var Util = {};
 
 Util._log_level = 'warn';
 Util.init_logging = function (level) {
-    "use strict";
     if (typeof level === 'undefined') {
         level = Util._log_level;
     } else {
@@ -57,7 +58,6 @@ Util.get_logging = function () {
 Util.init_logging();
 
 Util.make_property = function (proto, name, mode, type) {
-    "use strict";
 
     var getter;
     if (type === 'arr') {
@@ -150,7 +150,6 @@ Util.make_property = function (proto, name, mode, type) {
 };
 
 Util.make_properties = function (constructor, arr) {
-    "use strict";
     for (var i = 0; i < arr.length; i++) {
         Util.make_property(constructor.prototype, arr[i][0], arr[i][1], arr[i][2]);
     }
@@ -184,7 +183,6 @@ Util.set_defaults = function (obj, conf, defaults) {
  * Decode from UTF-8
  */
 Util.decodeUTF8 = function (utf8string) {
-    "use strict";
     return decodeURIComponent(escape(utf8string));
 };
 
@@ -195,7 +193,6 @@ Util.decodeUTF8 = function (utf8string) {
  */
 
 Util.getPosition = function(obj) {
-    "use strict";
     // NB(sross): the Mozilla developer reference seems to indicate that
     // getBoundingClientRect includes border and padding, so the canvas
     // style should NOT include either.
@@ -213,7 +210,6 @@ Util.getPointerEvent = function (e) {
 
 // Get mouse event position in DOM element
 Util.getEventPosition = function (e, obj, scale) {
-    "use strict";
     var evt, docX, docY, pos;
     evt = Util.getPointerEvent(e);
     if (evt.pageX || evt.pageY) {
@@ -281,7 +277,6 @@ Util.browserSupportsCursorURIs = function () {
 Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !!(document.querySelector)};
 
 (function () {
-    "use strict";
     // 'presto': (function () { return (!window.opera) ? false : true; }()),
     var detectPresto = function () {
         return !!window.opera;
@@ -351,7 +346,6 @@ Util.Features = {xpath: !!(document.evaluate), air: !!(window.runtime), query: !
 })();
 
 Util.Flash = (function () {
-    "use strict";
     var v, version;
     try {
         v = navigator.plugins['Shockwave Flash'].description;

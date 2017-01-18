@@ -7,6 +7,8 @@
 /*jslint white: false */
 /*global console */
 
+"use strict";
+
 var Base64 = {
     /* Convert data (an array of integers) to a Base64 string. */
     toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),

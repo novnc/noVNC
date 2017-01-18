@@ -22,8 +22,9 @@
 /*jslint browser: true, bitwise: true */
 /*global Util*/
 
+"use strict";
+
 /* [module] export default */ function Websock() {
-    "use strict";
 
     this._websocket = null;  // WebSocket object
 
@@ -51,7 +52,6 @@
 };
 
 (function () {
-    "use strict";
     // this has performance issues in some versions Chromium, and
     // doesn't gain a tremendous amount of performance increase in Firefox
     // at the moment.  It may be valuable to turn it on in the future.

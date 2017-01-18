@@ -20,10 +20,11 @@
  * import WebUtil from "./webutil";
  */
 
+"use strict";
+
 var UI;
 
 (function () {
-    "use strict";
 
     // Fallback for all uncought errors
     window.addEventListener('error', function(event) {

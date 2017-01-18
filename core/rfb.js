@@ -24,8 +24,9 @@
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
 
+"use strict";
+
 /* [module] export default */ function RFB(defaults) {
-    "use strict";
     if (!defaults) {
         defaults = {};
     }

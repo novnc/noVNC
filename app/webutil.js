@@ -14,6 +14,8 @@
  * import Util from "../core/util";
  */
 
+"use strict";
+
 // Globals defined here
 var WebUtil = {};
 
@@ -25,7 +27,6 @@ var WebUtil = {};
 
 // init log level reading the logging HTTP param
 WebUtil.init_logging = function (level) {
-    "use strict";
     if (typeof level !== "undefined") {
         Util._log_level = level;
     } else {
@@ -37,7 +38,6 @@ WebUtil.init_logging = function (level) {
 
 
 WebUtil.dirObj = function (obj, depth, parent) {
-    "use strict";
     if (! depth) { depth = 2; }
     if (! parent) { parent = ""; }
 
@@ -66,7 +66,6 @@ WebUtil.dirObj = function (obj, depth, parent) {
 
 // Read a query string variable
 WebUtil.getQueryVar = function (name, defVal) {
-    "use strict";
     var re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
         match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
@@ -79,7 +78,6 @@ WebUtil.getQueryVar = function (name, defVal) {
 
 // Read a hash fragment variable
 WebUtil.getHashVar = function (name, defVal) {
-    "use strict";
     var re = new RegExp('.*[&#]' + name + '=([^&]*)'),
         match = document.location.hash.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
@@ -93,7 +91,6 @@ WebUtil.getHashVar = function (name, defVal) {
 // Read a variable from the fragment or the query string
 // Fragment takes precedence
 WebUtil.getConfigVar = function (name, defVal) {
-    "use strict";
     var val = WebUtil.getHashVar(name);
     if (val === null) {
         val = WebUtil.getQueryVar(name, defVal);
@@ -107,7 +104,6 @@ WebUtil.getConfigVar = function (name, defVal) {
 
 // No days means only for this browser session
 WebUtil.createCookie = function (name, value, days) {
-    "use strict";
     var date, expires;
     if (days) {
         date = new Date();
@@ -127,7 +123,6 @@ WebUtil.createCookie = function (name, value, days) {
 };
 
 WebUtil.readCookie = function (name, defaultValue) {
-    "use strict";
     var nameEQ = name + "=",
         ca = document.cookie.split(';');
 
@@ -140,7 +135,6 @@ WebUtil.readCookie = function (name, defaultValue) {
 };
 
 WebUtil.eraseCookie = function (name) {
-    "use strict";
     WebUtil.createCookie(name, "", -1);
 };
 
@@ -149,7 +143,6 @@ WebUtil.eraseCookie = function (name) {
  */
 
 WebUtil.initSettings = function (callback /*, ...callbackArgs */) {
-    "use strict";
     var callbackArgs = Array.prototype.slice.call(arguments, 1);
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.get(function (cfg) {
@@ -169,7 +162,6 @@ WebUtil.initSettings = function (callback /*, ...callbackArgs */) {
 
 // No days means only for this browser session
 WebUtil.writeSetting = function (name, value) {
-    "use strict";
     if (window.chrome && window.chrome.storage) {
         //console.log("writeSetting:", name, value);
         if (WebUtil.settings[name] !== value) {
@@ -182,7 +174,6 @@ WebUtil.writeSetting = function (name, value) {
 };
 
 WebUtil.readSetting = function (name, defaultValue) {
-    "use strict";
     var value;
     if (window.chrome && window.chrome.storage) {
         value = WebUtil.settings[name];
@@ -200,7 +191,6 @@ WebUtil.readSetting = function (name, defaultValue) {
 };
 
 WebUtil.eraseSetting = function (name) {
-    "use strict";
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.remove(name);
         delete WebUtil.settings[name];
@@ -345,7 +335,6 @@ WebUtil.get_include_uri = function (root_dir) {
 WebUtil._loading_scripts = [];
 WebUtil._pending_scripts = [];
 WebUtil.load_scripts = function (files_by_dir) {
-    "use strict";
     var head = document.getElementsByTagName('head')[0], script,
         ls = WebUtil._loading_scripts, ps = WebUtil._pending_scripts;
 

@@ -1,3 +1,5 @@
+"use strict";
+
 var KeyTable = {
     XK_VoidSymbol:                  0xffffff, /* Void symbol */
 

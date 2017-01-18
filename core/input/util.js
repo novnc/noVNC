@@ -3,10 +3,11 @@
  * import keysyms from "./keysymdef";
  */
 
+"use strict";
+
 var KeyboardUtil = {};
 
 (function() {
-    "use strict";
 
     function substituteCodepoint(cp) {
         // Any Unicode code points which do not have corresponding keysym entries
@@ -289,8 +290,6 @@ var KeyboardUtil = {};
 })();
 
 KeyboardUtil.QEMUKeyEventDecoder = function(modifierState, next) {
-    "use strict";
-
     function sendAll(evts) {
         for (var i = 0; i < evts.length; ++i) {
             next(evts[i]);
@@ -359,7 +358,6 @@ KeyboardUtil.QEMUKeyEventDecoder = function(modifierState, next) {
 };
 
 KeyboardUtil.TrackQEMUKeyState = function(next) {
-    "use strict";
     var state = [];
 
     return function (evt) {
@@ -427,7 +425,6 @@ KeyboardUtil.TrackQEMUKeyState = function(next) {
 // - generates a "stall" event in cases where it might be necessary to wait and see if a keypress event follows a keydown
 // This information is collected into an object which is passed to the next() function. (one call per event)
 KeyboardUtil.KeyEventDecoder = function(modifierState, next) {
-    "use strict";
     function sendAll(evts) {
         for (var i = 0; i < evts.length; ++i) {
             next(evts[i]);
@@ -514,7 +511,6 @@ KeyboardUtil.KeyEventDecoder = function(modifierState, next) {
 // The only way we can distinguish these cases is to wait and see if a keypress event arrives
 // When we receive a "stall" event, wait a few ms before processing the next keydown. If a keypress has also arrived, merge the two
 KeyboardUtil.VerifyCharModifier = function(next) {
-    "use strict";
     var queue = [];
     var timer = null;
     function process() {
@@ -571,7 +567,6 @@ KeyboardUtil.VerifyCharModifier = function(next) {
 // key repeat events should be merged into a single entry.
 // Because we can't always identify which entry a keydown or keyup event corresponds to, we sometimes have to guess
 KeyboardUtil.TrackKeyState = function(next) {
-    "use strict";
     var state = [];
 
     return function (evt) {
@@ -655,7 +650,6 @@ KeyboardUtil.TrackKeyState = function(next) {
 // Handles "escaping" of modifiers: if a char modifier is used to produce a keysym (such as AltGr-2 to generate an @),
 // then the modifier must be "undone" before sending the @, and "redone" afterwards.
 KeyboardUtil.EscapeModifiers = function(next) {
-    "use strict";
     return function(evt) {
         if (evt.type !== 'keydown' || evt.escape === undefined) {
             next(evt);

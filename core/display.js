@@ -15,6 +15,8 @@
  * import Base64 from "./base64";
  */
 
+"use strict";
+
 /* [module] export default */ function Display(defaults) {
     this._drawCtx = null;
     this._c_forceCanvas = false;
@@ -99,7 +101,6 @@
 };
 
 (function () {
-    "use strict";
 
     var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
     try {

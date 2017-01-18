@@ -1,3 +1,5 @@
+"use strict";
+
 var XtScancode = {
     "Escape": 0x0001,
     "Digit1": 0x0002,

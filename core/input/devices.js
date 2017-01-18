@@ -13,10 +13,11 @@
  * import KeyboardUtil from "./util";
  */
 
+"use strict";
+
 /* [module] export */ var Keyboard;
 
 (function () {
-    "use strict";
 
     //
     // Keyboard event handler
