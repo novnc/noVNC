@@ -1,4 +1,3 @@
-// requires local modules: util
 /* jshint expr: true */
 
 var assert = chai.assert;
@@ -6,6 +5,16 @@ var expect = chai.expect;
 
 describe('Utils', function() {
     "use strict";
+
+    var Util;
+
+    before(function (done) {
+        requirejs(["core/util"],
+        function (u) {
+            Util = u;
+            done();
+        });
+    });
 
     describe('logging functions', function () {
         beforeEach(function () {
@@ -57,7 +66,7 @@ describe('Utils', function() {
     });
 
     describe('language selection', function () {
-        var origNavigator;
+        var origNavigator, origRequire;
         beforeEach(function () {
             // window.navigator is a protected read-only property in many
             // environments, so we need to redefine it whilst running these
@@ -77,8 +86,13 @@ describe('Utils', function() {
             }
 
             window.navigator.languages = [];
+
+            // Prevent the code from trying to actually load translations
+            origRequire = require;
+            require = function (mods, func) { func([]); };
         });
         afterEach(function () {
+            require = origRequire;
             Object.defineProperty(window, "navigator", origNavigator);
         });
 
@@ -87,37 +101,37 @@ describe('Utils', function() {
         });
         it('should use English if no user language matches', function() {
             window.navigator.languages = ["nl", "de"];
-            Util.Localisation.setup(["es", "fr"]);
+            Util.Localisation.setup(["es", "fr"], ".");
             expect(Util.Localisation.language).to.equal('en');
         });
         it('should use the most preferred user language', function() {
             window.navigator.languages = ["nl", "de", "fr"];
-            Util.Localisation.setup(["es", "fr", "de"]);
+            Util.Localisation.setup(["es", "fr", "de"], ".");
             expect(Util.Localisation.language).to.equal('de');
         });
         it('should prefer sub-languages languages', function() {
             window.navigator.languages = ["pt-BR"];
-            Util.Localisation.setup(["pt", "pt-BR"]);
+            Util.Localisation.setup(["pt", "pt-BR"], ".");
             expect(Util.Localisation.language).to.equal('pt-BR');
         });
         it('should fall back to language "parents"', function() {
             window.navigator.languages = ["pt-BR"];
-            Util.Localisation.setup(["fr", "pt", "de"]);
+            Util.Localisation.setup(["fr", "pt", "de"], ".");
             expect(Util.Localisation.language).to.equal('pt');
         });
         it('should not use specific language when user asks for a generic language', function() {
             window.navigator.languages = ["pt", "de"];
-            Util.Localisation.setup(["fr", "pt-BR", "de"]);
+            Util.Localisation.setup(["fr", "pt-BR", "de"], ".");
             expect(Util.Localisation.language).to.equal('de');
         });
         it('should handle underscore as a separator', function() {
             window.navigator.languages = ["pt-BR"];
-            Util.Localisation.setup(["pt_BR"]);
+            Util.Localisation.setup(["pt_BR"], ".");
             expect(Util.Localisation.language).to.equal('pt_BR');
         });
         it('should handle difference in case', function() {
             window.navigator.languages = ["pt-br"];
-            Util.Localisation.setup(["pt-BR"]);
+            Util.Localisation.setup(["pt-BR"], ".");
             expect(Util.Localisation.language).to.equal('pt-BR');
         });
     });

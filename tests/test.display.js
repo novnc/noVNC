@@ -1,9 +1,22 @@
-// requires local modules: util, base64, display
 // requires test modules: assertions
 /* jshint expr: true */
 var expect = chai.expect;
 
 describe('Display/Canvas Helper', function () {
+    "use strict";
+
+    var Util, Base64, Display;
+
+    before(function (done) {
+        requirejs(["core/util", "core/base64", "core/display"],
+        function (u, b, d) {
+            Util = u;
+            Base64 = b;
+            Display = d.Display;
+            done();
+        });
+    });
+
     var checked_data = [
         0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
         0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,

@@ -5,7 +5,10 @@
  * DO NOT EDIT!
  */
 
-Language = {
+"use strict";
+
+define(function() {
+return {
     "Connecting...": "Συνδέεται...",
     "Connected (encrypted) to ": "Συνδέθηκε (κρυπτογραφημένα) με το ",
     "Connected (unencrypted) to ": "Συνδέθηκε (μη κρυπτογραφημένα) με το ",
@@ -72,3 +75,4 @@ Language = {
     "Send Password": "Αποστολή Κωδικού Πρόσβασης",
     "Canvas not supported.": "Δεν υποστηρίζεται το στοιχείο Canvas",
 };
+});

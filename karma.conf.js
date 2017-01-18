@@ -108,34 +108,15 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser (loaded in order)
     files: [
+      'node_modules/requirejs/require.js',
+      'tests/test-main.js',
       'tests/fake.*.js',
       'tests/assertions.js',
-      'core/util.js',  // load first to avoid issues, since methods are called immediately
-      //'../core/*.js',
-      'core/base64.js',
-      'core/input/keysym.js',
-      'core/input/keysymdef.js',
-      'core/input/xtscancodes.js',
-      'core/input/util.js',
-      'core/input/devices.js',
-      'core/websock.js',
-      'core/rfb.js',
-      'core/des.js',
-      'core/display.js',
-      'core/inflator.js',
-      'tests/test.*.js'
-    ],
-
-    client: {
-      mocha: {
-        'ui': 'bdd'
-      }
-    },
-
-    // list of files to exclude
-    exclude: [
-      '../tests/playback.js',
-      '../app/ui.js'
+      'tests/test.*.js',
+      // Only packaged, not included in browser as RequireJS will
+      // do the actual loading
+      {pattern: 'core/*.js', included: false},
+      {pattern: 'core/input/*.js', included: false},
     ],
 
     customLaunchers: customLaunchers,

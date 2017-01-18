@@ -1,4 +1,3 @@
-// requires local modules: websock, util
 // requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
@@ -6,6 +5,16 @@ var expect = chai.expect;
 
 describe('Websock', function() {
     "use strict";
+
+    var Websock;
+
+    before(function (done) {
+        requirejs(["core/websock"],
+        function (w) {
+            Websock = w.Websock;
+            done();
+        });
+    });
 
     describe('Queue methods', function () {
         var sock;

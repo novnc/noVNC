@@ -1,10 +1,21 @@
-// requires local modules: input/devices, input/util, input/keysymdef, input/keysym
 var assert = chai.assert;
 var expect = chai.expect;
 
 /* jshint newcap: false, expr: true */
 describe('Key Event Pipeline Stages', function() {
     "use strict";
+
+    var keysyms, KeyboardUtil;
+
+    before(function (done) {
+        requirejs(["core/input/keysymdef", "core/input/util"],
+        function (k, u) {
+            keysyms = k;
+            KeyboardUtil = u;
+            done();
+        });
+    });
+
     describe('Decode Keyboard Events', function() {
         it('should pass events to the next stage', function(done) {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {

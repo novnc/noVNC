@@ -1,5 +1,7 @@
 *.pyc
 *.o
+inflator/inflator-merged.js
+inflator/pako
 tests/data_*.js
 utils/rebind.so
 utils/websockify

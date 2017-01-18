@@ -2,106 +2,18 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2015 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2017 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  */
 
 /*jslint browser: true, white: false */
-/*global Util, Base64, changeCursor */
-
-/* [module]
- * import Util from "./util";
- * import Base64 from "./base64";
- */
 
 "use strict";
 
-/* [module] export default */ function Display(defaults) {
-    this._drawCtx = null;
-    this._c_forceCanvas = false;
-
-    this._renderQ = [];  // queue drawing actions for in-oder rendering
-    this._flushing = false;
-
-    // the full frame buffer (logical canvas) size
-    this._fb_width = 0;
-    this._fb_height = 0;
-
-    this._prevDrawStyle = "";
-    this._tile = null;
-    this._tile16x16 = null;
-    this._tile_x = 0;
-    this._tile_y = 0;
-
-    Util.set_defaults(this, defaults, {
-        'true_color': true,
-        'colourMap': [],
-        'scale': 1.0,
-        'viewport': false,
-        'render_mode': '',
-        "onFlush": function () {},
-    });
-
-    Util.Debug(">> Display.constructor");
-
-    // The visible canvas
-    if (!this._target) {
-        throw new Error("Target must be set");
-    }
-
-    if (typeof this._target === 'string') {
-        throw new Error('target must be a DOM element');
-    }
-
-    if (!this._target.getContext) {
-        throw new Error("no getContext method");
-    }
-
-    this._targetCtx = this._target.getContext('2d');
-
-    // the visible canvas viewport (i.e. what actually gets seen)
-    this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
-
-    // The hidden canvas, where we do the actual rendering
-    this._backbuffer = document.createElement('canvas');
-    this._drawCtx = this._backbuffer.getContext('2d');
-
-    this._damageBounds = { left:0, top:0,
-                           right: this._backbuffer.width,
-                           bottom: this._backbuffer.height };
-
-    Util.Debug("User Agent: " + navigator.userAgent);
-    if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
-    if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
-    if (Util.Engine.trident) { Util.Debug("Browser: trident " + Util.Engine.trident); }
-    if (Util.Engine.presto) { Util.Debug("Browser: presto " + Util.Engine.presto); }
-
-    this.clear();
-
-    // Check canvas features
-    if ('createImageData' in this._drawCtx) {
-        this._render_mode = 'canvas rendering';
-    } else {
-        throw new Error("Canvas does not support createImageData");
-    }
-
-    if (this._prefer_js === null) {
-        Util.Info("Prefering javascript operations");
-        this._prefer_js = true;
-    }
-
-    // Determine browser support for setting the cursor via data URI scheme
-    if (this._cursor_uri || this._cursor_uri === null ||
-            this._cursor_uri === undefined) {
-        this._cursor_uri = Util.browserSupportsCursorURIs();
-    }
-
-    Util.Debug("<< Display.constructor");
-};
-
-(function () {
-
+define(["core/util", "core/base64"],
+function (Util, Base64) {
     var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
     try {
         new ImageData(new Uint8ClampedArray(4), 1, 1);
@@ -110,6 +22,88 @@
         // ignore failure
     }
 
+    function Display(defaults) {
+        this._drawCtx = null;
+        this._c_forceCanvas = false;
+
+        this._renderQ = [];  // queue drawing actions for in-oder rendering
+        this._flushing = false;
+
+        // the full frame buffer (logical canvas) size
+        this._fb_width = 0;
+        this._fb_height = 0;
+
+        this._prevDrawStyle = "";
+        this._tile = null;
+        this._tile16x16 = null;
+        this._tile_x = 0;
+        this._tile_y = 0;
+
+        Util.set_defaults(this, defaults, {
+            'true_color': true,
+            'colourMap': [],
+            'scale': 1.0,
+            'viewport': false,
+            'render_mode': '',
+            "onFlush": function () {},
+        });
+
+        Util.Debug(">> Display.constructor");
+
+        // The visible canvas
+        if (!this._target) {
+            throw new Error("Target must be set");
+        }
+
+        if (typeof this._target === 'string') {
+            throw new Error('target must be a DOM element');
+        }
+
+        if (!this._target.getContext) {
+            throw new Error("no getContext method");
+        }
+
+        this._targetCtx = this._target.getContext('2d');
+
+        // the visible canvas viewport (i.e. what actually gets seen)
+        this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
+
+        // The hidden canvas, where we do the actual rendering
+        this._backbuffer = document.createElement('canvas');
+        this._drawCtx = this._backbuffer.getContext('2d');
+
+        this._damageBounds = { left:0, top:0,
+                               right: this._backbuffer.width,
+                               bottom: this._backbuffer.height };
+
+        Util.Debug("User Agent: " + navigator.userAgent);
+        if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
+        if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
+        if (Util.Engine.trident) { Util.Debug("Browser: trident " + Util.Engine.trident); }
+        if (Util.Engine.presto) { Util.Debug("Browser: presto " + Util.Engine.presto); }
+
+        this.clear();
+
+        // Check canvas features
+        if ('createImageData' in this._drawCtx) {
+            this._render_mode = 'canvas rendering';
+        } else {
+            throw new Error("Canvas does not support createImageData");
+        }
+
+        if (this._prefer_js === null) {
+            Util.Info("Prefering javascript operations");
+            this._prefer_js = true;
+        }
+
+        // Determine browser support for setting the cursor via data URI scheme
+        if (this._cursor_uri || this._cursor_uri === null ||
+                this._cursor_uri === undefined) {
+            this._cursor_uri = Util.browserSupportsCursorURIs();
+        }
+
+        Util.Debug("<< Display.constructor");
+    };
 
     Display.prototype = {
         // Public methods
@@ -876,4 +870,6 @@
         var url = 'data:image/x-icon;base64,' + Base64.encode(cur);
         target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
     };
-})();
+
+    return { Display: Display };
+});

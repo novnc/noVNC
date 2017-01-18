@@ -1,9 +1,18 @@
-// requires local modules: base64
 var assert = chai.assert;
 var expect = chai.expect;
 
-describe('Base64 Tools', function() {
+describe('Base64 Tools', function(done) {
     "use strict";
+
+    var Base64;
+
+    before(function (done) {
+        requirejs(["core/base64"],
+        function (b) {
+            Base64 = b;
+            done();
+        });
+    });
 
     var BIN_ARR = new Array(256);
     for (var i = 0; i < 256; i++) {

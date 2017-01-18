@@ -1,8 +1,9 @@
-// requires local modules: util, websock, rfb, input/util, input/keysym, input/keysymdef, input/devices, inflator, des, display
 // requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
+
+var RFB;
 
 function make_rfb (extra_opts) {
     if (!extra_opts) {
@@ -34,8 +35,20 @@ var push32 = function (arr, num) {
 
 describe('Remote Frame Buffer Protocol Client', function() {
     "use strict";
+
     before(FakeWebSocket.replace);
     after(FakeWebSocket.restore);
+
+    var Websock;
+
+    before(function (done) {
+        requirejs(["core/rfb", "core/websock"],
+        function (r, w) {
+            RFB = r.RFB;
+            Websock = w.Websock;
+            done();
+        });
+    });
 
     before(function () {
         this.clock = sinon.useFakeTimers();

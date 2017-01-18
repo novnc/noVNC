@@ -1,10 +1,20 @@
-﻿// requires local modules: input/keysym, input/keysymdef, input/util
-
 var assert = chai.assert;
 var expect = chai.expect;
 
 describe('Helpers', function() {
     "use strict";
+
+    var keysyms, KeyboardUtil;
+
+    before(function (done) {
+        requirejs(["core/input/keysymdef", "core/input/util"],
+        function (k, u) {
+            keysyms = k;
+            KeyboardUtil = u;
+            done();
+        });
+    });
+
     describe('keysymFromKeyCode', function() {
         it('should map known keycodes to keysyms', function() {
             expect(KeyboardUtil.keysymFromKeyCode(0x41, false), 'a').to.be.equal(0x61);

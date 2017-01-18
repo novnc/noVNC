@@ -2,28 +2,21 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2013 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2017 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
 /*jslint browser: true, white: false */
-/*global window, Util */
-
-/* [module]
- * import Util from "../util";
- * import KeyboardUtil from "./util";
- */
 
 "use strict";
 
-/* [module] export */ var Keyboard;
-
-(function () {
-
+define(["core/util", "core/input/util"],
+function (Util, KeyboardUtil) {
     //
     // Keyboard event handler
     //
 
-    Keyboard = function (defaults) {
+    function Keyboard(defaults) {
         this._keyDownList = [];         // List of depressed keys
                                         // (even if they are happy)
 
@@ -159,12 +152,8 @@
 
         ['onKeyPress', 'rw', 'func'] // Handler for key press/release
     ]);
-})();
 
-/* [module] export */ var Mouse;
-
-(function () {
-    Mouse = function (defaults) {
+    function Mouse(defaults) {
         this._mouseCaptured  = false;
 
         this._doubleClickTimer = null;
@@ -403,4 +392,7 @@
         ['onMouseMove',    'rw', 'func'],  // Handler for mouse movement
         ['touchButton',    'rw', 'int']    // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
     ]);
-})();
+
+    return { Keyboard: Keyboard,
+             Mouse: Mouse };
+});
