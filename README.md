@@ -84,7 +84,7 @@ See more screenshots
 Unless you are using a VNC server with support for WebSockets connections (such
 as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/),
 [QEMU](http://www.qemu.org/), or
-[TigerVNC](http://tigervnc.org/)), you need to use a
+[MobileVNC](http://www.smartlab.at/mobilevnc/)), you need to use a
 WebSockets to TCP socket proxy. There is a python proxy included
 ('websockify').
 
