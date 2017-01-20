@@ -603,6 +603,8 @@ input[type=button]:active, select:active {
   z-index: 100;
   transform: translateY(-100%);
 
+  cursor: pointer;
+
   transition: 0.5s ease-in-out;
 
   visibility: hidden;
