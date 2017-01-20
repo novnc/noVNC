@@ -759,8 +759,17 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._rfb_init_state = 'Security';
             });
 
-            function send_security(type, cl) {
-                cl._sock._websocket._receive_data(new Uint8Array([1, type]));
+            // N.B.(kelleyk): 'types' may be either a single number or an array of numbers.
+            function send_security(types, cl) {
+                if (types.constructor !== Array)
+                    types = [types];
+                
+                var data = new Uint8Array(1 + types.length);
+                data[0] = types.length;
+                for (var i = 0; i < types.length; ++i)
+                    data[i+1] = types[i];
+                
+                cl._sock._websocket._receive_data(data);
             }
 
             it('should fail on auth scheme 0 (pre 3.7) with the given message', function () {
@@ -906,7 +915,13 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._sock._websocket._open();
                     client._rfb_init_state = 'Security';
                     client._rfb_version = 3.8;
-                    send_security(16, client);
+                    // N.B.(kelleyk): Actual TightVNC servers support more than
+                    // just 16 ("tight"), whereas ATEN iKVM servers advertise only
+                    // 16.  This is a large part of how we detect that we are
+                    // speaking to an iKVM server, so if we want to test the
+                    // client's interaction with a TightVNC server, we need to
+                    // send more than just the one.
+                    send_security([1, 16], client);
                     client._sock._websocket._get_sent_data();  // skip the security reply
                 });
 
@@ -983,6 +998,53 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._rfb_tightvnc = true;
                     send_num_str_pairs([[23, 'stdv', 'badval__']], client);
                     expect(client._fail).to.have.been.calledOnce;
+                });
+            });
+
+            describe('ATEN iKVM Authentication Handler', function () {
+                var client;
+
+                beforeEach(function () {
+                    client = make_rfb();
+                    client.connect('host', 8675);
+                    client._sock._websocket._open();
+                    client._rfb_init_state = 'Security';
+                    client._rfb_version = 3.8;
+                    // N.B.(kelleyk): ATEN iKVM server advertise *only* 16 ("tight"),
+                    // which is how we detect them.
+                    send_security(16, client);
+                    client._sock._websocket._get_sent_data();  // skip the security reply
+                    client._rfb_password = 'test1:test2';
+                });
+
+                var auth = [
+                    116, 101, 115, 116,  49,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0,
+                    116, 101, 115, 116,  50,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0,
+                    0,     0,   0,   0,   0,   0,   0,   0];
+
+                it('via old style method', function () {
+                    client._sock._websocket._receive_data(new Uint8Array([
+                        0xaf, 0xf9, 0x0f, 0xb0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0,
+                           0,    0,    0,    0,    0,    0,    0,    0]));
+                    expect(client._rfb_tightvnc).to.be.false;
+                    expect(client._rfb_atenikvm).to.be.true;
+                    expect(client._sock).to.have.sent(auth);
+                });
+
+                it('via new style method', function () {
+                    client._sock._websocket._receive_data(new Uint8Array([
+                        0,    0,    0,    0,    0,    0,    0,    0,
+                        0,    0,    0,    0,    0,    0,    0,    0,
+                        0,    0,    0,    0,    0,    0,    0,    0,
+                        0,    0,    0,    0,    0,    0,    0,    0]));
+                    expect(client._rfb_tightvnc).to.be.false;
+                    expect(client._rfb_atenikvm).to.be.true;
+                    expect(client._sock).to.have.sent(auth);
                 });
             });
         });
@@ -1103,8 +1165,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._fb_height).to.equal(84);
             });
 
-            // NB(sross): we just warn, not fail, for endian-ness and shifts, so we don't test them
-
             it('should set the framebuffer name and call the callback', function () {
                 client.set_onDesktopName(sinon.spy());
                 send_server_init({ name: 'some name' }, client);
@@ -1134,12 +1194,23 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_connection_state).to.equal('connected');
             });
 
-            it('should set the true color mode on the display to the configuration variable', function () {
-                client.set_true_color(false);
-                sinon.spy(client._display, 'set_true_color');
-                send_server_init({ true_color: 1 }, client);
-                expect(client._display.set_true_color).to.have.been.calledOnce;
-                expect(client._display.set_true_color).to.have.been.calledWith(false);
+            it('should handle an ATEN iKVM server initialization', function () {
+                RFB.ATEN_INIT_WIDTH = 1;
+                RFB.ATEN_INIT_HEIGHT = 1;
+                client._rfb_atenikvm = true;
+                send_server_init({ true_color: 1, bpp: 32 }, client);
+                client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
+                expect(client._pixelFormat.bpp).to.equal(16);
+                expect(client._pixelFormat.depth).to.equal(15);
+                expect(client._pixelFormat.red_max).to.equal(31);
+                expect(client._pixelFormat.green_max).to.equal(31);
+                expect(client._pixelFormat.blue_max).to.equal(31);
+                expect(client._pixelFormat.red_shift).to.equal(10);
+                expect(client._pixelFormat.green_shift).to.equal(5);
+                expect(client._pixelFormat.blue_shift).to.equal(0);
+                expect(client._pixelFormat.Bpp).to.equal(2);
+                expect(client._pixelFormat.Bdepth).to.equal(2);
+                expect(client._rfb_connection_state).to.equal('connected');
             });
 
             it('should call the resize callback and resize the display', function () {
@@ -1163,29 +1234,35 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._mouse.grab).to.have.been.calledOnce;
             });
 
-            it('should set the BPP and depth to 4 and 3 respectively if in true color mode', function () {
-                client.set_true_color(true);
-                send_server_init({}, client);
-                expect(client._fb_Bpp).to.equal(4);
-                expect(client._fb_depth).to.equal(3);
+            it('should set the BPP and depth to 4 and 3 respectively if server can send native (true color)', function () {
+                send_server_init({ true_color: 1, bpp: 8, depth: 8 }, client);
+                expect(client._pixelFormat.Bpp).to.equal(4);
+                expect(client._pixelFormat.Bdepth).to.equal(3);
             });
 
-            it('should set the BPP and depth to 1 and 1 respectively if not in true color mode', function () {
-                client.set_true_color(false);
-                send_server_init({}, client);
-                expect(client._fb_Bpp).to.equal(1);
-                expect(client._fb_depth).to.equal(1);
+            it('should set the BPP and depth to 2 and 2 respectively if server cannot send native (true color)', function () {
+                client.set_convert_color(true);
+                send_server_init({ true_color: 1, bpp: 16, depth: 15 }, client);
+                expect(client._pixelFormat.Bpp).to.equal(2);
+                expect(client._pixelFormat.Bdepth).to.equal(2);
+            });
+
+            it('should set the BPP and depth to 1 and 1 respectively if server cannot send native (not true color)', function () {
+                client.set_convert_color(true);
+                send_server_init({ true_color: 0, bpp: 8, depth: 8 }, client);
+                expect(client._pixelFormat.Bpp).to.equal(1);
+                expect(client._pixelFormat.Bdepth).to.equal(1);
             });
 
             // TODO(directxman12): test the various options in this configuration matrix
             it('should reply with the pixel format, client encodings, and initial update request', function () {
-                client.set_true_color(true);
                 client.set_local_cursor(false);
                 // we skip the cursor encoding
                 var expected = {_sQ: new Uint8Array(34 + 4 * (client._encodings.length - 1)),
                                 _sQlen: 0,
                                 flush: function () {}};
-                RFB.messages.pixelFormat(expected, 4, 3, true);
+                var pf = { bpp: 32, depth: 24, big_endian: false, true_color: true, red_max: 255, green_max: 255, blue_max: 255, red_shift: 16, green_shift: 8, blue_shift: 0 };
+                RFB.messages.pixelFormat(expected, pf);
                 RFB.messages.clientEncodings(expected, client._encodings, false, true);
                 RFB.messages.fbUpdateRequest(expected, false, 0, 0, 27, 32);
 
@@ -1197,6 +1274,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 send_server_init({}, client);
                 expect(client._rfb_connection_state).to.equal('connected');
             });
+
         });
     });
 
@@ -1224,13 +1302,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._fb_name = 'some device';
                 client._fb_width = 640;
                 client._fb_height = 20;
+                client._pixelFormat.Bpp = 4;
             });
 
             var target_data_arr = [
-                0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
-                0x00, 0xff, 0x00, 255, 0xff, 0x00, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
-                0xee, 0x00, 0xff, 255, 0x00, 0xee, 0xff, 255, 0xaa, 0xee, 0xff, 255, 0xab, 0xee, 0xff, 255,
-                0xee, 0x00, 0xff, 255, 0x00, 0xee, 0xff, 255, 0xaa, 0xee, 0xff, 255, 0xab, 0xee, 0xff, 255
+                0xf8, 0x00, 0x00, 255, 0x00, 0xf8, 0x00, 255, 0x00, 0x00, 0xf8, 255, 0x00, 0x00, 0xf8, 255,
+                0x00, 0xf8, 0x00, 255, 0xf8, 0x00, 0x00, 255, 0x00, 0x00, 0xf8, 255, 0x00, 0x00, 0xf8, 255,
+                0xe8, 0x00, 0xf8, 255, 0x00, 0xe8, 0xf8, 255, 0xa8, 0xe8, 0xf8, 255, 0xa8, 0xe8, 0xf8, 255,
+                0xe8, 0x00, 0xf8, 255, 0x00, 0xe8, 0xf8, 255, 0xa8, 0xe8, 0xf8, 255, 0xa8, 0xe8, 0xf8, 255
             ];
             var target_data;
 
@@ -1379,22 +1458,96 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._fb_width = 4;
                     client._fb_height = 4;
                     client._display.resize(4, 4);
-                    client._fb_Bpp = 4;
+                    client._pixelFormat.Bpp = 4;
+                    client._destBuff = new Uint8Array(client._fb_width * client._fb_height * 4);
                 });
 
-                it('should handle the RAW encoding', function () {
+                // warning: the fbupdates *overlap* so you have to send all rects for the numbers
+                // to even make sense; this means (ironically) no iterative building of your tests
+                describe('should handle the RAW encoding', function () {
+                    it('should handle 24bit depth (RGBX888) @ 32bpp [native]', function () {
+                        client._convert_color = true;
+                        client._pixelFormat.big_endian = false;
+                        client._pixelFormat.red_shift = 0;
+                        client._pixelFormat.red_max = 255;
+                        client._pixelFormat.green_shift = 8;
+                        client._pixelFormat.green_max = 255;
+                        client._pixelFormat.blue_shift = 16;
+                        client._pixelFormat.blue_max = 255;
+                        var info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                    { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                    { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
+                                    { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
+                        var rects = [
+                            [0xf8, 0x00, 0x00, 0, 0x00, 0xf8, 0x00, 0, 0x00, 0xf8, 0x00, 0, 0xf8, 0x00, 0x00, 0],
+                            [0x00, 0x00, 0xf8, 0, 0x00, 0x00, 0xf8, 0, 0x00, 0x00, 0xf8, 0, 0x00, 0x00, 0xf8, 0],
+                            [0xe8, 0x00, 0xf8, 0, 0x00, 0xe8, 0xf8, 0, 0xa8, 0xe8, 0xf8, 0, 0xa8, 0xe8, 0xf8, 0],
+                            [0xe8, 0x00, 0xf8, 0, 0x00, 0xe8, 0xf8, 0, 0xa8, 0xe8, 0xf8, 0, 0xa8, 0xe8, 0xf8, 0]];
+                        send_fbu_msg(info, rects, client);
+                        expect(client._display).to.have.displayed(target_data);
+                });
+
+                    it('should handle 24bit depth (BGRX888) @ 32bpp', function () {
                     var info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
                                 { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
                                 { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
                                 { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
-                    // data is in bgrx
                     var rects = [
-                        [0x00, 0x00, 0xff, 0, 0x00, 0xff, 0x00, 0, 0x00, 0xff, 0x00, 0, 0x00, 0x00, 0xff, 0],
-                        [0xff, 0x00, 0x00, 0, 0xff, 0x00, 0x00, 0, 0xff, 0x00, 0x00, 0, 0xff, 0x00, 0x00, 0],
-                        [0xff, 0x00, 0xee, 0, 0xff, 0xee, 0x00, 0, 0xff, 0xee, 0xaa, 0, 0xff, 0xee, 0xab, 0],
-                        [0xff, 0x00, 0xee, 0, 0xff, 0xee, 0x00, 0, 0xff, 0xee, 0xaa, 0, 0xff, 0xee, 0xab, 0]];
+                            [0x00, 0x00, 0xf8, 0, 0x00, 0xf8, 0x00, 0, 0x00, 0xf8, 0x00, 0, 0x00, 0x00, 0xf8, 0],
+                            [0xf8, 0x00, 0x00, 0, 0xf8, 0x00, 0x00, 0, 0xf8, 0x00, 0x00, 0, 0xf8, 0x00, 0x00, 0],
+                            [0xf8, 0x00, 0xe8, 0, 0xf8, 0xe8, 0x00, 0, 0xf8, 0xe8, 0xa8, 0, 0xf8, 0xe8, 0xa8, 0],
+                            [0xf8, 0x00, 0xe8, 0, 0xf8, 0xe8, 0x00, 0, 0xf8, 0xe8, 0xa8, 0, 0xf8, 0xe8, 0xa8, 0]];
                     send_fbu_msg(info, rects, client);
                     expect(client._display).to.have.displayed(target_data);
+                });
+
+                    // for wisdom: perl -e '($w, $r, $g, $b) = @ARGV; $W=2**$w; $nb = $b*($W/256); $ng = $g*($W/256); $nr = $r*($W/256); printf "%f:%f:%f %04x\n", $nr, $ng, $nb, unpack("S", pack("n", ($nr << (2*$w)) | ($ng << (1*$w)) | ($nb << (0*$w))))' 5 0 248 0
+                    it('should handle 15bit depth (BGR555) @ 16bpp', function () {
+                        client._convert_color = true;
+                        client._pixelFormat.big_endian = false;
+                        client._pixelFormat.Bpp = 2;
+                        client._pixelFormat.red_shift = 10;
+                        client._pixelFormat.red_max = 31;
+                        client._pixelFormat.green_shift = 5;
+                        client._pixelFormat.green_max = 31;
+                        client._pixelFormat.blue_shift = 0;
+                        client._pixelFormat.blue_max = 31;
+                        var info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                    { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                    { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
+                                    { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
+                        var rects = [
+                            [0x00, 0x7c, 0xe0, 0x03, 0xe0, 0x03, 0x00, 0x7c],
+                            [0x1f, 0x00, 0x1f, 0x00, 0x1f, 0x00, 0x1f, 0x00],
+                            [0x1f, 0x74, 0xbf, 0x03, 0xbf, 0x57, 0xbf, 0x57],
+                            [0x1f, 0x74, 0xbf, 0x03, 0xbf, 0x57, 0xbf, 0x57]];
+                        send_fbu_msg(info, rects, client);
+                        expect(client._display).to.have.displayed(target_data);
+                    });
+
+                    it('should handle 15bit depth (BGR555) @ 16bpp big-endian', function () {
+                        client._convert_color = true;
+                        client._pixelFormat.big_endian = false;
+                        client._pixelFormat.Bpp = 2;
+                        client._pixelFormat.big_endian = true;
+                        client._pixelFormat.red_shift = 10;
+                        client._pixelFormat.red_max = 31;
+                        client._pixelFormat.green_shift = 5;
+                        client._pixelFormat.green_max = 31;
+                        client._pixelFormat.blue_shift = 0;
+                        client._pixelFormat.blue_max = 31;
+                        var info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                    { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                    { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
+                                    { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
+                        var rects = [
+                            [0x7c, 0x00, 0x03, 0xe0, 0x03, 0xe0, 0x7c, 0x00],
+                            [0x00, 0x1f, 0x00, 0x1f, 0x00, 0x1f, 0x00, 0x1f],
+                            [0x74, 0x1f, 0x03, 0xbf, 0x57, 0xbf, 0x57, 0xbf],
+                            [0x74, 0x1f, 0x03, 0xbf, 0x57, 0xbf, 0x57, 0xbf]];
+                        send_fbu_msg(info, rects, client);
+                        expect(client._display).to.have.displayed(target_data);
+                    });
                 });
 
                 it('should handle the COPYRECT encoding', function () {
@@ -1426,7 +1579,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     push16(rect, 2); // width: 2
                     push16(rect, 2); // height: 2
                     rect.push(0xff); // becomes ff0000ff --> #0000FF color
-                    rect.push(0x00);
+                    rect.push(0x00); // becomes 0000ffff --> #0000FF color
                     rect.push(0x00);
                     rect.push(0xff);
                     push16(rect, 2); // x: 2
@@ -1450,7 +1603,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         client._fb_width = 4;
                         client._fb_height = 4;
                         client._display.resize(4, 4);
-                        client._fb_Bpp = 4;
+                        client._pixelFormat.Bpp = 4;
+                        client._destBuff = new Uint8Array(client._fb_width * client._fb_height * 4);
                     });
 
                     it('should handle a tile with fg, bg specified, normal subrects', function () {
@@ -1592,6 +1746,97 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 it.skip('should handle the TIGHT_PNG encoding', function () {
                     // TODO(directxman12): test this
+                });
+
+                describe('the ATEN encoding handler', function () {
+                    var client;
+                    beforeEach(function () {
+                        client = make_rfb();
+                        client.connect('host', 8675);
+                        client._sock._websocket._open();
+                        client._rfb_connection_state = 'connected';
+                        client._fb_name = 'some device';
+                        client._rfb_atenikvm = true;
+                        // start large, then go small
+                        client._fb_width = 10000;
+                        client._fb_height = 10000;
+                        client._display._fb_width = 10000;
+                        client._display._fb_height = 10000;
+                        client._display._viewportLoc.w = 10000;
+                        client._display._viewportLoc.h = 10000;
+                        client._convert_color = true;
+                        client._pixelFormat.Bpp = 2;
+                        client._pixelFormat.big_endian = false;
+                        client._pixelFormat.red_shift = 10;
+                        client._pixelFormat.red_max = 31;
+                        client._pixelFormat.green_shift = 5;
+                        client._pixelFormat.green_max = 31;
+                        client._pixelFormat.blue_shift = 0;
+                        client._pixelFormat.blue_max = 31;
+                        client._destBuff = new Uint8Array(client._fb_width * client._fb_height * 4);
+                    });
+
+                    var aten_target_data_arr = [0xa8, 0xe8, 0xf8, 0xff];
+                    var aten_target_data;
+
+                    before(function () {
+                        for (var i = 0; i < 10; i++) {
+                            aten_target_data_arr = aten_target_data_arr.concat(aten_target_data_arr);
+                        }
+                        aten_target_data = new Uint8Array(aten_target_data_arr);
+                    });
+
+                    it('should handle subtype subrect encoding', function () {
+                        var info = [{ x: 0, y: 0, width: 32, height: 32, encoding: 0x59 }];
+                        var rect = [];
+
+                        push32(rect, 0);     // padding
+                        push32(rect, 2082);  // 10 + 32x32x2Bpp + 6*(num of subrects)
+
+                        push8(rect, 0);      // type
+                        push8(rect, 0);      // padding
+
+                        push32(rect, 4);     // num of subrects (32/16)*(32/16)
+                        push32(rect, 2082);  // length (again)
+
+                        for (var y = 0; y < 2; y++) {
+                            for (var x = 0; x < 2; x++) {
+                                push16(rect, 0); // a
+                                push16(rect, 0); // b
+                                push8(rect, y);
+                                push8(rect, x);
+
+                                for (var i = 0; i < 16*16; i++) {
+                                    push16(rect, 0xbf57);
+                                }
+                            }
+                        }
+
+                        send_fbu_msg(info, [rect], client);
+                        expect(client._display).to.have.displayed(aten_target_data);
+                    });
+
+                    it('should handle subtype RAW encoding', function () {
+                        // do not use encoding=0x59 here, as rfb.js should override it
+                        var info = [{ x: 0, y: 0, width: 32, height: 32, encoding: 0x00 }];
+                        var rect = [];
+
+                        push32(rect, 0);     // padding
+                        push32(rect, 2058);  // 10 + 32x32x2Bpp
+
+                        push8(rect, 1);      // type
+                        push8(rect, 0);      // padding
+
+                        push32(rect, 0);     // padding
+                        push32(rect, 2058);  // length (again)
+
+                        for (var i = 0; i < 32*32; i++) {
+                            push16(rect, 0xbf57);
+                        }
+
+                        send_fbu_msg(info, [rect], client);
+                        expect(client._display).to.have.displayed(aten_target_data);
+                    });
                 });
 
                 it('should handle the DesktopSize pseduo-encoding', function () {

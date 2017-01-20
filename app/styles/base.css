@@ -147,6 +147,11 @@ input[type=button]:active, select:active {
   background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
 }
 
+/* Settings slider: video quality (quantization table selector) in AST2100 mode. */
+#noVNC_settings #noVNC_setting_ast2100_quality {
+  margin: 0 10px;
+}
+
 /* ----------------------------------------
  * WebKit centering hacks
  * ----------------------------------------

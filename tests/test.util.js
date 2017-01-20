@@ -7,6 +7,45 @@ var expect = chai.expect;
 describe('Utils', function() {
     "use strict";
 
+    describe('Array class methods', function () {
+
+        var expectTypedArrayEq = function (cls, arr) {
+            var other = cls.from(arr);
+            
+            expect(other).to.be.instanceof(cls);
+
+            // N.B.: We might be tempted to say 'expect(other).to.deep.equal(arr);',
+            // but that would be incorrect in the situation where
+            // 'arr' is not an instance of 'cls'.
+            expect(other.length).to.equal(arr.length);
+            for (var i = 0; i < arr.length; ++i)
+                expect(other[i]).to.equal(arr[i]);
+
+            // TODO: Test deep/shallow copy behavior?
+        };
+
+        describe('Array.from', function () {
+            it('should create a new object with the same type and contents', function () {
+                var arr = [5, 4, 3];
+                expectTypedArrayEq(Array, arr);
+            });
+        });
+        
+        // As a stand-in for all of the TypedArray classes
+        describe('Int32Array.from', function () {
+            it('should create a new object with the same type and contents', function () {
+                var arr = new Int32Array(3);
+                arr[0] = 5; arr[1] = 4; arr[2] = 3;  // want to do this without from(), obviously
+                expectTypedArrayEq(Int32Array, arr);
+            });
+
+            it('should return an Int32Array even if the argument is a different type of array', function () {
+             var arr = [5, 4, 3];
+             expectTypedArrayEq(Int32Array, arr);
+            });
+        });
+    });
+
     describe('logging functions', function () {
         beforeEach(function () {
             sinon.spy(console, 'log');

@@ -78,7 +78,9 @@ var UI;
     WebUtil.load_scripts(
         {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
                   "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
+                  "display.js", "inflator.js", "rfb.js", "input/keysym.js",
+                  "ast2100/ast2100const.js", "ast2100/ast2100util.js",
+                  "ast2100/ast2100idct.js", "ast2100/ast2100.js"]});
 
     window.onscriptsload = function () { UI.load(); };
     /* [end skip-as-module] */
@@ -105,6 +107,12 @@ var UI;
         rememberedClipSetting: null,
         lastKeyboardinput: null,
         defaultKeyboardinputLen: 100,
+
+        // True if we are connected to an ATEN iKVM server speaking the AST2100 video encoding.
+        // This variable tracks whether the extra UI elements used to configure video settings
+        // for the AST2100 encoding have been shown yet; it's set on the first FramebufferUpdate
+        // message that we receive.
+        _ast2100_videoSettingsInitialized: false,
 
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
@@ -205,7 +213,6 @@ var UI;
             UI.initSetting('host', window.location.hostname);
             UI.initSetting('port', port);
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
-            UI.initSetting('true_color', true);
             UI.initSetting('cursor', !Util.isTouchDevice);
             UI.initSetting('resize', 'off');
             UI.initSetting('shared', true);
@@ -399,7 +406,9 @@ var UI;
                                   'onBell': UI.bell,
                                   'onFBUComplete': UI.initialResize,
                                   'onFBResize': UI.updateSessionSize,
-                                  'onDesktopName': UI.updateDesktopName});
+                                  'onDesktopName': UI.updateDesktopName,
+                                  'ast2100_onVideoSettingsChanged': UI.ast2100_handleVideoSettingsChanged
+                                 });
                 return true;
             } catch (exc) {
                 var msg = "Unable to create RFB client -- " + exc;
@@ -443,7 +452,9 @@ var UI;
                     document.documentElement.classList.add("noVNC_disconnecting");
                     break;
                 case 'disconnected':
+                    UI.connected = false;
                     UI.showStatus(_("Disconnected"));
+                    UI.ast2100_reset();
                     break;
                 default:
                     msg = "Invalid UI state";
@@ -459,7 +470,6 @@ var UI;
         updateVisualState: function() {
             //Util.Debug(">> updateVisualState");
             document.getElementById('noVNC_setting_encrypt').disabled = UI.connected;
-            document.getElementById('noVNC_setting_true_color').disabled = UI.connected;
             if (Util.browserSupportsCursorURIs()) {
                 document.getElementById('noVNC_setting_cursor').disabled = UI.connected;
             } else {
@@ -833,7 +843,6 @@ var UI;
         settingsApply: function() {
             //Util.Debug(">> settingsApply");
             UI.saveSetting('encrypt');
-            UI.saveSetting('true_color');
             if (Util.browserSupportsCursorURIs()) {
                 UI.saveSetting('cursor');
             }
@@ -852,6 +861,15 @@ var UI;
             UI.saveSetting('path');
             UI.saveSetting('repeaterID');
             UI.saveSetting('logging');
+            
+            if (UI._ast2100_videoSettingsInitialized) {
+                var videoSettings = UI.ast2100_getConfiguredSettings();
+                if (videoSettings != UI._ast2100_serverVideoSettings)
+                    UI.rfb.atenChangeVideoSettings(
+                        videoSettings.quantTableSelectorLuma,
+                        videoSettings.quantTableSelectorChroma,
+                        videoSettings.subsamplingMode);
+            }
 
             // Settings with immediate (non-connected related) effect
             WebUtil.init_logging(UI.getSetting('logging'));
@@ -884,7 +902,6 @@ var UI;
             UI.openControlbar();
 
             UI.updateSetting('encrypt');
-            UI.updateSetting('true_color');
             if (Util.browserSupportsCursorURIs()) {
                 UI.updateSetting('cursor');
             } else {
@@ -973,8 +990,92 @@ var UI;
 /* ------^-------
  *     /XVP
  * ==============
- *   CLIPBOARD
+ *    AST2100
  * ------v------*/
+
+        ast2100_handleVideoSettingsChanged: function (settings) {
+            if (!UI._ast2100_videoSettingsInitialized)
+                UI.ast2100_setDefaultSettings(settings);
+            UI.ast2100_updateVideoSettings(settings);
+        },
+        
+        // Called the first time we receive a FramebufferUpdate object.  Responsible
+        // for telling the server about any configured default settings.
+        ast2100_setDefaultSettings: function (settings) {
+            // Convert the settings that noVNC has been configured to set for all
+            // AST2100 servers to the familiar videoSettings format.
+            var defaultQuality = parseInt(UI.ast2100_quality);
+            var defaultSettings = {
+                quantTableSelectorLuma: defaultQuality,
+                quantTableSelectorChroma: defaultQuality,
+                subsamplingMode: parseInt(UI.ast2100_subsamplingMode)
+            };
+            
+            // If defaults were not given or were invalid, stick with what the
+            // server is already using.
+            if (!(defaultSettings.subsamplingMode == 422 || defaultSettings.subsamplingMode == 444))
+                defaultSettings.subsamplingMode = settings.subsamplingMode;
+            if (!inRangeIncl(defaultQuality, 0x0, 0xB)) {
+                defaultSettings.quantTableSelectorLuma = settings.quantTableSelectorLuma;
+                defaultSettings.quantTableSelectorChroma = settings.quantTableSelectorChroma;
+            }
+            
+            if (defaultSettings != settings)
+                UI.rfb.atenChangeVideoSettings(
+                    defaultSettings.quantTableSelectorLuma,
+                    defaultSettings.quantTableSelectorChroma,
+                    defaultSettings.subsamplingMode);
+        },
+        
+        // Should be called at init time and after disconnects.  This is sort
+        // of the opposite of _init().
+        ast2100_reset: function() {
+            document.getElementById("noVNC_ast2100_settings").classList.add('noVNC_hidden');
+            UI._ast2100_videoSettingsInitialized = false;
+            UI._ast2100_serverVideoSettings = undefined;
+        },
+        
+        // Updates the UI to reflect values received from the server.
+        ast2100_updateVideoSettings: function (videoSettings) {
+            Util.Info("AST2100 video settings changed:");
+            Util.Info(videoSettings);
+
+            // We use this to tell if the user changed anything when they apply
+            // settings.
+            UI._ast2100_serverVideoSettings = videoSettings;
+            
+            // First run: tell UI to show video quality controls, now that we
+            // know we are on a machine that supports them, and we know their
+            // current values.
+            if (!UI._ast2100_videoSettingsInitialized) {
+                document.getElementById("noVNC_ast2100_settings").classList.remove('noVNC_hidden');
+                UI._ast2100_videoSettingsInitialized = true;
+            }
+            
+            // Average the two quant table selectors as a poor way of dealing
+            // with the fact that they can, technically, be different.
+            var quality = ~~((videoSettings.quantTableSelectorLuma + videoSettings.quantTableSelectorChroma) / 2);
+            document.getElementById("noVNC_setting_ast2100_quality").value = quality;
+            
+            // Either 444 or 422 (which is really 4:2:0).
+            document.getElementById("noVNC_setting_ast2100_subsampling").value = videoSettings.subsamplingMode;
+        },
+
+        // Returns the current state of the UI.
+        ast2100_getConfiguredSettings: function () {
+            var quality = +document.getElementById("noVNC_setting_ast2100_quality").value;
+            return {
+                quantTableSelectorLuma: quality,
+                quantTableSelectorChroma: quality,
+                subsamplingMode: +document.getElementById("noVNC_setting_ast2100_subsampling").value
+            };
+        },
+        
+/* ------^-------
+*    /AST2100
+* ==============
+*   CLIPBOARD
+* ------v------*/
 
         openClipboardPanel: function() {
             UI.closeAllPanels();
@@ -1068,7 +1169,6 @@ var UI;
             UI.closeConnectPanel();
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
-            UI.rfb.set_true_color(UI.getSetting('true_color'));
             UI.rfb.set_local_cursor(UI.getSetting('cursor'));
             UI.rfb.set_shared(UI.getSetting('shared'));
             UI.rfb.set_view_only(UI.getSetting('view_only'));

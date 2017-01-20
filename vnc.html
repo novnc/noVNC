@@ -11,9 +11,9 @@
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
     Connect parameters are provided in query string:
-        http://example.com/?host=HOST&port=PORT&encrypt=1&true_color=1
+         http://example.com/?host=HOST&port=PORT&encrypt=1
     or the fragment:
-        http://example.com/#host=HOST&port=PORT&encrypt=1&true_color=1
+         http://example.com/#host=HOST&port=PORT&encrypt=1
     -->
     <title>noVNC</title>
 
@@ -200,9 +200,6 @@
                         <div class="noVNC_expander">Advanced</div>
                         <div><ul>
                             <li>
-                                <label><input id="noVNC_setting_true_color" type="checkbox" checked /> True Color</label>
-                            </li>
-                            <li>
                                 <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
                             </li>
                             <li><hr></li>
@@ -240,6 +237,38 @@
                             </li>
                         </ul></div>
                     </li>
+                    
+                    <!--
+                         AST2100 (0x57) video encoding only:
+                       - Video quality slider (quantization table selector)
+                       - Subsampling mode
+                       -->
+                    <div id="noVNC_ast2100_settings" class="">
+                      <li><hr></li>
+                      <li>
+                          <div class="noVNC_expander">AST2100 Settings</div>
+                          <div><ul>
+
+                              <li>
+                                  <label>Video quality</label>
+                                  <div class="slider-area">
+                                      low
+                                      <input type="range" min="0" max="11" class="slider-bar" id="noVNC_setting_ast2100_quality" />
+                                      high
+                                  </div>
+                              </li>
+                              <li><hr></li>
+                              <li>
+                                  <label>Subsampling mode</label>
+                                  <select id="noVNC_setting_ast2100_subsampling">
+                                      <option value="444">4:4:4 (no subsampling; higher quality)</option>
+                                      <option value="422">4:2:0 (chroma subsampling; lower quality)</option>
+                                  </select>
+                              </li>
+                          </ul></div>
+                      </li>
+                    </div>
+                    
                     <li><hr></li>
                     <li>
                         <input type="button" id="noVNC_settings_apply" value="Apply" class="noVNC_submit" />

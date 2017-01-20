@@ -10,9 +10,9 @@
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
     Connect parameters are provided in query string:
-        http://example.com/?host=HOST&port=PORT&encrypt=1&true_color=1
+         http://example.com/?host=HOST&port=PORT&encrypt=1
     or the fragment:
-        http://example.com/#host=HOST&port=PORT&encrypt=1&true_color=1
+         http://example.com/#host=HOST&port=PORT&encrypt=1
     -->
     <title>noVNC</title>
 
@@ -81,7 +81,9 @@
         WebUtil.load_scripts({
             'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
                      "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
+                     "ast2100/ast2100.js", "ast2100/ast2100idct.js", "ast2100/ast2100util.js", "ast2100/ast2100const.js",
+                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"],
+            'app': [WebUtil.getLanguageFileLocation(), "webutil.js"]});
 
         var rfb;
         var resizeTimeout;
@@ -265,11 +267,12 @@
                                'encrypt':      WebUtil.getConfigVar('encrypt',
                                         (window.location.protocol === "https:")),
                                'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
-                               'true_color':   WebUtil.getConfigVar('true_color', true),
                                'local_cursor': WebUtil.getConfigVar('cursor', true),
                                'shared':       WebUtil.getConfigVar('shared', true),
                                'view_only':    WebUtil.getConfigVar('view_only', false),
                                'onNotification':  notification,
+                               'ast2100_quality':          WebUtil.getConfigVar('ast2100_quality', -1),
+                               'ast2100_subsamplingMode':  WebUtil.getConfigVar('ast2100_subsamplingMode', -1),
                                'onUpdateState':  updateState,
                                'onDisconnected': disconnected,
                                'onXvpInit':    xvpInit,
@@ -280,7 +283,6 @@
                 status('Unable to create RFB client -- ' + exc, 'error');
                 return; // don't continue trying to connect
             }
-
             rfb.connect(host, port, password, path);
         };
         </script>

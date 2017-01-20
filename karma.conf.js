@@ -123,6 +123,10 @@ module.exports = function(config) {
       'core/des.js',
       'core/display.js',
       'core/inflator.js',
+      'core/ast2100/ast2100const.js',
+      'core/ast2100/ast2100util.js',
+      'core/ast2100/ast2100idct.js',
+      'core/ast2100/ast2100.js',
       'tests/test.*.js'
     ],
 
