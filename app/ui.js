@@ -2,28 +2,19 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2016 Samuel Mannehed for Cendio AB
- * Copyright (C) 2016 Pierre Ossman for Cendio AB
+ * Copyright (C) 2017 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  */
 
 /* jslint white: false, browser: true */
-/* global window, document.getElementById, Util, WebUtil, RFB, Display */
 
-/* [module]
- * import Util from "../core/util";
- * import KeyTable from "../core/input/keysym";
- * import keysyms from "./keysymdef";
- * import RFB from "../core/rfb";
- * import Display from "../core/display";
- * import WebUtil from "./webutil";
- */
+"use strict";
 
-var UI;
-
-(function () {
-    "use strict";
+define(["app/webutil", "core/rfb", "core/util",
+        "core/input/keysym", "core/input/keysymdef"],
+function (WebUtil, rfb, Util, KeyTable, keysyms) {
 
     // Fallback for all uncought errors
     window.addEventListener('error', function(event) {
@@ -65,27 +56,9 @@ var UI;
         return false;
     });
 
-    // Set up translations
-    var LINGUAS = ["de", "el", "nl", "sv"];
-    Util.Localisation.setup(LINGUAS);
-    if (Util.Localisation.language !== "en") {
-        WebUtil.load_scripts(
-            {'app': ["locale/" + Util.Localisation.language + ".js"]});
-    }
-
-    /* [begin skip-as-module] */
-    // Load supporting scripts
-    WebUtil.load_scripts(
-        {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
-                  "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
-
-    window.onscriptsload = function () { UI.load(); };
-    /* [end skip-as-module] */
-
     var _ = Util.Localisation.get;
 
-    UI = {
+    var UI = {
 
         connected: false,
         desktopName: "",
@@ -397,17 +370,17 @@ var UI;
 
         initRFB: function() {
             try {
-                UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
-                                  'onNotification': UI.notification,
-                                  'onUpdateState': UI.updateState,
-                                  'onDisconnected': UI.disconnectFinished,
-                                  'onPasswordRequired': UI.passwordRequired,
-                                  'onXvpInit': UI.updateXvpButton,
-                                  'onClipboard': UI.clipboardReceive,
-                                  'onBell': UI.bell,
-                                  'onFBUComplete': UI.initialResize,
-                                  'onFBResize': UI.updateSessionSize,
-                                  'onDesktopName': UI.updateDesktopName});
+                UI.rfb = new rfb.RFB({'target': document.getElementById('noVNC_canvas'),
+                                      'onNotification': UI.notification,
+                                      'onUpdateState': UI.updateState,
+                                      'onDisconnected': UI.disconnectFinished,
+                                      'onPasswordRequired': UI.passwordRequired,
+                                      'onXvpInit': UI.updateXvpButton,
+                                      'onClipboard': UI.clipboardReceive,
+                                      'onBell': UI.bell,
+                                      'onFBUComplete': UI.initialResize,
+                                      'onFBResize': UI.updateSessionSize,
+                                      'onDesktopName': UI.updateDesktopName});
                 return true;
             } catch (exc) {
                 var msg = "Unable to create RFB client -- " + exc;
@@ -1732,7 +1705,5 @@ var UI;
  */
     };
 
-    /* [module] UI.load(); */
-})();
-
-/* [module] export default UI; */
+    return UI;
+});

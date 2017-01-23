@@ -1,5 +1,5 @@
 Rebuilding inflator.js
 
 - Download pako from npm
-- Install browserify using npm
-- browserify core/inflator.mod.js -o core/inflator.js -s Inflator
+- Install requirejs using npm
+- make -C inflator install

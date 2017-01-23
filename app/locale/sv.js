@@ -5,7 +5,10 @@
  * DO NOT EDIT!
  */
 
-Language = {
+"use strict";
+
+define(function() {
+return {
     "Connecting...": "Ansluter...",
     "Connected (encrypted) to ": "Ansluten (krypterat) till ",
     "Connected (unencrypted) to ": "Ansluten (okrypterat) till ",
@@ -75,3 +78,4 @@ Language = {
     "Send Password": "Skicka Lösenord",
     "Canvas not supported.": "Canvas stöds ej",
 };
+});

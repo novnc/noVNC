@@ -40,7 +40,10 @@ var output =
 " * DO NOT EDIT!\n" +
 " */\n" +
 "\n" +
-"Language = {\n";
+"\"use strict\";\n" +
+"\n" +
+"define(function() {\n" +
+"return {\n";
 
 for (msgid in data) {
   if (msgid === "")
@@ -52,5 +55,6 @@ for (msgid in data) {
 }
 
 output += "};\n";
+output += "});\n";
 
 fs.writeFileSync(opt.argv[1], output);

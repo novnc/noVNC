@@ -38,12 +38,7 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/auto.css">
 
-     <!--
-    <script type='text/javascript'
-        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
-    -->
-        <script src="core/util.js"></script>
-        <script src="app/webutil.js"></script>
+    <script src="app/require.js"></script>
 </head>
 
 <body style="margin: 0px;">
@@ -74,148 +69,143 @@
 
         <script>
         /*jslint white: false */
-        /*global window, $, Util, RFB, */
         "use strict";
 
-        // Load supporting scripts
-        WebUtil.load_scripts({
-            'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
-                     "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
+        require(["app/webutil", "core/rfb"],
+        function(WebUtil, rfbmod) {
 
-        var rfb;
-        var resizeTimeout;
-        var desktopName;
+            var rfb;
+            var resizeTimeout;
+            var desktopName;
 
 
-        function UIresize() {
-            if (WebUtil.getConfigVar('resize', false)) {
-                var innerW = window.innerWidth;
-                var innerH = window.innerHeight;
-                var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
-                if (innerW !== undefined && innerH !== undefined)
-                    rfb.requestDesktopSize(innerW, innerH - controlbarH);
+            function UIresize() {
+                if (WebUtil.getConfigVar('resize', false)) {
+                    var innerW = window.innerWidth;
+                    var innerH = window.innerHeight;
+                    var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
+                    if (innerW !== undefined && innerH !== undefined)
+                        rfb.requestDesktopSize(innerW, innerH - controlbarH);
+                }
             }
-        }
-        function FBUComplete(rfb, fbu) {
-            UIresize();
-            rfb.set_onFBUComplete(function() { });
-        }
-        function updateDesktopName(rfb, name) {
-            desktopName = name;
-        }
-        function passwordRequired(rfb, msg) {
-            if (typeof msg === 'undefined') {
-                msg = 'Password Required: ';
-            }
-            var html;
-            html = '<form onsubmit="return setPassword();"';
-            html += '  style="margin-bottom: 0px">';
-            html += '<label></label>'
-            html += '<input type=password size=10 id="password_input" class="noVNC_status">';
-            html += '<\/form>';
-
-            // bypass status() because it sets text content
-            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
-            document.getElementById('noVNC_status').innerHTML = html;
-            document.getElementById('noVNC_status').querySelector('label').textContent = msg;
-        }
-        function setPassword() {
-            rfb.sendPassword(document.getElementById('password_input').value);
-            return false;
-        }
-        function sendCtrlAltDel() {
-            rfb.sendCtrlAltDel();
-            return false;
-        }
-        function xvpShutdown() {
-            rfb.xvpShutdown();
-            return false;
-        }
-        function xvpReboot() {
-            rfb.xvpReboot();
-            return false;
-        }
-        function xvpReset() {
-            rfb.xvpReset();
-            return false;
-        }
-        function status(text, level) {
-            switch (level) {
-                case 'normal':
-                case 'warn':
-                case 'error':
-                    break;
-                default:
-                    level = "warn";
-            }
-            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
-            document.getElementById('noVNC_status').textContent = text;
-        }
-        function updateState(rfb, state, oldstate) {
-            var cad = document.getElementById('sendCtrlAltDelButton');
-            switch (state) {
-                case 'connecting':
-                    status("Connecting", "normal");
-                    break;
-                case 'connected':
-                    if (rfb && rfb.get_encrypt()) {
-                        status("Connected (encrypted) to " +
-                               desktopName, "normal");
-                    } else {
-                        status("Connected (unencrypted) to " +
-                               desktopName, "normal");
-                    }
-                    break;
-                case 'disconnecting':
-                    status("Disconnecting", "normal");
-                    break;
-                case 'disconnected':
-                    status("Disconnected", "normal");
-                    break;
-                default:
-                    status(state, "warn");
-                    break;
-            }
-
-            if (state === 'connected') {
-                cad.disabled = false;
-            } else {
-                cad.disabled = true;
-                xvpInit(0);
-            }
-
-        }
-        function disconnected(rfb, reason) {
-            if (typeof(reason) !== 'undefined') {
-                status(reason, "error");
-            }
-        }
-        function notification(rfb, msg, level, options) {
-            status(msg, level);
-        }
-
-        window.onresize = function () {
-            // When the window has been resized, wait until the size remains
-            // the same for 0.5 seconds before sending the request for changing
-            // the resolution of the session
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function(){
+            function FBUComplete(rfb, fbu) {
                 UIresize();
-            }, 500);
-        };
-
-        function xvpInit(ver) {
-            var xvpbuttons;
-            xvpbuttons = document.getElementById('noVNC_xvp_buttons');
-            if (ver >= 1) {
-                xvpbuttons.style.display = 'inline';
-            } else {
-                xvpbuttons.style.display = 'none';
+                rfb.set_onFBUComplete(function() { });
             }
-        }
+            function updateDesktopName(rfb, name) {
+                desktopName = name;
+            }
+            function passwordRequired(rfb, msg) {
+                if (typeof msg === 'undefined') {
+                    msg = 'Password Required: ';
+                }
+                var html;
+                html = '<form onsubmit="return setPassword();"';
+                html += '  style="margin-bottom: 0px">';
+                html += '<label></label>'
+                html += '<input type=password size=10 id="password_input" class="noVNC_status">';
+                html += '<\/form>';
 
-        window.onscriptsload = function () {
+                // bypass status() because it sets text content
+                document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+                document.getElementById('noVNC_status').innerHTML = html;
+                document.getElementById('noVNC_status').querySelector('label').textContent = msg;
+            }
+            function setPassword() {
+                rfb.sendPassword(document.getElementById('password_input').value);
+                return false;
+            }
+            function sendCtrlAltDel() {
+                rfb.sendCtrlAltDel();
+                return false;
+            }
+            function xvpShutdown() {
+                rfb.xvpShutdown();
+                return false;
+            }
+            function xvpReboot() {
+                rfb.xvpReboot();
+                return false;
+            }
+            function xvpReset() {
+                rfb.xvpReset();
+                return false;
+            }
+            function status(text, level) {
+                switch (level) {
+                    case 'normal':
+                    case 'warn':
+                    case 'error':
+                        break;
+                    default:
+                        level = "warn";
+                }
+                document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
+                document.getElementById('noVNC_status').textContent = text;
+            }
+            function updateState(rfb, state, oldstate) {
+                var cad = document.getElementById('sendCtrlAltDelButton');
+                switch (state) {
+                    case 'connecting':
+                        status("Connecting", "normal");
+                        break;
+                    case 'connected':
+                        if (rfb && rfb.get_encrypt()) {
+                            status("Connected (encrypted) to " +
+                                   desktopName, "normal");
+                        } else {
+                            status("Connected (unencrypted) to " +
+                                   desktopName, "normal");
+                        }
+                        break;
+                    case 'disconnecting':
+                        status("Disconnecting", "normal");
+                        break;
+                    case 'disconnected':
+                        status("Disconnected", "normal");
+                        break;
+                    default:
+                        status(state, "warn");
+                        break;
+                }
+
+                if (state === 'connected') {
+                    cad.disabled = false;
+                } else {
+                    cad.disabled = true;
+                    xvpInit(0);
+                }
+
+            }
+            function disconnected(rfb, reason) {
+                if (typeof(reason) !== 'undefined') {
+                    status(reason, "error");
+                }
+            }
+            function notification(rfb, msg, level, options) {
+                status(msg, level);
+            }
+
+            window.onresize = function () {
+                // When the window has been resized, wait until the size remains
+                // the same for 0.5 seconds before sending the request for changing
+                // the resolution of the session
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function(){
+                    UIresize();
+                }, 500);
+            };
+
+            function xvpInit(ver) {
+                var xvpbuttons;
+                xvpbuttons = document.getElementById('noVNC_xvp_buttons');
+                if (ver >= 1) {
+                    xvpbuttons.style.display = 'inline';
+                } else {
+                    xvpbuttons.style.display = 'none';
+                }
+            }
+
             var host, port, password, path, token;
 
             document.getElementById('sendCtrlAltDelButton').style.display = "inline";
@@ -261,28 +251,28 @@
             }
 
             try {
-                rfb = new RFB({'target':       document.getElementById('noVNC_canvas'),
-                               'encrypt':      WebUtil.getConfigVar('encrypt',
-                                        (window.location.protocol === "https:")),
-                               'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
-                               'true_color':   WebUtil.getConfigVar('true_color', true),
-                               'local_cursor': WebUtil.getConfigVar('cursor', true),
-                               'shared':       WebUtil.getConfigVar('shared', true),
-                               'view_only':    WebUtil.getConfigVar('view_only', false),
-                               'onNotification':  notification,
-                               'onUpdateState':  updateState,
-                               'onDisconnected': disconnected,
-                               'onXvpInit':    xvpInit,
-                               'onPasswordRequired':  passwordRequired,
-                               'onFBUComplete': FBUComplete,
-                               'onDesktopName': updateDesktopName});
+                rfb = new rfbmod.RFB({'target':       document.getElementById('noVNC_canvas'),
+                                      'encrypt':      WebUtil.getConfigVar('encrypt',
+                                                (window.location.protocol === "https:")),
+                                      'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
+                                      'true_color':   WebUtil.getConfigVar('true_color', true),
+                                      'local_cursor': WebUtil.getConfigVar('cursor', true),
+                                      'shared':       WebUtil.getConfigVar('shared', true),
+                                      'view_only':    WebUtil.getConfigVar('view_only', false),
+                                      'onNotification':  notification,
+                                      'onUpdateState':  updateState,
+                                      'onDisconnected': disconnected,
+                                      'onXvpInit':    xvpInit,
+                                      'onPasswordRequired':  passwordRequired,
+                                      'onFBUComplete': FBUComplete,
+                                      'onDesktopName': updateDesktopName});
             } catch (exc) {
                 status('Unable to create RFB client -- ' + exc, 'error');
                 return; // don't continue trying to connect
             }
 
             rfb.connect(host, port, password, path);
-        };
+        });
         </script>
 
     </body>

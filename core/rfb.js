@@ -2,6 +2,7 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2017 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -10,260 +11,254 @@
  * (c) 2012 Michael Tinglof, Joe Balaz, Les Piech (Mercuri.ca)
  */
 
-/* [module]
- * import Util from "./util";
- * import Display from "./display";
- * import { Keyboard, Mouse } from "./input/devices"
- * import Websock from "./websock"
- * import Base64 from "./base64";
- * import DES from "./des";
- * import KeyTable from "./input/keysym";
- * import XtScancode from "./input/xtscancodes";
- * import Inflator from "./inflator.mod";
- */
 /*jslint white: false, browser: true */
-/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
 
-/* [module] export default */ function RFB(defaults) {
-    "use strict";
-    if (!defaults) {
-        defaults = {};
-    }
+"use strict";
 
-    this._rfb_host = '';
-    this._rfb_port = 5900;
-    this._rfb_password = '';
-    this._rfb_path = '';
-
-    this._rfb_connection_state = '';
-    this._rfb_init_state = '';
-    this._rfb_version = 0;
-    this._rfb_max_version = 3.8;
-    this._rfb_auth_scheme = '';
-    this._rfb_disconnect_reason = "";
-
-    this._rfb_tightvnc = false;
-    this._rfb_xvp_ver = 0;
-
-    // In preference order
-    this._encodings = [
-        ['COPYRECT',             0x01 ],
-        ['TIGHT',                0x07 ],
-        ['TIGHT_PNG',            -260 ],
-        ['HEXTILE',              0x05 ],
-        ['RRE',                  0x02 ],
-        ['RAW',                  0x00 ],
-
-        // Psuedo-encoding settings
-
-        //['JPEG_quality_lo',     -32 ],
-        ['JPEG_quality_med',      -26 ],
-        //['JPEG_quality_hi',     -23 ],
-        //['compress_lo',        -255 ],
-        ['compress_hi',          -247 ],
-
-        ['DesktopSize',          -223 ],
-        ['last_rect',            -224 ],
-        ['Cursor',               -239 ],
-        ['QEMUExtendedKeyEvent', -258 ],
-        ['ExtendedDesktopSize',  -308 ],
-        ['xvp',                  -309 ],
-        ['Fence',                -312 ],
-        ['ContinuousUpdates',    -313 ]
-    ];
-
-    this._encHandlers = {};
-    this._encNames = {};
-    this._encStats = {};
-
-    this._sock = null;              // Websock object
-    this._display = null;           // Display object
-    this._flushing = false;         // Display flushing state
-    this._keyboard = null;          // Keyboard input handler object
-    this._mouse = null;             // Mouse input handler object
-    this._disconnTimer = null;      // disconnection timer
-
-    this._supportsFence = false;
-
-    this._supportsContinuousUpdates = false;
-    this._enabledContinuousUpdates = false;
-
-    // Frame buffer update state
-    this._FBU = {
-        rects: 0,
-        subrects: 0,            // RRE
-        lines: 0,               // RAW
-        tiles: 0,               // HEXTILE
-        bytes: 0,
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        encoding: 0,
-        subencoding: -1,
-        background: null,
-        zlib: []                // TIGHT zlib streams
-    };
-
-    this._fb_Bpp = 4;
-    this._fb_depth = 3;
-    this._fb_width = 0;
-    this._fb_height = 0;
-    this._fb_name = "";
-
-    this._destBuff = null;
-    this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
-
-    this._rre_chunk_sz = 100;
-
-    this._timing = {
-        last_fbu: 0,
-        fbu_total: 0,
-        fbu_total_cnt: 0,
-        full_fbu_total: 0,
-        full_fbu_cnt: 0,
-
-        fbu_rt_start: 0,
-        fbu_rt_total: 0,
-        fbu_rt_cnt: 0,
-        pixels: 0
-    };
-
-    this._supportsSetDesktopSize = false;
-    this._screen_id = 0;
-    this._screen_flags = 0;
-
-    // Mouse state
-    this._mouse_buttonMask = 0;
-    this._mouse_arr = [];
-    this._viewportDragging = false;
-    this._viewportDragPos = {};
-    this._viewportHasMoved = false;
-
-    // QEMU Extended Key Event support - default to false
-    this._qemuExtKeyEventSupported = false;
-
-    // set the default value on user-facing properties
-    Util.set_defaults(this, defaults, {
-        'target': 'null',                       // VNC display rendering Canvas object
-        'focusContainer': document,             // DOM element that captures keyboard input
-        'encrypt': false,                       // Use TLS/SSL/wss encryption
-        'true_color': true,                     // Request true color pixel data
-        'local_cursor': false,                  // Request locally rendered cursor
-        'shared': true,                         // Request shared mode
-        'view_only': false,                     // Disable client mouse/keyboard
-        'xvp_password_sep': '@',                // Separator for XVP password fields
-        'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
-        'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
-        'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
-        'viewportDrag': false,                  // Move the viewport on mouse drags
-
-        // Callback functions
-        'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate): connection state change
-        'onNotification': function () { },      // onNotification(rfb, msg, level, options): notification for UI
-        'onDisconnected': function () { },      // onDisconnected(rfb, reason): disconnection finished
-        'onPasswordRequired': function () { },  // onPasswordRequired(rfb, msg): VNC password is required
-        'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
-        'onBell': function () { },              // onBell(rfb): RFB Bell message received
-        'onFBUReceive': function () { },        // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed
-        'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
-        'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
-        'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
-        'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
-    });
-
-    // main setup
-    Util.Debug(">> RFB.constructor");
-
-    // populate encHandlers with bound versions
-    Object.keys(RFB.encodingHandlers).forEach(function (encName) {
-        this._encHandlers[encName] = RFB.encodingHandlers[encName].bind(this);
-    }.bind(this));
-
-    // Create lookup tables based on encoding number
-    for (var i = 0; i < this._encodings.length; i++) {
-        this._encHandlers[this._encodings[i][1]] = this._encHandlers[this._encodings[i][0]];
-        this._encNames[this._encodings[i][1]] = this._encodings[i][0];
-        this._encStats[this._encodings[i][1]] = [0, 0];
-    }
-
-    // NB: nothing that needs explicit teardown should be done
-    // before this point, since this can throw an exception
-    try {
-        this._display = new Display({target: this._target,
-                                     onFlush: this._onFlush.bind(this)});
-    } catch (exc) {
-        Util.Error("Display exception: " + exc);
-        throw exc;
-    }
-
-    this._keyboard = new Keyboard({target: this._focusContainer,
-                                   onKeyPress: this._handleKeyPress.bind(this)});
-
-    this._mouse = new Mouse({target: this._target,
-                             onMouseButton: this._handleMouseButton.bind(this),
-                             onMouseMove: this._handleMouseMove.bind(this),
-                             notify: this._keyboard.sync.bind(this._keyboard)});
-
-    this._sock = new Websock();
-    this._sock.on('message', this._handle_message.bind(this));
-    this._sock.on('open', function () {
-        if ((this._rfb_connection_state === 'connecting') &&
-            (this._rfb_init_state === '')) {
-            this._rfb_init_state = 'ProtocolVersion';
-            Util.Debug("Starting VNC handshake");
-        } else {
-            this._fail("Unexpected server connection");
-        }
-    }.bind(this));
-    this._sock.on('close', function (e) {
-        Util.Warn("WebSocket on-close event");
-        var msg = "";
-        if (e.code) {
-            msg = " (code: " + e.code;
-            if (e.reason) {
-                msg += ", reason: " + e.reason;
-            }
-            msg += ")";
-        }
-        switch (this._rfb_connection_state) {
-            case 'disconnecting':
-                this._updateConnectionState('disconnected');
-                break;
-            case 'connecting':
-                this._fail('Failed to connect to server', msg);
-                break;
-            case 'connected':
-                // Handle disconnects that were initiated server-side
-                this._updateConnectionState('disconnecting');
-                this._updateConnectionState('disconnected');
-                break;
-            case 'disconnected':
-                this._fail("Unexpected server disconnect",
-                           "Already disconnected: " + msg);
-                break;
-            default:
-                this._fail("Unexpected server disconnect",
-                           "Not in any state yet: " + msg);
-                break;
-        }
-        this._sock.off('close');
-    }.bind(this));
-    this._sock.on('error', function (e) {
-        Util.Warn("WebSocket on-error event");
-    });
-
-    this._init_vars();
-    this._cleanup();
-
-    var rmode = this._display.get_render_mode();
-    Util.Info("Using native WebSockets, render mode: " + rmode);
-
-    Util.Debug("<< RFB.constructor");
-};
-
-(function() {
+define(["core/util", "core/display", "core/websock",
+        "core/inflator", "core/des",
+        "core/input/devices", "core/input/keysym",
+        "core/input/xtscancodes"],
+function (Util, display, websock, Inflator, DES, devices,
+          KeyTable, XtScancode) {
     var _ = Util.Localisation.get;
+
+    function RFB(defaults) {
+        if (!defaults) {
+            defaults = {};
+        }
+
+        this._rfb_host = '';
+        this._rfb_port = 5900;
+        this._rfb_password = '';
+        this._rfb_path = '';
+
+        this._rfb_connection_state = '';
+        this._rfb_init_state = '';
+        this._rfb_version = 0;
+        this._rfb_max_version = 3.8;
+        this._rfb_auth_scheme = '';
+        this._rfb_disconnect_reason = "";
+
+        this._rfb_tightvnc = false;
+        this._rfb_xvp_ver = 0;
+
+        // In preference order
+        this._encodings = [
+            ['COPYRECT',             0x01 ],
+            ['TIGHT',                0x07 ],
+            ['TIGHT_PNG',            -260 ],
+            ['HEXTILE',              0x05 ],
+            ['RRE',                  0x02 ],
+            ['RAW',                  0x00 ],
+
+            // Psuedo-encoding settings
+
+            //['JPEG_quality_lo',     -32 ],
+            ['JPEG_quality_med',      -26 ],
+            //['JPEG_quality_hi',     -23 ],
+            //['compress_lo',        -255 ],
+            ['compress_hi',          -247 ],
+
+            ['DesktopSize',          -223 ],
+            ['last_rect',            -224 ],
+            ['Cursor',               -239 ],
+            ['QEMUExtendedKeyEvent', -258 ],
+            ['ExtendedDesktopSize',  -308 ],
+            ['xvp',                  -309 ],
+            ['Fence',                -312 ],
+            ['ContinuousUpdates',    -313 ]
+        ];
+
+        this._encHandlers = {};
+        this._encNames = {};
+        this._encStats = {};
+
+        this._sock = null;              // Websock object
+        this._display = null;           // Display object
+        this._flushing = false;         // Display flushing state
+        this._keyboard = null;          // Keyboard input handler object
+        this._mouse = null;             // Mouse input handler object
+        this._disconnTimer = null;      // disconnection timer
+
+        this._supportsFence = false;
+
+        this._supportsContinuousUpdates = false;
+        this._enabledContinuousUpdates = false;
+
+        // Frame buffer update state
+        this._FBU = {
+            rects: 0,
+            subrects: 0,            // RRE
+            lines: 0,               // RAW
+            tiles: 0,               // HEXTILE
+            bytes: 0,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            encoding: 0,
+            subencoding: -1,
+            background: null,
+            zlib: []                // TIGHT zlib streams
+        };
+
+        this._fb_Bpp = 4;
+        this._fb_depth = 3;
+        this._fb_width = 0;
+        this._fb_height = 0;
+        this._fb_name = "";
+
+        this._destBuff = null;
+        this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
+
+        this._rre_chunk_sz = 100;
+
+        this._timing = {
+            last_fbu: 0,
+            fbu_total: 0,
+            fbu_total_cnt: 0,
+            full_fbu_total: 0,
+            full_fbu_cnt: 0,
+
+            fbu_rt_start: 0,
+            fbu_rt_total: 0,
+            fbu_rt_cnt: 0,
+            pixels: 0
+        };
+
+        this._supportsSetDesktopSize = false;
+        this._screen_id = 0;
+        this._screen_flags = 0;
+
+        // Mouse state
+        this._mouse_buttonMask = 0;
+        this._mouse_arr = [];
+        this._viewportDragging = false;
+        this._viewportDragPos = {};
+        this._viewportHasMoved = false;
+
+        // QEMU Extended Key Event support - default to false
+        this._qemuExtKeyEventSupported = false;
+
+        // set the default value on user-facing properties
+        Util.set_defaults(this, defaults, {
+            'target': 'null',                       // VNC display rendering Canvas object
+            'focusContainer': document,             // DOM element that captures keyboard input
+            'encrypt': false,                       // Use TLS/SSL/wss encryption
+            'true_color': true,                     // Request true color pixel data
+            'local_cursor': false,                  // Request locally rendered cursor
+            'shared': true,                         // Request shared mode
+            'view_only': false,                     // Disable client mouse/keyboard
+            'xvp_password_sep': '@',                // Separator for XVP password fields
+            'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
+            'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
+            'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
+            'viewportDrag': false,                  // Move the viewport on mouse drags
+
+            // Callback functions
+            'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate): connection state change
+            'onNotification': function () { },      // onNotification(rfb, msg, level, options): notification for UI
+            'onDisconnected': function () { },      // onDisconnected(rfb, reason): disconnection finished
+            'onPasswordRequired': function () { },  // onPasswordRequired(rfb, msg): VNC password is required
+            'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
+            'onBell': function () { },              // onBell(rfb): RFB Bell message received
+            'onFBUReceive': function () { },        // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed
+            'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
+            'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
+            'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
+            'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
+        });
+
+        // main setup
+        Util.Debug(">> RFB.constructor");
+
+        // populate encHandlers with bound versions
+        Object.keys(RFB.encodingHandlers).forEach(function (encName) {
+            this._encHandlers[encName] = RFB.encodingHandlers[encName].bind(this);
+        }.bind(this));
+
+        // Create lookup tables based on encoding number
+        for (var i = 0; i < this._encodings.length; i++) {
+            this._encHandlers[this._encodings[i][1]] = this._encHandlers[this._encodings[i][0]];
+            this._encNames[this._encodings[i][1]] = this._encodings[i][0];
+            this._encStats[this._encodings[i][1]] = [0, 0];
+        }
+
+        // NB: nothing that needs explicit teardown should be done
+        // before this point, since this can throw an exception
+        try {
+            this._display = new display.Display({target: this._target,
+                                                  onFlush: this._onFlush.bind(this)});
+        } catch (exc) {
+            Util.Error("Display exception: " + exc);
+            throw exc;
+        }
+
+        this._keyboard = new devices.Keyboard({target: this._focusContainer,
+                                               onKeyPress: this._handleKeyPress.bind(this)});
+
+        this._mouse = new devices.Mouse({target: this._target,
+                                         onMouseButton: this._handleMouseButton.bind(this),
+                                         onMouseMove: this._handleMouseMove.bind(this),
+                                         notify: this._keyboard.sync.bind(this._keyboard)});
+
+        this._sock = new websock.Websock();
+        this._sock.on('message', this._handle_message.bind(this));
+        this._sock.on('open', function () {
+            if ((this._rfb_connection_state === 'connecting') &&
+                (this._rfb_init_state === '')) {
+                this._rfb_init_state = 'ProtocolVersion';
+                Util.Debug("Starting VNC handshake");
+            } else {
+                this._fail("Unexpected server connection");
+            }
+        }.bind(this));
+        this._sock.on('close', function (e) {
+            Util.Warn("WebSocket on-close event");
+            var msg = "";
+            if (e.code) {
+                msg = " (code: " + e.code;
+                if (e.reason) {
+                    msg += ", reason: " + e.reason;
+                }
+                msg += ")";
+            }
+            switch (this._rfb_connection_state) {
+                case 'disconnecting':
+                    this._updateConnectionState('disconnected');
+                    break;
+                case 'connecting':
+                    this._fail('Failed to connect to server', msg);
+                    break;
+                case 'connected':
+                    // Handle disconnects that were initiated server-side
+                    this._updateConnectionState('disconnecting');
+                    this._updateConnectionState('disconnected');
+                    break;
+                case 'disconnected':
+                    this._fail("Unexpected server disconnect",
+                               "Already disconnected: " + msg);
+                    break;
+                default:
+                    this._fail("Unexpected server disconnect",
+                               "Not in any state yet: " + msg);
+                    break;
+            }
+            this._sock.off('close');
+        }.bind(this));
+        this._sock.on('error', function (e) {
+            Util.Warn("WebSocket on-error event");
+        });
+
+        this._init_vars();
+        this._cleanup();
+
+        var rmode = this._display.get_render_mode();
+        Util.Info("Using native WebSockets, render mode: " + rmode);
+
+        Util.Debug("<< RFB.constructor");
+    };
 
     RFB.prototype = {
         // Public methods
@@ -2442,4 +2437,6 @@
             Util.Error("Server sent compress level pseudo-encoding");
         }
     };
-})();
+
+    return { RFB: RFB };
+});

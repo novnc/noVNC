@@ -14,44 +14,39 @@
  * read binary data off of the receive queue.
  */
 
-/* [module]
- * import Util from "./util";
- * import Base64 from "./base64";
- */
-
 /*jslint browser: true, bitwise: true */
-/*global Util*/
 
-/* [module] export default */ function Websock() {
-    "use strict";
+"use strict";
 
-    this._websocket = null;  // WebSocket object
+define(["core/util"],
+function (Util) {
 
-    this._rQi = 0;           // Receive queue index
-    this._rQlen = 0;         // Next write position in the receive queue
-    this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
-    this._rQmax = this._rQbufferSize / 8;
-    // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
-    this._rQ = null; // Receive queue
+    function Websock() {
+        this._websocket = null;  // WebSocket object
 
-    this._sQbufferSize = 1024 * 10;  // 10 KiB
-    // called in init: this._sQ = new Uint8Array(this._sQbufferSize);
-    this._sQlen = 0;
-    this._sQ = null;  // Send queue
+        this._rQi = 0;           // Receive queue index
+        this._rQlen = 0;         // Next write position in the receive queue
+        this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
+        this._rQmax = this._rQbufferSize / 8;
+        // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
+        this._rQ = null; // Receive queue
 
-    this._mode = 'binary';    // Current WebSocket mode: 'binary', 'base64'
-    this.maxBufferedAmount = 200;
+        this._sQbufferSize = 1024 * 10;  // 10 KiB
+        // called in init: this._sQ = new Uint8Array(this._sQbufferSize);
+        this._sQlen = 0;
+        this._sQ = null;  // Send queue
 
-    this._eventHandlers = {
-        'message': function () {},
-        'open': function () {},
-        'close': function () {},
-        'error': function () {}
+        this._mode = 'binary';    // Current WebSocket mode: 'binary', 'base64'
+        this.maxBufferedAmount = 200;
+
+        this._eventHandlers = {
+            'message': function () {},
+            'open': function () {},
+            'close': function () {},
+            'error': function () {}
+        };
     };
-};
 
-(function () {
-    "use strict";
     // this has performance issues in some versions Chromium, and
     // doesn't gain a tremendous amount of performance increase in Firefox
     // at the moment.  It may be valuable to turn it on in the future.
@@ -423,4 +418,6 @@
             }
         }
     };
-})();
+
+    return { Websock: Websock };
+});

@@ -80,12 +80,15 @@ var out = "// This file describes mappings from Unicode codepoints to the keysym
 "// (and optionally, key names) expected by the RFB protocol\n" +
 "// How this file was generated:\n" +
 "// " + process.argv.join(" ") + "\n" +
-"var keysyms = (function(){\n" +
-"    \"use strict\";\n" +
+"\n" +
+"\"use strict\";\n" +
+"\n" +
+"define(function () {\n" +
 "    var keynames = {keysyms};\n" +
 "    var codepoints = {codepoints};\n" +
 "\n" +
 "    function lookup(k) { return k ? {keysym: k, keyname: keynames ? keynames[k] : k} : undefined; }\n" +
+"\n" +
 "    return {\n" +
 "        fromUnicode : function(u) {\n" +
 "            var keysym = codepoints[u];\n" +
@@ -96,7 +99,7 @@ var out = "// This file describes mappings from Unicode codepoints to the keysym
 "        },\n" +
 "        lookup : lookup\n" +
 "    };\n" +
-"})();\n";
+"});\n";
 out = out.replace('{keysyms}', use_keynames ? JSON.stringify(keysyms) : "null");
 out = out.replace('{codepoints}', JSON.stringify(codepoints));
 

@@ -51,6 +51,7 @@
     "open": "^0.0.5",
     "phantomjs-prebuilt": "^2.1.13",
     "po2json": "*",
+    "requirejs": "*",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "spooky": "^0.2.5",

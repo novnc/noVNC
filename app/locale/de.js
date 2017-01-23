@@ -5,7 +5,10 @@
  * DO NOT EDIT!
  */
 
-Language = {
+"use strict";
+
+define(function() {
+return {
     "Connecting...": "Verbunden...",
     "Connected (encrypted) to ": "Verbunden mit (verschlüsselt) ",
     "Connected (unencrypted) to ": "Verbunden mit (unverschlüsselt) ",
@@ -16,3 +19,4 @@ Language = {
     "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt",
     "Disconnect timeout": "Timeout beim trennen",
 };
+});
