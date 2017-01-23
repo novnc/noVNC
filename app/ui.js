@@ -146,7 +146,7 @@ var UI;
             UI.initFullscreen();
 
             // Setup event handlers
-            UI.setupWindowEvents();
+            UI.addResizeHandlers();
             UI.addControlbarHandlers();
             UI.addTouchSpecificHandlers();
             UI.addExtraKeysHandlers();
@@ -154,6 +154,8 @@ var UI;
             UI.addConnectionControlHandlers();
             UI.addClipboardHandlers();
             UI.addSettingsHandlers();
+            document.getElementById("noVNC_status")
+                .addEventListener('click', UI.hideStatus);
 
             UI.openControlbar();
 
@@ -235,13 +237,10 @@ var UI;
             UI.initSetting('reconnect_delay', 5000);
         },
 
-        setupWindowEvents: function() {
+        addResizeHandlers: function() {
             window.addEventListener('resize', UI.applyResizeMode);
             window.addEventListener('resize', UI.updateViewClip);
             window.addEventListener('resize', UI.updateViewDrag);
-
-            document.getElementById("noVNC_status")
-                .addEventListener('click', UI.hideStatus);
         },
 
         addControlbarHandlers: function() {
