@@ -421,6 +421,8 @@ var UI;
             UI.addSettingChangeHandler('true_color');
             UI.addSettingChangeHandler('cursor');
             UI.addSettingChangeHandler('resize');
+            UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
+            UI.addSettingChangeHandler('resize', UI.applyResizeMode);
             UI.addSettingChangeHandler('clip');
             UI.addSettingChangeHandler('shared');
             UI.addSettingChangeHandler('view_only');
@@ -505,7 +507,6 @@ var UI;
             }
 
             UI.enableDisableViewClip();
-            document.getElementById('noVNC_setting_resize').disabled = UI.connected;
             document.getElementById('noVNC_setting_shared').disabled = UI.connected;
             document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
             document.getElementById('noVNC_setting_host').disabled = UI.connected;
@@ -1224,6 +1225,8 @@ var UI;
 
                 var display = UI.rfb.get_display();
                 var resizeMode = UI.getSetting('resize');
+                display.set_scale(1);
+                UI.rfb.get_mouse().set_scale(1);
 
                 if (resizeMode === 'remote') {
 
