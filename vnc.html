@@ -231,6 +231,14 @@
                                 </ul></div>
                             </li>
                             <li><hr></li>
+                            <li>
+                                <label><input id="noVNC_setting_reconnect" type="checkbox" /> Automatic Reconnect</label>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_reconnect_delay">Reconnect Delay (ms):</label>
+                                <input id="noVNC_setting_reconnect_delay" type="input" value="" />
+                            </li>
+                            <li><hr></li>
                             <!-- Logging selection dropdown -->
                             <li>
                                 <label>Logging:
@@ -289,6 +297,9 @@
     <!-- Transition Screens -->
     <div id="noVNC_transition">
         <div id="noVNC_transition_text"></div>
+        <div>
+        <input type="button" id="noVNC_cancel_reconnect_button" value="Cancel" class="noVNC_submit" />
+        </div>
         <div class="noVNC_spinner"></div>
     </div>
 

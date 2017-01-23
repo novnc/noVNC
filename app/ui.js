@@ -106,6 +106,10 @@ var UI;
         lastKeyboardinput: null,
         defaultKeyboardinputLen: 100,
 
+        inhibit_reconnect: true,
+        reconnect_callback: null,
+        reconnect_password: null,
+
         // Setup rfb object, load settings from browser storage, then call
         // UI.init to setup the UI/menus
         load: function(callback) {
@@ -212,6 +216,8 @@ var UI;
             UI.initSetting('view_only', false);
             UI.initSetting('path', 'websockify');
             UI.initSetting('repeaterID', '');
+            UI.initSetting('reconnect', false);
+            UI.initSetting('reconnect_delay', 5000);
         },
 
         setupWindowEvents: function() {
@@ -349,6 +355,8 @@ var UI;
                 .addEventListener('click', UI.disconnect);
             document.getElementById("noVNC_connect_button")
                 .addEventListener('click', UI.connect);
+            document.getElementById("noVNC_cancel_reconnect_button")
+                .addEventListener('click', UI.cancelReconnect);
 
             document.getElementById("noVNC_password_button")
                 .addEventListener('click', UI.setPassword);
@@ -421,6 +429,7 @@ var UI;
             document.documentElement.classList.remove("noVNC_connecting");
             document.documentElement.classList.remove("noVNC_connected");
             document.documentElement.classList.remove("noVNC_disconnecting");
+            document.documentElement.classList.remove("noVNC_reconnecting");
 
             switch (state) {
                 case 'connecting':
@@ -429,6 +438,7 @@ var UI;
                     break;
                 case 'connected':
                     UI.connected = true;
+                    UI.inhibit_reconnect = false;
                     document.documentElement.classList.add("noVNC_connected");
                     if (rfb && rfb.get_encrypt()) {
                         msg = _("Connected (encrypted) to ") + UI.desktopName;
@@ -475,6 +485,8 @@ var UI;
             document.getElementById('noVNC_setting_port').disabled = UI.connected;
             document.getElementById('noVNC_setting_path').disabled = UI.connected;
             document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
+            document.getElementById('noVNC_setting_reconnect').disabled = UI.connected;
+            document.getElementById('noVNC_setting_reconnect_delay').disabled = UI.connected;
 
             if (UI.connected) {
                 UI.updateViewClip();
@@ -852,6 +864,8 @@ var UI;
             UI.saveSetting('path');
             UI.saveSetting('repeaterID');
             UI.saveSetting('logging');
+            UI.saveSetting('reconnect');
+            UI.saveSetting('reconnect_delay');
 
             // Settings with immediate (non-connected related) effect
             WebUtil.init_logging(UI.getSetting('logging'));
@@ -898,6 +912,8 @@ var UI;
             UI.updateSetting('path');
             UI.updateSetting('repeaterID');
             UI.updateSetting('logging');
+            UI.updateSetting('reconnect');
+            UI.updateSetting('reconnect_delay');
 
             document.getElementById('noVNC_settings')
                 .classList.add("noVNC_open");
@@ -1045,12 +1061,15 @@ var UI;
             }
         },
 
-        connect: function() {
+        connect: function(event, password) {
             var host = document.getElementById('noVNC_setting_host').value;
             var port = document.getElementById('noVNC_setting_port').value;
             var path = document.getElementById('noVNC_setting_path').value;
 
-            var password = WebUtil.getConfigVar('password');
+            if (typeof password === 'undefined') {
+                password = WebUtil.getConfigVar('password');
+            }
+
             if (password === null) {
                 password = undefined;
             }
@@ -1081,16 +1100,49 @@ var UI;
             UI.closeAllPanels();
             UI.rfb.disconnect();
 
+            // Disable automatic reconnecting
+            UI.inhibit_reconnect = true;
+
             // Restore the callback used for initial resize
             UI.rfb.set_onFBUComplete(UI.initialResize);
 
             // Don't display the connection settings until we're actually disconnected
         },
 
+        reconnect: function() {
+            UI.reconnect_callback = null;
+
+            // if reconnect has been disabled in the meantime, do nothing.
+            if (UI.inhibit_reconnect) {
+                return;
+            }
+
+            UI.connect(null, UI.reconnect_password);
+        },
+
         disconnectFinished: function (rfb, reason) {
             if (typeof reason !== 'undefined') {
                 UI.showStatus(reason, 'error');
+            } else if (UI.getSetting('reconnect', false) === true && !UI.inhibit_reconnect) {
+                document.getElementById("noVNC_transition_text").textContent = _("Reconnecting...");
+                document.documentElement.classList.add("noVNC_reconnecting");
+
+                var delay = parseInt(UI.getSetting('reconnect_delay'));
+                UI.reconnect_callback = setTimeout(UI.reconnect, delay);
+                return;
             }
+
+            UI.openControlbar();
+            UI.openConnectPanel();
+        },
+
+        cancelReconnect: function() {
+            if (UI.reconnect_callback !== null) {
+                clearTimeout(UI.reconnect_callback);
+                UI.reconnect_callback = null;
+            }
+
+            document.documentElement.classList.remove("noVNC_reconnecting");
             UI.openControlbar();
             UI.openConnectPanel();
         },
@@ -1118,7 +1170,9 @@ var UI;
         },
 
         setPassword: function() {
-            UI.rfb.sendPassword(document.getElementById('noVNC_password_input').value);
+            var password = document.getElementById('noVNC_password_input').value;
+            UI.rfb.sendPassword(password);
+            UI.reconnect_password = password;
             document.getElementById('noVNC_password_dlg')
                 .classList.remove('noVNC_open');
             return false;
