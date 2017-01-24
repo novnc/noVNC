@@ -1,4 +1,11 @@
-// Utility to parse keysymdef.h to produce mappings from Unicode codepoints to keysyms
+#!/usr/bin/env node
+/*
+ * genkeysymdef: X11 keysymdef.h to JavaScript converter
+ * Copyright 2013 jalf <git@jalf.dk>
+ * Copyright 2017 Pierre Ossman for Cendio AB
+ * Licensed under MPL 2.0 (see LICENSE.txt)
+ */
+
 "use strict";
 
 var fs = require('fs');
@@ -51,25 +58,42 @@ for (var i = 0; i < arr.length; ++i) {
         var unicodeRes = /U\+([0-9a-fA-F]+)/.exec(remainder);
         if (unicodeRes) {
             var unicode = parseInt(unicodeRes[1], 16);
+            // The first entry is the preferred one
             if (!codepoints[unicode]){
-                codepoints[unicode] = keysym;
+                codepoints[unicode] = { keysym: keysym, name: keyname };
             }
         }
-        else {
-            console.log("no unicode codepoint found:", arr[i]);
-        }
-    }
-    else {
-        console.log("line is not a keysym:", arr[i]);
     }
 }
 
-var out = "// This file describes mappings from Unicode codepoints to the keysym values\n" +
-"// (and optionally, key names) expected by the RFB protocol\n" +
-"// How this file was generated:\n" +
-"// " + process.argv.join(" ") + "\n" +
+var out =
+"/*\n" +
+" * Mapping from Unicode codepoints to X11/RFB keysyms\n" +
+" *\n" +
+" * This file was automatically generated from keysymdef.h\n" +
+" * DO NOT EDIT!\n" +
+" */\n" +
 "\n" +
-"var codepoints = {codepoints};\n" +
+"/* Functions at the bottom */\n" +
+"\n" +
+"var codepoints = {\n";
+
+function toHex(num) {
+    var s = num.toString(16);
+    if (s.length < 4) {
+        s = ("0000" + s).slice(-4);
+    }
+    return "0x" + s;
+};
+
+for (var codepoint in codepoints) {
+    out += "    " + toHex(parseInt(codepoint)) + ": " +
+           toHex(codepoints[codepoint].keysym) +
+           ", // XK_" + codepoints[codepoint].name + "\n";
+}
+
+out +=
+"};\n" +
 "\n" +
 "export default {\n" +
 "    lookup : function(u) {\n" +
@@ -79,7 +103,6 @@ var out = "// This file describes mappings from Unicode codepoints to the keysym
 "        }\n" +
 "        return keysym;\n" +
 "    },\n" +
-"};\n";
-out = out.replace('{codepoints}', JSON.stringify(codepoints));
+"};";
 
-fs.writeFileSync("keysymdef.js", out);
+console.log(out);
