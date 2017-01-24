@@ -8,197 +8,6 @@
 /* Functions at the bottom */
 
 var codepoints = {
-    0x0020: 0x0020, // XK_space
-    0x0021: 0x0021, // XK_exclam
-    0x0022: 0x0022, // XK_quotedbl
-    0x0023: 0x0023, // XK_numbersign
-    0x0024: 0x0024, // XK_dollar
-    0x0025: 0x0025, // XK_percent
-    0x0026: 0x0026, // XK_ampersand
-    0x0027: 0x0027, // XK_apostrophe
-    0x0028: 0x0028, // XK_parenleft
-    0x0029: 0x0029, // XK_parenright
-    0x002a: 0x002a, // XK_asterisk
-    0x002b: 0x002b, // XK_plus
-    0x002c: 0x002c, // XK_comma
-    0x002d: 0x002d, // XK_minus
-    0x002e: 0x002e, // XK_period
-    0x002f: 0x002f, // XK_slash
-    0x0030: 0x0030, // XK_0
-    0x0031: 0x0031, // XK_1
-    0x0032: 0x0032, // XK_2
-    0x0033: 0x0033, // XK_3
-    0x0034: 0x0034, // XK_4
-    0x0035: 0x0035, // XK_5
-    0x0036: 0x0036, // XK_6
-    0x0037: 0x0037, // XK_7
-    0x0038: 0x0038, // XK_8
-    0x0039: 0x0039, // XK_9
-    0x003a: 0x003a, // XK_colon
-    0x003b: 0x003b, // XK_semicolon
-    0x003c: 0x003c, // XK_less
-    0x003d: 0x003d, // XK_equal
-    0x003e: 0x003e, // XK_greater
-    0x003f: 0x003f, // XK_question
-    0x0040: 0x0040, // XK_at
-    0x0041: 0x0041, // XK_A
-    0x0042: 0x0042, // XK_B
-    0x0043: 0x0043, // XK_C
-    0x0044: 0x0044, // XK_D
-    0x0045: 0x0045, // XK_E
-    0x0046: 0x0046, // XK_F
-    0x0047: 0x0047, // XK_G
-    0x0048: 0x0048, // XK_H
-    0x0049: 0x0049, // XK_I
-    0x004a: 0x004a, // XK_J
-    0x004b: 0x004b, // XK_K
-    0x004c: 0x004c, // XK_L
-    0x004d: 0x004d, // XK_M
-    0x004e: 0x004e, // XK_N
-    0x004f: 0x004f, // XK_O
-    0x0050: 0x0050, // XK_P
-    0x0051: 0x0051, // XK_Q
-    0x0052: 0x0052, // XK_R
-    0x0053: 0x0053, // XK_S
-    0x0054: 0x0054, // XK_T
-    0x0055: 0x0055, // XK_U
-    0x0056: 0x0056, // XK_V
-    0x0057: 0x0057, // XK_W
-    0x0058: 0x0058, // XK_X
-    0x0059: 0x0059, // XK_Y
-    0x005a: 0x005a, // XK_Z
-    0x005b: 0x005b, // XK_bracketleft
-    0x005c: 0x005c, // XK_backslash
-    0x005d: 0x005d, // XK_bracketright
-    0x005e: 0x005e, // XK_asciicircum
-    0x005f: 0x005f, // XK_underscore
-    0x0060: 0x0060, // XK_grave
-    0x0061: 0x0061, // XK_a
-    0x0062: 0x0062, // XK_b
-    0x0063: 0x0063, // XK_c
-    0x0064: 0x0064, // XK_d
-    0x0065: 0x0065, // XK_e
-    0x0066: 0x0066, // XK_f
-    0x0067: 0x0067, // XK_g
-    0x0068: 0x0068, // XK_h
-    0x0069: 0x0069, // XK_i
-    0x006a: 0x006a, // XK_j
-    0x006b: 0x006b, // XK_k
-    0x006c: 0x006c, // XK_l
-    0x006d: 0x006d, // XK_m
-    0x006e: 0x006e, // XK_n
-    0x006f: 0x006f, // XK_o
-    0x0070: 0x0070, // XK_p
-    0x0071: 0x0071, // XK_q
-    0x0072: 0x0072, // XK_r
-    0x0073: 0x0073, // XK_s
-    0x0074: 0x0074, // XK_t
-    0x0075: 0x0075, // XK_u
-    0x0076: 0x0076, // XK_v
-    0x0077: 0x0077, // XK_w
-    0x0078: 0x0078, // XK_x
-    0x0079: 0x0079, // XK_y
-    0x007a: 0x007a, // XK_z
-    0x007b: 0x007b, // XK_braceleft
-    0x007c: 0x007c, // XK_bar
-    0x007d: 0x007d, // XK_braceright
-    0x007e: 0x007e, // XK_asciitilde
-    0x00a0: 0x00a0, // XK_nobreakspace
-    0x00a1: 0x00a1, // XK_exclamdown
-    0x00a2: 0x00a2, // XK_cent
-    0x00a3: 0x00a3, // XK_sterling
-    0x00a4: 0x00a4, // XK_currency
-    0x00a5: 0x00a5, // XK_yen
-    0x00a6: 0x00a6, // XK_brokenbar
-    0x00a7: 0x00a7, // XK_section
-    0x00a8: 0x00a8, // XK_diaeresis
-    0x00a9: 0x00a9, // XK_copyright
-    0x00aa: 0x00aa, // XK_ordfeminine
-    0x00ab: 0x00ab, // XK_guillemotleft
-    0x00ac: 0x00ac, // XK_notsign
-    0x00ad: 0x00ad, // XK_hyphen
-    0x00ae: 0x00ae, // XK_registered
-    0x00af: 0x00af, // XK_macron
-    0x00b0: 0x00b0, // XK_degree
-    0x00b1: 0x00b1, // XK_plusminus
-    0x00b2: 0x00b2, // XK_twosuperior
-    0x00b3: 0x00b3, // XK_threesuperior
-    0x00b4: 0x00b4, // XK_acute
-    0x00b5: 0x00b5, // XK_mu
-    0x00b6: 0x00b6, // XK_paragraph
-    0x00b7: 0x00b7, // XK_periodcentered
-    0x00b8: 0x00b8, // XK_cedilla
-    0x00b9: 0x00b9, // XK_onesuperior
-    0x00ba: 0x00ba, // XK_masculine
-    0x00bb: 0x00bb, // XK_guillemotright
-    0x00bc: 0x00bc, // XK_onequarter
-    0x00bd: 0x00bd, // XK_onehalf
-    0x00be: 0x00be, // XK_threequarters
-    0x00bf: 0x00bf, // XK_questiondown
-    0x00c0: 0x00c0, // XK_Agrave
-    0x00c1: 0x00c1, // XK_Aacute
-    0x00c2: 0x00c2, // XK_Acircumflex
-    0x00c3: 0x00c3, // XK_Atilde
-    0x00c4: 0x00c4, // XK_Adiaeresis
-    0x00c5: 0x00c5, // XK_Aring
-    0x00c6: 0x00c6, // XK_AE
-    0x00c7: 0x00c7, // XK_Ccedilla
-    0x00c8: 0x00c8, // XK_Egrave
-    0x00c9: 0x00c9, // XK_Eacute
-    0x00ca: 0x00ca, // XK_Ecircumflex
-    0x00cb: 0x00cb, // XK_Ediaeresis
-    0x00cc: 0x00cc, // XK_Igrave
-    0x00cd: 0x00cd, // XK_Iacute
-    0x00ce: 0x00ce, // XK_Icircumflex
-    0x00cf: 0x00cf, // XK_Idiaeresis
-    0x00d0: 0x00d0, // XK_ETH
-    0x00d1: 0x00d1, // XK_Ntilde
-    0x00d2: 0x00d2, // XK_Ograve
-    0x00d3: 0x00d3, // XK_Oacute
-    0x00d4: 0x00d4, // XK_Ocircumflex
-    0x00d5: 0x00d5, // XK_Otilde
-    0x00d6: 0x00d6, // XK_Odiaeresis
-    0x00d7: 0x00d7, // XK_multiply
-    0x00d8: 0x00d8, // XK_Oslash
-    0x00d9: 0x00d9, // XK_Ugrave
-    0x00da: 0x00da, // XK_Uacute
-    0x00db: 0x00db, // XK_Ucircumflex
-    0x00dc: 0x00dc, // XK_Udiaeresis
-    0x00dd: 0x00dd, // XK_Yacute
-    0x00de: 0x00de, // XK_THORN
-    0x00df: 0x00df, // XK_ssharp
-    0x00e0: 0x00e0, // XK_agrave
-    0x00e1: 0x00e1, // XK_aacute
-    0x00e2: 0x00e2, // XK_acircumflex
-    0x00e3: 0x00e3, // XK_atilde
-    0x00e4: 0x00e4, // XK_adiaeresis
-    0x00e5: 0x00e5, // XK_aring
-    0x00e6: 0x00e6, // XK_ae
-    0x00e7: 0x00e7, // XK_ccedilla
-    0x00e8: 0x00e8, // XK_egrave
-    0x00e9: 0x00e9, // XK_eacute
-    0x00ea: 0x00ea, // XK_ecircumflex
-    0x00eb: 0x00eb, // XK_ediaeresis
-    0x00ec: 0x00ec, // XK_igrave
-    0x00ed: 0x00ed, // XK_iacute
-    0x00ee: 0x00ee, // XK_icircumflex
-    0x00ef: 0x00ef, // XK_idiaeresis
-    0x00f0: 0x00f0, // XK_eth
-    0x00f1: 0x00f1, // XK_ntilde
-    0x00f2: 0x00f2, // XK_ograve
-    0x00f3: 0x00f3, // XK_oacute
-    0x00f4: 0x00f4, // XK_ocircumflex
-    0x00f5: 0x00f5, // XK_otilde
-    0x00f6: 0x00f6, // XK_odiaeresis
-    0x00f7: 0x00f7, // XK_division
-    0x00f8: 0x00f8, // XK_oslash
-    0x00f9: 0x00f9, // XK_ugrave
-    0x00fa: 0x00fa, // XK_uacute
-    0x00fb: 0x00fb, // XK_ucircumflex
-    0x00fc: 0x00fc, // XK_udiaeresis
-    0x00fd: 0x00fd, // XK_yacute
-    0x00fe: 0x00fe, // XK_thorn
-    0x00ff: 0x00ff, // XK_ydiaeresis
     0x0100: 0x03c0, // XK_Amacron
     0x0101: 0x03e0, // XK_amacron
     0x0102: 0x01c3, // XK_Abreve
@@ -241,8 +50,6 @@ var codepoints = {
     0x0129: 0x03b5, // XK_itilde
     0x012a: 0x03cf, // XK_Imacron
     0x012b: 0x03ef, // XK_imacron
-    0x012c: 0x100012c, // XK_Ibreve
-    0x012d: 0x100012d, // XK_ibreve
     0x012e: 0x03c7, // XK_Iogonek
     0x012f: 0x03e7, // XK_iogonek
     0x0130: 0x02a9, // XK_Iabovedot
@@ -306,10 +113,6 @@ var codepoints = {
     0x0171: 0x01fb, // XK_udoubleacute
     0x0172: 0x03d9, // XK_Uogonek
     0x0173: 0x03f9, // XK_uogonek
-    0x0174: 0x1000174, // XK_Wcircumflex
-    0x0175: 0x1000175, // XK_wcircumflex
-    0x0176: 0x1000176, // XK_Ycircumflex
-    0x0177: 0x1000177, // XK_ycircumflex
     0x0178: 0x13be, // XK_Ydiaeresis
     0x0179: 0x01ac, // XK_Zacute
     0x017a: 0x01bc, // XK_zacute
@@ -317,22 +120,8 @@ var codepoints = {
     0x017c: 0x01bf, // XK_zabovedot
     0x017d: 0x01ae, // XK_Zcaron
     0x017e: 0x01be, // XK_zcaron
-    0x018f: 0x100018f, // XK_SCHWA
     0x0192: 0x08f6, // XK_function
-    0x019f: 0x100019f, // XK_Obarred
-    0x01a0: 0x10001a0, // XK_Ohorn
-    0x01a1: 0x10001a1, // XK_ohorn
-    0x01af: 0x10001af, // XK_Uhorn
-    0x01b0: 0x10001b0, // XK_uhorn
-    0x01b5: 0x10001b5, // XK_Zstroke
-    0x01b6: 0x10001b6, // XK_zstroke
-    0x01b7: 0x10001b7, // XK_EZH
     0x01d2: 0x10001d1, // XK_Ocaron
-    0x01e6: 0x10001e6, // XK_Gcaron
-    0x01e7: 0x10001e7, // XK_gcaron
-    0x0259: 0x1000259, // XK_schwa
-    0x0275: 0x1000275, // XK_obarred
-    0x0292: 0x1000292, // XK_ezh
     0x02c7: 0x01b7, // XK_caron
     0x02d8: 0x01a2, // XK_breve
     0x02d9: 0x01ff, // XK_abovedot
@@ -502,120 +291,6 @@ var codepoints = {
     0x045f: 0x06af, // XK_Cyrillic_dzhe
     0x0490: 0x06bd, // XK_Ukrainian_GHE_WITH_UPTURN
     0x0491: 0x06ad, // XK_Ukrainian_ghe_with_upturn
-    0x0492: 0x1000492, // XK_Cyrillic_GHE_bar
-    0x0493: 0x1000493, // XK_Cyrillic_ghe_bar
-    0x0496: 0x1000496, // XK_Cyrillic_ZHE_descender
-    0x0497: 0x1000497, // XK_Cyrillic_zhe_descender
-    0x049a: 0x100049a, // XK_Cyrillic_KA_descender
-    0x049b: 0x100049b, // XK_Cyrillic_ka_descender
-    0x049c: 0x100049c, // XK_Cyrillic_KA_vertstroke
-    0x049d: 0x100049d, // XK_Cyrillic_ka_vertstroke
-    0x04a2: 0x10004a2, // XK_Cyrillic_EN_descender
-    0x04a3: 0x10004a3, // XK_Cyrillic_en_descender
-    0x04ae: 0x10004ae, // XK_Cyrillic_U_straight
-    0x04af: 0x10004af, // XK_Cyrillic_u_straight
-    0x04b0: 0x10004b0, // XK_Cyrillic_U_straight_bar
-    0x04b1: 0x10004b1, // XK_Cyrillic_u_straight_bar
-    0x04b2: 0x10004b2, // XK_Cyrillic_HA_descender
-    0x04b3: 0x10004b3, // XK_Cyrillic_ha_descender
-    0x04b6: 0x10004b6, // XK_Cyrillic_CHE_descender
-    0x04b7: 0x10004b7, // XK_Cyrillic_che_descender
-    0x04b8: 0x10004b8, // XK_Cyrillic_CHE_vertstroke
-    0x04b9: 0x10004b9, // XK_Cyrillic_che_vertstroke
-    0x04ba: 0x10004ba, // XK_Cyrillic_SHHA
-    0x04bb: 0x10004bb, // XK_Cyrillic_shha
-    0x04d8: 0x10004d8, // XK_Cyrillic_SCHWA
-    0x04d9: 0x10004d9, // XK_Cyrillic_schwa
-    0x04e2: 0x10004e2, // XK_Cyrillic_I_macron
-    0x04e3: 0x10004e3, // XK_Cyrillic_i_macron
-    0x04e8: 0x10004e8, // XK_Cyrillic_O_bar
-    0x04e9: 0x10004e9, // XK_Cyrillic_o_bar
-    0x04ee: 0x10004ee, // XK_Cyrillic_U_macron
-    0x04ef: 0x10004ef, // XK_Cyrillic_u_macron
-    0x0531: 0x1000531, // XK_Armenian_AYB
-    0x0532: 0x1000532, // XK_Armenian_BEN
-    0x0533: 0x1000533, // XK_Armenian_GIM
-    0x0534: 0x1000534, // XK_Armenian_DA
-    0x0535: 0x1000535, // XK_Armenian_YECH
-    0x0536: 0x1000536, // XK_Armenian_ZA
-    0x0537: 0x1000537, // XK_Armenian_E
-    0x0538: 0x1000538, // XK_Armenian_AT
-    0x0539: 0x1000539, // XK_Armenian_TO
-    0x053a: 0x100053a, // XK_Armenian_ZHE
-    0x053b: 0x100053b, // XK_Armenian_INI
-    0x053c: 0x100053c, // XK_Armenian_LYUN
-    0x053d: 0x100053d, // XK_Armenian_KHE
-    0x053e: 0x100053e, // XK_Armenian_TSA
-    0x053f: 0x100053f, // XK_Armenian_KEN
-    0x0540: 0x1000540, // XK_Armenian_HO
-    0x0541: 0x1000541, // XK_Armenian_DZA
-    0x0542: 0x1000542, // XK_Armenian_GHAT
-    0x0543: 0x1000543, // XK_Armenian_TCHE
-    0x0544: 0x1000544, // XK_Armenian_MEN
-    0x0545: 0x1000545, // XK_Armenian_HI
-    0x0546: 0x1000546, // XK_Armenian_NU
-    0x0547: 0x1000547, // XK_Armenian_SHA
-    0x0548: 0x1000548, // XK_Armenian_VO
-    0x0549: 0x1000549, // XK_Armenian_CHA
-    0x054a: 0x100054a, // XK_Armenian_PE
-    0x054b: 0x100054b, // XK_Armenian_JE
-    0x054c: 0x100054c, // XK_Armenian_RA
-    0x054d: 0x100054d, // XK_Armenian_SE
-    0x054e: 0x100054e, // XK_Armenian_VEV
-    0x054f: 0x100054f, // XK_Armenian_TYUN
-    0x0550: 0x1000550, // XK_Armenian_RE
-    0x0551: 0x1000551, // XK_Armenian_TSO
-    0x0552: 0x1000552, // XK_Armenian_VYUN
-    0x0553: 0x1000553, // XK_Armenian_PYUR
-    0x0554: 0x1000554, // XK_Armenian_KE
-    0x0555: 0x1000555, // XK_Armenian_O
-    0x0556: 0x1000556, // XK_Armenian_FE
-    0x055a: 0x100055a, // XK_Armenian_apostrophe
-    0x055b: 0x100055b, // XK_Armenian_accent
-    0x055c: 0x100055c, // XK_Armenian_exclam
-    0x055d: 0x100055d, // XK_Armenian_separation_mark
-    0x055e: 0x100055e, // XK_Armenian_question
-    0x0561: 0x1000561, // XK_Armenian_ayb
-    0x0562: 0x1000562, // XK_Armenian_ben
-    0x0563: 0x1000563, // XK_Armenian_gim
-    0x0564: 0x1000564, // XK_Armenian_da
-    0x0565: 0x1000565, // XK_Armenian_yech
-    0x0566: 0x1000566, // XK_Armenian_za
-    0x0567: 0x1000567, // XK_Armenian_e
-    0x0568: 0x1000568, // XK_Armenian_at
-    0x0569: 0x1000569, // XK_Armenian_to
-    0x056a: 0x100056a, // XK_Armenian_zhe
-    0x056b: 0x100056b, // XK_Armenian_ini
-    0x056c: 0x100056c, // XK_Armenian_lyun
-    0x056d: 0x100056d, // XK_Armenian_khe
-    0x056e: 0x100056e, // XK_Armenian_tsa
-    0x056f: 0x100056f, // XK_Armenian_ken
-    0x0570: 0x1000570, // XK_Armenian_ho
-    0x0571: 0x1000571, // XK_Armenian_dza
-    0x0572: 0x1000572, // XK_Armenian_ghat
-    0x0573: 0x1000573, // XK_Armenian_tche
-    0x0574: 0x1000574, // XK_Armenian_men
-    0x0575: 0x1000575, // XK_Armenian_hi
-    0x0576: 0x1000576, // XK_Armenian_nu
-    0x0577: 0x1000577, // XK_Armenian_sha
-    0x0578: 0x1000578, // XK_Armenian_vo
-    0x0579: 0x1000579, // XK_Armenian_cha
-    0x057a: 0x100057a, // XK_Armenian_pe
-    0x057b: 0x100057b, // XK_Armenian_je
-    0x057c: 0x100057c, // XK_Armenian_ra
-    0x057d: 0x100057d, // XK_Armenian_se
-    0x057e: 0x100057e, // XK_Armenian_vev
-    0x057f: 0x100057f, // XK_Armenian_tyun
-    0x0580: 0x1000580, // XK_Armenian_re
-    0x0581: 0x1000581, // XK_Armenian_tso
-    0x0582: 0x1000582, // XK_Armenian_vyun
-    0x0583: 0x1000583, // XK_Armenian_pyur
-    0x0584: 0x1000584, // XK_Armenian_ke
-    0x0585: 0x1000585, // XK_Armenian_o
-    0x0586: 0x1000586, // XK_Armenian_fe
-    0x0587: 0x1000587, // XK_Armenian_ligature_ew
-    0x0589: 0x1000589, // XK_Armenian_full_stop
-    0x058a: 0x100058a, // XK_Armenian_hyphen
     0x05d0: 0x0ce0, // XK_hebrew_aleph
     0x05d1: 0x0ce1, // XK_hebrew_bet
     0x05d2: 0x0ce2, // XK_hebrew_gimel
@@ -691,126 +366,6 @@ var codepoints = {
     0x0650: 0x05f0, // XK_Arabic_kasra
     0x0651: 0x05f1, // XK_Arabic_shadda
     0x0652: 0x05f2, // XK_Arabic_sukun
-    0x0653: 0x1000653, // XK_Arabic_madda_above
-    0x0654: 0x1000654, // XK_Arabic_hamza_above
-    0x0655: 0x1000655, // XK_Arabic_hamza_below
-    0x0660: 0x1000660, // XK_Arabic_0
-    0x0661: 0x1000661, // XK_Arabic_1
-    0x0662: 0x1000662, // XK_Arabic_2
-    0x0663: 0x1000663, // XK_Arabic_3
-    0x0664: 0x1000664, // XK_Arabic_4
-    0x0665: 0x1000665, // XK_Arabic_5
-    0x0666: 0x1000666, // XK_Arabic_6
-    0x0667: 0x1000667, // XK_Arabic_7
-    0x0668: 0x1000668, // XK_Arabic_8
-    0x0669: 0x1000669, // XK_Arabic_9
-    0x066a: 0x100066a, // XK_Arabic_percent
-    0x0670: 0x1000670, // XK_Arabic_superscript_alef
-    0x0679: 0x1000679, // XK_Arabic_tteh
-    0x067e: 0x100067e, // XK_Arabic_peh
-    0x0686: 0x1000686, // XK_Arabic_tcheh
-    0x0688: 0x1000688, // XK_Arabic_ddal
-    0x0691: 0x1000691, // XK_Arabic_rreh
-    0x0698: 0x1000698, // XK_Arabic_jeh
-    0x06a4: 0x10006a4, // XK_Arabic_veh
-    0x06a9: 0x10006a9, // XK_Arabic_keheh
-    0x06af: 0x10006af, // XK_Arabic_gaf
-    0x06ba: 0x10006ba, // XK_Arabic_noon_ghunna
-    0x06be: 0x10006be, // XK_Arabic_heh_doachashmee
-    0x06c1: 0x10006c1, // XK_Arabic_heh_goal
-    0x06cc: 0x10006cc, // XK_Farsi_yeh
-    0x06d2: 0x10006d2, // XK_Arabic_yeh_baree
-    0x06d4: 0x10006d4, // XK_Arabic_fullstop
-    0x06f0: 0x10006f0, // XK_Farsi_0
-    0x06f1: 0x10006f1, // XK_Farsi_1
-    0x06f2: 0x10006f2, // XK_Farsi_2
-    0x06f3: 0x10006f3, // XK_Farsi_3
-    0x06f4: 0x10006f4, // XK_Farsi_4
-    0x06f5: 0x10006f5, // XK_Farsi_5
-    0x06f6: 0x10006f6, // XK_Farsi_6
-    0x06f7: 0x10006f7, // XK_Farsi_7
-    0x06f8: 0x10006f8, // XK_Farsi_8
-    0x06f9: 0x10006f9, // XK_Farsi_9
-    0x0d82: 0x1000d82, // XK_Sinh_ng
-    0x0d83: 0x1000d83, // XK_Sinh_h2
-    0x0d85: 0x1000d85, // XK_Sinh_a
-    0x0d86: 0x1000d86, // XK_Sinh_aa
-    0x0d87: 0x1000d87, // XK_Sinh_ae
-    0x0d88: 0x1000d88, // XK_Sinh_aee
-    0x0d89: 0x1000d89, // XK_Sinh_i
-    0x0d8a: 0x1000d8a, // XK_Sinh_ii
-    0x0d8b: 0x1000d8b, // XK_Sinh_u
-    0x0d8c: 0x1000d8c, // XK_Sinh_uu
-    0x0d8d: 0x1000d8d, // XK_Sinh_ri
-    0x0d8e: 0x1000d8e, // XK_Sinh_rii
-    0x0d8f: 0x1000d8f, // XK_Sinh_lu
-    0x0d90: 0x1000d90, // XK_Sinh_luu
-    0x0d91: 0x1000d91, // XK_Sinh_e
-    0x0d92: 0x1000d92, // XK_Sinh_ee
-    0x0d93: 0x1000d93, // XK_Sinh_ai
-    0x0d94: 0x1000d94, // XK_Sinh_o
-    0x0d95: 0x1000d95, // XK_Sinh_oo
-    0x0d96: 0x1000d96, // XK_Sinh_au
-    0x0d9a: 0x1000d9a, // XK_Sinh_ka
-    0x0d9b: 0x1000d9b, // XK_Sinh_kha
-    0x0d9c: 0x1000d9c, // XK_Sinh_ga
-    0x0d9d: 0x1000d9d, // XK_Sinh_gha
-    0x0d9e: 0x1000d9e, // XK_Sinh_ng2
-    0x0d9f: 0x1000d9f, // XK_Sinh_nga
-    0x0da0: 0x1000da0, // XK_Sinh_ca
-    0x0da1: 0x1000da1, // XK_Sinh_cha
-    0x0da2: 0x1000da2, // XK_Sinh_ja
-    0x0da3: 0x1000da3, // XK_Sinh_jha
-    0x0da4: 0x1000da4, // XK_Sinh_nya
-    0x0da5: 0x1000da5, // XK_Sinh_jnya
-    0x0da6: 0x1000da6, // XK_Sinh_nja
-    0x0da7: 0x1000da7, // XK_Sinh_tta
-    0x0da8: 0x1000da8, // XK_Sinh_ttha
-    0x0da9: 0x1000da9, // XK_Sinh_dda
-    0x0daa: 0x1000daa, // XK_Sinh_ddha
-    0x0dab: 0x1000dab, // XK_Sinh_nna
-    0x0dac: 0x1000dac, // XK_Sinh_ndda
-    0x0dad: 0x1000dad, // XK_Sinh_tha
-    0x0dae: 0x1000dae, // XK_Sinh_thha
-    0x0daf: 0x1000daf, // XK_Sinh_dha
-    0x0db0: 0x1000db0, // XK_Sinh_dhha
-    0x0db1: 0x1000db1, // XK_Sinh_na
-    0x0db3: 0x1000db3, // XK_Sinh_ndha
-    0x0db4: 0x1000db4, // XK_Sinh_pa
-    0x0db5: 0x1000db5, // XK_Sinh_pha
-    0x0db6: 0x1000db6, // XK_Sinh_ba
-    0x0db7: 0x1000db7, // XK_Sinh_bha
-    0x0db8: 0x1000db8, // XK_Sinh_ma
-    0x0db9: 0x1000db9, // XK_Sinh_mba
-    0x0dba: 0x1000dba, // XK_Sinh_ya
-    0x0dbb: 0x1000dbb, // XK_Sinh_ra
-    0x0dbd: 0x1000dbd, // XK_Sinh_la
-    0x0dc0: 0x1000dc0, // XK_Sinh_va
-    0x0dc1: 0x1000dc1, // XK_Sinh_sha
-    0x0dc2: 0x1000dc2, // XK_Sinh_ssha
-    0x0dc3: 0x1000dc3, // XK_Sinh_sa
-    0x0dc4: 0x1000dc4, // XK_Sinh_ha
-    0x0dc5: 0x1000dc5, // XK_Sinh_lla
-    0x0dc6: 0x1000dc6, // XK_Sinh_fa
-    0x0dca: 0x1000dca, // XK_Sinh_al
-    0x0dcf: 0x1000dcf, // XK_Sinh_aa2
-    0x0dd0: 0x1000dd0, // XK_Sinh_ae2
-    0x0dd1: 0x1000dd1, // XK_Sinh_aee2
-    0x0dd2: 0x1000dd2, // XK_Sinh_i2
-    0x0dd3: 0x1000dd3, // XK_Sinh_ii2
-    0x0dd4: 0x1000dd4, // XK_Sinh_u2
-    0x0dd6: 0x1000dd6, // XK_Sinh_uu2
-    0x0dd8: 0x1000dd8, // XK_Sinh_ru2
-    0x0dd9: 0x1000dd9, // XK_Sinh_e2
-    0x0dda: 0x1000dda, // XK_Sinh_ee2
-    0x0ddb: 0x1000ddb, // XK_Sinh_ai2
-    0x0ddc: 0x1000ddc, // XK_Sinh_o2
-    0x0ddd: 0x1000ddd, // XK_Sinh_oo2
-    0x0dde: 0x1000dde, // XK_Sinh_au2
-    0x0ddf: 0x1000ddf, // XK_Sinh_lu2
-    0x0df2: 0x1000df2, // XK_Sinh_ruu2
-    0x0df3: 0x1000df3, // XK_Sinh_luu2
-    0x0df4: 0x1000df4, // XK_Sinh_kunddaliya
     0x0e01: 0x0da1, // XK_Thai_kokai
     0x0e02: 0x0da2, // XK_Thai_khokhai
     0x0e03: 0x0da3, // XK_Thai_khokhuat
@@ -894,159 +449,6 @@ var codepoints = {
     0x0e57: 0x0df7, // XK_Thai_lekchet
     0x0e58: 0x0df8, // XK_Thai_lekpaet
     0x0e59: 0x0df9, // XK_Thai_lekkao
-    0x10d0: 0x10010d0, // XK_Georgian_an
-    0x10d1: 0x10010d1, // XK_Georgian_ban
-    0x10d2: 0x10010d2, // XK_Georgian_gan
-    0x10d3: 0x10010d3, // XK_Georgian_don
-    0x10d4: 0x10010d4, // XK_Georgian_en
-    0x10d5: 0x10010d5, // XK_Georgian_vin
-    0x10d6: 0x10010d6, // XK_Georgian_zen
-    0x10d7: 0x10010d7, // XK_Georgian_tan
-    0x10d8: 0x10010d8, // XK_Georgian_in
-    0x10d9: 0x10010d9, // XK_Georgian_kan
-    0x10da: 0x10010da, // XK_Georgian_las
-    0x10db: 0x10010db, // XK_Georgian_man
-    0x10dc: 0x10010dc, // XK_Georgian_nar
-    0x10dd: 0x10010dd, // XK_Georgian_on
-    0x10de: 0x10010de, // XK_Georgian_par
-    0x10df: 0x10010df, // XK_Georgian_zhar
-    0x10e0: 0x10010e0, // XK_Georgian_rae
-    0x10e1: 0x10010e1, // XK_Georgian_san
-    0x10e2: 0x10010e2, // XK_Georgian_tar
-    0x10e3: 0x10010e3, // XK_Georgian_un
-    0x10e4: 0x10010e4, // XK_Georgian_phar
-    0x10e5: 0x10010e5, // XK_Georgian_khar
-    0x10e6: 0x10010e6, // XK_Georgian_ghan
-    0x10e7: 0x10010e7, // XK_Georgian_qar
-    0x10e8: 0x10010e8, // XK_Georgian_shin
-    0x10e9: 0x10010e9, // XK_Georgian_chin
-    0x10ea: 0x10010ea, // XK_Georgian_can
-    0x10eb: 0x10010eb, // XK_Georgian_jil
-    0x10ec: 0x10010ec, // XK_Georgian_cil
-    0x10ed: 0x10010ed, // XK_Georgian_char
-    0x10ee: 0x10010ee, // XK_Georgian_xan
-    0x10ef: 0x10010ef, // XK_Georgian_jhan
-    0x10f0: 0x10010f0, // XK_Georgian_hae
-    0x10f1: 0x10010f1, // XK_Georgian_he
-    0x10f2: 0x10010f2, // XK_Georgian_hie
-    0x10f3: 0x10010f3, // XK_Georgian_we
-    0x10f4: 0x10010f4, // XK_Georgian_har
-    0x10f5: 0x10010f5, // XK_Georgian_hoe
-    0x10f6: 0x10010f6, // XK_Georgian_fi
-    0x1e02: 0x1001e02, // XK_Babovedot
-    0x1e03: 0x1001e03, // XK_babovedot
-    0x1e0a: 0x1001e0a, // XK_Dabovedot
-    0x1e0b: 0x1001e0b, // XK_dabovedot
-    0x1e1e: 0x1001e1e, // XK_Fabovedot
-    0x1e1f: 0x1001e1f, // XK_fabovedot
-    0x1e36: 0x1001e36, // XK_Lbelowdot
-    0x1e37: 0x1001e37, // XK_lbelowdot
-    0x1e40: 0x1001e40, // XK_Mabovedot
-    0x1e41: 0x1001e41, // XK_mabovedot
-    0x1e56: 0x1001e56, // XK_Pabovedot
-    0x1e57: 0x1001e57, // XK_pabovedot
-    0x1e60: 0x1001e60, // XK_Sabovedot
-    0x1e61: 0x1001e61, // XK_sabovedot
-    0x1e6a: 0x1001e6a, // XK_Tabovedot
-    0x1e6b: 0x1001e6b, // XK_tabovedot
-    0x1e80: 0x1001e80, // XK_Wgrave
-    0x1e81: 0x1001e81, // XK_wgrave
-    0x1e82: 0x1001e82, // XK_Wacute
-    0x1e83: 0x1001e83, // XK_wacute
-    0x1e84: 0x1001e84, // XK_Wdiaeresis
-    0x1e85: 0x1001e85, // XK_wdiaeresis
-    0x1e8a: 0x1001e8a, // XK_Xabovedot
-    0x1e8b: 0x1001e8b, // XK_xabovedot
-    0x1ea0: 0x1001ea0, // XK_Abelowdot
-    0x1ea1: 0x1001ea1, // XK_abelowdot
-    0x1ea2: 0x1001ea2, // XK_Ahook
-    0x1ea3: 0x1001ea3, // XK_ahook
-    0x1ea4: 0x1001ea4, // XK_Acircumflexacute
-    0x1ea5: 0x1001ea5, // XK_acircumflexacute
-    0x1ea6: 0x1001ea6, // XK_Acircumflexgrave
-    0x1ea7: 0x1001ea7, // XK_acircumflexgrave
-    0x1ea8: 0x1001ea8, // XK_Acircumflexhook
-    0x1ea9: 0x1001ea9, // XK_acircumflexhook
-    0x1eaa: 0x1001eaa, // XK_Acircumflextilde
-    0x1eab: 0x1001eab, // XK_acircumflextilde
-    0x1eac: 0x1001eac, // XK_Acircumflexbelowdot
-    0x1ead: 0x1001ead, // XK_acircumflexbelowdot
-    0x1eae: 0x1001eae, // XK_Abreveacute
-    0x1eaf: 0x1001eaf, // XK_abreveacute
-    0x1eb0: 0x1001eb0, // XK_Abrevegrave
-    0x1eb1: 0x1001eb1, // XK_abrevegrave
-    0x1eb2: 0x1001eb2, // XK_Abrevehook
-    0x1eb3: 0x1001eb3, // XK_abrevehook
-    0x1eb4: 0x1001eb4, // XK_Abrevetilde
-    0x1eb5: 0x1001eb5, // XK_abrevetilde
-    0x1eb6: 0x1001eb6, // XK_Abrevebelowdot
-    0x1eb7: 0x1001eb7, // XK_abrevebelowdot
-    0x1eb8: 0x1001eb8, // XK_Ebelowdot
-    0x1eb9: 0x1001eb9, // XK_ebelowdot
-    0x1eba: 0x1001eba, // XK_Ehook
-    0x1ebb: 0x1001ebb, // XK_ehook
-    0x1ebc: 0x1001ebc, // XK_Etilde
-    0x1ebd: 0x1001ebd, // XK_etilde
-    0x1ebe: 0x1001ebe, // XK_Ecircumflexacute
-    0x1ebf: 0x1001ebf, // XK_ecircumflexacute
-    0x1ec0: 0x1001ec0, // XK_Ecircumflexgrave
-    0x1ec1: 0x1001ec1, // XK_ecircumflexgrave
-    0x1ec2: 0x1001ec2, // XK_Ecircumflexhook
-    0x1ec3: 0x1001ec3, // XK_ecircumflexhook
-    0x1ec4: 0x1001ec4, // XK_Ecircumflextilde
-    0x1ec5: 0x1001ec5, // XK_ecircumflextilde
-    0x1ec6: 0x1001ec6, // XK_Ecircumflexbelowdot
-    0x1ec7: 0x1001ec7, // XK_ecircumflexbelowdot
-    0x1ec8: 0x1001ec8, // XK_Ihook
-    0x1ec9: 0x1001ec9, // XK_ihook
-    0x1eca: 0x1001eca, // XK_Ibelowdot
-    0x1ecb: 0x1001ecb, // XK_ibelowdot
-    0x1ecc: 0x1001ecc, // XK_Obelowdot
-    0x1ecd: 0x1001ecd, // XK_obelowdot
-    0x1ece: 0x1001ece, // XK_Ohook
-    0x1ecf: 0x1001ecf, // XK_ohook
-    0x1ed0: 0x1001ed0, // XK_Ocircumflexacute
-    0x1ed1: 0x1001ed1, // XK_ocircumflexacute
-    0x1ed2: 0x1001ed2, // XK_Ocircumflexgrave
-    0x1ed3: 0x1001ed3, // XK_ocircumflexgrave
-    0x1ed4: 0x1001ed4, // XK_Ocircumflexhook
-    0x1ed5: 0x1001ed5, // XK_ocircumflexhook
-    0x1ed6: 0x1001ed6, // XK_Ocircumflextilde
-    0x1ed7: 0x1001ed7, // XK_ocircumflextilde
-    0x1ed8: 0x1001ed8, // XK_Ocircumflexbelowdot
-    0x1ed9: 0x1001ed9, // XK_ocircumflexbelowdot
-    0x1eda: 0x1001eda, // XK_Ohornacute
-    0x1edb: 0x1001edb, // XK_ohornacute
-    0x1edc: 0x1001edc, // XK_Ohorngrave
-    0x1edd: 0x1001edd, // XK_ohorngrave
-    0x1ede: 0x1001ede, // XK_Ohornhook
-    0x1edf: 0x1001edf, // XK_ohornhook
-    0x1ee0: 0x1001ee0, // XK_Ohorntilde
-    0x1ee1: 0x1001ee1, // XK_ohorntilde
-    0x1ee2: 0x1001ee2, // XK_Ohornbelowdot
-    0x1ee3: 0x1001ee3, // XK_ohornbelowdot
-    0x1ee4: 0x1001ee4, // XK_Ubelowdot
-    0x1ee5: 0x1001ee5, // XK_ubelowdot
-    0x1ee6: 0x1001ee6, // XK_Uhook
-    0x1ee7: 0x1001ee7, // XK_uhook
-    0x1ee8: 0x1001ee8, // XK_Uhornacute
-    0x1ee9: 0x1001ee9, // XK_uhornacute
-    0x1eea: 0x1001eea, // XK_Uhorngrave
-    0x1eeb: 0x1001eeb, // XK_uhorngrave
-    0x1eec: 0x1001eec, // XK_Uhornhook
-    0x1eed: 0x1001eed, // XK_uhornhook
-    0x1eee: 0x1001eee, // XK_Uhorntilde
-    0x1eef: 0x1001eef, // XK_uhorntilde
-    0x1ef0: 0x1001ef0, // XK_Uhornbelowdot
-    0x1ef1: 0x1001ef1, // XK_uhornbelowdot
-    0x1ef2: 0x1001ef2, // XK_Ygrave
-    0x1ef3: 0x1001ef3, // XK_ygrave
-    0x1ef4: 0x1001ef4, // XK_Ybelowdot
-    0x1ef5: 0x1001ef5, // XK_ybelowdot
-    0x1ef6: 0x1001ef6, // XK_Yhook
-    0x1ef7: 0x1001ef7, // XK_yhook
-    0x1ef8: 0x1001ef8, // XK_Ytilde
-    0x1ef9: 0x1001ef9, // XK_ytilde
     0x2002: 0x0aa2, // XK_enspace
     0x2003: 0x0aa1, // XK_emspace
     0x2004: 0x0aa3, // XK_em3space
@@ -1076,35 +478,7 @@ var codepoints = {
     0x2033: 0x0ad7, // XK_seconds
     0x2038: 0x0afc, // XK_caret
     0x203e: 0x047e, // XK_overline
-    0x2070: 0x1002070, // XK_zerosuperior
-    0x2074: 0x1002074, // XK_foursuperior
-    0x2075: 0x1002075, // XK_fivesuperior
-    0x2076: 0x1002076, // XK_sixsuperior
-    0x2077: 0x1002077, // XK_sevensuperior
-    0x2078: 0x1002078, // XK_eightsuperior
-    0x2079: 0x1002079, // XK_ninesuperior
-    0x2080: 0x1002080, // XK_zerosubscript
-    0x2081: 0x1002081, // XK_onesubscript
-    0x2082: 0x1002082, // XK_twosubscript
-    0x2083: 0x1002083, // XK_threesubscript
-    0x2084: 0x1002084, // XK_foursubscript
-    0x2085: 0x1002085, // XK_fivesubscript
-    0x2086: 0x1002086, // XK_sixsubscript
-    0x2087: 0x1002087, // XK_sevensubscript
-    0x2088: 0x1002088, // XK_eightsubscript
-    0x2089: 0x1002089, // XK_ninesubscript
-    0x20a0: 0x10020a0, // XK_EcuSign
-    0x20a1: 0x10020a1, // XK_ColonSign
-    0x20a2: 0x10020a2, // XK_CruzeiroSign
-    0x20a3: 0x10020a3, // XK_FFrancSign
-    0x20a4: 0x10020a4, // XK_LiraSign
-    0x20a5: 0x10020a5, // XK_MillSign
-    0x20a6: 0x10020a6, // XK_NairaSign
-    0x20a7: 0x10020a7, // XK_PesetaSign
-    0x20a8: 0x10020a8, // XK_RupeeSign
     0x20a9: 0x0eff, // XK_Korean_Won
-    0x20aa: 0x10020aa, // XK_NewSheqelSign
-    0x20ab: 0x10020ab, // XK_DongSign
     0x20ac: 0x20ac, // XK_EuroSign
     0x2105: 0x0ab8, // XK_careof
     0x2116: 0x06b0, // XK_numerosign
@@ -1130,15 +504,9 @@ var codepoints = {
     0x21d2: 0x08ce, // XK_implies
     0x21d4: 0x08cd, // XK_ifonlyif
     0x2202: 0x08ef, // XK_partialderivative
-    0x2205: 0x1002205, // XK_emptyset
     0x2207: 0x08c5, // XK_nabla
-    0x2208: 0x1002208, // XK_elementof
-    0x2209: 0x1002209, // XK_notelementof
-    0x220b: 0x100220b, // XK_containsas
     0x2218: 0x0bca, // XK_jot
     0x221a: 0x08d6, // XK_radical
-    0x221b: 0x100221b, // XK_cuberoot
-    0x221c: 0x100221c, // XK_fourthroot
     0x221d: 0x08c1, // XK_variation
     0x221e: 0x08c2, // XK_infinity
     0x2227: 0x08de, // XK_logicaland
@@ -1146,18 +514,12 @@ var codepoints = {
     0x2229: 0x08dc, // XK_intersection
     0x222a: 0x08dd, // XK_union
     0x222b: 0x08bf, // XK_integral
-    0x222c: 0x100222c, // XK_dintegral
-    0x222d: 0x100222d, // XK_tintegral
     0x2234: 0x08c0, // XK_therefore
-    0x2235: 0x1002235, // XK_because
     0x223c: 0x08c8, // XK_approximate
     0x2243: 0x08c9, // XK_similarequal
     0x2245: 0x1002248, // XK_approxeq
-    0x2247: 0x1002247, // XK_notapproxeq
     0x2260: 0x08bd, // XK_notequal
     0x2261: 0x08cf, // XK_identical
-    0x2262: 0x1002262, // XK_notidentical
-    0x2263: 0x1002263, // XK_stricteq
     0x2264: 0x08bc, // XK_lessthanequal
     0x2265: 0x08be, // XK_greaterthanequal
     0x2282: 0x08da, // XK_includedin
@@ -1242,262 +604,6 @@ var codepoints = {
     0x2720: 0x0af0, // XK_maltesecross
     0x27e8: 0x0abc, // XK_leftanglebracket
     0x27e9: 0x0abe, // XK_rightanglebracket
-    0x2800: 0x1002800, // XK_braille_blank
-    0x2801: 0x1002801, // XK_braille_dots_1
-    0x2802: 0x1002802, // XK_braille_dots_2
-    0x2803: 0x1002803, // XK_braille_dots_12
-    0x2804: 0x1002804, // XK_braille_dots_3
-    0x2805: 0x1002805, // XK_braille_dots_13
-    0x2806: 0x1002806, // XK_braille_dots_23
-    0x2807: 0x1002807, // XK_braille_dots_123
-    0x2808: 0x1002808, // XK_braille_dots_4
-    0x2809: 0x1002809, // XK_braille_dots_14
-    0x280a: 0x100280a, // XK_braille_dots_24
-    0x280b: 0x100280b, // XK_braille_dots_124
-    0x280c: 0x100280c, // XK_braille_dots_34
-    0x280d: 0x100280d, // XK_braille_dots_134
-    0x280e: 0x100280e, // XK_braille_dots_234
-    0x280f: 0x100280f, // XK_braille_dots_1234
-    0x2810: 0x1002810, // XK_braille_dots_5
-    0x2811: 0x1002811, // XK_braille_dots_15
-    0x2812: 0x1002812, // XK_braille_dots_25
-    0x2813: 0x1002813, // XK_braille_dots_125
-    0x2814: 0x1002814, // XK_braille_dots_35
-    0x2815: 0x1002815, // XK_braille_dots_135
-    0x2816: 0x1002816, // XK_braille_dots_235
-    0x2817: 0x1002817, // XK_braille_dots_1235
-    0x2818: 0x1002818, // XK_braille_dots_45
-    0x2819: 0x1002819, // XK_braille_dots_145
-    0x281a: 0x100281a, // XK_braille_dots_245
-    0x281b: 0x100281b, // XK_braille_dots_1245
-    0x281c: 0x100281c, // XK_braille_dots_345
-    0x281d: 0x100281d, // XK_braille_dots_1345
-    0x281e: 0x100281e, // XK_braille_dots_2345
-    0x281f: 0x100281f, // XK_braille_dots_12345
-    0x2820: 0x1002820, // XK_braille_dots_6
-    0x2821: 0x1002821, // XK_braille_dots_16
-    0x2822: 0x1002822, // XK_braille_dots_26
-    0x2823: 0x1002823, // XK_braille_dots_126
-    0x2824: 0x1002824, // XK_braille_dots_36
-    0x2825: 0x1002825, // XK_braille_dots_136
-    0x2826: 0x1002826, // XK_braille_dots_236
-    0x2827: 0x1002827, // XK_braille_dots_1236
-    0x2828: 0x1002828, // XK_braille_dots_46
-    0x2829: 0x1002829, // XK_braille_dots_146
-    0x282a: 0x100282a, // XK_braille_dots_246
-    0x282b: 0x100282b, // XK_braille_dots_1246
-    0x282c: 0x100282c, // XK_braille_dots_346
-    0x282d: 0x100282d, // XK_braille_dots_1346
-    0x282e: 0x100282e, // XK_braille_dots_2346
-    0x282f: 0x100282f, // XK_braille_dots_12346
-    0x2830: 0x1002830, // XK_braille_dots_56
-    0x2831: 0x1002831, // XK_braille_dots_156
-    0x2832: 0x1002832, // XK_braille_dots_256
-    0x2833: 0x1002833, // XK_braille_dots_1256
-    0x2834: 0x1002834, // XK_braille_dots_356
-    0x2835: 0x1002835, // XK_braille_dots_1356
-    0x2836: 0x1002836, // XK_braille_dots_2356
-    0x2837: 0x1002837, // XK_braille_dots_12356
-    0x2838: 0x1002838, // XK_braille_dots_456
-    0x2839: 0x1002839, // XK_braille_dots_1456
-    0x283a: 0x100283a, // XK_braille_dots_2456
-    0x283b: 0x100283b, // XK_braille_dots_12456
-    0x283c: 0x100283c, // XK_braille_dots_3456
-    0x283d: 0x100283d, // XK_braille_dots_13456
-    0x283e: 0x100283e, // XK_braille_dots_23456
-    0x283f: 0x100283f, // XK_braille_dots_123456
-    0x2840: 0x1002840, // XK_braille_dots_7
-    0x2841: 0x1002841, // XK_braille_dots_17
-    0x2842: 0x1002842, // XK_braille_dots_27
-    0x2843: 0x1002843, // XK_braille_dots_127
-    0x2844: 0x1002844, // XK_braille_dots_37
-    0x2845: 0x1002845, // XK_braille_dots_137
-    0x2846: 0x1002846, // XK_braille_dots_237
-    0x2847: 0x1002847, // XK_braille_dots_1237
-    0x2848: 0x1002848, // XK_braille_dots_47
-    0x2849: 0x1002849, // XK_braille_dots_147
-    0x284a: 0x100284a, // XK_braille_dots_247
-    0x284b: 0x100284b, // XK_braille_dots_1247
-    0x284c: 0x100284c, // XK_braille_dots_347
-    0x284d: 0x100284d, // XK_braille_dots_1347
-    0x284e: 0x100284e, // XK_braille_dots_2347
-    0x284f: 0x100284f, // XK_braille_dots_12347
-    0x2850: 0x1002850, // XK_braille_dots_57
-    0x2851: 0x1002851, // XK_braille_dots_157
-    0x2852: 0x1002852, // XK_braille_dots_257
-    0x2853: 0x1002853, // XK_braille_dots_1257
-    0x2854: 0x1002854, // XK_braille_dots_357
-    0x2855: 0x1002855, // XK_braille_dots_1357
-    0x2856: 0x1002856, // XK_braille_dots_2357
-    0x2857: 0x1002857, // XK_braille_dots_12357
-    0x2858: 0x1002858, // XK_braille_dots_457
-    0x2859: 0x1002859, // XK_braille_dots_1457
-    0x285a: 0x100285a, // XK_braille_dots_2457
-    0x285b: 0x100285b, // XK_braille_dots_12457
-    0x285c: 0x100285c, // XK_braille_dots_3457
-    0x285d: 0x100285d, // XK_braille_dots_13457
-    0x285e: 0x100285e, // XK_braille_dots_23457
-    0x285f: 0x100285f, // XK_braille_dots_123457
-    0x2860: 0x1002860, // XK_braille_dots_67
-    0x2861: 0x1002861, // XK_braille_dots_167
-    0x2862: 0x1002862, // XK_braille_dots_267
-    0x2863: 0x1002863, // XK_braille_dots_1267
-    0x2864: 0x1002864, // XK_braille_dots_367
-    0x2865: 0x1002865, // XK_braille_dots_1367
-    0x2866: 0x1002866, // XK_braille_dots_2367
-    0x2867: 0x1002867, // XK_braille_dots_12367
-    0x2868: 0x1002868, // XK_braille_dots_467
-    0x2869: 0x1002869, // XK_braille_dots_1467
-    0x286a: 0x100286a, // XK_braille_dots_2467
-    0x286b: 0x100286b, // XK_braille_dots_12467
-    0x286c: 0x100286c, // XK_braille_dots_3467
-    0x286d: 0x100286d, // XK_braille_dots_13467
-    0x286e: 0x100286e, // XK_braille_dots_23467
-    0x286f: 0x100286f, // XK_braille_dots_123467
-    0x2870: 0x1002870, // XK_braille_dots_567
-    0x2871: 0x1002871, // XK_braille_dots_1567
-    0x2872: 0x1002872, // XK_braille_dots_2567
-    0x2873: 0x1002873, // XK_braille_dots_12567
-    0x2874: 0x1002874, // XK_braille_dots_3567
-    0x2875: 0x1002875, // XK_braille_dots_13567
-    0x2876: 0x1002876, // XK_braille_dots_23567
-    0x2877: 0x1002877, // XK_braille_dots_123567
-    0x2878: 0x1002878, // XK_braille_dots_4567
-    0x2879: 0x1002879, // XK_braille_dots_14567
-    0x287a: 0x100287a, // XK_braille_dots_24567
-    0x287b: 0x100287b, // XK_braille_dots_124567
-    0x287c: 0x100287c, // XK_braille_dots_34567
-    0x287d: 0x100287d, // XK_braille_dots_134567
-    0x287e: 0x100287e, // XK_braille_dots_234567
-    0x287f: 0x100287f, // XK_braille_dots_1234567
-    0x2880: 0x1002880, // XK_braille_dots_8
-    0x2881: 0x1002881, // XK_braille_dots_18
-    0x2882: 0x1002882, // XK_braille_dots_28
-    0x2883: 0x1002883, // XK_braille_dots_128
-    0x2884: 0x1002884, // XK_braille_dots_38
-    0x2885: 0x1002885, // XK_braille_dots_138
-    0x2886: 0x1002886, // XK_braille_dots_238
-    0x2887: 0x1002887, // XK_braille_dots_1238
-    0x2888: 0x1002888, // XK_braille_dots_48
-    0x2889: 0x1002889, // XK_braille_dots_148
-    0x288a: 0x100288a, // XK_braille_dots_248
-    0x288b: 0x100288b, // XK_braille_dots_1248
-    0x288c: 0x100288c, // XK_braille_dots_348
-    0x288d: 0x100288d, // XK_braille_dots_1348
-    0x288e: 0x100288e, // XK_braille_dots_2348
-    0x288f: 0x100288f, // XK_braille_dots_12348
-    0x2890: 0x1002890, // XK_braille_dots_58
-    0x2891: 0x1002891, // XK_braille_dots_158
-    0x2892: 0x1002892, // XK_braille_dots_258
-    0x2893: 0x1002893, // XK_braille_dots_1258
-    0x2894: 0x1002894, // XK_braille_dots_358
-    0x2895: 0x1002895, // XK_braille_dots_1358
-    0x2896: 0x1002896, // XK_braille_dots_2358
-    0x2897: 0x1002897, // XK_braille_dots_12358
-    0x2898: 0x1002898, // XK_braille_dots_458
-    0x2899: 0x1002899, // XK_braille_dots_1458
-    0x289a: 0x100289a, // XK_braille_dots_2458
-    0x289b: 0x100289b, // XK_braille_dots_12458
-    0x289c: 0x100289c, // XK_braille_dots_3458
-    0x289d: 0x100289d, // XK_braille_dots_13458
-    0x289e: 0x100289e, // XK_braille_dots_23458
-    0x289f: 0x100289f, // XK_braille_dots_123458
-    0x28a0: 0x10028a0, // XK_braille_dots_68
-    0x28a1: 0x10028a1, // XK_braille_dots_168
-    0x28a2: 0x10028a2, // XK_braille_dots_268
-    0x28a3: 0x10028a3, // XK_braille_dots_1268
-    0x28a4: 0x10028a4, // XK_braille_dots_368
-    0x28a5: 0x10028a5, // XK_braille_dots_1368
-    0x28a6: 0x10028a6, // XK_braille_dots_2368
-    0x28a7: 0x10028a7, // XK_braille_dots_12368
-    0x28a8: 0x10028a8, // XK_braille_dots_468
-    0x28a9: 0x10028a9, // XK_braille_dots_1468
-    0x28aa: 0x10028aa, // XK_braille_dots_2468
-    0x28ab: 0x10028ab, // XK_braille_dots_12468
-    0x28ac: 0x10028ac, // XK_braille_dots_3468
-    0x28ad: 0x10028ad, // XK_braille_dots_13468
-    0x28ae: 0x10028ae, // XK_braille_dots_23468
-    0x28af: 0x10028af, // XK_braille_dots_123468
-    0x28b0: 0x10028b0, // XK_braille_dots_568
-    0x28b1: 0x10028b1, // XK_braille_dots_1568
-    0x28b2: 0x10028b2, // XK_braille_dots_2568
-    0x28b3: 0x10028b3, // XK_braille_dots_12568
-    0x28b4: 0x10028b4, // XK_braille_dots_3568
-    0x28b5: 0x10028b5, // XK_braille_dots_13568
-    0x28b6: 0x10028b6, // XK_braille_dots_23568
-    0x28b7: 0x10028b7, // XK_braille_dots_123568
-    0x28b8: 0x10028b8, // XK_braille_dots_4568
-    0x28b9: 0x10028b9, // XK_braille_dots_14568
-    0x28ba: 0x10028ba, // XK_braille_dots_24568
-    0x28bb: 0x10028bb, // XK_braille_dots_124568
-    0x28bc: 0x10028bc, // XK_braille_dots_34568
-    0x28bd: 0x10028bd, // XK_braille_dots_134568
-    0x28be: 0x10028be, // XK_braille_dots_234568
-    0x28bf: 0x10028bf, // XK_braille_dots_1234568
-    0x28c0: 0x10028c0, // XK_braille_dots_78
-    0x28c1: 0x10028c1, // XK_braille_dots_178
-    0x28c2: 0x10028c2, // XK_braille_dots_278
-    0x28c3: 0x10028c3, // XK_braille_dots_1278
-    0x28c4: 0x10028c4, // XK_braille_dots_378
-    0x28c5: 0x10028c5, // XK_braille_dots_1378
-    0x28c6: 0x10028c6, // XK_braille_dots_2378
-    0x28c7: 0x10028c7, // XK_braille_dots_12378
-    0x28c8: 0x10028c8, // XK_braille_dots_478
-    0x28c9: 0x10028c9, // XK_braille_dots_1478
-    0x28ca: 0x10028ca, // XK_braille_dots_2478
-    0x28cb: 0x10028cb, // XK_braille_dots_12478
-    0x28cc: 0x10028cc, // XK_braille_dots_3478
-    0x28cd: 0x10028cd, // XK_braille_dots_13478
-    0x28ce: 0x10028ce, // XK_braille_dots_23478
-    0x28cf: 0x10028cf, // XK_braille_dots_123478
-    0x28d0: 0x10028d0, // XK_braille_dots_578
-    0x28d1: 0x10028d1, // XK_braille_dots_1578
-    0x28d2: 0x10028d2, // XK_braille_dots_2578
-    0x28d3: 0x10028d3, // XK_braille_dots_12578
-    0x28d4: 0x10028d4, // XK_braille_dots_3578
-    0x28d5: 0x10028d5, // XK_braille_dots_13578
-    0x28d6: 0x10028d6, // XK_braille_dots_23578
-    0x28d7: 0x10028d7, // XK_braille_dots_123578
-    0x28d8: 0x10028d8, // XK_braille_dots_4578
-    0x28d9: 0x10028d9, // XK_braille_dots_14578
-    0x28da: 0x10028da, // XK_braille_dots_24578
-    0x28db: 0x10028db, // XK_braille_dots_124578
-    0x28dc: 0x10028dc, // XK_braille_dots_34578
-    0x28dd: 0x10028dd, // XK_braille_dots_134578
-    0x28de: 0x10028de, // XK_braille_dots_234578
-    0x28df: 0x10028df, // XK_braille_dots_1234578
-    0x28e0: 0x10028e0, // XK_braille_dots_678
-    0x28e1: 0x10028e1, // XK_braille_dots_1678
-    0x28e2: 0x10028e2, // XK_braille_dots_2678
-    0x28e3: 0x10028e3, // XK_braille_dots_12678
-    0x28e4: 0x10028e4, // XK_braille_dots_3678
-    0x28e5: 0x10028e5, // XK_braille_dots_13678
-    0x28e6: 0x10028e6, // XK_braille_dots_23678
-    0x28e7: 0x10028e7, // XK_braille_dots_123678
-    0x28e8: 0x10028e8, // XK_braille_dots_4678
-    0x28e9: 0x10028e9, // XK_braille_dots_14678
-    0x28ea: 0x10028ea, // XK_braille_dots_24678
-    0x28eb: 0x10028eb, // XK_braille_dots_124678
-    0x28ec: 0x10028ec, // XK_braille_dots_34678
-    0x28ed: 0x10028ed, // XK_braille_dots_134678
-    0x28ee: 0x10028ee, // XK_braille_dots_234678
-    0x28ef: 0x10028ef, // XK_braille_dots_1234678
-    0x28f0: 0x10028f0, // XK_braille_dots_5678
-    0x28f1: 0x10028f1, // XK_braille_dots_15678
-    0x28f2: 0x10028f2, // XK_braille_dots_25678
-    0x28f3: 0x10028f3, // XK_braille_dots_125678
-    0x28f4: 0x10028f4, // XK_braille_dots_35678
-    0x28f5: 0x10028f5, // XK_braille_dots_135678
-    0x28f6: 0x10028f6, // XK_braille_dots_235678
-    0x28f7: 0x10028f7, // XK_braille_dots_1235678
-    0x28f8: 0x10028f8, // XK_braille_dots_45678
-    0x28f9: 0x10028f9, // XK_braille_dots_145678
-    0x28fa: 0x10028fa, // XK_braille_dots_245678
-    0x28fb: 0x10028fb, // XK_braille_dots_1245678
-    0x28fc: 0x10028fc, // XK_braille_dots_345678
-    0x28fd: 0x10028fd, // XK_braille_dots_1345678
-    0x28fe: 0x10028fe, // XK_braille_dots_2345678
-    0x28ff: 0x10028ff, // XK_braille_dots_12345678
     0x3001: 0x04a4, // XK_kana_comma
     0x3002: 0x04a1, // XK_kana_fullstop
     0x300c: 0x04a2, // XK_kana_openingbracket
@@ -1565,10 +671,18 @@ var codepoints = {
 
 export default {
     lookup : function(u) {
-        var keysym = codepoints[u];
-        if (keysym === undefined) {
-            keysym = 0x01000000 | u;
+        // Latin-1 is one-to-one mapping
+        if ((u >= 0x20) && (u <= 0xff)) {
+            return u;
         }
-        return keysym;
+
+        // Lookup table (fairly random)
+        var keysym = codepoints[u];
+        if (keysym !== undefined) {
+            return keysym;
+        }
+
+        // General mapping as final fallback
+        return 0x01000000 | u;
     },
 };

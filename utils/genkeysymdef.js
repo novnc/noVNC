@@ -87,7 +87,19 @@ function toHex(num) {
 };
 
 for (var codepoint in codepoints) {
-    out += "    " + toHex(parseInt(codepoint)) + ": " +
+    codepoint = parseInt(codepoint);
+
+    // Latin-1?
+    if ((codepoint >= 0x20) && (codepoint <= 0xff)) {
+        continue;
+    }
+
+    // Handled by the general Unicode mapping?
+    if ((codepoint | 0x01000000) === codepoints[codepoint].keysym) {
+        continue;
+    }
+
+    out += "    " + toHex(codepoint) + ": " +
            toHex(codepoints[codepoint].keysym) +
            ", // XK_" + codepoints[codepoint].name + "\n";
 }
@@ -97,11 +109,19 @@ out +=
 "\n" +
 "export default {\n" +
 "    lookup : function(u) {\n" +
-"        var keysym = codepoints[u];\n" +
-"        if (keysym === undefined) {\n" +
-"            keysym = 0x01000000 | u;\n" +
+"        // Latin-1 is one-to-one mapping\n" +
+"        if ((u >= 0x20) && (u <= 0xff)) {\n" +
+"            return u;\n" +
 "        }\n" +
-"        return keysym;\n" +
+"\n" +
+"        // Lookup table (fairly random)\n" +
+"        var keysym = codepoints[u];\n" +
+"        if (keysym !== undefined) {\n" +
+"            return keysym;\n" +
+"        }\n" +
+"\n" +
+"        // General mapping as final fallback\n" +
+"        return 0x01000000 | u;\n" +
 "    },\n" +
 "};";
 

@@ -37,7 +37,7 @@ describe('Helpers', function() {
             expect(keysyms.lookup('Š'.charCodeAt())).to.be.equal(0x01a9);
         });
         it('should map characters which aren\'t in Latin1 *or* Windows-1252 to keysyms', function() {
-            expect(keysyms.lookup('ŵ'.charCodeAt())).to.be.equal(0x1000175);
+            expect(keysyms.lookup('ũ'.charCodeAt())).to.be.equal(0x03fd);
         });
         it('should map unknown codepoints to the Unicode range', function() {
             expect(keysyms.lookup('\n'.charCodeAt())).to.be.equal(0x100000a);
