@@ -51,7 +51,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should forward keydown events with the right type', function(done) {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.deep.equal({code: 'KeyA', type: 'keydown'});
+                expect(evt).to.be.deep.equal({code: 'KeyA', keysym: 0x61, type: 'keydown'});
                 done();
             }).keydown({code: 'KeyA', key: 'a'});
         });
@@ -71,65 +71,57 @@ describe('Key Event Pipeline Stages', function() {
             it('should suppress anything while a shortcut modifier is down', function() {
                 var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
-                obj.keydown({keyCode: 0x11}); // press ctrl
-                expect(obj.keydown({key: 'A'})).to.be.true;
-                expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.true;
-                expect(obj.keydown({key: '1'})).to.be.true;
-                expect(obj.keydown({key: '<'})).to.be.true;
-                expect(obj.keydown({key: 'ø'})).to.be.true;
+                obj.keydown({code: 'ControlLeft'});
+                expect(obj.keydown({code: 'KeyA', key: 'a'})).to.be.true;
+                expect(obj.keydown({code: 'Space', key: ' '})).to.be.true;
+                expect(obj.keydown({code: 'Digit1', key: '1'})).to.be.true;
+                expect(obj.keydown({code: 'IntlBackslash', key: '<'})).to.be.true;
+                expect(obj.keydown({code: 'Semicolon', key: 'ø'})).to.be.true;
             });
             it('should suppress non-character keys', function() {
                 var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
-                expect(obj.keydown({keyCode: 0x08}), 'a').to.be.true;
-                expect(obj.keydown({keyCode: 0x09}), 'b').to.be.true;
-                expect(obj.keydown({keyCode: 0x11}), 'd').to.be.true;
-                expect(obj.keydown({keyCode: 0x12}), 'e').to.be.true;
-            });
-            it('should not suppress shift', function() {
-                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
-
-                expect(obj.keydown({keyCode: 0x10}), 'd').to.be.false;
+                expect(obj.keydown({code: 'Backspace'}), 'a').to.be.true;
+                expect(obj.keydown({code: 'Tab'}), 'b').to.be.true;
+                expect(obj.keydown({code: 'ControlLeft'}), 'd').to.be.true;
+                expect(obj.keydown({code: 'AltLeft'}), 'e').to.be.true;
             });
             it('should generate event for shift keydown', function() {
                 var called = false;
                 var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     expect(evt).to.have.property('keysym');
                     called = true;
-                }).keydown({keyCode: 0x10});
+                }).keydown({code: 'ShiftLeft'});
                 expect(called).to.be.true;
             });
-            it('should not suppress character keys', function() {
+            it('should suppress character keys with key', function() {
                 var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
-                expect(obj.keydown({key: 'A'})).to.be.false;
-                expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.false;
-                expect(obj.keydown({key: '1'})).to.be.false;
-                expect(obj.keydown({key: '<'})).to.be.false; // < key on DK Windows
-                expect(obj.keydown({key: 'ø'})).to.be.false; // Ø key on DK
+                expect(obj.keydown({code: 'KeyA', key: 'a'})).to.be.true;
+                expect(obj.keydown({code: 'Digit1', key: '1'})).to.be.true;
+                expect(obj.keydown({code: 'IntlBackslash', key: '<'})).to.be.true;
+                expect(obj.keydown({code: 'Semicolon', key: 'ø'})).to.be.true;
             });
-            it('should not suppress if a char modifier is down', function() {
-                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {});
+            it('should not suppress character keys without key', function() {
+                var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
-                obj.keydown({keyCode: 0xe1}); // press altgr
-                expect(obj.keydown({key: 'A'})).to.be.false;
-                expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.false;
-                expect(obj.keydown({key: '1'})).to.be.false;
-                expect(obj.keydown({key: '<'})).to.be.false;
-                expect(obj.keydown({key: 'ø'})).to.be.false;
+                expect(obj.keydown({code: 'KeyA'})).to.be.false;
+                expect(obj.keydown({code: 'Digit1'})).to.be.false;
+                expect(obj.keydown({code: 'IntlBackslash'})).to.be.false;
+                expect(obj.keydown({code: 'Semicolon'})).to.be.false;
             });
         });
         describe('Keypress and keyup events', function() {
             it('should always suppress event propagation', function() {
                 var obj = KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {});
 
-                expect(obj.keypress({key: 'A'})).to.be.true;
-                expect(obj.keypress({key: '<'})).to.be.true;
-                expect(obj.keypress({keyCode: 0x11})).to.be.true;
+                expect(obj.keypress({code: 'KeyA', key: 'a'})).to.be.true;
+                expect(obj.keypress({code: 'IntlBackslash', key: '<'})).to.be.true;
+                expect(obj.keypress({code: 'ControlLeft', key: 'Control'})).to.be.true;
 
-                expect(obj.keyup({key: 'A'})).to.be.true;
-                expect(obj.keyup({key: '<'})).to.be.true;
-                expect(obj.keyup({keyCode: 0x11})).to.be.true;
+                expect(obj.keyup({code: 'KeyA', key: 'a'})).to.be.true;
+                expect(obj.keyup({code: 'IntlBackslash', key: '<'})).to.be.true;
+                expect(obj.keyup({code: 'ControlLeft', key: 'Control'})).to.be.true;
             });
         });
         describe('mark events if a char modifier is down', function() {
@@ -145,7 +137,7 @@ describe('Key Event Pipeline Stages', function() {
                     }
                 });
 
-                obj.keydown({keyCode: 0xe1}); // press altgr
+                obj.keydown({code: 'AltRight', key: 'AltGraph'})
                 obj.keydown({code: 'KeyA', key: 'a'});
             });
 
@@ -167,7 +159,7 @@ describe('Key Event Pipeline Stages', function() {
                     }
                 });
 
-                obj.keydown({keyCode: 0xe1}); // press altgr
+                obj.keydown({code: 'AltRight', key: 'AltGraph'})
                 obj.keypress({code: 'KeyA', key: 'a'});
             });
             it('should indicate on events if a multi-key char modifier is down', function(done) {
@@ -190,8 +182,8 @@ describe('Key Event Pipeline Stages', function() {
                     }
                 });
 
-                obj.keydown({keyCode: 0x11}); // press ctrl
-                obj.keydown({keyCode: 0x12}); // press alt
+                obj.keydown({code: 'ControlLeft'});
+                obj.keydown({code: 'AltLeft'});
                 obj.keypress({code: 'KeyA', key: 'a'});
             });
             it('should not consider a char modifier to be down on the modifier key itself', function() {
@@ -199,60 +191,10 @@ describe('Key Event Pipeline Stages', function() {
                     expect(evt).to.not.have.property('escape');
                 });
 
-                obj.keydown({keyCode: 0xe1}); // press altgr
+                obj.keydown({code: 'AltRight', key: 'AltGraph'})
 
             });
         });
-        describe('add/remove keysym', function() {
-            it('should remove keysym from keydown if a char key and no modifier', function() {
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({code: 'KeyA', type: 'keydown'});
-                }).keydown({code: 'KeyA', key: 'a'});
-            });
-            it('should not remove keysym from keydown if a shortcut modifier is down', function() {
-                var times_called = 0;
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    switch (times_called++) {
-                    case 1:
-                        expect(evt).to.be.deep.equal({code: 'KeyA', keysym: 0x61, type: 'keydown'});
-                        break;
-                    }
-                }).keydown({code: 'KeyA', key: 'a', ctrlKey: true});
-                expect(times_called).to.be.equal(2);
-            });
-            it('should not remove keysym from keydown if a char modifier is down', function() {
-                var times_called = 0;
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
-                    switch (times_called++) {
-                    case 1:
-                        expect(evt).to.be.deep.equal({code: 'KeyA', keysym: 0x61, type: 'keydown'});
-                        break;
-                    }
-                }).keydown({code: 'KeyA', key: 'a', altGraphKey: true});
-                expect(times_called).to.be.equal(2);
-            });
-            it('should not remove keysym from keydown if key is noncharacter', function() {
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt, 'tab').to.be.deep.equal({code: 'Tab', keysym: 0xff09, type: 'keydown'});
-                }).keydown({keyCode: 0x09});
-
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt, 'ctrl').to.be.deep.equal({code: 'ControlLeft', keysym: 0xffe3, type: 'keydown'});
-                }).keydown({keyCode: 0x11});
-            });
-            it('should never remove keysym from keypress', function() {
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({code: 'KeyA', keysym: 0x61, type: 'keypress'});
-                }).keypress({code: 'KeyA', key: 'a'});
-            });
-            it('should never remove keysym from keyup', function() {
-                KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({code: 'KeyA', keysym: 0x61, type: 'keyup'});
-                }).keyup({code: 'KeyA', key: 'a'});
-            });
-        });
-        // on keypress, keyup(?), always set keysym
-        // on keydown, only do it if we don't expect a keypress: if noncharacter OR modifier is down
     });
 
     describe('Track Key State', function() {

@@ -108,26 +108,50 @@ describe('Helpers', function() {
 
         describe('Non-character keys', function() {
             it('should recognize the right keys', function() {
-                expect(KeyboardUtil.getKeysym({keyCode: 0x0d})).to.be.equal(0xFF0D);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x08})).to.be.equal(0xFF08);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x09})).to.be.equal(0xFF09);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x10})).to.be.equal(0xFFE1);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x11})).to.be.equal(0xFFE3);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x12})).to.be.equal(0xFFE9);
-                expect(KeyboardUtil.getKeysym({keyCode: 0xe0})).to.be.equal(0xFFE7);
-                expect(KeyboardUtil.getKeysym({keyCode: 0xe1})).to.be.equal(0xFE03);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x1b})).to.be.equal(0xFF1B);
-                expect(KeyboardUtil.getKeysym({keyCode: 0x26})).to.be.equal(0xFF52);
+                expect(KeyboardUtil.getKeysym({code: 'Enter'})).to.be.equal(0xFF0D);
+                expect(KeyboardUtil.getKeysym({code: 'Backspace'})).to.be.equal(0xFF08);
+                expect(KeyboardUtil.getKeysym({code: 'Tab'})).to.be.equal(0xFF09);
+                expect(KeyboardUtil.getKeysym({code: 'ShiftLeft'})).to.be.equal(0xFFE1);
+                expect(KeyboardUtil.getKeysym({code: 'ControlLeft'})).to.be.equal(0xFFE3);
+                expect(KeyboardUtil.getKeysym({code: 'AltLeft'})).to.be.equal(0xFFE9);
+                expect(KeyboardUtil.getKeysym({code: 'MetaLeft'})).to.be.equal(0xFFEB);
+                expect(KeyboardUtil.getKeysym({code: 'Escape'})).to.be.equal(0xFF1B);
+                expect(KeyboardUtil.getKeysym({code: 'ArrowUp'})).to.be.equal(0xFF52);
             });
-            it('should return null for unknown keycodes', function() {
-                expect(KeyboardUtil.getKeysym({keyCode: 0xc0})).to.be.null;
-                expect(KeyboardUtil.getKeysym({keyCode: 0xde})).to.be.null;
+            it('should handle AltGraph', function() {
+                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltRight'})).to.be.equal(0xFFEA);
+                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltGraph'})).to.be.equal(0xFE03);
+            });
+            it('should return null for unknown codes', function() {
+                expect(KeyboardUtil.getKeysym({code: 'Semicolon'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({code: 'BracketRight'})).to.be.null;
             });
             it('should not recognize character keys', function() {
-                expect(KeyboardUtil.getKeysym({keyCode: 'A'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({keyCode: '1'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({keyCode: '.'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({keyCode: ' '})).to.be.null;
+                expect(KeyboardUtil.getKeysym({code: 'KeyA'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({code: 'Digit1'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({code: 'Period'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({code: 'Numpad1'})).to.be.null;
+            });
+        });
+
+        describe('Numpad', function() {
+            it('should handle Numpad numbers', function() {
+                expect(KeyboardUtil.getKeysym({code: 'Digit5', key: '5', location: 0})).to.be.equal(0x0035);
+                expect(KeyboardUtil.getKeysym({code: 'Numpad5', key: '5', location: 3})).to.be.equal(0xFFB5);
+            });
+            it('should handle Numpad non-character keys', function() {
+                expect(KeyboardUtil.getKeysym({code: 'Home', key: 'Home', location: 0})).to.be.equal(0xFF50);
+                expect(KeyboardUtil.getKeysym({code: 'Numpad5', key: 'Home', location: 3})).to.be.equal(0xFF95);
+                expect(KeyboardUtil.getKeysym({code: 'Delete', key: 'Delete', location: 0})).to.be.equal(0xFFFF);
+                expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Delete', location: 3})).to.be.equal(0xFF9F);
+            });
+            it('should handle IE/Edge key names', function() {
+                expect(KeyboardUtil.getKeysym({code: 'Numpad6', key: 'Right', location: 3})).to.be.equal(0xFF98);
+                expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Del', location: 3})).to.be.equal(0xFF9F);
+            });
+            it('should handle Numpad Decimal key', function() {
+                expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: '.', location: 3})).to.be.equal(0xFFAE);
+                expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: ',', location: 3})).to.be.equal(0xFFAC);
             });
         });
     });
@@ -137,7 +161,7 @@ describe('Helpers', function() {
             var sync = KeyboardUtil.ModifierSync();
             it ('should do nothing if all modifiers are up as expected', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     ctrlKey: false,
                     altKey: false,
                     altGraphKey: false,
@@ -147,7 +171,7 @@ describe('Helpers', function() {
             });
             it ('should synthesize events if all keys are unexpectedly down', function() {
                 var result = sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     ctrlKey: true,
                     altKey: true,
                     altGraphKey: true,
@@ -167,7 +191,7 @@ describe('Helpers', function() {
             });
             it ('should do nothing if all modifiers are down as expected', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     ctrlKey: true,
                     altKey: true,
                     altGraphKey: true,
@@ -180,13 +204,13 @@ describe('Helpers', function() {
             var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     ctrlKey: true,
                 })).to.be.deep.equal([{keysym: 0xffe3, type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     ctrlKey: false
                 })).to.be.deep.equal([{keysym: 0xffe3, type: 'keyup'}]);
             });
@@ -195,13 +219,13 @@ describe('Helpers', function() {
             var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     altKey: true,
                 })).to.be.deep.equal([{keysym: 0xffe9, type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     altKey: false
                 })).to.be.deep.equal([{keysym: 0xffe9, type: 'keyup'}]);
             });
@@ -210,13 +234,13 @@ describe('Helpers', function() {
             var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     altGraphKey: true,
                 })).to.be.deep.equal([{keysym: 0xfe03, type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     altGraphKey: false
                 })).to.be.deep.equal([{keysym: 0xfe03, type: 'keyup'}]);
             });
@@ -225,13 +249,13 @@ describe('Helpers', function() {
             var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     shiftKey: true,
                 })).to.be.deep.equal([{keysym: 0xffe1, type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     shiftKey: false
                 })).to.be.deep.equal([{keysym: 0xffe1, type: 'keyup'}]);
             });
@@ -240,13 +264,13 @@ describe('Helpers', function() {
             var sync = KeyboardUtil.ModifierSync();
             it('should sync if modifier is suddenly down', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     metaKey: true,
                 })).to.be.deep.equal([{keysym: 0xffe7, type: 'keydown'}]);
             });
             it('should sync if modifier is suddenly up', function() {
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     metaKey: false
                 })).to.be.deep.equal([{keysym: 0xffe7, type: 'keyup'}]);
             });
@@ -254,27 +278,27 @@ describe('Helpers', function() {
         describe('Modifier keyevents', function() {
             it('should not sync a modifier on its own events', function() {
                 expect(KeyboardUtil.ModifierSync().keydown({
-                    keyCode: 0x11,
+                    code: 'ControlLeft',
                     ctrlKey: false
                 })).to.be.deep.equal([]);
                 expect(KeyboardUtil.ModifierSync().keydown({
-                    keyCode: 0x11,
+                    code: 'ControlLeft',
                     ctrlKey: true
                 }), 'B').to.be.deep.equal([]);
             })
             it('should update state on modifier keyevents', function() {
                 var sync = KeyboardUtil.ModifierSync();
                 sync.keydown({
-                    keyCode: 0x11,
+                    code: 'ControlLeft',
                 });
                 expect(sync.keydown({
-                    keyCode: 0x41,
+                    code: 'KeyA',
                     ctrlKey: true,
                 })).to.be.deep.equal([]);
             });
             it('should sync other modifiers on ctrl events', function() {
                 expect(KeyboardUtil.ModifierSync().keydown({
-                    keyCode: 0x11,
+                    code: 'ControlLeft',
                     altKey: true
                 })).to.be.deep.equal([{keysym: 0xffe9, type: 'keydown'}]);
             })
@@ -287,9 +311,6 @@ describe('Helpers', function() {
             });
         });
         describe('do not treat shift as a modifier key', function() {
-            it('should not treat shift as a shortcut modifier', function() {
-                expect(KeyboardUtil.hasShortcutModifier([], {0xffe1 : true})).to.be.false;
-            });
             it('should not treat shift as a char modifier', function() {
                 expect(KeyboardUtil.hasCharModifier([], {0xffe1 : true})).to.be.false;
             });

@@ -1,6 +1,7 @@
 import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
+import fixedkeys from "./fixedkeys.js";
 
 function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
@@ -10,29 +11,6 @@ function isWindows() {
 }
 function isLinux() {
     return navigator && !!(/linux/i).exec(navigator.platform);
-}
-
-// Return true if a modifier which is not the specified char modifier (and is not shift) is down
-export function hasShortcutModifier(charModifier, currentModifiers) {
-    var mods = {};
-    for (var key in currentModifiers) {
-        if (parseInt(key) !== KeyTable.XK_Shift_L) {
-            mods[key] = currentModifiers[key];
-        }
-    }
-
-    var sum = 0;
-    for (var k in currentModifiers) {
-        if (mods[k]) {
-            ++sum;
-        }
-    }
-    if (hasCharModifier(charModifier, mods)) {
-        return sum > charModifier.length;
-    }
-    else {
-        return sum > 0;
-    }
 }
 
 // Return true if the specified char modifier is currently down
@@ -125,8 +103,6 @@ export function ModifierSync(charModifier) {
         // Call this with a non-keyboard event (such as mouse events) to use its modifier state to synchronize anyway
         syncAny: function(evt) { return sync(evt);},
 
-        // is a shortcut modifier down?
-        hasShortcutModifier: function() { return hasShortcutModifier(charModifier, state); },
         // if a char modifier is down, return the keys it consists of, otherwise return null
         activeCharModifier: function() { return hasCharModifier(charModifier, state) ? charModifier : null; }
     };
@@ -193,15 +169,83 @@ export function getKeycode(evt){
 }
 
 // Get the most reliable keysym value we can get from a key event
-// if char/charCode is available, prefer those, otherwise fall back to key/keyCode/which
 export function getKeysym(evt){
+
+    // We start with layout independent keys
+    var code = getKeycode(evt);
+    if (code in fixedkeys) {
+        return fixedkeys[code];
+    }
+
+    // Next with mildly layout or state sensitive stuff
+
+    // Like AltGraph
+    if (code === 'AltRight') {
+        if (evt.key === 'AltGraph') {
+            return KeyTable.XK_ISO_Level3_Shift;
+        } else {
+            return KeyTable.XK_Alt_R;
+        }
+    }
+
+    // Or the numpad
+    if (evt.location === 3) {
+        var key = evt.key;
+
+        // IE and Edge use some ancient version of the spec
+        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
+        switch (key) {
+            case 'Up': key = 'ArrowUp'; break;
+            case 'Left': key = 'ArrowLeft'; break;
+            case 'Right': key = 'ArrowRight'; break;
+            case 'Down': key = 'ArrowDown'; break;
+            case 'Del': key = 'Delete'; break;
+        }
+
+        // Safari doesn't support KeyboardEvent.key yet
+        if ((key === undefined) && (evt.charCode)) {
+            key = String.fromCharCode(evt.charCode);
+        }
+
+        switch (key) {
+            case '0': return KeyTable.XK_KP_0;
+            case '1': return KeyTable.XK_KP_1;
+            case '2': return KeyTable.XK_KP_2;
+            case '3': return KeyTable.XK_KP_3;
+            case '4': return KeyTable.XK_KP_4;
+            case '5': return KeyTable.XK_KP_5;
+            case '6': return KeyTable.XK_KP_6;
+            case '7': return KeyTable.XK_KP_7;
+            case '8': return KeyTable.XK_KP_8;
+            case '9': return KeyTable.XK_KP_9;
+            // There is utter mayhem in the world when it comes to which
+            // character to use as a decimal separator...
+            case '.': return KeyTable.XK_KP_Decimal;
+            case ',': return KeyTable.XK_KP_Separator;
+            case 'Home': return KeyTable.XK_KP_Home;
+            case 'End': return KeyTable.XK_KP_End;
+            case 'PageUp': return KeyTable.XK_KP_Prior;
+            case 'PageDown': return KeyTable.XK_KP_Next;
+            case 'Insert': return KeyTable.XK_KP_Insert;
+            case 'Delete': return KeyTable.XK_KP_Delete;
+            case 'ArrowUp': return KeyTable.XK_KP_Up;
+            case 'ArrowLeft': return KeyTable.XK_KP_Left;
+            case 'ArrowRight': return KeyTable.XK_KP_Right;
+            case 'ArrowDown': return KeyTable.XK_KP_Down;
+        }
+    }
+
+    // Now we need to look at the Unicode symbol instead
+
     var codepoint;
 
     if ('key' in evt) {
-        // Ignore special keys
-        if (evt.key.length === 1) {
-            codepoint = evt.key.charCodeAt();
+        // Special key? (FIXME: Should have been caught earlier)
+        if (evt.key.length !== 1) {
+            return null;
         }
+
+        codepoint = evt.key.charCodeAt();
     } else if ('charCode' in evt) {
         codepoint = evt.charCode;
     }
@@ -210,92 +254,7 @@ export function getKeysym(evt){
         return keysyms.lookup(codepoint);
     }
 
-    if (evt.keyCode) {
-        return keysymFromKeyCode(evt.keyCode, evt.shiftKey);
-    }
-    if (evt.which) {
-        return keysymFromKeyCode(evt.which, evt.shiftKey);
-    }
     return null;
-}
-
-// Given a keycode, try to predict which keysym it might be.
-// If the keycode is unknown, null is returned.
-function keysymFromKeyCode(keycode, shiftPressed) {
-    if (typeof(keycode) !== 'number') {
-        return null;
-    }
-    // won't be accurate for azerty
-    if (keycode >= 0x30 && keycode <= 0x39) {
-        return keycode; // digit
-    }
-    if (keycode >= 0x41 && keycode <= 0x5a) {
-        // remap to lowercase unless shift is down
-        return shiftPressed ? keycode : keycode + 32; // A-Z
-    }
-    if (keycode >= 0x60 && keycode <= 0x69) {
-        return KeyTable.XK_KP_0 + (keycode - 0x60); // numpad 0-9
-    }
-
-    switch(keycode) {
-        case 0x20: return KeyTable.XK_space;
-        case 0x6a: return KeyTable.XK_KP_Multiply;
-        case 0x6b: return KeyTable.XK_KP_Add;
-        case 0x6c: return KeyTable.XK_KP_Separator;
-        case 0x6d: return KeyTable.XK_KP_Subtract;
-        case 0x6e: return KeyTable.XK_KP_Decimal;
-        case 0x6f: return KeyTable.XK_KP_Divide;
-        case 0xbb: return KeyTable.XK_plus;
-        case 0xbc: return KeyTable.XK_comma;
-        case 0xbd: return KeyTable.XK_minus;
-        case 0xbe: return KeyTable.XK_period;
-    }
-
-    return nonCharacterKey({keyCode: keycode});
-}
-
-// if the key is a known non-character key (any key which doesn't generate character data)
-// return its keysym value. Otherwise return null
-function nonCharacterKey(evt) {
-    // evt.key not implemented yet
-    if (!evt.keyCode) { return null; }
-    var keycode = evt.keyCode;
-
-    if (keycode >= 0x70 && keycode <= 0x87) {
-        return KeyTable.XK_F1 + keycode - 0x70; // F1-F24
-    }
-    switch (keycode) {
-
-        case 8 : return KeyTable.XK_BackSpace;
-        case 13 : return KeyTable.XK_Return;
-
-        case 9 : return KeyTable.XK_Tab;
-
-        case 27 : return KeyTable.XK_Escape;
-        case 46 : return KeyTable.XK_Delete;
-
-        case 36 : return KeyTable.XK_Home;
-        case 35 : return KeyTable.XK_End;
-        case 33 : return KeyTable.XK_Page_Up;
-        case 34 : return KeyTable.XK_Page_Down;
-        case 45 : return KeyTable.XK_Insert;
-
-        case 37 : return KeyTable.XK_Left;
-        case 38 : return KeyTable.XK_Up;
-        case 39 : return KeyTable.XK_Right;
-        case 40 : return KeyTable.XK_Down;
-
-        case 16 : return KeyTable.XK_Shift_L;
-        case 17 : return KeyTable.XK_Control_L;
-        case 18 : return KeyTable.XK_Alt_L; // also: Option-key on Mac
-
-        case 224 : return KeyTable.XK_Meta_L;
-        case 225 : return KeyTable.XK_ISO_Level3_Shift; // AltGr
-        case 91 : return KeyTable.XK_Super_L; // also: Windows-key
-        case 92 : return KeyTable.XK_Super_R; // also: Windows-key
-        case 93 : return KeyTable.XK_Menu; // also: Windows-Menu, Command on Mac
-        default: return null;
-    }
 }
 
 export function QEMUKeyEventDecoder (modifierState, next) {
@@ -341,10 +300,7 @@ export function QEMUKeyEventDecoder (modifierState, next) {
             result.keysym = getNumPadKeySym(evt);
         }
 
-        var hasModifier = modifierState.hasShortcutModifier() || !!modifierState.activeCharModifier();
-        var isShift = result.code === 'ShiftLeft' || result.code === 'ShiftRight';
-
-        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!nonCharacterKey(evt));
+        var suppress = type !== 'keydown' || !!getKeysym(evt);
 
         next(result);
         return suppress;
@@ -457,20 +413,17 @@ export function KeyEventDecoder (modifierState, next) {
 
         var keysym = getKeysym(evt);
 
-        var hasModifier = modifierState.hasShortcutModifier() || !!modifierState.activeCharModifier();
         // Is this a case where we have to decide on the keysym right away, rather than waiting for the keypress?
         // "special" keys like enter, tab or backspace don't send keypress events,
         // and some browsers don't send keypresses at all if a modifier is down
-        if (keysym && (type !== 'keydown' || nonCharacterKey(evt) || hasModifier)) {
+        if (keysym) {
             result.keysym = keysym;
         }
-
-        var isShift = code === 'ShiftLeft' || code === 'ShiftRight';
 
         // Should we prevent the browser from handling the event?
         // Doing so on a keydown (in most browsers) prevents keypress from being generated
         // so only do that if we have to.
-        var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!nonCharacterKey(evt));
+        var suppress = type !== 'keydown' || !!keysym;
 
         // if a char modifier is pressed, get the keys it consists of (on Windows, AltGr is equivalent to Ctrl+Alt)
         var active = modifierState.activeCharModifier();
