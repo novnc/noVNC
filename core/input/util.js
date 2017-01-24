@@ -229,6 +229,7 @@ var KeyboardUtil = {};
             case 0xbc: return KeyTable.XK_comma;
             case 0xbd: return KeyTable.XK_minus;
             case 0xbe: return KeyTable.XK_period;
+            case 0xdb: return KeyTable.XK_bracketleft;
         }
 
         return nonCharacterKey({keyCode: keycode});
