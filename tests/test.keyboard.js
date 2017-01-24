@@ -16,7 +16,7 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should pass the right keysym through', function(done) {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                expect(evt.keysym).to.be.deep.equal(keysyms.lookup(0x61));
+                expect(evt.keysym).to.be.deep.equal(0x61);
                 done();
             }).keypress({keyCode: 0x41});
         });
@@ -39,11 +39,11 @@ describe('Key Event Pipeline Stages', function() {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 switch (count) {
                 case 0: // fake a ctrl keydown
-                    expect(evt).to.be.deep.equal({keysym: keysyms.lookup(0xffe3), type: 'keydown'});
+                    expect(evt).to.be.deep.equal({keysym: 0xffe3, type: 'keydown'});
                     ++count;
                     break;
                 case 1:
-                    expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown', keysym: keysyms.lookup(0x61)});
+                    expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown', keysym: 0x61});
                     done();
                     break;
                 }
@@ -57,13 +57,13 @@ describe('Key Event Pipeline Stages', function() {
         });
         it('should forward keyup events with the right type', function(done) {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keyup'});
+                expect(evt).to.be.deep.equal({keyId: 0x41, keysym: 0x61, type: 'keyup'});
                 done();
             }).keyup({keyCode: 0x41});
         });
         it('should forward keypress events with the right type', function(done) {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keypress'});
+                expect(evt).to.be.deep.equal({keyId: 0x41, keysym: 0x61, type: 'keypress'});
                 done();
             }).keypress({keyCode: 0x41});
         });
@@ -72,7 +72,7 @@ describe('Key Event Pipeline Stages', function() {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                 switch (count) {
                 case 0: // fake altgr
-                    expect(evt).to.be.deep.equal({keysym: keysyms.lookup(0xfe03), type: 'keydown'});
+                    expect(evt).to.be.deep.equal({keysym: 0xfe03, type: 'keydown'});
                     ++count;
                     break;
                 case 1: // stall before processing the 'a' keydown
@@ -83,7 +83,7 @@ describe('Key Event Pipeline Stages', function() {
                     expect(evt).to.be.deep.equal({
                         type: 'keydown',
                         keyId: 0x41,
-                        keysym: keysyms.lookup(0x61)
+                        keysym: 0x61
                     });
 
                     done();
@@ -197,7 +197,7 @@ describe('Key Event Pipeline Stages', function() {
                         expect(evt).to.be.deep.equal({
                             type: 'keypress',
                             keyId: 'A'.charCodeAt(),
-                            keysym: keysyms.lookup('a'.charCodeAt()),
+                            keysym: 'a'.charCodeAt(),
                             escape: [0xfe03]
                         });
                         done();
@@ -220,7 +220,7 @@ describe('Key Event Pipeline Stages', function() {
                         expect(evt).to.be.deep.equal({
                             type: 'keypress',
                             keyId: 'A'.charCodeAt(),
-                            keysym: keysyms.lookup('a'.charCodeAt()),
+                            keysym: 'a'.charCodeAt(),
                             escape: [0xffe9, 0xffe3]
                         });
                         done();
@@ -252,7 +252,7 @@ describe('Key Event Pipeline Stages', function() {
                 KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                     switch (times_called++) {
                     case 1:
-                        expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keydown'});
+                        expect(evt).to.be.deep.equal({keyId: 0x41, keysym: 0x61, type: 'keydown'});
                         break;
                     }
                 }).keydown({keyCode: 0x41, ctrlKey: true});
@@ -263,7 +263,7 @@ describe('Key Event Pipeline Stages', function() {
                 KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync([0xfe03]), function(evt) {
                     switch (times_called++) {
                     case 2:
-                        expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keydown'});
+                        expect(evt).to.be.deep.equal({keyId: 0x41, keysym: 0x61, type: 'keydown'});
                         break;
                     }
                 }).keydown({keyCode: 0x41, altGraphKey: true});
@@ -271,21 +271,21 @@ describe('Key Event Pipeline Stages', function() {
             });
             it('should not remove keysym from keydown if key is noncharacter', function() {
                 KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt, 'bacobjpace').to.be.deep.equal({keyId: 0x09, keysym: keysyms.lookup(0xff09), type: 'keydown'});
+                    expect(evt, 'bacobjpace').to.be.deep.equal({keyId: 0x09, keysym: 0xff09, type: 'keydown'});
                 }).keydown({keyCode: 0x09});
 
                 KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt, 'ctrl').to.be.deep.equal({keyId: 0x11, keysym: keysyms.lookup(0xffe3), type: 'keydown'});
+                    expect(evt, 'ctrl').to.be.deep.equal({keyId: 0x11, keysym: 0xffe3, type: 'keydown'});
                 }).keydown({keyCode: 0x11});
             });
             it('should never remove keysym from keypress', function() {
                 KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keypress'});
+                    expect(evt).to.be.deep.equal({keyId: 0x41, keysym: 0x61, type: 'keypress'});
                 }).keypress({keyCode: 0x41});
             });
             it('should never remove keysym from keyup', function() {
                 KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keyup'});
+                    expect(evt).to.be.deep.equal({keyId: 0x41, keysym: 0x61, type: 'keyup'});
                 }).keyup({keyCode: 0x41});
             });
         });
@@ -296,31 +296,31 @@ describe('Key Event Pipeline Stages', function() {
     describe('Verify that char modifiers are active', function() {
         it('should pass keydown events through if there is no stall', function(done) {
             var obj = KeyboardUtil.VerifyCharModifier(function(evt){
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x41});
                 done();
-            })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+            })({type: 'keydown', keyId: 0x41, keysym: 0x41});
         });
         it('should pass keyup events through if there is no stall', function(done) {
             var obj = KeyboardUtil.VerifyCharModifier(function(evt){
-                expect(evt).to.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+                expect(evt).to.deep.equal({type: 'keyup', keyId: 0x41, keysym: 0x41});
                 done();
-            })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+            })({type: 'keyup', keyId: 0x41, keysym: 0x41});
         });
         it('should pass keypress events through if there is no stall', function(done) {
             var obj = KeyboardUtil.VerifyCharModifier(function(evt){
-                expect(evt).to.deep.equal({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+                expect(evt).to.deep.equal({type: 'keypress', keyId: 0x41, keysym: 0x41});
                 done();
-            })({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+            })({type: 'keypress', keyId: 0x41, keysym: 0x41});
         });
         it('should not pass stall events through', function(done){
             var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 // should only be called once, for the keydown
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x41});
                 done();
             });
 
             obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x41});
         });
         it('should merge keydown and keypress events if they come after a stall', function(done) {
             var next_called = false;
@@ -328,13 +328,13 @@ describe('Key Event Pipeline Stages', function() {
                 // should only be called once, for the keydown
                 expect(next_called).to.be.false;
                 next_called = true;
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x44)});
+                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x44});
                 done();
             });
 
             obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44)});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x42});
+            obj({type: 'keypress', keyId: 0x43, keysym: 0x44});
             expect(next_called).to.be.false;
         });
         it('should preserve modifier attribute when merging if keysyms differ', function(done) {
@@ -343,13 +343,13 @@ describe('Key Event Pipeline Stages', function() {
                 // should only be called once, for the keydown
                 expect(next_called).to.be.false;
                 next_called = true;
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x44), escape: [0xffe3]});
+                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x44, escape: [0xffe3]});
                 done();
             });
 
             obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44), escape: [0xffe3]});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x42});
+            obj({type: 'keypress', keyId: 0x43, keysym: 0x44, escape: [0xffe3]});
             expect(next_called).to.be.false;
         });
         it('should not preserve modifier attribute when merging if keysyms are the same', function() {
@@ -358,18 +358,18 @@ describe('Key Event Pipeline Stages', function() {
             });
 
             obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x42), escape: [0xffe3]});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x42});
+            obj({type: 'keypress', keyId: 0x43, keysym: 0x42, escape: [0xffe3]});
         });
         it('should not merge keydown and keypress events if there is no stall', function(done) {
             var times_called = 0;
             var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 switch(times_called) {
                 case 0:
-                    expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
+                    expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x42});
                     break;
                 case 1:
-                    expect(evt).to.deep.equal({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44)});
+                    expect(evt).to.deep.equal({type: 'keypress', keyId: 0x43, keysym: 0x44});
                     done();
                     break;
                 }
@@ -377,21 +377,21 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
             });
 
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44)});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x42});
+            obj({type: 'keypress', keyId: 0x43, keysym: 0x44});
         });
         it('should not merge keydown and keypress events if separated by another event', function(done) {
             var times_called = 0;
             var obj = KeyboardUtil.VerifyCharModifier(function(evt){
                 switch(times_called) {
                 case 0:
-                    expect(evt,1).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
+                    expect(evt,1).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x42});
                     break;
                 case 1:
-                    expect(evt,2).to.deep.equal({type: 'keyup', keyId: 0x43, keysym: keysyms.lookup(0x44)});
+                    expect(evt,2).to.deep.equal({type: 'keyup', keyId: 0x43, keysym: 0x44});
                     break;
                 case 2:
-                    expect(evt,3).to.deep.equal({type: 'keypress', keyId: 0x45, keysym: keysyms.lookup(0x46)});
+                    expect(evt,3).to.deep.equal({type: 'keypress', keyId: 0x45, keysym: 0x46});
                     done();
                     break;
                 }
@@ -400,9 +400,9 @@ describe('Key Event Pipeline Stages', function() {
             });
 
             obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keyup', keyId: 0x43, keysym: keysyms.lookup(0x44)});
-            obj({type: 'keypress', keyId: 0x45, keysym: keysyms.lookup(0x46)});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x42});
+            obj({type: 'keyup', keyId: 0x43, keysym: 0x44});
+            obj({type: 'keypress', keyId: 0x45, keysym: 0x46});
         });
     });
 
@@ -421,19 +421,19 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                 expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                 }
                 elem = null;
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keydown', keyId: 0x41, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
             elem = {type: 'keyup', keyId: 0x41};
@@ -449,19 +449,19 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                 }
                 elem = null;
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keypress', keyId: 0x41, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
             elem = {type: 'keyup', keyId: 0x41};
@@ -478,23 +478,23 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                     elem = null;
                 }
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keypress', keyId: 0x41, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
+            elem = {type: 'keypress', keyId: 0x41, keysym: 0x43};
+            keysymsdown[0x43] = true;
             obj(elem);
             expect(elem).to.be.null;
             elem = {type: 'keyup', keyId: 0x41};
@@ -510,23 +510,23 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                     elem = null;
                 }
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keydown', keyId: 0, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
+            elem = {type: 'keydown', keyId: 0, keysym: 0x43};
+            keysymsdown[0x43] = true;
             obj(elem);
             expect(times_called).to.be.equal(2);
             expect(elem).to.be.null;
@@ -546,23 +546,23 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                     elem = null;
                 }
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keydown', keyId: 0, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keydown', keyId: 0, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(times_called).to.be.equal(2);
             expect(elem).to.be.null;
@@ -579,23 +579,23 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                     elem = null;
                 }
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keypress', keyId: 0x41, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x42, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
+            elem = {type: 'keypress', keyId: 0x42, keysym: 0x43};
+            keysymsdown[0x43] = true;
             obj(elem);
             expect(elem).to.be.null;
             elem = {type: 'keyup', keyId: 0x41};
@@ -614,23 +614,23 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                     elem = null;
                 }
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keydown', keyId: 0, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
+            elem = {type: 'keydown', keyId: 0x42, keysym: 0x43};
+            keysymsdown[0x43] = true;
             obj(elem);
             expect(elem).to.be.null;
             expect(times_called).to.be.equal(2);
@@ -650,23 +650,23 @@ describe('Key Event Pipeline Stages', function() {
                 ++times_called;
                 if (elem.type == 'keyup') {
                     expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
+                    delete keysymsdown[evt.keysym];
                 }
                 else {
                     expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
+                    expect (keysymsdown[evt.keysym]).to.not.be.undefined;
                     elem = null;
                 }
             });
 
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
+            elem = {type: 'keydown', keyId: 0x41, keysym: 0x42};
+            keysymsdown[0x42] = true;
             obj(elem);
             expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
+            elem = {type: 'keydown', keyId: 0, keysym: 0x43};
+            keysymsdown[0x43] = true;
             obj(elem);
             expect(elem).to.be.null;
             elem = {type: 'keyup', keyId: 0x41};
@@ -686,14 +686,14 @@ describe('Key Event Pipeline Stages', function() {
                         expect(evt.type).to.be.equal('keydown');
                         break;
                     case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x42, keysym: keysyms.lookup(0x62)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x42, keysym: 0x62});
                         break;
                 }
             });
 
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x61)});
-            obj({type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x62)});
-            obj({type: 'keydown', keyId: 0x43, keysym: keysyms.lookup(0x63)});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x61});
+            obj({type: 'keydown', keyId: 0x42, keysym: 0x62});
+            obj({type: 'keydown', keyId: 0x43, keysym: 0x63});
             obj({type: 'keyup', keyId: 0x42});
             expect(times_called).to.equal(4);
         });
@@ -707,14 +707,14 @@ describe('Key Event Pipeline Stages', function() {
                         expect(evt.type).to.be.equal('keydown');
                         break;
                     case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x61)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: 0x61});
                         break;
                 }
             });
 
-            obj({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x61)});
-            obj({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x62)});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x63)});
+            obj({type: 'keydown', keyId: 0, keysym: 0x61});
+            obj({type: 'keydown', keyId: 0, keysym: 0x62});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x63});
             obj({type: 'keyup', keyId: 0x0});
             expect(times_called).to.equal(4);
         });
@@ -728,14 +728,14 @@ describe('Key Event Pipeline Stages', function() {
                         expect(evt.type).to.be.equal('keydown');
                         break;
                     case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x44, keysym: keysyms.lookup(0x63)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x44, keysym: 0x63});
                         break;
                 }
             });
 
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x61)});
-            obj({type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x62)});
-            obj({type: 'keydown', keyId: 0x43, keysym: keysyms.lookup(0x63)});
+            obj({type: 'keydown', keyId: 0x41, keysym: 0x61});
+            obj({type: 'keydown', keyId: 0x42, keysym: 0x62});
+            obj({type: 'keydown', keyId: 0x43, keysym: 0x63});
             obj({type: 'keyup', keyId: 0x44});
             expect(times_called).to.equal(4);
         });
@@ -747,9 +747,9 @@ describe('Key Event Pipeline Stages', function() {
                     ++times_called;
                 });
 
-                obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
+                obj({type: 'keydown', keyId: 0x41, keysym: 0x42});
                 expect(times_called).to.be.equal(1);
-                obj({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x43)});
+                obj({type: 'keypress', keyId: 0x41, keysym: 0x43});
             });
         });
         describe('releaseAll', function() {
@@ -766,15 +766,15 @@ describe('Key Event Pipeline Stages', function() {
                 var obj = KeyboardUtil.TrackKeyState(function(evt) {
                     switch (times_called++) {
                     case 2:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x41)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: 0x41});
                         break;
                     case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x42)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: 0x42});
                         break;
                     }
                 });
-                obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-                obj({type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x42)});
+                obj({type: 'keydown', keyId: 0x41, keysym: 0x41});
+                obj({type: 'keydown', keyId: 0x42, keysym: 0x42});
                 expect(times_called).to.be.equal(2);
                 obj({type: 'releaseall'});
                 expect(times_called).to.be.equal(4);
@@ -792,8 +792,8 @@ describe('Key Event Pipeline Stages', function() {
                 KeyboardUtil.EscapeModifiers(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
-                    expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
+                    expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x42});
+                })({type: 'keydown', keyId: 0x41, keysym: 0x42});
                 expect(times_called).to.be.equal(1);
             });
             it('should generate fake undo/redo events when a char modifier is down', function() {
@@ -801,22 +801,22 @@ describe('Key Event Pipeline Stages', function() {
                 KeyboardUtil.EscapeModifiers(function(evt) {
                     switch(times_called++) {
                     case 0:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0xffe9)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: 0xffe9});
                         break;
                     case 1:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0xffe3)});
+                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: 0xffe3});
                         break;
                     case 2:
-                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xffe9, 0xffe3]});
+                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: 0x42, escape: [0xffe9, 0xffe3]});
                         break;
                     case 3:
-                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0xffe9)});
+                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0, keysym: 0xffe9});
                         break;
                     case 4:
-                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0xffe3)});
+                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0, keysym: 0xffe3});
                         break;
                     }
-                })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xffe9, 0xffe3]});
+                })({type: 'keydown', keyId: 0x41, keysym: 0x42, escape: [0xffe9, 0xffe3]});
                 expect(times_called).to.be.equal(5);
             });
         });
@@ -826,8 +826,8 @@ describe('Key Event Pipeline Stages', function() {
                 KeyboardUtil.EscapeModifiers(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
-                    expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xfe03]});
-                })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xfe03]});
+                    expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: 0x42, escape: [0xfe03]});
+                })({type: 'keyup', keyId: 0x41, keysym: 0x42, escape: [0xfe03]});
                 expect(times_called).to.be.equal(1);
             });
             it('should pass through when a char modifier is not down', function() {
@@ -835,8 +835,8 @@ describe('Key Event Pipeline Stages', function() {
                 KeyboardUtil.EscapeModifiers(function(evt) {
                     expect(times_called).to.be.equal(0);
                     ++times_called;
-                    expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42)});
+                    expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: 0x42});
+                })({type: 'keyup', keyId: 0x41, keysym: 0x42});
                 expect(times_called).to.be.equal(1);
             });
         });

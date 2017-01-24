@@ -2017,8 +2017,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should send a key message on a key press', function () {
                 var keyevent = {};
                 keyevent.type = 'keydown';
-                keyevent.keysym = {};
-                keyevent.keysym.keysym = 1234;
+                keyevent.keysym = 1234;
                 client._keyboard._onKeyPress(keyevent);
                 var key_msg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(key_msg, 1234, 1);

@@ -93,7 +93,7 @@ export function ModifierSync(charModifier) {
     function sync(evt, keysym) {
         var result = [];
         function syncKey(keysym) {
-            return {keysym: keysyms.lookup(keysym), type: state[keysym] ? 'keydown' : 'keyup'};
+            return {keysym: keysym, type: state[keysym] ? 'keydown' : 'keyup'};
         }
 
         if (evt.ctrlKey !== undefined &&
@@ -124,8 +124,7 @@ export function ModifierSync(charModifier) {
         return result;
     }
     function syncKeyEvent(evt, down) {
-        var obj = getKeysym(evt);
-        var keysym = obj ? obj.keysym : null;
+        var keysym = getKeysym(evt);
 
         // first, apply the event itself, if relevant
         if (keysym !== null && state[keysym] !== undefined) {
@@ -177,17 +176,17 @@ export function getKeysym(evt){
         codepoint = evt.keyCode;
     }
     if (codepoint) {
-        return keysyms.fromUnicode(substituteCodepoint(codepoint));
+        return keysyms.lookup(substituteCodepoint(codepoint));
     }
     // we could check evt.key here.
     // Legal values are defined in http://www.w3.org/TR/DOM-Level-3-Events/#key-values-list,
     // so we "just" need to map them to keysym, but AFAIK this is only available in IE10, which also provides evt.key
     // so we don't *need* it yet
     if (evt.keyCode) {
-        return keysyms.lookup(keysymFromKeyCode(evt.keyCode, evt.shiftKey));
+        return keysymFromKeyCode(evt.keyCode, evt.shiftKey);
     }
     if (evt.which) {
-        return keysyms.lookup(keysymFromKeyCode(evt.which, evt.shiftKey));
+        return keysymFromKeyCode(evt.which, evt.shiftKey);
     }
     return null;
 }
@@ -453,7 +452,7 @@ export function KeyEventDecoder (modifierState, next) {
         if (active && keysym) {
             var isCharModifier = false;
             for (var i  = 0; i < active.length; ++i) {
-                if (active[i] === keysym.keysym) {
+                if (active[i] === keysym) {
                     isCharModifier = true;
                 }
             }
@@ -527,7 +526,7 @@ export function VerifyCharModifier (next) {
                     // Firefox sends keypress even when no char is generated.
                     // so, if keypress keysym is the same as we'd have guessed from keydown,
                     // the modifier didn't have any effect, and should not be escaped
-                    if (queue[0].escape && (!cur.keysym || cur.keysym.keysym !== queue[0].keysym.keysym)) {
+                    if (queue[0].escape && (!cur.keysym || cur.keysym !== queue[0].keysym)) {
                         cur.escape = queue[0].escape;
                     }
                     cur.keysym = queue[0].keysym;
@@ -570,7 +569,7 @@ export function TrackKeyState (next) {
             if (evt.keysym) {
                 // make sure last event contains this keysym (a single "logical" keyevent
                 // can cause multiple key events to be sent to the VNC server)
-                last.keysyms[evt.keysym.keysym] = evt.keysym;
+                last.keysyms[evt.keysym] = evt.keysym;
                 last.ignoreKeyPress = true;
                 next(evt);
             }
@@ -587,7 +586,7 @@ export function TrackKeyState (next) {
             // If we didn't expect a keypress, and already sent a keydown to the VNC server
             // based on the keydown, make sure to skip this event.
             if (evt.keysym && !last.ignoreKeyPress) {
-                last.keysyms[evt.keysym.keysym] = evt.keysym;
+                last.keysyms[evt.keysym] = evt.keysym;
                 evt.type = 'keydown';
                 next(evt);
             }
@@ -646,14 +645,14 @@ export function EscapeModifiers (next) {
         }
         // undo modifiers
         for (var i = 0; i < evt.escape.length; ++i) {
-            next({type: 'keyup', keyId: 0, keysym: keysyms.lookup(evt.escape[i])});
+            next({type: 'keyup', keyId: 0, keysym: evt.escape[i]});
         }
         // send the character event
         next(evt);
         // redo modifiers
         /* jshint shadow: true */
         for (var i = 0; i < evt.escape.length; ++i) {
-            next({type: 'keydown', keyId: 0, keysym: keysyms.lookup(evt.escape[i])});
+            next({type: 'keydown', keyId: 0, keysym: evt.escape[i]});
         }
         /* jshint shadow: false */
     };

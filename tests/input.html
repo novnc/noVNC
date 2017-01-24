@@ -63,11 +63,7 @@
 
         function rfbKeyPress(keysym, down) {
             var d = down ? "down" : " up ";
-            var key = keysyms.lookup(keysym);
             var msg = "RFB keypress " + d + " keysym: " + keysym;
-            if (key && key.keyname) {
-                msg += " key name: " + key.keyname;
-            }
             message(msg);
         }
         function rawKey(e) {

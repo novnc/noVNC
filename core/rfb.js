@@ -659,7 +659,7 @@ RFB.prototype = {
                 Log.Error('Unable to find a xt scancode for code = ' + keyevent.code);
             }
         } else {
-            keysym = keyevent.keysym.keysym;
+            keysym = keyevent.keysym;
             RFB.messages.keyEvent(this._sock, keysym, down);
         }
     },

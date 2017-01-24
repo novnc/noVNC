@@ -51,7 +51,7 @@ Keyboard.prototype = {
     _handleRfbEvent: function (e) {
         if (this._onKeyPress) {
             Log.Debug("onKeyPress " + (e.type == 'keydown' ? "down" : "up") +
-                       ", keysym: " + e.keysym.keysym + "(" + e.keysym.keyname + ")");
+                      ", keysym: " + e.keysym);
             this._onKeyPress(e);
         }
     },
