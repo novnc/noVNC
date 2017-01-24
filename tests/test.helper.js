@@ -49,18 +49,6 @@ describe('Helpers', function() {
         });
     });
 
-    describe('substituteCodepoint', function() {
-        it('should replace characters which don\'t have a keysym', function() {
-            expect(KeyboardUtil.substituteCodepoint('Ș'.charCodeAt())).to.equal('Ş'.charCodeAt());
-            expect(KeyboardUtil.substituteCodepoint('ș'.charCodeAt())).to.equal('ş'.charCodeAt());
-            expect(KeyboardUtil.substituteCodepoint('Ț'.charCodeAt())).to.equal('Ţ'.charCodeAt());
-            expect(KeyboardUtil.substituteCodepoint('ț'.charCodeAt())).to.equal('ţ'.charCodeAt());
-        });
-        it('should pass other characters through unchanged', function() {
-            expect(KeyboardUtil.substituteCodepoint('T'.charCodeAt())).to.equal('T'.charCodeAt());
-        });
-    });
-
     describe('nonCharacterKey', function() {
         it('should  recognize the right keys', function() {
             expect(KeyboardUtil.nonCharacterKey({keyCode: 0xd}), 'enter').to.be.defined;
@@ -95,9 +83,6 @@ describe('Helpers', function() {
         it('should use which if no keyCode', function() {
             expect(KeyboardUtil.getKeysym({which: 0x43, shiftKey: false})).to.be.equal(0x63);
             expect(KeyboardUtil.getKeysym({which: 0x43, shiftKey: true})).to.be.equal(0x43);
-        });
-        it('should substitute where applicable', function() {
-            expect(KeyboardUtil.getKeysym({char : 'Ș'})).to.be.equal(0x1aa);
         });
     });
 
