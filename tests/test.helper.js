@@ -6,22 +6,6 @@ import * as KeyboardUtil from "../core/input/util.js";
 
 describe('Helpers', function() {
     "use strict";
-    describe('keysymFromKeyCode', function() {
-        it('should map known keycodes to keysyms', function() {
-            expect(KeyboardUtil.keysymFromKeyCode(0x41, false), 'a').to.be.equal(0x61);
-            expect(KeyboardUtil.keysymFromKeyCode(0x41, true), 'A').to.be.equal(0x41);
-            expect(KeyboardUtil.keysymFromKeyCode(0xd, false), 'enter').to.be.equal(0xFF0D);
-            expect(KeyboardUtil.keysymFromKeyCode(0x11, false), 'ctrl').to.be.equal(0xFFE3);
-            expect(KeyboardUtil.keysymFromKeyCode(0x12, false), 'alt').to.be.equal(0xFFE9);
-            expect(KeyboardUtil.keysymFromKeyCode(0xe1, false), 'altgr').to.be.equal(0xFE03);
-            expect(KeyboardUtil.keysymFromKeyCode(0x1b, false), 'esc').to.be.equal(0xFF1B);
-            expect(KeyboardUtil.keysymFromKeyCode(0x26, false), 'up').to.be.equal(0xFF52);
-        });
-        it('should return null for unknown keycodes', function() {
-            expect(KeyboardUtil.keysymFromKeyCode(0xc0, false), 'DK æ').to.be.null;
-            expect(KeyboardUtil.keysymFromKeyCode(0xde, false), 'DK ø').to.be.null;
-        });
-    });
 
     describe('keysyms.lookup', function() {
         it('should map ASCII characters to keysyms', function() {
@@ -49,24 +33,6 @@ describe('Helpers', function() {
         });
     });
 
-    describe('nonCharacterKey', function() {
-        it('should  recognize the right keys', function() {
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0xd}), 'enter').to.be.defined;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0x08}), 'backspace').to.be.defined;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0x09}), 'tab').to.be.defined;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0x10}), 'shift').to.be.defined;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0x11}), 'ctrl').to.be.defined;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0x12}), 'alt').to.be.defined;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 0xe0}), 'meta').to.be.defined;
-        });
-        it('should  not recognize character keys', function() {
-            expect(KeyboardUtil.nonCharacterKey({keyCode: 'A'}), 'A').to.be.null;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: '1'}), '1').to.be.null;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: '.'}), '.').to.be.null;
-            expect(KeyboardUtil.nonCharacterKey({keyCode: ' '}), 'space').to.be.null;
-        });
-    });
-
     describe('getKeysym', function() {
         it('should prefer char', function() {
             expect(KeyboardUtil.getKeysym({char : 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x61);
@@ -80,9 +46,34 @@ describe('Helpers', function() {
             expect(KeyboardUtil.getKeysym({keyCode: 0x42, which: 0x43, shiftKey: false})).to.be.equal(0x62);
             expect(KeyboardUtil.getKeysym({keyCode: 0x42, which: 0x43, shiftKey: true})).to.be.equal(0x42);
         });
+        it('should return null for unknown keycodes', function() {
+            expect(KeyboardUtil.getKeysym({keyCode: 0xc0, which: 0xc1, shiftKey:false})).to.be.null;
+            expect(KeyboardUtil.getKeysym({keyCode: 0xde, which: 0xdf, shiftKey:false})).to.be.null;
+        });
         it('should use which if no keyCode', function() {
             expect(KeyboardUtil.getKeysym({which: 0x43, shiftKey: false})).to.be.equal(0x63);
             expect(KeyboardUtil.getKeysym({which: 0x43, shiftKey: true})).to.be.equal(0x43);
+        });
+
+        describe('Non-character keys', function() {
+            it('should recognize the right keys', function() {
+                expect(KeyboardUtil.getKeysym({keyCode: 0x0d})).to.be.equal(0xFF0D);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x08})).to.be.equal(0xFF08);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x09})).to.be.equal(0xFF09);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x10})).to.be.equal(0xFFE1);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x11})).to.be.equal(0xFFE3);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x12})).to.be.equal(0xFFE9);
+                expect(KeyboardUtil.getKeysym({keyCode: 0xe0})).to.be.equal(0xFFE7);
+                expect(KeyboardUtil.getKeysym({keyCode: 0xe1})).to.be.equal(0xFE03);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x1b})).to.be.equal(0xFF1B);
+                expect(KeyboardUtil.getKeysym({keyCode: 0x26})).to.be.equal(0xFF52);
+            });
+            it('should not recognize character keys', function() {
+                expect(KeyboardUtil.getKeysym({keyCode: 'A'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({keyCode: '1'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({keyCode: '.'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({keyCode: ' '})).to.be.null;
+            });
         });
     });
 

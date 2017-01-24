@@ -177,7 +177,7 @@ export function getKeysym(evt){
 
 // Given a keycode, try to predict which keysym it might be.
 // If the keycode is unknown, null is returned.
-export function keysymFromKeyCode(keycode, shiftPressed) {
+function keysymFromKeyCode(keycode, shiftPressed) {
     if (typeof(keycode) !== 'number') {
         return null;
     }
@@ -212,7 +212,7 @@ export function keysymFromKeyCode(keycode, shiftPressed) {
 
 // if the key is a known non-character key (any key which doesn't generate character data)
 // return its keysym value. Otherwise return null
-export function nonCharacterKey(evt) {
+function nonCharacterKey(evt) {
     // evt.key not implemented yet
     if (!evt.keyCode) { return null; }
     var keycode = evt.keyCode;
