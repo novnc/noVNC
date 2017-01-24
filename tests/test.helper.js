@@ -33,6 +33,71 @@ describe('Helpers', function() {
         });
     });
 
+    describe('getKeycode', function() {
+        it('should pass through proper code', function() {
+            expect(KeyboardUtil.getKeycode({code: 'Semicolon'})).to.be.equal('Semicolon');
+        });
+        it('should map legacy values', function() {
+            expect(KeyboardUtil.getKeycode({code: ''})).to.be.equal('Unidentified');
+            expect(KeyboardUtil.getKeycode({code: 'OSLeft'})).to.be.equal('MetaLeft');
+        });
+        it('should map keyCode to code when possible', function() {
+            expect(KeyboardUtil.getKeycode({keyCode: 0x14})).to.be.equal('CapsLock');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x5b})).to.be.equal('MetaLeft');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x35})).to.be.equal('Digit5');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x65})).to.be.equal('Numpad5');
+        });
+        it('should map keyCode left/right side', function() {
+            expect(KeyboardUtil.getKeycode({keyCode: 0x10, location: 1})).to.be.equal('ShiftLeft');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x10, location: 2})).to.be.equal('ShiftRight');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x11, location: 1})).to.be.equal('ControlLeft');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x11, location: 2})).to.be.equal('ControlRight');
+        });
+        it('should map keyCode on numpad', function() {
+            expect(KeyboardUtil.getKeycode({keyCode: 0x0d, location: 0})).to.be.equal('Enter');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x0d, location: 3})).to.be.equal('NumpadEnter');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x23, location: 0})).to.be.equal('End');
+            expect(KeyboardUtil.getKeycode({keyCode: 0x23, location: 3})).to.be.equal('Numpad1');
+        });
+        it('should return Unidentified when it cannot map the keyCode', function() {
+            expect(KeyboardUtil.getKeycode({keycode: 0x42})).to.be.equal('Unidentified');
+        });
+
+        describe('Fix Meta on macOS', function() {
+            var origNavigator;
+            beforeEach(function () {
+                // window.navigator is a protected read-only property in many
+                // environments, so we need to redefine it whilst running these
+                // tests.
+                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+                if (origNavigator === undefined) {
+                    // Object.getOwnPropertyDescriptor() doesn't work
+                    // properly in any version of IE
+                    this.skip();
+                }
+
+                Object.defineProperty(window, "navigator", {value: {}});
+                if (window.navigator.platform !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
+                }
+
+                window.navigator.platform = "Mac x86_64";
+            });
+            afterEach(function () {
+                Object.defineProperty(window, "navigator", origNavigator);
+            });
+
+            it('should respect ContextMenu on modern browser', function() {
+                expect(KeyboardUtil.getKeycode({code: 'ContextMenu', keyCode: 0x5d})).to.be.equal('ContextMenu');
+            });
+            it('should translate legacy ContextMenu to MetaRight', function() {
+                expect(KeyboardUtil.getKeycode({keyCode: 0x5d})).to.be.equal('MetaRight');
+            });
+        });
+    });
+
     describe('getKeysym', function() {
         it('should prefer char', function() {
             expect(KeyboardUtil.getKeysym({char : 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x61);

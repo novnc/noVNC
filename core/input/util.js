@@ -1,5 +1,6 @@
 import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
+import vkeys from "./vkeys.js";
 
 function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
@@ -131,18 +132,64 @@ export function ModifierSync(charModifier) {
     };
 }
 
-// Get a key ID from a keyboard event
-// May be a string or an integer depending on the available properties
-export function getKey(evt){
-    if ('keyCode' in evt && 'key' in evt) {
-        return evt.key + ':' + evt.keyCode;
+// Get 'KeyboardEvent.code', handling legacy browsers
+export function getKeycode(evt){
+    // Are we getting proper key identifiers?
+    // (unfortunately Firefox and Chrome are crappy here and gives
+    // us an empty string on some platforms, rather than leaving it
+    // undefined)
+    if (evt.code) {
+        // Mozilla isn't fully in sync with the spec yet
+        switch (evt.code) {
+            case 'OSLeft': return 'MetaLeft';
+            case 'OSRight': return 'MetaRight';
+        }
+
+        return evt.code;
     }
-    else if ('keyCode' in evt) {
-        return evt.keyCode;
+
+    // The de-facto standard is to use Windows Virtual-Key codes
+    // in the 'keyCode' field for non-printable characters. However
+    // Webkit sets it to the same as charCode in 'keypress' events.
+    if ((evt.type !== 'keypress') && (evt.keyCode in vkeys)) {
+        var code = vkeys[evt.keyCode];
+
+        // macOS has messed up this code for some reason
+        if (isMac() && (code === 'ContextMenu')) {
+            code = 'MetaRight';
+        }
+
+        // The keyCode doesn't distinguish between left and right
+        // for the standard modifiers
+        if (evt.location === 2) {
+            switch (code) {
+                case 'ShiftLeft': return 'ShiftRight';
+                case 'ControlLeft': return 'ControlRight';
+                case 'AltLeft': return 'AltRight';
+            }
+        }
+
+        // Nor a bunch of the numpad keys
+        if (evt.location === 3) {
+            switch (code) {
+                case 'Delete': return 'NumpadDecimal';
+                case 'Insert': return 'Numpad0';
+                case 'End': return 'Numpad1';
+                case 'ArrowDown': return 'Numpad2';
+                case 'PageDown': return 'Numpad3';
+                case 'ArrowLeft': return 'Numpad4';
+                case 'ArrowRight': return 'Numpad6';
+                case 'Home': return 'Numpad7';
+                case 'ArrowUp': return 'Numpad8';
+                case 'PageUp': return 'Numpad9';
+                case 'Enter': return 'NumpadEnter';
+            }
+        }
+
+        return code;
     }
-    else {
-        return evt.key;
-    }
+
+    return 'Unidentified';
 }
 
 // Get the most reliable keysym value we can get from a key event
@@ -290,7 +337,7 @@ export function QEMUKeyEventDecoder (modifierState, next) {
 
     function process(evt, type) {
         var result = {type: type};
-        result.code = evt.code;
+        result.code = getKeycode(evt);
         result.keysym = 0;
 
         if (isNumPadMultiKey(evt)) {
@@ -298,7 +345,7 @@ export function QEMUKeyEventDecoder (modifierState, next) {
         }
 
         var hasModifier = modifierState.hasShortcutModifier() || !!modifierState.activeCharModifier();
-        var isShift = evt.keyCode === 0x10 || evt.key === 'Shift';
+        var isShift = result.code === 'ShiftLeft' || result.code === 'ShiftRight';
 
         var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!nonCharacterKey(evt));
 
@@ -387,7 +434,7 @@ export function TrackQEMUKeyState (next) {
 
 // Takes a DOM keyboard event and:
 // - determines which keysym it represents
-// - determines a keyId  identifying the key that was pressed (corresponding to the key/keyCode properties on the DOM event)
+// - determines a code identifying the key that was pressed (corresponding to the code/keyCode properties on the DOM event)
 // - synthesizes events to synchronize modifier key state between which modifiers are actually down, and which we thought were down
 // - marks each event with an 'escape' property if a modifier was down which should be "escaped"
 // - generates a "stall" event in cases where it might be necessary to wait and see if a keypress event follows a keydown
@@ -401,10 +448,16 @@ export function KeyEventDecoder (modifierState, next) {
     }
     function process(evt, type) {
         var result = {type: type};
-        var keyId = getKey(evt);
-        if (keyId) {
-            result.keyId = keyId;
+        var code = getKeycode(evt);
+        if (code === 'Unidentified') {
+            // Unstable, but we don't have anything else to go on
+            // (don't use it for 'keypress' events thought since
+            // WebKit sets it to the same as charCode)
+            if (evt.keyCode && (evt.type !== 'keypress')) {
+                code = 'Platform' + evt.keyCode;
+            }
         }
+        result.code = code;
 
         var keysym = getKeysym(evt);
 
@@ -416,7 +469,7 @@ export function KeyEventDecoder (modifierState, next) {
             result.keysym = keysym;
         }
 
-        var isShift = evt.keyCode === 0x10 || evt.key === 'Shift';
+        var isShift = code === 'ShiftLeft' || code === 'ShiftRight';
 
         // Should we prevent the browser from handling the event?
         // Doing so on a keydown (in most browsers) prevents keypress from being generated
@@ -546,8 +599,8 @@ export function TrackKeyState (next) {
         switch (evt.type) {
         case 'keydown':
             // insert a new entry if last seen key was different.
-            if (!last || !evt.keyId || last.keyId !== evt.keyId) {
-                last = {keyId: evt.keyId, keysyms: {}};
+            if (!last || evt.code === 'Unidentified' || last.code !== evt.code) {
+                last = {code: evt.code, keysyms: {}};
                 state.push(last);
             }
             if (evt.keysym) {
@@ -560,7 +613,7 @@ export function TrackKeyState (next) {
             break;
         case 'keypress':
             if (!last) {
-                last = {keyId: evt.keyId, keysyms: {}};
+                last = {code: evt.code, keysyms: {}};
                 state.push(last);
             }
             if (!evt.keysym) {
@@ -582,7 +635,7 @@ export function TrackKeyState (next) {
             var idx = null;
             // do we have a matching key tracked as being down?
             for (var i = 0; i !== state.length; ++i) {
-                if (state[i].keyId === evt.keyId) {
+                if (state[i].code === evt.code) {
                     idx = i;
                     break;
                 }
@@ -609,7 +662,7 @@ export function TrackKeyState (next) {
             for (var i = 0; i < state.length; ++i) {
                 for (var key in state[i].keysyms) {
                     var keysym = state[i].keysyms[key];
-                    next({keyId: 0, keysym: keysym, type: 'keyup'});
+                    next({code: 'Unidentified', keysym: keysym, type: 'keyup'});
                 }
             }
             /* jshint shadow: false */
@@ -629,14 +682,14 @@ export function EscapeModifiers (next) {
         }
         // undo modifiers
         for (var i = 0; i < evt.escape.length; ++i) {
-            next({type: 'keyup', keyId: 0, keysym: evt.escape[i]});
+            next({type: 'keyup', code: 'Unidentified', keysym: evt.escape[i]});
         }
         // send the character event
         next(evt);
         // redo modifiers
         /* jshint shadow: true */
         for (var i = 0; i < evt.escape.length; ++i) {
-            next({type: 'keydown', keyId: 0, keysym: evt.escape[i]});
+            next({type: 'keydown', code: 'Unidentified', keysym: evt.escape[i]});
         }
         /* jshint shadow: false */
     };
