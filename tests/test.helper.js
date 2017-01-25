@@ -99,25 +99,11 @@ describe('Helpers', function() {
     });
 
     describe('getKeysym', function() {
-        it('should prefer char', function() {
-            expect(KeyboardUtil.getKeysym({char : 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x61);
+        it('should prefer key', function() {
+            expect(KeyboardUtil.getKeysym({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x61);
         });
-        it('should use charCode if no char', function() {
-            expect(KeyboardUtil.getKeysym({char : '', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x01a9);
+        it('should use charCode if no key', function() {
             expect(KeyboardUtil.getKeysym({charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x01a9);
-            expect(KeyboardUtil.getKeysym({char : 'hello', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x01a9);
-        });
-        it('should use keyCode if no charCode', function() {
-            expect(KeyboardUtil.getKeysym({keyCode: 0x42, which: 0x43, shiftKey: false})).to.be.equal(0x62);
-            expect(KeyboardUtil.getKeysym({keyCode: 0x42, which: 0x43, shiftKey: true})).to.be.equal(0x42);
-        });
-        it('should return null for unknown keycodes', function() {
-            expect(KeyboardUtil.getKeysym({keyCode: 0xc0, which: 0xc1, shiftKey:false})).to.be.null;
-            expect(KeyboardUtil.getKeysym({keyCode: 0xde, which: 0xdf, shiftKey:false})).to.be.null;
-        });
-        it('should use which if no keyCode', function() {
-            expect(KeyboardUtil.getKeysym({which: 0x43, shiftKey: false})).to.be.equal(0x63);
-            expect(KeyboardUtil.getKeysym({which: 0x43, shiftKey: true})).to.be.equal(0x43);
         });
 
         describe('Non-character keys', function() {
@@ -132,6 +118,10 @@ describe('Helpers', function() {
                 expect(KeyboardUtil.getKeysym({keyCode: 0xe1})).to.be.equal(0xFE03);
                 expect(KeyboardUtil.getKeysym({keyCode: 0x1b})).to.be.equal(0xFF1B);
                 expect(KeyboardUtil.getKeysym({keyCode: 0x26})).to.be.equal(0xFF52);
+            });
+            it('should return null for unknown keycodes', function() {
+                expect(KeyboardUtil.getKeysym({keyCode: 0xc0})).to.be.null;
+                expect(KeyboardUtil.getKeysym({keyCode: 0xde})).to.be.null;
             });
             it('should not recognize character keys', function() {
                 expect(KeyboardUtil.getKeysym({keyCode: 'A'})).to.be.null;

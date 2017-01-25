@@ -196,23 +196,20 @@ export function getKeycode(evt){
 // if char/charCode is available, prefer those, otherwise fall back to key/keyCode/which
 export function getKeysym(evt){
     var codepoint;
-    if (evt.char && evt.char.length === 1) {
-        codepoint = evt.char.charCodeAt();
-    }
-    else if (evt.charCode) {
+
+    if ('key' in evt) {
+        // Ignore special keys
+        if (evt.key.length === 1) {
+            codepoint = evt.key.charCodeAt();
+        }
+    } else if ('charCode' in evt) {
         codepoint = evt.charCode;
     }
-    else if (evt.keyCode && evt.type === 'keypress') {
-        // IE10 stores the char code as keyCode, and has no other useful properties
-        codepoint = evt.keyCode;
-    }
+
     if (codepoint) {
         return keysyms.lookup(codepoint);
     }
-    // we could check evt.key here.
-    // Legal values are defined in http://www.w3.org/TR/DOM-Level-3-Events/#key-values-list,
-    // so we "just" need to map them to keysym, but AFAIK this is only available in IE10, which also provides evt.key
-    // so we don't *need* it yet
+
     if (evt.keyCode) {
         return keysymFromKeyCode(evt.keyCode, evt.shiftKey);
     }
@@ -437,7 +434,6 @@ export function TrackQEMUKeyState (next) {
 // - determines a code identifying the key that was pressed (corresponding to the code/keyCode properties on the DOM event)
 // - synthesizes events to synchronize modifier key state between which modifiers are actually down, and which we thought were down
 // - marks each event with an 'escape' property if a modifier was down which should be "escaped"
-// - generates a "stall" event in cases where it might be necessary to wait and see if a keypress event follows a keydown
 // This information is collected into an object which is passed to the next() function. (one call per event)
 export function KeyEventDecoder (modifierState, next) {
     "use strict";
@@ -476,10 +472,6 @@ export function KeyEventDecoder (modifierState, next) {
         // so only do that if we have to.
         var suppress = !isShift && (type !== 'keydown' || modifierState.hasShortcutModifier() || !!nonCharacterKey(evt));
 
-        // If a char modifier is down on a keydown, we need to insert a stall,
-        // so VerifyCharModifier knows to wait and see if a keypress is comnig
-        var stall = type === 'keydown' && modifierState.activeCharModifier() && !nonCharacterKey(evt);
-
         // if a char modifier is pressed, get the keys it consists of (on Windows, AltGr is equivalent to Ctrl+Alt)
         var active = modifierState.activeCharModifier();
 
@@ -498,10 +490,6 @@ export function KeyEventDecoder (modifierState, next) {
             }
         }
 
-        if (stall) {
-            // insert a fake "stall" event
-            next({type: 'stall'});
-        }
         next(result);
 
         return suppress;
@@ -523,64 +511,6 @@ export function KeyEventDecoder (modifierState, next) {
             sendAll(modifierState.syncAny(evt));
         },
         releaseAll: function() { next({type: 'releaseall'}); }
-    };
-};
-
-// Combines keydown and keypress events where necessary to handle char modifiers.
-// On some OS'es, a char modifier is sometimes used as a shortcut modifier.
-// For example, on Windows, AltGr is synonymous with Ctrl-Alt. On a Danish keyboard layout, AltGr-2 yields a @, but Ctrl-Alt-D does nothing
-// so when used with the '2' key, Ctrl-Alt counts as a char modifier (and should be escaped), but when used with 'D', it does not.
-// The only way we can distinguish these cases is to wait and see if a keypress event arrives
-// When we receive a "stall" event, wait a few ms before processing the next keydown. If a keypress has also arrived, merge the two
-export function VerifyCharModifier (next) {
-    "use strict";
-    var queue = [];
-    var timer = null;
-    function process() {
-        if (timer) {
-            return;
-        }
-
-        var delayProcess = function () {
-            clearTimeout(timer);
-            timer = null;
-            process();
-        };
-
-        while (queue.length !== 0) {
-            var cur = queue[0];
-            queue = queue.splice(1);
-            switch (cur.type) {
-            case 'stall':
-                // insert a delay before processing available events.
-                /* jshint loopfunc: true */
-                timer = setTimeout(delayProcess, 5);
-                /* jshint loopfunc: false */
-                return;
-            case 'keydown':
-                // is the next element a keypress? Then we should merge the two
-                if (queue.length !== 0 && queue[0].type === 'keypress') {
-                    // Firefox sends keypress even when no char is generated.
-                    // so, if keypress keysym is the same as we'd have guessed from keydown,
-                    // the modifier didn't have any effect, and should not be escaped
-                    if (queue[0].escape && (!cur.keysym || cur.keysym !== queue[0].keysym)) {
-                        cur.escape = queue[0].escape;
-                    }
-                    cur.keysym = queue[0].keysym;
-                    queue = queue.splice(1);
-                }
-                break;
-            }
-
-            // swallow stall events, and pass all others to the next stage
-            if (cur.type !== 'stall') {
-                next(cur);
-            }
-        }
-    }
-    return function(evt) {
-        queue.push(evt);
-        process();
     };
 };
 

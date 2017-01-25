@@ -29,12 +29,10 @@ const Keyboard = function (defaults) {
 
     // create the keyboard handler
     this._handler = new KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(),
-        KeyboardUtil.VerifyCharModifier( /* jshint newcap: false */
-            KeyboardUtil.TrackKeyState(
-                KeyboardUtil.EscapeModifiers(this._handleRfbEvent.bind(this))
-            )
+        KeyboardUtil.TrackKeyState(
+            KeyboardUtil.EscapeModifiers(this._handleRfbEvent.bind(this))
         )
-    ); /* jshint newcap: true */
+    );
 
     // keep these here so we can refer to them later
     this._eventHandlers = {
