@@ -2026,17 +2026,15 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should send a key message on a key press', function () {
                 var keyevent = {};
-                keyevent.type = 'keydown';
-                keyevent.keysym = 1234;
-                client._keyboard._onKeyPress(keyevent);
+                client._keyboard._onKeyEvent(0x41, 'KeyA', true);
                 var key_msg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
-                RFB.messages.keyEvent(key_msg, 1234, 1);
+                RFB.messages.keyEvent(key_msg, 0x41, 1);
                 expect(client._sock).to.have.sent(key_msg._sQ);
             });
 
             it('should not send messages in view-only mode', function () {
                 client._view_only = true;
-                client._keyboard._onKeyPress(1234, 1);
+                client._keyboard._onKeyEvent('a', 'KeyA', true);
                 expect(client._sock.flush).to.not.have.been.called;
             });
         });

@@ -47,10 +47,10 @@ Keyboard.prototype = {
     // private methods
 
     _handleRfbEvent: function (e) {
-        if (this._onKeyPress) {
-            Log.Debug("onKeyPress " + (e.type == 'keydown' ? "down" : "up") +
+        if (this._onKeyEvent) {
+            Log.Debug("onKeyEvent " + (e.type == 'keydown' ? "down" : "up") +
                       ", keysym: " + e.keysym);
-            this._onKeyPress(e);
+            this._onKeyEvent(e.keysym, e.code, e.type == 'keydown');
         }
     },
 
@@ -138,7 +138,7 @@ make_properties(Keyboard, [
     ['target',     'wo', 'dom'],  // DOM element that captures keyboard input
     ['focused',    'rw', 'bool'], // Capture and send key events
 
-    ['onKeyPress', 'rw', 'func'] // Handler for key press/release
+    ['onKeyEvent', 'rw', 'func'] // Handler for key press/release
 ]);
 
 const Mouse = function (defaults) {

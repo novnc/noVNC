@@ -62,9 +62,9 @@
             //console.log(msg);
         }
 
-        function rfbKeyPress(keysym, down) {
+        function rfbKeyEvent(keysym, code, down) {
             var d = down ? "down" : " up ";
-            var msg = "RFB keypress " + d + " keysym: " + keysym;
+            var msg = "RFB key event " + d + " keysym: " + keysym + " code: " + code;
             message(msg);
         }
         function rawKey(e) {
@@ -103,7 +103,7 @@
         window.onload = function() {
             canvas = new Display({'target' : document.getElementById('canvas')});
             keyboard = new Keyboard({'target': document,
-                                    'onKeyPress': rfbKeyPress});
+                                    'onKeyEvent': rfbKeyEvent});
             document.addEventListener('keypress', rawKey);
             document.addEventListener('keydown', rawKey);
             document.addEventListener('keyup', rawKey);

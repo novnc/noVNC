@@ -200,7 +200,7 @@ export default function RFB(defaults) {
     }
 
     this._keyboard = new Keyboard({target: this._focusContainer,
-                                   onKeyPress: this._handleKeyPress.bind(this)});
+                                   onKeyEvent: this._handleKeyEvent.bind(this)});
 
     this._mouse = new Mouse({target: this._target,
                              onMouseButton: this._handleMouseButton.bind(this),
@@ -664,9 +664,8 @@ RFB.prototype = {
         }
     },
 
-    _handleKeyPress: function (keyevent) {
-        var down = (keyevent.type == 'keydown');
-        this.sendKey(keyevent.keysym, keyevent.code, down);
+    _handleKeyEvent: function (keysym, code, down) {
+        this.sendKey(keysym, code, down);
     },
 
     _handleMouseButton: function (x, y, down, bmask) {
