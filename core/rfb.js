@@ -2464,7 +2464,6 @@ RFB.encodingHandlers = {
         var keyboardEvent = document.createEvent("keyboardEvent");
         if (keyboardEvent.code !== undefined) {
             this._qemuExtKeyEventSupported = true;
-            this._keyboard.setQEMUVNCKeyboardHandler();
         }
     },
 

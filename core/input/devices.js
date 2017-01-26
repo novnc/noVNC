@@ -54,14 +54,6 @@ Keyboard.prototype = {
         }
     },
 
-    setQEMUVNCKeyboardHandler: function () {
-        this._handler = new KeyboardUtil.QEMUKeyEventDecoder(KeyboardUtil.ModifierSync(),
-            KeyboardUtil.TrackQEMUKeyState(
-                this._handleRfbEvent.bind(this)
-            )
-        );
-    },
-
     _handleKeyDown: function (e) {
         if (!this._focused) { return; }
 
