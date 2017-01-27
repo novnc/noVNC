@@ -26,29 +26,6 @@ describe('Key Event Pipeline Stages', function() {
                 done();
             }).keydown({code: 'KeyA', key: 'a'});
         });
-        it('should not sync modifiers on a keypress', function() {
-            // Firefox provides unreliable modifier state on keypress events
-            var count = 0;
-            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                ++count;
-            }).keypress({code: 'KeyA', key: 'a', ctrlKey: true});
-            expect(count).to.be.equal(1);
-        });
-        it('should sync modifiers if necessary', function(done) {
-            var count = 0;
-            KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
-                switch (count) {
-                case 0: // fake a ctrl keydown
-                    expect(evt).to.be.deep.equal({keysym: 0xffe3, type: 'keydown'});
-                    ++count;
-                    break;
-                case 1:
-                    expect(evt).to.be.deep.equal({code: 'KeyA', type: 'keydown', keysym: 0x61});
-                    done();
-                    break;
-                }
-            }).keydown({code: 'KeyA', key: 'a', ctrlKey: true});
-        });
         it('should forward keydown events with the right type', function(done) {
             KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(), function(evt) {
                 expect(evt).to.be.deep.equal({code: 'KeyA', keysym: 0x61, type: 'keydown'});

@@ -120,10 +120,6 @@ Keyboard.prototype = {
 
         //Log.Debug(">> Keyboard.ungrab");
     },
-
-    sync: function (e) {
-        this._handler.syncModifiers(e);
-    }
 };
 
 make_properties(Keyboard, [
@@ -177,10 +173,6 @@ Mouse.prototype = {
 
     _handleMouseButton: function (e, down) {
         if (!this._focused) { return; }
-
-        if (this._notify) {
-            this._notify(e);
-        }
 
         var pos = this._getMousePosition(e);
 
@@ -248,10 +240,6 @@ Mouse.prototype = {
     _handleMouseWheel: function (e) {
         if (!this._focused) { return; }
 
-        if (this._notify) {
-            this._notify(e);
-        }
-
         var pos = this._getMousePosition(e);
 
         if (this._onMouseButton) {
@@ -277,10 +265,6 @@ Mouse.prototype = {
 
     _handleMouseMove: function (e) {
         if (! this._focused) { return; }
-
-        if (this._notify) {
-            this._notify(e);
-        }
 
         var pos = this._getMousePosition(e);
         if (this._onMouseMove) {
@@ -373,7 +357,6 @@ Mouse.prototype = {
 
 make_properties(Mouse, [
     ['target',         'ro', 'dom'],   // DOM element that captures mouse input
-    ['notify',         'ro', 'func'],  // Function to call to notify whenever a mouse event is received
     ['focused',        'rw', 'bool'],  // Capture and send mouse clicks/movement
 
     ['onMouseButton',  'rw', 'func'],  // Handler for mouse button click/release

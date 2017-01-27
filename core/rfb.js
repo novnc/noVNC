@@ -204,8 +204,7 @@ export default function RFB(defaults) {
 
     this._mouse = new Mouse({target: this._target,
                              onMouseButton: this._handleMouseButton.bind(this),
-                             onMouseMove: this._handleMouseMove.bind(this),
-                             notify: this._keyboard.sync.bind(this._keyboard)});
+                             onMouseMove: this._handleMouseMove.bind(this)});
 
     this._sock = new Websock();
     this._sock.on('message', this._handle_message.bind(this));

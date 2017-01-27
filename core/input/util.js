@@ -100,8 +100,6 @@ export function ModifierSync(charModifier) {
         // sync on the appropriate keyboard event
         keydown: function(evt) { return syncKeyEvent(evt, true);},
         keyup: function(evt) { return syncKeyEvent(evt, false);},
-        // Call this with a non-keyboard event (such as mouse events) to use its modifier state to synchronize anyway
-        syncAny: function(evt) { return sync(evt);},
 
         // if a char modifier is down, return the keys it consists of, otherwise return null
         activeCharModifier: function() { return hasCharModifier(charModifier, state) ? charModifier : null; }
@@ -260,16 +258,10 @@ export function getKeysym(evt){
 // Takes a DOM keyboard event and:
 // - determines which keysym it represents
 // - determines a code identifying the key that was pressed (corresponding to the code/keyCode properties on the DOM event)
-// - synthesizes events to synchronize modifier key state between which modifiers are actually down, and which we thought were down
 // - marks each event with an 'escape' property if a modifier was down which should be "escaped"
 // This information is collected into an object which is passed to the next() function. (one call per event)
 export function KeyEventDecoder (modifierState, next) {
     "use strict";
-    function sendAll(evts) {
-        for (var i = 0; i < evts.length; ++i) {
-            next(evts[i]);
-        }
-    }
     function process(evt, type) {
         var result = {type: type};
         var code = getKeycode(evt);
@@ -322,18 +314,15 @@ export function KeyEventDecoder (modifierState, next) {
 
     return {
         keydown: function(evt) {
-            sendAll(modifierState.keydown(evt));
+            modifierState.keydown(evt);
             return process(evt, 'keydown');
         },
         keypress: function(evt) {
             return process(evt, 'keypress');
         },
         keyup: function(evt) {
-            sendAll(modifierState.keyup(evt));
+            modifierState.keyup(evt);
             return process(evt, 'keyup');
-        },
-        syncModifiers: function(evt) {
-            sendAll(modifierState.syncAny(evt));
         },
         releaseAll: function() { next({type: 'releaseall'}); }
     };
