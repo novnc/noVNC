@@ -21,6 +21,7 @@ import * as KeyboardUtil from "./util.js";
 const Keyboard = function (defaults) {
     this._keyDownList = [];         // List of depressed keys
                                     // (even if they are happy)
+    this._pendingKey = null;        // Key waiting for keypress
 
     this._modifierState = KeyboardUtil.ModifierSync();
 
@@ -75,11 +76,14 @@ Keyboard.prototype = {
         var keysym = KeyboardUtil.getKeysym(e);
 
         // If this is a legacy browser then we'll need to wait for
-        // a keypress event as well. Otherwise we supress the
-        // browser's handling at this point
-        if (keysym) {
-            stopEvent(e);
+        // a keypress event as well
+        if (!keysym) {
+            this._pendingKey = code;
+            return;
         }
+
+        this._pendingKey = null;
+        stopEvent(e);
 
         // if a char modifier is pressed, get the keys it consists
         // of (on Windows, AltGr is equivalent to Ctrl+Alt)
@@ -90,7 +94,7 @@ Keyboard.prototype = {
         // the modifier as a char modifier, and (b) we'll have to
         // "escape" the modifier to undo the modifier when sending
         // the char.
-        if (active && keysym) {
+        if (active) {
             var isCharModifier = false;
             for (var i  = 0; i < active.length; ++i) {
                 if (active[i] === keysym) {
@@ -115,15 +119,9 @@ Keyboard.prototype = {
             this._keyDownList.push(last);
         }
 
-        // Wait for keypress?
-        if (!keysym) {
-            return;
-        }
-
         // make sure last event contains this keysym (a single "logical" keyevent
         // can cause multiple key events to be sent to the VNC server)
         last.keysyms[keysym] = keysym;
-        last.ignoreKeyPress = true;
 
         // undo modifiers
         if (escape) {
@@ -149,8 +147,21 @@ Keyboard.prototype = {
 
         stopEvent(e);
 
+        // Are we expecting a keypress?
+        if (this._pendingKey === null) {
+            return;
+        }
+
         var code = this._getKeyCode(e);
         var keysym = KeyboardUtil.getKeysym(e);
+
+        // The key we were waiting for?
+        if ((code !== 'Unidentified') && (code != this._pendingKey)) {
+            return;
+        }
+
+        code = this._pendingKey;
+        this._pendingKey = null;
 
         // if a char modifier is pressed, get the keys it consists
         // of (on Windows, AltGr is equivalent to Ctrl+Alt)
@@ -186,12 +197,6 @@ Keyboard.prototype = {
         }
         if (!keysym) {
             console.log('keypress with no keysym:', e);
-            return;
-        }
-
-        // If we didn't expect a keypress, and already sent a keydown to the VNC server
-        // based on the keydown, make sure to skip this event.
-        if (last.ignoreKeyPress) {
             return;
         }
 

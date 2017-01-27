@@ -65,6 +65,24 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
                 kbd._handleKeyPress(keyevent('keypress', {code: 'KeyA', charCode: 0x61}));
             });
+            it('should ignore keypress with different code', function() {
+                var callback = sinon.spy();
+                var kbd = new Keyboard({onKeyEvent: callback});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
+                kbd._handleKeyPress(keyevent('keypress', {code: 'KeyB', charCode: 0x61}));
+                expect(callback).to.not.have.been.called;
+            });
+            it('should handle keypress with missing code', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
+                kbd._handleKeyPress(keyevent('keypress', {charCode: 0x61}));
+            });
         });
 
         describe('suppress the right events at the right time', function() {
