@@ -22,17 +22,12 @@ const Keyboard = function (defaults) {
     this._keyDownList = [];         // List of depressed keys
                                     // (even if they are happy)
 
+    this._modifierState = KeyboardUtil.ModifierSync();
+
     set_defaults(this, defaults, {
         'target': document,
         'focused': true
     });
-
-    // create the keyboard handler
-    this._handler = new KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(),
-        KeyboardUtil.TrackKeyState(
-            KeyboardUtil.EscapeModifiers(this._handleRfbEvent.bind(this))
-        )
-    );
 
     // keep these here so we can refer to them later
     this._eventHandlers = {
@@ -46,47 +41,220 @@ const Keyboard = function (defaults) {
 Keyboard.prototype = {
     // private methods
 
-    _handleRfbEvent: function (e) {
-        if (this._onKeyEvent) {
-            Log.Debug("onKeyEvent " + (e.type == 'keydown' ? "down" : "up") +
-                      ", keysym: " + e.keysym);
-            this._onKeyEvent(e.keysym, e.code, e.type == 'keydown');
+    _sendKeyEvent: function (keysym, code, down) {
+        if (!this._onKeyEvent) {
+            return;
         }
+
+        Log.Debug("onKeyEvent " + (down ? "down" : "up") +
+                  ", keysym: " + keysym, ", code: " + code);
+
+        this._onKeyEvent(keysym, code, down);
+    },
+
+    _getKeyCode: function (e) {
+        var code = KeyboardUtil.getKeycode(e);
+        if (code === 'Unidentified') {
+            // Unstable, but we don't have anything else to go on
+            // (don't use it for 'keypress' events thought since
+            // WebKit sets it to the same as charCode)
+            if (e.keyCode && (e.type !== 'keypress')) {
+                code = 'Platform' + e.keyCode;
+            }
+        }
+
+        return code;
     },
 
     _handleKeyDown: function (e) {
         if (!this._focused) { return; }
 
-        if (this._handler.keydown(e)) {
-            // Suppress bubbling/default actions
+        this._modifierState.keydown(e);
+
+        var code = this._getKeyCode(e);
+        var keysym = KeyboardUtil.getKeysym(e);
+
+        // If this is a legacy browser then we'll need to wait for
+        // a keypress event as well. Otherwise we supress the
+        // browser's handling at this point
+        if (keysym) {
             stopEvent(e);
+        }
+
+        // if a char modifier is pressed, get the keys it consists
+        // of (on Windows, AltGr is equivalent to Ctrl+Alt)
+        var active = this._modifierState.activeCharModifier();
+
+        // If we have a char modifier down, and we're able to
+        // determine a keysym reliably then (a) we know to treat
+        // the modifier as a char modifier, and (b) we'll have to
+        // "escape" the modifier to undo the modifier when sending
+        // the char.
+        if (active && keysym) {
+            var isCharModifier = false;
+            for (var i  = 0; i < active.length; ++i) {
+                if (active[i] === keysym) {
+                    isCharModifier = true;
+                }
+            }
+            if (!isCharModifier) {
+                var escape = this._modifierState.activeCharModifier();
+            }
+        }
+
+        var last;
+        if (this._keyDownList.length === 0) {
+            last = null;
         } else {
-            // Allow the event to bubble and become a keyPress event which
-            // will have the character code translated
+            last = this._keyDownList[this._keyDownList.length-1];
+        }
+
+        // insert a new entry if last seen key was different.
+        if (!last || code === 'Unidentified' || last.code !== code) {
+            last = {code: code, keysyms: {}};
+            this._keyDownList.push(last);
+        }
+
+        // Wait for keypress?
+        if (!keysym) {
+            return;
+        }
+
+        // make sure last event contains this keysym (a single "logical" keyevent
+        // can cause multiple key events to be sent to the VNC server)
+        last.keysyms[keysym] = keysym;
+        last.ignoreKeyPress = true;
+
+        // undo modifiers
+        if (escape) {
+            for (var i = 0; i < escape.length; ++i) {
+                this._sendKeyEvent(escape[i], 'Unidentified', false);
+            }
+        }
+
+        // send the character event
+        this._sendKeyEvent(keysym, code, true);
+
+        // redo modifiers
+        if (escape) {
+            for (i = 0; i < escape.length; ++i) {
+                this._sendKeyEvent(escape[i], 'Unidentified', true);
+            }
         }
     },
 
+    // Legacy event for browsers without code/key
     _handleKeyPress: function (e) {
         if (!this._focused) { return; }
 
-        if (this._handler.keypress(e)) {
-            // Suppress bubbling/default actions
-            stopEvent(e);
+        stopEvent(e);
+
+        var code = this._getKeyCode(e);
+        var keysym = KeyboardUtil.getKeysym(e);
+
+        // if a char modifier is pressed, get the keys it consists
+        // of (on Windows, AltGr is equivalent to Ctrl+Alt)
+        var active = this._modifierState.activeCharModifier();
+
+        // If we have a char modifier down, and we're able to
+        // determine a keysym reliably then (a) we know to treat
+        // the modifier as a char modifier, and (b) we'll have to
+        // "escape" the modifier to undo the modifier when sending
+        // the char.
+        if (active && keysym) {
+            var isCharModifier = false;
+            for (var i  = 0; i < active.length; ++i) {
+                if (active[i] === keysym) {
+                    isCharModifier = true;
+                }
+            }
+            if (!isCharModifier) {
+                var escape = this._modifierState.activeCharModifier();
+            }
+        }
+
+        var last;
+        if (this._keyDownList.length === 0) {
+            last = null;
+        } else {
+            last = this._keyDownList[this._keyDownList.length-1];
+        }
+
+        if (!last) {
+            last = {code: code, keysyms: {}};
+            this._keyDownList.push(last);
+        }
+        if (!keysym) {
+            console.log('keypress with no keysym:', e);
+            return;
+        }
+
+        // If we didn't expect a keypress, and already sent a keydown to the VNC server
+        // based on the keydown, make sure to skip this event.
+        if (last.ignoreKeyPress) {
+            return;
+        }
+
+        last.keysyms[keysym] = keysym;
+
+        // undo modifiers
+        if (escape) {
+            for (var i = 0; i < escape.length; ++i) {
+                this._sendKeyEvent(escape[i], 'Unidentified', false);
+            }
+        }
+
+        // send the character event
+        this._sendKeyEvent(keysym, code, true);
+
+        // redo modifiers
+        if (escape) {
+            for (i = 0; i < escape.length; ++i) {
+                this._sendKeyEvent(escape[i], 'Unidentified', true);
+            }
         }
     },
 
     _handleKeyUp: function (e) {
         if (!this._focused) { return; }
 
-        if (this._handler.keyup(e)) {
-            // Suppress bubbling/default actions
-            stopEvent(e);
+        stopEvent(e);
+
+        this._modifierState.keyup(e);
+
+        var code = this._getKeyCode(e);
+
+        if (this._keyDownList.length === 0) {
+            return;
+        }
+        var idx = null;
+        // do we have a matching key tracked as being down?
+        for (var i = 0; i !== this._keyDownList.length; ++i) {
+            if (this._keyDownList[i].code === code) {
+                idx = i;
+                break;
+            }
+        }
+        // if we couldn't find a match (it happens), assume it was the last key pressed
+        if (idx === null) {
+            idx = this._keyDownList.length - 1;
+        }
+
+        var item = this._keyDownList.splice(idx, 1)[0];
+        for (var key in item.keysyms) {
+            this._sendKeyEvent(item.keysyms[key], code, false);
         }
     },
 
     _allKeysUp: function () {
         Log.Debug(">> Keyboard.allKeysUp");
-        this._handler.releaseAll();
+        for (var i = 0; i < this._keyDownList.length; i++) {
+            var item = this._keyDownList[i];
+            for (var key in item.keysyms) {
+                this._sendKeyEvent(item.keysyms[key], 'Unidentified', false);
+            }
+        };
+        this._keyDownList = [];
         Log.Debug("<< Keyboard.allKeysUp");
     },
 
