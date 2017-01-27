@@ -125,19 +125,24 @@ describe('Key Event Handling', function() {
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'b'}));
         });
+        it('should send the same keysym for multiple presses', function() {
+            var count = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0x61);
+                expect(code).to.be.equal('KeyA');
+                expect(down).to.be.equal(true);
+                count++;
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'b'}));
+            expect(count).to.be.equal(2);
+        });
         it('should do nothing on keyup events if no keys are down', function() {
             var callback = sinon.spy();
             var kbd = new Keyboard({onKeyEvent: callback});
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
             expect(callback).to.not.have.been.called;
-        });
-        it('should send a key release for each key press with the same code', function() {
-            var callback = sinon.spy();
-            var kbd = new Keyboard({onKeyEvent: callback});
-            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'b'}));
-            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA'}));
-            expect(callback.callCount).to.be.equal(4);
         });
     });
 

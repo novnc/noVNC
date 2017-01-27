@@ -19,7 +19,7 @@ import * as KeyboardUtil from "./util.js";
 //
 
 const Keyboard = function (defaults) {
-    this._keyDownList = [];         // List of depressed keys
+    this._keyDownList = {};         // List of depressed keys
                                     // (even if they are happy)
     this._pendingKey = null;        // Key waiting for keypress
 
@@ -75,6 +75,27 @@ Keyboard.prototype = {
         var code = this._getKeyCode(e);
         var keysym = KeyboardUtil.getKeysym(e);
 
+        // We cannot handle keys we cannot track, but we also need
+        // to deal with virtual keyboards which omit key info
+        if (code === 'Unidentified') {
+            if (keysym) {
+                // If it's a virtual keyboard then it should be
+                // sufficient to just send press and release right
+                // after each other
+                this._sendKeyEvent(keysym, 'Unidentified', true);
+                this._sendKeyEvent(keysym, 'Unidentified', false);
+            }
+
+            stopEvent(e);
+            return;
+        }
+
+        // Is this key already pressed? If so, then we must use the
+        // same keysym or we'll confuse the server
+        if (code in this._keyDownList) {
+            keysym = this._keyDownList[code];
+        }
+
         // If this is a legacy browser then we'll need to wait for
         // a keypress event as well
         if (!keysym) {
@@ -106,22 +127,7 @@ Keyboard.prototype = {
             }
         }
 
-        var last;
-        if (this._keyDownList.length === 0) {
-            last = null;
-        } else {
-            last = this._keyDownList[this._keyDownList.length-1];
-        }
-
-        // insert a new entry if last seen key was different.
-        if (!last || code === 'Unidentified' || last.code !== code) {
-            last = {code: code, keysyms: {}};
-            this._keyDownList.push(last);
-        }
-
-        // make sure last event contains this keysym (a single "logical" keyevent
-        // can cause multiple key events to be sent to the VNC server)
-        last.keysyms[keysym] = keysym;
+        this._keyDownList[code] = keysym;
 
         // undo modifiers
         if (escape) {
@@ -184,23 +190,12 @@ Keyboard.prototype = {
             }
         }
 
-        var last;
-        if (this._keyDownList.length === 0) {
-            last = null;
-        } else {
-            last = this._keyDownList[this._keyDownList.length-1];
-        }
-
-        if (!last) {
-            last = {code: code, keysyms: {}};
-            this._keyDownList.push(last);
-        }
         if (!keysym) {
             console.log('keypress with no keysym:', e);
             return;
         }
 
-        last.keysyms[keysym] = keysym;
+        this._keyDownList[code] = keysym;
 
         // undo modifiers
         if (escape) {
@@ -229,37 +224,22 @@ Keyboard.prototype = {
 
         var code = this._getKeyCode(e);
 
-        if (this._keyDownList.length === 0) {
+        // Do we really think this key is down?
+        if (!(code in this._keyDownList)) {
             return;
         }
-        var idx = null;
-        // do we have a matching key tracked as being down?
-        for (var i = 0; i !== this._keyDownList.length; ++i) {
-            if (this._keyDownList[i].code === code) {
-                idx = i;
-                break;
-            }
-        }
-        // if we couldn't find a match (it happens), assume it was the last key pressed
-        if (idx === null) {
-            idx = this._keyDownList.length - 1;
-        }
 
-        var item = this._keyDownList.splice(idx, 1)[0];
-        for (var key in item.keysyms) {
-            this._sendKeyEvent(item.keysyms[key], code, false);
-        }
+        this._sendKeyEvent(this._keyDownList[code], code, false);
+
+        delete this._keyDownList[code];
     },
 
     _allKeysUp: function () {
         Log.Debug(">> Keyboard.allKeysUp");
-        for (var i = 0; i < this._keyDownList.length; i++) {
-            var item = this._keyDownList[i];
-            for (var key in item.keysyms) {
-                this._sendKeyEvent(item.keysyms[key], 'Unidentified', false);
-            }
+        for (var code in this._keyDownList) {
+            this._sendKeyEvent(this._keyDownList[code], code, false);
         };
-        this._keyDownList = [];
+        this._keyDownList = {};
         Log.Debug("<< Keyboard.allKeysUp");
     },
 
