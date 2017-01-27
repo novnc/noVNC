@@ -146,7 +146,72 @@ describe('Key Event Handling', function() {
         });
     });
 
-    describe('Escape Modifiers', function() {
+    describe('Shuffle modifiers on macOS', function() {
+        var origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+            if (origNavigator === undefined) {
+                // Object.getOwnPropertyDescriptor() doesn't work
+                // properly in any version of IE
+                this.skip();
+            }
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+
+            window.navigator.platform = "Mac x86_64";
+        });
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+        });
+
+        it('should change Alt to AltGraph', function() {
+            var count = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch (count++) {
+                    case 0:
+                        expect(keysym).to.be.equal(0xFF7E);
+                        expect(code).to.be.equal('AltLeft');
+                        break;
+                    case 1:
+                        expect(keysym).to.be.equal(0xFE03);
+                        expect(code).to.be.equal('AltRight');
+                        break;
+                }
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt'}));
+            expect(count).to.be.equal(2);
+        });
+        it('should change left Super to Alt', function(done) {
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0xFFE9);
+                expect(code).to.be.equal('MetaLeft');
+                done();
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta'}));
+        });
+        it('should change right Super to left Super', function(done) {
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0xFFEB);
+                expect(code).to.be.equal('MetaRight');
+                done();
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta'}));
+        });
+    });
+
+    describe('Escape AltGraph on Windows', function() {
         var origNavigator;
         beforeEach(function () {
             // window.navigator is a protected read-only property in many
@@ -172,7 +237,7 @@ describe('Key Event Handling', function() {
             Object.defineProperty(window, "navigator", origNavigator);
         });
 
-        it('should generate fake undo/redo events on press when a char modifier is down', function() {
+        it('should generate fake undo/redo events on press when AltGraph is down', function() {
             var times_called = 0;
             var kbd = new Keyboard({
             onKeyEvent: function(keysym, code, down) {
@@ -183,18 +248,18 @@ describe('Key Event Handling', function() {
                     expect(down).to.be.equal(true);
                     break;
                 case 1:
-                    expect(keysym).to.be.equal(0xFFE9);
-                    expect(code).to.be.equal('AltLeft');
+                    expect(keysym).to.be.equal(0xFFEA);
+                    expect(code).to.be.equal('AltRight');
                     expect(down).to.be.equal(true);
                     break;
                 case 2:
-                    expect(keysym).to.be.equal(0xFFE9);
-                    expect(code).to.be.equal('Unidentified');
+                    expect(keysym).to.be.equal(0xFFEA);
+                    expect(code).to.be.equal('AltRight');
                     expect(down).to.be.equal(false);
                     break;
                 case 3:
                     expect(keysym).to.be.equal(0xFFE3);
-                    expect(code).to.be.equal('Unidentified');
+                    expect(code).to.be.equal('ControlLeft');
                     expect(down).to.be.equal(false);
                     break;
                 case 4:
@@ -203,20 +268,20 @@ describe('Key Event Handling', function() {
                     expect(down).to.be.equal(true);
                     break;
                 case 5:
-                    expect(keysym).to.be.equal(0xFFE9);
-                    expect(code).to.be.equal('Unidentified');
+                    expect(keysym).to.be.equal(0xFFE3);
+                    expect(code).to.be.equal('ControlLeft');
                     expect(down).to.be.equal(true);
                     break;
                 case 6:
-                    expect(keysym).to.be.equal(0xFFE3);
-                    expect(code).to.be.equal('Unidentified');
+                    expect(keysym).to.be.equal(0xFFEA);
+                    expect(code).to.be.equal('AltRight');
                     expect(down).to.be.equal(true);
                     break;
                 }
             }});
             // First the modifier combo
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt'}));
             // Next a normal character
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             expect(times_called).to.be.equal(7);
@@ -235,7 +300,7 @@ describe('Key Event Handling', function() {
             }});
             // First the modifier combo
             kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt'}));
             // Next a normal character
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));

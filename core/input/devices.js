@@ -13,6 +13,7 @@ import { isTouchDevice } from '../util/browsers.js'
 import { setCapture, releaseCapture, stopEvent, getPointerEvent } from '../util/events.js';
 import { set_defaults, make_properties } from '../util/properties.js';
 import * as KeyboardUtil from "./util.js";
+import KeyTable from "./keysym.js";
 
 //
 // Keyboard event handler
@@ -22,8 +23,6 @@ const Keyboard = function (defaults) {
     this._keyDownList = {};         // List of depressed keys
                                     // (even if they are happy)
     this._pendingKey = null;        // Key waiting for keypress
-
-    this._modifierState = KeyboardUtil.ModifierSync();
 
     set_defaults(this, defaults, {
         'target': document,
@@ -39,6 +38,13 @@ const Keyboard = function (defaults) {
     };
 };
 
+function isMac() {
+    return navigator && !!(/mac/i).exec(navigator.platform);
+}
+function isWindows() {
+    return navigator && !!(/win/i).exec(navigator.platform);
+}
+
 Keyboard.prototype = {
     // private methods
 
@@ -50,7 +56,32 @@ Keyboard.prototype = {
         Log.Debug("onKeyEvent " + (down ? "down" : "up") +
                   ", keysym: " + keysym, ", code: " + code);
 
+        // Windows sends CtrlLeft+AltRight when you press
+        // AltGraph, which tends to confuse the hell out of
+        // remote systems. Fake a release of these keys until
+        // there is a way to detect AltGraph properly.
+        var fakeAltGraph = false;
+        if (down && isWindows()) {
+            if ((code !== 'ControlLeft') &&
+                (code !== 'AltRight') &&
+                ('ControlLeft' in this._keyDownList) &&
+                ('AltRight' in this._keyDownList)) {
+                fakeAltGraph = true;
+                this._onKeyEvent(this._keyDownList['AltRight'],
+                                 'AltRight', false);
+                this._onKeyEvent(this._keyDownList['ControlLeft'],
+                                 'ControlLeft', false);
+            }
+        }
+
         this._onKeyEvent(keysym, code, down);
+
+        if (fakeAltGraph) {
+            this._onKeyEvent(this._keyDownList['ControlLeft'],
+                             'ControlLeft', true);
+            this._onKeyEvent(this._keyDownList['AltRight'],
+                             'AltRight', true);
+        }
     },
 
     _getKeyCode: function (e) {
@@ -70,8 +101,6 @@ Keyboard.prototype = {
     _handleKeyDown: function (e) {
         if (!this._focused) { return; }
 
-        this._modifierState.keydown(e);
-
         var code = this._getKeyCode(e);
         var keysym = KeyboardUtil.getKeysym(e);
 
@@ -90,6 +119,27 @@ Keyboard.prototype = {
             return;
         }
 
+        // Alt behaves more like AltGraph on macOS, so shuffle the
+        // keys around a bit to make things more sane for the remote
+        // server. This method is used by RealVNC and TigerVNC (and
+        // possibly others).
+        if (isMac()) {
+            switch (keysym) {
+            case KeyTable.XK_Super_L:
+                keysym = KeyTable.XK_Alt_L;
+                break;
+            case KeyTable.XK_Super_R:
+                keysym = KeyTable.XK_Super_L;
+                break;
+            case KeyTable.XK_Alt_L:
+                keysym = KeyTable.XK_Mode_switch;
+                break;
+            case KeyTable.XK_Alt_R:
+                keysym = KeyTable.XK_ISO_Level3_Shift;
+                break;
+            }
+        }
+
         // Is this key already pressed? If so, then we must use the
         // same keysym or we'll confuse the server
         if (code in this._keyDownList) {
@@ -106,45 +156,9 @@ Keyboard.prototype = {
         this._pendingKey = null;
         stopEvent(e);
 
-        // if a char modifier is pressed, get the keys it consists
-        // of (on Windows, AltGr is equivalent to Ctrl+Alt)
-        var active = this._modifierState.activeCharModifier();
-
-        // If we have a char modifier down, and we're able to
-        // determine a keysym reliably then (a) we know to treat
-        // the modifier as a char modifier, and (b) we'll have to
-        // "escape" the modifier to undo the modifier when sending
-        // the char.
-        if (active) {
-            var isCharModifier = false;
-            for (var i  = 0; i < active.length; ++i) {
-                if (active[i] === keysym) {
-                    isCharModifier = true;
-                }
-            }
-            if (!isCharModifier) {
-                var escape = this._modifierState.activeCharModifier();
-            }
-        }
-
         this._keyDownList[code] = keysym;
 
-        // undo modifiers
-        if (escape) {
-            for (var i = 0; i < escape.length; ++i) {
-                this._sendKeyEvent(escape[i], 'Unidentified', false);
-            }
-        }
-
-        // send the character event
         this._sendKeyEvent(keysym, code, true);
-
-        // redo modifiers
-        if (escape) {
-            for (i = 0; i < escape.length; ++i) {
-                this._sendKeyEvent(escape[i], 'Unidentified', true);
-            }
-        }
     },
 
     // Legacy event for browsers without code/key
@@ -169,27 +183,6 @@ Keyboard.prototype = {
         code = this._pendingKey;
         this._pendingKey = null;
 
-        // if a char modifier is pressed, get the keys it consists
-        // of (on Windows, AltGr is equivalent to Ctrl+Alt)
-        var active = this._modifierState.activeCharModifier();
-
-        // If we have a char modifier down, and we're able to
-        // determine a keysym reliably then (a) we know to treat
-        // the modifier as a char modifier, and (b) we'll have to
-        // "escape" the modifier to undo the modifier when sending
-        // the char.
-        if (active && keysym) {
-            var isCharModifier = false;
-            for (var i  = 0; i < active.length; ++i) {
-                if (active[i] === keysym) {
-                    isCharModifier = true;
-                }
-            }
-            if (!isCharModifier) {
-                var escape = this._modifierState.activeCharModifier();
-            }
-        }
-
         if (!keysym) {
             console.log('keypress with no keysym:', e);
             return;
@@ -197,30 +190,13 @@ Keyboard.prototype = {
 
         this._keyDownList[code] = keysym;
 
-        // undo modifiers
-        if (escape) {
-            for (var i = 0; i < escape.length; ++i) {
-                this._sendKeyEvent(escape[i], 'Unidentified', false);
-            }
-        }
-
-        // send the character event
         this._sendKeyEvent(keysym, code, true);
-
-        // redo modifiers
-        if (escape) {
-            for (i = 0; i < escape.length; ++i) {
-                this._sendKeyEvent(escape[i], 'Unidentified', true);
-            }
-        }
     },
 
     _handleKeyUp: function (e) {
         if (!this._focused) { return; }
 
         stopEvent(e);
-
-        this._modifierState.keyup(e);
 
         var code = this._getKeyCode(e);
 
