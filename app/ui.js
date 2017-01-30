@@ -143,9 +143,10 @@ var UI;
                 UI.toggleControlbarSide();
             }
 
-            // Setup and initialize event handlers
-            UI.setupWindowEvents();
-            UI.setupFullscreen();
+            UI.initFullscreen();
+
+            // Setup event handlers
+            UI.addResizeHandlers();
             UI.addControlbarHandlers();
             UI.addTouchSpecificHandlers();
             UI.addExtraKeysHandlers();
@@ -153,6 +154,8 @@ var UI;
             UI.addConnectionControlHandlers();
             UI.addClipboardHandlers();
             UI.addSettingsHandlers();
+            document.getElementById("noVNC_status")
+                .addEventListener('click', UI.hideStatus);
 
             UI.openControlbar();
 
@@ -180,6 +183,20 @@ var UI;
             }
         },
 
+        initFullscreen: function() {
+            // Only show the button if fullscreen is properly supported
+            // * Safari doesn't support alphanumerical input while in fullscreen
+            if (!UI.isSafari &&
+                (document.documentElement.requestFullscreen ||
+                 document.documentElement.mozRequestFullScreen ||
+                 document.documentElement.webkitRequestFullscreen ||
+                 document.body.msRequestFullscreen)) {
+                document.getElementById('noVNC_fullscreen_button')
+                    .classList.remove("noVNC_hidden");
+                UI.addFullscreenHandlers();
+            }
+        },
+
         initSettings: function() {
             var i;
 
@@ -191,7 +208,7 @@ var UI;
 
             // Settings with immediate effects
             UI.initSetting('logging', 'warn');
-            WebUtil.init_logging(UI.getSetting('logging'));
+            UI.updateLogging();
 
             // if port == 80 (or 443) then it won't be present and should be
             // set manually
@@ -220,27 +237,38 @@ var UI;
             UI.initSetting('reconnect_delay', 5000);
         },
 
-        setupWindowEvents: function() {
+        initRFB: function() {
+            try {
+                UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
+                                  'onNotification': UI.notification,
+                                  'onUpdateState': UI.updateState,
+                                  'onDisconnected': UI.disconnectFinished,
+                                  'onPasswordRequired': UI.passwordRequired,
+                                  'onXvpInit': UI.updateXvpButton,
+                                  'onClipboard': UI.clipboardReceive,
+                                  'onBell': UI.bell,
+                                  'onFBUComplete': UI.initialResize,
+                                  'onFBResize': UI.updateSessionSize,
+                                  'onDesktopName': UI.updateDesktopName});
+                return true;
+            } catch (exc) {
+                var msg = "Unable to create RFB client -- " + exc;
+                Util.Error(msg);
+                UI.showStatus(msg, 'error');
+                return false;
+            }
+        },
+
+/* ------^-------
+ *     /INIT
+ * ==============
+ * EVENT HANDLERS
+ * ------v------*/
+
+        addResizeHandlers: function() {
             window.addEventListener('resize', UI.applyResizeMode);
             window.addEventListener('resize', UI.updateViewClip);
             window.addEventListener('resize', UI.updateViewDrag);
-
-            document.getElementById("noVNC_status")
-                .addEventListener('click', UI.hideStatus);
-        },
-
-        setupFullscreen: function() {
-            // Only show the button if fullscreen is properly supported
-            // * Safari doesn't support alphanumerical input while in fullscreen
-            if (!UI.isSafari &&
-                (document.documentElement.requestFullscreen ||
-                 document.documentElement.mozRequestFullScreen ||
-                 document.documentElement.webkitRequestFullscreen ||
-                 document.body.msRequestFullscreen)) {
-                document.getElementById('noVNC_fullscreen_button')
-                    .classList.remove("noVNC_hidden");
-                UI.addFullscreenHandlers();
-            }
         },
 
         addControlbarHandlers: function() {
@@ -375,14 +403,37 @@ var UI;
                 .addEventListener('click', UI.clipboardClear);
         },
 
+        // Add a call to save settings when the element changes,
+        // unless the optional parameter changeFunc is used instead.
+        addSettingChangeHandler: function(name, changeFunc) {
+            var settingElem = document.getElementById("noVNC_setting_" + name);
+            if (changeFunc === undefined) {
+                changeFunc = function () { UI.saveSetting(name); };
+            }
+            settingElem.addEventListener('change', changeFunc);
+        },
+
         addSettingsHandlers: function() {
             document.getElementById("noVNC_settings_button")
                 .addEventListener('click', UI.toggleSettingsPanel);
-            document.getElementById("noVNC_settings_apply")
-                .addEventListener('click', UI.settingsApply);
 
-            document.getElementById("noVNC_setting_resize")
-                .addEventListener('change', UI.enableDisableViewClip);
+            UI.addSettingChangeHandler('encrypt');
+            UI.addSettingChangeHandler('true_color');
+            UI.addSettingChangeHandler('cursor');
+            UI.addSettingChangeHandler('resize');
+            UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
+            UI.addSettingChangeHandler('resize', UI.applyResizeMode);
+            UI.addSettingChangeHandler('clip');
+            UI.addSettingChangeHandler('shared');
+            UI.addSettingChangeHandler('view_only');
+            UI.addSettingChangeHandler('host');
+            UI.addSettingChangeHandler('port');
+            UI.addSettingChangeHandler('path');
+            UI.addSettingChangeHandler('repeaterID');
+            UI.addSettingChangeHandler('logging');
+            UI.addSettingChangeHandler('logging', UI.updateLogging);
+            UI.addSettingChangeHandler('reconnect');
+            UI.addSettingChangeHandler('reconnect_delay');
         },
 
         addFullscreenHandlers: function() {
@@ -395,30 +446,8 @@ var UI;
             window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
         },
 
-        initRFB: function() {
-            try {
-                UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
-                                  'onNotification': UI.notification,
-                                  'onUpdateState': UI.updateState,
-                                  'onDisconnected': UI.disconnectFinished,
-                                  'onPasswordRequired': UI.passwordRequired,
-                                  'onXvpInit': UI.updateXvpButton,
-                                  'onClipboard': UI.clipboardReceive,
-                                  'onBell': UI.bell,
-                                  'onFBUComplete': UI.initialResize,
-                                  'onFBResize': UI.updateSessionSize,
-                                  'onDesktopName': UI.updateDesktopName});
-                return true;
-            } catch (exc) {
-                var msg = "Unable to create RFB client -- " + exc;
-                Util.Error(msg);
-                UI.showStatus(msg, 'error');
-                return false;
-            }
-        },
-
 /* ------^-------
- *     /INIT
+ * /EVENT HANDLERS
  * ==============
  *     VISUAL
  * ------v------*/
@@ -478,7 +507,6 @@ var UI;
             }
 
             UI.enableDisableViewClip();
-            document.getElementById('noVNC_setting_resize').disabled = UI.connected;
             document.getElementById('noVNC_setting_shared').disabled = UI.connected;
             document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
             document.getElementById('noVNC_setting_host').disabled = UI.connected;
@@ -841,39 +869,6 @@ var UI;
             return val;
         },
 
-        // Save/apply settings when 'Apply' button is pressed
-        settingsApply: function() {
-            //Util.Debug(">> settingsApply");
-            UI.saveSetting('encrypt');
-            UI.saveSetting('true_color');
-            if (Util.browserSupportsCursorURIs()) {
-                UI.saveSetting('cursor');
-            }
-
-            UI.saveSetting('resize');
-
-            if (UI.getSetting('resize') === 'downscale' || UI.getSetting('resize') === 'scale') {
-                UI.forceSetting('clip', false);
-            }
-
-            UI.saveSetting('clip');
-            UI.saveSetting('shared');
-            UI.saveSetting('view_only');
-            UI.saveSetting('host');
-            UI.saveSetting('port');
-            UI.saveSetting('path');
-            UI.saveSetting('repeaterID');
-            UI.saveSetting('logging');
-            UI.saveSetting('reconnect');
-            UI.saveSetting('reconnect_delay');
-
-            // Settings with immediate (non-connected related) effect
-            WebUtil.init_logging(UI.getSetting('logging'));
-            UI.updateViewClip();
-            UI.updateViewDrag();
-            //Util.Debug("<< settingsApply");
-        },
-
 /* ------^-------
  *   /SETTINGS
  * ==============
@@ -897,6 +892,7 @@ var UI;
             UI.closeAllPanels();
             UI.openControlbar();
 
+            // Refresh UI elements from saved cookies
             UI.updateSetting('encrypt');
             UI.updateSetting('true_color');
             if (Util.browserSupportsCursorURIs()) {
@@ -928,13 +924,9 @@ var UI;
                 .classList.remove("noVNC_selected");
         },
 
-        // Toggle the settings menu:
-        //   On open, settings are refreshed from saved cookies.
-        //   On close, settings are applied
         toggleSettingsPanel: function() {
             if (document.getElementById('noVNC_settings')
                 .classList.contains("noVNC_open")) {
-                UI.settingsApply();
                 UI.closeSettingsPanel();
             } else {
                 UI.openSettingsPanel();
@@ -1052,19 +1044,10 @@ var UI;
                 .classList.remove("noVNC_open");
         },
 
-        toggleConnectPanel: function() {
-            if (document.getElementById('noVNC_connect_dlg')
-                .classList.contains("noVNC_open")) {
-                UI.closeConnectPanel();
-            } else {
-                UI.openConnectPanel();
-            }
-        },
-
         connect: function(event, password) {
-            var host = document.getElementById('noVNC_setting_host').value;
-            var port = document.getElementById('noVNC_setting_port').value;
-            var path = document.getElementById('noVNC_setting_path').value;
+            var host = UI.getSetting('host');
+            var port = UI.getSetting('port');
+            var path = UI.getSetting('path');
 
             if (typeof password === 'undefined') {
                 password = WebUtil.getConfigVar('password');
@@ -1242,6 +1225,8 @@ var UI;
 
                 var display = UI.rfb.get_display();
                 var resizeMode = UI.getSetting('resize');
+                display.set_scale(1);
+                UI.rfb.get_mouse().set_scale(1);
 
                 if (resizeMode === 'remote') {
 
@@ -1338,15 +1323,16 @@ var UI;
 
         // Handle special cases where clipping is forced on/off or locked
         enableDisableViewClip: function() {
-            var resizeSetting = document.getElementById('noVNC_setting_resize');
+            var resizeSetting = UI.getSetting('resize');
 
             if (UI.isSafari) {
                 // Safari auto-hides the scrollbars which makes them
                 // impossible to use in most cases
                 UI.setViewClip(true);
                 document.getElementById('noVNC_setting_clip').disabled = true;
-            } else if (resizeSetting.value === 'downscale' || resizeSetting.value === 'scale') {
+            } else if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
                 // Disable clipping if we are scaling
+                UI.forceSetting('clip', false);
                 UI.setViewClip(false);
                 document.getElementById('noVNC_setting_clip').disabled = true;
             } else if (document.msFullscreenElement) {
@@ -1699,6 +1685,10 @@ var UI;
                 UI.rfb.get_keyboard().set_focused(true);
                 UI.rfb.get_mouse().set_focused(true);
             }
+        },
+
+        updateLogging: function() {
+            WebUtil.init_logging(UI.getSetting('logging'));
         },
 
         updateSessionSize: function(rfb, width, height) {
