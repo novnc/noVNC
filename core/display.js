@@ -573,37 +573,22 @@
         },
 
         autoscale: function (containerWidth, containerHeight, downscaleOnly) {
+            var vp = this._viewportLoc;
             var targetAspectRatio = containerWidth / containerHeight;
-            var fbAspectRatio = this._fb_width / this._fb_height;
+            var fbAspectRatio = vp.w / vp.h;
 
             var scaleRatio;
             if (fbAspectRatio >= targetAspectRatio) {
-                scaleRatio = containerWidth / this._fb_width;
+                scaleRatio = containerWidth / vp.w;
             } else {
-                scaleRatio = containerHeight / this._fb_height;
+                scaleRatio = containerHeight / vp.h;
             }
 
-            var targetW, targetH;
             if (scaleRatio > 1.0 && downscaleOnly) {
-                targetW = this._fb_width;
-                targetH = this._fb_height;
                 scaleRatio = 1.0;
-            } else if (fbAspectRatio >= targetAspectRatio) {
-                targetW = containerWidth;
-                targetH = Math.round(containerWidth / fbAspectRatio);
-            } else {
-                targetW = Math.round(containerHeight * fbAspectRatio);
-                targetH = containerHeight;
             }
 
-            // NB(directxman12): If you set the width directly, or set the
-            //                   style width to a number, the canvas is cleared.
-            //                   However, if you set the style width to a string
-            //                   ('NNNpx'), the canvas is scaled without clearing.
-            this._target.style.width = targetW + 'px';
-            this._target.style.height = targetH + 'px';
-
-            this._scale = scaleRatio;
+            this._rescale(scaleRatio);
 
             return scaleRatio;  // so that the mouse, etc scale can be set
         },
@@ -612,6 +597,11 @@
         _rescale: function (factor) {
             this._scale = factor;
             var vp = this._viewportLoc;
+
+            // NB(directxman12): If you set the width directly, or set the
+            //                   style width to a number, the canvas is cleared.
+            //                   However, if you set the style width to a string
+            //                   ('NNNpx'), the canvas is scaled without clearing.
             this._target.style.width = Math.round(factor * vp.w) + 'px';
             this._target.style.height = Math.round(factor * vp.h) + 'px';
         },
