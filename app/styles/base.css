@@ -520,18 +520,6 @@ input[type=button]:active, select:active {
   display: none;
 }
 
-#noVNC_keyboardinput {
-  width: 1px;
-  height: 1px;
-  background-color: #fff;
-  color: #fff;
-  border: 0;
-  position: absolute;
-  left: -40px;
-  z-index: -1;
-  ime-mode: disabled;
-}
-
 /* Extra manual keys */
 :root:not(.noVNC_connected) #noVNC_extra_keys {
   display: none;
@@ -791,6 +779,18 @@ input[type=button]:active, select:active {
   background-color: #313131;
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
+}
+
+#noVNC_keyboardinput {
+  width: 1px;
+  height: 1px;
+  background-color: #fff;
+  color: #fff;
+  border: 0;
+  position: absolute;
+  left: -40px;
+  z-index: -1;
+  ime-mode: disabled;
 }
 
 /* HTML5 Canvas */
