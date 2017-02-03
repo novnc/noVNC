@@ -170,8 +170,7 @@ describe('Websock', function() {
                 };
             });
 
-            it('should actually send on the websocket if the websocket does not have too much buffered', function () {
-                sock.maxBufferedAmount = 10;
+            it('should actually send on the websocket', function () {
                 sock._websocket.bufferedAmount = 8;
                 sock._websocket.readyState = WebSocket.OPEN
                 sock._sQ = new Uint8Array([1, 2, 3]);
@@ -183,29 +182,13 @@ describe('Websock', function() {
                 expect(sock._websocket.send).to.have.been.calledWith(encoded);
             });
 
-            it('should return true if the websocket did not have too much buffered', function () {
-                sock.maxBufferedAmount = 10;
-                sock._websocket.bufferedAmount = 8;
-
-                expect(sock.flush()).to.be.true;
-            });
-
             it('should not call send if we do not have anything queued up', function () {
                 sock._sQlen = 0;
-                sock.maxBufferedAmount = 10;
                 sock._websocket.bufferedAmount = 8;
 
                 sock.flush();
 
                 expect(sock._websocket.send).not.to.have.been.called;
-            });
-
-            it('should not send and return false if the websocket has too much buffered', function () {
-                sock.maxBufferedAmount = 10;
-                sock._websocket.bufferedAmount = 12;
-
-                expect(sock.flush()).to.be.false;
-                expect(sock._websocket.send).to.not.have.been.called;
             });
         });
 
