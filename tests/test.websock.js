@@ -249,10 +249,6 @@ describe('Websock', function() {
                 expect(WebSocket).to.have.been.calledWith('ws://localhost:8675', 'binary');
             });
 
-            it('should fail if we specify a protocol besides binary', function () {
-                expect(function () { sock.open('ws:///', 'base64'); }).to.throw(Error);
-            });
-
             // it('should initialize the event handlers')?
         });
 
@@ -310,17 +306,6 @@ describe('Websock', function() {
             it('should call _recv_message on a message', function () {
                 sock._websocket.onmessage(null);
                 expect(sock._recv_message).to.have.been.calledOnce;
-            });
-
-            it('should fail if a protocol besides binary is requested', function () {
-                sock._websocket.protocol = 'base64';
-                expect(sock._websocket.onopen).to.throw(Error);
-            });
-
-            it('should assume binary if no protocol was available on opening', function () {
-                sock._websocket.protocol = null;
-                sock._websocket.onopen();
-                expect(sock._mode).to.equal('binary');
             });
 
             it('should call the open event handler on opening', function () {
