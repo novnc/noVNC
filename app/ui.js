@@ -1259,21 +1259,7 @@ var UI;
         // Gets the the size of the available viewport in the browser window
         screenSize: function() {
             var screen = document.getElementById('noVNC_screen');
-
-            // Hide the scrollbars until the size is calculated
-            screen.style.overflow = "hidden";
-
-            var pos = Util.getPosition(screen);
-            var w = pos.width;
-            var h = pos.height;
-
-            screen.style.overflow = "visible";
-
-            if (isNaN(w) || isNaN(h)) {
-                return false;
-            } else {
-                return {w: w, h: h};
-            }
+            return {w: screen.offsetWidth, h: screen.offsetHeight};
         },
 
         // Normally we only apply the current resize mode after a window resize
