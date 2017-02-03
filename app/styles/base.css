@@ -526,7 +526,7 @@ input[type=button]:active, select:active {
   background-color: #fff;
   color: #fff;
   border: 0;
-  position: relative;
+  position: absolute;
   left: -40px;
   z-index: -1;
   ime-mode: disabled;
@@ -786,29 +786,19 @@ input[type=button]:active, select:active {
 
 /* Main container */
 #noVNC_container {
-  display: table;
   width: 100%;
   height: 100%;
   background-color: #313131;
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
 }
-:root.noVNC_connected #noVNC_container {
-  background-color: rgb(40, 40, 40);
-  border-radius: 0;
-}
 
 /* HTML5 Canvas */
 #noVNC_screen {
-  position: absolute;
-  margin: 0px;
-  padding: 0px;
-  bottom: 0px;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  width: auto;
-  height: auto;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(40, 40, 40);
 }
 :root:not(.noVNC_connected) #noVNC_screen {
   display: none;
@@ -818,11 +808,6 @@ input[type=button]:active, select:active {
  * scaling will occur. Canvas size depends on remote VNC
  * settings and noVNC settings. */
 #noVNC_canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   margin: auto;
 }
 
