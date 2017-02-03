@@ -3,10 +3,8 @@
  * Copyright (C) 2012 Joel Martin
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
- * Websock is similar to the standard WebSocket object but Websock
- * enables communication with raw TCP sockets (i.e. the binary stream)
- * via websockify. This is accomplished by base64 encoding the data
- * stream between Websock and websockify.
+ * Websock is similar to the standard WebSocket object but with extra
+ * buffer handling.
  *
  * Websock has built-in receive queue buffering; the message event
  * does not contain actual data but is simply a notification that
@@ -16,7 +14,6 @@
 
 /* [module]
  * import Util from "./util";
- * import Base64 from "./base64";
  */
 
 /*jslint browser: true, bitwise: true */
@@ -38,9 +35,6 @@
     // called in init: this._sQ = new Uint8Array(this._sQbufferSize);
     this._sQlen = 0;
     this._sQ = null;  // Send queue
-
-    this._mode = 'binary';    // Current WebSocket mode: 'binary', 'base64'
-    this.maxBufferedAmount = 200;
 
     this._eventHandlers = {
         'message': function () {},
@@ -182,24 +176,16 @@
                 Util.Debug("bufferedAmount: " + this._websocket.bufferedAmount);
             }
 
-            if (this._websocket.bufferedAmount < this.maxBufferedAmount) {
-                if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
-                    this._websocket.send(this._encode_message());
-                    this._sQlen = 0;
-                }
-
-                return true;
-            } else {
-                Util.Info("Delaying send, bufferedAmount: " +
-                        this._websocket.bufferedAmount);
-                return false;
+            if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
+                this._websocket.send(this._encode_message());
+                this._sQlen = 0;
             }
         },
 
         send: function (arr) {
             this._sQ.set(arr, this._sQlen);
             this._sQlen += arr.length;
-            return this.flush();
+            this.flush();
         },
 
         send_string: function (str) {
@@ -222,80 +208,24 @@
             this._sQ = new Uint8Array(this._sQbufferSize);
         },
 
-        init: function (protocols, ws_schema) {
+        init: function () {
             this._allocate_buffers();
             this._rQi = 0;
             this._websocket = null;
-
-            // Check for full typed array support
-            var bt = false;
-            if (('Uint8Array' in window) &&
-                    ('set' in Uint8Array.prototype)) {
-                bt = true;
-            }
-
-            // Check for full binary type support in WebSockets
-            // Inspired by:
-            // https://github.com/Modernizr/Modernizr/issues/370
-            // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/websockets/binary.js
-            var wsbt = false;
-            try {
-                if (bt && ('binaryType' in WebSocket.prototype ||
-                           !!(new WebSocket(ws_schema + '://.').binaryType))) {
-                    Util.Info("Detected binaryType support in WebSockets");
-                    wsbt = true;
-                }
-            } catch (exc) {
-                // Just ignore failed test localhost connection
-            }
-
-            // Default protocols if not specified
-            if (typeof(protocols) === "undefined") {
-                protocols = 'binary';
-            }
-
-            if (Array.isArray(protocols) && protocols.indexOf('binary') > -1) {
-                protocols = 'binary';
-            }
-
-            if (!wsbt) {
-                throw new Error("noVNC no longer supports base64 WebSockets.  " +
-                                "Please use a browser which supports binary WebSockets.");
-            }
-
-            if (protocols != 'binary') {
-                throw new Error("noVNC no longer supports base64 WebSockets.  Please " +
-                                "use the binary subprotocol instead.");
-            }
-
-            return protocols;
         },
 
         open: function (uri, protocols) {
             var ws_schema = uri.match(/^([a-z]+):\/\//)[1];
-            protocols = this.init(protocols, ws_schema);
+            this.init();
 
             this._websocket = new WebSocket(uri, protocols);
-
-            if (protocols.indexOf('binary') >= 0) {
-                this._websocket.binaryType = 'arraybuffer';
-            }
+            this._websocket.binaryType = 'arraybuffer';
 
             this._websocket.onmessage = this._recv_message.bind(this);
             this._websocket.onopen = (function () {
                 Util.Debug('>> WebSock.onopen');
                 if (this._websocket.protocol) {
-                    this._mode = this._websocket.protocol;
                     Util.Info("Server choose sub-protocol: " + this._websocket.protocol);
-                } else {
-                    this._mode = 'binary';
-                    Util.Error('Server select no sub-protocol!: ' + this._websocket.protocol);
-                }
-
-                if (this._mode != 'binary') {
-                    throw new Error("noVNC no longer supports base64 WebSockets.  Please " +
-                                    "use the binary subprotocol instead.");
-
                 }
 
                 this._eventHandlers.open();
