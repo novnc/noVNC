@@ -1152,13 +1152,14 @@ var UI;
             UI.showStatus(msg, "warning");
         },
 
-        setPassword: function() {
+        setPassword: function(e) {
             var password = document.getElementById('noVNC_password_input').value;
             UI.rfb.sendPassword(password);
             UI.reconnect_password = password;
             document.getElementById('noVNC_password_dlg')
                 .classList.remove('noVNC_open');
-            return false;
+            // Prevent actually submitting the form
+            e.preventDefault();
         },
 
 /* ------^-------
