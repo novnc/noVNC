@@ -602,8 +602,14 @@
             //                   style width to a number, the canvas is cleared.
             //                   However, if you set the style width to a string
             //                   ('NNNpx'), the canvas is scaled without clearing.
-            this._target.style.width = Math.round(factor * vp.w) + 'px';
-            this._target.style.height = Math.round(factor * vp.h) + 'px';
+            var width = Math.round(factor * vp.w) + 'px';
+            var height = Math.round(factor * vp.h) + 'px';
+
+            if ((this._target.style.width !== width) ||
+                (this._target.style.height !== height)) {
+                this._target.style.width = width;
+                this._target.style.height = height;
+            }
         },
 
         _setFillColor: function (color) {
