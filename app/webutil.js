@@ -10,9 +10,7 @@
 /*jslint bitwise: false, white: false, browser: true, devel: true */
 /*global Util, window, document */
 
-/* [module]
- * import Util from "../core/util";
- */
+import Util from "../core/util.js";
 
 // Globals defined here
 var WebUtil = {};
@@ -308,4 +306,4 @@ WebUtil.load_scripts = function (files_by_dir) {
     }
 };
 
-/* [module] export default WebUtil; */
+export default WebUtil;

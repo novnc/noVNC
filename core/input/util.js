@@ -1,7 +1,6 @@
-/* [module]
- * import KeyTable from "./keysym";
- * import keysyms from "./keysymdef";
- */
+import KeyTable from "./keysym.js";
+import keysyms from "./keysymdef.js";
+
 
 var KeyboardUtil = {};
 
@@ -676,4 +675,4 @@ KeyboardUtil.EscapeModifiers = function(next) {
     };
 };
 
-/* [module] export default KeyboardUtil; */
+export default KeyboardUtil;

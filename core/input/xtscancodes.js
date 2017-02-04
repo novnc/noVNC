@@ -148,4 +148,4 @@ var XtScancode = {
     "MediaSelect": 0xE06D,
 };
 
-/* [module] export default XtScancode */
+export default XtScancode

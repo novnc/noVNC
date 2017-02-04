@@ -8,12 +8,11 @@
 /*jslint browser: true, white: false */
 /*global window, Util */
 
-/* [module]
- * import Util from "../util";
- * import KeyboardUtil from "./util";
- */
+import Util from "../util.js";
+import KeyboardUtil from "./util.js";
 
-/* [module] export */ var Keyboard;
+
+export var Keyboard;
 
 (function () {
     "use strict";
@@ -148,7 +147,7 @@
     ]);
 })();
 
-/* [module] export */ var Mouse;
+export var Mouse;
 
 (function () {
     Mouse = function (defaults) {

@@ -112,4 +112,4 @@ var Base64 = {
     }
 }; /* End of Base64 namespace */
 
-/* [module] export default Base64; */
+export default Base64;

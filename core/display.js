@@ -10,12 +10,11 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-/* [module]
- * import Util from "./util";
- * import Base64 from "./base64";
- */
+import Util from "./util.js";
+import Base64 from "./base64.js";
 
-/* [module] export default */ function Display(defaults) {
+
+export default function Display(defaults) {
     this._drawCtx = null;
     this._c_forceCanvas = false;
 

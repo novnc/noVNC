@@ -21,4 +21,4 @@ var keysyms = (function(){
     };
 })();
 
-/* [module] export default keysyms */
+export default keysyms

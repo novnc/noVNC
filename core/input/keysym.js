@@ -379,4 +379,4 @@ var KeyTable = {
     XK_ydiaeresis:                  0x00ff, /* U+00FF LATIN SMALL LETTER Y WITH DIAERESIS */
 };
 
-/* [module] export default KeyTable; */
+export default KeyTable;

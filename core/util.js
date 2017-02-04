@@ -618,4 +618,4 @@ Util.releaseCapture = function () {
     }
 };
 
-/* [module] export default Util; */
+export default Util;

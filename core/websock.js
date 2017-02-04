@@ -12,14 +12,13 @@
  * read binary data off of the receive queue.
  */
 
-/* [module]
- * import Util from "./util";
- */
+import Util from "./util.js";
+
 
 /*jslint browser: true, bitwise: true */
 /*global Util*/
 
-/* [module] export default */ function Websock() {
+export default function Websock() {
     "use strict";
 
     this._websocket = null;  // WebSocket object

@@ -11,14 +11,12 @@
 /* jslint white: false, browser: true */
 /* global window, document.getElementById, Util, WebUtil, RFB, Display */
 
-/* [module]
- * import Util from "../core/util";
- * import KeyTable from "../core/input/keysym";
- * import keysyms from "../core/input/keysymdef";
- * import RFB from "../core/rfb";
- * import Display from "../core/display";
- * import WebUtil from "./webutil";
- */
+import Util from "../core/util.js";
+import KeyTable from "../core/input/keysym.js";
+import keysyms from "../core/input/keysymdef.js";
+import RFB from "../core/rfb.js";
+import Display from "../core/display.js";
+import WebUtil from "./webutil.js";
 
 var UI;
 
@@ -72,16 +70,6 @@ var UI;
         WebUtil.load_scripts(
             {'app': ["locale/" + Util.Localisation.language + ".js"]});
     }
-
-    /* [begin skip-as-module] */
-    // Load supporting scripts
-    WebUtil.load_scripts(
-        {'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
-                  "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                  "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
-
-    window.onscriptsload = function () { UI.load(); };
-    /* [end skip-as-module] */
 
     var _ = Util.Localisation.get;
 
@@ -1755,7 +1743,7 @@ var UI;
  */
     };
 
-    /* [module] UI.load(); */
+    UI.load();
 })();
 
-/* [module] export default UI; */
+export default UI;
