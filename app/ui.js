@@ -14,7 +14,7 @@
 /* [module]
  * import Util from "../core/util";
  * import KeyTable from "../core/input/keysym";
- * import keysyms from "./keysymdef";
+ * import keysyms from "../core/input/keysymdef";
  * import RFB from "../core/rfb";
  * import Display from "../core/display";
  * import WebUtil from "./webutil";

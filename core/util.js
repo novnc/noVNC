@@ -466,7 +466,7 @@ Util.Localisation = {
             }
 
             for (var i = 0;i < elem.childNodes.length;i++) {
-                node = elem.childNodes[i];
+                let node = elem.childNodes[i];
                 if (node.nodeType === node.ELEMENT_NODE) {
                     process(node, enabled);
                 } else if (node.nodeType === node.TEXT_NODE && enabled) {
