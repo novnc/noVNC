@@ -56,8 +56,5 @@
     "spooky": "^0.2.5",
     "temp": "^0.8.3",
     "through2": "^2.0.1"
-  },
-  "dependencies": {
-    "pako": "^1.0.3"
   }
 }

@@ -18,7 +18,7 @@ import Base64 from "./base64.js";
 import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
-import Inflator from "./inflator.mod.js";
+import Inflator from "./inflator.js";
 
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
@@ -423,7 +423,7 @@ export default function RFB(defaults) {
             }
 
             for (i = 0; i < 4; i++) {
-                this._FBU.zlibs[i] = new Inflator.Inflate();
+                this._FBU.zlibs[i] = new Inflator();
             }
         },
 

@@ -18,6 +18,7 @@ is not limited to):
     core/websock.js
     app/webutil.js
     core/input/xtscancodes.js
+    core/inflator.js
 
 The HTML, CSS, font and images files that included with the noVNC
 source distibution (or repository) are not considered part of the
@@ -49,8 +50,7 @@ licenses (all MPL 2.0 compatible):
 
     core/des.js             : Various BSD style licenses
 
-    utils/inflator.mod.js
-    include/inflator.js     : MIT (for pako)
+    vendor/pako/            : MIT
 
 Any other files not mentioned above are typically marked with
 a copyright/license header at the top of the file. The default noVNC
@@ -66,7 +66,7 @@ The following license texts are included:
     docs/LICENSE.BSD-2-Clause (Simplified BSD / FreeBSD)
     docs/LICENSE.zlib
     docs/LICENSE.Apache-2.0
-    docs/LICENSE.pako
+    vendor/pako/LICENSE (MIT)
 
 Or alternatively the license texts may be found here:
 
