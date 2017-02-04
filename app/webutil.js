@@ -33,35 +33,6 @@ WebUtil.init_logging = function (level) {
     Util.init_logging();
 };
 
-
-WebUtil.dirObj = function (obj, depth, parent) {
-    "use strict";
-    if (! depth) { depth = 2; }
-    if (! parent) { parent = ""; }
-
-    // Print the properties of the passed-in object
-    var msg = "";
-    for (var i in obj) {
-        if ((depth > 1) && (typeof obj[i] === "object")) {
-            // Recurse attributes that are objects
-            msg += WebUtil.dirObj(obj[i], depth - 1, parent + "." + i);
-        } else {
-            //val = new String(obj[i]).replace("\n", " ");
-            var val = "";
-            if (typeof(obj[i]) === "undefined") {
-                val = "undefined";
-            } else {
-                val = obj[i].toString().replace("\n", " ");
-            }
-            if (val.length > 30) {
-                val = val.substr(0, 30) + "...";
-            }
-            msg += parent + "." + i + ": " + val + "\n";
-        }
-    }
-    return msg;
-};
-
 // Read a query string variable
 WebUtil.getQueryVar = function (name, defVal) {
     "use strict";
