@@ -36,4 +36,3 @@ export default function Inflate() {
 
     inflateInit(this.strm, this.windowBits);
 };
-

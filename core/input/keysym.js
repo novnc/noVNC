@@ -1,4 +1,4 @@
-var KeyTable = {
+export default {
     XK_VoidSymbol:                  0xffffff, /* Void symbol */
 
     XK_BackSpace:                   0xff08, /* Back space, back char */
@@ -378,5 +378,3 @@ var KeyTable = {
     XK_thorn:                       0x00fe, /* U+00FE LATIN SMALL LETTER THORN */
     XK_ydiaeresis:                  0x00ff, /* U+00FF LATIN SMALL LETTER Y WITH DIAERESIS */
 };
-
-export default KeyTable;

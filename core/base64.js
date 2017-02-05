@@ -7,7 +7,7 @@
 /*jslint white: false */
 /*global console */
 
-var Base64 = {
+export default {
     /* Convert data (an array of integers) to a Base64 string. */
     toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),
     base64Pad     : '=',
@@ -15,7 +15,7 @@ var Base64 = {
     encode: function (data) {
         "use strict";
         var result = '';
-        var toBase64Table = Base64.toBase64Table;
+        var toBase64Table = this.toBase64Table;
         var length = data.length;
         var lengthpad = (length % 3);
         // Convert every three bytes to 4 ascii characters.
@@ -63,8 +63,8 @@ var Base64 = {
     decode: function (data, offset) {
         "use strict";
         offset = typeof(offset) !== 'undefined' ? offset : 0;
-        var toBinaryTable = Base64.toBinaryTable;
-        var base64Pad = Base64.base64Pad;
+        var toBinaryTable = this.toBinaryTable;
+        var base64Pad = this.base64Pad;
         var result, result_length;
         var leftbits = 0; // number of bits decoded, but yet to be appended
         var leftdata = 0; // bits decoded, but yet to be appended
@@ -111,5 +111,3 @@ var Base64 = {
         return result;
     }
 }; /* End of Base64 namespace */
-
-export default Base64;

@@ -5,20 +5,9 @@ Public License 2.0). The noVNC core library is composed of the
 Javascript code necessary for full noVNC operation. This includes (but
 is not limited to):
 
-    core/base64.js
-    core/des.js
-    core/display.js
-    core/input/devices.js
-    core/input/keysym.js
-    core/logo.js
-    core/playback.js
-    core/rfb.js
-    app/ui.js
-    core/util.js
-    core/websock.js
-    app/webutil.js
-    core/input/xtscancodes.js
-    core/inflator.js
+    core/**/*.js
+    app/*.js
+    test/playback.js
 
 The HTML, CSS, font and images files that included with the noVNC
 source distibution (or repository) are not considered part of the

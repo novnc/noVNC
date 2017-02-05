@@ -7,3 +7,5 @@ utils/websockify
 /build
 /lib
 recordings
+*.swp
+*~

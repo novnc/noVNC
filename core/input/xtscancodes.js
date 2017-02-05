@@ -1,4 +1,4 @@
-var XtScancode = {
+export default {
     "Escape": 0x0001,
     "Digit1": 0x0002,
     "Digit2": 0x0003,
@@ -147,5 +147,3 @@ var XtScancode = {
     "LaunchMail": 0xE06C,
     "MediaSelect": 0xE06D,
 };
-
-export default XtScancode
