@@ -7,7 +7,6 @@ node_js:
 - '6.1'
 env:
   matrix:
-  - TEST_BROWSER_NAME=PhantomJS
   - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 10,Linux,OS X 10.11'
   - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Windows 10,Linux,OS X 10.11'
   - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 10'

@@ -1,6 +1,7 @@
-// requires local modules: base64
 var assert = chai.assert;
 var expect = chai.expect;
+
+import Base64 from '../core/base64.js';
 
 describe('Base64 Tools', function() {
     "use strict";

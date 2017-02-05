@@ -1,8 +1,14 @@
-// requires local modules: util
 /* jshint expr: true */
 
 var assert = chai.assert;
 var expect = chai.expect;
+
+import * as Log from '../core/util/logging.js';
+import l10nGet, { l10n } from '../core/util/localization.js';
+
+import 'sinon';
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+chai.use(sinonChai);
 
 describe('Utils', function() {
     "use strict";
@@ -25,34 +31,34 @@ describe('Utils', function() {
         });
 
         it('should use noop for levels lower than the min level', function () {
-            Util.init_logging('warn');
-            Util.Debug('hi');
-            Util.Info('hello');
+            Log.init_logging('warn');
+            Log.Debug('hi');
+            Log.Info('hello');
             expect(console.log).to.not.have.been.called;
         });
 
         it('should use console.debug for Debug', function () {
-            Util.init_logging('debug');
-            Util.Debug('dbg');
+            Log.init_logging('debug');
+            Log.Debug('dbg');
             expect(console.debug).to.have.been.calledWith('dbg');
         });
         
         it('should use console.info for Info', function () {
-            Util.init_logging('debug');
-            Util.Info('inf');
+            Log.init_logging('debug');
+            Log.Info('inf');
             expect(console.info).to.have.been.calledWith('inf');
         });
 
         it('should use console.warn for Warn', function () {
-            Util.init_logging('warn');
-            Util.Warn('wrn');
+            Log.init_logging('warn');
+            Log.Warn('wrn');
             expect(console.warn).to.have.been.called;
             expect(console.warn).to.have.been.calledWith('wrn');
         });
 
         it('should use console.error for Error', function () {
-            Util.init_logging('error');
-            Util.Error('err');
+            Log.init_logging('error');
+            Log.Error('err');
             expect(console.error).to.have.been.called;
             expect(console.error).to.have.been.calledWith('err');
         });
@@ -85,42 +91,42 @@ describe('Utils', function() {
         });
 
         it('should use English by default', function() {
-            expect(Util.Localisation.language).to.equal('en');
+            expect(l10n.language).to.equal('en');
         });
         it('should use English if no user language matches', function() {
             window.navigator.languages = ["nl", "de"];
-            Util.Localisation.setup(["es", "fr"]);
-            expect(Util.Localisation.language).to.equal('en');
+            l10n.setup(["es", "fr"]);
+            expect(l10n.language).to.equal('en');
         });
         it('should use the most preferred user language', function() {
             window.navigator.languages = ["nl", "de", "fr"];
-            Util.Localisation.setup(["es", "fr", "de"]);
-            expect(Util.Localisation.language).to.equal('de');
+            l10n.setup(["es", "fr", "de"]);
+            expect(l10n.language).to.equal('de');
         });
         it('should prefer sub-languages languages', function() {
             window.navigator.languages = ["pt-BR"];
-            Util.Localisation.setup(["pt", "pt-BR"]);
-            expect(Util.Localisation.language).to.equal('pt-BR');
+            l10n.setup(["pt", "pt-BR"]);
+            expect(l10n.language).to.equal('pt-BR');
         });
         it('should fall back to language "parents"', function() {
             window.navigator.languages = ["pt-BR"];
-            Util.Localisation.setup(["fr", "pt", "de"]);
-            expect(Util.Localisation.language).to.equal('pt');
+            l10n.setup(["fr", "pt", "de"]);
+            expect(l10n.language).to.equal('pt');
         });
         it('should not use specific language when user asks for a generic language', function() {
             window.navigator.languages = ["pt", "de"];
-            Util.Localisation.setup(["fr", "pt-BR", "de"]);
-            expect(Util.Localisation.language).to.equal('de');
+            l10n.setup(["fr", "pt-BR", "de"]);
+            expect(l10n.language).to.equal('de');
         });
         it('should handle underscore as a separator', function() {
             window.navigator.languages = ["pt-BR"];
-            Util.Localisation.setup(["pt_BR"]);
-            expect(Util.Localisation.language).to.equal('pt_BR');
+            l10n.setup(["pt_BR"]);
+            expect(l10n.language).to.equal('pt_BR');
         });
         it('should handle difference in case', function() {
             window.navigator.languages = ["pt-br"];
-            Util.Localisation.setup(["pt-BR"]);
-            expect(Util.Localisation.language).to.equal('pt-BR');
+            l10n.setup(["pt-BR"]);
+            expect(l10n.language).to.equal('pt-BR');
         });
     });
 

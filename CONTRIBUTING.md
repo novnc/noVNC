@@ -35,20 +35,8 @@ Contributing Guidelines
 Running the unit tests
 ----------------------
 
-There are two ways to run the unit tests.  For both ways, you should first run
-`npm install` (not as root).
-
-The first way to run the tests is to run `npm test`.  This will run all the
-tests in the headless PhantomJS browser (which uses WebKit).
-
-The second way to run the tests is using the `tests/run_from_console.js` file.
-This way is a bit more flexible, and can provide more information about what
-went wrong.  To run all the tests, simply run `tests/run_from_console.js`.
-To run a specific test file, you can use the `-t path/to/test/file.js` option.
-If you wish to simply generate the HTML for the test, use the `-g` option, and
-the path to the temporary HTML file will be written to standard out.  To open
-this file in your default browser automatically, pass the `-o` option as well.
-More information can be found by passing the `--help` or `-h` option.
-
+We use Karma to run our tests. You can launch karma manually, or simply
+run `npm test`.  The Karma debug page will display the tests in normal
+mocha form, if you need it.
 
 Thanks, and happy coding!

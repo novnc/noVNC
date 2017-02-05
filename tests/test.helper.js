@@ -1,7 +1,8 @@
-﻿// requires local modules: input/keysym, input/keysymdef, input/util
-
-var assert = chai.assert;
+﻿var assert = chai.assert;
 var expect = chai.expect;
+
+import keysyms from '../core/input/keysymdef.js';
+import * as KeyboardUtil from "../core/input/util.js";
 
 describe('Helpers', function() {
     "use strict";

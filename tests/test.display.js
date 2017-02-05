@@ -1,7 +1,14 @@
-// requires local modules: util, base64, display
-// requires test modules: assertions
 /* jshint expr: true */
 var expect = chai.expect;
+
+import Base64 from '../core/base64.js';
+import Display from '../core/display.js';
+import { _forceCursorURIs, browserSupportsCursorURIs } from '../core/util/browsers.js';
+
+import './assertions.js';
+import 'sinon';
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+chai.use(sinonChai);
 
 describe('Display/Canvas Helper', function () {
     var checked_data = [
@@ -34,30 +41,22 @@ describe('Display/Canvas Helper', function () {
     }
 
     describe('checking for cursor uri support', function () {
-        beforeEach(function () {
-            this._old_browser_supports_cursor_uris = Util.browserSupportsCursorURIs;
-        });
-
         it('should disable cursor URIs if there is no support', function () {
-            Util.browserSupportsCursorURIs = function () { return false; };
+            _forceCursorURIs(false);
             var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
             expect(display._cursor_uri).to.be.false;
         });
 
         it('should enable cursor URIs if there is support', function () {
-            Util.browserSupportsCursorURIs = function () { return true; };
+            _forceCursorURIs(true);
             var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
             expect(display._cursor_uri).to.be.true;
         });
 
         it('respect the cursor_uri option if there is support', function () {
-            Util.browserSupportsCursorURIs = function () { return false; };
+            _forceCursorURIs(false);
             var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false, cursor_uri: false });
             expect(display._cursor_uri).to.be.false;
-        });
-
-        afterEach(function () {
-            Util.browserSupportsCursorURIs = this._old_browser_supports_cursor_uris;
         });
     });
 

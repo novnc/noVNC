@@ -1,6 +1,8 @@
-// requires local modules: input/devices, input/util, input/keysymdef, input/keysym
 var assert = chai.assert;
 var expect = chai.expect;
+
+import keysyms from '../core/input/keysymdef.js';
+import * as KeyboardUtil from '../core/input/util.js';
 
 /* jshint newcap: false, expr: true */
 describe('Key Event Pipeline Stages', function() {
