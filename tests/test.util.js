@@ -10,6 +10,7 @@ describe('Utils', function() {
     describe('logging functions', function () {
         beforeEach(function () {
             sinon.spy(console, 'log');
+            sinon.spy(console, 'debug');
             sinon.spy(console, 'warn');
             sinon.spy(console, 'error');
             sinon.spy(console, 'info');
@@ -17,6 +18,7 @@ describe('Utils', function() {
 
         afterEach(function () {
            console.log.restore();
+           console.debug.restore();
            console.warn.restore();
            console.error.restore();
            console.info.restore();
@@ -29,10 +31,10 @@ describe('Utils', function() {
             expect(console.log).to.not.have.been.called;
         });
 
-        it('should use console.log for Debug', function () {
+        it('should use console.debug for Debug', function () {
             Util.init_logging('debug');
             Util.Debug('dbg');
-            expect(console.log).to.have.been.calledWith('dbg');
+            expect(console.debug).to.have.been.calledWith('dbg');
         });
         
         it('should use console.info for Info', function () {
