@@ -321,19 +321,33 @@ select:active {
 
 #noVNC_control_bar_handle {
   position: absolute;
-  left: -15px;
+  left: 100%;
+  right: auto;
   top: 0;
   transform: translateY(35px);
-  width: calc(100% + 30px);
+  width: 15px;
   height: 50px;
   z-index: -1;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 0px 5px 5px 0px;
   background-color: rgb(83, 99, 122);
   background-image: url("../images/handle_bg.svg");
   background-repeat: no-repeat;
   background-position: right;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+}
+#noVNC_control_bar_handle::before {
+  /* This extra element is to get a proper shadow */
+  content: "";
+  position: absolute;
+  height: 3px;
+  width: 3px;
+  left: -3px;
+  top: 100%;
+  box-shadow: 3px 0 0 rgba(0, 0, 0, 0.5);
+}
+.noVNC_right #noVNC_control_bar_handle::before {
+  visibility: hidden;
 }
 #noVNC_control_bar_handle:after {
   content: "";
@@ -353,6 +367,9 @@ select:active {
 }
 .noVNC_right #noVNC_control_bar_handle {
   background-position: left;
+  left: auto;
+  right: 100%;
+  border-radius: 5px 0px 0px 5px;
 }
 .noVNC_right #noVNC_control_bar_handle:after {
   left: 5px;
@@ -585,6 +602,29 @@ select:active {
 /* Connection Controls */
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
   display: none;
+}
+
+/* ----------------------------------------
+ * Silhouettes
+ * ----------------------------------------
+ */
+
+/* Outline that shows the form of a target element */
+.noVNC_silhouette {
+  /* Two colors to make it easier to see no matter the background */
+  box-shadow: 0 4px 5px white, 0 -4px 5px skyblue;
+  transition: visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+}
+.noVNC_silhouette.noVNC_active {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+.noVNC_silhouette.noVNC_flipped {
+  transform: rotate(180deg);
 }
 
 /* ----------------------------------------

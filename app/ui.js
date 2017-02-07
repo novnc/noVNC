@@ -650,13 +650,68 @@ var UI;
             if (anchor.classList.contains("noVNC_right")) {
                 WebUtil.writeSetting('controlbar_pos', 'left');
                 anchor.classList.remove("noVNC_right");
+
+                UI.updateControlBarHint('right');
             } else {
                 WebUtil.writeSetting('controlbar_pos', 'right');
                 anchor.classList.add("noVNC_right");
+
+                UI.updateControlBarHint('left');
             }
 
             // Consider this a movement of the handle
             UI.controlbarDrag = true;
+        },
+
+        displayControlBarHint: function (show) {
+            var handleHint = WebUtil.getSilhouette("noVNC_control_bar_handle");
+            var controlBarHint = WebUtil.getSilhouette("noVNC_control_bar");
+
+            if (!show) {
+                if (handleHint === null || controlBarHint === null) return;
+
+                if (handleHint.classList.contains("noVNC_active")) {
+                    handleHint.classList.remove("noVNC_active");
+                }
+                if (controlBarHint.classList.contains("noVNC_active")) {
+                    controlBarHint.classList.remove("noVNC_active");
+                }
+                return;
+            }
+
+            if (handleHint === null || controlBarHint === null) {
+                var handle =
+                    document.getElementById('noVNC_control_bar_handle');
+                var controlBar = document.getElementById('noVNC_control_bar');
+
+                handleHint = WebUtil.createSilhouette(handle);
+                controlBarHint = WebUtil.createSilhouette(controlBar);
+                handleHint.classList.add("noVNC_flipped");
+                controlBarHint.classList.add("noVNC_flipped");
+            }
+
+            UI.updateControlBarHint();
+
+            handleHint.classList.add("noVNC_active");
+            controlBarHint.classList.add("noVNC_active");
+        },
+
+        updateControlBarHint: function (hintSide) {
+            var handle = document.getElementById('noVNC_control_bar_handle');
+            var controlBar = document.getElementById('noVNC_control_bar');
+            if (hintSide === undefined) {
+                // Don't change side if no side was specified
+                if (WebUtil.readSetting('controlbar_pos') === 'left') {
+                    hintSide = 'right';
+                } else {
+                    hintSide = 'left';
+                }
+            } else {
+                WebUtil.flipSilhouette(handle);
+                WebUtil.flipSilhouette(controlBar);
+            }
+            WebUtil.updateSilhouette(handle, hintSide);
+            WebUtil.updateSilhouette(controlBar, hintSide);
         },
 
         dragControlbarHandle: function (e) {
@@ -732,6 +787,7 @@ var UI;
             // The transform needs coordinates that are relative to the parent
             var parentRelativeY = newY - controlbarBounds.top;
             handle.style.transform = "translateY(" + parentRelativeY + "px)";
+            UI.updateControlBarHint ();
         },
 
         updateControlbarHandle: function () {
@@ -754,6 +810,7 @@ var UI;
                 UI.activateControlbar();
             }
             UI.controlbarGrabbed = false;
+            UI.displayControlBarHint(false);
         },
 
         controlbarHandleMouseDown: function(e) {
@@ -767,6 +824,8 @@ var UI;
             WebUtil.setCapture(handle);
             UI.controlbarGrabbed = true;
             UI.controlbarDrag = false;
+
+            UI.displayControlBarHint(true);
 
             UI.controlbarMouseDownClientY = ptr.clientY;
             UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
