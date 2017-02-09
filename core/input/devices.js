@@ -330,12 +330,8 @@
             if (!this._focused) { return true; }
 
             var evt = (e ? e : window.event);
-            var pos = Util.getEventPosition(e, this._target, this._scale);
-
             /* Stop propagation if inside canvas area */
-            if ((pos.realx >= 0) && (pos.realy >= 0) &&
-                (pos.realx < this._target.offsetWidth) &&
-                (pos.realy < this._target.offsetHeight)) {
+            if (evt.target == this._target) {
                 //Util.Debug("mouse event disabled");
                 Util.stopEvent(e);
                 return false;
