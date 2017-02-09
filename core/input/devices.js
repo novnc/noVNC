@@ -190,9 +190,7 @@
         // private methods
         _captureMouse: function () {
             // capturing the mouse ensures we get the mouseup event
-            if (this._target.setCapture) {
-                this._target.setCapture();
-            }
+            Util.setCapture(this._target);
 
             // some browsers give us mouseup events regardless,
             // so if we never captured the mouse, we can disregard the event
@@ -200,9 +198,7 @@
         },
 
         _releaseMouse: function () {
-            if (this._target.releaseCapture) {
-                this._target.releaseCapture();
-            }
+            Util.releaseCapture(this._target);
             this._mouseCaptured = false;
         },
 

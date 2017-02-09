@@ -764,7 +764,7 @@ var UI;
             var handle = document.getElementById("noVNC_control_bar_handle");
             var bounds = handle.getBoundingClientRect();
 
-            WebUtil.setCapture(handle);
+            Util.setCapture(handle);
             UI.controlbarGrabbed = true;
             UI.controlbarDrag = false;
 

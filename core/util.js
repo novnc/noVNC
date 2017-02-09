@@ -517,4 +517,97 @@ Util.Localisation = {
     },
 };
 
+// Emulate Element.setCapture() when not supported
+
+Util._captureRecursion = false;
+Util._captureProxy = function (e) {
+    // Recursion protection as we'll see our own event
+    if (Util._captureRecursion) return;
+
+    // Clone the event as we cannot dispatch an already dispatched event
+    var newEv = new e.constructor(e.type, e);
+
+    Util._captureRecursion = true;
+    Util._captureElem.dispatchEvent(newEv);
+    Util._captureRecursion = false;
+
+    // Implicitly release the capture on button release
+    if ((e.type === "mouseup") || (e.type === "touchend")) {
+        Util.releaseCapture();
+    }
+};
+
+Util.setCapture = function (elem) {
+    if (elem.setCapture) {
+
+        elem.setCapture();
+
+        // IE releases capture on 'click' events which might not trigger
+        elem.addEventListener('mouseup', Util.releaseCapture);
+        elem.addEventListener('touchend', Util.releaseCapture);
+
+    } else {
+        // Safari on iOS 9 has a broken constructor for TouchEvent.
+        // We are fine in this case however, since Safari seems to
+        // have some sort of implicit setCapture magic anyway.
+        if (window.TouchEvent !== undefined) {
+            try {
+                new TouchEvent("touchstart");
+            } catch (TypeError) {
+                return;
+            }
+        }
+
+        var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+
+        if (captureElem === null) {
+            captureElem = document.createElement("div");
+            captureElem.id = "noVNC_mouse_capture_elem";
+            captureElem.style.position = "fixed";
+            captureElem.style.top = "0px";
+            captureElem.style.left = "0px";
+            captureElem.style.width = "100%";
+            captureElem.style.height = "100%";
+            captureElem.style.zIndex = 10000;
+            captureElem.style.display = "none";
+            document.body.appendChild(captureElem);
+
+            captureElem.addEventListener('mousemove', Util._captureProxy);
+            captureElem.addEventListener('mouseup', Util._captureProxy);
+
+            captureElem.addEventListener('touchmove', Util._captureProxy);
+            captureElem.addEventListener('touchend', Util._captureProxy);
+        }
+
+        Util._captureElem = elem;
+        captureElem.style.display = null;
+
+        // We listen to events on window in order to keep tracking if it
+        // happens to leave the viewport
+        window.addEventListener('mousemove', Util._captureProxy);
+        window.addEventListener('mouseup', Util._captureProxy);
+
+        window.addEventListener('touchmove', Util._captureProxy);
+        window.addEventListener('touchend', Util._captureProxy);
+    }
+};
+
+Util.releaseCapture = function () {
+    if (document.releaseCapture) {
+
+        document.releaseCapture();
+
+    } else {
+        var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+        Util._captureElem = null;
+        captureElem.style.display = "none";
+
+        window.removeEventListener('mousemove', Util._captureProxy);
+        window.removeEventListener('mouseup', Util._captureProxy);
+
+        window.removeEventListener('touchmove', Util._captureProxy);
+        window.removeEventListener('touchend', Util._captureProxy);
+    }
+};
+
 /* [module] export default Util; */
