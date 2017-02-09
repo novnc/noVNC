@@ -1479,15 +1479,21 @@ var UI;
                 return;
             }
 
-            // Allow clicking on links
-            if (event.target.tagName === "A") {
-                return;
-            }
-
-            // And form elements, except standard noVNC buttons
-            if ((event.target.form !== undefined) &&
-                !event.target.classList.contains("noVNC_button")) {
-                return;
+            // Only allow focus to move to other elements that need
+            // focus to function properly
+            if (event.target.form !== undefined) {
+                switch (event.target.type) {
+                    case 'text':
+                    case 'email':
+                    case 'search':
+                    case 'password':
+                    case 'tel':
+                    case 'url':
+                    case 'textarea':
+                    case 'select-one':
+                    case 'select-multiple':
+                        return;
+                }
             }
 
             event.preventDefault();
