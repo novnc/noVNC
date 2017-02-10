@@ -1260,7 +1260,16 @@ var UI;
         // Gets the the size of the available viewport in the browser window
         screenSize: function() {
             var screen = document.getElementById('noVNC_screen');
-            return {w: screen.offsetWidth, h: screen.offsetHeight};
+            var width, height;
+
+            screen.style.overflow = "hidden";
+
+            width = screen.offsetWidth;
+            height = screen.offsetHeight;
+
+            screen.style.overflow = "auto";
+
+            return {w: width, h: height};
         },
 
         // Normally we only apply the current resize mode after a window resize
