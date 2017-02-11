@@ -23,7 +23,7 @@ var lib_dir_base = path.resolve(__dirname, '..', 'lib');
 
 // walkDir *recursively* walks directories trees,
 // calling the callback for all normal files found.
-var walkDir = function (base_path, cb) {
+var walkDir = function (base_path, cb, filter) {
     fs.readdir(base_path, (err, files) => {
         if (err) throw err;
 
@@ -31,9 +31,11 @@ var walkDir = function (base_path, cb) {
             fs.lstat(filepath, (err, stats) => {
                 if (err) throw err;
 
+                if (filter !== undefined && !filter(filepath, stats)) return;
+
                 if (stats.isSymbolicLink()) return;
                 if (stats.isFile()) cb(filepath);
-                if (stats.isDirectory()) walkDir(filepath, cb);
+                if (stats.isDirectory()) walkDir(filepath, cb, filter);
             });
         });
     });
@@ -123,7 +125,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
     };
 
     walkDir(core_path, handleDir.bind(null, true, in_path || core_path));
-    walkDir(vendor_path, handleDir.bind(null, true, in_path || main_path));
+    walkDir(vendor_path, handleDir.bind(null, true, in_path || main_path), (filepath, stats) => !((stats.isDirectory() && path.basename(filepath) === 'browser-es-module-loader') || path.basename(filepath) === 'sinon.js'));
 
     if (with_app_dir) {
         walkDir(app_path, handleDir.bind(null, false, in_path || app_path));

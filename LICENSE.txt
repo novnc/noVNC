@@ -41,6 +41,8 @@ licenses (all MPL 2.0 compatible):
 
     vendor/pako/            : MIT
 
+    vendor/browser-es-module-loader: MIT
+
 Any other files not mentioned above are typically marked with
 a copyright/license header at the top of the file. The default noVNC
 license is MPL-2.0.
@@ -66,3 +68,4 @@ Or alternatively the license texts may be found here:
     http://en.wikipedia.org/wiki/BSD_licenses
     http://www.gzip.org/zlib/zlib_license.html
     http://www.apache.org/licenses/LICENSE-2.0.html
+    https://opensource.org/licenses/MIT
