@@ -792,25 +792,20 @@
                                       "Security failure: " + reason);
                 }
 
-                this._rfb_auth_scheme = 0;
                 var types = this._sock.rQshiftBytes(num_types);
                 Util.Debug("Server security types: " + types);
-                for (var i = 0; i < types.length; i++) {
-                    switch (types[i]) {
-                        case 1: // None
-                        case 2: // VNC Authentication
-                        case 16: // Tight
-                        case 22: // XVP
-                            if (types[i] > this._rfb_auth_scheme) {
-                                this._rfb_auth_scheme = types[i];
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
 
-                if (this._rfb_auth_scheme === 0) {
+                // Look for each auth in preferred order
+                this._rfb_auth_scheme = 0;
+                if (types.indexOf(1) !== -1) {
+                    this._rfb_auth_scheme = 1; // None
+                } else if (types.indexOf(22) !== -1) {
+                    this._rfb_auth_scheme = 22; // XVP
+                } else if (types.indexOf(16) !== -1) {
+                    this._rfb_auth_scheme = 16; // Tight
+                } else if (types.indexOf(2) !== -1) {
+                    this._rfb_auth_scheme = 2; // VNC Auth
+                } else {
                     return this._fail("Unsupported server",
                                       "Unsupported security types: " + types);
                 }
