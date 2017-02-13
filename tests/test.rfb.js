@@ -712,12 +712,20 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_auth_scheme).to.equal(auth_scheme);
             });
 
+            it('should prefer no authentication is possible', function () {
+                client._rfb_version = 3.7;
+                var auth_schemes = [2, 1, 3];
+                client._sock._websocket._receive_data(auth_schemes);
+                expect(client._rfb_auth_scheme).to.equal(1);
+                expect(client._sock).to.have.sent(new Uint8Array([1, 1]));
+            });
+
             it('should choose for the most prefered scheme possible for versions >= 3.7', function () {
                 client._rfb_version = 3.7;
-                var auth_schemes = [2, 1, 2];
+                var auth_schemes = [2, 22, 16];
                 client._sock._websocket._receive_data(auth_schemes);
-                expect(client._rfb_auth_scheme).to.equal(2);
-                expect(client._sock).to.have.sent(new Uint8Array([2]));
+                expect(client._rfb_auth_scheme).to.equal(22);
+                expect(client._sock).to.have.sent(new Uint8Array([22]));
             });
 
             it('should fail if there are no supported schemes for versions >= 3.7', function () {

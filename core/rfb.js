@@ -795,15 +795,26 @@
                 var types = this._sock.rQshiftBytes(num_types);
                 Util.Debug("Server security types: " + types);
 
+                // Polyfill since IE and PhantomJS doesn't have
+                // TypedArray.includes()
+                function includes(item, array) {
+                    for (var i = 0; i < array.length; i++) {
+                        if (array[i] === item) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
                 // Look for each auth in preferred order
                 this._rfb_auth_scheme = 0;
-                if (types.indexOf(1) !== -1) {
+                if (includes(1, types)) {
                     this._rfb_auth_scheme = 1; // None
-                } else if (types.indexOf(22) !== -1) {
+                } else if (includes(22, types)) {
                     this._rfb_auth_scheme = 22; // XVP
-                } else if (types.indexOf(16) !== -1) {
+                } else if (includes(16, types)) {
                     this._rfb_auth_scheme = 16; // Tight
-                } else if (types.indexOf(2) !== -1) {
+                } else if (includes(2, types)) {
                     this._rfb_auth_scheme = 2; // VNC Auth
                 } else {
                     return this._fail("Unsupported server",
