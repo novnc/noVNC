@@ -198,7 +198,7 @@
         },
 
         _releaseMouse: function () {
-            Util.releaseCapture(this._target);
+            Util.releaseCapture();
             this._mouseCaptured = false;
         },
 
@@ -330,7 +330,12 @@
             if (!this._focused) { return true; }
 
             var evt = (e ? e : window.event);
-            /* Stop propagation if inside canvas area */
+            /*
+             * Stop propagation if inside canvas area
+             * Note: This is only needed for the 'click' event as it fails
+             *       to fire properly for the target element so we have
+             *       to listen on the document element instead.
+             */
             if (evt.target == this._target) {
                 //Util.Debug("mouse event disabled");
                 Util.stopEvent(e);
@@ -357,9 +362,12 @@
             c.addEventListener('mousemove', this._eventHandlers.mousemove);
             c.addEventListener('wheel', this._eventHandlers.mousewheel);
 
-            /* Work around right and middle click browser behaviors */
+            /* Prevent middle-click pasting (see above for why we bind to document) */
             document.addEventListener('click', this._eventHandlers.mousedisable);
-            document.body.addEventListener('contextmenu', this._eventHandlers.mousedisable);
+
+            /* preventDefault() on mousedown doesn't stop this event for some
+               reason so we have to explicitly block it */
+            c.addEventListener('contextmenu', this._eventHandlers.mousedisable);
         },
 
         ungrab: function () {
@@ -377,10 +385,9 @@
             c.removeEventListener('mousemove', this._eventHandlers.mousemove);
             c.removeEventListener('wheel', this._eventHandlers.mousewheel);
 
-            /* Work around right and middle click browser behaviors */
             document.removeEventListener('click', this._eventHandlers.mousedisable);
-            document.body.removeEventListener('contextmenu', this._eventHandlers.mousedisable);
 
+            c.removeEventListener('contextmenu', this._eventHandlers.mousedisable);
         }
     };
 
