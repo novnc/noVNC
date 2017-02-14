@@ -150,6 +150,7 @@ const UI = {
         UI.updateVisualState();
 
         document.getElementById('noVNC_setting_host').focus();
+        document.documentElement.classList.remove("noVNC_loading");
 
         var autoconnect = WebUtil.getConfigVar('autoconnect', false);
         if (autoconnect === 'true' || autoconnect == '1') {

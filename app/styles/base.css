@@ -774,6 +774,7 @@ select:active {
   justify-content: center;
   flex-direction: column;
 }
+:root.noVNC_loading #noVNC_transition,
 :root.noVNC_connecting #noVNC_transition,
 :root.noVNC_disconnecting #noVNC_transition,
 :root.noVNC_reconnecting #noVNC_transition {
