@@ -531,6 +531,14 @@ Util._captureProxy = function (e) {
     Util._captureElem.dispatchEvent(newEv);
     Util._captureRecursion = false;
 
+    // Avoid double events
+    e.stopPropagation();
+
+    // Respect the wishes of the redirected event handlers
+    if (newEv.defaultPrevented) {
+        e.preventDefault();
+    }
+
     // Implicitly release the capture on button release
     if ((e.type === "mouseup") || (e.type === "touchend")) {
         Util.releaseCapture();
@@ -547,6 +555,10 @@ Util.setCapture = function (elem) {
         elem.addEventListener('touchend', Util.releaseCapture);
 
     } else {
+        // Release any existing capture in case this method is
+        // called multiple times without coordination
+        Util.releaseCapture();
+
         // Safari on iOS 9 has a broken constructor for TouchEvent.
         // We are fine in this case however, since Safari seems to
         // have some sort of implicit setCapture magic anyway.
@@ -571,6 +583,10 @@ Util.setCapture = function (elem) {
             captureElem.style.zIndex = 10000;
             captureElem.style.display = "none";
             document.body.appendChild(captureElem);
+
+            // This is to make sure callers don't get confused by having
+            // our blocking element as the target
+            captureElem.addEventListener('contextmenu', Util._captureProxy);
 
             captureElem.addEventListener('mousemove', Util._captureProxy);
             captureElem.addEventListener('mouseup', Util._captureProxy);
@@ -598,8 +614,17 @@ Util.releaseCapture = function () {
         document.releaseCapture();
 
     } else {
+        if (!Util._captureElem) {
+            return;
+        }
+
+        // There might be events already queued, so we need to wait for
+        // them to flush. E.g. contextmenu in Microsoft Edge
+        //
+        // FIXME: What happens if setCapture is called before this fires?
+        window.setTimeout(function() { Util._captureElem = null; });
+
         var captureElem = document.getElementById("noVNC_mouse_capture_elem");
-        Util._captureElem = null;
         captureElem.style.display = "none";
 
         window.removeEventListener('mousemove', Util._captureProxy);
