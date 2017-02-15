@@ -277,4 +277,38 @@ WebUtil.load_scripts = function (files_by_dir) {
     }
 };
 
+// sadly, we can't use the Fetch API until we decide to drop
+// IE11 support or polyfill promises and fetch in IE11.
+// resolve will receive an object on success, while reject
+// will receive either an event or an error on failure.
+WebUtil.fetchJSON = function (path, resolve, reject) {
+    // NB: IE11 doesn't support JSON as a responseType
+    const req = new XMLHttpRequest();
+    req.open('GET', path);
+
+    req.onload = function () {
+        if (req.status === 200) {
+            try {
+                var resObj = JSON.parse(req.responseText);
+            } catch (err) {
+                reject(err);
+                return;
+            }
+            resolve(resObj);
+        } else {
+            reject(new Error("XHR got non-200 status while trying to load '" + path + "': " + req.status));
+        }
+    };
+
+    req.onerror = function (evt) {
+        reject(new Error("XHR encountered an error while trying to load '" + path + "': " + evt.message));
+    };
+
+    req.ontimeout = function (evt) {
+        reject(new Error("XHR timed out while trying to load '" + path + "'"));
+    };
+
+    req.send();
+};
+
 export default WebUtil;

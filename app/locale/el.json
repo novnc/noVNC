@@ -1,11 +1,4 @@
-/*
- * Translations for el
- *
- * This file was autotomatically generated from el.po
- * DO NOT EDIT!
- */
-
-Language = {
+{
     "Connecting...": "Συνδέεται...",
     "Connected (encrypted) to ": "Συνδέθηκε (κρυπτογραφημένα) με το ",
     "Connected (unencrypted) to ": "Συνδέθηκε (μη κρυπτογραφημένα) με το ",
@@ -15,7 +8,7 @@ Language = {
     "Password is required": "Απαιτείται ο κωδικός πρόσβασης",
     "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "Εφαρμογή λειτουργίας αποκοπής αφού δεν υποστηρίζονται οι λωρίδες κύλισης σε πλήρη οθόνη στον IE",
     "Disconnect timeout": "Παρέλευση χρονικού ορίου αποσύνδεσης",
-    "noVNC encountered an error:": "το noVNC αντιμετώπισε ένα σφάλμα",
+    "noVNC encountered an error:": "το noVNC αντιμετώπισε ένα σφάλμα:",
     "Hide/Show the control bar": "Απόκρυψη/Εμφάνιση γραμμής ελέγχου",
     "Move/Drag Viewport": "Μετακίνηση/Σύρσιμο Θεατού πεδίου",
     "viewport drag": "σύρσιμο θεατού πεδίου",
@@ -65,10 +58,13 @@ Language = {
     "default": "προεπιλεγμένο",
     "Logging:": "Καταγραφή:",
     "Apply": "Εφαρμογή",
+    "Connect": "Σύνδεση",
+    "Disconnect": "Αποσύνδεση",
+    "Connection": "Σύνδεση",
     "Host:": "Όνομα διακομιστή:",
     "Port:": "Πόρτα διακομιστή:",
     "Password:": "Κωδικός Πρόσβασης:",
     "Token:": "Διακριτικό:",
     "Send Password": "Αποστολή Κωδικού Πρόσβασης",
-    "Canvas not supported.": "Δεν υποστηρίζεται το στοιχείο Canvas",
-};
+    "Canvas not supported.": "Δεν υποστηρίζεται το στοιχείο Canvas"
+}

@@ -6,14 +6,14 @@ LINGUAS := de el nl sv
 VERSION := $(shell grep '"version"' ../package.json | cut -d '"' -f 4)
 
 POFILES := $(addsuffix .po,$(LINGUAS))
-JSFILES := $(addprefix ../app/locale/,$(addsuffix .js,$(LINGUAS)))
+JSONFILES := $(addprefix ../app/locale/,$(addsuffix .json,$(LINGUAS)))
 
 update-po: $(POFILES)
-update-js: $(JSFILES)
+update-js: $(JSONFILES)
 
 %.po: noVNC.pot
 	msgmerge --update --lang=$* $@ $<
-../app/locale/%.js: %.po
+../app/locale/%.json: %.po
 	./po2js $< $@
 
 update-pot:

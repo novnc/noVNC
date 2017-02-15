@@ -32,25 +32,12 @@ if (opt.argv.length != 2) {
 
 var data = po2json.parseFileSync(opt.argv[0]);
 
-var output =
-"/*\n" +
-" * Translations for " + data[""]["language"] + "\n" +
-" *\n" +
-" * This file was autotomatically generated from " + opt.argv[0] + "\n" +
-" * DO NOT EDIT!\n" +
-" */\n" +
-"\n" +
-"Language = {\n";
+var bodyPart = Object.keys(data).filter((msgid) => msgid !== "").map((msgid) => {
+    if (msgid === "") return;
+    var msgstr = data[msgid][1];
+    return "    " + JSON.stringify(msgid) + ": " + JSON.stringify(msgstr);
+}).join(",\n");
 
-for (msgid in data) {
-  if (msgid === "")
-    continue;
-
-  msgstr = data[msgid][1];
-  output += "    " + JSON.stringify(msgid) + ": " +
-            JSON.stringify(msgstr) + ",\n";
-}
-
-output += "};\n";
+var output = "{\n" + bodyPart + "\n}";
 
 fs.writeFileSync(opt.argv[1], output);

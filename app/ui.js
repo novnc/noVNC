@@ -63,14 +63,6 @@ var UI;
         return false;
     });
 
-    // Set up translations
-    var LINGUAS = ["de", "el", "nl", "sv"];
-    Util.Localisation.setup(LINGUAS);
-    if (Util.Localisation.language !== "en") {
-        WebUtil.load_scripts(
-            {'app': ["locale/" + Util.Localisation.language + ".js"]});
-    }
-
     var _ = Util.Localisation.get;
 
     UI = {
@@ -1743,7 +1735,21 @@ var UI;
  */
     };
 
-    UI.load();
+    // Set up translations
+    var LINGUAS = ["de", "el", "nl", "sv"];
+    Util.Localisation.setup(LINGUAS);
+    if (Util.Localisation.language !== "en" && Util.Localisation.dictionary === undefined) {
+        WebUtil.fetchJSON('app/locale/' + Util.Localisation.language + '.json', function (translations) {
+            Util.Localisation.dictionary = translations;
+
+            // wait for translations to load before loading the UI
+            UI.load();
+        }, function (err) {
+            throw err; 
+        });
+    } else {
+        UI.load();
+    }
 })();
 
 export default UI;
