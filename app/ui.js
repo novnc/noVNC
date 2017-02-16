@@ -560,9 +560,9 @@ var UI;
                 status_type = 'normal';
             }
 
-            statusElem.classList.remove("noVNC_status_normal",
-                                        "noVNC_status_warn",
-                                        "noVNC_status_error");
+            statusElem.classList.remove("noVNC_status_normal");
+            statusElem.classList.remove("noVNC_status_warn");
+            statusElem.classList.remove("noVNC_status_error");
 
             switch (status_type) {
                 case 'warning':
