@@ -133,9 +133,6 @@ var UI;
                 document.documentElement.classList.add("noVNC_touch");
                 // Remove the address bar
                 setTimeout(function() { window.scrollTo(0, 1); }, 100);
-                UI.forceSetting('clip', true);
-            } else {
-                UI.initSetting('clip', false);
             }
 
             // Restore control bar position
@@ -228,6 +225,7 @@ var UI;
             UI.initSetting('encrypt', (window.location.protocol === "https:"));
             UI.initSetting('true_color', true);
             UI.initSetting('cursor', !Util.isTouchDevice);
+            UI.initSetting('clip', false);
             UI.initSetting('resize', 'off');
             UI.initSetting('shared', true);
             UI.initSetting('view_only', false);
@@ -849,12 +847,6 @@ var UI;
             return val;
         },
 
-        // Force a setting to be a certain value
-        forceSetting: function(name, val) {
-            UI.updateSetting(name, val);
-            return val;
-        },
-
         // Read form control compatible setting from cookie
         getSetting: function(name) {
             var ctrl = document.getElementById('noVNC_setting_' + name);
@@ -1298,6 +1290,15 @@ var UI;
             var cur_clip = display.get_viewport();
             var new_clip = UI.getSetting('clip');
 
+            var resizeSetting = UI.getSetting('resize');
+            if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
+                // Disable clipping if we are scaling
+                new_clip = false;
+            } else if (Util.isTouchDevice) {
+                // Touch devices usually have shit scrollbars
+                new_clip = true;
+            }
+
             if (cur_clip !== new_clip) {
                 display.set_viewport(new_clip);
             }
@@ -1314,18 +1315,12 @@ var UI;
         // Handle special cases where clipping is forced on/off or locked
         enableDisableViewClip: function() {
             var resizeSetting = UI.getSetting('resize');
-
             if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
                 // Disable clipping if we are scaling
-                UI.forceSetting('clip', false);
-                UI.setViewClip(false);
                 document.getElementById('noVNC_setting_clip').disabled = true;
             } else {
                 document.getElementById('noVNC_setting_clip').disabled =
                     UI.connected || Util.isTouchDevice;
-                if (Util.isTouchDevice) {
-                    UI.setViewClip(true);
-                }
             }
         },
 
