@@ -819,6 +819,8 @@ select:active {
  * settings and noVNC settings. */
 #noVNC_canvas {
   margin: auto;
+  /* IE miscalculates width without this :( */
+  flex-shrink: 0;
 }
 
 /*Default noVNC logo.*/
