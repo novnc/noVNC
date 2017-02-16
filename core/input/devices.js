@@ -161,7 +161,6 @@
         Util.set_defaults(this, defaults, {
             'target': document,
             'focused': true,
-            'scale': 1.0,
             'touchButton': 1
         });
 
@@ -343,8 +342,6 @@
             } else {
                 y = e.clientY - bounds.top;
             }
-            x = x / this._scale;
-            y = y / this._scale;
             return {x:x, y:y};
         },
 
@@ -398,7 +395,6 @@
         ['target',         'ro', 'dom'],   // DOM element that captures mouse input
         ['notify',         'ro', 'func'],  // Function to call to notify whenever a mouse event is received
         ['focused',        'rw', 'bool'],  // Capture and send mouse clicks/movement
-        ['scale',          'rw', 'float'], // Viewport scale factor 0.0 - 1.0
 
         ['onMouseButton',  'rw', 'func'],  // Handler for mouse button click/release
         ['onMouseMove',    'rw', 'func'],  // Handler for mouse movement

@@ -1227,7 +1227,6 @@ var UI;
                 var display = UI.rfb.get_display();
                 var resizeMode = UI.getSetting('resize');
                 display.set_scale(1);
-                UI.rfb.get_mouse().set_scale(1);
 
                 if (resizeMode === 'remote') {
 
@@ -1247,12 +1246,7 @@ var UI;
 
                 } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
                     var downscaleOnly = resizeMode === 'downscale';
-                    var scaleRatio = display.autoscale(screen.w, screen.h, downscaleOnly);
-
-                    if (!UI.rfb.get_view_only()) {
-                        UI.rfb.get_mouse().set_scale(scaleRatio);
-                        Util.Debug('Scaling by ' + UI.rfb.get_mouse().get_scale());
-                    }
+                    display.autoscale(screen.w, screen.h, downscaleOnly);
                 }
             }
         },

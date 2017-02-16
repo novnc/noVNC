@@ -274,13 +274,17 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should use width to determine scale when the current aspect ratio is wider than the target', function () {
-            expect(display.autoscale(9, 16)).to.equal(9 / 4);
+            display.autoscale(9, 16);
+            expect(display.absX(9)).to.equal(4);
+            expect(display.absY(18)).to.equal(8);
             expect(canvas.clientWidth).to.equal(9);
             expect(canvas.clientHeight).to.equal(7); // round 9 / (4 / 3)
         });
 
         it('should use height to determine scale when the current aspect ratio is taller than the target', function () {
-            expect(display.autoscale(16, 9)).to.equal(3); // 9 / 3
+            display.autoscale(16, 9);
+            expect(display.absX(9)).to.equal(3);
+            expect(display.absY(18)).to.equal(6);
             expect(canvas.clientWidth).to.equal(12);  // 16 * (4 / 3)
             expect(canvas.clientHeight).to.equal(9);
 
@@ -293,11 +297,15 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should not upscale when downscaleOnly is true', function () {
-            expect(display.autoscale(2, 2, true)).to.equal(0.5);
+            display.autoscale(2, 2, true);
+            expect(display.absX(9)).to.equal(18);
+            expect(display.absY(18)).to.equal(36);
             expect(canvas.clientWidth).to.equal(2);
             expect(canvas.clientHeight).to.equal(2);
 
-            expect(display.autoscale(16, 9, true)).to.equal(1.0);
+            display.autoscale(16, 9, true);
+            expect(display.absX(9)).to.equal(9);
+            expect(display.absY(18)).to.equal(18);
             expect(canvas.clientWidth).to.equal(4);
             expect(canvas.clientHeight).to.equal(3);
         });

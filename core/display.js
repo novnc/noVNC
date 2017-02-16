@@ -193,11 +193,11 @@
         },
 
         absX: function (x) {
-            return x + this._viewportLoc.x;
+            return x / this._scale + this._viewportLoc.x;
         },
 
         absY: function (y) {
-            return y + this._viewportLoc.y;
+            return y / this._scale + this._viewportLoc.y;
         },
 
         resize: function (width, height) {
@@ -589,8 +589,6 @@
             }
 
             this._rescale(scaleRatio);
-
-            return scaleRatio;  // so that the mouse, etc scale can be set
         },
 
         // Private Methods
