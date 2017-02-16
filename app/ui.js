@@ -1315,34 +1315,11 @@ var UI;
         enableDisableViewClip: function() {
             var resizeSetting = UI.getSetting('resize');
 
-            if (UI.isSafari) {
-                // Safari auto-hides the scrollbars which makes them
-                // impossible to use in most cases
-                UI.setViewClip(true);
-                document.getElementById('noVNC_setting_clip').disabled = true;
-            } else if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
+            if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
                 // Disable clipping if we are scaling
                 UI.forceSetting('clip', false);
                 UI.setViewClip(false);
                 document.getElementById('noVNC_setting_clip').disabled = true;
-            } else if (document.msFullscreenElement) {
-                // The browser is IE and we are in fullscreen mode.
-                // - We need to force clipping while in fullscreen since
-                //   scrollbars doesn't work.
-                var msg = _("Forcing clipping mode since " +
-                            "scrollbars aren't supported " +
-                            "by IE in fullscreen");
-                Util.Debug(msg);
-                UI.showStatus(msg);
-                UI.rememberedClipSetting = UI.getSetting('clip');
-                UI.setViewClip(true);
-                document.getElementById('noVNC_setting_clip').disabled = true;
-            } else if (document.body.msRequestFullscreen &&
-                       UI.rememberedClipSetting !== null) {
-                // Restore view clip to what it was before fullscreen on IE
-                UI.setViewClip(UI.rememberedClipSetting);
-                document.getElementById('noVNC_setting_clip').disabled =
-                    UI.connected || Util.isTouchDevice;
             } else {
                 document.getElementById('noVNC_setting_clip').disabled =
                     UI.connected || Util.isTouchDevice;
