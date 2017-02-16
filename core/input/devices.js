@@ -214,7 +214,7 @@
             }
 
             var evt = (e ? e : window.event);
-            var pos = Util.getEventPosition(e, this._target, this._scale);
+            var pos = this._getMousePosition(evt);
 
             var bmask;
             if (e.touches || e.changedTouches) {
@@ -286,7 +286,7 @@
             }
 
             var evt = (e ? e : window.event);
-            var pos = Util.getEventPosition(e, this._target, this._scale);
+            var pos = this._getMousePosition(evt);
 
             if (this._onMouseButton) {
                 if (evt.deltaX < 0) {
@@ -318,7 +318,7 @@
             }
 
             var evt = (e ? e : window.event);
-            var pos = Util.getEventPosition(e, this._target, this._scale);
+            var pos = this._getMousePosition(evt);
             if (this._onMouseMove) {
                 this._onMouseMove(pos.x, pos.y);
             }
@@ -343,6 +343,31 @@
             }
 
             return true;
+        },
+
+        // Return coordinates relative to target
+        _getMousePosition: function(e) {
+            e = Util.getPointerEvent(e);
+            var bounds = this._target.getBoundingClientRect();
+            var x, y;
+            // Clip to target bounds
+            if (e.clientX < bounds.left) {
+                x = 0;
+            } else if (e.clientX >= bounds.right) {
+                x = bounds.width - 1;
+            } else {
+                x = e.clientX - bounds.left;
+            }
+            if (e.clientY < bounds.top) {
+                y = 0;
+            } else if (e.clientY >= bounds.bottom) {
+                y = bounds.height - 1;
+            } else {
+                y = e.clientY - bounds.top;
+            }
+            x = x / this._scale;
+            y = y / this._scale;
+            return {x:x, y:y};
         },
 
 
