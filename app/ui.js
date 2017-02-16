@@ -266,7 +266,6 @@ var UI;
         addResizeHandlers: function() {
             window.addEventListener('resize', UI.applyResizeMode);
             window.addEventListener('resize', UI.updateViewClip);
-            window.addEventListener('resize', UI.updateViewDrag);
         },
 
         addControlbarHandlers: function() {
@@ -1313,6 +1312,10 @@ var UI;
                 // the size of the browser window.
                 display.viewportChangeSize(size.w, size.h);
             }
+
+            // Changing the viewport may change the state of
+            // the dragging button
+            UI.updateViewDrag();
         },
 
         // Handle special cases where clipping is forced on/off or locked
@@ -1664,7 +1667,6 @@ var UI;
 
         updateSessionSize: function(rfb, width, height) {
             UI.updateViewClip();
-            UI.updateViewDrag();
         },
 
         updateDesktopName: function(rfb, name) {
