@@ -507,6 +507,13 @@ Util._captureProxy = function (e) {
     }
 };
 
+// Follow cursor style of target element
+Util._captureElemChanged = function() {
+    var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+    captureElem.style.cursor = window.getComputedStyle(Util._captureElem).cursor;
+};
+Util._captureObserver = new MutationObserver(Util._captureElemChanged);
+
 Util.setCapture = function (elem) {
     if (elem.setCapture) {
 
@@ -558,6 +565,11 @@ Util.setCapture = function (elem) {
         }
 
         Util._captureElem = elem;
+
+        // Track cursor and get initial cursor
+        Util._captureObserver.observe(elem, {attributes:true});
+        Util._captureElemChanged();
+
         captureElem.style.display = null;
 
         // We listen to events on window in order to keep tracking if it
@@ -585,6 +597,8 @@ Util.releaseCapture = function () {
         //
         // FIXME: What happens if setCapture is called before this fires?
         window.setTimeout(function() { Util._captureElem = null; });
+
+        Util._captureObserver.disconnect();
 
         var captureElem = document.getElementById("noVNC_mouse_capture_elem");
         captureElem.style.display = "none";
