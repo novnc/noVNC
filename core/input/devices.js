@@ -69,44 +69,32 @@
         },
 
         _handleKeyDown: function (e) {
-            if (!this._focused) { return true; }
+            if (!this._focused) { return; }
 
             if (this._handler.keydown(e)) {
                 // Suppress bubbling/default actions
                 Util.stopEvent(e);
-                return false;
             } else {
                 // Allow the event to bubble and become a keyPress event which
                 // will have the character code translated
-                return true;
             }
         },
 
         _handleKeyPress: function (e) {
-            if (!this._focused) { return true; }
+            if (!this._focused) { return; }
 
             if (this._handler.keypress(e)) {
                 // Suppress bubbling/default actions
                 Util.stopEvent(e);
-                return false;
-            } else {
-                // Allow the event to bubble and become a keyPress event which
-                // will have the character code translated
-                return true;
             }
         },
 
         _handleKeyUp: function (e) {
-            if (!this._focused) { return true; }
+            if (!this._focused) { return; }
 
             if (this._handler.keyup(e)) {
                 // Suppress bubbling/default actions
                 Util.stopEvent(e);
-                return false;
-            } else {
-                // Allow the event to bubble and become a keyPress event which
-                // will have the character code translated
-                return true;
             }
         },
 
@@ -207,7 +195,7 @@
         },
 
         _handleMouseButton: function (e, down) {
-            if (!this._focused) { return true; }
+            if (!this._focused) { return; }
 
             if (this._notify) {
                 this._notify(e);
@@ -262,7 +250,6 @@
                 this._onMouseButton(pos.x, pos.y, down, bmask);
             }
             Util.stopEvent(e);
-            return false;
         },
 
         _handleMouseDown: function (e) {
@@ -278,7 +265,7 @@
         },
 
         _handleMouseWheel: function (e) {
-            if (!this._focused) { return true; }
+            if (!this._focused) { return; }
 
             if (this._notify) {
                 this._notify(e);
@@ -305,11 +292,10 @@
             }
 
             Util.stopEvent(e);
-            return false;
         },
 
         _handleMouseMove: function (e) {
-            if (! this._focused) { return true; }
+            if (! this._focused) { return; }
 
             if (this._notify) {
                 this._notify(e);
@@ -320,11 +306,10 @@
                 this._onMouseMove(pos.x, pos.y);
             }
             Util.stopEvent(e);
-            return false;
         },
 
         _handleMouseDisable: function (e) {
-            if (!this._focused) { return true; }
+            if (!this._focused) { return; }
 
             /*
              * Stop propagation if inside canvas area
@@ -335,10 +320,7 @@
             if (e.target == this._target) {
                 //Util.Debug("mouse event disabled");
                 Util.stopEvent(e);
-                return false;
             }
-
-            return true;
         },
 
         // Return coordinates relative to target
