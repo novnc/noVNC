@@ -195,10 +195,7 @@ Util.decodeUTF8 = function (utf8string) {
  */
 
 Util.getPointerEvent = function (e) {
-    var evt;
-    evt = (e ? e : window.event);
-    evt = (evt.changedTouches ? evt.changedTouches[0] : evt.touches ? evt.touches[0] : evt);
-    return evt;
+    return e.changedTouches ? e.changedTouches[0] : e.touches ? e.touches[0] : e;
 };
 
 Util.stopEvent = function (e) {

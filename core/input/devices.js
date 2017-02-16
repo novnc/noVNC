@@ -213,8 +213,7 @@
                 this._notify(e);
             }
 
-            var evt = (e ? e : window.event);
-            var pos = this._getMousePosition(evt);
+            var pos = this._getMousePosition(e);
 
             var bmask;
             if (e.touches || e.changedTouches) {
@@ -247,14 +246,14 @@
                 }
                 bmask = this._touchButton;
                 // If bmask is set
-            } else if (evt.which) {
+            } else if (e.which) {
                 /* everything except IE */
-                bmask = 1 << evt.button;
+                bmask = 1 << e.button;
             } else {
                 /* IE including 9 */
-                bmask = (evt.button & 0x1) +      // Left
-                        (evt.button & 0x2) * 2 +  // Right
-                        (evt.button & 0x4) / 2;   // Middle
+                bmask = (e.button & 0x1) +      // Left
+                        (e.button & 0x2) * 2 +  // Right
+                        (e.button & 0x4) / 2;   // Middle
             }
 
             if (this._onMouseButton) {
@@ -285,22 +284,21 @@
                 this._notify(e);
             }
 
-            var evt = (e ? e : window.event);
-            var pos = this._getMousePosition(evt);
+            var pos = this._getMousePosition(e);
 
             if (this._onMouseButton) {
-                if (evt.deltaX < 0) {
+                if (e.deltaX < 0) {
                     this._onMouseButton(pos.x, pos.y, 1, 1 << 5);
                     this._onMouseButton(pos.x, pos.y, 0, 1 << 5);
-                } else if (evt.deltaX > 0) {
+                } else if (e.deltaX > 0) {
                     this._onMouseButton(pos.x, pos.y, 1, 1 << 6);
                     this._onMouseButton(pos.x, pos.y, 0, 1 << 6);
                 }
 
-                if (evt.deltaY < 0) {
+                if (e.deltaY < 0) {
                     this._onMouseButton(pos.x, pos.y, 1, 1 << 3);
                     this._onMouseButton(pos.x, pos.y, 0, 1 << 3);
-                } else if (evt.deltaY > 0) {
+                } else if (e.deltaY > 0) {
                     this._onMouseButton(pos.x, pos.y, 1, 1 << 4);
                     this._onMouseButton(pos.x, pos.y, 0, 1 << 4);
                 }
@@ -317,8 +315,7 @@
                 this._notify(e);
             }
 
-            var evt = (e ? e : window.event);
-            var pos = this._getMousePosition(evt);
+            var pos = this._getMousePosition(e);
             if (this._onMouseMove) {
                 this._onMouseMove(pos.x, pos.y);
             }
@@ -329,14 +326,13 @@
         _handleMouseDisable: function (e) {
             if (!this._focused) { return true; }
 
-            var evt = (e ? e : window.event);
             /*
              * Stop propagation if inside canvas area
              * Note: This is only needed for the 'click' event as it fails
              *       to fire properly for the target element so we have
              *       to listen on the document element instead.
              */
-            if (evt.target == this._target) {
+            if (e.target == this._target) {
                 //Util.Debug("mouse event disabled");
                 Util.stopEvent(e);
                 return false;
