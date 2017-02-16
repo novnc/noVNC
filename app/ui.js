@@ -1241,6 +1241,7 @@ var UI;
                 } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
                     var downscaleOnly = resizeMode === 'downscale';
                     display.autoscale(screen.w, screen.h, downscaleOnly);
+                    UI.fixScrollbars();
                 }
             }
         },
@@ -1248,16 +1249,7 @@ var UI;
         // Gets the the size of the available viewport in the browser window
         screenSize: function() {
             var screen = document.getElementById('noVNC_screen');
-            var width, height;
-
-            screen.style.overflow = "hidden";
-
-            width = screen.offsetWidth;
-            height = screen.offsetHeight;
-
-            screen.style.overflow = "auto";
-
-            return {w: width, h: height};
+            return {w: screen.offsetWidth, h: screen.offsetHeight};
         },
 
         // Normally we only apply the current resize mode after a window resize
@@ -1311,6 +1303,7 @@ var UI;
                 // When clipping is enabled, the screen is limited to
                 // the size of the browser window.
                 display.viewportChangeSize(size.w, size.h);
+                UI.fixScrollbars();
             }
 
             // Changing the viewport may change the state of
@@ -1667,6 +1660,19 @@ var UI;
 
         updateSessionSize: function(rfb, width, height) {
             UI.updateViewClip();
+            UI.fixScrollbars();
+        },
+
+        fixScrollbars: function() {
+            // This is a hack because Chrome screws up the calculation
+            // for when scrollbars are needed. So to fix it we temporarily
+            // toggle them off and on.
+            var screen = document.getElementById('noVNC_screen');
+            screen.style.overflow = 'hidden';
+            // Force Chrome to recalculate the layout by asking for
+            // an element's dimensions
+            screen.getBoundingClientRect();
+            screen.style.overflow = null;
         },
 
         updateDesktopName: function(rfb, name) {
