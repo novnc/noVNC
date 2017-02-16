@@ -1220,6 +1220,9 @@ var UI;
                 var resizeMode = UI.getSetting('resize');
                 display.set_scale(1);
 
+                // Make sure the viewport is adjusted first
+                UI.updateViewClip();
+
                 if (resizeMode === 'remote') {
 
                     // Request changing the resolution of the remote display to
