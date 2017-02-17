@@ -233,6 +233,29 @@ var UI;
             UI.initSetting('repeaterID', '');
             UI.initSetting('reconnect', false);
             UI.initSetting('reconnect_delay', 5000);
+
+            UI.setupSettingLabels();
+        },
+
+        // Adds a link to the label elements on the corresponding input elements
+        setupSettingLabels: function() {
+            var labels = document.getElementsByTagName('LABEL');
+            for (var i = 0; i < labels.length; i++) {
+                var htmlFor = labels[i].htmlFor;
+                if (htmlFor != '') {
+                    var elem = document.getElementById(htmlFor);
+                    if (elem) elem.label = labels[i];
+                } else {
+                    // If 'for' isn't set, use the first input element child
+                    var children = labels[i].children;
+                    for (var j = 0; j < children.length; j++) {
+                        if (children[j].form !== undefined) {
+                            children[j].label = labels[i];
+                            break;
+                        }
+                    }
+                }
+            }
         },
 
         initRFB: function() {
@@ -494,32 +517,40 @@ var UI;
         // Disable/enable controls depending on connection state
         updateVisualState: function() {
             //Util.Debug(">> updateVisualState");
-            document.getElementById('noVNC_setting_encrypt').disabled = UI.connected;
-            document.getElementById('noVNC_setting_true_color').disabled = UI.connected;
-            if (Util.browserSupportsCursorURIs()) {
-                document.getElementById('noVNC_setting_cursor').disabled = UI.connected;
-            } else {
-                UI.updateSetting('cursor', !Util.isTouchDevice);
-                document.getElementById('noVNC_setting_cursor').disabled = true;
-            }
 
             UI.enableDisableViewClip();
-            document.getElementById('noVNC_setting_shared').disabled = UI.connected;
-            document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
-            document.getElementById('noVNC_setting_host').disabled = UI.connected;
-            document.getElementById('noVNC_setting_port').disabled = UI.connected;
-            document.getElementById('noVNC_setting_path').disabled = UI.connected;
-            document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
-            document.getElementById('noVNC_setting_reconnect').disabled = UI.connected;
-            document.getElementById('noVNC_setting_reconnect_delay').disabled = UI.connected;
 
             if (UI.connected) {
+                UI.disableSetting('encrypt');
+                UI.disableSetting('true_color');
+                UI.disableSetting('cursor');
+                UI.disableSetting('shared');
+                UI.disableSetting('view_only');
+                UI.disableSetting('host');
+                UI.disableSetting('port');
+                UI.disableSetting('path');
+                UI.disableSetting('repeaterID');
+                UI.disableSetting('reconnect');
+                UI.disableSetting('reconnect_delay');
                 UI.updateViewClip();
                 UI.setMouseButton(1);
 
                 // Hide the controlbar after 2 seconds
                 UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
             } else {
+                UI.enableSetting('encrypt');
+                UI.enableSetting('true_color');
+                if (Util.browserSupportsCursorURIs() && !Util.isTouchDevice) {
+                    UI.enableSetting('cursor');
+                }
+                UI.enableSetting('shared');
+                UI.enableSetting('view_only');
+                UI.enableSetting('host');
+                UI.enableSetting('port');
+                UI.enableSetting('path');
+                UI.enableSetting('repeaterID');
+                UI.enableSetting('reconnect');
+                UI.enableSetting('reconnect_delay');
                 UI.updateXvpButton(0);
                 UI.keepControlbar();
             }
@@ -860,6 +891,21 @@ var UI;
             return val;
         },
 
+        // These helpers compensate for the lack of parent-selectors and
+        // previous-sibling-selectors in CSS which are needed when we want to
+        // disable the labels that belong to disabled input elements.
+        disableSetting: function(name) {
+            var ctrl = document.getElementById('noVNC_setting_' + name);
+            ctrl.disabled = true;
+            ctrl.label.classList.add('noVNC_disabled');
+        },
+
+        enableSetting: function(name) {
+            var ctrl = document.getElementById('noVNC_setting_' + name);
+            ctrl.disabled = false;
+            ctrl.label.classList.remove('noVNC_disabled');
+        },
+
 /* ------^-------
  *   /SETTINGS
  * ==============
@@ -890,7 +936,7 @@ var UI;
                 UI.updateSetting('cursor');
             } else {
                 UI.updateSetting('cursor', !Util.isTouchDevice);
-                document.getElementById('noVNC_setting_cursor').disabled = true;
+                UI.disableSetting('cursor');
             }
             UI.updateSetting('clip');
             UI.updateSetting('resize');
@@ -1314,12 +1360,12 @@ var UI;
         // Handle special cases where clipping is forced on/off or locked
         enableDisableViewClip: function() {
             var resizeSetting = UI.getSetting('resize');
-            if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
-                // Disable clipping if we are scaling
-                document.getElementById('noVNC_setting_clip').disabled = true;
+            // Disable clipping if we are scaling, connected or on touch
+            if (resizeSetting === 'downscale' || resizeSetting === 'scale' ||
+                UI.connected || Util.isTouchDevice) {
+                UI.disableSetting('clip');
             } else {
-                document.getElementById('noVNC_setting_clip').disabled =
-                    UI.connected || Util.isTouchDevice;
+                UI.enableSetting('clip');
             }
         },
 
