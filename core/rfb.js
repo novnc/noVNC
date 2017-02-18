@@ -343,7 +343,7 @@
         },
 
         clipboardPasteFrom: function (text) {
-            if (this._rfb_connection_state !== 'connected') { return; }
+            if (this._rfb_connection_state !== 'connected' || this._view_only) { return; }
             RFB.messages.clientCutText(this._sock, text);
         },
 
@@ -1189,6 +1189,8 @@
 
         _handle_server_cut_text: function () {
             Util.Debug("ServerCutText");
+            if (this._view_only) { return true; }
+
             if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
             this._sock.rQskipBytes(3);  // Padding
             var length = this._sock.rQshift32();
