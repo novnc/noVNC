@@ -424,6 +424,7 @@ var UI;
             UI.addSettingChangeHandler('clip', UI.updateViewClip);
             UI.addSettingChangeHandler('shared');
             UI.addSettingChangeHandler('view_only');
+            UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
             UI.addSettingChangeHandler('host');
             UI.addSettingChangeHandler('port');
             UI.addSettingChangeHandler('path');
@@ -506,7 +507,6 @@ var UI;
 
             UI.enableDisableViewClip();
             document.getElementById('noVNC_setting_shared').disabled = UI.connected;
-            document.getElementById('noVNC_setting_view_only').disabled = UI.connected;
             document.getElementById('noVNC_setting_host').disabled = UI.connected;
             document.getElementById('noVNC_setting_port').disabled = UI.connected;
             document.getElementById('noVNC_setting_path').disabled = UI.connected;
@@ -1065,8 +1065,9 @@ var UI;
             UI.rfb.set_true_color(UI.getSetting('true_color'));
             UI.rfb.set_local_cursor(UI.getSetting('cursor'));
             UI.rfb.set_shared(UI.getSetting('shared'));
-            UI.rfb.set_view_only(UI.getSetting('view_only'));
             UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
+
+            UI.updateViewOnly();
 
             UI.rfb.connect(host, port, password, path);
         },
@@ -1653,6 +1654,10 @@ var UI;
                 UI.rfb.get_keyboard().set_focused(true);
                 UI.rfb.get_mouse().set_focused(true);
             }
+        },
+
+        updateViewOnly: function() {
+            UI.rfb.set_view_only(UI.getSetting('view_only'));
         },
 
         updateLogging: function() {

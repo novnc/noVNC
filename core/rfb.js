@@ -1490,6 +1490,21 @@
         }
     };
 
+    RFB.prototype.set_view_only = function (view_only) {
+        this._view_only = view_only;
+
+        if (this._rfb_connection_state === "connecting" ||
+            this._rfb_connection_state === "connected") {
+            if (view_only) {
+                this._keyboard.ungrab();
+                this._mouse.ungrab();
+            } else {
+                this._keyboard.grab();
+                this._mouse.grab();
+            }
+        }
+    };
+
     RFB.prototype.get_display = function () { return this._display; };
     RFB.prototype.get_keyboard = function () { return this._keyboard; };
     RFB.prototype.get_mouse = function () { return this._mouse; };
