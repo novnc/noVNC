@@ -511,8 +511,6 @@ var UI;
             document.getElementById('noVNC_setting_port').disabled = UI.connected;
             document.getElementById('noVNC_setting_path').disabled = UI.connected;
             document.getElementById('noVNC_setting_repeaterID').disabled = UI.connected;
-            document.getElementById('noVNC_setting_reconnect').disabled = UI.connected;
-            document.getElementById('noVNC_setting_reconnect_delay').disabled = UI.connected;
 
             if (UI.connected) {
                 UI.updateViewClip();
