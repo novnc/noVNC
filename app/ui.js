@@ -421,6 +421,7 @@ var UI;
             UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
             UI.addSettingChangeHandler('resize', UI.applyResizeMode);
             UI.addSettingChangeHandler('clip');
+            UI.addSettingChangeHandler('clip', UI.updateViewClip);
             UI.addSettingChangeHandler('shared');
             UI.addSettingChangeHandler('view_only');
             UI.addSettingChangeHandler('host');
@@ -1319,7 +1320,7 @@ var UI;
                 document.getElementById('noVNC_setting_clip').disabled = true;
             } else {
                 document.getElementById('noVNC_setting_clip').disabled =
-                    UI.connected || Util.isTouchDevice;
+                    Util.isTouchDevice;
             }
         },
 
