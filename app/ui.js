@@ -417,6 +417,7 @@ var UI;
             UI.addSettingChangeHandler('encrypt');
             UI.addSettingChangeHandler('true_color');
             UI.addSettingChangeHandler('cursor');
+            UI.addSettingChangeHandler('cursor', UI.updateLocalCursor);
             UI.addSettingChangeHandler('resize');
             UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
             UI.addSettingChangeHandler('resize', UI.applyResizeMode);
@@ -499,7 +500,7 @@ var UI;
             document.getElementById('noVNC_setting_encrypt').disabled = UI.connected;
             document.getElementById('noVNC_setting_true_color').disabled = UI.connected;
             if (Util.browserSupportsCursorURIs()) {
-                document.getElementById('noVNC_setting_cursor').disabled = UI.connected;
+                document.getElementById('noVNC_setting_cursor').disabled = false;
             } else {
                 UI.updateSetting('cursor', !Util.isTouchDevice);
                 document.getElementById('noVNC_setting_cursor').disabled = true;
@@ -1061,10 +1062,10 @@ var UI;
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));
-            UI.rfb.set_local_cursor(UI.getSetting('cursor'));
             UI.rfb.set_shared(UI.getSetting('shared'));
             UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 
+            UI.updateLocalCursor();
             UI.updateViewOnly();
 
             UI.rfb.connect(host, port, password, path);
@@ -1652,6 +1653,10 @@ var UI;
                 UI.rfb.get_keyboard().set_focused(true);
                 UI.rfb.get_mouse().set_focused(true);
             }
+        },
+
+        updateLocalCursor: function() {
+            UI.rfb.set_local_cursor(UI.getSetting('cursor'));
         },
 
         updateViewOnly: function() {

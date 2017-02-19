@@ -1488,6 +1488,12 @@
                 this._display.disableLocalCursor();
             }
         }
+
+        // Need to send an updated list of encodings if we are connected
+        if (this._rfb_connection_state === "connected") {
+            RFB.messages.clientEncodings(this._sock, this._encodings, cursor,
+                                         this._true_color);
+        }
     };
 
     RFB.prototype.set_view_only = function (view_only) {
