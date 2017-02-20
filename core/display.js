@@ -841,9 +841,9 @@
                         cur.push(alpha);   // alpha
                     } else {
                         idx = ((w0 * y) + x) * 4;
-                        cur.push(pixels[idx + 2]); // blue
+                        cur.push(pixels[idx]); // blue
                         cur.push(pixels[idx + 1]); // green
-                        cur.push(pixels[idx]);     // red
+                        cur.push(pixels[idx + 2]);     // red
                         cur.push(alpha);           // alpha
                     }
                 }
