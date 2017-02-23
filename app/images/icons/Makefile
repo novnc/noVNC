@@ -10,8 +10,7 @@ ANDROID_LAUNCHER := \
 	novnc-72x72.png \
 	novnc-96x96.png \
 	novnc-144x144.png \
-	novnc-192x192.png \
-	novnc-512x512.png
+	novnc-192x192.png
 
 IPHONE_LAUNCHER := \
 	novnc-60x60.png \
