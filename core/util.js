@@ -514,6 +514,8 @@ Util._captureElemChanged = function() {
 };
 Util._captureObserver = new MutationObserver(Util._captureElemChanged);
 
+Util._captureIndex = 0;
+
 Util.setCapture = function (elem) {
     if (elem.setCapture) {
 
@@ -565,6 +567,7 @@ Util.setCapture = function (elem) {
         }
 
         Util._captureElem = elem;
+        Util._captureIndex++;
 
         // Track cursor and get initial cursor
         Util._captureObserver.observe(elem, {attributes:true});
@@ -594,9 +597,13 @@ Util.releaseCapture = function () {
 
         // There might be events already queued, so we need to wait for
         // them to flush. E.g. contextmenu in Microsoft Edge
-        //
-        // FIXME: What happens if setCapture is called before this fires?
-        window.setTimeout(function() { Util._captureElem = null; });
+        window.setTimeout(function(expected) {
+            // Only clear it if it's the expected grab (i.e. no one
+            // else has initiated a new grab)
+            if (Util._captureIndex === expected) {
+                Util._captureElem = null;
+            }
+        }, 0, Util._captureIndex);
 
         Util._captureObserver.disconnect();
 
