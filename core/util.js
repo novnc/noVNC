@@ -452,7 +452,7 @@ Util.Localisation = {
                 }
                 // FIXME: Should update "lang"
                 if (elem.hasAttribute("placeholder") &&
-                    isAnyOf(elem.tagName in ["INPUT", "TEXTAREA"])) {
+                    isAnyOf(elem.tagName, ["INPUT", "TEXTAREA"])) {
                     translateAttribute(elem, "placeholder");
                 }
                 if (elem.hasAttribute("title")) {

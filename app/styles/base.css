@@ -41,6 +41,10 @@ html {
   display: none;
 }
 
+.noVNC_disabled {
+  color: rgb(128, 128, 128);
+}
+
 /* ----------------------------------------
  * Spinner
  * ----------------------------------------
@@ -80,7 +84,8 @@ html {
  * ----------------------------------------
  */
 
-input[type=input], input[type=password], input:not([type]), textarea {
+input[type=input], input[type=password], input[type=number],
+input:not([type]), textarea {
   /* Disable default rendering */
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -138,7 +143,7 @@ input[type=submit]::-moz-focus-inner {
 
 input[type=input]:disabled, input[type=password]:disabled,
 input:not([type]):disabled, input[type=button]:disabled,
-input[type=submit]:disabled,
+input[type=submit]:disabled, input[type=number]:disabled,
 textarea:disabled, select:disabled {
   color: rgb(128, 128, 128);
   background: rgb(240, 240, 240);
