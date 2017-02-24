@@ -440,12 +440,15 @@ var UI;
             UI.addSettingChangeHandler('encrypt');
             UI.addSettingChangeHandler('true_color');
             UI.addSettingChangeHandler('cursor');
+            UI.addSettingChangeHandler('cursor', UI.updateLocalCursor);
             UI.addSettingChangeHandler('resize');
             UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
             UI.addSettingChangeHandler('resize', UI.applyResizeMode);
             UI.addSettingChangeHandler('clip');
+            UI.addSettingChangeHandler('clip', UI.updateViewClip);
             UI.addSettingChangeHandler('shared');
             UI.addSettingChangeHandler('view_only');
+            UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
             UI.addSettingChangeHandler('host');
             UI.addSettingChangeHandler('port');
             UI.addSettingChangeHandler('path');
@@ -520,18 +523,20 @@ var UI;
 
             UI.enableDisableViewClip();
 
+            if (Util.browserSupportsCursorURIs() && !Util.isTouchDevice) {
+                UI.enableSetting('cursor');
+            } else {
+                UI.disableSetting('cursor');
+            }
+
             if (UI.connected) {
                 UI.disableSetting('encrypt');
                 UI.disableSetting('true_color');
-                UI.disableSetting('cursor');
                 UI.disableSetting('shared');
-                UI.disableSetting('view_only');
                 UI.disableSetting('host');
                 UI.disableSetting('port');
                 UI.disableSetting('path');
                 UI.disableSetting('repeaterID');
-                UI.disableSetting('reconnect');
-                UI.disableSetting('reconnect_delay');
                 UI.updateViewClip();
                 UI.setMouseButton(1);
 
@@ -540,17 +545,11 @@ var UI;
             } else {
                 UI.enableSetting('encrypt');
                 UI.enableSetting('true_color');
-                if (Util.browserSupportsCursorURIs() && !Util.isTouchDevice) {
-                    UI.enableSetting('cursor');
-                }
                 UI.enableSetting('shared');
-                UI.enableSetting('view_only');
                 UI.enableSetting('host');
                 UI.enableSetting('port');
                 UI.enableSetting('path');
                 UI.enableSetting('repeaterID');
-                UI.enableSetting('reconnect');
-                UI.enableSetting('reconnect_delay');
                 UI.updateXvpButton(0);
                 UI.keepControlbar();
             }
@@ -1108,10 +1107,11 @@ var UI;
 
             UI.rfb.set_encrypt(UI.getSetting('encrypt'));
             UI.rfb.set_true_color(UI.getSetting('true_color'));
-            UI.rfb.set_local_cursor(UI.getSetting('cursor'));
             UI.rfb.set_shared(UI.getSetting('shared'));
-            UI.rfb.set_view_only(UI.getSetting('view_only'));
             UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
+
+            UI.updateLocalCursor();
+            UI.updateViewOnly();
 
             UI.rfb.connect(host, port, password, path);
         },
@@ -1362,7 +1362,7 @@ var UI;
             var resizeSetting = UI.getSetting('resize');
             // Disable clipping if we are scaling, connected or on touch
             if (resizeSetting === 'downscale' || resizeSetting === 'scale' ||
-                UI.connected || Util.isTouchDevice) {
+                Util.isTouchDevice) {
                 UI.disableSetting('clip');
             } else {
                 UI.enableSetting('clip');
@@ -1698,6 +1698,14 @@ var UI;
                 UI.rfb.get_keyboard().set_focused(true);
                 UI.rfb.get_mouse().set_focused(true);
             }
+        },
+
+        updateLocalCursor: function() {
+            UI.rfb.set_local_cursor(UI.getSetting('cursor'));
+        },
+
+        updateViewOnly: function() {
+            UI.rfb.set_view_only(UI.getSetting('view_only'));
         },
 
         updateLogging: function() {

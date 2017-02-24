@@ -343,7 +343,9 @@
         },
 
         clipboardPasteFrom: function (text) {
-            if (this._rfb_connection_state !== 'connected') { return; }
+            if (this._rfb_connection_state !== 'connected' || this._view_only) {
+                return;
+            }
             RFB.messages.clientCutText(this._sock, text);
         },
 
@@ -1189,6 +1191,8 @@
 
         _handle_server_cut_text: function () {
             Util.Debug("ServerCutText");
+            if (this._view_only) { return true; }
+
             if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
             this._sock.rQskipBytes(3);  // Padding
             var length = this._sock.rQshift32();
@@ -1484,6 +1488,27 @@
             } else {
                 Util.Warn("Browser does not support local cursor");
                 this._display.disableLocalCursor();
+            }
+        }
+
+        // Need to send an updated list of encodings if we are connected
+        if (this._rfb_connection_state === "connected") {
+            RFB.messages.clientEncodings(this._sock, this._encodings, cursor,
+                                         this._true_color);
+        }
+    };
+
+    RFB.prototype.set_view_only = function (view_only) {
+        this._view_only = view_only;
+
+        if (this._rfb_connection_state === "connecting" ||
+            this._rfb_connection_state === "connected") {
+            if (view_only) {
+                this._keyboard.ungrab();
+                this._mouse.ungrab();
+            } else {
+                this._keyboard.grab();
+                this._mouse.grab();
             }
         }
     };
