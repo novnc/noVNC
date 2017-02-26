@@ -1685,10 +1685,12 @@ const UI = {
     },
 
     updateLocalCursor: function() {
+        if (!UI.rfb) return;
         UI.rfb.set_local_cursor(UI.getSetting('cursor'));
     },
 
     updateViewOnly: function() {
+        if (!UI.rfb) return;
         UI.rfb.set_view_only(UI.getSetting('view_only'));
     },
 
