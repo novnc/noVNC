@@ -1188,7 +1188,6 @@ RFB.prototype = {
 
     _handle_server_cut_text: function () {
         Log.Debug("ServerCutText");
-        if (this._view_only) { return true; }
 
         if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
         this._sock.rQskipBytes(3);  // Padding
@@ -1196,6 +1195,9 @@ RFB.prototype = {
         if (this._sock.rQwait("ServerCutText", length, 8)) { return false; }
 
         var text = this._sock.rQshiftStr(length);
+
+        if (this._view_only) { return true; }
+
         this._onClipboard(this, text);
 
         return true;
