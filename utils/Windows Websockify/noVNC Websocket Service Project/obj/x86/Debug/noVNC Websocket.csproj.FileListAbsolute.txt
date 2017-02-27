@@ -1,0 +1,8 @@
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Debug\MELT_Command_Websocket.ProjectInstaller.resources
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Debug\ResGen.read.1.tlog
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Debug\ResGen.write.1.tlog
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\bin\Debug\noVNC Websocket Service.exe
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\bin\Debug\noVNC Websocket Service.pdb
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Debug\noVNC Websocket Service.exe
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Debug\noVNC Websocket Service.pdb

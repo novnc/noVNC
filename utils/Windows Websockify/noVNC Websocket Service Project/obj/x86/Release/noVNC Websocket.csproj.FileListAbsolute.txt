@@ -1,0 +1,16 @@
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\bin\Release\MELT Command Websocket.exe
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\bin\Release\MELT Command Websocket.pdb
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\obj\x86\Release\MELT_Command_Websocket.ProjectInstaller.resources
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\obj\x86\Release\ResGen.read.1.tlog
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\obj\x86\Release\ResGen.write.1.tlog
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\obj\x86\Release\MELT Command Websocket.exe
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\MELT Command Websocket\obj\x86\Release\MELT Command Websocket.pdb
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Release\MELT_Command_Websocket.ProjectInstaller.resources
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Release\ResGen.read.1.tlog
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Release\ResGen.write.1.tlog
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\bin\Release\noVNC Websocket Service.exe
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\bin\Release\noVNC Websocket Service.pdb
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Release\noVNC Websocket Service.exe
+C:\Users\gordoncj\Documents\Visual Studio 2010\Projects\noVNC Websocket Service\noVNC Websocket Service\obj\x86\Release\noVNC Websocket Service.pdb
