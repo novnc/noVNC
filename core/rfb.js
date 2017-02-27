@@ -169,7 +169,8 @@
         'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
         'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
-        'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
+        'onXvpInit': function () { },           // onXvpInit(version): XVP extensions active for this connection,
+        'onWsConnEvent': function () { }       // onWsConnEvent(eventType, event): a WebSocket connection event occurred
     });
 
     // main setup
@@ -215,6 +216,7 @@
         } else {
             this._fail("Unexpected server connection");
         }
+        this._onWsConnEvent('open');
     }.bind(this));
     this._sock.on('close', function (e) {
         Util.Warn("WebSocket on-close event");
@@ -248,9 +250,11 @@
                 break;
         }
         this._sock.off('close');
+        this._onWsConnEvent('close', e);
     }.bind(this));
     this._sock.on('error', function (e) {
         Util.Warn("WebSocket on-error event");
+        this.onWsConnEvent('error', e);
     });
 
     this._init_vars();
@@ -1475,7 +1479,8 @@
         ['onFBUComplete', 'rw', 'func'],        // onFBUComplete(rfb, fbu): RFB FBU received and processed
         ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
         ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
-        ['onXvpInit', 'rw', 'func']             // onXvpInit(version): XVP extensions active for this connection
+        ['onXvpInit', 'rw', 'func'],            // onXvpInit(version): XVP extensions active for this connection
+        ['onWsConnEvent', 'rw', 'func']         // onWsConnEvent(eventType, event): A WebSocket connection event occurred
     ]);
 
     RFB.prototype.set_local_cursor = function (cursor) {
