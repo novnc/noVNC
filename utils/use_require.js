@@ -14,23 +14,28 @@ program
     .parse(process.argv);
 
 // the various important paths
-var main_path = path.resolve(__dirname, '..');
-var core_path = path.resolve(__dirname, '..', 'core');
-var app_path = path.resolve(__dirname, '..', 'app');
-var vendor_path = path.resolve(__dirname, '..', 'vendor');
-var out_dir_base = path.resolve(__dirname, '..', 'build');
-var lib_dir_base = path.resolve(__dirname, '..', 'lib');
+const paths = {
+    main: path.resolve(__dirname, '..'),
+    core: path.resolve(__dirname, '..', 'core'),
+    app: path.resolve(__dirname, '..', 'app'),
+    vendor: path.resolve(__dirname, '..', 'vendor'),
+    out_dir_base: path.resolve(__dirname, '..', 'build'),
+    lib_dir_base: path.resolve(__dirname, '..', 'lib'),
+};
 
 const no_copy_files = new Set([
     // skip these -- they don't belong in the processed application
-    path.join(vendor_path, 'sinon.js'),
-    path.join(vendor_path, 'browser-es-module-loader'),
+    path.join(paths.vendor, 'sinon.js'),
+    path.join(paths.vendor, 'browser-es-module-loader'),
+    path.join(paths.vendor, 'promise.js'),
 ]);
 
 const no_transform_files = new Set([
     // don't transform this -- we want it imported as-is to properly catch loading errors
-    path.join(app_path, 'error-handler.js'),
+    path.join(paths.app, 'error-handler.js'),
 ]);
+
+no_copy_files.forEach((file) => no_transform_files.add(file));
 
 // walkDir *recursively* walks directories trees,
 // calling the callback for all normal files found.
@@ -55,7 +60,7 @@ var walkDir = function (base_path, cb, filter) {
 var transform_html = function (new_script) {
     // write out the modified vnc.html file that works with the bundle
     var src_html_path = path.resolve(__dirname, '..', 'vnc.html');
-    var out_html_path = path.resolve(out_dir_base, 'vnc.html');
+    var out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
     fs.readFile(src_html_path, (err, contents_raw) => {
         if (err) { throw err; }
 
@@ -92,10 +97,10 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
 
     var in_path;
     if (with_app_dir) {
-        var out_path_base = out_dir_base;
-        in_path = main_path;
+        var out_path_base = paths.out_dir_base;
+        in_path = paths.main;
     } else {
-        var out_path_base = lib_dir_base;
+        var out_path_base = paths.lib_dir_base;
     }
 
     fse.ensureDirSync(out_path_base);
@@ -144,11 +149,15 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         });
     };
 
-    walkDir(core_path, handleDir.bind(null, true, in_path || core_path), (filename, stats) => !no_copy_files.has(filename));
-    walkDir(vendor_path, handleDir.bind(null, true, in_path || main_path), (filename, stats) => !no_copy_files.has(filename));
+    if (with_app_dir && helper && helper.noCopyOverride) {
+        helper.noCopyOverride(paths, no_copy_files);
+    }
+
+    walkDir(paths.core, handleDir.bind(null, true, in_path || paths.core), (filename, stats) => !no_copy_files.has(filename));
+    walkDir(paths.vendor, handleDir.bind(null, true, in_path || paths.main), (filename, stats) => !no_copy_files.has(filename));
 
     if (with_app_dir) {
-        walkDir(app_path, handleDir.bind(null, false, in_path || app_path), (filename, stats) => !no_copy_files.has(filename));
+        walkDir(paths.app, handleDir.bind(null, false, in_path || paths.app), (filename, stats) => !no_copy_files.has(filename));
 
         const out_app_path = path.join(out_path_base, 'app.js');
         if (helper && helper.appWriter) {

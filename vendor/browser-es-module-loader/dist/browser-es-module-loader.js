@@ -1343,9 +1343,9 @@ WorkerPool.prototype = {
   },
 
   _stop: function () {
-    for (let wrkr of this._workers) {
+    this._workers.forEach(function(wrkr) {
       wrkr.terminate();
-    }
+    });
   }
 };
 

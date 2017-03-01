@@ -43,6 +43,8 @@ licenses (all MPL 2.0 compatible):
 
     vendor/browser-es-module-loader: MIT
 
+    vendor/promise.js       : MIT
+
 Any other files not mentioned above are typically marked with
 a copyright/license header at the top of the file. The default noVNC
 license is MPL-2.0.

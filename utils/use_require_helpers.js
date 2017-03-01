@@ -11,6 +11,7 @@ module.exports = {
             console.log(`Please place RequireJS in ${path.join(base_out_path, 'require.js')}`);
             return `<script src="require.js" data-main="${path.relative(base_out_path, out_path)}"></script>`;
         },
+        noCopyOverride: () => {},
     },
     'commonjs': {
         optionsOverride: (opts) => {   
@@ -23,12 +24,17 @@ module.exports = {
             b.bundle().pipe(fs.createWriteStream(out_path));
             return `<script src="${path.relative(base_out_path, out_path)}"></script>`;
         },
+        noCopyOverride: () => {},
     },
     'systemjs': {
         appWriter: (base_out_path, out_path) => {
             fs.writeFile(out_path, 'SystemJS.import("./app/ui.js");', (err) => { if (err) throw err; });
             console.log(`Please place SystemJS in ${path.join(base_out_path, 'system-production.js')}`);
-            return `<script src="system-production.js"></script>\n<script src="${path.relative(base_out_path, out_path)}"></script>`;
+            return `<script src="vendor/promise.js"></script>
+<script src="system-production.js"></script>\n<script src="${path.relative(base_out_path, out_path)}"></script>`;
+        },
+        noCopyOverride: (paths, no_copy_files) => {
+            no_copy_files.delete(path.join(paths.vendor, 'promise.js'));
         },
     },
     'umd': {
