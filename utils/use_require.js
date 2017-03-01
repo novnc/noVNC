@@ -21,6 +21,17 @@ var vendor_path = path.resolve(__dirname, '..', 'vendor');
 var out_dir_base = path.resolve(__dirname, '..', 'build');
 var lib_dir_base = path.resolve(__dirname, '..', 'lib');
 
+const no_copy_files = new Set([
+    // skip these -- they don't belong in the processed application
+    path.join(vendor_path, 'sinon.js'),
+    path.join(vendor_path, 'browser-es-module-loader'),
+]);
+
+const no_transform_files = new Set([
+    // don't transform this -- we want it imported as-is to properly catch loading errors
+    path.join(app_path, 'error-handler.js'),
+]);
+
 // walkDir *recursively* walks directories trees,
 // calling the callback for all normal files found.
 var walkDir = function (base_path, cb, filter) {
@@ -93,6 +104,8 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
     const helper = helpers[import_format];
     
     var handleDir = (js_only, in_path_base, filename) => {
+        if (no_copy_files.has(filename)) return;
+
         const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
         if(path.extname(filename) !== '.js') {
             if (!js_only) {
@@ -103,10 +116,17 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         }
 
         fse.ensureDir(path.dirname(out_path), () => {
+            if (no_transform_files.has(filename)) {
+                console.log(`Writing ${out_path}`);
+                fse.copy(filename, out_path, (err) => { if (err) throw err; });
+                return;
+            }
+
             const opts = babel_opts();
             if (helper && helpers.optionsOverride) {
                 helper.optionsOverride(opts);
             }
+
             babel.transformFile(filename, babel_opts(), (err, res) => {
                 console.log(`Writing ${out_path}`);
                 if (err) throw err;
@@ -124,11 +144,11 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         });
     };
 
-    walkDir(core_path, handleDir.bind(null, true, in_path || core_path));
-    walkDir(vendor_path, handleDir.bind(null, true, in_path || main_path), (filepath, stats) => !((stats.isDirectory() && path.basename(filepath) === 'browser-es-module-loader') || path.basename(filepath) === 'sinon.js'));
+    walkDir(core_path, handleDir.bind(null, true, in_path || core_path), (filename, stats) => !no_copy_files.has(filename));
+    walkDir(vendor_path, handleDir.bind(null, true, in_path || main_path), (filename, stats) => !no_copy_files.has(filename));
 
     if (with_app_dir) {
-        walkDir(app_path, handleDir.bind(null, false, in_path || app_path));
+        walkDir(app_path, handleDir.bind(null, false, in_path || app_path), (filename, stats) => !no_copy_files.has(filename));
 
         const out_app_path = path.join(out_path_base, 'app.js');
         if (helper && helper.appWriter) {

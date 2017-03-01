@@ -1180,7 +1180,22 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
       if (script.type == 'module' && !script.loaded) {
         script.loaded = true;
         if (script.src) {
-          loader.import(script.src);
+          loader.import(script.src).catch(function(err) {
+              // dispatch an error event so that we can display in errors in browsers
+              // that don't yet support unhandledrejection
+              try {
+                  var evt = new Event('error');
+              } catch (_eventError) {
+                  var evt = document.createEvent('Event');
+                  evt.initEvent('error', true, true);
+              }
+              evt.message = err.message;
+              evt.error = err;
+              window.dispatchEvent(evt);
+
+              // throw so it still shows up in the console
+              throw err;
+          });
         }
         // anonymous modules supported via a custom naming scheme and registry
         else {
@@ -1191,7 +1206,22 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
 
           var anonName = resolveIfNotPlain(uri, baseURI);
           anonSources[anonName] = script.innerHTML;
-          loader.import(anonName);
+          loader.import(anonName).catch(function(err) {
+              // dispatch an error event so that we can display in errors in browsers
+              // that don't yet support unhandledrejection
+              try {
+                  var evt = new Event('error');
+              } catch (_eventError) {
+                  var evt = document.createEvent('Event');
+                  evt.initEvent('error', true, true);
+              }
+              evt.message = err.message;
+              evt.error = err;
+              window.dispatchEvent(evt);
+
+              // throw so it still shows up in the console
+              throw err;
+          });
         }
       }
     }

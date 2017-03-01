@@ -21,46 +21,6 @@ import RFB from "../core/rfb.js";
 import Display from "../core/display.js";
 import * as WebUtil from "./webutil.js";
 
-// Fallback for all uncought errors
-window.addEventListener('error', function(event) {
-    try {
-        var msg, div, text;
-
-        msg = document.getElementById('noVNC_fallback_errormsg');
-
-        // Only show the initial error
-        if (msg.hasChildNodes()) {
-            return false;
-        }
-
-        div = document.createElement("div");
-        div.appendChild(document.createTextNode(event.message));
-        msg.appendChild(div);
-
-        div = document.createElement("div");
-        div.className = 'noVNC_location';
-        text = event.filename + ":" + event.lineno + ":" + event.colno;
-        div.appendChild(document.createTextNode(text));
-        msg.appendChild(div);
-
-        if ((event.error !== undefined) &&
-            (event.error.stack !== undefined)) {
-            div = document.createElement("div");
-            div.className = 'noVNC_stack';
-            div.appendChild(document.createTextNode(event.error.stack));
-            msg.appendChild(div);
-        }
-
-        document.getElementById('noVNC_fallback_error')
-            .classList.add("noVNC_open");
-    } catch (exc) {
-        document.write("noVNC encountered an error.");
-    }
-    // Don't return true since this would prevent the error
-    // from being printed to the browser console.
-    return false;
-});
-
 const UI = {
 
     connected: false,
@@ -1751,11 +1711,10 @@ if (l10n.language !== "en" && l10n.dictionary === undefined) {
         // wait for translations to load before loading the UI
         UI.prime();
     }, function (err) {
-        throw err; 
+        throw err;
     });
 } else {
     UI.prime();
 }
-
 
 export default UI;

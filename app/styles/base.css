@@ -247,6 +247,11 @@ select:active {
   font-weight: normal;
 }
 
+#noVNC_fallback_errormsg .noVNC_message {
+  display: inline-block;
+  text-align: left;
+}
+
 #noVNC_fallback_error .noVNC_location {
   font-style: italic;
   font-size: 0.8em;
