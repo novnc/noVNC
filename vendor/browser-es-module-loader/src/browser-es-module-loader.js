@@ -190,7 +190,7 @@ WorkerPool.prototype = {
 };
 
 var promiseMap = new Map();
-var babelWorker = new WorkerPool('vendor/browser-es-module-loader/dist/babel-worker.js', 3);
+var babelWorker = new WorkerPool('/vendor/browser-es-module-loader/dist/babel-worker.js', 3);
 babelWorker.onmessage = function (evt) {
     var promFuncs = promiseMap.get(evt.data.key);
     promFuncs.resolve(evt.data);
@@ -231,8 +231,10 @@ BrowserESModuleLoader.prototype[RegisterLoader.instantiate] = function(key, proc
   }).then(function (data) {
     // evaluate without require, exports and module variables
     // we leave module in for now to allow module.require access
-    localStorage.setItem(key+'!raw', data.source);
-    localStorage.setItem(data.key+'!transpiled', data.code);
+    if (data.key.slice(-8) !== '#nocache') {
+        localStorage.setItem(key+'!raw', data.source);
+        localStorage.setItem(data.key+'!transpiled', data.code);
+    }
     (0, eval)(data.code + '\n//# sourceURL=' + data.key + '!transpiled');
     processAnonRegister();
   });

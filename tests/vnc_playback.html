@@ -2,6 +2,8 @@
 <html>
     <head>
         <title>VNC Playback</title>
+        <script src="/vendor/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
+        <script type="module" src="./playback.js"></script>
     </head>
     <body>
 
@@ -9,8 +11,7 @@
         Perftest:<input type='radio' id='mode1' name='mode' checked>&nbsp;
         Realtime:<input type='radio' id='mode2' name='mode'>&nbsp;&nbsp;
 
-        <input id='startButton' type='button' value='Start' style='width:100px'
-            onclick="start();" disabled>&nbsp;
+        <input id='startButton' type='button' value='Start' style='width:100px' disabled>&nbsp;
 
         <br><br>
 
@@ -37,98 +38,5 @@
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
 
-    <script type="text/javascript">
-        var INCLUDE_URI= "../";
-    </script>
-    <script src="../core/util.js"></script>
-    <script src="../app/webutil.js"></script>
-
-    <script>
-        var fname, start_time;
-
-        function message(str) {
-            console.log(str);
-            var cell = document.getElementById('messages');
-            cell.textContent += str + "\n";
-            cell.scrollTop = cell.scrollHeight;
-        }
-
-        fname = WebUtil.getQueryVar('data', null);
-        if (fname) {
-            message("Loading " + fname);
-            // Load supporting scripts
-            WebUtil.load_scripts({
-                'core': ["base64.js", "websock.js", "des.js", "input/keysym.js",
-                         "input/keysymdef.js", "input/xtscancodes.js", "input/util.js",
-                         "input/devices.js", "display.js", "rfb.js", "inflator.js"],
-                'tests': ["playback.js"],
-                'recordings': [fname]});
-
-        } else {
-            message("Must specify data=FOO in query string.");
-        }
-
-        disconnected = function (rfb, reason) {
-            if (reason) {
-                message("noVNC sent '" + state + "' state during iteration " + iteration + " frame " + frame_idx);
-                test_state = 'failed';
-            }
-        }
-
-        notification = function (rfb, mesg, level, options) {
-            document.getElementById('VNC_status').textContent = mesg;
-        }
-
-        function start() {
-            document.getElementById('startButton').value = "Running";
-            document.getElementById('startButton').disabled = true;
-
-            iterations = document.getElementById('iterations').value;
-            iteration = 0;
-            start_time = (new Date()).getTime();
-
-            if (document.getElementById('mode1').checked) {
-                message("Starting performance playback (fullspeed) [" + iterations + " iteration(s)]");
-                mode = 'perftest';
-            } else {
-                message("Starting realtime playback [" + iterations + " iteration(s)]");
-                mode = 'realtime';
-            }
-
-            //recv_message = rfb.testMode(send_array, VNC_frame_encoding);
-
-            next_iteration();
-        }
-
-        function finish() {
-            // Finished with all iterations
-            var total_time, end_time = (new Date()).getTime();
-            total_time = end_time - start_time;
-
-            iter_time = parseInt(total_time / iterations, 10);
-            message(iterations + " iterations took " + total_time + "ms, " +
-                    iter_time + "ms per iteration");
-            // Shut-off event interception
-            rfb.get_mouse().ungrab();
-            rfb.get_keyboard().ungrab();
-            document.getElementById('startButton').disabled = false;
-            document.getElementById('startButton').value = "Start";
-
-        }
-
-        window.onscriptsload = function () {
-            iterations = WebUtil.getQueryVar('iterations', 3);
-            document.getElementById('iterations').value = iterations;
-            mode = WebUtil.getQueryVar('mode', 3);
-            if (mode === 'realtime') {
-                document.getElementById('mode2').checked = true;
-            } else {
-                document.getElementById('mode1').checked = true;
-            }
-            if (fname) {
-                message("VNC_frame_data.length: " + VNC_frame_data.length);
-            }
-            document.getElementById('startButton').disabled = false;
-        }
-    </script>
+    <script type="module" src="./playback-ui.js">
 </html>
