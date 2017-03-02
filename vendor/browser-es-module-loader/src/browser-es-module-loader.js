@@ -148,6 +148,7 @@ var WorkerPool = function (script, size) {
     wrkr._count = 0;
     wrkr._ind = i;
     wrkr.onmessage = this._onmessage.bind(this, wrkr);
+    wrkr.onerror = this._onerror.bind(this);
     this._workers[i] = wrkr;
   }
 
@@ -171,6 +172,21 @@ WorkerPool.prototype = {
     this._jobs--;
     this.onmessage(evt, wrkr);
     this._checkJobs();
+  },
+
+  _onerror: function(err) {
+    try {
+        var evt = new Event('error');
+    } catch (_eventError) {
+        var evt = document.createEvent('Event');
+        evt.initEvent('error', true, true);
+    }
+    evt.message = err.message;
+    evt.filename = err.filename;
+    evt.lineno = err.lineno;
+    evt.colno = err.colno;
+    evt.error = err.error;
+    window.dispatchEvent(evt);
   },
 
   _checkJobs: function () {
