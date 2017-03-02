@@ -29,7 +29,7 @@
                 msg.appendChild(div);
             }
 
-            if ((err !== undefined) &&
+            if (err &&
                 (err.stack !== undefined)) {
                 div = document.createElement("div");
                 div.className = 'noVNC_stack';
