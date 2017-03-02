@@ -21,11 +21,17 @@
             div.appendChild(document.createTextNode(event.message));
             msg.appendChild(div);
 
-            if (event.filename !== undefined && event.lineno !== undefined && event.colno !== undefined) {
+            if (event.filename) {
                 div = document.createElement("div");
                 div.className = 'noVNC_location';
-                    const text = event.filename + ":" + event.lineno + ":" + event.colno;
-                    div.appendChild(document.createTextNode(text));
+                var text = event.filename;
+                if (event.lineno !== undefined) {
+                    text += ":" + event.lineno;
+                    if (event.colno !== undefined) {
+                        text += ":" + event.colno;
+                    }
+                }
+                div.appendChild(document.createTextNode(text));
                 msg.appendChild(div);
             }
 
