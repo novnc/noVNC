@@ -1180,6 +1180,15 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
         evt.initEvent('error', true, true);
       }
       evt.message = err.message;
+      if (err.fileName) {
+        evt.filename = err.fileName;
+        evt.lineno = err.lineNumber;
+        evt.colno = err.columnNumber;
+      } else if (err.sourceURL) {
+        evt.filename = err.sourceURL;
+        evt.lineno = err.line;
+        evt.colno = err.column;
+      }
       evt.error = err;
       window.dispatchEvent(evt);
     }
