@@ -12,15 +12,17 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
   function handleError(err) {
     // dispatch an error event so that we can display in errors in browsers
     // that don't yet support unhandledrejection
-    try {
-      var evt = new Event('error');
-    } catch (_eventError) {
-      var evt = document.createEvent('Event');
-      evt.initEvent('error', true, true);
+    if (window.onunhandledrejection === undefined) {
+      try {
+        var evt = new Event('error');
+      } catch (_eventError) {
+        var evt = document.createEvent('Event');
+        evt.initEvent('error', true, true);
+      }
+      evt.message = err.message;
+      evt.error = err;
+      window.dispatchEvent(evt);
     }
-    evt.message = err.message;
-    evt.error = err;
-    window.dispatchEvent(evt);
 
     // throw so it still shows up in the console
     throw err;
