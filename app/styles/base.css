@@ -216,18 +216,21 @@ select:active {
  */
 
 #noVNC_fallback_error {
-  position: fixed;
   z-index: 1000;
-  left: 50%;
-  transform: translate(-50%, -50px);
+  visibility: hidden;
+}
+#noVNC_fallback_error.noVNC_open {
+  visibility: visible;
+}
+
+#noVNC_fallback_error > div {
+  max-width: 90%;
+  padding: 15px;
+
   transition: 0.5s ease-in-out;
 
-  visibility: hidden;
+  transform: translateY(-50px);
   opacity: 0;
-
-  top: 60px;
-  padding: 15px;
-  width: auto;
 
   text-align: center;
   font-weight: bold;
@@ -237,9 +240,8 @@ select:active {
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
   background: rgba(200,55,55,0.8);
 }
-#noVNC_fallback_error.noVNC_open {
-  transform: translate(-50%, 0);
-  visibility: visible;
+#noVNC_fallback_error.noVNC_open > div {
+  transform: translateY(0);
   opacity: 1;
 }
 
