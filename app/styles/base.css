@@ -231,7 +231,6 @@ select:active {
 
   text-align: center;
   font-weight: bold;
-  word-wrap: break-word;
   color: #fff;
 
   border-radius: 10px;
@@ -251,6 +250,8 @@ select:active {
 #noVNC_fallback_errormsg .noVNC_message {
   display: inline-block;
   text-align: left;
+  font-family: monospace;
+  white-space: pre-wrap;
 }
 
 #noVNC_fallback_error .noVNC_location {
@@ -264,7 +265,8 @@ select:active {
   margin: 10px;
   font-size: 0.8em;
   text-align: left;
-  white-space: pre;
+  font-family: monospace;
+  white-space: pre-wrap;
   border: 1px solid rgba(0, 0, 0, 0.5);
   background: rgba(0, 0, 0, 0.2);
 }
