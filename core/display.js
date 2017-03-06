@@ -763,110 +763,52 @@
     ]);
 
     // Class Methods
-    Display.changeCursor = function (target, pixels, mask, hotx, hoty, w0, h0, cmap) {
-        var w = w0;
-        var h = h0;
-        if (h < w) {
-            h = w;  // increase h to make it square
-        } else {
-            w = h;  // increase w to make it square
+    Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h, cmap) {
+        if ((w === 0) || (h === 0)) {
+            target.style.cursor = 'none';
+            return;
         }
 
-        var cur = [];
-
-        // Push multi-byte little-endian values
-        cur.push16le = function (num) {
-            this.push(num & 0xFF, (num >> 8) & 0xFF);
-        };
-        cur.push32le = function (num) {
-            this.push(num & 0xFF,
-                      (num >> 8) & 0xFF,
-                      (num >> 16) & 0xFF,
-                      (num >> 24) & 0xFF);
-        };
-
-        var IHDRsz = 40;
-        var RGBsz = w * h * 4;
-        var XORsz = Math.ceil((w * h) / 8.0);
-        var ANDsz = Math.ceil((w * h) / 8.0);
-
-        cur.push16le(0);        // 0: Reserved
-        cur.push16le(2);        // 2: .CUR type
-        cur.push16le(1);        // 4: Number of images, 1 for non-animated ico
-
-        // Cursor #1 header (ICONDIRENTRY)
-        cur.push(w);            // 6: width
-        cur.push(h);            // 7: height
-        cur.push(0);            // 8: colors, 0 -> true-color
-        cur.push(0);            // 9: reserved
-        cur.push16le(hotx);     // 10: hotspot x coordinate
-        cur.push16le(hoty);     // 12: hotspot y coordinate
-        cur.push32le(IHDRsz + RGBsz + XORsz + ANDsz);
-                                // 14: cursor data byte size
-        cur.push32le(22);       // 18: offset of cursor data in the file
-
-        // Cursor #1 InfoHeader (ICONIMAGE/BITMAPINFO)
-        cur.push32le(IHDRsz);   // 22: InfoHeader size
-        cur.push32le(w);        // 26: Cursor width
-        cur.push32le(h * 2);    // 30: XOR+AND height
-        cur.push16le(1);        // 34: number of planes
-        cur.push16le(32);       // 36: bits per pixel
-        cur.push32le(0);        // 38: Type of compression
-
-        cur.push32le(XORsz + ANDsz);
-                                // 42: Size of Image
-        cur.push32le(0);        // 46: reserved
-        cur.push32le(0);        // 50: reserved
-        cur.push32le(0);        // 54: reserved
-        cur.push32le(0);        // 58: reserved
-
-        // 62: color data (RGBQUAD icColors[])
+        var cur = []
         var y, x;
-        for (y = h - 1; y >= 0; y--) {
+        for (y = 0; y < h; y++) {
             for (x = 0; x < w; x++) {
-                if (x >= w0 || y >= h0) {
-                    cur.push(0);  // blue
-                    cur.push(0);  // green
-                    cur.push(0);  // red
-                    cur.push(0);  // alpha
+                var idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
+                var alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
+                if (cmap) {
+                    idx = (w * y) + x;
+                    var rgb = cmap[pixels[idx]];
+                    cur.push(rgb[2]);  // blue
+                    cur.push(rgb[1]);  // green
+                    cur.push(rgb[0]);  // red
+                    cur.push(alpha);   // alpha
                 } else {
-                    var idx = y * Math.ceil(w0 / 8) + Math.floor(x / 8);
-                    var alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
-                    if (cmap) {
-                        idx = (w0 * y) + x;
-                        var rgb = cmap[pixels[idx]];
-                        cur.push(rgb[2]);  // blue
-                        cur.push(rgb[1]);  // green
-                        cur.push(rgb[0]);  // red
-                        cur.push(alpha);   // alpha
-                    } else {
-                        idx = ((w0 * y) + x) * 4;
-                        cur.push(pixels[idx]); // blue
-                        cur.push(pixels[idx + 1]); // green
-                        cur.push(pixels[idx + 2]);     // red
-                        cur.push(alpha);           // alpha
-                    }
+                    idx = ((w * y) + x) * 4;
+                    cur.push(pixels[idx]); // blue
+                    cur.push(pixels[idx + 1]); // green
+                    cur.push(pixels[idx + 2]);     // red
+                    cur.push(alpha);           // alpha
                 }
             }
         }
 
-        // XOR/bitmask data (BYTE icXOR[])
-        // (ignored, just needs to be the right size)
-        for (y = 0; y < h; y++) {
-            for (x = 0; x < Math.ceil(w / 8); x++) {
-                cur.push(0);
-            }
-        }
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
 
-        // AND/bitmask data (BYTE icAND[])
-        // (ignored, just needs to be the right size)
-        for (y = 0; y < h; y++) {
-            for (x = 0; x < Math.ceil(w / 8); x++) {
-                cur.push(0);
-            }
-        }
+        canvas.width = w;
+        canvas.height = h;
 
-        var url = 'data:image/x-icon;base64,' + Base64.encode(cur);
+        var img;
+        if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
+            img = new ImageData(new Uint8ClampedArray(cur), w, h);
+        } else {
+            img = ctx.createImageData(w, h);
+            img.data.set(new Uint8ClampedArray(cur));
+        }
+        ctx.clearRect(0, 0, w, h);
+        ctx.putImageData(img, 0, 0);
+
+        var url = canvas.toDataURL();
         target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
     };
 })();
