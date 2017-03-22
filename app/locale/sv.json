@@ -1,11 +1,4 @@
-/*
- * Translations for sv
- *
- * This file was autotomatically generated from sv.po
- * DO NOT EDIT!
- */
-
-Language = {
+{
     "Connecting...": "Ansluter...",
     "Connected (encrypted) to ": "Ansluten (krypterat) till ",
     "Connected (unencrypted) to ": "Ansluten (okrypterat) till ",
@@ -73,5 +66,5 @@ Language = {
     "Password:": "Lösenord:",
     "Token:": "Token:",
     "Send Password": "Skicka Lösenord",
-    "Canvas not supported.": "Canvas stöds ej",
-};
+    "Canvas not supported.": "Canvas stöds ej"
+}

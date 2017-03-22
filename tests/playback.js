@@ -4,29 +4,17 @@
  * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 
-"use strict";
-/*jslint browser: true, white: false */
-/*global Util, VNC_frame_data, finish */
-
-var rfb, mode, test_state, frame_idx, frame_length,
-    iteration, iterations, istart_time, encoding,
-
-    // Pre-declarations for jslint
-    send_array, next_iteration, end_iteration, queue_next_packet,
-    do_packet, enable_test_mode;
-
-// Override send_array
-send_array = function (arr) {
-    // Stub out send_array
-};
+import RFB from '../core/rfb.js';
+import * as Log from '../core/util/logging.js';
+import Base64 from '../core/base64.js';
 
 // Immediate polyfill
-if (window.setImmediate === undefined) {
+if (setImmediate === undefined) {
     var _immediateIdCounter = 1;
     var _immediateFuncs = {};
 
-    window.setImmediate = function (func) {
-        var index = Util._immediateIdCounter++;
+    var setImmediate = function (func) {
+        var index = _immediateIdCounter++;
         _immediateFuncs[index] = func;
         window.postMessage("noVNC immediate trigger:" + index, "*");
         return index;
@@ -56,143 +44,160 @@ if (window.setImmediate === undefined) {
     window.addEventListener("message", _onMessage);
 }
 
-enable_test_mode = function () {
-    rfb._sock.send = send_array;
-    rfb._sock.close = function () {};
-    rfb._sock.flush = function () {};
-    rfb._checkEvents = function () {};
-    rfb.connect = function (host, port, password, path) {
-        this._rfb_host = host;
-        this._rfb_port = port;
-        this._rfb_password = (password !== undefined) ? password : "";
-        this._rfb_path = (path !== undefined) ? path : "";
-        this._sock.init('binary', 'ws');
-        this._rfb_connection_state = 'connecting';
-        this._rfb_init_state = 'ProtocolVersion';
-    };
-};
+export default function RecordingPlayer (frames, encoding, disconnected, notification) {
+    this._frames = frames;
+    this._encoding = encoding;
 
-next_iteration = function () {
-    rfb = new RFB({'target': document.getElementById('VNC_canvas'),
-                   'view_only': true,
-                   'onDisconnected': disconnected,
-                   'onNotification': notification});
-    enable_test_mode();
+    this._disconnected = disconnected;
+    this._notification = notification;
 
-    // Missing in older recordings
-    if (typeof VNC_frame_encoding === 'undefined') {
-        var frame = VNC_frame_data[0];
-        var start = frame.indexOf('{', 1) + 1;
+    if (this._encoding === undefined) {
+        let frame = this._frames[0];
+        let start = frame.indexOf('{', 1) + 1;
         if (frame.slice(start).startsWith('UkZC')) {
-            encoding = 'base64';
+            this._encoding = 'base64';
         } else {
-            encoding = 'binary';
+            this._encoding = 'binary';
         }
-    } else {
-        encoding = VNC_frame_encoding;
     }
 
-    if (iteration === 0) {
-        frame_length = VNC_frame_data.length;
-        test_state = 'running';
-    }
+    this._rfb = undefined;
+    this._frame_length = this._frames.length;
 
-    if (test_state !== 'running') { return; }
+    this._frame_index = 0;
+    this._start_time = undefined;
+    this._realtime = true;
+    this._trafficManagement = true;
 
-    iteration += 1;
-    if (iteration > iterations) {
-        finish();
-        return;
-    }
+    this._running = false;
 
-    frame_idx = 0;
-    istart_time = (new Date()).getTime();
-    rfb.connect('test', 0, "bogus");
+    this.onfinish = function () {};
+}
 
-    queue_next_packet();
+RecordingPlayer.prototype = {
+    run: function (realtime, trafficManagement) {
+        // initialize a new RFB
+        this._rfb = new RFB({'target': document.getElementById('VNC_canvas'),
+                             'view_only': true,
+                             'onDisconnected': this._handleDisconnect.bind(this),
+                             'onNotification': this._notification});
+        this._enablePlaybackMode();
 
-};
+        // reset the frame index and timer
+        this._frame_index = 0;
+        this._start_time = (new Date()).getTime();
 
-end_iteration = function () {
-    if (rfb._display.pending()) {
-        rfb._display.set_onFlush(function () {
-            if (rfb._flushing) {
-                rfb._onFlush();
+        this._realtime = realtime;
+        this._trafficManagement = (trafficManagement === undefined) ? !realtime : trafficManagement;
+
+        this._running = true;
+
+        // launch the tests
+        this._rfb.connect('test', 0, 'bogus');
+
+        this._queueNextPacket();
+    },
+
+    // _enablePlaybackMode mocks out things not required for running playback
+    _enablePlaybackMode: function () {
+        this._rfb._sock.send = function (arr) {};
+        this._rfb._sock.close = function () {};
+        this._rfb._sock.flush = function () {};
+        this._rfb._checkEvents = function () {};
+        this._rfb.connect = function (host, port, password, path) {
+            this._rfb_host = host;
+            this._rfb_port = port;
+            this._rfb_password = (password !== undefined) ? password : "";
+            this._rfb_path = (path !== undefined) ? path : "";
+            this._sock.init('binary', 'ws');
+            this._rfb_connection_state = 'connecting';
+            this._rfb_init_state = 'ProtocolVersion';
+        };
+    },
+
+    _queueNextPacket: function () {
+        if (!this._running) { return; }
+
+        var frame = this._frames[this._frame_index];
+
+        // skip send frames
+        while (this._frame_index < this._frame_length && frame.charAt(0) === "}") {
+            this._frame_index++;
+            frame = this._frames[this._frame_index];
+        }
+
+        if (frame === 'EOF') {
+            Log.Debug('Finished, found EOF');
+            this._finish();
+            return;
+        }
+
+        if (this._frame_index >= this._frame_length) {
+            Log.Debug('Finished, no more frames');
+            this._finish();
+            return;
+        }
+
+        if (this._realtime) {
+            let foffset = frame.slice(1, frame.indexOf('{', 1));
+            let toffset = (new Date()).getTime() - this._start_time;
+            let delay = foffset - toffset;
+            if (delay < 1) delay = 1;
+
+            setTimeout(this._doPacket.bind(this), delay);
+        } else {
+            setImmediate(this._doPacket.bind(this));
+        }
+    },
+
+    _doPacket: function () {
+        // Avoid having excessive queue buildup in non-realtime mode
+        if (!this._trafficManagement && this._rfb._flushing) {
+            let player = this;
+            this._rfb.display.set_onFlush(function () {
+                this._rfb._display.set_onFlush(this._rfb._onFlush.bind(this._rfb));
+                this._rfb._onFlush();
+                player._doPacket();
+            });
+            return;
+        }
+
+        const frame = this._frames[this._frame_index];
+        var start = frame.indexOf('{', 1) + 1;
+        if (this._encoding === 'base64') {
+            var u8 = Base64.decode(frame.slice(start));
+            start = 0;
+        } else {
+            var u8 = new Uint8Array(frame.length - start);
+            for (let i = 0; i < frame.length - start; i++) {
+                u8[i] = frame.charCodeAt(start + i);
             }
-            end_iteration();
-        });
-        rfb._display.flush();
-    } else {
-        next_iteration();
-    }
-};
-
-queue_next_packet = function () {
-    var frame, foffset, toffset, delay;
-    if (test_state !== 'running') { return; }
-
-    frame = VNC_frame_data[frame_idx];
-    while ((frame_idx < frame_length) && (frame.charAt(0) === "}")) {
-        //Util.Debug("Send frame " + frame_idx);
-        frame_idx += 1;
-        frame = VNC_frame_data[frame_idx];
-    }
-
-    if (frame === 'EOF') {
-        Util.Debug("Finished, found EOF");
-        end_iteration();
-        return;
-    }
-    if (frame_idx >= frame_length) {
-        Util.Debug("Finished, no more frames");
-        end_iteration();
-        return;
-    }
-
-    if (mode === 'realtime') {
-        foffset = frame.slice(1, frame.indexOf('{', 1));
-        toffset = (new Date()).getTime() - istart_time;
-        delay = foffset - toffset;
-        if (delay < 1) {
-            delay = 1;
         }
 
-        setTimeout(do_packet, delay);
-    } else {
-        window.setImmediate(do_packet);
-    }
-};
+        this._rfb._sock._recv_message({'data': u8});
+        this._frame_index++;
 
-var bytes_processed = 0;
+        this._queueNextPacket();
+    },
 
-do_packet = function () {
-    // Avoid having an excessive queue buildup
-    if (rfb._flushing && (mode !== 'realtime')) {
-        rfb._display.set_onFlush(function () {
-            rfb._display.set_onFlush(rfb._onFlush.bind(rfb));
-            rfb._onFlush();
-            do_packet();
-        });
-        return;
-    }
-
-    //Util.Debug("Processing frame: " + frame_idx);
-    var frame = VNC_frame_data[frame_idx],
-        start = frame.indexOf('{', 1) + 1;
-    var u8;
-    if (encoding === 'base64') {
-        u8 = Base64.decode(frame.slice(start));
-        start = 0;
-    } else {
-        u8 = new Uint8Array(frame.length - start);
-        for (var i = 0; i < frame.length - start; i++) {
-            u8[i] = frame.charCodeAt(start + i);
+    _finish() {
+        if (this._rfb._display.pending()) {
+            var player = this;
+            this._rfb._display.set_onFlush(function () {
+                if (player._rfb._flushing) {
+                    player._rfb._onFlush();
+                }
+                player._finish();
+            });
+            this._rfb._display.flush();
+        } else {
+            this._running = false;
+            this.onfinish((new Date()).getTime() - this._start_time);
         }
+    },
+
+    _handleDisconnect(rfb, reason) {
+        this._running = false;
+        this._disconnected(rfb, reason, this._frame_index);
     }
-    bytes_processed += u8.length;
-    rfb._sock._recv_message({'data' : u8});
-    frame_idx += 1;
-
-    queue_next_packet();
 };
-

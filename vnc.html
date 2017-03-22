@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="noVNC_loading">
 <head>
 
     <!--
@@ -59,6 +59,15 @@
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
 
+    <!-- this is included as a normal file in order to catch script-loading errors as well -->
+    <script type="text/javascript" src="app/error-handler.js"></script>
+
+    <!-- begin scripts -->
+    <!-- promise polyfills promises for IE11 -->
+    <script src="vendor/promise.js"></script>
+    <script src="vendor/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
+    <script type="module" src="app/ui.js"></script>
+    <!-- end scripts -->
 </head>
 
 <body>
@@ -320,12 +329,5 @@
         <source src="app/sounds/bell.oga" type="audio/ogg">
         <source src="app/sounds/bell.mp3" type="audio/mpeg">
     </audio>
-
-    <!-- begin scripts -->
-    <script src="core/util.js"></script>
-    <script src="app/webutil.js"></script>
-    <script src="app/ui.js"></script>
-    <!-- end scripts -->
-
  </body>
 </html>

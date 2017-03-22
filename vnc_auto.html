@@ -22,18 +22,33 @@
                 Remove this if you use the .htaccess -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
+    <!-- Icons (see Makefile for what the sizes are for) -->
+    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/novnc-16x16.png">
+    <link rel="icon" sizes="24x24" type="image/png" href="app/images/icons/novnc-24x24.png">
+    <link rel="icon" sizes="32x32" type="image/png" href="app/images/icons/novnc-32x32.png">
+    <link rel="icon" sizes="48x48" type="image/png" href="app/images/icons/novnc-48x48.png">
+    <link rel="icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
+    <link rel="icon" sizes="64x64" type="image/png" href="app/images/icons/novnc-64x64.png">
+    <link rel="icon" sizes="72x72" type="image/png" href="app/images/icons/novnc-72x72.png">
+    <link rel="icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
+    <link rel="icon" sizes="96x96" type="image/png" href="app/images/icons/novnc-96x96.png">
+    <link rel="icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
+    <link rel="icon" sizes="144x144" type="image/png" href="app/images/icons/novnc-144x144.png">
+    <link rel="icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
+    <link rel="icon" sizes="192x192" type="image/png" href="app/images/icons/novnc-192x192.png">
+    <link rel="icon" sizes="any" type="image/svg+xml" href="app/images/icons/novnc-icon.svg">
+    <!-- Repeated last so that legacy handling will pick this -->
+    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/novnc-16x16.png">
+
     <!-- Apple iOS Safari settings -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <!-- App Start Icon  -->
-    <link rel="apple-touch-startup-image" href="app/images/screen_320x460.png" />
-    <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
-    <link rel="apple-touch-icon" href="app/images/screen_57x57.png">
-    <!--
-    <link rel="apple-touch-icon-precomposed" href="app/images/screen_57x57.png" />
-    -->
-
+    <!-- Home Screen Icons (favourites and bookmarks use the normal icons) -->
+    <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
+    <link rel="apple-touch-icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
+    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/auto.css">
@@ -42,51 +57,18 @@
     <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
-        <script src="core/util.js"></script>
-        <script src="app/webutil.js"></script>
-</head>
 
-<body style="margin: 0px;">
-    <div id="noVNC_container">
-            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
-                <table border=0 width="100%"><tr>
-                    <td><div id="noVNC_status" style="position: relative; height: auto;">
-                        Loading
-                    </div></td>
-                    <td width="1%"><div id="noVNC_buttons">
-                        <input type=button value="Send CtrlAltDel"
-                            id="sendCtrlAltDelButton">
-                        <span id="noVNC_xvp_buttons">
-                        <input type=button value="Shutdown"
-                            id="xvpShutdownButton">
-                        <input type=button value="Reboot"
-                            id="xvpRebootButton">
-                        <input type=button value="Reset"
-                            id="xvpResetButton">
-                        </span>
-                            </div></td>
-                </tr></table>
-            </div>
-            <canvas id="noVNC_canvas" width="640px" height="20px">
-                Canvas not supported.
-            </canvas>
-        </div>
-
-        <script>
-        /*jslint white: false */
-        /*global window, $, Util, RFB, */
-        "use strict";
-
+    <!-- promise polyfills promises for IE11 -->
+    <script src="vendor/promise.js"></script>
+    <script src="vendor/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
+    <script type="module">
         // Load supporting scripts
-        WebUtil.load_scripts({
-            'core': ["base64.js", "websock.js", "des.js", "input/keysymdef.js",
-                     "input/xtscancodes.js", "input/util.js", "input/devices.js",
-                     "display.js", "inflator.js", "rfb.js", "input/keysym.js"]});
+        import * as WebUtil from './app/webutil.js';
+        import RFB from './core/rfb.js';
 
         var rfb;
         var resizeTimeout;
         var desktopName;
-
 
         function UIresize() {
             if (WebUtil.getConfigVar('resize', false)) {
@@ -109,15 +91,17 @@
                 msg = 'Password Required: ';
             }
             var html;
-            html = '<form onsubmit="return setPassword();"';
-            html += '  style="margin-bottom: 0px">';
-            html += '<label></label>'
-            html += '<input type=password size=10 id="password_input" class="noVNC_status">';
-            html += '<\/form>';
+            
+            var form = document.createElement('form');
+            form.style = 'margin-bottom: 0px';
+            form.innerHTML = '<label></label>'
+            form.innerHTML += '<input type=password size=10 id="password_input" class="noVNC_status">';
+            form.onsubmit = setPassword;
 
             // bypass status() because it sets text content
             document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
-            document.getElementById('noVNC_status').innerHTML = html;
+            document.getElementById('noVNC_status').innerHTML = '';
+            document.getElementById('noVNC_status').appendChild(form);
             document.getElementById('noVNC_status').querySelector('label').textContent = msg;
         }
         function setPassword() {
@@ -215,49 +199,46 @@
             }
         }
 
-        window.onscriptsload = function () {
-            var host, port, password, path, token;
+        document.getElementById('sendCtrlAltDelButton').style.display = "inline";
+        document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+        document.getElementById('xvpShutdownButton').onclick = xvpShutdown;
+        document.getElementById('xvpRebootButton').onclick = xvpReboot;
+        document.getElementById('xvpResetButton').onclick = xvpReset;
 
-            document.getElementById('sendCtrlAltDelButton').style.display = "inline";
-            document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
-            document.getElementById('xvpShutdownButton').onclick = xvpShutdown;
-            document.getElementById('xvpRebootButton').onclick = xvpReboot;
-            document.getElementById('xvpResetButton').onclick = xvpReset;
+        WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
+        document.title = unescape(WebUtil.getConfigVar('title', 'noVNC'));
+        // By default, use the host and port of server that served this file
+        var host = WebUtil.getConfigVar('host', window.location.hostname);
+        var port = WebUtil.getConfigVar('port', window.location.port);
 
-            WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
-            document.title = unescape(WebUtil.getConfigVar('title', 'noVNC'));
-            // By default, use the host and port of server that served this file
-            host = WebUtil.getConfigVar('host', window.location.hostname);
-            port = WebUtil.getConfigVar('port', window.location.port);
-
-            // if port == 80 (or 443) then it won't be present and should be
-            // set manually
-            if (!port) {
-                if (window.location.protocol.substring(0,5) == 'https') {
-                    port = 443;
-                }
-                else if (window.location.protocol.substring(0,4) == 'http') {
-                    port = 80;
-                }
+        // if port == 80 (or 443) then it won't be present and should be
+        // set manually
+        if (!port) {
+            if (window.location.protocol.substring(0,5) == 'https') {
+                port = 443;
             }
-
-            password = WebUtil.getConfigVar('password', '');
-            path = WebUtil.getConfigVar('path', 'websockify');
-
-            // If a token variable is passed in, set the parameter in a cookie.
-            // This is used by nova-novncproxy.
-            token = WebUtil.getConfigVar('token', null);
-            if (token) {
-
-                // if token is already present in the path we should use it
-                path = WebUtil.injectParamIfMissing(path, "token", token);
-
-                WebUtil.createCookie('token', token, 1)
+            else if (window.location.protocol.substring(0,4) == 'http') {
+                port = 80;
             }
+        }
+
+        var password = WebUtil.getConfigVar('password', '');
+        var path = WebUtil.getConfigVar('path', 'websockify');
+
+        // If a token variable is passed in, set the parameter in a cookie.
+        // This is used by nova-novncproxy.
+        var token = WebUtil.getConfigVar('token', null);
+        if (token) {
+            // if token is already present in the path we should use it
+            path = WebUtil.injectParamIfMissing(path, "token", token);
+
+            WebUtil.createCookie('token', token, 1)
+        }
+
+        (function() {
 
             if ((!host) || (!port)) {
                 status('Must specify host and port in URL', 'error');
-                return;
             }
 
             try {
@@ -282,8 +263,35 @@
             }
 
             rfb.connect(host, port, password, path);
-        };
-        </script>
+        })();
+    </script>
+</head>
+
+<body style="margin: 0px;">
+    <div id="noVNC_container">
+            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
+                <table border=0 width="100%"><tr>
+                    <td><div id="noVNC_status" style="position: relative; height: auto;">
+                        Loading
+                    </div></td>
+                    <td width="1%"><div id="noVNC_buttons">
+                        <input type=button value="Send CtrlAltDel"
+                            id="sendCtrlAltDelButton">
+                        <span id="noVNC_xvp_buttons">
+                        <input type=button value="Shutdown"
+                            id="xvpShutdownButton">
+                        <input type=button value="Reboot"
+                            id="xvpRebootButton">
+                        <input type=button value="Reset"
+                            id="xvpResetButton">
+                        </span>
+                            </div></td>
+                </tr></table>
+            </div>
+            <canvas id="noVNC_canvas" width="640px" height="20px">
+                Canvas not supported.
+            </canvas>
+        </div>
 
     </body>
 </html>

@@ -1,8 +1,15 @@
-// requires local modules: util, websock, rfb, input/util, input/keysym, input/keysymdef, input/devices, inflator, des, display
-// requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
+
+import RFB from '../core/rfb.js';
+import Websock from '../core/websock.js';
+
+import FakeWebSocket from './fake.websocket.js';
+import './assertions';
+import 'sinon';
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+chai.use(sinonChai);
 
 function make_rfb (extra_opts) {
     if (!extra_opts) {

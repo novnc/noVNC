@@ -1,8 +1,14 @@
-// requires local modules: websock, util
-// requires test modules: fake.websocket, assertions
 /* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
+
+import Websock from '../core/websock.js';
+import FakeWebSocket from './fake.websocket.js';
+
+import './assertions';
+import 'sinon';
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+chai.use(sinonChai);
 
 describe('Websock', function() {
     "use strict";
