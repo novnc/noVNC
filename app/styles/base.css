@@ -57,6 +57,7 @@ html {
   width: 10px;
   height: 10px;
   border-radius: 2px;
+  box-shadow: -60px 10px 0 rgba(255, 255, 255, 0);
   animation: noVNC_spinner 1.0s linear infinite;
 }
 .noVNC_spinner::before {
