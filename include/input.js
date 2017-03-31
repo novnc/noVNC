@@ -338,14 +338,13 @@ var Keyboard, Mouse;
                 Util.addEvent(window, 'touchend', this._eventHandlers.mouseup);
                 Util.addEvent(c, 'touchend', this._eventHandlers.mouseup);
                 Util.addEvent(c, 'touchmove', this._eventHandlers.mousemove);
-            } else {
-                Util.addEvent(c, 'mousedown', this._eventHandlers.mousedown);
-                Util.addEvent(window, 'mouseup', this._eventHandlers.mouseup);
-                Util.addEvent(c, 'mouseup', this._eventHandlers.mouseup);
-                Util.addEvent(c, 'mousemove', this._eventHandlers.mousemove);
-                Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-                              this._eventHandlers.mousewheel);
             }
+            Util.addEvent(c, 'mousedown', this._eventHandlers.mousedown);
+            Util.addEvent(window, 'mouseup', this._eventHandlers.mouseup);
+            Util.addEvent(c, 'mouseup', this._eventHandlers.mouseup);
+            Util.addEvent(c, 'mousemove', this._eventHandlers.mousemove);
+            Util.addEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+                          this._eventHandlers.mousewheel);
 
             /* Work around right and middle click browser behaviors */
             Util.addEvent(document, 'click', this._eventHandlers.mousedisable);
@@ -360,14 +359,13 @@ var Keyboard, Mouse;
                 Util.removeEvent(window, 'touchend', this._eventHandlers.mouseup);
                 Util.removeEvent(c, 'touchend', this._eventHandlers.mouseup);
                 Util.removeEvent(c, 'touchmove', this._eventHandlers.mousemove);
-            } else {
-                Util.removeEvent(c, 'mousedown', this._eventHandlers.mousedown);
-                Util.removeEvent(window, 'mouseup', this._eventHandlers.mouseup);
-                Util.removeEvent(c, 'mouseup', this._eventHandlers.mouseup);
-                Util.removeEvent(c, 'mousemove', this._eventHandlers.mousemove);
-                Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
-                                 this._eventHandlers.mousewheel);
             }
+            Util.removeEvent(c, 'mousedown', this._eventHandlers.mousedown);
+            Util.removeEvent(window, 'mouseup', this._eventHandlers.mouseup);
+            Util.removeEvent(c, 'mouseup', this._eventHandlers.mouseup);
+            Util.removeEvent(c, 'mousemove', this._eventHandlers.mousemove);
+            Util.removeEvent(c, (Util.Engine.gecko) ? 'DOMMouseScroll' : 'mousewheel',
+                             this._eventHandlers.mousewheel);
 
             /* Work around right and middle click browser behaviors */
             Util.removeEvent(document, 'click', this._eventHandlers.mousedisable);
