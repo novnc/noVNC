@@ -5,6 +5,7 @@ export default {
   dest: 'dist/browser-es-module-loader.js',
   format: 'umd',
   moduleName: 'BrowserESModuleLoader',
+  sourceMap: true,
 
   plugins: [
     nodeResolve(),

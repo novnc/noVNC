@@ -6,16 +6,6 @@
 (function(){
     "use strict";
 
-    function convertNewlines(msg, parentElem) {
-        const lines = msg.split("\n");
-        lines.forEach(function (line) {
-            parentElem.appendChild(document.createElement("br"));
-            parentElem.appendChild(document.createTextNode(line));
-        });
-        parentElem.removeChild(parentElem.firstChild);
-        return parentElem;
-    }
-
     // Fallback for all uncought errors
     function handleError (event, err) {
         try {
@@ -28,18 +18,24 @@
 
             var div = document.createElement("div");
             div.classList.add('noVNC_message');
-            convertNewlines(event.message, div);
+            div.appendChild(document.createTextNode(event.message));
             msg.appendChild(div);
 
-            if (event.filename !== undefined && event.lineno !== undefined && event.colno !== undefined) {
+            if (event.filename) {
                 div = document.createElement("div");
                 div.className = 'noVNC_location';
-                    const text = event.filename + ":" + event.lineno + ":" + event.colno;
-                    div.appendChild(document.createTextNode(text));
+                var text = event.filename;
+                if (event.lineno !== undefined) {
+                    text += ":" + event.lineno;
+                    if (event.colno !== undefined) {
+                        text += ":" + event.colno;
+                    }
+                }
+                div.appendChild(document.createTextNode(text));
                 msg.appendChild(div);
             }
 
-            if ((err !== undefined) &&
+            if (err &&
                 (err.stack !== undefined)) {
                 div = document.createElement("div");
                 div.className = 'noVNC_stack';
