@@ -190,7 +190,7 @@ WorkerPool.prototype = {
 };
 
 var promiseMap = new Map();
-var babelWorker = new WorkerPool('/vendor/browser-es-module-loader/dist/babel-worker.js', 3);
+var babelWorker = new WorkerPool('vendor/browser-es-module-loader/dist/babel-worker.js', 3);
 babelWorker.onmessage = function (evt) {
     var promFuncs = promiseMap.get(evt.data.key);
     promFuncs.resolve(evt.data);
