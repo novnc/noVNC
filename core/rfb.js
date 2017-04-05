@@ -669,7 +669,7 @@ RFB.prototype = {
         if (down) {
             this._mouse_buttonMask |= bmask;
         } else {
-            this._mouse_buttonMask ^= bmask;
+            this._mouse_buttonMask &= ~bmask;
         }
 
         if (this._viewportDrag) {
