@@ -1672,7 +1672,7 @@ const UI = {
         // Force Chrome to recalculate the layout by asking for
         // an element's dimensions
         screen.getBoundingClientRect();
-        screen.style.overflow = null;
+        screen.style.overflow = "";
     },
 
     updateDesktopName: function(rfb, name) {

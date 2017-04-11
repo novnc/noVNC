@@ -115,7 +115,7 @@ export function setCapture (elem) {
         _captureObserver.observe(elem, {attributes:true});
         _captureElemChanged();
 
-        captureElem.style.display = null;
+        captureElem.style.display = "";
 
         // We listen to events on window in order to keep tracking if it
         // happens to leave the viewport
