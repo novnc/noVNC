@@ -2,9 +2,16 @@ import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
 import fixedkeys from "./fixedkeys.js";
+import DOMKeyTable from "./domkeytable.js";
 
 function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
+}
+function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
 }
 
 // Get 'KeyboardEvent.code', handling legacy browsers
@@ -67,88 +74,91 @@ export function getKeycode(evt){
     return 'Unidentified';
 }
 
-// Get the most reliable keysym value we can get from a key event
-export function getKeysym(evt){
+// Get 'KeyboardEvent.key', handling legacy browsers
+export function getKey(evt) {
+    // Are we getting a proper key value?
+    if (evt.key !== undefined) {
+        // IE and Edge use some ancient version of the spec
+        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
+        switch (evt.key) {
+            case 'Spacebar': return ' ';
+            case 'Esc': return 'Escape';
+            case 'Scroll': return 'ScrollLock';
+            case 'Win': return 'Meta';
+            case 'Apps': return 'ContextMenu';
+            case 'Up': return 'ArrowUp';
+            case 'Left': return 'ArrowLeft';
+            case 'Right': return 'ArrowRight';
+            case 'Down': return 'ArrowDown';
+            case 'Del': return 'Delete';
+            case 'Divide': return '/';
+            case 'Multiply': return '*';
+            case 'Subtract': return '-';
+            case 'Add': return '+';
+            case 'Decimal': return evt.char;
+        }
 
-    // We start with layout independent keys
+        // Mozilla isn't fully in sync with the spec yet
+        switch (evt.key) {
+            case 'OS': return 'Meta';
+        }
+
+        // IE and Edge have broken handling of AltGraph so we cannot
+        // trust them for printable characters
+        if ((evt.key.length !== 1) || (!isIE() && !isEdge())) {
+            return evt.key;
+        }
+    }
+
+    // Try to deduce it based on the physical key
     var code = getKeycode(evt);
     if (code in fixedkeys) {
         return fixedkeys[code];
     }
 
-    // Next with mildly layout or state sensitive stuff
-
-    // Like AltGraph
-    if (code === 'AltRight') {
-        if (evt.key === 'AltGraph') {
-            return KeyTable.XK_ISO_Level3_Shift;
-        } else {
-            return KeyTable.XK_Alt_R;
-        }
+    // If that failed, then see if we have a printable character
+    if (evt.charCode) {
+        return String.fromCharCode(evt.charCode);
     }
 
-    // Or the numpad
-    if (evt.location === 3) {
-        var key = evt.key;
+    // At this point we have nothing left to go on
+    return 'Unidentified';
+}
 
-        // IE and Edge use some ancient version of the spec
-        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
-        switch (key) {
-            case 'Up': key = 'ArrowUp'; break;
-            case 'Left': key = 'ArrowLeft'; break;
-            case 'Right': key = 'ArrowRight'; break;
-            case 'Down': key = 'ArrowDown'; break;
-            case 'Del': key = 'Delete'; break;
+// Get the most reliable keysym value we can get from a key event
+export function getKeysym(evt){
+    var key = getKey(evt);
+
+    if (key === 'Unidentified') {
+        return null;
+    }
+
+    // First look up special keys
+    if (key in DOMKeyTable) {
+        var location = evt.location;
+
+        // Safari screws up location for the right cmd key
+        if ((key === 'Meta') && (location === 0)) {
+            location = 2;
         }
 
-        // Safari doesn't support KeyboardEvent.key yet
-        if ((key === undefined) && (evt.charCode)) {
-            key = String.fromCharCode(evt.charCode);
+        if ((location === undefined) || (location > 3)) {
+            location = 0;
         }
 
-        switch (key) {
-            case '0': return KeyTable.XK_KP_0;
-            case '1': return KeyTable.XK_KP_1;
-            case '2': return KeyTable.XK_KP_2;
-            case '3': return KeyTable.XK_KP_3;
-            case '4': return KeyTable.XK_KP_4;
-            case '5': return KeyTable.XK_KP_5;
-            case '6': return KeyTable.XK_KP_6;
-            case '7': return KeyTable.XK_KP_7;
-            case '8': return KeyTable.XK_KP_8;
-            case '9': return KeyTable.XK_KP_9;
-            // There is utter mayhem in the world when it comes to which
-            // character to use as a decimal separator...
-            case '.': return KeyTable.XK_KP_Decimal;
-            case ',': return KeyTable.XK_KP_Separator;
-            case 'Home': return KeyTable.XK_KP_Home;
-            case 'End': return KeyTable.XK_KP_End;
-            case 'PageUp': return KeyTable.XK_KP_Prior;
-            case 'PageDown': return KeyTable.XK_KP_Next;
-            case 'Insert': return KeyTable.XK_KP_Insert;
-            case 'Delete': return KeyTable.XK_KP_Delete;
-            case 'ArrowUp': return KeyTable.XK_KP_Up;
-            case 'ArrowLeft': return KeyTable.XK_KP_Left;
-            case 'ArrowRight': return KeyTable.XK_KP_Right;
-            case 'ArrowDown': return KeyTable.XK_KP_Down;
-        }
+        return DOMKeyTable[key][location];
     }
 
     // Now we need to look at the Unicode symbol instead
 
     var codepoint;
 
-    if ('key' in evt) {
-        // Special key? (FIXME: Should have been caught earlier)
-        if (evt.key.length !== 1) {
-            return null;
-        }
-
-        codepoint = evt.key.charCodeAt();
-    } else if ('charCode' in evt) {
-        codepoint = evt.charCode;
+    // Special key? (FIXME: Should have been caught earlier)
+    if (key.length !== 1) {
+        return null;
     }
 
+    codepoint = key.charCodeAt();
     if (codepoint) {
         return keysyms.lookup(codepoint);
     }

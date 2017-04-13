@@ -5,108 +5,123 @@
  */
 
 /*
- * Mapping between HTML key codes and VNC/X11 keysyms for the
- * subset of keys that have the same mapping on every keyboard
- * layout. Keys that vary between layouts must never be included
- * in this list.
+ * Fallback mapping between HTML key codes (physical keys) and
+ * HTML key values. This only works for keys that don't vary
+ * between layouts. We also omit those who manage fine by mapping the
+ * Unicode representation.
+ *
+ * See https://www.w3.org/TR/uievents-code/ for possible codes.
+ * See https://www.w3.org/TR/uievents-key/ for possible values.
  */
 
-import KeyTable from "./keysym.js";
-
 export default {
-    'Backspace':       KeyTable.XK_BackSpace,
-    'AltLeft':         KeyTable.XK_Alt_L,
-    // AltRight is special
-    'CapsLock':        KeyTable.XK_Caps_Lock,
-    'ContextMenu':     KeyTable.XK_Menu,
-    'ControlLeft':     KeyTable.XK_Control_L,
-    'ControlRight':    KeyTable.XK_Control_R,
-    'Enter':           KeyTable.XK_Return,
-    'MetaLeft':        KeyTable.XK_Super_L,
-    'MetaRight':       KeyTable.XK_Super_R,
-    'ShiftLeft':       KeyTable.XK_Shift_L,
-    'ShiftRight':      KeyTable.XK_Shift_R,
-    'Space':           KeyTable.XK_space,
-    'Tab':             KeyTable.XK_Tab,
+
+// 3.1.1.1. Writing System Keys
+
+    'Backspace':        'Backspace',
+
+// 3.1.1.2. Functional Keys
+
+    'AltLeft':          'Alt',
+    'AltRight':         'Alt', // This could also be 'AltGraph'
+    'CapsLock':         'CapsLock',
+    'ContextMenu':      'ContextMenu',
+    'ControlLeft':      'Control',
+    'ControlRight':     'Control',
+    'Enter':            'Enter',
+    'MetaLeft':         'Meta',
+    'MetaRight':        'Meta',
+    'ShiftLeft':        'Shift',
+    'ShiftRight':       'Shift',
+    'Tab':              'Tab',
     // FIXME: Japanese/Korean keys
-    'Delete':          KeyTable.XK_Delete,
-    'End':             KeyTable.XK_End,
-    'Help':            KeyTable.XK_Help,
-    'Home':            KeyTable.XK_Home,
-    'Insert':          KeyTable.XK_Insert,
-    'PageDown':        KeyTable.XK_Next,
-    'PageUp':          KeyTable.XK_Prior,
-    'ArrowDown':       KeyTable.XK_Down,
-    'ArrowLeft':       KeyTable.XK_Left,
-    'ArrowRight':      KeyTable.XK_Right,
-    'ArrowUp':         KeyTable.XK_Up,
-    'NumLock':         KeyTable.XK_Num_Lock,
-    'NumpadAdd':       KeyTable.XK_KP_Add,
-    'NumpadBackspace': KeyTable.XK_KP_Delete,
-    'NumpadClear':     KeyTable.XK_Clear,
-    // NumpadDecimal is special
-    'NumpadDivide':    KeyTable.XK_KP_Divide,
-    'NumpadEnter':     KeyTable.XK_KP_Enter,
-    'NumpadEqual':     KeyTable.XK_KP_Equal,
-    'NumpadMultiply':  KeyTable.XK_KP_Multiply,
-    'NumpadSubtract':  KeyTable.XK_KP_Subtract,
-    'Escape':          KeyTable.XK_Escape,
-    'F1':              KeyTable.XK_F1,
-    'F2':              KeyTable.XK_F2,
-    'F3':              KeyTable.XK_F3,
-    'F4':              KeyTable.XK_F4,
-    'F5':              KeyTable.XK_F5,
-    'F6':              KeyTable.XK_F6,
-    'F7':              KeyTable.XK_F7,
-    'F8':              KeyTable.XK_F8,
-    'F9':              KeyTable.XK_F9,
-    'F10':             KeyTable.XK_F10,
-    'F11':             KeyTable.XK_F11,
-    'F12':             KeyTable.XK_F12,
-    'F13':             KeyTable.XK_F13,
-    'F14':             KeyTable.XK_F14,
-    'F15':             KeyTable.XK_F15,
-    'F16':             KeyTable.XK_F16,
-    'F17':             KeyTable.XK_F17,
-    'F18':             KeyTable.XK_F18,
-    'F19':             KeyTable.XK_F19,
-    'F20':             KeyTable.XK_F20,
-    'F21':             KeyTable.XK_F21,
-    'F22':             KeyTable.XK_F22,
-    'F23':             KeyTable.XK_F23,
-    'F24':             KeyTable.XK_F24,
-    'F25':             KeyTable.XK_F25,
-    'F26':             KeyTable.XK_F26,
-    'F27':             KeyTable.XK_F27,
-    'F28':             KeyTable.XK_F28,
-    'F29':             KeyTable.XK_F29,
-    'F30':             KeyTable.XK_F30,
-    'F31':             KeyTable.XK_F31,
-    'F32':             KeyTable.XK_F32,
-    'F33':             KeyTable.XK_F33,
-    'F34':             KeyTable.XK_F34,
-    'F35':             KeyTable.XK_F35,
-    'PrintScreen':     KeyTable.XK_Print,
-    'ScrollLock':      KeyTable.XK_Scroll_Lock,
-    'Pause':           KeyTable.XK_Pause,
-    'BrowserBack':     KeyTable.XF86XK_Back,
-    'BrowserFavorites': KeyTable.XF86XK_Favorites,
-    'BrowserForward':  KeyTable.XF86XK_Forward,
-    'BrowserHome':     KeyTable.XF86XK_HomePage,
-    'BrowserRefresh':  KeyTable.XF86XK_Refresh,
-    'BrowserSearch':   KeyTable.XF86XK_Search,
-    'BrowserStop':     KeyTable.XF86XK_Stop,
-    'LaunchApp1':      KeyTable.XF86XK_Explorer,
-    'LaunchApp2':      KeyTable.XF86XK_Calculator,
-    'LaunchMail':      KeyTable.XF86XK_Mail,
-    'MediaPlayPause':  KeyTable.XF86XK_AudioPlay,
-    'MediaStop':       KeyTable.XF86XK_AudioStop,
-    'MediaTrackNext':  KeyTable.XF86XK_AudioNext,
-    'MediaTrackPrevious': KeyTable.XF86XK_AudioPrev,
-    'Power':           KeyTable.XF86XK_PowerOff,
-    'Sleep':           KeyTable.XF86XK_Sleep,
-    'AudioVolumeDown': KeyTable.XF86XK_AudioLowerVolume,
-    'AudioVolumeMute': KeyTable.XF86XK_AudioMute,
-    'AudioVolumeUp':   KeyTable.XF86XK_AudioRaiseVolume,
-    'WakeUp':          KeyTable.XF86XK_WakeUp,
+
+// 3.1.2. Control Pad Section
+
+    'Delete':           'Delete',
+    'End':              'End',
+    'Help':             'Help',
+    'Home':             'Home',
+    'Insert':           'Insert',
+    'PageDown':         'PageDown',
+    'PageUp':           'PageUp',
+
+// 3.1.3. Arrow Pad Section
+
+    'ArrowDown':        'ArrowDown',
+    'ArrowLeft':        'ArrowLeft',
+    'ArrowRight':       'ArrowRight',
+    'ArrowUp':          'ArrowUp',
+
+// 3.1.4. Numpad Section
+
+    'NumLock':          'NumLock',
+    'NumpadBackspace':  'Backspace',
+    'NumpadClear':      'Clear',
+
+// 3.1.5. Function Section
+
+    'Escape':           'Escape',
+    'F1':               'F1',
+    'F2':               'F2',
+    'F3':               'F3',
+    'F4':               'F4',
+    'F5':               'F5',
+    'F6':               'F6',
+    'F7':               'F7',
+    'F8':               'F8',
+    'F9':               'F9',
+    'F10':              'F10',
+    'F11':              'F11',
+    'F12':              'F12',
+    'F13':              'F13',
+    'F14':              'F14',
+    'F15':              'F15',
+    'F16':              'F16',
+    'F17':              'F17',
+    'F18':              'F18',
+    'F19':              'F19',
+    'F20':              'F20',
+    'F21':              'F21',
+    'F22':              'F22',
+    'F23':              'F23',
+    'F24':              'F24',
+    'F25':              'F25',
+    'F26':              'F26',
+    'F27':              'F27',
+    'F28':              'F28',
+    'F29':              'F29',
+    'F30':              'F30',
+    'F31':              'F31',
+    'F32':              'F32',
+    'F33':              'F33',
+    'F34':              'F34',
+    'F35':              'F35',
+    'PrintScreen':      'PrintScreen',
+    'ScrollLock':       'ScrollLock',
+    'Pause':            'Pause',
+
+// 3.1.6. Media Keys
+
+    'BrowserBack':      'BrowserBack',
+    'BrowserFavorites': 'BrowserFavorites',
+    'BrowserForward':   'BrowserForward',
+    'BrowserHome':      'BrowserHome',
+    'BrowserRefresh':   'BrowserRefresh',
+    'BrowserSearch':    'BrowserSearch',
+    'BrowserStop':      'BrowserStop',
+    'Eject':            'Eject',
+    'LaunchApp1':       'LaunchMyComputer',
+    'LaunchApp2':       'LaunchCalendar',
+    'LaunchMail':       'LaunchMail',
+    'MediaPlayPause':   'MediaPlay',
+    'MediaStop':        'MediaStop',
+    'MediaTrackNext':   'MediaTrackNext',
+    'MediaTrackPrevious': 'MediaTrackPrevious',
+    'Power':            'Power',
+    'Sleep':            'Sleep',
+    'AudioVolumeDown':  'AudioVolumeDown',
+    'AudioVolumeMute':  'AudioVolumeMute',
+    'AudioVolumeUp':    'AudioVolumeUp',
+    'WakeUp':           'WakeUp',
 };

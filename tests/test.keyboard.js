@@ -187,8 +187,8 @@ describe('Key Event Handling', function() {
                         break;
                 }
             }});
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
             expect(count).to.be.equal(2);
         });
         it('should change left Super to Alt', function(done) {
@@ -198,7 +198,7 @@ describe('Key Event Handling', function() {
                 expect(code).to.be.equal('MetaLeft');
                 done();
             }});
-            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta', location: 1}));
         });
         it('should change right Super to left Super', function(done) {
             var kbd = new Keyboard({
@@ -207,7 +207,7 @@ describe('Key Event Handling', function() {
                 expect(code).to.be.equal('MetaRight');
                 done();
             }});
-            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2}));
         });
     });
 
@@ -280,8 +280,8 @@ describe('Key Event Handling', function() {
                 }
             }});
             // First the modifier combo
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
             // Next a normal character
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             expect(times_called).to.be.equal(7);
@@ -299,8 +299,8 @@ describe('Key Event Handling', function() {
                 }
             }});
             // First the modifier combo
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
             // Next a normal character
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
@@ -329,10 +329,10 @@ describe('Key Event Handling', function() {
                 }
             }});
             // First the modifier combo
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control'}));
-            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt', location: 1}));
             // Then one of the keys again
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
             expect(times_called).to.be.equal(3);
         });
     });

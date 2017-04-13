@@ -12,6 +12,37 @@ export default {
     XK_Escape:                      0xff1b,
     XK_Delete:                      0xffff, /* Delete, rubout */
 
+    /* International & multi-key character composition */
+
+    XK_Multi_key:                   0xff20, /* Multi-key character compose */
+    XK_Codeinput:                   0xff37,
+    XK_SingleCandidate:             0xff3c,
+    XK_MultipleCandidate:           0xff3d,
+    XK_PreviousCandidate:           0xff3e,
+
+    /* Japanese keyboard support */
+
+    XK_Kanji:                       0xff21, /* Kanji, Kanji convert */
+    XK_Muhenkan:                    0xff22, /* Cancel Conversion */
+    XK_Henkan_Mode:                 0xff23, /* Start/Stop Conversion */
+    XK_Henkan:                      0xff23, /* Alias for Henkan_Mode */
+    XK_Romaji:                      0xff24, /* to Romaji */
+    XK_Hiragana:                    0xff25, /* to Hiragana */
+    XK_Katakana:                    0xff26, /* to Katakana */
+    XK_Hiragana_Katakana:           0xff27, /* Hiragana/Katakana toggle */
+    XK_Zenkaku:                     0xff28, /* to Zenkaku */
+    XK_Hankaku:                     0xff29, /* to Hankaku */
+    XK_Zenkaku_Hankaku:             0xff2a, /* Zenkaku/Hankaku toggle */
+    XK_Touroku:                     0xff2b, /* Add to Dictionary */
+    XK_Massyo:                      0xff2c, /* Delete from Dictionary */
+    XK_Kana_Lock:                   0xff2d, /* Kana Lock */
+    XK_Kana_Shift:                  0xff2e, /* Kana Shift */
+    XK_Eisu_Shift:                  0xff2f, /* Alphanumeric Shift */
+    XK_Eisu_toggle:                 0xff30, /* Alphanumeric toggle */
+    XK_Kanji_Bangou:                0xff37, /* Codeinput */
+    XK_Zen_Koho:                    0xff3d, /* Multiple/All Candidate(s) */
+    XK_Mae_Koho:                    0xff3e, /* Previous Candidate */
+
     /* Cursor control & motion */
 
     XK_Home:                        0xff50,
@@ -171,7 +202,17 @@ export default {
     XK_Hyper_L:                     0xffed, /* Left hyper */
     XK_Hyper_R:                     0xffee, /* Right hyper */
 
+    /*
+     * Keyboard (XKB) Extension function and modifier keys
+     * (from Appendix C of "The X Keyboard Extension: Protocol Specification")
+     * Byte 3 = 0xfe
+     */
+
     XK_ISO_Level3_Shift:            0xfe03, /* AltGr */
+    XK_ISO_Next_Group:              0xfe08,
+    XK_ISO_Prev_Group:              0xfe0a,
+    XK_ISO_First_Group:             0xfe0c,
+    XK_ISO_Last_Group:              0xfe0e,
 
     /*
      * Latin 1
@@ -377,6 +418,15 @@ export default {
     XK_yacute:                      0x00fd, /* U+00FD LATIN SMALL LETTER Y WITH ACUTE */
     XK_thorn:                       0x00fe, /* U+00FE LATIN SMALL LETTER THORN */
     XK_ydiaeresis:                  0x00ff, /* U+00FF LATIN SMALL LETTER Y WITH DIAERESIS */
+
+    /*
+     * Korean
+     * Byte 3 = 0x0e
+     */
+
+    XK_Hangul:                      0xff31, /* Hangul start/stop(toggle) */
+    XK_Hangul_Hanja:                0xff34, /* Start Hangul->Hanja Conversion */
+    XK_Hangul_Jeonja:               0xff38, /* Jeonja mode */
 
     /*
      * XFree86 vendor specific keysyms.

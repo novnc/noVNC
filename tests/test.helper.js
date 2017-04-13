@@ -98,39 +98,104 @@ describe('Helpers', function() {
         });
     });
 
-    describe('getKeysym', function() {
+    describe('getKey', function() {
         it('should prefer key', function() {
-            expect(KeyboardUtil.getKeysym({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x61);
+            expect(KeyboardUtil.getKey({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal('a');
+        });
+        it('should map legacy values', function() {
+            expect(KeyboardUtil.getKey({key: 'Spacebar'})).to.be.equal(' ');
+            expect(KeyboardUtil.getKey({key: 'Left'})).to.be.equal('ArrowLeft');
+            expect(KeyboardUtil.getKey({key: 'OS'})).to.be.equal('Meta');
+            expect(KeyboardUtil.getKey({key: 'Win'})).to.be.equal('Meta');
+        });
+        it('should use code if no key', function() {
+            expect(KeyboardUtil.getKey({code: 'NumpadBackspace'})).to.be.equal('Backspace');
+        });
+        it('should not use code fallback for character keys', function() {
+            expect(KeyboardUtil.getKey({code: 'KeyA'})).to.be.equal('Unidentified');
+            expect(KeyboardUtil.getKey({code: 'Digit1'})).to.be.equal('Unidentified');
+            expect(KeyboardUtil.getKey({code: 'Period'})).to.be.equal('Unidentified');
+            expect(KeyboardUtil.getKey({code: 'Numpad1'})).to.be.equal('Unidentified');
         });
         it('should use charCode if no key', function() {
-            expect(KeyboardUtil.getKeysym({charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal(0x01a9);
+            expect(KeyboardUtil.getKey({charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal('Š');
+        });
+        it('should return Unidentified when it cannot map the key', function() {
+            expect(KeyboardUtil.getKey({keycode: 0x42})).to.be.equal('Unidentified');
         });
 
+        describe('Broken key AltGraph on IE/Edge', function() {
+            var origNavigator;
+            beforeEach(function () {
+                // window.navigator is a protected read-only property in many
+                // environments, so we need to redefine it whilst running these
+                // tests.
+                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+                if (origNavigator === undefined) {
+                    // Object.getOwnPropertyDescriptor() doesn't work
+                    // properly in any version of IE
+                    this.skip();
+                }
+
+                Object.defineProperty(window, "navigator", {value: {}});
+                if (window.navigator.platform !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
+                }
+            });
+            afterEach(function () {
+                Object.defineProperty(window, "navigator", origNavigator);
+            });
+
+            it('should ignore printable character key on IE', function() {
+                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
+                expect(KeyboardUtil.getKey({key: 'a'})).to.be.equal('Unidentified');
+            });
+            it('should ignore printable character key on Edge', function() {
+                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
+                expect(KeyboardUtil.getKey({key: 'a'})).to.be.equal('Unidentified');
+            });
+            it('should allow non-printable character key on IE', function() {
+                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
+                expect(KeyboardUtil.getKey({key: 'Shift'})).to.be.equal('Shift');
+            });
+            it('should allow non-printable character key on Edge', function() {
+                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
+                expect(KeyboardUtil.getKey({key: 'Shift'})).to.be.equal('Shift');
+            });
+        });
+    });
+
+    describe('getKeysym', function() {
         describe('Non-character keys', function() {
             it('should recognize the right keys', function() {
-                expect(KeyboardUtil.getKeysym({code: 'Enter'})).to.be.equal(0xFF0D);
-                expect(KeyboardUtil.getKeysym({code: 'Backspace'})).to.be.equal(0xFF08);
-                expect(KeyboardUtil.getKeysym({code: 'Tab'})).to.be.equal(0xFF09);
-                expect(KeyboardUtil.getKeysym({code: 'ShiftLeft'})).to.be.equal(0xFFE1);
-                expect(KeyboardUtil.getKeysym({code: 'ControlLeft'})).to.be.equal(0xFFE3);
-                expect(KeyboardUtil.getKeysym({code: 'AltLeft'})).to.be.equal(0xFFE9);
-                expect(KeyboardUtil.getKeysym({code: 'MetaLeft'})).to.be.equal(0xFFEB);
-                expect(KeyboardUtil.getKeysym({code: 'Escape'})).to.be.equal(0xFF1B);
-                expect(KeyboardUtil.getKeysym({code: 'ArrowUp'})).to.be.equal(0xFF52);
+                expect(KeyboardUtil.getKeysym({key: 'Enter'})).to.be.equal(0xFF0D);
+                expect(KeyboardUtil.getKeysym({key: 'Backspace'})).to.be.equal(0xFF08);
+                expect(KeyboardUtil.getKeysym({key: 'Tab'})).to.be.equal(0xFF09);
+                expect(KeyboardUtil.getKeysym({key: 'Shift'})).to.be.equal(0xFFE1);
+                expect(KeyboardUtil.getKeysym({key: 'Control'})).to.be.equal(0xFFE3);
+                expect(KeyboardUtil.getKeysym({key: 'Alt'})).to.be.equal(0xFFE9);
+                expect(KeyboardUtil.getKeysym({key: 'Meta'})).to.be.equal(0xFFEB);
+                expect(KeyboardUtil.getKeysym({key: 'Escape'})).to.be.equal(0xFF1B);
+                expect(KeyboardUtil.getKeysym({key: 'ArrowUp'})).to.be.equal(0xFF52);
+            });
+            it('should map left/right side', function() {
+                expect(KeyboardUtil.getKeysym({key: 'Shift', location: 1})).to.be.equal(0xFFE1);
+                expect(KeyboardUtil.getKeysym({key: 'Shift', location: 2})).to.be.equal(0xFFE2);
+                expect(KeyboardUtil.getKeysym({key: 'Control', location: 1})).to.be.equal(0xFFE3);
+                expect(KeyboardUtil.getKeysym({key: 'Control', location: 2})).to.be.equal(0xFFE4);
             });
             it('should handle AltGraph', function() {
-                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltRight'})).to.be.equal(0xFFEA);
-                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltGraph'})).to.be.equal(0xFE03);
+                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'Alt', location: 2})).to.be.equal(0xFFEA);
+                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltGraph', location: 2})).to.be.equal(0xFE03);
             });
-            it('should return null for unknown codes', function() {
-                expect(KeyboardUtil.getKeysym({code: 'Semicolon'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({code: 'BracketRight'})).to.be.null;
+            it('should return null for unknown keys', function() {
+                expect(KeyboardUtil.getKeysym({key: 'Semicolon'})).to.be.null;
+                expect(KeyboardUtil.getKeysym({key: 'BracketRight'})).to.be.null;
             });
-            it('should not recognize character keys', function() {
-                expect(KeyboardUtil.getKeysym({code: 'KeyA'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({code: 'Digit1'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({code: 'Period'})).to.be.null;
-                expect(KeyboardUtil.getKeysym({code: 'Numpad1'})).to.be.null;
+            it('should handle remappings', function() {
+                expect(KeyboardUtil.getKeysym({code: 'ControlLeft', key: 'Tab'})).to.be.equal(0xFF09);
             });
         });
 
@@ -144,10 +209,6 @@ describe('Helpers', function() {
                 expect(KeyboardUtil.getKeysym({code: 'Numpad5', key: 'Home', location: 3})).to.be.equal(0xFF95);
                 expect(KeyboardUtil.getKeysym({code: 'Delete', key: 'Delete', location: 0})).to.be.equal(0xFFFF);
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Delete', location: 3})).to.be.equal(0xFF9F);
-            });
-            it('should handle IE/Edge key names', function() {
-                expect(KeyboardUtil.getKeysym({code: 'Numpad6', key: 'Right', location: 3})).to.be.equal(0xFF98);
-                expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Del', location: 3})).to.be.equal(0xFF9F);
             });
             it('should handle Numpad Decimal key', function() {
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: '.', location: 3})).to.be.equal(0xFFAE);
