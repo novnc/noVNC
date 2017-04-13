@@ -39,8 +39,7 @@
                 msg.appendChild(div);
             }
 
-            if ((err !== undefined) &&
-                (err.stack !== undefined)) {
+            if (err && (err.stack !== undefined)) {
                 div = document.createElement("div");
                 div.className = 'noVNC_stack';
                 div.appendChild(document.createTextNode(err.stack));
