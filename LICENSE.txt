@@ -29,7 +29,7 @@ The HTML, CSS, font and image files are licensed as follows:
 
 Some portions of noVNC are copyright to their individual authors.
 Please refer to the individual source files and/or to the noVNC commit
-history: https://github.com/kanaka/noVNC/commits/master
+history: https://github.com/novnc/noVNC/commits/master
 
 The are several files and projects that have been incorporated into
 the noVNC core library. Here is a list of those files and the original
