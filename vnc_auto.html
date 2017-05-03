@@ -206,7 +206,7 @@
         document.getElementById('xvpResetButton').onclick = xvpReset;
 
         WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
-        document.title = unescape(WebUtil.getConfigVar('title', 'noVNC'));
+        document.title = WebUtil.getConfigVar('title', 'noVNC');
         // By default, use the host and port of server that served this file
         var host = WebUtil.getConfigVar('host', window.location.hostname);
         var port = WebUtil.getConfigVar('port', window.location.port);
