@@ -12,6 +12,37 @@ export default {
     XK_Escape:                      0xff1b,
     XK_Delete:                      0xffff, /* Delete, rubout */
 
+    /* International & multi-key character composition */
+
+    XK_Multi_key:                   0xff20, /* Multi-key character compose */
+    XK_Codeinput:                   0xff37,
+    XK_SingleCandidate:             0xff3c,
+    XK_MultipleCandidate:           0xff3d,
+    XK_PreviousCandidate:           0xff3e,
+
+    /* Japanese keyboard support */
+
+    XK_Kanji:                       0xff21, /* Kanji, Kanji convert */
+    XK_Muhenkan:                    0xff22, /* Cancel Conversion */
+    XK_Henkan_Mode:                 0xff23, /* Start/Stop Conversion */
+    XK_Henkan:                      0xff23, /* Alias for Henkan_Mode */
+    XK_Romaji:                      0xff24, /* to Romaji */
+    XK_Hiragana:                    0xff25, /* to Hiragana */
+    XK_Katakana:                    0xff26, /* to Katakana */
+    XK_Hiragana_Katakana:           0xff27, /* Hiragana/Katakana toggle */
+    XK_Zenkaku:                     0xff28, /* to Zenkaku */
+    XK_Hankaku:                     0xff29, /* to Hankaku */
+    XK_Zenkaku_Hankaku:             0xff2a, /* Zenkaku/Hankaku toggle */
+    XK_Touroku:                     0xff2b, /* Add to Dictionary */
+    XK_Massyo:                      0xff2c, /* Delete from Dictionary */
+    XK_Kana_Lock:                   0xff2d, /* Kana Lock */
+    XK_Kana_Shift:                  0xff2e, /* Kana Shift */
+    XK_Eisu_Shift:                  0xff2f, /* Alphanumeric Shift */
+    XK_Eisu_toggle:                 0xff30, /* Alphanumeric toggle */
+    XK_Kanji_Bangou:                0xff37, /* Codeinput */
+    XK_Zen_Koho:                    0xff3d, /* Multiple/All Candidate(s) */
+    XK_Mae_Koho:                    0xff3e, /* Previous Candidate */
+
     /* Cursor control & motion */
 
     XK_Home:                        0xff50,
@@ -171,7 +202,17 @@ export default {
     XK_Hyper_L:                     0xffed, /* Left hyper */
     XK_Hyper_R:                     0xffee, /* Right hyper */
 
+    /*
+     * Keyboard (XKB) Extension function and modifier keys
+     * (from Appendix C of "The X Keyboard Extension: Protocol Specification")
+     * Byte 3 = 0xfe
+     */
+
     XK_ISO_Level3_Shift:            0xfe03, /* AltGr */
+    XK_ISO_Next_Group:              0xfe08,
+    XK_ISO_Prev_Group:              0xfe0a,
+    XK_ISO_First_Group:             0xfe0c,
+    XK_ISO_Last_Group:              0xfe0e,
 
     /*
      * Latin 1
@@ -377,4 +418,197 @@ export default {
     XK_yacute:                      0x00fd, /* U+00FD LATIN SMALL LETTER Y WITH ACUTE */
     XK_thorn:                       0x00fe, /* U+00FE LATIN SMALL LETTER THORN */
     XK_ydiaeresis:                  0x00ff, /* U+00FF LATIN SMALL LETTER Y WITH DIAERESIS */
+
+    /*
+     * Korean
+     * Byte 3 = 0x0e
+     */
+
+    XK_Hangul:                      0xff31, /* Hangul start/stop(toggle) */
+    XK_Hangul_Hanja:                0xff34, /* Start Hangul->Hanja Conversion */
+    XK_Hangul_Jeonja:               0xff38, /* Jeonja mode */
+
+    /*
+     * XFree86 vendor specific keysyms.
+     *
+     * The XFree86 keysym range is 0x10080001 - 0x1008FFFF.
+     */
+
+    XF86XK_ModeLock:                0x1008FF01,
+    XF86XK_MonBrightnessUp:         0x1008FF02,
+    XF86XK_MonBrightnessDown:       0x1008FF03,
+    XF86XK_KbdLightOnOff:           0x1008FF04,
+    XF86XK_KbdBrightnessUp:         0x1008FF05,
+    XF86XK_KbdBrightnessDown:       0x1008FF06,
+    XF86XK_Standby:                 0x1008FF10,
+    XF86XK_AudioLowerVolume:        0x1008FF11,
+    XF86XK_AudioMute:               0x1008FF12,
+    XF86XK_AudioRaiseVolume:        0x1008FF13,
+    XF86XK_AudioPlay:               0x1008FF14,
+    XF86XK_AudioStop:               0x1008FF15,
+    XF86XK_AudioPrev:               0x1008FF16,
+    XF86XK_AudioNext:               0x1008FF17,
+    XF86XK_HomePage:                0x1008FF18,
+    XF86XK_Mail:                    0x1008FF19,
+    XF86XK_Start:                   0x1008FF1A,
+    XF86XK_Search:                  0x1008FF1B,
+    XF86XK_AudioRecord:             0x1008FF1C,
+    XF86XK_Calculator:              0x1008FF1D,
+    XF86XK_Memo:                    0x1008FF1E,
+    XF86XK_ToDoList:                0x1008FF1F,
+    XF86XK_Calendar:                0x1008FF20,
+    XF86XK_PowerDown:               0x1008FF21,
+    XF86XK_ContrastAdjust:          0x1008FF22,
+    XF86XK_RockerUp:                0x1008FF23,
+    XF86XK_RockerDown:              0x1008FF24,
+    XF86XK_RockerEnter:             0x1008FF25,
+    XF86XK_Back:                    0x1008FF26,
+    XF86XK_Forward:                 0x1008FF27,
+    XF86XK_Stop:                    0x1008FF28,
+    XF86XK_Refresh:                 0x1008FF29,
+    XF86XK_PowerOff:                0x1008FF2A,
+    XF86XK_WakeUp:                  0x1008FF2B,
+    XF86XK_Eject:                   0x1008FF2C,
+    XF86XK_ScreenSaver:             0x1008FF2D,
+    XF86XK_WWW:                     0x1008FF2E,
+    XF86XK_Sleep:                   0x1008FF2F,
+    XF86XK_Favorites:               0x1008FF30,
+    XF86XK_AudioPause:              0x1008FF31,
+    XF86XK_AudioMedia:              0x1008FF32,
+    XF86XK_MyComputer:              0x1008FF33,
+    XF86XK_VendorHome:              0x1008FF34,
+    XF86XK_LightBulb:               0x1008FF35,
+    XF86XK_Shop:                    0x1008FF36,
+    XF86XK_History:                 0x1008FF37,
+    XF86XK_OpenURL:                 0x1008FF38,
+    XF86XK_AddFavorite:             0x1008FF39,
+    XF86XK_HotLinks:                0x1008FF3A,
+    XF86XK_BrightnessAdjust:        0x1008FF3B,
+    XF86XK_Finance:                 0x1008FF3C,
+    XF86XK_Community:               0x1008FF3D,
+    XF86XK_AudioRewind:             0x1008FF3E,
+    XF86XK_BackForward:             0x1008FF3F,
+    XF86XK_Launch0:                 0x1008FF40,
+    XF86XK_Launch1:                 0x1008FF41,
+    XF86XK_Launch2:                 0x1008FF42,
+    XF86XK_Launch3:                 0x1008FF43,
+    XF86XK_Launch4:                 0x1008FF44,
+    XF86XK_Launch5:                 0x1008FF45,
+    XF86XK_Launch6:                 0x1008FF46,
+    XF86XK_Launch7:                 0x1008FF47,
+    XF86XK_Launch8:                 0x1008FF48,
+    XF86XK_Launch9:                 0x1008FF49,
+    XF86XK_LaunchA:                 0x1008FF4A,
+    XF86XK_LaunchB:                 0x1008FF4B,
+    XF86XK_LaunchC:                 0x1008FF4C,
+    XF86XK_LaunchD:                 0x1008FF4D,
+    XF86XK_LaunchE:                 0x1008FF4E,
+    XF86XK_LaunchF:                 0x1008FF4F,
+    XF86XK_ApplicationLeft:         0x1008FF50,
+    XF86XK_ApplicationRight:        0x1008FF51,
+    XF86XK_Book:                    0x1008FF52,
+    XF86XK_CD:                      0x1008FF53,
+    XF86XK_Calculater:              0x1008FF54,
+    XF86XK_Clear:                   0x1008FF55,
+    XF86XK_Close:                   0x1008FF56,
+    XF86XK_Copy:                    0x1008FF57,
+    XF86XK_Cut:                     0x1008FF58,
+    XF86XK_Display:                 0x1008FF59,
+    XF86XK_DOS:                     0x1008FF5A,
+    XF86XK_Documents:               0x1008FF5B,
+    XF86XK_Excel:                   0x1008FF5C,
+    XF86XK_Explorer:                0x1008FF5D,
+    XF86XK_Game:                    0x1008FF5E,
+    XF86XK_Go:                      0x1008FF5F,
+    XF86XK_iTouch:                  0x1008FF60,
+    XF86XK_LogOff:                  0x1008FF61,
+    XF86XK_Market:                  0x1008FF62,
+    XF86XK_Meeting:                 0x1008FF63,
+    XF86XK_MenuKB:                  0x1008FF65,
+    XF86XK_MenuPB:                  0x1008FF66,
+    XF86XK_MySites:                 0x1008FF67,
+    XF86XK_New:                     0x1008FF68,
+    XF86XK_News:                    0x1008FF69,
+    XF86XK_OfficeHome:              0x1008FF6A,
+    XF86XK_Open:                    0x1008FF6B,
+    XF86XK_Option:                  0x1008FF6C,
+    XF86XK_Paste:                   0x1008FF6D,
+    XF86XK_Phone:                   0x1008FF6E,
+    XF86XK_Q:                       0x1008FF70,
+    XF86XK_Reply:                   0x1008FF72,
+    XF86XK_Reload:                  0x1008FF73,
+    XF86XK_RotateWindows:           0x1008FF74,
+    XF86XK_RotationPB:              0x1008FF75,
+    XF86XK_RotationKB:              0x1008FF76,
+    XF86XK_Save:                    0x1008FF77,
+    XF86XK_ScrollUp:                0x1008FF78,
+    XF86XK_ScrollDown:              0x1008FF79,
+    XF86XK_ScrollClick:             0x1008FF7A,
+    XF86XK_Send:                    0x1008FF7B,
+    XF86XK_Spell:                   0x1008FF7C,
+    XF86XK_SplitScreen:             0x1008FF7D,
+    XF86XK_Support:                 0x1008FF7E,
+    XF86XK_TaskPane:                0x1008FF7F,
+    XF86XK_Terminal:                0x1008FF80,
+    XF86XK_Tools:                   0x1008FF81,
+    XF86XK_Travel:                  0x1008FF82,
+    XF86XK_UserPB:                  0x1008FF84,
+    XF86XK_User1KB:                 0x1008FF85,
+    XF86XK_User2KB:                 0x1008FF86,
+    XF86XK_Video:                   0x1008FF87,
+    XF86XK_WheelButton:             0x1008FF88,
+    XF86XK_Word:                    0x1008FF89,
+    XF86XK_Xfer:                    0x1008FF8A,
+    XF86XK_ZoomIn:                  0x1008FF8B,
+    XF86XK_ZoomOut:                 0x1008FF8C,
+    XF86XK_Away:                    0x1008FF8D,
+    XF86XK_Messenger:               0x1008FF8E,
+    XF86XK_WebCam:                  0x1008FF8F,
+    XF86XK_MailForward:             0x1008FF90,
+    XF86XK_Pictures:                0x1008FF91,
+    XF86XK_Music:                   0x1008FF92,
+    XF86XK_Battery:                 0x1008FF93,
+    XF86XK_Bluetooth:               0x1008FF94,
+    XF86XK_WLAN:                    0x1008FF95,
+    XF86XK_UWB:                     0x1008FF96,
+    XF86XK_AudioForward:            0x1008FF97,
+    XF86XK_AudioRepeat:             0x1008FF98,
+    XF86XK_AudioRandomPlay:         0x1008FF99,
+    XF86XK_Subtitle:                0x1008FF9A,
+    XF86XK_AudioCycleTrack:         0x1008FF9B,
+    XF86XK_CycleAngle:              0x1008FF9C,
+    XF86XK_FrameBack:               0x1008FF9D,
+    XF86XK_FrameForward:            0x1008FF9E,
+    XF86XK_Time:                    0x1008FF9F,
+    XF86XK_Select:                  0x1008FFA0,
+    XF86XK_View:                    0x1008FFA1,
+    XF86XK_TopMenu:                 0x1008FFA2,
+    XF86XK_Red:                     0x1008FFA3,
+    XF86XK_Green:                   0x1008FFA4,
+    XF86XK_Yellow:                  0x1008FFA5,
+    XF86XK_Blue:                    0x1008FFA6,
+    XF86XK_Suspend:                 0x1008FFA7,
+    XF86XK_Hibernate:               0x1008FFA8,
+    XF86XK_TouchpadToggle:          0x1008FFA9,
+    XF86XK_TouchpadOn:              0x1008FFB0,
+    XF86XK_TouchpadOff:             0x1008FFB1,
+    XF86XK_AudioMicMute:            0x1008FFB2,
+    XF86XK_Switch_VT_1:             0x1008FE01,
+    XF86XK_Switch_VT_2:             0x1008FE02,
+    XF86XK_Switch_VT_3:             0x1008FE03,
+    XF86XK_Switch_VT_4:             0x1008FE04,
+    XF86XK_Switch_VT_5:             0x1008FE05,
+    XF86XK_Switch_VT_6:             0x1008FE06,
+    XF86XK_Switch_VT_7:             0x1008FE07,
+    XF86XK_Switch_VT_8:             0x1008FE08,
+    XF86XK_Switch_VT_9:             0x1008FE09,
+    XF86XK_Switch_VT_10:            0x1008FE0A,
+    XF86XK_Switch_VT_11:            0x1008FE0B,
+    XF86XK_Switch_VT_12:            0x1008FE0C,
+    XF86XK_Ungrab:                  0x1008FE20,
+    XF86XK_ClearGrab:               0x1008FE21,
+    XF86XK_Next_VMode:              0x1008FE22,
+    XF86XK_Prev_VMode:              0x1008FE23,
+    XF86XK_LogWindowTree:           0x1008FE24,
+    XF86XK_LogGrabInfo:             0x1008FE25,
 };

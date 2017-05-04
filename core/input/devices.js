@@ -13,28 +13,21 @@ import { isTouchDevice } from '../util/browsers.js'
 import { setCapture, releaseCapture, stopEvent, getPointerEvent } from '../util/events.js';
 import { set_defaults, make_properties } from '../util/properties.js';
 import * as KeyboardUtil from "./util.js";
+import KeyTable from "./keysym.js";
 
 //
 // Keyboard event handler
 //
 
 const Keyboard = function (defaults) {
-    this._keyDownList = [];         // List of depressed keys
+    this._keyDownList = {};         // List of depressed keys
                                     // (even if they are happy)
+    this._pendingKey = null;        // Key waiting for keypress
 
     set_defaults(this, defaults, {
         'target': document,
         'focused': true
     });
-
-    // create the keyboard handler
-    this._handler = new KeyboardUtil.KeyEventDecoder(KeyboardUtil.ModifierSync(),
-        KeyboardUtil.VerifyCharModifier( /* jshint newcap: false */
-            KeyboardUtil.TrackKeyState(
-                KeyboardUtil.EscapeModifiers(this._handleRfbEvent.bind(this))
-            )
-        )
-    ); /* jshint newcap: true */
 
     // keep these here so we can refer to them later
     this._eventHandlers = {
@@ -45,58 +38,202 @@ const Keyboard = function (defaults) {
     };
 };
 
+function isMac() {
+    return navigator && !!(/mac/i).exec(navigator.platform);
+}
+function isWindows() {
+    return navigator && !!(/win/i).exec(navigator.platform);
+}
+
 Keyboard.prototype = {
     // private methods
 
-    _handleRfbEvent: function (e) {
-        if (this._onKeyPress) {
-            Log.Debug("onKeyPress " + (e.type == 'keydown' ? "down" : "up") +
-                       ", keysym: " + e.keysym.keysym + "(" + e.keysym.keyname + ")");
-            this._onKeyPress(e);
+    _sendKeyEvent: function (keysym, code, down) {
+        if (!this._onKeyEvent) {
+            return;
+        }
+
+        Log.Debug("onKeyEvent " + (down ? "down" : "up") +
+                  ", keysym: " + keysym, ", code: " + code);
+
+        // Windows sends CtrlLeft+AltRight when you press
+        // AltGraph, which tends to confuse the hell out of
+        // remote systems. Fake a release of these keys until
+        // there is a way to detect AltGraph properly.
+        var fakeAltGraph = false;
+        if (down && isWindows()) {
+            if ((code !== 'ControlLeft') &&
+                (code !== 'AltRight') &&
+                ('ControlLeft' in this._keyDownList) &&
+                ('AltRight' in this._keyDownList)) {
+                fakeAltGraph = true;
+                this._onKeyEvent(this._keyDownList['AltRight'],
+                                 'AltRight', false);
+                this._onKeyEvent(this._keyDownList['ControlLeft'],
+                                 'ControlLeft', false);
+            }
+        }
+
+        this._onKeyEvent(keysym, code, down);
+
+        if (fakeAltGraph) {
+            this._onKeyEvent(this._keyDownList['ControlLeft'],
+                             'ControlLeft', true);
+            this._onKeyEvent(this._keyDownList['AltRight'],
+                             'AltRight', true);
         }
     },
 
-    setQEMUVNCKeyboardHandler: function () {
-        this._handler = new KeyboardUtil.QEMUKeyEventDecoder(KeyboardUtil.ModifierSync(),
-            KeyboardUtil.TrackQEMUKeyState(
-                this._handleRfbEvent.bind(this)
-            )
-        );
+    _getKeyCode: function (e) {
+        var code = KeyboardUtil.getKeycode(e);
+        if (code === 'Unidentified') {
+            // Unstable, but we don't have anything else to go on
+            // (don't use it for 'keypress' events thought since
+            // WebKit sets it to the same as charCode)
+            if (e.keyCode && (e.type !== 'keypress')) {
+                code = 'Platform' + e.keyCode;
+            }
+        }
+
+        return code;
     },
 
     _handleKeyDown: function (e) {
         if (!this._focused) { return; }
 
-        if (this._handler.keydown(e)) {
-            // Suppress bubbling/default actions
+        var code = this._getKeyCode(e);
+        var keysym = KeyboardUtil.getKeysym(e);
+
+        // We cannot handle keys we cannot track, but we also need
+        // to deal with virtual keyboards which omit key info
+        if (code === 'Unidentified') {
+            if (keysym) {
+                // If it's a virtual keyboard then it should be
+                // sufficient to just send press and release right
+                // after each other
+                this._sendKeyEvent(keysym, 'Unidentified', true);
+                this._sendKeyEvent(keysym, 'Unidentified', false);
+            }
+
             stopEvent(e);
-        } else {
-            // Allow the event to bubble and become a keyPress event which
-            // will have the character code translated
+            return;
         }
+
+        // Alt behaves more like AltGraph on macOS, so shuffle the
+        // keys around a bit to make things more sane for the remote
+        // server. This method is used by RealVNC and TigerVNC (and
+        // possibly others).
+        if (isMac()) {
+            switch (keysym) {
+            case KeyTable.XK_Super_L:
+                keysym = KeyTable.XK_Alt_L;
+                break;
+            case KeyTable.XK_Super_R:
+                keysym = KeyTable.XK_Super_L;
+                break;
+            case KeyTable.XK_Alt_L:
+                keysym = KeyTable.XK_Mode_switch;
+                break;
+            case KeyTable.XK_Alt_R:
+                keysym = KeyTable.XK_ISO_Level3_Shift;
+                break;
+            }
+        }
+
+        // Is this key already pressed? If so, then we must use the
+        // same keysym or we'll confuse the server
+        if (code in this._keyDownList) {
+            keysym = this._keyDownList[code];
+        }
+
+        // macOS doesn't send proper key events for modifiers, only
+        // state change events. That gets extra confusing for CapsLock
+        // which toggles on each press, but not on release. So pretend
+        // it was a quick press and release of the button.
+        if (isMac() && (code === 'CapsLock')) {
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            stopEvent(e);
+            return;
+        }
+
+        // If this is a legacy browser then we'll need to wait for
+        // a keypress event as well
+        if (!keysym) {
+            this._pendingKey = code;
+            return;
+        }
+
+        this._pendingKey = null;
+        stopEvent(e);
+
+        this._keyDownList[code] = keysym;
+
+        this._sendKeyEvent(keysym, code, true);
     },
 
+    // Legacy event for browsers without code/key
     _handleKeyPress: function (e) {
         if (!this._focused) { return; }
 
-        if (this._handler.keypress(e)) {
-            // Suppress bubbling/default actions
-            stopEvent(e);
+        stopEvent(e);
+
+        // Are we expecting a keypress?
+        if (this._pendingKey === null) {
+            return;
         }
+
+        var code = this._getKeyCode(e);
+        var keysym = KeyboardUtil.getKeysym(e);
+
+        // The key we were waiting for?
+        if ((code !== 'Unidentified') && (code != this._pendingKey)) {
+            return;
+        }
+
+        code = this._pendingKey;
+        this._pendingKey = null;
+
+        if (!keysym) {
+            console.log('keypress with no keysym:', e);
+            return;
+        }
+
+        this._keyDownList[code] = keysym;
+
+        this._sendKeyEvent(keysym, code, true);
     },
 
     _handleKeyUp: function (e) {
         if (!this._focused) { return; }
 
-        if (this._handler.keyup(e)) {
-            // Suppress bubbling/default actions
-            stopEvent(e);
+        stopEvent(e);
+
+        var code = this._getKeyCode(e);
+
+        // See comment in _handleKeyDown()
+        if (isMac() && (code === 'CapsLock')) {
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            return;
         }
+
+        // Do we really think this key is down?
+        if (!(code in this._keyDownList)) {
+            return;
+        }
+
+        this._sendKeyEvent(this._keyDownList[code], code, false);
+
+        delete this._keyDownList[code];
     },
 
     _allKeysUp: function () {
         Log.Debug(">> Keyboard.allKeysUp");
-        this._handler.releaseAll();
+        for (var code in this._keyDownList) {
+            this._sendKeyEvent(this._keyDownList[code], code, false);
+        };
+        this._keyDownList = {};
         Log.Debug("<< Keyboard.allKeysUp");
     },
 
@@ -130,17 +267,13 @@ Keyboard.prototype = {
 
         //Log.Debug(">> Keyboard.ungrab");
     },
-
-    sync: function (e) {
-        this._handler.syncModifiers(e);
-    }
 };
 
 make_properties(Keyboard, [
     ['target',     'wo', 'dom'],  // DOM element that captures keyboard input
     ['focused',    'rw', 'bool'], // Capture and send key events
 
-    ['onKeyPress', 'rw', 'func'] // Handler for key press/release
+    ['onKeyEvent', 'rw', 'func'] // Handler for key press/release
 ]);
 
 const Mouse = function (defaults) {
@@ -187,10 +320,6 @@ Mouse.prototype = {
 
     _handleMouseButton: function (e, down) {
         if (!this._focused) { return; }
-
-        if (this._notify) {
-            this._notify(e);
-        }
 
         var pos = this._getMousePosition(e);
 
@@ -258,10 +387,6 @@ Mouse.prototype = {
     _handleMouseWheel: function (e) {
         if (!this._focused) { return; }
 
-        if (this._notify) {
-            this._notify(e);
-        }
-
         var pos = this._getMousePosition(e);
 
         if (this._onMouseButton) {
@@ -287,10 +412,6 @@ Mouse.prototype = {
 
     _handleMouseMove: function (e) {
         if (! this._focused) { return; }
-
-        if (this._notify) {
-            this._notify(e);
-        }
 
         var pos = this._getMousePosition(e);
         if (this._onMouseMove) {
@@ -383,7 +504,6 @@ Mouse.prototype = {
 
 make_properties(Mouse, [
     ['target',         'ro', 'dom'],   // DOM element that captures mouse input
-    ['notify',         'ro', 'func'],  // Function to call to notify whenever a mouse event is received
     ['focused',        'rw', 'bool'],  // Capture and send mouse clicks/movement
 
     ['onMouseButton',  'rw', 'func'],  // Handler for mouse button click/release

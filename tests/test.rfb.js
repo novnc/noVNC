@@ -193,7 +193,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should send a single key with the given code and state (down = true)', function () {
                 var expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(expected, 123, 1);
-                client.sendKey(123, true);
+                client.sendKey(123, 'Key123', true);
                 expect(client._sock).to.have.sent(expected._sQ);
             });
 
@@ -201,20 +201,28 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 var expected = {_sQ: new Uint8Array(16), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(expected, 123, 1);
                 RFB.messages.keyEvent(expected, 123, 0);
-                client.sendKey(123);
+                client.sendKey(123, 'Key123');
                 expect(client._sock).to.have.sent(expected._sQ);
             });
 
             it('should not send the key if we are not in a normal state', function () {
                 client._rfb_connection_state = "broken";
-                client.sendKey(123);
+                client.sendKey(123, 'Key123');
                 expect(client._sock.flush).to.not.have.been.called;
             });
 
             it('should not send the key if we are set as view_only', function () {
                 client._view_only = true;
-                client.sendKey(123);
+                client.sendKey(123, 'Key123');
                 expect(client._sock.flush).to.not.have.been.called;
+            });
+
+            it('should send QEMU extended events if supported', function () {
+                client._qemuExtKeyEventSupported = true;
+                var expected = {_sQ: new Uint8Array(12), _sQlen: 0, flush: function () {}};
+                RFB.messages.QEMUExtendedKeyEvent(expected, 0x20, true, 0x0039);
+                client.sendKey(0x20, 'Space', true);
+                expect(client._sock).to.have.sent(expected._sQ);
             });
         });
 
@@ -2017,22 +2025,21 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock.open('ws://', 'binary');
                 client._sock._websocket._open();
                 sinon.spy(client._sock, 'flush');
+                client._rfb_connection_state = 'connected';
+                client._view_only = false;
             });
 
             it('should send a key message on a key press', function () {
                 var keyevent = {};
-                keyevent.type = 'keydown';
-                keyevent.keysym = {};
-                keyevent.keysym.keysym = 1234;
-                client._keyboard._onKeyPress(keyevent);
+                client._keyboard._onKeyEvent(0x41, 'KeyA', true);
                 var key_msg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
-                RFB.messages.keyEvent(key_msg, 1234, 1);
+                RFB.messages.keyEvent(key_msg, 0x41, 1);
                 expect(client._sock).to.have.sent(key_msg._sQ);
             });
 
             it('should not send messages in view-only mode', function () {
                 client._view_only = true;
-                client._keyboard._onKeyPress(1234, 1);
+                client._keyboard._onKeyEvent('a', 'KeyA', true);
                 expect(client._sock.flush).to.not.have.been.called;
             });
         });

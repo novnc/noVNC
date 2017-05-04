@@ -29,6 +29,7 @@
     <script src="../core/input/keysym.js"></script>
     <script src="../core/input/keysymdef.js"></script> 
     <script src="../core/input/xtscancodes.js"></script>
+    <script src="../core/input/vkeys.js"></script>
     <script src="../core/input/util.js"></script>
     <script src="../core/input/devices.js"></script>
     <script src="../core/display.js"></script>
@@ -61,13 +62,9 @@
             //console.log(msg);
         }
 
-        function rfbKeyPress(keysym, down) {
+        function rfbKeyEvent(keysym, code, down) {
             var d = down ? "down" : " up ";
-            var key = keysyms.lookup(keysym);
-            var msg = "RFB keypress " + d + " keysym: " + keysym;
-            if (key && key.keyname) {
-                msg += " key name: " + key.keyname;
-            }
+            var msg = "RFB key event " + d + " keysym: " + keysym + " code: " + code;
             message(msg);
         }
         function rawKey(e) {
@@ -106,7 +103,7 @@
         window.onload = function() {
             canvas = new Display({'target' : document.getElementById('canvas')});
             keyboard = new Keyboard({'target': document,
-                                    'onKeyPress': rfbKeyPress});
+                                    'onKeyEvent': rfbKeyEvent});
             document.addEventListener('keypress', rawKey);
             document.addEventListener('keydown', rawKey);
             document.addEventListener('keyup', rawKey);

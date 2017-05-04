@@ -1516,10 +1516,10 @@ const UI = {
 
         // Send the key events
         for (i = 0; i < backspaces; i++) {
-            UI.rfb.sendKey(KeyTable.XK_BackSpace);
+            UI.rfb.sendKey(KeyTable.XK_BackSpace, "Backspace");
         }
         for (i = newLen - inputs; i < newLen; i++) {
-            UI.rfb.sendKey(keysyms.fromUnicode(newValue.charCodeAt(i)).keysym);
+            UI.rfb.sendKey(keysyms.lookup(newValue.charCodeAt(i)));
         }
 
         // Control the text content length in the keyboardinput element
@@ -1573,7 +1573,7 @@ const UI = {
     },
 
     sendEsc: function() {
-        UI.rfb.sendKey(KeyTable.XK_Escape);
+        UI.rfb.sendKey(KeyTable.XK_Escape, "Escape");
     },
 
     sendTab: function() {
@@ -1583,10 +1583,10 @@ const UI = {
     toggleCtrl: function() {
         var btn = document.getElementById('noVNC_toggle_ctrl_button');
         if (btn.classList.contains("noVNC_selected")) {
-            UI.rfb.sendKey(KeyTable.XK_Control_L, false);
+            UI.rfb.sendKey(KeyTable.XK_Control_L, "ControlLeft", false);
             btn.classList.remove("noVNC_selected");
         } else {
-            UI.rfb.sendKey(KeyTable.XK_Control_L, true);
+            UI.rfb.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
             btn.classList.add("noVNC_selected");
         }
     },
@@ -1594,10 +1594,10 @@ const UI = {
     toggleAlt: function() {
         var btn = document.getElementById('noVNC_toggle_alt_button');
         if (btn.classList.contains("noVNC_selected")) {
-            UI.rfb.sendKey(KeyTable.XK_Alt_L, false);
+            UI.rfb.sendKey(KeyTable.XK_Alt_L, "AltLeft", false);
             btn.classList.remove("noVNC_selected");
         } else {
-            UI.rfb.sendKey(KeyTable.XK_Alt_L, true);
+            UI.rfb.sendKey(KeyTable.XK_Alt_L, "AltLeft", true);
             btn.classList.add("noVNC_selected");
         }
     },

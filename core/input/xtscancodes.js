@@ -112,8 +112,6 @@ export default {
     "Delete": 0xE053,
     "MetaLeft": 0xE05B,
     "MetaRight": 0xE05C,
-    "OSLeft": 0xE05B,  // OSLeft and OSRight are kept for compatability since
-    "OSRight": 0xE05C, // Firefox haven't updated to MetaLeft and MetaRight yet
     "ContextMenu": 0xE05D,
     "BrowserSearch": 0xE065,
     "BrowserFavorites": 0xE066,
