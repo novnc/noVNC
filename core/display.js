@@ -10,7 +10,7 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-import { Engine, browserSupportsCursorURIs as cursorURIsSupported } from './util/browsers.js';
+import { browserSupportsCursorURIs as cursorURIsSupported } from './util/browsers.js';
 import { set_defaults, make_properties } from './util/properties.js';
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
@@ -70,10 +70,6 @@ export default function Display(defaults) {
                            bottom: this._backbuffer.height };
 
     Log.Debug("User Agent: " + navigator.userAgent);
-    if (Engine.gecko) { Log.Debug("Browser: gecko " + Engine.gecko); }
-    if (Engine.webkit) { Log.Debug("Browser: webkit " + Engine.webkit); }
-    if (Engine.trident) { Log.Debug("Browser: trident " + Engine.trident); }
-    if (Engine.presto) { Log.Debug("Browser: presto " + Engine.presto); }
 
     this.clear();
 
