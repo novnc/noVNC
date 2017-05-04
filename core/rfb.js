@@ -108,8 +108,6 @@ export default function RFB(defaults) {
         zlib: []                // TIGHT zlib streams
     };
 
-    this._fb_Bpp = 4;
-    this._fb_depth = 3;
     this._fb_width = 0;
     this._fb_height = 0;
     this._fb_name = "";
@@ -151,7 +149,6 @@ export default function RFB(defaults) {
         'target': 'null',                       // VNC display rendering Canvas object
         'focusContainer': document,             // DOM element that captures keyboard input
         'encrypt': false,                       // Use TLS/SSL/wss encryption
-        'true_color': true,                     // Request true color pixel data
         'local_cursor': false,                  // Request locally rendered cursor
         'shared': true,                         // Request shared mode
         'view_only': false,                     // Disable client mouse/keyboard
@@ -1103,28 +1100,14 @@ RFB.prototype = {
         // we're past the point where we could backtrack, so it's safe to call this
         this._onDesktopName(this, this._fb_name);
 
-        if (this._true_color && this._fb_name === "Intel(r) AMT KVM") {
-            Log.Warn("Intel AMT KVM only supports 8/16 bit depths.  Disabling true color");
-            this._true_color = false;
-        }
-
-        this._display.set_true_color(this._true_color);
         this._display.resize(this._fb_width, this._fb_height);
         this._onFBResize(this, this._fb_width, this._fb_height);
 
         if (!this._view_only) { this._keyboard.grab(); }
         if (!this._view_only) { this._mouse.grab(); }
 
-        if (this._true_color) {
-            this._fb_Bpp = 4;
-            this._fb_depth = 3;
-        } else {
-            this._fb_Bpp = 1;
-            this._fb_depth = 1;
-        }
-
-        RFB.messages.pixelFormat(this._sock, this._fb_Bpp, this._fb_depth, this._true_color);
-        RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor, this._true_color);
+        RFB.messages.pixelFormat(this._sock, 4, 3, true);
+        RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor);
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
         this._timing.fbu_rt_start = (new Date()).getTime();
@@ -1172,22 +1155,8 @@ RFB.prototype = {
 
     _handle_set_colour_map_msg: function () {
         Log.Debug("SetColorMapEntries");
-        this._sock.rQskip8();  // Padding
 
-        var first_colour = this._sock.rQshift16();
-        var num_colours = this._sock.rQshift16();
-        if (this._sock.rQwait('SetColorMapEntries', num_colours * 6, 6)) { return false; }
-
-        for (var c = 0; c < num_colours; c++) {
-            var red = parseInt(this._sock.rQshift16() / 256, 10);
-            var green = parseInt(this._sock.rQshift16() / 256, 10);
-            var blue = parseInt(this._sock.rQshift16() / 256, 10);
-            this._display.set_colourMap([blue, green, red], first_colour + c);
-        }
-        Log.Debug("colourMap: " + this._display.get_colourMap());
-        Log.Info("Registered " + num_colours + " colourMap entries");
-
-        return true;
+        return this._fail("Protocol error", "Unexpected SetColorMapEntries message");
     },
 
     _handle_server_cut_text: function () {
@@ -1457,7 +1426,6 @@ make_properties(RFB, [
     ['target', 'wo', 'dom'],                // VNC display rendering Canvas object
     ['focusContainer', 'wo', 'dom'],        // DOM element that captures keyboard input
     ['encrypt', 'rw', 'bool'],              // Use TLS/SSL/wss encryption
-    ['true_color', 'rw', 'bool'],           // Request true color pixel data
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
@@ -1496,8 +1464,7 @@ RFB.prototype.set_local_cursor = function (cursor) {
 
     // Need to send an updated list of encodings if we are connected
     if (this._rfb_connection_state === "connected") {
-        RFB.messages.clientEncodings(this._sock, this._encodings, cursor,
-                                     this._true_color);
+        RFB.messages.clientEncodings(this._sock, this._encodings, cursor);
     }
 };
 
@@ -1740,7 +1707,7 @@ RFB.messages = {
         sock.flush();
     },
 
-    clientEncodings: function (sock, encodings, local_cursor, true_color) {
+    clientEncodings: function (sock, encodings, local_cursor) {
         var buff = sock._sQ;
         var offset = sock._sQlen;
 
@@ -1753,9 +1720,6 @@ RFB.messages = {
         for (i = 0; i < encodings.length; i++) {
             if (encodings[i][0] === "Cursor" && !local_cursor) {
                 Log.Debug("Skipping Cursor pseudo-encoding");
-            } else if (encodings[i][0] === "TIGHT" && !true_color) {
-                // TODO: remove this when we have tight+non-true-color
-                Log.Warn("Skipping tight as it is only supported with true color");
             } else {
                 var enc = encodings[i][1];
                 buff[j] = enc >> 24;
@@ -1816,19 +1780,19 @@ RFB.encodingHandlers = {
             this._FBU.lines = this._FBU.height;
         }
 
-        this._FBU.bytes = this._FBU.width * this._fb_Bpp;  // at least a line
+        this._FBU.bytes = this._FBU.width * 4;  // at least a line
         if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
         var cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
         var curr_height = Math.min(this._FBU.lines,
-                                   Math.floor(this._sock.rQlen() / (this._FBU.width * this._fb_Bpp)));
+                                   Math.floor(this._sock.rQlen() / (this._FBU.width * 4)));
         this._display.blitImage(this._FBU.x, cur_y, this._FBU.width,
                                 curr_height, this._sock.get_rQ(),
                                 this._sock.get_rQi());
-        this._sock.rQskipBytes(this._FBU.width * curr_height * this._fb_Bpp);
+        this._sock.rQskipBytes(this._FBU.width * curr_height * 4);
         this._FBU.lines -= curr_height;
 
         if (this._FBU.lines > 0) {
-            this._FBU.bytes = this._FBU.width * this._fb_Bpp;  // At least another line
+            this._FBU.bytes = this._FBU.width * 4;  // At least another line
         } else {
             this._FBU.rects--;
             this._FBU.bytes = 0;
@@ -1852,15 +1816,15 @@ RFB.encodingHandlers = {
     RRE: function () {
         var color;
         if (this._FBU.subrects === 0) {
-            this._FBU.bytes = 4 + this._fb_Bpp;
-            if (this._sock.rQwait("RRE", 4 + this._fb_Bpp)) { return false; }
+            this._FBU.bytes = 4 + 4;
+            if (this._sock.rQwait("RRE", 4 + 4)) { return false; }
             this._FBU.subrects = this._sock.rQshift32();
-            color = this._sock.rQshiftBytes(this._fb_Bpp);  // Background
+            color = this._sock.rQshiftBytes(4);  // Background
             this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, color);
         }
 
-        while (this._FBU.subrects > 0 && this._sock.rQlen() >= (this._fb_Bpp + 8)) {
-            color = this._sock.rQshiftBytes(this._fb_Bpp);
+        while (this._FBU.subrects > 0 && this._sock.rQlen() >= (4 + 8)) {
+            color = this._sock.rQshiftBytes(4);
             var x = this._sock.rQshift16();
             var y = this._sock.rQshift16();
             var width = this._sock.rQshift16();
@@ -1871,7 +1835,7 @@ RFB.encodingHandlers = {
 
         if (this._FBU.subrects > 0) {
             var chunk = Math.min(this._rre_chunk_sz, this._FBU.subrects);
-            this._FBU.bytes = (this._fb_Bpp + 8) * chunk;
+            this._FBU.bytes = (4 + 8) * chunk;
         } else {
             this._FBU.rects--;
             this._FBU.bytes = 0;
@@ -1912,20 +1876,20 @@ RFB.encodingHandlers = {
 
             // Figure out how much we are expecting
             if (subencoding & 0x01) {  // Raw
-                this._FBU.bytes += w * h * this._fb_Bpp;
+                this._FBU.bytes += w * h * 4;
             } else {
                 if (subencoding & 0x02) {  // Background
-                    this._FBU.bytes += this._fb_Bpp;
+                    this._FBU.bytes += 4;
                 }
                 if (subencoding & 0x04) {  // Foreground
-                    this._FBU.bytes += this._fb_Bpp;
+                    this._FBU.bytes += 4;
                 }
                 if (subencoding & 0x08) {  // AnySubrects
                     this._FBU.bytes++;  // Since we aren't shifting it off
                     if (this._sock.rQwait("hextile subrects header", this._FBU.bytes)) { return false; }
                     subrects = rQ[rQi + this._FBU.bytes - 1];  // Peek
                     if (subencoding & 0x10) {  // SubrectsColoured
-                        this._FBU.bytes += subrects * (this._fb_Bpp + 2);
+                        this._FBU.bytes += subrects * (4 + 2);
                     } else {
                         this._FBU.bytes += subrects * 2;
                     }
@@ -1949,22 +1913,12 @@ RFB.encodingHandlers = {
                 rQi += this._FBU.bytes - 1;
             } else {
                 if (this._FBU.subencoding & 0x02) {  // Background
-                    if (this._fb_Bpp == 1) {
-                        this._FBU.background = rQ[rQi];
-                    } else {
-                        // fb_Bpp is 4
-                        this._FBU.background = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                    }
-                    rQi += this._fb_Bpp;
+                    this._FBU.background = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
+                    rQi += 4;
                 }
                 if (this._FBU.subencoding & 0x04) {  // Foreground
-                    if (this._fb_Bpp == 1) {
-                        this._FBU.foreground = rQ[rQi];
-                    } else {
-                        // this._fb_Bpp is 4
-                        this._FBU.foreground = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                    }
-                    rQi += this._fb_Bpp;
+                    this._FBU.foreground = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
+                    rQi += 4;
                 }
 
                 this._display.startTile(x, y, w, h, this._FBU.background);
@@ -1975,13 +1929,8 @@ RFB.encodingHandlers = {
                     for (var s = 0; s < subrects; s++) {
                         var color;
                         if (this._FBU.subencoding & 0x10) {  // SubrectsColoured
-                            if (this._fb_Bpp === 1) {
-                                color = rQ[rQi];
-                            } else {
-                                // _fb_Bpp is 4
-                                color = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                            }
-                            rQi += this._fb_Bpp;
+                            color = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
+                            rQi += 4;
                         } else {
                             color = this._FBU.foreground;
                         }
@@ -2028,12 +1977,6 @@ RFB.encodingHandlers = {
     },
 
     display_tight: function (isTightPNG) {
-        if (this._fb_depth === 1) {
-            this._fail("Internal error",
-                       "Tight protocol handler only implements " +
-                       "true color mode");
-        }
-
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
 
@@ -2149,7 +2092,7 @@ RFB.encodingHandlers = {
 
         var handlePalette = function () {
             var numColors = rQ[rQi + 2] + 1;
-            var paletteSize = numColors * this._fb_depth;
+            var paletteSize = numColors * 3;
             this._FBU.bytes += paletteSize;
             if (this._sock.rQwait("TIGHT palette " + cmode, this._FBU.bytes)) { return false; }
 
@@ -2209,7 +2152,7 @@ RFB.encodingHandlers = {
 
         var handleCopy = function () {
             var raw = false;
-            var uncompressedSize = this._FBU.width * this._FBU.height * this._fb_depth;
+            var uncompressedSize = this._FBU.width * this._FBU.height * 3;
             if (uncompressedSize < 12) {
                 raw = true;
                 cl_header = 0;
@@ -2271,9 +2214,9 @@ RFB.encodingHandlers = {
         }
 
         switch (cmode) {
-            // fill use fb_depth because TPIXELs drop the padding byte
+            // fill use depth because TPIXELs drop the padding byte
             case "fill":  // TPIXEL
-                this._FBU.bytes += this._fb_depth;
+                this._FBU.bytes += 3;
                 break;
             case "jpeg":  // max clength
                 this._FBU.bytes += 3;
@@ -2441,7 +2384,7 @@ RFB.encodingHandlers = {
         var w = this._FBU.width;
         var h = this._FBU.height;
 
-        var pixelslength = w * h * this._fb_Bpp;
+        var pixelslength = w * h * 4;
         var masklength = Math.floor((w + 7) / 8) * h;
 
         this._FBU.bytes = pixelslength + masklength;

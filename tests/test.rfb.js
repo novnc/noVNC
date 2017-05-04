@@ -1157,14 +1157,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_connection_state).to.equal('connected');
             });
 
-            it('should set the true color mode on the display to the configuration variable', function () {
-                client.set_true_color(false);
-                sinon.spy(client._display, 'set_true_color');
-                send_server_init({ true_color: 1 }, client);
-                expect(client._display.set_true_color).to.have.been.calledOnce;
-                expect(client._display.set_true_color).to.have.been.calledWith(false);
-            });
-
             it('should call the resize callback and resize the display', function () {
                 client.set_onFBResize(sinon.spy());
                 sinon.spy(client._display, 'resize');
@@ -1186,23 +1178,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._mouse.grab).to.have.been.calledOnce;
             });
 
-            it('should set the BPP and depth to 4 and 3 respectively if in true color mode', function () {
-                client.set_true_color(true);
-                send_server_init({}, client);
-                expect(client._fb_Bpp).to.equal(4);
-                expect(client._fb_depth).to.equal(3);
-            });
-
-            it('should set the BPP and depth to 1 and 1 respectively if not in true color mode', function () {
-                client.set_true_color(false);
-                send_server_init({}, client);
-                expect(client._fb_Bpp).to.equal(1);
-                expect(client._fb_depth).to.equal(1);
-            });
-
             // TODO(directxman12): test the various options in this configuration matrix
             it('should reply with the pixel format, client encodings, and initial update request', function () {
-                client.set_true_color(true);
                 client.set_local_cursor(false);
                 // we skip the cursor encoding
                 var expected = {_sQ: new Uint8Array(34 + 4 * (client._encodings.length - 1)),
@@ -1402,7 +1379,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._fb_width = 4;
                     client._fb_height = 4;
                     client._display.resize(4, 4);
-                    client._fb_Bpp = 4;
                 });
 
                 it('should handle the RAW encoding', function () {
@@ -1473,7 +1449,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         client._fb_width = 4;
                         client._fb_height = 4;
                         client._display.resize(4, 4);
-                        client._fb_Bpp = 4;
                     });
 
                     it('should handle a tile with fg, bg specified, normal subrects', function () {
@@ -1647,7 +1622,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         client._fb_width = 4;
                         client._fb_height = 4;
                         client._display.resize(4, 4);
-                        client._fb_Bpp = 4;
                         sinon.spy(client._display, 'resize');
                         client.set_onFBResize(sinon.spy());
                     });
@@ -1757,21 +1731,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(client.get_onFBUReceive()).to.have.been.calledOnce;
                 });
             });
-        });
-
-        it('should set the colour map on the display on SetColourMapEntries', function () {
-            var expected_cm = [];
-            var data = [1, 0, 0, 1, 0, 4];
-            var i;
-            for (i = 0; i < 4; i++) {
-                expected_cm[i + 1] = [i * 10, i * 10 + 1, i * 10 + 2];
-                push16(data, expected_cm[i + 1][2] << 8);
-                push16(data, expected_cm[i + 1][1] << 8);
-                push16(data, expected_cm[i + 1][0] << 8);
-            }
-
-            client._sock._websocket._receive_data(new Uint8Array(data));
-            expect(client._display.get_colourMap()).to.deep.equal(expected_cm);
         });
 
         describe('XVP Message Handling', function () {

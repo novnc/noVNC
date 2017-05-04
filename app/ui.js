@@ -168,7 +168,6 @@ const UI = {
         UI.initSetting('host', window.location.hostname);
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
-        UI.initSetting('true_color', true);
         UI.initSetting('cursor', !isTouchDevice);
         UI.initSetting('clip', false);
         UI.initSetting('resize', 'off');
@@ -382,7 +381,6 @@ const UI = {
             .addEventListener('click', UI.toggleSettingsPanel);
 
         UI.addSettingChangeHandler('encrypt');
-        UI.addSettingChangeHandler('true_color');
         UI.addSettingChangeHandler('cursor');
         UI.addSettingChangeHandler('cursor', UI.updateLocalCursor);
         UI.addSettingChangeHandler('resize');
@@ -475,7 +473,6 @@ const UI = {
 
         if (UI.connected) {
             UI.disableSetting('encrypt');
-            UI.disableSetting('true_color');
             UI.disableSetting('shared');
             UI.disableSetting('host');
             UI.disableSetting('port');
@@ -488,7 +485,6 @@ const UI = {
             UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
         } else {
             UI.enableSetting('encrypt');
-            UI.enableSetting('true_color');
             UI.enableSetting('shared');
             UI.enableSetting('host');
             UI.enableSetting('port');
@@ -874,7 +870,6 @@ const UI = {
 
         // Refresh UI elements from saved cookies
         UI.updateSetting('encrypt');
-        UI.updateSetting('true_color');
         if (cursorURIsSupported()) {
             UI.updateSetting('cursor');
         } else {
@@ -1050,7 +1045,6 @@ const UI = {
         UI.closeConnectPanel();
 
         UI.rfb.set_encrypt(UI.getSetting('encrypt'));
-        UI.rfb.set_true_color(UI.getSetting('true_color'));
         UI.rfb.set_shared(UI.getSetting('shared'));
         UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 

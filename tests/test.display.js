@@ -416,25 +416,6 @@ describe('Display/Canvas Helper', function () {
                 expect(display).to.have.displayed(checked_data);
             });
 
-            it('should support drawing solid colors with color maps', function () {
-                display._true_color = false;
-                display.set_colourMap({ 0: [0xff, 0, 0], 1: [0, 0xff, 0] });
-                display.fillRect(0, 0, 4, 4, 1);
-                display.fillRect(0, 0, 2, 2, 0);
-                display.fillRect(2, 2, 2, 2, 0);
-                display.flip();
-                expect(display).to.have.displayed(checked_data);
-            });
-
-            it('should support drawing blit images with color maps', function () {
-                display._true_color = false;
-                display.set_colourMap({ 1: [0xff, 0, 0], 0: [0, 0xff, 0] });
-                var data = [1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1].map(function (elem) { return [elem]; });
-                display.blitImage(0, 0, 4, 4, data, 0);
-                display.flip();
-                expect(display).to.have.displayed(checked_data);
-            });
-
             it('should support drawing an image object via #drawImage', function () {
                 var img = make_image_canvas(checked_data);
                 display.drawImage(img, 0, 0);

@@ -33,8 +33,6 @@ export default function Display(defaults) {
     this._tile_y = 0;
 
     set_defaults(this, defaults, {
-        'true_color': true,
-        'colourMap': [],
         'scale': 1.0,
         'viewport': false,
         'render_mode': '',
@@ -385,15 +383,9 @@ Display.prototype = {
         }
 
         if (this._prefer_js) {
-            var bgr;
-            if (this._true_color) {
-                bgr = color;
-            } else {
-                bgr = this._colourMap[color[0]];
-            }
-            var red = bgr[2];
-            var green = bgr[1];
-            var blue = bgr[0];
+            var red = color[2];
+            var green = color[1];
+            var blue = color[0];
 
             var data = this._tile.data;
             for (var i = 0; i < width * height * 4; i += 4) {
@@ -410,15 +402,9 @@ Display.prototype = {
     // update sub-rectangle of the current tile
     subTile: function (x, y, w, h, color) {
         if (this._prefer_js) {
-            var bgr;
-            if (this._true_color) {
-                bgr = color;
-            } else {
-                bgr = this._colourMap[color[0]];
-            }
-            var red = bgr[2];
-            var green = bgr[1];
-            var blue = bgr[0];
+            var red = color[2];
+            var green = color[1];
+            var blue = color[0];
             var xend = x + w;
             var yend = y + h;
 
@@ -463,10 +449,8 @@ Display.prototype = {
                 'width': width,
                 'height': height,
             });
-        } else if (this._true_color) {
-            this._bgrxImageData(x, y, width, height, arr, offset);
         } else {
-            this._cmapImageData(x, y, width, height, arr, offset);
+            this._bgrxImageData(x, y, width, height, arr, offset);
         }
     },
 
@@ -485,11 +469,8 @@ Display.prototype = {
                 'width': width,
                 'height': height,
             });
-        } else if (this._true_color) {
-            this._rgbImageData(x, y, width, height, arr, offset);
         } else {
-            // probably wrong?
-            this._cmapImageData(x, y, width, height, arr, offset);
+            this._rgbImageData(x, y, width, height, arr, offset);
         }
     },
 
@@ -524,11 +505,7 @@ Display.prototype = {
             return;
         }
 
-        if (this._true_color) {
-            Display.changeCursor(this._target, pixels, mask, hotx, hoty, w, h);
-        } else {
-            Display.changeCursor(this._target, pixels, mask, hotx, hoty, w, h, this._colourMap);
-        }
+        Display.changeCursor(this._target, pixels, mask, hotx, hoty, w, h);
     },
 
     defaultCursor: function () {
@@ -603,14 +580,7 @@ Display.prototype = {
     },
 
     _setFillColor: function (color) {
-        var bgr;
-        if (this._true_color) {
-            bgr = color;
-        } else {
-            bgr = this._colourMap[color];
-        }
-
-        var newStyle = 'rgb(' + bgr[2] + ',' + bgr[1] + ',' + bgr[0] + ')';
+        var newStyle = 'rgb(' + color[2] + ',' + color[1] + ',' + color[0] + ')';
         if (newStyle !== this._prevDrawStyle) {
             this._drawCtx.fillStyle = newStyle;
             this._prevDrawStyle = newStyle;
@@ -651,21 +621,6 @@ Display.prototype = {
         } else {
             img = this._drawCtx.createImageData(width, height);
             img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
-        }
-        this._drawCtx.putImageData(img, x, y);
-        this._damage(x, y, img.width, img.height);
-    },
-
-    _cmapImageData: function (x, y, width, height, arr, offset) {
-        var img = this._drawCtx.createImageData(width, height);
-        var data = img.data;
-        var cmap = this._colourMap;
-        for (var i = 0, j = offset; i < width * height * 4; i += 4, j++) {
-            var bgr = cmap[arr[j]];
-            data[i]     = bgr[2];
-            data[i + 1] = bgr[1];
-            data[i + 2] = bgr[0];
-            data[i + 3] = 255;  // Alpha
         }
         this._drawCtx.putImageData(img, x, y);
         this._damage(x, y, img.width, img.height);
@@ -739,8 +694,6 @@ make_properties(Display, [
     ['target', 'wo', 'dom'],       // Canvas element for rendering
     ['context', 'ro', 'raw'],      // Canvas 2D context for rendering (read-only)
     ['logo', 'rw', 'raw'],         // Logo to display when cleared: {"width": w, "height": h, "type": mime-type, "data": data}
-    ['true_color', 'rw', 'bool'],  // Use true-color pixel data
-    ['colourMap', 'rw', 'arr'],    // Colour map array (when not true-color)
     ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0
     ['viewport', 'rw', 'bool'],    // Use viewport clipping
     ['width', 'ro', 'int'],        // Display area width
@@ -755,7 +708,7 @@ make_properties(Display, [
 ]);
 
 // Class Methods
-Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h, cmap) {
+Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {
     if ((w === 0) || (h === 0)) {
         target.style.cursor = 'none';
         return;
@@ -767,20 +720,11 @@ Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h, cmap) {
         for (x = 0; x < w; x++) {
             var idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
             var alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
-            if (cmap) {
-                idx = (w * y) + x;
-                var rgb = cmap[pixels[idx]];
-                cur.push(rgb[0]);  // red
-                cur.push(rgb[1]);  // green
-                cur.push(rgb[2]);  // blue
-                cur.push(alpha);   // alpha
-            } else {
-                idx = ((w * y) + x) * 4;
-                cur.push(pixels[idx + 2]); // red
-                cur.push(pixels[idx + 1]); // green
-                cur.push(pixels[idx]);     // blue
-                cur.push(alpha);           // alpha
-            }
+            idx = ((w * y) + x) * 4;
+            cur.push(pixels[idx + 2]); // red
+            cur.push(pixels[idx + 1]); // green
+            cur.push(pixels[idx]);     // blue
+            cur.push(alpha);           // alpha
         }
     }
 
