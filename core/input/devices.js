@@ -146,6 +146,17 @@ Keyboard.prototype = {
             keysym = this._keyDownList[code];
         }
 
+        // macOS doesn't send proper key events for modifiers, only
+        // state change events. That gets extra confusing for CapsLock
+        // which toggles on each press, but not on release. So pretend
+        // it was a quick press and release of the button.
+        if (isMac() && (code === 'CapsLock')) {
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            stopEvent(e);
+            return;
+        }
+
         // If this is a legacy browser then we'll need to wait for
         // a keypress event as well
         if (!keysym) {
@@ -199,6 +210,13 @@ Keyboard.prototype = {
         stopEvent(e);
 
         var code = this._getKeyCode(e);
+
+        // See comment in _handleKeyDown()
+        if (isMac() && (code === 'CapsLock')) {
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
+            this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            return;
+        }
 
         // Do we really think this key is down?
         if (!(code in this._keyDownList)) {
