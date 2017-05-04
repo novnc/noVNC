@@ -4,6 +4,13 @@ var expect = chai.expect;
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
 
+function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
+}
+
 describe('Helpers', function() {
     "use strict";
 
@@ -100,6 +107,7 @@ describe('Helpers', function() {
 
     describe('getKey', function() {
         it('should prefer key', function() {
+            if (isIE() || isEdge()) this.skip();
             expect(KeyboardUtil.getKey({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal('a');
         });
         it('should map legacy values', function() {
@@ -201,6 +209,7 @@ describe('Helpers', function() {
 
         describe('Numpad', function() {
             it('should handle Numpad numbers', function() {
+                if (isIE() || isEdge()) this.skip();
                 expect(KeyboardUtil.getKeysym({code: 'Digit5', key: '5', location: 0})).to.be.equal(0x0035);
                 expect(KeyboardUtil.getKeysym({code: 'Numpad5', key: '5', location: 3})).to.be.equal(0xFFB5);
             });
@@ -211,6 +220,7 @@ describe('Helpers', function() {
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Delete', location: 3})).to.be.equal(0xFF9F);
             });
             it('should handle Numpad Decimal key', function() {
+                if (isIE() || isEdge()) this.skip();
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: '.', location: 3})).to.be.equal(0xFFAE);
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: ',', location: 3})).to.be.equal(0xFFAC);
             });

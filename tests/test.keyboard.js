@@ -5,6 +5,13 @@ import { Keyboard } from '../core/input/devices.js';
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from '../core/input/util.js';
 
+function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
+}
+
 /* jshint newcap: false, expr: true */
 describe('Key Event Handling', function() {
     "use strict";
@@ -23,6 +30,7 @@ describe('Key Event Handling', function() {
 
     describe('Decode Keyboard Events', function() {
         it('should decode keydown events', function(done) {
+            if (isIE() || isEdge()) this.skip();
             var kbd = new Keyboard({
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0x61);
@@ -33,6 +41,7 @@ describe('Key Event Handling', function() {
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
         });
         it('should decode keyup events', function(done) {
+            if (isIE() || isEdge()) this.skip();
             var calls = 0;
             var kbd = new Keyboard({
             onKeyEvent: function(keysym, code, down) {
@@ -86,6 +95,9 @@ describe('Key Event Handling', function() {
         });
 
         describe('suppress the right events at the right time', function() {
+            beforeEach(function () {
+                if (isIE() || isEdge()) this.skip();
+            });
             it('should suppress anything with a valid key', function() {
                 var kbd = new Keyboard({});
                 var evt = keyevent('keydown', {code: 'KeyA', key: 'a'});
@@ -113,6 +125,9 @@ describe('Key Event Handling', function() {
     });
 
     describe('Track Key State', function() {
+        beforeEach(function () {
+            if (isIE() || isEdge()) this.skip();
+        });
         it('should send release using the same keysym as the press', function(done) {
             var kbd = new Keyboard({
             onKeyEvent: function(keysym, code, down) {
