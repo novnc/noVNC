@@ -44,7 +44,7 @@ const _captureProxy = function (e) {
     }
 
     // Implicitly release the capture on button release
-    if ((e.type === "mouseup") || (e.type === "touchend")) {
+    if (e.type === "mouseup") {
         releaseCapture();
     }
 };
@@ -65,23 +65,11 @@ export function setCapture (elem) {
 
         // IE releases capture on 'click' events which might not trigger
         elem.addEventListener('mouseup', releaseCapture);
-        elem.addEventListener('touchend', releaseCapture);
 
     } else {
         // Release any existing capture in case this method is
         // called multiple times without coordination
         releaseCapture();
-
-        // Safari on iOS 9 has a broken constructor for TouchEvent.
-        // We are fine in this case however, since Safari seems to
-        // have some sort of implicit setCapture magic anyway.
-        if (window.TouchEvent !== undefined) {
-            try {
-                new TouchEvent("touchstart");
-            } catch (TypeError) {
-                return;
-            }
-        }
 
         var captureElem = document.getElementById("noVNC_mouse_capture_elem");
 
@@ -103,9 +91,6 @@ export function setCapture (elem) {
 
             captureElem.addEventListener('mousemove', _captureProxy);
             captureElem.addEventListener('mouseup', _captureProxy);
-
-            captureElem.addEventListener('touchmove', _captureProxy);
-            captureElem.addEventListener('touchend', _captureProxy);
         }
 
         _captureElem = elem;
@@ -121,9 +106,6 @@ export function setCapture (elem) {
         // happens to leave the viewport
         window.addEventListener('mousemove', _captureProxy);
         window.addEventListener('mouseup', _captureProxy);
-
-        window.addEventListener('touchmove', _captureProxy);
-        window.addEventListener('touchend', _captureProxy);
     }
 };
 
@@ -154,8 +136,5 @@ export function releaseCapture () {
 
         window.removeEventListener('mousemove', _captureProxy);
         window.removeEventListener('mouseup', _captureProxy);
-
-        window.removeEventListener('touchmove', _captureProxy);
-        window.removeEventListener('touchend', _captureProxy);
     }
 };

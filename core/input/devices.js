@@ -10,7 +10,7 @@
 
 import * as Log from '../util/logging.js';
 import { isTouchDevice } from '../util/browsers.js'
-import { setCapture, releaseCapture, stopEvent, getPointerEvent } from '../util/events.js';
+import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 import { set_defaults, make_properties } from '../util/properties.js';
 import * as KeyboardUtil from "./util.js";
 import KeyTable from "./keysym.js";
@@ -299,14 +299,6 @@ const Mouse = function (defaults) {
 
 Mouse.prototype = {
     // private methods
-    _captureMouse: function () {
-        // capturing the mouse ensures we get the mouseup event
-        setCapture(this._target);
-    },
-
-    _releaseMouse: function () {
-        releaseCapture();
-    },
 
     _resetDoubleClickTimer: function () {
         this._doubleClickTimer = null;
@@ -367,13 +359,16 @@ Mouse.prototype = {
     },
 
     _handleMouseDown: function (e) {
-        this._captureMouse();
+        // Touch events have implicit capture
+        if (e.type === "mousedown") {
+            setCapture(this._target);
+        }
+
         this._handleMouseButton(e, 1);
     },
 
     _handleMouseUp: function (e) {
         this._handleMouseButton(e, 0);
-        this._releaseMouse();
     },
 
     _handleMouseWheel: function (e) {

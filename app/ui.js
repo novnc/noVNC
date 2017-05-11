@@ -731,7 +731,11 @@ const UI = {
         var handle = document.getElementById("noVNC_control_bar_handle");
         var bounds = handle.getBoundingClientRect();
 
-        setCapture(handle);
+        // Touch events have implicit capture
+        if (e.type === "mousedown") {
+            setCapture(handle);
+        }
+
         UI.controlbarGrabbed = true;
         UI.controlbarDrag = false;
 
