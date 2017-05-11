@@ -277,7 +277,6 @@ make_properties(Keyboard, [
 ]);
 
 const Mouse = function (defaults) {
-    this._mouseCaptured  = false;
 
     this._doubleClickTimer = null;
     this._lastTouchPos = null;
@@ -303,15 +302,10 @@ Mouse.prototype = {
     _captureMouse: function () {
         // capturing the mouse ensures we get the mouseup event
         setCapture(this._target);
-
-        // some browsers give us mouseup events regardless,
-        // so if we never captured the mouse, we can disregard the event
-        this._mouseCaptured = true;
     },
 
     _releaseMouse: function () {
         releaseCapture();
-        this._mouseCaptured = false;
     },
 
     _resetDoubleClickTimer: function () {
@@ -378,8 +372,6 @@ Mouse.prototype = {
     },
 
     _handleMouseUp: function (e) {
-        if (!this._mouseCaptured) { return; }
-
         this._handleMouseButton(e, 0);
         this._releaseMouse();
     },
