@@ -463,12 +463,10 @@ Mouse.prototype = {
 
         if (isTouchDevice) {
             c.addEventListener('touchstart', this._eventHandlers.mousedown);
-            window.addEventListener('touchend', this._eventHandlers.mouseup);
             c.addEventListener('touchend', this._eventHandlers.mouseup);
             c.addEventListener('touchmove', this._eventHandlers.mousemove);
         }
         c.addEventListener('mousedown', this._eventHandlers.mousedown);
-        window.addEventListener('mouseup', this._eventHandlers.mouseup);
         c.addEventListener('mouseup', this._eventHandlers.mouseup);
         c.addEventListener('mousemove', this._eventHandlers.mousemove);
         c.addEventListener('wheel', this._eventHandlers.mousewheel);
@@ -486,12 +484,10 @@ Mouse.prototype = {
 
         if (isTouchDevice) {
             c.removeEventListener('touchstart', this._eventHandlers.mousedown);
-            window.removeEventListener('touchend', this._eventHandlers.mouseup);
             c.removeEventListener('touchend', this._eventHandlers.mouseup);
             c.removeEventListener('touchmove', this._eventHandlers.mousemove);
         }
         c.removeEventListener('mousedown', this._eventHandlers.mousedown);
-        window.removeEventListener('mouseup', this._eventHandlers.mouseup);
         c.removeEventListener('mouseup', this._eventHandlers.mouseup);
         c.removeEventListener('mousemove', this._eventHandlers.mousemove);
         c.removeEventListener('wheel', this._eventHandlers.mousewheel);
