@@ -8,7 +8,7 @@ import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 import './assertions';
 import 'sinon';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
 chai.use(sinonChai);
 
 function make_rfb (extra_opts) {

@@ -36,7 +36,7 @@ function enableUI(recording) {
     message("VNC_frame_data.length: " + recording.VNC_frame_data.length);
 
     const startButton = document.getElementById('startButton');
-    startButton.disabled = false
+    startButton.disabled = false;
     startButton.addEventListener('click', start);
 
     frames = recording.VNC_frame_data;

@@ -9,7 +9,7 @@
 /*global window, Util */
 
 import * as Log from '../util/logging.js';
-import { isTouchDevice } from '../util/browsers.js'
+import { isTouchDevice } from '../util/browsers.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 import { set_defaults, make_properties } from '../util/properties.js';
 import * as KeyboardUtil from "./util.js";

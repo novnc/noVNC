@@ -7,7 +7,7 @@ import FakeWebSocket from './fake.websocket.js';
 
 import './assertions';
 import 'sinon';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
 chai.use(sinonChai);
 
 describe('Websock', function() {

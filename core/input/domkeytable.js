@@ -4,7 +4,7 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-import KeyTable from "./keysym.js"
+import KeyTable from "./keysym.js";
 
 /*
  * Mapping between HTML key values and VNC/X11 keysyms for "special"

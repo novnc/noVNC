@@ -7,7 +7,7 @@ import { _forceCursorURIs, browserSupportsCursorURIs } from '../core/util/browse
 
 import './assertions.js';
 import 'sinon';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js'
+import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
 chai.use(sinonChai);
 
 describe('Display/Canvas Helper', function () {
