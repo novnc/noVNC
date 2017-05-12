@@ -1681,7 +1681,16 @@ const UI = {
 
     bell: function(rfb) {
         if (WebUtil.getConfigVar('bell', 'on') === 'on') {
-            document.getElementById('noVNC_bell').play();
+            document.getElementById('noVNC_bell').play()
+                .catch(function(e) {
+                    if (e.name === "NotAllowedError") {
+                        // Ignore when the browser doesn't let us play audio.
+                        // It is common that the browsers require audio to be
+                        // initiated from a user action.
+                    } else {
+                        Log.Error("Unable to play bell: " + e);
+                    }
+                });
         }
     },
 
