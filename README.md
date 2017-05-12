@@ -57,10 +57,10 @@ Please tweet <a href="http://www.twitter.com/noVNC">@noVNC</a> if you do.
 
 ### Screenshots
 
-Running in Chrome before and after connecting:
+Running in Firefox before and after connecting:
 
-<img src="http://novnc.com/img/noVNC-5.png" width=400>&nbsp;
-<img src="http://novnc.com/img/noVNC-7.jpg" width=400>
+<img src="http://novnc.com/img/noVNC-1-login.png" width=400>&nbsp;
+<img src="http://novnc.com/img/noVNC-3-connected.png" width=400>
 
 See more screenshots
 <a href="http://novnc.com/screenshots.html">here</a>.
