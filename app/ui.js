@@ -12,7 +12,7 @@
 /* global window, document.getElementById, Util, WebUtil, RFB, Display */
 
 import * as Log from '../core/util/logging.js';
-import _, { l10n } from '../core/util/localization.js'
+import _, { l10n } from '../core/util/localization.js';
 import { isTouchDevice, browserSupportsCursorURIs as cursorURIsSupported } from '../core/util/browsers.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
