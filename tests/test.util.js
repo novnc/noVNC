@@ -42,7 +42,7 @@ describe('Utils', function() {
             Log.Debug('dbg');
             expect(console.debug).to.have.been.calledWith('dbg');
         });
-        
+
         it('should use console.info for Info', function () {
             Log.init_logging('debug');
             Log.Info('inf');

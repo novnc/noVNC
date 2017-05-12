@@ -10,7 +10,7 @@
 /*jslint bitwise: false, white: false, browser: true, devel: true */
 /*global Util, window, document */
 
-import { init_logging as main_init_logging } from '../core/util/logging.js'; 
+import { init_logging as main_init_logging } from '../core/util/logging.js';
 
 // init log level reading the logging HTTP param
 export function init_logging (level) {
