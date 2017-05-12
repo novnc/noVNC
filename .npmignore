@@ -15,6 +15,6 @@ docs/release.txt
 docs/rfb_notes
 docs/*.pdf
 vnc.html
-vnc_auto.html
+vnc_lite.html
 karma.conf.js
 docs/flash_policy.txt
