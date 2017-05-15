@@ -98,6 +98,9 @@ const UI = {
         document.getElementById("noVNC_status")
             .addEventListener('click', UI.hideStatus);
 
+        // Bootstrap fallback input handler
+        UI.keyboardinputReset();
+
         UI.openControlbar();
 
         // Show the connect panel on first load unless autoconnecting
@@ -311,8 +314,6 @@ const UI = {
             .addEventListener('touchend', UI.controlbarHandleMouseUp);
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('touchmove', UI.dragControlbarHandle);
-
-        window.addEventListener('load', UI.keyboardinputReset);
     },
 
     addExtraKeysHandlers: function() {
