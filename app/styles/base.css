@@ -853,6 +853,7 @@ select:active {
   color:yellow;
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
   line-height:90%;
+  text-shadow: 0.1em 0.1em 0 black;
 }
 .noVNC_logo span{
   color:green;
