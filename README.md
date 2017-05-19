@@ -105,34 +105,36 @@ WebSockets to TCP socket proxy. There is a python proxy included
 
 ### Now with WebVR support
 
-    I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
-    https://github.com/borismus/webvr-boilerplate
+  I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
+  https://github.com/borismus/webvr-boilerplate
 
-    I Used tightvncserver on linux to host a display on vnc. I ran these commands on the terminal inside the root folder.
+  I Used tightvncserver on linux to host a display on vnc. I ran these commands on the terminal inside the root folder.
 
-    https://knowledgelayer.softlayer.com/learning/tightvnc-server-ubuntu-1604
+  https://knowledgelayer.softlayer.com/learning/tightvnc-server-ubuntu-1604
 
 
-    ```bash
+  ```bash
 
-    # Install tight VNC
-    sudo apt-get install tightvncserver.
+  # Install tight VNC
+  sudo apt-get install tightvncserver.
 
-    # Start VNC server on display :2
-    vncserver :2 -geometry 4096x1024
+  # Start VNC server on display :2
+  vncserver :2 -geometry 4096x1024
 
-    # Launch websockify in noVNC folder.
-    ./utils/launch.sh --vnc localhost:5902 # 590X port number maps to display number on tight vnc.
+  # Launch websockify in noVNC folder.
+  ./utils/launch.sh --vnc localhost:5902 # 590X port number maps to display number on tight vnc.
 
-    ```
+  ```
 
-    Then connect to your laptop from your smart phone by opening a browser to your laptops IP. 
-    ```
-    http://<IP_OF_YOUR_LAPTOP>:6080/vnc_lite_vr.html
-    ```
-    The password prompt will still appear at the top.
+  Then connect to your laptop from your smart phone by opening a browser to your laptops IP. 
+  
+  ```
+  http://<IP_OF_YOUR_LAPTOP>:6080/vnc_lite_vr.html
+  ```
+  
+  The password prompt will still appear at the top.
 
-    TODO: add input??
+  TODO: add input??
 
 
 
