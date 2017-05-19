@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d3b8a90-39a8-4e12-bf3c-191ba9fee294" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/vnc_lite_vr.html" afterPath="$PROJECT_DIR$/vnc_lite_vr.html" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -30,11 +30,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="vnc_lite_vr.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="vnc_lite_vr.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/vnc_lite_vr.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
-              <caret line="87" column="12" lean-forward="false" selection-start-line="87" selection-start-column="12" selection-end-line="87" selection-end-column="12" />
+            <state relative-caret-position="527">
+              <caret line="443" column="14" lean-forward="false" selection-start-line="443" selection-start-column="14" selection-end-line="443" selection-end-column="14" />
               <folding>
                 <element signature="e#4343#4387#0" expanded="true" />
                 <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -44,7 +44,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-255">
@@ -89,8 +89,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/vnc_vr.html" />
-        <option value="$PROJECT_DIR$/vnc_lite_vr.html" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/vnc_lite_vr.html" />
       </list>
     </option>
   </component>
@@ -229,12 +229,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1495215905470</updated>
-      <workItem from="1495215906702" duration="3634000" />
+      <workItem from="1495215906702" duration="4002000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3634000" />
+    <option name="totallyTimeSpent" value="4002000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -288,23 +288,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vnc_lite_vr.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="87" column="12" lean-forward="false" selection-start-line="87" selection-start-column="12" selection-end-line="87" selection-end-column="12" />
-          <folding>
-            <element signature="e#4343#4387#0" expanded="true" />
-            <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#canvas#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-255">
           <caret line="130" column="4" lean-forward="false" selection-start-line="130" selection-start-column="4" selection-end-line="130" selection-end-column="4" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vnc_lite_vr.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="443" column="14" lean-forward="false" selection-start-line="443" selection-start-column="14" selection-end-line="443" selection-end-column="14" />
+          <folding>
+            <element signature="e#4343#4387#0" expanded="true" />
+            <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#canvas#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
