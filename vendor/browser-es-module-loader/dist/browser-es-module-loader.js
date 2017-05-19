@@ -1297,6 +1297,7 @@ function xhrFetch(url, resolve, reject) {
 }
 
 var WorkerPool = function (script, size) {
+  script = document.currentScript.src.substr(0, document.currentScript.src.lastIndexOf("/")) + "/" + script;
   this._workers = new Array(size);
   this._ind = 0;
   this._size = size;
@@ -1364,7 +1365,7 @@ WorkerPool.prototype = {
 };
 
 var promiseMap = new Map();
-var babelWorker = new WorkerPool('vendor/browser-es-module-loader/dist/babel-worker.js', 3);
+var babelWorker = new WorkerPool('babel-worker.js', 3);
 babelWorker.onmessage = function (evt) {
     var promFuncs = promiseMap.get(evt.data.key);
     promFuncs.resolve(evt.data);
