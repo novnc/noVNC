@@ -126,7 +126,11 @@ WebSockets to TCP socket proxy. There is a python proxy included
 
     ```
 
-    Then connect to your laptop from your smart phone by opening a browser to your laptops IP. The password prompt will still appear at the top.
+    Then connect to your laptop from your smart phone by opening a browser to your laptops IP. 
+    ```
+    http://<IP_OF_YOUR_LAPTOP>:6080/vnc_lite_vr.html
+    ```
+    The password prompt will still appear at the top.
 
     TODO: add input??
 
