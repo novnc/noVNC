@@ -1,4 +1,17 @@
-## noVNC: HTML5 VNC Client
+## noVNC: HTML5 VNC Client - now works in VR
+
+I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
+
+
+I Used tightvnc on linux to host a display on vnc. I ran these commands on the terminal inside the root folder.
+
+```bash
+sudo apt-get install tightvncserver.
+vncserver :2 -geometry 4096x1024
+./utils/launch.sh --vnc localhost:5902 # 590X port number maps to display number on tight vnc.
+```
+
+Below here is original Readme file.
 
 [![Build Status](https://travis-ci.org/novnc/noVNC.svg?branch=master)](https://travis-ci.org/novnc/noVNC)
 
