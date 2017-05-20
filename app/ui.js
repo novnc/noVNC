@@ -1133,7 +1133,10 @@ const UI = {
     },
 
     setPassword: function(e) {
-        var password = document.getElementById('noVNC_password_input').value;
+        var inputElem = document.getElementById('noVNC_password_input');
+        var password = inputElem.value;
+        // Clear the input after reading the password
+        inputElem.value = "";
         UI.rfb.sendPassword(password);
         UI.reconnect_password = password;
         document.getElementById('noVNC_password_dlg')
