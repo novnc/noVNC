@@ -402,6 +402,35 @@ select:active {
   padding: 0 5px 0 10px;
 }
 
+/* Control bar hint */
+#noVNC_control_bar_hint {
+  position: fixed;
+  left: calc(100vw - 50px);
+  right: auto;
+  width: 100px;
+  height: 50%;
+  max-height: 600px;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.2s ease-in-out;
+  background: transparent;
+  box-shadow: 0 0 10px black, inset 0 0 10px 10px rgba(110, 132, 163, 0.8);
+  border-radius: 10px;
+  transition-delay: 0s;
+  transform: scale(0);
+}
+#noVNC_control_bar_anchor.noVNC_right #noVNC_control_bar_hint{
+  left: auto;
+  right: calc(100vw - 50px);
+}
+#noVNC_control_bar_hint.noVNC_active {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0.2s;
+  transform: scale(1);
+}
+
 /* General button style */
 .noVNC_button {
   display: block;
