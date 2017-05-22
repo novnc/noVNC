@@ -80,7 +80,7 @@
                     <textarea id="copyBox" style="height:752px;width:98%;overflow:scroll;"></textarea>
                 </div>
             </div>
-            
+
         </div>
 
         <script>
@@ -182,18 +182,21 @@
             var xvpbuttons;
             xvpbuttons = $D('noVNC_xvp_buttons');
             if (ver >= 1) {
-                xvpbuttons.style.display = 'inline';
+                xvpbuttons.style.display = 'inline';yakpal.setClipboard
             } else {
                 xvpbuttons.style.display = 'none';
             }
         }
-        
+
         function onClipboard(rfb, text){
             $D('copyBox').value = text
+            if(window.yakpal && window.yakpal.setClipboard){
+                yakpal.setClipboard(text);
+            }
         }
 
         window.onscriptsload = function () {
-            var host, port, password, path, token;
+            var host, port, password, path, token, lastClipboard;
 
             //$D('sendCtrlAltDelButton').style.display = "inline";
             //$D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
@@ -204,10 +207,21 @@
                 $D('vnc-input').focus();
             });
             function updateClipboard(){
+                lastClipboard = $D('copyBox').value;
                 rfb.clipboardPasteFrom($D('copyBox').value);
             }
             $D('copyBox').addEventListener('change', updateClipboard);
             $D('copyBox').addEventListener('paste', updateClipboard);
+
+            setInterval(function(){
+                if(!window.yakpal || !window.yakpal.getClipboard) return;
+                window.yakpal.getClipboard().then((result)=>{
+                    if(result !== lastClipboard){
+                        $D('copyBox').value = result;
+                        updateClipboard();
+                    }
+                })
+            }, 100)
 
             WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
             document.title = unescape(WebUtil.getConfigVar('title', 'noVNC'));
