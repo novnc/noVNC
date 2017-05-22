@@ -1406,14 +1406,12 @@ BrowserESModuleLoader.prototype[RegisterLoader$1.instantiate] = function(key, pr
   }).then(function (data) {
     // evaluate without require, exports and module variables
     // we leave module in for now to allow module.require access
-    if (data.key.slice(-8) !== '#nocache') {
-      try {
-        localStorage.setItem(key+'!raw', data.source);
-        localStorage.setItem(data.key+'!transpiled', data.code);
-      } catch (e) {
-        if (window.console) {
-          window.console.warn('Unable to cache transpiled version of ' + key + ': ' + e);
-        }
+    try {
+      localStorage.setItem(key+'!raw', data.source);
+      localStorage.setItem(data.key+'!transpiled', data.code);
+    } catch (e) {
+      if (window.console) {
+        window.console.warn('Unable to cache transpiled version of ' + key + ': ' + e);
       }
     }
     (0, eval)(data.code + '\n//# sourceURL=' + data.key + '!transpiled');
