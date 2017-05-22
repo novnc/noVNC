@@ -142,8 +142,7 @@ html {
   position: absolute;
   left: 0;
   right: 0;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 1px;
 }
 
 #VNC_clipboard_clear_button {
@@ -280,7 +279,7 @@ html {
 /* Control bar */
 #noVNC_control_bar {
   position:fixed;
-  
+
   display:block;
   height:36px;
   left:0;
