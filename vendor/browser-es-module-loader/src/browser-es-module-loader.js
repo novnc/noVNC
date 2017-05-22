@@ -230,12 +230,12 @@ BrowserESModuleLoader.prototype[RegisterLoader.instantiate] = function(key, proc
   })
   .then(function(source) {
     // check our cache first
-    const cacheEntryTrans = localStorage.getItem(key+'!transpiled');
-    if (cacheEntryTrans) {
-      const cacheEntryRaw = localStorage.getItem(key+'!raw');
+    var cacheEntry = localStorage.getItem(key);
+    if (cacheEntry) {
+      cacheEntry = JSON.parse(cacheEntry);
       // TODO: store a hash instead
-      if (cacheEntryRaw === source) {
-        return Promise.resolve({key: key, code: cacheEntryTrans, source: source});
+      if (cacheEntry.source === source) {
+        return Promise.resolve({key: key, code: cacheEntry.code, source: cacheEntry.source});
       }
     }
     return new Promise(function (resolve, reject) {
@@ -247,8 +247,8 @@ BrowserESModuleLoader.prototype[RegisterLoader.instantiate] = function(key, proc
     // we leave module in for now to allow module.require access
     if (data.key.slice(-8) !== '#nocache') {
       try {
-        localStorage.setItem(key+'!raw', data.source);
-        localStorage.setItem(data.key+'!transpiled', data.code);
+        var cacheEntry = JSON.stringify({source: data.source, code: data.code});
+        localStorage.setItem(key, cacheEntry);
       } catch (e) {
         if (window.console) {
           window.console.warn('Unable to cache transpiled version of ' + key + ': ' + e);
