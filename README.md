@@ -17,6 +17,40 @@ Many companies, projects and products have integrated noVNC including
 [the Projects and Companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
 
+### Now with WebVR support
+
+  I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
+  https://github.com/borismus/webvr-boilerplate
+
+  I Used tightvncserver on linux to host a display on vnc. I ran these commands on the terminal inside the root folder.
+
+  https://knowledgelayer.softlayer.com/learning/tightvnc-server-ubuntu-1604
+
+
+  ```bash
+
+  # Install tight VNC
+  sudo apt-get install tightvncserver.
+
+  # Start VNC server on display :2
+  vncserver :2 -geometry 4096x1024
+
+  # Launch websockify in noVNC folder.
+  ./utils/launch.sh --vnc localhost:5902 # 590X port number maps to display number on tight vnc.
+
+  ```
+
+  Then connect to your laptop from your smart phone by opening a browser to your laptops IP. 
+  
+  ```
+  http://<IP_OF_YOUR_LAPTOP>:6080/vnc_lite_vr.html
+  ```
+  
+  The password prompt will still appear at the top.
+
+  TODO: add input??
+
+
 ### News/help/contact
 
 Notable commits, announcements and news are posted to
@@ -102,39 +136,6 @@ WebSockets to TCP socket proxy. There is a python proxy included
   script. Enter a password if the VNC server has one configured. Hit the
   Connect button and enjoy!
 
-
-### Now with WebVR support
-
-  I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
-  https://github.com/borismus/webvr-boilerplate
-
-  I Used tightvncserver on linux to host a display on vnc. I ran these commands on the terminal inside the root folder.
-
-  https://knowledgelayer.softlayer.com/learning/tightvnc-server-ubuntu-1604
-
-
-  ```bash
-
-  # Install tight VNC
-  sudo apt-get install tightvncserver.
-
-  # Start VNC server on display :2
-  vncserver :2 -geometry 4096x1024
-
-  # Launch websockify in noVNC folder.
-  ./utils/launch.sh --vnc localhost:5902 # 590X port number maps to display number on tight vnc.
-
-  ```
-
-  Then connect to your laptop from your smart phone by opening a browser to your laptops IP. 
-  
-  ```
-  http://<IP_OF_YOUR_LAPTOP>:6080/vnc_lite_vr.html
-  ```
-  
-  The password prompt will still appear at the top.
-
-  TODO: add input??
 
 
 
