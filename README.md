@@ -48,7 +48,7 @@ for a more complete list with additional info and links.
   
   The password prompt will still appear at the top.
   
-  YOu can use large resolutions with the screen enlarged in VR and curved around you. 
+  You can use large resolutions with the screen enlarged in VR and curved around you. 
    ![recording 2](https://cloud.githubusercontent.com/assets/6830845/26530856/fda108b6-43d4-11e7-911d-0ea582cc21d8.gif)
 
   TODO: add input??
