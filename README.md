@@ -18,7 +18,7 @@ Many companies, projects and products have integrated noVNC including
 for a more complete list with additional info and links.
 
 ### Now with WebVR support
-
+![vnc-vr](https://cloud.githubusercontent.com/assets/6830845/26262585/30d4b1a6-3ccd-11e7-9329-2197ddaa534e.png)
   I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
   https://github.com/borismus/webvr-boilerplate
 
@@ -47,6 +47,9 @@ for a more complete list with additional info and links.
   ```
   
   The password prompt will still appear at the top.
+  
+  YOu can use large resolutions with the screen enlarged in VR and curved around you. 
+   ![recording 2](https://cloud.githubusercontent.com/assets/6830845/26530856/fda108b6-43d4-11e7-911d-0ea582cc21d8.gif)
 
   TODO: add input??
 
