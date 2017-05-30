@@ -627,6 +627,15 @@ const UI = {
         UI.controlbarDrag = true;
     },
 
+    showControlbarHint: function (show) {
+        var hint = document.getElementById('noVNC_control_bar_hint');
+        if (show) {
+            hint.classList.add("noVNC_active");
+        } else {
+            hint.classList.remove("noVNC_active");
+        }
+    },
+
     dragControlbarHandle: function (e) {
         if (!UI.controlbarGrabbed) return;
 
@@ -722,6 +731,7 @@ const UI = {
             UI.activateControlbar();
         }
         UI.controlbarGrabbed = false;
+        UI.showControlbarHint(false);
     },
 
     controlbarHandleMouseDown: function(e) {
@@ -739,6 +749,8 @@ const UI = {
 
         UI.controlbarGrabbed = true;
         UI.controlbarDrag = false;
+
+        UI.showControlbarHint(true);
 
         UI.controlbarMouseDownClientY = ptr.clientY;
         UI.controlbarMouseDownOffsetY = ptr.clientY - bounds.top;
