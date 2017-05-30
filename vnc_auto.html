@@ -83,6 +83,9 @@
                     <textarea id="copyBox" style="width:100%;overflow:scroll;flex:1;"></textarea>
                 </div>
             </div>
+            <div>
+              <a target="_blank" id="zn-download-link" style="display: none; color:white; padding-left: 5px; font-size: 20px;" href="#">Access your downloaded files here</a>
+            </div>
 
         </div>
 
@@ -286,6 +289,11 @@
                 updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
                 return; // don't continue trying to connect
             }
+
+          var coyoteName = WebUtil.getConfigVar('name', '');
+          var elm = document.getElementById('zn-download-link');
+          elm.href = 'https://coyote.priceyak.com/download/' + coyoteName;
+          elm.style.display = '';
 
             rfb.connect(host, port, password, path);
         };
