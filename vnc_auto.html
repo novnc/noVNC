@@ -292,7 +292,7 @@
 
           var coyoteName = WebUtil.getConfigVar('name', '');
           var elm = document.getElementById('zn-download-link');
-          elm.href = 'https://coyote.priceyak.com/download/' + coyoteName;
+          elm.href = '/download/' + coyoteName;
           elm.style.display = '';
 
             rfb.connect(host, port, password, path);
