@@ -1297,6 +1297,7 @@ function xhrFetch(url, resolve, reject) {
 }
 
 var WorkerPool = function (script, size) {
+  script = document.currentScript.src.substr(0, document.currentScript.src.lastIndexOf("/")) + "/" + script;
   this._workers = new Array(size);
   this._ind = 0;
   this._size = size;
@@ -1364,7 +1365,7 @@ WorkerPool.prototype = {
 };
 
 var promiseMap = new Map();
-var babelWorker = new WorkerPool('vendor/browser-es-module-loader/dist/babel-worker.js', 3);
+var babelWorker = new WorkerPool('babel-worker.js', 3);
 babelWorker.onmessage = function (evt) {
     var promFuncs = promiseMap.get(evt.data.key);
     promFuncs.resolve(evt.data);
@@ -1405,14 +1406,12 @@ BrowserESModuleLoader.prototype[RegisterLoader$1.instantiate] = function(key, pr
   }).then(function (data) {
     // evaluate without require, exports and module variables
     // we leave module in for now to allow module.require access
-    if (data.key.slice(-8) !== '#nocache') {
-      try {
-        var cacheEntry = JSON.stringify({source: data.source, code: data.code});
-        localStorage.setItem(key, cacheEntry);
-      } catch (e) {
-        if (window.console) {
-          window.console.warn('Unable to cache transpiled version of ' + key + ': ' + e);
-        }
+    try {
+      var cacheEntry = JSON.stringify({source: data.source, code: data.code});
+      localStorage.setItem(key, cacheEntry);
+    } catch (e) {
+      if (window.console) {
+        window.console.warn('Unable to cache transpiled version of ' + key + ': ' + e);
       }
     }
     (0, eval)(data.code + '\n//# sourceURL=' + data.key + '!transpiled');

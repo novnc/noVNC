@@ -19,10 +19,17 @@ function loadFile() {
     }
 
     message("Loading " + fname);
-    return import(`../recordings/${fname}#nocache`);
+
+    return new Promise(function (resolve, reject) {
+        var script = document.createElement("script");
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+        script.src = "../recordings/" + fname;
+    });
 }
 
-function enableUI(recording) {
+function enableUI() {
     var iterations = WebUtil.getQueryVar('iterations', 3);
     document.getElementById('iterations').value = iterations;
 
@@ -33,14 +40,14 @@ function enableUI(recording) {
         document.getElementById('mode1').checked = true;
     }
 
-    message("VNC_frame_data.length: " + recording.VNC_frame_data.length);
+    message("VNC_frame_data.length: " + VNC_frame_data.length);
 
     const startButton = document.getElementById('startButton');
     startButton.disabled = false;
     startButton.addEventListener('click', start);
 
-    frames = recording.VNC_frame_data;
-    encoding = recording.VNC_frame_encoding;
+    frames = VNC_frame_data;
+    encoding = VNC_frame_encoding;
 }
 
 const notification = function (rfb, mesg, level, options) {
@@ -171,4 +178,4 @@ function start() {
     player.start(mode);
 }
 
-loadFile().then(enableUI).catch(message);
+loadFile().then(enableUI).catch(function (e) { message("Error loading recording"); });
