@@ -152,11 +152,12 @@ RecordingPlayer.prototype = {
 
     _doPacket: function () {
         // Avoid having excessive queue buildup in non-realtime mode
-        if (!this._trafficManagement && this._rfb._flushing) {
+        if (this._trafficManagement && this._rfb._flushing) {
             let player = this;
-            this._rfb.display.set_onFlush(function () {
-                this._rfb._display.set_onFlush(this._rfb._onFlush.bind(this._rfb));
-                this._rfb._onFlush();
+            let orig = this._rfb._display.get_onFlush();
+            this._rfb._display.set_onFlush(function () {
+                player._rfb._display.set_onFlush(orig);
+                player._rfb._onFlush();
                 player._doPacket();
             });
             return;
