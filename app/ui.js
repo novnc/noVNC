@@ -21,7 +21,7 @@ import RFB from "../core/rfb.js";
 import Display from "../core/display.js";
 import * as WebUtil from "./webutil.js";
 
-const UI = {
+var UI = {
 
     connected: false,
     desktopName: "",

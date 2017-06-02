@@ -9,7 +9,7 @@
     // Fallback for all uncought errors
     function handleError (event, err) {
         try {
-            const msg = document.getElementById('noVNC_fallback_errormsg');
+            var msg = document.getElementById('noVNC_fallback_errormsg');
 
             // Only show the initial error
             if (msg.hasChildNodes()) {

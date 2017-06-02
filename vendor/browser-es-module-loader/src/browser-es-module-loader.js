@@ -144,8 +144,8 @@ var WorkerPool = function (script, size) {
   this._jobs = 0;
   this.onmessage = undefined;
   this._stopTimeout = undefined;
-  for (let i = 0; i < size; i++) {
-    let wrkr = new Worker(script);
+  for (var i = 0; i < size; i++) {
+    var wrkr = new Worker(script);
     wrkr._count = 0;
     wrkr._ind = i;
     wrkr.onmessage = this._onmessage.bind(this, wrkr);
@@ -161,7 +161,7 @@ WorkerPool.prototype = {
       clearTimeout(this._stopTimeout);
       this._stopTimeout = undefined;
     }
-    let wrkr = this._workers[this._ind % this._size];
+    var wrkr = this._workers[this._ind % this._size];
     wrkr._count++;
     this._jobs++;
     wrkr.postMessage(msg);

@@ -24,7 +24,7 @@ export function stopEvent (e) {
 // Emulate Element.setCapture() when not supported
 var _captureRecursion = false;
 var _captureElem = null;
-const _captureProxy = function (e) {
+function _captureProxy(e) {
     // Recursion protection as we'll see our own event
     if (_captureRecursion) return;
 
@@ -50,11 +50,11 @@ const _captureProxy = function (e) {
 };
 
 // Follow cursor style of target element
-const _captureElemChanged = function() {
+function _captureElemChanged() {
     var captureElem = document.getElementById("noVNC_mouse_capture_elem");
     captureElem.style.cursor = window.getComputedStyle(_captureElem).cursor;
 };
-const _captureObserver = new MutationObserver(_captureElemChanged);
+var _captureObserver = new MutationObserver(_captureElemChanged);
 
 var _captureIndex = 0;
 

@@ -206,7 +206,7 @@ export function injectParamIfMissing (path, param, value) {
 // will receive either an event or an error on failure.
 export function fetchJSON(path, resolve, reject) {
     // NB: IE11 doesn't support JSON as a responseType
-    const req = new XMLHttpRequest();
+    var req = new XMLHttpRequest();
     req.open('GET', path);
 
     req.onload = function () {

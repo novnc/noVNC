@@ -40,6 +40,6 @@ export function flattenChunks (chunks) {
   return result;
 }
 
-export const Buf8  = Uint8Array;
-export const Buf16 = Uint16Array;
-export const Buf32 = Int32Array;
+export var Buf8  = Uint8Array;
+export var Buf16 = Uint16Array;
+export var Buf32 = Int32Array;

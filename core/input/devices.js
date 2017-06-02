@@ -19,7 +19,7 @@ import KeyTable from "./keysym.js";
 // Keyboard event handler
 //
 
-const Keyboard = function (defaults) {
+function Keyboard(defaults) {
     this._keyDownList = {};         // List of depressed keys
                                     // (even if they are happy)
     this._pendingKey = null;        // Key waiting for keypress
@@ -276,7 +276,7 @@ make_properties(Keyboard, [
     ['onKeyEvent', 'rw', 'func'] // Handler for key press/release
 ]);
 
-const Mouse = function (defaults) {
+function Mouse(defaults) {
 
     this._doubleClickTimer = null;
     this._lastTouchPos = null;
