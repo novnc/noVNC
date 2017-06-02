@@ -345,10 +345,16 @@ RFB.prototype = {
                 scancode = 0;
             }
 
+            // 0 is NoSymbol
+            keysym = keysym || 0;
+
             Log.Info("Sending key (" + (down ? "down" : "up") + "): keysym " + keysym + ", scancode " + scancode);
 
             RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
         } else {
+            if (!keysym) {
+                return false;
+            }
             Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
             RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
         }
