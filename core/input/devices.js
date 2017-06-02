@@ -44,6 +44,12 @@ function isMac() {
 function isWindows() {
     return navigator && !!(/win/i).exec(navigator.platform);
 }
+function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
+}
 
 Keyboard.prototype = {
     // private methods
@@ -159,7 +165,9 @@ Keyboard.prototype = {
 
         // If this is a legacy browser then we'll need to wait for
         // a keypress event as well
-        if (!keysym) {
+        // (IE and Edge has a broken KeyboardEvent.key, so we can't
+        // just check for the presence of that field)
+        if (!keysym && (!e.key || isIE() || isEdge())) {
             this._pendingKey = code;
             return;
         }
