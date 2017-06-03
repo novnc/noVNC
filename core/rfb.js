@@ -1009,7 +1009,7 @@ RFB.prototype = {
                 } else {
                     return this._fail("Authentication failure");
                 }
-                return false;
+                //return false; causes TypeScript error: novnc/core/rfb.js(1012,17): Error TS7027: Unreachable code detected.
             case 2:
                 return this._fail("Too many authentication attempts");
             default:
