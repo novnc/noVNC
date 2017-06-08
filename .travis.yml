@@ -13,9 +13,4 @@ env:
   - TEST_BROWSER_NAME=safari TEST_BROWSER_OS='OS X 10.11'
 before_script: npm install -g karma-cli
 addons:
-  sauce_connect:
-    username:
-      secure: "Y5+WRK1ThvctFQNchjW2jly9eLrxe9k8wkKZhS2OGT3SDAmFZnJADswbk/jEbhtl+ZclXybz0uy8Y5YT1PzVCySOqwvy5viIvMZ1xXlOMt1wwJIYbsb3AbOTt3lS+GBXB7RSk0Um5nVx+IMDDIjfS+kQ53NeR1+a/RrDaVNfDEE="
-  jwt:
-    secure: "MHYV2PhoZtNdeSNgRQjLRSn8T9BmwvwBNTgzwOfrUrwU4kVH16ETWOCnygybuRtYC/LNwQxe5W0hcb4rqOzlOO+fWr7OUdRAg8MPXVK0v3WVRu0BpgDIqMXlAbSp2IyCADjqNxG4pmGyrlfAhJ5yO7moaHpjU4QkkXX6QrvjmH4="
-
+  sauce_connect: true
