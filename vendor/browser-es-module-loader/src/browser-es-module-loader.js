@@ -9,7 +9,7 @@ var loader;
 // <script type="module"> support
 var anonSources = {};
 if (typeof document != 'undefined' && document.getElementsByTagName) {
-  function handleError(err) {
+  var handleError = function(err) {
     // dispatch an error event so that we can display in errors in browsers
     // that don't yet support unhandledrejection
     if (window.onunhandledrejection === undefined) {
@@ -37,7 +37,7 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
     throw err;
   }
 
-  function ready() {
+  var ready = function() {
     document.removeEventListener('DOMContentLoaded', ready, false );
 
     var anonCnt = 0;
@@ -103,10 +103,10 @@ BrowserESModuleLoader.prototype[RegisterLoader.resolve] = function(key, parent) 
 
 function xhrFetch(url, resolve, reject) {
   var xhr = new XMLHttpRequest();
-  function load(source) {
+  var load = function(source) {
     resolve(xhr.responseText);
   }
-  function error() {
+  var error = function() {
     reject(new Error('XHR error' + (xhr.status ? ' (' + xhr.status + (xhr.statusText ? ' ' + xhr.statusText  : '') + ')' : '') + ' loading ' + url));
   }
 
@@ -144,8 +144,8 @@ var WorkerPool = function (script, size) {
   this._jobs = 0;
   this.onmessage = undefined;
   this._stopTimeout = undefined;
-  for (let i = 0; i < size; i++) {
-    let wrkr = new Worker(script);
+  for (var i = 0; i < size; i++) {
+    var wrkr = new Worker(script);
     wrkr._count = 0;
     wrkr._ind = i;
     wrkr.onmessage = this._onmessage.bind(this, wrkr);
@@ -161,7 +161,7 @@ WorkerPool.prototype = {
       clearTimeout(this._stopTimeout);
       this._stopTimeout = undefined;
     }
-    let wrkr = this._workers[this._ind % this._size];
+    var wrkr = this._workers[this._ind % this._size];
     wrkr._count++;
     this._jobs++;
     wrkr.postMessage(msg);

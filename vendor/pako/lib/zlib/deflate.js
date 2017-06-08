@@ -1834,7 +1834,7 @@ function deflateSetDictionary(strm, dictionary) {
 
 
 export { deflateInit, deflateInit2, deflateReset, deflateResetKeep, deflateSetHeader, deflate, deflateEnd, deflateSetDictionary };
-export const deflateInfo = 'pako deflate (from Nodeca project)';
+export var deflateInfo = 'pako deflate (from Nodeca project)';
 
 /* Not implemented
 exports.deflateBound = deflateBound;
