@@ -263,14 +263,16 @@ select:active {
 }
 
 #noVNC_fallback_error .noVNC_stack {
+  max-height: 50vh;
   padding: 10px;
   margin: 10px;
   font-size: 0.8em;
   text-align: left;
   font-family: monospace;
-  white-space: pre-wrap;
+  white-space: pre;
   border: 1px solid rgba(0, 0, 0, 0.5);
   background: rgba(0, 0, 0, 0.2);
+  overflow: auto;
 }
 
 /* ----------------------------------------
