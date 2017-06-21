@@ -115,6 +115,7 @@ describe('Helpers', function() {
             expect(KeyboardUtil.getKey({key: 'Left'})).to.be.equal('ArrowLeft');
             expect(KeyboardUtil.getKey({key: 'OS'})).to.be.equal('Meta');
             expect(KeyboardUtil.getKey({key: 'Win'})).to.be.equal('Meta');
+            expect(KeyboardUtil.getKey({key: 'UIKeyInputLeftArrow'})).to.be.equal('ArrowLeft');
         });
         it('should use code if no key', function() {
             expect(KeyboardUtil.getKey({code: 'NumpadBackspace'})).to.be.equal('Backspace');

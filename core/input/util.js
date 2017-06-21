@@ -103,6 +103,15 @@ export function getKey(evt) {
             case 'OS': return 'Meta';
         }
 
+        // iOS leaks some OS names
+        switch (evt.key) {
+            case 'UIKeyInputUpArrow': return 'ArrowUp';
+            case 'UIKeyInputDownArrow': return 'ArrowDown';
+            case 'UIKeyInputLeftArrow': return 'ArrowLeft';
+            case 'UIKeyInputRightArrow': return 'ArrowRight';
+            case 'UIKeyInputEscape': return 'Escape';
+        }
+
         // IE and Edge have broken handling of AltGraph so we cannot
         // trust them for printable characters
         if ((evt.key.length !== 1) || (!isIE() && !isEdge())) {
