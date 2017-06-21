@@ -124,6 +124,77 @@ describe('Key Event Handling', function() {
         });
     });
 
+    describe('Fake keyup', function() {
+        it('should fake keyup events for virtual keyboards', function(done) {
+            if (isIE() || isEdge()) this.skip();
+            var count = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch (count++) {
+                    case 0:
+                        expect(keysym).to.be.equal(0x61);
+                        expect(code).to.be.equal('Unidentified');
+                        expect(down).to.be.equal(true);
+                        break;
+                    case 1:
+                        expect(keysym).to.be.equal(0x61);
+                        expect(code).to.be.equal('Unidentified');
+                        expect(down).to.be.equal(false);
+                        done();
+                }
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'Unidentified', key: 'a'}));
+        });
+
+        describe('iOS', function() {
+            var origNavigator;
+            beforeEach(function () {
+                // window.navigator is a protected read-only property in many
+                // environments, so we need to redefine it whilst running these
+                // tests.
+                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+                if (origNavigator === undefined) {
+                    // Object.getOwnPropertyDescriptor() doesn't work
+                    // properly in any version of IE
+                    this.skip();
+                }
+
+                Object.defineProperty(window, "navigator", {value: {}});
+                if (window.navigator.platform !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
+                }
+
+                window.navigator.platform = "iPhone 9.0";
+            });
+            afterEach(function () {
+                Object.defineProperty(window, "navigator", origNavigator);
+            });
+
+            it('should fake keyup events on iOS', function(done) {
+                if (isIE() || isEdge()) this.skip();
+                var count = 0;
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    switch (count++) {
+                        case 0:
+                            expect(keysym).to.be.equal(0x61);
+                            expect(code).to.be.equal('KeyA');
+                            expect(down).to.be.equal(true);
+                            break;
+                        case 1:
+                            expect(keysym).to.be.equal(0x61);
+                            expect(code).to.be.equal('KeyA');
+                            expect(down).to.be.equal(false);
+                            done();
+                    }
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            });
+        });
+    });
+
     describe('Track Key State', function() {
         beforeEach(function () {
             if (isIE() || isEdge()) this.skip();

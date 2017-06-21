@@ -44,6 +44,12 @@ function isMac() {
 function isWindows() {
     return navigator && !!(/win/i).exec(navigator.platform);
 }
+function isIOS() {
+    return navigator &&
+           (!!(/ipad/i).exec(navigator.platform) ||
+            !!(/iphone/i).exec(navigator.platform) ||
+            !!(/ipod/i).exec(navigator.platform));
+}
 
 Keyboard.prototype = {
     // private methods
@@ -106,13 +112,15 @@ Keyboard.prototype = {
 
         // We cannot handle keys we cannot track, but we also need
         // to deal with virtual keyboards which omit key info
-        if (code === 'Unidentified') {
+        // (iOS omits tracking info on keyup events, which forces us to
+        // special treat that platform here)
+        if ((code === 'Unidentified') || isIOS()) {
             if (keysym) {
                 // If it's a virtual keyboard then it should be
                 // sufficient to just send press and release right
                 // after each other
-                this._sendKeyEvent(keysym, 'Unidentified', true);
-                this._sendKeyEvent(keysym, 'Unidentified', false);
+                this._sendKeyEvent(keysym, code, true);
+                this._sendKeyEvent(keysym, code, false);
             }
 
             stopEvent(e);
