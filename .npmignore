@@ -1,5 +1,6 @@
 app
 core
+vendor
 .gitmodules
 node_modules
 .*
