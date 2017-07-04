@@ -132,7 +132,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
                 helper.optionsOverride(opts);
             }
 
-            babel.transformFile(filename, babel_opts(), (err, res) => {
+            babel.transformFile(filename, opts, (err, res) => {
                 console.log(`Writing ${out_path}`);
                 if (err) throw err;
                 var {code, map, ast} = res;
