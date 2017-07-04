@@ -30,6 +30,7 @@
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-import-redirect": "*",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-plugin-transform-es2015-modules-amd": "^6.22.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",

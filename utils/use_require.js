@@ -131,6 +131,13 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
             if (helper && helpers.optionsOverride) {
                 helper.optionsOverride(opts);
             }
+            // Adjust for the fact that we move the core files relative
+            // to the vendor directory
+            if (!in_path) {
+                opts.plugins.push(["import-redirect",
+                                   {"root": out_path_base,
+                                    "redirect": { "vendor/(.+)": "./vendor/$1"}}]);
+            }
 
             babel.transformFile(filename, opts, (err, res) => {
                 console.log(`Writing ${out_path}`);
