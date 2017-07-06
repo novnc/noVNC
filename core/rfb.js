@@ -2410,9 +2410,13 @@ RFB.encodingHandlers = {
     QEMUExtendedKeyEvent: function () {
         this._FBU.rects--;
 
-        var keyboardEvent = document.createEvent("keyboardEvent");
-        if (keyboardEvent.code !== undefined) {
-            this._qemuExtKeyEventSupported = true;
+        // Old Safari doesn't support creating keyboard events
+        try {
+            var keyboardEvent = document.createEvent("keyboardEvent");
+            if (keyboardEvent.code !== undefined) {
+                this._qemuExtKeyEventSupported = true;
+            }
+        } catch (err) {
         }
     },
 
