@@ -92,6 +92,46 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
                 kbd._handleKeyPress(keyevent('keypress', {charCode: 0x61}));
             });
+            it('should guess key if no keypress and numeric key', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x32);
+                    expect(code).to.be.equal('Digit2');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'Digit2', keyCode: 0x32}));
+            });
+            it('should guess key if no keypress and alpha key', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41, shiftKey: false}));
+            });
+            it('should guess key if no keypress and alpha key (with shift)', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x41);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41, shiftKey: true}));
+            });
+            it('should not guess key if no keypress and unknown key', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x09}));
+            });
         });
 
         describe('suppress the right events at the right time', function() {

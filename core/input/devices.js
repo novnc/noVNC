@@ -187,6 +187,10 @@ Keyboard.prototype = {
         // just check for the presence of that field)
         if (!keysym && (!e.key || isIE() || isEdge())) {
             this._pendingKey = code;
+            // However we might not get a keypress event if the key
+            // is non-printable, which needs some special fallback
+            // handling
+            setTimeout(this._handleKeyPressTimeout.bind(this), 10, e);
             return;
         }
 
@@ -223,6 +227,43 @@ Keyboard.prototype = {
         if (!keysym) {
             console.log('keypress with no keysym:', e);
             return;
+        }
+
+        this._keyDownList[code] = keysym;
+
+        this._sendKeyEvent(keysym, code, true);
+    },
+    _handleKeyPressTimeout: function (e) {
+        if (!this._focused) { return; }
+
+        // Did someone manage to sort out the key already?
+        if (this._pendingKey === null) {
+            return;
+        }
+
+        var code, keysym;
+
+        code = this._pendingKey;
+        this._pendingKey = null;
+
+        // We have no way of knowing the proper keysym with the
+        // information given, but the following are true for most
+        // layouts
+        if ((e.keyCode >= 0x30) && (e.keyCode <= 0x39)) {
+            // Digit
+            keysym = e.keyCode;
+        } else if ((e.keyCode >= 0x41) && (e.keyCode <= 0x5a)) {
+            // Character (A-Z)
+            var char = String.fromCharCode(e.keyCode);
+            // A feeble attempt at the correct case
+            if (e.shiftKey)
+                char = char.toUpperCase();
+            else
+                char = char.toLowerCase();
+            keysym = char.charCodeAt();
+        } else {
+            // Unknown, give up
+            keysym = 0;
         }
 
         this._keyDownList[code] = keysym;
