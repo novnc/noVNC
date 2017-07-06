@@ -50,6 +50,12 @@ function isIOS() {
             !!(/iphone/i).exec(navigator.platform) ||
             !!(/ipod/i).exec(navigator.platform));
 }
+function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
+}
 
 Keyboard.prototype = {
     // private methods
@@ -92,16 +98,34 @@ Keyboard.prototype = {
 
     _getKeyCode: function (e) {
         var code = KeyboardUtil.getKeycode(e);
-        if (code === 'Unidentified') {
-            // Unstable, but we don't have anything else to go on
-            // (don't use it for 'keypress' events thought since
-            // WebKit sets it to the same as charCode)
-            if (e.keyCode && (e.type !== 'keypress')) {
-                code = 'Platform' + e.keyCode;
-            }
+        if (code !== 'Unidentified') {
+            return code;
         }
 
-        return code;
+        // Unstable, but we don't have anything else to go on
+        // (don't use it for 'keypress' events thought since
+        // WebKit sets it to the same as charCode)
+        if (e.keyCode && (e.type !== 'keypress')) {
+            return 'Platform' + e.keyCode;
+        }
+
+        // A precursor to the final DOM3 standard. Unfortunately it
+        // is not layout independent, so it is as bad as using keyCode
+        if (e.keyIdentifier) {
+            // Non-character key?
+            if (e.keyIdentifier.substr(0, 2) !== 'U+') {
+                return e.keyIdentifier;
+            }
+
+            var codepoint = parseInt(e.keyIdentifier.substr(2), 16);
+            var char = String.fromCharCode(codepoint);
+            // Some implementations fail to uppercase the symbols
+            char = char.toUpperCase();
+
+            return 'Platform' + char.charCodeAt();
+        }
+
+        return 'Unidentified';
     },
 
     _handleKeyDown: function (e) {
@@ -167,8 +191,14 @@ Keyboard.prototype = {
 
         // If this is a legacy browser then we'll need to wait for
         // a keypress event as well
-        if (!keysym) {
+        // (IE and Edge has a broken KeyboardEvent.key, so we can't
+        // just check for the presence of that field)
+        if (!keysym && (!e.key || isIE() || isEdge())) {
             this._pendingKey = code;
+            // However we might not get a keypress event if the key
+            // is non-printable, which needs some special fallback
+            // handling
+            setTimeout(this._handleKeyPressTimeout.bind(this), 10, e);
             return;
         }
 
@@ -205,6 +235,43 @@ Keyboard.prototype = {
         if (!keysym) {
             console.log('keypress with no keysym:', e);
             return;
+        }
+
+        this._keyDownList[code] = keysym;
+
+        this._sendKeyEvent(keysym, code, true);
+    },
+    _handleKeyPressTimeout: function (e) {
+        if (!this._focused) { return; }
+
+        // Did someone manage to sort out the key already?
+        if (this._pendingKey === null) {
+            return;
+        }
+
+        var code, keysym;
+
+        code = this._pendingKey;
+        this._pendingKey = null;
+
+        // We have no way of knowing the proper keysym with the
+        // information given, but the following are true for most
+        // layouts
+        if ((e.keyCode >= 0x30) && (e.keyCode <= 0x39)) {
+            // Digit
+            keysym = e.keyCode;
+        } else if ((e.keyCode >= 0x41) && (e.keyCode <= 0x5a)) {
+            // Character (A-Z)
+            var char = String.fromCharCode(e.keyCode);
+            // A feeble attempt at the correct case
+            if (e.shiftKey)
+                char = char.toUpperCase();
+            else
+                char = char.toLowerCase();
+            keysym = char.charCodeAt();
+        } else {
+            // Unknown, give up
+            keysym = 0;
         }
 
         this._keyDownList[code] = keysym;

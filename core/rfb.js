@@ -345,10 +345,16 @@ RFB.prototype = {
                 scancode = 0;
             }
 
+            // 0 is NoSymbol
+            keysym = keysym || 0;
+
             Log.Info("Sending key (" + (down ? "down" : "up") + "): keysym " + keysym + ", scancode " + scancode);
 
             RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
         } else {
+            if (!keysym) {
+                return false;
+            }
             Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
             RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
         }
@@ -2404,9 +2410,13 @@ RFB.encodingHandlers = {
     QEMUExtendedKeyEvent: function () {
         this._FBU.rects--;
 
-        var keyboardEvent = document.createEvent("keyboardEvent");
-        if (keyboardEvent.code !== undefined) {
-            this._qemuExtKeyEventSupported = true;
+        // Old Safari doesn't support creating keyboard events
+        try {
+            var keyboardEvent = document.createEvent("keyboardEvent");
+            if (keyboardEvent.code !== undefined) {
+                this._qemuExtKeyEventSupported = true;
+            }
+        } catch (err) {
         }
     },
 
