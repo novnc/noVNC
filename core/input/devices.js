@@ -92,16 +92,34 @@ Keyboard.prototype = {
 
     _getKeyCode: function (e) {
         var code = KeyboardUtil.getKeycode(e);
-        if (code === 'Unidentified') {
-            // Unstable, but we don't have anything else to go on
-            // (don't use it for 'keypress' events thought since
-            // WebKit sets it to the same as charCode)
-            if (e.keyCode && (e.type !== 'keypress')) {
-                code = 'Platform' + e.keyCode;
-            }
+        if (code !== 'Unidentified') {
+            return code;
         }
 
-        return code;
+        // Unstable, but we don't have anything else to go on
+        // (don't use it for 'keypress' events thought since
+        // WebKit sets it to the same as charCode)
+        if (e.keyCode && (e.type !== 'keypress')) {
+            return 'Platform' + e.keyCode;
+        }
+
+        // A precursor to the final DOM3 standard. Unfortunately it
+        // is not layout independent, so it is as bad as using keyCode
+        if (e.keyIdentifier) {
+            // Non-character key?
+            if (e.keyIdentifier.substr(0, 2) !== 'U+') {
+                return e.keyIdentifier;
+            }
+
+            var codepoint = parseInt(e.keyIdentifier.substr(2), 16);
+            var char = String.fromCharCode(codepoint);
+            // Some implementations fail to uppercase the symbols
+            char = char.toUpperCase();
+
+            return 'Platform' + char.charCodeAt();
+        }
+
+        return 'Unidentified';
     },
 
     _handleKeyDown: function (e) {

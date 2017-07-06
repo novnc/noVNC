@@ -159,6 +159,33 @@ describe('Key Event Handling', function() {
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
             expect(callback).to.not.have.been.called;
         });
+
+        describe('Legacy Events', function() {
+            it('should track keys using keyCode if no code', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('Platform65');
+                    if (!down) {
+                        done();
+                    }
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {keyCode: 65, key: 'a'}));
+                kbd._handleKeyUp(keyevent('keyup', {keyCode: 65, key: 'b'}));
+            });
+            it('should track keys using keyIdentifier if no code', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('Platform65');
+                    if (!down) {
+                        done();
+                    }
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {keyIdentifier: 'U+0041', key: 'a'}));
+                kbd._handleKeyUp(keyevent('keyup', {keyIdentifier: 'U+0041', key: 'b'}));
+            });
+        });
     });
 
     describe('Shuffle modifiers on macOS', function() {
