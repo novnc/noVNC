@@ -106,7 +106,10 @@ Keyboard.prototype = {
         // (don't use it for 'keypress' events thought since
         // WebKit sets it to the same as charCode)
         if (e.keyCode && (e.type !== 'keypress')) {
-            return 'Platform' + e.keyCode;
+            // 229 is used for composition events
+            if (e.keyCode !== 229) {
+                return 'Platform' + e.keyCode;
+            }
         }
 
         // A precursor to the final DOM3 standard. Unfortunately it

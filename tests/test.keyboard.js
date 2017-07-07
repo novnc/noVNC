@@ -284,6 +284,14 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {keyCode: 65, key: 'a'}));
                 kbd._handleKeyUp(keyevent('keyup', {keyCode: 65, key: 'b'}));
             });
+            it('should ignore compositing code', function() {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('Unidentified');
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {keyCode: 229, key: 'a'}));
+            });
             it('should track keys using keyIdentifier if no code', function(done) {
                 var kbd = new Keyboard({
                 onKeyEvent: function(keysym, code, down) {
