@@ -335,16 +335,9 @@ RFB.prototype = {
             return true;
         }
 
-        if (this._qemuExtKeyEventSupported) {
-            var scancode = XtScancode[code];
+        var scancode = XtScancode[code];
 
-            if (scancode === undefined) {
-                Log.Error('Unable to find a xt scancode for code: ' + code);
-                // FIXME: not in the spec, but this is what
-                // gtk-vnc does
-                scancode = 0;
-            }
-
+        if (this._qemuExtKeyEventSupported && scancode) {
             // 0 is NoSymbol
             keysym = keysym || 0;
 

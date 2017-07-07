@@ -224,6 +224,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client.sendKey(0x20, 'Space', true);
                 expect(client._sock).to.have.sent(expected._sQ);
             });
+
+            it('should not send QEMU extended events if unknown key code', function () {
+                client._qemuExtKeyEventSupported = true;
+                var expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
+                RFB.messages.keyEvent(expected, 123, 1);
+                client.sendKey(123, 'FooBar', true);
+                expect(client._sock).to.have.sent(expected._sQ);
+            });
         });
 
         describe('#clipboardPasteFrom', function () {
