@@ -137,7 +137,14 @@ function xhrFetch(url, resolve, reject) {
 }
 
 var WorkerPool = function (script, size) {
-  script = document.currentScript.src.substr(0, document.currentScript.src.lastIndexOf("/")) + "/" + script;
+  var current = document.currentScript;
+  // IE doesn't support currentScript
+  if (!current) {
+    // We should be the last loaded script
+    var scripts = document.getElementsByTagName('script');
+    current = scripts[scripts.length - 1];
+  }
+  script = current.src.substr(0, current.src.lastIndexOf("/")) + "/" + script;
   this._workers = new Array(size);
   this._ind = 0;
   this._size = size;
