@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!--
+    noVNC example: lightweight example using minimal UI and features
+    Copyright (C) 2012 Joel Martin
+    Copyright (C) 2013 Samuel Mannehed for Cendio AB
+    noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+    This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+
+    Connect parameters are provided in query string:
+        http://example.com/?host=HOST&port=PORT&encrypt=1
+    or the fragment:
+        http://example.com/#host=HOST&port=PORT&encrypt=1
+    -->
+    <title>noVNC</title>
+
+    <meta charset="utf-8">
+
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+                Remove this if you use the .htaccess -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <!-- Icons (see Makefile for what the sizes are for) -->
+    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/novnc-16x16.png">
+    <link rel="icon" sizes="24x24" type="image/png" href="app/images/icons/novnc-24x24.png">
+    <link rel="icon" sizes="32x32" type="image/png" href="app/images/icons/novnc-32x32.png">
+    <link rel="icon" sizes="48x48" type="image/png" href="app/images/icons/novnc-48x48.png">
+    <link rel="icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
+    <link rel="icon" sizes="64x64" type="image/png" href="app/images/icons/novnc-64x64.png">
+    <link rel="icon" sizes="72x72" type="image/png" href="app/images/icons/novnc-72x72.png">
+    <link rel="icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
+    <link rel="icon" sizes="96x96" type="image/png" href="app/images/icons/novnc-96x96.png">
+    <link rel="icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
+    <link rel="icon" sizes="144x144" type="image/png" href="app/images/icons/novnc-144x144.png">
+    <link rel="icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
+    <link rel="icon" sizes="192x192" type="image/png" href="app/images/icons/novnc-192x192.png">
+    <link rel="icon" sizes="any" type="image/svg+xml" href="app/images/icons/novnc-icon.svg">
+    <!-- Repeated last so that legacy handling will pick this -->
+    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/novnc-16x16.png">
+
+    <!-- Apple iOS Safari settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Home Screen Icons (favourites and bookmarks use the normal icons) -->
+    <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
+    <link rel="apple-touch-icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
+    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="app/styles/lite.css">
+
+    <!--
+   <script type='text/javascript'
+       src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+   -->
+
+    <!-- <Web VR styles> -->
+
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            padding: 0;
+            overflow: hidden;
+        }
+        /* Position the button on the bottom of the page. */
+        #ui {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-family: 'Karla', sans-serif;
+            z-index: 1;
+        }
+        a#magic-window {
+            display: block;
+            color: white;
+            margin-top: 1em;
+        }
+    </style>
+
+    <!-- </Web VR styles> -->
+
+    <!-- promise polyfills promises for IE11 -->
+    <script src="vendor/promise.js"></script>
+    <script src="vendor/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
+    <script type="module">
+		// Load supporting scripts
+		import * as WebUtil from './app/webutil.js';
+		import RFB from './core/rfb.js';
+		var rfb;
+		var resizeTimeout;
+		var desktopName;
+
+		function UIresize() {
+			if (WebUtil.getConfigVar('resize', false)) {
+				var innerW = window.innerWidth;
+				var innerH = window.innerHeight;
+				var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
+				if (innerW !== undefined && innerH !== undefined)
+					rfb.requestDesktopSize(innerW, innerH - controlbarH);
+			}
+		}
+		function FBUComplete(rfb, fbu) {
+			UIresize();
+			rfb.set_onFBUComplete(function() { });
+		}
+		function updateDesktopName(rfb, name) {
+			desktopName = name;
+		}
+		function passwordRequired(rfb, msg) {
+			if (typeof msg === 'undefined') {
+				msg = 'Password Required: ';
+			}
+			var html;
+
+			var form = document.createElement('form');
+			form.style = 'margin-bottom: 0px';
+			form.innerHTML = '<label></label>'
+			form.innerHTML += '<input type=password size=10 id="password_input" class="noVNC_status">';
+			form.onsubmit = setPassword;
+
+			// bypass status() because it sets text content
+			document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+			document.getElementById('noVNC_status').innerHTML = '';
+			document.getElementById('noVNC_status').appendChild(form);
+			document.getElementById('noVNC_status').querySelector('label').textContent = msg;
+		}
+		function setPassword() {
+			rfb.sendPassword(document.getElementById('password_input').value);
+			return false;
+		}
+		function sendCtrlAltDel() {
+			rfb.sendCtrlAltDel();
+			return false;
+		}
+		function xvpShutdown() {
+			rfb.xvpShutdown();
+			return false;
+		}
+		function xvpReboot() {
+			rfb.xvpReboot();
+			return false;
+		}
+		function xvpReset() {
+			rfb.xvpReset();
+			return false;
+		}
+		function status(text, level) {
+			switch (level) {
+				case 'normal':
+				case 'warn':
+				case 'error':
+					break;
+				default:
+					level = "warn";
+			}
+			document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
+			document.getElementById('noVNC_status').textContent = text;
+		}
+		function updateState(rfb, state, oldstate) {
+			var cad = document.getElementById('sendCtrlAltDelButton');
+			switch (state) {
+				case 'connecting':
+					status("Connecting", "normal");
+					break;
+				case 'connected':
+					if (rfb && rfb.get_encrypt()) {
+						status("Connected (encrypted) to " +
+							desktopName, "normal");
+					} else {
+						status("Connected (unencrypted) to " +
+							desktopName, "normal");
+					}
+					document.body.className = 'is_running';
+					break;
+				case 'disconnecting':
+					status("Disconnecting", "normal");
+					break;
+				case 'disconnected':
+					status("Disconnected", "normal");
+					break;
+				default:
+					status(state, "warn");
+					break;
+			}
+
+			if (state === 'connected') {
+				cad.disabled = false;
+			} else {
+				cad.disabled = true;
+				xvpInit(0);
+			}
+
+		}
+		function disconnected(rfb, reason) {
+			if (typeof(reason) !== 'undefined') {
+				status(reason, "error");
+			}
+		}
+		function notification(rfb, msg, level, options) {
+			status(msg, level);
+		}
+
+		window.onresize = function () {
+			// When the window has been resized, wait until the size remains
+			// the same for 0.5 seconds before sending the request for changing
+			// the resolution of the session
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(function(){
+				UIresize();
+			}, 500);
+		};
+
+		function xvpInit(ver) {
+			var xvpbuttons;
+			xvpbuttons = document.getElementById('noVNC_xvp_buttons');
+			if (ver >= 1) {
+				xvpbuttons.style.display = 'inline';
+			} else {
+				xvpbuttons.style.display = 'none';
+			}
+		}
+
+		document.getElementById('sendCtrlAltDelButton').style.display = "inline";
+		document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+		document.getElementById('xvpShutdownButton').onclick = xvpShutdown;
+		document.getElementById('xvpRebootButton').onclick = xvpReboot;
+		document.getElementById('xvpResetButton').onclick = xvpReset;
+
+		WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
+		document.title = WebUtil.getConfigVar('title', 'noVNC');
+		// By default, use the host and port of server that served this file
+		var host = WebUtil.getConfigVar('host', window.location.hostname);
+		var port = WebUtil.getConfigVar('port', window.location.port);
+
+		// if port == 80 (or 443) then it won't be present and should be
+		// set manually
+		if (!port) {
+			if (window.location.protocol.substring(0,5) == 'https') {
+				port = 443;
+			}
+			else if (window.location.protocol.substring(0,4) == 'http') {
+				port = 80;
+			}
+		}
+
+		var password = WebUtil.getConfigVar('password', '');
+		var path = WebUtil.getConfigVar('path', 'websockify');
+
+		// If a token variable is passed in, set the parameter in a cookie.
+		// This is used by nova-novncproxy.
+		var token = WebUtil.getConfigVar('token', null);
+		if (token) {
+			// if token is already present in the path we should use it
+			path = WebUtil.injectParamIfMissing(path, "token", token);
+
+			WebUtil.createCookie('token', token, 1)
+		}
+
+		(function() {
+
+			if ((!host) || (!port)) {
+				status('Must specify host and port in URL', 'error');
+			}
+
+			try {
+				rfb = new RFB({'target':       document.getElementById('noVNC_canvas'),
+					'encrypt':      WebUtil.getConfigVar('encrypt',
+						(window.location.protocol === "https:")),
+					'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
+					'local_cursor': WebUtil.getConfigVar('cursor', true),
+					'shared':       WebUtil.getConfigVar('shared', true),
+					'view_only':    WebUtil.getConfigVar('view_only', false),
+					'onNotification':  notification,
+					'onUpdateState':  updateState,
+					'onDisconnected': disconnected,
+					'onXvpInit':    xvpInit,
+					'onPasswordRequired':  passwordRequired,
+					'onFBUComplete': FBUComplete,
+					'onDesktopName': updateDesktopName});
+			} catch (exc) {
+				status('Unable to create RFB client -- ' + exc, 'error');
+				return; // don't continue trying to connect
+			}
+
+			rfb.connect(host, port, password, path);
+		})();
+    </script>
+    <!-- <Body&header tags moved up - content above scripts> -->
+
+</head>
+
+<body style="margin: 0px;">
+
+<div id="ui">
+    <div id="vr-button"></div>
+    <a id="magic-window" href="#">Try it without a headset</a>
+</div>
+
+<!-- hide container around canvas and hide canvas. -->
+<div id="noVNC_container">
+    <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
+        <table border=0 width="100%"><tr>
+            <td><div id="noVNC_status" style="position: relative; height: auto;">
+                Loading
+            </div></td>
+            <td width="1%"><div id="noVNC_buttons">
+                <input type=button value="Send CtrlAltDel"
+                       id="sendCtrlAltDelButton">
+                <span id="noVNC_xvp_buttons">
+                        <input type=button value="Shutdown"
+                               id="xvpShutdownButton">
+                        <input type=button value="Reboot"
+                               id="xvpRebootButton">
+                        <input type=button value="Reset"
+                               id="xvpResetButton">
+                        </span>
+            </div></td>
+        </tr></table>
+    </div>
+    <canvas id="noVNC_canvas" width="512px" height="512px" style="display:none;"><!-- set default size to power of 2 -->
+        Canvas not supported.
+    </canvas>
+</div>
+
+<!-- </Body&header tags moved up - content above scripts> -->
+
+
+<!-- <Three.js and webvr boilerplate scripts & scene.> -->
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/85/three.min.js"></script>
+
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+<script>
+    /*
+     * Debug parameters.
+     */
+	WebVRConfig = {
+		BUFFER_SCALE: 0.5,
+	};
+</script>
+
+<!--
+  A polyfill for Promises. Needed for IE and Edge.
+-->
+<script src="vendor/es6-promise.min.js"></script>
+
+<!--
+  VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
+-->
+<script src="vendor/VRControls.js"></script>
+
+<!--
+  VREffect.js handles stereo camera setup and rendering.
+-->
+<script src="vendor/VREffect.js"></script>
+
+<!--
+  A polyfill for WebVR using the Device{Motion,Orientation}Event API.
+-->
+<script src="vendor/webvr-polyfill.min.js"></script>
+
+<!--
+  A set of UI controls for entering VR mode.
+-->
+<script src="vendor/webvr-ui.min.js"></script>
+
+<!-- </Three.js and webvr boilerplate scripts & scene.> -->
+
+<script>
+	var streamCanvas = document.getElementById('noVNC_canvas');
+	if(streamCanvas){
+		var context = streamCanvas.getContext("2d");
+		context.fillStyle="#000000";
+		context.fillRect(0,0,512,512);
+		var scene = new THREE.Scene();
+		// create a camera, which defines where we're looking at.
+		var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+		scene.add(camera);
+
+
+		// plane
+		var texture = texture = new THREE.Texture(streamCanvas);
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.repeat.x = - 1;
+		var geometry = new THREE.SphereGeometry(50, 24, 24, 0, 3, .75, 1.75);//new THREE.PlaneGeometry( 80, 20 );
+		geometry.applyMatrix( new THREE.Matrix4().makeScale( 3.0, 2.0, 3.0 ) );
+
+
+		var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide  } );
+		var mesh = new THREE.Mesh( geometry, material );
+
+		camera.position.z = 300;
+		scene.add( mesh );
+
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+		document.body.appendChild( renderer.domElement );
+
+		var controls = new THREE.VRControls(camera);
+		controls.standing = true;
+
+
+
+		var nonVRcontrols = new THREE.OrbitControls( camera, renderer.domElement );
+		camera.position.y = controls.userHeight;
+
+		var effect = new THREE.VREffect(renderer);
+		effect.setSize(window.innerWidth, window.innerHeight);
+		mesh.rotation.y += Math.PI;
+		var vrButton = new webvrui.EnterVRButton(renderer.domElement, {
+			color: 'black',
+			background: 'white',
+			corners: 'square'
+		});
+		vrButton.on('exit', function() {
+			camera.quaternion.set(0, 0, 0, 1);
+			camera.position.set(0, controls.userHeight, 0);
+		});
+		vrButton.on('hide', function() {
+			document.getElementById('ui').style.display = 'none';
+		});
+		vrButton.on('show', function() {
+			document.getElementById('ui').style.display = 'inherit';
+		});
+		document.getElementById('vr-button').appendChild(vrButton.domElement);
+		document.getElementById('magic-window').addEventListener('click', function() {
+			vrButton.requestEnterFullscreen();
+		});
+		function animate() {
+
+			//mesh.rotation.y += 0.0005;
+            if(document.body.className == 'is_running'){
+				texture.needsUpdate = true;
+            }
+			if (vrButton.isPresenting()) {
+				controls.update();
+			}else{
+				nonVRcontrols.update();
+            }
+			effect.render(scene, camera);
+			vrDisplay.requestAnimationFrame(animate);
+
+		}
+		navigator.getVRDisplays().then(function(displays) {
+			if (displays.length > 0) {
+				vrDisplay = displays[0];
+				vrDisplay.requestAnimationFrame(animate);
+			}
+		});
+    }
+</script>
+
+
+</body>
+</html>

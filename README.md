@@ -1,4 +1,5 @@
 ## noVNC: HTML5 VNC Client
+----
 
 [![Build Status](https://travis-ci.org/novnc/noVNC.svg?branch=master)](https://travis-ci.org/novnc/noVNC)
 
@@ -15,6 +16,43 @@ Many companies, projects and products have integrated noVNC including
 [ThinLinc](https://cendio.com/thinlinc). See
 [the Projects and Companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
+
+### Now with WebVR support
+![vnc-vr](https://cloud.githubusercontent.com/assets/6830845/26262585/30d4b1a6-3ccd-11e7-9329-2197ddaa534e.png)
+  I have adapted the WebVR boilerplate with a basic Three.js scene to make this VNC client work in VR on a mobile device.
+  https://github.com/borismus/webvr-boilerplate
+
+  I Used tightvncserver on linux to host a display on vnc. I ran these commands on the terminal inside the root folder.
+
+  https://knowledgelayer.softlayer.com/learning/tightvnc-server-ubuntu-1604
+
+
+  ```bash
+
+  # Install tight VNC
+  sudo apt-get install tightvncserver.
+
+  # Start VNC server on display :2
+  vncserver :2 -geometry 4096x1024
+
+  # Launch websockify in noVNC folder.
+  ./utils/launch.sh --vnc localhost:5902 # 590X port number maps to display number on tight vnc.
+
+  ```
+
+  Then connect to your laptop from your smart phone by opening a browser to your laptops IP. 
+  
+  ```
+  http://<IP_OF_YOUR_LAPTOP>:6080/vnc_lite_vr.html
+  ```
+  
+  The password prompt will still appear at the top.
+  
+  You can use large resolutions with the screen enlarged in VR and curved around you. 
+   ![recording 2](https://cloud.githubusercontent.com/assets/6830845/26530856/fda108b6-43d4-11e7-911d-0ea582cc21d8.gif)
+
+  TODO: add input??
+
 
 ### News/help/contact
 
@@ -100,6 +138,8 @@ WebSockets to TCP socket proxy. There is a python proxy included
 * Point your browser to the cut-and-paste URL that is output by the launch
   script. Enter a password if the VNC server has one configured. Hit the
   Connect button and enjoy!
+
+
 
 
 ### Other Pages
