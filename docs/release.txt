@@ -1,9 +1,34 @@
-- Update and commit docs/VERSION and debian/changelog
-- Create version tag and tarball from tag
-    WVER=0.3
-    git tag v${WVER}
-    git push origin master
-    git push origin v${WVER}
-    git archive --format=tar --prefix=novnc-${WVER}/ v${WVER} > novnc-${WVER}.tar
-    gzip novnc-${WVER}.tar
-- Upload tarball to repo
+- Decide a new version number X.Y.Z (follow SemVer)
+- Update version in package.json
+- Update version in docs/VERSION
+- Commit the change with a commit like "Release X.Y.Z"
+- Add a new release on GitHub called "vX.Y.Z", and populate it with
+  release notes of the following form (where A.B.C is the last release):
+
+Major Changes Since A.B.C
+=========================
+
+*Insert warnings here about incompatibilities*
+
+*Thanks to all the contributors who filed bugs, added features, and fixed bugs
+during this release :tada:*
+
+App-visible Changes
+-------------------
+
+- *feature* a feature which improves the app usage (#PRNUM)
+- *bugfix* a bug fix which fixes the app usage (#PRNUM)
+- *refactor* a refactor which changes the app usage (#PRNUM)
+
+Library-visible Changes
+-----------------------
+
+- *feature* a feature which improves the noVNC APIs (#PRNUM)
+- *bugfix* a bug fix which fixes the noVNC APIs (#PRNUM)
+- *refactor* a refactor which changes the noVNC APIs (#PRNUM)
+
+App-internals Changes
+---------------------
+
+- *bugfix* a bug fix with affects the internals of noVNC only (#PRNUM)
+- *refactor* a refactor which affects the internals of noVNC only (#PRNUM)

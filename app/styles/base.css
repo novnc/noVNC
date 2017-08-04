@@ -1,0 +1,919 @@
+/*
+ * noVNC base CSS
+ * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2016 Pierre Ossman for Cendio AB
+ * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+ * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+ */
+
+/*
+ * Z index layers:
+ *
+ * 0: Main screen
+ * 10: Control bar
+ * 50: Transition blocker
+ * 60: Connection popups
+ * 100: Status bar
+ * ...
+ * 1000: Javascript crash
+ * ...
+ * 10000: Max (used for polyfills)
+ */
+
+body {
+  margin:0;
+  padding:0;
+  font-family: Helvetica;
+  /*Background image with light grey curve.*/
+  background-color:#494949;
+  background-repeat:no-repeat;
+  background-position:right bottom;
+  height:100%;
+  touch-action: none;
+}
+
+html {
+  height:100%;
+}
+
+.noVNC_only_touch.noVNC_hidden {
+  display: none;
+}
+
+.noVNC_disabled {
+  color: rgb(128, 128, 128);
+}
+
+/* ----------------------------------------
+ * Spinner
+ * ----------------------------------------
+ */
+
+.noVNC_spinner {
+  position: relative;
+}
+.noVNC_spinner, .noVNC_spinner::before, .noVNC_spinner::after {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  box-shadow: -60px 10px 0 rgba(255, 255, 255, 0);
+  animation: noVNC_spinner 1.0s linear infinite;
+}
+.noVNC_spinner::before {
+  content: "";
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  animation-delay: -0.1s;
+}
+.noVNC_spinner::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  animation-delay: 0.1s;
+}
+@keyframes noVNC_spinner {
+  0% { box-shadow: -60px 10px 0 rgba(255, 255, 255, 0); width: 20px; }
+  25% { box-shadow: 20px 10px 0 rgba(255, 255, 255, 1); width: 10px; }
+  50% { box-shadow: 60px 10px 0 rgba(255, 255, 255, 0); width: 10px; }
+}
+
+/* ----------------------------------------
+ * Input Elements
+ * ----------------------------------------
+ */
+
+input[type=input], input[type=password], input[type=number],
+input:not([type]), textarea {
+  /* Disable default rendering */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+
+  margin: 2px;
+  padding: 2px;
+  border: 1px solid rgb(192, 192, 192);
+  border-radius: 5px;
+  color: black;
+  background: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
+}
+
+input[type=button], input[type=submit], select {
+  /* Disable default rendering */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+
+  margin: 2px;
+  padding: 2px;
+  border: 1px solid rgb(192, 192, 192);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: black;
+  background: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+
+  /* This avoids it jumping around when :active */
+  vertical-align: middle;
+}
+
+input[type=button], input[type=submit] {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+option {
+  color: black;
+  background: white;
+}
+
+input[type=input]:focus, input[type=password]:focus,
+input:not([type]):focus, input[type=button]:focus,
+input[type=submit]:focus,
+textarea:focus, select:focus {
+  box-shadow: 0px 0px 3px rgba(74, 144, 217, 0.5);
+  border-color: rgb(74, 144, 217);
+  outline: none;
+}
+
+input[type=button]::-moz-focus-inner,
+input[type=submit]::-moz-focus-inner {
+  border: none;
+}
+
+input[type=input]:disabled, input[type=password]:disabled,
+input:not([type]):disabled, input[type=button]:disabled,
+input[type=submit]:disabled, input[type=number]:disabled,
+textarea:disabled, select:disabled {
+  color: rgb(128, 128, 128);
+  background: rgb(240, 240, 240);
+}
+
+input[type=button]:active, input[type=submit]:active,
+select:active {
+  border-bottom-width: 1px;
+  margin-top: 3px;
+}
+
+:root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
+:root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
+:root:not(.noVNC_touch) select:hover:not(:disabled) {
+  background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+}
+
+/* ----------------------------------------
+ * WebKit centering hacks
+ * ----------------------------------------
+ */
+
+.noVNC_center {
+  /*
+   * This is a workaround because webkit misrenders transforms and
+   * uses non-integer coordinates, resulting in blurry content.
+   * Ideally we'd use "top: 50%; transform: translateY(-50%);" on
+   * the objects instead.
+   */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.noVNC_center > * {
+  pointer-events: auto;
+}
+.noVNC_vcenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  pointer-events: none;
+}
+.noVNC_vcenter > * {
+  pointer-events: auto;
+}
+
+/* ----------------------------------------
+ * Layering
+ * ----------------------------------------
+ */
+
+.noVNC_connect_layer {
+  z-index: 60;
+}
+
+/* ----------------------------------------
+ * Fallback error
+ * ----------------------------------------
+ */
+
+#noVNC_fallback_error {
+  z-index: 1000;
+  visibility: hidden;
+}
+#noVNC_fallback_error.noVNC_open {
+  visibility: visible;
+}
+
+#noVNC_fallback_error > div {
+  max-width: 90%;
+  padding: 15px;
+
+  transition: 0.5s ease-in-out;
+
+  transform: translateY(-50px);
+  opacity: 0;
+
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+
+  border-radius: 10px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  background: rgba(200,55,55,0.8);
+}
+#noVNC_fallback_error.noVNC_open > div {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#noVNC_fallback_errormsg {
+  font-weight: normal;
+}
+
+#noVNC_fallback_errormsg .noVNC_message {
+  display: inline-block;
+  text-align: left;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+#noVNC_fallback_error .noVNC_location {
+  font-style: italic;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+#noVNC_fallback_error .noVNC_stack {
+  max-height: 50vh;
+  padding: 10px;
+  margin: 10px;
+  font-size: 0.8em;
+  text-align: left;
+  font-family: monospace;
+  white-space: pre;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
+  overflow: auto;
+}
+
+/* ----------------------------------------
+ * Control Bar
+ * ----------------------------------------
+ */
+
+#noVNC_control_bar_anchor {
+  /* The anchor is needed to get z-stacking to work */
+  position: fixed;
+  z-index: 10;
+
+  transition: 0.5s ease-in-out;
+
+  /* Edge misrenders animations wihthout this */
+  transform: translateX(0);
+}
+:root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
+  opacity: 0.8;
+}
+#noVNC_control_bar_anchor.noVNC_right {
+  left: auto;
+  right: 0;
+}
+
+#noVNC_control_bar {
+  position: relative;
+  left: -100%;
+
+  transition: 0.5s ease-in-out;
+
+  background-color: rgb(110, 132, 163);
+  border-radius: 0 10px 10px 0;
+
+}
+#noVNC_control_bar.noVNC_open {
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  left: 0;
+}
+#noVNC_control_bar::before {
+  /* This extra element is to get a proper shadow */
+  content: "";
+  position: absolute;
+  z-index: -1;
+  height: 100%;
+  width: 30px;
+  left: -30px;
+  transition: box-shadow 0.5s ease-in-out;
+}
+#noVNC_control_bar.noVNC_open::before {
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+.noVNC_right #noVNC_control_bar {
+  left: 100%;
+  border-radius: 10px 0 0 10px;
+}
+.noVNC_right #noVNC_control_bar.noVNC_open {
+  left: 0;
+}
+.noVNC_right #noVNC_control_bar::before {
+  visibility: hidden;
+}
+
+#noVNC_control_bar_handle {
+  position: absolute;
+  left: -15px;
+  top: 0;
+  transform: translateY(35px);
+  width: calc(100% + 30px);
+  height: 50px;
+  z-index: -1;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: rgb(83, 99, 122);
+  background-image: url("../images/handle_bg.svg");
+  background-repeat: no-repeat;
+  background-position: right;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+}
+#noVNC_control_bar_handle:after {
+  content: "";
+  transition: transform 0.5s ease-in-out;
+  background: url("../images/handle.svg");
+  position: absolute;
+  top: 22px; /* (50px-6px)/2 */
+  right: 5px;
+  width: 5px;
+  height: 6px;
+}
+#noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+  transform: translateX(1px) rotate(180deg);
+}
+:root:not(.noVNC_connected) #noVNC_control_bar_handle {
+  display: none;
+}
+.noVNC_right #noVNC_control_bar_handle {
+  background-position: left;
+}
+.noVNC_right #noVNC_control_bar_handle:after {
+  left: 5px;
+  right: 0;
+  transform: translateX(1px) rotate(180deg);
+}
+.noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
+  transform: none;
+}
+#noVNC_control_bar_handle div {
+  position: absolute;
+  right: -35px;
+  top: 0;
+  width: 50px;
+  height: 50px;
+}
+:root:not(.noVNC_touch) #noVNC_control_bar_handle div {
+  display: none;
+}
+.noVNC_right #noVNC_control_bar_handle div {
+  left: -35px;
+  right: auto;
+}
+
+#noVNC_control_bar .noVNC_scroll {
+  max-height: 100vh; /* Chrome is buggy with 100% */
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 10px 0 5px;
+}
+.noVNC_right #noVNC_control_bar .noVNC_scroll {
+  padding: 0 5px 0 10px;
+}
+
+/* Control bar hint */
+#noVNC_control_bar_hint {
+  position: fixed;
+  left: calc(100vw - 50px);
+  right: auto;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 100px;
+  height: 50%;
+  max-height: 600px;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.2s ease-in-out;
+  background: transparent;
+  box-shadow: 0 0 10px black, inset 0 0 10px 10px rgba(110, 132, 163, 0.8);
+  border-radius: 10px;
+  transition-delay: 0s;
+}
+#noVNC_control_bar_anchor.noVNC_right #noVNC_control_bar_hint{
+  left: auto;
+  right: calc(100vw - 50px);
+}
+#noVNC_control_bar_hint.noVNC_active {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0.2s;
+  transform: translateY(-50%) scale(1);
+}
+
+/* General button style */
+.noVNC_button {
+  display: block;
+  padding: 4px 4px;
+  margin: 10px 0;
+  vertical-align: middle;
+  border:1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+.noVNC_button.noVNC_selected {
+  border-color: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+}
+.noVNC_button:disabled {
+  opacity: 0.4;
+}
+.noVNC_button:focus {
+  outline: none;
+}
+.noVNC_button:active {
+  padding-top: 5px;
+  padding-bottom: 3px;
+}
+:root:not(.noVNC_touch) .noVNC_button.noVNC_selected:hover {
+  border-color: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.2);
+}
+:root:not(.noVNC_touch) .noVNC_button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.noVNC_button.noVNC_hidden {
+  display: none;
+}
+
+/* Panels */
+.noVNC_panel {
+  transform: translateX(25px);
+
+  transition: 0.5s ease-in-out;
+
+  max-height: 100vh; /* Chrome is buggy with 100% */
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  visibility: hidden;
+  opacity: 0;
+
+  padding: 15px;
+
+  background: #fff;
+  border-radius: 10px;
+  color: #000;
+  border: 2px solid #E0E0E0;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+.noVNC_panel.noVNC_open {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(75px);
+}
+.noVNC_right .noVNC_vcenter {
+  left: auto;
+  right: 0;
+}
+.noVNC_right .noVNC_panel {
+  transform: translateX(-25px);
+}
+.noVNC_right .noVNC_panel.noVNC_open {
+  transform: translateX(-75px);
+}
+
+.noVNC_panel hr {
+  border: none;
+  border-top: 1px solid rgb(192, 192, 192);
+}
+
+.noVNC_panel label {
+  display: block;
+  white-space: nowrap;
+}
+
+.noVNC_panel .noVNC_heading {
+  background-color: rgb(110, 132, 163);
+  border-radius: 5px;
+  padding: 5px;
+  /* Compensate for padding in image */
+  padding-right: 8px;
+  color: white;
+  font-size: 20px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+.noVNC_panel .noVNC_heading img {
+  vertical-align: bottom;
+}
+
+.noVNC_submit {
+  float: right;
+}
+
+/* Expanders */
+.noVNC_expander {
+  cursor: pointer;
+}
+.noVNC_expander::before {
+  content: url("../images/expander.svg");
+  display: inline-block;
+  margin-right: 5px;
+  transition: 0.2s ease-in-out;
+}
+.noVNC_expander.noVNC_open::before {
+  transform: rotateZ(90deg);
+}
+.noVNC_expander ~ * {
+  margin: 5px;
+  margin-left: 10px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+}
+.noVNC_expander:not(.noVNC_open) ~ * {
+  display: none;
+}
+
+/* Control bar content */
+
+#noVNC_control_bar .noVNC_logo {
+  font-size: 13px;
+}
+
+:root:not(.noVNC_connected) #noVNC_view_drag_button {
+  display: none;
+}
+
+/* noVNC Touch Device only buttons */
+:root:not(.noVNC_connected) #noVNC_mobile_buttons {
+  display: none;
+}
+:root:not(.noVNC_touch) #noVNC_mobile_buttons {
+  display: none;
+}
+
+/* Extra manual keys */
+:root:not(.noVNC_connected) #noVNC_extra_keys {
+  display: none;
+}
+
+#noVNC_modifiers {
+  background-color: rgb(92, 92, 92);
+  border: none;
+  padding: 0 10px;
+}
+
+/* XVP Shutdown/Reboot */
+:root:not(.noVNC_connected) #noVNC_xvp_button {
+  display: none;
+}
+#noVNC_xvp {
+}
+#noVNC_xvp_buttons {
+  display: none;
+}
+
+#noVNC_xvp input[type=button] {
+  width: 100%;
+}
+
+/* Clipboard */
+:root:not(.noVNC_connected) #noVNC_clipboard_button {
+  display: none;
+}
+#noVNC_clipboard {
+  /* Full screen, minus padding and left and right margins */
+  max-width: calc(100vw - 2*15px - 75px - 25px);
+}
+#noVNC_clipboard_text {
+  width: 500px;
+  max-width: 100%;
+}
+
+/* Settings */
+#noVNC_settings {
+}
+#noVNC_settings ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+#noVNC_setting_port {
+  width: 80px;
+}
+#noVNC_setting_path {
+  width: 100px;
+}
+
+/* Connection Controls */
+:root:not(.noVNC_connected) #noVNC_disconnect_button {
+  display: none;
+}
+
+/* ----------------------------------------
+ * Status Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_status {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  transform: translateY(-100%);
+
+  cursor: pointer;
+
+  transition: 0.5s ease-in-out;
+
+  visibility: hidden;
+  opacity: 0;
+
+  padding: 5px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+
+  line-height: 25px;
+  word-wrap: break-word;
+  color: #fff;
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+}
+#noVNC_status.noVNC_open {
+  transform: translateY(0);
+  visibility: visible;
+  opacity: 1;
+}
+
+#noVNC_status::before {
+  content: "";
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+}
+
+#noVNC_status.noVNC_status_normal {
+  background: rgba(128,128,128,0.9);
+}
+#noVNC_status.noVNC_status_normal::before {
+  content: url("../images/info.svg") " ";
+}
+#noVNC_status.noVNC_status_error {
+  background: rgba(200,55,55,0.9);
+}
+#noVNC_status.noVNC_status_error::before {
+  content: url("../images/error.svg") " ";
+}
+#noVNC_status.noVNC_status_warn {
+  background: rgba(180,180,30,0.9);
+}
+#noVNC_status.noVNC_status_warn::before {
+  content: url("../images/warning.svg") " ";
+}
+
+/* ----------------------------------------
+ * Connect Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_connect_dlg {
+  transition: 0.5s ease-in-out;
+
+  transform: scale(0, 0);
+  visibility: hidden;
+  opacity: 0;
+}
+#noVNC_connect_dlg.noVNC_open {
+  transform: scale(1, 1);
+  visibility: visible;
+  opacity: 1;
+}
+#noVNC_connect_dlg .noVNC_logo {
+  transition: 0.5s ease-in-out;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  font-size: 80px;
+  text-align: center;
+
+  border-radius: 5px;
+}
+@media (max-width: 440px) {
+  #noVNC_connect_dlg {
+    max-width: calc(100vw - 100px);
+  }
+  #noVNC_connect_dlg .noVNC_logo {
+    font-size: calc(25vw - 30px);
+  }
+}
+#noVNC_connect_button {
+  cursor: pointer;
+
+  padding: 10px;
+
+  color: white;
+  background-color: rgb(110, 132, 163);
+  border-radius: 12px;
+
+  text-align: center;
+  font-size: 20px;
+
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+#noVNC_connect_button div {
+  margin: 2px;
+  padding: 5px 30px;
+  border: 1px solid rgb(83, 99, 122);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
+
+  /* This avoids it jumping around when :active */
+  vertical-align: middle;
+}
+#noVNC_connect_button div:active {
+  border-bottom-width: 1px;
+  margin-top: 3px;
+}
+:root:not(.noVNC_touch) #noVNC_connect_button div:hover {
+  background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
+}
+
+#noVNC_connect_button img {
+  vertical-align: bottom;
+  height: 1.3em;
+}
+
+/* ----------------------------------------
+ * Password Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_password_dlg {
+  position: relative;
+
+  transform: translateY(-50px);
+}
+#noVNC_password_dlg.noVNC_open {
+  transform: translateY(0);
+}
+#noVNC_password_dlg ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* ----------------------------------------
+ * Main Area
+ * ----------------------------------------
+ */
+
+/* Transition screen */
+#noVNC_transition {
+  display: none;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+
+  /*display: flex;*/
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+:root.noVNC_loading #noVNC_transition,
+:root.noVNC_connecting #noVNC_transition,
+:root.noVNC_disconnecting #noVNC_transition,
+:root.noVNC_reconnecting #noVNC_transition {
+  display: flex;
+}
+:root:not(.noVNC_reconnecting) #noVNC_cancel_reconnect_button {
+  display: none;
+}
+#noVNC_transition_text {
+  font-size: 1.5em;
+}
+
+/* Main container */
+#noVNC_container {
+  width: 100%;
+  height: 100%;
+  background-color: #313131;
+  border-bottom-right-radius: 800px 600px;
+  /*border-top-left-radius: 800px 600px;*/
+}
+
+#noVNC_keyboardinput {
+  width: 1px;
+  height: 1px;
+  background-color: #fff;
+  color: #fff;
+  border: 0;
+  position: absolute;
+  left: -40px;
+  z-index: -1;
+  ime-mode: disabled;
+}
+
+/* HTML5 Canvas */
+#noVNC_screen {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(40, 40, 40);
+}
+:root:not(.noVNC_connected) #noVNC_screen {
+  display: none;
+}
+
+/* Do not set width/height for VNC_canvas or incorrect
+ * scaling will occur. Canvas size depends on remote VNC
+ * settings and noVNC settings. */
+#noVNC_canvas {
+  margin: auto;
+  /* IE miscalculates width without this :( */
+  flex-shrink: 0;
+}
+
+/*Default noVNC logo.*/
+/* From: http://fonts.googleapis.com/css?family=Orbitron:700 */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 700;
+  src: local('?'), url('Orbitron700.woff') format('woff'),
+                   url('Orbitron700.ttf') format('truetype');
+}
+
+.noVNC_logo {
+  color:yellow;
+  font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
+  line-height:90%;
+  text-shadow: 0.1em 0.1em 0 black;
+}
+.noVNC_logo span{
+  color:green;
+}
+
+#noVNC_bell {
+  display: none;
+}
+
+/* ----------------------------------------
+ * Media sizing
+ * ----------------------------------------
+ */
+
+@media screen and (max-width: 640px){
+  #noVNC_logo {
+    font-size: 150px;
+  }
+}
+
+@media screen and (min-width: 321px) and (max-width: 480px) {
+  #noVNC_logo {
+    font-size: 110px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  #noVNC_logo {
+    font-size: 90px;
+  }
+}

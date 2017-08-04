@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+/*
+ * ps2js: gettext .po to noVNC .js converter
+ * Copyright (C) 2016 Pierre Ossman
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+var getopt = require('node-getopt');
+var fs = require('fs');
+var po2json = require("po2json");
+
+opt = getopt.create([
+  ['h' , 'help'                , 'display this help'],
+]).bindHelp().parseSystem();
+
+if (opt.argv.length != 2) {
+  console.error("Incorrect number of arguments given");
+  process.exit(1);
+}
+
+var data = po2json.parseFileSync(opt.argv[0]);
+
+var bodyPart = Object.keys(data).filter((msgid) => msgid !== "").map((msgid) => {
+    if (msgid === "") return;
+    var msgstr = data[msgid][1];
+    return "    " + JSON.stringify(msgid) + ": " + JSON.stringify(msgstr);
+}).join(",\n");
+
+var output = "{\n" + bodyPart + "\n}";
+
+fs.writeFileSync(opt.argv[1], output);

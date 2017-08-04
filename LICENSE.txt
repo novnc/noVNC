@@ -5,19 +5,9 @@ Public License 2.0). The noVNC core library is composed of the
 Javascript code necessary for full noVNC operation. This includes (but
 is not limited to):
 
-    include/base64.js
-    include/des.js
-    include/display.js
-    include/input.js
-    include/jsunzip.js
-    include/keysym.js
-    include/logo.js
-    include/rfb.js
-    include/ui.js
-    include/util.js
-    include/vnc.js
-    include/websock.js
-    include/webutil.js
+    core/**/*.js
+    app/*.js
+    test/playback.js
 
 The HTML, CSS, font and images files that included with the noVNC
 source distibution (or repository) are not considered part of the
@@ -29,36 +19,35 @@ The HTML, CSS, font and image files are licensed as follows:
 
     *.html                     : 2-Clause BSD license
 
-    include/*.css              : 2-Clause BSD license
+    app/styles/*.css           : 2-Clause BSD license
 
-    include/Orbitron*          : SIL Open Font License 1.1
+    app/styles/Orbitron*       : SIL Open Font License 1.1
                                  (Copyright 2009 Matt McInerney)
 
-    images/                    : Creative Commons Attribution-ShareAlike
+    app/images/                : Creative Commons Attribution-ShareAlike
                                  http://creativecommons.org/licenses/by-sa/3.0/
 
 Some portions of noVNC are copyright to their individual authors.
 Please refer to the individual source files and/or to the noVNC commit
-history: https://github.com/kanaka/noVNC/commits/master
+history: https://github.com/novnc/noVNC/commits/master
 
 The are several files and projects that have been incorporated into
 the noVNC core library. Here is a list of those files and the original
 licenses (all MPL 2.0 compatible):
 
-    include/base64.js          : MPL 2.0
-   
-    include/des.js             : Various BSD style licenses
+    core/base64.js          : MPL 2.0
 
-    include/jsunzip.js         : zlib/libpng license
+    core/des.js             : Various BSD style licenses
 
-    include/web-socket-js/     : New BSD license (3-clause). Source code at
-                                 http://github.com/gimite/web-socket-js
+    vendor/pako/            : MIT
 
-    include/chrome-app/tcp-stream.js
-                               : Apache 2.0 license
+    vendor/browser-es-module-loader: MIT
 
-    utils/websockify
-    utils/websocket.py         : LGPL 3
+    vendor/promise.js       : MIT
+
+Any other files not mentioned above are typically marked with
+a copyright/license header at the top of the file. The default noVNC
+license is MPL-2.0.
 
 The following license texts are included:
 
@@ -70,6 +59,7 @@ The following license texts are included:
     docs/LICENSE.BSD-2-Clause (Simplified BSD / FreeBSD)
     docs/LICENSE.zlib
     docs/LICENSE.Apache-2.0
+    vendor/pako/LICENSE (MIT)
 
 Or alternatively the license texts may be found here:
 
@@ -80,3 +70,4 @@ Or alternatively the license texts may be found here:
     http://en.wikipedia.org/wiki/BSD_licenses
     http://www.gzip.org/zlib/zlib_license.html
     http://www.apache.org/licenses/LICENSE-2.0.html
+    https://opensource.org/licenses/MIT

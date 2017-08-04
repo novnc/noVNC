@@ -1,841 +1,500 @@
 var assert = chai.assert;
 var expect = chai.expect;
 
+import { Keyboard } from '../core/input/devices.js';
+import keysyms from '../core/input/keysymdef.js';
+import * as KeyboardUtil from '../core/input/util.js';
 
-describe('Key Event Pipeline Stages', function() {
+function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
+}
+
+/* jshint newcap: false, expr: true */
+describe('Key Event Handling', function() {
     "use strict";
+
+    // The real KeyboardEvent constructor might not work everywhere we
+    // want to run these tests
+    function keyevent(typeArg, KeyboardEventInit) {
+        var e = { type: typeArg };
+        for (var key in KeyboardEventInit) {
+            e[key] = KeyboardEventInit[key];
+        }
+        e.stopPropagation = sinon.spy();
+        e.preventDefault = sinon.spy();
+        return e;
+    };
+
     describe('Decode Keyboard Events', function() {
-        it('should pass events to the next stage', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.an.object;
+        it('should decode keydown events', function(done) {
+            if (isIE() || isEdge()) this.skip();
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0x61);
+                expect(code).to.be.equal('KeyA');
+                expect(down).to.be.equal(true);
                 done();
-            }).keydown({keyCode: 0x41});
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
         });
-        it('should pass the right keysym through', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                expect(evt.keysym).to.be.deep.equal(keysyms.lookup(0x61));
-                done();
-            }).keypress({keyCode: 0x41});
-        });
-        it('should pass the right keyid through', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                expect(evt).to.have.property('keyId', 0x41);
-                done();
-            }).keydown({keyCode: 0x41});
-        });
-        it('should not sync modifiers on a keypress', function() {
-            // Firefox provides unreliable modifier state on keypress events
-            var count = 0;
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                ++count;
-            }).keypress({keyCode: 0x41, ctrlKey: true});
-            expect(count).to.be.equal(1);
-        });
-        it('should sync modifiers if necessary', function(done) {
-            var count = 0;
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                switch (count) {
-                case 0: // fake a ctrl keydown
-                    expect(evt).to.be.deep.equal({keysym: keysyms.lookup(0xffe3), type: 'keydown'});
-                    ++count;
-                    break;
-                case 1:
-                    expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown', keysym: keysyms.lookup(0x61)});
+        it('should decode keyup events', function(done) {
+            if (isIE() || isEdge()) this.skip();
+            var calls = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0x61);
+                expect(code).to.be.equal('KeyA');
+                if (calls++ === 1) {
+                    expect(down).to.be.equal(false);
                     done();
-                    break;
                 }
-            }).keydown({keyCode: 0x41, ctrlKey: true});
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
         });
-        it('should forward keydown events with the right type', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown'});
-                done();
-            }).keydown({keyCode: 0x41})
-        });
-        it('should forward keyup events with the right type', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keyup'});
-                done();
-            }).keyup({keyCode: 0x41});
-        });
-        it('should forward keypress events with the right type', function(done) {
-            KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keypress'});
-                done();
-            }).keypress({keyCode: 0x41});
-        });
-        it('should generate stalls if a char modifier is down while a key is pressed', function(done) {
-            var count = 0;
-            KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
-                switch (count) {
-                case 0: // fake altgr
-                    expect(evt).to.be.deep.equal({keysym: keysyms.lookup(0xfe03), type: 'keydown'});
-                    ++count;
-                    break;
-                case 1: // stall before processing the 'a' keydown
-                    expect(evt).to.be.deep.equal({type: 'stall'});
-                    ++count;
-                    break;
-                case 2: // 'a'
-                    expect(evt).to.be.deep.equal({
-                        type: 'keydown',
-                        keyId: 0x41,
-                        keysym: keysyms.lookup(0x61)
-                    });
 
+        describe('Legacy keypress Events', function() {
+            it('should wait for keypress when needed', function() {
+                var callback = sinon.spy();
+                var kbd = new Keyboard({onKeyEvent: callback});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
+                expect(callback).to.not.have.been.called;
+            });
+            it('should decode keypress events', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
                     done();
-                    break;
-                }
-            }).keydown({keyCode: 0x41, altGraphKey: true});
-
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
+                kbd._handleKeyPress(keyevent('keypress', {code: 'KeyA', charCode: 0x61}));
+            });
+            it('should ignore keypress with different code', function() {
+                var callback = sinon.spy();
+                var kbd = new Keyboard({onKeyEvent: callback});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
+                kbd._handleKeyPress(keyevent('keypress', {code: 'KeyB', charCode: 0x61}));
+                expect(callback).to.not.have.been.called;
+            });
+            it('should handle keypress with missing code', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
+                kbd._handleKeyPress(keyevent('keypress', {charCode: 0x61}));
+            });
+            it('should guess key if no keypress and numeric key', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x32);
+                    expect(code).to.be.equal('Digit2');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'Digit2', keyCode: 0x32}));
+            });
+            it('should guess key if no keypress and alpha key', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41, shiftKey: false}));
+            });
+            it('should guess key if no keypress and alpha key (with shift)', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x41);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41, shiftKey: true}));
+            });
+            it('should not guess key if no keypress and unknown key', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    done();
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x09}));
+            });
         });
+
         describe('suppress the right events at the right time', function() {
-            it('should suppress anything while a shortcut modifier is down', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
-
-                obj.keydown({keyCode: 0x11}); // press ctrl
-                expect(obj.keydown({keyCode: 'A'.charCodeAt()})).to.be.true;
-                expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.true;
-                expect(obj.keydown({keyCode: '1'.charCodeAt()})).to.be.true;
-                expect(obj.keydown({keyCode: 0x3c})).to.be.true; // < key on DK Windows
-                expect(obj.keydown({keyCode: 0xde})).to.be.true; // Ø key on DK
+            beforeEach(function () {
+                if (isIE() || isEdge()) this.skip();
             });
-            it('should suppress non-character keys', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
-
-                expect(obj.keydown({keyCode: 0x08}), 'a').to.be.true;
-                expect(obj.keydown({keyCode: 0x09}), 'b').to.be.true;
-                expect(obj.keydown({keyCode: 0x11}), 'd').to.be.true;
-                expect(obj.keydown({keyCode: 0x12}), 'e').to.be.true;
+            it('should suppress anything with a valid key', function() {
+                var kbd = new Keyboard({});
+                var evt = keyevent('keydown', {code: 'KeyA', key: 'a'});
+                kbd._handleKeyDown(evt);
+                expect(evt.preventDefault).to.have.been.called;
+                evt = keyevent('keyup', {code: 'KeyA', key: 'a'});
+                kbd._handleKeyUp(evt);
+                expect(evt.preventDefault).to.have.been.called;
             });
-            it('should not suppress shift', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
-
-                expect(obj.keydown({keyCode: 0x10}), 'd').to.be.false;
+            it('should not suppress keys without key', function() {
+                var kbd = new Keyboard({});
+                var evt = keyevent('keydown', {code: 'KeyA', keyCode: 0x41});
+                kbd._handleKeyDown(evt);
+                expect(evt.preventDefault).to.not.have.been.called;
             });
-            it('should generate event for shift keydown', function() {
-                var called = false;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.have.property('keysym');
-                    called = true;
-                }).keydown({keyCode: 0x10});
-                expect(called).to.be.true;
-            });
-            it('should not suppress character keys', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
-
-                expect(obj.keydown({keyCode: 'A'.charCodeAt()})).to.be.false;
-                expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.false;
-                expect(obj.keydown({keyCode: '1'.charCodeAt()})).to.be.false;
-                expect(obj.keydown({keyCode: 0x3c})).to.be.false; // < key on DK Windows
-                expect(obj.keydown({keyCode: 0xde})).to.be.false; // Ø key on DK
-            });
-            it('should not suppress if a char modifier is down', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {});
-
-                obj.keydown({keyCode: 0xe1}); // press altgr
-                expect(obj.keydown({keyCode: 'A'.charCodeAt()})).to.be.false;
-                expect(obj.keydown({keyCode: ' '.charCodeAt()})).to.be.false;
-                expect(obj.keydown({keyCode: '1'.charCodeAt()})).to.be.false;
-                expect(obj.keydown({keyCode: 0x3c})).to.be.false; // < key on DK Windows
-                expect(obj.keydown({keyCode: 0xde})).to.be.false; // Ø key on DK
+            it('should suppress the following keypress event', function() {
+                var kbd = new Keyboard({});
+                var evt = keyevent('keydown', {code: 'KeyA', keyCode: 0x41});
+                kbd._handleKeyDown(evt);
+                var evt = keyevent('keypress', {code: 'KeyA', charCode: 0x41});
+                kbd._handleKeyPress(evt);
+                expect(evt.preventDefault).to.have.been.called;
             });
         });
-        describe('Keypress and keyup events', function() {
-            it('should always suppress event propagation', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {});
-
-                expect(obj.keypress({keyCode: 'A'.charCodeAt()})).to.be.true;
-                expect(obj.keypress({keyCode: 0x3c})).to.be.true; // < key on DK Windows
-                expect(obj.keypress({keyCode: 0x11})).to.be.true;
-
-                expect(obj.keyup({keyCode: 'A'.charCodeAt()})).to.be.true;
-                expect(obj.keyup({keyCode: 0x3c})).to.be.true; // < key on DK Windows
-                expect(obj.keyup({keyCode: 0x11})).to.be.true;
-            });
-            it('should never generate stalls', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt.type).to.not.be.equal('stall');
-                });
-
-                obj.keypress({keyCode: 'A'.charCodeAt()});
-                obj.keypress({keyCode: 0x3c});
-                obj.keypress({keyCode: 0x11});
-
-                obj.keyup({keyCode: 'A'.charCodeAt()});
-                obj.keyup({keyCode: 0x3c});
-                obj.keyup({keyCode: 0x11});
-            });
-        });
-        describe('mark events if a char modifier is down', function() {
-            it('should not mark modifiers on a keydown event', function() {
-                var times_called = 0;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
-                    switch (times_called++) {
-                    case 0: //altgr
-                        break;
-                    case 1: // 'a'
-                        expect(evt).to.not.have.property('escape');
-                        break;
-                    }
-                });
-
-                obj.keydown({keyCode: 0xe1}); // press altgr
-                obj.keydown({keyCode: 'A'.charCodeAt()});
-            });
-
-            it('should indicate on events if a single-key char modifier is down', function(done) {
-                var times_called = 0;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
-                    switch (times_called++) {
-                    case 0: //altgr
-                        break;
-                    case 1: // 'a'
-                        expect(evt).to.be.deep.equal({
-                            type: 'keypress',
-                            keyId: 'A'.charCodeAt(),
-                            keysym: keysyms.lookup('a'.charCodeAt()),
-                            escape: [0xfe03]
-                        });
-                        done();
-                        return;
-                    }
-                });
-
-                obj.keydown({keyCode: 0xe1}); // press altgr
-                obj.keypress({keyCode: 'A'.charCodeAt()});
-            });
-            it('should indicate on events if a multi-key char modifier is down', function(done) {
-                var times_called = 0;
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xffe9, 0xffe3]), function(evt) {
-                    switch (times_called++) {
-                    case 0: //ctrl
-                        break;
-                    case 1: //alt
-                        break;
-                    case 2: // 'a'
-                        expect(evt).to.be.deep.equal({
-                            type: 'keypress',
-                            keyId: 'A'.charCodeAt(),
-                            keysym: keysyms.lookup('a'.charCodeAt()),
-                            escape: [0xffe9, 0xffe3]
-                        });
-                        done();
-                        return;
-                    }
-                });
-
-                obj.keydown({keyCode: 0x11}); // press ctrl
-                obj.keydown({keyCode: 0x12}); // press alt
-                obj.keypress({keyCode: 'A'.charCodeAt()});
-            });
-            it('should not consider a char modifier to be down on the modifier key itself', function() {
-                var obj = KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
-                    expect(evt).to.not.have.property('escape');
-                });
-
-                obj.keydown({keyCode: 0xe1}); // press altgr
-
-            });
-        });
-        describe('add/remove keysym', function() {
-            it('should remove keysym from keydown if a char key and no modifier', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({keyId: 0x41, type: 'keydown'});
-                }).keydown({keyCode: 0x41});
-            });
-            it('should not remove keysym from keydown if a shortcut modifier is down', function() {
-                var times_called = 0;
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    switch (times_called++) {
-                    case 1:
-                        expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keydown'});
-                        break;
-                    }
-                }).keydown({keyCode: 0x41, ctrlKey: true});
-                expect(times_called).to.be.equal(2);
-            });
-            it('should not remove keysym from keydown if a char modifier is down', function() {
-                var times_called = 0;
-                KeyEventDecoder(kbdUtil.ModifierSync([0xfe03]), function(evt) {
-                    switch (times_called++) {
-                    case 2:
-                        expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keydown'});
-                        break;
-                    }
-                }).keydown({keyCode: 0x41, altGraphKey: true});
-                expect(times_called).to.be.equal(3);
-            });
-            it('should not remove keysym from keydown if key is noncharacter', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt, 'bacobjpace').to.be.deep.equal({keyId: 0x09, keysym: keysyms.lookup(0xff09), type: 'keydown'});
-                }).keydown({keyCode: 0x09});
-
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt, 'ctrl').to.be.deep.equal({keyId: 0x11, keysym: keysyms.lookup(0xffe3), type: 'keydown'});
-                }).keydown({keyCode: 0x11});
-            });
-            it('should never remove keysym from keypress', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keypress'});
-                }).keypress({keyCode: 0x41});
-            });
-            it('should never remove keysym from keyup', function() {
-                KeyEventDecoder(kbdUtil.ModifierSync(), function(evt) {
-                    expect(evt).to.be.deep.equal({keyId: 0x41, keysym: keysyms.lookup(0x61), type: 'keyup'});
-                }).keyup({keyCode: 0x41});
-            });
-        });
-        // on keypress, keyup(?), always set keysym
-        // on keydown, only do it if we don't expect a keypress: if noncharacter OR modifier is down
     });
 
-    describe('Verify that char modifiers are active', function() {
-        it('should pass keydown events through if there is no stall', function(done) {
-            var obj = VerifyCharModifier(function(evt){
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-                done();
-            })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
+    describe('Fake keyup', function() {
+        it('should fake keyup events for virtual keyboards', function(done) {
+            if (isIE() || isEdge()) this.skip();
+            var count = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch (count++) {
+                    case 0:
+                        expect(keysym).to.be.equal(0x61);
+                        expect(code).to.be.equal('Unidentified');
+                        expect(down).to.be.equal(true);
+                        break;
+                    case 1:
+                        expect(keysym).to.be.equal(0x61);
+                        expect(code).to.be.equal('Unidentified');
+                        expect(down).to.be.equal(false);
+                        done();
+                }
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'Unidentified', key: 'a'}));
         });
-        it('should pass keyup events through if there is no stall', function(done) {
-            var obj = VerifyCharModifier(function(evt){
-                expect(evt).to.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-                done();
-            })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-        });
-        it('should pass keypress events through if there is no stall', function(done) {
-            var obj = VerifyCharModifier(function(evt){
-                expect(evt).to.deep.equal({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-                done();
-            })({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-        });
-        it('should not pass stall events through', function(done){
-            var obj = VerifyCharModifier(function(evt){
-                // should only be called once, for the keydown
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-                done();
-            });
 
-            obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-        });
-        it('should merge keydown and keypress events if they come after a stall', function(done) {
-            var next_called = false;
-            var obj = VerifyCharModifier(function(evt){
-                // should only be called once, for the keydown
-                expect(next_called).to.be.false;
-                next_called = true;
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x44)});
-                done();
-            });
-
-            obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44)});
-            expect(next_called).to.be.false;
-        });
-        it('should preserve modifier attribute when merging if keysyms differ', function(done) {
-            var next_called = false;
-            var obj = VerifyCharModifier(function(evt){
-                // should only be called once, for the keydown
-                expect(next_called).to.be.false;
-                next_called = true;
-                expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x44), escape: [0xffe3]});
-                done();
-            });
-
-            obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44), escape: [0xffe3]});
-            expect(next_called).to.be.false;
-        });
-        it('should not preserve modifier attribute when merging if keysyms are the same', function() {
-            var obj = VerifyCharModifier(function(evt){
-                expect(evt).to.not.have.property('escape');
-            });
-
-            obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x42), escape: [0xffe3]});
-        });
-        it('should not merge keydown and keypress events if there is no stall', function(done) {
-            var times_called = 0;
-            var obj = VerifyCharModifier(function(evt){
-                switch(times_called) {
-                case 0:
-                    expect(evt).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                    break;
-                case 1:
-                    expect(evt).to.deep.equal({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44)});
-                    done();
-                    break;
+        describe('iOS', function() {
+            var origNavigator;
+            beforeEach(function () {
+                // window.navigator is a protected read-only property in many
+                // environments, so we need to redefine it whilst running these
+                // tests.
+                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+                if (origNavigator === undefined) {
+                    // Object.getOwnPropertyDescriptor() doesn't work
+                    // properly in any version of IE
+                    this.skip();
                 }
 
-                ++times_called;
-            });
-
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keypress', keyId: 0x43, keysym: keysyms.lookup(0x44)});
-        });
-        it('should not merge keydown and keypress events if separated by another event', function(done) {
-            var times_called = 0;
-            var obj = VerifyCharModifier(function(evt){
-                switch(times_called) {
-                case 0:
-                    expect(evt,1).to.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                    break;
-                case 1:
-                    expect(evt,2).to.deep.equal({type: 'keyup', keyId: 0x43, keysym: keysyms.lookup(0x44)});
-                    break;
-                case 2:
-                    expect(evt,3).to.deep.equal({type: 'keypress', keyId: 0x45, keysym: keysyms.lookup(0x46)});
-                    done();
-                    break;
+                Object.defineProperty(window, "navigator", {value: {}});
+                if (window.navigator.platform !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
                 }
 
-                ++times_called;
+                window.navigator.platform = "iPhone 9.0";
+            });
+            afterEach(function () {
+                Object.defineProperty(window, "navigator", origNavigator);
             });
 
-            obj({type: 'stall'});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-            obj({type: 'keyup', keyId: 0x43, keysym: keysyms.lookup(0x44)});
-            obj({type: 'keypress', keyId: 0x45, keysym: keysyms.lookup(0x46)});
+            it('should fake keyup events on iOS', function(done) {
+                if (isIE() || isEdge()) this.skip();
+                var count = 0;
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    switch (count++) {
+                        case 0:
+                            expect(keysym).to.be.equal(0x61);
+                            expect(code).to.be.equal('KeyA');
+                            expect(down).to.be.equal(true);
+                            break;
+                        case 1:
+                            expect(keysym).to.be.equal(0x61);
+                            expect(code).to.be.equal('KeyA');
+                            expect(down).to.be.equal(false);
+                            done();
+                    }
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            });
         });
     });
 
     describe('Track Key State', function() {
+        beforeEach(function () {
+            if (isIE() || isEdge()) this.skip();
+        });
+        it('should send release using the same keysym as the press', function(done) {
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0x61);
+                expect(code).to.be.equal('KeyA');
+                if (!down) {
+                    done();
+                }
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'b'}));
+        });
+        it('should send the same keysym for multiple presses', function() {
+            var count = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0x61);
+                expect(code).to.be.equal('KeyA');
+                expect(down).to.be.equal(true);
+                count++;
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'b'}));
+            expect(count).to.be.equal(2);
+        });
         it('should do nothing on keyup events if no keys are down', function() {
-            var obj = TrackKeyState(function(evt) {
-                expect(true).to.be.false;
-            });
-            obj({type: 'keyup', keyId: 0x41});
+            var callback = sinon.spy();
+            var kbd = new Keyboard({onKeyEvent: callback});
+            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
+            expect(callback).to.not.have.been.called;
         });
-        it('should insert into the queue on keydown if no keys are down', function() {
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                }
-                elem = null;
-            });
 
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0x41};
-            obj(elem);
-            expect(elem).to.be.null;
-            expect(times_called).to.be.equal(2);
-        });
-        it('should insert into the queue on keypress if no keys are down', function() {
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                }
-                elem = null;
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0x41};
-            obj(elem);
-            expect(elem).to.be.null;
-            expect(times_called).to.be.equal(2);
-        });
-        it('should add keysym to last key entry if keyId matches', function() {
-            // this implies that a single keyup will release both keysyms
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    elem = null;
-                }
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0x41};
-            obj(elem);
-            expect(times_called).to.be.equal(4);
-        });
-        it('should create new key entry if keyId matches and keysym does not', function() {
-            // this implies that a single keyup will release both keysyms
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    elem = null;
-                }
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
-            obj(elem);
-            expect(times_called).to.be.equal(2);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0};
-            obj(elem);
-            expect(times_called).to.be.equal(3);
-            elem = {type: 'keyup', keyId: 0};
-            obj(elem);
-            expect(times_called).to.be.equal(4);
-        });
-        it('should merge key entry if keyIds are zero and keysyms match', function() {
-            // this implies that a single keyup will release both keysyms
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    elem = null;
-                }
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(times_called).to.be.equal(2);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0};
-            obj(elem);
-            expect(times_called).to.be.equal(3);
-        });
-        it('should add keysym as separate entry if keyId does not match last event', function() {
-            // this implies that separate keyups are required
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    elem = null;
-                }
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keypress', keyId: 0x42, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0x41};
-            obj(elem);
-            expect(times_called).to.be.equal(4);
-            elem = {type: 'keyup', keyId: 0x42};
-            obj(elem);
-            expect(times_called).to.be.equal(4);
-        });
-        it('should add keysym as separate entry if keyId does not match last event and first is zero', function() {
-            // this implies that separate keyups are required
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    elem = null;
-                }
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            expect(times_called).to.be.equal(2);
-            elem = {type: 'keyup', keyId: 0};
-            obj(elem);
-            expect(times_called).to.be.equal(3);
-            elem = {type: 'keyup', keyId: 0x42};
-            obj(elem);
-            expect(times_called).to.be.equal(4);
-        });
-        it('should add keysym as separate entry if keyId does not match last event and second is zero', function() {
-            // this implies that a separate keyups are required
-            var times_called = 0;
-            var elem = null;
-            var keysymsdown = {};
-            var obj = TrackKeyState(function(evt) {
-                ++times_called;
-                if (elem.type == 'keyup') {
-                    expect(evt).to.have.property('keysym');
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    delete keysymsdown[evt.keysym.keysym];
-                }
-                else {
-                    expect(evt).to.be.deep.equal(elem);
-                    expect (keysymsdown[evt.keysym.keysym]).to.not.be.undefined;
-                    elem = null;
-                }
-            });
-
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)};
-            keysymsdown[keysyms.lookup(0x42).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x43)};
-            keysymsdown[keysyms.lookup(0x43).keysym] = true;
-            obj(elem);
-            expect(elem).to.be.null;
-            elem = {type: 'keyup', keyId: 0x41};
-            obj(elem);
-            expect(times_called).to.be.equal(3);
-            elem = {type: 'keyup', keyId: 0};
-            obj(elem);
-            expect(times_called).to.be.equal(4);
-        });
-        it('should pop matching key event on keyup', function() {
-            var times_called = 0;
-            var obj = TrackKeyState(function(evt) {
-                switch (times_called++) {
-                    case 0:
-                    case 1:
-                    case 2:
-                        expect(evt.type).to.be.equal('keydown');
-                        break;
-                    case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x42, keysym: keysyms.lookup(0x62)});
-                        break;
-                }
-            });
-
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x61)});
-            obj({type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x62)});
-            obj({type: 'keydown', keyId: 0x43, keysym: keysyms.lookup(0x63)});
-            obj({type: 'keyup', keyId: 0x42});
-            expect(times_called).to.equal(4);
-        });
-        it('should pop the first zero keyevent on keyup with zero keyId', function() {
-            var times_called = 0;
-            var obj = TrackKeyState(function(evt) {
-                switch (times_called++) {
-                    case 0:
-                    case 1:
-                    case 2:
-                        expect(evt.type).to.be.equal('keydown');
-                        break;
-                    case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x61)});
-                        break;
-                }
-            });
-
-            obj({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x61)});
-            obj({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0x62)});
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x63)});
-            obj({type: 'keyup', keyId: 0x0});
-            expect(times_called).to.equal(4);
-        });
-        it('should pop the last keyevents keysym if no match is found for keyId', function() {
-            var times_called = 0;
-            var obj = TrackKeyState(function(evt) {
-                switch (times_called++) {
-                    case 0:
-                    case 1:
-                    case 2:
-                        expect(evt.type).to.be.equal('keydown');
-                        break;
-                    case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x44, keysym: keysyms.lookup(0x63)});
-                        break;
-                }
-            });
-
-            obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x61)});
-            obj({type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x62)});
-            obj({type: 'keydown', keyId: 0x43, keysym: keysyms.lookup(0x63)});
-            obj({type: 'keyup', keyId: 0x44});
-            expect(times_called).to.equal(4);
-        });
-        describe('Firefox sends keypress even when keydown is suppressed', function() {
-            it('should discard the keypress', function() {
-                var times_called = 0;
-                var obj = TrackKeyState(function(evt) {
-                    expect(times_called).to.be.equal(0);
-                    ++times_called;
-                });
-
-                obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                expect(times_called).to.be.equal(1);
-                obj({type: 'keypress', keyId: 0x41, keysym: keysyms.lookup(0x43)});
-            });
-        });
-        describe('releaseAll', function() {
-            it('should do nothing if no keys have been pressed', function() {
-                var times_called = 0;
-                var obj = TrackKeyState(function(evt) {
-                    ++times_called;
-                });
-                obj({type: 'releaseall'});
-                expect(times_called).to.be.equal(0);
-            });
-            it('should release the keys that have been pressed', function() {
-                var times_called = 0;
-                var obj = TrackKeyState(function(evt) {
-                    switch (times_called++) {
-                    case 2:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x41)});
-                        break;
-                    case 3:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0x42)});
-                        break;
+        describe('Legacy Events', function() {
+            it('should track keys using keyCode if no code', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('Platform65');
+                    if (!down) {
+                        done();
                     }
-                });
-                obj({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x41)});
-                obj({type: 'keydown', keyId: 0x42, keysym: keysyms.lookup(0x42)});
-                expect(times_called).to.be.equal(2);
-                obj({type: 'releaseall'});
-                expect(times_called).to.be.equal(4);
-                obj({type: 'releaseall'});
-                expect(times_called).to.be.equal(4);
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {keyCode: 65, key: 'a'}));
+                kbd._handleKeyUp(keyevent('keyup', {keyCode: 65, key: 'b'}));
+            });
+            it('should ignore compositing code', function() {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('Unidentified');
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {keyCode: 229, key: 'a'}));
+            });
+            it('should track keys using keyIdentifier if no code', function(done) {
+                var kbd = new Keyboard({
+                onKeyEvent: function(keysym, code, down) {
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('Platform65');
+                    if (!down) {
+                        done();
+                    }
+                }});
+                kbd._handleKeyDown(keyevent('keydown', {keyIdentifier: 'U+0041', key: 'a'}));
+                kbd._handleKeyUp(keyevent('keyup', {keyIdentifier: 'U+0041', key: 'b'}));
             });
         });
-
     });
 
-    describe('Escape Modifiers', function() {
-        describe('Keydown', function() {
-            it('should pass through when a char modifier is not down', function() {
-                var times_called = 0;
-                EscapeModifiers(function(evt) {
-                    expect(times_called).to.be.equal(0);
-                    ++times_called;
-                    expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                expect(times_called).to.be.equal(1);
-            });
-            it('should generate fake undo/redo events when a char modifier is down', function() {
-                var times_called = 0;
-                EscapeModifiers(function(evt) {
-                    switch(times_called++) {
+    describe('Shuffle modifiers on macOS', function() {
+        var origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+            if (origNavigator === undefined) {
+                // Object.getOwnPropertyDescriptor() doesn't work
+                // properly in any version of IE
+                this.skip();
+            }
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+
+            window.navigator.platform = "Mac x86_64";
+        });
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+        });
+
+        it('should change Alt to AltGraph', function() {
+            var count = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch (count++) {
                     case 0:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0xffe9)});
+                        expect(keysym).to.be.equal(0xFF7E);
+                        expect(code).to.be.equal('AltLeft');
                         break;
                     case 1:
-                        expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0, keysym: keysyms.lookup(0xffe3)});
+                        expect(keysym).to.be.equal(0xFE03);
+                        expect(code).to.be.equal('AltRight');
                         break;
-                    case 2:
-                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xffe9, 0xffe3]});
-                        break;
-                    case 3:
-                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0xffe9)});
-                        break;
-                    case 4:
-                        expect(evt).to.be.deep.equal({type: 'keydown', keyId: 0, keysym: keysyms.lookup(0xffe3)});
-                        break;
-                    }
-                })({type: 'keydown', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xffe9, 0xffe3]});
-                expect(times_called).to.be.equal(5);
-            });
+                }
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
+            expect(count).to.be.equal(2);
         });
-        describe('Keyup', function() {
-            it('should pass through when a char modifier is down', function() {
-                var times_called = 0;
-                EscapeModifiers(function(evt) {
-                    expect(times_called).to.be.equal(0);
-                    ++times_called;
-                    expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xfe03]});
-                })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42), escape: [0xfe03]});
-                expect(times_called).to.be.equal(1);
-            });
-            it('should pass through when a char modifier is not down', function() {
-                var times_called = 0;
-                EscapeModifiers(function(evt) {
-                    expect(times_called).to.be.equal(0);
-                    ++times_called;
-                    expect(evt).to.be.deep.equal({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                })({type: 'keyup', keyId: 0x41, keysym: keysyms.lookup(0x42)});
-                expect(times_called).to.be.equal(1);
-            });
+        it('should change left Super to Alt', function(done) {
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0xFFE9);
+                expect(code).to.be.equal('MetaLeft');
+                done();
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta', location: 1}));
+        });
+        it('should change right Super to left Super', function(done) {
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                expect(keysym).to.be.equal(0xFFEB);
+                expect(code).to.be.equal('MetaRight');
+                done();
+            }});
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2}));
+        });
+    });
+
+    describe('Escape AltGraph on Windows', function() {
+        var origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+            if (origNavigator === undefined) {
+                // Object.getOwnPropertyDescriptor() doesn't work
+                // properly in any version of IE
+                this.skip();
+            }
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+
+            window.navigator.platform = "Windows x86_64";
+        });
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+        });
+
+        it('should generate fake undo/redo events on press when AltGraph is down', function() {
+            var times_called = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch(times_called++) {
+                case 0:
+                    expect(keysym).to.be.equal(0xFFE3);
+                    expect(code).to.be.equal('ControlLeft');
+                    expect(down).to.be.equal(true);
+                    break;
+                case 1:
+                    expect(keysym).to.be.equal(0xFFEA);
+                    expect(code).to.be.equal('AltRight');
+                    expect(down).to.be.equal(true);
+                    break;
+                case 2:
+                    expect(keysym).to.be.equal(0xFFEA);
+                    expect(code).to.be.equal('AltRight');
+                    expect(down).to.be.equal(false);
+                    break;
+                case 3:
+                    expect(keysym).to.be.equal(0xFFE3);
+                    expect(code).to.be.equal('ControlLeft');
+                    expect(down).to.be.equal(false);
+                    break;
+                case 4:
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(true);
+                    break;
+                case 5:
+                    expect(keysym).to.be.equal(0xFFE3);
+                    expect(code).to.be.equal('ControlLeft');
+                    expect(down).to.be.equal(true);
+                    break;
+                case 6:
+                    expect(keysym).to.be.equal(0xFFEA);
+                    expect(code).to.be.equal('AltRight');
+                    expect(down).to.be.equal(true);
+                    break;
+                }
+            }});
+            // First the modifier combo
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
+            // Next a normal character
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            expect(times_called).to.be.equal(7);
+        });
+        it('should no do anything on key release', function() {
+            var times_called = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch(times_called++) {
+                case 7:
+                    expect(keysym).to.be.equal(0x61);
+                    expect(code).to.be.equal('KeyA');
+                    expect(down).to.be.equal(false);
+                    break;
+                }
+            }});
+            // First the modifier combo
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'Alt', location: 2}));
+            // Next a normal character
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
+            kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
+            expect(times_called).to.be.equal(8);
+        });
+        it('should not consider a char modifier to be down on the modifier key itself', function() {
+            var times_called = 0;
+            var kbd = new Keyboard({
+            onKeyEvent: function(keysym, code, down) {
+                switch(times_called++) {
+                case 0:
+                    expect(keysym).to.be.equal(0xFFE3);
+                    expect(code).to.be.equal('ControlLeft');
+                    expect(down).to.be.equal(true);
+                    break;
+                case 1:
+                    expect(keysym).to.be.equal(0xFFE9);
+                    expect(code).to.be.equal('AltLeft');
+                    expect(down).to.be.equal(true);
+                    break;
+                case 2:
+                    expect(keysym).to.be.equal(0xFFE3);
+                    expect(code).to.be.equal('ControlLeft');
+                    expect(down).to.be.equal(true);
+                    break;
+                }
+            }});
+            // First the modifier combo
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltLeft', key: 'Alt', location: 1}));
+            // Then one of the keys again
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            expect(times_called).to.be.equal(3);
         });
     });
 });
