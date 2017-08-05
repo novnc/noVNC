@@ -1008,7 +1008,6 @@ RFB.prototype = {
                 } else {
                     return this._fail("Authentication failure");
                 }
-                return false;
             case 2:
                 return this._fail("Too many authentication attempts");
             default:
