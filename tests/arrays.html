@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Javascript Arrays Performance Test</title>
+        <!--
+        <script type='text/javascript' 
+            src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+        -->
+        <script src="../include/util.js"></script>
+        <script src="../include/webutil.js"></script>
+        <script src="browser.js"></script>
+        <script src="stats.js"></script>
+        <script src="arrays.js"></script>
+    </head>
+    <body>
+        <h3>Javascript Arrays Performance Test</h3>
+        Iterations: <input id='iterations' style='width:50'>&nbsp;
+        Array Size: <input id='arraySize' style='width:40'>*1024&nbsp;
+
+        <input id='startButton' type='button' value='Run Tests'
+            onclick="begin();">&nbsp;
+
+        <br><br>
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=50></textarea>
+        </br>
+        <canvas id="canvas" style="display: none;"></canvas>
+
+    </body>
+
+    <script>
+        var verbose = true;
+        window.onload = function() {
+            vmessage("in onload");
+            init();
+
+        }
+    </script>
+</html>

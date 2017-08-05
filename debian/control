@@ -1,0 +1,13 @@
+Source: novnc
+Section: web
+Priority: optional
+Maintainer: Joel Martin <github@martintribe.org>
+Build-Depends: debhelper (>= 7.0.0~)
+Standards-Version: 3.8.3
+Homepage: https://github.com/kanaka/noVNC/
+
+Package: novnc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python (>= 2.4)
+Description: HTML5 VNC client
+ VNC client using HTML5 (WebSockets, Canvas) with encryption (wss://) support.

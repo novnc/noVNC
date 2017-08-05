@@ -7,7 +7,7 @@ Licensed under MPL-2.0 (see docs/LICENSE.MPL-2.0)
 '''
 
 # a bar plot with errorbars
-import sys, json
+import sys, json, pprint
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties

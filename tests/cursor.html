@@ -1,0 +1,135 @@
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <title>Cursor Change test</title> 
+    <meta charset="UTF-8"> 
+    <!--
+    <script type='text/javascript' 
+                    src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
+    <script src="../include/util.js"></script> 
+    <script src="../include/webutil.js"></script> 
+    <script src="../include/base64.js"></script> 
+    <script src="../include/canvas.js"></script> 
+  </head> 
+  <body> 
+        <h1>Roll over the buttons to test cursors</h1>
+        <br>
+        <input id=button1 type="button" value="Cursor from file (smiley face)">
+        <input id=button2 type="button" value="Data URI cursor (crosshair)">
+    
+        <br> 
+        <br> 
+        <br> 
+        Debug:<br> 
+        <textarea id="debug" style="font-size: 9px;" cols=80 rows=25></textarea> 
+        <br>
+        <br>
+        <canvas id="testcanvas" width="100px" height="20px">
+            Canvas not supported.
+        </canvas>
+    
+  </body> 
+ 
+  <script> 
+    function debug(str) {
+        console.log(str);
+        cell = $D('debug');
+        cell.innerHTML += str + "\n";
+        cell.scrollTop = cell.scrollHeight;
+    }
+
+    function makeCursor() {
+        var arr = [], x, y, w = 32, h = 32, hx = 16, hy = 16;
+
+        var IHDRsz = 40;
+        var ANDsz = w * h * 4;
+        var XORsz = Math.ceil( (w * h) / 8.0 );
+
+        // Push multi-byte little-endian values
+        arr.push16le = function (num) {
+            this.push((num     ) & 0xFF,
+                      (num >> 8) & 0xFF  );
+        };
+        arr.push32le = function (num) {
+            this.push((num      ) & 0xFF,
+                      (num >>  8) & 0xFF,
+                      (num >> 16) & 0xFF,
+                      (num >> 24) & 0xFF  );
+        };
+
+        // Main header
+        arr.push16le(0);      // Reserved
+        arr.push16le(2);      // .CUR type
+        arr.push16le(1);      // Number of images, 1 for non-animated arr
+
+        // Cursor #1
+        arr.push(w);          // width
+        arr.push(h);          // height
+        arr.push(0);          // colors, 0 -> true-color
+        arr.push(0);          // reserved
+        arr.push16le(hx);     // hotspot x coordinate
+        arr.push16le(hy);     // hotspot y coordinate
+        arr.push32le(IHDRsz + XORsz + ANDsz); // cursor data byte size
+        arr.push32le(22);     // offset of cursor data in the file
+
+        // Infoheader for Cursor #1
+        arr.push32le(IHDRsz); // Infoheader size
+        arr.push32le(w);      // Cursor width
+        arr.push32le(h*2);    // XOR+AND height
+        arr.push16le(1);      // number of planes
+        arr.push16le(32);     // bits per pixel
+        arr.push32le(0);      // type of compression
+        arr.push32le(XORsz + ANDsz); // Size of Image
+        arr.push32le(0);
+        arr.push32le(0);
+        arr.push32le(0);
+        arr.push32le(0);
+
+        // XOR/color data
+        for (y = h-1; y >= 0; y--) {
+            for (x = 0; x < w; x++) {
+                //if ((x === hx) || (y === (h-hy-1))) {
+                if ((x === hx) || (y === hy)) {
+                    arr.push(0xe0);  // blue
+                    arr.push(0x00);  // green
+                    arr.push(0x00);  // red
+                    arr.push(0xff);  // alpha
+                } else {
+                    arr.push(0x05);  // blue
+                    arr.push(0xe6);  // green
+                    arr.push(0x00);  // red
+                    arr.push(0x80);  // alpha
+                }
+            }
+        }
+
+        // AND/bitmask data (seems to be ignored)
+        for (y = 0; y < h; y++) {
+            for (x = 0; x < Math.ceil(w / 8); x++) {
+                arr.push(0x00);
+            }
+        }
+
+        debug("cursor generated");
+        return arr;
+    }
+ 
+    window.onload = function() {
+        debug("onload");
+        var canvas, cross, cursor, cursor64;
+
+        canvas = new Canvas({'target' : $D("testcanvas")});
+        debug("canvas indicates Data URI cursor support is: " + canvas.get_cursor_uri());
+
+        $D('button1').style.cursor="url(face.png), default";
+
+        cursor = makeCursor();
+        cursor64 = Base64.encode(cursor);
+        //debug("cursor: " + cursor.slice(0,100) + " (" + cursor.length + ")");
+        //debug("cursor64: " + cursor64.slice(0,100) + " (" + cursor64.length + ")");
+        $D('button2').style.cursor="url(data:image/x-icon;base64," + cursor64 + "), default";
+
+        debug("onload complete");
+    }
+  </script> 

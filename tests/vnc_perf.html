@@ -31,32 +31,24 @@
     </body>
 
     <!--
-    <script type='text/javascript'
+    <script type='text/javascript' 
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
 
     <script type="text/javascript">
-        var INCLUDE_URI= "../";
+        var INCLUDE_URI= "../include/";
+        // TODO: Data file should override
+        var VNC_frame_encoding = "base64";
     </script>
-    <script src="../core/util.js"></script>
-    <script src="../app/webutil.js"></script>
+    <script src="../include/util.js"></script>
+    <script src="../include/playback.js"></script>
+    <script src="../data/multi.js"></script>
 
     <script>
-        var fname = WebUtil.getQueryVar('data', null);
-        if (fname) {
-            msg("Loading " + fname);
-
-            // Load supporting scripts
-            WebUtil.load_scripts({
-                'core': ["base64.js", "websock.js", "des.js", "input/keysym.js",
-                         "input/keysymdef.js", "input/xtscancodes.js", "input/util.js",
-                         "input/devices.js", "display.js", "rfb.js", "inflator.js",
-                         "input/vkeys.js", "input/fixedkeys.js"],
-                'tests': ["playback.js"],
-                'recordings': [fname]});
-        } else {
-            msg("Must specifiy data=FOO.js in query string.");
-        }
+        // Load supporting scripts
+        Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
+                           "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                           "jsunzip.js", "rfb.js"]);
 
         var start_time, VNC_frame_data, pass, passes, encIdx,
             encOrder = ['raw', 'rre', 'hextile', 'tightpng', 'copyrect'],
@@ -65,8 +57,8 @@
 
         function msg(str) {
             console.log(str);
-            var cell = document.getElementById('messages');
-            cell.textContent += str + "\n";
+            var cell = $D('messages');
+            cell.innerHTML += str + "\n";
             cell.scrollTop = cell.scrollHeight;
         }
         function dbgmsg(str) {
@@ -75,26 +67,31 @@
             }
         }
 
-        disconnected = function (rfb, reason) {
-            if (reason) {
-                msg("noVNC sent '" + state +
-                    "' state during pass " + pass +
-                    ", iteration " + iteration +
-                    " frame " + frame_idx);
-                test_state = 'failed';
+        updateState = function (rfb, state, oldstate, mesg) {
+            switch (state) {
+                case 'failed':
+                case 'fatal':
+                    msg("noVNC sent '" + state +
+                        "' state during pass " + pass +
+                        ", iteration " + iteration +
+                        " frame " + frame_idx);
+                    test_state = 'failed';
+                    break;
+                case 'loaded':
+                    $D('startButton').disabled = false;
+                    break;
+            }
+            if (typeof mesg !== 'undefined') {
+                $D('VNC_status').innerHTML = mesg;
             }
         }
 
-        notification = function (rfb, mesg, level, options) {
-            document.getElementById('VNC_status').textContent = mesg;
-        }
-
         function do_test() {
-            document.getElementById('startButton').value = "Running";
-            document.getElementById('startButton').disabled = true;
+            $D('startButton').value = "Running";
+            $D('startButton').disabled = true;
 
             mode = 'perftest'; // full-speed
-            passes = document.getElementById('passes').value;
+            passes = $D('passes').value;
             pass = 1;
             encIdx = 0;
 
@@ -138,8 +135,8 @@
                     // Shut-off event interception
                     rfb.get_mouse().ungrab();
                     rfb.get_keyboard().ungrab();
-                    document.getElementById('startButton').disabled = false;
-                    document.getElementById('startButton').value = "Start";
+                    $D('startButton').disabled = false;
+                    $D('startButton').value = "Start";
                     finish_passes();
                     return; // We are finished, terminate
                 }
@@ -186,7 +183,7 @@
                 enc = encOrder[i];
                 avg = (encTot[i] / passes).toFixed(1);
                 msg("  " + enc + ": " + encTot[i] + " ms, " +
-                    encMin[i] + "/" + avg + "/" + encMax[i] +
+                    encMin[i] + "/" + avg + "/" + encMax[i] + 
                     " (min/avg/max)");
 
             }
@@ -204,7 +201,9 @@
                 enc = encOrder[i];
                 dbgmsg("  " + enc + ": " + VNC_frame_data_multi[enc].length);
             }
-            document.getElementById('startButton').disabled = false;
+            rfb = new RFB({'target': $D('VNC_canvas'),
+                           'updateState': updateState});
+            rfb.testMode(send_array, VNC_frame_encoding);
         }
     </script>
 </html>

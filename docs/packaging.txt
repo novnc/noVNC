@@ -1,0 +1,23 @@
+noVNC packaging steps for Debian/Ubuntu:
+
+- Update the noVNC version in docs/VERSION and add a new entry for the
+  version in debian/changelog
+
+- Rename the novnc source directory to match the form "novnc-VERSION".
+
+- In the novnc source directory, run the packaging command:
+
+    debuild -I -uc -us
+
+    - The -I option ignores the .git directory when generating the
+      source tarball.
+    - the -uc and -us may be omitted in order to create a signed
+      package.
+
+    - Alternatively, use pbuilder instead of debuild in order to build
+      for other distributions and to guarantee a sanitized package.
+
+- Verify the package and then commit the changes to docs/VERSION and
+  debian/changelog.
+
+- Upload the new package file(s).
