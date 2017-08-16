@@ -1242,12 +1242,31 @@ var UI = {
                     }
                 }, 500);
 
-            } else if (resizeMode === 'scale' || resizeMode === 'downscale') {
-                var downscaleOnly = resizeMode === 'downscale';
-                display.autoscale(screen.w, screen.h, downscaleOnly);
-                UI.fixScrollbars();
+            } else {
+                UI.updateScaling();
             }
         }
+    },
+
+    // Re-calculate local scaling
+    updateScaling: function() {
+        if (!UI.rfb) return;
+
+        var resizeMode = UI.getSetting('resize');
+        if (resizeMode !== 'scale' && resizeMode !== 'downscale') {
+            return;
+        }
+
+        var screen = UI.screenSize();
+
+        if (!screen || !UI.connected || !UI.rfb.get_display()) {
+            return;
+        }
+
+        var display = UI.rfb.get_display();
+        var downscaleOnly = resizeMode === 'downscale';
+        display.autoscale(screen.w, screen.h, downscaleOnly);
+        UI.fixScrollbars();
     },
 
     // Gets the the size of the available viewport in the browser window
@@ -1674,6 +1693,7 @@ var UI = {
 
     updateSessionSize: function(rfb, width, height) {
         UI.updateViewClip();
+        UI.updateScaling();
         UI.fixScrollbars();
     },
 
