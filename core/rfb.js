@@ -392,7 +392,10 @@ RFB.prototype = {
             uri = this._encrypt ? 'wss' : 'ws';
         }
 
-        uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
+        var relpath = location.pathname.split('/');
+        relpath.splice(1, -1);
+        relpath = relpath.join('/') + '/';
+        uri += '://' + this._rfb_host + ':' + this._rfb_port + relpath + this._rfb_path;
         Log.Info("connecting to " + uri);
 
         try {

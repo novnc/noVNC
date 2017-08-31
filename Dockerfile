@@ -1,6 +1,6 @@
 FROM python
 
-ENV VER=${VER:-relpath} \
+ENV VER=${VER:-master} \
     REPO=https://github.com/twhtanghk/noVNC \
     APP=/usr/src/app
 
