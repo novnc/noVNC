@@ -151,6 +151,7 @@ export default function RFB(defaults) {
         'encrypt': false,                       // Use TLS/SSL/wss encryption
         'local_cursor': false,                  // Request locally rendered cursor
         'shared': true,                         // Request shared mode
+        'clipboard': true,                      // Synchronize server and client clipboard contents
         'view_only': false,                     // Disable client mouse/keyboard
         'xvp_password_sep': '@',                // Separator for XVP password fields
         'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
@@ -356,7 +357,12 @@ RFB.prototype = {
     },
 
     clipboardPasteFrom: function (text) {
-        if (this._rfb_connection_state !== 'connected' || this._view_only) { return; }
+        if (this._rfb_connection_state !== 'connected' ||
+            this._view_only ||
+            !this._clipboard) {
+
+            return;
+        }
         RFB.messages.clientCutText(this._sock, text);
     },
 
@@ -1167,7 +1173,7 @@ RFB.prototype = {
 
         var text = this._sock.rQshiftStr(length);
 
-        if (this._view_only) { return true; }
+        if (this._view_only || !this._clipboard) { return true; }
 
         this._onClipboard(this, text);
 
@@ -1426,6 +1432,7 @@ make_properties(RFB, [
     ['encrypt', 'rw', 'bool'],              // Use TLS/SSL/wss encryption
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
+    ['clipboard', 'rw', 'bool'],            // Synchronize server and client clipboard contents
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
     ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
     ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection

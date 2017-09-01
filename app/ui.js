@@ -383,6 +383,8 @@ var UI = {
         UI.addSettingChangeHandler('encrypt');
         UI.addSettingChangeHandler('cursor');
         UI.addSettingChangeHandler('cursor', UI.updateLocalCursor);
+        UI.addSettingChangeHandler('clipboard');
+        UI.addSettingChangeHandler('clipboard', UI.updateClipboard);
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
@@ -1002,21 +1004,41 @@ var UI = {
     },
 
     clipboardReceive: function(rfb, text) {
+        if (!UI.getSetting('clipboard')) return;
+
         Log.Debug(">> UI.clipboardReceive: " + text.substr(0,40) + "...");
         document.getElementById('noVNC_clipboard_text').value = text;
         Log.Debug("<< UI.clipboardReceive");
     },
 
     clipboardClear: function() {
+        if (!UI.getSetting('clipboard')) return;
+
         document.getElementById('noVNC_clipboard_text').value = "";
         UI.rfb.clipboardPasteFrom("");
     },
 
     clipboardSend: function() {
+        if (!UI.getSetting('clipboard')) return;
+
         var text = document.getElementById('noVNC_clipboard_text').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0,40) + "...");
         UI.rfb.clipboardPasteFrom(text);
         Log.Debug("<< UI.clipboardSend");
+    },
+
+    updateClipboard: function() {
+        if (!UI.rfb) return;
+
+        var clipboard_enabled = UI.getSetting('clipboard');
+        var clipboard_button = document.getElementById('noVNC_clipboard_button');
+        if (clipboard_enabled) {
+            clipboard_button.disabled = false;
+            UI.rfb.set_clipboard(true);
+        } else {
+            clipboard_button.disabled = true;
+            UI.rfb.set_clipboard(false);
+        }
     },
 
 /* ------^-------
