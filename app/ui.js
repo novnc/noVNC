@@ -171,7 +171,7 @@ var UI = {
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('cursor', !isTouchDevice);
-        UI.initSetting('clip', false);
+        UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
@@ -386,8 +386,8 @@ var UI = {
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
-        UI.addSettingChangeHandler('clip');
-        UI.addSettingChangeHandler('clip', UI.updateViewClip);
+        UI.addSettingChangeHandler('view_clip');
+        UI.addSettingChangeHandler('view_clip', UI.updateViewClip);
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
@@ -892,7 +892,7 @@ var UI = {
             UI.updateSetting('cursor', !isTouchDevice);
             UI.disableSetting('cursor');
         }
-        UI.updateSetting('clip');
+        UI.updateSetting('view_clip');
         UI.updateSetting('resize');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
@@ -1289,26 +1289,26 @@ var UI = {
 /* ------^-------
  *    /RESIZE
  * ==============
- *    CLIPPING
+ * VIEW CLIPPING
  * ------v------*/
 
     // Set and configure viewport clipping
     setViewClip: function(clip) {
-        UI.updateSetting('clip', clip);
+        UI.updateSetting('view_clip', clip);
         UI.updateViewClip();
     },
 
-    // Update parameters that depend on the clip setting
+    // Update parameters that depend on the viewport clip setting
     updateViewClip: function() {
         if (!UI.rfb) return;
 
         var display = UI.rfb.get_display();
         var cur_clip = display.get_viewport();
-        var new_clip = UI.getSetting('clip');
+        var new_clip = UI.getSetting('view_clip');
 
         var resizeSetting = UI.getSetting('resize');
         if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
-            // Disable clipping if we are scaling
+            // Disable viewport clipping if we are scaling
             new_clip = false;
         } else if (isTouchDevice) {
             // Touch devices usually have shit scrollbars
@@ -1333,20 +1333,20 @@ var UI = {
         UI.updateViewDrag();
     },
 
-    // Handle special cases where clipping is forced on/off or locked
+    // Handle special cases where viewport clipping is forced on/off or locked
     enableDisableViewClip: function() {
         var resizeSetting = UI.getSetting('resize');
         // Disable clipping if we are scaling, connected or on touch
         if (resizeSetting === 'downscale' || resizeSetting === 'scale' ||
             isTouchDevice) {
-            UI.disableSetting('clip');
+            UI.disableSetting('view_clip');
         } else {
-            UI.enableSetting('clip');
+            UI.enableSetting('view_clip');
         }
     },
 
 /* ------^-------
- *   /CLIPPING
+ * /VIEW CLIPPING
  * ==============
  *    VIEWDRAG
  * ------v------*/
