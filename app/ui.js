@@ -38,7 +38,6 @@ var UI = {
     controlbarMouseDownOffsetY: 0,
 
     isSafari: false,
-    rememberedClipSetting: null,
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
 
