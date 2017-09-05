@@ -180,4 +180,4 @@ function start() {
     player.start(mode);
 }
 
-loadFile().then(enableUI).catch(function (e) { message("Error loading recording"); });
+loadFile().then(enableUI).catch(function (e) { message("Error loading recording: " + e); });
