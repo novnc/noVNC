@@ -47,7 +47,9 @@ function enableUI() {
     startButton.addEventListener('click', start);
 
     frames = VNC_frame_data;
-    encoding = VNC_frame_encoding;
+    // Only present in older recordings
+    if (window.VNC_frame_encoding)
+        encoding = VNC_frame_encoding;
 }
 
 const notification = function (rfb, mesg, level, options) {
