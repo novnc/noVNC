@@ -290,10 +290,14 @@
                 return; // don't continue trying to connect
             }
 
-          var coyoteName = WebUtil.getConfigVar('name', '');
-          var elm = document.getElementById('zn-download-link');
-          elm.href = '/download/' + coyoteName;
-          elm.style.display = '';
+            var coyoteName = WebUtil.getConfigVar('name', '');
+            var elm = document.getElementById('zn-download-link');
+            elm.href = '/download/' + coyoteName;
+            elm.style.display = '';
+
+            // Scrub the query params from the URL so that it can be safely copy/pasted
+            console.log("Pushing new URL. Original: " + window.location.href);
+            window.history.replaceState({}, document.title, window.location.pathname);
 
             rfb.connect(host, port, password, path);
         };
