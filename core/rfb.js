@@ -1971,20 +1971,6 @@ RFB.encodingHandlers = {
         return true;
     },
 
-    getTightCLength: function (arr) {
-        var header = 1, data = 0;
-        data += arr[0] & 0x7f;
-        if (arr[0] & 0x80) {
-            header++;
-            data += (arr[1] & 0x7f) << 7;
-            if (arr[1] & 0x80) {
-                header++;
-                data += arr[2] << 14;
-            }
-        }
-        return [header, data];
-    },
-
     display_tight: function (isTightPNG) {
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
