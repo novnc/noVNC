@@ -48,34 +48,6 @@ export default function RFB(defaults) {
     this._rfb_tightvnc = false;
     this._rfb_xvp_ver = 0;
 
-    // In preference order
-    this._encodings = [
-        ['COPYRECT',             0x01 ],
-        ['TIGHT',                0x07 ],
-        ['TIGHT_PNG',            -260 ],
-        ['HEXTILE',              0x05 ],
-        ['RRE',                  0x02 ],
-        ['RAW',                  0x00 ],
-
-        // Psuedo-encoding settings
-
-        //['JPEG_quality_lo',     -32 ],
-        ['JPEG_quality_med',      -26 ],
-        //['JPEG_quality_hi',     -23 ],
-        //['compress_lo',        -255 ],
-        ['compress_hi',          -254 ],
-        //['compress_max',       -247 ],
-
-        ['DesktopSize',          -223 ],
-        ['last_rect',            -224 ],
-        ['Cursor',               -239 ],
-        ['QEMUExtendedKeyEvent', -258 ],
-        ['ExtendedDesktopSize',  -308 ],
-        ['xvp',                  -309 ],
-        ['Fence',                -312 ],
-        ['ContinuousUpdates',    -313 ]
-    ];
-
     this._encHandlers = {};
     this._encStats = {};
 
@@ -176,14 +148,17 @@ export default function RFB(defaults) {
     Log.Debug(">> RFB.constructor");
 
     // populate encHandlers with bound versions
-    Object.keys(RFB.encodingHandlers).forEach(function (encName) {
-        this._encHandlers[encName] = RFB.encodingHandlers[encName].bind(this);
-    }.bind(this));
+    this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this)
+    this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this)
+    this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this)
+    this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this)
+    this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this)
 
-    // Create lookup tables based on encoding number
-    for (var i = 0; i < this._encodings.length; i++) {
-        this._encHandlers[this._encodings[i][1]] = this._encHandlers[this._encodings[i][0]];
-    }
+    this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this)
+    this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this)
+    this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this)
+    this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this)
+    this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this)
 
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
@@ -1103,7 +1078,7 @@ RFB.prototype = {
         if (!this._view_only) { this._mouse.grab(); }
 
         RFB.messages.pixelFormat(this._sock, 4, 3, true);
-        RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor);
+        this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
         this._timing.fbu_rt_start = (new Date()).getTime();
@@ -1111,6 +1086,36 @@ RFB.prototype = {
 
         this._updateConnectionState('connected');
         return true;
+    },
+
+    _sendEncodings: function () {
+        var encs = [];
+
+        // In preference order
+        encs.push(encodings.encodingCopyRect);
+        encs.push(encodings.encodingTight);
+        encs.push(encodings.encodingHextile);
+        encs.push(encodings.encodingRRE);
+        encs.push(encodings.encodingRaw);
+
+        // Psuedo-encoding settings
+        encs.push(encodings.pseudoEncodingTightPNG);
+        encs.push(encodings.pseudoEncodingQualityLevel0 + 6);
+        encs.push(encodings.pseudoEncodingCompressLevel0 + 2);
+
+        encs.push(encodings.pseudoEncodingDesktopSize);
+        encs.push(encodings.pseudoEncodingLastRect);
+        encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
+        encs.push(encodings.pseudoEncodingExtendedDesktopSize);
+        encs.push(encodings.pseudoEncodingXvp);
+        encs.push(encodings.pseudoEncodingFence);
+        encs.push(encodings.pseudoEncodingContinuousUpdates);
+
+        if (this._local_cursor) {
+            encs.push(encodings.pseudoEncodingCursor);
+        }
+
+        RFB.messages.clientEncodings(this._sock, encs);
     },
 
     /* RFB protocol initialization states:
@@ -1349,9 +1354,8 @@ RFB.prototype = {
                      'width': this._FBU.width, 'height': this._FBU.height,
                      'encoding': this._FBU.encoding,
                      'encodingName': encodingName(this._FBU.encoding)});
-            }
 
-                if (!this._encNames[this._FBU.encoding]) {
+                if (!this._encHandlers[this._FBU.encoding]) {
                     this._fail("Unexpected server message",
                                "Unsupported encoding " +
                                this._FBU.encoding);
@@ -1477,7 +1481,7 @@ RFB.prototype.set_local_cursor = function (cursor) {
 
     // Need to send an updated list of encodings if we are connected
     if (this._rfb_connection_state === "connected") {
-        RFB.messages.clientEncodings(this._sock, this._encodings, cursor);
+        this._sendEncodings();
     }
 };
 
@@ -1720,33 +1724,26 @@ RFB.messages = {
         sock.flush();
     },
 
-    clientEncodings: function (sock, encodings, local_cursor) {
+    clientEncodings: function (sock, encodings) {
         var buff = sock._sQ;
         var offset = sock._sQlen;
 
         buff[offset] = 2; // msg-type
         buff[offset + 1] = 0; // padding
 
-        // offset + 2 and offset + 3 are encoding count
+        buff[offset + 2] = encodings.length >> 8;
+        buff[offset + 3] = encodings.length;
 
-        var i, j = offset + 4, cnt = 0;
+        var i, j = offset + 4;
         for (i = 0; i < encodings.length; i++) {
-            if (encodings[i][0] === "Cursor" && !local_cursor) {
-                Log.Debug("Skipping Cursor pseudo-encoding");
-            } else {
-                var enc = encodings[i][1];
-                buff[j] = enc >> 24;
-                buff[j + 1] = enc >> 16;
-                buff[j + 2] = enc >> 8;
-                buff[j + 3] = enc;
+            var enc = encodings[i];
+            buff[j] = enc >> 24;
+            buff[j + 1] = enc >> 16;
+            buff[j + 2] = enc >> 8;
+            buff[j + 3] = enc;
 
-                j += 4;
-                cnt++;
-            }
+            j += 4;
         }
-
-        buff[offset + 2] = cnt >> 8;
-        buff[offset + 3] = cnt;
 
         sock._sQlen += j - offset;
         sock.flush();
