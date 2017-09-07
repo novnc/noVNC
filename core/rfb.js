@@ -2360,10 +2360,10 @@ RFB.encodingHandlers = {
             }
             this._notification("Server did not accept the resize request: "
                                + msg, 'normal');
-            return true;
+        } else {
+            this._resize(this._FBU.width, this._FBU.height);
         }
 
-        this._resize(this._FBU.width, this._FBU.height);
         this._FBU.bytes = 0;
         this._FBU.rects -= 1;
         return true;
