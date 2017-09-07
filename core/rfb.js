@@ -22,6 +22,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import Inflator from "./inflator.js";
+import { encodings, encodingName } from "./encodings.js";
 
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
@@ -76,7 +77,6 @@ export default function RFB(defaults) {
     ];
 
     this._encHandlers = {};
-    this._encNames = {};
     this._encStats = {};
 
     this._sock = null;              // Websock object
@@ -183,7 +183,6 @@ export default function RFB(defaults) {
     // Create lookup tables based on encoding number
     for (var i = 0; i < this._encodings.length; i++) {
         this._encHandlers[this._encodings[i][1]] = this._encHandlers[this._encodings[i][0]];
-        this._encNames[this._encodings[i][1]] = this._encodings[i][0];
         this._encStats[this._encodings[i][1]] = [0, 0];
     }
 
@@ -445,14 +444,14 @@ RFB.prototype = {
         for (i = 0; i < this._encodings.length; i++) {
             s = this._encStats[this._encodings[i][1]];
             if (s[0] + s[1] > 0) {
-                Log.Info("    " + this._encodings[i][0] + ": " + s[0] + " rects");
+                Log.Info("    " + encodingName(this._encodings[i][1]) + ": " + s[0] + " rects");
             }
         }
 
         Log.Info("Encoding stats since page load:");
         for (i = 0; i < this._encodings.length; i++) {
             s = this._encStats[this._encodings[i][1]];
-            Log.Info("    " + this._encodings[i][0] + ": " + s[1] + " rects");
+            Log.Info("    " + encodingName(this._encodings[i][1]) + ": " + s[1] + " rects");
         }
     },
 
@@ -1348,7 +1347,8 @@ RFB.prototype = {
                     {'x': this._FBU.x, 'y': this._FBU.y,
                      'width': this._FBU.width, 'height': this._FBU.height,
                      'encoding': this._FBU.encoding,
-                     'encodingName': this._encNames[this._FBU.encoding]});
+                     'encodingName': encodingName(this._FBU.encoding)});
+            }
 
                 if (!this._encNames[this._FBU.encoding]) {
                     this._fail("Unexpected server message",
@@ -1405,7 +1405,7 @@ RFB.prototype = {
                 {'x': this._FBU.x, 'y': this._FBU.y,
                  'width': this._FBU.width, 'height': this._FBU.height,
                  'encoding': this._FBU.encoding,
-                 'encodingName': this._encNames[this._FBU.encoding]});
+                 'encodingName': encodingName(this._FBU.encoding)});
 
         return true;  // We finished this FBU
     },
