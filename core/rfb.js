@@ -183,7 +183,6 @@ export default function RFB(defaults) {
     // Create lookup tables based on encoding number
     for (var i = 0; i < this._encodings.length; i++) {
         this._encHandlers[this._encodings[i][1]] = this._encHandlers[this._encodings[i][0]];
-        this._encStats[this._encodings[i][1]] = [0, 0];
     }
 
     // NB: nothing that needs explicit teardown should be done
@@ -428,31 +427,33 @@ RFB.prototype = {
         this._rfb_tightvnc     = false;
 
         // Clear the per connection encoding stats
-        var i;
-        for (i = 0; i < this._encodings.length; i++) {
-            this._encStats[this._encodings[i][1]][0] = 0;
-        }
+        var stats = this._encStats;
+        Object.keys(stats).forEach(function (key) {
+            stats[key][0] = 0;
+        });
 
+        var i;
         for (i = 0; i < 4; i++) {
             this._FBU.zlibs[i] = new Inflator();
         }
     },
 
     _print_stats: function () {
+        var stats = this._encStats;
+
         Log.Info("Encoding stats for this connection:");
-        var i, s;
-        for (i = 0; i < this._encodings.length; i++) {
-            s = this._encStats[this._encodings[i][1]];
+        Object.keys(stats).forEach(function (key) {
+            var s = stats[key];
             if (s[0] + s[1] > 0) {
-                Log.Info("    " + encodingName(this._encodings[i][1]) + ": " + s[0] + " rects");
+                Log.Info("    " + encodingName(key) + ": " + s[0] + " rects");
             }
-        }
+        });
 
         Log.Info("Encoding stats since page load:");
-        for (i = 0; i < this._encodings.length; i++) {
-            s = this._encStats[this._encodings[i][1]];
-            Log.Info("    " + encodingName(this._encodings[i][1]) + ": " + s[1] + " rects");
-        }
+        Object.keys(stats).forEach(function (key) {
+            var s = stats[key];
+            Log.Info("    " + encodingName(key) + ": " + s[1] + " rects");
+        });
     },
 
     _cleanup: function () {
@@ -1366,6 +1367,9 @@ RFB.prototype = {
             this._timing.cur_fbu += (now - this._timing.last_fbu);
 
             if (ret) {
+                if (!(this._FBU.encoding in this._encStats)) {
+                    this._encStats[this._FBU.encoding] = [0, 0];
+                }
                 this._encStats[this._FBU.encoding][0]++;
                 this._encStats[this._FBU.encoding][1]++;
                 this._timing.pixels += this._FBU.width * this._FBU.height;
