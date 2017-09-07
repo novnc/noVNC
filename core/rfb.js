@@ -1020,9 +1020,8 @@ RFB.prototype = {
         if (this._sock.rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
-        this._fb_width  = this._sock.rQshift16();
-        this._fb_height = this._sock.rQshift16();
-        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
+        var width = this._sock.rQshift16();
+        var height = this._sock.rQshift16();
 
         /* PIXEL_FORMAT */
         var bpp         = this._sock.rQshift8();
@@ -1072,7 +1071,7 @@ RFB.prototype = {
 
         // NB(directxman12): these are down here so that we don't run them multiple times
         //                   if we backtrack
-        Log.Info("Screen: " + this._fb_width + "x" + this._fb_height +
+        Log.Info("Screen: " + width + "x" + height +
                   ", bpp: " + bpp + ", depth: " + depth +
                   ", big_endian: " + big_endian +
                   ", true_color: " + true_color +
@@ -1098,8 +1097,7 @@ RFB.prototype = {
         // we're past the point where we could backtrack, so it's safe to call this
         this._onDesktopName(this, this._fb_name);
 
-        this._display.resize(this._fb_width, this._fb_height);
-        this._onFBResize(this, this._fb_width, this._fb_height);
+        this._resize(width, height);
 
         if (!this._view_only) { this._keyboard.grab(); }
         if (!this._view_only) { this._mouse.grab(); }
@@ -1417,6 +1415,19 @@ RFB.prototype = {
 
         RFB.messages.enableContinuousUpdates(this._sock, true, 0, 0,
                                              this._fb_width, this._fb_height);
+    },
+
+    _resize: function(width, height) {
+        this._fb_width = width;
+        this._fb_height = height;
+
+        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
+
+        this._display.resize(this._fb_width, this._fb_height);
+        this._onFBResize(this, this._fb_width, this._fb_height);
+
+        this._timing.fbu_rt_start = (new Date()).getTime();
+        this._updateContinuousUpdates();
     }
 };
 
@@ -2294,20 +2305,6 @@ RFB.encodingHandlers = {
         return true;
     },
 
-    handle_FB_resize: function () {
-        this._fb_width = this._FBU.width;
-        this._fb_height = this._FBU.height;
-        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
-        this._display.resize(this._fb_width, this._fb_height);
-        this._onFBResize(this, this._fb_width, this._fb_height);
-        this._timing.fbu_rt_start = (new Date()).getTime();
-        this._updateContinuousUpdates();
-
-        this._FBU.bytes = 0;
-        this._FBU.rects -= 1;
-        return true;
-    },
-
     ExtendedDesktopSize: function () {
         this._FBU.bytes = 1;
         if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
@@ -2366,12 +2363,16 @@ RFB.encodingHandlers = {
             return true;
         }
 
-        this._encHandlers.handle_FB_resize();
+        this._resize(this._FBU.width, this._FBU.height);
+        this._FBU.bytes = 0;
+        this._FBU.rects -= 1;
         return true;
     },
 
     DesktopSize: function () {
-        this._encHandlers.handle_FB_resize();
+        this._resize(this._FBU.width, this._FBU.height);
+        this._FBU.bytes = 0;
+        this._FBU.rects -= 1;
         return true;
     },
 

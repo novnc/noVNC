@@ -1845,19 +1845,13 @@ describe('Remote Frame Buffer Protocol Client', function() {
             var expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: function() {}};
             RFB.messages.enableContinuousUpdates(expected_msg, true, 0, 0, 90, 700);
 
-            client._FBU.width = 450;
-            client._FBU.height = 160;
-
-            client._encHandlers.handle_FB_resize();
+            client._resize(450, 160);
 
             expect(client._sock._websocket._get_sent_data()).to.have.length(0);
 
             client._enabledContinuousUpdates = true;
 
-            client._FBU.width = 90;
-            client._FBU.height = 700;
-
-            client._encHandlers.handle_FB_resize();
+            client._resize(90, 700);
 
             expect(client._sock).to.have.sent(expected_msg._sQ);
         });
