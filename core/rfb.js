@@ -137,8 +137,8 @@ export default function RFB(defaults) {
         'onPasswordRequired': function () { },  // onPasswordRequired(rfb, msg): VNC password is required
         'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
         'onBell': function () { },              // onBell(rfb): RFB Bell message received
-        'onFBUReceive': function () { },        // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed
-        'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
+        'onFBUReceive': function () { },        // onFBUReceive(rfb, rect): RFB FBU rect received but not yet processed
+        'onFBUComplete': function () { },       // onFBUComplete(rfb): RFB FBU received and processed
         'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
         'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
@@ -1409,11 +1409,7 @@ RFB.prototype = {
 
         this._display.flip();
 
-        this._onFBUComplete(this,
-                {'x': this._FBU.x, 'y': this._FBU.y,
-                 'width': this._FBU.width, 'height': this._FBU.height,
-                 'encoding': this._FBU.encoding,
-                 'encodingName': encodingName(this._FBU.encoding)});
+        this._onFBUComplete(this);
 
         return true;  // We finished this FBU
     },

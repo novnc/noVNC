@@ -1335,7 +1335,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 var spy = client.get_onFBUComplete();
                 expect(spy).to.have.been.calledOnce;
-                expect(spy).to.have.been.calledWith(sinon.match.any, rect_info);
             });
 
             it('should not fire onFBUComplete if we have not finished processing the update', function () {
