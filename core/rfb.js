@@ -1971,7 +1971,7 @@ RFB.encodingHandlers = {
         return true;
     },
 
-    display_tight: function (isTightPNG) {
+    TIGHT: function () {
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
 
@@ -2203,11 +2203,6 @@ RFB.encodingHandlers = {
                                "Illegal tight compression received, " +
                                "ctl: " + ctl);
 
-        if (isTightPNG && (cmode === "filter" || cmode === "copy")) {
-            return this._fail("Unexpected server message",
-                              "filter/copy received in tightPNG mode");
-        }
-
         switch (cmode) {
             // fill use depth because TPIXELs drop the padding byte
             case "fill":  // TPIXEL
@@ -2282,9 +2277,6 @@ RFB.encodingHandlers = {
 
         return true;
     },
-
-    TIGHT: function () { return this._encHandlers.display_tight(false); },
-    TIGHT_PNG: function () { return this._encHandlers.display_tight(true); },
 
     last_rect: function () {
         this._FBU.rects = 0;
@@ -2398,12 +2390,4 @@ RFB.encodingHandlers = {
         } catch (err) {
         }
     },
-
-    JPEG_quality_lo: function () {
-        Log.Error("Server sent jpeg_quality pseudo-encoding");
-    },
-
-    compress_lo: function () {
-        Log.Error("Server sent compress level pseudo-encoding");
-    }
 };
