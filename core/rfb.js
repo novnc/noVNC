@@ -1077,7 +1077,14 @@ RFB.prototype = {
         if (!this._view_only) { this._keyboard.grab(); }
         if (!this._view_only) { this._mouse.grab(); }
 
-        RFB.messages.pixelFormat(this._sock, 4, 3, true);
+        this._fb_depth = 24;
+
+        if (this._fb_name === "Intel(r) AMT KVM") {
+            Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
+            this._fb_depth = 8;
+        }
+
+        RFB.messages.pixelFormat(this._sock, this._fb_depth, true);
         this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
@@ -1097,9 +1104,12 @@ RFB.prototype = {
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
-        encs.push(encodings.encodingTight);
-        encs.push(encodings.encodingHextile);
-        encs.push(encodings.encodingRRE);
+        // Only supported with full depth support
+        if (this._fb_depth == 24) {
+            encs.push(encodings.encodingTight);
+            encs.push(encodings.encodingHextile);
+            encs.push(encodings.encodingRRE);
+        }
         encs.push(encodings.encodingRaw);
 
         // Psuedo-encoding settings
@@ -1115,7 +1125,7 @@ RFB.prototype = {
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
 
-        if (this._local_cursor) {
+        if (this._local_cursor && this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
         }
 
@@ -1688,9 +1698,21 @@ RFB.messages = {
         sock.flush();
     },
 
-    pixelFormat: function (sock, bpp, depth, true_color) {
+    pixelFormat: function (sock, depth, true_color) {
         var buff = sock._sQ;
         var offset = sock._sQlen;
+
+        var bpp, bits;
+
+        if (depth > 16) {
+            bpp = 32;
+        } else if (depth > 8) {
+            bpp = 16;
+        } else {
+            bpp = 8;
+        }
+
+        bits = Math.floor(depth/3);
 
         buff[offset] = 0;  // msg-type
 
@@ -1698,23 +1720,23 @@ RFB.messages = {
         buff[offset + 2] = 0; // padding
         buff[offset + 3] = 0; // padding
 
-        buff[offset + 4] = bpp * 8;             // bits-per-pixel
-        buff[offset + 5] = depth * 8;           // depth
+        buff[offset + 4] = bpp;                 // bits-per-pixel
+        buff[offset + 5] = depth;               // depth
         buff[offset + 6] = 0;                   // little-endian
         buff[offset + 7] = true_color ? 1 : 0;  // true-color
 
         buff[offset + 8] = 0;    // red-max
-        buff[offset + 9] = 255;  // red-max
+        buff[offset + 9] = (1 << bits) - 1;  // red-max
 
         buff[offset + 10] = 0;   // green-max
-        buff[offset + 11] = 255; // green-max
+        buff[offset + 11] = (1 << bits) - 1; // green-max
 
         buff[offset + 12] = 0;   // blue-max
-        buff[offset + 13] = 255; // blue-max
+        buff[offset + 13] = (1 << bits) - 1; // blue-max
 
-        buff[offset + 14] = 16;  // red-shift
-        buff[offset + 15] = 8;   // green-shift
-        buff[offset + 16] = 0;   // blue-shift
+        buff[offset + 14] = bits * 2; // red-shift
+        buff[offset + 15] = bits * 1; // green-shift
+        buff[offset + 16] = bits * 0; // blue-shift
 
         buff[offset + 17] = 0;   // padding
         buff[offset + 18] = 0;   // padding
@@ -1790,19 +1812,34 @@ RFB.encodingHandlers = {
             this._FBU.lines = this._FBU.height;
         }
 
-        this._FBU.bytes = this._FBU.width * 4;  // at least a line
+        var pixelSize = this._fb_depth == 8 ? 1 : 4;
+        this._FBU.bytes = this._FBU.width * pixelSize;  // at least a line
         if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
         var cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
         var curr_height = Math.min(this._FBU.lines,
-                                   Math.floor(this._sock.rQlen() / (this._FBU.width * 4)));
+                                   Math.floor(this._sock.rQlen() / (this._FBU.width * pixelSize)));
+        var data = this._sock.get_rQ();
+        var index = this._sock.get_rQi();
+        if (this._fb_depth == 8) {
+            var pixels = this._FBU.width * curr_height
+            var newdata = new Uint8Array(pixels * 4);
+            var i;
+            for (i = 0;i < pixels;i++) {
+                newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
+                newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
+                newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
+                newdata[i * 4 + 4] = 0;
+            }
+            data = newdata;
+            index = 0;
+        }
         this._display.blitImage(this._FBU.x, cur_y, this._FBU.width,
-                                curr_height, this._sock.get_rQ(),
-                                this._sock.get_rQi());
-        this._sock.rQskipBytes(this._FBU.width * curr_height * 4);
+                                curr_height, data, index);
+        this._sock.rQskipBytes(this._FBU.width * curr_height * pixelSize);
         this._FBU.lines -= curr_height;
 
         if (this._FBU.lines > 0) {
-            this._FBU.bytes = this._FBU.width * 4;  // At least another line
+            this._FBU.bytes = this._FBU.width * pixelSize;  // At least another line
         } else {
             this._FBU.rects--;
             this._FBU.bytes = 0;
