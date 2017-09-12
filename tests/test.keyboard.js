@@ -1,7 +1,7 @@
 var assert = chai.assert;
 var expect = chai.expect;
 
-import { Keyboard } from '../core/input/devices.js';
+import Keyboard from '../core/input/keyboard.js';
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from '../core/input/util.js';
 
