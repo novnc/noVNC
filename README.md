@@ -91,6 +91,10 @@ WebSockets to TCP socket proxy. There is a python proxy included
 
 ### Quick Start
 
+* download docker-compose.yml and customize server:port parameter
+
+* docker-compose -f docker-compose.yml up
+
 * Use the launch script to start a mini-webserver and the WebSockets proxy
   (websockify). The `--vnc` option is used to specify the location of a running
   VNC server:
