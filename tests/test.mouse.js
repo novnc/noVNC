@@ -223,4 +223,91 @@ describe('Mouse Event Handling', function() {
 
     });
 
+    describe('Accumulate mouse wheel events with small delta', function() {
+
+        beforeEach(function () { this.clock = sinon.useFakeTimers(); });
+        afterEach(function () { this.clock.restore(); });
+
+        it('should accumulate wheel events if small enough', function () {
+            var callback = sinon.spy();
+            var mouse = new Mouse({ onMouseButton: callback, target: target });
+
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 4, deltaY: 0, deltaMode: 0 }));
+            this.clock.tick(10);
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 4, deltaY: 0, deltaMode: 0 }));
+
+            // threshold is 10
+            expect(mouse._accumulatedWheelDeltaX).to.be.equal(8);
+
+            this.clock.tick(10);
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 4, deltaY: 0, deltaMode: 0 }));
+
+            expect(callback).to.have.callCount(2); // mouse down and up
+
+            this.clock.tick(10);
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 4, deltaY: 9, deltaMode: 0 }));
+
+            expect(mouse._accumulatedWheelDeltaX).to.be.equal(4);
+            expect(mouse._accumulatedWheelDeltaY).to.be.equal(9);
+
+            expect(callback).to.have.callCount(2); // still
+        });
+
+        it('should not accumulate large wheel events', function () {
+            var callback = sinon.spy();
+            var mouse = new Mouse({ onMouseButton: callback, target: target });
+
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 11, deltaY: 0, deltaMode: 0 }));
+            this.clock.tick(10);
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 0, deltaY: 70, deltaMode: 0 }));
+            this.clock.tick(10);
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 400, deltaY: 400, deltaMode: 0 }));
+
+            expect(callback).to.have.callCount(8); // mouse down and up
+        });
+
+        it('should send even small wheel events after a timeout', function () {
+            var callback = sinon.spy();
+            var mouse = new Mouse({ onMouseButton: callback, target: target });
+
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 1, deltaY: 0, deltaMode: 0 }));
+            this.clock.tick(51); // timeout on 50 ms
+
+            expect(callback).to.have.callCount(2); // mouse down and up
+        });
+
+        it('should account for non-zero deltaMode', function () {
+            var callback = sinon.spy();
+            var mouse = new Mouse({ onMouseButton: callback, target: target });
+
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 0, deltaY: 2, deltaMode: 1 }));
+
+            this.clock.tick(10);
+
+            mouse._handleMouseWheel(mouseevent(
+                'mousewheel', { clientX: 18, clientY: 40,
+                                deltaX: 1, deltaY: 0, deltaMode: 2 }));
+
+            expect(callback).to.have.callCount(4); // mouse down and up
+        });
+    });
+
 });
