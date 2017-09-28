@@ -7,8 +7,6 @@ import * as Log from '../core/util/logging.js';
 import l10nGet, { l10n } from '../core/util/localization.js';
 
 import sinon from '../vendor/sinon.js';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
-chai.use(sinonChai);
 
 describe('Utils', function() {
     "use strict";

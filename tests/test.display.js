@@ -5,10 +5,7 @@ import Base64 from '../core/base64.js';
 import Display from '../core/display.js';
 import { _forceCursorURIs, browserSupportsCursorURIs } from '../core/util/browsers.js';
 
-import './assertions.js';
 import sinon from '../vendor/sinon.js';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
-chai.use(sinonChai);
 
 describe('Display/Canvas Helper', function () {
     var checked_data = [

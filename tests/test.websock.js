@@ -5,10 +5,7 @@ var expect = chai.expect;
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 
-import './assertions';
 import sinon from '../vendor/sinon.js';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
-chai.use(sinonChai);
 
 describe('Websock', function() {
     "use strict";

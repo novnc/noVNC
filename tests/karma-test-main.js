@@ -1,5 +1,6 @@
 var TEST_REGEXP = /test\..*\.js/;
 var allTestFiles = [];
+var extraFiles = ['/base/tests/assertions.js'];
 
 Object.keys(window.__karma__.files).forEach(function (file) {
     if (TEST_REGEXP.test(file)) {
@@ -10,6 +11,6 @@ Object.keys(window.__karma__.files).forEach(function (file) {
 
 require.config({
     baseUrl: '/base',
-    deps: allTestFiles,
+    deps: allTestFiles.concat(extraFiles),
     callback: window.__karma__.start,
 });
