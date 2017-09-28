@@ -21,11 +21,12 @@ describe('Utils', function() {
         });
 
         afterEach(function () {
-           console.log.restore();
-           console.debug.restore();
-           console.warn.restore();
-           console.error.restore();
-           console.info.restore();
+            console.log.restore();
+            console.debug.restore();
+            console.warn.restore();
+            console.error.restore();
+            console.info.restore();
+            Log.init_logging();
         });
 
         it('should use noop for levels lower than the min level', function () {
