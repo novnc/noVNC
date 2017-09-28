@@ -12,7 +12,4 @@ require.config({
     baseUrl: '/base',
     deps: allTestFiles,
     callback: window.__karma__.start,
-    paths: {
-        'sinon': 'vendor/sinon',
-    },
 });
