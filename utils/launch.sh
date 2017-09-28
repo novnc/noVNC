@@ -30,12 +30,10 @@ usage() {
 NAME="$(basename $0)"
 REAL_NAME="$(readlink -f $0)"
 HERE="$(cd "$(dirname "$REAL_NAME")" && pwd)"
-PORT="6080"
-VNC_DEST="localhost:5900"
-CERT=""
-WEB=""
+PORT="${PORT:-6080}"
+VNC_DEST="${VNC_DEST:-localhost:5900}"
 proxy_pid=""
-SSLONLY=""
+
 
 die() {
     echo "$*"
@@ -142,7 +140,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+${WEBSOCKIFY} ${SSLONLY:+--ssl-only} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
