@@ -85,15 +85,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._updateConnectionState).to.not.have.been.called;
                 expect(client._rfb_connection_state).to.equal('');
             });
-
-            it('should not try to connect if we are missing a port', function () {
-                client._fail = sinon.spy();
-                client._rfb_connection_state = '';
-                client.connect('abc');
-                expect(client._fail).to.have.been.calledOnce;
-                expect(client._updateConnectionState).to.not.have.been.called;
-                expect(client._rfb_connection_state).to.equal('');
-            });
         });
 
         describe('#disconnect', function () {
@@ -506,6 +497,13 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._rfb_path = 'PATH';
                 client._updateConnectionState('connecting');
                 expect(client._sock.open).to.have.been.calledWith('ws://HOST:8675/PATH');
+            });
+
+            it('should not include a port in the uri if not specified in connect', function () {
+                sinon.spy(client._sock, 'open');
+                client.set_encrypt(true);
+                client.connect('HOST', undefined)
+                expect(client._sock.open).to.have.been.calledWith('wss://HOST/');
             });
         });
 
