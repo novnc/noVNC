@@ -108,8 +108,8 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
 
     const helpers = require('./use_require_helpers');
     const helper = helpers[import_format];
-    
-    var handleDir = (js_only, in_path_base, filename) => {
+
+    var handleDir = (js_only, vendor_rewrite, in_path_base, filename) => {
         if (no_copy_files.has(filename)) return;
 
         const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
@@ -134,7 +134,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
             }
             // Adjust for the fact that we move the core files relative
             // to the vendor directory
-            if (!in_path) {
+            if (vendor_rewrite) {
                 opts.plugins.push(["import-redirect",
                                    {"root": out_path_base,
                                     "redirect": { "vendor/(.+)": "./vendor/$1"}}]);
@@ -161,11 +161,11 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         helper.noCopyOverride(paths, no_copy_files);
     }
 
-    walkDir(paths.core, handleDir.bind(null, true, in_path || paths.core), (filename, stats) => !no_copy_files.has(filename));
-    walkDir(paths.vendor, handleDir.bind(null, true, in_path || paths.main), (filename, stats) => !no_copy_files.has(filename));
+    walkDir(paths.vendor, handleDir.bind(null, true, false, in_path || paths.main), (filename, stats) => !no_copy_files.has(filename));
+    walkDir(paths.core, handleDir.bind(null, true, !in_path, in_path || paths.core), (filename, stats) => !no_copy_files.has(filename));
 
     if (with_app_dir) {
-        walkDir(paths.app, handleDir.bind(null, false, in_path || paths.app), (filename, stats) => !no_copy_files.has(filename));
+        walkDir(paths.app, handleDir.bind(null, false, false, in_path), (filename, stats) => !no_copy_files.has(filename));
 
         const out_app_path = path.join(out_path_base, 'app.js');
         if (helper && helper.appWriter) {
