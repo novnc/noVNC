@@ -11,6 +11,7 @@ program
     .option('--as [format]', `output files using various import formats instead of ES6 import and export.  Supports ${Array.from(SUPPORTED_FORMATS)}.`)
     .option('-m, --with-source-maps [type]', 'output source maps when not generating a bundled app (type may be empty for external source maps, inline for inline source maps, or both) ')
     .option('--with-app', 'process app files as well as core files')
+    .option('--clean', 'clear the lib folder before building')
     .parse(process.argv);
 
 // the various important paths
@@ -176,5 +177,13 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         }
     }
 };
+
+if (program.clean) {
+    console.log(`Removing ${paths.lib_dir_base}`);
+    fse.removeSync(paths.lib_dir_base);
+
+    console.log(`Removing ${paths.out_dir_base}`);
+    fse.removeSync(paths.out_dir_base);
+}
 
 make_lib_files(program.as, program.withSourceMaps, program.withApp);
