@@ -9,3 +9,4 @@ utils/websockify
 recordings
 *.swp
 *~
+noVNC-*.tgz

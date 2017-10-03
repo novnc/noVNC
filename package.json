@@ -2,14 +2,13 @@
   "name": "noVNC",
   "version": "0.6.1",
   "description": "An HTML5 VNC client",
-  "main": "karma.conf.js",
   "directories": {
     "doc": "docs",
     "test": "tests"
   },
   "scripts": {
     "test": "PATH=$PATH:node_modules/karma/bin karma start karma.conf.js",
-    "prepublish": "node ./utils/use_require.js --as commonjs"
+    "prepare": "node ./utils/use_require.js --as commonjs --clean"
   },
   "repository": {
     "type": "git",
