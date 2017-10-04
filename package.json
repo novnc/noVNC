@@ -1,5 +1,5 @@
 {
-  "name": "noVNC",
+  "name": "@novnc/novnc",
   "version": "0.6.1",
   "description": "An HTML5 VNC client",
   "directories": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/novnc/noVNC.git"
+    "url": "git+https://github.com/novnc/noVNC.git"
   },
   "author": "Joel Martin <github@martintribe.org> (https://github.com/kanaka)",
   "contributors": [
@@ -56,5 +56,12 @@
     "rollup": "^0.41.4",
     "rollup-plugin-node-resolve": "^2.0.0",
     "sinon-chai": "^2.8.0"
-  }
+  },
+  "dependencies": {},
+  "keywords": [
+    "vnc",
+    "rfb",
+    "novnc",
+    "websockify"
+  ]
 }
