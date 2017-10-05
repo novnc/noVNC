@@ -389,15 +389,6 @@ describe('Websock', function() {
             expect(sock.get_rQi()).to.equal(0);
             expect(sock._rQ.length).to.equal(240);  // keep the invariant that rQbufferSize / 8 >= rQlen
         });
-
-        it('should call the error event handler on an exception', function () {
-            sock._eventHandlers.error = sinon.spy();
-            sock._eventHandlers.message = sinon.stub().throws();
-            var msg = { data: new Uint8Array([1, 2, 3]).buffer };
-            sock._mode = 'binary';
-            sock._recv_message(msg);
-            expect(sock._eventHandlers.error).to.have.been.calledOnce;
-        });
     });
 
     describe('Data encoding', function () {

@@ -23,6 +23,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import Inflator from "./inflator.js";
+import { encodings, encodingName } from "./encodings.js";
 
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
@@ -48,36 +49,7 @@ export default function RFB(defaults) {
     this._rfb_tightvnc = false;
     this._rfb_xvp_ver = 0;
 
-    // In preference order
-    this._encodings = [
-        ['COPYRECT',             0x01 ],
-        ['TIGHT',                0x07 ],
-        ['TIGHT_PNG',            -260 ],
-        ['HEXTILE',              0x05 ],
-        ['RRE',                  0x02 ],
-        ['RAW',                  0x00 ],
-
-        // Psuedo-encoding settings
-
-        //['JPEG_quality_lo',     -32 ],
-        ['JPEG_quality_med',      -26 ],
-        //['JPEG_quality_hi',     -23 ],
-        //['compress_lo',        -255 ],
-        ['compress_hi',          -254 ],
-        //['compress_max',       -247 ],
-
-        ['DesktopSize',          -223 ],
-        ['last_rect',            -224 ],
-        ['Cursor',               -239 ],
-        ['QEMUExtendedKeyEvent', -258 ],
-        ['ExtendedDesktopSize',  -308 ],
-        ['xvp',                  -309 ],
-        ['Fence',                -312 ],
-        ['ContinuousUpdates',    -313 ]
-    ];
-
     this._encHandlers = {};
-    this._encNames = {};
     this._encStats = {};
 
     this._sock = null;              // Websock object
@@ -166,8 +138,8 @@ export default function RFB(defaults) {
         'onPasswordRequired': function () { },  // onPasswordRequired(rfb, msg): VNC password is required
         'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
         'onBell': function () { },              // onBell(rfb): RFB Bell message received
-        'onFBUReceive': function () { },        // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed
-        'onFBUComplete': function () { },       // onFBUComplete(rfb, fbu): RFB FBU received and processed
+        'onFBUReceive': function () { },        // onFBUReceive(rfb, rect): RFB FBU rect received but not yet processed
+        'onFBUComplete': function () { },       // onFBUComplete(rfb): RFB FBU received and processed
         'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
         'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
@@ -177,16 +149,17 @@ export default function RFB(defaults) {
     Log.Debug(">> RFB.constructor");
 
     // populate encHandlers with bound versions
-    Object.keys(RFB.encodingHandlers).forEach(function (encName) {
-        this._encHandlers[encName] = RFB.encodingHandlers[encName].bind(this);
-    }.bind(this));
+    this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this)
+    this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this)
+    this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this)
+    this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this)
+    this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this)
 
-    // Create lookup tables based on encoding number
-    for (var i = 0; i < this._encodings.length; i++) {
-        this._encHandlers[this._encodings[i][1]] = this._encHandlers[this._encodings[i][0]];
-        this._encNames[this._encodings[i][1]] = this._encodings[i][0];
-        this._encStats[this._encodings[i][1]] = [0, 0];
-    }
+    this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this)
+    this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this)
+    this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this)
+    this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this)
+    this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this)
 
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
@@ -435,31 +408,33 @@ RFB.prototype = {
         this._rfb_tightvnc     = false;
 
         // Clear the per connection encoding stats
-        var i;
-        for (i = 0; i < this._encodings.length; i++) {
-            this._encStats[this._encodings[i][1]][0] = 0;
-        }
+        var stats = this._encStats;
+        Object.keys(stats).forEach(function (key) {
+            stats[key][0] = 0;
+        });
 
+        var i;
         for (i = 0; i < 4; i++) {
             this._FBU.zlibs[i] = new Inflator();
         }
     },
 
     _print_stats: function () {
+        var stats = this._encStats;
+
         Log.Info("Encoding stats for this connection:");
-        var i, s;
-        for (i = 0; i < this._encodings.length; i++) {
-            s = this._encStats[this._encodings[i][1]];
+        Object.keys(stats).forEach(function (key) {
+            var s = stats[key];
             if (s[0] + s[1] > 0) {
-                Log.Info("    " + this._encodings[i][0] + ": " + s[0] + " rects");
+                Log.Info("    " + encodingName(key) + ": " + s[0] + " rects");
             }
-        }
+        });
 
         Log.Info("Encoding stats since page load:");
-        for (i = 0; i < this._encodings.length; i++) {
-            s = this._encStats[this._encodings[i][1]];
-            Log.Info("    " + this._encodings[i][0] + ": " + s[1] + " rects");
-        }
+        Object.keys(stats).forEach(function (key) {
+            var s = stats[key];
+            Log.Info("    " + encodingName(key) + ": " + s[1] + " rects");
+        });
     },
 
     _cleanup: function () {
@@ -1026,9 +1001,8 @@ RFB.prototype = {
         if (this._sock.rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
-        this._fb_width  = this._sock.rQshift16();
-        this._fb_height = this._sock.rQshift16();
-        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
+        var width = this._sock.rQshift16();
+        var height = this._sock.rQshift16();
 
         /* PIXEL_FORMAT */
         var bpp         = this._sock.rQshift8();
@@ -1078,7 +1052,7 @@ RFB.prototype = {
 
         // NB(directxman12): these are down here so that we don't run them multiple times
         //                   if we backtrack
-        Log.Info("Screen: " + this._fb_width + "x" + this._fb_height +
+        Log.Info("Screen: " + width + "x" + height +
                   ", bpp: " + bpp + ", depth: " + depth +
                   ", big_endian: " + big_endian +
                   ", true_color: " + true_color +
@@ -1104,21 +1078,64 @@ RFB.prototype = {
         // we're past the point where we could backtrack, so it's safe to call this
         this._onDesktopName(this, this._fb_name);
 
-        this._display.resize(this._fb_width, this._fb_height);
-        this._onFBResize(this, this._fb_width, this._fb_height);
+        this._resize(width, height);
 
         if (!this._view_only) { this._keyboard.grab(); }
         if (!this._view_only) { this._mouse.grab(); }
 
-        RFB.messages.pixelFormat(this._sock, 4, 3, true);
-        RFB.messages.clientEncodings(this._sock, this._encodings, this._local_cursor);
+        this._fb_depth = 24;
+
+        if (this._fb_name === "Intel(r) AMT KVM") {
+            Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
+            this._fb_depth = 8;
+        }
+
+        RFB.messages.pixelFormat(this._sock, this._fb_depth, true);
+        this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
         this._timing.fbu_rt_start = (new Date()).getTime();
         this._timing.pixels = 0;
 
+        // Cursor will be server side until the server decides to honor
+        // our request and send over the cursor image
+        this._display.disableLocalCursor();
+
         this._updateConnectionState('connected');
         return true;
+    },
+
+    _sendEncodings: function () {
+        var encs = [];
+
+        // In preference order
+        encs.push(encodings.encodingCopyRect);
+        // Only supported with full depth support
+        if (this._fb_depth == 24) {
+            encs.push(encodings.encodingTight);
+            encs.push(encodings.encodingHextile);
+            encs.push(encodings.encodingRRE);
+        }
+        encs.push(encodings.encodingRaw);
+
+        // Psuedo-encoding settings
+        encs.push(encodings.pseudoEncodingTightPNG);
+        encs.push(encodings.pseudoEncodingQualityLevel0 + 6);
+        encs.push(encodings.pseudoEncodingCompressLevel0 + 2);
+
+        encs.push(encodings.pseudoEncodingDesktopSize);
+        encs.push(encodings.pseudoEncodingLastRect);
+        encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
+        encs.push(encodings.pseudoEncodingExtendedDesktopSize);
+        encs.push(encodings.pseudoEncodingXvp);
+        encs.push(encodings.pseudoEncodingFence);
+        encs.push(encodings.pseudoEncodingContinuousUpdates);
+
+        if (this._local_cursor && this._fb_depth == 24) {
+            encs.push(encodings.pseudoEncodingCursor);
+        }
+
+        RFB.messages.clientEncodings(this._sock, encs);
     },
 
     /* RFB protocol initialization states:
@@ -1356,9 +1373,9 @@ RFB.prototype = {
                     {'x': this._FBU.x, 'y': this._FBU.y,
                      'width': this._FBU.width, 'height': this._FBU.height,
                      'encoding': this._FBU.encoding,
-                     'encodingName': this._encNames[this._FBU.encoding]});
+                     'encodingName': encodingName(this._FBU.encoding)});
 
-                if (!this._encNames[this._FBU.encoding]) {
+                if (!this._encHandlers[this._FBU.encoding]) {
                     this._fail("Unexpected server message",
                                "Unsupported encoding " +
                                this._FBU.encoding);
@@ -1374,6 +1391,9 @@ RFB.prototype = {
             this._timing.cur_fbu += (now - this._timing.last_fbu);
 
             if (ret) {
+                if (!(this._FBU.encoding in this._encStats)) {
+                    this._encStats[this._FBU.encoding] = [0, 0];
+                }
                 this._encStats[this._FBU.encoding][0]++;
                 this._encStats[this._FBU.encoding][1]++;
                 this._timing.pixels += this._FBU.width * this._FBU.height;
@@ -1409,11 +1429,7 @@ RFB.prototype = {
 
         this._display.flip();
 
-        this._onFBUComplete(this,
-                {'x': this._FBU.x, 'y': this._FBU.y,
-                 'width': this._FBU.width, 'height': this._FBU.height,
-                 'encoding': this._FBU.encoding,
-                 'encodingName': this._encNames[this._FBU.encoding]});
+        this._onFBUComplete(this);
 
         return true;  // We finished this FBU
     },
@@ -1423,6 +1439,19 @@ RFB.prototype = {
 
         RFB.messages.enableContinuousUpdates(this._sock, true, 0, 0,
                                              this._fb_width, this._fb_height);
+    },
+
+    _resize: function(width, height) {
+        this._fb_width = width;
+        this._fb_height = height;
+
+        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
+
+        this._display.resize(this._fb_width, this._fb_height);
+        this._onFBResize(this, this._fb_width, this._fb_height);
+
+        this._timing.fbu_rt_start = (new Date()).getTime();
+        this._updateContinuousUpdates();
     }
 };
 
@@ -1468,7 +1497,7 @@ RFB.prototype.set_local_cursor = function (cursor) {
 
     // Need to send an updated list of encodings if we are connected
     if (this._rfb_connection_state === "connected") {
-        RFB.messages.clientEncodings(this._sock, this._encodings, cursor);
+        this._sendEncodings();
     }
 };
 
@@ -1675,9 +1704,21 @@ RFB.messages = {
         sock.flush();
     },
 
-    pixelFormat: function (sock, bpp, depth, true_color) {
+    pixelFormat: function (sock, depth, true_color) {
         var buff = sock._sQ;
         var offset = sock._sQlen;
+
+        var bpp, bits;
+
+        if (depth > 16) {
+            bpp = 32;
+        } else if (depth > 8) {
+            bpp = 16;
+        } else {
+            bpp = 8;
+        }
+
+        bits = Math.floor(depth/3);
 
         buff[offset] = 0;  // msg-type
 
@@ -1685,23 +1726,23 @@ RFB.messages = {
         buff[offset + 2] = 0; // padding
         buff[offset + 3] = 0; // padding
 
-        buff[offset + 4] = bpp * 8;             // bits-per-pixel
-        buff[offset + 5] = depth * 8;           // depth
+        buff[offset + 4] = bpp;                 // bits-per-pixel
+        buff[offset + 5] = depth;               // depth
         buff[offset + 6] = 0;                   // little-endian
         buff[offset + 7] = true_color ? 1 : 0;  // true-color
 
         buff[offset + 8] = 0;    // red-max
-        buff[offset + 9] = 255;  // red-max
+        buff[offset + 9] = (1 << bits) - 1;  // red-max
 
         buff[offset + 10] = 0;   // green-max
-        buff[offset + 11] = 255; // green-max
+        buff[offset + 11] = (1 << bits) - 1; // green-max
 
         buff[offset + 12] = 0;   // blue-max
-        buff[offset + 13] = 255; // blue-max
+        buff[offset + 13] = (1 << bits) - 1; // blue-max
 
-        buff[offset + 14] = 16;  // red-shift
-        buff[offset + 15] = 8;   // green-shift
-        buff[offset + 16] = 0;   // blue-shift
+        buff[offset + 14] = bits * 2; // red-shift
+        buff[offset + 15] = bits * 1; // green-shift
+        buff[offset + 16] = bits * 0; // blue-shift
 
         buff[offset + 17] = 0;   // padding
         buff[offset + 18] = 0;   // padding
@@ -1711,33 +1752,26 @@ RFB.messages = {
         sock.flush();
     },
 
-    clientEncodings: function (sock, encodings, local_cursor) {
+    clientEncodings: function (sock, encodings) {
         var buff = sock._sQ;
         var offset = sock._sQlen;
 
         buff[offset] = 2; // msg-type
         buff[offset + 1] = 0; // padding
 
-        // offset + 2 and offset + 3 are encoding count
+        buff[offset + 2] = encodings.length >> 8;
+        buff[offset + 3] = encodings.length;
 
-        var i, j = offset + 4, cnt = 0;
+        var i, j = offset + 4;
         for (i = 0; i < encodings.length; i++) {
-            if (encodings[i][0] === "Cursor" && !local_cursor) {
-                Log.Debug("Skipping Cursor pseudo-encoding");
-            } else {
-                var enc = encodings[i][1];
-                buff[j] = enc >> 24;
-                buff[j + 1] = enc >> 16;
-                buff[j + 2] = enc >> 8;
-                buff[j + 3] = enc;
+            var enc = encodings[i];
+            buff[j] = enc >> 24;
+            buff[j + 1] = enc >> 16;
+            buff[j + 2] = enc >> 8;
+            buff[j + 3] = enc;
 
-                j += 4;
-                cnt++;
-            }
+            j += 4;
         }
-
-        buff[offset + 2] = cnt >> 8;
-        buff[offset + 3] = cnt;
 
         sock._sQlen += j - offset;
         sock.flush();
@@ -1784,19 +1818,34 @@ RFB.encodingHandlers = {
             this._FBU.lines = this._FBU.height;
         }
 
-        this._FBU.bytes = this._FBU.width * 4;  // at least a line
+        var pixelSize = this._fb_depth == 8 ? 1 : 4;
+        this._FBU.bytes = this._FBU.width * pixelSize;  // at least a line
         if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
         var cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
         var curr_height = Math.min(this._FBU.lines,
-                                   Math.floor(this._sock.rQlen() / (this._FBU.width * 4)));
+                                   Math.floor(this._sock.rQlen() / (this._FBU.width * pixelSize)));
+        var data = this._sock.get_rQ();
+        var index = this._sock.get_rQi();
+        if (this._fb_depth == 8) {
+            var pixels = this._FBU.width * curr_height
+            var newdata = new Uint8Array(pixels * 4);
+            var i;
+            for (i = 0;i < pixels;i++) {
+                newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
+                newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
+                newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
+                newdata[i * 4 + 4] = 0;
+            }
+            data = newdata;
+            index = 0;
+        }
         this._display.blitImage(this._FBU.x, cur_y, this._FBU.width,
-                                curr_height, this._sock.get_rQ(),
-                                this._sock.get_rQi());
-        this._sock.rQskipBytes(this._FBU.width * curr_height * 4);
+                                curr_height, data, index);
+        this._sock.rQskipBytes(this._FBU.width * curr_height * pixelSize);
         this._FBU.lines -= curr_height;
 
         if (this._FBU.lines > 0) {
-            this._FBU.bytes = this._FBU.width * 4;  // At least another line
+            this._FBU.bytes = this._FBU.width * pixelSize;  // At least another line
         } else {
             this._FBU.rects--;
             this._FBU.bytes = 0;
@@ -1966,21 +2015,7 @@ RFB.encodingHandlers = {
         return true;
     },
 
-    getTightCLength: function (arr) {
-        var header = 1, data = 0;
-        data += arr[0] & 0x7f;
-        if (arr[0] & 0x80) {
-            header++;
-            data += (arr[1] & 0x7f) << 7;
-            if (arr[1] & 0x80) {
-                header++;
-                data += arr[2] << 14;
-            }
-        }
-        return [header, data];
-    },
-
-    display_tight: function (isTightPNG) {
+    TIGHT: function () {
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
 
@@ -2212,11 +2247,6 @@ RFB.encodingHandlers = {
                                "Illegal tight compression received, " +
                                "ctl: " + ctl);
 
-        if (isTightPNG && (cmode === "filter" || cmode === "copy")) {
-            return this._fail("Unexpected server message",
-                              "filter/copy received in tightPNG mode");
-        }
-
         switch (cmode) {
             // fill use depth because TPIXELs drop the padding byte
             case "fill":  // TPIXEL
@@ -2292,25 +2322,8 @@ RFB.encodingHandlers = {
         return true;
     },
 
-    TIGHT: function () { return this._encHandlers.display_tight(false); },
-    TIGHT_PNG: function () { return this._encHandlers.display_tight(true); },
-
     last_rect: function () {
         this._FBU.rects = 0;
-        return true;
-    },
-
-    handle_FB_resize: function () {
-        this._fb_width = this._FBU.width;
-        this._fb_height = this._FBU.height;
-        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
-        this._display.resize(this._fb_width, this._fb_height);
-        this._onFBResize(this, this._fb_width, this._fb_height);
-        this._timing.fbu_rt_start = (new Date()).getTime();
-        this._updateContinuousUpdates();
-
-        this._FBU.bytes = 0;
-        this._FBU.rects -= 1;
         return true;
     },
 
@@ -2369,15 +2382,19 @@ RFB.encodingHandlers = {
             }
             this._notification("Server did not accept the resize request: "
                                + msg, 'normal');
-            return true;
+        } else {
+            this._resize(this._FBU.width, this._FBU.height);
         }
 
-        this._encHandlers.handle_FB_resize();
+        this._FBU.bytes = 0;
+        this._FBU.rects -= 1;
         return true;
     },
 
     DesktopSize: function () {
-        this._encHandlers.handle_FB_resize();
+        this._resize(this._FBU.width, this._FBU.height);
+        this._FBU.bytes = 0;
+        this._FBU.rects -= 1;
         return true;
     },
 
@@ -2417,12 +2434,4 @@ RFB.encodingHandlers = {
         } catch (err) {
         }
     },
-
-    JPEG_quality_lo: function () {
-        Log.Error("Server sent jpeg_quality pseudo-encoding");
-    },
-
-    compress_lo: function () {
-        Log.Error("Server sent compress level pseudo-encoding");
-    }
 };

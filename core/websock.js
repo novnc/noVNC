@@ -306,46 +306,18 @@ Websock.prototype = {
     },
 
     _recv_message: function (e) {
-        try {
-            this._decode_message(e.data);
-            if (this.rQlen() > 0) {
-                this._eventHandlers.message();
-                // Compact the receive queue
-                if (this._rQlen == this._rQi) {
-                    this._rQlen = 0;
-                    this._rQi = 0;
-                } else if (this._rQlen > this._rQmax) {
-                    this._expand_compact_rQ();
-                }
-            } else {
-                Log.Debug("Ignoring empty message");
+        this._decode_message(e.data);
+        if (this.rQlen() > 0) {
+            this._eventHandlers.message();
+            // Compact the receive queue
+            if (this._rQlen == this._rQi) {
+                this._rQlen = 0;
+                this._rQi = 0;
+            } else if (this._rQlen > this._rQmax) {
+                this._expand_compact_rQ();
             }
-        } catch (exc) {
-            var exception_str = "";
-            if (exc.name) {
-                exception_str += "\n    name: " + exc.name + "\n";
-                exception_str += "    message: " + exc.message + "\n";
-            }
-
-            if (typeof exc.description !== 'undefined') {
-                exception_str += "    description: " + exc.description + "\n";
-            }
-
-            if (typeof exc.stack !== 'undefined') {
-                exception_str += exc.stack;
-            }
-
-            if (exception_str.length > 0) {
-                Log.Error("recv_message, caught exception: " + exception_str);
-            } else {
-                Log.Error("recv_message, caught exception: " + exc);
-            }
-
-            if (typeof exc.name !== 'undefined') {
-                this._eventHandlers.error(exc.name + ": " + exc.message);
-            } else {
-                this._eventHandlers.error(exc);
-            }
+        } else {
+            Log.Debug("Ignoring empty message");
         }
     }
 };
