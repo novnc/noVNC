@@ -1048,8 +1048,8 @@ var UI = {
             password = undefined;
         }
 
-        if ((!host) || (!port)) {
-            var msg = _("Must set host and port");
+        if (!host) {
+            var msg = _("Must set host");
             Log.Error(msg);
             UI.showStatus(msg, 'error');
             return;
