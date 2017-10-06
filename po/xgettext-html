@@ -89,15 +89,16 @@ for (var i = 0;i < opt.argv.length;i++) {
 
     fn = opt.argv[i];
     file = fs.readFileSync(fn, "utf8");
-    doc = jsdom.jsdom(file);
+    dom = new jsdom.JSDOM(file, { includeNodeLocations: true });
+    body = dom.window.document.body;
 
     locator = function (elem) {
-        offset = jsdom.nodeLocation(elem).start;
+        offset = dom.nodeLocation(elem).startOffset;
         line = file.slice(0, offset).split("\n").length;
         return fn + ":" + line;
     };
 
-    process(doc.body, locator, true);
+    process(body, locator, true);
 }
 
 var output = "";
