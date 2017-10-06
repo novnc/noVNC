@@ -153,7 +153,7 @@ export function readSetting (name, defaultValue) {
     if (typeof value === "undefined") {
         value = null;
     }
-    if (value === null && typeof defaultValue !== undefined) {
+    if (value === null && typeof defaultValue !== "undefined") {
         return defaultValue;
     } else {
         return value;
