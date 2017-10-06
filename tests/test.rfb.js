@@ -4,6 +4,7 @@ var expect = chai.expect;
 
 import RFB from '../core/rfb.js';
 import Websock from '../core/websock.js';
+import { encodings } from '../core/encodings.js';
 
 import FakeWebSocket from './fake.websocket.js';
 import sinon from '../vendor/sinon.js';
@@ -1181,20 +1182,46 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._mouse.grab).to.have.been.calledOnce;
             });
 
-            // TODO(directxman12): test the various options in this configuration matrix
-            it('should reply with the pixel format, client encodings, and initial update request', function () {
-                // FIXME: We need to be flexible about what encodings are requested
-                this.skip();
+            describe('Initial Update Request', function () {
+                beforeEach(function () {
+                    sinon.spy(RFB.messages, "pixelFormat");
+                    sinon.spy(RFB.messages, "clientEncodings");
+                    sinon.spy(RFB.messages, "fbUpdateRequest");
+                });
 
-                var expected = {_sQ: new Uint8Array(34),
-                                _sQlen: 0,
-                                flush: function () {}};
-                RFB.messages.pixelFormat(expected, 4, 3, true);
-                RFB.messages.clientEncodings(expected, client._encodings, false, true);
-                RFB.messages.fbUpdateRequest(expected, false, 0, 0, 27, 32);
+                afterEach(function () {
+                    RFB.messages.pixelFormat.restore();
+                    RFB.messages.clientEncodings.restore();
+                    RFB.messages.fbUpdateRequest.restore();
+                });
 
-                send_server_init({ width: 27, height: 32 }, client);
-                expect(client._sock).to.have.sent(expected._sQ);
+                // TODO(directxman12): test the various options in this configuration matrix
+                it('should reply with the pixel format, client encodings, and initial update request', function () {
+                    send_server_init({ width: 27, height: 32 }, client);
+
+                    expect(RFB.messages.pixelFormat).to.have.been.calledOnce;
+                    expect(RFB.messages.pixelFormat).to.have.been.calledWith(client._sock, 24, true);
+                    expect(RFB.messages.pixelFormat).to.have.been.calledBefore(RFB.messages.clientEncodings);
+                    expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+                    expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.encodingTight);
+                    expect(RFB.messages.clientEncodings).to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
+                    expect(RFB.messages.fbUpdateRequest).to.have.been.calledOnce;
+                    expect(RFB.messages.fbUpdateRequest).to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
+                });
+
+                it('should reply with restricted settings for Intel AMT servers', function () {
+                    send_server_init({ width: 27, height: 32, name: "Intel(r) AMT KVM"}, client);
+
+                    expect(RFB.messages.pixelFormat).to.have.been.calledOnce;
+                    expect(RFB.messages.pixelFormat).to.have.been.calledWith(client._sock, 8, true);
+                    expect(RFB.messages.pixelFormat).to.have.been.calledBefore(RFB.messages.clientEncodings);
+                    expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+                    expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.not.include(encodings.encodingTight);
+                    expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.not.include(encodings.encodingHextile);
+                    expect(RFB.messages.clientEncodings).to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
+                    expect(RFB.messages.fbUpdateRequest).to.have.been.calledOnce;
+                    expect(RFB.messages.fbUpdateRequest).to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
+                });
             });
 
             it('should transition to the "connected" state', function () {
@@ -1374,6 +1401,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     // a really small frame
                     client._fb_width = 4;
                     client._fb_height = 4;
+                    client._fb_depth = 24;
                     client._display.resize(4, 4);
                 });
 
@@ -1390,6 +1418,21 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         [0xff, 0x00, 0xee, 0, 0xff, 0xee, 0x00, 0, 0xff, 0xee, 0xaa, 0, 0xff, 0xee, 0xab, 0]];
                     send_fbu_msg(info, rects, client);
                     expect(client._display).to.have.displayed(target_data);
+                });
+
+                it('should handle the RAW encoding in low colour mode', function () {
+                    var info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
+                                { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
+                    var rects = [
+                        [0x03, 0x03, 0x03, 0x03],
+                        [0x0c, 0x0c, 0x0c, 0x0c],
+                        [0x0c, 0x0c, 0x03, 0x03],
+                        [0x0c, 0x0c, 0x03, 0x03]];
+                    client._fb_depth = 8;
+                    send_fbu_msg(info, rects, client);
+                    expect(client._display).to.have.displayed(target_data_check);
                 });
 
                 it('should handle the COPYRECT encoding', function () {
