@@ -102,11 +102,6 @@ var UI = {
 
         UI.openControlbar();
 
-        // Show the connect panel on first load unless autoconnecting
-        if (!autoconnect) {
-            UI.openConnectPanel();
-        }
-
         UI.updateViewClip();
 
         UI.updateVisualState();
@@ -120,6 +115,8 @@ var UI = {
             UI.connect();
         } else {
             autoconnect = false;
+            // Show the connect panel on first load unless autoconnecting
+            UI.openConnectPanel();
         }
 
         if (typeof callback === "function") {
