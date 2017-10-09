@@ -20,11 +20,10 @@ for a more complete list with additional info and links.
 
 The project website is found at [novnc.com](http://novnc.com).
 Notable commits, announcements and news are posted to
-<a href="http://www.twitter.com/noVNC">@noVNC</a>.
+[@noVNC](http://www.twitter.com/noVNC).
 
 If you are a noVNC developer/integrator/user (or want to be) please join the
-<a href="https://groups.google.com/forum/?fromgroups#!forum/novnc">
-noVNC discussion group</a>.
+[noVNC discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
 
 Bugs and feature requests can be submitted via
 [github issues](https://github.com/novnc/noVNC/issues).
@@ -40,7 +39,7 @@ profits such as:
 [Electronic Frontier Foundation](https://www.eff.org/),
 [Against Malaria Foundation](http://www.againstmalaria.com/),
 [Nothing But Nets](http://www.nothingbutnets.net/), etc.
-Please tweet <a href="http://www.twitter.com/noVNC">@noVNC</a> if you do.
+Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 
 
 ### Features
@@ -64,7 +63,7 @@ Running in Firefox before and after connecting:
 <img src="http://novnc.com/img/noVNC-3-connected.png" width=400>
 
 See more screenshots
-<a href="http://novnc.com/screenshots.html">here</a>.
+[here](http://novnc.com/screenshots.html).
 
 
 ### Browser Requirements
