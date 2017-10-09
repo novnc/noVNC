@@ -18,6 +18,7 @@ for a more complete list with additional info and links.
 
 ### News/help/contact
 
+The project website is found at [novnc.com](http://novnc.com).
 Notable commits, announcements and news are posted to
 <a href="http://www.twitter.com/noVNC">@noVNC</a>.
 
