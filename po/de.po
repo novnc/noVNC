@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-02-08 13:43+0100\n"
-"PO-Revision-Date: 2016-11-15 07:51+0100\n"
-"Last-Translator: Loek Janssen <loekjanssen@gmail.com>\n"
+"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"PO-Revision-Date: 2017-10-10 16:41+0200\n"
+"Last-Translator: Dominik Csapak <d.csapak@proxmox.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -18,277 +18,272 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../app/ui.js:465
+#: ../app/ui.js:430
 msgid "Connecting..."
 msgstr "Verbinden..."
 
-#: ../app/ui.js:473
+#: ../app/ui.js:438
 msgid "Connected (encrypted) to "
 msgstr "Verbunden mit (verschlüsselt) "
 
-#: ../app/ui.js:475
+#: ../app/ui.js:440
 msgid "Connected (unencrypted) to "
 msgstr "Verbunden mit (unverschlüsselt) "
 
-#: ../app/ui.js:481
+#: ../app/ui.js:446
 msgid "Disconnecting..."
 msgstr "Verbindung trennen..."
 
-#: ../app/ui.js:485
+#: ../app/ui.js:450
 msgid "Disconnected"
 msgstr "Verbindung zum Server getrennt"
 
-#: ../app/ui.js:1061 ../core/rfb.js:278
-msgid "Must set host and port"
-msgstr "Richten Sie Server und Port ein"
+#: ../app/ui.js:1052 ../core/rfb.js:248
+msgid "Must set host"
+msgstr "Richten Sie den Server ein"
 
-#: ../app/ui.js:1110
+#: ../app/ui.js:1101
 msgid "Reconnecting..."
 msgstr "Verbindung wiederherstellen..."
 
-#: ../app/ui.js:1149
+#: ../app/ui.js:1140
 msgid "Password is required"
 msgstr "Passwort ist erforderlich"
 
-#: ../app/ui.js:1329
-msgid ""
-"Forcing clipping mode since scrollbars aren't supported by IE in fullscreen"
-msgstr ""
-"'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht "
-"unterstützt"
-
-#: ../core/rfb.js:554
+#: ../core/rfb.js:548
 msgid "Disconnect timeout"
 msgstr "Zeitüberschreitung beim Trennen"
 
-#: ../vnc.html:68
+#: ../vnc.html:89
 msgid "noVNC encountered an error:"
 msgstr "Ein Fehler ist aufgetreten:"
 
-#: ../vnc.html:77
+#: ../vnc.html:99
 msgid "Hide/Show the control bar"
 msgstr "Kontrollleiste verstecken/anzeigen"
 
-#: ../vnc.html:84
+#: ../vnc.html:106
 msgid "Move/Drag Viewport"
 msgstr "Ansichtsfenster verschieben/ziehen"
 
-#: ../vnc.html:84
+#: ../vnc.html:106
 msgid "viewport drag"
 msgstr "Ansichtsfenster ziehen"
 
-#: ../vnc.html:90 ../vnc.html:93 ../vnc.html:96 ../vnc.html:99
+#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
 msgid "Active Mouse Button"
 msgstr "Aktive Maustaste"
 
-#: ../vnc.html:90
+#: ../vnc.html:112
 msgid "No mousebutton"
 msgstr "Keine Maustaste"
 
-#: ../vnc.html:93
+#: ../vnc.html:115
 msgid "Left mousebutton"
 msgstr "Linke Maustaste"
 
-#: ../vnc.html:96
+#: ../vnc.html:118
 msgid "Middle mousebutton"
 msgstr "Mittlere Maustaste"
 
-#: ../vnc.html:99
+#: ../vnc.html:121
 msgid "Right mousebutton"
 msgstr "Rechte Maustaste"
 
-#: ../vnc.html:102
+#: ../vnc.html:124
 msgid "Keyboard"
 msgstr "Tastatur"
 
-#: ../vnc.html:102
+#: ../vnc.html:124
 msgid "Show Keyboard"
 msgstr "Tastatur anzeigen"
 
-#: ../vnc.html:109
+#: ../vnc.html:131
 msgid "Extra keys"
 msgstr "Zusatztasten"
 
-#: ../vnc.html:109
+#: ../vnc.html:131
 msgid "Show Extra Keys"
 msgstr "Zusatztasten anzeigen"
 
-#: ../vnc.html:114
+#: ../vnc.html:136
 msgid "Ctrl"
 msgstr "Strg"
 
-#: ../vnc.html:114
+#: ../vnc.html:136
 msgid "Toggle Ctrl"
 msgstr "Strg umschalten"
 
-#: ../vnc.html:117
+#: ../vnc.html:139
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:117
+#: ../vnc.html:139
 msgid "Toggle Alt"
 msgstr "Alt umschalten"
 
-#: ../vnc.html:120
+#: ../vnc.html:142
 msgid "Send Tab"
 msgstr "Tab senden"
 
-#: ../vnc.html:120
+#: ../vnc.html:142
 msgid "Tab"
 msgstr "Tab"
 
-#: ../vnc.html:123
+#: ../vnc.html:145
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:123
+#: ../vnc.html:145
 msgid "Send Escape"
 msgstr "Escape senden"
 
-#: ../vnc.html:126
+#: ../vnc.html:148
 msgid "Ctrl+Alt+Del"
 msgstr "Strg+Alt+Entf"
 
-#: ../vnc.html:126
+#: ../vnc.html:148
 msgid "Send Ctrl-Alt-Del"
 msgstr "Strg+Alt+Entf senden"
 
-#: ../vnc.html:134
+#: ../vnc.html:156
 msgid "Shutdown/Reboot"
 msgstr "Herunterfahren/Neustarten"
 
-#: ../vnc.html:134
+#: ../vnc.html:156
 msgid "Shutdown/Reboot..."
 msgstr "Herunterfahren/Neustarten..."
 
-#: ../vnc.html:140
+#: ../vnc.html:162
 msgid "Power"
 msgstr "Energie"
 
-#: ../vnc.html:142
+#: ../vnc.html:164
 msgid "Shutdown"
 msgstr "Herunterfahren"
 
-#: ../vnc.html:143
+#: ../vnc.html:165
 msgid "Reboot"
 msgstr "Neustarten"
 
-#: ../vnc.html:144
+#: ../vnc.html:166
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: ../vnc.html:149 ../vnc.html:155
+#: ../vnc.html:171 ../vnc.html:177
 msgid "Clipboard"
 msgstr "Zwischenablage"
 
-#: ../vnc.html:159
+#: ../vnc.html:181
 msgid "Clear"
 msgstr "Löschen"
 
-#: ../vnc.html:165
+#: ../vnc.html:187
 msgid "Fullscreen"
 msgstr "Vollbild"
 
-#: ../vnc.html:170 ../vnc.html:177
+#: ../vnc.html:192 ../vnc.html:199
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: ../vnc.html:180
+#: ../vnc.html:202
 msgid "Shared Mode"
 msgstr "Geteilter Modus"
 
-#: ../vnc.html:183
+#: ../vnc.html:205
 msgid "View Only"
 msgstr "Nur betrachten"
 
-#: ../vnc.html:187
+#: ../vnc.html:209
 msgid "Clip to Window"
 msgstr "Auf Fenster begrenzen"
 
-#: ../vnc.html:190
+#: ../vnc.html:212
 msgid "Scaling Mode:"
 msgstr "Skalierungsmodus:"
 
-#: ../vnc.html:192
+#: ../vnc.html:214
 msgid "None"
 msgstr "Keiner"
 
-#: ../vnc.html:193
+#: ../vnc.html:215
 msgid "Local Scaling"
 msgstr "Lokales skalieren"
 
-#: ../vnc.html:194
+#: ../vnc.html:216
 msgid "Local Downscaling"
 msgstr "Lokales herunterskalieren"
 
-#: ../vnc.html:195
+#: ../vnc.html:217
 msgid "Remote Resizing"
 msgstr "Serverseitiges skalieren"
 
-#: ../vnc.html:200
+#: ../vnc.html:222
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: ../vnc.html:203
-msgid "True Color"
-msgstr "True Color"
-
-#: ../vnc.html:206
+#: ../vnc.html:225
 msgid "Local Cursor"
 msgstr "Lokaler Mauszeiger"
 
-#: ../vnc.html:210
+#: ../vnc.html:229
 msgid "Repeater ID:"
 msgstr "Repeater ID:"
 
-#: ../vnc.html:214
+#: ../vnc.html:233
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:217
+#: ../vnc.html:236
 msgid "Encrypt"
 msgstr "Verschlüsselt"
 
-#: ../vnc.html:220
+#: ../vnc.html:239
 msgid "Host:"
 msgstr "Server:"
 
-#: ../vnc.html:224
+#: ../vnc.html:243
 msgid "Port:"
 msgstr "Port:"
 
-#: ../vnc.html:228
+#: ../vnc.html:247
 msgid "Path:"
 msgstr "Pfad:"
 
-#: ../vnc.html:235
+#: ../vnc.html:254
 msgid "Automatic Reconnect"
 msgstr "Automatisch wiederverbinden"
 
-#: ../vnc.html:238
+#: ../vnc.html:257
 msgid "Reconnect Delay (ms):"
 msgstr "Wiederverbindungsverzögerung (ms):"
 
-#: ../vnc.html:244
+#: ../vnc.html:263
 msgid "Logging:"
 msgstr "Protokollierung:"
 
-#: ../vnc.html:256
+#: ../vnc.html:275
 msgid "Disconnect"
 msgstr "Verbindung trennen"
 
-#: ../vnc.html:273
+#: ../vnc.html:294
 msgid "Connect"
 msgstr "Verbinden"
 
-#: ../vnc.html:283
+#: ../vnc.html:304
 msgid "Password:"
 msgstr "Passwort:"
 
-#: ../vnc.html:297
+#: ../vnc.html:318
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: ../vnc.html:313
+#: ../vnc.html:334
 msgid "Canvas not supported."
 msgstr "Canvas nicht unterstützt."
+
+#~ msgid "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen"
+#~ msgstr "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt"
+
+#~ msgid "True Color"
+#~ msgstr "True Color"
