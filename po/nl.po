@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2016-11-15 08:11+0100\n"
-"PO-Revision-Date: 2016-11-15 07:51+0100\n"
-"Last-Translator: Loek Janssen <loekjanssen@gmail.com>\n"
+"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"PO-Revision-Date: 2017-10-10 21:43+0100\n"
+"Last-Translator: Yuri van Oers <yvanoers@gmail.com>\n"
 "Language-Team: none\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -18,41 +18,277 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../app/ui.js:402
+#: ../app/ui.js:430
 msgid "Connecting..."
 msgstr "Verbinden..."
 
-#: ../app/ui.js:409
+#: ../app/ui.js:438
 msgid "Connected (encrypted) to "
 msgstr "Verbonden (versleuteld) met "
 
-#: ../app/ui.js:411
+#: ../app/ui.js:440
 msgid "Connected (unencrypted) to "
 msgstr "Verbonden (onversleuteld) met "
 
-#: ../app/ui.js:416
+#: ../app/ui.js:446
 msgid "Disconnecting..."
 msgstr "Verbinding verbreken..."
 
-#: ../app/ui.js:421
+#: ../app/ui.js:450
 msgid "Disconnected"
 msgstr "Verbinding verbroken"
 
-#: ../app/ui.js:1006 ../core/rfb.js:278
-msgid "Must set host and port"
-msgstr "Host en poort moeten worden ingesteld"
+#: ../app/ui.js:1052 ../core/rfb.js:248
+#, fuzzy
+msgid "Must set host"
+msgstr "Host moeten worden ingesteld"
 
-#: ../app/ui.js:1059
+#: ../app/ui.js:1101
+#, fuzzy
+msgid "Reconnecting..."
+msgstr "Verbinden..."
+
+#: ../app/ui.js:1140
 msgid "Password is required"
 msgstr "Wachtwoord is vereist"
 
-#: ../app/ui.js:1272
-msgid ""
-"Forcing clipping mode since scrollbars aren't supported by IE in fullscreen"
-msgstr ""
-"''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-modus "
-"in IE niet worden ondersteund"
-
-#: ../core/rfb.js:556
+#: ../core/rfb.js:548
 msgid "Disconnect timeout"
 msgstr "Timeout tijdens verbreken van verbinding"
+
+#: ../vnc.html:89
+msgid "noVNC encountered an error:"
+msgstr "noVNC heeft een fout bemerkt:"
+
+#: ../vnc.html:99
+msgid "Hide/Show the control bar"
+msgstr "Verberg/Toon de bedieningsbalk"
+
+#: ../vnc.html:106
+msgid "Move/Drag Viewport"
+msgstr "Verplaats/Versleep Kijkvenster"
+
+#: ../vnc.html:106
+msgid "viewport drag"
+msgstr "kijkvenster slepen"
+
+#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
+msgid "Active Mouse Button"
+msgstr "Actieve Muisknop"
+
+#: ../vnc.html:112
+msgid "No mousebutton"
+msgstr "Geen muisknop"
+
+#: ../vnc.html:115
+msgid "Left mousebutton"
+msgstr "Linker muisknop"
+
+#: ../vnc.html:118
+msgid "Middle mousebutton"
+msgstr "Middelste muisknop"
+
+#: ../vnc.html:121
+msgid "Right mousebutton"
+msgstr "Rechter muisknop"
+
+#: ../vnc.html:124
+msgid "Keyboard"
+msgstr "Toetsenbord"
+
+#: ../vnc.html:124
+msgid "Show Keyboard"
+msgstr "Toon Toetsenbord"
+
+#: ../vnc.html:131
+msgid "Extra keys"
+msgstr "Extra toetsen"
+
+#: ../vnc.html:131
+msgid "Show Extra Keys"
+msgstr "Toon Extra Toetsen"
+
+#: ../vnc.html:136
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:136
+msgid "Toggle Ctrl"
+msgstr "Ctrl aan/uitzetten"
+
+#: ../vnc.html:139
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:139
+msgid "Toggle Alt"
+msgstr "Alt aan/uitzetten"
+
+#: ../vnc.html:142
+msgid "Send Tab"
+msgstr "Tab Sturen"
+
+#: ../vnc.html:142
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:145
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:145
+msgid "Send Escape"
+msgstr "Escape Sturen"
+
+#: ../vnc.html:148
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl-Alt-Del"
+
+#: ../vnc.html:148
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del Sturen"
+
+#: ../vnc.html:156
+msgid "Shutdown/Reboot"
+msgstr "Uitschakelen/Herstarten"
+
+#: ../vnc.html:156
+msgid "Shutdown/Reboot..."
+msgstr "Uitschakelen/Herstarten..."
+
+#: ../vnc.html:162
+msgid "Power"
+msgstr "Systeem"
+
+#: ../vnc.html:164
+msgid "Shutdown"
+msgstr "Uitschakelen"
+
+#: ../vnc.html:165
+msgid "Reboot"
+msgstr "Herstarten"
+
+#: ../vnc.html:166
+msgid "Reset"
+msgstr "Resetten"
+
+#: ../vnc.html:171 ../vnc.html:177
+msgid "Clipboard"
+msgstr "Klembord"
+
+#: ../vnc.html:181
+msgid "Clear"
+msgstr "Wissen"
+
+#: ../vnc.html:187
+msgid "Fullscreen"
+msgstr "Volledig Scherm"
+
+#: ../vnc.html:192 ../vnc.html:199
+msgid "Settings"
+msgstr "Instellingen"
+
+#: ../vnc.html:202
+msgid "Shared Mode"
+msgstr "Gedeelde Modus"
+
+#: ../vnc.html:205
+msgid "View Only"
+msgstr "Alleen Kijken"
+
+#: ../vnc.html:209
+msgid "Clip to Window"
+msgstr "Randen buiten venster afsnijden"
+
+#: ../vnc.html:212
+msgid "Scaling Mode:"
+msgstr "Schaalmodus:"
+
+#: ../vnc.html:214
+msgid "None"
+msgstr "Geen"
+
+#: ../vnc.html:215
+msgid "Local Scaling"
+msgstr "Lokaal Schalen"
+
+#: ../vnc.html:216
+msgid "Local Downscaling"
+msgstr "Lokaal Neerschalen"
+
+#: ../vnc.html:217
+msgid "Remote Resizing"
+msgstr "Op Afstand Formaat Wijzigen"
+
+#: ../vnc.html:222
+msgid "Advanced"
+msgstr "Geavanceerd"
+
+#: ../vnc.html:225
+msgid "Local Cursor"
+msgstr "Lokale Cursor"
+
+#: ../vnc.html:229
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+#: ../vnc.html:233
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:236
+msgid "Encrypt"
+msgstr "Versleutelen"
+
+#: ../vnc.html:239
+msgid "Host:"
+msgstr "Host:"
+
+#: ../vnc.html:243
+msgid "Port:"
+msgstr "Poort:"
+
+#: ../vnc.html:247
+msgid "Path:"
+msgstr "Pad:"
+
+#: ../vnc.html:254
+msgid "Automatic Reconnect"
+msgstr "Automatisch Opnieuw Verbinden"
+
+#: ../vnc.html:257
+msgid "Reconnect Delay (ms):"
+msgstr "Vertraging voor Opnieuw Verbinden (ms):"
+
+#: ../vnc.html:263
+msgid "Logging:"
+msgstr "Logmeldingen:"
+
+#: ../vnc.html:275
+#, fuzzy
+msgid "Disconnect"
+msgstr "Verbinding verbreken"
+
+#: ../vnc.html:294
+#, fuzzy
+msgid "Connect"
+msgstr "Verbinden"
+
+#: ../vnc.html:304
+msgid "Password:"
+msgstr "Wachtwoord:"
+
+#: ../vnc.html:318
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: ../vnc.html:334
+msgid "Canvas not supported."
+msgstr "Canvas wordt niet ondersteund."
+
+#~ msgid ""
+#~ "Forcing clipping mode since scrollbars aren't supported by IE in "
+#~ "fullscreen"
+#~ msgstr ""
+#~ "''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-"
+#~ "modus in IE niet worden ondersteund"
