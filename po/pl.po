@@ -1,0 +1,312 @@
+# Polish translations for noVNC package.
+# Copyright (C) 2017 Various Authors
+# This file is distributed under the same license as the noVNC package.
+# Mariusz Jamro <mariusz.jamro@gmail.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: noVNC 0.6.1\n"
+"Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
+"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"PO-Revision-Date: 2017-10-10 11:26+0200\n"
+"Last-Translator: Mariusz Jamro <mariusz.jamro@gmail.com>\n"
+"Language-Team: Polish\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 2.0.1\n"
+
+#: ../app/ui.js:430
+msgid "Connecting..."
+msgstr "Łączenie..."
+
+#: ../app/ui.js:438
+msgid "Connected (encrypted) to "
+msgstr "Połączenie (szyfrowane) z "
+
+#: ../app/ui.js:440
+msgid "Connected (unencrypted) to "
+msgstr "Połączenie (nieszyfrowane) z "
+
+#: ../app/ui.js:446
+msgid "Disconnecting..."
+msgstr "Rozłączanie..."
+
+#: ../app/ui.js:450
+msgid "Disconnected"
+msgstr "Rozłączony"
+
+#: ../app/ui.js:1052 ../core/rfb.js:248
+msgid "Must set host"
+msgstr "Host i port są wymagane"
+
+#: ../app/ui.js:1101
+msgid "Reconnecting..."
+msgstr "Łączenie..."
+
+#: ../app/ui.js:1140
+msgid "Password is required"
+msgstr "Hasło jest wymagane"
+
+#: ../core/rfb.js:548
+msgid "Disconnect timeout"
+msgstr "Timeout rozłączenia"
+
+#: ../vnc.html:89
+msgid "noVNC encountered an error:"
+msgstr "noVNC napotkało błąd:"
+
+#: ../vnc.html:99
+msgid "Hide/Show the control bar"
+msgstr "Pokaż/Ukryj pasek ustawień"
+
+#: ../vnc.html:106
+msgid "Move/Drag Viewport"
+msgstr "Ruszaj/Przeciągaj Viewport"
+
+#: ../vnc.html:106
+msgid "viewport drag"
+msgstr "przeciągnij viewport"
+
+#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
+msgid "Active Mouse Button"
+msgstr "Aktywny Przycisk Myszy"
+
+#: ../vnc.html:112
+msgid "No mousebutton"
+msgstr "Brak przycisku myszy"
+
+#: ../vnc.html:115
+msgid "Left mousebutton"
+msgstr "Lewy przycisk myszy"
+
+#: ../vnc.html:118
+msgid "Middle mousebutton"
+msgstr "Środkowy przycisk myszy"
+
+#: ../vnc.html:121
+msgid "Right mousebutton"
+msgstr "Prawy przycisk myszy"
+
+#: ../vnc.html:124
+msgid "Keyboard"
+msgstr "Klawiatura"
+
+#: ../vnc.html:124
+msgid "Show Keyboard"
+msgstr "Pokaż klawiaturę"
+
+#: ../vnc.html:131
+msgid "Extra keys"
+msgstr "Przyciski dodatkowe"
+
+#: ../vnc.html:131
+msgid "Show Extra Keys"
+msgstr "Pokaż przyciski dodatkowe"
+
+#: ../vnc.html:136
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:136
+msgid "Toggle Ctrl"
+msgstr "Przełącz Ctrl"
+
+#: ../vnc.html:139
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:139
+msgid "Toggle Alt"
+msgstr "Przełącz Alt"
+
+#: ../vnc.html:142
+msgid "Send Tab"
+msgstr "Wyślij Tab"
+
+#: ../vnc.html:142
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:145
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:145
+msgid "Send Escape"
+msgstr "Wyślij Escape"
+
+#: ../vnc.html:148
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+#: ../vnc.html:148
+msgid "Send Ctrl-Alt-Del"
+msgstr "Wyślij Ctrl-Alt-Del"
+
+#: ../vnc.html:156
+msgid "Shutdown/Reboot"
+msgstr "Wyłącz/Uruchom ponownie"
+
+#: ../vnc.html:156
+msgid "Shutdown/Reboot..."
+msgstr "Wyłącz/Uruchom ponownie..."
+
+#: ../vnc.html:162
+msgid "Power"
+msgstr "Włączony"
+
+#: ../vnc.html:164
+msgid "Shutdown"
+msgstr "Wyłącz"
+
+#: ../vnc.html:165
+msgid "Reboot"
+msgstr "Uruchom ponownie"
+
+#: ../vnc.html:166
+msgid "Reset"
+msgstr "Resetuj"
+
+#: ../vnc.html:171 ../vnc.html:177
+msgid "Clipboard"
+msgstr "Schowek"
+
+#: ../vnc.html:181
+msgid "Clear"
+msgstr "Wyczyść"
+
+#: ../vnc.html:187
+msgid "Fullscreen"
+msgstr "Pełny ekran"
+
+#: ../vnc.html:192 ../vnc.html:199
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: ../vnc.html:202
+msgid "Shared Mode"
+msgstr "Tryb Współdzielenia"
+
+#: ../vnc.html:205
+msgid "View Only"
+msgstr "Tylko Podgląd"
+
+#: ../vnc.html:209
+msgid "Clip to Window"
+msgstr "Przytnij do Okna"
+
+#: ../vnc.html:212
+msgid "Scaling Mode:"
+msgstr "Tryb Skalowania:"
+
+#: ../vnc.html:214
+msgid "None"
+msgstr "Brak"
+
+#: ../vnc.html:215
+msgid "Local Scaling"
+msgstr "Skalowanie lokalne"
+
+#: ../vnc.html:216
+msgid "Local Downscaling"
+msgstr "Downscaling lokalny"
+
+#: ../vnc.html:217
+msgid "Remote Resizing"
+msgstr "Skalowanie zdalne"
+
+#: ../vnc.html:222
+msgid "Advanced"
+msgstr "Zaawansowane"
+
+#: ../vnc.html:225
+msgid "Local Cursor"
+msgstr "Lokalny kursor"
+
+#: ../vnc.html:229
+msgid "Repeater ID:"
+msgstr "ID Repeatera:"
+
+#: ../vnc.html:233
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:236
+msgid "Encrypt"
+msgstr "Szyfrowanie"
+
+#: ../vnc.html:239
+msgid "Host:"
+msgstr "Host:"
+
+#: ../vnc.html:243
+msgid "Port:"
+msgstr "Port:"
+
+#: ../vnc.html:247
+msgid "Path:"
+msgstr "Ścieżka:"
+
+#: ../vnc.html:254
+msgid "Automatic Reconnect"
+msgstr "Automatycznie wznawiaj połączenie"
+
+#: ../vnc.html:257
+msgid "Reconnect Delay (ms):"
+msgstr "Opóźnienie wznawiania (ms):"
+
+#: ../vnc.html:263
+msgid "Logging:"
+msgstr "Poziom logowania:"
+
+#: ../vnc.html:275
+msgid "Disconnect"
+msgstr "Rozłącz"
+
+#: ../vnc.html:294
+msgid "Connect"
+msgstr "Połącz"
+
+#: ../vnc.html:304
+msgid "Password:"
+msgstr "Hasło:"
+
+#: ../vnc.html:318
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: ../vnc.html:334
+msgid "Canvas not supported."
+msgstr "Element Canvas nie jest wspierany."
+
+#~ msgid ""
+#~ "Forcing clipping mode since scrollbars aren't supported by IE in "
+#~ "fullscreen"
+#~ msgstr ""
+#~ "Wymuszam clipping mode ponieważ paski przewijania nie są wspierane przez "
+#~ "IE w trybie pełnoekranowym"
+
+#~ msgid "True Color"
+#~ msgstr "True Color"
+
+#~ msgid "Style:"
+#~ msgstr "Styl:"
+
+#~ msgid "default"
+#~ msgstr "domyślny"
+
+#~ msgid "Apply"
+#~ msgstr "Zapisz"
+
+#~ msgid "Connection"
+#~ msgstr "Połączenie"
+
+#~ msgid "Token:"
+#~ msgstr "Token:"
+
+#~ msgid "Send Password"
+#~ msgstr "Wyślij Hasło"
