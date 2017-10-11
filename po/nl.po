@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2017-10-06 10:07+0200\n"
-"PO-Revision-Date: 2017-10-10 21:43+0100\n"
+"PO-Revision-Date: 2017-10-11 16:16+0200\n"
 "Last-Translator: Yuri van Oers <yvanoers@gmail.com>\n"
 "Language-Team: none\n"
 "Language: nl\n"
@@ -44,9 +44,8 @@ msgid "Must set host"
 msgstr "Host moeten worden ingesteld"
 
 #: ../app/ui.js:1101
-#, fuzzy
 msgid "Reconnecting..."
-msgstr "Verbinden..."
+msgstr "Opnieuw verbinding maken..."
 
 #: ../app/ui.js:1140
 msgid "Password is required"

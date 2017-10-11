@@ -4,6 +4,7 @@
     "Connected (unencrypted) to ": "Verbonden (onversleuteld) met ",
     "Disconnecting...": "Verbinding verbreken...",
     "Disconnected": "Verbinding verbroken",
+    "Reconnecting...": "Opnieuw verbinding maken...",
     "Password is required": "Wachtwoord is vereist",
     "Disconnect timeout": "Timeout tijdens verbreken van verbinding",
     "noVNC encountered an error:": "noVNC heeft een fout bemerkt:",
