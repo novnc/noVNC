@@ -4,6 +4,8 @@
     "Connected (unencrypted) to ": "Συνδέθηκε (μη κρυπτογραφημένα) με το ",
     "Disconnecting...": "Aποσυνδέεται...",
     "Disconnected": "Αποσυνδέθηκε",
+    "Must set host": "Πρέπει να οριστεί ο διακομιστής",
+    "Reconnecting...": "Επανασυνδέεται...",
     "Password is required": "Απαιτείται ο κωδικός πρόσβασης",
     "Disconnect timeout": "Παρέλευση χρονικού ορίου αποσύνδεσης",
     "noVNC encountered an error:": "το noVNC αντιμετώπισε ένα σφάλμα:",

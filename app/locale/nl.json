@@ -4,6 +4,7 @@
     "Connected (unencrypted) to ": "Verbonden (onversleuteld) met ",
     "Disconnecting...": "Verbinding verbreken...",
     "Disconnected": "Verbinding verbroken",
+    "Must set host": "Host moeten worden ingesteld",
     "Reconnecting...": "Opnieuw verbinding maken...",
     "Password is required": "Wachtwoord is vereist",
     "Disconnect timeout": "Timeout tijdens verbreken van verbinding",
@@ -59,6 +60,8 @@
     "Automatic Reconnect": "Automatisch Opnieuw Verbinden",
     "Reconnect Delay (ms):": "Vertraging voor Opnieuw Verbinden (ms):",
     "Logging:": "Logmeldingen:",
+    "Disconnect": "Verbinding verbreken",
+    "Connect": "Verbinden",
     "Password:": "Wachtwoord:",
     "Cancel": "Annuleren",
     "Canvas not supported.": "Canvas wordt niet ondersteund."

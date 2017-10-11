@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2017-10-06 10:07+0200\n"
-"PO-Revision-Date: 2016-11-15 07:51+0100\n"
+"PO-Revision-Date: 2017-10-11 16:16+0200\n"
 "Last-Translator: Giannis Kosmas <kosmasgiannis@gmail.com>\n"
 "Language-Team: none\n"
 "Language: el\n"
@@ -38,12 +38,10 @@ msgid "Disconnected"
 msgstr "Αποσυνδέθηκε"
 
 #: ../app/ui.js:1052 ../core/rfb.js:248
-#, fuzzy
 msgid "Must set host"
 msgstr "Πρέπει να οριστεί ο διακομιστής"
 
 #: ../app/ui.js:1101
-#, fuzzy
 msgid "Reconnecting..."
 msgstr "Επανασυνδέεται..."
 

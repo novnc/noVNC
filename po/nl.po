@@ -39,7 +39,6 @@ msgid "Disconnected"
 msgstr "Verbinding verbroken"
 
 #: ../app/ui.js:1052 ../core/rfb.js:248
-#, fuzzy
 msgid "Must set host"
 msgstr "Host moeten worden ingesteld"
 
@@ -264,12 +263,10 @@ msgid "Logging:"
 msgstr "Logmeldingen:"
 
 #: ../vnc.html:275
-#, fuzzy
 msgid "Disconnect"
 msgstr "Verbinding verbreken"
 
 #: ../vnc.html:294
-#, fuzzy
 msgid "Connect"
 msgstr "Verbinden"
 
