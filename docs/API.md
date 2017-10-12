@@ -226,7 +226,9 @@ __RFB onUpdateState callback details__
 
 The RFB module has an 'onUpdateState' callback that is invoked after
 the noVNC connection state changes. Here is a list of the states that
-are reported.
+are reported. Note that the RFB module can not transition from the
+disconnected state in any way, a new instance of the object has to be
+created for new connections.
 
 | connection state | description
 | ---------------- | ------------
