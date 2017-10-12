@@ -8,21 +8,21 @@ projects (see LICENSE.txt).
 
 ## 1.1 Module List
 
-* **Mouse** (core/input/devices.js): Mouse input event handler with
+* __Mouse__ (core/input/devices.js): Mouse input event handler with
 limited touch support.
 
-* **Keyboard** (core/input/devices.js): Keyboard input event handler with
+* __Keyboard__ (core/input/devices.js): Keyboard input event handler with
 non-US keyboard support. Translates keyDown and keyUp events to X11
 keysym values.
 
-* **Display** (core/display.js): Efficient 2D rendering abstraction
+* __Display__ (core/display.js): Efficient 2D rendering abstraction
 layered on the HTML5 canvas element.
 
-* **Websock** (core/websock.js): Websock client from websockify
+* __Websock__ (core/websock.js): Websock client from websockify
 with transparent binary data support.
 [Websock API](https://github.com/kanaka/websockify/wiki/websock.js) wiki page.
 
-* **RFB** (core/rfb.js): Main class that implements the RFB
+* __RFB__ (core/rfb.js): Main class that implements the RFB
 protocol and stitches the other classes together.
 
 
