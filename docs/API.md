@@ -8,10 +8,10 @@ projects (see LICENSE.txt).
 
 ## 1.1 Module List
 
-* __Mouse__ (core/input/devices.js): Mouse input event handler with
+* __Mouse__ (core/input/mouse.js): Mouse input event handler with
 limited touch support.
 
-* __Keyboard__ (core/input/devices.js): Keyboard input event handler with
+* __Keyboard__ (core/input/keyboard.js): Keyboard input event handler with
 non-US keyboard support. Translates keyDown and keyUp events to X11
 keysym values.
 
