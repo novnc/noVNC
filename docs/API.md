@@ -538,7 +538,7 @@ The 'fbu' parameter is an object with the following structure:
 
     {
         x:            FBU_x_position,
-        y:            FBU_y_position, 
+        y:            FBU_y_position,
         width:        FBU_width,
         height:       FBU_height,
         encoding:     FBU_encoding_number,
