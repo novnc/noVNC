@@ -149,17 +149,17 @@ export default function RFB(defaults) {
     Log.Debug(">> RFB.constructor");
 
     // populate encHandlers with bound versions
-    this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this)
-    this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this)
-    this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this)
-    this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this)
-    this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this)
+    this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
+    this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this);
+    this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this);
+    this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this);
+    this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this);
 
-    this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this)
-    this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this)
-    this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this)
-    this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this)
-    this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this)
+    this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this);
+    this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this);
+    this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this);
+    this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this);
+    this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this);
 
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
