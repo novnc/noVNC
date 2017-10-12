@@ -20,7 +20,7 @@ layered on the HTML5 canvas element.
 
 * __Websock__ (core/websock.js): Websock client from websockify
 with transparent binary data support.
-[Websock API](https://github.com/kanaka/websockify/wiki/websock.js) wiki page.
+[Websock API](https://github.com/novnc/websockify/wiki/websock.js) wiki page.
 
 * __RFB__ (core/rfb.js): Main class that implements the RFB
 protocol and stitches the other classes together.
