@@ -1,4 +1,4 @@
-### Modules / API
+# 1. Modules / API
 
 The noVNC client is a composed of several modular components that handle
 rendering, input, networking, etc. Each of the modules is designed to
@@ -6,7 +6,7 @@ be cross-browser and be useful as a standalone library in other
 projects (see LICENSE.txt).
 
 
-### Module List
+## 1.1 Module List
 
 * **Mouse** (core/input/devices.js): Mouse input event handler with
 limited touch support.
@@ -26,7 +26,7 @@ with transparent binary data support.
 protocol and stitches the other classes together.
 
 
-### Configuration Attributes
+## 1.2 Configuration Attributes
 
 The Mouse, Keyboard, Display and RFB classes have a similar API for
 configuration options. Each configuration option has a default value,
@@ -52,7 +52,7 @@ made to set it. The attribute mode is one of the following:
     WO - write once
 
 
-### Methods
+## 1.3 Methods
 
 In addition to the getter and setter methods to modify configuration
 attributes, each of the modules has other methods that are available
@@ -60,7 +60,7 @@ in the object instance. For example, the Display module has method
 named 'blitImage' which takes an array of pixel data and draws it to
 the 2D canvas.
 
-### Callbacks
+## 1.4 Callbacks
 
 Each of the modules has certain events that can be hooked with
 callback functions. For the Mouse, Keyboard, Display and RFB classes
@@ -68,8 +68,9 @@ the callback functions are assigned to configuration attributes. The
 WebSock module has a method named 'on' that takes two parameters: the
 callback event name, and the callback function.
 
+## 2. Modules
 
-#### Mouse Module
+## 2.1 Mouse Module
 
 <table>
     <tr>
@@ -125,7 +126,7 @@ callback event name, and the callback function.
 </table>
 
 
-#### Keyboard Module
+## 2.2 Keyboard Module
 
 <table>
     <tr>
@@ -172,7 +173,7 @@ callback event name, and the callback function.
 </table>
 
 
-#### Display Module
+## 2.3 Display Module
 
 <table>
     <tr>
@@ -339,7 +340,7 @@ callback event name, and the callback function.
 </table>
 
 
-#### RFB Module
+## 2.4 RFB Module
 
 <table>
     <tr>
@@ -498,7 +499,7 @@ callback event name, and the callback function.
 </table>
 
 
-**RFB onUpdateState callback details**
+__RFB onUpdateState callback details__
 
 The RFB module has an 'onUpdateState' callback that is invoked after
 the noVNC connection state changes. Here is a list of the states that
@@ -525,7 +526,7 @@ are reported.
     </tr>
 </table>
 
-**RFB onFBUReceive and on FBUComplete callback details**
+__RFB onFBUReceive and on FBUComplete callback details__
 
 The onFBUReceive callback is invoked when a frame buffer update
 message has been received from the server but before the RFB class has
