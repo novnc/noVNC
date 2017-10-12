@@ -201,7 +201,7 @@ callback event name, and the callback function.
 | xvpShutdown        | ()                           | Send XVP shutdown.
 | xvpReboot          | ()                           | Send XVP reboot.
 | xvpReset           | ()                           | Send XVP reset.
-| sendKey            | (keysym, down)               | Send a key press event. If down not specified, send a down and up event.
+| sendKey            | (keysym, code, down)         | Send a key press event. If down not specified, send a down and up event.
 | clipboardPasteFrom | (text)                       | Send a clipboard paste event
 | requestDesktopSize | (width, height)              | Send a request to change the remote desktop size.
 
