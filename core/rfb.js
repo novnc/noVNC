@@ -285,7 +285,7 @@ RFB.prototype = {
     xvpOp: function (ver, op) {
         if (this._rfb_xvp_ver < ver) { return false; }
         Log.Info("Sending XVP operation " + op + " (version " + ver + ")");
-        this._sock.send_string("\xFA\x00" + String.fromCharCode(ver) + String.fromCharCode(op));
+        RFB.messages.xvpOp(this._sock, ver, op);
         return true;
     },
 
@@ -1850,7 +1850,21 @@ RFB.messages = {
 
         sock._sQlen += 10;
         sock.flush();
-    }
+    },
+
+    xvpOp: function (sock, ver, op) {
+        var buff = sock._sQ;
+        var offset = sock._sQlen;
+
+        buff[offset] = 250; // msg-type
+        buff[offset + 1] = 0; // padding
+
+        buff[offset + 2] = ver;
+        buff[offset + 3] = op;
+
+        sock._sQlen += 4;
+        sock.flush();
+    },
 };
 
 RFB.genDES = function (password, challenge) {
