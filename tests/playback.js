@@ -104,10 +104,10 @@ RecordingPlayer.prototype = {
         this._rfb._sock.close = function () {};
         this._rfb._sock.flush = function () {};
         this._rfb._checkEvents = function () {};
-        this._rfb.connect = function (host, port, password, path) {
+        this._rfb.connect = function (host, port, credentials, path) {
             this._rfb_host = host;
             this._rfb_port = port;
-            this._rfb_password = (password !== undefined) ? password : "";
+            this._rfb_credentials = {};
             this._rfb_path = (path !== undefined) ? path : "";
             this._sock.init('binary', 'ws');
             this._rfb_connection_state = 'connecting';

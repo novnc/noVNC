@@ -116,18 +116,18 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
         });
 
-        describe('#sendPassword', function () {
+        describe('#sendCredentials', function () {
             beforeEach(function () { this.clock = sinon.useFakeTimers(); });
             afterEach(function () { this.clock.restore(); });
 
-            it('should set the rfb password properly"', function () {
-                client.sendPassword('pass');
-                expect(client._rfb_password).to.equal('pass');
+            it('should set the rfb credentials properly"', function () {
+                client.sendCredentials({ password: 'pass' });
+                expect(client._rfb_credentials).to.deep.equal({ password: 'pass' });
             });
 
             it('should call init_msg "soon"', function () {
                 client._init_msg = sinon.spy();
-                client.sendPassword('pass');
+                client.sendCredentials({ password: 'pass' });
                 this.clock.tick(5);
                 expect(client._init_msg).to.have.been.calledOnce;
             });
@@ -836,21 +836,22 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._rfb_version = 3.8;
                 });
 
-                it('should call the passwordRequired callback if missing a password', function () {
-                    client.set_onPasswordRequired(sinon.spy());
+                it('should call the onCredentialsRequired callback if missing a password', function () {
+                    client.set_onCredentialsRequired(sinon.spy());
                     send_security(2, client);
 
                     var challenge = [];
                     for (var i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receive_data(new Uint8Array(challenge));
 
-                    var spy = client.get_onPasswordRequired();
-                    expect(client._rfb_password.length).to.equal(0);
+                    var spy = client.get_onCredentialsRequired();
+                    expect(client._rfb_credentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][1]).to.have.members(["password"]);
                 });
 
                 it('should encrypt the password with DES and then send it back', function () {
-                    client._rfb_password = 'passwd';
+                    client._rfb_credentials = { password: 'passwd' };
                     send_security(2, client);
                     client._sock._websocket._get_sent_data(); // skip the choice of auth reply
 
@@ -863,7 +864,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 it('should transition to SecurityResult immediately after sending the password', function () {
-                    client._rfb_password = 'passwd';
+                    client._rfb_credentials = { password: 'passwd' };
                     send_security(2, client);
 
                     var challenge = [];
@@ -886,40 +887,43 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 it('should fall through to standard VNC authentication upon completion', function () {
-                    client.set_xvp_password_sep('#');
-                    client._rfb_password = 'user#target#password';
+                    client._rfb_credentials = { username: 'user',
+                                                target: 'target',
+                                                password: 'password' };
                     client._negotiate_std_vnc_auth = sinon.spy();
                     send_security(22, client);
                     expect(client._negotiate_std_vnc_auth).to.have.been.calledOnce;
                 });
 
-                it('should call the passwordRequired callback if the password is missing', function() {
-                    client.set_onPasswordRequired(sinon.spy());
-                    client._rfb_password = '';
+                it('should call the onCredentialsRequired callback if all credentials are missing', function() {
+                    client.set_onCredentialsRequired(sinon.spy());
+                    client._rfb_credentials = {};
                     send_security(22, client);
 
-                    var spy = client.get_onPasswordRequired();
-                    expect(client._rfb_password.length).to.equal(0);
+                    var spy = client.get_onCredentialsRequired();
+                    expect(client._rfb_credentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][1]).to.have.members(["username", "password", "target"]);
                 });
 
-                it('should call the passwordRequired callback if the password is improperly formatted', function() {
-                    client.set_onPasswordRequired(sinon.spy());
-                    client._rfb_password = 'user@target';
+                it('should call the onCredentialsRequired callback if some credentials are missing', function() {
+                    client.set_onCredentialsRequired(sinon.spy());
+                    client._rfb_credentials = { username: 'user',
+                                                target: 'target' };
                     send_security(22, client);
 
-                    var spy = client.get_onPasswordRequired();
+                    var spy = client.get_onCredentialsRequired();
                     expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][1]).to.have.members(["username", "password", "target"]);
                 });
 
-                it('should split the password, send the first two parts, and pass on the last part', function () {
-                    client.set_xvp_password_sep('#');
-                    client._rfb_password = 'user#target#password';
+                it('should send user and target separately', function () {
+                    client._rfb_credentials = { username: 'user',
+                                                target: 'target',
+                                                password: 'password' };
                     client._negotiate_std_vnc_auth = sinon.spy();
 
                     send_security(22, client);
-
-                    expect(client._rfb_password).to.equal('password');
 
                     var expected = [22, 4, 6]; // auth selection, len user, len target
                     for (var i = 0; i < 10; i++) { expected[i+3] = 'usertarget'.charCodeAt(i); }

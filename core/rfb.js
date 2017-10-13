@@ -36,7 +36,7 @@ export default function RFB(defaults) {
 
     this._rfb_host = '';
     this._rfb_port = 5900;
-    this._rfb_password = '';
+    this._rfb_credentials = {};
     this._rfb_path = '';
 
     this._rfb_connection_state = '';
@@ -124,7 +124,6 @@ export default function RFB(defaults) {
         'local_cursor': false,                  // Request locally rendered cursor
         'shared': true,                         // Request shared mode
         'view_only': false,                     // Disable client mouse/keyboard
-        'xvp_password_sep': '@',                // Separator for XVP password fields
         'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
         'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
         'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
@@ -134,7 +133,7 @@ export default function RFB(defaults) {
         'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate): connection state change
         'onNotification': function () { },      // onNotification(rfb, msg, level, options): notification for UI
         'onDisconnected': function () { },      // onDisconnected(rfb, reason): disconnection finished
-        'onPasswordRequired': function () { },  // onPasswordRequired(rfb, msg): VNC password is required
+        'onCredentialsRequired': function () { }, // onCredentialsRequired(rfb, types): VNC credentials are required
         'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
         'onBell': function () { },              // onBell(rfb): RFB Bell message received
         'onFBUReceive': function () { },        // onFBUReceive(rfb, rect): RFB FBU rect received but not yet processed
@@ -241,10 +240,10 @@ export default function RFB(defaults) {
 
 RFB.prototype = {
     // Public methods
-    connect: function (host, port, password, path) {
+    connect: function (host, port, creds, path) {
         this._rfb_host = host;
         this._rfb_port = port;
-        this._rfb_password = (password !== undefined) ? password : "";
+        this._rfb_credentials = (creds !== undefined) ? creds : {};
         this._rfb_path = (path !== undefined) ? path : "";
 
         if (!this._rfb_host) {
@@ -264,8 +263,8 @@ RFB.prototype = {
         this._sock.off('open');
     },
 
-    sendPassword: function (passwd) {
-        this._rfb_password = passwd;
+    sendCredentials: function (creds) {
+        this._rfb_credentials = creds;
         setTimeout(this._init_msg.bind(this), 0);
     },
 
@@ -848,21 +847,18 @@ RFB.prototype = {
 
     // authentication
     _negotiate_xvp_auth: function () {
-        var xvp_sep = this._xvp_password_sep;
-        var xvp_auth = this._rfb_password.split(xvp_sep);
-        if (xvp_auth.length < 3) {
-            var msg = 'XVP credentials required (user' + xvp_sep +
-                'target' + xvp_sep + 'password) -- got only ' + this._rfb_password;
-            this._onPasswordRequired(this, msg);
+        if (!this._rfb_credentials.username ||
+            !this._rfb_credentials.password ||
+            !this._rfb_credentials.target) {
+            this._onCredentialsRequired(this, ["username", "password", "target"]);
             return false;
         }
 
-        var xvp_auth_str = String.fromCharCode(xvp_auth[0].length) +
-                           String.fromCharCode(xvp_auth[1].length) +
-                           xvp_auth[0] +
-                           xvp_auth[1];
+        var xvp_auth_str = String.fromCharCode(this._rfb_credentials.username.length) +
+                           String.fromCharCode(this._rfb_credentials.target.length) +
+                           this._rfb_credentials.username +
+                           this._rfb_credentials.target;
         this._sock.send_string(xvp_auth_str);
-        this._rfb_password = xvp_auth.slice(2).join(xvp_sep);
         this._rfb_auth_scheme = 2;
         return this._negotiate_authentication();
     },
@@ -870,14 +866,14 @@ RFB.prototype = {
     _negotiate_std_vnc_auth: function () {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
-        if (this._rfb_password.length === 0) {
-            this._onPasswordRequired(this);
+        if (!this._rfb_credentials.password) {
+            this._onCredentialsRequired(this, ["password"]);
             return false;
         }
 
         // TODO(directxman12): make genDES not require an Array
         var challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
-        var response = RFB.genDES(this._rfb_password, challenge);
+        var response = RFB.genDES(this._rfb_credentials.password, challenge);
         this._sock.send(response);
         this._rfb_init_state = "SecurityResult";
         return true;
@@ -1496,7 +1492,6 @@ make_properties(RFB, [
     ['touchButton', 'rw', 'int'],           // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
     ['scale', 'rw', 'float'],               // Display area scale factor
     ['viewport', 'rw', 'bool'],             // Use viewport clipping
-    ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
     ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
     ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
     ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
@@ -1506,7 +1501,7 @@ make_properties(RFB, [
     ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate): connection state change
     ['onNotification', 'rw', 'func'],       // onNotification(rfb, msg, level, options): notification for the UI
     ['onDisconnected', 'rw', 'func'],       // onDisconnected(rfb, reason): disconnection finished
-    ['onPasswordRequired', 'rw', 'func'],   // onPasswordRequired(rfb, msg): VNC password is required
+    ['onCredentialsRequired', 'rw', 'func'], // onCredentialsRequired(rfb, types): VNC credentials are required
     ['onClipboard', 'rw', 'func'],          // onClipboard(rfb, text): RFB clipboard contents received
     ['onBell', 'rw', 'func'],               // onBell(rfb): RFB Bell message received
     ['onFBUReceive', 'rw', 'func'],         // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed

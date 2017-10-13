@@ -206,7 +206,7 @@ var UI = {
                               'onNotification': UI.notification,
                               'onUpdateState': UI.updateState,
                               'onDisconnected': UI.disconnectFinished,
-                              'onPasswordRequired': UI.passwordRequired,
+                              'onCredentialsRequired': UI.credentials,
                               'onXvpInit': UI.updateXvpButton,
                               'onClipboard': UI.clipboardReceive,
                               'onBell': UI.bell,
@@ -1067,7 +1067,7 @@ var UI = {
         UI.updateLocalCursor();
         UI.updateViewOnly();
 
-        UI.rfb.connect(host, port, password, path);
+        UI.rfb.connect(host, port, { password: password }, path);
     },
 
     disconnect: function() {
@@ -1127,8 +1127,8 @@ var UI = {
  *   PASSWORD
  * ------v------*/
 
-    passwordRequired: function(rfb, msg) {
-
+    credentials: function(rfb, types) {
+        // FIXME: handle more types
         document.getElementById('noVNC_password_dlg')
             .classList.add('noVNC_open');
 
@@ -1136,9 +1136,7 @@ var UI = {
                 document.getElementById('noVNC_password_input').focus();
             }, 100);
 
-        if (typeof msg === 'undefined') {
-            msg = _("Password is required");
-        }
+        var msg = _("Password is required");
         Log.Warn(msg);
         UI.showStatus(msg, "warning");
     },
@@ -1148,7 +1146,7 @@ var UI = {
         var password = inputElem.value;
         // Clear the input after reading the password
         inputElem.value = "";
-        UI.rfb.sendPassword(password);
+        UI.rfb.sendCredentials({ password: password });
         UI.reconnect_password = password;
         document.getElementById('noVNC_password_dlg')
             .classList.remove('noVNC_open');

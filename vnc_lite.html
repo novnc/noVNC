@@ -99,10 +99,7 @@
         function updateDesktopName(rfb, name) {
             desktopName = name;
         }
-        function passwordRequired(rfb, msg) {
-            if (typeof msg === 'undefined') {
-                msg = 'Password Required: ';
-            }
+        function credentials(rfb, types) {
             var html;
 
             var form = document.createElement('form');
@@ -115,10 +112,10 @@
             document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
             document.getElementById('noVNC_status').innerHTML = '';
             document.getElementById('noVNC_status').appendChild(form);
-            document.getElementById('noVNC_status').querySelector('label').textContent = msg;
+            document.getElementById('noVNC_status').querySelector('label').textContent = 'Password Required: ';
         }
         function setPassword() {
-            rfb.sendPassword(document.getElementById('password_input').value);
+            rfb.sendCredentials({ password: document.getElementById('password_input').value });
             return false;
         }
         function sendCtrlAltDel() {
@@ -266,7 +263,7 @@
                                'onUpdateState':  updateState,
                                'onDisconnected': disconnected,
                                'onXvpInit':    xvpInit,
-                               'onPasswordRequired':  passwordRequired,
+                               'onCredentialsRequired': credentials,
                                'onFBUComplete': FBUComplete,
                                'onDesktopName': updateDesktopName});
             } catch (exc) {
@@ -274,7 +271,7 @@
                 return; // don't continue trying to connect
             }
 
-            rfb.connect(host, port, password, path);
+            rfb.connect(host, port, { password: password }, path);
         })();
     </script>
 </head>
