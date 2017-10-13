@@ -591,17 +591,17 @@ select:active {
   padding: 0 10px;
 }
 
-/* XVP Shutdown/Reboot */
-:root:not(.noVNC_connected) #noVNC_xvp_button {
+/* Shutdown/Reboot */
+:root:not(.noVNC_connected) #noVNC_power_button {
   display: none;
 }
-#noVNC_xvp {
+#noVNC_power {
 }
-#noVNC_xvp_buttons {
+#noVNC_power_buttons {
   display: none;
 }
 
-#noVNC_xvp input[type=button] {
+#noVNC_power input[type=button] {
   width: 100%;
 }
 

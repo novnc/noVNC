@@ -49,6 +49,8 @@ export default function RFB(defaults) {
     this._rfb_tightvnc = false;
     this._rfb_xvp_ver = 0;
 
+    this._capabilities = { power: false };
+
     this._encHandlers = {};
     this._encStats = {};
 
@@ -140,7 +142,7 @@ export default function RFB(defaults) {
         'onFBUComplete': function () { },       // onFBUComplete(rfb): RFB FBU received and processed
         'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
-        'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
+        'onCapabilities': function () { }       // onCapabilities(rfb, caps): the supported capabilities has changed
     });
 
     // main setup
@@ -282,23 +284,16 @@ RFB.prototype = {
         return true;
     },
 
-    xvpOp: function (ver, op) {
-        if (this._rfb_xvp_ver < ver) { return false; }
-        Log.Info("Sending XVP operation " + op + " (version " + ver + ")");
-        RFB.messages.xvpOp(this._sock, ver, op);
-        return true;
+    machineShutdown: function () {
+        this._xvpOp(1, 2);
     },
 
-    xvpShutdown: function () {
-        return this.xvpOp(1, 2);
+    machineReboot: function () {
+        this._xvpOp(1, 3);
     },
 
-    xvpReboot: function () {
-        return this.xvpOp(1, 3);
-    },
-
-    xvpReset: function () {
-        return this.xvpOp(1, 4);
+    machineReset: function () {
+        this._xvpOp(1, 4);
     },
 
     // Send a key press. If 'down' is not specified then send a down key
@@ -1282,7 +1277,8 @@ RFB.prototype = {
             case 1:  // XVP_INIT
                 this._rfb_xvp_ver = xvp_ver;
                 Log.Info("XVP extensions enabled (version " + this._rfb_xvp_ver + ")");
-                this._onXvpInit(this._rfb_xvp_ver);
+                this._capabilities.power = true;
+                this._onCapabilities(this, this._capabilities)
                 break;
             default:
                 this._fail("Unexpected server message",
@@ -1480,7 +1476,13 @@ RFB.prototype = {
 
         this._timing.fbu_rt_start = (new Date()).getTime();
         this._updateContinuousUpdates();
-    }
+    },
+
+    _xvpOp: function (ver, op) {
+        if (this._rfb_xvp_ver < ver) { return; }
+        Log.Info("Sending XVP operation " + op + " (version " + ver + ")");
+        RFB.messages.xvpOp(this._sock, ver, op);
+    },
 };
 
 make_properties(RFB, [
@@ -1496,6 +1498,7 @@ make_properties(RFB, [
     ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
     ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
     ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
+    ['capabilities', 'ro', 'arr'],          // Supported capabilities
 
     // Callback functions
     ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate): connection state change
@@ -1508,7 +1511,7 @@ make_properties(RFB, [
     ['onFBUComplete', 'rw', 'func'],        // onFBUComplete(rfb, fbu): RFB FBU received and processed
     ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
     ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
-    ['onXvpInit', 'rw', 'func']             // onXvpInit(version): XVP extensions active for this connection
+    ['onCapabilities', 'rw', 'func']        // onCapabilities(rfb, caps): the supported capabilities has changed
 ]);
 
 RFB.prototype.set_local_cursor = function (cursor) {

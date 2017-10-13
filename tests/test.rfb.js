@@ -300,28 +300,23 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._rfb_xvp_ver = 1;
             });
 
-            it('should send the shutdown signal on #xvpShutdown', function () {
-                client.xvpShutdown();
+            it('should send the shutdown signal on #machineShutdown', function () {
+                client.machineShutdown();
                 expect(client._sock).to.have.sent(new Uint8Array([0xFA, 0x00, 0x01, 0x02]));
             });
 
-            it('should send the reboot signal on #xvpReboot', function () {
-                client.xvpReboot();
+            it('should send the reboot signal on #machineReboot', function () {
+                client.machineReboot();
                 expect(client._sock).to.have.sent(new Uint8Array([0xFA, 0x00, 0x01, 0x03]));
             });
 
-            it('should send the reset signal on #xvpReset', function () {
-                client.xvpReset();
+            it('should send the reset signal on #machineReset', function () {
+                client.machineReset();
                 expect(client._sock).to.have.sent(new Uint8Array([0xFA, 0x00, 0x01, 0x04]));
             });
 
-            it('should support sending arbitrary XVP operations via #xvpOp', function () {
-                client.xvpOp(1, 7);
-                expect(client._sock).to.have.sent(new Uint8Array([0xFA, 0x00, 0x01, 0x07]));
-            });
-
             it('should not send XVP operations with higher versions than we support', function () {
-                expect(client.xvpOp(2, 7)).to.be.false;
+                client._xvpOp(2, 7);
                 expect(client._sock.flush).to.not.have.been.called;
             });
         });
@@ -1800,11 +1795,11 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should set the XVP version and fire the callback with the version on XVP_INIT', function () {
-                client.set_onXvpInit(sinon.spy());
+                client.set_onCapabilities(sinon.spy());
                 client._sock._websocket._receive_data(new Uint8Array([250, 0, 10, 1]));
                 expect(client._rfb_xvp_ver).to.equal(10);
-                expect(client.get_onXvpInit()).to.have.been.calledOnce;
-                expect(client.get_onXvpInit()).to.have.been.calledWith(10);
+                expect(client.get_onCapabilities()).to.have.been.calledOnce;
+                expect(client.get_onCapabilities()).to.have.been.calledWith(client, { power: true });
             });
 
             it('should fail on unknown XVP message types', function () {

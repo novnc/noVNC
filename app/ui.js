@@ -91,7 +91,7 @@ var UI = {
         UI.addControlbarHandlers();
         UI.addTouchSpecificHandlers();
         UI.addExtraKeysHandlers();
-        UI.addXvpHandlers();
+        UI.addMachineHandlers();
         UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
         UI.addSettingsHandlers();
@@ -207,7 +207,7 @@ var UI = {
                               'onUpdateState': UI.updateState,
                               'onDisconnected': UI.disconnectFinished,
                               'onCredentialsRequired': UI.credentials,
-                              'onXvpInit': UI.updateXvpButton,
+                              'onCapabilities': UI.updatePowerButton,
                               'onClipboard': UI.clipboardReceive,
                               'onBell': UI.bell,
                               'onFBUComplete': UI.initialResize,
@@ -332,15 +332,15 @@ var UI = {
             .addEventListener('click', UI.sendCtrlAltDel);
     },
 
-    addXvpHandlers: function() {
-        document.getElementById("noVNC_xvp_shutdown_button")
-            .addEventListener('click', function() { UI.rfb.xvpShutdown(); });
-        document.getElementById("noVNC_xvp_reboot_button")
-            .addEventListener('click', function() { UI.rfb.xvpReboot(); });
-        document.getElementById("noVNC_xvp_reset_button")
-            .addEventListener('click', function() { UI.rfb.xvpReset(); });
-        document.getElementById("noVNC_xvp_button")
-            .addEventListener('click', UI.toggleXvpPanel);
+    addMachineHandlers: function() {
+        document.getElementById("noVNC_shutdown_button")
+            .addEventListener('click', function() { UI.rfb.machineShutdown(); });
+        document.getElementById("noVNC_reboot_button")
+            .addEventListener('click', function() { UI.rfb.machineReboot(); });
+        document.getElementById("noVNC_reset_button")
+            .addEventListener('click', function() { UI.rfb.machineReset(); });
+        document.getElementById("noVNC_power_button")
+            .addEventListener('click', UI.togglePowerPanel);
     },
 
     addConnectionControlHandlers: function() {
@@ -489,7 +489,7 @@ var UI = {
             UI.enableSetting('port');
             UI.enableSetting('path');
             UI.enableSetting('repeaterID');
-            UI.updateXvpButton(0);
+            UI.updatePowerButton();
             UI.keepControlbar();
         }
 
@@ -868,7 +868,7 @@ var UI = {
 
     closeAllPanels: function() {
         UI.closeSettingsPanel();
-        UI.closeXvpPanel();
+        UI.closePowerPanel();
         UI.closeClipboardPanel();
         UI.closeExtraKeys();
     },
@@ -926,50 +926,52 @@ var UI = {
 /* ------^-------
  *   /SETTINGS
  * ==============
- *      XVP
+ *     POWER
  * ------v------*/
 
-    openXvpPanel: function() {
+    openPowerPanel: function() {
         UI.closeAllPanels();
         UI.openControlbar();
 
-        document.getElementById('noVNC_xvp')
+        document.getElementById('noVNC_power')
             .classList.add("noVNC_open");
-        document.getElementById('noVNC_xvp_button')
+        document.getElementById('noVNC_power_button')
             .classList.add("noVNC_selected");
     },
 
-    closeXvpPanel: function() {
-        document.getElementById('noVNC_xvp')
+    closePowerPanel: function() {
+        document.getElementById('noVNC_power')
             .classList.remove("noVNC_open");
-        document.getElementById('noVNC_xvp_button')
+        document.getElementById('noVNC_power_button')
             .classList.remove("noVNC_selected");
     },
 
-    toggleXvpPanel: function() {
-        if (document.getElementById('noVNC_xvp')
+    togglePowerPanel: function() {
+        if (document.getElementById('noVNC_power')
             .classList.contains("noVNC_open")) {
-            UI.closeXvpPanel();
+            UI.closePowerPanel();
         } else {
-            UI.openXvpPanel();
+            UI.openPowerPanel();
         }
     },
 
-    // Disable/enable XVP button
-    updateXvpButton: function(ver) {
-        if (ver >= 1 && !UI.rfb.get_view_only()) {
-            document.getElementById('noVNC_xvp_button')
+    // Disable/enable power button
+    updatePowerButton: function() {
+        if (UI.connected &&
+            UI.rfb.get_capabilities().power &&
+            !UI.rfb.get_view_only()) {
+            document.getElementById('noVNC_power_button')
                 .classList.remove("noVNC_hidden");
         } else {
-            document.getElementById('noVNC_xvp_button')
+            document.getElementById('noVNC_power_button')
                 .classList.add("noVNC_hidden");
-            // Close XVP panel if open
-            UI.closeXvpPanel();
+            // Close power panel if open
+            UI.closePowerPanel();
         }
     },
 
 /* ------^-------
- *     /XVP
+ *    /POWER
  * ==============
  *   CLIPBOARD
  * ------v------*/

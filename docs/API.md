@@ -41,6 +41,7 @@ attribute mode is one of the following:
 | wsProtocols       | arr   | RW   | ['binary'] | Protocols to use in the WebSocket connection
 | repeaterID        | str   | RW   | ''         | UltraVNC RepeaterID to connect to
 | viewportDrag      | bool  | RW   | false      | Move the viewport on mouse drags
+| capabilities      | arr   | RO   | []         | Supported capabilities (can include: 'power')
 
 
 ## 2 Methods
@@ -55,10 +56,9 @@ object instance.
 | disconnect         | ()                              | Disconnect
 | sendCredentials    | (credentials)                   | Send credentials after onCredentialsRequired callback
 | sendCtrlAltDel     | ()                              | Send Ctrl-Alt-Del key sequence
-| xvpOp              | (ver, op)                       | Send a XVP operation (2=shutdown, 3=reboot, 4=reset)
-| xvpShutdown        | ()                              | Send XVP shutdown.
-| xvpReboot          | ()                              | Send XVP reboot.
-| xvpReset           | ()                              | Send XVP reset.
+| machineShutdown    | ()                              | Request a shutdown of the remote machine.
+| machineReboot      | ()                              | Request a reboot of the remote machine.
+| machineReset       | ()                              | Request a reset of the remote machine.
 | sendKey            | (keysym, code, down)            | Send a key press event. If down not specified, send a down and up event.
 | clipboardPasteFrom | (text)                          | Send a clipboard paste event
 | autoscale          | (width, height, downscaleOnly)  | Scale the display
@@ -84,7 +84,7 @@ functions.
 | onFBUComplete         | (rfb, fbu)                 | RFB FBU received and processed (see details below)
 | onFBResize            | (rfb, width, height)       | Frame buffer (remote desktop) size changed
 | onDesktopName         | (rfb, name)                | VNC desktop name recieved
-| onXvpInit             | (version)                  | XVP extensions active for this connection.
+| onCapabilities        | (rfb, capabilities)        | The supported capabilities has changed
 
 
 __RFB onUpdateState callback details__
