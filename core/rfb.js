@@ -49,7 +49,7 @@ export default function RFB(defaults) {
     this._rfb_tightvnc = false;
     this._rfb_xvp_ver = 0;
 
-    this._capabilities = { power: false };
+    this._capabilities = { power: false, resize: false };
 
     this._encHandlers = {};
     this._encStats = {};
@@ -636,6 +636,11 @@ RFB.prototype = {
         } else {
             this._onNotification(this, msg, level);
         }
+    },
+
+    _setCapability: function (cap, val) {
+        this._capabilities[cap] = val;
+        this._onCapabilities(this, this._capabilities);
     },
 
     _handle_message: function () {
@@ -1277,8 +1282,7 @@ RFB.prototype = {
             case 1:  // XVP_INIT
                 this._rfb_xvp_ver = xvp_ver;
                 Log.Info("XVP extensions enabled (version " + this._rfb_xvp_ver + ")");
-                this._capabilities.power = true;
-                this._onCapabilities(this, this._capabilities)
+                this._setCapability("power", true);
                 break;
             default:
                 this._fail("Unexpected server message",
@@ -2398,6 +2402,8 @@ RFB.encodingHandlers = {
         if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
 
         this._supportsSetDesktopSize = true;
+        this._setCapability("resize", true);
+
         var number_of_screens = this._sock.rQpeek8();
 
         this._FBU.bytes = 4 + (number_of_screens * 16);

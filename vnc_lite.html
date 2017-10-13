@@ -80,6 +80,7 @@
         import RFB from './core/rfb.js';
 
         var rfb;
+        var doneInitialResize;
         var resizeTimeout;
         var desktopName;
 
@@ -92,9 +93,10 @@
                     rfb.requestDesktopSize(innerW, innerH - controlbarH);
             }
         }
-        function FBUComplete(rfb, fbu) {
+        function initialResize() {
+            if (doneInitialResize) return;
             UIresize();
-            rfb.set_onFBUComplete(function() { });
+            doneInitialResize = true;
         }
         function updateDesktopName(rfb, name) {
             desktopName = name;
@@ -153,6 +155,7 @@
                     status("Connecting", "normal");
                     break;
                 case 'connected':
+                    doneInitialResize = false;
                     if (rfb && rfb.get_encrypt()) {
                         status("Connected (encrypted) to " +
                                desktopName, "normal");
@@ -262,9 +265,8 @@
                                'onNotification':  notification,
                                'onUpdateState':  updateState,
                                'onDisconnected': disconnected,
-                               'onCapabilities': updatePowerButtons,
+                               'onCapabilities': function () { updatePowerButtons(); initialResize(); },
                                'onCredentialsRequired': credentials,
-                               'onFBUComplete': FBUComplete,
                                'onDesktopName': updateDesktopName});
             } catch (exc) {
                 status('Unable to create RFB client -- ' + exc, 'error');

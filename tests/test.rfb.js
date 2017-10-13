@@ -1684,6 +1684,25 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         return data;
                     }
 
+                    it('should call callback when resize is supported', function () {
+                        client.set_onCapabilities(sinon.spy());
+
+                        expect(client._supportsSetDesktopSize).to.be.false;
+                        expect(client.get_capabilities().resize).to.be.false;
+
+                        var reason_for_change = 0; // server initiated
+                        var status_code       = 0; // No error
+
+                        send_fbu_msg([{ x: reason_for_change, y: status_code,
+                                        width: 4, height: 4, encoding: -308 }],
+                                     make_screen_data(1), client);
+
+                        expect(client._supportsSetDesktopSize).to.be.true;
+                        expect(client.get_onCapabilities()).to.have.been.calledOnce;
+                        expect(client.get_onCapabilities().args[0][1].resize).to.be.true;
+                        expect(client.get_capabilities().resize).to.be.true;
+                    }),
+
                     it('should handle a resize requested by this client', function () {
                         var reason_for_change = 1; // requested by this client
                         var status_code       = 0; // No error
@@ -1692,7 +1711,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                                         width: 20, height: 50, encoding: -308 }],
                                      make_screen_data(1), client);
 
-                        expect(client._supportsSetDesktopSize).to.be.true;
                         expect(client._fb_width).to.equal(20);
                         expect(client._fb_height).to.equal(50);
 
@@ -1712,7 +1730,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                                         width: 20, height: 50, encoding: -308 }],
                                      make_screen_data(1), client);
 
-                        expect(client._supportsSetDesktopSize).to.be.true;
                         expect(client._fb_width).to.equal(20);
                         expect(client._fb_height).to.equal(50);
 
@@ -1732,7 +1749,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                                         width: 60, height: 50, encoding: -308 }],
                                      make_screen_data(3), client);
 
-                        expect(client._supportsSetDesktopSize).to.be.true;
                         expect(client._fb_width).to.equal(60);
                         expect(client._fb_height).to.equal(50);
 
@@ -1799,7 +1815,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._sock._websocket._receive_data(new Uint8Array([250, 0, 10, 1]));
                 expect(client._rfb_xvp_ver).to.equal(10);
                 expect(client.get_onCapabilities()).to.have.been.calledOnce;
-                expect(client.get_onCapabilities()).to.have.been.calledWith(client, { power: true });
+                expect(client.get_onCapabilities().args[0][1].power).to.be.true;
+                expect(client.get_capabilities().power).to.be.true;
             });
 
             it('should fail on unknown XVP message types', function () {

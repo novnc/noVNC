@@ -207,10 +207,9 @@ var UI = {
                               'onUpdateState': UI.updateState,
                               'onDisconnected': UI.disconnectFinished,
                               'onCredentialsRequired': UI.credentials,
-                              'onCapabilities': UI.updatePowerButton,
+                              'onCapabilities': function () { UI.updatePowerButton(); UI.initialResize(); },
                               'onClipboard': UI.clipboardReceive,
                               'onBell': UI.bell,
-                              'onFBUComplete': UI.initialResize,
                               'onFBResize': UI.updateSessionSize,
                               'onDesktopName': UI.updateDesktopName});
             return true;
@@ -431,6 +430,7 @@ var UI = {
             case 'connected':
                 UI.connected = true;
                 UI.inhibit_reconnect = false;
+                UI.doneInitialResize = false;
                 document.documentElement.classList.add("noVNC_connected");
                 if (rfb && rfb.get_encrypt()) {
                     msg = _("Connected (encrypted) to ") + UI.desktopName;
@@ -1079,9 +1079,6 @@ var UI = {
         // Disable automatic reconnecting
         UI.inhibit_reconnect = true;
 
-        // Restore the callback used for initial resize
-        UI.rfb.set_onFBUComplete(UI.initialResize);
-
         // Don't display the connection settings until we're actually disconnected
     },
 
@@ -1275,13 +1272,14 @@ var UI = {
     // Normally we only apply the current resize mode after a window resize
     // event. This means that when a new connection is opened, there is no
     // resize mode active.
-    // We have to wait until the first FBU because this is where the client
-    // will find the supported encodings of the server. Some calls later in
-    // the chain is dependant on knowing the server-capabilities.
-    initialResize: function(rfb, fbu) {
+    // We have to wait until we know the capabilities of the server as
+    // some calls later in the chain is dependant on knowing the
+    // server-capabilities.
+    initialResize: function() {
+        if (UI.doneInitialResize) return;
+
         UI.applyResizeMode();
-        // After doing this once, we remove the callback.
-        UI.rfb.set_onFBUComplete(function() { });
+        UI.doneInitialResize = true;
     },
 
 /* ------^-------

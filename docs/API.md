@@ -41,7 +41,7 @@ attribute mode is one of the following:
 | wsProtocols       | arr   | RW   | ['binary'] | Protocols to use in the WebSocket connection
 | repeaterID        | str   | RW   | ''         | UltraVNC RepeaterID to connect to
 | viewportDrag      | bool  | RW   | false      | Move the viewport on mouse drags
-| capabilities      | arr   | RO   | []         | Supported capabilities (can include: 'power')
+| capabilities      | arr   | RO   | []         | Supported capabilities (can include: 'power', 'resize')
 
 
 ## 2 Methods
