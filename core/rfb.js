@@ -1493,6 +1493,7 @@ make_properties(RFB, [
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
+    ['touchButton', 'rw', 'int'],           // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
     ['scale', 'rw', 'float'],               // Display area scale factor
     ['viewport', 'rw', 'bool'],             // Use viewport clipping
     ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
@@ -1549,6 +1550,14 @@ RFB.prototype.set_view_only = function (view_only) {
     }
 };
 
+RFB.prototype.set_touchButton = function (button) {
+    this._mouse.set_touchButton(button);
+};
+
+RFB.prototype.get_touchButton = function () {
+    return this._mouse.get_touchButton();
+};
+
 RFB.prototype.set_scale = function (scale) {
     this._display.set_scale(scale);
 };
@@ -1566,7 +1575,6 @@ RFB.prototype.get_viewport = function () {
 };
 
 RFB.prototype.get_keyboard = function () { return this._keyboard; };
-RFB.prototype.get_mouse = function () { return this._mouse; };
 
 // Class Methods
 RFB.messages = {

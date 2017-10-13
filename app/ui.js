@@ -1657,7 +1657,7 @@ var UI = {
     setMouseButton: function(num) {
         var view_only = UI.rfb.get_view_only();
         if (UI.rfb && !view_only) {
-            UI.rfb.get_mouse().set_touchButton(num);
+            UI.rfb.set_touchButton(num);
         }
 
         var blist = [0, 1,2,4];

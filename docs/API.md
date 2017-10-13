@@ -34,6 +34,7 @@ attribute mode is one of the following:
 | local_cursor      | bool  | RW   | false      | Request locally rendered cursor
 | shared            | bool  | RW   | true       | Request shared VNC mode
 | view_only         | bool  | RW   | false      | Disable client mouse/keyboard
+| touchButton       | int   | RW   | 1          | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
 | scale             | float | RW   | 1.0        | Display area scale factor
 | viewport          | bool  | RW   | false      | Use viewport clipping
 | xvp_password_sep  | str   | RW   | '@'        | Separator for XVP password fields
