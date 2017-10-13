@@ -1216,11 +1216,10 @@ var UI = {
 
         var screen = UI.screenSize();
 
-        if (screen && UI.connected && UI.rfb.get_display()) {
+        if (screen && UI.connected) {
 
-            var display = UI.rfb.get_display();
             var resizeMode = UI.getSetting('resize');
-            display.set_scale(1);
+            UI.rfb.set_scale(1);
 
             // Make sure the viewport is adjusted first
             UI.updateViewClip();
@@ -1258,13 +1257,12 @@ var UI = {
 
         var screen = UI.screenSize();
 
-        if (!screen || !UI.connected || !UI.rfb.get_display()) {
+        if (!screen || !UI.connected) {
             return;
         }
 
-        var display = UI.rfb.get_display();
         var downscaleOnly = resizeMode === 'downscale';
-        display.autoscale(screen.w, screen.h, downscaleOnly);
+        UI.rfb.autoscale(screen.w, screen.h, downscaleOnly);
         UI.fixScrollbars();
     },
 
@@ -1302,8 +1300,7 @@ var UI = {
     updateViewClip: function() {
         if (!UI.rfb) return;
 
-        var display = UI.rfb.get_display();
-        var cur_clip = display.get_viewport();
+        var cur_clip = UI.rfb.get_viewport();
         var new_clip = UI.getSetting('view_clip');
 
         var resizeSetting = UI.getSetting('resize');
@@ -1316,7 +1313,7 @@ var UI = {
         }
 
         if (cur_clip !== new_clip) {
-            display.set_viewport(new_clip);
+            UI.rfb.set_viewport(new_clip);
         }
 
         var size = UI.screenSize();
@@ -1324,7 +1321,7 @@ var UI = {
         if (new_clip && size) {
             // When clipping is enabled, the screen is limited to
             // the size of the browser window.
-            display.viewportChangeSize(size.w, size.h);
+            UI.rfb.viewportChangeSize(size.w, size.h);
             UI.fixScrollbars();
         }
 
@@ -1374,8 +1371,8 @@ var UI = {
 
         // Check if viewport drag is possible. It is only possible
         // if the remote display is clipping the client display.
-        if (UI.rfb.get_display().get_viewport() &&
-            UI.rfb.get_display().clippingDisplay()) {
+        if (UI.rfb.get_viewport() &&
+            UI.rfb.clippingDisplay()) {
             clipping = true;
         }
 

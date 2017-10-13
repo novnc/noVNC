@@ -27,18 +27,20 @@ attribute mode is one of the following:
     RW - read write
     WO - write once
 
-| name              | type | mode | default    | description
-| ----------------- | ---- | ---- | ---------- | ------------
-| target            | DOM  | WO   | null       | Canvas element for rendering (passed to Display, Mouse and Keyboard)
-| encrypt           | bool | RW   | false      | Use TLS/SSL encryption
-| local_cursor      | bool | RW   | false      | Request locally rendered cursor
-| shared            | bool | RW   | true       | Request shared VNC mode
-| view_only         | bool | RW   | false      | Disable client mouse/keyboard
-| xvp_password_sep  | str  | RW   | '@'        | Separator for XVP password fields
-| disconnectTimeout | int  | RW   | 3          | Time (in seconds) to wait for disconnection
-| wsProtocols       | arr  | RW   | ['binary'] | Protocols to use in the WebSocket connection
-| repeaterID        | str  | RW   | ''         | UltraVNC RepeaterID to connect to
-| viewportDrag      | bool | RW   | false      | Move the viewport on mouse drags
+| name              | type  | mode | default    | description
+| ----------------- | ----- | ---- | ---------- | ------------
+| target            | DOM   | WO   | null       | Canvas element for rendering (passed to Display, Mouse and Keyboard)
+| encrypt           | bool  | RW   | false      | Use TLS/SSL encryption
+| local_cursor      | bool  | RW   | false      | Request locally rendered cursor
+| shared            | bool  | RW   | true       | Request shared VNC mode
+| view_only         | bool  | RW   | false      | Disable client mouse/keyboard
+| scale             | float | RW   | 1.0        | Display area scale factor
+| viewport          | bool  | RW   | false      | Use viewport clipping
+| xvp_password_sep  | str   | RW   | '@'        | Separator for XVP password fields
+| disconnectTimeout | int   | RW   | 3          | Time (in seconds) to wait for disconnection
+| wsProtocols       | arr   | RW   | ['binary'] | Protocols to use in the WebSocket connection
+| repeaterID        | str   | RW   | ''         | UltraVNC RepeaterID to connect to
+| viewportDrag      | bool  | RW   | false      | Move the viewport on mouse drags
 
 
 ## 2 Methods
@@ -47,19 +49,22 @@ In addition to the getter and setter methods to modify configuration
 attributes, the RFB object has other methods that are available in the
 object instance.
 
-| name               | parameters                   | description
-| ------------------ | ---------------------------- | ------------
-| connect            | (host, port, password, path) | Connect to the given host:port/path. Optional password and path.
-| disconnect         | ()                           | Disconnect
-| sendPassword       | (passwd)                     | Send password after onPasswordRequired callback
-| sendCtrlAltDel     | ()                           | Send Ctrl-Alt-Del key sequence
-| xvpOp              | (ver, op)                    | Send a XVP operation (2=shutdown, 3=reboot, 4=reset)
-| xvpShutdown        | ()                           | Send XVP shutdown.
-| xvpReboot          | ()                           | Send XVP reboot.
-| xvpReset           | ()                           | Send XVP reset.
-| sendKey            | (keysym, code, down)         | Send a key press event. If down not specified, send a down and up event.
-| clipboardPasteFrom | (text)                       | Send a clipboard paste event
-| requestDesktopSize | (width, height)              | Send a request to change the remote desktop size.
+| name               | parameters                     | description
+| ------------------ | ------------------------------ | ------------
+| connect            | (host, port, password, path)   | Connect to the given host:port/path. Optional password and path.
+| disconnect         | ()                             | Disconnect
+| sendPassword       | (passwd)                       | Send password after onPasswordRequired callback
+| sendCtrlAltDel     | ()                             | Send Ctrl-Alt-Del key sequence
+| xvpOp              | (ver, op)                      | Send a XVP operation (2=shutdown, 3=reboot, 4=reset)
+| xvpShutdown        | ()                             | Send XVP shutdown.
+| xvpReboot          | ()                             | Send XVP reboot.
+| xvpReset           | ()                             | Send XVP reset.
+| sendKey            | (keysym, code, down)           | Send a key press event. If down not specified, send a down and up event.
+| clipboardPasteFrom | (text)                         | Send a clipboard paste event
+| autoscale          | (width, height, downscaleOnly) | Scale the display
+| clippingDisplay    | ()                             | Check if the remote display is larger than the client display
+| requestDesktopSize | (width, height)                | Send a request to change the remote desktop size.
+| viewportChangeSize | (width, height)                | Change size of the viewport
 
 
 ## 3 Callbacks

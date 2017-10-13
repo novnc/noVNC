@@ -338,6 +338,21 @@ RFB.prototype = {
         RFB.messages.clientCutText(this._sock, text);
     },
 
+    autoscale: function (width, height, downscaleOnly) {
+        if (this._rfb_connection_state !== 'connected') { return; }
+        this._display.autoscale(width, height, downscaleOnly);
+    },
+
+    viewportChangeSize: function(width, height) {
+        if (this._rfb_connection_state !== 'connected') { return; }
+        this._display.viewportChangeSize(width, height);
+    },
+
+    clippingDisplay: function () {
+        if (this._rfb_connection_state !== 'connected') { return false; }
+        return this._display.clippingDisplay();
+    },
+
     // Requests a change of remote desktop size. This message is an extension
     // and may only be sent if we have received an ExtendedDesktopSize message
     requestDesktopSize: function (width, height) {
@@ -1478,6 +1493,8 @@ make_properties(RFB, [
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
+    ['scale', 'rw', 'float'],               // Display area scale factor
+    ['viewport', 'rw', 'bool'],             // Use viewport clipping
     ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
     ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
     ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
@@ -1532,7 +1549,22 @@ RFB.prototype.set_view_only = function (view_only) {
     }
 };
 
-RFB.prototype.get_display = function () { return this._display; };
+RFB.prototype.set_scale = function (scale) {
+    this._display.set_scale(scale);
+};
+
+RFB.prototype.get_scale = function () {
+    return this._display.get_scale();
+};
+
+RFB.prototype.set_viewport = function (viewport) {
+    this._display.set_viewport(viewport);
+};
+
+RFB.prototype.get_viewport = function () {
+    return this._display.get_viewport();
+};
+
 RFB.prototype.get_keyboard = function () { return this._keyboard; };
 RFB.prototype.get_mouse = function () { return this._mouse; };
 
