@@ -1,41 +1,17 @@
-# 1. Modules / API
+# API
 
-The noVNC client is a composed of several modular components that handle
-rendering, input, networking, etc. Each of the modules is designed to
-be cross-browser and be useful as a standalone library in other
-projects (see LICENSE.txt).
+The interface of the noVNC client consists of a single RFB object that
+is instantiated once per connection.
 
 
-## 1.1 Module List
+## 1 Configuration Attributes
 
-* __Mouse__ (core/input/mouse.js): Mouse input event handler with
-limited touch support.
-
-* __Keyboard__ (core/input/keyboard.js): Keyboard input event handler with
-non-US keyboard support. Translates keyDown and keyUp events to X11
-keysym values.
-
-* __Display__ (core/display.js): Efficient 2D rendering abstraction
-layered on the HTML5 canvas element.
-
-* __Websock__ (core/websock.js): Websock client from websockify
-with transparent binary data support.
-[Websock API](https://github.com/novnc/websockify/wiki/websock.js) wiki page.
-
-* __RFB__ (core/rfb.js): Main class that implements the RFB
-protocol and stitches the other classes together.
-
-
-## 1.2 Configuration Attributes
-
-The Mouse, Keyboard, Display and RFB classes have a similar API for
-configuration options. Each configuration option has a default value,
-which can be overridden by a a configuration object passed to the
-constructor. Configuration options can then be read and modified after
-initialization with "get_*" and "set_*" methods respectively. For
-example, the following initializes an RFB object with the 'encrypt'
-configuration option enabled, then confirms it was set, then disables
-it.
+Each configuration option has a default value, which can be overridden
+by a a configuration object passed to the constructor. Configuration
+options can then be read and modified after initialization with "get_*"
+and "set_*" methods respectively. For example, the following
+initializes an RFB object with the 'encrypt' configuration option
+enabled, then confirms it was set, then disables it:
 
     var rfb = new RFB({'encrypt': true});
     if (rfb.get_encrypt()) {
@@ -43,135 +19,13 @@ it.
     }
     rfb.set_encrypt(false);
 
-Some attributes are read-only and cannot be changed. For example, the
-Display 'render_mode' option will throw an exception if an attempt is
-made to set it. The attribute mode is one of the following:
+Some attributes are read-only and cannot be changed. An exception will
+be thrown if an attempt is made to set one of these attributs. The
+attribute mode is one of the following:
 
     RO - read only
     RW - read write
     WO - write once
-
-
-## 1.3 Methods
-
-In addition to the getter and setter methods to modify configuration
-attributes, each of the modules has other methods that are available
-in the object instance. For example, the Display module has method
-named 'blitImage' which takes an array of pixel data and draws it to
-the 2D canvas.
-
-## 1.4 Callbacks
-
-Each of the modules has certain events that can be hooked with
-callback functions. For the Mouse, Keyboard, Display and RFB classes
-the callback functions are assigned to configuration attributes. The
-WebSock module has a method named 'on' that takes two parameters: the
-callback event name, and the callback function.
-
-## 2. Modules
-
-## 2.1 Mouse Module
-
-### 2.1.1 Configuration Attributes
-
-| name        | type | mode | default  | description
-| ----------- | ---- | ---- | -------- | ------------
-| target      | DOM  | WO   | document | DOM element that captures mouse input
-| touchButton | int  | RW   | 1        | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
-
-### 2.1.2 Methods
-
-| name   | parameters | description
-| ------ | ---------- | ------------
-| grab   | ()         | Begin capturing mouse events
-| ungrab | ()         | Stop capturing mouse events
-
-### 2.1.2 Callbacks
-
-| name          | parameters          | description
-| ------------- | ------------------- | ------------
-| onMouseButton | (x, y, down, bmask) | Handler for mouse button click/release
-| onMouseMove   | (x, y)              | Handler for mouse movement
-
-
-## 2.2 Keyboard Module
-
-### 2.2.1 Configuration Attributes
-
-| name    | type | mode | default  | description
-| ------- | ---- | ---- | -------- | ------------
-| target  | DOM  | WO   | document | DOM element that captures keyboard input
-
-### 2.2.2 Methods
-
-| name   | parameters | description
-| ------ | ---------- | ------------
-| grab   | ()         | Begin capturing keyboard events
-| ungrab | ()         | Stop capturing keyboard events
-
-### 2.2.3 Callbacks
-
-| name       | parameters           | description
-| ---------- | -------------------- | ------------
-| onKeyPress | (keysym, code, down) | Handler for key press/release
-
-
-## 2.3 Display Module
-
-### 2.3.1 Configuration Attributes
-
-| name        | type  | mode | default | description
-| ----------- | ----- | ---- | ------- | ------------
-| target      | DOM   | WO   |         | Canvas element for rendering
-| context     | raw   | RO   |         | Canvas 2D context for rendering
-| logo        | raw   | RW   |         | Logo to display when cleared: {"width": width, "height": height, "type": mime-type, "data": data}
-| scale       | float | RW   | 1.0     | Display area scale factor 0.0 - 1.0
-| viewport    | bool  | RW   | false   | Use viewport clipping
-| width       | int   | RO   |         | Display area width
-| height      | int   | RO   |         | Display area height
-| render_mode | str   | RO   | ''      | Canvas rendering mode
-| prefer_js   | str   | RW   |         | Prefer JavaScript over canvas methods
-| cursor_uri  | raw   | RW   |         | Can we render cursor using data URI
-
-### 2.3.2 Methods
-
-| name               | parameters                                              | description
-| ------------------ | ------------------------------------------------------- | ------------
-| viewportChangePos  | (deltaX, deltaY)                                        | Move the viewport relative to the current location
-| viewportChangeSize | (width, height)                                         | Change size of the viewport
-| absX               | (x)                                                     | Return X relative to the remote display
-| absY               | (y)                                                     | Return Y relative to the remote display
-| resize             | (width, height)                                         | Set width and height
-| flip               | (from_queue)                                            | Update the visible canvas with the contents of the rendering canvas
-| clear              | ()                                                      | Clear the display (show logo if set)
-| pending            | ()                                                      | Check if there are waiting items in the render queue
-| flush              | ()                                                      | Resume processing the render queue unless it's empty
-| fillRect           | (x, y, width, height, color, from_queue)                | Draw a filled in rectangle
-| copyImage          | (old_x, old_y, new_x, new_y, width, height, from_queue) | Copy a rectangular area
-| imageRect          | (x, y, mime, arr)                                       | Draw a rectangle with an image
-| startTile          | (x, y, width, height, color)                            | Begin updating a tile
-| subTile            | (tile, x, y, w, h, color)                               | Update a sub-rectangle within the given tile
-| finishTile         | ()                                                      | Draw the current tile to the display
-| blitImage          | (x, y, width, height, arr, offset, from_queue)          | Blit pixels (of R,G,B,A) to the display
-| blitRgbImage       | (x, y, width, height, arr, offset, from_queue)          | Blit RGB encoded image to display
-| blitRgbxImage      | (x, y, width, height, arr, offset, from_queue)          | Blit RGBX encoded image to display
-| drawImage          | (img, x, y)                                             | Draw image and track damage
-| changeCursor       | (pixels, mask, hotx, hoty, w, h)                        | Change cursor appearance
-| defaultCursor      | ()                                                      | Restore default cursor appearance
-| disableLocalCursor | ()                                                      | Disable local (client-side) cursor
-| clippingDisplay    | ()                                                      | Check if the remote display is larger than the client display
-| autoscale          | (containerWidth, containerHeight, downscaleOnly)        | Scale the display
-
-### 2.3.3 Callbacks
-
-| name    | parameters | description
-| ------- | ---------- | ------------
-| onFlush | ()         | A display flush has been requested and we are now ready to resume FBU processing
-
-
-## 2.4 RFB Module
-
-### 2.4.1 Configuration Attributes
 
 | name              | type | mode | default    | description
 | ----------------- | ---- | ---- | ---------- | ------------
@@ -186,7 +40,12 @@ callback event name, and the callback function.
 | repeaterID        | str  | RW   | ''         | UltraVNC RepeaterID to connect to
 | viewportDrag      | bool | RW   | false      | Move the viewport on mouse drags
 
-### 2.4.2 Methods
+
+## 2 Methods
+
+In addition to the getter and setter methods to modify configuration
+attributes, the RFB object has other methods that are available in the
+object instance.
 
 | name               | parameters                   | description
 | ------------------ | ---------------------------- | ------------
@@ -202,7 +61,11 @@ callback event name, and the callback function.
 | clipboardPasteFrom | (text)                       | Send a clipboard paste event
 | requestDesktopSize | (width, height)              | Send a request to change the remote desktop size.
 
-### 2.4.3 Callbacks
+
+## 3 Callbacks
+
+The RFB object has certain events that can be hooked with callback
+functions.
 
 | name               | parameters                 | description
 | ------------------ | -------------------------- | ------------
