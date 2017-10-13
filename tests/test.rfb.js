@@ -1343,32 +1343,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._sock._websocket._get_sent_data()).to.have.length(0);
             });
 
-            it('should parse out information from a header before any actual data comes in', function () {
-                client.set_onFBUReceive(sinon.spy());
-                var rect_info = { x: 8, y: 11, width: 27, height: 32, encoding: 0x02, encodingName: 'RRE' };
-                send_fbu_msg([rect_info], [[]], client);
-
-                var spy = client.get_onFBUReceive();
-                expect(spy).to.have.been.calledOnce;
-                expect(spy).to.have.been.calledWith(sinon.match.any, rect_info);
-            });
-
-            it('should fire onFBUComplete when the update is complete', function () {
-                client.set_onFBUComplete(sinon.spy());
-                var rect_info = { x: 8, y: 11, width: 27, height: 32, encoding: -224, encodingName: 'last_rect' };
-                send_fbu_msg([rect_info], [[]], client);  // last_rect
-
-                var spy = client.get_onFBUComplete();
-                expect(spy).to.have.been.calledOnce;
-            });
-
-            it('should not fire onFBUComplete if we have not finished processing the update', function () {
-                client.set_onFBUComplete(sinon.spy());
-                var rect_info = { x: 8, y: 11, width: 27, height: 32, encoding: 0x00, encodingName: 'RAW' };
-                send_fbu_msg([rect_info], [[]], client);
-                expect(client.get_onFBUComplete()).to.not.have.been.called;
-            });
-
             it('should fail on an unsupported encoding', function () {
                 sinon.spy(client, "_fail");
                 var rect_info = { x: 8, y: 11, width: 27, height: 32, encoding: 234 };
@@ -1783,10 +1757,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 it('should handle the last_rect pseudo-encoding', function () {
-                    client.set_onFBUReceive(sinon.spy());
                     send_fbu_msg([{ x: 0, y: 0, width: 0, height: 0, encoding: -224}], [[]], client, 100);
                     expect(client._FBU.rects).to.equal(0);
-                    expect(client.get_onFBUReceive()).to.have.been.calledOnce;
                 });
             });
         });

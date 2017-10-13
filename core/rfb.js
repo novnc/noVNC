@@ -138,8 +138,6 @@ export default function RFB(defaults) {
         'onCredentialsRequired': function () { }, // onCredentialsRequired(rfb, types): VNC credentials are required
         'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
         'onBell': function () { },              // onBell(rfb): RFB Bell message received
-        'onFBUReceive': function () { },        // onFBUReceive(rfb, rect): RFB FBU rect received but not yet processed
-        'onFBUComplete': function () { },       // onFBUComplete(rfb): RFB FBU received and processed
         'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
         'onCapabilities': function () { }       // onCapabilities(rfb, caps): the supported capabilities has changed
@@ -1397,12 +1395,6 @@ RFB.prototype = {
                 this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
                                               (hdr[10] << 8) + hdr[11], 10);
 
-                this._onFBUReceive(this,
-                    {'x': this._FBU.x, 'y': this._FBU.y,
-                     'width': this._FBU.width, 'height': this._FBU.height,
-                     'encoding': this._FBU.encoding,
-                     'encodingName': encodingName(this._FBU.encoding)});
-
                 if (!this._encHandlers[this._FBU.encoding]) {
                     this._fail("Unexpected server message",
                                "Unsupported encoding " +
@@ -1457,8 +1449,6 @@ RFB.prototype = {
 
         this._display.flip();
 
-        this._onFBUComplete(this);
-
         return true;  // We finished this FBU
     },
 
@@ -1511,8 +1501,6 @@ make_properties(RFB, [
     ['onCredentialsRequired', 'rw', 'func'], // onCredentialsRequired(rfb, types): VNC credentials are required
     ['onClipboard', 'rw', 'func'],          // onClipboard(rfb, text): RFB clipboard contents received
     ['onBell', 'rw', 'func'],               // onBell(rfb): RFB Bell message received
-    ['onFBUReceive', 'rw', 'func'],         // onFBUReceive(rfb, fbu): RFB FBU received but not yet processed
-    ['onFBUComplete', 'rw', 'func'],        // onFBUComplete(rfb, fbu): RFB FBU received and processed
     ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
     ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
     ['onCapabilities', 'rw', 'func']        // onCapabilities(rfb, caps): the supported capabilities has changed

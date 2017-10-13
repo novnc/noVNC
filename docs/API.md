@@ -80,8 +80,6 @@ functions.
 | onCredentialsRequired | (rfb, types)               | VNC credentials are required (use sendCredentials)
 | onClipboard           | (rfb, text)                | RFB clipboard contents received
 | onBell                | (rfb)                      | RFB Bell message received
-| onFBUReceive          | (rfb, fbu)                 | RFB FBU received but not yet processed (see details below)
-| onFBUComplete         | (rfb, fbu)                 | RFB FBU received and processed (see details below)
 | onFBResize            | (rfb, width, height)       | Frame buffer (remote desktop) size changed
 | onDesktopName         | (rfb, name)                | VNC desktop name recieved
 | onCapabilities        | (rfb, capabilities)        | The supported capabilities has changed
@@ -114,23 +112,3 @@ defined:
 | username | User that authenticates
 | password | Password for user
 | target   | String specifying target machine or session
-
-
-__RFB onFBUReceive and on FBUComplete callback details__
-
-The onFBUReceive callback is invoked when a frame buffer update
-message has been received from the server but before the RFB class has
-done any additional handling. The onFBUComplete callback is invoked
-with the same information but after the RFB class has handled the
-message.
-
-The 'fbu' parameter is an object with the following structure:
-
-    {
-        x:            FBU_x_position,
-        y:            FBU_y_position,
-        width:        FBU_width,
-        height:       FBU_height,
-        encoding:     FBU_encoding_number,
-        encodingName: FBU_encoding_string
-    }
