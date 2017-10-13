@@ -1574,8 +1574,6 @@ RFB.prototype.get_viewport = function () {
     return this._display.get_viewport();
 };
 
-RFB.prototype.get_keyboard = function () { return this._keyboard; };
-
 // Class Methods
 RFB.messages = {
     keyEvent: function (sock, keysym, down) {
