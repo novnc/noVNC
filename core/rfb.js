@@ -34,42 +34,59 @@ export default function RFB(defaults) {
         defaults = {};
     }
 
+    // Connection details
     this._rfb_host = '';
     this._rfb_port = 5900;
     this._rfb_credentials = {};
     this._rfb_path = '';
 
+    // Internal state
     this._rfb_connection_state = '';
     this._rfb_init_state = '';
-    this._rfb_version = 0;
-    this._rfb_max_version = 3.8;
     this._rfb_auth_scheme = '';
     this._rfb_disconnect_reason = "";
 
+    // Server capabilities
+    this._rfb_version = 0;
+    this._rfb_max_version = 3.8;
     this._rfb_tightvnc = false;
     this._rfb_xvp_ver = 0;
 
+    this._fb_width = 0;
+    this._fb_height = 0;
+
+    this._fb_name = "";
+
     this._capabilities = { power: false, resize: false };
-
-    this._encHandlers = {};
-    this._encStats = {};
-
-    this._sock = null;              // Websock object
-    this._display = null;           // Display object
-    this._flushing = false;         // Display flushing state
-    this._keyboard = null;          // Keyboard input handler object
-    this._mouse = null;             // Mouse input handler object
-    this._disconnTimer = null;      // disconnection timer
 
     this._supportsFence = false;
 
     this._supportsContinuousUpdates = false;
     this._enabledContinuousUpdates = false;
 
-    // Frame buffer update state
+    this._supportsSetDesktopSize = false;
+    this._screen_id = 0;
+    this._screen_flags = 0;
+
+    this._qemuExtKeyEventSupported = false;
+
+    // Internal objects
+    this._sock = null;              // Websock object
+    this._display = null;           // Display object
+    this._flushing = false;         // Display flushing state
+    this._keyboard = null;          // Keyboard input handler object
+    this._mouse = null;             // Mouse input handler object
+
+    // Timers
+    this._disconnTimer = null;      // disconnection timer
+
+    // Decoder states and stats
+    this._encHandlers = {};
+    this._encStats = {};
+
     this._FBU = {
         rects: 0,
-        subrects: 0,            // RRE
+        subrects: 0,            // RRE and HEXTILE
         lines: 0,               // RAW
         tiles: 0,               // HEXTILE
         bytes: 0,
@@ -80,12 +97,11 @@ export default function RFB(defaults) {
         encoding: 0,
         subencoding: -1,
         background: null,
-        zlib: []                // TIGHT zlib streams
+        zlibs: []               // TIGHT zlib streams
     };
-
-    this._fb_width = 0;
-    this._fb_height = 0;
-    this._fb_name = "";
+    for (var i = 0; i < 4; i++) {
+        this._FBU.zlibs[i] = new Inflator();
+    }
 
     this._destBuff = null;
     this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
@@ -105,19 +121,12 @@ export default function RFB(defaults) {
         pixels: 0
     };
 
-    this._supportsSetDesktopSize = false;
-    this._screen_id = 0;
-    this._screen_flags = 0;
-
     // Mouse state
     this._mouse_buttonMask = 0;
     this._mouse_arr = [];
     this._viewportDragging = false;
     this._viewportDragPos = {};
     this._viewportHasMoved = false;
-
-    // QEMU Extended Key Event support - default to false
-    this._qemuExtKeyEventSupported = false;
 
     // set the default value on user-facing properties
     set_defaults(this, defaults, {
@@ -173,6 +182,7 @@ export default function RFB(defaults) {
         Log.Error("Display exception: " + exc);
         throw exc;
     }
+    this._display.clear();
 
     this._keyboard = new Keyboard({target: this._target,
                                    onKeyEvent: this._handleKeyEvent.bind(this)});
@@ -228,9 +238,6 @@ export default function RFB(defaults) {
     this._sock.on('error', function (e) {
         Log.Warn("WebSocket on-error event");
     });
-
-    this._init_vars();
-    this._cleanup();
 
     var rmode = this._display.get_render_mode();
     Log.Info("Using native WebSockets, render mode: " + rmode);
@@ -368,7 +375,6 @@ RFB.prototype = {
 
     _connect: function () {
         Log.Debug(">> RFB.connect");
-        this._init_vars();
 
         var uri;
         if (typeof UsingSocketIO !== 'undefined') {
@@ -413,29 +419,6 @@ RFB.prototype = {
         Log.Debug("<< RFB.disconnect");
     },
 
-    _init_vars: function () {
-        // reset state
-        this._FBU.rects        = 0;
-        this._FBU.subrects     = 0;  // RRE and HEXTILE
-        this._FBU.lines        = 0;  // RAW
-        this._FBU.tiles        = 0;  // HEXTILE
-        this._FBU.zlibs        = []; // TIGHT zlib encoders
-        this._mouse_buttonMask = 0;
-        this._mouse_arr        = [];
-        this._rfb_tightvnc     = false;
-
-        // Clear the per connection encoding stats
-        var stats = this._encStats;
-        Object.keys(stats).forEach(function (key) {
-            stats[key][0] = 0;
-        });
-
-        var i;
-        for (i = 0; i < 4; i++) {
-            this._FBU.zlibs[i] = new Inflator();
-        }
-    },
-
     _print_stats: function () {
         var stats = this._encStats;
 
@@ -459,7 +442,7 @@ RFB.prototype = {
         if (!this._view_only) { this._mouse.ungrab(); }
         this._display.defaultCursor();
         if (Log.get_logging() !== 'debug') {
-            // Show noVNC logo on load and when disconnected, unless in
+            // Show noVNC logo when disconnected, unless in
             // debug mode
             this._display.clear();
         }

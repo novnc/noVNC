@@ -459,12 +459,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
             var client;
             beforeEach(function () { client = make_rfb(); });
 
-            it('should reset the variable states', function () {
-                sinon.spy(client, '_init_vars');
-                client._updateConnectionState('connecting');
-                expect(client._init_vars).to.have.been.calledOnce;
-            });
-
             it('should actually connect to the websocket', function () {
                 sinon.spy(client._sock, 'open');
                 client._updateConnectionState('connecting');
