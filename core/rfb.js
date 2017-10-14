@@ -133,7 +133,6 @@ export default function RFB(defaults) {
         'shared': true,                         // Request shared mode
         'view_only': false,                     // Disable client mouse/keyboard
         'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
-        'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
         'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
         'viewportDrag': false,                  // Move the viewport on mouse drags
 
@@ -375,7 +374,7 @@ RFB.prototype = {
 
         try {
             // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(this._url, this._wsProtocols);
+            this._sock.open(this._url, ['binary']);
         } catch (e) {
             if (e.name === 'SyntaxError') {
                 this._fail("Invalid host or port value given", e);
@@ -1453,7 +1452,6 @@ make_properties(RFB, [
     ['scale', 'rw', 'float'],               // Display area scale factor
     ['viewport', 'rw', 'bool'],             // Use viewport clipping
     ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
-    ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
     ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
     ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
     ['capabilities', 'ro', 'arr'],          // Supported capabilities

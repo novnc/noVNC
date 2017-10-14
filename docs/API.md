@@ -37,7 +37,6 @@ attribute mode is one of the following:
 | scale             | float | RW   | 1.0        | Display area scale factor
 | viewport          | bool  | RW   | false      | Use viewport clipping
 | disconnectTimeout | int   | RW   | 3          | Time (in seconds) to wait for disconnection
-| wsProtocols       | arr   | RW   | ['binary'] | Protocols to use in the WebSocket connection
 | repeaterID        | str   | RW   | ''         | UltraVNC RepeaterID to connect to
 | viewportDrag      | bool  | RW   | false      | Move the viewport on mouse drags
 | capabilities      | arr   | RO   | []         | Supported capabilities (can include: 'power', 'resize')
