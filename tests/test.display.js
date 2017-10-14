@@ -40,19 +40,19 @@ describe('Display/Canvas Helper', function () {
     describe('checking for cursor uri support', function () {
         it('should disable cursor URIs if there is no support', function () {
             _forceCursorURIs(false);
-            var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
+            var display = new Display(document.createElement('canvas'), { prefer_js: true, viewport: false });
             expect(display._cursor_uri).to.be.false;
         });
 
         it('should enable cursor URIs if there is support', function () {
             _forceCursorURIs(true);
-            var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false });
+            var display = new Display(document.createElement('canvas'), { prefer_js: true, viewport: false });
             expect(display._cursor_uri).to.be.true;
         });
 
         it('respect the cursor_uri option if there is support', function () {
             _forceCursorURIs(false);
-            var display = new Display({ target: document.createElement('canvas'), prefer_js: true, viewport: false, cursor_uri: false });
+            var display = new Display(document.createElement('canvas'), { prefer_js: true, viewport: false, cursor_uri: false });
             expect(display._cursor_uri).to.be.false;
         });
     });
@@ -60,7 +60,7 @@ describe('Display/Canvas Helper', function () {
     describe('viewport handling', function () {
         var display;
         beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
+            display = new Display(document.createElement('canvas'), { prefer_js: false, viewport: true });
             display.resize(5, 5);
             display.viewportChangeSize(3, 3);
             display.viewportChangePos(1, 1);
@@ -153,7 +153,7 @@ describe('Display/Canvas Helper', function () {
     describe('resizing', function () {
         var display;
         beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: false });
+            display = new Display(document.createElement('canvas'), { prefer_js: false, viewport: false });
             display.resize(4, 4);
         });
 
@@ -214,11 +214,11 @@ describe('Display/Canvas Helper', function () {
         var canvas;
 
         beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
+            canvas = document.createElement('canvas');
+            display = new Display(canvas, { prefer_js: false, viewport: true });
             display.resize(4, 4);
             display.viewportChangeSize(3, 3);
             display.viewportChangePos(1, 1);
-            canvas = display.get_target();
             document.body.appendChild(canvas);
         });
 
@@ -254,9 +254,9 @@ describe('Display/Canvas Helper', function () {
         var canvas;
 
         beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false, viewport: true });
+            canvas = document.createElement('canvas');
+            display = new Display(canvas, { prefer_js: false, viewport: true });
             display.resize(4, 3);
-            canvas = display.get_target();
             document.body.appendChild(canvas);
         });
 
@@ -314,7 +314,7 @@ describe('Display/Canvas Helper', function () {
         function drawing_tests (pref_js) {
             var display;
             beforeEach(function () {
-                display = new Display({ target: document.createElement('canvas'), prefer_js: pref_js });
+                display = new Display(document.createElement('canvas'), { prefer_js: pref_js });
                 display.resize(4, 4);
             });
 
@@ -428,7 +428,7 @@ describe('Display/Canvas Helper', function () {
     describe('the render queue processor', function () {
         var display;
         beforeEach(function () {
-            display = new Display({ target: document.createElement('canvas'), prefer_js: false });
+            display = new Display(document.createElement('canvas'), { prefer_js: false });
             display.resize(4, 4);
             sinon.spy(display, '_scan_renderQ');
         });

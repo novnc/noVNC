@@ -77,8 +77,8 @@ export default function RecordingPlayer (frames, encoding, disconnected, notific
 RecordingPlayer.prototype = {
     run: function (realtime, trafficManagement) {
         // initialize a new RFB
-        this._rfb = new RFB({'target': document.getElementById('VNC_canvas'),
-                             'view_only': true,
+        this._rfb = new RFB(document.getElementById('VNC_canvas'),
+                            {'view_only': true,
                              'onDisconnected': this._handleDisconnect.bind(this),
                              'onNotification': this._notification});
         this._enablePlaybackMode();

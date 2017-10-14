@@ -18,14 +18,14 @@ import KeyTable from "./keysym.js";
 // Keyboard event handler
 //
 
-export default function Keyboard(defaults) {
+export default function Keyboard(target, defaults) {
+    this._target = target || null;
+
     this._keyDownList = {};         // List of depressed keys
                                     // (even if they are happy)
     this._pendingKey = null;        // Key waiting for keypress
 
-    set_defaults(this, defaults, {
-        'target': null,
-    });
+    set_defaults(this, defaults, {});
 
     // keep these here so we can refer to them later
     this._eventHandlers = {
@@ -338,7 +338,5 @@ Keyboard.prototype = {
 };
 
 make_properties(Keyboard, [
-    ['target',     'wo', 'dom'],  // DOM element that captures keyboard input
-
     ['onKeyEvent', 'rw', 'func'] // Handler for key press/release
 ]);

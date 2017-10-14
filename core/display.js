@@ -15,7 +15,7 @@ import { set_defaults, make_properties } from './util/properties.js';
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 
-export default function Display(defaults) {
+export default function Display(target, defaults) {
     this._drawCtx = null;
     this._c_forceCanvas = false;
 
@@ -42,6 +42,8 @@ export default function Display(defaults) {
     Log.Debug(">> Display.constructor");
 
     // The visible canvas
+    this._target = target;
+
     if (!this._target) {
         throw new Error("Target must be set");
     }
@@ -691,7 +693,6 @@ Display.prototype = {
 };
 
 make_properties(Display, [
-    ['target', 'wo', 'dom'],       // Canvas element for rendering
     ['context', 'ro', 'raw'],      // Canvas 2D context for rendering (read-only)
     ['logo', 'rw', 'raw'],         // Logo to display when cleared: {"width": w, "height": h, "type": mime-type, "data": data}
     ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0

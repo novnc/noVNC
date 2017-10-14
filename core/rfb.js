@@ -28,11 +28,12 @@ import { encodings, encodingName } from "./encodings.js";
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
 
-export default function RFB(defaults) {
+export default function RFB(target, defaults) {
     "use strict";
     if (!defaults) {
         defaults = {};
     }
+    this._target = target;
 
     // Connection details
     this._url = '';
@@ -128,12 +129,9 @@ export default function RFB(defaults) {
 
     // set the default value on user-facing properties
     set_defaults(this, defaults, {
-        'target': 'null',                       // VNC display rendering Canvas object
         'local_cursor': false,                  // Request locally rendered cursor
-        'shared': true,                         // Request shared mode
         'view_only': false,                     // Disable client mouse/keyboard
         'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
-        'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
         'viewportDrag': false,                  // Move the viewport on mouse drags
 
         // Callback functions
@@ -172,19 +170,19 @@ export default function RFB(defaults) {
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
     try {
-        this._display = new Display({target: this._target,
-                                     onFlush: this._onFlush.bind(this)});
+        this._display = new Display(this._target,
+                                    {onFlush: this._onFlush.bind(this)});
     } catch (exc) {
         Log.Error("Display exception: " + exc);
         throw exc;
     }
     this._display.clear();
 
-    this._keyboard = new Keyboard({target: this._target,
-                                   onKeyEvent: this._handleKeyEvent.bind(this)});
+    this._keyboard = new Keyboard(this._target,
+                                  {onKeyEvent: this._handleKeyEvent.bind(this)});
 
-    this._mouse = new Mouse({target: this._target,
-                             onMouseButton: this._handleMouseButton.bind(this),
+    this._mouse = new Mouse(this._target,
+                            {onMouseButton: this._handleMouseButton.bind(this),
                              onMouseMove: this._handleMouseMove.bind(this)});
 
     this._sock = new Websock();
@@ -243,14 +241,19 @@ export default function RFB(defaults) {
 
 RFB.prototype = {
     // Public methods
-    connect: function (url, creds) {
-        this._url = url;
-        this._rfb_credentials = (creds !== undefined) ? creds : {};
-
+    connect: function (url, options) {
         if (!url) {
             this._fail(_("Must specify URL"));
             return;
         }
+
+        this._url = url;
+
+        options = options || {}
+
+        this._rfb_credentials = options.credentials || {};
+        this._shared = 'shared' in options ? !!options.shared : true;
+        this._repeaterID = options.repeaterID || '';
 
         this._rfb_init_state = '';
         this._updateConnectionState('connecting');
@@ -1444,15 +1447,12 @@ RFB.prototype = {
 };
 
 make_properties(RFB, [
-    ['target', 'wo', 'dom'],                // VNC display rendering Canvas object
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
-    ['shared', 'rw', 'bool'],               // Request shared mode
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
     ['touchButton', 'rw', 'int'],           // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
     ['scale', 'rw', 'float'],               // Display area scale factor
     ['viewport', 'rw', 'bool'],             // Use viewport clipping
     ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
-    ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
     ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
     ['capabilities', 'ro', 'arr'],          // Supported capabilities
 

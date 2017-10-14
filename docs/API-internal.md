@@ -48,7 +48,6 @@ callback event name, and the callback function.
 
 | name        | type | mode | default  | description
 | ----------- | ---- | ---- | -------- | ------------
-| target      | DOM  | WO   | document | DOM element that captures mouse input
 | touchButton | int  | RW   | 1        | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
 
 ### 2.1.2 Methods
@@ -70,9 +69,7 @@ callback event name, and the callback function.
 
 ### 2.2.1 Configuration Attributes
 
-| name    | type | mode | default  | description
-| ------- | ---- | ---- | -------- | ------------
-| target  | DOM  | WO   | document | DOM element that captures keyboard input
+None
 
 ### 2.2.2 Methods
 
@@ -94,7 +91,6 @@ callback event name, and the callback function.
 
 | name        | type  | mode | default | description
 | ----------- | ----- | ---- | ------- | ------------
-| target      | DOM   | WO   |         | Canvas element for rendering
 | context     | raw   | RO   |         | Canvas 2D context for rendering
 | logo        | raw   | RW   |         | Logo to display when cleared: {"width": width, "height": height, "type": mime-type, "data": data}
 | scale       | float | RW   | 1.0     | Display area scale factor 0.0 - 1.0

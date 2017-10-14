@@ -13,7 +13,7 @@ and "set_*" methods respectively. For example, the following
 initializes an RFB object with the 'view_only' configuration option
 enabled, then confirms it was set, then disables it:
 
-    var rfb = new RFB({'view_only': true});
+    var rfb = new RFB(target, {'view_only': true});
     if (rfb.get_view_only()) {
         alert("View Only is set");
     }
@@ -29,15 +29,12 @@ attribute mode is one of the following:
 
 | name              | type  | mode | default    | description
 | ----------------- | ----- | ---- | ---------- | ------------
-| target            | DOM   | WO   | null       | Canvas element for rendering (passed to Display, Mouse and Keyboard)
 | local_cursor      | bool  | RW   | false      | Request locally rendered cursor
-| shared            | bool  | RW   | true       | Request shared VNC mode
 | view_only         | bool  | RW   | false      | Disable client mouse/keyboard
 | touchButton       | int   | RW   | 1          | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
 | scale             | float | RW   | 1.0        | Display area scale factor
 | viewport          | bool  | RW   | false      | Use viewport clipping
 | disconnectTimeout | int   | RW   | 3          | Time (in seconds) to wait for disconnection
-| repeaterID        | str   | RW   | ''         | UltraVNC RepeaterID to connect to
 | viewportDrag      | bool  | RW   | false      | Move the viewport on mouse drags
 | capabilities      | arr   | RO   | []         | Supported capabilities (can include: 'power', 'resize')
 
@@ -50,7 +47,7 @@ object instance.
 
 | name               | parameters                      | description
 | ------------------ | ------------------------------- | ------------
-| connect            | (url, credentials)              | Connect to the given URL. Optional credentials.
+| connect            | (url, options)                  | Connect to the given URL
 | disconnect         | ()                              | Disconnect
 | sendCredentials    | (credentials)                   | Send credentials after onCredentialsRequired callback
 | sendCtrlAltDel     | ()                              | Send Ctrl-Alt-Del key sequence
@@ -63,6 +60,16 @@ object instance.
 | clippingDisplay    | ()                              | Check if the remote display is larger than the client display
 | requestDesktopSize | (width, height)                 | Send a request to change the remote desktop size.
 | viewportChangeSize | (width, height)                 | Change size of the viewport
+
+__connect() details__
+
+The connect() call supports the following options:
+
+| name              | type  | default    | description
+| ----------------- | ----- | ---------- | ------------
+| shared            | bool  | true       | Request shared VNC mode
+| credentials       | obj   | {}         | Credentials to use when authenticating
+| repeaterID        | str   | ''         | UltraVNC RepeaterID to connect to
 
 
 ## 3 Callbacks

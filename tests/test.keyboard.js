@@ -31,7 +31,7 @@ describe('Key Event Handling', function() {
     describe('Decode Keyboard Events', function() {
         it('should decode keydown events', function(done) {
             if (isIE() || isEdge()) this.skip();
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -43,7 +43,7 @@ describe('Key Event Handling', function() {
         it('should decode keyup events', function(done) {
             if (isIE() || isEdge()) this.skip();
             var calls = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -59,12 +59,12 @@ describe('Key Event Handling', function() {
         describe('Legacy keypress Events', function() {
             it('should wait for keypress when needed', function() {
                 var callback = sinon.spy();
-                var kbd = new Keyboard({onKeyEvent: callback});
+                var kbd = new Keyboard(document, {onKeyEvent: callback});
                 kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
                 expect(callback).to.not.have.been.called;
             });
             it('should decode keypress events', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('KeyA');
@@ -76,13 +76,13 @@ describe('Key Event Handling', function() {
             });
             it('should ignore keypress with different code', function() {
                 var callback = sinon.spy();
-                var kbd = new Keyboard({onKeyEvent: callback});
+                var kbd = new Keyboard(document, {onKeyEvent: callback});
                 kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41}));
                 kbd._handleKeyPress(keyevent('keypress', {code: 'KeyB', charCode: 0x61}));
                 expect(callback).to.not.have.been.called;
             });
             it('should handle keypress with missing code', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('KeyA');
@@ -93,7 +93,7 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyPress(keyevent('keypress', {charCode: 0x61}));
             });
             it('should guess key if no keypress and numeric key', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x32);
                     expect(code).to.be.equal('Digit2');
@@ -103,7 +103,7 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {code: 'Digit2', keyCode: 0x32}));
             });
             it('should guess key if no keypress and alpha key', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('KeyA');
@@ -113,7 +113,7 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41, shiftKey: false}));
             });
             it('should guess key if no keypress and alpha key (with shift)', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x41);
                     expect(code).to.be.equal('KeyA');
@@ -123,7 +123,7 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', keyCode: 0x41, shiftKey: true}));
             });
             it('should not guess key if no keypress and unknown key', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0);
                     expect(code).to.be.equal('KeyA');
@@ -139,7 +139,7 @@ describe('Key Event Handling', function() {
                 if (isIE() || isEdge()) this.skip();
             });
             it('should suppress anything with a valid key', function() {
-                var kbd = new Keyboard({});
+                var kbd = new Keyboard(document, {});
                 var evt = keyevent('keydown', {code: 'KeyA', key: 'a'});
                 kbd._handleKeyDown(evt);
                 expect(evt.preventDefault).to.have.been.called;
@@ -148,13 +148,13 @@ describe('Key Event Handling', function() {
                 expect(evt.preventDefault).to.have.been.called;
             });
             it('should not suppress keys without key', function() {
-                var kbd = new Keyboard({});
+                var kbd = new Keyboard(document, {});
                 var evt = keyevent('keydown', {code: 'KeyA', keyCode: 0x41});
                 kbd._handleKeyDown(evt);
                 expect(evt.preventDefault).to.not.have.been.called;
             });
             it('should suppress the following keypress event', function() {
-                var kbd = new Keyboard({});
+                var kbd = new Keyboard(document, {});
                 var evt = keyevent('keydown', {code: 'KeyA', keyCode: 0x41});
                 kbd._handleKeyDown(evt);
                 var evt = keyevent('keypress', {code: 'KeyA', charCode: 0x41});
@@ -168,7 +168,7 @@ describe('Key Event Handling', function() {
         it('should fake keyup events for virtual keyboards', function(done) {
             if (isIE() || isEdge()) this.skip();
             var count = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 switch (count++) {
                     case 0:
@@ -215,7 +215,7 @@ describe('Key Event Handling', function() {
             it('should fake keyup events on iOS', function(done) {
                 if (isIE() || isEdge()) this.skip();
                 var count = 0;
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     switch (count++) {
                         case 0:
@@ -240,7 +240,7 @@ describe('Key Event Handling', function() {
             if (isIE() || isEdge()) this.skip();
         });
         it('should send release using the same keysym as the press', function(done) {
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -253,7 +253,7 @@ describe('Key Event Handling', function() {
         });
         it('should send the same keysym for multiple presses', function() {
             var count = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
@@ -266,14 +266,14 @@ describe('Key Event Handling', function() {
         });
         it('should do nothing on keyup events if no keys are down', function() {
             var callback = sinon.spy();
-            var kbd = new Keyboard({onKeyEvent: callback});
+            var kbd = new Keyboard(document, {onKeyEvent: callback});
             kbd._handleKeyUp(keyevent('keyup', {code: 'KeyA', key: 'a'}));
             expect(callback).to.not.have.been.called;
         });
 
         describe('Legacy Events', function() {
             it('should track keys using keyCode if no code', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Platform65');
@@ -293,7 +293,7 @@ describe('Key Event Handling', function() {
                 kbd._handleKeyDown(keyevent('keydown', {keyCode: 229, key: 'a'}));
             });
             it('should track keys using keyIdentifier if no code', function(done) {
-                var kbd = new Keyboard({
+                var kbd = new Keyboard(document, {
                 onKeyEvent: function(keysym, code, down) {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Platform65');
@@ -335,7 +335,7 @@ describe('Key Event Handling', function() {
 
         it('should change Alt to AltGraph', function() {
             var count = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 switch (count++) {
                     case 0:
@@ -353,7 +353,7 @@ describe('Key Event Handling', function() {
             expect(count).to.be.equal(2);
         });
         it('should change left Super to Alt', function(done) {
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0xFFE9);
                 expect(code).to.be.equal('MetaLeft');
@@ -362,7 +362,7 @@ describe('Key Event Handling', function() {
             kbd._handleKeyDown(keyevent('keydown', {code: 'MetaLeft', key: 'Meta', location: 1}));
         });
         it('should change right Super to left Super', function(done) {
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 expect(keysym).to.be.equal(0xFFEB);
                 expect(code).to.be.equal('MetaRight');
@@ -400,7 +400,7 @@ describe('Key Event Handling', function() {
 
         it('should generate fake undo/redo events on press when AltGraph is down', function() {
             var times_called = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 switch(times_called++) {
                 case 0:
@@ -449,7 +449,7 @@ describe('Key Event Handling', function() {
         });
         it('should no do anything on key release', function() {
             var times_called = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 switch(times_called++) {
                 case 7:
@@ -469,7 +469,7 @@ describe('Key Event Handling', function() {
         });
         it('should not consider a char modifier to be down on the modifier key itself', function() {
             var times_called = 0;
-            var kbd = new Keyboard({
+            var kbd = new Keyboard(document, {
             onKeyEvent: function(keysym, code, down) {
                 switch(times_called++) {
                 case 0:

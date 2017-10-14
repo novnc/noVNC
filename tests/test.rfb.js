@@ -10,12 +10,8 @@ import FakeWebSocket from './fake.websocket.js';
 import sinon from '../vendor/sinon.js';
 
 function make_rfb (extra_opts) {
-    if (!extra_opts) {
-        extra_opts = {};
-    }
-
-    extra_opts.target = extra_opts.target || document.createElement('canvas');
-    return new RFB(extra_opts);
+    extra_opts = extra_opts || {};
+    return new RFB(document.createElement('canvas'), extra_opts);
 }
 
 var push8 = function (arr, num) {
@@ -581,15 +577,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._sock._websocket._open();
                 });
 
-                it('should interpret version 000.000 as a repeater', function () {
-                    client._repeaterID = '12345';
-                    send_ver('000.000', client);
-                    expect(client._rfb_version).to.equal(0);
-
-                    var sent_data = client._sock._websocket._get_sent_data();
-                    expect(new Uint8Array(sent_data.buffer, 0, 9)).to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
-                });
-
                 it('should interpret version 003.003 as version 3.3', function () {
                     send_ver('003.003', client);
                     expect(client._rfb_version).to.equal(3.3);
@@ -637,19 +624,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
             });
 
-            it('should handle two step repeater negotiation', function () {
-                client._repeaterID = '12345';
-
-                send_ver('000.000', client);
-                expect(client._rfb_version).to.equal(0);
-                var sent_data = client._sock._websocket._get_sent_data();
-                expect(new Uint8Array(sent_data.buffer, 0, 9)).to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
-                expect(sent_data).to.have.length(250);
-
-                send_ver('003.008', client);
-                expect(client._rfb_version).to.equal(3.8);
-            });
-
             it('should send back the interpreted version', function () {
                 send_ver('004.000', client);
 
@@ -665,6 +639,29 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should transition to the Security state on successful negotiation', function () {
                 send_ver('003.008', client);
                 expect(client._rfb_init_state).to.equal('Security');
+            });
+
+            describe('Repeater', function () {
+                it('should interpret version 000.000 as a repeater', function () {
+                    client = make_rfb();
+                    client.connect('wss://host:8675', { repeaterID: "12345" });
+                    client._sock._websocket._open();
+                    send_ver('000.000', client);
+                    expect(client._rfb_version).to.equal(0);
+
+                    var sent_data = client._sock._websocket._get_sent_data();
+                    expect(new Uint8Array(sent_data.buffer, 0, 9)).to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
+                    expect(sent_data).to.have.length(250);
+                });
+
+                it('should handle two step repeater negotiation', function () {
+                    client = make_rfb();
+                    client.connect('wss://host:8675', { repeaterID: "12345" });
+                    client._sock._websocket._open();
+                    send_ver('000.000', client);
+                    send_ver('003.008', client);
+                    expect(client._rfb_version).to.equal(3.8);
+                });
             });
         });
 
@@ -1016,24 +1013,28 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('wss://host:8675');
-                client._sock._websocket._open();
-                client._rfb_init_state = 'SecurityResult';
             });
 
             it('should transition to the ServerInitialisation state', function () {
+                client.connect('wss://host:8675');
+                client._sock._websocket._open();
+                client._rfb_init_state = 'SecurityResult';
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0]));
                 expect(client._rfb_init_state).to.equal('ServerInitialisation');
             });
 
             it('should send 1 if we are in shared mode', function () {
-                client.set_shared(true);
+                client.connect('wss://host:8675', { shared: true });
+                client._sock._websocket._open();
+                client._rfb_init_state = 'SecurityResult';
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0]));
                 expect(client._sock).to.have.sent(new Uint8Array([1]));
             });
 
             it('should send 0 if we are not in shared mode', function () {
-                client.set_shared(false);
+                client.connect('wss://host:8675', { shared: false });
+                client._sock._websocket._open();
+                client._rfb_init_state = 'SecurityResult';
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0]));
                 expect(client._sock).to.have.sent(new Uint8Array([0]));
             });

@@ -202,8 +202,8 @@ var UI = {
 
     initRFB: function() {
         try {
-            UI.rfb = new RFB({'target': document.getElementById('noVNC_canvas'),
-                              'onNotification': UI.notification,
+            UI.rfb = new RFB(document.getElementById('noVNC_canvas'),
+                             {'onNotification': UI.notification,
                               'onUpdateState': UI.updateState,
                               'onDisconnected': UI.disconnectFinished,
                               'onCredentialsRequired': UI.credentials,
@@ -277,8 +277,8 @@ var UI = {
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
 
-        UI.touchKeyboard = new Keyboard({target: document.getElementById('noVNC_keyboardinput'),
-                                         onKeyEvent: UI.keyEvent});
+        UI.touchKeyboard = new Keyboard(document.getElementById('noVNC_keyboardinput'),
+                                        {onKeyEvent: UI.keyEvent});
         UI.touchKeyboard.grab();
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('input', UI.keyInput);
@@ -1062,9 +1062,6 @@ var UI = {
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
-        UI.rfb.set_shared(UI.getSetting('shared'));
-        UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
-
         UI.updateLocalCursor();
         UI.updateViewOnly();
 
@@ -1078,7 +1075,9 @@ var UI = {
         }
         url += '/' + path;
 
-        UI.rfb.connect(url, { password: password });
+        UI.rfb.connect(url, { shared: UI.getSetting('shared'),
+                              repeaterID: UI.getSetting('repeaterID'),
+                              credentials: { password: password } });
     },
 
     disconnect: function() {

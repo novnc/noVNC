@@ -17,7 +17,8 @@ var WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
 var WHEEL_STEP_TIMEOUT = 50; // ms
 var WHEEL_LINE_HEIGHT = 19;
 
-export default function Mouse(defaults) {
+export default function Mouse(target, defaults) {
+    this._target = target || document;
 
     this._doubleClickTimer = null;
     this._lastTouchPos = null;
@@ -30,7 +31,6 @@ export default function Mouse(defaults) {
 
     // Configuration attributes
     set_defaults(this, defaults, {
-        'target': document,
         'touchButton': 1
     });
 
@@ -284,8 +284,6 @@ Mouse.prototype = {
 };
 
 make_properties(Mouse, [
-    ['target',         'ro', 'dom'],   // DOM element that captures mouse input
-
     ['onMouseButton',  'rw', 'func'],  // Handler for mouse button click/release
     ['onMouseMove',    'rw', 'func'],  // Handler for mouse movement
     ['touchButton',    'rw', 'int']    // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)

@@ -256,10 +256,8 @@
             }
 
             try {
-                rfb = new RFB({'target':       document.getElementById('noVNC_canvas'),
-                               'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
-                               'local_cursor': WebUtil.getConfigVar('cursor', true),
-                               'shared':       WebUtil.getConfigVar('shared', true),
+                rfb = new RFB(document.getElementById('noVNC_canvas'),
+                              {'local_cursor': WebUtil.getConfigVar('cursor', true),
                                'view_only':    WebUtil.getConfigVar('view_only', false),
                                'onNotification':  notification,
                                'onUpdateState':  updateState,
@@ -287,7 +285,9 @@
             }
             url += '/' + path;
 
-            rfb.connect(url, { password: password });
+            rfb.connect(url, { repeaterID: WebUtil.getConfigVar('repeaterID', ''),
+                               shared: WebUtil.getConfigVar('shared', true),
+                               credentials: { password: password } });
         })();
     </script>
 </head>
