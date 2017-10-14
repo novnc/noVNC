@@ -114,6 +114,7 @@ export function make_properties (constructor, arr) {
 
 export function set_defaults (obj, conf, defaults) {
     var defaults_keys = Object.keys(defaults);
+    conf = conf || {};
     var conf_keys = Object.keys(conf);
     var keys_obj = {};
     var i;
