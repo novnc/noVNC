@@ -556,12 +556,11 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
     describe('Protocol Initialization States', function () {
         describe('ProtocolVersion', function () {
+            var client;
             beforeEach(function () {
-                this.clock = sinon.useFakeTimers();
-            });
-
-            afterEach(function () {
-                this.clock.restore();
+                client = make_rfb();
+                client.connect('wss://host:8675');
+                client._sock._websocket._open();
             });
 
             function send_ver (ver, client) {
@@ -636,13 +635,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     send_ver('002.000', client);
                     expect(client._fail).to.have.been.calledOnce;
                 });
-            });
-
-            var client;
-            beforeEach(function () {
-                client = make_rfb();
-                client.connect('wss://host:8675');
-                client._sock._websocket._open();
             });
 
             it('should handle two step repeater negotiation', function () {
