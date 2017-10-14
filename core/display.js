@@ -77,11 +77,6 @@ export default function Display(target, defaults) {
         throw new Error("Canvas does not support createImageData");
     }
 
-    if (this._prefer_js === null) {
-        Log.Info("Prefering javascript operations");
-        this._prefer_js = true;
-    }
-
     // Determine browser support for setting the cursor via data URI scheme
     if (this._cursor_uri || this._cursor_uri === null ||
             this._cursor_uri === undefined) {
@@ -381,56 +376,45 @@ Display.prototype = {
             this._tile = this._drawCtx.createImageData(width, height);
         }
 
-        if (this._prefer_js) {
-            var red = color[2];
-            var green = color[1];
-            var blue = color[0];
+        var red = color[2];
+        var green = color[1];
+        var blue = color[0];
 
-            var data = this._tile.data;
-            for (var i = 0; i < width * height * 4; i += 4) {
-                data[i] = red;
-                data[i + 1] = green;
-                data[i + 2] = blue;
-                data[i + 3] = 255;
-            }
-        } else {
-            this.fillRect(x, y, width, height, color, true);
+        var data = this._tile.data;
+        for (var i = 0; i < width * height * 4; i += 4) {
+            data[i] = red;
+            data[i + 1] = green;
+            data[i + 2] = blue;
+            data[i + 3] = 255;
         }
     },
 
     // update sub-rectangle of the current tile
     subTile: function (x, y, w, h, color) {
-        if (this._prefer_js) {
-            var red = color[2];
-            var green = color[1];
-            var blue = color[0];
-            var xend = x + w;
-            var yend = y + h;
+        var red = color[2];
+        var green = color[1];
+        var blue = color[0];
+        var xend = x + w;
+        var yend = y + h;
 
-            var data = this._tile.data;
-            var width = this._tile.width;
-            for (var j = y; j < yend; j++) {
-                for (var i = x; i < xend; i++) {
-                    var p = (i + (j * width)) * 4;
-                    data[p] = red;
-                    data[p + 1] = green;
-                    data[p + 2] = blue;
-                    data[p + 3] = 255;
-                }
+        var data = this._tile.data;
+        var width = this._tile.width;
+        for (var j = y; j < yend; j++) {
+            for (var i = x; i < xend; i++) {
+                var p = (i + (j * width)) * 4;
+                data[p] = red;
+                data[p + 1] = green;
+                data[p + 2] = blue;
+                data[p + 3] = 255;
             }
-        } else {
-            this.fillRect(this._tile_x + x, this._tile_y + y, w, h, color, true);
         }
     },
 
     // draw the current tile to the screen
     finishTile: function () {
-        if (this._prefer_js) {
-            this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
-            this._damage(this._tile_x, this._tile_y,
-                         this._tile.width, this._tile.height);
-        }
-        // else: No-op -- already done by setSubTile
+        this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
+        this._damage(this._tile_x, this._tile_y,
+                     this._tile.width, this._tile.height);
     },
 
     blitImage: function (x, y, width, height, arr, offset, from_queue) {
@@ -697,7 +681,6 @@ make_properties(Display, [
     ['width', 'ro', 'int'],        // Display area width
     ['height', 'ro', 'int'],       // Display area height
 
-    ['prefer_js', 'rw', 'str'],    // Prefer Javascript over canvas methods
     ['cursor_uri', 'rw', 'raw'],   // Can we render cursor using data URI
 
     ['onFlush', 'rw', 'func'],     // onFlush(): A flush request has finished
