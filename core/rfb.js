@@ -732,7 +732,7 @@ RFB.prototype = {
         }
 
         if (is_repeater) {
-            var repeaterID = this._repeaterID;
+            var repeaterID = "ID:" + this._repeaterID;
             while (repeaterID.length < 250) {
                 repeaterID += "\0";
             }

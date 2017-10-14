@@ -582,12 +582,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 it('should interpret version 000.000 as a repeater', function () {
-                    client._repeaterID = '\x01\x02\x03\x04\x05';
+                    client._repeaterID = '12345';
                     send_ver('000.000', client);
                     expect(client._rfb_version).to.equal(0);
 
                     var sent_data = client._sock._websocket._get_sent_data();
-                    expect(new Uint8Array(sent_data.buffer, 0, 5)).to.array.equal(new Uint8Array([1, 2, 3, 4, 5]));
+                    expect(new Uint8Array(sent_data.buffer, 0, 9)).to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
                 });
 
                 it('should interpret version 003.003 as version 3.3', function () {
@@ -638,12 +638,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should handle two step repeater negotiation', function () {
-                client._repeaterID = '\x01\x02\x03\x04\x05';
+                client._repeaterID = '12345';
 
                 send_ver('000.000', client);
                 expect(client._rfb_version).to.equal(0);
                 var sent_data = client._sock._websocket._get_sent_data();
-                expect(new Uint8Array(sent_data.buffer, 0, 5)).to.array.equal(new Uint8Array([1, 2, 3, 4, 5]));
+                expect(new Uint8Array(sent_data.buffer, 0, 9)).to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
                 expect(sent_data).to.have.length(250);
 
                 send_ver('003.008', client);
