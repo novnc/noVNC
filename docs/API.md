@@ -10,14 +10,14 @@ Each configuration option has a default value, which can be overridden
 by a a configuration object passed to the constructor. Configuration
 options can then be read and modified after initialization with "get_*"
 and "set_*" methods respectively. For example, the following
-initializes an RFB object with the 'encrypt' configuration option
+initializes an RFB object with the 'view_only' configuration option
 enabled, then confirms it was set, then disables it:
 
-    var rfb = new RFB({'encrypt': true});
-    if (rfb.get_encrypt()) {
-        alert("Encryption is set");
+    var rfb = new RFB({'view_only': true});
+    if (rfb.get_view_only()) {
+        alert("View Only is set");
     }
-    rfb.set_encrypt(false);
+    rfb.set_view_only(false);
 
 Some attributes are read-only and cannot be changed. An exception will
 be thrown if an attempt is made to set one of these attributs. The
@@ -30,7 +30,6 @@ attribute mode is one of the following:
 | name              | type  | mode | default    | description
 | ----------------- | ----- | ---- | ---------- | ------------
 | target            | DOM   | WO   | null       | Canvas element for rendering (passed to Display, Mouse and Keyboard)
-| encrypt           | bool  | RW   | false      | Use TLS/SSL encryption
 | local_cursor      | bool  | RW   | false      | Request locally rendered cursor
 | shared            | bool  | RW   | true       | Request shared VNC mode
 | view_only         | bool  | RW   | false      | Disable client mouse/keyboard
@@ -52,7 +51,7 @@ object instance.
 
 | name               | parameters                      | description
 | ------------------ | ------------------------------- | ------------
-| connect            | (host, port, credentials, path) | Connect to the given host:port/path. Optional credentials and path.
+| connect            | (url, credentials)              | Connect to the given URL. Optional credentials.
 | disconnect         | ()                              | Disconnect
 | sendCredentials    | (credentials)                   | Send credentials after onCredentialsRequired callback
 | sendCtrlAltDel     | ()                              | Send Ctrl-Alt-Del key sequence

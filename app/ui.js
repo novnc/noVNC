@@ -432,7 +432,7 @@ var UI = {
                 UI.inhibit_reconnect = false;
                 UI.doneInitialResize = false;
                 document.documentElement.classList.add("noVNC_connected");
-                if (rfb && rfb.get_encrypt()) {
+                if (UI.getSetting('encrypt')) {
                     msg = _("Connected (encrypted) to ") + UI.desktopName;
                 } else {
                     msg = _("Connected (unencrypted) to ") + UI.desktopName;
@@ -1062,14 +1062,23 @@ var UI = {
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
-        UI.rfb.set_encrypt(UI.getSetting('encrypt'));
         UI.rfb.set_shared(UI.getSetting('shared'));
         UI.rfb.set_repeaterID(UI.getSetting('repeaterID'));
 
         UI.updateLocalCursor();
         UI.updateViewOnly();
 
-        UI.rfb.connect(host, port, { password: password }, path);
+        var url;
+
+        url = UI.getSetting('encrypt') ? 'wss' : 'ws';
+
+        url += '://' + host;
+        if(port) {
+            url += ':' + port;
+        }
+        url += '/' + path;
+
+        UI.rfb.connect(url, { password: password });
     },
 
     disconnect: function() {

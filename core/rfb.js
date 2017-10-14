@@ -35,10 +35,8 @@ export default function RFB(defaults) {
     }
 
     // Connection details
-    this._rfb_host = '';
-    this._rfb_port = 5900;
+    this._url = '';
     this._rfb_credentials = {};
-    this._rfb_path = '';
 
     // Internal state
     this._rfb_connection_state = '';
@@ -131,7 +129,6 @@ export default function RFB(defaults) {
     // set the default value on user-facing properties
     set_defaults(this, defaults, {
         'target': 'null',                       // VNC display rendering Canvas object
-        'encrypt': false,                       // Use TLS/SSL/wss encryption
         'local_cursor': false,                  // Request locally rendered cursor
         'shared': true,                         // Request shared mode
         'view_only': false,                     // Disable client mouse/keyboard
@@ -247,15 +244,13 @@ export default function RFB(defaults) {
 
 RFB.prototype = {
     // Public methods
-    connect: function (host, port, creds, path) {
-        this._rfb_host = host;
-        this._rfb_port = port;
+    connect: function (url, creds) {
+        this._url = url;
         this._rfb_credentials = (creds !== undefined) ? creds : {};
-        this._rfb_path = (path !== undefined) ? path : "";
 
-        if (!this._rfb_host) {
-            return this._fail(
-                _("Must set host"));
+        if (!url) {
+            this._fail(_("Must specify URL"));
+            return;
         }
 
         this._rfb_init_state = '';
@@ -376,24 +371,11 @@ RFB.prototype = {
     _connect: function () {
         Log.Debug(">> RFB.connect");
 
-        var uri;
-        if (typeof UsingSocketIO !== 'undefined') {
-            uri = 'http';
-        } else {
-            uri = this._encrypt ? 'wss' : 'ws';
-        }
-
-        uri += '://' + this._rfb_host;
-        if(this._rfb_port) {
-            uri += ':' + this._rfb_port;
-        }
-        uri += '/' + this._rfb_path;
-
-        Log.Info("connecting to " + uri);
+        Log.Info("connecting to " + this._url);
 
         try {
             // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(uri, this._wsProtocols);
+            this._sock.open(this._url, this._wsProtocols);
         } catch (e) {
             if (e.name === 'SyntaxError') {
                 this._fail("Invalid host or port value given", e);
@@ -1464,7 +1446,6 @@ RFB.prototype = {
 
 make_properties(RFB, [
     ['target', 'wo', 'dom'],                // VNC display rendering Canvas object
-    ['encrypt', 'rw', 'bool'],              // Use TLS/SSL/wss encryption
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard

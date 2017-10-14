@@ -93,7 +93,7 @@ RecordingPlayer.prototype = {
         this._running = true;
 
         // launch the tests
-        this._rfb.connect('test', 0, 'bogus');
+        this._rfb.connect('wss://test');
 
         this._queueNextPacket();
     },
@@ -104,11 +104,9 @@ RecordingPlayer.prototype = {
         this._rfb._sock.close = function () {};
         this._rfb._sock.flush = function () {};
         this._rfb._checkEvents = function () {};
-        this._rfb.connect = function (host, port, credentials, path) {
-            this._rfb_host = host;
-            this._rfb_port = port;
+        this._rfb.connect = function (url) {
+            this._url = url;
             this._rfb_credentials = {};
-            this._rfb_path = (path !== undefined) ? path : "";
             this._sock.init('binary', 'ws');
             this._rfb_connection_state = 'connecting';
             this._rfb_init_state = 'ProtocolVersion';

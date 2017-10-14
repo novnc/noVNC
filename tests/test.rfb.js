@@ -73,15 +73,15 @@ describe('Remote Frame Buffer Protocol Client', function() {
             beforeEach(function () { client._updateConnectionState = sinon.spy(); });
 
             it('should set the current state to "connecting"', function () {
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 expect(client._updateConnectionState).to.have.been.calledOnce;
                 expect(client._updateConnectionState).to.have.been.calledWith('connecting');
             });
 
-            it('should not try to connect if we are missing a host', function () {
+            it('should not try to connect if we are missing a URL', function () {
                 client._fail = sinon.spy();
                 client._rfb_connection_state = '';
-                client.connect(undefined, 8675);
+                client.connect(undefined);
                 expect(client._fail).to.have.been.calledOnce;
                 expect(client._updateConnectionState).to.not.have.been.called;
                 expect(client._rfb_connection_state).to.equal('');
@@ -347,7 +347,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client.set_onUpdateState(sinon.spy());
                 client._updateConnectionState('connecting');
                 var spy = client.get_onUpdateState();
-                expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][1]).to.equal('connecting');
             });
 
@@ -386,7 +385,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             beforeEach(function () {
                 this.clock = sinon.useFakeTimers();
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
             });
 
             afterEach(function () {
@@ -465,35 +464,11 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._sock.open).to.have.been.calledOnce;
             });
 
-            it('should use wss:// to connect if encryption is enabled', function () {
+            it('should use a url specified to connect', function () {
                 sinon.spy(client._sock, 'open');
-                client.set_encrypt(true);
-                client._updateConnectionState('connecting');
-                expect(client._sock.open.args[0][0]).to.contain('wss://');
-            });
-
-            it('should use ws:// to connect if encryption is not enabled', function () {
-                sinon.spy(client._sock, 'open');
-                client.set_encrypt(true);
-                client._updateConnectionState('connecting');
-                expect(client._sock.open.args[0][0]).to.contain('wss://');
-            });
-
-            it('should use a uri with the host, port, and path specified to connect', function () {
-                sinon.spy(client._sock, 'open');
-                client.set_encrypt(false);
-                client._rfb_host = 'HOST';
-                client._rfb_port = 8675;
-                client._rfb_path = 'PATH';
+                client._url = 'ws://HOST:8675/PATH';
                 client._updateConnectionState('connecting');
                 expect(client._sock.open).to.have.been.calledWith('ws://HOST:8675/PATH');
-            });
-
-            it('should not include a port in the uri if not specified in connect', function () {
-                sinon.spy(client._sock, 'open');
-                client.set_encrypt(true);
-                client.connect('HOST', undefined)
-                expect(client._sock.open).to.have.been.calledWith('wss://HOST/');
             });
         });
 
@@ -502,7 +477,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             beforeEach(function () {
                 this.clock = sinon.useFakeTimers();
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
             });
 
             afterEach(function () {
@@ -603,7 +578,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 var client;
                 beforeEach(function () {
                     client = make_rfb();
-                    client.connect('host', 8675);
+                    client.connect('wss://host:8675');
                     client._sock._websocket._open();
                 });
 
@@ -666,7 +641,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             var client;
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 client._sock._websocket._open();
             });
 
@@ -706,7 +681,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 client._sock._websocket._open();
                 client._rfb_init_state = 'Security';
             });
@@ -770,7 +745,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 client._sock._websocket._open();
                 client._rfb_init_state = 'Security';
             });
@@ -819,7 +794,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 beforeEach(function () {
                     client = make_rfb();
-                    client.connect('host', 8675);
+                    client.connect('wss://host:8675');
                     client._sock._websocket._open();
                     client._rfb_init_state = 'Security';
                     client._rfb_version = 3.8;
@@ -869,7 +844,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 beforeEach(function () {
                     client = make_rfb();
-                    client.connect('host', 8675);
+                    client.connect('wss://host:8675');
                     client._sock._websocket._open();
                     client._rfb_init_state = 'Security';
                     client._rfb_version = 3.8;
@@ -926,7 +901,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 beforeEach(function () {
                     client = make_rfb();
-                    client.connect('host', 8675);
+                    client.connect('wss://host:8675');
                     client._sock._websocket._open();
                     client._rfb_init_state = 'Security';
                     client._rfb_version = 3.8;
@@ -1016,7 +991,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 client._sock._websocket._open();
                 client._rfb_init_state = 'SecurityResult';
             });
@@ -1049,7 +1024,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 client._sock._websocket._open();
                 client._rfb_init_state = 'SecurityResult';
             });
@@ -1077,7 +1052,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 client._sock._websocket._open();
                 client._rfb_init_state = 'ServerInitialisation';
             });
@@ -1233,7 +1208,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
         beforeEach(function () {
             client = make_rfb();
-            client.connect('host', 8675);
+            client.connect('wss://host:8675');
             client._sock._websocket._open();
             client._rfb_connection_state = 'connected';
             client._fb_name = 'some device';
@@ -1353,7 +1328,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 beforeEach(function () {
                     client = make_rfb();
-                    client.connect('host', 8675);
+                    client.connect('wss://host:8675');
                     client._sock._websocket._open();
                     client._rfb_connection_state = 'connected';
                     client._fb_name = 'some device';
@@ -1439,7 +1414,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     var client;
                     beforeEach(function () {
                         client = make_rfb();
-                        client.connect('host', 8675);
+                        client.connect('wss://host:8675');
                         client._sock._websocket._open();
                         client._rfb_connection_state = 'connected';
                         client._fb_name = 'some device';
@@ -1997,7 +1972,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             var client;
             beforeEach(function () {
                 client = make_rfb();
-                client.connect('host', 8675);
+                client.connect('wss://host:8675');
                 this.clock = sinon.useFakeTimers();
             });
 
