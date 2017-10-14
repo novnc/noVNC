@@ -10,7 +10,6 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-import { browserSupportsCursorURIs as cursorURIsSupported } from './util/browsers.js';
 import { set_defaults, make_properties } from './util/properties.js';
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
@@ -75,12 +74,6 @@ export default function Display(target, defaults) {
     // Check canvas features
     if (!('createImageData' in this._drawCtx)) {
         throw new Error("Canvas does not support createImageData");
-    }
-
-    // Determine browser support for setting the cursor via data URI scheme
-    if (this._cursor_uri || this._cursor_uri === null ||
-            this._cursor_uri === undefined) {
-        this._cursor_uri = cursorURIsSupported();
     }
 
     Log.Debug("<< Display.constructor");
@@ -483,11 +476,6 @@ Display.prototype = {
     },
 
     changeCursor: function (pixels, mask, hotx, hoty, w, h) {
-        if (this._cursor_uri === false) {
-            Log.Warn("changeCursor called but no cursor data URI support");
-            return;
-        }
-
         Display.changeCursor(this._target, pixels, mask, hotx, hoty, w, h);
     },
 
@@ -680,8 +668,6 @@ make_properties(Display, [
     ['viewport', 'rw', 'bool'],    // Use viewport clipping
     ['width', 'ro', 'int'],        // Display area width
     ['height', 'ro', 'int'],       // Display area height
-
-    ['cursor_uri', 'rw', 'raw'],   // Can we render cursor using data URI
 
     ['onFlush', 'rw', 'func'],     // onFlush(): A flush request has finished
 ]);

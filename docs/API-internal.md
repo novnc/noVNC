@@ -97,7 +97,6 @@ None
 | viewport    | bool  | RW   | false   | Use viewport clipping
 | width       | int   | RO   |         | Display area width
 | height      | int   | RO   |         | Display area height
-| cursor_uri  | raw   | RW   |         | Can we render cursor using data URI
 
 ### 2.3.2 Methods
 

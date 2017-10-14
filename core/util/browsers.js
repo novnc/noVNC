@@ -43,11 +43,3 @@ export function browserSupportsCursorURIs () {
 
     return _cursor_uris_supported;
 };
-
-export function _forceCursorURIs(enabled) {
-    if (enabled === undefined || enabled) {
-        _cursor_uris_supported = true;
-    } else {
-        _cursor_uris_supported = false;
-    }
-}

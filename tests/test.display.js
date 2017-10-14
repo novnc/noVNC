@@ -3,7 +3,6 @@ var expect = chai.expect;
 
 import Base64 from '../core/base64.js';
 import Display from '../core/display.js';
-import { _forceCursorURIs, browserSupportsCursorURIs } from '../core/util/browsers.js';
 
 import sinon from '../vendor/sinon.js';
 
@@ -36,26 +35,6 @@ describe('Display/Canvas Helper', function () {
         var data = url.split(",")[1];
         return Base64.decode(data);
     }
-
-    describe('checking for cursor uri support', function () {
-        it('should disable cursor URIs if there is no support', function () {
-            _forceCursorURIs(false);
-            var display = new Display(document.createElement('canvas'), { viewport: false });
-            expect(display._cursor_uri).to.be.false;
-        });
-
-        it('should enable cursor URIs if there is support', function () {
-            _forceCursorURIs(true);
-            var display = new Display(document.createElement('canvas'), { viewport: false });
-            expect(display._cursor_uri).to.be.true;
-        });
-
-        it('respect the cursor_uri option if there is support', function () {
-            _forceCursorURIs(false);
-            var display = new Display(document.createElement('canvas'), { viewport: false, cursor_uri: false });
-            expect(display._cursor_uri).to.be.false;
-        });
-    });
 
     describe('viewport handling', function () {
         var display;

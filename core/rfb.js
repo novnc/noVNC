@@ -14,6 +14,7 @@ import * as Log from './util/logging.js';
 import _ from './util/localization.js';
 import { decodeUTF8 } from './util/strings.js';
 import { set_defaults, make_properties } from './util/properties.js';
+import { browserSupportsCursorURIs } from './util/browsers.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
@@ -1470,7 +1471,7 @@ RFB.prototype.set_local_cursor = function (cursor) {
         this._local_cursor = false;
         this._display.disableLocalCursor(); //Only show server-side cursor
     } else {
-        if (this._display.get_cursor_uri()) {
+        if (browserSupportsCursorURIs()) {
             this._local_cursor = true;
         } else {
             Log.Warn("Browser does not support local cursor");
