@@ -206,7 +206,7 @@
         function updatePowerButtons() {
             var powerbuttons;
             powerbuttons = document.getElementById('noVNC_power_buttons');
-            if (rfb.get_capabilities().power) {
+            if (rfb.capabilities.power) {
                 powerbuttons.style.display = 'inline';
             } else {
                 powerbuttons.style.display = 'none';
@@ -256,15 +256,15 @@
             }
 
             try {
-                rfb = new RFB(document.getElementById('noVNC_canvas'),
-                              {'local_cursor': WebUtil.getConfigVar('cursor', true),
-                               'view_only':    WebUtil.getConfigVar('view_only', false),
-                               'onNotification':  notification,
-                               'onUpdateState':  updateState,
-                               'onDisconnected': disconnected,
-                               'onCapabilities': function () { updatePowerButtons(); initialResize(); },
-                               'onCredentialsRequired': credentials,
-                               'onDesktopName': updateDesktopName});
+                rfb = new RFB(document.getElementById('noVNC_canvas'));
+                rfb.localCursor =    WebUtil.getConfigVar('cursor', true);
+                rfb.viewOnly =       WebUtil.getConfigVar('view_only', false);
+                rfb.onnotification = notification;
+                rfb.onupdatestate =  updateState;
+                rfb.ondisconnected = disconnected;
+                rfb.oncapabilities = function () { updatePowerButtons(); initialResize(); };
+                rfb.oncredentialsrequired = credentials;
+                rfb.ondesktopname =  updateDesktopName;
             } catch (exc) {
                 status('Unable to create RFB client -- ' + exc, 'error');
                 return; // don't continue trying to connect

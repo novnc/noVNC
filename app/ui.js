@@ -202,16 +202,16 @@ var UI = {
 
     initRFB: function() {
         try {
-            UI.rfb = new RFB(document.getElementById('noVNC_canvas'),
-                             {'onNotification': UI.notification,
-                              'onUpdateState': UI.updateState,
-                              'onDisconnected': UI.disconnectFinished,
-                              'onCredentialsRequired': UI.credentials,
-                              'onCapabilities': function () { UI.updatePowerButton(); UI.initialResize(); },
-                              'onClipboard': UI.clipboardReceive,
-                              'onBell': UI.bell,
-                              'onFBResize': UI.updateSessionSize,
-                              'onDesktopName': UI.updateDesktopName});
+            UI.rfb = new RFB(document.getElementById('noVNC_canvas'));
+            UI.rfb.onnotification = UI.notification;
+            UI.rfb.onupdatestate = UI.updateState;
+            UI.rfb.ondisconnected = UI.disconnectFinished;
+            UI.rfb.oncredentialsrequired = UI.credentials;
+            UI.rfb.oncapabilities = function () { UI.updatePowerButton(); UI.initialResize(); };
+            UI.rfb.onclipboard = UI.clipboardReceive;
+            UI.rfb.onbell = UI.bell;
+            UI.rfb.onfbresize = UI.updateSessionSize;
+            UI.rfb.ondesktopname = UI.updateDesktopName;
             return true;
         } catch (exc) {
             var msg = "Unable to create RFB client -- " + exc;
@@ -277,8 +277,8 @@ var UI = {
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
 
-        UI.touchKeyboard = new Keyboard(document.getElementById('noVNC_keyboardinput'),
-                                        {onKeyEvent: UI.keyEvent});
+        UI.touchKeyboard = new Keyboard(document.getElementById('noVNC_keyboardinput'));
+        UI.touchKeyboard.onkeyevent = UI.keyEvent;
         UI.touchKeyboard.grab();
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('input', UI.keyInput);
@@ -494,7 +494,7 @@ var UI = {
         }
 
         // Hide input related buttons in view only mode
-        if (UI.rfb && UI.rfb.get_view_only()) {
+        if (UI.rfb && UI.rfb.viewOnly) {
             document.getElementById('noVNC_keyboard_button')
                 .classList.add('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
@@ -958,8 +958,8 @@ var UI = {
     // Disable/enable power button
     updatePowerButton: function() {
         if (UI.connected &&
-            UI.rfb.get_capabilities().power &&
-            !UI.rfb.get_view_only()) {
+            UI.rfb.capabilities.power &&
+            !UI.rfb.viewOnly) {
             document.getElementById('noVNC_power_button')
                 .classList.remove("noVNC_hidden");
         } else {
@@ -1224,7 +1224,7 @@ var UI = {
         if (screen && UI.connected) {
 
             var resizeMode = UI.getSetting('resize');
-            UI.rfb.set_scale(1);
+            UI.rfb.scale = 1.0;
 
             // Make sure the viewport is adjusted first
             UI.updateViewClip();
@@ -1306,7 +1306,7 @@ var UI = {
     updateViewClip: function() {
         if (!UI.rfb) return;
 
-        var cur_clip = UI.rfb.get_viewport();
+        var cur_clip = UI.rfb.viewport;
         var new_clip = UI.getSetting('view_clip');
 
         var resizeSetting = UI.getSetting('resize');
@@ -1319,7 +1319,7 @@ var UI = {
         }
 
         if (cur_clip !== new_clip) {
-            UI.rfb.set_viewport(new_clip);
+            UI.rfb.viewport = new_clip;
         }
 
         var size = UI.screenSize();
@@ -1357,7 +1357,7 @@ var UI = {
     toggleViewDrag: function() {
         if (!UI.rfb) return;
 
-        var drag = UI.rfb.get_viewportDrag();
+        var drag = UI.rfb.viewportDrag;
         UI.setViewDrag(!drag);
      },
 
@@ -1365,7 +1365,7 @@ var UI = {
     setViewDrag: function(drag) {
         if (!UI.rfb) return;
 
-        UI.rfb.set_viewportDrag(drag);
+        UI.rfb.viewportDrag = drag;
 
         UI.updateViewDrag();
     },
@@ -1377,7 +1377,7 @@ var UI = {
 
         // Check if viewport drag is possible. It is only possible
         // if the remote display is clipping the client display.
-        if (UI.rfb.get_viewport() &&
+        if (UI.rfb.viewport &&
             UI.rfb.clippingDisplay()) {
             clipping = true;
         }
@@ -1385,14 +1385,14 @@ var UI = {
         var viewDragButton = document.getElementById('noVNC_view_drag_button');
 
         if (!clipping &&
-            UI.rfb.get_viewportDrag()) {
+            UI.rfb.viewportDrag) {
             // The size of the remote display is the same or smaller
             // than the client display. Make sure viewport drag isn't
             // active when it can't be used.
-            UI.rfb.set_viewportDrag(false);
+            UI.rfb.viewportDrag = false;
         }
 
-        if (UI.rfb.get_viewportDrag()) {
+        if (UI.rfb.viewportDrag) {
             viewDragButton.classList.add("noVNC_selected");
         } else {
             viewDragButton.classList.remove("noVNC_selected");
@@ -1661,9 +1661,9 @@ var UI = {
  * ------v------*/
 
     setMouseButton: function(num) {
-        var view_only = UI.rfb.get_view_only();
+        var view_only = UI.rfb.viewOnly;
         if (UI.rfb && !view_only) {
-            UI.rfb.set_touchButton(num);
+            UI.rfb.touchButton = num;
         }
 
         var blist = [0, 1,2,4];
@@ -1680,12 +1680,12 @@ var UI = {
 
     updateLocalCursor: function() {
         if (!UI.rfb) return;
-        UI.rfb.set_local_cursor(UI.getSetting('cursor'));
+        UI.rfb.localCursor = UI.getSetting('cursor');
     },
 
     updateViewOnly: function() {
         if (!UI.rfb) return;
-        UI.rfb.set_view_only(UI.getSetting('view_only'));
+        UI.rfb.viewOnly = UI.getSetting('view_only');
     },
 
     updateLogging: function() {

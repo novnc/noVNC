@@ -6,31 +6,10 @@ is instantiated once per connection.
 
 ## 1 Configuration Attributes
 
-Each configuration option has a default value, which can be overridden
-by a a configuration object passed to the constructor. Configuration
-options can then be read and modified after initialization with "get_*"
-and "set_*" methods respectively. For example, the following
-initializes an RFB object with the 'view_only' configuration option
-enabled, then confirms it was set, then disables it:
-
-    var rfb = new RFB(target, {'view_only': true});
-    if (rfb.get_view_only()) {
-        alert("View Only is set");
-    }
-    rfb.set_view_only(false);
-
-Some attributes are read-only and cannot be changed. An exception will
-be thrown if an attempt is made to set one of these attributs. The
-attribute mode is one of the following:
-
-    RO - read only
-    RW - read write
-    WO - write once
-
 | name              | type  | mode | default    | description
 | ----------------- | ----- | ---- | ---------- | ------------
-| local_cursor      | bool  | RW   | false      | Request locally rendered cursor
-| view_only         | bool  | RW   | false      | Disable client mouse/keyboard
+| localCursor       | bool  | RW   | false      | Request locally rendered cursor
+| viewOnly          | bool  | RW   | false      | Disable client mouse/keyboard
 | touchButton       | int   | RW   | 1          | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
 | scale             | float | RW   | 1.0        | Display area scale factor
 | viewport          | bool  | RW   | false      | Use viewport clipping
@@ -40,10 +19,6 @@ attribute mode is one of the following:
 
 
 ## 2 Methods
-
-In addition to the getter and setter methods to modify configuration
-attributes, the RFB object has other methods that are available in the
-object instance.
 
 | name               | parameters                      | description
 | ------------------ | ------------------------------- | ------------
@@ -79,15 +54,15 @@ functions.
 
 | name                  | parameters                 | description
 | --------------------- | -------------------------- | ------------
-| onUpdateState         | (rfb, state, oldstate)     | Connection state change (see details below)
-| onNotification        | (rfb, msg, level, options) | Notification for the UI (optional options)
-| onDisconnected        | (rfb, reason)              | Disconnection finished with an optional reason. No reason specified means normal disconnect.
-| onCredentialsRequired | (rfb, types)               | VNC credentials are required (use sendCredentials)
-| onClipboard           | (rfb, text)                | RFB clipboard contents received
-| onBell                | (rfb)                      | RFB Bell message received
-| onFBResize            | (rfb, width, height)       | Frame buffer (remote desktop) size changed
-| onDesktopName         | (rfb, name)                | VNC desktop name recieved
-| onCapabilities        | (rfb, capabilities)        | The supported capabilities has changed
+| onupdatestate         | (rfb, state, oldstate)     | Connection state change (see details below)
+| onnotification        | (rfb, msg, level, options) | Notification for the UI (optional options)
+| ondisconnected        | (rfb, reason)              | Disconnection finished with an optional reason. No reason specified means normal disconnect.
+| oncredentialsrequired | (rfb, types)               | VNC credentials are required (use sendCredentials)
+| onclipboard           | (rfb, text)                | RFB clipboard contents received
+| onbell                | (rfb)                      | RFB Bell message received
+| onfbresize            | (rfb, width, height)       | Frame buffer (remote desktop) size changed
+| ondesktopname         | (rfb, name)                | VNC desktop name recieved
+| oncapabilities        | (rfb, capabilities)        | The supported capabilities has changed
 
 
 __RFB onUpdateState callback details__

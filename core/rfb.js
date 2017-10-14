@@ -13,7 +13,6 @@
 import * as Log from './util/logging.js';
 import _ from './util/localization.js';
 import { decodeUTF8 } from './util/strings.js';
-import { set_defaults, make_properties } from './util/properties.js';
 import { browserSupportsCursorURIs } from './util/browsers.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
@@ -29,11 +28,7 @@ import { encodings, encodingName } from "./encodings.js";
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
 
-export default function RFB(target, defaults) {
-    "use strict";
-    if (!defaults) {
-        defaults = {};
-    }
+export default function RFB(target) {
     this._target = target;
 
     // Connection details
@@ -128,25 +123,6 @@ export default function RFB(target, defaults) {
     this._viewportDragPos = {};
     this._viewportHasMoved = false;
 
-    // set the default value on user-facing properties
-    set_defaults(this, defaults, {
-        'local_cursor': false,                  // Request locally rendered cursor
-        'view_only': false,                     // Disable client mouse/keyboard
-        'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
-        'viewportDrag': false,                  // Move the viewport on mouse drags
-
-        // Callback functions
-        'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate): connection state change
-        'onNotification': function () { },      // onNotification(rfb, msg, level, options): notification for UI
-        'onDisconnected': function () { },      // onDisconnected(rfb, reason): disconnection finished
-        'onCredentialsRequired': function () { }, // onCredentialsRequired(rfb, types): VNC credentials are required
-        'onClipboard': function () { },         // onClipboard(rfb, text): RFB clipboard contents received
-        'onBell': function () { },              // onBell(rfb): RFB Bell message received
-        'onFBResize': function () { },          // onFBResize(rfb, width, height): frame buffer resized
-        'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
-        'onCapabilities': function () { }       // onCapabilities(rfb, caps): the supported capabilities has changed
-    });
-
     // main setup
     Log.Debug(">> RFB.constructor");
 
@@ -171,20 +147,20 @@ export default function RFB(target, defaults) {
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
     try {
-        this._display = new Display(this._target,
-                                    {onFlush: this._onFlush.bind(this)});
+        this._display = new Display(this._target);
     } catch (exc) {
         Log.Error("Display exception: " + exc);
         throw exc;
     }
+    this._display.onflush = this._onFlush.bind(this);
     this._display.clear();
 
-    this._keyboard = new Keyboard(this._target,
-                                  {onKeyEvent: this._handleKeyEvent.bind(this)});
+    this._keyboard = new Keyboard(this._target);
+    this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
 
-    this._mouse = new Mouse(this._target,
-                            {onMouseButton: this._handleMouseButton.bind(this),
-                             onMouseMove: this._handleMouseMove.bind(this)});
+    this._mouse = new Mouse(this._target);
+    this._mouse.onmousebutton = this._handleMouseButton.bind(this);
+    this._mouse.onmousemove = this._handleMouseMove.bind(this);
 
     this._sock = new Websock();
     this._sock.on('message', this._handle_message.bind(this));
@@ -238,7 +214,74 @@ export default function RFB(target, defaults) {
 };
 
 RFB.prototype = {
-    // Public methods
+    // ===== PROPERTIES =====
+
+    disconnectTimeout: 3,
+    viewportDrag: false,
+
+    _localCursor: false,
+    get localCursor() { return this._localCursor; },
+    set localCursor(cursor) {
+        if (!cursor || (cursor in {'0': 1, 'no': 1, 'false': 1})) {
+            this._localCursor = false;
+            this._display.disableLocalCursor(); //Only show server-side cursor
+        } else {
+            if (browserSupportsCursorURIs()) {
+                this._localCursor = true;
+            } else {
+                Log.Warn("Browser does not support local cursor");
+                this._display.disableLocalCursor();
+            }
+        }
+
+        // Need to send an updated list of encodings if we are connected
+        if (this._rfb_connection_state === "connected") {
+            this._sendEncodings();
+        }
+    },
+
+    _viewOnly: false,
+    get viewOnly() { return this._viewOnly; },
+    set viewOnly(viewOnly) {
+        this._viewOnly = viewOnly;
+
+        if (this._rfb_connection_state === "connecting" ||
+            this._rfb_connection_state === "connected") {
+            if (viewOnly) {
+                this._keyboard.ungrab();
+                this._mouse.ungrab();
+            } else {
+                this._keyboard.grab();
+                this._mouse.grab();
+            }
+        }
+    },
+
+    get capabilities() { return this._capabilities; },
+
+    get touchButton() { return this._mouse.touchButton; },
+    set touchButton(button) { this._mouse.touchButton = button; },
+
+    get scale() { return this._display.scale; },
+    set scale(scale) { this._display.scale = scale; },
+
+    get viewport() { return this._display.viewport; },
+    set viewport(viewport) { this._display.viewport = viewport; },
+
+    // ===== EVENT HANDLERS =====
+
+    onupdatestate: function () {},  // onupdatestate(rfb, state, oldstate): connection state change
+    onnotification: function () {}, // onnotification(rfb, msg, level, options): notification for the UI
+    ondisconnected: function () {}, // ondisconnected(rfb, reason): disconnection finished
+    oncredentialsrequired: function () {}, // oncredentialsrequired(rfb, types): VNC credentials are required
+    onclipboard: function () {},    // onclipboard(rfb, text): RFB clipboard contents received
+    onbell: function () {},         // onbell(rfb): RFB Bell message received
+    onfbresize: function () {},     // onfbresize(rfb, width, height): frame buffer resized
+    ondesktopname: function () {},  // ondesktopname(rfb, name): desktop name received
+    oncapabilities: function () {}, // oncapabilities(rfb, caps): the supported capabilities has changed
+
+    // ===== PUBLIC METHODS =====
+
     connect: function (url, options) {
         if (!url) {
             this._fail(_("Must specify URL"));
@@ -271,7 +314,7 @@ RFB.prototype = {
     },
 
     sendCtrlAltDel: function () {
-        if (this._rfb_connection_state !== 'connected' || this._view_only) { return false; }
+        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return false; }
         Log.Info("Sending Ctrl-Alt-Del");
 
         this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
@@ -299,7 +342,7 @@ RFB.prototype = {
     // Send a key press. If 'down' is not specified then send a down key
     // followed by an up key.
     sendKey: function (keysym, code, down) {
-        if (this._rfb_connection_state !== 'connected' || this._view_only) { return false; }
+        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return false; }
 
         if (down === undefined) {
             this.sendKey(keysym, code, true);
@@ -328,7 +371,7 @@ RFB.prototype = {
     },
 
     clipboardPasteFrom: function (text) {
-        if (this._rfb_connection_state !== 'connected' || this._view_only) { return; }
+        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return; }
         RFB.messages.clientCutText(this._sock, text);
     },
 
@@ -351,7 +394,7 @@ RFB.prototype = {
     // and may only be sent if we have received an ExtendedDesktopSize message
     requestDesktopSize: function (width, height) {
         if (this._rfb_connection_state !== 'connected' ||
-            this._view_only) {
+            this._viewOnly) {
             return false;
         }
 
@@ -366,7 +409,7 @@ RFB.prototype = {
     },
 
 
-    // Private methods
+    // ===== PRIVATE METHODS =====
 
     _connect: function () {
         Log.Debug(">> RFB.connect");
@@ -420,8 +463,8 @@ RFB.prototype = {
     },
 
     _cleanup: function () {
-        if (!this._view_only) { this._keyboard.ungrab(); }
-        if (!this._view_only) { this._mouse.ungrab(); }
+        if (!this._viewOnly) { this._keyboard.ungrab(); }
+        if (!this._viewOnly) { this._mouse.ungrab(); }
         this._display.defaultCursor();
         if (Log.get_logging() !== 'debug') {
             // Show noVNC logo when disconnected, unless in
@@ -500,7 +543,7 @@ RFB.prototype = {
         // State change actions
 
         this._rfb_connection_state = state;
-        this._onUpdateState(this, state, oldstate);
+        this.onupdatestate(this, state, oldstate);
 
         var smsg = "New state '" + state + "', was '" + oldstate + "'.";
         Log.Debug(smsg);
@@ -516,13 +559,13 @@ RFB.prototype = {
 
         switch (state) {
             case 'disconnected':
-                // Call onDisconnected callback after onUpdateState since
+                // Call ondisconnected callback after onupdatestate since
                 // we don't know if the UI only displays the latest message
                 if (this._rfb_disconnect_reason !== "") {
-                    this._onDisconnected(this, this._rfb_disconnect_reason);
+                    this.ondisconnected(this, this._rfb_disconnect_reason);
                 } else {
                     // No reason means clean disconnect
-                    this._onDisconnected(this);
+                    this.ondisconnected(this);
                 }
                 break;
 
@@ -595,15 +638,15 @@ RFB.prototype = {
         }
 
         if (options) {
-            this._onNotification(this, msg, level, options);
+            this.onnotification(this, msg, level, options);
         } else {
-            this._onNotification(this, msg, level);
+            this.onnotification(this, msg, level);
         }
     },
 
     _setCapability: function (cap, val) {
         this._capabilities[cap] = val;
-        this._onCapabilities(this, this._capabilities);
+        this.oncapabilities(this, this._capabilities);
     },
 
     _handle_message: function () {
@@ -658,14 +701,14 @@ RFB.prototype = {
 
                 // If the viewport didn't actually move, then treat as a mouse click event
                 // Send the button down event here, as the button up event is sent at the end of this function
-                if (!this._viewportHasMoved && !this._view_only) {
+                if (!this._viewportHasMoved && !this._viewOnly) {
                     RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
                 }
                 this._viewportHasMoved = false;
             }
         }
 
-        if (this._view_only) { return; } // View only, skip mouse events
+        if (this._viewOnly) { return; } // View only, skip mouse events
 
         if (this._rfb_connection_state !== 'connected') { return; }
         RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
@@ -692,7 +735,7 @@ RFB.prototype = {
             return;
         }
 
-        if (this._view_only) { return; } // View only, skip mouse events
+        if (this._viewOnly) { return; } // View only, skip mouse events
 
         if (this._rfb_connection_state !== 'connected') { return; }
         RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
@@ -813,7 +856,7 @@ RFB.prototype = {
         if (!this._rfb_credentials.username ||
             !this._rfb_credentials.password ||
             !this._rfb_credentials.target) {
-            this._onCredentialsRequired(this, ["username", "password", "target"]);
+            this.oncredentialsrequired(this, ["username", "password", "target"]);
             return false;
         }
 
@@ -830,7 +873,7 @@ RFB.prototype = {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
         if (!this._rfb_credentials.password) {
-            this._onCredentialsRequired(this, ["password"]);
+            this.oncredentialsrequired(this, ["password"]);
             return false;
         }
 
@@ -1067,12 +1110,12 @@ RFB.prototype = {
         }
 
         // we're past the point where we could backtrack, so it's safe to call this
-        this._onDesktopName(this, this._fb_name);
+        this.ondesktopname(this, this._fb_name);
 
         this._resize(width, height);
 
-        if (!this._view_only) { this._keyboard.grab(); }
-        if (!this._view_only) { this._mouse.grab(); }
+        if (!this._viewOnly) { this._keyboard.grab(); }
+        if (!this._viewOnly) { this._mouse.grab(); }
 
         this._fb_depth = 24;
 
@@ -1122,7 +1165,7 @@ RFB.prototype = {
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
 
-        if (this._local_cursor && this._fb_depth == 24) {
+        if (this._localCursor && this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
         }
 
@@ -1181,9 +1224,9 @@ RFB.prototype = {
 
         var text = this._sock.rQshiftStr(length);
 
-        if (this._view_only) { return true; }
+        if (this._viewOnly) { return true; }
 
-        this._onClipboard(this, text);
+        this.onclipboard(this, text);
 
         return true;
     },
@@ -1279,7 +1322,7 @@ RFB.prototype = {
 
             case 2:  // Bell
                 Log.Debug("Bell");
-                this._onBell(this);
+                this.onbell(this);
                 return true;
 
             case 3:  // ServerCutText
@@ -1431,7 +1474,7 @@ RFB.prototype = {
         this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
 
         this._display.resize(this._fb_width, this._fb_height);
-        this._onFBResize(this, this._fb_width, this._fb_height);
+        this.onfbresize(this, this._fb_width, this._fb_height);
 
         this._timing.fbu_rt_start = (new Date()).getTime();
         this._updateContinuousUpdates();
@@ -1442,86 +1485,6 @@ RFB.prototype = {
         Log.Info("Sending XVP operation " + op + " (version " + ver + ")");
         RFB.messages.xvpOp(this._sock, ver, op);
     },
-};
-
-make_properties(RFB, [
-    ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
-    ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
-    ['touchButton', 'rw', 'int'],           // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
-    ['scale', 'rw', 'float'],               // Display area scale factor
-    ['viewport', 'rw', 'bool'],             // Use viewport clipping
-    ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
-    ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
-    ['capabilities', 'ro', 'arr'],          // Supported capabilities
-
-    // Callback functions
-    ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate): connection state change
-    ['onNotification', 'rw', 'func'],       // onNotification(rfb, msg, level, options): notification for the UI
-    ['onDisconnected', 'rw', 'func'],       // onDisconnected(rfb, reason): disconnection finished
-    ['onCredentialsRequired', 'rw', 'func'], // onCredentialsRequired(rfb, types): VNC credentials are required
-    ['onClipboard', 'rw', 'func'],          // onClipboard(rfb, text): RFB clipboard contents received
-    ['onBell', 'rw', 'func'],               // onBell(rfb): RFB Bell message received
-    ['onFBResize', 'rw', 'func'],           // onFBResize(rfb, width, height): frame buffer resized
-    ['onDesktopName', 'rw', 'func'],        // onDesktopName(rfb, name): desktop name received
-    ['onCapabilities', 'rw', 'func']        // onCapabilities(rfb, caps): the supported capabilities has changed
-]);
-
-RFB.prototype.set_local_cursor = function (cursor) {
-    if (!cursor || (cursor in {'0': 1, 'no': 1, 'false': 1})) {
-        this._local_cursor = false;
-        this._display.disableLocalCursor(); //Only show server-side cursor
-    } else {
-        if (browserSupportsCursorURIs()) {
-            this._local_cursor = true;
-        } else {
-            Log.Warn("Browser does not support local cursor");
-            this._display.disableLocalCursor();
-        }
-    }
-
-    // Need to send an updated list of encodings if we are connected
-    if (this._rfb_connection_state === "connected") {
-        this._sendEncodings();
-    }
-};
-
-RFB.prototype.set_view_only = function (view_only) {
-    this._view_only = view_only;
-
-    if (this._rfb_connection_state === "connecting" ||
-        this._rfb_connection_state === "connected") {
-        if (view_only) {
-            this._keyboard.ungrab();
-            this._mouse.ungrab();
-        } else {
-            this._keyboard.grab();
-            this._mouse.grab();
-        }
-    }
-};
-
-RFB.prototype.set_touchButton = function (button) {
-    this._mouse.set_touchButton(button);
-};
-
-RFB.prototype.get_touchButton = function () {
-    return this._mouse.get_touchButton();
-};
-
-RFB.prototype.set_scale = function (scale) {
-    this._display.set_scale(scale);
-};
-
-RFB.prototype.get_scale = function () {
-    return this._display.get_scale();
-};
-
-RFB.prototype.set_viewport = function (viewport) {
-    this._display.set_viewport(viewport);
-};
-
-RFB.prototype.get_viewport = function () {
-    return this._display.get_viewport();
 };
 
 // Class Methods

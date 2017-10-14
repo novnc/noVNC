@@ -10,11 +10,10 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-import { set_defaults, make_properties } from './util/properties.js';
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 
-export default function Display(target, defaults) {
+export default function Display(target) {
     this._drawCtx = null;
     this._c_forceCanvas = false;
 
@@ -30,12 +29,6 @@ export default function Display(target, defaults) {
     this._tile16x16 = null;
     this._tile_x = 0;
     this._tile_y = 0;
-
-    set_defaults(this, defaults, {
-        'scale': 1.0,
-        'viewport': false,
-        "onFlush": function () {},
-    });
 
     Log.Debug(">> Display.constructor");
 
@@ -88,7 +81,39 @@ try {
 }
 
 Display.prototype = {
-    // Public methods
+    // ===== PROPERTIES =====
+
+    _scale: 1.0,
+    get scale() { return this._scale; },
+    set scale(scale) {
+        this._rescale(scale);
+    },
+
+    _viewport: false,
+    get viewport() { return this._viewport; },
+    set viewport(viewport) {
+        this._viewport = viewport;
+        // May need to readjust the viewport dimensions
+        var vp = this._viewportLoc;
+        this.viewportChangeSize(vp.w, vp.h);
+        this.viewportChangePos(0, 0);
+    },
+
+    get width() {
+        return this._fb_width;
+    },
+    get height() {
+        return this._fb_height;
+    },
+
+    logo: null,
+
+    // ===== EVENT HANDLERS =====
+
+    onflush: function () {},        // A flush request has finished
+
+    // ===== PUBLIC METHODS =====
+
     viewportChangePos: function (deltaX, deltaY) {
         var vp = this._viewportLoc;
         deltaX = Math.floor(deltaX);
@@ -294,7 +319,7 @@ Display.prototype = {
 
     flush: function() {
         if (this._renderQ.length === 0) {
-            this._onFlush();
+            this.onflush();
         } else {
             this._flushing = true;
         }
@@ -492,26 +517,6 @@ Display.prototype = {
         return this._fb_width > vp.w || this._fb_height > vp.h;
     },
 
-    // Overridden getters/setters
-    set_scale: function (scale) {
-        this._rescale(scale);
-    },
-
-    set_viewport: function (viewport) {
-        this._viewport = viewport;
-        // May need to readjust the viewport dimensions
-        var vp = this._viewportLoc;
-        this.viewportChangeSize(vp.w, vp.h);
-        this.viewportChangePos(0, 0);
-    },
-
-    get_width: function () {
-        return this._fb_width;
-    },
-    get_height: function () {
-        return this._fb_height;
-    },
-
     autoscale: function (containerWidth, containerHeight, downscaleOnly) {
         var vp = this._viewportLoc;
         var targetAspectRatio = containerWidth / containerHeight;
@@ -531,7 +536,8 @@ Display.prototype = {
         this._rescale(scaleRatio);
     },
 
-    // Private Methods
+    // ===== PRIVATE METHODS =====
+
     _rescale: function (factor) {
         this._scale = factor;
         var vp = this._viewportLoc;
@@ -656,21 +662,10 @@ Display.prototype = {
 
         if (this._renderQ.length === 0 && this._flushing) {
             this._flushing = false;
-            this._onFlush();
+            this.onflush();
         }
     },
 };
-
-make_properties(Display, [
-    ['context', 'ro', 'raw'],      // Canvas 2D context for rendering (read-only)
-    ['logo', 'rw', 'raw'],         // Logo to display when cleared: {"width": w, "height": h, "type": mime-type, "data": data}
-    ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0
-    ['viewport', 'rw', 'bool'],    // Use viewport clipping
-    ['width', 'ro', 'int'],        // Display area width
-    ['height', 'ro', 'int'],       // Display area height
-
-    ['onFlush', 'rw', 'func'],     // onFlush(): A flush request has finished
-]);
 
 // Class Methods
 Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {

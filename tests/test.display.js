@@ -39,7 +39,8 @@ describe('Display/Canvas Helper', function () {
     describe('viewport handling', function () {
         var display;
         beforeEach(function () {
-            display = new Display(document.createElement('canvas'), { viewport: true });
+            display = new Display(document.createElement('canvas'));
+            display.viewport = true;
             display.resize(5, 5);
             display.viewportChangeSize(3, 3);
             display.viewportChangePos(1, 1);
@@ -102,7 +103,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should show the entire framebuffer when disabling the viewport', function() {
-            display.set_viewport(false);
+            display.viewport = false;
             expect(display.absX(0)).to.equal(0);
             expect(display.absY(0)).to.equal(0);
             expect(display._target.width).to.equal(5);
@@ -110,7 +111,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should ignore viewport changes when the viewport is disabled', function() {
-            display.set_viewport(false);
+            display.viewport = false;
             display.viewportChangeSize(2, 2);
             display.viewportChangePos(1, 1);
             expect(display.absX(0)).to.equal(0);
@@ -120,8 +121,8 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should show the entire framebuffer just after enabling the viewport', function() {
-            display.set_viewport(false);
-            display.set_viewport(true);
+            display.viewport = false;
+            display.viewport = true;
             expect(display.absX(0)).to.equal(0);
             expect(display.absY(0)).to.equal(0);
             expect(display._target.width).to.equal(5);
@@ -132,7 +133,8 @@ describe('Display/Canvas Helper', function () {
     describe('resizing', function () {
         var display;
         beforeEach(function () {
-            display = new Display(document.createElement('canvas'), { viewport: false });
+            display = new Display(document.createElement('canvas'));
+            display.viewport = false;
             display.resize(4, 4);
         });
 
@@ -157,7 +159,7 @@ describe('Display/Canvas Helper', function () {
 
         describe('viewport', function () {
             beforeEach(function () {
-                display.set_viewport(true);
+                display.viewport = true;
                 display.viewportChangeSize(3, 3);
                 display.viewportChangePos(1, 1);
             });
@@ -194,7 +196,8 @@ describe('Display/Canvas Helper', function () {
 
         beforeEach(function () {
             canvas = document.createElement('canvas');
-            display = new Display(canvas, { viewport: true });
+            display = new Display(canvas);
+            display.viewport = true;
             display.resize(4, 4);
             display.viewportChangeSize(3, 3);
             display.viewportChangePos(1, 1);
@@ -206,21 +209,21 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should not change the bitmap size of the canvas', function () {
-            display.set_scale(2.0);
+            display.scale = 2.0;
             expect(canvas.width).to.equal(3);
             expect(canvas.height).to.equal(3);
         });
 
         it('should change the effective rendered size of the canvas', function () {
-            display.set_scale(2.0);
+            display.scale = 2.0;
             expect(canvas.clientWidth).to.equal(6);
             expect(canvas.clientHeight).to.equal(6);
         });
 
         it('should not change when resizing', function () {
-            display.set_scale(2.0);
+            display.scale = 2.0;
             display.resize(5, 5);
-            expect(display.get_scale()).to.equal(2.0);
+            expect(display.scale).to.equal(2.0);
             expect(canvas.width).to.equal(3);
             expect(canvas.height).to.equal(3);
             expect(canvas.clientWidth).to.equal(6);
@@ -234,7 +237,8 @@ describe('Display/Canvas Helper', function () {
 
         beforeEach(function () {
             canvas = document.createElement('canvas');
-            display = new Display(canvas, { viewport: true });
+            display = new Display(canvas);
+            display.viewport = true;
             display.resize(4, 3);
             document.body.appendChild(canvas);
         });
@@ -309,12 +313,12 @@ describe('Display/Canvas Helper', function () {
         it('should draw the logo on #clear with a logo set', function (done) {
             display._logo = { width: 4, height: 4, type: "image/png", data: make_image_png(checked_data) };
             display.clear();
-            display.set_onFlush(function () {
+            display.onflush = function () {
                 expect(display).to.have.displayed(checked_data);
                 expect(display._fb_width).to.equal(4);
                 expect(display._fb_height).to.equal(4);
                 done();
-            });
+            };
             display.flush();
         });
 
@@ -350,10 +354,10 @@ describe('Display/Canvas Helper', function () {
         it('should support drawing images via #imageRect', function (done) {
             display.imageRect(0, 0, "image/png", make_image_png(checked_data));
             display.flip();
-            display.set_onFlush(function () {
+            display.onflush = function () {
                 expect(display).to.have.displayed(checked_data);
                 done();
-            });
+            };
             display.flush();
         });
 
@@ -442,11 +446,11 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should call callback when queue is flushed', function () {
-            display.set_onFlush(sinon.spy());
+            display.onflush = sinon.spy();
             display.fillRect(0, 0, 4, 4, [0, 0xff, 0]);
-            expect(display.get_onFlush()).to.not.have.been.called;
+            expect(display.onflush).to.not.have.been.called;
             display.flush();
-            expect(display.get_onFlush()).to.have.been.calledOnce;
+            expect(display.onflush).to.have.been.calledOnce;
         });
 
         it('should draw a blit image on type "blit"', function () {

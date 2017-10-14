@@ -26,14 +26,7 @@ with transparent binary data support.
 [Websock API](https://github.com/novnc/websockify/wiki/websock.js) wiki page.
 
 
-## 1.2 Configuration Attributes
-
-The Mouse, Keyboard and Display objects have a similar API for
-configuration options as the RFB object. See the official API
-documentation for details.
-
-
-## 1.3 Callbacks
+## 1.2 Callbacks
 
 For the Mouse, Keyboard and Display objects the callback functions are
 assigned to configuration attributes, just as for the RFB object. The
@@ -61,8 +54,8 @@ callback event name, and the callback function.
 
 | name          | parameters          | description
 | ------------- | ------------------- | ------------
-| onMouseButton | (x, y, down, bmask) | Handler for mouse button click/release
-| onMouseMove   | (x, y)              | Handler for mouse movement
+| onmousebutton | (x, y, down, bmask) | Handler for mouse button click/release
+| onmousemove   | (x, y)              | Handler for mouse movement
 
 
 ## 2.2 Keyboard Module
@@ -82,7 +75,7 @@ None
 
 | name       | parameters           | description
 | ---------- | -------------------- | ------------
-| onKeyPress | (keysym, code, down) | Handler for key press/release
+| onkeypress | (keysym, code, down) | Handler for key press/release
 
 
 ## 2.3 Display Module
@@ -91,7 +84,6 @@ None
 
 | name        | type  | mode | default | description
 | ----------- | ----- | ---- | ------- | ------------
-| context     | raw   | RO   |         | Canvas 2D context for rendering
 | logo        | raw   | RW   |         | Logo to display when cleared: {"width": width, "height": height, "type": mime-type, "data": data}
 | scale       | float | RW   | 1.0     | Display area scale factor 0.0 - 1.0
 | viewport    | bool  | RW   | false   | Use viewport clipping
@@ -131,4 +123,4 @@ None
 
 | name    | parameters | description
 | ------- | ---------- | ------------
-| onFlush | ()         | A display flush has been requested and we are now ready to resume FBU processing
+| onflush | ()         | A display flush has been requested and we are now ready to resume FBU processing
