@@ -97,7 +97,6 @@ None
 | viewport    | bool  | RW   | false   | Use viewport clipping
 | width       | int   | RO   |         | Display area width
 | height      | int   | RO   |         | Display area height
-| render_mode | str   | RO   | ''      | Canvas rendering mode
 | prefer_js   | str   | RW   |         | Prefer JavaScript over canvas methods
 | cursor_uri  | raw   | RW   |         | Can we render cursor using data URI
 

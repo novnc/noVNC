@@ -35,7 +35,6 @@ export default function Display(target, defaults) {
     set_defaults(this, defaults, {
         'scale': 1.0,
         'viewport': false,
-        'render_mode': '',
         "onFlush": function () {},
     });
 
@@ -74,9 +73,7 @@ export default function Display(target, defaults) {
     this.clear();
 
     // Check canvas features
-    if ('createImageData' in this._drawCtx) {
-        this._render_mode = 'canvas rendering';
-    } else {
+    if (!('createImageData' in this._drawCtx)) {
         throw new Error("Canvas does not support createImageData");
     }
 
@@ -699,8 +696,6 @@ make_properties(Display, [
     ['viewport', 'rw', 'bool'],    // Use viewport clipping
     ['width', 'ro', 'int'],        // Display area width
     ['height', 'ro', 'int'],       // Display area height
-
-    ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
 
     ['prefer_js', 'rw', 'str'],    // Prefer Javascript over canvas methods
     ['cursor_uri', 'rw', 'raw'],   // Can we render cursor using data URI

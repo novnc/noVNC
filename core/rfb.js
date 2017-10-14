@@ -233,9 +233,6 @@ export default function RFB(target, defaults) {
         Log.Warn("WebSocket on-error event");
     });
 
-    var rmode = this._display.get_render_mode();
-    Log.Info("Using native WebSockets, render mode: " + rmode);
-
     Log.Debug("<< RFB.constructor");
 };
 
