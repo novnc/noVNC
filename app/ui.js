@@ -1039,6 +1039,7 @@ var UI = {
 
         if (typeof password === 'undefined') {
             password = WebUtil.getConfigVar('password');
+            UI.reconnect_password = password;
         }
 
         if (password === null) {
