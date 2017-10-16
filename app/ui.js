@@ -17,6 +17,7 @@ import { isTouchDevice, browserSupportsCursorURIs as cursorURIsSupported } from 
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
+import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import Display from "../core/display.js";
 import * as WebUtil from "./webutil.js";
@@ -280,6 +281,9 @@ var UI = {
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
 
+        UI.touchKeyboard = new Keyboard({target: document.getElementById('noVNC_keyboardinput'),
+                                         onKeyEvent: UI.keyEvent});
+        UI.touchKeyboard.grab();
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('input', UI.keyInput);
         document.getElementById("noVNC_keyboardinput")
@@ -1504,6 +1508,12 @@ var UI = {
         var kbi = document.getElementById('noVNC_keyboardinput');
         kbi.value = new Array(UI.defaultKeyboardinputLen).join("_");
         UI.lastKeyboardinput = kbi.value;
+    },
+
+    keyEvent: function (keysym, code, down) {
+        if (!UI.rfb) return;
+
+        UI.rfb.sendKey(keysym, code, down);
     },
 
     // When normal keyboard events are left uncought, use the input events from
