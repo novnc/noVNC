@@ -8,7 +8,6 @@ noVNC is a HTML5 VNC client that runs well in any modern browser including
 mobile browsers (iOS and Android).
 
 Many companies, projects and products have integrated noVNC including
-[Ganeti Web Manager](http://code.osuosl.org/projects/ganeti-webmgr),
 [OpenStack](http://www.openstack.org),
 [OpenNebula](http://opennebula.org/),
 [LibVNCServer](http://libvncserver.sourceforge.net), and
