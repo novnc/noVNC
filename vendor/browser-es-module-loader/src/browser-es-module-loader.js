@@ -52,7 +52,7 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
         }
         // anonymous modules supported via a custom naming scheme and registry
         else {
-          var uri = './<anon' + ++anonCnt + '>';
+          var uri = './<anon' + ++anonCnt + '>.js';
           if (script.id !== ""){
             uri = "./" + script.id;
           }
