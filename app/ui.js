@@ -243,12 +243,12 @@ var UI = {
         document.getElementById("noVNC_control_bar")
             .addEventListener('mousedown', UI.activateControlbar);
         document.getElementById("noVNC_control_bar")
-            .addEventListener('keypress', UI.activateControlbar);
+            .addEventListener('keydown', UI.activateControlbar);
 
         document.getElementById("noVNC_control_bar")
             .addEventListener('mousedown', UI.keepControlbar);
         document.getElementById("noVNC_control_bar")
-            .addEventListener('keypress', UI.keepControlbar);
+            .addEventListener('keydown', UI.keepControlbar);
 
         document.getElementById("noVNC_view_drag_button")
             .addEventListener('click', UI.toggleViewDrag);
