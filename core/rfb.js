@@ -836,12 +836,12 @@ RFB.prototype = {
     },
 
     _negotiate_std_vnc_auth: function () {
+        if (this._sock.rQwait("auth challenge", 16)) { return false; }
+
         if (this._rfb_password.length === 0) {
             this._onPasswordRequired(this);
             return false;
         }
-
-        if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
         // TODO(directxman12): make genDES not require an Array
         var challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
