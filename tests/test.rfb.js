@@ -840,6 +840,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client.set_onPasswordRequired(sinon.spy());
                     send_security(2, client);
 
+                    var challenge = [];
+                    for (var i = 0; i < 16; i++) { challenge[i] = i; }
+                    client._sock._websocket._receive_data(new Uint8Array(challenge));
+
                     var spy = client.get_onPasswordRequired();
                     expect(client._rfb_password.length).to.equal(0);
                     expect(spy).to.have.been.calledOnce;
