@@ -1714,8 +1714,10 @@ var UI = {
 
     bell: function(rfb) {
         if (WebUtil.getConfigVar('bell', 'on') === 'on') {
-            document.getElementById('noVNC_bell').play()
-                .catch(function(e) {
+            var promise = document.getElementById('noVNC_bell').play();
+            // The standards disagree on the return value here
+            if (promise) {
+                promise.catch(function(e) {
                     if (e.name === "NotAllowedError") {
                         // Ignore when the browser doesn't let us play audio.
                         // It is common that the browsers require audio to be
@@ -1724,6 +1726,7 @@ var UI = {
                         Log.Error("Unable to play bell: " + e);
                     }
                 });
+            }
         }
     },
 
