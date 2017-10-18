@@ -175,8 +175,7 @@ callback event name, and the callback function.
 
 | name              | type | mode | default    | description
 | ----------------- | ---- | ---- | ---------- | ------------
-| target            | DOM  | WO   | null       | Canvas element for rendering (passed to Display and Mouse)
-| focusContainer    | DOM  | WO   | document   | DOM element that captures keyboard input (passed to Keyboard)
+| target            | DOM  | WO   | null       | Canvas element for rendering (passed to Display, Mouse and Keyboard)
 | encrypt           | bool | RW   | false      | Use TLS/SSL encryption
 | local_cursor      | bool | RW   | false      | Request locally rendered cursor
 | shared            | bool | RW   | true       | Request shared VNC mode
