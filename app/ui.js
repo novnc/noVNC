@@ -17,6 +17,7 @@ import { isTouchDevice, browserSupportsCursorURIs as cursorURIsSupported } from 
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
+import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import Display from "../core/display.js";
 import * as WebUtil from "./webutil.js";
@@ -106,7 +107,6 @@ var UI = {
 
         UI.updateVisualState();
 
-        document.getElementById('noVNC_setting_host').focus();
         document.documentElement.classList.remove("noVNC_loading");
 
         var autoconnect = WebUtil.getConfigVar('autoconnect', false);
@@ -241,12 +241,12 @@ var UI = {
         document.getElementById("noVNC_control_bar")
             .addEventListener('mousedown', UI.activateControlbar);
         document.getElementById("noVNC_control_bar")
-            .addEventListener('keypress', UI.activateControlbar);
+            .addEventListener('keydown', UI.activateControlbar);
 
         document.getElementById("noVNC_control_bar")
             .addEventListener('mousedown', UI.keepControlbar);
         document.getElementById("noVNC_control_bar")
-            .addEventListener('keypress', UI.keepControlbar);
+            .addEventListener('keydown', UI.keepControlbar);
 
         document.getElementById("noVNC_view_drag_button")
             .addEventListener('click', UI.toggleViewDrag);
@@ -278,6 +278,9 @@ var UI = {
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
 
+        UI.touchKeyboard = new Keyboard({target: document.getElementById('noVNC_keyboardinput'),
+                                         onKeyEvent: UI.keyEvent});
+        UI.touchKeyboard.grab();
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('input', UI.keyInput);
         document.getElementById("noVNC_keyboardinput")
@@ -289,6 +292,8 @@ var UI = {
 
         document.documentElement
             .addEventListener('mousedown', UI.keepVirtualKeyboard, true);
+        document.documentElement
+            .addEventListener('touchstart', UI.keepVirtualKeyboard, true);
 
         document.getElementById("noVNC_control_bar")
             .addEventListener('touchstart', UI.activateControlbar);
@@ -353,10 +358,6 @@ var UI = {
     addClipboardHandlers: function() {
         document.getElementById("noVNC_clipboard_button")
             .addEventListener('click', UI.toggleClipboardPanel);
-        document.getElementById("noVNC_clipboard_text")
-            .addEventListener('focus', UI.displayBlur);
-        document.getElementById("noVNC_clipboard_text")
-            .addEventListener('blur', UI.displayFocus);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
         document.getElementById("noVNC_clipboard_clear_button")
@@ -437,6 +438,7 @@ var UI = {
                     msg = _("Connected (unencrypted) to ") + UI.desktopName;
                 }
                 UI.showStatus(msg);
+                document.getElementById('noVNC_canvas').focus();
                 break;
             case 'disconnecting':
                 UI.connected = false;
@@ -1490,13 +1492,26 @@ var UI = {
             }
         }
 
-        event.preventDefault();
+        // The default action of touchstart is to generate other
+        // events, which other elements might depend on. So we can't
+        // blindly prevent that. Instead restore focus right away.
+        if (event.type === "touchstart") {
+            setTimeout(input.focus.bind(input));
+        } else {
+            event.preventDefault();
+        }
     },
 
     keyboardinputReset: function() {
         var kbi = document.getElementById('noVNC_keyboardinput');
         kbi.value = new Array(UI.defaultKeyboardinputLen).join("_");
         UI.lastKeyboardinput = kbi.value;
+    },
+
+    keyEvent: function (keysym, code, down) {
+        if (!UI.rfb) return;
+
+        UI.rfb.sendKey(keysym, code, down);
     },
 
     // When normal keyboard events are left uncought, use the input events from
@@ -1657,20 +1672,6 @@ var UI = {
             } else {
                 button.classList.add("noVNC_hidden");
             }
-        }
-    },
-
-    displayBlur: function() {
-        if (UI.rfb && !UI.rfb.get_view_only()) {
-            UI.rfb.get_keyboard().set_focused(false);
-            UI.rfb.get_mouse().set_focused(false);
-        }
-    },
-
-    displayFocus: function() {
-        if (UI.rfb && !UI.rfb.get_view_only()) {
-            UI.rfb.get_keyboard().set_focused(true);
-            UI.rfb.get_mouse().set_focused(true);
         }
     },
 

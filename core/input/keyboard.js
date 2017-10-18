@@ -24,8 +24,7 @@ export default function Keyboard(defaults) {
     this._pendingKey = null;        // Key waiting for keypress
 
     set_defaults(this, defaults, {
-        'target': document,
-        'focused': true
+        'target': null,
     });
 
     // keep these here so we can refer to them later
@@ -131,8 +130,6 @@ Keyboard.prototype = {
     },
 
     _handleKeyDown: function (e) {
-        if (!this._focused) { return; }
-
         var code = this._getKeyCode(e);
         var keysym = KeyboardUtil.getKeysym(e);
 
@@ -214,8 +211,6 @@ Keyboard.prototype = {
 
     // Legacy event for browsers without code/key
     _handleKeyPress: function (e) {
-        if (!this._focused) { return; }
-
         stopEvent(e);
 
         // Are we expecting a keypress?
@@ -244,8 +239,6 @@ Keyboard.prototype = {
         this._sendKeyEvent(keysym, code, true);
     },
     _handleKeyPressTimeout: function (e) {
-        if (!this._focused) { return; }
-
         // Did someone manage to sort out the key already?
         if (this._pendingKey === null) {
             return;
@@ -282,8 +275,6 @@ Keyboard.prototype = {
     },
 
     _handleKeyUp: function (e) {
-        if (!this._focused) { return; }
-
         stopEvent(e);
 
         var code = this._getKeyCode(e);
@@ -348,7 +339,6 @@ Keyboard.prototype = {
 
 make_properties(Keyboard, [
     ['target',     'wo', 'dom'],  // DOM element that captures keyboard input
-    ['focused',    'rw', 'bool'], // Capture and send key events
 
     ['onKeyEvent', 'rw', 'func'] // Handler for key press/release
 ]);
