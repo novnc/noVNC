@@ -147,6 +147,11 @@ export default function RFB(defaults) {
     // main setup
     Log.Debug(">> RFB.constructor");
 
+    // Target canvas must be able to have focus
+    if (!this._target.hasAttribute('tabindex')) {
+        this._target.tabIndex = -1;
+    }
+
     // populate encHandlers with bound versions
     this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
     this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this);
