@@ -77,7 +77,6 @@ callback event name, and the callback function.
 | name        | type | mode | default  | description
 | ----------- | ---- | ---- | -------- | ------------
 | target      | DOM  | WO   | document | DOM element that captures mouse input
-| focused     | bool | RW   | true     | Capture and send mouse clicks/movement
 | touchButton | int  | RW   | 1        | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
 
 ### 2.1.2 Methods
@@ -102,7 +101,6 @@ callback event name, and the callback function.
 | name    | type | mode | default  | description
 | ------- | ---- | ---- | -------- | ------------
 | target  | DOM  | WO   | document | DOM element that captures keyboard input
-| focused | bool | RW   | true     | Capture and send key events
 
 ### 2.2.2 Methods
 
