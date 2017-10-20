@@ -40,7 +40,7 @@ describe('Display/Canvas Helper', function () {
         var display;
         beforeEach(function () {
             display = new Display(document.createElement('canvas'));
-            display.viewport = true;
+            display.clipViewport = true;
             display.resize(5, 5);
             display.viewportChangeSize(3, 3);
             display.viewportChangePos(1, 1);
@@ -101,7 +101,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should show the entire framebuffer when disabling the viewport', function() {
-            display.viewport = false;
+            display.clipViewport = false;
             expect(display.absX(0)).to.equal(0);
             expect(display.absY(0)).to.equal(0);
             expect(display._target.width).to.equal(5);
@@ -109,7 +109,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should ignore viewport changes when the viewport is disabled', function() {
-            display.viewport = false;
+            display.clipViewport = false;
             display.viewportChangeSize(2, 2);
             display.viewportChangePos(1, 1);
             expect(display.absX(0)).to.equal(0);
@@ -119,8 +119,8 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should show the entire framebuffer just after enabling the viewport', function() {
-            display.viewport = false;
-            display.viewport = true;
+            display.clipViewport = false;
+            display.clipViewport = true;
             expect(display.absX(0)).to.equal(0);
             expect(display.absY(0)).to.equal(0);
             expect(display._target.width).to.equal(5);
@@ -132,7 +132,7 @@ describe('Display/Canvas Helper', function () {
         var display;
         beforeEach(function () {
             display = new Display(document.createElement('canvas'));
-            display.viewport = false;
+            display.clipViewport = false;
             display.resize(4, 4);
         });
 
@@ -157,7 +157,7 @@ describe('Display/Canvas Helper', function () {
 
         describe('viewport', function () {
             beforeEach(function () {
-                display.viewport = true;
+                display.clipViewport = true;
                 display.viewportChangeSize(3, 3);
                 display.viewportChangePos(1, 1);
             });
@@ -195,7 +195,7 @@ describe('Display/Canvas Helper', function () {
         beforeEach(function () {
             canvas = document.createElement('canvas');
             display = new Display(canvas);
-            display.viewport = true;
+            display.clipViewport = true;
             display.resize(4, 4);
             display.viewportChangeSize(3, 3);
             display.viewportChangePos(1, 1);
@@ -236,7 +236,7 @@ describe('Display/Canvas Helper', function () {
         beforeEach(function () {
             canvas = document.createElement('canvas');
             display = new Display(canvas);
-            display.viewport = true;
+            display.clipViewport = true;
             display.resize(4, 3);
             document.body.appendChild(canvas);
         });

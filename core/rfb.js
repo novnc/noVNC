@@ -217,7 +217,7 @@ RFB.prototype = {
     // ===== PROPERTIES =====
 
     disconnectTimeout: 3,
-    viewportDrag: false,
+    dragViewport: false,
 
     _localCursor: false,
     get localCursor() { return this._localCursor; },
@@ -262,11 +262,11 @@ RFB.prototype = {
     get touchButton() { return this._mouse.touchButton; },
     set touchButton(button) { this._mouse.touchButton = button; },
 
-    get scale() { return this._display.scale; },
-    set scale(scale) { this._display.scale = scale; },
+    get viewportScale() { return this._display.scale; },
+    set viewportScale(scale) { this._display.scale = scale; },
 
-    get viewport() { return this._display.viewport; },
-    set viewport(viewport) { this._display.viewport = viewport; },
+    get clipViewport() { return this._display.clipViewport; },
+    set clipViewport(viewport) { this._display.clipViewport = viewport; },
 
     get isClipped() { return this._display.isClipped; },
 
@@ -679,7 +679,7 @@ RFB.prototype = {
             this._mouse_buttonMask &= ~bmask;
         }
 
-        if (this._viewportDrag) {
+        if (this.dragViewport) {
             if (down && !this._viewportDragging) {
                 this._viewportDragging = true;
                 this._viewportDragPos = {'x': x, 'y': y};

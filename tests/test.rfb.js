@@ -1892,20 +1892,20 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should not send button messages when initiating viewport dragging', function () {
-                client._viewportDrag = true;
+                client.dragViewport = true;
                 client._handleMouseButton(13, 9, 0x001);
                 expect(client._sock.flush).to.not.have.been.called;
             });
 
             it('should be initiate viewport dragging on a button down event, if enabled', function () {
-                client._viewportDrag = true;
+                client.dragViewport = true;
                 client._handleMouseButton(13, 9, 0x001);
                 expect(client._viewportDragging).to.be.true;
                 expect(client._viewportDragPos).to.deep.equal({ x: 13, y: 9 });
             });
 
             it('should terminate viewport dragging on a button up event, if enabled', function () {
-                client._viewportDrag = true;
+                client.dragViewport = true;
                 client._viewportDragging = true;
                 client._handleMouseButton(13, 9, 0x000);
                 expect(client._viewportDragging).to.be.false;
@@ -1917,7 +1917,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 var newX = 123 + 11 * window.devicePixelRatio;
                 var newY = 109 + 4 * window.devicePixelRatio;
 
-                client._viewportDrag = true;
+                client.dragViewport = true;
                 client._viewportDragging = true;
                 client._viewportHasMoved = false;
                 client._viewportDragPos = { x: oldX, y: oldY };

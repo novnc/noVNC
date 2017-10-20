@@ -31,20 +31,20 @@ protocol stream.
     [`MouseEvent.button`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button).
     Is set to `1` by default.
 
-`scale`
+`viewportScale`
   - Is a `double` indicating how the framebuffer contents should be
     scaled before being rendered on to the canvas. See also
     [`RFB.autoscale()`](#rfbautoscale). Is set to `1.0` by default.
 
-`viewport`
+`clipViewport`
   - Is a `boolean` indicating if the canvas should be clipped to its
     container. When disabled the container must be able to handle the
     resulting overflow. Disabled by default.
 
-`viewportDrag`
+`dragViewport`
   - Is a `boolean` indicating if mouse events should control the
-    relative position of a clipped canvas. Only relevant if `viewport`
-    is enabled. Disabled by default.
+    relative position of a clipped canvas. Only relevant if
+    `clipViewport` is enabled. Disabled by default.
 
 `isClipped` *Read only*
   - Is a `boolean` indicating if the framebuffer is larger than the
@@ -130,7 +130,8 @@ protocol stream.
   - Send clipboard contents to server.
 
 [`RFB.autoscale()`](#rfbautoscale)
-  - Set `RFB.scale` so that the framebuffer fits a specified container.
+  - Set `RFB.viewportScale` so that the framebuffer fits a specified
+    container.
 
 [`RFB.requestDesktopSize()`](#rfbrequestDesktopSize)
   - Send a request to change the remote desktop size.
@@ -409,7 +410,7 @@ to the remote server.
 #### RFB.autoscale()
 
 The `RFB.autoscale()` method is used to automatically adjust
-`RFB.scale` to fit given dimensions.
+`RFB.viewportScale` to fit given dimensions.
 
 ##### Syntax
 
@@ -453,7 +454,7 @@ actually changes dimensions.
 The `RFB.viewportChangeSize()` method is used to change the size of the
 canvas rather than the underlying framebuffer.
 
-This method has no effect if `RFB.viewport` is set to `false`.
+This method has no effect if `RFB.clipViewport` is set to `false`.
 
 ##### Syntax
 

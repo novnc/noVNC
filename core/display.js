@@ -89,10 +89,10 @@ Display.prototype = {
         this._rescale(scale);
     },
 
-    _viewport: false,
-    get viewport() { return this._viewport; },
-    set viewport(viewport) {
-        this._viewport = viewport;
+    _clipViewport: false,
+    get clipViewport() { return this._clipViewport; },
+    set clipViewport(viewport) {
+        this._clipViewport = viewport;
         // May need to readjust the viewport dimensions
         var vp = this._viewportLoc;
         this.viewportChangeSize(vp.w, vp.h);
@@ -124,7 +124,7 @@ Display.prototype = {
         deltaX = Math.floor(deltaX);
         deltaY = Math.floor(deltaY);
 
-        if (!this._viewport) {
+        if (!this._clipViewport) {
             deltaX = -vp.w;  // clamped later of out of bounds
             deltaY = -vp.h;
         }
@@ -163,7 +163,7 @@ Display.prototype = {
 
     viewportChangeSize: function(width, height) {
 
-        if (!this._viewport ||
+        if (!this._clipViewport ||
             typeof(width) === "undefined" ||
             typeof(height) === "undefined") {
 

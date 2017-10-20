@@ -1224,7 +1224,7 @@ var UI = {
         if (screen && UI.connected) {
 
             var resizeMode = UI.getSetting('resize');
-            UI.rfb.scale = 1.0;
+            UI.rfb.viewportScale = 1.0;
 
             // Make sure the viewport is adjusted first
             UI.updateViewClip();
@@ -1306,7 +1306,7 @@ var UI = {
     updateViewClip: function() {
         if (!UI.rfb) return;
 
-        var cur_clip = UI.rfb.viewport;
+        var cur_clip = UI.rfb.clipViewport;
         var new_clip = UI.getSetting('view_clip');
 
         var resizeSetting = UI.getSetting('resize');
@@ -1319,7 +1319,7 @@ var UI = {
         }
 
         if (cur_clip !== new_clip) {
-            UI.rfb.viewport = new_clip;
+            UI.rfb.clipViewport = new_clip;
         }
 
         var size = UI.screenSize();
@@ -1357,7 +1357,7 @@ var UI = {
     toggleViewDrag: function() {
         if (!UI.rfb) return;
 
-        var drag = UI.rfb.viewportDrag;
+        var drag = UI.rfb.dragViewport;
         UI.setViewDrag(!drag);
      },
 
@@ -1365,7 +1365,7 @@ var UI = {
     setViewDrag: function(drag) {
         if (!UI.rfb) return;
 
-        UI.rfb.viewportDrag = drag;
+        UI.rfb.dragViewport = drag;
 
         UI.updateViewDrag();
     },
@@ -1377,21 +1377,21 @@ var UI = {
 
         // Check if viewport drag is possible. It is only possible
         // if the remote display is clipping the client display.
-        if (UI.rfb.viewport && UI.rfb.isClipped) {
+        if (UI.rfb.clipViewport && UI.rfb.isClipped) {
             clipping = true;
         }
 
         var viewDragButton = document.getElementById('noVNC_view_drag_button');
 
         if (!clipping &&
-            UI.rfb.viewportDrag) {
+            UI.rfb.dragViewport) {
             // The size of the remote display is the same or smaller
             // than the client display. Make sure viewport drag isn't
             // active when it can't be used.
-            UI.rfb.viewportDrag = false;
+            UI.rfb.dragViewport = false;
         }
 
-        if (UI.rfb.viewportDrag) {
+        if (UI.rfb.dragViewport) {
             viewDragButton.classList.add("noVNC_selected");
         } else {
             viewDragButton.classList.remove("noVNC_selected");

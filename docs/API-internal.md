@@ -82,14 +82,14 @@ None
 
 ### 2.3.1 Configuration Attributes
 
-| name        | type  | mode | default | description
-| ----------- | ----- | ---- | ------- | ------------
-| logo        | raw   | RW   |         | Logo to display when cleared: {"width": width, "height": height, "type": mime-type, "data": data}
-| scale       | float | RW   | 1.0     | Display area scale factor 0.0 - 1.0
-| viewport    | bool  | RW   | false   | Use viewport clipping
-| width       | int   | RO   |         | Display area width
-| height      | int   | RO   |         | Display area height
-| isClipped   | bool  | RO   |         | Is the remote display is larger than the client display
+| name         | type  | mode | default | description
+| ------------ | ----- | ---- | ------- | ------------
+| logo         | raw   | RW   |         | Logo to display when cleared: {"width": width, "height": height, "type": mime-type, "data": data}
+| scale        | float | RW   | 1.0     | Display area scale factor 0.0 - 1.0
+| clipViewport | bool  | RW   | false   | Use viewport clipping
+| width        | int   | RO   |         | Display area width
+| height       | int   | RO   |         | Display area height
+| isClipped    | bool  | RO   |         | Is the remote display is larger than the client display
 
 ### 2.3.2 Methods
 
