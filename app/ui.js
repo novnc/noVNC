@@ -13,7 +13,7 @@
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from '../core/util/localization.js';
-import { isTouchDevice, browserSupportsCursorURIs as cursorURIsSupported } from '../core/util/browsers.js';
+import { isTouchDevice } from '../core/util/browsers.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
@@ -167,7 +167,6 @@ var UI = {
         UI.initSetting('host', window.location.hostname);
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
-        UI.initSetting('cursor', !isTouchDevice);
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
@@ -378,8 +377,6 @@ var UI = {
             .addEventListener('click', UI.toggleSettingsPanel);
 
         UI.addSettingChangeHandler('encrypt');
-        UI.addSettingChangeHandler('cursor');
-        UI.addSettingChangeHandler('cursor', UI.updateLocalCursor);
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
@@ -463,12 +460,6 @@ var UI = {
         //Log.Debug(">> updateVisualState");
 
         UI.enableDisableViewClip();
-
-        if (cursorURIsSupported() && !isTouchDevice) {
-            UI.enableSetting('cursor');
-        } else {
-            UI.disableSetting('cursor');
-        }
 
         if (UI.connected) {
             UI.disableSetting('encrypt');
@@ -885,12 +876,6 @@ var UI = {
 
         // Refresh UI elements from saved cookies
         UI.updateSetting('encrypt');
-        if (cursorURIsSupported()) {
-            UI.updateSetting('cursor');
-        } else {
-            UI.updateSetting('cursor', !isTouchDevice);
-            UI.disableSetting('cursor');
-        }
         UI.updateSetting('view_clip');
         UI.updateSetting('resize');
         UI.updateSetting('shared');
@@ -1062,7 +1047,6 @@ var UI = {
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
-        UI.updateLocalCursor();
         UI.updateViewOnly();
 
         var url;
@@ -1675,11 +1659,6 @@ var UI = {
                 button.classList.add("noVNC_hidden");
             }
         }
-    },
-
-    updateLocalCursor: function() {
-        if (!UI.rfb) return;
-        UI.rfb.localCursor = UI.getSetting('cursor');
     },
 
     updateViewOnly: function() {

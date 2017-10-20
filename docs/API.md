@@ -16,10 +16,6 @@ protocol stream.
 
 ### Properties
 
-`localCursor`
-  - Is a `boolean` indicating if a client side cursor should be
-    requested. Disabled by default.
-
 `viewOnly`
   - Is a `boolean` indicating if any events (e.g. key presses or mouse
     movement) should be prevented from being sent to the server.

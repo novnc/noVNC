@@ -13,7 +13,7 @@
 import * as Log from './util/logging.js';
 import _ from './util/localization.js';
 import { decodeUTF8 } from './util/strings.js';
-import { browserSupportsCursorURIs } from './util/browsers.js';
+import { browserSupportsCursorURIs, isTouchDevice } from './util/browsers.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
@@ -218,27 +218,6 @@ RFB.prototype = {
 
     disconnectTimeout: 3,
     dragViewport: false,
-
-    _localCursor: false,
-    get localCursor() { return this._localCursor; },
-    set localCursor(cursor) {
-        if (!cursor || (cursor in {'0': 1, 'no': 1, 'false': 1})) {
-            this._localCursor = false;
-            this._display.disableLocalCursor(); //Only show server-side cursor
-        } else {
-            if (browserSupportsCursorURIs()) {
-                this._localCursor = true;
-            } else {
-                Log.Warn("Browser does not support local cursor");
-                this._display.disableLocalCursor();
-            }
-        }
-
-        // Need to send an updated list of encodings if we are connected
-        if (this._rfb_connection_state === "connected") {
-            this._sendEncodings();
-        }
-    },
 
     _viewOnly: false,
     get viewOnly() { return this._viewOnly; },
@@ -1155,7 +1134,8 @@ RFB.prototype = {
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
 
-        if (this._localCursor && this._fb_depth == 24) {
+        if (browserSupportsCursorURIs() &&
+            !isTouchDevice && this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
         }
 

@@ -257,7 +257,6 @@
 
             try {
                 rfb = new RFB(document.getElementById('noVNC_canvas'));
-                rfb.localCursor =    WebUtil.getConfigVar('cursor', true);
                 rfb.viewOnly =       WebUtil.getConfigVar('view_only', false);
                 rfb.onnotification = notification;
                 rfb.onupdatestate =  updateState;
