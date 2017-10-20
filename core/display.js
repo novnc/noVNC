@@ -106,6 +106,11 @@ Display.prototype = {
         return this._fb_height;
     },
 
+    get isClipped() {
+        var vp = this._viewportLoc;
+        return this._fb_width > vp.w || this._fb_height > vp.h;
+    },
+
     logo: null,
 
     // ===== EVENT HANDLERS =====
@@ -510,11 +515,6 @@ Display.prototype = {
 
     disableLocalCursor: function () {
         this._target.style.cursor = "none";
-    },
-
-    clippingDisplay: function () {
-        var vp = this._viewportLoc;
-        return this._fb_width > vp.w || this._fb_height > vp.h;
     },
 
     autoscale: function (containerWidth, containerHeight, downscaleOnly) {

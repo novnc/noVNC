@@ -89,6 +89,7 @@ None
 | viewport    | bool  | RW   | false   | Use viewport clipping
 | width       | int   | RO   |         | Display area width
 | height      | int   | RO   |         | Display area height
+| isClipped   | bool  | RO   |         | Is the remote display is larger than the client display
 
 ### 2.3.2 Methods
 
@@ -116,7 +117,6 @@ None
 | changeCursor       | (pixels, mask, hotx, hoty, w, h)                        | Change cursor appearance
 | defaultCursor      | ()                                                      | Restore default cursor appearance
 | disableLocalCursor | ()                                                      | Disable local (client-side) cursor
-| clippingDisplay    | ()                                                      | Check if the remote display is larger than the client display
 | autoscale          | (containerWidth, containerHeight, downscaleOnly)        | Scale the display
 
 ### 2.3.3 Callbacks

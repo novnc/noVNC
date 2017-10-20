@@ -1377,8 +1377,7 @@ var UI = {
 
         // Check if viewport drag is possible. It is only possible
         // if the remote display is clipping the client display.
-        if (UI.rfb.viewport &&
-            UI.rfb.clippingDisplay()) {
+        if (UI.rfb.viewport && UI.rfb.isClipped) {
             clipping = true;
         }
 

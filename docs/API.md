@@ -46,6 +46,10 @@ protocol stream.
     relative position of a clipped canvas. Only relevant if `viewport`
     is enabled. Disabled by default.
 
+`isClipped` *Read only*
+  - Is a `boolean` indicating if the framebuffer is larger than the
+    current canvas, i.e. it is being clipped.
+
 `disconnectTimeout`
   - Is a `long` indicating how many seconds to wait for a disconnect
     request to complete. Is set to `3` by default.
@@ -127,10 +131,6 @@ protocol stream.
 
 [`RFB.autoscale()`](#rfbautoscale)
   - Set `RFB.scale` so that the framebuffer fits a specified container.
-
-[`RFB.clippingDisplay()`](#rfbclippingDisplay)
-  - Returns `true` if the framebuffer is larger than what is currently
-    displayed on the canvas.
 
 [`RFB.requestDesktopSize()`](#rfbrequestDesktopSize)
   - Send a request to change the remote desktop size.
@@ -425,21 +425,6 @@ The `RFB.autoscale()` method is used to automatically adjust
 
 **`downscaleOnly`**
   - A `boolean` specifying if the scale must be kept below `1.0`.
-
-#### RFB.clippingDisplay()
-
-The `RFB.clippingDisplay()` method is used to determine if the
-framebuffer is larger than the current canvas, i.e. it is being
-clipped.
-
-##### Syntax
-
-    RFB.clippingDisplay( );
-
-###### Return value
-
-Returns a `boolean` indicating if the framebuffer is currently being
-clipped.
 
 #### RFB.requestDesktopSize()
 
