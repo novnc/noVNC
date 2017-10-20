@@ -112,9 +112,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
         });
 
         describe('#sendCredentials', function () {
-            beforeEach(function () { this.clock = sinon.useFakeTimers(); });
-            afterEach(function () { this.clock.restore(); });
-
             it('should set the rfb credentials properly"', function () {
                 client.sendCredentials({ password: 'pass' });
                 expect(client._rfb_credentials).to.deep.equal({ password: 'pass' });
@@ -321,12 +318,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('#_updateConnectionState', function () {
             var client;
             beforeEach(function () {
-                this.clock = sinon.useFakeTimers();
                 client = make_rfb();
-            });
-
-            afterEach(function () {
-                this.clock.restore();
             });
 
             it('should clear the disconnect timer if the state is not "disconnecting"', function () {
@@ -378,13 +370,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('#_fail', function () {
             var client;
             beforeEach(function () {
-                this.clock = sinon.useFakeTimers();
                 client = make_rfb();
                 client.connect('wss://host:8675');
-            });
-
-            afterEach(function () {
-                this.clock.restore();
             });
 
             it('should close the WebSocket connection', function () {
@@ -470,13 +457,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('disconnecting', function () {
             var client;
             beforeEach(function () {
-                this.clock = sinon.useFakeTimers();
                 client = make_rfb();
                 client.connect('wss://host:8675');
-            });
-
-            afterEach(function () {
-                this.clock.restore();
             });
 
             it('should force disconnect if we do not call Websock.onclose within the disconnection timeout', function () {
@@ -1965,10 +1947,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             beforeEach(function () {
                 client = make_rfb();
                 client.connect('wss://host:8675');
-                this.clock = sinon.useFakeTimers();
             });
-
-            afterEach(function () { this.clock.restore(); });
 
             // message events
             it ('should do nothing if we receive an empty message and have nothing in the queue', function () {
