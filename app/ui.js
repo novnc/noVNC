@@ -199,27 +199,6 @@ var UI = {
         }
     },
 
-    initRFB: function() {
-        try {
-            UI.rfb = new RFB(document.getElementById('noVNC_canvas'));
-            UI.rfb.onnotification = UI.notification;
-            UI.rfb.onupdatestate = UI.updateState;
-            UI.rfb.ondisconnected = UI.disconnectFinished;
-            UI.rfb.oncredentialsrequired = UI.credentials;
-            UI.rfb.oncapabilities = function () { UI.updatePowerButton(); UI.initialResize(); };
-            UI.rfb.onclipboard = UI.clipboardReceive;
-            UI.rfb.onbell = UI.bell;
-            UI.rfb.onfbresize = UI.updateSessionSize;
-            UI.rfb.ondesktopname = UI.updateDesktopName;
-            return true;
-        } catch (exc) {
-            var msg = "Unable to create RFB client -- " + exc;
-            Log.Error(msg);
-            UI.showStatus(msg, 'error');
-            return false;
-        }
-    },
-
 /* ------^-------
 *     /INIT
 * ==============
@@ -1042,8 +1021,6 @@ var UI = {
             return;
         }
 
-        if (!UI.initRFB()) return;
-
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
@@ -1059,9 +1036,19 @@ var UI = {
         }
         url += '/' + path;
 
-        UI.rfb.connect(url, { shared: UI.getSetting('shared'),
-                              repeaterID: UI.getSetting('repeaterID'),
-                              credentials: { password: password } });
+        UI.rfb = new RFB(document.getElementById('noVNC_canvas'), url,
+                         { shared: UI.getSetting('shared'),
+                           repeaterID: UI.getSetting('repeaterID'),
+                           credentials: { password: password } });
+        UI.rfb.onnotification = UI.notification;
+        UI.rfb.onupdatestate = UI.updateState;
+        UI.rfb.ondisconnected = UI.disconnectFinished;
+        UI.rfb.oncredentialsrequired = UI.credentials;
+        UI.rfb.oncapabilities = function () { UI.updatePowerButton(); UI.initialResize(); };
+        UI.rfb.onclipboard = UI.clipboardReceive;
+        UI.rfb.onbell = UI.bell;
+        UI.rfb.onfbresize = UI.updateSessionSize;
+        UI.rfb.ondesktopname = UI.updateDesktopName;
     },
 
     disconnect: function() {

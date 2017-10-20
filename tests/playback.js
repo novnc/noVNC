@@ -77,7 +77,7 @@ export default function RecordingPlayer (frames, encoding, disconnected, notific
 RecordingPlayer.prototype = {
     run: function (realtime, trafficManagement) {
         // initialize a new RFB
-        this._rfb = new RFB(document.getElementById('VNC_canvas'));
+        this._rfb = new RFB(document.getElementById('VNC_canvas'), 'wss://test');
         this._rfb.viewOnly = true;
         this._rfb.ondisconnected = this._handleDisconnect.bind(this);
         this._rfb.onnotification = this._notification;
@@ -92,9 +92,6 @@ RecordingPlayer.prototype = {
 
         this._running = true;
 
-        // launch the tests
-        this._rfb.connect('wss://test');
-
         this._queueNextPacket();
     },
 
@@ -104,12 +101,8 @@ RecordingPlayer.prototype = {
         this._rfb._sock.close = function () {};
         this._rfb._sock.flush = function () {};
         this._rfb._checkEvents = function () {};
-        this._rfb.connect = function (url) {
-            this._url = url;
-            this._rfb_credentials = {};
+        this._rfb._connect = function () {
             this._sock.init('binary', 'ws');
-            this._rfb_connection_state = 'connecting';
-            this._rfb_init_state = 'ProtocolVersion';
         };
     },
 

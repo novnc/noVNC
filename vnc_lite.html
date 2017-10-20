@@ -255,20 +255,6 @@
                 status('Must specify host and port in URL', 'error');
             }
 
-            try {
-                rfb = new RFB(document.getElementById('noVNC_canvas'));
-                rfb.viewOnly =       WebUtil.getConfigVar('view_only', false);
-                rfb.onnotification = notification;
-                rfb.onupdatestate =  updateState;
-                rfb.ondisconnected = disconnected;
-                rfb.oncapabilities = function () { updatePowerButtons(); initialResize(); };
-                rfb.oncredentialsrequired = credentials;
-                rfb.ondesktopname =  updateDesktopName;
-            } catch (exc) {
-                status('Unable to create RFB client -- ' + exc, 'error');
-                return; // don't continue trying to connect
-            }
-
             var url;
 
             if (WebUtil.getConfigVar('encrypt',
@@ -284,9 +270,17 @@
             }
             url += '/' + path;
 
-            rfb.connect(url, { repeaterID: WebUtil.getConfigVar('repeaterID', ''),
-                               shared: WebUtil.getConfigVar('shared', true),
-                               credentials: { password: password } });
+            rfb = new RFB(document.getElementById('noVNC_canvas'), url,
+                          { repeaterID: WebUtil.getConfigVar('repeaterID', ''),
+                            shared: WebUtil.getConfigVar('shared', true),
+                            credentials: { password: password } });
+            rfb.viewOnly =       WebUtil.getConfigVar('view_only', false);
+            rfb.onnotification = notification;
+            rfb.onupdatestate =  updateState;
+            rfb.ondisconnected = disconnected;
+            rfb.oncapabilities = function () { updatePowerButtons(); initialResize(); };
+            rfb.oncredentialsrequired = credentials;
+            rfb.ondesktopname =  updateDesktopName;
         })();
     </script>
 </head>

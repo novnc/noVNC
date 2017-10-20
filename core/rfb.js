@@ -31,12 +31,22 @@ import { encodings, encodingName } from "./encodings.js";
 // How many seconds to wait for a disconnect to finish
 var DISCONNECT_TIMEOUT = 3;
 
-export default function RFB(target) {
+export default function RFB(target, url, options) {
+    if (!target) {
+        throw Error("Must specify target");
+    }
+    if (!url) {
+        throw Error("Must specify URL");
+    }
+
     this._target = target;
+    this._url = url;
 
     // Connection details
-    this._url = '';
-    this._rfb_credentials = {};
+    options = options || {}
+    this._rfb_credentials = options.credentials || {};
+    this._shared = 'shared' in options ? !!options.shared : true;
+    this._repeaterID = options.repeaterID || '';
 
     // Internal state
     this._rfb_connection_state = '';
@@ -213,6 +223,10 @@ export default function RFB(target) {
         Log.Warn("WebSocket on-error event");
     });
 
+    // Slight delay of the actual connection so that the caller has
+    // time to set up callbacks
+    setTimeout(this._updateConnectionState.bind(this, 'connecting'));
+
     Log.Debug("<< RFB.constructor");
 };
 
@@ -264,24 +278,6 @@ RFB.prototype = {
     oncapabilities: function () {}, // oncapabilities(rfb, caps): the supported capabilities has changed
 
     // ===== PUBLIC METHODS =====
-
-    connect: function (url, options) {
-        if (!url) {
-            this._fail(_("Must specify URL"));
-            return;
-        }
-
-        this._url = url;
-
-        options = options || {}
-
-        this._rfb_credentials = options.credentials || {};
-        this._shared = 'shared' in options ? !!options.shared : true;
-        this._repeaterID = options.repeaterID || '';
-
-        this._rfb_init_state = '';
-        this._updateConnectionState('connecting');
-    },
 
     disconnect: function () {
         this._updateConnectionState('disconnecting');

@@ -92,9 +92,6 @@ protocol stream.
 
 ### Methods
 
-[`RFB.connect()`](#rfbconnect)
-  - Connect to a server.
-
 [`RFB.disconnect()`](#rfbdisconnect)
   - Disconnect from the server.
 
@@ -135,13 +132,12 @@ protocol stream.
 
 #### RFB()
 
-The `RFB()` constructor returns a new `RFB` object. The object will
-initially be disconnected and [`RFB.connect()`](#rfbconnect) must be
-called before the object will be useful.
+The `RFB()` constructor returns a new `RFB` object and initiates a new
+connection to a specified VNC server.
 
 ##### Syntax
 
-    var rfb = new RFB( target );
+    var rfb = new RFB( target, url [, options] );
 
 ###### Parameters
 
@@ -149,6 +145,35 @@ called before the object will be useful.
   - A [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
     that specifies where graphics should be rendered and input events
     should be monitored.
+
+**`url`**
+  - A `DOMString` specifying the VNC server to connect to. This must be
+    a valid WebSocket URL.
+
+**`options`** *Optional*
+  - An `Object` specifying extra details about how the connection
+    should be made.
+
+    Possible options:
+
+    `shared`
+      - A `boolean` indicating if the remote server should be shared or
+        if any other connected clients should be disconnected. Enabled
+        by default.
+
+    `credentials`
+      - An `Object` specifying the credentials to provide to the server
+        when authenticating. The following credentials are possible:
+
+        | name         | type        | description
+        | ------------ | ----------- | -----------
+        | `"username"` | `DOMString` | The user that authenticates
+        | `"password"` | `DOMString` | Password for the user
+        | `"target"`   | `DOMString` | Target machine or session
+
+    `repeaterID`
+      - A `DOMString` specifying the ID to provide to any VNC repeater
+        encountered.
 
 #### RFB.onupdatestate
 
@@ -201,9 +226,9 @@ termination.
 #### RFB.oncredentialsrequired
 
 The `oncredentialsrequired` event handler is fired when the server
-requests more credentials than were specified to
-[`RFB.connect()`](#rfbconnect). The **`types`** argument is a list of
-all the credentials that are required.
+requests more credentials than were specified to [`RFB()`](#rfb-1). The
+**`types`** argument is a list of all the credentials that are
+required.
 
 ##### Syntax
 
@@ -254,46 +279,6 @@ or removed from `RFB.capabilities`.
 
     RFB.oncapabilities = function(rfb, capabilites) { ... }
 
-#### RFB.connect()
-
-The `RFB.connect()` method is used to initiate a new connection to a
-specified VNC server.
-
-##### Syntax
-
-    RFB.connect( url [, options] );
-
-###### Parameters
-
-**`url`**
-  - A `DOMString` specifying the VNC server to connect to. This must be
-    a valid WebSocket URL.
-
-**`options`** *Optional*
-  - An `Object` specifying extra details about how the connection
-    should be made.
-
-    Possible options:
-
-    `shared`
-      - A `boolean` indicating if the remote server should be shared or
-        if any other connected clients should be disconnected. Enabled
-        by default.
-
-    `credentials`
-      - An `Object` specifying the credentials to provide to the server
-        when authenticating. The following credentials are possible:
-
-        | name         | type        | description
-        | ------------ | ----------- | -----------
-        | `"username"` | `DOMString` | The user that authenticates
-        | `"password"` | `DOMString` | Password for the user
-        | `"target"`   | `DOMString` | Target machine or session
-
-    `repeaterID`
-      - A `DOMString` specifying the ID to provide to any VNC repeater
-        encountered.
-
 #### RFB.disconnect()
 
 The `RFB.disconnect()` method is used to disconnect from the currently
@@ -316,8 +301,7 @@ credentials after `RFB.oncredentialsrequired` has been fired.
 
 **`credentials`**
   - An `Object` specifying the credentials to provide to the server
-    when authenticating. See [`RFB.connect()`](#rfbconnect) for
-    details.
+    when authenticating. See [`RFB()`](#rfb-1) for details.
 
 #### RFB.sendKey()
 
