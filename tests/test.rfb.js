@@ -483,7 +483,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client, '_updateConnectionState');
                 client._sock._websocket.close = function () {};  // explicitly don't call onclose
                 client._updateConnectionState('disconnecting');
-                this.clock.tick(client.disconnectTimeout * 1000);
+                this.clock.tick(3 * 1000);
                 expect(client._updateConnectionState).to.have.been.calledTwice;
                 expect(client._rfb_disconnect_reason).to.not.equal("");
                 expect(client._rfb_connection_state).to.equal("disconnected");
@@ -491,9 +491,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should not fail if Websock.onclose gets called within the disconnection timeout', function () {
                 client._updateConnectionState('disconnecting');
-                this.clock.tick(client.disconnectTimeout * 500);
+                this.clock.tick(3 * 1000 / 2);
                 client._sock._websocket.close();
-                this.clock.tick(client.disconnectTimeout * 500 + 1);
+                this.clock.tick(3 * 1000 / 2 + 1);
                 expect(client._rfb_connection_state).to.equal('disconnected');
             });
 

@@ -46,10 +46,6 @@ protocol stream.
   - Is a `boolean` indicating if the framebuffer is larger than the
     current canvas, i.e. it is being clipped.
 
-`disconnectTimeout`
-  - Is a `long` indicating how many seconds to wait for a disconnect
-    request to complete. Is set to `3` by default.
-
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
     on the server. Some methods may only be called if the corresponding

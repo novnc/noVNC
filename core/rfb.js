@@ -28,6 +28,9 @@ import { encodings, encodingName } from "./encodings.js";
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
 
+// How many seconds to wait for a disconnect to finish
+var DISCONNECT_TIMEOUT = 3;
+
 export default function RFB(target) {
     this._target = target;
 
@@ -216,7 +219,6 @@ export default function RFB(target) {
 RFB.prototype = {
     // ===== PROPERTIES =====
 
-    disconnectTimeout: 3,
     dragViewport: false,
 
     _viewOnly: false,
@@ -548,7 +550,7 @@ RFB.prototype = {
                 this._disconnTimer = setTimeout(function () {
                     this._rfb_disconnect_reason = _("Disconnect timeout");
                     this._updateConnectionState('disconnected');
-                }.bind(this), this._disconnectTimeout * 1000);
+                }.bind(this), DISCONNECT_TIMEOUT * 1000);
                 break;
         }
     },
