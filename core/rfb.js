@@ -351,9 +351,9 @@ RFB.prototype = {
         RFB.messages.clientCutText(this._sock, text);
     },
 
-    autoscale: function (width, height, downscaleOnly) {
+    autoscale: function (width, height) {
         if (this._rfb_connection_state !== 'connected') { return; }
-        this._display.autoscale(width, height, downscaleOnly);
+        this._display.autoscale(width, height);
     },
 
     viewportChangeSize: function(width, height) {

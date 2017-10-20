@@ -1240,7 +1240,7 @@ var UI = {
         if (!UI.rfb) return;
 
         var resizeMode = UI.getSetting('resize');
-        if (resizeMode !== 'scale' && resizeMode !== 'downscale') {
+        if (resizeMode !== 'scale') {
             return;
         }
 
@@ -1250,8 +1250,7 @@ var UI = {
             return;
         }
 
-        var downscaleOnly = resizeMode === 'downscale';
-        UI.rfb.autoscale(screen.w, screen.h, downscaleOnly);
+        UI.rfb.autoscale(screen.w, screen.h);
         UI.fixScrollbars();
     },
 
@@ -1294,7 +1293,7 @@ var UI = {
         var new_clip = UI.getSetting('view_clip');
 
         var resizeSetting = UI.getSetting('resize');
-        if (resizeSetting === 'downscale' || resizeSetting === 'scale') {
+        if (resizeSetting === 'scale') {
             // Disable viewport clipping if we are scaling
             new_clip = false;
         } else if (isTouchDevice) {
@@ -1324,7 +1323,7 @@ var UI = {
     enableDisableViewClip: function() {
         var resizeSetting = UI.getSetting('resize');
         // Disable clipping if we are scaling, connected or on touch
-        if (resizeSetting === 'downscale' || resizeSetting === 'scale' ||
+        if (resizeSetting === 'scale' ||
             isTouchDevice) {
             UI.disableSetting('view_clip');
         } else {

@@ -272,20 +272,6 @@ describe('Display/Canvas Helper', function () {
             expect(canvas.width).to.equal(4);
             expect(canvas.height).to.equal(3);
         });
-
-        it('should not upscale when downscaleOnly is true', function () {
-            display.autoscale(2, 2, true);
-            expect(display.absX(9)).to.equal(18);
-            expect(display.absY(18)).to.equal(36);
-            expect(canvas.clientWidth).to.equal(2);
-            expect(canvas.clientHeight).to.equal(2);
-
-            display.autoscale(16, 9, true);
-            expect(display.absX(9)).to.equal(9);
-            expect(display.absY(18)).to.equal(18);
-            expect(canvas.clientWidth).to.equal(4);
-            expect(canvas.clientHeight).to.equal(3);
-        });
     });
 
     describe('drawing', function () {

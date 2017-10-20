@@ -410,7 +410,7 @@ The `RFB.autoscale()` method is used to automatically adjust
 
 ##### Syntax
 
-    RFB.autoscale( width, height, downscaleOnly );
+    RFB.autoscale( width, height );
 
 ###### Parameters
 
@@ -419,9 +419,6 @@ The `RFB.autoscale()` method is used to automatically adjust
 
 **`height`**
   - A `long` specifying the maximum height of the canvas in CSS pixels.
-
-**`downscaleOnly`**
-  - A `boolean` specifying if the scale must be kept below `1.0`.
 
 #### RFB.requestDesktopSize()
 

@@ -517,7 +517,7 @@ Display.prototype = {
         this._target.style.cursor = "none";
     },
 
-    autoscale: function (containerWidth, containerHeight, downscaleOnly) {
+    autoscale: function (containerWidth, containerHeight) {
         var vp = this._viewportLoc;
         var targetAspectRatio = containerWidth / containerHeight;
         var fbAspectRatio = vp.w / vp.h;
@@ -527,10 +527,6 @@ Display.prototype = {
             scaleRatio = containerWidth / vp.w;
         } else {
             scaleRatio = containerHeight / vp.h;
-        }
-
-        if (scaleRatio > 1.0 && downscaleOnly) {
-            scaleRatio = 1.0;
         }
 
         this._rescale(scaleRatio);

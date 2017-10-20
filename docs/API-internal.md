@@ -117,7 +117,7 @@ None
 | changeCursor       | (pixels, mask, hotx, hoty, w, h)                        | Change cursor appearance
 | defaultCursor      | ()                                                      | Restore default cursor appearance
 | disableLocalCursor | ()                                                      | Disable local (client-side) cursor
-| autoscale          | (containerWidth, containerHeight, downscaleOnly)        | Scale the display
+| autoscale          | (containerWidth, containerHeight)                       | Scale the display
 
 ### 2.3.3 Callbacks
 
