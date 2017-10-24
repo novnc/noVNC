@@ -103,7 +103,7 @@ WebSockets to TCP socket proxy. There is a python proxy included
 
 ### Other Pages
 
-* [Modules/API](https://github.com/novnc/noVNC/wiki/Modules-API) - The library
+* [Modules/API](https://github.com/novnc/noVNC/blob/master/docs/API.md) - The library
   modules and their Javascript API.
 
 * [Integration](https://github.com/novnc/noVNC/wiki/Integration) - Get noVNC
