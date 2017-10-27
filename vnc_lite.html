@@ -98,10 +98,10 @@
             UIresize();
             doneInitialResize = true;
         }
-        function updateDesktopName(rfb, name) {
-            desktopName = name;
+        function updateDesktopName(e) {
+            desktopName = e.detail.name;
         }
-        function credentials(rfb, types) {
+        function credentials(e) {
             var html;
 
             var form = document.createElement('form');
@@ -148,9 +148,9 @@
             document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
             document.getElementById('noVNC_status').textContent = text;
         }
-        function updateState(rfb, state, oldstate) {
+        function updateState(e) {
             var cad = document.getElementById('sendCtrlAltDelButton');
-            switch (state) {
+            switch (e.detail.state) {
                 case 'connecting':
                     status("Connecting", "normal");
                     break;
@@ -172,11 +172,11 @@
                     status("Disconnected", "normal");
                     break;
                 default:
-                    status(state, "warn");
+                    status(e.detail.state, "warn");
                     break;
             }
 
-            if (state === 'connected') {
+            if (e.detail.state === 'connected') {
                 cad.disabled = false;
             } else {
                 cad.disabled = true;
@@ -184,13 +184,13 @@
             }
 
         }
-        function disconnected(rfb, reason) {
-            if (typeof(reason) !== 'undefined') {
-                status(reason, "error");
+        function disconnect(e) {
+            if (typeof(e.detail.reason) !== 'undefined') {
+                status(e.detail.reason, "error");
             }
         }
-        function notification(rfb, msg, level) {
-            status(msg, level);
+        function notification(e) {
+            status(e.detail.message, e.detail.level);
         }
 
         window.onresize = function () {
@@ -275,12 +275,12 @@
                             shared: WebUtil.getConfigVar('shared', true),
                             credentials: { password: password } });
             rfb.viewOnly =       WebUtil.getConfigVar('view_only', false);
-            rfb.onnotification = notification;
-            rfb.onupdatestate =  updateState;
-            rfb.ondisconnected = disconnected;
-            rfb.oncapabilities = function () { updatePowerButtons(); initialResize(); };
-            rfb.oncredentialsrequired = credentials;
-            rfb.ondesktopname =  updateDesktopName;
+            rfb.addEventListener("notification", notification);
+            rfb.addEventListener("updatestate",  updateState);
+            rfb.addEventListener("disconnect", disconnect);
+            rfb.addEventListener("capabilities", function () { updatePowerButtons(); initialResize(); });
+            rfb.addEventListener("credentialsrequired", credentials);
+            rfb.addEventListener("desktopname", updateDesktopName);
         })();
     </script>
 </head>

@@ -56,39 +56,41 @@ protocol stream.
     | `power`  | `boolean` | Machine power control is available
     | `resize` | `boolean` | The framebuffer can be resized
 
-### Event handlers
+### Events
 
-[`RFB.onupdatestate()`](#rfbonupdatestate)
-  - An event handler called when the connection state of the `RFB`
-    object changes.
+[`updatestate`](#updatestate)
+  - The `updatestate` event is fired when the connection state of the
+    `RFB` object changes.
 
-[`RFB.onnotification()`](#rfbonnotification)
-  - An event handler called when the `RFB` usage has a message to
-    display to the user.
+[`notification`](#notification)
+  - The `notification` event is fired when the `RFB` usage has a
+    message to display to the user.
 
-[`RFB.ondisconnected()`](#rfbondisconnected)
-  - An event handler called when the `RFB` object disconnects.
+[`disconnect`](#disconnected)
+  - The `disconnect` event is fired when the `RFB` object disconnects.
 
-[`RFB.oncredentialsrequired()`](#rfboncredentialsrequired)
-  - An event hander called when more credentials must be given to
-    continue.
+[`credentialsrequired`](#credentialsrequired)
+  - The `credentialsrequired` event is fired when more credentials must
+    be given to continue.
 
-[`RFB.onclipboard()`](#rfbonclipboard)
-  - An event handler called when clipboard data is received from the
-    server.
+[`clipboard`](#clipboard)
+  - The `clipboard` event is fired when clipboard data is received from
+    the server.
 
-[`RFB.onbell()`](#rfbonbell)
-  - An event handler called when a audible bell request is received
+[`bell`](#bell)
+  - The `bell` event is fired when a audible bell request is received
     from the server.
 
-[`RFB.onfbresize()`](#rfbonfbresize)
-  - An event handler called when the framebuffer size is changed.
+[`fbresize`](#fbresize)
+  - The `fbresize` event is fired when the framebuffer size is changed.
 
-[`RFB.ondesktopname()`](#rfbondesktopname)
-  - An event handler called when the remote desktop name changes.
+[`desktopname`](#desktopname)
+  - The `desktopname` event is fired when the remote desktop name
+    changes.
 
-[`RFB.oncapabilities()`](#rfboncapabilities)
-  - An event handler called when `RFB.capabilities` is updated.
+[`capabilities`](#capabilities)
+  - The `capabilities` event is fired when `RFB.capabilities` is
+    updated.
 
 ### Methods
 
@@ -96,9 +98,8 @@ protocol stream.
   - Disconnect from the server.
 
 [`RFB.sendCredentials()`](#rfbsendcredentials)
-  - Send credentials to server. Should be called after
-    [`oncredentialsrequired`](#rfboncredentialsrequired) has been
-    called.
+  - Send credentials to server. Should be called after the
+    [`credentialsrequired`](#credentialsrequired) event has fired.
 
 [`RFB.sendKey()`](#rfbsendKey)
   - Send a key event.
@@ -175,10 +176,13 @@ connection to a specified VNC server.
       - A `DOMString` specifying the ID to provide to any VNC repeater
         encountered.
 
-#### RFB.onupdatestate
+#### updatestate
 
-The `onupdatestate` event handler is fired after the noVNC connection
-state changes. Here is a list of the states that are reported:
+The `updatestate` event is fired after the noVNC connection state
+changes. The `detail` property is an `Object` containg the property
+`state` with the new connection state.
+
+Here is a list of the states that are reported:
 
 | connection state  | description
 | ----------------- | ------------
@@ -191,91 +195,66 @@ Note that a `RFB` objects can not transition from the disconnected
 state in any way, a new instance of the object has to be created for
 new connections.
 
-##### Syntax
+#### notification
 
-    RFB.onupdatestate = function(rfb, state) { ... }
+The `notification` event is fired when the `RFB` object wants a message
+displayed to the user. The `detail` property is an `Object` containing
+the following properties:
 
-#### RFB.onnotification
+| Property  | Type        | Description
+| --------- | ----------- | -----------
+| `message` | `DOMString` | The message to display
+| `level`   | `DOMString` | The severity of the message
 
-The `onnotification` event handler is fired when the `RFB` object wants
-a message displayed to the user. **`msg`** is a `DOMString` specifying
-the actual message, and **`level`** is a `DOMString` indicating the
-severity of the message. The following levels are currently defined:
+The following levels are currently defined:
 
   - `"normal"`
   - `"warn"`
   - `"error"`
 
-##### Syntax
+#### disconnect
 
-    RFB.onnotification = function(rfb, msg, level) { ... }
+The `disconnect` event is fired when the connection has been
+terminated. The `detail` property is an `Object` the optionally
+contains the property `reason`. `reason` is a `DOMString` specifying
+the reason in the event of an unexpected termination. `reason` will be
+omitted for a clean termination.
 
-#### RFB.ondisconnected
+#### credentialsrequired
 
-The `ondisconnected` event handler is fired when the connection has
-been terminated. **`reason`** is `undefined` for a clean termination
-and a `DOMString` specifying the reason in the event of an unexpected
-termination.
+The `credentialsrequired` event is fired when the server requests more
+credentials than were specified to [`RFB()`](#rfb-1). The `detail`
+property is an `Object` containing the property `types` which is an
+`Array` of `DOMString` listing the credentials that are required.
 
-##### Syntax
+#### clipboard
 
-    RFB.ondisconnected = function(rfb, reason) { ... }
+The `clipboard` event is fired when the server has sent clipboard data.
+The `detail` property is an `Object` containing the property `text`
+which is a `DOMString` with the clipboard data.
 
-#### RFB.oncredentialsrequired
+#### bell
 
-The `oncredentialsrequired` event handler is fired when the server
-requests more credentials than were specified to [`RFB()`](#rfb-1). The
-**`types`** argument is a list of all the credentials that are
-required.
+The `bell` event is fired when the server has requested an audible
+bell.
 
-##### Syntax
+#### fbresize
 
-    RFB.oncredentialsrequired = function(rfb, types) { ... }
+The `fbresize` event is fired when the framebuffer has changed
+dimensions. The `detail` property is an `Object` with the properties
+`width` and `height` specifying the new dimensions.
 
-#### RFB.onclipboard
+#### desktopname
 
-The `onclipboard` event handler is fired when the server has sent
-clipboard data.
+The `desktopname` event is fired when the name of the remote desktop
+changes. The `detail` property is an `Object` with the property `name`
+which is a `DOMString` specifying the new name.
 
-##### Syntax
+#### capabilities
 
-    RFB.onclipboard = function(rfb, text) { ... }
-
-#### RFB.onbell
-
-The `onbell` event handler is fired when the server has requested an
-audible bell.
-
-##### Syntax
-
-    RFB.onbell = function(rfb) { ... }
-
-#### RFB.onfbresize
-
-The `onfbresize` event handler is fired when the framebuffer has
-changed dimensions.
-
-##### Syntax
-
-    RFB.onfbresize = function(rfb, width, height) { ... }
-
-#### RFB.ondesktopname
-
-The `ondesktopname` event handler is fired when the name of the remote
-desktop changes.
-
-##### Syntax
-
-    RFB.ondesktopname = function(rfb, name) { ... }
-
-#### RFB.oncapabilities
-
-The `oncapabilities` event handler is fired whenever an entry is added
-or removed from `RFB.capabilities`.
-
-##### Syntax
-
-    RFB.oncapabilities = function(rfb, capabilites) { ... }
+The `capabilities` event is fired whenever an entry is added or removed
+from `RFB.capabilities`. The `detail` property is an `Object` with the
+property `capabilities` containing the new value of `RFB.capabilities`.
 
 #### RFB.disconnect()
 
@@ -289,7 +268,7 @@ connected server.
 #### RFB.sendCredentials()
 
 The `RFB.sendCredentials()` method is used to provide the missing
-credentials after `RFB.oncredentialsrequired` has been fired.
+credentials after a `credentialsrequired` event has been fired.
 
 ##### Syntax
 
@@ -405,7 +384,7 @@ the framebuffer. The capability `resize` must be set for this method to
 have any effect.
 
 Note that this is merely a request and the server may deny it.
-[`RFB.onfbresize`](#rfbonfbresize) will be called when the framebuffer
+The [`fbresize`](#fbresize) event will be fired when the framebuffer
 actually changes dimensions.
 
 ##### Syntax

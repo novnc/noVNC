@@ -390,7 +390,7 @@ var UI = {
  *     VISUAL
  * ------v------*/
 
-    updateState: function(rfb, state, oldstate) {
+    updateState: function(event) {
         var msg;
 
         document.documentElement.classList.remove("noVNC_connecting");
@@ -398,7 +398,7 @@ var UI = {
         document.documentElement.classList.remove("noVNC_disconnecting");
         document.documentElement.classList.remove("noVNC_reconnecting");
 
-        switch (state) {
+        switch (event.detail.state) {
             case 'connecting':
                 document.getElementById("noVNC_transition_text").textContent = _("Connecting...");
                 document.documentElement.classList.add("noVNC_connecting");
@@ -534,8 +534,8 @@ var UI = {
         document.getElementById('noVNC_status').classList.remove("noVNC_open");
     },
 
-    notification: function (rfb, msg, level) {
-        UI.showStatus(msg, level);
+    notification: function (e) {
+        UI.showStatus(e.detail.message, e.detail.level);
     },
 
     activateControlbar: function(event) {
@@ -966,9 +966,9 @@ var UI = {
         }
     },
 
-    clipboardReceive: function(rfb, text) {
-        Log.Debug(">> UI.clipboardReceive: " + text.substr(0,40) + "...");
-        document.getElementById('noVNC_clipboard_text').value = text;
+    clipboardReceive: function(e) {
+        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0,40) + "...");
+        document.getElementById('noVNC_clipboard_text').value = e.detail.text;
         Log.Debug("<< UI.clipboardReceive");
     },
 
@@ -1040,15 +1040,15 @@ var UI = {
                          { shared: UI.getSetting('shared'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
-        UI.rfb.onnotification = UI.notification;
-        UI.rfb.onupdatestate = UI.updateState;
-        UI.rfb.ondisconnected = UI.disconnectFinished;
-        UI.rfb.oncredentialsrequired = UI.credentials;
-        UI.rfb.oncapabilities = function () { UI.updatePowerButton(); UI.initialResize(); };
-        UI.rfb.onclipboard = UI.clipboardReceive;
-        UI.rfb.onbell = UI.bell;
-        UI.rfb.onfbresize = UI.updateSessionSize;
-        UI.rfb.ondesktopname = UI.updateDesktopName;
+        UI.rfb.addEventListener("notification", UI.notification);
+        UI.rfb.addEventListener("updatestate", UI.updateState);
+        UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
+        UI.rfb.addEventListener("credentialsrequired", UI.credentials);
+        UI.rfb.addEventListener("capabilities", function () { UI.updatePowerButton(); UI.initialResize(); });
+        UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
+        UI.rfb.addEventListener("bell", UI.bell);
+        UI.rfb.addEventListener("fbresize", UI.updateSessionSize);
+        UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
     },
 
     disconnect: function() {
@@ -1072,9 +1072,9 @@ var UI = {
         UI.connect(null, UI.reconnect_password);
     },
 
-    disconnectFinished: function (rfb, reason) {
-        if (typeof reason !== 'undefined') {
-            UI.showStatus(reason, 'error');
+    disconnectFinished: function (e) {
+        if (typeof e.detail.reason !== 'undefined') {
+            UI.showStatus(e.detail.reason, 'error');
         } else if (UI.getSetting('reconnect', false) === true && !UI.inhibit_reconnect) {
             document.getElementById("noVNC_transition_text").textContent = _("Reconnecting...");
             document.documentElement.classList.add("noVNC_reconnecting");
@@ -1105,7 +1105,7 @@ var UI = {
  *   PASSWORD
  * ------v------*/
 
-    credentials: function(rfb, types) {
+    credentials: function(e) {
         // FIXME: handle more types
         document.getElementById('noVNC_password_dlg')
             .classList.add('noVNC_open');
@@ -1656,7 +1656,7 @@ var UI = {
         WebUtil.init_logging(UI.getSetting('logging'));
     },
 
-    updateSessionSize: function(rfb, width, height) {
+    updateSessionSize: function(e) {
         UI.updateViewClip();
         UI.updateScaling();
         UI.fixScrollbars();
@@ -1674,13 +1674,13 @@ var UI = {
         screen.style.overflow = "";
     },
 
-    updateDesktopName: function(rfb, name) {
-        UI.desktopName = name;
+    updateDesktopName: function(e) {
+        UI.desktopName = e.detail.name;
         // Display the desktop name in the document title
-        document.title = name + " - noVNC";
+        document.title = e.detail.name + " - noVNC";
     },
 
-    bell: function(rfb) {
+    bell: function(e) {
         if (WebUtil.getConfigVar('bell', 'on') === 'on') {
             var promise = document.getElementById('noVNC_bell').play();
             // The standards disagree on the return value here

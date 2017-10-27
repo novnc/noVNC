@@ -14,6 +14,7 @@ import * as Log from './util/logging.js';
 import _ from './util/localization.js';
 import { decodeUTF8 } from './util/strings.js';
 import { browserSupportsCursorURIs, isTouchDevice } from './util/browsers.js';
+import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
@@ -24,6 +25,7 @@ import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import Inflator from "./inflator.js";
 import { encodings, encodingName } from "./encodings.js";
+import "./util/polyfill.js";
 
 /*jslint white: false, browser: true */
 /*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
@@ -265,18 +267,6 @@ RFB.prototype = {
 
     get isClipped() { return this._display.isClipped; },
 
-    // ===== EVENT HANDLERS =====
-
-    onupdatestate: function () {},  // onupdatestate(rfb, state, oldstate): connection state change
-    onnotification: function () {}, // onnotification(rfb, msg, level, options): notification for the UI
-    ondisconnected: function () {}, // ondisconnected(rfb, reason): disconnection finished
-    oncredentialsrequired: function () {}, // oncredentialsrequired(rfb, types): VNC credentials are required
-    onclipboard: function () {},    // onclipboard(rfb, text): RFB clipboard contents received
-    onbell: function () {},         // onbell(rfb): RFB Bell message received
-    onfbresize: function () {},     // onfbresize(rfb, width, height): frame buffer resized
-    ondesktopname: function () {},  // ondesktopname(rfb, name): desktop name received
-    oncapabilities: function () {}, // oncapabilities(rfb, caps): the supported capabilities has changed
-
     // ===== PUBLIC METHODS =====
 
     disconnect: function () {
@@ -510,7 +500,8 @@ RFB.prototype = {
         // State change actions
 
         this._rfb_connection_state = state;
-        this.onupdatestate(this, state, oldstate);
+        var event = new CustomEvent("updatestate", { detail: { state: state } });
+        this.dispatchEvent(event);
 
         var smsg = "New state '" + state + "', was '" + oldstate + "'.";
         Log.Debug(smsg);
@@ -526,14 +517,16 @@ RFB.prototype = {
 
         switch (state) {
             case 'disconnected':
-                // Call ondisconnected callback after onupdatestate since
+                // Fire disconnected event after updatestate event since
                 // we don't know if the UI only displays the latest message
                 if (this._rfb_disconnect_reason !== "") {
-                    this.ondisconnected(this, this._rfb_disconnect_reason);
+                    event = new CustomEvent("disconnect",
+                                            { detail: { reason: this._rfb_disconnect_reason } });
                 } else {
                     // No reason means clean disconnect
-                    this.ondisconnected(this);
+                    event = new CustomEvent("disconnect", { detail: {} });
                 }
+                this.dispatchEvent(event);
                 break;
 
             case 'connecting':
@@ -603,12 +596,16 @@ RFB.prototype = {
                 return;
         }
 
-        this.onnotification(this, msg, level);
+        var event = new CustomEvent("notification",
+                                    { detail: { message: msg, level: level } });
+        this.dispatchEvent(event);
     },
 
     _setCapability: function (cap, val) {
         this._capabilities[cap] = val;
-        this.oncapabilities(this, this._capabilities);
+        var event = new CustomEvent("capabilities",
+                                    { detail: { capabilities: this._capabilities } });
+        this.dispatchEvent(event);
     },
 
     _handle_message: function () {
@@ -818,7 +815,9 @@ RFB.prototype = {
         if (!this._rfb_credentials.username ||
             !this._rfb_credentials.password ||
             !this._rfb_credentials.target) {
-            this.oncredentialsrequired(this, ["username", "password", "target"]);
+            var event = new CustomEvent("credentialsrequired",
+                                        { detail: { types: ["username", "password", "target"] } });
+            this.dispatchEvent(event);
             return false;
         }
 
@@ -835,7 +834,9 @@ RFB.prototype = {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
         if (!this._rfb_credentials.password) {
-            this.oncredentialsrequired(this, ["password"]);
+            var event = new CustomEvent("credentialsrequired",
+                                        { detail: { types: ["password"] } });
+            this.dispatchEvent(event);
             return false;
         }
 
@@ -1072,7 +1073,9 @@ RFB.prototype = {
         }
 
         // we're past the point where we could backtrack, so it's safe to call this
-        this.ondesktopname(this, this._fb_name);
+        var event = new CustomEvent("desktopname",
+                                    { detail: { name: this._fb_name } });
+        this.dispatchEvent(event);
 
         this._resize(width, height);
 
@@ -1189,7 +1192,9 @@ RFB.prototype = {
 
         if (this._viewOnly) { return true; }
 
-        this.onclipboard(this, text);
+        var event = new CustomEvent("clipboard",
+                                    { detail: { text: text } });
+        this.dispatchEvent(event);
 
         return true;
     },
@@ -1285,7 +1290,8 @@ RFB.prototype = {
 
             case 2:  // Bell
                 Log.Debug("Bell");
-                this.onbell(this);
+                var event = new CustomEvent("bell", { detail: {} });
+                this.dispatchEvent(event);
                 return true;
 
             case 3:  // ServerCutText
@@ -1437,7 +1443,11 @@ RFB.prototype = {
         this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
 
         this._display.resize(this._fb_width, this._fb_height);
-        this.onfbresize(this, this._fb_width, this._fb_height);
+
+        var event = new CustomEvent("fbresize",
+                                    { detail: { width: this._fb_width,
+                                                height: this._fb_height } });
+        this.dispatchEvent(event);
 
         this._timing.fbu_rt_start = (new Date()).getTime();
         this._updateContinuousUpdates();
@@ -1449,6 +1459,8 @@ RFB.prototype = {
         RFB.messages.xvpOp(this._sock, ver, op);
     },
 };
+
+Object.assign(RFB.prototype, EventTargetMixin);
 
 // Class Methods
 RFB.messages = {
