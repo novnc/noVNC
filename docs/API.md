@@ -206,11 +206,9 @@ severity of the message. The following levels are currently defined:
   - `"warn"`
   - `"error"`
 
-**`options`** is currently unused.
-
 ##### Syntax
 
-    RFB.onnotification = function(rfb, msg, level, options) { ... }
+    RFB.onnotification = function(rfb, msg, level) { ... }
 
 #### RFB.ondisconnected
 

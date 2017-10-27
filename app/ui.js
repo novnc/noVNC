@@ -534,7 +534,7 @@ var UI = {
         document.getElementById('noVNC_status').classList.remove("noVNC_open");
     },
 
-    notification: function (rfb, msg, level, options) {
+    notification: function (rfb, msg, level) {
         UI.showStatus(msg, level);
     },
 
