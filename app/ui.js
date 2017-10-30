@@ -1120,6 +1120,9 @@ var UI = {
     },
 
     setPassword: function(e) {
+        // Prevent actually submitting the form
+        e.preventDefault();
+
         var inputElem = document.getElementById('noVNC_password_input');
         var password = inputElem.value;
         // Clear the input after reading the password
@@ -1128,8 +1131,6 @@ var UI = {
         UI.reconnect_password = password;
         document.getElementById('noVNC_password_dlg')
             .classList.remove('noVNC_open');
-        // Prevent actually submitting the form
-        e.preventDefault();
     },
 
 /* ------^-------
