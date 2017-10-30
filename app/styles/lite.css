@@ -48,11 +48,11 @@ html {
 }
 
 .noVNC_status_error {
-  background: linear-gradient(#f04040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
+  background: linear-gradient(#c83737 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
 }
 
 .noVNC_status_warn {
-  background: linear-gradient(#f0f040 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
+  background: linear-gradient(#b4b41e 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
 }
 
 #noVNC_buttons {
