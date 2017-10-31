@@ -8,8 +8,6 @@
 
 body {
   margin:0;
-  padding:0;
-  font-family: Helvetica;
   background-color:#313131;
   border-bottom-right-radius: 800px 600px;
   height:100%;
@@ -23,14 +21,12 @@ html {
 }
 
 #noVNC_status {
-  font-size: 12px;
   padding-top: 4px;
   height:32px;
   text-align: center;
-  font-weight: bold;
   color: #fff;
-  z-index: 0;
-  position: absolute;
+  font: bold 12px Helvetica;
+  position: relative;
   width: 100%;
   margin-left: 0px;
 }
@@ -47,10 +43,6 @@ html {
   background: linear-gradient(#b4b41e 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
 }
 
-#noVNC_buttons {
-  white-space: nowrap;
-}
-
 /* Do not set width/height for VNC_canvas or incorrect
  * scaling will occur. Canvas size depends on remote VNC
  * settings and noVNC settings. */
@@ -58,6 +50,5 @@ html {
   position: absolute;
   left: 0;
   right: 0;
-  margin-left: auto;
-  margin-right: auto;
+  margin: auto;
 }
