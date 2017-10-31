@@ -5,7 +5,7 @@
     <!--
     noVNC example: lightweight example using minimal UI and features
     Copyright (C) 2012 Joel Martin
-    Copyright (C) 2013 Samuel Mannehed for Cendio AB
+    Copyright (C) 2017 Samuel Mannehed for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -279,31 +279,29 @@
     </script>
 </head>
 
-<body style="margin: 0px;">
-    <div id="noVNC_container">
-            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
-                <table border=0 width="100%"><tr>
-                    <td><div id="noVNC_status" style="position: relative; height: auto;">
-                        Loading
-                    </div></td>
-                    <td width="1%"><div id="noVNC_buttons">
-                        <input type=button value="Send CtrlAltDel"
-                            id="sendCtrlAltDelButton">
-                        <span id="noVNC_xvp_buttons">
-                        <input type=button value="Shutdown"
-                            id="xvpShutdownButton">
-                        <input type=button value="Reboot"
-                            id="xvpRebootButton">
-                        <input type=button value="Reset"
-                            id="xvpResetButton">
-                        </span>
-                            </div></td>
-                </tr></table>
-            </div>
-            <canvas id="noVNC_canvas" width="640px" height="20px">
-                Canvas not supported.
-            </canvas>
-        </div>
+<body>
+  <div id="noVNC_status_bar" style="margin-top: 0px;">
+    <table border=0 width="100%"><tr>
+        <td><div id="noVNC_status" style="position: relative; height: auto;">
+            Loading
+        </div></td>
+        <td width="1%"><div id="noVNC_buttons">
+            <input type=button value="Send CtrlAltDel"
+                   id="sendCtrlAltDelButton">
+            <span id="noVNC_xvp_buttons">
+              <input type=button value="Shutdown"
+                     id="xvpShutdownButton">
+              <input type=button value="Reboot"
+                     id="xvpRebootButton">
+              <input type=button value="Reset"
+                     id="xvpResetButton">
+            </span>
+        </div></td>
+    </tr></table>
+  </div>
+  <canvas id="noVNC_canvas" width="0" height="0">
+    Canvas not supported.
+  </canvas>
 
-    </body>
+</body>
 </html>
