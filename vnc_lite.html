@@ -279,23 +279,20 @@
 
 <body>
   <div id="noVNC_status_bar">
-    <table border=0 width="100%"><tr>
-        <td><div id="noVNC_status">
-            Loading
-        </div></td>
-        <td width="1%"><div id="noVNC_buttons">
-            <input type=button value="Send CtrlAltDel"
-                   id="sendCtrlAltDelButton" class="noVNC_shown">
-            <span id="noVNC_xvp_buttons" class="noVNC_hidden">
-              <input type=button value="Shutdown"
-                     id="xvpShutdownButton">
-              <input type=button value="Reboot"
-                     id="xvpRebootButton">
-              <input type=button value="Reset"
-                     id="xvpResetButton">
-            </span>
-        </div></td>
-    </tr></table>
+    <div id="noVNC_left_dummy_elem"></div>
+    <div id="noVNC_status">Loading</div>
+    <div id="noVNC_buttons">
+      <input type=button value="Send CtrlAltDel"
+             id="sendCtrlAltDelButton" class="noVNC_shown">
+      <span id="noVNC_xvp_buttons" class="noVNC_hidden">
+        <input type=button value="Shutdown"
+               id="xvpShutdownButton">
+        <input type=button value="Reboot"
+               id="xvpRebootButton">
+        <input type=button value="Reset"
+               id="xvpResetButton">
+      </span>
+    </div>
   </div>
   <canvas id="noVNC_canvas" width="0" height="0">
     Canvas not supported.
