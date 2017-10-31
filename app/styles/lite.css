@@ -20,9 +20,13 @@ html {
   height:100%;
 }
 
+#noVNC_status_bar {
+  margin-top:0px;
+}
+
 #noVNC_status {
   padding-top: 4px;
-  height:32px;
+  height: auto;
   text-align: center;
   color: #fff;
   font: bold 12px Helvetica;
@@ -41,6 +45,13 @@ html {
 
 .noVNC_status_warn {
   background: linear-gradient(#b4b41e 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
+}
+
+.noNVC_shown {
+  display: inline;
+}
+.noVNC_hidden {
+  display: none;
 }
 
 /* Do not set width/height for VNC_canvas or incorrect

@@ -106,7 +106,6 @@
             var html;
 
             var form = document.createElement('form');
-            form.style = 'margin-bottom: 0px';
             form.innerHTML = '<label></label>'
             form.innerHTML += '<input type=password size=10 id="password_input">';
             form.onsubmit = setPassword;
@@ -146,7 +145,7 @@
                 default:
                     level = "warn";
             }
-            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
+            document.getElementById('noVNC_status_bar').className = "noVNC_status_" + level;
             document.getElementById('noVNC_status').textContent = text;
         }
         function updateState(rfb, state, oldstate) {
@@ -206,13 +205,12 @@
             var xvpbuttons;
             xvpbuttons = document.getElementById('noVNC_xvp_buttons');
             if (ver >= 1) {
-                xvpbuttons.style.display = 'inline';
+                xvpbuttons.className= "noVNC_shown";
             } else {
-                xvpbuttons.style.display = 'none';
+                xvpbuttons.className = "noVNC_hidden";
             }
         }
 
-        document.getElementById('sendCtrlAltDelButton').style.display = "inline";
         document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
         document.getElementById('xvpShutdownButton').onclick = xvpShutdown;
         document.getElementById('xvpRebootButton').onclick = xvpReboot;
@@ -280,15 +278,15 @@
 </head>
 
 <body>
-  <div id="noVNC_status_bar" style="margin-top: 0px;">
+  <div id="noVNC_status_bar">
     <table border=0 width="100%"><tr>
-        <td><div id="noVNC_status" style="position: relative; height: auto;">
+        <td><div id="noVNC_status">
             Loading
         </div></td>
         <td width="1%"><div id="noVNC_buttons">
             <input type=button value="Send CtrlAltDel"
-                   id="sendCtrlAltDelButton">
-            <span id="noVNC_xvp_buttons">
+                   id="sendCtrlAltDelButton" class="noVNC_shown">
+            <span id="noVNC_xvp_buttons" class="noVNC_hidden">
               <input type=button value="Shutdown"
                      id="xvpShutdownButton">
               <input type=button value="Reboot"
