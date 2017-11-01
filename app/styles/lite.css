@@ -11,6 +11,8 @@ body {
   background-color:#313131;
   border-bottom-right-radius: 800px 600px;
   height:100%;
+  display: flex;
+  flex-direction: column;
 }
 
 html {
@@ -64,8 +66,5 @@ html {
  * scaling will occur. Canvas size depends on remote VNC
  * settings and noVNC settings. */
 #noVNC_canvas {
-  position: absolute;
-  left: 0;
-  right: 0;
   margin: auto;
 }
