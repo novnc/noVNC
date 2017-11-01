@@ -54,6 +54,7 @@ html {
 }
 
 #noVNC_buttons {
+  padding: 1px;
   flex: 1;
   display: flex;
   justify-content: flex-end;
