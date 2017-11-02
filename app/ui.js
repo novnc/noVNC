@@ -292,8 +292,6 @@ var UI = {
 
         document.documentElement
             .addEventListener('mousedown', UI.keepVirtualKeyboard, true);
-        document.documentElement
-            .addEventListener('touchstart', UI.keepVirtualKeyboard, true);
 
         document.getElementById("noVNC_control_bar")
             .addEventListener('touchstart', UI.activateControlbar);
@@ -1460,11 +1458,17 @@ var UI = {
     onfocusVirtualKeyboard: function(event) {
         document.getElementById('noVNC_keyboard_button')
             .classList.add("noVNC_selected");
+        if (UI.rfb) {
+            UI.rfb.set_focus_on_click(false);
+        }
     },
 
     onblurVirtualKeyboard: function(event) {
         document.getElementById('noVNC_keyboard_button')
             .classList.remove("noVNC_selected");
+        if (UI.rfb) {
+            UI.rfb.set_focus_on_click(true);
+        }
     },
 
     keepVirtualKeyboard: function(event) {
@@ -1492,14 +1496,7 @@ var UI = {
             }
         }
 
-        // The default action of touchstart is to generate other
-        // events, which other elements might depend on. So we can't
-        // blindly prevent that. Instead restore focus right away.
-        if (event.type === "touchstart") {
-            setTimeout(input.focus.bind(input));
-        } else {
-            event.preventDefault();
-        }
+        event.preventDefault();
     },
 
     keyboardinputReset: function() {

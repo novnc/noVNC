@@ -180,6 +180,7 @@ callback event name, and the callback function.
 | local_cursor      | bool | RW   | false      | Request locally rendered cursor
 | shared            | bool | RW   | true       | Request shared VNC mode
 | view_only         | bool | RW   | false      | Disable client mouse/keyboard
+| focus_on_click    | bool | RW   | true       | Grab focus on canvas on mouse click
 | xvp_password_sep  | str  | RW   | '@'        | Separator for XVP password fields
 | disconnectTimeout | int  | RW   | 3          | Time (in seconds) to wait for disconnection
 | wsProtocols       | arr  | RW   | ['binary'] | Protocols to use in the WebSocket connection

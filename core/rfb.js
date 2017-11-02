@@ -124,6 +124,7 @@ export default function RFB(defaults) {
         'local_cursor': false,                  // Request locally rendered cursor
         'shared': true,                         // Request shared mode
         'view_only': false,                     // Disable client mouse/keyboard
+        'focus_on_click': true,                 // Grab focus on canvas on mouse click
         'xvp_password_sep': '@',                // Separator for XVP password fields
         'disconnectTimeout': 3,                 // Time (s) to wait for disconnection
         'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
@@ -143,6 +144,11 @@ export default function RFB(defaults) {
         'onDesktopName': function () { },       // onDesktopName(rfb, name): desktop name received
         'onXvpInit': function () { }            // onXvpInit(version): XVP extensions active for this connection
     });
+
+    // Bound event handlers
+    this._eventHandlers = {
+        focusCanvas: this._focusCanvas.bind(this),
+    };
 
     // main setup
     Log.Debug(">> RFB.constructor");
@@ -390,16 +396,16 @@ RFB.prototype = {
         }
 
         // Always grab focus on some kind of click event
-        this._target.addEventListener("mousedown", this._focusCanvas);
-        this._target.addEventListener("touchstart", this._focusCanvas);
+        this._target.addEventListener("mousedown", this._eventHandlers.focusCanvas);
+        this._target.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
         Log.Debug("<< RFB.connect");
     },
 
     _disconnect: function () {
         Log.Debug(">> RFB.disconnect");
-        this._target.removeEventListener("mousedown", this._focusCanvas);
-        this._target.removeEventListener("touchstart", this._focusCanvas);
+        this._target.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
+        this._target.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         this._cleanup();
         this._sock.close();
         this._print_stats();
@@ -458,11 +464,17 @@ RFB.prototype = {
         }
     },
 
-    // Event handler for canvas so this points to the canvas element
     _focusCanvas: function(event) {
         // Respect earlier handlers' request to not do side-effects
-        if (!event.defaultPrevented)
-            this.focus();
+        if (event.defaultPrevented) {
+            return;
+        }
+
+        if (!this._focus_on_click) {
+            return;
+        }
+
+        this._target.focus();
     },
 
     /*
@@ -1478,6 +1490,7 @@ make_properties(RFB, [
     ['local_cursor', 'rw', 'bool'],         // Request locally rendered cursor
     ['shared', 'rw', 'bool'],               // Request shared mode
     ['view_only', 'rw', 'bool'],            // Disable client mouse/keyboard
+    ['focus_on_click', 'rw', 'bool'],       // Grab focus on canvas on mouse click
     ['xvp_password_sep', 'rw', 'str'],      // Separator for XVP password fields
     ['disconnectTimeout', 'rw', 'int'],     // Time (s) to wait for disconnection
     ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
