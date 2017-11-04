@@ -5,7 +5,7 @@
     <!--
     noVNC example: lightweight example using minimal UI and features
     Copyright (C) 2012 Joel Martin
-    Copyright (C) 2013 Samuel Mannehed for Cendio AB
+    Copyright (C) 2017 Samuel Mannehed for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -106,9 +106,8 @@
             var html;
 
             var form = document.createElement('form');
-            form.style = 'margin-bottom: 0px';
-            form.innerHTML = '<label></label>'
-            form.innerHTML += '<input type=password size=10 id="password_input" class="noVNC_status">';
+            form.innerHTML = '<label></label>';
+            form.innerHTML += '<input type=password size=10 id="password_input">';
             form.onsubmit = setPassword;
 
             // bypass status() because it sets text content
@@ -146,7 +145,7 @@
                 default:
                     level = "warn";
             }
-            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
+            document.getElementById('noVNC_status_bar').className = "noVNC_status_" + level;
             document.getElementById('noVNC_status').textContent = text;
         }
         function updateState(rfb, state, oldstate) {
@@ -206,13 +205,12 @@
             var xvpbuttons;
             xvpbuttons = document.getElementById('noVNC_xvp_buttons');
             if (ver >= 1) {
-                xvpbuttons.style.display = 'inline';
+                xvpbuttons.className= "noVNC_shown";
             } else {
-                xvpbuttons.style.display = 'none';
+                xvpbuttons.className = "noVNC_hidden";
             }
         }
 
-        document.getElementById('sendCtrlAltDelButton').style.display = "inline";
         document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
         document.getElementById('xvpShutdownButton').onclick = xvpShutdown;
         document.getElementById('xvpRebootButton').onclick = xvpReboot;
@@ -279,31 +277,26 @@
     </script>
 </head>
 
-<body style="margin: 0px;">
-    <div id="noVNC_container">
-            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
-                <table border=0 width="100%"><tr>
-                    <td><div id="noVNC_status" style="position: relative; height: auto;">
-                        Loading
-                    </div></td>
-                    <td width="1%"><div id="noVNC_buttons">
-                        <input type=button value="Send CtrlAltDel"
-                            id="sendCtrlAltDelButton">
-                        <span id="noVNC_xvp_buttons">
-                        <input type=button value="Shutdown"
-                            id="xvpShutdownButton">
-                        <input type=button value="Reboot"
-                            id="xvpRebootButton">
-                        <input type=button value="Reset"
-                            id="xvpResetButton">
-                        </span>
-                            </div></td>
-                </tr></table>
-            </div>
-            <canvas id="noVNC_canvas" width="640px" height="20px">
-                Canvas not supported.
-            </canvas>
-        </div>
+<body>
+  <div id="noVNC_status_bar">
+    <div id="noVNC_left_dummy_elem"></div>
+    <div id="noVNC_status">Loading</div>
+    <div id="noVNC_buttons">
+      <input type=button value="Send CtrlAltDel"
+             id="sendCtrlAltDelButton" class="noVNC_shown">
+      <span id="noVNC_xvp_buttons" class="noVNC_hidden">
+        <input type=button value="Shutdown"
+               id="xvpShutdownButton">
+        <input type=button value="Reboot"
+               id="xvpRebootButton">
+        <input type=button value="Reset"
+               id="xvpResetButton">
+      </span>
+    </div>
+  </div>
+  <canvas id="noVNC_canvas" width="0" height="0">
+    Canvas not supported.
+  </canvas>
 
-    </body>
+</body>
 </html>
