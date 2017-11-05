@@ -45,7 +45,7 @@ export default function RFB(target, url, options) {
     this._url = url;
 
     // Connection details
-    options = options || {}
+    options = options || {};
     this._rfb_credentials = options.credentials || {};
     this._shared = 'shared' in options ? !!options.shared : true;
     this._repeaterID = options.repeaterID || '';
