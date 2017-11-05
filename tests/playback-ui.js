@@ -52,10 +52,6 @@ function enableUI() {
         encoding = VNC_frame_encoding;
 }
 
-const notification = function (rfb, mesg, level, options) {
-    document.getElementById('VNC_status').textContent = mesg;
-}
-
 function IterationPlayer (iterations, frames, encoding) {
     this._iterations = iterations;
 
@@ -72,7 +68,6 @@ function IterationPlayer (iterations, frames, encoding) {
     this.onfinish = function() {};
     this.oniterationfinish = function() {};
     this.rfbdisconnected = function() {};
-    this.rfbnotification = function() {};
 }
 
 IterationPlayer.prototype = {
@@ -87,7 +82,7 @@ IterationPlayer.prototype = {
     },
 
     _nextIteration: function () {
-        const player = new RecordingPlayer(this._frames, this._encoding, this._disconnected.bind(this), this._notification.bind(this));
+        const player = new RecordingPlayer(this._frames, this._encoding, this._disconnected.bind(this));
         player.onfinish = this._iterationFinish.bind(this);
 
         if (this._state !== 'running') { return; }
@@ -131,15 +126,6 @@ IterationPlayer.prototype = {
 
         this.onrfbdisconnected(evt);
     },
-
-    _notification: function (rfb, msg, level, options) {
-        var evt = new Event('rfbnotification');
-        evt.message = msg;
-        evt.level = level;
-        evt.options = options;
-
-        this.onrfbnotification(evt);
-    },
 };
 
 function start() {
@@ -166,9 +152,6 @@ function start() {
         if (evt.reason) {
             message(`noVNC sent disconnected during iteration ${evt.iteration} frame ${evt.frame}`);
         }
-    };
-    player.onrfbnotification = function (evt) {
-        document.getElementById('VNC_status').textContent = evt.message;
     };
     player.onfinish = function (evt) {
         const iterTime = parseInt(evt.duration / evt.iterations, 10);

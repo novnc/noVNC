@@ -67,10 +67,6 @@ protocol stream.
   - The `updatestate` event is fired when the connection state of the
     `RFB` object changes.
 
-[`notification`](#notification)
-  - The `notification` event is fired when the `RFB` usage has a
-    message to display to the user.
-
 [`disconnect`](#disconnected)
   - The `disconnect` event is fired when the `RFB` object disconnects.
 
@@ -199,23 +195,6 @@ Here is a list of the states that are reported:
 Note that a `RFB` objects can not transition from the disconnected
 state in any way, a new instance of the object has to be created for
 new connections.
-
-#### notification
-
-The `notification` event is fired when the `RFB` object wants a message
-displayed to the user. The `detail` property is an `Object` containing
-the following properties:
-
-| Property  | Type        | Description
-| --------- | ----------- | -----------
-| `message` | `DOMString` | The message to display
-| `level`   | `DOMString` | The severity of the message
-
-The following levels are currently defined:
-
-  - `"normal"`
-  - `"warn"`
-  - `"error"`
 
 #### disconnect
 

@@ -400,27 +400,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
         });
-
-        describe('#_notification', function () {
-            var client;
-            beforeEach(function () { client = make_rfb(); });
-
-            it('should call the notification callback', function () {
-                var spy = sinon.spy();
-                client.addEventListener("notification", spy);
-                client._notification('notify!', 'warn');
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.message).to.equal('notify!');
-                expect(spy.args[0][0].detail.level).to.equal('warn');
-            });
-
-            it('should not call the notification callback when level is invalid', function () {
-                var spy = sinon.spy();
-                client.addEventListener("notification", spy);
-                client._notification('notify!', 'invalid');
-                expect(spy).to.not.have.been.called;
-            });
-        });
     });
 
     describe('Connection States', function () {
@@ -1589,14 +1568,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
         });
 
         describe('XVP Message Handling', function () {
-            it('should send a notification on XVP_FAIL', function () {
-                var spy = sinon.spy();
-                client.addEventListener("notification", spy);
-                client._sock._websocket._receive_data(new Uint8Array([250, 0, 10, 0]));
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.message).to.equal('XVP Operation Failed');
-            });
-
             it('should set the XVP version and fire the callback with the version on XVP_INIT', function () {
                 var spy = sinon.spy();
                 client.addEventListener("capabilities", spy);

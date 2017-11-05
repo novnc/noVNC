@@ -532,10 +532,6 @@ var UI = {
         document.getElementById('noVNC_status').classList.remove("noVNC_open");
     },
 
-    notification: function (e) {
-        UI.showStatus(e.detail.message, e.detail.level);
-    },
-
     activateControlbar: function(event) {
         clearTimeout(UI.idleControlbarTimeout);
         // We manipulate the anchor instead of the actual control
@@ -1038,7 +1034,6 @@ var UI = {
                          { shared: UI.getSetting('shared'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
-        UI.rfb.addEventListener("notification", UI.notification);
         UI.rfb.addEventListener("updatestate", UI.updateState);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);

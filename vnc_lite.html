@@ -188,9 +188,6 @@
                 status(e.detail.reason, "error");
             }
         }
-        function notification(e) {
-            status(e.detail.message, e.detail.level);
-        }
 
         window.onresize = function () {
             // When the window has been resized, wait until the size remains
@@ -272,8 +269,7 @@
                           { repeaterID: WebUtil.getConfigVar('repeaterID', ''),
                             shared: WebUtil.getConfigVar('shared', true),
                             credentials: { password: password } });
-            rfb.viewOnly =       WebUtil.getConfigVar('view_only', false);
-            rfb.addEventListener("notification", notification);
+            rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
             rfb.addEventListener("updatestate",  updateState);
             rfb.addEventListener("disconnect", disconnect);
             rfb.addEventListener("capabilities", function () { updatePowerButtons(); initialResize(); });

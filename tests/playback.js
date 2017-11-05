@@ -44,12 +44,11 @@ if (setImmediate === undefined) {
     window.addEventListener("message", _onMessage);
 }
 
-export default function RecordingPlayer (frames, encoding, disconnected, notification) {
+export default function RecordingPlayer (frames, encoding, disconnected) {
     this._frames = frames;
     this._encoding = encoding;
 
     this._disconnected = disconnected;
-    this._notification = notification;
 
     if (this._encoding === undefined) {
         let frame = this._frames[0];
@@ -80,7 +79,6 @@ RecordingPlayer.prototype = {
         this._rfb = new RFB(document.getElementById('VNC_canvas'), 'wss://test');
         this._rfb.viewOnly = true;
         this._rfb.ondisconnected = this._handleDisconnect.bind(this);
-        this._rfb.onnotification = this._notification;
         this._enablePlaybackMode();
 
         // reset the frame index and timer

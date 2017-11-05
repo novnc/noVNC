@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2017 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -587,30 +587,6 @@ RFB.prototype = {
         this._updateConnectionState('disconnected');
 
         return false;
-    },
-
-    /*
-     * Send a notification to the UI. Valid levels are:
-     *   'normal'|'warn'|'error'
-     *
-     *   NOTE: If this function is called multiple times, remember that the
-     *         interface could be only showing the latest notification.
-     */
-    _notification: function(msg, level) {
-        switch (level) {
-            case 'normal':
-            case 'warn':
-            case 'error':
-                Log.Debug("Notification[" + level + "]:" + msg);
-                break;
-            default:
-                Log.Error("Invalid notification level: " + level);
-                return;
-        }
-
-        var event = new CustomEvent("notification",
-                                    { detail: { message: msg, level: level } });
-        this.dispatchEvent(event);
     },
 
     _setCapability: function (cap, val) {
@@ -1262,8 +1238,7 @@ RFB.prototype = {
 
         switch (xvp_msg) {
             case 0:  // XVP_FAIL
-                Log.Error("Operation Failed");
-                this._notification("XVP Operation Failed", 'error');
+                Log.Error("XVP Operation Failed");
                 break;
             case 1:  // XVP_INIT
                 this._rfb_xvp_ver = xvp_ver;
@@ -2350,8 +2325,8 @@ RFB.encodingHandlers = {
                 msg = "Unknown reason";
                 break;
             }
-            this._notification("Server did not accept the resize request: "
-                               + msg, 'normal');
+            Log.Warn("Server did not accept the resize request: "
+                     + msg);
         } else {
             this._resize(this._FBU.width, this._FBU.height);
         }
