@@ -423,9 +423,8 @@ var UI = {
                 UI.showStatus(_("Disconnected"));
                 break;
             default:
-                msg = "Invalid UI state";
-                Log.Error(msg);
-                UI.showStatus(msg, 'error');
+                Log.Error("Invalid visual state: " + event.detail.state);
+                UI.showStatus(_("Internal error"), 'error');
                 break;
         }
 
