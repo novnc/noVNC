@@ -1008,9 +1008,8 @@ var UI = {
         }
 
         if (!host) {
-            var msg = _("Must set host");
-            Log.Error(msg);
-            UI.showStatus(msg, 'error');
+            Log.Error("Can't connect when host is: " + host);
+            UI.showStatus(_("Must set host"), 'error');
             return;
         }
 
@@ -1106,9 +1105,8 @@ var UI = {
                 document.getElementById('noVNC_password_input').focus();
             }, 100);
 
-        var msg = _("Password is required");
-        Log.Warn(msg);
-        UI.showStatus(msg, "warning");
+        Log.Warn("Server asked for a password");
+        UI.showStatus(_("Password is required"), "warning");
     },
 
     setPassword: function(e) {
