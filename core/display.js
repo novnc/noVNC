@@ -10,12 +10,10 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-import { browserSupportsCursorURIs as cursorURIsSupported } from './util/browsers.js';
-import { set_defaults, make_properties } from './util/properties.js';
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 
-export default function Display(defaults) {
+export default function Display(target) {
     this._drawCtx = null;
     this._c_forceCanvas = false;
 
@@ -32,16 +30,11 @@ export default function Display(defaults) {
     this._tile_x = 0;
     this._tile_y = 0;
 
-    set_defaults(this, defaults, {
-        'scale': 1.0,
-        'viewport': false,
-        'render_mode': '',
-        "onFlush": function () {},
-    });
-
     Log.Debug(">> Display.constructor");
 
     // The visible canvas
+    this._target = target;
+
     if (!this._target) {
         throw new Error("Target must be set");
     }
@@ -72,21 +65,8 @@ export default function Display(defaults) {
     this.clear();
 
     // Check canvas features
-    if ('createImageData' in this._drawCtx) {
-        this._render_mode = 'canvas rendering';
-    } else {
+    if (!('createImageData' in this._drawCtx)) {
         throw new Error("Canvas does not support createImageData");
-    }
-
-    if (this._prefer_js === null) {
-        Log.Info("Prefering javascript operations");
-        this._prefer_js = true;
-    }
-
-    // Determine browser support for setting the cursor via data URI scheme
-    if (this._cursor_uri || this._cursor_uri === null ||
-            this._cursor_uri === undefined) {
-        this._cursor_uri = cursorURIsSupported();
     }
 
     Log.Debug("<< Display.constructor");
@@ -101,13 +81,50 @@ try {
 }
 
 Display.prototype = {
-    // Public methods
+    // ===== PROPERTIES =====
+
+    _scale: 1.0,
+    get scale() { return this._scale; },
+    set scale(scale) {
+        this._rescale(scale);
+    },
+
+    _clipViewport: false,
+    get clipViewport() { return this._clipViewport; },
+    set clipViewport(viewport) {
+        this._clipViewport = viewport;
+        // May need to readjust the viewport dimensions
+        var vp = this._viewportLoc;
+        this.viewportChangeSize(vp.w, vp.h);
+        this.viewportChangePos(0, 0);
+    },
+
+    get width() {
+        return this._fb_width;
+    },
+    get height() {
+        return this._fb_height;
+    },
+
+    get isClipped() {
+        var vp = this._viewportLoc;
+        return this._fb_width > vp.w || this._fb_height > vp.h;
+    },
+
+    logo: null,
+
+    // ===== EVENT HANDLERS =====
+
+    onflush: function () {},        // A flush request has finished
+
+    // ===== PUBLIC METHODS =====
+
     viewportChangePos: function (deltaX, deltaY) {
         var vp = this._viewportLoc;
         deltaX = Math.floor(deltaX);
         deltaY = Math.floor(deltaY);
 
-        if (!this._viewport) {
+        if (!this._clipViewport) {
             deltaX = -vp.w;  // clamped later of out of bounds
             deltaY = -vp.h;
         }
@@ -146,7 +163,7 @@ Display.prototype = {
 
     viewportChangeSize: function(width, height) {
 
-        if (!this._viewport ||
+        if (!this._clipViewport ||
             typeof(width) === "undefined" ||
             typeof(height) === "undefined") {
 
@@ -307,7 +324,7 @@ Display.prototype = {
 
     flush: function() {
         if (this._renderQ.length === 0) {
-            this._onFlush();
+            this.onflush();
         } else {
             this._flushing = true;
         }
@@ -382,56 +399,45 @@ Display.prototype = {
             this._tile = this._drawCtx.createImageData(width, height);
         }
 
-        if (this._prefer_js) {
-            var red = color[2];
-            var green = color[1];
-            var blue = color[0];
+        var red = color[2];
+        var green = color[1];
+        var blue = color[0];
 
-            var data = this._tile.data;
-            for (var i = 0; i < width * height * 4; i += 4) {
-                data[i] = red;
-                data[i + 1] = green;
-                data[i + 2] = blue;
-                data[i + 3] = 255;
-            }
-        } else {
-            this.fillRect(x, y, width, height, color, true);
+        var data = this._tile.data;
+        for (var i = 0; i < width * height * 4; i += 4) {
+            data[i] = red;
+            data[i + 1] = green;
+            data[i + 2] = blue;
+            data[i + 3] = 255;
         }
     },
 
     // update sub-rectangle of the current tile
     subTile: function (x, y, w, h, color) {
-        if (this._prefer_js) {
-            var red = color[2];
-            var green = color[1];
-            var blue = color[0];
-            var xend = x + w;
-            var yend = y + h;
+        var red = color[2];
+        var green = color[1];
+        var blue = color[0];
+        var xend = x + w;
+        var yend = y + h;
 
-            var data = this._tile.data;
-            var width = this._tile.width;
-            for (var j = y; j < yend; j++) {
-                for (var i = x; i < xend; i++) {
-                    var p = (i + (j * width)) * 4;
-                    data[p] = red;
-                    data[p + 1] = green;
-                    data[p + 2] = blue;
-                    data[p + 3] = 255;
-                }
+        var data = this._tile.data;
+        var width = this._tile.width;
+        for (var j = y; j < yend; j++) {
+            for (var i = x; i < xend; i++) {
+                var p = (i + (j * width)) * 4;
+                data[p] = red;
+                data[p + 1] = green;
+                data[p + 2] = blue;
+                data[p + 3] = 255;
             }
-        } else {
-            this.fillRect(this._tile_x + x, this._tile_y + y, w, h, color, true);
         }
     },
 
     // draw the current tile to the screen
     finishTile: function () {
-        if (this._prefer_js) {
-            this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
-            this._damage(this._tile_x, this._tile_y,
-                         this._tile.width, this._tile.height);
-        }
-        // else: No-op -- already done by setSubTile
+        this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
+        this._damage(this._tile_x, this._tile_y,
+                     this._tile.width, this._tile.height);
     },
 
     blitImage: function (x, y, width, height, arr, offset, from_queue) {
@@ -500,11 +506,6 @@ Display.prototype = {
     },
 
     changeCursor: function (pixels, mask, hotx, hoty, w, h) {
-        if (this._cursor_uri === false) {
-            Log.Warn("changeCursor called but no cursor data URI support");
-            return;
-        }
-
         Display.changeCursor(this._target, pixels, mask, hotx, hoty, w, h);
     },
 
@@ -516,32 +517,7 @@ Display.prototype = {
         this._target.style.cursor = "none";
     },
 
-    clippingDisplay: function () {
-        var vp = this._viewportLoc;
-        return this._fb_width > vp.w || this._fb_height > vp.h;
-    },
-
-    // Overridden getters/setters
-    set_scale: function (scale) {
-        this._rescale(scale);
-    },
-
-    set_viewport: function (viewport) {
-        this._viewport = viewport;
-        // May need to readjust the viewport dimensions
-        var vp = this._viewportLoc;
-        this.viewportChangeSize(vp.w, vp.h);
-        this.viewportChangePos(0, 0);
-    },
-
-    get_width: function () {
-        return this._fb_width;
-    },
-    get_height: function () {
-        return this._fb_height;
-    },
-
-    autoscale: function (containerWidth, containerHeight, downscaleOnly) {
+    autoscale: function (containerWidth, containerHeight) {
         var vp = this._viewportLoc;
         var targetAspectRatio = containerWidth / containerHeight;
         var fbAspectRatio = vp.w / vp.h;
@@ -553,14 +529,11 @@ Display.prototype = {
             scaleRatio = containerHeight / vp.h;
         }
 
-        if (scaleRatio > 1.0 && downscaleOnly) {
-            scaleRatio = 1.0;
-        }
-
         this._rescale(scaleRatio);
     },
 
-    // Private Methods
+    // ===== PRIVATE METHODS =====
+
     _rescale: function (factor) {
         this._scale = factor;
         var vp = this._viewportLoc;
@@ -685,27 +658,10 @@ Display.prototype = {
 
         if (this._renderQ.length === 0 && this._flushing) {
             this._flushing = false;
-            this._onFlush();
+            this.onflush();
         }
     },
 };
-
-make_properties(Display, [
-    ['target', 'wo', 'dom'],       // Canvas element for rendering
-    ['context', 'ro', 'raw'],      // Canvas 2D context for rendering (read-only)
-    ['logo', 'rw', 'raw'],         // Logo to display when cleared: {"width": w, "height": h, "type": mime-type, "data": data}
-    ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0
-    ['viewport', 'rw', 'bool'],    // Use viewport clipping
-    ['width', 'ro', 'int'],        // Display area width
-    ['height', 'ro', 'int'],       // Display area height
-
-    ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
-
-    ['prefer_js', 'rw', 'str'],    // Prefer Javascript over canvas methods
-    ['cursor_uri', 'rw', 'raw'],   // Can we render cursor using data URI
-
-    ['onFlush', 'rw', 'func'],     // onFlush(): A flush request has finished
-]);
 
 // Class Methods
 Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {

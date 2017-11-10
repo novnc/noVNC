@@ -77,10 +77,10 @@ export default function RecordingPlayer (frames, encoding, disconnected, notific
 RecordingPlayer.prototype = {
     run: function (realtime, trafficManagement) {
         // initialize a new RFB
-        this._rfb = new RFB({'target': document.getElementById('VNC_canvas'),
-                             'view_only': true,
-                             'onDisconnected': this._handleDisconnect.bind(this),
-                             'onNotification': this._notification});
+        this._rfb = new RFB(document.getElementById('VNC_canvas'), 'wss://test');
+        this._rfb.viewOnly = true;
+        this._rfb.ondisconnected = this._handleDisconnect.bind(this);
+        this._rfb.onnotification = this._notification;
         this._enablePlaybackMode();
 
         // reset the frame index and timer
@@ -92,9 +92,6 @@ RecordingPlayer.prototype = {
 
         this._running = true;
 
-        // launch the tests
-        this._rfb.connect('test', 0, 'bogus');
-
         this._queueNextPacket();
     },
 
@@ -104,14 +101,8 @@ RecordingPlayer.prototype = {
         this._rfb._sock.close = function () {};
         this._rfb._sock.flush = function () {};
         this._rfb._checkEvents = function () {};
-        this._rfb.connect = function (host, port, password, path) {
-            this._rfb_host = host;
-            this._rfb_port = port;
-            this._rfb_password = (password !== undefined) ? password : "";
-            this._rfb_path = (path !== undefined) ? path : "";
+        this._rfb._connect = function () {
             this._sock.init('binary', 'ws');
-            this._rfb_connection_state = 'connecting';
-            this._rfb_init_state = 'ProtocolVersion';
         };
     },
 
@@ -154,12 +145,12 @@ RecordingPlayer.prototype = {
         // Avoid having excessive queue buildup in non-realtime mode
         if (this._trafficManagement && this._rfb._flushing) {
             let player = this;
-            let orig = this._rfb._display.get_onFlush();
-            this._rfb._display.set_onFlush(function () {
-                player._rfb._display.set_onFlush(orig);
+            let orig = this._rfb._display.onflush;
+            this._rfb._display.onflush = function () {
+                player._rfb._display.onflush = orig;
                 player._rfb._onFlush();
                 player._doPacket();
-            });
+            };
             return;
         }
 
@@ -184,12 +175,12 @@ RecordingPlayer.prototype = {
     _finish() {
         if (this._rfb._display.pending()) {
             var player = this;
-            this._rfb._display.set_onFlush(function () {
+            this._rfb._display.onflush = function () {
                 if (player._rfb._flushing) {
                     player._rfb._onFlush();
                 }
                 player._finish();
-            });
+            };
             this._rfb._display.flush();
         } else {
             this._running = false;

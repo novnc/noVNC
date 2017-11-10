@@ -152,18 +152,18 @@
                 </div>
             </div>
 
-            <!-- XVP Shutdown/Reboot -->
+            <!-- Shutdown/Reboot -->
             <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
-                id="noVNC_xvp_button" class="noVNC_button"
+                id="noVNC_power_button" class="noVNC_button"
                 title="Shutdown/Reboot..." />
             <div class="noVNC_vcenter">
-            <div id="noVNC_xvp" class="noVNC_panel">
+            <div id="noVNC_power" class="noVNC_panel">
                 <div class="noVNC_heading">
                     <img src="app/images/power.svg"> Power
                 </div>
-                <input type="button" id="noVNC_xvp_shutdown_button" value="Shutdown" />
-                <input type="button" id="noVNC_xvp_reboot_button" value="Reboot" />
-                <input type="button" id="noVNC_xvp_reset_button" value="Reset" />
+                <input type="button" id="noVNC_shutdown_button" value="Shutdown" />
+                <input type="button" id="noVNC_reboot_button" value="Reboot" />
+                <input type="button" id="noVNC_reset_button" value="Reset" />
             </div>
             </div>
 
@@ -213,7 +213,6 @@
                         <select id="noVNC_setting_resize" name="vncResize">
                             <option value="off">None</option>
                             <option value="scale">Local Scaling</option>
-                            <option value="downscale">Local Downscaling</option>
                             <option value="remote">Remote Resizing</option>
                         </select>
                     </li>
@@ -221,10 +220,6 @@
                     <li>
                         <div class="noVNC_expander">Advanced</div>
                         <div><ul>
-                            <li>
-                                <label><input id="noVNC_setting_cursor" type="checkbox" /> Local Cursor</label>
-                            </li>
-                            <li><hr></li>
                             <li>
                                 <label for="noVNC_setting_repeaterID">Repeater ID:</label>
                                 <input id="noVNC_setting_repeaterID" type="input" value="" />

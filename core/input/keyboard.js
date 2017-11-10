@@ -10,7 +10,6 @@
 
 import * as Log from '../util/logging.js';
 import { stopEvent } from '../util/events.js';
-import { set_defaults, make_properties } from '../util/properties.js';
 import * as KeyboardUtil from "./util.js";
 import KeyTable from "./keysym.js";
 
@@ -18,14 +17,12 @@ import KeyTable from "./keysym.js";
 // Keyboard event handler
 //
 
-export default function Keyboard(defaults) {
+export default function Keyboard(target) {
+    this._target = target || null;
+
     this._keyDownList = {};         // List of depressed keys
                                     // (even if they are happy)
     this._pendingKey = null;        // Key waiting for keypress
-
-    set_defaults(this, defaults, {
-        'target': null,
-    });
 
     // keep these here so we can refer to them later
     this._eventHandlers = {
@@ -56,14 +53,14 @@ function isEdge() {
 }
 
 Keyboard.prototype = {
-    // private methods
+    // ===== EVENT HANDLERS =====
+
+    onkeyevent: function () {},     // Handler for key press/release
+
+    // ===== PRIVATE METHODS =====
 
     _sendKeyEvent: function (keysym, code, down) {
-        if (!this._onKeyEvent) {
-            return;
-        }
-
-        Log.Debug("onKeyEvent " + (down ? "down" : "up") +
+        Log.Debug("onkeyevent " + (down ? "down" : "up") +
                   ", keysym: " + keysym, ", code: " + code);
 
         // Windows sends CtrlLeft+AltRight when you press
@@ -77,19 +74,19 @@ Keyboard.prototype = {
                 ('ControlLeft' in this._keyDownList) &&
                 ('AltRight' in this._keyDownList)) {
                 fakeAltGraph = true;
-                this._onKeyEvent(this._keyDownList['AltRight'],
+                this.onkeyevent(this._keyDownList['AltRight'],
                                  'AltRight', false);
-                this._onKeyEvent(this._keyDownList['ControlLeft'],
+                this.onkeyevent(this._keyDownList['ControlLeft'],
                                  'ControlLeft', false);
             }
         }
 
-        this._onKeyEvent(keysym, code, down);
+        this.onkeyevent(keysym, code, down);
 
         if (fakeAltGraph) {
-            this._onKeyEvent(this._keyDownList['ControlLeft'],
+            this.onkeyevent(this._keyDownList['ControlLeft'],
                              'ControlLeft', true);
-            this._onKeyEvent(this._keyDownList['AltRight'],
+            this.onkeyevent(this._keyDownList['AltRight'],
                              'AltRight', true);
         }
     },
@@ -305,7 +302,7 @@ Keyboard.prototype = {
         Log.Debug("<< Keyboard.allKeysUp");
     },
 
-    // Public methods
+    // ===== PUBLIC METHODS =====
 
     grab: function () {
         //Log.Debug(">> Keyboard.grab");
@@ -336,9 +333,3 @@ Keyboard.prototype = {
         //Log.Debug(">> Keyboard.ungrab");
     },
 };
-
-make_properties(Keyboard, [
-    ['target',     'wo', 'dom'],  // DOM element that captures keyboard input
-
-    ['onKeyEvent', 'rw', 'func'] // Handler for key press/release
-]);

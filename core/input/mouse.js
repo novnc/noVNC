@@ -11,13 +11,13 @@
 import * as Log from '../util/logging.js';
 import { isTouchDevice } from '../util/browsers.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
-import { set_defaults, make_properties } from '../util/properties.js';
 
 var WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
 var WHEEL_STEP_TIMEOUT = 50; // ms
 var WHEEL_LINE_HEIGHT = 19;
 
-export default function Mouse(defaults) {
+export default function Mouse(target) {
+    this._target = target || document;
 
     this._doubleClickTimer = null;
     this._lastTouchPos = null;
@@ -27,12 +27,6 @@ export default function Mouse(defaults) {
     this._wheelStepYTimer = null;
     this._accumulatedWheelDeltaX = 0;
     this._accumulatedWheelDeltaY = 0;
-
-    // Configuration attributes
-    set_defaults(this, defaults, {
-        'target': document,
-        'touchButton': 1
-    });
 
     this._eventHandlers = {
         'mousedown': this._handleMouseDown.bind(this),
@@ -44,7 +38,16 @@ export default function Mouse(defaults) {
 };
 
 Mouse.prototype = {
-    // private methods
+    // ===== PROPERTIES =====
+
+    touchButton: 1,                 // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
+
+    // ===== EVENT HANDLERS =====
+
+    onmousebutton: function () {},  // Handler for mouse button click/release
+    onmousemove: function () {},    // Handler for mouse movement
+
+    // ===== PRIVATE METHODS =====
 
     _resetDoubleClickTimer: function () {
         this._doubleClickTimer = null;
@@ -83,7 +86,7 @@ Mouse.prototype = {
                 }
                 this._doubleClickTimer = setTimeout(this._resetDoubleClickTimer.bind(this), 500);
             }
-            bmask = this._touchButton;
+            bmask = this.touchButton;
             // If bmask is set
         } else if (e.which) {
             /* everything except IE */
@@ -95,11 +98,10 @@ Mouse.prototype = {
                     (e.button & 0x4) / 2;   // Middle
         }
 
-        if (this._onMouseButton) {
-            Log.Debug("onMouseButton " + (down ? "down" : "up") +
-                      ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
-            this._onMouseButton(pos.x, pos.y, down, bmask);
-        }
+        Log.Debug("onmousebutton " + (down ? "down" : "up") +
+                  ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
+        this.onmousebutton(pos.x, pos.y, down, bmask);
+
         stopEvent(e);
     },
 
@@ -122,11 +124,11 @@ Mouse.prototype = {
     _generateWheelStepX: function () {
 
         if (this._accumulatedWheelDeltaX < 0) {
-            this._onMouseButton(this._pos.x, this._pos.y, 1, 1 << 5);
-            this._onMouseButton(this._pos.x, this._pos.y, 0, 1 << 5);
+            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 5);
+            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 5);
         } else if (this._accumulatedWheelDeltaX > 0) {
-            this._onMouseButton(this._pos.x, this._pos.y, 1, 1 << 6);
-            this._onMouseButton(this._pos.x, this._pos.y, 0, 1 << 6);
+            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 6);
+            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 6);
         }
 
         this._accumulatedWheelDeltaX = 0;
@@ -135,11 +137,11 @@ Mouse.prototype = {
     _generateWheelStepY: function () {
 
         if (this._accumulatedWheelDeltaY < 0) {
-            this._onMouseButton(this._pos.x, this._pos.y, 1, 1 << 3);
-            this._onMouseButton(this._pos.x, this._pos.y, 0, 1 << 3);
+            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 3);
+            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 3);
         } else if (this._accumulatedWheelDeltaY > 0) {
-            this._onMouseButton(this._pos.x, this._pos.y, 1, 1 << 4);
-            this._onMouseButton(this._pos.x, this._pos.y, 0, 1 << 4);
+            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 4);
+            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 4);
         }
 
         this._accumulatedWheelDeltaY = 0;
@@ -153,8 +155,6 @@ Mouse.prototype = {
     },
 
     _handleMouseWheel: function (e) {
-        if (!this._onMouseButton) { return; }
-
         this._resetWheelStepTimers();
 
         this._updateMousePosition(e);
@@ -199,9 +199,7 @@ Mouse.prototype = {
 
     _handleMouseMove: function (e) {
         this._updateMousePosition(e);
-        if (this._onMouseMove) {
-            this._onMouseMove(this._pos.x, this._pos.y);
-        }
+        this.onmousemove(this._pos.x, this._pos.y);
         stopEvent(e);
     },
 
@@ -240,7 +238,8 @@ Mouse.prototype = {
         this._pos = {x:x, y:y};
     },
 
-    // Public methods
+    // ===== PUBLIC METHODS =====
+
     grab: function () {
         var c = this._target;
 
@@ -282,11 +281,3 @@ Mouse.prototype = {
         c.removeEventListener('contextmenu', this._eventHandlers.mousedisable);
     }
 };
-
-make_properties(Mouse, [
-    ['target',         'ro', 'dom'],   // DOM element that captures mouse input
-
-    ['onMouseButton',  'rw', 'func'],  // Handler for mouse button click/release
-    ['onMouseMove',    'rw', 'func'],  // Handler for mouse movement
-    ['touchButton',    'rw', 'int']    // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
-]);
