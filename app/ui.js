@@ -105,7 +105,7 @@ var UI = {
 
         UI.updateViewClip();
 
-        UI.updateVisualState();
+        UI.updateVisualState('init');
 
         document.documentElement.classList.remove("noVNC_loading");
 
@@ -388,52 +388,40 @@ var UI = {
  *     VISUAL
  * ------v------*/
 
-    updateState: function(event) {
-        var msg;
+    // Disable/enable controls depending on connection state
+    updateVisualState: function(state) {
 
         document.documentElement.classList.remove("noVNC_connecting");
         document.documentElement.classList.remove("noVNC_connected");
         document.documentElement.classList.remove("noVNC_disconnecting");
         document.documentElement.classList.remove("noVNC_reconnecting");
 
-        switch (event.detail.state) {
+        let transition_elem = document.getElementById("noVNC_transition_text");
+        switch (state) {
+            case 'init':
+                break;
             case 'connecting':
-                document.getElementById("noVNC_transition_text").textContent = _("Connecting...");
+                transition_elem.textContent = _("Connecting...");
                 document.documentElement.classList.add("noVNC_connecting");
                 break;
             case 'connected':
-                UI.connected = true;
-                UI.inhibit_reconnect = false;
-                UI.doneInitialResize = false;
                 document.documentElement.classList.add("noVNC_connected");
-                if (UI.getSetting('encrypt')) {
-                    msg = _("Connected (encrypted) to ") + UI.desktopName;
-                } else {
-                    msg = _("Connected (unencrypted) to ") + UI.desktopName;
-                }
-                UI.showStatus(msg);
-                document.getElementById('noVNC_canvas').focus();
                 break;
             case 'disconnecting':
-                UI.connected = false;
-                document.getElementById("noVNC_transition_text").textContent = _("Disconnecting...");
+                transition_elem.textContent = _("Disconnecting...");
                 document.documentElement.classList.add("noVNC_disconnecting");
                 break;
             case 'disconnected':
-                UI.showStatus(_("Disconnected"));
+                break;
+            case 'reconnecting':
+                transition_elem.textContent = _("Reconnecting...");
+                document.documentElement.classList.add("noVNC_reconnecting");
                 break;
             default:
-                Log.Error("Invalid visual state: " + event.detail.state);
+                Log.Error("Invalid visual state: " + state);
                 UI.showStatus(_("Internal error"), 'error');
-                break;
+                return;
         }
-
-        UI.updateVisualState();
-    },
-
-    // Disable/enable controls depending on connection state
-    updateVisualState: function() {
-        //Log.Debug(">> updateVisualState");
 
         UI.enableDisableViewClip();
 
@@ -480,8 +468,6 @@ var UI = {
         // State change also closes the password dialog
         document.getElementById('noVNC_password_dlg')
             .classList.remove('noVNC_open');
-
-        //Log.Debug("<< updateVisualState");
     },
 
     showStatus: function(text, status_type, time) {
@@ -1016,6 +1002,8 @@ var UI = {
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
+        UI.updateVisualState('connecting');
+
         UI.updateViewOnly();
 
         var url;
@@ -1032,7 +1020,7 @@ var UI = {
                          { shared: UI.getSetting('shared'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
-        UI.rfb.addEventListener("updatestate", UI.updateState);
+        UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
         UI.rfb.addEventListener("capabilities", function () { UI.updatePowerButton(); UI.initialResize(); });
@@ -1046,8 +1034,12 @@ var UI = {
         UI.closeAllPanels();
         UI.rfb.disconnect();
 
+        UI.connected = false;
+
         // Disable automatic reconnecting
         UI.inhibit_reconnect = true;
+
+        UI.updateVisualState('disconnecting');
 
         // Don't display the connection settings until we're actually disconnected
     },
@@ -1063,16 +1055,43 @@ var UI = {
         UI.connect(null, UI.reconnect_password);
     },
 
+    connectFinished: function (e) {
+        UI.connected = true;
+        UI.inhibit_reconnect = false;
+        UI.doneInitialResize = false;
+
+        let msg;
+        if (UI.getSetting('encrypt')) {
+            msg = _("Connected (encrypted) to ") + UI.desktopName;
+        } else {
+            msg = _("Connected (unencrypted) to ") + UI.desktopName;
+        }
+        UI.showStatus(msg);
+        UI.updateVisualState('connected');
+
+        // Do this last because it can only be used on rendered elements
+        document.getElementById('noVNC_canvas').focus();
+    },
+
     disconnectFinished: function (e) {
+        // This variable is ideally set when disconnection starts, but
+        // when the disconnection isn't clean or if it is initiated by
+        // the server, we need to do it here as well since
+        // UI.disconnect() won't be used in those cases.
+        UI.connected = false;
+
         if (typeof e.detail.reason !== 'undefined') {
             UI.showStatus(e.detail.reason, 'error');
+            UI.updateVisualState('disconnected');
         } else if (UI.getSetting('reconnect', false) === true && !UI.inhibit_reconnect) {
-            document.getElementById("noVNC_transition_text").textContent = _("Reconnecting...");
-            document.documentElement.classList.add("noVNC_reconnecting");
+            UI.updateVisualState('reconnecting');
 
             var delay = parseInt(UI.getSetting('reconnect_delay'));
             UI.reconnect_callback = setTimeout(UI.reconnect, delay);
             return;
+        } else {
+            UI.updateVisualState('disconnected');
+            UI.showStatus(_("Disconnected"), 'normal');
         }
 
         UI.openControlbar();
@@ -1085,7 +1104,8 @@ var UI = {
             UI.reconnect_callback = null;
         }
 
-        document.documentElement.classList.remove("noVNC_reconnecting");
+        UI.updateVisualState('disconnected');
+
         UI.openControlbar();
         UI.openConnectPanel();
     },

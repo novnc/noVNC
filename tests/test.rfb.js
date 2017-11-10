@@ -68,11 +68,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('#RFB', function () {
             it('should set the current state to "connecting"', function () {
                 var client = new RFB(document.createElement('canvas'), 'wss://host:8675');
-                var spy = sinon.spy();
-                client.addEventListener("updatestate", spy);
+                client._rfb_connection_state = '';
                 this.clock.tick();
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.state).to.equal('connecting');
+                expect(client._rfb_connection_state).to.equal('connecting');
             });
 
             it('should actually connect to the websocket', function () {
@@ -90,13 +88,15 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client = make_rfb();
             });
 
-            it('should set the current state to "disconnecting"', function () {
-                var spy = sinon.spy();
-                client.addEventListener("updatestate", spy);
+            it('should go to state "disconnecting" before "disconnected"', function () {
+                sinon.spy(client, '_updateConnectionState');
                 client.disconnect();
-                expect(spy).to.have.been.calledTwice;
-                expect(spy.args[0][0].detail.state).to.equal('disconnecting');
-                expect(spy.args[1][0].detail.state).to.equal('disconnected');
+                expect(client._updateConnectionState).to.have.been.calledTwice;
+                expect(client._updateConnectionState.getCall(0).args[0])
+                    .to.equal('disconnecting');
+                expect(client._updateConnectionState.getCall(1).args[0])
+                    .to.equal('disconnected');
+                expect(client._rfb_connection_state).to.equal('disconnected');
             });
 
             it('should unregister error event handler', function () {
@@ -320,13 +320,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._disconnTimer).to.be.null;
             });
 
-            it('should call the updateState callback', function () {
-                var spy = sinon.spy();
-                client.addEventListener("updatestate", spy);
-                client._updateConnectionState('disconnecting');
-                expect(spy.args[0][0].detail.state).to.equal('disconnecting');
-            });
-
             it('should set the rfb_connection_state', function () {
                 client._rfb_connection_state = 'disconnecting';
                 client._updateConnectionState('disconnected');
@@ -340,16 +333,23 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
 
             it('should ignore state changes to the same state', function () {
-                var spy = sinon.spy();
-                client.addEventListener("updatestate", spy);
-                client._rfb_connection_state = 'connecting';
-                client._updateConnectionState('connecting');
-                expect(spy).to.not.have.been.called;
+                var connectSpy = sinon.spy();
+                var disconnectSpy = sinon.spy();
+                client.addEventListener("connect", connectSpy);
+                client.addEventListener("disconnect", disconnectSpy);
+
+                client._rfb_connection_state = 'connected';
+                client._updateConnectionState('connected');
+                expect(connectSpy).to.not.have.been.called;
+
+                client._rfb_connection_state = 'disconnected';
+                client._updateConnectionState('disconnected');
+                expect(disconnectSpy).to.not.have.been.called;
             });
 
             it('should ignore illegal state changes', function () {
                 var spy = sinon.spy();
-                client.addEventListener("updatestate", spy);
+                client.addEventListener("disconnect", spy);
                 client._rfb_connection_state = 'connected';
                 client._updateConnectionState('disconnected');
                 expect(client._rfb_connection_state).to.not.equal('disconnected');
@@ -403,6 +403,39 @@ describe('Remote Frame Buffer Protocol Client', function() {
     });
 
     describe('Connection States', function () {
+        describe('connecting', function () {
+            it('should open the websocket connection', function () {
+                var client = new RFB(document.createElement('canvas'),
+                                     'ws://HOST:8675/PATH');
+                sinon.spy(client._sock, 'open');
+                this.clock.tick();
+                expect(client._sock.open).to.have.been.calledOnce;
+            });
+        });
+
+        describe('connected', function () {
+            var client;
+            beforeEach(function () {
+                client = make_rfb();
+            });
+
+            it('should result in a connect event if state becomes connected', function () {
+                var spy = sinon.spy();
+                client.addEventListener("connect", spy);
+                client._rfb_connection_state = 'connecting';
+                client._updateConnectionState('connected');
+                expect(spy).to.have.been.calledOnce;
+            });
+
+            it('should not result in a connect event if the state is not "connected"', function () {
+                var spy = sinon.spy();
+                client.addEventListener("connect", spy);
+                client._sock._websocket.open = function () {};  // explicitly don't call onopen
+                client._updateConnectionState('connecting');
+                expect(spy).to.not.have.been.called;
+            });
+        });
+
         describe('disconnecting', function () {
             var client;
             beforeEach(function () {
@@ -465,19 +498,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0].length).to.equal(1);
             });
-
-            it('should call the updateState callback before the disconnect callback', function () {
-                var updateStateSpy = sinon.spy();
-                var disconnectSpy = sinon.spy();
-                client.addEventListener("disconnect", disconnectSpy);
-                client.addEventListener("updatestate", updateStateSpy);
-                client._rfb_connection_state = 'disconnecting';
-                client._updateConnectionState('disconnected');
-                expect(updateStateSpy.calledBefore(disconnectSpy)).to.be.true;
-            });
         });
-
-        // NB(directxman12): Connected does *nothing* in updateConnectionState
     });
 
     describe('Protocol Initialization States', function () {

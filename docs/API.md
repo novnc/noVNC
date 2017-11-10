@@ -63,9 +63,9 @@ protocol stream.
 
 ### Events
 
-[`updatestate`](#updatestate)
-  - The `updatestate` event is fired when the connection state of the
-    `RFB` object changes.
+[`connect`](#connect)
+  - The `connect` event is fired when the `RFB` object has completed
+    the connection and handshaking with the server.
 
 [`disconnect`](#disconnected)
   - The `disconnect` event is fired when the `RFB` object disconnects.
@@ -177,24 +177,11 @@ connection to a specified VNC server.
       - A `DOMString` specifying the ID to provide to any VNC repeater
         encountered.
 
-#### updatestate
+#### connect
 
-The `updatestate` event is fired after the noVNC connection state
-changes. The `detail` property is an `Object` containg the property
-`state` with the new connection state.
-
-Here is a list of the states that are reported:
-
-| connection state  | description
-| ----------------- | ------------
-| `"connecting"`    | starting to connect
-| `"connected"`     | connected normally
-| `"disconnecting"` | starting to disconnect
-| `"disconnected"`  | disconnected
-
-Note that a `RFB` objects can not transition from the disconnected
-state in any way, a new instance of the object has to be created for
-new connections.
+The `connect` event is fired after all the handshaking with the server
+is completed and the connection is fully established. After this event
+the `RFB` object is ready to recieve graphics updates and to send input.
 
 #### disconnect
 

@@ -147,45 +147,25 @@
             document.getElementById('noVNC_status_bar').className = "noVNC_status_" + level;
             document.getElementById('noVNC_status').textContent = text;
         }
-        function updateState(e) {
-            var cad = document.getElementById('sendCtrlAltDelButton');
-            switch (e.detail.state) {
-                case 'connecting':
-                    status("Connecting", "normal");
-                    break;
-                case 'connected':
-                    doneInitialResize = false;
-                    if (WebUtil.getConfigVar('encrypt',
-                                             (window.location.protocol === "https:"))) {
-                        status("Connected (encrypted) to " +
-                               desktopName, "normal");
-                    } else {
-                        status("Connected (unencrypted) to " +
-                               desktopName, "normal");
-                    }
-                    break;
-                case 'disconnecting':
-                    status("Disconnecting", "normal");
-                    break;
-                case 'disconnected':
-                    status("Disconnected", "normal");
-                    break;
-                default:
-                    status(e.detail.state, "warn");
-                    break;
-            }
 
-            if (e.detail.state === 'connected') {
-                cad.disabled = false;
+        function connected(e) {
+            document.getElementById('sendCtrlAltDelButton').disabled = false;
+            doneInitialResize = false;
+            if (WebUtil.getConfigVar('encrypt',
+                                     (window.location.protocol === "https:"))) {
+                status("Connected (encrypted) to " + desktopName, "normal");
             } else {
-                cad.disabled = true;
-                updatePowerButtons();
+                status("Connected (unencrypted) to " + desktopName, "normal");
             }
-
         }
-        function disconnect(e) {
+
+        function disconnected(e) {
+            document.getElementById('sendCtrlAltDelButton').disabled = true;
+            updatePowerButtons();
             if (typeof(e.detail.reason) !== 'undefined') {
                 status(e.detail.reason, "error");
+            } else {
+                status("Disconnected", "normal");
             }
         }
 
@@ -246,6 +226,8 @@
 
         (function() {
 
+            status("Connecting", "normal");
+
             if ((!host) || (!port)) {
                 status('Must specify host and port in URL', 'error');
             }
@@ -270,8 +252,8 @@
                             shared: WebUtil.getConfigVar('shared', true),
                             credentials: { password: password } });
             rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
-            rfb.addEventListener("updatestate",  updateState);
-            rfb.addEventListener("disconnect", disconnect);
+            rfb.addEventListener("connect",  connected);
+            rfb.addEventListener("disconnect", disconnected);
             rfb.addEventListener("capabilities", function () { updatePowerButtons(); initialResize(); });
             rfb.addEventListener("credentialsrequired", credentials);
             rfb.addEventListener("desktopname", updateDesktopName);

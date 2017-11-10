@@ -512,8 +512,6 @@ RFB.prototype = {
         // State change actions
 
         this._rfb_connection_state = state;
-        var event = new CustomEvent("updatestate", { detail: { state: state } });
-        this.dispatchEvent(event);
 
         var smsg = "New state '" + state + "', was '" + oldstate + "'.";
         Log.Debug(smsg);
@@ -528,21 +526,13 @@ RFB.prototype = {
         }
 
         switch (state) {
-            case 'disconnected':
-                // Fire disconnected event after updatestate event since
-                // we don't know if the UI only displays the latest message
-                if (this._rfb_disconnect_reason !== "") {
-                    event = new CustomEvent("disconnect",
-                                            { detail: { reason: this._rfb_disconnect_reason } });
-                } else {
-                    // No reason means clean disconnect
-                    event = new CustomEvent("disconnect", { detail: {} });
-                }
-                this.dispatchEvent(event);
-                break;
-
             case 'connecting':
                 this._connect();
+                break;
+
+            case 'connected':
+                var event = new CustomEvent("connect", { detail: {} });
+                this.dispatchEvent(event);
                 break;
 
             case 'disconnecting':
@@ -552,6 +542,17 @@ RFB.prototype = {
                     this._rfb_disconnect_reason = _("Disconnect timeout");
                     this._updateConnectionState('disconnected');
                 }.bind(this), DISCONNECT_TIMEOUT * 1000);
+                break;
+
+            case 'disconnected':
+                if (this._rfb_disconnect_reason !== "") {
+                    event = new CustomEvent("disconnect",
+                                            { detail: { reason: this._rfb_disconnect_reason } });
+                } else {
+                    // No reason means clean disconnect
+                    event = new CustomEvent("disconnect", { detail: {} });
+                }
+                this.dispatchEvent(event);
                 break;
         }
     },
