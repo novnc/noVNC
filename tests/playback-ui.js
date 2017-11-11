@@ -115,13 +115,13 @@ IterationPlayer.prototype = {
         this._nextIteration();
     },
 
-    _disconnected: function (rfb, reason, frame) {
-        if (reason) {
+    _disconnected: function (rfb, clean, frame) {
+        if (!clean) {
             this._state = 'failed';
         }
 
         var evt = new Event('rfbdisconnected');
-        evt.reason = reason;
+        evt.clean = clean;
         evt.frame = frame;
 
         this.onrfbdisconnected(evt);

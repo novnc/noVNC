@@ -74,6 +74,10 @@ protocol stream.
   - The `credentialsrequired` event is fired when more credentials must
     be given to continue.
 
+[`securityfailure`](#securityfailure)
+  - The `securityfailure` event is fired when the security negotiation
+    with the server fails.
+
 [`clipboard`](#clipboard)
   - The `clipboard` event is fired when clipboard data is received from
     the server.
@@ -186,10 +190,10 @@ the `RFB` object is ready to recieve graphics updates and to send input.
 #### disconnect
 
 The `disconnect` event is fired when the connection has been
-terminated. The `detail` property is an `Object` the optionally
-contains the property `reason`. `reason` is a `DOMString` specifying
-the reason in the event of an unexpected termination. `reason` will be
-omitted for a clean termination.
+terminated. The `detail` property is an `Object` that contains the
+property `clean`. `clean` is a `boolean` indicating if the termination
+was clean or not. In the event of an unexpected termination or an error
+`clean` will be set to false.
 
 #### credentialsrequired
 
@@ -197,6 +201,26 @@ The `credentialsrequired` event is fired when the server requests more
 credentials than were specified to [`RFB()`](#rfb-1). The `detail`
 property is an `Object` containing the property `types` which is an
 `Array` of `DOMString` listing the credentials that are required.
+
+#### securityfailure
+
+The `securityfailure` event is fired when the handshaking process with
+the server fails during the security negotiation step. The `detail`
+property is an `Object` containing the following properties:
+
+| Property | Type        | Description
+| -------- | ----------- | -----------
+| `status` | `long`      | The failure status code
+| `reason` | `DOMString` | The **optional** reason for the failure
+
+The property `status` corresponds to the
+[SecurityResult](https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#securityresult)
+status code in cases of failure. A status of zero will not be sent in
+this event since that indicates a successful security handshaking
+process. The optional property `reason` is provided by the server and
+thus the language of the string is not known. However most servers will
+probably send English strings. The server can choose to not send a
+reason and in these cases the `reason` property will be omitted.
 
 #### clipboard
 

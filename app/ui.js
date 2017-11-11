@@ -1023,6 +1023,7 @@ var UI = {
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
+        UI.rfb.addEventListener("securityfailure", UI.securityFailed);
         UI.rfb.addEventListener("capabilities", function () { UI.updatePowerButton(); UI.initialResize(); });
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
@@ -1080,9 +1081,10 @@ var UI = {
         // UI.disconnect() won't be used in those cases.
         UI.connected = false;
 
-        if (typeof e.detail.reason !== 'undefined') {
-            UI.showStatus(e.detail.reason, 'error');
+        if (!e.detail.clean) {
             UI.updateVisualState('disconnected');
+            UI.showStatus(_("Something went wrong, connection is closed"),
+                          'error');
         } else if (UI.getSetting('reconnect', false) === true && !UI.inhibit_reconnect) {
             UI.updateVisualState('reconnecting');
 
@@ -1096,6 +1098,20 @@ var UI = {
 
         UI.openControlbar();
         UI.openConnectPanel();
+    },
+
+    securityFailed: function (e) {
+        let msg = "";
+        // On security failures we might get a string with a reason
+        // directly from the server. Note that we can't control if
+        // this string is translated or not.
+        if ('reason' in e.detail) {
+            msg = _("New connection has been rejected with reason: ") +
+                e.detail.reason;
+        } else {
+            msg = _("New connection has been rejected");
+        }
+        UI.showStatus(msg, 'error');
     },
 
     cancelReconnect: function() {

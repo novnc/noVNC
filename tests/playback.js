@@ -78,7 +78,8 @@ RecordingPlayer.prototype = {
         // initialize a new RFB
         this._rfb = new RFB(document.getElementById('VNC_canvas'), 'wss://test');
         this._rfb.viewOnly = true;
-        this._rfb.ondisconnected = this._handleDisconnect.bind(this);
+        this._rfb.addEventListener("disconnect",
+                                   this._handleDisconnect.bind(this));
         this._enablePlaybackMode();
 
         // reset the frame index and timer
@@ -186,8 +187,8 @@ RecordingPlayer.prototype = {
         }
     },
 
-    _handleDisconnect(rfb, reason) {
+    _handleDisconnect(rfb, clean) {
         this._running = false;
-        this._disconnected(rfb, reason, this._frame_index);
+        this._disconnected(rfb, clean, this._frame_index);
     }
 };

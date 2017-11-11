@@ -162,10 +162,10 @@
         function disconnected(e) {
             document.getElementById('sendCtrlAltDelButton').disabled = true;
             updatePowerButtons();
-            if (typeof(e.detail.reason) !== 'undefined') {
-                status(e.detail.reason, "error");
-            } else {
+            if (e.detail.clean) {
                 status("Disconnected", "normal");
+            } else {
+                status("Something went wrong, connection is closed", "error");
             }
         }
 
