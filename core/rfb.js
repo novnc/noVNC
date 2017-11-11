@@ -442,7 +442,7 @@ RFB.prototype = {
             return;
         }
 
-        if (!this._focus_on_click) {
+        if (!this.focusOnClick) {
             return;
         }
 

@@ -1432,7 +1432,7 @@ var UI = {
         document.getElementById('noVNC_keyboard_button')
             .classList.add("noVNC_selected");
         if (UI.rfb) {
-            UI.rfb.set_focus_on_click(false);
+            UI.rfb.focusOnClick = false;
         }
     },
 
@@ -1440,7 +1440,7 @@ var UI = {
         document.getElementById('noVNC_keyboard_button')
             .classList.remove("noVNC_selected");
         if (UI.rfb) {
-            UI.rfb.set_focus_on_click(true);
+            UI.rfb.focusOnClick = true;
         }
     },
 
