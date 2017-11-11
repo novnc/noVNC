@@ -479,21 +479,40 @@ var UI = {
             status_type = 'normal';
         }
 
-        statusElem.classList.remove("noVNC_status_normal");
-        statusElem.classList.remove("noVNC_status_warn");
-        statusElem.classList.remove("noVNC_status_error");
+        // Don't overwrite more severe visible statuses and never
+        // errors. Only shows the first error.
+        let visible_status_type = 'none';
+        if (statusElem.classList.contains("noVNC_open")) {
+            if (statusElem.classList.contains("noVNC_status_error")) {
+                visible_status_type = 'error';
+            } else if (statusElem.classList.contains("noVNC_status_warn")) {
+                visible_status_type = 'warn';
+            } else {
+                visible_status_type = 'normal';
+            }
+        }
+        if (visible_status_type === 'error' ||
+            (visible_status_type === 'warn' && status_type === 'normal')) {
+            return;
+        }
 
         switch (status_type) {
+            case 'error':
+                statusElem.classList.remove("noVNC_status_warn");
+                statusElem.classList.remove("noVNC_status_normal");
+                statusElem.classList.add("noVNC_status_error");
+                break;
             case 'warning':
             case 'warn':
+                statusElem.classList.remove("noVNC_status_error");
+                statusElem.classList.remove("noVNC_status_normal");
                 statusElem.classList.add("noVNC_status_warn");
-                break;
-            case 'error':
-                statusElem.classList.add("noVNC_status_error");
                 break;
             case 'normal':
             case 'info':
             default:
+                statusElem.classList.remove("noVNC_status_error");
+                statusElem.classList.remove("noVNC_status_warn");
                 statusElem.classList.add("noVNC_status_normal");
                 break;
         }
@@ -992,6 +1011,8 @@ var UI = {
         if (password === null) {
             password = undefined;
         }
+
+        UI.hideStatus();
 
         if (!host) {
             Log.Error("Can't connect when host is: " + host);
