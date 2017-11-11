@@ -1077,6 +1077,18 @@ var UI = {
         UI.connect(null, UI.reconnect_password);
     },
 
+    cancelReconnect: function() {
+        if (UI.reconnect_callback !== null) {
+            clearTimeout(UI.reconnect_callback);
+            UI.reconnect_callback = null;
+        }
+
+        UI.updateVisualState('disconnected');
+
+        UI.openControlbar();
+        UI.openConnectPanel();
+    },
+
     connectFinished: function (e) {
         UI.connected = true;
         UI.inhibit_reconnect = false;
@@ -1133,18 +1145,6 @@ var UI = {
             msg = _("New connection has been rejected");
         }
         UI.showStatus(msg, 'error');
-    },
-
-    cancelReconnect: function() {
-        if (UI.reconnect_callback !== null) {
-            clearTimeout(UI.reconnect_callback);
-            UI.reconnect_callback = null;
-        }
-
-        UI.updateVisualState('disconnected');
-
-        UI.openControlbar();
-        UI.openConnectPanel();
     },
 
 /* ------^-------
