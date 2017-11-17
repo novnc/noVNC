@@ -26,7 +26,7 @@ export var encodings = {
     pseudoEncodingContinuousUpdates: -313,
     pseudoEncodingCompressLevel9: -247,
     pseudoEncodingCompressLevel0: -256,
-}
+};
 
 export function encodingName(num) {
     switch (num) {

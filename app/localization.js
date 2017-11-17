@@ -164,7 +164,7 @@ Localizer.prototype = {
 
         process(document.body, true);
     },
-}
+};
 
 export var l10n = new Localizer();
 export default l10n.get.bind(l10n);

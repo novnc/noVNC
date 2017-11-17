@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2017 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -11,7 +11,6 @@
  */
 
 import * as Log from './util/logging.js';
-import _ from './util/localization.js';
 import { decodeUTF8 } from './util/strings.js';
 import { browserSupportsCursorURIs, isTouchDevice } from './util/browsers.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -45,7 +44,7 @@ export default function RFB(target, url, options) {
     this._url = url;
 
     // Connection details
-    options = options || {}
+    options = options || {};
     this._rfb_credentials = options.credentials || {};
     this._shared = 'shared' in options ? !!options.shared : true;
     this._repeaterID = options.repeaterID || '';
@@ -54,7 +53,7 @@ export default function RFB(target, url, options) {
     this._rfb_connection_state = '';
     this._rfb_init_state = '';
     this._rfb_auth_scheme = '';
-    this._rfb_disconnect_reason = "";
+    this._rfb_clean_disconnect = true;
 
     // Server capabilities
     this._rfb_version = 0;
@@ -190,38 +189,40 @@ export default function RFB(target, url, options) {
             this._rfb_init_state = 'ProtocolVersion';
             Log.Debug("Starting VNC handshake");
         } else {
-            this._fail("Unexpected server connection");
+            this._fail("Unexpected server connection while " +
+                       this._rfb_connection_state);
         }
     }.bind(this));
     this._sock.on('close', function (e) {
         Log.Warn("WebSocket on-close event");
         var msg = "";
         if (e.code) {
-            msg = " (code: " + e.code;
+            msg = "(code: " + e.code;
             if (e.reason) {
                 msg += ", reason: " + e.reason;
             }
             msg += ")";
         }
         switch (this._rfb_connection_state) {
-            case 'disconnecting':
-                this._updateConnectionState('disconnected');
-                break;
             case 'connecting':
-                this._fail('Failed to connect to server', msg);
+                this._fail("Connection closed " + msg);
                 break;
             case 'connected':
                 // Handle disconnects that were initiated server-side
                 this._updateConnectionState('disconnecting');
                 this._updateConnectionState('disconnected');
                 break;
+            case 'disconnecting':
+                // Normal disconnection path
+                this._updateConnectionState('disconnected');
+                break;
             case 'disconnected':
-                this._fail("Unexpected server disconnect",
-                           "Already disconnected: " + msg);
+                this._fail("Unexpected server disconnect " +
+                           "when already disconnected " + msg);
                 break;
             default:
-                this._fail("Unexpected server disconnect",
-                           "Not in any state yet: " + msg);
+                this._fail("Unexpected server disconnect before connecting " +
+                           msg);
                 break;
         }
         this._sock.off('close');
@@ -384,9 +385,9 @@ RFB.prototype = {
             this._sock.open(this._url, ['binary']);
         } catch (e) {
             if (e.name === 'SyntaxError') {
-                this._fail("Invalid host or port value given", e);
+                this._fail("Invalid host or port (" + e + ")");
             } else {
-                this._fail("Error while connecting", e);
+                this._fail("Error when opening socket (" + e + ")");
             }
         }
 
@@ -512,8 +513,6 @@ RFB.prototype = {
         // State change actions
 
         this._rfb_connection_state = state;
-        var event = new CustomEvent("updatestate", { detail: { state: state } });
-        this.dispatchEvent(event);
 
         var smsg = "New state '" + state + "', was '" + oldstate + "'.";
         Log.Debug(smsg);
@@ -528,89 +527,60 @@ RFB.prototype = {
         }
 
         switch (state) {
-            case 'disconnected':
-                // Fire disconnected event after updatestate event since
-                // we don't know if the UI only displays the latest message
-                if (this._rfb_disconnect_reason !== "") {
-                    event = new CustomEvent("disconnect",
-                                            { detail: { reason: this._rfb_disconnect_reason } });
-                } else {
-                    // No reason means clean disconnect
-                    event = new CustomEvent("disconnect", { detail: {} });
-                }
-                this.dispatchEvent(event);
-                break;
-
             case 'connecting':
                 this._connect();
+                break;
+
+            case 'connected':
+                var event = new CustomEvent("connect", { detail: {} });
+                this.dispatchEvent(event);
                 break;
 
             case 'disconnecting':
                 this._disconnect();
 
                 this._disconnTimer = setTimeout(function () {
-                    this._rfb_disconnect_reason = _("Disconnect timeout");
+                    Log.Error("Disconnection timed out.");
                     this._updateConnectionState('disconnected');
                 }.bind(this), DISCONNECT_TIMEOUT * 1000);
+                break;
+
+            case 'disconnected':
+                event = new CustomEvent(
+                    "disconnect", { detail:
+                                    { clean: this._rfb_clean_disconnect } });
+                this.dispatchEvent(event);
                 break;
         }
     },
 
     /* Print errors and disconnect
      *
-     * The optional parameter 'details' is used for information that
+     * The parameter 'details' is used for information that
      * should be logged but not sent to the user interface.
      */
-    _fail: function (msg, details) {
-        var fullmsg = msg;
-        if (typeof details !== 'undefined') {
-            fullmsg = msg + " (" + details + ")";
-        }
+    _fail: function (details) {
         switch (this._rfb_connection_state) {
             case 'disconnecting':
-                Log.Error("Failed when disconnecting: " + fullmsg);
+                Log.Error("Failed when disconnecting: " + details);
                 break;
             case 'connected':
-                Log.Error("Failed while connected: " + fullmsg);
+                Log.Error("Failed while connected: " + details);
                 break;
             case 'connecting':
-                Log.Error("Failed when connecting: " + fullmsg);
+                Log.Error("Failed when connecting: " + details);
                 break;
             default:
-                Log.Error("RFB failure: " + fullmsg);
+                Log.Error("RFB failure: " + details);
                 break;
         }
-        this._rfb_disconnect_reason = msg; //This is sent to the UI
+        this._rfb_clean_disconnect = false; //This is sent to the UI
 
         // Transition to disconnected without waiting for socket to close
         this._updateConnectionState('disconnecting');
         this._updateConnectionState('disconnected');
 
         return false;
-    },
-
-    /*
-     * Send a notification to the UI. Valid levels are:
-     *   'normal'|'warn'|'error'
-     *
-     *   NOTE: If this function is called multiple times, remember that the
-     *         interface could be only showing the latest notification.
-     */
-    _notification: function(msg, level) {
-        switch (level) {
-            case 'normal':
-            case 'warn':
-            case 'error':
-                Log.Debug("Notification[" + level + "]:" + msg);
-                break;
-            default:
-                Log.Error("Invalid notification level: " + level);
-                return;
-        }
-
-        var event = new CustomEvent("notification",
-                                    { detail: { message: msg, level: level } });
-        this.dispatchEvent(event);
     },
 
     _setCapability: function (cap, val) {
@@ -716,8 +686,7 @@ RFB.prototype = {
 
     _negotiate_protocol_version: function () {
         if (this._sock.rQlen() < 12) {
-            return this._fail("Error while negotiating with server",
-                              "Incomplete protocol version");
+            return this._fail("Received incomplete protocol version.");
         }
 
         var sversion = this._sock.rQshiftStr(12).substr(4, 7);
@@ -742,8 +711,7 @@ RFB.prototype = {
                 this._rfb_version = 3.8;
                 break;
             default:
-                return this._fail("Unsupported server",
-                                  "Invalid server version: " + sversion);
+                return this._fail("Invalid server version " + sversion);
         }
 
         if (is_repeater) {
@@ -785,10 +753,7 @@ RFB.prototype = {
             if (this._sock.rQwait("security type", num_types, 1)) { return false; }
 
             if (num_types === 0) {
-                var strlen = this._sock.rQshift32();
-                var reason = this._sock.rQshiftStr(strlen);
-                return this._fail("Error while negotiating with server",
-                                  "Security failure: " + reason);
+                return this._handle_security_failure("no security types");
             }
 
             var types = this._sock.rQshiftBytes(num_types);
@@ -805,8 +770,7 @@ RFB.prototype = {
             } else if (includes(2, types)) {
                 this._rfb_auth_scheme = 2; // VNC Auth
             } else {
-                return this._fail("Unsupported server",
-                                  "Unsupported security types: " + types);
+                return this._fail("Unsupported security types (types: " + types + ")");
             }
 
             this._sock.send([this._rfb_auth_scheme]);
@@ -820,6 +784,59 @@ RFB.prototype = {
         Log.Debug('Authenticating using scheme: ' + this._rfb_auth_scheme);
 
         return this._init_msg(); // jump to authentication
+    },
+
+    /*
+     * Get the security failure reason if sent from the server and
+     * send the 'securityfailure' event.
+     *
+     * - The optional parameter context can be used to add some extra
+     *   context to the log output.
+     *
+     * - The optional parameter security_result_status can be used to
+     *   add a custom status code to the event.
+     */
+    _handle_security_failure: function (context, security_result_status) {
+
+        if (typeof context === 'undefined') {
+            context = "";
+        } else {
+            context = " on " + context;
+        }
+
+        if (typeof security_result_status === 'undefined') {
+            security_result_status = 1; // fail
+        }
+
+        if (this._sock.rQwait("reason length", 4)) {
+            return false;
+        }
+        let strlen = this._sock.rQshift32();
+        let reason = "";
+
+        if (strlen > 0) {
+            if (this._sock.rQwait("reason", strlen, 8)) { return false; }
+            reason = this._sock.rQshiftStr(strlen);
+        }
+
+        if (reason !== "") {
+
+            let event = new CustomEvent(
+                "securityfailure",
+                { detail: { status: security_result_status, reason: reason } });
+            this.dispatchEvent(event);
+
+            return this._fail("Security negotiation failed" + context +
+                              " (reason: " + reason + ")");
+        } else {
+
+            let event = new CustomEvent(
+                "securityfailure",
+                { detail: { status: security_result_status } });
+            this.dispatchEvent(event);
+
+            return this._fail("Security negotiation failed" + context);
+        }
     },
 
     // authentication
@@ -877,15 +894,13 @@ RFB.prototype = {
         if (serverSupportedTunnelTypes[0]) {
             if (serverSupportedTunnelTypes[0].vendor != clientSupportedTunnelTypes[0].vendor ||
                 serverSupportedTunnelTypes[0].signature != clientSupportedTunnelTypes[0].signature) {
-                return this._fail("Unsupported server",
-                                  "Client's tunnel type had the incorrect " +
+                return this._fail("Client's tunnel type had the incorrect " +
                                   "vendor or signature");
             }
             this._sock.send([0, 0, 0, 0]);  // use NOTUNNEL
             return false; // wait until we receive the sub auth count to continue
         } else {
-            return this._fail("Unsupported server",
-                              "Server wanted tunnels, but doesn't support " +
+            return this._fail("Server wanted tunnels, but doesn't support " +
                               "the notunnel type");
         }
     },
@@ -939,24 +954,19 @@ RFB.prototype = {
                         this._rfb_auth_scheme = 2;
                         return this._init_msg();
                     default:
-                        return this._fail("Unsupported server",
-                                          "Unsupported tiny auth scheme: " +
-                                          authType);
+                        return this._fail("Unsupported tiny auth scheme " +
+                                          "(scheme: " + authType + ")");
                 }
             }
         }
 
-        return this._fail("Unsupported server",
-                          "No supported sub-auth types!");
+        return this._fail("No supported sub-auth types!");
     },
 
     _negotiate_authentication: function () {
         switch (this._rfb_auth_scheme) {
             case 0:  // connection failed
-                if (this._sock.rQwait("auth reason", 4)) { return false; }
-                var strlen = this._sock.rQshift32();
-                var reason = this._sock.rQshiftStr(strlen);
-                return this._fail("Authentication failure", reason);
+                return this._handle_security_failure("authentication scheme");
 
             case 1:  // no auth
                 if (this._rfb_version >= 3.8) {
@@ -976,33 +986,30 @@ RFB.prototype = {
                 return this._negotiate_tight_auth();
 
             default:
-                return this._fail("Unsupported server",
-                                  "Unsupported auth scheme: " +
-                                  this._rfb_auth_scheme);
+                return this._fail("Unsupported auth scheme (scheme: " +
+                                  this._rfb_auth_scheme + ")");
         }
     },
 
     _handle_security_result: function () {
         if (this._sock.rQwait('VNC auth response ', 4)) { return false; }
-        switch (this._sock.rQshift32()) {
-            case 0:  // OK
-                this._rfb_init_state = 'ClientInitialisation';
-                Log.Debug('Authentication OK');
-                return this._init_msg();
-            case 1:  // failed
-                if (this._rfb_version >= 3.8) {
-                    var length = this._sock.rQshift32();
-                    if (this._sock.rQwait("SecurityResult reason", length, 8)) { return false; }
-                    var reason = this._sock.rQshiftStr(length);
-                    return this._fail("Authentication failure", reason);
-                } else {
-                    return this._fail("Authentication failure");
-                }
-            case 2:
-                return this._fail("Too many authentication attempts");
-            default:
-                return this._fail("Unsupported server",
-                                  "Unknown SecurityResult");
+
+        let status = this._sock.rQshift32();
+
+        if (status === 0) { // OK
+            this._rfb_init_state = 'ClientInitialisation';
+            Log.Debug('Authentication OK');
+            return this._init_msg();
+        } else {
+            if (this._rfb_version >= 3.8) {
+                return this._handle_security_failure("security result", status);
+            } else {
+                let event = new CustomEvent("securityfailure",
+                                            { detail: { status: status } });
+                this.dispatchEvent(event);
+
+                return this._fail("Security handshake failed");
+            }
         }
     },
 
@@ -1181,15 +1188,15 @@ RFB.prototype = {
                 return this._negotiate_server_init();
 
             default:
-                return this._fail("Internal error", "Unknown init state: " +
-                                  this._rfb_init_state);
+                return this._fail("Unknown init state (state: " +
+                                  this._rfb_init_state + ")");
         }
     },
 
     _handle_set_colour_map_msg: function () {
         Log.Debug("SetColorMapEntries");
 
-        return this._fail("Protocol error", "Unexpected SetColorMapEntries message");
+        return this._fail("Unexpected SetColorMapEntries message");
     },
 
     _handle_server_cut_text: function () {
@@ -1238,8 +1245,7 @@ RFB.prototype = {
          */
 
         if (!(flags & (1<<31))) {
-            return this._fail("Internal error",
-                              "Unexpected fence response");
+            return this._fail("Unexpected fence response");
         }
 
         // Filter out unsupported flags
@@ -1262,8 +1268,7 @@ RFB.prototype = {
 
         switch (xvp_msg) {
             case 0:  // XVP_FAIL
-                Log.Error("Operation Failed");
-                this._notification("XVP Operation Failed", 'error');
+                Log.Error("XVP Operation Failed");
                 break;
             case 1:  // XVP_INIT
                 this._rfb_xvp_ver = xvp_ver;
@@ -1271,8 +1276,7 @@ RFB.prototype = {
                 this._setCapability("power", true);
                 break;
             default:
-                this._fail("Unexpected server message",
-                           "Illegal server XVP message " + xvp_msg);
+                this._fail("Illegal server XVP message (msg: " + xvp_msg + ")");
                 break;
         }
 
@@ -1330,7 +1334,7 @@ RFB.prototype = {
                 return this._handle_xvp_msg();
 
             default:
-                this._fail("Unexpected server message", "Type:" + msg_type);
+                this._fail("Unexpected server message (type " + msg_type + ")");
                 Log.Debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
                 return true;
         }
@@ -1385,9 +1389,8 @@ RFB.prototype = {
                                               (hdr[10] << 8) + hdr[11], 10);
 
                 if (!this._encHandlers[this._FBU.encoding]) {
-                    this._fail("Unexpected server message",
-                               "Unsupported encoding " +
-                               this._FBU.encoding);
+                    this._fail("Unsupported encoding (encoding: " +
+                               this._FBU.encoding + ")");
                     return false;
                 }
             }
@@ -1881,8 +1884,8 @@ RFB.encodingHandlers = {
             if (this._sock.rQwait("HEXTILE subencoding", this._FBU.bytes)) { return false; }
             var subencoding = rQ[rQi];  // Peek
             if (subencoding > 30) {  // Raw
-                this._fail("Unexpected server message",
-                           "Illegal hextile subencoding: " + subencoding);
+                this._fail("Illegal hextile subencoding (subencoding: " +
+                           subencoding + ")");
                 return false;
             }
 
@@ -2211,9 +2214,8 @@ RFB.encodingHandlers = {
         else if (ctl === 0x0A)  cmode = "png";
         else if (ctl & 0x04)    cmode = "filter";
         else if (ctl < 0x04)    cmode = "copy";
-        else return this._fail("Unexpected server message",
-                               "Illegal tight compression received, " +
-                               "ctl: " + ctl);
+        else return this._fail("Illegal tight compression received (ctl: " +
+                               ctl + ")");
 
         switch (cmode) {
             // fill use depth because TPIXELs drop the padding byte
@@ -2273,9 +2275,8 @@ RFB.encodingHandlers = {
                 } else {
                     // Filter 0, Copy could be valid here, but servers don't send it as an explicit filter
                     // Filter 2, Gradient is valid but not use if jpeg is enabled
-                    this._fail("Unexpected server message",
-                               "Unsupported tight subencoding received, " +
-                               "filter: " + filterId);
+                    this._fail("Unsupported tight subencoding received " +
+                               "(filter: " + filterId + ")");
                 }
                 break;
             case "copy":
@@ -2350,8 +2351,8 @@ RFB.encodingHandlers = {
                 msg = "Unknown reason";
                 break;
             }
-            this._notification("Server did not accept the resize request: "
-                               + msg, 'normal');
+            Log.Warn("Server did not accept the resize request: "
+                     + msg);
         } else {
             this._resize(this._FBU.width, this._FBU.height);
         }
