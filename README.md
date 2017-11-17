@@ -67,9 +67,9 @@ See more screenshots
 
 ### Browser Requirements
 
-* Chrome 8, Firefox 4, Safari 6, Opera 12, IE 11, Edge 12, etc.
+* Chrome 49, Firefox 44, Safari 10, Opera 36, IE 11, Edge 12, etc.
 
-* HTML5 Canvas, WebSockets and Typed Arrays
+* HTML5 Canvas, WebSockets and Typed Arrays, etc.
 
 * Fast Javascript Engine: this is not strictly a requirement, but without a
   fast Javascript engine, noVNC might be painfully slow.
