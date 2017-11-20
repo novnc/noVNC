@@ -194,7 +194,7 @@ export default function RFB(target, url, options) {
         }
     }.bind(this));
     this._sock.on('close', function (e) {
-        Log.Warn("WebSocket on-close event");
+        Log.Debug("WebSocket on-close event");
         var msg = "";
         if (e.code) {
             msg = "(code: " + e.code;
