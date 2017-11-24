@@ -230,6 +230,7 @@
             rfb.addEventListener("capabilities", function () { updatePowerButtons(); });
             rfb.addEventListener("credentialsrequired", credentials);
             rfb.addEventListener("desktopname", updateDesktopName);
+            rfb.scaleViewport = WebUtil.getConfigVar('scale', false);
             rfb.resizeSession = WebUtil.getConfigVar('resize', false);
         })();
     </script>
