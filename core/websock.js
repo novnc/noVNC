@@ -168,10 +168,6 @@ Websock.prototype = {
     // Send Queue
 
     flush: function () {
-        if (this._websocket.bufferedAmount !== 0) {
-            Log.Debug("bufferedAmount: " + this._websocket.bufferedAmount);
-        }
-
         if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
             this._websocket.send(this._encode_message());
             this._sQlen = 0;
