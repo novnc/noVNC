@@ -80,24 +80,8 @@
         import RFB from './core/rfb.js';
 
         var rfb;
-        var doneInitialResize;
-        var resizeTimeout;
         var desktopName;
 
-        function UIresize() {
-            if (WebUtil.getConfigVar('resize', false)) {
-                var innerW = window.innerWidth;
-                var innerH = window.innerHeight;
-                var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
-                if (innerW !== undefined && innerH !== undefined)
-                    rfb.requestDesktopSize(innerW, innerH - controlbarH);
-            }
-        }
-        function initialResize() {
-            if (doneInitialResize) return;
-            UIresize();
-            doneInitialResize = true;
-        }
         function updateDesktopName(e) {
             desktopName = e.detail.name;
         }
@@ -150,7 +134,6 @@
 
         function connected(e) {
             document.getElementById('sendCtrlAltDelButton').disabled = false;
-            doneInitialResize = false;
             if (WebUtil.getConfigVar('encrypt',
                                      (window.location.protocol === "https:"))) {
                 status("Connected (encrypted) to " + desktopName, "normal");
@@ -168,16 +151,6 @@
                 status("Something went wrong, connection is closed", "error");
             }
         }
-
-        window.onresize = function () {
-            // When the window has been resized, wait until the size remains
-            // the same for 0.5 seconds before sending the request for changing
-            // the resolution of the session
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function(){
-                UIresize();
-            }, 500);
-        };
 
         function updatePowerButtons() {
             var powerbuttons;
@@ -247,16 +220,17 @@
             }
             url += '/' + path;
 
-            rfb = new RFB(document.getElementById('noVNC_canvas'), url,
+            rfb = new RFB(document.body, url,
                           { repeaterID: WebUtil.getConfigVar('repeaterID', ''),
                             shared: WebUtil.getConfigVar('shared', true),
                             credentials: { password: password } });
             rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
             rfb.addEventListener("connect",  connected);
             rfb.addEventListener("disconnect", disconnected);
-            rfb.addEventListener("capabilities", function () { updatePowerButtons(); initialResize(); });
+            rfb.addEventListener("capabilities", function () { updatePowerButtons(); });
             rfb.addEventListener("credentialsrequired", credentials);
             rfb.addEventListener("desktopname", updateDesktopName);
+            rfb.resizeSession = WebUtil.getConfigVar('resize', false);
         })();
     </script>
 </head>
@@ -278,9 +252,5 @@
       </span>
     </div>
   </div>
-  <canvas id="noVNC_canvas" width="0" height="0">
-    Canvas not supported.
-  </canvas>
-
 </body>
 </html>

@@ -27,7 +27,6 @@ var UI = {
     connected: false,
     desktopName: "",
 
-    resizeTimeout: null,
     statusTimeout: null,
     hideKeyboardTimeout: null,
     idleControlbarTimeout: null,
@@ -87,7 +86,6 @@ var UI = {
         UI.initFullscreen();
 
         // Setup event handlers
-        UI.addResizeHandlers();
         UI.addControlbarHandlers();
         UI.addTouchSpecificHandlers();
         UI.addExtraKeysHandlers();
@@ -102,8 +100,6 @@ var UI = {
         UI.keyboardinputReset();
 
         UI.openControlbar();
-
-        UI.updateViewClip();
 
         UI.updateVisualState('init');
 
@@ -204,11 +200,6 @@ var UI = {
 * ==============
 * EVENT HANDLERS
 * ------v------*/
-
-    addResizeHandlers: function() {
-        window.addEventListener('resize', UI.applyResizeMode);
-        window.addEventListener('resize', UI.updateViewClip);
-    },
 
     addControlbarHandlers: function() {
         document.getElementById("noVNC_control_bar")
@@ -432,7 +423,6 @@ var UI = {
             UI.disableSetting('port');
             UI.disableSetting('path');
             UI.disableSetting('repeaterID');
-            UI.updateViewClip();
             UI.setMouseButton(1);
 
             // Hide the controlbar after 2 seconds
@@ -1037,7 +1027,7 @@ var UI = {
         }
         url += '/' + path;
 
-        UI.rfb = new RFB(document.getElementById('noVNC_canvas'), url,
+        UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
@@ -1045,11 +1035,13 @@ var UI = {
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
-        UI.rfb.addEventListener("capabilities", function () { UI.updatePowerButton(); UI.initialResize(); });
+        UI.rfb.addEventListener("capabilities", function () { UI.updatePowerButton(); });
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
-        UI.rfb.addEventListener("fbresize", UI.updateSessionSize);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+        UI.rfb.clipViewport = UI.getSetting('view_clip');
+        UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
+        UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
     },
 
     disconnect: function() {
@@ -1092,7 +1084,6 @@ var UI = {
     connectFinished: function (e) {
         UI.connected = true;
         UI.inhibit_reconnect = false;
-        UI.doneInitialResize = false;
 
         let msg;
         if (UI.getSetting('encrypt')) {
@@ -1104,7 +1095,7 @@ var UI = {
         UI.updateVisualState('connected');
 
         // Do this last because it can only be used on rendered elements
-        document.getElementById('noVNC_canvas').focus();
+        UI.rfb.focus();
     },
 
     disconnectFinished: function (e) {
@@ -1238,74 +1229,8 @@ var UI = {
     applyResizeMode: function() {
         if (!UI.rfb) return;
 
-        var screen = UI.screenSize();
-
-        if (screen && UI.connected) {
-
-            var resizeMode = UI.getSetting('resize');
-            UI.rfb.viewportScale = 1.0;
-
-            // Make sure the viewport is adjusted first
-            UI.updateViewClip();
-
-            if (resizeMode === 'remote') {
-
-                // Request changing the resolution of the remote display to
-                // the size of the local browser viewport.
-
-                // In order to not send multiple requests before the browser-resize
-                // is finished we wait 0.5 seconds before sending the request.
-                clearTimeout(UI.resizeTimeout);
-                UI.resizeTimeout = setTimeout(function(){
-                    // Request a remote size covering the viewport
-                    if (UI.rfb.requestDesktopSize(screen.w, screen.h)) {
-                        Log.Debug('Requested new desktop size: ' +
-                                   screen.w + 'x' + screen.h);
-                    }
-                }, 500);
-
-            } else {
-                UI.updateScaling();
-            }
-        }
-    },
-
-    // Re-calculate local scaling
-    updateScaling: function() {
-        if (!UI.rfb) return;
-
-        var resizeMode = UI.getSetting('resize');
-        if (resizeMode !== 'scale') {
-            return;
-        }
-
-        var screen = UI.screenSize();
-
-        if (!screen || !UI.connected) {
-            return;
-        }
-
-        UI.rfb.autoscale(screen.w, screen.h);
-        UI.fixScrollbars();
-    },
-
-    // Gets the the size of the available viewport in the browser window
-    screenSize: function() {
-        var screen = document.getElementById('noVNC_screen');
-        return {w: screen.offsetWidth, h: screen.offsetHeight};
-    },
-
-    // Normally we only apply the current resize mode after a window resize
-    // event. This means that when a new connection is opened, there is no
-    // resize mode active.
-    // We have to wait until we know the capabilities of the server as
-    // some calls later in the chain is dependant on knowing the
-    // server-capabilities.
-    initialResize: function() {
-        if (UI.doneInitialResize) return;
-
-        UI.applyResizeMode();
-        UI.doneInitialResize = true;
+        UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
+        UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
     },
 
 /* ------^-------
@@ -1314,12 +1239,6 @@ var UI = {
  * VIEW CLIPPING
  * ------v------*/
 
-    // Set and configure viewport clipping
-    setViewClip: function(clip) {
-        UI.updateSetting('view_clip', clip);
-        UI.updateViewClip();
-    },
-
     // Update parameters that depend on the viewport clip setting
     updateViewClip: function() {
         if (!UI.rfb) return;
@@ -1327,26 +1246,13 @@ var UI = {
         var cur_clip = UI.rfb.clipViewport;
         var new_clip = UI.getSetting('view_clip');
 
-        var resizeSetting = UI.getSetting('resize');
-        if (resizeSetting === 'scale') {
-            // Disable viewport clipping if we are scaling
-            new_clip = false;
-        } else if (isTouchDevice) {
+        if (isTouchDevice) {
             // Touch devices usually have shit scrollbars
             new_clip = true;
         }
 
         if (cur_clip !== new_clip) {
             UI.rfb.clipViewport = new_clip;
-        }
-
-        var size = UI.screenSize();
-
-        if (new_clip && size) {
-            // When clipping is enabled, the screen is limited to
-            // the size of the browser window.
-            UI.rfb.viewportChangeSize(size.w, size.h);
-            UI.fixScrollbars();
         }
 
         // Changing the viewport may change the state of
@@ -1389,23 +1295,13 @@ var UI = {
     },
 
     updateViewDrag: function() {
-        var clipping = false;
-
         if (!UI.connected) return;
-
-        // Check if viewport drag is possible. It is only possible
-        // if the remote display is clipping the client display.
-        if (UI.rfb.clipViewport && UI.rfb.isClipped) {
-            clipping = true;
-        }
 
         var viewDragButton = document.getElementById('noVNC_view_drag_button');
 
-        if (!clipping &&
-            UI.rfb.dragViewport) {
-            // The size of the remote display is the same or smaller
-            // than the client display. Make sure viewport drag isn't
-            // active when it can't be used.
+        if (!UI.rfb.clipViewport && UI.rfb.dragViewport) {
+            // We are no longer clipping the viewport. Make sure
+            // viewport drag isn't active when it can't be used.
             UI.rfb.dragViewport = false;
         }
 
@@ -1420,7 +1316,7 @@ var UI = {
         if (isTouchDevice) {
             viewDragButton.classList.remove("noVNC_hidden");
 
-            if (clipping) {
+            if (UI.rfb.clipViewport) {
                 viewDragButton.disabled = false;
             } else {
                 viewDragButton.disabled = true;
@@ -1428,7 +1324,7 @@ var UI = {
         } else {
             viewDragButton.disabled = false;
 
-            if (clipping) {
+            if (UI.rfb.clipViewport) {
                 viewDragButton.classList.remove("noVNC_hidden");
             } else {
                 viewDragButton.classList.add("noVNC_hidden");
@@ -1701,24 +1597,6 @@ var UI = {
 
     updateLogging: function() {
         WebUtil.init_logging(UI.getSetting('logging'));
-    },
-
-    updateSessionSize: function(e) {
-        UI.updateViewClip();
-        UI.updateScaling();
-        UI.fixScrollbars();
-    },
-
-    fixScrollbars: function() {
-        // This is a hack because Chrome screws up the calculation
-        // for when scrollbars are needed. So to fix it we temporarily
-        // toggle them off and on.
-        var screen = document.getElementById('noVNC_screen');
-        screen.style.overflow = 'hidden';
-        // Force Chrome to recalculate the layout by asking for
-        // an element's dimensions
-        screen.getBoundingClientRect();
-        screen.style.overflow = "";
     },
 
     updateDesktopName: function(e) {

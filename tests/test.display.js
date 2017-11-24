@@ -91,15 +91,6 @@ describe('Display/Canvas Helper', function () {
             expect(display.flip).to.have.been.calledOnce;
         });
 
-        it('should report clipping when framebuffer > viewport', function () {
-            expect(display.isClipped).to.be.true;
-        });
-
-        it('should report not clipping when framebuffer = viewport', function () {
-            display.viewportChangeSize(5, 5);
-            expect(display.isClipped).to.be.false;
-        });
-
         it('should show the entire framebuffer when disabling the viewport', function() {
             display.clipViewport = false;
             expect(display.absX(0)).to.equal(0);

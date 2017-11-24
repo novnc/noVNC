@@ -9,6 +9,22 @@ import { encodings } from '../core/encodings.js';
 import FakeWebSocket from './fake.websocket.js';
 import sinon from '../vendor/sinon.js';
 
+/* UIEvent constructor polyfill for IE */
+(function () {
+    if (typeof window.UIEvent === "function") return;
+
+    function UIEvent ( event, params ) {
+        params = params || { bubbles: false, cancelable: false, view: window, detail: undefined };
+        var evt = document.createEvent( 'UIEvent' );
+        evt.initUIEvent( event, params.bubbles, params.cancelable, params.view, params.detail );
+        return evt;
+    }
+
+    UIEvent.prototype = window.UIEvent.prototype;
+
+    window.UIEvent = UIEvent;
+})();
+
 var push8 = function (arr, num) {
     "use strict";
     arr.push(num & 0xFF);
@@ -30,12 +46,16 @@ var push32 = function (arr, num) {
 
 describe('Remote Frame Buffer Protocol Client', function() {
     var clock;
+    var raf;
 
     before(FakeWebSocket.replace);
     after(FakeWebSocket.restore);
 
     before(function () {
         this.clock = clock = sinon.useFakeTimers();
+        // sinon doesn't support this yet
+        raf = window.requestAnimationFrame;
+        window.requestAnimationFrame = setTimeout;
         // Use a single set of buffers instead of reallocating to
         // speed up tests
         var sock = new Websock();
@@ -53,12 +73,20 @@ describe('Remote Frame Buffer Protocol Client', function() {
     after(function () {
         Websock.prototype._allocate_buffers = Websock.prototype._old_allocate_buffers;
         this.clock.restore();
+        window.requestAnimationFrame = raf;
     });
 
+    var container;
     var rfbs;
 
     beforeEach(function () {
-        // Track all created RFB objects
+        // Create a container element for all RFB objects to attach to
+        container = document.createElement('div');
+        container.style.width = "100%";
+        container.style.height = "100%";
+        document.body.appendChild(container);
+
+        // And track all created RFB objects
         rfbs = [];
     });
     afterEach(function () {
@@ -69,11 +97,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
             expect(rfb._disconnect).to.have.been.called;
         });
         rfbs = [];
+
+        document.body.removeChild(container);
+        container = null;
     });
 
     function make_rfb (url, options) {
         url = url || 'wss://host:8675';
-        var rfb = new RFB(document.createElement('canvas'), url, options);
+        var rfb = new RFB(container, url, options);
         clock.tick();
         rfb._sock._websocket._open();
         rfb._rfb_connection_state = 'connected';
@@ -85,14 +116,14 @@ describe('Remote Frame Buffer Protocol Client', function() {
     describe('Connecting/Disconnecting', function () {
         describe('#RFB', function () {
             it('should set the current state to "connecting"', function () {
-                var client = new RFB(document.createElement('canvas'), 'wss://host:8675');
+                var client = new RFB(document.createElement('div'), 'wss://host:8675');
                 client._rfb_connection_state = '';
                 this.clock.tick();
                 expect(client._rfb_connection_state).to.equal('connecting');
             });
 
             it('should actually connect to the websocket', function () {
-                var client = new RFB(document.createElement('canvas'), 'ws://HOST:8675/PATH');
+                var client = new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
                 sinon.spy(client._sock, 'open');
                 this.clock.tick();
                 expect(client._sock.open).to.have.been.calledOnce;
@@ -239,6 +270,22 @@ describe('Remote Frame Buffer Protocol Client', function() {
             });
         });
 
+        describe('#focus', function () {
+            it('should move focus to canvas object', function () {
+                client._canvas.focus = sinon.spy();
+                client.focus();
+                expect(client._canvas.focus).to.have.been.called.once;
+            });
+        });
+
+        describe('#blur', function () {
+            it('should remove focus from canvas object', function () {
+                client._canvas.blur = sinon.spy();
+                client.blur();
+                expect(client._canvas.blur).to.have.been.called.once;
+            });
+        });
+
         describe('#clipboardPasteFrom', function () {
             it('should send the given text in a paste event', function () {
                 var expected = {_sQ: new Uint8Array(11), _sQlen: 0, flush: function () {}};
@@ -251,44 +298,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 sinon.spy(client._sock, 'flush');
                 client._rfb_connection_state = "connecting";
                 client.clipboardPasteFrom('abc');
-                expect(client._sock.flush).to.not.have.been.called;
-            });
-        });
-
-        describe("#requestDesktopSize", function () {
-            beforeEach(function() {
-                client._supportsSetDesktopSize = true;
-            });
-
-            it('should send the request with the given width and height', function () {
-                var expected = [251];
-                push8(expected, 0);  // padding
-                push16(expected, 1); // width
-                push16(expected, 2); // height
-                push8(expected, 1);  // number-of-screens
-                push8(expected, 0);  // padding before screen array
-                push32(expected, 0); // id
-                push16(expected, 0); // x-position
-                push16(expected, 0); // y-position
-                push16(expected, 1); // width
-                push16(expected, 2); // height
-                push32(expected, 0); // flags
-
-                client.requestDesktopSize(1, 2);
-                expect(client._sock).to.have.sent(new Uint8Array(expected));
-            });
-
-            it('should not send the request if the client has not recieved a ExtendedDesktopSize rectangle', function () {
-                sinon.spy(client._sock, 'flush');
-                client._supportsSetDesktopSize = false;
-                client.requestDesktopSize(1,2);
-                expect(client._sock.flush).to.not.have.been.called;
-            });
-
-            it('should not send the request if we are not in a normal state', function () {
-                sinon.spy(client._sock, 'flush');
-                client._rfb_connection_state = "connecting";
-                client.requestDesktopSize(1,2);
                 expect(client._sock.flush).to.not.have.been.called;
             });
         });
@@ -318,6 +327,394 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._xvpOp(2, 7);
                 expect(client._sock.flush).to.not.have.been.called;
             });
+        });
+    });
+
+    describe('Clipping', function () {
+        var client;
+        beforeEach(function () {
+            client = make_rfb();
+            container.style.width = '70px';
+            container.style.height = '80px';
+            client.clipViewport = true;
+        });
+
+        it('should update display clip state when changing the property', function () {
+            var spy = sinon.spy(client._display, "clipViewport", ["set"]);
+
+            client.clipViewport = false;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(false);
+            spy.set.reset();
+
+            client.clipViewport = true;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(true);
+        });
+
+        it('should update the viewport when the container size changes', function () {
+            sinon.spy(client._display, "viewportChangeSize");
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick();
+
+            expect(client._display.viewportChangeSize).to.have.been.calledOnce;
+            expect(client._display.viewportChangeSize).to.have.been.calledWith(40, 50);
+        });
+
+        it('should update the viewport when the remote session resizes', function () {
+            // Simple ExtendedDesktopSize FBU message
+            var incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
+                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
+                             0x00, 0x00, 0x00, 0x00 ];
+
+            sinon.spy(client._display, "viewportChangeSize");
+
+            client._sock._websocket._receive_data(new Uint8Array(incoming));
+
+            // FIXME: Display implicitly calls viewportChangeSize() when
+            //        resizing the framebuffer, hence calledTwice.
+            expect(client._display.viewportChangeSize).to.have.been.calledTwice;
+            expect(client._display.viewportChangeSize).to.have.been.calledWith(70, 80);
+        });
+
+        it('should not update the viewport if not clipping', function () {
+            client.clipViewport = false;
+            sinon.spy(client._display, "viewportChangeSize");
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick();
+
+            expect(client._display.viewportChangeSize).to.not.have.been.called;
+        });
+
+        it('should not update the viewport if scaling', function () {
+            client.scaleViewport = true;
+            sinon.spy(client._display, "viewportChangeSize");
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick();
+
+            expect(client._display.viewportChangeSize).to.not.have.been.called;
+        });
+
+        describe('Dragging', function () {
+            beforeEach(function () {
+                client.dragViewport = true;
+                sinon.spy(RFB.messages, "pointerEvent");
+            });
+
+            afterEach(function () {
+                RFB.messages.pointerEvent.restore();
+            });
+
+            it('should not send button messages when initiating viewport dragging', function () {
+                client._handleMouseButton(13, 9, 0x001);
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+            });
+
+            it('should send button messages when release without movement', function () {
+                // Just up and down
+                client._handleMouseButton(13, 9, 0x001);
+                client._handleMouseButton(13, 9, 0x000);
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+
+                RFB.messages.pointerEvent.reset();
+
+                // Small movement
+                client._handleMouseButton(13, 9, 0x001);
+                client._handleMouseMove(15, 14);
+                client._handleMouseButton(15, 14, 0x000);
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+            });
+
+            it('should send button message directly when drag is disabled', function () {
+                client.dragViewport = false;
+                client._handleMouseButton(13, 9, 0x001);
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+            });
+
+            it('should be initiate viewport dragging on sufficient movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // Too small movement
+
+                client._handleMouseButton(13, 9, 0x001);
+                client._handleMouseMove(18, 9);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+
+                // Sufficient movement
+
+                client._handleMouseMove(43, 9);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
+
+                client._display.viewportChangePos.reset();
+
+                // Now a small movement should move right away
+
+                client._handleMouseMove(43, 14);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(0, -5);
+            });
+
+            it('should not send button messages when dragging ends', function () {
+                // First the movement
+
+                client._handleMouseButton(13, 9, 0x001);
+                client._handleMouseMove(43, 9);
+                client._handleMouseButton(43, 9, 0x000);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+            });
+
+            it('should terminate viewport dragging on a button up event', function () {
+                // First the dragging movement
+
+                client._handleMouseButton(13, 9, 0x001);
+                client._handleMouseMove(43, 9);
+                client._handleMouseButton(43, 9, 0x000);
+
+                // Another movement now should not move the viewport
+
+                sinon.spy(client._display, "viewportChangePos");
+
+                client._handleMouseMove(43, 59);
+
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+            });
+        });
+    });
+
+    describe('Scaling', function () {
+        var client;
+        beforeEach(function () {
+            client = make_rfb();
+            container.style.width = '70px';
+            container.style.height = '80px';
+            client.scaleViewport = true;
+        });
+
+        it('should update display scale factor when changing the property', function () {
+            var spy = sinon.spy(client._display, "scale", ["set"]);
+            sinon.spy(client._display, "autoscale");
+
+            client.scaleViewport = false;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(1.0);
+            expect(client._display.autoscale).to.not.have.been.called;
+
+            client.scaleViewport = true;
+            expect(client._display.autoscale).to.have.been.calledOnce;
+            expect(client._display.autoscale).to.have.been.calledWith(70, 80);
+        });
+
+        it('should update the clipping setting when changing the property', function () {
+            client.clipViewport = true;
+
+            var spy = sinon.spy(client._display, "clipViewport", ["set"]);
+
+            client.scaleViewport = false;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(true);
+
+            spy.set.reset();
+
+            client.scaleViewport = true;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(false);
+        });
+
+        it('should update the scaling when the container size changes', function () {
+            sinon.spy(client._display, "autoscale");
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick();
+
+            expect(client._display.autoscale).to.have.been.calledOnce;
+            expect(client._display.autoscale).to.have.been.calledWith(40, 50);
+        });
+
+        it('should update the scaling when the remote session resizes', function () {
+            // Simple ExtendedDesktopSize FBU message
+            var incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
+                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
+                             0x00, 0x00, 0x00, 0x00 ];
+
+            sinon.spy(client._display, "autoscale");
+
+            client._sock._websocket._receive_data(new Uint8Array(incoming));
+
+            expect(client._display.autoscale).to.have.been.calledOnce;
+            expect(client._display.autoscale).to.have.been.calledWith(70, 80);
+        });
+
+        it('should not update the display scale factor if not scaling', function () {
+            client.scaleViewport = false;
+
+            sinon.spy(client._display, "autoscale");
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick();
+
+            expect(client._display.autoscale).to.not.have.been.called;
+        });
+    });
+
+    describe('Remote resize', function () {
+        var client;
+        beforeEach(function () {
+            client = make_rfb();
+            client._supportsSetDesktopSize = true;
+            client.resizeSession = true;
+            container.style.width = '70px';
+            container.style.height = '80px';
+            sinon.spy(RFB.messages, "setDesktopSize");
+        });
+
+        afterEach(function () {
+            RFB.messages.setDesktopSize.restore();
+        });
+
+        it('should only request a resize when turned on', function () {
+            client.resizeSession = false;
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+            client.resizeSession = true;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+        });
+
+        it('should request a resize when initially connecting', function () {
+            // Simple ExtendedDesktopSize FBU message
+            var incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
+                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
+                             0x00, 0x00, 0x00, 0x00 ];
+
+            // First message should trigger a resize
+
+            client._supportsSetDesktopSize = false;
+
+            client._sock._websocket._receive_data(new Uint8Array(incoming));
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(sinon.match.object, 70, 80, 0, 0);
+
+            RFB.messages.setDesktopSize.reset();
+
+            // Second message should not trigger a resize
+
+            client._sock._websocket._receive_data(new Uint8Array(incoming));
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should request a resize when the container resizes', function () {
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick(1000);
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(sinon.match.object, 40, 50, 0, 0);
+        });
+
+        it('should not resize until the container size is stable', function () {
+            container.style.width = '20px';
+            container.style.height = '30px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick(400);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick(400);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            clock.tick(200);
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(sinon.match.object, 40, 50, 0, 0);
+        });
+
+        it('should not resize when resize is disabled', function () {
+            client._resizeSession = false;
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick(1000);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not resize when resize is not supported', function () {
+            client._supportsSetDesktopSize = false;
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick(1000);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not resize when in view only mode', function () {
+            client._viewOnly = true;
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            var event = new UIEvent('resize');
+            window.dispatchEvent(event);
+            clock.tick(1000);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not try to override a server resize', function () {
+            // Simple ExtendedDesktopSize FBU message
+            var incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
+                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
+                             0x00, 0x00, 0x00, 0x00 ];
+
+            client._sock._websocket._receive_data(new Uint8Array(incoming));
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
     });
 
@@ -421,7 +818,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
     describe('Connection States', function () {
         describe('connecting', function () {
             it('should open the websocket connection', function () {
-                var client = new RFB(document.createElement('canvas'),
+                var client = new RFB(document.createElement('div'),
                                      'ws://HOST:8675/PATH');
                 sinon.spy(client._sock, 'open');
                 this.clock.tick();
@@ -494,7 +891,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('disconnected', function () {
             var client;
             beforeEach(function () {
-                client = new RFB(document.createElement('canvas'), 'ws://HOST:8675/PATH');
+                client = new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
             });
 
             it('should result in a disconnect event if state becomes "disconnected"', function () {
@@ -1082,17 +1479,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(client._rfb_connection_state).to.equal('connected');
             });
 
-            it('should call the resize callback and resize the display', function () {
-                var spy = sinon.spy();
-                client.addEventListener("fbresize", spy);
+            it('should resize the display', function () {
                 sinon.spy(client._display, 'resize');
                 send_server_init({ width: 27, height: 32 }, client);
 
                 expect(client._display.resize).to.have.been.calledOnce;
                 expect(client._display.resize).to.have.been.calledWith(27, 32);
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.width).to.equal(27);
-                expect(spy.args[0][0].detail.height).to.equal(32);
             });
 
             it('should grab the mouse and keyboard', function () {
@@ -1493,13 +1885,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 it('should handle the DesktopSize pseduo-encoding', function () {
                     var spy = sinon.spy();
-                    client.addEventListener("fbresize", spy);
                     sinon.spy(client._display, 'resize');
                     send_fbu_msg([{ x: 0, y: 0, width: 20, height: 50, encoding: -223 }], [[]], client);
-
-                    expect(spy).to.have.been.calledOnce;
-                    expect(spy.args[0][0].detail.width).to.equal(20);
-                    expect(spy.args[0][0].detail.height).to.equal(50);
 
                     expect(client._fb_width).to.equal(20);
                     expect(client._fb_height).to.equal(50);
@@ -1512,14 +1899,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     var resizeSpy;
 
                     beforeEach(function () {
-                        client._supportsSetDesktopSize = false;
                         // a really small frame
                         client._fb_width = 4;
                         client._fb_height = 4;
                         client._display.resize(4, 4);
                         sinon.spy(client._display, 'resize');
                         resizeSpy = sinon.spy();
-                        client.addEventListener("fbresize", resizeSpy);
                     });
 
                     function make_screen_data (nr_of_screens) {
@@ -1538,26 +1923,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         return data;
                     }
 
-                    it('should call callback when resize is supported', function () {
-                        var spy = sinon.spy();
-                        client.addEventListener("capabilities", spy);
-
-                        expect(client._supportsSetDesktopSize).to.be.false;
-                        expect(client.capabilities.resize).to.be.false;
-
-                        var reason_for_change = 0; // server initiated
-                        var status_code       = 0; // No error
-
-                        send_fbu_msg([{ x: reason_for_change, y: status_code,
-                                        width: 4, height: 4, encoding: -308 }],
-                                     make_screen_data(1), client);
-
-                        expect(client._supportsSetDesktopSize).to.be.true;
-                        expect(spy).to.have.been.calledOnce;
-                        expect(spy.args[0][0].detail.capabilities.resize).to.be.true;
-                        expect(client.capabilities.resize).to.be.true;
-                    }),
-
                     it('should handle a resize requested by this client', function () {
                         var reason_for_change = 1; // requested by this client
                         var status_code       = 0; // No error
@@ -1571,10 +1936,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                         expect(client._display.resize).to.have.been.calledOnce;
                         expect(client._display.resize).to.have.been.calledWith(20, 50);
-
-                        expect(resizeSpy).to.have.been.calledOnce;
-                        expect(resizeSpy.args[0][0].detail.width).to.equal(20);
-                        expect(resizeSpy.args[0][0].detail.height).to.equal(50);
                     });
 
                     it('should handle a resize requested by another client', function () {
@@ -1590,10 +1951,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                         expect(client._display.resize).to.have.been.calledOnce;
                         expect(client._display.resize).to.have.been.calledWith(20, 50);
-
-                        expect(resizeSpy).to.have.been.calledOnce;
-                        expect(resizeSpy.args[0][0].detail.width).to.equal(20);
-                        expect(resizeSpy.args[0][0].detail.height).to.equal(50);
                     });
 
                     it('should be able to recieve requests which contain data for multiple screens', function () {
@@ -1609,10 +1966,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                         expect(client._display.resize).to.have.been.calledOnce;
                         expect(client._display.resize).to.have.been.calledWith(60, 50);
-
-                        expect(resizeSpy).to.have.been.calledOnce;
-                        expect(resizeSpy.args[0][0].detail.width).to.equal(60);
-                        expect(resizeSpy.args[0][0].detail.height).to.equal(50);
                     });
 
                     it('should not handle a failed request', function () {
@@ -1627,8 +1980,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         expect(client._fb_height).to.equal(4);
 
                         expect(client._display.resize).to.not.have.been.called;
-
-                        expect(resizeSpy).to.not.have.been.called;
                     });
                 });
 
@@ -1808,60 +2159,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 RFB.messages.pointerEvent(pointer_msg, 13, 9, 0x010);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
-
-            // NB(directxman12): we don't need to test not sending messages in
-            //                   non-normal modes, since we haven't grabbed input
-            //                   yet (grabbing input should be checked in the lifecycle tests).
-
-            it('should not send movement messages when viewport dragging', function () {
-                client._viewportDragging = true;
-                client._display.viewportChangePos = sinon.spy();
-                sinon.spy(client._sock, 'flush');
-                client._handleMouseMove(13, 9);
-                expect(client._sock.flush).to.not.have.been.called;
-            });
-
-            it('should not send button messages when initiating viewport dragging', function () {
-                client.dragViewport = true;
-                sinon.spy(client._sock, 'flush');
-                client._handleMouseButton(13, 9, 0x001);
-                expect(client._sock.flush).to.not.have.been.called;
-            });
-
-            it('should be initiate viewport dragging on a button down event, if enabled', function () {
-                client.dragViewport = true;
-                client._handleMouseButton(13, 9, 0x001);
-                expect(client._viewportDragging).to.be.true;
-                expect(client._viewportDragPos).to.deep.equal({ x: 13, y: 9 });
-            });
-
-            it('should terminate viewport dragging on a button up event, if enabled', function () {
-                client.dragViewport = true;
-                client._viewportDragging = true;
-                client._handleMouseButton(13, 9, 0x000);
-                expect(client._viewportDragging).to.be.false;
-            });
-
-            it('if enabled, viewportDragging should occur on mouse movement while a button is down', function () {
-                var oldX = 123;
-                var oldY = 109;
-                var newX = 123 + 11 * window.devicePixelRatio;
-                var newY = 109 + 4 * window.devicePixelRatio;
-
-                client.dragViewport = true;
-                client._viewportDragging = true;
-                client._viewportHasMoved = false;
-                client._viewportDragPos = { x: oldX, y: oldY };
-                client._display.viewportChangePos = sinon.spy();
-
-                client._handleMouseMove(newX, newY);
-
-                expect(client._viewportDragging).to.be.true;
-                expect(client._viewportHasMoved).to.be.true;
-                expect(client._viewportDragPos).to.deep.equal({ x: newX, y: newY });
-                expect(client._display.viewportChangePos).to.have.been.calledOnce;
-                expect(client._display.viewportChangePos).to.have.been.calledWith(oldX - newX, oldY - newY);
-            });
         });
 
         describe('Keyboard Event Handlers', function () {
@@ -1912,7 +2209,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             // open events
             it('should update the state to ProtocolVersion on open (if the state is "connecting")', function () {
-                client = new RFB(document.createElement('canvas'), 'wss://host:8675');
+                client = new RFB(document.createElement('div'), 'wss://host:8675');
                 this.clock.tick();
                 client._sock._websocket._open();
                 expect(client._rfb_init_state).to.equal('ProtocolVersion');

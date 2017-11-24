@@ -89,7 +89,6 @@ None
 | clipViewport | bool  | RW   | false   | Use viewport clipping
 | width        | int   | RO   |         | Display area width
 | height       | int   | RO   |         | Display area height
-| isClipped    | bool  | RO   |         | Is the remote display is larger than the client display
 
 ### 2.3.2 Methods
 

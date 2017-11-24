@@ -61,10 +61,3 @@ html {
   display: flex;
   justify-content: flex-end;
 }
-
-/* Do not set width/height for VNC_canvas or incorrect
- * scaling will occur. Canvas size depends on remote VNC
- * settings and noVNC settings. */
-#noVNC_canvas {
-  margin: auto;
-}
