@@ -69,6 +69,7 @@ export default function Display(target) {
         throw new Error("Canvas does not support createImageData");
     }
 
+    this._tile16x16 = this._drawCtx.createImageData(16, 16);
     Log.Debug("<< Display.constructor");
 };
 
