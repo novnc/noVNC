@@ -634,18 +634,26 @@ RFB.prototype = {
             if (down && !this._viewportDragging) {
                 this._viewportDragging = true;
                 this._viewportDragPos = {'x': x, 'y': y};
+                this._viewportHasMoved = false;
 
                 // Skip sending mouse events
                 return;
             } else {
                 this._viewportDragging = false;
 
-                // If the viewport didn't actually move, then treat as a mouse click event
-                // Send the button down event here, as the button up event is sent at the end of this function
-                if (!this._viewportHasMoved && !this._viewOnly) {
-                    RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
+                // If we actually performed a drag then we are done
+                // here and should not send any mouse events
+                if (this._viewportHasMoved) {
+                    return;
                 }
-                this._viewportHasMoved = false;
+
+                // Otherwise we treat this as a mouse click event.
+                // Send the button down event here, as the button up
+                // event is sent at the end of this function.
+                RFB.messages.pointerEvent(this._sock,
+                                          this._display.absX(x),
+                                          this._display.absY(y),
+                                          bmask);
             }
         }
 
