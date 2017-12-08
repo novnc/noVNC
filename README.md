@@ -81,19 +81,21 @@ aware of:
 
 ### Server Requirements
 
-Unless you are using a VNC server with support for WebSockets connections (such
-as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/),
-[QEMU](http://www.qemu.org/), or
-[MobileVNC](http://www.smartlab.at/mobilevnc/)), you need to use a
-WebSockets to TCP socket proxy. There is a python proxy included
-('websockify').
+noVNC follows the standard VNC protocol, but unlike other VNC clients it does
+require WebSockets support. Many servers include support (e.g.
+[x11vnc/libvncserver](http://libvncserver.sourceforge.net/),
+[QEMU](http://www.qemu.org/), and
+[MobileVNC](http://www.smartlab.at/mobilevnc/)), but for the others you need to
+use a WebSockets to TCP socket proxy. noVNC has a sister project
+[websockify](https://github.com/novnc/websockify) that provides a simple such
+proxy.
 
 
 ### Quick Start
 
-* Use the launch script to start a mini-webserver and the WebSockets proxy
-  (websockify). The `--vnc` option is used to specify the location of a running
-  VNC server:
+* Use the launch script to automatically download and start websockify, which
+  includes a mini-webserver and the WebSockets proxy. The `--vnc` option is
+  used to specify the location of a running VNC server:
 
     `./utils/launch.sh --vnc localhost:5901`
 
