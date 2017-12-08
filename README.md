@@ -72,15 +72,11 @@ See more screenshots
 
 ### Browser Requirements
 
-* Chrome 49, Firefox 44, Safari 10, Opera 36, IE 11, Edge 12, etc.
+noVNC uses many modern web technologies so a formal requirement list is
+not available. However these are the minimum versions we are currently
+aware of:
 
-* HTML5 Canvas, WebSockets and Typed Arrays, etc.
-
-* Fast Javascript Engine: this is not strictly a requirement, but without a
-  fast Javascript engine, noVNC might be painfully slow.
-
-* See the more detailed
-[browser compatibility wiki page](https://github.com/novnc/noVNC/wiki/Browser-support).
+* Chrome 49, Firefox 44, Safari 10, Opera 36, IE 11, Edge 12
 
 
 ### Server Requirements
