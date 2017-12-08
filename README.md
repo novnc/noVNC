@@ -104,6 +104,15 @@ proxy.
   configured, and enjoy!
 
 
+### Integration and Deployment
+
+Please see our other documents for how to integrate noVNC in your own software,
+or deploying the noVNC application in production environments:
+
+* [Embedding](docs/EMBEDDING.md) - For the noVNC application
+* [Library](docs/LIBRARY.md) - For the noVNC JavaScript library
+
+
 ### Authors/Contributors
 
 * Core team:
