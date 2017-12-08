@@ -100,8 +100,8 @@ proxy.
     `./utils/launch.sh --vnc localhost:5901`
 
 * Point your browser to the cut-and-paste URL that is output by the launch
-  script. Enter a password if the VNC server has one configured. Hit the
-  Connect button and enjoy!
+  script. Hit the Connect button, enter a password if the VNC server has one
+  configured, and enjoy!
 
 
 ### Authors/Contributors
