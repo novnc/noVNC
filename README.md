@@ -53,13 +53,9 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 
 * Supports all modern browsers including mobile (iOS, Android)
 * Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG
-* WebSocket SSL/TLS encryption (i.e. "wss://") support
-* 24-bit true color and 8 bit colour mapped
-* Supports desktop resize notification/pseudo-encoding
-* Local or remote cursor
+* Supports scaling, clipping and resizing the desktop
+* Local cursor rendering
 * Clipboard copy/paste
-* Clipping or scolling modes for large remote screens
-* Easy site integration and theming (3 example themes included)
 * Licensed under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/)
 
 ### Screenshots
