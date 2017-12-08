@@ -56,7 +56,8 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 * Supports scaling, clipping and resizing the desktop
 * Local cursor rendering
 * Clipboard copy/paste
-* Licensed under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/)
+* Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
+  [the license document](LICENSE.txt) for details
 
 ### Screenshots
 
