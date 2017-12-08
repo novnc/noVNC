@@ -29,6 +29,9 @@ Bugs and feature requests can be submitted via
 [github issues](https://github.com/novnc/noVNC/issues). If you have questions
 about using noVNC then please first use the
 [discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
+We also have a [wiki](https://github.com/novnc/noVNC/wiki/) with lots of
+helpful information.
+
 If you are looking for a place to start contributing to noVNC, a good place to
 start would be the issues that are marked as
 ["patchwelcome"](https://github.com/novnc/noVNC/issues?labels=patchwelcome).
@@ -102,31 +105,6 @@ WebSockets to TCP socket proxy. There is a python proxy included
 * Point your browser to the cut-and-paste URL that is output by the launch
   script. Enter a password if the VNC server has one configured. Hit the
   Connect button and enjoy!
-
-
-### Other Pages
-
-* [Modules/API](https://github.com/novnc/noVNC/blob/master/docs/API.md) - The library
-  modules and their Javascript API.
-
-* [Integration](https://github.com/novnc/noVNC/wiki/Integration) - Get noVNC
-  to work in existing projects.
-
-* [Troubleshooting](https://github.com/novnc/noVNC/wiki/Troubleshooting) - How
-  to troubleshoot problems.
-
-* [Encrypted Connections](https://github.com/novnc/websockify/wiki/Encrypted-Connections) -
-  Setup websockify so that you can use encrypted connections from noVNC.
-
-* [Advanced Usage](https://github.com/novnc/noVNC/wiki/Advanced-usage) -
-  Generating an SSL certificate, starting a VNC server, advanced websockify
-  usage, etc.
-
-* [Testing](https://github.com/novnc/noVNC/wiki/Testing) - Run and write
-  tests.
-
-* [Translations](https://github.com/novnc/noVNC/wiki/Translations) - Add and
-  modify localization for JavaScript and HTML.
 
 
 ### Authors/Contributors
