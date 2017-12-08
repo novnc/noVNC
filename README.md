@@ -35,6 +35,8 @@ helpful information.
 If you are looking for a place to start contributing to noVNC, a good place to
 start would be the issues that are marked as
 ["patchwelcome"](https://github.com/novnc/noVNC/issues?labels=patchwelcome).
+Please check our
+[contribution guide](https://github.com/novnc/noVNC/wiki/Contributing) though.
 
 If you want to show appreciation for noVNC you could donate to a great non-
 profits such as:
@@ -127,4 +129,6 @@ WebSockets to TCP socket proxy. There is a python proxy included
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
     * Pako : Vitaly Puzrin (https://github.com/nodeca/pako)
 
-* [Contribution guide](https://github.com/novnc/noVNC/wiki/Contributing)
+Do you want to be on this list? Check out our
+[contribution guide](https://github.com/novnc/noVNC/wiki/Contributing) and
+start hacking!
