@@ -1,11 +1,12 @@
-## noVNC: HTML5 VNC Client
+## noVNC: HTML VNC Client Library and Application
 
 [![Build Status](https://travis-ci.org/novnc/noVNC.svg?branch=master)](https://travis-ci.org/novnc/noVNC)
 
 ### Description
 
-noVNC is a HTML5 VNC client that runs well in any modern browser including
-mobile browsers (iOS and Android).
+noVNC is both a HTML VNC client JavaScript library and an application built on
+top of that library. noVNC runs well in any modern browser including mobile
+browsers (iOS and Android).
 
 Many companies, projects and products have integrated noVNC including
 [OpenStack](http://www.openstack.org),
