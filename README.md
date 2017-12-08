@@ -26,7 +26,9 @@ If you are a noVNC developer/integrator/user (or want to be) please join the
 [noVNC discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
 
 Bugs and feature requests can be submitted via
-[github issues](https://github.com/novnc/noVNC/issues).
+[github issues](https://github.com/novnc/noVNC/issues). If you have questions
+about using noVNC then please first use the
+[discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
 If you are looking for a place to start contributing to noVNC, a good place to
 start would be the issues that are marked as
 ["patchwelcome"](https://github.com/novnc/noVNC/issues?labels=patchwelcome).
