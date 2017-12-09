@@ -44,6 +44,7 @@ module.exports = {
             .then(() => `<script src="${path.relative(base_out_path, out_path)}"></script>`);
         },
         noCopyOverride: () => {},
+        removeModules: true,
     },
     'systemjs': {
         appWriter: (base_out_path, out_path) => {

@@ -60,7 +60,9 @@ const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
 
 const copy = promisify(fse.copy);
+const unlink = promisify(fse.unlink);
 const ensureDir = promisify(fse.ensureDir);
+const rmdir = promisify(fse.rmdir);
 
 const babelTransformFile = promisify(babel.transformFile);
 
@@ -133,6 +135,8 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
     const helpers = require('./use_require_helpers');
     const helper = helpers[import_format];
 
+    const outFiles = [];
+
     var handleDir = (js_only, vendor_rewrite, in_path_base, filename) => Promise.resolve()
     .then(() => {
         if (no_copy_files.has(filename)) return;
@@ -173,10 +177,12 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
                     // append URL for external source map
                     code += `\n//# sourceMappingURL=${path.basename(out_path)}.map\n`;
                 }
+                outFiles.push(`${out_path}`);
                 return writeFile(out_path, code)
                 .then(() => {
                     if (source_maps === true || source_maps === 'both') {
                         console.log(`  and ${out_path}.map`);
+                        outFiles.push(`${out_path}.map`);
                         return writeFile(`${out_path}.map`, JSON.stringify(map));
                     }
                 });
@@ -215,7 +221,26 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         const out_app_path = path.join(out_path_base, 'app.js');
         console.log(`Writing ${out_app_path}`);
         return helper.appWriter(out_path_base, out_app_path)
-        .then(transform_html);
+        .then(transform_html)
+        .then(() => {
+            if (!helper.removeModules) return;
+            console.log(`Cleaning up temporary files...`);
+            return Promise.all(outFiles.map(filepath => {
+                unlink(filepath)
+                .then(() => {
+                    // Try to clean up any empty directories if this
+                    // was the last file in there
+                    let rmdir_r = dir => {
+                        return rmdir(dir)
+                        .then(() => rmdir_r(path.dirname(dir)))
+                        .catch(() => {
+                            // Assume the error was ENOTEMPTY and ignore it
+                        });
+                    };
+                    return rmdir_r(path.dirname(filepath));
+                });
+            }));
+        });
     })
     .catch((err) => {
         console.error(`Failure converting modules: ${err}`);
