@@ -30,6 +30,7 @@ const no_copy_files = new Set([
     path.join(paths.vendor, 'sinon.js'),
     path.join(paths.vendor, 'browser-es-module-loader'),
     path.join(paths.vendor, 'promise.js'),
+    path.join(paths.app, 'images', 'icons', 'Makefile'),
 ]);
 
 const no_transform_files = new Set([
