@@ -21,12 +21,16 @@ const writeFile = promisify(fs.writeFile);
 
 module.exports = {
     'amd': {
-        appWriter: (base_out_path, out_path) => {
+        appWriter: (base_out_path, script_base_path, out_path) => {
             // setup for requirejs
-            return writeFile(out_path, 'requirejs(["app/ui"], function (ui) {});')
+            let ui_path = path.relative(base_out_path,
+                                        path.join(script_base_path, 'app', 'ui'));
+            return writeFile(out_path, `requirejs(["${ui_path}"], function (ui) {});`)
             .then(() => {
-                console.log(`Please place RequireJS in ${path.join(base_out_path, 'require.js')}`);
-                return `<script src="require.js" data-main="${path.relative(base_out_path, out_path)}"></script>`;
+                console.log(`Please place RequireJS in ${path.join(script_base_path, 'require.js')}`);
+                let require_path = path.relative(base_out_path,
+                                                 path.join(script_base_path, 'require.js'))
+                return [ require_path ];
             });
         },
         noCopyOverride: () => {},
@@ -36,23 +40,29 @@ module.exports = {
             // CommonJS supports properly shifting the default export to work as normal
             opts.plugins.unshift("add-module-exports");
         },
-        appWriter: (base_out_path, out_path) => {
+        appWriter: (base_out_path, script_base_path, out_path) => {
             var browserify = require('browserify');
-            var b = browserify(path.join(base_out_path, 'app/ui.js'), {});
+            var b = browserify(path.join(script_base_path, 'app/ui.js'), {});
             return promisify(b.bundle).call(b)
             .then((buf) => writeFile(out_path, buf))
-            .then(() => `<script src="${path.relative(base_out_path, out_path)}"></script>`);
+            .then(() => []);
         },
         noCopyOverride: () => {},
         removeModules: true,
     },
     'systemjs': {
-        appWriter: (base_out_path, out_path) => {
-            return writeFile(out_path, 'SystemJS.import("./app/ui.js");')
+        appWriter: (base_out_path, script_base_path, out_path) => {
+            let ui_path = path.relative(base_out_path,
+                                        path.join(script_base_path, 'app', 'ui.js'));
+            return writeFile(out_path, `SystemJS.import("${ui_path}");`)
             .then(() => {
-                console.log(`Please place SystemJS in ${path.join(base_out_path, 'system-production.js')}`);
-                return `<script src="vendor/promise.js"></script>
-<script src="system-production.js"></script>\n<script src="${path.relative(base_out_path, out_path)}"></script>`;
+                console.log(`Please place SystemJS in ${path.join(script_base_path, 'system-production.js')}`);
+                // FIXME: Should probably be in the legacy directory
+                let promise_path = path.relative(base_out_path,
+                                                 path.join(base_out_path, 'vendor', 'promise.js'))
+                let systemjs_path = path.relative(base_out_path,
+                                                  path.join(script_base_path, 'system-production.js'))
+                return [ promise_path, systemjs_path ];
             });
         },
         noCopyOverride: (paths, no_copy_files) => {

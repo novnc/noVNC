@@ -12,6 +12,7 @@ program
     .option('--as [format]', `output files using various import formats instead of ES6 import and export.  Supports ${Array.from(SUPPORTED_FORMATS)}.`)
     .option('-m, --with-source-maps [type]', 'output source maps when not generating a bundled app (type may be empty for external source maps, inline for inline source maps, or both) ')
     .option('--with-app', 'process app files as well as core files')
+    .option('--only-legacy', 'only output legacy files (no ES6 modules) for the app')
     .option('--clean', 'clear the lib folder before building')
     .parse(process.argv);
 
@@ -86,7 +87,7 @@ var walkDir = function (base_path, cb, filter) {
     });
 };
 
-var transform_html = function (new_script) {
+var transform_html = function (legacy_scripts, only_legacy) {
     // write out the modified vnc.html file that works with the bundle
     var src_html_path = path.resolve(__dirname, '..', 'vnc.html');
     var out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
@@ -99,6 +100,37 @@ var transform_html = function (new_script) {
         var start_ind = contents.indexOf(start_marker) + start_marker.length;
         var end_ind = contents.indexOf(end_marker, start_ind);
 
+        new_script = '';
+
+        if (only_legacy) {
+            // Only legacy version, so include things directly
+            for (let i = 0;i < legacy_scripts.length;i++) {
+                new_script += `    <script src="${legacy_scripts[i]}"></script>\n`;
+            }
+        } else {
+            // Otherwise detect if it's a modern browser and select
+            // variant accordingly
+            new_script += `\
+    <script type="module">\n\
+        window._noVNC_has_module_support = true;\n\
+    </script>\n\
+    <script>\n\
+        window.addEventListener("load", function() {\n\
+            if (window._noVNC_has_module_support) return;\n\
+            let legacy_scripts = ${JSON.stringify(legacy_scripts)};\n\
+            for (let i = 0;i < legacy_scripts.length;i++) {\n\
+                let script = document.createElement("script");\n\
+                script.src = legacy_scripts[i];\n\
+                script.async = false;\n\
+                document.head.appendChild(script);\n\
+            }\n\
+        });\n\
+    </script>\n`;
+
+            // Original, ES6 modules
+            new_script += '    <script type="module" crossorigin="anonymous" src="app/ui.js"></script>\n';
+        }
+
         contents = contents.slice(0, start_ind) + `${new_script}\n` + contents.slice(end_ind);
 
         return contents;
@@ -109,7 +141,7 @@ var transform_html = function (new_script) {
     });
 }
 
-var make_lib_files = function (import_format, source_maps, with_app_dir) {
+var make_lib_files = function (import_format, source_maps, with_app_dir, only_legacy) {
     if (!import_format) {
         throw new Error("you must specify an import format to generate compiled noVNC libraries");
     } else if (!SUPPORTED_FORMATS.has(import_format)) {
@@ -123,6 +155,11 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         sourceMaps: source_maps,
     });
 
+    // No point in duplicate files without the app, so force only converted files
+    if (!with_app_dir) {
+        only_legacy = true;
+    }
+
     var in_path;
     if (with_app_dir) {
         var out_path_base = paths.out_dir_base;
@@ -130,6 +167,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
     } else {
         var out_path_base = paths.lib_dir_base;
     }
+    const legacy_path_base = only_legacy ? out_path_base : path.join(out_path_base, 'legacy');
 
     fse.ensureDirSync(out_path_base);
 
@@ -143,6 +181,8 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         if (no_copy_files.has(filename)) return;
 
         const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
+        const legacy_path = path.join(legacy_path_base, path.relative(in_path_base, filename));
+
         if(path.extname(filename) !== '.js') {
             if (!js_only) {
                 console.log(`Writing ${out_path}`);
@@ -151,11 +191,21 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
             return;  // skip non-javascript files
         }
 
-        return ensureDir(path.dirname(out_path))
+        return Promise.resolve()
         .then(() => {
-            if (no_transform_files.has(filename)) {
+            if (only_legacy && !no_transform_files.has(filename)) {
+                return;
+            }
+            return ensureDir(path.dirname(out_path))
+            .then(() => {
                 console.log(`Writing ${out_path}`);
                 return copy(filename, out_path);
+            })
+        })
+        .then(() => ensureDir(path.dirname(legacy_path)))
+        .then(() => {
+            if (no_transform_files.has(filename)) {
+                return;
             }
 
             const opts = babel_opts();
@@ -166,25 +216,25 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
             // to the vendor directory
             if (vendor_rewrite) {
                 opts.plugins.push(["import-redirect",
-                                   {"root": out_path_base,
+                                   {"root": legacy_path_base,
                                     "redirect": { "vendor/(.+)": "./vendor/$1"}}]);
             }
 
             return babelTransformFile(filename, opts)
             .then(res => {
-                console.log(`Writing ${out_path}`);
+                console.log(`Writing ${legacy_path}`);
                 var {code, map, ast} = res;
                 if (source_maps === true) {
                     // append URL for external source map
-                    code += `\n//# sourceMappingURL=${path.basename(out_path)}.map\n`;
+                    code += `\n//# sourceMappingURL=${path.basename(legacy_path)}.map\n`;
                 }
-                outFiles.push(`${out_path}`);
-                return writeFile(out_path, code)
+                outFiles.push(`${legacy_path}`);
+                return writeFile(legacy_path, code)
                 .then(() => {
                     if (source_maps === true || source_maps === 'both') {
-                        console.log(`  and ${out_path}.map`);
-                        outFiles.push(`${out_path}.map`);
-                        return writeFile(`${out_path}.map`, JSON.stringify(map));
+                        console.log(`  and ${legacy_path}.map`);
+                        outFiles.push(`${legacy_path}.map`);
+                        return writeFile(`${legacy_path}.map`, JSON.stringify(map));
                     }
                 });
             });
@@ -219,10 +269,14 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
             throw new Error(`Unable to generate app for the ${import_format} format!`);
         }
 
-        const out_app_path = path.join(out_path_base, 'app.js');
+        const out_app_path = path.join(legacy_path_base, 'app.js');
         console.log(`Writing ${out_app_path}`);
-        return helper.appWriter(out_path_base, out_app_path)
-        .then(transform_html)
+        return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
+        .then(extra_scripts => {
+            let rel_app_path = path.relative(out_path_base, out_app_path);
+            let legacy_scripts = extra_scripts.concat([rel_app_path]);
+            transform_html(legacy_scripts, only_legacy);
+        })
         .then(() => {
             if (!helper.removeModules) return;
             console.log(`Cleaning up temporary files...`);
@@ -257,4 +311,4 @@ if (program.clean) {
     fse.removeSync(paths.out_dir_base);
 }
 
-make_lib_files(program.as, program.withSourceMaps, program.withApp);
+make_lib_files(program.as, program.withSourceMaps, program.withApp, program.onlyLegacy);
