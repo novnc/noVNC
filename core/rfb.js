@@ -66,7 +66,7 @@ export default function RFB(target, url, options) {
 
     this._fb_name = "";
 
-    this._capabilities = { power: false, resize: false };
+    this._capabilities = { power: false };
 
     this._supportsFence = false;
 
@@ -88,6 +88,7 @@ export default function RFB(target, url, options) {
 
     // Timers
     this._disconnTimer = null;      // disconnection timer
+    this._resizeTimeout = null;     // resize rate limiting
 
     // Decoder states and stats
     this._encHandlers = {};
@@ -140,15 +141,29 @@ export default function RFB(target, url, options) {
     // Bound event handlers
     this._eventHandlers = {
         focusCanvas: this._focusCanvas.bind(this),
+        windowResize: this._windowResize.bind(this),
     };
 
     // main setup
     Log.Debug(">> RFB.constructor");
 
-    // Target canvas must be able to have focus
-    if (!this._target.hasAttribute('tabindex')) {
-        this._target.tabIndex = -1;
-    }
+    // Create DOM elements
+    this._screen = document.createElement('div');
+    this._screen.style.display = 'flex';
+    this._screen.style.width = '100%';
+    this._screen.style.height = '100%';
+    this._screen.style.overflow = 'auto';
+    this._screen.style.backgroundColor = 'rgb(40, 40, 40)';
+    this._canvas = document.createElement('canvas');
+    this._canvas.style.margin = 'auto';
+    // Some browsers add an outline on focus
+    this._canvas.style.outline = 'none';
+    // IE miscalculates width without this :(
+    this._canvas.style.flexShrink = '0';
+    this._canvas.width = 0;
+    this._canvas.height = 0;
+    this._canvas.tabIndex = -1;
+    this._screen.appendChild(this._canvas);
 
     // populate encHandlers with bound versions
     this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
@@ -166,7 +181,7 @@ export default function RFB(target, url, options) {
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
     try {
-        this._display = new Display(this._target);
+        this._display = new Display(this._canvas);
     } catch (exc) {
         Log.Error("Display exception: " + exc);
         throw exc;
@@ -174,10 +189,10 @@ export default function RFB(target, url, options) {
     this._display.onflush = this._onFlush.bind(this);
     this._display.clear();
 
-    this._keyboard = new Keyboard(this._target);
+    this._keyboard = new Keyboard(this._canvas);
     this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
 
-    this._mouse = new Mouse(this._target);
+    this._mouse = new Mouse(this._canvas);
     this._mouse.onmousebutton = this._handleMouseButton.bind(this);
     this._mouse.onmousemove = this._handleMouseMove.bind(this);
 
@@ -266,13 +281,36 @@ RFB.prototype = {
     get touchButton() { return this._mouse.touchButton; },
     set touchButton(button) { this._mouse.touchButton = button; },
 
-    get viewportScale() { return this._display.scale; },
-    set viewportScale(scale) { this._display.scale = scale; },
+    _clipViewport: false,
+    get clipViewport() { return this._clipViewport; },
+    set clipViewport(viewport) {
+        this._clipViewport = viewport;
+        this._updateClip();
+    },
 
-    get clipViewport() { return this._display.clipViewport; },
-    set clipViewport(viewport) { this._display.clipViewport = viewport; },
+    _scaleViewport: false,
+    get scaleViewport() { return this._scaleViewport; },
+    set scaleViewport(scale) {
+        this._scaleViewport = scale;
+        // Scaling trumps clipping, so we may need to adjust
+        // clipping when enabling or disabling scaling
+        if (scale && this._clipViewport) {
+            this._updateClip();
+        }
+        this._updateScale();
+        if (!scale && this._clipViewport) {
+            this._updateClip();
+        }
+    },
 
-    get isClipped() { return this._display.isClipped; },
+    _resizeSession: false,
+    get resizeSession() { return this._resizeSession; },
+    set resizeSession(resize) {
+        this._resizeSession = resize;
+        if (resize) {
+            this._requestRemoteResize();
+        }
+    },
 
     // ===== PUBLIC METHODS =====
 
@@ -341,37 +379,18 @@ RFB.prototype = {
         }
     },
 
+    focus: function () {
+        this._canvas.focus();
+    },
+
+    blur: function () {
+        this._canvas.blur();
+    },
+
     clipboardPasteFrom: function (text) {
         if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return; }
         RFB.messages.clientCutText(this._sock, text);
     },
-
-    autoscale: function (width, height) {
-        if (this._rfb_connection_state !== 'connected') { return; }
-        this._display.autoscale(width, height);
-    },
-
-    viewportChangeSize: function(width, height) {
-        if (this._rfb_connection_state !== 'connected') { return; }
-        this._display.viewportChangeSize(width, height);
-    },
-
-    // Requests a change of remote desktop size. This message is an extension
-    // and may only be sent if we have received an ExtendedDesktopSize message
-    requestDesktopSize: function (width, height) {
-        if (this._rfb_connection_state !== 'connected' ||
-            this._viewOnly) {
-            return;
-        }
-
-        if (!this._supportsSetDesktopSize) {
-            return;
-        }
-
-        RFB.messages.setDesktopSize(this._sock, width, height,
-                                    this._screen_id, this._screen_flags);
-    },
-
 
     // ===== PRIVATE METHODS =====
 
@@ -391,20 +410,31 @@ RFB.prototype = {
             }
         }
 
+        // Make our elements part of the page
+        this._target.appendChild(this._screen);
+
+        // Monitor size changes of the screen
+        // FIXME: Use ResizeObserver, or hidden overflow
+        window.addEventListener('resize', this._eventHandlers.windowResize);
+
         // Always grab focus on some kind of click event
-        this._target.addEventListener("mousedown", this._eventHandlers.focusCanvas);
-        this._target.addEventListener("touchstart", this._eventHandlers.focusCanvas);
+        this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
+        this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
         Log.Debug("<< RFB.connect");
     },
 
     _disconnect: function () {
         Log.Debug(">> RFB.disconnect");
-        this._target.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
-        this._target.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
-        this._cleanup();
+        this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
+        this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
+        window.removeEventListener('resize', this._eventHandlers.windowResize);
+        this._keyboard.ungrab();
+        this._mouse.ungrab();
         this._sock.close();
         this._print_stats();
+        this._target.removeChild(this._screen);
+        clearTimeout(this._resizeTimeout);
         Log.Debug("<< RFB.disconnect");
     },
 
@@ -426,17 +456,6 @@ RFB.prototype = {
         });
     },
 
-    _cleanup: function () {
-        if (!this._viewOnly) { this._keyboard.ungrab(); }
-        if (!this._viewOnly) { this._mouse.ungrab(); }
-        this._display.defaultCursor();
-        if (Log.get_logging() !== 'debug') {
-            // Show noVNC logo when disconnected, unless in
-            // debug mode
-            this._display.clear();
-        }
-    },
-
     _focusCanvas: function(event) {
         // Respect earlier handlers' request to not do side-effects
         if (event.defaultPrevented) {
@@ -447,7 +466,97 @@ RFB.prototype = {
             return;
         }
 
-        this._target.focus();
+        this.focus();
+    },
+
+    _windowResize: function (event) {
+        // If the window resized then our screen element might have
+        // as well. Update the viewport dimensions.
+        window.requestAnimationFrame(function () {
+            this._updateClip();
+            this._updateScale();
+        }.bind(this));
+
+        if (this._resizeSession) {
+            // Request changing the resolution of the remote display to
+            // the size of the local browser viewport.
+
+            // In order to not send multiple requests before the browser-resize
+            // is finished we wait 0.5 seconds before sending the request.
+            clearTimeout(this._resizeTimeout);
+            this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
+        }
+    },
+
+    // Update state of clipping in Display object, and make sure the
+    // configured viewport matches the current screen size
+    _updateClip: function () {
+        var cur_clip = this._display.clipViewport;
+        var new_clip = this._clipViewport;
+
+        if (this._scaleViewport) {
+            // Disable viewport clipping if we are scaling
+            new_clip = false;
+        }
+
+        if (cur_clip !== new_clip) {
+            this._display.clipViewport = new_clip;
+        }
+
+        if (new_clip) {
+            // When clipping is enabled, the screen is limited to
+            // the size of the container.
+            let size = this._screenSize();
+            this._display.viewportChangeSize(size.w, size.h);
+            this._fixScrollbars();
+        }
+    },
+
+    _updateScale: function () {
+        if (!this._scaleViewport) {
+            this._display.scale = 1.0;
+        } else {
+            let size = this._screenSize();
+            this._display.autoscale(size.w, size.h);
+        }
+        this._fixScrollbars();
+    },
+
+    // Requests a change of remote desktop size. This message is an extension
+    // and may only be sent if we have received an ExtendedDesktopSize message
+    _requestRemoteResize: function () {
+        clearTimeout(this._resizeTimeout);
+        this._resizeTimeout = null;
+
+        if (!this._resizeSession || this._viewOnly ||
+            !this._supportsSetDesktopSize) {
+            return;
+        }
+
+        let size = this._screenSize();
+        RFB.messages.setDesktopSize(this._sock, size.w, size.h,
+                                    this._screen_id, this._screen_flags);
+
+        Log.Debug('Requested new desktop size: ' +
+                   size.w + 'x' + size.h);
+    },
+
+    // Gets the the size of the available screen
+    _screenSize: function () {
+        return { w: this._screen.offsetWidth,
+                 h: this._screen.offsetHeight };
+    },
+
+    _fixScrollbars: function () {
+        // This is a hack because Chrome screws up the calculation
+        // for when scrollbars are needed. So to fix it we temporarily
+        // toggle them off and on.
+        var orig = this._screen.style.overflow;
+        this._screen.style.overflow = 'hidden';
+        // Force Chrome to recalculate the layout by asking for
+        // an element's dimensions
+        this._screen.getBoundingClientRect();
+        this._screen.style.overflow = orig;
     },
 
     /*
@@ -634,18 +743,26 @@ RFB.prototype = {
             if (down && !this._viewportDragging) {
                 this._viewportDragging = true;
                 this._viewportDragPos = {'x': x, 'y': y};
+                this._viewportHasMoved = false;
 
                 // Skip sending mouse events
                 return;
             } else {
                 this._viewportDragging = false;
 
-                // If the viewport didn't actually move, then treat as a mouse click event
-                // Send the button down event here, as the button up event is sent at the end of this function
-                if (!this._viewportHasMoved && !this._viewOnly) {
-                    RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), bmask);
+                // If we actually performed a drag then we are done
+                // here and should not send any mouse events
+                if (this._viewportHasMoved) {
+                    return;
                 }
-                this._viewportHasMoved = false;
+
+                // Otherwise we treat this as a mouse click event.
+                // Send the button down event here, as the button up
+                // event is sent at the end of this function.
+                RFB.messages.pointerEvent(this._sock,
+                                          this._display.absX(x),
+                                          this._display.absY(y),
+                                          bmask);
             }
         }
 
@@ -1459,10 +1576,9 @@ RFB.prototype = {
 
         this._display.resize(this._fb_width, this._fb_height);
 
-        var event = new CustomEvent("fbresize",
-                                    { detail: { width: this._fb_width,
-                                                height: this._fb_height } });
-        this.dispatchEvent(event);
+        // Adjust the visible viewport based on the new dimensions
+        this._updateClip();
+        this._updateScale();
 
         this._timing.fbu_rt_start = (new Date()).getTime();
         this._updateContinuousUpdates();
@@ -2300,8 +2416,16 @@ RFB.encodingHandlers = {
         this._FBU.bytes = 1;
         if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
 
+        var firstUpdate = !this._supportsSetDesktopSize;
         this._supportsSetDesktopSize = true;
-        this._setCapability("resize", true);
+
+        // Normally we only apply the current resize mode after a
+        // window resize event. However there is no such trigger on the
+        // initial connect. And we don't know if the server supports
+        // resizing until we've gotten here.
+        if (firstUpdate) {
+            this._requestRemoteResize();
+        }
 
         var number_of_screens = this._sock.rQpeek8();
 

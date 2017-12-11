@@ -23,8 +23,8 @@ protocol stream.
 
 `focusOnClick`
   - Is a `boolean` indicating if keyboard focus should automatically be
-    moved to the canvas when a `mousedown` or `touchstart` event is
-    received.
+    moved to the remote session when a `mousedown` or `touchstart`
+    event is received.
 
 `touchButton`
   - Is a `long` controlling the button mask that should be simulated
@@ -32,24 +32,26 @@ protocol stream.
     [`MouseEvent.button`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button).
     Is set to `1` by default.
 
-`viewportScale`
-  - Is a `double` indicating how the framebuffer contents should be
-    scaled before being rendered on to the canvas. See also
-    [`RFB.autoscale()`](#rfbautoscale). Is set to `1.0` by default.
-
 `clipViewport`
-  - Is a `boolean` indicating if the canvas should be clipped to its
-    container. When disabled the container must be able to handle the
-    resulting overflow. Disabled by default.
+  - Is a `boolean` indicating if the remote session should be clipped
+    to its container. When disabled scrollbars will be shown to handle
+    the resulting overflow. Disabled by default.
 
 `dragViewport`
   - Is a `boolean` indicating if mouse events should control the
-    relative position of a clipped canvas. Only relevant if
+    relative position of a clipped remote session. Only relevant if
     `clipViewport` is enabled. Disabled by default.
 
-`isClipped` *Read only*
-  - Is a `boolean` indicating if the framebuffer is larger than the
-    current canvas, i.e. it is being clipped.
+`scaleViewport`
+  - Is a `boolean` indicating if the remote session should be scaled
+    locally so it fits its container. When disabled it will be centered
+    if the remote session is smaller than its container, or handled
+    according to `clipViewport` if it is larger. Disabled by default.
+
+`resizeSession`
+  - Is a `boolean` indicating if a request to resize the remote session
+    should be sent whenever the container changes dimensions. Disabled
+    by default.
 
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
@@ -59,7 +61,6 @@ protocol stream.
     | name     | type      | description
     | -------- | --------- | -----------
     | `power`  | `boolean` | Machine power control is available
-    | `resize` | `boolean` | The framebuffer can be resized
 
 ### Events
 
@@ -86,9 +87,6 @@ protocol stream.
   - The `bell` event is fired when a audible bell request is received
     from the server.
 
-[`fbresize`](#fbresize)
-  - The `fbresize` event is fired when the framebuffer size is changed.
-
 [`desktopname`](#desktopname)
   - The `desktopname` event is fired when the remote desktop name
     changes.
@@ -112,6 +110,12 @@ protocol stream.
 [`RFB.sendCtrlAltDel()`](#rfbsendctrlaltdel)
   - Send Ctrl-Alt-Del key sequence.
 
+[`RFB.focus()`](#rfbfocus)
+  - Move keyboard focus to the remote session.
+
+[`RFB.blur()`](#rfbblur)
+  - Remove keyboard focus from the remote session.
+
 [`RFB.machineShutdown()`](#rfbmachineshutdown)
   - Request a shutdown of the remote machine.
 
@@ -123,16 +127,6 @@ protocol stream.
 
 [`RFB.clipboardPasteFrom()`](#rfbclipboardPasteFrom)
   - Send clipboard contents to server.
-
-[`RFB.autoscale()`](#rfbautoscale)
-  - Set `RFB.viewportScale` so that the framebuffer fits a specified
-    container.
-
-[`RFB.requestDesktopSize()`](#rfbrequestDesktopSize)
-  - Send a request to change the remote desktop size.
-
-[`RFB.viewportChangeSize()`](#rfbviewportChangeSize)
-  - Change size of the viewport.
 
 ### Details
 
@@ -148,9 +142,10 @@ connection to a specified VNC server.
 ###### Parameters
 
 **`target`**
-  - A [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
-    that specifies where graphics should be rendered and input events
-    should be monitored.
+  - A block [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
+    that specifies where the `RFB` object should attach itself. The
+    existing contents of the `HTMLElement` will be untouched, but new
+    elements will be added during the lifetime of the `RFB` object.
 
 **`url`**
   - A `DOMString` specifying the VNC server to connect to. This must be
@@ -233,12 +228,6 @@ which is a `DOMString` with the clipboard data.
 The `bell` event is fired when the server has requested an audible
 bell.
 
-#### fbresize
-
-The `fbresize` event is fired when the framebuffer has changed
-dimensions. The `detail` property is an `Object` with the properties
-`width` and `height` specifying the new dimensions.
-
 #### desktopname
 
 The `desktopname` event is fired when the name of the remote desktop
@@ -310,6 +299,25 @@ around [`RFB.sendKey()`](#rfbsendkey).
 
     RFB.sendCtrlAltDel( );
 
+#### RFB.focus()
+
+The `RFB.focus()` method sets the keyboard focus on the remote session.
+Keyboard events will be sent to the remote server after this point.
+
+##### Syntax
+
+    RFB.focus( );
+
+#### RFB.blur()
+
+The `RFB.blur()` method remove keyboard focus on the remote session.
+Keyboard events will no longer be sent to the remote server after this
+point.
+
+##### Syntax
+
+    RFB.blur( );
+
 #### RFB.machineShutdown()
 
 The `RFB.machineShutdown()` method is used to request to shut down the
@@ -354,61 +362,3 @@ to the remote server.
 **`text`**
   - A `DOMString` specifying the clipboard data to send. Currently only
   characters from ISO 8859-1 are supported.
-
-#### RFB.autoscale()
-
-The `RFB.autoscale()` method is used to automatically adjust
-`RFB.viewportScale` to fit given dimensions.
-
-##### Syntax
-
-    RFB.autoscale( width, height );
-
-###### Parameters
-
-**`width`**
-  - A `long` specifying the maximum width of the canvas in CSS pixels.
-
-**`height`**
-  - A `long` specifying the maximum height of the canvas in CSS pixels.
-
-#### RFB.requestDesktopSize()
-
-The `RFB.requestDesktopSize()` method is used to request a change of
-the framebuffer. The capability `resize` must be set for this method to
-have any effect.
-
-Note that this is merely a request and the server may deny it.
-The [`fbresize`](#fbresize) event will be fired when the framebuffer
-actually changes dimensions.
-
-##### Syntax
-
-    RFB.requestDesktopSize( width, height );
-
-###### Parameters
-
-**`width`**
-  - A `long` specifying the new requested width in CSS pixels.
-
-**`height`**
-  - A `long` specifying the new requested height in CSS pixels.
-
-#### RFB.viewportChangeSize()
-
-The `RFB.viewportChangeSize()` method is used to change the size of the
-canvas rather than the underlying framebuffer.
-
-This method has no effect if `RFB.clipViewport` is set to `false`.
-
-##### Syntax
-
-    RFB.viewportChangeSize( width, height );
-
-###### Parameters
-
-**`width`**
-  - A `long` specifying the new width in CSS pixels.
-
-**`height`**
-  - A `long` specifying the new height in CSS pixels.
