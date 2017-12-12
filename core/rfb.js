@@ -433,7 +433,16 @@ RFB.prototype = {
         this._mouse.ungrab();
         this._sock.close();
         this._print_stats();
-        this._target.removeChild(this._screen);
+        try {
+            this._target.removeChild(this._screen);
+        } catch (e) {
+            if (e.name === 'NotFoundError') {
+                // Some cases where the initial connection fails
+                // can disconnect before the _screen is created
+            } else {
+                throw e;
+            }
+        }
         clearTimeout(this._resizeTimeout);
         Log.Debug("<< RFB.disconnect");
     },
