@@ -1,11 +1,12 @@
-## noVNC: HTML5 VNC Client
+## noVNC: HTML VNC Client Library and Application
 
 [![Build Status](https://travis-ci.org/novnc/noVNC.svg?branch=master)](https://travis-ci.org/novnc/noVNC)
 
 ### Description
 
-noVNC is a HTML5 VNC client that runs well in any modern browser including
-mobile browsers (iOS and Android).
+noVNC is both a HTML VNC client JavaScript library and an application built on
+top of that library. noVNC runs well in any modern browser including mobile
+browsers (iOS and Android).
 
 Many companies, projects and products have integrated noVNC including
 [OpenStack](http://www.openstack.org),
@@ -25,10 +26,17 @@ If you are a noVNC developer/integrator/user (or want to be) please join the
 [noVNC discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
 
 Bugs and feature requests can be submitted via
-[github issues](https://github.com/novnc/noVNC/issues).
+[github issues](https://github.com/novnc/noVNC/issues). If you have questions
+about using noVNC then please first use the
+[discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
+We also have a [wiki](https://github.com/novnc/noVNC/wiki/) with lots of
+helpful information.
+
 If you are looking for a place to start contributing to noVNC, a good place to
 start would be the issues that are marked as
 ["patchwelcome"](https://github.com/novnc/noVNC/issues?labels=patchwelcome).
+Please check our
+[contribution guide](https://github.com/novnc/noVNC/wiki/Contributing) though.
 
 If you want to show appreciation for noVNC you could donate to a great non-
 profits such as:
@@ -45,14 +53,11 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 
 * Supports all modern browsers including mobile (iOS, Android)
 * Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG
-* WebSocket SSL/TLS encryption (i.e. "wss://") support
-* 24-bit true color and 8 bit colour mapped
-* Supports desktop resize notification/pseudo-encoding
-* Local or remote cursor
+* Supports scaling, clipping and resizing the desktop
+* Local cursor rendering
 * Clipboard copy/paste
-* Clipping or scolling modes for large remote screens
-* Easy site integration and theming (3 example themes included)
-* Licensed under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/)
+* Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
+  [the license document](LICENSE.txt) for details
 
 ### Screenshots
 
@@ -67,63 +72,45 @@ See more screenshots
 
 ### Browser Requirements
 
-* Chrome 49, Firefox 44, Safari 10, Opera 36, IE 11, Edge 12, etc.
+noVNC uses many modern web technologies so a formal requirement list is
+not available. However these are the minimum versions we are currently
+aware of:
 
-* HTML5 Canvas, WebSockets and Typed Arrays, etc.
-
-* Fast Javascript Engine: this is not strictly a requirement, but without a
-  fast Javascript engine, noVNC might be painfully slow.
-
-* See the more detailed
-[browser compatibility wiki page](https://github.com/novnc/noVNC/wiki/Browser-support).
+* Chrome 49, Firefox 44, Safari 10, Opera 36, IE 11, Edge 12
 
 
 ### Server Requirements
 
-Unless you are using a VNC server with support for WebSockets connections (such
-as [x11vnc/libvncserver](http://libvncserver.sourceforge.net/),
-[QEMU](http://www.qemu.org/), or
-[MobileVNC](http://www.smartlab.at/mobilevnc/)), you need to use a
-WebSockets to TCP socket proxy. There is a python proxy included
-('websockify').
+noVNC follows the standard VNC protocol, but unlike other VNC clients it does
+require WebSockets support. Many servers include support (e.g.
+[x11vnc/libvncserver](http://libvncserver.sourceforge.net/),
+[QEMU](http://www.qemu.org/), and
+[MobileVNC](http://www.smartlab.at/mobilevnc/)), but for the others you need to
+use a WebSockets to TCP socket proxy. noVNC has a sister project
+[websockify](https://github.com/novnc/websockify) that provides a simple such
+proxy.
 
 
 ### Quick Start
 
-* Use the launch script to start a mini-webserver and the WebSockets proxy
-  (websockify). The `--vnc` option is used to specify the location of a running
-  VNC server:
+* Use the launch script to automatically download and start websockify, which
+  includes a mini-webserver and the WebSockets proxy. The `--vnc` option is
+  used to specify the location of a running VNC server:
 
     `./utils/launch.sh --vnc localhost:5901`
 
 * Point your browser to the cut-and-paste URL that is output by the launch
-  script. Enter a password if the VNC server has one configured. Hit the
-  Connect button and enjoy!
+  script. Hit the Connect button, enter a password if the VNC server has one
+  configured, and enjoy!
 
 
-### Other Pages
+### Integration and Deployment
 
-* [Modules/API](https://github.com/novnc/noVNC/blob/master/docs/API.md) - The library
-  modules and their Javascript API.
+Please see our other documents for how to integrate noVNC in your own software,
+or deploying the noVNC application in production environments:
 
-* [Integration](https://github.com/novnc/noVNC/wiki/Integration) - Get noVNC
-  to work in existing projects.
-
-* [Troubleshooting](https://github.com/novnc/noVNC/wiki/Troubleshooting) - How
-  to troubleshoot problems.
-
-* [Encrypted Connections](https://github.com/novnc/websockify/wiki/Encrypted-Connections) -
-  Setup websockify so that you can use encrypted connections from noVNC.
-
-* [Advanced Usage](https://github.com/novnc/noVNC/wiki/Advanced-usage) -
-  Generating an SSL certificate, starting a VNC server, advanced websockify
-  usage, etc.
-
-* [Testing](https://github.com/novnc/noVNC/wiki/Testing) - Run and write
-  tests.
-
-* [Translations](https://github.com/novnc/noVNC/wiki/Translations) - Add and
-  modify localization for JavaScript and HTML.
+* [Embedding](docs/EMBEDDING.md) - For the noVNC application
+* [Library](docs/LIBRARY.md) - For the noVNC JavaScript library
 
 
 ### Authors/Contributors
@@ -146,4 +133,6 @@ WebSockets to TCP socket proxy. There is a python proxy included
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
     * Pako : Vitaly Puzrin (https://github.com/nodeca/pako)
 
-* [Contribution guide](https://github.com/novnc/noVNC/wiki/Contributing)
+Do you want to be on this list? Check out our
+[contribution guide](https://github.com/novnc/noVNC/wiki/Contributing) and
+start hacking!
