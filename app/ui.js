@@ -1099,6 +1099,8 @@ var UI = {
     },
 
     disconnectFinished: function (e) {
+        let wasConnected = UI.connected;
+
         // This variable is ideally set when disconnection starts, but
         // when the disconnection isn't clean or if it is initiated by
         // the server, we need to do it here as well since
@@ -1107,8 +1109,12 @@ var UI = {
 
         if (!e.detail.clean) {
             UI.updateVisualState('disconnected');
-            UI.showStatus(_("Something went wrong, connection is closed"),
-                          'error');
+            if (wasConnected) {
+                UI.showStatus(_("Something went wrong, connection is closed"),
+                              'error');
+            } else {
+                UI.showStatus(_("Failed to connect to server"), 'error');
+            }
         } else if (UI.getSetting('reconnect', false) === true && !UI.inhibit_reconnect) {
             UI.updateVisualState('reconnecting');
 
