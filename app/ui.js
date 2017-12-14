@@ -1055,6 +1055,8 @@ var UI = {
 
         UI.updateVisualState('disconnecting');
 
+        UI.rfb = undefined;
+
         // Don't display the connection settings until we're actually disconnected
     },
 
