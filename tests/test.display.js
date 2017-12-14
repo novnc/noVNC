@@ -345,6 +345,31 @@ describe('Display/Canvas Helper', function () {
             expect(display).to.have.displayed(checked_data);
         });
 
+        // We have a special cache for 16x16 tiles that we need to test
+        it('should support drawing a 16x16 tile', function () {
+            let large_checked_data = new Uint8Array(16*16*4);
+            display.resize(16, 16);
+
+            for (let y = 0;y < 16;y++) {
+                for (let x = 0;x < 16;x++) {
+                    let pixel;
+                    if ((x < 4) && (y < 4)) {
+                        pixel = checked_data.slice((y*4+x)*4, (y*4+x+1)*4);
+                    } else {
+                        pixel = [0, 0xff, 0, 255];
+                    }
+                    large_checked_data.set(pixel, (y*16+x)*4);
+                }
+            }
+
+            display.startTile(0, 0, 16, 16, [0, 0xff, 0]);
+            display.subTile(0, 0, 2, 2, [0xff, 0, 0]);
+            display.subTile(2, 2, 2, 2, [0xff, 0, 0]);
+            display.finishTile();
+            display.flip();
+            expect(display).to.have.displayed(large_checked_data);
+        });
+
         it('should support drawing BGRX blit images with true color via #blitImage', function () {
             var data = [];
             for (var i = 0; i < 16; i++) {
