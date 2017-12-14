@@ -10,16 +10,13 @@ chai.use(function (_chai, utils) {
         var data_cl = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
         // NB(directxman12): PhantomJS 1.x doesn't implement Uint8ClampedArray, so work around that
         var data = new Uint8Array(data_cl);
-        var same = true;
         var len = data_cl.length;
-        if (len != target_data.length) {
-            same = false;
-        } else {
-            for (var i = 0; i < len; i++) {
-                if (data[i] != target_data[i]) {
-                    same = false;
-                    break;
-                }
+        new chai.Assertion(len).to.be.equal(target_data.length, "unexpected display size");
+        var same = true;
+        for (var i = 0; i < len; i++) {
+            if (data[i] != target_data[i]) {
+                same = false;
+                break;
             }
         }
         if (!same) {
