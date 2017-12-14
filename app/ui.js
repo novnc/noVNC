@@ -989,6 +989,12 @@ var UI = {
     },
 
     connect: function(event, password) {
+
+        // Ignore when rfb already exists
+        if (typeof UI.rfb !== 'undefined') {
+            return;
+        }
+
         var host = UI.getSetting('host');
         var port = UI.getSetting('port');
         var path = UI.getSetting('path');
