@@ -1019,8 +1019,6 @@ var UI = {
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
-        UI.updateVisualState('connecting');
-
         var url;
 
         url = UI.getSetting('encrypt') ? 'wss' : 'ws';
@@ -1047,6 +1045,7 @@ var UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
 
+        UI.updateVisualState('connecting');
         UI.updateViewOnly();
     },
 
