@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"POT-Creation-Date: 2018-01-09 23:53+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,40 +17,56 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:395
 msgid "Connecting..."
 msgstr ""
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr ""
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr ""
-
-#: ../app/ui.js:446
+#: ../app/ui.js:402
 msgid "Disconnecting..."
 msgstr ""
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr ""
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr ""
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:408
 msgid "Reconnecting..."
 msgstr ""
 
-#: ../app/ui.js:1140
-msgid "Password is required"
+#: ../app/ui.js:413
+msgid "Internal error"
 msgstr ""
 
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
+#: ../app/ui.js:1015
+msgid "Must set host"
+msgstr ""
+
+#: ../app/ui.js:1097
+msgid "Connected (encrypted) to "
+msgstr ""
+
+#: ../app/ui.js:1099
+msgid "Connected (unencrypted) to "
+msgstr ""
+
+#: ../app/ui.js:1120
+msgid "Something went wrong, connection is closed"
+msgstr ""
+
+#: ../app/ui.js:1123
+msgid "Failed to connect to server"
+msgstr ""
+
+#: ../app/ui.js:1133
+msgid "Disconnected"
+msgstr ""
+
+#: ../app/ui.js:1146
+msgid "New connection has been rejected with reason: "
+msgstr ""
+
+#: ../app/ui.js:1149
+msgid "New connection has been rejected"
+msgstr ""
+
+#: ../app/ui.js:1170
+msgid "Password is required"
 msgstr ""
 
 #: ../vnc.html:89
@@ -210,73 +226,61 @@ msgid "Local Scaling"
 msgstr ""
 
 #: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr ""
-
-#: ../vnc.html:217
 msgid "Remote Resizing"
 msgstr ""
 
-#: ../vnc.html:222
+#: ../vnc.html:221
 msgid "Advanced"
 msgstr ""
 
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr ""
-
-#: ../vnc.html:229
+#: ../vnc.html:224
 msgid "Repeater ID:"
 msgstr ""
 
-#: ../vnc.html:233
+#: ../vnc.html:228
 msgid "WebSocket"
 msgstr ""
 
-#: ../vnc.html:236
+#: ../vnc.html:231
 msgid "Encrypt"
 msgstr ""
 
-#: ../vnc.html:239
+#: ../vnc.html:234
 msgid "Host:"
 msgstr ""
 
-#: ../vnc.html:243
+#: ../vnc.html:238
 msgid "Port:"
 msgstr ""
 
-#: ../vnc.html:247
+#: ../vnc.html:242
 msgid "Path:"
 msgstr ""
 
-#: ../vnc.html:254
+#: ../vnc.html:249
 msgid "Automatic Reconnect"
 msgstr ""
 
-#: ../vnc.html:257
+#: ../vnc.html:252
 msgid "Reconnect Delay (ms):"
 msgstr ""
 
-#: ../vnc.html:263
+#: ../vnc.html:258
 msgid "Logging:"
 msgstr ""
 
-#: ../vnc.html:275
+#: ../vnc.html:270
 msgid "Disconnect"
 msgstr ""
 
-#: ../vnc.html:294
+#: ../vnc.html:289
 msgid "Connect"
 msgstr ""
 
-#: ../vnc.html:304
+#: ../vnc.html:299
 msgid "Password:"
 msgstr ""
 
-#: ../vnc.html:318
+#: ../vnc.html:313
 msgid "Cancel"
-msgstr ""
-
-#: ../vnc.html:334
-msgid "Canvas not supported."
 msgstr ""
