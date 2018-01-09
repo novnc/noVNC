@@ -1,8 +1,7 @@
-# German translations for noVNC package
-# German translation for noVNC.
+# Turkish translations for noVNC package
+# Turkish translation for noVNC.
 # Copyright (C) 2016 Various Authors
 # This file is distributed under the same license as the noVNC package.
-# Loek Janssen <loekjanssen@gmail.com>, 2016.
 # Ömer ÇAKMAK <farukomercakmak@gmail.com>, 2018.
 #
 msgid ""
@@ -13,7 +12,7 @@ msgstr ""
 "PO-Revision-Date: 2018-01-05 19:07+0300\n"
 "Last-Translator: Ömer ÇAKMAK <farukomercakmak@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
-"Language: de\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
