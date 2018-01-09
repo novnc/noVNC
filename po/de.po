@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-11-24 07:16+0000\n"
+"POT-Creation-Date: 2018-01-09 23:53+0800\n"
 "PO-Revision-Date: 2017-11-24 08:20+0100\n"
 "Last-Translator: Dominik Csapak <d.csapak@proxmox.com>\n"
 "Language-Team: none\n"
@@ -19,51 +19,55 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.11\n"
 
-#: ../app/ui.js:404
+#: ../app/ui.js:395
 msgid "Connecting..."
 msgstr "Verbinden..."
 
-#: ../app/ui.js:411
+#: ../app/ui.js:402
 msgid "Disconnecting..."
 msgstr "Verbindung trennen..."
 
-#: ../app/ui.js:417
+#: ../app/ui.js:408
 msgid "Reconnecting..."
 msgstr "Verbindung wiederherstellen..."
 
-#: ../app/ui.js:422
+#: ../app/ui.js:413
 msgid "Internal error"
 msgstr "Interner Fehler"
 
-#: ../app/ui.js:1019
+#: ../app/ui.js:1015
 msgid "Must set host"
 msgstr "Richten Sie den Server ein"
 
-#: ../app/ui.js:1099
+#: ../app/ui.js:1097
 msgid "Connected (encrypted) to "
 msgstr "Verbunden mit (verschlüsselt) "
 
-#: ../app/ui.js:1101
+#: ../app/ui.js:1099
 msgid "Connected (unencrypted) to "
 msgstr "Verbunden mit (unverschlüsselt) "
 
-#: ../app/ui.js:1119
+#: ../app/ui.js:1120
 msgid "Something went wrong, connection is closed"
 msgstr "Etwas lief schief, Verbindung wurde getrennt"
 
-#: ../app/ui.js:1129
+#: ../app/ui.js:1123
+msgid "Failed to connect to server"
+msgstr ""
+
+#: ../app/ui.js:1133
 msgid "Disconnected"
 msgstr "Verbindung zum Server getrennt"
 
-#: ../app/ui.js:1142
+#: ../app/ui.js:1146
 msgid "New connection has been rejected with reason: "
 msgstr "Verbindung wurde aus folgendem Grund abgelehnt: "
 
-#: ../app/ui.js:1145
+#: ../app/ui.js:1149
 msgid "New connection has been rejected"
 msgstr "Verbindung wurde abgelehnt"
 
-#: ../app/ui.js:1166
+#: ../app/ui.js:1170
 msgid "Password is required"
 msgstr "Passwort ist erforderlich"
 
@@ -283,9 +287,8 @@ msgstr "Passwort:"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: ../vnc.html:329
-msgid "Canvas not supported."
-msgstr "Canvas nicht unterstützt."
+#~ msgid "Canvas not supported."
+#~ msgstr "Canvas nicht unterstützt."
 
 #~ msgid "Disconnect timeout"
 #~ msgstr "Zeitüberschreitung beim Trennen"
@@ -296,8 +299,12 @@ msgstr "Canvas nicht unterstützt."
 #~ msgid "Local Cursor"
 #~ msgstr "Lokaler Mauszeiger"
 
-#~ msgid "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen"
-#~ msgstr "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt"
+#~ msgid ""
+#~ "Forcing clipping mode since scrollbars aren't supported by IE in "
+#~ "fullscreen"
+#~ msgstr ""
+#~ "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden "
+#~ "nicht unterstützt"
 
 #~ msgid "True Color"
 #~ msgstr "True Color"
