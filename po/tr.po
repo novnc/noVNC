@@ -286,22 +286,3 @@ msgstr "Vazgeç"
 #: ../vnc.html:329
 msgid "Canvas not supported."
 msgstr "Tuval desteklenmiyor."
-
-#~ msgid "Disconnect timeout"
-#~ msgstr "Zeitüberschreitung beim Trennen"
-
-#~ msgid "Local Downscaling"
-#~ msgstr "Lokales herunterskalieren"
-
-#~ msgid "Local Cursor"
-#~ msgstr "Lokaler Mauszeiger"
-
-#~ msgid ""
-#~ "Forcing clipping mode since scrollbars aren't supported by IE in "
-#~ "fullscreen"
-#~ msgstr ""
-#~ "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden "
-#~ "nicht unterstützt"
-
-#~ msgid "True Color"
-#~ msgstr "True Color"
