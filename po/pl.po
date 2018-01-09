@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-11-21 19:53+0100\n"
+"POT-Creation-Date: 2018-01-09 23:53+0800\n"
 "PO-Revision-Date: 2017-11-21 19:54+0100\n"
 "Last-Translator: Mariusz Jamro <mariusz.jamro@gmail.com>\n"
 "Language-Team: Polish\n"
@@ -19,51 +19,55 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 2.0.1\n"
 
-#: ../app/ui.js:404
+#: ../app/ui.js:395
 msgid "Connecting..."
 msgstr "Łączenie..."
 
-#: ../app/ui.js:411
+#: ../app/ui.js:402
 msgid "Disconnecting..."
 msgstr "Rozłączanie..."
 
-#: ../app/ui.js:417
+#: ../app/ui.js:408
 msgid "Reconnecting..."
 msgstr "Łączenie..."
 
-#: ../app/ui.js:422
+#: ../app/ui.js:413
 msgid "Internal error"
 msgstr "Błąd wewnętrzny"
 
-#: ../app/ui.js:1019
+#: ../app/ui.js:1015
 msgid "Must set host"
 msgstr "Host i port są wymagane"
 
-#: ../app/ui.js:1099
+#: ../app/ui.js:1097
 msgid "Connected (encrypted) to "
 msgstr "Połączenie (szyfrowane) z "
 
-#: ../app/ui.js:1101
+#: ../app/ui.js:1099
 msgid "Connected (unencrypted) to "
 msgstr "Połączenie (nieszyfrowane) z "
 
-#: ../app/ui.js:1119
+#: ../app/ui.js:1120
 msgid "Something went wrong, connection is closed"
 msgstr "Coś poszło źle, połączenie zostało zamknięte"
 
-#: ../app/ui.js:1129
+#: ../app/ui.js:1123
+msgid "Failed to connect to server"
+msgstr ""
+
+#: ../app/ui.js:1133
 msgid "Disconnected"
 msgstr "Rozłączony"
 
-#: ../app/ui.js:1142
+#: ../app/ui.js:1146
 msgid "New connection has been rejected with reason: "
 msgstr "Nowe połączenie zostało odrzucone z powodu: "
 
-#: ../app/ui.js:1145
+#: ../app/ui.js:1149
 msgid "New connection has been rejected"
 msgstr "Nowe połączenie zostało odrzucone"
 
-#: ../app/ui.js:1166
+#: ../app/ui.js:1170
 msgid "Password is required"
 msgstr "Hasło jest wymagane"
 
@@ -283,9 +287,8 @@ msgstr "Hasło:"
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: ../vnc.html:329
-msgid "Canvas not supported."
-msgstr "Element Canvas nie jest wspierany."
+#~ msgid "Canvas not supported."
+#~ msgstr "Element Canvas nie jest wspierany."
 
 #~ msgid "Disconnect timeout"
 #~ msgstr "Timeout rozłączenia"

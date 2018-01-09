@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"POT-Creation-Date: 2018-01-09 23:53+0800\n"
 "PO-Revision-Date: 2017-10-06 10:18+0200\n"
 "Last-Translator: Pierre Ossman <pierre@ossman.eu>\n"
 "Language-Team: none\n"
@@ -19,41 +19,57 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 2.0.3\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:395
 msgid "Connecting..."
 msgstr "Ansluter..."
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr "Ansluten (krypterat) till "
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr "Ansluten (okrypterat) till "
-
-#: ../app/ui.js:446
+#: ../app/ui.js:402
 msgid "Disconnecting..."
 msgstr "Kopplar ner..."
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr "Frånkopplad"
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr "Du måste specifiera en värd"
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:408
 msgid "Reconnecting..."
 msgstr "Återansluter..."
 
-#: ../app/ui.js:1140
+#: ../app/ui.js:413
+msgid "Internal error"
+msgstr ""
+
+#: ../app/ui.js:1015
+msgid "Must set host"
+msgstr "Du måste specifiera en värd"
+
+#: ../app/ui.js:1097
+msgid "Connected (encrypted) to "
+msgstr "Ansluten (krypterat) till "
+
+#: ../app/ui.js:1099
+msgid "Connected (unencrypted) to "
+msgstr "Ansluten (okrypterat) till "
+
+#: ../app/ui.js:1120
+msgid "Something went wrong, connection is closed"
+msgstr ""
+
+#: ../app/ui.js:1123
+msgid "Failed to connect to server"
+msgstr ""
+
+#: ../app/ui.js:1133
+msgid "Disconnected"
+msgstr "Frånkopplad"
+
+#: ../app/ui.js:1146
+msgid "New connection has been rejected with reason: "
+msgstr ""
+
+#: ../app/ui.js:1149
+msgid "New connection has been rejected"
+msgstr ""
+
+#: ../app/ui.js:1170
 msgid "Password is required"
 msgstr "Lösenord krävs"
-
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
-msgstr "Det tog för lång tid att koppla ner"
 
 #: ../vnc.html:89
 msgid "noVNC encountered an error:"
@@ -212,73 +228,73 @@ msgid "Local Scaling"
 msgstr "Lokal Skalning"
 
 #: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr "Lokal Nedskalning"
-
-#: ../vnc.html:217
 msgid "Remote Resizing"
 msgstr "Ändra Storlek"
 
-#: ../vnc.html:222
+#: ../vnc.html:221
 msgid "Advanced"
 msgstr "Avancerat"
 
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr "Lokal Muspekare"
-
-#: ../vnc.html:229
+#: ../vnc.html:224
 msgid "Repeater ID:"
 msgstr "Repeater-ID:"
 
-#: ../vnc.html:233
+#: ../vnc.html:228
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:236
+#: ../vnc.html:231
 msgid "Encrypt"
 msgstr "Kryptera"
 
-#: ../vnc.html:239
+#: ../vnc.html:234
 msgid "Host:"
 msgstr "Värd:"
 
-#: ../vnc.html:243
+#: ../vnc.html:238
 msgid "Port:"
 msgstr "Port:"
 
-#: ../vnc.html:247
+#: ../vnc.html:242
 msgid "Path:"
 msgstr "Sökväg:"
 
-#: ../vnc.html:254
+#: ../vnc.html:249
 msgid "Automatic Reconnect"
 msgstr "Automatisk Återanslutning"
 
-#: ../vnc.html:257
+#: ../vnc.html:252
 msgid "Reconnect Delay (ms):"
 msgstr "Fördröjning (ms):"
 
-#: ../vnc.html:263
+#: ../vnc.html:258
 msgid "Logging:"
 msgstr "Loggning:"
 
-#: ../vnc.html:275
+#: ../vnc.html:270
 msgid "Disconnect"
 msgstr "Koppla från"
 
-#: ../vnc.html:294
+#: ../vnc.html:289
 msgid "Connect"
 msgstr "Anslut"
 
-#: ../vnc.html:304
+#: ../vnc.html:299
 msgid "Password:"
 msgstr "Lösenord:"
 
-#: ../vnc.html:318
+#: ../vnc.html:313
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: ../vnc.html:334
-msgid "Canvas not supported."
-msgstr "Canvas stöds ej"
+#~ msgid "Disconnect timeout"
+#~ msgstr "Det tog för lång tid att koppla ner"
+
+#~ msgid "Local Downscaling"
+#~ msgstr "Lokal Nedskalning"
+
+#~ msgid "Local Cursor"
+#~ msgstr "Lokal Muspekare"
+
+#~ msgid "Canvas not supported."
+#~ msgstr "Canvas stöds ej"
