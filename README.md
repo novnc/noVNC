@@ -16,6 +16,17 @@ Many companies, projects and products have integrated noVNC including
 [the Projects and Companies wiki page](https://github.com/novnc/noVNC/wiki/Projects-and-companies-using-noVNC)
 for a more complete list with additional info and links.
 
+### Table of Contents
+
+- [News/help/contact](#newshelpcontact)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Browser Requirements](#browser-requirements)
+- [Server Requirements](#server-requirements)
+- [Quick Start](#quick-start)
+- [Integration and Deployment](#integration-and-deployment)
+- [Authors/Contributors](#authorscontributors)
+
 ### News/help/contact
 
 The project website is found at [novnc.com](http://novnc.com).
