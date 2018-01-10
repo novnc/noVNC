@@ -213,7 +213,7 @@
 
             // If we have an RID, try to load the real URL from session storage
             var rid = WebUtil.getConfigVar('rid', '');
-            var url = localStorage.getItem('coyote-url-' + rid);
+            var url = JSON.parse(localStorage.getItem('coyote-url-' + rid));
             if (rid && url)
                 window.history.replaceState({}, document.title, url.url);
 
@@ -315,8 +315,8 @@
             console.log("Pushing new URL. Original: " + window.location.href);
             if (!rid) {
                 rid = ("" + Math.random()).replace("0.", "");
+                localStorage.setItem("coyote-url-" + rid, JSON.stringify({url: window.location.href, timestamp: new Date()}));
             }
-            localStorage.setItem("coyote-url-" + rid, JSON.stringify({url: window.location.href, timestamp: new Date()}));
             window.history.replaceState({}, document.title, window.location.pathname + "?rid=" + rid);
 
             rfb.connect(host, port, password, path);
