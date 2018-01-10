@@ -354,7 +354,8 @@ describe('Display/Canvas Helper', function () {
                 for (let x = 0;x < 16;x++) {
                     let pixel;
                     if ((x < 4) && (y < 4)) {
-                        pixel = checked_data.slice((y*4+x)*4, (y*4+x+1)*4);
+                        // NB: of course IE11 doesn't support #slice on ArrayBufferViews...
+                        pixel = Array.prototype.slice.call(checked_data, (y*4+x)*4, (y*4+x+1)*4);
                     } else {
                         pixel = [0, 0xff, 0, 255];
                     }
