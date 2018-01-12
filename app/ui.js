@@ -438,19 +438,6 @@ var UI = {
             UI.keepControlbar();
         }
 
-        // Hide input related buttons in view only mode
-        if (UI.rfb && UI.rfb.viewOnly) {
-            document.getElementById('noVNC_keyboard_button')
-                .classList.add('noVNC_hidden');
-            document.getElementById('noVNC_toggle_extra_keys_button')
-                .classList.add('noVNC_hidden');
-        } else {
-            document.getElementById('noVNC_keyboard_button')
-                .classList.remove('noVNC_hidden');
-            document.getElementById('noVNC_toggle_extra_keys_button')
-                .classList.remove('noVNC_hidden');
-        }
-
         // State change disables viewport dragging.
         // It is enabled (toggled) by direct click on the button
         UI.setViewDrag(false);
@@ -1019,6 +1006,8 @@ var UI = {
         UI.closeAllPanels();
         UI.closeConnectPanel();
 
+        UI.updateVisualState('connecting');
+
         var url;
 
         url = UI.getSetting('encrypt') ? 'wss' : 'ws';
@@ -1045,8 +1034,7 @@ var UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
 
-        UI.updateVisualState('connecting');
-        UI.updateViewOnly();
+        UI.updateViewOnly(); // requires UI.rfb
     },
 
     disconnect: function() {
@@ -1606,6 +1594,19 @@ var UI = {
     updateViewOnly: function() {
         if (!UI.rfb) return;
         UI.rfb.viewOnly = UI.getSetting('view_only');
+
+        // Hide input related buttons in view only mode
+        if (UI.rfb.viewOnly) {
+            document.getElementById('noVNC_keyboard_button')
+                .classList.add('noVNC_hidden');
+            document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.add('noVNC_hidden');
+        } else {
+            document.getElementById('noVNC_keyboard_button')
+                .classList.remove('noVNC_hidden');
+            document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.remove('noVNC_hidden');
+        }
     },
 
     updateLogging: function() {
