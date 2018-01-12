@@ -1607,6 +1607,7 @@ var UI = {
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.remove('noVNC_hidden');
         }
+        UI.setMouseButton(1); //has it's own logic for hiding/showing
     },
 
     updateLogging: function() {
