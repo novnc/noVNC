@@ -147,7 +147,7 @@ Localizer.prototype = {
                 }
                 if (elem.hasAttribute("value") &&
                     elem.tagName === "INPUT" &&
-                    isAnyOf(elem.getAttribute("type"), ["reset", "button"])) {
+                    isAnyOf(elem.getAttribute("type"), ["reset", "button", "submit"])) {
                     translateAttribute(elem, "value");
                 }
             }
