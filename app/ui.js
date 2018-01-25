@@ -731,7 +731,7 @@ var UI = {
 
         // Save the cookie for this session
         if (typeof value !== 'undefined') {
-            WebUtil.writeSetting(name, value);
+            WebUtil.setSetting(name, value);
         }
 
         // Update the settings control
