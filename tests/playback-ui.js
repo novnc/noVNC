@@ -115,7 +115,7 @@ IterationPlayer.prototype = {
         this._nextIteration();
     },
 
-    _disconnected: function (rfb, clean, frame) {
+    _disconnected: function (clean, frame) {
         if (!clean) {
             this._state = 'failed';
         }
@@ -123,6 +123,7 @@ IterationPlayer.prototype = {
         var evt = new Event('rfbdisconnected');
         evt.clean = clean;
         evt.frame = frame;
+        evt.iteration = this._iteration;
 
         this.onrfbdisconnected(evt);
     },
@@ -149,7 +150,7 @@ function start() {
         message(`Iteration ${evt.number} took ${evt.duration}ms`);
     };
     player.onrfbdisconnected = function (evt) {
-        if (evt.reason) {
+        if (!evt.clean) {
             message(`noVNC sent disconnected during iteration ${evt.iteration} frame ${evt.frame}`);
         }
     };

@@ -76,7 +76,7 @@ export default function RecordingPlayer (frames, encoding, disconnected) {
 RecordingPlayer.prototype = {
     run: function (realtime, trafficManagement) {
         // initialize a new RFB
-        this._rfb = new RFB(document.getElementById('VNC_canvas'), 'wss://test');
+        this._rfb = new RFB(document.getElementById('VNC_screen'), 'wss://test');
         this._rfb.viewOnly = true;
         this._rfb.addEventListener("disconnect",
                                    this._handleDisconnect.bind(this));
@@ -99,9 +99,9 @@ RecordingPlayer.prototype = {
         this._rfb._sock.send = function (arr) {};
         this._rfb._sock.close = function () {};
         this._rfb._sock.flush = function () {};
-        this._rfb._checkEvents = function () {};
-        this._rfb._connect = function () {
-            this._sock.init('binary', 'ws');
+        this._rfb._sock.open = function () {
+            this.init();
+            this._eventHandlers.open();
         };
     },
 
@@ -187,8 +187,8 @@ RecordingPlayer.prototype = {
         }
     },
 
-    _handleDisconnect(rfb, clean) {
+    _handleDisconnect(evt) {
         this._running = false;
-        this._disconnected(rfb, clean, this._frame_index);
+        this._disconnected(evt.detail.clean, this._frame_index);
     }
 };
