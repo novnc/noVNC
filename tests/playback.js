@@ -183,6 +183,8 @@ RecordingPlayer.prototype = {
             this._rfb._display.flush();
         } else {
             this._running = false;
+            this._rfb._sock._eventHandlers.close({code: 1000, reason: ""});
+            delete this._rfb;
             this.onfinish((new Date()).getTime() - this._start_time);
         }
     },
