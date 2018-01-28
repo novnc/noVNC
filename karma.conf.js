@@ -4,10 +4,12 @@ module.exports = function(config) {
   const customLaunchers = {};
   let browsers = [];
   let useSauce = false;
+  let transpile = false;
 
   // use Sauce when running on Travis
   if (process.env.TRAVIS_JOB_NUMBER) {
     useSauce = true;
+    transpile = true;
   }
 
   if (useSauce && process.env.TEST_BROWSER_NAME && process.env.TEST_BROWSER_NAME != 'PhantomJS') {
@@ -97,6 +99,7 @@ module.exports = function(config) {
 
     babelPreprocessor: {
       options: {
+        presets: transpile ? ['es2015'] : [],
         plugins: ['transform-es2015-modules-amd', 'syntax-dynamic-import'],
         sourceMap: 'inline',
       },

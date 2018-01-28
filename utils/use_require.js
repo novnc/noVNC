@@ -90,6 +90,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
 
     // NB: we need to make a copy of babel_opts, since babel sets some defaults on it
     const babel_opts = () => ({
+        presets: ['es2015'],
         plugins: [`transform-es2015-modules-${import_format}`],
         ast: false,
         sourceMaps: source_maps,
