@@ -1,9 +1,9 @@
 // Karma configuration
 
 module.exports = function(config) {
-  var customLaunchers = {};
-  var browsers = [];
-  var useSauce = false;
+  const customLaunchers = {};
+  let browsers = [];
+  let useSauce = false;
 
   // use Sauce when running on Travis
   if (process.env.TRAVIS_JOB_NUMBER) {
@@ -11,22 +11,18 @@ module.exports = function(config) {
   }
 
   if (useSauce && process.env.TEST_BROWSER_NAME && process.env.TEST_BROWSER_NAME != 'PhantomJS') {
-    var names = process.env.TEST_BROWSER_NAME.split(',');
-    var platforms = process.env.TEST_BROWSER_OS.split(',');
-    var versions = [];
-    if (process.env.TEST_BROWSER_VERSION) {
-      versions = process.env.TEST_BROWSER_VERSION.split(',');
-    } else {
-      versions = [null];
-    }
+    const names = process.env.TEST_BROWSER_NAME.split(',');
+    const platforms = process.env.TEST_BROWSER_OS.split(',');
+    const versions = process.env.TEST_BROWSER_VERSION
+      ? process.env.TEST_BROWSER_VERSION.split(',')
+      : [null];
 
-    for (var i = 0; i < names.length; i++) {
-      for (var j = 0; j < platforms.length; j++) {
-        for (var k = 0; k < versions.length; k++) {
-          var launcher_name = 'sl_' + platforms[j].replace(/[^a-zA-Z0-9]/g, '') + '_' + names[i];
-          if (versions[k]) {
-            launcher_name += '_' + versions[k];
-          }
+    for (let i = 0; i < names.length; i++) {
+      for (let j = 0; j < platforms.length; j++) {
+        for (let k = 0; k < versions.length; k++) {
+          const launcher_name = versions[k]
+            ? '_' + versions[k]
+            : 'sl_' + platforms[j].replace(/[^a-zA-Z0-9]/g, '') + '_' + names[i];
 
           customLaunchers[launcher_name] = {
             base: 'SauceLabs',
@@ -48,7 +44,7 @@ module.exports = function(config) {
     browsers = [];
   }
 
-  var my_conf = {
+  const my_conf = {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',

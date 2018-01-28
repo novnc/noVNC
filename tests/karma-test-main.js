@@ -1,8 +1,8 @@
-var TEST_REGEXP = /test\..*\.js/;
-var allTestFiles = [];
-var extraFiles = ['/base/tests/assertions.js'];
+const TEST_REGEXP = /test\..*\.js/;
+const allTestFiles = [];
+const extraFiles = ['/base/tests/assertions.js'];
 
-Object.keys(window.__karma__.files).forEach(function (file) {
+Object.keys(window.__karma__.files).forEach((file) => {
     if (TEST_REGEXP.test(file)) {
         // TODO: normalize?
         allTestFiles.push(file);

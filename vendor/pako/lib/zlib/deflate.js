@@ -280,7 +280,7 @@ function longest_match(s, cur_match) {
      * the 256th check will be made at strstart+258.
      */
     do {
-      /*jshint noempty:false*/
+      // Do nothing
     } while (_win[++scan] === _win[++match] && _win[++scan] === _win[++match] &&
              _win[++scan] === _win[++match] && _win[++scan] === _win[++match] &&
              _win[++scan] === _win[++match] && _win[++scan] === _win[++match] &&
@@ -892,7 +892,7 @@ function deflate_rle(s, flush) {
       if (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan]) {
         strend = s.strstart + MAX_MATCH;
         do {
-          /*jshint noempty:false*/
+          // Do nothing
         } while (prev === _win[++scan] && prev === _win[++scan] &&
                  prev === _win[++scan] && prev === _win[++scan] &&
                  prev === _win[++scan] && prev === _win[++scan] &&

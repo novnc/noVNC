@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var path = require('path');
-var program = require('commander');
-var fs = require('fs');
-var fse = require('fs-extra');
+const path = require('path');
+const program = require('commander');
+const fs = require('fs');
+const fse = require('fs-extra');
 
 const SUPPORTED_FORMATS = new Set(['amd', 'commonjs', 'systemjs', 'umd']);
 
@@ -40,7 +40,7 @@ no_copy_files.forEach((file) => no_transform_files.add(file));
 
 // walkDir *recursively* walks directories trees,
 // calling the callback for all normal files found.
-var walkDir = function (base_path, cb, filter) {
+function walkDir(base_path, cb, filter) {
     fs.readdir(base_path, (err, files) => {
         if (err) throw err;
 
@@ -56,26 +56,26 @@ var walkDir = function (base_path, cb, filter) {
             });
         });
     });
-};
+}
 
-var transform_html = function (new_script) {
+function transform_html(new_script) {
     // write out the modified vnc.html file that works with the bundle
-    var src_html_path = path.resolve(__dirname, '..', 'vnc.html');
-    var out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
+    const src_html_path = path.resolve(__dirname, '..', 'vnc.html');
+    const out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
     fs.readFile(src_html_path, (err, contents_raw) => {
         if (err) { throw err; }
 
-        var contents = contents_raw.toString();
+        let contents = contents_raw.toString();
 
-        var start_marker = '<!-- begin scripts -->\n';
-        var end_marker = '<!-- end scripts -->';
-        var start_ind = contents.indexOf(start_marker) + start_marker.length;
-        var end_ind = contents.indexOf(end_marker, start_ind);
+        const start_marker = '<!-- begin scripts -->\n';
+        const end_marker = '<!-- end scripts -->';
+        const start_ind = contents.indexOf(start_marker) + start_marker.length;
+        const end_ind = contents.indexOf(end_marker, start_ind);
 
         contents = contents.slice(0, start_ind) + `${new_script}\n` + contents.slice(end_ind);
 
         console.log(`Writing ${out_html_path}`);
-        fs.writeFile(out_html_path, contents, function (err) {
+        fs.writeFile(out_html_path, contents, (err) => {
             if (err) { throw err; }
         });
     });
@@ -96,12 +96,13 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
     });
     const babel = require('babel-core');
 
-    var in_path;
+    let in_path;
+    let out_path_base;
     if (with_app_dir) {
-        var out_path_base = paths.out_dir_base;
+        out_path_base = paths.out_dir_base;
         in_path = paths.main;
     } else {
-        var out_path_base = paths.lib_dir_base;
+        out_path_base = paths.lib_dir_base;
     }
 
     fse.ensureDirSync(out_path_base);
@@ -109,7 +110,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
     const helpers = require('./use_require_helpers');
     const helper = helpers[import_format];
 
-    var handleDir = (js_only, vendor_rewrite, in_path_base, filename) => {
+    const handleDir = (js_only, vendor_rewrite, in_path_base, filename) => {
         if (no_copy_files.has(filename)) return;
 
         const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
@@ -143,7 +144,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
             babel.transformFile(filename, opts, (err, res) => {
                 console.log(`Writing ${out_path}`);
                 if (err) throw err;
-                var {code, map, ast} = res;
+                let {code, map} = res;
                 if (source_maps === true) {
                     // append URL for external source map
                     code += `\n//# sourceMappingURL=${path.basename(out_path)}.map\n`;
@@ -161,11 +162,11 @@ var make_lib_files = function (import_format, source_maps, with_app_dir) {
         helper.noCopyOverride(paths, no_copy_files);
     }
 
-    walkDir(paths.vendor, handleDir.bind(null, true, false, in_path || paths.main), (filename, stats) => !no_copy_files.has(filename));
-    walkDir(paths.core, handleDir.bind(null, true, !in_path, in_path || paths.core), (filename, stats) => !no_copy_files.has(filename));
+    walkDir(paths.vendor, handleDir.bind(null, true, false, in_path || paths.main), filename => !no_copy_files.has(filename));
+    walkDir(paths.core, handleDir.bind(null, true, !in_path, in_path || paths.core), filename => !no_copy_files.has(filename));
 
     if (with_app_dir) {
-        walkDir(paths.app, handleDir.bind(null, false, false, in_path), (filename, stats) => !no_copy_files.has(filename));
+        walkDir(paths.app, handleDir.bind(null, false, false, in_path), filename => !no_copy_files.has(filename));
 
         const out_app_path = path.join(out_path_base, 'app.js');
         if (helper && helper.appWriter) {

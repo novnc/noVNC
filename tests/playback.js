@@ -10,11 +10,12 @@ import Base64 from '../core/base64.js';
 
 // Immediate polyfill
 if (setImmediate === undefined) {
-    var _immediateIdCounter = 1;
-    var _immediateFuncs = {};
+    let _immediateIdCounter = 1;
+    const _immediateFuncs = {};
 
-    var setImmediate = function (func) {
-        var index = _immediateIdCounter++;
+    // eslint-disable-next-line no-unused-vars
+    const setImmediate = function (func) {
+        const index = _immediateIdCounter++;
         _immediateFuncs[index] = func;
         window.postMessage("noVNC immediate trigger:" + index, "*");
         return index;
@@ -24,15 +25,15 @@ if (setImmediate === undefined) {
         _immediateFuncs[id];
     };
 
-    var _onMessage = function (event) {
+    const _onMessage = function (event) {
         if ((typeof event.data !== "string") ||
             (event.data.indexOf("noVNC immediate trigger:") !== 0)) {
             return;
         }
 
-        var index = event.data.slice("noVNC immediate trigger:".length);
+        const index = event.data.slice("noVNC immediate trigger:".length);
 
-        var callback = _immediateFuncs[index];
+        const callback = _immediateFuncs[index];
         if (callback === undefined) {
             return;
         }
@@ -70,11 +71,11 @@ export default function RecordingPlayer (frames, encoding, disconnected) {
 
     this._running = false;
 
-    this.onfinish = function () {};
+    this.onfinish = () => {};
 }
 
 RecordingPlayer.prototype = {
-    run: function (realtime, trafficManagement) {
+    run(realtime, trafficManagement) {
         // initialize a new RFB
         this._rfb = new RFB(document.getElementById('VNC_screen'), 'wss://test');
         this._rfb.viewOnly = true;
@@ -95,20 +96,20 @@ RecordingPlayer.prototype = {
     },
 
     // _enablePlaybackMode mocks out things not required for running playback
-    _enablePlaybackMode: function () {
-        this._rfb._sock.send = function (arr) {};
-        this._rfb._sock.close = function () {};
-        this._rfb._sock.flush = function () {};
-        this._rfb._sock.open = function () {
+    _enablePlaybackMode() {
+        this._rfb._sock.send = () => {};
+        this._rfb._sock.close = () => {};
+        this._rfb._sock.flush = () => {};
+        this._rfb._sock.open = () => {
             this.init();
             this._eventHandlers.open();
         };
     },
 
-    _queueNextPacket: function () {
+    _queueNextPacket() {
         if (!this._running) { return; }
 
-        var frame = this._frames[this._frame_index];
+        let frame = this._frames[this._frame_index];
 
         // skip send frames
         while (this._frame_index < this._frame_length && frame.charAt(0) === "}") {
@@ -140,7 +141,7 @@ RecordingPlayer.prototype = {
         }
     },
 
-    _doPacket: function () {
+    _doPacket() {
         // Avoid having excessive queue buildup in non-realtime mode
         if (this._trafficManagement && this._rfb._flushing) {
             let player = this;
@@ -154,12 +155,13 @@ RecordingPlayer.prototype = {
         }
 
         const frame = this._frames[this._frame_index];
-        var start = frame.indexOf('{', 1) + 1;
+        let start = frame.indexOf('{', 1) + 1;
+        let u8;
         if (this._encoding === 'base64') {
-            var u8 = Base64.decode(frame.slice(start));
+            u8 = Base64.decode(frame.slice(start));
             start = 0;
         } else {
-            var u8 = new Uint8Array(frame.length - start);
+            u8 = new Uint8Array(frame.length - start);
             for (let i = 0; i < frame.length - start; i++) {
                 u8[i] = frame.charCodeAt(start + i);
             }
@@ -173,7 +175,7 @@ RecordingPlayer.prototype = {
 
     _finish() {
         if (this._rfb._display.pending()) {
-            var player = this;
+            const player = this;
             this._rfb._display.onflush = function () {
                 if (player._rfb._flushing) {
                     player._rfb._onFlush();
