@@ -1592,6 +1592,14 @@ export default class RFB extends EventTargetMixin {
         Log.Info("Sending XVP operation " + op + " (version " + ver + ")");
         RFB.messages.xvpOp(this._sock, ver, op);
     }
+
+    static genDES(password, challenge) {
+        const passwd = [];
+        for (let i = 0; i < password.length; i++) {
+            passwd.push(password.charCodeAt(i));
+        }
+        return (new DES(passwd)).encrypt(challenge);
+    };
 }
 
 // Class Methods
@@ -1890,14 +1898,6 @@ RFB.messages = {
         sock._sQlen += 4;
         sock.flush();
     }
-};
-
-RFB.genDES = (password, challenge) => {
-    const passwd = [];
-    for (let i = 0; i < password.length; i++) {
-        passwd.push(password.charCodeAt(i));
-    }
-    return (new DES(passwd)).encrypt(challenge);
 };
 
 RFB.encodingHandlers = {

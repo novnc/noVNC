@@ -657,44 +657,44 @@ export default class Display {
             this.onflush();
         }
     }
+
+    static changeCursor(target, pixels, mask, hotx, hoty, w, h) {
+        if ((w === 0) || (h === 0)) {
+            target.style.cursor = 'none';
+            return;
+        }
+
+        const cur = [];
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
+                const alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
+                idx = ((w * y) + x) * 4;
+                cur.push(pixels[idx + 2]); // red
+                cur.push(pixels[idx + 1]); // green
+                cur.push(pixels[idx]);     // blue
+                cur.push(alpha);           // alpha
+            }
+        }
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = w;
+        canvas.height = h;
+
+        let img;
+        if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
+            img = new ImageData(new Uint8ClampedArray(cur), w, h);
+        } else {
+            img = ctx.createImageData(w, h);
+            img.data.set(new Uint8ClampedArray(cur));
+        }
+        ctx.clearRect(0, 0, w, h);
+        ctx.putImageData(img, 0, 0);
+
+        const url = canvas.toDataURL();
+        target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
+    }
 }
 
-// Class Methods
-Display.changeCursor = (target, pixels, mask, hotx, hoty, w, h) => {
-    if ((w === 0) || (h === 0)) {
-        target.style.cursor = 'none';
-        return;
-    }
-
-    const cur = [];
-    for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-            let idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
-            const alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
-            idx = ((w * y) + x) * 4;
-            cur.push(pixels[idx + 2]); // red
-            cur.push(pixels[idx + 1]); // green
-            cur.push(pixels[idx]);     // blue
-            cur.push(alpha);           // alpha
-        }
-    }
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = w;
-    canvas.height = h;
-
-    let img;
-    if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
-        img = new ImageData(new Uint8ClampedArray(cur), w, h);
-    } else {
-        img = ctx.createImageData(w, h);
-        img.data.set(new Uint8ClampedArray(cur));
-    }
-    ctx.clearRect(0, 0, w, h);
-    ctx.putImageData(img, 0, 0);
-
-    const url = canvas.toDataURL();
-    target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
-};
