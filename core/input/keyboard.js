@@ -5,61 +5,40 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-/*jslint browser: true, white: false */
-/*global window, Util */
-
 import * as Log from '../util/logging.js';
 import { stopEvent } from '../util/events.js';
 import * as KeyboardUtil from "./util.js";
 import KeyTable from "./keysym.js";
+import * as browserUtils from "../util/browsers.js";
 
 //
 // Keyboard event handler
 //
 
-export default function Keyboard(target) {
-    this._target = target || null;
+export default class Keyboard {
+    constructor(target) {
+        this._target = target || null;
 
-    this._keyDownList = {};         // List of depressed keys
-                                    // (even if they are happy)
-    this._pendingKey = null;        // Key waiting for keypress
+        this._keyDownList = {};         // List of depressed keys
+                                        // (even if they are happy)
+        this._pendingKey = null;        // Key waiting for keypress
 
-    // keep these here so we can refer to them later
-    this._eventHandlers = {
-        'keyup': this._handleKeyUp.bind(this),
-        'keydown': this._handleKeyDown.bind(this),
-        'keypress': this._handleKeyPress.bind(this),
-        'blur': this._allKeysUp.bind(this)
-    };
-};
+        // keep these here so we can refer to them later
+        this._eventHandlers = {
+            'keyup': this._handleKeyUp.bind(this),
+            'keydown': this._handleKeyDown.bind(this),
+            'keypress': this._handleKeyPress.bind(this),
+            'blur': this._allKeysUp.bind(this)
+        };
+    }
 
-function isMac() {
-    return navigator && !!(/mac/i).exec(navigator.platform);
-}
-function isWindows() {
-    return navigator && !!(/win/i).exec(navigator.platform);
-}
-function isIOS() {
-    return navigator &&
-           (!!(/ipad/i).exec(navigator.platform) ||
-            !!(/iphone/i).exec(navigator.platform) ||
-            !!(/ipod/i).exec(navigator.platform));
-}
-function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
-}
-
-Keyboard.prototype = {
     // ===== EVENT HANDLERS =====
 
-    onkeyevent: function () {},     // Handler for key press/release
+    onkeyevent() {}     // Handler for key press/release
 
     // ===== PRIVATE METHODS =====
 
-    _sendKeyEvent: function (keysym, code, down) {
+    _sendKeyEvent(keysym, code, down) {
         Log.Debug("onkeyevent " + (down ? "down" : "up") +
                   ", keysym: " + keysym, ", code: " + code);
 
@@ -67,8 +46,8 @@ Keyboard.prototype = {
         // AltGraph, which tends to confuse the hell out of
         // remote systems. Fake a release of these keys until
         // there is a way to detect AltGraph properly.
-        var fakeAltGraph = false;
-        if (down && isWindows()) {
+        let fakeAltGraph = false;
+        if (down && browserUtils.isWindows()) {
             if ((code !== 'ControlLeft') &&
                 (code !== 'AltRight') &&
                 ('ControlLeft' in this._keyDownList) &&
@@ -89,10 +68,10 @@ Keyboard.prototype = {
             this.onkeyevent(this._keyDownList['AltRight'],
                              'AltRight', true);
         }
-    },
+    }
 
-    _getKeyCode: function (e) {
-        var code = KeyboardUtil.getKeycode(e);
+    _getKeyCode(e) {
+        const code = KeyboardUtil.getKeycode(e);
         if (code !== 'Unidentified') {
             return code;
         }
@@ -115,26 +94,26 @@ Keyboard.prototype = {
                 return e.keyIdentifier;
             }
 
-            var codepoint = parseInt(e.keyIdentifier.substr(2), 16);
-            var char = String.fromCharCode(codepoint);
+            const codepoint = parseInt(e.keyIdentifier.substr(2), 16);
+            
             // Some implementations fail to uppercase the symbols
-            char = char.toUpperCase();
+            const char = String.fromCharCode(codepoint).toUpperCase();
 
             return 'Platform' + char.charCodeAt();
         }
 
         return 'Unidentified';
-    },
+    }
 
-    _handleKeyDown: function (e) {
-        var code = this._getKeyCode(e);
-        var keysym = KeyboardUtil.getKeysym(e);
+    _handleKeyDown(e) {
+        let code = this._getKeyCode(e);
+        let keysym = KeyboardUtil.getKeysym(e);
 
         // We cannot handle keys we cannot track, but we also need
         // to deal with virtual keyboards which omit key info
         // (iOS omits tracking info on keyup events, which forces us to
         // special treat that platform here)
-        if ((code === 'Unidentified') || isIOS()) {
+        if ((code === 'Unidentified') || browserUtils.isIOS()) {
             if (keysym) {
                 // If it's a virtual keyboard then it should be
                 // sufficient to just send press and release right
@@ -151,7 +130,7 @@ Keyboard.prototype = {
         // keys around a bit to make things more sane for the remote
         // server. This method is used by RealVNC and TigerVNC (and
         // possibly others).
-        if (isMac()) {
+        if (browserUtils.isMac()) {
             switch (keysym) {
             case KeyTable.XK_Super_L:
                 keysym = KeyTable.XK_Alt_L;
@@ -178,7 +157,7 @@ Keyboard.prototype = {
         // state change events. That gets extra confusing for CapsLock
         // which toggles on each press, but not on release. So pretend
         // it was a quick press and release of the button.
-        if (isMac() && (code === 'CapsLock')) {
+        if (browserUtils.isMac() && (code === 'CapsLock')) {
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
             stopEvent(e);
@@ -189,7 +168,8 @@ Keyboard.prototype = {
         // a keypress event as well
         // (IE and Edge has a broken KeyboardEvent.key, so we can't
         // just check for the presence of that field)
-        if (!keysym && (!e.key || isIE() || isEdge())) {
+        if (!keysym
+            && (!e.key || browserUtils.isIE() || browserUtils.isEdge())) {
             this._pendingKey = code;
             // However we might not get a keypress event if the key
             // is non-printable, which needs some special fallback
@@ -204,10 +184,10 @@ Keyboard.prototype = {
         this._keyDownList[code] = keysym;
 
         this._sendKeyEvent(keysym, code, true);
-    },
+    }
 
     // Legacy event for browsers without code/key
-    _handleKeyPress: function (e) {
+    _handleKeyPress(e) {
         stopEvent(e);
 
         // Are we expecting a keypress?
@@ -215,8 +195,8 @@ Keyboard.prototype = {
             return;
         }
 
-        var code = this._getKeyCode(e);
-        var keysym = KeyboardUtil.getKeysym(e);
+        let code = this._getKeyCode(e);
+        const keysym = KeyboardUtil.getKeysym(e);
 
         // The key we were waiting for?
         if ((code !== 'Unidentified') && (code != this._pendingKey)) {
@@ -227,23 +207,24 @@ Keyboard.prototype = {
         this._pendingKey = null;
 
         if (!keysym) {
-            console.log('keypress with no keysym:', e);
+            Log.Debug('keypress with no keysym:', e);
             return;
         }
 
         this._keyDownList[code] = keysym;
 
         this._sendKeyEvent(keysym, code, true);
-    },
-    _handleKeyPressTimeout: function (e) {
+    }
+
+    _handleKeyPressTimeout(e) {
         // Did someone manage to sort out the key already?
         if (this._pendingKey === null) {
             return;
         }
 
-        var code, keysym;
+        let keysym;
 
-        code = this._pendingKey;
+        const code = this._pendingKey;
         this._pendingKey = null;
 
         // We have no way of knowing the proper keysym with the
@@ -254,12 +235,11 @@ Keyboard.prototype = {
             keysym = e.keyCode;
         } else if ((e.keyCode >= 0x41) && (e.keyCode <= 0x5a)) {
             // Character (A-Z)
-            var char = String.fromCharCode(e.keyCode);
+            let char = String.fromCharCode(e.keyCode);
             // A feeble attempt at the correct case
-            if (e.shiftKey)
-                char = char.toUpperCase();
-            else
-                char = char.toLowerCase();
+            char = e.shiftKey
+                ? char.toUpperCase()
+                : char.toLowerCase();
             keysym = char.charCodeAt();
         } else {
             // Unknown, give up
@@ -269,15 +249,15 @@ Keyboard.prototype = {
         this._keyDownList[code] = keysym;
 
         this._sendKeyEvent(keysym, code, true);
-    },
+    }
 
-    _handleKeyUp: function (e) {
+    _handleKeyUp(e) {
         stopEvent(e);
 
-        var code = this._getKeyCode(e);
+        const code = this._getKeyCode(e);
 
         // See comment in _handleKeyDown()
-        if (isMac() && (code === 'CapsLock')) {
+        if (browserUtils.isMac() && (code === 'CapsLock')) {
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
             return;
@@ -291,22 +271,22 @@ Keyboard.prototype = {
         this._sendKeyEvent(this._keyDownList[code], code, false);
 
         delete this._keyDownList[code];
-    },
+    }
 
-    _allKeysUp: function () {
+    _allKeysUp() {
         Log.Debug(">> Keyboard.allKeysUp");
-        for (var code in this._keyDownList) {
+        for (let code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
-        };
+        }
         this._keyDownList = {};
         Log.Debug("<< Keyboard.allKeysUp");
-    },
+    }
 
     // ===== PUBLIC METHODS =====
 
-    grab: function () {
+    grab() {
         //Log.Debug(">> Keyboard.grab");
-        var c = this._target;
+        const c = this._target;
 
         c.addEventListener('keydown', this._eventHandlers.keydown);
         c.addEventListener('keyup', this._eventHandlers.keyup);
@@ -316,11 +296,11 @@ Keyboard.prototype = {
         window.addEventListener('blur', this._eventHandlers.blur);
 
         //Log.Debug("<< Keyboard.grab");
-    },
+    }
 
-    ungrab: function () {
+    ungrab () {
         //Log.Debug(">> Keyboard.ungrab");
-        var c = this._target;
+        const c = this._target;
 
         c.removeEventListener('keydown', this._eventHandlers.keydown);
         c.removeEventListener('keyup', this._eventHandlers.keyup);
@@ -331,5 +311,5 @@ Keyboard.prototype = {
         this._allKeysUp();
 
         //Log.Debug(">> Keyboard.ungrab");
-    },
-};
+    }
+}

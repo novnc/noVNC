@@ -8,12 +8,12 @@
 
 "use strict";
 
-var fs = require('fs');
+const fs = require('fs');
 
-var show_help = process.argv.length === 2;
-var filename;
+let show_help = process.argv.length === 2;
+let filename;
 
-for (var i = 2; i < process.argv.length; ++i) {
+for (let i = 2; i < process.argv.length; ++i) {
   switch (process.argv[i]) {
     case "--help":
     case "-h":
@@ -36,37 +36,37 @@ if (show_help) {
   console.log("Usage: node parse.js [options] filename:");
   console.log("  -h [ --help ]                 Produce this help message");
   console.log("  filename                      The keysymdef.h file to parse");
-  return;
+  process.exit(0);
 }
 
-var buf = fs.readFileSync(filename);
-var str = buf.toString('utf8');
+const buf = fs.readFileSync(filename);
+const str = buf.toString('utf8');
 
-var re = /^\#define XK_([a-zA-Z_0-9]+)\s+0x([0-9a-fA-F]+)\s*(\/\*\s*(.*)\s*\*\/)?\s*$/m;
+const re = /^#define XK_([a-zA-Z_0-9]+)\s+0x([0-9a-fA-F]+)\s*(\/\*\s*(.*)\s*\*\/)?\s*$/m;
 
-var arr = str.split('\n');
+const arr = str.split('\n');
 
-var codepoints = {};
+const codepoints = {};
 
-for (var i = 0; i < arr.length; ++i) {
-    var result = re.exec(arr[i]);
+for (let i = 0; i < arr.length; ++i) {
+    const result = re.exec(arr[i]);
     if (result){
-        var keyname = result[1];
-        var keysym = parseInt(result[2], 16);
-        var remainder = result[3];
+        const name = result[1];
+        const keysym = parseInt(result[2], 16);
+        const remainder = result[3];
 
-        var unicodeRes = /U\+([0-9a-fA-F]+)/.exec(remainder);
+        const unicodeRes = /U\+([0-9a-fA-F]+)/.exec(remainder);
         if (unicodeRes) {
-            var unicode = parseInt(unicodeRes[1], 16);
+            const unicode = parseInt(unicodeRes[1], 16);
             // The first entry is the preferred one
             if (!codepoints[unicode]){
-                codepoints[unicode] = { keysym: keysym, name: keyname };
+                codepoints[unicode] = { keysym, name };
             }
         }
     }
 }
 
-var out =
+let out =
 "/*\n" +
 " * Mapping from Unicode codepoints to X11/RFB keysyms\n" +
 " *\n" +
@@ -79,14 +79,14 @@ var out =
 "var codepoints = {\n";
 
 function toHex(num) {
-    var s = num.toString(16);
+    let s = num.toString(16);
     if (s.length < 4) {
         s = ("0000" + s).slice(-4);
     }
     return "0x" + s;
-};
+}
 
-for (var codepoint in codepoints) {
+for (let codepoint in codepoints) {
     codepoint = parseInt(codepoint);
 
     // Latin-1?

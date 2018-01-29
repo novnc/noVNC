@@ -10,12 +10,12 @@
  * Logging/debug routines
  */
 
-var _log_level = 'warn';
+let _log_level = 'warn';
 
-var Debug = function (msg) {};
-var Info = function (msg) {};
-var Warn = function (msg) {};
-var Error = function (msg) {};
+let Debug = () => {};
+let Info = () => {};
+let Warn = () => {};
+let Error = () => {};
 
 export function init_logging (level) {
     if (typeof level === 'undefined') {
@@ -24,9 +24,9 @@ export function init_logging (level) {
         _log_level = level;
     }
 
-    Debug = Info = Warn = Error = function (msg) {};
+    Debug = Info = Warn = Error = () => {};
     if (typeof window.console !== "undefined") {
-        /* jshint -W086 */
+        /* eslint-disable no-fallthrough, no-console */
         switch (level) {
             case 'debug':
                 Debug = console.debug.bind(window.console);
@@ -41,12 +41,14 @@ export function init_logging (level) {
             default:
                 throw new Error("invalid logging type '" + level + "'");
         }
-        /* jshint +W086 */
+        /* eslint-enable no-fallthrough, no-console */
     }
-};
+}
+
 export function get_logging () {
     return _log_level;
-};
+}
+
 export { Debug, Info, Warn, Error };
 
 // Initialize logging level

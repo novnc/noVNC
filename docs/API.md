@@ -137,7 +137,7 @@ connection to a specified VNC server.
 
 ##### Syntax
 
-    var rfb = new RFB( target, url [, options] );
+    const rfb = new RFB( target, url [, options] );
 
 ###### Parameters
 

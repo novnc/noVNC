@@ -1,5 +1,4 @@
-﻿var assert = chai.assert;
-var expect = chai.expect;
+﻿const expect = chai.expect;
 
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
@@ -12,8 +11,6 @@ function isEdge() {
 }
 
 describe('Helpers', function() {
-    "use strict";
-
     describe('keysyms.lookup', function() {
         it('should map ASCII characters to keysyms', function() {
             expect(keysyms.lookup('a'.charCodeAt())).to.be.equal(0x61);
@@ -71,7 +68,7 @@ describe('Helpers', function() {
         });
 
         describe('Fix Meta on macOS', function() {
-            var origNavigator;
+            let origNavigator;
             beforeEach(function () {
                 // window.navigator is a protected read-only property in many
                 // environments, so we need to redefine it whilst running these
@@ -134,7 +131,7 @@ describe('Helpers', function() {
         });
 
         describe('Broken key AltGraph on IE/Edge', function() {
-            var origNavigator;
+            let origNavigator;
             beforeEach(function () {
                 // window.navigator is a protected read-only property in many
                 // environments, so we need to redefine it whilst running these

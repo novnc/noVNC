@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-export var encodings = {
+export let encodings = {
     encodingRaw: 0,
     encodingCopyRect: 1,
     encodingRRE: 2,

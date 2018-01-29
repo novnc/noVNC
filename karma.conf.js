@@ -4,29 +4,27 @@ module.exports = function(config) {
   var customLaunchers = {};
   var browsers = [];
   var useSauce = false;
+  var transpile = false;
 
   // use Sauce when running on Travis
   if (process.env.TRAVIS_JOB_NUMBER) {
     useSauce = true;
+    transpile = true;
   }
 
   if (useSauce && process.env.TEST_BROWSER_NAME && process.env.TEST_BROWSER_NAME != 'PhantomJS') {
     var names = process.env.TEST_BROWSER_NAME.split(',');
     var platforms = process.env.TEST_BROWSER_OS.split(',');
-    var versions = [];
-    if (process.env.TEST_BROWSER_VERSION) {
-      versions = process.env.TEST_BROWSER_VERSION.split(',');
-    } else {
-      versions = [null];
-    }
+    var versions = process.env.TEST_BROWSER_VERSION
+      ? process.env.TEST_BROWSER_VERSION.split(',')
+      : [null];
 
     for (var i = 0; i < names.length; i++) {
       for (var j = 0; j < platforms.length; j++) {
         for (var k = 0; k < versions.length; k++) {
-          var launcher_name = 'sl_' + platforms[j].replace(/[^a-zA-Z0-9]/g, '') + '_' + names[i];
-          if (versions[k]) {
-            launcher_name += '_' + versions[k];
-          }
+          var launcher_name = versions[k]
+            ? '_' + versions[k]
+            : 'sl_' + platforms[j].replace(/[^a-zA-Z0-9]/g, '') + '_' + names[i];
 
           customLaunchers[launcher_name] = {
             base: 'SauceLabs',
@@ -101,6 +99,7 @@ module.exports = function(config) {
 
     babelPreprocessor: {
       options: {
+        presets: transpile ? ['es2015'] : [],
         plugins: ['transform-es2015-modules-amd', 'syntax-dynamic-import'],
         sourceMap: 'inline',
       },

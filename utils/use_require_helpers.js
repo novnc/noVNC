@@ -1,7 +1,6 @@
 // writes helpers require for vnc.html (they should output app.js)
-var fs = require('fs');
-var fse = require('fs-extra');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     'amd': {
@@ -19,8 +18,8 @@ module.exports = {
             opts.plugins.unshift("add-module-exports");
         },
         appWriter: (base_out_path, out_path) => {
-            var browserify = require('browserify');
-            var b = browserify(path.join(base_out_path, 'app/ui.js'), {});
+            const browserify = require('browserify');
+            const b = browserify(path.join(base_out_path, 'app/ui.js'), {});
             b.bundle().pipe(fs.createWriteStream(out_path));
             return `<script src="${path.relative(base_out_path, out_path)}"></script>`;
         },
