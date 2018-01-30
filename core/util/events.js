@@ -10,8 +10,6 @@
  * Cross-browser event and position routines
  */
 
-import * as Log from './logging.js';
-
 export function getPointerEvent (e) {
     return e.changedTouches ? e.changedTouches[0] : e.touches ? e.touches[0] : e;
 };
