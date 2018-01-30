@@ -6,7 +6,6 @@ import sinon from '../vendor/sinon.js';
 import Mouse from '../core/input/mouse.js';
 import * as eventUtils from '../core/util/events.js';
 
-/* jshint newcap: false, expr: true */
 describe('Mouse Event Handling', function() {
     "use strict";
 

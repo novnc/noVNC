@@ -7,9 +7,6 @@
  * See README.md for usage and integration instructions.
  */
 
-/*jslint browser: true, white: false */
-/*global Util, Base64, changeCursor */
-
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 

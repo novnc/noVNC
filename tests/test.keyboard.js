@@ -12,7 +12,6 @@ function isEdge() {
     return navigator && !!(/edge/i).exec(navigator.userAgent);
 }
 
-/* jshint newcap: false, expr: true */
 describe('Key Event Handling', function() {
     "use strict";
 

@@ -1,4 +1,3 @@
-/* jshint expr: true */
 var assert = chai.assert;
 var expect = chai.expect;
 
