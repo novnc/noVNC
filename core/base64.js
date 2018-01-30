@@ -6,6 +6,7 @@
 
 /*jslint white: false */
 /*global console */
+import * as Log from './util/logging.js';
 
 export default {
     /* Convert data (an array of integers) to a Base64 string. */
@@ -82,7 +83,7 @@ export default {
             var padding = (data.charAt(i) === base64Pad);
             // Skip illegal characters and whitespace
             if (c === -1) {
-                console.error("Illegal character code " + data.charCodeAt(i) + " at position " + i);
+                Log.Error("Illegal character code " + data.charCodeAt(i) + " at position " + i);
                 continue;
             }
 
