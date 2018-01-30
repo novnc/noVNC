@@ -3,16 +3,7 @@ import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
 import fixedkeys from "./fixedkeys.js";
 import DOMKeyTable from "./domkeytable.js";
-
-function isMac() {
-    return navigator && !!(/mac/i).exec(navigator.platform);
-}
-function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
-}
+import * as browser from "../util/browser.js";
 
 // Get 'KeyboardEvent.code', handling legacy browsers
 export function getKeycode(evt){
@@ -37,7 +28,7 @@ export function getKeycode(evt){
         var code = vkeys[evt.keyCode];
 
         // macOS has messed up this code for some reason
-        if (isMac() && (code === 'ContextMenu')) {
+        if (browser.isMac() && (code === 'ContextMenu')) {
             code = 'MetaRight';
         }
 
@@ -114,7 +105,7 @@ export function getKey(evt) {
 
         // IE and Edge have broken handling of AltGraph so we cannot
         // trust them for printable characters
-        if ((evt.key.length !== 1) || (!isIE() && !isEdge())) {
+        if ((evt.key.length !== 1) || (!browser.isIE() && !browser.isEdge())) {
             return evt.key;
         }
     }

@@ -9,7 +9,7 @@
 /*global window, Util */
 
 import * as Log from '../util/logging.js';
-import { isTouchDevice } from '../util/browsers.js';
+import { isTouchDevice } from '../util/browser.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 
 var WHEEL_STEP = 10; // Delta threshold for a mouse wheel step

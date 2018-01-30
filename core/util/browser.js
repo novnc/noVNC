@@ -22,7 +22,7 @@ window.addEventListener('touchstart', function onFirstTouch() {
 
 var _cursor_uris_supported = null;
 
-export function browserSupportsCursorURIs () {
+export function supportsCursorURIs () {
     if (_cursor_uris_supported === null) {
         try {
             var target = document.createElement('canvas');
@@ -43,3 +43,27 @@ export function browserSupportsCursorURIs () {
 
     return _cursor_uris_supported;
 };
+
+export function isMac() {
+    return navigator && !!(/mac/i).exec(navigator.platform);
+}
+
+export function isIE() {
+    return navigator && !!(/trident/i).exec(navigator.userAgent);
+}
+
+export function isEdge() {
+    return navigator && !!(/edge/i).exec(navigator.userAgent);
+}
+
+export function isWindows() {
+    return navigator && !!(/win/i).exec(navigator.platform);
+}
+
+export function isIOS() {
+    return navigator &&
+           (!!(/ipad/i).exec(navigator.platform) ||
+            !!(/iphone/i).exec(navigator.platform) ||
+            !!(/ipod/i).exec(navigator.platform));
+}
+
