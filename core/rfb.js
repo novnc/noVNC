@@ -18,7 +18,6 @@ import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
 import Websock from "./websock.js";
-import Base64 from "./base64.js";
 import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
