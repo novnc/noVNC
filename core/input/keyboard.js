@@ -227,7 +227,7 @@ Keyboard.prototype = {
         this._pendingKey = null;
 
         if (!keysym) {
-            console.log('keypress with no keysym:', e);
+            Log.Info('keypress with no keysym:', e);
             return;
         }
 

@@ -115,7 +115,6 @@ export function initSettings (callback /*, ...callbackArgs */) {
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.get(function (cfg) {
             settings = cfg;
-            console.log(settings);
             if (callback) {
                 callback.apply(this, callbackArgs);
             }
@@ -132,7 +131,6 @@ export function initSettings (callback /*, ...callbackArgs */) {
 export function writeSetting (name, value) {
     "use strict";
     if (window.chrome && window.chrome.storage) {
-        //console.log("writeSetting:", name, value);
         if (settings[name] !== value) {
             settings[name] = value;
             window.chrome.storage.sync.set(settings);
