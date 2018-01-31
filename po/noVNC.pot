@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-10-06 10:07+0200\n"
+"POT-Creation-Date: 2018-01-31 16:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,266 +17,274 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:395
 msgid "Connecting..."
 msgstr ""
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr ""
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr ""
-
-#: ../app/ui.js:446
+#: ../app/ui.js:402
 msgid "Disconnecting..."
 msgstr ""
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr ""
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr ""
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:408
 msgid "Reconnecting..."
 msgstr ""
 
-#: ../app/ui.js:1140
+#: ../app/ui.js:413
+msgid "Internal error"
+msgstr ""
+
+#: ../app/ui.js:1002
+msgid "Must set host"
+msgstr ""
+
+#: ../app/ui.js:1083
+msgid "Connected (encrypted) to "
+msgstr ""
+
+#: ../app/ui.js:1085
+msgid "Connected (unencrypted) to "
+msgstr ""
+
+#: ../app/ui.js:1108
+msgid "Something went wrong, connection is closed"
+msgstr ""
+
+#: ../app/ui.js:1111
+msgid "Failed to connect to server"
+msgstr ""
+
+#: ../app/ui.js:1121
+msgid "Disconnected"
+msgstr ""
+
+#: ../app/ui.js:1134
+msgid "New connection has been rejected with reason: "
+msgstr ""
+
+#: ../app/ui.js:1137
+msgid "New connection has been rejected"
+msgstr ""
+
+#: ../app/ui.js:1158
 msgid "Password is required"
 msgstr ""
 
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
-msgstr ""
-
-#: ../vnc.html:89
+#: ../vnc.html:91
 msgid "noVNC encountered an error:"
 msgstr ""
 
-#: ../vnc.html:99
+#: ../vnc.html:101
 msgid "Hide/Show the control bar"
 msgstr ""
 
-#: ../vnc.html:106
+#: ../vnc.html:108
 msgid "Move/Drag Viewport"
 msgstr ""
 
-#: ../vnc.html:106
+#: ../vnc.html:108
 msgid "viewport drag"
 msgstr ""
 
-#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
+#: ../vnc.html:114 ../vnc.html:117 ../vnc.html:120 ../vnc.html:123
 msgid "Active Mouse Button"
 msgstr ""
 
-#: ../vnc.html:112
+#: ../vnc.html:114
 msgid "No mousebutton"
 msgstr ""
 
-#: ../vnc.html:115
+#: ../vnc.html:117
 msgid "Left mousebutton"
 msgstr ""
 
-#: ../vnc.html:118
+#: ../vnc.html:120
 msgid "Middle mousebutton"
 msgstr ""
 
-#: ../vnc.html:121
+#: ../vnc.html:123
 msgid "Right mousebutton"
 msgstr ""
 
-#: ../vnc.html:124
+#: ../vnc.html:126
 msgid "Keyboard"
 msgstr ""
 
-#: ../vnc.html:124
+#: ../vnc.html:126
 msgid "Show Keyboard"
 msgstr ""
 
-#: ../vnc.html:131
+#: ../vnc.html:133
 msgid "Extra keys"
 msgstr ""
 
-#: ../vnc.html:131
+#: ../vnc.html:133
 msgid "Show Extra Keys"
 msgstr ""
 
-#: ../vnc.html:136
+#: ../vnc.html:138
 msgid "Ctrl"
 msgstr ""
 
-#: ../vnc.html:136
+#: ../vnc.html:138
 msgid "Toggle Ctrl"
 msgstr ""
 
-#: ../vnc.html:139
+#: ../vnc.html:141
 msgid "Alt"
 msgstr ""
 
-#: ../vnc.html:139
+#: ../vnc.html:141
 msgid "Toggle Alt"
 msgstr ""
 
-#: ../vnc.html:142
+#: ../vnc.html:144
 msgid "Send Tab"
 msgstr ""
 
-#: ../vnc.html:142
+#: ../vnc.html:144
 msgid "Tab"
 msgstr ""
 
-#: ../vnc.html:145
+#: ../vnc.html:147
 msgid "Esc"
 msgstr ""
 
-#: ../vnc.html:145
+#: ../vnc.html:147
 msgid "Send Escape"
 msgstr ""
 
-#: ../vnc.html:148
+#: ../vnc.html:150
 msgid "Ctrl+Alt+Del"
 msgstr ""
 
-#: ../vnc.html:148
+#: ../vnc.html:150
 msgid "Send Ctrl-Alt-Del"
 msgstr ""
 
-#: ../vnc.html:156
+#: ../vnc.html:158
 msgid "Shutdown/Reboot"
 msgstr ""
 
-#: ../vnc.html:156
+#: ../vnc.html:158
 msgid "Shutdown/Reboot..."
 msgstr ""
 
-#: ../vnc.html:162
+#: ../vnc.html:164
 msgid "Power"
 msgstr ""
 
-#: ../vnc.html:164
+#: ../vnc.html:166
 msgid "Shutdown"
 msgstr ""
 
-#: ../vnc.html:165
+#: ../vnc.html:167
 msgid "Reboot"
 msgstr ""
 
-#: ../vnc.html:166
+#: ../vnc.html:168
 msgid "Reset"
 msgstr ""
 
-#: ../vnc.html:171 ../vnc.html:177
+#: ../vnc.html:173 ../vnc.html:179
 msgid "Clipboard"
 msgstr ""
 
-#: ../vnc.html:181
+#: ../vnc.html:183
 msgid "Clear"
 msgstr ""
 
-#: ../vnc.html:187
+#: ../vnc.html:189
 msgid "Fullscreen"
 msgstr ""
 
-#: ../vnc.html:192 ../vnc.html:199
+#: ../vnc.html:194 ../vnc.html:201
 msgid "Settings"
 msgstr ""
 
-#: ../vnc.html:202
+#: ../vnc.html:204
 msgid "Shared Mode"
 msgstr ""
 
-#: ../vnc.html:205
+#: ../vnc.html:207
 msgid "View Only"
 msgstr ""
 
-#: ../vnc.html:209
+#: ../vnc.html:211
 msgid "Clip to Window"
 msgstr ""
 
-#: ../vnc.html:212
+#: ../vnc.html:214
 msgid "Scaling Mode:"
 msgstr ""
 
-#: ../vnc.html:214
+#: ../vnc.html:216
 msgid "None"
 msgstr ""
 
-#: ../vnc.html:215
+#: ../vnc.html:217
 msgid "Local Scaling"
 msgstr ""
 
-#: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr ""
-
-#: ../vnc.html:217
+#: ../vnc.html:218
 msgid "Remote Resizing"
 msgstr ""
 
-#: ../vnc.html:222
+#: ../vnc.html:223
 msgid "Advanced"
 msgstr ""
 
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr ""
-
-#: ../vnc.html:229
+#: ../vnc.html:226
 msgid "Repeater ID:"
 msgstr ""
 
-#: ../vnc.html:233
+#: ../vnc.html:230
 msgid "WebSocket"
 msgstr ""
 
-#: ../vnc.html:236
+#: ../vnc.html:233
 msgid "Encrypt"
 msgstr ""
 
-#: ../vnc.html:239
+#: ../vnc.html:236
 msgid "Host:"
 msgstr ""
 
-#: ../vnc.html:243
+#: ../vnc.html:240
 msgid "Port:"
 msgstr ""
 
-#: ../vnc.html:247
+#: ../vnc.html:244
 msgid "Path:"
 msgstr ""
 
-#: ../vnc.html:254
+#: ../vnc.html:251
 msgid "Automatic Reconnect"
 msgstr ""
 
-#: ../vnc.html:257
+#: ../vnc.html:254
 msgid "Reconnect Delay (ms):"
 msgstr ""
 
-#: ../vnc.html:263
+#: ../vnc.html:260
 msgid "Logging:"
 msgstr ""
 
-#: ../vnc.html:275
+#: ../vnc.html:272
 msgid "Disconnect"
 msgstr ""
 
-#: ../vnc.html:294
+#: ../vnc.html:291
 msgid "Connect"
 msgstr ""
 
-#: ../vnc.html:304
+#: ../vnc.html:301
 msgid "Password:"
 msgstr ""
 
-#: ../vnc.html:318
-msgid "Cancel"
+#: ../vnc.html:305
+msgid "Send Password"
 msgstr ""
 
-#: ../vnc.html:334
-msgid "Canvas not supported."
+#: ../vnc.html:315
+msgid "Cancel"
 msgstr ""
