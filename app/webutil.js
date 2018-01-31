@@ -7,9 +7,6 @@
  * See README.md for usage and integration instructions.
  */
 
-/*jslint bitwise: false, white: false, browser: true, devel: true */
-/*global Util, window, document */
-
 import { init_logging as main_init_logging } from '../core/util/logging.js';
 
 // init log level reading the logging HTTP param

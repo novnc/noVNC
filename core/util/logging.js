@@ -26,7 +26,6 @@ export function init_logging (level) {
 
     Debug = Info = Warn = Error = function (msg) {};
     if (typeof window.console !== "undefined") {
-        /* jshint -W086 */
         switch (level) {
             case 'debug':
                 Debug = console.debug.bind(window.console);
@@ -41,7 +40,6 @@ export function init_logging (level) {
             default:
                 throw new Error("invalid logging type '" + level + "'");
         }
-        /* jshint +W086 */
     }
 };
 export function get_logging () {

@@ -5,9 +5,6 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-/*jslint browser: true, white: false */
-/*global window, Util */
-
 import * as Log from '../util/logging.js';
 import { isTouchDevice } from '../util/browsers.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';

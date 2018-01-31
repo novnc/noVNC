@@ -8,9 +8,6 @@
  * See README.md for usage and integration instructions.
  */
 
-/* jslint white: false, browser: true */
-/* global window, document.getElementById, Util, WebUtil, RFB, Display */
-
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice } from '../core/util/browsers.js';

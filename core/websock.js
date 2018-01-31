@@ -14,9 +14,6 @@
 
 import * as Log from './util/logging.js';
 
-/*jslint browser: true, bitwise: true */
-/*global Util*/
-
 export default function Websock() {
     "use strict";
 

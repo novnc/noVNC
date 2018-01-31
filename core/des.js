@@ -75,13 +75,10 @@
  * fine Java utilities: http://www.acme.com/java/
  */
 
-/* jslint white: false */
-
 export default function DES(passwd) {
     "use strict";
 
     // Tables, permutations, S-boxes, etc.
-    // jshint -W013
     var PC2 = [13,16,10,23, 0, 4, 2,27,14, 5,20, 9,22,18,11, 3,
                25, 7,15, 6,26,19,12, 1,40,51,30,36,46,54,29,39,
                50,44,32,47,43,48,38,55,33,52,45,41,49,35,28,31 ],
@@ -89,7 +86,6 @@ export default function DES(passwd) {
         z = 0x0, a,b,c,d,e,f, SP1,SP2,SP3,SP4,SP5,SP6,SP7,SP8,
         keys = [];
 
-    // jshint -W015
     a=1<<16; b=1<<24; c=a|b; d=1<<2; e=1<<10; f=d|e;
     SP1 = [c|e,z|z,a|z,c|f,c|d,a|f,z|d,a|z,z|e,c|e,c|f,z|e,b|f,c|d,b|z,z|d,
            z|f,b|e,b|e,a|e,a|e,c|z,c|z,b|f,a|d,b|d,b|d,a|d,z|z,z|f,a|f,b|z,
@@ -130,7 +126,6 @@ export default function DES(passwd) {
            c|z,b|d,b|e,z|f,a|e,a|d,c|d,c|e,z|f,z|z,z|z,c|d,b|d,b|e,a|f,a|z,
            a|f,a|z,c|e,z|e,z|d,c|d,z|e,a|f,b|e,z|d,b|d,c|z,c|d,b|z,a|z,b|f,
            z|z,c|f,a|d,b|d,c|z,b|e,b|f,z|z,c|f,a|e,a|e,z|f,z|f,a|d,b|z,c|e];
-    // jshint +W013,+W015
 
     // Set the key.
     function setKeys(keyBlock) {

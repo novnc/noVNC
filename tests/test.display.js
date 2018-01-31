@@ -1,4 +1,3 @@
-/* jshint expr: true */
 var expect = chai.expect;
 
 import Base64 from '../core/base64.js';
