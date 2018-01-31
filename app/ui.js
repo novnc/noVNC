@@ -1653,7 +1653,7 @@ var UI = {
 };
 
 // Set up translations
-var LINGUAS = ["de", "el", "nl", "pl", "sv", "zh"];
+var LINGUAS = ["de", "el", "es", "nl", "pl", "sv", "zh"];
 l10n.setup(LINGUAS);
 if (l10n.language !== "en" && l10n.dictionary === undefined) {
     WebUtil.fetchJSON('app/locale/' + l10n.language + '.json', function (translations) {
