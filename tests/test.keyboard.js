@@ -4,13 +4,7 @@ var expect = chai.expect;
 import sinon from '../vendor/sinon.js';
 
 import Keyboard from '../core/input/keyboard.js';
-
-function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
-}
+import * as browser from '../core/util/browser.js';
 
 describe('Key Event Handling', function() {
     "use strict";
@@ -29,7 +23,7 @@ describe('Key Event Handling', function() {
 
     describe('Decode Keyboard Events', function() {
         it('should decode keydown events', function(done) {
-            if (isIE() || isEdge()) this.skip();
+            if (browser.isIE() || browser.isEdge()) this.skip();
             var kbd = new Keyboard(document);
             kbd.onkeyevent = function(keysym, code, down) {
                 expect(keysym).to.be.equal(0x61);
@@ -40,7 +34,7 @@ describe('Key Event Handling', function() {
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
         });
         it('should decode keyup events', function(done) {
-            if (isIE() || isEdge()) this.skip();
+            if (browser.isIE() || browser.isEdge()) this.skip();
             var calls = 0;
             var kbd = new Keyboard(document);
             kbd.onkeyevent = function(keysym, code, down) {
@@ -135,7 +129,7 @@ describe('Key Event Handling', function() {
 
         describe('suppress the right events at the right time', function() {
             beforeEach(function () {
-                if (isIE() || isEdge()) this.skip();
+                if (browser.isIE() || browser.isEdge()) this.skip();
             });
             it('should suppress anything with a valid key', function() {
                 var kbd = new Keyboard(document, {});
@@ -165,7 +159,7 @@ describe('Key Event Handling', function() {
 
     describe('Fake keyup', function() {
         it('should fake keyup events for virtual keyboards', function(done) {
-            if (isIE() || isEdge()) this.skip();
+            if (browser.isIE() || browser.isEdge()) this.skip();
             var count = 0;
             var kbd = new Keyboard(document);
             kbd.onkeyevent = function(keysym, code, down) {
@@ -212,7 +206,7 @@ describe('Key Event Handling', function() {
             });
 
             it('should fake keyup events on iOS', function(done) {
-                if (isIE() || isEdge()) this.skip();
+                if (browser.isIE() || browser.isEdge()) this.skip();
                 var count = 0;
                 var kbd = new Keyboard(document);
                 kbd.onkeyevent = function(keysym, code, down) {
@@ -236,7 +230,7 @@ describe('Key Event Handling', function() {
 
     describe('Track Key State', function() {
         beforeEach(function () {
-            if (isIE() || isEdge()) this.skip();
+            if (browser.isIE() || browser.isEdge()) this.skip();
         });
         it('should send release using the same keysym as the press', function(done) {
             var kbd = new Keyboard(document);

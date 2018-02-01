@@ -9,6 +9,7 @@ import * as Log from '../util/logging.js';
 import { stopEvent } from '../util/events.js';
 import * as KeyboardUtil from "./util.js";
 import KeyTable from "./keysym.js";
+import * as browser from "../util/browser.js";
 
 //
 // Keyboard event handler
@@ -30,25 +31,6 @@ export default function Keyboard(target) {
     };
 };
 
-function isMac() {
-    return navigator && !!(/mac/i).exec(navigator.platform);
-}
-function isWindows() {
-    return navigator && !!(/win/i).exec(navigator.platform);
-}
-function isIOS() {
-    return navigator &&
-           (!!(/ipad/i).exec(navigator.platform) ||
-            !!(/iphone/i).exec(navigator.platform) ||
-            !!(/ipod/i).exec(navigator.platform));
-}
-function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
-}
-
 Keyboard.prototype = {
     // ===== EVENT HANDLERS =====
 
@@ -65,7 +47,7 @@ Keyboard.prototype = {
         // remote systems. Fake a release of these keys until
         // there is a way to detect AltGraph properly.
         var fakeAltGraph = false;
-        if (down && isWindows()) {
+        if (down && browser.isWindows()) {
             if ((code !== 'ControlLeft') &&
                 (code !== 'AltRight') &&
                 ('ControlLeft' in this._keyDownList) &&
@@ -131,7 +113,7 @@ Keyboard.prototype = {
         // to deal with virtual keyboards which omit key info
         // (iOS omits tracking info on keyup events, which forces us to
         // special treat that platform here)
-        if ((code === 'Unidentified') || isIOS()) {
+        if ((code === 'Unidentified') || browser.isIOS()) {
             if (keysym) {
                 // If it's a virtual keyboard then it should be
                 // sufficient to just send press and release right
@@ -148,7 +130,7 @@ Keyboard.prototype = {
         // keys around a bit to make things more sane for the remote
         // server. This method is used by RealVNC and TigerVNC (and
         // possibly others).
-        if (isMac()) {
+        if (browser.isMac()) {
             switch (keysym) {
             case KeyTable.XK_Super_L:
                 keysym = KeyTable.XK_Alt_L;
@@ -175,7 +157,7 @@ Keyboard.prototype = {
         // state change events. That gets extra confusing for CapsLock
         // which toggles on each press, but not on release. So pretend
         // it was a quick press and release of the button.
-        if (isMac() && (code === 'CapsLock')) {
+        if (browser.isMac() && (code === 'CapsLock')) {
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
             stopEvent(e);
@@ -186,7 +168,7 @@ Keyboard.prototype = {
         // a keypress event as well
         // (IE and Edge has a broken KeyboardEvent.key, so we can't
         // just check for the presence of that field)
-        if (!keysym && (!e.key || isIE() || isEdge())) {
+        if (!keysym && (!e.key || browser.isIE() || browser.isEdge())) {
             this._pendingKey = code;
             // However we might not get a keypress event if the key
             // is non-printable, which needs some special fallback
@@ -274,7 +256,7 @@ Keyboard.prototype = {
         var code = this._getKeyCode(e);
 
         // See comment in _handleKeyDown()
-        if (isMac() && (code === 'CapsLock')) {
+        if (browser.isMac() && (code === 'CapsLock')) {
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
             return;
