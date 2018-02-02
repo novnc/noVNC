@@ -139,7 +139,6 @@ or deploying the noVNC application in production environments:
     * tight encoding : Michael Tinglof (Mercuri.ca)
 
 * Included libraries:
-    * as3crypto : Henri Torgemane (code.google.com/p/as3crypto)
     * base64 : Martijn Pieters (Digital Creations 2), Samuel Sieb (sieb.net)
     * DES : Dave Zimmerman (Widget Workshop), Jef Poskanzer (ACME Labs)
     * Pako : Vitaly Puzrin (https://github.com/nodeca/pako)
