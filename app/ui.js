@@ -1659,7 +1659,8 @@ if (l10n.language !== "en" && l10n.dictionary === undefined) {
         // wait for translations to load before loading the UI
         UI.prime();
     }, function (err) {
-        throw err;
+        Log.Error("Failed to load translations: " + err);
+        UI.prime();
     });
 } else {
     UI.prime();
