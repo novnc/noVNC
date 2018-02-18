@@ -164,7 +164,8 @@ var UI = {
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
-        UI.initSetting('path', 'websockify');
+        UI.initSetting('path', window.location.pathname.split('/').slice(0, -1).join('/') +
+                               '/websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
@@ -1013,7 +1014,7 @@ var UI = {
         if(port) {
             url += ':' + port;
         }
-        url += '/' + path;
+        url += path + document.location.search;
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
