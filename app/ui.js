@@ -1013,7 +1013,7 @@ var UI = {
         if(port) {
             url += ':' + port;
         }
-        url += '/' + path;
+        url += '/' + path + document.location.search;
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
