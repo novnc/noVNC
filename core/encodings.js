@@ -12,6 +12,7 @@ export var encodings = {
     encodingRRE: 2,
     encodingHextile: 5,
     encodingTight: 7,
+    encodingTightPNG: -260,
 
     pseudoEncodingQualityLevel9: -23,
     pseudoEncodingQualityLevel0: -32,
@@ -19,7 +20,6 @@ export var encodings = {
     pseudoEncodingLastRect: -224,
     pseudoEncodingCursor: -239,
     pseudoEncodingQEMUExtendedKeyEvent: -258,
-    pseudoEncodingTightPNG: -260,
     pseudoEncodingExtendedDesktopSize: -308,
     pseudoEncodingXvp: -309,
     pseudoEncodingFence: -312,
@@ -35,6 +35,7 @@ export function encodingName(num) {
         case encodings.encodingRRE:      return "RRE";
         case encodings.encodingHextile:  return "Hextile";
         case encodings.encodingTight:    return "Tight";
+        case encodings.encodingTightPNG:    return "Tight";
         default:                         return "[unknown encoding " + num + "]";
     }
 }

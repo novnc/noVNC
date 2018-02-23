@@ -170,6 +170,7 @@ export default function RFB(target, url, options) {
     this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this);
     this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this);
     this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this);
+    this._encHandlers[encodings.encodingTightPNG] = RFB.encodingHandlers.TIGHT.bind(this);
 
     this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this);
     this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this);
@@ -1256,13 +1257,13 @@ RFB.prototype = {
         // Only supported with full depth support
         if (this._fb_depth == 24) {
             encs.push(encodings.encodingTight);
+            encs.push(encodings.encodingTightPNG);
             encs.push(encodings.encodingHextile);
             encs.push(encodings.encodingRRE);
         }
         encs.push(encodings.encodingRaw);
 
         // Psuedo-encoding settings
-        encs.push(encodings.pseudoEncodingTightPNG);
         encs.push(encodings.pseudoEncodingQualityLevel0 + 6);
         encs.push(encodings.pseudoEncodingCompressLevel0 + 2);
 
