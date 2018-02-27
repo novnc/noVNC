@@ -169,8 +169,8 @@ export default function RFB(target, url, options) {
     this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this);
     this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this);
     this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this);
-    this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this);
-    this._encHandlers[encodings.encodingTightPNG] = RFB.encodingHandlers.TIGHT.bind(this);
+    this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this, false);
+    this._encHandlers[encodings.encodingTightPNG] = RFB.encodingHandlers.TIGHT.bind(this, true);
 
     this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this);
     this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this);
@@ -2111,7 +2111,7 @@ RFB.encodingHandlers = {
         return true;
     },
 
-    TIGHT: function () {
+    TIGHT: function (isTightPNG) {
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
 
@@ -2341,6 +2341,13 @@ RFB.encodingHandlers = {
         else if (ctl < 0x04)    cmode = "copy";
         else return this._fail("Illegal tight compression received (ctl: " +
                                ctl + ")");
+
+        if (isTightPNG && (ctl < 0x08)) {
+            return this._fail("BasicCompression received in TightPNG rect");
+        }
+        if (!isTightPNG && (ctl === 0x0A)) {
+            return this._fail("PNG received in standard Tight rect");
+        }
 
         switch (cmode) {
             // fill use depth because TPIXELs drop the padding byte
