@@ -35,7 +35,7 @@ export function encodingName(num) {
         case encodings.encodingRRE:      return "RRE";
         case encodings.encodingHextile:  return "Hextile";
         case encodings.encodingTight:    return "Tight";
-        case encodings.encodingTightPNG:    return "Tight";
+        case encodings.encodingTightPNG: return "TightPNG";
         default:                         return "[unknown encoding " + num + "]";
     }
 }
