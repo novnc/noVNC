@@ -12,7 +12,6 @@
 
 import * as Log from './util/logging.js';
 import { decodeUTF8 } from './util/strings.js';
-import { supportsCursorURIs, isTouchDevice } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
@@ -1277,8 +1276,7 @@ RFB.prototype = {
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
 
-        if (supportsCursorURIs() &&
-            !isTouchDevice && this._fb_depth == 24) {
+        if (this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
         }
 
