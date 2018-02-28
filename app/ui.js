@@ -721,21 +721,17 @@ var UI = {
         if (val === null) {
             val = WebUtil.readSetting(name, defVal);
         }
-        UI.updateSetting(name, val);
+        WebUtil.setSetting(name, val);
+        UI.updateSetting(name);
         return val;
     },
 
     // Update cookie and form control setting. If value is not set, then
     // updates from control to current cookie setting.
-    updateSetting: function(name, value) {
-
-        // Save the cookie for this session
-        if (typeof value !== 'undefined') {
-            WebUtil.writeSetting(name, value);
-        }
+    updateSetting: function(name) {
 
         // Update the settings control
-        value = UI.getSetting(name);
+        var value = UI.getSetting(name);
 
         var ctrl = document.getElementById('noVNC_setting_' + name);
         if (ctrl.type === 'checkbox') {

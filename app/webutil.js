@@ -117,21 +117,25 @@ export function initSettings (callback /*, ...callbackArgs */) {
             }
         });
     } else {
-        // No-op
+        settings = {};
         if (callback) {
             callback.apply(this, callbackArgs);
         }
     }
 };
 
+// Update the settings cache, but do not write to permanent storage
+export function setSetting (name, value) {
+    settings[name] = value;
+};
+
 // No days means only for this browser session
 export function writeSetting (name, value) {
     "use strict";
+    if (settings[name] === value) return;
+    settings[name] = value;
     if (window.chrome && window.chrome.storage) {
-        if (settings[name] !== value) {
-            settings[name] = value;
-            window.chrome.storage.sync.set(settings);
-        }
+        window.chrome.storage.sync.set(settings);
     } else {
         localStorage.setItem(name, value);
     }
@@ -140,10 +144,11 @@ export function writeSetting (name, value) {
 export function readSetting (name, defaultValue) {
     "use strict";
     var value;
-    if (window.chrome && window.chrome.storage) {
+    if ((name in settings) || (window.chrome && window.chrome.storage)) {
         value = settings[name];
     } else {
         value = localStorage.getItem(name);
+        settings[name] = value;
     }
     if (typeof value === "undefined") {
         value = null;
@@ -157,9 +162,14 @@ export function readSetting (name, defaultValue) {
 
 export function eraseSetting (name) {
     "use strict";
+    // Deleting here means that next time the setting is read when using local
+    // storage, it will be pulled from local storage again.
+    // If the setting in local storage is changed (e.g. in another tab)
+    // between this delete and the next read, it could lead to an unexpected
+    // value change.
+    delete settings[name];
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.remove(name);
-        delete settings[name];
     } else {
         localStorage.removeItem(name);
     }

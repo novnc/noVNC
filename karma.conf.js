@@ -62,6 +62,7 @@ module.exports = function(config) {
       { pattern: 'vendor/sinon.js', included: false },
       { pattern: 'node_modules/sinon-chai/lib/sinon-chai.js', included: false },
       { pattern: 'app/localization.js', included: false },
+      { pattern: 'app/webutil.js', included: false },
       { pattern: 'core/**/*.js', included: false },
       { pattern: 'vendor/pako/**/*.js', included: false },
       { pattern: 'tests/test.*.js', included: false },
@@ -92,6 +93,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       'app/localization.js': ['babel'],
+      'app/webutil.js': ['babel'],
       'core/**/*.js': ['babel'],
       'tests/test.*.js': ['babel'],
       'tests/fake.*.js': ['babel'],
