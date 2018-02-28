@@ -113,9 +113,6 @@ None
 | blitRgbImage       | (x, y, width, height, arr, offset, from_queue)          | Blit RGB encoded image to display
 | blitRgbxImage      | (x, y, width, height, arr, offset, from_queue)          | Blit RGBX encoded image to display
 | drawImage          | (img, x, y)                                             | Draw image and track damage
-| changeCursor       | (pixels, mask, hotx, hoty, w, h)                        | Change cursor appearance
-| defaultCursor      | ()                                                      | Restore default cursor appearance
-| disableLocalCursor | ()                                                      | Disable local (client-side) cursor
 | autoscale          | (containerWidth, containerHeight)                       | Scale the display
 
 ### 2.3.3 Callbacks

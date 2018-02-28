@@ -498,18 +498,6 @@ Display.prototype = {
         this._damage(x, y, img.width, img.height);
     },
 
-    changeCursor: function (pixels, mask, hotx, hoty, w, h) {
-        Display.changeCursor(this._target, pixels, mask, hotx, hoty, w, h);
-    },
-
-    defaultCursor: function () {
-        this._target.style.cursor = "default";
-    },
-
-    disableLocalCursor: function () {
-        this._target.style.cursor = "none";
-    },
-
     autoscale: function (containerWidth, containerHeight) {
         var vp = this._viewportLoc;
         var targetAspectRatio = containerWidth / containerHeight;
@@ -654,45 +642,4 @@ Display.prototype = {
             this.onflush();
         }
     },
-};
-
-// Class Methods
-Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {
-    if ((w === 0) || (h === 0)) {
-        target.style.cursor = 'none';
-        return;
-    }
-
-    var cur = []
-    var y, x;
-    for (y = 0; y < h; y++) {
-        for (x = 0; x < w; x++) {
-            var idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
-            var alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
-            idx = ((w * y) + x) * 4;
-            cur.push(pixels[idx + 2]); // red
-            cur.push(pixels[idx + 1]); // green
-            cur.push(pixels[idx]);     // blue
-            cur.push(alpha);           // alpha
-        }
-    }
-
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-
-    canvas.width = w;
-    canvas.height = h;
-
-    var img;
-    if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
-        img = new ImageData(new Uint8ClampedArray(cur), w, h);
-    } else {
-        img = ctx.createImageData(w, h);
-        img.data.set(new Uint8ClampedArray(cur));
-    }
-    ctx.clearRect(0, 0, w, h);
-    ctx.putImageData(img, 0, 0);
-
-    var url = canvas.toDataURL();
-    target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
 };
