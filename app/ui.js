@@ -549,10 +549,15 @@ var UI = {
     },
 
     toggleControlbarSide: function () {
-        // Temporarily disable animation to avoid weird movement
+        // Temporarily disable animation, if bar is displayed, to avoid weird
+        // movement. The transitionend-event will not fire when display=none.
         var bar = document.getElementById('noVNC_control_bar');
-        bar.style.transitionDuration = '0s';
-        bar.addEventListener('transitionend', function () { this.style.transitionDuration = ""; });
+        var barDisplayStyle = window.getComputedStyle(bar).display;
+        if (barDisplayStyle !== 'none') {
+            bar.style.transitionDuration = '0s';
+            bar.addEventListener('transitionend', function () {
+                this.style.transitionDuration = ""; });
+        }
 
         var anchor = document.getElementById('noVNC_control_bar_anchor');
         if (anchor.classList.contains("noVNC_right")) {
