@@ -56,6 +56,10 @@ export function isEdge() {
     return navigator && !!(/edge/i).exec(navigator.userAgent);
 }
 
+export function isFirefox() {
+    return navigator && !!(/firefox/i).exec(navigator.userAgent);
+}
+
 export function isWindows() {
     return navigator && !!(/win/i).exec(navigator.platform);
 }
