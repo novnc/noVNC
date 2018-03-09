@@ -12,16 +12,7 @@ describe('WebUtil', function() {
 
     describe('settings', function () {
 
-        // on Firefox, localStorage methods cannot be replaced
-        // localStorage is (currently) mockable on Chrome
-        // test to see if localStorage is mockable
-        var mockTest = sinon.spy(window.localStorage, 'setItem');
-        var canMock = window.localStorage.setItem.getCall instanceof Function;
-        mockTest.restore();
-        if (!canMock) {
-            console.warn('localStorage cannot be mocked');
-        }
-        (canMock ? describe : describe.skip)('localStorage', function() {
+        describe('localStorage', function() {
             var chrome = window.chrome;
             before(function() {
                 chrome = window.chrome;
@@ -31,16 +22,30 @@ describe('WebUtil', function() {
                 window.chrome = chrome;
             });
 
-            var lsSandbox = sinon.createSandbox();
-
+            var origLocalStorage;
             beforeEach(function() {
-                lsSandbox.stub(window.localStorage, 'setItem');
-                lsSandbox.stub(window.localStorage, 'getItem');
-                lsSandbox.stub(window.localStorage, 'removeItem');
+                origLocalStorage = Object.getOwnPropertyDescriptor(window, "localStorage");
+                if (origLocalStorage === undefined) {
+                    // Object.getOwnPropertyDescriptor() doesn't work
+                    // properly in any version of IE
+                    this.skip();
+                }
+
+                Object.defineProperty(window, "localStorage", {value: {}});
+                if (window.localStorage.setItem !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
+                }
+
+                window.localStorage.setItem = sinon.stub();
+                window.localStorage.getItem = sinon.stub();
+                window.localStorage.removeItem = sinon.stub();
+
                 WebUtil.initSettings();
             });
             afterEach(function() {
-                lsSandbox.restore();
+                Object.defineProperty(window, "localStorage", origLocalStorage);
             });
 
             describe('writeSetting', function() {
