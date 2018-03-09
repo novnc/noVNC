@@ -39,6 +39,16 @@ Keyboard.prototype = {
     // ===== PRIVATE METHODS =====
 
     _sendKeyEvent: function (keysym, code, down) {
+        if (down) {
+            this._keyDownList[code] = keysym;
+        } else {
+            // Do we really think this key is down?
+            if (!(code in this._keyDownList)) {
+                return;
+            }
+            delete this._keyDownList[code];
+        }
+
         Log.Debug("onkeyevent " + (down ? "down" : "up") +
                   ", keysym: " + keysym, ", code: " + code);
 
@@ -180,8 +190,6 @@ Keyboard.prototype = {
         this._pendingKey = null;
         stopEvent(e);
 
-        this._keyDownList[code] = keysym;
-
         this._sendKeyEvent(keysym, code, true);
     },
 
@@ -209,8 +217,6 @@ Keyboard.prototype = {
             Log.Info('keypress with no keysym:', e);
             return;
         }
-
-        this._keyDownList[code] = keysym;
 
         this._sendKeyEvent(keysym, code, true);
     },
@@ -245,8 +251,6 @@ Keyboard.prototype = {
             keysym = 0;
         }
 
-        this._keyDownList[code] = keysym;
-
         this._sendKeyEvent(keysym, code, true);
     },
 
@@ -262,14 +266,7 @@ Keyboard.prototype = {
             return;
         }
 
-        // Do we really think this key is down?
-        if (!(code in this._keyDownList)) {
-            return;
-        }
-
         this._sendKeyEvent(this._keyDownList[code], code, false);
-
-        delete this._keyDownList[code];
     },
 
     _allKeysUp: function () {
@@ -277,7 +274,6 @@ Keyboard.prototype = {
         for (var code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
         };
-        this._keyDownList = {};
         Log.Debug("<< Keyboard.allKeysUp");
     },
 
