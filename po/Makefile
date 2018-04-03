@@ -1,7 +1,7 @@
 all:
 .PHONY: update-po update-js update-pot
 
-LINGUAS := de el es nl pl sv tr zh
+LINGUAS := de el es nl pl sv tr zh_TW
 
 VERSION := $(shell grep '"version"' ../package.json | cut -d '"' -f 4)
 
