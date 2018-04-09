@@ -1651,7 +1651,7 @@ var UI = {
 };
 
 // Set up translations
-var LINGUAS = ["de", "el", "es", "nl", "pl", "sv", "tr", "zh_TW"];
+var LINGUAS = ["de", "el", "es", "nl", "pl", "sv", "tr", "zh_CN", "zh_TW"];
 l10n.setup(LINGUAS);
 if (l10n.language !== "en" && l10n.dictionary === undefined) {
     WebUtil.fetchJSON('app/locale/' + l10n.language + '.json', function (translations) {
