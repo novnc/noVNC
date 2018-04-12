@@ -823,6 +823,23 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 this.clock.tick();
                 expect(client._sock.open).to.have.been.calledOnce;
             });
+
+            it('should result in a connecting event if state is updated to connecting through the correct function', function () {
+                var client = make_rfb();
+                var spy = sinon.spy();
+                client.addEventListener("connecting", spy);
+                client._rfb_connection_state = '';
+                client._updateConnectionState('connecting');
+                expect(spy).to.have.been.calledOnce;
+            });
+
+            it('should not result in a connecting event if state is updated to connecting via direct assignment', function () {
+                var client = make_rfb();
+                var spy = sinon.spy();
+                client.addEventListener("connecting", spy);
+                client._rfb_connection_state = 'connecting';
+                expect(spy).to.not.have.been.called;
+            });
         });
 
         describe('connected', function () {
@@ -912,6 +929,27 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 expect(spy.args[0].length).to.equal(1);
             });
         });
+
+        describe('connectionState getter', function () {
+            var client;
+            beforeEach(function () {
+                client = new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
+            });
+
+            it('should get the internal connection state', function () {
+                client._rfb_connection_state = 'connecting';
+                client._updateConnectionState('connected');
+                var state = client.connectionState;
+                expect(state).to.equal('connected');
+            });
+
+            it('should disallow manually changing the state', function () {
+                client._rfb_connection_state = 'connecting';
+                client.connectionState = 'connected';
+                var state = client.connectionState;
+                expect(state).to.equal('connecting');
+            });
+        });        
     });
 
     describe('Protocol Initialization States', function () {
