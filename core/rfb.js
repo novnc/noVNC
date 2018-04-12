@@ -312,6 +312,9 @@ RFB.prototype = {
         }
     },
 
+    get connectionState() { return this._rfb_connection_state; },
+    set connectionState(val) { Log.Error("Cannot assign value " + val + " to get-only property connectionState"); },
+
     // ===== PUBLIC METHODS =====
 
     disconnect: function () {
@@ -646,6 +649,8 @@ RFB.prototype = {
 
         switch (state) {
             case 'connecting':
+                var event = new CustomEvent("connecting", { detail: {} });
+                this.dispatchEvent(event);
                 this._connect();
                 break;
 
