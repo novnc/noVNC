@@ -1,4 +1,5 @@
-all:
+all: update-po update-js update-pot
+
 .PHONY: update-po update-js update-pot
 
 LINGUAS := de el es nl pl sv tr zh_CN zh_TW
@@ -13,11 +14,13 @@ update-js: $(JSONFILES)
 
 %.po: noVNC.pot
 	msgmerge --update --lang=$* $@ $<
+
 ../app/locale/%.json: %.po
 	./po2js $< $@
 
 update-pot:
 	xgettext --output=noVNC.js.pot \
+		--language=Python \
 		--copyright-holder="Various Authors" \
 		--package-name="noVNC" \
 		--package-version="$(VERSION)" \
