@@ -187,6 +187,20 @@
         }
 
         var password = WebUtil.getConfigVar('password', '');
+        
+        var defaultPath = 'websockify';
+        // If noVNC is not being served at the root path,
+        // prefix the default websocket path with the server path.
+        var pathName = window.location.pathname.slice(1);
+        if (pathName.length != 0) { // We are not at the root path
+            if (pathName.slice(-1) == '/') {
+                // There's a trailing slash.
+                defaultPath = pathName + 'websockify';            
+            } else {
+                // There's no trailing slash.
+                defaultPath = pathName + '/websockify';
+            }
+        }
         var path = WebUtil.getConfigVar('path', 'websockify');
 
         // If a token variable is passed in, set the parameter in a cookie.
