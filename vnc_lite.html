@@ -201,7 +201,7 @@
                 defaultPath = pathName + '/websockify';
             }
         }
-        var path = WebUtil.getConfigVar('path', 'websockify');
+        var path = WebUtil.getConfigVar('path', defaultPath);
 
         // If a token variable is passed in, set the parameter in a cookie.
         // This is used by nova-novncproxy.
