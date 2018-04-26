@@ -153,9 +153,9 @@ fi
 
 echo -e "\n\nNavigate to this URL:\n"
 if [ "x$SSLONLY" == "x" ]; then
-    echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+    echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(echo "$VNC_DEST"| cut -d: -f1)&port=$(echo "$VNC_DEST"| cut -d: -f2)\n"
 else
-    echo -e "    https://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+    echo -e "    https://$(hostname):${PORT}/vnc.html?host=$(echo "$VNC_DEST"| cut -d: -f1)&port=$(echo "$VNC_DEST"| cut -d: -f2)\n"
 fi
 
 echo -e "Press Ctrl-C to exit\n\n"
