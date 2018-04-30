@@ -163,10 +163,9 @@ var UI = {
          *  /foo/myvnc                /foo/myvnc/websockify
          *  /foo/myvnc/
          *  /foo/myvnc/vnc.html
-         *  /foo/myvnc/vnc_lite.html
          */
         var path = 'websockify';
-        var landing_pages = ['vnc.html', 'vnc_lite.html'];
+        var landing_page = 'vnc.html';
         // If noVNC is not being served at the root path, prefix
         // the default websocket path with the server path.
         var pathName = window.location.pathname.slice(1);
@@ -179,12 +178,10 @@ var UI = {
                 var pathElements = pathName.split('/');
                 var pathLast = pathElements.pop();
 
-                // If we are at one of our landing pages, rewind to its parent
+                // If we are at our landing page, rewind to its parent
                 // directory. Otherwise we assume we are already in a directory.
-                for (var i=0; i<landing_pages.length; i++) {
-                  if (pathLast == landing_pages[i]) {
+                if (pathLast == landing_page) {
                     pathName = pathElements.join('/');
-                  }
                 }
 
                 path = pathName + '/' + path;
