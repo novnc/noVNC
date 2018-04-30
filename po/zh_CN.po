@@ -1,4 +1,4 @@
-# Traditional Chinese translations for noVNC package.
+# Simplified Chinese translations for noVNC package.
 # Copyright (C) 2018 Various Authors
 # This file is distributed under the same license as the noVNC package.
 # Peter Dave Hello <hsu@peterdavehello.org>, 2018.
