@@ -156,17 +156,38 @@ var UI = {
             }
         }
 
+        /*
+         * If novnc is hosted at PATHNAME, the default ws path should be at WS:
+         *  PATHNAME                  WS
+         *  /                         /websockify
+         *  /foo/myvnc                /foo/myvnc/websockify
+         *  /foo/myvnc/
+         *  /foo/myvnc/vnc.html
+         *  /foo/myvnc/vnc_lite.html
+         */
         var path = 'websockify';
+        var landing_pages = ['vnc.html', 'vnc_lite.html'];
         // If noVNC is not being served at the root path, prefix
         // the default websocket path with the server path.
         var pathName = window.location.pathname.slice(1);
         if (pathName.length != 0) { // We are not at the root path
             if (pathName.slice(-1) == '/') {
                 // There's a trailing slash.
-                path = pathName + 'websockify';
+                path = pathName + path;
             } else {
-                // There's no trailing slash.
-                path = pathName + '/websockify';
+                // If there is no trailing slash, we may not be at a directory.
+                var pathElements = pathName.split('/');
+                var pathLast = pathElements.pop();
+
+                // If we are at one of our landing pages, rewind to its parent
+                // directory. Otherwise we assume we are already in a directory.
+                for (var i=0; i<landing_pages.length; i++) {
+                  if (pathLast == landing_pages[i]) {
+                    pathName = pathElements.join('/');
+                  }
+                }
+
+                path = pathName + '/' + path;
             }
         }
         
