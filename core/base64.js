@@ -100,7 +100,7 @@ export default {
 
         // If there are any bits left, the base64 string was corrupted
         if (leftbits) {
-            err = new Error('Corrupted base64 string');
+            var err = new Error('Corrupted base64 string');
             err.name = 'Base64-Error';
             throw err;
         }
