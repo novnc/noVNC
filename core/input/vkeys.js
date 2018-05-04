@@ -58,6 +58,7 @@ export default {
     0x63: 'Numpad3',
     0x64: 'Numpad4',
     0x65: 'Numpad5',
+    0x0c: 'Numpad5', // IE11 sends evt.keyCode: 12 when numlock is off
     0x66: 'Numpad6',
     0x67: 'Numpad7',
     0x68: 'Numpad8',

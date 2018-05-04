@@ -75,7 +75,7 @@ addNumpad("PageUp", KeyTable.XK_Prior, KeyTable.XK_KP_Prior);
 // 2.5. Editing Keys
 
 addStandard("Backspace", KeyTable.XK_BackSpace);
-addStandard("Clear", KeyTable.XK_Clear);
+addNumpad("Clear", KeyTable.XK_Clear, KeyTable.XK_KP_Begin);
 addStandard("Copy", KeyTable.XF86XK_Copy);
 // - CrSel
 addStandard("Cut", KeyTable.XF86XK_Cut);
