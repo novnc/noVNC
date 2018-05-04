@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2017 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2018 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -1688,19 +1688,40 @@ RFB.messages = {
         buff[offset + 2] = 0; // padding
         buff[offset + 3] = 0; // padding
 
-        var n = text.length;
+        let length = text.length;
 
-        buff[offset + 4] = n >> 24;
-        buff[offset + 5] = n >> 16;
-        buff[offset + 6] = n >> 8;
-        buff[offset + 7] = n;
+        buff[offset + 4] = length >> 24;
+        buff[offset + 5] = length >> 16;
+        buff[offset + 6] = length >> 8;
+        buff[offset + 7] = length;
 
-        for (var i = 0; i < n; i++) {
-            buff[offset + 8 + i] =  text.charCodeAt(i);
+        sock._sQlen += 8;
+
+        // We have to keep track of from where in the text we begin creating the
+        // buffer for the flush in the next iteration.
+        let textOffset = 0;
+
+        let remaining = length;
+        while (remaining > 0) {
+
+            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
+            if (flushSize <= 0) {
+                this._fail("Clipboard contents could not be sent");
+                break;
+            }
+
+            offset = sock._sQlen;
+
+            for (let i = 0; i < flushSize; i++) {
+                buff[offset + i] =  text.charCodeAt(textOffset + i);
+            }
+
+            sock._sQlen += flushSize;
+            sock.flush();
+
+            remaining -= flushSize;
+            textOffset += flushSize;
         }
-
-        sock._sQlen += 8 + n;
-        sock.flush();
     },
 
     setDesktopSize: function (sock, width, height, id, flags) {

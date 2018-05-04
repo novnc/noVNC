@@ -287,10 +287,21 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
         describe('#clipboardPasteFrom', function () {
             it('should send the given text in a paste event', function () {
-                var expected = {_sQ: new Uint8Array(11), _sQlen: 0, flush: function () {}};
+                var expected = {_sQ: new Uint8Array(11), _sQlen: 0,
+                                _sQbufferSize: 11, flush: function () {}};
                 RFB.messages.clientCutText(expected, 'abc');
                 client.clipboardPasteFrom('abc');
                 expect(client._sock).to.have.sent(expected._sQ);
+            });
+
+            it('should flush multiple times for large clipboards', function () {
+                sinon.spy(client._sock, 'flush');
+                let long_text = "";
+                for (let i = 0; i < client._sock._sQbufferSize + 100; i++) {
+                    long_text += 'a';
+                }
+                client.clipboardPasteFrom(long_text);
+                expect(client._sock.flush).to.have.been.calledTwice;
             });
 
             it('should not send the text if we are not in a normal state', function () {
