@@ -27,7 +27,18 @@ function _captureProxy(e) {
     if (_captureRecursion) return;
 
     // Clone the event as we cannot dispatch an already dispatched event
-    var newEv = new e.constructor(e.type, e);
+    var newEv = null;
+    try {
+        newEv = new e.constructor(e.type, e);
+    } catch (error) {
+        // Compatible with webkit-3.0 for MouseEventConstructor
+        if ( Object.prototype.toString.call(e) === '[object MouseEvent]') {
+            newEv = document.createEvent("MouseEvent");
+            newEv.initMouseEvent(e.type, e.bubbles, e.cancelable, e.view, e.detail, e.screenX, e.screenY, e.clientX, e.clientY, e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, e.button, e.relatedTarget);
+        } else {
+            throw error;
+        }
+    }
 
     _captureRecursion = true;
     _captureElem.dispatchEvent(newEv);
