@@ -6,6 +6,7 @@ import babelTransformES2015ModulesSystemJS from 'babel-plugin-transform-es2015-m
 var babelTransform = require('babel-core').transform;
 var babelTransformDynamicImport = require('babel-plugin-syntax-dynamic-import');
 var babelTransformES2015ModulesSystemJS = require('babel-plugin-transform-es2015-modules-systemjs');
+var babelPresetES2015 = require('babel-preset-es2015');
 
 self.onmessage = function (evt) {
     // transform source with Babel
@@ -17,6 +18,7 @@ self.onmessage = function (evt) {
       sourceMaps: 'inline',
       babelrc: false,
       plugins: [babelTransformDynamicImport, babelTransformES2015ModulesSystemJS],
+      presets: [babelPresetES2015],
     });
 
     self.postMessage({key: evt.data.key, code: output.code, source: evt.data.source});
