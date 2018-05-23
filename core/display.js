@@ -68,7 +68,7 @@ export default function Display(target) {
 
     this._tile16x16 = this._drawCtx.createImageData(16, 16);
     Log.Debug("<< Display.constructor");
-};
+}
 
 var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
 try {

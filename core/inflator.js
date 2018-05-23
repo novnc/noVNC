@@ -35,4 +35,4 @@ export default function Inflate() {
     this.windowBits = 5;
 
     inflateInit(this.strm, this.windowBits);
-};
+}

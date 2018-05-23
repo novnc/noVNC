@@ -37,7 +37,7 @@ export default function Websock() {
         'close': function () {},
         'error': function () {}
     };
-};
+}
 
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
@@ -204,7 +204,6 @@ Websock.prototype = {
     },
 
     open: function (uri, protocols) {
-        var ws_schema = uri.match(/^([a-z]+):\/\//)[1];
         this.init();
 
         this._websocket = new WebSocket(uri, protocols);
@@ -267,7 +266,7 @@ Websock.prototype = {
         if (this._rQbufferSize > MAX_RQ_GROW_SIZE) {
             this._rQbufferSize = MAX_RQ_GROW_SIZE;
             if (this._rQbufferSize - this._rQlen - this._rQi < min_fit) {
-                throw new Exception("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
+                throw new Error("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
             }
         }
 

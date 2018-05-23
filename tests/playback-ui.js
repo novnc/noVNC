@@ -1,3 +1,5 @@
+/* global VNC_frame_data, VNC_frame_encoding */
+
 import * as WebUtil from '../app/webutil.js';
 import RecordingPlayer from './playback.js';
 
@@ -5,7 +7,6 @@ var frames = null;
 var encoding = null;
 
 function message(str) {
-    console.log(str);
     var cell = document.getElementById('messages');
     cell.textContent += str + "\n";
     cell.scrollTop = cell.scrollHeight;

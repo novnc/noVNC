@@ -16,7 +16,6 @@ import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
-import Display from "../core/display.js";
 import * as WebUtil from "./webutil.js";
 
 var UI = {
@@ -1350,7 +1349,9 @@ var UI = {
             var l = input.value.length;
             // Move the caret to the end
             input.setSelectionRange(l, l);
-        } catch (err) {} // setSelectionRange is undefined in Google Chrome
+        } catch (err) {
+            // setSelectionRange is undefined in Google Chrome 
+        }
     },
 
     hideVirtualKeyboard: function() {

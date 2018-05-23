@@ -1,4 +1,3 @@
-var assert = chai.assert;
 var expect = chai.expect;
 
 import Websock from '../core/websock.js';
@@ -231,14 +230,15 @@ describe('Websock', function() {
 
         var sock;
         beforeEach(function () {
-           sock = new Websock();
-           WebSocket = sinon.spy();
-           WebSocket.OPEN = old_WS.OPEN;
-           WebSocket.CONNECTING = old_WS.CONNECTING;
-           WebSocket.CLOSING = old_WS.CLOSING;
-           WebSocket.CLOSED = old_WS.CLOSED;
+            sock = new Websock();
+            // eslint-disable-next-line no-global-assign
+            WebSocket = sinon.spy();
+            WebSocket.OPEN = old_WS.OPEN;
+            WebSocket.CONNECTING = old_WS.CONNECTING;
+            WebSocket.CLOSING = old_WS.CLOSING;
+            WebSocket.CLOSED = old_WS.CLOSED;
 
-           WebSocket.prototype.binaryType = 'arraybuffer';
+            WebSocket.prototype.binaryType = 'arraybuffer';
         });
 
         describe('opening', function () {
@@ -327,6 +327,7 @@ describe('Websock', function() {
         });
 
         after(function () {
+            // eslint-disable-next-line no-global-assign
             WebSocket = old_WS;
         });
     });

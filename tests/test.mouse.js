@@ -1,4 +1,3 @@
-var assert = chai.assert;
 var expect = chai.expect;
 
 import sinon from '../vendor/sinon.js';

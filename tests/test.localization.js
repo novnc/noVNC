@@ -1,7 +1,6 @@
-var assert = chai.assert;
 var expect = chai.expect;
 
-import l10nGet, { l10n } from '../app/localization.js';
+import { l10n } from '../app/localization.js';
 
 describe('Localization', function() {
     "use strict";

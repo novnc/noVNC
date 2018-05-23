@@ -20,6 +20,7 @@ chai.use(function (_chai, utils) {
             }
         }
         if (!same) {
+            // eslint-disable-next-line no-console
             console.log("expected data: %o, actual data: %o", target_data, data);
         }
         this.assert(same,
@@ -50,6 +51,7 @@ chai.use(function (_chai, utils) {
             }
         }
         if (!same) {
+            // eslint-disable-next-line no-console
             console.log("expected data: %o, actual data: %o", target_data, data);
         }
         this.assert(same,

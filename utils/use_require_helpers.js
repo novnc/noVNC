@@ -1,6 +1,5 @@
 // writes helpers require for vnc.html (they should output app.js)
 var fs = require('fs');
-var fse = require('fs-extra');
 var path = require('path');
 
 // util.promisify requires Node.js 8.x, so we have our own

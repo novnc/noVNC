@@ -31,7 +31,7 @@ export default function Keyboard(target) {
         'blur': this._allKeysUp.bind(this),
         'checkalt': this._checkAlt.bind(this),
     };
-};
+}
 
 Keyboard.prototype = {
     // ===== EVENT HANDLERS =====
@@ -296,7 +296,7 @@ Keyboard.prototype = {
         Log.Debug(">> Keyboard.allKeysUp");
         for (var code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
-        };
+        }
         Log.Debug("<< Keyboard.allKeysUp");
     },
 

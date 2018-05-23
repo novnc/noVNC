@@ -13,7 +13,8 @@ var fs = require('fs');
 var show_help = process.argv.length === 2;
 var filename;
 
-for (var i = 2; i < process.argv.length; ++i) {
+var i;
+for (i = 2; i < process.argv.length; ++i) {
   switch (process.argv[i]) {
     case "--help":
     case "-h":
@@ -36,19 +37,19 @@ if (show_help) {
   console.log("Usage: node parse.js [options] filename:");
   console.log("  -h [ --help ]                 Produce this help message");
   console.log("  filename                      The keysymdef.h file to parse");
-  return;
+  process.exit(0);
 }
 
 var buf = fs.readFileSync(filename);
 var str = buf.toString('utf8');
 
-var re = /^\#define XK_([a-zA-Z_0-9]+)\s+0x([0-9a-fA-F]+)\s*(\/\*\s*(.*)\s*\*\/)?\s*$/m;
+var re = /^#define XK_([a-zA-Z_0-9]+)\s+0x([0-9a-fA-F]+)\s*(\/\*\s*(.*)\s*\*\/)?\s*$/m;
 
 var arr = str.split('\n');
 
 var codepoints = {};
 
-for (var i = 0; i < arr.length; ++i) {
+for (i = 0; i < arr.length; ++i) {
     var result = re.exec(arr[i]);
     if (result){
         var keyname = result[1];
@@ -84,7 +85,7 @@ function toHex(num) {
         s = ("0000" + s).slice(-4);
     }
     return "0x" + s;
-};
+}
 
 for (var codepoint in codepoints) {
     codepoint = parseInt(codepoint);

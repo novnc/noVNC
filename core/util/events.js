@@ -12,12 +12,12 @@
 
 export function getPointerEvent (e) {
     return e.changedTouches ? e.changedTouches[0] : e.touches ? e.touches[0] : e;
-};
+}
 
 export function stopEvent (e) {
     e.stopPropagation();
     e.preventDefault();
-};
+}
 
 // Emulate Element.setCapture() when not supported
 var _captureRecursion = false;
@@ -45,13 +45,13 @@ function _captureProxy(e) {
     if (e.type === "mouseup") {
         releaseCapture();
     }
-};
+}
 
 // Follow cursor style of target element
 function _captureElemChanged() {
     var captureElem = document.getElementById("noVNC_mouse_capture_elem");
     captureElem.style.cursor = window.getComputedStyle(_captureElem).cursor;
-};
+}
 var _captureObserver = new MutationObserver(_captureElemChanged);
 
 var _captureIndex = 0;
@@ -105,7 +105,7 @@ export function setCapture (elem) {
         window.addEventListener('mousemove', _captureProxy);
         window.addEventListener('mouseup', _captureProxy);
     }
-};
+}
 
 export function releaseCapture () {
     if (document.releaseCapture) {
@@ -135,4 +135,4 @@ export function releaseCapture () {
         window.removeEventListener('mousemove', _captureProxy);
         window.removeEventListener('mouseup', _captureProxy);
     }
-};
+}

@@ -1,4 +1,3 @@
-var assert = chai.assert;
 var expect = chai.expect;
 
 import sinon from '../vendor/sinon.js';
@@ -19,7 +18,7 @@ describe('Key Event Handling', function() {
         e.stopPropagation = sinon.spy();
         e.preventDefault = sinon.spy();
         return e;
-    };
+    }
 
     describe('Decode Keyboard Events', function() {
         it('should decode keydown events', function(done) {
@@ -133,12 +132,12 @@ describe('Key Event Handling', function() {
             });
             it('should suppress anything with a valid key', function() {
                 var kbd = new Keyboard(document, {});
-                var evt = keyevent('keydown', {code: 'KeyA', key: 'a'});
-                kbd._handleKeyDown(evt);
-                expect(evt.preventDefault).to.have.been.called;
-                evt = keyevent('keyup', {code: 'KeyA', key: 'a'});
-                kbd._handleKeyUp(evt);
-                expect(evt.preventDefault).to.have.been.called;
+                var evt1 = keyevent('keydown', {code: 'KeyA', key: 'a'});
+                kbd._handleKeyDown(evt1);
+                expect(evt1.preventDefault).to.have.been.called;
+                var evt2 = keyevent('keyup', {code: 'KeyA', key: 'a'});
+                kbd._handleKeyUp(evt2);
+                expect(evt2.preventDefault).to.have.been.called;
             });
             it('should not suppress keys without key', function() {
                 var kbd = new Keyboard(document, {});
@@ -148,11 +147,11 @@ describe('Key Event Handling', function() {
             });
             it('should suppress the following keypress event', function() {
                 var kbd = new Keyboard(document, {});
-                var evt = keyevent('keydown', {code: 'KeyA', keyCode: 0x41});
-                kbd._handleKeyDown(evt);
-                var evt = keyevent('keypress', {code: 'KeyA', charCode: 0x41});
-                kbd._handleKeyPress(evt);
-                expect(evt.preventDefault).to.have.been.called;
+                var evt1 = keyevent('keydown', {code: 'KeyA', keyCode: 0x41});
+                kbd._handleKeyDown(evt1);
+                var evt2 = keyevent('keypress', {code: 'KeyA', charCode: 0x41});
+                kbd._handleKeyPress(evt2);
+                expect(evt2.preventDefault).to.have.been.called;
             });
         });
     });

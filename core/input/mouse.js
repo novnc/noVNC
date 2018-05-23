@@ -32,7 +32,7 @@ export default function Mouse(target) {
         'mousewheel': this._handleMouseWheel.bind(this),
         'mousedisable': this._handleMouseDisable.bind(this)
     };
-};
+}
 
 Mouse.prototype = {
     // ===== PROPERTIES =====

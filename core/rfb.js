@@ -25,9 +25,6 @@ import Inflator from "./inflator.js";
 import { encodings, encodingName } from "./encodings.js";
 import "./util/polyfill.js";
 
-/*jslint white: false, browser: true */
-/*global window, Util, Display, Keyboard, Mouse, Websock, Websock_native, Base64, DES, KeyTable, Inflator, XtScancode */
-
 // How many seconds to wait for a disconnect to finish
 var DISCONNECT_TIMEOUT = 3;
 
@@ -251,7 +248,7 @@ export default function RFB(target, url, options) {
     setTimeout(this._updateConnectionState.bind(this, 'connecting'));
 
     Log.Debug("<< RFB.constructor");
-};
+}
 
 RFB.prototype = {
     // ===== PROPERTIES =====
@@ -1063,7 +1060,7 @@ RFB.prototype = {
         var serverSupportedTypes = [];
 
         for (var i = 0; i < subAuthCount; i++) {
-            var capNum = this._sock.rQshift32();
+            this._sock.rQshift32(); // capNum
             var capabilities = this._sock.rQshiftStr(12);
             serverSupportedTypes.push(capabilities);
         }
@@ -2136,15 +2133,6 @@ RFB.encodingHandlers = {
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
 
-        var checksum = function (data) {
-            var sum = 0;
-            for (var i = 0; i < data.length; i++) {
-                sum += data[i];
-                if (sum > 65536) sum -= 65536;
-            }
-            return sum;
-        };
-
         var resetStreams = 0;
         var streamId = -1;
         var decompress = function (data, expected) {
@@ -2564,6 +2552,7 @@ RFB.encodingHandlers = {
                 this._qemuExtKeyEventSupported = true;
             }
         } catch (err) {
+            // Do nothing
         }
     },
-};
+}

@@ -1,4 +1,3 @@
-var assert = chai.assert;
 var expect = chai.expect;
 
 import RFB from '../core/rfb.js';
@@ -658,16 +657,16 @@ describe('Remote Frame Buffer Protocol Client', function() {
         it('should not resize until the container size is stable', function () {
             container.style.width = '20px';
             container.style.height = '30px';
-            var event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            var event1 = new UIEvent('resize');
+            window.dispatchEvent(event1);
             clock.tick(400);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
 
             container.style.width = '40px';
             container.style.height = '50px';
-            var event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            var event2 = new UIEvent('resize');
+            window.dispatchEvent(event2);
             clock.tick(400);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
@@ -1894,7 +1893,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 it('should handle the DesktopSize pseduo-encoding', function () {
-                    var spy = sinon.spy();
                     sinon.spy(client._display, 'resize');
                     send_fbu_msg([{ x: 0, y: 0, width: 20, height: 50, encoding: -223 }], [[]], client);
 
@@ -1906,15 +1904,12 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 describe('the ExtendedDesktopSize pseudo-encoding handler', function () {
-                    var resizeSpy;
-
                     beforeEach(function () {
                         // a really small frame
                         client._fb_width = 4;
                         client._fb_height = 4;
                         client._display.resize(4, 4);
                         sinon.spy(client._display, 'resize');
-                        resizeSpy = sinon.spy();
                     });
 
                     function make_screen_data (nr_of_screens) {
@@ -2173,7 +2168,6 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
         describe('Keyboard Event Handlers', function () {
             it('should send a key message on a key press', function () {
-                var keyevent = {};
                 client._handleKeyEvent(0x41, 'KeyA', true);
                 var key_msg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: function () {}};
                 RFB.messages.keyEvent(key_msg, 0x41, 1);

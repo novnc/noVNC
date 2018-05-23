@@ -48,7 +48,8 @@ Localizer.prototype = {
             }
 
             // First pass: perfect match
-            for (var j = 0;j < supportedLanguages.length;j++) {
+            var j;
+            for (j = 0; j < supportedLanguages.length; j++) {
                 var supLang = supportedLanguages[j];
                 supLang = supLang.toLowerCase();
                 supLang = supLang.replace("_", "-");
@@ -64,7 +65,7 @@ Localizer.prototype = {
             }
 
             // Second pass: fallback
-            for (var j = 0;j < supportedLanguages.length;j++) {
+            for (j = 0;j < supportedLanguages.length;j++) {
                 supLang = supportedLanguages[j];
                 supLang = supLang.toLowerCase();
                 supLang = supLang.replace("_", "-");

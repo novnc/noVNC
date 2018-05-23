@@ -12,4 +12,4 @@
 export function decodeUTF8 (utf8string) {
     "use strict";
     return decodeURIComponent(escape(utf8string));
-};
+}

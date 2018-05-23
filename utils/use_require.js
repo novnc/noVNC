@@ -100,7 +100,7 @@ var transform_html = function (legacy_scripts, only_legacy) {
         var start_ind = contents.indexOf(start_marker) + start_marker.length;
         var end_ind = contents.indexOf(end_marker, start_ind);
 
-        new_script = '';
+        var new_script = '';
 
         if (only_legacy) {
             // Only legacy version, so include things directly
@@ -161,11 +161,12 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
     }
 
     var in_path;
+    var out_path_base;
     if (with_app_dir) {
-        var out_path_base = paths.out_dir_base;
+        out_path_base = paths.out_dir_base;
         in_path = paths.main;
     } else {
-        var out_path_base = paths.lib_dir_base;
+        out_path_base = paths.lib_dir_base;
     }
     const legacy_path_base = only_legacy ? out_path_base : path.join(out_path_base, 'legacy');
 
@@ -223,7 +224,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
             return babelTransformFile(filename, opts)
             .then(res => {
                 console.log(`Writing ${legacy_path}`);
-                var {code, map, ast} = res;
+                var {code, map} = res;
                 if (source_maps === true) {
                     // append URL for external source map
                     code += `\n//# sourceMappingURL=${path.basename(legacy_path)}.map\n`;

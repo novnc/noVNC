@@ -268,4 +268,4 @@ export default function DES(passwd) {
     setKeys(passwd);             // Setup keys
     return {'encrypt': encrypt}; // Public interface
 
-}; // function DES
+}

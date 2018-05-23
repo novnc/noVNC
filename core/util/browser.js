@@ -42,7 +42,7 @@ export function supportsCursorURIs () {
     }
 
     return _cursor_uris_supported;
-};
+}
 
 export function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);

@@ -15,10 +15,10 @@ export function init_logging (level) {
     if (typeof level !== "undefined") {
         main_init_logging(level);
     } else {
-        var param = document.location.href.match(/logging=([A-Za-z0-9\._\-]*)/);
+        var param = document.location.href.match(/logging=([A-Za-z0-9._-]*)/);
         main_init_logging(param || undefined);
     }
-};
+}
 
 // Read a query string variable
 export function getQueryVar (name, defVal) {
@@ -31,7 +31,7 @@ export function getQueryVar (name, defVal) {
     } else {
         return defVal;
     }
-};
+}
 
 // Read a hash fragment variable
 export function getHashVar (name, defVal) {
@@ -44,7 +44,7 @@ export function getHashVar (name, defVal) {
     } else {
         return defVal;
     }
-};
+}
 
 // Read a variable from the fragment or the query string
 // Fragment takes precedence
@@ -55,7 +55,7 @@ export function getConfigVar (name, defVal) {
         val = getQueryVar(name, defVal);
     }
     return val;
-};
+}
 
 /*
  * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
@@ -80,7 +80,7 @@ export function createCookie (name, value, days) {
         secure = "";
     }
     document.cookie = name + "=" + value + expires + "; path=/" + secure;
-};
+}
 
 export function readCookie (name, defaultValue) {
     "use strict";
@@ -93,12 +93,12 @@ export function readCookie (name, defaultValue) {
         if (c.indexOf(nameEQ) === 0) { return c.substring(nameEQ.length, c.length); }
     }
     return (typeof defaultValue !== 'undefined') ? defaultValue : null;
-};
+}
 
 export function eraseCookie (name) {
     "use strict";
     createCookie(name, "", -1);
-};
+}
 
 /*
  * Setting handling.
@@ -122,12 +122,12 @@ export function initSettings (callback /*, ...callbackArgs */) {
             callback.apply(this, callbackArgs);
         }
     }
-};
+}
 
 // Update the settings cache, but do not write to permanent storage
 export function setSetting (name, value) {
     settings[name] = value;
-};
+}
 
 // No days means only for this browser session
 export function writeSetting (name, value) {
@@ -139,7 +139,7 @@ export function writeSetting (name, value) {
     } else {
         localStorage.setItem(name, value);
     }
-};
+}
 
 export function readSetting (name, defaultValue) {
     "use strict";
@@ -158,7 +158,7 @@ export function readSetting (name, defaultValue) {
     } else {
         return value;
     }
-};
+}
 
 export function eraseSetting (name) {
     "use strict";
@@ -173,7 +173,7 @@ export function eraseSetting (name) {
     } else {
         localStorage.removeItem(name);
     }
-};
+}
 
 export function injectParamIfMissing (path, param, value) {
     // force pretend that we're dealing with a relative path
@@ -203,7 +203,7 @@ export function injectParamIfMissing (path, param, value) {
     } else {
         return elem.pathname + elem.search + elem.hash;
     }
-};
+}
 
 // sadly, we can't use the Fetch API until we decide to drop
 // IE11 support or polyfill promises and fetch in IE11.

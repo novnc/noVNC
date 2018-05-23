@@ -1,6 +1,5 @@
 /* jshint expr: true */
 
-var assert = chai.assert;
 var expect = chai.expect;
 
 import * as WebUtil from '../app/webutil.js';

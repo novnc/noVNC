@@ -155,11 +155,12 @@ RecordingPlayer.prototype = {
 
         const frame = this._frames[this._frame_index];
         var start = frame.indexOf('{', 1) + 1;
+        var u8;
         if (this._encoding === 'base64') {
-            var u8 = Base64.decode(frame.slice(start));
+            u8 = Base64.decode(frame.slice(start));
             start = 0;
         } else {
-            var u8 = new Uint8Array(frame.length - start);
+            u8 = new Uint8Array(frame.length - start);
             for (let i = 0; i < frame.length - start; i++) {
                 u8[i] = frame.charCodeAt(start + i);
             }
