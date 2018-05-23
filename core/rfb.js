@@ -26,7 +26,7 @@ import { encodings, encodingName } from "./encodings.js";
 import "./util/polyfill.js";
 
 // How many seconds to wait for a disconnect to finish
-var DISCONNECT_TIMEOUT = 3;
+const DISCONNECT_TIMEOUT = 3;
 
 export default function RFB(target, url, options) {
     if (!target) {
@@ -105,7 +105,7 @@ export default function RFB(target, url, options) {
         background: null,
         zlibs: []               // TIGHT zlib streams
     };
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
         this._FBU.zlibs[i] = new Inflator();
     }
 
@@ -207,7 +207,7 @@ export default function RFB(target, url, options) {
     }.bind(this));
     this._sock.on('close', function (e) {
         Log.Debug("WebSocket on-close event");
-        var msg = "";
+        let msg = "";
         if (e.code) {
             msg = "(code: " + e.code;
             if (e.reason) {
@@ -358,7 +358,7 @@ RFB.prototype = {
             return;
         }
 
-        var scancode = XtScancode[code];
+        const scancode = XtScancode[code];
 
         if (this._qemuExtKeyEventSupported && scancode) {
             // 0 is NoSymbol
@@ -445,11 +445,11 @@ RFB.prototype = {
     },
 
     _print_stats: function () {
-        var stats = this._encStats;
+        const stats = this._encStats;
 
         Log.Info("Encoding stats for this connection:");
         Object.keys(stats).forEach(function (key) {
-            var s = stats[key];
+            const s = stats[key];
             if (s[0] + s[1] > 0) {
                 Log.Info("    " + encodingName(key) + ": " + s[0] + " rects");
             }
@@ -457,7 +457,7 @@ RFB.prototype = {
 
         Log.Info("Encoding stats since page load:");
         Object.keys(stats).forEach(function (key) {
-            var s = stats[key];
+            const s = stats[key];
             Log.Info("    " + encodingName(key) + ": " + s[1] + " rects");
         });
     },
@@ -497,8 +497,8 @@ RFB.prototype = {
     // Update state of clipping in Display object, and make sure the
     // configured viewport matches the current screen size
     _updateClip: function () {
-        var cur_clip = this._display.clipViewport;
-        var new_clip = this._clipViewport;
+        const cur_clip = this._display.clipViewport;
+        let new_clip = this._clipViewport;
 
         if (this._scaleViewport) {
             // Disable viewport clipping if we are scaling
@@ -512,7 +512,7 @@ RFB.prototype = {
         if (new_clip) {
             // When clipping is enabled, the screen is limited to
             // the size of the container.
-            let size = this._screenSize();
+            const size = this._screenSize();
             this._display.viewportChangeSize(size.w, size.h);
             this._fixScrollbars();
         }
@@ -522,7 +522,7 @@ RFB.prototype = {
         if (!this._scaleViewport) {
             this._display.scale = 1.0;
         } else {
-            let size = this._screenSize();
+            const size = this._screenSize();
             this._display.autoscale(size.w, size.h);
         }
         this._fixScrollbars();
@@ -539,7 +539,7 @@ RFB.prototype = {
             return;
         }
 
-        let size = this._screenSize();
+        const size = this._screenSize();
         RFB.messages.setDesktopSize(this._sock, size.w, size.h,
                                     this._screen_id, this._screen_flags);
 
@@ -557,7 +557,7 @@ RFB.prototype = {
         // This is a hack because Chrome screws up the calculation
         // for when scrollbars are needed. So to fix it we temporarily
         // toggle them off and on.
-        var orig = this._screen.style.overflow;
+        const orig = this._screen.style.overflow;
         this._screen.style.overflow = 'hidden';
         // Force Chrome to recalculate the layout by asking for
         // an element's dimensions
@@ -573,7 +573,7 @@ RFB.prototype = {
      *   disconnected - permanent state
      */
     _updateConnectionState: function (state) {
-        var oldstate = this._rfb_connection_state;
+        const oldstate = this._rfb_connection_state;
 
         if (state === oldstate) {
             Log.Debug("Already in state '" + state + "', ignoring");
@@ -629,7 +629,7 @@ RFB.prototype = {
 
         this._rfb_connection_state = state;
 
-        var smsg = "New state '" + state + "', was '" + oldstate + "'.";
+        const smsg = "New state '" + state + "', was '" + oldstate + "'.";
         Log.Debug(smsg);
 
         if (this._disconnTimer && state !== 'disconnecting') {
@@ -647,8 +647,7 @@ RFB.prototype = {
                 break;
 
             case 'connected':
-                var event = new CustomEvent("connect", { detail: {} });
-                this.dispatchEvent(event);
+                this.dispatchEvent(new CustomEvent("connect", { detail: {} }));
                 break;
 
             case 'disconnecting':
@@ -661,10 +660,9 @@ RFB.prototype = {
                 break;
 
             case 'disconnected':
-                event = new CustomEvent(
+                this.dispatchEvent(new CustomEvent(
                     "disconnect", { detail:
-                                    { clean: this._rfb_clean_disconnect } });
-                this.dispatchEvent(event);
+                                    { clean: this._rfb_clean_disconnect } }));
                 break;
         }
     },
@@ -700,9 +698,8 @@ RFB.prototype = {
 
     _setCapability: function (cap, val) {
         this._capabilities[cap] = val;
-        var event = new CustomEvent("capabilities",
-                                    { detail: { capabilities: this._capabilities } });
-        this.dispatchEvent(event);
+        this.dispatchEvent(new CustomEvent("capabilities",
+            { detail: { capabilities: this._capabilities } }));
     },
 
     _handle_message: function () {
@@ -780,12 +777,12 @@ RFB.prototype = {
 
     _handleMouseMove: function (x, y) {
         if (this._viewportDragging) {
-            var deltaX = this._viewportDragPos.x - x;
-            var deltaY = this._viewportDragPos.y - y;
+            const deltaX = this._viewportDragPos.x - x;
+            const deltaY = this._viewportDragPos.y - y;
 
             // The goal is to trigger on a certain physical width, the
             // devicePixelRatio brings us a bit closer but is not optimal.
-            var dragThreshold = 10 * (window.devicePixelRatio || 1);
+            const dragThreshold = 10 * (window.devicePixelRatio || 1);
 
             if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
                                            Math.abs(deltaY) > dragThreshold)) {
@@ -812,9 +809,9 @@ RFB.prototype = {
             return this._fail("Received incomplete protocol version.");
         }
 
-        var sversion = this._sock.rQshiftStr(12).substr(4, 7);
+        const sversion = this._sock.rQshiftStr(12).substr(4, 7);
         Log.Info("Server ProtocolVersion: " + sversion);
-        var is_repeater = 0;
+        let is_repeater = 0;
         switch (sversion) {
             case "000.000":  // UltraVNC repeater
                 is_repeater = 1;
@@ -838,7 +835,7 @@ RFB.prototype = {
         }
 
         if (is_repeater) {
-            var repeaterID = "ID:" + this._repeaterID;
+            let repeaterID = "ID:" + this._repeaterID;
             while (repeaterID.length < 250) {
                 repeaterID += "\0";
             }
@@ -850,7 +847,7 @@ RFB.prototype = {
             this._rfb_version = this._rfb_max_version;
         }
 
-        var cversion = "00" + parseInt(this._rfb_version, 10) +
+        const cversion = "00" + parseInt(this._rfb_version, 10) +
                        ".00" + ((this._rfb_version * 10) % 10);
         this._sock.send_string("RFB " + cversion + "\n");
         Log.Debug('Sent ProtocolVersion: ' + cversion);
@@ -862,7 +859,7 @@ RFB.prototype = {
         // Polyfill since IE and PhantomJS doesn't have
         // TypedArray.includes()
         function includes(item, array) {
-            for (var i = 0; i < array.length; i++) {
+            for (let i = 0; i < array.length; i++) {
                 if (array[i] === item) {
                     return true;
                 }
@@ -872,14 +869,14 @@ RFB.prototype = {
 
         if (this._rfb_version >= 3.7) {
             // Server sends supported list, client decides
-            var num_types = this._sock.rQshift8();
+            const num_types = this._sock.rQshift8();
             if (this._sock.rQwait("security type", num_types, 1)) { return false; }
 
             if (num_types === 0) {
                 return this._handle_security_failure("no security types");
             }
 
-            var types = this._sock.rQshiftBytes(num_types);
+            const types = this._sock.rQshiftBytes(num_types);
             Log.Debug("Server security types: " + types);
 
             // Look for each auth in preferred order
@@ -934,7 +931,7 @@ RFB.prototype = {
         if (this._sock.rQwait("reason length", 4)) {
             return false;
         }
-        let strlen = this._sock.rQshift32();
+        const strlen = this._sock.rQshift32();
         let reason = "";
 
         if (strlen > 0) {
@@ -943,20 +940,16 @@ RFB.prototype = {
         }
 
         if (reason !== "") {
-
-            let event = new CustomEvent(
+            this.dispatchEvent(new CustomEvent(
                 "securityfailure",
-                { detail: { status: security_result_status, reason: reason } });
-            this.dispatchEvent(event);
+                { detail: { status: security_result_status, reason: reason } }));
 
             return this._fail("Security negotiation failed" + context +
                               " (reason: " + reason + ")");
         } else {
-
-            let event = new CustomEvent(
+            this.dispatchEvent(new CustomEvent(
                 "securityfailure",
-                { detail: { status: security_result_status } });
-            this.dispatchEvent(event);
+                { detail: { status: security_result_status } }));
 
             return this._fail("Security negotiation failed" + context);
         }
@@ -967,13 +960,13 @@ RFB.prototype = {
         if (!this._rfb_credentials.username ||
             !this._rfb_credentials.password ||
             !this._rfb_credentials.target) {
-            var event = new CustomEvent("credentialsrequired",
-                                        { detail: { types: ["username", "password", "target"] } });
-            this.dispatchEvent(event);
+            this.dispatchEvent(new CustomEvent(
+                "credentialsrequired",
+                { detail: { types: ["username", "password", "target"] } }));
             return false;
         }
 
-        var xvp_auth_str = String.fromCharCode(this._rfb_credentials.username.length) +
+        const xvp_auth_str = String.fromCharCode(this._rfb_credentials.username.length) +
                            String.fromCharCode(this._rfb_credentials.target.length) +
                            this._rfb_credentials.username +
                            this._rfb_credentials.target;
@@ -986,30 +979,30 @@ RFB.prototype = {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
         if (!this._rfb_credentials.password) {
-            var event = new CustomEvent("credentialsrequired",
-                                        { detail: { types: ["password"] } });
-            this.dispatchEvent(event);
+            this.dispatchEvent(new CustomEvent(
+                "credentialsrequired",
+                { detail: { types: ["password"] } }));
             return false;
         }
 
         // TODO(directxman12): make genDES not require an Array
-        var challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
-        var response = RFB.genDES(this._rfb_credentials.password, challenge);
+        const challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
+        const response = RFB.genDES(this._rfb_credentials.password, challenge);
         this._sock.send(response);
         this._rfb_init_state = "SecurityResult";
         return true;
     },
 
     _negotiate_tight_tunnels: function (numTunnels) {
-        var clientSupportedTunnelTypes = {
+        const clientSupportedTunnelTypes = {
             0: { vendor: 'TGHT', signature: 'NOTUNNEL' }
         };
-        var serverSupportedTunnelTypes = {};
+        const serverSupportedTunnelTypes = {};
         // receive tunnel capabilities
-        for (var i = 0; i < numTunnels; i++) {
-            var cap_code = this._sock.rQshift32();
-            var cap_vendor = this._sock.rQshiftStr(4);
-            var cap_signature = this._sock.rQshiftStr(8);
+        for (let i = 0; i < numTunnels; i++) {
+            const cap_code = this._sock.rQshift32();
+            const cap_vendor = this._sock.rQshiftStr(4);
+            const cap_signature = this._sock.rQshiftStr(8);
             serverSupportedTunnelTypes[cap_code] = { vendor: cap_vendor, signature: cap_signature };
         }
 
@@ -1031,7 +1024,7 @@ RFB.prototype = {
     _negotiate_tight_auth: function () {
         if (!this._rfb_tightvnc) {  // first pass, do the tunnel negotiation
             if (this._sock.rQwait("num tunnels", 4)) { return false; }
-            var numTunnels = this._sock.rQshift32();
+            const numTunnels = this._sock.rQshift32();
             if (numTunnels > 0 && this._sock.rQwait("tunnel capabilities", 16 * numTunnels, 4)) { return false; }
 
             this._rfb_tightvnc = true;
@@ -1044,7 +1037,7 @@ RFB.prototype = {
 
         // second pass, do the sub-auth negotiation
         if (this._sock.rQwait("sub auth count", 4)) { return false; }
-        var subAuthCount = this._sock.rQshift32();
+        const subAuthCount = this._sock.rQshift32();
         if (subAuthCount === 0) {  // empty sub-auth list received means 'no auth' subtype selected
             this._rfb_init_state = 'SecurityResult';
             return true;
@@ -1052,20 +1045,20 @@ RFB.prototype = {
 
         if (this._sock.rQwait("sub auth capabilities", 16 * subAuthCount, 4)) { return false; }
 
-        var clientSupportedTypes = {
+        const clientSupportedTypes = {
             'STDVNOAUTH__': 1,
             'STDVVNCAUTH_': 2
         };
 
-        var serverSupportedTypes = [];
+        const serverSupportedTypes = [];
 
-        for (var i = 0; i < subAuthCount; i++) {
+        for (let i = 0; i < subAuthCount; i++) {
             this._sock.rQshift32(); // capNum
-            var capabilities = this._sock.rQshiftStr(12);
+            const capabilities = this._sock.rQshiftStr(12);
             serverSupportedTypes.push(capabilities);
         }
 
-        for (var authType in clientSupportedTypes) {
+        for (let authType in clientSupportedTypes) {
             if (serverSupportedTypes.indexOf(authType) != -1) {
                 this._sock.send([0, 0, 0, clientSupportedTypes[authType]]);
 
@@ -1117,7 +1110,7 @@ RFB.prototype = {
     _handle_security_result: function () {
         if (this._sock.rQwait('VNC auth response ', 4)) { return false; }
 
-        let status = this._sock.rQshift32();
+        const status = this._sock.rQshift32();
 
         if (status === 0) { // OK
             this._rfb_init_state = 'ClientInitialisation';
@@ -1127,9 +1120,9 @@ RFB.prototype = {
             if (this._rfb_version >= 3.8) {
                 return this._handle_security_failure("security result", status);
             } else {
-                let event = new CustomEvent("securityfailure",
-                                            { detail: { status: status } });
-                this.dispatchEvent(event);
+                this.dispatchEvent(new CustomEvent(
+                    "securityfailure",
+                    { detail: { status: status } }));
 
                 return this._fail("Security handshake failed");
             }
@@ -1140,40 +1133,40 @@ RFB.prototype = {
         if (this._sock.rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
-        var width = this._sock.rQshift16();
-        var height = this._sock.rQshift16();
+        const width = this._sock.rQshift16();
+        const height = this._sock.rQshift16();
 
         /* PIXEL_FORMAT */
-        var bpp         = this._sock.rQshift8();
-        var depth       = this._sock.rQshift8();
-        var big_endian  = this._sock.rQshift8();
-        var true_color  = this._sock.rQshift8();
+        const bpp         = this._sock.rQshift8();
+        const depth       = this._sock.rQshift8();
+        const big_endian  = this._sock.rQshift8();
+        const true_color  = this._sock.rQshift8();
 
-        var red_max     = this._sock.rQshift16();
-        var green_max   = this._sock.rQshift16();
-        var blue_max    = this._sock.rQshift16();
-        var red_shift   = this._sock.rQshift8();
-        var green_shift = this._sock.rQshift8();
-        var blue_shift  = this._sock.rQshift8();
+        const red_max     = this._sock.rQshift16();
+        const green_max   = this._sock.rQshift16();
+        const blue_max    = this._sock.rQshift16();
+        const red_shift   = this._sock.rQshift8();
+        const green_shift = this._sock.rQshift8();
+        const blue_shift  = this._sock.rQshift8();
         this._sock.rQskipBytes(3);  // padding
 
         // NB(directxman12): we don't want to call any callbacks or print messages until
         //                   *after* we're past the point where we could backtrack
 
         /* Connection name/title */
-        var name_length = this._sock.rQshift32();
+        const name_length = this._sock.rQshift32();
         if (this._sock.rQwait('server init name', name_length, 24)) { return false; }
         this._fb_name = decodeUTF8(this._sock.rQshiftStr(name_length));
 
         if (this._rfb_tightvnc) {
             if (this._sock.rQwait('TightVNC extended server init header', 8, 24 + name_length)) { return false; }
             // In TightVNC mode, ServerInit message is extended
-            var numServerMessages = this._sock.rQshift16();
-            var numClientMessages = this._sock.rQshift16();
-            var numEncodings = this._sock.rQshift16();
+            const numServerMessages = this._sock.rQshift16();
+            const numClientMessages = this._sock.rQshift16();
+            const numEncodings = this._sock.rQshift16();
             this._sock.rQskipBytes(2);  // padding
 
-            var totalMessagesLength = (numServerMessages + numClientMessages + numEncodings) * 16;
+            const totalMessagesLength = (numServerMessages + numClientMessages + numEncodings) * 16;
             if (this._sock.rQwait('TightVNC extended server init header', totalMessagesLength, 32 + name_length)) { return false; }
 
             // we don't actually do anything with the capability information that TIGHT sends,
@@ -1215,9 +1208,9 @@ RFB.prototype = {
         }
 
         // we're past the point where we could backtrack, so it's safe to call this
-        var event = new CustomEvent("desktopname",
-                                    { detail: { name: this._fb_name } });
-        this.dispatchEvent(event);
+        this.dispatchEvent(new CustomEvent(
+            "desktopname",
+            { detail: { name: this._fb_name } }));
 
         this._resize(width, height);
 
@@ -1247,7 +1240,7 @@ RFB.prototype = {
     },
 
     _sendEncodings: function () {
-        var encs = [];
+        const encs = [];
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
@@ -1327,16 +1320,16 @@ RFB.prototype = {
 
         if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
         this._sock.rQskipBytes(3);  // Padding
-        var length = this._sock.rQshift32();
+        const length = this._sock.rQshift32();
         if (this._sock.rQwait("ServerCutText", length, 8)) { return false; }
 
-        var text = this._sock.rQshiftStr(length);
+        const text = this._sock.rQshiftStr(length);
 
         if (this._viewOnly) { return true; }
 
-        var event = new CustomEvent("clipboard",
-                                    { detail: { text: text } });
-        this.dispatchEvent(event);
+        this.dispatchEvent(new CustomEvent(
+            "clipboard",
+            { detail: { text: text } }));
 
         return true;
     },
@@ -1344,8 +1337,8 @@ RFB.prototype = {
     _handle_server_fence_msg: function() {
         if (this._sock.rQwait("ServerFence header", 8, 1)) { return false; }
         this._sock.rQskipBytes(3); // Padding
-        var flags = this._sock.rQshift32();
-        var length = this._sock.rQshift8();
+        let flags = this._sock.rQshift32();
+        let length = this._sock.rQshift8();
 
         if (this._sock.rQwait("ServerFence payload", length, 9)) { return false; }
 
@@ -1354,7 +1347,7 @@ RFB.prototype = {
             length = 64;
         }
 
-        var payload = this._sock.rQshiftStr(length);
+        const payload = this._sock.rQshiftStr(length);
 
         this._supportsFence = true;
 
@@ -1386,8 +1379,8 @@ RFB.prototype = {
     _handle_xvp_msg: function () {
         if (this._sock.rQwait("XVP version and message", 3, 1)) { return false; }
         this._sock.rQskip8();  // Padding
-        var xvp_ver = this._sock.rQshift8();
-        var xvp_msg = this._sock.rQshift8();
+        const xvp_ver = this._sock.rQshift8();
+        const xvp_msg = this._sock.rQshift8();
 
         switch (xvp_msg) {
             case 0:  // XVP_FAIL
@@ -1407,17 +1400,17 @@ RFB.prototype = {
     },
 
     _normal_msg: function () {
-        var msg_type;
-
+        let msg_type;
         if (this._FBU.rects > 0) {
             msg_type = 0;
         } else {
             msg_type = this._sock.rQshift8();
         }
 
+        let first, ret;
         switch (msg_type) {
             case 0:  // FramebufferUpdate
-                var ret = this._framebufferUpdate();
+                ret = this._framebufferUpdate();
                 if (ret && !this._enabledContinuousUpdates) {
                     RFB.messages.fbUpdateRequest(this._sock, true, 0, 0,
                                                  this._fb_width, this._fb_height);
@@ -1429,15 +1422,16 @@ RFB.prototype = {
 
             case 2:  // Bell
                 Log.Debug("Bell");
-                var event = new CustomEvent("bell", { detail: {} });
-                this.dispatchEvent(event);
+                this.dispatchEvent(new CustomEvent(
+                    "bell", 
+                    { detail: {} }));
                 return true;
 
             case 3:  // ServerCutText
                 return this._handle_server_cut_text();
 
             case 150: // EndOfContinuousUpdates
-                var first = !(this._supportsContinuousUpdates);
+                first = !this._supportsContinuousUpdates;
                 this._supportsContinuousUpdates = true;
                 this._enabledContinuousUpdates = false;
                 if (first) {
@@ -1472,9 +1466,6 @@ RFB.prototype = {
     },
 
     _framebufferUpdate: function () {
-        var ret = true;
-        var now;
-
         if (this._FBU.rects === 0) {
             if (this._sock.rQwait("FBU header", 3, 1)) { return false; }
             this._sock.rQskip8();  // Padding
@@ -1482,7 +1473,7 @@ RFB.prototype = {
             this._FBU.bytes = 0;
             this._timing.cur_fbu = 0;
             if (this._timing.fbu_rt_start > 0) {
-                now = (new Date()).getTime();
+                const now = (new Date()).getTime();
                 Log.Info("First FBU latency: " + (now - this._timing.fbu_rt_start));
             }
 
@@ -1503,7 +1494,7 @@ RFB.prototype = {
                 if (this._sock.rQwait("rect header", 12)) { return false; }
                 /* New FramebufferUpdate */
 
-                var hdr = this._sock.rQshiftBytes(12);
+                const hdr = this._sock.rQshiftBytes(12);
                 this._FBU.x        = (hdr[0] << 8) + hdr[1];
                 this._FBU.y        = (hdr[2] << 8) + hdr[3];
                 this._FBU.width    = (hdr[4] << 8) + hdr[5];
@@ -1520,9 +1511,9 @@ RFB.prototype = {
 
             this._timing.last_fbu = (new Date()).getTime();
 
-            ret = this._encHandlers[this._FBU.encoding]();
+            const ret = this._encHandlers[this._FBU.encoding]();
 
-            now = (new Date()).getTime();
+            const now = (new Date()).getTime();
             this._timing.cur_fbu += (now - this._timing.last_fbu);
 
             if (ret) {
@@ -1547,7 +1538,7 @@ RFB.prototype = {
                 }
 
                 if (this._timing.fbu_rt_start > 0) {
-                    var fbu_rt_diff = now - this._timing.fbu_rt_start;
+                    const fbu_rt_diff = now - this._timing.fbu_rt_start;
                     this._timing.fbu_rt_total += fbu_rt_diff;
                     this._timing.fbu_rt_cnt++;
                     Log.Info("full FBU round-trip, cur: " +
@@ -1602,8 +1593,8 @@ Object.assign(RFB.prototype, EventTargetMixin);
 // Class Methods
 RFB.messages = {
     keyEvent: function (sock, keysym, down) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 4;  // msg-type
         buff[offset + 1] = down;
@@ -1622,17 +1613,16 @@ RFB.messages = {
 
     QEMUExtendedKeyEvent: function (sock, keysym, down, keycode) {
         function getRFBkeycode(xt_scancode) {
-            var upperByte = (keycode >> 8);
-            var lowerByte = (keycode & 0x00ff);
+            const upperByte = (keycode >> 8);
+            const lowerByte = (keycode & 0x00ff);
             if (upperByte === 0xe0 && lowerByte < 0x7f) {
-                lowerByte = lowerByte | 0x80;
-                return lowerByte;
+                return lowerByte | 0x80;
             }
             return xt_scancode;
         }
 
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 255; // msg-type
         buff[offset + 1] = 0; // sub msg-type
@@ -1645,7 +1635,7 @@ RFB.messages = {
         buff[offset + 6] = (keysym >> 8);
         buff[offset + 7] = keysym;
 
-        var RFBkeycode = getRFBkeycode(keycode);
+        const RFBkeycode = getRFBkeycode(keycode);
 
         buff[offset + 8] = (RFBkeycode >> 24);
         buff[offset + 9] = (RFBkeycode >> 16);
@@ -1657,8 +1647,8 @@ RFB.messages = {
     },
 
     pointerEvent: function (sock, x, y, mask) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 5; // msg-type
 
@@ -1676,8 +1666,8 @@ RFB.messages = {
 
     // TODO(directxman12): make this unicode compatible?
     clientCutText: function (sock, text) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 6; // msg-type
 
@@ -1685,7 +1675,7 @@ RFB.messages = {
         buff[offset + 2] = 0; // padding
         buff[offset + 3] = 0; // padding
 
-        let length = text.length;
+        const length = text.length;
 
         buff[offset + 4] = length >> 24;
         buff[offset + 5] = length >> 16;
@@ -1701,16 +1691,14 @@ RFB.messages = {
         let remaining = length;
         while (remaining > 0) {
 
-            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
+            const flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
             if (flushSize <= 0) {
                 this._fail("Clipboard contents could not be sent");
                 break;
             }
 
-            offset = sock._sQlen;
-
             for (let i = 0; i < flushSize; i++) {
-                buff[offset + i] =  text.charCodeAt(textOffset + i);
+                buff[sock._sQlen + i] =  text.charCodeAt(textOffset + i);
             }
 
             sock._sQlen += flushSize;
@@ -1722,8 +1710,8 @@ RFB.messages = {
     },
 
     setDesktopSize: function (sock, width, height, id, flags) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 251;              // msg-type
         buff[offset + 1] = 0;            // padding
@@ -1758,8 +1746,8 @@ RFB.messages = {
     },
 
     clientFence: function (sock, flags, payload) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 248; // msg-type
 
@@ -1772,11 +1760,11 @@ RFB.messages = {
         buff[offset + 6] = flags >> 8;
         buff[offset + 7] = flags;
 
-        var n = payload.length;
+        const n = payload.length;
 
         buff[offset + 8] = n; // length
 
-        for (var i = 0; i < n; i++) {
+        for (let i = 0; i < n; i++) {
             buff[offset + 9 + i] = payload.charCodeAt(i);
         }
 
@@ -1785,8 +1773,8 @@ RFB.messages = {
     },
 
     enableContinuousUpdates: function (sock, enable, x, y, width, height) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 150;             // msg-type
         buff[offset + 1] = enable;      // enable-flag
@@ -1805,10 +1793,10 @@ RFB.messages = {
     },
 
     pixelFormat: function (sock, depth, true_color) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
-        var bpp, bits;
+        let bpp;
 
         if (depth > 16) {
             bpp = 32;
@@ -1818,7 +1806,7 @@ RFB.messages = {
             bpp = 8;
         }
 
-        bits = Math.floor(depth/3);
+        const bits = Math.floor(depth/3);
 
         buff[offset] = 0;  // msg-type
 
@@ -1853,8 +1841,8 @@ RFB.messages = {
     },
 
     clientEncodings: function (sock, encodings) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 2; // msg-type
         buff[offset + 1] = 0; // padding
@@ -1862,9 +1850,9 @@ RFB.messages = {
         buff[offset + 2] = encodings.length >> 8;
         buff[offset + 3] = encodings.length;
 
-        var i, j = offset + 4;
-        for (i = 0; i < encodings.length; i++) {
-            var enc = encodings[i];
+        let j = offset + 4;
+        for (let i = 0; i < encodings.length; i++) {
+            const enc = encodings[i];
             buff[j] = enc >> 24;
             buff[j + 1] = enc >> 16;
             buff[j + 2] = enc >> 8;
@@ -1878,8 +1866,8 @@ RFB.messages = {
     },
 
     fbUpdateRequest: function (sock, incremental, x, y, w, h) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         if (typeof(x) === "undefined") { x = 0; }
         if (typeof(y) === "undefined") { y = 0; }
@@ -1904,8 +1892,8 @@ RFB.messages = {
     },
 
     xvpOp: function (sock, ver, op) {
-        var buff = sock._sQ;
-        var offset = sock._sQlen;
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
 
         buff[offset] = 250; // msg-type
         buff[offset + 1] = 0; // padding
@@ -1919,8 +1907,8 @@ RFB.messages = {
 };
 
 RFB.genDES = function (password, challenge) {
-    var passwd = [];
-    for (var i = 0; i < password.length; i++) {
+    const passwd = [];
+    for (let i = 0; i < password.length; i++) {
         passwd.push(password.charCodeAt(i));
     }
     return (new DES(passwd)).encrypt(challenge);
@@ -1932,19 +1920,18 @@ RFB.encodingHandlers = {
             this._FBU.lines = this._FBU.height;
         }
 
-        var pixelSize = this._fb_depth == 8 ? 1 : 4;
+        const pixelSize = this._fb_depth == 8 ? 1 : 4;
         this._FBU.bytes = this._FBU.width * pixelSize;  // at least a line
         if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
-        var cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
-        var curr_height = Math.min(this._FBU.lines,
+        const cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
+        const curr_height = Math.min(this._FBU.lines,
                                    Math.floor(this._sock.rQlen() / (this._FBU.width * pixelSize)));
-        var data = this._sock.get_rQ();
-        var index = this._sock.get_rQi();
+        let data = this._sock.get_rQ();
+        let index = this._sock.get_rQi();
         if (this._fb_depth == 8) {
-            var pixels = this._FBU.width * curr_height
-            var newdata = new Uint8Array(pixels * 4);
-            var i;
-            for (i = 0;i < pixels;i++) {
+            const pixels = this._FBU.width * curr_height
+            const newdata = new Uint8Array(pixels * 4);
+            for (let i = 0; i < pixels; i++) {
                 newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
                 newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
                 newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
@@ -1981,7 +1968,7 @@ RFB.encodingHandlers = {
     },
 
     RRE: function () {
-        var color;
+        let color;
         if (this._FBU.subrects === 0) {
             this._FBU.bytes = 4 + 4;
             if (this._sock.rQwait("RRE", 4 + 4)) { return false; }
@@ -1992,16 +1979,16 @@ RFB.encodingHandlers = {
 
         while (this._FBU.subrects > 0 && this._sock.rQlen() >= (4 + 8)) {
             color = this._sock.rQshiftBytes(4);
-            var x = this._sock.rQshift16();
-            var y = this._sock.rQshift16();
-            var width = this._sock.rQshift16();
-            var height = this._sock.rQshift16();
+            const x = this._sock.rQshift16();
+            const y = this._sock.rQshift16();
+            const width = this._sock.rQshift16();
+            const height = this._sock.rQshift16();
             this._display.fillRect(this._FBU.x + x, this._FBU.y + y, width, height, color);
             this._FBU.subrects--;
         }
 
         if (this._FBU.subrects > 0) {
-            var chunk = Math.min(this._rre_chunk_sz, this._FBU.subrects);
+            const chunk = Math.min(this._rre_chunk_sz, this._FBU.subrects);
             this._FBU.bytes = (4 + 8) * chunk;
         } else {
             this._FBU.rects--;
@@ -2012,8 +1999,8 @@ RFB.encodingHandlers = {
     },
 
     HEXTILE: function () {
-        var rQ = this._sock.get_rQ();
-        var rQi = this._sock.get_rQi();
+        const rQ = this._sock.get_rQ();
+        let rQi = this._sock.get_rQi();
 
         if (this._FBU.tiles === 0) {
             this._FBU.tiles_x = Math.ceil(this._FBU.width / 16);
@@ -2025,21 +2012,21 @@ RFB.encodingHandlers = {
         while (this._FBU.tiles > 0) {
             this._FBU.bytes = 1;
             if (this._sock.rQwait("HEXTILE subencoding", this._FBU.bytes)) { return false; }
-            var subencoding = rQ[rQi];  // Peek
+            const subencoding = rQ[rQi];  // Peek
             if (subencoding > 30) {  // Raw
                 this._fail("Illegal hextile subencoding (subencoding: " +
                            subencoding + ")");
                 return false;
             }
 
-            var subrects = 0;
-            var curr_tile = this._FBU.total_tiles - this._FBU.tiles;
-            var tile_x = curr_tile % this._FBU.tiles_x;
-            var tile_y = Math.floor(curr_tile / this._FBU.tiles_x);
-            var x = this._FBU.x + tile_x * 16;
-            var y = this._FBU.y + tile_y * 16;
-            var w = Math.min(16, (this._FBU.x + this._FBU.width) - x);
-            var h = Math.min(16, (this._FBU.y + this._FBU.height) - y);
+            let subrects = 0;
+            const curr_tile = this._FBU.total_tiles - this._FBU.tiles;
+            const tile_x = curr_tile % this._FBU.tiles_x;
+            const tile_y = Math.floor(curr_tile / this._FBU.tiles_x);
+            const x = this._FBU.x + tile_x * 16;
+            const y = this._FBU.y + tile_y * 16;
+            const w = Math.min(16, (this._FBU.x + this._FBU.width) - x);
+            const h = Math.min(16, (this._FBU.y + this._FBU.height) - y);
 
             // Figure out how much we are expecting
             if (subencoding & 0x01) {  // Raw
@@ -2093,23 +2080,23 @@ RFB.encodingHandlers = {
                     subrects = rQ[rQi];
                     rQi++;
 
-                    for (var s = 0; s < subrects; s++) {
-                        var color;
+                    for (let s = 0; s < subrects; s++) {
+                        let color;
                         if (this._FBU.subencoding & 0x10) {  // SubrectsColoured
                             color = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
                             rQi += 4;
                         } else {
                             color = this._FBU.foreground;
                         }
-                        var xy = rQ[rQi];
+                        const xy = rQ[rQi];
                         rQi++;
-                        var sx = (xy >> 4);
-                        var sy = (xy & 0x0f);
+                        const sx = (xy >> 4);
+                        const sy = (xy & 0x0f);
 
-                        var wh = rQ[rQi];
+                        const wh = rQ[rQi];
                         rQi++;
-                        var sw = (wh >> 4) + 1;
-                        var sh = (wh & 0x0f) + 1;
+                        const sw = (wh >> 4) + 1;
+                        const sh = (wh & 0x0f) + 1;
 
                         this._display.subTile(sx, sy, sw, sh, color);
                     }
@@ -2133,18 +2120,18 @@ RFB.encodingHandlers = {
         this._FBU.bytes = 1;  // compression-control byte
         if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
 
-        var resetStreams = 0;
-        var streamId = -1;
-        var decompress = function (data, expected) {
-            for (var i = 0; i < 4; i++) {
+        let resetStreams = 0;
+        let streamId = -1;
+        const decompress = function (data, expected) {
+            for (let i = 0; i < 4; i++) {
                 if ((resetStreams >> i) & 1) {
                     this._FBU.zlibs[i].reset();
                     Log.Info("Reset zlib stream " + i);
                 }
             }
 
-            //var uncompressed = this._FBU.zlibs[streamId].uncompress(data, 0);
-            var uncompressed = this._FBU.zlibs[streamId].inflate(data, true, expected);
+            //const uncompressed = this._FBU.zlibs[streamId].uncompress(data, 0);
+            const uncompressed = this._FBU.zlibs[streamId].inflate(data, true, expected);
             /*if (uncompressed.status !== 0) {
                 Log.Error("Invalid data in zlib stream");
             }*/
@@ -2153,18 +2140,18 @@ RFB.encodingHandlers = {
             return uncompressed;
         }.bind(this);
 
-        var indexedToRGBX2Color = function (data, palette, width, height) {
+        const indexedToRGBX2Color = function (data, palette, width, height) {
             // Convert indexed (palette based) image data to RGB
             // TODO: reduce number of calculations inside loop
-            var dest = this._destBuff;
-            var w = Math.floor((width + 7) / 8);
-            var w1 = Math.floor(width / 8);
+            const dest = this._destBuff;
+            const w = Math.floor((width + 7) / 8);
+            const w1 = Math.floor(width / 8);
 
-            /*for (var y = 0; y < height; y++) {
-                var b, x, dp, sp;
-                var yoffset = y * width;
-                var ybitoffset = y * w;
-                var xoffset, targetbyte;
+            /*for (let y = 0; y < height; y++) {
+                let b, x, dp, sp;
+                const yoffset = y * width;
+                const ybitoffset = y * w;
+                let xoffset, targetbyte;
                 for (x = 0; x < w1; x++) {
                     xoffset = yoffset + x * 8;
                     targetbyte = data[ybitoffset + x];
@@ -2188,10 +2175,10 @@ RFB.encodingHandlers = {
                 }
             }*/
 
-            for (var y = 0; y < height; y++) {
-                var b, x, dp, sp;
+            for (let y = 0; y < height; y++) {
+                let dp, sp, x;
                 for (x = 0; x < w1; x++) {
-                    for (b = 7; b >= 0; b--) {
+                    for (let b = 7; b >= 0; b--) {
                         dp = (y * width + x * 8 + 7 - b) * 4;
                         sp = (data[y * w + x] >> b & 1) * 3;
                         dest[dp] = palette[sp];
@@ -2201,7 +2188,7 @@ RFB.encodingHandlers = {
                     }
                 }
 
-                for (b = 7; b >= 8 - width % 8; b--) {
+                for (let b = 7; b >= 8 - width % 8; b--) {
                     dp = (y * width + x * 8 + 7 - b) * 4;
                     sp = (data[y * w + x] >> b & 1) * 3;
                     dest[dp] = palette[sp];
@@ -2214,12 +2201,12 @@ RFB.encodingHandlers = {
             return dest;
         }.bind(this);
 
-        var indexedToRGBX = function (data, palette, width, height) {
+        const indexedToRGBX = function (data, palette, width, height) {
             // Convert indexed (palette based) image data to RGB
-            var dest = this._destBuff;
-            var total = width * height * 4;
-            for (var i = 0, j = 0; i < total; i += 4, j++) {
-                var sp = data[j] * 3;
+            const dest = this._destBuff;
+            const total = width * height * 4;
+            for (let i = 0, j = 0; i < total; i += 4, j++) {
+                const sp = data[j] * 3;
                 dest[i] = palette[sp];
                 dest[i + 1] = palette[sp + 1];
                 dest[i + 2] = palette[sp + 2];
@@ -2229,20 +2216,20 @@ RFB.encodingHandlers = {
             return dest;
         }.bind(this);
 
-        var rQi = this._sock.get_rQi();
-        var rQ = this._sock.rQwhole();
-        var cmode, data;
-        var cl_header, cl_data;
+        const rQi = this._sock.get_rQi();
+        const rQ = this._sock.rQwhole();
+        let cmode, data;
+        let cl_header, cl_data;
 
-        var handlePalette = function () {
-            var numColors = rQ[rQi + 2] + 1;
-            var paletteSize = numColors * 3;
+        const handlePalette = function () {
+            const numColors = rQ[rQi + 2] + 1;
+            const paletteSize = numColors * 3;
             this._FBU.bytes += paletteSize;
             if (this._sock.rQwait("TIGHT palette " + cmode, this._FBU.bytes)) { return false; }
 
-            var bpp = (numColors <= 2) ? 1 : 8;
-            var rowSize = Math.floor((this._FBU.width * bpp + 7) / 8);
-            var raw = false;
+            const bpp = (numColors <= 2) ? 1 : 8;
+            const rowSize = Math.floor((this._FBU.width * bpp + 7) / 8);
+            let raw = false;
             if (rowSize * this._FBU.height < 12) {
                 raw = true;
                 cl_header = 0;
@@ -2250,7 +2237,7 @@ RFB.encodingHandlers = {
                 //clength = [0, rowSize * this._FBU.height];
             } else {
                 // begin inline getTightCLength (returning two-item arrays is bad for performance with GC)
-                var cl_offset = rQi + 3 + paletteSize;
+                const cl_offset = rQi + 3 + paletteSize;
                 cl_header = 1;
                 cl_data = 0;
                 cl_data += rQ[cl_offset] & 0x7f;
@@ -2270,7 +2257,7 @@ RFB.encodingHandlers = {
 
             // Shift ctl, filter id, num colors, palette entries, and clength off
             this._sock.rQskipBytes(3);
-            //var palette = this._sock.rQshiftBytes(paletteSize);
+            //const palette = this._sock.rQshiftBytes(paletteSize);
             this._sock.rQshiftTo(this._paletteBuff, paletteSize);
             this._sock.rQskipBytes(cl_header);
 
@@ -2281,29 +2268,29 @@ RFB.encodingHandlers = {
             }
 
             // Convert indexed (palette based) image data to RGB
-            var rgbx;
+            let rgbx;
             if (numColors == 2) {
                 rgbx = indexedToRGBX2Color(data, this._paletteBuff, this._FBU.width, this._FBU.height);
-                this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
             } else {
                 rgbx = indexedToRGBX(data, this._paletteBuff, this._FBU.width, this._FBU.height);
-                this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
             }
+
+            this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
 
 
             return true;
         }.bind(this);
 
-        var handleCopy = function () {
-            var raw = false;
-            var uncompressedSize = this._FBU.width * this._FBU.height * 3;
+        const handleCopy = function () {
+            let raw = false;
+            const uncompressedSize = this._FBU.width * this._FBU.height * 3;
             if (uncompressedSize < 12) {
                 raw = true;
                 cl_header = 0;
                 cl_data = uncompressedSize;
             } else {
                 // begin inline getTightCLength (returning two-item arrays is for peformance with GC)
-                var cl_offset = rQi + 1;
+                const cl_offset = rQi + 1;
                 cl_header = 1;
                 cl_data = 0;
                 cl_data += rQ[cl_offset] & 0x7f;
@@ -2334,7 +2321,7 @@ RFB.encodingHandlers = {
             return true;
         }.bind(this);
 
-        var ctl = this._sock.rQpeek8();
+        let ctl = this._sock.rQpeek8();
 
         // Keep tight reset bits
         resetStreams = ctl & 0xF;
@@ -2379,6 +2366,7 @@ RFB.encodingHandlers = {
         if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
 
         // Determine FBU.bytes
+        let cl_offset, filterId;
         switch (cmode) {
             case "fill":
                 // skip ctl byte
@@ -2388,7 +2376,7 @@ RFB.encodingHandlers = {
             case "png":
             case "jpeg":
                 // begin inline getTightCLength (returning two-item arrays is for peformance with GC)
-                var cl_offset = rQi + 1;
+                cl_offset = rQi + 1;
                 cl_header = 1;
                 cl_data = 0;
                 cl_data += rQ[cl_offset] & 0x7f;
@@ -2410,7 +2398,7 @@ RFB.encodingHandlers = {
                 this._display.imageRect(this._FBU.x, this._FBU.y, "image/" + cmode, data);
                 break;
             case "filter":
-                var filterId = rQ[rQi + 1];
+                filterId = rQ[rQi + 1];
                 if (filterId === 1) {
                     if (!handlePalette()) { return false; }
                 } else {
@@ -2441,7 +2429,7 @@ RFB.encodingHandlers = {
         this._FBU.bytes = 1;
         if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
 
-        var firstUpdate = !this._supportsSetDesktopSize;
+        const firstUpdate = !this._supportsSetDesktopSize;
         this._supportsSetDesktopSize = true;
 
         // Normally we only apply the current resize mode after a
@@ -2452,7 +2440,7 @@ RFB.encodingHandlers = {
             this._requestRemoteResize();
         }
 
-        var number_of_screens = this._sock.rQpeek8();
+        const number_of_screens = this._sock.rQpeek8();
 
         this._FBU.bytes = 4 + (number_of_screens * 16);
         if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
@@ -2460,7 +2448,7 @@ RFB.encodingHandlers = {
         this._sock.rQskipBytes(1);  // number-of-screens
         this._sock.rQskipBytes(3);  // padding
 
-        for (var i = 0; i < number_of_screens; i += 1) {
+        for (let i = 0; i < number_of_screens; i += 1) {
             // Save the id and flags of the first screen
             if (i === 0) {
                 this._screen_id = this._sock.rQshiftBytes(4);    // id
@@ -2484,7 +2472,7 @@ RFB.encodingHandlers = {
 
         // We need to handle errors when we requested the resize.
         if (this._FBU.x === 1 && this._FBU.y !== 0) {
-            var msg = "";
+            let msg = "";
             // The y-position indicates the status code from the server
             switch (this._FBU.y) {
             case 1:
@@ -2520,13 +2508,13 @@ RFB.encodingHandlers = {
 
     Cursor: function () {
         Log.Debug(">> set_cursor");
-        var x = this._FBU.x;  // hotspot-x
-        var y = this._FBU.y;  // hotspot-y
-        var w = this._FBU.width;
-        var h = this._FBU.height;
+        const x = this._FBU.x;  // hotspot-x
+        const y = this._FBU.y;  // hotspot-y
+        const w = this._FBU.width;
+        const h = this._FBU.height;
 
-        var pixelslength = w * h * 4;
-        var masklength = Math.floor((w + 7) / 8) * h;
+        const pixelslength = w * h * 4;
+        const masklength = Math.floor((w + 7) / 8) * h;
 
         this._FBU.bytes = pixelslength + masklength;
         if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) { return false; }
@@ -2547,7 +2535,7 @@ RFB.encodingHandlers = {
 
         // Old Safari doesn't support creating keyboard events
         try {
-            var keyboardEvent = document.createEvent("keyboardEvent");
+            const keyboardEvent = document.createEvent("keyboardEvent");
             if (keyboardEvent.code !== undefined) {
                 this._qemuExtKeyEventSupported = true;
             }

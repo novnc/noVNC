@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-var expect = chai.expect;
+const expect = chai.expect;
 
 import * as Log from '../core/util/logging.js';
 

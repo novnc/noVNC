@@ -21,25 +21,24 @@ export function Localizer() {
 Localizer.prototype = {
     // Configure suitable language based on user preferences
     setup: function (supportedLanguages) {
-        var userLanguages;
-
         this.language = 'en'; // Default: US English
 
         /*
          * Navigator.languages only available in Chrome (32+) and FireFox (32+)
          * Fall back to navigator.language for other browsers
          */
+        let userLanguages;
         if (typeof window.navigator.languages == 'object') {
             userLanguages = window.navigator.languages;
         } else {
             userLanguages = [navigator.language || navigator.userLanguage];
         }
 
-        for (var i = 0;i < userLanguages.length;i++) {
-            var userLang = userLanguages[i];
-            userLang = userLang.toLowerCase();
-            userLang = userLang.replace("_", "-");
-            userLang = userLang.split("-");
+        for (let i = 0;i < userLanguages.length;i++) {
+            const userLang = userLanguages[i]
+                .toLowerCase()
+                .replace("_", "-")
+                .split("-");
 
             // Built-in default?
             if ((userLang[0] === 'en') &&
@@ -48,12 +47,11 @@ Localizer.prototype = {
             }
 
             // First pass: perfect match
-            var j;
-            for (j = 0; j < supportedLanguages.length; j++) {
-                var supLang = supportedLanguages[j];
-                supLang = supLang.toLowerCase();
-                supLang = supLang.replace("_", "-");
-                supLang = supLang.split("-");
+            for (let j = 0; j < supportedLanguages.length; j++) {
+                const supLang = supportedLanguages[j]
+                    .toLowerCase()
+                    .replace("_", "-")
+                    .split("-");
 
                 if (userLang[0] !== supLang[0])
                     continue;
@@ -65,11 +63,11 @@ Localizer.prototype = {
             }
 
             // Second pass: fallback
-            for (j = 0;j < supportedLanguages.length;j++) {
-                supLang = supportedLanguages[j];
-                supLang = supLang.toLowerCase();
-                supLang = supLang.replace("_", "-");
-                supLang = supLang.split("-");
+            for (let j = 0;j < supportedLanguages.length;j++) {
+                const supLang = supportedLanguages[j]
+                    .toLowerCase()
+                    .replace("_", "-")
+                    .split("-");
 
                 if (userLang[0] !== supLang[0])
                     continue;
@@ -94,21 +92,19 @@ Localizer.prototype = {
     // Traverses the DOM and translates relevant fields
     // See https://html.spec.whatwg.org/multipage/dom.html#attr-translate
     translateDOM: function () {
-        var self = this;
+        const self = this;
         function process(elem, enabled) {
             function isAnyOf(searchElement, items) {
                 return items.indexOf(searchElement) !== -1;
             }
 
             function translateAttribute(elem, attr) {
-                var str = elem.getAttribute(attr);
-                str = self.get(str);
+                const str = self.get(elem.getAttribute(attr));
                 elem.setAttribute(attr, str);
             }
 
             function translateTextNode(node) {
-                var str = node.data.trim();
-                str = self.get(str);
+                const str = self.get(node.data.trim());
                 node.data = str;
             }
 
@@ -153,8 +149,8 @@ Localizer.prototype = {
                 }
             }
 
-            for (var i = 0;i < elem.childNodes.length;i++) {
-                var node = elem.childNodes[i];
+            for (let i = 0; i < elem.childNodes.length; i++) {
+                const node = elem.childNodes[i];
                 if (node.nodeType === node.ELEMENT_NODE) {
                     process(node, enabled);
                 } else if (node.nodeType === node.TEXT_NODE && enabled) {
@@ -167,5 +163,5 @@ Localizer.prototype = {
     },
 };
 
-export var l10n = new Localizer();
+export const l10n = new Localizer();
 export default l10n.get.bind(l10n);

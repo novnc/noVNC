@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-var EventTargetMixin = {
+const EventTargetMixin = {
     _listeners: null,
 
    addEventListener: function(type, callback) {

@@ -10,12 +10,12 @@
  * Logging/debug routines
  */
 
-var _log_level = 'warn';
+let _log_level = 'warn';
 
-var Debug = function (msg) {};
-var Info = function (msg) {};
-var Warn = function (msg) {};
-var Error = function (msg) {};
+let Debug = function (msg) {};
+let Info = function (msg) {};
+let Warn = function (msg) {};
+let Error = function (msg) {};
 
 export function init_logging (level) {
     if (typeof level === 'undefined') {

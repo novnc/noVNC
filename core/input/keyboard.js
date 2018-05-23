@@ -57,7 +57,7 @@ Keyboard.prototype = {
     },
 
     _getKeyCode: function (e) {
-        var code = KeyboardUtil.getKeycode(e);
+        const code = KeyboardUtil.getKeycode(e);
         if (code !== 'Unidentified') {
             return code;
         }
@@ -80,10 +80,8 @@ Keyboard.prototype = {
                 return e.keyIdentifier;
             }
 
-            var codepoint = parseInt(e.keyIdentifier.substr(2), 16);
-            var char = String.fromCharCode(codepoint);
-            // Some implementations fail to uppercase the symbols
-            char = char.toUpperCase();
+            const codepoint = parseInt(e.keyIdentifier.substr(2), 16);
+            const char = String.fromCharCode(codepoint).toUpperCase();
 
             return 'Platform' + char.charCodeAt();
         }
@@ -92,8 +90,8 @@ Keyboard.prototype = {
     },
 
     _handleKeyDown: function (e) {
-        var code = this._getKeyCode(e);
-        var keysym = KeyboardUtil.getKeysym(e);
+        const code = this._getKeyCode(e);
+        let keysym = KeyboardUtil.getKeysym(e);
 
         // Windows doesn't have a proper AltGr, but handles it using
         // fake Ctrl+Alt. However the remote end might not be Windows,
@@ -211,8 +209,8 @@ Keyboard.prototype = {
             return;
         }
 
-        var code = this._getKeyCode(e);
-        var keysym = KeyboardUtil.getKeysym(e);
+        let code = this._getKeyCode(e);
+        const keysym = KeyboardUtil.getKeysym(e);
 
         // The key we were waiting for?
         if ((code !== 'Unidentified') && (code != this._pendingKey)) {
@@ -235,9 +233,9 @@ Keyboard.prototype = {
             return;
         }
 
-        var code, keysym;
+        let keysym;
 
-        code = this._pendingKey;
+        const code = this._pendingKey;
         this._pendingKey = null;
 
         // We have no way of knowing the proper keysym with the
@@ -248,7 +246,7 @@ Keyboard.prototype = {
             keysym = e.keyCode;
         } else if ((e.keyCode >= 0x41) && (e.keyCode <= 0x5a)) {
             // Character (A-Z)
-            var char = String.fromCharCode(e.keyCode);
+            let char = String.fromCharCode(e.keyCode);
             // A feeble attempt at the correct case
             if (e.shiftKey)
                 char = char.toUpperCase();
@@ -266,7 +264,7 @@ Keyboard.prototype = {
     _handleKeyUp: function (e) {
         stopEvent(e);
 
-        var code = this._getKeyCode(e);
+        const code = this._getKeyCode(e);
 
         // We can't get a release in the middle of an AltGr sequence, so
         // abort that detection
@@ -294,7 +292,7 @@ Keyboard.prototype = {
 
     _allKeysUp: function () {
         Log.Debug(">> Keyboard.allKeysUp");
-        for (var code in this._keyDownList) {
+        for (let code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
         }
         Log.Debug("<< Keyboard.allKeysUp");
@@ -306,14 +304,14 @@ Keyboard.prototype = {
             return;
         }
 
-        let target = this._target;
-        let downList = this._keyDownList;
+        const target = this._target;
+        const downList = this._keyDownList;
         ['AltLeft', 'AltRight'].forEach(function (code) {
             if (!(code in downList)) {
                 return;
             }
 
-            let event = new KeyboardEvent('keyup',
+            const event = new KeyboardEvent('keyup',
                                           { key: downList[code],
                                             code: code });
             target.dispatchEvent(event);
@@ -324,11 +322,10 @@ Keyboard.prototype = {
 
     grab: function () {
         //Log.Debug(">> Keyboard.grab");
-        var c = this._target;
 
-        c.addEventListener('keydown', this._eventHandlers.keydown);
-        c.addEventListener('keyup', this._eventHandlers.keyup);
-        c.addEventListener('keypress', this._eventHandlers.keypress);
+        this._target.addEventListener('keydown', this._eventHandlers.keydown);
+        this._target.addEventListener('keyup', this._eventHandlers.keyup);
+        this._target.addEventListener('keypress', this._eventHandlers.keypress);
 
         // Release (key up) if window loses focus
         window.addEventListener('blur', this._eventHandlers.blur);
@@ -337,7 +334,7 @@ Keyboard.prototype = {
         // best we can for releases (still doesn't prevent the menu
         // from popping up though as we can't call preventDefault())
         if (browser.isWindows() && browser.isFirefox()) {
-            let handler = this._eventHandlers.checkalt;
+            const handler = this._eventHandlers.checkalt;
             ['mousedown', 'mouseup', 'mousemove', 'wheel',
              'touchstart', 'touchend', 'touchmove',
              'keydown', 'keyup'].forEach(function (type) {
@@ -352,10 +349,9 @@ Keyboard.prototype = {
 
     ungrab: function () {
         //Log.Debug(">> Keyboard.ungrab");
-        var c = this._target;
 
         if (browser.isWindows() && browser.isFirefox()) {
-            let handler = this._eventHandlers.checkalt;
+            const handler = this._eventHandlers.checkalt;
             ['mousedown', 'mouseup', 'mousemove', 'wheel',
              'touchstart', 'touchend', 'touchmove',
              'keydown', 'keyup'].forEach(function (type) {
@@ -363,9 +359,9 @@ Keyboard.prototype = {
             });
         }
 
-        c.removeEventListener('keydown', this._eventHandlers.keydown);
-        c.removeEventListener('keyup', this._eventHandlers.keyup);
-        c.removeEventListener('keypress', this._eventHandlers.keypress);
+        this._target.removeEventListener('keydown', this._eventHandlers.keydown);
+        this._target.removeEventListener('keyup', this._eventHandlers.keyup);
+        this._target.removeEventListener('keypress', this._eventHandlers.keypress);
         window.removeEventListener('blur', this._eventHandlers.blur);
 
         // Release (key up) all keys that are in a down state

@@ -1,6 +1,6 @@
 /* jshint expr: true */
 
-var expect = chai.expect;
+const expect = chai.expect;
 
 import * as WebUtil from '../app/webutil.js';
 
@@ -12,7 +12,7 @@ describe('WebUtil', function() {
     describe('settings', function () {
 
         describe('localStorage', function() {
-            var chrome = window.chrome;
+            let chrome = window.chrome;
             before(function() {
                 chrome = window.chrome;
                 window.chrome = null;
@@ -21,7 +21,7 @@ describe('WebUtil', function() {
                 window.chrome = chrome;
             });
 
-            var origLocalStorage;
+            let origLocalStorage;
             beforeEach(function() {
                 origLocalStorage = Object.getOwnPropertyDescriptor(window, "localStorage");
                 if (origLocalStorage === undefined) {
@@ -110,8 +110,8 @@ describe('WebUtil', function() {
         });
 
         describe('chrome.storage', function() {
-            var chrome = window.chrome;
-            var settings = {};
+            let chrome = window.chrome;
+            let settings = {};
             before(function() {
                 chrome = window.chrome;
                 window.chrome = {
@@ -128,7 +128,7 @@ describe('WebUtil', function() {
                 window.chrome = chrome;
             });
 
-            var csSandbox = sinon.createSandbox();
+            const csSandbox = sinon.createSandbox();
 
             beforeEach(function() {
                 settings = {};

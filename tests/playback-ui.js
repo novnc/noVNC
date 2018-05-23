@@ -3,11 +3,11 @@
 import * as WebUtil from '../app/webutil.js';
 import RecordingPlayer from './playback.js';
 
-var frames = null;
-var encoding = null;
+let frames = null;
+let encoding = null;
 
 function message(str) {
-    var cell = document.getElementById('messages');
+    const cell = document.getElementById('messages');
     cell.textContent += str + "\n";
     cell.scrollTop = cell.scrollHeight;
 }
@@ -22,7 +22,7 @@ function loadFile() {
     message("Loading " + fname);
 
     return new Promise(function (resolve, reject) {
-        var script = document.createElement("script");
+        const script = document.createElement("script");
         script.onload = resolve;
         script.onerror = reject;
         document.body.appendChild(script);
@@ -31,10 +31,10 @@ function loadFile() {
 }
 
 function enableUI() {
-    var iterations = WebUtil.getQueryVar('iterations', 3);
+    const iterations = WebUtil.getQueryVar('iterations', 3);
     document.getElementById('iterations').value = iterations;
 
-    var mode = WebUtil.getQueryVar('mode', 3);
+    const mode = WebUtil.getQueryVar('mode', 3);
     if (mode === 'realtime') {
         document.getElementById('mode2').checked = true;
     } else {
@@ -121,7 +121,7 @@ IterationPlayer.prototype = {
             this._state = 'failed';
         }
 
-        var evt = new Event('rfbdisconnected');
+        const evt = new Event('rfbdisconnected');
         evt.clean = clean;
         evt.frame = frame;
         evt.iteration = this._iteration;
@@ -136,7 +136,7 @@ function start() {
 
     const iterations = document.getElementById('iterations').value;
 
-    var mode;
+    let mode;
 
     if (document.getElementById('mode1').checked) {
         message(`Starting performance playback (fullspeed) [${iterations} iteration(s)]`);

@@ -2,10 +2,10 @@ import Base64 from '../core/base64.js';
 
 // PhantomJS can't create Event objects directly, so we need to use this
 function make_event(name, props) {
-    var evt = document.createEvent('Event');
+    const evt = document.createEvent('Event');
     evt.initEvent(name, true, true);
     if (props) {
-        for (var prop in props) {
+        for (let prop in props) {
             evt[prop] = props[prop];
         }
     }
@@ -50,7 +50,7 @@ FakeWebSocket.prototype = {
     },
 
     _get_sent_data: function () {
-        var res = new Uint8Array(this._send_queue.buffer, 0, this.bufferedAmount);
+        const res = new Uint8Array(this._send_queue.buffer, 0, this.bufferedAmount);
         this.bufferedAmount = 0;
         return res;
     },
@@ -76,7 +76,7 @@ FakeWebSocket.__is_fake = true;
 
 FakeWebSocket.replace = function () {
     if (!WebSocket.__is_fake) {
-        var real_version = WebSocket;
+        const real_version = WebSocket;
         // eslint-disable-next-line no-global-assign
         WebSocket = FakeWebSocket;
         FakeWebSocket.__real_version = real_version;

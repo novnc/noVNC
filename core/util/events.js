@@ -20,14 +20,14 @@ export function stopEvent (e) {
 }
 
 // Emulate Element.setCapture() when not supported
-var _captureRecursion = false;
-var _captureElem = null;
+let _captureRecursion = false;
+let _captureElem = null;
 function _captureProxy(e) {
     // Recursion protection as we'll see our own event
     if (_captureRecursion) return;
 
     // Clone the event as we cannot dispatch an already dispatched event
-    var newEv = new e.constructor(e.type, e);
+    const newEv = new e.constructor(e.type, e);
 
     _captureRecursion = true;
     _captureElem.dispatchEvent(newEv);
@@ -49,12 +49,13 @@ function _captureProxy(e) {
 
 // Follow cursor style of target element
 function _captureElemChanged() {
-    var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+    const captureElem = document.getElementById("noVNC_mouse_capture_elem");
     captureElem.style.cursor = window.getComputedStyle(_captureElem).cursor;
 }
-var _captureObserver = new MutationObserver(_captureElemChanged);
 
-var _captureIndex = 0;
+const _captureObserver = new MutationObserver(_captureElemChanged);
+
+let _captureIndex = 0;
 
 export function setCapture (elem) {
     if (elem.setCapture) {
@@ -69,7 +70,7 @@ export function setCapture (elem) {
         // called multiple times without coordination
         releaseCapture();
 
-        var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+        let captureElem = document.getElementById("noVNC_mouse_capture_elem");
 
         if (captureElem === null) {
             captureElem = document.createElement("div");
@@ -129,7 +130,7 @@ export function releaseCapture () {
 
         _captureObserver.disconnect();
 
-        var captureElem = document.getElementById("noVNC_mouse_capture_elem");
+        const captureElem = document.getElementById("noVNC_mouse_capture_elem");
         captureElem.style.display = "none";
 
         window.removeEventListener('mousemove', _captureProxy);
