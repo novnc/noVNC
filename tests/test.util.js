@@ -1,5 +1,5 @@
-var assert = chai.assert;
-var expect = chai.expect;
+/* eslint-disable no-console */
+const expect = chai.expect;
 
 import * as Log from '../core/util/logging.js';
 
@@ -68,3 +68,4 @@ describe('Utils', function() {
     //                     (we can't really test them against the browsers, except for Gecko
     //                     via PhantomJS, the default test driver)
 });
+/* eslint-enable no-console */

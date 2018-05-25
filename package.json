@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "PATH=$PATH:node_modules/karma/bin karma start karma.conf.js",
+    "lint": "eslint app core po tests utils",
+    "test": "karma start karma.conf.js",
     "prepare": "node ./utils/use_require.js --as commonjs --clean"
   },
   "repository": {
@@ -35,11 +36,13 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",
     "babel-plugin-transform-es2015-modules-systemjs": "^6.22.0",
     "babel-plugin-transform-es2015-modules-umd": "^6.22.0",
+    "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "chai": "^3.5.0",
     "commander": "^2.9.0",
     "es-module-loader": "^2.1.0",
+    "eslint": "^4.16.0",
     "fs-extra": "^1.0.0",
     "jsdom": "*",
     "karma": "^1.3.0",

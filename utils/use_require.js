@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-var path = require('path');
-var program = require('commander');
-var fs = require('fs');
-var fse = require('fs-extra');
-var babel = require('babel-core');
+const path = require('path');
+const program = require('commander');
+const fs = require('fs');
+const fse = require('fs-extra');
+const babel = require('babel-core');
 
 const SUPPORTED_FORMATS = new Set(['amd', 'commonjs', 'systemjs', 'umd']);
 
@@ -44,8 +44,8 @@ no_copy_files.forEach((file) => no_transform_files.add(file));
 // util.promisify requires Node.js 8.x, so we have our own
 function promisify(original) {
     return function () {
-        let obj = this;
-        let args = Array.prototype.slice.call(arguments);
+        const obj = this;
+        const args = Array.prototype.slice.call(arguments);
         return new Promise((resolve, reject) => {
             original.apply(obj, args.concat((err, value) => {
                 if (err) return reject(err);
@@ -70,10 +70,10 @@ const babelTransformFile = promisify(babel.transformFile);
 
 // walkDir *recursively* walks directories trees,
 // calling the callback for all normal files found.
-var walkDir = function (base_path, cb, filter) {
+const walkDir = function (base_path, cb, filter) {
     return readdir(base_path)
     .then(files => {
-        let paths = files.map(filename => path.join(base_path, filename));
+        const paths = files.map(filename => path.join(base_path, filename));
         return Promise.all(paths.map((filepath) => {
             return lstat(filepath)
             .then(stats => {
@@ -87,20 +87,20 @@ var walkDir = function (base_path, cb, filter) {
     });
 };
 
-var transform_html = function (legacy_scripts, only_legacy) {
+const transform_html = function (legacy_scripts, only_legacy) {
     // write out the modified vnc.html file that works with the bundle
-    var src_html_path = path.resolve(__dirname, '..', 'vnc.html');
-    var out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
+    const src_html_path = path.resolve(__dirname, '..', 'vnc.html');
+    const out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
     return readFile(src_html_path)
     .then(contents_raw => {
-        var contents = contents_raw.toString();
+        let contents = contents_raw.toString();
 
-        var start_marker = '<!-- begin scripts -->\n';
-        var end_marker = '<!-- end scripts -->';
-        var start_ind = contents.indexOf(start_marker) + start_marker.length;
-        var end_ind = contents.indexOf(end_marker, start_ind);
+        const start_marker = '<!-- begin scripts -->\n';
+        const end_marker = '<!-- end scripts -->';
+        const start_ind = contents.indexOf(start_marker) + start_marker.length;
+        const end_ind = contents.indexOf(end_marker, start_ind);
 
-        new_script = '';
+        let new_script = '';
 
         if (only_legacy) {
             // Only legacy version, so include things directly
@@ -141,7 +141,7 @@ var transform_html = function (legacy_scripts, only_legacy) {
     });
 }
 
-var make_lib_files = function (import_format, source_maps, with_app_dir, only_legacy) {
+const make_lib_files = function (import_format, source_maps, with_app_dir, only_legacy) {
     if (!import_format) {
         throw new Error("you must specify an import format to generate compiled noVNC libraries");
     } else if (!SUPPORTED_FORMATS.has(import_format)) {
@@ -151,6 +151,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
     // NB: we need to make a copy of babel_opts, since babel sets some defaults on it
     const babel_opts = () => ({
         plugins: [`transform-es2015-modules-${import_format}`],
+        presets: ['es2015'],
         ast: false,
         sourceMaps: source_maps,
     });
@@ -160,12 +161,13 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
         only_legacy = true;
     }
 
-    var in_path;
+    let in_path;
+    let out_path_base;
     if (with_app_dir) {
-        var out_path_base = paths.out_dir_base;
+        out_path_base = paths.out_dir_base;
         in_path = paths.main;
     } else {
-        var out_path_base = paths.lib_dir_base;
+        out_path_base = paths.lib_dir_base;
     }
     const legacy_path_base = only_legacy ? out_path_base : path.join(out_path_base, 'legacy');
 
@@ -176,7 +178,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
 
     const outFiles = [];
 
-    var handleDir = (js_only, vendor_rewrite, in_path_base, filename) => Promise.resolve()
+    const handleDir = (js_only, vendor_rewrite, in_path_base, filename) => Promise.resolve()
     .then(() => {
         if (no_copy_files.has(filename)) return;
 
@@ -223,7 +225,8 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
             return babelTransformFile(filename, opts)
             .then(res => {
                 console.log(`Writing ${legacy_path}`);
-                var {code, map, ast} = res;
+                const {map} = res;
+                let {code} = res;
                 if (source_maps === true) {
                     // append URL for external source map
                     code += `\n//# sourceMappingURL=${path.basename(legacy_path)}.map\n`;
@@ -247,19 +250,19 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
 
     Promise.resolve()
     .then(() => {
-        let handler = handleDir.bind(null, true, false, in_path || paths.main);
-        let filter = (filename, stats) => !no_copy_files.has(filename);
+        const handler = handleDir.bind(null, true, false, in_path || paths.main);
+        const filter = (filename, stats) => !no_copy_files.has(filename);
         return walkDir(paths.vendor, handler, filter);
     })
     .then(() => {
-        let handler = handleDir.bind(null, true, !in_path, in_path || paths.core);
-        let filter = (filename, stats) => !no_copy_files.has(filename);
+        const handler = handleDir.bind(null, true, !in_path, in_path || paths.core);
+        const filter = (filename, stats) => !no_copy_files.has(filename);
         return walkDir(paths.core, handler, filter);
     })
     .then(() => {
         if (!with_app_dir) return;
-        let handler = handleDir.bind(null, false, false, in_path);
-        let filter = (filename, stats) => !no_copy_files.has(filename);
+        const handler = handleDir.bind(null, false, false, in_path);
+        const filter = (filename, stats) => !no_copy_files.has(filename);
         return walkDir(paths.app, handler, filter);
     })
     .then(() => {
@@ -273,8 +276,8 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
         console.log(`Writing ${out_app_path}`);
         return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
         .then(extra_scripts => {
-            let rel_app_path = path.relative(out_path_base, out_app_path);
-            let legacy_scripts = extra_scripts.concat([rel_app_path]);
+            const rel_app_path = path.relative(out_path_base, out_app_path);
+            const legacy_scripts = extra_scripts.concat([rel_app_path]);
             transform_html(legacy_scripts, only_legacy);
         })
         .then(() => {
@@ -285,7 +288,7 @@ var make_lib_files = function (import_format, source_maps, with_app_dir, only_le
                 .then(() => {
                     // Try to clean up any empty directories if this
                     // was the last file in there
-                    let rmdir_r = dir => {
+                    const rmdir_r = dir => {
                         return rmdir(dir)
                         .then(() => rmdir_r(path.dirname(dir)))
                         .catch(() => {

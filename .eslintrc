@@ -1,0 +1,15 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+      "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
+      "no-constant-condition": ["error", { "checkLoops": false }],
+      "no-var": "error"
+  }
+}

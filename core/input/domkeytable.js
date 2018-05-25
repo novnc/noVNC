@@ -13,7 +13,7 @@ import KeyTable from "./keysym.js";
  * See https://www.w3.org/TR/uievents-key/ for possible values.
  */
 
-var DOMKeyTable = {};
+const DOMKeyTable = {};
 
 function addStandard(key, standard)
 {

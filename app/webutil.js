@@ -15,47 +15,51 @@ export function init_logging (level) {
     if (typeof level !== "undefined") {
         main_init_logging(level);
     } else {
-        var param = document.location.href.match(/logging=([A-Za-z0-9\._\-]*)/);
+        const param = document.location.href.match(/logging=([A-Za-z0-9._-]*)/);
         main_init_logging(param || undefined);
     }
-};
+}
 
 // Read a query string variable
 export function getQueryVar (name, defVal) {
     "use strict";
-    var re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
+    const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
         match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
+    
     if (match) {
         return decodeURIComponent(match[1]);
-    } else {
-        return defVal;
     }
-};
+
+    return defVal;
+}
 
 // Read a hash fragment variable
 export function getHashVar (name, defVal) {
     "use strict";
-    var re = new RegExp('.*[&#]' + name + '=([^&]*)'),
+    const re = new RegExp('.*[&#]' + name + '=([^&]*)'),
         match = document.location.hash.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
+
     if (match) {
         return decodeURIComponent(match[1]);
-    } else {
-        return defVal;
     }
-};
+
+    return defVal;
+}
 
 // Read a variable from the fragment or the query string
 // Fragment takes precedence
 export function getConfigVar (name, defVal) {
     "use strict";
-    var val = getHashVar(name);
+    const val = getHashVar(name);
+
     if (val === null) {
-        val = getQueryVar(name, defVal);
+        return getQueryVar(name, defVal);
     }
+
     return val;
-};
+}
 
 /*
  * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
@@ -64,7 +68,7 @@ export function getConfigVar (name, defVal) {
 // No days means only for this browser session
 export function createCookie (name, value, days) {
     "use strict";
-    var date, expires;
+    let date, expires;
     if (days) {
         date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -73,42 +77,47 @@ export function createCookie (name, value, days) {
         expires = "";
     }
 
-    var secure;
+    let secure;
     if (document.location.protocol === "https:") {
         secure = "; secure";
     } else {
         secure = "";
     }
     document.cookie = name + "=" + value + expires + "; path=/" + secure;
-};
+}
 
 export function readCookie (name, defaultValue) {
     "use strict";
-    var nameEQ = name + "=",
-        ca = document.cookie.split(';');
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
 
-    for (var i = 0; i < ca.length; i += 1) {
-        var c = ca[i];
-        while (c.charAt(0) === ' ') { c = c.substring(1, c.length); }
-        if (c.indexOf(nameEQ) === 0) { return c.substring(nameEQ.length, c.length); }
+    for (let i = 0; i < ca.length; i += 1) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+            return c.substring(nameEQ.length, c.length);
+        }
     }
+
     return (typeof defaultValue !== 'undefined') ? defaultValue : null;
-};
+}
 
 export function eraseCookie (name) {
     "use strict";
     createCookie(name, "", -1);
-};
+}
 
 /*
  * Setting handling.
  */
 
-var settings = {};
+let settings = {};
 
 export function initSettings (callback /*, ...callbackArgs */) {
     "use strict";
-    var callbackArgs = Array.prototype.slice.call(arguments, 1);
+    const callbackArgs = Array.prototype.slice.call(arguments, 1);
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.get(function (cfg) {
             settings = cfg;
@@ -122,12 +131,12 @@ export function initSettings (callback /*, ...callbackArgs */) {
             callback.apply(this, callbackArgs);
         }
     }
-};
+}
 
 // Update the settings cache, but do not write to permanent storage
 export function setSetting (name, value) {
     settings[name] = value;
-};
+}
 
 // No days means only for this browser session
 export function writeSetting (name, value) {
@@ -139,11 +148,11 @@ export function writeSetting (name, value) {
     } else {
         localStorage.setItem(name, value);
     }
-};
+}
 
 export function readSetting (name, defaultValue) {
     "use strict";
-    var value;
+    let value;
     if ((name in settings) || (window.chrome && window.chrome.storage)) {
         value = settings[name];
     } else {
@@ -153,12 +162,13 @@ export function readSetting (name, defaultValue) {
     if (typeof value === "undefined") {
         value = null;
     }
+
     if (value === null && typeof defaultValue !== "undefined") {
         return defaultValue;
-    } else {
-        return value;
     }
-};
+
+    return value;
+}
 
 export function eraseSetting (name) {
     "use strict";
@@ -173,18 +183,18 @@ export function eraseSetting (name) {
     } else {
         localStorage.removeItem(name);
     }
-};
+}
 
 export function injectParamIfMissing (path, param, value) {
     // force pretend that we're dealing with a relative path
     // (assume that we wanted an extra if we pass one in)
     path = "/" + path;
 
-    var elem = document.createElement('a');
+    const elem = document.createElement('a');
     elem.href = path;
 
-    var param_eq = encodeURIComponent(param) + "=";
-    var query;
+    const param_eq = encodeURIComponent(param) + "=";
+    let query;
     if (elem.search) {
         query = elem.search.slice(1).split('&');
     } else {
@@ -200,10 +210,10 @@ export function injectParamIfMissing (path, param, value) {
     // in the elem.pathname string. Handle that case gracefully.
     if (elem.pathname.charAt(0) == "/") {
         return elem.pathname.slice(1) + elem.search + elem.hash;
-    } else {
-        return elem.pathname + elem.search + elem.hash;
     }
-};
+
+    return elem.pathname + elem.search + elem.hash;
+}
 
 // sadly, we can't use the Fetch API until we decide to drop
 // IE11 support or polyfill promises and fetch in IE11.
@@ -211,16 +221,16 @@ export function injectParamIfMissing (path, param, value) {
 // will receive either an event or an error on failure.
 export function fetchJSON(path, resolve, reject) {
     // NB: IE11 doesn't support JSON as a responseType
-    var req = new XMLHttpRequest();
+    const req = new XMLHttpRequest();
     req.open('GET', path);
 
     req.onload = function () {
         if (req.status === 200) {
+            let resObj;
             try {
-                var resObj = JSON.parse(req.responseText);
+                resObj = JSON.parse(req.responseText);
             } catch (err) {
                 reject(err);
-                return;
             }
             resolve(resObj);
         } else {

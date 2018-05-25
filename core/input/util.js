@@ -1,4 +1,3 @@
-import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
 import fixedkeys from "./fixedkeys.js";
@@ -25,7 +24,7 @@ export function getKeycode(evt){
     // in the 'keyCode' field for non-printable characters. However
     // Webkit sets it to the same as charCode in 'keypress' events.
     if ((evt.type !== 'keypress') && (evt.keyCode in vkeys)) {
-        var code = vkeys[evt.keyCode];
+        let code = vkeys[evt.keyCode];
 
         // macOS has messed up this code for some reason
         if (browser.isMac() && (code === 'ContextMenu')) {
@@ -111,7 +110,7 @@ export function getKey(evt) {
     }
 
     // Try to deduce it based on the physical key
-    var code = getKeycode(evt);
+    const code = getKeycode(evt);
     if (code in fixedkeys) {
         return fixedkeys[code];
     }
@@ -127,7 +126,7 @@ export function getKey(evt) {
 
 // Get the most reliable keysym value we can get from a key event
 export function getKeysym(evt){
-    var key = getKey(evt);
+    const key = getKey(evt);
 
     if (key === 'Unidentified') {
         return null;
@@ -135,7 +134,7 @@ export function getKeysym(evt){
 
     // First look up special keys
     if (key in DOMKeyTable) {
-        var location = evt.location;
+        let location = evt.location;
 
         // Safari screws up location for the right cmd key
         if ((key === 'Meta') && (location === 0)) {
@@ -151,14 +150,12 @@ export function getKeysym(evt){
 
     // Now we need to look at the Unicode symbol instead
 
-    var codepoint;
-
     // Special key? (FIXME: Should have been caught earlier)
     if (key.length !== 1) {
         return null;
     }
 
-    codepoint = key.charCodeAt();
+    const codepoint = key.charCodeAt();
     if (codepoint) {
         return keysyms.lookup(codepoint);
     }

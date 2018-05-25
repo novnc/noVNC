@@ -1,5 +1,4 @@
-var assert = chai.assert;
-var expect = chai.expect;
+const expect = chai.expect;
 
 import sinon from '../vendor/sinon.js';
 
@@ -15,24 +14,24 @@ describe('Mouse Event Handling', function() {
     // located at coordinates 10x10
     sinon.stub(Element.prototype, 'getBoundingClientRect').returns(
         {left: 10, right: 110, top: 10, bottom: 110, width: 100, height: 100});
-    var target = document.createElement('canvas');
+    const target = document.createElement('canvas');
 
     // The real constructors might not work everywhere we
     // want to run these tests
-    var mouseevent, touchevent;
-    mouseevent = touchevent = function(typeArg, MouseEventInit) {
-        var e = { type: typeArg };
-        for (var key in MouseEventInit) {
+    const mouseevent = function(typeArg, MouseEventInit) {
+        const e = { type: typeArg };
+        for (let key in MouseEventInit) {
             e[key] = MouseEventInit[key];
         }
         e.stopPropagation = sinon.spy();
         e.preventDefault = sinon.spy();
         return e;
     };
+    const touchevent = mouseevent;
 
     describe('Decode Mouse Events', function() {
         it('should decode mousedown events', function(done) {
-            var mouse = new Mouse(target);
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 expect(bmask).to.be.equal(0x01);
                 expect(down).to.be.equal(1);
@@ -41,8 +40,8 @@ describe('Mouse Event Handling', function() {
             mouse._handleMouseDown(mouseevent('mousedown', { button: '0x01' }));
         });
         it('should decode mouseup events', function(done) {
-            var calls = 0;
-            var mouse = new Mouse(target);
+            let calls = 0;
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 expect(bmask).to.be.equal(0x01);
                 if (calls++ === 1) {
@@ -54,7 +53,7 @@ describe('Mouse Event Handling', function() {
             mouse._handleMouseUp(mouseevent('mouseup', { button: '0x01' }));
         });
         it('should decode mousemove events', function(done) {
-            var mouse = new Mouse(target);
+            const mouse = new Mouse(target);
             mouse.onmousemove = function(x, y) {
                 // Note that target relative coordinates are sent
                 expect(x).to.be.equal(40);
@@ -65,8 +64,8 @@ describe('Mouse Event Handling', function() {
                                               { clientX: 50, clientY: 20 }));
         });
         it('should decode mousewheel events', function(done) {
-            var calls = 0;
-            var mouse = new Mouse(target);
+            let calls = 0;
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 calls++;
                 expect(bmask).to.be.equal(1<<6);
@@ -89,8 +88,8 @@ describe('Mouse Event Handling', function() {
         afterEach(function () { this.clock.restore(); });
 
         it('should use same pos for 2nd tap if close enough', function(done) {
-            var calls = 0;
-            var mouse = new Mouse(target);
+            let calls = 0;
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 calls++;
                 if (calls === 1) {
@@ -120,8 +119,8 @@ describe('Mouse Event Handling', function() {
         });
 
         it('should not modify 2nd tap pos if far apart', function(done) {
-            var calls = 0;
-            var mouse = new Mouse(target);
+            let calls = 0;
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 calls++;
                 if (calls === 1) {
@@ -149,8 +148,8 @@ describe('Mouse Event Handling', function() {
         });
 
         it('should not modify 2nd tap pos if not soon enough', function(done) {
-            var calls = 0;
-            var mouse = new Mouse(target);
+            let calls = 0;
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 calls++;
                 if (calls === 1) {
@@ -178,8 +177,8 @@ describe('Mouse Event Handling', function() {
         });
 
         it('should not modify 2nd tap pos if not touch', function(done) {
-            var calls = 0;
-            var mouse = new Mouse(target);
+            let calls = 0;
+            const mouse = new Mouse(target);
             mouse.onmousebutton = function(x, y, down, bmask) {
                 calls++;
                 if (calls === 1) {
@@ -214,7 +213,7 @@ describe('Mouse Event Handling', function() {
         afterEach(function () { this.clock.restore(); });
 
         it('should accumulate wheel events if small enough', function () {
-            var mouse = new Mouse(target);
+            const mouse = new Mouse(target);
             mouse.onmousebutton = sinon.spy();
 
             mouse._handleMouseWheel(mouseevent(
@@ -247,7 +246,7 @@ describe('Mouse Event Handling', function() {
         });
 
         it('should not accumulate large wheel events', function () {
-            var mouse = new Mouse(target);
+            const mouse = new Mouse(target);
             mouse.onmousebutton = sinon.spy();
 
             mouse._handleMouseWheel(mouseevent(
@@ -266,7 +265,7 @@ describe('Mouse Event Handling', function() {
         });
 
         it('should send even small wheel events after a timeout', function () {
-            var mouse = new Mouse(target);
+            const mouse = new Mouse(target);
             mouse.onmousebutton = sinon.spy();
 
             mouse._handleMouseWheel(mouseevent(
@@ -278,7 +277,7 @@ describe('Mouse Event Handling', function() {
         });
 
         it('should account for non-zero deltaMode', function () {
-            var mouse = new Mouse(target);
+            const mouse = new Mouse(target);
             mouse.onmousebutton = sinon.spy();
 
             mouse._handleMouseWheel(mouseevent(

@@ -37,20 +37,20 @@ export default function Websock() {
         'close': function () {},
         'error': function () {}
     };
-};
+}
 
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
 // at the moment.  It may be valuable to turn it on in the future.
-var ENABLE_COPYWITHIN = false;
+const ENABLE_COPYWITHIN = false;
 
-var MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
+const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
-var typedArrayToString = (function () {
+const typedArrayToString = (function () {
     // This is only for PhantomJS, which doesn't like apply-ing
     // with Typed Arrays
     try {
-        var arr = new Uint8Array([1, 2, 3]);
+        const arr = new Uint8Array([1, 2, 3]);
         String.fromCharCode.apply(null, arr);
         return function (a) { return String.fromCharCode.apply(null, a); };
     } catch (ex) {
@@ -115,7 +115,7 @@ Websock.prototype = {
 
     rQshiftStr: function (len) {
         if (typeof(len) === 'undefined') { len = this.rQlen(); }
-        var arr = new Uint8Array(this._rQ.buffer, this._rQi, len);
+        const arr = new Uint8Array(this._rQ.buffer, this._rQi, len);
         this._rQi += len;
         return typedArrayToString(arr);
     },
@@ -149,7 +149,7 @@ Websock.prototype = {
     // to be available in the receive queue. Return true if we need to
     // wait (and possibly print a debug message), otherwise false.
     rQwait: function (msg, num, goback) {
-        var rQlen = this._rQlen - this._rQi; // Skip rQlen() function call
+        const rQlen = this._rQlen - this._rQi; // Skip rQlen() function call
         if (rQlen < num) {
             if (goback) {
                 if (this._rQi < goback) {
@@ -204,7 +204,6 @@ Websock.prototype = {
     },
 
     open: function (uri, protocols) {
-        var ws_schema = uri.match(/^([a-z]+):\/\//)[1];
         this.init();
 
         this._websocket = new WebSocket(uri, protocols);
@@ -252,7 +251,7 @@ Websock.prototype = {
     },
 
     _expand_compact_rQ: function (min_fit) {
-        var resizeNeeded = min_fit || this._rQlen - this._rQi > this._rQbufferSize / 2;
+        const resizeNeeded = min_fit || this._rQlen - this._rQi > this._rQbufferSize / 2;
         if (resizeNeeded) {
             if (!min_fit) {
                 // just double the size if we need to do compaction
@@ -267,12 +266,12 @@ Websock.prototype = {
         if (this._rQbufferSize > MAX_RQ_GROW_SIZE) {
             this._rQbufferSize = MAX_RQ_GROW_SIZE;
             if (this._rQbufferSize - this._rQlen - this._rQi < min_fit) {
-                throw new Exception("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
+                throw new Error("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
             }
         }
 
         if (resizeNeeded) {
-            var old_rQbuffer = this._rQ.buffer;
+            const old_rQbuffer = this._rQ.buffer;
             this._rQmax = this._rQbufferSize / 8;
             this._rQ = new Uint8Array(this._rQbufferSize);
             this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi));
@@ -290,7 +289,7 @@ Websock.prototype = {
 
     _decode_message: function (data) {
         // push arraybuffer values onto the end
-        var u8 = new Uint8Array(data);
+        const u8 = new Uint8Array(data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expand_compact_rQ(u8.length);
         }

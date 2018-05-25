@@ -68,9 +68,9 @@ export default function Display(target) {
 
     this._tile16x16 = this._drawCtx.createImageData(16, 16);
     Log.Debug("<< Display.constructor");
-};
+}
 
-var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
+let SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
 try {
     new ImageData(new Uint8ClampedArray(4), 1, 1);
     SUPPORTS_IMAGEDATA_CONSTRUCTOR = true;
@@ -92,7 +92,7 @@ Display.prototype = {
     set clipViewport(viewport) {
         this._clipViewport = viewport;
         // May need to readjust the viewport dimensions
-        var vp = this._viewportLoc;
+        const vp = this._viewportLoc;
         this.viewportChangeSize(vp.w, vp.h);
         this.viewportChangePos(0, 0);
     },
@@ -113,7 +113,7 @@ Display.prototype = {
     // ===== PUBLIC METHODS =====
 
     viewportChangePos: function (deltaX, deltaY) {
-        var vp = this._viewportLoc;
+        const vp = this._viewportLoc;
         deltaX = Math.floor(deltaX);
         deltaY = Math.floor(deltaY);
 
@@ -122,8 +122,8 @@ Display.prototype = {
             deltaY = -vp.h;
         }
 
-        var vx2 = vp.x + vp.w - 1;
-        var vy2 = vp.y + vp.h - 1;
+        const vx2 = vp.x + vp.w - 1;
+        const vy2 = vp.y + vp.h - 1;
 
         // Position change
 
@@ -172,12 +172,12 @@ Display.prototype = {
             height = this._fb_height;
         }
 
-        var vp = this._viewportLoc;
+        const vp = this._viewportLoc;
         if (vp.w !== width || vp.h !== height) {
             vp.w = width;
             vp.h = height;
 
-            var canvas = this._target;
+            const canvas = this._target;
             canvas.width = width;
             canvas.height = height;
 
@@ -206,11 +206,11 @@ Display.prototype = {
         this._fb_width = width;
         this._fb_height = height;
 
-        var canvas = this._backbuffer;
+        const canvas = this._backbuffer;
         if (canvas.width !== width || canvas.height !== height) {
 
             // We have to save the canvas data since changing the size will clear it
-            var saveImg = null;
+            let saveImg = null;
             if (canvas.width > 0 && canvas.height > 0) {
                 saveImg = this._drawCtx.getImageData(0, 0, canvas.width, canvas.height);
             }
@@ -229,7 +229,7 @@ Display.prototype = {
 
         // Readjust the viewport as it may be incorrectly sized
         // and positioned
-        var vp = this._viewportLoc;
+        const vp = this._viewportLoc;
         this.viewportChangeSize(vp.w, vp.h);
         this.viewportChangePos(0, 0);
     },
@@ -258,15 +258,13 @@ Display.prototype = {
                 'type': 'flip'
             });
         } else {
-            var x, y, vx, vy, w, h;
+            let x = this._damageBounds.left;
+            let y = this._damageBounds.top;
+            let w = this._damageBounds.right - x;
+            let h = this._damageBounds.bottom - y;
 
-            x = this._damageBounds.left;
-            y = this._damageBounds.top;
-            w = this._damageBounds.right - x;
-            h = this._damageBounds.bottom - y;
-
-            vx = x - this._viewportLoc.x;
-            vy = y - this._viewportLoc.y;
+            let vx = x - this._viewportLoc.x;
+            let vy = y - this._viewportLoc.y;
 
             if (vx < 0) {
                 w += vx;
@@ -372,7 +370,7 @@ Display.prototype = {
     },
 
     imageRect: function(x, y, mime, arr) {
-        var img = new Image();
+        const img = new Image();
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
         this._renderQ_push({
             'type': 'img',
@@ -392,12 +390,12 @@ Display.prototype = {
             this._tile = this._drawCtx.createImageData(width, height);
         }
 
-        var red = color[2];
-        var green = color[1];
-        var blue = color[0];
+        const red = color[2];
+        const green = color[1];
+        const blue = color[0];
 
-        var data = this._tile.data;
-        for (var i = 0; i < width * height * 4; i += 4) {
+        const data = this._tile.data;
+        for (let i = 0; i < width * height * 4; i += 4) {
             data[i] = red;
             data[i + 1] = green;
             data[i + 2] = blue;
@@ -407,17 +405,17 @@ Display.prototype = {
 
     // update sub-rectangle of the current tile
     subTile: function (x, y, w, h, color) {
-        var red = color[2];
-        var green = color[1];
-        var blue = color[0];
-        var xend = x + w;
-        var yend = y + h;
+        const red = color[2];
+        const green = color[1];
+        const blue = color[0];
+        const xend = x + w;
+        const yend = y + h;
 
-        var data = this._tile.data;
-        var width = this._tile.width;
-        for (var j = y; j < yend; j++) {
-            for (var i = x; i < xend; i++) {
-                var p = (i + (j * width)) * 4;
+        const data = this._tile.data;
+        const width = this._tile.width;
+        for (let j = y; j < yend; j++) {
+            for (let i = x; i < xend; i++) {
+                const p = (i + (j * width)) * 4;
                 data[p] = red;
                 data[p + 1] = green;
                 data[p + 2] = blue;
@@ -438,7 +436,7 @@ Display.prototype = {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            var new_arr = new Uint8Array(width * height * 4);
+            const new_arr = new Uint8Array(width * height * 4);
             new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
             this._renderQ_push({
                 'type': 'blit',
@@ -458,7 +456,7 @@ Display.prototype = {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            var new_arr = new Uint8Array(width * height * 3);
+            const new_arr = new Uint8Array(width * height * 3);
             new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
             this._renderQ_push({
                 'type': 'blitRgb',
@@ -478,7 +476,7 @@ Display.prototype = {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            var new_arr = new Uint8Array(width * height * 4);
+            const new_arr = new Uint8Array(width * height * 4);
             new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
             this._renderQ_push({
                 'type': 'blitRgbx',
@@ -511,11 +509,11 @@ Display.prototype = {
     },
 
     autoscale: function (containerWidth, containerHeight) {
-        var vp = this._viewportLoc;
-        var targetAspectRatio = containerWidth / containerHeight;
-        var fbAspectRatio = vp.w / vp.h;
+        const vp = this._viewportLoc;
+        const targetAspectRatio = containerWidth / containerHeight;
+        const fbAspectRatio = vp.w / vp.h;
 
-        var scaleRatio;
+        let scaleRatio;
         if (fbAspectRatio >= targetAspectRatio) {
             scaleRatio = containerWidth / vp.w;
         } else {
@@ -529,14 +527,14 @@ Display.prototype = {
 
     _rescale: function (factor) {
         this._scale = factor;
-        var vp = this._viewportLoc;
+        const vp = this._viewportLoc;
 
         // NB(directxman12): If you set the width directly, or set the
         //                   style width to a number, the canvas is cleared.
         //                   However, if you set the style width to a string
         //                   ('NNNpx'), the canvas is scaled without clearing.
-        var width = Math.round(factor * vp.w) + 'px';
-        var height = Math.round(factor * vp.h) + 'px';
+        const width = Math.round(factor * vp.w) + 'px';
+        const height = Math.round(factor * vp.h) + 'px';
 
         if ((this._target.style.width !== width) ||
             (this._target.style.height !== height)) {
@@ -546,7 +544,7 @@ Display.prototype = {
     },
 
     _setFillColor: function (color) {
-        var newStyle = 'rgb(' + color[2] + ',' + color[1] + ',' + color[0] + ')';
+        const newStyle = 'rgb(' + color[2] + ',' + color[1] + ',' + color[0] + ')';
         if (newStyle !== this._prevDrawStyle) {
             this._drawCtx.fillStyle = newStyle;
             this._prevDrawStyle = newStyle;
@@ -554,9 +552,9 @@ Display.prototype = {
     },
 
     _rgbImageData: function (x, y, width, height, arr, offset) {
-        var img = this._drawCtx.createImageData(width, height);
-        var data = img.data;
-        for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
+        const img = this._drawCtx.createImageData(width, height);
+        const data = img.data;
+        for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
             data[i]     = arr[j];
             data[i + 1] = arr[j + 1];
             data[i + 2] = arr[j + 2];
@@ -567,9 +565,9 @@ Display.prototype = {
     },
 
     _bgrxImageData: function (x, y, width, height, arr, offset) {
-        var img = this._drawCtx.createImageData(width, height);
-        var data = img.data;
-        for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
+        const img = this._drawCtx.createImageData(width, height);
+        const data = img.data;
+        for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
             data[i]     = arr[j + 2];
             data[i + 1] = arr[j + 1];
             data[i + 2] = arr[j];
@@ -581,7 +579,7 @@ Display.prototype = {
 
     _rgbxImageData: function (x, y, width, height, arr, offset) {
         // NB(directxman12): arr must be an Type Array view
-        var img;
+        let img;
         if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
             img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
         } else {
@@ -609,9 +607,9 @@ Display.prototype = {
     },
 
     _scan_renderQ: function () {
-        var ready = true;
+        let ready = true;
         while (ready && this._renderQ.length > 0) {
-            var a = this._renderQ[0];
+            const a = this._renderQ[0];
             switch (a.type) {
                 case 'flip':
                     this.flip(true);
@@ -663,12 +661,11 @@ Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {
         return;
     }
 
-    var cur = []
-    var y, x;
-    for (y = 0; y < h; y++) {
-        for (x = 0; x < w; x++) {
-            var idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
-            var alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
+    const cur = []
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            let idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
+            const alpha = (mask[idx] << (x % 8)) & 0x80 ? 255 : 0;
             idx = ((w * y) + x) * 4;
             cur.push(pixels[idx + 2]); // red
             cur.push(pixels[idx + 1]); // green
@@ -677,13 +674,13 @@ Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {
         }
     }
 
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
     canvas.width = w;
     canvas.height = h;
 
-    var img;
+    let img;
     if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
         img = new ImageData(new Uint8ClampedArray(cur), w, h);
     } else {
@@ -693,6 +690,6 @@ Display.changeCursor = function (target, pixels, mask, hotx, hoty, w, h) {
     ctx.clearRect(0, 0, w, h);
     ctx.putImageData(img, 0, 0);
 
-    var url = canvas.toDataURL();
+    const url = canvas.toDataURL();
     target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
 };

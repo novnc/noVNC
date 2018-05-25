@@ -9,7 +9,7 @@
 import * as Log from './logging.js';
 
 // Touch detection
-export var isTouchDevice = ('ontouchstart' in document.documentElement) ||
+export let isTouchDevice = ('ontouchstart' in document.documentElement) ||
                                  // requried for Chrome debugger
                                  (document.ontouchstart !== undefined) ||
                                  // required for MS Surface
@@ -20,12 +20,12 @@ window.addEventListener('touchstart', function onFirstTouch() {
     window.removeEventListener('touchstart', onFirstTouch, false);
 }, false);
 
-var _cursor_uris_supported = null;
+let _cursor_uris_supported = null;
 
 export function supportsCursorURIs () {
     if (_cursor_uris_supported === null) {
         try {
-            var target = document.createElement('canvas');
+            const target = document.createElement('canvas');
             target.style.cursor = 'url("data:image/x-icon;base64,AAACAAEACAgAAAIAAgA4AQAAFgAAACgAAAAIAAAAEAAAAAEAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAD/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAA==") 2 2, default';
 
             if (target.style.cursor) {
@@ -42,7 +42,7 @@ export function supportsCursorURIs () {
     }
 
     return _cursor_uris_supported;
-};
+}
 
 export function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);

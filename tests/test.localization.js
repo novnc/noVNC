@@ -1,13 +1,11 @@
-var assert = chai.assert;
-var expect = chai.expect;
-
-import l10nGet, { l10n } from '../app/localization.js';
+const expect = chai.expect;
+import { l10n } from '../app/localization.js';
 
 describe('Localization', function() {
     "use strict";
 
     describe('language selection', function () {
-        var origNavigator;
+        let origNavigator;
         beforeEach(function () {
             // window.navigator is a protected read-only property in many
             // environments, so we need to redefine it whilst running these

@@ -7,7 +7,7 @@
 
 /* Functions at the bottom */
 
-var codepoints = {
+const codepoints = {
     0x0100: 0x03c0, // XK_Amacron
     0x0101: 0x03e0, // XK_amacron
     0x0102: 0x01c3, // XK_Abreve
@@ -677,7 +677,7 @@ export default {
         }
 
         // Lookup table (fairly random)
-        var keysym = codepoints[u];
+        const keysym = codepoints[u];
         if (keysym !== undefined) {
             return keysym;
         }
