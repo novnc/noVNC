@@ -19,11 +19,17 @@ addons:
   jwt:
     secure: "d3ekMYslpn6R4f0ajtRMt9SUFmNGDiItHpqaXC5T4KI0KMEsxgvEOfJot5PiFFJWg1DSpJZH6oaW2UxGZ3duJLZrXIEd/JePY8a6NtT35BNgiDPgcp+eu2Bu3rhrSNg7/HEsD1ma+JeUTnv18Ai5oMFfCCQJx2J6osIxyl/ZVxA="
 stages:
+- lint
 - test
 - name: deploy
   if: tag is PRESENT
 jobs:
   include:
+  - stage: lint
+    env:
+    addons:
+    before_script:
+    script: npm run lint
   - stage: deploy
     script: skip
     before_script: skip
