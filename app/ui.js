@@ -157,7 +157,7 @@ const UI = {
         UI.initSetting('host', window.location.hostname);
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
-        UI.initSetting('view_clip', isTouchDevice);
+        UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
@@ -728,6 +728,13 @@ const UI = {
         return val;
     },
 
+    // Set the new value, update and disable form control setting
+    forceSetting: function(name, val) {
+        WebUtil.setSetting(name, val);
+        UI.updateSetting(name);
+        UI.disableSetting(name);
+    },
+
     // Update cookie and form control setting. If value is not set, then
     // updates from control to current cookie setting.
     updateSetting: function(name) {
@@ -1257,12 +1264,12 @@ const UI = {
         UI.updateViewDrag();
     },
 
-    // Handle special cases where viewport clipping is forced on/off or locked
+    // Handle special cases where viewport clipping is locked
     enableDisableViewClip: function() {
         const resizeSetting = UI.getSetting('resize');
-        // Disable clipping if we are scaling, connected or on touch
-        if (resizeSetting === 'scale' ||
-            isTouchDevice) {
+        if (isTouchDevice) {
+            UI.forceSetting('view_clip', true);
+        } else if (resizeSetting === 'scale') {
             UI.disableSetting('view_clip');
         } else {
             UI.enableSetting('view_clip');
