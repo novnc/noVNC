@@ -1272,6 +1272,11 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(client._sock).to.have.sent(new Uint8Array([0, 0, 0, 0]));
                 });
 
+                it('should choose the notunnel tunnel type for Siemens devices', function () {
+                    send_num_str_pairs([[1, 'SICR', 'SCHANNEL'], [2, 'SICR', 'SCHANLPW']], client);
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 0, 0]));
+                });
+
                 it('should continue to sub-auth negotiation after tunnel negotiation', function () {
                     send_num_str_pairs([[0, 'TGHT', 'NOTUNNEL']], client);
                     client._sock._websocket._get_sent_data();  // skip the tunnel choice here

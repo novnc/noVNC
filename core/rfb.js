@@ -1008,6 +1008,16 @@ RFB.prototype = {
 
         Log.Debug("Server Tight tunnel types: " + serverSupportedTunnelTypes);
 
+        // Siemens touch panels have a VNC server that supports NOTUNNEL,
+        // but forgets to advertise it. Try to detect such servers by
+        // looking for their custom tunnel type.
+        if (serverSupportedTunnelTypes[1] &&
+            (serverSupportedTunnelTypes[1].vendor === "SICR") &&
+            (serverSupportedTunnelTypes[1].signature === "SCHANNEL")) {
+            Log.Debug("Detected Siemens server. Assuming NOTUNNEL support.");
+            serverSupportedTunnelTypes[0] = { vendor: 'TGHT', signature: 'NOTUNNEL' };
+        }
+
         // choose the notunnel type
         if (serverSupportedTunnelTypes[0]) {
             if (serverSupportedTunnelTypes[0].vendor != clientSupportedTunnelTypes[0].vendor ||
