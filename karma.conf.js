@@ -20,9 +20,6 @@ module.exports = function(config) {
 
     for (let i = 0; i < names.length; i++) {
       for (let j = 0; j < platforms.length; j++) {
-        // FIXME Skip tests in Linux since Sauce Labs browser versions are ancient.
-        // https://github.com/novnc/noVNC/pull/1013#issuecomment-382749805
-        if (platforms[j] === 'Linux') continue;
         for (let k = 0; k < versions.length; k++) {
           let launcher_name = 'sl_' + platforms[j].replace(/[^a-zA-Z0-9]/g, '') + '_' + names[i];
           if (versions[k]) {
