@@ -162,7 +162,7 @@ const UI = {
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
 
-        let socketUrl = (window.location.pathname || '').replace(/\/[\w\.]+$/, '/websockify');
+        let socketUrl = (window.location.pathname || '/').replace(/\/([^/]+)?$/, '/websockify');
         UI.initSetting('path', socketUrl || '/websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
