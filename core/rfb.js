@@ -1006,6 +1006,8 @@ RFB.prototype = {
             serverSupportedTunnelTypes[cap_code] = { vendor: cap_vendor, signature: cap_signature };
         }
 
+        Log.Debug("Server Tight tunnel types: " + serverSupportedTunnelTypes);
+
         // choose the notunnel type
         if (serverSupportedTunnelTypes[0]) {
             if (serverSupportedTunnelTypes[0].vendor != clientSupportedTunnelTypes[0].vendor ||
@@ -1013,6 +1015,7 @@ RFB.prototype = {
                 return this._fail("Client's tunnel type had the incorrect " +
                                   "vendor or signature");
             }
+            Log.Debug("Selected tunnel type: " + clientSupportedTunnelTypes[0]);
             this._sock.send([0, 0, 0, 0]);  // use NOTUNNEL
             return false; // wait until we receive the sub auth count to continue
         } else {
@@ -1058,9 +1061,12 @@ RFB.prototype = {
             serverSupportedTypes.push(capabilities);
         }
 
+        Log.Debug("Server Tight authentication types: " + serverSupportedTypes);
+
         for (let authType in clientSupportedTypes) {
             if (serverSupportedTypes.indexOf(authType) != -1) {
                 this._sock.send([0, 0, 0, clientSupportedTypes[authType]]);
+                Log.Debug("Selected authentication type: " + authType);
 
                 switch (authType) {
                     case 'STDVNOAUTH__':  // no auth
