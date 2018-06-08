@@ -104,7 +104,7 @@
             <div>
               <a target="_blank" id="zn-download-link" style="display: none; color:white; padding-left: 5px; font-size: 20px;" href="#">Access your downloaded files here</a>
             </div>
-            <div><a id="zn-show-creds" href="#">Show VNC Credentials</a></div>
+            <div><a id="zn-show-creds" href="#">Show VNC Credentials</a>  <a id="zn-vncurl">(open)</a></div>
             <table id="zn-creds"><tbody>
               <tr><td class="zn-creds-left">VNC Host: </td><td id="zn-creds-host"></td></tr>
               <tr><td class="zn-creds-left">VNC Password: </td><td id="zn-creds-password"></td></tr>
@@ -343,6 +343,7 @@
             }
             window.history.replaceState({}, document.title, window.location.pathname + "?rid=" + rid);
 
+            document.getElementById('zn-vncurl').href = "vnc://:" + password + "@" + window.location.hostname + ":" +vncPort;
             document.getElementById('zn-creds-host').innerHTML = window.location.hostname + ":" + vncPort;
             document.getElementById('zn-creds-password').innerHTML = password;
             document.getElementById('zn-show-creds').addEventListener('click', function() {
