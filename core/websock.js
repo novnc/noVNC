@@ -100,8 +100,7 @@ Websock.prototype = {
 
     rQshiftStr: function (len) {
         if (typeof(len) === 'undefined') { len = this.rQlen(); }
-        const arr = new Uint8Array(this._rQ.buffer, this._rQi, len);
-        this._rQi += len;
+        const arr = this.rQshiftBytes(len);
         return String.fromCharCode.apply(null, arr);
     },
 
