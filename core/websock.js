@@ -46,21 +46,6 @@ const ENABLE_COPYWITHIN = false;
 
 const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
-const typedArrayToString = (function () {
-    // This is only for PhantomJS, which doesn't like apply-ing
-    // with Typed Arrays
-    try {
-        const arr = new Uint8Array([1, 2, 3]);
-        String.fromCharCode.apply(null, arr);
-        return function (a) { return String.fromCharCode.apply(null, a); };
-    } catch (ex) {
-        return function (a) {
-            return String.fromCharCode.apply(
-                null, Array.prototype.slice.call(a));
-        };
-    }
-})();
-
 Websock.prototype = {
     // Getters and Setters
     get_sQ: function () {
@@ -117,7 +102,7 @@ Websock.prototype = {
         if (typeof(len) === 'undefined') { len = this.rQlen(); }
         const arr = new Uint8Array(this._rQ.buffer, this._rQi, len);
         this._rQi += len;
-        return typedArrayToString(arr);
+        return String.fromCharCode.apply(null, arr);
     },
 
     rQshiftBytes: function (len) {
