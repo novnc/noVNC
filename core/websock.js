@@ -104,7 +104,7 @@ Websock.prototype = {
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
         for (let i = 0; i < len; i += 4096) {
-            let part = arr.slice(i, i + Math.min(4096, len));
+            let part = arr.slice(i, Math.min(i + 4096, len));
             str = str.concat(String.fromCharCode.apply(null, part));
         }
         return str;
