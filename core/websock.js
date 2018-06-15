@@ -100,11 +100,10 @@ Websock.prototype = {
 
     rQshiftStr: function (len) {
         if (typeof(len) === 'undefined') { len = this.rQlen(); }
-        const arr = this.rQshiftBytes(len);
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
         for (let i = 0; i < len; i += 4096) {
-            let part = arr.slice(i, Math.min(i + 4096, len));
+            let part = this.rQshiftBytes(Math.min(4096, len - i));
             str += String.fromCharCode.apply(null, part);
         }
         return str;
