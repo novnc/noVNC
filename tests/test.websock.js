@@ -86,6 +86,30 @@ describe('Websock', function() {
                 sock.rQshiftStr();
                 expect(sock.rQlen()).to.equal(0);
             });
+
+            it('should be able to handle very large strings', function () {
+                const BIG_LEN = 500000;
+                const RQ_BIG = new Uint8Array(BIG_LEN);
+                let expected = "";
+                let letterCode = 'a'.charCodeAt(0);
+                for (let i = 0; i < BIG_LEN; i++) {
+                    RQ_BIG[i] = letterCode;
+                    expected += String.fromCharCode(letterCode);
+
+                    if (letterCode < 'z'.charCodeAt(0)) {
+                        letterCode++;
+                    } else {
+                        letterCode = 'a'.charCodeAt(0);
+                    }
+                }
+                sock._rQ.set(RQ_BIG);
+                sock._rQlen = RQ_BIG.length;
+
+                const shifted = sock.rQshiftStr();
+
+                expect(shifted).to.be.equal(expected);
+                expect(sock.rQlen()).to.equal(0);
+            });
         });
 
         describe('rQshiftBytes', function () {
