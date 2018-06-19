@@ -9,6 +9,9 @@ import * as Log from '../util/logging.js';
 import { isTouchDevice } from '../util/browser.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 
+var tpCache = new Array();
+var tpTreshold = null;
+
 const WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
 const WHEEL_STEP_TIMEOUT = 50; // ms
 const WHEEL_LINE_HEIGHT = 19;
@@ -103,6 +106,15 @@ Mouse.prototype = {
     },
 
     _handleMouseDown: function (e) {
+        if(e.type == 'touchstart') {
+
+            if (e.targetTouches.length == 2) {
+                for (var i = 0; i < e.targetTouches.length; i++) {
+                    tpCache.push(e.targetTouches[i]);
+                }
+            }
+
+        }
         // Touch events have implicit capture
         if (e.type === "mousedown") {
             setCapture(this._target);
@@ -196,8 +208,41 @@ Mouse.prototype = {
 
     _handleMouseMove: function (e) {
         this._updateMousePosition(e);
+        this._handle_pinch_zoom(e);
         this.onmousemove(this._pos.x, this._pos.y);
         stopEvent(e);
+    },
+
+    _handle_pinch_zoom (e) {
+        if(e.targetTouches) {
+            if (e.targetTouches.length == 2 && e.changedTouches.length == 2) {
+                // Check if the two target touches are the same ones that started
+                // the 2-touch
+                var point1 = -1, point2 = -1;
+                for (var i = 0; i < tpCache.length; i++) {
+                    if (tpCache[i].identifier == e.targetTouches[0].identifier) point1 = i;
+                    if (tpCache[i].identifier == e.targetTouches[1].identifier) point2 = i;
+                }
+                if (point1 >= 0 && point2 >= 0) {
+                    var tpDist = Math.abs(e.targetTouches[0].clientX - e.targetTouches[1].clientX);
+
+                    if (tpTreshold == null)
+                        tpTreshold = tpDist;
+
+                    this._accumulatedWheelDeltaY =  tpTreshold - tpDist;
+                    if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
+                        this._generateWheelStepY();
+                    } else {
+                        this._wheelStepYTimer = window.setTimeout(this._generateWheelStepY.bind(this), WHEEL_STEP_TIMEOUT);
+                    }
+                    tpTreshold = tpDist;
+                }
+                else {
+                    // empty tpCache
+                    tpCache = new Array();
+                }
+            }
+        }
     },
 
     _handleMouseDisable: function (e) {
