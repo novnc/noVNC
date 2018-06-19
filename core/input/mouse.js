@@ -207,13 +207,13 @@ Mouse.prototype = {
     },
 
     _handleMouseMove: function (e) {
+        this._handlePinchZoom(e);
         this._updateMousePosition(e);
-        this._handle_pinch_zoom(e);
         this.onmousemove(this._pos.x, this._pos.y);
         stopEvent(e);
     },
 
-    _handle_pinch_zoom (e) {
+    _handlePinchZoom: function (e) {
         if(e.targetTouches) {
             if (e.targetTouches.length == 2 && e.changedTouches.length == 2) {
                 // Check if the two target touches are the same ones that started
@@ -226,9 +226,9 @@ Mouse.prototype = {
                 if (point1 >= 0 && point2 >= 0) {
                     var tpDist = Math.abs(e.targetTouches[0].clientX - e.targetTouches[1].clientX);
 
-                    if (tpTreshold == null)
+                    if (tpTreshold == null) {
                         tpTreshold = tpDist;
-
+                    }
                     this._accumulatedWheelDeltaY =  tpTreshold - tpDist;
                     if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
                         this._generateWheelStepY();
