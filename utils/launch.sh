@@ -70,11 +70,14 @@ while [ "$*" ]; do
 done
 
 # Sanity checks
-which netstat >/dev/null 2>&1 \
-    || die "Must have netstat installed"
-
-netstat -ltn | grep -qs ":${PORT} .*LISTEN" \
-    && die "Port ${PORT} in use. Try --listen PORT"
+if bash -c "exec 7<>/dev/tcp/localhost/${PORT}" &> /dev/null; then
+    exec 7<&-
+    exec 7>&-
+    die "Port ${PORT} in use. Try --listen PORT"
+else
+    exec 7<&-
+    exec 7>&-
+fi
 
 trap "cleanup" TERM QUIT INT EXIT
 
