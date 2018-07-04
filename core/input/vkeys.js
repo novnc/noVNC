@@ -13,6 +13,7 @@ export default {
     0x08: 'Backspace',
     0x09: 'Tab',
     0x0a: 'NumpadClear',
+    0x0c: 'Numpad5', // IE11 sends evt.keyCode: 12 when numlock is off
     0x0d: 'Enter',
     0x10: 'ShiftLeft',
     0x11: 'ControlLeft',
@@ -58,7 +59,6 @@ export default {
     0x63: 'Numpad3',
     0x64: 'Numpad4',
     0x65: 'Numpad5',
-    0x0c: 'Numpad5', // IE11 sends evt.keyCode: 12 when numlock is off
     0x66: 'Numpad6',
     0x67: 'Numpad7',
     0x68: 'Numpad8',
