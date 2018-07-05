@@ -53,26 +53,26 @@ function enableUI() {
         encoding = VNC_frame_encoding;
 }
 
-function IterationPlayer (iterations, frames, encoding) {
-    this._iterations = iterations;
+class IterationPlayer {
+    constructor(iterations, frames, encoding) {
+        this._iterations = iterations;
 
-    this._iteration = undefined;
-    this._player = undefined;
+        this._iteration = undefined;
+        this._player = undefined;
 
-    this._start_time = undefined;
+        this._start_time = undefined;
 
-    this._frames = frames;
-    this._encoding = encoding;
+        this._frames = frames;
+        this._encoding = encoding;
 
-    this._state = 'running';
+        this._state = 'running';
 
     this.onfinish = function() {};
     this.oniterationfinish = function() {};
     this.rfbdisconnected = function() {};
-}
+    }
 
-IterationPlayer.prototype = {
-    start: function (mode) {
+    start(mode) {
         this._iteration = 0;
         this._start_time = (new Date()).getTime();
 
@@ -80,9 +80,9 @@ IterationPlayer.prototype = {
         this._trafficMgmt = !mode.endsWith('-no-mgmt');
 
         this._nextIteration();
-    },
+    }
 
-    _nextIteration: function () {
+    _nextIteration() {
         const player = new RecordingPlayer(this._frames, this._encoding, this._disconnected.bind(this));
         player.onfinish = this._iterationFinish.bind(this);
 
@@ -95,9 +95,9 @@ IterationPlayer.prototype = {
         }
 
         player.run(this._realtime, this._trafficMgmt);
-    },
+    }
 
-    _finish: function () {
+    _finish() {
         const endTime = (new Date()).getTime();
         const totalDuration = endTime - this._start_time;
 
@@ -105,18 +105,18 @@ IterationPlayer.prototype = {
         evt.duration = totalDuration;
         evt.iterations = this._iterations;
         this.onfinish(evt);
-    },
+    }
 
-    _iterationFinish: function (duration) {
+    _iterationFinish(duration) {
         const evt = new Event('iterationfinish');
         evt.duration = duration;
         evt.number = this._iteration;
         this.oniterationfinish(evt);
 
         this._nextIteration();
-    },
+    }
 
-    _disconnected: function (clean, frame) {
+    _disconnected(clean, frame) {
         if (!clean) {
             this._state = 'failed';
         }
@@ -127,8 +127,8 @@ IterationPlayer.prototype = {
         evt.iteration = this._iteration;
 
         this.onrfbdisconnected(evt);
-    },
-};
+    }
+}
 
 function start() {
     document.getElementById('startButton').value = "Running";

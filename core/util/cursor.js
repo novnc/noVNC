@@ -8,36 +8,36 @@ import { supportsCursorURIs, isTouchDevice } from './browser.js';
 
 const useFallback = !supportsCursorURIs() || isTouchDevice;
 
-function Cursor(container) {
-    this._target = null;
+export default class Cursor {
+    constructor(container) {
+        this._target = null;
 
-    this._canvas = document.createElement('canvas');
+        this._canvas = document.createElement('canvas');
 
-    if (useFallback) {
-        this._canvas.style.position = 'fixed';
-        this._canvas.style.zIndex = '65535';
-        this._canvas.style.pointerEvents = 'none';
-        // Can't use "display" because of Firefox bug #1445997
-        this._canvas.style.visibility = 'hidden';
-        document.body.appendChild(this._canvas);
+        if (useFallback) {
+            this._canvas.style.position = 'fixed';
+            this._canvas.style.zIndex = '65535';
+            this._canvas.style.pointerEvents = 'none';
+            // Can't use "display" because of Firefox bug #1445997
+            this._canvas.style.visibility = 'hidden';
+            document.body.appendChild(this._canvas);
+        }
+
+        this._position = { x: 0, y: 0 };
+        this._hotSpot = { x: 0, y: 0 };
+
+        this._eventHandlers = {
+            'mouseover': this._handleMouseOver.bind(this),
+            'mouseleave': this._handleMouseLeave.bind(this),
+            'mousemove': this._handleMouseMove.bind(this),
+            'mouseup': this._handleMouseUp.bind(this),
+            'touchstart': this._handleTouchStart.bind(this),
+            'touchmove': this._handleTouchMove.bind(this),
+            'touchend': this._handleTouchEnd.bind(this),
+        };
     }
 
-    this._position = { x: 0, y: 0 };
-    this._hotSpot = { x: 0, y: 0 };
-
-    this._eventHandlers = {
-        'mouseover': this._handleMouseOver.bind(this),
-        'mouseleave': this._handleMouseLeave.bind(this),
-        'mousemove': this._handleMouseMove.bind(this),
-        'mouseup': this._handleMouseUp.bind(this),
-        'touchstart': this._handleTouchStart.bind(this),
-        'touchmove': this._handleTouchMove.bind(this),
-        'touchend': this._handleTouchEnd.bind(this),
-    };
-}
-
-Cursor.prototype = {
-    attach: function (target) {
+    attach(target) {
         if (this._target) {
             this.detach();
         }
@@ -61,9 +61,9 @@ Cursor.prototype = {
         }
 
         this.clear();
-    },
+    }
 
-    detach: function () {
+    detach() {
         if (useFallback) {
             const options = { capture: true, passive: true };
             this._target.removeEventListener('mouseover', this._eventHandlers.mouseover, options);
@@ -77,9 +77,9 @@ Cursor.prototype = {
         }
 
         this._target = null;
-    },
+    }
 
-    change: function (pixels, mask, hotx, hoty, w, h) {
+    change(pixels, mask, hotx, hoty, w, h) {
         if ((w === 0) || (h === 0)) {
             this.clear();
             return;
@@ -125,9 +125,9 @@ Cursor.prototype = {
             let url = this._canvas.toDataURL();
             this._target.style.cursor = 'url(' + url + ')' + hotx + ' ' + hoty + ', default';
         }
-    },
+    }
 
-    clear: function () {
+    clear() {
         this._target.style.cursor = 'none';
         this._canvas.width = 0;
         this._canvas.height = 0;
@@ -135,71 +135,71 @@ Cursor.prototype = {
         this._position.y = this._position.y + this._hotSpot.y;
         this._hotSpot.x = 0;
         this._hotSpot.y = 0;
-    },
+    }
 
-    _handleMouseOver: function (event) {
+    _handleMouseOver(event) {
         // This event could be because we're entering the target, or
         // moving around amongst its sub elements. Let the move handler
         // sort things out.
         this._handleMouseMove(event);
-    },
+    }
 
-    _handleMouseLeave: function (event) {
+    _handleMouseLeave(event) {
         this._hideCursor();
-    },
+    }
 
-    _handleMouseMove: function (event) {
+    _handleMouseMove(event) {
         this._updateVisibility(event.target);
 
         this._position.x = event.clientX - this._hotSpot.x;
         this._position.y = event.clientY - this._hotSpot.y;
 
         this._updatePosition();
-    },
+    }
 
-    _handleMouseUp: function (event) {
+    _handleMouseUp(event) {
         // We might get this event because of a drag operation that
         // moved outside of the target. Check what's under the cursor
         // now and adjust visibility based on that.
         let target = document.elementFromPoint(event.clientX, event.clientY);
         this._updateVisibility(target);
-    },
+    }
 
-    _handleTouchStart: function (event) {
+    _handleTouchStart(event) {
         // Just as for mouseover, we let the move handler deal with it
         this._handleTouchMove(event);
-    },
+    }
 
-    _handleTouchMove: function (event) {
+    _handleTouchMove(event) {
         this._updateVisibility(event.target);
 
         this._position.x = event.changedTouches[0].clientX - this._hotSpot.x;
         this._position.y = event.changedTouches[0].clientY - this._hotSpot.y;
 
         this._updatePosition();
-    },
+    }
 
-    _handleTouchEnd: function (event) {
+    _handleTouchEnd(event) {
         // Same principle as for mouseup
         let target = document.elementFromPoint(event.changedTouches[0].clientX,
                                                event.changedTouches[0].clientY);
         this._updateVisibility(target);
-    },
+    }
 
-    _showCursor: function () {
+    _showCursor() {
         if (this._canvas.style.visibility === 'hidden')
             this._canvas.style.visibility = '';
-    },
+    }
 
-    _hideCursor: function () {
+    _hideCursor() {
         if (this._canvas.style.visibility !== 'hidden')
             this._canvas.style.visibility = 'hidden';
-    },
+    }
 
     // Should we currently display the cursor?
     // (i.e. are we over the target, or a child of the target without a
     // different cursor set)
-    _shouldShowCursor: function (target) {
+    _shouldShowCursor(target) {
         // Easy case
         if (target === this._target)
             return true;
@@ -212,19 +212,17 @@ Cursor.prototype = {
         if (window.getComputedStyle(target).cursor !== 'none')
             return false;
         return true;
-    },
+    }
 
-    _updateVisibility: function (target) {
+    _updateVisibility(target) {
         if (this._shouldShowCursor(target))
             this._showCursor();
         else
             this._hideCursor();
-    },
+    }
 
-    _updatePosition: function () {
+    _updatePosition() {
         this._canvas.style.left = this._position.x + "px";
         this._canvas.style.top = this._position.y + "px";
-    },
-};
-
-export default Cursor;
+    }
+}

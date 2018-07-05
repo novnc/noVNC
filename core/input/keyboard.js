@@ -15,32 +15,32 @@ import * as browser from "../util/browser.js";
 // Keyboard event handler
 //
 
-export default function Keyboard(target) {
-    this._target = target || null;
+export default class Keyboard {
+    constructor(target) {
+        this._target = target || null;
 
-    this._keyDownList = {};         // List of depressed keys
-                                    // (even if they are happy)
-    this._pendingKey = null;        // Key waiting for keypress
-    this._altGrArmed = false;       // Windows AltGr detection
+        this._keyDownList = {};         // List of depressed keys
+                                        // (even if they are happy)
+        this._pendingKey = null;        // Key waiting for keypress
+        this._altGrArmed = false;       // Windows AltGr detection
 
-    // keep these here so we can refer to them later
-    this._eventHandlers = {
-        'keyup': this._handleKeyUp.bind(this),
-        'keydown': this._handleKeyDown.bind(this),
-        'keypress': this._handleKeyPress.bind(this),
-        'blur': this._allKeysUp.bind(this),
-        'checkalt': this._checkAlt.bind(this),
-    };
-}
+        // keep these here so we can refer to them later
+        this._eventHandlers = {
+            'keyup': this._handleKeyUp.bind(this),
+            'keydown': this._handleKeyDown.bind(this),
+            'keypress': this._handleKeyPress.bind(this),
+            'blur': this._allKeysUp.bind(this),
+            'checkalt': this._checkAlt.bind(this),
+        };
 
-Keyboard.prototype = {
-    // ===== EVENT HANDLERS =====
+        // ===== EVENT HANDLERS =====
 
-    onkeyevent: function () {},     // Handler for key press/release
+        this.onkeyevent = () => {}; // Handler for key press/release
+    }
 
     // ===== PRIVATE METHODS =====
 
-    _sendKeyEvent: function (keysym, code, down) {
+    _sendKeyEvent(keysym, code, down) {
         if (down) {
             this._keyDownList[code] = keysym;
         } else {
@@ -54,9 +54,9 @@ Keyboard.prototype = {
         Log.Debug("onkeyevent " + (down ? "down" : "up") +
                   ", keysym: " + keysym, ", code: " + code);
         this.onkeyevent(keysym, code, down);
-    },
+    }
 
-    _getKeyCode: function (e) {
+    _getKeyCode(e) {
         const code = KeyboardUtil.getKeycode(e);
         if (code !== 'Unidentified') {
             return code;
@@ -87,9 +87,9 @@ Keyboard.prototype = {
         }
 
         return 'Unidentified';
-    },
+    }
 
-    _handleKeyDown: function (e) {
+    _handleKeyDown(e) {
         const code = this._getKeyCode(e);
         let keysym = KeyboardUtil.getKeysym(e);
 
@@ -198,10 +198,10 @@ Keyboard.prototype = {
         }
 
         this._sendKeyEvent(keysym, code, true);
-    },
+    }
 
     // Legacy event for browsers without code/key
-    _handleKeyPress: function (e) {
+    _handleKeyPress(e) {
         stopEvent(e);
 
         // Are we expecting a keypress?
@@ -226,8 +226,9 @@ Keyboard.prototype = {
         }
 
         this._sendKeyEvent(keysym, code, true);
-    },
-    _handleKeyPressTimeout: function (e) {
+    }
+
+    _handleKeyPressTimeout(e) {
         // Did someone manage to sort out the key already?
         if (this._pendingKey === null) {
             return;
@@ -259,9 +260,9 @@ Keyboard.prototype = {
         }
 
         this._sendKeyEvent(keysym, code, true);
-    },
+    }
 
-    _handleKeyUp: function (e) {
+    _handleKeyUp(e) {
         stopEvent(e);
 
         const code = this._getKeyCode(e);
@@ -282,24 +283,24 @@ Keyboard.prototype = {
         }
 
         this._sendKeyEvent(this._keyDownList[code], code, false);
-    },
+    }
 
-    _handleAltGrTimeout: function () {
+    _handleAltGrTimeout() {
         this._altGrArmed = false;
         clearTimeout(this._altGrTimeout);
         this._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
-    },
+    }
 
-    _allKeysUp: function () {
+    _allKeysUp() {
         Log.Debug(">> Keyboard.allKeysUp");
         for (let code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
         }
         Log.Debug("<< Keyboard.allKeysUp");
-    },
+    }
 
     // Firefox Alt workaround, see below
-    _checkAlt: function (e) {
+    _checkAlt(e) {
         if (e.altKey) {
             return;
         }
@@ -316,11 +317,11 @@ Keyboard.prototype = {
                                             code: code });
             target.dispatchEvent(event);
         });
-    },
+    }
 
     // ===== PUBLIC METHODS =====
 
-    grab: function () {
+    grab() {
         //Log.Debug(">> Keyboard.grab");
 
         this._target.addEventListener('keydown', this._eventHandlers.keydown);
@@ -341,13 +342,13 @@ Keyboard.prototype = {
                 document.addEventListener(type, handler,
                                           { capture: true,
                                             passive: true });
-            });
+             });
         }
 
         //Log.Debug("<< Keyboard.grab");
-    },
+    }
 
-    ungrab: function () {
+    ungrab() {
         //Log.Debug(">> Keyboard.ungrab");
 
         if (browser.isWindows() && browser.isFirefox()) {
@@ -368,5 +369,5 @@ Keyboard.prototype = {
         this._allKeysUp();
 
         //Log.Debug(">> Keyboard.ungrab");
-    },
-};
+    }
+}

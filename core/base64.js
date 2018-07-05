@@ -11,7 +11,7 @@ export default {
     toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),
     base64Pad     : '=',
 
-    encode: function (data) {
+    encode(data) {
         "use strict";
         let result = '';
         const length = data.length;
@@ -54,8 +54,7 @@ export default {
         41,42,43,44, 45,46,47,48, 49,50,51,-1, -1,-1,-1,-1
     ],
 
-    decode: function (data, offset) {
-        "use strict";
+    decode(data, offset) {
         offset = typeof(offset) !== 'undefined' ? offset : 0;
 
         let data_length = data.indexOf('=') - offset;

@@ -670,7 +670,7 @@ const codepoints = {
 };
 
 export default {
-    lookup : function(u) {
+    lookup(u) {
         // Latin-1 is one-to-one mapping
         if ((u >= 0x20) && (u <= 0xff)) {
             return u;
