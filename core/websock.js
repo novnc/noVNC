@@ -17,7 +17,7 @@ import * as Log from './util/logging.js';
 export default function Websock() {
     "use strict";
 
-    this._websocket = null;  // WebSocket object
+    this._webChannel = null;  // WebSocket or RTCDataChannel object
 
     this._rQi = 0;           // Receive queue index
     this._rQlen = 0;         // Next write position in the receive queue
@@ -154,8 +154,8 @@ Websock.prototype = {
     // Send Queue
 
     flush: function () {
-        if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
-            this._websocket.send(this._encode_message());
+        if (this._sQlen > 0 && this._webChannel.readyState === WebSocket.OPEN) {
+            this._webChannel.send(this._encode_message());
             this._sQlen = 0;
         }
     },
@@ -189,46 +189,61 @@ Websock.prototype = {
     init: function () {
         this._allocate_buffers();
         this._rQi = 0;
-        this._websocket = null;
+        this._webChannel = null;
     },
 
-    open: function (uri, protocols) {
+    // call open method through three different ways below:
+    // websock.open(uri, protocols)
+    // websock.open(webSocket)
+    // websock.open(rtcDataChannel)
+    open: function () {
         this.init();
 
-        this._websocket = new WebSocket(uri, protocols);
-        this._websocket.binaryType = 'arraybuffer';
+        if (arguments.length >= 2) {
+            const uri = arguments[0];
+            const protocols = arguments[1];
+            this._webChannel = new WebSocket(uri, protocols);
+        } else {
+            this._webChannel = arguments[0];
+        }
 
-        this._websocket.onmessage = this._recv_message.bind(this);
-        this._websocket.onopen = (function () {
+        this._webChannel.binaryType = 'arraybuffer';
+
+        this._webChannel.onmessage = this._recv_message.bind(this);
+        this._webChannel.onopen = (function () {
             Log.Debug('>> WebSock.onopen');
-            if (this._websocket.protocol) {
-                Log.Info("Server choose sub-protocol: " + this._websocket.protocol);
+            if (this._webChannel.protocol) {
+                Log.Info("Server choose sub-protocol: " + this._webChannel.protocol);
             }
 
             this._eventHandlers.open();
             Log.Debug("<< WebSock.onopen");
         }).bind(this);
-        this._websocket.onclose = (function (e) {
+        this._webChannel.onclose = (function (e) {
             Log.Debug(">> WebSock.onclose");
             this._eventHandlers.close(e);
             Log.Debug("<< WebSock.onclose");
         }).bind(this);
-        this._websocket.onerror = (function (e) {
+        this._webChannel.onerror = (function (e) {
             Log.Debug(">> WebSock.onerror: " + e);
             this._eventHandlers.error(e);
             Log.Debug("<< WebSock.onerror: " + e);
         }).bind(this);
+
+        if (this._webChannel.readyState !== "connecting") {
+            setTimeout(this._webChannel.onopen, 0);
+        }
     },
 
     close: function () {
-        if (this._websocket) {
-            if ((this._websocket.readyState === WebSocket.OPEN) ||
-                    (this._websocket.readyState === WebSocket.CONNECTING)) {
+        if (this._webChannel) {
+            if ((this._webChannel.readyState === WebSocket.OPEN) ||
+                    (this._webChannel.readyState === WebSocket.CONNECTING)) {
                 Log.Info("Closing WebSocket connection");
-                this._websocket.close();
+                this._webChannel.close();
             }
 
-            this._websocket.onmessage = function (e) { return; };
+            this._webChannel.onmessage = function (e) { return; };
         }
     },
 

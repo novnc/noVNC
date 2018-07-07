@@ -28,16 +28,16 @@ import "./util/polyfill.js";
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
 
-export default function RFB(target, url, options) {
+export default function RFB(target, urlOrChannel, options) {
     if (!target) {
         throw Error("Must specify target");
     }
-    if (!url) {
-        throw Error("Must specify URL");
+    if (!urlOrChannel) {
+        throw Error("Must specify URL or WebSocket or RTCWebChannel");
     }
 
     this._target = target;
-    this._url = url;
+    this._urlOrChannel = urlOrChannel;
 
     // Connection details
     options = options || {};
@@ -394,11 +394,15 @@ RFB.prototype = {
     _connect: function () {
         Log.Debug(">> RFB.connect");
 
-        Log.Info("connecting to " + this._url);
-
         try {
             // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(this._url, ['binary']);
+            if (typeof(this._urlOrChannel) === "string") {
+                Log.Info("connecting to " + this._urlOrChannel);
+                this._sock.open(this._urlOrChannel, ['binary']);
+            } else {
+                Log.Info("use established WebSocket or WebRTC connection");
+                this._sock.open(this._urlOrChannel);
+            }
         } catch (e) {
             if (e.name === 'SyntaxError') {
                 this._fail("Invalid host or port (" + e + ")");
