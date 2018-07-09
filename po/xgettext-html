@@ -89,11 +89,11 @@ for (let i = 0; i < opt.argv.length; i++) {
     const dom = new jsdom.JSDOM(file, { includeNodeLocations: true });
     const body = dom.window.document.body;
 
-    const locator = (elem) => {
+    function locator(elem) {
         const offset = dom.nodeLocation(elem).startOffset;
         const line = file.slice(0, offset).split("\n").length;
         return fn + ":" + line;
-    };
+    }
 
     process(body, locator, true);
 }

@@ -23,24 +23,24 @@ import sinon from '../vendor/sinon.js';
     window.UIEvent = UIEvent;
 })();
 
-const push8 = (arr, num) => {
+function push8(arr, num) {
     "use strict";
     arr.push(num & 0xFF);
-};
+}
 
-const push16 = (arr, num) => {
+function push16(arr, num) {
     "use strict";
     arr.push((num >> 8) & 0xFF,
               num & 0xFF);
-};
+}
 
-const push32 = (arr, num) => {
+function push32(arr, num) {
     "use strict";
     arr.push((num >> 24) & 0xFF,
               (num >> 16) & 0xFF,
               (num >>  8) & 0xFF,
               num & 0xFF);
-};
+}
 
 describe('Remote Frame Buffer Protocol Client', function() {
     let clock;

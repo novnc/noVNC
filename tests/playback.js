@@ -24,7 +24,7 @@ if (window.setImmediate === undefined) {
         _immediateFuncs[id];
     };
 
-    const _onMessage = (event) => {
+    window.addEventListener("message", (event) => {
         if ((typeof event.data !== "string") ||
             (event.data.indexOf("noVNC immediate trigger:") !== 0)) {
             return;
@@ -40,8 +40,7 @@ if (window.setImmediate === undefined) {
         delete _immediateFuncs[index];
 
         callback();
-    };
-    window.addEventListener("message", _onMessage);
+    });
 }
 
 export default class RecordingPlayer {
