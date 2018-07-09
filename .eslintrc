@@ -13,5 +13,10 @@
         "no-var": "error",
         "no-useless-constructor": "error",
         "object-shorthand": ["error", "methods", { "avoidQuotes": true }],
+        "prefer-arrow-callback": "error",
+        "arrow-body-style": ["error", "as-needed", { "requireReturnForObjectLiteral": false } ],
+        "arrow-parens": ["error", "as-needed", { "requireForBlockBody": true }],
+        "arrow-spacing": ["error"],
+        "no-confusing-arrow": ["error", { "allowParens": true }],
     }
 }

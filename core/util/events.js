@@ -120,7 +120,7 @@ export function releaseCapture () {
 
         // There might be events already queued, so we need to wait for
         // them to flush. E.g. contextmenu in Microsoft Edge
-        window.setTimeout(function(expected) {
+        window.setTimeout((expected) => {
             // Only clear it if it's the expected grab (i.e. no one
             // else has initiated a new grab)
             if (_captureIndex === expected) {

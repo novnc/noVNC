@@ -24,7 +24,7 @@ describe('Key Event Handling', function() {
         it('should decode keydown events', function(done) {
             if (browser.isIE() || browser.isEdge()) this.skip();
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
                 expect(down).to.be.equal(true);
@@ -36,7 +36,7 @@ describe('Key Event Handling', function() {
             if (browser.isIE() || browser.isEdge()) this.skip();
             let calls = 0;
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
                 if (calls++ === 1) {
@@ -57,7 +57,7 @@ describe('Key Event Handling', function() {
             });
             it('should decode keypress events', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('KeyA');
                     expect(down).to.be.equal(true);
@@ -75,7 +75,7 @@ describe('Key Event Handling', function() {
             });
             it('should handle keypress with missing code', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('KeyA');
                     expect(down).to.be.equal(true);
@@ -86,7 +86,7 @@ describe('Key Event Handling', function() {
             });
             it('should guess key if no keypress and numeric key', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x32);
                     expect(code).to.be.equal('Digit2');
                     expect(down).to.be.equal(true);
@@ -96,7 +96,7 @@ describe('Key Event Handling', function() {
             });
             it('should guess key if no keypress and alpha key', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('KeyA');
                     expect(down).to.be.equal(true);
@@ -106,7 +106,7 @@ describe('Key Event Handling', function() {
             });
             it('should guess key if no keypress and alpha key (with shift)', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x41);
                     expect(code).to.be.equal('KeyA');
                     expect(down).to.be.equal(true);
@@ -116,7 +116,7 @@ describe('Key Event Handling', function() {
             });
             it('should not guess key if no keypress and unknown key', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0);
                     expect(code).to.be.equal('KeyA');
                     expect(down).to.be.equal(true);
@@ -161,7 +161,7 @@ describe('Key Event Handling', function() {
             if (browser.isIE() || browser.isEdge()) this.skip();
             let count = 0;
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 switch (count++) {
                     case 0:
                         expect(keysym).to.be.equal(0x61);
@@ -208,7 +208,7 @@ describe('Key Event Handling', function() {
                 if (browser.isIE() || browser.isEdge()) this.skip();
                 let count = 0;
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     switch (count++) {
                         case 0:
                             expect(keysym).to.be.equal(0x61);
@@ -233,7 +233,7 @@ describe('Key Event Handling', function() {
         });
         it('should send release using the same keysym as the press', function(done) {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
                 if (!down) {
@@ -246,7 +246,7 @@ describe('Key Event Handling', function() {
         it('should send the same keysym for multiple presses', function() {
             let count = 0;
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
                 expect(code).to.be.equal('KeyA');
                 expect(down).to.be.equal(true);
@@ -266,7 +266,7 @@ describe('Key Event Handling', function() {
         describe('Legacy Events', function() {
             it('should track keys using keyCode if no code', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Platform65');
                     if (!down) {
@@ -278,7 +278,7 @@ describe('Key Event Handling', function() {
             });
             it('should ignore compositing code', function() {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Unidentified');
                 };
@@ -286,7 +286,7 @@ describe('Key Event Handling', function() {
             });
             it('should track keys using keyIdentifier if no code', function(done) {
                 const kbd = new Keyboard(document);
-                kbd.onkeyevent = function(keysym, code, down) {
+                kbd.onkeyevent = (keysym, code, down) => {
                     expect(keysym).to.be.equal(0x61);
                     expect(code).to.be.equal('Platform65');
                     if (!down) {
@@ -328,7 +328,7 @@ describe('Key Event Handling', function() {
         it('should change Alt to AltGraph', function() {
             let count = 0;
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 switch (count++) {
                     case 0:
                         expect(keysym).to.be.equal(0xFF7E);
@@ -346,7 +346,7 @@ describe('Key Event Handling', function() {
         });
         it('should change left Super to Alt', function(done) {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0xFFE9);
                 expect(code).to.be.equal('MetaLeft');
                 done();
@@ -355,7 +355,7 @@ describe('Key Event Handling', function() {
         });
         it('should change right Super to left Super', function(done) {
             const kbd = new Keyboard(document);
-            kbd.onkeyevent = function(keysym, code, down) {
+            kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0xFFEB);
                 expect(code).to.be.equal('MetaRight');
                 done();

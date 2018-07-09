@@ -2,7 +2,10 @@
 // native support in the browsers, so that our error handler
 // can catch script-loading errors.
 
-(function(){
+// No ES6 can be used in this file since it's used for the translation
+/* eslint-disable prefer-arrow-callback */
+
+(function() {
     "use strict";
 
     // Fallback for all uncought errors

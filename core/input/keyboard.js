@@ -307,7 +307,7 @@ export default class Keyboard {
 
         const target = this._target;
         const downList = this._keyDownList;
-        ['AltLeft', 'AltRight'].forEach(function (code) {
+        ['AltLeft', 'AltRight'].forEach((code) => {
             if (!(code in downList)) {
                 return;
             }
@@ -338,11 +338,10 @@ export default class Keyboard {
             const handler = this._eventHandlers.checkalt;
             ['mousedown', 'mouseup', 'mousemove', 'wheel',
              'touchstart', 'touchend', 'touchmove',
-             'keydown', 'keyup'].forEach(function (type) {
+             'keydown', 'keyup'].forEach(type =>
                 document.addEventListener(type, handler,
                                           { capture: true,
-                                            passive: true });
-             });
+                                            passive: true }));
         }
 
         //Log.Debug("<< Keyboard.grab");
@@ -355,9 +354,7 @@ export default class Keyboard {
             const handler = this._eventHandlers.checkalt;
             ['mousedown', 'mouseup', 'mousemove', 'wheel',
              'touchstart', 'touchend', 'touchmove',
-             'keydown', 'keyup'].forEach(function (type) {
-                document.removeEventListener(type, handler);
-            });
+             'keydown', 'keyup'].forEach(type => document.removeEventListener(type, handler));
         }
 
         this._target.removeEventListener('keydown', this._eventHandlers.keydown);

@@ -74,7 +74,7 @@ FakeWebSocket.CLOSED = WebSocket.CLOSED;
 
 FakeWebSocket.__is_fake = true;
 
-FakeWebSocket.replace = function () {
+FakeWebSocket.replace = () => {
     if (!WebSocket.__is_fake) {
         const real_version = WebSocket;
         // eslint-disable-next-line no-global-assign
@@ -83,7 +83,7 @@ FakeWebSocket.replace = function () {
     }
 };
 
-FakeWebSocket.restore = function () {
+FakeWebSocket.restore = () => {
     if (WebSocket.__is_fake) {
         // eslint-disable-next-line no-global-assign
         WebSocket = WebSocket.__real_version;

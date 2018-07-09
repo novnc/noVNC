@@ -71,7 +71,7 @@ const UI = {
         if (isTouchDevice) {
             document.documentElement.classList.add("noVNC_touch");
             // Remove the address bar
-            setTimeout(function() { window.scrollTo(0, 1); }, 100);
+            setTimeout(() => window.scrollTo(0, 1), 100);
         }
 
         // Restore control bar position
@@ -230,13 +230,13 @@ const UI = {
 
     addTouchSpecificHandlers() {
         document.getElementById("noVNC_mouse_button0")
-            .addEventListener('click', function () { UI.setMouseButton(1); });
+            .addEventListener('click', () => UI.setMouseButton(1));
         document.getElementById("noVNC_mouse_button1")
-            .addEventListener('click', function () { UI.setMouseButton(2); });
+            .addEventListener('click', () => UI.setMouseButton(2));
         document.getElementById("noVNC_mouse_button2")
-            .addEventListener('click', function () { UI.setMouseButton(4); });
+            .addEventListener('click', () => UI.setMouseButton(4));
         document.getElementById("noVNC_mouse_button4")
-            .addEventListener('click', function () { UI.setMouseButton(0); });
+            .addEventListener('click', () => UI.setMouseButton(0));
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
 
@@ -250,7 +250,7 @@ const UI = {
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('blur', UI.onblurVirtualKeyboard);
         document.getElementById("noVNC_keyboardinput")
-            .addEventListener('submit', function () { return false; });
+            .addEventListener('submit', () => false);
 
         document.documentElement
             .addEventListener('mousedown', UI.keepVirtualKeyboard, true);
@@ -294,11 +294,11 @@ const UI = {
 
     addMachineHandlers() {
         document.getElementById("noVNC_shutdown_button")
-            .addEventListener('click', function() { UI.rfb.machineShutdown(); });
+            .addEventListener('click', () => UI.rfb.machineShutdown());
         document.getElementById("noVNC_reboot_button")
-            .addEventListener('click', function() { UI.rfb.machineReboot(); });
+            .addEventListener('click', () => UI.rfb.machineReboot());
         document.getElementById("noVNC_reset_button")
-            .addEventListener('click', function() { UI.rfb.machineReset(); });
+            .addEventListener('click', () => UI.rfb.machineReset());
         document.getElementById("noVNC_power_button")
             .addEventListener('click', UI.togglePowerPanel);
     },
@@ -329,7 +329,7 @@ const UI = {
     addSettingChangeHandler(name, changeFunc) {
         const settingElem = document.getElementById("noVNC_setting_" + name);
         if (changeFunc === undefined) {
-            changeFunc = function () { UI.saveSetting(name); };
+            changeFunc = () => UI.saveSetting(name);
         }
         settingElem.addEventListener('change', changeFunc);
     },
@@ -552,8 +552,7 @@ const UI = {
         const barDisplayStyle = window.getComputedStyle(bar).display;
         if (barDisplayStyle !== 'none') {
             bar.style.transitionDuration = '0s';
-            bar.addEventListener('transitionend', function () {
-                this.style.transitionDuration = ""; });
+            bar.addEventListener('transitionend', () => bar.style.transitionDuration = '');
         }
 
         const anchor = document.getElementById('noVNC_control_bar_anchor');
@@ -1029,7 +1028,7 @@ const UI = {
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
-        UI.rfb.addEventListener("capabilities", function () { UI.updatePowerButton(); });
+        UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
@@ -1153,9 +1152,8 @@ const UI = {
         document.getElementById('noVNC_password_dlg')
             .classList.add('noVNC_open');
 
-        setTimeout(function () {
-                document.getElementById('noVNC_password_input').focus();
-            }, 100);
+        setTimeout(() => document
+            .getElementById('noVNC_password_input').focus(), 100);
 
         Log.Warn("Server asked for a password");
         UI.showStatus(_("Password is required"), "warning");
@@ -1624,7 +1622,7 @@ const UI = {
             const promise = document.getElementById('noVNC_bell').play();
             // The standards disagree on the return value here
             if (promise) {
-                promise.catch(function(e) {
+                promise.catch((e) => {
                     if (e.name === "NotAllowedError") {
                         // Ignore when the browser doesn't let us play audio.
                         // It is common that the browsers require audio to be
@@ -1655,12 +1653,12 @@ const UI = {
 const LINGUAS = ["de", "el", "es", "nl", "pl", "sv", "tr", "zh_CN", "zh_TW"];
 l10n.setup(LINGUAS);
 if (l10n.language !== "en" && l10n.dictionary === undefined) {
-    WebUtil.fetchJSON('app/locale/' + l10n.language + '.json', function (translations) {
+    WebUtil.fetchJSON('app/locale/' + l10n.language + '.json', (translations) => {
         l10n.dictionary = translations;
 
         // wait for translations to load before loading the UI
         UI.prime();
-    }, function (err) {
+    }, (err) => {
         Log.Error("Failed to load translations: " + err);
         UI.prime();
     });

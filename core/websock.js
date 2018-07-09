@@ -164,14 +164,12 @@ export default class Websock {
     }
 
     send_string(str) {
-        this.send(str.split('').map(function (chr) {
-            return chr.charCodeAt(0);
-        }));
+        this.send(str.split('').map(chr => chr.charCodeAt(0)));
     }
 
     // Event Handlers
     off(evt) {
-        this._eventHandlers[evt] = function () {};
+        this._eventHandlers[evt] = () => {};
     }
 
     on(evt, handler) {
@@ -196,7 +194,7 @@ export default class Websock {
         this._websocket.binaryType = 'arraybuffer';
 
         this._websocket.onmessage = this._recv_message.bind(this);
-        this._websocket.onopen = (function () {
+        this._websocket.onopen = () => {
             Log.Debug('>> WebSock.onopen');
             if (this._websocket.protocol) {
                 Log.Info("Server choose sub-protocol: " + this._websocket.protocol);
@@ -204,17 +202,17 @@ export default class Websock {
 
             this._eventHandlers.open();
             Log.Debug("<< WebSock.onopen");
-        }).bind(this);
-        this._websocket.onclose = (function (e) {
+        };
+        this._websocket.onclose = (e) => {
             Log.Debug(">> WebSock.onclose");
             this._eventHandlers.close(e);
             Log.Debug("<< WebSock.onclose");
-        }).bind(this);
-        this._websocket.onerror = (function (e) {
+        };
+        this._websocket.onerror = (e) => {
             Log.Debug(">> WebSock.onerror: " + e);
             this._eventHandlers.error(e);
             Log.Debug("<< WebSock.onerror: " + e);
-        }).bind(this);
+        };
     }
 
     close() {
@@ -225,7 +223,7 @@ export default class Websock {
                 this._websocket.close();
             }
 
-            this._websocket.onmessage = function (e) { return; };
+            this._websocket.onmessage = () => {};
         }
     }
 

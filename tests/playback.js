@@ -13,18 +13,18 @@ if (window.setImmediate === undefined) {
     let _immediateIdCounter = 1;
     const _immediateFuncs = {};
 
-    window.setImmediate = function (func) {
+    window.setImmediate = (func) => {
         const index = _immediateIdCounter++;
         _immediateFuncs[index] = func;
         window.postMessage("noVNC immediate trigger:" + index, "*");
         return index;
     };
 
-    window.clearImmediate = function (id) {
+    window.clearImmediate = (id) => {
         _immediateFuncs[id];
     };
 
-    const _onMessage = function (event) {
+    const _onMessage = (event) => {
         if ((typeof event.data !== "string") ||
             (event.data.indexOf("noVNC immediate trigger:") !== 0)) {
             return;
@@ -71,7 +71,7 @@ export default class RecordingPlayer {
 
         this._running = false;
 
-    this.onfinish = function () {};
+        this.onfinish = () => {};
     }
 
     run(realtime, trafficManagement) {
@@ -96,9 +96,9 @@ export default class RecordingPlayer {
 
     // _enablePlaybackMode mocks out things not required for running playback
     _enablePlaybackMode() {
-        this._rfb._sock.send = function (arr) {};
-        this._rfb._sock.close = function () {};
-        this._rfb._sock.flush = function () {};
+        this._rfb._sock.send = () => {};
+        this._rfb._sock.close = () => {};
+        this._rfb._sock.flush = () => {};
         this._rfb._sock.open = function () {
             this.init();
             this._eventHandlers.open();
@@ -143,12 +143,11 @@ export default class RecordingPlayer {
     _doPacket() {
         // Avoid having excessive queue buildup in non-realtime mode
         if (this._trafficManagement && this._rfb._flushing) {
-            const player = this;
             const orig = this._rfb._display.onflush;
-            this._rfb._display.onflush = function () {
-                player._rfb._display.onflush = orig;
-                player._rfb._onFlush();
-                player._doPacket();
+            this._rfb._display.onflush = () => {
+                this._rfb._display.onflush = orig;
+                this._rfb._onFlush();
+                this._doPacket();
             };
             return;
         }
@@ -174,12 +173,11 @@ export default class RecordingPlayer {
 
     _finish() {
         if (this._rfb._display.pending()) {
-            const player = this;
-            this._rfb._display.onflush = function () {
-                if (player._rfb._flushing) {
-                    player._rfb._onFlush();
+            this._rfb._display.onflush = () => {
+                if (this._rfb._flushing) {
+                    this._rfb._onFlush();
                 }
-                player._finish();
+                this._finish();
             };
             this._rfb._display.flush();
         } else {

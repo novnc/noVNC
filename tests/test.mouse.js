@@ -18,7 +18,7 @@ describe('Mouse Event Handling', function() {
 
     // The real constructors might not work everywhere we
     // want to run these tests
-    const mouseevent = function(typeArg, MouseEventInit) {
+    const mouseevent = (typeArg, MouseEventInit) => {
         const e = { type: typeArg };
         for (let key in MouseEventInit) {
             e[key] = MouseEventInit[key];
@@ -32,7 +32,7 @@ describe('Mouse Event Handling', function() {
     describe('Decode Mouse Events', function() {
         it('should decode mousedown events', function(done) {
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 expect(bmask).to.be.equal(0x01);
                 expect(down).to.be.equal(1);
                 done();
@@ -42,7 +42,7 @@ describe('Mouse Event Handling', function() {
         it('should decode mouseup events', function(done) {
             let calls = 0;
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 expect(bmask).to.be.equal(0x01);
                 if (calls++ === 1) {
                     expect(down).to.not.be.equal(1);
@@ -54,7 +54,7 @@ describe('Mouse Event Handling', function() {
         });
         it('should decode mousemove events', function(done) {
             const mouse = new Mouse(target);
-            mouse.onmousemove = function(x, y) {
+            mouse.onmousemove = (x, y) => {
                 // Note that target relative coordinates are sent
                 expect(x).to.be.equal(40);
                 expect(y).to.be.equal(10);
@@ -66,7 +66,7 @@ describe('Mouse Event Handling', function() {
         it('should decode mousewheel events', function(done) {
             let calls = 0;
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 calls++;
                 expect(bmask).to.be.equal(1<<6);
                 if (calls === 1) {
@@ -90,7 +90,7 @@ describe('Mouse Event Handling', function() {
         it('should use same pos for 2nd tap if close enough', function(done) {
             let calls = 0;
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 calls++;
                 if (calls === 1) {
                     expect(down).to.be.equal(1);
@@ -121,7 +121,7 @@ describe('Mouse Event Handling', function() {
         it('should not modify 2nd tap pos if far apart', function(done) {
             let calls = 0;
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 calls++;
                 if (calls === 1) {
                     expect(down).to.be.equal(1);
@@ -150,7 +150,7 @@ describe('Mouse Event Handling', function() {
         it('should not modify 2nd tap pos if not soon enough', function(done) {
             let calls = 0;
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 calls++;
                 if (calls === 1) {
                     expect(down).to.be.equal(1);
@@ -179,7 +179,7 @@ describe('Mouse Event Handling', function() {
         it('should not modify 2nd tap pos if not touch', function(done) {
             let calls = 0;
             const mouse = new Mouse(target);
-            mouse.onmousebutton = function(x, y, down, bmask) {
+            mouse.onmousebutton = (x, y, down, bmask) => {
                 calls++;
                 if (calls === 1) {
                     expect(down).to.be.equal(1);

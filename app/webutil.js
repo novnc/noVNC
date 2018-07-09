@@ -119,7 +119,7 @@ export function initSettings (callback /*, ...callbackArgs */) {
     "use strict";
     const callbackArgs = Array.prototype.slice.call(arguments, 1);
     if (window.chrome && window.chrome.storage) {
-        window.chrome.storage.sync.get(function (cfg) {
+        window.chrome.storage.sync.get((cfg) => {
             settings = cfg;
             if (callback) {
                 callback.apply(this, callbackArgs);
@@ -201,7 +201,7 @@ export function injectParamIfMissing (path, param, value) {
         query = [];
     }
 
-    if (!query.some(function (v) { return v.startsWith(param_eq); })) {
+    if (!query.some(v => v.startsWith(param_eq))) {
         query.push(param_eq + encodeURIComponent(value));
         elem.search = "?" + query.join("&");
     }
@@ -224,7 +224,7 @@ export function fetchJSON(path, resolve, reject) {
     const req = new XMLHttpRequest();
     req.open('GET', path);
 
-    req.onload = function () {
+    req.onload = () => {
         if (req.status === 200) {
             let resObj;
             try {
@@ -238,13 +238,9 @@ export function fetchJSON(path, resolve, reject) {
         }
     };
 
-    req.onerror = function (evt) {
-        reject(new Error("XHR encountered an error while trying to load '" + path + "': " + evt.message));
-    };
+    req.onerror = evt => reject(new Error("XHR encountered an error while trying to load '" + path + "': " + evt.message));
 
-    req.ontimeout = function (evt) {
-        reject(new Error("XHR timed out while trying to load '" + path + "'"));
-    };
+    req.ontimeout = evt => reject(new Error("XHR timed out while trying to load '" + path + "'"));
 
     req.send();
 }

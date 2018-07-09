@@ -178,7 +178,7 @@ describe('Websock', function() {
 
             it('should raise an error if we try to go back more than possible', function () {
                 sock.set_rQi(5);
-                expect(function () { sock.rQwait('hi', RQ_TEMPLATE.length, 6); }).to.throw(Error);
+                expect(() => sock.rQwait('hi', RQ_TEMPLATE.length, 6)).to.throw(Error);
             });
 
             it('should not reduce rQi if there are enough bytes', function () {

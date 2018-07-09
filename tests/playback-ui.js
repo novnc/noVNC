@@ -21,7 +21,7 @@ function loadFile() {
 
     message("Loading " + fname);
 
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
         const script = document.createElement("script");
         script.onload = resolve;
         script.onerror = reject;
@@ -67,9 +67,9 @@ class IterationPlayer {
 
         this._state = 'running';
 
-    this.onfinish = function() {};
-    this.oniterationfinish = function() {};
-    this.rfbdisconnected = function() {};
+        this.onfinish = () => {};
+        this.oniterationfinish = () => {};
+        this.rfbdisconnected = () => {};
     }
 
     start(mode) {
@@ -147,15 +147,15 @@ function start() {
     }
 
     const player = new IterationPlayer(iterations, frames, encoding);
-    player.oniterationfinish = function (evt) {
+    player.oniterationfinish = (evt) => {
         message(`Iteration ${evt.number} took ${evt.duration}ms`);
     };
-    player.onrfbdisconnected = function (evt) {
+    player.onrfbdisconnected = (evt) => {
         if (!evt.clean) {
             message(`noVNC sent disconnected during iteration ${evt.iteration} frame ${evt.frame}`);
         }
     };
-    player.onfinish = function (evt) {
+    player.onfinish = (evt) => {
         const iterTime = parseInt(evt.duration / evt.iterations, 10);
         message(`${evt.iterations} iterations took ${evt.duration}ms (average ${iterTime}ms / iteration)`);
 
@@ -165,4 +165,4 @@ function start() {
     player.start(mode);
 }
 
-loadFile().then(enableUI).catch(function (e) { message("Error loading recording: " + e); });
+loadFile().then(enableUI).catch(e => message("Error loading recording: " + e));

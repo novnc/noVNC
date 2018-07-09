@@ -32,7 +32,7 @@ export default class EventTargetMixin {
       if (!this._listeners || !this._listeners.has(event.type)) {
          return true;
       }
-      this._listeners.get(event.type).forEach(function (callback) {
+      this._listeners.get(event.type).forEach((callback) => {
          callback.call(this, event);
       }, this);
       return !event.defaultPrevented;

@@ -229,7 +229,7 @@
             rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
             rfb.addEventListener("connect",  connected);
             rfb.addEventListener("disconnect", disconnected);
-            rfb.addEventListener("capabilities", function () { updatePowerButtons(); });
+            rfb.addEventListener("capabilities", updatePowerButtons);
             rfb.addEventListener("credentialsrequired", credentials);
             rfb.addEventListener("desktopname", updateDesktopName);
             rfb.scaleViewport = WebUtil.getConfigVar('scale', false);

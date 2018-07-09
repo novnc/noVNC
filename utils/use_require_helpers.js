@@ -5,10 +5,9 @@ const path = require('path');
 // util.promisify requires Node.js 8.x, so we have our own
 function promisify(original) {
     return function () {
-        const obj = this;
         const args = Array.prototype.slice.call(arguments);
         return new Promise((resolve, reject) => {
-            original.apply(obj, args.concat((err, value) => {
+            original.apply(this, args.concat((err, value) => {
                 if (err) return reject(err);
                 resolve(value);
             }));
@@ -24,7 +23,7 @@ module.exports = {
             // setup for requirejs
             const ui_path = path.relative(base_out_path,
                                         path.join(script_base_path, 'app', 'ui'));
-            return writeFile(out_path, `requirejs(["${ui_path}"], function (ui) {});`)
+            return writeFile(out_path, `requirejs(["${ui_path}"], (ui) => {});`)
             .then(() => {
                 console.log(`Please place RequireJS in ${path.join(script_base_path, 'require.js')}`);
                 const require_path = path.relative(base_out_path,
@@ -43,7 +42,7 @@ module.exports = {
             const browserify = require('browserify');
             const b = browserify(path.join(script_base_path, 'app/ui.js'), {});
             return promisify(b.bundle).call(b)
-            .then((buf) => writeFile(out_path, buf))
+            .then(buf => writeFile(out_path, buf))
             .then(() => []);
         },
         noCopyOverride: () => {},

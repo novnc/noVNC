@@ -201,17 +201,17 @@ export default class RFB extends EventTargetMixin {
 
         this._sock = new Websock();
         this._sock.on('message', this._handle_message.bind(this));
-        this._sock.on('open', function () {
+        this._sock.on('open', () => {
             if ((this._rfb_connection_state === 'connecting') &&
                 (this._rfb_init_state === '')) {
                 this._rfb_init_state = 'ProtocolVersion';
                 Log.Debug("Starting VNC handshake");
             } else {
                 this._fail("Unexpected server connection while " +
-                        this._rfb_connection_state);
+                           this._rfb_connection_state);
             }
-        }.bind(this));
-        this._sock.on('close', function (e) {
+        });
+        this._sock.on('close', (e) => {
             Log.Debug("WebSocket on-close event");
             let msg = "";
             if (e.code) {
@@ -236,18 +236,16 @@ export default class RFB extends EventTargetMixin {
                     break;
                 case 'disconnected':
                     this._fail("Unexpected server disconnect " +
-                            "when already disconnected " + msg);
+                               "when already disconnected " + msg);
                     break;
                 default:
                     this._fail("Unexpected server disconnect before connecting " +
-                            msg);
+                               msg);
                     break;
             }
             this._sock.off('close');
-        }.bind(this));
-        this._sock.on('error', function (e) {
-            Log.Warn("WebSocket on-error event");
         });
+        this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
 
         // Slight delay of the actual connection so that the caller has
         // time to set up callbacks
@@ -459,7 +457,7 @@ export default class RFB extends EventTargetMixin {
         const stats = this._encStats;
 
         Log.Info("Encoding stats for this connection:");
-        Object.keys(stats).forEach(function (key) {
+        Object.keys(stats).forEach((key) => {
             const s = stats[key];
             if (s[0] + s[1] > 0) {
                 Log.Info("    " + encodingName(key) + ": " + s[0] + " rects");
@@ -467,10 +465,7 @@ export default class RFB extends EventTargetMixin {
         });
 
         Log.Info("Encoding stats since page load:");
-        Object.keys(stats).forEach(function (key) {
-            const s = stats[key];
-            Log.Info("    " + encodingName(key) + ": " + s[1] + " rects");
-        });
+        Object.keys(stats).forEach(key => Log.Info("    " + encodingName(key) + ": " + stats[key][1] + " rects"));
     }
 
     _focusCanvas(event) {
@@ -489,10 +484,10 @@ export default class RFB extends EventTargetMixin {
     _windowResize(event) {
         // If the window resized then our screen element might have
         // as well. Update the viewport dimensions.
-        window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(() => {
             this._updateClip();
             this._updateScale();
-        }.bind(this));
+        });
 
         if (this._resizeSession) {
             // Request changing the resolution of the remote display to
@@ -640,8 +635,7 @@ export default class RFB extends EventTargetMixin {
 
         this._rfb_connection_state = state;
 
-        const smsg = "New state '" + state + "', was '" + oldstate + "'.";
-        Log.Debug(smsg);
+        Log.Debug("New state '" + state + "', was '" + oldstate + "'.");
 
         if (this._disconnTimer && state !== 'disconnecting') {
             Log.Debug("Clearing disconnect timer");
@@ -664,10 +658,10 @@ export default class RFB extends EventTargetMixin {
             case 'disconnecting':
                 this._disconnect();
 
-                this._disconnTimer = setTimeout(function () {
+                this._disconnTimer = setTimeout(() => {
                     Log.Error("Disconnection timed out.");
                     this._updateConnectionState('disconnected');
-                }.bind(this), DISCONNECT_TIMEOUT * 1000);
+                }, DISCONNECT_TIMEOUT * 1000);
                 break;
 
             case 'disconnected':
@@ -2143,7 +2137,7 @@ RFB.encodingHandlers = {
 
         let resetStreams = 0;
         let streamId = -1;
-        const decompress = function (data, expected) {
+        const decompress = (data, expected) => {
             for (let i = 0; i < 4; i++) {
                 if ((resetStreams >> i) & 1) {
                     this._FBU.zlibs[i].reset();
@@ -2159,9 +2153,9 @@ RFB.encodingHandlers = {
 
             //return uncompressed.data;
             return uncompressed;
-        }.bind(this);
+        };
 
-        const indexedToRGBX2Color = function (data, palette, width, height) {
+        const indexedToRGBX2Color = (data, palette, width, height) => {
             // Convert indexed (palette based) image data to RGB
             // TODO: reduce number of calculations inside loop
             const dest = this._destBuff;
@@ -2220,9 +2214,9 @@ RFB.encodingHandlers = {
             }
 
             return dest;
-        }.bind(this);
+        };
 
-        const indexedToRGBX = function (data, palette, width, height) {
+        const indexedToRGBX = (data, palette, width, height) => {
             // Convert indexed (palette based) image data to RGB
             const dest = this._destBuff;
             const total = width * height * 4;
@@ -2235,14 +2229,14 @@ RFB.encodingHandlers = {
             }
 
             return dest;
-        }.bind(this);
+        };
 
         const rQi = this._sock.get_rQi();
         const rQ = this._sock.rQwhole();
         let cmode, data;
         let cl_header, cl_data;
 
-        const handlePalette = function () {
+        const handlePalette = () => {
             const numColors = rQ[rQi + 2] + 1;
             const paletteSize = numColors * 3;
             this._FBU.bytes += paletteSize;
@@ -2300,9 +2294,9 @@ RFB.encodingHandlers = {
 
 
             return true;
-        }.bind(this);
+        };
 
-        const handleCopy = function () {
+        const handleCopy = () => {
             let raw = false;
             const uncompressedSize = this._FBU.width * this._FBU.height * 3;
             if (uncompressedSize < 12) {
@@ -2340,7 +2334,7 @@ RFB.encodingHandlers = {
             this._display.blitRgbImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, data, 0, false);
 
             return true;
-        }.bind(this);
+        };
 
         let ctl = this._sock.rQpeek8();
 

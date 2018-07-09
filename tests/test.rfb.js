@@ -8,7 +8,7 @@ import FakeWebSocket from './fake.websocket.js';
 import sinon from '../vendor/sinon.js';
 
 /* UIEvent constructor polyfill for IE */
-(function () {
+(() => {
     if (typeof window.UIEvent === "function") return;
 
     function UIEvent ( event, params ) {
@@ -23,18 +23,18 @@ import sinon from '../vendor/sinon.js';
     window.UIEvent = UIEvent;
 })();
 
-const push8 = function (arr, num) {
+const push8 = (arr, num) => {
     "use strict";
     arr.push(num & 0xFF);
 };
 
-const push16 = function (arr, num) {
+const push16 = (arr, num) => {
     "use strict";
     arr.push((num >> 8) & 0xFF,
               num & 0xFF);
 };
 
-const push32 = function (arr, num) {
+const push32 = (arr, num) => {
     "use strict";
     arr.push((num >> 24) & 0xFF,
               (num >> 16) & 0xFF,
@@ -852,7 +852,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should not result in a connect event if the state is not "connected"', function () {
                 const spy = sinon.spy();
                 client.addEventListener("connect", spy);
-                client._sock._websocket.open = function () {};  // explicitly don't call onopen
+                client._sock._websocket.open = () => {};  // explicitly don't call onopen
                 client._updateConnectionState('connecting');
                 expect(spy).to.not.have.been.called;
             });
@@ -866,7 +866,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should force disconnect if we do not call Websock.onclose within the disconnection timeout', function () {
                 sinon.spy(client, '_updateConnectionState');
-                client._sock._websocket.close = function () {};  // explicitly don't call onclose
+                client._sock._websocket.close = () => {};  // explicitly don't call onclose
                 client._updateConnectionState('disconnecting');
                 this.clock.tick(3 * 1000);
                 expect(client._updateConnectionState).to.have.been.calledTwice;
@@ -891,7 +891,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             it('should not result in a disconnect event', function () {
                 const spy = sinon.spy();
                 client.addEventListener("disconnect", spy);
-                client._sock._websocket.close = function () {};  // explicitly don't call onclose
+                client._sock._websocket.close = () => {};  // explicitly don't call onclose
                 client._updateConnectionState('disconnecting');
                 expect(spy).to.not.have.been.called;
             });
@@ -1239,11 +1239,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 });
 
                 function send_num_str_pairs(pairs, client) {
-                    const pairs_len = pairs.length;
                     const data = [];
-                    push32(data, pairs_len);
+                    push32(data, pairs.length);
 
-                    for (let i = 0; i < pairs_len; i++) {
+                    for (let i = 0; i < pairs.length; i++) {
                         push32(data, pairs[i][0]);
                         for (let j = 0; j < 4; j++) {
                             data.push(pairs[i][1].charCodeAt(j));
@@ -1618,7 +1617,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 const expected_msg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
                 RFB.messages.fbUpdateRequest(expected_msg, true, 0, 0, 640, 20);
 
-                client._framebufferUpdate = function () { return true; };
+                client._framebufferUpdate = () => true;
                 client._sock._websocket._receive_data(new Uint8Array([0]));
 
                 expect(client._sock).to.have.sent(expected_msg._sQ);
@@ -1645,7 +1644,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             it('should not send a request in continuous updates mode', function () {
                 client._enabledContinuousUpdates = true;
-                client._framebufferUpdate = function () { return true; };
+                client._framebufferUpdate = () => true;
                 client._sock._websocket._receive_data(new Uint8Array([0]));
 
                 expect(client._sock._websocket._get_sent_data()).to.have.length(0);
@@ -2231,7 +2230,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
             // close events
             it('should transition to "disconnected" from "disconnecting" on a close event', function () {
                 const real = client._sock._websocket.close;
-                client._sock._websocket.close = function () {};
+                client._sock._websocket.close = () => {};
                 client.disconnect();
                 expect(client._rfb_connection_state).to.equal('disconnecting');
                 client._sock._websocket.close = real;

@@ -108,7 +108,7 @@ out +=
 "};\n" +
 "\n" +
 "export default {\n" +
-"    lookup : function(u) {\n" +
+"    lookup(u) {\n" +
 "        // Latin-1 is one-to-one mapping\n" +
 "        if ((u >= 0x20) && (u <= 0xff)) {\n" +
 "            return u;\n" +

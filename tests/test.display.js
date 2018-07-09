@@ -284,7 +284,7 @@ describe('Display/Canvas Helper', function () {
         it('should draw the logo on #clear with a logo set', function (done) {
             display._logo = { width: 4, height: 4, type: "image/png", data: make_image_png(checked_data) };
             display.clear();
-            display.onflush = function () {
+            display.onflush = () => {
                 expect(display).to.have.displayed(checked_data);
                 expect(display._fb_width).to.equal(4);
                 expect(display._fb_height).to.equal(4);
@@ -325,7 +325,7 @@ describe('Display/Canvas Helper', function () {
         it('should support drawing images via #imageRect', function (done) {
             display.imageRect(0, 0, "image/png", make_image_png(checked_data));
             display.flip();
-            display.onflush = function () {
+            display.onflush = () => {
                 expect(display).to.have.displayed(checked_data);
                 done();
             };

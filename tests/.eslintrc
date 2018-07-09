@@ -5,5 +5,8 @@
     },
     "globals": {
         "chai": true
+    },
+    "rules": {
+        "prefer-arrow-callback": 0
     }
 }

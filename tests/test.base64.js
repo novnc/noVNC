@@ -27,7 +27,7 @@ describe('Base64 Tools', function() {
         });
 
         it('should throw an error if we have extra characters at the end of the string', function() {
-            expect(function () { Base64.decode(B64_STR+'abcdef'); }).to.throw(Error);
+            expect(() => Base64.decode(B64_STR+'abcdef')).to.throw(Error);
         });
     });
 });

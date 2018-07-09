@@ -1,6 +1,6 @@
 // Karma configuration
 
-module.exports = function(config) {
+module.exports = (config) => {
   const customLaunchers = {};
   let browsers = [];
   let useSauce = false;

@@ -39,15 +39,14 @@ const no_transform_files = new Set([
     path.join(paths.app, 'error-handler.js'),
 ]);
 
-no_copy_files.forEach((file) => no_transform_files.add(file));
+no_copy_files.forEach(file => no_transform_files.add(file));
 
 // util.promisify requires Node.js 8.x, so we have our own
 function promisify(original) {
     return function () {
-        const obj = this;
         const args = Array.prototype.slice.call(arguments);
         return new Promise((resolve, reject) => {
-            original.apply(obj, args.concat((err, value) => {
+            original.apply(this, args.concat((err, value) => {
                 if (err) return reject(err);
                 resolve(value);
             }));
@@ -70,29 +69,27 @@ const babelTransformFile = promisify(babel.transformFile);
 
 // walkDir *recursively* walks directories trees,
 // calling the callback for all normal files found.
-const walkDir = function (base_path, cb, filter) {
+function walkDir(base_path, cb, filter) {
     return readdir(base_path)
-    .then(files => {
+    .then((files) => {
         const paths = files.map(filename => path.join(base_path, filename));
-        return Promise.all(paths.map((filepath) => {
-            return lstat(filepath)
-            .then(stats => {
-                if (filter !== undefined && !filter(filepath, stats)) return;
+        return Promise.all(paths.map(filepath => lstat(filepath)
+        .then((stats) => {
+            if (filter !== undefined && !filter(filepath, stats)) return;
 
-                if (stats.isSymbolicLink()) return;
-                if (stats.isFile()) return cb(filepath);
-                if (stats.isDirectory()) return walkDir(filepath, cb, filter);
-            });
-        }));
+            if (stats.isSymbolicLink()) return;
+            if (stats.isFile()) return cb(filepath);
+            if (stats.isDirectory()) return walkDir(filepath, cb, filter);
+        })));
     });
-};
+}
 
-const transform_html = function (legacy_scripts, only_legacy) {
+function transform_html (legacy_scripts, only_legacy) {
     // write out the modified vnc.html file that works with the bundle
     const src_html_path = path.resolve(__dirname, '..', 'vnc.html');
     const out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
     return readFile(src_html_path)
-    .then(contents_raw => {
+    .then((contents_raw) => {
         let contents = contents_raw.toString();
 
         const start_marker = '<!-- begin scripts -->\n';
@@ -141,7 +138,7 @@ const transform_html = function (legacy_scripts, only_legacy) {
     });
 }
 
-const make_lib_files = function (import_format, source_maps, with_app_dir, only_legacy) {
+function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
     if (!import_format) {
         throw new Error("you must specify an import format to generate compiled noVNC libraries");
     } else if (!SUPPORTED_FORMATS.has(import_format)) {
@@ -223,7 +220,7 @@ const make_lib_files = function (import_format, source_maps, with_app_dir, only_
             }
 
             return babelTransformFile(filename, opts)
-            .then(res => {
+            .then((res) => {
                 console.log(`Writing ${legacy_path}`);
                 const {map} = res;
                 let {code} = res;
@@ -275,7 +272,7 @@ const make_lib_files = function (import_format, source_maps, with_app_dir, only_
         const out_app_path = path.join(legacy_path_base, 'app.js');
         console.log(`Writing ${out_app_path}`);
         return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
-        .then(extra_scripts => {
+        .then((extra_scripts) => {
             const rel_app_path = path.relative(out_path_base, out_app_path);
             const legacy_scripts = extra_scripts.concat([rel_app_path]);
             transform_html(legacy_scripts, only_legacy);
@@ -283,18 +280,17 @@ const make_lib_files = function (import_format, source_maps, with_app_dir, only_
         .then(() => {
             if (!helper.removeModules) return;
             console.log(`Cleaning up temporary files...`);
-            return Promise.all(outFiles.map(filepath => {
+            return Promise.all(outFiles.map((filepath) => {
                 unlink(filepath)
                 .then(() => {
                     // Try to clean up any empty directories if this
                     // was the last file in there
-                    const rmdir_r = dir => {
-                        return rmdir(dir)
+                    const rmdir_r = dir =>
+                        rmdir(dir)
                         .then(() => rmdir_r(path.dirname(dir)))
                         .catch(() => {
                             // Assume the error was ENOTEMPTY and ignore it
                         });
-                    };
                     return rmdir_r(path.dirname(filepath));
                 });
             }));
@@ -304,7 +300,7 @@ const make_lib_files = function (import_format, source_maps, with_app_dir, only_
         console.error(`Failure converting modules: ${err}`);
         process.exit(1);
     });
-};
+}
 
 if (program.clean) {
     console.log(`Removing ${paths.lib_dir_base}`);
