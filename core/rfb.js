@@ -12,11 +12,11 @@
 
 import * as Log from './util/logging.js';
 import { decodeUTF8 } from './util/strings.js';
-import { supportsCursorURIs, isTouchDevice } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
+import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
 import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
@@ -160,6 +160,8 @@ export default function RFB(target, url, options) {
     this._canvas.height = 0;
     this._canvas.tabIndex = -1;
     this._screen.appendChild(this._canvas);
+
+    this._cursor = new Cursor();
 
     // populate encHandlers with bound versions
     this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
@@ -410,6 +412,8 @@ RFB.prototype = {
         // Make our elements part of the page
         this._target.appendChild(this._screen);
 
+        this._cursor.attach(this._canvas);
+
         // Monitor size changes of the screen
         // FIXME: Use ResizeObserver, or hidden overflow
         window.addEventListener('resize', this._eventHandlers.windowResize);
@@ -423,6 +427,7 @@ RFB.prototype = {
 
     _disconnect: function () {
         Log.Debug(">> RFB.disconnect");
+        this._cursor.detach();
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
@@ -1247,10 +1252,6 @@ RFB.prototype = {
         this._timing.fbu_rt_start = (new Date()).getTime();
         this._timing.pixels = 0;
 
-        // Cursor will be server side until the server decides to honor
-        // our request and send over the cursor image
-        this._display.disableLocalCursor();
-
         this._updateConnectionState('connected');
         return true;
     },
@@ -1281,8 +1282,7 @@ RFB.prototype = {
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
 
-        if (supportsCursorURIs() &&
-            !isTouchDevice && this._fb_depth == 24) {
+        if (this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
         }
 
@@ -2535,9 +2535,9 @@ RFB.encodingHandlers = {
         this._FBU.bytes = pixelslength + masklength;
         if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) { return false; }
 
-        this._display.changeCursor(this._sock.rQshiftBytes(pixelslength),
-                                   this._sock.rQshiftBytes(masklength),
-                                   x, y, w, h);
+        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
+                            this._sock.rQshiftBytes(masklength),
+                            x, y, w, h);
 
         this._FBU.bytes = 0;
         this._FBU.rects--;
