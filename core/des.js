@@ -144,7 +144,16 @@ export default function DES(passwd) {
       kn = [];
 
     for (let j = 0, l = 56; j < 56; ++j, l -= 8) {
-      l += l < -5 ? 65 : l < -3 ? 31 : l < -1 ? 63 : l === 27 ? 35 : 0; // PC1
+      // PC1
+      if (l < -5) {
+        l += 65;
+      } else if (l < -3) {
+        l += 31;
+      } else if (l < -1) {
+        l += 63;
+      } else if (l === 27) {
+        l += 35;
+      }
       const m = l & 0x7;
       pc1m[j] = ((keyBlock[l >>> 3] & (1 << m)) !== 0) ? 1 : 0;
     }

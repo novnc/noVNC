@@ -11,7 +11,9 @@
  */
 
 export function getPointerEvent(e) {
-  return e.changedTouches ? e.changedTouches[0] : e.touches ? e.touches[0] : e;
+  if (e.changedTouches) return e.changedTouches[0];
+  if (e.touches) return e.touches[0];
+  return e;
 }
 
 export function stopEvent(e) {
