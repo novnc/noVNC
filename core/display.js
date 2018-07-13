@@ -576,7 +576,11 @@ export default class Display {
     // NB(directxman12): arr must be an Type Array view
     let img;
     if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
-      img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
+      img = new ImageData(
+        new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4),
+        width,
+        height
+      );
     } else {
       img = this._drawCtx.createImageData(width, height);
       img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));

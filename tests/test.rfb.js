@@ -1025,7 +1025,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
           expect(client._rfb_version).to.equal(0);
 
           const sent_data = client._sock._websocket._get_sent_data();
-          expect(new Uint8Array(sent_data.buffer, 0, 9)).to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
+          expect(new Uint8Array(sent_data.buffer, 0, 9))
+            .to.array.equal(new Uint8Array([73, 68, 58, 49, 50, 51, 52, 53, 0]));
           expect(sent_data).to.have.length(250);
         });
 
@@ -1557,10 +1558,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
           expect(RFB.messages.pixelFormat).to.have.been.calledWith(client._sock, 24, true);
           expect(RFB.messages.pixelFormat).to.have.been.calledBefore(RFB.messages.clientEncodings);
           expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
-          expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.encodingTight);
-          expect(RFB.messages.clientEncodings).to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
+          expect(RFB.messages.clientEncodings.getCall(0).args[1])
+            .to.include(encodings.encodingTight);
+          expect(RFB.messages.clientEncodings)
+            .to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
           expect(RFB.messages.fbUpdateRequest).to.have.been.calledOnce;
-          expect(RFB.messages.fbUpdateRequest).to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
+          expect(RFB.messages.fbUpdateRequest)
+            .to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
         });
 
         it('should reply with restricted settings for Intel AMT servers', function () {
@@ -1570,11 +1574,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
           expect(RFB.messages.pixelFormat).to.have.been.calledWith(client._sock, 8, true);
           expect(RFB.messages.pixelFormat).to.have.been.calledBefore(RFB.messages.clientEncodings);
           expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
-          expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.not.include(encodings.encodingTight);
-          expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.not.include(encodings.encodingHextile);
-          expect(RFB.messages.clientEncodings).to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
+          expect(RFB.messages.clientEncodings.getCall(0).args[1])
+            .to.not.include(encodings.encodingTight);
+          expect(RFB.messages.clientEncodings.getCall(0).args[1])
+            .to.not.include(encodings.encodingHextile);
+          expect(RFB.messages.clientEncodings)
+            .to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
           expect(RFB.messages.fbUpdateRequest).to.have.been.calledOnce;
-          expect(RFB.messages.fbUpdateRequest).to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
+          expect(RFB.messages.fbUpdateRequest)
+            .to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
         });
       });
 
@@ -1665,7 +1673,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
         client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 3]));
         expect(client._sock._websocket._get_sent_data()).to.have.length(0);
 
-        client._framebufferUpdate = function () { this._sock.rQskip8(); return true; };  // we magically have enough data
+        // we magically have enough data
+        client._framebufferUpdate = function () { this._sock.rQskip8(); return true; };
         // 247 should *not* be used as the message type here
         client._sock._websocket._receive_data(new Uint8Array([247]));
         expect(client._sock).to.have.sent(expected_msg._sQ);
@@ -1693,7 +1702,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
         client._fb_width = 4;
         client._fb_height = 4;
         client._display.resize(4, 4);
-        client._display.blitRgbxImage(0, 0, 4, 2, new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
+        client._display.blitRgbxImage(0, 0, 4, 2,
+          new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
 
         const info = [{
           x: 0, y: 2, width: 2, height: 2, encoding: 0x01
@@ -1765,7 +1775,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         it('should handle the COPYRECT encoding', function () {
           // seed some initial data to copy
-          client._display.blitRgbxImage(0, 0, 4, 2, new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
+          client._display.blitRgbxImage(0, 0, 4, 2,
+            new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
 
           const info = [{
             x: 0, y: 2, width: 2, height: 2, encoding: 0x01
@@ -1882,8 +1893,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
             send_fbu_msg(info, [rect], client);
 
             const expected = [];
-            for (let i = 0; i < 16; i++) { push32(expected, 0xff00ff); }     // rect 1: solid
-            for (let i = 0; i < 16; i++) { push32(expected, 0xff00ff); }    // rect 2: same bkground color
+            for (let i = 0; i < 16; i++) { push32(expected, 0xff00ff); } // rect 1: solid
+            for (let i = 0; i < 16; i++) { push32(expected, 0xff00ff); } // rect 2: same bg color
             expect(client._display).to.have.displayed(new Uint8Array(expected));
           });
 

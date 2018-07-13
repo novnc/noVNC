@@ -36,7 +36,7 @@ export default class Mouse {
 
     // ===== PROPERTIES =====
 
-    this.touchButton = 1;                 // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
+    this.touchButton = 1; // Button mask (1, 2, 4) for touch devices (0 means ignore clicks)
 
     // ===== EVENT HANDLERS =====
 

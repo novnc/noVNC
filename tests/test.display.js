@@ -13,7 +13,9 @@ describe('Display/Canvas Helper', function () {
     0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255
   ]);
 
-  const basic_data = new Uint8Array([0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0xff, 0xff, 0xff, 255]);
+  const basic_data = new Uint8Array([
+    0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0xff, 0xff, 0xff, 255
+  ]);
 
   function make_image_canvas(input_data) {
     const canvas = document.createElement('canvas');
@@ -261,8 +263,8 @@ describe('Display/Canvas Helper', function () {
   });
 
   describe('drawing', function () {
-    // TODO(directxman12): improve the tests for each of the drawing functions to cover more than just the
-    //                     basic cases
+    // TODO(directxman12): improve the tests for each of the drawing functions to cover
+    //                     more than just the basic cases
     let display;
     beforeEach(function () {
       display = new Display(document.createElement('canvas'));

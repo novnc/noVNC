@@ -78,7 +78,8 @@ describe('Websock', function () {
         const bef_rQi = sock.get_rQi();
         const shifted = sock.rQshiftStr(3);
         expect(shifted).to.be.a('string');
-        expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, bef_rQi, 3))));
+        expect(shifted).to.equal(String.fromCharCode.apply(null,
+          Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, bef_rQi, 3))));
         expect(sock.rQlen()).to.equal(bef_len - 3);
       });
 
@@ -225,7 +226,8 @@ describe('Websock', function () {
       it('should add to the send queue', function () {
         sock.send([1, 2, 3]);
         const sq = sock.get_sQ();
-        expect(new Uint8Array(sq.buffer, sock._sQlen - 3, 3)).to.array.equal(new Uint8Array([1, 2, 3]));
+        const sendQueue = new Uint8Array(sq.buffer, sock._sQlen - 3, 3);
+        expect(sendQueue).to.array.equal(new Uint8Array([1, 2, 3]));
       });
 
       it('should call flush', function () {

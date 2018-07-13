@@ -4,6 +4,7 @@
  * To re-generate, run:
  *   keymap-gen --lang=js code-map keymaps.csv html atset1
 */
+/* eslint-disable max-len */
 export default {
   Again: 0xe005, /* html:Again (Again) -> linux:129 (KEY_AGAIN) -> atset1:57349 */
   AltLeft: 0x38, /* html:AltLeft (AltLeft) -> linux:56 (KEY_LEFTALT) -> atset1:56 */

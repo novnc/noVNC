@@ -168,6 +168,7 @@ export default class RFB extends EventTargetMixin {
     this._cursor = new Cursor();
 
     // populate encHandlers with bound versions
+    /* eslint-disable max-len */
     this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
     this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this);
     this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this);
@@ -180,6 +181,7 @@ export default class RFB extends EventTargetMixin {
     this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this);
     this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this);
     this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this);
+    /* eslint-enable max-len */
 
     // NB: nothing that needs explicit teardown should be done
     // before this point, since this can throw an exception
@@ -787,7 +789,12 @@ export default class RFB extends EventTargetMixin {
     if (this._viewOnly) { return; } // View only, skip mouse events
 
     if (this._rfb_connection_state !== 'connected') { return; }
-    RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+    RFB.messages.pointerEvent(
+      this._sock,
+      this._display.absX(x),
+      this._display.absY(y),
+      this._mouse_buttonMask
+    );
   }
 
   _handleMouseMove(x, y) {
@@ -814,7 +821,12 @@ export default class RFB extends EventTargetMixin {
     if (this._viewOnly) { return; } // View only, skip mouse events
 
     if (this._rfb_connection_state !== 'connected') { return; }
-    RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+    RFB.messages.pointerEvent(
+      this._sock,
+      this._display.absX(x),
+      this._display.absY(y),
+      this._mouse_buttonMask
+    );
   }
 
   // Message Handlers
@@ -1039,7 +1051,7 @@ export default class RFB extends EventTargetMixin {
     // choose the notunnel type
     if (serverSupportedTunnelTypes[0]) {
       if (serverSupportedTunnelTypes[0].vendor != clientSupportedTunnelTypes[0].vendor
-                || serverSupportedTunnelTypes[0].signature != clientSupportedTunnelTypes[0].signature) {
+            || serverSupportedTunnelTypes[0].signature != clientSupportedTunnelTypes[0].signature) {
         return this._fail("Client's tunnel type had the incorrect "
                                   + 'vendor or signature');
       }
@@ -2308,7 +2320,11 @@ RFB.encodingHandlers = {
         rgbx = indexedToRGBX(data, this._paletteBuff, this._FBU.width, this._FBU.height);
       }
 
-      this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
+      this._display.blitRgbxImage(
+        this._FBU.x, this._FBU.y,
+        this._FBU.width, this._FBU.height,
+        rgbx, 0, false
+      );
 
 
       return true;
@@ -2349,7 +2365,11 @@ RFB.encodingHandlers = {
         data = decompress(this._sock.rQshiftBytes(cl_data), uncompressedSize);
       }
 
-      this._display.blitRgbImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, data, 0, false);
+      this._display.blitRgbImage(
+        this._FBU.x, this._FBU.y,
+        this._FBU.width, this._FBU.height,
+        data, 0, false
+      );
 
       return true;
     };
@@ -2404,7 +2424,11 @@ RFB.encodingHandlers = {
     switch (cmode) {
       case 'fill':
         // skip ctl byte
-        this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, [rQ[rQi + 3], rQ[rQi + 2], rQ[rQi + 1]], false);
+        this._display.fillRect(
+          this._FBU.x, this._FBU.y,
+          this._FBU.width, this._FBU.height,
+          [rQ[rQi + 3], rQ[rQi + 2], rQ[rQi + 1]], false
+        );
         this._sock.rQskipBytes(4);
         break;
       case 'png':
