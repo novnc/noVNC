@@ -1,12 +1,10 @@
 const expect = chai.expect;
 
 import Mouse from '../core/input/mouse.js';
-import * as eventUtils from '../core/util/events.js';
 
 describe('Mouse Event Handling', function() {
     "use strict";
 
-    sinon.stub(eventUtils, 'setCapture');
     // This function is only used on target (the canvas)
     // and for these tests we can assume that the canvas is 100x100
     // located at coordinates 10x10
