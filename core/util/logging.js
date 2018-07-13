@@ -24,7 +24,10 @@ export function init_logging(level) {
     _log_level = level;
   }
 
-  Debug = Info = Warn = Error = () => {};
+  Debug = () => {};
+  Info = () => {};
+  Warn = () => {};
+  Error = () => {};
 
   if (typeof window.console !== 'undefined') {
     /* eslint-disable no-console, no-fallthrough */

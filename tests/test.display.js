@@ -138,7 +138,8 @@ describe('Display/Canvas Helper', function () {
       const expected = [];
       for (let i = 0; i < 4 * 2 * 2; i += 4) {
         expected[i] = 0xff;
-        expected[i + 1] = expected[i + 2] = 0;
+        expected[i + 1] = 0;
+        expected[i + 2] = 0;
         expected[i + 3] = 0xff;
       }
       expect(display).to.have.displayed(new Uint8Array(expected));
@@ -302,7 +303,8 @@ describe('Display/Canvas Helper', function () {
       const expected = [];
       for (let i = 0; i < 4 * display._fb_width * display._fb_height; i += 4) {
         expected[i] = 0xff;
-        expected[i + 1] = expected[i + 2] = 0;
+        expected[i + 1] = 0;
+        expected[i + 2] = 0;
         expected[i + 3] = 0xff;
       }
       expect(display).to.have.displayed(new Uint8Array(expected));

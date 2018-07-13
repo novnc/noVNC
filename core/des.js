@@ -152,7 +152,8 @@ export default function DES(passwd) {
     for (let i = 0; i < 16; ++i) {
       const m = i << 1;
       const n = m + 1;
-      kn[m] = kn[n] = 0;
+      kn[m] = 0;
+      kn[n] = 0;
       for (let o = 28; o < 59; o += 28) {
         for (let j = o - 28; j < o; ++j) {
           const l = j + totrot[i];

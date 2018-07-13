@@ -300,8 +300,10 @@ export default class Display {
           vx, vy, w, h);
       }
 
-      this._damageBounds.left = this._damageBounds.top = 65535;
-      this._damageBounds.right = this._damageBounds.bottom = 0;
+      this._damageBounds.top = 65535;
+      this._damageBounds.left = 65535;
+      this._damageBounds.bottom = 0;
+      this._damageBounds.right = 0;
     }
   }
 
