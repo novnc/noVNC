@@ -4,7 +4,6 @@ module.exports = (config) => {
   const customLaunchers = {};
   let browsers = [];
   let useSauce = false;
-  let transpileToES5 = ['internet explorer'].includes(process.env.TEST_BROWSER_NAME);
 
   // use Sauce when running on Travis
   if (process.env.TRAVIS_JOB_NUMBER) {
@@ -53,7 +52,7 @@ module.exports = (config) => {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['requirejs', 'mocha', 'sinon-chai'],
+    frameworks: ['mocha', 'sinon-chai'],
 
     // list of files / patterns to load in the browser (loaded in order)
     files: [
@@ -61,9 +60,11 @@ module.exports = (config) => {
       { pattern: 'app/webutil.js', included: false },
       { pattern: 'core/**/*.js', included: false },
       { pattern: 'vendor/pako/**/*.js', included: false },
+      { pattern: 'vendor/browser-es-module-loader/dist/*.js*', included: false },
       { pattern: 'tests/test.*.js', included: false },
       { pattern: 'tests/fake.*.js', included: false },
       { pattern: 'tests/assertions.js', included: false },
+      'vendor/promise.js',
       'tests/karma-test-main.js',
     ],
 
@@ -84,26 +85,6 @@ module.exports = (config) => {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: browsers,
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      'app/localization.js': ['babel'],
-      'app/webutil.js': ['babel'],
-      'core/**/*.js': ['babel'],
-      'tests/test.*.js': ['babel'],
-      'tests/fake.*.js': ['babel'],
-      'tests/assertions.js': ['babel'],
-      'vendor/pako/**/*.js': ['babel'],
-    },
-
-    babelPreprocessor: {
-      options: {
-        presets: transpileToES5 ? ['es2015'] : [],
-        plugins: ['transform-es2015-modules-amd', 'syntax-dynamic-import'],
-        sourceMap: 'inline',
-      },
-    },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
