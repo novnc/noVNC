@@ -140,9 +140,16 @@ var WorkerPool = function (script, size) {
   var current = document.currentScript;
   // IE doesn't support currentScript
   if (!current) {
-    // We should be the last loaded script
+    // Find an entry with out basename
     var scripts = document.getElementsByTagName('script');
-    current = scripts[scripts.length - 1];
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src.indexOf("browser-es-module-loader.js") !== -1) {
+        current = scripts[i];
+        break;
+      }
+    }
+    if (!current)
+      throw Error("Could not find own <script> element");
   }
   script = current.src.substr(0, current.src.lastIndexOf("/")) + "/" + script;
   this._workers = new Array(size);
