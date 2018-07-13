@@ -66,7 +66,7 @@ if (typeof document != 'undefined' && document.getElementsByTagName) {
   }
 
   // simple DOM ready
-  if (document.readyState === 'complete')
+  if (document.readyState !== 'loading')
     setTimeout(ready);
   else
     document.addEventListener('DOMContentLoaded', ready, false);
