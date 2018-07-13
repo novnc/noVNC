@@ -1,7 +1,5 @@
 const expect = chai.expect;
 
-import sinon from '../vendor/sinon.js';
-
 import Mouse from '../core/input/mouse.js';
 import * as eventUtils from '../core/util/events.js';
 

@@ -53,12 +53,10 @@ module.exports = (config) => {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['requirejs', 'mocha', 'chai'],
+    frameworks: ['requirejs', 'mocha', 'sinon-chai'],
 
     // list of files / patterns to load in the browser (loaded in order)
     files: [
-      { pattern: 'vendor/sinon.js', included: false },
-      { pattern: 'node_modules/sinon-chai/lib/sinon-chai.js', included: false },
       { pattern: 'app/localization.js', included: false },
       { pattern: 'app/webutil.js', included: false },
       { pattern: 'core/**/*.js', included: false },

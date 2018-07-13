@@ -1,7 +1,5 @@
 const expect = chai.expect;
 
-import sinon from '../vendor/sinon.js';
-
 import Keyboard from '../core/input/keyboard.js';
 import * as browser from '../core/util/browser.js';
 

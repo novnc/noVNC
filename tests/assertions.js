@@ -1,7 +1,3 @@
-// Assertions that make it easier to use sinon
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
-chai.use(sinonChai);
-
 // noVNC specific assertions
 chai.use(function (_chai, utils) {
     _chai.Assertion.addMethod('displayed', function (target_data) {

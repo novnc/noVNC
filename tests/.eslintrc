@@ -4,7 +4,8 @@
         "mocha": true
     },
     "globals": {
-        "chai": true
+        "chai": false,
+        "sinon": false
     },
     "rules": {
         "prefer-arrow-callback": 0

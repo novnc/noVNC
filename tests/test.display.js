@@ -3,8 +3,6 @@ const expect = chai.expect;
 import Base64 from '../core/base64.js';
 import Display from '../core/display.js';
 
-import sinon from '../vendor/sinon.js';
-
 describe('Display/Canvas Helper', function () {
     const checked_data = new Uint8Array([
         0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,

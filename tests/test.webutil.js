@@ -4,8 +4,6 @@ const expect = chai.expect;
 
 import * as WebUtil from '../app/webutil.js';
 
-import sinon from '../vendor/sinon.js';
-
 describe('WebUtil', function() {
     "use strict";
 

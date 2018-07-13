@@ -5,7 +5,6 @@ import Websock from '../core/websock.js';
 import { encodings } from '../core/encodings.js';
 
 import FakeWebSocket from './fake.websocket.js';
-import sinon from '../vendor/sinon.js';
 
 /* UIEvent constructor polyfill for IE */
 (() => {

@@ -3,8 +3,6 @@ const expect = chai.expect;
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 
-import sinon from '../vendor/sinon.js';
-
 describe('Websock', function() {
     "use strict";
 
