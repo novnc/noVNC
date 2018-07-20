@@ -461,12 +461,12 @@ export default class RFB extends EventTargetMixin {
         Object.keys(stats).forEach((key) => {
             const s = stats[key];
             if (s[0] + s[1] > 0) {
-                Log.Info("    " + encodingName(key) + ": " + s[0] + " rects");
+                Log.Info("    " + encodingName(parseInt(key)) + ": " + s[0] + " rects");
             }
         });
 
         Log.Info("Encoding stats since page load:");
-        Object.keys(stats).forEach(key => Log.Info("    " + encodingName(key) + ": " + stats[key][1] + " rects"));
+        Object.keys(stats).forEach(key => Log.Info("    " + encodingName(parseInt(key)) + ": " + stats[key][1] + " rects"));
     }
 
     _focusCanvas(event) {
