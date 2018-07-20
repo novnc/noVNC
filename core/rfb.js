@@ -2,6 +2,7 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2018 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2018 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -161,12 +162,6 @@ export default class RFB extends EventTargetMixin {
         this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this);
         this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this, false);
         this._encHandlers[encodings.encodingTightPNG] = RFB.encodingHandlers.TIGHT.bind(this, true);
-
-        this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this);
-        this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this);
-        this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this);
-        this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this);
-        this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this);
 
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
@@ -1477,22 +1472,163 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.height   = (hdr[6] << 8) + hdr[7];
                 this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
                                               (hdr[10] << 8) + hdr[11], 10);
-
-                if (!this._encHandlers[this._FBU.encoding]) {
-                    this._fail("Unsupported encoding (encoding: " +
-                               this._FBU.encoding + ")");
-                    return false;
-                }
             }
 
-            const ret = this._encHandlers[this._FBU.encoding]();
+            if (!this._handleRect()) {
+                return false;
+            }
 
-            if (!ret) { return ret; }  // need more data
+            this._FBU.rects--;
         }
 
         this._display.flip();
 
         return true;  // We finished this FBU
+    }
+
+    _handleRect() {
+        switch (this._FBU.encoding) {
+            case encodings.pseudoEncodingLastRect:
+                this._FBU.rects = 1; // Will be decreased when we return
+                return true;
+
+            case encodings.pseudoEncodingCursor:
+                return this._handleCursor();
+
+            case encodings.pseudoEncodingQEMUExtendedKeyEvent:
+                // Old Safari doesn't support creating keyboard events
+                try {
+                    const keyboardEvent = document.createEvent("keyboardEvent");
+                    if (keyboardEvent.code !== undefined) {
+                        this._qemuExtKeyEventSupported = true;
+                    }
+                } catch (err) {
+                    // Do nothing
+                }
+                return true;
+
+            case encodings.pseudoEncodingDesktopSize:
+                this._resize(this._FBU.width, this._FBU.height);
+                return true;
+
+            case encodings.pseudoEncodingExtendedDesktopSize:
+                return this._handleExtendedDesktopSize();
+
+            default:
+                return this._handleDataRect();
+        }
+    }
+
+    _handleCursor() {
+        const x = this._FBU.x;  // hotspot-x
+        const y = this._FBU.y;  // hotspot-y
+        const w = this._FBU.width;
+        const h = this._FBU.height;
+
+        const pixelslength = w * h * 4;
+        const masklength = Math.floor((w + 7) / 8) * h;
+
+        this._FBU.bytes = pixelslength + masklength;
+        if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) {
+            return false;
+        }
+
+        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
+                            this._sock.rQshiftBytes(masklength),
+                            x, y, w, h);
+
+        this._FBU.bytes = 0;
+
+        return true;
+    }
+
+    _handleExtendedDesktopSize() {
+        this._FBU.bytes = 4;
+        if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) {
+            return false;
+        }
+
+        const number_of_screens = this._sock.rQpeek8();
+
+        this._FBU.bytes += number_of_screens * 16;
+        if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) {
+            return false;
+        }
+
+        const firstUpdate = !this._supportsSetDesktopSize;
+        this._supportsSetDesktopSize = true;
+
+        // Normally we only apply the current resize mode after a
+        // window resize event. However there is no such trigger on the
+        // initial connect. And we don't know if the server supports
+        // resizing until we've gotten here.
+        if (firstUpdate) {
+            this._requestRemoteResize();
+        }
+
+        this._sock.rQskipBytes(1);  // number-of-screens
+        this._sock.rQskipBytes(3);  // padding
+
+        for (let i = 0; i < number_of_screens; i += 1) {
+            // Save the id and flags of the first screen
+            if (i === 0) {
+                this._screen_id = this._sock.rQshiftBytes(4);    // id
+                this._sock.rQskipBytes(2);                       // x-position
+                this._sock.rQskipBytes(2);                       // y-position
+                this._sock.rQskipBytes(2);                       // width
+                this._sock.rQskipBytes(2);                       // height
+                this._screen_flags = this._sock.rQshiftBytes(4); // flags
+            } else {
+                this._sock.rQskipBytes(16);
+            }
+        }
+
+        /*
+         * The x-position indicates the reason for the change:
+         *
+         *  0 - server resized on its own
+         *  1 - this client requested the resize
+         *  2 - another client requested the resize
+         */
+
+        // We need to handle errors when we requested the resize.
+        if (this._FBU.x === 1 && this._FBU.y !== 0) {
+            let msg = "";
+            // The y-position indicates the status code from the server
+            switch (this._FBU.y) {
+            case 1:
+                msg = "Resize is administratively prohibited";
+                break;
+            case 2:
+                msg = "Out of resources";
+                break;
+            case 3:
+                msg = "Invalid screen layout";
+                break;
+            default:
+                msg = "Unknown reason";
+                break;
+            }
+            Log.Warn("Server did not accept the resize request: "
+                     + msg);
+        } else {
+            this._resize(this._FBU.width, this._FBU.height);
+        }
+
+        this._FBU.bytes = 0;
+
+        return true;
+    }
+
+    _handleDataRect() {
+        let handler = this._encHandlers[this._FBU.encoding];
+        if (!handler) {
+            this._fail("Unsupported encoding (encoding: " +
+                       this._FBU.encoding + ")");
+            return false;
+        }
+
+        return handler();
     }
 
     _updateContinuousUpdates() {
@@ -1883,7 +2019,6 @@ RFB.encodingHandlers = {
         if (this._FBU.lines > 0) {
             this._FBU.bytes = this._FBU.width * pixelSize;  // At least another line
         } else {
-            this._FBU.rects--;
             this._FBU.bytes = 0;
         }
 
@@ -1897,7 +2032,6 @@ RFB.encodingHandlers = {
                                 this._FBU.x, this._FBU.y, this._FBU.width,
                                 this._FBU.height);
 
-        this._FBU.rects--;
         this._FBU.bytes = 0;
         return true;
     },
@@ -1926,7 +2060,6 @@ RFB.encodingHandlers = {
             const chunk = Math.min(this._rre_chunk_sz, this._FBU.subrects);
             this._FBU.bytes = (4 + 8) * chunk;
         } else {
-            this._FBU.rects--;
             this._FBU.bytes = 0;
         }
 
@@ -2042,10 +2175,6 @@ RFB.encodingHandlers = {
             this._FBU.lastsubencoding = this._FBU.subencoding;
             this._FBU.bytes = 0;
             this._FBU.tiles--;
-        }
-
-        if (this._FBU.tiles === 0) {
-            this._FBU.rects--;
         }
 
         return true;
@@ -2350,132 +2479,7 @@ RFB.encodingHandlers = {
 
 
         this._FBU.bytes = 0;
-        this._FBU.rects--;
 
         return true;
     },
-
-    last_rect() {
-        this._FBU.rects = 0;
-        return true;
-    },
-
-    ExtendedDesktopSize() {
-        this._FBU.bytes = 1;
-        if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
-
-        const firstUpdate = !this._supportsSetDesktopSize;
-        this._supportsSetDesktopSize = true;
-
-        // Normally we only apply the current resize mode after a
-        // window resize event. However there is no such trigger on the
-        // initial connect. And we don't know if the server supports
-        // resizing until we've gotten here.
-        if (firstUpdate) {
-            this._requestRemoteResize();
-        }
-
-        const number_of_screens = this._sock.rQpeek8();
-
-        this._FBU.bytes = 4 + (number_of_screens * 16);
-        if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
-
-        this._sock.rQskipBytes(1);  // number-of-screens
-        this._sock.rQskipBytes(3);  // padding
-
-        for (let i = 0; i < number_of_screens; i += 1) {
-            // Save the id and flags of the first screen
-            if (i === 0) {
-                this._screen_id = this._sock.rQshiftBytes(4);    // id
-                this._sock.rQskipBytes(2);                       // x-position
-                this._sock.rQskipBytes(2);                       // y-position
-                this._sock.rQskipBytes(2);                       // width
-                this._sock.rQskipBytes(2);                       // height
-                this._screen_flags = this._sock.rQshiftBytes(4); // flags
-            } else {
-                this._sock.rQskipBytes(16);
-            }
-        }
-
-        /*
-         * The x-position indicates the reason for the change:
-         *
-         *  0 - server resized on its own
-         *  1 - this client requested the resize
-         *  2 - another client requested the resize
-         */
-
-        // We need to handle errors when we requested the resize.
-        if (this._FBU.x === 1 && this._FBU.y !== 0) {
-            let msg = "";
-            // The y-position indicates the status code from the server
-            switch (this._FBU.y) {
-            case 1:
-                msg = "Resize is administratively prohibited";
-                break;
-            case 2:
-                msg = "Out of resources";
-                break;
-            case 3:
-                msg = "Invalid screen layout";
-                break;
-            default:
-                msg = "Unknown reason";
-                break;
-            }
-            Log.Warn("Server did not accept the resize request: "
-                     + msg);
-        } else {
-            this._resize(this._FBU.width, this._FBU.height);
-        }
-
-        this._FBU.bytes = 0;
-        this._FBU.rects -= 1;
-        return true;
-    },
-
-    DesktopSize() {
-        this._resize(this._FBU.width, this._FBU.height);
-        this._FBU.bytes = 0;
-        this._FBU.rects -= 1;
-        return true;
-    },
-
-    Cursor() {
-        Log.Debug(">> set_cursor");
-        const x = this._FBU.x;  // hotspot-x
-        const y = this._FBU.y;  // hotspot-y
-        const w = this._FBU.width;
-        const h = this._FBU.height;
-
-        const pixelslength = w * h * 4;
-        const masklength = Math.floor((w + 7) / 8) * h;
-
-        this._FBU.bytes = pixelslength + masklength;
-        if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) { return false; }
-
-        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
-                            this._sock.rQshiftBytes(masklength),
-                            x, y, w, h);
-
-        this._FBU.bytes = 0;
-        this._FBU.rects--;
-
-        Log.Debug("<< set_cursor");
-        return true;
-    },
-
-    QEMUExtendedKeyEvent() {
-        this._FBU.rects--;
-
-        // Old Safari doesn't support creating keyboard events
-        try {
-            const keyboardEvent = document.createEvent("keyboardEvent");
-            if (keyboardEvent.code !== undefined) {
-                this._qemuExtKeyEventSupported = true;
-            }
-        } catch (err) {
-            // Do nothing
-        }
-    }
 }
