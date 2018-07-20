@@ -23,7 +23,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import Inflator from "./inflator.js";
-import { encodings, encodingName } from "./encodings.js";
+import { encodings } from "./encodings.js";
 import "./util/polyfill.js";
 
 // How many seconds to wait for a disconnect to finish
@@ -90,9 +90,8 @@ export default class RFB extends EventTargetMixin {
         this._disconnTimer = null;      // disconnection timer
         this._resizeTimeout = null;     // resize rate limiting
 
-        // Decoder states and stats
+        // Decoder states
         this._encHandlers = {};
-        this._encStats = {};
 
         this._FBU = {
             rects: 0,
@@ -118,19 +117,6 @@ export default class RFB extends EventTargetMixin {
         this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
 
         this._rre_chunk_sz = 100;
-
-        this._timing = {
-            last_fbu: 0,
-            fbu_total: 0,
-            fbu_total_cnt: 0,
-            full_fbu_total: 0,
-            full_fbu_cnt: 0,
-
-            fbu_rt_start: 0,
-            fbu_rt_total: 0,
-            fbu_rt_cnt: 0,
-            pixels: 0
-        };
 
         // Mouse state
         this._mouse_buttonMask = 0;
@@ -439,7 +425,6 @@ export default class RFB extends EventTargetMixin {
         this._keyboard.ungrab();
         this._mouse.ungrab();
         this._sock.close();
-        this._print_stats();
         try {
             this._target.removeChild(this._screen);
         } catch (e) {
@@ -452,21 +437,6 @@ export default class RFB extends EventTargetMixin {
         }
         clearTimeout(this._resizeTimeout);
         Log.Debug("<< RFB.disconnect");
-    }
-
-    _print_stats() {
-        const stats = this._encStats;
-
-        Log.Info("Encoding stats for this connection:");
-        Object.keys(stats).forEach((key) => {
-            const s = stats[key];
-            if (s[0] + s[1] > 0) {
-                Log.Info("    " + encodingName(parseInt(key)) + ": " + s[0] + " rects");
-            }
-        });
-
-        Log.Info("Encoding stats since page load:");
-        Object.keys(stats).forEach(key => Log.Info("    " + encodingName(parseInt(key)) + ": " + stats[key][1] + " rects"));
     }
 
     _focusCanvas(event) {
@@ -1247,9 +1217,6 @@ export default class RFB extends EventTargetMixin {
         this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
-        this._timing.fbu_rt_start = (new Date()).getTime();
-        this._timing.pixels = 0;
-
         this._updateConnectionState('connected');
         return true;
     }
@@ -1485,11 +1452,6 @@ export default class RFB extends EventTargetMixin {
             this._sock.rQskip8();  // Padding
             this._FBU.rects = this._sock.rQshift16();
             this._FBU.bytes = 0;
-            this._timing.cur_fbu = 0;
-            if (this._timing.fbu_rt_start > 0) {
-                const now = (new Date()).getTime();
-                Log.Info("First FBU latency: " + (now - this._timing.fbu_rt_start));
-            }
 
             // Make sure the previous frame is fully rendered first
             // to avoid building up an excessive queue
@@ -1523,46 +1485,7 @@ export default class RFB extends EventTargetMixin {
                 }
             }
 
-            this._timing.last_fbu = (new Date()).getTime();
-
             const ret = this._encHandlers[this._FBU.encoding]();
-
-            const now = (new Date()).getTime();
-            this._timing.cur_fbu += (now - this._timing.last_fbu);
-
-            if (ret) {
-                if (!(this._FBU.encoding in this._encStats)) {
-                    this._encStats[this._FBU.encoding] = [0, 0];
-                }
-                this._encStats[this._FBU.encoding][0]++;
-                this._encStats[this._FBU.encoding][1]++;
-                this._timing.pixels += this._FBU.width * this._FBU.height;
-            }
-
-            if (this._timing.pixels >= (this._fb_width * this._fb_height)) {
-                if ((this._FBU.width === this._fb_width && this._FBU.height === this._fb_height) ||
-                    this._timing.fbu_rt_start > 0) {
-                    this._timing.full_fbu_total += this._timing.cur_fbu;
-                    this._timing.full_fbu_cnt++;
-                    Log.Info("Timing of full FBU, curr: " +
-                              this._timing.cur_fbu + ", total: " +
-                              this._timing.full_fbu_total + ", cnt: " +
-                              this._timing.full_fbu_cnt + ", avg: " +
-                              (this._timing.full_fbu_total / this._timing.full_fbu_cnt));
-                }
-
-                if (this._timing.fbu_rt_start > 0) {
-                    const fbu_rt_diff = now - this._timing.fbu_rt_start;
-                    this._timing.fbu_rt_total += fbu_rt_diff;
-                    this._timing.fbu_rt_cnt++;
-                    Log.Info("full FBU round-trip, cur: " +
-                              fbu_rt_diff + ", total: " +
-                              this._timing.fbu_rt_total + ", cnt: " +
-                              this._timing.fbu_rt_cnt + ", avg: " +
-                              (this._timing.fbu_rt_total / this._timing.fbu_rt_cnt));
-                    this._timing.fbu_rt_start = 0;
-                }
-            }
 
             if (!ret) { return ret; }  // need more data
         }
@@ -1591,7 +1514,6 @@ export default class RFB extends EventTargetMixin {
         this._updateClip();
         this._updateScale();
 
-        this._timing.fbu_rt_start = (new Date()).getTime();
         this._updateContinuousUpdates();
     }
 
