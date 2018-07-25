@@ -1,3 +1,14 @@
+# noVNC + wasm
+
+The following example is based on this tutorial:
+
+https://hacks.mozilla.org/2018/04/javascript-to-rust-and-back-again-a-wasm-bindgen-tale/
+
+and this example:
+
+https://github.com/rustwasm/wasm-bindgen/blob/master/examples/julia\_set/
+
+
 ## Prep:
 
 ```

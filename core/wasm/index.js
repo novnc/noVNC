@@ -1,6 +1,18 @@
-// Note that a dynamic `import` statement here is required due to
-// webpack/webpack#6615, but in theory `import { greet } from './hello_world';`
-// will work here one day as well!
-const rust = import('./novnc');
+const WIDTH = 1024
+const HEIGHT = 768
 
-rust.then(m => m.greet('World!'));
+import('./novnc')
+    .then(wasm => {
+        const canvas = document.getElementById('target')
+        const ctx = canvas.getContext('2d')
+
+        canvas.addEventListener('click', () => {
+            const startMs = (new Date()).getTime()
+            wasm.draw(ctx, WIDTH, HEIGHT,
+                    parseInt(Math.random()*256),
+                    parseInt(Math.random()*256),
+                    parseInt(Math.random()*256))
+            console.log("elapsed:", (new Date()).getTime() - startMs)
+        });
+        wasm.draw(ctx, WIDTH, HEIGHT, 50, 150, 150)
+    })
