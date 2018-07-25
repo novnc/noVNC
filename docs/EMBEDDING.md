@@ -81,3 +81,36 @@ load times. To do this please follow these steps:
 
 This will produce a `build/` directory that includes everything needed to run
 the noVNC application.
+
+## HTTP Serving Considerations
+### Browser Cache Issue
+
+If you serve noVNC files using a web server that provides an ETag header, and
+include any options in the query string, a nasty browser cache issue can bite
+you on upgrade, resulting in a red error box. The issue is caused by a mismatch
+between the new vnc.html (which is reloaded because the user has used it with
+new query string after the upgrade) and the old javascript files (that the
+browser reuses from its cache). To avoid this issue, the browser must be told
+to always revalidate cached files using conditional requests. The correct
+semantics are achieved via the (confusingly named) `Cache-Control: no-cache`
+header that needs to be provided in the web server responses.
+
+### Example Server Configurations
+
+Apache:
+
+```
+    # In the main configuration file
+    # (Debian/Ubuntu users: use "a2enmod headers" instead)
+    LoadModule headers_module modules/mod_headers.so
+
+    # In the <Directory> or <Location> block related to noVNC
+    Header set Cache-Control "no-cache"
+```
+
+Nginx:
+
+```
+    # In the location block related to noVNC
+    add_header Cache-Control no-cache;
+```
