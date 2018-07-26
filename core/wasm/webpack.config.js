@@ -1,10 +1,10 @@
 const path = require('path');
 
 module.exports = {
-    entry: './index.js',
+    entry: './bootstrap.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'index.js',
+        filename: 'bootstrap.js',
     },
     mode: 'development'
 };
