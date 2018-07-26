@@ -1,6 +1,5 @@
 const WIDTH = 2048
 const HEIGHT = 1024
-const MODE = 3
 
 import * as novnc from './novnc'
 import { memory } from './novnc_bg'
@@ -11,32 +10,22 @@ const ctx = canvas.getContext('2d')
 canvas.width = WIDTH
 canvas.height = HEIGHT
 
-if (MODE === 2 || MODE === 3) {
-  let byteSize = WIDTH * HEIGHT * 4
-  var pointer = novnc.alloc( byteSize )
+let byteSize = WIDTH * HEIGHT * 4
+let pointer = novnc.alloc( byteSize )
 
-  var u8array = new Uint8ClampedArray(memory.buffer, pointer, byteSize)
-  var imgData = new ImageData(u8array, WIDTH, HEIGHT)
-}
+let u8array = new Uint8ClampedArray(memory.buffer, pointer, byteSize)
+let imgData = new ImageData(u8array, WIDTH, HEIGHT)
 
 let frame = -1
 
 function renderLoop() {
-  const startMs = (new Date()).getTime()
+  //const startMs = (new Date()).getTime()
   fps.render()
   frame += 1
 
-  if (MODE === 1) {
-    novnc.draw1(ctx, WIDTH, HEIGHT, frame)
-  } else {
-    if (MODE === 2) {
-      novnc.draw2(pointer, WIDTH, HEIGHT, frame)
-    } else if (MODE === 3) {
-      novnc.draw3(pointer, WIDTH, HEIGHT, frame)
-    }
+  novnc.draw(pointer, WIDTH, HEIGHT, frame)
+  ctx.putImageData(imgData, 0, 0)
 
-    ctx.putImageData(imgData, 0, 0)
-  }
   animationId = requestAnimationFrame(renderLoop)
   //console.log("elapsed:", (new Date()).getTime() - startMs)
 }

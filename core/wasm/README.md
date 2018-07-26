@@ -30,17 +30,3 @@ npm run serve          # then visit localhost:8080 outside the container
 Note that `run server` will automatically detect modification to
 `index.js` and reload the page.
 
-
-## Preliminary results:
-
-* 2048x1024, draw1, release: 23 fps
-* 2048x1024, draw2, release: 51 fps
-* 2048x1024, draw3, release: 60 fps
-
-* 1024x1024, draw1, release: 36 fps
-* 1024x1024, draw2, release: 60 fps
-* 1024x1024, draw3, release: 60 fps
-
-* 1024x1024, draw1, debug:    3 fps
-* 1024x1024, draw2, debug:    8 fps
-* 1024x1024, draw3, debug:    9 fps
