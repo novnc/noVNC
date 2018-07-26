@@ -546,7 +546,8 @@ export default class RFB extends EventTargetMixin {
         }
 
         const size = this._screenSize();
-        RFB.messages.setDesktopSize(this._sock, size.w, size.h,
+        RFB.messages.setDesktopSize(this._sock,
+                                    Math.floor(size.w), Math.floor(size.h),
                                     this._screen_id, this._screen_flags);
 
         Log.Debug('Requested new desktop size: ' +
@@ -555,8 +556,8 @@ export default class RFB extends EventTargetMixin {
 
     // Gets the the size of the available screen
     _screenSize() {
-        return { w: this._screen.offsetWidth,
-                 h: this._screen.offsetHeight };
+        let r = this._screen.getBoundingClientRect();
+        return { w: r.width, h: r.height };
     }
 
     _fixScrollbars() {
