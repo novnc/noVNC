@@ -34,14 +34,17 @@ extern "C" {
     pub fn put_image_data(this: &CanvasRenderingContext2D, image_data: &ImageData, p_1: i32, p_2: i32);
 }
 
-pub fn fill(width: u32, height: u32, red: u8, green: u8, blue: u8) -> Vec<u8> {
+pub fn fill(width: u32, height: u32, frame: u32) -> Vec<u8> {
   let mut data: Vec<u8> = vec![];
 
-  for _x in 0..width {
-    for _y in 0..height {
-      data.push(red as u8);
-      data.push(green as u8);
-      data.push(blue as u8);
+  for x in 0..width {
+    for y in 0..height {
+      let r = if (x%512) < 256 {x%256} else {255-(x%256)};
+      let g = if (y%512) < 256 {y%256} else {255-(y%256)};
+      let b = if (frame%512) < 256 {frame%256} else {255-(frame%256)};
+      data.push(r as u8);
+      data.push(g as u8);
+      data.push(b as u8);
       data.push(255);
     }
   }
@@ -50,8 +53,8 @@ pub fn fill(width: u32, height: u32, red: u8, green: u8, blue: u8) -> Vec<u8> {
 }
 
 #[wasm_bindgen]
-pub fn draw1(ctx: &CanvasRenderingContext2D, width: u32, height: u32, red: u8, green: u8, blue: u8) {
-    let data = fill(width, height, red, green, blue);
+pub fn draw1(ctx: &CanvasRenderingContext2D, width: u32, height: u32, frame: u32) {
+    let data = fill(width, height, frame);
     let uint8_array = Uint8ClampedArray::new(&data);
 
     ctx.put_image_data(&ImageData::new(&uint8_array, width, height), 0, 0);
@@ -70,17 +73,20 @@ pub fn alloc(size: usize) -> *mut c_void {
 }
 
 #[wasm_bindgen]
-pub fn draw2(mem: *mut u8, width: usize, height: usize, red: u8, green: u8, blue: u8) {
+pub fn draw2(mem: *mut u8, width: usize, height: usize, frame: u32) {
 
   // pixels are stored in RGBA, so each pixel is 4 bytes
   let sl = unsafe { slice::from_raw_parts_mut(mem, width * height * 4) };
 
   for y in 0..height {
     for x in 0..width {
+      let r = if (x%512) < 256 {x%256} else {255-(x%256)};
+      let g = if (y%512) < 256 {y%256} else {255-(y%256)};
+      let b = if (frame%512) < 256 {frame%256} else {255-(frame%256)};
       let xy = x*4 + y*4*width;
-      sl[xy + 0] = red;
-      sl[xy + 1] = green;
-      sl[xy + 2] = blue;
+      sl[xy + 0] = r as u8;
+      sl[xy + 1] = g as u8;
+      sl[xy + 2] = b as u8;
       sl[xy + 3] = 255;
     }
   }
@@ -90,17 +96,20 @@ pub fn draw2(mem: *mut u8, width: usize, height: usize, red: u8, green: u8, blue
 /// draw3
 
 #[wasm_bindgen]
-pub fn draw3(mem: *mut u32, width: usize, height: usize, red: u8, green: u8, blue: u8) {
+pub fn draw3(mem: *mut u32, width: usize, height: usize, frame: u32) {
 
   // pixels are stored in RGBA
   let sl = unsafe { slice::from_raw_parts_mut(mem, width * height) };
 
   for y in 0..height {
     for x in 0..width {
+      let r = if (x%512) < 256 {x%256} else {255-(x%256)};
+      let g = if (y%512) < 256 {y%256} else {255-(y%256)};
+      let b = if (frame%512) < 256 {frame%256} else {255-(frame%256)};
       let color = 0xff000000 |
-                  ((blue as u32)  << 16) |
-                  ((green as u32) << 8) |
-                  ((red as u32)   << 0);
+                  (b          << 16) |
+                  ((g as u32) << 8) |
+                  ((r as u32) << 0);
       sl[y*width + x] = color;
     }
   }
