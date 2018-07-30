@@ -1278,16 +1278,7 @@ const UI = {
     toggleViewDrag() {
         if (!UI.rfb) return;
 
-        const drag = UI.rfb.dragViewport;
-        UI.setViewDrag(!drag);
-     },
-
-    // Set the view drag mode which moves the viewport on mouse drags
-    setViewDrag(drag) {
-        if (!UI.rfb) return;
-
-        UI.rfb.dragViewport = drag;
-
+        UI.rfb.dragViewport = !UI.rfb.dragViewport;
         UI.updateViewDrag();
     },
 
