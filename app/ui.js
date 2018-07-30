@@ -432,11 +432,7 @@ const UI = {
             UI.keepControlbar();
         }
 
-        // State change disables viewport dragging.
-        // It is enabled (toggled) by direct click on the button
-        UI.setViewDrag(false);
-
-        // State change also closes the password dialog
+        // State change closes the password dialog
         document.getElementById('noVNC_password_dlg')
             .classList.remove('noVNC_open');
     },
@@ -1204,7 +1200,6 @@ const UI = {
                 document.body.msRequestFullscreen();
             }
         }
-        UI.enableDisableViewClip();
         UI.updateFullscreenButton();
     },
 
