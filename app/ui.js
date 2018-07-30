@@ -340,8 +340,8 @@ const UI = {
 
         UI.addSettingChangeHandler('encrypt');
         UI.addSettingChangeHandler('resize');
-        UI.addSettingChangeHandler('resize', UI.enableDisableViewClip);
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
+        UI.addSettingChangeHandler('resize', UI.updateViewClip);
         UI.addSettingChangeHandler('view_clip');
         UI.addSettingChangeHandler('view_clip', UI.updateViewClip);
         UI.addSettingChangeHandler('shared');
@@ -408,9 +408,9 @@ const UI = {
                 return;
         }
 
-        UI.enableDisableViewClip();
-
         if (UI.connected) {
+            UI.updateViewClip();
+
             UI.disableSetting('encrypt');
             UI.disableSetting('shared');
             UI.disableSetting('host');
@@ -1236,37 +1236,30 @@ const UI = {
  * VIEW CLIPPING
  * ------v------*/
 
-    // Update parameters that depend on the viewport clip setting
+    // Update viewport clipping property for the connection. The normal
+    // case is to get the value from the setting. There are special cases
+    // for when the viewport is scaled or when a touch device is used.
     updateViewClip() {
         if (!UI.rfb) return;
 
-        const cur_clip = UI.rfb.clipViewport;
-        let new_clip = UI.getSetting('view_clip');
+        const scaling = UI.getSetting('resize') === 'scale';
 
-        if (isTouchDevice) {
+        if (scaling) {
+            // Can't be clipping if viewport is scaled to fit
+            UI.forceSetting('view_clip', false);
+            UI.rfb.clipViewport  = false;
+        } else if (isTouchDevice) {
             // Touch devices usually have shit scrollbars
-            new_clip = true;
-        }
-
-        if (cur_clip !== new_clip) {
-            UI.rfb.clipViewport = new_clip;
+            UI.forceSetting('view_clip', true);
+            UI.rfb.clipViewport = true;
+        } else {
+            UI.enableSetting('view_clip');
+            UI.rfb.clipViewport = UI.getSetting('view_clip');
         }
 
         // Changing the viewport may change the state of
         // the dragging button
         UI.updateViewDrag();
-    },
-
-    // Handle special cases where viewport clipping is locked
-    enableDisableViewClip() {
-        const resizeSetting = UI.getSetting('resize');
-        if (isTouchDevice) {
-            UI.forceSetting('view_clip', true);
-        } else if (resizeSetting === 'scale') {
-            UI.disableSetting('view_clip');
-        } else {
-            UI.enableSetting('view_clip');
-        }
     },
 
 /* ------^-------
