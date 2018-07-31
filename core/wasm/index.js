@@ -19,15 +19,17 @@ let imgData = new ImageData(u8array, WIDTH, HEIGHT)
 let frame = -1
 
 function renderLoop() {
-  //const startMs = (new Date()).getTime()
   fps.render()
   frame += 1
 
+  //const tms1 = (new Date()).getTime()
   novnc.draw(pointer, WIDTH, HEIGHT, frame)
+  //const tms2 = (new Date()).getTime()
   ctx.putImageData(imgData, 0, 0)
+  //const tms3 = (new Date()).getTime()
+  //console.log("elapsed 1:", tms2 - tms1, "elapsed 2:", tms3 - tms2)
 
   animationId = requestAnimationFrame(renderLoop)
-  //console.log("elapsed:", (new Date()).getTime() - startMs)
 }
 
 

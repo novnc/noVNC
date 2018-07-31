@@ -1,10 +1,9 @@
 {
   "scripts": {
-    "serve": "webpack-dev-server --host 0.0.0.0",
+    "serve": "webpack-dev-server --host 0.0.0.0 --port 7080",
     "build-debug": "cargo +nightly build --target wasm32-unknown-unknown && wasm-bindgen target/wasm32-unknown-unknown/debug/novnc.wasm --out-dir .",
     "build-release": "cargo +nightly build --release --target wasm32-unknown-unknown && wasm-bindgen target/wasm32-unknown-unknown/release/novnc.wasm --out-dir .",
     "bundle": "npm run build-release && webpack"
-
   },
   "devDependencies": {
     "webpack": "^4.16.2",

@@ -13,18 +13,22 @@ It is based on information from the following sources:
 ## Prep:
 
 ```
-docker build -t rust-wasm ./core/wasm
+docker build -t kanaka/rust-wasm ./core/wasm
+    # OR
+docker pull kanaka/rust-wasm
 
-docker run -it -v `pwd`:/novnc -w /novnc/core/wasm -p 8080:8080 rust-wasm bash
+docker run -it -v `pwd`:/novnc -w /novnc/core/wasm -p 7080:7080 kanaka/rust-wasm bash
 
 npm install
 ```
 
 ## Build:
 
+Run the following inside the container:
+
 ```
 npm run build-release  # or run build-debug (10x slower code)
-npm run serve          # then visit localhost:8080 outside the container
+npm run serve          # then visit localhost:7080 outside the container
 ```
 
 Note that `run server` will automatically detect modification to
