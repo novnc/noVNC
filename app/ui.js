@@ -257,27 +257,28 @@ var UI = {
 
         document.documentElement
             .addEventListener('mousedown', UI.keepVirtualKeyboard, true);
-
+        
+        // passive event listeners won't call preventDefault() to disable scrolling
         document.getElementById("noVNC_control_bar")
-            .addEventListener('touchstart', UI.activateControlbar);
+            .addEventListener('touchstart', UI.activateControlbar, {passive: true});
         document.getElementById("noVNC_control_bar")
-            .addEventListener('touchmove', UI.activateControlbar);
+            .addEventListener('touchmove', UI.activateControlbar, {passive: true});
         document.getElementById("noVNC_control_bar")
             .addEventListener('touchend', UI.activateControlbar);
         document.getElementById("noVNC_control_bar")
             .addEventListener('input', UI.activateControlbar);
 
         document.getElementById("noVNC_control_bar")
-            .addEventListener('touchstart', UI.keepControlbar);
+            .addEventListener('touchstart', UI.keepControlbar, {passive: true});
         document.getElementById("noVNC_control_bar")
             .addEventListener('input', UI.keepControlbar);
 
         document.getElementById("noVNC_control_bar_handle")
-            .addEventListener('touchstart', UI.controlbarHandleMouseDown);
+            .addEventListener('touchstart', UI.controlbarHandleMouseDown, {passive: true});
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('touchend', UI.controlbarHandleMouseUp);
         document.getElementById("noVNC_control_bar_handle")
-            .addEventListener('touchmove', UI.dragControlbarHandle);
+            .addEventListener('touchmove', UI.dragControlbarHandle, {passive: true});
     },
 
     addExtraKeysHandlers: function() {
