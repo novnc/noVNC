@@ -1,7 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2016 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2018 Samuel Mannehed for Cendio AB
  * Copyright (C) 2016 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
@@ -10,7 +10,7 @@
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice } from '../core/util/browser.js';
+import { isTouchDevice, dragThreshold } from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
@@ -594,9 +594,6 @@ const UI = {
         }
 
         if (!UI.controlbarDrag) {
-            // The goal is to trigger on a certain physical width, the
-            // devicePixelRatio brings us a bit closer but is not optimal.
-            const dragThreshold = 10 * (window.devicePixelRatio || 1);
             const dragDistance = Math.abs(ptr.clientY - UI.controlbarMouseDownClientY);
 
             if (dragDistance < dragThreshold) return;

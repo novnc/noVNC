@@ -12,6 +12,7 @@
 
 import * as Log from './util/logging.js';
 import { decodeUTF8 } from './util/strings.js';
+import { dragThreshold } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
@@ -784,10 +785,6 @@ export default class RFB extends EventTargetMixin {
         if (this._viewportDragging) {
             const deltaX = this._viewportDragPos.x - x;
             const deltaY = this._viewportDragPos.y - y;
-
-            // The goal is to trigger on a certain physical width, the
-            // devicePixelRatio brings us a bit closer but is not optimal.
-            const dragThreshold = 10 * (window.devicePixelRatio || 1);
 
             if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
                                            Math.abs(deltaY) > dragThreshold)) {

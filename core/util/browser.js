@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2018 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -19,6 +20,11 @@ window.addEventListener('touchstart', function onFirstTouch() {
     isTouchDevice = true;
     window.removeEventListener('touchstart', onFirstTouch, false);
 }, false);
+
+
+// The goal is to find a certain physical width, the devicePixelRatio
+// brings us a bit closer but is not optimal.
+export let dragThreshold = 10 * (window.devicePixelRatio || 1);
 
 let _cursor_uris_supported = null;
 
