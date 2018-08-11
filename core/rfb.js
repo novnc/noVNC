@@ -166,7 +166,15 @@ export default class RFB extends EventTargetMixin {
         this._canvas.tabIndex = -1;
         this._screen.appendChild(this._canvas);
 
-    this._cursor = new Cursor();
+        // Cursor
+        this._cursor = new Cursor();
+        this._cursorImage = {
+            rgbaPixels: [],
+            hotx: 0,
+            hoty: 0,
+            w: 0,
+            h: 0,
+        };
 
         // populate encHandlers with bound versions
         this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
@@ -1601,6 +1609,23 @@ export default class RFB extends EventTargetMixin {
         RFB.messages.xvpOp(this._sock, ver, op);
     }
 
+    _updateCursor(rgba, hotx, hoty, w, h) {
+        this._cursorImage = {
+            rgbaPixels: rgba,
+            hotx: hotx, hoty: hoty, w: w, h: h,
+        };
+        this._refreshCursor();
+    }
+
+    _refreshCursor() {
+        this._cursor.change(this._cursorImage.rgbaPixels,
+                            this._cursorImage.hotx,
+                            this._cursorImage.hoty,
+                            this._cursorImage.w,
+                            this._cursorImage.h
+        );
+    }
+
     static genDES(password, challenge) {
         const passwd = [];
         for (let i = 0; i < password.length; i++) {
@@ -2521,20 +2546,36 @@ RFB.encodingHandlers = {
 
     Cursor() {
         Log.Debug(">> set_cursor");
-        const x = this._FBU.x;  // hotspot-x
-        const y = this._FBU.y;  // hotspot-y
+        const hotx = this._FBU.x;  // hotspot-x
+        const hoty = this._FBU.y;  // hotspot-y
         const w = this._FBU.width;
         const h = this._FBU.height;
 
         const pixelslength = w * h * 4;
-        const masklength = Math.floor((w + 7) / 8) * h;
+        const masklength = Math.ceil(w / 8) * h;
 
         this._FBU.bytes = pixelslength + masklength;
         if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) { return false; }
 
-        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
-                            this._sock.rQshiftBytes(masklength),
-                            x, y, w, h);
+        // Decode from BGRX pixels + bit mask to RGBA
+        const pixels = this._sock.rQshiftBytes(pixelslength);
+        const mask = this._sock.rQshiftBytes(masklength);
+        let rgba = new Uint8Array(w * h * 4);
+
+        let pix_idx = 0;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let mask_idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
+                let alpha = (mask[mask_idx] << (x % 8)) & 0x80 ? 255 : 0;
+                rgba[pix_idx    ] = pixels[pix_idx + 2];
+                rgba[pix_idx + 1] = pixels[pix_idx + 1];
+                rgba[pix_idx + 2] = pixels[pix_idx];
+                rgba[pix_idx + 3] = alpha;
+                pix_idx += 4;
+            }
+        }
+
+        this._updateCursor(rgba, hotx, hoty, w, h);
 
         this._FBU.bytes = 0;
         this._FBU.rects--;
