@@ -61,6 +61,9 @@ query string. Currently the following options are available:
 * `resize` - How to resize the remote session if it is not the same size as
   the browser window. Can be one of `off`, `scale` and `remote`.
 
+* `show_dot` - If a dot cursor should be shown when the remote server provides
+  no local cursor, or provides a fully-transparent (invisible) cursor.
+
 * `logging` - The console log level. Can be one of `error`, `warn`, `info` or
   `debug`.
 

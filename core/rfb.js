@@ -48,6 +48,7 @@ export default class RFB extends EventTargetMixin {
         this._rfb_credentials = options.credentials || {};
         this._shared = 'shared' in options ? !!options.shared : true;
         this._repeaterID = options.repeaterID || '';
+        this._showDotCursor = options.showDotCursor || false;
 
         // Internal state
         this._rfb_connection_state = '';
@@ -168,13 +169,17 @@ export default class RFB extends EventTargetMixin {
 
         // Cursor
         this._cursor = new Cursor();
-        this._cursorImage = {
-            rgbaPixels: [],
-            hotx: 0,
-            hoty: 0,
-            w: 0,
-            h: 0,
-        };
+
+        // XXX: TightVNC 2.8.11 sends no cursor at all until Windows changes
+        // it. Result: no cursor at all until a window border or an edit field
+        // is hit blindly. But there are also VNC servers that draw the cursor
+        // in the framebuffer and don't send the empty local cursor. There is
+        // no way to satisfy both sides.
+        //
+        // The spec is unclear on this "initial cursor" issue. Many other
+        // viewers (TigerVNC, RealVNC, Remmina) display an arrow as the
+        // initial cursor instead.
+        this._cursorImage = RFB.cursors.none;
 
         // populate encHandlers with bound versions
         this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
@@ -324,6 +329,12 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    get showDotCursor() { return this._showDotCursor; }
+    set showDotCursor(show) {
+        this._showDotCursor = show;
+        this._refreshCursor();
+    }
+
     // ===== PUBLIC METHODS =====
 
     disconnect() {
@@ -426,6 +437,7 @@ export default class RFB extends EventTargetMixin {
         this._target.appendChild(this._screen);
 
         this._cursor.attach(this._canvas);
+        this._refreshCursor();
 
         // Monitor size changes of the screen
         // FIXME: Use ResizeObserver, or hidden overflow
@@ -1617,12 +1629,33 @@ export default class RFB extends EventTargetMixin {
         this._refreshCursor();
     }
 
+    _shouldShowDotCursor() {
+        // Called when this._cursorImage is updated
+        if (!this._showDotCursor) {
+            // User does not want to see the dot, so...
+            return false;
+        }
+
+        // The dot should not be shown if the cursor is already visible,
+        // i.e. contains at least one not-fully-transparent pixel.
+        // So iterate through all alpha bytes in rgba and stop at the
+        // first non-zero.
+        for (let i = 3; i < this._cursorImage.rgbaPixels.length; i += 4) {
+            if (this._cursorImage.rgbaPixels[i]) {
+                return false;
+            }
+        }
+
+        // At this point, we know that the cursor is fully transparent, and
+        // the user wants to see the dot instead of this.
+        return true;
+    }
+
     _refreshCursor() {
-        this._cursor.change(this._cursorImage.rgbaPixels,
-                            this._cursorImage.hotx,
-                            this._cursorImage.hoty,
-                            this._cursorImage.w,
-                            this._cursorImage.h
+        const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
+        this._cursor.change(image.rgbaPixels,
+                            image.hotx, image.hoty,
+                            image.w, image.h
         );
     }
 
@@ -2598,3 +2631,21 @@ RFB.encodingHandlers = {
         }
     }
 }
+
+RFB.cursors = {
+    none: {
+        rgbaPixels: new Uint8Array(),
+        w: 0, h: 0,
+        hotx: 0, hoty: 0,
+    },
+
+    dot: {
+        rgbaPixels: new Uint8Array([
+            255, 255, 255, 255,   0,   0,   0, 255, 255, 255, 255, 255,
+              0,   0,   0, 255,   0,   0,   0,   0,   0,   0,  0,  255,
+            255, 255, 255, 255,   0,   0,   0, 255, 255, 255, 255, 255,
+        ]),
+        w: 3, h: 3,
+        hotx: 1, hoty: 1,
+    }
+};
