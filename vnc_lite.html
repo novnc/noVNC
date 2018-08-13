@@ -5,7 +5,7 @@
     <!--
     noVNC example: lightweight example using minimal UI and features
     Copyright (C) 2012 Joel Martin
-    Copyright (C) 2017 Samuel Mannehed for Cendio AB
+    Copyright (C) 2018 Samuel Mannehed for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -104,18 +104,6 @@
             rfb.sendCtrlAltDel();
             return false;
         }
-        function machineShutdown() {
-            rfb.machineShutdown();
-            return false;
-        }
-        function machineReboot() {
-            rfb.machineReboot();
-            return false;
-        }
-        function machineReset() {
-            rfb.machineReset();
-            return false;
-        }
         function status(text, level) {
             switch (level) {
                 case 'normal':
@@ -141,7 +129,6 @@
 
         function disconnected(e) {
             document.getElementById('sendCtrlAltDelButton').disabled = true;
-            updatePowerButtons();
             if (e.detail.clean) {
                 status("Disconnected", "normal");
             } else {
@@ -149,20 +136,7 @@
             }
         }
 
-        function updatePowerButtons() {
-            var powerbuttons;
-            powerbuttons = document.getElementById('noVNC_power_buttons');
-            if (rfb.capabilities.power) {
-                powerbuttons.className= "noVNC_shown";
-            } else {
-                powerbuttons.className = "noVNC_hidden";
-            }
-        }
-
         document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
-        document.getElementById('machineShutdownButton').onclick = machineShutdown;
-        document.getElementById('machineRebootButton').onclick = machineReboot;
-        document.getElementById('machineResetButton').onclick = machineReset;
 
         WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
         document.title = WebUtil.getConfigVar('title', 'noVNC');
@@ -224,7 +198,6 @@
             rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
             rfb.addEventListener("connect",  connected);
             rfb.addEventListener("disconnect", disconnected);
-            rfb.addEventListener("capabilities", updatePowerButtons);
             rfb.addEventListener("credentialsrequired", credentials);
             rfb.addEventListener("desktopname", updateDesktopName);
             rfb.scaleViewport = WebUtil.getConfigVar('scale', false);
@@ -240,14 +213,6 @@
     <div id="noVNC_buttons">
       <input type=button value="Send CtrlAltDel"
              id="sendCtrlAltDelButton" class="noVNC_shown">
-      <span id="noVNC_power_buttons" class="noVNC_hidden">
-        <input type=button value="Shutdown"
-               id="machineShutdownButton">
-        <input type=button value="Reboot"
-               id="machineRebootButton">
-        <input type=button value="Reset"
-               id="machineResetButton">
-      </span>
     </div>
   </div>
 </body>
