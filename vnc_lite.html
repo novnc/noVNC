@@ -22,8 +22,61 @@
                 Remove this if you use the .htaccess -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="app/styles/lite.css">
+    <style type="text/css">
+
+        body {
+            margin: 0;
+            background-color: #313131;
+            border-bottom-right-radius: 800px 600px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        html {
+            background-color: #494949;
+            height: 100%;
+        }
+
+        #noVNC_status_bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        #noVNC_status {
+            color: #ffffff;
+            font: bold 12px Helvetica;
+            margin: auto;
+        }
+
+        .noVNC_status_normal {
+            background: linear-gradient(#b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
+        }
+        .noVNC_status_error {
+            background: linear-gradient(#c83737 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
+        }
+        .noVNC_status_warn {
+            background: linear-gradient(#b4b41e 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
+        }
+
+        .noNVC_shown {
+            display: inline;
+        }
+        .noVNC_hidden {
+            display: none;
+        }
+
+        #noVNC_left_dummy_elem {
+            flex: 1;
+        }
+
+        #noVNC_buttons {
+            padding: 1px;
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+    </style>
 
     <!-- promise polyfills promises for IE11 -->
     <script src="vendor/promise.js"></script>
