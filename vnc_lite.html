@@ -26,43 +26,26 @@
 
         body {
             margin: 0;
-            background-color: #313131;
-            border-bottom-right-radius: 800px 600px;
+            background-color: dimgrey;
             height: 100%;
             display: flex;
             flex-direction: column;
         }
         html {
-            background-color: #494949;
             height: 100%;
         }
 
         #noVNC_status_bar {
+            background-color: #6e84a3;
             width: 100%;
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px outset;
         }
         #noVNC_status {
             color: #ffffff;
             font: bold 12px Helvetica;
             margin: auto;
-        }
-
-        .noVNC_status_normal {
-            background: linear-gradient(#b2bdcd 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
-        }
-        .noVNC_status_error {
-            background: linear-gradient(#c83737 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
-        }
-        .noVNC_status_warn {
-            background: linear-gradient(#b4b41e 0%,#899cb3 49%,#7e93af 51%,#6e84a3 100%);
-        }
-
-        .noNVC_shown {
-            display: inline;
-        }
-        .noVNC_hidden {
-            display: none;
         }
 
         #noVNC_left_dummy_elem {
@@ -106,15 +89,12 @@
             desktopName = e.detail.name;
         }
         function credentials(e) {
-            var html;
-
             var form = document.createElement('form');
             form.innerHTML = '<label></label>';
             form.innerHTML += '<input type=password size=10 id="password_input">';
             form.onsubmit = setPassword;
 
             // bypass status() because it sets text content
-            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
             document.getElementById('noVNC_status').innerHTML = '';
             document.getElementById('noVNC_status').appendChild(form);
             document.getElementById('noVNC_status').querySelector('label').textContent = 'Password Required: ';
@@ -127,16 +107,7 @@
             rfb.sendCtrlAltDel();
             return false;
         }
-        function status(text, level) {
-            switch (level) {
-                case 'normal':
-                case 'warn':
-                case 'error':
-                    break;
-                default:
-                    level = "warn";
-            }
-            document.getElementById('noVNC_status_bar').className = "noVNC_status_" + level;
+        function status(text) {
             document.getElementById('noVNC_status').textContent = text;
         }
 
@@ -144,18 +115,18 @@
             document.getElementById('sendCtrlAltDelButton').disabled = false;
             if (WebUtil.getConfigVar('encrypt',
                                      (window.location.protocol === "https:"))) {
-                status("Connected (encrypted) to " + desktopName, "normal");
+                status("Connected (encrypted) to " + desktopName);
             } else {
-                status("Connected (unencrypted) to " + desktopName, "normal");
+                status("Connected (unencrypted) to " + desktopName);
             }
         }
 
         function disconnected(e) {
             document.getElementById('sendCtrlAltDelButton').disabled = true;
             if (e.detail.clean) {
-                status("Disconnected", "normal");
+                status("Disconnected");
             } else {
-                status("Something went wrong, connection is closed", "error");
+                status("Something went wrong, connection is closed");
             }
         }
 
@@ -193,11 +164,7 @@
 
         (function() {
 
-            status("Connecting", "normal");
-
-            if ((!host) || (!port)) {
-                status('Must specify host and port in URL', 'error');
-            }
+            status("Connecting");
 
             var url;
 
@@ -235,7 +202,7 @@
     <div id="noVNC_status">Loading</div>
     <div id="noVNC_buttons">
       <input type=button value="Send CtrlAltDel"
-             id="sendCtrlAltDelButton" class="noVNC_shown">
+             id="sendCtrlAltDelButton">
     </div>
   </div>
 </body>
