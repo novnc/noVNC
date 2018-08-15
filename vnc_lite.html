@@ -4,6 +4,9 @@
 
     <!--
     noVNC example: lightweight example using minimal UI and features
+
+    This is a self-contained file which doesn't import WebUtil or external CSS.
+
     Copyright (C) 2012 Joel Martin
     Copyright (C) 2018 Samuel Mannehed for Cendio AB
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
@@ -61,8 +64,9 @@
 
     </style>
 
-    <!-- promise polyfills promises for IE11 -->
+    <!-- Promise polyfill for IE11 -->
     <script src="vendor/promise.js"></script>
+
     <!-- ES2015/ES6 modules polyfill -->
     <script type="module">
         window._noVNC_has_module_support = true;
@@ -78,44 +82,62 @@
 
     <!-- actual script modules -->
     <script type="module" crossorigin="anonymous">
-        // Load supporting scripts
+        // WebUtil contains helper functions for browser features
         import * as WebUtil from './app/webutil.js';
+        // RFB holds the API to connect and communicate with a VNC server
         import RFB from './core/rfb.js';
 
         var rfb;
         var desktopName;
 
+        // When this function is called we have received
+        // a desktop name from the server
         function updateDesktopName(e) {
             desktopName = e.detail.name;
         }
+
+        // When this function is called, the server requires
+        // credentials to authenticate
         function credentials(e) {
+            // Let's create a password input
             var form = document.createElement('form');
             form.innerHTML = '<label></label>';
             form.innerHTML += '<input type=password size=10 id="password_input">';
             form.onsubmit = setPassword;
 
-            // bypass status() because it sets text content
+            // Bypass status() because it sets text content
+            // which doesn't allow adding elements
             document.getElementById('noVNC_status').innerHTML = '';
             document.getElementById('noVNC_status').appendChild(form);
             document.getElementById('noVNC_status').querySelector('label').textContent = 'Password Required: ';
         }
+
+        // Send the credentials from the input element
         function setPassword() {
             rfb.sendCredentials({ password: document.getElementById('password_input').value });
             return false;
         }
+
+        // Since most operating systems will catch Ctrl+Alt+Del
+        // before they get a chance to be intercepted by the browser,
+        // we provide a way to emulate this key sequence.
         function sendCtrlAltDel() {
             rfb.sendCtrlAltDel();
             return false;
         }
+        // Show a status text in the top bar
         function status(text) {
             document.getElementById('noVNC_status').textContent = text;
         }
 
+        // When this function is called we have
+        // successfully connected to a server
         function connected(e) {
             document.getElementById('sendCtrlAltDelButton').disabled = false;
             status("Connected to " + desktopName);
         }
 
+        // This function is called when we are disconnected
         function disconnected(e) {
             document.getElementById('sendCtrlAltDelButton').disabled = true;
             if (e.detail.clean) {
@@ -127,14 +149,15 @@
 
         document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
+        // Read parameters specified in the URL (query string or fragment)
         WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
         document.title = WebUtil.getConfigVar('title', 'noVNC');
         // By default, use the host and port of server that served this file
         var host = WebUtil.getConfigVar('host', window.location.hostname);
         var port = WebUtil.getConfigVar('port', window.location.port);
 
-        // if port == 80 (or 443) then it won't be present and should be
-        // set manually
+        // if port == 80 (or 443) then it won't be present in window.location
+        // and we have to set it manually
         if (!port) {
             if (window.location.protocol.substring(0,5) == 'https') {
                 port = 443;
@@ -157,34 +180,41 @@
             WebUtil.createCookie('token', token, 1)
         }
 
+        // | | |         | | |
+        // | | | Connect | | |
+        // v v v         v v v
         (function() {
 
             status("Connecting");
 
+            // Build the websocket URL used to connect
             var url;
-
             if (WebUtil.getConfigVar('encrypt',
                                      (window.location.protocol === "https:"))) {
                 url = 'wss';
             } else {
                 url = 'ws';
             }
-
             url += '://' + host;
             if(port) {
                 url += ':' + port;
             }
             url += '/' + path;
 
+            // Creating a new RFB object will start a new connection
             rfb = new RFB(document.body, url,
                           { repeaterID: WebUtil.getConfigVar('repeaterID', ''),
                             shared: WebUtil.getConfigVar('shared', true),
                             credentials: { password: password } });
-            rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
+
+            // Add listeners to important events from the RFB module
             rfb.addEventListener("connect",  connected);
             rfb.addEventListener("disconnect", disconnected);
             rfb.addEventListener("credentialsrequired", credentials);
             rfb.addEventListener("desktopname", updateDesktopName);
+
+            // Set parameters that can be changed on an active connection
+            rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
             rfb.scaleViewport = WebUtil.getConfigVar('scale', false);
             rfb.resizeSession = WebUtil.getConfigVar('resize', false);
         })();
