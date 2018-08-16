@@ -5,12 +5,23 @@ import Mouse from '../core/input/mouse.js';
 describe('Mouse Event Handling', function() {
     "use strict";
 
-    // This function is only used on target (the canvas)
-    // and for these tests we can assume that the canvas is 100x100
-    // located at coordinates 10x10
-    sinon.stub(Element.prototype, 'getBoundingClientRect').returns(
-        {left: 10, right: 110, top: 10, bottom: 110, width: 100, height: 100});
-    const target = document.createElement('canvas');
+    let target;
+
+    beforeEach(function () {
+        // For these tests we can assume that the canvas is 100x100
+        // located at coordinates 10x10
+        target = document.createElement('canvas');
+        target.style.position = "absolute";
+        target.style.top = "10px";
+        target.style.left = "10px";
+        target.style.width = "100px";
+        target.style.height = "100px";
+        document.body.appendChild(target);
+    });
+    afterEach(function () {
+        document.body.removeChild(target);
+        target = null;
+    });
 
     // The real constructors might not work everywhere we
     // want to run these tests

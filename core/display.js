@@ -168,6 +168,9 @@ export default class Display {
             height = this._fb_height;
         }
 
+        width = Math.floor(width);
+        height = Math.floor(height);
+
         if (width > this._fb_width) {
             width = this._fb_width;
         }
@@ -524,8 +527,8 @@ export default class Display {
         //                   style width to a number, the canvas is cleared.
         //                   However, if you set the style width to a string
         //                   ('NNNpx'), the canvas is scaled without clearing.
-        const width = Math.round(factor * vp.w) + 'px';
-        const height = Math.round(factor * vp.h) + 'px';
+        const width = factor * vp.w + 'px';
+        const height = factor * vp.h + 'px';
 
         if ((this._target.style.width !== width) ||
             (this._target.style.height !== height)) {
