@@ -86,10 +86,21 @@
         let rfb;
         let desktopName;
 
-        // When this function is called we have received
-        // a desktop name from the server
-        function updateDesktopName(e) {
-            desktopName = e.detail.name;
+        // When this function is called we have
+        // successfully connected to a server
+        function connectedToServer(e) {
+            document.getElementById('sendCtrlAltDelButton').disabled = false;
+            status("Connected to " + desktopName);
+        }
+
+        // This function is called when we are disconnected
+        function disconnectedFromServer(e) {
+            document.getElementById('sendCtrlAltDelButton').disabled = true;
+            if (e.detail.clean) {
+                status("Disconnected");
+            } else {
+                status("Something went wrong, connection is closed");
+            }
         }
 
         // When this function is called, the server requires
@@ -108,6 +119,12 @@
             document.getElementById('noVNC_status').querySelector('label').textContent = 'Password Required: ';
         }
 
+        // When this function is called we have received
+        // a desktop name from the server
+        function updateDesktopName(e) {
+            desktopName = e.detail.name;
+        }
+
         // Send the credentials from the input element
         function setPassword() {
             rfb.sendCredentials({ password: document.getElementById('password_input').value });
@@ -121,26 +138,10 @@
             rfb.sendCtrlAltDel();
             return false;
         }
+
         // Show a status text in the top bar
         function status(text) {
             document.getElementById('noVNC_status').textContent = text;
-        }
-
-        // When this function is called we have
-        // successfully connected to a server
-        function connectedToServer(e) {
-            document.getElementById('sendCtrlAltDelButton').disabled = false;
-            status("Connected to " + desktopName);
-        }
-
-        // This function is called when we are disconnected
-        function disconnectedFromServer(e) {
-            document.getElementById('sendCtrlAltDelButton').disabled = true;
-            if (e.detail.clean) {
-                status("Disconnected");
-            } else {
-                status("Something went wrong, connection is closed");
-            }
         }
 
         // This function extracts the value of one variable from the
