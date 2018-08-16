@@ -14,8 +14,6 @@
 
     Connect parameters are provided in query string:
         http://example.com/?host=HOST&port=PORT&scale=true
-    or the fragment:
-        http://example.com/#host=HOST&port=PORT&scale=true
     -->
     <title>noVNC</title>
 
@@ -82,8 +80,6 @@
 
     <!-- actual script modules -->
     <script type="module" crossorigin="anonymous">
-        // WebUtil contains helper functions for browser features
-        import * as WebUtil from './app/webutil.js';
         // RFB holds the API to connect and communicate with a VNC server
         import RFB from './core/rfb.js';
 
@@ -147,14 +143,35 @@
             }
         }
 
+        // This function extracts the value of one variable from the
+        // query string. If the variable isn't defined in the URL
+        // it returns the default value instead.
+        function readQueryVariable(name, defaultValue) {
+            // A URL with a query parameter can look like this:
+            // https://www.example.com?myqueryparam=myvalue
+            //
+            // Note that we use location.href instead of location.search
+            // because Firefox < 53 has a bug w.r.t location.search
+            const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
+                  match = document.location.href.match(re);
+            if (typeof defaultValue === 'undefined') { defaultValue = null; }
+
+            if (match) {
+                // We have to decode the URL since want the cleartext value
+                return decodeURIComponent(match[1]);
+            }
+
+            return defaultValue;
+        }
+
         document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
-        // Read parameters specified in the URL (query string or fragment)
+        // Read parameters specified in the URL query string
         // By default, use the host and port of server that served this file
-        var host = WebUtil.getConfigVar('host', window.location.hostname);
-        var port = WebUtil.getConfigVar('port', window.location.port);
-        var password = WebUtil.getConfigVar('password', '');
-        var path = WebUtil.getConfigVar('path', 'websockify');
+        var host = readQueryVariable('host', window.location.hostname);
+        var port = readQueryVariable('port', window.location.port);
+        var password = readQueryVariable('password', '');
+        var path = readQueryVariable('path', 'websockify');
 
         // | | |         | | |
         // | | | Connect | | |
@@ -187,8 +204,8 @@
             rfb.addEventListener("desktopname", updateDesktopName);
 
             // Set parameters that can be changed on an active connection
-            rfb.viewOnly = WebUtil.getConfigVar('view_only', false);
-            rfb.scaleViewport = WebUtil.getConfigVar('scale', false);
+            rfb.viewOnly = readQueryVariable('view_only', false);
+            rfb.scaleViewport = readQueryVariable('scale', false);
         })();
     </script>
 </head>
