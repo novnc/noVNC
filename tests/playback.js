@@ -79,6 +79,8 @@ export default class RecordingPlayer {
         this._rfb.viewOnly = true;
         this._rfb.addEventListener("disconnect",
                                    this._handleDisconnect.bind(this));
+        this._rfb.addEventListener("credentialsrequired",
+                                   this._handleCredentials.bind(this));
         this._enablePlaybackMode();
 
         // reset the frame index and timer
@@ -190,5 +192,11 @@ export default class RecordingPlayer {
     _handleDisconnect(evt) {
         this._running = false;
         this._disconnected(evt.detail.clean, this._frame_index);
+    }
+
+    _handleCredentials(evt) {
+        this._rfb.sendCredentials({"username": "Foo",
+                                   "password": "Bar",
+                                   "target": "Baz"});
     }
 }
