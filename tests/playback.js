@@ -91,18 +91,18 @@ export default class RecordingPlayer {
         this._trafficManagement = (trafficManagement === undefined) ? !realtime : trafficManagement;
 
         this._running = true;
-
-        this._queueNextPacket();
     }
 
     // _enablePlaybackMode mocks out things not required for running playback
     _enablePlaybackMode() {
+        const self = this;
         this._rfb._sock.send = () => {};
         this._rfb._sock.close = () => {};
         this._rfb._sock.flush = () => {};
         this._rfb._sock.open = function () {
             this.init();
             this._eventHandlers.open();
+            self._queueNextPacket();
         };
     }
 

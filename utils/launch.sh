@@ -24,6 +24,8 @@ usage() {
     echo "                          Default: ./"
     echo "    --ssl-only            Disable non-https connections."
     echo "                                    "
+    echo "    --record FILE         Record traffic to FILE.session.js"
+    echo "                                    "
     exit 2
 }
 
@@ -36,6 +38,7 @@ CERT=""
 WEB=""
 proxy_pid=""
 SSLONLY=""
+RECORD_ARG=""
 
 die() {
     echo "$*"
@@ -63,6 +66,7 @@ while [ "$*" ]; do
     --cert)    CERT="${OPTARG}"; shift            ;;
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
+    --record) RECORD_ARG="--record ${OPTARG}"; shift ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -145,7 +149,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
+${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
