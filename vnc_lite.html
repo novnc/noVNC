@@ -106,29 +106,14 @@
         // When this function is called, the server requires
         // credentials to authenticate
         function credentialsAreRequired(e) {
-            // Let's create a password input
-            const form = document.createElement('form');
-            form.innerHTML = '<label></label>';
-            form.innerHTML += '<input type=password size=10 id="password_input">';
-            form.onsubmit = setPassword;
-
-            // Bypass status() because it sets text content
-            // which doesn't allow adding elements
-            document.getElementById('noVNC_status').innerHTML = '';
-            document.getElementById('noVNC_status').appendChild(form);
-            document.getElementById('noVNC_status').querySelector('label').textContent = 'Password Required: ';
+            const password = prompt("Password Required:");
+            rfb.sendCredentials({ password: password });
         }
 
         // When this function is called we have received
         // a desktop name from the server
         function updateDesktopName(e) {
             desktopName = e.detail.name;
-        }
-
-        // Send the credentials from the input element
-        function setPassword() {
-            rfb.sendCredentials({ password: document.getElementById('password_input').value });
-            return false;
         }
 
         // Since most operating systems will catch Ctrl+Alt+Del
