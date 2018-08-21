@@ -38,26 +38,21 @@
 
         #noVNC_status_bar {
             background-color: #6e84a3;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
+            color: white;
+            font: bold 12px Helvetica;
+            padding: 6px 5px 4px 5px;
             border-bottom: 1px outset;
         }
         #noVNC_status {
-            color: #ffffff;
-            font: bold 12px Helvetica;
-            margin: auto;
+            text-align: center;
         }
-
-        #noVNC_left_dummy_elem {
-            flex: 1;
-        }
-
-        #noVNC_buttons {
-            padding: 1px;
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
+        #sendCtrlAltDelButton {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            border: 1px outset;
+            padding: 5px 5px 4px 5px;
+            cursor: pointer;
         }
 
     </style>
@@ -89,13 +84,11 @@
         // When this function is called we have
         // successfully connected to a server
         function connectedToServer(e) {
-            document.getElementById('sendCtrlAltDelButton').disabled = false;
             status("Connected to " + desktopName);
         }
 
         // This function is called when we are disconnected
         function disconnectedFromServer(e) {
-            document.getElementById('sendCtrlAltDelButton').disabled = true;
             if (e.detail.clean) {
                 status("Disconnected");
             } else {
@@ -196,12 +189,8 @@
 
 <body>
   <div id="noVNC_status_bar">
-    <div id="noVNC_left_dummy_elem"></div>
     <div id="noVNC_status">Loading</div>
-    <div id="noVNC_buttons">
-      <input type=button value="Send CtrlAltDel"
-             id="sendCtrlAltDelButton">
-    </div>
+    <div id="sendCtrlAltDelButton">Send CtrlAltDel</div>
   </div>
 </body>
 </html>
