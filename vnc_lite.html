@@ -55,6 +55,11 @@
             cursor: pointer;
         }
 
+        #screen {
+            flex: 1; /* fill remaining space */
+            overflow: hidden;
+        }
+
     </style>
 
     <!-- Promise polyfill for IE11 -->
@@ -172,7 +177,7 @@
         url += '/' + path;
 
         // Creating a new RFB object will start a new connection
-        rfb = new RFB(document.body, url,
+        rfb = new RFB(document.getElementById('screen'), url,
                       { credentials: { password: password } });
 
         // Add listeners to important events from the RFB module
@@ -191,6 +196,9 @@
     <div id="top_bar">
         <div id="status">Loading</div>
         <div id="sendCtrlAltDelButton">Send CtrlAltDel</div>
+    </div>
+    <div id="screen">
+        <!-- This is where the remote screen will appear -->
     </div>
 </body>
 </html>
