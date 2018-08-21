@@ -36,14 +36,14 @@
             height: 100%;
         }
 
-        #noVNC_status_bar {
+        #top_bar {
             background-color: #6e84a3;
             color: white;
             font: bold 12px Helvetica;
             padding: 6px 5px 4px 5px;
             border-bottom: 1px outset;
         }
-        #noVNC_status {
+        #status {
             text-align: center;
         }
         #sendCtrlAltDelButton {
@@ -119,7 +119,7 @@
 
         // Show a status text in the top bar
         function status(text) {
-            document.getElementById('noVNC_status').textContent = text;
+            document.getElementById('status').textContent = text;
         }
 
         // This function extracts the value of one variable from the
@@ -188,9 +188,9 @@
 </head>
 
 <body>
-  <div id="noVNC_status_bar">
-    <div id="noVNC_status">Loading</div>
-    <div id="sendCtrlAltDelButton">Send CtrlAltDel</div>
-  </div>
+    <div id="top_bar">
+        <div id="status">Loading</div>
+        <div id="sendCtrlAltDelButton">Send CtrlAltDel</div>
+    </div>
 </body>
 </html>
