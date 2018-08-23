@@ -368,16 +368,25 @@ export default class Display {
             'height': height
         };
 
-        const img = new Image();
-        img.src = "data: " + mime + ";base64," + Base64.encode(arr);
-        /* IE tends to set "complete" prematurely, so check dimensions */
-        if (img.complete && (img.width !== 0) && (img.height !== 0)) {
-            a.img = img;
+        if (window.createImageBitmap) {
+            let blob = new Blob([arr], { type: mime });
+            createImageBitmap(blob)
+                .then((img) => {
+                    a.img = img;
+                    this._scanRenderQ();
+                });
         } else {
-            img.addEventListener('load', () => {
+            const img = new Image();
+            img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+            /* IE tends to set "complete" prematurely, so check dimensions */
+            if (img.complete && (img.width !== 0) && (img.height !== 0)) {
                 a.img = img;
-                this._scanRenderQ();
-            });
+            } else {
+                img.addEventListener('load', () => {
+                    a.img = img;
+                    this._scanRenderQ();
+                });
+            }
         }
 
         this._renderQPush(a);
