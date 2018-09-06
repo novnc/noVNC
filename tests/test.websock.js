@@ -195,7 +195,7 @@ describe('Websock', function() {
 
             it('should actually send on the websocket', function () {
                 sock._websocket.bufferedAmount = 8;
-                sock._websocket.readyState = WebSocket.OPEN
+                sock._websocket.readyState = WebSocket.OPEN;
                 sock._sQ = new Uint8Array([1, 2, 3]);
                 sock._sQlen = 3;
                 const encoded = sock._encode_message();

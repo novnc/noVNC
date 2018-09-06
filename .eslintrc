@@ -38,5 +38,6 @@
         "key-spacing": ["error"],
         "keyword-spacing": ["error"],
         "no-trailing-spaces": ["error"],
+        "semi": ["error"],
     }
 }

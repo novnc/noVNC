@@ -51,7 +51,7 @@ function promisify(original) {
                 resolve(value);
             }));
         });
-    }
+    };
 }
 
 const readFile = promisify(fs.readFile);
@@ -199,7 +199,7 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
                         .then(() => {
                             console.log(`Writing ${out_path}`);
                             return copy(filename, out_path);
-                        })
+                        });
                 })
                 .then(() => ensureDir(path.dirname(legacy_path)))
                 .then(() => {

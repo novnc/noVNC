@@ -85,7 +85,7 @@ export default class Cursor {
             return;
         }
 
-        let cur = []
+        let cur = [];
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 let idx = y * Math.ceil(w / 8) + Math.floor(x / 8);

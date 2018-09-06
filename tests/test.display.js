@@ -422,7 +422,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should wait until an image is loaded to attempt to draw it and the rest of the queue', function () {
-            const img = { complete: false, addEventListener: sinon.spy() }
+            const img = { complete: false, addEventListener: sinon.spy() };
             display._renderQ = [{ type: 'img', x: 3, y: 4, img: img },
                                 { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
             display.drawImage = sinon.spy();

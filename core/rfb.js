@@ -1942,7 +1942,7 @@ RFB.encodingHandlers = {
         let data = this._sock.get_rQ();
         let index = this._sock.get_rQi();
         if (this._fb_depth == 8) {
-            const pixels = this._FBU.width * curr_height
+            const pixels = this._FBU.width * curr_height;
             const newdata = new Uint8Array(pixels * 4);
             for (let i = 0; i < pixels; i++) {
                 newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
@@ -2558,4 +2558,4 @@ RFB.encodingHandlers = {
             // Do nothing
         }
     }
-}
+};

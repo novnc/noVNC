@@ -12,7 +12,7 @@ function promisify(original) {
                 resolve(value);
             }));
         });
-    }
+    };
 }
 
 const writeFile = promisify(fs.writeFile);
@@ -27,7 +27,7 @@ module.exports = {
                 .then(() => {
                     console.log(`Please place RequireJS in ${path.join(script_base_path, 'require.js')}`);
                     const require_path = path.relative(base_out_path,
-                                                       path.join(script_base_path, 'require.js'))
+                                                       path.join(script_base_path, 'require.js'));
                     return [ require_path ];
                 });
         },
@@ -57,9 +57,9 @@ module.exports = {
                     console.log(`Please place SystemJS in ${path.join(script_base_path, 'system-production.js')}`);
                 // FIXME: Should probably be in the legacy directory
                     const promise_path = path.relative(base_out_path,
-                                                       path.join(base_out_path, 'vendor', 'promise.js'))
+                                                       path.join(base_out_path, 'vendor', 'promise.js'));
                     const systemjs_path = path.relative(base_out_path,
-                                                        path.join(script_base_path, 'system-production.js'))
+                                                        path.join(script_base_path, 'system-production.js'));
                     return [ promise_path, systemjs_path ];
                 });
         },
@@ -73,4 +73,4 @@ module.exports = {
             opts.plugins.unshift("add-module-exports");
         },
     },
-}
+};
