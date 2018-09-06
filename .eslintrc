@@ -24,5 +24,10 @@
         // Enforced coding style
 
         "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+        "indent": ["error", 4, { "SwitchCase": 1,
+                                 "CallExpression": { "arguments": "first" },
+                                 "ArrayExpression": "first",
+                                 "ObjectExpression": "first",
+                                 "ignoreComments": true }],
     }
 }

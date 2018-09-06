@@ -71,17 +71,17 @@ const babelTransformFile = promisify(babel.transformFile);
 // calling the callback for all normal files found.
 function walkDir(base_path, cb, filter) {
     return readdir(base_path)
-    .then((files) => {
-        const paths = files.map(filename => path.join(base_path, filename));
-        return Promise.all(paths.map(filepath => lstat(filepath)
-        .then((stats) => {
-            if (filter !== undefined && !filter(filepath, stats)) return;
+        .then((files) => {
+            const paths = files.map(filename => path.join(base_path, filename));
+            return Promise.all(paths.map(filepath => lstat(filepath)
+                .then((stats) => {
+                    if (filter !== undefined && !filter(filepath, stats)) return;
 
-            if (stats.isSymbolicLink()) return;
-            if (stats.isFile()) return cb(filepath);
-            if (stats.isDirectory()) return walkDir(filepath, cb, filter);
-        })));
-    });
+                    if (stats.isSymbolicLink()) return;
+                    if (stats.isFile()) return cb(filepath);
+                    if (stats.isDirectory()) return walkDir(filepath, cb, filter);
+                })));
+        });
 }
 
 function transform_html (legacy_scripts, only_legacy) {
@@ -89,25 +89,25 @@ function transform_html (legacy_scripts, only_legacy) {
     const src_html_path = path.resolve(__dirname, '..', 'vnc.html');
     const out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');
     return readFile(src_html_path)
-    .then((contents_raw) => {
-        let contents = contents_raw.toString();
+        .then((contents_raw) => {
+            let contents = contents_raw.toString();
 
-        const start_marker = '<!-- begin scripts -->\n';
-        const end_marker = '<!-- end scripts -->';
-        const start_ind = contents.indexOf(start_marker) + start_marker.length;
-        const end_ind = contents.indexOf(end_marker, start_ind);
+            const start_marker = '<!-- begin scripts -->\n';
+            const end_marker = '<!-- end scripts -->';
+            const start_ind = contents.indexOf(start_marker) + start_marker.length;
+            const end_ind = contents.indexOf(end_marker, start_ind);
 
-        let new_script = '';
+            let new_script = '';
 
-        if (only_legacy) {
+            if (only_legacy) {
             // Only legacy version, so include things directly
-            for (let i = 0;i < legacy_scripts.length;i++) {
-                new_script += `    <script src="${legacy_scripts[i]}"></script>\n`;
-            }
-        } else {
+                for (let i = 0;i < legacy_scripts.length;i++) {
+                    new_script += `    <script src="${legacy_scripts[i]}"></script>\n`;
+                }
+            } else {
             // Otherwise detect if it's a modern browser and select
             // variant accordingly
-            new_script += `\
+                new_script += `\
     <script type="module">\n\
         window._noVNC_has_module_support = true;\n\
     </script>\n\
@@ -125,17 +125,17 @@ function transform_html (legacy_scripts, only_legacy) {
     </script>\n`;
 
             // Original, ES6 modules
-            new_script += '    <script type="module" crossorigin="anonymous" src="app/ui.js"></script>\n';
-        }
+                new_script += '    <script type="module" crossorigin="anonymous" src="app/ui.js"></script>\n';
+            }
 
-        contents = contents.slice(0, start_ind) + `${new_script}\n` + contents.slice(end_ind);
+            contents = contents.slice(0, start_ind) + `${new_script}\n` + contents.slice(end_ind);
 
-        return contents;
-    })
-    .then((contents) => {
-        console.log(`Writing ${out_html_path}`);
-        return writeFile(out_html_path, contents);
-    });
+            return contents;
+        })
+        .then((contents) => {
+            console.log(`Writing ${out_html_path}`);
+            return writeFile(out_html_path, contents);
+        });
 }
 
 function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
@@ -176,130 +176,130 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
     const outFiles = [];
 
     const handleDir = (js_only, vendor_rewrite, in_path_base, filename) => Promise.resolve()
-    .then(() => {
-        if (no_copy_files.has(filename)) return;
-
-        const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
-        const legacy_path = path.join(legacy_path_base, path.relative(in_path_base, filename));
-
-        if(path.extname(filename) !== '.js') {
-            if (!js_only) {
-                console.log(`Writing ${out_path}`);
-                return copy(filename, out_path);
-            }
-            return;  // skip non-javascript files
-        }
-
-        return Promise.resolve()
         .then(() => {
-            if (only_legacy && !no_transform_files.has(filename)) {
-                return;
-            }
-            return ensureDir(path.dirname(out_path))
-            .then(() => {
-                console.log(`Writing ${out_path}`);
-                return copy(filename, out_path);
-            })
-        })
-        .then(() => ensureDir(path.dirname(legacy_path)))
-        .then(() => {
-            if (no_transform_files.has(filename)) {
-                return;
+            if (no_copy_files.has(filename)) return;
+
+            const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
+            const legacy_path = path.join(legacy_path_base, path.relative(in_path_base, filename));
+
+            if(path.extname(filename) !== '.js') {
+                if (!js_only) {
+                    console.log(`Writing ${out_path}`);
+                    return copy(filename, out_path);
+                }
+                return;  // skip non-javascript files
             }
 
-            const opts = babel_opts();
-            if (helper && helpers.optionsOverride) {
-                helper.optionsOverride(opts);
-            }
+            return Promise.resolve()
+                .then(() => {
+                    if (only_legacy && !no_transform_files.has(filename)) {
+                        return;
+                    }
+                    return ensureDir(path.dirname(out_path))
+                        .then(() => {
+                            console.log(`Writing ${out_path}`);
+                            return copy(filename, out_path);
+                        })
+                })
+                .then(() => ensureDir(path.dirname(legacy_path)))
+                .then(() => {
+                    if (no_transform_files.has(filename)) {
+                        return;
+                    }
+
+                    const opts = babel_opts();
+                    if (helper && helpers.optionsOverride) {
+                        helper.optionsOverride(opts);
+                    }
             // Adjust for the fact that we move the core files relative
             // to the vendor directory
-            if (vendor_rewrite) {
-                opts.plugins.push(["import-redirect",
-                                   {"root": legacy_path_base,
-                                    "redirect": { "vendor/(.+)": "./vendor/$1"}}]);
-            }
-
-            return babelTransformFile(filename, opts)
-            .then((res) => {
-                console.log(`Writing ${legacy_path}`);
-                const {map} = res;
-                let {code} = res;
-                if (source_maps === true) {
-                    // append URL for external source map
-                    code += `\n//# sourceMappingURL=${path.basename(legacy_path)}.map\n`;
-                }
-                outFiles.push(`${legacy_path}`);
-                return writeFile(legacy_path, code)
-                .then(() => {
-                    if (source_maps === true || source_maps === 'both') {
-                        console.log(`  and ${legacy_path}.map`);
-                        outFiles.push(`${legacy_path}.map`);
-                        return writeFile(`${legacy_path}.map`, JSON.stringify(map));
+                    if (vendor_rewrite) {
+                        opts.plugins.push(["import-redirect",
+                                           {"root": legacy_path_base,
+                                            "redirect": { "vendor/(.+)": "./vendor/$1"}}]);
                     }
+
+                    return babelTransformFile(filename, opts)
+                        .then((res) => {
+                            console.log(`Writing ${legacy_path}`);
+                            const {map} = res;
+                            let {code} = res;
+                            if (source_maps === true) {
+                    // append URL for external source map
+                                code += `\n//# sourceMappingURL=${path.basename(legacy_path)}.map\n`;
+                            }
+                            outFiles.push(`${legacy_path}`);
+                            return writeFile(legacy_path, code)
+                                .then(() => {
+                                    if (source_maps === true || source_maps === 'both') {
+                                        console.log(`  and ${legacy_path}.map`);
+                                        outFiles.push(`${legacy_path}.map`);
+                                        return writeFile(`${legacy_path}.map`, JSON.stringify(map));
+                                    }
+                                });
+                        });
                 });
-            });
         });
-    });
 
     if (with_app_dir && helper && helper.noCopyOverride) {
         helper.noCopyOverride(paths, no_copy_files);
     }
 
     Promise.resolve()
-    .then(() => {
-        const handler = handleDir.bind(null, true, false, in_path || paths.main);
-        const filter = (filename, stats) => !no_copy_files.has(filename);
-        return walkDir(paths.vendor, handler, filter);
-    })
-    .then(() => {
-        const handler = handleDir.bind(null, true, !in_path, in_path || paths.core);
-        const filter = (filename, stats) => !no_copy_files.has(filename);
-        return walkDir(paths.core, handler, filter);
-    })
-    .then(() => {
-        if (!with_app_dir) return;
-        const handler = handleDir.bind(null, false, false, in_path);
-        const filter = (filename, stats) => !no_copy_files.has(filename);
-        return walkDir(paths.app, handler, filter);
-    })
-    .then(() => {
-        if (!with_app_dir) return;
-
-        if (!helper || !helper.appWriter) {
-            throw new Error(`Unable to generate app for the ${import_format} format!`);
-        }
-
-        const out_app_path = path.join(legacy_path_base, 'app.js');
-        console.log(`Writing ${out_app_path}`);
-        return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
-        .then((extra_scripts) => {
-            const rel_app_path = path.relative(out_path_base, out_app_path);
-            const legacy_scripts = extra_scripts.concat([rel_app_path]);
-            transform_html(legacy_scripts, only_legacy);
+        .then(() => {
+            const handler = handleDir.bind(null, true, false, in_path || paths.main);
+            const filter = (filename, stats) => !no_copy_files.has(filename);
+            return walkDir(paths.vendor, handler, filter);
         })
         .then(() => {
-            if (!helper.removeModules) return;
-            console.log(`Cleaning up temporary files...`);
-            return Promise.all(outFiles.map((filepath) => {
-                unlink(filepath)
+            const handler = handleDir.bind(null, true, !in_path, in_path || paths.core);
+            const filter = (filename, stats) => !no_copy_files.has(filename);
+            return walkDir(paths.core, handler, filter);
+        })
+        .then(() => {
+            if (!with_app_dir) return;
+            const handler = handleDir.bind(null, false, false, in_path);
+            const filter = (filename, stats) => !no_copy_files.has(filename);
+            return walkDir(paths.app, handler, filter);
+        })
+        .then(() => {
+            if (!with_app_dir) return;
+
+            if (!helper || !helper.appWriter) {
+                throw new Error(`Unable to generate app for the ${import_format} format!`);
+            }
+
+            const out_app_path = path.join(legacy_path_base, 'app.js');
+            console.log(`Writing ${out_app_path}`);
+            return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
+                .then((extra_scripts) => {
+                    const rel_app_path = path.relative(out_path_base, out_app_path);
+                    const legacy_scripts = extra_scripts.concat([rel_app_path]);
+                    transform_html(legacy_scripts, only_legacy);
+                })
                 .then(() => {
+                    if (!helper.removeModules) return;
+                    console.log(`Cleaning up temporary files...`);
+                    return Promise.all(outFiles.map((filepath) => {
+                        unlink(filepath)
+                            .then(() => {
                     // Try to clean up any empty directories if this
                     // was the last file in there
-                    const rmdir_r = dir =>
-                        rmdir(dir)
-                        .then(() => rmdir_r(path.dirname(dir)))
-                        .catch(() => {
+                                const rmdir_r = dir =>
+                                    rmdir(dir)
+                                        .then(() => rmdir_r(path.dirname(dir)))
+                                        .catch(() => {
                             // Assume the error was ENOTEMPTY and ignore it
-                        });
-                    return rmdir_r(path.dirname(filepath));
+                                        });
+                                return rmdir_r(path.dirname(filepath));
+                            });
+                    }));
                 });
-            }));
+        })
+        .catch((err) => {
+            console.error(`Failure converting modules: ${err}`);
+            process.exit(1);
         });
-    })
-    .catch((err) => {
-        console.error(`Failure converting modules: ${err}`);
-        process.exit(1);
-    });
 }
 
 if (program.clean) {

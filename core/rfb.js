@@ -166,7 +166,7 @@ export default class RFB extends EventTargetMixin {
         this._canvas.tabIndex = -1;
         this._screen.appendChild(this._canvas);
 
-    this._cursor = new Cursor();
+        this._cursor = new Cursor();
 
         // populate encHandlers with bound versions
         this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
@@ -966,7 +966,7 @@ export default class RFB extends EventTargetMixin {
             this.dispatchEvent(new CustomEvent(
                 "credentialsrequired",
                 { detail: { types: ["username", "password", "target"] } }));
-             return false;
+            return false;
         }
 
         const xvp_auth_str = String.fromCharCode(this._rfb_credentials.username.length) +
@@ -1938,7 +1938,7 @@ RFB.encodingHandlers = {
         if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
         const cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
         const curr_height = Math.min(this._FBU.lines,
-                                   Math.floor(this._sock.rQlen() / (this._FBU.width * pixelSize)));
+                                     Math.floor(this._sock.rQlen() / (this._FBU.width * pixelSize)));
         let data = this._sock.get_rQ();
         let index = this._sock.get_rQi();
         if (this._fb_depth == 8) {
@@ -2488,18 +2488,18 @@ RFB.encodingHandlers = {
             let msg = "";
             // The y-position indicates the status code from the server
             switch (this._FBU.y) {
-            case 1:
-                msg = "Resize is administratively prohibited";
-                break;
-            case 2:
-                msg = "Out of resources";
-                break;
-            case 3:
-                msg = "Invalid screen layout";
-                break;
-            default:
-                msg = "Unknown reason";
-                break;
+                case 1:
+                    msg = "Resize is administratively prohibited";
+                    break;
+                case 2:
+                    msg = "Out of resources";
+                    break;
+                case 3:
+                    msg = "Invalid screen layout";
+                    break;
+                default:
+                    msg = "Unknown reason";
+                    break;
             }
             Log.Warn("Server did not accept the resize request: "
                      + msg);

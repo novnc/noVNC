@@ -132,7 +132,7 @@ export class Localizer {
                 }
                 if (elem.hasAttribute("label") &&
                     isAnyOf(elem.tagName, ["MENUITEM", "MENU", "OPTGROUP",
-                                   "OPTION", "TRACK"])) {
+                                           "OPTION", "TRACK"])) {
                     translateAttribute(elem, "label");
                 }
                 // FIXME: Should update "lang"

@@ -19,9 +19,9 @@ describe('Websock', function() {
         });
         describe('rQlen', function () {
             it('should return the length of the receive queue', function () {
-               sock.set_rQi(0);
+                sock.set_rQi(0);
 
-               expect(sock.rQlen()).to.equal(RQ_TEMPLATE.length);
+                expect(sock.rQlen()).to.equal(RQ_TEMPLATE.length);
             });
 
             it("should return the proper length if we read some from the receive queue", function () {
@@ -247,7 +247,7 @@ describe('Websock', function() {
     describe('lifecycle methods', function () {
         let old_WS;
         before(function () {
-           old_WS = WebSocket;
+            old_WS = WebSocket;
         });
 
         let sock;
@@ -357,8 +357,8 @@ describe('Websock', function() {
     describe('WebSocket Receiving', function () {
         let sock;
         beforeEach(function () {
-           sock = new Websock();
-           sock._allocate_buffers();
+            sock = new Websock();
+            sock._allocate_buffers();
         });
 
         it('should support adding binary Uint8Array data to the receive queue', function () {

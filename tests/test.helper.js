@@ -11,7 +11,7 @@ describe('Helpers', function() {
         it('should map ASCII characters to keysyms', function() {
             expect(keysyms.lookup('a'.charCodeAt())).to.be.equal(0x61);
             expect(keysyms.lookup('A'.charCodeAt())).to.be.equal(0x41);
-            });
+        });
         it('should map Latin-1 characters to keysyms', function() {
             expect(keysyms.lookup('ø'.charCodeAt())).to.be.equal(0xf8);
 

@@ -14,29 +14,29 @@ let show_help = process.argv.length === 2;
 let filename;
 
 for (let i = 2; i < process.argv.length; ++i) {
-  switch (process.argv[i]) {
-    case "--help":
-    case "-h":
-      show_help = true;
-      break;
-    case "--file":
-    case "-f":
-    default:
-      filename = process.argv[i];
-  }
+    switch (process.argv[i]) {
+        case "--help":
+        case "-h":
+            show_help = true;
+            break;
+        case "--file":
+        case "-f":
+        default:
+            filename = process.argv[i];
+    }
 }
 
 if (!filename) {
-  show_help = true;
-  console.log("Error: No filename specified\n");
+    show_help = true;
+    console.log("Error: No filename specified\n");
 }
 
 if (show_help) {
-  console.log("Parses a *nix keysymdef.h to generate Unicode code point mappings");
-  console.log("Usage: node parse.js [options] filename:");
-  console.log("  -h [ --help ]                 Produce this help message");
-  console.log("  filename                      The keysymdef.h file to parse");
-  process.exit(0);
+    console.log("Parses a *nix keysymdef.h to generate Unicode code point mappings");
+    console.log("Usage: node parse.js [options] filename:");
+    console.log("  -h [ --help ]                 Produce this help message");
+    console.log("  filename                      The keysymdef.h file to parse");
+    process.exit(0);
 }
 
 const buf = fs.readFileSync(filename);
