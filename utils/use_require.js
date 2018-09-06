@@ -43,7 +43,7 @@ no_copy_files.forEach(file => no_transform_files.add(file));
 
 // util.promisify requires Node.js 8.x, so we have our own
 function promisify(original) {
-    return function () {
+    return function promise_wrap() {
         const args = Array.prototype.slice.call(arguments);
         return new Promise((resolve, reject) => {
             original.apply(this, args.concat((err, value) => {

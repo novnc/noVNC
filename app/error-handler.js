@@ -5,7 +5,7 @@
 // No ES6 can be used in this file since it's used for the translation
 /* eslint-disable prefer-arrow-callback */
 
-(function() {
+(function _scope() {
     "use strict";
 
     // Fallback for all uncought errors
@@ -53,6 +53,6 @@
         // from being printed to the browser console.
         return false;
     }
-    window.addEventListener('error', function (evt) { handleError(evt, evt.error); });
-    window.addEventListener('unhandledrejection', function (evt) { handleError(evt.reason, evt.reason); });
+    window.addEventListener('error', function onerror(evt) { handleError(evt, evt.error); });
+    window.addEventListener('unhandledrejection', function onreject(evt) { handleError(evt.reason, evt.reason); });
 })();
