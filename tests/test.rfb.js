@@ -2184,7 +2184,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
         describe('WebSocket event handlers', function () {
             // message events
-            it ('should do nothing if we receive an empty message and have nothing in the queue', function () {
+            it('should do nothing if we receive an empty message and have nothing in the queue', function () {
                 client._normal_msg = sinon.spy();
                 client._sock._websocket._receive_data(new Uint8Array([]));
                 expect(client._normal_msg).to.not.have.been.called;
