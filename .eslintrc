@@ -43,5 +43,6 @@
         "space-before-function-paren": ["error", { "anonymous": "always",
                                                    "named": "never",
                                                    "asyncArrow": "always" }],
+        "switch-colon-spacing": ["error"],
     }
 }
