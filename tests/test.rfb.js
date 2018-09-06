@@ -1876,7 +1876,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     });
 
                     it('should fail on an invalid subencoding', function () {
-                        sinon.spy(client,"_fail");
+                        sinon.spy(client, "_fail");
                         const info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
                         const rects = [[45]];  // an invalid subencoding
                         send_fbu_msg(info, rects, client);

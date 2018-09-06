@@ -264,7 +264,7 @@ describe('Websock', function() {
         });
 
         describe('opening', function () {
-            it('should pick the correct protocols if none are given' , function () {
+            it('should pick the correct protocols if none are given', function () {
 
             });
 

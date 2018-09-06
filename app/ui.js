@@ -145,9 +145,9 @@ const UI = {
         // set manually
         let port = window.location.port;
         if (!port) {
-            if (window.location.protocol.substring(0,5) == 'https') {
+            if (window.location.protocol.substring(0, 5) == 'https') {
                 port = 443;
-            } else if (window.location.protocol.substring(0,4) == 'http') {
+            } else if (window.location.protocol.substring(0, 4) == 'http') {
                 port = 80;
             }
         }
@@ -936,7 +936,7 @@ const UI = {
     },
 
     clipboardReceive(e) {
-        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0,40) + "...");
+        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
         Log.Debug("<< UI.clipboardReceive");
     },
@@ -948,7 +948,7 @@ const UI = {
 
     clipboardSend() {
         const text = document.getElementById('noVNC_clipboard_text').value;
-        Log.Debug(">> UI.clipboardSend: " + text.substr(0,40) + "...");
+        Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
         Log.Debug("<< UI.clipboardSend");
     },
@@ -1551,7 +1551,7 @@ const UI = {
             UI.rfb.touchButton = num;
         }
 
-        const blist = [0, 1,2,4];
+        const blist = [0, 1, 2, 4];
         for (let b = 0; b < blist.length; b++) {
             const button = document.getElementById('noVNC_mouse_button' +
                                                  blist[b]);

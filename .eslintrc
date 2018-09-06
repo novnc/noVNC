@@ -29,5 +29,6 @@
                                  "ArrayExpression": "first",
                                  "ObjectExpression": "first",
                                  "ignoreComments": true }],
+        "comma-spacing": ["error"],
     }
 }

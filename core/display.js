@@ -457,7 +457,7 @@ export default class Display {
         }
     }
 
-    blitRgbImage(x, y , width, height, arr, offset, from_queue) {
+    blitRgbImage(x, y, width, height, arr, offset, from_queue) {
         if (this._renderQ.length !== 0 && !from_queue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
