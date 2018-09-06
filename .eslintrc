@@ -33,5 +33,6 @@
         "comma-style": ["error"],
         "func-call-spacing": ["error"],
         "func-names": ["error"],
+        "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
     }
 }
