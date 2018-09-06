@@ -187,13 +187,15 @@ export default class Cursor {
     }
 
     _showCursor() {
-        if (this._canvas.style.visibility === 'hidden')
+        if (this._canvas.style.visibility === 'hidden') {
             this._canvas.style.visibility = '';
+        }
     }
 
     _hideCursor() {
-        if (this._canvas.style.visibility !== 'hidden')
+        if (this._canvas.style.visibility !== 'hidden') {
             this._canvas.style.visibility = 'hidden';
+        }
     }
 
     // Should we currently display the cursor?
@@ -201,24 +203,28 @@ export default class Cursor {
     // different cursor set)
     _shouldShowCursor(target) {
         // Easy case
-        if (target === this._target)
+        if (target === this._target) {
             return true;
+        }
         // Other part of the DOM?
-        if (!this._target.contains(target))
+        if (!this._target.contains(target)) {
             return false;
+        }
         // Has the child its own cursor?
         // FIXME: How can we tell that a sub element has an
         //        explicit "cursor: none;"?
-        if (window.getComputedStyle(target).cursor !== 'none')
+        if (window.getComputedStyle(target).cursor !== 'none') {
             return false;
+        }
         return true;
     }
 
     _updateVisibility(target) {
-        if (this._shouldShowCursor(target))
+        if (this._shouldShowCursor(target)) {
             this._showCursor();
-        else
+        } else {
             this._hideCursor();
+        }
     }
 
     _updatePosition() {

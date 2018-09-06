@@ -249,10 +249,11 @@ export default class Keyboard {
             // Character (A-Z)
             let char = String.fromCharCode(e.keyCode);
             // A feeble attempt at the correct case
-            if (e.shiftKey)
+            if (e.shiftKey) {
                 char = char.toUpperCase();
-            else
+            } else {
                 char = char.toLowerCase();
+            }
             keysym = char.charCodeAt();
         } else {
             // Unknown, give up

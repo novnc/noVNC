@@ -2348,8 +2348,10 @@ RFB.encodingHandlers = {
         else if (ctl === 0x0A)  cmode = "png";
         else if (ctl & 0x04)    cmode = "filter";
         else if (ctl < 0x04)    cmode = "copy";
-        else return this._fail("Illegal tight compression received (ctl: " +
+        else {
+            return this._fail("Illegal tight compression received (ctl: " +
                                ctl + ")");
+        }
 
         if (isTightPNG && (ctl < 0x08)) {
             return this._fail("BasicCompression received in TightPNG rect");

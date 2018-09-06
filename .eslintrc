@@ -31,6 +31,7 @@
                                  "ignoreComments": true }],
         "comma-spacing": ["error"],
         "comma-style": ["error"],
+        "curly": ["error", "multi-line"],
         "func-call-spacing": ["error"],
         "func-names": ["error"],
         "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
