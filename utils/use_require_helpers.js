@@ -34,7 +34,7 @@ module.exports = {
         noCopyOverride: () => {},
     },
     'commonjs': {
-        optionsOverride: (opts) => {   
+        optionsOverride: (opts) => {
             // CommonJS supports properly shifting the default export to work as normal
             opts.plugins.unshift("add-module-exports");
         },
@@ -68,7 +68,7 @@ module.exports = {
         },
     },
     'umd': {
-        optionsOverride: (opts) => {   
+        optionsOverride: (opts) => {
             // umd supports properly shifting the default export to work as normal
             opts.plugins.unshift("add-module-exports");
         },

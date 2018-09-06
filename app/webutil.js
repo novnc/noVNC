@@ -26,7 +26,7 @@ export function getQueryVar (name, defVal) {
     const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
         match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
-    
+
     if (match) {
         return decodeURIComponent(match[1]);
     }

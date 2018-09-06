@@ -1329,7 +1329,7 @@ const UI = {
             // Move the caret to the end
             input.setSelectionRange(l, l);
         } catch (err) {
-            // setSelectionRange is undefined in Google Chrome 
+            // setSelectionRange is undefined in Google Chrome
         }
     },
 

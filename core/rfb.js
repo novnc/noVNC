@@ -1437,7 +1437,7 @@ export default class RFB extends EventTargetMixin {
             case 2:  // Bell
                 Log.Debug("Bell");
                 this.dispatchEvent(new CustomEvent(
-                    "bell", 
+                    "bell",
                     { detail: {} }));
                 return true;
 

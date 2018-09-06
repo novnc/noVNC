@@ -36,5 +36,6 @@
         "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
         "key-spacing": ["error"],
         "keyword-spacing": ["error"],
+        "no-trailing-spaces": ["error"],
     }
 }
