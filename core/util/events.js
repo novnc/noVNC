@@ -96,7 +96,7 @@ export function setCapture (elem) {
         _captureIndex++;
 
         // Track cursor and get initial cursor
-        _captureObserver.observe(elem, {attributes:true});
+        _captureObserver.observe(elem, {attributes: true});
         _captureElemChanged();
 
         captureElem.style.display = "";

@@ -8,8 +8,8 @@ import * as Log from './util/logging.js';
 
 export default {
     /* Convert data (an array of integers) to a Base64 string. */
-    toBase64Table : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),
-    base64Pad     : '=',
+    toBase64Table: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),
+    base64Pad: '=',
 
     encode(data) {
         "use strict";
@@ -44,7 +44,7 @@ export default {
 
     /* Convert Base64 data to a string */
     /* eslint-disable comma-spacing */
-    toBinaryTable : [
+    toBinaryTable: [
         -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
         -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
         -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,62, -1,-1,-1,63,

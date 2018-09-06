@@ -34,5 +34,6 @@
         "func-call-spacing": ["error"],
         "func-names": ["error"],
         "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
+        "key-spacing": ["error"],
     }
 }
