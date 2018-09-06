@@ -8,6 +8,8 @@
     },
     "extends": "eslint:recommended",
     "rules": {
+        // Unsafe or confusing stuff that we forbid
+
         "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
         "no-constant-condition": ["error", { "checkLoops": false }],
         "no-var": "error",
@@ -18,5 +20,9 @@
         "arrow-parens": ["error", "as-needed", { "requireForBlockBody": true }],
         "arrow-spacing": ["error"],
         "no-confusing-arrow": ["error", { "allowParens": true }],
+
+        // Enforced coding style
+
+        "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     }
 }

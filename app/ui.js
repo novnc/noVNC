@@ -147,8 +147,7 @@ const UI = {
         if (!port) {
             if (window.location.protocol.substring(0,5) == 'https') {
                 port = 443;
-            }
-            else if (window.location.protocol.substring(0,4) == 'http') {
+            } else if (window.location.protocol.substring(0,4) == 'http') {
                 port = 80;
             }
         }
