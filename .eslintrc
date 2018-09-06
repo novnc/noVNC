@@ -39,5 +39,6 @@
         "keyword-spacing": ["error"],
         "no-trailing-spaces": ["error"],
         "semi": ["error"],
+        "space-before-blocks": ["error"],
     }
 }

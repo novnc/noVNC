@@ -115,8 +115,8 @@ describe('WebUtil', function() {
                 window.chrome = {
                     storage: {
                         sync: {
-                            get(cb){ cb(settings); },
-                            set(){},
+                            get(cb) { cb(settings); },
+                            set() {},
                             remove() {}
                         }
                     }

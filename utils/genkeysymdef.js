@@ -50,7 +50,7 @@ const codepoints = {};
 
 for (let i = 0; i < arr.length; ++i) {
     const result = re.exec(arr[i]);
-    if (result){
+    if (result) {
         const keyname = result[1];
         const keysym = parseInt(result[2], 16);
         const remainder = result[3];
@@ -59,7 +59,7 @@ for (let i = 0; i < arr.length; ++i) {
         if (unicodeRes) {
             const unicode = parseInt(unicodeRes[1], 16);
             // The first entry is the preferred one
-            if (!codepoints[unicode]){
+            if (!codepoints[unicode]) {
                 codepoints[unicode] = { keysym: keysym, name: keyname };
             }
         }
