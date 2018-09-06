@@ -1007,7 +1007,7 @@ const UI = {
         url = UI.getSetting('encrypt') ? 'wss' : 'ws';
 
         url += '://' + host;
-        if(port) {
+        if (port) {
             url += ':' + port;
         }
         url += '/' + path;
@@ -1497,7 +1497,7 @@ const UI = {
     },
 
     toggleExtraKeys() {
-        if(document.getElementById('noVNC_modifiers')
+        if (document.getElementById('noVNC_modifiers')
             .classList.contains("noVNC_open")) {
             UI.closeExtraKeys();
         } else  {

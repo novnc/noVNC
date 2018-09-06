@@ -182,7 +182,7 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
             const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
             const legacy_path = path.join(legacy_path_base, path.relative(in_path_base, filename));
 
-            if(path.extname(filename) !== '.js') {
+            if (path.extname(filename) !== '.js') {
                 if (!js_only) {
                     console.log(`Writing ${out_path}`);
                     return copy(filename, out_path);
