@@ -30,5 +30,6 @@
                                  "ObjectExpression": "first",
                                  "ignoreComments": true }],
         "comma-spacing": ["error"],
+        "comma-style": ["error"],
     }
 }
