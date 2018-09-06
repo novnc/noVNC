@@ -28,7 +28,7 @@ export let dragThreshold = 10 * (window.devicePixelRatio || 1);
 
 let _cursor_uris_supported = null;
 
-export function supportsCursorURIs () {
+export function supportsCursorURIs() {
     if (_cursor_uris_supported === null) {
         try {
             const target = document.createElement('canvas');

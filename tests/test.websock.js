@@ -3,7 +3,7 @@ const expect = chai.expect;
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 
-describe('Websock', function() {
+describe('Websock', function () {
     "use strict";
 
     describe('Queue methods', function () {

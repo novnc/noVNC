@@ -9,7 +9,7 @@
     "use strict";
 
     // Fallback for all uncought errors
-    function handleError (event, err) {
+    function handleError(event, err) {
         try {
             const msg = document.getElementById('noVNC_fallback_errormsg');
 

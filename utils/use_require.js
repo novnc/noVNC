@@ -84,7 +84,7 @@ function walkDir(base_path, cb, filter) {
         });
 }
 
-function transform_html (legacy_scripts, only_legacy) {
+function transform_html(legacy_scripts, only_legacy) {
     // write out the modified vnc.html file that works with the bundle
     const src_html_path = path.resolve(__dirname, '..', 'vnc.html');
     const out_html_path = path.resolve(paths.out_dir_base, 'vnc.html');

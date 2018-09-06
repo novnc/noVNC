@@ -13,7 +13,7 @@ describe('Display/Canvas Helper', function () {
 
     const basic_data = new Uint8Array([0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0xff, 0xff, 0xff, 255]);
 
-    function make_image_canvas (input_data) {
+    function make_image_canvas(input_data) {
         const canvas = document.createElement('canvas');
         canvas.width = 4;
         canvas.height = 4;
@@ -24,7 +24,7 @@ describe('Display/Canvas Helper', function () {
         return canvas;
     }
 
-    function make_image_png (input_data) {
+    function make_image_png(input_data) {
         const canvas = make_image_canvas(input_data);
         const url = canvas.toDataURL();
         const data = url.split(",")[1];
@@ -53,13 +53,13 @@ describe('Display/Canvas Helper', function () {
             expect(display).to.have.displayed(expected);
         });
 
-        it('should resize the target canvas when resizing the viewport', function() {
+        it('should resize the target canvas when resizing the viewport', function () {
             display.viewportChangeSize(2, 2);
             expect(display._target.width).to.equal(2);
             expect(display._target.height).to.equal(2);
         });
 
-        it('should move the viewport if necessary', function() {
+        it('should move the viewport if necessary', function () {
             display.viewportChangeSize(5, 5);
             expect(display.absX(0)).to.equal(0);
             expect(display.absY(0)).to.equal(0);
@@ -67,7 +67,7 @@ describe('Display/Canvas Helper', function () {
             expect(display._target.height).to.equal(5);
         });
 
-        it('should limit the viewport to the framebuffer size', function() {
+        it('should limit the viewport to the framebuffer size', function () {
             display.viewportChangeSize(6, 6);
             expect(display._target.width).to.equal(5);
             expect(display._target.height).to.equal(5);
@@ -85,7 +85,7 @@ describe('Display/Canvas Helper', function () {
             expect(display.flip).to.have.been.calledOnce;
         });
 
-        it('should show the entire framebuffer when disabling the viewport', function() {
+        it('should show the entire framebuffer when disabling the viewport', function () {
             display.clipViewport = false;
             expect(display.absX(0)).to.equal(0);
             expect(display.absY(0)).to.equal(0);
@@ -93,7 +93,7 @@ describe('Display/Canvas Helper', function () {
             expect(display._target.height).to.equal(5);
         });
 
-        it('should ignore viewport changes when the viewport is disabled', function() {
+        it('should ignore viewport changes when the viewport is disabled', function () {
             display.clipViewport = false;
             display.viewportChangeSize(2, 2);
             display.viewportChangePos(1, 1);
@@ -103,7 +103,7 @@ describe('Display/Canvas Helper', function () {
             expect(display._target.height).to.equal(5);
         });
 
-        it('should show the entire framebuffer just after enabling the viewport', function() {
+        it('should show the entire framebuffer just after enabling the viewport', function () {
             display.clipViewport = false;
             display.clipViewport = true;
             expect(display.absX(0)).to.equal(0);

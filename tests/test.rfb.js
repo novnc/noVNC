@@ -10,7 +10,7 @@ import FakeWebSocket from './fake.websocket.js';
 (() => {
     if (typeof window.UIEvent === "function") return;
 
-    function UIEvent ( event, params ) {
+    function UIEvent( event, params ) {
         params = params || { bubbles: false, cancelable: false, view: window, detail: undefined };
         const evt = document.createEvent( 'UIEvent' );
         evt.initUIEvent( event, params.bubbles, params.cancelable, params.view, params.detail );
@@ -41,7 +41,7 @@ function push32(arr, num) {
              num & 0xFF);
 }
 
-describe('Remote Frame Buffer Protocol Client', function() {
+describe('Remote Frame Buffer Protocol Client', function () {
     let clock;
     let raf;
 
@@ -99,7 +99,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         container = null;
     });
 
-    function make_rfb (url, options) {
+    function make_rfb(url, options) {
         url = url || 'wss://host:8675';
         const rfb = new RFB(container, url, options);
         clock.tick();
@@ -931,7 +931,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         });
 
         describe('ProtocolVersion', function () {
-            function send_ver (ver, client) {
+            function send_ver(ver, client) {
                 const arr = new Uint8Array(12);
                 for (let i = 0; i < ver.length; i++) {
                     arr[i+4] = ver.charCodeAt(i);
@@ -1192,7 +1192,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(client._negotiate_std_vnc_auth).to.have.been.calledOnce;
                 });
 
-                it('should fire the credentialsrequired event if all credentials are missing', function() {
+                it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
                     client._rfb_credentials = {};
@@ -1203,7 +1203,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(spy.args[0][0].detail.types).to.have.members(["username", "password", "target"]);
                 });
 
-                it('should fire the credentialsrequired event if some credentials are missing', function() {
+                it('should fire the credentialsrequired event if some credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
                     client._rfb_credentials = { username: 'user',
@@ -1588,7 +1588,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 target_data_check = new Uint8Array(target_data_check_arr);
             });
 
-            function send_fbu_msg (rect_info, rect_data, client, rect_cnt) {
+            function send_fbu_msg(rect_info, rect_data, client, rect_cnt) {
                 let data = [];
 
                 if (!rect_cnt || rect_cnt > -1) {
@@ -1912,7 +1912,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         sinon.spy(client._display, 'resize');
                     });
 
-                    function make_screen_data (nr_of_screens) {
+                    function make_screen_data(nr_of_screens) {
                         const data = [];
                         push8(data, nr_of_screens);   // number-of-screens
                         push8(data, 0);               // padding
