@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2016 Joel Martin
-# Copyright 2016 Solly Ross
+# Copyright (C) 2018 The noVNC Authors
 # Licensed under MPL 2.0 or any later version (see LICENSE.txt)
 
 usage() {

@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright 2018 Pierre Ossman for noVNC
+ * Copyright (C) 2018 The noVNC Authors
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 

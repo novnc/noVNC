@@ -1,6 +1,6 @@
 # Turkish translations for noVNC package
 # Turkish translation for noVNC.
-# Copyright (C) 2016 Various Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Ömer ÇAKMAK <farukomercakmak@gmail.com>, 2018.
 #

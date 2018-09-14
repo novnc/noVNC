@@ -126,6 +126,9 @@ or deploying the noVNC application in production environments:
 
 ### Authors/Contributors
 
+See [AUTHORS](AUTHORS) for a (full-ish) list of authors.  If you're not on
+that list and you think you should be, feel free to send a PR to fix that.
+
 * Core team:
     * [Joel Martin](https://github.com/kanaka)
     * [Samuel Mannehed](https://github.com/samhed) (Cendio)
