@@ -48,6 +48,7 @@ export default class RFB extends EventTargetMixin {
         this._rfb_credentials = options.credentials || {};
         this._shared = 'shared' in options ? !!options.shared : true;
         this._repeaterID = options.repeaterID || '';
+        this._showDotCursor = options.showDotCursor || false;
 
         // Internal state
         this._rfb_connection_state = '';
@@ -166,7 +167,19 @@ export default class RFB extends EventTargetMixin {
         this._canvas.tabIndex = -1;
         this._screen.appendChild(this._canvas);
 
-    this._cursor = new Cursor();
+        // Cursor
+        this._cursor = new Cursor();
+
+        // XXX: TightVNC 2.8.11 sends no cursor at all until Windows changes
+        // it. Result: no cursor at all until a window border or an edit field
+        // is hit blindly. But there are also VNC servers that draw the cursor
+        // in the framebuffer and don't send the empty local cursor. There is
+        // no way to satisfy both sides.
+        //
+        // The spec is unclear on this "initial cursor" issue. Many other
+        // viewers (TigerVNC, RealVNC, Remmina) display an arrow as the
+        // initial cursor instead.
+        this._cursorImage = RFB.cursors.none;
 
         // populate encHandlers with bound versions
         this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
@@ -316,6 +329,12 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    get showDotCursor() { return this._showDotCursor; }
+    set showDotCursor(show) {
+        this._showDotCursor = show;
+        this._refreshCursor();
+    }
+
     // ===== PUBLIC METHODS =====
 
     disconnect() {
@@ -418,6 +437,7 @@ export default class RFB extends EventTargetMixin {
         this._target.appendChild(this._screen);
 
         this._cursor.attach(this._canvas);
+        this._refreshCursor();
 
         // Monitor size changes of the screen
         // FIXME: Use ResizeObserver, or hidden overflow
@@ -1601,6 +1621,44 @@ export default class RFB extends EventTargetMixin {
         RFB.messages.xvpOp(this._sock, ver, op);
     }
 
+    _updateCursor(rgba, hotx, hoty, w, h) {
+        this._cursorImage = {
+            rgbaPixels: rgba,
+            hotx: hotx, hoty: hoty, w: w, h: h,
+        };
+        this._refreshCursor();
+    }
+
+    _shouldShowDotCursor() {
+        // Called when this._cursorImage is updated
+        if (!this._showDotCursor) {
+            // User does not want to see the dot, so...
+            return false;
+        }
+
+        // The dot should not be shown if the cursor is already visible,
+        // i.e. contains at least one not-fully-transparent pixel.
+        // So iterate through all alpha bytes in rgba and stop at the
+        // first non-zero.
+        for (let i = 3; i < this._cursorImage.rgbaPixels.length; i += 4) {
+            if (this._cursorImage.rgbaPixels[i]) {
+                return false;
+            }
+        }
+
+        // At this point, we know that the cursor is fully transparent, and
+        // the user wants to see the dot instead of this.
+        return true;
+    }
+
+    _refreshCursor() {
+        const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
+        this._cursor.change(image.rgbaPixels,
+                            image.hotx, image.hoty,
+                            image.w, image.h
+        );
+    }
+
     static genDES(password, challenge) {
         const passwd = [];
         for (let i = 0; i < password.length; i++) {
@@ -2521,20 +2579,36 @@ RFB.encodingHandlers = {
 
     Cursor() {
         Log.Debug(">> set_cursor");
-        const x = this._FBU.x;  // hotspot-x
-        const y = this._FBU.y;  // hotspot-y
+        const hotx = this._FBU.x;  // hotspot-x
+        const hoty = this._FBU.y;  // hotspot-y
         const w = this._FBU.width;
         const h = this._FBU.height;
 
         const pixelslength = w * h * 4;
-        const masklength = Math.floor((w + 7) / 8) * h;
+        const masklength = Math.ceil(w / 8) * h;
 
         this._FBU.bytes = pixelslength + masklength;
         if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) { return false; }
 
-        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
-                            this._sock.rQshiftBytes(masklength),
-                            x, y, w, h);
+        // Decode from BGRX pixels + bit mask to RGBA
+        const pixels = this._sock.rQshiftBytes(pixelslength);
+        const mask = this._sock.rQshiftBytes(masklength);
+        let rgba = new Uint8Array(w * h * 4);
+
+        let pix_idx = 0;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let mask_idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
+                let alpha = (mask[mask_idx] << (x % 8)) & 0x80 ? 255 : 0;
+                rgba[pix_idx    ] = pixels[pix_idx + 2];
+                rgba[pix_idx + 1] = pixels[pix_idx + 1];
+                rgba[pix_idx + 2] = pixels[pix_idx];
+                rgba[pix_idx + 3] = alpha;
+                pix_idx += 4;
+            }
+        }
+
+        this._updateCursor(rgba, hotx, hoty, w, h);
 
         this._FBU.bytes = 0;
         this._FBU.rects--;
@@ -2557,3 +2631,21 @@ RFB.encodingHandlers = {
         }
     }
 }
+
+RFB.cursors = {
+    none: {
+        rgbaPixels: new Uint8Array(),
+        w: 0, h: 0,
+        hotx: 0, hoty: 0,
+    },
+
+    dot: {
+        rgbaPixels: new Uint8Array([
+            255, 255, 255, 255,   0,   0,   0, 255, 255, 255, 255, 255,
+              0,   0,   0, 255,   0,   0,   0,   0,   0,   0,  0,  255,
+            255, 255, 255, 255,   0,   0,   0, 255, 255, 255, 255, 255,
+        ]),
+        w: 3, h: 3,
+        hotx: 1, hoty: 1,
+    }
+};

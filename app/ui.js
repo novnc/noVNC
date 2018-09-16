@@ -161,6 +161,7 @@ const UI = {
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
+        UI.initSetting('show_dot', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -347,6 +348,8 @@ const UI = {
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
+        UI.addSettingChangeHandler('show_dot');
+        UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -1015,6 +1018,7 @@ const UI = {
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
+                           showDotCursor: UI.getSetting('show_dot'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
         UI.rfb.addEventListener("connect", UI.connectFinished);
@@ -1581,6 +1585,11 @@ const UI = {
                 .classList.remove('noVNC_hidden');
         }
         UI.setMouseButton(1); //has it's own logic for hiding/showing
+    },
+
+    updateShowDotCursor() {
+        if (!UI.rfb) return;
+        UI.rfb.showDotCursor = UI.getSetting('show_dot');
     },
 
     updateLogging() {
