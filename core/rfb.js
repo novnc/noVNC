@@ -2,12 +2,11 @@
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2018 Samuel Mannehed for Cendio AB
+ * Copyright (C) 2018 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  *
- * TIGHT decoder portion:
- * (c) 2012 Michael Tinglof, Joe Balaz, Les Piech (Mercuri.ca)
  */
 
 import * as Log from './util/logging.js';
@@ -22,9 +21,15 @@ import Websock from "./websock.js";
 import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
-import Inflator from "./inflator.js";
-import { encodings, encodingName } from "./encodings.js";
+import { encodings } from "./encodings.js";
 import "./util/polyfill.js";
+
+import RawDecoder from "./decoders/raw.js";
+import CopyRectDecoder from "./decoders/copyrect.js";
+import RREDecoder from "./decoders/rre.js";
+import HextileDecoder from "./decoders/hextile.js";
+import TightDecoder from "./decoders/tight.js";
+import TightPNGDecoder from "./decoders/tightpng.js";
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
@@ -91,46 +96,16 @@ export default class RFB extends EventTargetMixin {
         this._disconnTimer = null;      // disconnection timer
         this._resizeTimeout = null;     // resize rate limiting
 
-        // Decoder states and stats
-        this._encHandlers = {};
-        this._encStats = {};
+        // Decoder states
+        this._decoders = {};
 
         this._FBU = {
             rects: 0,
-            subrects: 0,            // RRE and HEXTILE
-            lines: 0,               // RAW
-            tiles: 0,               // HEXTILE
-            bytes: 0,
             x: 0,
             y: 0,
             width: 0,
             height: 0,
-            encoding: 0,
-            subencoding: -1,
-            background: null,
-            zlibs: []               // TIGHT zlib streams
-        };
-
-        for (let i = 0; i < 4; i++) {
-            this._FBU.zlibs[i] = new Inflator();
-        }
-
-        this._destBuff = null;
-        this._paletteBuff = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
-
-        this._rre_chunk_sz = 100;
-
-        this._timing = {
-            last_fbu: 0,
-            fbu_total: 0,
-            fbu_total_cnt: 0,
-            full_fbu_total: 0,
-            full_fbu_cnt: 0,
-
-            fbu_rt_start: 0,
-            fbu_rt_total: 0,
-            fbu_rt_cnt: 0,
-            pixels: 0
+            encoding: null,
         };
 
         // Mouse state
@@ -181,19 +156,13 @@ export default class RFB extends EventTargetMixin {
         // initial cursor instead.
         this._cursorImage = RFB.cursors.none;
 
-        // populate encHandlers with bound versions
-        this._encHandlers[encodings.encodingRaw] = RFB.encodingHandlers.RAW.bind(this);
-        this._encHandlers[encodings.encodingCopyRect] = RFB.encodingHandlers.COPYRECT.bind(this);
-        this._encHandlers[encodings.encodingRRE] = RFB.encodingHandlers.RRE.bind(this);
-        this._encHandlers[encodings.encodingHextile] = RFB.encodingHandlers.HEXTILE.bind(this);
-        this._encHandlers[encodings.encodingTight] = RFB.encodingHandlers.TIGHT.bind(this, false);
-        this._encHandlers[encodings.encodingTightPNG] = RFB.encodingHandlers.TIGHT.bind(this, true);
-
-        this._encHandlers[encodings.pseudoEncodingDesktopSize] = RFB.encodingHandlers.DesktopSize.bind(this);
-        this._encHandlers[encodings.pseudoEncodingLastRect] = RFB.encodingHandlers.last_rect.bind(this);
-        this._encHandlers[encodings.pseudoEncodingCursor] = RFB.encodingHandlers.Cursor.bind(this);
-        this._encHandlers[encodings.pseudoEncodingQEMUExtendedKeyEvent] = RFB.encodingHandlers.QEMUExtendedKeyEvent.bind(this);
-        this._encHandlers[encodings.pseudoEncodingExtendedDesktopSize] = RFB.encodingHandlers.ExtendedDesktopSize.bind(this);
+        // populate decoder array with objects
+        this._decoders[encodings.encodingRaw] = new RawDecoder();
+        this._decoders[encodings.encodingCopyRect] = new CopyRectDecoder();
+        this._decoders[encodings.encodingRRE] = new RREDecoder();
+        this._decoders[encodings.encodingHextile] = new HextileDecoder();
+        this._decoders[encodings.encodingTight] = new TightDecoder();
+        this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
 
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
@@ -459,7 +428,6 @@ export default class RFB extends EventTargetMixin {
         this._keyboard.ungrab();
         this._mouse.ungrab();
         this._sock.close();
-        this._print_stats();
         try {
             this._target.removeChild(this._screen);
         } catch (e) {
@@ -472,21 +440,6 @@ export default class RFB extends EventTargetMixin {
         }
         clearTimeout(this._resizeTimeout);
         Log.Debug("<< RFB.disconnect");
-    }
-
-    _print_stats() {
-        const stats = this._encStats;
-
-        Log.Info("Encoding stats for this connection:");
-        Object.keys(stats).forEach((key) => {
-            const s = stats[key];
-            if (s[0] + s[1] > 0) {
-                Log.Info("    " + encodingName(key) + ": " + s[0] + " rects");
-            }
-        });
-
-        Log.Info("Encoding stats since page load:");
-        Object.keys(stats).forEach(key => Log.Info("    " + encodingName(key) + ": " + stats[key][1] + " rects"));
     }
 
     _focusCanvas(event) {
@@ -1267,9 +1220,6 @@ export default class RFB extends EventTargetMixin {
         this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fb_width, this._fb_height);
 
-        this._timing.fbu_rt_start = (new Date()).getTime();
-        this._timing.pixels = 0;
-
         this._updateConnectionState('connected');
         return true;
     }
@@ -1504,12 +1454,6 @@ export default class RFB extends EventTargetMixin {
             if (this._sock.rQwait("FBU header", 3, 1)) { return false; }
             this._sock.rQskip8();  // Padding
             this._FBU.rects = this._sock.rQshift16();
-            this._FBU.bytes = 0;
-            this._timing.cur_fbu = 0;
-            if (this._timing.fbu_rt_start > 0) {
-                const now = (new Date()).getTime();
-                Log.Info("First FBU latency: " + (now - this._timing.fbu_rt_start));
-            }
 
             // Make sure the previous frame is fully rendered first
             // to avoid building up an excessive queue
@@ -1521,10 +1465,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         while (this._FBU.rects > 0) {
-            if (this._rfb_connection_state !== 'connected') { return false; }
-
-            if (this._sock.rQwait("FBU", this._FBU.bytes)) { return false; }
-            if (this._FBU.bytes === 0) {
+            if (this._FBU.encoding === null) {
                 if (this._sock.rQwait("rect header", 12)) { return false; }
                 /* New FramebufferUpdate */
 
@@ -1535,61 +1476,167 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.height   = (hdr[6] << 8) + hdr[7];
                 this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
                                               (hdr[10] << 8) + hdr[11], 10);
-
-                if (!this._encHandlers[this._FBU.encoding]) {
-                    this._fail("Unsupported encoding (encoding: " +
-                               this._FBU.encoding + ")");
-                    return false;
-                }
             }
 
-            this._timing.last_fbu = (new Date()).getTime();
-
-            const ret = this._encHandlers[this._FBU.encoding]();
-
-            const now = (new Date()).getTime();
-            this._timing.cur_fbu += (now - this._timing.last_fbu);
-
-            if (ret) {
-                if (!(this._FBU.encoding in this._encStats)) {
-                    this._encStats[this._FBU.encoding] = [0, 0];
-                }
-                this._encStats[this._FBU.encoding][0]++;
-                this._encStats[this._FBU.encoding][1]++;
-                this._timing.pixels += this._FBU.width * this._FBU.height;
+            if (!this._handleRect()) {
+                return false;
             }
 
-            if (this._timing.pixels >= (this._fb_width * this._fb_height)) {
-                if ((this._FBU.width === this._fb_width && this._FBU.height === this._fb_height) ||
-                    this._timing.fbu_rt_start > 0) {
-                    this._timing.full_fbu_total += this._timing.cur_fbu;
-                    this._timing.full_fbu_cnt++;
-                    Log.Info("Timing of full FBU, curr: " +
-                              this._timing.cur_fbu + ", total: " +
-                              this._timing.full_fbu_total + ", cnt: " +
-                              this._timing.full_fbu_cnt + ", avg: " +
-                              (this._timing.full_fbu_total / this._timing.full_fbu_cnt));
-                }
-
-                if (this._timing.fbu_rt_start > 0) {
-                    const fbu_rt_diff = now - this._timing.fbu_rt_start;
-                    this._timing.fbu_rt_total += fbu_rt_diff;
-                    this._timing.fbu_rt_cnt++;
-                    Log.Info("full FBU round-trip, cur: " +
-                              fbu_rt_diff + ", total: " +
-                              this._timing.fbu_rt_total + ", cnt: " +
-                              this._timing.fbu_rt_cnt + ", avg: " +
-                              (this._timing.fbu_rt_total / this._timing.fbu_rt_cnt));
-                    this._timing.fbu_rt_start = 0;
-                }
-            }
-
-            if (!ret) { return ret; }  // need more data
+            this._FBU.rects--;
+            this._FBU.encoding = null;
         }
 
         this._display.flip();
 
         return true;  // We finished this FBU
+    }
+
+    _handleRect() {
+        switch (this._FBU.encoding) {
+            case encodings.pseudoEncodingLastRect:
+                this._FBU.rects = 1; // Will be decreased when we return
+                return true;
+
+            case encodings.pseudoEncodingCursor:
+                return this._handleCursor();
+
+            case encodings.pseudoEncodingQEMUExtendedKeyEvent:
+                // Old Safari doesn't support creating keyboard events
+                try {
+                    const keyboardEvent = document.createEvent("keyboardEvent");
+                    if (keyboardEvent.code !== undefined) {
+                        this._qemuExtKeyEventSupported = true;
+                    }
+                } catch (err) {
+                    // Do nothing
+                }
+                return true;
+
+            case encodings.pseudoEncodingDesktopSize:
+                this._resize(this._FBU.width, this._FBU.height);
+                return true;
+
+            case encodings.pseudoEncodingExtendedDesktopSize:
+                return this._handleExtendedDesktopSize();
+
+            default:
+                return this._handleDataRect();
+        }
+    }
+
+    _handleCursor() {
+        const x = this._FBU.x;  // hotspot-x
+        const y = this._FBU.y;  // hotspot-y
+        const w = this._FBU.width;
+        const h = this._FBU.height;
+
+        const pixelslength = w * h * 4;
+        const masklength = Math.floor((w + 7) / 8) * h;
+
+        let bytes = pixelslength + masklength;
+        if (this._sock.rQwait("cursor encoding", bytes)) {
+            return false;
+        }
+
+        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
+                            this._sock.rQshiftBytes(masklength),
+                            x, y, w, h);
+
+        return true;
+    }
+
+    _handleExtendedDesktopSize() {
+        if (this._sock.rQwait("ExtendedDesktopSize", 4)) {
+            return false;
+        }
+
+        const number_of_screens = this._sock.rQpeek8();
+
+        let bytes = 4 + (number_of_screens * 16);
+        if (this._sock.rQwait("ExtendedDesktopSize", bytes)) {
+            return false;
+        }
+
+        const firstUpdate = !this._supportsSetDesktopSize;
+        this._supportsSetDesktopSize = true;
+
+        // Normally we only apply the current resize mode after a
+        // window resize event. However there is no such trigger on the
+        // initial connect. And we don't know if the server supports
+        // resizing until we've gotten here.
+        if (firstUpdate) {
+            this._requestRemoteResize();
+        }
+
+        this._sock.rQskipBytes(1);  // number-of-screens
+        this._sock.rQskipBytes(3);  // padding
+
+        for (let i = 0; i < number_of_screens; i += 1) {
+            // Save the id and flags of the first screen
+            if (i === 0) {
+                this._screen_id = this._sock.rQshiftBytes(4);    // id
+                this._sock.rQskipBytes(2);                       // x-position
+                this._sock.rQskipBytes(2);                       // y-position
+                this._sock.rQskipBytes(2);                       // width
+                this._sock.rQskipBytes(2);                       // height
+                this._screen_flags = this._sock.rQshiftBytes(4); // flags
+            } else {
+                this._sock.rQskipBytes(16);
+            }
+        }
+
+        /*
+         * The x-position indicates the reason for the change:
+         *
+         *  0 - server resized on its own
+         *  1 - this client requested the resize
+         *  2 - another client requested the resize
+         */
+
+        // We need to handle errors when we requested the resize.
+        if (this._FBU.x === 1 && this._FBU.y !== 0) {
+            let msg = "";
+            // The y-position indicates the status code from the server
+            switch (this._FBU.y) {
+            case 1:
+                msg = "Resize is administratively prohibited";
+                break;
+            case 2:
+                msg = "Out of resources";
+                break;
+            case 3:
+                msg = "Invalid screen layout";
+                break;
+            default:
+                msg = "Unknown reason";
+                break;
+            }
+            Log.Warn("Server did not accept the resize request: "
+                     + msg);
+        } else {
+            this._resize(this._FBU.width, this._FBU.height);
+        }
+
+        return true;
+    }
+
+    _handleDataRect() {
+        let decoder = this._decoders[this._FBU.encoding];
+        if (!decoder) {
+            this._fail("Unsupported encoding (encoding: " +
+                       this._FBU.encoding + ")");
+            return false;
+        }
+
+        try {
+            return decoder.decodeRect(this._FBU.x, this._FBU.y,
+                                      this._FBU.width, this._FBU.height,
+                                      this._sock, this._display,
+                                      this._fb_depth);
+        } catch (err) {
+            this._fail("Error decoding rect: " + err);
+            return false;
+        }
     }
 
     _updateContinuousUpdates() {
@@ -1603,15 +1650,12 @@ export default class RFB extends EventTargetMixin {
         this._fb_width = width;
         this._fb_height = height;
 
-        this._destBuff = new Uint8Array(this._fb_width * this._fb_height * 4);
-
         this._display.resize(this._fb_width, this._fb_height);
 
         // Adjust the visible viewport based on the new dimensions
         this._updateClip();
         this._updateScale();
 
-        this._timing.fbu_rt_start = (new Date()).getTime();
         this._updateContinuousUpdates();
     }
 
@@ -1983,654 +2027,6 @@ RFB.messages = {
         sock.flush();
     }
 };
-
-
-RFB.encodingHandlers = {
-    RAW() {
-        if (this._FBU.lines === 0) {
-            this._FBU.lines = this._FBU.height;
-        }
-
-        const pixelSize = this._fb_depth == 8 ? 1 : 4;
-        this._FBU.bytes = this._FBU.width * pixelSize;  // at least a line
-        if (this._sock.rQwait("RAW", this._FBU.bytes)) { return false; }
-        const cur_y = this._FBU.y + (this._FBU.height - this._FBU.lines);
-        const curr_height = Math.min(this._FBU.lines,
-                                   Math.floor(this._sock.rQlen() / (this._FBU.width * pixelSize)));
-        let data = this._sock.get_rQ();
-        let index = this._sock.get_rQi();
-        if (this._fb_depth == 8) {
-            const pixels = this._FBU.width * curr_height
-            const newdata = new Uint8Array(pixels * 4);
-            for (let i = 0; i < pixels; i++) {
-                newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
-                newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
-                newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
-                newdata[i * 4 + 4] = 0;
-            }
-            data = newdata;
-            index = 0;
-        }
-        this._display.blitImage(this._FBU.x, cur_y, this._FBU.width,
-                                curr_height, data, index);
-        this._sock.rQskipBytes(this._FBU.width * curr_height * pixelSize);
-        this._FBU.lines -= curr_height;
-
-        if (this._FBU.lines > 0) {
-            this._FBU.bytes = this._FBU.width * pixelSize;  // At least another line
-        } else {
-            this._FBU.rects--;
-            this._FBU.bytes = 0;
-        }
-
-        return true;
-    },
-
-    COPYRECT() {
-        this._FBU.bytes = 4;
-        if (this._sock.rQwait("COPYRECT", 4)) { return false; }
-        this._display.copyImage(this._sock.rQshift16(), this._sock.rQshift16(),
-                                this._FBU.x, this._FBU.y, this._FBU.width,
-                                this._FBU.height);
-
-        this._FBU.rects--;
-        this._FBU.bytes = 0;
-        return true;
-    },
-
-    RRE() {
-        let color;
-        if (this._FBU.subrects === 0) {
-            this._FBU.bytes = 4 + 4;
-            if (this._sock.rQwait("RRE", 4 + 4)) { return false; }
-            this._FBU.subrects = this._sock.rQshift32();
-            color = this._sock.rQshiftBytes(4);  // Background
-            this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, color);
-        }
-
-        while (this._FBU.subrects > 0 && this._sock.rQlen() >= (4 + 8)) {
-            color = this._sock.rQshiftBytes(4);
-            const x = this._sock.rQshift16();
-            const y = this._sock.rQshift16();
-            const width = this._sock.rQshift16();
-            const height = this._sock.rQshift16();
-            this._display.fillRect(this._FBU.x + x, this._FBU.y + y, width, height, color);
-            this._FBU.subrects--;
-        }
-
-        if (this._FBU.subrects > 0) {
-            const chunk = Math.min(this._rre_chunk_sz, this._FBU.subrects);
-            this._FBU.bytes = (4 + 8) * chunk;
-        } else {
-            this._FBU.rects--;
-            this._FBU.bytes = 0;
-        }
-
-        return true;
-    },
-
-    HEXTILE() {
-        const rQ = this._sock.get_rQ();
-        let rQi = this._sock.get_rQi();
-
-        if (this._FBU.tiles === 0) {
-            this._FBU.tiles_x = Math.ceil(this._FBU.width / 16);
-            this._FBU.tiles_y = Math.ceil(this._FBU.height / 16);
-            this._FBU.total_tiles = this._FBU.tiles_x * this._FBU.tiles_y;
-            this._FBU.tiles = this._FBU.total_tiles;
-        }
-
-        while (this._FBU.tiles > 0) {
-            this._FBU.bytes = 1;
-            if (this._sock.rQwait("HEXTILE subencoding", this._FBU.bytes)) { return false; }
-            const subencoding = rQ[rQi];  // Peek
-            if (subencoding > 30) {  // Raw
-                this._fail("Illegal hextile subencoding (subencoding: " +
-                           subencoding + ")");
-                return false;
-            }
-
-            let subrects = 0;
-            const curr_tile = this._FBU.total_tiles - this._FBU.tiles;
-            const tile_x = curr_tile % this._FBU.tiles_x;
-            const tile_y = Math.floor(curr_tile / this._FBU.tiles_x);
-            const x = this._FBU.x + tile_x * 16;
-            const y = this._FBU.y + tile_y * 16;
-            const w = Math.min(16, (this._FBU.x + this._FBU.width) - x);
-            const h = Math.min(16, (this._FBU.y + this._FBU.height) - y);
-
-            // Figure out how much we are expecting
-            if (subencoding & 0x01) {  // Raw
-                this._FBU.bytes += w * h * 4;
-            } else {
-                if (subencoding & 0x02) {  // Background
-                    this._FBU.bytes += 4;
-                }
-                if (subencoding & 0x04) {  // Foreground
-                    this._FBU.bytes += 4;
-                }
-                if (subencoding & 0x08) {  // AnySubrects
-                    this._FBU.bytes++;  // Since we aren't shifting it off
-                    if (this._sock.rQwait("hextile subrects header", this._FBU.bytes)) { return false; }
-                    subrects = rQ[rQi + this._FBU.bytes - 1];  // Peek
-                    if (subencoding & 0x10) {  // SubrectsColoured
-                        this._FBU.bytes += subrects * (4 + 2);
-                    } else {
-                        this._FBU.bytes += subrects * 2;
-                    }
-                }
-            }
-
-            if (this._sock.rQwait("hextile", this._FBU.bytes)) { return false; }
-
-            // We know the encoding and have a whole tile
-            this._FBU.subencoding = rQ[rQi];
-            rQi++;
-            if (this._FBU.subencoding === 0) {
-                if (this._FBU.lastsubencoding & 0x01) {
-                    // Weird: ignore blanks are RAW
-                    Log.Debug("     Ignoring blank after RAW");
-                } else {
-                    this._display.fillRect(x, y, w, h, this._FBU.background);
-                }
-            } else if (this._FBU.subencoding & 0x01) {  // Raw
-                this._display.blitImage(x, y, w, h, rQ, rQi);
-                rQi += this._FBU.bytes - 1;
-            } else {
-                if (this._FBU.subencoding & 0x02) {  // Background
-                    this._FBU.background = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                    rQi += 4;
-                }
-                if (this._FBU.subencoding & 0x04) {  // Foreground
-                    this._FBU.foreground = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                    rQi += 4;
-                }
-
-                this._display.startTile(x, y, w, h, this._FBU.background);
-                if (this._FBU.subencoding & 0x08) {  // AnySubrects
-                    subrects = rQ[rQi];
-                    rQi++;
-
-                    for (let s = 0; s < subrects; s++) {
-                        let color;
-                        if (this._FBU.subencoding & 0x10) {  // SubrectsColoured
-                            color = [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2], rQ[rQi + 3]];
-                            rQi += 4;
-                        } else {
-                            color = this._FBU.foreground;
-                        }
-                        const xy = rQ[rQi];
-                        rQi++;
-                        const sx = (xy >> 4);
-                        const sy = (xy & 0x0f);
-
-                        const wh = rQ[rQi];
-                        rQi++;
-                        const sw = (wh >> 4) + 1;
-                        const sh = (wh & 0x0f) + 1;
-
-                        this._display.subTile(sx, sy, sw, sh, color);
-                    }
-                }
-                this._display.finishTile();
-            }
-            this._sock.set_rQi(rQi);
-            this._FBU.lastsubencoding = this._FBU.subencoding;
-            this._FBU.bytes = 0;
-            this._FBU.tiles--;
-        }
-
-        if (this._FBU.tiles === 0) {
-            this._FBU.rects--;
-        }
-
-        return true;
-    },
-
-    TIGHT(isTightPNG) {
-        this._FBU.bytes = 1;  // compression-control byte
-        if (this._sock.rQwait("TIGHT compression-control", this._FBU.bytes)) { return false; }
-
-        let resetStreams = 0;
-        let streamId = -1;
-        const decompress = (data, expected) => {
-            for (let i = 0; i < 4; i++) {
-                if ((resetStreams >> i) & 1) {
-                    this._FBU.zlibs[i].reset();
-                    Log.Info("Reset zlib stream " + i);
-                }
-            }
-
-            //const uncompressed = this._FBU.zlibs[streamId].uncompress(data, 0);
-            const uncompressed = this._FBU.zlibs[streamId].inflate(data, true, expected);
-            /*if (uncompressed.status !== 0) {
-                Log.Error("Invalid data in zlib stream");
-            }*/
-
-            //return uncompressed.data;
-            return uncompressed;
-        };
-
-        const indexedToRGBX2Color = (data, palette, width, height) => {
-            // Convert indexed (palette based) image data to RGB
-            // TODO: reduce number of calculations inside loop
-            const dest = this._destBuff;
-            const w = Math.floor((width + 7) / 8);
-            const w1 = Math.floor(width / 8);
-
-            /*for (let y = 0; y < height; y++) {
-                let b, x, dp, sp;
-                const yoffset = y * width;
-                const ybitoffset = y * w;
-                let xoffset, targetbyte;
-                for (x = 0; x < w1; x++) {
-                    xoffset = yoffset + x * 8;
-                    targetbyte = data[ybitoffset + x];
-                    for (b = 7; b >= 0; b--) {
-                        dp = (xoffset + 7 - b) * 3;
-                        sp = (targetbyte >> b & 1) * 3;
-                        dest[dp] = palette[sp];
-                        dest[dp + 1] = palette[sp + 1];
-                        dest[dp + 2] = palette[sp + 2];
-                    }
-                }
-
-                xoffset = yoffset + x * 8;
-                targetbyte = data[ybitoffset + x];
-                for (b = 7; b >= 8 - width % 8; b--) {
-                    dp = (xoffset + 7 - b) * 3;
-                    sp = (targetbyte >> b & 1) * 3;
-                    dest[dp] = palette[sp];
-                    dest[dp + 1] = palette[sp + 1];
-                    dest[dp + 2] = palette[sp + 2];
-                }
-            }*/
-
-            for (let y = 0; y < height; y++) {
-                let dp, sp, x;
-                for (x = 0; x < w1; x++) {
-                    for (let b = 7; b >= 0; b--) {
-                        dp = (y * width + x * 8 + 7 - b) * 4;
-                        sp = (data[y * w + x] >> b & 1) * 3;
-                        dest[dp] = palette[sp];
-                        dest[dp + 1] = palette[sp + 1];
-                        dest[dp + 2] = palette[sp + 2];
-                        dest[dp + 3] = 255;
-                    }
-                }
-
-                for (let b = 7; b >= 8 - width % 8; b--) {
-                    dp = (y * width + x * 8 + 7 - b) * 4;
-                    sp = (data[y * w + x] >> b & 1) * 3;
-                    dest[dp] = palette[sp];
-                    dest[dp + 1] = palette[sp + 1];
-                    dest[dp + 2] = palette[sp + 2];
-                    dest[dp + 3] = 255;
-                }
-            }
-
-            return dest;
-        };
-
-        const indexedToRGBX = (data, palette, width, height) => {
-            // Convert indexed (palette based) image data to RGB
-            const dest = this._destBuff;
-            const total = width * height * 4;
-            for (let i = 0, j = 0; i < total; i += 4, j++) {
-                const sp = data[j] * 3;
-                dest[i] = palette[sp];
-                dest[i + 1] = palette[sp + 1];
-                dest[i + 2] = palette[sp + 2];
-                dest[i + 3] = 255;
-            }
-
-            return dest;
-        };
-
-        const rQi = this._sock.get_rQi();
-        const rQ = this._sock.rQwhole();
-        let cmode, data;
-        let cl_header, cl_data;
-
-        const handlePalette = () => {
-            const numColors = rQ[rQi + 2] + 1;
-            const paletteSize = numColors * 3;
-            this._FBU.bytes += paletteSize;
-            if (this._sock.rQwait("TIGHT palette " + cmode, this._FBU.bytes)) { return false; }
-
-            const bpp = (numColors <= 2) ? 1 : 8;
-            const rowSize = Math.floor((this._FBU.width * bpp + 7) / 8);
-            let raw = false;
-            if (rowSize * this._FBU.height < 12) {
-                raw = true;
-                cl_header = 0;
-                cl_data = rowSize * this._FBU.height;
-                //clength = [0, rowSize * this._FBU.height];
-            } else {
-                // begin inline getTightCLength (returning two-item arrays is bad for performance with GC)
-                const cl_offset = rQi + 3 + paletteSize;
-                cl_header = 1;
-                cl_data = 0;
-                cl_data += rQ[cl_offset] & 0x7f;
-                if (rQ[cl_offset] & 0x80) {
-                    cl_header++;
-                    cl_data += (rQ[cl_offset + 1] & 0x7f) << 7;
-                    if (rQ[cl_offset + 1] & 0x80) {
-                        cl_header++;
-                        cl_data += rQ[cl_offset + 2] << 14;
-                    }
-                }
-                // end inline getTightCLength
-            }
-
-            this._FBU.bytes += cl_header + cl_data;
-            if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
-
-            // Shift ctl, filter id, num colors, palette entries, and clength off
-            this._sock.rQskipBytes(3);
-            //const palette = this._sock.rQshiftBytes(paletteSize);
-            this._sock.rQshiftTo(this._paletteBuff, paletteSize);
-            this._sock.rQskipBytes(cl_header);
-
-            if (raw) {
-                data = this._sock.rQshiftBytes(cl_data);
-            } else {
-                data = decompress(this._sock.rQshiftBytes(cl_data), rowSize * this._FBU.height);
-            }
-
-            // Convert indexed (palette based) image data to RGB
-            let rgbx;
-            if (numColors == 2) {
-                rgbx = indexedToRGBX2Color(data, this._paletteBuff, this._FBU.width, this._FBU.height);
-            } else {
-                rgbx = indexedToRGBX(data, this._paletteBuff, this._FBU.width, this._FBU.height);
-            }
-
-            this._display.blitRgbxImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, rgbx, 0, false);
-
-
-            return true;
-        };
-
-        const handleCopy = () => {
-            let raw = false;
-            const uncompressedSize = this._FBU.width * this._FBU.height * 3;
-            if (uncompressedSize < 12) {
-                raw = true;
-                cl_header = 0;
-                cl_data = uncompressedSize;
-            } else {
-                // begin inline getTightCLength (returning two-item arrays is for peformance with GC)
-                const cl_offset = rQi + 1;
-                cl_header = 1;
-                cl_data = 0;
-                cl_data += rQ[cl_offset] & 0x7f;
-                if (rQ[cl_offset] & 0x80) {
-                    cl_header++;
-                    cl_data += (rQ[cl_offset + 1] & 0x7f) << 7;
-                    if (rQ[cl_offset + 1] & 0x80) {
-                        cl_header++;
-                        cl_data += rQ[cl_offset + 2] << 14;
-                    }
-                }
-                // end inline getTightCLength
-            }
-            this._FBU.bytes = 1 + cl_header + cl_data;
-            if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
-
-            // Shift ctl, clength off
-            this._sock.rQshiftBytes(1 + cl_header);
-
-            if (raw) {
-                data = this._sock.rQshiftBytes(cl_data);
-            } else {
-                data = decompress(this._sock.rQshiftBytes(cl_data), uncompressedSize);
-            }
-
-            this._display.blitRgbImage(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, data, 0, false);
-
-            return true;
-        };
-
-        let ctl = this._sock.rQpeek8();
-
-        // Keep tight reset bits
-        resetStreams = ctl & 0xF;
-
-        // Figure out filter
-        ctl = ctl >> 4;
-        streamId = ctl & 0x3;
-
-        if (ctl === 0x08)       cmode = "fill";
-        else if (ctl === 0x09)  cmode = "jpeg";
-        else if (ctl === 0x0A)  cmode = "png";
-        else if (ctl & 0x04)    cmode = "filter";
-        else if (ctl < 0x04)    cmode = "copy";
-        else return this._fail("Illegal tight compression received (ctl: " +
-                               ctl + ")");
-
-        if (isTightPNG && (ctl < 0x08)) {
-            return this._fail("BasicCompression received in TightPNG rect");
-        }
-        if (!isTightPNG && (ctl === 0x0A)) {
-            return this._fail("PNG received in standard Tight rect");
-        }
-
-        switch (cmode) {
-            // fill use depth because TPIXELs drop the padding byte
-            case "fill":  // TPIXEL
-                this._FBU.bytes += 3;
-                break;
-            case "jpeg":  // max clength
-                this._FBU.bytes += 3;
-                break;
-            case "png":  // max clength
-                this._FBU.bytes += 3;
-                break;
-            case "filter":  // filter id + num colors if palette
-                this._FBU.bytes += 2;
-                break;
-            case "copy":
-                break;
-        }
-
-        if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
-
-        // Determine FBU.bytes
-        let cl_offset, filterId;
-        switch (cmode) {
-            case "fill":
-                // skip ctl byte
-                this._display.fillRect(this._FBU.x, this._FBU.y, this._FBU.width, this._FBU.height, [rQ[rQi + 3], rQ[rQi + 2], rQ[rQi + 1]], false);
-                this._sock.rQskipBytes(4);
-                break;
-            case "png":
-            case "jpeg":
-                // begin inline getTightCLength (returning two-item arrays is for peformance with GC)
-                cl_offset = rQi + 1;
-                cl_header = 1;
-                cl_data = 0;
-                cl_data += rQ[cl_offset] & 0x7f;
-                if (rQ[cl_offset] & 0x80) {
-                    cl_header++;
-                    cl_data += (rQ[cl_offset + 1] & 0x7f) << 7;
-                    if (rQ[cl_offset + 1] & 0x80) {
-                        cl_header++;
-                        cl_data += rQ[cl_offset + 2] << 14;
-                    }
-                }
-                // end inline getTightCLength
-                this._FBU.bytes = 1 + cl_header + cl_data;  // ctl + clength size + jpeg-data
-                if (this._sock.rQwait("TIGHT " + cmode, this._FBU.bytes)) { return false; }
-
-                // We have everything, render it
-                this._sock.rQskipBytes(1 + cl_header);  // shift off clt + compact length
-                data = this._sock.rQshiftBytes(cl_data);
-                this._display.imageRect(this._FBU.x, this._FBU.y, "image/" + cmode, data);
-                break;
-            case "filter":
-                filterId = rQ[rQi + 1];
-                if (filterId === 1) {
-                    if (!handlePalette()) { return false; }
-                } else {
-                    // Filter 0, Copy could be valid here, but servers don't send it as an explicit filter
-                    // Filter 2, Gradient is valid but not use if jpeg is enabled
-                    this._fail("Unsupported tight subencoding received " +
-                               "(filter: " + filterId + ")");
-                }
-                break;
-            case "copy":
-                if (!handleCopy()) { return false; }
-                break;
-        }
-
-
-        this._FBU.bytes = 0;
-        this._FBU.rects--;
-
-        return true;
-    },
-
-    last_rect() {
-        this._FBU.rects = 0;
-        return true;
-    },
-
-    ExtendedDesktopSize() {
-        this._FBU.bytes = 1;
-        if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
-
-        const firstUpdate = !this._supportsSetDesktopSize;
-        this._supportsSetDesktopSize = true;
-
-        // Normally we only apply the current resize mode after a
-        // window resize event. However there is no such trigger on the
-        // initial connect. And we don't know if the server supports
-        // resizing until we've gotten here.
-        if (firstUpdate) {
-            this._requestRemoteResize();
-        }
-
-        const number_of_screens = this._sock.rQpeek8();
-
-        this._FBU.bytes = 4 + (number_of_screens * 16);
-        if (this._sock.rQwait("ExtendedDesktopSize", this._FBU.bytes)) { return false; }
-
-        this._sock.rQskipBytes(1);  // number-of-screens
-        this._sock.rQskipBytes(3);  // padding
-
-        for (let i = 0; i < number_of_screens; i += 1) {
-            // Save the id and flags of the first screen
-            if (i === 0) {
-                this._screen_id = this._sock.rQshiftBytes(4);    // id
-                this._sock.rQskipBytes(2);                       // x-position
-                this._sock.rQskipBytes(2);                       // y-position
-                this._sock.rQskipBytes(2);                       // width
-                this._sock.rQskipBytes(2);                       // height
-                this._screen_flags = this._sock.rQshiftBytes(4); // flags
-            } else {
-                this._sock.rQskipBytes(16);
-            }
-        }
-
-        /*
-         * The x-position indicates the reason for the change:
-         *
-         *  0 - server resized on its own
-         *  1 - this client requested the resize
-         *  2 - another client requested the resize
-         */
-
-        // We need to handle errors when we requested the resize.
-        if (this._FBU.x === 1 && this._FBU.y !== 0) {
-            let msg = "";
-            // The y-position indicates the status code from the server
-            switch (this._FBU.y) {
-            case 1:
-                msg = "Resize is administratively prohibited";
-                break;
-            case 2:
-                msg = "Out of resources";
-                break;
-            case 3:
-                msg = "Invalid screen layout";
-                break;
-            default:
-                msg = "Unknown reason";
-                break;
-            }
-            Log.Warn("Server did not accept the resize request: "
-                     + msg);
-        } else {
-            this._resize(this._FBU.width, this._FBU.height);
-        }
-
-        this._FBU.bytes = 0;
-        this._FBU.rects -= 1;
-        return true;
-    },
-
-    DesktopSize() {
-        this._resize(this._FBU.width, this._FBU.height);
-        this._FBU.bytes = 0;
-        this._FBU.rects -= 1;
-        return true;
-    },
-
-    Cursor() {
-        Log.Debug(">> set_cursor");
-        const hotx = this._FBU.x;  // hotspot-x
-        const hoty = this._FBU.y;  // hotspot-y
-        const w = this._FBU.width;
-        const h = this._FBU.height;
-
-        const pixelslength = w * h * 4;
-        const masklength = Math.ceil(w / 8) * h;
-
-        this._FBU.bytes = pixelslength + masklength;
-        if (this._sock.rQwait("cursor encoding", this._FBU.bytes)) { return false; }
-
-        // Decode from BGRX pixels + bit mask to RGBA
-        const pixels = this._sock.rQshiftBytes(pixelslength);
-        const mask = this._sock.rQshiftBytes(masklength);
-        let rgba = new Uint8Array(w * h * 4);
-
-        let pix_idx = 0;
-        for (let y = 0; y < h; y++) {
-            for (let x = 0; x < w; x++) {
-                let mask_idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
-                let alpha = (mask[mask_idx] << (x % 8)) & 0x80 ? 255 : 0;
-                rgba[pix_idx    ] = pixels[pix_idx + 2];
-                rgba[pix_idx + 1] = pixels[pix_idx + 1];
-                rgba[pix_idx + 2] = pixels[pix_idx];
-                rgba[pix_idx + 3] = alpha;
-                pix_idx += 4;
-            }
-        }
-
-        this._updateCursor(rgba, hotx, hoty, w, h);
-
-        this._FBU.bytes = 0;
-        this._FBU.rects--;
-
-        Log.Debug("<< set_cursor");
-        return true;
-    },
-
-    QEMUExtendedKeyEvent() {
-        this._FBU.rects--;
-
-        // Old Safari doesn't support creating keyboard events
-        try {
-            const keyboardEvent = document.createEvent("keyboardEvent");
-            if (keyboardEvent.code !== undefined) {
-                this._qemuExtKeyEventSupported = true;
-            }
-        } catch (err) {
-            // Do nothing
-        }
-    }
-}
 
 RFB.cursors = {
     none: {
