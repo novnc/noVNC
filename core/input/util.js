@@ -5,7 +5,7 @@ import DOMKeyTable from "./domkeytable.js";
 import * as browser from "../util/browser.js";
 
 // Get 'KeyboardEvent.code', handling legacy browsers
-export function getKeycode(evt){
+export function getKeycode(evt) {
     // Are we getting proper key identifiers?
     // (unfortunately Firefox and Chrome are crappy here and gives
     // us an empty string on some platforms, rather than leaving it
@@ -125,7 +125,7 @@ export function getKey(evt) {
 }
 
 // Get the most reliable keysym value we can get from a key event
-export function getKeysym(evt){
+export function getKeysym(evt) {
     const key = getKey(evt);
 
     if (key === 'Unidentified') {

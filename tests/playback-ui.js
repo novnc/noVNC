@@ -49,8 +49,9 @@ function enableUI() {
 
     frames = VNC_frame_data;
     // Only present in older recordings
-    if (window.VNC_frame_encoding)
+    if (window.VNC_frame_encoding) {
         encoding = VNC_frame_encoding;
+    }
 }
 
 class IterationPlayer {

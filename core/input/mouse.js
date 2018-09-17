@@ -233,7 +233,7 @@ export default class Mouse {
         } else {
             y = e.clientY - bounds.top;
         }
-        this._pos = {x:x, y:y};
+        this._pos = {x: x, y: y};
     }
 
     // ===== PUBLIC METHODS =====

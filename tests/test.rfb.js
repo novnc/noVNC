@@ -10,7 +10,7 @@ import FakeWebSocket from './fake.websocket.js';
 (() => {
     if (typeof window.UIEvent === "function") return;
 
-    function UIEvent ( event, params ) {
+    function UIEvent( event, params ) {
         params = params || { bubbles: false, cancelable: false, view: window, detail: undefined };
         const evt = document.createEvent( 'UIEvent' );
         evt.initUIEvent( event, params.bubbles, params.cancelable, params.view, params.detail );
@@ -30,18 +30,18 @@ function push8(arr, num) {
 function push16(arr, num) {
     "use strict";
     arr.push((num >> 8) & 0xFF,
-              num & 0xFF);
+             num & 0xFF);
 }
 
 function push32(arr, num) {
     "use strict";
     arr.push((num >> 24) & 0xFF,
-              (num >> 16) & 0xFF,
-              (num >>  8) & 0xFF,
-              num & 0xFF);
+             (num >> 16) & 0xFF,
+             (num >>  8) & 0xFF,
+             num & 0xFF);
 }
 
-describe('Remote Frame Buffer Protocol Client', function() {
+describe('Remote Frame Buffer Protocol Client', function () {
     let clock;
     let raf;
 
@@ -99,7 +99,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         container = null;
     });
 
-    function make_rfb (url, options) {
+    function make_rfb(url, options) {
         url = url || 'wss://host:8675';
         const rfb = new RFB(container, url, options);
         clock.tick();
@@ -286,7 +286,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('#clipboardPasteFrom', function () {
             it('should send the given text in a paste event', function () {
                 const expected = {_sQ: new Uint8Array(11), _sQlen: 0,
-                                _sQbufferSize: 11, flush: () => {}};
+                                  _sQbufferSize: 11, flush: () => {}};
                 RFB.messages.clientCutText(expected, 'abc');
                 client.clipboardPasteFrom('abc');
                 expect(client._sock).to.have.sent(expected._sQ);
@@ -376,10 +376,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
         it('should update the viewport when the remote session resizes', function () {
             // Simple ExtendedDesktopSize FBU message
             const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
-                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
-                             0x00, 0x00, 0x00, 0x00 ];
+                               0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
+                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
+                               0x00, 0x00, 0x00, 0x00 ];
 
             sinon.spy(client._display, "viewportChangeSize");
 
@@ -566,10 +566,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
         it('should update the scaling when the remote session resizes', function () {
             // Simple ExtendedDesktopSize FBU message
             const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
-                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
-                             0x00, 0x00, 0x00, 0x00 ];
+                               0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
+                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
+                               0x00, 0x00, 0x00, 0x00 ];
 
             sinon.spy(client._display, "autoscale");
 
@@ -619,10 +619,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
         it('should request a resize when initially connecting', function () {
             // Simple ExtendedDesktopSize FBU message
             const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
-                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
-                             0x00, 0x00, 0x00, 0x00 ];
+                               0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
+                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
+                               0x00, 0x00, 0x00, 0x00 ];
 
             // First message should trigger a resize
 
@@ -715,10 +715,10 @@ describe('Remote Frame Buffer Protocol Client', function() {
         it('should not try to override a server resize', function () {
             // Simple ExtendedDesktopSize FBU message
             const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
-                             0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
-                             0x00, 0x00, 0x00, 0x00 ];
+                               0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
+                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
+                               0x00, 0x00, 0x00, 0x00 ];
 
             client._sock._websocket._receive_data(new Uint8Array(incoming));
 
@@ -827,7 +827,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         describe('connecting', function () {
             it('should open the websocket connection', function () {
                 const client = new RFB(document.createElement('div'),
-                                     'ws://HOST:8675/PATH');
+                                       'ws://HOST:8675/PATH');
                 sinon.spy(client._sock, 'open');
                 this.clock.tick();
                 expect(client._sock.open).to.have.been.calledOnce;
@@ -931,7 +931,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
         });
 
         describe('ProtocolVersion', function () {
-            function send_ver (ver, client) {
+            function send_ver(ver, client) {
                 const arr = new Uint8Array(12);
                 for (let i = 0; i < ver.length; i++) {
                     arr[i+4] = ver.charCodeAt(i);
@@ -1192,7 +1192,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(client._negotiate_std_vnc_auth).to.have.been.calledOnce;
                 });
 
-                it('should fire the credentialsrequired event if all credentials are missing', function() {
+                it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
                     client._rfb_credentials = {};
@@ -1203,7 +1203,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     expect(spy.args[0][0].detail.types).to.have.members(["username", "password", "target"]);
                 });
 
-                it('should fire the credentialsrequired event if some credentials are missing', function() {
+                it('should fire the credentialsrequired event if some credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
                     client._rfb_credentials = { username: 'user',
@@ -1357,7 +1357,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 const spy = sinon.spy();
                 client.addEventListener("securityfailure", spy);
                 const failure_data = [0, 0, 0, 1, 0, 0, 0, 12, 115, 117, 99, 104,
-                                    32, 102, 97, 105, 108, 117, 114, 101];
+                                      32, 102, 97, 105, 108, 117, 114, 101];
                 client._sock._websocket._receive_data(new Uint8Array(failure_data));
                 expect(spy.args[0][0].detail.status).to.equal(1);
                 expect(spy.args[0][0].detail.reason).to.equal('such failure');
@@ -1416,8 +1416,8 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
             function send_server_init(opts, client) {
                 const full_opts = { width: 10, height: 12, bpp: 24, depth: 24, big_endian: 0,
-                                  true_color: 1, red_max: 255, green_max: 255, blue_max: 255,
-                                  red_shift: 16, green_shift: 8, blue_shift: 0, name: 'a name' };
+                                    true_color: 1, red_max: 255, green_max: 255, blue_max: 255,
+                                    red_shift: 16, green_shift: 8, blue_shift: 0, name: 'a name' };
                 for (let opt in opts) {
                     full_opts[opt] = opts[opt];
                 }
@@ -1588,7 +1588,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 target_data_check = new Uint8Array(target_data_check_arr);
             });
 
-            function send_fbu_msg (rect_info, rect_data, client, rect_cnt) {
+            function send_fbu_msg(rect_info, rect_data, client, rect_cnt) {
                 let data = [];
 
                 if (!rect_cnt || rect_cnt > -1) {
@@ -1664,7 +1664,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                 client._display.blitRgbxImage(0, 0, 4, 2, new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
 
                 const info = [{ x: 0, y: 2, width: 2, height: 2, encoding: 0x01},
-                            { x: 2, y: 2, width: 2, height: 2, encoding: 0x01}];
+                              { x: 2, y: 2, width: 2, height: 2, encoding: 0x01}];
                 // data says [{ old_x: 2, old_y: 0 }, { old_x: 0, old_y: 0 }]
                 const rects = [[0, 2, 0, 0], [0, 0, 0, 0]];
                 send_fbu_msg([info[0]], [rects[0]], client, 2);
@@ -1683,9 +1683,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 it('should handle the RAW encoding', function () {
                     const info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
-                                { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
-                                { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
-                                { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
+                                  { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                  { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
+                                  { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
                     // data is in bgrx
                     const rects = [
                         [0x00, 0x00, 0xff, 0, 0x00, 0xff, 0x00, 0, 0x00, 0xff, 0x00, 0, 0x00, 0x00, 0xff, 0],
@@ -1698,9 +1698,9 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
                 it('should handle the RAW encoding in low colour mode', function () {
                     const info = [{ x: 0, y: 0, width: 2, height: 2, encoding: 0x00 },
-                                { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
-                                { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
-                                { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
+                                  { x: 2, y: 0, width: 2, height: 2, encoding: 0x00 },
+                                  { x: 0, y: 2, width: 4, height: 1, encoding: 0x00 },
+                                  { x: 0, y: 3, width: 4, height: 1, encoding: 0x00 }];
                     const rects = [
                         [0x03, 0x03, 0x03, 0x03],
                         [0x0c, 0x0c, 0x0c, 0x0c],
@@ -1716,7 +1716,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     client._display.blitRgbxImage(0, 0, 4, 2, new Uint8Array(target_data_check_arr.slice(0, 32)), 0);
 
                     const info = [{ x: 0, y: 2, width: 2, height: 2, encoding: 0x01},
-                                { x: 2, y: 2, width: 2, height: 2, encoding: 0x01}];
+                                  { x: 2, y: 2, width: 2, height: 2, encoding: 0x01}];
                     // data says [{ old_x: 0, old_y: 0 }, { old_x: 0, old_y: 0 }]
                     const rects = [[0, 2, 0, 0], [0, 0, 0, 0]];
                     send_fbu_msg(info, rects, client);
@@ -1876,7 +1876,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                     });
 
                     it('should fail on an invalid subencoding', function () {
-                        sinon.spy(client,"_fail");
+                        sinon.spy(client, "_fail");
                         const info = [{ x: 0, y: 0, width: 4, height: 4, encoding: 0x05 }];
                         const rects = [[45]];  // an invalid subencoding
                         send_fbu_msg(info, rects, client);
@@ -1912,7 +1912,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
                         sinon.spy(client._display, 'resize');
                     });
 
-                    function make_screen_data (nr_of_screens) {
+                    function make_screen_data(nr_of_screens) {
                         const data = [];
                         push8(data, nr_of_screens);   // number-of-screens
                         push8(data, 0);               // padding
@@ -2184,7 +2184,7 @@ describe('Remote Frame Buffer Protocol Client', function() {
 
         describe('WebSocket event handlers', function () {
             // message events
-            it ('should do nothing if we receive an empty message and have nothing in the queue', function () {
+            it('should do nothing if we receive an empty message and have nothing in the queue', function () {
                 client._normal_msg = sinon.spy();
                 client._sock._websocket._receive_data(new Uint8Array([]));
                 expect(client._normal_msg).to.not.have.been.called;

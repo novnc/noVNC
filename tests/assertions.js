@@ -20,17 +20,17 @@ chai.use(function (_chai, utils) {
             console.log("expected data: %o, actual data: %o", target_data, data);
         }
         this.assert(same,
-            "expected #{this} to have displayed the image #{exp}, but instead it displayed #{act}",
-            "expected #{this} not to have displayed the image #{act}",
-            target_data,
-            data);
+                    "expected #{this} to have displayed the image #{exp}, but instead it displayed #{act}",
+                    "expected #{this} not to have displayed the image #{act}",
+                    target_data,
+                    data);
     });
 
     _chai.Assertion.addMethod('sent', function (target_data) {
         const obj = this._obj;
         obj.inspect = () => {
             const res = { _websocket: obj._websocket, rQi: obj._rQi, _rQ: new Uint8Array(obj._rQ.buffer, 0, obj._rQlen),
-                        _sQ: new Uint8Array(obj._sQ.buffer, 0, obj._sQlen) };
+                          _sQ: new Uint8Array(obj._sQ.buffer, 0, obj._sQlen) };
             res.prototype = obj;
             return res;
         };
@@ -51,10 +51,10 @@ chai.use(function (_chai, utils) {
             console.log("expected data: %o, actual data: %o", target_data, data);
         }
         this.assert(same,
-            "expected #{this} to have sent the data #{exp}, but it actually sent #{act}",
-            "expected #{this} not to have sent the data #{act}",
-            Array.prototype.slice.call(target_data),
-            Array.prototype.slice.call(data));
+                    "expected #{this} to have sent the data #{exp}, but it actually sent #{act}",
+                    "expected #{this} not to have sent the data #{act}",
+                    Array.prototype.slice.call(target_data),
+                    Array.prototype.slice.call(data));
     });
 
     _chai.Assertion.addProperty('array', function () {
@@ -77,9 +77,9 @@ chai.use(function (_chai, utils) {
                     }
 
                     this.assert(same,
-                        "expected #{this} to have elements deeply equal to #{exp}",
-                        "expected #{this} not to have elements deeply equal to #{exp}",
-                        Array.prototype.slice.call(target));
+                                "expected #{this} to have elements deeply equal to #{exp}",
+                                "expected #{this} not to have elements deeply equal to #{exp}",
+                                Array.prototype.slice.call(target));
                 } else {
                     for (let i = 0; i < obj.length; i++) {
                         if (obj[i] != target[i]) {
@@ -89,9 +89,9 @@ chai.use(function (_chai, utils) {
                     }
 
                     this.assert(same,
-                        "expected #{this} to have elements equal to #{exp}",
-                        "expected #{this} not to have elements equal to #{exp}",
-                        Array.prototype.slice.call(target));
+                                "expected #{this} to have elements equal to #{exp}",
+                                "expected #{this} not to have elements equal to #{exp}",
+                                Array.prototype.slice.call(target));
                 }
             } else {
                 _super.apply(this, arguments);

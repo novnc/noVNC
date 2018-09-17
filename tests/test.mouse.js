@@ -2,7 +2,7 @@ const expect = chai.expect;
 
 import Mouse from '../core/input/mouse.js';
 
-describe('Mouse Event Handling', function() {
+describe('Mouse Event Handling', function () {
     "use strict";
 
     let target;
@@ -36,8 +36,8 @@ describe('Mouse Event Handling', function() {
     };
     const touchevent = mouseevent;
 
-    describe('Decode Mouse Events', function() {
-        it('should decode mousedown events', function(done) {
+    describe('Decode Mouse Events', function () {
+        it('should decode mousedown events', function (done) {
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
                 expect(bmask).to.be.equal(0x01);
@@ -46,7 +46,7 @@ describe('Mouse Event Handling', function() {
             };
             mouse._handleMouseDown(mouseevent('mousedown', { button: '0x01' }));
         });
-        it('should decode mouseup events', function(done) {
+        it('should decode mouseup events', function (done) {
             let calls = 0;
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
@@ -59,7 +59,7 @@ describe('Mouse Event Handling', function() {
             mouse._handleMouseDown(mouseevent('mousedown', { button: '0x01' }));
             mouse._handleMouseUp(mouseevent('mouseup', { button: '0x01' }));
         });
-        it('should decode mousemove events', function(done) {
+        it('should decode mousemove events', function (done) {
             const mouse = new Mouse(target);
             mouse.onmousemove = (x, y) => {
                 // Note that target relative coordinates are sent
@@ -70,7 +70,7 @@ describe('Mouse Event Handling', function() {
             mouse._handleMouseMove(mouseevent('mousemove',
                                               { clientX: 50, clientY: 20 }));
         });
-        it('should decode mousewheel events', function(done) {
+        it('should decode mousewheel events', function (done) {
             let calls = 0;
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
@@ -89,12 +89,12 @@ describe('Mouse Event Handling', function() {
         });
     });
 
-    describe('Double-click for Touch', function() {
+    describe('Double-click for Touch', function () {
 
         beforeEach(function () { this.clock = sinon.useFakeTimers(); });
         afterEach(function () { this.clock.restore(); });
 
-        it('should use same pos for 2nd tap if close enough', function(done) {
+        it('should use same pos for 2nd tap if close enough', function (done) {
             let calls = 0;
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
@@ -125,7 +125,7 @@ describe('Mouse Event Handling', function() {
                 'touchend', { touches: [{ clientX: 66, clientY: 36 }]}));
         });
 
-        it('should not modify 2nd tap pos if far apart', function(done) {
+        it('should not modify 2nd tap pos if far apart', function (done) {
             let calls = 0;
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
@@ -154,7 +154,7 @@ describe('Mouse Event Handling', function() {
                 'touchend', { touches: [{ clientX: 56, clientY: 36 }]}));
         });
 
-        it('should not modify 2nd tap pos if not soon enough', function(done) {
+        it('should not modify 2nd tap pos if not soon enough', function (done) {
             let calls = 0;
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
@@ -183,7 +183,7 @@ describe('Mouse Event Handling', function() {
                 'touchend', { touches: [{ clientX: 66, clientY: 36 }]}));
         });
 
-        it('should not modify 2nd tap pos if not touch', function(done) {
+        it('should not modify 2nd tap pos if not touch', function (done) {
             let calls = 0;
             const mouse = new Mouse(target);
             mouse.onmousebutton = (x, y, down, bmask) => {
@@ -214,7 +214,7 @@ describe('Mouse Event Handling', function() {
 
     });
 
-    describe('Accumulate mouse wheel events with small delta', function() {
+    describe('Accumulate mouse wheel events with small delta', function () {
 
         beforeEach(function () { this.clock = sinon.useFakeTimers(); });
         afterEach(function () { this.clock.restore(); });

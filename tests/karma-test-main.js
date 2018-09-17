@@ -35,8 +35,9 @@ document.body.appendChild(script);
 function fallback() {
     if (!window._noVNC_has_module_support) {
         /* eslint-disable no-console */
-        if (console)
+        if (console) {
             console.log("No module support detected. Loading fallback...");
+        }
         /* eslint-enable no-console */
         let loader = document.createElement("script");
         loader.src = "base/vendor/browser-es-module-loader/dist/browser-es-module-loader.js";

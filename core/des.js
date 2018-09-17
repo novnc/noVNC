@@ -75,6 +75,8 @@
  * fine Java utilities: http://www.acme.com/java/
  */
 
+/* eslint-disable comma-spacing */
+
 export default function DES(passwd) {
     "use strict";
 

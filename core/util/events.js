@@ -10,11 +10,11 @@
  * Cross-browser event and position routines
  */
 
-export function getPointerEvent (e) {
+export function getPointerEvent(e) {
     return e.changedTouches ? e.changedTouches[0] : e.touches ? e.touches[0] : e;
 }
 
-export function stopEvent (e) {
+export function stopEvent(e) {
     e.stopPropagation();
     e.preventDefault();
 }
@@ -57,7 +57,7 @@ const _captureObserver = new MutationObserver(_captureElemChanged);
 
 let _captureIndex = 0;
 
-export function setCapture (elem) {
+export function setCapture(elem) {
     if (elem.setCapture) {
 
         elem.setCapture();
@@ -96,7 +96,7 @@ export function setCapture (elem) {
         _captureIndex++;
 
         // Track cursor and get initial cursor
-        _captureObserver.observe(elem, {attributes:true});
+        _captureObserver.observe(elem, {attributes: true});
         _captureElemChanged();
 
         captureElem.style.display = "";
@@ -108,7 +108,7 @@ export function setCapture (elem) {
     }
 }
 
-export function releaseCapture () {
+export function releaseCapture() {
     if (document.releaseCapture) {
 
         document.releaseCapture();

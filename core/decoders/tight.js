@@ -25,7 +25,7 @@ export default class TightDecoder {
         for (let i = 0; i < 4; i++) {
             this._zlibs[i] = new Inflator();
         }
-   }
+    }
 
     decodeRect(x, y, width, height, sock, display, depth) {
         if (this._ctl === null) {
@@ -81,7 +81,7 @@ export default class TightDecoder {
         const rQi = sock.get_rQi();
         const rQ = sock.rQwhole();
 
-        display.fillRect(x, y, width, height, 
+        display.fillRect(x, y, width, height,
                          [rQ[rQi + 2], rQ[rQi + 1], rQ[rQi]], false);
         sock.rQskipBytes(3);
 

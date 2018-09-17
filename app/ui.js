@@ -145,10 +145,9 @@ const UI = {
         // set manually
         let port = window.location.port;
         if (!port) {
-            if (window.location.protocol.substring(0,5) == 'https') {
+            if (window.location.protocol.substring(0, 5) == 'https') {
                 port = 443;
-            }
-            else if (window.location.protocol.substring(0,4) == 'http') {
+            } else if (window.location.protocol.substring(0, 4) == 'http') {
                 port = 80;
             }
         }
@@ -779,7 +778,7 @@ const UI = {
         const ctrl = document.getElementById('noVNC_setting_' + name);
         let val = WebUtil.readSetting(name);
         if (typeof val !== 'undefined' && val !== null && ctrl.type === 'checkbox') {
-            if (val.toString().toLowerCase() in {'0':1, 'no':1, 'false':1}) {
+            if (val.toString().toLowerCase() in {'0': 1, 'no': 1, 'false': 1}) {
                 val = false;
             } else {
                 val = true;
@@ -940,7 +939,7 @@ const UI = {
     },
 
     clipboardReceive(e) {
-        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0,40) + "...");
+        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
         Log.Debug("<< UI.clipboardReceive");
     },
@@ -952,7 +951,7 @@ const UI = {
 
     clipboardSend() {
         const text = document.getElementById('noVNC_clipboard_text').value;
-        Log.Debug(">> UI.clipboardSend: " + text.substr(0,40) + "...");
+        Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
         Log.Debug("<< UI.clipboardSend");
     },
@@ -1011,7 +1010,7 @@ const UI = {
         url = UI.getSetting('encrypt') ? 'wss' : 'ws';
 
         url += '://' + host;
-        if(port) {
+        if (port) {
             url += ':' + port;
         }
         url += '/' + path;
@@ -1334,7 +1333,7 @@ const UI = {
             // Move the caret to the end
             input.setSelectionRange(l, l);
         } catch (err) {
-            // setSelectionRange is undefined in Google Chrome 
+            // setSelectionRange is undefined in Google Chrome
         }
     },
 
@@ -1502,7 +1501,7 @@ const UI = {
     },
 
     toggleExtraKeys() {
-        if(document.getElementById('noVNC_modifiers')
+        if (document.getElementById('noVNC_modifiers')
             .classList.contains("noVNC_open")) {
             UI.closeExtraKeys();
         } else  {
@@ -1556,7 +1555,7 @@ const UI = {
             UI.rfb.touchButton = num;
         }
 
-        const blist = [0, 1,2,4];
+        const blist = [0, 1, 2, 4];
         for (let b = 0; b < blist.length; b++) {
             const button = document.getElementById('noVNC_mouse_button' +
                                                  blist[b]);

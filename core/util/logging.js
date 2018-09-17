@@ -17,7 +17,7 @@ let Info = () => {};
 let Warn = () => {};
 let Error = () => {};
 
-export function init_logging (level) {
+export function init_logging(level) {
     if (typeof level === 'undefined') {
         level = _log_level;
     } else {
@@ -46,7 +46,7 @@ export function init_logging (level) {
     }
 }
 
-export function get_logging () {
+export function get_logging() {
     return _log_level;
 }
 

@@ -14,6 +14,8 @@
  * See https://www.w3.org/TR/uievents-key/ for possible values.
  */
 
+/* eslint-disable key-spacing */
+
 export default {
 
 // 3.1.1.1. Writing System Keys

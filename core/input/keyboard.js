@@ -140,18 +140,18 @@ export default class Keyboard {
         // possibly others).
         if (browser.isMac()) {
             switch (keysym) {
-            case KeyTable.XK_Super_L:
-                keysym = KeyTable.XK_Alt_L;
-                break;
-            case KeyTable.XK_Super_R:
-                keysym = KeyTable.XK_Super_L;
-                break;
-            case KeyTable.XK_Alt_L:
-                keysym = KeyTable.XK_Mode_switch;
-                break;
-            case KeyTable.XK_Alt_R:
-                keysym = KeyTable.XK_ISO_Level3_Shift;
-                break;
+                case KeyTable.XK_Super_L:
+                    keysym = KeyTable.XK_Alt_L;
+                    break;
+                case KeyTable.XK_Super_R:
+                    keysym = KeyTable.XK_Super_L;
+                    break;
+                case KeyTable.XK_Alt_L:
+                    keysym = KeyTable.XK_Mode_switch;
+                    break;
+                case KeyTable.XK_Alt_R:
+                    keysym = KeyTable.XK_ISO_Level3_Shift;
+                    break;
             }
         }
 
@@ -249,10 +249,11 @@ export default class Keyboard {
             // Character (A-Z)
             let char = String.fromCharCode(e.keyCode);
             // A feeble attempt at the correct case
-            if (e.shiftKey)
+            if (e.shiftKey) {
                 char = char.toUpperCase();
-            else
+            } else {
                 char = char.toLowerCase();
+            }
             keysym = char.charCodeAt();
         } else {
             // Unknown, give up
@@ -313,8 +314,8 @@ export default class Keyboard {
             }
 
             const event = new KeyboardEvent('keyup',
-                                          { key: downList[code],
-                                            code: code });
+                                            { key: downList[code],
+                                              code: code });
             target.dispatchEvent(event);
         });
     }

@@ -3,7 +3,7 @@ const expect = chai.expect;
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 
-describe('Websock', function() {
+describe('Websock', function () {
     "use strict";
 
     describe('Queue methods', function () {
@@ -19,9 +19,9 @@ describe('Websock', function() {
         });
         describe('rQlen', function () {
             it('should return the length of the receive queue', function () {
-               sock.set_rQi(0);
+                sock.set_rQi(0);
 
-               expect(sock.rQlen()).to.equal(RQ_TEMPLATE.length);
+                expect(sock.rQlen()).to.equal(RQ_TEMPLATE.length);
             });
 
             it("should return the proper length if we read some from the receive queue", function () {
@@ -195,7 +195,7 @@ describe('Websock', function() {
 
             it('should actually send on the websocket', function () {
                 sock._websocket.bufferedAmount = 8;
-                sock._websocket.readyState = WebSocket.OPEN
+                sock._websocket.readyState = WebSocket.OPEN;
                 sock._sQ = new Uint8Array([1, 2, 3]);
                 sock._sQlen = 3;
                 const encoded = sock._encode_message();
@@ -247,7 +247,7 @@ describe('Websock', function() {
     describe('lifecycle methods', function () {
         let old_WS;
         before(function () {
-           old_WS = WebSocket;
+            old_WS = WebSocket;
         });
 
         let sock;
@@ -264,7 +264,7 @@ describe('Websock', function() {
         });
 
         describe('opening', function () {
-            it('should pick the correct protocols if none are given' , function () {
+            it('should pick the correct protocols if none are given', function () {
 
             });
 
@@ -357,8 +357,8 @@ describe('Websock', function() {
     describe('WebSocket Receiving', function () {
         let sock;
         beforeEach(function () {
-           sock = new Websock();
-           sock._allocate_buffers();
+            sock = new Websock();
+            sock._allocate_buffers();
         });
 
         it('should support adding binary Uint8Array data to the receive queue', function () {

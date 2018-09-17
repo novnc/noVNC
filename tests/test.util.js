@@ -3,7 +3,7 @@ const expect = chai.expect;
 
 import * as Log from '../core/util/logging.js';
 
-describe('Utils', function() {
+describe('Utils', function () {
     "use strict";
 
     describe('logging functions', function () {

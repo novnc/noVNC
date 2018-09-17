@@ -51,8 +51,8 @@ export default class RecordingPlayer {
         this._disconnected = disconnected;
 
         if (this._encoding === undefined) {
-        const frame = this._frames[0];
-        const start = frame.indexOf('{', 1) + 1;
+            const frame = this._frames[0];
+            const start = frame.indexOf('{', 1) + 1;
             if (frame.slice(start).startsWith('UkZC')) {
                 this._encoding = 'base64';
             } else {

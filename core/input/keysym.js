@@ -1,3 +1,5 @@
+/* eslint-disable key-spacing */
+
 export default {
     XK_VoidSymbol:                  0xffffff, /* Void symbol */
 

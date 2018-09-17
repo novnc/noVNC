@@ -34,7 +34,7 @@ export default class RawDecoder {
 
         // Convert data if needed
         if (depth == 8) {
-            const pixels = width * curr_height
+            const pixels = width * curr_height;
             const newdata = new Uint8Array(pixels * 4);
             for (let i = 0; i < pixels; i++) {
                 newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;

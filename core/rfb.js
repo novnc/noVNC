@@ -939,7 +939,7 @@ export default class RFB extends EventTargetMixin {
             this.dispatchEvent(new CustomEvent(
                 "credentialsrequired",
                 { detail: { types: ["username", "password", "target"] } }));
-             return false;
+            return false;
         }
 
         const xvp_auth_str = String.fromCharCode(this._rfb_credentials.username.length) +
@@ -1407,7 +1407,7 @@ export default class RFB extends EventTargetMixin {
             case 2:  // Bell
                 Log.Debug("Bell");
                 this.dispatchEvent(new CustomEvent(
-                    "bell", 
+                    "bell",
                     { detail: {} }));
                 return true;
 
@@ -1598,18 +1598,18 @@ export default class RFB extends EventTargetMixin {
             let msg = "";
             // The y-position indicates the status code from the server
             switch (this._FBU.y) {
-            case 1:
-                msg = "Resize is administratively prohibited";
-                break;
-            case 2:
-                msg = "Out of resources";
-                break;
-            case 3:
-                msg = "Invalid screen layout";
-                break;
-            default:
-                msg = "Unknown reason";
-                break;
+                case 1:
+                    msg = "Resize is administratively prohibited";
+                    break;
+                case 2:
+                    msg = "Out of resources";
+                    break;
+                case 3:
+                    msg = "Invalid screen layout";
+                    break;
+                default:
+                    msg = "Unknown reason";
+                    break;
             }
             Log.Warn("Server did not accept the resize request: "
                      + msg);
@@ -2036,11 +2036,13 @@ RFB.cursors = {
     },
 
     dot: {
+        /* eslint-disable indent */
         rgbaPixels: new Uint8Array([
             255, 255, 255, 255,   0,   0,   0, 255, 255, 255, 255, 255,
               0,   0,   0, 255,   0,   0,   0,   0,   0,   0,  0,  255,
             255, 255, 255, 255,   0,   0,   0, 255, 255, 255, 255, 255,
         ]),
+        /* eslint-enable indent */
         w: 3, h: 3,
         hotx: 1, hoty: 1,
     }
