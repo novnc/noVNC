@@ -1988,8 +1988,140 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
                 });
 
-                it.skip('should handle the Cursor pseudo-encoding', function () {
-                    // TODO(directxman12): test
+                describe('the Cursor pseudo-encoding handler', function () {
+                    beforeEach(function () {
+                        sinon.spy(client._cursor, 'change');
+                    });
+
+                    it('should handle a standard cursor', function () {
+                        const info = { x: 5, y: 7,
+                                       width: 4, height: 4,
+                                       encoding: -239};
+                        let rect = [];
+                        let expected = [];
+
+                        for (let i = 0;i < info.width*info.height;i++) {
+                            push32(rect, 0x11223300);
+                        }
+                        push32(rect, 0xa0a0a0a0);
+
+                        for (let i = 0;i < info.width*info.height/2;i++) {
+                            push32(expected, 0x332211ff);
+                            push32(expected, 0x33221100);
+                        }
+                        expected = new Uint8Array(expected);
+
+                        send_fbu_msg([info], [rect], client);
+
+                        expect(client._cursor.change).to.have.been.calledOnce;
+                        expect(client._cursor.change).to.have.been.calledWith(expected, 5, 7, 4, 4);
+                    });
+
+                    it('should handle an empty cursor', function () {
+                        const info = { x: 0, y: 0,
+                                       width: 0, height: 0,
+                                       encoding: -239};
+                        const rect = [];
+
+                        send_fbu_msg([info], [rect], client);
+
+                        expect(client._cursor.change).to.have.been.calledOnce;
+                        expect(client._cursor.change).to.have.been.calledWith(new Uint8Array, 0, 0, 0, 0);
+                    });
+
+                    it('should handle a transparent cursor', function () {
+                        const info = { x: 5, y: 7,
+                                       width: 4, height: 4,
+                                       encoding: -239};
+                        let rect = [];
+                        let expected = [];
+
+                        for (let i = 0;i < info.width*info.height;i++) {
+                            push32(rect, 0x11223300);
+                        }
+                        push32(rect, 0x00000000);
+
+                        for (let i = 0;i < info.width*info.height;i++) {
+                            push32(expected, 0x33221100);
+                        }
+                        expected = new Uint8Array(expected);
+
+                        send_fbu_msg([info], [rect], client);
+
+                        expect(client._cursor.change).to.have.been.calledOnce;
+                        expect(client._cursor.change).to.have.been.calledWith(expected, 5, 7, 4, 4);
+                    });
+
+                    describe('dot for empty cursor', function () {
+                        beforeEach(function () {
+                            client.showDotCursor = true;
+                            // Was called when we enabled dot cursor
+                            client._cursor.change.reset();
+                        });
+
+                        it('should show a standard cursor', function () {
+                            const info = { x: 5, y: 7,
+                                           width: 4, height: 4,
+                                           encoding: -239};
+                            let rect = [];
+                            let expected = [];
+
+                            for (let i = 0;i < info.width*info.height;i++) {
+                                push32(rect, 0x11223300);
+                            }
+                            push32(rect, 0xa0a0a0a0);
+
+                            for (let i = 0;i < info.width*info.height/2;i++) {
+                                push32(expected, 0x332211ff);
+                                push32(expected, 0x33221100);
+                            }
+                            expected = new Uint8Array(expected);
+
+                            send_fbu_msg([info], [rect], client);
+
+                            expect(client._cursor.change).to.have.been.calledOnce;
+                            expect(client._cursor.change).to.have.been.calledWith(expected, 5, 7, 4, 4);
+                        });
+
+                        it('should handle an empty cursor', function () {
+                            const info = { x: 0, y: 0,
+                                           width: 0, height: 0,
+                                           encoding: -239};
+                            const rect = [];
+                            const dot = RFB.cursors.dot;
+
+                            send_fbu_msg([info], [rect], client);
+
+                            expect(client._cursor.change).to.have.been.calledOnce;
+                            expect(client._cursor.change).to.have.been.calledWith(dot.rgbaPixels,
+                                                                                  dot.hotx,
+                                                                                  dot.hoty,
+                                                                                  dot.w,
+                                                                                  dot.h);
+                        });
+
+                        it('should handle a transparent cursor', function () {
+                            const info = { x: 5, y: 7,
+                                           width: 4, height: 4,
+                                           encoding: -239};
+                            let rect = [];
+                            const dot = RFB.cursors.dot;
+
+                            for (let i = 0;i < info.width*info.height;i++) {
+                                push32(rect, 0x11223300);
+                            }
+                            push32(rect, 0x00000000);
+
+                            send_fbu_msg([info], [rect], client);
+
+                            expect(client._cursor.change).to.have.been.calledOnce;
+                            expect(client._cursor.change).to.have.been.calledWith(dot.rgbaPixels,
+                                                                                  dot.hotx,
+                                                                                  dot.hoty,
+                                                                                  dot.w,
+                                                                                  dot.h);
+                        });
+                    });
                 });
 
                 it('should handle the last_rect pseudo-encoding', function () {
