@@ -1525,22 +1525,38 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleCursor() {
-        const x = this._FBU.x;  // hotspot-x
-        const y = this._FBU.y;  // hotspot-y
+        const hotx = this._FBU.x;  // hotspot-x
+        const hoty = this._FBU.y;  // hotspot-y
         const w = this._FBU.width;
         const h = this._FBU.height;
 
         const pixelslength = w * h * 4;
-        const masklength = Math.floor((w + 7) / 8) * h;
+        const masklength = Math.ceil(w / 8) * h;
 
         let bytes = pixelslength + masklength;
         if (this._sock.rQwait("cursor encoding", bytes)) {
             return false;
         }
 
-        this._cursor.change(this._sock.rQshiftBytes(pixelslength),
-                            this._sock.rQshiftBytes(masklength),
-                            x, y, w, h);
+        // Decode from BGRX pixels + bit mask to RGBA
+        const pixels = this._sock.rQshiftBytes(pixelslength);
+        const mask = this._sock.rQshiftBytes(masklength);
+        let rgba = new Uint8Array(w * h * 4);
+
+        let pix_idx = 0;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                let mask_idx = y * Math.ceil(w / 8) + Math.floor(x / 8);
+                let alpha = (mask[mask_idx] << (x % 8)) & 0x80 ? 255 : 0;
+                rgba[pix_idx    ] = pixels[pix_idx + 2];
+                rgba[pix_idx + 1] = pixels[pix_idx + 1];
+                rgba[pix_idx + 2] = pixels[pix_idx];
+                rgba[pix_idx + 3] = alpha;
+                pix_idx += 4;
+            }
+        }
+
+        this._updateCursor(rgba, hotx, hoty, w, h);
 
         return true;
     }
