@@ -1,5 +1,5 @@
 noVNC is Copyright (C) 2018 The noVNC Authors
-(https://github.com/novnc/noVNC/blob/master/AUTHORS)
+(./AUTHORS)
 
 The noVNC core library files are licensed under the MPL 2.0 (Mozilla
 Public License 2.0). The noVNC core library is composed of the
