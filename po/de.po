@@ -1,6 +1,6 @@
 # German translations for noVNC package
 # German translation for noVNC.
-# Copyright (C) 2016 Various Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Loek Janssen <loekjanssen@gmail.com>, 2016.
 #

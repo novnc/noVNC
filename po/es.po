@@ -1,6 +1,6 @@
 # Spanish translations for noVNC package
 # Traducciones al español para el paquete noVNC.
-# Copyright (C) 2018 Various Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Juanjo Diaz <juanjo.diazmo@gmail.com>, 2018.
 #

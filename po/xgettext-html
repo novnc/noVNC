@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * xgettext-html: HTML gettext parser
- * Copyright (C) 2016 Pierre Ossman
+ * Copyright (C) 2018 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 

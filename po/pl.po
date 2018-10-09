@@ -1,5 +1,5 @@
 # Polish translations for noVNC package.
-# Copyright (C) 2017 Various Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Mariusz Jamro <mariusz.jamro@gmail.com>, 2017.
 #

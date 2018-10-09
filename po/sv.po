@@ -1,6 +1,6 @@
 # Swedish translations for noVNC package
 # Svenska översättningar för paket noVNC.
-# Copyright (C) 2016 Various Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Samuel Mannehed <samuel@cendio.se>, 2016.
 #
