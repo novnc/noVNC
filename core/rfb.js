@@ -863,6 +863,8 @@ export default class RFB extends EventTargetMixin {
                 this._rfb_auth_scheme = 16; // Tight
             } else if (includes(2, types)) {
                 this._rfb_auth_scheme = 2; // VNC Auth
+            } else if (includes(104, types)) {
+                this._rfb_auth_scheme = 104; // UltraVNC SCPrompt
             } else {
                 return this._fail("Unsupported security types (types: " + types + ")");
             }
@@ -1069,18 +1071,39 @@ export default class RFB extends EventTargetMixin {
         return this._fail("No supported sub-auth types!");
     }
 
+    _negotiate_ultravnc_scprompt() {
+        if (this._sock.rQwait("UltraVNC Single Click Prompt length", 4)) {return false;}
+        let strlen = this._sock.rQshift32();
+        Log.Info(strlen);
+        strlen = ((strlen & 0xFF) << 24) | ((strlen & 0xFF00) << 8) | ((strlen >> 8) & 0xFF00) | ((strlen >> 24) & 0xFF);
+        Log.Info(strlen);
+
+        if (this._sock.rQwait("UltraVNC Single Click Prompt", strlen, 4)) {return false;}
+        this._sock.rQskipBytes(strlen);
+
+        this._sock.send([1, 0, 0, 0]);
+
+        this._rfb_init_state = 'SecurityResult';
+
+        return true;
+    }
+
+    _negotiate_noauth() {
+        if (this._rfb_version >= 3.8) {
+            this._rfb_init_state = 'SecurityResult';
+            return true;
+        }
+        this._rfb_init_state = 'ClientInitialisation';
+        return this._init_msg();
+    }
+
     _negotiate_authentication() {
         switch (this._rfb_auth_scheme) {
             case 0:  // connection failed
                 return this._handle_security_failure("authentication scheme");
 
             case 1:  // no auth
-                if (this._rfb_version >= 3.8) {
-                    this._rfb_init_state = 'SecurityResult';
-                    return true;
-                }
-                this._rfb_init_state = 'ClientInitialisation';
-                return this._init_msg();
+                return this._negotiate_noauth();
 
             case 22:  // XVP auth
                 return this._negotiate_xvp_auth();
@@ -1090,6 +1113,9 @@ export default class RFB extends EventTargetMixin {
 
             case 16:  // TightVNC Security Type
                 return this._negotiate_tight_auth();
+
+            case 104:  // UltraVNC SCPrompt
+                return this._negotiate_ultravnc_scprompt();
 
             default:
                 return this._fail("Unsupported auth scheme (scheme: " +
@@ -1105,6 +1131,9 @@ export default class RFB extends EventTargetMixin {
         if (status === 0) { // OK
             this._rfb_init_state = 'ClientInitialisation';
             Log.Debug('Authentication OK');
+            return this._init_msg();
+        } else if (status === -1) { // UltraVNC or other auths may send this to restart authentication
+            this._rfb_init_state = 'Security';
             return this._init_msg();
         } else {
             if (this._rfb_version >= 3.8) {
