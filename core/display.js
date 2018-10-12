@@ -22,10 +22,6 @@ export default class Display {
         this._fbHeight = 0;
 
         this._prevDrawStyle = "";
-        this._tile = null;
-        this._tile16x16 = null;
-        this._tileX = 0;
-        this._tileY = 0;
 
         Log.Debug(">> Display.constructor");
 
@@ -64,7 +60,6 @@ export default class Display {
             throw new Error("Canvas does not support createImageData");
         }
 
-        this._tile16x16 = this._drawCtx.createImageData(16, 16);
         Log.Debug("<< Display.constructor");
 
         // ===== PROPERTIES =====
@@ -375,57 +370,6 @@ export default class Display {
             'width': width,
             'height': height
         });
-    }
-
-    // start updating a tile
-    startTile(x, y, width, height, color) {
-        this._tileX = x;
-        this._tileY = y;
-        if (width === 16 && height === 16) {
-            this._tile = this._tile16x16;
-        } else {
-            this._tile = this._drawCtx.createImageData(width, height);
-        }
-
-        const red = color[2];
-        const green = color[1];
-        const blue = color[0];
-
-        const data = this._tile.data;
-        for (let i = 0; i < width * height * 4; i += 4) {
-            data[i] = red;
-            data[i + 1] = green;
-            data[i + 2] = blue;
-            data[i + 3] = 255;
-        }
-    }
-
-    // update sub-rectangle of the current tile
-    subTile(x, y, w, h, color) {
-        const red = color[2];
-        const green = color[1];
-        const blue = color[0];
-        const xend = x + w;
-        const yend = y + h;
-
-        const data = this._tile.data;
-        const width = this._tile.width;
-        for (let j = y; j < yend; j++) {
-            for (let i = x; i < xend; i++) {
-                const p = (i + (j * width)) * 4;
-                data[p] = red;
-                data[p + 1] = green;
-                data[p + 2] = blue;
-                data[p + 3] = 255;
-            }
-        }
-    }
-
-    // draw the current tile to the screen
-    finishTile() {
-        this._drawCtx.putImageData(this._tile, this._tileX, this._tileY);
-        this._damage(this._tileX, this._tileY,
-                     this._tile.width, this._tile.height);
     }
 
     blitImage(x, y, width, height, arr, offset, fromQueue) {
