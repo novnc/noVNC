@@ -156,6 +156,7 @@
         const host = readQueryVariable('host', window.location.hostname);
         let port = readQueryVariable('port', window.location.port);
         const password = readQueryVariable('password', '');
+        const authToken = readQueryVariable('auth_token', '');
         const path = readQueryVariable('path', 'websockify');
 
         // | | |         | | |
@@ -176,6 +177,10 @@
             url += ':' + port;
         }
         url += '/' + path;
+
+        if (auth_token !== '') {
+            url += "?auth_token=" + auth_token;
+        }
 
         // Creating a new RFB object will start a new connection
         rfb = new RFB(document.getElementById('screen'), url,
