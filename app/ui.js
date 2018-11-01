@@ -1575,13 +1575,16 @@ const UI = {
                 .classList.add('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.add('noVNC_hidden');
+            document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
+                .classList.add('noVNC_hidden');
         } else {
             document.getElementById('noVNC_keyboard_button')
                 .classList.remove('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.remove('noVNC_hidden');
+            document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
+                .classList.remove('noVNC_hidden');
         }
-        UI.setMouseButton(1); //has it's own logic for hiding/showing
     },
 
     updateShowDotCursor() {
