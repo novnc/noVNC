@@ -35,6 +35,8 @@ const UI = {
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
 
+    justEnteredVNC: false,
+
     inhibit_reconnect: true,
     reconnect_callback: null,
     reconnect_password: null,
@@ -936,10 +938,41 @@ const UI = {
         }
     },
 
+    readClipboard(callback) {
+      var readfuture = navigator.clipboard.readText();
+      readfuture
+        .then(text => callback(text))
+        .catch(() =>
+            console.error("Failed to read contents of clipboard (trying to copy to VNC clipboard)")
+        );
+    },
+
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
         Log.Debug("<< UI.clipboardReceive");
+    },
+
+    enterVNC(e) {
+        UI.justEnteredVNC = true;
+    },
+
+    enterVncClick(e) {
+        UI.readClipboard(text => {
+            document.getElementById('noVNC_clipboard_text').value = text;
+            UI.rfb.clipboardPasteFrom(text);
+        })
+    },
+
+    leaveVNC(e) {
+        const text = document.getElementById('noVNC_clipboard_text').value;
+        var writefuture = navigator.clipboard.writeText(text);
+        writefuture
+            .then(function() {
+                /* clipboard successfully set */
+            }, function() {
+                console.error("Failed to write clipboard (trying to copy from VNC clipboard)")
+            });
     },
 
     clipboardClear() {
@@ -1024,6 +1057,11 @@ const UI = {
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
+        document//.getElementById("noVNC_container")
+            .addEventListener('mouseenter', UI.enterVNC);
+        document//.getElementById("noVNC_container")
+            .addEventListener('mouseleave', UI.leaveVNC);
+
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
@@ -1372,6 +1410,11 @@ const UI = {
 
     keepVirtualKeyboard(event) {
         const input = document.getElementById('noVNC_keyboardinput');
+
+        if ( UI.justEnteredVNC ) { 
+            UI.justEnteredVNC = false;
+            UI.enterVncClick(event); 
+        }
 
         // Only prevent focus change if the virtual keyboard is active
         if (document.activeElement != input) {
