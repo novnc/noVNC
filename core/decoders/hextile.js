@@ -37,7 +37,7 @@ export default class HextileDecoder {
 
             let subencoding = rQ[rQi];  // Peek
             if (subencoding > 30) {  // Raw
-                throw Error("Illegal hextile subencoding (subencoding: " +
+                throw new Error("Illegal hextile subencoding (subencoding: " +
                             subencoding + ")");
             }
 

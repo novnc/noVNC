@@ -24,6 +24,6 @@ export default class TightPNGDecoder extends TightDecoder {
     }
 
     _basicRect(ctl, x, y, width, height, sock, display, depth) {
-        throw Error("BasicCompression received in TightPNG rect");
+        throw new Error("BasicCompression received in TightPNG rect");
     }
 }

@@ -35,10 +35,10 @@ const DISCONNECT_TIMEOUT = 3;
 export default class RFB extends EventTargetMixin {
     constructor(target, url, options) {
         if (!target) {
-            throw Error("Must specify target");
+            throw new Error("Must specify target");
         }
         if (!url) {
-            throw Error("Must specify URL");
+            throw new Error("Must specify URL");
         }
 
         super();
