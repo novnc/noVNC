@@ -8,13 +8,10 @@
 
 export default class EventTargetMixin {
     constructor() {
-        this._listeners = null;
+        this._listeners = new Map();
     }
 
     addEventListener(type, callback) {
-        if (!this._listeners) {
-            this._listeners = new Map();
-        }
         if (!this._listeners.has(type)) {
             this._listeners.set(type, new Set());
         }
@@ -22,19 +19,17 @@ export default class EventTargetMixin {
     }
 
     removeEventListener(type, callback) {
-        if (!this._listeners || !this._listeners.has(type)) {
-            return;
+        if (this._listeners.has(type)) {
+            this._listeners.get(type).delete(callback);
         }
-        this._listeners.get(type).delete(callback);
     }
 
     dispatchEvent(event) {
-        if (!this._listeners || !this._listeners.has(event.type)) {
+        if (!this._listeners.has(event.type)) {
             return true;
         }
-        this._listeners.get(event.type).forEach((callback) => {
-            callback.call(this, event);
-        }, this);
+        this._listeners.get(event.type)
+            .forEach(callback => callback.call(this, event), this);
         return !event.defaultPrevented;
     }
 }
