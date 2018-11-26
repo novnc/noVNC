@@ -62,7 +62,7 @@ export default class TightDecoder {
             ret = this._basicRect(this._ctl, x, y, width, height,
                                   sock, display, depth);
         } else {
-            throw Error("Illegal tight compression received (ctl: " +
+            throw new Error("Illegal tight compression received (ctl: " +
                                    this._ctl + ")");
         }
 
@@ -100,7 +100,7 @@ export default class TightDecoder {
     }
 
     _pngRect(x, y, width, height, sock, display, depth) {
-        throw Error("PNG received in standard Tight rect");
+        throw new Error("PNG received in standard Tight rect");
     }
 
     _basicRect(ctl, x, y, width, height, sock, display, depth) {
@@ -135,7 +135,7 @@ export default class TightDecoder {
                                            sock, display, depth);
                 break;
             default:
-                throw Error("Illegal tight filter received (ctl: " +
+                throw new Error("Illegal tight filter received (ctl: " +
                                        this._filter + ")");
         }
 
@@ -164,7 +164,7 @@ export default class TightDecoder {
 
             data = this._zlibs[streamId].inflate(data, true, uncompressedSize);
             if (data.length != uncompressedSize) {
-                throw Error("Incomplete zlib block");
+                throw new Error("Incomplete zlib block");
             }
         }
 
@@ -212,7 +212,7 @@ export default class TightDecoder {
 
             data = this._zlibs[streamId].inflate(data, true, uncompressedSize);
             if (data.length != uncompressedSize) {
-                throw Error("Incomplete zlib block");
+                throw new Error("Incomplete zlib block");
             }
         }
 
@@ -277,7 +277,7 @@ export default class TightDecoder {
     }
 
     _gradientFilter(streamId, x, y, width, height, sock, display, depth) {
-        throw Error("Gradient filter not implemented");
+        throw new Error("Gradient filter not implemented");
     }
 
     _readData(sock) {
