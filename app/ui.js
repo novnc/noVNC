@@ -34,8 +34,7 @@ const UI = {
     isSafari: false,
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
-
-    justEnteredVNC: false,
+    needToCheckClipboardChange: false,
 
     inhibit_reconnect: true,
     reconnect_callback: null,
@@ -939,52 +938,177 @@ const UI = {
     },
 
     readClipboard(callback) {
-      var readfuture = navigator.clipboard.readText();
-      readfuture
-        .then(text => callback(text))
-        .catch(() =>
-            console.error("Failed to read contents of clipboard (trying to copy to VNC clipboard)")
-        );
+	var readfuture = navigator.clipboard.readText();
+	readfuture
+            .then(text => callback(text))
+            .catch(() =>
+		   Log.Debug("Failed to read system clipboard")
+		  );
     },
 
+    // Copy text from NoVNC desktop to local computer
     clipboardReceive(e) {
-        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
-        document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        Log.Debug("<< UI.clipboardReceive");
+	var curvalue = document.getElementById('noVNC_clipboard_text').value;
+	if (curvalue != e.detail.text) {
+            Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
+            document.getElementById('noVNC_clipboard_text').value = e.detail.text;
+            Log.Debug("<< UI.clipboardReceive");
+
+            var writefuture = navigator.clipboard.writeText(e.detail.text);
+            writefuture
+		.then(function() {
+                    /* clipboard successfully set */
+		    UI.popupMessage("Selection Copied");
+		}, function() {
+                    console.error("Failed to write system clipboard (trying to copy from NoVNC clipboard)")
+		});
+	}
     },
 
-    enterVNC(e) {
-        UI.justEnteredVNC = true;
+    popupMessage(msg) {
+	// Quick popup to give feedback that selection was copied
+	setTimeout(UI.showOverlay.bind(this, msg, 500), 200);
     },
 
-    enterVncClick(e) {
-        UI.readClipboard(text => {
-            document.getElementById('noVNC_clipboard_text').value = text;
-            UI.rfb.clipboardPasteFrom(text);
+    // Enter and focus events come when we return to NoVNC.
+    // In both cases, check the local clipboard to see if it changed.
+    focusVNC() {
+	UI.copyFromLocalClipboard();
+    },
+    enterVNC() {
+	UI.copyFromLocalClipboard();
+    },
+    copyFromLocalClipboard() {
+	UI.readClipboard(text => {
+	    var clipVal = document.getElementById('noVNC_clipboard_text').value;
+	    if ( clipVal != text ) {
+		document.getElementById('noVNC_clipboard_text').value = text;
+		UI.popupMessage("Copied from Local Clipboard");
+		UI.rfb.clipboardPasteFrom(text);
+	    }
+	    // Reset flag to prevent checking too often
+	    UI.needToCheckClipboardChange = false;
         })
     },
 
-    leaveVNC(e) {
-        const text = document.getElementById('noVNC_clipboard_text').value;
-        var writefuture = navigator.clipboard.writeText(text);
-        writefuture
-            .then(function() {
-                /* clipboard successfully set */
-            }, function() {
-                console.error("Failed to write clipboard (trying to copy from VNC clipboard)")
-            });
+    // These 3 events indicate the focus has gone outside the NoVNC.
+    // When outside the NoVNC, the system clipboard could change.
+    leaveVNC() {
+	UI.needToCheckClipboardChange = true;
+    },
+    blurVNC() {
+	UI.needToCheckClipboardChange = true;
+    },
+    focusoutVNC() {
+	UI.needToCheckClipboardChange = true;
+    },
+
+    // On these 2 events, check if we need to look at clipboard.
+    mouseMoveVNC() {
+	if ( UI.needToCheckClipboardChange ) {
+	    UI.copyFromLocalClipboard();
+	}
+    },
+    mouseDownVNC() {
+	if ( UI.needToCheckClipboardChange ) {
+	    UI.copyFromLocalClipboard();
+	}
     },
 
     clipboardClear() {
         document.getElementById('noVNC_clipboard_text').value = "";
+	UI.popupMessage("Clipboard Cleared");
+	// TODO: Should this also clear the local clipboard?
         UI.rfb.clipboardPasteFrom("");
     },
 
+    // Send clipboard from HTML clipboard element to NoVNC desktop
     clipboardSend() {
         const text = document.getElementById('noVNC_clipboard_text').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
         Log.Debug("<< UI.clipboardSend");
+    },
+
+    /**
+     * Show the terminal overlay for a given amount of time.
+     *
+     * The terminal overlay appears in inverse video in a large font, centered
+     * over the terminal.  You should probably keep the overlay message brief,
+     * since it's in a large font and you probably aren't going to check the size
+     * of the terminal first.
+     *
+     * @param {string} msg The text (not HTML) message to display in the overlay.
+     * @param {number} opt_timeout The amount of time to wait before fading out
+     *     the overlay.  Defaults to 1.5 seconds.  Pass null to have the overlay
+     *     stay up forever (or until the next overlay).
+     */
+    showOverlay(msg, opt_timeout) {
+	if (!UI.overlayNode) {
+	    UI.overlayNode = document.createElement('div');
+	    UI.overlayNode.style.cssText = (
+		'border-radius: 15px;' +
+		    'font-size: xx-large;' +
+		    'opacity: 0.90;' +
+		    'padding: 0.2em 0.5em 0.2em 0.5em;' +
+		    'position: absolute;' +
+		    '-webkit-user-select: none;' +
+		    '-webkit-transition: opacity 180ms ease-in;' +
+		    '-moz-user-select: none;' +
+		    '-moz-transition: opacity 180ms ease-in;');
+	    UI.overlayNode.style.color = 'rgb(16,16,16)';
+	    UI.overlayNode.style.backgroundColor = 'rgb(240,240,240)';
+	    UI.overlayNode.style.fontFamily = '"DejaVu Sans Mono", "Noto Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace"';
+	    UI.overlayNode.style.opacity = '0.90';
+
+	    //UI.overlayNode.addEventListener('mousedown', function(e) {
+	    //	e.preventDefault();
+	    //	e.stopPropagation();
+	    //  }, true);
+	}
+
+	UI.overlayNode.textContent = msg;
+
+	if (!UI.overlayNode.parentNode_) {
+	    UI.overlayNode.parentNode_ = document.getElementById('noVNC_container');
+	}
+	UI.overlayNode.parentNode_.appendChild(UI.overlayNode);
+
+	var divWidth  = UI.overlayNode.parentNode_.offsetWidth;
+	var divHeight = UI.overlayNode.parentNode_.offsetHeight;
+	var overlayWidth  = UI.overlayNode.offsetWidth;
+	var overlayHeight = UI.overlayNode.offsetHeight; 
+
+	UI.overlayNode.style.top =
+	    (divHeight - overlayHeight) / 2 + 'px';
+	UI.overlayNode.style.left = 
+	    (divWidth - overlayWidth) / 2 + 'px';
+
+	if (UI.overlayTimeout)
+	    clearTimeout(UI.overlayTimeout);
+
+	if (opt_timeout === null)
+	    opt_timeout = 500;
+
+	UI.overlayTimeout = setTimeout(() => {
+	    UI.overlayNode.style.opacity = '0';
+	    UI.overlayTimeout = setTimeout(() => UI.hideOverlay(), 200);
+	}, opt_timeout || 1500);
+    },
+
+    /**
+     * Hide the terminal overlay immediately.
+     *
+     * Useful when we show an overlay for an event with an unknown end time.
+     */
+    hideOverlay() {
+	if (UI.overlayTimeout)
+	    clearTimeout(UI.overlayTimeout);
+	UI.overlayTimeout = null;
+
+	if (UI.overlayNode.parentNode_)
+	    UI.overlayNode.parentNode_.removeChild(UI.overlayNode);
+	UI.overlayNode.style.opacity = '0.90';
     },
 
 /* ------^-------
@@ -1057,10 +1181,14 @@ const UI = {
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
-        document//.getElementById("noVNC_container")
-            .addEventListener('mouseenter', UI.enterVNC);
-        document//.getElementById("noVNC_container")
-            .addEventListener('mouseleave', UI.leaveVNC);
+
+        document.addEventListener('mouseenter', UI.enterVNC);
+	document.addEventListener('mouseleave', UI.leaveVNC);
+	document.addEventListener('blur', UI.blurVNC);
+	document.addEventListener('focus', UI.focusVNC);
+	document.addEventListener('focusout', UI.focusoutVNC);
+	document.addEventListener('mousemove', UI.mouseMoveVNC);
+	document.addEventListener('mousedown', UI.mouseDownVNC);
 
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
@@ -1411,10 +1539,9 @@ const UI = {
     keepVirtualKeyboard(event) {
         const input = document.getElementById('noVNC_keyboardinput');
 
-        if ( UI.justEnteredVNC ) { 
-            UI.justEnteredVNC = false;
-            UI.enterVncClick(event); 
-        }
+	if ( UI.needToCheckClipboardChange ) {
+	    UI.copyFromLocalClipboard();
+	}
 
         // Only prevent focus change if the virtual keyboard is active
         if (document.activeElement != input) {
