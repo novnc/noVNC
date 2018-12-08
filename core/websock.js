@@ -75,22 +75,24 @@ export default class Websock {
     }
 
     rQshift8() {
-        return this._rQ[this._rQi++];
+        return this._rQshift(1);
     }
 
-
-
-    // TODO(directxman12): test performance with these vs a DataView
     rQshift16() {
-        return (this._rQ[this._rQi++] << 8) +
-               this._rQ[this._rQi++];
+        return this._rQshift(2);
     }
 
     rQshift32() {
-        return (this._rQ[this._rQi++] << 24) +
-               (this._rQ[this._rQi++] << 16) +
-               (this._rQ[this._rQi++] << 8) +
-               this._rQ[this._rQi++];
+        return this._rQshift(4);
+    }
+
+    // TODO(directxman12): test performance with these vs a DataView
+    _rQshift(bytes) {
+        let res = 0;
+        for (let byte = bytes - 1; byte >= 0; byte--) {
+            res += this._rQ[this._rQi++] << (byte * 8);
+        }
+        return res;
     }
 
     rQshiftStr(len) {
