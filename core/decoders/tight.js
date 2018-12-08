@@ -78,8 +78,8 @@ export default class TightDecoder {
             return false;
         }
 
-        const rQi = sock.get_rQi();
-        const rQ = sock.rQwhole();
+        const rQi = sock.rQi;
+        const rQ = sock.rQ;
 
         display.fillRect(x, y, width, height,
                          [rQ[rQi + 2], rQ[rQi + 1], rQ[rQi]], false);

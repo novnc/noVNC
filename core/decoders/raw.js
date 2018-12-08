@@ -28,9 +28,9 @@ export default class RawDecoder {
 
         const cur_y = y + (height - this._lines);
         const curr_height = Math.min(this._lines,
-                                     Math.floor(sock.rQlen() / bytesPerLine));
-        let data = sock.get_rQ();
-        let index = sock.get_rQi();
+                                     Math.floor(sock.rQlen / bytesPerLine));
+        let data = sock.rQ;
+        let index = sock.rQi;
 
         // Convert data if needed
         if (depth == 8) {
