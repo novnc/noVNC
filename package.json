@@ -2,6 +2,7 @@
   "name": "@novnc/novnc",
   "version": "1.0.0",
   "description": "An HTML5 VNC client",
+  "browser": "lib/rfb",
   "directories": {
     "lib": "lib",
     "doc": "docs",
