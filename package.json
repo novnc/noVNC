@@ -3,9 +3,20 @@
   "version": "1.0.0",
   "description": "An HTML5 VNC client",
   "directories": {
+    "lib": "lib",
     "doc": "docs",
     "test": "tests"
   },
+  "files": [
+    "lib",
+    "AUTHORS",
+    "VERSION",
+    "docs/API.md",
+    "docs/LIBRARY.md",
+    "docs/LICENSE*",
+    "core",
+    "vendor/pako"
+  ],
   "scripts": {
     "lint": "eslint app core po tests utils",
     "test": "karma start karma.conf.js",
