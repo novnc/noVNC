@@ -37,6 +37,8 @@ jobs:
     before_script:
     script: npm run lint
   - stage: deploy
+    env:
+    addons:
     script: skip
     before_script: skip
     deploy:
