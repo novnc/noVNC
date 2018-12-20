@@ -133,27 +133,6 @@ export default class Keyboard {
             return;
         }
 
-        // Alt behaves more like AltGraph on macOS, so shuffle the
-        // keys around a bit to make things more sane for the remote
-        // server. This method is used by RealVNC and TigerVNC (and
-        // possibly others).
-        if (browser.isMac()) {
-            switch (keysym) {
-                case KeyTable.XK_Super_L:
-                    keysym = KeyTable.XK_Alt_L;
-                    break;
-                case KeyTable.XK_Super_R:
-                    keysym = KeyTable.XK_Super_L;
-                    break;
-                case KeyTable.XK_Alt_L:
-                    keysym = KeyTable.XK_Mode_switch;
-                    break;
-                case KeyTable.XK_Alt_R:
-                    keysym = KeyTable.XK_ISO_Level3_Shift;
-                    break;
-            }
-        }
-
         // Is this key already pressed? If so, then we must use the
         // same keysym or we'll confuse the server
         if (code in this._keyDownList) {
