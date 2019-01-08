@@ -2,9 +2,9 @@
 
 import * as WebUtil from '../app/webutil.js';
 import RecordingPlayer from './playback.js';
+import Base64 from '../core/base64.js';
 
 let frames = null;
-let encoding = null;
 
 function message(str) {
     const cell = document.getElementById('messages');
@@ -19,7 +19,7 @@ function loadFile() {
         return Promise.reject("Must specify data=FOO in query string.");
     }
 
-    message("Loading " + fname);
+    message("Loading " + fname + "...");
 
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
@@ -41,21 +41,62 @@ function enableUI() {
         document.getElementById('mode1').checked = true;
     }
 
-    message("VNC_frame_data.length: " + VNC_frame_data.length);
+    message("Loaded " + VNC_frame_data.length + " frames");
 
     const startButton = document.getElementById('startButton');
     startButton.disabled = false;
     startButton.addEventListener('click', start);
 
+    message("Converting...");
+
     frames = VNC_frame_data;
+
+    let encoding;
     // Only present in older recordings
     if (window.VNC_frame_encoding) {
         encoding = VNC_frame_encoding;
+    } else {
+        let frame = frames[0];
+        let start = frame.indexOf('{', 1) + 1;
+        if (frame.slice(start).startsWith('UkZC')) {
+            encoding = 'base64';
+        } else {
+            encoding = 'binary';
+        }
     }
+
+    for (let i = 0;i < frames.length;i++) {
+        let frame = frames[i];
+
+        if (frame === "EOF") {
+            frames.splice(i);
+            break;
+        }
+
+        let dataIdx = frame.indexOf('{', 1) + 1;
+
+        let time = parseInt(frame.slice(1, dataIdx - 1));
+
+        let u8;
+        if (encoding === 'base64') {
+            u8 = Base64.decode(frame.slice(dataIdx));
+        } else {
+            u8 = new Uint8Array(frame.length - dataIdx);
+            for (let j = 0; j < frame.length - dataIdx; j++) {
+                u8[j] = frame.charCodeAt(dataIdx + j);
+            }
+        }
+
+        frames[i] = { fromClient: frame[0] === '}',
+                      timestamp: time,
+                      data: u8 };
+    }
+
+    message("Ready");
 }
 
 class IterationPlayer {
-    constructor(iterations, frames, encoding) {
+    constructor(iterations, frames) {
         this._iterations = iterations;
 
         this._iteration = undefined;
@@ -64,7 +105,6 @@ class IterationPlayer {
         this._start_time = undefined;
 
         this._frames = frames;
-        this._encoding = encoding;
 
         this._state = 'running';
 
@@ -84,7 +124,7 @@ class IterationPlayer {
     }
 
     _nextIteration() {
-        const player = new RecordingPlayer(this._frames, this._encoding, this._disconnected.bind(this));
+        const player = new RecordingPlayer(this._frames, this._disconnected.bind(this));
         player.onfinish = this._iterationFinish.bind(this);
 
         if (this._state !== 'running') { return; }
@@ -147,7 +187,7 @@ function start() {
         mode = 'realtime';
     }
 
-    const player = new IterationPlayer(iterations, frames, encoding);
+    const player = new IterationPlayer(iterations, frames);
     player.oniterationfinish = (evt) => {
         message(`Iteration ${evt.number} took ${evt.duration}ms`);
     };
