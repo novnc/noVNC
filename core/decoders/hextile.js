@@ -32,8 +32,8 @@ export default class HextileDecoder {
                 return false;
             }
 
-            let rQ = sock.get_rQ();
-            let rQi = sock.get_rQi();
+            let rQ = sock.rQ;
+            let rQi = sock.rQi;
 
             let subencoding = rQ[rQi];  // Peek
             if (subencoding > 30) {  // Raw
@@ -129,7 +129,6 @@ export default class HextileDecoder {
                 }
                 display.finishTile();
             }
-            sock.set_rQi(rQi);
             this._lastsubencoding = subencoding;
             this._tiles--;
         }

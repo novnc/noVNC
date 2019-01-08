@@ -45,24 +45,24 @@ export default class Websock {
     }
 
     // Getters and Setters
-    get_sQ() {
+    get sQ() {
         return this._sQ;
     }
 
-    get_rQ() {
+    get rQ() {
         return this._rQ;
     }
 
-    get_rQi() {
+    get rQi() {
         return this._rQi;
     }
 
-    set_rQi(val) {
+    set rQi(val) {
         this._rQi = val;
     }
 
     // Receive Queue
-    rQlen() {
+    get rQlen() {
         return this._rQlen - this._rQi;
     }
 
@@ -70,33 +70,33 @@ export default class Websock {
         return this._rQ[this._rQi];
     }
 
+    rQskipBytes(bytes) {
+        this._rQi += bytes;
+    }
+
     rQshift8() {
-        return this._rQ[this._rQi++];
+        return this._rQshift(1);
     }
 
-    rQskip8() {
-        this._rQi++;
-    }
-
-    rQskipBytes(num) {
-        this._rQi += num;
-    }
-
-    // TODO(directxman12): test performance with these vs a DataView
     rQshift16() {
-        return (this._rQ[this._rQi++] << 8) +
-               this._rQ[this._rQi++];
+        return this._rQshift(2);
     }
 
     rQshift32() {
-        return (this._rQ[this._rQi++] << 24) +
-               (this._rQ[this._rQi++] << 16) +
-               (this._rQ[this._rQi++] << 8) +
-               this._rQ[this._rQi++];
+        return this._rQshift(4);
+    }
+
+    // TODO(directxman12): test performance with these vs a DataView
+    _rQshift(bytes) {
+        let res = 0;
+        for (let byte = bytes - 1; byte >= 0; byte--) {
+            res += this._rQ[this._rQi++] << (byte * 8);
+        }
+        return res;
     }
 
     rQshiftStr(len) {
-        if (typeof(len) === 'undefined') { len = this.rQlen(); }
+        if (typeof(len) === 'undefined') { len = this.rQlen; }
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
         for (let i = 0; i < len; i += 4096) {
@@ -107,36 +107,27 @@ export default class Websock {
     }
 
     rQshiftBytes(len) {
-        if (typeof(len) === 'undefined') { len = this.rQlen(); }
+        if (typeof(len) === 'undefined') { len = this.rQlen; }
         this._rQi += len;
         return new Uint8Array(this._rQ.buffer, this._rQi - len, len);
     }
 
     rQshiftTo(target, len) {
-        if (len === undefined) { len = this.rQlen(); }
+        if (len === undefined) { len = this.rQlen; }
         // TODO: make this just use set with views when using a ArrayBuffer to store the rQ
         target.set(new Uint8Array(this._rQ.buffer, this._rQi, len));
         this._rQi += len;
     }
 
-    rQwhole() {
-        return new Uint8Array(this._rQ.buffer, 0, this._rQlen);
-    }
-
-    rQslice(start, end) {
-        if (end) {
-            return new Uint8Array(this._rQ.buffer, this._rQi + start, end - start);
-        } else {
-            return new Uint8Array(this._rQ.buffer, this._rQi + start, this._rQlen - this._rQi - start);
-        }
+    rQslice(start, end = this.rQlen) {
+        return new Uint8Array(this._rQ.buffer, this._rQi + start, end - start);
     }
 
     // Check to see if we must wait for 'num' bytes (default to FBU.bytes)
     // to be available in the receive queue. Return true if we need to
     // wait (and possibly print a debug message), otherwise false.
     rQwait(msg, num, goback) {
-        const rQlen = this._rQlen - this._rQi; // Skip rQlen() function call
-        if (rQlen < num) {
+        if (this.rQlen < num) {
             if (goback) {
                 if (this._rQi < goback) {
                     throw new Error("rQwait cannot backup " + goback + " bytes");
@@ -235,21 +226,21 @@ export default class Websock {
     }
 
     _expand_compact_rQ(min_fit) {
-        const resizeNeeded = min_fit || this._rQlen - this._rQi > this._rQbufferSize / 2;
+        const resizeNeeded = min_fit || this.rQlen > this._rQbufferSize / 2;
         if (resizeNeeded) {
             if (!min_fit) {
                 // just double the size if we need to do compaction
                 this._rQbufferSize *= 2;
             } else {
                 // otherwise, make sure we satisy rQlen - rQi + min_fit < rQbufferSize / 8
-                this._rQbufferSize = (this._rQlen - this._rQi + min_fit) * 8;
+                this._rQbufferSize = (this.rQlen + min_fit) * 8;
             }
         }
 
         // we don't want to grow unboundedly
         if (this._rQbufferSize > MAX_RQ_GROW_SIZE) {
             this._rQbufferSize = MAX_RQ_GROW_SIZE;
-            if (this._rQbufferSize - this._rQlen - this._rQi < min_fit) {
+            if (this._rQbufferSize - this.rQlen < min_fit) {
                 throw new Error("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
             }
         }
@@ -283,7 +274,7 @@ export default class Websock {
 
     _recv_message(e) {
         this._decode_message(e.data);
-        if (this.rQlen() > 0) {
+        if (this.rQlen > 0) {
             this._eventHandlers.message();
             // Compact the receive queue
             if (this._rQlen == this._rQi) {
