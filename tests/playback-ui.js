@@ -58,7 +58,7 @@ function enableUI() {
     } else {
         let frame = frames[0];
         let start = frame.indexOf('{', 1) + 1;
-        if (frame.slice(start).startsWith('UkZC')) {
+        if (frame.slice(start, start+4) === 'UkZC') {
             encoding = 'base64';
         } else {
             encoding = 'binary';
@@ -113,12 +113,11 @@ class IterationPlayer {
         this.rfbdisconnected = () => {};
     }
 
-    start(mode) {
+    start(realtime) {
         this._iteration = 0;
         this._start_time = (new Date()).getTime();
 
-        this._realtime = mode.startsWith('realtime');
-        this._trafficMgmt = !mode.endsWith('-no-mgmt');
+        this._realtime = realtime;
 
         this._nextIteration();
     }
@@ -135,7 +134,7 @@ class IterationPlayer {
             return;
         }
 
-        player.run(this._realtime, this._trafficMgmt);
+        player.run(this._realtime, false);
     }
 
     _finish() {
@@ -177,14 +176,14 @@ function start() {
 
     const iterations = document.getElementById('iterations').value;
 
-    let mode;
+    let realtime;
 
     if (document.getElementById('mode1').checked) {
         message(`Starting performance playback (fullspeed) [${iterations} iteration(s)]`);
-        mode = 'perftest';
+        realtime = false;
     } else {
         message(`Starting realtime playback [${iterations} iteration(s)]`);
-        mode = 'realtime';
+        realtime = true;
     }
 
     const player = new IterationPlayer(iterations, frames);
@@ -203,7 +202,7 @@ function start() {
         document.getElementById('startButton').disabled = false;
         document.getElementById('startButton').value = "Start";
     };
-    player.start(mode);
+    player.start(realtime);
 }
 
 loadFile().then(enableUI).catch(e => message("Error loading recording: " + e));
