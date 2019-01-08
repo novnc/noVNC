@@ -141,16 +141,18 @@ class IterationPlayer {
         const endTime = (new Date()).getTime();
         const totalDuration = endTime - this._start_time;
 
-        const evt = new Event('finish');
-        evt.duration = totalDuration;
-        evt.iterations = this._iterations;
+        const evt = new CustomEvent('finish',
+                                    { detail:
+                                      { duration: totalDuration,
+                                        iterations: this._iterations } } );
         this.onfinish(evt);
     }
 
     _iterationFinish(duration) {
-        const evt = new Event('iterationfinish');
-        evt.duration = duration;
-        evt.number = this._iteration;
+        const evt = new CustomEvent('iterationfinish',
+                                    { detail:
+                                      { duration: duration,
+                                        number: this._iteration } } );
         this.oniterationfinish(evt);
 
         this._nextIteration();
@@ -161,11 +163,11 @@ class IterationPlayer {
             this._state = 'failed';
         }
 
-        const evt = new Event('rfbdisconnected');
-        evt.clean = clean;
-        evt.frame = frame;
-        evt.iteration = this._iteration;
-
+        const evt = new CustomEvent('rfbdisconnected',
+                                    { detail:
+                                      { clean: clean,
+                                        frame: frame,
+                                        iteration: this._iteration } } );
         this.onrfbdisconnected(evt);
     }
 }
@@ -188,16 +190,16 @@ function start() {
 
     const player = new IterationPlayer(iterations, frames);
     player.oniterationfinish = (evt) => {
-        message(`Iteration ${evt.number} took ${evt.duration}ms`);
+        message(`Iteration ${evt.detail.number} took ${evt.detail.duration}ms`);
     };
     player.onrfbdisconnected = (evt) => {
-        if (!evt.clean) {
-            message(`noVNC sent disconnected during iteration ${evt.iteration} frame ${evt.frame}`);
+        if (!evt.detail.clean) {
+            message(`noVNC sent disconnected during iteration ${evt.detail.iteration} frame ${evt.detail.frame}`);
         }
     };
     player.onfinish = (evt) => {
-        const iterTime = parseInt(evt.duration / evt.iterations, 10);
-        message(`${evt.iterations} iterations took ${evt.duration}ms (average ${iterTime}ms / iteration)`);
+        const iterTime = parseInt(evt.detail.duration / evt.detail.iterations, 10);
+        message(`${evt.detail.iterations} iterations took ${evt.detail.duration}ms (average ${iterTime}ms / iteration)`);
 
         document.getElementById('startButton').disabled = false;
         document.getElementById('startButton').value = "Start";
