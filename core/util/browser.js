@@ -64,6 +64,11 @@ export function isIOS() {
             !!(/ipod/i).exec(navigator.platform));
 }
 
+export function isSafari() {
+    return navigator && (navigator.userAgent.indexOf('Safari') !== -1 &&
+                         navigator.userAgent.indexOf('Chrome') === -1);
+}
+
 export function isIE() {
     return navigator && !!(/trident/i).exec(navigator.userAgent);
 }

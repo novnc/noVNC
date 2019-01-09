@@ -8,7 +8,7 @@
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, dragThreshold } from '../core/util/browser.js';
+import { isTouchDevice, isSafari, dragThreshold } from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
@@ -31,7 +31,6 @@ const UI = {
     controlbarMouseDownClientY: 0,
     controlbarMouseDownOffsetY: 0,
 
-    isSafari: false,
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
 
@@ -55,10 +54,6 @@ const UI = {
 
     // Render default UI and initialize settings menu
     start(callback) {
-
-        // Setup global variables first
-        UI.isSafari = (navigator.userAgent.indexOf('Safari') !== -1 &&
-                       navigator.userAgent.indexOf('Chrome') === -1);
 
         UI.initSettings();
 
@@ -117,7 +112,7 @@ const UI = {
     initFullscreen() {
         // Only show the button if fullscreen is properly supported
         // * Safari doesn't support alphanumerical input while in fullscreen
-        if (!UI.isSafari &&
+        if (!isSafari() &&
             (document.documentElement.requestFullscreen ||
              document.documentElement.mozRequestFullScreen ||
              document.documentElement.webkitRequestFullscreen ||
