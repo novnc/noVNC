@@ -8,7 +8,8 @@
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, isSafari, dragThreshold } from '../core/util/browser.js';
+import { isTouchDevice, isSafari, isIOS, isAndroid, dragThreshold }
+    from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
@@ -1243,8 +1244,8 @@ const UI = {
             // Can't be clipping if viewport is scaled to fit
             UI.forceSetting('view_clip', false);
             UI.rfb.clipViewport  = false;
-        } else if (isTouchDevice) {
-            // Touch devices usually have shit scrollbars
+        } else if (isIOS() || isAndroid()) {
+            // iOS and Android usually have shit scrollbars
             UI.forceSetting('view_clip', true);
             UI.rfb.clipViewport = true;
         } else {

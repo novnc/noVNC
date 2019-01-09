@@ -64,6 +64,10 @@ export function isIOS() {
             !!(/ipod/i).exec(navigator.platform));
 }
 
+export function isAndroid() {
+    return navigator && !!(/android/i).exec(navigator.userAgent);
+}
+
 export function isSafari() {
     return navigator && (navigator.userAgent.indexOf('Safari') !== -1 &&
                          navigator.userAgent.indexOf('Chrome') === -1);
