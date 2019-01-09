@@ -53,6 +53,17 @@ export function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
 }
 
+export function isWindows() {
+    return navigator && !!(/win/i).exec(navigator.platform);
+}
+
+export function isIOS() {
+    return navigator &&
+           (!!(/ipad/i).exec(navigator.platform) ||
+            !!(/iphone/i).exec(navigator.platform) ||
+            !!(/ipod/i).exec(navigator.platform));
+}
+
 export function isIE() {
     return navigator && !!(/trident/i).exec(navigator.userAgent);
 }
@@ -63,16 +74,5 @@ export function isEdge() {
 
 export function isFirefox() {
     return navigator && !!(/firefox/i).exec(navigator.userAgent);
-}
-
-export function isWindows() {
-    return navigator && !!(/win/i).exec(navigator.platform);
-}
-
-export function isIOS() {
-    return navigator &&
-           (!!(/ipad/i).exec(navigator.platform) ||
-            !!(/iphone/i).exec(navigator.platform) ||
-            !!(/ipod/i).exec(navigator.platform));
 }
 
