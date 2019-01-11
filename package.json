@@ -2,14 +2,26 @@
   "name": "@novnc/novnc",
   "version": "1.0.0",
   "description": "An HTML5 VNC client",
+  "browser": "lib/rfb",
   "directories": {
+    "lib": "lib",
     "doc": "docs",
     "test": "tests"
   },
+  "files": [
+    "lib",
+    "AUTHORS",
+    "VERSION",
+    "docs/API.md",
+    "docs/LIBRARY.md",
+    "docs/LICENSE*",
+    "core",
+    "vendor/pako"
+  ],
   "scripts": {
     "lint": "eslint app core po tests utils",
     "test": "karma start karma.conf.js",
-    "prepare": "node ./utils/use_require.js --as commonjs --clean"
+    "prepublish": "node ./utils/use_require.js --as commonjs --clean"
   },
   "repository": {
     "type": "git",

@@ -37,13 +37,15 @@ jobs:
     before_script:
     script: npm run lint
   - stage: deploy
+    env:
+    addons:
     script: skip
     before_script: skip
     deploy:
       provider: npm
-      email: directxman12+npm@gmail.com
+      email: ossman@cendio.se
       api_key:
-        secure: cIidkFmvkdmdwWsqBpxyPUCzBqgK8LhPiNxTrIfhwbUunMsJep9MiiBJtv8poVYG2Y4yfiZmqGn4nfetUdc/LDctd73j+/EM4Z/NUDexVAhJ+9/qCogvpJsSQ96VQo7yBceW4E1fBM3WCU0kcGToYIVSSrwvvRDtJfeYJf2Qqw0=
+        secure: "Qq2Mi9xQawO2zlAigzshzMu2QMHvu1IaN9l0ZIivE99wHJj7eS5f4miJ9wB+/mWRRgb3E8uj9ZRV24+Oc36drlBTU9sz+lHhH0uFMfAIseceK64wZV9sLAZm472fmPp2xdUeTCCqPaRy7g1XBqiJ0LyZvEFLsRijqcLjPBF+b8w="
       on:
         tags: true
         repo: novnc/noVNC
