@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR The noVNC Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Baw Appie <pp121324@gmail.com>, 2018.
 #
