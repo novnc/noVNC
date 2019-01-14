@@ -1407,6 +1407,41 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0]));
                 expect(client._sock).to.have.sent(new Uint8Array([0]));
             });
+
+            it('should fail if onSocketOpen callback returns false', function () {
+                const rfb = new RFB(container, 'wss://host:8675', { onSocketOpen: () => false });
+                clock.tick();
+                sinon.spy(rfb, "_fail");
+                rfb._sock._websocket._open();
+                expect(rfb._fail).to.have.been.calledOnce;
+            });
+
+            it('should fail if onSocketOpen callback throws an exception', function () {
+                const rfb = new RFB(container, 'wss://host:8675', { onSocketOpen: () => { throw new Error(); } });
+                clock.tick();
+                sinon.spy(rfb, "_fail");
+                rfb._sock._websocket._open();
+                expect(rfb._fail).to.have.been.calledOnce;
+            });
+
+            it('should pass if onSocketOpen callback succeeds', function () {
+                const client = make_rfb('wss://host:8675', { onSocketOpen: (ws) => {
+                    expect(!!ws).to.be.true;
+                    return true;
+                }});
+                client._rfb_connection_state = 'connecting';
+                client._rfb_init_state = 'SecurityResult';
+                client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0]));
+                expect(client._rfb_init_state).to.equal('ServerInitialisation');
+            });
+
+            it('should pass if onSocketOpen callback is not a function', function () {
+                const client = make_rfb('wss://host:8675', { onSocketOpen: 123 });
+                client._rfb_connection_state = 'connecting';
+                client._rfb_init_state = 'SecurityResult';
+                client._sock._websocket._receive_data(new Uint8Array([0, 0, 0, 0]));
+                expect(client._rfb_init_state).to.equal('ServerInitialisation');
+            });
         });
 
         describe('ServerInitialisation', function () {

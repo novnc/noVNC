@@ -183,6 +183,18 @@ export default class RFB extends EventTargetMixin {
         this._sock = new Websock();
         this._sock.on('message', this._handle_message.bind(this));
         this._sock.on('open', () => {
+            if (typeof options.onSocketOpen === "function") {
+                let result;
+                try {
+                    result = options.onSocketOpen(this._sock._websocket);
+                } catch (e) {
+                    return this._fail("onSocketOpen callback failed: " + e.stack);
+                }
+                if (!result) {
+                    return this._fail("onSocketOpen callback did not pass");
+                }
+            }
+
             if ((this._rfb_connection_state === 'connecting') &&
                 (this._rfb_init_state === '')) {
                 this._rfb_init_state = 'ProtocolVersion';
