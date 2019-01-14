@@ -184,14 +184,14 @@ export default class RFB extends EventTargetMixin {
         this._sock.on('message', this._handle_message.bind(this));
         this._sock.on('open', () => {
             if (typeof options.onSocketOpen === "function") {
-                let result;
+                let errorDescription;
                 try {
-                    result = options.onSocketOpen(this._sock._websocket);
+                    errorDescription = options.onSocketOpen(this._sock._websocket);
                 } catch (e) {
                     return this._fail("onSocketOpen callback failed: " + e.stack);
                 }
-                if (result) {
-                    return this._fail("onSocketOpen callback failed: " + result);
+                if (errorDescription) {
+                    return this._fail("onSocketOpen callback failed: " + errorDescription);
                 }
             }
 
