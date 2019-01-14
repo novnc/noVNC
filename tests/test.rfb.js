@@ -1408,8 +1408,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._sock).to.have.sent(new Uint8Array([0]));
             });
 
-            it('should fail if onSocketOpen callback returns false', function () {
-                const rfb = new RFB(container, 'wss://host:8675', { onSocketOpen: () => false });
+            it('should fail if onSocketOpen callback returns a failure description', function () {
+                const rfb = new RFB(container, 'wss://host:8675', { onSocketOpen: () => 'Something went wrong' });
                 clock.tick();
                 sinon.spy(rfb, "_fail");
                 rfb._sock._websocket._open();
@@ -1427,7 +1427,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should pass if onSocketOpen callback succeeds', function () {
                 const client = make_rfb('wss://host:8675', { onSocketOpen: (ws) => {
                     expect(!!ws).to.be.true;
-                    return true;
                 }});
                 client._rfb_connection_state = 'connecting';
                 client._rfb_init_state = 'SecurityResult';

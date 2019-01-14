@@ -190,8 +190,8 @@ export default class RFB extends EventTargetMixin {
                 } catch (e) {
                     return this._fail("onSocketOpen callback failed: " + e.stack);
                 }
-                if (!result) {
-                    return this._fail("onSocketOpen callback did not pass");
+                if (result) {
+                    return this._fail("onSocketOpen callback failed: " + result);
                 }
             }
 
