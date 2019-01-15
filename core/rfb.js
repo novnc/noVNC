@@ -302,6 +302,8 @@ export default class RFB extends EventTargetMixin {
         this._refreshCursor();
     }
 
+    get screen() { return this._screen; }
+
     // ===== PUBLIC METHODS =====
 
     disconnect() {
