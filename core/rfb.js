@@ -183,22 +183,13 @@ export default class RFB extends EventTargetMixin {
         this._sock = new Websock();
         this._sock.on('message', this._handle_message.bind(this));
         this._sock.on('open', () => {
-            if (typeof options.onSocketOpen === "function") {
-                let errorDescription;
-                try {
-                    errorDescription = options.onSocketOpen(this._sock._websocket);
-                } catch (e) {
-                    return this._fail("onSocketOpen callback failed: " + e.stack);
-                }
-                if (errorDescription) {
-                    return this._fail("onSocketOpen callback failed: " + errorDescription);
-                }
-            }
-
             if ((this._rfb_connection_state === 'connecting') &&
                 (this._rfb_init_state === '')) {
                 this._rfb_init_state = 'ProtocolVersion';
                 Log.Debug("Starting VNC handshake");
+                if (!this.dispatchEvent({type: 'webSocketOpen', ws: this._sock._websocket})) {
+                    return this._fail("webSocketOpen event handler has prevented the further execution");
+                }
             } else {
                 this._fail("Unexpected server connection while " +
                            this._rfb_connection_state);
