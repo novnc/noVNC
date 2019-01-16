@@ -18,7 +18,7 @@ update-js: $(JSONFILES)
 
 update-pot:
 	xgettext --output=noVNC.js.pot \
-		--copyright-holder="Various Authors" \
+		--copyright-holder="The noVNC Authors" \
 		--package-name="noVNC" \
 		--package-version="$(VERSION)" \
 		--msgid-bugs-address="novnc@googlegroups.com" \
