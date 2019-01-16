@@ -235,7 +235,7 @@ msgstr "고급"
 
 #: ../vnc.html:226
 msgid "Repeater ID:"
-msgstr "중계 ID""
+msgstr "중계 ID"
 
 #: ../vnc.html:230
 msgid "WebSocket"
