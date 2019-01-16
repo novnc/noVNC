@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.0.0-testing.2\n"
+"Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2018-01-31 16:29+0100\n"
+"POT-Creation-Date: 2019-01-16 11:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,252 +17,264 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../app/ui.js:395
+#: ../app/ui.js:387
 msgid "Connecting..."
 msgstr ""
 
-#: ../app/ui.js:402
+#: ../app/ui.js:394
 msgid "Disconnecting..."
 msgstr ""
 
-#: ../app/ui.js:408
+#: ../app/ui.js:400
 msgid "Reconnecting..."
 msgstr ""
 
-#: ../app/ui.js:413
+#: ../app/ui.js:405
 msgid "Internal error"
 msgstr ""
 
-#: ../app/ui.js:1002
+#: ../app/ui.js:995
 msgid "Must set host"
 msgstr ""
 
-#: ../app/ui.js:1083
+#: ../app/ui.js:1077
 msgid "Connected (encrypted) to "
 msgstr ""
 
-#: ../app/ui.js:1085
+#: ../app/ui.js:1079
 msgid "Connected (unencrypted) to "
 msgstr ""
 
-#: ../app/ui.js:1108
+#: ../app/ui.js:1102
 msgid "Something went wrong, connection is closed"
 msgstr ""
 
-#: ../app/ui.js:1111
+#: ../app/ui.js:1105
 msgid "Failed to connect to server"
 msgstr ""
 
-#: ../app/ui.js:1121
+#: ../app/ui.js:1115
 msgid "Disconnected"
 msgstr ""
 
-#: ../app/ui.js:1134
+#: ../app/ui.js:1128
 msgid "New connection has been rejected with reason: "
 msgstr ""
 
-#: ../app/ui.js:1137
+#: ../app/ui.js:1131
 msgid "New connection has been rejected"
 msgstr ""
 
-#: ../app/ui.js:1158
+#: ../app/ui.js:1151
 msgid "Password is required"
 msgstr ""
 
-#: ../vnc.html:91
+#: ../vnc.html:84
 msgid "noVNC encountered an error:"
 msgstr ""
 
-#: ../vnc.html:101
+#: ../vnc.html:94
 msgid "Hide/Show the control bar"
 msgstr ""
 
-#: ../vnc.html:108
+#: ../vnc.html:101
 msgid "Move/Drag Viewport"
 msgstr ""
 
-#: ../vnc.html:108
+#: ../vnc.html:101
 msgid "viewport drag"
 msgstr ""
 
-#: ../vnc.html:114 ../vnc.html:117 ../vnc.html:120 ../vnc.html:123
+#: ../vnc.html:107 ../vnc.html:110 ../vnc.html:113 ../vnc.html:116
 msgid "Active Mouse Button"
 msgstr ""
 
-#: ../vnc.html:114
+#: ../vnc.html:107
 msgid "No mousebutton"
 msgstr ""
 
-#: ../vnc.html:117
+#: ../vnc.html:110
 msgid "Left mousebutton"
 msgstr ""
 
-#: ../vnc.html:120
+#: ../vnc.html:113
 msgid "Middle mousebutton"
 msgstr ""
 
-#: ../vnc.html:123
+#: ../vnc.html:116
 msgid "Right mousebutton"
 msgstr ""
 
-#: ../vnc.html:126
+#: ../vnc.html:119
 msgid "Keyboard"
 msgstr ""
 
-#: ../vnc.html:126
+#: ../vnc.html:119
 msgid "Show Keyboard"
 msgstr ""
 
-#: ../vnc.html:133
+#: ../vnc.html:126
 msgid "Extra keys"
 msgstr ""
 
-#: ../vnc.html:133
+#: ../vnc.html:126
 msgid "Show Extra Keys"
 msgstr ""
 
-#: ../vnc.html:138
+#: ../vnc.html:131
 msgid "Ctrl"
 msgstr ""
 
-#: ../vnc.html:138
+#: ../vnc.html:131
 msgid "Toggle Ctrl"
 msgstr ""
 
-#: ../vnc.html:141
+#: ../vnc.html:134
 msgid "Alt"
 msgstr ""
 
-#: ../vnc.html:141
+#: ../vnc.html:134
 msgid "Toggle Alt"
 msgstr ""
 
-#: ../vnc.html:144
+#: ../vnc.html:137
+msgid "Toggle Windows"
+msgstr ""
+
+#: ../vnc.html:137
+msgid "Windows"
+msgstr ""
+
+#: ../vnc.html:140
 msgid "Send Tab"
 msgstr ""
 
-#: ../vnc.html:144
+#: ../vnc.html:140
 msgid "Tab"
 msgstr ""
 
-#: ../vnc.html:147
+#: ../vnc.html:143
 msgid "Esc"
 msgstr ""
 
-#: ../vnc.html:147
+#: ../vnc.html:143
 msgid "Send Escape"
 msgstr ""
 
-#: ../vnc.html:150
+#: ../vnc.html:146
 msgid "Ctrl+Alt+Del"
 msgstr ""
 
-#: ../vnc.html:150
+#: ../vnc.html:146
 msgid "Send Ctrl-Alt-Del"
 msgstr ""
 
-#: ../vnc.html:158
+#: ../vnc.html:154
 msgid "Shutdown/Reboot"
 msgstr ""
 
-#: ../vnc.html:158
+#: ../vnc.html:154
 msgid "Shutdown/Reboot..."
 msgstr ""
 
-#: ../vnc.html:164
+#: ../vnc.html:160
 msgid "Power"
 msgstr ""
 
-#: ../vnc.html:166
+#: ../vnc.html:162
 msgid "Shutdown"
 msgstr ""
 
-#: ../vnc.html:167
+#: ../vnc.html:163
 msgid "Reboot"
 msgstr ""
 
-#: ../vnc.html:168
+#: ../vnc.html:164
 msgid "Reset"
 msgstr ""
 
-#: ../vnc.html:173 ../vnc.html:179
+#: ../vnc.html:169 ../vnc.html:175
 msgid "Clipboard"
 msgstr ""
 
-#: ../vnc.html:183
+#: ../vnc.html:179
 msgid "Clear"
 msgstr ""
 
-#: ../vnc.html:189
+#: ../vnc.html:185
 msgid "Fullscreen"
 msgstr ""
 
-#: ../vnc.html:194 ../vnc.html:201
+#: ../vnc.html:190 ../vnc.html:197
 msgid "Settings"
 msgstr ""
 
-#: ../vnc.html:204
+#: ../vnc.html:200
 msgid "Shared Mode"
 msgstr ""
 
-#: ../vnc.html:207
+#: ../vnc.html:203
 msgid "View Only"
 msgstr ""
 
-#: ../vnc.html:211
+#: ../vnc.html:207
 msgid "Clip to Window"
 msgstr ""
 
-#: ../vnc.html:214
+#: ../vnc.html:210
 msgid "Scaling Mode:"
 msgstr ""
 
-#: ../vnc.html:216
+#: ../vnc.html:212
 msgid "None"
 msgstr ""
 
-#: ../vnc.html:217
+#: ../vnc.html:213
 msgid "Local Scaling"
 msgstr ""
 
-#: ../vnc.html:218
+#: ../vnc.html:214
 msgid "Remote Resizing"
 msgstr ""
 
-#: ../vnc.html:223
+#: ../vnc.html:219
 msgid "Advanced"
 msgstr ""
 
-#: ../vnc.html:226
+#: ../vnc.html:222
 msgid "Repeater ID:"
 msgstr ""
 
-#: ../vnc.html:230
+#: ../vnc.html:226
 msgid "WebSocket"
 msgstr ""
 
-#: ../vnc.html:233
+#: ../vnc.html:229
 msgid "Encrypt"
 msgstr ""
 
-#: ../vnc.html:236
+#: ../vnc.html:232
 msgid "Host:"
 msgstr ""
 
-#: ../vnc.html:240
+#: ../vnc.html:236
 msgid "Port:"
 msgstr ""
 
-#: ../vnc.html:244
+#: ../vnc.html:240
 msgid "Path:"
 msgstr ""
 
-#: ../vnc.html:251
+#: ../vnc.html:247
 msgid "Automatic Reconnect"
 msgstr ""
 
-#: ../vnc.html:254
+#: ../vnc.html:250
 msgid "Reconnect Delay (ms):"
+msgstr ""
+
+#: ../vnc.html:255
+msgid "Show Dot when No Cursor"
 msgstr ""
 
 #: ../vnc.html:260
