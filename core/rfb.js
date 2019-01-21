@@ -31,6 +31,7 @@ import TightPNGDecoder from "./decoders/tightpng.js";
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
+const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
 export default class RFB extends EventTargetMixin {
     constructor(target, url, options) {
@@ -128,7 +129,7 @@ export default class RFB extends EventTargetMixin {
         this._screen.style.width = '100%';
         this._screen.style.height = '100%';
         this._screen.style.overflow = 'auto';
-        this._screen.style.backgroundColor = 'rgb(40, 40, 40)';
+        this._screen.style.background = DEFAULT_BACKGROUND;
         this._canvas = document.createElement('canvas');
         this._canvas.style.margin = 'auto';
         // Some browsers add an outline on focus
@@ -301,6 +302,9 @@ export default class RFB extends EventTargetMixin {
         this._showDotCursor = show;
         this._refreshCursor();
     }
+
+    get background() { return this._screen.style.background; }
+    set background(cssValue) { this._screen.style.background = cssValue; }
 
     // ===== PUBLIC METHODS =====
 
