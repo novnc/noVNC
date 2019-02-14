@@ -129,6 +129,7 @@ export default class HextileDecoder {
                 }
                 display.finishTile();
             }
+            sock.rQi = rQi;
             this._lastsubencoding = subencoding;
             this._tiles--;
         }
