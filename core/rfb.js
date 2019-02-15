@@ -785,8 +785,8 @@ export default class RFB extends EventTargetMixin {
     // Message Handlers
 
     _negotiate_protocol_version() {
-        if (this._sock.rQlen < 12) {
-            return this._fail("Received incomplete protocol version.");
+        if (this._sock.rQwait("version", 12)) {
+            return false;
         }
 
         const sversion = this._sock.rQshiftStr(12).substr(4, 7);
