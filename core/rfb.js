@@ -57,7 +57,7 @@ export default class RFB extends EventTargetMixin {
         // Internal state
         this._rfb_connection_state = '';
         this._rfb_init_state = '';
-        this._rfb_auth_scheme = '';
+        this._rfb_auth_scheme = -1;
         this._rfb_clean_disconnect = true;
 
         // Server capabilities
@@ -863,7 +863,6 @@ export default class RFB extends EventTargetMixin {
             Log.Debug("Server security types: " + types);
 
             // Look for each auth in preferred order
-            this._rfb_auth_scheme = 0;
             if (includes(1, types)) {
                 this._rfb_auth_scheme = 1; // None
             } else if (includes(22, types)) {
