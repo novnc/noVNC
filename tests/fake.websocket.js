@@ -63,7 +63,12 @@ export default class FakeWebSocket {
     }
 
     _receive_data(data) {
-        this.onmessage(make_event("message", { 'data': data }));
+        // Break apart the data to expose bugs where we assume data is
+        // neatly packaged
+        for (let i = 0;i < data.length;i++) {
+            let buf = data.subarray(i, i+1);
+            this.onmessage(make_event("message", { 'data': buf }));
+        }
     }
 }
 
