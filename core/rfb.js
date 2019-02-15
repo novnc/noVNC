@@ -182,7 +182,9 @@ export default class RFB extends EventTargetMixin {
         this._mouse.onmousemove = this._handleMouseMove.bind(this);
 
         this._sock = new Websock();
-        this._sock.on('message', this._handle_message.bind(this));
+        this._sock.on('message', () => {
+            this._handle_message();
+        });
         this._sock.on('open', () => {
             if ((this._rfb_connection_state === 'connecting') &&
                 (this._rfb_init_state === '')) {
