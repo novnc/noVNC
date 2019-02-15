@@ -57,7 +57,7 @@ export default class RFB extends EventTargetMixin {
         // Internal state
         this._rfb_connection_state = '';
         this._rfb_init_state = '';
-        this._rfb_auth_scheme = '';
+        this._rfb_auth_scheme = -1;
         this._rfb_clean_disconnect = true;
 
         // Server capabilities
@@ -182,7 +182,9 @@ export default class RFB extends EventTargetMixin {
         this._mouse.onmousemove = this._handleMouseMove.bind(this);
 
         this._sock = new Websock();
-        this._sock.on('message', this._handle_message.bind(this));
+        this._sock.on('message', () => {
+            this._handle_message();
+        });
         this._sock.on('open', () => {
             if ((this._rfb_connection_state === 'connecting') &&
                 (this._rfb_init_state === '')) {
@@ -783,8 +785,8 @@ export default class RFB extends EventTargetMixin {
     // Message Handlers
 
     _negotiate_protocol_version() {
-        if (this._sock.rQlen < 12) {
-            return this._fail("Received incomplete protocol version.");
+        if (this._sock.rQwait("version", 12)) {
+            return false;
         }
 
         const sversion = this._sock.rQshiftStr(12).substr(4, 7);
@@ -851,14 +853,16 @@ export default class RFB extends EventTargetMixin {
             if (this._sock.rQwait("security type", num_types, 1)) { return false; }
 
             if (num_types === 0) {
-                return this._handle_security_failure("no security types");
+                this._rfb_init_state = "SecurityReason";
+                this._security_context = "no security types";
+                this._security_status = 1;
+                return this._init_msg();
             }
 
             const types = this._sock.rQshiftBytes(num_types);
             Log.Debug("Server security types: " + types);
 
             // Look for each auth in preferred order
-            this._rfb_auth_scheme = 0;
             if (includes(1, types)) {
                 this._rfb_auth_scheme = 1; // None
             } else if (includes(22, types)) {
@@ -876,6 +880,13 @@ export default class RFB extends EventTargetMixin {
             // Server decides
             if (this._sock.rQwait("security scheme", 4)) { return false; }
             this._rfb_auth_scheme = this._sock.rQshift32();
+
+            if (this._rfb_auth_scheme == 0) {
+                this._rfb_init_state = "SecurityReason";
+                this._security_context = "authentication scheme";
+                this._security_status = 1;
+                return this._init_msg();
+            }
         }
 
         this._rfb_init_state = 'Authentication';
@@ -884,28 +895,7 @@ export default class RFB extends EventTargetMixin {
         return this._init_msg(); // jump to authentication
     }
 
-    /*
-     * Get the security failure reason if sent from the server and
-     * send the 'securityfailure' event.
-     *
-     * - The optional parameter context can be used to add some extra
-     *   context to the log output.
-     *
-     * - The optional parameter security_result_status can be used to
-     *   add a custom status code to the event.
-     */
-    _handle_security_failure(context, security_result_status) {
-
-        if (typeof context === 'undefined') {
-            context = "";
-        } else {
-            context = " on " + context;
-        }
-
-        if (typeof security_result_status === 'undefined') {
-            security_result_status = 1; // fail
-        }
-
+    _handle_security_reason() {
         if (this._sock.rQwait("reason length", 4)) {
             return false;
         }
@@ -913,23 +903,26 @@ export default class RFB extends EventTargetMixin {
         let reason = "";
 
         if (strlen > 0) {
-            if (this._sock.rQwait("reason", strlen, 8)) { return false; }
+            if (this._sock.rQwait("reason", strlen, 4)) { return false; }
             reason = this._sock.rQshiftStr(strlen);
         }
 
         if (reason !== "") {
             this.dispatchEvent(new CustomEvent(
                 "securityfailure",
-                { detail: { status: security_result_status, reason: reason } }));
+                { detail: { status: this._security_status,
+                            reason: reason } }));
 
-            return this._fail("Security negotiation failed" + context +
+            return this._fail("Security negotiation failed on " +
+                              this._security_context +
                               " (reason: " + reason + ")");
         } else {
             this.dispatchEvent(new CustomEvent(
                 "securityfailure",
-                { detail: { status: security_result_status } }));
+                { detail: { status: this._security_status } }));
 
-            return this._fail("Security negotiation failed" + context);
+            return this._fail("Security negotiation failed on " +
+                              this._security_context);
         }
     }
 
@@ -1075,9 +1068,6 @@ export default class RFB extends EventTargetMixin {
 
     _negotiate_authentication() {
         switch (this._rfb_auth_scheme) {
-            case 0:  // connection failed
-                return this._handle_security_failure("authentication scheme");
-
             case 1:  // no auth
                 if (this._rfb_version >= 3.8) {
                     this._rfb_init_state = 'SecurityResult';
@@ -1112,7 +1102,10 @@ export default class RFB extends EventTargetMixin {
             return this._init_msg();
         } else {
             if (this._rfb_version >= 3.8) {
-                return this._handle_security_failure("security result", status);
+                this._rfb_init_state = "SecurityReason";
+                this._security_context = "security result";
+                this._security_status = status;
+                return this._init_msg();
             } else {
                 this.dispatchEvent(new CustomEvent(
                     "securityfailure",
@@ -1280,6 +1273,9 @@ export default class RFB extends EventTargetMixin {
 
             case 'SecurityResult':
                 return this._handle_security_result();
+
+            case 'SecurityReason':
+                return this._handle_security_reason();
 
             case 'ClientInitialisation':
                 this._sock.send([this._shared ? 1 : 0]); // ClientInitialisation
