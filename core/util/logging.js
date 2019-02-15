@@ -40,7 +40,7 @@ export function init_logging(level) {
             case 'none':
                 break;
             default:
-                throw new Error("invalid logging type '" + level + "'");
+                throw new window.Error("invalid logging type '" + level + "'");
         }
         /* eslint-enable no-console, no-fallthrough */
     }
