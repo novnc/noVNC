@@ -1828,11 +1828,6 @@ RFB.messages = {
         while (remaining > 0) {
 
             let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
-            if (flushSize <= 0) {
-                this._fail("Clipboard contents could not be sent");
-                break;
-            }
-
             for (let i = 0; i < flushSize; i++) {
                 buff[sock._sQlen + i] =  text.charCodeAt(textOffset + i);
             }
