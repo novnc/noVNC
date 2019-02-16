@@ -29,7 +29,7 @@ export default class EventTargetMixin {
             return true;
         }
         this._listeners.get(event.type)
-            .forEach(callback => callback.call(this, event), this);
+            .forEach(callback => callback.call(this, event));
         return !event.defaultPrevented;
     }
 }
