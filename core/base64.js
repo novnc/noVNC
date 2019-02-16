@@ -56,9 +56,7 @@ export default {
     ],
     /* eslint-enable comma-spacing */
 
-    decode(data, offset) {
-        offset = typeof(offset) !== 'undefined' ? offset : 0;
-
+    decode(data, offset = 0) {
         let data_length = data.indexOf('=') - offset;
         if (data_length < 0) { data_length = data.length - offset; }
 
