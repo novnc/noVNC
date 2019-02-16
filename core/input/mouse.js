@@ -238,43 +238,39 @@ export default class Mouse {
     // ===== PUBLIC METHODS =====
 
     grab() {
-        const c = this._target;
-
         if (isTouchDevice) {
-            c.addEventListener('touchstart', this._eventHandlers.mousedown);
-            c.addEventListener('touchend', this._eventHandlers.mouseup);
-            c.addEventListener('touchmove', this._eventHandlers.mousemove);
+            this._target.addEventListener('touchstart', this._eventHandlers.mousedown);
+            this._target.addEventListener('touchend', this._eventHandlers.mouseup);
+            this._target.addEventListener('touchmove', this._eventHandlers.mousemove);
         }
-        c.addEventListener('mousedown', this._eventHandlers.mousedown);
-        c.addEventListener('mouseup', this._eventHandlers.mouseup);
-        c.addEventListener('mousemove', this._eventHandlers.mousemove);
-        c.addEventListener('wheel', this._eventHandlers.mousewheel);
+        this._target.addEventListener('mousedown', this._eventHandlers.mousedown);
+        this._target.addEventListener('mouseup', this._eventHandlers.mouseup);
+        this._target.addEventListener('mousemove', this._eventHandlers.mousemove);
+        this._target.addEventListener('wheel', this._eventHandlers.mousewheel);
 
         /* Prevent middle-click pasting (see above for why we bind to document) */
         document.addEventListener('click', this._eventHandlers.mousedisable);
 
         /* preventDefault() on mousedown doesn't stop this event for some
            reason so we have to explicitly block it */
-        c.addEventListener('contextmenu', this._eventHandlers.mousedisable);
+        this._target.addEventListener('contextmenu', this._eventHandlers.mousedisable);
     }
 
     ungrab() {
-        const c = this._target;
-
         this._resetWheelStepTimers();
 
         if (isTouchDevice) {
-            c.removeEventListener('touchstart', this._eventHandlers.mousedown);
-            c.removeEventListener('touchend', this._eventHandlers.mouseup);
-            c.removeEventListener('touchmove', this._eventHandlers.mousemove);
+            this._target.removeEventListener('touchstart', this._eventHandlers.mousedown);
+            this._target.removeEventListener('touchend', this._eventHandlers.mouseup);
+            this._target.removeEventListener('touchmove', this._eventHandlers.mousemove);
         }
-        c.removeEventListener('mousedown', this._eventHandlers.mousedown);
-        c.removeEventListener('mouseup', this._eventHandlers.mouseup);
-        c.removeEventListener('mousemove', this._eventHandlers.mousemove);
-        c.removeEventListener('wheel', this._eventHandlers.mousewheel);
+        this._target.removeEventListener('mousedown', this._eventHandlers.mousedown);
+        this._target.removeEventListener('mouseup', this._eventHandlers.mouseup);
+        this._target.removeEventListener('mousemove', this._eventHandlers.mousemove);
+        this._target.removeEventListener('wheel', this._eventHandlers.mousewheel);
 
         document.removeEventListener('click', this._eventHandlers.mousedisable);
 
-        c.removeEventListener('contextmenu', this._eventHandlers.mousedisable);
+        this._target.removeEventListener('contextmenu', this._eventHandlers.mousedisable);
     }
 }
