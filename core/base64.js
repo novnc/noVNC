@@ -4,7 +4,7 @@
 
 // From: http://hg.mozilla.org/mozilla-central/raw-file/ec10630b1a54/js/src/devtools/jint/sunspider/string-base64.js
 
-import { Log } from './util/logging.js';
+import { log } from './util/logging.js';
 
 export default {
     /* Convert data (an array of integers) to a Base64 string. */
@@ -75,7 +75,7 @@ export default {
             const padding = (data.charAt(i) === this.base64Pad);
             // Skip illegal characters and whitespace
             if (c === -1) {
-                Log.Error("Illegal character code " + data.charCodeAt(i) + " at position " + i);
+                log.error("Illegal character code " + data.charCodeAt(i) + " at position " + i);
                 continue;
             }
 

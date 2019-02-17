@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-import { Log } from './util/logging.js';
+import { log } from './util/logging.js';
 import Base64 from "./base64.js";
 
 let SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
@@ -35,7 +35,7 @@ export default class Display {
         this._tile_x = 0;
         this._tile_y = 0;
 
-        Log.Debug(">> Display.constructor");
+        log.debug(">> Display.constructor");
 
         // The visible canvas
         this._target = target;
@@ -65,7 +65,7 @@ export default class Display {
                                right: this._backbuffer.width,
                                bottom: this._backbuffer.height };
 
-        Log.Debug("User Agent: " + navigator.userAgent);
+        log.debug("User Agent: " + navigator.userAgent);
 
         this.clear();
 
@@ -75,7 +75,7 @@ export default class Display {
         }
 
         this._tile16x16 = this._drawCtx.createImageData(16, 16);
-        Log.Debug("<< Display.constructor");
+        log.debug("<< Display.constructor");
 
         // ===== PROPERTIES =====
 
@@ -146,7 +146,7 @@ export default class Display {
         if (deltaX === 0 && deltaY === 0) {
             return;
         }
-        Log.Debug("viewportChange deltaX: " + deltaX + ", deltaY: " + deltaY);
+        log.debug("viewportChange deltaX: " + deltaX + ", deltaY: " + deltaY);
 
         vp.x += deltaX;
         vp.y += deltaY;
@@ -162,7 +162,7 @@ export default class Display {
             typeof(width) === "undefined" ||
             typeof(height) === "undefined") {
 
-            Log.Debug("Setting viewport to full display region");
+            log.debug("Setting viewport to full display region");
             width = this._fb_width;
             height = this._fb_height;
         }

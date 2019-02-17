@@ -9,7 +9,7 @@
  *
  */
 
-import { Log } from '../util/logging.js';
+import { log } from '../util/logging.js';
 
 export default class HextileDecoder {
     constructor() {
@@ -84,7 +84,7 @@ export default class HextileDecoder {
             if (subencoding === 0) {
                 if (this._lastsubencoding & 0x01) {
                     // Weird: ignore blanks are RAW
-                    Log.Debug("     Ignoring blank after RAW");
+                    log.debug("     Ignoring blank after RAW");
                 } else {
                     display.fillRect(tx, ty, tw, th, this._background);
                 }

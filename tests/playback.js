@@ -5,7 +5,7 @@
  */
 
 import RFB from '../core/rfb.js';
-import { Log } from '../core/util/logging.js';
+import { log } from '../core/util/logging.js';
 
 // Immediate polyfill
 if (window.setImmediate === undefined) {
@@ -106,7 +106,7 @@ export default class RecordingPlayer {
         }
 
         if (this._frame_index >= this._frame_length) {
-            Log.Debug('Finished, no more frames');
+            log.debug('Finished, no more frames');
             this._finish();
             return;
         }

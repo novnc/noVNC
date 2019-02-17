@@ -19,10 +19,10 @@ export const LogLevels = {
 };
 
 export class  NoopLogger {
-    Debug() {}
-    Info() {}
-    Warn() {}
-    Error() {}
+    debug() {}
+    info() {}
+    warn() {}
+    error() {}
 }
 
 export class ConsoleLogger {
@@ -42,28 +42,28 @@ export class ConsoleLogger {
         }
     }
 
-    Debug(...args) {
+    debug(...args) {
         if (this._logLevel <= this._logLevels.debug) {
             // eslint-disable-next-line no-console
             console.debug.apply(console, args);
         }
     }
 
-    Info(...args) {
+    info(...args) {
         if (this._logLevel <= this._logLevels.info) {
             // eslint-disable-next-line no-console
             console.info.apply(console, args);
         }
     }
 
-    Warn(...args) {
+    warn(...args) {
         if (this._logLevel <= this._logLevels.warn) {
             // eslint-disable-next-line no-console
             console.warn.apply(console, args);
         }
     }
 
-    Error(...args) {
+    error(...args) {
         if (this._logLevel <= this._logLevels.error) {
             // eslint-disable-next-line no-console
             console.error.apply(console, args);
@@ -71,8 +71,8 @@ export class ConsoleLogger {
     }
 }
 
-export let Log = window.console ? new ConsoleLogger(LogLevels.warn) : new NoopLogger();
+export let log = window.console ? new ConsoleLogger(LogLevels.warn) : new NoopLogger();
 
 export function setLogger(logger) {
-    Log = logger;
+    log = logger;
 }

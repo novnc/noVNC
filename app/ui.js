@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-import { ConsoleLogger, Log } from '../core/util/logging.js';
+import { ConsoleLogger, log } from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, isIOS, isAndroid, dragThreshold }
     from '../core/util/browser.js';
@@ -401,7 +401,7 @@ const UI = {
                 document.documentElement.classList.add("noVNC_reconnecting");
                 break;
             default:
-                Log.Error("Invalid visual state: " + state);
+                log.error("Invalid visual state: " + state);
                 UI.showStatus(_("Internal error"), 'error');
                 return;
         }
@@ -765,7 +765,7 @@ const UI = {
             val = ctrl.value;
         }
         WebUtil.writeSetting(name, val);
-        //Log.Debug("Setting saved '" + name + "=" + val + "'");
+        //log.debug("Setting saved '" + name + "=" + val + "'");
         return val;
     },
 
@@ -935,9 +935,9 @@ const UI = {
     },
 
     clipboardReceive(e) {
-        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
+        log.debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        Log.Debug("<< UI.clipboardReceive");
+        log.debug("<< UI.clipboardReceive");
     },
 
     clipboardClear() {
@@ -947,9 +947,9 @@ const UI = {
 
     clipboardSend() {
         const text = document.getElementById('noVNC_clipboard_text').value;
-        Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
+        log.debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
-        Log.Debug("<< UI.clipboardSend");
+        log.debug("<< UI.clipboardSend");
     },
 
 /* ------^-------
@@ -991,7 +991,7 @@ const UI = {
         UI.hideStatus();
 
         if (!host) {
-            Log.Error("Can't connect when host is: " + host);
+            log.error("Can't connect when host is: " + host);
             UI.showStatus(_("Must set host"), 'error');
             return;
         }
@@ -1147,7 +1147,7 @@ const UI = {
         setTimeout(() => document
             .getElementById('noVNC_password_input').focus(), 100);
 
-        Log.Warn("Server asked for a password");
+        log.warn("Server asked for a password");
         UI.showStatus(_("Password is required"), "warning");
     },
 
@@ -1625,7 +1625,7 @@ const UI = {
                         // It is common that the browsers require audio to be
                         // initiated from a user action.
                     } else {
-                        Log.Error("Unable to play bell: " + e);
+                        log.error("Unable to play bell: " + e);
                     }
                 });
             }
@@ -1656,7 +1656,7 @@ if (l10n.language !== "en" && l10n.dictionary === undefined) {
         // wait for translations to load before loading the UI
         UI.prime();
     }, (err) => {
-        Log.Error("Failed to load translations: " + err);
+        log.error("Failed to load translations: " + err);
         UI.prime();
     });
 } else {

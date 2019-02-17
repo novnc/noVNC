@@ -4,7 +4,7 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-import { Log } from '../util/logging.js';
+import { log } from '../util/logging.js';
 import { isTouchDevice } from '../util/browser.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 
@@ -94,7 +94,7 @@ export default class Mouse {
                     (e.button & 0x4) / 2;   // Middle
         }
 
-        Log.Debug("onmousebutton " + (down ? "down" : "up") +
+        log.debug("onmousebutton " + (down ? "down" : "up") +
                   ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
         this.onmousebutton(pos.x, pos.y, down, bmask);
 

@@ -4,7 +4,7 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-import { Log } from '../util/logging.js';
+import { log } from '../util/logging.js';
 import { stopEvent } from '../util/events.js';
 import * as KeyboardUtil from "./util.js";
 import KeyTable from "./keysym.js";
@@ -50,7 +50,7 @@ export default class Keyboard {
             delete this._keyDownList[code];
         }
 
-        Log.Debug("onkeyevent " + (down ? "down" : "up") +
+        log.debug("onkeyevent " + (down ? "down" : "up") +
                   ", keysym: " + keysym, ", code: " + code);
         this.onkeyevent(keysym, code, down);
     }
@@ -220,7 +220,7 @@ export default class Keyboard {
         this._pendingKey = null;
 
         if (!keysym) {
-            Log.Info('keypress with no keysym:', e);
+            log.info('keypress with no keysym:', e);
             return;
         }
 
@@ -292,11 +292,11 @@ export default class Keyboard {
     }
 
     _allKeysUp() {
-        Log.Debug(">> Keyboard.allKeysUp");
+        log.debug(">> Keyboard.allKeysUp");
         for (let code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
         }
-        Log.Debug("<< Keyboard.allKeysUp");
+        log.debug("<< Keyboard.allKeysUp");
     }
 
     // Firefox Alt workaround, see below
@@ -322,7 +322,7 @@ export default class Keyboard {
     // ===== PUBLIC METHODS =====
 
     grab() {
-        //Log.Debug(">> Keyboard.grab");
+        //log.debug(">> Keyboard.grab");
 
         this._target.addEventListener('keydown', this._eventHandlers.keydown);
         this._target.addEventListener('keyup', this._eventHandlers.keyup);
@@ -344,11 +344,11 @@ export default class Keyboard {
                                             passive: true }));
         }
 
-        //Log.Debug("<< Keyboard.grab");
+        //log.debug("<< Keyboard.grab");
     }
 
     ungrab() {
-        //Log.Debug(">> Keyboard.ungrab");
+        //log.debug(">> Keyboard.ungrab");
 
         if (browser.isWindows() && browser.isFirefox()) {
             const handler = this._eventHandlers.checkalt;
@@ -365,6 +365,6 @@ export default class Keyboard {
         // Release (key up) all keys that are in a down state
         this._allKeysUp();
 
-        //Log.Debug(">> Keyboard.ungrab");
+        //log.debug(">> Keyboard.ungrab");
     }
 }

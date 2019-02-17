@@ -10,7 +10,7 @@
  *
  */
 
-import { Log } from '../util/logging.js';
+import { log } from '../util/logging.js';
 import Inflator from "../inflator.js";
 
 export default class TightDecoder {
@@ -39,7 +39,7 @@ export default class TightDecoder {
             for (let i = 0; i < 4; i++) {
                 if ((this._ctl >> i) & 1) {
                     this._zlibs[i].reset();
-                    Log.Info("Reset zlib stream " + i);
+                    log.info("Reset zlib stream " + i);
                 }
             }
 

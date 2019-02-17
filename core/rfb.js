@@ -7,7 +7,7 @@
  *
  */
 
-import { Log, setLogger } from './util/logging.js';
+import { log, setLogger } from './util/logging.js';
 import { decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -121,7 +121,7 @@ export default class RFB extends EventTargetMixin {
         };
 
         // main setup
-        Log.Debug(">> RFB.constructor");
+        log.debug(">> RFB.constructor");
 
         // Create DOM elements
         this._screen = document.createElement('div');
@@ -168,7 +168,7 @@ export default class RFB extends EventTargetMixin {
         try {
             this._display = new Display(this._canvas);
         } catch (exc) {
-            Log.Error("Display exception: " + exc);
+            log.error("Display exception: " + exc);
             throw exc;
         }
         this._display.onflush = this._onFlush.bind(this);
@@ -189,14 +189,14 @@ export default class RFB extends EventTargetMixin {
             if ((this._rfb_connection_state === 'connecting') &&
                 (this._rfb_init_state === '')) {
                 this._rfb_init_state = 'ProtocolVersion';
-                Log.Debug("Starting VNC handshake");
+                log.debug("Starting VNC handshake");
             } else {
                 this._fail("Unexpected server connection while " +
                            this._rfb_connection_state);
             }
         });
         this._sock.on('close', (e) => {
-            Log.Debug("WebSocket on-close event");
+            log.debug("WebSocket on-close event");
             let msg = "";
             if (e.code) {
                 msg = "(code: " + e.code;
@@ -229,13 +229,13 @@ export default class RFB extends EventTargetMixin {
             }
             this._sock.off('close');
         });
-        this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
+        this._sock.on('error', e => log.warn("WebSocket on-error event"));
 
         // Slight delay of the actual connection so that the caller has
         // time to set up callbacks
         setTimeout(this._updateConnectionState.bind(this, 'connecting'));
 
-        Log.Debug("<< RFB.constructor");
+        log.debug("<< RFB.constructor");
 
         // ===== PROPERTIES =====
 
@@ -328,7 +328,7 @@ export default class RFB extends EventTargetMixin {
 
     sendCtrlAltDel() {
         if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return; }
-        Log.Info("Sending Ctrl-Alt-Del");
+        log.info("Sending Ctrl-Alt-Del");
 
         this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
         this.sendKey(KeyTable.XK_Alt_L, "AltLeft", true);
@@ -367,14 +367,14 @@ export default class RFB extends EventTargetMixin {
             // 0 is NoSymbol
             keysym = keysym || 0;
 
-            Log.Info("Sending key (" + (down ? "down" : "up") + "): keysym " + keysym + ", scancode " + scancode);
+            log.info("Sending key (" + (down ? "down" : "up") + "): keysym " + keysym + ", scancode " + scancode);
 
             RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
         } else {
             if (!keysym) {
                 return;
             }
-            Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
+            log.info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
             RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
         }
     }
@@ -395,9 +395,9 @@ export default class RFB extends EventTargetMixin {
     // ===== PRIVATE METHODS =====
 
     _connect() {
-        Log.Debug(">> RFB.connect");
+        log.debug(">> RFB.connect");
 
-        Log.Info("connecting to " + this._url);
+        log.info("connecting to " + this._url);
 
         try {
             // WebSocket.onopen transitions to the RFB init states
@@ -424,11 +424,11 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
-        Log.Debug("<< RFB.connect");
+        log.debug("<< RFB.connect");
     }
 
     _disconnect() {
-        Log.Debug(">> RFB.disconnect");
+        log.debug(">> RFB.disconnect");
         this._cursor.detach();
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
@@ -447,7 +447,7 @@ export default class RFB extends EventTargetMixin {
             }
         }
         clearTimeout(this._resizeTimeout);
-        Log.Debug("<< RFB.disconnect");
+        log.debug("<< RFB.disconnect");
     }
 
     _focusCanvas(event) {
@@ -532,7 +532,7 @@ export default class RFB extends EventTargetMixin {
                                     Math.floor(size.w), Math.floor(size.h),
                                     this._screen_id, this._screen_flags);
 
-        Log.Debug('Requested new desktop size: ' +
+        log.debug('Requested new desktop size: ' +
                    size.w + 'x' + size.h);
     }
 
@@ -565,13 +565,13 @@ export default class RFB extends EventTargetMixin {
         const oldstate = this._rfb_connection_state;
 
         if (state === oldstate) {
-            Log.Debug("Already in state '" + state + "', ignoring");
+            log.debug("Already in state '" + state + "', ignoring");
             return;
         }
 
         // The 'disconnected' state is permanent for each RFB object
         if (oldstate === 'disconnected') {
-            Log.Error("Tried changing state of a disconnected RFB object");
+            log.error("Tried changing state of a disconnected RFB object");
             return;
         }
 
@@ -579,7 +579,7 @@ export default class RFB extends EventTargetMixin {
         switch (state) {
             case 'connected':
                 if (oldstate !== 'connecting') {
-                    Log.Error("Bad transition to connected state, " +
+                    log.error("Bad transition to connected state, " +
                                "previous connection state: " + oldstate);
                     return;
                 }
@@ -587,7 +587,7 @@ export default class RFB extends EventTargetMixin {
 
             case 'disconnected':
                 if (oldstate !== 'disconnecting') {
-                    Log.Error("Bad transition to disconnected state, " +
+                    log.error("Bad transition to disconnected state, " +
                                "previous connection state: " + oldstate);
                     return;
                 }
@@ -595,7 +595,7 @@ export default class RFB extends EventTargetMixin {
 
             case 'connecting':
                 if (oldstate !== '') {
-                    Log.Error("Bad transition to connecting state, " +
+                    log.error("Bad transition to connecting state, " +
                                "previous connection state: " + oldstate);
                     return;
                 }
@@ -603,14 +603,14 @@ export default class RFB extends EventTargetMixin {
 
             case 'disconnecting':
                 if (oldstate !== 'connected' && oldstate !== 'connecting') {
-                    Log.Error("Bad transition to disconnecting state, " +
+                    log.error("Bad transition to disconnecting state, " +
                                "previous connection state: " + oldstate);
                     return;
                 }
                 break;
 
             default:
-                Log.Error("Unknown connection state: " + state);
+                log.error("Unknown connection state: " + state);
                 return;
         }
 
@@ -618,10 +618,10 @@ export default class RFB extends EventTargetMixin {
 
         this._rfb_connection_state = state;
 
-        Log.Debug("New state '" + state + "', was '" + oldstate + "'.");
+        log.debug("New state '" + state + "', was '" + oldstate + "'.");
 
         if (this._disconnTimer && state !== 'disconnecting') {
-            Log.Debug("Clearing disconnect timer");
+            log.debug("Clearing disconnect timer");
             clearTimeout(this._disconnTimer);
             this._disconnTimer = null;
 
@@ -642,7 +642,7 @@ export default class RFB extends EventTargetMixin {
                 this._disconnect();
 
                 this._disconnTimer = setTimeout(() => {
-                    Log.Error("Disconnection timed out.");
+                    log.error("Disconnection timed out.");
                     this._updateConnectionState('disconnected');
                 }, DISCONNECT_TIMEOUT * 1000);
                 break;
@@ -663,16 +663,16 @@ export default class RFB extends EventTargetMixin {
     _fail(details) {
         switch (this._rfb_connection_state) {
             case 'disconnecting':
-                Log.Error("Failed when disconnecting: " + details);
+                log.error("Failed when disconnecting: " + details);
                 break;
             case 'connected':
-                Log.Error("Failed while connected: " + details);
+                log.error("Failed while connected: " + details);
                 break;
             case 'connecting':
-                Log.Error("Failed when connecting: " + details);
+                log.error("Failed when connecting: " + details);
                 break;
             default:
-                Log.Error("RFB failure: " + details);
+                log.error("RFB failure: " + details);
                 break;
         }
         this._rfb_clean_disconnect = false; //This is sent to the UI
@@ -692,13 +692,13 @@ export default class RFB extends EventTargetMixin {
 
     _handle_message() {
         if (this._sock.rQlen === 0) {
-            Log.Warn("handle_message called on an empty receive queue");
+            log.warn("handle_message called on an empty receive queue");
             return;
         }
 
         switch (this._rfb_connection_state) {
             case 'disconnected':
-                Log.Error("Got data while disconnected");
+                log.error("Got data while disconnected");
                 break;
             case 'connected':
                 while (true) {
@@ -794,7 +794,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         const sversion = this._sock.rQshiftStr(12).substr(4, 7);
-        Log.Info("Server ProtocolVersion: " + sversion);
+        log.info("Server ProtocolVersion: " + sversion);
         let is_repeater = 0;
         switch (sversion) {
             case "000.000":  // UltraVNC repeater
@@ -834,7 +834,7 @@ export default class RFB extends EventTargetMixin {
         const cversion = "00" + parseInt(this._rfb_version, 10) +
                        ".00" + ((this._rfb_version * 10) % 10);
         this._sock.send_string("RFB " + cversion + "\n");
-        Log.Debug('Sent ProtocolVersion: ' + cversion);
+        log.debug('Sent ProtocolVersion: ' + cversion);
 
         this._rfb_init_state = 'Security';
     }
@@ -864,7 +864,7 @@ export default class RFB extends EventTargetMixin {
             }
 
             const types = this._sock.rQshiftBytes(num_types);
-            Log.Debug("Server security types: " + types);
+            log.debug("Server security types: " + types);
 
             // Look for each auth in preferred order
             if (includes(1, types)) {
@@ -894,7 +894,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._rfb_init_state = 'Authentication';
-        Log.Debug('Authenticating using scheme: ' + this._rfb_auth_scheme);
+        log.debug('Authenticating using scheme: ' + this._rfb_auth_scheme);
 
         return this._init_msg(); // jump to authentication
     }
@@ -981,7 +981,7 @@ export default class RFB extends EventTargetMixin {
             serverSupportedTunnelTypes[cap_code] = { vendor: cap_vendor, signature: cap_signature };
         }
 
-        Log.Debug("Server Tight tunnel types: " + serverSupportedTunnelTypes);
+        log.debug("Server Tight tunnel types: " + serverSupportedTunnelTypes);
 
         // Siemens touch panels have a VNC server that supports NOTUNNEL,
         // but forgets to advertise it. Try to detect such servers by
@@ -989,7 +989,7 @@ export default class RFB extends EventTargetMixin {
         if (serverSupportedTunnelTypes[1] &&
             (serverSupportedTunnelTypes[1].vendor === "SICR") &&
             (serverSupportedTunnelTypes[1].signature === "SCHANNEL")) {
-            Log.Debug("Detected Siemens server. Assuming NOTUNNEL support.");
+            log.debug("Detected Siemens server. Assuming NOTUNNEL support.");
             serverSupportedTunnelTypes[0] = { vendor: 'TGHT', signature: 'NOTUNNEL' };
         }
 
@@ -1000,7 +1000,7 @@ export default class RFB extends EventTargetMixin {
                 return this._fail("Client's tunnel type had the incorrect " +
                                   "vendor or signature");
             }
-            Log.Debug("Selected tunnel type: " + clientSupportedTunnelTypes[0]);
+            log.debug("Selected tunnel type: " + clientSupportedTunnelTypes[0]);
             this._sock.send([0, 0, 0, 0]);  // use NOTUNNEL
             return false; // wait until we receive the sub auth count to continue
         } else {
@@ -1046,12 +1046,12 @@ export default class RFB extends EventTargetMixin {
             serverSupportedTypes.push(capabilities);
         }
 
-        Log.Debug("Server Tight authentication types: " + serverSupportedTypes);
+        log.debug("Server Tight authentication types: " + serverSupportedTypes);
 
         for (let authType in clientSupportedTypes) {
             if (serverSupportedTypes.indexOf(authType) != -1) {
                 this._sock.send([0, 0, 0, clientSupportedTypes[authType]]);
-                Log.Debug("Selected authentication type: " + authType);
+                log.debug("Selected authentication type: " + authType);
 
                 switch (authType) {
                     case 'STDVNOAUTH__':  // no auth
@@ -1102,7 +1102,7 @@ export default class RFB extends EventTargetMixin {
 
         if (status === 0) { // OK
             this._rfb_init_state = 'ClientInitialisation';
-            Log.Debug('Authentication OK');
+            log.debug('Authentication OK');
             return this._init_msg();
         } else {
             if (this._rfb_version >= 3.8) {
@@ -1175,7 +1175,7 @@ export default class RFB extends EventTargetMixin {
 
         // NB(directxman12): these are down here so that we don't run them multiple times
         //                   if we backtrack
-        Log.Info("Screen: " + width + "x" + height +
+        log.info("Screen: " + width + "x" + height +
                   ", bpp: " + bpp + ", depth: " + depth +
                   ", big_endian: " + big_endian +
                   ", true_color: " + true_color +
@@ -1187,15 +1187,15 @@ export default class RFB extends EventTargetMixin {
                   ", blue_shift: " + blue_shift);
 
         if (big_endian !== 0) {
-            Log.Warn("Server native endian is not little endian");
+            log.warn("Server native endian is not little endian");
         }
 
         if (red_shift !== 16) {
-            Log.Warn("Server native red-shift is not 16");
+            log.warn("Server native red-shift is not 16");
         }
 
         if (blue_shift !== 0) {
-            Log.Warn("Server native blue-shift is not 0");
+            log.warn("Server native blue-shift is not 0");
         }
 
         // we're past the point where we could backtrack, so it's safe to call this
@@ -1211,7 +1211,7 @@ export default class RFB extends EventTargetMixin {
         this._fb_depth = 24;
 
         if (this._fb_name === "Intel(r) AMT KVM") {
-            Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
+            log.warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
             this._fb_depth = 8;
         }
 
@@ -1296,13 +1296,13 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handle_set_colour_map_msg() {
-        Log.Debug("SetColorMapEntries");
+        log.debug("SetColorMapEntries");
 
         return this._fail("Unexpected SetColorMapEntries message");
     }
 
     _handle_server_cut_text() {
-        Log.Debug("ServerCutText");
+        log.debug("ServerCutText");
 
         if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
         this._sock.rQskipBytes(3);  // Padding
@@ -1329,7 +1329,7 @@ export default class RFB extends EventTargetMixin {
         if (this._sock.rQwait("ServerFence payload", length, 9)) { return false; }
 
         if (length > 64) {
-            Log.Warn("Bad payload length (" + length + ") in fence response");
+            log.warn("Bad payload length (" + length + ") in fence response");
             length = 64;
         }
 
@@ -1370,11 +1370,11 @@ export default class RFB extends EventTargetMixin {
 
         switch (xvp_msg) {
             case 0:  // XVP_FAIL
-                Log.Error("XVP Operation Failed");
+                log.error("XVP Operation Failed");
                 break;
             case 1:  // XVP_INIT
                 this._rfb_xvp_ver = xvp_ver;
-                Log.Info("XVP extensions enabled (version " + this._rfb_xvp_ver + ")");
+                log.info("XVP extensions enabled (version " + this._rfb_xvp_ver + ")");
                 this._setCapability("power", true);
                 break;
             default:
@@ -1407,7 +1407,7 @@ export default class RFB extends EventTargetMixin {
                 return this._handle_set_colour_map_msg();
 
             case 2:  // Bell
-                Log.Debug("Bell");
+                log.debug("Bell");
                 this.dispatchEvent(new CustomEvent(
                     "bell",
                     { detail: {} }));
@@ -1423,7 +1423,7 @@ export default class RFB extends EventTargetMixin {
                 if (first) {
                     this._enabledContinuousUpdates = true;
                     this._updateContinuousUpdates();
-                    Log.Info("Enabling continuous updates.");
+                    log.info("Enabling continuous updates.");
                 } else {
                     // FIXME: We need to send a framebufferupdaterequest here
                     // if we add support for turning off continuous updates
@@ -1438,7 +1438,7 @@ export default class RFB extends EventTargetMixin {
 
             default:
                 this._fail("Unexpected server message (type " + msg_type + ")");
-                Log.Debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
+                log.debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
                 return true;
         }
     }
@@ -1629,7 +1629,7 @@ export default class RFB extends EventTargetMixin {
                     msg = "Unknown reason";
                     break;
             }
-            Log.Warn("Server did not accept the resize request: "
+            log.warn("Server did not accept the resize request: "
                      + msg);
         } else {
             this._resize(this._FBU.width, this._FBU.height);
@@ -1679,7 +1679,7 @@ export default class RFB extends EventTargetMixin {
 
     _xvpOp(ver, op) {
         if (this._rfb_xvp_ver < ver) { return; }
-        Log.Info("Sending XVP operation " + op + " (version " + ver + ")");
+        log.info("Sending XVP operation " + op + " (version " + ver + ")");
         RFB.messages.xvpOp(this._sock, ver, op);
     }
 

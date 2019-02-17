@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-import { Log } from './logging.js';
+import { log } from './logging.js';
 
 // Touch detection
 export let isTouchDevice = ('ontouchstart' in document.documentElement) ||
@@ -34,14 +34,14 @@ export function supportsCursorURIs() {
             target.style.cursor = 'url("data:image/x-icon;base64,AAACAAEACAgAAAIAAgA4AQAAFgAAACgAAAAIAAAAEAAAAAEAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAD/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAA==") 2 2, default';
 
             if (target.style.cursor) {
-                Log.Info("Data URI scheme cursor supported");
+                log.info("Data URI scheme cursor supported");
                 _cursor_uris_supported = true;
             } else {
-                Log.Warn("Data URI scheme cursor not supported");
+                log.warn("Data URI scheme cursor not supported");
                 _cursor_uris_supported = false;
             }
         } catch (exc) {
-            Log.Error("Data URI scheme cursor test exception: " + exc);
+            log.error("Data URI scheme cursor test exception: " + exc);
             _cursor_uris_supported = false;
         }
     }

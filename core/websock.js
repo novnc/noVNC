@@ -12,7 +12,7 @@
  * read binary data off of the receive queue.
  */
 
-import { Log } from './util/logging.js';
+import { log } from './util/logging.js';
 
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
@@ -186,23 +186,23 @@ export default class Websock {
 
         this._websocket.onmessage = this._recv_message.bind(this);
         this._websocket.onopen = () => {
-            Log.Debug('>> WebSock.onopen');
+            log.debug('>> WebSock.onopen');
             if (this._websocket.protocol) {
-                Log.Info("Server choose sub-protocol: " + this._websocket.protocol);
+                log.info("Server choose sub-protocol: " + this._websocket.protocol);
             }
 
             this._eventHandlers.open();
-            Log.Debug("<< WebSock.onopen");
+            log.debug("<< WebSock.onopen");
         };
         this._websocket.onclose = (e) => {
-            Log.Debug(">> WebSock.onclose");
+            log.debug(">> WebSock.onclose");
             this._eventHandlers.close(e);
-            Log.Debug("<< WebSock.onclose");
+            log.debug("<< WebSock.onclose");
         };
         this._websocket.onerror = (e) => {
-            Log.Debug(">> WebSock.onerror: " + e);
+            log.debug(">> WebSock.onerror: " + e);
             this._eventHandlers.error(e);
-            Log.Debug("<< WebSock.onerror: " + e);
+            log.debug("<< WebSock.onerror: " + e);
         };
     }
 
@@ -210,7 +210,7 @@ export default class Websock {
         if (this._websocket) {
             if ((this._websocket.readyState === WebSocket.OPEN) ||
                     (this._websocket.readyState === WebSocket.CONNECTING)) {
-                Log.Info("Closing WebSocket connection");
+                log.info("Closing WebSocket connection");
                 this._websocket.close();
             }
 
@@ -284,7 +284,7 @@ export default class Websock {
                 this._expand_compact_rQ();
             }
         } else {
-            Log.Debug("Ignoring empty message");
+            log.debug("Ignoring empty message");
         }
     }
 }
