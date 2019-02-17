@@ -10,47 +10,69 @@
  * Logging/debug routines
  */
 
-let _log_level = 'warn';
+export const LogLevels = {
+    none: 'none',
+    debug: 'debug',
+    info: 'info',
+    warn: 'warn',
+    error: 'error'
+};
 
-let Debug = () => {};
-let Info = () => {};
-let Warn = () => {};
-let Error = () => {};
+export class  NoopLogger {
+    Debug() {}
+    Info() {}
+    Warn() {}
+    Error() {}
+}
 
-export function init_logging(level) {
-    if (typeof level === 'undefined') {
-        level = _log_level;
-    } else {
-        _log_level = level;
-    }
+export class ConsoleLogger {
+    constructor(level) {
+        this._logLevels = {
+            debug: 0,
+            info: 1,
+            warn: 2,
+            error: 3
+        };
 
-    Debug = Info = Warn = Error = () => {};
+        this.logLevel = level;
+        this._logLevel = this._logLevels[level];
 
-    if (typeof window.console !== "undefined") {
-        /* eslint-disable no-console, no-fallthrough */
-        switch (level) {
-            case 'debug':
-                Debug = console.debug.bind(window.console);
-            case 'info':
-                Info  = console.info.bind(window.console);
-            case 'warn':
-                Warn  = console.warn.bind(window.console);
-            case 'error':
-                Error = console.error.bind(window.console);
-            case 'none':
-                break;
-            default:
-                throw new window.Error("invalid logging type '" + level + "'");
+        if (this._logLevel === undefined) {
+            throw new Error('Invalid logging level \'' + level + '\'');
         }
-        /* eslint-enable no-console, no-fallthrough */
+    }
+
+    Debug(...args) {
+        if (this._logLevel <= this._logLevels.debug) {
+            // eslint-disable-next-line no-console
+            console.debug.apply(console, args);
+        }
+    }
+
+    Info(...args) {
+        if (this._logLevel <= this._logLevels.info) {
+            // eslint-disable-next-line no-console
+            console.info.apply(console, args);
+        }
+    }
+
+    Warn(...args) {
+        if (this._logLevel <= this._logLevels.warn) {
+            // eslint-disable-next-line no-console
+            console.warn.apply(console, args);
+        }
+    }
+
+    Error(...args) {
+        if (this._logLevel <= this._logLevels.error) {
+            // eslint-disable-next-line no-console
+            console.error.apply(console, args);
+        }
     }
 }
 
-export function get_logging() {
-    return _log_level;
+export let Log = window.console ? new ConsoleLogger(LogLevels.warn) : new NoopLogger();
+
+export function setLogger(logger) {
+    Log = logger;
 }
-
-export { Debug, Info, Warn, Error };
-
-// Initialize logging level
-init_logging();

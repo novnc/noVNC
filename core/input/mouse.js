@@ -4,7 +4,7 @@
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
-import * as Log from '../util/logging.js';
+import { Log } from '../util/logging.js';
 import { isTouchDevice } from '../util/browser.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 

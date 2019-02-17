@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-import * as Log from '../core/util/logging.js';
+import { ConsoleLogger, Log } from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, isIOS, isAndroid, dragThreshold }
     from '../core/util/browser.js';
@@ -1602,7 +1602,10 @@ const UI = {
     },
 
     updateLogging() {
-        WebUtil.init_logging(UI.getSetting('logging'));
+        const param = UI.getSetting('logging')
+            || document.location.href.match(/logging=([A-Za-z0-9._-]*)/)
+            || undefined;
+        RFB.setLogger(new ConsoleLogger(param));
     },
 
     updateDesktopName(e) {

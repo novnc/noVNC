@@ -6,7 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
-import * as Log from './logging.js';
+import { Log } from './logging.js';
 
 // Touch detection
 export let isTouchDevice = ('ontouchstart' in document.documentElement) ||

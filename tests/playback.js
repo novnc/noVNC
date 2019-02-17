@@ -5,7 +5,7 @@
  */
 
 import RFB from '../core/rfb.js';
-import * as Log from '../core/util/logging.js';
+import { Log } from '../core/util/logging.js';
 
 // Immediate polyfill
 if (window.setImmediate === undefined) {

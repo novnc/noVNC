@@ -6,19 +6,6 @@
  * See README.md for usage and integration instructions.
  */
 
-import { init_logging as main_init_logging } from '../core/util/logging.js';
-
-// init log level reading the logging HTTP param
-export function init_logging(level) {
-    "use strict";
-    if (typeof level !== "undefined") {
-        main_init_logging(level);
-    } else {
-        const param = document.location.href.match(/logging=([A-Za-z0-9._-]*)/);
-        main_init_logging(param || undefined);
-    }
-}
-
 // Read a query string variable
 export function getQueryVar(name, defVal) {
     "use strict";

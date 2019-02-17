@@ -7,7 +7,7 @@
  *
  */
 
-import * as Log from './util/logging.js';
+import { Log, setLogger } from './util/logging.js';
 import { decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -309,6 +309,10 @@ export default class RFB extends EventTargetMixin {
     set background(cssValue) { this._screen.style.background = cssValue; }
 
     // ===== PUBLIC METHODS =====
+
+    static setLogger(logger) {
+        setLogger(logger);
+    }
 
     disconnect() {
         this._updateConnectionState('disconnecting');

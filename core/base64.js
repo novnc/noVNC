@@ -4,7 +4,7 @@
 
 // From: http://hg.mozilla.org/mozilla-central/raw-file/ec10630b1a54/js/src/devtools/jint/sunspider/string-base64.js
 
-import * as Log from './util/logging.js';
+import { Log } from './util/logging.js';
 
 export default {
     /* Convert data (an array of integers) to a Base64 string. */
