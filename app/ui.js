@@ -39,22 +39,20 @@ const UI = {
     reconnect_callback: null,
     reconnect_password: null,
 
-    prime(callback) {
-        if (document.readyState === "interactive" || document.readyState === "complete") {
-            UI.load(callback);
-        } else {
-            document.addEventListener('DOMContentLoaded', UI.load.bind(UI, callback));
-        }
-    },
+    prime() {
+        return WebUtil.initSettings().then(() => {
+            if (document.readyState === "interactive" || document.readyState === "complete") {
+                return UI.start();
+            }
 
-    // Setup rfb object, load settings from browser storage, then call
-    // UI.init to setup the UI/menus
-    load(callback) {
-        WebUtil.initSettings(UI.start, callback);
+            return new Promise((resolve, reject) => {
+                document.addEventListener('DOMContentLoaded', () => UI.start().then(resolve).catch(reject));
+            });
+        });
     },
 
     // Render default UI and initialize settings menu
-    start(callback) {
+    start() {
 
         UI.initSettings();
 
@@ -105,9 +103,7 @@ const UI = {
             UI.openConnectPanel();
         }
 
-        if (typeof callback === "function") {
-            callback(UI.rfb);
-        }
+        return Promise.resolve(UI.rfb);
     },
 
     initFullscreen() {
@@ -1646,18 +1642,13 @@ const UI = {
 // Set up translations
 const LINGUAS = ["cs", "de", "el", "es", "ko", "nl", "pl", "sv", "tr", "zh_CN", "zh_TW"];
 l10n.setup(LINGUAS);
-if (l10n.language !== "en" && l10n.dictionary === undefined) {
-    WebUtil.fetchJSON('app/locale/' + l10n.language + '.json', (translations) => {
-        l10n.dictionary = translations;
-
-        // wait for translations to load before loading the UI
-        UI.prime();
-    }, (err) => {
-        Log.Error("Failed to load translations: " + err);
-        UI.prime();
-    });
-} else {
+if (l10n.language === "en" || l10n.dictionary !== undefined) {
     UI.prime();
+} else {
+    WebUtil.fetchJSON('app/locale/' + l10n.language + '.json')
+        .then((translations) => { l10n.dictionary = translations; })
+        .catch(err => Log.Error("Failed to load translations: " + err))
+        .then(UI.prime);
 }
 
 export default UI;

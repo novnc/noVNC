@@ -114,22 +114,14 @@ export function eraseCookie(name) {
 
 let settings = {};
 
-export function initSettings(callback /*, ...callbackArgs */) {
-    "use strict";
-    const callbackArgs = Array.prototype.slice.call(arguments, 1);
-    if (window.chrome && window.chrome.storage) {
-        window.chrome.storage.sync.get((cfg) => {
-            settings = cfg;
-            if (callback) {
-                callback.apply(this, callbackArgs);
-            }
-        });
-    } else {
+export function initSettings() {
+    if (!window.chrome || !window.chrome.storage) {
         settings = {};
-        if (callback) {
-            callback.apply(this, callbackArgs);
-        }
+        return Promise.resolve();
     }
+
+    return new Promise(resolve => window.chrome.storage.sync.get(resolve))
+        .then((cfg) => { settings = cfg; });
 }
 
 // Update the settings cache, but do not write to permanent storage
@@ -218,28 +210,30 @@ export function injectParamIfMissing(path, param, value) {
 // IE11 support or polyfill promises and fetch in IE11.
 // resolve will receive an object on success, while reject
 // will receive either an event or an error on failure.
-export function fetchJSON(path, resolve, reject) {
-    // NB: IE11 doesn't support JSON as a responseType
-    const req = new XMLHttpRequest();
-    req.open('GET', path);
+export function fetchJSON(path) {
+    return new Promise((resolve, reject) => {
+        // NB: IE11 doesn't support JSON as a responseType
+        const req = new XMLHttpRequest();
+        req.open('GET', path);
 
-    req.onload = () => {
-        if (req.status === 200) {
-            let resObj;
-            try {
-                resObj = JSON.parse(req.responseText);
-            } catch (err) {
-                reject(err);
+        req.onload = () => {
+            if (req.status === 200) {
+                let resObj;
+                try {
+                    resObj = JSON.parse(req.responseText);
+                } catch (err) {
+                    reject(err);
+                }
+                resolve(resObj);
+            } else {
+                reject(new Error("XHR got non-200 status while trying to load '" + path + "': " + req.status));
             }
-            resolve(resObj);
-        } else {
-            reject(new Error("XHR got non-200 status while trying to load '" + path + "': " + req.status));
-        }
-    };
+        };
 
-    req.onerror = evt => reject(new Error("XHR encountered an error while trying to load '" + path + "': " + evt.message));
+        req.onerror = evt => reject(new Error("XHR encountered an error while trying to load '" + path + "': " + evt.message));
 
-    req.ontimeout = evt => reject(new Error("XHR timed out while trying to load '" + path + "'"));
+        req.ontimeout = evt => reject(new Error("XHR timed out while trying to load '" + path + "'"));
 
-    req.send();
+        req.send();
+    });
 }
