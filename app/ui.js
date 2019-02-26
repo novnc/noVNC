@@ -1644,7 +1644,7 @@ const UI = {
 };
 
 // Set up translations
-const LINGUAS = ["cs", "de", "el", "es", "ko", "nl", "pl", "sv", "tr", "zh_CN", "zh_TW"];
+const LINGUAS = ["cs", "de", "el", "es", "ko", "nl", "pl", "ru", "sv", "tr", "zh_CN", "zh_TW"];
 l10n.setup(LINGUAS);
 if (l10n.language !== "en" && l10n.dictionary === undefined) {
     WebUtil.fetchJSON('app/locale/' + l10n.language + '.json', (translations) => {
