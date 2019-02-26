@@ -7,6 +7,7 @@
     "Connected (encrypted) to ": "Połączenie (szyfrowane) z ",
     "Connected (unencrypted) to ": "Połączenie (nieszyfrowane) z ",
     "Something went wrong, connection is closed": "Coś poszło źle, połączenie zostało zamknięte",
+    "Failed to connect to server": "",
     "Disconnected": "Rozłączony",
     "New connection has been rejected with reason: ": "Nowe połączenie zostało odrzucone z powodu: ",
     "New connection has been rejected": "Nowe połączenie zostało odrzucone",
@@ -28,6 +29,8 @@
     "Toggle Ctrl": "Przełącz Ctrl",
     "Alt": "Alt",
     "Toggle Alt": "Przełącz Alt",
+    "Toggle Windows": "",
+    "Windows": "",
     "Send Tab": "Wyślij Tab",
     "Tab": "Tab",
     "Esc": "Esc",
@@ -60,10 +63,11 @@
     "Path:": "Ścieżka:",
     "Automatic Reconnect": "Automatycznie wznawiaj połączenie",
     "Reconnect Delay (ms):": "Opóźnienie wznawiania (ms):",
+    "Show Dot when No Cursor": "",
     "Logging:": "Poziom logowania:",
     "Disconnect": "Rozłącz",
     "Connect": "Połącz",
     "Password:": "Hasło:",
-    "Cancel": "Anuluj",
-    "Canvas not supported.": "Element Canvas nie jest wspierany."
+    "Send Password": "Wyślij Hasło",
+    "Cancel": "Anuluj"
 }

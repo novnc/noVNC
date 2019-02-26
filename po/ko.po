@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2018-01-31 16:29+0100\n"
+"POT-Creation-Date: 2019-02-19 11:38+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Baw Appie <pp121324@gmail.com>\n"
 "Language-Team: Korean\n"
@@ -17,253 +17,265 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../app/ui.js:395
+#: ../app/ui.js:387
 msgid "Connecting..."
 msgstr "연결중..."
 
-#: ../app/ui.js:402
+#: ../app/ui.js:394
 msgid "Disconnecting..."
 msgstr "연결 해제중..."
 
-#: ../app/ui.js:408
+#: ../app/ui.js:400
 msgid "Reconnecting..."
 msgstr "재연결중..."
 
-#: ../app/ui.js:413
+#: ../app/ui.js:405
 msgid "Internal error"
 msgstr "내부 오류"
 
-#: ../app/ui.js:1002
+#: ../app/ui.js:995
 msgid "Must set host"
 msgstr "호스트는 설정되어야 합니다."
 
-#: ../app/ui.js:1083
+#: ../app/ui.js:1077
 msgid "Connected (encrypted) to "
 msgstr "다음과 (암호화되어) 연결되었습니다:"
 
-#: ../app/ui.js:1085
+#: ../app/ui.js:1079
 msgid "Connected (unencrypted) to "
 msgstr "다음과 (암호화 없이) 연결되었습니다:"
 
-#: ../app/ui.js:1108
+#: ../app/ui.js:1102
 msgid "Something went wrong, connection is closed"
 msgstr "무언가 잘못되었습니다, 연결이 닫혔습니다."
 
-#: ../app/ui.js:1111
+#: ../app/ui.js:1105
 msgid "Failed to connect to server"
 msgstr "서버에 연결하지 못했습니다."
 
-#: ../app/ui.js:1121
+#: ../app/ui.js:1115
 msgid "Disconnected"
 msgstr "연결이 해제되었습니다."
 
-#: ../app/ui.js:1134
+#: ../app/ui.js:1128
 msgid "New connection has been rejected with reason: "
 msgstr "새 연결이 다음 이유로 거부되었습니다:"
 
-#: ../app/ui.js:1137
+#: ../app/ui.js:1131
 msgid "New connection has been rejected"
 msgstr "새 연결이 거부되었습니다."
 
-#: ../app/ui.js:1158
+#: ../app/ui.js:1151
 msgid "Password is required"
 msgstr "비밀번호가 필요합니다."
 
-#: ../vnc.html:91
+#: ../vnc.html:84
 msgid "noVNC encountered an error:"
 msgstr "noVNC에 오류가 발생했습니다:"
 
-#: ../vnc.html:101
+#: ../vnc.html:94
 msgid "Hide/Show the control bar"
 msgstr "컨트롤 바 숨기기/보이기"
 
-#: ../vnc.html:108
+#: ../vnc.html:101
 msgid "Move/Drag Viewport"
 msgstr "움직이기/드래그 뷰포트"
 
-#: ../vnc.html:108
+#: ../vnc.html:101
 msgid "viewport drag"
 msgstr "뷰포트 드래그"
 
-#: ../vnc.html:114 ../vnc.html:117 ../vnc.html:120 ../vnc.html:123
+#: ../vnc.html:107 ../vnc.html:110 ../vnc.html:113 ../vnc.html:116
 msgid "Active Mouse Button"
 msgstr "마우스 버튼 활성화"
 
-#: ../vnc.html:114
+#: ../vnc.html:107
 msgid "No mousebutton"
 msgstr "마우스 버튼 없음"
 
-#: ../vnc.html:117
+#: ../vnc.html:110
 msgid "Left mousebutton"
 msgstr "왼쪽 마우스 버튼"
 
-#: ../vnc.html:120
+#: ../vnc.html:113
 msgid "Middle mousebutton"
 msgstr "중간 마우스 버튼"
 
-#: ../vnc.html:123
+#: ../vnc.html:116
 msgid "Right mousebutton"
 msgstr "오른쪽 마우스 버튼"
 
-#: ../vnc.html:126
+#: ../vnc.html:119
 msgid "Keyboard"
 msgstr "키보드"
 
-#: ../vnc.html:126
+#: ../vnc.html:119
 msgid "Show Keyboard"
 msgstr "키보드 보이기"
 
-#: ../vnc.html:133
+#: ../vnc.html:126
 msgid "Extra keys"
 msgstr "기타 키들"
 
-#: ../vnc.html:133
+#: ../vnc.html:126
 msgid "Show Extra Keys"
 msgstr "기타 키들 보이기"
 
-#: ../vnc.html:138
+#: ../vnc.html:131
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:138
+#: ../vnc.html:131
 msgid "Toggle Ctrl"
 msgstr "Ctrl 켜기/끄기"
 
-#: ../vnc.html:141
+#: ../vnc.html:134
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:141
+#: ../vnc.html:134
 msgid "Toggle Alt"
 msgstr "Alt 켜기/끄기"
 
-#: ../vnc.html:144
+#: ../vnc.html:137
+msgid "Toggle Windows"
+msgstr ""
+
+#: ../vnc.html:137
+msgid "Windows"
+msgstr ""
+
+#: ../vnc.html:140
 msgid "Send Tab"
 msgstr "Tab 보내기"
 
-#: ../vnc.html:144
+#: ../vnc.html:140
 msgid "Tab"
 msgstr "Tab"
 
-#: ../vnc.html:147
+#: ../vnc.html:143
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:147
+#: ../vnc.html:143
 msgid "Send Escape"
 msgstr "Esc 보내기"
 
-#: ../vnc.html:150
+#: ../vnc.html:146
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl+Alt+Del"
 
-#: ../vnc.html:150
+#: ../vnc.html:146
 msgid "Send Ctrl-Alt-Del"
 msgstr "Ctrl+Alt+Del 보내기"
 
-#: ../vnc.html:158
+#: ../vnc.html:154
 msgid "Shutdown/Reboot"
 msgstr "셧다운/리붓"
 
-#: ../vnc.html:158
+#: ../vnc.html:154
 msgid "Shutdown/Reboot..."
 msgstr "셧다운/리붓..."
 
-#: ../vnc.html:164
+#: ../vnc.html:160
 msgid "Power"
 msgstr "전원"
 
-#: ../vnc.html:166
+#: ../vnc.html:162
 msgid "Shutdown"
 msgstr "셧다운"
 
-#: ../vnc.html:167
+#: ../vnc.html:163
 msgid "Reboot"
 msgstr "리붓"
 
-#: ../vnc.html:168
+#: ../vnc.html:164
 msgid "Reset"
 msgstr "리셋"
 
-#: ../vnc.html:173 ../vnc.html:179
+#: ../vnc.html:169 ../vnc.html:175
 msgid "Clipboard"
 msgstr "클립보드"
 
-#: ../vnc.html:183
+#: ../vnc.html:179
 msgid "Clear"
 msgstr "지우기"
 
-#: ../vnc.html:189
+#: ../vnc.html:185
 msgid "Fullscreen"
 msgstr "전체화면"
 
-#: ../vnc.html:194 ../vnc.html:201
+#: ../vnc.html:190 ../vnc.html:197
 msgid "Settings"
 msgstr "설정"
 
-#: ../vnc.html:204
+#: ../vnc.html:200
 msgid "Shared Mode"
 msgstr "공유 모드"
 
-#: ../vnc.html:207
+#: ../vnc.html:203
 msgid "View Only"
 msgstr "보기 전용"
 
-#: ../vnc.html:211
+#: ../vnc.html:207
 msgid "Clip to Window"
 msgstr "창에 클립"
 
-#: ../vnc.html:214
+#: ../vnc.html:210
 msgid "Scaling Mode:"
 msgstr "스케일링 모드:"
 
-#: ../vnc.html:216
+#: ../vnc.html:212
 msgid "None"
 msgstr "없음"
 
-#: ../vnc.html:217
+#: ../vnc.html:213
 msgid "Local Scaling"
 msgstr "로컬 스케일링"
 
-#: ../vnc.html:218
+#: ../vnc.html:214
 msgid "Remote Resizing"
 msgstr "원격 크기 조절"
 
-#: ../vnc.html:223
+#: ../vnc.html:219
 msgid "Advanced"
 msgstr "고급"
 
-#: ../vnc.html:226
+#: ../vnc.html:222
 msgid "Repeater ID:"
 msgstr "중계 ID"
 
-#: ../vnc.html:230
+#: ../vnc.html:226
 msgid "WebSocket"
 msgstr "웹소켓"
 
-#: ../vnc.html:233
+#: ../vnc.html:229
 msgid "Encrypt"
 msgstr "암호화"
 
-#: ../vnc.html:236
+#: ../vnc.html:232
 msgid "Host:"
 msgstr "호스트:"
 
-#: ../vnc.html:240
+#: ../vnc.html:236
 msgid "Port:"
 msgstr "포트:"
 
-#: ../vnc.html:244
+#: ../vnc.html:240
 msgid "Path:"
 msgstr "위치:"
 
-#: ../vnc.html:251
+#: ../vnc.html:247
 msgid "Automatic Reconnect"
 msgstr "자동 재연결"
 
-#: ../vnc.html:254
+#: ../vnc.html:250
 msgid "Reconnect Delay (ms):"
 msgstr "재연결 지연 시간 (ms)"
+
+#: ../vnc.html:255
+msgid "Show Dot when No Cursor"
+msgstr ""
 
 #: ../vnc.html:260
 msgid "Logging:"

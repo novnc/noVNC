@@ -29,6 +29,8 @@
     "Toggle Ctrl": "切换 Ctrl",
     "Alt": "Alt",
     "Toggle Alt": "切换 Alt",
+    "Toggle Windows": "",
+    "Windows": "",
     "Send Tab": "发送 Tab 键",
     "Tab": "Tab",
     "Esc": "Esc",
@@ -61,9 +63,10 @@
     "Path:": "路径：",
     "Automatic Reconnect": "自动重新链接",
     "Reconnect Delay (ms):": "重新链接间隔 (ms)：",
+    "Show Dot when No Cursor": "",
     "Logging:": "日志级别：",
     "Disconnect": "终端链接",
-    "Connect": "连接",
+    "Connect": "链接",
     "Password:": "密码：",
     "Cancel": "取消"
 }

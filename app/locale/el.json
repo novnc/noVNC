@@ -7,6 +7,7 @@
     "Connected (encrypted) to ": "Συνδέθηκε (κρυπτογραφημένα) με το ",
     "Connected (unencrypted) to ": "Συνδέθηκε (μη κρυπτογραφημένα) με το ",
     "Something went wrong, connection is closed": "Κάτι πήγε στραβά, η σύνδεση διακόπηκε",
+    "Failed to connect to server": "",
     "Disconnected": "Αποσυνδέθηκε",
     "New connection has been rejected with reason: ": "Η νέα σύνδεση απορρίφθηκε διότι: ",
     "New connection has been rejected": "Η νέα σύνδεση απορρίφθηκε ",
@@ -28,6 +29,8 @@
     "Toggle Ctrl": "Εναλλαγή Ctrl",
     "Alt": "Alt",
     "Toggle Alt": "Εναλλαγή Alt",
+    "Toggle Windows": "",
+    "Windows": "",
     "Send Tab": "Αποστολή Tab",
     "Tab": "Tab",
     "Esc": "Esc",
@@ -60,10 +63,11 @@
     "Path:": "Διαδρομή:",
     "Automatic Reconnect": "Αυτόματη επανασύνδεση",
     "Reconnect Delay (ms):": "Καθυστέρηση επανασύνδεσης (ms):",
+    "Show Dot when No Cursor": "",
     "Logging:": "Καταγραφή:",
     "Disconnect": "Αποσύνδεση",
     "Connect": "Σύνδεση",
     "Password:": "Κωδικός Πρόσβασης:",
-    "Cancel": "Ακύρωση",
-    "Canvas not supported.": "Δεν υποστηρίζεται το στοιχείο Canvas"
+    "Send Password": "Αποστολή Κωδικού Πρόσβασης",
+    "Cancel": "Ακύρωση"
 }

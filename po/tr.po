@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 0.6.1\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-11-24 07:16+0000\n"
+"POT-Creation-Date: 2019-02-19 11:38+0400\n"
 "PO-Revision-Date: 2018-01-05 19:07+0300\n"
 "Last-Translator: Ömer ÇAKMAK <farukomercakmak@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
@@ -19,270 +19,290 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Gtranslator 2.91.7\n"
 
-#: ../app/ui.js:404
+#: ../app/ui.js:387
 msgid "Connecting..."
 msgstr "Bağlanıyor..."
 
-#: ../app/ui.js:411
+#: ../app/ui.js:394
 msgid "Disconnecting..."
 msgstr "Bağlantı kesiliyor..."
 
-#: ../app/ui.js:417
+#: ../app/ui.js:400
 msgid "Reconnecting..."
 msgstr "Yeniden bağlantı kuruluyor..."
 
-#: ../app/ui.js:422
+#: ../app/ui.js:405
 msgid "Internal error"
 msgstr "İç hata"
 
-#: ../app/ui.js:1019
+#: ../app/ui.js:995
 msgid "Must set host"
 msgstr "Sunucuyu kur"
 
-#: ../app/ui.js:1099
+#: ../app/ui.js:1077
 msgid "Connected (encrypted) to "
 msgstr "Bağlı (şifrelenmiş)"
 
-#: ../app/ui.js:1101
+#: ../app/ui.js:1079
 msgid "Connected (unencrypted) to "
 msgstr "Bağlandı (şifrelenmemiş)"
 
-#: ../app/ui.js:1119
+#: ../app/ui.js:1102
 msgid "Something went wrong, connection is closed"
 msgstr "Bir şeyler ters gitti, bağlantı kesildi"
 
-#: ../app/ui.js:1129
+#: ../app/ui.js:1105
+msgid "Failed to connect to server"
+msgstr ""
+
+#: ../app/ui.js:1115
 msgid "Disconnected"
 msgstr "Bağlantı kesildi"
 
-#: ../app/ui.js:1142
+#: ../app/ui.js:1128
 msgid "New connection has been rejected with reason: "
 msgstr "Bağlantı aşağıdaki nedenlerden dolayı reddedildi: "
 
-#: ../app/ui.js:1145
+#: ../app/ui.js:1131
 msgid "New connection has been rejected"
 msgstr "Bağlantı reddedildi"
 
-#: ../app/ui.js:1166
+#: ../app/ui.js:1151
 msgid "Password is required"
 msgstr "Şifre gerekli"
 
-#: ../vnc.html:89
+#: ../vnc.html:84
 msgid "noVNC encountered an error:"
 msgstr "Bir hata oluştu:"
 
-#: ../vnc.html:99
+#: ../vnc.html:94
 msgid "Hide/Show the control bar"
 msgstr "Denetim masasını Gizle/Göster"
 
-#: ../vnc.html:106
+#: ../vnc.html:101
 msgid "Move/Drag Viewport"
 msgstr "Görünümü Taşı/Sürükle"
 
-#: ../vnc.html:106
+#: ../vnc.html:101
 msgid "viewport drag"
 msgstr "Görüntü penceresini sürükle"
 
-#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
+#: ../vnc.html:107 ../vnc.html:110 ../vnc.html:113 ../vnc.html:116
 msgid "Active Mouse Button"
 msgstr "Aktif Fare Düğmesi"
 
-#: ../vnc.html:112
+#: ../vnc.html:107
 msgid "No mousebutton"
 msgstr "Fare düğmesi yok"
 
-#: ../vnc.html:115
+#: ../vnc.html:110
 msgid "Left mousebutton"
 msgstr "Farenin sol düğmesi"
 
-#: ../vnc.html:118
+#: ../vnc.html:113
 msgid "Middle mousebutton"
 msgstr "Farenin orta düğmesi"
 
-#: ../vnc.html:121
+#: ../vnc.html:116
 msgid "Right mousebutton"
 msgstr "Farenin sağ düğmesi"
 
-#: ../vnc.html:124
+#: ../vnc.html:119
 msgid "Keyboard"
 msgstr "Klavye"
 
-#: ../vnc.html:124
+#: ../vnc.html:119
 msgid "Show Keyboard"
 msgstr "Klavye Düzenini Göster"
 
-#: ../vnc.html:131
+#: ../vnc.html:126
 msgid "Extra keys"
 msgstr "Ekstra tuşlar"
 
-#: ../vnc.html:131
+#: ../vnc.html:126
 msgid "Show Extra Keys"
 msgstr "Ekstra tuşları göster"
 
-#: ../vnc.html:136
+#: ../vnc.html:131
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:136
+#: ../vnc.html:131
 msgid "Toggle Ctrl"
 msgstr "Ctrl Değiştir "
 
-#: ../vnc.html:139
+#: ../vnc.html:134
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:139
+#: ../vnc.html:134
 msgid "Toggle Alt"
 msgstr "Alt Değiştir"
 
-#: ../vnc.html:142
+#: ../vnc.html:137
+msgid "Toggle Windows"
+msgstr ""
+
+#: ../vnc.html:137
+msgid "Windows"
+msgstr ""
+
+#: ../vnc.html:140
 msgid "Send Tab"
 msgstr "Sekme Gönder"
 
-#: ../vnc.html:142
+#: ../vnc.html:140
 msgid "Tab"
 msgstr "Sekme"
 
-#: ../vnc.html:145
+#: ../vnc.html:143
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:145
+#: ../vnc.html:143
 msgid "Send Escape"
 msgstr "Boşluk Gönder"
 
-#: ../vnc.html:148
+#: ../vnc.html:146
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl + Alt + Del"
 
-#: ../vnc.html:148
+#: ../vnc.html:146
 msgid "Send Ctrl-Alt-Del"
 msgstr "Ctrl-Alt-Del Gönder"
 
-#: ../vnc.html:156
+#: ../vnc.html:154
 msgid "Shutdown/Reboot"
 msgstr "Kapat/Yeniden Başlat"
 
-#: ../vnc.html:156
+#: ../vnc.html:154
 msgid "Shutdown/Reboot..."
 msgstr "Kapat/Yeniden Başlat..."
 
-#: ../vnc.html:162
+#: ../vnc.html:160
 msgid "Power"
 msgstr "Güç"
 
-#: ../vnc.html:164
+#: ../vnc.html:162
 msgid "Shutdown"
 msgstr "Kapat"
 
-#: ../vnc.html:165
+#: ../vnc.html:163
 msgid "Reboot"
 msgstr "Yeniden Başlat"
 
-#: ../vnc.html:166
+#: ../vnc.html:164
 msgid "Reset"
 msgstr "Sıfırla"
 
-#: ../vnc.html:171 ../vnc.html:177
+#: ../vnc.html:169 ../vnc.html:175
 msgid "Clipboard"
 msgstr "Pano"
 
-#: ../vnc.html:181
+#: ../vnc.html:179
 msgid "Clear"
 msgstr "Temizle"
 
-#: ../vnc.html:187
+#: ../vnc.html:185
 msgid "Fullscreen"
 msgstr "Tam Ekran"
 
-#: ../vnc.html:192 ../vnc.html:199
+#: ../vnc.html:190 ../vnc.html:197
 msgid "Settings"
 msgstr "Ayarlar"
 
-#: ../vnc.html:202
+#: ../vnc.html:200
 msgid "Shared Mode"
 msgstr "Paylaşım Modu"
 
-#: ../vnc.html:205
+#: ../vnc.html:203
 msgid "View Only"
 msgstr "Sadece Görüntüle"
 
-#: ../vnc.html:209
+#: ../vnc.html:207
 msgid "Clip to Window"
 msgstr "Pencereye Tıkla"
 
-#: ../vnc.html:212
+#: ../vnc.html:210
 msgid "Scaling Mode:"
 msgstr "Ölçekleme Modu:"
 
-#: ../vnc.html:214
+#: ../vnc.html:212
 msgid "None"
 msgstr "Bilinmeyen"
 
-#: ../vnc.html:215
+#: ../vnc.html:213
 msgid "Local Scaling"
 msgstr "Yerel Ölçeklendirme"
 
-#: ../vnc.html:216
+#: ../vnc.html:214
 msgid "Remote Resizing"
 msgstr "Uzaktan Yeniden Boyutlandırma"
 
-#: ../vnc.html:221
+#: ../vnc.html:219
 msgid "Advanced"
 msgstr "Gelişmiş"
 
-#: ../vnc.html:224
+#: ../vnc.html:222
 msgid "Repeater ID:"
 msgstr "Tekralayıcı ID:"
 
-#: ../vnc.html:228
+#: ../vnc.html:226
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:231
+#: ../vnc.html:229
 msgid "Encrypt"
 msgstr "Şifrele"
 
-#: ../vnc.html:234
+#: ../vnc.html:232
 msgid "Host:"
 msgstr "Ana makine:"
 
-#: ../vnc.html:238
+#: ../vnc.html:236
 msgid "Port:"
 msgstr "Port:"
 
-#: ../vnc.html:242
+#: ../vnc.html:240
 msgid "Path:"
 msgstr "Yol:"
 
-#: ../vnc.html:249
+#: ../vnc.html:247
 msgid "Automatic Reconnect"
 msgstr "Otomatik Yeniden Bağlan"
 
-#: ../vnc.html:252
+#: ../vnc.html:250
 msgid "Reconnect Delay (ms):"
 msgstr "Yeniden Bağlanma Süreci (ms):"
 
-#: ../vnc.html:258
+#: ../vnc.html:255
+msgid "Show Dot when No Cursor"
+msgstr ""
+
+#: ../vnc.html:260
 msgid "Logging:"
 msgstr "Giriş yapılıyor:"
 
-#: ../vnc.html:270
+#: ../vnc.html:272
 msgid "Disconnect"
 msgstr "Bağlantıyı Kes"
 
-#: ../vnc.html:289
+#: ../vnc.html:291
 msgid "Connect"
 msgstr "Bağlan"
 
-#: ../vnc.html:299
+#: ../vnc.html:301
 msgid "Password:"
 msgstr "Parola:"
 
-#: ../vnc.html:313
+#: ../vnc.html:305
+#, fuzzy
+msgid "Send Password"
+msgstr "Parola:"
+
+#: ../vnc.html:315
 msgid "Cancel"
 msgstr "Vazgeç"
 
-#: ../vnc.html:329
-msgid "Canvas not supported."
-msgstr "Tuval desteklenmiyor."
+#~ msgid "Canvas not supported."
+#~ msgstr "Tuval desteklenmiyor."

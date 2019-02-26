@@ -7,6 +7,7 @@
     "Connected (encrypted) to ": "Verbunden mit (verschlüsselt) ",
     "Connected (unencrypted) to ": "Verbunden mit (unverschlüsselt) ",
     "Something went wrong, connection is closed": "Etwas lief schief, Verbindung wurde getrennt",
+    "Failed to connect to server": "",
     "Disconnected": "Verbindung zum Server getrennt",
     "New connection has been rejected with reason: ": "Verbindung wurde aus folgendem Grund abgelehnt: ",
     "New connection has been rejected": "Verbindung wurde abgelehnt",
@@ -28,6 +29,8 @@
     "Toggle Ctrl": "Strg umschalten",
     "Alt": "Alt",
     "Toggle Alt": "Alt umschalten",
+    "Toggle Windows": "",
+    "Windows": "",
     "Send Tab": "Tab senden",
     "Tab": "Tab",
     "Esc": "Esc",
@@ -60,10 +63,10 @@
     "Path:": "Pfad:",
     "Automatic Reconnect": "Automatisch wiederverbinden",
     "Reconnect Delay (ms):": "Wiederverbindungsverzögerung (ms):",
+    "Show Dot when No Cursor": "",
     "Logging:": "Protokollierung:",
     "Disconnect": "Verbindung trennen",
     "Connect": "Verbinden",
     "Password:": "Passwort:",
-    "Cancel": "Abbrechen",
-    "Canvas not supported.": "Canvas nicht unterstützt."
+    "Cancel": "Abbrechen"
 }

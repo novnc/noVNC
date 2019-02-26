@@ -6,7 +6,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.0.0\n"
+"Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2019-02-19 11:38+0400\n"
 "PO-Revision-Date: 2019-02-17 17:29+0400\n"
@@ -31,7 +31,7 @@ msgstr "Отключение..."
 
 #: ../app/ui.js:400
 msgid "Reconnecting..."
-msgstr "Перенодключение..."
+msgstr "Переподключение..."
 
 #: ../app/ui.js:405
 msgid "Internal error"
@@ -167,7 +167,7 @@ msgstr "Передать нажатие Escape"
 
 #: ../vnc.html:146
 msgid "Ctrl+Alt+Del"
-msgstr "Strg+Alt+Entf"
+msgstr "Ctrl+Alt+Del"
 
 #: ../vnc.html:146
 msgid "Send Ctrl-Alt-Del"
