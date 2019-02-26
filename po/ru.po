@@ -1,0 +1,306 @@
+# Russian translations for noVNC package
+# Русский перевод для пакета noVNC.
+# Copyright (C) 2019 Dmitriy Shweew
+# This file is distributed under the same license as the noVNC package.
+# Dmitriy Shweew <shweew@it-advisor.ru>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: noVNC 1.1.0\n"
+"Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
+"POT-Creation-Date: 2019-02-26 14:53+0400\n"
+"PO-Revision-Date: 2019-02-17 17:29+0400\n"
+"Last-Translator: Dmitriy Shweew <shweew@it-advisor.ru>\n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 2.2.1\n"
+"X-Poedit-Flags-xgettext: --add-comments\n"
+
+#: ../app/ui.js:387
+msgid "Connecting..."
+msgstr "Подключение..."
+
+#: ../app/ui.js:394
+msgid "Disconnecting..."
+msgstr "Отключение..."
+
+#: ../app/ui.js:400
+msgid "Reconnecting..."
+msgstr "Переподключение..."
+
+#: ../app/ui.js:405
+msgid "Internal error"
+msgstr "Внутренняя ошибка"
+
+#: ../app/ui.js:995
+msgid "Must set host"
+msgstr "Задайте имя сервера или IP"
+
+#: ../app/ui.js:1077
+msgid "Connected (encrypted) to "
+msgstr "Подключено (с шифрованием) к "
+
+#: ../app/ui.js:1079
+msgid "Connected (unencrypted) to "
+msgstr "Подключено (без шифрования) к "
+
+#: ../app/ui.js:1102
+msgid "Something went wrong, connection is closed"
+msgstr "Что-то пошло не так, подключение разорвано"
+
+#: ../app/ui.js:1105
+msgid "Failed to connect to server"
+msgstr "Ошибка подключения к серверу"
+
+#: ../app/ui.js:1115
+msgid "Disconnected"
+msgstr "Отключено"
+
+#: ../app/ui.js:1128
+msgid "New connection has been rejected with reason: "
+msgstr "Подключиться не удалось: "
+
+#: ../app/ui.js:1131
+msgid "New connection has been rejected"
+msgstr "Подключиться не удалось"
+
+#: ../app/ui.js:1151
+msgid "Password is required"
+msgstr "Требуется пароль"
+
+#: ../vnc.html:84
+msgid "noVNC encountered an error:"
+msgstr "Ошибка noVNC: "
+
+#: ../vnc.html:94
+msgid "Hide/Show the control bar"
+msgstr "Скрыть/Показать контрольную панель"
+
+#: ../vnc.html:101
+msgid "Move/Drag Viewport"
+msgstr "Переместить окно"
+
+#: ../vnc.html:101
+msgid "viewport drag"
+msgstr "Переместить окно"
+
+#: ../vnc.html:107 ../vnc.html:110 ../vnc.html:113 ../vnc.html:116
+msgid "Active Mouse Button"
+msgstr "Активировать кнопки мыши"
+
+#: ../vnc.html:107
+msgid "No mousebutton"
+msgstr "Отключить кнопки мыши"
+
+#: ../vnc.html:110
+msgid "Left mousebutton"
+msgstr "Левая кнопка мыши"
+
+#: ../vnc.html:113
+msgid "Middle mousebutton"
+msgstr "Средняя  кнопка мыши"
+
+#: ../vnc.html:116
+msgid "Right mousebutton"
+msgstr "Правая кнопка мыши"
+
+#: ../vnc.html:119
+msgid "Keyboard"
+msgstr "Клавиатура"
+
+#: ../vnc.html:119
+msgid "Show Keyboard"
+msgstr "Показать клавиатуру"
+
+#: ../vnc.html:126
+msgid "Extra keys"
+msgstr "Доп. кнопки"
+
+#: ../vnc.html:126
+msgid "Show Extra Keys"
+msgstr "Показать дополнительные кнопки"
+
+#: ../vnc.html:131
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:131
+msgid "Toggle Ctrl"
+msgstr "Передать нажатие Ctrl"
+
+#: ../vnc.html:134
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:134
+msgid "Toggle Alt"
+msgstr "Передать нажатие Alt"
+
+#: ../vnc.html:137
+msgid "Toggle Windows"
+msgstr "Переключение вкладок"
+
+#: ../vnc.html:137
+msgid "Windows"
+msgstr "Вкладка"
+
+#: ../vnc.html:140
+msgid "Send Tab"
+msgstr "Передать нажатие Tab"
+
+#: ../vnc.html:140
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:143
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:143
+msgid "Send Escape"
+msgstr "Передать нажатие Escape"
+
+#: ../vnc.html:146
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+#: ../vnc.html:146
+msgid "Send Ctrl-Alt-Del"
+msgstr "Передать нажатие Ctrl-Alt-Del"
+
+#: ../vnc.html:154
+msgid "Shutdown/Reboot"
+msgstr "Выключить/Перезагрузить"
+
+#: ../vnc.html:154
+msgid "Shutdown/Reboot..."
+msgstr "Выключить/Перезагрузить..."
+
+#: ../vnc.html:160
+msgid "Power"
+msgstr "Питание"
+
+#: ../vnc.html:162
+msgid "Shutdown"
+msgstr "Выключить"
+
+#: ../vnc.html:163
+msgid "Reboot"
+msgstr "Перезагрузить"
+
+#: ../vnc.html:164
+msgid "Reset"
+msgstr "Сброс"
+
+#: ../vnc.html:169 ../vnc.html:175
+msgid "Clipboard"
+msgstr "Буфер обмена"
+
+#: ../vnc.html:179
+msgid "Clear"
+msgstr "Очистить"
+
+#: ../vnc.html:185
+msgid "Fullscreen"
+msgstr "Во весь экран"
+
+#: ../vnc.html:190 ../vnc.html:197
+msgid "Settings"
+msgstr "Настройки"
+
+#: ../vnc.html:200
+msgid "Shared Mode"
+msgstr "Общий режим"
+
+#: ../vnc.html:203
+msgid "View Only"
+msgstr "Просмотр"
+
+#: ../vnc.html:207
+msgid "Clip to Window"
+msgstr "В окно"
+
+#: ../vnc.html:210
+msgid "Scaling Mode:"
+msgstr "Масштаб:"
+
+#: ../vnc.html:212
+msgid "None"
+msgstr "Нет"
+
+#: ../vnc.html:213
+msgid "Local Scaling"
+msgstr "Локльный масштаб"
+
+#: ../vnc.html:214
+msgid "Remote Resizing"
+msgstr "Удаленный масштаб"
+
+#: ../vnc.html:219
+msgid "Advanced"
+msgstr "Дополнительно"
+
+#: ../vnc.html:222
+msgid "Repeater ID:"
+msgstr "Идентификатор ID:"
+
+#: ../vnc.html:226
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:229
+msgid "Encrypt"
+msgstr "Шифрование"
+
+#: ../vnc.html:232
+msgid "Host:"
+msgstr "Сервер:"
+
+#: ../vnc.html:236
+msgid "Port:"
+msgstr "Порт:"
+
+#: ../vnc.html:240
+msgid "Path:"
+msgstr "Путь:"
+
+#: ../vnc.html:247
+msgid "Automatic Reconnect"
+msgstr "Автоматическое переподключение"
+
+#: ../vnc.html:250
+msgid "Reconnect Delay (ms):"
+msgstr "Задержка переподключения (мс):"
+
+#: ../vnc.html:255
+msgid "Show Dot when No Cursor"
+msgstr "Показать точку вместо курсора"
+
+#: ../vnc.html:260
+msgid "Logging:"
+msgstr "Лог:"
+
+#: ../vnc.html:272
+msgid "Disconnect"
+msgstr "Отключение"
+
+#: ../vnc.html:291
+msgid "Connect"
+msgstr "Подключение"
+
+#: ../vnc.html:301
+msgid "Password:"
+msgstr "Пароль:"
+
+#: ../vnc.html:305
+msgid "Send Password"
+msgstr "Пароль: "
+
+#: ../vnc.html:315
+msgid "Cancel"
+msgstr "Выход"
