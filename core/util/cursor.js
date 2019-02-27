@@ -6,7 +6,7 @@
 
 import { supportsCursorURIs, isTouchDevice } from './browser.js';
 
-const useFallback = !supportsCursorURIs() || isTouchDevice;
+const useFallback = !supportsCursorURIs || isTouchDevice;
 
 export default class Cursor {
     constructor() {
