@@ -39,7 +39,7 @@ describe('WebUtil', function () {
                 window.localStorage.getItem = sinon.stub();
                 window.localStorage.removeItem = sinon.stub();
 
-                WebUtil.initSettings();
+                return WebUtil.initSettings();
             });
             afterEach(function () {
                 Object.defineProperty(window, "localStorage", origLocalStorage);
@@ -132,7 +132,7 @@ describe('WebUtil', function () {
                 settings = {};
                 csSandbox.spy(window.chrome.storage.sync, 'set');
                 csSandbox.spy(window.chrome.storage.sync, 'remove');
-                WebUtil.initSettings();
+                return WebUtil.initSettings();
             });
             afterEach(function () {
                 csSandbox.restore();
