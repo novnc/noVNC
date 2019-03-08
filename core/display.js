@@ -495,6 +495,11 @@ export default class Display {
     }
 
     autoscale(containerWidth, containerHeight) {
+        if (containerWidth === 0 || containerHeight === 0) {
+            Log.Warn("Autoscale doesn't work when width or height is zero");
+            return;
+        }
+
         const vp = this._viewportLoc;
         const targetAspectRatio = containerWidth / containerHeight;
         const fbAspectRatio = vp.w / vp.h;
