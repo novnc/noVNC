@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
     <!--
@@ -16,13 +16,9 @@
     -->
     <title>noVNC</title>
 
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
 
-    <!-- Always force latest IE rendering engine (even in intranet) &
-        Chrome Frame. Remove this if you use the .htaccess -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
-    <style type="text/css">
+    <style>
 
         body {
             margin: 0;
@@ -72,7 +68,7 @@
         window.addEventListener("load", function() {
             if (window._noVNC_has_module_support) return;
             const loader = document.createElement("script");
-            loader.src = "vendor/browser-es-module-loader/dist/" + 
+            loader.src = "vendor/browser-es-module-loader/dist/" +
                 "browser-es-module-loader.js";
             document.head.appendChild(loader);
         });
