@@ -34,18 +34,15 @@ const DISCONNECT_TIMEOUT = 3;
 const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
 export default class RFB extends EventTargetMixin {
-    constructor(target, url, options) {
+    constructor(target, websocketCreator, options) {
         if (!target) {
             throw new Error("Must specify target");
-        }
-        if (!url) {
-            throw new Error("Must specify URL");
         }
 
         super();
 
         this._target = target;
-        this._url = url;
+        this._websocketCreator = websocketCreator;
 
         // Connection details
         options = options || {};
@@ -393,11 +390,10 @@ export default class RFB extends EventTargetMixin {
     _connect() {
         Log.Debug(">> RFB.connect");
 
-        Log.Info("connecting to " + this._url);
 
         try {
             // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(this._url, ['binary']);
+            this._sock.open(this._websocketCreator);
         } catch (e) {
             if (e.name === 'SyntaxError') {
                 this._fail("Invalid host or port (" + e + ")");
