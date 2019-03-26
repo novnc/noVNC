@@ -36,6 +36,11 @@ jobs:
     addons:
     before_script:
     script: npm run lint
+  -
+    env:
+    addons:
+    before_script:
+    script: git ls-tree --name-only -r HEAD | grep -E "[.](html|css)$" | xargs ./utils/validate
   - stage: deploy
     env:
     addons:
