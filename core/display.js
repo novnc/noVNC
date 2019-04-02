@@ -191,10 +191,16 @@ export default class Display {
     }
 
     absX(x) {
+        if (this._scale === 0) {
+            return 0;
+        }
         return x / this._scale + this._viewportLoc.x;
     }
 
     absY(y) {
+        if (this._scale === 0) {
+            return 0;
+        }
         return y / this._scale + this._viewportLoc.y;
     }
 
@@ -495,20 +501,22 @@ export default class Display {
     }
 
     autoscale(containerWidth, containerHeight) {
-        if (containerWidth === 0 || containerHeight === 0) {
-            Log.Warn("Autoscale doesn't work when width or height is zero");
-            return;
-        }
-
-        const vp = this._viewportLoc;
-        const targetAspectRatio = containerWidth / containerHeight;
-        const fbAspectRatio = vp.w / vp.h;
-
         let scaleRatio;
-        if (fbAspectRatio >= targetAspectRatio) {
-            scaleRatio = containerWidth / vp.w;
+
+        if (containerWidth === 0 || containerHeight === 0) {
+            scaleRatio = 0;
+
         } else {
-            scaleRatio = containerHeight / vp.h;
+
+            const vp = this._viewportLoc;
+            const targetAspectRatio = containerWidth / containerHeight;
+            const fbAspectRatio = vp.w / vp.h;
+
+            if (fbAspectRatio >= targetAspectRatio) {
+                scaleRatio = containerWidth / vp.w;
+            } else {
+                scaleRatio = containerHeight / vp.h;
+            }
         }
 
         this._rescale(scaleRatio);
