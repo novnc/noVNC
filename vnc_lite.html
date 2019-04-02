@@ -154,6 +154,14 @@
         const password = readQueryVariable('password', '');
         const path = readQueryVariable('path', 'websockify');
 
+        // If a token variable is passed in, forward it in the URL so that it
+        // is accessible by a websockify token plugin
+        var token = WebUtil.getConfigVar('token', null);
+        if (token) {
+            // if token is already present in the path we should use it
+            path = WebUtil.injectParamIfMissing(path, "token", token);
+        }
+
         // | | |         | | |
         // | | | Connect | | |
         // v v v         v v v
