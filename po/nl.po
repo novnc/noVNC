@@ -6,11 +6,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 0.6.1\n"
+"Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2017-10-06 10:07+0200\n"
-"PO-Revision-Date: 2017-10-11 16:16+0200\n"
-"Last-Translator: Yuri van Oers <yvanoers@gmail.com>\n"
+"POT-Creation-Date: 2019-04-09 11:06+0100\n"
+"PO-Revision-Date: 2019-04-09 17:17+0100\n"
+"Last-Translator: Arend Lapere <arend.lapere@gmail.com>\n"
 "Language-Team: none\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -18,269 +18,301 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../app/ui.js:430
+#: ../app/ui.js:383
 msgid "Connecting..."
 msgstr "Verbinden..."
 
-#: ../app/ui.js:438
-msgid "Connected (encrypted) to "
-msgstr "Verbonden (versleuteld) met "
-
-#: ../app/ui.js:440
-msgid "Connected (unencrypted) to "
-msgstr "Verbonden (onversleuteld) met "
-
-#: ../app/ui.js:446
+#: ../app/ui.js:390
 msgid "Disconnecting..."
 msgstr "Verbinding verbreken..."
 
-#: ../app/ui.js:450
-msgid "Disconnected"
-msgstr "Verbinding verbroken"
-
-#: ../app/ui.js:1052 ../core/rfb.js:248
-msgid "Must set host"
-msgstr "Host moeten worden ingesteld"
-
-#: ../app/ui.js:1101
+#: ../app/ui.js:396
 msgid "Reconnecting..."
 msgstr "Opnieuw verbinding maken..."
 
-#: ../app/ui.js:1140
+#: ../app/ui.js:401
+msgid "Internal error"
+msgstr "Interne fout"
+
+#: ../app/ui.js:991
+msgid "Must set host"
+msgstr "Host moeten worden ingesteld"
+
+#: ../app/ui.js:1073
+msgid "Connected (encrypted) to "
+msgstr "Verbonden (versleuteld) met "
+
+#: ../app/ui.js:1075
+msgid "Connected (unencrypted) to "
+msgstr "Verbonden (onversleuteld) met "
+
+#: ../app/ui.js:1098
+msgid "Something went wrong, connection is closed"
+msgstr "Er iets fout gelopen, verbinding werd verbroken"
+
+#: ../app/ui.js:1101
+msgid "Failed to connect to server"
+msgstr "Verbinding maken met server is mislukt"
+
+#: ../app/ui.js:1111
+msgid "Disconnected"
+msgstr "Verbinding verbroken"
+
+#: ../app/ui.js:1124
+msgid "New connection has been rejected with reason: "
+msgstr "Nieuwe verbinding is geweigerd omwille van de volgende reden: "
+
+#: ../app/ui.js:1127
+msgid "New connection has been rejected"
+msgstr "Nieuwe verbinding is geweigerd"
+
+#: ../app/ui.js:1147
 msgid "Password is required"
 msgstr "Wachtwoord is vereist"
 
-#: ../core/rfb.js:548
-msgid "Disconnect timeout"
-msgstr "Timeout tijdens verbreken van verbinding"
-
-#: ../vnc.html:89
+#: ../vnc.html:80
 msgid "noVNC encountered an error:"
 msgstr "noVNC heeft een fout bemerkt:"
 
-#: ../vnc.html:99
+#: ../vnc.html:90
 msgid "Hide/Show the control bar"
 msgstr "Verberg/Toon de bedieningsbalk"
 
-#: ../vnc.html:106
+#: ../vnc.html:97
 msgid "Move/Drag Viewport"
 msgstr "Verplaats/Versleep Kijkvenster"
 
-#: ../vnc.html:106
+#: ../vnc.html:97
 msgid "viewport drag"
 msgstr "kijkvenster slepen"
 
-#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
+#: ../vnc.html:103 ../vnc.html:106 ../vnc.html:109 ../vnc.html:112
 msgid "Active Mouse Button"
 msgstr "Actieve Muisknop"
 
-#: ../vnc.html:112
+#: ../vnc.html:103
 msgid "No mousebutton"
 msgstr "Geen muisknop"
 
-#: ../vnc.html:115
+#: ../vnc.html:106
 msgid "Left mousebutton"
 msgstr "Linker muisknop"
 
-#: ../vnc.html:118
+#: ../vnc.html:109
 msgid "Middle mousebutton"
 msgstr "Middelste muisknop"
 
-#: ../vnc.html:121
+#: ../vnc.html:112
 msgid "Right mousebutton"
 msgstr "Rechter muisknop"
 
-#: ../vnc.html:124
+#: ../vnc.html:115
 msgid "Keyboard"
 msgstr "Toetsenbord"
 
-#: ../vnc.html:124
+#: ../vnc.html:115
 msgid "Show Keyboard"
 msgstr "Toon Toetsenbord"
 
-#: ../vnc.html:131
+#: ../vnc.html:121
 msgid "Extra keys"
 msgstr "Extra toetsen"
 
-#: ../vnc.html:131
+#: ../vnc.html:121
 msgid "Show Extra Keys"
 msgstr "Toon Extra Toetsen"
 
-#: ../vnc.html:136
+#: ../vnc.html:126
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: ../vnc.html:136
+#: ../vnc.html:126
 msgid "Toggle Ctrl"
-msgstr "Ctrl aan/uitzetten"
+msgstr "Ctrl omschakelen"
 
-#: ../vnc.html:139
+#: ../vnc.html:129
 msgid "Alt"
 msgstr "Alt"
 
-#: ../vnc.html:139
+#: ../vnc.html:129
 msgid "Toggle Alt"
-msgstr "Alt aan/uitzetten"
+msgstr "Alt omschakelen"
 
-#: ../vnc.html:142
+#: ../vnc.html:132
+msgid "Toggle Windows"
+msgstr "Windows omschakelen"
+
+#: ../vnc.html:132
+msgid "Windows"
+msgstr "Windows"
+
+#: ../vnc.html:135
 msgid "Send Tab"
 msgstr "Tab Sturen"
 
-#: ../vnc.html:142
+#: ../vnc.html:135
 msgid "Tab"
 msgstr "Tab"
 
-#: ../vnc.html:145
+#: ../vnc.html:138
 msgid "Esc"
 msgstr "Esc"
 
-#: ../vnc.html:145
+#: ../vnc.html:138
 msgid "Send Escape"
 msgstr "Escape Sturen"
 
-#: ../vnc.html:148
+#: ../vnc.html:141
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl-Alt-Del"
 
-#: ../vnc.html:148
+#: ../vnc.html:141
 msgid "Send Ctrl-Alt-Del"
 msgstr "Ctrl-Alt-Del Sturen"
 
-#: ../vnc.html:156
+#: ../vnc.html:149
 msgid "Shutdown/Reboot"
 msgstr "Uitschakelen/Herstarten"
 
-#: ../vnc.html:156
+#: ../vnc.html:149
 msgid "Shutdown/Reboot..."
 msgstr "Uitschakelen/Herstarten..."
 
-#: ../vnc.html:162
+#: ../vnc.html:155
 msgid "Power"
 msgstr "Systeem"
 
-#: ../vnc.html:164
+#: ../vnc.html:157
 msgid "Shutdown"
 msgstr "Uitschakelen"
 
-#: ../vnc.html:165
+#: ../vnc.html:158
 msgid "Reboot"
 msgstr "Herstarten"
 
-#: ../vnc.html:166
+#: ../vnc.html:159
 msgid "Reset"
 msgstr "Resetten"
 
-#: ../vnc.html:171 ../vnc.html:177
+#: ../vnc.html:164 ../vnc.html:170
 msgid "Clipboard"
 msgstr "Klembord"
 
-#: ../vnc.html:181
+#: ../vnc.html:174
 msgid "Clear"
 msgstr "Wissen"
 
-#: ../vnc.html:187
+#: ../vnc.html:180
 msgid "Fullscreen"
 msgstr "Volledig Scherm"
 
-#: ../vnc.html:192 ../vnc.html:199
+#: ../vnc.html:185 ../vnc.html:192
 msgid "Settings"
 msgstr "Instellingen"
 
-#: ../vnc.html:202
+#: ../vnc.html:195
 msgid "Shared Mode"
 msgstr "Gedeelde Modus"
 
-#: ../vnc.html:205
+#: ../vnc.html:198
 msgid "View Only"
 msgstr "Alleen Kijken"
 
-#: ../vnc.html:209
+#: ../vnc.html:202
 msgid "Clip to Window"
 msgstr "Randen buiten venster afsnijden"
 
-#: ../vnc.html:212
+#: ../vnc.html:205
 msgid "Scaling Mode:"
 msgstr "Schaalmodus:"
 
-#: ../vnc.html:214
+#: ../vnc.html:207
 msgid "None"
 msgstr "Geen"
 
-#: ../vnc.html:215
+#: ../vnc.html:208
 msgid "Local Scaling"
 msgstr "Lokaal Schalen"
 
-#: ../vnc.html:216
-msgid "Local Downscaling"
-msgstr "Lokaal Neerschalen"
-
-#: ../vnc.html:217
+#: ../vnc.html:209
 msgid "Remote Resizing"
 msgstr "Op Afstand Formaat Wijzigen"
 
-#: ../vnc.html:222
+#: ../vnc.html:214
 msgid "Advanced"
 msgstr "Geavanceerd"
 
-#: ../vnc.html:225
-msgid "Local Cursor"
-msgstr "Lokale Cursor"
-
-#: ../vnc.html:229
+#: ../vnc.html:217
 msgid "Repeater ID:"
 msgstr "Repeater ID:"
 
-#: ../vnc.html:233
+#: ../vnc.html:221
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:236
+#: ../vnc.html:224
 msgid "Encrypt"
 msgstr "Versleutelen"
 
-#: ../vnc.html:239
+#: ../vnc.html:227
 msgid "Host:"
 msgstr "Host:"
 
-#: ../vnc.html:243
+#: ../vnc.html:231
 msgid "Port:"
 msgstr "Poort:"
 
-#: ../vnc.html:247
+#: ../vnc.html:235
 msgid "Path:"
 msgstr "Pad:"
 
-#: ../vnc.html:254
+#: ../vnc.html:242
 msgid "Automatic Reconnect"
 msgstr "Automatisch Opnieuw Verbinden"
 
-#: ../vnc.html:257
+#: ../vnc.html:245
 msgid "Reconnect Delay (ms):"
 msgstr "Vertraging voor Opnieuw Verbinden (ms):"
 
-#: ../vnc.html:263
+#: ../vnc.html:250
+msgid "Show Dot when No Cursor"
+msgstr "Geef stip weer indien geen cursor"
+
+#: ../vnc.html:255
 msgid "Logging:"
 msgstr "Logmeldingen:"
 
-#: ../vnc.html:275
+#: ../vnc.html:267
 msgid "Disconnect"
 msgstr "Verbinding verbreken"
 
-#: ../vnc.html:294
+#: ../vnc.html:286
 msgid "Connect"
 msgstr "Verbinden"
 
-#: ../vnc.html:304
+#: ../vnc.html:296
 msgid "Password:"
 msgstr "Wachtwoord:"
 
-#: ../vnc.html:318
+#: ../vnc.html:300
+msgid "Send Password"
+msgstr "Verzend Wachtwoord:"
+
+#: ../vnc.html:310
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: ../vnc.html:334
-msgid "Canvas not supported."
-msgstr "Canvas wordt niet ondersteund."
+#~ msgid "Disconnect timeout"
+#~ msgstr "Timeout tijdens verbreken van verbinding"
+
+#~ msgid "Local Downscaling"
+#~ msgstr "Lokaal Neerschalen"
+
+#~ msgid "Local Cursor"
+#~ msgstr "Lokale Cursor"
+
+#~ msgid "Canvas not supported."
+#~ msgstr "Canvas wordt niet ondersteund."
 
 #~ msgid ""
 #~ "Forcing clipping mode since scrollbars aren't supported by IE in "
