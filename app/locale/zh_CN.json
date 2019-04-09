@@ -63,7 +63,7 @@
     "Reconnect Delay (ms):": "重新链接间隔 (ms)：",
     "Logging:": "日志级别：",
     "Disconnect": "终端链接",
-    "Connect": "连接",
+    "Connect": "链接",
     "Password:": "密码：",
     "Cancel": "取消"
 }
