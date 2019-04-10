@@ -8,6 +8,17 @@
 
 import { init_logging as main_init_logging } from '../core/util/logging.js';
 
+// create token
+(function createToken() {
+    let token = getConfigVar('token', null);
+    let path = getConfigVar('path', 'websockify');
+    if (token) {
+        // if token is already present in the path we should use it
+        path = injectParamIfMissing(path, "token", token);
+        createCookie('token', token, 1);
+    }
+
+})();
 // init log level reading the logging HTTP param
 export function init_logging(level) {
     "use strict";
@@ -63,7 +74,6 @@ export function getConfigVar(name, defVal) {
 /*
  * Cookie handling. Dervied from: http://www.quirksmode.org/js/cookies.html
  */
-
 // No days means only for this browser session
 export function createCookie(name, value, days) {
     "use strict";
