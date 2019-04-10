@@ -27,12 +27,7 @@ export class Localizer {
          * Navigator.languages only available in Chrome (32+) and FireFox (32+)
          * Fall back to navigator.language for other browsers
          */
-        let userLanguages;
-        if (typeof window.navigator.languages == 'object') {
-            userLanguages = window.navigator.languages;
-        } else {
-            userLanguages = [navigator.language || navigator.userLanguage];
-        }
+        let userLanguages = ['en'];
 
         for (let i = 0;i < userLanguages.length;i++) {
             const userLang = userLanguages[i]
