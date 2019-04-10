@@ -579,11 +579,11 @@ select:active {
 }
 
 /* Extra manual keys */
-:root:not(.noVNC_connected) #noVNC_extra_keys {
+:root:not(.noVNC_connected) #noVNC_extra_keys, :root:not(.noVNC_connected) #noVNC_special_keys {
   display: none;
 }
 
-#noVNC_modifiers {
+#noVNC_modifiers, #noVNC_special_modifiers {
   background-color: rgb(92, 92, 92);
   border: none;
   padding: 0 10px;
@@ -856,6 +856,7 @@ select:active {
 /* From: http://fonts.googleapis.com/css?family=Orbitron:700 */
 @font-face {
   font-family: 'Orbitron';
+  font-display: block;
   font-style: normal;
   font-weight: 700;
   src: local('?'), url('Orbitron700.woff') format('woff'),
