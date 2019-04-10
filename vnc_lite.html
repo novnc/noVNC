@@ -78,6 +78,7 @@
     <script type="module" crossorigin="anonymous">
         // RFB holds the API to connect and communicate with a VNC server
         import RFB from './core/rfb.js';
+        import * as WebUtil from './app/webutil.js';
 
         let rfb;
         let desktopName;
@@ -152,11 +153,22 @@
         const host = readQueryVariable('host', window.location.hostname);
         let port = readQueryVariable('port', window.location.port);
         const password = readQueryVariable('password', '');
-        const path = readQueryVariable('path', 'websockify');
-
+        let path = readQueryVariable('path', 'websockify');
         // | | |         | | |
         // | | | Connect | | |
         // v v v         v v v
+
+        // If a token variable is passed in, set the parameter in a cookie.
+        // This is used by nova-novncproxy.
+
+        let token = WebUtil.getConfigVar('token', null);
+
+        if (token) {
+            // if token is already present in the path we should use it
+            path = WebUtil.injectParamIfMissing(path, "token", token);
+
+            WebUtil.createCookie('token', token, 1)
+        }
 
         status("Connecting");
 
