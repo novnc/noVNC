@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:export-xdpi="90" inkscape:export-filename="/home/ossman/devel/noVNC/images/drag.png" sodipodi:docname="ctrl.svg" inkscape:version="0.91 r13725" inkscape:export-ydpi="90"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px"
+	 viewBox="0 0 25 25" enable-background="new 0 0 25 25" xml:space="preserve">
+<sodipodi:namedview  showguides="true" showgrid="false" inkscape:cy="17.531398" inkscape:cx="18.205425" inkscape:zoom="16" borderopacity="1.0" bordercolor="#666666" pagecolor="#959595" id="base" units="px" inkscape:snap-nodes="true" inkscape:object-nodes="true" inkscape:snap-smooth-nodes="true" inkscape:window-maximized="1" inkscape:window-y="27" inkscape:window-x="1920" inkscape:window-height="1136" inkscape:window-width="1920" inkscape:object-paths="true" inkscape:bbox-nodes="true" inkscape:bbox-paths="true" inkscape:snap-bbox="true" inkscape:pageshadow="2" inkscape:current-layer="layer1" inkscape:pageopacity="0" inkscape:document-units="px" inkscape:snap-intersection-paths="true" inkscape:snap-bbox-edge-midpoints="true" inkscape:snap-global="true">
+	<inkscape:grid  id="grid4136" type="xygrid"></inkscape:grid>
+</sodipodi:namedview>
+<g>
+	<path fill="#FFFFFF" d="M3.044,8.938h5.073v1.421H4.924v1.357h3.003v1.421H4.924v3.091h-1.88V8.938z"/>
+	<path fill="#FFFFFF" d="M10.129,14.929h1.66v-4.712l-1.704,0.352V9.289l1.694-0.352h1.787v5.991h1.66v1.299h-5.098V14.929z"/>
+	<path fill="#FFFFFF" d="M17.087,14.929h1.66v-4.712l-1.704,0.352V9.289l1.694-0.352h1.787v5.991h1.66v1.299h-5.098V14.929z"/>
+</g>
+</svg>

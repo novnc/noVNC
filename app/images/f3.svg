@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:export-xdpi="90" inkscape:export-filename="/home/ossman/devel/noVNC/images/drag.png" sodipodi:docname="ctrl.svg" inkscape:version="0.91 r13725" inkscape:export-ydpi="90"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px"
+	 viewBox="0 0 25 25" enable-background="new 0 0 25 25" xml:space="preserve">
+<sodipodi:namedview  showguides="true" showgrid="false" inkscape:cy="17.531398" inkscape:cx="18.205425" inkscape:zoom="16" borderopacity="1.0" bordercolor="#666666" pagecolor="#959595" id="base" units="px" inkscape:snap-nodes="true" inkscape:object-nodes="true" inkscape:snap-smooth-nodes="true" inkscape:window-maximized="1" inkscape:window-y="27" inkscape:window-x="1920" inkscape:window-height="1136" inkscape:window-width="1920" inkscape:object-paths="true" inkscape:bbox-nodes="true" inkscape:bbox-paths="true" inkscape:snap-bbox="true" inkscape:pageshadow="2" inkscape:current-layer="layer1" inkscape:pageopacity="0" inkscape:document-units="px" inkscape:snap-intersection-paths="true" inkscape:snap-bbox-edge-midpoints="true" inkscape:snap-global="true">
+	<inkscape:grid  id="grid4136" type="xygrid"></inkscape:grid>
+</sodipodi:namedview>
+<g>
+	<path fill="#FFFFFF" d="M6.523,8.938h5.073v1.421H8.403v1.357h3.003v1.421H8.403v3.091h-1.88V8.938z"/>
+	<path fill="#FFFFFF" d="M17.094,12.297c0.491,0.127,0.865,0.348,1.121,0.661c0.255,0.314,0.383,0.714,0.383,1.199
+		c0,0.723-0.276,1.271-0.83,1.648c-0.554,0.375-1.36,0.563-2.422,0.563c-0.374,0-0.749-0.03-1.125-0.091
+		c-0.376-0.06-0.748-0.15-1.116-0.271v-1.45c0.352,0.176,0.701,0.309,1.048,0.398c0.347,0.089,0.688,0.134,1.022,0.134
+		c0.498,0,0.88-0.086,1.145-0.259c0.266-0.173,0.398-0.42,0.398-0.742c0-0.332-0.136-0.584-0.408-0.754
+		c-0.271-0.172-0.672-0.257-1.203-0.257h-0.752v-1.211h0.791c0.473,0,0.824-0.074,1.055-0.222c0.23-0.148,0.347-0.374,0.347-0.677
+		c0-0.28-0.112-0.496-0.337-0.649s-0.542-0.229-0.952-0.229c-0.303,0-0.608,0.034-0.918,0.103c-0.309,0.068-0.616,0.169-0.923,0.303
+		V9.118c0.371-0.104,0.739-0.183,1.104-0.234c0.365-0.052,0.723-0.078,1.074-0.078c0.947,0,1.656,0.155,2.126,0.467
+		c0.471,0.311,0.706,0.778,0.706,1.403c0,0.427-0.112,0.775-0.337,1.048C17.865,11.995,17.533,12.187,17.094,12.297z"/>
+</g>
+</svg>

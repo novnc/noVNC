@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:export-xdpi="90" inkscape:export-filename="/home/ossman/devel/noVNC/images/drag.png" sodipodi:docname="ctrl.svg" inkscape:version="0.91 r13725" inkscape:export-ydpi="90"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px"
+	 viewBox="0 0 25 25" enable-background="new 0 0 25 25" xml:space="preserve">
+<sodipodi:namedview  showguides="true" showgrid="false" inkscape:cy="17.531398" inkscape:cx="18.205425" inkscape:zoom="16" borderopacity="1.0" bordercolor="#666666" pagecolor="#959595" id="base" units="px" inkscape:snap-nodes="true" inkscape:object-nodes="true" inkscape:snap-smooth-nodes="true" inkscape:window-maximized="1" inkscape:window-y="27" inkscape:window-x="1920" inkscape:window-height="1136" inkscape:window-width="1920" inkscape:object-paths="true" inkscape:bbox-nodes="true" inkscape:bbox-paths="true" inkscape:snap-bbox="true" inkscape:pageshadow="2" inkscape:current-layer="layer1" inkscape:pageopacity="0" inkscape:document-units="px" inkscape:snap-intersection-paths="true" inkscape:snap-bbox-edge-midpoints="true" inkscape:snap-global="true">
+	<inkscape:grid  id="grid4136" type="xygrid"></inkscape:grid>
+</sodipodi:namedview>
+<g>
+	<path fill="#FFFFFF" d="M6.523,8.938h5.073v1.421H8.403v1.357h3.003v1.421H8.403v3.091h-1.88V8.938z"/>
+	<path fill="#FFFFFF" d="M15.316,14.846h3.208v1.382h-5.298v-1.382l2.661-2.349c0.238-0.215,0.414-0.425,0.527-0.63
+		c0.114-0.205,0.171-0.418,0.171-0.64c0-0.342-0.115-0.617-0.345-0.825c-0.229-0.208-0.534-0.312-0.915-0.312
+		c-0.293,0-0.613,0.062-0.962,0.188c-0.348,0.125-0.721,0.312-1.118,0.559V9.235c0.424-0.14,0.842-0.246,1.255-0.32
+		c0.414-0.072,0.819-0.109,1.216-0.109c0.872,0,1.551,0.192,2.033,0.576c0.484,0.384,0.726,0.92,0.726,1.606
+		c0,0.397-0.103,0.768-0.308,1.11c-0.205,0.344-0.637,0.804-1.294,1.38L15.316,14.846z"/>
+</g>
+</svg>
