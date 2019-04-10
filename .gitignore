@@ -14,12 +14,7 @@ noVNC-*.tgz
 # IDE FILES #
 ######################
 
-/.idea/dataSources
-/.idea/dictionaries
-/.idea/dataSources.local.xml
-/.idea/dataSources.xml
-/.idea/workspace.xml
-/.idea/shelf
+/.idea/*
 /.vscode
 
 # OS generated files #
