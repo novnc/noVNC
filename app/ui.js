@@ -53,7 +53,6 @@ const UI = {
 
     // Render default UI and initialize settings menu
     start() {
-
         UI.initSettings();
 
         // Translate the DOM
@@ -77,6 +76,7 @@ const UI = {
         UI.addControlbarHandlers();
         UI.addTouchSpecificHandlers();
         UI.addExtraKeysHandlers();
+        UI.addSpecialKeysHandlers();
         UI.addMachineHandlers();
         UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
@@ -103,7 +103,9 @@ const UI = {
             UI.openConnectPanel();
         }
 
+        UI.connect();
         return Promise.resolve(UI.rfb);
+
     },
 
     initFullscreen() {
@@ -283,6 +285,34 @@ const UI = {
         document.getElementById("noVNC_send_ctrl_alt_del_button")
             .addEventListener('click', UI.sendCtrlAltDel);
     },
+    addSpecialKeysHandlers() {
+        document.getElementById("noVNC_toggle_special_keys_button")
+            .addEventListener('click', UI.toggleSpecialKeys);
+        document.getElementById("noVNC_send_f1_button")
+            .addEventListener('click', UI.sendF1);
+        document.getElementById("noVNC_send_f2_button")
+            .addEventListener('click', UI.sendF2);
+        document.getElementById("noVNC_send_f3_button")
+            .addEventListener('click', UI.sendF3);
+        document.getElementById("noVNC_send_f4_button")
+            .addEventListener('click', UI.sendF4);
+        document.getElementById("noVNC_send_f5_button")
+            .addEventListener('click', UI.sendF5);
+        document.getElementById("noVNC_send_f6_button")
+            .addEventListener('click', UI.sendF6);
+        document.getElementById("noVNC_send_f7_button")
+            .addEventListener('click', UI.sendF7);
+        document.getElementById("noVNC_send_f8_button")
+            .addEventListener('click', UI.sendF8);
+        document.getElementById("noVNC_send_f9_button")
+            .addEventListener('click', UI.sendF9);
+        document.getElementById("noVNC_send_f10_button")
+            .addEventListener('click', UI.sendF10);
+        document.getElementById("noVNC_send_f11_button")
+            .addEventListener('click', UI.sendF11);
+        document.getElementById("noVNC_send_f12_button")
+            .addEventListener('click', UI.sendF12);
+    },
 
     addMachineHandlers() {
         document.getElementById("noVNC_shutdown_button")
@@ -310,8 +340,8 @@ const UI = {
     addClipboardHandlers() {
         document.getElementById("noVNC_clipboard_button")
             .addEventListener('click', UI.toggleClipboardPanel);
-        document.getElementById("noVNC_clipboard_text")
-            .addEventListener('change', UI.clipboardSend);
+        document.getElementById("noVNC_clipboard_send_button")
+            .addEventListener('click', UI.writeText);
         document.getElementById("noVNC_clipboard_clear_button")
             .addEventListener('click', UI.clipboardClear);
     },
@@ -414,7 +444,7 @@ const UI = {
             UI.setMouseButton(1);
 
             // Hide the controlbar after 2 seconds
-            UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
+            // UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
         } else {
             UI.enableSetting('encrypt');
             UI.enableSetting('shared');
@@ -805,6 +835,7 @@ const UI = {
         UI.closePowerPanel();
         UI.closeClipboardPanel();
         UI.closeExtraKeys();
+        UI.closeSpecialKeys();
     },
 
 /* ------^-------
@@ -930,21 +961,46 @@ const UI = {
         }
     },
 
-    clipboardReceive(e) {
-        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
-        document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        Log.Debug("<< UI.clipboardReceive");
-    },
-
     clipboardClear() {
         document.getElementById('noVNC_clipboard_text').value = "";
         UI.rfb.clipboardPasteFrom("");
     },
 
-    clipboardSend() {
+    writeText() {
         const text = document.getElementById('noVNC_clipboard_text').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
-        UI.rfb.clipboardPasteFrom(text);
+
+        const textClip = text.split("");
+        function f(t) {
+            const character = t.shift();
+            if (character === undefined) return;
+
+            const code = character.charCodeAt();
+            const needs_shift = '[A-Z!@#$%^&*()_+{}:"<>?~|]'.indexOf(character) !== -1;
+            const enter = '[\n]'.indexOf(character) !== -1;
+            if (enter) {
+                UI.rfb.sendKey(KeyTable.XK_Return, 'XK_Return', true);
+            }
+
+            if (!enter) {
+                if (needs_shift) {
+                    UI.rfb.sendKey(KeyTable.XK_Shift_L, "ShiftLeft", true);
+                }
+                UI.rfb.sendKey(code, "keysym", true);
+                UI.rfb.sendKey(code, "keysym", false);
+                if (needs_shift) {
+                    UI.rfb.sendKey(KeyTable.XK_Shift_L, "ShiftLeft", false);
+                }
+            }
+            if (t.length > 0) {
+                setTimeout( () => {
+                    f(t);
+                }, 10);
+            }
+        }
+
+        f(textClip);
+
         Log.Debug("<< UI.clipboardSend");
     },
 
@@ -965,7 +1021,6 @@ const UI = {
     },
 
     connect(event, password) {
-
         // Ignore when rfb already exists
         if (typeof UI.rfb !== 'undefined') {
             return;
@@ -1025,6 +1080,7 @@ const UI = {
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
 
         UI.updateViewOnly(); // requires UI.rfb
+
     },
 
     disconnect() {
@@ -1548,6 +1604,87 @@ const UI = {
 
 /* ------^-------
  *   /EXTRA KEYS
+ * ============== * ==============
+ *   EXTRA SPECIAL KEYS
+ * ------v------*/
+
+    openSpecialKeys() {
+        UI.closeAllPanels();
+        UI.openControlbar();
+
+        document.getElementById('noVNC_special_modifiers')
+            .classList.add("noVNC_open");
+        document.getElementById('noVNC_toggle_special_keys_button')
+            .classList.add("noVNC_selected");
+    },
+
+    closeSpecialKeys() {
+        document.getElementById('noVNC_special_modifiers')
+            .classList.remove("noVNC_open");
+        document.getElementById('noVNC_toggle_special_keys_button')
+            .classList.remove("noVNC_selected");
+    },
+
+    toggleSpecialKeys() {
+        if (document.getElementById('noVNC_special_modifiers')
+            .classList.contains("noVNC_open")) {
+            UI.closeSpecialKeys();
+        } else  {
+            UI.openSpecialKeys();
+        }
+    },
+
+    sendF1() {
+        UI.rfb.sendKey(KeyTable.XK_F1, "F1");
+    },
+
+    sendF2() {
+        UI.rfb.sendKey(KeyTable.XK_F2, "F2");
+    },
+
+    sendF3() {
+        UI.rfb.sendKey(KeyTable.XK_F3, "F3");
+    },
+
+    sendF4() {
+        UI.rfb.sendKey(KeyTable.XK_F4, "F4");
+    },
+
+    sendF5() {
+        UI.rfb.sendKey(KeyTable.XK_F5, "F5");
+    },
+
+    sendF6() {
+        UI.rfb.sendKey(KeyTable.XK_F6, "F6");
+    },
+
+    sendF7() {
+        UI.rfb.sendKey(KeyTable.XK_F7, "F7");
+    },
+
+    sendF8() {
+        UI.rfb.sendKey(KeyTable.XK_F8, "F8");
+    },
+
+    sendF9() {
+        UI.rfb.sendKey(KeyTable.XK_F9, "F9");
+    },
+
+    sendF10() {
+        UI.rfb.sendKey(KeyTable.XK_F10, "F10");
+    },
+
+    sendF11() {
+        UI.rfb.sendKey(KeyTable.XK_F11, "F11");
+    },
+
+    sendF12() {
+        UI.rfb.sendKey(KeyTable.XK_F12, "F12");
+    },
+
+
+/* ------^-------
+ *   /EXTRA SPECIAL KEYS
  * ==============
  *     MISC
  * ------v------*/
@@ -1580,12 +1717,16 @@ const UI = {
                 .classList.add('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.add('noVNC_hidden');
+            document.getElementById('noVNC_toggle_special_keys_button')
+                .classList.add('noVNC_hidden');
             document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
                 .classList.add('noVNC_hidden');
         } else {
             document.getElementById('noVNC_keyboard_button')
                 .classList.remove('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
+                .classList.remove('noVNC_hidden');
+            document.getElementById('noVNC_toggle_special_keys_button')
                 .classList.remove('noVNC_hidden');
             document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
                 .classList.remove('noVNC_hidden');
