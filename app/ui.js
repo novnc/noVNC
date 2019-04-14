@@ -1005,6 +1005,7 @@ const UI = {
         if (port) {
             url += ':' + port;
         }
+        let token;
         token = getQueryVar("token","nope");
         if (token=="nope") {
             url += '/' + path;
