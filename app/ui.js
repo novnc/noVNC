@@ -1006,8 +1006,8 @@ const UI = {
             url += ':' + port;
         }
         let token;
-        token = getQueryVar("token","nope");
-        if (token=="nope") {
+        token = WebUtil.getQueryVar("token", "nope");
+        if (token == "nope") {
             url += '/' + path;
         } else {
             url += '/' + path + '?token=' + token;
