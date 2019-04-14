@@ -1005,7 +1005,12 @@ const UI = {
         if (port) {
             url += ':' + port;
         }
-        url += '/' + path;
+        token = getQueryVar("token","nope");
+        if (token=="nope") {
+            url += '/' + path;
+        } else {
+            url += '/' + path + '?token=' + token;
+        }
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),

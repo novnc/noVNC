@@ -123,6 +123,17 @@
             document.getElementById('status').textContent = text;
         }
 
+        function getQueryVar(name, defVal) {
+            "use strict";
+            const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
+            match = document.location.href.match(re);
+            if (typeof defVal === 'undefined') { defVal = null; }
+            if (match) {
+                return decodeURIComponent(match[1]);
+            }
+            return defVal;
+        }
+
         // This function extracts the value of one variable from the
         // query string. If the variable isn't defined in the URL
         // it returns the default value instead.
@@ -171,7 +182,12 @@
         if(port) {
             url += ':' + port;
         }
-        url += '/' + path;
+        token = getQueryVar("token","nope");
+        if (token=="nope") {
+            url += '/' + path;
+        } else {
+            url += '/' + path + '?token=' + token;
+        }
 
         // Creating a new RFB object will start a new connection
         rfb = new RFB(document.getElementById('screen'), url,
