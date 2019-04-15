@@ -48,6 +48,7 @@ jobs:
     before_script: skip
     deploy:
       provider: npm
+      skip_cleanup: true
       email: ossman@cendio.se
       api_key:
         secure: "Qq2Mi9xQawO2zlAigzshzMu2QMHvu1IaN9l0ZIivE99wHJj7eS5f4miJ9wB+/mWRRgb3E8uj9ZRV24+Oc36drlBTU9sz+lHhH0uFMfAIseceK64wZV9sLAZm472fmPp2xdUeTCCqPaRy7g1XBqiJ0LyZvEFLsRijqcLjPBF+b8w="
