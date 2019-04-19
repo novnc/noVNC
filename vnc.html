@@ -215,6 +215,8 @@
                 <div id="noVNC_clipboard" class="noVNC_panel">
                     <div class="noVNC_heading">
                         <img alt="" src="app/images/clipboard.svg"> Clipboard
+                        <input type="button" class="noVNC_close" id="noVNC_clipboard_close_button" value="Close">
+
                     </div>
                     <textarea id="noVNC_clipboard_text" rows=5></textarea>
                     <br>
@@ -226,12 +228,12 @@
             </div>
 
             <!-- Toggle fullscreen -->
-            <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
+            <input style="display: none"  type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
                    id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
                    title="Fullscreen">
 
             <!-- Settings -->
-            <input type="image" alt="Settings" src="app/images/settings.svg"
+            <input style="display: none" type="image" alt="Settings" src="app/images/settings.svg"
                    id="noVNC_settings_button" class="noVNC_button"
                    title="Settings">
             <div class="noVNC_vcenter">

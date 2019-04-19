@@ -16,7 +16,6 @@ import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
-
 const UI = {
 
     connected: false,
@@ -344,6 +343,8 @@ const UI = {
             .addEventListener('click', UI.writeText);
         document.getElementById("noVNC_clipboard_clear_button")
             .addEventListener('click', UI.clipboardClear);
+        document.getElementById("noVNC_clipboard_close_button")
+            .addEventListener('click', UI.clipboardClose);
     },
 
     // Add a call to save settings when the element changes,
@@ -965,6 +966,13 @@ const UI = {
         document.getElementById('noVNC_clipboard_text').value = "";
         UI.rfb.clipboardPasteFrom("");
     },
+    clipboardClose() {
+        if (document.getElementById('noVNC_clipboard_button')
+            .classList.contains("noVNC_selected")) {
+            UI.closeClipboardPanel();
+        }
+    },
+
 
     writeText() {
         const text = document.getElementById('noVNC_clipboard_text').value;
@@ -975,14 +983,20 @@ const UI = {
             const character = t.shift();
             if (character === undefined) return;
 
-            const code = character.charCodeAt();
-            const needs_shift = '[A-Z!@#$%^&*()_+{}:"<>?~|]'.indexOf(character) !== -1;
+            let code = character.charCodeAt();
+            const needs_shift = 'A-Z!@#$%^&*()_+{}:"<>?~|'.indexOf(character) !== -1;
             const enter = '[\n]'.indexOf(character) !== -1;
-            if (enter) {
-                UI.rfb.sendKey(KeyTable.XK_Return, 'XK_Return', true);
-            }
+            if (code === 91) {
+                UI.rfb.sendKey(KeyTable.XK_bracketleft, 'XK_bracketleft', true);
+                UI.rfb.sendKey(KeyTable.XK_bracketleft, 'XK_bracketleft', false);
 
-            if (!enter) {
+            } else if (code === 93) {
+                UI.rfb.sendKey(KeyTable.XK_bracketright, 'XK_bracketright', true);
+                UI.rfb.sendKey(KeyTable.XK_bracketright, 'XK_bracketright', false);
+            } else if (enter) {
+                UI.rfb.sendKey(KeyTable.XK_Return, 'XK_Return', true);
+                UI.rfb.sendKey(KeyTable.XK_Return, 'XK_Return', false);
+            } else {
                 if (needs_shift) {
                     UI.rfb.sendKey(KeyTable.XK_Shift_L, "ShiftLeft", true);
                 }
@@ -995,7 +1009,7 @@ const UI = {
             if (t.length > 0) {
                 setTimeout( () => {
                     f(t);
-                }, 10);
+                }, 50);
             }
         }
 
