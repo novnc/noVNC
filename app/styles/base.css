@@ -472,6 +472,7 @@ select:active {
 
 /* Panels */
 .noVNC_panel {
+  position: relative;
   transform: translateX(25px);
 
   transition: 0.5s ease-in-out;
@@ -614,6 +615,10 @@ select:active {
 #noVNC_clipboard_text {
   width: 500px;
   max-width: 100%;
+}
+
+.noVNC_close {
+  float: right;
 }
 
 /* Settings */
