@@ -129,7 +129,7 @@ if [[ -e ${HERE}/websockify ]]; then
     echo "Using local websockify at $WEBSOCKIFY"
 else
     WEBSOCKIFY_FROMSYSTEM=$(which websockify 2>/dev/null)
-    WEBSOCKIFY_FROMSNAP=python2-websockify
+    WEBSOCKIFY_FROMSNAP=usr/bin/python2-websockify
     [ -f $WEBSOCKIFY_FROMSYSTEM ] &&  WEBSOCKIFY=$WEBSOCKIFY_FROMSYSTEM
     [ -f $WEBSOCKIFY_FROMSNAP ] && WEBSOCKIFY=$WEBSOCKIFY_FROMSNAP
 
