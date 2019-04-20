@@ -15,11 +15,7 @@ parts:
         plugin: dump
         stage-packages:
             - websockify
-#        override-build: |
-#            snapcraftctl build
-#            ln -s usr/bin/python2-websockify websockify
 apps:
     novnc:
         command: utils/launch.sh
-#    websockify:
-#        command: usr/bin/python2-websockify
+        plugs: [network, network-bind]
