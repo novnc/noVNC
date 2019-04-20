@@ -6,26 +6,15 @@ description: |
   Open Source VNC client using HTML5 (WebSockets, Canvas).
   noVNC is both a VNC client JavaScript library as well as an application built on top of that library. noVNC runs well in any modern browser including mobile browsers (iOS and Android).
 
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: stable
+confinement: strict
 
 parts:
     novnc:
-        source: https://github.com/tkedwards/noVNC.git # https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz
+        source: https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz 
         plugin: dump
-        source-type: git # only until my changes get commited
-        build-packages: # only until my changes get commited
-            - git       
-        #stage-snaps:
-        #    - websockify
-    websockify:
-        source: https://github.com/novnc/websockify
-        plugin: dump
-        source-type: git
-        build-packages:
-            - git
-        organize: # avoid filename conflicts with files from the novnc part
-            '*': utils/websockify/
+        stage-packages:
+            - websockify
 apps:
     novnc:
         command: utils/launch.sh
