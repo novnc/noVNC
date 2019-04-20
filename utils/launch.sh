@@ -129,7 +129,7 @@ if [[ -e ${HERE}/websockify ]]; then
     echo "Using local websockify at $WEBSOCKIFY"
 else
     WEBSOCKIFY_FROMSYSTEM=$(which websockify 2>/dev/null)
-    WEBSOCKIFY_FROMSNAP=/snap/bin/novnc.websockify
+    WEBSOCKIFY_FROMSNAP=/snap/bin/websockify
     [ -f $WEBSOCKIFY_FROMSYSTEM ] &&  WEBSOCKIFY=$WEBSOCKIFY_FROMSYSTEM
     [ -f $WEBSOCKIFY_FROMSNAP ] && WEBSOCKIFY=$WEBSOCKIFY_FROMSNAP
 
