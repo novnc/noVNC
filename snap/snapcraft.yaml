@@ -11,10 +11,15 @@ confinement: strict
 
 parts:
     novnc:
-        source: https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz 
+        source: https://github.com/tkedwards/noVNC.git # https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz
         plugin: dump
         stage-packages:
             - websockify
+#        override-build: |
+#            snapcraftctl build
+#            ln -s usr/bin/python2-websockify websockify
 apps:
     novnc:
         command: utils/launch.sh
+#    websockify:
+#        command: usr/bin/python2-websockify
