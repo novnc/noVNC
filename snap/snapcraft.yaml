@@ -19,3 +19,27 @@ apps:
     novnc:
         command: utils/launch.sh
         plugs: [network, network-bind]
+    n5900:
+        command: utils/launch.sh --vnc localhost:5900 --listen 6080
+        daemon: simple
+        plugs: [network, network-bind]
+    n5901:
+        command: utils/launch.sh --vnc localhost:5901 --listen 6081
+        daemon: simple
+        plugs: [network, network-bind]
+    n5902:
+        command: utils/launch.sh --vnc localhost:5902 --listen 6082
+        daemon: simple
+        plugs: [network, network-bind]
+    n5903:
+        command: utils/launch.sh --vnc localhost:5903 --listen 6083
+        daemon: simple
+        plugs: [network, network-bind]
+    n5904:
+        command: utils/launch.sh --vnc localhost:5904 --listen 6084
+        daemon: simple
+        plugs: [network, network-bind]
+    n5905:
+        command: utils/launch.sh --vnc localhost:5905 --listen 6085
+        daemon: simple
+        plugs: [network, network-bind]
