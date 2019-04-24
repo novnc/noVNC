@@ -123,7 +123,12 @@ To install from Snap:
 
 By default the Snap package creates 6 services on different ports which allow access to the local VNC server. So novnc.n5900 listens on port 6080 and connects to the VNC services on localhost:5901, novnc.n5901 listens on port 6081 and connects to localhost:5901 and so on up to port 6085 and localhost:5905. These services can be started/stopped with the usual `snap service` commands, e.g: 
 
-`sudo snap stop novnc.n5901`
+```
+snap services novnc # list services
+sudo snap stop novnc.n5901 # stop the services that listens on 6081 connecting to localhost:5901
+sudo snap start novnc.n5901 # start it
+sudo snap restart novnc.n5901 # restart it
+```
 
 If you stop the services noVNC can then be run manually with:
 
