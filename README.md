@@ -125,7 +125,7 @@ By default the Snap package creates 6 services on different ports which allow ac
 
 ```
 snap services novnc # list services
-sudo snap stop novnc.n5901 # stop the services that listens on 6081 connecting to localhost:5901
+sudo snap stop novnc.n5901 # stop the service that listens on 6081 connecting to localhost:5901
 sudo snap start novnc.n5901 # start it
 sudo snap restart novnc.n5901 # restart it
 ```
