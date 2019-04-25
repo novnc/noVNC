@@ -984,7 +984,7 @@ const UI = {
             if (character === undefined) return;
 
             let code = character.charCodeAt();
-            const needs_shift = 'A-Z!@#$%^&*()_+{}:"<>?~|'.indexOf(character) !== -1;
+            const needs_shift = '^[AZ]!@#$%^&*()_+{}:"<>?~|'.indexOf(character) !== -1;
             const enter = '[\n]'.indexOf(character) !== -1;
             if (code === 91) {
                 UI.rfb.sendKey(KeyTable.XK_bracketleft, 'XK_bracketleft', true);
