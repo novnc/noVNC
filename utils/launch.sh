@@ -130,7 +130,7 @@ if [[ -e ${HERE}/websockify ]]; then
 else
     WEBSOCKIFY_FROMSYSTEM=$(which websockify 2>/dev/null)
     WEBSOCKIFY_FROMSNAP=${HERE}/../usr/bin/python2-websockify
-    [ -f $WEBSOCKIFY_FROMSYSTEM ] &&  WEBSOCKIFY=$WEBSOCKIFY_FROMSYSTEM
+    [ -f $WEBSOCKIFY_FROMSYSTEM ] && WEBSOCKIFY=$WEBSOCKIFY_FROMSYSTEM
     [ -f $WEBSOCKIFY_FROMSNAP ] && WEBSOCKIFY=$WEBSOCKIFY_FROMSNAP
 
     if [ ! -f "$WEBSOCKIFY" ]; then
