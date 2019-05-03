@@ -1168,10 +1168,15 @@ const UI = {
  * ------v------*/
 
     toggleFullscreen() {
+        // Determine the document using fullscreen. This may either be
+        // just the "document", but if using the viewer in an iframe, you need
+        // to use the parent window's "document" instead.
         let doc = document;
         if (window.self !== window.top) {
             doc = window.parent.document;
         }
+        // Check the fullscreen status using the correct document as
+        // a reference. The same document is then used to exit fullscreen.
         if (doc.fullscreenElement || // alternative standard method
             doc.mozFullScreenElement || // currently working methods
             doc.webkitFullscreenElement ||
@@ -1186,8 +1191,16 @@ const UI = {
                 doc.msExitFullscreen();
             }
         } else {
+            // To activate fullscreen, we need to find the correct document
+            // element, which is usually "document.documentElement". But when
+            // using the viewer in an iframe, this is actually the iframe
+            // element itself in the parent document.
             let doc_el = document.documentElement;
             if (window.self !== window.top) {
+                // Seek out the correct iframe from the parent document.
+                // This will produce errors if the iframe does not come from
+                // the same origin, so it is advisable to put the viewer in
+                // iframes only if you are on the same server.
                 let iframes = window.parent.document
                     .getElementsByTagName('iframe');
                 for (let i in iframes) {
@@ -1197,6 +1210,8 @@ const UI = {
                     }
                 }
             }
+            // Activate fullscreen. All except MS use the document element for
+            // this. The behaviour of body.msRequestFullscreen is untested.
             if (doc_el.requestFullscreen) {
                 doc_el.requestFullscreen();
             } else if (doc_el.mozRequestFullScreen) {
