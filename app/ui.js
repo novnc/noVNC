@@ -1168,17 +1168,14 @@ const UI = {
  * ------v------*/
 
     toggleFullscreen() {
-        if (document.fullscreenElement || // alternative standard method
-            document.mozFullScreenElement || // currently working methods
-            document.webkitFullscreenElement ||
-            document.msFullscreenElement) {
-            var doc = document;
-            if (window.parent != window) {
-                var iframeid = WebUtil.getQueryVar('iframeid', null);
-                if (iframeid) {
-                    doc = window.parent.document.getElementById(iframeid);
-                }
-            }
+        var doc = document;
+        if (window.self !== window.top) {
+            doc = window.parent.document;
+        }
+        if (doc.fullscreenElement || // alternative standard method
+            doc.mozFullScreenElement || // currently working methods
+            doc.webkitFullscreenElement ||
+            doc.msFullscreenElement) {
             if (doc.exitFullscreen) {
                 doc.exitFullscreen();
             } else if (doc.mozCancelFullScreen) {
@@ -1189,19 +1186,19 @@ const UI = {
                 doc.msExitFullscreen();
             }
         } else {
-            var doc = document.documentElement;
-            if (window.parent != window) {
+            var doc_el = document.documentElement;
+            if (window.self !== window.top) {
                 var iframeid = WebUtil.getQueryVar('iframeid', null);
                 if (iframeid) {
-                    doc = window.parent.document.getElementById(iframeid);
+                    doc_el = window.parent.document.getElementById(iframeid);
                 }
             }
-            if (doc.requestFullscreen) {
-                doc.requestFullscreen();
-            } else if (doc.mozRequestFullScreen) {
-                doc.mozRequestFullScreen();
-            } else if (doc.webkitRequestFullscreen) {
-                doc.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            if (doc_el.requestFullscreen) {
+                doc_el.requestFullscreen();
+            } else if (doc_el.mozRequestFullScreen) {
+                doc_el.mozRequestFullScreen();
+            } else if (doc_el.webkitRequestFullscreen) {
+                doc_el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
             } else if (doc.body.msRequestFullscreen) {
                 doc.body.msRequestFullscreen();
             }
