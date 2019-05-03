@@ -1168,7 +1168,7 @@ const UI = {
  * ------v------*/
 
     toggleFullscreen() {
-        var doc = document;
+        let doc = document;
         if (window.self !== window.top) {
             doc = window.parent.document;
         }
@@ -1186,11 +1186,15 @@ const UI = {
                 doc.msExitFullscreen();
             }
         } else {
-            var doc_el = document.documentElement;
+            let doc_el = document.documentElement;
             if (window.self !== window.top) {
-                var iframeid = WebUtil.getQueryVar('iframeid', null);
-                if (iframeid) {
-                    doc_el = window.parent.document.getElementById(iframeid);
+                let iframes = window.parent.document
+                    .getElementsByTagName('iframe');
+                for (let i in iframes) {
+                    if (iframes[i].contentDocument === document) {
+                        doc_el = iframes[i];
+                        break;
+                    }
                 }
             }
             if (doc_el.requestFullscreen) {
