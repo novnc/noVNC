@@ -1172,24 +1172,38 @@ const UI = {
             document.mozFullScreenElement || // currently working methods
             document.webkitFullscreenElement ||
             document.msFullscreenElement) {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
+            var doc = document;
+            if (window.parent != window) {
+                var iframeid = WebUtil.getQueryVar('iframeid', null);
+                if (iframeid) {
+                    doc = window.parent.document.getElementById(iframeid);
+                }
+            }
+            if (doc.exitFullscreen) {
+                doc.exitFullscreen();
+            } else if (doc.mozCancelFullScreen) {
+                doc.mozCancelFullScreen();
+            } else if (doc.webkitExitFullscreen) {
+                doc.webkitExitFullscreen();
+            } else if (doc.msExitFullscreen) {
+                doc.msExitFullscreen();
             }
         } else {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            } else if (document.documentElement.mozRequestFullScreen) {
-                document.documentElement.mozRequestFullScreen();
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-            } else if (document.body.msRequestFullscreen) {
-                document.body.msRequestFullscreen();
+            var doc = document.documentElement;
+            if (window.parent != window) {
+                var iframeid = WebUtil.getQueryVar('iframeid', null);
+                if (iframeid) {
+                    doc = window.parent.document.getElementById(iframeid);
+                }
+            }
+            if (doc.requestFullscreen) {
+                doc.requestFullscreen();
+            } else if (doc.mozRequestFullScreen) {
+                doc.mozRequestFullScreen();
+            } else if (doc.webkitRequestFullscreen) {
+                doc.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            } else if (doc.body.msRequestFullscreen) {
+                doc.body.msRequestFullscreen();
             }
         }
         UI.updateFullscreenButton();
