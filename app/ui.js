@@ -1206,6 +1206,11 @@ const UI = {
                 for (let i in iframes) {
                     if (iframes[i].contentDocument === document) {
                         doc_el = iframes[i];
+                        // To use .body.msRequestFullscreen in IE, we need to
+                        // set the document element accordingly.
+                        // Note that the <iframe> must have the attribute
+                        // "allowfullscreen" set for IE to allow the feature.
+                        doc = iframes[i].contentDocument;
                         break;
                     }
                 }
