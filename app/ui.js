@@ -1198,13 +1198,17 @@ const UI = {
             let doc_el = document.documentElement;
             if (window.self !== window.top) {
                 // Seek out the correct iframe from the parent document.
-                // This will produce errors if the iframe does not come from
-                // the same origin, so it is advisable to put the viewer in
-                // iframes only if you are on the same server.
                 let iframes = window.parent.document
                     .getElementsByTagName('iframe');
                 for (let i in iframes) {
-                    if (iframes[i].contentDocument === document) {
+                    let content_doc = null;
+                    try {
+                        content_doc = iframes[i].contentDocument;
+                    } catch (err) {
+                        // I may not be permitted to read the contentDocument
+                        // of the iframe, but then it can't be me, so ignore.
+                    }
+                    if (content_doc === document) {
                         doc_el = iframes[i];
                         // To use .body.msRequestFullscreen in IE, we need to
                         // set the document element accordingly.
