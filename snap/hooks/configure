@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+# Obtain sleep-time value
+sleep_time="$(snapctl get sleep-time)"
+
+# Validate it
+if ! expr "$sleep_time" : '^[0-9]*$' > /dev/null; then
+    echo "\"$sleep_time\" is not a valid sleep time" >&2
+    exit 1
+fi
