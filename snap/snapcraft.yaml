@@ -26,6 +26,6 @@ apps:
         command: utils/launch.sh
         plugs: [network, network-bind]
     novncsvc:
-        command: utils/svc_wrapper.py
+        command: utils/svc_wrapper.sh
         daemon: simple
         plugs: [network, network-bind]

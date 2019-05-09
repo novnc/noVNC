@@ -1,10 +1,12 @@
 #!/bin/sh -e
 
-# Obtain sleep-time value
-sleep_time="$(snapctl get sleep-time)"
+listen_port="$(snapctl get novncsvc.listen_port)"
+vnc_host_port="$(snapctl get novncsvc.vnc_host_port)"
 
-# Validate it
-if ! expr "$sleep_time" : '^[0-9]*$' > /dev/null; then
-    echo "\"$sleep_time\" is not a valid sleep time" >&2
-    exit 1
+ # Validate listen_port
+if ! expr "$listen_port" : '^[0-9]\+$' > /dev/null; then
+    echo "\"$listen_port\" is not a valid port number" >&2
+    return 1
 fi
+
+snapctl restart novncsvc
