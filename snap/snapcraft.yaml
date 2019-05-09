@@ -28,5 +28,5 @@ apps:
         plugs: [network, network-bind]
     novncsvc:
         command: utils/svc_wrapper.sh
-        daemon: forking
+        daemon: simple
         plugs: [network, network-bind]

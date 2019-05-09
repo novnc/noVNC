@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 listen_port="$(snapctl get novncsvc.listen-port)"
 vnc_host_port="$(snapctl get novncsvc.vnc-host-port)"
@@ -9,5 +9,5 @@ if [ ! $listen_port_valid ] || [ -z "$vnc_host_port" ]; then
     # invalid values mean the service is disabled, do nothing
     echo "novncsvc disabled"
 else
-     ./utils/launch.sh --listen $listen_port --vnc $vnc_host_port
+    $SNAP/utils/launch.sh --listen $listen_port --vnc $vnc_host_port
 fi
