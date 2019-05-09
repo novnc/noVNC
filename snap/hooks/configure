@@ -1,12 +1,6 @@
 #!/bin/sh -e
 
-listen_port="$(snapctl get novncsvc.listen_port)"
-vnc_host_port="$(snapctl get novncsvc.vnc_host_port)"
+listen_port="$(snapctl get novncsvc.listen-port)"
+vnc_host_port="$(snapctl get novncsvc.vnc-host-port)"
 
- # Validate listen_port
-if ! expr "$listen_port" : '^[0-9]\+$' > /dev/null; then
-    echo "\"$listen_port\" is not a valid port number" >&2
-    return 1
-fi
-
-snapctl restart novncsvc
+snapctl restart novnc.novncsvc

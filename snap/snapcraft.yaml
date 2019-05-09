@@ -11,13 +11,14 @@ confinement: strict
 
 parts:
     novnc:
-        source: https://github.com/tkedwards/noVNC.git # https://github.com/novnc/noVNC.git #https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz 
+        source: . #https://github.com/tkedwards/noVNC.git # https://github.com/novnc/noVNC.git #https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz 
         plugin: dump
-        source-branch: snap_package
         stage-packages:
             - websockify
 
 hooks:
+    install:
+        plugs: [network, network-bind]
     configure:
         plugs: [network, network-bind]
 
@@ -27,5 +28,5 @@ apps:
         plugs: [network, network-bind]
     novncsvc:
         command: utils/svc_wrapper.sh
-        daemon: simple
+        daemon: forking
         plugs: [network, network-bind]
