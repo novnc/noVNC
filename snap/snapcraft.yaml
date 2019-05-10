@@ -17,6 +17,8 @@ parts:
             - websockify
             - bash
             - jq
+            - python-numpy
+            - python3-numpy
 
 hooks:
     install:
@@ -30,5 +32,5 @@ apps:
         plugs: [network, network-bind]
     novncsvc:
         command: utils/svc_wrapper.sh
-        daemon: simple
+        daemon: forking
         plugs: [network, network-bind]
