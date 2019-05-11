@@ -121,18 +121,48 @@ To install from Snap:
 
 `sudo snap install novnc`
 
-By default the Snap package creates 6 services on different ports which allow access to the local VNC server. So novnc.n5900 listens on port 6080 and connects to the VNC services on localhost:5901, novnc.n5901 listens on port 6081 and connects to localhost:5901 and so on up to port 6085 and localhost:5905. These services can be started/stopped with the usual `snap service` commands, e.g: 
+#### Running noVNC
+
+You can run the Snap-package installed novnc directly with, for example:
+`novnc --listen 6081 --vnc localhost:5901 # /snap/bin/novnc if /snap/bin is not in your PATH`
+
+#### Running as a Service (Daemon)
+The Snap package also has the capability to run a 'novnc' service which can be configured to listen on multiple ports connecting to multiple VNC servers (effectively a service runing multiple instances of novnc). Instructions (with example values):
+
+List current services (out-of-box this will be blank):
 
 ```
-snap services novnc # list services
-sudo snap stop novnc.n5901 # stop the service that listens on 6081 connecting to localhost:5901
-sudo snap start novnc.n5901 # start it
-sudo snap restart novnc.n5901 # restart it
+sudo snap get novnc services
+Key             Value
+services.n6080  {...}
+services.n6081  {...}
 ```
 
-If you stop the services noVNC can then be run manually with:
+Create a new service that listens on port 6082 and connects to the VNC server running on port 5902 on localhost:
 
-`novnc --vnc localhost:5901 # /snap/bin/novnc if /snap/bin is not in your PATH`
+`sudo snap set novnc services.n6082.listen=6082 services.n6082.vnc=localhost:5902`
+
+View the configuration of the service just created:
+
+```
+sudo snap get novnc services.n6082
+Key                    Value
+services.n6082.listen  6082
+services.n6082.vnc     localhost:5902
+```
+
+Disable a service (note that because of a limitation in  Snap it's currently not possible to unset config variables, setting them to blank values is the way to disable a service):
+
+`sudo snap set novnc services.n6082.listen='' services.n6082.vnc=''`
+
+Verify that the service is disabled (blank values):
+
+```
+sudo snap get novnc services.n6082
+Key                    Value
+services.n6082.listen  
+services.n6082.vnc
+```
 
 ### Integration and Deployment
 
