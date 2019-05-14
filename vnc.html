@@ -46,10 +46,8 @@
     <link rel="apple-touch-icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
     <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
     <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
-
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/base.css">
-
     <!-- this is included as a normal file in order to catch script-loading errors as well -->
     <script src="app/error-handler.js"></script>
 
@@ -138,9 +136,6 @@
                         <input type="image" alt="Esc" src="app/images/esc.svg"
                                id="noVNC_send_esc_button" class="noVNC_button"
                                title="Send Escape">
-                        <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
-                               id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
-                               title="Send Ctrl-Alt-Del">
                     </div>
                 </div>
             </div>
@@ -191,11 +186,14 @@
                     </div>
                 </div>
             </div>
-
+            <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
+                   id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
+                   title="Send Ctrl-Alt-Del">
             <!-- Shutdown/Reboot -->
             <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
                    id="noVNC_power_button" class="noVNC_button"
                    title="Shutdown/Reboot...">
+
             <div class="noVNC_vcenter">
                 <div id="noVNC_power" class="noVNC_panel">
                     <div class="noVNC_heading">
@@ -228,7 +226,7 @@
             </div>
 
             <!-- Toggle fullscreen -->
-            <input style="display: none"  type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
+            <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
                    id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
                    title="Fullscreen">
 
@@ -242,10 +240,10 @@
                         <li class="noVNC_heading">
                             <img alt="" src="app/images/settings.svg"> Settings
                         </li>
-                        <li style="display: none;">
+                        <li>
                             <label><input id="noVNC_setting_shared" type="checkbox"> Shared Mode</label>
                         </li>
-                        <li style="display: none;">
+                        <li>
                             <label><input id="noVNC_setting_view_only" type="checkbox"> View Only</label>
                         </li>
                         <li>
@@ -262,7 +260,7 @@
                         <li>
                             <hr>
                         </li>
-                        <li style="display: none;">
+                        <li>
                             <div class="noVNC_expander">Advanced</div>
                             <div>
                                 <ul>
@@ -307,7 +305,7 @@
                                         <hr>
                                     </li>
                                     <li>
-                                        <label><input id="noVNC_setting_show_dot" type="checkbox"> Show Dot when No
+                                        <label><input id="noVNC_setting_show_dot" type="checkbox" checked> Show Dot when No
                                             Cursor</label>
                                     </li>
                                     <li>
@@ -328,7 +326,7 @@
             </div>
 
             <!-- Connection Controls -->
-            <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
+            <input style="display: none" type="image" alt="Disconnect" src="app/images/disconnect.svg"
                    id="noVNC_disconnect_button" class="noVNC_button"
                    title="Disconnect">
 
