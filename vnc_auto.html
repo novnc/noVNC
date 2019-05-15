@@ -296,6 +296,7 @@
                 }
             }
 
+            tok = WebUtil.getConfigVar('tok', '');
             password = WebUtil.getConfigVar('password', '');
             path = WebUtil.getConfigVar('path', 'websockify');
             var vncPort = WebUtil.getConfigVar('vncport', '');
@@ -366,7 +367,7 @@
                     },
                     body: JSON.stringify({
                         'cmd': 'stop',
-                        'tok': WebUtil.getConfigVar('tok', ''),
+                        'tok': tok,
                     }),
                 }).then(r=>r.json()).then(d=>console.log(d)).catch(console.error);
             });
