@@ -46,6 +46,11 @@
     </script>
 
     <style type="text/css">
+        #zn-close {
+            color:white;
+            padding-left: 5px;
+            font-size: 20px;
+        }
         #zn-creds {
             display: none;
             color:white;
@@ -107,6 +112,7 @@
             <div>
               <a target="_blank" id="zn-download-link" style="display: none; color:white; padding-left: 5px; font-size: 20px;" href="#">Access your downloaded files here</a>
             </div>
+            <div><a id="zn-close" href="#">Close Coyote Session Immediately</a></div>
             <div><a id="zn-show-creds" href="#">Show VNC Credentials</a>  <a id="zn-vncurl">(open)</a></div>
             <table id="zn-creds"><tbody>
               <tr><td class="zn-creds-left">VNC Host: </td><td id="zn-creds-host"></td></tr>
@@ -351,6 +357,18 @@
             document.getElementById('zn-creds-password').innerHTML = password;
             document.getElementById('zn-show-creds').addEventListener('click', function() {
                 document.getElementById('zn-creds').style.display = "block";
+            });
+            document.getElementById('zn-close').addEventListener('click', function() {
+                fetch('/acmd', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        'cmd': 'stop',
+                        'tok': WebUtil.getConfigVar('tok', ''),
+                    }),
+                }).then(r=>r.json()).then(d=>console.log(d)).catch(console.error);
             });
 
             rfb.connect(host, port, password, path);
