@@ -21,8 +21,6 @@ parts:
             - python3-numpy
 
 hooks:
-    install:
-        plugs: [network, network-bind]
     configure:
         plugs: [network, network-bind]
 

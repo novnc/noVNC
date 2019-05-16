@@ -1,5 +1,0 @@
-#!/bin/sh -e
-
-# Initialise settings to blank default values so that novncsvc won't start unless the user sets these values to something meaningful
-snapctl set novncsvc.listen-port=0
-snapctl set novncsvc.vnc-host-port=''

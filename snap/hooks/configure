@@ -1,6 +1,3 @@
 #!/bin/sh -e
 
-listen_port="$(snapctl get novncsvc.listen-port)"
-vnc_host_port="$(snapctl get novncsvc.vnc-host-port)"
-
 snapctl restart novnc.novncsvc
