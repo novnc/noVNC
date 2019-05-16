@@ -153,7 +153,7 @@ export default class RFB extends EventTargetMixin {
         // The spec is unclear on this "initial cursor" issue. Many other
         // viewers (TigerVNC, RealVNC, Remmina) display an arrow as the
         // initial cursor instead.
-        this._cursorImage = RFB.cursors.none;
+        this._cursorImage = RFB.cursors.dot;
 
         // populate decoder array with objects
         this._decoders[encodings.encodingRaw] = new RawDecoder();
