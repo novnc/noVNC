@@ -142,6 +142,9 @@ Create a new service that listens on port 6082 and connects to the VNC server ru
 
 `sudo snap set novnc services.n6082.listen=6082 services.n6082.vnc=localhost:5902`
 
+(Any services you define with 'snap set' will be automatically started)
+Note that the name of the service, 'n6082' in this example, can be anything as long as it doesn't start with a number or contain spaces/special characters.
+
 View the configuration of the service just created:
 
 ```
@@ -154,6 +157,8 @@ services.n6082.vnc     localhost:5902
 Disable a service (note that because of a limitation in  Snap it's currently not possible to unset config variables, setting them to blank values is the way to disable a service):
 
 `sudo snap set novnc services.n6082.listen='' services.n6082.vnc=''`
+
+(Any services you set to blank with 'snap set' like this will be automatically stopped)
 
 Verify that the service is disabled (blank values):
 
