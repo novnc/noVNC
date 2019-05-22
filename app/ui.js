@@ -155,6 +155,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('token', '');
 
         UI.setupSettingLabels();
     },
@@ -349,6 +350,8 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+        UI.addSettingChangeHandler('token');
+        
     },
 
     addFullscreenHandlers() {
@@ -973,8 +976,12 @@ const UI = {
 
         const host = UI.getSetting('host');
         const port = UI.getSetting('port');
-        const path = UI.getSetting('path');
+        var path = UI.getSetting('path');
+        var token = UI.getSetting('token');
 
+        if (token) {
+            path = WebUtil.injectParamIfMissing(path, "token", token);
+        }
         if (typeof password === 'undefined') {
             password = WebUtil.getConfigVar('password');
             UI.reconnect_password = password;
