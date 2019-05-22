@@ -351,7 +351,6 @@ const UI = {
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
         UI.addSettingChangeHandler('token');
-        
     },
 
     addFullscreenHandlers() {
