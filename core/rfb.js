@@ -1182,18 +1182,6 @@ export default class RFB extends EventTargetMixin {
                   ", green_shift: " + green_shift +
                   ", blue_shift: " + blue_shift);
 
-        if (big_endian !== 0) {
-            Log.Warn("Server native endian is not little endian");
-        }
-
-        if (red_shift !== 16) {
-            Log.Warn("Server native red-shift is not 16");
-        }
-
-        if (blue_shift !== 0) {
-            Log.Warn("Server native blue-shift is not 0");
-        }
-
         // we're past the point where we could backtrack, so it's safe to call this
         this.dispatchEvent(new CustomEvent(
             "desktopname",
