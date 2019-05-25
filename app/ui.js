@@ -1168,67 +1168,28 @@ const UI = {
  * ------v------*/
 
     toggleFullscreen() {
-        // Determine the document using fullscreen. This may either be
-        // just the "document", but if using the viewer in an iframe, you need
-        // to use the parent window's "document" instead.
-        let doc = document;
-        if (window.self !== window.top) {
-            doc = window.parent.document;
-        }
-        // Check the fullscreen status using the correct document as
-        // a reference. The same document is then used to exit fullscreen.
-        if (doc.fullscreenElement || // alternative standard method
-            doc.mozFullScreenElement || // currently working methods
-            doc.webkitFullscreenElement ||
-            doc.msFullscreenElement) {
-            if (doc.exitFullscreen) {
-                doc.exitFullscreen();
-            } else if (doc.mozCancelFullScreen) {
-                doc.mozCancelFullScreen();
-            } else if (doc.webkitExitFullscreen) {
-                doc.webkitExitFullscreen();
-            } else if (doc.msExitFullscreen) {
-                doc.msExitFullscreen();
+        if (document.fullscreenElement || // alternative standard method
+            document.mozFullScreenElement || // currently working methods
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
             }
         } else {
-            // To activate fullscreen, we need to find the correct document
-            // element, which is usually "document.documentElement". But when
-            // using the viewer in an iframe, this is actually the iframe
-            // element itself in the parent document.
-            let doc_el = document.documentElement;
-            if (window.self !== window.top) {
-                // Seek out the correct iframe from the parent document.
-                let iframes = window.parent.document
-                    .getElementsByTagName('iframe');
-                for (let i in iframes) {
-                    let content_doc = null;
-                    try {
-                        content_doc = iframes[i].contentDocument;
-                    } catch (err) {
-                        // I may not be permitted to read the contentDocument
-                        // of the iframe, but then it can't be me, so ignore.
-                    }
-                    if (content_doc === document) {
-                        doc_el = iframes[i];
-                        // To use .body.msRequestFullscreen in IE, we need to
-                        // set the document element accordingly.
-                        // Note that the <iframe> must have the attribute
-                        // "allowfullscreen" set for IE to allow the feature.
-                        doc = iframes[i].contentDocument;
-                        break;
-                    }
-                }
-            }
-            // Activate fullscreen. All except MS use the document element for
-            // this. The behaviour of body.msRequestFullscreen is untested.
-            if (doc_el.requestFullscreen) {
-                doc_el.requestFullscreen();
-            } else if (doc_el.mozRequestFullScreen) {
-                doc_el.mozRequestFullScreen();
-            } else if (doc_el.webkitRequestFullscreen) {
-                doc_el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-            } else if (doc.body.msRequestFullscreen) {
-                doc.body.msRequestFullscreen();
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            } else if (document.body.msRequestFullscreen) {
+                document.body.msRequestFullscreen();
             }
         }
         UI.updateFullscreenButton();
