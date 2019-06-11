@@ -1,0 +1,303 @@
+# Japanese translations for noVNC package
+# noVNC パッケージに対する英訳.
+# Copyright (C) 2019 The noVNC Authors
+# This file is distributed under the same license as the noVNC package.
+# nnn1590 <28985763+nnn1590@users.noreply.github.com>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: noVNC 1.1.0\n"
+"Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
+"POT-Creation-Date: 2019-01-16 11:06+0100\n"
+"PO-Revision-Date: 2019-06-12 04:06+0900\n"
+"Last-Translator: nnn1590 <28985763+nnn1590@users.noreply.github.com>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../app/ui.js:387
+msgid "Connecting..."
+msgstr "接続しています..."
+
+#: ../app/ui.js:394
+msgid "Disconnecting..."
+msgstr "切断しています..."
+
+#: ../app/ui.js:400
+msgid "Reconnecting..."
+msgstr "再接続しています..."
+
+#: ../app/ui.js:405
+msgid "Internal error"
+msgstr "内部エラー"
+
+#: ../app/ui.js:995
+msgid "Must set host"
+msgstr "ホストを設定する必要があります"
+
+#: ../app/ui.js:1077
+msgid "Connected (encrypted) to "
+msgstr "接続しました (暗号化済み): "
+
+#: ../app/ui.js:1079
+msgid "Connected (unencrypted) to "
+msgstr "接続しました (暗号化されていません): "
+
+#: ../app/ui.js:1102
+msgid "Something went wrong, connection is closed"
+msgstr "何かが問題で、接続が閉じられました"
+
+#: ../app/ui.js:1105
+msgid "Failed to connect to server"
+msgstr "サーバーへの接続に失敗しました"
+
+#: ../app/ui.js:1115
+msgid "Disconnected"
+msgstr "切断しました"
+
+#: ../app/ui.js:1128
+msgid "New connection has been rejected with reason: "
+msgstr "新規接続は次の理由で拒否されました: "
+
+#: ../app/ui.js:1131
+msgid "New connection has been rejected"
+msgstr "新規接続は拒否されました"
+
+#: ../app/ui.js:1151
+msgid "Password is required"
+msgstr "パスワードが必要です"
+
+#: ../vnc.html:84
+msgid "noVNC encountered an error:"
+msgstr "noVNC でエラーが発生しました:"
+
+#: ../vnc.html:94
+msgid "Hide/Show the control bar"
+msgstr "コントロールバーを隠す/表示する"
+
+#: ../vnc.html:101
+msgid "Move/Drag Viewport"
+msgstr "ビューポートを移動/ドラッグ"
+
+#: ../vnc.html:101
+msgid "viewport drag"
+msgstr "ビューポートをドラッグ"
+
+#: ../vnc.html:107 ../vnc.html:110 ../vnc.html:113 ../vnc.html:116
+msgid "Active Mouse Button"
+msgstr "アクティブなマウスボタン"
+
+#: ../vnc.html:107
+msgid "No mousebutton"
+msgstr "マウスボタンなし"
+
+#: ../vnc.html:110
+msgid "Left mousebutton"
+msgstr "左マウスボタン"
+
+#: ../vnc.html:113
+msgid "Middle mousebutton"
+msgstr "中マウスボタン"
+
+#: ../vnc.html:116
+msgid "Right mousebutton"
+msgstr "右マウスボタン"
+
+#: ../vnc.html:119
+msgid "Keyboard"
+msgstr "キーボード"
+
+#: ../vnc.html:119
+msgid "Show Keyboard"
+msgstr "キーボードを表示"
+
+#: ../vnc.html:126
+msgid "Extra keys"
+msgstr "追加キー"
+
+#: ../vnc.html:126
+msgid "Show Extra Keys"
+msgstr "追加キーを表示"
+
+#: ../vnc.html:131
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:131
+msgid "Toggle Ctrl"
+msgstr "Ctrl キーを切り替え"
+
+#: ../vnc.html:134
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:134
+msgid "Toggle Alt"
+msgstr "Alt キーを切り替え"
+
+#: ../vnc.html:137
+msgid "Toggle Windows"
+msgstr "Windows キーを切り替え"
+
+#: ../vnc.html:137
+msgid "Windows"
+msgstr "Windows"
+
+#: ../vnc.html:140
+msgid "Send Tab"
+msgstr "Tab キーを送信"
+
+#: ../vnc.html:140
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:143
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:143
+msgid "Send Escape"
+msgstr "Escape キーを送信"
+
+#: ../vnc.html:146
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+#: ../vnc.html:146
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del を送信"
+
+#: ../vnc.html:154
+msgid "Shutdown/Reboot"
+msgstr "シャットダウン/再起動"
+
+#: ../vnc.html:154
+msgid "Shutdown/Reboot..."
+msgstr "シャットダウン/再起動..."
+
+#: ../vnc.html:160
+msgid "Power"
+msgstr "電源"
+
+#: ../vnc.html:162
+msgid "Shutdown"
+msgstr "シャットダウン"
+
+#: ../vnc.html:163
+msgid "Reboot"
+msgstr "再起動"
+
+#: ../vnc.html:164
+msgid "Reset"
+msgstr "リセット"
+
+#: ../vnc.html:169 ../vnc.html:175
+msgid "Clipboard"
+msgstr "クリップボード"
+
+#: ../vnc.html:179
+msgid "Clear"
+msgstr "クリア"
+
+#: ../vnc.html:185
+msgid "Fullscreen"
+msgstr "全画面表示"
+
+#: ../vnc.html:190 ../vnc.html:197
+msgid "Settings"
+msgstr "設定"
+
+#: ../vnc.html:200
+msgid "Shared Mode"
+msgstr "共有モード"
+
+#: ../vnc.html:203
+msgid "View Only"
+msgstr "表示のみ"
+
+#: ../vnc.html:207
+msgid "Clip to Window"
+msgstr "ウィンドウにクリップ"
+
+#: ../vnc.html:210
+msgid "Scaling Mode:"
+msgstr "スケーリングモード:"
+
+#: ../vnc.html:212
+msgid "None"
+msgstr "なし"
+
+#: ../vnc.html:213
+msgid "Local Scaling"
+msgstr "ローカルスケーリング"
+
+#: ../vnc.html:214
+msgid "Remote Resizing"
+msgstr "リモートでリサイズ"
+
+#: ../vnc.html:219
+msgid "Advanced"
+msgstr "高度"
+
+#: ../vnc.html:222
+msgid "Repeater ID:"
+msgstr "リピーター ID:"
+
+#: ../vnc.html:226
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:229
+msgid "Encrypt"
+msgstr "暗号化"
+
+#: ../vnc.html:232
+msgid "Host:"
+msgstr "ホスト:"
+
+#: ../vnc.html:236
+msgid "Port:"
+msgstr "ポート:"
+
+#: ../vnc.html:240
+msgid "Path:"
+msgstr "パス:"
+
+#: ../vnc.html:247
+msgid "Automatic Reconnect"
+msgstr "自動再接続"
+
+#: ../vnc.html:250
+msgid "Reconnect Delay (ms):"
+msgstr "再接続する遅延 (ミリ秒):"
+
+#: ../vnc.html:255
+msgid "Show Dot when No Cursor"
+msgstr "カーソルがないときにドットを表示"
+
+#: ../vnc.html:260
+msgid "Logging:"
+msgstr "ロギング:"
+
+#: ../vnc.html:272
+msgid "Disconnect"
+msgstr "切断"
+
+#: ../vnc.html:291
+msgid "Connect"
+msgstr "接続"
+
+#: ../vnc.html:301
+msgid "Password:"
+msgstr "パスワード:"
+
+#: ../vnc.html:305
+msgid "Send Password"
+msgstr "パスワードを送信"
+
+#: ../vnc.html:315
+msgid "Cancel"
+msgstr "キャンセル"
