@@ -17,8 +17,10 @@ usage() {
     echo "                          Default: 6080"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
     echo "                          Default: localhost:5900"
-    echo "    --cert CERT           Path to combined cert/key file"
+    echo "    --cert CERT           Path to combined cert/key file, or just"
+    echo "                          the cert file if used with --key"
     echo "                          Default: self.pem"
+    echo "    --key KEY             Path to key file, when not combined with cert"
     echo "    --web WEB             Path to web files (e.g. vnc.html)"
     echo "                          Default: ./"
     echo "    --ssl-only            Disable non-https connections."
@@ -34,6 +36,7 @@ HERE="$(cd "$(dirname "$REAL_NAME")" && pwd)"
 PORT="6080"
 VNC_DEST="localhost:5900"
 CERT=""
+KEY=""
 WEB=""
 proxy_pid=""
 SSLONLY=""
@@ -63,6 +66,7 @@ while [ "$*" ]; do
     --listen)  PORT="${OPTARG}"; shift            ;;
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
+    --key)     KEY="${OPTARG}"; shift             ;;
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
     --record) RECORD_ARG="--record ${OPTARG}"; shift ;;
@@ -116,6 +120,13 @@ else
     echo "Warning: could not find self.pem"
 fi
 
+# Check key file
+if [ -n "${KEY}" ]; then
+    if [ ! -e "${KEY}" ]; then
+        die "Could not find ${KEY}"
+    fi
+fi
+
 # try to find websockify (prefer local, try global, then download local)
 if [[ -e ${HERE}/websockify ]]; then
     WEBSOCKIFY=${HERE}/websockify/run
@@ -148,7 +159,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
+${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
