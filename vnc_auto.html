@@ -288,6 +288,19 @@
             }
 
             rfb.connect(host, port, password, path);
+
+            //disconnect if idle
+            var lastMove = +(new Date())
+            document.addEventListener('mousemove', e => {
+                lastMove = +(new Date())
+            });
+            setInterval(function(){
+                if(+(new Date()) - lastMove > 30*60*1000){
+                    console.log('disconnected because of idle')
+                    rfb.disconnect()
+                }
+            }, 60000)
+
         };
         </script>
 
