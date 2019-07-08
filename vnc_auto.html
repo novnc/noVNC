@@ -36,7 +36,7 @@
 
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="include/base.css" title="plain">
+    <link rel="stylesheet" href="include/base.css?cachebust=1" title="plain">
 
     <script src="include/util.js"></script>
     <script type="application/javascript">
@@ -44,6 +44,32 @@
             location.href = "https://www.priceyak.com/expired";
         }, 1000 * 3600 * 12);
     </script>
+
+    <style type="text/css">
+        #zn-close {
+            color:white;
+            padding-left: 5px;
+            font-size: 20px;
+        }
+        #zn-creds {
+            display: none;
+            color:white;
+            padding-left: 5px;
+            font-size: 20px;
+            font-family: monospace;
+        }
+        #zn-show-creds {
+            color:white;
+            padding-left: 5px;
+            font-size: 20px;
+        }
+        .zn-creds-left {
+            padding-right: 20px;
+        }
+        #zn-vncurl {
+            color:white;
+        }
+    </style>
 </head>
 
 <body style="margin: 0px;">
@@ -83,6 +109,15 @@
                     <textarea id="copyBox" style="width:100%;overflow:scroll;flex:1;"></textarea>
                 </div>
             </div>
+            <div>
+              <a target="_blank" id="zn-download-link" style="display: none; color:white; padding-left: 5px; font-size: 20px;" href="#">Access your downloaded files here</a>
+            </div>
+            <div><a id="zn-close" href="#">Close Coyote Session Immediately</a></div>
+            <div><a id="zn-show-creds" href="#">Show VNC Credentials</a>  <a id="zn-vncurl">(open)</a></div>
+            <table id="zn-creds"><tbody>
+              <tr><td class="zn-creds-left">VNC Host: </td><td id="zn-creds-host"></td></tr>
+              <tr><td class="zn-creds-left">VNC Password: </td><td id="zn-creds-password"></td></tr>
+            </tbody></table>
 
         </div>
 
@@ -185,7 +220,7 @@
             var xvpbuttons;
             xvpbuttons = $D('noVNC_xvp_buttons');
             if (ver >= 1) {
-                xvpbuttons.style.display = 'inline';yakpal.setClipboard
+                xvpbuttons.style.display = 'inline';
             } else {
                 xvpbuttons.style.display = 'none';
             }
@@ -193,13 +228,26 @@
 
         function onClipboard(rfb, text){
             $D('copyBox').value = text
-            if(window.yakpal && window.yakpal.setClipboard){
+            if(window['yakpal'] && window.yakpal.setClipboard){
                 yakpal.setClipboard(text);
             }
         }
 
         window.onscriptsload = function () {
-            var host, port, password, path, token, lastClipboard;
+            var host, port, password, path, token, lastClipboard, tok;
+
+            // Expire any old (>4h) entries from localStorage
+            Object.keys(localStorage)
+                  .filter((x)=>x.indexOf('coyote-url-') === 0)
+                  .map((x)=>[x, JSON.parse(localStorage.getItem(x))])
+                  .filter((x)=>!x[1].timestamp || (new Date() - new Date(x[1].timestamp)) > 1000 * 3600 * 4)
+                  .map((x)=>localStorage.removeItem(x[0]));
+
+            // If we have an RID, try to load the real URL from session storage
+            var rid = WebUtil.getConfigVar('rid', '');
+            var url = JSON.parse(localStorage.getItem('coyote-url-' + rid));
+            if (rid && url)
+                window.history.replaceState({}, document.title, url.url);
 
             //$D('sendCtrlAltDelButton').style.display = "inline";
             //$D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
@@ -217,7 +265,7 @@
             $D('copyBox').addEventListener('paste', updateClipboard);
 
             setInterval(function(){
-                if(!window.yakpal || !window.yakpal.getClipboard) return;
+                if(!window['yakpal'] || !window.yakpal.getClipboard) return;
                 //hide use-yakpal if they have it
                 try{
                     document.getElementById('use-yakpal').style.display = 'none';
@@ -248,8 +296,10 @@
                 }
             }
 
+            tok = WebUtil.getConfigVar('tok', '');
             password = WebUtil.getConfigVar('password', '');
             path = WebUtil.getConfigVar('path', 'websockify');
+            var vncPort = WebUtil.getConfigVar('vncport', '');
 
             // If a token variable is passed in, set the parameter in a cookie.
             // This is used by nova-novncproxy.
@@ -286,6 +336,41 @@
                 updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
                 return; // don't continue trying to connect
             }
+
+            var coyoteName = WebUtil.getConfigVar('name', '');
+            var elm = document.getElementById('zn-download-link');
+            elm.href = '/download/' + coyoteName;
+            elm.style.display = '';
+
+            // Scrub the query params from the URL so that it can be safely copy/pasted
+            // However, to support F5 or Ctrl-Shift-T, save the real URL in localstorage
+            // under a magic ID. The credentials are only valid for ~30 minutes after
+            // the user disconnects anyway, so this isn't a huge security issue.
+            console.log("Pushing new URL. Original: " + window.location.href);
+            if (!rid) {
+                rid = ("" + Math.random()).replace("0.", "");
+                localStorage.setItem("coyote-url-" + rid, JSON.stringify({url: window.location.href, timestamp: new Date()}));
+            }
+            window.history.replaceState({}, document.title, window.location.pathname + "?rid=" + rid);
+
+            document.getElementById('zn-vncurl').href = "vnc://:" + password + "@" + window.location.hostname + ":" +vncPort;
+            document.getElementById('zn-creds-host').innerHTML = window.location.hostname + ":" + vncPort;
+            document.getElementById('zn-creds-password').innerHTML = password;
+            document.getElementById('zn-show-creds').addEventListener('click', function() {
+                document.getElementById('zn-creds').style.display = "block";
+            });
+            document.getElementById('zn-close').addEventListener('click', function() {
+                fetch('/acmd', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        'cmd': 'stop',
+                        'tok': tok,
+                    }),
+                }).then(r=>r.json()).then(d=>console.log(d)).catch(console.error);
+            });
 
             rfb.connect(host, port, password, path);
 
