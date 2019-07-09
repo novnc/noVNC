@@ -128,7 +128,7 @@ if [ -n "${KEY}" ]; then
 fi
 
 # try to find websockify (prefer local, try global, then download local)
-if [[ -e ${HERE}/websockify ]]; then
+if [[ -d ${HERE}/websockify ]]; then
     WEBSOCKIFY=${HERE}/websockify/run
 
     if [[ ! -x $WEBSOCKIFY ]]; then
