@@ -23,7 +23,7 @@ layered on the HTML5 canvas element.
 
 * __Websock__ (core/websock.js): Websock client from websockify
 with transparent binary data support.
-[Websock API](https://github.com/novnc/websockify/wiki/websock.js) wiki page.
+[Websock API](https://github.com/novnc/websockify-js/wiki/websock.js) wiki page.
 
 
 ## 1.2 Callbacks
