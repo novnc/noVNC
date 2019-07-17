@@ -187,6 +187,9 @@ connection to a specified VNC server.
       - A `DOMString` specifying the ID to provide to any VNC repeater
         encountered.
 
+    `wsProtocols`
+      - Protocols to use in the WebSocket connection, the default is: ['binary']
+
 #### connect
 
 The `connect` event is fired after all the handshaking with the server
