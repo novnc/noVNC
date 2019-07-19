@@ -59,6 +59,17 @@ const UI = {
         // Translate the DOM
         l10n.translateDOM();
 
+        WebUtil.fetchJSON('../package.json')
+            .then((packageInfo) => {
+                Array.from(document.getElementsByClassName('noVNC_version')).forEach(el => el.innerText = packageInfo.version);
+            })
+            .catch(err => {
+                Log.Error("Couldn't fetch package.json: " + err);
+                Array.from(document.getElementsByClassName('noVNC_version_wrapper'))
+                    .concat(Array.from(document.getElementsByClassName('noVNC_version_separator')))
+                    .forEach(el => el.style.display = 'none');
+            });
+
         // Adapt the interface for touch screen devices
         if (isTouchDevice) {
             document.documentElement.classList.add("noVNC_touch");
