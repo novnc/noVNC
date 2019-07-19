@@ -59,6 +59,11 @@ const UI = {
         // Translate the DOM
         l10n.translateDOM();
 
+        WebUtil.fetchJSON('../package.json')
+            .then((packageInfo) => {
+                Array.from(document.getElementsByClassName('noVNC_version')).forEach(el => el.innerText = packageInfo.version);
+            });
+
         // Adapt the interface for touch screen devices
         if (isTouchDevice) {
             document.documentElement.classList.add("noVNC_touch");

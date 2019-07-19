@@ -564,6 +564,14 @@ select:active {
 
 #noVNC_control_bar .noVNC_logo {
   font-size: 13px;
+  margin-bottom: 0;
+}
+
+.noVNC_version {
+  margin: 0;
+  font-size: small;
+  text-align: center;
+  color: #ffa500;
 }
 
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
