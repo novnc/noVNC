@@ -631,6 +631,16 @@ select:active {
   width: 100px;
 }
 
+/* Version */
+
+.noVNC_version_wrapper {
+  font-size: small;
+}
+
+.noVNC_version {
+  margin-left: 1rem;
+}
+
 /* Connection Controls */
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
   display: none;
