@@ -63,7 +63,7 @@ const UI = {
             .then((packageInfo) => {
                 Array.from(document.getElementsByClassName('noVNC_version')).forEach(el => el.innerText = packageInfo.version);
             })
-            .catch(err => {
+            .catch((err) => {
                 Log.Error("Couldn't fetch package.json: " + err);
                 Array.from(document.getElementsByClassName('noVNC_version_wrapper'))
                     .concat(Array.from(document.getElementsByClassName('noVNC_version_separator')))
