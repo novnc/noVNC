@@ -187,6 +187,11 @@ connection to a specified VNC server.
       - A `DOMString` specifying the ID to provide to any VNC repeater
         encountered.
 
+    `showDotCursor`
+      - A `boolean` indicating whether a dot cursor should be shown
+        instead of a zero-sized or fully-transparent cursor if the
+        server sets such invisible cursor. Disabled by default.
+
     `wsProtocols`
       - An `Array` of `DOMString`s specifying the sub-protocols to use
         in the WebSocket connection. Empty by default.
