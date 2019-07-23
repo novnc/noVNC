@@ -188,7 +188,8 @@ connection to a specified VNC server.
         encountered.
 
     `wsProtocols`
-      - Protocols to use in the WebSocket connection, the default is: ['binary']
+      - An `Array` of `DOMString`s specifying the sub-protocols to use
+        in the WebSocket connection. Empty by default.
 
 #### connect
 
