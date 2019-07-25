@@ -139,9 +139,12 @@ if [[ -d ${HERE}/websockify ]]; then
 
     echo "Using local websockify at $WEBSOCKIFY"
 else
-    WEBSOCKIFY=$(which websockify 2>/dev/null)
+    WEBSOCKIFY_FROMSYSTEM=$(which websockify 2>/dev/null)
+    WEBSOCKIFY_FROMSNAP=${HERE}/../usr/bin/python2-websockify
+    [ -f $WEBSOCKIFY_FROMSYSTEM ] && WEBSOCKIFY=$WEBSOCKIFY_FROMSYSTEM
+    [ -f $WEBSOCKIFY_FROMSNAP ] && WEBSOCKIFY=$WEBSOCKIFY_FROMSNAP
 
-    if [[ $? -ne 0 ]]; then
+    if [ ! -f "$WEBSOCKIFY" ]; then
         echo "No installed websockify, attempting to clone websockify..."
         WEBSOCKIFY=${HERE}/websockify/run
         git clone https://github.com/novnc/websockify ${HERE}/websockify
