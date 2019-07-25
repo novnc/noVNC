@@ -117,7 +117,7 @@ proxy.
   configured, and enjoy!
 
 ### Installation from Snap Package
-To install from Snap:
+Running the command below will install the latest release of noVNC from Snap:
 
 `sudo snap install novnc`
 
