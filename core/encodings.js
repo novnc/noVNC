@@ -19,6 +19,7 @@ export const encodings = {
     pseudoEncodingDesktopSize: -223,
     pseudoEncodingLastRect: -224,
     pseudoEncodingCursor: -239,
+    pseudoEncodingQEMUPointerMotionChange: -257,
     pseudoEncodingQEMUExtendedKeyEvent: -258,
     pseudoEncodingExtendedDesktopSize: -308,
     pseudoEncodingXvp: -309,

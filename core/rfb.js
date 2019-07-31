@@ -84,6 +84,9 @@ export default class RFB extends EventTargetMixin {
         this._screen_flags = 0;
 
         this._qemuExtKeyEventSupported = false;
+        this._qemuEnabledRelativeCursor = false;
+        this._lastMouseX = 0;
+        this._lastMouseY = 0;
 
         // Internal objects
         this._sock = null;              // Websock object
@@ -727,6 +730,14 @@ export default class RFB extends EventTargetMixin {
             this._mouse_buttonMask &= ~bmask;
         }
 
+        let mouseX = this._display.absX(x);
+        let mouseY = this._display.absY(y);
+
+        if (this._qemuEnabledRelativeCursor) {
+            mouseX += 0x7FFF - this._lastMouseX;
+            mouseY += 0x7FFF - this._lastMouseY;
+        }
+
         if (this.dragViewport) {
             if (down && !this._viewportDragging) {
                 this._viewportDragging = true;
@@ -748,8 +759,8 @@ export default class RFB extends EventTargetMixin {
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
                 RFB.messages.pointerEvent(this._sock,
-                                          this._display.absX(x),
-                                          this._display.absY(y),
+                                          mouseX,
+                                          mouseY,
                                           bmask);
             }
         }
@@ -757,7 +768,7 @@ export default class RFB extends EventTargetMixin {
         if (this._viewOnly) { return; } // View only, skip mouse events
 
         if (this._rfb_connection_state !== 'connected') { return; }
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+        RFB.messages.pointerEvent(this._sock, mouseX, mouseY, this._mouse_buttonMask);
     }
 
     _handleMouseMove(x, y) {
@@ -780,7 +791,51 @@ export default class RFB extends EventTargetMixin {
         if (this._viewOnly) { return; } // View only, skip mouse events
 
         if (this._rfb_connection_state !== 'connected') { return; }
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+
+
+        let mouseX = this._display.absX(x);
+        let mouseY = this._display.absY(y);
+
+        if (this._qemuEnabledRelativeCursor) {
+            // Clients are advised that when generating events in relative pointer mode, they should grab and hide the local pointer.
+            // When the local pointer hits any edge of the client window, it should be warped back by 100 pixels.
+            // This ensures that continued movement of the user's input device will continue to generate relative deltas and
+            // thus avoid the "invisible wall" problem.
+
+            let deltaX = mouseX - this._lastMouseX;
+            let deltaY = mouseY - this._lastMouseY;
+
+            this._lastMouseX = mouseX;
+            this._lastMouseY = mouseY;
+
+            // in javascript we cannot move local pointer so instead of that we use synchronization areas
+            // near each edge of canvas.
+            // Ideal solution would be trigger whole screen movement but this doesn't work until qemu 3.0.
+            // Instead of that novnc continuously trigger big deltas (< 127) when mouse hits edge.
+            // This will solve problem partially but user still suffer from invisible wall problem
+            // Related qemu commit: https://github.com/qemu/qemu/commit/7abe7eb29494b4e4a11ec99ae5623083409a2f1e
+
+            if (mouseX < 100) {
+                deltaX -= 100;
+            }
+
+            if (mouseX > this._fb_width - 100) {
+                deltaX += 100;
+            }
+
+            if (mouseY < 100) {
+                deltaY -= 100;
+            }
+
+            if (mouseY > this._fb_height - 100) {
+                deltaY += 100;
+            }
+
+            mouseX = deltaX + 0x7fff;
+            mouseY = deltaY + 0x7fff;
+        }
+
+        RFB.messages.pointerEvent(this._sock, mouseX, mouseY, this._mouse_buttonMask);
     }
 
     // Message Handlers
@@ -1233,6 +1288,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingXvp);
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
+        encs.push(encodings.pseudoEncodingQEMUPointerMotionChange);
 
         if (this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
@@ -1502,6 +1558,11 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingDesktopSize:
                 this._resize(this._FBU.width, this._FBU.height);
                 return true;
+
+            case encodings.pseudoEncodingQEMUPointerMotionChange:
+                this._qemuEnabledRelativeCursor = (this._FBU.x == 0);
+                return true;
+
 
             case encodings.pseudoEncodingExtendedDesktopSize:
                 return this._handleExtendedDesktopSize();
