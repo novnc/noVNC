@@ -27,7 +27,6 @@ export default class Websock {
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
         this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
-        this._rQmax = this._rQbufferSize / 8;
         // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
         this._rQ = null; // Receive queue
 
@@ -226,15 +225,15 @@ export default class Websock {
     }
 
     _expand_compact_rQ(min_fit) {
-        const resizeNeeded = min_fit || this.rQlen > this._rQbufferSize / 2;
+        // if we're using less than 1/8th of the buffer even with the incoming bytes, compact in place
+        // instead of resizing
+        const required_buffer_size =  (this._rQlen - this._rQi + min_fit) * 8;
+        const resizeNeeded = this._rQbufferSize < required_buffer_size;
+
         if (resizeNeeded) {
-            if (!min_fit) {
-                // just double the size if we need to do compaction
-                this._rQbufferSize *= 2;
-            } else {
-                // otherwise, make sure we satisy rQlen - rQi + min_fit < rQbufferSize / 8
-                this._rQbufferSize = (this.rQlen + min_fit) * 8;
-            }
+            // Make sure we always *at least* double the buffer size, and have at least space for 8x
+            // the current amount of data
+            this._rQbufferSize = Math.max(this._rQbufferSize * 2, required_buffer_size);
         }
 
         // we don't want to grow unboundedly
@@ -247,7 +246,6 @@ export default class Websock {
 
         if (resizeNeeded) {
             const old_rQbuffer = this._rQ.buffer;
-            this._rQmax = this._rQbufferSize / 8;
             this._rQ = new Uint8Array(this._rQbufferSize);
             this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi));
         } else {
@@ -280,8 +278,6 @@ export default class Websock {
             if (this._rQlen == this._rQi) {
                 this._rQlen = 0;
                 this._rQi = 0;
-            } else if (this._rQlen > this._rQmax) {
-                this._expand_compact_rQ();
             }
         } else {
             Log.Debug("Ignoring empty message");
