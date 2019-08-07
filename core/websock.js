@@ -247,12 +247,12 @@ export default class Websock {
         if (resizeNeeded) {
             const old_rQbuffer = this._rQ.buffer;
             this._rQ = new Uint8Array(this._rQbufferSize);
-            this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi));
+            this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi, this._rQlen - this._rQi));
         } else {
             if (ENABLE_COPYWITHIN) {
-                this._rQ.copyWithin(0, this._rQi);
+                this._rQ.copyWithin(0, this._rQi, this._rQlen);
             } else {
-                this._rQ.set(new Uint8Array(this._rQ.buffer, this._rQi));
+                this._rQ.set(new Uint8Array(this._rQ.buffer, this._rQi, this._rQlen - this._rQi));
             }
         }
 
