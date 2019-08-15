@@ -51,7 +51,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
-    "chai": "^3.5.0",
+    "chai": "*",
     "commander": "^2.9.0",
     "es-module-loader": "^2.1.0",
     "eslint": "^4.16.0",
@@ -68,8 +68,8 @@
     "requirejs": "^2.3.2",
     "rollup": "^0.41.4",
     "rollup-plugin-node-resolve": "^2.0.0",
-    "sinon": "^4.0.0",
-    "sinon-chai": "^2.8.0"
+    "sinon": "*",
+    "sinon-chai": "*"
   },
   "dependencies": {},
   "keywords": [

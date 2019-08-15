@@ -353,7 +353,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             client.clipViewport = false;
             expect(spy.set).to.have.been.calledOnce;
             expect(spy.set).to.have.been.calledWith(false);
-            spy.set.reset();
+            spy.set.resetHistory();
 
             client.clipViewport = true;
             expect(spy.set).to.have.been.calledOnce;
@@ -438,7 +438,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._handleMouseButton(13, 9, 0x000);
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
 
-                RFB.messages.pointerEvent.reset();
+                RFB.messages.pointerEvent.resetHistory();
 
                 // Small movement
                 client._handleMouseButton(13, 9, 0x001);
@@ -472,7 +472,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
                 expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
 
-                client._display.viewportChangePos.reset();
+                client._display.viewportChangePos.resetHistory();
 
                 // Now a small movement should move right away
 
@@ -543,7 +543,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             expect(spy.set).to.have.been.calledOnce;
             expect(spy.set).to.have.been.calledWith(true);
 
-            spy.set.reset();
+            spy.set.resetHistory();
 
             client.scaleViewport = true;
             expect(spy.set).to.have.been.calledOnce;
@@ -633,7 +633,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(sinon.match.object, 70, 80, 0, 0);
 
-            RFB.messages.setDesktopSize.reset();
+            RFB.messages.setDesktopSize.resetHistory();
 
             // Second message should not trigger a resize
 
@@ -2056,7 +2056,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         beforeEach(function () {
                             client.showDotCursor = true;
                             // Was called when we enabled dot cursor
-                            client._cursor.change.reset();
+                            client._cursor.change.resetHistory();
                         });
 
                         it('should show a standard cursor', function () {
