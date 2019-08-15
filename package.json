@@ -66,8 +66,8 @@
     "node-getopt": "*",
     "po2json": "*",
     "requirejs": "^2.3.2",
-    "rollup": "^0.41.4",
-    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup": "*",
+    "rollup-plugin-node-resolve": "*",
     "sinon": "*",
     "sinon-chai": "*"
   },
