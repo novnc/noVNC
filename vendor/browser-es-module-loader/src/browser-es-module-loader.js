@@ -1,5 +1,4 @@
 import RegisterLoader from 'es-module-loader/core/register-loader.js';
-import { InternalModuleNamespace as ModuleNamespace } from 'es-module-loader/core/loader-polyfill.js';
 
 import { baseURI, global, isBrowser } from 'es-module-loader/core/common.js';
 import { resolveIfNotPlain } from 'es-module-loader/core/resolve.js';
