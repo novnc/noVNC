@@ -22,17 +22,17 @@ const fs = require('fs');
 const po2json = require("po2json");
 
 const opt = getopt.create([
-  ['h' , 'help'                , 'display this help'],
+    ['h', 'help', 'display this help'],
 ]).bindHelp().parseSystem();
 
 if (opt.argv.length != 2) {
-  console.error("Incorrect number of arguments given");
-  process.exit(1);
+    console.error("Incorrect number of arguments given");
+    process.exit(1);
 }
 
 const data = po2json.parseFileSync(opt.argv[0]);
 
-const bodyPart = Object.keys(data).filter((msgid) => msgid !== "").map((msgid) => {
+const bodyPart = Object.keys(data).filter(msgid => msgid !== "").map((msgid) => {
     if (msgid === "") return;
     const msgstr = data[msgid][1];
     return "    " + JSON.stringify(msgid) + ": " + JSON.stringify(msgstr);
