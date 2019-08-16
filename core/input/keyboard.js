@@ -301,6 +301,9 @@ export default class Keyboard {
 
     // Firefox Alt workaround, see below
     _checkAlt(e) {
+        if (e.skipCheckAlt) {
+            return;
+        }
         if (e.altKey) {
             return;
         }
@@ -315,6 +318,7 @@ export default class Keyboard {
             const event = new KeyboardEvent('keyup',
                                             { key: downList[code],
                                               code: code });
+            event.skipCheckAlt = true;
             target.dispatchEvent(event);
         });
     }
