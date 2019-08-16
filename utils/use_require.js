@@ -105,27 +105,11 @@ function transform_html(legacy_scripts, only_legacy) {
                     new_script += `    <script src="${legacy_scripts[i]}"></script>\n`;
                 }
             } else {
-            // Otherwise detect if it's a modern browser and select
-            // variant accordingly
-                new_script += `\
-    <script type="module">\n\
-        window._noVNC_has_module_support = true;\n\
-    </script>\n\
-    <script>\n\
-        window.addEventListener("load", function() {\n\
-            if (window._noVNC_has_module_support) return;\n\
-            let legacy_scripts = ${JSON.stringify(legacy_scripts)};\n\
-            for (let i = 0;i < legacy_scripts.length;i++) {\n\
-                let script = document.createElement("script");\n\
-                script.src = legacy_scripts[i];\n\
-                script.async = false;\n\
-                document.head.appendChild(script);\n\
-            }\n\
-        });\n\
-    </script>\n`;
-
-            // Original, ES6 modules
+                // Otherwise include both modules and legacy fallbacks
                 new_script += '    <script type="module" crossorigin="anonymous" src="app/ui.js"></script>\n';
+                for (let i = 0;i < legacy_scripts.length;i++) {
+                    new_script += '    <script nomodule src="${legacy_scripts[i]}"></script>\n';
+                }
             }
 
             contents = contents.slice(0, start_ind) + `${new_script}\n` + contents.slice(end_ind);
