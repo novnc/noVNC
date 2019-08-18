@@ -12,6 +12,8 @@ export const encodings = {
     encodingRRE: 2,
     encodingHextile: 5,
     encodingTight: 7,
+    encodingZRLE: 16,
+    encodingZYWRLE: 17,
     encodingTightPNG: -260,
 
     pseudoEncodingQualityLevel9: -23,
@@ -36,6 +38,8 @@ export function encodingName(num) {
         case encodings.encodingHextile:  return "Hextile";
         case encodings.encodingTight:    return "Tight";
         case encodings.encodingTightPNG: return "TightPNG";
+        case encodings.encodingZRLE:     return "ZRLE";
+        case encodings.encodingZYWRLE:   return "ZYWRLE";
         default:                         return "[unknown encoding " + num + "]";
     }
 }
