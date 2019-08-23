@@ -1020,7 +1020,6 @@ const UI = {
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
-                           showDotCursor: UI.getSetting('show_dot'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
         UI.rfb.addEventListener("connect", UI.connectFinished);
@@ -1034,6 +1033,7 @@ const UI = {
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
     },

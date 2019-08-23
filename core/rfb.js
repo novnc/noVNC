@@ -52,7 +52,6 @@ export default class RFB extends EventTargetMixin {
         this._rfb_credentials = options.credentials || {};
         this._shared = 'shared' in options ? !!options.shared : true;
         this._repeaterID = options.repeaterID || '';
-        this._showDotCursor = options.showDotCursor || false;
         this._wsProtocols = options.wsProtocols || [];
 
         // Internal state
@@ -247,6 +246,12 @@ export default class RFB extends EventTargetMixin {
         this._clipViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
+
+        this._showDotCursor = false;
+        if (options.showDotCursor !== undefined) {
+            Log.Warn("Specifying showDotCursor as a RFB constructor argument is deprecated");
+            this._showDotCursor = options.showDotCursor;
+        }
     }
 
     // ===== PROPERTIES =====
