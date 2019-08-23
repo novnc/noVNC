@@ -269,15 +269,6 @@ describe('Display/Canvas Helper', function () {
             display.resize(4, 4);
         });
 
-        it('should clear the screen on #clear', function () {
-            display.fillRect(0, 0, 4, 4, [0x00, 0x00, 0xff]);
-            display.clear();
-            display.resize(4, 4);
-            const empty = [];
-            for (let i = 0; i < 4 * display._fb_width * display._fb_height; i++) { empty[i] = 0; }
-            expect(display).to.have.displayed(new Uint8Array(empty));
-        });
-
         it('should not draw directly on the target canvas', function () {
             display.fillRect(0, 0, 4, 4, [0, 0, 0xff]);
             display.flip();
