@@ -223,6 +223,7 @@ describe('Display/Canvas Helper', function () {
             display = new Display(canvas);
             display.clipViewport = true;
             display.resize(4, 3);
+            display.viewportChangeSize(4, 3);
             document.body.appendChild(canvas);
         });
 
