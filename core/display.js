@@ -74,7 +74,6 @@ export default class Display {
 
         this._scale = 1.0;
         this._clipViewport = false;
-        this.logo = null;
 
         // ===== EVENT HANDLERS =====
 
@@ -303,13 +302,8 @@ export default class Display {
     }
 
     clear() {
-        if (this._logo) {
-            this.resize(this._logo.width, this._logo.height);
-            this.imageRect(0, 0, this._logo.type, this._logo.data);
-        } else {
-            this.resize(240, 20);
-            this._drawCtx.clearRect(0, 0, this._fb_width, this._fb_height);
-        }
+        this.resize(240, 20);
+        this._drawCtx.clearRect(0, 0, this._fb_width, this._fb_height);
         this.flip();
     }
 

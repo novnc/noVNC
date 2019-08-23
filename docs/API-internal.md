@@ -84,7 +84,6 @@ None
 
 | name         | type  | mode | default | description
 | ------------ | ----- | ---- | ------- | ------------
-| logo         | raw   | RW   |         | Logo to display when cleared: {"width": width, "height": height, "type": mime-type, "data": data}
 | scale        | float | RW   | 1.0     | Display area scale factor 0.0 - 1.0
 | clipViewport | bool  | RW   | false   | Use viewport clipping
 | width        | int   | RO   |         | Display area width
@@ -100,7 +99,7 @@ None
 | absY               | (y)                                                     | Return Y relative to the remote display
 | resize             | (width, height)                                         | Set width and height
 | flip               | (from_queue)                                            | Update the visible canvas with the contents of the rendering canvas
-| clear              | ()                                                      | Clear the display (show logo if set)
+| clear              | ()                                                      | Clear the display
 | pending            | ()                                                      | Check if there are waiting items in the render queue
 | flush              | ()                                                      | Resume processing the render queue unless it's empty
 | fillRect           | (x, y, width, height, color, from_queue)                | Draw a filled in rectangle

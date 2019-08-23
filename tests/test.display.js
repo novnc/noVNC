@@ -269,26 +269,13 @@ describe('Display/Canvas Helper', function () {
             display.resize(4, 4);
         });
 
-        it('should clear the screen on #clear without a logo set', function () {
+        it('should clear the screen on #clear', function () {
             display.fillRect(0, 0, 4, 4, [0x00, 0x00, 0xff]);
-            display._logo = null;
             display.clear();
             display.resize(4, 4);
             const empty = [];
             for (let i = 0; i < 4 * display._fb_width * display._fb_height; i++) { empty[i] = 0; }
             expect(display).to.have.displayed(new Uint8Array(empty));
-        });
-
-        it('should draw the logo on #clear with a logo set', function (done) {
-            display._logo = { width: 4, height: 4, type: "image/png", data: make_image_png(checked_data) };
-            display.clear();
-            display.onflush = () => {
-                expect(display).to.have.displayed(checked_data);
-                expect(display._fb_width).to.equal(4);
-                expect(display._fb_height).to.equal(4);
-                done();
-            };
-            display.flush();
         });
 
         it('should not draw directly on the target canvas', function () {
