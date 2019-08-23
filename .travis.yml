@@ -4,7 +4,7 @@ cache:
   directories:
   - node_modules
 node_js:
- - 6
+  - lts/*
 env:
   matrix:
   - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 10'

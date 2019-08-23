@@ -10,8 +10,8 @@ const jsdom = require("jsdom");
 const fs = require("fs");
 
 const opt = getopt.create([
-    ['o' , 'output=FILE'      , 'write output to specified file'],
-    ['h' , 'help'             , 'display this help'],
+    ['o', 'output=FILE', 'write output to specified file'],
+    ['h', 'help', 'display this help'],
 ]).bindHelp().parseSystem();
 
 const strings = {};
@@ -22,7 +22,7 @@ function addString(str, location) {
     }
 
     if (strings[str] === undefined) {
-        strings[str] = {}
+        strings[str] = {};
     }
     strings[str][location] = null;
 }
@@ -74,7 +74,7 @@ function process(elem, locator, enabled) {
     }
 
     for (let i = 0; i < elem.childNodes.length; i++) {
-        node = elem.childNodes[i];
+        let node = elem.childNodes[i];
         if (node.nodeType === node.ELEMENT_NODE) {
             process(node, locator, enabled);
         } else if (node.nodeType === node.TEXT_NODE && enabled) {
@@ -89,18 +89,18 @@ for (let i = 0; i < opt.argv.length; i++) {
     const dom = new jsdom.JSDOM(file, { includeNodeLocations: true });
     const body = dom.window.document.body;
 
-    function locator(elem) {
+    let locator = (elem) => {
         const offset = dom.nodeLocation(elem).startOffset;
         const line = file.slice(0, offset).split("\n").length;
         return fn + ":" + line;
-    }
+    };
 
     process(body, locator, true);
 }
 
 let output = "";
 
-for (str in strings) {
+for (let str in strings) {
     output += "#:";
     for (location in strings[str]) {
         output += " " + location;

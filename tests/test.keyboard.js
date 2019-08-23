@@ -437,7 +437,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0x61, "KeyA", true);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.reset();
+            kbd.onkeyevent.resetHistory();
             this.clock.tick(100);
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
@@ -455,7 +455,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent.thirdCall).to.have.been.calledWith(0x61, "KeyA", false);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.reset();
+            kbd.onkeyevent.resetHistory();
             this.clock.tick(100);
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
@@ -470,7 +470,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledWith(0xfe03, 'AltRight', true);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.reset();
+            kbd.onkeyevent.resetHistory();
             this.clock.tick(100);
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
@@ -486,7 +486,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffea, "AltRight", true);
 
             // Check that the timer is properly dead
-            kbd.onkeyevent.reset();
+            kbd.onkeyevent.resetHistory();
             this.clock.tick(100);
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
