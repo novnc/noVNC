@@ -11,7 +11,7 @@ confinement: strict
 
 parts:
     websockify:
-        source: https://github.com/novnc/websockify.git
+        source: https://github.com/novnc/websockify/archive/v0.9.0.tar.gz
         plugin: dump
         organize:
             websockify/: utils/websockify/websockify/
@@ -22,6 +22,7 @@ parts:
             - -docs/notes
     novnc:
         source: https://github.com/novnc/noVNC.git #https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz 
+        source-commit: e1d50c8c10563edcacebcaeb32d022906aa003d2
         plugin: dump
         stage-packages:
             - bash
