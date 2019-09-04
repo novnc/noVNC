@@ -464,6 +464,13 @@ export default class RFB extends EventTargetMixin {
         this.focus();
     }
 
+    _setDesktopName(name) {
+        this._fb_name = name;
+        this.dispatchEvent(new CustomEvent(
+            "desktopname",
+            { detail: { name: this._fb_name } }));
+    }
+
     _windowResize(event) {
         // If the window resized then our screen element might have
         // as well. Update the viewport dimensions.
@@ -1148,7 +1155,7 @@ export default class RFB extends EventTargetMixin {
         /* Connection name/title */
         const name_length = this._sock.rQshift32();
         if (this._sock.rQwait('server init name', name_length, 24)) { return false; }
-        this._fb_name = decodeUTF8(this._sock.rQshiftStr(name_length));
+        let name = decodeUTF8(this._sock.rQshiftStr(name_length));
 
         if (this._rfb_tightvnc) {
             if (this._sock.rQwait('TightVNC extended server init header', 8, 24 + name_length)) { return false; }
@@ -1188,10 +1195,7 @@ export default class RFB extends EventTargetMixin {
                   ", blue_shift: " + blue_shift);
 
         // we're past the point where we could backtrack, so it's safe to call this
-        this.dispatchEvent(new CustomEvent(
-            "desktopname",
-            { detail: { name: this._fb_name } }));
-
+        this._setDesktopName(name);
         this._resize(width, height);
 
         if (!this._viewOnly) { this._keyboard.grab(); }
@@ -1237,6 +1241,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingXvp);
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
+        encs.push(encodings.pseudoEncodingDesktopName);
 
         if (this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
@@ -1503,6 +1508,9 @@ export default class RFB extends EventTargetMixin {
                 }
                 return true;
 
+            case encodings.pseudoEncodingDesktopName:
+                return this._handleDesktopName();
+
             case encodings.pseudoEncodingDesktopSize:
                 this._resize(this._FBU.width, this._FBU.height);
                 return true;
@@ -1548,6 +1556,25 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._updateCursor(rgba, hotx, hoty, w, h);
+
+        return true;
+    }
+
+    _handleDesktopName() {
+        if (this._sock.rQwait("DesktopName", 4)) {
+            return false;
+        }
+
+        let length = this._sock.rQshift32();
+
+        if (this._sock.rQwait("DesktopName", length, 4)) {
+            return false;
+        }
+
+        let name = this._sock.rQshiftStr(length);
+        name = decodeUTF8(name);
+
+        this._setDesktopName(name);
 
         return true;
     }

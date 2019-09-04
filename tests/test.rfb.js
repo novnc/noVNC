@@ -41,6 +41,13 @@ function push32(arr, num) {
              num & 0xFF);
 }
 
+function pushString(arr, string) {
+    let utf8 = unescape(encodeURIComponent(string));
+    for (let i = 0; i < utf8.length; i++) {
+        arr.push(utf8.charCodeAt(i));
+    }
+}
+
 describe('Remote Frame Buffer Protocol Client', function () {
     let clock;
     let raf;
@@ -2127,6 +2134,21 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should handle the last_rect pseudo-encoding', function () {
                     send_fbu_msg([{ x: 0, y: 0, width: 0, height: 0, encoding: -224}], [[]], client, 100);
                     expect(client._FBU.rects).to.equal(0);
+                });
+
+                it('should handle the DesktopName pseudo-encoding', function () {
+                    let data = [];
+                    push32(data, 9);
+                    pushString(data, "some name");
+
+                    const spy = sinon.spy();
+                    client.addEventListener("desktopname", spy);
+
+                    send_fbu_msg([{ x: 0, y: 0, width: 0, height: 0, encoding: -307 }], [data], client);
+
+                    expect(client._fb_name).to.equal('some name');
+                    expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][0].detail.name).to.equal('some name');
                 });
             });
         });
