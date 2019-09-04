@@ -1453,10 +1453,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._sock._websocket._receive_data(new Uint8Array(data));
 
                 const name_data = [];
-                push32(name_data, full_opts.name.length);
-                for (let i = 0; i < full_opts.name.length; i++) {
-                    name_data.push(full_opts.name.charCodeAt(i));
-                }
+                let name_len = [];
+                pushString(name_data, full_opts.name);
+                push32(name_len, name_data.length);
+
+                client._sock._websocket._receive_data(new Uint8Array(name_len));
                 client._sock._websocket._receive_data(new Uint8Array(name_data));
             }
 
@@ -1471,11 +1472,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should set the framebuffer name and call the callback', function () {
                 const spy = sinon.spy();
                 client.addEventListener("desktopname", spy);
-                send_server_init({ name: 'some name' }, client);
+                send_server_init({ name: 'som€ nam€' }, client);
 
-                expect(client._fb_name).to.equal('some name');
+                expect(client._fb_name).to.equal('som€ nam€');
                 expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.name).to.equal('some name');
+                expect(spy.args[0][0].detail.name).to.equal('som€ nam€');
             });
 
             it('should handle the extended init message of the tight encoding', function () {
@@ -2138,17 +2139,17 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 it('should handle the DesktopName pseudo-encoding', function () {
                     let data = [];
-                    push32(data, 9);
-                    pushString(data, "some name");
+                    push32(data, 13);
+                    pushString(data, "som€ nam€");
 
                     const spy = sinon.spy();
                     client.addEventListener("desktopname", spy);
 
                     send_fbu_msg([{ x: 0, y: 0, width: 0, height: 0, encoding: -307 }], [data], client);
 
-                    expect(client._fb_name).to.equal('some name');
+                    expect(client._fb_name).to.equal('som€ nam€');
                     expect(spy).to.have.been.calledOnce;
-                    expect(spy.args[0][0].detail.name).to.equal('some name');
+                    expect(spy.args[0][0].detail.name).to.equal('som€ nam€');
                 });
             });
         });
