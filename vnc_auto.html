@@ -371,6 +371,13 @@
                     }),
                 }).then(r=>r.json()).then(d=>console.log(d)).catch(console.error);
             });
+            function onunload() {
+                var data = JSON.stringify({ cmd: "stop", tok: tok })
+                var headers = { type: "application/json" };
+                var blob = new Blob([data], headers);
+                navigator.sendBeacon("/acmd", blob);
+            }
+            window.addEventListener("unload", onunload, false);
 
             rfb.connect(host, port, password, path);
 
