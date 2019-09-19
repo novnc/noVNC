@@ -13,6 +13,7 @@
  */
 
 import * as Log from './util/logging.js';
+import Base64 from './base64.js';
 
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
@@ -222,6 +223,9 @@ export default class Websock {
     _encode_message() {
         // Put in a binary arraybuffer
         // according to the spec, you can send ArrayBufferViews with the send method
+        if (this._websocket.protocol === 'base64') {
+            return Base64.encode(new Uint8Array(this._sQ.buffer, 0, this._sQlen));
+        }
         return new Uint8Array(this._sQ.buffer, 0, this._sQlen);
     }
 
@@ -264,7 +268,13 @@ export default class Websock {
 
     _decode_message(data) {
         // push arraybuffer values onto the end
-        const u8 = new Uint8Array(data);
+        let u8;
+        if (this._websocket.protocol === 'base64') {
+            u8 = Base64.decode(data);
+        } else {
+            u8 = new Uint8Array(data);
+        }
+
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expand_compact_rQ(u8.length);
         }
