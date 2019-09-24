@@ -299,7 +299,7 @@ export default class Keyboard {
         Log.Debug("<< Keyboard.allKeysUp");
     }
 
-    // Firefox Alt workaround, see below
+    // Alt workaround for Firefox on Windows, see below
     _checkAlt(e) {
         if (e.skipCheckAlt) {
             return;
@@ -335,9 +335,10 @@ export default class Keyboard {
         // Release (key up) if window loses focus
         window.addEventListener('blur', this._eventHandlers.blur);
 
-        // Firefox has broken handling of Alt, so we need to poll as
-        // best we can for releases (still doesn't prevent the menu
-        // from popping up though as we can't call preventDefault())
+        // Firefox on Windows has broken handling of Alt, so we need to
+        // poll as best we can for releases (still doesn't prevent the
+        // menu from popping up though as we can't call
+        // preventDefault())
         if (browser.isWindows() && browser.isFirefox()) {
             const handler = this._eventHandlers.checkalt;
             ['mousedown', 'mouseup', 'mousemove', 'wheel',
