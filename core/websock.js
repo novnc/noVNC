@@ -226,6 +226,11 @@ export default class Websock {
         return new Uint8Array(this._sQ.buffer, 0, this._sQlen);
     }
 
+    // We want to move all the unread data to the start of the queue,
+    // e.g. compacting.
+    // The function also expands the receive que if needed, and for
+    // performance reasons we combine these two actions to avoid
+    // unneccessary copying.
     _expand_compact_rQ(min_fit) {
         // if we're using less than 1/8th of the buffer even with the incoming bytes, compact in place
         // instead of resizing
@@ -262,8 +267,8 @@ export default class Websock {
         this._rQi = 0;
     }
 
+    // push arraybuffer values onto the end of the receive que
     _decode_message(data) {
-        // push arraybuffer values onto the end
         const u8 = new Uint8Array(data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expand_compact_rQ(u8.length);
@@ -276,8 +281,9 @@ export default class Websock {
         this._decode_message(e.data);
         if (this.rQlen > 0) {
             this._eventHandlers.message();
-            // Compact the receive queue
             if (this._rQlen == this._rQi) {
+                // All data has now been processed, this means we
+                // can reset the receive queue.
                 this._rQlen = 0;
                 this._rQi = 0;
             }
