@@ -384,32 +384,54 @@ describe('Websock', function () {
             expect(sock._eventHandlers.message).not.to.have.been.called;
         });
 
-        it('should compact the receive queue', function () {
-            // NB(sross): while this is an internal implementation detail, it's important to
-            //            test, otherwise the receive queue could become very large very quickly
+        it('should compact the receive queue when a message handler empties it', function () {
+            sock._eventHandlers.message = () => { sock.rQi = sock._rQlen; };
             sock._rQ = new Uint8Array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0]);
             sock._rQlen = 6;
             sock.rQi = 6;
-            sock._rQmax = 3;
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
             sock._mode = 'binary';
             sock._recv_message(msg);
-            expect(sock._rQlen).to.equal(3);
+            expect(sock._rQlen).to.equal(0);
             expect(sock.rQi).to.equal(0);
         });
 
-        it('should automatically resize the receive queue if the incoming message is too large', function () {
+        it('should compact the receive queue when we reach the end of the buffer', function () {
+            sock._rQ = new Uint8Array(20);
+            sock._rQbufferSize = 20;
+            sock._rQlen = 20;
+            sock.rQi = 10;
+            const msg = { data: new Uint8Array([1, 2]).buffer };
+            sock._mode = 'binary';
+            sock._recv_message(msg);
+            expect(sock._rQlen).to.equal(12);
+            expect(sock.rQi).to.equal(0);
+        });
+
+        it('should automatically resize the receive queue if the incoming message is larger than the buffer', function () {
             sock._rQ = new Uint8Array(20);
             sock._rQlen = 0;
             sock.rQi = 0;
             sock._rQbufferSize = 20;
-            sock._rQmax = 2;
             const msg = { data: new Uint8Array(30).buffer };
             sock._mode = 'binary';
             sock._recv_message(msg);
             expect(sock._rQlen).to.equal(30);
             expect(sock.rQi).to.equal(0);
             expect(sock._rQ.length).to.equal(240);  // keep the invariant that rQbufferSize / 8 >= rQlen
+        });
+
+        it('should automatically resize the receive queue if the incoming message is larger than 1/8th of the buffer and we reach the end of the buffer', function () {
+            sock._rQ = new Uint8Array(20);
+            sock._rQlen = 16;
+            sock.rQi = 16;
+            sock._rQbufferSize = 20;
+            const msg = { data: new Uint8Array(6).buffer };
+            sock._mode = 'binary';
+            sock._recv_message(msg);
+            expect(sock._rQlen).to.equal(6);
+            expect(sock.rQi).to.equal(0);
+            expect(sock._rQ.length).to.equal(48);
         });
     });
 
