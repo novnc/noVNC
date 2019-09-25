@@ -270,8 +270,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
         describe('#focus', function () {
             it('should move focus to canvas object', function () {
                 client._canvas.focus = sinon.spy();
+                client.oncanvasfocus = sinon.spy();
                 client.focus();
                 expect(client._canvas.focus).to.have.been.calledOnce;
+                expect(client.oncanvasfocus).to.have.been.calledOnce;
             });
         });
 
