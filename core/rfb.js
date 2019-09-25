@@ -1244,6 +1244,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingDesktopName);
 
         if (this._fb_depth == 24) {
+            encs.push(encodings.pseudoEncodingVMwareCursor);
             encs.push(encodings.pseudoEncodingCursor);
         }
 
@@ -1493,6 +1494,9 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.rects = 1; // Will be decreased when we return
                 return true;
 
+            case encodings.pseudoEncodingVMwareCursor:
+                return this._handleVMwareCursor();
+
             case encodings.pseudoEncodingCursor:
                 return this._handleCursor();
 
@@ -1521,6 +1525,122 @@ export default class RFB extends EventTargetMixin {
             default:
                 return this._handleDataRect();
         }
+    }
+
+    _handleVMwareCursor() {
+        const hotx = this._FBU.x;  // hotspot-x
+        const hoty = this._FBU.y;  // hotspot-y
+        const w = this._FBU.width;
+        const h = this._FBU.height;
+        if (this._sock.rQwait("VMware cursor encoding", 1)) {
+            return false;
+        }
+
+        const cursor_type = this._sock.rQshift8();
+
+        this._sock.rQshift8(); //Padding
+
+        let rgba;
+        const bytesPerPixel = 4;
+
+        //Classic cursor
+        if (cursor_type == 0) {
+            //Used to filter away unimportant bits.
+            //OR is used for correct conversion in js.
+            const PIXEL_MASK = 0xffffff00 | 0;
+            rgba = new Array(w * h * bytesPerPixel);
+
+            if (this._sock.rQwait("VMware cursor classic encoding",
+                                  (w * h * bytesPerPixel) * 2, 2)) {
+                return false;
+            }
+
+            let and_mask = new Array(w * h);
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                and_mask[pixel] = this._sock.rQshift32();
+            }
+
+            let xor_mask = new Array(w * h);
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                xor_mask[pixel] = this._sock.rQshift32();
+            }
+
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                if (and_mask[pixel] == 0) {
+                    //Fully opaque pixel
+                    let bgr = xor_mask[pixel];
+                    let r   = bgr >> 8  & 0xff;
+                    let g   = bgr >> 16 & 0xff;
+                    let b   = bgr >> 24 & 0xff;
+
+                    rgba[(pixel * bytesPerPixel)     ] = r;    //r
+                    rgba[(pixel * bytesPerPixel) + 1 ] = g;    //g
+                    rgba[(pixel * bytesPerPixel) + 2 ] = b;    //b
+                    rgba[(pixel * bytesPerPixel) + 3 ] = 0xff; //a
+
+                } else if ((and_mask[pixel] & PIXEL_MASK) ==
+                           PIXEL_MASK) {
+                    //Only screen value matters, no mouse colouring
+                    if (xor_mask[pixel] == 0) {
+                        //Transparent pixel
+                        rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 3 ] = 0x00;
+
+                    } else if ((xor_mask[pixel] & PIXEL_MASK) ==
+                               PIXEL_MASK) {
+                        //Inverted pixel, not supported in browsers.
+                        //Fully opaque instead.
+                        rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 3 ] = 0xff;
+
+                    } else {
+                        //Unhandled xor_mask
+                        rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 3 ] = 0xff;
+                    }
+
+                } else {
+                    //Unhandled and_mask
+                    rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                    rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                    rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                    rgba[(pixel * bytesPerPixel) + 3 ] = 0xff;
+                }
+            }
+
+        //Alpha cursor.
+        } else if (cursor_type == 1) {
+            if (this._sock.rQwait("VMware cursor alpha encoding",
+                                  (w * h * 4), 2)) {
+                return false;
+            }
+
+            rgba = new Array(w * h * bytesPerPixel);
+
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                let data = this._sock.rQshift32();
+
+                rgba[(pixel * 4)     ] = data >> 8 & 0xff;  //r
+                rgba[(pixel * 4) + 1 ] = data >> 16 & 0xff; //g
+                rgba[(pixel * 4) + 2 ] = data >> 24 & 0xff; //b
+                rgba[(pixel * 4) + 3 ] = data & 0xff;       //a
+            }
+
+        } else {
+            Log.Warn("The given cursor type is not supported: "
+                      + cursor_type + " given.");
+            return false;
+        }
+
+        this._updateCursor(rgba, hotx, hoty, w, h);
+
+        return true;
     }
 
     _handleCursor() {

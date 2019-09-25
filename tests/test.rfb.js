@@ -2132,6 +2132,170 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
                 });
 
+                describe('the VMware Cursor pseudo-encoding handler', function () {
+                    beforeEach(function () {
+                        sinon.spy(client._cursor, 'change');
+                    });
+                    afterEach(function () {
+                        client._cursor.change.resetHistory();
+                    });
+
+                    it('should handle the VMware cursor pseudo-encoding', function () {
+                        let data = [0x00, 0x00, 0xff, 0,
+                                    0x00, 0xff, 0x00, 0,
+                                    0x00, 0xff, 0x00, 0,
+                                    0x00, 0x00, 0xff, 0];
+                        let rect = [];
+                        push8(rect, 0);
+                        push8(rect, 0);
+
+                        //AND-mask
+                        for (let i = 0; i < data.length; i++) {
+                            push8(rect, data[i]);
+                        }
+                        //XOR-mask
+                        for (let i = 0; i < data.length; i++) {
+                            push8(rect, data[i]);
+                        }
+
+                        send_fbu_msg([{ x: 0, y: 0, width: 2, height: 2,
+                                        encoding: 0x574d5664}],
+                                     [rect], client);
+                        expect(client._FBU.rects).to.equal(0);
+                    });
+
+                    it('should handle insufficient cursor pixel data', function () {
+
+                        // Specified 14x23 pixels for the cursor,
+                        // but only send 2x2 pixels worth of data
+                        let w = 14;
+                        let h = 23;
+                        let data = [0x00, 0x00, 0xff, 0,
+                                    0x00, 0xff, 0x00, 0];
+                        let rect = [];
+
+                        push8(rect, 0);
+                        push8(rect, 0);
+
+                        //AND-mask
+                        for (let i = 0; i < data.length; i++) {
+                            push8(rect, data[i]);
+                        }
+                        //XOR-mask
+                        for (let i = 0; i < data.length; i++) {
+                            push8(rect, data[i]);
+                        }
+
+                        send_fbu_msg([{ x: 0, y: 0, width: w, height: h,
+                                        encoding: 0x574d5664}],
+                                     [rect], client);
+
+                        // expect one FBU to remain unhandled
+                        expect(client._FBU.rects).to.equal(1);
+                    });
+
+                    it('should update the cursor when type is classic', function () {
+                        let and_mask =
+                            [0xff, 0xff, 0xff, 0xff,  //Transparent
+                             0xff, 0xff, 0xff, 0xff,  //Transparent
+                             0x00, 0x00, 0x00, 0x00,  //Opaque
+                             0xff, 0xff, 0xff, 0xff]; //Inverted
+
+                        let xor_mask =
+                            [0x00, 0x00, 0x00, 0x00,  //Transparent
+                             0x00, 0x00, 0x00, 0x00,  //Transparent
+                             0x11, 0x22, 0x33, 0x44,  //Opaque
+                             0xff, 0xff, 0xff, 0x44]; //Inverted
+
+                        let rect = [];
+                        push8(rect, 0); //cursor_type
+                        push8(rect, 0); //padding
+                        let hotx = 0;
+                        let hoty = 0;
+                        let w = 2;
+                        let h = 2;
+
+                        //AND-mask
+                        for (let i = 0; i < and_mask.length; i++) {
+                            push8(rect, and_mask[i]);
+                        }
+                        //XOR-mask
+                        for (let i = 0; i < xor_mask.length; i++) {
+                            push8(rect, xor_mask[i]);
+                        }
+
+                        let expected_rgba = [0x00, 0x00, 0x00, 0x00,
+                                             0x00, 0x00, 0x00, 0x00,
+                                             0x33, 0x22, 0x11, 0xff,
+                                             0x00, 0x00, 0x00, 0xff];
+
+                        send_fbu_msg([{ x: hotx, y: hoty,
+                                        width: w, height: h,
+                                        encoding: 0x574d5664}],
+                                     [rect], client);
+
+                        expect(client._cursor.change)
+                            .to.have.been.calledOnce;
+                        expect(client._cursor.change)
+                            .to.have.been.calledWith(expected_rgba,
+                                                     hotx, hoty,
+                                                     w, h);
+                    });
+
+                    it('should update the cursor when type is alpha', function () {
+                        let data = [0xee, 0x55, 0xff, 0x00, // bgra
+                                    0x00, 0xff, 0x00, 0xff,
+                                    0x00, 0xff, 0x00, 0x22,
+                                    0x00, 0xff, 0x00, 0x22,
+                                    0x00, 0xff, 0x00, 0x22,
+                                    0x00, 0x00, 0xff, 0xee];
+                        let rect = [];
+                        push8(rect, 1); //cursor_type
+                        push8(rect, 0); //padding
+                        let hotx = 0;
+                        let hoty = 0;
+                        let w = 3;
+                        let h = 2;
+
+                        for (let i = 0; i < data.length; i++) {
+                            push8(rect, data[i]);
+                        }
+
+                        let expected_rgba = [0xff, 0x55, 0xee, 0x00,
+                                             0x00, 0xff, 0x00, 0xff,
+                                             0x00, 0xff, 0x00, 0x22,
+                                             0x00, 0xff, 0x00, 0x22,
+                                             0x00, 0xff, 0x00, 0x22,
+                                             0xff, 0x00, 0x00, 0xee];
+
+                        send_fbu_msg([{ x: hotx, y: hoty,
+                                        width: w, height: h,
+                                        encoding: 0x574d5664}],
+                                     [rect], client);
+
+                        expect(client._cursor.change)
+                            .to.have.been.calledOnce;
+                        expect(client._cursor.change)
+                            .to.have.been.calledWith(expected_rgba,
+                                                     hotx, hoty,
+                                                     w, h);
+                    });
+
+                    it('should not update cursor when incorrect cursor type given', function () {
+                        let rect = [];
+                        push8(rect, 3); // invalid cursor type
+                        push8(rect, 0); // padding
+
+                        client._cursor.change.resetHistory();
+                        send_fbu_msg([{ x: 0, y: 0, width: 2, height: 2,
+                                        encoding: 0x574d5664}],
+                                     [rect], client);
+
+                        expect(client._cursor.change)
+                            .to.not.have.been.called;
+                    });
+                });
+
                 it('should handle the last_rect pseudo-encoding', function () {
                     send_fbu_msg([{ x: 0, y: 0, width: 0, height: 0, encoding: -224}], [[]], client, 100);
                     expect(client._FBU.rects).to.equal(0);
