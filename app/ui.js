@@ -17,6 +17,8 @@ import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
 
+const PAGE_TITLE = "noVNC";
+
 const UI = {
 
     connected: false,
@@ -1122,6 +1124,8 @@ const UI = {
             UI.showStatus(_("Disconnected"), 'normal');
         }
 
+        document.title = PAGE_TITLE;
+
         UI.openControlbar();
         UI.openConnectPanel();
     },
@@ -1615,7 +1619,7 @@ const UI = {
     updateDesktopName(e) {
         UI.desktopName = e.detail.name;
         // Display the desktop name in the document title
-        document.title = e.detail.name + " - noVNC";
+        document.title = e.detail.name + " - " + PAGE_TITLE;
     },
 
     bell(e) {
