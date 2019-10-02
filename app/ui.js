@@ -151,7 +151,7 @@ const UI = {
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
-        UI.initSetting('show_dot', false);
+        UI.initSetting('show_dot', true);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -968,7 +968,6 @@ const UI = {
         }
     },
 
-
     writeText() {
         const text = document.getElementById('noVNC_clipboard_text').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
@@ -977,10 +976,10 @@ const UI = {
         function f(t) {
             const character = t.shift();
             if (character === undefined) return;
-
             let code = character.charCodeAt();
             const needs_shift = '^[AZ]!@#$%^&*()_+{}:"<>?~|'.indexOf(character) !== -1;
             const enter = '[\n]'.indexOf(character) !== -1;
+            const tab = '[\t]'.indexOf(character) !== -1;
             if (code === 91) {
                 UI.rfb.sendKey(KeyTable.XK_bracketleft, 'XK_bracketleft', true);
                 UI.rfb.sendKey(KeyTable.XK_bracketleft, 'XK_bracketleft', false);
@@ -991,6 +990,9 @@ const UI = {
             } else if (enter) {
                 UI.rfb.sendKey(KeyTable.XK_Return, 'XK_Return', true);
                 UI.rfb.sendKey(KeyTable.XK_Return, 'XK_Return', false);
+            } else if (tab) {
+                UI.rfb.sendKey(KeyTable.XK_Tab, 'XK_Tab', true);
+                UI.rfb.sendKey(KeyTable.XK_Tab, 'XK_Tab', false);
             } else {
                 if (needs_shift) {
                     UI.rfb.sendKey(KeyTable.XK_Shift_L, "ShiftLeft", true);
@@ -1031,6 +1033,7 @@ const UI = {
 
     connect(event, password) {
         // Ignore when rfb already exists
+        WebUtil.createToken();
         if (typeof UI.rfb !== 'undefined') {
             return;
         }
@@ -1085,9 +1088,9 @@ const UI = {
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
-        UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
+        UI.rfb.scaleViewport = true;
+        // UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
-
         UI.updateViewOnly(); // requires UI.rfb
 
     },
@@ -1236,12 +1239,12 @@ const UI = {
         if (fullscreenButton.classList.contains('noVNC_selected')) {
             fullscreenButton
                 .classList.remove("noVNC_selected");
-            UI.rfb.scaleViewport = false;
+            // UI.rfb.scaleViewport = false;
             return false;
         } else {
             fullscreenButton
                 .classList.add("noVNC_selected");
-            UI.rfb.scaleViewport = true;
+            // UI.rfb.scaleViewport = true;
             return true;
         }
     },

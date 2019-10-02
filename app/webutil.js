@@ -9,7 +9,7 @@
 import { init_logging as main_init_logging } from '../core/util/logging.js';
 
 // create token
-(function createToken() {
+export function createToken() {
     let token = getConfigVar('token', null);
     let path = getConfigVar('path', 'websockify');
     if (token) {
@@ -18,7 +18,8 @@ import { init_logging as main_init_logging } from '../core/util/logging.js';
         createCookie('token', token, 1);
     }
 
-})();
+}
+
 // init log level reading the logging HTTP param
 export function init_logging(level) {
     "use strict";
