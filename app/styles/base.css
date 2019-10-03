@@ -225,7 +225,7 @@ select:active {
   max-width: 90%;
   padding: 15px;
 
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 
   transform: translateY(-50px);
   opacity: 0;
@@ -283,7 +283,7 @@ select:active {
   position: fixed;
   z-index: 10;
 
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 
   /* Edge misrenders animations wihthout this */
   transform: translateX(0);
@@ -300,7 +300,7 @@ select:active {
   position: relative;
   left: -100%;
 
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 
   background-color: rgb(110, 132, 163);
   border-radius: 0 10px 10px 0;
@@ -318,7 +318,7 @@ select:active {
   height: 100%;
   width: 30px;
   left: -30px;
-  transition: box-shadow 0.5s ease-in-out;
+  transition: box-shadow 0.3s ease-in-out;
 }
 #noVNC_control_bar.noVNC_open::before {
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
@@ -352,7 +352,7 @@ select:active {
 }
 #noVNC_control_bar_handle:after {
   content: "";
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.3s ease-in-out;
   background: url("../images/handle.svg");
   position: absolute;
   top: 22px; /* (50px-6px)/2 */
@@ -475,7 +475,7 @@ select:active {
   position: relative;
   transform: translateX(25px);
 
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
@@ -656,7 +656,7 @@ select:active {
 
   cursor: pointer;
 
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 
   visibility: hidden;
   opacity: 0;
@@ -713,7 +713,7 @@ select:active {
  */
 
 #noVNC_connect_dlg {
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
 
   transform: scale(0, 0);
   visibility: hidden;
@@ -725,7 +725,7 @@ select:active {
   opacity: 1;
 }
 #noVNC_connect_dlg .noVNC_logo {
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-in-out;
   padding: 10px;
   margin-bottom: 10px;
 
