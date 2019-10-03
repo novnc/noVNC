@@ -934,11 +934,16 @@ const UI = {
     openClipboardPanel() {
         UI.closeAllPanels();
         UI.openControlbar();
-
         document.getElementById('noVNC_clipboard')
             .classList.add("noVNC_open");
         document.getElementById('noVNC_clipboard_button')
             .classList.add("noVNC_selected");
+    },
+
+    textareaFocus() {
+        setTimeout( () => {
+            document.getElementById('noVNC_clipboard_text').focus();
+        }, 250);
     },
 
     closeClipboardPanel() {
@@ -949,11 +954,13 @@ const UI = {
     },
 
     toggleClipboardPanel() {
+
         if (document.getElementById('noVNC_clipboard')
             .classList.contains("noVNC_open")) {
             UI.closeClipboardPanel();
         } else {
             UI.openClipboardPanel();
+            UI.textareaFocus();
         }
     },
 
@@ -1007,6 +1014,8 @@ const UI = {
                 setTimeout( () => {
                     f(t);
                 }, 50);
+            } else {
+                UI.rfb.focus();
             }
         }
 
