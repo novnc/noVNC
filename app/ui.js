@@ -916,7 +916,7 @@ const UI = {
  * ------v------*/
 
     writeLocalClipboard(text) {
-        if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.readText !== "undefined") {
+        if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.writeText !== "undefined") {
             navigator.clipboard.writeText(text).then(() => {
                 let debugMessage = text.substr(0, 40) + "...";
                 Log.Debug('>> UI.setClipboardText: navigator.clipboard.writeText with ' + debugMessage);
