@@ -915,6 +915,9 @@ const UI = {
  *   CLIPBOARD
  * ------v------*/
 
+    // Read and write text to local clipboard is currently only supported in Chrome 66+ and Opera53+
+    // further information at https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
+
     writeLocalClipboard(text) {
         if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.writeText !== "undefined") {
             navigator.clipboard.writeText(text).then(() => {
