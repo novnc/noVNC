@@ -1299,24 +1299,10 @@ const UI = {
             viewDragButton.classList.remove("noVNC_selected");
         }
 
-        // Different behaviour for touch vs non-touch
-        // The button is disabled instead of hidden on touch devices
-        if (isTouchDevice) {
+        if (UI.rfb.clipViewport) {
             viewDragButton.classList.remove("noVNC_hidden");
-
-            if (UI.rfb.clipViewport) {
-                viewDragButton.disabled = false;
-            } else {
-                viewDragButton.disabled = true;
-            }
         } else {
-            viewDragButton.disabled = false;
-
-            if (UI.rfb.clipViewport) {
-                viewDragButton.classList.remove("noVNC_hidden");
-            } else {
-                viewDragButton.classList.add("noVNC_hidden");
-            }
+            viewDragButton.classList.add("noVNC_hidden");
         }
     },
 
