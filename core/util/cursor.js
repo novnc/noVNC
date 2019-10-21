@@ -209,6 +209,9 @@ export default class Cursor {
     // (i.e. are we over the target, or a child of the target without a
     // different cursor set)
     _shouldShowCursor(target) {
+        if (!target) {
+            return false;
+        }
         // Easy case
         if (target === this._target) {
             return true;
