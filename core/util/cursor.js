@@ -132,7 +132,8 @@ export default class Cursor {
     }
 
     _handleMouseLeave(event) {
-        this._hideCursor();
+        // Check if we should show the cursor on the element we are leaving to
+        this._updateVisibility(event.relatedTarget);
     }
 
     _handleMouseMove(event) {
