@@ -151,6 +151,25 @@ export default class Cursor {
         // now and adjust visibility based on that.
         let target = document.elementFromPoint(event.clientX, event.clientY);
         this._updateVisibility(target);
+
+        // Captures end with a mouseup but we can't know the event order of
+        // mouseup vs releaseCapture.
+        //
+        // In the cases when releaseCapture comes first, the code above is
+        // enough.
+        //
+        // In the cases when the mouseup comes first, we need wait for the
+        // browser to flush all events and then check again if the cursor
+        // should be visible.
+        if (this._captureIsActive()) {
+            window.setTimeout(() => {
+                // Refresh the target from elementFromPoint since queued events
+                // might have altered the DOM
+                target = document.elementFromPoint(event.clientX,
+                                                   event.clientY);
+                this._updateVisibility(target);
+            }, 0);
+        }
     }
 
     _handleTouchStart(event) {
@@ -208,6 +227,11 @@ export default class Cursor {
     }
 
     _updateVisibility(target) {
+        // When the cursor target has capture we want to show the cursor.
+        // So, if a capture is active - look at the captured element instead.
+        if (this._captureIsActive()) {
+            target = document.capturedElem;
+        }
         if (this._shouldShowCursor(target)) {
             this._showCursor();
         } else {
@@ -218,5 +242,10 @@ export default class Cursor {
     _updatePosition() {
         this._canvas.style.left = this._position.x + "px";
         this._canvas.style.top = this._position.y + "px";
+    }
+
+    _captureIsActive() {
+        return document.capturedElem &&
+            document.documentElement.contains(document.capturedElem);
     }
 }

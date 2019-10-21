@@ -21,7 +21,8 @@ export function stopEvent(e) {
 
 // Emulate Element.setCapture() when not supported
 let _captureRecursion = false;
-let _capturedElem = null;
+let _elementForUnflushedEvents = null;
+document.capturedElem = null;
 function _captureProxy(e) {
     // Recursion protection as we'll see our own event
     if (_captureRecursion) return;
@@ -30,7 +31,11 @@ function _captureProxy(e) {
     const newEv = new e.constructor(e.type, e);
 
     _captureRecursion = true;
-    _capturedElem.dispatchEvent(newEv);
+    if (document.capturedElem) {
+        document.capturedElem.dispatchEvent(newEv);
+    } else {
+        _elementForUnflushedEvents.dispatchEvent(newEv);
+    }
     _captureRecursion = false;
 
     // Avoid double events
@@ -50,17 +55,16 @@ function _captureProxy(e) {
 // Follow cursor style of target element
 function _capturedElemChanged() {
     const proxyElem = document.getElementById("noVNC_mouse_capture_elem");
-    proxyElem.style.cursor = window.getComputedStyle(_capturedElem).cursor;
+    proxyElem.style.cursor = window.getComputedStyle(document.capturedElem).cursor;
 }
 
 const _captureObserver = new MutationObserver(_capturedElemChanged);
-
-let _captureIndex = 0;
 
 export function setCapture(target) {
     if (target.setCapture) {
 
         target.setCapture();
+        document.capturedElem = target;
 
         // IE releases capture on 'click' events which might not trigger
         target.addEventListener('mouseup', releaseCapture);
@@ -92,8 +96,7 @@ export function setCapture(target) {
             proxyElem.addEventListener('mouseup', _captureProxy);
         }
 
-        _capturedElem = target;
-        _captureIndex++;
+        document.capturedElem = target;
 
         // Track cursor and get initial cursor
         _captureObserver.observe(target, {attributes: true});
@@ -112,21 +115,21 @@ export function releaseCapture() {
     if (document.releaseCapture) {
 
         document.releaseCapture();
+        document.capturedElem = null;
 
     } else {
-        if (!_capturedElem) {
+        if (!document.capturedElem) {
             return;
         }
 
-        // There might be events already queued, so we need to wait for
-        // them to flush. E.g. contextmenu in Microsoft Edge
-        window.setTimeout((expected) => {
-            // Only clear it if it's the expected grab (i.e. no one
-            // else has initiated a new grab)
-            if (_captureIndex === expected) {
-                _capturedElem = null;
-            }
-        }, 0, _captureIndex);
+        // There might be events already queued. The event proxy needs
+        // access to the captured element for these queued events.
+        // E.g. contextmenu (right-click) in Microsoft Edge
+        //
+        // Before removing the capturedElem pointer we save it to a
+        // temporary variable that the unflushed events can use.
+        _elementForUnflushedEvents = document.capturedElem;
+        document.capturedElem = null;
 
         _captureObserver.disconnect();
 
