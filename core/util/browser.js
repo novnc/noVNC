@@ -4,6 +4,8 @@
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
+ *
+ * Browser feature support detection
  */
 
 import * as Log from './logging.js';
