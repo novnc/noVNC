@@ -233,7 +233,7 @@ export default class Cursor {
         // When the cursor target has capture we want to show the cursor.
         // So, if a capture is active - look at the captured element instead.
         if (this._captureIsActive()) {
-            target = document.capturedElem;
+            target = document.captureElement;
         }
         if (this._shouldShowCursor(target)) {
             this._showCursor();
@@ -248,7 +248,7 @@ export default class Cursor {
     }
 
     _captureIsActive() {
-        return document.capturedElem &&
-            document.documentElement.contains(document.capturedElem);
+        return document.captureElement &&
+            document.documentElement.contains(document.captureElement);
     }
 }

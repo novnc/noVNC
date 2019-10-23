@@ -22,7 +22,7 @@ export function stopEvent(e) {
 // Emulate Element.setCapture() when not supported
 let _captureRecursion = false;
 let _elementForUnflushedEvents = null;
-document.capturedElem = null;
+document.captureElement = null;
 function _captureProxy(e) {
     // Recursion protection as we'll see our own event
     if (_captureRecursion) return;
@@ -31,8 +31,8 @@ function _captureProxy(e) {
     const newEv = new e.constructor(e.type, e);
 
     _captureRecursion = true;
-    if (document.capturedElem) {
-        document.capturedElem.dispatchEvent(newEv);
+    if (document.captureElement) {
+        document.captureElement.dispatchEvent(newEv);
     } else {
         _elementForUnflushedEvents.dispatchEvent(newEv);
     }
@@ -55,7 +55,7 @@ function _captureProxy(e) {
 // Follow cursor style of target element
 function _capturedElemChanged() {
     const proxyElem = document.getElementById("noVNC_mouse_capture_elem");
-    proxyElem.style.cursor = window.getComputedStyle(document.capturedElem).cursor;
+    proxyElem.style.cursor = window.getComputedStyle(document.captureElement).cursor;
 }
 
 const _captureObserver = new MutationObserver(_capturedElemChanged);
@@ -64,7 +64,7 @@ export function setCapture(target) {
     if (target.setCapture) {
 
         target.setCapture();
-        document.capturedElem = target;
+        document.captureElement = target;
 
         // IE releases capture on 'click' events which might not trigger
         target.addEventListener('mouseup', releaseCapture);
@@ -96,7 +96,7 @@ export function setCapture(target) {
             proxyElem.addEventListener('mouseup', _captureProxy);
         }
 
-        document.capturedElem = target;
+        document.captureElement = target;
 
         // Track cursor and get initial cursor
         _captureObserver.observe(target, {attributes: true});
@@ -115,10 +115,10 @@ export function releaseCapture() {
     if (document.releaseCapture) {
 
         document.releaseCapture();
-        document.capturedElem = null;
+        document.captureElement = null;
 
     } else {
-        if (!document.capturedElem) {
+        if (!document.captureElement) {
             return;
         }
 
@@ -128,8 +128,8 @@ export function releaseCapture() {
         //
         // Before removing the capturedElem pointer we save it to a
         // temporary variable that the unflushed events can use.
-        _elementForUnflushedEvents = document.capturedElem;
-        document.capturedElem = null;
+        _elementForUnflushedEvents = document.captureElement;
+        document.captureElement = null;
 
         _captureObserver.disconnect();
 
