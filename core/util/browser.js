@@ -52,6 +52,31 @@ try {
 }
 export const supportsImageMetadata = _supportsImageMetadata;
 
+let _hasScrollbarGutter = true;
+try {
+    // Create invisible container
+    const container = document.createElement('div');
+    container.style.visibility = 'hidden';
+    container.style.overflow = 'scroll'; // forcing scrollbars
+    document.body.appendChild(container);
+
+    // Create a div and place it in the container
+    const child = document.createElement('div');
+    container.appendChild(child);
+
+    // Calculate the difference between the container's full width
+    // and the child's width - the difference is the scrollbars
+    const scrollbarWidth = (container.offsetWidth - child.offsetWidth);
+
+    // Clean up
+    container.parentNode.removeChild(container);
+
+    _hasScrollbarGutter = scrollbarWidth != 0;
+} catch (exc) {
+    Log.Error("Scrollbar test exception: " + exc);
+}
+export const hasScrollbarGutter = _hasScrollbarGutter;
+
 export function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
 }
@@ -65,10 +90,6 @@ export function isIOS() {
            (!!(/ipad/i).exec(navigator.platform) ||
             !!(/iphone/i).exec(navigator.platform) ||
             !!(/ipod/i).exec(navigator.platform));
-}
-
-export function isAndroid() {
-    return navigator && !!(/android/i).exec(navigator.userAgent);
 }
 
 export function isSafari() {
