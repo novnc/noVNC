@@ -79,6 +79,13 @@ try {
 }
 export const hasScrollbarGutter = _hasScrollbarGutter;
 
+/*
+ * The functions for detection of platforms and browsers below are exported
+ * but the use of these should be minimized as much as possible.
+ *
+ * It's better to use feature detection than platform detection.
+ */
+
 export function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
 }
