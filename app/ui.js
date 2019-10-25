@@ -1503,20 +1503,20 @@ const UI = {
     },
 
     sendEsc() {
-        UI.rfb.sendKey(KeyTable.XK_Escape, "Escape");
+        UI.sendKey(KeyTable.XK_Escape, "Escape");
     },
 
     sendTab() {
-        UI.rfb.sendKey(KeyTable.XK_Tab, "Tab");
+        UI.sendKey(KeyTable.XK_Tab, "Tab");
     },
 
     toggleCtrl() {
         const btn = document.getElementById('noVNC_toggle_ctrl_button');
         if (btn.classList.contains("noVNC_selected")) {
-            UI.rfb.sendKey(KeyTable.XK_Control_L, "ControlLeft", false);
+            UI.sendKey(KeyTable.XK_Control_L, "ControlLeft", false);
             btn.classList.remove("noVNC_selected");
         } else {
-            UI.rfb.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
+            UI.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
             btn.classList.add("noVNC_selected");
         }
     },
@@ -1524,10 +1524,10 @@ const UI = {
     toggleWindows() {
         const btn = document.getElementById('noVNC_toggle_windows_button');
         if (btn.classList.contains("noVNC_selected")) {
-            UI.rfb.sendKey(KeyTable.XK_Super_L, "MetaLeft", false);
+            UI.sendKey(KeyTable.XK_Super_L, "MetaLeft", false);
             btn.classList.remove("noVNC_selected");
         } else {
-            UI.rfb.sendKey(KeyTable.XK_Super_L, "MetaLeft", true);
+            UI.sendKey(KeyTable.XK_Super_L, "MetaLeft", true);
             btn.classList.add("noVNC_selected");
         }
     },
@@ -1535,16 +1535,29 @@ const UI = {
     toggleAlt() {
         const btn = document.getElementById('noVNC_toggle_alt_button');
         if (btn.classList.contains("noVNC_selected")) {
-            UI.rfb.sendKey(KeyTable.XK_Alt_L, "AltLeft", false);
+            UI.sendKey(KeyTable.XK_Alt_L, "AltLeft", false);
             btn.classList.remove("noVNC_selected");
         } else {
-            UI.rfb.sendKey(KeyTable.XK_Alt_L, "AltLeft", true);
+            UI.sendKey(KeyTable.XK_Alt_L, "AltLeft", true);
             btn.classList.add("noVNC_selected");
         }
     },
 
     sendCtrlAltDel() {
         UI.rfb.sendCtrlAltDel();
+        // See below
+        UI.rfb.focus();
+        UI.idleControlbar();
+    },
+
+    sendKey(keysym, code, down) {
+        UI.rfb.sendKey(keysym, code, down);
+        // move focus to the screen in order to be able to
+        // use the keyboard right after these extra keys
+        UI.rfb.focus();
+        // fade out the controlbar to highlight that
+        // the focus has been moved to the screen
+        UI.idleControlbar();
     },
 
 /* ------^-------
