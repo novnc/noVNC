@@ -1,3 +1,4 @@
+import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
 import fixedkeys from "./fixedkeys.js";
@@ -143,6 +144,18 @@ export function getKeysym(evt) {
 
         if ((location === undefined) || (location > 3)) {
             location = 0;
+        }
+
+        // The original Meta key now gets confused with the Windows key
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=1020141
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1232918
+        if (key === 'Meta') {
+            let code = getKeycode(evt);
+            if (code === 'AltLeft') {
+                return KeyTable.XK_Meta_L;
+            } else if (code === 'AltRight') {
+                return KeyTable.XK_Meta_R;
+            }
         }
 
         return DOMKeyTable[key][location];

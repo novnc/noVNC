@@ -192,6 +192,12 @@ describe('Helpers', function () {
                 expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'Alt', location: 2})).to.be.equal(0xFFEA);
                 expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltGraph', location: 2})).to.be.equal(0xFE03);
             });
+            it('should handle Meta/Windows distinction', function () {
+                expect(KeyboardUtil.getKeysym({code: 'AltLeft', key: 'Meta', location: 1})).to.be.equal(0xFFE7);
+                expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'Meta', location: 2})).to.be.equal(0xFFE8);
+                expect(KeyboardUtil.getKeysym({code: 'MetaLeft', key: 'Meta', location: 1})).to.be.equal(0xFFEB);
+                expect(KeyboardUtil.getKeysym({code: 'MetaRight', key: 'Meta', location: 2})).to.be.equal(0xFFEC);
+            });
             it('should return null for unknown keys', function () {
                 expect(KeyboardUtil.getKeysym({key: 'Semicolon'})).to.be.null;
                 expect(KeyboardUtil.getKeysym({key: 'BracketRight'})).to.be.null;
