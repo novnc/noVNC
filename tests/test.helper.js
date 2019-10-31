@@ -110,6 +110,9 @@ describe('Helpers', function () {
             expect(KeyboardUtil.getKey({key: 'Win'})).to.be.equal('Meta');
             expect(KeyboardUtil.getKey({key: 'UIKeyInputLeftArrow'})).to.be.equal('ArrowLeft');
         });
+        it('should handle broken Delete', function () {
+            expect(KeyboardUtil.getKey({key: '\x00', code: 'NumpadDecimal'})).to.be.equal('Delete');
+        });
         it('should use code if no key', function () {
             expect(KeyboardUtil.getKey({code: 'NumpadBackspace'})).to.be.equal('Backspace');
         });
