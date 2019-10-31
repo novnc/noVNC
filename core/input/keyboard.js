@@ -118,9 +118,7 @@ export default class Keyboard {
 
         // We cannot handle keys we cannot track, but we also need
         // to deal with virtual keyboards which omit key info
-        // (iOS omits tracking info on keyup events, which forces us to
-        // special treat that platform here)
-        if ((code === 'Unidentified') || browser.isIOS()) {
+        if (code === 'Unidentified') {
             if (keysym) {
                 // If it's a virtual keyboard then it should be
                 // sufficient to just send press and release right
