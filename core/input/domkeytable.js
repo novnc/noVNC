@@ -72,6 +72,9 @@ addNumpad("PageUp", KeyTable.XK_Prior, KeyTable.XK_KP_Prior);
 // 2.5. Editing Keys
 
 addStandard("Backspace", KeyTable.XK_BackSpace);
+// Browsers send "Clear" for the numpad 5 without NumLock because
+// Windows uses VK_Clear for that key. But Unix expects KP_Begin for
+// that scenario.
 addNumpad("Clear", KeyTable.XK_Clear, KeyTable.XK_KP_Begin);
 addStandard("Copy", KeyTable.XF86XK_Copy);
 // - CrSel
