@@ -1552,9 +1552,19 @@ const UI = {
 
     sendKey(keysym, code, down) {
         UI.rfb.sendKey(keysym, code, down);
-        // move focus to the screen in order to be able to
-        // use the keyboard right after these extra keys
-        UI.rfb.focus();
+
+        // Move focus to the screen in order to be able to use the
+        // keyboard right after these extra keys.
+        // The exception is when a virtual keyboard is used, because
+        // if we focus the screen the virtual keyboard would be closed.
+        // In this case we focus our special virtual keyboard input
+        // element instead.
+        if (document.getElementById('noVNC_keyboard_button')
+            .classList.contains("noVNC_selected")) {
+            document.getElementById('noVNC_keyboardinput').focus();
+        } else {
+            UI.rfb.focus();
+        }
         // fade out the controlbar to highlight that
         // the focus has been moved to the screen
         UI.idleControlbar();
