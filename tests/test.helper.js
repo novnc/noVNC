@@ -169,6 +169,16 @@ describe('Helpers', function () {
                 window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
                 expect(KeyboardUtil.getKey({key: 'Shift'})).to.be.equal('Shift');
             });
+            it('should allow printable character key with charCode on IE', function () {
+                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
+                expect(KeyboardUtil.getKey({key: 'a', charCode: 0x61})).to.be.equal('a');
+                expect(KeyboardUtil.getKey({key: 'Unidentified', charCode: 0x61})).to.be.equal('a');
+            });
+            it('should allow printable character key with charCode on Edge', function () {
+                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
+                expect(KeyboardUtil.getKey({key: 'a', charCode: 0x61})).to.be.equal('a');
+                expect(KeyboardUtil.getKey({key: 'Unidentified', charCode: 0x61})).to.be.equal('a');
+            });
         });
     });
 
