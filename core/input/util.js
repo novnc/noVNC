@@ -92,6 +92,8 @@ export function getKey(evt) {
         // Mozilla isn't fully in sync with the spec yet
         switch (evt.key) {
             case 'OS': return 'Meta';
+            case 'LaunchMyComputer': return 'LaunchApplication1';
+            case 'LaunchCalculator': return 'LaunchApplication2';
         }
 
         // iOS leaks some OS names
