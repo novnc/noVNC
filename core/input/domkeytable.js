@@ -195,7 +195,7 @@ addStandard("F35", KeyTable.XK_F35);
 addStandard("Close", KeyTable.XF86XK_Close);
 addStandard("MailForward", KeyTable.XF86XK_MailForward);
 addStandard("MailReply", KeyTable.XF86XK_Reply);
-addStandard("MainSend", KeyTable.XF86XK_Send);
+addStandard("MailSend", KeyTable.XF86XK_Send);
 // - MediaClose
 addStandard("MediaFastForward", KeyTable.XF86XK_AudioForward);
 addStandard("MediaPause", KeyTable.XF86XK_AudioPause);
