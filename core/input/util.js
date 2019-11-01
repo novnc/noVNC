@@ -156,6 +156,14 @@ export function getKeysym(evt) {
             location = 2;
         }
 
+        // And for Clear
+        if ((key === 'Clear') && (location === 3)) {
+            let code = getKeycode(evt);
+            if (code === 'NumLock') {
+                location = 0;
+            }
+        }
+
         if ((location === undefined) || (location > 3)) {
             location = 0;
         }
@@ -169,6 +177,15 @@ export function getKeysym(evt) {
                 return KeyTable.XK_Meta_L;
             } else if (code === 'AltRight') {
                 return KeyTable.XK_Meta_R;
+            }
+        }
+
+        // macOS has Clear instead of NumLock, but the remote system is
+        // probably not macOS, so lying here is probably best...
+        if (key === 'Clear') {
+            let code = getKeycode(evt);
+            if (code === 'NumLock') {
+                return KeyTable.XK_Num_Lock;
             }
         }
 

@@ -205,11 +205,21 @@ describe('Helpers', function () {
                 expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'Alt', location: 2})).to.be.equal(0xFFEA);
                 expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'AltGraph', location: 2})).to.be.equal(0xFE03);
             });
+            it('should handle Windows key with incorrect location', function () {
+                expect(KeyboardUtil.getKeysym({key: 'Meta', location: 0})).to.be.equal(0xFFEC);
+            });
+            it('should handle Clear/NumLock key with incorrect location', function () {
+                this.skip(); // Broken because of Clear/NumLock override
+                expect(KeyboardUtil.getKeysym({key: 'Clear', code: 'NumLock', location: 3})).to.be.equal(0xFF0B);
+            });
             it('should handle Meta/Windows distinction', function () {
                 expect(KeyboardUtil.getKeysym({code: 'AltLeft', key: 'Meta', location: 1})).to.be.equal(0xFFE7);
                 expect(KeyboardUtil.getKeysym({code: 'AltRight', key: 'Meta', location: 2})).to.be.equal(0xFFE8);
                 expect(KeyboardUtil.getKeysym({code: 'MetaLeft', key: 'Meta', location: 1})).to.be.equal(0xFFEB);
                 expect(KeyboardUtil.getKeysym({code: 'MetaRight', key: 'Meta', location: 2})).to.be.equal(0xFFEC);
+            });
+            it('should send NumLock even if key is Clear', function () {
+                expect(KeyboardUtil.getKeysym({key: 'Clear', code: 'NumLock'})).to.be.equal(0xFF7F);
             });
             it('should return null for unknown keys', function () {
                 expect(KeyboardUtil.getKeysym({key: 'Semicolon'})).to.be.null;
