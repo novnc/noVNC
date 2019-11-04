@@ -281,6 +281,21 @@ export default class Keyboard {
         }
 
         this._sendKeyEvent(this._keyDownList[code], code, false);
+
+        // Windows has a rather nasty bug where it won't send key
+        // release events for a Shift button if the other Shift is still
+        // pressed
+        if (browser.isWindows() && ((code === 'ShiftLeft') ||
+                                    (code === 'ShiftRight'))) {
+            if ('ShiftRight' in this._keyDownList) {
+                this._sendKeyEvent(this._keyDownList['ShiftRight'],
+                                   'ShiftRight', false);
+            }
+            if ('ShiftLeft' in this._keyDownList) {
+                this._sendKeyEvent(this._keyDownList['ShiftLeft'],
+                                   'ShiftLeft', false);
+            }
+        }
     }
 
     _handleAltGrTimeout() {

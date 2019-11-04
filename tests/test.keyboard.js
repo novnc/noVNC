@@ -459,4 +459,74 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledWith(0xfe03, 'AltRight', true);
         });
     });
+
+    describe('Missing Shift keyup on Windows', function () {
+        let origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+            if (origNavigator === undefined) {
+                // Object.getOwnPropertyDescriptor() doesn't work
+                // properly in any version of IE
+                this.skip();
+            }
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+
+            window.navigator.platform = "Windows x86_64";
+
+            this.clock = sinon.useFakeTimers();
+        });
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+            this.clock.restore();
+        });
+
+        it('should fake a left Shift keyup', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftLeft', key: 'Shift', location: 1}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyUp(keyevent('keyup', {code: 'ShiftLeft', key: 'Shift', location: 1}));
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', false);
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', false);
+        });
+
+        it('should fake a right Shift keyup', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftLeft', key: 'Shift', location: 1}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyUp(keyevent('keyup', {code: 'ShiftRight', key: 'Shift', location: 2}));
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', false);
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', false);
+        });
+    });
 });
