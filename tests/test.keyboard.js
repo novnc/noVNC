@@ -314,6 +314,80 @@ describe('Key Event Handling', function () {
         });
     });
 
+    describe('Caps Lock on iOS and macOS', function () {
+        let origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+            if (origNavigator === undefined) {
+                // Object.getOwnPropertyDescriptor() doesn't work
+                // properly in any version of IE
+                this.skip();
+            }
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+        });
+
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+        });
+
+        it('should toggle caps lock on key press on iOS', function (done) {
+            window.navigator.platform = "iPad";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'CapsLock', key: 'CapsLock'}));
+
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            done();
+        });
+
+        it('should toggle caps lock on key press on mac', function (done) {
+            window.navigator.platform = "Mac";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'CapsLock', key: 'CapsLock'}));
+
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            done();
+        });
+
+        it('should toggle caps lock on key release on iOS', function (done) {
+            window.navigator.platform = "iPad";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyUp(keyevent('keyup', {code: 'CapsLock', key: 'CapsLock'}));
+
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            done();
+        });
+
+        it('should toggle caps lock on key release on mac', function (done) {
+            window.navigator.platform = "Mac";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyUp(keyevent('keyup', {code: 'CapsLock', key: 'CapsLock'}));
+
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+            done();
+        });
+    });
+
     describe('Escape AltGraph on Windows', function () {
         let origNavigator;
         beforeEach(function () {

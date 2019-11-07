@@ -162,7 +162,7 @@ export default class Keyboard {
         // state change events. That gets extra confusing for CapsLock
         // which toggles on each press, but not on release. So pretend
         // it was a quick press and release of the button.
-        if (browser.isMac() && (code === 'CapsLock')) {
+        if ((browser.isMac() || browser.isIOS()) && (code === 'CapsLock')) {
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
             stopEvent(e);
@@ -274,7 +274,7 @@ export default class Keyboard {
         }
 
         // See comment in _handleKeyDown()
-        if (browser.isMac() && (code === 'CapsLock')) {
+        if ((browser.isMac() || browser.isIOS()) && (code === 'CapsLock')) {
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', true);
             this._sendKeyEvent(KeyTable.XK_Caps_Lock, 'CapsLock', false);
             return;
