@@ -4,7 +4,7 @@ const path = require('path');
 const program = require('commander');
 const fs = require('fs');
 const fse = require('fs-extra');
-const babel = require('babel-core');
+const babel = require('@babel/core');
 
 const SUPPORTED_FORMATS = new Set(['amd', 'commonjs', 'systemjs', 'umd']);
 
@@ -134,8 +134,12 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
 
     // NB: we need to make a copy of babel_opts, since babel sets some defaults on it
     const babel_opts = () => ({
-        plugins: [`transform-es2015-modules-${import_format}`],
-        presets: ['es2015'],
+        plugins: [],
+        presets: [
+            [ '@babel/preset-env',
+              { targets: 'ie >= 11',
+                modules: import_format } ]
+        ],
         ast: false,
         sourceMaps: source_maps,
     });

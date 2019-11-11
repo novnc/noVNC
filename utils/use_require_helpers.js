@@ -33,10 +33,6 @@ module.exports = {
         },
     },
     'commonjs': {
-        optionsOverride: (opts) => {
-            // CommonJS supports properly shifting the default export to work as normal
-            opts.plugins.unshift("add-module-exports");
-        },
         appWriter: (base_out_path, script_base_path, out_path) => {
             const browserify = require('browserify');
             const b = browserify(path.join(script_base_path, 'app/ui.js'), {});
@@ -60,9 +56,5 @@ module.exports = {
         },
     },
     'umd': {
-        optionsOverride: (opts) => {
-            // umd supports properly shifting the default export to work as normal
-            opts.plugins.unshift("add-module-exports");
-        },
     },
 };
