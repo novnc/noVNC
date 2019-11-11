@@ -108,7 +108,7 @@ function transform_html(legacy_scripts, only_legacy) {
                 // Otherwise include both modules and legacy fallbacks
                 new_script += '    <script type="module" crossorigin="anonymous" src="app/ui.js"></script>\n';
                 for (let i = 0;i < legacy_scripts.length;i++) {
-                    new_script += '    <script nomodule src="${legacy_scripts[i]}"></script>\n';
+                    new_script += `    <script nomodule src="${legacy_scripts[i]}"></script>\n`;
                 }
             }
 
