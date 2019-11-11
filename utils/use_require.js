@@ -161,8 +161,6 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
 
     const handleDir = (js_only, vendor_rewrite, in_path_base, filename) => Promise.resolve()
         .then(() => {
-            if (no_copy_files.has(filename)) return;
-
             const out_path = path.join(out_path_base, path.relative(in_path_base, filename));
             const legacy_path = path.join(legacy_path_base, path.relative(in_path_base, filename));
 
