@@ -30,8 +30,11 @@ const no_copy_files = new Set([
     // skip these -- they don't belong in the processed application
     path.join(paths.vendor, 'sinon.js'),
     path.join(paths.vendor, 'browser-es-module-loader'),
-    path.join(paths.vendor, 'promise.js'),
     path.join(paths.app, 'images', 'icons', 'Makefile'),
+]);
+
+const only_legacy_scripts = new Set([
+    path.join(paths.vendor, 'promise.js'),
 ]);
 
 const no_transform_files = new Set([
@@ -158,6 +161,7 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
     const helper = helpers[import_format];
 
     const outFiles = [];
+    const legacyFiles = [];
 
     const handleDir = (js_only, vendor_rewrite, in_path_base, filename) => Promise.resolve()
         .then(() => {
@@ -177,6 +181,15 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
                     .then(() => {
                         console.log(`Writing ${out_path}`);
                         return copy(filename, out_path);
+                    });
+            }
+
+            if (only_legacy_scripts.has(filename)) {
+                legacyFiles.push(legacy_path);
+                return ensureDir(path.dirname(legacy_path))
+                    .then(() => {
+                        console.log(`Writing ${legacy_path}`);
+                        return copy(filename, legacy_path);
                     });
             }
 
@@ -227,10 +240,6 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
                 });
         });
 
-    if (with_app_dir && helper && helper.noCopyOverride) {
-        helper.noCopyOverride(paths, no_copy_files);
-    }
-
     Promise.resolve()
         .then(() => {
             const handler = handleDir.bind(null, true, false, in_path || paths.main);
@@ -259,8 +268,16 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
             console.log(`Writing ${out_app_path}`);
             return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
                 .then((extra_scripts) => {
-                    const rel_app_path = path.relative(out_path_base, out_app_path);
-                    const legacy_scripts = extra_scripts.concat([rel_app_path]);
+                    let legacy_scripts = extra_scripts;
+
+                    legacyFiles.forEach((file) => {
+                        let rel_file_path = path.relative(out_path_base, file);
+                        legacy_scripts.push(rel_file_path);
+                    });
+
+                    let rel_app_path = path.relative(out_path_base, out_app_path);
+                    legacy_scripts.push(rel_app_path);
+
                     transform_html(legacy_scripts, only_legacy);
                 })
                 .then(() => {
