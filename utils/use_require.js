@@ -172,9 +172,17 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
                 return;  // skip non-javascript files
             }
 
+            if (no_transform_files.has(filename)) {
+                return ensureDir(path.dirname(out_path))
+                    .then(() => {
+                        console.log(`Writing ${out_path}`);
+                        return copy(filename, out_path);
+                    });
+            }
+
             return Promise.resolve()
                 .then(() => {
-                    if (only_legacy && !no_transform_files.has(filename)) {
+                    if (only_legacy) {
                         return;
                     }
                     return ensureDir(path.dirname(out_path))
@@ -185,10 +193,6 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
                 })
                 .then(() => ensureDir(path.dirname(legacy_path)))
                 .then(() => {
-                    if (no_transform_files.has(filename)) {
-                        return;
-                    }
-
                     const opts = babel_opts();
                     if (helper && helpers.optionsOverride) {
                         helper.optionsOverride(opts);
