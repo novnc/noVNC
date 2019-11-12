@@ -23,7 +23,7 @@ module.exports = {
             // setup for requirejs
             const ui_path = path.relative(base_out_path,
                                           path.join(script_base_path, 'app', 'ui'));
-            return writeFile(out_path, `requirejs(["${ui_path}"], (ui) => {});`)
+            return writeFile(out_path, `requirejs(["${ui_path}"], function (ui) {});`)
                 .then(() => {
                     console.log(`Please place RequireJS in ${path.join(script_base_path, 'require.js')}`);
                     const require_path = path.relative(base_out_path,
@@ -33,10 +33,6 @@ module.exports = {
         },
     },
     'commonjs': {
-        optionsOverride: (opts) => {
-            // CommonJS supports properly shifting the default export to work as normal
-            opts.plugins.unshift("add-module-exports");
-        },
         appWriter: (base_out_path, script_base_path, out_path) => {
             const browserify = require('browserify');
             const b = browserify(path.join(script_base_path, 'app/ui.js'), {});
@@ -60,9 +56,5 @@ module.exports = {
         },
     },
     'umd': {
-        optionsOverride: (opts) => {
-            // umd supports properly shifting the default export to work as normal
-            opts.plugins.unshift("add-module-exports");
-        },
     },
 };
