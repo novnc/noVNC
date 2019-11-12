@@ -23,7 +23,7 @@ module.exports = {
             // setup for requirejs
             const ui_path = path.relative(base_out_path,
                                           path.join(script_base_path, 'app', 'ui'));
-            return writeFile(out_path, `requirejs(["${ui_path}"], (ui) => {});`)
+            return writeFile(out_path, `requirejs(["${ui_path}"], function (ui) {});`)
                 .then(() => {
                     console.log(`Please place RequireJS in ${path.join(script_base_path, 'require.js')}`);
                     const require_path = path.relative(base_out_path,
