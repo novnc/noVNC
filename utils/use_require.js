@@ -272,12 +272,14 @@ function make_lib_files(import_format, source_maps, with_app_dir, only_legacy) {
             console.log(`Writing ${out_app_path}`);
             return helper.appWriter(out_path_base, legacy_path_base, out_app_path)
                 .then((extra_scripts) => {
-                    let legacy_scripts = extra_scripts;
+                    let legacy_scripts = [];
 
                     legacyFiles.forEach((file) => {
                         let rel_file_path = path.relative(out_path_base, file);
                         legacy_scripts.push(rel_file_path);
                     });
+
+                    legacy_scripts = legacy_scripts.concat(extra_scripts);
 
                     let rel_app_path = path.relative(out_path_base, out_app_path);
                     legacy_scripts.push(rel_app_path);
