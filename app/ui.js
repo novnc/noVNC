@@ -453,19 +453,14 @@ const UI = {
 
         // Don't overwrite more severe visible statuses and never
         // errors. Only shows the first error.
-        let visible_status_type = 'none';
         if (statusElem.classList.contains("noVNC_open")) {
             if (statusElem.classList.contains("noVNC_status_error")) {
-                visible_status_type = 'error';
-            } else if (statusElem.classList.contains("noVNC_status_warn")) {
-                visible_status_type = 'warn';
-            } else {
-                visible_status_type = 'normal';
+                return;
             }
-        }
-        if (visible_status_type === 'error' ||
-            (visible_status_type === 'warn' && status_type === 'normal')) {
-            return;
+            if (statusElem.classList.contains("noVNC_status_warn") &&
+                status_type === 'normal') {
+                return;
+            }
         }
 
         clearTimeout(UI.statusTimeout);
