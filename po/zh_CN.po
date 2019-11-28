@@ -21,7 +21,7 @@ msgstr "连接中..."
 
 #: ../app/ui.js:402
 msgid "Disconnecting..."
-msgstr "正在中断连接..."
+msgstr "正在断开连接..."
 
 #: ../app/ui.js:408
 msgid "Reconnecting..."
@@ -37,11 +37,11 @@ msgstr "请提供主机名"
 
 #: ../app/ui.js:1097
 msgid "Connected (encrypted) to "
-msgstr "已连接到（加密）"
+msgstr "已加密连接到"
 
 #: ../app/ui.js:1099
 msgid "Connected (unencrypted) to "
-msgstr "已连接到（未加密）"
+msgstr "未加密连接到"
 
 #: ../app/ui.js:1120
 msgid "Something went wrong, connection is closed"
@@ -53,7 +53,7 @@ msgstr "无法连接到服务器"
 
 #: ../app/ui.js:1133
 msgid "Disconnected"
-msgstr "连接已中断"
+msgstr "已断开连接"
 
 #: ../app/ui.js:1146
 msgid "New connection has been rejected with reason: "
@@ -73,7 +73,7 @@ msgstr "noVNC 遇到一个错误："
 
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
-msgstr "显示/隐藏控制栏"
+msgstr "显示/隐藏控制面板"
 
 #: ../vnc.html:106
 msgid "Move/Drag Viewport"
@@ -193,7 +193,7 @@ msgstr "清除"
 
 #: ../vnc.html:187
 msgid "Fullscreen"
-msgstr "全屏"
+msgstr "全屏幕"
 
 #: ../vnc.html:192 ../vnc.html:199
 msgid "Settings"
@@ -269,7 +269,7 @@ msgstr "日志级别："
 
 #: ../vnc.html:270
 msgid "Disconnect"
-msgstr "中断连接"
+msgstr "断开连接"
 
 #: ../vnc.html:289
 msgid "Connect"
