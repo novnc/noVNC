@@ -64,6 +64,10 @@ export default class Cursor {
     }
 
     detach() {
+        if (!this._target) {
+            return;
+        }
+
         if (useFallback) {
             const options = { capture: true, passive: true };
             this._target.removeEventListener('mouseover', this._eventHandlers.mouseover, options);
