@@ -1179,7 +1179,12 @@ export default class RFB extends EventTargetMixin {
         /* Connection name/title */
         const name_length = this._sock.rQshift32();
         if (this._sock.rQwait('server init name', name_length, 24)) { return false; }
-        let name = decodeUTF8(this._sock.rQshiftStr(name_length));
+        let name = this._sock.rQshiftStr(name_length);
+        try {
+            name = decodeUTF8(name);
+        } catch (e) {
+            // bypass no-empty
+        }
 
         if (this._rfb_tightvnc) {
             if (this._sock.rQwait('TightVNC extended server init header', 8, 24 + name_length)) { return false; }
@@ -1716,7 +1721,11 @@ export default class RFB extends EventTargetMixin {
         }
 
         let name = this._sock.rQshiftStr(length);
-        name = decodeUTF8(name);
+        try {
+            name = decodeUTF8(name);
+        } catch (e) {
+            // bypass no-empty
+        }
 
         this._setDesktopName(name);
 
