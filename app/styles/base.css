@@ -790,19 +790,23 @@ select:active {
  * ----------------------------------------
  */
 
-#noVNC_password_dlg {
+#noVNC_credentials_dlg {
   position: relative;
 
   transform: translateY(-50px);
 }
-#noVNC_password_dlg.noVNC_open {
+#noVNC_credentials_dlg.noVNC_open {
   transform: translateY(0);
 }
-#noVNC_password_dlg ul {
+#noVNC_credentials_dlg ul {
   list-style: none;
   margin: 0px;
   padding: 0px;
 }
+.noVNC_hidden {
+  display: none;
+}
+
 
 /* ----------------------------------------
  * Main Area

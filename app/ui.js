@@ -316,8 +316,8 @@ const UI = {
         document.getElementById("noVNC_cancel_reconnect_button")
             .addEventListener('click', UI.cancelReconnect);
 
-        document.getElementById("noVNC_password_button")
-            .addEventListener('click', UI.setPassword);
+        document.getElementById("noVNC_credentials_button")
+            .addEventListener('click', UI.setCredentials);
     },
 
     addClipboardHandlers() {
@@ -440,7 +440,7 @@ const UI = {
         }
 
         // State change closes the password dialog
-        document.getElementById('noVNC_password_dlg')
+        document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
     },
 
@@ -1147,27 +1147,46 @@ const UI = {
 
     credentials(e) {
         // FIXME: handle more types
-        document.getElementById('noVNC_password_dlg')
+
+        document.getElementById("noVNC_username_block").classList.remove("noVNC_hidden");
+        document.getElementById("noVNC_password_block").classList.remove("noVNC_hidden");
+
+        let inputFocus = "none";
+        if (!e.detail.types.includes("username")) {
+            document.getElementById("noVNC_username_block").classList.add("noVNC_hidden");
+        } else {
+            inputFocus = inputFocus === "none" ? "noVNC_username_input" : inputFocus;
+        }
+        if (!e.detail.types.includes("password")) {
+            document.getElementById("noVNC_password_block").classList.add("noVNC_hidden");
+        } else {
+            inputFocus = inputFocus === "none" ? "noVNC_password_input" : inputFocus;
+        }
+        document.getElementById('noVNC_credentials_dlg')
             .classList.add('noVNC_open');
 
         setTimeout(() => document
-            .getElementById('noVNC_password_input').focus(), 100);
+            .getElementById(inputFocus).focus(), 100);
 
-        Log.Warn("Server asked for a password");
-        UI.showStatus(_("Password is required"), "warning");
+        Log.Warn("Server asked for credentials");
+        UI.showStatus(_("Credentials are required"), "warning");
     },
 
-    setPassword(e) {
+    setCredentials(e) {
         // Prevent actually submitting the form
         e.preventDefault();
 
-        const inputElem = document.getElementById('noVNC_password_input');
-        const password = inputElem.value;
+        let inputElemUsername = document.getElementById('noVNC_username_input');
+        const username = inputElemUsername.value;
+
+        let inputElemPassword = document.getElementById('noVNC_password_input');
+        const password = inputElemPassword.value;
         // Clear the input after reading the password
-        inputElem.value = "";
-        UI.rfb.sendCredentials({ password: password });
+        inputElemPassword.value = "";
+
+        UI.rfb.sendCredentials({ username: username, password: password });
         UI.reconnect_password = password;
-        document.getElementById('noVNC_password_dlg')
+        document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
     },
 

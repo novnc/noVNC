@@ -285,14 +285,18 @@
 
     <!-- Password Dialog -->
     <div class="noVNC_center noVNC_connect_layer">
-    <div id="noVNC_password_dlg" class="noVNC_panel"><form>
+    <div id="noVNC_credentials_dlg" class="noVNC_panel"><form>
         <ul>
-            <li>
+            <li id="noVNC_username_block">
+                <label>Username:</label>
+                <input id="noVNC_username_input">
+            </li>
+            <li id="noVNC_password_block">
                 <label>Password:</label>
                 <input id="noVNC_password_input" type="password">
             </li>
             <li>
-                <input id="noVNC_password_button" type="submit" value="Send Password" class="noVNC_submit">
+                <input id="noVNC_credentials_button" type="submit" value="Send Credentials" class="noVNC_submit">
             </li>
         </ul>
     </form></div>
