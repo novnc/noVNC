@@ -21,6 +21,7 @@ export default class Display {
         // the full frame buffer (logical canvas) size
         this._fb_width = 0;
         this._fb_height = 0;
+        this._rotate = '';
 
         this._prevDrawStyle = "";
         this._tile = null;
@@ -79,6 +80,11 @@ export default class Display {
     }
 
     // ===== PROPERTIES =====
+
+    get rotate() { return this._rotate; }
+    set rotate(rotate) {
+        this._rotate = rotate;
+    }
 
     get scale() { return this._scale; }
     set scale(scale) {
@@ -323,7 +329,32 @@ export default class Display {
             });
         } else {
             this._setFillColor(color);
-            this._drawCtx.fillRect(x, y, width, height);
+            var x0;
+            var y0;
+            var w0;
+            var h0;
+            if (this._rotate === 'right') {
+                y0 = x;
+                x0 = this._fb_width - y - 1 - height;
+                w0 = height;
+                h0 = width;
+            } else if (this._rotate === 'left') {
+                y0 = this._fb_height - x - 1 - width;
+                x0 = y;
+                w0 = height;
+                h0 = width;
+            } else if (this._rotate === 'double') {
+                x0 = this._fb_width - x - 1 - width;
+                y0 = this._fb_height - y - 1 - height;
+                w0 = width;
+                h0 = height;
+            } else {
+                x0 = x;
+                y0 = y;
+                w0 = width;
+                h0 = height;
+            }
+            this._drawCtx.fillRect(x0, y0, w0, h0);
             this._damage(x, y, width, height);
         }
     }
@@ -352,6 +383,26 @@ export default class Display {
             this._drawCtx.msImageSmoothingEnabled = false;
             this._drawCtx.imageSmoothingEnabled = false;
 
+            if (this._rotate === 'right') {
+                var a = old_x;
+                old_x = this._fb_width - old_y - 1 - h;
+                old_y = a;
+                a = new_x;
+                new_x = this._fb_width - new_y - 1;
+                new_y = a;
+            } else if (this._rotate === 'left') {
+                var a = old_y;
+                old_y = this._fb_height - old_x - 1 - w;
+                old_x = a;
+                var a = new_y;
+                new_y = this._fb_height - new_x - 1;
+                new_x = a;
+            } else if (this._rotate === 'double') {
+                old_y = this._fb_height - old_y - 1 - h;
+                old_x = this._fb_width - old_x - 1 - w;
+                new_y = this._fb_height - new_y - 1;
+                new_x = this._fb_width - new_x - 1;
+            }
             this._drawCtx.drawImage(this._backbuffer,
                                     old_x, old_y, w, h,
                                     new_x, new_y, w, h);
@@ -416,7 +467,21 @@ export default class Display {
 
     // draw the current tile to the screen
     finishTile() {
-        this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
+        var x0 = this._tile_x;
+        var y0 = this._tile_y;
+        if (this._rotate === 'right') {
+            var a = x0;
+            x0 = this._fb_width - y0 - 1;
+            y0 = a;
+        } else if (this._rotate === 'left') {
+            var a = y0;
+            y0 = this._fb_height - x0 - 1;
+            x0 = a;
+        } else if (this._rotate === 'double') {
+            y0 = this._fb_height - y0 - 1;
+            x0 = this._fb_width - x0 - 1;
+        }
+        this._drawCtx.putImageData(this._tile, x0, y0);
         this._damage(this._tile_x, this._tile_y,
                      this._tile.width, this._tile.height);
     }
@@ -482,7 +547,21 @@ export default class Display {
     }
 
     drawImage(img, x, y) {
-        this._drawCtx.drawImage(img, x, y);
+        var x0 = x;
+        var y0 = y;
+        if (this._rotate === 'right') {
+            var a = x0;
+            x0 = this._fb_width - y0 - 1;
+            y0 = a;
+        } else if (this._rotate === 'left') {
+            var a = y0;
+            y0 = this._fb_height - x0 - 1;
+            x0 = a;
+        } else if (this._rotate === 'double') {
+            y0 = this._fb_height - y0 - 1;
+            x0 = this._fb_width - x0 - 1;
+        }
+        this._drawCtx.drawImage(img, x0, y0);
         this._damage(x, y, img.width, img.height);
     }
 
@@ -552,13 +631,62 @@ export default class Display {
     _bgrxImageData(x, y, width, height, arr, offset) {
         const img = this._drawCtx.createImageData(width, height);
         const data = img.data;
-        for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
+        
+        if (this._rotate === 'right') {
+            var j = offset;
+            for(var yv = 0; yv < height; yv++) {
+                for(var xv = 0; xv < width; xv++) {
+                    var doff = ((xv * height) + (width - yv - 1)) * 4;
+                    data[doff]     = arr[j + 2];
+                    data[doff + 1] = arr[j + 1];
+                    data[doff + 2] = arr[j];
+                    data[doff + 3] = 255;  // Alpha
+                    j += 4;
+                }
+            }
+        } else if (this._rotate === 'left') {
+            var j = offset;
+            for(var yv = height - 1; yv >= 0; yv--) {
+                for(var xv = width - 1; xv >= 0; xv--) {
+                    var doff = ((xv * height) + (width - yv - 1)) * 4; //((height - xv - 1) + (width * yv)) * 4;
+                    data[doff]     = arr[j + 2];
+                    data[doff + 1] = arr[j + 1];
+                    data[doff + 2] = arr[j];
+                    data[doff + 3] = 255;  // Alpha
+                    j += 4;
+                }
+            }
+        } else if (this._rotate === 'double') {
+            var length = width * height * 4;
+            for (var i = 4, j = offset; i <= length; i += 4, j += 4) {
+                data[length - i]     = arr[j + 2];
+                data[length - i + 1] = arr[j + 1];
+                data[length - i + 2] = arr[j];
+                data[length - i + 3] = 255;  // Alpha
+            }
+        } else {
+            for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
             data[i]     = arr[j + 2];
             data[i + 1] = arr[j + 1];
             data[i + 2] = arr[j];
             data[i + 3] = 255;  // Alpha
         }
-        this._drawCtx.putImageData(img, x, y);
+        }
+        var x0 = x;
+        var y0 = y;
+        if (this._rotate === 'right') {
+            var a = x0;
+            x0 = this._fb_width - y0 - 1 - height;
+            y0 = a;
+        } else if (this._rotate === 'left') {
+            var a = y0;
+            y0 = this._fb_height - x0 - 1 - width;
+            x0 = a;
+        } else if (this._rotate === 'double') {
+            y0 = this._fb_height - y0 - 1 - height;
+            x0 = this._fb_width - x0 - 1 - width;
+        }
+        this._drawCtx.putImageData(img, x0, y0);
         this._damage(x, y, img.width, img.height);
     }
 

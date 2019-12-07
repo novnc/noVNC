@@ -65,6 +65,8 @@ export default class RFB extends EventTargetMixin {
         this._rfb_max_version = 3.8;
         this._rfb_tightvnc = false;
         this._rfb_xvp_ver = 0;
+        this._rotate = '';
+        this._scale = false;
 
         this._fb_width = 0;
         this._fb_height = 0;
@@ -275,6 +277,11 @@ export default class RFB extends EventTargetMixin {
 
     get touchButton() { return this._mouse.touchButton; }
     set touchButton(button) { this._mouse.touchButton = button; }
+
+    get rotate() { return this._rotate; }
+    set rotate(rotate) { this._rotate = rotate; }
+    get scale() { return this._scale; }
+    set scale(scale) { this._scale = scale; }
 
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
@@ -759,6 +766,7 @@ export default class RFB extends EventTargetMixin {
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
                 RFB.messages.pointerEvent(this._sock,
+                                          this._display,
                                           this._display.absX(x),
                                           this._display.absY(y),
                                           bmask);
@@ -768,7 +776,7 @@ export default class RFB extends EventTargetMixin {
         if (this._viewOnly) { return; } // View only, skip mouse events
 
         if (this._rfb_connection_state !== 'connected') { return; }
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+        RFB.messages.pointerEvent(this._sock, this._display, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
     }
 
     _handleMouseMove(x, y) {
@@ -791,7 +799,7 @@ export default class RFB extends EventTargetMixin {
         if (this._viewOnly) { return; } // View only, skip mouse events
 
         if (this._rfb_connection_state !== 'connected') { return; }
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
+        RFB.messages.pointerEvent(this._sock, this._display, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
     }
 
     // Message Handlers
@@ -1221,6 +1229,10 @@ export default class RFB extends EventTargetMixin {
         // we're past the point where we could backtrack, so it's safe to call this
         this._setDesktopName(name);
         this._resize(width, height);
+        this._display.rotate(this._rotate);
+        if (this._scale) {
+            this._display.scale(1.0);
+        }
 
         if (!this._viewOnly) { this._keyboard.grab(); }
         if (!this._viewOnly) { this._mouse.grab(); }
@@ -1944,9 +1956,28 @@ RFB.messages = {
         sock.flush();
     },
 
-    pointerEvent(sock, x, y, mask) {
+    pointerEvent(sock, disp, x, y, mask) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
+        x = x / disp._scale;
+        y = y / disp._scale;
+        switch(disp._rotate) {
+            case 'right':
+                var a = x;
+                x = y;
+                y = disp._fb_width - a - 1;
+                break;
+            case 'left':
+                var a = x;
+                x = disp._fb_height - y - 1;
+                y = a;
+                break;
+            case 'double':
+                x = disp._fb_width - x - 1;
+                y = disp._fb_height - y - 1;
+                break;
+            default:
+        }
 
         buff[offset] = 5; // msg-type
 
