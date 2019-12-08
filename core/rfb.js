@@ -1229,7 +1229,7 @@ export default class RFB extends EventTargetMixin {
         // we're past the point where we could backtrack, so it's safe to call this
         this._setDesktopName(name);
         this._resize(width, height);
-        this._display.rotate(this._rotate);
+        this._display.rotate = this._rotate;
         if (this._scale) {
             this._display.scale(1.0);
         }
