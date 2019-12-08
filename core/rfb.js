@@ -1231,7 +1231,7 @@ export default class RFB extends EventTargetMixin {
         this._resize(width, height);
         this._display.rotate = this._rotate;
         if (this._scale) {
-            this._display.scale(1.0);
+            this._display.scale = 1.0;
         }
 
         if (!this._viewOnly) { this._keyboard.grab(); }
