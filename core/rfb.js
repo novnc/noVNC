@@ -1164,12 +1164,13 @@ export default class RFB extends EventTargetMixin {
         if (this._sock.rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
+        let height, width;
         if (this._rotate === 'right' || this._rotate === 'left') {
-            this._fb_height = this._sock.rQshift16();
-            this._fb_width  = this._sock.rQshift16();
+            height = this._sock.rQshift16();
+            width  = this._sock.rQshift16();
         } else {
-            this._fb_width  = this._sock.rQshift16();
-            this._fb_height = this._sock.rQshift16();
+            width  = this._sock.rQshift16();
+            height = this._sock.rQshift16();
         }
 
         /* PIXEL_FORMAT */
