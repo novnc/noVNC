@@ -355,7 +355,7 @@ export default class Display {
                 h0 = height;
             }
             this._drawCtx.fillRect(x0, y0, w0, h0);
-            this._damage(x, y, width, height);
+            this._damage(x0, y0, w0, h0);
         }
     }
 
@@ -482,7 +482,7 @@ export default class Display {
             x0 = this._fb_width - x0 - 1;
         }
         this._drawCtx.putImageData(this._tile, x0, y0);
-        this._damage(this._tile_x, this._tile_y,
+        this._damage(x0, y0,
                      this._tile.width, this._tile.height);
     }
 
@@ -562,7 +562,7 @@ export default class Display {
             x0 = this._fb_width - x0 - 1;
         }
         this._drawCtx.drawImage(img, x0, y0);
-        this._damage(x, y, img.width, img.height);
+        this._damage(x0, y0, img.width, img.height);
     }
 
     autoscale(containerWidth, containerHeight) {
@@ -666,11 +666,11 @@ export default class Display {
             }
         } else {
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
-            data[i]     = arr[j + 2];
-            data[i + 1] = arr[j + 1];
-            data[i + 2] = arr[j];
-            data[i + 3] = 255;  // Alpha
-        }
+                data[i]     = arr[j + 2];
+                data[i + 1] = arr[j + 1];
+                data[i + 2] = arr[j];
+                data[i + 3] = 255;  // Alpha
+            }
         }
         var x0 = x;
         var y0 = y;
@@ -687,7 +687,7 @@ export default class Display {
             x0 = this._fb_width - x0 - 1 - width;
         }
         this._drawCtx.putImageData(img, x0, y0);
-        this._damage(x, y, img.width, img.height);
+        this._damage(x0, y0, img.width, img.height);
     }
 
     _rgbxImageData(x, y, width, height, arr, offset) {
