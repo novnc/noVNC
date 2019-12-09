@@ -1965,8 +1965,6 @@ RFB.messages = {
     pointerEvent(sock, disp, x, y, mask) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
-        x = x / disp._scale;
-        y = y / disp._scale;
         switch(disp._rotate) {
             case 'right':
                 var a = x;
