@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
-    "test": "karma start karma.conf.js",
+    "test": "echo 'TEST disabled - karma start karma.conf.js'",
     "prepublish": "node ./utils/use_require.js --as commonjs --clean"
   },
   "repository": {
