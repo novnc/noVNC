@@ -467,8 +467,8 @@ export default class Display {
 
     // draw the current tile to the screen
     finishTile() {
-        var x0 = this._tile_x;
-        var y0 = this._tile_y;
+        var x0 = this._tile_x - this._viewportLoc.x;
+        var y0 = this._tile_y - this._viewportLoc.y;
         if (this._rotate === 'right') {
             var a = x0;
             x0 = this._fb_width - y0 - 1;
