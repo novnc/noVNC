@@ -6,6 +6,7 @@
  * See README.md for usage and integration instructions.
  */
 
+
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 import { supportsImageMetadata } from './util/browser.js';
