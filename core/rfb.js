@@ -44,6 +44,8 @@ export default class RFB extends EventTargetMixin {
 
         super();
 
+        Log.init_logging('info');
+
         this._target = target;
         this._url = url;
 
