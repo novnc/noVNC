@@ -56,7 +56,6 @@ export default class Display {
         this._backbuffer = document.createElement('canvas');
         this._drawCtx = this._backbuffer.getContext('2d');
 
-
         if (this._rotate === 'left' || this._rotate === 'right') {
             this._damageBounds = {
                 left: 0, top: 0,
@@ -307,9 +306,9 @@ export default class Display {
                 // FIXME: We may need to disable image smoothing here
                 //        as well (see copyImage()), but we haven't
                 //        noticed any problem yet.
-                this._targetCtx.drawImage(this._backbuffer,
-                    x, y, w, h,
-                    vx, vy, w, h);
+                // this._targetCtx.drawImage(this._backbuffer,
+                //     x, y, w, h,
+                //     vx, vy, w, h);
             }
 
             this._damageBounds.left = this._damageBounds.top = 65535;
@@ -737,7 +736,7 @@ export default class Display {
             const a = this._renderQ[0];
             switch (a.type) {
                 case 'flip':
-                    //this.flip(true);
+                    this.flip(true);
                     break;
                 case 'copy':
                     this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
