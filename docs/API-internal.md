@@ -11,8 +11,10 @@ official external API.
 
 ## 1.1 Module List
 
-* __Mouse__ (core/input/mouse.js): Mouse input event handler with
-limited touch support.
+* __Mouse__ (core/input/mouse.js): Mouse input event handler.
+
+* __Touch__ (core/input/touch.js): Touch input event handler that converts
+touch events to mouse events.
 
 * __Keyboard__ (core/input/keyboard.js): Keyboard input event handler with
 non-US keyboard support. Translates keyDown and keyUp events to X11
@@ -39,9 +41,7 @@ callback event name, and the callback function.
 
 ### 2.1.1 Configuration Attributes
 
-| name        | type | mode | default  | description
-| ----------- | ---- | ---- | -------- | ------------
-| touchButton | int  | RW   | 1        | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
+None
 
 ### 2.1.2 Methods
 
@@ -58,29 +58,52 @@ callback event name, and the callback function.
 | onmousemove   | (x, y)              | Handler for mouse movement
 
 
-## 2.2 Keyboard Module
+## 2.2 Touch Module
 
 ### 2.2.1 Configuration Attributes
 
-None
+| name        | type | mode | default  | description
+| ----------- | ---- | ---- | -------- | ------------
+| touchButton | int  | RW   | 1        | Button mask (1, 2, 4) for which click to send on touch devices. 0 means ignore clicks.
 
 ### 2.2.2 Methods
+
+| name   | parameters | description
+| ------ | ---------- | ------------
+| grab   | ()         | Begin capturing touch events
+| ungrab | ()         | Stop capturing touch events
+
+### 2.2.2 Callbacks
+
+| name          | parameters          | description
+| ------------- | ------------------- | ------------
+| ontouch       | (x, y, down, bmask) | Handler for touch event (as button click/release)
+| ontouchmove   | (x, y)              | Handler for touch movement
+
+
+## 2.3 Keyboard Module
+
+### 2.3.1 Configuration Attributes
+
+None
+
+### 2.3.2 Methods
 
 | name   | parameters | description
 | ------ | ---------- | ------------
 | grab   | ()         | Begin capturing keyboard events
 | ungrab | ()         | Stop capturing keyboard events
 
-### 2.2.3 Callbacks
+### 2.3.4 Callbacks
 
 | name       | parameters           | description
 | ---------- | -------------------- | ------------
 | onkeypress | (keysym, code, down) | Handler for key press/release
 
 
-## 2.3 Display Module
+## 2.4 Display Module
 
-### 2.3.1 Configuration Attributes
+### 2.4.1 Configuration Attributes
 
 | name         | type  | mode | default | description
 | ------------ | ----- | ---- | ------- | ------------
@@ -89,7 +112,7 @@ None
 | width        | int   | RO   |         | Display area width
 | height       | int   | RO   |         | Display area height
 
-### 2.3.2 Methods
+### 2.4.2 Methods
 
 | name               | parameters                                              | description
 | ------------------ | ------------------------------------------------------- | ------------
@@ -113,7 +136,7 @@ None
 | drawImage          | (img, x, y)                                             | Draw image and track damage
 | autoscale          | (containerWidth, containerHeight)                       | Scale the display
 
-### 2.3.3 Callbacks
+### 2.4.3 Callbacks
 
 | name    | parameters | description
 | ------- | ---------- | ------------

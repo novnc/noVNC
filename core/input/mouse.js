@@ -5,8 +5,7 @@
  */
 
 import * as Log from '../util/logging.js';
-import { isTouchDevice } from '../util/browser.js';
-import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
+import { setCapture, stopEvent } from '../util/events.js';
 
 const WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
 const WHEEL_STEP_TIMEOUT = 50; // ms
@@ -17,10 +16,6 @@ export default class Mouse {
     constructor(target) {
         this._target = target || document;
 
-        this._doubleClickTimer = null;
-        this._lastTouchPos = null;
-
-        this._pos = null;
         this._wheelStepXTimer = null;
         this._wheelStepYTimer = null;
         this._oldMouseMoveTime = 0;
@@ -35,11 +30,6 @@ export default class Mouse {
             'mousedisable': this._handleMouseDisable.bind(this)
         };
 
-        // ===== PROPERTIES =====
-
-        this.touchButton = 1; // Button mask (1, 2, 4) for touch devices
-                              // (0 means ignore clicks)
-
         // ===== EVENT HANDLERS =====
 
         this.onmousebutton = () => {}; // Handler for mouse button press/release
@@ -48,48 +38,11 @@ export default class Mouse {
 
     // ===== PRIVATE METHODS =====
 
-    _resetDoubleClickTimer() {
-        this._doubleClickTimer = null;
-    }
-
     _handleMouseButton(e, down) {
-        this._updateMousePosition(e);
-        let pos = this._pos;
+        const position = this._getMousePosition(e);
 
         let bmask;
-        if (e.touches || e.changedTouches) {
-            // Touch device
-
-            // When two touches occur within 500 ms of each other and are
-            // close enough together a double click is triggered.
-            if (down == 1) {
-                if (this._doubleClickTimer === null) {
-                    this._lastTouchPos = pos;
-                } else {
-                    clearTimeout(this._doubleClickTimer);
-
-                    // When the distance between the two touches is small enough
-                    // force the position of the latter touch to the position of
-                    // the first.
-
-                    const xs = this._lastTouchPos.x - pos.x;
-                    const ys = this._lastTouchPos.y - pos.y;
-                    const d = Math.sqrt((xs * xs) + (ys * ys));
-
-                    // The goal is to trigger on a certain physical width,
-                    // the devicePixelRatio brings us a bit closer but is
-                    // not optimal.
-                    const threshold = 20 * (window.devicePixelRatio || 1);
-                    if (d < threshold) {
-                        pos = this._lastTouchPos;
-                    }
-                }
-                this._doubleClickTimer =
-                    setTimeout(this._resetDoubleClickTimer.bind(this), 500);
-            }
-            bmask = this.touchButton;
-            // If bmask is set
-        } else if (e.which) {
+        if (e.which) {
             /* everything except IE */
             bmask = 1 << e.button;
         } else {
@@ -100,18 +53,14 @@ export default class Mouse {
         }
 
         Log.Debug("onmousebutton " + (down ? "down" : "up") +
-                  ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
-        this.onmousebutton(pos.x, pos.y, down, bmask);
+                  ", x: " + position.x + ", y: " + position.y + ", bmask: " + bmask);
+        this.onmousebutton(position.x, position.y, down, bmask);
 
         stopEvent(e);
     }
 
     _handleMouseDown(e) {
-        // Touch events have implicit capture
-        if (e.type === "mousedown") {
-            setCapture(this._target);
-        }
-
+        setCapture(this._target);
         this._handleMouseButton(e, 1);
     }
 
@@ -122,27 +71,25 @@ export default class Mouse {
     // Mouse wheel events are sent in steps over VNC. This means that the VNC
     // protocol can't handle a wheel event with specific distance or speed.
     // Therefor, if we get a lot of small mouse wheel events we combine them.
-    _generateWheelStepX() {
-
+    _generateWheelStepX(position) {
         if (this._accumulatedWheelDeltaX < 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 5);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 5);
+            this.onmousebutton(position.x, position.y, 1, 1 << 5);
+            this.onmousebutton(position.x, position.y, 0, 1 << 5);
         } else if (this._accumulatedWheelDeltaX > 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 6);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 6);
+            this.onmousebutton(position.x, position.y, 1, 1 << 6);
+            this.onmousebutton(position.x, position.y, 0, 1 << 6);
         }
 
         this._accumulatedWheelDeltaX = 0;
     }
 
-    _generateWheelStepY() {
-
+    _generateWheelStepY(position) {
         if (this._accumulatedWheelDeltaY < 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 3);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 3);
+            this.onmousebutton(position.x, position.y, 1, 1 << 3);
+            this.onmousebutton(position.x, position.y, 0, 1 << 3);
         } else if (this._accumulatedWheelDeltaY > 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 4);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 4);
+            this.onmousebutton(position.x, position.y, 1, 1 << 4);
+            this.onmousebutton(position.x, position.y, 0, 1 << 4);
         }
 
         this._accumulatedWheelDeltaY = 0;
@@ -158,7 +105,7 @@ export default class Mouse {
     _handleMouseWheel(e) {
         this._resetWheelStepTimers();
 
-        this._updateMousePosition(e);
+        const position = this._getMousePosition(e);
 
         let dX = e.deltaX;
         let dY = e.deltaY;
@@ -181,17 +128,17 @@ export default class Mouse {
         // Small delta events that do not pass the threshold get sent
         // after a timeout.
         if (Math.abs(this._accumulatedWheelDeltaX) > WHEEL_STEP) {
-            this._generateWheelStepX();
+            this._generateWheelStepX(position);
         } else {
             this._wheelStepXTimer =
-                window.setTimeout(this._generateWheelStepX.bind(this),
+                window.setTimeout(() => this._generateWheelStepX(position),
                                   WHEEL_STEP_TIMEOUT);
         }
         if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
-            this._generateWheelStepY();
+            this._generateWheelStepY(position);
         } else {
             this._wheelStepYTimer =
-                window.setTimeout(this._generateWheelStepY.bind(this),
+                window.setTimeout(() => this._generateWheelStepY(position),
                                   WHEEL_STEP_TIMEOUT);
         }
 
@@ -199,7 +146,7 @@ export default class Mouse {
     }
 
     _handleMouseMove(e) {
-        this._updateMousePosition(e);
+        const position = this._getMousePosition(e);
 
         // Limit mouse move events to one every MOUSE_MOVE_DELAY ms
         clearTimeout(this.mouseMoveTimer);
@@ -207,9 +154,9 @@ export default class Mouse {
         if (newMouseMoveTime < this._oldMouseMoveTime + MOUSE_MOVE_DELAY) {
             this.mouseMoveTimer = setTimeout(this.onmousemove.bind(this),
                                              MOUSE_MOVE_DELAY,
-                                             this._pos.x, this._pos.y);
+                                             position.x, position.y);
         } else {
-            this.onmousemove(this._pos.x, this._pos.y);
+            this.onmousemove(position.x, position.y);
         }
         this._oldMouseMoveTime = newMouseMoveTime;
 
@@ -228,9 +175,8 @@ export default class Mouse {
         }
     }
 
-    // Update coordinates relative to target
-    _updateMousePosition(e) {
-        e = getPointerEvent(e);
+    // Get coordinates relative to target
+    _getMousePosition(e) {
         const bounds = this._target.getBoundingClientRect();
         let x;
         let y;
@@ -249,18 +195,13 @@ export default class Mouse {
         } else {
             y = e.clientY - bounds.top;
         }
-        this._pos = {x: x, y: y};
+        return { x, y };
     }
 
     // ===== PUBLIC METHODS =====
 
     grab() {
         const t = this._target;
-        if (isTouchDevice) {
-            t.addEventListener('touchstart', this._eventHandlers.mousedown);
-            t.addEventListener('touchend', this._eventHandlers.mouseup);
-            t.addEventListener('touchmove', this._eventHandlers.mousemove);
-        }
         t.addEventListener('mousedown', this._eventHandlers.mousedown);
         t.addEventListener('mouseup', this._eventHandlers.mouseup);
         t.addEventListener('mousemove', this._eventHandlers.mousemove);
@@ -279,11 +220,6 @@ export default class Mouse {
 
         this._resetWheelStepTimers();
 
-        if (isTouchDevice) {
-            t.removeEventListener('touchstart', this._eventHandlers.mousedown);
-            t.removeEventListener('touchend', this._eventHandlers.mouseup);
-            t.removeEventListener('touchmove', this._eventHandlers.mousemove);
-        }
         t.removeEventListener('mousedown', this._eventHandlers.mousedown);
         t.removeEventListener('mouseup', this._eventHandlers.mouseup);
         t.removeEventListener('mousemove', this._eventHandlers.mousemove);

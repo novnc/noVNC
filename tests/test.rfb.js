@@ -495,28 +495,28 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should not send button messages when initiating viewport dragging', function () {
-                client._handleMouseButton(13, 9, 0x001);
+                client._handlePointerPress(13, 9, 0x001);
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
 
             it('should send button messages when release without movement', function () {
                 // Just up and down
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseButton(13, 9, 0x000);
+                client._handlePointerPress(13, 9, 0x001);
+                client._handlePointerPress(13, 9, 0x000);
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
 
                 RFB.messages.pointerEvent.resetHistory();
 
                 // Small movement
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(15, 14);
-                client._handleMouseButton(15, 14, 0x000);
+                client._handlePointerPress(13, 9, 0x001);
+                client._handlePointerMove(15, 14);
+                client._handlePointerPress(15, 14, 0x000);
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
             });
 
             it('should send button message directly when drag is disabled', function () {
                 client.dragViewport = false;
-                client._handleMouseButton(13, 9, 0x001);
+                client._handlePointerPress(13, 9, 0x001);
                 expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
             });
 
@@ -525,15 +525,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 // Too small movement
 
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(18, 9);
+                client._handlePointerPress(13, 9, 0x001);
+                client._handlePointerMove(18, 9);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.not.have.been.called;
 
                 // Sufficient movement
 
-                client._handleMouseMove(43, 9);
+                client._handlePointerMove(43, 9);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
@@ -543,7 +543,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 // Now a small movement should move right away
 
-                client._handleMouseMove(43, 14);
+                client._handlePointerMove(43, 14);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
@@ -553,9 +553,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should not send button messages when dragging ends', function () {
                 // First the movement
 
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(43, 9);
-                client._handleMouseButton(43, 9, 0x000);
+                client._handlePointerPress(13, 9, 0x001);
+                client._handlePointerMove(43, 9);
+                client._handlePointerPress(43, 9, 0x000);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
@@ -563,15 +563,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should terminate viewport dragging on a button up event', function () {
                 // First the dragging movement
 
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(43, 9);
-                client._handleMouseButton(43, 9, 0x000);
+                client._handlePointerPress(13, 9, 0x001);
+                client._handlePointerMove(43, 9);
+                client._handlePointerPress(43, 9, 0x000);
 
                 // Another movement now should not move the viewport
 
                 sinon.spy(client._display, "viewportChangePos");
 
-                client._handleMouseMove(43, 59);
+                client._handlePointerMove(43, 59);
 
                 expect(client._display.viewportChangePos).to.not.have.been.called;
             });
@@ -2727,26 +2727,26 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should not send button messages in view-only mode', function () {
                 client._viewOnly = true;
                 sinon.spy(client._sock, 'flush');
-                client._handleMouseButton(0, 0, 1, 0x001);
+                client._handlePointerPress(0, 0, 1, 0x001);
                 expect(client._sock.flush).to.not.have.been.called;
             });
 
             it('should not send movement messages in view-only mode', function () {
                 client._viewOnly = true;
                 sinon.spy(client._sock, 'flush');
-                client._handleMouseMove(0, 0);
+                client._handlePointerMove(0, 0);
                 expect(client._sock.flush).to.not.have.been.called;
             });
 
             it('should send a pointer event on mouse button presses', function () {
-                client._handleMouseButton(10, 12, 1, 0x001);
+                client._handlePointerPress(10, 12, 1, 0x001);
                 const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
             it('should send a mask of 1 on mousedown', function () {
-                client._handleMouseButton(10, 12, 1, 0x001);
+                client._handlePointerPress(10, 12, 1, 0x001);
                 const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
@@ -2754,22 +2754,22 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             it('should send a mask of 0 on mouseup', function () {
                 client._mouse_buttonMask = 0x001;
-                client._handleMouseButton(10, 12, 0, 0x001);
+                client._handlePointerPress(10, 12, 0, 0x001);
                 const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x000);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
             it('should send a pointer event on mouse movement', function () {
-                client._handleMouseMove(10, 12);
+                client._handlePointerMove(10, 12);
                 const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x000);
                 expect(client._sock).to.have.sent(pointer_msg._sQ);
             });
 
             it('should set the button mask so that future mouse movements use it', function () {
-                client._handleMouseButton(10, 12, 1, 0x010);
-                client._handleMouseMove(13, 9);
+                client._handlePointerPress(10, 12, 1, 0x010);
+                client._handlePointerMove(13, 9);
                 const pointer_msg = {_sQ: new Uint8Array(12), _sQlen: 0, flush: () => {}};
                 RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x010);
                 RFB.messages.pointerEvent(pointer_msg, 13, 9, 0x010);

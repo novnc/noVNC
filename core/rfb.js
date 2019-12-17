@@ -10,13 +10,14 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
-import { dragThreshold } from './util/browser.js';
+import { dragThreshold, isTouchDevice } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
+import Touch from "./input/touch.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
 import DES from "./des.js";
@@ -115,6 +116,7 @@ export default class RFB extends EventTargetMixin {
         this._flushing = false;         // Display flushing state
         this._keyboard = null;          // Keyboard input handler object
         this._mouse = null;             // Mouse input handler object
+        this._touch = null;             // Touch input handler object
 
         // Timers
         this._disconnTimer = null;      // disconnection timer
@@ -202,8 +204,14 @@ export default class RFB extends EventTargetMixin {
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
 
         this._mouse = new Mouse(this._canvas);
-        this._mouse.onmousebutton = this._handleMouseButton.bind(this);
-        this._mouse.onmousemove = this._handleMouseMove.bind(this);
+        this._mouse.onmousebutton = this._handlePointerPress.bind(this);
+        this._mouse.onmousemove = this._handlePointerMove.bind(this);
+
+        if (isTouchDevice) {
+            this._touch = new Touch(this._canvas);
+            this._touch.ontouch = this._handlePointerPress.bind(this);
+            this._touch.ontouchmove = this._handlePointerMove.bind(this);
+        }
 
         this._sock = new Websock();
         this._sock.on('message', () => {
@@ -292,17 +300,19 @@ export default class RFB extends EventTargetMixin {
             if (viewOnly) {
                 this._keyboard.ungrab();
                 this._mouse.ungrab();
+                if (this._touch) { this._touch.ungrab(); }
             } else {
                 this._keyboard.grab();
                 this._mouse.grab();
+                if (this._touch) { this._touch.grab(); }
             }
         }
     }
 
     get capabilities() { return this._capabilities; }
 
-    get touchButton() { return this._mouse.touchButton; }
-    set touchButton(button) { this._mouse.touchButton = button; }
+    get touchButton() { return this._touch.touchButton; }
+    set touchButton(button) { this._touch.touchButton = button; }
 
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
@@ -813,7 +823,7 @@ export default class RFB extends EventTargetMixin {
         this.sendKey(keysym, code, down);
     }
 
-    _handleMouseButton(x, y, down, bmask) {
+    _handlePointerPress(x, y, down, bmask) {
         if (down) {
             this._mouse_buttonMask |= bmask;
         } else {
@@ -853,7 +863,7 @@ export default class RFB extends EventTargetMixin {
         RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
     }
 
-    _handleMouseMove(x, y) {
+    _handlePointerMove(x, y) {
         if (this._viewportDragging) {
             const deltaX = this._viewportDragPos.x - x;
             const deltaY = this._viewportDragPos.y - y;
