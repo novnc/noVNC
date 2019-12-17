@@ -306,9 +306,9 @@ export default class Display {
                 // FIXME: We may need to disable image smoothing here
                 //        as well (see copyImage()), but we haven't
                 //        noticed any problem yet.
-                // this._targetCtx.drawImage(this._backbuffer,
-                //     x, y, w, h,
-                //     vx, vy, w, h);
+                this._targetCtx.drawImage(this._backbuffer,
+                    x, y, w, h,
+                    vx, vy, w, h);
             }
 
             this._damageBounds.left = this._damageBounds.top = 65535;
@@ -734,6 +734,7 @@ export default class Display {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
             const a = this._renderQ[0];
+            console.log(a);
             switch (a.type) {
                 case 'flip':
                     this.flip(true);
