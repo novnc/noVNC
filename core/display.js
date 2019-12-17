@@ -56,9 +56,20 @@ export default class Display {
         this._backbuffer = document.createElement('canvas');
         this._drawCtx = this._backbuffer.getContext('2d');
 
-        this._damageBounds = { left: 0, top: 0,
-                               right: this._backbuffer.width,
-                               bottom: this._backbuffer.height };
+
+        if (this._rotate === 'left' || this._rotate === 'right') {
+            this._damageBounds = {
+                left: 0, top: 0,
+                right: this._backbuffer.height,
+                bottom: this._backbuffer.width
+            };
+        } else {
+            this._damageBounds = {
+                left: 0, top: 0,
+                right: this._backbuffer.width,
+                bottom: this._backbuffer.height
+            };
+        }
 
         Log.Debug("User Agent: " + navigator.userAgent);
 
@@ -77,7 +88,7 @@ export default class Display {
 
         // ===== EVENT HANDLERS =====
 
-        this.onflush = () => {}; // A flush request has finished
+        this.onflush = () => { }; // A flush request has finished
     }
 
     // ===== PROPERTIES =====
@@ -156,8 +167,8 @@ export default class Display {
     viewportChangeSize(width, height) {
 
         if (!this._clipViewport ||
-            typeof(width) === "undefined" ||
-            typeof(height) === "undefined") {
+            typeof (width) === "undefined" ||
+            typeof (height) === "undefined") {
 
             Log.Debug("Setting viewport to full display region");
             width = this._fb_width;
@@ -297,8 +308,8 @@ export default class Display {
                 //        as well (see copyImage()), but we haven't
                 //        noticed any problem yet.
                 this._targetCtx.drawImage(this._backbuffer,
-                                          x, y, w, h,
-                                          vx, vy, w, h);
+                    x, y, w, h,
+                    vx, vy, w, h);
             }
 
             this._damageBounds.left = this._damageBounds.top = 65535;
@@ -405,8 +416,8 @@ export default class Display {
                 new_x = this._fb_width - new_x - 1;
             }
             this._drawCtx.drawImage(this._backbuffer,
-                                    old_x, old_y, w, h,
-                                    new_x, new_y, w, h);
+                old_x, old_y, w, h,
+                new_x, new_y, w, h);
             this._damage(new_x, new_y, w, h);
         }
     }
@@ -468,8 +479,8 @@ export default class Display {
 
     // draw the current tile to the screen
     finishTile() {
-        var x0 = this._tile_x - this._viewportLoc.x;
-        var y0 = this._tile_y - this._viewportLoc.y;
+        var x0 = this._tile_x;
+        var y0 = this._tile_y;
         if (this._rotate === 'right') {
             var a = x0;
             x0 = this._fb_width - y0 - 1;
@@ -484,7 +495,7 @@ export default class Display {
         }
         this._drawCtx.putImageData(this._tile, x0, y0);
         this._damage(x0, y0,
-                     this._tile.width, this._tile.height);
+            this._tile.width, this._tile.height);
     }
 
     blitImage(x, y, width, height, arr, offset, from_queue) {
@@ -620,7 +631,7 @@ export default class Display {
         const img = this._drawCtx.createImageData(width, height);
         const data = img.data;
         for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
-            data[i]     = arr[j];
+            data[i] = arr[j];
             data[i + 1] = arr[j + 1];
             data[i + 2] = arr[j + 2];
             data[i + 3] = 255;  // Alpha
@@ -632,13 +643,13 @@ export default class Display {
     _bgrxImageData(x, y, width, height, arr, offset) {
         const img = this._drawCtx.createImageData(width, height);
         const data = img.data;
-        
+
         if (this._rotate === 'right') {
             var j = offset;
-            for(var yv = 0; yv < height; yv++) {
-                for(var xv = 0; xv < width; xv++) {
+            for (var yv = 0; yv < height; yv++) {
+                for (var xv = 0; xv < width; xv++) {
                     var doff = ((xv * height) + (width - yv - 1)) * 4;
-                    data[doff]     = arr[j + 2];
+                    data[doff] = arr[j + 2];
                     data[doff + 1] = arr[j + 1];
                     data[doff + 2] = arr[j];
                     data[doff + 3] = 255;  // Alpha
@@ -647,10 +658,10 @@ export default class Display {
             }
         } else if (this._rotate === 'left') {
             var j = offset;
-            for(var yv = height - 1; yv >= 0; yv--) {
-                for(var xv = width - 1; xv >= 0; xv--) {
+            for (var yv = height - 1; yv >= 0; yv--) {
+                for (var xv = width - 1; xv >= 0; xv--) {
                     var doff = ((xv * height) + (width - yv - 1)) * 4; //((height - xv - 1) + (width * yv)) * 4;
-                    data[doff]     = arr[j + 2];
+                    data[doff] = arr[j + 2];
                     data[doff + 1] = arr[j + 1];
                     data[doff + 2] = arr[j];
                     data[doff + 3] = 255;  // Alpha
@@ -660,14 +671,14 @@ export default class Display {
         } else if (this._rotate === 'double') {
             var length = width * height * 4;
             for (var i = 4, j = offset; i <= length; i += 4, j += 4) {
-                data[length - i]     = arr[j + 2];
+                data[length - i] = arr[j + 2];
                 data[length - i + 1] = arr[j + 1];
                 data[length - i + 2] = arr[j];
                 data[length - i + 3] = 255;  // Alpha
             }
         } else {
             for (var i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
-                data[i]     = arr[j + 2];
+                data[i] = arr[j + 2];
                 data[i + 1] = arr[j + 1];
                 data[i + 2] = arr[j];
                 data[i + 3] = 255;  // Alpha
