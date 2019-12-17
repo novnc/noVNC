@@ -737,7 +737,7 @@ export default class Display {
             const a = this._renderQ[0];
             switch (a.type) {
                 case 'flip':
-                    this.flip(true);
+                    //this.flip(true);
                     break;
                 case 'copy':
                     this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
