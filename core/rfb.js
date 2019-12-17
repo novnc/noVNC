@@ -44,8 +44,6 @@ export default class RFB extends EventTargetMixin {
 
         super();
 
-        Log.init_logging('info');
-
         this._target = target;
         this._url = url;
 
@@ -284,6 +282,8 @@ export default class RFB extends EventTargetMixin {
     set rotate(rotate) { this._rotate = rotate; }
     get scale() { return this._scale; }
     set scale(scale) { this._scale = scale; }
+    set logLevel(level) { Log.init_logging(level); }
+    get logLevel() { return Log.get_logging; }
 
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
