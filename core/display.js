@@ -734,7 +734,7 @@ export default class Display {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
             const a = this._renderQ[0];
-            console.log(a);
+            Log.Debug(a);
             switch (a.type) {
                 case 'flip':
                     this.flip(true);
