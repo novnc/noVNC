@@ -776,6 +776,10 @@ export default class RFB extends EventTargetMixin {
             const deltaX = this._viewportDragPos.x - x;
             const deltaY = this._viewportDragPos.y - y;
 
+            if( typeof _handleMouseMove.timestamp == 'undefined' ) {
+              _handleMouseMove.oldtimestamp = Date.now();
+            }
+            
             if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
                                            Math.abs(deltaY) > dragThreshold)) {
                 this._viewportHasMoved = true;
@@ -789,6 +793,10 @@ export default class RFB extends EventTargetMixin {
         }
 
         if (this._viewOnly) { return; } // View only, skip mouse events
+
+        this.timestamp = Date.now();
+        if(this.timestamp < this.oldtimestamp + 100) { return; }
+        this.oldtimestamp = this.timestamp;
 
         if (this._rfb_connection_state !== 'connected') { return; }
         RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouse_buttonMask);
