@@ -103,7 +103,7 @@ None
 | flush              | ()                                                      | Resume processing the render queue unless it's empty
 | fillRect           | (x, y, width, height, color, from_queue)                | Draw a filled in rectangle
 | copyImage          | (old_x, old_y, new_x, new_y, width, height, from_queue) | Copy a rectangular area
-| imageRect          | (x, y, mime, arr)                                       | Draw a rectangle with an image
+| imageRect          | (x, y, width, height, mime, arr)                        | Draw a rectangle with an image
 | startTile          | (x, y, width, height, color)                            | Begin updating a tile
 | subTile            | (tile, x, y, w, h, color)                               | Update a sub-rectangle within the given tile
 | finishTile         | ()                                                      | Draw the current tile to the display

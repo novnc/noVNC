@@ -92,7 +92,7 @@ export default class TightDecoder {
             return false;
         }
 
-        display.imageRect(x, y, "image/jpeg", data);
+        display.imageRect(x, y, width, height, "image/jpeg", data);
 
         return true;
     }

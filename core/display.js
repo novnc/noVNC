@@ -359,14 +359,16 @@ export default class Display {
         }
     }
 
-    imageRect(x, y, mime, arr) {
+    imageRect(x, y, width, height, mime, arr) {
         const img = new Image();
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
         this._renderQ_push({
             'type': 'img',
             'img': img,
             'x': x,
-            'y': y
+            'y': y,
+            'width': width,
+            'height': height
         });
     }
 
@@ -616,6 +618,12 @@ export default class Display {
                     break;
                 case 'img':
                     if (a.img.complete) {
+                        if (a.img.width !== a.width || a.img.height !== a.height) {
+                            Log.Error("Decoded image has incorrect dimensions. Got " +
+                                      a.img.width + "x" + a.img.height + ". Expected " +
+                                      a.width + "x" + a.height + ".");
+                            return;
+                        }
                         this.drawImage(a.img, a.x, a.y);
                     } else {
                         a.img._noVNC_display = this;
