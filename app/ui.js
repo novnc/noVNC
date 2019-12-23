@@ -1152,12 +1152,12 @@ const UI = {
         document.getElementById("noVNC_password_block").classList.remove("noVNC_hidden");
 
         let inputFocus = "none";
-        if (!e.detail.types.includes("username")) {
+        if (e.detail.types.indexOf("username") === -1) {
             document.getElementById("noVNC_username_block").classList.add("noVNC_hidden");
         } else {
             inputFocus = inputFocus === "none" ? "noVNC_username_input" : inputFocus;
         }
-        if (!e.detail.types.includes("password")) {
+        if (e.detail.types.indexOf("password") === -1) {
             document.getElementById("noVNC_password_block").classList.add("noVNC_hidden");
         } else {
             inputFocus = inputFocus === "none" ? "noVNC_password_input" : inputFocus;
