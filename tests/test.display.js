@@ -300,7 +300,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should support drawing images via #imageRect', function (done) {
-            display.imageRect(0, 0, "image/png", make_image_png(checked_data));
+            display.imageRect(0, 0, 4, 4, "image/png", make_image_png(checked_data));
             display.flip();
             display.onflush = () => {
                 expect(display).to.have.displayed(checked_data);
@@ -401,8 +401,8 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should wait until an image is loaded to attempt to draw it and the rest of the queue', function () {
-            const img = { complete: false, addEventListener: sinon.spy() };
-            display._renderQ = [{ type: 'img', x: 3, y: 4, img: img },
+            const img = { complete: false, width: 4, height: 4, addEventListener: sinon.spy() };
+            display._renderQ = [{ type: 'img', x: 3, y: 4, width: 4, height: 4, img: img },
                                 { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
             display.drawImage = sinon.spy();
             display.fillRect = sinon.spy();
@@ -413,6 +413,27 @@ describe('Display/Canvas Helper', function () {
             expect(img.addEventListener).to.have.been.calledOnce;
 
             display._renderQ[0].img.complete = true;
+            display._scan_renderQ();
+            expect(display.drawImage).to.have.been.calledOnce;
+            expect(display.fillRect).to.have.been.calledOnce;
+            expect(img.addEventListener).to.have.been.calledOnce;
+        });
+
+        it('should wait if an image is incorrectly loaded', function () {
+            const img = { complete: true, width: 0, height: 0, addEventListener: sinon.spy() };
+            display._renderQ = [{ type: 'img', x: 3, y: 4, width: 4, height: 4, img: img },
+                                { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
+            display.drawImage = sinon.spy();
+            display.fillRect = sinon.spy();
+
+            display._scan_renderQ();
+            expect(display.drawImage).to.not.have.been.called;
+            expect(display.fillRect).to.not.have.been.called;
+            expect(img.addEventListener).to.have.been.calledOnce;
+
+            display._renderQ[0].img.complete = true;
+            display._renderQ[0].img.width = 4;
+            display._renderQ[0].img.height = 4;
             display._scan_renderQ();
             expect(display.drawImage).to.have.been.calledOnce;
             expect(display.fillRect).to.have.been.calledOnce;
