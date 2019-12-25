@@ -123,7 +123,6 @@
             // because Firefox < 53 has a bug w.r.t location.search
             const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
                   match = document.location.href.match(re);
-            if (typeof defaultValue === 'undefined') { defaultValue = null; }
 
             if (match) {
                 // We have to decode the URL since want the cleartext value
