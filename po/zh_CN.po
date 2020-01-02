@@ -269,7 +269,7 @@ msgstr "日志级别："
 
 #: ../vnc.html:270
 msgid "Disconnect"
-msgstr "断开连接"
+msgstr "中断连接"
 
 #: ../vnc.html:289
 msgid "Connect"
