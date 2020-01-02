@@ -1,14 +1,14 @@
 # Simplified Chinese translations for noVNC package.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2020 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Peter Dave Hello <hsu@peterdavehello.org>, 2018.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.0.0-testing.2\n"
+"Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2018-01-10 00:53+0800\n"
-"PO-Revision-Date: 2018-04-06 21:33+0800\n"
+"PO-Revision-Date: 2020-01-02 13:19+0800\n"
 "Last-Translator: CUI Wei <ghostplant@qq.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -37,11 +37,11 @@ msgstr "请提供主机名"
 
 #: ../app/ui.js:1097
 msgid "Connected (encrypted) to "
-msgstr "已加密连接到"
+msgstr "已连接到（加密）"
 
 #: ../app/ui.js:1099
 msgid "Connected (unencrypted) to "
-msgstr "未加密连接到"
+msgstr "已连接到（未加密）"
 
 #: ../app/ui.js:1120
 msgid "Something went wrong, connection is closed"
@@ -73,7 +73,7 @@ msgstr "noVNC 遇到一个错误："
 
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
-msgstr "显示/隐藏控制面板"
+msgstr "显示/隐藏控制栏"
 
 #: ../vnc.html:106
 msgid "Move/Drag Viewport"
@@ -193,7 +193,7 @@ msgstr "清除"
 
 #: ../vnc.html:187
 msgid "Fullscreen"
-msgstr "全屏幕"
+msgstr "全屏"
 
 #: ../vnc.html:192 ../vnc.html:199
 msgid "Settings"
