@@ -61,9 +61,7 @@ describe('Utils', function () {
 
     describe('string functions', function () {
         it('should decode UTF-8 to DOMString correctly', function () {
-            // The capital cyrillic letter 'PE' has the hexcode 'd0 9f' in UTF-8
-            const utf8string = String.fromCodePoint(parseInt("d0", 16),
-                                                    parseInt("9f", 16));
+            const utf8string = '\xd0\x9f';
             const domstring = decodeUTF8(utf8string);
             expect(domstring).to.equal("П");
         });
@@ -71,32 +69,13 @@ describe('Utils', function () {
         it('should encode DOMString to UTF-8 correctly', function () {
             const domstring = "åäöa";
             const utf8string = encodeUTF8(domstring);
-
-            // The hexcode in UTF-8 for 'å' is 'c3 a5'
-            expect(utf8string.codePointAt(0).toString(16)).to.equal("c3");
-            expect(utf8string.codePointAt(1).toString(16)).to.equal("a5");
-            // ä
-            expect(utf8string.codePointAt(2).toString(16)).to.equal("c3");
-            expect(utf8string.codePointAt(3).toString(16)).to.equal("a4");
-            // ö
-            expect(utf8string.codePointAt(4).toString(16)).to.equal("c3");
-            expect(utf8string.codePointAt(5).toString(16)).to.equal("b6");
-            // a
-            expect(utf8string.codePointAt(6).toString(16)).to.equal("61");
+            expect(utf8string).to.equal('\xc3\xa5\xc3\xa4\xc3\xb6\x61');
         });
 
-        it('should keep the string intact if encoding to UTF-8 and then decoding', function() {
-            const domstring = "κόσμε";
-            const utf8string = encodeUTF8(domstring);
-            expect(decodeUTF8(utf8string)).to.equal(domstring);
-        });
-
-        it('should ignore URIErrors when UTF-8 decoding if allowLatin1 is set', function() {
-            expect(() => decodeUTF8("�")).to.throw(URIError);
-            expect(() => decodeUTF8("�", true)).to.not.throw(URIError);
-
-            // Only URIError should be ignored
-            expect(() => decodeUTF8(undefVar, true)).to.throw(Error);
+        it('should allow Latin-1 strings if allowLatin1 is set when decoding', function () {
+            const latin1string = '\xe5\xe4\xf6';
+            expect(() => decodeUTF8(latin1string)).to.throw(Error);
+            expect(decodeUTF8(latin1string, true)).to.equal('åäö');
         });
     });
 
