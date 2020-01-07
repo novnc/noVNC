@@ -31,7 +31,12 @@ describe('Automatic Clipboard Sync', function () {
         if (Clipboard.isSupported) {
             const clipboardData = new DataTransfer();
             clipboardData.setData("text/plain", text);
-            clipboard._handleCopy(new ClipboardEvent('paste', { clipboardData }));
+            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
+            // Force initialization since the constructor is broken in Firefox
+            if (!clipboardEvent.clipboardData.items.length) {
+                clipboardEvent.clipboardData.items.add(text, "text/plain");
+            }
+            clipboard._handleCopy(clipboardEvent);
             if (navigator.clipboard.writeText) {
                 expect(navigator.clipboard.writeText).to.have.been.calledWith(text);
             }
@@ -45,7 +50,12 @@ describe('Automatic Clipboard Sync', function () {
         if (Clipboard.isSupported) {
             const clipboardData = new DataTransfer();
             clipboardData.setData("text/plain", text);
-            clipboard._handlePaste(new ClipboardEvent('paste', { clipboardData }));
+            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
+            // Force initialization since the constructor is broken in Firefox
+            if (!clipboardEvent.clipboardData.items.length) {
+                clipboardEvent.clipboardData.items.add(text, "text/plain");
+            }
+            clipboard._handlePaste(clipboardEvent);
             if (navigator.clipboard.readText) {
                 expect(navigator.clipboard.readText).to.have.been.called;
             }
