@@ -8,7 +8,7 @@
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, isSafari, isIOS, isAndroid, dragThreshold }
+import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -1269,8 +1269,9 @@ const UI = {
             // Can't be clipping if viewport is scaled to fit
             UI.forceSetting('view_clip', false);
             UI.rfb.clipViewport  = false;
-        } else if (isIOS() || isAndroid()) {
-            // iOS and Android usually have shit scrollbars
+        } else if (!hasScrollbarGutter) {
+            // Some platforms have scrollbars that are difficult
+            // to use in our case, so we always use our own panning
             UI.forceSetting('view_clip', true);
             UI.rfb.clipViewport = true;
         } else {
