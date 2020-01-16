@@ -88,7 +88,7 @@ const UI = {
 
         // Setup event handlers
         UI.addControlbarHandlers();
-        UI.addTouchSpecificHandlers();
+        if (isTouchDevice) {  UI.addTouchSpecificHandlers(); }
         UI.addExtraKeysHandlers();
         UI.addMachineHandlers();
         UI.addConnectionControlHandlers();
@@ -430,7 +430,7 @@ const UI = {
             UI.disableSetting('port');
             UI.disableSetting('path');
             UI.disableSetting('repeaterID');
-            UI.setMouseButton(1);
+            if (isTouchDevice) { UI.setMouseButton(1); }
 
             // Hide the controlbar after 2 seconds
             UI.closeControlbarTimeout = setTimeout(UI.closeControlbar, 2000);
@@ -1661,8 +1661,10 @@ const UI = {
                 .classList.add('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.add('noVNC_hidden');
-            document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
-                .classList.add('noVNC_hidden');
+            if (isTouchDevice) {
+                document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
+                    .classList.add('noVNC_hidden');
+            }
             document.getElementById('noVNC_clipboard_button')
                 .classList.add('noVNC_hidden');
         } else {
@@ -1670,8 +1672,10 @@ const UI = {
                 .classList.remove('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.remove('noVNC_hidden');
-            document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
-                .classList.remove('noVNC_hidden');
+            if (isTouchDevice) {
+                document.getElementById('noVNC_mouse_button' + UI.rfb.touchButton)
+                    .classList.remove('noVNC_hidden');
+            }
             document.getElementById('noVNC_clipboard_button')
                 .classList.remove('noVNC_hidden');
         }

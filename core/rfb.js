@@ -311,8 +311,14 @@ export default class RFB extends EventTargetMixin {
 
     get capabilities() { return this._capabilities; }
 
-    get touchButton() { return this._touch.touchButton; }
-    set touchButton(button) { this._touch.touchButton = button; }
+    get touchButton() {
+        if (!this._touch) { return null; }
+        return this._touch.touchButton;
+    }
+    set touchButton(button) {
+        if (!this._touch) { return; }
+        this._touch.touchButton = button;
+    }
 
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
