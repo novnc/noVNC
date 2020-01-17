@@ -785,33 +785,33 @@ export default class Display {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
             const a = this._renderQ[0];
-            Log.Debug(a);
+            Log.Info(a);
             switch (a.type) {
                 case 'flip':
                     this.flip(true);
                     break;
                 case 'copy':
-                    console.log("_scan_renderQ: copy", a);
+                    Log.Info("_scan_renderQ: copy");
                     this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
                     break;
                 case 'fill':
-                    console.log("_scan_renderQ: fill", a);
+                    Log.Info("_scan_renderQ: fill");
                     this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                     break;
                 case 'blit':
-                    console.log("_scan_renderQ: blit", a);
+                    Log.Info("_scan_renderQ: blit");
                     this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'blitRgb':
-                    console.log("_scan_renderQ: blitRgb", a);
+                    Log.Info("_scan_renderQ: blitRgb");
                     this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'blitRgbx':
-                    console.log("_scan_renderQ: blitRgbx", a);
+                    Log.Info("_scan_renderQ: blitRgbx");
                     this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
-                    console.info("_scan_renderQ: img", a);
+                    Log.Info("_scan_renderQ: img");
                     if (a.img.complete) {
                         this.drawImage(a.img, a.x, a.y);
                     } else {
