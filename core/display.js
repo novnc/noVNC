@@ -791,23 +791,23 @@ export default class Display {
                     this.flip(true);
                     break;
                 case 'copy':
-                    console.info("_scan_renderQ: copy", a);
+                    console.log("_scan_renderQ: copy", a);
                     this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
                     break;
                 case 'fill':
-                    console.info("_scan_renderQ: fill", a);
+                    console.log("_scan_renderQ: fill", a);
                     this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                     break;
                 case 'blit':
-                    console.info("_scan_renderQ: blit", a);
+                    console.log("_scan_renderQ: blit", a);
                     this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'blitRgb':
-                    console.info("_scan_renderQ: blitRgb", a);
+                    console.log("_scan_renderQ: blitRgb", a);
                     this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'blitRgbx':
-                    console.info("_scan_renderQ: blitRgbx", a);
+                    console.log("_scan_renderQ: blitRgbx", a);
                     this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
