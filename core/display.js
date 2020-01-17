@@ -7,6 +7,7 @@
  */
 
 const urlParams = new URLSearchParams(window.location.search);
+console.log(urlParams);
 
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
@@ -790,39 +791,27 @@ export default class Display {
                     this.flip(true);
                     break;
                 case 'copy':
-                    if (urlParams.get('scanRender').contains('copy')) {
-                        console.debug("_scan_renderQ: copy", a);
-                    }
+                    console.debug("_scan_renderQ: copy", a);
                     this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
                     break;
                 case 'fill':
-                    if (urlParams.get('scanRender').contains('fill')) {
-                        console.debug("_scan_renderQ: fill", a);
-                    }
+                    console.debug("_scan_renderQ: fill", a);
                     this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                     break;
                 case 'blit':
-                    if (urlParams.get('scanRender').contains('blit')) {
-                        console.debug("_scan_renderQ: blit", a);
-                    }
+                    console.debug("_scan_renderQ: blit", a);
                     this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'blitRgb':
-                    if (urlParams.get('scanRender').contains('blitRgb')) {
-                        console.debug("_scan_renderQ: blitRgb", a);
-                    }
+                    console.debug("_scan_renderQ: blitRgb", a);
                     this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'blitRgbx':
-                    if (urlParams.get('scanRender').contains('blitRgbx')) {
-                        console.debug("_scan_renderQ: blitRgbx", a);
-                    }
+                    console.debug("_scan_renderQ: blitRgbx", a);
                     this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
-                    if (urlParams.get('scanRender').contains('img')) {
-                        console.debug("_scan_renderQ: img", a);
-                    }
+                    console.debug("_scan_renderQ: img", a);
                     if (a.img.complete) {
                         this.drawImage(a.img, a.x, a.y);
                     } else {
