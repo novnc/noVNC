@@ -6,9 +6,6 @@
  * See README.md for usage and integration instructions.
  */
 
-const urlParams = new URLSearchParams(window.location.search);
-console.log(urlParams);
-
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 import { supportsImageMetadata } from './util/browser.js';
@@ -443,60 +440,73 @@ export default class Display {
         } else {
             this._tile = this._drawCtx.createImageData(width, height);
         }
+		
+		if (this._rotate === 'right' || this._rotate === 'left') {
+			this.fillRect(x, y, width, height, color, true);
+		} else {
+			const red = color[2];
+			const green = color[1];
+			const blue = color[0];
 
-        const red = color[2];
-        const green = color[1];
-        const blue = color[0];
-
-        const data = this._tile.data;
-        for (let i = 0; i < width * height * 4; i += 4) {
-            data[i] = red;
-            data[i + 1] = green;
-            data[i + 2] = blue;
-            data[i + 3] = 255;
-        }
+			const data = this._tile.data;
+			for (let i = 0; i < width * height * 4; i += 4) {
+				data[i] = red;
+				data[i + 1] = green;
+				data[i + 2] = blue;
+				data[i + 3] = 255;
+			}
+		}
     }
 
     // update sub-rectangle of the current tile
     subTile(x, y, w, h, color) {
-        const red = color[2];
-        const green = color[1];
-        const blue = color[0];
-        const xend = x + w;
-        const yend = y + h;
+		if (this._rotate === 'right' || this._rotate === 'left') {
+			var x0 = this._tile_x + x;
+            var y0 = this._tile_y + y;
+            this.fillRect(x0, y0, w, h, color, true);
+		} else {
+			const red = color[2];
+			const green = color[1];
+			const blue = color[0];
+			const xend = x + w;
+			const yend = y + h;
 
-        const data = this._tile.data;
-        const width = this._tile.width;
-        for (let j = y; j < yend; j++) {
-            for (let i = x; i < xend; i++) {
-                const p = (i + (j * width)) * 4;
-                data[p] = red;
-                data[p + 1] = green;
-                data[p + 2] = blue;
-                data[p + 3] = 255;
-            }
-        }
+			const data = this._tile.data;
+			const width = this._tile.width;
+
+			for (let j = y; j < yend; j++) {
+				for (let i = x; i < xend; i++) {
+					const p = (i + (j * width)) * 4;
+					data[p] = red;
+					data[p + 1] = green;
+					data[p + 2] = blue;
+					data[p + 3] = 255;
+				}
+			}
+		}
     }
 
     // draw the current tile to the screen
     finishTile() {
-        var x0 = this._tile_x;
-        var y0 = this._tile_y;
-        if (this._rotate === 'right') {
-            var a = x0;
-            x0 = this._fb_width - y0 - 1;
-            y0 = a;
-        } else if (this._rotate === 'left') {
-            var a = y0;
-            y0 = this._fb_height - x0 - 1;
-            x0 = a;
-        } else if (this._rotate === 'double') {
-            y0 = this._fb_height - y0 - 1;
-            x0 = this._fb_width - x0 - 1;
-        }
-        this._drawCtx.putImageData(this._tile, x0, y0);
-        this._damage(x0, y0,
-            this._tile.width, this._tile.height);
+		if (!this._rotate) {
+			var x0 = this._tile_x;
+			var y0 = this._tile_y;
+			if (this._rotate === 'right') {
+				var a = x0;
+				x0 = this._fb_width - y0 - this._tile.height;
+				y0 = a;
+			} else if (this._rotate === 'left') {
+				var a = y0;
+				y0 = this._fb_height - x0;
+				x0 = a;
+			} else if (this._rotate === 'double') {
+				y0 = this._fb_height - y0;
+				x0 = this._fb_width - x0;
+			}
+			this._drawCtx.putImageData(this._tile, x0, y0);
+			this._damage(x0, y0,
+				this._tile.width, this._tile.height);
+		}
     }
 
     blitImage(x, y, width, height, arr, offset, from_queue) {
@@ -564,15 +574,15 @@ export default class Display {
         var y0 = y;
         if (this._rotate === 'right') {
             var a = x0;
-            x0 = this._fb_width - y0 - 1;
+            x0 = this._fb_width - y0;
             y0 = a;
         } else if (this._rotate === 'left') {
             var a = y0;
-            y0 = this._fb_height - x0 - 1;
+            y0 = this._fb_height - x0;
             x0 = a;
         } else if (this._rotate === 'double') {
-            y0 = this._fb_height - y0 - 1;
-            x0 = this._fb_width - x0 - 1;
+            y0 = this._fb_height - y0;
+            x0 = this._fb_width - x0;
         }
         this._drawCtx.drawImage(img, x0, y0);
         this._damage(x0, y0, img.width, img.height);
