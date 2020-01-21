@@ -1,6 +1,6 @@
 {
   "name": "@gbrehmer/novnc",
-  "version": "1.1.0-patch23",
+  "version": "1.1.0-patch24",
   "description": "An HTML5 VNC client",
   "browser": "lib/rfb",
   "directories": {

@@ -1260,6 +1260,10 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    get_display() {
+        return this._display;
+    }
+
     _sendEncodings() {
         const encs = [];
 
