@@ -27,7 +27,9 @@ describe('Localization', function () {
             window.navigator.languages = [];
         });
         afterEach(function () {
-            Object.defineProperty(window, "navigator", origNavigator);
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
         });
 
         it('should use English by default', function () {

@@ -272,7 +272,9 @@ describe('Key Event Handling', function () {
             window.navigator.platform = "Mac x86_64";
         });
         afterEach(function () {
-            Object.defineProperty(window, "navigator", origNavigator);
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
         });
 
         it('should change Alt to AltGraph', function () {
@@ -336,7 +338,9 @@ describe('Key Event Handling', function () {
         });
 
         afterEach(function () {
-            Object.defineProperty(window, "navigator", origNavigator);
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
         });
 
         it('should toggle caps lock on key press on iOS', function (done) {
@@ -413,8 +417,12 @@ describe('Key Event Handling', function () {
             this.clock = sinon.useFakeTimers();
         });
         afterEach(function () {
-            Object.defineProperty(window, "navigator", origNavigator);
-            this.clock.restore();
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
+            if (this.clock !== undefined) {
+                this.clock.restore();
+            }
         });
 
         it('should supress ControlLeft until it knows if it is AltGr', function () {
@@ -559,8 +567,12 @@ describe('Key Event Handling', function () {
             this.clock = sinon.useFakeTimers();
         });
         afterEach(function () {
-            Object.defineProperty(window, "navigator", origNavigator);
-            this.clock.restore();
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
+            if (this.clock !== undefined) {
+                this.clock.restore();
+            }
         });
 
         it('should fake a left Shift keyup', function () {

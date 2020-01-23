@@ -86,7 +86,9 @@ describe('Helpers', function () {
                 window.navigator.platform = "Mac x86_64";
             });
             afterEach(function () {
-                Object.defineProperty(window, "navigator", origNavigator);
+                if (origNavigator !== undefined) {
+                    Object.defineProperty(window, "navigator", origNavigator);
+                }
             });
 
             it('should respect ContextMenu on modern browser', function () {
@@ -150,7 +152,9 @@ describe('Helpers', function () {
                 }
             });
             afterEach(function () {
-                Object.defineProperty(window, "navigator", origNavigator);
+                if (origNavigator !== undefined) {
+                    Object.defineProperty(window, "navigator", origNavigator);
+                }
             });
 
             it('should ignore printable character key on IE', function () {

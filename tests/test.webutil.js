@@ -42,7 +42,9 @@ describe('WebUtil', function () {
                 return WebUtil.initSettings();
             });
             afterEach(function () {
-                Object.defineProperty(window, "localStorage", origLocalStorage);
+                if (origLocalStorage !== undefined) {
+                    Object.defineProperty(window, "localStorage", origLocalStorage);
+                }
             });
 
             describe('writeSetting', function () {
