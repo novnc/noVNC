@@ -20,7 +20,6 @@ export default class Cursor {
             this._canvas.style.pointerEvents = 'none';
             // Can't use "display" because of Firefox bug #1445997
             this._canvas.style.visibility = 'hidden';
-            document.body.appendChild(this._canvas);
         }
 
         this._position = { x: 0, y: 0 };
@@ -45,6 +44,8 @@ export default class Cursor {
         this._target = target;
 
         if (useFallback) {
+            document.body.appendChild(this._canvas);
+
             // FIXME: These don't fire properly except for mouse
             ///       movement in IE. We want to also capture element
             //        movement, size changes, visibility, etc.
@@ -78,6 +79,8 @@ export default class Cursor {
             window.removeEventListener('touchstart', this._eventHandlers.touchstart, options);
             this._target.removeEventListener('touchmove', this._eventHandlers.touchmove, options);
             this._target.removeEventListener('touchend', this._eventHandlers.touchend, options);
+
+            document.body.removeChild(this._canvas);
         }
 
         this._target = null;
