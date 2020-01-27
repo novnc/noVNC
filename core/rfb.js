@@ -1,17 +1,20 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2019 The noVNC Authors
+ * Copyright (C) 2020 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  *
  */
 
+import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
-import { decodeUTF8 } from './util/strings.js';
+import { encodeUTF8, decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
+import Inflator from "./inflator.js";
+import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
 import Cursor from "./util/cursor.js";
@@ -32,6 +35,23 @@ import TightPNGDecoder from "./decoders/tightpng.js";
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
 const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
+
+// Extended clipboard pseudo-encoding formats
+const extendedClipboardFormatText   = 1;
+/*eslint-disable no-unused-vars */
+const extendedClipboardFormatRtf    = 1 << 1;
+const extendedClipboardFormatHtml   = 1 << 2;
+const extendedClipboardFormatDib    = 1 << 3;
+const extendedClipboardFormatFiles  = 1 << 4;
+/*eslint-enable */
+
+// Extended clipboard pseudo-encoding actions
+const extendedClipboardActionCaps    = 1 << 24;
+const extendedClipboardActionRequest = 1 << 25;
+const extendedClipboardActionPeek    = 1 << 26;
+const extendedClipboardActionNotify  = 1 << 27;
+const extendedClipboardActionProvide = 1 << 28;
+
 
 export default class RFB extends EventTargetMixin {
     constructor(target, url, options) {
@@ -83,6 +103,10 @@ export default class RFB extends EventTargetMixin {
         this._screen_flags = 0;
 
         this._qemuExtKeyEventSupported = false;
+
+        this._clipboardText = null;
+        this._clipboardServerCapabilitiesActions = {};
+        this._clipboardServerCapabilitiesFormats = {};
 
         // Internal objects
         this._sock = null;              // Websock object
@@ -390,7 +414,21 @@ export default class RFB extends EventTargetMixin {
 
     clipboardPasteFrom(text) {
         if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return; }
-        RFB.messages.clientCutText(this._sock, text);
+
+        if (this._clipboardServerCapabilitiesFormats[extendedClipboardFormatText] &&
+            this._clipboardServerCapabilitiesActions[extendedClipboardActionNotify]) {
+
+            this._clipboardText = text;
+            RFB.messages.extendedClipboardNotify(this._sock, [extendedClipboardFormatText]);
+        } else {
+            let data = new Uint8Array(text.length);
+            for (let i = 0; i < text.length; i++) {
+                // FIXME: text can have values outside of Latin1/Uint8
+                data[i] = text.charCodeAt(i);
+            }
+
+            RFB.messages.clientCutText(this._sock, data);
+        }
     }
 
     // ===== PRIVATE METHODS =====
@@ -1267,6 +1305,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
         encs.push(encodings.pseudoEncodingDesktopName);
+        encs.push(encodings.pseudoEncodingExtendedClipboard);
 
         if (this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingVMwareCursor);
@@ -1325,18 +1364,163 @@ export default class RFB extends EventTargetMixin {
         Log.Debug("ServerCutText");
 
         if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
+
         this._sock.rQskipBytes(3);  // Padding
-        const length = this._sock.rQshift32();
-        if (this._sock.rQwait("ServerCutText", length, 8)) { return false; }
 
-        const text = this._sock.rQshiftStr(length);
+        let length = this._sock.rQshift32();
+        length = toSigned32bit(length);
 
-        if (this._viewOnly) { return true; }
+        if (this._sock.rQwait("ServerCutText content", Math.abs(length), 8)) { return false; }
 
-        this.dispatchEvent(new CustomEvent(
-            "clipboard",
-            { detail: { text: text } }));
+        if (length >= 0) {
+            //Standard msg
+            const text = this._sock.rQshiftStr(length);
+            if (this._viewOnly) {
+                return true;
+            }
 
+            this.dispatchEvent(new CustomEvent(
+                "clipboard",
+                { detail: { text: text } }));
+
+        } else {
+            //Extended msg.
+            length = Math.abs(length);
+            const flags = this._sock.rQshift32();
+            let formats = flags & 0x0000FFFF;
+            let actions = flags & 0xFF000000;
+
+            let isCaps = (!!(actions & extendedClipboardActionCaps));
+            if (isCaps) {
+                this._clipboardServerCapabilitiesFormats = {};
+                this._clipboardServerCapabilitiesActions = {};
+
+                // Update our server capabilities for Formats
+                for (let i = 0; i <= 15; i++) {
+                    let index = 1 << i;
+
+                    // Check if format flag is set.
+                    if ((formats & index)) {
+                        this._clipboardServerCapabilitiesFormats[index] = true;
+                        // We don't send unsolicited clipboard, so we
+                        // ignore the size
+                        this._sock.rQshift32();
+                    }
+                }
+
+                // Update our server capabilities for Actions
+                for (let i = 24; i <= 31; i++) {
+                    let index = 1 << i;
+                    this._clipboardServerCapabilitiesActions[index] = !!(actions & index);
+                }
+
+                /*  Caps handling done, send caps with the clients
+                    capabilities set as a response */
+                let clientActions = [
+                    extendedClipboardActionCaps,
+                    extendedClipboardActionRequest,
+                    extendedClipboardActionPeek,
+                    extendedClipboardActionNotify,
+                    extendedClipboardActionProvide
+                ];
+                RFB.messages.extendedClipboardCaps(this._sock, clientActions, {extendedClipboardFormatText: 0});
+
+            } else if (actions === extendedClipboardActionRequest) {
+                if (this._viewOnly) {
+                    return true;
+                }
+
+                // Check if server has told us it can handle Provide and there is clipboard data to send.
+                if (this._clipboardText != null &&
+                    this._clipboardServerCapabilitiesActions[extendedClipboardActionProvide]) {
+
+                    if (formats & extendedClipboardFormatText) {
+                        RFB.messages.extendedClipboardProvide(this._sock, [extendedClipboardFormatText], [this._clipboardText]);
+                    }
+                }
+
+            } else if (actions === extendedClipboardActionPeek) {
+                if (this._viewOnly) {
+                    return true;
+                }
+
+                if (this._clipboardServerCapabilitiesActions[extendedClipboardActionNotify]) {
+
+                    if (this._clipboardText != null) {
+                        RFB.messages.extendedClipboardNotify(this._sock, [extendedClipboardFormatText]);
+                    } else {
+                        RFB.messages.extendedClipboardNotify(this._sock, []);
+                    }
+                }
+
+            } else if (actions === extendedClipboardActionNotify) {
+                if (this._viewOnly) {
+                    return true;
+                }
+
+                if (this._clipboardServerCapabilitiesActions[extendedClipboardActionRequest]) {
+
+                    if (formats & extendedClipboardFormatText) {
+                        RFB.messages.extendedClipboardRequest(this._sock, [extendedClipboardFormatText]);
+                    }
+                }
+
+            } else if (actions === extendedClipboardActionProvide) {
+                if (this._viewOnly) {
+                    return true;
+                }
+
+                if (!(formats & extendedClipboardFormatText)) {
+                    return true;
+                }
+                // Ignore what we had in our clipboard client side.
+                this._clipboardText = null;
+
+                // FIXME: Should probably verify that this data was actually requested
+                let zlibStream = this._sock.rQshiftBytes(length - 4);
+                let streamInflator = new Inflator();
+                let textData = null;
+
+                streamInflator.setInput(zlibStream);
+                for (let i = 0; i <= 15; i++) {
+                    let format = 1 << i;
+
+                    if (formats & format) {
+
+                        let size = 0x00;
+                        let sizeArray = streamInflator.inflate(4);
+
+                        size |= (sizeArray[0] << 24);
+                        size |= (sizeArray[1] << 16);
+                        size |= (sizeArray[2] << 8);
+                        size |= (sizeArray[3]);
+                        let chunk = streamInflator.inflate(size);
+
+                        if (format === extendedClipboardFormatText) {
+                            textData = chunk;
+                        }
+                    }
+                }
+                streamInflator.setInput(null);
+
+                if (textData !== null) {
+                    textData = String.fromCharCode.apply(null, textData);
+
+                    textData = decodeUTF8(textData);
+                    if ((textData.length > 0) && "\0" === textData.charAt(textData.length - 1)) {
+                        textData = textData.slice(0, -1);
+                    }
+
+                    textData = textData.replace("\r\n", "\n");
+
+                    this.dispatchEvent(new CustomEvent(
+                        "clipboard",
+                        { detail: { text: textData } }));
+                }
+            } else {
+                return this._fail("Unexpected action in extended clipboard message: " + actions);
+            }
+        }
         return true;
     }
 
@@ -1966,8 +2150,102 @@ RFB.messages = {
         sock.flush();
     },
 
-    // TODO(directxman12): make this unicode compatible?
-    clientCutText(sock, text) {
+    // Used to build Notify and Request data.
+    _buildExtendedClipboardFlags(actions, formats) {
+        let data = new Uint8Array(4);
+        let formatFlag = 0x00000000;
+        let actionFlag = 0x00000000;
+
+        for (let i = 0; i < actions.length; i++) {
+            actionFlag |= actions[i];
+        }
+
+        for (let i = 0; i < formats.length; i++) {
+            formatFlag |= formats[i];
+        }
+
+        data[0] = actionFlag >> 24; // Actions
+        data[1] = 0x00;             // Reserved
+        data[2] = 0x00;             // Reserved
+        data[3] = formatFlag;       // Formats
+
+        return data;
+    },
+
+    extendedClipboardProvide(sock, formats, inData) {
+        // Deflate incomming data and their sizes
+        let deflator = new Deflator();
+        let dataToDeflate = [];
+
+        for (let i = 0; i < formats.length; i++) {
+            // We only support the format Text at this time
+            if (formats[i] != extendedClipboardFormatText) {
+                throw new Error("Unsupported extended clipboard format for Provide message.");
+            }
+
+            // Change lone \r or \n into \r\n as defined in rfbproto
+            inData[i] = inData[i].replace(/\r\n|\r|\n/gm, "\r\n");
+
+            // Check if it already has \0
+            let text = encodeUTF8(inData[i] + "\0");
+
+            dataToDeflate.push( (text.length >> 24) & 0xFF,
+                                (text.length >> 16) & 0xFF,
+                                (text.length >>  8) & 0xFF,
+                                (text.length & 0xFF));
+
+            for (let j = 0; j < text.length; j++) {
+                dataToDeflate.push(text.charCodeAt(j));
+            }
+        }
+
+        let deflatedData = deflator.deflate(new Uint8Array(dataToDeflate));
+
+        // Build data  to send
+        let data = new Uint8Array(4 + deflatedData.length);
+        data.set(RFB.messages._buildExtendedClipboardFlags([extendedClipboardActionProvide],
+                                                           formats));
+        data.set(deflatedData, 4);
+
+        RFB.messages.clientCutText(sock, data, true);
+    },
+
+    extendedClipboardNotify(sock, formats) {
+        let flags = RFB.messages._buildExtendedClipboardFlags([extendedClipboardActionNotify],
+                                                              formats);
+        RFB.messages.clientCutText(sock, flags, true);
+    },
+
+    extendedClipboardRequest(sock, formats) {
+        let flags = RFB.messages._buildExtendedClipboardFlags([extendedClipboardActionRequest],
+                                                              formats);
+        RFB.messages.clientCutText(sock, flags, true);
+    },
+
+    extendedClipboardCaps(sock, actions, formats) {
+        let formatKeys = Object.keys(formats);
+        let data  = new Uint8Array(4 + (4 * formatKeys.length));
+
+        formatKeys.map(x => parseInt(x));
+        formatKeys.sort((a, b) =>  a - b);
+
+        data.set(RFB.messages._buildExtendedClipboardFlags(actions, []));
+
+        let loopOffset = 4;
+        for (let i = 0; i < formatKeys.length; i++) {
+            data[loopOffset]     = formats[formatKeys[i]] >> 24;
+            data[loopOffset + 1] = formats[formatKeys[i]] >> 16;
+            data[loopOffset + 2] = formats[formatKeys[i]] >> 8;
+            data[loopOffset + 3] = formats[formatKeys[i]] >> 0;
+
+            loopOffset += 4;
+            data[3] |= (1 << formatKeys[i]); // Update our format flags
+        }
+
+        RFB.messages.clientCutText(sock, data, true);
+    },
+
+    clientCutText(sock, data, extended = false) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
@@ -1977,7 +2255,12 @@ RFB.messages = {
         buff[offset + 2] = 0; // padding
         buff[offset + 3] = 0; // padding
 
-        let length = text.length;
+        let length;
+        if (extended) {
+            length = toUnsigned32bit(-data.length);
+        } else {
+            length = data.length;
+        }
 
         buff[offset + 4] = length >> 24;
         buff[offset + 5] = length >> 16;
@@ -1986,24 +2269,25 @@ RFB.messages = {
 
         sock._sQlen += 8;
 
-        // We have to keep track of from where in the text we begin creating the
+        // We have to keep track of from where in the data we begin creating the
         // buffer for the flush in the next iteration.
-        let textOffset = 0;
+        let dataOffset = 0;
 
-        let remaining = length;
+        let remaining = data.length;
         while (remaining > 0) {
 
             let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
             for (let i = 0; i < flushSize; i++) {
-                buff[sock._sQlen + i] =  text.charCodeAt(textOffset + i);
+                buff[sock._sQlen + i] = data[dataOffset + i];
             }
 
             sock._sQlen += flushSize;
             sock.flush();
 
             remaining -= flushSize;
-            textOffset += flushSize;
+            dataOffset += flushSize;
         }
+
     },
 
     setDesktopSize(sock, width, height, id, flags) {

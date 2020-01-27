@@ -2,7 +2,11 @@ const expect = chai.expect;
 
 import RFB from '../core/rfb.js';
 import Websock from '../core/websock.js';
+import ZStream from "../vendor/pako/lib/zlib/zstream.js";
+import { deflateInit, deflate } from "../vendor/pako/lib/zlib/deflate.js";
 import { encodings } from '../core/encodings.js';
+import { toUnsigned32bit } from '../core/util/int.js';
+import { encodeUTF8 } from '../core/util/strings.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
@@ -46,6 +50,35 @@ function pushString(arr, string) {
     for (let i = 0; i < utf8.length; i++) {
         arr.push(utf8.charCodeAt(i));
     }
+}
+
+function deflateWithSize(data) {
+    // Adds the size of the string in front before deflating
+
+    let unCompData = [];
+    unCompData.push((data.length >> 24) & 0xFF,
+                    (data.length >> 16) & 0xFF,
+                    (data.length >>  8) & 0xFF,
+                    (data.length & 0xFF));
+
+    for (let i = 0; i < data.length; i++) {
+        unCompData.push(data.charCodeAt(i));
+    }
+
+    let strm = new ZStream();
+    let chunkSize = 1024 * 10 * 10;
+    strm.output = new Uint8Array(chunkSize);
+    deflateInit(strm, 5);
+
+    strm.input = unCompData;
+    strm.avail_in = strm.input.length;
+    strm.next_in = 0;
+    strm.next_out = 0;
+    strm.avail_out = chunkSize;
+
+    deflate(strm, 3);
+
+    return new Uint8Array(strm.output.buffer, 0, strm.next_out);
 }
 
 describe('Remote Frame Buffer Protocol Client', function () {
@@ -291,18 +324,39 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('#clipboardPasteFrom', function () {
-            beforeEach(function () {
-                sinon.spy(RFB.messages, 'clientCutText');
-            });
+            describe('Clipboard update handling', function () {
+                beforeEach(function () {
+                    sinon.spy(RFB.messages, 'clientCutText');
+                    sinon.spy(RFB.messages, 'extendedClipboardNotify');
+                });
 
-            afterEach(function () {
-                RFB.messages.clientCutText.restore();
-            });
+                afterEach(function () {
+                    RFB.messages.clientCutText.restore();
+                    RFB.messages.extendedClipboardNotify.restore();
+                });
 
-            it('should send the given text in a paste event', function () {
-                client.clipboardPasteFrom('abc');
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock, 'abc');
+                it('should send the given text in an clipboard update', function () {
+                    client.clipboardPasteFrom('abc');
+
+                    expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                    expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock,
+                                                                               new Uint8Array([97, 98, 99]));
+                });
+
+                it('should send an notify if extended clipboard is supported by server', function () {
+                    // Send our capabilities
+                    let data = [3, 0, 0, 0];
+                    const flags = [0x1F, 0x00, 0x00, 0x01];
+                    let fileSizes = [0x00, 0x00, 0x00, 0x1E];
+
+                    push32(data, toUnsigned32bit(-8));
+                    data = data.concat(flags);
+                    data = data.concat(fileSizes);
+                    client._sock._websocket._receive_data(new Uint8Array(data));
+
+                    client.clipboardPasteFrom('extended test');
+                    expect(RFB.messages.extendedClipboardNotify).to.have.been.calledOnce;
+                });
             });
 
             it('should flush multiple times for large clipboards', function () {
@@ -2342,17 +2396,217 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        it('should fire the clipboard callback with the retrieved text on ServerCutText', function () {
-            const expected_str = 'cheese!';
-            const data = [3, 0, 0, 0];
-            push32(data, expected_str.length);
-            for (let i = 0; i < expected_str.length; i++) { data.push(expected_str.charCodeAt(i)); }
-            const spy = sinon.spy();
-            client.addEventListener("clipboard", spy);
+        describe('Normal Clipboard Handling Receive', function () {
+            it('should fire the clipboard callback with the retrieved text on ServerCutText', function () {
+                const expected_str = 'cheese!';
+                const data = [3, 0, 0, 0];
+                push32(data, expected_str.length);
+                for (let i = 0; i < expected_str.length; i++) { data.push(expected_str.charCodeAt(i)); }
+                const spy = sinon.spy();
+                client.addEventListener("clipboard", spy);
 
-            client._sock._websocket._receive_data(new Uint8Array(data));
-            expect(spy).to.have.been.calledOnce;
-            expect(spy.args[0][0].detail.text).to.equal(expected_str);
+                client._sock._websocket._receive_data(new Uint8Array(data));
+                expect(spy).to.have.been.calledOnce;
+                expect(spy.args[0][0].detail.text).to.equal(expected_str);
+            });
+        });
+
+        describe('Extended clipboard Handling', function () {
+
+            describe('Extended clipboard initialization', function () {
+                beforeEach(function () {
+                    sinon.spy(RFB.messages, 'extendedClipboardCaps');
+                });
+
+                afterEach(function () {
+                    RFB.messages.extendedClipboardCaps.restore();
+                });
+
+                it('should update capabilities when receiving a Caps message', function () {
+                    let data = [3, 0, 0, 0];
+                    const flags = [0x1F, 0x00, 0x00, 0x03];
+                    let fileSizes = [0x00, 0x00, 0x00, 0x1E,
+                                     0x00, 0x00, 0x00, 0x3C];
+
+                    push32(data, toUnsigned32bit(-12));
+                    data = data.concat(flags);
+                    data = data.concat(fileSizes);
+                    client._sock._websocket._receive_data(new Uint8Array(data));
+
+                    // Check that we give an response caps when we receive one
+                    expect(RFB.messages.extendedClipboardCaps).to.have.been.calledOnce;
+
+                    // FIXME: Can we avoid checking internal variables?
+                    expect(client._clipboardServerCapabilitiesFormats[0]).to.not.equal(true);
+                    expect(client._clipboardServerCapabilitiesFormats[1]).to.equal(true);
+                    expect(client._clipboardServerCapabilitiesFormats[2]).to.equal(true);
+                    expect(client._clipboardServerCapabilitiesActions[(1 << 24)]).to.equal(true);
+                });
+
+
+            });
+
+            describe('Extended Clipboard Handling Receive', function () {
+
+                beforeEach(function () {
+                    // Send our capabilities
+                    let data = [3, 0, 0, 0];
+                    const flags = [0x1F, 0x00, 0x00, 0x01];
+                    let fileSizes = [0x00, 0x00, 0x00, 0x1E];
+
+                    push32(data, toUnsigned32bit(-8));
+                    data = data.concat(flags);
+                    data = data.concat(fileSizes);
+                    client._sock._websocket._receive_data(new Uint8Array(data));
+                });
+
+                describe('Handle Provide', function () {
+                    it('should update clipboard with correct Unicode data from a Provide message', function () {
+                        let expectedData = "Aå漢字!";
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x10, 0x00, 0x00, 0x01];
+
+                        /* The size 10 (utf8 encoded string size) and the
+                        string "Aå漢字!" utf8 encoded and deflated. */
+                        let deflatedData = [120, 94, 99, 96, 96, 224, 114, 60,
+                                            188, 244, 217, 158, 69, 79, 215,
+                                            78, 87, 4, 0, 35, 207, 6, 66];
+
+                        // How much data we are sending.
+                        push32(data, toUnsigned32bit(-(4 + deflatedData.length)));
+
+                        data = data.concat(flags);
+                        data = data.concat(deflatedData);
+
+                        const spy = sinon.spy();
+                        client.addEventListener("clipboard", spy);
+
+                        client._sock._websocket._receive_data(new Uint8Array(data));
+                        expect(spy).to.have.been.calledOnce;
+                        expect(spy.args[0][0].detail.text).to.equal(expectedData);
+                        client.removeEventListener("clipboard", spy);
+                    });
+
+                    it('should update clipboard with correct escape characters from a Provide message ', function () {
+                        let expectedData = "Oh\nmy!";
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x10, 0x00, 0x00, 0x01];
+
+                        let text = encodeUTF8("Oh\r\nmy!\0");
+
+                        let deflatedText = deflateWithSize(text);
+
+                        // How much data we are sending.
+                        push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
+
+                        data = data.concat(flags);
+
+                        let sendData = new Uint8Array(data.length + deflatedText.length);
+                        sendData.set(data);
+                        sendData.set(deflatedText, data.length);
+
+                        const spy = sinon.spy();
+                        client.addEventListener("clipboard", spy);
+
+                        client._sock._websocket._receive_data(sendData);
+                        expect(spy).to.have.been.calledOnce;
+                        expect(spy.args[0][0].detail.text).to.equal(expectedData);
+                        client.removeEventListener("clipboard", spy);
+                    });
+
+                });
+
+                describe('Handle Notify', function () {
+                    beforeEach(function () {
+                        sinon.spy(RFB.messages, 'extendedClipboardRequest');
+                    });
+
+                    afterEach(function () {
+                        RFB.messages.extendedClipboardRequest.restore();
+                    });
+
+                    it('should make a request with supported formats when receiving a notify message', function () {
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x08, 0x00, 0x00, 0x07];
+                        push32(data, toUnsigned32bit(-4));
+                        data = data.concat(flags);
+                        let expectedData = [0x01];
+
+                        client._sock._websocket._receive_data(new Uint8Array(data));
+
+                        expect(RFB.messages.extendedClipboardRequest).to.have.been.calledOnce;
+                        expect(RFB.messages.extendedClipboardRequest).to.have.been.calledWith(client._sock, expectedData);
+                    });
+                });
+
+                describe('Handle Peek', function () {
+                    beforeEach(function () {
+                        sinon.spy(RFB.messages, 'extendedClipboardNotify');
+                    });
+
+                    afterEach(function () {
+                        RFB.messages.extendedClipboardNotify.restore();
+                    });
+
+                    it('should send an empty Notify when receiving a Peek and no excisting clipboard data', function () {
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x04, 0x00, 0x00, 0x00];
+                        push32(data, toUnsigned32bit(-4));
+                        data = data.concat(flags);
+                        let expectedData = [];
+
+                        client._sock._websocket._receive_data(new Uint8Array(data));
+
+                        expect(RFB.messages.extendedClipboardNotify).to.have.been.calledOnce;
+                        expect(RFB.messages.extendedClipboardNotify).to.have.been.calledWith(client._sock, expectedData);
+                    });
+
+                    it('should send a Notify message with supported formats when receiving a Peek', function () {
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x04, 0x00, 0x00, 0x00];
+                        push32(data, toUnsigned32bit(-4));
+                        data = data.concat(flags);
+                        let expectedData = [0x01];
+
+                        // Needed to have clipboard data to read.
+                        // This will trigger a call to Notify, reset history
+                        client.clipboardPasteFrom("HejHej");
+                        RFB.messages.extendedClipboardNotify.resetHistory();
+
+                        client._sock._websocket._receive_data(new Uint8Array(data));
+
+                        expect(RFB.messages.extendedClipboardNotify).to.have.been.calledOnce;
+                        expect(RFB.messages.extendedClipboardNotify).to.have.been.calledWith(client._sock, expectedData);
+                    });
+                });
+
+                describe('Handle Request', function () {
+                    beforeEach(function () {
+                        sinon.spy(RFB.messages, 'extendedClipboardProvide');
+                    });
+
+                    afterEach(function () {
+                        RFB.messages.extendedClipboardProvide.restore();
+                    });
+
+                    it('should send a Provide message with supported formats when receiving a Request', function () {
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x02, 0x00, 0x00, 0x01];
+                        push32(data, toUnsigned32bit(-4));
+                        data = data.concat(flags);
+                        let expectedData = [0x01];
+
+                        client.clipboardPasteFrom("HejHej");
+                        expect(RFB.messages.extendedClipboardProvide).to.not.have.been.called;
+
+                        client._sock._websocket._receive_data(new Uint8Array(data));
+
+                        expect(RFB.messages.extendedClipboardProvide).to.have.been.calledOnce;
+                        expect(RFB.messages.extendedClipboardProvide).to.have.been.calledWith(client._sock, expectedData, ["HejHej"]);
+                    });
+                });
+            });
+
         });
 
         it('should fire the bell callback on Bell', function () {
@@ -2577,6 +2831,169 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             // error events do nothing
+        });
+    });
+});
+
+describe('RFB messages', function () {
+    let sock;
+
+    before(function () {
+        FakeWebSocket.replace();
+        sock = new Websock();
+        sock.open();
+    });
+
+    after(function () {
+        FakeWebSocket.restore();
+    });
+
+    describe('Extended Clipboard Handling Send', function () {
+        beforeEach(function () {
+            sinon.spy(RFB.messages, 'clientCutText');
+        });
+
+        afterEach(function () {
+            RFB.messages.clientCutText.restore();
+        });
+
+        it('should call clientCutText with correct Caps data', function () {
+            let formats = {
+                0: 2,
+                2: 4121
+            };
+            let expectedData = new Uint8Array([0x1F, 0x00, 0x00, 0x05,
+                                               0x00, 0x00, 0x00, 0x02,
+                                               0x00, 0x00, 0x10, 0x19]);
+            let actions = [
+                1 << 24,  // Caps
+                1 << 25,  // Request
+                1 << 26,  // Peek
+                1 << 27,  // Notify
+                1 << 28   // Provide
+            ];
+
+            RFB.messages.extendedClipboardCaps(sock, actions, formats);
+            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+        });
+
+        it('should call clientCutText with correct Request data', function () {
+            let formats = new Uint8Array([0x01]);
+            let expectedData = new Uint8Array([0x02, 0x00, 0x00, 0x01]);
+
+            RFB.messages.extendedClipboardRequest(sock, formats);
+            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+        });
+
+        it('should call clientCutText with correct Notify data', function () {
+            let formats = new Uint8Array([0x01]);
+            let expectedData = new Uint8Array([0x08, 0x00, 0x00, 0x01]);
+
+            RFB.messages.extendedClipboardNotify(sock, formats);
+            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+        });
+
+        it('should call clientCutText with correct Provide data', function () {
+            let testText = "Test string";
+            let expectedText = encodeUTF8(testText + "\0");
+
+            let deflatedData =  deflateWithSize(expectedText);
+
+            // Build Expected with flags and deflated data
+            let expectedData = new Uint8Array(4 + deflatedData.length);
+            expectedData[0] = 0x10; // The client capabilities
+            expectedData[1] = 0x00; // Reserved flags
+            expectedData[2] = 0x00; // Reserved flags
+            expectedData[3] = 0x01; // The formats client supports
+            expectedData.set(deflatedData, 4);
+
+            RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
+            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+        });
+
+        describe('End of line characters', function () {
+            it('Carriage return', function () {
+
+                let testText = "Hello\rworld\r\r!";
+                let expectedText = encodeUTF8("Hello\r\nworld\r\n\r\n!\0");
+
+                let deflatedData =  deflateWithSize(expectedText);
+
+                // Build Expected with flags and deflated data
+                let expectedData = new Uint8Array(4 + deflatedData.length);
+                expectedData[0] = 0x10; // The client capabilities
+                expectedData[1] = 0x00; // Reserved flags
+                expectedData[2] = 0x00; // Reserved flags
+                expectedData[3] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 4);
+
+                RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
+                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+            });
+
+            it('Carriage return Line feed', function () {
+
+                let testText = "Hello\r\n\r\nworld\r\n!";
+                let expectedText = encodeUTF8(testText + "\0");
+
+                let deflatedData =  deflateWithSize(expectedText);
+
+                // Build Expected with flags and deflated data
+                let expectedData = new Uint8Array(4 + deflatedData.length);
+                expectedData[0] = 0x10; // The client capabilities
+                expectedData[1] = 0x00; // Reserved flags
+                expectedData[2] = 0x00; // Reserved flags
+                expectedData[3] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 4);
+
+                RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
+                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+            });
+
+            it('Line feed', function () {
+                let testText = "Hello\n\n\nworld\n!";
+                let expectedText = encodeUTF8("Hello\r\n\r\n\r\nworld\r\n!\0");
+
+                let deflatedData =  deflateWithSize(expectedText);
+
+                // Build Expected with flags and deflated data
+                let expectedData = new Uint8Array(4 + deflatedData.length);
+                expectedData[0] = 0x10; // The client capabilities
+                expectedData[1] = 0x00; // Reserved flags
+                expectedData[2] = 0x00; // Reserved flags
+                expectedData[3] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 4);
+
+                RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
+                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+            });
+
+            it('Carriage return and Line feed mixed', function () {
+                let testText = "\rHello\r\n\rworld\n\n!";
+                let expectedText = encodeUTF8("\r\nHello\r\n\r\nworld\r\n\r\n!\0");
+
+                let deflatedData =  deflateWithSize(expectedText);
+
+                // Build Expected with flags and deflated data
+                let expectedData = new Uint8Array(4 + deflatedData.length);
+                expectedData[0] = 0x10; // The client capabilities
+                expectedData[1] = 0x00; // Reserved flags
+                expectedData[2] = 0x00; // Reserved flags
+                expectedData[3] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 4);
+
+                RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
+                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+            });
         });
     });
 });
