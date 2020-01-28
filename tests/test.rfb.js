@@ -291,12 +291,18 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('#clipboardPasteFrom', function () {
+            beforeEach(function () {
+                sinon.spy(RFB.messages, 'clientCutText');
+            });
+
+            afterEach(function () {
+                RFB.messages.clientCutText.restore();
+            });
+
             it('should send the given text in a paste event', function () {
-                const expected = {_sQ: new Uint8Array(11), _sQlen: 0,
-                                  _sQbufferSize: 11, flush: () => {}};
-                RFB.messages.clientCutText(expected, 'abc');
                 client.clipboardPasteFrom('abc');
-                expect(client._sock).to.have.sent(expected._sQ);
+                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock, 'abc');
             });
 
             it('should flush multiple times for large clipboards', function () {
