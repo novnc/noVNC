@@ -1651,9 +1651,9 @@ export default class RFB extends EventTargetMixin {
             for (let pixel = 0; pixel < (w * h); pixel++) {
                 let data = this._sock.rQshift32();
 
-                rgba[(pixel * 4)     ] = data >> 8 & 0xff;  //r
+                rgba[(pixel * 4)     ] = data >> 24 & 0xff; //r
                 rgba[(pixel * 4) + 1 ] = data >> 16 & 0xff; //g
-                rgba[(pixel * 4) + 2 ] = data >> 24 & 0xff; //b
+                rgba[(pixel * 4) + 2 ] = data >> 8 & 0xff;  //b
                 rgba[(pixel * 4) + 3 ] = data & 0xff;       //a
             }
 

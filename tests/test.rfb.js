@@ -2243,7 +2243,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
 
                     it('should update the cursor when type is alpha', function () {
-                        let data = [0xee, 0x55, 0xff, 0x00, // bgra
+                        let data = [0xee, 0x55, 0xff, 0x00, // rgba
                                     0x00, 0xff, 0x00, 0xff,
                                     0x00, 0xff, 0x00, 0x22,
                                     0x00, 0xff, 0x00, 0x22,
@@ -2261,12 +2261,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                             push8(rect, data[i]);
                         }
 
-                        let expected_rgba = [0xff, 0x55, 0xee, 0x00,
+                        let expected_rgba = [0xee, 0x55, 0xff, 0x00,
                                              0x00, 0xff, 0x00, 0xff,
                                              0x00, 0xff, 0x00, 0x22,
                                              0x00, 0xff, 0x00, 0x22,
                                              0x00, 0xff, 0x00, 0x22,
-                                             0xff, 0x00, 0x00, 0xee];
+                                             0x00, 0x00, 0xff, 0xee];
 
                         send_fbu_msg([{ x: hotx, y: hoty,
                                         width: w, height: h,
