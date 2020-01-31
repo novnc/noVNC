@@ -1,12 +1,12 @@
 /*
- * Websock: high-performance binary WebSockets
+ * WebChannel: high-performance binary WebSocket / RTCDataChannel
  * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
- * Websock is similar to the standard WebSocket object but with extra
- * buffer handling.
+ * WebChannel is similar to the standard WebSocket / RTCDataChannel object
+ * but with extra buffer handling.
  *
- * Websock has built-in receive queue buffering; the message event
+ * WebChannel has built-in receive queue buffering; the message event
  * does not contain actual data but is simply a notification that
  * there is new data available. Several rQ* methods are available to
  * read binary data off of the receive queue.
@@ -22,9 +22,11 @@ import * as Log from './util/logging.js';
 const ENABLE_COPYWITHIN = false;
 const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
-export default class Websock {
+export default class WebChannel {
     constructor() {
-        this._websocket = null;  // WebSocket object
+        this._webChannel = null;     // WebSocket or RTCDataChannel object
+        this._channelType = "";      // Track which type of channel
+        this._channelStates = null;  // Cross compatible states enum for WebSocket / RTCDataChannel
 
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
@@ -143,8 +145,8 @@ export default class Websock {
     // Send Queue
 
     flush() {
-        if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
-            this._websocket.send(this._encode_message());
+        if (this._sQlen > 0 && this._webChannel.readyState === this._channelStates.OPEN) {
+            this._webChannel.send(this._encode_message());
             this._sQlen = 0;
         }
     }
@@ -173,49 +175,92 @@ export default class Websock {
         this._sQ = new Uint8Array(this._sQbufferSize);
     }
 
+    _getChannelStates(channelType) {
+        if (channelType === "WebSocket") {
+            return {
+                CONNECTING: WebSocket.CONNECTING,
+                OPEN: WebSocket.OPEN,
+                CLOSING: WebSocket.CLOSING,
+                CLOSED: WebSocket.CLOSED
+            };
+        }
+        if (channelType === "RTCDataChannel") {
+            // Constants pulled from RTCDataChannelState enum
+            // https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/readyState#RTCDataChannelState_enum
+            return {
+                CONNECTING: "connecting",
+                OPEN: "open",
+                CLOSING: "closing",
+                CLOSED: "closed"
+            };
+        }
+        throw new Error(`channelType: ${channelType} not recognized`);
+    }
+
     init() {
         this._allocate_buffers();
         this._rQi = 0;
-        this._websocket = null;
+        this._webChannel = null;
     }
 
-    open(uri, protocols) {
+    open({ uri, protocols, webChannel, channelType }) {
         this.init();
 
-        this._websocket = new WebSocket(uri, protocols);
-        this._websocket.binaryType = 'arraybuffer';
+        if (uri) {
+            this._webChannel = new WebSocket(uri, protocols);
+            this._channelType = "WebSocket";
+            this._channelStates = this._getChannelStates("WebSocket");
+        } else if (webChannel && channelType) {
+            this._webChannel = webChannel;
+            this._channelType = channelType;
+            this._channelStates = this._getChannelStates(channelType);
+        } else {
+            throw new Error(
+                `Expected to receive one of uri and optional protocols or webChannel and channelType`
+            );
+        }
 
-        this._websocket.onmessage = this._recv_message.bind(this);
-        this._websocket.onopen = () => {
-            Log.Debug('>> WebSock.onopen');
-            if (this._websocket.protocol) {
-                Log.Info("Server choose sub-protocol: " + this._websocket.protocol);
+        const onOpen = () => {
+            Log.Debug(`>> ${this._channelType}.onopen`);
+            if (this._webChannel.protocol) {
+                Log.Info("Server choose sub-protocol: " + this._webChannel.protocol);
             }
 
             this._eventHandlers.open();
-            Log.Debug("<< WebSock.onopen");
+            Log.Debug(`<< ${this._channelType}.onopen`);
         };
-        this._websocket.onclose = (e) => {
-            Log.Debug(">> WebSock.onclose");
+
+        this._webChannel.binaryType = "arraybuffer";
+
+        this._webChannel.onmessage = this._recv_message.bind(this);
+
+        if (uri) {
+            this._webChannel.onopen = onOpen;
+        }
+        if (webChannel) {
+            onOpen();
+        }
+        this._webChannel.onclose = (e) => {
+            Log.Debug(`>> ${this._channelType}.onclose`);
             this._eventHandlers.close(e);
-            Log.Debug("<< WebSock.onclose");
+            Log.Debug(`<< ${this._channelType}.onclose`);
         };
-        this._websocket.onerror = (e) => {
-            Log.Debug(">> WebSock.onerror: " + e);
+        this._webChannel.onerror = (e) => {
+            Log.Debug(`>> ${this._channelType}.onerror: ` + e);
             this._eventHandlers.error(e);
-            Log.Debug("<< WebSock.onerror: " + e);
+            Log.Debug(`<< ${this._channelType}.onerror: ` + e);
         };
     }
 
     close() {
-        if (this._websocket) {
-            if ((this._websocket.readyState === WebSocket.OPEN) ||
-                    (this._websocket.readyState === WebSocket.CONNECTING)) {
-                Log.Info("Closing WebSocket connection");
-                this._websocket.close();
+        if (this._webChannel) {
+            if ((this._webChannel.readyState === this._channelStates.OPEN) ||
+                    (this._webChannel.readyState === this._channelStates.CONNECTING)) {
+                Log.Info(`Closing ${this._channelType} connection`);
+                this._webChannel.close();
             }
 
-            this._websocket.onmessage = () => {};
+            this._webChannel.onmessage = () => {};
         }
     }
 
