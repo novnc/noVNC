@@ -29,12 +29,12 @@ chai.use(function (_chai, utils) {
     _chai.Assertion.addMethod('sent', function (target_data) {
         const obj = this._obj;
         obj.inspect = () => {
-            const res = { _websocket: obj._websocket, rQi: obj._rQi, _rQ: new Uint8Array(obj._rQ.buffer, 0, obj._rQlen),
+            const res = { _webChannel: obj._webChannel, rQi: obj._rQi, _rQ: new Uint8Array(obj._rQ.buffer, 0, obj._rQlen),
                           _sQ: new Uint8Array(obj._sQ.buffer, 0, obj._sQlen) };
             res.prototype = obj;
             return res;
         };
-        const data = obj._websocket._get_sent_data();
+        const data = obj._webChannel._get_sent_data();
         let same = true;
         if (data.length != target_data.length) {
             same = false;

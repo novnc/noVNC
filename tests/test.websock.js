@@ -1,9 +1,9 @@
 const expect = chai.expect;
 
-import Websock from '../core/websock.js';
+import WebChannel from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 
-describe('Websock', function () {
+describe('WebChannel', function () {
     "use strict";
 
     describe('Queue methods', function () {
@@ -11,7 +11,7 @@ describe('Websock', function () {
         const RQ_TEMPLATE = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]);
 
         beforeEach(function () {
-            sock = new Websock();
+            sock = new WebChannel();
             // skip init
             sock._allocate_buffers();
             sock._rQ.set(RQ_TEMPLATE);
@@ -188,30 +188,31 @@ describe('Websock', function () {
 
         describe('flush', function () {
             beforeEach(function () {
-                sock._websocket = {
+                sock._webChannel = {
                     send: sinon.spy()
                 };
             });
 
             it('should actually send on the websocket', function () {
-                sock._websocket.bufferedAmount = 8;
-                sock._websocket.readyState = WebSocket.OPEN;
+                sock._channelStates = sock._getChannelStates("WebSocket");
+                sock._webChannel.bufferedAmount = 8;
+                sock._webChannel.readyState = WebSocket.OPEN;
                 sock._sQ = new Uint8Array([1, 2, 3]);
                 sock._sQlen = 3;
                 const encoded = sock._encode_message();
 
                 sock.flush();
-                expect(sock._websocket.send).to.have.been.calledOnce;
-                expect(sock._websocket.send).to.have.been.calledWith(encoded);
+                expect(sock._webChannel.send).to.have.been.calledOnce;
+                expect(sock._webChannel.send).to.have.been.calledWith(encoded);
             });
 
             it('should not call send if we do not have anything queued up', function () {
                 sock._sQlen = 0;
-                sock._websocket.bufferedAmount = 8;
+                sock._webChannel.bufferedAmount = 8;
 
                 sock.flush();
 
-                expect(sock._websocket.send).not.to.have.been.called;
+                expect(sock._webChannel.send).not.to.have.been.called;
             });
         });
 
@@ -252,7 +253,7 @@ describe('Websock', function () {
 
         let sock;
         beforeEach(function () {
-            sock = new Websock();
+            sock = new WebChannel();
             // eslint-disable-next-line no-global-assign
             WebSocket = sinon.spy();
             WebSocket.OPEN = old_WS.OPEN;
@@ -269,7 +270,7 @@ describe('Websock', function () {
             });
 
             it('should open the actual websocket', function () {
-                sock.open('ws://localhost:8675', 'binary');
+                sock.open({ uri: 'ws://localhost:8675', protocols: 'binary' });
                 expect(WebSocket).to.have.been.calledWith('ws://localhost:8675', 'binary');
             });
 
@@ -278,38 +279,38 @@ describe('Websock', function () {
 
         describe('closing', function () {
             beforeEach(function () {
-                sock.open('ws://');
-                sock._websocket.close = sinon.spy();
+                sock.open({ uri: 'ws://' });
+                sock._webChannel.close = sinon.spy();
             });
 
             it('should close the actual websocket if it is open', function () {
-                sock._websocket.readyState = WebSocket.OPEN;
+                sock._webChannel.readyState = WebSocket.OPEN;
                 sock.close();
-                expect(sock._websocket.close).to.have.been.calledOnce;
+                expect(sock._webChannel.close).to.have.been.calledOnce;
             });
 
             it('should close the actual websocket if it is connecting', function () {
-                sock._websocket.readyState = WebSocket.CONNECTING;
+                sock._webChannel.readyState = WebSocket.CONNECTING;
                 sock.close();
-                expect(sock._websocket.close).to.have.been.calledOnce;
+                expect(sock._webChannel.close).to.have.been.calledOnce;
             });
 
             it('should not try to close the actual websocket if closing', function () {
-                sock._websocket.readyState = WebSocket.CLOSING;
+                sock._webChannel.readyState = WebSocket.CLOSING;
                 sock.close();
-                expect(sock._websocket.close).not.to.have.been.called;
+                expect(sock._webChannel.close).not.to.have.been.called;
             });
 
             it('should not try to close the actual websocket if closed', function () {
-                sock._websocket.readyState = WebSocket.CLOSED;
+                sock._webChannel.readyState = WebSocket.CLOSED;
                 sock.close();
-                expect(sock._websocket.close).not.to.have.been.called;
+                expect(sock._webChannel.close).not.to.have.been.called;
             });
 
             it('should reset onmessage to not call _recv_message', function () {
                 sinon.spy(sock, '_recv_message');
                 sock.close();
-                sock._websocket.onmessage(null);
+                sock._webChannel.onmessage(null);
                 try {
                     expect(sock._recv_message).not.to.have.been.called;
                 } finally {
@@ -324,26 +325,26 @@ describe('Websock', function () {
                 sock.on('open', sinon.spy());
                 sock.on('close', sinon.spy());
                 sock.on('error', sinon.spy());
-                sock.open('ws://');
+                sock.open({ uri: 'ws://' });
             });
 
             it('should call _recv_message on a message', function () {
-                sock._websocket.onmessage(null);
+                sock._webChannel.onmessage(null);
                 expect(sock._recv_message).to.have.been.calledOnce;
             });
 
             it('should call the open event handler on opening', function () {
-                sock._websocket.onopen();
+                sock._webChannel.onopen();
                 expect(sock._eventHandlers.open).to.have.been.calledOnce;
             });
 
             it('should call the close event handler on closing', function () {
-                sock._websocket.onclose();
+                sock._webChannel.onclose();
                 expect(sock._eventHandlers.close).to.have.been.calledOnce;
             });
 
             it('should call the error event handler on error', function () {
-                sock._websocket.onerror();
+                sock._webChannel.onerror();
                 expect(sock._eventHandlers.error).to.have.been.calledOnce;
             });
         });
@@ -357,7 +358,7 @@ describe('Websock', function () {
     describe('WebSocket Receiving', function () {
         let sock;
         beforeEach(function () {
-            sock = new Websock();
+            sock = new WebChannel();
             sock._allocate_buffers();
         });
 
@@ -442,9 +443,9 @@ describe('Websock', function () {
         describe('as binary data', function () {
             let sock;
             beforeEach(function () {
-                sock = new Websock();
-                sock.open('ws://', 'binary');
-                sock._websocket._open();
+                sock = new WebChannel();
+                sock.open({ uri: 'ws://', protocols: 'binary' });
+                sock._webChannel._open();
             });
 
             it('should only send the send queue up to the send queue length', function () {
@@ -456,7 +457,7 @@ describe('Websock', function () {
 
             it('should properly pass the encoded data off to the actual WebSocket', function () {
                 sock.send([1, 2, 3]);
-                expect(sock._websocket._get_sent_data()).to.array.equal(new Uint8Array([1, 2, 3]));
+                expect(sock._webChannel._get_sent_data()).to.array.equal(new Uint8Array([1, 2, 3]));
             });
         });
     });
