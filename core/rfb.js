@@ -15,7 +15,7 @@ import Display from "./display.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
 import Cursor from "./util/cursor.js";
-import Websock from "./websock.js";
+import WebChannel from "./websock.js";
 import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
@@ -34,18 +34,18 @@ const DISCONNECT_TIMEOUT = 3;
 const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
 export default class RFB extends EventTargetMixin {
-    constructor(target, url, options) {
+    constructor(target, urlOrChannel, options) {
         if (!target) {
             throw new Error("Must specify target");
         }
-        if (!url) {
-            throw new Error("Must specify URL");
+        if (!urlOrChannel) {
+            throw new Error("Must specify URL or WebSocket / RTCDataChannel");
         }
 
         super();
 
         this._target = target;
-        this._url = url;
+        this._urlOrChannel = urlOrChannel;
 
         // Connection details
         options = options || {};
@@ -85,7 +85,7 @@ export default class RFB extends EventTargetMixin {
         this._qemuExtKeyEventSupported = false;
 
         // Internal objects
-        this._sock = null;              // Websock object
+        this._sock = null;              // WebSocket or RTCDataChannel object
         this._display = null;           // Display object
         this._flushing = false;         // Display flushing state
         this._keyboard = null;          // Keyboard input handler object
@@ -180,7 +180,7 @@ export default class RFB extends EventTargetMixin {
         this._mouse.onmousebutton = this._handleMouseButton.bind(this);
         this._mouse.onmousemove = this._handleMouseMove.bind(this);
 
-        this._sock = new Websock();
+        this._sock = new WebChannel();
         this._sock.on('message', () => {
             this._handle_message();
         });
@@ -195,7 +195,7 @@ export default class RFB extends EventTargetMixin {
             }
         });
         this._sock.on('close', (e) => {
-            Log.Debug("WebSocket on-close event");
+            Log.Debug("WebChannel on-close event");
             let msg = "";
             if (e.code) {
                 msg = "(code: " + e.code;
@@ -228,7 +228,7 @@ export default class RFB extends EventTargetMixin {
             }
             this._sock.off('close');
         });
-        this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
+        this._sock.on('error', e => Log.Warn("WebChannel on-error event"));
 
         // Slight delay of the actual connection so that the caller has
         // time to set up callbacks
@@ -398,11 +398,22 @@ export default class RFB extends EventTargetMixin {
     _connect() {
         Log.Debug(">> RFB.connect");
 
-        Log.Info("connecting to " + this._url);
-
         try {
-            // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(this._url, this._wsProtocols);
+            // WebChannel.onopen transitions to the RFB init states
+            if (typeof this._urlOrChannel === "string") {
+                Log.Info(`connecting to ${this._urlOrChannel}`);
+                this._sock.open({ uri: this._urlOrChannel, protocols: this._wsProtocols });
+            } else {
+                let proto = Object.getPrototypeOf(this._urlOrChannel);
+                let protoName = proto && proto.constructor && proto.constructor.name || "";
+
+                Log.Info(`connecting with established ${protoName}`);
+                if (protoName === "WebSocket" || protoName === "RTCDataChannel") {
+                    this._sock.open({ webChannel: this._urlOrChannel, channelType: protoName });
+                } else {
+                    throw new Error("Expected url and protocols or established WebSocket / RTCDataChannel object");
+                }
+            }
         } catch (e) {
             if (e.name === 'SyntaxError') {
                 this._fail("Invalid host or port (" + e + ")");
