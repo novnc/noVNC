@@ -161,9 +161,6 @@ export default class TightDecoder {
             }
 
             data = this._zlibs[streamId].inflate(data, uncompressedSize);
-            if (data.length != uncompressedSize) {
-                throw new Error("Incomplete zlib block");
-            }
         }
 
         display.blitRgbImage(x, y, width, height, data, 0, false);
@@ -209,9 +206,6 @@ export default class TightDecoder {
             }
 
             data = this._zlibs[streamId].inflate(data, uncompressedSize);
-            if (data.length != uncompressedSize) {
-                throw new Error("Incomplete zlib block");
-            }
         }
 
         // Convert indexed (palette based) image data to RGB
