@@ -160,7 +160,7 @@ export default class TightDecoder {
                 return false;
             }
 
-            data = this._zlibs[streamId].inflate(data, true, uncompressedSize);
+            data = this._zlibs[streamId].inflate(data, uncompressedSize);
             if (data.length != uncompressedSize) {
                 throw new Error("Incomplete zlib block");
             }
@@ -208,7 +208,7 @@ export default class TightDecoder {
                 return false;
             }
 
-            data = this._zlibs[streamId].inflate(data, true, uncompressedSize);
+            data = this._zlibs[streamId].inflate(data, uncompressedSize);
             if (data.length != uncompressedSize) {
                 throw new Error("Incomplete zlib block");
             }

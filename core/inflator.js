@@ -11,7 +11,7 @@ export default class Inflate {
         inflateInit(this.strm, this.windowBits);
     }
 
-    inflate(data, flush, expected) {
+    inflate(data, expected) {
         this.strm.input = data;
         this.strm.avail_in = this.strm.input.length;
         this.strm.next_in = 0;
@@ -27,7 +27,7 @@ export default class Inflate {
 
         this.strm.avail_out = this.chunkSize;
 
-        inflate(this.strm, flush);
+        inflate(this.strm, 0); // Flush argument not used.
 
         return new Uint8Array(this.strm.output.buffer, 0, this.strm.next_out);
     }
