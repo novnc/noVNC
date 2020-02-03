@@ -160,7 +160,9 @@ export default class TightDecoder {
                 return false;
             }
 
-            data = this._zlibs[streamId].inflate(data, uncompressedSize);
+            this._zlibs[streamId].setInput(data);
+            data = this._zlibs[streamId].inflate(uncompressedSize);
+            this._zlibs[streamId].setInput(null);
         }
 
         display.blitRgbImage(x, y, width, height, data, 0, false);
@@ -205,7 +207,9 @@ export default class TightDecoder {
                 return false;
             }
 
-            data = this._zlibs[streamId].inflate(data, uncompressedSize);
+            this._zlibs[streamId].setInput(data);
+            data = this._zlibs[streamId].inflate(uncompressedSize);
+            this._zlibs[streamId].setInput(null);
         }
 
         // Convert indexed (palette based) image data to RGB

@@ -19,12 +19,20 @@ export default class Inflate {
         inflateInit(this.strm, this.windowBits);
     }
 
-    inflate(data, expected) {
-        this.strm.input = data;
-        this.strm.avail_in = this.strm.input.length;
-        this.strm.next_in = 0;
-        this.strm.next_out = 0;
+    setInput(data) {
+        if (!data) {
+            //FIXME: flush remaining data.
+            this.strm.input = null;
+            this.strm.avail_in = 0;
+            this.strm.next_in = 0;
+        } else {
+            this.strm.input = data;
+            this.strm.avail_in = this.strm.input.length;
+            this.strm.next_in = 0;
+        }
+    }
 
+    inflate(expected) {
         // resize our output buffer if it's too small
         // (we could just use multiple chunks, but that would cause an extra
         // allocation each time to flatten the chunks)
@@ -33,6 +41,7 @@ export default class Inflate {
             this.strm.output = new Uint8Array(this.chunkSize);
         }
 
+        this.strm.next_out = 0;
         this.strm.avail_out = this.chunkSize;
 
         let ret = inflate(this.strm, 0); // Flush argument not used.
