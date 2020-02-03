@@ -35,7 +35,10 @@ export default class Inflate {
 
         this.strm.avail_out = this.chunkSize;
 
-        inflate(this.strm, 0); // Flush argument not used.
+        let ret = inflate(this.strm, 0); // Flush argument not used.
+        if (ret < 0) {
+            throw new Error("zlib inflate failed");
+        }
 
         if (this.strm.next_out != expected) {
             throw new Error("Incomplete zlib block");
