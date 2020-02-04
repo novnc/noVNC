@@ -866,6 +866,21 @@ select:active {
   ime-mode: disabled;
 }
 
+#noVNC_mouse_coordinates {
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 20px;
+  min-width: 150px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  background-color: #fff;
+  border: 2px solid #E0E0E0;
+  border-radius: 0 0 0 5px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+
 /*Default noVNC logo.*/
 /* From: http://fonts.googleapis.com/css?family=Orbitron:700 */
 @font-face {

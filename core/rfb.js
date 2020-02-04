@@ -271,6 +271,8 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    get canvas() { return this._canvas; }
+
     get capabilities() { return this._capabilities; }
 
     get touchButton() { return this._mouse.touchButton; }

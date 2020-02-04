@@ -707,6 +707,17 @@ const UI = {
         }
     },
 
+    trackMouse() {
+        UI.rfb.canvas.addEventListener('mousemove', function(e) {
+            let scaleRatioX = UI.rfb.canvas.width / UI.rfb.canvas.clientWidth;
+            let scaleRatioY = UI.rfb.canvas.height / UI.rfb.canvas.clientHeight;
+            let x = Math.floor(e.offsetX * scaleRatioX);
+            let y = Math.floor(e.offsetY * scaleRatioY);
+            document.getElementById('noVNC_mouse_coordinates').innerText = "(" + x + ", " + y + ")"
+        });
+    },
+
+
 /* ------^-------
  *    /VISUAL
  * ==============
@@ -1035,6 +1046,8 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+
+        UI.trackMouse();
 
         UI.updateViewOnly(); // requires UI.rfb
     },
