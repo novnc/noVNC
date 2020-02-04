@@ -72,6 +72,7 @@ export default class Display {
 
         this._scale = 1.0;
         this._clipViewport = false;
+        this._bgrxImgMode = false;
 
         // ===== EVENT HANDLERS =====
 
@@ -100,6 +101,10 @@ export default class Display {
 
     get height() {
         return this._fb_height;
+    }
+
+    set bgrxImgMode(val) {
+        this._bgrxImgMode = val;
     }
 
     // ===== PUBLIC METHODS =====
@@ -489,6 +494,26 @@ export default class Display {
         }
     }
 
+    blitBgrxImage(x, y, width, height, arr, offset, from_queue) {
+        if (this._renderQ.length !== 0 && !from_queue) {
+            // NB(directxman12): it's technically more performant here to use preallocated arrays,
+            // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+            // this probably isn't getting called *nearly* as much
+            const new_arr = new Uint8Array(width * height * 4);
+            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
+            this._renderQ_push({
+                'type': 'blitBgrx',
+                'data': new_arr,
+                'x': x,
+                'y': y,
+                'width': width,
+                'height': height,
+            });
+        } else {
+            this._bgrxImageData(x, y, width, height, arr, offset);
+        }
+    }
+
     drawImage(img, x, y) {
         this._drawCtx.drawImage(img, x, y);
         this._damage(x, y, img.width, img.height);
@@ -599,6 +624,15 @@ export default class Display {
         this._noVNC_display._scan_renderQ();
     }
 
+    _get_image_data(image) {
+        let tmpC = document.createElement('canvas');
+        let ctx  = tmpC.getContext('2d');
+        tmpC.width  = image.width;
+        tmpC.height = image.height;
+        ctx.drawImage(image.img, 0, 0, image.width, image.height);
+        return ctx.getImageData(0, 0, image.width, image.height).data;
+    }
+
     _scan_renderQ() {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
@@ -631,7 +665,11 @@ export default class Display {
                                       a.width + "x" + a.height + ".");
                             return;
                         }
-                        this.drawImage(a.img, a.x, a.y);
+                        if (this._bgrxImgMode) {
+                            this.blitBgrxImage(a.x, a.y, a.width, a.height, this._get_image_data(a), 0, true)
+                        } else {
+                            this.drawImage(a.img, a.x, a.y);
+                        }
                     } else {
                         a.img._noVNC_display = this;
                         a.img.addEventListener('load', this._resume_renderQ);
