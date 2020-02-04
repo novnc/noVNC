@@ -282,6 +282,9 @@ export default class RFB extends EventTargetMixin {
         this._updateClip();
     }
 
+    get bgrxImgMode() { return this._display.bgrxImgMode; }
+    set bgrxImgMode(val) { this._display.bgrxImgMode = val; }
+
     get scaleViewport() { return this._scaleViewport; }
     set scaleViewport(scale) {
         this._scaleViewport = scale;
