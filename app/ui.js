@@ -163,6 +163,7 @@ const UI = {
         UI.initSetting('resize', 'off');
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
+        UI.initSetting('img_bgrx_mode', false);
         UI.initSetting('show_dot', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
@@ -352,6 +353,8 @@ const UI = {
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
+        UI.addSettingChangeHandler('img_bgrx_mode');
+        UI.addSettingChangeHandler('img_bgrx_mode', UI.applyBGRXMode);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
         UI.addSettingChangeHandler('host');
@@ -1028,6 +1031,7 @@ const UI = {
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
+        UI.rfb.bgrxImgMode = UI.getSetting('img_bgrx_mode');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
@@ -1249,6 +1253,19 @@ const UI = {
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+    },
+
+/* ------^-------
+ *  /img_bgrx_mode
+ * ==============
+ *   BGRX mode
+ * ------v------*/
+
+    // Apply bgrx transform to images
+    applyBGRXMode() {
+        if (!UI.rfb) return;
+
+        UI.rfb.bgrxImgMode = UI.getSetting('img_bgrx_mode');
     },
 
 /* ------^-------
