@@ -1031,6 +1031,7 @@ const UI = {
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
+        UI.rfb.bgrxImgMode = UI.getSetting('img_bgrx_mode');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
