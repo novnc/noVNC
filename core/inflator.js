@@ -42,7 +42,7 @@ export default class Inflate {
         }
 
         this.strm.next_out = 0;
-        this.strm.avail_out = this.chunkSize;
+        this.strm.avail_out = expected;
 
         let ret = inflate(this.strm, 0); // Flush argument not used.
         if (ret < 0) {
