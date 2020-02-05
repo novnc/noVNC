@@ -888,11 +888,21 @@ select:active {
 
 .noVNC_info_item_label {
   display: inline-block;
+  width: 100%;
   margin-bottom: 15px;
   font-weight: 600;
   font-size: 14px;
   text-transform: uppercase;
   color: rgba(0, 0, 0, .5);
+}
+
+.noVNC_info_item button {
+  display: inline-block;
+  padding: 4px 4px;
+  margin: 10px 5px 20px 0;
+  vertical-align: middle;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
 }
 
 #noVNC_mouse_coordinates,
