@@ -10,3 +10,5 @@ recordings
 *.swp
 *~
 noVNC-*.tgz
+websockify
+.idea
