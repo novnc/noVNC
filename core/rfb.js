@@ -251,6 +251,10 @@ export default class RFB extends EventTargetMixin {
             Log.Warn("Specifying showDotCursor as a RFB constructor argument is deprecated");
             this._showDotCursor = options.showDotCursor;
         }
+        this._showPointerCursor = false;
+        if (options.showPointerCursor !== undefined) {
+            this._showPointerCursor = options.showPointerCursor;
+        }
     }
 
     // ===== PROPERTIES =====
@@ -270,6 +274,8 @@ export default class RFB extends EventTargetMixin {
             }
         }
     }
+
+    get canvas() { return this._canvas; }
 
     get capabilities() { return this._capabilities; }
 
@@ -310,6 +316,12 @@ export default class RFB extends EventTargetMixin {
     get showDotCursor() { return this._showDotCursor; }
     set showDotCursor(show) {
         this._showDotCursor = show;
+        this._refreshCursor();
+    }
+
+    get showPointerCursor() { return this._showPointerCursor; }
+    set showPointerCursor(show) {
+        this._showPointerCursor = show;
         this._refreshCursor();
     }
 
@@ -1882,11 +1894,16 @@ export default class RFB extends EventTargetMixin {
             this._rfb_connection_state !== "connected") {
             return;
         }
-        const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
-        this._cursor.change(image.rgbaPixels,
-                            image.hotx, image.hoty,
-                            image.w, image.h
-        );
+
+        if (this._showPointerCursor) {
+            this._cursor.changeToDefaultCursor();
+        } else {
+            const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
+            this._cursor.change(image.rgbaPixels,
+                                image.hotx, image.hoty,
+                                image.w, image.h
+            );
+        }
     }
 
     static genDES(password, challenge) {

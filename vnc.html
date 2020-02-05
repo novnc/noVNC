@@ -16,7 +16,7 @@
     <title>noVNC</title>
 
     <meta charset="utf-8">
-    
+
     <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
                 Remove this if you use the .htaccess -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -244,6 +244,9 @@
                             </li>
                             <li><hr></li>
                             <li>
+                                <label><input id="noVNC_setting_show_pointer" type="checkbox"> Show Default when No Cursor</label>
+                            </li>
+                            <li>
                                 <label><input id="noVNC_setting_show_dot" type="checkbox"> Show Dot when No Cursor</label>
                             </li>
                             <li><hr></li>
@@ -326,6 +329,26 @@
              style for example -->
         <textarea id="noVNC_keyboardinput" autocapitalize="off"
             autocomplete="off" spellcheck="false" tabindex="-1"></textarea>
+    </div>
+
+    <div id="noVNC_info_panel">
+        <div class="noVNC_info_item">
+            <span class="noVNC_info_item_label">Mouse coordinates</span>
+            <div id="noVNC_mouse_coordinates">
+                (0, 0)
+            </div>
+        </div>
+        <div class="noVNC_info_item">
+            <span class="noVNC_info_item_label">Screenshot</span>
+            <button id="noVNC_download_screenshot">Download screenshot</button>
+        </div>
+        <div class="noVNC_info_item">
+            <span class="noVNC_info_item_label">Interaction stack</span>
+            <button id="noVNC_click_stack_copy">Copy stack to clipboard</button>
+            <button id="noVNC_click_stack_clear">Clear stack</button>
+            <ol id="noVNC_click_stack">
+            </ol>
+        </div>
     </div>
 
     <audio id="noVNC_bell">

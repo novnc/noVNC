@@ -37,6 +37,8 @@ const UI = {
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
 
+    canvasInteractionEvents: Array(),
+
     inhibit_reconnect: true,
     reconnect_callback: null,
     reconnect_password: null,
@@ -165,6 +167,7 @@ const UI = {
         UI.initSetting('view_only', false);
         UI.initSetting('img_bgrx_mode', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('show_pointer', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -357,6 +360,8 @@ const UI = {
         UI.addSettingChangeHandler('img_bgrx_mode', UI.applyBGRXMode);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('show_pointer');
+        UI.addSettingChangeHandler('show_pointer', UI.updateShowPointerCursor);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -707,6 +712,79 @@ const UI = {
         }
     },
 
+    trackMouse() {
+        UI.rfb.canvas.addEventListener('mousemove', function(e) {
+            let scaleRatioX = UI.rfb.canvas.width / UI.rfb.canvas.clientWidth;
+            let scaleRatioY = UI.rfb.canvas.height / UI.rfb.canvas.clientHeight;
+            let x = Math.floor(e.offsetX * scaleRatioX);
+            let y = Math.floor(e.offsetY * scaleRatioY);
+            document.getElementById('noVNC_mouse_coordinates').innerHTML = "(" + x + ", " + y + ")"
+        });
+    },
+
+    trackClicks() {
+        document.getElementById('noVNC_click_stack_copy').addEventListener('click', function() {
+            let text = JSON.stringify(UI.canvasInteractionEvents);
+            if (!navigator.clipboard) {
+                var textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position="fixed";  //avoid scrolling to bottom
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                try {
+                    var successful = document.execCommand('copy');
+                    var msg = successful ? 'successful' : 'unsuccessful';
+                    console.log('Fallback: Copying text command was ' + msg);
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+
+                document.body.removeChild(textArea);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        });
+
+        document.getElementById('noVNC_click_stack_clear').addEventListener('click', function() {
+            UI.canvasInteractionEvents = Array();
+            UI.updateInteractionStackUI();
+        });
+
+        UI.rfb.canvas.addEventListener('mouseup', function(e) {
+            let scaleRatioX = UI.rfb.canvas.width / UI.rfb.canvas.clientWidth;
+            let scaleRatioY = UI.rfb.canvas.height / UI.rfb.canvas.clientHeight;
+            let x = Math.floor(e.offsetX * scaleRatioX);
+            let y = Math.floor(e.offsetY * scaleRatioY);
+            UI.canvasInteractionEvents.push({name: e.type, x: x, y: y})
+            UI.updateInteractionStackUI();
+        });
+    },
+
+    attachDownloadScreenshotButton() {
+        document.getElementById('noVNC_download_screenshot').addEventListener('click', function() {
+            let link = document.createElement('a');
+            link.download = 'screenshot.png';
+            link.href = UI.rfb.canvas.toDataURL("image/png");
+            link.click();
+        });
+    },
+
+    updateInteractionStackUI() {
+        document.getElementById('noVNC_click_stack').innerHTML = '';
+        for (var i = 0; i < UI.canvasInteractionEvents.length; i++) {
+            let e = UI.canvasInteractionEvents[i];
+            let el = document.createElement('li');
+            el.innerText = e.name + ' at (' + e.x + ', ' + e.y + ')';
+            document.getElementById('noVNC_click_stack').append(el);
+        }
+    },
+
 /* ------^-------
  *    /VISUAL
  * ==============
@@ -1035,6 +1113,11 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.showPointerCursor = UI.getSetting('show_pointer');
+
+        UI.trackMouse();
+        UI.trackClicks();
+        UI.attachDownloadScreenshotButton();
 
         UI.updateViewOnly(); // requires UI.rfb
     },
@@ -1651,6 +1734,11 @@ const UI = {
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateShowPointerCursor() {
+        if (!UI.rfb) return;
+        UI.rfb.showPointerCursor = UI.getSetting('show_pointer');
     },
 
     updateLogging() {
