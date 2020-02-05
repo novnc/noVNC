@@ -37,6 +37,8 @@ const UI = {
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
 
+    canvasInteractionEvents: Array(),
+
     inhibit_reconnect: true,
     reconnect_callback: null,
     reconnect_password: null,
@@ -713,10 +715,30 @@ const UI = {
             let scaleRatioY = UI.rfb.canvas.height / UI.rfb.canvas.clientHeight;
             let x = Math.floor(e.offsetX * scaleRatioX);
             let y = Math.floor(e.offsetY * scaleRatioY);
-            document.getElementById('noVNC_mouse_coordinates').innerText = "(" + x + ", " + y + ")"
+            document.getElementById('noVNC_mouse_coordinates').innerHTML = "(" + x + ", " + y + ")"
         });
     },
 
+    trackClicks() {
+        UI.rfb.canvas.addEventListener('mouseup', function(e) {
+            let scaleRatioX = UI.rfb.canvas.width / UI.rfb.canvas.clientWidth;
+            let scaleRatioY = UI.rfb.canvas.height / UI.rfb.canvas.clientHeight;
+            let x = Math.floor(e.offsetX * scaleRatioX);
+            let y = Math.floor(e.offsetY * scaleRatioY);
+            UI.canvasInteractionEvents.push({name: e.type, x: x, y: y})
+            UI.updateInteractionStackUI();
+        });
+    },
+
+    updateInteractionStackUI() {
+        document.getElementById('noVNC_click_stack').innerHTML = "";
+        for (var i = 0; i < UI.canvasInteractionEvents.length; i++) {
+            let e = UI.canvasInteractionEvents[i];
+            let el = document.createElement('li');
+            el.innerText = e.name + " at (" + e.x + ", " + e.y + ")";
+            document.getElementById('noVNC_click_stack').append(el);
+        }
+    },
 
 /* ------^-------
  *    /VISUAL
@@ -1048,6 +1070,7 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.trackMouse();
+        UI.trackClicks();
 
         UI.updateViewOnly(); // requires UI.rfb
     },

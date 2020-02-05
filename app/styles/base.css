@@ -881,6 +881,18 @@ select:active {
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 
+#noVNC_click_stack {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 250px;
+  height: 250px;
+  overflow: scroll;
+  background-color: #fff;
+  border-radius: 5px 0 0 0;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+}
+
 /*Default noVNC logo.*/
 /* From: http://fonts.googleapis.com/css?family=Orbitron:700 */
 @font-face {
