@@ -167,6 +167,7 @@ const UI = {
         UI.initSetting('view_only', false);
         UI.initSetting('img_bgrx_mode', false);
         UI.initSetting('show_dot', false);
+        UI.initSetting('show_pointer', false);
         UI.initSetting('path', 'websockify');
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
@@ -359,6 +360,8 @@ const UI = {
         UI.addSettingChangeHandler('img_bgrx_mode', UI.applyBGRXMode);
         UI.addSettingChangeHandler('show_dot');
         UI.addSettingChangeHandler('show_dot', UI.updateShowDotCursor);
+        UI.addSettingChangeHandler('show_pointer');
+        UI.addSettingChangeHandler('show_pointer', UI.updateShowPointerCursor);
         UI.addSettingChangeHandler('host');
         UI.addSettingChangeHandler('port');
         UI.addSettingChangeHandler('path');
@@ -1101,6 +1104,7 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.showPointerCursor = UI.getSetting('show_pointer');
 
         UI.trackMouse();
         UI.trackClicks();
@@ -1720,6 +1724,11 @@ const UI = {
     updateShowDotCursor() {
         if (!UI.rfb) return;
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+    },
+
+    updateShowPointerCursor() {
+        if (!UI.rfb) return;
+        UI.rfb.showPointerCursor = UI.getSetting('show_pointer');
     },
 
     updateLogging() {

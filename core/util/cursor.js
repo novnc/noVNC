@@ -121,6 +121,10 @@ export default class Cursor {
         }
     }
 
+    changeToDefaultCursor() {
+        this._target.style.cursor = 'default';
+    }
+
     clear() {
         this._target.style.cursor = 'none';
         this._canvas.width = 0;
