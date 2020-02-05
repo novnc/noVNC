@@ -328,16 +328,23 @@
             autocomplete="off" spellcheck="false" tabindex="-1"></textarea>
     </div>
 
+    <div id="noVNC_info_panel">
+        <div class="noVNC_info_item">
+            <span class="noVNC_info_item_label">Mouse coordinates</span>
+            <div id="noVNC_mouse_coordinates">
+                (0, 0)
+            </div>
+        </div>
+        <div class="noVNC_info_item noVNC_click_stack_container">
+            <span class="noVNC_info_item_label">Interaction stack</span>
+            <ol id="noVNC_click_stack">
+            </ol>
+        </div>
+    </div>
+
     <audio id="noVNC_bell">
         <source src="app/sounds/bell.oga" type="audio/ogg">
         <source src="app/sounds/bell.mp3" type="audio/mpeg">
     </audio>
-
-    <div id="noVNC_mouse_coordinates">
-        (0, 0)
-    </div>
-
-    <ol id="noVNC_click_stack">
-    </ol>
  </body>
 </html>

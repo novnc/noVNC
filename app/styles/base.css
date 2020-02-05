@@ -847,7 +847,7 @@ select:active {
 
 /* Main container */
 #noVNC_container {
-  width: 100%;
+  width: 80%;
   height: 100%;
   background-color: #313131;
   border-bottom-right-radius: 800px 600px;
@@ -866,31 +866,53 @@ select:active {
   ime-mode: disabled;
 }
 
-#noVNC_mouse_coordinates {
+#noVNC_info_panel {
   position: fixed;
   top: 0;
   right: 0;
-  padding: 20px;
-  min-width: 150px;
-  font-size: 20px;
-  font-weight: 600;
-  text-align: center;
+  padding: 0 20px;
+  width: 20%;
+  height: 100%;
   background-color: #fff;
-  border: 2px solid #E0E0E0;
-  border-radius: 0 0 0 5px;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.noVNC_info_item {
+  width: 100%;
+  padding: 20px 0;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(0, 0, 0, .15);
+  text-align: center;
+}
+
+.noVNC_info_item_label {
+  display: inline-block;
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, .5);
+}
+
+#noVNC_mouse_coordinates,
+#noVNC_click_stack {
+  width: 100%;
+  font-weight: 600;
+}
+
+#noVNC_mouse_coordinates {
+  font-size: 20px;
+  text-align: center;
 }
 
 #noVNC_click_stack {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 250px;
-  height: 250px;
-  overflow: scroll;
-  background-color: #fff;
-  border-radius: 5px 0 0 0;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  text-align: left;
+  line-height: 1.4;
+  margin: 0;
+  box-sizing: border-box;
+  height: 400px;
+  overflow-y: scroll;
 }
 
 /*Default noVNC logo.*/
