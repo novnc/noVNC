@@ -766,12 +766,21 @@ const UI = {
         });
     },
 
+    attachDownloadScreenshotButton() {
+        document.getElementById('noVNC_download_screenshot').addEventListener('click', function() {
+            let link = document.createElement('a');
+            link.download = 'screenshot.png';
+            link.href = UI.rfb.canvas.toDataURL("image/png");
+            link.click();
+        });
+    },
+
     updateInteractionStackUI() {
-        document.getElementById('noVNC_click_stack').innerHTML = "";
+        document.getElementById('noVNC_click_stack').innerHTML = '';
         for (var i = 0; i < UI.canvasInteractionEvents.length; i++) {
             let e = UI.canvasInteractionEvents[i];
             let el = document.createElement('li');
-            el.innerText = e.name + " at (" + e.x + ", " + e.y + ")";
+            el.innerText = e.name + ' at (' + e.x + ', ' + e.y + ')';
             document.getElementById('noVNC_click_stack').append(el);
         }
     },
@@ -1108,6 +1117,7 @@ const UI = {
 
         UI.trackMouse();
         UI.trackClicks();
+        UI.attachDownloadScreenshotButton();
 
         UI.updateViewOnly(); // requires UI.rfb
     },
