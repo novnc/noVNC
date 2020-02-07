@@ -1081,7 +1081,12 @@ const UI = {
         if (port) {
             url += ':' + port;
         }
-        url += '/' + path;
+        
+        if (path.startsWith("?token")) {
+            url += '/websockify' + path;
+        } else {
+            url += '/' + path;
+        }
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
