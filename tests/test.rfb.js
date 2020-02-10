@@ -2865,6 +2865,108 @@ describe('Remote Frame Buffer Protocol Client', function () {
             // error events do nothing
         });
     });
+
+    describe('Quality level setting', function () {
+        const defaultQuality = 6;
+
+        let client;
+
+        beforeEach(function () {
+            client = make_rfb();
+            sinon.spy(RFB.messages, "clientEncodings");
+        });
+
+        afterEach(function () {
+            RFB.messages.clientEncodings.restore();
+        });
+
+        it(`should equal ${defaultQuality} by default`, function () {
+            expect(client._qualityLevel).to.equal(defaultQuality);
+        });
+
+        it('should ignore non-integers when set', function () {
+            client.qualityLevel = '1';
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.qualityLevel = 1.5;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.qualityLevel = null;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.qualityLevel = undefined;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.qualityLevel = {};
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+        });
+
+        it('should ignore integers out of range [0, 9]', function () {
+            client.qualityLevel = -1;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.qualityLevel = 10;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+        });
+
+        it('should send clientEncodings with new quality value', function () {
+            let newQuality;
+
+            newQuality = 8;
+            client.qualityLevel = newQuality;
+            expect(client.qualityLevel).to.equal(newQuality);
+            expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+            expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingQualityLevel0 + newQuality);
+        });
+
+        it('should not send clientEncodings if quality is the same', function () {
+            let newQuality;
+
+            newQuality = 2;
+            client.qualityLevel = newQuality;
+            expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+            expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingQualityLevel0 + newQuality);
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.qualityLevel = newQuality;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+        });
+
+        it('should not send clientEncodings if not in connected state', function () {
+            let newQuality;
+
+            client._rfb_connection_state = '';
+            newQuality = 2;
+            client.qualityLevel = newQuality;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client._rfb_connection_state = 'connnecting';
+            newQuality = 6;
+            client.qualityLevel = newQuality;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client._rfb_connection_state = 'connected';
+            newQuality = 5;
+            client.qualityLevel = newQuality;
+            expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+            expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingQualityLevel0 + newQuality);
+        });
+    });
 });
 
 describe('RFB messages', function () {
