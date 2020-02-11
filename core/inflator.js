@@ -1,3 +1,11 @@
+/*
+ * noVNC: HTML5 VNC client
+ * Copyright (C) 2020 The noVNC Authors
+ * Licensed under MPL 2.0 (see LICENSE.txt)
+ *
+ * See README.md for usage and integration instructions.
+ */
+
 import { inflateInit, inflate, inflateReset } from "../vendor/pako/lib/zlib/inflate.js";
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
 
