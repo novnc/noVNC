@@ -13,30 +13,30 @@ var DISTS = 2;
 
 
 /* Allowed flush values; see deflate() and inflate() below for details */
-//var Z_NO_FLUSH      = 0;
-//var Z_PARTIAL_FLUSH = 1;
-//var Z_SYNC_FLUSH    = 2;
-//var Z_FULL_FLUSH    = 3;
-var Z_FINISH        = 4;
-var Z_BLOCK         = 5;
-var Z_TREES         = 6;
+//export const Z_NO_FLUSH      = 0;
+//export const Z_PARTIAL_FLUSH = 1;
+//export const Z_SYNC_FLUSH    = 2;
+//export const Z_FULL_FLUSH    = 3;
+export const Z_FINISH        = 4;
+export const Z_BLOCK         = 5;
+export const Z_TREES         = 6;
 
 
 /* Return codes for the compression/decompression functions. Negative values
  * are errors, positive values are used for special but normal events.
  */
-var Z_OK            = 0;
-var Z_STREAM_END    = 1;
-var Z_NEED_DICT     = 2;
-//var Z_ERRNO         = -1;
-var Z_STREAM_ERROR  = -2;
-var Z_DATA_ERROR    = -3;
-var Z_MEM_ERROR     = -4;
-var Z_BUF_ERROR     = -5;
-//var Z_VERSION_ERROR = -6;
+export const Z_OK            = 0;
+export const Z_STREAM_END    = 1;
+export const Z_NEED_DICT     = 2;
+//export const Z_ERRNO         = -1;
+export const Z_STREAM_ERROR  = -2;
+export const Z_DATA_ERROR    = -3;
+export const Z_MEM_ERROR     = -4;
+export const Z_BUF_ERROR     = -5;
+//export const Z_VERSION_ERROR = -6;
 
 /* The deflate compression method */
-var Z_DEFLATED  = 8;
+export const Z_DEFLATED  = 8;
 
 
 /* STATES ====================================================================*/
