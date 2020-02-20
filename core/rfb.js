@@ -1504,7 +1504,11 @@ export default class RFB extends EventTargetMixin {
                 streamInflator.setInput(null);
 
                 if (textData !== null) {
-                    textData = String.fromCharCode.apply(null, textData);
+                    let tmpText = "";
+                    for (let i = 0; i < textData.length; i++) {
+                        tmpText += String.fromCharCode(textData[i]);
+                    }
+                    textData = tmpText;
 
                     textData = decodeUTF8(textData);
                     if ((textData.length > 0) && "\0" === textData.charAt(textData.length - 1)) {

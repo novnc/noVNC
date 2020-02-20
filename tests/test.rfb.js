@@ -2514,6 +2514,38 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         client.removeEventListener("clipboard", spy);
                     });
 
+                    it('should be able to handle large Provide messages', function () {
+                        // repeat() is not supported in IE so a loop is needed instead
+                        let expectedData = "hello";
+                        for (let i = 1; i <= 100000; i++) {
+                            expectedData += "hello";
+                        }
+
+                        let data = [3, 0, 0, 0];
+                        const flags = [0x10, 0x00, 0x00, 0x01];
+
+                        let text = encodeUTF8(expectedData + "\0");
+
+                        let deflatedText = deflateWithSize(text);
+
+                        // How much data we are sending.
+                        push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
+
+                        data = data.concat(flags);
+
+                        let sendData = new Uint8Array(data.length + deflatedText.length);
+                        sendData.set(data);
+                        sendData.set(deflatedText, data.length);
+
+                        const spy = sinon.spy();
+                        client.addEventListener("clipboard", spy);
+
+                        client._sock._websocket._receive_data(sendData);
+                        expect(spy).to.have.been.calledOnce;
+                        expect(spy.args[0][0].detail.text).to.equal(expectedData);
+                        client.removeEventListener("clipboard", spy);
+                    });
+
                 });
 
                 describe('Handle Notify', function () {
