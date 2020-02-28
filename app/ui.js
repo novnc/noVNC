@@ -161,6 +161,7 @@ const UI = {
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
+        UI.initSetting('quality', 6);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
@@ -347,6 +348,8 @@ const UI = {
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
         UI.addSettingChangeHandler('resize', UI.updateViewClip);
+        UI.addSettingChangeHandler('quality');
+        UI.addSettingChangeHandler('quality', UI.updateQuality);
         UI.addSettingChangeHandler('view_clip');
         UI.addSettingChangeHandler('view_clip', UI.updateViewClip);
         UI.addSettingChangeHandler('shared');
@@ -829,6 +832,7 @@ const UI = {
         UI.updateSetting('encrypt');
         UI.updateSetting('view_clip');
         UI.updateSetting('resize');
+        UI.updateSetting('quality');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
         UI.updateSetting('path');
@@ -1030,6 +1034,7 @@ const UI = {
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
@@ -1323,6 +1328,18 @@ const UI = {
 
 /* ------^-------
  *   /VIEWDRAG
+ * ==============
+ *    QUALITY
+ * ------v------*/
+
+    updateQuality() {
+        if (!UI.rfb) return;
+
+        UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+    },
+
+/* ------^-------
+ *   /QUALITY
  * ==============
  *    KEYBOARD
  * ------v------*/
