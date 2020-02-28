@@ -64,6 +64,11 @@ protocol stream.
     to the element containing the remote session screen. The default value is `rgb(40, 40, 40)`
     (solid gray color).
 
+`qualityLevel`
+  - Is an `int` in range `[0-9]` controlling the desired JPEG quality.
+    Value `0` implies low quality and `9` implies high quality.
+    Default value is `6`.
+
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
     on the server. Some methods may only be called if the corresponding

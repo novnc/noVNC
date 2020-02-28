@@ -275,6 +275,8 @@ export default class RFB extends EventTargetMixin {
             Log.Warn("Specifying showDotCursor as a RFB constructor argument is deprecated");
             this._showDotCursor = options.showDotCursor;
         }
+
+        this._qualityLevel = 6;
     }
 
     // ===== PROPERTIES =====
@@ -336,6 +338,26 @@ export default class RFB extends EventTargetMixin {
 
     get background() { return this._screen.style.background; }
     set background(cssValue) { this._screen.style.background = cssValue; }
+
+    get qualityLevel() {
+        return this._qualityLevel;
+    }
+    set qualityLevel(qualityLevel) {
+        if (!Number.isInteger(qualityLevel) || qualityLevel < 0 || qualityLevel > 9) {
+            Log.Error("qualityLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._qualityLevel === qualityLevel) {
+            return;
+        }
+
+        this._qualityLevel = qualityLevel;
+
+        if (this._rfb_connection_state === 'connected') {
+            this._sendEncodings();
+        }
+    }
 
     // ===== PUBLIC METHODS =====
 
@@ -1294,7 +1316,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.encodingRaw);
 
         // Psuedo-encoding settings
-        encs.push(encodings.pseudoEncodingQualityLevel0 + 6);
+        encs.push(encodings.pseudoEncodingQualityLevel0 + this._qualityLevel);
         encs.push(encodings.pseudoEncodingCompressLevel0 + 2);
 
         encs.push(encodings.pseudoEncodingDesktopSize);

@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2020 The noVNC Authors
  * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
  */
 
@@ -52,3 +52,10 @@ if (typeof Object.assign != 'function') {
         window.CustomEvent = CustomEvent;
     }
 })();
+
+/* Number.isInteger() (taken from MDN) */
+Number.isInteger = Number.isInteger || function isInteger(value) {
+    return typeof value === 'number' &&
+      isFinite(value) &&
+      Math.floor(value) === value;
+};
