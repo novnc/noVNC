@@ -106,7 +106,7 @@ const UI = {
 
         document.documentElement.classList.remove("noVNC_loading");
 
-        let autoconnect = WebUtil.getConfigVar('autoconnect', false);
+        let autoconnect = WebUtil.getConfigVar('autoconnect', true);
         if (autoconnect === 'true' || autoconnect == '1') {
             autoconnect = true;
             UI.connect();
