@@ -22,10 +22,25 @@ import * as Log from './util/logging.js';
 const ENABLE_COPYWITHIN = false;
 const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
+// Constants pulled from RTCDataChannelState enum
+// https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/readyState#RTCDataChannelState_enum
+const DataChannel = {
+    CONNECTING: "connecting",
+    OPEN: "open",
+    CLOSING: "closing",
+    CLOSED: "closed"
+};
+
+const ReadyStates = {
+    CONNECTING: [WebSocket.CONNECTING, DataChannel.CONNECTING],
+    OPEN: [WebSocket.OPEN, DataChannel.OPEN],
+    CLOSING: [WebSocket.CLOSING, DataChannel.CLOSING],
+    CLOSED: [WebSocket.CLOSED, DataChannel.CLOSED],
+};
+
 export default class WebChannel {
     constructor() {
         this._rawChannel = null;     // WebSocket or RTCDataChannel object
-        this._channelStates = null;  // Cross compatible states enum for WebSocket / RTCDataChannel
 
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
@@ -144,7 +159,7 @@ export default class WebChannel {
     // Send Queue
 
     flush() {
-        if (this._sQlen > 0 && this._rawChannel.readyState === this._channelStates.OPEN) {
+        if (this._sQlen > 0 && ReadyStates.OPEN.includes(this._rawChannel.readyState)) {
             this._rawChannel.send(this._encode_message());
             this._sQlen = 0;
         }
@@ -174,28 +189,6 @@ export default class WebChannel {
         this._sQ = new Uint8Array(this._sQbufferSize);
     }
 
-    _getChannelStates(channelType) {
-        if (channelType === "WebSocket") {
-            return {
-                CONNECTING: WebSocket.CONNECTING,
-                OPEN: WebSocket.OPEN,
-                CLOSING: WebSocket.CLOSING,
-                CLOSED: WebSocket.CLOSED
-            };
-        }
-        if (channelType === "RTCDataChannel") {
-            // Constants pulled from RTCDataChannelState enum
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/readyState#RTCDataChannelState_enum
-            return {
-                CONNECTING: "connecting",
-                OPEN: "open",
-                CLOSING: "closing",
-                CLOSED: "closed"
-            };
-        }
-        throw new Error(`channelType: ${channelType} not recognized`);
-    }
-
     init() {
         this._allocate_buffers();
         this._rQi = 0;
@@ -213,8 +206,6 @@ export default class WebChannel {
         this._rawChannel = rawChannel;
         this._rawChannel.binaryType = "arraybuffer";
         this._rawChannel.onmessage = this._recv_message.bind(this);
-
-        this._channelStates = this._getChannelStates("WebSocket");
 
         const onOpen = () => {
             Log.Debug(`>> WebChannel.onopen`);
@@ -247,8 +238,8 @@ export default class WebChannel {
 
     close() {
         if (this._rawChannel) {
-            if ((this._rawChannel.readyState === this._channelStates.OPEN) ||
-                    (this._rawChannel.readyState === this._channelStates.CONNECTING)) {
+            if ((ReadyStates.CONNECTING.includes(this._rawChannel.readyState)) ||
+                (ReadyStates.OPEN.includes(this._rawChannel.readyState))) {
                 Log.Info(`Closing WebChannel connection`);
                 this._rawChannel.close();
             }
