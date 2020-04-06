@@ -40,7 +40,7 @@ const ReadyStates = {
 
 export default class WebChannel {
     constructor() {
-        this._rawChannel = null;     // WebSocket or RTCDataChannel object
+        this._rawChannel = null; // WebSocket or RTCDataChannel object
 
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
