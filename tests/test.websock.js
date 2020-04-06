@@ -194,7 +194,6 @@ describe('WebChannel', function () {
             });
 
             it('should actually send on the websocket', function () {
-                sock._channelStates = sock._getChannelStates("WebSocket");
                 sock._rawChannel.bufferedAmount = 8;
                 sock._rawChannel.readyState = WebSocket.OPEN;
                 sock._sQ = new Uint8Array([1, 2, 3]);
@@ -270,7 +269,7 @@ describe('WebChannel', function () {
             });
 
             it('should open the actual websocket', function () {
-                sock.open({ uri: 'ws://localhost:8675', protocols: 'binary' });
+                sock.open('ws://localhost:8675', 'binary');
                 expect(WebSocket).to.have.been.calledWith('ws://localhost:8675', 'binary');
             });
 
@@ -279,7 +278,7 @@ describe('WebChannel', function () {
 
         describe('closing', function () {
             beforeEach(function () {
-                sock.open({ uri: 'ws://' });
+                sock.open('ws://');
                 sock._rawChannel.close = sinon.spy();
             });
 
@@ -325,7 +324,7 @@ describe('WebChannel', function () {
                 sock.on('open', sinon.spy());
                 sock.on('close', sinon.spy());
                 sock.on('error', sinon.spy());
-                sock.open({ uri: 'ws://' });
+                sock.open('ws://');
             });
 
             it('should call _recv_message on a message', function () {
@@ -444,7 +443,7 @@ describe('WebChannel', function () {
             let sock;
             beforeEach(function () {
                 sock = new WebChannel();
-                sock.open({ uri: 'ws://', protocols: 'binary' });
+                sock.open('ws://', 'binary');
                 sock._rawChannel._open();
             });
 
