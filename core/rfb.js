@@ -501,7 +501,7 @@ export default class RFB extends EventTargetMixin {
         } else {
             try {
                 Log.Info(`attaching ${this._rawChannel} to WebChannel`);
-                this._webchannel.attach(this._rawChannel);
+                this._webchannel.attach(this._rawChannel, true);
             } catch (e) {
                 this._fail("Error attaching channel (" + e + ")");
             }

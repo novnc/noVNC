@@ -25,7 +25,6 @@ const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 export default class WebChannel {
     constructor() {
         this._rawChannel = null;     // WebSocket or RTCDataChannel object
-        this._channelType = "";      // Track which type of channel
         this._channelStates = null;  // Cross compatible states enum for WebSocket / RTCDataChannel
 
         this._rQi = 0;           // Receive queue index
@@ -203,22 +202,19 @@ export default class WebChannel {
         this._rawChannel = null;
     }
 
-    open({ uri, protocols, webChannel, channelType }) {
+    open(uri, protocols) {
         this.init();
 
-        if (uri) {
-            this._rawChannel = new WebSocket(uri, protocols);
-            this._channelType = "WebSocket";
-            this._channelStates = this._getChannelStates("WebSocket");
-        } else if (webChannel && channelType) {
-            this._rawChannel = webChannel;
-            this._channelType = channelType;
-            this._channelStates = this._getChannelStates(channelType);
-        } else {
-            throw new Error(
-                `Expected to receive one of uri and optional protocols or webChannel and channelType`
-            );
-        }
+        let rawChannel = new WebSocket(uri, protocols);
+        this.attach(rawChannel, false);
+    }
+
+    attach(rawChannel, isOpen = false) {
+        this._rawChannel = rawChannel;
+        this._rawChannel.binaryType = "arraybuffer";
+        this._rawChannel.onmessage = this._recv_message.bind(this);
+
+        this._channelStates = this._getChannelStates("WebSocket");
 
         const onOpen = () => {
             Log.Debug(`>> WebChannel.onopen`);
@@ -230,21 +226,18 @@ export default class WebChannel {
             Log.Debug(`<< WebChannel.onopen`);
         };
 
-        this._rawChannel.binaryType = "arraybuffer";
-
-        this._rawChannel.onmessage = this._recv_message.bind(this);
-
-        if (uri) {
+        if (!isOpen) {
             this._rawChannel.onopen = onOpen;
-        }
-        if (webChannel) {
+        } else {
             onOpen();
         }
+
         this._rawChannel.onclose = (e) => {
             Log.Debug(`>> WebChannel.onclose`);
             this._eventHandlers.close(e);
             Log.Debug(`<< WebChannel.onclose`);
         };
+
         this._rawChannel.onerror = (e) => {
             Log.Debug(`>> WebChannel.onerror: ` + e);
             this._eventHandlers.error(e);
