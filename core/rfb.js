@@ -219,7 +219,7 @@ export default class RFB extends EventTargetMixin {
             }
         });
         this._sock.on('close', (e) => {
-            Log.Debug("WebChannel on-close event");
+            Log.Debug("Connection on-close event");
             let msg = "";
             if (e.code) {
                 msg = "(code: " + e.code;
@@ -252,7 +252,7 @@ export default class RFB extends EventTargetMixin {
             }
             this._sock.off('close');
         });
-        this._sock.on('error', e => Log.Warn("WebChannel on-error event"));
+        this._sock.on('error', e => Log.Warn("Connection on-error event"));
 
         // Slight delay of the actual connection so that the caller has
         // time to set up callbacks

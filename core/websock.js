@@ -1,5 +1,5 @@
 /*
- * WebChannel: high-performance binary WebSocket / RTCDataChannel
+ * WebChannel: high-performance buffering wrapper
  * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
@@ -24,7 +24,7 @@ const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
 export default class WebChannel {
     constructor() {
-        this._webChannel = null;     // WebSocket or RTCDataChannel object
+        this._rawChannel = null;     // WebSocket or RTCDataChannel object
         this._channelType = "";      // Track which type of channel
         this._channelStates = null;  // Cross compatible states enum for WebSocket / RTCDataChannel
 
@@ -145,8 +145,8 @@ export default class WebChannel {
     // Send Queue
 
     flush() {
-        if (this._sQlen > 0 && this._webChannel.readyState === this._channelStates.OPEN) {
-            this._webChannel.send(this._encode_message());
+        if (this._sQlen > 0 && this._rawChannel.readyState === this._channelStates.OPEN) {
+            this._rawChannel.send(this._encode_message());
             this._sQlen = 0;
         }
     }
@@ -200,18 +200,18 @@ export default class WebChannel {
     init() {
         this._allocate_buffers();
         this._rQi = 0;
-        this._webChannel = null;
+        this._rawChannel = null;
     }
 
     open({ uri, protocols, webChannel, channelType }) {
         this.init();
 
         if (uri) {
-            this._webChannel = new WebSocket(uri, protocols);
+            this._rawChannel = new WebSocket(uri, protocols);
             this._channelType = "WebSocket";
             this._channelStates = this._getChannelStates("WebSocket");
         } else if (webChannel && channelType) {
-            this._webChannel = webChannel;
+            this._rawChannel = webChannel;
             this._channelType = channelType;
             this._channelStates = this._getChannelStates(channelType);
         } else {
@@ -221,46 +221,46 @@ export default class WebChannel {
         }
 
         const onOpen = () => {
-            Log.Debug(`>> ${this._channelType}.onopen`);
-            if (this._webChannel.protocol) {
-                Log.Info("Server choose sub-protocol: " + this._webChannel.protocol);
+            Log.Debug(`>> WebChannel.onopen`);
+            if (this._rawChannel.protocol) {
+                Log.Info("Server choose sub-protocol: " + this._rawChannel.protocol);
             }
 
             this._eventHandlers.open();
-            Log.Debug(`<< ${this._channelType}.onopen`);
+            Log.Debug(`<< WebChannel.onopen`);
         };
 
-        this._webChannel.binaryType = "arraybuffer";
+        this._rawChannel.binaryType = "arraybuffer";
 
-        this._webChannel.onmessage = this._recv_message.bind(this);
+        this._rawChannel.onmessage = this._recv_message.bind(this);
 
         if (uri) {
-            this._webChannel.onopen = onOpen;
+            this._rawChannel.onopen = onOpen;
         }
         if (webChannel) {
             onOpen();
         }
-        this._webChannel.onclose = (e) => {
-            Log.Debug(`>> ${this._channelType}.onclose`);
+        this._rawChannel.onclose = (e) => {
+            Log.Debug(`>> WebChannel.onclose`);
             this._eventHandlers.close(e);
-            Log.Debug(`<< ${this._channelType}.onclose`);
+            Log.Debug(`<< WebChannel.onclose`);
         };
-        this._webChannel.onerror = (e) => {
-            Log.Debug(`>> ${this._channelType}.onerror: ` + e);
+        this._rawChannel.onerror = (e) => {
+            Log.Debug(`>> WebChannel.onerror: ` + e);
             this._eventHandlers.error(e);
-            Log.Debug(`<< ${this._channelType}.onerror: ` + e);
+            Log.Debug(`<< WebChannel.onerror: ` + e);
         };
     }
 
     close() {
-        if (this._webChannel) {
-            if ((this._webChannel.readyState === this._channelStates.OPEN) ||
-                    (this._webChannel.readyState === this._channelStates.CONNECTING)) {
-                Log.Info(`Closing ${this._channelType} connection`);
-                this._webChannel.close();
+        if (this._rawChannel) {
+            if ((this._rawChannel.readyState === this._channelStates.OPEN) ||
+                    (this._rawChannel.readyState === this._channelStates.CONNECTING)) {
+                Log.Info(`Closing WebChannel connection`);
+                this._rawChannel.close();
             }
 
-            this._webChannel.onmessage = () => {};
+            this._rawChannel.onmessage = () => {};
         }
     }
 
