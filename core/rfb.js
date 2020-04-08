@@ -85,7 +85,8 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._rawChannel = urlOrChannel;
-        for (let prop of rawChannelProps) {
+        for (let i = 0; i < rawChannelProps.length; i++) {
+            let prop = rawChannelProps[i];
             if (!urlOrChannel[prop]) {
                 this._rawChannel = null;
                 break;
