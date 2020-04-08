@@ -159,7 +159,7 @@ export default class WebChannel {
     // Send Queue
 
     flush() {
-        if (this._sQlen > 0 && ReadyStates.OPEN.includes(this._rawChannel.readyState)) {
+        if (this._sQlen > 0 && ReadyStates.OPEN.indexOf(this._rawChannel.readyState) >= 0) {
             this._rawChannel.send(this._encode_message());
             this._sQlen = 0;
         }
@@ -238,8 +238,8 @@ export default class WebChannel {
 
     close() {
         if (this._rawChannel) {
-            if ((ReadyStates.CONNECTING.includes(this._rawChannel.readyState)) ||
-                (ReadyStates.OPEN.includes(this._rawChannel.readyState))) {
+            if (ReadyStates.CONNECTING.indexOf(this._rawChannel.readyState) >= 0 ||
+                ReadyStates.OPEN.indexOf(this._rawChannel.readyState) >= 0) {
                 Log.Info(`Closing WebChannel connection`);
                 this._rawChannel.close();
             }
