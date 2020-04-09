@@ -217,17 +217,19 @@ export default class WebChannel {
             Log.Debug(`<< WebChannel.onopen`);
         };
 
+        const onClose = (e) => {
+            Log.Debug(`>> WebChannel.close event`);
+            this._eventHandlers.close(e);
+            Log.Debug(`<< WebChannel.close event`);
+        };
+
         if (!isOpen) {
             this._rawChannel.onopen = onOpen;
         } else {
             onOpen();
         }
 
-        this._rawChannel.onclose = (e) => {
-            Log.Debug(`>> WebChannel.onclose`);
-            this._eventHandlers.close(e);
-            Log.Debug(`<< WebChannel.onclose`);
-        };
+        this._rawChannel.addEventListener('close', onClose.bind(this));
 
         this._rawChannel.onerror = (e) => {
             Log.Debug(`>> WebChannel.onerror: ` + e);

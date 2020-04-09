@@ -57,7 +57,7 @@ const rawChannelProps = [
     "send",
     "close",
     "binaryType",
-    "onclose",
+    "addEventListener",
     "onerror",
     "onmessage",
     "onopen",
