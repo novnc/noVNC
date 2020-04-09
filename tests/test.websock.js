@@ -1,7 +1,7 @@
 const expect = chai.expect;
 
 import WebChannel from '../core/websock.js';
-import FakeWebSocket from './fake.websocket.js';
+import FakeWebSocket, { make_event } from './fake.websocket.js';
 
 describe('WebChannel', function () {
     "use strict";
@@ -259,6 +259,19 @@ describe('WebChannel', function () {
             WebSocket.CONNECTING = old_WS.CONNECTING;
             WebSocket.CLOSING = old_WS.CLOSING;
             WebSocket.CLOSED = old_WS.CLOSED;
+            WebSocket.__listeners = [];
+            WebSocket.prototype.addEventListener = (type, listener, options) => {
+                WebSocket.__listeners.push({type, handler: listener, options});
+            };
+
+            WebSocket.prototype.dispatchEvent = (evt) => {
+                for (let i = 0; i < WebSocket.__listeners.length; i++) {
+                    let listener = WebSocket.__listeners[i];
+                    if (evt.type === listener.type) {
+                        listener.handler(evt);
+                    }
+                }
+            };
 
             WebSocket.prototype.binaryType = 'arraybuffer';
         });
@@ -338,7 +351,7 @@ describe('WebChannel', function () {
             });
 
             it('should call the close event handler on closing', function () {
-                sock._rawChannel.onclose();
+                sock._rawChannel.dispatchEvent(make_event('close'));
                 expect(sock._eventHandlers.close).to.have.been.calledOnce;
             });
 

@@ -1,7 +1,7 @@
 import Base64 from '../core/base64.js';
 
 // PhantomJS can't create Event objects directly, so we need to use this
-function make_event(name, props) {
+export function make_event(name, props) {
     const evt = document.createEvent('Event');
     evt.initEvent(name, true, true);
     if (props) {
@@ -30,6 +30,7 @@ export default class FakeWebSocket {
         this.bufferedAmount = 0;
 
         this.__is_fake = true;
+        this.__listeners = [];
     }
 
     close(code, reason) {
@@ -47,6 +48,19 @@ export default class FakeWebSocket {
         }
         this._send_queue.set(data, this.bufferedAmount);
         this.bufferedAmount += data.length;
+    }
+
+    addEventListener(type, listener, options) {
+        this.__listeners.push({type, handler: listener, options});
+    }
+
+    dispatchEvent(evt) {
+        for (let i = 0; i < this.__listeners.length; i++) {
+            let listener = this.__listeners[i];
+            if (evt.type === listener.type) {
+                listener.handler(evt);
+            }
+        }
     }
 
     _get_sent_data() {
