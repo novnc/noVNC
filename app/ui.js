@@ -978,8 +978,7 @@ const UI = {
     writeText() {
         const text = document.getElementById('noVNC_clipboard_text').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
-
-        const textClip = text.split("");
+        const textClip = text.trim().split("");
         function f(t) {
             const character = t.shift();
             if (character === undefined) return;
@@ -1081,7 +1080,6 @@ const UI = {
         if (port) {
             url += ':' + port;
         }
-        
         if (path.startsWith("?token")) {
             url += '/websockify' + path;
         } else {
