@@ -24,7 +24,7 @@ protocol stream.
 `focusOnClick`
   - Is a `boolean` indicating if keyboard focus should automatically be
     moved to the remote session when a `mousedown` or `touchstart`
-    event is received.
+    event is received. Enabled by default.
 
 `touchButton`
   - Is a `long` controlling the button mask that should be simulated
