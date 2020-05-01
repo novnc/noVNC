@@ -41,7 +41,7 @@ export default class Mouse {
 
         // ===== EVENT HANDLERS =====
 
-        this.onmousebutton = () => {}; // Handler for mouse button click/release
+        this.onmousebutton = () => {}; // Handler for mouse button press/release
         this.onmousemove = () => {}; // Handler for mouse movement
     }
 
