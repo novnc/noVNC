@@ -11,6 +11,7 @@ import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 const WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
 const WHEEL_STEP_TIMEOUT = 50; // ms
 const WHEEL_LINE_HEIGHT = 19;
+const MOUSE_MOVE_DELAY = 17; // Minimum wait (ms) between two mouse moves
 
 export default class Mouse {
     constructor(target) {
@@ -22,6 +23,7 @@ export default class Mouse {
         this._pos = null;
         this._wheelStepXTimer = null;
         this._wheelStepYTimer = null;
+        this._oldMouseMoveTime = 0;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
 
@@ -195,7 +197,19 @@ export default class Mouse {
 
     _handleMouseMove(e) {
         this._updateMousePosition(e);
-        this.onmousemove(this._pos.x, this._pos.y);
+
+        // Limit mouse move events to one every MOUSE_MOVE_DELAY ms
+        clearTimeout(this.mouseMoveTimer);
+        const newMouseMoveTime = Date.now();
+        if (newMouseMoveTime < this._oldMouseMoveTime + MOUSE_MOVE_DELAY) {
+            this.mouseMoveTimer = setTimeout(this.onmousemove.bind(this),
+                                             MOUSE_MOVE_DELAY,
+                                             this._pos.x, this._pos.y);
+        } else {
+            this.onmousemove(this._pos.x, this._pos.y);
+        }
+        this._oldMouseMoveTime = newMouseMoveTime;
+
         stopEvent(e);
     }
 
