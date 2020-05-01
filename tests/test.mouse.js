@@ -301,4 +301,71 @@ describe('Mouse Event Handling', function () {
         });
     });
 
+    describe('Move events should be limited to one each 17 ms', function () {
+
+        let mouse;
+        beforeEach(function () {
+            this.clock = sinon.useFakeTimers(Date.now());
+            mouse = new Mouse(target);
+            mouse.onmousemove = sinon.spy();
+        });
+        afterEach(function () {
+            this.clock.restore();
+        });
+
+        it('should send a single move instantly', function () {
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 1, clientY: 2 }));
+
+            expect(mouse.onmousemove).to.have.callCount(1);
+        });
+
+        it('should delay one if two events are too close', function () {
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 18, clientY: 30 }));
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 20, clientY: 50 }));
+
+            expect(mouse.onmousemove).to.have.callCount(1);
+
+            this.clock.tick(100);
+
+            expect(mouse.onmousemove).to.have.callCount(2);
+        });
+
+        it('should only send first and last of many close events', function () {
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 18, clientY: 30 }));
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 20, clientY: 50 }));
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 21, clientY: 55 }));
+
+            // Check positions to verify that the correct calls got through.
+            //
+            // The test canvas starts 10px from top and 10 px from left,
+            // that means the relative coordinates are clientCoords - 10px
+            expect(mouse.onmousemove).to.have.been.calledWith(8, 20);
+
+            this.clock.tick(60);
+
+            expect(mouse.onmousemove).to.have.callCount(2);
+            expect(mouse.onmousemove).to.have.been.calledWith(11, 45);
+        });
+
+        it('should send events with enough time apart normally', function () {
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 58, clientY: 60 }));
+
+            expect(mouse.onmousemove).to.have.callCount(1);
+
+            this.clock.tick(20);
+
+            mouse._handleMouseMove(mouseevent(
+                'mousemove', { clientX: 25, clientY: 60 }));
+
+            expect(mouse.onmousemove).to.have.callCount(2);
+        });
+    });
+
 });
