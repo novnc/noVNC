@@ -663,6 +663,9 @@ select:active {
 :root:not(.noVNC_connected) #noVNC_clipboard_button {
   display: none;
 }
+:root:not(.noVNC_connected) #noVNC_clipboard {
+  display: none;
+}
 #noVNC_clipboard {
   /* Full screen, minus padding and left and right margins */
   max-width: calc(100vw - 2*15px - 75px - 25px);
