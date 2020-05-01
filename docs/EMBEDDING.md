@@ -63,6 +63,8 @@ query string. Currently the following options are available:
 
 * `quality` - The session JPEG quality level. Can be `0` to `9`.
 
+* `compression` - The session compression level. Can be `0` to `9`.
+
 * `show_dot` - If a dot cursor should be shown when the remote server provides
   no local cursor, or provides a fully-transparent (invisible) cursor.
 

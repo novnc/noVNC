@@ -2967,6 +2967,108 @@ describe('Remote Frame Buffer Protocol Client', function () {
             expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingQualityLevel0 + newQuality);
         });
     });
+
+    describe('Compression level setting', function () {
+        const defaultCompression = 2;
+
+        let client;
+
+        beforeEach(function () {
+            client = make_rfb();
+            sinon.spy(RFB.messages, "clientEncodings");
+        });
+
+        afterEach(function () {
+            RFB.messages.clientEncodings.restore();
+        });
+
+        it(`should equal ${defaultCompression} by default`, function () {
+            expect(client._compressionLevel).to.equal(defaultCompression);
+        });
+
+        it('should ignore non-integers when set', function () {
+            client.compressionLevel = '1';
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.compressionLevel = 1.5;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.compressionLevel = null;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.compressionLevel = undefined;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.compressionLevel = {};
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+        });
+
+        it('should ignore integers out of range [0, 9]', function () {
+            client.compressionLevel = -1;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.compressionLevel = 10;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+        });
+
+        it('should send clientEncodings with new compression value', function () {
+            let newCompression;
+
+            newCompression = 5;
+            client.compressionLevel = newCompression;
+            expect(client.compressionLevel).to.equal(newCompression);
+            expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+            expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingCompressLevel0 + newCompression);
+        });
+
+        it('should not send clientEncodings if compression is the same', function () {
+            let newCompression;
+
+            newCompression = 9;
+            client.compressionLevel = newCompression;
+            expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+            expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingCompressLevel0 + newCompression);
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client.compressionLevel = newCompression;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+        });
+
+        it('should not send clientEncodings if not in connected state', function () {
+            let newCompression;
+
+            client._rfb_connection_state = '';
+            newCompression = 7;
+            client.compressionLevel = newCompression;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client._rfb_connection_state = 'connnecting';
+            newCompression = 6;
+            client.compressionLevel = newCompression;
+            expect(RFB.messages.clientEncodings).to.not.have.been.called;
+
+            RFB.messages.clientEncodings.resetHistory();
+
+            client._rfb_connection_state = 'connected';
+            newCompression = 5;
+            client.compressionLevel = newCompression;
+            expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
+            expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.pseudoEncodingCompressLevel0 + newCompression);
+        });
+    });
 });
 
 describe('RFB messages', function () {
