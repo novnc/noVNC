@@ -520,7 +520,7 @@ const UI = {
     idleControlbar() {
         // Don't fade if a child of the control bar has focus
         if (document.getElementById('noVNC_control_bar')
-                .contains(document.activeElement) && document.hasFocus()) {
+            .contains(document.activeElement) && document.hasFocus()) {
             UI.activateControlbar();
             return;
         }
