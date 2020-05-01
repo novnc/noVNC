@@ -278,6 +278,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._qualityLevel = 6;
+        this._compressionLevel = 2;
     }
 
     // ===== PROPERTIES =====
@@ -354,6 +355,26 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._qualityLevel = qualityLevel;
+
+        if (this._rfb_connection_state === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get compressionLevel() {
+        return this._compressionLevel;
+    }
+    set compressionLevel(compressionLevel) {
+        if (!Number.isInteger(compressionLevel) || compressionLevel < 0 || compressionLevel > 9) {
+            Log.Error("compressionLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._compressionLevel === compressionLevel) {
+            return;
+        }
+
+        this._compressionLevel = compressionLevel;
 
         if (this._rfb_connection_state === 'connected') {
             this._sendEncodings();
@@ -1411,7 +1432,7 @@ export default class RFB extends EventTargetMixin {
 
         // Psuedo-encoding settings
         encs.push(encodings.pseudoEncodingQualityLevel0 + this._qualityLevel);
-        encs.push(encodings.pseudoEncodingCompressLevel0 + 2);
+        encs.push(encodings.pseudoEncodingCompressLevel0 + this._compressionLevel);
 
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);

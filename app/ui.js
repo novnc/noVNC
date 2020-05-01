@@ -162,6 +162,7 @@ const UI = {
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
         UI.initSetting('quality', 6);
+        UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
@@ -350,6 +351,8 @@ const UI = {
         UI.addSettingChangeHandler('resize', UI.updateViewClip);
         UI.addSettingChangeHandler('quality');
         UI.addSettingChangeHandler('quality', UI.updateQuality);
+        UI.addSettingChangeHandler('compression');
+        UI.addSettingChangeHandler('compression', UI.updateCompression);
         UI.addSettingChangeHandler('view_clip');
         UI.addSettingChangeHandler('view_clip', UI.updateViewClip);
         UI.addSettingChangeHandler('shared');
@@ -841,6 +844,7 @@ const UI = {
         UI.updateSetting('view_clip');
         UI.updateSetting('resize');
         UI.updateSetting('quality');
+        UI.updateSetting('compression');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
         UI.updateSetting('path');
@@ -1043,6 +1047,7 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+        UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
@@ -1348,6 +1353,18 @@ const UI = {
 
 /* ------^-------
  *   /QUALITY
+ * ==============
+ *  COMPRESSION
+ * ------v------*/
+
+    updateCompression() {
+        if (!UI.rfb) return;
+
+        UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
+    },
+
+/* ------^-------
+ *  /COMPRESSION
  * ==============
  *    KEYBOARD
  * ------v------*/

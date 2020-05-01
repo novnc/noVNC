@@ -69,6 +69,14 @@ protocol stream.
     Value `0` implies low quality and `9` implies high quality.
     Default value is `6`.
 
+`compressionLevel`
+  - Is an `int` in range `[0-9]` controlling the desired compression
+    level. Value `0` means no compression. Level 1 uses a minimum of CPU
+    resources and achieves weak compression ratios, while level 9 offers
+    best compression but is slow in terms of CPU consumption on the server
+    side. Use high levels with very slow network connections.
+    Default value is `2`.
+
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
     on the server. Some methods may only be called if the corresponding
