@@ -1531,7 +1531,7 @@ export default class RFB extends EventTargetMixin {
             if (Clipboard.isSupported) {
                 const clipboardData = new DataTransfer();
                 clipboardData.setData("text/plain", text);
-                const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
+                const clipboardEvent = new ClipboardEvent('copy', { clipboardData });
                 // Force initialization since the constructor is broken in Firefox
                 if (!clipboardEvent.clipboardData.items.length) {
                     clipboardEvent.clipboardData.items.add(text, "text/plain");
