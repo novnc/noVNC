@@ -635,7 +635,7 @@ select:active {
 }
 
 /* Extra manual keys */
-:root:not(.noVNC_connected) #noVNC_extra_keys {
+:root:not(.noVNC_connected) #noVNC_toggle_extra_keys_button {
   display: none;
 }
 
@@ -661,9 +661,6 @@ select:active {
 
 /* Clipboard */
 :root:not(.noVNC_connected) #noVNC_clipboard_button {
-  display: none;
-}
-:root:not(.noVNC_connected) #noVNC_clipboard {
   display: none;
 }
 #noVNC_clipboard {

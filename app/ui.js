@@ -445,7 +445,9 @@ const UI = {
             UI.keepControlbar();
         }
 
-        // State change closes the password dialog
+        // State change closes dialogs as they may not be relevant
+        // anymore
+        UI.closeAllPanels();
         document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
     },
@@ -1016,7 +1018,6 @@ const UI = {
             return;
         }
 
-        UI.closeAllPanels();
         UI.closeConnectPanel();
 
         UI.updateVisualState('connecting');
@@ -1054,7 +1055,6 @@ const UI = {
     },
 
     disconnect() {
-        UI.closeAllPanels();
         UI.rfb.disconnect();
 
         UI.connected = false;
