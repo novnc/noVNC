@@ -134,7 +134,6 @@ export default class RFB extends EventTargetMixin {
 
         // Mouse state
         this._mouse_buttonMask = 0;
-        this._mouse_arr = [];
         this._viewportDragging = false;
         this._viewportDragPos = {};
         this._viewportHasMoved = false;

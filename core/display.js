@@ -13,7 +13,6 @@ import { supportsImageMetadata } from './util/browser.js';
 export default class Display {
     constructor(target) {
         this._drawCtx = null;
-        this._c_forceCanvas = false;
 
         this._renderQ = [];  // queue drawing actions for in-oder rendering
         this._flushing = false;

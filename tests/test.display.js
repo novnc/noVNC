@@ -385,10 +385,6 @@ describe('Display/Canvas Helper', function () {
             sinon.spy(display, '_scan_renderQ');
         });
 
-        afterEach(function () {
-            window.requestAnimationFrame = this.old_requestAnimationFrame;
-        });
-
         it('should try to process an item when it is pushed on, if nothing else is on the queue', function () {
             display._renderQ_push({ type: 'noop' });  // does nothing
             expect(display._scan_renderQ).to.have.been.calledOnce;
