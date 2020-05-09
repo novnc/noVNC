@@ -2730,56 +2730,145 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('Mouse event handlers', function () {
+            beforeEach(function () {
+                this.clock = sinon.useFakeTimers(Date.now());
+                sinon.spy(RFB.messages, 'pointerEvent');
+            });
+            afterEach(function () {
+                this.clock.restore();
+                RFB.messages.pointerEvent.restore();
+            });
+
             it('should not send button messages in view-only mode', function () {
                 client._viewOnly = true;
-                sinon.spy(client._sock, 'flush');
                 client._handleMouseButton(0, 0, 1, 0x001);
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
 
             it('should not send movement messages in view-only mode', function () {
                 client._viewOnly = true;
-                sinon.spy(client._sock, 'flush');
                 client._handleMouseMove(0, 0);
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
 
             it('should send a pointer event on mouse button presses', function () {
                 client._handleMouseButton(10, 12, 1, 0x001);
-                const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
-                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
-                expect(client._sock).to.have.sent(pointer_msg._sQ);
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
             });
 
             it('should send a mask of 1 on mousedown', function () {
-                client._handleMouseButton(10, 12, 1, 0x001);
-                const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
-                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x001);
-                expect(client._sock).to.have.sent(pointer_msg._sQ);
+                client._handleMouseButton(11, 13, 1, 0x001);
+                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
+                    client._sock, 11, 13, 0x001);
             });
 
             it('should send a mask of 0 on mouseup', function () {
                 client._mouse_buttonMask = 0x001;
-                client._handleMouseButton(10, 12, 0, 0x001);
-                const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
-                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x000);
-                expect(client._sock).to.have.sent(pointer_msg._sQ);
+                client._handleMouseButton(105, 120, 0, 0x001);
+                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
+                    client._sock, 105, 120, 0x000);
             });
 
-            it('should send a pointer event on mouse movement', function () {
-                client._handleMouseMove(10, 12);
-                const pointer_msg = {_sQ: new Uint8Array(6), _sQlen: 0, flush: () => {}};
-                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x000);
-                expect(client._sock).to.have.sent(pointer_msg._sQ);
+            it('should send a mask of 0 on mousemove', function () {
+                client._handleMouseMove(100, 200);
+                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
+                    client._sock, 100, 200, 0x000);
             });
 
             it('should set the button mask so that future mouse movements use it', function () {
                 client._handleMouseButton(10, 12, 1, 0x010);
                 client._handleMouseMove(13, 9);
-                const pointer_msg = {_sQ: new Uint8Array(12), _sQlen: 0, flush: () => {}};
-                RFB.messages.pointerEvent(pointer_msg, 10, 12, 0x010);
-                RFB.messages.pointerEvent(pointer_msg, 13, 9, 0x010);
-                expect(client._sock).to.have.sent(pointer_msg._sQ);
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
+                    client._sock, 13, 9, 0x010);
+            });
+
+            it('should send a single pointer event on mouse movement', function () {
+                client._handleMouseMove(100, 200);
+                this.clock.tick(100);
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+            });
+
+            it('should delay one move if two events are too close', function () {
+                client._handleMouseMove(18, 30);
+                client._handleMouseMove(20, 50);
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+                this.clock.tick(100);
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+            });
+
+            it('should only send first and last move of many close events', function () {
+                client._handleMouseMove(18, 40);
+                client._handleMouseMove(20, 50);
+                client._handleMouseMove(21, 55);
+
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+                this.clock.tick(60);
+
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(
+                    client._sock, 18, 40, 0x000);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(
+                    client._sock, 21, 55, 0x000);
+            });
+
+            // We selected the 17ms since that is ~60 FPS
+            it('should send move events every 17 ms', function () {
+                client._handleMouseMove(1, 10); // instant send
+                this.clock.tick(10);
+                client._handleMouseMove(2, 20); // delayed
+                this.clock.tick(10);            // timeout send
+                client._handleMouseMove(3, 30); // delayed
+                this.clock.tick(10);
+                client._handleMouseMove(4, 40); // delayed
+                this.clock.tick(10);            // timeout send
+                client._handleMouseMove(5, 50); // delayed
+
+                expect(RFB.messages.pointerEvent).to.have.callCount(3);
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(
+                    client._sock, 1, 10, 0x000);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(
+                    client._sock, 2, 20, 0x000);
+                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(
+                    client._sock, 4, 40, 0x000);
+            });
+
+            it('should send waiting move events before a button press', function () {
+                client._handleMouseMove(13, 9);
+                client._handleMouseMove(20, 70);
+                client._handleMouseButton(10, 12, 1, 0x100);
+                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(
+                    client._sock, 13, 9, 0x000);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(
+                    client._sock, 10, 12, 0x000);
+                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(
+                    client._sock, 10, 12, 0x100);
+            });
+
+            it('should not delay events when button mask changes', function () {
+                client._handleMouseMove(13, 9); // instant
+                client._handleMouseMove(11, 10); // delayed
+                client._handleMouseButton(10, 12, 1, 0x010); // flush delayed
+                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
+            });
+
+            it('should send move events with enough time apart normally', function () {
+                client._handleMouseMove(58, 60);
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+
+                this.clock.tick(20);
+
+                client._handleMouseMove(25, 60);
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+            });
+
+            it('should not send waiting move events if disconnected', function () {
+                client._handleMouseMove(88, 99);
+                client._handleMouseMove(66, 77);
+                client.disconnect();
+                this.clock.tick(20);
+                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
             });
         });
 

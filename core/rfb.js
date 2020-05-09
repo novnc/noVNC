@@ -36,6 +36,9 @@ import TightPNGDecoder from "./decoders/tightpng.js";
 const DISCONNECT_TIMEOUT = 3;
 const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
+// Minimum wait (ms) between two mouse moves
+const MOUSE_MOVE_DELAY = 17;
+
 // Extended clipboard pseudo-encoding formats
 const extendedClipboardFormatText   = 1;
 /*eslint-disable no-unused-vars */
@@ -119,6 +122,7 @@ export default class RFB extends EventTargetMixin {
         // Timers
         this._disconnTimer = null;      // disconnection timer
         this._resizeTimeout = null;     // resize rate limiting
+        this._mouseMoveTimer = null;
 
         // Decoder states
         this._decoders = {};
@@ -133,7 +137,9 @@ export default class RFB extends EventTargetMixin {
         };
 
         // Mouse state
+        this._mousePos = {};
         this._mouseButtonMask = 0;
+        this._mouseLastMoveTime = 0;
         this._viewportDragging = false;
         this._viewportDragPos = {};
         this._viewportHasMoved = false;
@@ -529,6 +535,7 @@ export default class RFB extends EventTargetMixin {
             }
         }
         clearTimeout(this._resizeTimeout);
+        clearTimeout(this._mouseMoveTimer);
         Log.Debug("<< RFB.disconnect");
     }
 
@@ -813,12 +820,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleMouseButton(x, y, down, bmask) {
-        if (down) {
-            this._mouseButtonMask |= bmask;
-        } else {
-            this._mouseButtonMask &= ~bmask;
-        }
-
         if (this.dragViewport) {
             if (down && !this._viewportDragging) {
                 this._viewportDragging = true;
@@ -836,22 +837,27 @@ export default class RFB extends EventTargetMixin {
                     return;
                 }
 
-                if (this._viewOnly) { return; }
-
                 // Otherwise we treat this as a mouse click event.
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
-                RFB.messages.pointerEvent(this._sock,
-                                          this._display.absX(x),
-                                          this._display.absY(y),
-                                          bmask);
+                this._sendMouse(x, y, bmask);
             }
         }
 
-        if (this._viewOnly) { return; } // View only, skip mouse events
+        // Flush waiting move event first
+        if (this._mouseMoveTimer !== null) {
+            clearTimeout(this._mouseMoveTimer);
+            this._mouseMoveTimer = null;
+            this._sendMouse(x, y, this._mouseButtonMask);
+        }
 
-        if (this._rfbConnectionState !== 'connected') { return; }
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouseButtonMask);
+        if (down) {
+            this._mouseButtonMask |= bmask;
+        } else {
+            this._mouseButtonMask &= ~bmask;
+        }
+
+        this._sendMouse(x, y, this._mouseButtonMask);
     }
 
     _handleMouseMove(x, y) {
@@ -871,10 +877,37 @@ export default class RFB extends EventTargetMixin {
             return;
         }
 
+        this._mousePos = { 'x': x, 'y': y };
+
+        // Limit many mouse move events to one every MOUSE_MOVE_DELAY ms
+        if (this._mouseMoveTimer == null) {
+
+            const timeSinceLastMove = Date.now() - this._mouseLastMoveTime;
+            if (timeSinceLastMove > MOUSE_MOVE_DELAY) {
+                this._sendMouse(x, y, this._mouseButtonMask);
+                this._mouseLastMoveTime = Date.now();
+            } else {
+                // Too soon since the latest move, wait the remaining time
+                this._mouseMoveTimer = setTimeout(() => {
+                    this._handleDelayedMouseMove();
+                }, MOUSE_MOVE_DELAY - timeSinceLastMove);
+            }
+        }
+    }
+
+    _handleDelayedMouseMove() {
+        this._mouseMoveTimer = null;
+        this._sendMouse(this._mousePos.x, this._mousePos.y,
+                        this._mouseButtonMask);
+        this._mouseLastMoveTime = Date.now();
+    }
+
+    _sendMouse(x, y, mask) {
+        if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        if (this._rfbConnectionState !== 'connected') { return; }
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), this._mouseButtonMask);
+        RFB.messages.pointerEvent(this._sock, this._display.absX(x),
+                                  this._display.absY(y), mask);
     }
 
     // Message Handlers
