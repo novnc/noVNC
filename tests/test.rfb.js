@@ -514,6 +514,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
             });
 
+            it('should not send button messages when in view only', function () {
+                client._viewOnly = true;
+                client._handleMouseButton(13, 9, 0x001);
+                client._handleMouseButton(13, 9, 0x000);
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+            });
+
             it('should send button message directly when drag is disabled', function () {
                 client.dragViewport = false;
                 client._handleMouseButton(13, 9, 0x001);

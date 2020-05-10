@@ -836,6 +836,8 @@ export default class RFB extends EventTargetMixin {
                     return;
                 }
 
+                if (this._viewOnly) { return; }
+
                 // Otherwise we treat this as a mouse click event.
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
