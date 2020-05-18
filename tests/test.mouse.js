@@ -34,7 +34,6 @@ describe('Mouse Event Handling', function () {
         e.preventDefault = sinon.spy();
         return e;
     };
-    const touchevent = mouseevent;
 
     describe('Decode Mouse Events', function () {
         it('should decode mousedown events', function (done) {
@@ -87,131 +86,6 @@ describe('Mouse Event Handling', function () {
                                                { deltaX: 50, deltaY: 0,
                                                  deltaMode: 0}));
         });
-    });
-
-    describe('Double-click for Touch', function () {
-
-        beforeEach(function () { this.clock = sinon.useFakeTimers(); });
-        afterEach(function () { this.clock.restore(); });
-
-        it('should use same pos for 2nd tap if close enough', function (done) {
-            let calls = 0;
-            const mouse = new Mouse(target);
-            mouse.onmousebutton = (x, y, down, bmask) => {
-                calls++;
-                if (calls === 1) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.be.equal(68);
-                    expect(y).to.be.equal(36);
-                } else if (calls === 3) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.be.equal(68);
-                    expect(y).to.be.equal(36);
-                    done();
-                }
-            };
-            // touch events are sent in an array of events
-            // with one item for each touch point
-            mouse._handleMouseDown(touchevent(
-                'touchstart', { touches: [{ clientX: 78, clientY: 46 }]}));
-            this.clock.tick(10);
-            mouse._handleMouseUp(touchevent(
-                'touchend', { touches: [{ clientX: 79, clientY: 45 }]}));
-            this.clock.tick(200);
-            mouse._handleMouseDown(touchevent(
-                'touchstart', { touches: [{ clientX: 67, clientY: 35 }]}));
-            this.clock.tick(10);
-            mouse._handleMouseUp(touchevent(
-                'touchend', { touches: [{ clientX: 66, clientY: 36 }]}));
-        });
-
-        it('should not modify 2nd tap pos if far apart', function (done) {
-            let calls = 0;
-            const mouse = new Mouse(target);
-            mouse.onmousebutton = (x, y, down, bmask) => {
-                calls++;
-                if (calls === 1) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.be.equal(68);
-                    expect(y).to.be.equal(36);
-                } else if (calls === 3) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.not.be.equal(68);
-                    expect(y).to.not.be.equal(36);
-                    done();
-                }
-            };
-            mouse._handleMouseDown(touchevent(
-                'touchstart', { touches: [{ clientX: 78, clientY: 46 }]}));
-            this.clock.tick(10);
-            mouse._handleMouseUp(touchevent(
-                'touchend', { touches: [{ clientX: 79, clientY: 45 }]}));
-            this.clock.tick(200);
-            mouse._handleMouseDown(touchevent(
-                'touchstart', { touches: [{ clientX: 57, clientY: 35 }]}));
-            this.clock.tick(10);
-            mouse._handleMouseUp(touchevent(
-                'touchend', { touches: [{ clientX: 56, clientY: 36 }]}));
-        });
-
-        it('should not modify 2nd tap pos if not soon enough', function (done) {
-            let calls = 0;
-            const mouse = new Mouse(target);
-            mouse.onmousebutton = (x, y, down, bmask) => {
-                calls++;
-                if (calls === 1) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.be.equal(68);
-                    expect(y).to.be.equal(36);
-                } else if (calls === 3) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.not.be.equal(68);
-                    expect(y).to.not.be.equal(36);
-                    done();
-                }
-            };
-            mouse._handleMouseDown(touchevent(
-                'touchstart', { touches: [{ clientX: 78, clientY: 46 }]}));
-            this.clock.tick(10);
-            mouse._handleMouseUp(touchevent(
-                'touchend', { touches: [{ clientX: 79, clientY: 45 }]}));
-            this.clock.tick(500);
-            mouse._handleMouseDown(touchevent(
-                'touchstart', { touches: [{ clientX: 67, clientY: 35 }]}));
-            this.clock.tick(10);
-            mouse._handleMouseUp(touchevent(
-                'touchend', { touches: [{ clientX: 66, clientY: 36 }]}));
-        });
-
-        it('should not modify 2nd tap pos if not touch', function (done) {
-            let calls = 0;
-            const mouse = new Mouse(target);
-            mouse.onmousebutton = (x, y, down, bmask) => {
-                calls++;
-                if (calls === 1) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.be.equal(68);
-                    expect(y).to.be.equal(36);
-                } else if (calls === 3) {
-                    expect(down).to.be.equal(1);
-                    expect(x).to.not.be.equal(68);
-                    expect(y).to.not.be.equal(36);
-                    done();
-                }
-            };
-            mouse._handleMouseDown(mouseevent(
-                'mousedown', { button: '0x01', clientX: 78, clientY: 46 }));
-            this.clock.tick(10);
-            mouse._handleMouseUp(mouseevent(
-                'mouseup', { button: '0x01', clientX: 79, clientY: 45 }));
-            this.clock.tick(200);
-            mouse._handleMouseDown(mouseevent(
-                'mousedown', { button: '0x01', clientX: 67, clientY: 35 }));
-            this.clock.tick(10);
-            mouse._handleMouseUp(mouseevent(
-                'mouseup', { button: '0x01', clientX: 66, clientY: 36 }));
-        });
-
     });
 
     describe('Accumulate mouse wheel events with small delta', function () {

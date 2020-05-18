@@ -94,18 +94,6 @@
 
             <!--noVNC Touch Device only buttons-->
             <div id="noVNC_mobile_buttons">
-                <input type="image" alt="No mousebutton" src="app/images/mouse_none.svg"
-                    id="noVNC_mouse_button0" class="noVNC_button"
-                    title="Active Mouse Button">
-                <input type="image" alt="Left mousebutton" src="app/images/mouse_left.svg"
-                    id="noVNC_mouse_button1" class="noVNC_button"
-                    title="Active Mouse Button">
-                <input type="image" alt="Middle mousebutton" src="app/images/mouse_middle.svg"
-                    id="noVNC_mouse_button2" class="noVNC_button"
-                    title="Active Mouse Button">
-                <input type="image" alt="Right mousebutton" src="app/images/mouse_right.svg"
-                    id="noVNC_mouse_button4" class="noVNC_button"
-                    title="Active Mouse Button">
                 <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
                     id="noVNC_keyboard_button" class="noVNC_button" title="Show Keyboard">
             </div>

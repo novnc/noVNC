@@ -11,12 +11,14 @@ import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
+import { clientToElement } from './util/element.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
 import Mouse from "./input/mouse.js";
+import GestureHandler from "./input/gesturehandler.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
 import DES from "./des.js";
@@ -38,6 +40,12 @@ const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
 // Minimum wait (ms) between two mouse moves
 const MOUSE_MOVE_DELAY = 17;
+
+// Gesture thresholds
+const GESTURE_ZOOMSENS = 75;
+const GESTURE_SCRLSENS = 50;
+const DOUBLE_TAP_TIMEOUT = 1000;
+const DOUBLE_TAP_THRESHOLD = 50;
 
 // Extended clipboard pseudo-encoding formats
 const extendedClipboardFormatText   = 1;
@@ -118,6 +126,7 @@ export default class RFB extends EventTargetMixin {
         this._flushing = false;         // Display flushing state
         this._keyboard = null;          // Keyboard input handler object
         this._mouse = null;             // Mouse input handler object
+        this._gestures = null;          // Gesture input handler object
 
         // Timers
         this._disconnTimer = null;      // disconnection timer
@@ -144,10 +153,17 @@ export default class RFB extends EventTargetMixin {
         this._viewportDragPos = {};
         this._viewportHasMoved = false;
 
+        // Gesture state
+        this._gestureLastTapTime = null;
+        this._gestureFirstDoubleTapEv = null;
+        this._gestureLastMagnitudeX = 0;
+        this._gestureLastMagnitudeY = 0;
+
         // Bound event handlers
         this._eventHandlers = {
             focusCanvas: this._focusCanvas.bind(this),
             windowResize: this._windowResize.bind(this),
+            handleGesture: this._handleGesture.bind(this),
         };
 
         // main setup
@@ -209,6 +225,8 @@ export default class RFB extends EventTargetMixin {
         this._mouse = new Mouse(this._canvas);
         this._mouse.onmousebutton = this._handleMouseButton.bind(this);
         this._mouse.onmousemove = this._handleMouseMove.bind(this);
+
+        this._gestures = new GestureHandler();
 
         this._sock = new Websock();
         this._sock.on('message', () => {
@@ -306,8 +324,8 @@ export default class RFB extends EventTargetMixin {
 
     get capabilities() { return this._capabilities; }
 
-    get touchButton() { return this._mouse.touchButton; }
-    set touchButton(button) { this._mouse.touchButton = button; }
+    get touchButton() { return 0; }
+    set touchButton(button) { Log.Warn("Using old API!"); }
 
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
@@ -501,6 +519,8 @@ export default class RFB extends EventTargetMixin {
         // Make our elements part of the page
         this._target.appendChild(this._screen);
 
+        this._gestures.attach(this._canvas);
+
         this._cursor.attach(this._canvas);
         this._refreshCursor();
 
@@ -512,17 +532,26 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
+        // Gesture events
+        this._canvas.addEventListener("gesturestart", this._eventHandlers.handleGesture);
+        this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
+        this._canvas.addEventListener("gestureend", this._eventHandlers.handleGesture);
+
         Log.Debug("<< RFB.connect");
     }
 
     _disconnect() {
         Log.Debug(">> RFB.disconnect");
         this._cursor.detach();
+        this._canvas.removeEventListener("gesturestart", this._eventHandlers.handleGesture);
+        this._canvas.removeEventListener("gesturemove", this._eventHandlers.handleGesture);
+        this._canvas.removeEventListener("gestureend", this._eventHandlers.handleGesture);
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
         this._keyboard.ungrab();
         this._mouse.ungrab();
+        this._gestures.detach();
         this._sock.close();
         try {
             this._target.removeChild(this._screen);
@@ -908,6 +937,156 @@ export default class RFB extends EventTargetMixin {
 
         RFB.messages.pointerEvent(this._sock, this._display.absX(x),
                                   this._display.absY(y), mask);
+    }
+
+    _handleTapEvent(ev, bmask) {
+        let pos = clientToElement(ev.detail.clientX, ev.detail.clientY,
+                                  this._canvas);
+
+        // If the user quickly taps multiple times we assume they meant to
+        // hit the same spot, so slightly adjust coordinates
+
+        if ((this._gestureLastTapTime !== null) &&
+            ((Date.now() - this._gestureLastTapTime) < DOUBLE_TAP_TIMEOUT) &&
+            (this._gestureFirstDoubleTapEv.detail.type === ev.detail.type)) {
+            let dx = this._gestureFirstDoubleTapEv.detail.clientX - ev.detail.clientX;
+            let dy = this._gestureFirstDoubleTapEv.detail.clientY - ev.detail.clientY;
+            let distance = Math.hypot(dx, dy);
+
+            if (distance < DOUBLE_TAP_THRESHOLD) {
+                pos = clientToElement(this._gestureFirstDoubleTapEv.detail.clientX,
+                                      this._gestureFirstDoubleTapEv.detail.clientY,
+                                      this._canvas);
+            } else {
+                this._gestureFirstDoubleTapEv = ev;
+            }
+        } else {
+            this._gestureFirstDoubleTapEv = ev;
+        }
+        this._gestureLastTapTime = Date.now();
+
+        this._handleMouseMove(pos.x, pos.y);
+        this._handleMouseButton(pos.x, pos.y, true, bmask);
+        this._handleMouseButton(pos.x, pos.y, false, bmask);
+    }
+
+    _handleGesture(ev) {
+        let magnitude;
+
+        let pos = clientToElement(ev.detail.clientX, ev.detail.clientY,
+                                  this._canvas);
+        switch (ev.type) {
+            case 'gesturestart':
+                switch (ev.detail.type) {
+                    case 'onetap':
+                        this._handleTapEvent(ev, 0x1);
+                        break;
+                    case 'twotap':
+                        this._handleTapEvent(ev, 0x4);
+                        break;
+                    case 'threetap':
+                        this._handleTapEvent(ev, 0x2);
+                        break;
+                    case 'drag':
+                        this._handleMouseMove(pos.x, pos.y);
+                        this._handleMouseButton(pos.x, pos.y, true, 0x1);
+                        break;
+                    case 'longpress':
+                        this._handleMouseMove(pos.x, pos.y);
+                        this._handleMouseButton(pos.x, pos.y, true, 0x4);
+                        break;
+
+                    case 'twodrag':
+                        this._gestureLastMagnitudeX = ev.detail.magnitudeX;
+                        this._gestureLastMagnitudeY = ev.detail.magnitudeY;
+                        this._handleMouseMove(pos.x, pos.y);
+                        break;
+                    case 'pinch':
+                        this._gestureLastMagnitudeX = Math.hypot(ev.detail.magnitudeX,
+                                                                 ev.detail.magnitudeY);
+                        this._handleMouseMove(pos.x, pos.y);
+                        break;
+                }
+                break;
+
+            case 'gesturemove':
+                switch (ev.detail.type) {
+                    case 'onetap':
+                    case 'twotap':
+                    case 'threetap':
+                        break;
+                    case 'drag':
+                    case 'longpress':
+                        this._handleMouseMove(pos.x, pos.y);
+                        break;
+                    case 'twodrag':
+                        // Always scroll in the same position.
+                        // We don't know if the mouse was moved so we need to move it
+                        // every update.
+                        this._handleMouseMove(pos.x, pos.y);
+                        while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
+                            this._handleMouseButton(pos.x, pos.y, true, 0x8);
+                            this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                            this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
+                        }
+                        while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
+                            this._handleMouseButton(pos.x, pos.y, true, 0x10);
+                            this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                            this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
+                        }
+                        while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
+                            this._handleMouseButton(pos.x, pos.y, true, 0x20);
+                            this._handleMouseButton(pos.x, pos.y, false, 0x20);
+                            this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
+                        }
+                        while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
+                            this._handleMouseButton(pos.x, pos.y, true, 0x40);
+                            this._handleMouseButton(pos.x, pos.y, false, 0x40);
+                            this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
+                        }
+                        break;
+                    case 'pinch':
+                        // Always scroll in the same position.
+                        // We don't know if the mouse was moved so we need to move it
+                        // every update.
+                        this._handleMouseMove(pos.x, pos.y);
+                        magnitude = Math.hypot(ev.detail.magnitudeX, ev.detail.magnitudeY);
+                        if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
+                            this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+                            while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
+                                this._handleMouseButton(pos.x, pos.y, true, 0x8);
+                                this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                                this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
+                            }
+                            while ((magnitude -  this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
+                                this._handleMouseButton(pos.x, pos.y, true, 0x10);
+                                this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                                this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
+                            }
+                        }
+                        this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                }
+                break;
+
+            case 'gestureend':
+                switch (ev.detail.type) {
+                    case 'onetap':
+                    case 'twotap':
+                    case 'threetap':
+                    case 'pinch':
+                    case 'twodrag':
+                        break;
+                    case 'drag':
+                        this._handleMouseMove(pos.x, pos.y);
+                        this._handleMouseButton(pos.x, pos.y, false, 0x1);
+                        break;
+                    case 'longpress':
+                        this._handleMouseMove(pos.x, pos.y);
+                        this._handleMouseButton(pos.x, pos.y, false, 0x4);
+                        break;
+                }
+                break;
+        }
     }
 
     // Message Handlers

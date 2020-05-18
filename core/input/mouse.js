@@ -5,7 +5,6 @@
  */
 
 import * as Log from '../util/logging.js';
-import { isTouchDevice } from '../util/browser.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 
 const WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
@@ -15,9 +14,6 @@ const WHEEL_LINE_HEIGHT = 19;
 export default class Mouse {
     constructor(target) {
         this._target = target || document;
-
-        this._doubleClickTimer = null;
-        this._lastTouchPos = null;
 
         this._pos = null;
         this._wheelStepXTimer = null;
@@ -32,11 +28,6 @@ export default class Mouse {
             'mousewheel': this._handleMouseWheel.bind(this),
             'mousedisable': this._handleMouseDisable.bind(this)
         };
-
-        // ===== PROPERTIES =====
-
-        this.touchButton = 1; // Button mask (1, 2, 4) for touch devices
-                              // (0 means ignore clicks)
 
         // ===== EVENT HANDLERS =====
 
@@ -55,39 +46,7 @@ export default class Mouse {
         let pos = this._pos;
 
         let bmask;
-        if (e.touches || e.changedTouches) {
-            // Touch device
-
-            // When two touches occur within 500 ms of each other and are
-            // close enough together a double click is triggered.
-            if (down == 1) {
-                if (this._doubleClickTimer === null) {
-                    this._lastTouchPos = pos;
-                } else {
-                    clearTimeout(this._doubleClickTimer);
-
-                    // When the distance between the two touches is small enough
-                    // force the position of the latter touch to the position of
-                    // the first.
-
-                    const xs = this._lastTouchPos.x - pos.x;
-                    const ys = this._lastTouchPos.y - pos.y;
-                    const d = Math.sqrt((xs * xs) + (ys * ys));
-
-                    // The goal is to trigger on a certain physical width,
-                    // the devicePixelRatio brings us a bit closer but is
-                    // not optimal.
-                    const threshold = 20 * (window.devicePixelRatio || 1);
-                    if (d < threshold) {
-                        pos = this._lastTouchPos;
-                    }
-                }
-                this._doubleClickTimer =
-                    setTimeout(this._resetDoubleClickTimer.bind(this), 500);
-            }
-            bmask = this.touchButton;
-            // If bmask is set
-        } else if (e.which) {
+        if (e.which) {
             /* everything except IE */
             bmask = 1 << e.button;
         } else {
@@ -105,10 +64,7 @@ export default class Mouse {
     }
 
     _handleMouseDown(e) {
-        // Touch events have implicit capture
-        if (e.type === "mousedown") {
-            setCapture(this._target);
-        }
+        setCapture(this._target);
 
         this._handleMouseButton(e, 1);
     }
@@ -242,11 +198,6 @@ export default class Mouse {
 
     grab() {
         const t = this._target;
-        if (isTouchDevice) {
-            t.addEventListener('touchstart', this._eventHandlers.mousedown);
-            t.addEventListener('touchend', this._eventHandlers.mouseup);
-            t.addEventListener('touchmove', this._eventHandlers.mousemove);
-        }
         t.addEventListener('mousedown', this._eventHandlers.mousedown);
         t.addEventListener('mouseup', this._eventHandlers.mouseup);
         t.addEventListener('mousemove', this._eventHandlers.mousemove);
@@ -265,11 +216,6 @@ export default class Mouse {
 
         this._resetWheelStepTimers();
 
-        if (isTouchDevice) {
-            t.removeEventListener('touchstart', this._eventHandlers.mousedown);
-            t.removeEventListener('touchend', this._eventHandlers.mouseup);
-            t.removeEventListener('touchmove', this._eventHandlers.mousemove);
-        }
         t.removeEventListener('mousedown', this._eventHandlers.mousedown);
         t.removeEventListener('mouseup', this._eventHandlers.mouseup);
         t.removeEventListener('mousemove', this._eventHandlers.mousemove);
