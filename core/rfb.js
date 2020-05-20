@@ -206,7 +206,7 @@ export default class RFB extends EventTargetMixin {
 
         this._sock = new Websock();
         this._sock.on('message', () => {
-            this._handle_message();
+            this._handleMessage();
         });
         this._sock.on('open', () => {
             if ((this._rfbConnectionState === 'connecting') &&
@@ -391,7 +391,7 @@ export default class RFB extends EventTargetMixin {
 
     sendCredentials(creds) {
         this._rfbCredentials = creds;
-        setTimeout(this._init_msg.bind(this), 0);
+        setTimeout(this._initMsg.bind(this), 0);
     }
 
     sendCtrlAltDel() {
@@ -779,9 +779,9 @@ export default class RFB extends EventTargetMixin {
                                            { detail: { capabilities: this._capabilities } }));
     }
 
-    _handle_message() {
+    _handleMessage() {
         if (this._sock.rQlen === 0) {
-            Log.Warn("handle_message called on an empty receive queue");
+            Log.Warn("handleMessage called on an empty receive queue");
             return;
         }
 
@@ -794,7 +794,7 @@ export default class RFB extends EventTargetMixin {
                     if (this._flushing) {
                         break;
                     }
-                    if (!this._normal_msg()) {
+                    if (!this._normalMsg()) {
                         break;
                     }
                     if (this._sock.rQlen === 0) {
@@ -803,7 +803,7 @@ export default class RFB extends EventTargetMixin {
                 }
                 break;
             default:
-                this._init_msg();
+                this._initMsg();
                 break;
         }
     }
@@ -877,7 +877,7 @@ export default class RFB extends EventTargetMixin {
 
     // Message Handlers
 
-    _negotiate_protocol_version() {
+    _negotiateProtocolVersion() {
         if (this._sock.rQwait("version", 12)) {
             return false;
         }
@@ -928,7 +928,7 @@ export default class RFB extends EventTargetMixin {
         this._rfbInitState = 'Security';
     }
 
-    _negotiate_security() {
+    _negotiateSecurity() {
         // Polyfill since IE and PhantomJS doesn't have
         // TypedArray.includes()
         function includes(item, array) {
@@ -949,7 +949,7 @@ export default class RFB extends EventTargetMixin {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "no security types";
                 this._securityStatus = 1;
-                return this._init_msg();
+                return this._initMsg();
             }
 
             const types = this._sock.rQshiftBytes(numTypes);
@@ -980,17 +980,17 @@ export default class RFB extends EventTargetMixin {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "authentication scheme";
                 this._securityStatus = 1;
-                return this._init_msg();
+                return this._initMsg();
             }
         }
 
         this._rfbInitState = 'Authentication';
         Log.Debug('Authenticating using scheme: ' + this._rfbAuthScheme);
 
-        return this._init_msg(); // jump to authentication
+        return this._initMsg(); // jump to authentication
     }
 
-    _handle_security_reason() {
+    _handleSecurityReason() {
         if (this._sock.rQwait("reason length", 4)) {
             return false;
         }
@@ -1022,7 +1022,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     // authentication
-    _negotiate_xvp_auth() {
+    _negotiateXvpAuth() {
         if (this._rfbCredentials.username === undefined ||
             this._rfbCredentials.password === undefined ||
             this._rfbCredentials.target === undefined) {
@@ -1038,11 +1038,11 @@ export default class RFB extends EventTargetMixin {
                            this._rfbCredentials.target;
         this._sock.send_string(xvpAuthStr);
         this._rfbAuthScheme = 2;
-        return this._negotiate_authentication();
+        return this._negotiateAuthentication();
     }
 
     // VeNCrypt authentication, currently only supports version 0.2 and only Plain subtype
-    _negotiate_vencrypt_auth() {
+    _negotiateVeNCryptAuth() {
 
         // waiting for VeNCrypt version
         if (this._rfbVeNCryptState == 0) {
@@ -1129,7 +1129,7 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _negotiate_std_vnc_auth() {
+    _negotiateStdVNCAuth() {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
         if (this._rfbCredentials.password === undefined) {
@@ -1147,7 +1147,7 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
-    _negotiate_tight_unix_auth() {
+    _negotiateTightUnixAuth() {
         if (this._rfbCredentials.username === undefined ||
             this._rfbCredentials.password === undefined) {
             this.dispatchEvent(new CustomEvent(
@@ -1164,7 +1164,7 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
-    _negotiate_tight_tunnels(numTunnels) {
+    _negotiateTightTunnels(numTunnels) {
         const clientSupportedTunnelTypes = {
             0: { vendor: 'TGHT', signature: 'NOTUNNEL' }
         };
@@ -1205,7 +1205,7 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _negotiate_tight_auth() {
+    _negotiateTightAuth() {
         if (!this._rfbTightVNC) {  // first pass, do the tunnel negotiation
             if (this._sock.rQwait("num tunnels", 4)) { return false; }
             const numTunnels = this._sock.rQshift32();
@@ -1214,7 +1214,7 @@ export default class RFB extends EventTargetMixin {
             this._rfbTightVNC = true;
 
             if (numTunnels > 0) {
-                this._negotiate_tight_tunnels(numTunnels);
+                this._negotiateTightTunnels(numTunnels);
                 return false;  // wait until we receive the sub auth to continue
             }
         }
@@ -1256,10 +1256,10 @@ export default class RFB extends EventTargetMixin {
                         return true;
                     case 'STDVVNCAUTH_': // VNC auth
                         this._rfbAuthScheme = 2;
-                        return this._init_msg();
+                        return this._initMsg();
                     case 'TGHTULGNAUTH': // UNIX auth
                         this._rfbAuthScheme = 129;
-                        return this._init_msg();
+                        return this._initMsg();
                     default:
                         return this._fail("Unsupported tiny auth scheme " +
                                           "(scheme: " + authType + ")");
@@ -1270,7 +1270,7 @@ export default class RFB extends EventTargetMixin {
         return this._fail("No supported sub-auth types!");
     }
 
-    _negotiate_authentication() {
+    _negotiateAuthentication() {
         switch (this._rfbAuthScheme) {
             case 1:  // no auth
                 if (this._rfbVersion >= 3.8) {
@@ -1278,22 +1278,22 @@ export default class RFB extends EventTargetMixin {
                     return true;
                 }
                 this._rfbInitState = 'ClientInitialisation';
-                return this._init_msg();
+                return this._initMsg();
 
             case 22:  // XVP auth
-                return this._negotiate_xvp_auth();
+                return this._negotiateXvpAuth();
 
             case 2:  // VNC authentication
-                return this._negotiate_std_vnc_auth();
+                return this._negotiateStdVNCAuth();
 
             case 16:  // TightVNC Security Type
-                return this._negotiate_tight_auth();
+                return this._negotiateTightAuth();
 
             case 19:  // VeNCrypt Security Type
-                return this._negotiate_vencrypt_auth();
+                return this._negotiateVeNCryptAuth();
 
             case 129:  // TightVNC UNIX Security Type
-                return this._negotiate_tight_unix_auth();
+                return this._negotiateTightUnixAuth();
 
             default:
                 return this._fail("Unsupported auth scheme (scheme: " +
@@ -1301,7 +1301,7 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _handle_security_result() {
+    _handleSecurityResult() {
         if (this._sock.rQwait('VNC auth response ', 4)) { return false; }
 
         const status = this._sock.rQshift32();
@@ -1309,13 +1309,13 @@ export default class RFB extends EventTargetMixin {
         if (status === 0) { // OK
             this._rfbInitState = 'ClientInitialisation';
             Log.Debug('Authentication OK');
-            return this._init_msg();
+            return this._initMsg();
         } else {
             if (this._rfbVersion >= 3.8) {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "security result";
                 this._securityStatus = status;
-                return this._init_msg();
+                return this._initMsg();
             } else {
                 this.dispatchEvent(new CustomEvent(
                     "securityfailure",
@@ -1326,7 +1326,7 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _negotiate_server_init() {
+    _negotiateServerInit() {
         if (this._sock.rQwait("server initialization", 24)) { return false; }
 
         /* Screen size */
@@ -1459,22 +1459,22 @@ export default class RFB extends EventTargetMixin {
      *   ClientInitialization - not triggered by server message
      *   ServerInitialization
      */
-    _init_msg() {
+    _initMsg() {
         switch (this._rfbInitState) {
             case 'ProtocolVersion':
-                return this._negotiate_protocol_version();
+                return this._negotiateProtocolVersion();
 
             case 'Security':
-                return this._negotiate_security();
+                return this._negotiateSecurity();
 
             case 'Authentication':
-                return this._negotiate_authentication();
+                return this._negotiateAuthentication();
 
             case 'SecurityResult':
-                return this._handle_security_result();
+                return this._handleSecurityResult();
 
             case 'SecurityReason':
-                return this._handle_security_reason();
+                return this._handleSecurityReason();
 
             case 'ClientInitialisation':
                 this._sock.send([this._shared ? 1 : 0]); // ClientInitialisation
@@ -1482,7 +1482,7 @@ export default class RFB extends EventTargetMixin {
                 return true;
 
             case 'ServerInitialisation':
-                return this._negotiate_server_init();
+                return this._negotiateServerInit();
 
             default:
                 return this._fail("Unknown init state (state: " +
@@ -1490,13 +1490,13 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _handle_set_colour_map_msg() {
+    _handleSetColourMapMsg() {
         Log.Debug("SetColorMapEntries");
 
         return this._fail("Unexpected SetColorMapEntries message");
     }
 
-    _handle_server_cut_text() {
+    _handleServerCutText() {
         Log.Debug("ServerCutText");
 
         if (this._sock.rQwait("ServerCutText header", 7, 1)) { return false; }
@@ -1664,7 +1664,7 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
-    _handle_server_fence_msg() {
+    _handleServerFenceMsg() {
         if (this._sock.rQwait("ServerFence header", 8, 1)) { return false; }
         this._sock.rQskipBytes(3); // Padding
         let flags = this._sock.rQshift32();
@@ -1706,7 +1706,7 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
-    _handle_xvp_msg() {
+    _handleXvpMsg() {
         if (this._sock.rQwait("XVP version and message", 3, 1)) { return false; }
         this._sock.rQskipBytes(1);  // Padding
         const xvpVer = this._sock.rQshift8();
@@ -1729,7 +1729,7 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
-    _normal_msg() {
+    _normalMsg() {
         let msgType;
         if (this._FBU.rects > 0) {
             msgType = 0;
@@ -1748,7 +1748,7 @@ export default class RFB extends EventTargetMixin {
                 return ret;
 
             case 1:  // SetColorMapEntries
-                return this._handle_set_colour_map_msg();
+                return this._handleSetColourMapMsg();
 
             case 2:  // Bell
                 Log.Debug("Bell");
@@ -1758,7 +1758,7 @@ export default class RFB extends EventTargetMixin {
                 return true;
 
             case 3:  // ServerCutText
-                return this._handle_server_cut_text();
+                return this._handleServerCutText();
 
             case 150: // EndOfContinuousUpdates
                 first = !this._supportsContinuousUpdates;
@@ -1775,10 +1775,10 @@ export default class RFB extends EventTargetMixin {
                 return true;
 
             case 248: // ServerFence
-                return this._handle_server_fence_msg();
+                return this._handleServerFenceMsg();
 
             case 250:  // XVP
-                return this._handle_xvp_msg();
+                return this._handleXvpMsg();
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
@@ -1791,7 +1791,7 @@ export default class RFB extends EventTargetMixin {
         this._flushing = false;
         // Resume processing
         if (this._sock.rQlen > 0) {
-            this._handle_message();
+            this._handleMessage();
         }
     }
 
