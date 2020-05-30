@@ -70,11 +70,13 @@ function deflateWithSize(data) {
     strm.output = new Uint8Array(chunkSize);
     deflateInit(strm, 5);
 
+    /* eslint-disable camelcase */
     strm.input = unCompData;
     strm.avail_in = strm.input.length;
     strm.next_in = 0;
     strm.next_out = 0;
     strm.avail_out = chunkSize;
+    /* eslint-enable camelcase */
 
     deflate(strm, 3);
 

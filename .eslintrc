@@ -44,5 +44,6 @@
                                                    "named": "never",
                                                    "asyncArrow": "always" }],
         "switch-colon-spacing": ["error"],
+        "camelcase": ["error", { allow: ["^XK_", "^XF86XK_"] }],
     }
 }

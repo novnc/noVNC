@@ -22,6 +22,7 @@ export default class Inflate {
     setInput(data) {
         if (!data) {
             //FIXME: flush remaining data.
+            /* eslint-disable camelcase */
             this.strm.input = null;
             this.strm.avail_in = 0;
             this.strm.next_in = 0;
@@ -29,6 +30,7 @@ export default class Inflate {
             this.strm.input = data;
             this.strm.avail_in = this.strm.input.length;
             this.strm.next_in = 0;
+            /* eslint-enable camelcase */
         }
     }
 
@@ -41,8 +43,10 @@ export default class Inflate {
             this.strm.output = new Uint8Array(this.chunkSize);
         }
 
+        /* eslint-disable camelcase */
         this.strm.next_out = 0;
         this.strm.avail_out = expected;
+        /* eslint-enable camelcase */
 
         let ret = inflate(this.strm, 0); // Flush argument not used.
         if (ret < 0) {
