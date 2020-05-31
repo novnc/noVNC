@@ -99,8 +99,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
         const _sQ = new Uint8Array(sock._sQbufferSize);
         const rQ = new Uint8Array(sock._rQbufferSize);
 
-        Websock.prototype._old_allocate_buffers = Websock.prototype._allocate_buffers;
-        Websock.prototype._allocate_buffers = function () {
+        Websock.prototype._oldAllocateBuffers = Websock.prototype._allocateBuffers;
+        Websock.prototype._allocateBuffers = function () {
             this._sQ = _sQ;
             this._rQ = rQ;
         };
@@ -108,7 +108,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
     });
 
     after(function () {
-        Websock.prototype._allocate_buffers = Websock.prototype._old_allocate_buffers;
+        Websock.prototype._allocateBuffers = Websock.prototype._oldAllocateBuffers;
         this.clock.restore();
         window.requestAnimationFrame = raf;
     });
