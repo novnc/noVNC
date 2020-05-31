@@ -1683,7 +1683,7 @@ const UI = {
     },
 
     updateLogging() {
-        WebUtil.init_logging(UI.getSetting('logging'));
+        WebUtil.initLogging(UI.getSetting('logging'));
     },
 
     updateDesktopName(e) {

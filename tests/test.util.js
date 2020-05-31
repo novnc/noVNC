@@ -22,37 +22,37 @@ describe('Utils', function () {
             console.warn.restore();
             console.error.restore();
             console.info.restore();
-            Log.init_logging();
+            Log.initLogging();
         });
 
         it('should use noop for levels lower than the min level', function () {
-            Log.init_logging('warn');
+            Log.initLogging('warn');
             Log.Debug('hi');
             Log.Info('hello');
             expect(console.log).to.not.have.been.called;
         });
 
         it('should use console.debug for Debug', function () {
-            Log.init_logging('debug');
+            Log.initLogging('debug');
             Log.Debug('dbg');
             expect(console.debug).to.have.been.calledWith('dbg');
         });
 
         it('should use console.info for Info', function () {
-            Log.init_logging('debug');
+            Log.initLogging('debug');
             Log.Info('inf');
             expect(console.info).to.have.been.calledWith('inf');
         });
 
         it('should use console.warn for Warn', function () {
-            Log.init_logging('warn');
+            Log.initLogging('warn');
             Log.Warn('wrn');
             expect(console.warn).to.have.been.called;
             expect(console.warn).to.have.been.calledWith('wrn');
         });
 
         it('should use console.error for Error', function () {
-            Log.init_logging('error');
+            Log.initLogging('error');
             Log.Error('err');
             expect(console.error).to.have.been.called;
             expect(console.error).to.have.been.calledWith('err');
