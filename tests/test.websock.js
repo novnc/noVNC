@@ -456,7 +456,7 @@ describe('Websock', function () {
 
             it('should properly pass the encoded data off to the actual WebSocket', function () {
                 sock.send([1, 2, 3]);
-                expect(sock._websocket._get_sent_data()).to.array.equal(new Uint8Array([1, 2, 3]));
+                expect(sock._websocket._getSentData()).to.array.equal(new Uint8Array([1, 2, 3]));
             });
         });
     });
