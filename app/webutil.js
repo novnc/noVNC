@@ -184,7 +184,7 @@ export function injectParamIfMissing(path, param, value) {
     const elem = document.createElement('a');
     elem.href = path;
 
-    const param_eq = encodeURIComponent(param) + "=";
+    const paramEq = encodeURIComponent(param) + "=";
     let query;
     if (elem.search) {
         query = elem.search.slice(1).split('&');
@@ -192,8 +192,8 @@ export function injectParamIfMissing(path, param, value) {
         query = [];
     }
 
-    if (!query.some(v => v.startsWith(param_eq))) {
-        query.push(param_eq + encodeURIComponent(value));
+    if (!query.some(v => v.startsWith(paramEq))) {
+        query.push(paramEq + encodeURIComponent(value));
         elem.search = "?" + query.join("&");
     }
 
