@@ -18,14 +18,14 @@ export default class Display {
         this._flushing = false;
 
         // the full frame buffer (logical canvas) size
-        this._fb_width = 0;
-        this._fb_height = 0;
+        this._fbWidth = 0;
+        this._fbHeight = 0;
 
         this._prevDrawStyle = "";
         this._tile = null;
         this._tile16x16 = null;
-        this._tile_x = 0;
-        this._tile_y = 0;
+        this._tileX = 0;
+        this._tileY = 0;
 
         Log.Debug(">> Display.constructor");
 
@@ -94,11 +94,11 @@ export default class Display {
     }
 
     get width() {
-        return this._fb_width;
+        return this._fbWidth;
     }
 
     get height() {
-        return this._fb_height;
+        return this._fbHeight;
     }
 
     // ===== PUBLIC METHODS =====
@@ -121,15 +121,15 @@ export default class Display {
         if (deltaX < 0 && vp.x + deltaX < 0) {
             deltaX = -vp.x;
         }
-        if (vx2 + deltaX >= this._fb_width) {
-            deltaX -= vx2 + deltaX - this._fb_width + 1;
+        if (vx2 + deltaX >= this._fbWidth) {
+            deltaX -= vx2 + deltaX - this._fbWidth + 1;
         }
 
         if (vp.y + deltaY < 0) {
             deltaY = -vp.y;
         }
-        if (vy2 + deltaY >= this._fb_height) {
-            deltaY -= (vy2 + deltaY - this._fb_height + 1);
+        if (vy2 + deltaY >= this._fbHeight) {
+            deltaY -= (vy2 + deltaY - this._fbHeight + 1);
         }
 
         if (deltaX === 0 && deltaY === 0) {
@@ -152,18 +152,18 @@ export default class Display {
             typeof(height) === "undefined") {
 
             Log.Debug("Setting viewport to full display region");
-            width = this._fb_width;
-            height = this._fb_height;
+            width = this._fbWidth;
+            height = this._fbHeight;
         }
 
         width = Math.floor(width);
         height = Math.floor(height);
 
-        if (width > this._fb_width) {
-            width = this._fb_width;
+        if (width > this._fbWidth) {
+            width = this._fbWidth;
         }
-        if (height > this._fb_height) {
-            height = this._fb_height;
+        if (height > this._fbHeight) {
+            height = this._fbHeight;
         }
 
         const vp = this._viewportLoc;
@@ -203,8 +203,8 @@ export default class Display {
     resize(width, height) {
         this._prevDrawStyle = "";
 
-        this._fb_width = width;
-        this._fb_height = height;
+        this._fbWidth = width;
+        this._fbHeight = height;
 
         const canvas = this._backbuffer;
         if (canvas.width !== width || canvas.height !== height) {
@@ -252,9 +252,9 @@ export default class Display {
 
     // Update the visible canvas with the contents of the
     // rendering canvas
-    flip(from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            this._renderQ_push({
+    flip(fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
+            this._renderQPush({
                 'type': 'flip'
             });
         } else {
@@ -310,9 +310,9 @@ export default class Display {
         }
     }
 
-    fillRect(x, y, width, height, color, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            this._renderQ_push({
+    fillRect(x, y, width, height, color, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
+            this._renderQPush({
                 'type': 'fill',
                 'x': x,
                 'y': y,
@@ -327,14 +327,14 @@ export default class Display {
         }
     }
 
-    copyImage(old_x, old_y, new_x, new_y, w, h, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            this._renderQ_push({
+    copyImage(oldX, oldY, newX, newY, w, h, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
+            this._renderQPush({
                 'type': 'copy',
-                'old_x': old_x,
-                'old_y': old_y,
-                'x': new_x,
-                'y': new_y,
+                'oldX': oldX,
+                'oldY': oldY,
+                'x': newX,
+                'y': newY,
                 'width': w,
                 'height': h,
             });
@@ -352,9 +352,9 @@ export default class Display {
             this._drawCtx.imageSmoothingEnabled = false;
 
             this._drawCtx.drawImage(this._backbuffer,
-                                    old_x, old_y, w, h,
-                                    new_x, new_y, w, h);
-            this._damage(new_x, new_y, w, h);
+                                    oldX, oldY, w, h,
+                                    newX, newY, w, h);
+            this._damage(newX, newY, w, h);
         }
     }
 
@@ -367,7 +367,7 @@ export default class Display {
         const img = new Image();
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
 
-        this._renderQ_push({
+        this._renderQPush({
             'type': 'img',
             'img': img,
             'x': x,
@@ -379,8 +379,8 @@ export default class Display {
 
     // start updating a tile
     startTile(x, y, width, height, color) {
-        this._tile_x = x;
-        this._tile_y = y;
+        this._tileX = x;
+        this._tileY = y;
         if (width === 16 && height === 16) {
             this._tile = this._tile16x16;
         } else {
@@ -423,21 +423,21 @@ export default class Display {
 
     // draw the current tile to the screen
     finishTile() {
-        this._drawCtx.putImageData(this._tile, this._tile_x, this._tile_y);
-        this._damage(this._tile_x, this._tile_y,
+        this._drawCtx.putImageData(this._tile, this._tileX, this._tileY);
+        this._damage(this._tileX, this._tileY,
                      this._tile.width, this._tile.height);
     }
 
-    blitImage(x, y, width, height, arr, offset, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
+    blitImage(x, y, width, height, arr, offset, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            const new_arr = new Uint8Array(width * height * 4);
-            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-            this._renderQ_push({
+            const newArr = new Uint8Array(width * height * 4);
+            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
+            this._renderQPush({
                 'type': 'blit',
-                'data': new_arr,
+                'data': newArr,
                 'x': x,
                 'y': y,
                 'width': width,
@@ -448,16 +448,16 @@ export default class Display {
         }
     }
 
-    blitRgbImage(x, y, width, height, arr, offset, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
+    blitRgbImage(x, y, width, height, arr, offset, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            const new_arr = new Uint8Array(width * height * 3);
-            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-            this._renderQ_push({
+            const newArr = new Uint8Array(width * height * 3);
+            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
+            this._renderQPush({
                 'type': 'blitRgb',
-                'data': new_arr,
+                'data': newArr,
                 'x': x,
                 'y': y,
                 'width': width,
@@ -468,16 +468,16 @@ export default class Display {
         }
     }
 
-    blitRgbxImage(x, y, width, height, arr, offset, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
+    blitRgbxImage(x, y, width, height, arr, offset, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            const new_arr = new Uint8Array(width * height * 4);
-            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-            this._renderQ_push({
+            const newArr = new Uint8Array(width * height * 4);
+            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
+            this._renderQPush({
                 'type': 'blitRgbx',
-                'data': new_arr,
+                'data': newArr,
                 'x': x,
                 'y': y,
                 'width': width,
@@ -582,23 +582,23 @@ export default class Display {
         this._damage(x, y, img.width, img.height);
     }
 
-    _renderQ_push(action) {
+    _renderQPush(action) {
         this._renderQ.push(action);
         if (this._renderQ.length === 1) {
             // If this can be rendered immediately it will be, otherwise
             // the scanner will wait for the relevant event
-            this._scan_renderQ();
+            this._scanRenderQ();
         }
     }
 
-    _resume_renderQ() {
+    _resumeRenderQ() {
         // "this" is the object that is ready, not the
         // display object
-        this.removeEventListener('load', this._noVNC_display._resume_renderQ);
-        this._noVNC_display._scan_renderQ();
+        this.removeEventListener('load', this._noVNCDisplay._resumeRenderQ);
+        this._noVNCDisplay._scanRenderQ();
     }
 
-    _scan_renderQ() {
+    _scanRenderQ() {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
             const a = this._renderQ[0];
@@ -607,7 +607,7 @@ export default class Display {
                     this.flip(true);
                     break;
                 case 'copy':
-                    this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
+                    this.copyImage(a.oldX, a.oldY, a.x, a.y, a.width, a.height, true);
                     break;
                 case 'fill':
                     this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
@@ -632,8 +632,8 @@ export default class Display {
                         }
                         this.drawImage(a.img, a.x, a.y);
                     } else {
-                        a.img._noVNC_display = this;
-                        a.img.addEventListener('load', this._resume_renderQ);
+                        a.img._noVNCDisplay = this;
+                        a.img.addEventListener('load', this._resumeRenderQ);
                         // We need to wait for this image to 'load'
                         // to keep things in-order
                         ready = false;
