@@ -159,6 +159,7 @@ const UI = {
         UI.initSetting('host', window.location.hostname);
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
+        UI.initSetting('native_dpi', false);
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
         UI.initSetting('quality', 6);
@@ -355,6 +356,8 @@ const UI = {
         UI.addSettingChangeHandler('compression', UI.updateCompression);
         UI.addSettingChangeHandler('view_clip');
         UI.addSettingChangeHandler('view_clip', UI.updateViewClip);
+        UI.addSettingChangeHandler('native_dpi');
+        UI.addSettingChangeHandler('native_dpi', UI.updateNativeDpi);
         UI.addSettingChangeHandler('shared');
         UI.addSettingChangeHandler('view_only');
         UI.addSettingChangeHandler('view_only', UI.updateViewOnly);
@@ -843,6 +846,7 @@ const UI = {
 
         // Refresh UI elements from saved cookies
         UI.updateSetting('encrypt');
+        UI.updateSetting('native_dpi');
         UI.updateSetting('view_clip');
         UI.updateSetting('resize');
         UI.updateSetting('quality');
@@ -1044,6 +1048,7 @@ const UI = {
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+        UI.rfb.useNativeDpi = UI.getSetting('native_dpi');
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
@@ -1304,6 +1309,31 @@ const UI = {
 
 /* ------^-------
  * /VIEW CLIPPING
+ * ==============
+ * NATIVE DPI
+ * ------v------*/
+
+    // Update native DPI scaling for the viewport. If enabled, a pixel on the screen will
+    // correspond to one pixel on the server framebuffer.
+    // If disabled, the client area will be scaled according to the DPI scaling applied by the OS
+    // When this is disabled on a high-DPI monitor, a smaller framebuffer will be used and the
+    // result scaled up to fit the client area
+    updateNativeDpi() {
+        if (!UI.rfb) return;
+
+        const scaling = UI.getSetting('resize') === 'scale';
+
+        if (scaling) {
+            // Can't control DPI if viewport is scaled to fit
+            UI.forceSetting('native_dpi', false);
+        } else {
+            UI.enableSetting('native_dpi');
+        }
+        UI.rfb.useNativeDpi = UI.getSetting('native_dpi');
+    },
+
+/* ------^-------
+ * /NATIVE DPI
  * ==============
  *    VIEWDRAG
  * ------v------*/
