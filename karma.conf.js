@@ -5,12 +5,11 @@ module.exports = (config) => {
   let browsers = [];
   let useSauce = false;
 
-  // use Sauce when running on Travis
-  if (process.env.TRAVIS_JOB_NUMBER) {
+  if (process.env.USE_SAUCE) {
     useSauce = true;
   } 
 
-  if (useSauce && process.env.TEST_BROWSER_NAME && process.env.TEST_BROWSER_NAME != 'PhantomJS') {
+  if (useSauce) {
     const names = process.env.TEST_BROWSER_NAME.split(',');
     const platforms = process.env.TEST_BROWSER_OS.split(',');
     const versions = process.env.TEST_BROWSER_VERSION
@@ -40,9 +39,9 @@ module.exports = (config) => {
 
     browsers = Object.keys(customLaunchers);
   } else {
-    useSauce = false;
-    //browsers = ['PhantomJS'];
-    browsers = [];
+    if (process.env.TEST_BROWSER_NAME) {
+      browsers = process.env.TEST_BROWSER_NAME.split(',');
+    }
   }
 
   const my_conf = {

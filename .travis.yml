@@ -7,17 +7,17 @@ node_js:
   - lts/*
 env:
   matrix:
-  - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 10'
+  - USE_SAUCE=1 TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 10'
 # FIXME Skip tests in Linux since Sauce Labs browser versions are ancient.
-#  - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Linux'
-  - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='OS X 10.11'
-  - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Windows 10'
-#  - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Linux'
-  - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='OS X 10.11'
-  - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 10'
-  - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 7'
-  - TEST_BROWSER_NAME=microsoftedge TEST_BROWSER_OS='Windows 10'
-  - TEST_BROWSER_NAME=safari TEST_BROWSER_OS='OS X 10.13'
+#  - USE_SAUCE=1 TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Linux'
+  - USE_SAUCE=1 TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='OS X 10.11'
+  - USE_SAUCE=1 TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Windows 10'
+#  - USE_SAUCE=1 TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Linux'
+  - USE_SAUCE=1 TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='OS X 10.11'
+  - USE_SAUCE=1 TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 10'
+  - USE_SAUCE=1 TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 7'
+  - USE_SAUCE=1 TEST_BROWSER_NAME=microsoftedge TEST_BROWSER_OS='Windows 10'
+  - USE_SAUCE=1 TEST_BROWSER_NAME=safari TEST_BROWSER_OS='OS X 10.13'
 before_script: npm install -g karma-cli
 addons:
   sauce_connect:
@@ -41,6 +41,29 @@ jobs:
     addons:
     before_script:
     script: git ls-tree --name-only -r HEAD | grep -E "[.](html|css)$" | xargs ./utils/validate
+  - stage: test
+    env:
+    - TEST_BROWSER_NAME=FirefoxHeadless
+    addons:
+      sauce_connect: false
+    before_script:
+    script: npm run test
+  -
+    env:
+    - TEST_BROWSER_NAME=ChromeHeadless
+    addons:
+      sauce_connect: false
+      chrome: stable
+    before_script:
+    script: npm run test
+  -
+    os: osx
+    env:
+    - TEST_BROWSER_NAME=Safari
+    addons:
+      sauce_connect: false
+    before_script:
+    script: npm run test
   - stage: deploy
     env:
     addons:
