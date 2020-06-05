@@ -57,12 +57,12 @@ export default {
     /* eslint-enable comma-spacing */
 
     decode(data, offset = 0) {
-        let data_length = data.indexOf('=') - offset;
-        if (data_length < 0) { data_length = data.length - offset; }
+        let dataLength = data.indexOf('=') - offset;
+        if (dataLength < 0) { dataLength = data.length - offset; }
 
         /* Every four characters is 3 resulting numbers */
-        const result_length = (data_length >> 2) * 3 + Math.floor((data_length % 4) / 1.5);
-        const result = new Array(result_length);
+        const resultLength = (dataLength >> 2) * 3 + Math.floor((dataLength % 4) / 1.5);
+        const result = new Array(resultLength);
 
         // Convert one by one.
 

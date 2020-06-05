@@ -37,9 +37,9 @@ const UI = {
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
 
-    inhibit_reconnect: true,
-    reconnect_callback: null,
-    reconnect_password: null,
+    inhibitReconnect: true,
+    reconnectCallback: null,
+    reconnectPassword: null,
 
     prime() {
         return WebUtil.initSettings().then(() => {
@@ -394,25 +394,25 @@ const UI = {
         document.documentElement.classList.remove("noVNC_disconnecting");
         document.documentElement.classList.remove("noVNC_reconnecting");
 
-        const transition_elem = document.getElementById("noVNC_transition_text");
+        const transitionElem = document.getElementById("noVNC_transition_text");
         switch (state) {
             case 'init':
                 break;
             case 'connecting':
-                transition_elem.textContent = _("Connecting...");
+                transitionElem.textContent = _("Connecting...");
                 document.documentElement.classList.add("noVNC_connecting");
                 break;
             case 'connected':
                 document.documentElement.classList.add("noVNC_connected");
                 break;
             case 'disconnecting':
-                transition_elem.textContent = _("Disconnecting...");
+                transitionElem.textContent = _("Disconnecting...");
                 document.documentElement.classList.add("noVNC_disconnecting");
                 break;
             case 'disconnected':
                 break;
             case 'reconnecting':
-                transition_elem.textContent = _("Reconnecting...");
+                transitionElem.textContent = _("Reconnecting...");
                 document.documentElement.classList.add("noVNC_reconnecting");
                 break;
             default:
@@ -452,11 +452,11 @@ const UI = {
             .classList.remove('noVNC_open');
     },
 
-    showStatus(text, status_type, time) {
+    showStatus(text, statusType, time) {
         const statusElem = document.getElementById('noVNC_status');
 
-        if (typeof status_type === 'undefined') {
-            status_type = 'normal';
+        if (typeof statusType === 'undefined') {
+            statusType = 'normal';
         }
 
         // Don't overwrite more severe visible statuses and never
@@ -466,14 +466,14 @@ const UI = {
                 return;
             }
             if (statusElem.classList.contains("noVNC_status_warn") &&
-                status_type === 'normal') {
+                statusType === 'normal') {
                 return;
             }
         }
 
         clearTimeout(UI.statusTimeout);
 
-        switch (status_type) {
+        switch (statusType) {
             case 'error':
                 statusElem.classList.remove("noVNC_status_warn");
                 statusElem.classList.remove("noVNC_status_normal");
@@ -503,7 +503,7 @@ const UI = {
         }
 
         // Error messages do not timeout
-        if (status_type !== 'error') {
+        if (statusType !== 'error') {
             UI.statusTimeout = window.setTimeout(UI.hideStatus, time);
         }
     },
@@ -1003,7 +1003,7 @@ const UI = {
 
         if (typeof password === 'undefined') {
             password = WebUtil.getConfigVar('password');
-            UI.reconnect_password = password;
+            UI.reconnectPassword = password;
         }
 
         if (password === null) {
@@ -1060,7 +1060,7 @@ const UI = {
         UI.connected = false;
 
         // Disable automatic reconnecting
-        UI.inhibit_reconnect = true;
+        UI.inhibitReconnect = true;
 
         UI.updateVisualState('disconnecting');
 
@@ -1068,20 +1068,20 @@ const UI = {
     },
 
     reconnect() {
-        UI.reconnect_callback = null;
+        UI.reconnectCallback = null;
 
         // if reconnect has been disabled in the meantime, do nothing.
-        if (UI.inhibit_reconnect) {
+        if (UI.inhibitReconnect) {
             return;
         }
 
-        UI.connect(null, UI.reconnect_password);
+        UI.connect(null, UI.reconnectPassword);
     },
 
     cancelReconnect() {
-        if (UI.reconnect_callback !== null) {
-            clearTimeout(UI.reconnect_callback);
-            UI.reconnect_callback = null;
+        if (UI.reconnectCallback !== null) {
+            clearTimeout(UI.reconnectCallback);
+            UI.reconnectCallback = null;
         }
 
         UI.updateVisualState('disconnected');
@@ -1092,7 +1092,7 @@ const UI = {
 
     connectFinished(e) {
         UI.connected = true;
-        UI.inhibit_reconnect = false;
+        UI.inhibitReconnect = false;
 
         let msg;
         if (UI.getSetting('encrypt')) {
@@ -1126,11 +1126,11 @@ const UI = {
             } else {
                 UI.showStatus(_("Failed to connect to server"), 'error');
             }
-        } else if (UI.getSetting('reconnect', false) === true && !UI.inhibit_reconnect) {
+        } else if (UI.getSetting('reconnect', false) === true && !UI.inhibitReconnect) {
             UI.updateVisualState('reconnecting');
 
             const delay = parseInt(UI.getSetting('reconnect_delay'));
-            UI.reconnect_callback = setTimeout(UI.reconnect, delay);
+            UI.reconnectCallback = setTimeout(UI.reconnect, delay);
             return;
         } else {
             UI.updateVisualState('disconnected');
@@ -1203,7 +1203,7 @@ const UI = {
         inputElemPassword.value = "";
 
         UI.rfb.sendCredentials({ username: username, password: password });
-        UI.reconnect_password = password;
+        UI.reconnectPassword = password;
         document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
     },
@@ -1634,8 +1634,8 @@ const UI = {
  * ------v------*/
 
     setMouseButton(num) {
-        const view_only = UI.rfb.viewOnly;
-        if (UI.rfb && !view_only) {
+        const viewOnly = UI.rfb.viewOnly;
+        if (UI.rfb && !viewOnly) {
             UI.rfb.touchButton = num;
         }
 
@@ -1643,7 +1643,7 @@ const UI = {
         for (let b = 0; b < blist.length; b++) {
             const button = document.getElementById('noVNC_mouse_button' +
                                                  blist[b]);
-            if (blist[b] === num && !view_only) {
+            if (blist[b] === num && !viewOnly) {
                 button.classList.remove("noVNC_hidden");
             } else {
                 button.classList.add("noVNC_hidden");
@@ -1683,7 +1683,7 @@ const UI = {
     },
 
     updateLogging() {
-        WebUtil.init_logging(UI.getSetting('logging'));
+        WebUtil.initLogging(UI.getSetting('logging'));
     },
 
     updateDesktopName(e) {

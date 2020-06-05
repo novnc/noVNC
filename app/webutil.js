@@ -6,16 +6,16 @@
  * See README.md for usage and integration instructions.
  */
 
-import { init_logging as main_init_logging } from '../core/util/logging.js';
+import { initLogging as mainInitLogging } from '../core/util/logging.js';
 
 // init log level reading the logging HTTP param
-export function init_logging(level) {
+export function initLogging(level) {
     "use strict";
     if (typeof level !== "undefined") {
-        main_init_logging(level);
+        mainInitLogging(level);
     } else {
         const param = document.location.href.match(/logging=([A-Za-z0-9._-]*)/);
-        main_init_logging(param || undefined);
+        mainInitLogging(param || undefined);
     }
 }
 
@@ -184,7 +184,7 @@ export function injectParamIfMissing(path, param, value) {
     const elem = document.createElement('a');
     elem.href = path;
 
-    const param_eq = encodeURIComponent(param) + "=";
+    const paramEq = encodeURIComponent(param) + "=";
     let query;
     if (elem.search) {
         query = elem.search.slice(1).split('&');
@@ -192,8 +192,8 @@ export function injectParamIfMissing(path, param, value) {
         query = [];
     }
 
-    if (!query.some(v => v.startsWith(param_eq))) {
-        query.push(param_eq + encodeURIComponent(value));
+    if (!query.some(v => v.startsWith(paramEq))) {
+        query.push(paramEq + encodeURIComponent(value));
         elem.search = "?" + query.join("&");
     }
 

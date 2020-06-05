@@ -947,7 +947,7 @@ export default class RFB extends EventTargetMixin {
             while (repeaterID.length < 250) {
                 repeaterID += "\0";
             }
-            this._sock.send_string(repeaterID);
+            this._sock.sendString(repeaterID);
             return true;
         }
 
@@ -957,7 +957,7 @@ export default class RFB extends EventTargetMixin {
 
         const cversion = "00" + parseInt(this._rfbVersion, 10) +
                        ".00" + ((this._rfbVersion * 10) % 10);
-        this._sock.send_string("RFB " + cversion + "\n");
+        this._sock.sendString("RFB " + cversion + "\n");
         Log.Debug('Sent ProtocolVersion: ' + cversion);
 
         this._rfbInitState = 'Security';
@@ -1071,7 +1071,7 @@ export default class RFB extends EventTargetMixin {
                            String.fromCharCode(this._rfbCredentials.target.length) +
                            this._rfbCredentials.username +
                            this._rfbCredentials.target;
-        this._sock.send_string(xvpAuthStr);
+        this._sock.sendString(xvpAuthStr);
         this._rfbAuthScheme = 2;
         return this._negotiateAuthentication();
     }
@@ -1156,8 +1156,8 @@ export default class RFB extends EventTargetMixin {
             // XXX we assume lengths are <= 255 (should not be an issue in the real world)
             this._sock.send([0, 0, 0, user.length]);
             this._sock.send([0, 0, 0, pass.length]);
-            this._sock.send_string(user);
-            this._sock.send_string(pass);
+            this._sock.sendString(user);
+            this._sock.sendString(pass);
 
             this._rfbInitState = "SecurityResult";
             return true;
@@ -1193,8 +1193,8 @@ export default class RFB extends EventTargetMixin {
 
         this._sock.send([0, 0, 0, this._rfbCredentials.username.length]);
         this._sock.send([0, 0, 0, this._rfbCredentials.password.length]);
-        this._sock.send_string(this._rfbCredentials.username);
-        this._sock.send_string(this._rfbCredentials.password);
+        this._sock.sendString(this._rfbCredentials.username);
+        this._sock.sendString(this._rfbCredentials.password);
         this._rfbInitState = "SecurityResult";
         return true;
     }

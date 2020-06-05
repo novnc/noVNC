@@ -144,7 +144,7 @@ export default class Websock {
 
     flush() {
         if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
-            this._websocket.send(this._encode_message());
+            this._websocket.send(this._encodeMessage());
             this._sQlen = 0;
         }
     }
@@ -155,7 +155,7 @@ export default class Websock {
         this.flush();
     }
 
-    send_string(str) {
+    sendString(str) {
         this.send(str.split('').map(chr => chr.charCodeAt(0)));
     }
 
@@ -168,13 +168,13 @@ export default class Websock {
         this._eventHandlers[evt] = handler;
     }
 
-    _allocate_buffers() {
+    _allocateBuffers() {
         this._rQ = new Uint8Array(this._rQbufferSize);
         this._sQ = new Uint8Array(this._sQbufferSize);
     }
 
     init() {
-        this._allocate_buffers();
+        this._allocateBuffers();
         this._rQi = 0;
         this._websocket = null;
     }
@@ -185,7 +185,7 @@ export default class Websock {
         this._websocket = new WebSocket(uri, protocols);
         this._websocket.binaryType = 'arraybuffer';
 
-        this._websocket.onmessage = this._recv_message.bind(this);
+        this._websocket.onmessage = this._recvMessage.bind(this);
         this._websocket.onopen = () => {
             Log.Debug('>> WebSock.onopen');
             if (this._websocket.protocol) {
@@ -220,7 +220,7 @@ export default class Websock {
     }
 
     // private methods
-    _encode_message() {
+    _encodeMessage() {
         // Put in a binary arraybuffer
         // according to the spec, you can send ArrayBufferViews with the send method
         return new Uint8Array(this._sQ.buffer, 0, this._sQlen);
@@ -231,30 +231,30 @@ export default class Websock {
     // The function also expands the receive que if needed, and for
     // performance reasons we combine these two actions to avoid
     // unneccessary copying.
-    _expand_compact_rQ(min_fit) {
+    _expandCompactRQ(minFit) {
         // if we're using less than 1/8th of the buffer even with the incoming bytes, compact in place
         // instead of resizing
-        const required_buffer_size =  (this._rQlen - this._rQi + min_fit) * 8;
-        const resizeNeeded = this._rQbufferSize < required_buffer_size;
+        const requiredBufferSize =  (this._rQlen - this._rQi + minFit) * 8;
+        const resizeNeeded = this._rQbufferSize < requiredBufferSize;
 
         if (resizeNeeded) {
             // Make sure we always *at least* double the buffer size, and have at least space for 8x
             // the current amount of data
-            this._rQbufferSize = Math.max(this._rQbufferSize * 2, required_buffer_size);
+            this._rQbufferSize = Math.max(this._rQbufferSize * 2, requiredBufferSize);
         }
 
         // we don't want to grow unboundedly
         if (this._rQbufferSize > MAX_RQ_GROW_SIZE) {
             this._rQbufferSize = MAX_RQ_GROW_SIZE;
-            if (this._rQbufferSize - this.rQlen < min_fit) {
+            if (this._rQbufferSize - this.rQlen < minFit) {
                 throw new Error("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
             }
         }
 
         if (resizeNeeded) {
-            const old_rQbuffer = this._rQ.buffer;
+            const oldRQbuffer = this._rQ.buffer;
             this._rQ = new Uint8Array(this._rQbufferSize);
-            this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi, this._rQlen - this._rQi));
+            this._rQ.set(new Uint8Array(oldRQbuffer, this._rQi, this._rQlen - this._rQi));
         } else {
             if (ENABLE_COPYWITHIN) {
                 this._rQ.copyWithin(0, this._rQi, this._rQlen);
@@ -268,17 +268,17 @@ export default class Websock {
     }
 
     // push arraybuffer values onto the end of the receive que
-    _decode_message(data) {
+    _DecodeMessage(data) {
         const u8 = new Uint8Array(data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
-            this._expand_compact_rQ(u8.length);
+            this._expandCompactRQ(u8.length);
         }
         this._rQ.set(u8, this._rQlen);
         this._rQlen += u8.length;
     }
 
-    _recv_message(e) {
-        this._decode_message(e.data);
+    _recvMessage(e) {
+        this._DecodeMessage(e.data);
         if (this.rQlen > 0) {
             this._eventHandlers.message();
             if (this._rQlen == this._rQi) {

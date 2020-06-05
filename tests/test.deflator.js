@@ -17,12 +17,14 @@ function _inflator(compText, expected) {
         strm.output = new Uint8Array(chunkSize);
     }
 
+    /* eslint-disable camelcase */
     strm.input = compText;
     strm.avail_in = strm.input.length;
     strm.next_in = 0;
 
     strm.next_out = 0;
     strm.avail_out = expected.length;
+    /* eslint-enable camelcase */
 
     let ret = inflate(strm, 0);
 

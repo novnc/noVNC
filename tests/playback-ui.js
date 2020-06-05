@@ -1,4 +1,4 @@
-/* global VNC_frame_data, VNC_frame_encoding */
+/* global vncFrameData, vncFrameEncoding */
 
 import * as WebUtil from '../app/webutil.js';
 import RecordingPlayer from './playback.js';
@@ -41,7 +41,7 @@ function enableUI() {
         document.getElementById('mode1').checked = true;
     }
 
-    message("Loaded " + VNC_frame_data.length + " frames");
+    message("Loaded " + vncFrameData.length + " frames");
 
     const startButton = document.getElementById('startButton');
     startButton.disabled = false;
@@ -49,12 +49,12 @@ function enableUI() {
 
     message("Converting...");
 
-    frames = VNC_frame_data;
+    frames = vncFrameData;
 
     let encoding;
     // Only present in older recordings
-    if (window.VNC_frame_encoding) {
-        encoding = VNC_frame_encoding;
+    if (window.vncFrameEncoding) {
+        encoding = vncFrameEncoding;
     } else {
         let frame = frames[0];
         let start = frame.indexOf('{', 1) + 1;
@@ -102,7 +102,7 @@ class IterationPlayer {
         this._iteration = undefined;
         this._player = undefined;
 
-        this._start_time = undefined;
+        this._startTime = undefined;
 
         this._frames = frames;
 
@@ -115,7 +115,7 @@ class IterationPlayer {
 
     start(realtime) {
         this._iteration = 0;
-        this._start_time = (new Date()).getTime();
+        this._startTime = (new Date()).getTime();
 
         this._realtime = realtime;
 
@@ -139,7 +139,7 @@ class IterationPlayer {
 
     _finish() {
         const endTime = (new Date()).getTime();
-        const totalDuration = endTime - this._start_time;
+        const totalDuration = endTime - this._startTime;
 
         const evt = new CustomEvent('finish',
                                     { detail:
