@@ -53,17 +53,17 @@ describe('RRE Decoder', function () {
         let data = [];
         push32(data, 2); // 2 subrects
         push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
-        data.push(0xff); // becomes ff000000 --> #0000FF color
+        data.push(0x00); // becomes 0000ff00 --> #0000FF fg color
         data.push(0x00);
-        data.push(0x00);
+        data.push(0xff);
         data.push(0x00);
         push16(data, 0); // x: 0
         push16(data, 0); // y: 0
         push16(data, 2); // width: 2
         push16(data, 2); // height: 2
-        data.push(0xff); // becomes ff000000 --> #0000FF color
+        data.push(0x00); // becomes 0000ff00 --> #0000FF fg color
         data.push(0x00);
-        data.push(0x00);
+        data.push(0xff);
         data.push(0x00);
         push16(data, 2); // x: 2
         push16(data, 2); // y: 2

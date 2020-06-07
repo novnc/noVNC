@@ -80,7 +80,7 @@ export default class TightDecoder {
         const rQ = sock.rQ;
 
         display.fillRect(x, y, width, height,
-                         [rQ[rQi + 2], rQ[rQi + 1], rQ[rQi]], false);
+                         [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2]], false);
         sock.rQskipBytes(3);
 
         return true;
@@ -165,15 +165,15 @@ export default class TightDecoder {
             this._zlibs[streamId].setInput(null);
         }
 
-        let bgrx = new Uint8Array(width * height * 4);
+        let rgbx = new Uint8Array(width * height * 4);
         for (let i = 0, j = 0; i < width * height * 4; i += 4, j += 3) {
-            bgrx[i]     = data[j + 2];
-            bgrx[i + 1] = data[j + 1];
-            bgrx[i + 2] = data[j];
-            bgrx[i + 3] = 255;  // Alpha
+            rgbx[i]     = data[j];
+            rgbx[i + 1] = data[j + 1];
+            rgbx[i + 2] = data[j + 2];
+            rgbx[i + 3] = 255;  // Alpha
         }
 
-        display.blitImage(x, y, width, height, bgrx, 0, false);
+        display.blitImage(x, y, width, height, rgbx, 0, false);
 
         return true;
     }
@@ -245,9 +245,9 @@ export default class TightDecoder {
                 for (let b = 7; b >= 0; b--) {
                     dp = (y * width + x * 8 + 7 - b) * 4;
                     sp = (data[y * w + x] >> b & 1) * 3;
-                    dest[dp]     = palette[sp + 2];
+                    dest[dp]     = palette[sp];
                     dest[dp + 1] = palette[sp + 1];
-                    dest[dp + 2] = palette[sp];
+                    dest[dp + 2] = palette[sp + 2];
                     dest[dp + 3] = 255;
                 }
             }
@@ -255,9 +255,9 @@ export default class TightDecoder {
             for (let b = 7; b >= 8 - width % 8; b--) {
                 dp = (y * width + x * 8 + 7 - b) * 4;
                 sp = (data[y * w + x] >> b & 1) * 3;
-                dest[dp]     = palette[sp + 2];
+                dest[dp]     = palette[sp];
                 dest[dp + 1] = palette[sp + 1];
-                dest[dp + 2] = palette[sp];
+                dest[dp + 2] = palette[sp + 2];
                 dest[dp + 3] = 255;
             }
         }
@@ -271,9 +271,9 @@ export default class TightDecoder {
         const total = width * height * 4;
         for (let i = 0, j = 0; i < total; i += 4, j++) {
             const sp = data[j] * 3;
-            dest[i]     = palette[sp + 2];
+            dest[i]     = palette[sp];
             dest[i + 1] = palette[sp + 1];
-            dest[i + 2] = palette[sp];
+            dest[i + 2] = palette[sp + 2];
             dest[i + 3] = 255;
         }
 

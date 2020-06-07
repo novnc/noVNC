@@ -46,9 +46,9 @@ describe('Hextile Decoder', function () {
         let data = [];
         data.push(0x02 | 0x04 | 0x08); // bg spec, fg spec, anysubrects
         push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
-        data.push(0xff); // becomes ff000000 --> #0000FF fg color
+        data.push(0x00); // becomes 0000ff00 --> #0000FF fg color
         data.push(0x00);
-        data.push(0x00);
+        data.push(0xff);
         data.push(0x00);
         data.push(2); // 2 subrects
         data.push(0); // x: 0, y: 0
@@ -79,9 +79,9 @@ describe('Hextile Decoder', function () {
         let data = [];
         data.push(0x01); // raw
         for (let i = 0; i < targetData.length; i += 4) {
-            data.push(targetData[i + 2]);
-            data.push(targetData[i + 1]);
             data.push(targetData[i]);
+            data.push(targetData[i + 1]);
+            data.push(targetData[i + 2]);
             // Last byte zero to test correct alpha handling
             data.push(0);
         }
@@ -137,15 +137,15 @@ describe('Hextile Decoder', function () {
         data.push(0x02 | 0x08 | 0x10); // bg spec, anysubrects, colouredsubrects
         push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
         data.push(2); // 2 subrects
-        data.push(0xff); // becomes ff000000 --> #0000FF fg color
+        data.push(0x00); // becomes 0000ff00 --> #0000FF fg color
         data.push(0x00);
-        data.push(0x00);
+        data.push(0xff);
         data.push(0x00);
         data.push(0); // x: 0, y: 0
         data.push(1 | (1 << 4)); // width: 2, height: 2
-        data.push(0xff); // becomes ff000000 --> #0000FF fg color
+        data.push(0x00); // becomes 0000ff00 --> #0000FF fg color
         data.push(0x00);
-        data.push(0x00);
+        data.push(0xff);
         data.push(0x00);
         data.push(2 | (2 << 4)); // x: 2, y: 2
         data.push(1 | (1 << 4)); // width: 2, height: 2
@@ -168,9 +168,9 @@ describe('Hextile Decoder', function () {
         let data = [];
         data.push(0x02 | 0x04 | 0x08); // bg spec, fg spec, anysubrects
         push32(data, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
-        data.push(0xff); // becomes ff0000ff --> #0000FF fg color
+        data.push(0x00); // becomes 0000ffff --> #0000FF fg color
         data.push(0x00);
-        data.push(0x00);
+        data.push(0xff);
         data.push(0xff);
         data.push(8); // 8 subrects
         for (let i = 0; i < 4; i++) {

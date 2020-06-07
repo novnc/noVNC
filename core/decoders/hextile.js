@@ -88,6 +88,11 @@ export default class HextileDecoder {
                     display.fillRect(tx, ty, tw, th, this._background);
                 }
             } else if (subencoding & 0x01) {  // Raw
+                let pixels = tw * th;
+                // Max sure the image is fully opaque
+                for (let i = 0;i <  pixels;i++) {
+                    rQ[rQi + i * 4 + 3] = 255;
+                }
                 display.blitImage(tx, ty, tw, th, rQ, rQi);
                 rQi += bytes - 1;
             } else {
@@ -143,24 +148,24 @@ export default class HextileDecoder {
         this._tileW = width;
         this._tileH = height;
 
-        const red = color[2];
+        const red = color[0];
         const green = color[1];
-        const blue = color[0];
+        const blue = color[2];
 
         const data = this._tileBuffer;
         for (let i = 0; i < width * height * 4; i += 4) {
-            data[i]     = blue;
+            data[i]     = red;
             data[i + 1] = green;
-            data[i + 2] = red;
+            data[i + 2] = blue;
             data[i + 3] = 255;
         }
     }
 
     // update sub-rectangle of the current tile
     _subTile(x, y, w, h, color) {
-        const red = color[2];
+        const red = color[0];
         const green = color[1];
-        const blue = color[0];
+        const blue = color[2];
         const xend = x + w;
         const yend = y + h;
 
@@ -169,9 +174,9 @@ export default class HextileDecoder {
         for (let j = y; j < yend; j++) {
             for (let i = x; i < xend; i++) {
                 const p = (i + (j * width)) * 4;
-                data[p]     = blue;
+                data[p]     = red;
                 data[p + 1] = green;
-                data[p + 2] = red;
+                data[p + 2] = blue;
                 data[p + 3] = 255;
             }
         }

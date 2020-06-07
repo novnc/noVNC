@@ -45,6 +45,15 @@ try {
 
 export const supportsCursorURIs = _supportsCursorURIs;
 
+let _supportsImageMetadata = false;
+try {
+    new ImageData(new Uint8ClampedArray(4), 1, 1);
+    _supportsImageMetadata = true;
+} catch (ex) {
+    // ignore failure
+}
+export const supportsImageMetadata = _supportsImageMetadata;
+
 let _hasScrollbarGutter = true;
 try {
     // Create invisible container

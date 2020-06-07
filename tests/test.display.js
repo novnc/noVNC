@@ -128,7 +128,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should keep the framebuffer data', function () {
-            display.fillRect(0, 0, 4, 4, [0, 0, 0xff]);
+            display.fillRect(0, 0, 4, 4, [0xff, 0, 0]);
             display.resize(2, 2);
             display.flip();
             const expected = [];
@@ -271,7 +271,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should not draw directly on the target canvas', function () {
-            display.fillRect(0, 0, 4, 4, [0, 0, 0xff]);
+            display.fillRect(0, 0, 4, 4, [0xff, 0, 0]);
             display.flip();
             display.fillRect(0, 0, 4, 4, [0, 0xff, 0]);
             const expected = [];
@@ -285,15 +285,15 @@ describe('Display/Canvas Helper', function () {
 
         it('should support filling a rectangle with particular color via #fillRect', function () {
             display.fillRect(0, 0, 4, 4, [0, 0xff, 0]);
-            display.fillRect(0, 0, 2, 2, [0xff, 0, 0]);
-            display.fillRect(2, 2, 2, 2, [0xff, 0, 0]);
+            display.fillRect(0, 0, 2, 2, [0, 0, 0xff]);
+            display.fillRect(2, 2, 2, 2, [0, 0, 0xff]);
             display.flip();
             expect(display).to.have.displayed(checkedData);
         });
 
         it('should support copying an portion of the canvas via #copyImage', function () {
             display.fillRect(0, 0, 4, 4, [0, 0xff, 0]);
-            display.fillRect(0, 0, 2, 2, [0xff, 0, 0x00]);
+            display.fillRect(0, 0, 2, 2, [0, 0, 0xff]);
             display.copyImage(0, 0, 2, 2, 2, 2);
             display.flip();
             expect(display).to.have.displayed(checkedData);
@@ -309,15 +309,8 @@ describe('Display/Canvas Helper', function () {
             display.flush();
         });
 
-        it('should support drawing BGRX blit images with true color via #blitImage', function () {
-            const data = [];
-            for (let i = 0; i < 16; i++) {
-                data[i * 4] = checkedData[i * 4 + 2];
-                data[i * 4 + 1] = checkedData[i * 4 + 1];
-                data[i * 4 + 2] = checkedData[i * 4];
-                data[i * 4 + 3] = checkedData[i * 4 + 3];
-            }
-            display.blitImage(0, 0, 4, 4, data, 0);
+        it('should support blit images with true color via #blitImage', function () {
+            display.blitImage(0, 0, 4, 4, checkedData, 0);
             display.flip();
             expect(display).to.have.displayed(checkedData);
         });

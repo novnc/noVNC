@@ -38,7 +38,7 @@ describe('CopyRect Decoder', function () {
     it('should handle the CopyRect encoding', function () {
         // seed some initial data to copy
         display.fillRect(0, 0, 4, 4, [ 0x11, 0x22, 0x33 ]);
-        display.fillRect(0, 0, 2, 2, [ 0xff, 0x00, 0x00 ]);
+        display.fillRect(0, 0, 2, 2, [ 0x00, 0x00, 0xff ]);
         display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
 
         testDecodeRect(decoder, 0, 2, 2, 2,
