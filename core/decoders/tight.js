@@ -165,7 +165,15 @@ export default class TightDecoder {
             this._zlibs[streamId].setInput(null);
         }
 
-        display.blitRgbImage(x, y, width, height, data, 0, false);
+        let bgrx = new Uint8Array(width * height * 4);
+        for (let i = 0, j = 0; i < width * height * 4; i += 4, j += 3) {
+            bgrx[i]     = data[j + 2];
+            bgrx[i + 1] = data[j + 1];
+            bgrx[i + 2] = data[j];
+            bgrx[i + 3] = 255;  // Alpha
+        }
+
+        display.blitImage(x, y, width, height, bgrx, 0, false);
 
         return true;
     }
@@ -237,9 +245,9 @@ export default class TightDecoder {
                 for (let b = 7; b >= 0; b--) {
                     dp = (y * width + x * 8 + 7 - b) * 4;
                     sp = (data[y * w + x] >> b & 1) * 3;
-                    dest[dp] = palette[sp];
+                    dest[dp]     = palette[sp + 2];
                     dest[dp + 1] = palette[sp + 1];
-                    dest[dp + 2] = palette[sp + 2];
+                    dest[dp + 2] = palette[sp];
                     dest[dp + 3] = 255;
                 }
             }
@@ -247,14 +255,14 @@ export default class TightDecoder {
             for (let b = 7; b >= 8 - width % 8; b--) {
                 dp = (y * width + x * 8 + 7 - b) * 4;
                 sp = (data[y * w + x] >> b & 1) * 3;
-                dest[dp] = palette[sp];
+                dest[dp]     = palette[sp + 2];
                 dest[dp + 1] = palette[sp + 1];
-                dest[dp + 2] = palette[sp + 2];
+                dest[dp + 2] = palette[sp];
                 dest[dp + 3] = 255;
             }
         }
 
-        display.blitRgbxImage(x, y, width, height, dest, 0, false);
+        display.blitImage(x, y, width, height, dest, 0, false);
     }
 
     _paletteRect(x, y, width, height, data, palette, display) {
@@ -263,13 +271,13 @@ export default class TightDecoder {
         const total = width * height * 4;
         for (let i = 0, j = 0; i < total; i += 4, j++) {
             const sp = data[j] * 3;
-            dest[i] = palette[sp];
+            dest[i]     = palette[sp + 2];
             dest[i + 1] = palette[sp + 1];
-            dest[i + 2] = palette[sp + 2];
+            dest[i + 2] = palette[sp];
             dest[i + 3] = 255;
         }
 
-        display.blitRgbxImage(x, y, width, height, dest, 0, false);
+        display.blitImage(x, y, width, height, dest, 0, false);
     }
 
     _gradientFilter(streamId, x, y, width, height, sock, display, depth) {

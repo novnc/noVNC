@@ -322,18 +322,6 @@ describe('Display/Canvas Helper', function () {
             expect(display).to.have.displayed(checkedData);
         });
 
-        it('should support drawing RGB blit images with true color via #blitRgbImage', function () {
-            const data = [];
-            for (let i = 0; i < 16; i++) {
-                data[i * 3] = checkedData[i * 4];
-                data[i * 3 + 1] = checkedData[i * 4 + 1];
-                data[i * 3 + 2] = checkedData[i * 4 + 2];
-            }
-            display.blitRgbImage(0, 0, 4, 4, data, 0);
-            display.flip();
-            expect(display).to.have.displayed(checkedData);
-        });
-
         it('should support drawing an image object via #drawImage', function () {
             const img = makeImageCanvas(checkedData);
             display.drawImage(img, 0, 0);
@@ -414,13 +402,6 @@ describe('Display/Canvas Helper', function () {
             display._renderQPush({ type: 'blit', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
             expect(display.blitImage).to.have.been.calledOnce;
             expect(display.blitImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
-        });
-
-        it('should draw a blit RGB image on type "blitRgb"', function () {
-            display.blitRgbImage = sinon.spy();
-            display._renderQPush({ type: 'blitRgb', x: 3, y: 4, width: 5, height: 6, data: [7, 8, 9] });
-            expect(display.blitRgbImage).to.have.been.calledOnce;
-            expect(display.blitRgbImage).to.have.been.calledWith(3, 4, 5, 6, [7, 8, 9], 0);
         });
 
         it('should copy a region on type "copy"', function () {
