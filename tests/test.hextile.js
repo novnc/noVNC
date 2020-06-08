@@ -45,11 +45,11 @@ describe('Hextile Decoder', function () {
     it('should handle a tile with fg, bg specified, normal subrects', function () {
         let data = [];
         data.push(0x02 | 0x04 | 0x08); // bg spec, fg spec, anysubrects
-        push32(data, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
-        data.push(0xff); // becomes ff0000ff --> #0000FF fg color
+        push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
+        data.push(0xff); // becomes ff000000 --> #0000FF fg color
         data.push(0x00);
         data.push(0x00);
-        data.push(0xff);
+        data.push(0x00);
         data.push(2); // 2 subrects
         data.push(0); // x: 0, y: 0
         data.push(1 | (1 << 4)); // width: 2, height: 2
@@ -82,7 +82,8 @@ describe('Hextile Decoder', function () {
             data.push(targetData[i + 2]);
             data.push(targetData[i + 1]);
             data.push(targetData[i]);
-            data.push(targetData[i + 3]);
+            // Last byte zero to test correct alpha handling
+            data.push(0);
         }
 
         testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
@@ -93,13 +94,13 @@ describe('Hextile Decoder', function () {
     it('should handle a tile with only bg specified (solid bg)', function () {
         let data = [];
         data.push(0x02);
-        push32(data, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+        push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
 
         testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
 
         let expected = [];
         for (let i = 0; i < 16; i++) {
-            push32(expected, 0xff00ff);
+            push32(expected, 0x00ff00ff);
         }
 
         expect(display).to.have.displayed(new Uint8Array(expected));
@@ -113,7 +114,7 @@ describe('Hextile Decoder', function () {
 
         // send a bg frame
         data.push(0x02);
-        push32(data, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+        push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
 
         // send an empty frame
         data.push(0x00);
@@ -122,10 +123,10 @@ describe('Hextile Decoder', function () {
 
         let expected = [];
         for (let i = 0; i < 16; i++) {
-            push32(expected, 0xff00ff);     // rect 1: solid
+            push32(expected, 0x00ff00ff);     // rect 1: solid
         }
         for (let i = 0; i < 16; i++) {
-            push32(expected, 0xff00ff);    // rect 2: same bkground color
+            push32(expected, 0x00ff00ff);    // rect 2: same bkground color
         }
 
         expect(display).to.have.displayed(new Uint8Array(expected));
@@ -134,18 +135,18 @@ describe('Hextile Decoder', function () {
     it('should handle a tile with bg and coloured subrects', function () {
         let data = [];
         data.push(0x02 | 0x08 | 0x10); // bg spec, anysubrects, colouredsubrects
-        push32(data, 0xff00ff); // becomes 00ff00ff --> #00FF00 bg color
+        push32(data, 0x00ff0000); // becomes 00ff0000 --> #00FF00 bg color
         data.push(2); // 2 subrects
-        data.push(0xff); // becomes ff0000ff --> #0000FF fg color
+        data.push(0xff); // becomes ff000000 --> #0000FF fg color
         data.push(0x00);
         data.push(0x00);
-        data.push(0xff);
+        data.push(0x00);
         data.push(0); // x: 0, y: 0
         data.push(1 | (1 << 4)); // width: 2, height: 2
-        data.push(0xff); // becomes ff0000ff --> #0000FF fg color
+        data.push(0xff); // becomes ff000000 --> #0000FF fg color
         data.push(0x00);
         data.push(0x00);
-        data.push(0xff);
+        data.push(0x00);
         data.push(2 | (2 << 4)); // x: 2, y: 2
         data.push(1 | (1 << 4)); // width: 2, height: 2
 
