@@ -107,10 +107,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
             this._rQ = rQ;
         };
 
+        // Avoiding printing the entire Websock buffer on errors
+        Websock.prototype.toString = function () { return "[object Websock]"; };
     });
 
     after(function () {
-        Websock.prototype._allocateBuffers = Websock.prototype._oldAllocateBuffers;
+        delete Websock.prototype.toString;
         this.clock.restore();
         window.requestAnimationFrame = raf;
     });
