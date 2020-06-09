@@ -8,52 +8,10 @@ node_js:
 env:
   matrix:
   - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 10'
-# FIXME Skip tests in Linux since Sauce Labs browser versions are ancient.
-#  - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Linux'
-  - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='OS X 10.11'
   - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Windows 10'
-#  - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Linux'
-  - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='OS X 10.11'
-  - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 10'
-  - TEST_BROWSER_NAME='internet explorer' TEST_BROWSER_OS='Windows 7'
-  - TEST_BROWSER_NAME=microsoftedge TEST_BROWSER_OS='Windows 10'
-  - TEST_BROWSER_NAME=safari TEST_BROWSER_OS='OS X 10.13'
 before_script: npm install -g karma-cli
 addons:
   sauce_connect:
     username: "CendioOssman"
-  jwt:
-    secure: "WvGBI/u+Cvy88cArnfrrh15a3dhDUsaq55VJv0NOiko7AHZK/F9CH1pZmWoCLqWN/YYs2MuR5SlYDbEXIY/oTxwC4NUUlL4c94CpATh5F4ofTEQ5V7dOvwHdO9PebStJSmP32ONZbk4pc1nuahc1K8GaNTtrbZkGo1KiRxaUko0="
-stages:
-- lint
-- test
-- name: deploy
-  if: tag is PRESENT
-jobs:
-  include:
-  - stage: lint
-    env:
-    addons:
-    before_script:
-    script: npm run lint
-  -
-    env:
-    addons:
-    before_script:
-    script: git ls-tree --name-only -r HEAD | grep -E "[.](html|css)$" | xargs ./utils/validate
-  - stage: deploy
-    env:
-    addons:
-    script: skip
-    before_script: skip
-    deploy:
-      provider: npm
-      skip_cleanup: true
-      email: ossman@cendio.se
-      api_key:
-        secure: "Qq2Mi9xQawO2zlAigzshzMu2QMHvu1IaN9l0ZIivE99wHJj7eS5f4miJ9wB+/mWRRgb3E8uj9ZRV24+Oc36drlBTU9sz+lHhH0uFMfAIseceK64wZV9sLAZm472fmPp2xdUeTCCqPaRy7g1XBqiJ0LyZvEFLsRijqcLjPBF+b8w="
-      on:
-        tags: true
-        repo: novnc/noVNC
-
-
+    access_key:
+      secure: "b62QTKroMwZDGdr186S12W0PjKuVQLIam5PkTBbShcwhKWj6H3g4CAwaxWvy+YaC3S9Uwy551wbH9DuunOTnha9pCc4q3xdhugGUe84lWoE+aTCciwgop+e5qIkpwjeE6vb7ch3GUsVRoRmErz01XEiP0mQPFiOORnkdJKtxISk="
