@@ -13,5 +13,5 @@ before_script: npm install -g karma-cli
 addons:
   sauce_connect:
     username: "CendioOssman"
-    access_key:
-      secure: "b62QTKroMwZDGdr186S12W0PjKuVQLIam5PkTBbShcwhKWj6H3g4CAwaxWvy+YaC3S9Uwy551wbH9DuunOTnha9pCc4q3xdhugGUe84lWoE+aTCciwgop+e5qIkpwjeE6vb7ch3GUsVRoRmErz01XEiP0mQPFiOORnkdJKtxISk="
+  jwt:
+    secure: "gdZp442zV7p09XJCTj2kaakXWC7DR4w99ln0DC2Y6YkE85XbBrI1Lm/22O9uMm5i117QIZ6wTs5T+t4zT4C4MRDDlSOgwQj/PitiXQJWkq4mt/LzeWbHP9ArckXLhSiweCp1/uriqsHtdslDhW5QlUGvjGPlGOj9LS8Fd1yJBEs="
