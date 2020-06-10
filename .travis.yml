@@ -10,6 +10,9 @@ env:
   - TEST_BROWSER_NAME=chrome TEST_BROWSER_OS='Windows 10'
   - TEST_BROWSER_NAME=firefox TEST_BROWSER_OS='Windows 10'
 before_script: npm install -g karma-cli
+script:
+ - npm test
+ - cat /home/travis/sauce-connect.log
 addons:
   sauce_connect:
     username: "CendioOssman"
