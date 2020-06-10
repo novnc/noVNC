@@ -43,7 +43,7 @@ describe('Mouse Event Handling', function () {
                 expect(down).to.be.equal(1);
                 done();
             };
-            mouse._handleMouseDown(mouseevent('mousedown', { button: '0x01' }));
+            mouse._handleMouseDown(mouseevent('mousedown', { button: 0 }));
         });
         it('should decode mouseup events', function (done) {
             let calls = 0;
@@ -55,8 +55,8 @@ describe('Mouse Event Handling', function () {
                     done();
                 }
             };
-            mouse._handleMouseDown(mouseevent('mousedown', { button: '0x01' }));
-            mouse._handleMouseUp(mouseevent('mouseup', { button: '0x01' }));
+            mouse._handleMouseDown(mouseevent('mousedown', { button: 0 }));
+            mouse._handleMouseUp(mouseevent('mouseup', { button: 0 }));
         });
         it('should decode mousemove events', function (done) {
             const mouse = new Mouse(target);

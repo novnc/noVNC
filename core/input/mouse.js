@@ -42,16 +42,7 @@ export default class Mouse {
         this._updateMousePosition(e);
         let pos = this._pos;
 
-        let bmask;
-        if (e.which) {
-            /* everything except IE */
-            bmask = 1 << e.button;
-        } else {
-            /* IE including 9 */
-            bmask = (e.button & 0x1) +      // Left
-                    (e.button & 0x2) * 2 +  // Right
-                    (e.button & 0x4) / 2;   // Middle
-        }
+        let bmask = 1 << e.button;
 
         Log.Debug("onmousebutton " + (down ? "down" : "up") +
                   ", x: " + pos.x + ", y: " + pos.y + ", bmask: " + bmask);
