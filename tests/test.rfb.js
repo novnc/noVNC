@@ -2731,20 +2731,44 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
     describe('Asynchronous Events', function () {
         let client;
+        let pointerEvent;
+        let keyEvent;
+        let qemuKeyEvent;
+
         beforeEach(function () {
             client = makeRFB();
+            client._display.resize(100, 100);
+
+            pointerEvent = sinon.spy(RFB.messages, 'pointerEvent');
+            keyEvent = sinon.spy(RFB.messages, 'keyEvent');
+            qemuKeyEvent = sinon.spy(RFB.messages, 'QEMUExtendedKeyEvent');
         });
 
-        describe('Mouse event handlers', function () {
-            beforeEach(function () {
-                this.clock = sinon.useFakeTimers(Date.now());
-                sinon.spy(RFB.messages, 'pointerEvent');
-            });
-            afterEach(function () {
-                this.clock.restore();
-                RFB.messages.pointerEvent.restore();
-            });
+        afterEach(function () {
+            pointerEvent.restore();
+            keyEvent.restore();
+            qemuKeyEvent.restore();
+        });
 
+        function elementToClient(x, y) {
+            let res = { x: 0, y: 0 };
+
+            let bounds = client._canvas.getBoundingClientRect();
+
+            /*
+             * If the canvas is on a fractional position we will calculate
+             * a fractional mouse position. But that gets truncated when we
+             * send the event, AND the same thing happens in RFB when it
+             * generates the PointerEvent message. To compensate for that
+             * fact we round the value upwards here.
+             */
+            res.x = Math.ceil(bounds.left + x);
+            res.y = Math.ceil(bounds.top + y);
+
+            return res;
+        }
+
+        describe('Mouse Events', function () {
             it('should not send button messages in view-only mode', function () {
                 client._viewOnly = true;
                 client._handleMouseButton(0, 0, 1, 0x001);
@@ -2878,7 +2902,128 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Keyboard Event Handlers', function () {
+        describe('Wheel Events', function () {
+            function sendWheelEvent(x, y, dx, dy, mode=0) {
+                let pos = elementToClient(x, y);
+                let ev;
+
+                try {
+                    ev = new WheelEvent('wheel',
+                                        { 'screenX': pos.x + window.screenX,
+                                          'screenY': pos.y + window.screenY,
+                                          'clientX': pos.x,
+                                          'clientY': pos.y,
+                                          'deltaX': dx,
+                                          'deltaY': dy,
+                                          'deltaMode': mode });
+                } catch (e) {
+                    ev = document.createEvent('WheelEvent');
+                    ev.initWheelEvent('wheel', true, true, window, 0,
+                                      pos.x + window.screenX,
+                                      pos.y + window.screenY,
+                                      pos.x, pos.y,
+                                      0, null, "",
+                                      dx, dy, 0, mode);
+                }
+
+                client._canvas.dispatchEvent(ev);
+            }
+
+            it('should handle wheel up event', function () {
+                sendWheelEvent(10, 10, 0, -50);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<3);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle wheel down event', function () {
+                sendWheelEvent(10, 10, 0, 50);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle wheel left event', function () {
+                sendWheelEvent(10, 10, -50, 0);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<5);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle wheel right event', function () {
+                sendWheelEvent(10, 10, 50, 0);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<6);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should ignore wheel when in view only', function () {
+                client._viewOnly = true;
+
+                sendWheelEvent(10, 10, 50, 0);
+
+                expect(pointerEvent).to.not.have.been.called;
+            });
+
+            it('should accumulate wheel events if small enough', function () {
+                sendWheelEvent(10, 10, 0, 4);
+                sendWheelEvent(10, 10, 0, 4);
+
+                expect(pointerEvent).to.not.have.been.called;
+
+                sendWheelEvent(10, 10, 0, 4);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should not accumulate large wheel events', function () {
+                sendWheelEvent(10, 10, 0, 400);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle line based wheel event', function () {
+                sendWheelEvent(10, 10, 0, 1, 1);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle page based wheel event', function () {
+                sendWheelEvent(10, 10, 0, 1, 2);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+        });
+
+        describe('Keyboard Events', function () {
             it('should send a key message on a key press', function () {
                 client._handleKeyEvent(0x41, 'KeyA', true);
                 const keyMsg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
@@ -2895,41 +3040,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('Gesture event handlers', function () {
-            let pointerEvent;
-
             beforeEach(function () {
                 // Touch events and gestures are not supported on IE
                 if (browser.isIE()) {
                     this.skip();
                     return;
                 }
-
-                pointerEvent = sinon.spy(RFB.messages, 'pointerEvent');
-
-                client._display.resize(100, 100);
             });
-
-            afterEach(function () {
-                pointerEvent.restore();
-            });
-
-            function elementToClient(x, y) {
-                let res = { x: 0, y: 0 };
-
-                let bounds = client._canvas.getBoundingClientRect();
-
-                /*
-                 * If the canvas is on a fractional position we will calculate
-                 * a fractional mouse position. But that gets truncated when we
-                 * send the event, AND the same thing happens in RFB when it
-                 * generates the PointerEvent message. To compensate for that
-                 * fact we round the value upwards here.
-                 */
-                res.x = Math.ceil(bounds.left + x);
-                res.y = Math.ceil(bounds.top + y);
-
-                return res;
-            }
 
             function gestureStart(gestureType, x, y,
                                   magnitudeX = 0, magnitudeY = 0) {
@@ -3392,25 +3509,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             describe('Gesture pinch', function () {
-                let keyEvent;
-                let qemuKeyEvent;
-
-                beforeEach(function () {
-                    // Touch events and gestures are not supported on IE
-                    if (browser.isIE()) {
-                        this.skip();
-                        return;
-                    }
-
-                    keyEvent = sinon.spy(RFB.messages, 'keyEvent');
-                    qemuKeyEvent = sinon.spy(RFB.messages, 'QEMUExtendedKeyEvent');
-                });
-
-                afterEach(function () {
-                    keyEvent.restore();
-                    qemuKeyEvent.restore();
-                });
-
                 it('should handle gesture pinch in events', function () {
                     let keysym = KeyTable.XK_Control_L;
                     let bmask = 0x10; // Button mask for scroll down

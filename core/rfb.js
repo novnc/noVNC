@@ -41,6 +41,10 @@ const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 // Minimum wait (ms) between two mouse moves
 const MOUSE_MOVE_DELAY = 17;
 
+// Wheel thresholds
+const WHEEL_STEP = 10; // Pixels needed for one step
+const WHEEL_LINE_HEIGHT = 19; // Assumed pixels for one line step
+
 // Gesture thresholds
 const GESTURE_ZOOMSENS = 75;
 const GESTURE_SCRLSENS = 50;
@@ -152,6 +156,8 @@ export default class RFB extends EventTargetMixin {
         this._viewportDragging = false;
         this._viewportDragPos = {};
         this._viewportHasMoved = false;
+        this._accumulatedWheelDeltaX = 0;
+        this._accumulatedWheelDeltaY = 0;
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -163,6 +169,7 @@ export default class RFB extends EventTargetMixin {
         this._eventHandlers = {
             focusCanvas: this._focusCanvas.bind(this),
             windowResize: this._windowResize.bind(this),
+            handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
         };
 
@@ -532,6 +539,9 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
+        // Wheel events
+        this._canvas.addEventListener("wheel", this._eventHandlers.handleWheel);
+
         // Gesture events
         this._canvas.addEventListener("gesturestart", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
@@ -546,6 +556,7 @@ export default class RFB extends EventTargetMixin {
         this._canvas.removeEventListener("gesturestart", this._eventHandlers.handleGesture);
         this._canvas.removeEventListener("gesturemove", this._eventHandlers.handleGesture);
         this._canvas.removeEventListener("gestureend", this._eventHandlers.handleGesture);
+        this._canvas.removeEventListener("wheel", this._eventHandlers.handleWheel);
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
@@ -937,6 +948,61 @@ export default class RFB extends EventTargetMixin {
 
         RFB.messages.pointerEvent(this._sock, this._display.absX(x),
                                   this._display.absY(y), mask);
+    }
+
+    _handleWheel(ev) {
+        if (this._rfbConnectionState !== 'connected') { return; }
+        if (this._viewOnly) { return; } // View only, skip mouse events
+
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        let pos = clientToElement(ev.clientX, ev.clientY,
+                                  this._canvas);
+
+        let dX = ev.deltaX;
+        let dY = ev.deltaY;
+
+        // Pixel units unless it's non-zero.
+        // Note that if deltamode is line or page won't matter since we aren't
+        // sending the mouse wheel delta to the server anyway.
+        // The difference between pixel and line can be important however since
+        // we have a threshold that can be smaller than the line height.
+        if (ev.deltaMode !== 0) {
+            dX *= WHEEL_LINE_HEIGHT;
+            dY *= WHEEL_LINE_HEIGHT;
+        }
+
+        // Mouse wheel events are sent in steps over VNC. This means that the VNC
+        // protocol can't handle a wheel event with specific distance or speed.
+        // Therefor, if we get a lot of small mouse wheel events we combine them.
+        this._accumulatedWheelDeltaX += dX;
+        this._accumulatedWheelDeltaY += dY;
+
+        // Generate a mouse wheel step event when the accumulated delta
+        // for one of the axes is large enough.
+        if (Math.abs(this._accumulatedWheelDeltaX) > WHEEL_STEP) {
+            if (this._accumulatedWheelDeltaX < 0) {
+                this._handleMouseButton(pos.x, pos.y, true, 1 << 5);
+                this._handleMouseButton(pos.x, pos.y, false, 1 << 5);
+            } else if (this._accumulatedWheelDeltaX > 0) {
+                this._handleMouseButton(pos.x, pos.y, true, 1 << 6);
+                this._handleMouseButton(pos.x, pos.y, false, 1 << 6);
+            }
+
+            this._accumulatedWheelDeltaX = 0;
+        }
+        if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
+            if (this._accumulatedWheelDeltaY < 0) {
+                this._handleMouseButton(pos.x, pos.y, true, 1 << 3);
+                this._handleMouseButton(pos.x, pos.y, false, 1 << 3);
+            } else if (this._accumulatedWheelDeltaY > 0) {
+                this._handleMouseButton(pos.x, pos.y, true, 1 << 4);
+                this._handleMouseButton(pos.x, pos.y, false, 1 << 4);
+            }
+
+            this._accumulatedWheelDeltaY = 0;
+        }
     }
 
     _handleTapEvent(ev, bmask) {

@@ -7,22 +7,16 @@
 import * as Log from '../util/logging.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 
-const WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
-const WHEEL_LINE_HEIGHT = 19;
-
 export default class Mouse {
     constructor(target) {
         this._target = target || document;
 
         this._pos = null;
-        this._accumulatedWheelDeltaX = 0;
-        this._accumulatedWheelDeltaY = 0;
 
         this._eventHandlers = {
             'mousedown': this._handleMouseDown.bind(this),
             'mouseup': this._handleMouseUp.bind(this),
             'mousemove': this._handleMouseMove.bind(this),
-            'mousewheel': this._handleMouseWheel.bind(this),
             'mousedisable': this._handleMouseDisable.bind(this)
         };
 
@@ -59,68 +53,6 @@ export default class Mouse {
 
     _handleMouseUp(e) {
         this._handleMouseButton(e, 0);
-    }
-
-    // Mouse wheel events are sent in steps over VNC. This means that the VNC
-    // protocol can't handle a wheel event with specific distance or speed.
-    // Therefor, if we get a lot of small mouse wheel events we combine them.
-    _generateWheelStepX() {
-
-        if (this._accumulatedWheelDeltaX < 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 5);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 5);
-        } else if (this._accumulatedWheelDeltaX > 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 6);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 6);
-        }
-
-        this._accumulatedWheelDeltaX = 0;
-    }
-
-    _generateWheelStepY() {
-
-        if (this._accumulatedWheelDeltaY < 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 3);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 3);
-        } else if (this._accumulatedWheelDeltaY > 0) {
-            this.onmousebutton(this._pos.x, this._pos.y, 1, 1 << 4);
-            this.onmousebutton(this._pos.x, this._pos.y, 0, 1 << 4);
-        }
-
-        this._accumulatedWheelDeltaY = 0;
-    }
-
-    _handleMouseWheel(e) {
-        this._updateMousePosition(e);
-
-        let dX = e.deltaX;
-        let dY = e.deltaY;
-
-        // Pixel units unless it's non-zero.
-        // Note that if deltamode is line or page won't matter since we aren't
-        // sending the mouse wheel delta to the server anyway.
-        // The difference between pixel and line can be important however since
-        // we have a threshold that can be smaller than the line height.
-        if (e.deltaMode !== 0) {
-            dX *= WHEEL_LINE_HEIGHT;
-            dY *= WHEEL_LINE_HEIGHT;
-        }
-
-        this._accumulatedWheelDeltaX += dX;
-        this._accumulatedWheelDeltaY += dY;
-
-        // Generate a mouse wheel step event when the accumulated delta
-        // for one of the axes is large enough.
-        // Small delta events that do not pass the threshold get sent
-        // after a timeout.
-        if (Math.abs(this._accumulatedWheelDeltaX) > WHEEL_STEP) {
-            this._generateWheelStepX();
-        }
-        if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
-            this._generateWheelStepY();
-        }
-
-        stopEvent(e);
     }
 
     _handleMouseMove(e) {
@@ -172,7 +104,6 @@ export default class Mouse {
         t.addEventListener('mousedown', this._eventHandlers.mousedown);
         t.addEventListener('mouseup', this._eventHandlers.mouseup);
         t.addEventListener('mousemove', this._eventHandlers.mousemove);
-        t.addEventListener('wheel', this._eventHandlers.mousewheel);
 
         // Prevent middle-click pasting (see above for why we bind to document)
         document.addEventListener('click', this._eventHandlers.mousedisable);
@@ -188,7 +119,6 @@ export default class Mouse {
         t.removeEventListener('mousedown', this._eventHandlers.mousedown);
         t.removeEventListener('mouseup', this._eventHandlers.mouseup);
         t.removeEventListener('mousemove', this._eventHandlers.mousemove);
-        t.removeEventListener('wheel', this._eventHandlers.mousewheel);
 
         document.removeEventListener('click', this._eventHandlers.mousedisable);
 
