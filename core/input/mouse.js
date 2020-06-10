@@ -8,7 +8,6 @@ import * as Log from '../util/logging.js';
 import { setCapture, stopEvent, getPointerEvent } from '../util/events.js';
 
 const WHEEL_STEP = 10; // Delta threshold for a mouse wheel step
-const WHEEL_STEP_TIMEOUT = 50; // ms
 const WHEEL_LINE_HEIGHT = 19;
 
 export default class Mouse {
@@ -16,8 +15,6 @@ export default class Mouse {
         this._target = target || document;
 
         this._pos = null;
-        this._wheelStepXTimer = null;
-        this._wheelStepYTimer = null;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
 
@@ -102,16 +99,7 @@ export default class Mouse {
         this._accumulatedWheelDeltaY = 0;
     }
 
-    _resetWheelStepTimers() {
-        window.clearTimeout(this._wheelStepXTimer);
-        window.clearTimeout(this._wheelStepYTimer);
-        this._wheelStepXTimer = null;
-        this._wheelStepYTimer = null;
-    }
-
     _handleMouseWheel(e) {
-        this._resetWheelStepTimers();
-
         this._updateMousePosition(e);
 
         let dX = e.deltaX;
@@ -136,17 +124,9 @@ export default class Mouse {
         // after a timeout.
         if (Math.abs(this._accumulatedWheelDeltaX) > WHEEL_STEP) {
             this._generateWheelStepX();
-        } else {
-            this._wheelStepXTimer =
-                window.setTimeout(this._generateWheelStepX.bind(this),
-                                  WHEEL_STEP_TIMEOUT);
         }
         if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
             this._generateWheelStepY();
-        } else {
-            this._wheelStepYTimer =
-                window.setTimeout(this._generateWheelStepY.bind(this),
-                                  WHEEL_STEP_TIMEOUT);
         }
 
         stopEvent(e);
@@ -213,8 +193,6 @@ export default class Mouse {
 
     ungrab() {
         const t = this._target;
-
-        this._resetWheelStepTimers();
 
         t.removeEventListener('mousedown', this._eventHandlers.mousedown);
         t.removeEventListener('mouseup', this._eventHandlers.mouseup);
