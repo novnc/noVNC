@@ -12,12 +12,12 @@ import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
 import { clientToElement } from './util/element.js';
+import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
-import Mouse from "./input/mouse.js";
 import GestureHandler from "./input/gesturehandler.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
@@ -129,7 +129,6 @@ export default class RFB extends EventTargetMixin {
         this._display = null;           // Display object
         this._flushing = false;         // Display flushing state
         this._keyboard = null;          // Keyboard input handler object
-        this._mouse = null;             // Mouse input handler object
         this._gestures = null;          // Gesture input handler object
 
         // Timers
@@ -169,6 +168,7 @@ export default class RFB extends EventTargetMixin {
         this._eventHandlers = {
             focusCanvas: this._focusCanvas.bind(this),
             windowResize: this._windowResize.bind(this),
+            handleMouse: this._handleMouse.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
         };
@@ -228,10 +228,6 @@ export default class RFB extends EventTargetMixin {
 
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
-
-        this._mouse = new Mouse(this._canvas);
-        this._mouse.onmousebutton = this._handleMouseButton.bind(this);
-        this._mouse.onmousemove = this._handleMouseMove.bind(this);
 
         this._gestures = new GestureHandler();
 
@@ -321,10 +317,8 @@ export default class RFB extends EventTargetMixin {
             this._rfbConnectionState === "connected") {
             if (viewOnly) {
                 this._keyboard.ungrab();
-                this._mouse.ungrab();
             } else {
                 this._keyboard.grab();
-                this._mouse.grab();
             }
         }
     }
@@ -539,6 +533,16 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
+        // Mouse events
+        this._canvas.addEventListener('mousedown', this._eventHandlers.handleMouse);
+        this._canvas.addEventListener('mouseup', this._eventHandlers.handleMouse);
+        this._canvas.addEventListener('mousemove', this._eventHandlers.handleMouse);
+        // Prevent middle-click pasting (see handler for why we bind to document)
+        this._canvas.addEventListener('click', this._eventHandlers.handleMouse);
+        // preventDefault() on mousedown doesn't stop this event for some
+        // reason so we have to explicitly block it
+        this._canvas.addEventListener('contextmenu', this._eventHandlers.handleMouse);
+
         // Wheel events
         this._canvas.addEventListener("wheel", this._eventHandlers.handleWheel);
 
@@ -557,11 +561,15 @@ export default class RFB extends EventTargetMixin {
         this._canvas.removeEventListener("gesturemove", this._eventHandlers.handleGesture);
         this._canvas.removeEventListener("gestureend", this._eventHandlers.handleGesture);
         this._canvas.removeEventListener("wheel", this._eventHandlers.handleWheel);
+        this._canvas.removeEventListener('mousedown', this._eventHandlers.handleMouse);
+        this._canvas.removeEventListener('mouseup', this._eventHandlers.handleMouse);
+        this._canvas.removeEventListener('mousemove', this._eventHandlers.handleMouse);
+        this._canvas.removeEventListener('click', this._eventHandlers.handleMouse);
+        this._canvas.removeEventListener('contextmenu', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
         this._keyboard.ungrab();
-        this._mouse.ungrab();
         this._gestures.detach();
         this._sock.close();
         try {
@@ -857,6 +865,51 @@ export default class RFB extends EventTargetMixin {
 
     _handleKeyEvent(keysym, code, down) {
         this.sendKey(keysym, code, down);
+    }
+
+    _handleMouse(ev) {
+        /*
+         * We don't check connection status or viewOnly here as the
+         * mouse events might be used to control the viewport
+         */
+
+        if (ev.type === 'click') {
+            /*
+             * Note: This is only needed for the 'click' event as it fails
+             *       to fire properly for the target element so we have
+             *       to listen on the document element instead.
+             */
+            if (ev.target !== this._canvas) {
+                return;
+            }
+        }
+
+        // FIXME: if we're in view-only and not dragging,
+        //        should we stop events?
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        if ((ev.type === 'click') || (ev.type === 'contextmenu')) {
+            return;
+        }
+
+        let pos = clientToElement(ev.clientX, ev.clientY,
+                                  this._canvas);
+
+        switch (ev.type) {
+            case 'mousedown':
+                setCapture(this._canvas);
+                this._handleMouseButton(pos.x, pos.y,
+                                        true, 1 << ev.button);
+                break;
+            case 'mouseup':
+                this._handleMouseButton(pos.x, pos.y,
+                                        false, 1 << ev.button);
+                break;
+            case 'mousemove':
+                this._handleMouseMove(pos.x, pos.y);
+                break;
+        }
     }
 
     _handleMouseButton(x, y, down, bmask) {
@@ -1678,7 +1731,6 @@ export default class RFB extends EventTargetMixin {
         this._resize(width, height);
 
         if (!this._viewOnly) { this._keyboard.grab(); }
-        if (!this._viewOnly) { this._mouse.grab(); }
 
         this._fbDepth = 24;
 
