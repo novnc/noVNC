@@ -42,7 +42,7 @@ const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 const MOUSE_MOVE_DELAY = 17;
 
 // Wheel thresholds
-const WHEEL_STEP = 10; // Pixels needed for one step
+const WHEEL_STEP = 50; // Pixels needed for one step
 const WHEEL_LINE_HEIGHT = 19; // Assumed pixels for one line step
 
 // Gesture thresholds
@@ -981,7 +981,7 @@ export default class RFB extends EventTargetMixin {
 
         // Generate a mouse wheel step event when the accumulated delta
         // for one of the axes is large enough.
-        if (Math.abs(this._accumulatedWheelDeltaX) > WHEEL_STEP) {
+        if (Math.abs(this._accumulatedWheelDeltaX) >= WHEEL_STEP) {
             if (this._accumulatedWheelDeltaX < 0) {
                 this._handleMouseButton(pos.x, pos.y, true, 1 << 5);
                 this._handleMouseButton(pos.x, pos.y, false, 1 << 5);
@@ -992,7 +992,7 @@ export default class RFB extends EventTargetMixin {
 
             this._accumulatedWheelDeltaX = 0;
         }
-        if (Math.abs(this._accumulatedWheelDeltaY) > WHEEL_STEP) {
+        if (Math.abs(this._accumulatedWheelDeltaY) >= WHEEL_STEP) {
             if (this._accumulatedWheelDeltaY < 0) {
                 this._handleMouseButton(pos.x, pos.y, true, 1 << 3);
                 this._handleMouseButton(pos.x, pos.y, false, 1 << 3);

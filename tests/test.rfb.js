@@ -2978,12 +2978,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should accumulate wheel events if small enough', function () {
-                sendWheelEvent(10, 10, 0, 4);
-                sendWheelEvent(10, 10, 0, 4);
+                sendWheelEvent(10, 10, 0, 20);
+                sendWheelEvent(10, 10, 0, 20);
 
                 expect(pointerEvent).to.not.have.been.called;
 
-                sendWheelEvent(10, 10, 0, 4);
+                sendWheelEvent(10, 10, 0, 20);
 
                 expect(pointerEvent).to.have.been.calledTwice;
                 expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -3003,7 +3003,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should handle line based wheel event', function () {
-                sendWheelEvent(10, 10, 0, 1, 1);
+                sendWheelEvent(10, 10, 0, 3, 1);
 
                 expect(pointerEvent).to.have.been.calledTwice;
                 expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -3013,7 +3013,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should handle page based wheel event', function () {
-                sendWheelEvent(10, 10, 0, 1, 2);
+                sendWheelEvent(10, 10, 0, 3, 2);
 
                 expect(pointerEvent).to.have.been.calledTwice;
                 expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
