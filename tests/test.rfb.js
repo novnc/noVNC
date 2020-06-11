@@ -91,7 +91,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
     after(FakeWebSocket.restore);
 
     before(function () {
-        this.clock = clock = sinon.useFakeTimers();
+        this.clock = clock = sinon.useFakeTimers(Date.now());
         // sinon doesn't support this yet
         raf = window.requestAnimationFrame;
         window.requestAnimationFrame = setTimeout;
