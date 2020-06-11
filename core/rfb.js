@@ -1058,6 +1058,11 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    _fakeMouseMove(ev, elementX, elementY) {
+        this._handleMouseMove(elementX, elementY);
+        this._cursor.move(ev.detail.clientX, ev.detail.clientY);
+    }
+
     _handleTapEvent(ev, bmask) {
         let pos = clientToElement(ev.detail.clientX, ev.detail.clientY,
                                   this._canvas);
@@ -1084,7 +1089,7 @@ export default class RFB extends EventTargetMixin {
         }
         this._gestureLastTapTime = Date.now();
 
-        this._handleMouseMove(pos.x, pos.y);
+        this._fakeMouseMove(this._gestureFirstDoubleTapEv, pos.x, pos.y);
         this._handleMouseButton(pos.x, pos.y, true, bmask);
         this._handleMouseButton(pos.x, pos.y, false, bmask);
     }
@@ -1107,23 +1112,23 @@ export default class RFB extends EventTargetMixin {
                         this._handleTapEvent(ev, 0x2);
                         break;
                     case 'drag':
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         this._handleMouseButton(pos.x, pos.y, true, 0x1);
                         break;
                     case 'longpress':
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         this._handleMouseButton(pos.x, pos.y, true, 0x4);
                         break;
 
                     case 'twodrag':
                         this._gestureLastMagnitudeX = ev.detail.magnitudeX;
                         this._gestureLastMagnitudeY = ev.detail.magnitudeY;
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
                     case 'pinch':
                         this._gestureLastMagnitudeX = Math.hypot(ev.detail.magnitudeX,
                                                                  ev.detail.magnitudeY);
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
                 }
                 break;
@@ -1136,13 +1141,13 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                     case 'longpress':
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
                     case 'twodrag':
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
                             this._handleMouseButton(pos.x, pos.y, true, 0x8);
                             this._handleMouseButton(pos.x, pos.y, false, 0x8);
@@ -1168,7 +1173,7 @@ export default class RFB extends EventTargetMixin {
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         magnitude = Math.hypot(ev.detail.magnitudeX, ev.detail.magnitudeY);
                         if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
                             this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
@@ -1184,6 +1189,7 @@ export default class RFB extends EventTargetMixin {
                             }
                         }
                         this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                        break;
                 }
                 break;
 
@@ -1196,11 +1202,11 @@ export default class RFB extends EventTargetMixin {
                     case 'twodrag':
                         break;
                     case 'drag':
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         this._handleMouseButton(pos.x, pos.y, false, 0x1);
                         break;
                     case 'longpress':
-                        this._handleMouseMove(pos.x, pos.y);
+                        this._fakeMouseMove(ev, pos.x, pos.y);
                         this._handleMouseButton(pos.x, pos.y, false, 0x4);
                         break;
                 }
