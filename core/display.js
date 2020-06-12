@@ -9,6 +9,7 @@
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 import { supportsImageMetadata } from './util/browser.js';
+import { toSigned32bit } from './util/int.js';
 
 export default class Display {
     constructor(target) {
@@ -190,14 +191,14 @@ export default class Display {
         if (this._scale === 0) {
             return 0;
         }
-        return x / this._scale + this._viewportLoc.x;
+        return toSigned32bit(x / this._scale + this._viewportLoc.x);
     }
 
     absY(y) {
         if (this._scale === 0) {
             return 0;
         }
-        return y / this._scale + this._viewportLoc.y;
+        return toSigned32bit(y / this._scale + this._viewportLoc.y);
     }
 
     resize(width, height) {

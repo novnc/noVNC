@@ -7,6 +7,8 @@ import { deflateInit, deflate } from "../vendor/pako/lib/zlib/deflate.js";
 import { encodings } from '../core/encodings.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
+import KeyTable from '../core/input/keysym.js';
+import * as browser  from '../core/util/browser.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
@@ -91,7 +93,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
     after(FakeWebSocket.restore);
 
     before(function () {
-        this.clock = clock = sinon.useFakeTimers();
+        this.clock = clock = sinon.useFakeTimers(Date.now());
         // sinon doesn't support this yet
         raf = window.requestAnimationFrame;
         window.requestAnimationFrame = setTimeout;
@@ -107,10 +109,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
             this._rQ = rQ;
         };
 
+        // Avoiding printing the entire Websock buffer on errors
+        Websock.prototype.toString = function () { return "[object Websock]"; };
     });
 
     after(function () {
-        Websock.prototype._allocateBuffers = Websock.prototype._oldAllocateBuffers;
+        delete Websock.prototype.toString;
         this.clock.restore();
         window.requestAnimationFrame = raf;
     });
@@ -1575,12 +1579,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._display.resize).to.have.been.calledWith(27, 32);
             });
 
-            it('should grab the mouse and keyboard', function () {
+            it('should grab the keyboard', function () {
                 sinon.spy(client._keyboard, 'grab');
-                sinon.spy(client._mouse, 'grab');
                 sendServerInit({}, client);
                 expect(client._keyboard.grab).to.have.been.calledOnce;
-                expect(client._mouse.grab).to.have.been.calledOnce;
             });
 
             describe('Initial Update Request', function () {
@@ -2727,154 +2729,447 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
     describe('Asynchronous Events', function () {
         let client;
+        let pointerEvent;
+        let keyEvent;
+        let qemuKeyEvent;
+
         beforeEach(function () {
             client = makeRFB();
+            client._display.resize(100, 100);
+
+            // We need to disable this as focusing the canvas will
+            // cause the browser to scoll to it, messing up our
+            // client coordinate calculations
+            client.focusOnClick = false;
+
+            pointerEvent = sinon.spy(RFB.messages, 'pointerEvent');
+            keyEvent = sinon.spy(RFB.messages, 'keyEvent');
+            qemuKeyEvent = sinon.spy(RFB.messages, 'QEMUExtendedKeyEvent');
         });
 
-        describe('Mouse event handlers', function () {
-            beforeEach(function () {
-                this.clock = sinon.useFakeTimers(Date.now());
-                sinon.spy(RFB.messages, 'pointerEvent');
-            });
-            afterEach(function () {
-                this.clock.restore();
-                RFB.messages.pointerEvent.restore();
-            });
+        afterEach(function () {
+            pointerEvent.restore();
+            keyEvent.restore();
+            qemuKeyEvent.restore();
+        });
+
+        function elementToClient(x, y) {
+            let res = { x: 0, y: 0 };
+
+            let bounds = client._canvas.getBoundingClientRect();
+
+            /*
+             * If the canvas is on a fractional position we will calculate
+             * a fractional mouse position. But that gets truncated when we
+             * send the event, AND the same thing happens in RFB when it
+             * generates the PointerEvent message. To compensate for that
+             * fact we round the value upwards here.
+             */
+            res.x = Math.ceil(bounds.left + x);
+            res.y = Math.ceil(bounds.top + y);
+
+            return res;
+        }
+
+        describe('Mouse Events', function () {
+            function sendMouseMoveEvent(x, y) {
+                let pos = elementToClient(x, y);
+                let ev;
+
+                try {
+                    ev = new MouseEvent('mousemove',
+                                        { 'screenX': pos.x + window.screenX,
+                                          'screenY': pos.y + window.screenY,
+                                          'clientX': pos.x,
+                                          'clientY': pos.y });
+                } catch (e) {
+                    ev = document.createEvent('MouseEvent');
+                    ev.initMouseEvent('mousemove',
+                                      true, true, window, 0,
+                                      pos.x + window.screenX,
+                                      pos.y + window.screenY,
+                                      pos.x, pos.y,
+                                      false, false, false, false,
+                                      0, null);
+                }
+
+                client._canvas.dispatchEvent(ev);
+            }
+
+            function sendMouseButtonEvent(x, y, down, button) {
+                let pos = elementToClient(x, y);
+                let ev;
+
+                try {
+                    ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
+                                        { 'screenX': pos.x + window.screenX,
+                                          'screenY': pos.y + window.screenY,
+                                          'clientX': pos.x,
+                                          'clientY': pos.y,
+                                          'button': button,
+                                          'buttons': 1 << button });
+                } catch (e) {
+                    ev = document.createEvent('MouseEvent');
+                    ev.initMouseEvent(down ? 'mousedown' : 'mouseup',
+                                      true, true, window, 0,
+                                      pos.x + window.screenX,
+                                      pos.y + window.screenY,
+                                      pos.x, pos.y,
+                                      false, false, false, false,
+                                      button, null);
+                }
+
+                client._canvas.dispatchEvent(ev);
+            }
 
             it('should not send button messages in view-only mode', function () {
                 client._viewOnly = true;
-                client._handleMouseButton(0, 0, 1, 0x001);
-                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                sendMouseButtonEvent(10, 10, true, 0);
+                clock.tick(50);
+                expect(pointerEvent).to.not.have.been.called;
             });
 
             it('should not send movement messages in view-only mode', function () {
                 client._viewOnly = true;
-                client._handleMouseMove(0, 0);
-                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                sendMouseMoveEvent(10, 10);
+                clock.tick(50);
+                expect(pointerEvent).to.not.have.been.called;
             });
 
-            it('should send a pointer event on mouse button presses', function () {
-                client._handleMouseButton(10, 12, 1, 0x001);
-                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+            it('should handle left mouse button', function () {
+                sendMouseButtonEvent(10, 10, true, 0);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 10, 10, 0x1);
+                pointerEvent.resetHistory();
+
+                sendMouseButtonEvent(10, 10, false, 0);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 10, 10, 0x0);
             });
 
-            it('should send a mask of 1 on mousedown', function () {
-                client._handleMouseButton(11, 13, 1, 0x001);
-                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
-                    client._sock, 11, 13, 0x001);
+            it('should handle middle mouse button', function () {
+                sendMouseButtonEvent(10, 10, true, 1);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 10, 10, 0x2);
+                pointerEvent.resetHistory();
+
+                sendMouseButtonEvent(10, 10, false, 1);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 10, 10, 0x0);
             });
 
-            it('should send a mask of 0 on mouseup', function () {
-                client._mouseButtonMask = 0x001;
-                client._handleMouseButton(105, 120, 0, 0x001);
-                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
-                    client._sock, 105, 120, 0x000);
+            it('should handle right mouse button', function () {
+                sendMouseButtonEvent(10, 10, true, 2);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 10, 10, 0x4);
+                pointerEvent.resetHistory();
+
+                sendMouseButtonEvent(10, 10, false, 2);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 10, 10, 0x0);
             });
 
-            it('should send a mask of 0 on mousemove', function () {
-                client._handleMouseMove(100, 200);
-                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
-                    client._sock, 100, 200, 0x000);
+            it('should handle multiple mouse buttons', function () {
+                sendMouseButtonEvent(10, 10, true, 0);
+                sendMouseButtonEvent(10, 10, true, 2);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x1);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0x5);
+
+                pointerEvent.resetHistory();
+
+                sendMouseButtonEvent(10, 10, false, 0);
+                sendMouseButtonEvent(10, 10, false, 2);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0x0);
             });
 
-            it('should set the button mask so that future mouse movements use it', function () {
-                client._handleMouseButton(10, 12, 1, 0x010);
-                client._handleMouseMove(13, 9);
-                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
-                expect(RFB.messages.pointerEvent).to.have.been.calledWith(
-                    client._sock, 13, 9, 0x010);
+            it('should handle mouse movement', function () {
+                sendMouseMoveEvent(50, 70);
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 50, 70, 0x0);
             });
 
-            it('should send a single pointer event on mouse movement', function () {
-                client._handleMouseMove(100, 200);
-                this.clock.tick(100);
-                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+            it('should handle click and drag', function () {
+                sendMouseButtonEvent(10, 10, true, 0);
+                sendMouseMoveEvent(50, 70);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x1);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        50, 70, 0x1);
+
+                pointerEvent.resetHistory();
+
+                sendMouseButtonEvent(50, 70, false, 0);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 50, 70, 0x0);
             });
 
-            it('should delay one move if two events are too close', function () {
-                client._handleMouseMove(18, 30);
-                client._handleMouseMove(20, 50);
-                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
-                this.clock.tick(100);
-                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+            describe('Event Aggregation', function () {
+                it('should send a single pointer event on mouse movement', function () {
+                    sendMouseMoveEvent(50, 70);
+                    clock.tick(100);
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     50, 70, 0x0);
+                });
+
+                it('should delay one move if two events are too close', function () {
+                    sendMouseMoveEvent(18, 30);
+                    sendMouseMoveEvent(20, 50);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     18, 30, 0x0);
+                    pointerEvent.resetHistory();
+
+                    clock.tick(100);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 50, 0x0);
+                });
+
+                it('should only send first and last move of many close events', function () {
+                    sendMouseMoveEvent(18, 30);
+                    sendMouseMoveEvent(20, 50);
+                    sendMouseMoveEvent(21, 55);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     18, 30, 0x0);
+                    pointerEvent.resetHistory();
+
+                    clock.tick(100);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     21, 55, 0x0);
+                });
+
+                // We selected the 17ms since that is ~60 FPS
+                it('should send move events every 17 ms', function () {
+                    sendMouseMoveEvent(1, 10);  // instant send
+                    clock.tick(10);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     1, 10, 0x0);
+                    pointerEvent.resetHistory();
+
+                    sendMouseMoveEvent(2, 20);  // delayed
+                    clock.tick(10);        // timeout send
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     2, 20, 0x0);
+                    pointerEvent.resetHistory();
+
+                    sendMouseMoveEvent(3, 30);  // delayed
+                    clock.tick(10);
+                    sendMouseMoveEvent(4, 40);  // delayed
+                    clock.tick(10);        // timeout send
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     4, 40, 0x0);
+                    pointerEvent.resetHistory();
+
+                    sendMouseMoveEvent(5, 50);  // delayed
+
+                    expect(pointerEvent).to.not.have.been.called;
+                });
+
+                it('should send waiting move events before a button press', function () {
+                    sendMouseMoveEvent(13, 9);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     13, 9, 0x0);
+                    pointerEvent.resetHistory();
+
+                    sendMouseMoveEvent(20, 70);
+
+                    expect(pointerEvent).to.not.have.been.called;
+
+                    sendMouseButtonEvent(20, 70, true, 0);
+
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 70, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 70, 0x1);
+                });
+
+                it('should send move events with enough time apart normally', function () {
+                    sendMouseMoveEvent(58, 60);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     58, 60, 0x0);
+                    pointerEvent.resetHistory();
+
+                    clock.tick(20);
+
+                    sendMouseMoveEvent(25, 60);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     25, 60, 0x0);
+                    pointerEvent.resetHistory();
+                });
+
+                it('should not send waiting move events if disconnected', function () {
+                    sendMouseMoveEvent(88, 99);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     88, 99, 0x0);
+                    pointerEvent.resetHistory();
+
+                    sendMouseMoveEvent(66, 77);
+                    client.disconnect();
+                    clock.tick(20);
+
+                    expect(pointerEvent).to.not.have.been.called;
+                });
             });
 
-            it('should only send first and last move of many close events', function () {
-                client._handleMouseMove(18, 40);
-                client._handleMouseMove(20, 50);
-                client._handleMouseMove(21, 55);
-
-                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
-                this.clock.tick(60);
-
-                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
-                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(
-                    client._sock, 18, 40, 0x000);
-                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(
-                    client._sock, 21, 55, 0x000);
+            it.skip('should block click events', function () {
+                /* FIXME */
             });
 
-            // We selected the 17ms since that is ~60 FPS
-            it('should send move events every 17 ms', function () {
-                client._handleMouseMove(1, 10); // instant send
-                this.clock.tick(10);
-                client._handleMouseMove(2, 20); // delayed
-                this.clock.tick(10);            // timeout send
-                client._handleMouseMove(3, 30); // delayed
-                this.clock.tick(10);
-                client._handleMouseMove(4, 40); // delayed
-                this.clock.tick(10);            // timeout send
-                client._handleMouseMove(5, 50); // delayed
-
-                expect(RFB.messages.pointerEvent).to.have.callCount(3);
-                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(
-                    client._sock, 1, 10, 0x000);
-                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(
-                    client._sock, 2, 20, 0x000);
-                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(
-                    client._sock, 4, 40, 0x000);
-            });
-
-            it('should send waiting move events before a button press', function () {
-                client._handleMouseMove(13, 9);
-                client._handleMouseMove(20, 70);
-                client._handleMouseButton(10, 12, 1, 0x100);
-                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
-                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(
-                    client._sock, 13, 9, 0x000);
-                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(
-                    client._sock, 10, 12, 0x000);
-                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(
-                    client._sock, 10, 12, 0x100);
-            });
-
-            it('should not delay events when button mask changes', function () {
-                client._handleMouseMove(13, 9); // instant
-                client._handleMouseMove(11, 10); // delayed
-                client._handleMouseButton(10, 12, 1, 0x010); // flush delayed
-                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
-            });
-
-            it('should send move events with enough time apart normally', function () {
-                client._handleMouseMove(58, 60);
-                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
-
-                this.clock.tick(20);
-
-                client._handleMouseMove(25, 60);
-                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
-            });
-
-            it('should not send waiting move events if disconnected', function () {
-                client._handleMouseMove(88, 99);
-                client._handleMouseMove(66, 77);
-                client.disconnect();
-                this.clock.tick(20);
-                expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+            it.skip('should block contextmenu events', function () {
+                /* FIXME */
             });
         });
 
-        describe('Keyboard Event Handlers', function () {
+        describe('Wheel Events', function () {
+            function sendWheelEvent(x, y, dx, dy, mode=0) {
+                let pos = elementToClient(x, y);
+                let ev;
+
+                try {
+                    ev = new WheelEvent('wheel',
+                                        { 'screenX': pos.x + window.screenX,
+                                          'screenY': pos.y + window.screenY,
+                                          'clientX': pos.x,
+                                          'clientY': pos.y,
+                                          'deltaX': dx,
+                                          'deltaY': dy,
+                                          'deltaMode': mode });
+                } catch (e) {
+                    ev = document.createEvent('WheelEvent');
+                    ev.initWheelEvent('wheel', true, true, window, 0,
+                                      pos.x + window.screenX,
+                                      pos.y + window.screenY,
+                                      pos.x, pos.y,
+                                      0, null, "",
+                                      dx, dy, 0, mode);
+                }
+
+                client._canvas.dispatchEvent(ev);
+            }
+
+            it('should handle wheel up event', function () {
+                sendWheelEvent(10, 10, 0, -50);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<3);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle wheel down event', function () {
+                sendWheelEvent(10, 10, 0, 50);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle wheel left event', function () {
+                sendWheelEvent(10, 10, -50, 0);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<5);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle wheel right event', function () {
+                sendWheelEvent(10, 10, 50, 0);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<6);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should ignore wheel when in view only', function () {
+                client._viewOnly = true;
+
+                sendWheelEvent(10, 10, 50, 0);
+
+                expect(pointerEvent).to.not.have.been.called;
+            });
+
+            it('should accumulate wheel events if small enough', function () {
+                sendWheelEvent(10, 10, 0, 20);
+                sendWheelEvent(10, 10, 0, 20);
+
+                expect(pointerEvent).to.not.have.been.called;
+
+                sendWheelEvent(10, 10, 0, 20);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should not accumulate large wheel events', function () {
+                sendWheelEvent(10, 10, 0, 400);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle line based wheel event', function () {
+                sendWheelEvent(10, 10, 0, 3, 1);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+
+            it('should handle page based wheel event', function () {
+                sendWheelEvent(10, 10, 0, 3, 2);
+
+                expect(pointerEvent).to.have.been.calledTwice;
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 1<<4);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0);
+            });
+        });
+
+        describe('Keyboard Events', function () {
             it('should send a key message on a key press', function () {
                 client._handleKeyEvent(0x41, 'KeyA', true);
                 const keyMsg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
@@ -2890,7 +3185,706 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('WebSocket event handlers', function () {
+        describe('Gesture event handlers', function () {
+            beforeEach(function () {
+                // Touch events and gestures are not supported on IE
+                if (browser.isIE()) {
+                    this.skip();
+                    return;
+                }
+            });
+
+            function gestureStart(gestureType, x, y,
+                                  magnitudeX = 0, magnitudeY = 0) {
+                let pos = elementToClient(x, y);
+                let detail = {type: gestureType, clientX: pos.x, clientY: pos.y};
+
+                detail.magnitudeX = magnitudeX;
+                detail.magnitudeY = magnitudeY;
+
+                let ev = new CustomEvent('gesturestart', { detail: detail });
+                client._canvas.dispatchEvent(ev);
+            }
+
+            function gestureMove(gestureType, x, y,
+                                 magnitudeX = 0, magnitudeY = 0) {
+                let pos = elementToClient(x, y);
+                let detail = {type: gestureType, clientX: pos.x, clientY: pos.y};
+
+                detail.magnitudeX = magnitudeX;
+                detail.magnitudeY = magnitudeY;
+
+                let ev = new CustomEvent('gesturemove', { detail: detail });
+                client._canvas.dispatchEvent(ev);
+            }
+
+            function gestureEnd(gestureType, x, y) {
+                let pos = elementToClient(x, y);
+                let detail = {type: gestureType, clientX: pos.x, clientY: pos.y};
+                let ev = new CustomEvent('gestureend', { detail: detail });
+                client._canvas.dispatchEvent(ev);
+            }
+
+            describe('Gesture onetap', function () {
+                it('should handle onetap events', function () {
+                    let bmask = 0x1;
+
+                    gestureStart('onetap', 20, 40);
+                    gestureEnd('onetap', 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should keep same position for multiple onetap events', function () {
+                    let bmask = 0x1;
+
+                    gestureStart('onetap', 20, 40);
+                    gestureEnd('onetap', 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureStart('onetap', 20, 50);
+                    gestureEnd('onetap', 20, 50);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureStart('onetap', 30, 50);
+                    gestureEnd('onetap', 30, 50);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should not keep same position for onetap events when too far apart', function () {
+                    let bmask = 0x1;
+
+                    gestureStart('onetap', 20, 40);
+                    gestureEnd('onetap', 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureStart('onetap', 80, 95);
+                    gestureEnd('onetap', 80, 95);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           80, 95, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            80, 95, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           80, 95, 0x0);
+                });
+
+                it('should not keep same position for onetap events when enough time inbetween', function () {
+                    let bmask = 0x1;
+
+                    gestureStart('onetap', 10, 20);
+                    gestureEnd('onetap', 10, 20);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           10, 20, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            10, 20, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           10, 20, 0x0);
+
+                    pointerEvent.resetHistory();
+                    this.clock.tick(1500);
+
+                    gestureStart('onetap', 15, 20);
+                    gestureEnd('onetap', 15, 20);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           15, 20, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            15, 20, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           15, 20, 0x0);
+
+                    pointerEvent.resetHistory();
+                });
+            });
+
+            describe('Gesture twotap', function () {
+                it('should handle gesture twotap events', function () {
+                    let bmask = 0x4;
+
+                    gestureStart("twotap", 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should keep same position for multiple twotap events', function () {
+                    let bmask = 0x4;
+
+                    for (let offset = 0;offset < 30;offset += 10) {
+                        pointerEvent.resetHistory();
+
+                        gestureStart('twotap', 20, 40 + offset);
+                        gestureEnd('twotap', 20, 40 + offset);
+
+                        expect(pointerEvent).to.have.been.calledThrice;
+                        expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                               20, 40, 0x0);
+                        expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                20, 40, bmask);
+                        expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                               20, 40, 0x0);
+                    }
+                });
+            });
+
+            describe('Gesture threetap', function () {
+                it('should handle gesture start for threetap events', function () {
+                    let bmask = 0x2;
+
+                    gestureStart("threetap", 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should keep same position for multiple threetap events', function () {
+                    let bmask = 0x2;
+
+                    for (let offset = 0;offset < 30;offset += 10) {
+                        pointerEvent.resetHistory();
+
+                        gestureStart('threetap', 20, 40 + offset);
+                        gestureEnd('threetap', 20, 40 + offset);
+
+                        expect(pointerEvent).to.have.been.calledThrice;
+                        expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                               20, 40, 0x0);
+                        expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                20, 40, bmask);
+                        expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                               20, 40, 0x0);
+                    }
+                });
+            });
+
+            describe('Gesture drag', function () {
+                it('should handle gesture drag events', function () {
+                    let bmask = 0x1;
+
+                    gestureStart('drag', 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('drag', 30, 50);
+                    clock.tick(50);
+
+                    expect(pointerEvent).to.have.been.calledOnce;
+                    expect(pointerEvent).to.have.been.calledWith(client._sock,
+                                                                 30, 50, bmask);
+
+                    pointerEvent.resetHistory();
+
+                    gestureEnd('drag', 30, 50);
+
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           30, 50, bmask);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            30, 50, 0x0);
+                });
+            });
+
+            describe('Gesture long press', function () {
+                it('should handle long press events', function () {
+                    let bmask = 0x4;
+
+                    gestureStart('longpress', 20, 40);
+
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    pointerEvent.resetHistory();
+
+                    gestureMove('longpress', 40, 60);
+                    clock.tick(50);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     40, 60, bmask);
+
+                    pointerEvent.resetHistory();
+
+                    gestureEnd('longpress', 40, 60);
+
+                    expect(pointerEvent).to.have.been.calledTwice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           40, 60, bmask);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            40, 60, 0x0);
+                });
+            });
+
+            describe('Gesture twodrag', function () {
+                it('should handle gesture twodrag up events', function () {
+                    let bmask = 0x10; // Button mask for scroll down
+
+                    gestureStart('twodrag', 20, 40, 0, 0);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 0, -60);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should handle gesture twodrag down events', function () {
+                    let bmask = 0x8; // Button mask for scroll up
+
+                    gestureStart('twodrag', 20, 40, 0, 0);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 0, 60);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should handle gesture twodrag right events', function () {
+                    let bmask = 0x20; // Button mask for scroll right
+
+                    gestureStart('twodrag', 20, 40, 0, 0);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 60, 0);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should handle gesture twodrag left events', function () {
+                    let bmask = 0x40; // Button mask for scroll left
+
+                    gestureStart('twodrag', 20, 40, 0, 0);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, -60, 0);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should handle gesture twodrag diag events', function () {
+                    let scrlUp = 0x8; // Button mask for scroll up
+                    let scrlRight = 0x20; // Button mask for scroll right
+
+                    gestureStart('twodrag', 20, 40, 0, 0);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 60, 60);
+
+                    expect(pointerEvent).to.have.been.callCount(5);
+                    expect(pointerEvent.getCall(0)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, 0x0);
+                    expect(pointerEvent.getCall(1)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, scrlUp);
+                    expect(pointerEvent.getCall(2)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, 0x0);
+                    expect(pointerEvent.getCall(3)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, scrlRight);
+                    expect(pointerEvent.getCall(4)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, 0x0);
+                });
+
+                it('should handle multiple small gesture twodrag events', function () {
+                    let bmask = 0x8; // Button mask for scroll up
+
+                    gestureStart('twodrag', 20, 40, 0, 0);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 0, 10);
+                    clock.tick(50);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 0, 20);
+                    clock.tick(50);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 20, 40, 0, 60);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                });
+
+                it('should handle large gesture twodrag events', function () {
+                    let bmask = 0x8; // Button mask for scroll up
+
+                    gestureStart('twodrag', 30, 50, 0, 0);
+
+                    expect(pointerEvent).
+                        to.have.been.calledOnceWith(client._sock, 30, 50, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('twodrag', 30, 50, 0, 200);
+
+                    expect(pointerEvent).to.have.callCount(7);
+                    expect(pointerEvent.getCall(0)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, 0x0);
+                    expect(pointerEvent.getCall(1)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, bmask);
+                    expect(pointerEvent.getCall(2)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, 0x0);
+                    expect(pointerEvent.getCall(3)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, bmask);
+                    expect(pointerEvent.getCall(4)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, 0x0);
+                    expect(pointerEvent.getCall(5)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, bmask);
+                    expect(pointerEvent.getCall(6)).to.have.been.calledWith(client._sock,
+                                                                            30, 50, 0x0);
+                });
+            });
+
+            describe('Gesture pinch', function () {
+                it('should handle gesture pinch in events', function () {
+                    let keysym = KeyTable.XK_Control_L;
+                    let bmask = 0x10; // Button mask for scroll down
+
+                    gestureStart('pinch', 20, 40, 90, 90);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+                    expect(keyEvent).to.not.have.been.called;
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('pinch', 20, 40, 30, 30);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+
+                    expect(keyEvent).to.have.been.calledTwice;
+                    expect(keyEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       keysym, 1);
+                    expect(keyEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        keysym, 0);
+
+                    expect(keyEvent.firstCall).to.have.been.calledBefore(pointerEvent.secondCall);
+                    expect(keyEvent.lastCall).to.have.been.calledAfter(pointerEvent.lastCall);
+
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    gestureEnd('pinch', 20, 40);
+
+                    expect(pointerEvent).to.not.have.been.called;
+                    expect(keyEvent).to.not.have.been.called;
+                });
+
+                it('should handle gesture pinch out events', function () {
+                    let keysym = KeyTable.XK_Control_L;
+                    let bmask = 0x8; // Button mask for scroll up
+
+                    gestureStart('pinch', 10, 20, 10, 20);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     10, 20, 0x0);
+                    expect(keyEvent).to.not.have.been.called;
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('pinch', 10, 20, 70, 80);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           10, 20, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            10, 20, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           10, 20, 0x0);
+
+                    expect(keyEvent).to.have.been.calledTwice;
+                    expect(keyEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       keysym, 1);
+                    expect(keyEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        keysym, 0);
+
+                    expect(keyEvent.firstCall).to.have.been.calledBefore(pointerEvent.secondCall);
+                    expect(keyEvent.lastCall).to.have.been.calledAfter(pointerEvent.lastCall);
+
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    gestureEnd('pinch', 10, 20);
+
+                    expect(pointerEvent).to.not.have.been.called;
+                    expect(keyEvent).to.not.have.been.called;
+                });
+
+                it('should handle large gesture pinch', function () {
+                    let keysym = KeyTable.XK_Control_L;
+                    let bmask = 0x10; // Button mask for scroll down
+
+                    gestureStart('pinch', 20, 40, 150, 150);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+                    expect(keyEvent).to.not.have.been.called;
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('pinch', 20, 40, 30, 30);
+
+                    expect(pointerEvent).to.have.been.callCount(5);
+                    expect(pointerEvent.getCall(0)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, 0x0);
+                    expect(pointerEvent.getCall(1)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.getCall(2)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, 0x0);
+                    expect(pointerEvent.getCall(3)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.getCall(4)).to.have.been.calledWith(client._sock,
+                                                                            20, 40, 0x0);
+
+                    expect(keyEvent).to.have.been.calledTwice;
+                    expect(keyEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       keysym, 1);
+                    expect(keyEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        keysym, 0);
+
+                    expect(keyEvent.firstCall).to.have.been.calledBefore(pointerEvent.secondCall);
+                    expect(keyEvent.lastCall).to.have.been.calledAfter(pointerEvent.lastCall);
+
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    gestureEnd('pinch', 20, 40);
+
+                    expect(pointerEvent).to.not.have.been.called;
+                    expect(keyEvent).to.not.have.been.called;
+                });
+
+                it('should handle multiple small gesture pinch out events', function () {
+                    let keysym = KeyTable.XK_Control_L;
+                    let bmask = 0x8; // Button mask for scroll down
+
+                    gestureStart('pinch', 20, 40, 0, 10);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+                    expect(keyEvent).to.not.have.been.called;
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('pinch', 20, 40, 0, 30);
+                    clock.tick(50);
+
+                    expect(pointerEvent).to.have.been.calledWith(client._sock,
+                                                                 20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('pinch', 20, 40, 0, 60);
+                    clock.tick(50);
+
+                    expect(pointerEvent).to.have.been.calledWith(client._sock,
+                                                                 20, 40, 0x0);
+
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    gestureMove('pinch', 20, 40, 0, 90);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+
+                    expect(keyEvent).to.have.been.calledTwice;
+                    expect(keyEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       keysym, 1);
+                    expect(keyEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        keysym, 0);
+
+                    expect(keyEvent.firstCall).to.have.been.calledBefore(pointerEvent.secondCall);
+                    expect(keyEvent.lastCall).to.have.been.calledAfter(pointerEvent.lastCall);
+
+                    pointerEvent.resetHistory();
+                    keyEvent.resetHistory();
+
+                    gestureEnd('pinch', 20, 40);
+
+                    expect(keyEvent).to.not.have.been.called;
+                });
+
+                it('should send correct key control code', function () {
+                    let keysym = KeyTable.XK_Control_L;
+                    let code = 0x1d;
+                    let bmask = 0x10; // Button mask for scroll down
+
+                    client._qemuExtKeyEventSupported = true;
+
+                    gestureStart('pinch', 20, 40, 90, 90);
+
+                    expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                     20, 40, 0x0);
+                    expect(qemuKeyEvent).to.not.have.been.called;
+
+                    pointerEvent.resetHistory();
+
+                    gestureMove('pinch', 20, 40, 30, 30);
+
+                    expect(pointerEvent).to.have.been.calledThrice;
+                    expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+                    expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            20, 40, bmask);
+                    expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                           20, 40, 0x0);
+
+                    expect(qemuKeyEvent).to.have.been.calledTwice;
+                    expect(qemuKeyEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                           keysym,
+                                                                           true,
+                                                                           code);
+                    expect(qemuKeyEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                            keysym,
+                                                                            false,
+                                                                            code);
+
+                    expect(qemuKeyEvent.firstCall).to.have.been.calledBefore(pointerEvent.secondCall);
+                    expect(qemuKeyEvent.lastCall).to.have.been.calledAfter(pointerEvent.lastCall);
+
+                    pointerEvent.resetHistory();
+                    qemuKeyEvent.resetHistory();
+
+                    gestureEnd('pinch', 20, 40);
+
+                    expect(pointerEvent).to.not.have.been.called;
+                    expect(qemuKeyEvent).to.not.have.been.called;
+                });
+            });
+        });
+
+        describe('WebSocket Events', function () {
             // message events
             it('should do nothing if we receive an empty message and have nothing in the queue', function () {
                 client._normalMsg = sinon.spy();
