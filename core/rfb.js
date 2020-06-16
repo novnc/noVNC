@@ -588,11 +588,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _focusCanvas(event) {
-        // Respect earlier handlers' request to not do side-effects
-        if (event.defaultPrevented) {
-            return;
-        }
-
         if (!this.focusOnClick) {
             return;
         }
