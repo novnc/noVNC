@@ -1,48 +1,23 @@
 // Karma configuration
 
+// The Safari launcher is broken, so construct our own
+function SafariBrowser(id, baseBrowserDecorator, args) {
+  baseBrowserDecorator(this);
+
+  this._start = function(url) {
+    this._execCommand('/usr/bin/open', ['-W', '-n', '-a', 'Safari', url]);
+  }
+}
+
+SafariBrowser.prototype = {
+  name: 'Safari'
+}
+
 module.exports = (config) => {
-  const customLaunchers = {};
   let browsers = [];
-  let useSauce = false;
 
-  // use Sauce when running on Travis
-  if (process.env.TRAVIS_JOB_NUMBER) {
-    useSauce = true;
-  } 
-
-  if (useSauce && process.env.TEST_BROWSER_NAME && process.env.TEST_BROWSER_NAME != 'PhantomJS') {
-    const names = process.env.TEST_BROWSER_NAME.split(',');
-    const platforms = process.env.TEST_BROWSER_OS.split(',');
-    const versions = process.env.TEST_BROWSER_VERSION
-      ? process.env.TEST_BROWSER_VERSION.split(',')
-      : [null];
-
-    for (let i = 0; i < names.length; i++) {
-      for (let j = 0; j < platforms.length; j++) {
-        for (let k = 0; k < versions.length; k++) {
-          let launcher_name = 'sl_' + platforms[j].replace(/[^a-zA-Z0-9]/g, '') + '_' + names[i];
-          if (versions[k]) {
-            launcher_name += '_' + versions[k];
-          }
-
-          customLaunchers[launcher_name] = {
-            base: 'SauceLabs',
-            browserName: names[i],
-            platform: platforms[j],
-          };
-
-          if (versions[i]) {
-            customLaunchers[launcher_name].version = versions[k];
-          }
-        }
-      }
-    }
-
-    browsers = Object.keys(customLaunchers);
-  } else {
-    useSauce = false;
-    //browsers = ['PhantomJS'];
-    browsers = [];
+  if (process.env.TEST_BROWSER_NAME) {
+    browsers = process.env.TEST_BROWSER_NAME.split(',');
   }
 
   const my_conf = {
@@ -80,7 +55,11 @@ module.exports = (config) => {
     exclude: [
     ],
 
-    customLaunchers: customLaunchers,
+    plugins: [
+      'karma-*',
+      '@chiragrupani/karma-chromium-edge-launcher',
+      { 'launcher:Safari': [ 'type', SafariBrowser ] },
+    ],
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
@@ -103,24 +82,7 @@ module.exports = (config) => {
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
-
-    // Increase timeout in case connection is slow/we run more browsers than possible
-    // (we currently get 3 for free, and we try to run 7, so it can take a while)
-    captureTimeout: 240000,
-
-    // similarly to above
-    browserNoActivityTimeout: 100000,
   };
-
-  if (useSauce) {
-    my_conf.reporters.push('saucelabs');
-    my_conf.captureTimeout = 0; // use SL timeout
-    my_conf.sauceLabs = {
-      testName: 'noVNC Tests (all)',
-      startConnect: false,
-      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
-    };
-  }
 
   config.set(my_conf);
 };
