@@ -1,0 +1,30 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        browser:
+          - ChromeHeadless
+          - FirefoxHeadless
+        include:
+          - os: macos-latest
+            browser: Safari
+          - os: windows-latest
+            browser: EdgeHeadless
+          - os: windows-latest
+            browser: IE
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: npm install
+      - run: npm run test
+        env:
+          TEST_BROWSER_NAME: ${{ matrix.browser }}
