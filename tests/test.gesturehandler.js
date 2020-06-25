@@ -40,7 +40,9 @@ describe('Gesture handler', function () {
     });
 
     afterEach(function () {
-        handler.detach();
+        if (handler) {
+            handler.detach();
+        }
         target = null;
         gestures = null;
     });
