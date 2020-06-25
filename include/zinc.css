@@ -1,0 +1,83 @@
+#zn-download {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    z-index: 20;
+    display: none;
+}
+
+#zn-download-bg {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    background-color: #333333;
+    opacity: 0.8;
+}
+
+#zn-download-error {
+    display: none;
+    padding: 8px;
+}
+
+#zn-download.error #zn-download-error {
+    display: block;
+}
+
+#zn-download.error #zn-download-pane {
+    display: none;
+}
+
+#zn-download-pane, #zn-download-error {
+    position: absolute;
+    top: 2vw;
+    left: 2vw;
+    right: 2vw;
+    border-radius: 16px;
+    border: 4px solid #333;
+    background-color: #fefefe;
+    padding-bottom: 32px;
+}
+
+#zn-download-pane h1 {
+    text-align: center;
+}
+
+#zn-transfer-in-progress {
+    padding-bottom: 16px;
+}
+
+#zn-transfer-in-progress,
+#zn-download-file-list {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.zn-table-striped {
+    width: 100%;
+}
+
+.zn-table-striped thead {
+    background-color: #ddd;
+}
+
+.zn-table-striped thead th {
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+}
+
+.zn-table-striped tbody td {
+    border-bottom: 1px solid #666;
+}
+
+.zn-table-striped tbody tr:nth-child(even) {
+    background-color: #eee;
+}
+
+.zn-table-striped thead th, .zn-table-striped tbody td {
+    padding: 8px;
+    text-align: left;
+}

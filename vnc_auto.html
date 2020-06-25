@@ -37,6 +37,7 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="include/base.css?cachebust=1" title="plain">
+    <link rel="stylesheet" href="include/zinc.css" title="plain">
 
     <script src="include/util.js"></script>
     <script type="application/javascript">
@@ -118,9 +119,48 @@
               <tr><td class="zn-creds-left">VNC Host: </td><td id="zn-creds-host"></td></tr>
               <tr><td class="zn-creds-left">VNC Password: </td><td id="zn-creds-password"></td></tr>
             </tbody></table>
-
+            <div id="zn-download">
+                <div id="zn-download-bg"></div>
+                <div id="zn-download-pane">
+                    <h1>Downloads for this Fulfillment Account</h1>
+                    <hr id="zn-transfer-in-pgrogress-hr" />
+                    <div id="zn-transfer-in-progress">
+                        <h2>Transfer in Progress</h2>
+                        <div id="zn-transfer-in-progress-content">
+                            <!-- in-progress files go here -->
+                        </div>
+                        <p>
+                            Files in this list will be transferred to long-term storage shortly. Consider <a href="#" id="zn-refresh">refreshing</a> this list to see if they're done.
+                        </p>
+                    </div>
+                    <hr />
+                    <div id="zn-download-file-list">
+                        <h2>Files for <span id="zn-download-month">this month.</span></h2>
+                        <div id="zn-download-file-list-content">
+                            <div id="zn-download-files-message"></div>
+                            <table id="zn-download-file-list-table" class="zn-table-striped" cellspacing=0 cellpadding=0>
+                                <thead>
+                                    <th>File</th>
+                                    <th>Size</th>
+                                    <th>Date</th>
+                                </thead>
+                                <tbody>
+                                    <!-- s3 links go here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="zn-download-error">
+                    <h1>Whoops</h1>
+                    <p>
+                        We're sorry.  There was an error loading your 
+                        information. Please contact support or try again
+                        later.
+                    </p>
+                </div>
+            </div>
         </div>
-
         <script>
         /*jslint white: false */
         /*global window, $, Util, RFB, */
@@ -233,6 +273,137 @@
             }
         }
 
+        function closeDownloadWindow() {
+            var zn_download = document.getElementById("zn-download");
+            zn_download.style.display = "none";
+        }
+
+        function copyDownloadUrl(e) {
+            var anchor = e.target.parentNode.getElementsByTagName("a")[0];
+            navigator.clipboard.writeText(anchor.href);
+            e.target.title = "Copied!"
+        }
+
+        function handleTransferInProgressFiles(json) {
+            var tiphr = document.getElementById("zn-transfer-in-pgrogress-hr");
+            var tip = document.getElementById("zn-transfer-in-progress");
+            var tipc = document.getElementById("zn-transfer-in-progress-content");
+            if (json["in_progress"].length == 0) {
+                tiphr.style.display = 'none';
+                tip.style.display = 'none';
+            } else {
+                tiphr.style.display = 'block';
+                tip.style.display = 'block';
+                var frag = document.createDocumentFragment()
+                for(var i = json["in_progress"].length - 1; i >= 0; i--) {
+                    var item = json["in_progress"][i];
+                    var div = document.createElement('div');
+                    div.textContent = i;
+                    frag.append(item)
+                }
+                tipc.innerHTML = "";
+                tipc.appendChild(frag);
+            }
+        }
+
+        function handleS3FilesList(json) {
+            var byteSuffixes = ['b', 'kb', 'mb', 'gb', 'tb'];
+            var frag = document.createDocumentFragment();
+            var table = document.getElementById("zn-download-file-list-table");
+            var tbody = table.getElementsByTagName("tbody")[0];
+            var message = document.getElementById("zn-download-files-message");
+            var month = document.getElementById("zn-download-month");
+            month.textContent = json["prefix_date"];
+
+            if(!json.s3.Contents || json.s3.Contents.length == 0) {
+                message.textContent = (
+                    "There are no downloads for this time period. " +
+                    "Files you download in coyote will appear here."
+                )
+                message.style.display = "block";
+                table.style.display = "none";
+                return
+            } 
+
+            table.style.display = "block";
+            message.style.display = "none";
+            for(var i = json['s3']['Contents'].length - 1; i >= 0; i--) {
+                var item = json['s3']['Contents'][i];
+                var tr = document.createElement("tr");
+                frag.appendChild(tr);
+                var anchor = document.createElement("a");
+                var name = document.createElement("td");
+                var key_parts = item['Key'].split("/");
+                var clipboard = document.createElement("span")
+                clipboard.style.cursor = "default"
+                clipboard.textContent = " 📋";
+                clipboard.title = "Copy Url"
+                clipboard.onclick = copyDownloadUrl;
+                anchor.textContent = key_parts[key_parts.length - 1];
+                anchor.target = "_blank"
+                anchor.href = item['Url'];
+                name.appendChild(anchor);
+                name.appendChild(clipboard);
+                tr.appendChild(name);
+                var size = item['Size'];
+                var sizeSuffix = 0;
+                while (size / 1024 > 1) {
+                    size = size / 1024;
+                    sizeSuffix += 1;
+                }
+                var size_td = document.createElement('td')
+                size_td.textContent = (Math.round(size * 10)/10).toString() + byteSuffixes[sizeSuffix];
+                tr.appendChild(size_td)
+                tbody.innerHTML = "";
+                var date = document.createElement('td');
+                date.textContent = item['LastModified'];
+                tr.appendChild(date);
+            }
+            tbody.appendChild(frag)
+        }
+
+        function buildDownloadsPane(json) {
+            /* Deal with the transfer in progress stuff */
+            handleTransferInProgressFiles(json);
+
+            /* Construct the Files list */
+            handleS3FilesList(json);
+        }
+
+        function openDownloadWindow(tok) {
+            function openDownloadWinowInner (e) {
+                e.preventDefault();
+                var date = e.target.getAttribute('data-zn-download-date')
+                var zn_download = document.getElementById("zn-download");
+                zn_download.style.display = 'block';
+                fetch('/downloads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        'date': date,
+                        'tok': tok
+                    })
+                })
+                .then(function (resp) {
+                    if (resp.status == 200) {
+                        return resp.json()
+                    } else {
+                        throw resp.statusText;
+                    }
+                })
+                .then(buildDownloadsPane)
+                .catch(function () {
+                    console.log("fail", arguments)
+                    zn_download.className = "error";
+                });
+                
+                return false;
+            };
+            return openDownloadWinowInner;
+        }
+
         window.onscriptsload = function () {
             var host, port, password, path, token, lastClipboard, tok;
 
@@ -338,9 +509,14 @@
             }
 
             var coyoteName = WebUtil.getConfigVar('name', '');
+            var dlbg = document.getElementById('zn-download-bg');
+            dlbg.onclick = closeDownloadWindow;
             var elm = document.getElementById('zn-download-link');
-            elm.href = '/download/' + coyoteName;
+            var openDownloadWindowClosure = openDownloadWindow(tok);
+            elm.onclick = openDownloadWindowClosure;
             elm.style.display = '';
+            var refreshButton = document.getElementById("zn-refresh");
+            refreshButton.onclick = openDownloadWindowClosure;
 
             // Scrub the query params from the URL so that it can be safely copy/pasted
             // However, to support F5 or Ctrl-Shift-T, save the real URL in localstorage
