@@ -179,6 +179,10 @@ export default class Cursor {
         // should be visible.
         if (this._captureIsActive()) {
             window.setTimeout(() => {
+                // We might have detached at this point
+                if (!this._target) {
+                    return;
+                }
                 // Refresh the target from elementFromPoint since queued events
                 // might have altered the DOM
                 target = document.elementFromPoint(event.clientX,
