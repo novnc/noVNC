@@ -1,5 +1,6 @@
 // Polyfills needed for Babel to function
-require("core-js");
+require("core-js/stable");
+require("regenerator-runtime/runtime");
 
 var babelTransform = require('@babel/core').transform;
 var babelTransformDynamicImport = require('@babel/plugin-syntax-dynamic-import');
