@@ -243,6 +243,9 @@ BrowserESModuleLoader.prototype[RegisterLoader.instantiate] = function(key, proc
     }
     // otherwise we fetch
     else {
+      if (window.console) {
+          window.console.log('Loading ' + key + '...');
+      }
       xhrFetch(key, resolve, reject);
     }
   })
@@ -257,6 +260,9 @@ BrowserESModuleLoader.prototype[RegisterLoader.instantiate] = function(key, proc
       }
     }
     return new Promise(function (resolve, reject) {
+      if (window.console) {
+          window.console.log('Transpiling ' + key + '...');
+      }
       promiseMap.set(key, {resolve: resolve, reject: reject});
       babelWorker.postMessage({key: key, source: source});
     });
@@ -270,6 +276,9 @@ BrowserESModuleLoader.prototype[RegisterLoader.instantiate] = function(key, proc
       if (window.console) {
         window.console.warn('Unable to cache transpiled version of ' + key + ': ' + e);
       }
+    }
+    if (window.console) {
+        window.console.log('Loaded ' + key);
     }
     (0, eval)(data.code + '\n//# sourceURL=' + data.key + '!transpiled');
     processAnonRegister();
