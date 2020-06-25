@@ -10,4 +10,5 @@ browserify("src/babel-worker.js")
     ignore: [ "../../node_modules/core-js" ]
   })
   .bundle()
+  .on('error', err => { console.error(err) })
   .pipe(fs.createWriteStream("dist/babel-worker.js"));

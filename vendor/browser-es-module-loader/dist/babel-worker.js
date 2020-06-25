@@ -126144,23 +126144,30 @@ var babelPresetEnv = require('@babel/preset-env');
 
 self.onmessage = function (evt) {
   // transform source with Babel
-  var output = babelTransform(evt.data.source, {
-    compact: false,
-    filename: evt.data.key + '!transpiled',
-    sourceFileName: evt.data.key,
-    moduleIds: false,
-    sourceMaps: 'inline',
-    babelrc: false,
-    plugins: [babelTransformDynamicImport, babelTransformModulesSystemJS],
-    presets: [[babelPresetEnv, {
-      targets: 'ie >= 11'
-    }]]
-  });
-  self.postMessage({
-    key: evt.data.key,
-    code: output.code,
-    source: evt.data.source
-  });
+  try {
+    var output = babelTransform(evt.data.source, {
+      compact: false,
+      filename: evt.data.key + '!transpiled',
+      sourceFileName: evt.data.key,
+      moduleIds: false,
+      sourceMaps: 'inline',
+      babelrc: false,
+      plugins: [babelTransformDynamicImport, babelTransformModulesSystemJS],
+      presets: [[babelPresetEnv, {
+        targets: 'ie >= 11'
+      }]]
+    });
+    self.postMessage({
+      key: evt.data.key,
+      code: output.code,
+      source: evt.data.source
+    });
+  } catch (err) {
+    self.postMessage({
+      key: evt.data.key,
+      error: err.toString()
+    });
+  }
 };
 
 },{"@babel/core":32,"@babel/plugin-syntax-dynamic-import":136,"@babel/plugin-transform-modules-systemjs":164,"@babel/preset-env":187,"core-js/stable":746,"regenerator-runtime/runtime":971}]},{},[1008]);

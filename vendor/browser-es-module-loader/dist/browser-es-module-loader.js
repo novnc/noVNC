@@ -1421,7 +1421,11 @@
   var babelWorker = new WorkerPool('babel-worker.js', 3);
   babelWorker.onmessage = function (evt) {
       var promFuncs = promiseMap.get(evt.data.key);
-      promFuncs.resolve(evt.data);
+      if (evt.data.error) {
+        promFuncs.reject(evt.data);
+      } else {
+        promFuncs.resolve(evt.data);
+      }
       promiseMap.delete(evt.data.key);
   };
 
