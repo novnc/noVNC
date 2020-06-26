@@ -1,17 +1,19 @@
 name: novnc
 base: core18 # the base snap is the execution environment for this snap
-version: '1.1.0'
+version: '@VERSION@'
 summary: Open Source VNC client using HTML5 (WebSockets, Canvas)
 description: |
   Open Source VNC client using HTML5 (WebSockets, Canvas).
-  noVNC is both a VNC client JavaScript library as well as an application built on top of that library. noVNC runs well in any modern browser including mobile browsers (iOS and Android).
+  noVNC is both a VNC client JavaScript library as well as an
+  application built on top of that library. noVNC runs well in any
+  modern browser including mobile browsers (iOS and Android).
 
 grade: stable
 confinement: strict
 
 parts:
     novnc:
-        source: https://github.com/novnc/noVNC.git #https://github.com/novnc/noVNC/archive/v$SNAPCRAFT_PROJECT_VERSION.tar.gz 
+        source: build/
         plugin: dump
         stage-packages:
             - websockify
@@ -26,9 +28,9 @@ hooks:
 
 apps:
     novnc:
-        command: utils/launch.sh
+        command: ./launch.sh
         plugs: [network, network-bind]
     novncsvc:
-        command: snap/local/svc_wrapper.sh
+        command: ./svc_wrapper.sh
         daemon: forking
         plugs: [network, network-bind]
