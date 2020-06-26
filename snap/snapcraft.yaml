@@ -29,6 +29,6 @@ apps:
         command: utils/launch.sh
         plugs: [network, network-bind]
     novncsvc:
-        command: utils/svc_wrapper.sh
+        command: snap/local/svc_wrapper.sh
         daemon: forking
         plugs: [network, network-bind]
