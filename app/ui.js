@@ -20,6 +20,8 @@ import * as WebUtil from "./webutil.js";
 
 const PAGE_TITLE = "noVNC";
 
+const LINGUAS = ["cs", "de", "el", "es", "fr", "it", "ja", "ko", "nl", "pl", "pt_BR", "ru", "sv", "tr", "zh_CN", "zh_TW"];
+
 const UI = {
 
     connected: false,
@@ -42,20 +44,23 @@ const UI = {
     reconnectCallback: null,
     reconnectPassword: null,
 
-    prime() {
-        return WebUtil.initSettings().then(() => {
-            if (document.readyState === "interactive" || document.readyState === "complete") {
-                return UI.start();
-            }
+    async start() {
+        // Set up translations
+        try {
+            await l10n.setup(LINGUAS, "app/locale/");
+        } catch (err) {
+            Log.Error("Failed to load translations: " + err);
+        }
 
-            return new Promise((resolve, reject) => {
-                document.addEventListener('DOMContentLoaded', () => UI.start().then(resolve).catch(reject));
+        // Initialize setting storage
+        await WebUtil.initSettings();
+
+        // Wait for the page to load
+        if (document.readyState !== "interactive" && document.readyState !== "complete") {
+            await new Promise((resolve, reject) => {
+                document.addEventListener('DOMContentLoaded', resolve);
             });
-        });
-    },
-
-    // Render default UI and initialize settings menu
-    start() {
+        }
 
         UI.initSettings();
 
@@ -70,22 +75,20 @@ const UI = {
         }
 
         // Try to fetch version number
-        fetch('./package.json')
-            .then((response) => {
-                if (!response.ok) {
-                    throw Error("" + response.status + " " + response.statusText);
-                }
-                return response.json();
-            })
-            .then((packageInfo) => {
-                Array.from(document.getElementsByClassName('noVNC_version')).forEach(el => el.innerText = packageInfo.version);
-            })
-            .catch((err) => {
-                Log.Error("Couldn't fetch package.json: " + err);
-                Array.from(document.getElementsByClassName('noVNC_version_wrapper'))
-                    .concat(Array.from(document.getElementsByClassName('noVNC_version_separator')))
-                    .forEach(el => el.style.display = 'none');
-            });
+        try {
+            let response = await fetch('./package.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+
+            let packageInfo = await response.json();
+            Array.from(document.getElementsByClassName('noVNC_version')).forEach(el => el.innerText = packageInfo.version);
+        } catch (err) {
+            Log.Error("Couldn't fetch package.json: " + err);
+            Array.from(document.getElementsByClassName('noVNC_version_wrapper'))
+                .concat(Array.from(document.getElementsByClassName('noVNC_version_separator')))
+                .forEach(el => el.style.display = 'none');
+        }
 
         // Adapt the interface for touch screen devices
         if (isTouchDevice) {
@@ -129,8 +132,6 @@ const UI = {
             // Show the connect panel on first load unless autoconnecting
             UI.openConnectPanel();
         }
-
-        return Promise.resolve(UI.rfb);
     },
 
     initFullscreen() {
@@ -1766,10 +1767,6 @@ const UI = {
  */
 };
 
-// Set up translations
-const LINGUAS = ["cs", "de", "el", "es", "fr", "it", "ja", "ko", "nl", "pl", "pt_BR", "ru", "sv", "tr", "zh_CN", "zh_TW"];
-l10n.setup(LINGUAS, "app/locale/")
-    .catch(err => Log.Error("Failed to load translations: " + err))
-    .then(UI.prime);
+UI.start();
 
 export default UI;
