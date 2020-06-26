@@ -46,7 +46,27 @@
     <link rel="preload" as="image" href="app/images/warning.svg">
 
     <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
-    <script type="module" crossorigin="anonymous" src="app/ui.js"></script>
+
+    <script type="module">
+        import UI from "./app/ui.js";
+
+        let defaults = {};
+        let mandatory = {};
+
+        // Override any defaults you need here:
+        //
+        // defaults['host'] = 'vnc.example.com';
+
+        // Or force a specific setting, preventing the user from
+        // changing it:
+        //
+        // mandatory['view_only'] = true;
+
+        // See docs/EMBEDDING.md for a list of possible settings.
+
+        UI.start({ settings: { defaults: defaults,
+                               mandatory: mandatory } });
+    </script>
 </head>
 
 <body>

@@ -24,6 +24,8 @@ const LINGUAS = ["cs", "de", "el", "es", "fr", "it", "ja", "ko", "nl", "pl", "pt
 
 const UI = {
 
+    customSettings: {},
+
     connected: false,
     desktopName: "",
 
@@ -44,7 +46,15 @@ const UI = {
     reconnectCallback: null,
     reconnectPassword: null,
 
-    async start() {
+    async start(options={}) {
+        UI.customSettings = options.settings || {};
+        if (UI.customSettings.defaults === undefined) {
+            UI.customSettings.defaults = {};
+        }
+        if (UI.customSettings.mandatory === undefined) {
+            UI.customSettings.mandatory = {};
+        }
+
         // Set up translations
         try {
             await l10n.setup(LINGUAS, "app/locale/");
@@ -159,6 +169,8 @@ const UI = {
         UI.initSetting('logging', 'warn');
         UI.updateLogging();
 
+        UI.setupSettingLabels();
+
         /* Populate the controls if defaults are provided in the URL */
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('password');
@@ -175,8 +187,6 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
-
-        UI.setupSettingLabels();
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -738,6 +748,10 @@ const UI = {
 
     // Initial page load read/initialization of settings
     initSetting(name, defVal) {
+        // Has the user overridden the default value?
+        if (name in UI.customSettings.defaults) {
+            defVal = UI.customSettings.defaults[name];
+        }
         // Check Query string followed by cookie
         let val = WebUtil.getConfigVar(name);
         if (val === null) {
@@ -745,6 +759,11 @@ const UI = {
         }
         WebUtil.setSetting(name, val);
         UI.updateSetting(name);
+        // Has the user forced a value?
+        if (name in UI.customSettings.mandatory) {
+            val = UI.customSettings.mandatory[name];
+            UI.forceSetting(name, val);
+        }
         return val;
     },
 
@@ -817,17 +836,21 @@ const UI = {
     // disable the labels that belong to disabled input elements.
     disableSetting(name) {
         const ctrl = document.getElementById('noVNC_setting_' + name);
-        ctrl.disabled = true;
-        if (ctrl.label !== undefined) {
-            ctrl.label.classList.add('noVNC_disabled');
+        if (ctrl !== null) {
+            ctrl.disabled = true;
+            if (ctrl.label !== undefined) {
+                ctrl.label.classList.add('noVNC_disabled');
+            }
         }
     },
 
     enableSetting(name) {
         const ctrl = document.getElementById('noVNC_setting_' + name);
-        ctrl.disabled = false;
-        if (ctrl.label !== undefined) {
-            ctrl.label.classList.remove('noVNC_disabled');
+        if (ctrl !== null) {
+            ctrl.disabled = false;
+            if (ctrl.label !== undefined) {
+                ctrl.label.classList.remove('noVNC_disabled');
+            }
         }
     },
 
@@ -1770,7 +1793,5 @@ const UI = {
  * ==============
  */
 };
-
-UI.start();
 
 export default UI;
