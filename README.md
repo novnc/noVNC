@@ -70,6 +70,7 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 * Local cursor rendering
 * Clipboard copy/paste
 * Translations
+* Touch gestures for emulating common mouse actions
 * Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
   [the license document](LICENSE.txt) for details
 
