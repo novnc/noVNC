@@ -5,7 +5,7 @@ on:
     types: [published]
 
 jobs:
-  build:
+  npm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,3 +14,33 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: ${{ !github.event.release.prerelease }}
+      - run: npm publish --access public --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: ${{ github.event.release.prerelease }}
+  snap:
+    runs-on: ubuntu-latest
+    container: snapcore/snapcraft
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: npm install
+      - run: ./utils/use_require.js --clean --as commonjs --with-app
+      - run: |
+          cp utils/launch.sh build/launch.sh
+          cp snap/local/svc_wrapper.sh build/svc_wrapper.sh
+      - run: |
+          VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)
+          echo $VERSION
+          sed -i "s/@VERSION@/$VERSION/g" snap/snapcraft.yaml
+      - run: snapcraft
+      - run: |
+          mkdir .snapcraft
+          echo ${SNAPCRAFT_LOGIN} | base64 --decode --ignore-garbage > .snapcraft/snapcraft.cfg
+        env:
+          SNAPCRAFT_LOGIN: ${{secrets.SNAPCRAFT_LOGIN}}
+      - run: snapcraft push --release=stable *.snap
+        if: ${{ !github.event.release.prerelease }}
+      - run: snapcraft push --release=beta *.snap
+        if: ${{ github.event.release.prerelease }}
