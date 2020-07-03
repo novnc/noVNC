@@ -14,6 +14,11 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: ${{ !github.event.release.prerelease }}
+      - run: npm publish --access public --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: ${{ github.event.release.prerelease }}
   snap:
     runs-on: ubuntu-latest
     container: snapcore/snapcraft
@@ -36,3 +41,6 @@ jobs:
         env:
           SNAPCRAFT_LOGIN: ${{secrets.SNAPCRAFT_LOGIN}}
       - run: snapcraft push --release=stable *.snap
+        if: ${{ !github.event.release.prerelease }}
+      - run: snapcraft push --release=beta *.snap
+        if: ${{ github.event.release.prerelease }}
