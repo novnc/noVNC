@@ -382,5 +382,4 @@ to the remote server.
 ###### Parameters
 
 **`text`**
-  - A `DOMString` specifying the clipboard data to send. Currently only
-  characters from ISO 8859-1 are supported.
+  - A `DOMString` specifying the clipboard data to send.
