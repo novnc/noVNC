@@ -1,16 +1,16 @@
 # Japanese translations for noVNC package
-# noVNC パッケージに対する英訳.
+# noVNC パッケージに対する日訳
 # Copyright (C) 2019 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
-# nnn1590 <28985763+nnn1590@users.noreply.github.com>, 2019.
+# nnn1590 <nnn1590@nnn1590.org>, 2019-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2019-01-16 11:06+0100\n"
-"PO-Revision-Date: 2019-06-12 04:06+0900\n"
-"Last-Translator: nnn1590 <28985763+nnn1590@users.noreply.github.com>\n"
+"PO-Revision-Date: 2020-06-15 17:44+0900\n"
+"Last-Translator: nnn1590 <nnn1590@nnn1590.org>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
