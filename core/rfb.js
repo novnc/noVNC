@@ -490,6 +490,7 @@ export default class RFB extends EventTargetMixin {
             RFB.messages.extendedClipboardNotify(this._sock, [extendedClipboardFormatText]);
         } else {
             let data = [];
+            let idx;
             for (let i = 0; i < text.length; i++) {
                 // FIXME: text can have values outside of Latin1/Uint8
                 idx = text.charCodeAt(i);
