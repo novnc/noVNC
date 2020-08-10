@@ -13,7 +13,7 @@ usage() {
     echo "Starts the WebSockets proxy and a mini-webserver and "
     echo "provides a cut-and-paste URL to go to."
     echo
-    echo "    --listen PORT         Port for proxy/webserver to listen on"
+    echo "    --listen IP:PORT      Port or IP:Port for proxy/webserver to listen on"
     echo "                          Default: 6080"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
     echo "                          Default: localhost:5900"
@@ -63,7 +63,7 @@ cleanup() {
 while [ "$*" ]; do
     param=$1; shift; OPTARG=$1
     case $param in
-    --listen)  PORT="${OPTARG}"; shift            ;;
+    --listen)  IP_PORT="${OPTARG}"; shift         ;;
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
     --key)     KEY="${OPTARG}"; shift             ;;
@@ -75,6 +75,13 @@ while [ "$*" ]; do
     *) break                                      ;;
     esac
 done
+
+if [ -n "$IP_PORT" ]; then
+    if [[ ${IP_PORT} =~ : ]]; then
+        IP=`echo ${IP_PORT%:*}:`
+    fi
+    PORT=`echo ${IP_PORT##*:}`
+fi
 
 # Sanity checks
 if bash -c "exec 7<>/dev/tcp/localhost/${PORT}" &> /dev/null; then
@@ -160,9 +167,10 @@ else
     fi
 fi
 
-echo "Starting webserver and WebSockets proxy on port ${PORT}"
-#${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
+echo "Starting webserver and WebSockets proxy on port ${IP}${PORT}"
+#${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${IP}${PORT} ${VNC_DEST} &
+${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${IP}${PORT} ${VNC_DEST} ${RECORD_ARG} &
+
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
