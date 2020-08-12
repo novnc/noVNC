@@ -14,7 +14,8 @@ confinement: strict
 parts:
     novnc:
         source: https://github.com/tkedwards/noVNC.git
-        plugin: git
+        source-type: git
+        plugin: dump
         stage-packages:
             - bash
             - jq
