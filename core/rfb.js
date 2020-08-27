@@ -501,12 +501,12 @@ export default class RFB extends EventTargetMixin {
     }
 
     enableAudio(sampleFormat, channels, frequency) {
-        RFB.messages.SetQEMUExtendedAudioFormat(this._sock, sampleFormat, channels, frequency)
-        RFB.messages.ToggleQEMUExtendedAudio(this._sock, true)
+        RFB.messages.SetQEMUExtendedAudioFormat(this._sock, sampleFormat, channels, frequency);
+        RFB.messages.ToggleQEMUExtendedAudio(this._sock, true);
     }
 
     disableAudio() {
-        RFB.messages.ToggleQEMUExtendedAudio(this._sock, false)
+        RFB.messages.ToggleQEMUExtendedAudio(this._sock, false);
     }
 
     // ===== PRIVATE METHODS =====
@@ -2056,13 +2056,13 @@ export default class RFB extends EventTargetMixin {
         const operation = this._sock.rQshift16();
 
         if (operation === 1) { // stream is starting
-            this._audioBuffer = new AudioBuffer('audio/webm; codecs="opus"') // TODO: This is obviously not the right value to use here
+            this._audioBuffer = new AudioBuffer('audio/webm; codecs="opus"'); // TODO: This is obviously not the right value to use here
         } else if (operation === 0) { // stream is stopping
-            this._audioBuffer.close()
+            this._audioBuffer.close();
         } else {  // stream data
             const length = this._sock.rQshift32();
             const data = this._sock.rQshiftBytes(length);
-            this._audioBuffer.queueAudio(data)
+            this._audioBuffer.queueAudio(data);
         }
 
         return true;
@@ -2141,7 +2141,7 @@ export default class RFB extends EventTargetMixin {
 
             case 250:  // XVP
                 return this._handleXvpMsg();
-    
+
             case 255: // Qemu extended audio message
                 return this._handleQEMUExtAudioMsg();
 
@@ -2589,7 +2589,7 @@ RFB.sampleFormats = {
     S16: 3,
     U32: 4,
     S32: 5
-}
+};
 
 // Class Methods
 RFB.messages = {
@@ -2651,7 +2651,7 @@ RFB.messages = {
         buff[offset + 9] = freq;
 
         sock._sQlen += 10;
-        sock.flush()
+        sock.flush();
     },
 
     QEMUExtendedKeyEvent(sock, keysym, down, keycode) {
