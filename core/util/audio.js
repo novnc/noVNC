@@ -8,6 +8,7 @@
 
 export default class AudioBuffer {
     constructor(codec) {
+        this._codec = codec
         // instantiate a media source and audio buffer/queue
         this._mediaSource = new MediaSource();
         this._audioBuffer = null;
@@ -23,7 +24,7 @@ export default class AudioBuffer {
 
     _onSourceOpen(e) {
         this._audio.play();
-        this._audioBuffer = this._mediaSource.addSourceBuffer(codec);
+        this._audioBuffer = this._mediaSource.addSourceBuffer(this._codec);
         this._audioBuffer.addEventListener('update', this._onUpdateBuffer);
     }
 
