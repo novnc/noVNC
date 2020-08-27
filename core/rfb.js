@@ -13,6 +13,7 @@ import { encodeUTF8, decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
+import AudioBuffer from './util/audio.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Inflator from "./inflator.js";
