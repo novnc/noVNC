@@ -2464,6 +2464,10 @@ export default class RFB extends EventTargetMixin {
             return false;
         }
 
+        if (this._FBU.width === 0 || this._FBU.height === 0) {
+            return true; // Ignore and mark as handled
+        }
+
         try {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
