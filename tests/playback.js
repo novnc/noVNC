@@ -136,7 +136,7 @@ export default class RecordingPlayer {
 
         const frame = this._frames[this._frameIndex];
 
-        this._rfb._sock._recv_message({'data': frame.data});
+        this._rfb._sock._recvMessage({'data': frame.data});
         this._frameIndex++;
 
         this._queueNextPacket();
