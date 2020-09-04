@@ -1,4 +1,4 @@
-/* global vncFrameData, vncFrameEncoding */
+/* global VNC_frame_data, VNC_frame_encoding */
 
 import * as WebUtil from '../app/webutil.js';
 import RecordingPlayer from './playback.js';
@@ -41,7 +41,7 @@ function enableUI() {
         document.getElementById('mode1').checked = true;
     }
 
-    message("Loaded " + vncFrameData.length + " frames");
+    message("Loaded " + VNC_frame_data.length + " frames");
 
     const startButton = document.getElementById('startButton');
     startButton.disabled = false;
@@ -49,12 +49,12 @@ function enableUI() {
 
     message("Converting...");
 
-    frames = vncFrameData;
+    frames = VNC_frame_data;
 
     let encoding;
     // Only present in older recordings
-    if (window.vncFrameEncoding) {
-        encoding = vncFrameEncoding;
+    if (window.VNC_frame_encoding) {
+        encoding = VNC_frame_encoding;
     } else {
         let frame = frames[0];
         let start = frame.indexOf('{', 1) + 1;
