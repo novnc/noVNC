@@ -148,6 +148,10 @@ export default class TightDecoder {
         const uncompressedSize = width * height * 3;
         let data;
 
+        if (uncompressedSize === 0) {
+            return true;
+        }
+
         if (uncompressedSize < 12) {
             if (sock.rQwait("TIGHT", uncompressedSize)) {
                 return false;
@@ -202,6 +206,10 @@ export default class TightDecoder {
         const uncompressedSize = rowSize * height;
 
         let data;
+
+        if (uncompressedSize === 0) {
+            return true;
+        }
 
         if (uncompressedSize < 12) {
             if (sock.rQwait("TIGHT", uncompressedSize)) {
