@@ -78,12 +78,7 @@ None
 | fillRect           | (x, y, width, height, color, from_queue)                | Draw a filled in rectangle
 | copyImage          | (old_x, old_y, new_x, new_y, width, height, from_queue) | Copy a rectangular area
 | imageRect          | (x, y, width, height, mime, arr)                        | Draw a rectangle with an image
-| startTile          | (x, y, width, height, color)                            | Begin updating a tile
-| subTile            | (tile, x, y, w, h, color)                               | Update a sub-rectangle within the given tile
-| finishTile         | ()                                                      | Draw the current tile to the display
 | blitImage          | (x, y, width, height, arr, offset, from_queue)          | Blit pixels (of R,G,B,A) to the display
-| blitRgbImage       | (x, y, width, height, arr, offset, from_queue)          | Blit RGB encoded image to display
-| blitRgbxImage      | (x, y, width, height, arr, offset, from_queue)          | Blit RGBX encoded image to display
 | drawImage          | (img, x, y)                                             | Draw image and track damage
 | autoscale          | (containerWidth, containerHeight)                       | Scale the display
 

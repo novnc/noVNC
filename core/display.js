@@ -23,10 +23,6 @@ export default class Display {
         this._fbHeight = 0;
 
         this._prevDrawStyle = "";
-        this._tile = null;
-        this._tile16x16 = null;
-        this._tileX = 0;
-        this._tileY = 0;
 
         Log.Debug(">> Display.constructor");
 
@@ -65,7 +61,6 @@ export default class Display {
             throw new Error("Canvas does not support createImageData");
         }
 
-        this._tile16x16 = this._drawCtx.createImageData(16, 16);
         Log.Debug("<< Display.constructor");
 
         // ===== PROPERTIES =====
@@ -378,57 +373,6 @@ export default class Display {
         });
     }
 
-    // start updating a tile
-    startTile(x, y, width, height, color) {
-        this._tileX = x;
-        this._tileY = y;
-        if (width === 16 && height === 16) {
-            this._tile = this._tile16x16;
-        } else {
-            this._tile = this._drawCtx.createImageData(width, height);
-        }
-
-        const red = color[2];
-        const green = color[1];
-        const blue = color[0];
-
-        const data = this._tile.data;
-        for (let i = 0; i < width * height * 4; i += 4) {
-            data[i] = red;
-            data[i + 1] = green;
-            data[i + 2] = blue;
-            data[i + 3] = 255;
-        }
-    }
-
-    // update sub-rectangle of the current tile
-    subTile(x, y, w, h, color) {
-        const red = color[2];
-        const green = color[1];
-        const blue = color[0];
-        const xend = x + w;
-        const yend = y + h;
-
-        const data = this._tile.data;
-        const width = this._tile.width;
-        for (let j = y; j < yend; j++) {
-            for (let i = x; i < xend; i++) {
-                const p = (i + (j * width)) * 4;
-                data[p] = red;
-                data[p + 1] = green;
-                data[p + 2] = blue;
-                data[p + 3] = 255;
-            }
-        }
-    }
-
-    // draw the current tile to the screen
-    finishTile() {
-        this._drawCtx.putImageData(this._tile, this._tileX, this._tileY);
-        this._damage(this._tileX, this._tileY,
-                     this._tile.width, this._tile.height);
-    }
-
     blitImage(x, y, width, height, arr, offset, fromQueue) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
@@ -445,47 +389,19 @@ export default class Display {
                 'height': height,
             });
         } else {
-            this._bgrxImageData(x, y, width, height, arr, offset);
-        }
-    }
-
-    blitRgbImage(x, y, width, height, arr, offset, fromQueue) {
-        if (this._renderQ.length !== 0 && !fromQueue) {
-            // NB(directxman12): it's technically more performant here to use preallocated arrays,
-            // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
-            // this probably isn't getting called *nearly* as much
-            const newArr = new Uint8Array(width * height * 3);
-            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
-            this._renderQPush({
-                'type': 'blitRgb',
-                'data': newArr,
-                'x': x,
-                'y': y,
-                'width': width,
-                'height': height,
-            });
-        } else {
-            this._rgbImageData(x, y, width, height, arr, offset);
-        }
-    }
-
-    blitRgbxImage(x, y, width, height, arr, offset, fromQueue) {
-        if (this._renderQ.length !== 0 && !fromQueue) {
-            // NB(directxman12): it's technically more performant here to use preallocated arrays,
-            // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
-            // this probably isn't getting called *nearly* as much
-            const newArr = new Uint8Array(width * height * 4);
-            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
-            this._renderQPush({
-                'type': 'blitRgbx',
-                'data': newArr,
-                'x': x,
-                'y': y,
-                'width': width,
-                'height': height,
-            });
-        } else {
-            this._rgbxImageData(x, y, width, height, arr, offset);
+            // NB(directxman12): arr must be an Type Array view
+            let data = new Uint8ClampedArray(arr.buffer,
+                                             arr.byteOffset + offset,
+                                             width * height * 4);
+            let img;
+            if (supportsImageMetadata) {
+                img = new ImageData(data, width, height);
+            } else {
+                img = this._drawCtx.createImageData(width, height);
+                img.data.set(data);
+            }
+            this._drawCtx.putImageData(img, x, y);
+            this._damage(x, y, width, height);
         }
     }
 
@@ -537,50 +453,11 @@ export default class Display {
     }
 
     _setFillColor(color) {
-        const newStyle = 'rgb(' + color[2] + ',' + color[1] + ',' + color[0] + ')';
+        const newStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
         if (newStyle !== this._prevDrawStyle) {
             this._drawCtx.fillStyle = newStyle;
             this._prevDrawStyle = newStyle;
         }
-    }
-
-    _rgbImageData(x, y, width, height, arr, offset) {
-        const img = this._drawCtx.createImageData(width, height);
-        const data = img.data;
-        for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
-            data[i]     = arr[j];
-            data[i + 1] = arr[j + 1];
-            data[i + 2] = arr[j + 2];
-            data[i + 3] = 255;  // Alpha
-        }
-        this._drawCtx.putImageData(img, x, y);
-        this._damage(x, y, img.width, img.height);
-    }
-
-    _bgrxImageData(x, y, width, height, arr, offset) {
-        const img = this._drawCtx.createImageData(width, height);
-        const data = img.data;
-        for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
-            data[i]     = arr[j + 2];
-            data[i + 1] = arr[j + 1];
-            data[i + 2] = arr[j];
-            data[i + 3] = 255;  // Alpha
-        }
-        this._drawCtx.putImageData(img, x, y);
-        this._damage(x, y, img.width, img.height);
-    }
-
-    _rgbxImageData(x, y, width, height, arr, offset) {
-        // NB(directxman12): arr must be an Type Array view
-        let img;
-        if (supportsImageMetadata) {
-            img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
-        } else {
-            img = this._drawCtx.createImageData(width, height);
-            img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
-        }
-        this._drawCtx.putImageData(img, x, y);
-        this._damage(x, y, img.width, img.height);
     }
 
     _renderQPush(action) {
@@ -615,12 +492,6 @@ export default class Display {
                     break;
                 case 'blit':
                     this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
-                    break;
-                case 'blitRgb':
-                    this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
-                    break;
-                case 'blitRgbx':
-                    this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
                     /* IE tends to set "complete" prematurely, so check dimensions */

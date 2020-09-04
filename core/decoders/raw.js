@@ -27,21 +27,27 @@ export default class RawDecoder {
         const curY = y + (height - this._lines);
         const currHeight = Math.min(this._lines,
                                     Math.floor(sock.rQlen / bytesPerLine));
+        const pixels = width * currHeight;
+
         let data = sock.rQ;
         let index = sock.rQi;
 
         // Convert data if needed
         if (depth == 8) {
-            const pixels = width * currHeight;
             const newdata = new Uint8Array(pixels * 4);
             for (let i = 0; i < pixels; i++) {
                 newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
                 newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
                 newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
-                newdata[i * 4 + 4] = 0;
+                newdata[i * 4 + 3] = 255;
             }
             data = newdata;
             index = 0;
+        }
+
+        // Max sure the image is fully opaque
+        for (let i = 0; i < pixels; i++) {
+            data[i * 4 + 3] = 255;
         }
 
         display.blitImage(x, curY, width, currHeight, data, index);
