@@ -1,6 +1,9 @@
 // noVNC specific assertions
 chai.use(function (_chai, utils) {
-    _chai.Assertion.addMethod('displayed', function (targetData) {
+    function _equal(a, b) {
+        return a === b;
+    }
+    _chai.Assertion.addMethod('displayed', function (targetData, cmp=_equal) {
         const obj = this._obj;
         const ctx = obj._target.getContext('2d');
         const dataCl = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
@@ -10,7 +13,7 @@ chai.use(function (_chai, utils) {
         new chai.Assertion(len).to.be.equal(targetData.length, "unexpected display size");
         let same = true;
         for (let i = 0; i < len; i++) {
-            if (data[i] != targetData[i]) {
+            if (!cmp(data[i], targetData[i])) {
                 same = false;
                 break;
             }
