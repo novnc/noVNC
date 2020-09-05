@@ -41,6 +41,7 @@ function enableUI() {
         document.getElementById('mode1').checked = true;
     }
 
+    /* eslint-disable-next-line camelcase */
     message("Loaded " + VNC_frame_data.length + " frames");
 
     const startButton = document.getElementById('startButton');
@@ -49,12 +50,16 @@ function enableUI() {
 
     message("Converting...");
 
+    /* eslint-disable-next-line camelcase */
     frames = VNC_frame_data;
 
     let encoding;
-    // Only present in older recordings
+
+    /* eslint-disable camelcase */
     if (window.VNC_frame_encoding) {
+        // Only present in older recordings
         encoding = VNC_frame_encoding;
+    /* eslint-enable camelcase */
     } else {
         let frame = frames[0];
         let start = frame.indexOf('{', 1) + 1;
