@@ -17,7 +17,13 @@ function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
         decoder.decodeRect(x, y, width, height, sock, display, depth);
     });
 
-    sock._websocket._receiveData(new Uint8Array(data));
+    // Empty messages are filtered at multiple layers, so we need to
+    // do a direct call
+    if (data.length === 0) {
+        decoder.decodeRect(x, y, width, height, sock, display, depth);
+    } else {
+        sock._websocket._receiveData(new Uint8Array(data));
+    }
 
     display.flip();
 }

@@ -13,6 +13,10 @@ export default class RawDecoder {
     }
 
     decodeRect(x, y, width, height, sock, display, depth) {
+        if ((width === 0) || (height === 0)) {
+            return true;
+        }
+
         if (this._lines === 0) {
             this._lines = height;
         }
