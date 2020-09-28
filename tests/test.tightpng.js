@@ -128,8 +128,15 @@ describe('TightPng Decoder', function () {
             0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255
         ]);
 
+        // Firefox currently has some very odd rounding bug:
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1667747
+        function almost(a, b) {
+            let diff = Math.abs(a - b);
+            return diff < 30;
+        }
+
         display.onflush = () => {
-            expect(display).to.have.displayed(targetData);
+            expect(display).to.have.displayed(targetData, almost);
             done();
         };
         display.flush();
