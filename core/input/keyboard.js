@@ -29,7 +29,6 @@ export default class Keyboard {
             'keydown': this._handleKeyDown.bind(this),
             'keypress': this._handleKeyPress.bind(this),
             'blur': this._allKeysUp.bind(this),
-            'checkalt': this._checkAlt.bind(this),
         };
 
         // ===== EVENT HANDLERS =====
@@ -312,30 +311,6 @@ export default class Keyboard {
         Log.Debug("<< Keyboard.allKeysUp");
     }
 
-    // Alt workaround for Firefox on Windows, see below
-    _checkAlt(e) {
-        if (e.skipCheckAlt) {
-            return;
-        }
-        if (e.altKey) {
-            return;
-        }
-
-        const target = this._target;
-        const downList = this._keyDownList;
-        ['AltLeft', 'AltRight'].forEach((code) => {
-            if (!(code in downList)) {
-                return;
-            }
-
-            const event = new KeyboardEvent('keyup',
-                                            { key: downList[code],
-                                              code: code });
-            event.skipCheckAlt = true;
-            target.dispatchEvent(event);
-        });
-    }
-
     // ===== PUBLIC METHODS =====
 
     grab() {
@@ -348,32 +323,11 @@ export default class Keyboard {
         // Release (key up) if window loses focus
         window.addEventListener('blur', this._eventHandlers.blur);
 
-        // Firefox on Windows has broken handling of Alt, so we need to
-        // poll as best we can for releases (still doesn't prevent the
-        // menu from popping up though as we can't call
-        // preventDefault())
-        if (browser.isWindows() && browser.isFirefox()) {
-            const handler = this._eventHandlers.checkalt;
-            ['mousedown', 'mouseup', 'mousemove', 'wheel',
-             'touchstart', 'touchend', 'touchmove',
-             'keydown', 'keyup'].forEach(type =>
-                document.addEventListener(type, handler,
-                                          { capture: true,
-                                            passive: true }));
-        }
-
         //Log.Debug("<< Keyboard.grab");
     }
 
     ungrab() {
         //Log.Debug(">> Keyboard.ungrab");
-
-        if (browser.isWindows() && browser.isFirefox()) {
-            const handler = this._eventHandlers.checkalt;
-            ['mousedown', 'mouseup', 'mousemove', 'wheel',
-             'touchstart', 'touchend', 'touchmove',
-             'keydown', 'keyup'].forEach(type => document.removeEventListener(type, handler));
-        }
 
         this._target.removeEventListener('keydown', this._eventHandlers.keydown);
         this._target.removeEventListener('keyup', this._eventHandlers.keyup);
