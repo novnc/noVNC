@@ -31,16 +31,13 @@ module.exports = (config) => {
 
     // list of files / patterns to load in the browser (loaded in order)
     files: [
-      { pattern: 'app/localization.js', included: false },
-      { pattern: 'app/webutil.js', included: false },
-      { pattern: 'core/**/*.js', included: false },
-      { pattern: 'vendor/pako/**/*.js', included: false },
-      { pattern: 'vendor/browser-es-module-loader/dist/*.js*', included: false },
-      { pattern: 'tests/test.*.js', included: false },
-      { pattern: 'tests/fake.*.js', included: false },
-      { pattern: 'tests/assertions.js', included: false },
-      'vendor/promise.js',
-      'tests/karma-test-main.js',
+      { pattern: 'app/localization.js', included: false, type: 'module' },
+      { pattern: 'app/webutil.js', included: false, type: 'module' },
+      { pattern: 'core/**/*.js', included: false, type: 'module' },
+      { pattern: 'vendor/pako/**/*.js', included: false, type: 'module' },
+      { pattern: 'tests/test.*.js', type: 'module' },
+      { pattern: 'tests/fake.*.js', included: false, type: 'module' },
+      { pattern: 'tests/assertions.js', type: 'module' },
     ],
 
     client: {
