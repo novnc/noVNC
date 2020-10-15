@@ -106,10 +106,6 @@ export function isSafari() {
                          navigator.userAgent.indexOf('Chrome') === -1);
 }
 
-export function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
-}
-
 export function isFirefox() {
     return navigator && !!(/firefox/i).exec(navigator.userAgent);
 }

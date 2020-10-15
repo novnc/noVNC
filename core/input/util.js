@@ -110,18 +110,7 @@ export function getKey(evt) {
             return 'Delete';
         }
 
-        // Edge need special handling, but for everyone else we
-        // can trust the value provided
-        if (!browser.isEdge()) {
-            return evt.key;
-        }
-
-        // Edge has broken handling of AltGraph so we can only
-        // trust it for non-printable characters (and unfortunately
-        // is also specifies 'Unidentified' for some problem keys)
-        if ((evt.key.length !== 1) && (evt.key !== 'Unidentified')) {
-            return evt.key;
-        }
+        return evt.key;
     }
 
     // Try to deduce it based on the physical key

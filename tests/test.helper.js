@@ -2,7 +2,6 @@
 
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
-import * as browser from '../core/util/browser.js';
 
 describe('Helpers', function () {
     "use strict";
@@ -97,7 +96,6 @@ describe('Helpers', function () {
 
     describe('getKey', function () {
         it('should prefer key', function () {
-            if (browser.isEdge()) this.skip();
             expect(KeyboardUtil.getKey({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal('a');
         });
         it('should map legacy values', function () {
@@ -124,42 +122,6 @@ describe('Helpers', function () {
         });
         it('should return Unidentified when it cannot map the key', function () {
             expect(KeyboardUtil.getKey({keycode: 0x42})).to.be.equal('Unidentified');
-        });
-
-        describe('Broken key AltGraph on Edge', function () {
-            let origNavigator;
-            beforeEach(function () {
-                // window.navigator is a protected read-only property in many
-                // environments, so we need to redefine it whilst running these
-                // tests.
-                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-
-                Object.defineProperty(window, "navigator", {value: {}});
-                if (window.navigator.platform !== undefined) {
-                    // Object.defineProperty() doesn't work properly in old
-                    // versions of Chrome
-                    this.skip();
-                }
-            });
-            afterEach(function () {
-                if (origNavigator !== undefined) {
-                    Object.defineProperty(window, "navigator", origNavigator);
-                }
-            });
-
-            it('should ignore printable character key on Edge', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
-                expect(KeyboardUtil.getKey({key: 'a'})).to.be.equal('Unidentified');
-            });
-            it('should allow non-printable character key on Edge', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
-                expect(KeyboardUtil.getKey({key: 'Shift'})).to.be.equal('Shift');
-            });
-            it('should allow printable character key with charCode on Edge', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
-                expect(KeyboardUtil.getKey({key: 'a', charCode: 0x61})).to.be.equal('a');
-                expect(KeyboardUtil.getKey({key: 'Unidentified', charCode: 0x61})).to.be.equal('a');
-            });
         });
     });
 
@@ -213,7 +175,6 @@ describe('Helpers', function () {
 
         describe('Numpad', function () {
             it('should handle Numpad numbers', function () {
-                if (browser.isEdge()) this.skip();
                 expect(KeyboardUtil.getKeysym({code: 'Digit5', key: '5', location: 0})).to.be.equal(0x0035);
                 expect(KeyboardUtil.getKeysym({code: 'Numpad5', key: '5', location: 3})).to.be.equal(0xFFB5);
             });
@@ -224,7 +185,6 @@ describe('Helpers', function () {
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Delete', location: 3})).to.be.equal(0xFF9F);
             });
             it('should handle Numpad Decimal key', function () {
-                if (browser.isEdge()) this.skip();
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: '.', location: 3})).to.be.equal(0xFFAE);
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: ',', location: 3})).to.be.equal(0xFFAC);
             });
