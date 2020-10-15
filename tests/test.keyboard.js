@@ -20,7 +20,7 @@ describe('Key Event Handling', function () {
 
     describe('Decode Keyboard Events', function () {
         it('should decode keydown events', function (done) {
-            if (browser.isIE() || browser.isEdge()) this.skip();
+            if (browser.isEdge()) this.skip();
             const kbd = new Keyboard(document);
             kbd.onkeyevent = (keysym, code, down) => {
                 expect(keysym).to.be.equal(0x61);
@@ -31,7 +31,7 @@ describe('Key Event Handling', function () {
             kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a'}));
         });
         it('should decode keyup events', function (done) {
-            if (browser.isIE() || browser.isEdge()) this.skip();
+            if (browser.isEdge()) this.skip();
             let calls = 0;
             const kbd = new Keyboard(document);
             kbd.onkeyevent = (keysym, code, down) => {
@@ -126,7 +126,7 @@ describe('Key Event Handling', function () {
 
         describe('suppress the right events at the right time', function () {
             beforeEach(function () {
-                if (browser.isIE() || browser.isEdge()) this.skip();
+                if (browser.isEdge()) this.skip();
             });
             it('should suppress anything with a valid key', function () {
                 const kbd = new Keyboard(document, {});
@@ -156,7 +156,7 @@ describe('Key Event Handling', function () {
 
     describe('Fake keyup', function () {
         it('should fake keyup events for virtual keyboards', function (done) {
-            if (browser.isIE() || browser.isEdge()) this.skip();
+            if (browser.isEdge()) this.skip();
             let count = 0;
             const kbd = new Keyboard(document);
             kbd.onkeyevent = (keysym, code, down) => {
@@ -179,7 +179,7 @@ describe('Key Event Handling', function () {
 
     describe('Track Key State', function () {
         beforeEach(function () {
-            if (browser.isIE() || browser.isEdge()) this.skip();
+            if (browser.isEdge()) this.skip();
         });
         it('should send release using the same keysym as the press', function (done) {
             const kbd = new Keyboard(document);
@@ -256,11 +256,6 @@ describe('Key Event Handling', function () {
             // environments, so we need to redefine it whilst running these
             // tests.
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-            if (origNavigator === undefined) {
-                // Object.getOwnPropertyDescriptor() doesn't work
-                // properly in any version of IE
-                this.skip();
-            }
 
             Object.defineProperty(window, "navigator", {value: {}});
             if (window.navigator.platform !== undefined) {
@@ -323,11 +318,6 @@ describe('Key Event Handling', function () {
             // environments, so we need to redefine it whilst running these
             // tests.
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-            if (origNavigator === undefined) {
-                // Object.getOwnPropertyDescriptor() doesn't work
-                // properly in any version of IE
-                this.skip();
-            }
 
             Object.defineProperty(window, "navigator", {value: {}});
             if (window.navigator.platform !== undefined) {
@@ -399,11 +389,6 @@ describe('Key Event Handling', function () {
             // environments, so we need to redefine it whilst running these
             // tests.
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-            if (origNavigator === undefined) {
-                // Object.getOwnPropertyDescriptor() doesn't work
-                // properly in any version of IE
-                this.skip();
-            }
 
             Object.defineProperty(window, "navigator", {value: {}});
             if (window.navigator.platform !== undefined) {
@@ -549,11 +534,6 @@ describe('Key Event Handling', function () {
             // environments, so we need to redefine it whilst running these
             // tests.
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-            if (origNavigator === undefined) {
-                // Object.getOwnPropertyDescriptor() doesn't work
-                // properly in any version of IE
-                this.skip();
-            }
 
             Object.defineProperty(window, "navigator", {value: {}});
             if (window.navigator.platform !== undefined) {

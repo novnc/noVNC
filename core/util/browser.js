@@ -106,10 +106,6 @@ export function isSafari() {
                          navigator.userAgent.indexOf('Chrome') === -1);
 }
 
-export function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-
 export function isEdge() {
     return navigator && !!(/edge/i).exec(navigator.userAgent);
 }

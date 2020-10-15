@@ -11,11 +11,6 @@ describe('Localization', function () {
             // environments, so we need to redefine it whilst running these
             // tests.
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-            if (origNavigator === undefined) {
-                // Object.getOwnPropertyDescriptor() doesn't work
-                // properly in any version of IE
-                this.skip();
-            }
 
             Object.defineProperty(window, "navigator", {value: {}});
             if (window.navigator.languages !== undefined) {

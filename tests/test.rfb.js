@@ -8,25 +8,8 @@ import { encodings } from '../core/encodings.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
 import KeyTable from '../core/input/keysym.js';
-import * as browser  from '../core/util/browser.js';
 
 import FakeWebSocket from './fake.websocket.js';
-
-/* UIEvent constructor polyfill for IE */
-(() => {
-    if (typeof window.UIEvent === "function") return;
-
-    function UIEvent( event, params ) {
-        params = params || { bubbles: false, cancelable: false, view: window, detail: undefined };
-        const evt = document.createEvent( 'UIEvent' );
-        evt.initUIEvent( event, params.bubbles, params.cancelable, params.view, params.detail );
-        return evt;
-    }
-
-    UIEvent.prototype = window.UIEvent.prototype;
-
-    window.UIEvent = UIEvent;
-})();
 
 function push8(arr, num) {
     "use strict";
@@ -2938,14 +2921,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('Gesture event handlers', function () {
-            beforeEach(function () {
-                // Touch events and gestures are not supported on IE
-                if (browser.isIE()) {
-                    this.skip();
-                    return;
-                }
-            });
-
             function gestureStart(gestureType, x, y,
                                   magnitudeX = 0, magnitudeY = 0) {
                 let pos = elementToClient(x, y);

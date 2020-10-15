@@ -110,15 +110,15 @@ export function getKey(evt) {
             return 'Delete';
         }
 
-        // IE and Edge need special handling, but for everyone else we
+        // Edge need special handling, but for everyone else we
         // can trust the value provided
-        if (!browser.isIE() && !browser.isEdge()) {
+        if (!browser.isEdge()) {
             return evt.key;
         }
 
-        // IE and Edge have broken handling of AltGraph so we can only
-        // trust them for non-printable characters (and unfortunately
-        // they also specify 'Unidentified' for some problem keys)
+        // Edge has broken handling of AltGraph so we can only
+        // trust it for non-printable characters (and unfortunately
+        // is also specifies 'Unidentified' for some problem keys)
         if ((evt.key.length !== 1) && (evt.key !== 'Unidentified')) {
             return evt.key;
         }

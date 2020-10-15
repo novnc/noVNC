@@ -170,9 +170,9 @@ export default class Keyboard {
 
         // If this is a legacy browser then we'll need to wait for
         // a keypress event as well
-        // (IE and Edge has a broken KeyboardEvent.key, so we can't
+        // (Edge has a broken KeyboardEvent.key, so we can't
         // just check for the presence of that field)
-        if (!keysym && (!e.key || browser.isIE() || browser.isEdge())) {
+        if (!keysym && (!e.key || browser.isEdge())) {
             this._pendingKey = code;
             // However we might not get a keypress event if the key
             // is non-printable, which needs some special fallback
