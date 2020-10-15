@@ -20,14 +20,12 @@ export default class Keyboard {
 
         this._keyDownList = {};         // List of depressed keys
                                         // (even if they are happy)
-        this._pendingKey = null;        // Key waiting for keypress
         this._altGrArmed = false;       // Windows AltGr detection
 
         // keep these here so we can refer to them later
         this._eventHandlers = {
             'keyup': this._handleKeyUp.bind(this),
             'keydown': this._handleKeyDown.bind(this),
-            'keypress': this._handleKeyPress.bind(this),
             'blur': this._allKeysUp.bind(this),
         };
 
@@ -61,9 +59,7 @@ export default class Keyboard {
         }
 
         // Unstable, but we don't have anything else to go on
-        // (don't use it for 'keypress' events thought since
-        // WebKit sets it to the same as charCode)
-        if (e.keyCode && (e.type !== 'keypress')) {
+        if (e.keyCode) {
             // 229 is used for composition events
             if (e.keyCode !== 229) {
                 return 'Platform' + e.keyCode;
@@ -168,18 +164,6 @@ export default class Keyboard {
             return;
         }
 
-        // If this is a legacy browser then we'll need to wait for
-        // a keypress event as well
-        if (!keysym && !e.key) {
-            this._pendingKey = code;
-            // However we might not get a keypress event if the key
-            // is non-printable, which needs some special fallback
-            // handling
-            setTimeout(this._handleKeyPressTimeout.bind(this), 10, e);
-            return;
-        }
-
-        this._pendingKey = null;
         stopEvent(e);
 
         // Possible start of AltGr sequence? (see above)
@@ -189,69 +173,6 @@ export default class Keyboard {
             this._altGrTimeout = setTimeout(this._handleAltGrTimeout.bind(this), 100);
             this._altGrCtrlTime = e.timeStamp;
             return;
-        }
-
-        this._sendKeyEvent(keysym, code, true);
-    }
-
-    // Legacy event for browsers without code/key
-    _handleKeyPress(e) {
-        stopEvent(e);
-
-        // Are we expecting a keypress?
-        if (this._pendingKey === null) {
-            return;
-        }
-
-        let code = this._getKeyCode(e);
-        const keysym = KeyboardUtil.getKeysym(e);
-
-        // The key we were waiting for?
-        if ((code !== 'Unidentified') && (code != this._pendingKey)) {
-            return;
-        }
-
-        code = this._pendingKey;
-        this._pendingKey = null;
-
-        if (!keysym) {
-            Log.Info('keypress with no keysym:', e);
-            return;
-        }
-
-        this._sendKeyEvent(keysym, code, true);
-    }
-
-    _handleKeyPressTimeout(e) {
-        // Did someone manage to sort out the key already?
-        if (this._pendingKey === null) {
-            return;
-        }
-
-        let keysym;
-
-        const code = this._pendingKey;
-        this._pendingKey = null;
-
-        // We have no way of knowing the proper keysym with the
-        // information given, but the following are true for most
-        // layouts
-        if ((e.keyCode >= 0x30) && (e.keyCode <= 0x39)) {
-            // Digit
-            keysym = e.keyCode;
-        } else if ((e.keyCode >= 0x41) && (e.keyCode <= 0x5a)) {
-            // Character (A-Z)
-            let char = String.fromCharCode(e.keyCode);
-            // A feeble attempt at the correct case
-            if (e.shiftKey) {
-                char = char.toUpperCase();
-            } else {
-                char = char.toLowerCase();
-            }
-            keysym = char.charCodeAt();
-        } else {
-            // Unknown, give up
-            keysym = 0;
         }
 
         this._sendKeyEvent(keysym, code, true);
@@ -316,7 +237,6 @@ export default class Keyboard {
 
         this._target.addEventListener('keydown', this._eventHandlers.keydown);
         this._target.addEventListener('keyup', this._eventHandlers.keyup);
-        this._target.addEventListener('keypress', this._eventHandlers.keypress);
 
         // Release (key up) if window loses focus
         window.addEventListener('blur', this._eventHandlers.blur);
@@ -329,7 +249,6 @@ export default class Keyboard {
 
         this._target.removeEventListener('keydown', this._eventHandlers.keydown);
         this._target.removeEventListener('keyup', this._eventHandlers.keyup);
-        this._target.removeEventListener('keypress', this._eventHandlers.keypress);
         window.removeEventListener('blur', this._eventHandlers.blur);
 
         // Release (key up) all keys that are in a down state

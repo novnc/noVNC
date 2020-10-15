@@ -22,9 +22,8 @@ export function getKeycode(evt) {
     }
 
     // The de-facto standard is to use Windows Virtual-Key codes
-    // in the 'keyCode' field for non-printable characters. However
-    // Webkit sets it to the same as charCode in 'keypress' events.
-    if ((evt.type !== 'keypress') && (evt.keyCode in vkeys)) {
+    // in the 'keyCode' field for non-printable characters
+    if (evt.keyCode in vkeys) {
         let code = vkeys[evt.keyCode];
 
         // macOS has messed up this code for some reason
