@@ -27,6 +27,8 @@ usage() {
     echo "                                    "
     echo "    --record FILE         Record traffic to FILE.session.js"
     echo "                                    "
+    echo "    --syslog SERVER       Can be local socket such as /dev/log, or a UDP host:port pair."
+    echo "                                    "
     exit 2
 }
 
@@ -41,6 +43,7 @@ WEB=""
 proxy_pid=""
 SSLONLY=""
 RECORD_ARG=""
+SYSLOG_ARG=""
 
 die() {
     echo "$*"
@@ -70,6 +73,7 @@ while [ "$*" ]; do
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
     --record) RECORD_ARG="--record ${OPTARG}"; shift ;;
+    --syslog) SYSLOG_ARG="--syslog ${OPTARG}"; shift ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -162,7 +166,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
+${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
