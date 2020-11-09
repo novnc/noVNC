@@ -27,6 +27,12 @@ usage() {
     echo "                                    "
     echo "    --record FILE         Record traffic to FILE.session.js"
     echo "                                    "
+    echo "    --heartbeat SEC       send a ping to the client every SEC seconds"
+    echo "    --timeout SEC         after SEC seconds exit when not connected"
+    echo "    --idle-timeout SEC    server exits after SEC seconds if there are no"
+    echo "                          active connections"
+
+    echo "                                    "
     exit 2
 }
 
@@ -41,6 +47,9 @@ WEB=""
 proxy_pid=""
 SSLONLY=""
 RECORD_ARG=""
+HEARTBEAT_ARG=""
+IDLETIMEOUT_ARG=""
+TIMEOUT_ARG=""
 
 die() {
     echo "$*"
@@ -70,6 +79,9 @@ while [ "$*" ]; do
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
     --record) RECORD_ARG="--record ${OPTARG}"; shift ;;
+    --heartbeat) HEARTBEAT_ARG="--heartbeat ${OPTARG}"; shift ;;
+    --idle-timeout) IDLETIMEOUT_ARG="--idle-timeout ${OPTARG}"; shift ;;
+    --timeout) TIMEOUT_ARG="--timeout ${OPTARG}"; shift ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
@@ -162,7 +174,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${RECORD_ARG} &
+${WEBSOCKIFY} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD_ARG} ${TIMEOUT_ARG} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
