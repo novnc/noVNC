@@ -5,7 +5,7 @@ import Base64 from '../core/base64.js';
 describe('Base64 Tools', function () {
     "use strict";
 
-    const BIN_ARR = new Array(256);
+    const BIN_ARR = new Uint8Array(256);
     for (let i = 0; i < 256; i++) {
         BIN_ARR[i] = i;
     }

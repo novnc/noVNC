@@ -360,17 +360,36 @@ export default class Display {
             return;
         }
 
-        const img = new Image();
-        img.src = "data: " + mime + ";base64," + Base64.encode(arr);
-
-        this._renderQPush({
+        let a = {
             'type': 'img',
-            'img': img,
             'x': x,
             'y': y,
             'width': width,
             'height': height
-        });
+        };
+
+        if (window.createImageBitmap) {
+            let blob = new Blob([arr], { type: mime });
+            createImageBitmap(blob)
+                .then((img) => {
+                    a.img = img;
+                    this._scanRenderQ();
+                });
+        } else {
+            const img = new Image();
+            img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+            /* IE tends to set "complete" prematurely, so check dimensions */
+            if (img.complete && (img.width !== 0) && (img.height !== 0)) {
+                a.img = img;
+            } else {
+                img.addEventListener('load', () => {
+                    a.img = img;
+                    this._scanRenderQ();
+                });
+            }
+        }
+
+        this._renderQPush(a);
     }
 
     blitImage(x, y, width, height, arr, offset, fromQueue) {
@@ -469,13 +488,6 @@ export default class Display {
         }
     }
 
-    _resumeRenderQ() {
-        // "this" is the object that is ready, not the
-        // display object
-        this.removeEventListener('load', this._noVNCDisplay._resumeRenderQ);
-        this._noVNCDisplay._scanRenderQ();
-    }
-
     _scanRenderQ() {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
@@ -494,8 +506,7 @@ export default class Display {
                     this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
-                    /* IE tends to set "complete" prematurely, so check dimensions */
-                    if (a.img.complete && (a.img.width !== 0) && (a.img.height !== 0)) {
+                    if (a.img) {
                         if (a.img.width !== a.width || a.img.height !== a.height) {
                             Log.Error("Decoded image has incorrect dimensions. Got " +
                                       a.img.width + "x" + a.img.height + ". Expected " +
@@ -504,8 +515,6 @@ export default class Display {
                         }
                         this.drawImage(a.img, a.x, a.y);
                     } else {
-                        a.img._noVNCDisplay = this;
-                        a.img.addEventListener('load', this._resumeRenderQ);
                         // We need to wait for this image to 'load'
                         // to keep things in-order
                         ready = false;
