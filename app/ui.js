@@ -61,7 +61,13 @@ const UI = {
         // Translate the DOM
         l10n.translateDOM();
 
-        WebUtil.fetchJSON('./package.json')
+        fetch('./package.json')
+            .then((response) => {
+                if (!response.ok) {
+                    throw Error("" + response.status + " " + response.statusText);
+                }
+                return response.json();
+            })
             .then((packageInfo) => {
                 Array.from(document.getElementsByClassName('noVNC_version')).forEach(el => el.innerText = packageInfo.version);
             })
@@ -1699,7 +1705,13 @@ l10n.setup(LINGUAS);
 if (l10n.language === "en" || l10n.dictionary !== undefined) {
     UI.prime();
 } else {
-    WebUtil.fetchJSON('app/locale/' + l10n.language + '.json')
+    fetch('app/locale/' + l10n.language + '.json')
+        .then((response) => {
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+            return response.json();
+        })
         .then((translations) => { l10n.dictionary = translations; })
         .catch(err => Log.Error("Failed to load translations: " + err))
         .then(UI.prime);
