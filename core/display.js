@@ -8,7 +8,6 @@
 
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
-import { supportsImageMetadata } from './util/browser.js';
 import { toSigned32bit } from './util/int.js';
 
 export default class Display {
@@ -55,11 +54,6 @@ export default class Display {
                                bottom: this._backbuffer.height };
 
         Log.Debug("User Agent: " + navigator.userAgent);
-
-        // Check canvas features
-        if (!('createImageData' in this._drawCtx)) {
-            throw new Error("Canvas does not support createImageData");
-        }
 
         Log.Debug("<< Display.constructor");
 
@@ -393,13 +387,7 @@ export default class Display {
             let data = new Uint8ClampedArray(arr.buffer,
                                              arr.byteOffset + offset,
                                              width * height * 4);
-            let img;
-            if (supportsImageMetadata) {
-                img = new ImageData(data, width, height);
-            } else {
-                img = this._drawCtx.createImageData(width, height);
-                img.data.set(data);
-            }
+            let img = new ImageData(data, width, height);
             this._drawCtx.putImageData(img, x, y);
             this._damage(x, y, width, height);
         }
