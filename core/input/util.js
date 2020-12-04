@@ -68,26 +68,6 @@ export function getKeycode(evt) {
 export function getKey(evt) {
     // Are we getting a proper key value?
     if (evt.key !== undefined) {
-        // IE and Edge use some ancient version of the spec
-        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
-        switch (evt.key) {
-            case 'Spacebar': return ' ';
-            case 'Esc': return 'Escape';
-            case 'Scroll': return 'ScrollLock';
-            case 'Win': return 'Meta';
-            case 'Apps': return 'ContextMenu';
-            case 'Up': return 'ArrowUp';
-            case 'Left': return 'ArrowLeft';
-            case 'Right': return 'ArrowRight';
-            case 'Down': return 'ArrowDown';
-            case 'Del': return 'Delete';
-            case 'Divide': return '/';
-            case 'Multiply': return '*';
-            case 'Subtract': return '-';
-            case 'Add': return '+';
-            case 'Decimal': return evt.char;
-        }
-
         // Mozilla isn't fully in sync with the spec yet
         switch (evt.key) {
             case 'OS': return 'Meta';

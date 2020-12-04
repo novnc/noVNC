@@ -761,11 +761,6 @@ const UI = {
                 }
             }
         } else {
-            /*Weird IE9 error leads to 'null' appearring
-            in textboxes instead of ''.*/
-            if (value === null) {
-                value = "";
-            }
             ctrl.value = value;
         }
     },

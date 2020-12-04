@@ -99,10 +99,7 @@ describe('Helpers', function () {
             expect(KeyboardUtil.getKey({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal('a');
         });
         it('should map legacy values', function () {
-            expect(KeyboardUtil.getKey({key: 'Spacebar'})).to.be.equal(' ');
-            expect(KeyboardUtil.getKey({key: 'Left'})).to.be.equal('ArrowLeft');
             expect(KeyboardUtil.getKey({key: 'OS'})).to.be.equal('Meta');
-            expect(KeyboardUtil.getKey({key: 'Win'})).to.be.equal('Meta');
             expect(KeyboardUtil.getKey({key: 'UIKeyInputLeftArrow'})).to.be.equal('ArrowLeft');
         });
         it('should handle broken Delete', function () {
