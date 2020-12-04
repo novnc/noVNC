@@ -2506,23 +2506,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
-                try {
-                    ev = new MouseEvent('mousemove',
-                                        { 'screenX': pos.x + window.screenX,
-                                          'screenY': pos.y + window.screenY,
-                                          'clientX': pos.x,
-                                          'clientY': pos.y });
-                } catch (e) {
-                    ev = document.createEvent('MouseEvent');
-                    ev.initMouseEvent('mousemove',
-                                      true, true, window, 0,
-                                      pos.x + window.screenX,
-                                      pos.y + window.screenY,
-                                      pos.x, pos.y,
-                                      false, false, false, false,
-                                      0, null);
-                }
-
+                ev = new MouseEvent('mousemove',
+                                    { 'screenX': pos.x + window.screenX,
+                                      'screenY': pos.y + window.screenY,
+                                      'clientX': pos.x,
+                                      'clientY': pos.y });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -2530,25 +2518,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
-                try {
-                    ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
-                                        { 'screenX': pos.x + window.screenX,
-                                          'screenY': pos.y + window.screenY,
-                                          'clientX': pos.x,
-                                          'clientY': pos.y,
-                                          'button': button,
-                                          'buttons': 1 << button });
-                } catch (e) {
-                    ev = document.createEvent('MouseEvent');
-                    ev.initMouseEvent(down ? 'mousedown' : 'mouseup',
-                                      true, true, window, 0,
-                                      pos.x + window.screenX,
-                                      pos.y + window.screenY,
-                                      pos.x, pos.y,
-                                      false, false, false, false,
-                                      button, null);
-                }
-
+                ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
+                                    { 'screenX': pos.x + window.screenX,
+                                      'screenY': pos.y + window.screenY,
+                                      'clientX': pos.x,
+                                      'clientY': pos.y,
+                                      'button': button,
+                                      'buttons': 1 << button });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -2783,25 +2759,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
-                try {
-                    ev = new WheelEvent('wheel',
-                                        { 'screenX': pos.x + window.screenX,
-                                          'screenY': pos.y + window.screenY,
-                                          'clientX': pos.x,
-                                          'clientY': pos.y,
-                                          'deltaX': dx,
-                                          'deltaY': dy,
-                                          'deltaMode': mode });
-                } catch (e) {
-                    ev = document.createEvent('WheelEvent');
-                    ev.initWheelEvent('wheel', true, true, window, 0,
-                                      pos.x + window.screenX,
-                                      pos.y + window.screenY,
-                                      pos.x, pos.y,
-                                      0, null, "",
-                                      dx, dy, 0, mode);
-                }
-
+                ev = new WheelEvent('wheel',
+                                    { 'screenX': pos.x + window.screenX,
+                                      'screenY': pos.y + window.screenY,
+                                      'clientX': pos.x,
+                                      'clientY': pos.y,
+                                      'deltaX': dx,
+                                      'deltaY': dy,
+                                      'deltaMode': mode });
                 client._canvas.dispatchEvent(ev);
             }
 

@@ -1,17 +1,5 @@
 import Base64 from '../core/base64.js';
 
-// PhantomJS can't create Event objects directly, so we need to use this
-function makeEvent(name, props) {
-    const evt = document.createEvent('Event');
-    evt.initEvent(name, true, true);
-    if (props) {
-        for (let prop in props) {
-            evt[prop] = props[prop];
-        }
-    }
-    return evt;
-}
-
 export default class FakeWebSocket {
     constructor(uri, protocols) {
         this.url = uri;
@@ -35,7 +23,7 @@ export default class FakeWebSocket {
     close(code, reason) {
         this.readyState = FakeWebSocket.CLOSED;
         if (this.onclose) {
-            this.onclose(makeEvent("close", { 'code': code, 'reason': reason, 'wasClean': true }));
+            this.onclose(new CloseEvent("close", { 'code': code, 'reason': reason, 'wasClean': true }));
         }
     }
 
@@ -58,7 +46,7 @@ export default class FakeWebSocket {
     _open() {
         this.readyState = FakeWebSocket.OPEN;
         if (this.onopen) {
-            this.onopen(makeEvent('open'));
+            this.onopen(new Event('open'));
         }
     }
 
@@ -67,7 +55,7 @@ export default class FakeWebSocket {
         // neatly packaged
         for (let i = 0;i < data.length;i++) {
             let buf = data.subarray(i, i+1);
-            this.onmessage(makeEvent("message", { 'data': buf }));
+            this.onmessage(new MessageEvent("message", { 'data': buf }));
         }
     }
 }
