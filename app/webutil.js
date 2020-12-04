@@ -176,36 +176,6 @@ export function eraseSetting(name) {
     }
 }
 
-export function injectParamIfMissing(path, param, value) {
-    // force pretend that we're dealing with a relative path
-    // (assume that we wanted an extra if we pass one in)
-    path = "/" + path;
-
-    const elem = document.createElement('a');
-    elem.href = path;
-
-    const paramEq = encodeURIComponent(param) + "=";
-    let query;
-    if (elem.search) {
-        query = elem.search.slice(1).split('&');
-    } else {
-        query = [];
-    }
-
-    if (!query.some(v => v.startsWith(paramEq))) {
-        query.push(paramEq + encodeURIComponent(value));
-        elem.search = "?" + query.join("&");
-    }
-
-    // some browsers (e.g. IE11) may occasionally omit the leading slash
-    // in the elem.pathname string. Handle that case gracefully.
-    if (elem.pathname.charAt(0) == "/") {
-        return elem.pathname.slice(1) + elem.search + elem.hash;
-    }
-
-    return elem.pathname + elem.search + elem.hash;
-}
-
 // sadly, we can't use the Fetch API until we decide to drop
 // IE11 support or polyfill promises and fetch in IE11.
 // resolve will receive an object on success, while reject
