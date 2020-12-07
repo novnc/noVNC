@@ -4,28 +4,27 @@ import Base64 from '../core/base64.js';
 import Display from '../core/display.js';
 
 describe('Display/Canvas Helper', function () {
-    const checkedData = new Uint8Array([
+    const checkedData = new Uint8ClampedArray([
         0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
         0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
         0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
         0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255
     ]);
 
-    const basicData = new Uint8Array([0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0xff, 0xff, 0xff, 255]);
+    const basicData = new Uint8ClampedArray([0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0xff, 0xff, 0xff, 255]);
 
-    function makeImageCanvas(inputData) {
+    function makeImageCanvas(inputData, width, height) {
         const canvas = document.createElement('canvas');
-        canvas.width = 4;
-        canvas.height = 4;
+        canvas.width = width;
+        canvas.height = height;
         const ctx = canvas.getContext('2d');
-        const data = ctx.createImageData(4, 4);
-        for (let i = 0; i < checkedData.length; i++) { data.data[i] = inputData[i]; }
+        const data = new ImageData(inputData, width, height);
         ctx.putImageData(data, 0, 0);
         return canvas;
     }
 
-    function makeImagePng(inputData) {
-        const canvas = makeImageCanvas(inputData);
+    function makeImagePng(inputData, width, height) {
+        const canvas = makeImageCanvas(inputData, width, height);
         const url = canvas.toDataURL();
         const data = url.split(",")[1];
         return Base64.decode(data);
@@ -44,7 +43,7 @@ describe('Display/Canvas Helper', function () {
         it('should take viewport location into consideration when drawing images', function () {
             display.resize(4, 4);
             display.viewportChangeSize(2, 2);
-            display.drawImage(makeImageCanvas(basicData), 1, 1);
+            display.drawImage(makeImageCanvas(basicData, 4, 1), 1, 1);
             display.flip();
 
             const expected = new Uint8Array(16);
@@ -300,7 +299,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should support drawing images via #imageRect', function (done) {
-            display.imageRect(0, 0, 4, 4, "image/png", makeImagePng(checkedData));
+            display.imageRect(0, 0, 4, 4, "image/png", makeImagePng(checkedData, 4, 4));
             display.flip();
             display.onflush = () => {
                 expect(display).to.have.displayed(checkedData);
@@ -316,7 +315,7 @@ describe('Display/Canvas Helper', function () {
         });
 
         it('should support drawing an image object via #drawImage', function () {
-            const img = makeImageCanvas(checkedData);
+            const img = makeImageCanvas(checkedData, 4, 4);
             display.drawImage(img, 0, 0);
             display.flip();
             expect(display).to.have.displayed(checkedData);
@@ -355,27 +354,6 @@ describe('Display/Canvas Helper', function () {
             expect(img.addEventListener).to.have.been.calledOnce;
 
             display._renderQ[0].img.complete = true;
-            display._scanRenderQ();
-            expect(display.drawImage).to.have.been.calledOnce;
-            expect(display.fillRect).to.have.been.calledOnce;
-            expect(img.addEventListener).to.have.been.calledOnce;
-        });
-
-        it('should wait if an image is incorrectly loaded', function () {
-            const img = { complete: true, width: 0, height: 0, addEventListener: sinon.spy() };
-            display._renderQ = [{ type: 'img', x: 3, y: 4, width: 4, height: 4, img: img },
-                                { type: 'fill', x: 1, y: 2, width: 3, height: 4, color: 5 }];
-            display.drawImage = sinon.spy();
-            display.fillRect = sinon.spy();
-
-            display._scanRenderQ();
-            expect(display.drawImage).to.not.have.been.called;
-            expect(display.fillRect).to.not.have.been.called;
-            expect(img.addEventListener).to.have.been.calledOnce;
-
-            display._renderQ[0].img.complete = true;
-            display._renderQ[0].img.width = 4;
-            display._renderQ[0].img.height = 4;
             display._scanRenderQ();
             expect(display.drawImage).to.have.been.calledOnce;
             expect(display.fillRect).to.have.been.calledOnce;

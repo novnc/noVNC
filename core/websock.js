@@ -17,9 +17,6 @@ import * as Log from './util/logging.js';
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
 // at the moment.  It may be valuable to turn it on in the future.
-// Also copyWithin() for TypedArrays is not supported in IE 11 or
-// Safari 13 (at the moment we want to support Safari 11).
-const ENABLE_COPYWITHIN = false;
 const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
 export default class Websock {
@@ -256,11 +253,7 @@ export default class Websock {
             this._rQ = new Uint8Array(this._rQbufferSize);
             this._rQ.set(new Uint8Array(oldRQbuffer, this._rQi, this._rQlen - this._rQi));
         } else {
-            if (ENABLE_COPYWITHIN) {
-                this._rQ.copyWithin(0, this._rQi, this._rQlen);
-            } else {
-                this._rQ.set(new Uint8Array(this._rQ.buffer, this._rQi, this._rQlen - this._rQi));
-            }
+            this._rQ.copyWithin(0, this._rQi, this._rQlen);
         }
 
         this._rQlen = this._rQlen - this._rQi;

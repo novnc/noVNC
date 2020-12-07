@@ -3,7 +3,6 @@ const expect = chai.expect;
 import EventTargetMixin from '../core/util/eventtarget.js';
 
 import GestureHandler from '../core/input/gesturehandler.js';
-import * as browser from '../core/util/browser.js';
 
 class DummyTarget extends EventTargetMixin {
 }
@@ -23,12 +22,6 @@ describe('Gesture handler', function () {
     });
 
     beforeEach(function () {
-        // Touch events and gestures are not supported on IE
-        if (browser.isIE()) {
-            this.skip();
-            return;
-        }
-
         target = new DummyTarget();
         gestures = sinon.spy();
         target.addEventListener('gesturestart', gestures);

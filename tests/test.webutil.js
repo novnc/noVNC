@@ -22,11 +22,6 @@ describe('WebUtil', function () {
             let origLocalStorage;
             beforeEach(function () {
                 origLocalStorage = Object.getOwnPropertyDescriptor(window, "localStorage");
-                if (origLocalStorage === undefined) {
-                    // Object.getOwnPropertyDescriptor() doesn't work
-                    // properly in any version of IE
-                    this.skip();
-                }
 
                 Object.defineProperty(window, "localStorage", {value: {}});
                 if (window.localStorage.setItem !== undefined) {

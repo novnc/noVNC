@@ -8,25 +8,8 @@ import { encodings } from '../core/encodings.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
 import KeyTable from '../core/input/keysym.js';
-import * as browser  from '../core/util/browser.js';
 
 import FakeWebSocket from './fake.websocket.js';
-
-/* UIEvent constructor polyfill for IE */
-(() => {
-    if (typeof window.UIEvent === "function") return;
-
-    function UIEvent( event, params ) {
-        params = params || { bubbles: false, cancelable: false, view: window, detail: undefined };
-        const evt = document.createEvent( 'UIEvent' );
-        evt.initUIEvent( event, params.bubbles, params.cancelable, params.view, params.detail );
-        return evt;
-    }
-
-    UIEvent.prototype = window.UIEvent.prototype;
-
-    window.UIEvent = UIEvent;
-})();
 
 function push8(arr, num) {
     "use strict";
@@ -2277,12 +2260,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
 
                     it('should be able to handle large Provide messages', function () {
-                        // repeat() is not supported in IE so a loop is needed instead
-                        let expectedData = "hello";
-                        for (let i = 1; i <= 100000; i++) {
-                            expectedData += "hello";
-                        }
-
+                        let expectedData = "hello".repeat(100000);
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
 
@@ -2528,23 +2506,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
-                try {
-                    ev = new MouseEvent('mousemove',
-                                        { 'screenX': pos.x + window.screenX,
-                                          'screenY': pos.y + window.screenY,
-                                          'clientX': pos.x,
-                                          'clientY': pos.y });
-                } catch (e) {
-                    ev = document.createEvent('MouseEvent');
-                    ev.initMouseEvent('mousemove',
-                                      true, true, window, 0,
-                                      pos.x + window.screenX,
-                                      pos.y + window.screenY,
-                                      pos.x, pos.y,
-                                      false, false, false, false,
-                                      0, null);
-                }
-
+                ev = new MouseEvent('mousemove',
+                                    { 'screenX': pos.x + window.screenX,
+                                      'screenY': pos.y + window.screenY,
+                                      'clientX': pos.x,
+                                      'clientY': pos.y });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -2552,25 +2518,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
-                try {
-                    ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
-                                        { 'screenX': pos.x + window.screenX,
-                                          'screenY': pos.y + window.screenY,
-                                          'clientX': pos.x,
-                                          'clientY': pos.y,
-                                          'button': button,
-                                          'buttons': 1 << button });
-                } catch (e) {
-                    ev = document.createEvent('MouseEvent');
-                    ev.initMouseEvent(down ? 'mousedown' : 'mouseup',
-                                      true, true, window, 0,
-                                      pos.x + window.screenX,
-                                      pos.y + window.screenY,
-                                      pos.x, pos.y,
-                                      false, false, false, false,
-                                      button, null);
-                }
-
+                ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
+                                    { 'screenX': pos.x + window.screenX,
+                                      'screenY': pos.y + window.screenY,
+                                      'clientX': pos.x,
+                                      'clientY': pos.y,
+                                      'button': button,
+                                      'buttons': 1 << button });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -2805,25 +2759,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
-                try {
-                    ev = new WheelEvent('wheel',
-                                        { 'screenX': pos.x + window.screenX,
-                                          'screenY': pos.y + window.screenY,
-                                          'clientX': pos.x,
-                                          'clientY': pos.y,
-                                          'deltaX': dx,
-                                          'deltaY': dy,
-                                          'deltaMode': mode });
-                } catch (e) {
-                    ev = document.createEvent('WheelEvent');
-                    ev.initWheelEvent('wheel', true, true, window, 0,
-                                      pos.x + window.screenX,
-                                      pos.y + window.screenY,
-                                      pos.x, pos.y,
-                                      0, null, "",
-                                      dx, dy, 0, mode);
-                }
-
+                ev = new WheelEvent('wheel',
+                                    { 'screenX': pos.x + window.screenX,
+                                      'screenY': pos.y + window.screenY,
+                                      'clientX': pos.x,
+                                      'clientY': pos.y,
+                                      'deltaX': dx,
+                                      'deltaY': dy,
+                                      'deltaMode': mode });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -2938,14 +2881,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('Gesture event handlers', function () {
-            beforeEach(function () {
-                // Touch events and gestures are not supported on IE
-                if (browser.isIE()) {
-                    this.skip();
-                    return;
-                }
-            });
-
             function gestureStart(gestureType, x, y,
                                   magnitudeX = 0, magnitudeY = 0) {
                 let pos = elementToClient(x, y);

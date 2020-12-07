@@ -6,10 +6,8 @@ chai.use(function (_chai, utils) {
     _chai.Assertion.addMethod('displayed', function (targetData, cmp=_equal) {
         const obj = this._obj;
         const ctx = obj._target.getContext('2d');
-        const dataCl = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
-        // NB(directxman12): PhantomJS 1.x doesn't implement Uint8ClampedArray, so work around that
-        const data = new Uint8Array(dataCl);
-        const len = dataCl.length;
+        const data = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
+        const len = data.length;
         new chai.Assertion(len).to.be.equal(targetData.length, "unexpected display size");
         let same = true;
         for (let i = 0; i < len; i++) {

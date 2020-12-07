@@ -43,9 +43,6 @@ export default class Cursor {
         if (useFallback) {
             document.body.appendChild(this._canvas);
 
-            // FIXME: These don't fire properly except for mouse
-            ///       movement in IE. We want to also capture element
-            //        movement, size changes, visibility, etc.
             const options = { capture: true, passive: true };
             this._target.addEventListener('mouseover', this._eventHandlers.mouseover, options);
             this._target.addEventListener('mouseleave', this._eventHandlers.mouseleave, options);
@@ -90,14 +87,7 @@ export default class Cursor {
         this._canvas.width = w;
         this._canvas.height = h;
 
-        let img;
-        try {
-            // IE doesn't support this
-            img = new ImageData(new Uint8ClampedArray(rgba), w, h);
-        } catch (ex) {
-            img = ctx.createImageData(w, h);
-            img.data.set(new Uint8ClampedArray(rgba));
-        }
+        let img = new ImageData(new Uint8ClampedArray(rgba), w, h);
         ctx.clearRect(0, 0, w, h);
         ctx.putImageData(img, 0, 0);
 

@@ -25,7 +25,6 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
-import "./util/polyfill.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -187,8 +186,6 @@ export default class RFB extends EventTargetMixin {
         this._canvas.style.margin = 'auto';
         // Some browsers add an outline on focus
         this._canvas.style.outline = 'none';
-        // IE miscalculates width without this :(
-        this._canvas.style.flexShrink = '0';
         this._canvas.width = 0;
         this._canvas.height = 0;
         this._canvas.tabIndex = -1;
@@ -1263,17 +1260,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _negotiateSecurity() {
-        // Polyfill since IE and PhantomJS doesn't have
-        // TypedArray.includes()
-        function includes(item, array) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i] === item) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         if (this._rfbVersion >= 3.7) {
             // Server sends supported list, client decides
             const numTypes = this._sock.rQshift8();
@@ -1290,15 +1276,15 @@ export default class RFB extends EventTargetMixin {
             Log.Debug("Server security types: " + types);
 
             // Look for each auth in preferred order
-            if (includes(1, types)) {
+            if (types.includes(1)) {
                 this._rfbAuthScheme = 1; // None
-            } else if (includes(22, types)) {
+            } else if (types.includes(22)) {
                 this._rfbAuthScheme = 22; // XVP
-            } else if (includes(16, types)) {
+            } else if (types.includes(16)) {
                 this._rfbAuthScheme = 16; // Tight
-            } else if (includes(2, types)) {
+            } else if (types.includes(2)) {
                 this._rfbAuthScheme = 2; // VNC Auth
-            } else if (includes(19, types)) {
+            } else if (types.includes(19)) {
                 this._rfbAuthScheme = 19; // VeNCrypt Auth
             } else {
                 return this._fail("Unsupported security types (types: " + types + ")");
@@ -2183,15 +2169,7 @@ export default class RFB extends EventTargetMixin {
                 return this._handleCursor();
 
             case encodings.pseudoEncodingQEMUExtendedKeyEvent:
-                // Old Safari doesn't support creating keyboard events
-                try {
-                    const keyboardEvent = document.createEvent("keyboardEvent");
-                    if (keyboardEvent.code !== undefined) {
-                        this._qemuExtKeyEventSupported = true;
-                    }
-                } catch (err) {
-                    // Do nothing
-                }
+                this._qemuExtKeyEventSupported = true;
                 return true;
 
             case encodings.pseudoEncodingDesktopName:

@@ -17,8 +17,6 @@ jobs:
             browser: Safari
           - os: windows-latest
             browser: EdgeHeadless
-          - os: windows-latest
-            browser: IE
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:

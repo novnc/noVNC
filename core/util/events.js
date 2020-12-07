@@ -65,10 +65,6 @@ export function setCapture(target) {
 
         target.setCapture();
         document.captureElement = target;
-
-        // IE releases capture on 'click' events which might not trigger
-        target.addEventListener('mouseup', releaseCapture);
-
     } else {
         // Release any existing capture in case this method is
         // called multiple times without coordination
