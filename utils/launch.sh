@@ -20,6 +20,8 @@ usage() {
     echo "    --cert CERT           Path to combined cert/key file, or just"
     echo "                          the cert file if used with --key"
     echo "                          Default: self.pem"
+    echo "    --file-only           Disable file access"
+    echo "    --no-parent           Disable no parent access"
     echo "    --key KEY             Path to key file, when not combined with cert"
     echo "    --web WEB             Path to web files (e.g. vnc.html)"
     echo "                          Default: ./"
@@ -52,6 +54,8 @@ SYSLOG_ARG=""
 HEARTBEAT_ARG=""
 IDLETIMEOUT_ARG=""
 TIMEOUT_ARG=""
+FILE_ONLY=false
+NO_PARENT=false
 
 die() {
     echo "$*"
@@ -77,6 +81,8 @@ while [ "$*" ]; do
     --listen)  PORT="${OPTARG}"; shift            ;;
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
+    --file-only) FILE_ONLY="${OPTARG}"; shift     ;;
+    --no-parent) NO_PARENT="${OPTARG}"; shift     ;;
     --key)     KEY="${OPTARG}"; shift             ;;
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
@@ -177,7 +183,7 @@ fi
 
 echo "Starting webserver and WebSockets proxy on port ${PORT}"
 #${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD_ARG} ${TIMEOUT_ARG} &
+${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} --web ${WEB} ${CERT:+--cert ${CERT}} ${FILE_ONLY:+--file-only ${FILE_ONLY}} ${NO_PARENT:+--no-parent ${NO_PARENT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD_ARG} ${TIMEOUT_ARG} &
 proxy_pid="$!"
 sleep 1
 if ! ps -p ${proxy_pid} >/dev/null; then
