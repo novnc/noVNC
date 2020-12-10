@@ -147,7 +147,7 @@ addStandard("KanjiMode", KeyTable.XK_Kanji);
 addStandard("Katakana", KeyTable.XK_Katakana);
 addStandard("Romaji", KeyTable.XK_Romaji);
 addStandard("Zenkaku", KeyTable.XK_Zenkaku);
-addStandard("ZenkakuHanaku", KeyTable.XK_Zenkaku_Hankaku);
+addStandard("ZenkakuHankaku", KeyTable.XK_Zenkaku_Hankaku);
 
 // 2.9. General-Purpose Function Keys
 
