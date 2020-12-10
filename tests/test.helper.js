@@ -186,5 +186,38 @@ describe('Helpers', function () {
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: ',', location: 3})).to.be.equal(0xFFAC);
             });
         });
+
+        describe('Japanese IM keys on Windows', function () {
+            let origNavigator;
+            beforeEach(function () {
+                // window.navigator is a protected read-only property in many
+                // environments, so we need to redefine it whilst running these
+                // tests.
+                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+
+                Object.defineProperty(window, "navigator", {value: {}});
+                if (window.navigator.platform !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
+                }
+
+                window.navigator.platform = "Windows";
+            });
+
+            afterEach(function () {
+                if (origNavigator !== undefined) {
+                    Object.defineProperty(window, "navigator", origNavigator);
+                }
+            });
+
+            const keys = { 'Zenkaku': 0xff2a, 'Hankaku': 0xff2a,
+                           'Romaji': 0xff24, 'KanaMode': 0xff24 };
+            for (let [key, keysym] of Object.entries(keys)) {
+                it(`should fake combined key for ${key} on Windows`, function () {
+                    expect(KeyboardUtil.getKeysym({code: 'FakeIM', key: key})).to.be.equal(keysym);
+                });
+            }
+        });
     });
 });
