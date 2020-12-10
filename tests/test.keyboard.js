@@ -219,7 +219,7 @@ describe('Key Event Handling', function () {
             }
         });
 
-        it('should toggle caps lock on key press on iOS', function (done) {
+        it('should toggle caps lock on key press on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -228,10 +228,9 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
 
-        it('should toggle caps lock on key press on mac', function (done) {
+        it('should toggle caps lock on key press on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -240,10 +239,9 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
 
-        it('should toggle caps lock on key release on iOS', function (done) {
+        it('should toggle caps lock on key release on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -252,10 +250,9 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
 
-        it('should toggle caps lock on key release on mac', function (done) {
+        it('should toggle caps lock on key release on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -264,8 +261,48 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
+    });
+
+    describe('Japanese IM keys on Windows', function () {
+        let origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+
+            window.navigator.platform = "Windows";
+        });
+
+        afterEach(function () {
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
+        });
+
+        const keys = { 'Zenkaku': 0xff2a, 'Hankaku': 0xff2a,
+                       'Alphanumeric': 0xff30, 'Katakana': 0xff26,
+                       'Hiragana': 0xff25, 'Romaji': 0xff24,
+                       'KanaMode': 0xff24 };
+        for (let [key, keysym] of Object.entries(keys)) {
+            it(`should fake key release for ${key} on Windows`, function () {
+                let kbd = new Keyboard(document);
+                kbd.onkeyevent = sinon.spy();
+                kbd._handleKeyDown(keyevent('keydown', {code: 'FakeIM', key: key}));
+
+                expect(kbd.onkeyevent).to.have.been.calledTwice;
+                expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(keysym, "FakeIM", true);
+                expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(keysym, "FakeIM", false);
+            });
+        }
     });
 
     describe('Escape AltGraph on Windows', function () {

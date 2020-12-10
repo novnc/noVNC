@@ -164,6 +164,20 @@ export default class Keyboard {
             return;
         }
 
+        // Windows doesn't send proper key releases for a bunch of
+        // Japanese IM keys so we have to fake the release right away
+        const jpBadKeys = [ KeyTable.XK_Zenkaku_Hankaku,
+                            KeyTable.XK_Eisu_toggle,
+                            KeyTable.XK_Katakana,
+                            KeyTable.XK_Hiragana,
+                            KeyTable.XK_Romaji ];
+        if (browser.isWindows() && jpBadKeys.includes(keysym)) {
+            this._sendKeyEvent(keysym, code, true);
+            this._sendKeyEvent(keysym, code, false);
+            stopEvent(e);
+            return;
+        }
+
         stopEvent(e);
 
         // Possible start of AltGr sequence? (see above)

@@ -157,6 +157,21 @@ export function getKeysym(evt) {
             }
         }
 
+        // Windows sends alternating symbols for some keys when using a
+        // Japanese layout. We have no way of synchronising with the IM
+        // running on the remote system, so we send some combined keysym
+        // instead and hope for the best.
+        if (browser.isWindows()) {
+            switch (key) {
+                case 'Zenkaku':
+                case 'Hankaku':
+                    return KeyTable.XK_Zenkaku_Hankaku;
+                case 'Romaji':
+                case 'KanaMode':
+                    return KeyTable.XK_Romaji;
+            }
+        }
+
         return DOMKeyTable[key][location];
     }
 
