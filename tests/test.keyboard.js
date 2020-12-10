@@ -219,7 +219,7 @@ describe('Key Event Handling', function () {
             }
         });
 
-        it('should toggle caps lock on key press on iOS', function (done) {
+        it('should toggle caps lock on key press on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -228,10 +228,9 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
 
-        it('should toggle caps lock on key press on mac', function (done) {
+        it('should toggle caps lock on key press on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -240,10 +239,9 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
 
-        it('should toggle caps lock on key release on iOS', function (done) {
+        it('should toggle caps lock on key release on iOS', function () {
             window.navigator.platform = "iPad";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -252,10 +250,9 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
 
-        it('should toggle caps lock on key release on mac', function (done) {
+        it('should toggle caps lock on key release on mac', function () {
             window.navigator.platform = "Mac";
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
@@ -264,7 +261,6 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
-            done();
         });
     });
 
