@@ -119,7 +119,7 @@ addStandard("WakeUp", KeyTable.XF86XK_WakeUp);
 // 2.8. IME and Composition Keys
 
 addStandard("AllCandidates", KeyTable.XK_MultipleCandidate);
-addStandard("Alphanumeric", KeyTable.XK_Eisu_Shift); // could also be _Eisu_Toggle
+addStandard("Alphanumeric", KeyTable.XK_Eisu_toggle);
 addStandard("CodeInput", KeyTable.XK_Codeinput);
 addStandard("Compose", KeyTable.XK_Multi_key);
 addStandard("Convert", KeyTable.XK_Henkan);
