@@ -13,8 +13,24 @@ confinement: strict
 
 parts:
     novnc:
-        source: build/
+        source: .
         plugin: dump
+        organize:
+            utils/launch.sh: /
+        stage:
+            - vnc.html
+            - app
+            - core/**/*.js
+            - vendor/**/*.js
+            - launch.sh
+        stage-packages:
+            - bash
+
+    svc-script:
+        source: snap/local
+        plugin: dump
+        stage:
+            - svc_wrapper.sh
         stage-packages:
             - bash
             - jq
