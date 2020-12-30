@@ -16,6 +16,10 @@ jobs:
           # Needs to be explicitly specified for auth to work
           registry-url: 'https://registry.npmjs.org'
       - run: npm install
+      - uses: actions/upload-artifact@v2
+        with:
+          name: npm
+          path: lib
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -40,6 +44,10 @@ jobs:
           echo $VERSION
           sed -i "s/@VERSION@/$VERSION/g" snap/snapcraft.yaml
       - run: snapcraft
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snap
+          path: novnc*.snap
       - run: |
           mkdir .snapcraft
           echo ${SNAPCRAFT_LOGIN} | base64 --decode --ignore-garbage > .snapcraft/snapcraft.cfg
