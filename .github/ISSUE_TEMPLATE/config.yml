@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: noVNC Discussion Group
+  - name: Question or discussion
     url: https://groups.google.com/forum/?fromgroups#!forum/novnc
-    about: Please use this group for questions and discussions around noVNC.
+    about: Ask a question or start a discussion
