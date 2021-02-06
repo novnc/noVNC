@@ -13,7 +13,7 @@ import { encodeUTF8, decodeUTF8 } from './util/strings.js';
 import { dragThreshold } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
-import AudioBuffer from './util/audio.js';
+import AudioStream from './util/audio.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
 import Inflator from "./inflator.js";
@@ -112,7 +112,7 @@ export default class RFB extends EventTargetMixin {
 
         this._fbName = "";
 
-        this._capabilities = { power: false };
+        this._capabilities = { power: false, audio: false };
 
         this._supportsFence = false;
 
@@ -124,6 +124,8 @@ export default class RFB extends EventTargetMixin {
         this._screenFlags = 0;
 
         this._qemuExtKeyEventSupported = false;
+        this._replitAudioSupported = false;
+        this._replitAudioServerVersion = -1;
 
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
@@ -168,6 +170,11 @@ export default class RFB extends EventTargetMixin {
         this._gestureFirstDoubleTapEv = null;
         this._gestureLastMagnitudeX = 0;
         this._gestureLastMagnitudeY = 0;
+
+        // Audio state
+        this._audioEnabled = false;
+        this._audioMimeType = null;
+        this._audioStream = null;
 
         // Bound event handlers
         this._eventHandlers = {
@@ -504,13 +511,23 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    enableAudio(sampleFormat, channels, frequency) {
-        RFB.messages.SetQEMUExtendedAudioFormat(this._sock, sampleFormat, channels, frequency);
-        RFB.messages.ToggleQEMUExtendedAudio(this._sock, true);
+    enableAudio(channels, codec, kbps) {
+        if (this._audioEnabled) { return; }
+
+        this._audioEnabled = true;
+        if (codec == RFB.audioCodecs.OpusWebM) {
+            this._audioMimeType = 'audio/webm;codecs=opus';
+        } else if (codec == RFB.audioCodecs.MP3) {
+            this._audioMimeType = 'audio/mpeg';
+        }
+        RFB.messages.ReplitAudioStartEncoder(this._sock, true, channels, codec, kbps);
     }
 
     disableAudio() {
-        RFB.messages.ToggleQEMUExtendedAudio(this._sock, false);
+        if (!this._audioEnabled) { return; }
+
+        this._audioEnabled = false;
+        RFB.messages.ReplitAudioStartEncoder(this._sock, false, 0, 0, 0);
     }
 
     // ===== PRIVATE METHODS =====
@@ -1788,6 +1805,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
         encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
+        encs.push(encodings.pseudoEncodingReplitAudio);
         encs.push(encodings.pseudoEncodingExtendedDesktopSize);
         encs.push(encodings.pseudoEncodingXvp);
         encs.push(encodings.pseudoEncodingFence);
@@ -2058,20 +2076,49 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
-    _handleQEMUExtAudioMsg() {
-        if (this._sock.rQwait("QEMU extended audio message", 3, 1)) { return false; }
+    _handleReplitAudioPseudoEncodingMsg() {
+        if (this._sock.rQwait("Repl.it audio message", 3, 1)) { return false; }
+        const submessage = this._sock.rQshift8();
+        const length = this._sock.rQshift16();
+        if (this._sock.rQwait("Repl.it audio message", length, 4)) { return false; }
 
-        this._sock.rQshift8(); // for now there is only a single submessage type 1
-        const operation = this._sock.rQshift16();
+        switch (submessage) {
+            case 0: { // StartCapture response.
+                const enabled = this._sock.rQshift8() == 1;
 
-        if (operation === 1) { // stream is starting
-            this._audioBuffer = new AudioBuffer('audio/webm; codecs="opus"'); // TODO: This is obviously not the right value to use here
-        } else if (operation === 0) { // stream is stopping
-            this._audioBuffer.close();
-        } else {  // stream data
-            const length = this._sock.rQshift32();
-            const data = this._sock.rQshiftBytes(length);
-            this._audioBuffer.queueAudio(data);
+                if (enabled) {
+                    this._audioStream = new AudioStream(this._audioMimeType);
+                    RFB.messages.ReplitAudioEnableContinuousUpdate(this._sock);
+                } else if (this._audioStream != null) {
+                    this._audioStream.close();
+                    this._audioStream = null;
+                }
+                break;
+            }
+
+            case 1: { // AudioFrame response.
+                const keyframeAndTimestamp = this._sock.rQshift32();
+                const keyframe = (keyframeAndTimestamp & 0x80000000) != 0;
+                const timestamp = keyframeAndTimestamp & 0x7fffffff;
+                const data = this._sock.rQshiftBytes(length - 4);
+                if (this._audioStream != null) {
+                    this._audioStream.queueAudioFrame(timestamp / 1000, keyframe, data);
+                }
+                break;
+            }
+
+            case 2: { // StartContinuousUpdates response.
+                const enabled = this._sock.rQshift8() == 1;
+                if (!enabled && this._audioStream != null) {
+                    this._audioStream.close();
+                    this._audioStream = null;
+                }
+                break;
+            }
+
+            default:
+                this._fail("Illegal server Repl.it audio message (msg: " + submessage + ")");
+                break;
         }
 
         return true;
@@ -2145,14 +2192,14 @@ export default class RFB extends EventTargetMixin {
                 }
                 return true;
 
+            case 245: // Repl.it audio message
+                return this._handleReplitAudioPseudoEncodingMsg();
+
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
 
             case 250:  // XVP
                 return this._handleXvpMsg();
-
-            case 255: // Qemu extended audio message
-                return this._handleQEMUExtAudioMsg();
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
@@ -2226,6 +2273,9 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingQEMUExtendedKeyEvent:
                 this._qemuExtKeyEventSupported = true;
                 return true;
+
+            case encodings.pseudoEncodingReplitAudio:
+                return this._handleReplitAudioPseudoEncoding();
 
             case encodings.pseudoEncodingDesktopName:
                 return this._handleDesktopName();
@@ -2392,6 +2442,25 @@ export default class RFB extends EventTargetMixin {
 
         this._updateCursor(rgba, hotx, hoty, w, h);
 
+        return true;
+    }
+
+    _handleReplitAudioPseudoEncoding() {
+        if (this._sock.rQwait("Repl.it audio", 4)) {
+            return false;
+        }
+
+        const version = this._sock.rQshift16();
+        const codecs = this._sock.rQshift16();
+
+        if (this._sock.rQwait("Repl.it audio", 2 * codecs, 4)) {
+            return false;
+        }
+        this._sock.rQshiftStr(2 * codecs);
+
+        this._replitAudioSupported = true;
+        this._replitAudioServerVersion = version;
+        this._setCapability("audio", true);
         return true;
     }
 
@@ -2582,14 +2651,10 @@ export default class RFB extends EventTargetMixin {
     }
 }
 
-// Audio sample formats
-RFB.sampleFormats = {
-    U8: 0,
-    S8: 1,
-    U16: 2,
-    S16: 3,
-    U32: 4,
-    S32: 5
+// Audio codecs
+RFB.audioCodecs = {
+    OpusWebM: 0,
+    MP3: 1,
 };
 
 // Class Methods
@@ -2613,45 +2678,51 @@ RFB.messages = {
         sock.flush();
     },
 
-    ToggleQEMUExtendedAudio(sock, enabled) {
+    ReplitAudioStartEncoder(sock, enabled, channels, codec, kbps) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
-        buff[offset] = 255;        // msg-type
-        buff[offset + 1] = 1;      // sub msg-type
+        buff[offset] = 245;   // msg-type
+        buff[offset + 1] = 0; // sub msg-type
+        buff[offset + 2] = 0;
+        buff[offset + 3] = 6; // length
 
-        buff[offset + 2] = 0;      // operation
-        if (enabled) {
-            buff[offset + 3] = 0;
-        } else {
-            buff[offset + 3] = 1;
-        }
+        buff[offset + 4] = enabled ? 1 : 0; // enabled
+        buff[offset + 5] = channels;
+
+        buff[offset + 6] = codec >> 8;
+        buff[offset + 7] = codec;
+
+        buff[offset + 8] = kbps >> 8;
+        buff[offset + 9] = kbps;
+
+        sock._sQlen += 10;
+        sock.flush();
+    },
+
+    ReplitAudioRequestFrame(sock, channels, codec, kbps) {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+        buff[offset] = 245;   // msg-type
+        buff[offset + 1] = 1; // sub msg-type
+        buff[offset + 2] = 0;
+        buff[offset + 3] = 0; // length
 
         sock._sQlen += 4;
         sock.flush();
     },
 
-    SetQEMUExtendedAudioFormat(sock, sampleFormat, channels, frequency) {
+    ReplitAudioEnableContinuousUpdate(sock) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
-        buff[offset] = 255;     // msg type
-        buff[offset + 1] = 1;   // sub msg-type
+        buff[offset] = 245;        // msg-type
+        buff[offset + 1] = 2;      // sub msg-type
+        buff[offset + 2] = 0;
+        buff[offset + 3] = 0; // length
 
-        buff[offset + 2] = 0;   // operation
-        buff[offset + 3] = 2;
-
-        buff[offset + 4] = sampleFormat;
-        buff[offset + 5] = channels;
-
-        const freq = toUnsigned32bit(frequency);
-
-        buff[offset + 6] = freq >> 24;
-        buff[offset + 7] = freq >> 16;
-        buff[offset + 8] = freq >> 8;
-        buff[offset + 9] = freq;
-
-        sock._sQlen += 10;
+        sock._sQlen += 4;
         sock.flush();
     },
 
