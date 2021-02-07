@@ -224,6 +224,10 @@ const UI = {
         document.getElementById("noVNC_view_drag_button")
             .addEventListener('click', UI.toggleViewDrag);
 
+        document
+            .getElementById("noVNC_pointer_lock_button")
+            .addEventListener("click", UI.requestPointerLock);
+
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('mousedown', UI.controlbarHandleMouseDown);
         document.getElementById("noVNC_control_bar_handle")
@@ -441,6 +445,7 @@ const UI = {
             UI.updatePowerButton();
             UI.keepControlbar();
         }
+        UI.updatePointerLockButton();
 
         // State change closes dialogs as they may not be relevant
         // anymore
@@ -1036,6 +1041,7 @@ const UI = {
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+        UI.rfb.addEventListener("pointerlock", UI.pointerLockChanged);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
@@ -1296,6 +1302,33 @@ const UI = {
 
 /* ------^-------
  * /VIEW CLIPPING
+ * ==============
+ *  POINTER LOCK
+ * ------v------*/
+
+    updatePointerLockButton() {
+        // Only show the button if the pointer lock API is properly supported
+        if (
+            UI.connected &&
+            (document.pointerLockElement !== undefined ||
+                document.mozPointerLockElement !== undefined)
+        ) {
+            document
+                .getElementById("noVNC_pointer_lock_button")
+                .classList.remove("noVNC_hidden");
+        } else {
+            document
+                .getElementById("noVNC_pointer_lock_button")
+                .classList.add("noVNC_hidden");
+        }
+    },
+
+    requestPointerLock() {
+        UI.rfb.requestPointerLock();
+    },
+
+/* ------^-------
+ * /POINTER LOCK
  * ==============
  *    VIEWDRAG
  * ------v------*/
@@ -1660,6 +1693,18 @@ const UI = {
         UI.desktopName = e.detail.name;
         // Display the desktop name in the document title
         document.title = e.detail.name + " - " + PAGE_TITLE;
+    },
+
+    pointerLockChanged(e) {
+        if (e.detail.pointerlock) {
+            document
+                .getElementById("noVNC_pointer_lock_button")
+                .classList.add("noVNC_selected");
+        } else {
+            document
+                .getElementById("noVNC_pointer_lock_button")
+                .classList.remove("noVNC_selected");
+        }
     },
 
     bell(e) {

@@ -151,6 +151,7 @@ export default class RFB extends EventTargetMixin {
         this._mousePos = {};
         this._mouseButtonMask = 0;
         this._mouseLastMoveTime = 0;
+        this._pointerLock = false;
         this._viewportDragging = false;
         this._viewportDragPos = {};
         this._viewportHasMoved = false;
@@ -168,6 +169,7 @@ export default class RFB extends EventTargetMixin {
             focusCanvas: this._focusCanvas.bind(this),
             windowResize: this._windowResize.bind(this),
             handleMouse: this._handleMouse.bind(this),
+            handlePointerLockChange: this._handlePointerLockChange.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
         };
@@ -477,6 +479,14 @@ export default class RFB extends EventTargetMixin {
         this._canvas.blur();
     }
 
+    requestPointerLock() {
+        if (this._canvas.requestPointerLock) {
+            this._canvas.requestPointerLock();
+        } else if (this._canvas.mozRequestPointerLock) {
+            this._canvas.mozRequestPointerLock();
+        }
+    }
+
     clipboardPasteFrom(text) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
 
@@ -539,6 +549,8 @@ export default class RFB extends EventTargetMixin {
         // preventDefault() on mousedown doesn't stop this event for some
         // reason so we have to explicitly block it
         this._canvas.addEventListener('contextmenu', this._eventHandlers.handleMouse);
+        // This needs to be installed in document instead of the canvas.
+        document.addEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange);
 
         // Wheel events
         this._canvas.addEventListener("wheel", this._eventHandlers.handleWheel);
@@ -563,6 +575,7 @@ export default class RFB extends EventTargetMixin {
         this._canvas.removeEventListener('mousemove', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('click', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('contextmenu', this._eventHandlers.handleMouse);
+        document.removeEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange);
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
@@ -885,8 +898,26 @@ export default class RFB extends EventTargetMixin {
             return;
         }
 
-        let pos = clientToElement(ev.clientX, ev.clientY,
+        let pos;
+        if (this._pointerLock) {
+            pos = {
+                x: this._mousePos.x + ev.movementX,
+                y: this._mousePos.y + ev.movementY,
+            };
+            if (pos.x < 0) {
+                pos.x = 0;
+            } else if (pos.x > this._fbWidth) {
+                pos.x = this._fbWidth;
+            }
+            if (pos.y < 0) {
+                pos.y = 0;
+            } else if (pos.y > this._fbHeight) {
+                pos.y = this._fbHeight;
+            }
+        } else {
+            pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
+        }
 
         switch (ev.type) {
             case 'mousedown':
@@ -985,6 +1016,20 @@ export default class RFB extends EventTargetMixin {
         this._sendMouse(this._mousePos.x, this._mousePos.y,
                         this._mouseButtonMask);
         this._mouseLastMoveTime = Date.now();
+    }
+
+    _handlePointerLockChange() {
+        if (
+            document.pointerLockElement === this._canvas ||
+            document.mozPointerLockElement === this._canvas
+        ) {
+            this._pointerLock = true;
+        } else {
+            this._pointerLock = false;
+        }
+        this.dispatchEvent(new CustomEvent(
+            "pointerlock",
+            { detail: { pointerlock: this._pointerLock }, }));
     }
 
     _sendMouse(x, y, mask) {
@@ -1767,6 +1812,8 @@ export default class RFB extends EventTargetMixin {
             encs.push(encodings.pseudoEncodingCursor);
         }
 
+        encs.push(encodings.pseudoEncodingVMwareCursorPosition);
+
         RFB.messages.clientEncodings(this._sock, encs);
     }
 
@@ -2165,6 +2212,9 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingVMwareCursor:
                 return this._handleVMwareCursor();
 
+            case encodings.pseudoEncodingVMwareCursorPosition:
+                return this._handleVMwareCursorPosition();
+
             case encodings.pseudoEncodingCursor:
                 return this._handleCursor();
 
@@ -2299,6 +2349,19 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._updateCursor(rgba, hotx, hoty, w, h);
+
+        return true;
+    }
+
+    _handleVMwareCursorPosition() {
+        const x = this._FBU.x;
+        const y = this._FBU.y;
+
+        if (this._pointerLock) {
+            // Only attempt to match the server's pointer position if we are in
+            // pointer lock mode.
+            this._mousePos = { x: x, y: y };
+        }
 
         return true;
     }
