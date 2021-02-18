@@ -1,10 +1,10 @@
 /*
- * Websock: high-performance binary WebSockets
+ * Websock: high-performance buffering wrapper
  * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
- * Websock is similar to the standard WebSocket object but with extra
- * buffer handling.
+ * Websock is similar to the standard WebSocket / RTCDataChannel object
+ * but with extra buffer handling.
  *
  * Websock has built-in receive queue buffering; the message event
  * does not contain actual data but is simply a notification that
@@ -19,9 +19,37 @@ import * as Log from './util/logging.js';
 // at the moment.  It may be valuable to turn it on in the future.
 const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
+// Constants pulled from RTCDataChannelState enum
+// https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/readyState#RTCDataChannelState_enum
+const DataChannel = {
+    CONNECTING: "connecting",
+    OPEN: "open",
+    CLOSING: "closing",
+    CLOSED: "closed"
+};
+
+const ReadyStates = {
+    CONNECTING: [WebSocket.CONNECTING, DataChannel.CONNECTING],
+    OPEN: [WebSocket.OPEN, DataChannel.OPEN],
+    CLOSING: [WebSocket.CLOSING, DataChannel.CLOSING],
+    CLOSED: [WebSocket.CLOSED, DataChannel.CLOSED],
+};
+
+// Properties a raw channel must have, WebSocket and RTCDataChannel are two examples
+const rawChannelProps = [
+    "send",
+    "close",
+    "binaryType",
+    "onerror",
+    "onmessage",
+    "onopen",
+    "protocol",
+    "readyState",
+];
+
 export default class Websock {
     constructor() {
-        this._websocket = null;  // WebSocket object
+        this._websocket = null;  // WebSocket or RTCDataChannel object
 
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
@@ -140,7 +168,7 @@ export default class Websock {
     // Send Queue
 
     flush() {
-        if (this._sQlen > 0 && this._websocket.readyState === WebSocket.OPEN) {
+        if (this._sQlen > 0 && ReadyStates.OPEN.indexOf(this._websocket.readyState) >= 0) {
             this._websocket.send(this._encodeMessage());
             this._sQlen = 0;
         }
@@ -177,13 +205,26 @@ export default class Websock {
     }
 
     open(uri, protocols) {
+        this.attach(new WebSocket(uri, protocols));
+    }
+
+    attach(rawChannel) {
         this.init();
 
-        this._websocket = new WebSocket(uri, protocols);
-        this._websocket.binaryType = 'arraybuffer';
+        // Must get object and class methods to be compatible with the tests.
+        const channelProps = [...Object.keys(rawChannel), ...Object.getOwnPropertyNames(Object.getPrototypeOf(rawChannel))];
+        for (let i = 0; i < rawChannelProps.length; i++) {
+            const prop = rawChannelProps[i];
+            if (channelProps.indexOf(prop) < 0) {
+                throw new Error('Raw channel missing property: ' + prop);
+            }
+        }
 
+        this._websocket = rawChannel;
+        this._websocket.binaryType = "arraybuffer";
         this._websocket.onmessage = this._recvMessage.bind(this);
-        this._websocket.onopen = () => {
+
+        const onOpen = () => {
             Log.Debug('>> WebSock.onopen');
             if (this._websocket.protocol) {
                 Log.Info("Server choose sub-protocol: " + this._websocket.protocol);
@@ -192,11 +233,21 @@ export default class Websock {
             this._eventHandlers.open();
             Log.Debug("<< WebSock.onopen");
         };
+
+        // If the readyState cannot be found this defaults to assuming it's not open.
+        const isOpen = ReadyStates.OPEN.indexOf(this._websocket.readyState) >= 0;
+        if (isOpen) {
+            onOpen();
+        } else {
+            this._websocket.onopen = onOpen;
+        }
+
         this._websocket.onclose = (e) => {
             Log.Debug(">> WebSock.onclose");
             this._eventHandlers.close(e);
             Log.Debug("<< WebSock.onclose");
         };
+
         this._websocket.onerror = (e) => {
             Log.Debug(">> WebSock.onerror: " + e);
             this._eventHandlers.error(e);
@@ -206,8 +257,8 @@ export default class Websock {
 
     close() {
         if (this._websocket) {
-            if ((this._websocket.readyState === WebSocket.OPEN) ||
-                    (this._websocket.readyState === WebSocket.CONNECTING)) {
+            if (ReadyStates.CONNECTING.indexOf(this._websocket.readyState) >= 0 ||
+                ReadyStates.OPEN.indexOf(this._websocket.readyState) >= 0) {
                 Log.Info("Closing WebSocket connection");
                 this._websocket.close();
             }

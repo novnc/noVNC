@@ -6,6 +6,10 @@ export default class FakeWebSocket {
         this.binaryType = "arraybuffer";
         this.extensions = "";
 
+        this.onerror = null;
+        this.onmessage = null;
+        this.onopen = null;
+
         if (!protocols || typeof protocols === 'string') {
             this.protocol = protocols;
         } else {

@@ -66,20 +66,25 @@ const extendedClipboardActionPeek    = 1 << 26;
 const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
 
-
 export default class RFB extends EventTargetMixin {
-    constructor(target, url, options) {
+    constructor(target, urlOrChannel, options) {
         if (!target) {
             throw new Error("Must specify target");
         }
-        if (!url) {
-            throw new Error("Must specify URL");
+        if (!urlOrChannel) {
+            throw new Error("Must specify URL, WebSocket or RTCDataChannel");
         }
 
         super();
 
         this._target = target;
-        this._url = url;
+
+        if (typeof urlOrChannel === "string") {
+            this._url = urlOrChannel;
+        } else {
+            this._url = null;
+            this._rawChannel = urlOrChannel;
+        }
 
         // Connection details
         options = options || {};
@@ -275,6 +280,8 @@ export default class RFB extends EventTargetMixin {
                     break;
             }
             this._sock.off('close');
+            // Delete reference to raw channel to allow cleanup.
+            this._rawChannel = null;
         });
         this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
 
@@ -501,16 +508,23 @@ export default class RFB extends EventTargetMixin {
     _connect() {
         Log.Debug(">> RFB.connect");
 
-        Log.Info("connecting to " + this._url);
-
-        try {
-            // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(this._url, this._wsProtocols);
-        } catch (e) {
-            if (e.name === 'SyntaxError') {
-                this._fail("Invalid host or port (" + e + ")");
-            } else {
-                this._fail("Error when opening socket (" + e + ")");
+        if (this._url) {
+            try {
+                Log.Info(`connecting to ${this._url}`);
+                this._sock.open(this._url, this._wsProtocols);
+            } catch (e) {
+                if (e.name === 'SyntaxError') {
+                    this._fail("Invalid host or port (" + e + ")");
+                } else {
+                    this._fail("Error when opening socket (" + e + ")");
+                }
+            }
+        } else {
+            try {
+                Log.Info(`attaching ${this._rawChannel} to Websock`);
+                this._sock.attach(this._rawChannel);
+            } catch (e) {
+                this._fail("Error attaching channel (" + e + ")");
             }
         }
 
