@@ -1438,9 +1438,18 @@ export default class RFB extends EventTargetMixin {
             const user = encodeUTF8(this._rfbCredentials.username);
             const pass = encodeUTF8(this._rfbCredentials.password);
 
-            // XXX we assume lengths are <= 255 (should not be an issue in the real world)
-            this._sock.send([0, 0, 0, user.length]);
-            this._sock.send([0, 0, 0, pass.length]);
+            this._sock.send([
+                (user.length >> 24) & 0xFF,
+                (user.length >> 16) & 0xFF,
+                (user.legnth >> 8) & 0xFF,
+                user.length & 0xFF
+            ]);
+            this._sock.send([
+                (pass.length >> 24) & 0xFF,
+                (pass.length >> 16) & 0xFF,
+                (pass.legnth >> 8) & 0xFF,
+                pass.length & 0xFF
+            ]);
             this._sock.sendString(user);
             this._sock.sendString(pass);
 
