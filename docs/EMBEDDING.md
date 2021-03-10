@@ -83,7 +83,8 @@ browser reuses from its cache). To avoid this issue, the browser must be told
 to always revalidate cached files using conditional requests. The correct
 semantics are achieved via the (confusingly named) `Cache-Control: no-cache`
 header that needs to be provided in the web server responses.
-
+In additon to the `no-cache` header, the `no-store` header can be used to
+ prevent similar caching issues at caching layers above the browser level.
 ### Example Server Configurations
 
 Apache:
@@ -94,12 +95,14 @@ Apache:
     LoadModule headers_module modules/mod_headers.so
 
     # In the <Directory> or <Location> block related to noVNC
-    Header set Cache-Control "no-cache"
+    Header set Cache-Control "no-cache" # Do not cache in browser
+    # Header set Cache-Control "no-cache, no-store" # Request no caching anywhere
 ```
 
 Nginx:
 
 ```
     # In the location block related to noVNC
-    add_header Cache-Control no-cache;
+    add_header Cache-Control no-cache; # Do not cache in browser
+    # add_header Cache-Control no-cache, no-store; # Request no caching anywhere
 ```
