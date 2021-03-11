@@ -1427,8 +1427,8 @@ export default class RFB extends EventTargetMixin {
 
         // negotiated Plain subtype, server waits for password
         if (this._rfbVeNCryptState == 4) {
-            if (!this._rfbCredentials.username ||
-                !this._rfbCredentials.password) {
+            if (this._rfbCredentials.username === undefined ||
+                this._rfbCredentials.password === undefined) {
                 this.dispatchEvent(new CustomEvent(
                     "credentialsrequired",
                     { detail: { types: ["username", "password"] } }));
