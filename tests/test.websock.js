@@ -254,13 +254,7 @@ describe('Websock', function () {
         beforeEach(function () {
             sock = new Websock();
             // eslint-disable-next-line no-global-assign
-            WebSocket = sinon.spy();
-            WebSocket.OPEN = oldWS.OPEN;
-            WebSocket.CONNECTING = oldWS.CONNECTING;
-            WebSocket.CLOSING = oldWS.CLOSING;
-            WebSocket.CLOSED = oldWS.CLOSED;
-
-            WebSocket.prototype.binaryType = 'arraybuffer';
+            WebSocket = sinon.spy(FakeWebSocket);
         });
 
         describe('opening', function () {
@@ -278,7 +272,7 @@ describe('Websock', function () {
 
         describe('closing', function () {
             beforeEach(function () {
-                sock.open('ws://');
+                sock.open('ws://localhost');
                 sock._websocket.close = sinon.spy();
             });
 
@@ -324,7 +318,7 @@ describe('Websock', function () {
                 sock.on('open', sinon.spy());
                 sock.on('close', sinon.spy());
                 sock.on('error', sinon.spy());
-                sock.open('ws://');
+                sock.open('ws://localhost');
             });
 
             it('should call _recvMessage on a message', function () {

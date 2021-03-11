@@ -165,9 +165,9 @@ connection to a specified VNC server.
     existing contents of the `HTMLElement` will be untouched, but new
     elements will be added during the lifetime of the `RFB` object.
 
-**`url`**
+**`urlOrDataChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
-    a valid WebSocket URL.
+    a valid WebSocket URL. This can also be a `WebSocket` or `RTCDataChannel`.
 
 **`options`** *Optional*
   - An `Object` specifying extra details about how the connection
