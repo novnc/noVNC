@@ -1,21 +1,21 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
  */
 
-import { init_logging as main_init_logging } from '../core/util/logging.js';
+import { initLogging as mainInitLogging } from '../core/util/logging.js';
 
 // init log level reading the logging HTTP param
-export function init_logging(level) {
+export function initLogging(level) {
     "use strict";
     if (typeof level !== "undefined") {
-        main_init_logging(level);
+        mainInitLogging(level);
     } else {
         const param = document.location.href.match(/logging=([A-Za-z0-9._-]*)/);
-        main_init_logging(param || undefined);
+        mainInitLogging(param || undefined);
     }
 }
 
@@ -174,66 +174,4 @@ export function eraseSetting(name) {
     } else {
         localStorage.removeItem(name);
     }
-}
-
-export function injectParamIfMissing(path, param, value) {
-    // force pretend that we're dealing with a relative path
-    // (assume that we wanted an extra if we pass one in)
-    path = "/" + path;
-
-    const elem = document.createElement('a');
-    elem.href = path;
-
-    const param_eq = encodeURIComponent(param) + "=";
-    let query;
-    if (elem.search) {
-        query = elem.search.slice(1).split('&');
-    } else {
-        query = [];
-    }
-
-    if (!query.some(v => v.startsWith(param_eq))) {
-        query.push(param_eq + encodeURIComponent(value));
-        elem.search = "?" + query.join("&");
-    }
-
-    // some browsers (e.g. IE11) may occasionally omit the leading slash
-    // in the elem.pathname string. Handle that case gracefully.
-    if (elem.pathname.charAt(0) == "/") {
-        return elem.pathname.slice(1) + elem.search + elem.hash;
-    }
-
-    return elem.pathname + elem.search + elem.hash;
-}
-
-// sadly, we can't use the Fetch API until we decide to drop
-// IE11 support or polyfill promises and fetch in IE11.
-// resolve will receive an object on success, while reject
-// will receive either an event or an error on failure.
-export function fetchJSON(path) {
-    return new Promise((resolve, reject) => {
-        // NB: IE11 doesn't support JSON as a responseType
-        const req = new XMLHttpRequest();
-        req.open('GET', path);
-
-        req.onload = () => {
-            if (req.status === 200) {
-                let resObj;
-                try {
-                    resObj = JSON.parse(req.responseText);
-                } catch (err) {
-                    reject(err);
-                }
-                resolve(resObj);
-            } else {
-                reject(new Error("XHR got non-200 status while trying to load '" + path + "': " + req.status));
-            }
-        };
-
-        req.onerror = evt => reject(new Error("XHR encountered an error while trying to load '" + path + "': " + evt.message));
-
-        req.ontimeout = evt => reject(new Error("XHR timed out while trying to load '" + path + "'"));
-
-        req.send();
-    });
 }

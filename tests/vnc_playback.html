@@ -1,48 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>VNC Playback</title>
-        <!-- promise polyfills promises for IE11 -->
-        <script src="../vendor/promise.js"></script>
-        <!-- ES2015/ES6 modules polyfill -->
-        <script type="module">
-            window._noVNC_has_module_support = true;
-        </script>
-        <script>
-            window.addEventListener("load", function() {
-                if (window._noVNC_has_module_support) return;
-                var loader = document.createElement("script");
-                loader.src = "../vendor/browser-es-module-loader/dist/browser-es-module-loader.js";
-                document.head.appendChild(loader);
-            });
-        </script>
-        <!-- actual script modules -->
         <script type="module" src="./playback-ui.js"></script>
     </head>
     <body>
 
-        Iterations: <input id='iterations' style='width:50'>&nbsp;
+        Iterations: <input id='iterations'>&nbsp;
         Perftest:<input type='radio' id='mode1' name='mode' checked>&nbsp;
         Realtime:<input type='radio' id='mode2' name='mode'>&nbsp;&nbsp;
 
-        <input id='startButton' type='button' value='Start' style='width:100px' disabled>&nbsp;
+        <input id='startButton' type='button' value='Start' disabled>&nbsp;
 
         <br><br>
 
         Results:<br>
-        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
+        <textarea id="messages" cols=80 rows=25></textarea>
 
         <br><br>
 
         <div id="VNC_screen">
-            <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">
-                <table border=0 width=100%><tr>
-                    <td><div id="VNC_status">Loading</div></td>
-                </tr></table>
-            </div>
+            <div id="VNC_status">Loading</div>
         </div>
-
     </body>
-
-    <script type="module" src="./playback-ui.js">
 </html>

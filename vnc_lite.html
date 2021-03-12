@@ -7,7 +7,7 @@
 
     This is a self-contained file which doesn't import WebUtil or external CSS.
 
-    Copyright (C) 2018 The noVNC Authors
+    Copyright (C) 2019 The noVNC Authors
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -16,7 +16,7 @@
     -->
     <title>noVNC</title>
 
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
 
     <style>
 
@@ -57,24 +57,6 @@
 
     </style>
 
-    <!-- Promise polyfill for IE11 -->
-    <script src="vendor/promise.js"></script>
-
-    <!-- ES2015/ES6 modules polyfill -->
-    <script type="module">
-        window._noVNC_has_module_support = true;
-    </script>
-    <script>
-        window.addEventListener("load", function() {
-            if (window._noVNC_has_module_support) return;
-            const loader = document.createElement("script");
-            loader.src = "vendor/browser-es-module-loader/dist/" +
-                "browser-es-module-loader.js";
-            document.head.appendChild(loader);
-        });
-    </script>
-
-    <!-- actual script modules -->
     <script type="module" crossorigin="anonymous">
         // RFB holds the API to connect and communicate with a VNC server
         import RFB from './core/rfb.js';
@@ -134,7 +116,6 @@
             // because Firefox < 53 has a bug w.r.t location.search
             const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
                   match = document.location.href.match(re);
-            if (typeof defaultValue === 'undefined') { defaultValue = null; }
 
             if (match) {
                 // We have to decode the URL since want the cleartext value
@@ -151,7 +132,7 @@
         // By default, use the host and port of server that served this file
         const host = readQueryVariable('host', window.location.hostname);
         let port = readQueryVariable('port', window.location.port);
-        const password = readQueryVariable('password', '');
+        const password = readQueryVariable('password');
         const path = readQueryVariable('path', 'websockify');
 
         // | | |         | | |

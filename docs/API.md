@@ -24,13 +24,7 @@ protocol stream.
 `focusOnClick`
   - Is a `boolean` indicating if keyboard focus should automatically be
     moved to the remote session when a `mousedown` or `touchstart`
-    event is received.
-
-`touchButton`
-  - Is a `long` controlling the button mask that should be simulated
-    when a touch event is recieved. Uses the same values as
-    [`MouseEvent.button`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button).
-    Is set to `1` by default.
+    event is received. Enabled by default.
 
 `clipViewport`
   - Is a `boolean` indicating if the remote session should be clipped
@@ -63,6 +57,19 @@ protocol stream.
     style value indicating which background style should be applied
     to the element containing the remote session screen. The default value is `rgb(40, 40, 40)`
     (solid gray color).
+
+`qualityLevel`
+  - Is an `int` in range `[0-9]` controlling the desired JPEG quality.
+    Value `0` implies low quality and `9` implies high quality.
+    Default value is `6`.
+
+`compressionLevel`
+  - Is an `int` in range `[0-9]` controlling the desired compression
+    level. Value `0` means no compression. Level 1 uses a minimum of CPU
+    resources and achieves weak compression ratios, while level 9 offers
+    best compression but is slow in terms of CPU consumption on the server
+    side. Use high levels with very slow network connections.
+    Default value is `2`.
 
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
@@ -158,9 +165,9 @@ connection to a specified VNC server.
     existing contents of the `HTMLElement` will be untouched, but new
     elements will be added during the lifetime of the `RFB` object.
 
-**`url`**
+**`urlOrDataChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
-    a valid WebSocket URL.
+    a valid WebSocket URL. This can also be a `WebSocket` or `RTCDataChannel`.
 
 **`options`** *Optional*
   - An `Object` specifying extra details about how the connection
@@ -186,6 +193,10 @@ connection to a specified VNC server.
     `repeaterID`
       - A `DOMString` specifying the ID to provide to any VNC repeater
         encountered.
+
+    `wsProtocols`
+      - An `Array` of `DOMString`s specifying the sub-protocols to use
+        in the WebSocket connection. Empty by default.
 
 #### connect
 
@@ -371,5 +382,4 @@ to the remote server.
 ###### Parameters
 
 **`text`**
-  - A `DOMString` specifying the clipboard data to send. Currently only
-  characters from ISO 8859-1 are supported.
+  - A `DOMString` specifying the clipboard data to send.

@@ -1,3 +1,4 @@
+import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
 import fixedkeys from "./fixedkeys.js";
@@ -21,9 +22,8 @@ export function getKeycode(evt) {
     }
 
     // The de-facto standard is to use Windows Virtual-Key codes
-    // in the 'keyCode' field for non-printable characters. However
-    // Webkit sets it to the same as charCode in 'keypress' events.
-    if ((evt.type !== 'keypress') && (evt.keyCode in vkeys)) {
+    // in the 'keyCode' field for non-printable characters
+    if (evt.keyCode in vkeys) {
         let code = vkeys[evt.keyCode];
 
         // macOS has messed up this code for some reason
@@ -68,29 +68,11 @@ export function getKeycode(evt) {
 export function getKey(evt) {
     // Are we getting a proper key value?
     if (evt.key !== undefined) {
-        // IE and Edge use some ancient version of the spec
-        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
-        switch (evt.key) {
-            case 'Spacebar': return ' ';
-            case 'Esc': return 'Escape';
-            case 'Scroll': return 'ScrollLock';
-            case 'Win': return 'Meta';
-            case 'Apps': return 'ContextMenu';
-            case 'Up': return 'ArrowUp';
-            case 'Left': return 'ArrowLeft';
-            case 'Right': return 'ArrowRight';
-            case 'Down': return 'ArrowDown';
-            case 'Del': return 'Delete';
-            case 'Divide': return '/';
-            case 'Multiply': return '*';
-            case 'Subtract': return '-';
-            case 'Add': return '+';
-            case 'Decimal': return evt.char;
-        }
-
         // Mozilla isn't fully in sync with the spec yet
         switch (evt.key) {
             case 'OS': return 'Meta';
+            case 'LaunchMyComputer': return 'LaunchApplication1';
+            case 'LaunchCalculator': return 'LaunchApplication2';
         }
 
         // iOS leaks some OS names
@@ -102,11 +84,12 @@ export function getKey(evt) {
             case 'UIKeyInputEscape': return 'Escape';
         }
 
-        // IE and Edge have broken handling of AltGraph so we cannot
-        // trust them for printable characters
-        if ((evt.key.length !== 1) || (!browser.isIE() && !browser.isEdge())) {
-            return evt.key;
+        // Broken behaviour in Chrome
+        if ((evt.key === '\x00') && (evt.code === 'NumpadDecimal')) {
+            return 'Delete';
         }
+
+        return evt.key;
     }
 
     // Try to deduce it based on the physical key
@@ -141,8 +124,52 @@ export function getKeysym(evt) {
             location = 2;
         }
 
+        // And for Clear
+        if ((key === 'Clear') && (location === 3)) {
+            let code = getKeycode(evt);
+            if (code === 'NumLock') {
+                location = 0;
+            }
+        }
+
         if ((location === undefined) || (location > 3)) {
             location = 0;
+        }
+
+        // The original Meta key now gets confused with the Windows key
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=1020141
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1232918
+        if (key === 'Meta') {
+            let code = getKeycode(evt);
+            if (code === 'AltLeft') {
+                return KeyTable.XK_Meta_L;
+            } else if (code === 'AltRight') {
+                return KeyTable.XK_Meta_R;
+            }
+        }
+
+        // macOS has Clear instead of NumLock, but the remote system is
+        // probably not macOS, so lying here is probably best...
+        if (key === 'Clear') {
+            let code = getKeycode(evt);
+            if (code === 'NumLock') {
+                return KeyTable.XK_Num_Lock;
+            }
+        }
+
+        // Windows sends alternating symbols for some keys when using a
+        // Japanese layout. We have no way of synchronising with the IM
+        // running on the remote system, so we send some combined keysym
+        // instead and hope for the best.
+        if (browser.isWindows()) {
+            switch (key) {
+                case 'Zenkaku':
+                case 'Hankaku':
+                    return KeyTable.XK_Zenkaku_Hankaku;
+                case 'Romaji':
+                case 'KanaMode':
+                    return KeyTable.XK_Romaji;
+            }
         }
 
         return DOMKeyTable[key][location];

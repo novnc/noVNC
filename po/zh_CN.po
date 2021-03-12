@@ -1,14 +1,14 @@
 # Simplified Chinese translations for noVNC package.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2020 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Peter Dave Hello <hsu@peterdavehello.org>, 2018.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.0.0-testing.2\n"
+"Project-Id-Version: noVNC 1.1.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2018-01-10 00:53+0800\n"
-"PO-Revision-Date: 2018-04-06 21:33+0800\n"
+"PO-Revision-Date: 2020-01-02 13:19+0800\n"
 "Last-Translator: CUI Wei <ghostplant@qq.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -17,15 +17,15 @@ msgstr ""
 
 #: ../app/ui.js:395
 msgid "Connecting..."
-msgstr "链接中..."
+msgstr "连接中..."
 
 #: ../app/ui.js:402
 msgid "Disconnecting..."
-msgstr "正在中断连接..."
+msgstr "正在断开连接..."
 
 #: ../app/ui.js:408
 msgid "Reconnecting..."
-msgstr "重新链接中..."
+msgstr "重新连接中..."
 
 #: ../app/ui.js:413
 msgid "Internal error"
@@ -37,31 +37,31 @@ msgstr "请提供主机名"
 
 #: ../app/ui.js:1097
 msgid "Connected (encrypted) to "
-msgstr "已加密链接到"
+msgstr "已连接到（加密）"
 
 #: ../app/ui.js:1099
 msgid "Connected (unencrypted) to "
-msgstr "未加密链接到"
+msgstr "已连接到（未加密）"
 
 #: ../app/ui.js:1120
 msgid "Something went wrong, connection is closed"
-msgstr "发生错误，链接已关闭"
+msgstr "发生错误，连接已关闭"
 
 #: ../app/ui.js:1123
 msgid "Failed to connect to server"
-msgstr "无法链接到服务器"
+msgstr "无法连接到服务器"
 
 #: ../app/ui.js:1133
 msgid "Disconnected"
-msgstr "链接已中断"
+msgstr "已断开连接"
 
 #: ../app/ui.js:1146
 msgid "New connection has been rejected with reason: "
-msgstr "链接被拒绝，原因："
+msgstr "连接被拒绝，原因："
 
 #: ../app/ui.js:1149
 msgid "New connection has been rejected"
-msgstr "链接被拒绝"
+msgstr "连接被拒绝"
 
 #: ../app/ui.js:1170
 msgid "Password is required"
@@ -73,7 +73,7 @@ msgstr "noVNC 遇到一个错误："
 
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
-msgstr "显示/隐藏控制列"
+msgstr "显示/隐藏控制栏"
 
 #: ../vnc.html:106
 msgid "Move/Drag Viewport"
@@ -193,7 +193,7 @@ msgstr "清除"
 
 #: ../vnc.html:187
 msgid "Fullscreen"
-msgstr "全屏幕"
+msgstr "全屏"
 
 #: ../vnc.html:192 ../vnc.html:199
 msgid "Settings"
@@ -205,7 +205,7 @@ msgstr "分享模式"
 
 #: ../vnc.html:205
 msgid "View Only"
-msgstr "仅检视"
+msgstr "仅查看"
 
 #: ../vnc.html:209
 msgid "Clip to Window"
@@ -257,11 +257,11 @@ msgstr "路径："
 
 #: ../vnc.html:249
 msgid "Automatic Reconnect"
-msgstr "自动重新链接"
+msgstr "自动重新连接"
 
 #: ../vnc.html:252
 msgid "Reconnect Delay (ms):"
-msgstr "重新链接间隔 (ms)："
+msgstr "重新连接间隔 (ms)："
 
 #: ../vnc.html:258
 msgid "Logging:"
@@ -269,11 +269,11 @@ msgstr "日志级别："
 
 #: ../vnc.html:270
 msgid "Disconnect"
-msgstr "终端链接"
+msgstr "中断连接"
 
 #: ../vnc.html:289
 msgid "Connect"
-msgstr "链接"
+msgstr "连接"
 
 #: ../vnc.html:299
 msgid "Password:"

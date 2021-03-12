@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -10,18 +10,18 @@
  * Logging/debug routines
  */
 
-let _log_level = 'warn';
+let _logLevel = 'warn';
 
 let Debug = () => {};
 let Info = () => {};
 let Warn = () => {};
 let Error = () => {};
 
-export function init_logging(level) {
+export function initLogging(level) {
     if (typeof level === 'undefined') {
-        level = _log_level;
+        level = _logLevel;
     } else {
-        _log_level = level;
+        _logLevel = level;
     }
 
     Debug = Info = Warn = Error = () => {};
@@ -46,11 +46,11 @@ export function init_logging(level) {
     }
 }
 
-export function get_logging() {
-    return _log_level;
+export function getLogging() {
+    return _logLevel;
 }
 
 export { Debug, Info, Warn, Error };
 
 // Initialize logging level
-init_logging();
+initLogging();

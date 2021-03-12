@@ -1,9 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2019 The noVNC Authors
  * (c) 2012 Michael Tinglof, Joe Balaz, Les Piech (Mercuri.ca)
- * Copyright (C) 2018 Samuel Mannehed for Cendio AB
- * Copyright (C) 2018 Pierre Ossman for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -58,7 +56,7 @@ export default class TightDecoder {
         } else if (this._ctl === 0x0A) {
             ret = this._pngRect(x, y, width, height,
                                 sock, display, depth);
-        } else if ((this._ctl & 0x80) == 0) {
+        } else if ((this._ctl & 0x08) == 0) {
             ret = this._basicRect(this._ctl, x, y, width, height,
                                   sock, display, depth);
         } else {
@@ -82,7 +80,7 @@ export default class TightDecoder {
         const rQ = sock.rQ;
 
         display.fillRect(x, y, width, height,
-                         [rQ[rQi + 2], rQ[rQi + 1], rQ[rQi]], false);
+                         [rQ[rQi], rQ[rQi + 1], rQ[rQi + 2]], false);
         sock.rQskipBytes(3);
 
         return true;
@@ -94,7 +92,7 @@ export default class TightDecoder {
             return false;
         }
 
-        display.imageRect(x, y, "image/jpeg", data);
+        display.imageRect(x, y, width, height, "image/jpeg", data);
 
         return true;
     }
@@ -150,6 +148,10 @@ export default class TightDecoder {
         const uncompressedSize = width * height * 3;
         let data;
 
+        if (uncompressedSize === 0) {
+            return true;
+        }
+
         if (uncompressedSize < 12) {
             if (sock.rQwait("TIGHT", uncompressedSize)) {
                 return false;
@@ -162,13 +164,20 @@ export default class TightDecoder {
                 return false;
             }
 
-            data = this._zlibs[streamId].inflate(data, true, uncompressedSize);
-            if (data.length != uncompressedSize) {
-                throw new Error("Incomplete zlib block");
-            }
+            this._zlibs[streamId].setInput(data);
+            data = this._zlibs[streamId].inflate(uncompressedSize);
+            this._zlibs[streamId].setInput(null);
         }
 
-        display.blitRgbImage(x, y, width, height, data, 0, false);
+        let rgbx = new Uint8Array(width * height * 4);
+        for (let i = 0, j = 0; i < width * height * 4; i += 4, j += 3) {
+            rgbx[i]     = data[j];
+            rgbx[i + 1] = data[j + 1];
+            rgbx[i + 2] = data[j + 2];
+            rgbx[i + 3] = 255;  // Alpha
+        }
+
+        display.blitImage(x, y, width, height, rgbx, 0, false);
 
         return true;
     }
@@ -198,6 +207,10 @@ export default class TightDecoder {
 
         let data;
 
+        if (uncompressedSize === 0) {
+            return true;
+        }
+
         if (uncompressedSize < 12) {
             if (sock.rQwait("TIGHT", uncompressedSize)) {
                 return false;
@@ -210,10 +223,9 @@ export default class TightDecoder {
                 return false;
             }
 
-            data = this._zlibs[streamId].inflate(data, true, uncompressedSize);
-            if (data.length != uncompressedSize) {
-                throw new Error("Incomplete zlib block");
-            }
+            this._zlibs[streamId].setInput(data);
+            data = this._zlibs[streamId].inflate(uncompressedSize);
+            this._zlibs[streamId].setInput(null);
         }
 
         // Convert indexed (palette based) image data to RGB
@@ -241,7 +253,7 @@ export default class TightDecoder {
                 for (let b = 7; b >= 0; b--) {
                     dp = (y * width + x * 8 + 7 - b) * 4;
                     sp = (data[y * w + x] >> b & 1) * 3;
-                    dest[dp] = palette[sp];
+                    dest[dp]     = palette[sp];
                     dest[dp + 1] = palette[sp + 1];
                     dest[dp + 2] = palette[sp + 2];
                     dest[dp + 3] = 255;
@@ -251,14 +263,14 @@ export default class TightDecoder {
             for (let b = 7; b >= 8 - width % 8; b--) {
                 dp = (y * width + x * 8 + 7 - b) * 4;
                 sp = (data[y * w + x] >> b & 1) * 3;
-                dest[dp] = palette[sp];
+                dest[dp]     = palette[sp];
                 dest[dp + 1] = palette[sp + 1];
                 dest[dp + 2] = palette[sp + 2];
                 dest[dp + 3] = 255;
             }
         }
 
-        display.blitRgbxImage(x, y, width, height, dest, 0, false);
+        display.blitImage(x, y, width, height, dest, 0, false);
     }
 
     _paletteRect(x, y, width, height, data, palette, display) {
@@ -267,13 +279,13 @@ export default class TightDecoder {
         const total = width * height * 4;
         for (let i = 0, j = 0; i < total; i += 4, j++) {
             const sp = data[j] * 3;
-            dest[i] = palette[sp];
+            dest[i]     = palette[sp];
             dest[i + 1] = palette[sp + 1];
             dest[i + 2] = palette[sp + 2];
             dest[i + 3] = 255;
         }
 
-        display.blitRgbxImage(x, y, width, height, dest, 0, false);
+        display.blitImage(x, y, width, height, dest, 0, false);
     }
 
     _gradientFilter(streamId, x, y, width, height, sock, display, depth) {

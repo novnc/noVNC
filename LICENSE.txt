@@ -1,4 +1,4 @@
-noVNC is Copyright (C) 2018 The noVNC Authors
+noVNC is Copyright (C) 2019 The noVNC Authors
 (./AUTHORS)
 
 The noVNC core library files are licensed under the MPL 2.0 (Mozilla
@@ -41,12 +41,6 @@ licenses (all MPL 2.0 compatible):
     core/des.js             : Various BSD style licenses
 
     vendor/pako/            : MIT
-
-    vendor/browser-es-module-loader/src/ : MIT
-
-    vendor/browser-es-module-loader/dist/ : Various BSD style licenses
-
-    vendor/promise.js       : MIT
 
 Any other files not mentioned above are typically marked with
 a copyright/license header at the top of the file. The default noVNC

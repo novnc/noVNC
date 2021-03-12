@@ -1,6 +1,6 @@
 /*
  * noVNC base CSS
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -83,8 +83,20 @@ html {
  * ----------------------------------------
  */
 
-input[type=input], input[type=password], input[type=number],
-input:not([type]), textarea {
+input:not([type]),
+input[type=date],
+input[type=datetime-local],
+input[type=email],
+input[type=month],
+input[type=number],
+input[type=password],
+input[type=search],
+input[type=tel],
+input[type=text],
+input[type=time],
+input[type=url],
+input[type=week],
+textarea {
   /* Disable default rendering */
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -98,7 +110,11 @@ input:not([type]), textarea {
   background: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
 }
 
-input[type=button], input[type=submit], select {
+input[type=button],
+input[type=color],
+input[type=reset],
+input[type=submit],
+select {
   /* Disable default rendering */
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -116,7 +132,10 @@ input[type=button], input[type=submit], select {
   vertical-align: middle;
 }
 
-input[type=button], input[type=submit] {
+input[type=button],
+input[type=color],
+input[type=reset],
+input[type=submit] {
   padding-left: 20px;
   padding-right: 20px;
 }
@@ -126,35 +145,72 @@ option {
   background: white;
 }
 
-input[type=input]:focus, input[type=password]:focus,
-input:not([type]):focus, input[type=button]:focus,
+input:not([type]):focus,
+input[type=button]:focus,
+input[type=color]:focus,
+input[type=date]:focus,
+input[type=datetime-local]:focus,
+input[type=email]:focus,
+input[type=month]:focus,
+input[type=number]:focus,
+input[type=password]:focus,
+input[type=reset]:focus,
+input[type=search]:focus,
 input[type=submit]:focus,
-textarea:focus, select:focus {
+input[type=tel]:focus,
+input[type=text]:focus,
+input[type=time]:focus,
+input[type=url]:focus,
+input[type=week]:focus,
+select:focus,
+textarea:focus {
   box-shadow: 0px 0px 3px rgba(74, 144, 217, 0.5);
   border-color: rgb(74, 144, 217);
   outline: none;
 }
 
 input[type=button]::-moz-focus-inner,
+input[type=color]::-moz-focus-inner,
+input[type=reset]::-moz-focus-inner,
 input[type=submit]::-moz-focus-inner {
   border: none;
 }
 
-input[type=input]:disabled, input[type=password]:disabled,
-input:not([type]):disabled, input[type=button]:disabled,
-input[type=submit]:disabled, input[type=number]:disabled,
-textarea:disabled, select:disabled {
+input:not([type]):disabled,
+input[type=button]:disabled,
+input[type=color]:disabled,
+input[type=date]:disabled,
+input[type=datetime-local]:disabled,
+input[type=email]:disabled,
+input[type=month]:disabled,
+input[type=number]:disabled,
+input[type=password]:disabled,
+input[type=reset]:disabled,
+input[type=search]:disabled,
+input[type=submit]:disabled,
+input[type=tel]:disabled,
+input[type=text]:disabled,
+input[type=time]:disabled,
+input[type=url]:disabled,
+input[type=week]:disabled,
+select:disabled,
+textarea:disabled {
   color: rgb(128, 128, 128);
   background: rgb(240, 240, 240);
 }
 
-input[type=button]:active, input[type=submit]:active,
+input[type=button]:active,
+input[type=color]:active,
+input[type=reset]:active,
+input[type=submit]:active,
 select:active {
   border-bottom-width: 1px;
   margin-top: 3px;
 }
 
 :root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
+:root:not(.noVNC_touch) input[type=color]:hover:not(:disabled),
+:root:not(.noVNC_touch) input[type=reset]:hover:not(:disabled),
 :root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
 :root:not(.noVNC_touch) select:hover:not(:disabled) {
   background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
@@ -579,7 +635,7 @@ select:active {
 }
 
 /* Extra manual keys */
-:root:not(.noVNC_connected) #noVNC_extra_keys {
+:root:not(.noVNC_connected) #noVNC_toggle_extra_keys_button {
   display: none;
 }
 
@@ -629,6 +685,16 @@ select:active {
 }
 #noVNC_setting_path {
   width: 100px;
+}
+
+/* Version */
+
+.noVNC_version_wrapper {
+  font-size: small;
+}
+
+.noVNC_version {
+  margin-left: 1rem;
 }
 
 /* Connection Controls */
@@ -780,19 +846,23 @@ select:active {
  * ----------------------------------------
  */
 
-#noVNC_password_dlg {
+#noVNC_credentials_dlg {
   position: relative;
 
   transform: translateY(-50px);
 }
-#noVNC_password_dlg.noVNC_open {
+#noVNC_credentials_dlg.noVNC_open {
   transform: translateY(0);
 }
-#noVNC_password_dlg ul {
+#noVNC_credentials_dlg ul {
   list-style: none;
   margin: 0px;
   padding: 0px;
 }
+.noVNC_hidden {
+  display: none;
+}
+
 
 /* ----------------------------------------
  * Main Area

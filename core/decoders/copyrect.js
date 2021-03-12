@@ -1,8 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2018 Samuel Mannehed for Cendio AB
- * Copyright (C) 2018 Pierre Ossman for Cendio AB
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -17,6 +15,11 @@ export default class CopyRectDecoder {
 
         let deltaX = sock.rQshift16();
         let deltaY = sock.rQshift16();
+
+        if ((width === 0) || (height === 0)) {
+            return true;
+        }
+
         display.copyImage(deltaX, deltaY, x, y, width, height);
 
         return true;

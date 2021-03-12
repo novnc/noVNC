@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -20,12 +20,15 @@ export const encodings = {
     pseudoEncodingLastRect: -224,
     pseudoEncodingCursor: -239,
     pseudoEncodingQEMUExtendedKeyEvent: -258,
+    pseudoEncodingDesktopName: -307,
     pseudoEncodingExtendedDesktopSize: -308,
     pseudoEncodingXvp: -309,
     pseudoEncodingFence: -312,
     pseudoEncodingContinuousUpdates: -313,
     pseudoEncodingCompressLevel9: -247,
     pseudoEncodingCompressLevel0: -256,
+    pseudoEncodingVMwareCursor: 0x574d5664,
+    pseudoEncodingExtendedClipboard: 0xc0a1e5ce
 };
 
 export function encodingName(num) {

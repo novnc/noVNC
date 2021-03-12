@@ -1,9 +1,11 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
+ *
+ * Browser feature support detection
  */
 
 import * as Log from './logging.js';
@@ -31,7 +33,7 @@ try {
     const target = document.createElement('canvas');
     target.style.cursor = 'url("data:image/x-icon;base64,AAACAAEACAgAAAIAAgA4AQAAFgAAACgAAAAIAAAAEAAAAAEAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAD/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAA==") 2 2, default';
 
-    if (target.style.cursor) {
+    if (target.style.cursor.indexOf("url") === 0) {
         Log.Info("Data URI scheme cursor supported");
         _supportsCursorURIs = true;
     } else {
@@ -43,14 +45,37 @@ try {
 
 export const supportsCursorURIs = _supportsCursorURIs;
 
-let _supportsImageMetadata = false;
+let _hasScrollbarGutter = true;
 try {
-    new ImageData(new Uint8ClampedArray(4), 1, 1);
-    _supportsImageMetadata = true;
-} catch (ex) {
-    // ignore failure
+    // Create invisible container
+    const container = document.createElement('div');
+    container.style.visibility = 'hidden';
+    container.style.overflow = 'scroll'; // forcing scrollbars
+    document.body.appendChild(container);
+
+    // Create a div and place it in the container
+    const child = document.createElement('div');
+    container.appendChild(child);
+
+    // Calculate the difference between the container's full width
+    // and the child's width - the difference is the scrollbars
+    const scrollbarWidth = (container.offsetWidth - child.offsetWidth);
+
+    // Clean up
+    container.parentNode.removeChild(container);
+
+    _hasScrollbarGutter = scrollbarWidth != 0;
+} catch (exc) {
+    Log.Error("Scrollbar test exception: " + exc);
 }
-export const supportsImageMetadata = _supportsImageMetadata;
+export const hasScrollbarGutter = _hasScrollbarGutter;
+
+/*
+ * The functions for detection of platforms and browsers below are exported
+ * but the use of these should be minimized as much as possible.
+ *
+ * It's better to use feature detection than platform detection.
+ */
 
 export function isMac() {
     return navigator && !!(/mac/i).exec(navigator.platform);
@@ -67,21 +92,9 @@ export function isIOS() {
             !!(/ipod/i).exec(navigator.platform));
 }
 
-export function isAndroid() {
-    return navigator && !!(/android/i).exec(navigator.userAgent);
-}
-
 export function isSafari() {
     return navigator && (navigator.userAgent.indexOf('Safari') !== -1 &&
                          navigator.userAgent.indexOf('Chrome') === -1);
-}
-
-export function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-
-export function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
 }
 
 export function isFirefox() {
