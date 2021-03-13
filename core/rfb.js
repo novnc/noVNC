@@ -1455,13 +1455,13 @@ export default class RFB extends EventTargetMixin {
             this._sock.send([
                 (user.length >> 24) & 0xFF,
                 (user.length >> 16) & 0xFF,
-                (user.legnth >> 8) & 0xFF,
+                (user.length >> 8) & 0xFF,
                 user.length & 0xFF
             ]);
             this._sock.send([
                 (pass.length >> 24) & 0xFF,
                 (pass.length >> 16) & 0xFF,
-                (pass.legnth >> 8) & 0xFF,
+                (pass.length >> 8) & 0xFF,
                 pass.length & 0xFF
             ]);
             this._sock.sendString(user);

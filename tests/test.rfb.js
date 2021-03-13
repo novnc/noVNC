@@ -1378,6 +1378,102 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(client._fail).to.have.been.calledOnce;
                 });
             });
+
+            describe('VeNCrypt Authentication (type 19) Handler', function () {
+                beforeEach(function () {
+                    client._rfbInitState = 'Security';
+                    client._rfbVersion = 3.8;
+                    sendSecurity(19, client);
+                    expect(client._sock).to.have.sent(new Uint8Array([19]));
+                });
+
+                it('should fail with non-0.2 versions', function () {
+                    sinon.spy(client, "_fail");
+                    client._sock._websocket._receiveData(new Uint8Array([0, 1]));
+                    expect(client._fail).to.have.been.calledOnce;
+                });
+
+                it('should fail if the Plain authentication is not present', function () {
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list, only list subtype 1.
+                    sinon.spy(client, "_fail");
+                    client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 0, 1]));
+                    expect(client._fail).to.have.been.calledOnce;
+                });
+
+                it('should support Plain authentication', function () {
+                    client._rfbCredentials = { username: 'username', password: 'password' };
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list.
+                    client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+
+                    const expectedResponse = [];
+                    push32(expectedResponse, 256); // Chosen subtype.
+                    push32(expectedResponse, client._rfbCredentials.username.length);
+                    push32(expectedResponse, client._rfbCredentials.password.length);
+                    pushString(expectedResponse, client._rfbCredentials.username);
+                    pushString(expectedResponse, client._rfbCredentials.password);
+                    expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
+
+                    client._initMsg = sinon.spy();
+                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
+                    expect(client._initMsg).to.have.been.called;
+                });
+
+                it('should support Plain authentication with an empty password', function () {
+                    client._rfbCredentials = { username: 'username', password: '' };
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list.
+                    client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+
+                    const expectedResponse = [];
+                    push32(expectedResponse, 256); // Chosen subtype.
+                    push32(expectedResponse, client._rfbCredentials.username.length);
+                    push32(expectedResponse, client._rfbCredentials.password.length);
+                    pushString(expectedResponse, client._rfbCredentials.username);
+                    pushString(expectedResponse, client._rfbCredentials.password);
+                    expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
+
+                    client._initMsg = sinon.spy();
+                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
+                    expect(client._initMsg).to.have.been.called;
+                });
+
+                it('should support Plain authentication with a very long username and password', function () {
+                    client._rfbCredentials = { username: 'a'.repeat(300), password: 'a'.repeat(300) };
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list.
+                    client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+
+                    const expectedResponse = [];
+                    push32(expectedResponse, 256); // Chosen subtype.
+                    push32(expectedResponse, client._rfbCredentials.username.length);
+                    push32(expectedResponse, client._rfbCredentials.password.length);
+                    pushString(expectedResponse, client._rfbCredentials.username);
+                    pushString(expectedResponse, client._rfbCredentials.password);
+                    expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
+
+                    client._initMsg = sinon.spy();
+                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
+                    expect(client._initMsg).to.have.been.called;
+                });
+            });
         });
 
         describe('SecurityResult', function () {
