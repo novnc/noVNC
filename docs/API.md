@@ -113,9 +113,9 @@ protocol stream.
   - The `capabilities` event is fired when `RFB.capabilities` is
     updated.
 
-[`pointerlock`](#pointerlock)
-  - The `pointerlock` event is fired when the Pointer Lock is acquired (or
-    released) by the canvas.
+[`inputlock`](#inputlock)
+  - The `inputlock` event is fired when an input lock is acquired (or released)
+    by the canvas.
 
 ### Methods
 
@@ -150,8 +150,8 @@ protocol stream.
 [`RFB.clipboardPasteFrom()`](#rfbclipboardPasteFrom)
   - Send clipboard contents to server.
 
-[`RFB.requestPointerLock()`](#rfbrequestPointerLock)
-  - Requests that the RFB canvas acquire a Pointer Lock.
+[`RFB.requestInputLock()`](#rfbrequestInputLock)
+  - Requests that the RFB canvas acquire an input lock.
 
 ### Details
 
@@ -269,14 +269,14 @@ The `capabilities` event is fired whenever an entry is added or removed
 from `RFB.capabilities`. The `detail` property is an `Object` with the
 property `capabilities` containing the new value of `RFB.capabilities`.
 
-#### pointerlock
+#### inputlock
 
-The `pointerlock` event is fired when the state of the canvas' Pointer Lock has
-changed, either because it has successfully acquired the lock and will have
-full control of the mouse pointer, or because the lock was released by the user
-pressing the ESC key or performing a browser-specific gesture. The `detail`
-property is an `Object` with the property `pointerlock` containing whether the
-lock is currently held or not.
+The `inputlock` event is fired after a request to acquire an input lock or
+whenever the state of the canvas' input lock has changed, the latter typically
+occurs because the lock was released by the user pressing the ESC key or
+performing a browser-specific gesture.  The `detail` property is an `Object`
+with the property `pointer` containing whether the Pointer Lock is currently
+held or not.
 
 #### RFB.disconnect()
 
@@ -400,18 +400,23 @@ to the remote server.
 **`text`**
   - A `DOMString` specifying the clipboard data to send.
 
-#### RFB.requestPointerLock()
+#### RFB.requestInputLock()
 
-The `RFB.requestPointerLock()` method is used to request that the RFB canvas
-hold a [Pointer
-Lock](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API), which
-hides the mouse cursor and provides relative motion events. This must be called
-directly from an event handler where a user has directly interacted with the
-browser for the browser to allow this.
-
-If the acquisition of the pointer lock is successful, a `pointerlock` event
-will be fired.
+The `RFB.requestInputLock()` method is used to request that the RFB canvas hold
+an input lock. An `inputlock` event will be fired with the result of the
+acquisition of the requested locks.
 
 ##### Syntax
 
-    RFB.requestPointerLock( );
+    RFB.requestInputLock( { pointer: true } );
+
+###### Parameters
+
+**`pointer`**
+  - Requests to acquire a [Pointer
+    Lock](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API),
+    which hides the local mouse cursor and provides relative motion events.
+    This must be called directly from an event handler where a user has
+    directly interacted with an element through an [engagement
+    gesture](https://w3c.github.io/pointerlock/#dfn-engagement-gesture) (e.g. a
+    click or touch event) for the browser to allow this.

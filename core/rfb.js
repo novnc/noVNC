@@ -170,6 +170,7 @@ export default class RFB extends EventTargetMixin {
             windowResize: this._windowResize.bind(this),
             handleMouse: this._handleMouse.bind(this),
             handlePointerLockChange: this._handlePointerLockChange.bind(this),
+            handlePointerLockError: this._handlePointerLockError.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
         };
@@ -479,12 +480,22 @@ export default class RFB extends EventTargetMixin {
         this._canvas.blur();
     }
 
-    requestPointerLock() {
-        if (this._canvas.requestPointerLock) {
-            this._canvas.requestPointerLock();
-        } else if (this._canvas.mozRequestPointerLock) {
-            this._canvas.mozRequestPointerLock();
+    requestInputLock(locks) {
+        if (locks.pointer) {
+            if (this._canvas.requestPointerLock) {
+                this._canvas.requestPointerLock();
+                return;
+            }
+            if (this._canvas.mozRequestPointerLock) {
+                this._canvas.mozRequestPointerLock();
+                return;
+            }
         }
+        // If we were not able to request any lock, still let the user know
+        // about the result.
+        this.dispatchEvent(new CustomEvent(
+            "inputlock",
+            { detail: { pointer: this._pointerLock }, }));
     }
 
     clipboardPasteFrom(text) {
@@ -549,8 +560,14 @@ export default class RFB extends EventTargetMixin {
         // preventDefault() on mousedown doesn't stop this event for some
         // reason so we have to explicitly block it
         this._canvas.addEventListener('contextmenu', this._eventHandlers.handleMouse);
-        // This needs to be installed in document instead of the canvas.
-        document.addEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange);
+        // Pointer Lock listeners need to be installed in document instead of the canvas.
+        if (document.onpointerlockchange !== undefined) {
+            document.addEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange, false);
+            document.addEventListener('pointerlockerror', this._eventHandlers.handlePointerLockError, false);
+        } else if (document.onmozpointerlockchange !== undefined) {
+            document.addEventListener('mozpointerlockchange', this._eventHandlers.handlePointerLockChange, false);
+            document.addEventListener('mozpointerlockerror', this._eventHandlers.handlePointerLockError, false);
+        }
 
         // Wheel events
         this._canvas.addEventListener("wheel", this._eventHandlers.handleWheel);
@@ -575,7 +592,13 @@ export default class RFB extends EventTargetMixin {
         this._canvas.removeEventListener('mousemove', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('click', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('contextmenu', this._eventHandlers.handleMouse);
-        document.removeEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange);
+        if (document.onpointerlockchange !== undefined) {
+            document.removeEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange);
+            document.removeEventListener('pointerlockerror', this._eventHandlers.handlePointerLockError);
+        } else if (document.onmozpointerlockchange !== undefined) {
+            document.removeEventListener('mozpointerlockchange', this._eventHandlers.handlePointerLockChange);
+            document.removeEventListener('mozpointerlockerror', this._eventHandlers.handlePointerLockError);
+        }
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
@@ -1031,8 +1054,14 @@ export default class RFB extends EventTargetMixin {
             this._cursor.setEmulateCursor(false);
         }
         this.dispatchEvent(new CustomEvent(
-            "pointerlock",
-            { detail: { pointerlock: this._pointerLock }, }));
+            "inputlock",
+            { detail: { pointer: this._pointerLock }, }));
+    }
+
+    _handlePointerLockError() {
+        this.dispatchEvent(new CustomEvent(
+            "inputlock",
+            { detail: { pointer: this._pointerLock }, }));
     }
 
     _sendMouse(x, y, mask) {

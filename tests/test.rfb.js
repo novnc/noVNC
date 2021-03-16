@@ -2683,14 +2683,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._resize(100, 100);
 
                 const spy = sinon.spy();
-                client.addEventListener("pointerlock", spy);
+                client.addEventListener("inputlock", spy);
                 let stub = sinon.stub(document, 'pointerLockElement');
                 stub.get(function () { return client._canvas; });
                 client._handlePointerLockChange();
                 stub.restore();
                 client._sock._websocket._receiveData(new Uint8Array([0x02, 0x02]));
                 expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.pointerlock).to.be.true;
+                expect(spy.args[0][0].detail.pointer).to.be.true;
 
                 const cursorSpy = sinon.spy(client, '_handleVMwareCursorPosition');
                 client._sock._websocket._receiveData(new Uint8Array(incoming));

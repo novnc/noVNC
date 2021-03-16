@@ -1041,7 +1041,7 @@ const UI = {
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
-        UI.rfb.addEventListener("pointerlock", UI.pointerLockChanged);
+        UI.rfb.addEventListener("inputlock", UI.inputLockChanged);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
@@ -1324,7 +1324,7 @@ const UI = {
     },
 
     requestPointerLock() {
-        UI.rfb.requestPointerLock();
+        UI.rfb.requestInputLock({ pointer: true });
     },
 
 /* ------^-------
@@ -1695,8 +1695,8 @@ const UI = {
         document.title = e.detail.name + " - " + PAGE_TITLE;
     },
 
-    pointerLockChanged(e) {
-        if (e.detail.pointerlock) {
+    inputLockChanged(e) {
+        if (e.detail.pointer) {
             document
                 .getElementById("noVNC_pointer_lock_button")
                 .classList.add("noVNC_selected");
