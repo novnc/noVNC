@@ -1251,6 +1251,7 @@ const UI = {
             document.getElementById('noVNC_fullscreen_button')
                 .classList.remove("noVNC_selected");
         }
+        UI.updatePointerLockButton();
     },
 
 /* ------^-------
@@ -1308,8 +1309,13 @@ const UI = {
 
     updatePointerLockButton() {
         // Only show the button if the pointer lock API is properly supported
+        // AND in fullscreen.
         if (
             UI.connected &&
+            (document.fullscreenElement || // alternative standard method
+             document.mozFullScreenElement || // currently working methods
+             document.webkitFullscreenElement ||
+             document.msFullscreenElement) &&
             (document.pointerLockElement !== undefined ||
                 document.mozPointerLockElement !== undefined)
         ) {
