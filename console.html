@@ -42,13 +42,70 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Home Screen Icons (favourites and bookmarks use the normal icons) -->
-    <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
+    <!-- <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
     <link rel="apple-touch-icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
     <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
-    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
+    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png"> -->
+    <link rel="shortcut icon" href="app/images/icons/favicon.ico">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/base.css">
+    <style>
+        /* .noVNC_logo span{
+            color: #a4027d !important;
+        } */
+        #noVNC_control_bar .noVNC_scroll .noVNC_logo{
+            color: yellow !important;
+        }
+        #noVNC_control_bar{
+            background: #494949 !important;
+        }
+        .noVNC_logo{
+            font-family: inherit !important;;
+            color: #a4027d !important;
+            text-shadow: 0.1em 0.01em 0 black !important;;
+            }
+        #noVNC_connect_button{
+            background-color: #a4027d !important;
+            }
+        #noVNC_connect_button div {
+            background: #494949 !important;
+        }
+        :root:not(.noVNC_touch) #noVNC_connect_button div:hover {
+            background: #a4027d !important;
+            }
+            @media (max-width: 800px){
+            #noVNC_connect_dlg .noVNC_logo {
+            font-size: calc(10vw - 30px);
+                }
+            }
+            @media (max-width: 650px){
+            #noVNC_connect_dlg .noVNC_logo {
+            font-size: calc(14vw - 30px);
+                }
+            }
+            @media (max-width: 440px){
+            #noVNC_connect_dlg .noVNC_logo {
+            font-size: calc(14vw - 30px);
+                }
+            #noVNC_connect_button{
+                width: 90%;
+                height: 20px;
+                font-size: 10px;
+                }
+            #noVNC_connect_button div{
+                width: 70%;
+                height: 20px;
+                padding: 0% 12%;
+                margin: 0 auto;
+            }
+            }
+            @media (max-width: 360px){
+            #noVNC_connect_dlg .noVNC_logo {
+            font-size: calc(15.5vw - 30px);
+                }
+            }
+    </style>
 
     <script src="app/error-handler.js"></script>
     <script type="module" crossorigin="anonymous" src="app/ui.js"></script>
@@ -262,7 +319,10 @@
     <!-- Connect button -->
     <div class="noVNC_center">
         <div id="noVNC_connect_dlg">
-            <div class="noVNC_logo" translate="no"><span>no</span>VNC</div>
+            <div class="noVNC_logo" translate="no">ExclusiveNetworks<span></span></div>
+            <div class="noVNC_logo" translate="no">
+                <!-- <img  alt="alt" src="https://dcstage.hfdev.xyz/static/media/logo.f978dfd0.svg"> SECOND Version-->
+            </div>
             <div id="noVNC_connect_button"><div>
                 <img alt="" src="app/images/connect.svg"> Connect
             </div></div>
