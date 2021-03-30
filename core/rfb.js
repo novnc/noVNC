@@ -37,6 +37,9 @@ import TightPNGDecoder from "./decoders/tightpng.js";
 const DISCONNECT_TIMEOUT = 3;
 const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
+var _videoQuality =  2;
+var _enableWebP = false;
+
 // Minimum wait (ms) between two mouse moves
 const MOUSE_MOVE_DELAY = 17;
 
@@ -123,6 +126,21 @@ export default class RFB extends EventTargetMixin {
         this._screenFlags = 0;
 
         this._qemuExtKeyEventSupported = false;
+
+        // kasm defaults
+        this._jpegVideoQuality = 5;
+        this._webpVideoQuality = 5;
+        this._treatLossless = 7;
+        this._preferBandwidth = true;
+        this._dynamicQualityMin = 3;
+        this._dynamicQualityMax = 9;
+        this._videoArea = 65;
+        this._videoTime = 5;
+        this._videoOutTime = 3;
+        this._videoScaling = 2;
+        this._frameRate = 30;
+        this._maxVideoResolutionX = 960;
+        this._maxVideoResolutionY = 540;
 
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
@@ -293,8 +311,11 @@ export default class RFB extends EventTargetMixin {
 
         // ===== PROPERTIES =====
 
+        
+
         this.dragViewport = false;
         this.focusOnClick = true;
+        this.sentEventsCounter = 0;
 
         this._viewOnly = false;
         this._clipViewport = false;
@@ -312,6 +333,51 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+
+    get videoQuality() { return this._videoQuality; }
+    set videoQuality(quality) { this._videoQuality = quality; }
+
+    get enableWebP() { return this._enableWebP; }
+    set enableWebP(enabled) { this._enableWebP = enabled; }
+
+    get jpegVideoQuality() { return this._jpegVideoQuality; }
+    set jpegVideoQuality(val) { this._jpegVideoQuality = val; }
+
+    get webpVideoQuality() { return this._webpVideoQuality; }
+    set webpVideoQuality(val) { this._webpVideoQuality = val; }
+
+    get treatLossless() { return this._treatLossless; }
+    set treatLossless(val) { this._treatLossless = val; }
+
+    get preferBandwidth() { return this._preferBandwidth; }
+    set preferBandwidth(val) { this._preferBandwidth = val; }
+
+    get dynamicQualityMin() { return this._dynamicQualityMin; }
+    set dynamicQualityMin(val) { this._dynamicQualityMin = val; }
+
+    get dynamicQualityMax() { return this._dynamicQualityMax; }
+    set dynamicQualityMax(val) { this._dynamicQualityMax = val; }
+
+    get videoArea() { return this._videoArea; }
+    set videoArea(val) { this._videoArea = val; }
+
+    get videoTime() { return this._videoTime; }
+    set videoTime(val) { this._videoTime = val; }
+
+    get videoOutTime() { return this._videoOutTime; }
+    set videoOutTime(val) { this._videoOutTime = val; }
+
+    get videoScaling() { return this._videoScaling; }
+    set videoScaling(val) { this._videoScaling = val; }
+
+    get frameRate() { return this._frameRate; }
+    set frameRate(val) { this._frameRate = val; }
+
+    get maxVideoResolutionX() { return this._maxVideoResolutionX; }
+    set maxVideoResolutionX(val) { this._maxVideoResolutionX = val; }
+
+    get maxVideoResolutionY() { return this._maxVideoResolutionY; }
+    set maxVideoResolutionY(val) { this._maxVideoResolutionY = val; }
 
     get viewOnly() { return this._viewOnly; }
     set viewOnly(viewOnly) {
@@ -357,6 +423,7 @@ export default class RFB extends EventTargetMixin {
         this._resizeSession = resize;
         if (resize) {
             this._requestRemoteResize();
+            this.scaleViewport = true;
         }
     }
 
@@ -452,6 +519,8 @@ export default class RFB extends EventTargetMixin {
     sendKey(keysym, code, down) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
 
+        this.sentEventsCounter+=1;
+
         if (down === undefined) {
             this.sendKey(keysym, code, true);
             this.sendKey(keysym, code, false);
@@ -486,7 +555,7 @@ export default class RFB extends EventTargetMixin {
 
     clipboardPasteFrom(text) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
-
+        this.sentEventsCounter+=1;
         if (this._clipboardServerCapabilitiesFormats[extendedClipboardFormatText] &&
             this._clipboardServerCapabilitiesActions[extendedClipboardActionNotify]) {
 
@@ -503,6 +572,10 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    requestBottleneckStats() {
+        RFB.messages.requestStats(this._sock);
+    }
+
     // ===== PRIVATE METHODS =====
 
     _connect() {
@@ -512,6 +585,7 @@ export default class RFB extends EventTargetMixin {
             try {
                 Log.Info(`connecting to ${this._url}`);
                 this._sock.open(this._url, this._wsProtocols);
+                this.sentEventsCounter+=1;
             } catch (e) {
                 if (e.name === 'SyntaxError') {
                     this._fail("Invalid host or port (" + e + ")");
@@ -682,14 +756,36 @@ export default class RFB extends EventTargetMixin {
                                     Math.floor(size.w), Math.floor(size.h),
                                     this._screenID, this._screenFlags);
 
+        this.sentEventsCounter+=1;
+
         Log.Debug('Requested new desktop size: ' +
                    size.w + 'x' + size.h);
     }
 
     // Gets the the size of the available screen
-    _screenSize() {
-        let r = this._screen.getBoundingClientRect();
-        return { w: r.width, h: r.height };
+    _screenSize (limited) {
+        if (limited === undefined) {
+            limited = true;
+        }
+        var x = this._screen.offsetWidth;
+        var y = this._screen.offsetHeight;
+        try {
+            if (x > 1280 && limited && this.videoQuality == 1) {
+                var ratio = y / x;
+                console.log(ratio);
+                x = 1280;
+                y = x * ratio;
+            }
+            else if (limited && this.videoQuality == 0){
+                x = 1280;
+                y = 720;
+            }
+        } catch (err) {
+            console.log(err);
+        }
+
+        return { w: x,
+                 h: y };
     }
 
     _fixScrollbars() {
@@ -939,9 +1035,12 @@ export default class RFB extends EventTargetMixin {
                 // Otherwise we treat this as a mouse click event.
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
+                this.sentEventsCounter+=1;
                 this._sendMouse(x, y, bmask);
             }
         }
+
+        this.sentEventsCounter+=1;
 
         // Flush waiting move event first
         if (this._mouseMoveTimer !== null) {
@@ -1475,12 +1574,8 @@ export default class RFB extends EventTargetMixin {
     _negotiateStdVNCAuth() {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
-        if (this._rfbCredentials.password === undefined) {
-            this.dispatchEvent(new CustomEvent(
-                "credentialsrequired",
-                { detail: { types: ["password"] } }));
-            return false;
-        }
+        // KasmVNC uses basic Auth, clear the VNC password, which is not used
+        this._rfb_credentials.password = "";
 
         // TODO(directxman12): make genDES not require an Array
         const challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
@@ -1757,8 +1852,33 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _hasWebp() {
+        /*
+        return new Promise(res => {
+            const webP = new Image();
+            webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+            webP.onload = webP.onerror = function () {
+                res(webP.height === 2);
+            };
+        })
+        */
+        if (!this.enableWebP)
+            return false;
+        // It's not possible to check for webp synchronously, and hacking promises
+        // into everything would be too time-consuming. So test for FF and Chrome.
+        var uagent = navigator.userAgent.toLowerCase();
+        var match = uagent.match(/firefox\/([0-9]+)\./);
+        if (match && parseInt(match[1]) >= 65)
+            return true;
+        match = uagent.match(/chrome\/([0-9]+)\./);
+        if (match && parseInt(match[1]) >= 23)
+            return true;
+        return false;
+    }
+
     _sendEncodings() {
         const encs = [];
+        var hasWebp;
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
@@ -1772,6 +1892,19 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.encodingRaw);
 
         // Psuedo-encoding settings
+        var quality = 6;
+        var compression = 2;
+        var screensize = this._screenSize(false);
+        if (this.videoQuality == 1) {
+            if (screensize.w > 1280) {
+                quality = 8; //higher quality needed because scaling enlarges artifacts
+            } else {
+                quality = 3; //twice the compression ratio as default, but not horrible quality
+            }
+            compression = 6;
+        } else if (this.videoQuality == 3) {
+            quality = 8
+        }
         encs.push(encodings.pseudoEncodingQualityLevel0 + this._qualityLevel);
         encs.push(encodings.pseudoEncodingCompressLevel0 + this._compressionLevel);
 
@@ -1784,10 +1917,34 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingContinuousUpdates);
         encs.push(encodings.pseudoEncodingDesktopName);
         encs.push(encodings.pseudoEncodingExtendedClipboard);
+        if (this._hasWebp())
+            encs.push(encodings.pseudoEncodingWEBP);
+
+        // kasm settings; the server may be configured to ignore these
+        encs.push(encodings.pseudoEncodingJpegVideoQualityLevel0 + this.jpegVideoQuality);
+        encs.push(encodings.pseudoEncodingWebpVideoQualityLevel0 + this.webpVideoQuality);
+        encs.push(encodings.pseudoEncodingTreatLosslessLevel0 + this.treatLossless);
+        encs.push(encodings.pseudoEncodingDynamicQualityMinLevel0 + this.dynamicQualityMin);
+        encs.push(encodings.pseudoEncodingDynamicQualityMaxLevel0 + this.dynamicQualityMax);
+        encs.push(encodings.pseudoEncodingVideoAreaLevel1 + this.videoArea - 1);
+        encs.push(encodings.pseudoEncodingVideoTimeLevel0 + this.videoTime);
+        encs.push(encodings.pseudoEncodingVideoOutTimeLevel1 + this.videoOutTime - 1);
+        encs.push(encodings.pseudoEncodingVideoScalingLevel0 + this.videoScaling);
+        encs.push(encodings.pseudoEncodingFrameRateLevel10 + this.frameRate - 10);
+        encs.push(encodings.pseudoEncodingMaxVideoResolution);
+        if (this.preferBandwidth) // must be last - server processes in reverse order
+            encs.push(encodings.pseudoEncodingPreferBandwidth);
 
         if (this._fbDepth == 24) {
             encs.push(encodings.pseudoEncodingVMwareCursor);
             encs.push(encodings.pseudoEncodingCursor);
+        }
+
+        if (supportsCursorURIs() && this._fb_depth == 24){
+            // Allow the user to attempt using a local cursor even if they are using a touch device.  KASM-395
+            if (this.preferLocalCursor || !isTouchDevice){
+                encs.push(encodings.pseudoEncodingCursor)
+            }
         }
 
         RFB.messages.clientEncodings(this._sock, encs);
@@ -2006,6 +2163,22 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _handle_server_stats_msg() {
+        this._sock.rQskipBytes(3);  // Padding
+        const length = this._sock.rQshift32();
+        if (this._sock.rQwait("KASM bottleneck stats", length, 8)) { return false; }
+
+        const text = this._sock.rQshiftStr(length);
+
+        console.log("Received KASM bottleneck stats:");
+        console.log(text);
+        this.dispatchEvent(new CustomEvent(
+            "bottleneck_stats",
+            { detail: { text: text } }));
+
+        return true;
+    }
+
     _handleServerFenceMsg() {
         if (this._sock.rQwait("ServerFence header", 8, 1)) { return false; }
         this._sock.rQskipBytes(3); // Padding
@@ -2116,6 +2289,9 @@ export default class RFB extends EventTargetMixin {
                 }
                 return true;
 
+            case 178: // KASM bottleneck stats
+                return this._handle_server_stats_msg();
+
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
 
@@ -2174,7 +2350,9 @@ export default class RFB extends EventTargetMixin {
             this._FBU.encoding = null;
         }
 
-        this._display.flip();
+        if (document.visibilityState !== "hidden") {
+            this._display.flip();
+        }
 
         return true;  // We finished this FBU
     }
@@ -2403,6 +2581,11 @@ export default class RFB extends EventTargetMixin {
         // resizing until we've gotten here.
         if (firstUpdate) {
             this._requestRemoteResize();
+
+            RFB.messages.setMaxVideoResolution(this._sock,
+                this._maxVideoResolutionX,
+                this._maxVideoResolutionY);
+            this.sentEventsCounter+=1;
         }
 
         this._sock.rQskipBytes(1);  // number-of-screens
@@ -2800,6 +2983,20 @@ RFB.messages = {
         sock.flush();
     },
 
+    setMaxVideoResolution(sock, width, height) {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+        buff[offset] = 252;              // msg-type
+        buff[offset + 1] = width >> 8;   // width
+        buff[offset + 2] = width;
+        buff[offset + 3] = height >> 8;  // height
+        buff[offset + 4] = height;
+
+        sock._sQlen += 5;
+        sock.flush();
+    },
+
     clientFence(sock, flags, payload) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
@@ -2826,6 +3023,23 @@ RFB.messages = {
         sock._sQlen += 9 + n;
         sock.flush();
     },
+
+    requestStats(sock) {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+	if (buff == null) { return; }
+
+        buff[offset] = 178; // msg-type
+
+        buff[offset + 1] = 0; // padding
+        buff[offset + 2] = 0; // padding
+        buff[offset + 3] = 0; // padding
+
+        sock._sQlen += 4;
+        sock.flush();
+    },
+
 
     enableContinuousUpdates(sock, enable, x, y, width, height) {
         const buff = sock._sQ;

@@ -11,7 +11,7 @@
     "New connection has been rejected with reason: ": "Nowe połączenie zostało odrzucone z powodu: ",
     "New connection has been rejected": "Nowe połączenie zostało odrzucone",
     "Password is required": "Hasło jest wymagane",
-    "noVNC encountered an error:": "noVNC napotkało błąd:",
+    "Kasm encountered an error:": "Kasm napotkało błąd:",
     "Hide/Show the control bar": "Pokaż/Ukryj pasek ustawień",
     "Move/Drag Viewport": "Ruszaj/Przeciągaj Viewport",
     "viewport drag": "przeciągnij viewport",

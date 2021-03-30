@@ -5,6 +5,20 @@
  *
  * See README.md for usage and integration instructions.
  */
+window._noVNC_has_module_support = true;
+window.addEventListener("load", function() {
+    if (window._noVNC_has_module_support) return;
+    var loader = document.createElement("script");
+    loader.src = "vendor/browser-es-module-loader/dist/browser-es-module-loader.js";
+    document.head.appendChild(loader);
+});
+window.addEventListener("load", function() {
+    var connect_btn_el = document.getElementById("noVNC_connect_button");
+    if (typeof(connect_btn_el) != 'undefined' && connect_btn_el != null)
+    {
+        connect_btn_el.click();
+    }
+});
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
@@ -17,7 +31,12 @@ import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
 
-const PAGE_TITLE = "noVNC";
+const PAGE_TITLE = "KasmVNC";
+
+var delta = 500;
+var lastKeypressTime = 0;
+var currentEventCount = -1;
+var idleCounter = 0;
 
 const UI = {
 
@@ -36,6 +55,7 @@ const UI = {
 
     lastKeyboardinput: null,
     defaultKeyboardinputLen: 100,
+    needToCheckClipboardChange: false,
 
     inhibitReconnect: true,
     reconnectCallback: null,
@@ -166,7 +186,7 @@ const UI = {
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
-        UI.initSetting('resize', 'off');
+        /* UI.initSetting('resize', 'off'); */
         UI.initSetting('quality', 6);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
@@ -176,6 +196,26 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('idle_disconnect', 20);
+        UI.initSetting('prefer_local_cursor', true);
+        UI.initSetting('toggle_control_panel', false);
+        UI.initSetting('enable_perf_stats', false);
+
+        if (WebUtil.isInsideKasmVDI()) {
+            UI.initSetting('video_quality', 1);
+            UI.initSetting('clipboard_up', false);
+            UI.initSetting('clipboard_down', false);
+            UI.initSetting('clipboard_seamless', false);
+            UI.initSetting('enable_webp', false);
+            UI.initSetting('resize', 'off');
+        } else {
+            UI.initSetting('video_quality', 3);
+            UI.initSetting('clipboard_up', true);
+            UI.initSetting('clipboard_down', true);
+            UI.initSetting('clipboard_seamless', true);
+            UI.initSetting('enable_webp', true);
+            UI.initSetting('resize', 'remote');
+        }
 
         UI.setupSettingLabels();
     },
@@ -343,6 +383,8 @@ const UI = {
         document.getElementById("noVNC_settings_button")
             .addEventListener('click', UI.toggleSettingsPanel);
 
+        document.getElementById("noVNC_setting_enable_perf_stats").addEventListener('click', UI.showStats);
+
         UI.addSettingChangeHandler('encrypt');
         UI.addSettingChangeHandler('resize');
         UI.addSettingChangeHandler('resize', UI.applyResizeMode);
@@ -366,6 +408,10 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+        UI.addSettingChangeHandler('enable_webp');
+        UI.addSettingChangeHandler('clipboard_seamless');
+        UI.addSettingChangeHandler('clipboard_up');
+        UI.addSettingChangeHandler('clipboard_down');
     },
 
     addFullscreenHandlers() {
@@ -393,6 +439,11 @@ const UI = {
         document.documentElement.classList.remove("noVNC_reconnecting");
 
         const transitionElem = document.getElementById("noVNC_transition_text");
+        if (WebUtil.isInsideKasmVDI())         
+        {
+            parent.postMessage({ action: 'connection_state', value: state}, '*' );
+        }
+
         switch (state) {
             case 'init':
                 break;
@@ -447,6 +498,24 @@ const UI = {
         UI.closeAllPanels();
         document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
+    },
+
+    showStats() {
+        UI.saveSetting('enable_perf_stats');
+
+        let enable_stats = UI.getSetting('enable_perf_stats');
+        if (enable_stats === true && UI.statsInterval == undefined) {
+            document.getElementById("noVNC_connection_stats").style.visibility = "visible";
+            UI.statsInterval = setInterval(function() {
+                if (UI.rfb !== undefined) {
+                    UI.rfb.requestBottleneckStats();
+                }
+            }  , 5000);
+        } else {
+            document.getElementById("noVNC_connection_stats").style.visibility = "hidden";
+            UI.statsInterval = null;
+        }
+        
     },
 
     showStatus(text, statusType, time) {
@@ -948,10 +1017,104 @@ const UI = {
         }
     },
 
+    readClipboard: function readClipboard(callback) {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          navigator.clipboard.readText().then(function (text) {
+            return callback(text);
+          }).catch(function () {
+            return Log.Debug("Failed to read system clipboard");
+          });
+        }
+      },
+
     clipboardReceive(e) {
-        Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
-        document.getElementById('noVNC_clipboard_text').value = e.detail.text;
-        Log.Debug("<< UI.clipboardReceive");
+        if (UI.rfb.clipboardDown && UI.rfb.clipboardSeamless ) {
+           var curvalue = document.getElementById('noVNC_clipboard_text').value;
+           if (curvalue != e.detail.text) {
+               Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
+               document.getElementById('noVNC_clipboard_text').value = e.detail.text;
+               Log.Debug("<< UI.clipboardReceive");
+               if (navigator.clipboard && navigator.clipboard.writeText){
+                   navigator.clipboard.writeText(e.detail.text)
+                   .then(function () {
+                       //UI.popupMessage("Selection Copied");
+                   }, function () {
+                       console.error("Failed to write system clipboard (trying to copy from NoVNC clipboard)")
+                   });
+               }
+           }
+       }
+    },
+
+    //recieved bottleneck stats
+    bottleneckStatsRecieve(e) {
+        var obj = JSON.parse(e.detail.text);
+        document.getElementById("noVNC_connection_stats").innerHTML = "CPU: " + obj[0] + "/" + obj[1] + " | Network: " + obj[2] + "/" + obj[3];
+        console.log(e.detail.text);
+    },
+
+    popupMessage: function(msg, secs) {
+        if (!secs){
+            secs = 500;
+        }
+    // Quick popup to give feedback that selection was copied
+    setTimeout(UI.showOverlay.bind(this, msg, secs), 200);
+    },
+
+    // Enter and focus events come when we return to NoVNC.
+    // In both cases, check the local clipboard to see if it changed.
+    focusVNC: function() {
+    UI.copyFromLocalClipboard();
+    },
+    enterVNC: function() {
+    UI.copyFromLocalClipboard();
+    },
+    copyFromLocalClipboard: function copyFromLocalClipboard() {
+        if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
+            UI.readClipboard(function (text) {
+                var maximumBufferSize = 10000;
+                var clipVal = document.getElementById('noVNC_clipboard_text').value;
+
+                if (clipVal != text) {
+                    document.getElementById('noVNC_clipboard_text').value = text; // The websocket has a maximum buffer array size
+
+                    if (text.length > maximumBufferSize) {
+                        UI.popupMessage("Clipboard contents too large. Data truncated", 2000);
+                        UI.rfb.clipboardPasteFrom(text.slice(0, maximumBufferSize));
+                    } else {
+                        //UI.popupMessage("Copied from Local Clipboard");
+                        UI.rfb.clipboardPasteFrom(text);
+                    }
+                } // Reset flag to prevent checking too often
+
+
+                UI.needToCheckClipboardChange = false;
+            });
+        }
+    },
+
+    // These 3 events indicate the focus has gone outside the NoVNC.
+    // When outside the NoVNC, the system clipboard could change.
+    leaveVNC: function() {
+    UI.needToCheckClipboardChange = true;
+    },
+    blurVNC: function() {
+    UI.needToCheckClipboardChange = true;
+    },
+    focusoutVNC: function() {
+    UI.needToCheckClipboardChange = true;
+    },
+
+    // On these 2 events, check if we need to look at clipboard.
+    mouseMoveVNC: function() {
+    if ( UI.needToCheckClipboardChange ) {
+        UI.copyFromLocalClipboard();
+    }
+    },
+    mouseDownVNC: function() {
+    if ( UI.needToCheckClipboardChange ) {
+        UI.copyFromLocalClipboard();
+    }
     },
 
     clipboardClear() {
@@ -1034,6 +1197,14 @@ const UI = {
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
+        UI.rfb.addEventListener("bottleneck_stats", UI.bottleneckStatsRecieve);
+        document.addEventListener('mouseenter', UI.enterVNC);
+        document.addEventListener('mouseleave', UI.leaveVNC);
+        document.addEventListener('blur', UI.blurVNC);
+        document.addEventListener('focus', UI.focusVNC);
+        document.addEventListener('focusout', UI.focusoutVNC);
+        document.addEventListener('mousemove', UI.mouseMoveVNC);
+        document.addEventListener('mousedown', UI.mouseDownVNC);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
@@ -1042,8 +1213,80 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
-
+        UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
+        UI.rfb.videoQuality = UI.getSetting('video_quality');
+        UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
+        UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
+        UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
+        // KASM-960 workaround, disable seamless on Safari
+        if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 
+        { 
+            UI.rfb.clipboardSeamless = false; 
+        }
+        UI.rfb.preferLocalCursor = UI.getSetting('prefer_local_cursor');
+        UI.rfb.enableWebP = UI.getSetting('enable_webp');
         UI.updateViewOnly(); // requires UI.rfb
+
+        /****
+        *    Kasm VDI specific
+        *****/
+         if (WebUtil.isInsideKasmVDI())
+         {
+             if (window.addEventListener) { // Mozilla, Netscape, Firefox
+                 //window.addEventListener('load', WindowLoad, false);
+                 window.addEventListener('message', UI.receiveMessage, false);
+             } else if (window.attachEvent) { //IE
+                 window.attachEvent('onload', WindowLoad);
+                 window.attachEvent('message', UI.receiveMessage);
+             }
+             if (UI.rfb.clipboardDown){            
+                 UI.rfb.addEventListener("clipboard", UI.clipboardRx);
+         }
+             UI.rfb.addEventListener("disconnect", UI.disconnectedRx);
+             document.getElementById('noVNC_control_bar_anchor').setAttribute('style', 'display: none');
+             document.getElementById('noVNC_connect_dlg').innerHTML = '';
+ 
+             //keep alive for websocket connection to stay open, since we may not control reverse proxies
+             //send a keep alive within a window that we control
+             setInterval(function() {
+             if (currentEventCount!=UI.rfb.sentEventsCounter) {
+                 idleCounter=0;
+                 currentEventCount=UI.rfb.sentEventsCounter;
+             } else {
+                 idleCounter+=1;
+                 var idleDisconnect = parseFloat(UI.rfb.idleDisconnect);
+                 if ((idleCounter / 2) >= idleDisconnect) {
+                     //idle for longer than the limit, disconnect
+                     currentEventCount = -1;
+                     idleCounter = 0;
+                     parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
+                     //UI.rfb.disconnect();
+                 } else {
+                     //send a keep alive
+                     UI.rfb.sendKey(1, null, false);
+                     currentEventCount=UI.rfb.sentEventsCounter;
+                 }
+             }
+             }, 30000);
+         }
+
+         // Send an event to the parent document (kasm app) to toggle the control panel when ctl is double clicked
+        if (UI.getSetting('toggle_control_panel', false)) {
+
+            document.addEventListener('keyup', function (event) {
+                // CTRL and the various implementations of the mac command key
+                if ([17, 224, 91, 93].indexOf(event.keyCode) > -1) {
+                    var thisKeypressTime = new Date();
+
+                    if (thisKeypressTime - lastKeypressTime <= delta) {
+                        UI.toggleNav();
+                        thisKeypressTime = 0;
+                    }
+
+                    lastKeypressTime = thisKeypressTime;
+                }
+            }, true);
+        }
     },
 
     disconnect() {
@@ -1093,6 +1336,7 @@ const UI = {
             msg = _("Connected (unencrypted) to ") + UI.desktopName;
         }
         UI.showStatus(msg);
+        UI.showStats();
         UI.updateVisualState('connected');
 
         // Do this last because it can only be used on rendered elements
@@ -1147,6 +1391,40 @@ const UI = {
             msg = _("New connection has been rejected");
         }
         UI.showStatus(msg, 'error');
+    },
+
+    /*
+    Menu.js Additions
+     */
+    receiveMessage(event) {
+        //TODO: UNCOMMENT FOR PRODUCTION
+        //if (event.origin !== "https://kasmweb.com")
+        //      return;
+
+        if (event.data && event.data.action) {
+            switch (event.data.action) {
+                case 'clipboardsnd':
+                    if (UI.rfb.clipboardUp) {
+                        UI.rfb.clipboardPasteFrom(event.data.value);
+                    }
+                    break;
+                case 'setvideoquality':
+                    UI.rfb.videoQuality = event.data.value;
+                    break;
+            }
+        }
+    },
+
+    disconnectedRx(event) {
+        parent.postMessage({ action: 'disconnectrx', value: event.detail.reason}, '*' );
+    },
+
+    toggleNav(){
+        parent.postMessage({ action: 'togglenav', value: null}, '*' );
+    },
+
+    clipboardRx(event) {
+        parent.postMessage({ action: 'clipboardrx', value: event.detail.text}, '*' ); //TODO fix star
     },
 
 /* ------^-------
@@ -1259,6 +1537,9 @@ const UI = {
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
+        UI.rfb.videoQuality = UI.getSetting('video_quality');
+        UI.rfb.enableWebP = UI.getSetting('enable_webp');
     },
 
 /* ------^-------
@@ -1416,6 +1697,9 @@ const UI = {
 
     keepVirtualKeyboard(event) {
         const input = document.getElementById('noVNC_keyboardinput');
+        if ( UI.needToCheckClipboardChange ) {
+            UI.copyFromLocalClipboard();
+        }
 
         // Only prevent focus change if the virtual keyboard is active
         if (document.activeElement != input) {

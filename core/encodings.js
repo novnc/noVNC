@@ -27,6 +27,32 @@ export const encodings = {
     pseudoEncodingContinuousUpdates: -313,
     pseudoEncodingCompressLevel9: -247,
     pseudoEncodingCompressLevel0: -256,
+
+    pseudoEncodingWEBP: -1024,
+    pseudoEncodingJpegVideoQualityLevel0: -1023,
+    pseudoEncodingJpegVideoQualityLevel9: -1014,
+    pseudoEncodingWebpVideoQualityLevel0: -1013,
+    pseudoEncodingWebpVideoQualityLevel9: -1004,
+    pseudoEncodingTreatLosslessLevel0: -1003,
+    pseudoEncodingTreatLosslessLevel10: -993,
+    pseudoEncodingPreferBandwidth: -992,
+    pseudoEncodingDynamicQualityMinLevel0: -991,
+    pseudoEncodingDynamicQualityMinLevel9: -982,
+    pseudoEncodingDynamicQualityMaxLevel0: -981,
+    pseudoEncodingDynamicQualityMaxLevel9: -972,
+    pseudoEncodingVideoAreaLevel1: -971,
+    pseudoEncodingVideoAreaLevel100: -871,
+    pseudoEncodingVideoTimeLevel0: -870,
+    pseudoEncodingVideoTimeLevel100: -770,
+
+    pseudoEncodingFrameRateLevel10: -2048,
+    pseudoEncodingFrameRateLevel60: -1998,
+    pseudoEncodingMaxVideoResolution: -1997,
+    pseudoEncodingVideoScalingLevel0: -1996,
+    pseudoEncodingVideoScalingLevel9: -1987,
+    pseudoEncodingVideoOutTimeLevel1: -1986,
+    pseudoEncodingVideoOutTimeLevel100: -1887,
+
     pseudoEncodingVMwareCursor: 0x574d5664,
     pseudoEncodingExtendedClipboard: 0xc0a1e5ce
 };

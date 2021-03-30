@@ -16,7 +16,7 @@
 (function _scope() {
     "use strict";
 
-    // Fallback for all uncought errors
+    // Fallback for all uncaught errors
     function handleError(event, err) {
         try {
             const msg = document.getElementById('noVNC_fallback_errormsg');
@@ -55,7 +55,7 @@
             document.getElementById('noVNC_fallback_error')
                 .classList.add("noVNC_open");
         } catch (exc) {
-            document.write("noVNC encountered an error.");
+            document.write("Kasm encountered an error.");
         }
         // Don't return true since this would prevent the error
         // from being printed to the browser console.

@@ -59,6 +59,9 @@ export default class TightDecoder {
         } else if ((this._ctl & 0x08) == 0) {
             ret = this._basicRect(this._ctl, x, y, width, height,
                                   sock, display, depth);
+        } else if (this._ctl === 0x0B) {
+            ret = this._webpRect(x, y, width, height,
+                                sock, display, depth);
         } else {
             throw new Error("Illegal tight compression received (ctl: " +
                                    this._ctl + ")");
@@ -93,6 +96,17 @@ export default class TightDecoder {
         }
 
         display.imageRect(x, y, width, height, "image/jpeg", data);
+
+        return true;
+    }
+
+    _webpRect(x, y, width, height, sock, display, depth) {
+        let data = this._readData(sock);
+        if (data === null) {
+            return false;
+        }
+
+        display.imageRect(x, y, width, height, "image/webp", data);
 
         return true;
     }

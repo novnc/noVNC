@@ -11,7 +11,7 @@
     "New connection has been rejected with reason: ": "Η νέα σύνδεση απορρίφθηκε διότι: ",
     "New connection has been rejected": "Η νέα σύνδεση απορρίφθηκε ",
     "Password is required": "Απαιτείται ο κωδικός πρόσβασης",
-    "noVNC encountered an error:": "το noVNC αντιμετώπισε ένα σφάλμα:",
+    "Kasm encountered an error:": "το Kasm αντιμετώπισε ένα σφάλμα:",
     "Hide/Show the control bar": "Απόκρυψη/Εμφάνιση γραμμής ελέγχου",
     "Move/Drag Viewport": "Μετακίνηση/Σύρσιμο Θεατού πεδίου",
     "viewport drag": "σύρσιμο θεατού πεδίου",

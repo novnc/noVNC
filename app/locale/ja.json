@@ -12,7 +12,7 @@
     "New connection has been rejected with reason: ": "新規接続は次の理由で拒否されました: ",
     "New connection has been rejected": "新規接続は拒否されました",
     "Credentials are required": "資格情報が必要です",
-    "noVNC encountered an error:": "noVNC でエラーが発生しました:",
+    "Kasm encountered an error:": "Kasm でエラーが発生しました:",
     "Hide/Show the control bar": "コントロールバーを隠す/表示する",
     "Drag": "ドラッグ",
     "Move/Drag Viewport": "ビューポートを移動/ドラッグ",

@@ -12,7 +12,7 @@
     "New connection has been rejected with reason: ": "Подключиться не удалось: ",
     "New connection has been rejected": "Подключиться не удалось",
     "Password is required": "Требуется пароль",
-    "noVNC encountered an error:": "Ошибка noVNC: ",
+    "Kasm encountered an error:": "Ошибка Kasm: ",
     "Hide/Show the control bar": "Скрыть/Показать контрольную панель",
     "Move/Drag Viewport": "Переместить окно",
     "viewport drag": "Переместить окно",
