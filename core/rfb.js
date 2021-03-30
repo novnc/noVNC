@@ -286,8 +286,17 @@ export default class RFB extends EventTargetMixin {
         this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
 
         // Slight delay of the actual connection so that the caller has
-        // time to set up callbacks
-        setTimeout(this._updateConnectionState.bind(this, 'connecting'));
+        // time to set up callbacks.
+        // This it not possible when a pre-existing socket is passed in and is just opened.
+        // If the caller creates this object in the open() callback of a socket and there's
+        // data pending doing it next tick causes a packet to be lost.
+        // This is particularly noticable for RTCDataChannel's where the other end creates
+        // the channel and the client, this end, gets notified it exists.
+        if (typeof urlOrChannel === 'string') {
+            setTimeout(this._updateConnectionState.bind(this, 'connecting'));
+        } else {
+            this._updateConnectionState('connecting');
+        }
 
         Log.Debug("<< RFB.constructor");
 

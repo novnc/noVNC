@@ -168,6 +168,11 @@ connection to a specified VNC server.
 **`urlOrDataChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
     a valid WebSocket URL. This can also be a `WebSocket` or `RTCDataChannel`.
+    If a `DOMString` is supplied then the connection will be delayed until the next tick to
+    allow allow adding event listeners that fire on connection. If an existing object
+    is supplied then the connection logic happens the same tick. For instance if passing
+    in an existing open WebSocket then it will not be possible to listen for the `connect`
+    event. This is to avoid dropping data on a connection that has data as soon as its opened.
 
 **`options`** *Optional*
   - An `Object` specifying extra details about how the connection
