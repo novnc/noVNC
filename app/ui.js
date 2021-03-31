@@ -135,7 +135,7 @@ const UI = {
         let autoconnect = WebUtil.getConfigVar('autoconnect', false);
         if (autoconnect === 'true' || autoconnect == '1') {
             autoconnect = true;
-            UI.connect();
+            //UI.connect(); //KASM - Not sure why this causes two canvas elements showign the same thing
         } else {
             autoconnect = false;
             // Show the connect panel on first load unless autoconnecting
@@ -351,8 +351,11 @@ const UI = {
     addConnectionControlHandlers() {
         document.getElementById("noVNC_disconnect_button")
             .addEventListener('click', UI.disconnect);
-        document.getElementById("noVNC_connect_button")
-            .addEventListener('click', UI.connect);
+        var connect_btn_el = document.getElementById("noVNC_connect_button");
+        if (typeof(connect_btn_el) != 'undefined' && connect_btn_el != null)
+        {
+            connect_btn_el.addEventListener('click', UI.connect);
+        }
         document.getElementById("noVNC_cancel_reconnect_button")
             .addEventListener('click', UI.cancelReconnect);
 
