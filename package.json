@@ -1,5 +1,5 @@
 {
-  "name": "@novnc/novnc",
+  "name": "@kasmtech/novnc",
   "version": "1.2.0",
   "description": "An HTML5 VNC client",
   "browser": "lib/rfb",
@@ -21,26 +21,27 @@
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
     "test": "karma start karma.conf.js",
-    "prepublish": "node ./utils/use_require.js --clean"
+    "prepublish": "node ./utils/use_require.js --as commonjs --clean",
+    "build": "webpack --config webpack.config.js",
+    "build-production": "cross-env NODE_ENV=production webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/novnc/noVNC.git"
+    "url": "git+https://github.com/kasmtech/noVNC.git"
   },
-  "author": "Joel Martin <github@martintribe.org> (https://github.com/kanaka)",
+  "author": "Kasm Technologies (https://www.kasmweb.com)",
   "contributors": [
-    "Solly Ross <sross@redhat.com> (https://github.com/directxman12)",
-    "Peter Åstrand <astrand@cendio.se> (https://github.com/astrand)",
-    "Samuel Mannehed <samuel@cendio.se> (https://github.com/samhed)",
-    "Pierre Ossman <ossman@cendio.se> (https://github.com/CendioOssman)"
   ],
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/novnc/noVNC/issues"
+    "url": "https://github.com/kasmtech/noVNC/issues"
   },
-  "homepage": "https://github.com/novnc/noVNC",
+  "homepage": "https://github.com/kasmtech/noVNC",
   "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
     "@babel/core": "*",
+    "babel-loader": "^8.2.2",
     "@babel/plugin-syntax-dynamic-import": "*",
     "@babel/plugin-transform-modules-commonjs": "*",
     "@babel/preset-env": "*",
@@ -50,10 +51,17 @@
     "babelify": "*",
     "core-js": "*",
     "chai": "*",
+    "clean-webpack-plugin": "^3.0.0",
     "commander": "*",
+    "css-loader": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^1.1.5",
     "es-module-loader": "*",
     "eslint": "*",
+    "file-loader": "^6.2.0",
     "fs-extra": "*",
+    "html-loader": "^1.3.2",
+    "html-webpack-inline-svg-plugin": "^2.3.0",
+    "html-webpack-plugin": "^4.5.0",
     "jsdom": "*",
     "karma": "*",
     "karma-mocha": "*",
@@ -65,14 +73,22 @@
     "karma-safari-launcher": "*",
     "karma-script-launcher": "*",
     "karma-sinon-chai": "*",
+    "mini-css-extract-plugin": "^1.3.3",
     "mocha": "*",
     "node-getopt": "*",
     "po2json": "*",
+    "postcss-loader": "^4.1.0",
+    "preload-webpack-plugin": "^3.0.0-beta.4",
     "requirejs": "*",
     "rollup": "*",
     "rollup-plugin-node-resolve": "*",
+    "sass": "^1.30.0",
+    "sass-loader": "^10.1.0",
     "sinon": "*",
-    "sinon-chai": "*"
+    "sinon-chai": "^2.8.0",
+    "svg-sprite-html-webpack": "^2.3.0",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3"
   },
   "dependencies": {},
   "keywords": [
