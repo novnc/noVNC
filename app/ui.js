@@ -135,7 +135,7 @@ const UI = {
         let autoconnect = WebUtil.getConfigVar('autoconnect', false);
         if (autoconnect === 'true' || autoconnect == '1') {
             autoconnect = true;
-            //UI.connect(); //KASM - Not sure why this causes two canvas elements showign the same thing
+            UI.connect();
         } else {
             autoconnect = false;
             // Show the connect panel on first load unless autoconnecting
