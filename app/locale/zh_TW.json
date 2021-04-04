@@ -12,7 +12,7 @@
     "New connection has been rejected with reason: ": "連線被拒絕，原因：",
     "New connection has been rejected": "連線被拒絕",
     "Password is required": "請提供密碼",
-    "noVNC encountered an error:": "noVNC 遇到一個錯誤：",
+    "Kasm encountered an error:": "Kasm 遇到一個錯誤：",
     "Hide/Show the control bar": "顯示/隱藏控制列",
     "Move/Drag Viewport": "拖放顯示範圍",
     "viewport drag": "顯示範圍拖放",
