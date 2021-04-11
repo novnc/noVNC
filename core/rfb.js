@@ -734,7 +734,7 @@ export default class RFB extends EventTargetMixin {
         if (!this._scaleViewport) {
             this._display.scale = 1.0;
         } else {
-            const size = this._screenSize();
+            const size = this._screenSize(false);
             this._display.autoscale(size.w, size.h);
         }
         this._fixScrollbars();
