@@ -13,6 +13,7 @@ export const encodings = {
     encodingHextile: 5,
     encodingTight: 7,
     encodingTightPNG: -260,
+    encodingX264: 0x48323634,
 
     pseudoEncodingQualityLevel9: -23,
     pseudoEncodingQualityLevel0: -32,
@@ -39,6 +40,7 @@ export function encodingName(num) {
         case encodings.encodingHextile:  return "Hextile";
         case encodings.encodingTight:    return "Tight";
         case encodings.encodingTightPNG: return "TightPNG";
+        case encodings.encodingX264:     return "X264";
         default:                         return "[unknown encoding " + num + "]";
     }
 }

@@ -10,14 +10,16 @@
  * Logging/debug routines
  */
 
-let _logLevel = 'warn';
+export type LogLevel = "debug"|"info"|"warn"|"error"|"none";
 
-let Debug = () => {};
-let Info = () => {};
-let Warn = () => {};
-let Error = () => {};
+let _logLevel:LogLevel = 'warn';
 
-export function initLogging(level) {
+let Debug = (message?: any, ...optionalParams: any[]) => {};
+let Info = (message?: any, ...optionalParams: any[]) => {};
+let Warn = (message?: any, ...optionalParams: any[]) => {};
+let Error = (message?: any, ...optionalParams: any[]) => {};
+
+export function initLogging(level?:LogLevel) {
     if (typeof level === 'undefined') {
         level = _logLevel;
     } else {

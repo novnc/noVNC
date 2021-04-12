@@ -1,6 +1,6 @@
 const expect = chai.expect;
 
-import Websock from '../core/websock.js';
+import Websock from '../core/websock.ts';
 import FakeWebSocket from './fake.websocket.js';
 
 describe('Websock', function () {

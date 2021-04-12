@@ -6,12 +6,52 @@
  * See README.md for usage and integration instructions.
  */
 
-import * as Log from './util/logging.js';
+import * as Log from "./util/logging.js";
+
 import Base64 from "./base64.js";
 import { toSigned32bit } from './util/int.js';
+import {WebGLFrameSink} from "../vendor/yuvcanvas/WebGLFrameSink.js";
+import {YUVFrame} from "../vendor/yuvcanvas/YuvBuffer.js";
+
+
+export interface NoVNCImage extends HTMLImageElement {
+    _noVNCDisplay? : Display;
+}
+
+export interface RenderAction {
+    type : "flip"|"copy"|"fill"|"blit"|"img"|"blit_webgl",
+    img? : NoVNCImage,
+    color? : number[],
+    oldX? : number,
+    oldY? : number,
+    x? : number,
+    y? : number,
+    width? : number,
+    height? : number,
+    data? : Uint8Array,
+    yuvFrame? : YUVFrame
+}
 
 export default class Display {
-    constructor(target) {
+    _target : HTMLCanvasElement;
+    _targetCtx : CanvasRenderingContext2D;
+    _drawCtx : CanvasRenderingContext2D;
+    _webglFrameSink : WebGLFrameSink;
+    _viewportLoc : { x : number, y : number, w : number, h : number }
+    _backbuffer : HTMLCanvasElement;
+    _damageBounds : { left:number, top:number, right:number, bottom:number }
+    _scale : number;
+    _clipViewport : boolean;
+    onflush : () => void;
+
+
+    _renderQ : RenderAction[];  // queue drawing actions for in-oder rendering
+    _flushing : boolean;
+    _fbWidth : number;
+    _fbHeight : number;
+    _prevDrawStyle : string;
+
+    constructor(target:HTMLCanvasElement) {
         this._drawCtx = null;
 
         this._renderQ = [];  // queue drawing actions for in-oder rendering
@@ -40,14 +80,14 @@ export default class Display {
             throw new Error("no getContext method");
         }
 
-        this._targetCtx = this._target.getContext('2d');
+        // this._targetCtx = this._target.getContext('2d');
 
         // the visible canvas viewport (i.e. what actually gets seen)
         this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
 
         // The hidden canvas, where we do the actual rendering
         this._backbuffer = document.createElement('canvas');
-        this._drawCtx = this._backbuffer.getContext('2d');
+        // this._drawCtx = this._backbuffer.getContext('2d');
 
         this._damageBounds = { left: 0, top: 0,
                                right: this._backbuffer.width,
@@ -93,7 +133,7 @@ export default class Display {
 
     // ===== PUBLIC METHODS =====
 
-    viewportChangePos(deltaX, deltaY) {
+    viewportChangePos(deltaX:number, deltaY:number) {
         const vp = this._viewportLoc;
         deltaX = Math.floor(deltaX);
         deltaY = Math.floor(deltaY);
@@ -135,7 +175,7 @@ export default class Display {
         this.flip();
     }
 
-    viewportChangeSize(width, height) {
+    viewportChangeSize(width:number, height:number) {
 
         if (!this._clipViewport ||
             typeof(width) === "undefined" ||
@@ -176,21 +216,21 @@ export default class Display {
         }
     }
 
-    absX(x) {
+    absX(x:number) {
         if (this._scale === 0) {
             return 0;
         }
         return toSigned32bit(x / this._scale + this._viewportLoc.x);
     }
 
-    absY(y) {
+    absY(y:number) {
         if (this._scale === 0) {
             return 0;
         }
         return toSigned32bit(y / this._scale + this._viewportLoc.y);
     }
 
-    resize(width, height) {
+    resize(width:number, height:number) {
         this._prevDrawStyle = "";
 
         this._fbWidth = width;
@@ -199,11 +239,11 @@ export default class Display {
         const canvas = this._backbuffer;
         if (canvas.width !== width || canvas.height !== height) {
 
-            // We have to save the canvas data since changing the size will clear it
-            let saveImg = null;
-            if (canvas.width > 0 && canvas.height > 0) {
-                saveImg = this._drawCtx.getImageData(0, 0, canvas.width, canvas.height);
-            }
+            // // We have to save the canvas data since changing the size will clear it
+            // let saveImg = null;
+            // if (canvas.width > 0 && canvas.height > 0) {
+            //     saveImg = this._drawCtx.getImageData(0, 0, canvas.width, canvas.height);
+            // }
 
             if (canvas.width !== width) {
                 canvas.width = width;
@@ -212,9 +252,9 @@ export default class Display {
                 canvas.height = height;
             }
 
-            if (saveImg) {
-                this._drawCtx.putImageData(saveImg, 0, 0);
-            }
+            // if (saveImg) {
+            //     this._drawCtx.putImageData(saveImg, 0, 0);
+            // }
         }
 
         // Readjust the viewport as it may be incorrectly sized
@@ -225,7 +265,7 @@ export default class Display {
     }
 
     // Track what parts of the visible canvas that need updating
-    _damage(x, y, w, h) {
+    _damage(x:number, y:number, w:number, h:number) {
         if (x < this._damageBounds.left) {
             this._damageBounds.left = x;
         }
@@ -242,7 +282,7 @@ export default class Display {
 
     // Update the visible canvas with the contents of the
     // rendering canvas
-    flip(fromQueue) {
+    flip(fromQueue?:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             this._renderQPush({
                 'type': 'flip'
@@ -278,9 +318,9 @@ export default class Display {
                 // FIXME: We may need to disable image smoothing here
                 //        as well (see copyImage()), but we haven't
                 //        noticed any problem yet.
-                this._targetCtx.drawImage(this._backbuffer,
-                                          x, y, w, h,
-                                          vx, vy, w, h);
+                // this._targetCtx.drawImage(this._backbuffer,
+                //                           x, y, w, h,
+                //                           vx, vy, w, h);
             }
 
             this._damageBounds.left = this._damageBounds.top = 65535;
@@ -300,7 +340,7 @@ export default class Display {
         }
     }
 
-    fillRect(x, y, width, height, color, fromQueue) {
+    fillRect(x:number, y:number, width:number, height:number, color:number[], fromQueue:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             this._renderQPush({
                 'type': 'fill',
@@ -317,7 +357,7 @@ export default class Display {
         }
     }
 
-    copyImage(oldX, oldY, newX, newY, w, h, fromQueue) {
+    copyImage(oldX:number, oldY:number, newX:number, newY:number, w:number, h:number, fromQueue:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             this._renderQPush({
                 'type': 'copy',
@@ -336,9 +376,9 @@ export default class Display {
             //
             // We need to set these every time since all properties are reset
             // when the the size is changed
-            this._drawCtx.mozImageSmoothingEnabled = false;
-            this._drawCtx.webkitImageSmoothingEnabled = false;
-            this._drawCtx.msImageSmoothingEnabled = false;
+            (this._drawCtx as any).mozImageSmoothingEnabled = false;
+            (this._drawCtx as any).webkitImageSmoothingEnabled = false;
+            (this._drawCtx as any).msImageSmoothingEnabled = false;
             this._drawCtx.imageSmoothingEnabled = false;
 
             this._drawCtx.drawImage(this._backbuffer,
@@ -348,13 +388,13 @@ export default class Display {
         }
     }
 
-    imageRect(x, y, width, height, mime, arr) {
+    imageRect(x:number, y:number, width:number, height:number, mime:string, arr:Uint8Array[]) {
         /* The internal logic cannot handle empty images, so bail early */
         if ((width === 0) || (height === 0)) {
             return;
         }
 
-        const img = new Image();
+        const img = new Image() as NoVNCImage;
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
 
         this._renderQPush({
@@ -367,7 +407,17 @@ export default class Display {
         });
     }
 
-    blitImage(x, y, width, height, arr, offset, fromQueue) {
+    blitImageWebgl(yuvFrame:YUVFrame) {
+        if(!this._webglFrameSink) {
+            this._webglFrameSink = new WebGLFrameSink(this._target);
+        }
+
+        if(this._webglFrameSink) {
+            this._webglFrameSink.drawFrame(yuvFrame);
+        }
+    }
+
+    blitImage(x:number, y:number, width:number, height:number, arr:Uint8Array, offset:number, fromQueue:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
@@ -393,12 +443,12 @@ export default class Display {
         }
     }
 
-    drawImage(img, x, y) {
+    drawImage(img:HTMLImageElement, x:number, y:number) {
         this._drawCtx.drawImage(img, x, y);
         this._damage(x, y, img.width, img.height);
     }
 
-    autoscale(containerWidth, containerHeight) {
+    autoscale(containerWidth:number, containerHeight:number) {
         let scaleRatio;
 
         if (containerWidth === 0 || containerHeight === 0) {
@@ -422,7 +472,7 @@ export default class Display {
 
     // ===== PRIVATE METHODS =====
 
-    _rescale(factor) {
+    _rescale(factor:number) {
         this._scale = factor;
         const vp = this._viewportLoc;
 
@@ -440,7 +490,7 @@ export default class Display {
         }
     }
 
-    _setFillColor(color) {
+    _setFillColor(color:number[]) {
         const newStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
         if (newStyle !== this._prevDrawStyle) {
             this._drawCtx.fillStyle = newStyle;
@@ -448,7 +498,7 @@ export default class Display {
         }
     }
 
-    _renderQPush(action) {
+    _renderQPush(action:RenderAction) {
         this._renderQ.push(action);
         if (this._renderQ.length === 1) {
             // If this can be rendered immediately it will be, otherwise
@@ -457,7 +507,7 @@ export default class Display {
         }
     }
 
-    _resumeRenderQ() {
+    _resumeRenderQ(this:NoVNCImage) {
         // "this" is the object that is ready, not the
         // display object
         this.removeEventListener('load', this._noVNCDisplay._resumeRenderQ);

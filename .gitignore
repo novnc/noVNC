@@ -10,3 +10,4 @@ recordings
 *.swp
 *~
 noVNC-*.tgz
+.idea

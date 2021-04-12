@@ -12,7 +12,16 @@
  * read binary data off of the receive queue.
  */
 
+// @ts-ignore
 import * as Log from './util/logging.js';
+import {RenderAction} from "./display";
+
+export interface EventHandlers {
+    message : ()=>void;
+    open : ()=>void;
+    close : (e:CloseEvent)=>void;
+    error : (e:Event)=>void;
+}
 
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
@@ -48,6 +57,17 @@ const rawChannelProps = [
 ];
 
 export default class Websock {
+    _websocket : WebSocket|null;
+    _rQi : number;
+    _rQlen : number;
+    _rQbufferSize : number;
+    _rQ : Uint8Array|null;
+    _sQbufferSize : number;
+    _sQlen : number;
+    _sQ : Uint8Array|null;
+    _eventHandlers : EventHandlers
+
+
     constructor() {
         this._websocket = null;  // WebSocket or RTCDataChannel object
 
@@ -96,7 +116,7 @@ export default class Websock {
         return this._rQ[this._rQi];
     }
 
-    rQskipBytes(bytes) {
+    rQskipBytes(bytes:number) {
         this._rQi += bytes;
     }
 
@@ -113,7 +133,7 @@ export default class Websock {
     }
 
     // TODO(directxman12): test performance with these vs a DataView
-    _rQshift(bytes) {
+    _rQshift(bytes:number) {
         let res = 0;
         for (let byte = bytes - 1; byte >= 0; byte--) {
             res += this._rQ[this._rQi++] << (byte * 8);
@@ -121,7 +141,7 @@ export default class Websock {
         return res;
     }
 
-    rQshiftStr(len) {
+    rQshiftStr(len:number) {
         if (typeof(len) === 'undefined') { len = this.rQlen; }
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
@@ -132,27 +152,27 @@ export default class Websock {
         return str;
     }
 
-    rQshiftBytes(len) {
+    rQshiftBytes(len:number) {
         if (typeof(len) === 'undefined') { len = this.rQlen; }
         this._rQi += len;
         return new Uint8Array(this._rQ.buffer, this._rQi - len, len);
     }
 
-    rQshiftTo(target, len) {
+    rQshiftTo(target:Uint8Array, len:number) {
         if (len === undefined) { len = this.rQlen; }
         // TODO: make this just use set with views when using a ArrayBuffer to store the rQ
         target.set(new Uint8Array(this._rQ.buffer, this._rQi, len));
         this._rQi += len;
     }
 
-    rQslice(start, end = this.rQlen) {
+    rQslice(start:number, end:number = this.rQlen) {
         return new Uint8Array(this._rQ.buffer, this._rQi + start, end - start);
     }
 
     // Check to see if we must wait for 'num' bytes (default to FBU.bytes)
     // to be available in the receive queue. Return true if we need to
     // wait (and possibly print a debug message), otherwise false.
-    rQwait(msg, num, goback) {
+    rQwait(msg:any, num:number, goback:number) {
         if (this.rQlen < num) {
             if (goback) {
                 if (this._rQi < goback) {
@@ -174,22 +194,22 @@ export default class Websock {
         }
     }
 
-    send(arr) {
+    send(arr:Uint8Array|number[]) {
         this._sQ.set(arr, this._sQlen);
         this._sQlen += arr.length;
         this.flush();
     }
 
-    sendString(str) {
+    sendString(str:string) {
         this.send(str.split('').map(chr => chr.charCodeAt(0)));
     }
 
     // Event Handlers
-    off(evt) {
+    off(evt:keyof EventHandlers) {
         this._eventHandlers[evt] = () => {};
     }
 
-    on(evt, handler) {
+    on(evt:keyof EventHandlers, handler:()=>void) {
         this._eventHandlers[evt] = handler;
     }
 
@@ -204,11 +224,11 @@ export default class Websock {
         this._websocket = null;
     }
 
-    open(uri, protocols) {
+    open(uri:string, protocols:string|string[]) {
         this.attach(new WebSocket(uri, protocols));
     }
 
-    attach(rawChannel) {
+    attach(rawChannel:WebSocket) {
         this.init();
 
         // Must get object and class methods to be compatible with the tests.
@@ -242,13 +262,13 @@ export default class Websock {
             this._websocket.onopen = onOpen;
         }
 
-        this._websocket.onclose = (e) => {
+        this._websocket.onclose = (e:CloseEvent) => {
             Log.Debug(">> WebSock.onclose");
             this._eventHandlers.close(e);
             Log.Debug("<< WebSock.onclose");
         };
 
-        this._websocket.onerror = (e) => {
+        this._websocket.onerror = (e:Event) => {
             Log.Debug(">> WebSock.onerror: " + e);
             this._eventHandlers.error(e);
             Log.Debug("<< WebSock.onerror: " + e);
@@ -279,7 +299,7 @@ export default class Websock {
     // The function also expands the receive que if needed, and for
     // performance reasons we combine these two actions to avoid
     // unneccessary copying.
-    _expandCompactRQ(minFit) {
+    _expandCompactRQ(minFit:number) {
         // if we're using less than 1/8th of the buffer even with the incoming bytes, compact in place
         // instead of resizing
         const requiredBufferSize =  (this._rQlen - this._rQi + minFit) * 8;
@@ -312,7 +332,7 @@ export default class Websock {
     }
 
     // push arraybuffer values onto the end of the receive que
-    _DecodeMessage(data) {
+    _DecodeMessage(data:Uint8Array) {
         const u8 = new Uint8Array(data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expandCompactRQ(u8.length);
@@ -321,7 +341,7 @@ export default class Websock {
         this._rQlen += u8.length;
     }
 
-    _recvMessage(e) {
+    _recvMessage(e:MessageEvent) {
         this._DecodeMessage(e.data);
         if (this.rQlen > 0) {
             this._eventHandlers.message();

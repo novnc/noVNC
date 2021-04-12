@@ -167,7 +167,7 @@ const UI = {
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
-        UI.initSetting('quality', 6);
+        UI.initSetting('quality', 2);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
@@ -1028,6 +1028,7 @@ const UI = {
                          { shared: UI.getSetting('shared'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
+        UI.rfb.initDecoders(); //TODO: await this!
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);

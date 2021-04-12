@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "ES6"
+  },
+  "files": [
+    "./core/decoders/x264.ts",
+    "./core/display.ts",
+    "./core/util/websock.ts"
+  ]
+}
