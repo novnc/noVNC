@@ -270,6 +270,27 @@ describe('Websock', function () {
             // it('should initialize the event handlers')?
         });
 
+        describe('attaching', function () {
+            it('should attach to an existing open websocket', function () {
+                let ws = new FakeWebSocket('ws://localhost:8675');
+                ws._open();
+                let callback = sinon.spy();
+                sock.on('open', callback);
+                sock.attach(ws);
+                expect(WebSocket).to.not.have.been.called;
+                expect(callback).to.have.been.calledOnce;
+            });
+
+            it('should attach to an existing connecting websocket', function () {
+                let ws = new FakeWebSocket('ws://localhost:8675');
+                let callback = sinon.spy();
+                sock.on('open', callback);
+                sock.attach(ws);
+                expect(WebSocket).to.not.have.been.called;
+                expect(callback).to.not.have.been.called;
+            });
+        });
+
         describe('closing', function () {
             beforeEach(function () {
                 sock.open('ws://localhost');

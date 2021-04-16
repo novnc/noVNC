@@ -141,12 +141,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
     describe('Connecting/Disconnecting', function () {
         describe('#RFB (constructor)', function () {
-            let open;
+            let open, attach;
             beforeEach(function () {
                 open = sinon.spy(Websock.prototype, 'open');
+                attach = sinon.spy(Websock.prototype, 'attach');
             });
             afterEach(function () {
                 open.restore();
+                attach.restore();
             });
 
             it('should not connect from constructor', function () {
@@ -159,6 +161,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
                 this.clock.tick();
                 expect(open).to.have.been.calledOnceWithExactly('ws://HOST:8675/PATH', []);
+            });
+
+            it('should handle WebSocket/RTCDataChannel objects', function () {
+                let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
+                new RFB(document.createElement('div'), sock);
+                this.clock.tick();
+                expect(open).to.not.have.been.called;
+                expect(attach).to.have.been.calledOnceWithExactly(sock);
             });
         });
 
