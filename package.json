@@ -21,7 +21,8 @@
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
     "test": "karma start karma.conf.js",
-    "prepublish": "node ./utils/use_require.js --clean"
+    "prepublish": "node ./utils/use_require.js --clean",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -40,27 +41,28 @@
   },
   "homepage": "https://github.com/novnc/noVNC",
   "devDependencies": {
+    "@babel/cli": "*",
     "@babel/core": "*",
     "@babel/plugin-syntax-dynamic-import": "*",
     "@babel/plugin-transform-modules-commonjs": "*",
     "@babel/preset-env": "*",
-    "@babel/cli": "*",
+    "@chiragrupani/karma-chromium-edge-launcher": "*",
+    "@types/chart.js": "^2.9.32",
     "babel-plugin-import-redirect": "*",
-    "browserify": "*",
     "babelify": "*",
-    "core-js": "*",
+    "browserify": "*",
     "chai": "*",
     "commander": "*",
+    "core-js": "*",
     "es-module-loader": "*",
     "eslint": "*",
     "fs-extra": "*",
     "jsdom": "*",
     "karma": "*",
-    "karma-mocha": "*",
     "karma-chrome-launcher": "*",
-    "@chiragrupani/karma-chromium-edge-launcher": "*",
     "karma-firefox-launcher": "*",
     "karma-ie-launcher": "*",
+    "karma-mocha": "*",
     "karma-mocha-reporter": "*",
     "karma-safari-launcher": "*",
     "karma-script-launcher": "*",
@@ -74,7 +76,10 @@
     "sinon": "*",
     "sinon-chai": "*"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/moment": "^2.13.0",
+    "moment": "^2.29.1"
+  },
   "keywords": [
     "vnc",
     "rfb",

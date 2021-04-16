@@ -16,6 +16,7 @@ import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
+import {StatisticsDisplay} from "./stats/StatisticsDisplay.js";
 
 const PAGE_TITLE = "noVNC";
 
@@ -55,6 +56,8 @@ const UI = {
 
     // Render default UI and initialize settings menu
     start() {
+
+        new StatisticsDisplay();
 
         UI.initSettings();
 

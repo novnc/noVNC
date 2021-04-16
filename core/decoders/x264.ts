@@ -2,6 +2,7 @@ import Websock from "../websock";
 import Display from "../display";
 import {H264Decoder} from "../../vendor/h264decoder/src/index.js";
 import {YUVBuffer, YUVFrame} from "../../vendor/yuvcanvas/YuvBuffer.js";
+import {StatisticsData} from "../../app/stats/StatisticsData.js";
 
 export default class X264Decoder {
   decoder : H264Decoder;
@@ -24,21 +25,20 @@ export default class X264Decoder {
     //TODO: receive data, check where decodeRect is called, maybe we need another header sent in server to trigger this
     //   function
     const payloadSize = sock.rQlen;
+
+    let startDecode = performance.now();
+
     const payload = sock.rQshiftBytes(payloadSize);
     const result = this.decoder.decode(payload);
+
+    let endDecode = performance.now();
+    StatisticsData.setFrameStat("decodeDurationMs", endDecode-startDecode);
+
+
     if(result === H264Decoder.PIC_RDY && this.decoder.pic) {
       console.log("frame decoded.");
     } else {
       console.log("decoder error "+result);
-    }
-
-    if(this.emptyu === null) {
-      this.emptyu = new Uint8Array((width/2)*(height/2));
-      this.emptyv = new Uint8Array((width/2)*(height/2));
-      for(let i = 0; i < this.emptyu.length; i++) {
-        this.emptyu[i] = 128;
-        this.emptyv[i] = 128;
-      }
     }
 
     height+=8;
@@ -70,6 +70,7 @@ export default class X264Decoder {
           stride : width/2,
         }
       };
+
       display.blitImageWebgl(frame);
     }
 
