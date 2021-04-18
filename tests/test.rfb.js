@@ -151,34 +151,21 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 attach.restore();
             });
 
-            it('should not connect from constructor', function () {
-                new RFB(document.createElement('div'), 'wss://host:8675');
-                expect(open).to.not.have.been.called;
-                this.clock.tick(); // Flush the pending connection
-            });
-
             it('should actually connect to the websocket', function () {
                 new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
-                this.clock.tick();
                 expect(open).to.have.been.calledOnceWithExactly('ws://HOST:8675/PATH', []);
             });
 
-            it('should report connection problems via event', function () {
+            it('should pass on connection problems', function () {
                 open.restore();
                 open = sinon.stub(Websock.prototype, 'open');
-                open.throws(Error('Failure'));
-                const client = new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
-                let callback = sinon.spy();
-                client.addEventListener('disconnect', callback);
-                this.clock.tick();
-                expect(callback).to.have.been.calledOnce;
-                expect(callback.args[0][0].detail.clean).to.be.false;
+                open.throws(new Error('Failure'));
+                expect(() => new RFB(document.createElement('div'), 'ws://HOST:8675/PATH')).to.throw('Failure');
             });
 
             it('should handle WebSocket/RTCDataChannel objects', function () {
                 let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
                 new RFB(document.createElement('div'), sock);
-                this.clock.tick();
                 expect(open).to.not.have.been.called;
                 expect(attach).to.have.been.calledOnceWithExactly(sock);
             });
@@ -189,7 +176,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 const client = new RFB(document.createElement('div'), sock);
                 let callback = sinon.spy();
                 client.addEventListener('disconnect', callback);
-                this.clock.tick();
                 expect(open).to.not.have.been.called;
                 expect(attach).to.have.been.calledOnceWithExactly(sock);
                 // Check if it is ready for some data
@@ -200,25 +186,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should refuse closed WebSocket/RTCDataChannel objects', function () {
                 let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
                 sock.readyState = WebSocket.CLOSED;
-                const client = new RFB(document.createElement('div'), sock);
-                let callback = sinon.spy();
-                client.addEventListener('disconnect', callback);
-                this.clock.tick();
-                expect(callback).to.have.been.calledOnce;
-                expect(callback.args[0][0].detail.clean).to.be.false;
+                expect(() => new RFB(document.createElement('div'), sock)).to.throw();
             });
 
-            it('should report attach problems via event', function () {
+            it('should pass on attach problems', function () {
                 attach.restore();
                 attach = sinon.stub(Websock.prototype, 'attach');
-                attach.throws(Error('Failure'));
+                attach.throws(new Error('Failure'));
                 let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
-                const client = new RFB(document.createElement('div'), sock);
-                let callback = sinon.spy();
-                client.addEventListener('disconnect', callback);
-                this.clock.tick();
-                expect(callback).to.have.been.calledOnce;
-                expect(callback.args[0][0].detail.clean).to.be.false;
+                expect(() => new RFB(document.createElement('div'), sock)).to.throw('Failure');
             });
         });
 

@@ -239,9 +239,8 @@ export default class RFB extends EventTargetMixin {
         this._sock.on('message', this._handleMessage.bind(this));
         this._sock.on('error', this._socketError.bind(this));
 
-        // Slight delay of the actual connection so that the caller has
-        // time to set up callbacks
-        setTimeout(this._updateConnectionState.bind(this, 'connecting'));
+        // All prepared, kick off the connection
+        this._updateConnectionState('connecting');
 
         Log.Debug("<< RFB.constructor");
 
@@ -463,29 +462,20 @@ export default class RFB extends EventTargetMixin {
         Log.Debug(">> RFB.connect");
 
         if (this._url) {
-            try {
-                Log.Info(`connecting to ${this._url}`);
-                this._sock.open(this._url, this._wsProtocols);
-            } catch (e) {
-                if (e.name === 'SyntaxError') {
-                    this._fail("Invalid host or port (" + e + ")");
-                } else {
-                    this._fail("Error when opening socket (" + e + ")");
-                }
-            }
+            Log.Info(`connecting to ${this._url}`);
+            this._sock.open(this._url, this._wsProtocols);
         } else {
-            try {
-                Log.Info(`attaching ${this._rawChannel} to Websock`);
-                this._sock.attach(this._rawChannel);
-            } catch (e) {
-                this._fail("Error attaching channel (" + e + ")");
-            }
+            Log.Info(`attaching ${this._rawChannel} to Websock`);
+            this._sock.attach(this._rawChannel);
 
             if (this._sock.readyState === 'closed') {
-                this._fail("Cannot use already closed WebSocket/RTCDataChannel");
+                throw Error("Cannot use already closed WebSocket/RTCDataChannel");
             }
 
             if (this._sock.readyState === 'open') {
+                // FIXME: _socketOpen() can in theory call _fail(), which
+                //        isn't allowed this early, but I'm not sure that can
+                //        happen without a bug messing up our state variables
                 this._socketOpen();
             }
         }
