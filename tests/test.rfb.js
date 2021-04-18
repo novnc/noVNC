@@ -183,6 +183,17 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(attach).to.have.been.calledOnceWithExactly(sock);
             });
 
+            it('should refuse closed WebSocket/RTCDataChannel objects', function () {
+                let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
+                sock.readyState = WebSocket.CLOSED;
+                const client = new RFB(document.createElement('div'), sock);
+                let callback = sinon.spy();
+                client.addEventListener('disconnect', callback);
+                this.clock.tick();
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
+            });
+
             it('should report attach problems via event', function () {
                 attach.restore();
                 attach = sinon.stub(Websock.prototype, 'attach');
