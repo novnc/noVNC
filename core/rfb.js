@@ -484,6 +484,10 @@ export default class RFB extends EventTargetMixin {
             if (this._sock.readyState === 'closed') {
                 this._fail("Cannot use already closed WebSocket/RTCDataChannel");
             }
+
+            if (this._sock.readyState === 'open') {
+                this._socketOpen();
+            }
         }
 
         // Make our elements part of the page

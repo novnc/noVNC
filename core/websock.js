@@ -247,7 +247,7 @@ export default class Websock {
         this._websocket.binaryType = "arraybuffer";
         this._websocket.onmessage = this._recvMessage.bind(this);
 
-        const onOpen = () => {
+        this._websocket.onopen = () => {
             Log.Debug('>> WebSock.onopen');
             if (this._websocket.protocol) {
                 Log.Info("Server choose sub-protocol: " + this._websocket.protocol);
@@ -256,12 +256,6 @@ export default class Websock {
             this._eventHandlers.open();
             Log.Debug("<< WebSock.onopen");
         };
-
-        if (this.readyState === 'open') {
-            onOpen();
-        } else {
-            this._websocket.onopen = onOpen;
-        }
 
         this._websocket.onclose = (e) => {
             Log.Debug(">> WebSock.onclose");
