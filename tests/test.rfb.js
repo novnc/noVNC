@@ -163,12 +163,37 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(open).to.have.been.calledOnceWithExactly('ws://HOST:8675/PATH', []);
             });
 
+            it('should report connection problems via event', function () {
+                open.restore();
+                open = sinon.stub(Websock.prototype, 'open');
+                open.throws(Error('Failure'));
+                const client = new RFB(document.createElement('div'), 'ws://HOST:8675/PATH');
+                let callback = sinon.spy();
+                client.addEventListener('disconnect', callback);
+                this.clock.tick();
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
+            });
+
             it('should handle WebSocket/RTCDataChannel objects', function () {
                 let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
                 new RFB(document.createElement('div'), sock);
                 this.clock.tick();
                 expect(open).to.not.have.been.called;
                 expect(attach).to.have.been.calledOnceWithExactly(sock);
+            });
+
+            it('should report attach problems via event', function () {
+                attach.restore();
+                attach = sinon.stub(Websock.prototype, 'attach');
+                attach.throws(Error('Failure'));
+                let sock = new FakeWebSocket('ws://HOST:8675/PATH', []);
+                const client = new RFB(document.createElement('div'), sock);
+                let callback = sinon.spy();
+                client.addEventListener('disconnect', callback);
+                this.clock.tick();
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
         });
 
