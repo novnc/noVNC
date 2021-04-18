@@ -393,9 +393,13 @@ export default class Display {
         }
     }
 
-    drawImage(img, x, y) {
-        this._drawCtx.drawImage(img, x, y);
-        this._damage(x, y, img.width, img.height);
+    drawImage(img, x, y, w, h) {
+	if (img.width != w || img.height != h) {
+            this._drawCtx.drawImage(img, x, y, w, h);
+        } else {
+            this._drawCtx.drawImage(img, x, y);
+        }
+        this._damage(x, y, w, h);
     }
 
     autoscale(containerWidth, containerHeight) {
@@ -483,13 +487,13 @@ export default class Display {
                     break;
                 case 'img':
                     if (a.img.complete) {
-                        if (a.img.width !== a.width || a.img.height !== a.height) {
+                        /* if (a.img.width !== a.width || a.img.height !== a.height) {
                             Log.Error("Decoded image has incorrect dimensions. Got " +
                                       a.img.width + "x" + a.img.height + ". Expected " +
                                       a.width + "x" + a.height + ".");
                             return;
-                        }
-                        this.drawImage(a.img, a.x, a.y);
+                        }*/
+                        this.drawImage(a.img, a.x, a.y, a.width, a.height);
                     } else {
                         a.img._noVNCDisplay = this;
                         a.img.addEventListener('load', this._resumeRenderQ);
