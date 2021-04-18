@@ -234,56 +234,10 @@ export default class RFB extends EventTargetMixin {
         this._gestures = new GestureHandler();
 
         this._sock = new Websock();
-        this._sock.on('message', () => {
-            this._handleMessage();
-        });
-        this._sock.on('open', () => {
-            if ((this._rfbConnectionState === 'connecting') &&
-                (this._rfbInitState === '')) {
-                this._rfbInitState = 'ProtocolVersion';
-                Log.Debug("Starting VNC handshake");
-            } else {
-                this._fail("Unexpected server connection while " +
-                           this._rfbConnectionState);
-            }
-        });
-        this._sock.on('close', (e) => {
-            Log.Debug("WebSocket on-close event");
-            let msg = "";
-            if (e.code) {
-                msg = "(code: " + e.code;
-                if (e.reason) {
-                    msg += ", reason: " + e.reason;
-                }
-                msg += ")";
-            }
-            switch (this._rfbConnectionState) {
-                case 'connecting':
-                    this._fail("Connection closed " + msg);
-                    break;
-                case 'connected':
-                    // Handle disconnects that were initiated server-side
-                    this._updateConnectionState('disconnecting');
-                    this._updateConnectionState('disconnected');
-                    break;
-                case 'disconnecting':
-                    // Normal disconnection path
-                    this._updateConnectionState('disconnected');
-                    break;
-                case 'disconnected':
-                    this._fail("Unexpected server disconnect " +
-                               "when already disconnected " + msg);
-                    break;
-                default:
-                    this._fail("Unexpected server disconnect before connecting " +
-                               msg);
-                    break;
-            }
-            this._sock.off('close');
-            // Delete reference to raw channel to allow cleanup.
-            this._rawChannel = null;
-        });
-        this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
+        this._sock.on('open', this._socketOpen.bind(this));
+        this._sock.on('close', this._socketClose.bind(this));
+        this._sock.on('message', this._handleMessage.bind(this));
+        this._sock.on('error', this._socketError.bind(this));
 
         // Slight delay of the actual connection so that the caller has
         // time to set up callbacks
@@ -596,6 +550,58 @@ export default class RFB extends EventTargetMixin {
         clearTimeout(this._resizeTimeout);
         clearTimeout(this._mouseMoveTimer);
         Log.Debug("<< RFB.disconnect");
+    }
+
+    _socketOpen() {
+        if ((this._rfbConnectionState === 'connecting') &&
+            (this._rfbInitState === '')) {
+            this._rfbInitState = 'ProtocolVersion';
+            Log.Debug("Starting VNC handshake");
+        } else {
+            this._fail("Unexpected server connection while " +
+                       this._rfbConnectionState);
+        }
+    }
+
+    _socketClose(e) {
+        Log.Debug("WebSocket on-close event");
+        let msg = "";
+        if (e.code) {
+            msg = "(code: " + e.code;
+            if (e.reason) {
+                msg += ", reason: " + e.reason;
+            }
+            msg += ")";
+        }
+        switch (this._rfbConnectionState) {
+            case 'connecting':
+                this._fail("Connection closed " + msg);
+                break;
+            case 'connected':
+                // Handle disconnects that were initiated server-side
+                this._updateConnectionState('disconnecting');
+                this._updateConnectionState('disconnected');
+                break;
+            case 'disconnecting':
+                // Normal disconnection path
+                this._updateConnectionState('disconnected');
+                break;
+            case 'disconnected':
+                this._fail("Unexpected server disconnect " +
+                           "when already disconnected " + msg);
+                break;
+            default:
+                this._fail("Unexpected server disconnect before connecting " +
+                           msg);
+                break;
+        }
+        this._sock.off('close');
+        // Delete reference to raw channel to allow cleanup.
+        this._rawChannel = null;
+    }
+
+    _socketError(e) {
+        Log.Warn("WebSocket on-error event");
     }
 
     _focusCanvas(event) {
