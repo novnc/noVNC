@@ -363,6 +363,93 @@ describe('Websock', function () {
             });
         });
 
+        describe('ready state', function () {
+            it('should be "unused" after construction', function () {
+                let sock = new Websock();
+                expect(sock.readyState).to.equal('unused');
+            });
+
+            it('should be "connecting" if WebSocket is connecting', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = WebSocket.CONNECTING;
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('connecting');
+            });
+
+            it('should be "open" if WebSocket is open', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = WebSocket.OPEN;
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('open');
+            });
+
+            it('should be "closing" if WebSocket is closing', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = WebSocket.CLOSING;
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('closing');
+            });
+
+            it('should be "closed" if WebSocket is closed', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = WebSocket.CLOSED;
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('closed');
+            });
+
+            it('should be "unknown" if WebSocket state is unknown', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = 666;
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('unknown');
+            });
+
+            it('should be "connecting" if RTCDataChannel is connecting', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = 'connecting';
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('connecting');
+            });
+
+            it('should be "open" if RTCDataChannel is open', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = 'open';
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('open');
+            });
+
+            it('should be "closing" if RTCDataChannel is closing', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = 'closing';
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('closing');
+            });
+
+            it('should be "closed" if RTCDataChannel is closed', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = 'closed';
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('closed');
+            });
+
+            it('should be "unknown" if RTCDataChannel state is unknown', function () {
+                let sock = new Websock();
+                let ws = new FakeWebSocket();
+                ws.readyState = 'foobar';
+                sock.attach(ws);
+                expect(sock.readyState).to.equal('unknown');
+            });
+        });
+
         after(function () {
             // eslint-disable-next-line no-global-assign
             WebSocket = oldWS;

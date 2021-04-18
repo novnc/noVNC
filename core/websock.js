@@ -71,6 +71,29 @@ export default class Websock {
     }
 
     // Getters and Setters
+
+    get readyState() {
+        let subState;
+
+        if (this._websocket === null) {
+            return "unused";
+        }
+
+        subState = this._websocket.readyState;
+
+        if (ReadyStates.CONNECTING.includes(subState)) {
+            return "connecting";
+        } else if (ReadyStates.OPEN.includes(subState)) {
+            return "open";
+        } else if (ReadyStates.CLOSING.includes(subState)) {
+            return "closing";
+        } else if (ReadyStates.CLOSED.includes(subState)) {
+            return "closed";
+        }
+
+        return "unknown";
+    }
+
     get sQ() {
         return this._sQ;
     }
@@ -168,7 +191,7 @@ export default class Websock {
     // Send Queue
 
     flush() {
-        if (this._sQlen > 0 && ReadyStates.OPEN.indexOf(this._websocket.readyState) >= 0) {
+        if (this._sQlen > 0 && this.readyState === 'open') {
             this._websocket.send(this._encodeMessage());
             this._sQlen = 0;
         }
@@ -234,9 +257,7 @@ export default class Websock {
             Log.Debug("<< WebSock.onopen");
         };
 
-        // If the readyState cannot be found this defaults to assuming it's not open.
-        const isOpen = ReadyStates.OPEN.indexOf(this._websocket.readyState) >= 0;
-        if (isOpen) {
+        if (this.readyState === 'open') {
             onOpen();
         } else {
             this._websocket.onopen = onOpen;
@@ -257,8 +278,8 @@ export default class Websock {
 
     close() {
         if (this._websocket) {
-            if (ReadyStates.CONNECTING.indexOf(this._websocket.readyState) >= 0 ||
-                ReadyStates.OPEN.indexOf(this._websocket.readyState) >= 0) {
+            if (this.readyState === 'connecting' ||
+                this.readyState === 'open') {
                 Log.Info("Closing WebSocket connection");
                 this._websocket.close();
             }
