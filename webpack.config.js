@@ -101,7 +101,7 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             filename: '../index.html',
-            template: 'load.html',
+            template: 'vnc.html',
             minify: {
                 html5: true,
                 collapseWhitespace: true,
