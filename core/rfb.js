@@ -10,7 +10,7 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
-import { dragThreshold } from './util/browser.js';
+import { dragThreshold, supportsCursorURIs, isTouchDevice } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -1935,9 +1935,11 @@ export default class RFB extends EventTargetMixin {
         if (this.preferBandwidth) // must be last - server processes in reverse order
             encs.push(encodings.pseudoEncodingPreferBandwidth);
 
-        if (this._fbDepth == 24) {
-            encs.push(encodings.pseudoEncodingVMwareCursor);
-            encs.push(encodings.pseudoEncodingCursor);
+        if (supportsCursorURIs && this._fbDepth == 24) {
+            if (this.preferLocalCursor || !isTouchDevice) {
+                encs.push(encodings.pseudoEncodingVMwareCursor);
+                encs.push(encodings.pseudoEncodingCursor);
+	    }
         }
 
         RFB.messages.clientEncodings(this._sock, encs);
