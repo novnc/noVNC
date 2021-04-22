@@ -1940,13 +1940,6 @@ export default class RFB extends EventTargetMixin {
             encs.push(encodings.pseudoEncodingCursor);
         }
 
-        //if (supportsCursorURIs() && this._fb_depth == 24){
-            // Allow the user to attempt using a local cursor even if they are using a touch device.  KASM-395
-            if (this.preferLocalCursor || !isTouchDevice){
-                encs.push(encodings.pseudoEncodingCursor)
-            }
-        //}
-
         RFB.messages.clientEncodings(this._sock, encs);
     }
 
