@@ -33,6 +33,7 @@ import HextileDecoder from "./decoders/hextile.js";
 import TightDecoder from "./decoders/tight.js";
 import TightPNGDecoder from "./decoders/tightpng.js";
 import X264Decoder from "./decoders/x264.js";
+import {StatisticsData} from "./util/stats/StatisticsData.js";
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
@@ -2094,6 +2095,20 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _handleStatisticsUpdateMsg() {
+        this._sock.rQskipBytes(3);
+        const lastFrame = this._sock.rQshift32();
+        console.log(lastFrame);
+        const averageFrameQp = this._sock.rQshift32();
+        const encodeTsStartMs = this._sock.rQshift32();
+        const encodeTsEndMs = this._sock.rQshift32();
+        const txTsStart = this._sock.rQshift32();
+        const txTsEnd = this._sock.rQshift32();
+        StatisticsData.setFrameStat("encodeDurationMs", encodeTsEndMs-encodeTsStartMs);
+        StatisticsData.setFrameStat("txDurationMs", txTsEnd-txTsStart);
+        return true;
+    }
+
     _normalMsg() {
         let msgType;
         if (this._FBU.rects > 0) {
@@ -2124,6 +2139,9 @@ export default class RFB extends EventTargetMixin {
 
             case 3:  // ServerCutText
                 return this._handleServerCutText();
+
+            case 50: // Statistics update
+                return this._handleStatisticsUpdateMsg();
 
             case 150: // EndOfContinuousUpdates
                 first = !this._supportsContinuousUpdates;

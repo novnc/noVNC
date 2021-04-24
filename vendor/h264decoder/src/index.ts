@@ -55,7 +55,7 @@ const resize = (Module: ModuleMemory) => (requestedSize: number) => {
 const WASM_PAGE_SIZE = 65536;
 const DYNAMIC_BASE = 5251792;
 const DYNAMICTOP_PTR = 8752;
-const INITIAL_INITIAL_MEMORY = 16777216;
+const INITIAL_INITIAL_MEMORY = 32777216;
 
 /**
  * This class wraps the details of the h264 WASM module.

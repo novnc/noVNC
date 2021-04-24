@@ -2,7 +2,7 @@ import Websock from "../websock";
 import Display from "../display";
 import {H264Decoder} from "../../vendor/h264decoder/src/index.js";
 import {YUVBuffer, YUVFrame} from "../../vendor/yuvcanvas/YuvBuffer.js";
-import {StatisticsData} from "../../app/stats/StatisticsData.js";
+import {StatisticsData} from "../util/stats/StatisticsData.js";
 
 export default class X264Decoder {
   decoder : H264Decoder;
@@ -36,7 +36,7 @@ export default class X264Decoder {
 
 
     if(result === H264Decoder.PIC_RDY && this.decoder.pic) {
-      console.log("frame decoded.");
+      // console.log(`frame decoded. payloadSize=(${payloadSize})`);
     } else {
       console.log("decoder error "+result);
     }

@@ -2,8 +2,10 @@
 export const frameStatKeys = [
   "encodeTsStartMs",
   "encodeTsEndMs",
-  "transmissionTsStartMs",
-  "transmissionTsEndMs",
+  "encodeDurationMs",
+  "txTsStartMs",
+  "txTsEndMs",
+  "txDurationMs",
   "decodeTsStartMs",
   "decodeTsEndMs",
   "decodeDurationMs",
@@ -16,8 +18,10 @@ export const frameStatKeys = [
 export interface FrameStats {
   encodeTsStartMs : number[];
   encodeTsEndMs : number[];
-  transmissionTsStartMs : number[];
-  transmissionTsEndMs : number[];
+  encodeDurationMs : number[];
+  txTsStartMs : number[];
+  txTsEndMs : number[];
+  txDurationMs : number[];
   decodeTsStartMs : number[];
   decodeTsEndMs : number[];
   decodeDurationMs : number[];
@@ -43,8 +47,10 @@ export class StatisticsData {
   static frameStats:FrameStats = {
     encodeTsStartMs : new Array(StatisticsData.BUFFER_LENGTH),
     encodeTsEndMs : new Array(StatisticsData.BUFFER_LENGTH),
-    transmissionTsStartMs : new Array(StatisticsData.BUFFER_LENGTH),
-    transmissionTsEndMs : new Array(StatisticsData.BUFFER_LENGTH),
+    encodeDurationMs : new Array(StatisticsData.BUFFER_LENGTH),
+    txTsStartMs : new Array(StatisticsData.BUFFER_LENGTH),
+    txTsEndMs : new Array(StatisticsData.BUFFER_LENGTH),
+    txDurationMs : new Array(StatisticsData.BUFFER_LENGTH),
     decodeTsStartMs : new Array(StatisticsData.BUFFER_LENGTH),
     decodeTsEndMs : new Array(StatisticsData.BUFFER_LENGTH),
     decodeDurationMs : new Array(StatisticsData.BUFFER_LENGTH),
@@ -62,7 +68,7 @@ export class StatisticsData {
     // StatisticsData?.onUpdate(type, []);
   }
 
-  static setFrameStat(/*frame:number,*/ type:keyof FrameStats, value:number) {
+  static setFrameStat(type:keyof FrameStats, value:number) {
     StatisticsData.frameStats[type].shift();
     StatisticsData.frameStats[type].push(value);
     StatisticsData?.onUpdate(type, StatisticsData.frameStats[type]);
