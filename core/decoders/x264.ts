@@ -5,6 +5,7 @@ import {YUVBuffer, YUVFrame} from "../../vendor/yuvcanvas/YuvBuffer.js";
 import {StatisticsData} from "../util/stats/StatisticsData.js";
 
 export default class X264Decoder {
+  static decodedFrameCount : number = 0;
   decoder : H264Decoder;
   emptyu:Uint8Array|null;
   emptyv:Uint8Array|null;
@@ -32,6 +33,7 @@ export default class X264Decoder {
     const result = this.decoder.decode(payload);
 
     let endDecode = performance.now();
+    StatisticsData.setSessionStat("decodedFrameCount", ++X264Decoder.decodedFrameCount);
     StatisticsData.setFrameStat("decodeDurationMs", endDecode-startDecode);
 
 

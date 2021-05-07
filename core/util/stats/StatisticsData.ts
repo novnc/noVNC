@@ -29,21 +29,36 @@ export interface FrameStats {
   displayTsEndMs : number[];
   displayDurationMs : number[];
   frameSizeBytes : number[];
+  lagDurationMs : number[];
 }
 
 export interface SessionStats {
+  encodedFrameCount : number;
+  decodedFrameCount : number;
   sessionStartTsMs?:number;
   receivedBytes?:number;
   sentBytes?:number;
   avgTxBytes?:number;
   avgRxBytes?:number;
-  avgFps?:number;
+  fpsEncoder?:number;
+  fpsDecoder?:number;
   stdFps?:number;
 }
 
 export class StatisticsData {
   static BUFFER_LENGTH = 200;
-  static sessionStats:SessionStats = {};
+  static sessionStats:SessionStats = {
+    encodedFrameCount : 0,
+    decodedFrameCount : 0,
+    sentBytes : 0,
+    receivedBytes : 0,
+    stdFps : 0,
+    fpsEncoder : 0,
+    fpsDecoder : 0,
+    avgRxBytes : 0,
+    avgTxBytes : 0,
+    sessionStartTsMs : 0
+  };
   static frameStats:FrameStats = {
     encodeTsStartMs : new Array(StatisticsData.BUFFER_LENGTH),
     encodeTsEndMs : new Array(StatisticsData.BUFFER_LENGTH),
@@ -58,14 +73,17 @@ export class StatisticsData {
     displayTsEndMs : new Array(StatisticsData.BUFFER_LENGTH),
     displayDurationMs : new Array(StatisticsData.BUFFER_LENGTH),
     frameSizeBytes : new Array(StatisticsData.BUFFER_LENGTH),
+    lagDurationMs : new Array(StatisticsData.BUFFER_LENGTH),
   };
+
   static onUpdate:((type:keyof FrameStats, data : number[])=>void)|undefined;
+  static onUpdateSessionStats:(sessionStats:SessionStats)=>void;
 
   static encodeTimeData:number[] = new Array(200);
 
   static setSessionStat(type:keyof SessionStats, value:number) {
-    // StatisticsData.sessionStats[type] = value;
-    // StatisticsData?.onUpdate(type, []);
+    StatisticsData.sessionStats[type] = value;
+    StatisticsData?.onUpdateSessionStats(StatisticsData.sessionStats);
   }
 
   static setFrameStat(type:keyof FrameStats, value:number) {

@@ -2097,8 +2097,7 @@ export default class RFB extends EventTargetMixin {
 
     _handleStatisticsUpdateMsg() {
         this._sock.rQskipBytes(3);
-        const lastFrame = this._sock.rQshift32();
-        console.log(lastFrame);
+        const encodedFrameCount = this._sock.rQshift32();
         const averageFrameQp = this._sock.rQshift32();
         const encodeTsStartMs = this._sock.rQshift32();
         const encodeTsEndMs = this._sock.rQshift32();
@@ -2106,6 +2105,7 @@ export default class RFB extends EventTargetMixin {
         const txTsEnd = this._sock.rQshift32();
         StatisticsData.setFrameStat("encodeDurationMs", encodeTsEndMs-encodeTsStartMs);
         StatisticsData.setFrameStat("txDurationMs", txTsEnd-txTsStart);
+        StatisticsData.setSessionStat("encodedFrameCount", encodedFrameCount);
         return true;
     }
 

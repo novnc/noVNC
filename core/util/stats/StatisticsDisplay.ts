@@ -1,5 +1,7 @@
 import {RtGraph} from "./RtGraph.js";
-import {frameStatKeys, StatisticsData} from "./StatisticsData.js";
+import {frameStatKeys, SessionStats, StatisticsData} from "./StatisticsData.js";
+import {SessionStatisticsRenderer} from "./SessionStatisticsRenderer.js";
+import {StatisticsMeasurement} from "./StatisticsMeasurement.js";
 
 export class StatisticsDisplay {
   static container : HTMLDivElement;
@@ -10,22 +12,34 @@ export class StatisticsDisplay {
     decodeDurationMs : true
   };
 
+  static statisticsMeasurement : StatisticsMeasurement;
+
+  static sessionStatisticsRenderer : SessionStatisticsRenderer;
   static graphs : {[k:string]:RtGraph};
+
   constructor() {
     StatisticsDisplay.container = document.createElement("div");
     StatisticsDisplay.container.className = "statistics-display";
     StatisticsDisplay.container.style.backgroundColor = "black";
-    StatisticsDisplay.container.style.opacity = "0.3";
+    StatisticsDisplay.container.style.opacity = "1";
     StatisticsDisplay.container.style.position = "absolute";
     StatisticsDisplay.container.style.left = "500px";
     StatisticsDisplay.container.style.top = "0";
     StatisticsDisplay.container.style.zIndex = "100";
     StatisticsDisplay.container.style.display = "flex";
     StatisticsDisplay.container.style.flexDirection = "row";
-    StatisticsDisplay.container.style.transform = "scale(0.5)";
+    // StatisticsDisplay.container.style.transform = "scale(0.5)";
     StatisticsDisplay.container.style.transformOrigin = "0 0";
     document.body.appendChild(StatisticsDisplay.container);
 
+    //statistics measurement
+    StatisticsDisplay.statisticsMeasurement = new StatisticsMeasurement();
+
+    //session statistics
+    StatisticsDisplay.sessionStatisticsRenderer = new SessionStatisticsRenderer();
+    StatisticsDisplay.container.appendChild(StatisticsDisplay.sessionStatisticsRenderer.getDom());
+
+    //frame statistics
     StatisticsDisplay.graphs = {};
     frameStatKeys.forEach(key => {
       if(StatisticsDisplay.graphVisible[key]) {
@@ -51,8 +65,13 @@ export class StatisticsDisplay {
         StatisticsDisplay.container.appendChild(graphContainer);
       }
     });
+
     StatisticsData.onUpdate = (type, data) => {
       StatisticsDisplay.graphs[type]?.redraw(data);
     };
+
+    StatisticsData.onUpdateSessionStats = (sessionStats:SessionStats) => {
+      StatisticsDisplay.sessionStatisticsRenderer.render(sessionStats);
+    }
   }
 }
