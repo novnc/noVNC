@@ -168,7 +168,7 @@ export class WebGLFrameSink {
           canvas.getContext('experimental-webgl', options)) as WebGLRenderingContext;
     }
 
-    compileShader(type, source) {
+    compileShader(type:number, source:string) {
         const shader = this.gl.createShader(type);
         this.gl.shaderSource(shader, source);
         this.gl.compileShader(shader);
@@ -181,7 +181,7 @@ export class WebGLFrameSink {
         return shader;
     }
 
-    createOrReuseTexture(name) {
+    createOrReuseTexture(name:string) {
         if (!this.textures[name]) {
             this.textures[name] = this.gl.createTexture();
         }
@@ -210,7 +210,7 @@ export class WebGLFrameSink {
         );
     }
 
-    unpackTexture(name, width, height) {
+    unpackTexture(name:string, width:number, height:number) {
         const gl = this.gl;
         const texture = this.textures[name];
 
@@ -274,7 +274,7 @@ export class WebGLFrameSink {
 
     }
 
-    attachTexture(name, register, index) {
+    attachTexture(name:string, register:number, index:number) {
         const gl = this.gl;
         gl.activeTexture(register);
         gl.bindTexture(gl.TEXTURE_2D, this.textures[name]);
@@ -301,7 +301,7 @@ export class WebGLFrameSink {
     //     return stripes[width] = new Uint8Array(out.buffer);
     // }
 
-    initProgram(vertexShaderSource, fragmentShaderSource) {
+    initProgram(vertexShaderSource:string, fragmentShaderSource:string) {
         const gl = this.gl;
         var vertexShader = this.compileShader(gl.VERTEX_SHADER, vertexShaderSource);
         var fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
@@ -376,7 +376,7 @@ export class WebGLFrameSink {
         }
 
         if (formatUpdate) {
-            var setupTexturePosition = function(buffer, location, texWidth) {
+            var setupTexturePosition = function(buffer:WebGLBuffer, location:number, texWidth:number) {
                 // Warning: assumes that the stride for Cb and Cr is the same size in output pixels
                 var textureX0 = format.cropLeft / texWidth;
                 var textureX1 = (format.cropLeft + format.cropWidth) / texWidth;
@@ -449,6 +449,8 @@ export class WebGLFrameSink {
         gl.clear(gl.COLOR_BUFFER_BIT);
     }
 }
+
+//TODO: determine what is sweating - GPU or CPU? if it is GPU in fact implement this.
 
 // For Windows; luminance and alpha textures are ssllooww to upload,
 // so we pack into RGBA and unpack in the shaders.

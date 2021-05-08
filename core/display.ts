@@ -21,7 +21,7 @@ export interface NoVNCImage extends HTMLImageElement {
 export interface RenderAction {
     type : "flip"|"copy"|"fill"|"blit"|"img"|"blit_webgl",
     img? : NoVNCImage,
-    color? : number[],
+    color? : number[]|Uint8Array,
     oldX? : number,
     oldY? : number,
     x? : number,
@@ -340,7 +340,7 @@ export default class Display {
         }
     }
 
-    fillRect(x:number, y:number, width:number, height:number, color:number[], fromQueue:boolean) {
+    fillRect(x:number, y:number, width:number, height:number, color:number[]|Uint8Array, fromQueue?:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             this._renderQPush({
                 'type': 'fill',
@@ -357,7 +357,7 @@ export default class Display {
         }
     }
 
-    copyImage(oldX:number, oldY:number, newX:number, newY:number, w:number, h:number, fromQueue:boolean) {
+    copyImage(oldX:number, oldY:number, newX:number, newY:number, w:number, h:number, fromQueue?:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             this._renderQPush({
                 'type': 'copy',
@@ -388,7 +388,7 @@ export default class Display {
         }
     }
 
-    imageRect(x:number, y:number, width:number, height:number, mime:string, arr:Uint8Array[]) {
+    imageRect(x:number, y:number, width:number, height:number, mime:string, arr:Uint8Array) {
         /* The internal logic cannot handle empty images, so bail early */
         if ((width === 0) || (height === 0)) {
             return;
@@ -417,7 +417,7 @@ export default class Display {
         }
     }
 
-    blitImage(x:number, y:number, width:number, height:number, arr:Uint8Array, offset:number, fromQueue:boolean) {
+    blitImage(x:number, y:number, width:number, height:number, arr:Uint8Array, offset:number, fromQueue?:boolean) {
         if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
@@ -490,7 +490,7 @@ export default class Display {
         }
     }
 
-    _setFillColor(color:number[]) {
+    _setFillColor(color:number[]|Uint8Array) {
         const newStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
         if (newStyle !== this._prevDrawStyle) {
             this._drawCtx.fillStyle = newStyle;

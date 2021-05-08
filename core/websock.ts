@@ -17,10 +17,10 @@ import * as Log from './util/logging.js';
 import {RenderAction} from "./display";
 
 export interface EventHandlers {
-    message : ()=>void;
-    open : ()=>void;
-    close : (e:CloseEvent)=>void;
-    error : (e:Event)=>void;
+    message : (e?:Event)=>void;
+    open : (e?:Event)=>void;
+    close : (e?:Event)=>void;
+    error : (e?:Event)=>void;
 }
 
 // this has performance issues in some versions Chromium, and
@@ -172,7 +172,7 @@ export default class Websock {
     // Check to see if we must wait for 'num' bytes (default to FBU.bytes)
     // to be available in the receive queue. Return true if we need to
     // wait (and possibly print a debug message), otherwise false.
-    rQwait(msg:any, num:number, goback:number) {
+    rQwait(msg:any, num:number, goback?:number) {
         if (this.rQlen < num) {
             if (goback) {
                 if (this._rQi < goback) {
@@ -209,7 +209,7 @@ export default class Websock {
         this._eventHandlers[evt] = () => {};
     }
 
-    on(evt:keyof EventHandlers, handler:()=>void) {
+    on(evt:keyof EventHandlers, handler:(e:any)=>void) {
         this._eventHandlers[evt] = handler;
     }
 
