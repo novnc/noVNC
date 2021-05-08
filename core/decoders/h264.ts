@@ -1,5 +1,5 @@
-import Websock from "../websock";
-import Display from "../display";
+import Websock from "../websock.js";
+import Display from "../display.js";
 import {H264Decoder as H264Core} from "../../vendor/h264decoder/src/index.js";
 import {YUVBuffer, YUVFrame} from "../../vendor/yuvcanvas/YuvBuffer.js";
 import {StatisticsData} from "../util/stats/StatisticsData.js";

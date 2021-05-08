@@ -14,7 +14,6 @@
 
 // @ts-ignore
 import * as Log from './util/logging.js';
-import {RenderAction} from "./display";
 
 export interface EventHandlers {
     message : (e?:Event)=>void;

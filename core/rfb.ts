@@ -34,7 +34,7 @@ import TightDecoder from "./decoders/tight.js";
 import TightPNGDecoder from "./decoders/tightpng.js";
 import H264Decoder from "./decoders/h264.js";
 import {StatisticsData} from "./util/stats/StatisticsData.js";
-import {RFBMessages} from "./rfbmessages";
+import {RFBMessages} from "./rfbmessages.js";
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
@@ -405,7 +405,7 @@ export default class RFB extends EventTargetMixin {
         this._decoders[encodings.encodingHextile] = new HextileDecoder();
         this._decoders[encodings.encodingTight] = new TightDecoder();
         this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
-        this._decoders[encodings.encodingX264] = new H264Decoder();
+        this._decoders[encodings.encodingH264] = new H264Decoder();
 
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
@@ -1973,7 +1973,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.encodingCopyRect);
         // Only supported with full depth support
         if (this._fbDepth == 24) {
-            encs.push(encodings.encodingX264);
+            encs.push(encodings.encodingH264);
             encs.push(encodings.encodingTight);
             encs.push(encodings.encodingTightPNG);
             encs.push(encodings.encodingHextile);

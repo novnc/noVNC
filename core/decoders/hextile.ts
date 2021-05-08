@@ -8,8 +8,8 @@
  */
 
 import * as Log from '../util/logging.js';
-import Websock from "../websock";
-import Display from "../display";
+import Websock from "../websock.js";
+import Display from "../display.js";
 
 export default class HextileDecoder {
     _tiles : number;

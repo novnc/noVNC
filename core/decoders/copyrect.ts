@@ -7,8 +7,8 @@
  *
  */
 
-import Websock from "../websock";
-import Display from "../display";
+import Websock from "../websock.js";
+import Display from "../display.js";
 
 export default class CopyRectDecoder {
     decodeRect(x:number, y:number, width:number, height:number, sock:Websock, display:Display, depth:number) {

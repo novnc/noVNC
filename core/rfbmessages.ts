@@ -4,10 +4,10 @@ import RFB, {
   extendedClipboardActionProvide,
   extendedClipboardActionRequest,
   extendedClipboardFormatText
-} from "./rfb";
-import Deflator from "./deflator";
-import {encodeUTF8} from "./util/strings";
-import {toUnsigned32bit} from "./util/int";
+} from "./rfb.js";
+import Deflator from "./deflator.js";
+import {encodeUTF8} from "./util/strings.js";
+import {toUnsigned32bit} from "./util/int.js";
 
 export class RFBMessages {
   static keyEvent(sock:Websock, keysym:number, down:number) {

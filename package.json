@@ -15,13 +15,12 @@
     "docs/API.md",
     "docs/LIBRARY.md",
     "docs/LICENSE*",
-    "core",
-    "vendor/pako"
+    "core"
   ],
   "scripts": {
-    "lint": "eslint app core po/po2js po/xgettext-html tests utils",
     "test": "karma start karma.conf.js",
     "prepublish": "node ./utils/use_require.js --clean",
+    "serve-build": "webpack-dev-server --config ./webpack.config.js --open",
     "build": "webpack"
   },
   "repository": {
@@ -74,7 +73,10 @@
     "rollup": "*",
     "rollup-plugin-node-resolve": "*",
     "sinon": "*",
-    "sinon-chai": "*"
+    "sinon-chai": "*",
+    "webpack": "^5.36.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
     "@types/chrome": "0.0.137",

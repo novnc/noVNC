@@ -8,8 +8,8 @@
  */
 
 import TightDecoder from './tight.js';
-import Websock from "../websock";
-import Display from "../display";
+import Websock from "../websock.js";
+import Display from "../display.js";
 
 export default class TightPNGDecoder extends TightDecoder {
     _pngRect(x:number, y:number, width:number, height:number, sock:Websock, display:Display, depth:number) {

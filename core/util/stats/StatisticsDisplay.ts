@@ -21,10 +21,10 @@ export class StatisticsDisplay {
     StatisticsDisplay.container = document.createElement("div");
     StatisticsDisplay.container.className = "statistics-display";
     StatisticsDisplay.container.style.backgroundColor = "black";
-    StatisticsDisplay.container.style.opacity = "1";
+    StatisticsDisplay.container.style.opacity = "1.0";
     StatisticsDisplay.container.style.position = "absolute";
     StatisticsDisplay.container.style.left = "500px";
-    StatisticsDisplay.container.style.top = "0";
+    StatisticsDisplay.container.style.bottom = "0";
     StatisticsDisplay.container.style.zIndex = "100";
     StatisticsDisplay.container.style.display = "flex";
     StatisticsDisplay.container.style.flexDirection = "row";
@@ -51,7 +51,7 @@ export class StatisticsDisplay {
           graphType : "bar",
           container : graphContainer,
           width : 200,
-          height : 200,
+          height : 150,
           padding : 0
         });
         const graphLabel = document.createElement("div");

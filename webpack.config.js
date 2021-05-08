@@ -9,4 +9,12 @@ module.exports = {
     optimization: {
         minimize: false
     },
+    devServer: {
+        index: "vnc.html",
+        contentBase : path.join(__dirname),
+        publicPath: '/',
+        compress: true,
+        port: 9000,
+        hot: true
+    }
 };
