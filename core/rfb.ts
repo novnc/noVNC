@@ -238,6 +238,7 @@ export default class RFB extends EventTargetMixin {
 
     _screen : HTMLDivElement;
     _canvas : HTMLCanvasElement;
+    _webglCanvas : HTMLCanvasElement;
     _cursor : any;
     _cursorImage : any;
 
@@ -255,7 +256,7 @@ export default class RFB extends EventTargetMixin {
     _qualityLevel : number;
     _compressionLevel : number;
 
-    constructor(target:any, urlOrChannel:string, options:RfbOptions) {
+    constructor(target:HTMLDivElement, urlOrChannel:string, options:RfbOptions) {
         if (!target) {
             throw new Error("Must specify target");
         }
@@ -370,18 +371,37 @@ export default class RFB extends EventTargetMixin {
 
         // Create DOM elements
         this._screen = document.createElement('div');
+        this._screen.style.position = 'relative';
         this._screen.style.display = 'flex';
         this._screen.style.width = '100%';
         this._screen.style.height = '100%';
         this._screen.style.overflow = 'auto';
         this._screen.style.background = DEFAULT_BACKGROUND;
+
+        //webgl canvas is used for rendering video (h264)
+        this._webglCanvas = document.createElement("canvas");
+        this._webglCanvas.style.position = "absolute";
+        this._webglCanvas.style.top = "0";
+        this._webglCanvas.style.left = "0";
+        this._webglCanvas.style.margin = 'auto';
+        this._webglCanvas.style.outline = 'none';
+        this._webglCanvas.width = 0;
+        this._webglCanvas.height = 0;
+        this._webglCanvas.tabIndex = -1;
+        this._webglCanvas.id = "canvas-webgl";
+        this._screen.appendChild(this._webglCanvas);
+
         this._canvas = document.createElement('canvas');
+        this._canvas.style.position = "absolute";
+        this._canvas.style.top = "0";
+        this._canvas.style.left = "0";
         this._canvas.style.margin = 'auto';
         // Some browsers add an outline on focus
         this._canvas.style.outline = 'none';
         this._canvas.width = 0;
         this._canvas.height = 0;
         this._canvas.tabIndex = -1;
+        this._canvas.id = "canvas-2d";
         this._screen.appendChild(this._canvas);
 
         // Cursor
@@ -410,7 +430,7 @@ export default class RFB extends EventTargetMixin {
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
         try {
-            this._display = new Display(this._canvas);
+            this._display = new Display(this._canvas, this._webglCanvas);
         } catch (exc) {
             Log.Error("Display exception: " + exc);
             throw exc;
@@ -499,7 +519,6 @@ export default class RFB extends EventTargetMixin {
         this._scaleViewport = false;
         this._resizeSession = false;
 
-        this._showDotCursor = false;
         if (options.showDotCursor !== undefined) {
             Log.Warn("Specifying showDotCursor as a RFB constructor argument is deprecated");
             this._showDotCursor = options.showDotCursor;
