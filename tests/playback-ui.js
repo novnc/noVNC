@@ -41,7 +41,6 @@ function enableUI() {
         document.getElementById('mode1').checked = true;
     }
 
-    /* eslint-disable-next-line camelcase */
     message("Loaded " + VNC_frame_data.length + " frames");
 
     const startButton = document.getElementById('startButton');
@@ -50,16 +49,12 @@ function enableUI() {
 
     message("Converting...");
 
-    /* eslint-disable-next-line camelcase */
     frames = VNC_frame_data;
 
     let encoding;
-
-    /* eslint-disable camelcase */
+    // Only present in older recordings
     if (window.VNC_frame_encoding) {
-        // Only present in older recordings
         encoding = VNC_frame_encoding;
-    /* eslint-enable camelcase */
     } else {
         let frame = frames[0];
         let start = frame.indexOf('{', 1) + 1;
@@ -107,7 +102,7 @@ class IterationPlayer {
         this._iteration = undefined;
         this._player = undefined;
 
-        this._startTime = undefined;
+        this._start_time = undefined;
 
         this._frames = frames;
 
@@ -120,7 +115,7 @@ class IterationPlayer {
 
     start(realtime) {
         this._iteration = 0;
-        this._startTime = (new Date()).getTime();
+        this._start_time = (new Date()).getTime();
 
         this._realtime = realtime;
 
@@ -144,7 +139,7 @@ class IterationPlayer {
 
     _finish() {
         const endTime = (new Date()).getTime();
-        const totalDuration = endTime - this._startTime;
+        const totalDuration = endTime - this._start_time;
 
         const evt = new CustomEvent('finish',
                                     { detail:

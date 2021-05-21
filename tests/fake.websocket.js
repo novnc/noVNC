@@ -1,14 +1,22 @@
 import Base64 from '../core/base64.js';
 
+// PhantomJS can't create Event objects directly, so we need to use this
+function make_event(name, props) {
+    const evt = document.createEvent('Event');
+    evt.initEvent(name, true, true);
+    if (props) {
+        for (let prop in props) {
+            evt[prop] = props[prop];
+        }
+    }
+    return evt;
+}
+
 export default class FakeWebSocket {
     constructor(uri, protocols) {
         this.url = uri;
         this.binaryType = "arraybuffer";
         this.extensions = "";
-
-        this.onerror = null;
-        this.onmessage = null;
-        this.onopen = null;
 
         if (!protocols || typeof protocols === 'string') {
             this.protocol = protocols;
@@ -16,18 +24,18 @@ export default class FakeWebSocket {
             this.protocol = protocols[0];
         }
 
-        this._sendQueue = new Uint8Array(20000);
+        this._send_queue = new Uint8Array(20000);
 
         this.readyState = FakeWebSocket.CONNECTING;
         this.bufferedAmount = 0;
 
-        this._isFake = true;
+        this.__is_fake = true;
     }
 
     close(code, reason) {
         this.readyState = FakeWebSocket.CLOSED;
         if (this.onclose) {
-            this.onclose(new CloseEvent("close", { 'code': code, 'reason': reason, 'wasClean': true }));
+            this.onclose(make_event("close", { 'code': code, 'reason': reason, 'wasClean': true }));
         }
     }
 
@@ -37,12 +45,12 @@ export default class FakeWebSocket {
         } else {
             data = new Uint8Array(data);
         }
-        this._sendQueue.set(data, this.bufferedAmount);
+        this._send_queue.set(data, this.bufferedAmount);
         this.bufferedAmount += data.length;
     }
 
-    _getSentData() {
-        const res = new Uint8Array(this._sendQueue.buffer, 0, this.bufferedAmount);
+    _get_sent_data() {
+        const res = new Uint8Array(this._send_queue.buffer, 0, this.bufferedAmount);
         this.bufferedAmount = 0;
         return res;
     }
@@ -50,16 +58,16 @@ export default class FakeWebSocket {
     _open() {
         this.readyState = FakeWebSocket.OPEN;
         if (this.onopen) {
-            this.onopen(new Event('open'));
+            this.onopen(make_event('open'));
         }
     }
 
-    _receiveData(data) {
+    _receive_data(data) {
         // Break apart the data to expose bugs where we assume data is
         // neatly packaged
         for (let i = 0;i < data.length;i++) {
             let buf = data.subarray(i, i+1);
-            this.onmessage(new MessageEvent("message", { 'data': buf }));
+            this.onmessage(make_event("message", { 'data': buf }));
         }
     }
 }
@@ -69,20 +77,20 @@ FakeWebSocket.CONNECTING = WebSocket.CONNECTING;
 FakeWebSocket.CLOSING = WebSocket.CLOSING;
 FakeWebSocket.CLOSED = WebSocket.CLOSED;
 
-FakeWebSocket._isFake = true;
+FakeWebSocket.__is_fake = true;
 
 FakeWebSocket.replace = () => {
-    if (!WebSocket._isFake) {
-        const realVersion = WebSocket;
+    if (!WebSocket.__is_fake) {
+        const real_version = WebSocket;
         // eslint-disable-next-line no-global-assign
         WebSocket = FakeWebSocket;
-        FakeWebSocket._realVersion = realVersion;
+        FakeWebSocket.__real_version = real_version;
     }
 };
 
 FakeWebSocket.restore = () => {
-    if (WebSocket._isFake) {
+    if (WebSocket.__is_fake) {
         // eslint-disable-next-line no-global-assign
-        WebSocket = WebSocket._realVersion;
+        WebSocket = WebSocket.__real_version;
     }
 };

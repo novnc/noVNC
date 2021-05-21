@@ -13,7 +13,7 @@ describe('Websock', function () {
         beforeEach(function () {
             sock = new Websock();
             // skip init
-            sock._allocateBuffers();
+            sock._allocate_buffers();
             sock._rQ.set(RQ_TEMPLATE);
             sock._rQlen = RQ_TEMPLATE.length;
         });
@@ -33,51 +33,51 @@ describe('Websock', function () {
 
         describe('rQpeek8', function () {
             it('should peek at the next byte without poping it off the queue', function () {
-                const befLen = sock.rQlen;
+                const bef_len = sock.rQlen;
                 const peek = sock.rQpeek8();
                 expect(sock.rQpeek8()).to.equal(peek);
-                expect(sock.rQlen).to.equal(befLen);
+                expect(sock.rQlen).to.equal(bef_len);
             });
         });
 
         describe('rQshift8()', function () {
             it('should pop a single byte from the receive queue', function () {
                 const peek = sock.rQpeek8();
-                const befLen = sock.rQlen;
+                const bef_len = sock.rQlen;
                 expect(sock.rQshift8()).to.equal(peek);
-                expect(sock.rQlen).to.equal(befLen - 1);
+                expect(sock.rQlen).to.equal(bef_len - 1);
             });
         });
 
         describe('rQshift16()', function () {
             it('should pop two bytes from the receive queue and return a single number', function () {
-                const befLen = sock.rQlen;
+                const bef_len = sock.rQlen;
                 const expected = (RQ_TEMPLATE[0] << 8) + RQ_TEMPLATE[1];
                 expect(sock.rQshift16()).to.equal(expected);
-                expect(sock.rQlen).to.equal(befLen - 2);
+                expect(sock.rQlen).to.equal(bef_len - 2);
             });
         });
 
         describe('rQshift32()', function () {
             it('should pop four bytes from the receive queue and return a single number', function () {
-                const befLen = sock.rQlen;
+                const bef_len = sock.rQlen;
                 const expected = (RQ_TEMPLATE[0] << 24) +
                                (RQ_TEMPLATE[1] << 16) +
                                (RQ_TEMPLATE[2] << 8) +
                                RQ_TEMPLATE[3];
                 expect(sock.rQshift32()).to.equal(expected);
-                expect(sock.rQlen).to.equal(befLen - 4);
+                expect(sock.rQlen).to.equal(bef_len - 4);
             });
         });
 
         describe('rQshiftStr', function () {
             it('should shift the given number of bytes off of the receive queue and return a string', function () {
-                const befLen = sock.rQlen;
-                const befRQi = sock.rQi;
+                const bef_len = sock.rQlen;
+                const bef_rQi = sock.rQi;
                 const shifted = sock.rQshiftStr(3);
                 expect(shifted).to.be.a('string');
-                expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3))));
-                expect(sock.rQlen).to.equal(befLen - 3);
+                expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, bef_rQi, 3))));
+                expect(sock.rQlen).to.equal(bef_len - 3);
             });
 
             it('should shift the entire rest of the queue off if no length is given', function () {
@@ -112,12 +112,12 @@ describe('Websock', function () {
 
         describe('rQshiftBytes', function () {
             it('should shift the given number of bytes of the receive queue and return an array', function () {
-                const befLen = sock.rQlen;
-                const befRQi = sock.rQi;
+                const bef_len = sock.rQlen;
+                const bef_rQi = sock.rQi;
                 const shifted = sock.rQshiftBytes(3);
                 expect(shifted).to.be.an.instanceof(Uint8Array);
-                expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
-                expect(sock.rQlen).to.equal(befLen - 3);
+                expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, bef_rQi, 3));
+                expect(sock.rQlen).to.equal(bef_len - 3);
             });
 
             it('should shift the entire rest of the queue off if no length is given', function () {
@@ -132,9 +132,9 @@ describe('Websock', function () {
             });
 
             it('should not modify the receive queue', function () {
-                const befLen = sock.rQlen;
+                const bef_len = sock.rQlen;
                 sock.rQslice(0, 2);
-                expect(sock.rQlen).to.equal(befLen);
+                expect(sock.rQlen).to.equal(bef_len);
             });
 
             it('should return an array containing the given slice of the receive queue', function () {
@@ -198,7 +198,7 @@ describe('Websock', function () {
                 sock._websocket.readyState = WebSocket.OPEN;
                 sock._sQ = new Uint8Array([1, 2, 3]);
                 sock._sQlen = 3;
-                const encoded = sock._encodeMessage();
+                const encoded = sock._encode_message();
 
                 sock.flush();
                 expect(sock._websocket.send).to.have.been.calledOnce;
@@ -232,29 +232,35 @@ describe('Websock', function () {
             });
         });
 
-        describe('sendString', function () {
+        describe('send_string', function () {
             beforeEach(function () {
                 sock.send = sinon.spy();
             });
 
             it('should call send after converting the string to an array', function () {
-                sock.sendString("\x01\x02\x03");
+                sock.send_string("\x01\x02\x03");
                 expect(sock.send).to.have.been.calledWith([1, 2, 3]);
             });
         });
     });
 
     describe('lifecycle methods', function () {
-        let oldWS;
+        let old_WS;
         before(function () {
-            oldWS = WebSocket;
+            old_WS = WebSocket;
         });
 
         let sock;
         beforeEach(function () {
             sock = new Websock();
             // eslint-disable-next-line no-global-assign
-            WebSocket = sinon.spy(FakeWebSocket);
+            WebSocket = sinon.spy();
+            WebSocket.OPEN = old_WS.OPEN;
+            WebSocket.CONNECTING = old_WS.CONNECTING;
+            WebSocket.CLOSING = old_WS.CLOSING;
+            WebSocket.CLOSED = old_WS.CLOSED;
+
+            WebSocket.prototype.binaryType = 'arraybuffer';
         });
 
         describe('opening', function () {
@@ -270,17 +276,9 @@ describe('Websock', function () {
             // it('should initialize the event handlers')?
         });
 
-        describe('attaching', function () {
-            it('should attach to an existing websocket', function () {
-                let ws = new FakeWebSocket('ws://localhost:8675');
-                sock.attach(ws);
-                expect(WebSocket).to.not.have.been.called;
-            });
-        });
-
         describe('closing', function () {
             beforeEach(function () {
-                sock.open('ws://localhost');
+                sock.open('ws://');
                 sock._websocket.close = sinon.spy();
             });
 
@@ -308,30 +306,30 @@ describe('Websock', function () {
                 expect(sock._websocket.close).not.to.have.been.called;
             });
 
-            it('should reset onmessage to not call _recvMessage', function () {
-                sinon.spy(sock, '_recvMessage');
+            it('should reset onmessage to not call _recv_message', function () {
+                sinon.spy(sock, '_recv_message');
                 sock.close();
                 sock._websocket.onmessage(null);
                 try {
-                    expect(sock._recvMessage).not.to.have.been.called;
+                    expect(sock._recv_message).not.to.have.been.called;
                 } finally {
-                    sock._recvMessage.restore();
+                    sock._recv_message.restore();
                 }
             });
         });
 
         describe('event handlers', function () {
             beforeEach(function () {
-                sock._recvMessage = sinon.spy();
+                sock._recv_message = sinon.spy();
                 sock.on('open', sinon.spy());
                 sock.on('close', sinon.spy());
                 sock.on('error', sinon.spy());
-                sock.open('ws://localhost');
+                sock.open('ws://');
             });
 
-            it('should call _recvMessage on a message', function () {
+            it('should call _recv_message on a message', function () {
                 sock._websocket.onmessage(null);
-                expect(sock._recvMessage).to.have.been.calledOnce;
+                expect(sock._recv_message).to.have.been.calledOnce;
             });
 
             it('should call the open event handler on opening', function () {
@@ -350,96 +348,9 @@ describe('Websock', function () {
             });
         });
 
-        describe('ready state', function () {
-            it('should be "unused" after construction', function () {
-                let sock = new Websock();
-                expect(sock.readyState).to.equal('unused');
-            });
-
-            it('should be "connecting" if WebSocket is connecting', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = WebSocket.CONNECTING;
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('connecting');
-            });
-
-            it('should be "open" if WebSocket is open', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = WebSocket.OPEN;
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('open');
-            });
-
-            it('should be "closing" if WebSocket is closing', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = WebSocket.CLOSING;
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('closing');
-            });
-
-            it('should be "closed" if WebSocket is closed', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = WebSocket.CLOSED;
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('closed');
-            });
-
-            it('should be "unknown" if WebSocket state is unknown', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = 666;
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('unknown');
-            });
-
-            it('should be "connecting" if RTCDataChannel is connecting', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = 'connecting';
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('connecting');
-            });
-
-            it('should be "open" if RTCDataChannel is open', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = 'open';
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('open');
-            });
-
-            it('should be "closing" if RTCDataChannel is closing', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = 'closing';
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('closing');
-            });
-
-            it('should be "closed" if RTCDataChannel is closed', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = 'closed';
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('closed');
-            });
-
-            it('should be "unknown" if RTCDataChannel state is unknown', function () {
-                let sock = new Websock();
-                let ws = new FakeWebSocket();
-                ws.readyState = 'foobar';
-                sock.attach(ws);
-                expect(sock.readyState).to.equal('unknown');
-            });
-        });
-
         after(function () {
             // eslint-disable-next-line no-global-assign
-            WebSocket = oldWS;
+            WebSocket = old_WS;
         });
     });
 
@@ -447,13 +358,13 @@ describe('Websock', function () {
         let sock;
         beforeEach(function () {
             sock = new Websock();
-            sock._allocateBuffers();
+            sock._allocate_buffers();
         });
 
         it('should support adding binary Uint8Array data to the receive queue', function () {
             const msg = { data: new Uint8Array([1, 2, 3]) };
             sock._mode = 'binary';
-            sock._recvMessage(msg);
+            sock._recv_message(msg);
             expect(sock.rQshiftStr(3)).to.equal('\x01\x02\x03');
         });
 
@@ -461,7 +372,7 @@ describe('Websock', function () {
             sock._eventHandlers.message = sinon.spy();
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
             sock._mode = 'binary';
-            sock._recvMessage(msg);
+            sock._recv_message(msg);
             expect(sock._eventHandlers.message).to.have.been.calledOnce;
         });
 
@@ -469,58 +380,36 @@ describe('Websock', function () {
             sock._eventHandlers.message = sinon.spy();
             const msg = { data: new Uint8Array([]).buffer };
             sock._mode = 'binary';
-            sock._recvMessage(msg);
+            sock._recv_message(msg);
             expect(sock._eventHandlers.message).not.to.have.been.called;
         });
 
-        it('should compact the receive queue when a message handler empties it', function () {
-            sock._eventHandlers.message = () => { sock.rQi = sock._rQlen; };
+        it('should compact the receive queue', function () {
+            // NB(sross): while this is an internal implementation detail, it's important to
+            //            test, otherwise the receive queue could become very large very quickly
             sock._rQ = new Uint8Array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0]);
             sock._rQlen = 6;
             sock.rQi = 6;
+            sock._rQmax = 3;
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
             sock._mode = 'binary';
-            sock._recvMessage(msg);
-            expect(sock._rQlen).to.equal(0);
+            sock._recv_message(msg);
+            expect(sock._rQlen).to.equal(3);
             expect(sock.rQi).to.equal(0);
         });
 
-        it('should compact the receive queue when we reach the end of the buffer', function () {
-            sock._rQ = new Uint8Array(20);
-            sock._rQbufferSize = 20;
-            sock._rQlen = 20;
-            sock.rQi = 10;
-            const msg = { data: new Uint8Array([1, 2]).buffer };
-            sock._mode = 'binary';
-            sock._recvMessage(msg);
-            expect(sock._rQlen).to.equal(12);
-            expect(sock.rQi).to.equal(0);
-        });
-
-        it('should automatically resize the receive queue if the incoming message is larger than the buffer', function () {
+        it('should automatically resize the receive queue if the incoming message is too large', function () {
             sock._rQ = new Uint8Array(20);
             sock._rQlen = 0;
             sock.rQi = 0;
             sock._rQbufferSize = 20;
+            sock._rQmax = 2;
             const msg = { data: new Uint8Array(30).buffer };
             sock._mode = 'binary';
-            sock._recvMessage(msg);
+            sock._recv_message(msg);
             expect(sock._rQlen).to.equal(30);
             expect(sock.rQi).to.equal(0);
             expect(sock._rQ.length).to.equal(240);  // keep the invariant that rQbufferSize / 8 >= rQlen
-        });
-
-        it('should automatically resize the receive queue if the incoming message is larger than 1/8th of the buffer and we reach the end of the buffer', function () {
-            sock._rQ = new Uint8Array(20);
-            sock._rQlen = 16;
-            sock.rQi = 16;
-            sock._rQbufferSize = 20;
-            const msg = { data: new Uint8Array(6).buffer };
-            sock._mode = 'binary';
-            sock._recvMessage(msg);
-            expect(sock._rQlen).to.equal(6);
-            expect(sock.rQi).to.equal(0);
-            expect(sock._rQ.length).to.equal(48);
         });
     });
 
@@ -539,13 +428,13 @@ describe('Websock', function () {
             it('should only send the send queue up to the send queue length', function () {
                 sock._sQ = new Uint8Array([1, 2, 3, 4, 5]);
                 sock._sQlen = 3;
-                const res = sock._encodeMessage();
+                const res = sock._encode_message();
                 expect(res).to.array.equal(new Uint8Array([1, 2, 3]));
             });
 
             it('should properly pass the encoded data off to the actual WebSocket', function () {
                 sock.send([1, 2, 3]);
-                expect(sock._websocket._getSentData()).to.array.equal(new Uint8Array([1, 2, 3]));
+                expect(sock._websocket._get_sent_data()).to.array.equal(new Uint8Array([1, 2, 3]));
             });
         });
     });

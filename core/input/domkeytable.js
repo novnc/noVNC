@@ -35,7 +35,7 @@ function addNumpad(key, standard, numpad) {
     DOMKeyTable[key] = [standard, standard, standard, numpad];
 }
 
-// 3.2. Modifier Keys
+// 2.2. Modifier Keys
 
 addLeftRight("Alt", KeyTable.XK_Alt_L, KeyTable.XK_Alt_R);
 addStandard("AltGraph", KeyTable.XK_ISO_Level3_Shift);
@@ -43,38 +43,35 @@ addStandard("CapsLock", KeyTable.XK_Caps_Lock);
 addLeftRight("Control", KeyTable.XK_Control_L, KeyTable.XK_Control_R);
 // - Fn
 // - FnLock
+addLeftRight("Hyper", KeyTable.XK_Super_L, KeyTable.XK_Super_R);
 addLeftRight("Meta", KeyTable.XK_Super_L, KeyTable.XK_Super_R);
 addStandard("NumLock", KeyTable.XK_Num_Lock);
 addStandard("ScrollLock", KeyTable.XK_Scroll_Lock);
 addLeftRight("Shift", KeyTable.XK_Shift_L, KeyTable.XK_Shift_R);
+addLeftRight("Super", KeyTable.XK_Super_L, KeyTable.XK_Super_R);
 // - Symbol
 // - SymbolLock
-// - Hyper
-// - Super
 
-// 3.3. Whitespace Keys
+// 2.3. Whitespace Keys
 
 addNumpad("Enter", KeyTable.XK_Return, KeyTable.XK_KP_Enter);
 addStandard("Tab", KeyTable.XK_Tab);
 addNumpad(" ", KeyTable.XK_space, KeyTable.XK_KP_Space);
 
-// 3.4. Navigation Keys
+// 2.4. Navigation Keys
 
 addNumpad("ArrowDown", KeyTable.XK_Down, KeyTable.XK_KP_Down);
+addNumpad("ArrowUp", KeyTable.XK_Up, KeyTable.XK_KP_Up);
 addNumpad("ArrowLeft", KeyTable.XK_Left, KeyTable.XK_KP_Left);
 addNumpad("ArrowRight", KeyTable.XK_Right, KeyTable.XK_KP_Right);
-addNumpad("ArrowUp", KeyTable.XK_Up, KeyTable.XK_KP_Up);
 addNumpad("End", KeyTable.XK_End, KeyTable.XK_KP_End);
 addNumpad("Home", KeyTable.XK_Home, KeyTable.XK_KP_Home);
 addNumpad("PageDown", KeyTable.XK_Next, KeyTable.XK_KP_Next);
 addNumpad("PageUp", KeyTable.XK_Prior, KeyTable.XK_KP_Prior);
 
-// 3.5. Editing Keys
+// 2.5. Editing Keys
 
 addStandard("Backspace", KeyTable.XK_BackSpace);
-// Browsers send "Clear" for the numpad 5 without NumLock because
-// Windows uses VK_Clear for that key. But Unix expects KP_Begin for
-// that scenario.
 addNumpad("Clear", KeyTable.XK_Clear, KeyTable.XK_KP_Begin);
 addStandard("Copy", KeyTable.XF86XK_Copy);
 // - CrSel
@@ -87,7 +84,7 @@ addStandard("Paste", KeyTable.XF86XK_Paste);
 addStandard("Redo", KeyTable.XK_Redo);
 addStandard("Undo", KeyTable.XK_Undo);
 
-// 3.6. UI Keys
+// 2.6. UI Keys
 
 // - Accept
 // - Again (could just be XK_Redo)
@@ -105,7 +102,7 @@ addStandard("Select", KeyTable.XK_Select);
 addStandard("ZoomIn", KeyTable.XF86XK_ZoomIn);
 addStandard("ZoomOut", KeyTable.XF86XK_ZoomOut);
 
-// 3.7. Device Keys
+// 2.7. Device Keys
 
 addStandard("BrightnessDown", KeyTable.XF86XK_MonBrightnessDown);
 addStandard("BrightnessUp", KeyTable.XF86XK_MonBrightnessUp);
@@ -118,10 +115,10 @@ addStandard("Hibernate", KeyTable.XF86XK_Hibernate);
 addStandard("Standby", KeyTable.XF86XK_Standby);
 addStandard("WakeUp", KeyTable.XF86XK_WakeUp);
 
-// 3.8. IME and Composition Keys
+// 2.8. IME and Composition Keys
 
 addStandard("AllCandidates", KeyTable.XK_MultipleCandidate);
-addStandard("Alphanumeric", KeyTable.XK_Eisu_toggle);
+addStandard("Alphanumeric", KeyTable.XK_Eisu_Shift); // could also be _Eisu_Toggle
 addStandard("CodeInput", KeyTable.XK_Codeinput);
 addStandard("Compose", KeyTable.XK_Multi_key);
 addStandard("Convert", KeyTable.XK_Henkan);
@@ -139,7 +136,7 @@ addStandard("PreviousCandidate", KeyTable.XK_PreviousCandidate);
 addStandard("SingleCandidate", KeyTable.XK_SingleCandidate);
 addStandard("HangulMode", KeyTable.XK_Hangul);
 addStandard("HanjaMode", KeyTable.XK_Hangul_Hanja);
-addStandard("JunjaMode", KeyTable.XK_Hangul_Jeonja);
+addStandard("JunjuaMode", KeyTable.XK_Hangul_Jeonja);
 addStandard("Eisu", KeyTable.XK_Eisu_toggle);
 addStandard("Hankaku", KeyTable.XK_Hankaku);
 addStandard("Hiragana", KeyTable.XK_Hiragana);
@@ -149,9 +146,9 @@ addStandard("KanjiMode", KeyTable.XK_Kanji);
 addStandard("Katakana", KeyTable.XK_Katakana);
 addStandard("Romaji", KeyTable.XK_Romaji);
 addStandard("Zenkaku", KeyTable.XK_Zenkaku);
-addStandard("ZenkakuHankaku", KeyTable.XK_Zenkaku_Hankaku);
+addStandard("ZenkakuHanaku", KeyTable.XK_Zenkaku_Hankaku);
 
-// 3.9. General-Purpose Function Keys
+// 2.9. General-Purpose Function Keys
 
 addStandard("F1", KeyTable.XK_F1);
 addStandard("F2", KeyTable.XK_F2);
@@ -190,19 +187,17 @@ addStandard("F34", KeyTable.XK_F34);
 addStandard("F35", KeyTable.XK_F35);
 // - Soft1...
 
-// 3.10. Multimedia Keys
+// 2.10. Multimedia Keys
 
 // - ChannelDown
 // - ChannelUp
 addStandard("Close", KeyTable.XF86XK_Close);
 addStandard("MailForward", KeyTable.XF86XK_MailForward);
 addStandard("MailReply", KeyTable.XF86XK_Reply);
-addStandard("MailSend", KeyTable.XF86XK_Send);
-// - MediaClose
+addStandard("MainSend", KeyTable.XF86XK_Send);
 addStandard("MediaFastForward", KeyTable.XF86XK_AudioForward);
 addStandard("MediaPause", KeyTable.XF86XK_AudioPause);
 addStandard("MediaPlay", KeyTable.XF86XK_AudioPlay);
-// - MediaPlayPause
 addStandard("MediaRecord", KeyTable.XF86XK_AudioRecord);
 addStandard("MediaRewind", KeyTable.XF86XK_AudioRewind);
 addStandard("MediaStop", KeyTable.XF86XK_AudioStop);
@@ -214,18 +209,20 @@ addStandard("Print", KeyTable.XK_Print);
 addStandard("Save", KeyTable.XF86XK_Save);
 addStandard("SpellCheck", KeyTable.XF86XK_Spell);
 
-// 3.11. Multimedia Numpad Keys
+// 2.11. Multimedia Numpad Keys
 
 // - Key11
 // - Key12
 
-// 3.12. Audio Keys
+// 2.12. Audio Keys
 
 // - AudioBalanceLeft
 // - AudioBalanceRight
+// - AudioBassDown
 // - AudioBassBoostDown
 // - AudioBassBoostToggle
 // - AudioBassBoostUp
+// - AudioBassUp
 // - AudioFaderFront
 // - AudioFaderRear
 // - AudioSurroundModeNext
@@ -239,20 +236,19 @@ addStandard("AudioVolumeMute", KeyTable.XF86XK_AudioMute);
 // - MicrophoneVolumeUp
 addStandard("MicrophoneVolumeMute", KeyTable.XF86XK_AudioMicMute);
 
-// 3.13. Speech Keys
+// 2.13. Speech Keys
 
 // - SpeechCorrectionList
 // - SpeechInputToggle
 
-// 3.14. Application Keys
+// 2.14. Application Keys
 
-addStandard("LaunchApplication1", KeyTable.XF86XK_MyComputer);
-addStandard("LaunchApplication2", KeyTable.XF86XK_Calculator);
+addStandard("LaunchCalculator", KeyTable.XF86XK_Calculator);
 addStandard("LaunchCalendar", KeyTable.XF86XK_Calendar);
-// - LaunchContacts
 addStandard("LaunchMail", KeyTable.XF86XK_Mail);
 addStandard("LaunchMediaPlayer", KeyTable.XF86XK_AudioMedia);
 addStandard("LaunchMusicPlayer", KeyTable.XF86XK_Music);
+addStandard("LaunchMyComputer", KeyTable.XF86XK_MyComputer);
 addStandard("LaunchPhone", KeyTable.XF86XK_Phone);
 addStandard("LaunchScreenSaver", KeyTable.XF86XK_ScreenSaver);
 addStandard("LaunchSpreadsheet", KeyTable.XF86XK_Excel);
@@ -260,7 +256,7 @@ addStandard("LaunchWebBrowser", KeyTable.XF86XK_WWW);
 addStandard("LaunchWebCam", KeyTable.XF86XK_WebCam);
 addStandard("LaunchWordProcessor", KeyTable.XF86XK_Word);
 
-// 3.15. Browser Keys
+// 2.15. Browser Keys
 
 addStandard("BrowserBack", KeyTable.XF86XK_Back);
 addStandard("BrowserFavorites", KeyTable.XF86XK_Favorites);
@@ -270,15 +266,15 @@ addStandard("BrowserRefresh", KeyTable.XF86XK_Refresh);
 addStandard("BrowserSearch", KeyTable.XF86XK_Search);
 addStandard("BrowserStop", KeyTable.XF86XK_Stop);
 
-// 3.16. Mobile Phone Keys
+// 2.16. Mobile Phone Keys
 
 // - A whole bunch...
 
-// 3.17. TV Keys
+// 2.17. TV Keys
 
 // - A whole bunch...
 
-// 3.18. Media Controller Keys
+// 2.18. Media Controller Keys
 
 // - A whole bunch...
 addStandard("Dimmer", KeyTable.XF86XK_BrightnessAdjust);

@@ -9,14 +9,14 @@
 
 const fs = require('fs');
 
-let showHelp = process.argv.length === 2;
+let show_help = process.argv.length === 2;
 let filename;
 
 for (let i = 2; i < process.argv.length; ++i) {
     switch (process.argv[i]) {
         case "--help":
         case "-h":
-            showHelp = true;
+            show_help = true;
             break;
         case "--file":
         case "-f":
@@ -26,11 +26,11 @@ for (let i = 2; i < process.argv.length; ++i) {
 }
 
 if (!filename) {
-    showHelp = true;
+    show_help = true;
     console.log("Error: No filename specified\n");
 }
 
-if (showHelp) {
+if (show_help) {
     console.log("Parses a *nix keysymdef.h to generate Unicode code point mappings");
     console.log("Usage: node parse.js [options] filename:");
     console.log("  -h [ --help ]                 Produce this help message");

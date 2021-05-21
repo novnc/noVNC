@@ -3,15 +3,14 @@
 # Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Juanjo Diaz <juanjo.diazmo@gmail.com>, 2018.
-# Adrian Scillato <ascillato@gmail.com>, 2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2017-10-06 10:07+0200\n"
-"PO-Revision-Date: 2021-04-23 12:00-0300\n"
-"Last-Translator: Adrian Scillato <ascillato@gmail.com>\n"
+"PO-Revision-Date: 2018-01-30 19:14-0800\n"
+"Last-Translator: Juanjo Diaz <juanjo.diazmo@gmail.com>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -41,7 +40,7 @@ msgstr "Desconectado"
 
 #: ../app/ui.js:1052 ../core/rfb.js:248
 msgid "Must set host"
-msgstr "Se debe configurar el host"
+msgstr "Debes configurar el host"
 
 #: ../app/ui.js:1101
 msgid "Reconnecting..."
@@ -49,7 +48,7 @@ msgstr "Reconectando..."
 
 #: ../app/ui.js:1140
 msgid "Password is required"
-msgstr "La contraseña es obligatoria"
+msgstr "Contraseña es obligatoria"
 
 #: ../core/rfb.js:548
 msgid "Disconnect timeout"
@@ -187,10 +186,6 @@ msgstr "Pantalla Completa"
 msgid "Settings"
 msgstr "Configuraciones"
 
-#: ../vnc.html:200
-msgid "Encrypt"
-msgstr "Encriptar"
-
 #: ../vnc.html:202
 msgid "Shared Mode"
 msgstr "Modo Compartido"
@@ -233,7 +228,7 @@ msgstr "Cursor Local"
 
 #: ../vnc.html:229
 msgid "Repeater ID:"
-msgstr "ID del Repetidor:"
+msgstr "ID del Repetidor"
 
 #: ../vnc.html:233
 msgid "WebSocket"
@@ -245,15 +240,15 @@ msgstr ""
 
 #: ../vnc.html:239
 msgid "Host:"
-msgstr "Host:"
+msgstr "Host"
 
 #: ../vnc.html:243
 msgid "Port:"
-msgstr "Puerto:"
+msgstr "Puesto"
 
 #: ../vnc.html:247
 msgid "Path:"
-msgstr "Ruta:"
+msgstr "Ruta"
 
 #: ../vnc.html:254
 msgid "Automatic Reconnect"
@@ -261,11 +256,11 @@ msgstr "Reconexión automática"
 
 #: ../vnc.html:257
 msgid "Reconnect Delay (ms):"
-msgstr "Retraso en la reconexión (ms):"
+msgstr "Retraso en la reconexión (ms)"
 
 #: ../vnc.html:263
 msgid "Logging:"
-msgstr "Registrando:"
+msgstr "Logging"
 
 #: ../vnc.html:275
 msgid "Disconnect"
@@ -277,7 +272,7 @@ msgstr "Conectar"
 
 #: ../vnc.html:304
 msgid "Password:"
-msgstr "Contraseña:"
+msgstr "Contraseña"
 
 #: ../vnc.html:318
 msgid "Cancel"
@@ -285,4 +280,4 @@ msgstr "Cancelar"
 
 #: ../vnc.html:334
 msgid "Canvas not supported."
-msgstr "Canvas no soportado."
+msgstr "Canvas no está soportado"
