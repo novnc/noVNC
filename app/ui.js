@@ -166,7 +166,7 @@ const UI = {
         UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
-        UI.initSetting('resize', 'off');
+        UI.initSetting('resize', 'on');
         UI.initSetting('quality', 6);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
@@ -666,6 +666,17 @@ const UI = {
         const handle = document.getElementById("noVNC_control_bar_handle");
         const handleBounds = handle.getBoundingClientRect();
         UI.moveControlbarHandle(handleBounds.top);
+
+        fetch("http://localhost:6081/resize", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({width: window.innerWidth, height: window.innerHeight})
+        }).then(response=>response.json())
+        .then(res=>{
+            console.log("Resized successfully")
+        }).catch(e=>console.log("Error while resizizing", e))
     },
 
     controlbarHandleMouseUp(e) {
