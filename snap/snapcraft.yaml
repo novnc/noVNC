@@ -16,13 +16,13 @@ parts:
         source: .
         plugin: dump
         organize:
-            utils/launch.sh: /
+            utils/novnc_proxy: /
         stage:
             - vnc.html
             - app
             - core/**/*.js
             - vendor/**/*.js
-            - launch.sh
+            - novnc_proxy
         stage-packages:
             - bash
 
@@ -47,7 +47,7 @@ hooks:
 
 apps:
     novnc:
-        command: ./launch.sh
+        command: ./novnc_proxy
         plugs: [network, network-bind]
     novncsvc:
         command: ./svc_wrapper.sh

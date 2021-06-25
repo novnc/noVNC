@@ -24,6 +24,6 @@ snapctl get services | jq -c '.[]' | while read service; do # for each service t
         echo "novnc: not starting service ${service} with listen_port ${listen_port} and vnc_host_port ${vnc_host_port}"
     else
         # start (and fork with '&') the service using the specified listen port and VNC host:port
-        $SNAP/launch.sh --listen $listen_port --vnc $vnc_host_port &
+        $SNAP/novnc_proxy --listen $listen_port --vnc $vnc_host_port &
     fi
 done

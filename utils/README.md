@@ -1,6 +1,6 @@
 ## WebSockets Proxy/Bridge
 
-Websockify has been forked out into its own project.  `launch.sh` wil
+Websockify has been forked out into its own project. `novnc_proxy` will
 automatically download it here if it is not already present and not
 installed as system-wide.
 
