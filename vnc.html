@@ -52,6 +52,13 @@
 
     <script src="app/error-handler.js"></script>
     <script type="module" crossorigin="anonymous" src="app/ui.js"></script>
+
+    <style>
+        video{
+            max-width: 600px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -311,5 +318,30 @@
         <source src="app/sounds/bell.oga" type="audio/ogg">
         <source src="app/sounds/bell.mp3" type="audio/mpeg">
     </audio>
+
+    <div id="video">
+        <video id="localVideo" playsinline autoplay></video>
+    </div>
+
+    <script>
+        const localVideo = document.querySelector('#localVideo');
+        var stream_set = false;
+
+        var canvas = document.querySelector('#noVNC_container canvas');
+        // Buscar el canvas 
+        setInterval(function(){
+            if(canvas === null){
+                canvas = document.querySelector('#noVNC_container canvas');
+                console.log('CANVAS: ', canvas);
+            }else{
+                if(!stream_set){
+                    let stream = canvas.captureStream();
+                    //localVideo.play();
+                    localVideo.srcObject = stream;
+                    stream_set = true;
+                }
+            }
+        },500);
+    </script>
  </body>
 </html>
