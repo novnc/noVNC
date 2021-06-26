@@ -1,0 +1,3 @@
+x11: x11vnc
+noVNC: ./utils/launch.sh --vnc localhost:5900
+
