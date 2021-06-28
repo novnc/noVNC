@@ -136,6 +136,7 @@ function addIceCandidate(candidate) {
       localPeer.addIceCandidate(candidate);
     }
     console.log('[NOVNC] Candidate Added');
+    // Crear set
   }
 
 async function setAnswerDescription(answer){

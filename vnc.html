@@ -325,75 +325,48 @@
 
     <!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
     <script src="utils/stream/rtcstream.js"></script>
+    <script src="utils/stream/ws_stream.js"></script>
     <script>
+        'use strict';
+
+        const onCreateRoom = new Event('oncreateroom');
         const localVideo = document.querySelector('#localVideo');
         var stream_set = false;
         let room_name;
         let users = false;
+        let streamws;
+
+        function createRoom(){
+            room_name = Date.now()+Math.round(Math.random()*10000);
+            console.log('[NOVNC] room name: ', room_name);
+            // Throw event to create streamws
+            document.dispatchEvent(onCreateRoom);
+        }
 
         var canvas = document.querySelector('#noVNC_container canvas');
-        // Buscar el canvas 
+        // Search for canvas element
         setInterval(function(){
             if(canvas === null){
                 canvas = document.querySelector('#noVNC_container canvas');
-                //console.log('CANVAS: ', canvas);
             }else{
                 if(!stream_set){
                     let stream = canvas.captureStream();
-                    //localVideo.play();
                     localVideo.srcObject = stream;
                     stream_set = true;
                 }
             }
-        },1000);
+        },2000);
 
         // Creo la sala
-        room_name = Date.now()+Math.round(Math.random()*10000);
-        console.log('[NOVNC] room name: ', room_name);
-        // Creo WS de stream
-        const streamws = new WebSocket(
-                    'ws://' +
-                    '127.0.0.1:8000' +
-                    '/ws/stream/' +
-                    room_name +
-                    '/'
-                );
-        console.log('[NOVNC] WebSocket streamws creado');
-        // HAndler ws
-        streamws.onmessage = function(e){
-            let message_data = JSON.parse(event.data);
-            console.log('[NOVNC] streamws: ', message_data);
-            if(message_data['type'] == 'checkusers'){
-                if(message_data['users']){
-                    console.log('[NOVNC] usuarios correctos');
-                    users = true;
-                    startLocalStream();
-                }else{
-                    console.log('[NOVNC] usuarios incorrectos');
-                    users = false;
-                }
-            }else if(message_data['type'] == 'candidate'){
-                console.log('[NOVNC] Candidate received');
-                addIceCandidate(message_data['candidate']);
-            }else if(message_data['type'] == 'offer'){
-                console.log('[NOVNC] Offer received');
-                startRemoteStream(message_data['offer']);
-            }else if(message_data['type'] == 'answer'){
-                console.log('[NOVNC] Answer received');
-                setAnswerDescription(message_data['answer']);
-            }else if(message_data['type'] == 'denied'){
-                console.log('[NOVNC] Denied connection');
-                window.location.pathname = '/';
-            }
-        }
+        createRoom();
 
         window.addEventListener('message', function(e){
             console.log('[NOVNC] mensaje: ', e.data);
             if(e.data === 'start'){
                 console.log('Empezar el stream');
-                // Envío la sala del stream al padre
+                // Send stream_room to parent
                 parent.postMessage(JSON.stringify({'stream':room_name}),'*');
-                // Comprobar usuarios
+                // Check users until both are connected
                 setInterval(function(){
                     if(!users){
                         checkUsers();
@@ -401,10 +374,6 @@
                 },2000);
             }
         });
-
-        // window.onload = function(){
-        //     parent.postMessage(canvas, '*');
-        // }
     </script>
  </body>
 </html>
