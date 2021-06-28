@@ -328,6 +328,8 @@
     <script>
         const localVideo = document.querySelector('#localVideo');
         var stream_set = false;
+        let room_name;
+        let users = false;
 
         var canvas = document.querySelector('#noVNC_container canvas');
         // Buscar el canvas 
@@ -343,39 +345,32 @@
                     stream_set = true;
                 }
             }
-        },500);
+        },1000);
 
-
-        /////// Control de streamws
+        // Creo la sala
+        room_name = Date.now()+Math.round(Math.random()*10000);
+        console.log('[NOVNC] room name: ', room_name);
         // Creo WS de stream
         const streamws = new WebSocket(
                     'ws://' +
                     '127.0.0.1:8000' +
                     '/ws/stream/' +
-                    'd' +
+                    room_name +
                     '/'
                 );
         console.log('[NOVNC] WebSocket streamws creado');
-
-        window.addEventListener('message', function(e){
-            console.log('[NOVNC] mensaje: ', e.data);
-            if(e.data === 'start'){
-                console.log('Empezar el stream');
-                // Comprobar usuarios
-                checkUsers();
-            }
-        });
-
-        ///// Esto va en ws_stream.js
+        // HAndler ws
         streamws.onmessage = function(e){
             let message_data = JSON.parse(event.data);
             console.log('[NOVNC] streamws: ', message_data);
             if(message_data['type'] == 'checkusers'){
                 if(message_data['users']){
                     console.log('[NOVNC] usuarios correctos');
+                    users = true;
                     startLocalStream();
                 }else{
                     console.log('[NOVNC] usuarios incorrectos');
+                    users = false;
                 }
             }else if(message_data['type'] == 'candidate'){
                 console.log('[NOVNC] Candidate received');
@@ -391,8 +386,21 @@
                 window.location.pathname = '/';
             }
         }
-        
-        ////////
+
+        window.addEventListener('message', function(e){
+            console.log('[NOVNC] mensaje: ', e.data);
+            if(e.data === 'start'){
+                console.log('Empezar el stream');
+                // Envío la sala del stream al padre
+                parent.postMessage(JSON.stringify({'stream':room_name}),'*');
+                // Comprobar usuarios
+                setInterval(function(){
+                    if(!users){
+                        checkUsers();
+                    }
+                },2000);
+            }
+        });
 
         // window.onload = function(){
         //     parent.postMessage(canvas, '*');

@@ -51,6 +51,7 @@ async function startLocalStream(){
     // Obtener el stream del usuario
     if(!canvas){
         console.log('[NOVNC] Error: no CANVAS');
+        users = false;
         return
     }
     stream = canvas.captureStream();
