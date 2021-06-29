@@ -55,9 +55,6 @@ async function startLocalStream(){
         return
     }
     stream = canvas.captureStream();
-    
-    // Mostrar el video
-    localVideo.srcObject = stream;
 
     // Establecer cual es el localStream
     localStream = stream;

@@ -319,10 +319,6 @@
         <source src="app/sounds/bell.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="video">
-        <video id="localVideo" playsinline autoplay></video>
-    </div>
-
     <!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
     <script src="utils/stream/rtc_stream.js"></script>
     <script src="utils/stream/ws_stream.js"></script>
@@ -330,7 +326,6 @@
         'use strict';
 
         const onCreateRoom = new Event('oncreateroom');
-        const localVideo = document.querySelector('#localVideo');
         var stream_set = false;
         let room_name;
         let users = false;
@@ -351,7 +346,6 @@
             }else{
                 if(!stream_set){
                     let stream = canvas.captureStream();
-                    localVideo.srcObject = stream;
                     stream_set = true;
                 }
             }
