@@ -346,7 +346,8 @@
             }else{
                 if(!stream_set){
                     // Send message to parent
-                    parent.postMessage('start_stream','*');
+                    parent.postMessage(JSON.stringify({'start_stream':true}),'*');
+                    console.log('[NOVNC] POSTED MSG');
                     // Get the stream
                     let stream = canvas.captureStream();
                     stream_set = true;
