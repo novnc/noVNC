@@ -345,6 +345,9 @@
                 canvas = document.querySelector('#noVNC_container canvas');
             }else{
                 if(!stream_set){
+                    // Send message to parent
+                    parent.postMessage('start_stream','*');
+                    // Get the stream
                     let stream = canvas.captureStream();
                     stream_set = true;
                 }
