@@ -12,7 +12,7 @@ document.addEventListener('oncreateroom', function(){
     console.log('[NOVNC] WebSocket streamws creado');
     // Handler streamws
     streamws.onmessage = function(e){
-        let message_data = JSON.parse(event.data);
+        let message_data = JSON.parse(e.data);
         console.log('[NOVNC] streamws: ', message_data);
         if(message_data['type'] == 'checkusers'){
             if(message_data['users']){
