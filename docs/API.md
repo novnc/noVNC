@@ -26,12 +26,6 @@ protocol stream.
     moved to the remote session when a `mousedown` or `touchstart`
     event is received. Enabled by default.
 
-`touchButton`
-  - Is a `long` controlling the button mask that should be simulated
-    when a touch event is recieved. Uses the same values as
-    [`MouseEvent.button`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button).
-    Is set to `1` by default.
-
 `clipViewport`
   - Is a `boolean` indicating if the remote session should be clipped
     to its container. When disabled scrollbars will be shown to handle
@@ -171,9 +165,9 @@ connection to a specified VNC server.
     existing contents of the `HTMLElement` will be untouched, but new
     elements will be added during the lifetime of the `RFB` object.
 
-**`url`**
+**`urlOrDataChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
-    a valid WebSocket URL.
+    a valid WebSocket URL. This can also be a `WebSocket` or `RTCDataChannel`.
 
 **`options`** *Optional*
   - An `Object` specifying extra details about how the connection
@@ -388,5 +382,4 @@ to the remote server.
 ###### Parameters
 
 **`text`**
-  - A `DOMString` specifying the clipboard data to send. Currently only
-  characters from ISO 8859-1 are supported.
+  - A `DOMString` specifying the clipboard data to send.

@@ -21,12 +21,14 @@ export default class Deflator {
     }
 
     deflate(inData) {
+        /* eslint-disable camelcase */
         this.strm.input = inData;
         this.strm.avail_in = this.strm.input.length;
         this.strm.next_in = 0;
         this.strm.output = this.outputBuffer;
         this.strm.avail_out = this.chunkSize;
         this.strm.next_out = 0;
+        /* eslint-enable camelcase */
 
         let lastRet = deflate(this.strm, Z_FULL_FLUSH);
         let outData = new Uint8Array(this.strm.output.buffer, 0, this.strm.next_out);
@@ -41,9 +43,11 @@ export default class Deflator {
             let chunks = [outData];
             let totalLen = outData.length;
             do {
+                /* eslint-disable camelcase */
                 this.strm.output = new Uint8Array(this.chunkSize);
                 this.strm.next_out = 0;
                 this.strm.avail_out = this.chunkSize;
+                /* eslint-enable camelcase */
 
                 lastRet = deflate(this.strm, Z_FULL_FLUSH);
 
@@ -69,9 +73,11 @@ export default class Deflator {
             outData = newData;
         }
 
+        /* eslint-disable camelcase */
         this.strm.input = null;
         this.strm.avail_in = 0;
         this.strm.next_in = 0;
+        /* eslint-enable camelcase */
 
         return outData;
     }

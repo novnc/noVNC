@@ -45,15 +45,6 @@ try {
 
 export const supportsCursorURIs = _supportsCursorURIs;
 
-let _supportsImageMetadata = false;
-try {
-    new ImageData(new Uint8ClampedArray(4), 1, 1);
-    _supportsImageMetadata = true;
-} catch (ex) {
-    // ignore failure
-}
-export const supportsImageMetadata = _supportsImageMetadata;
-
 let _hasScrollbarGutter = true;
 try {
     // Create invisible container
@@ -104,14 +95,6 @@ export function isIOS() {
 export function isSafari() {
     return navigator && (navigator.userAgent.indexOf('Safari') !== -1 &&
                          navigator.userAgent.indexOf('Chrome') === -1);
-}
-
-export function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-
-export function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
 }
 
 export function isFirefox() {

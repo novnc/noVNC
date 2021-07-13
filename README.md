@@ -1,6 +1,7 @@
 ## noVNC: HTML VNC Client Library and Application
 
-[![Build Status](https://travis-ci.org/novnc/noVNC.svg?branch=master)](https://travis-ci.org/novnc/noVNC)
+[![Test Status](https://github.com/novnc/noVNC/workflows/Test/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ATest)
+[![Lint Status](https://github.com/novnc/noVNC/workflows/Lint/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ALint)
 
 ### Description
 
@@ -69,6 +70,7 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 * Local cursor rendering
 * Clipboard copy/paste
 * Translations
+* Touch gestures for emulating common mouse actions
 * Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
   [the license document](LICENSE.txt) for details
 
@@ -89,7 +91,7 @@ noVNC uses many modern web technologies so a formal requirement list is
 not available. However these are the minimum versions we are currently
 aware of:
 
-* Chrome 49, Firefox 44, Safari 11, Opera 36, IE 11, Edge 12
+* Chrome 49, Firefox 44, Safari 11, Opera 36, Edge 79
 
 
 ### Server Requirements
@@ -106,13 +108,13 @@ proxy.
 
 ### Quick Start
 
-* Use the launch script to automatically download and start websockify, which
+* Use the `novnc_proxy` script to automatically download and start websockify, which
   includes a mini-webserver and the WebSockets proxy. The `--vnc` option is
   used to specify the location of a running VNC server:
 
-    `./utils/launch.sh --vnc localhost:5901`
+    `./utils/novnc_proxy --vnc localhost:5901`
 
-* Point your browser to the cut-and-paste URL that is output by the launch
+* Point your browser to the cut-and-paste URL that is output by the `novnc_procy`
   script. Hit the Connect button, enter a password if the VNC server has one
   configured, and enjoy!
 

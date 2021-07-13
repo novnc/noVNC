@@ -1,0 +1,56 @@
+name: Publish
+
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          # Needs to be explicitly specified for auth to work
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+      - uses: actions/upload-artifact@v2
+        with:
+          name: npm
+          path: lib
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
+      - run: npm publish --access public --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        if: ${{ github.event_name == 'release' && github.event.release.prerelease }}
+  snap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)
+          echo $VERSION
+          sed -i "s/@VERSION@/$VERSION/g" snap/snapcraft.yaml
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
+      - uses: snapcore/action-publish@v1
+        with:
+          store_login: ${{ secrets.SNAPCRAFT_LOGIN }}
+          snap: ${{ steps.build.outputs.snap }}
+          release: stable
+        if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
+      - uses: snapcore/action-publish@v1
+        with:
+          store_login: ${{ secrets.SNAPCRAFT_LOGIN }}
+          snap: ${{ steps.build.outputs.snap }}
+          release: beta
+        if: ${{ github.event_name == 'release' && github.event.release.prerelease }}
