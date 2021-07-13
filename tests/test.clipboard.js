@@ -25,6 +25,10 @@ describe('Automatic Clipboard Sync', function () {
         });
     }
 
+    it('is supported on all target browsers', function () {
+        expect(Clipboard.isSupported).to.be.true;
+    });
+
     it('incoming clipboard data from the server is copied to the local clipboard', function () {
         const text = 'Random string for testing';
         const clipboard = new Clipboard();
