@@ -8,26 +8,20 @@
 
 import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
-import { supportsImageMetadata } from './util/browser.js';
+import { toSigned32bit } from './util/int.js';
 
 export default class Display {
     constructor(target) {
         this._drawCtx = null;
-        this._c_forceCanvas = false;
 
         this._renderQ = [];  // queue drawing actions for in-oder rendering
         this._flushing = false;
 
         // the full frame buffer (logical canvas) size
-        this._fb_width = 0;
-        this._fb_height = 0;
-        this._rotate = '';
+        this._fbWidth = 0;
+        this._fbHeight = 0;
 
         this._prevDrawStyle = "";
-        this._tile = null;
-        this._tile16x16 = null;
-        this._tile_x = 0;
-        this._tile_y = 0;
 
         Log.Debug(">> Display.constructor");
 
@@ -71,12 +65,6 @@ export default class Display {
 
         Log.Debug("User Agent: " + navigator.userAgent);
 
-        // Check canvas features
-        if (!('createImageData' in this._drawCtx)) {
-            throw new Error("Canvas does not support createImageData");
-        }
-
-        this._tile16x16 = this._drawCtx.createImageData(16, 16);
         Log.Debug("<< Display.constructor");
 
         // ===== PROPERTIES =====
@@ -86,7 +74,7 @@ export default class Display {
 
         // ===== EVENT HANDLERS =====
 
-        this.onflush = () => { }; // A flush request has finished
+        this.onflush = () => {}; // A flush request has finished
     }
 
     // ===== PROPERTIES =====
@@ -111,11 +99,11 @@ export default class Display {
     }
 
     get width() {
-        return this._fb_width;
+        return this._fbWidth;
     }
 
     get height() {
-        return this._fb_height;
+        return this._fbHeight;
     }
 
     // ===== PUBLIC METHODS =====
@@ -138,15 +126,15 @@ export default class Display {
         if (deltaX < 0 && vp.x + deltaX < 0) {
             deltaX = -vp.x;
         }
-        if (vx2 + deltaX >= this._fb_width) {
-            deltaX -= vx2 + deltaX - this._fb_width + 1;
+        if (vx2 + deltaX >= this._fbWidth) {
+            deltaX -= vx2 + deltaX - this._fbWidth + 1;
         }
 
         if (vp.y + deltaY < 0) {
             deltaY = -vp.y;
         }
-        if (vy2 + deltaY >= this._fb_height) {
-            deltaY -= (vy2 + deltaY - this._fb_height + 1);
+        if (vy2 + deltaY >= this._fbHeight) {
+            deltaY -= (vy2 + deltaY - this._fbHeight + 1);
         }
 
         if (deltaX === 0 && deltaY === 0) {
@@ -165,22 +153,22 @@ export default class Display {
     viewportChangeSize(width, height) {
 
         if (!this._clipViewport ||
-            typeof (width) === "undefined" ||
-            typeof (height) === "undefined") {
+            typeof(width) === "undefined" ||
+            typeof(height) === "undefined") {
 
             Log.Debug("Setting viewport to full display region");
-            width = this._fb_width;
-            height = this._fb_height;
+            width = this._fbWidth;
+            height = this._fbHeight;
         }
 
         width = Math.floor(width);
         height = Math.floor(height);
 
-        if (width > this._fb_width) {
-            width = this._fb_width;
+        if (width > this._fbWidth) {
+            width = this._fbWidth;
         }
-        if (height > this._fb_height) {
-            height = this._fb_height;
+        if (height > this._fbHeight) {
+            height = this._fbHeight;
         }
 
         const vp = this._viewportLoc;
@@ -207,21 +195,21 @@ export default class Display {
         if (this._scale === 0) {
             return 0;
         }
-        return x / this._scale + this._viewportLoc.x;
+        return toSigned32bit(x / this._scale + this._viewportLoc.x);
     }
 
     absY(y) {
         if (this._scale === 0) {
             return 0;
         }
-        return y / this._scale + this._viewportLoc.y;
+        return toSigned32bit(y / this._scale + this._viewportLoc.y);
     }
 
     resize(width, height) {
         this._prevDrawStyle = "";
 
-        this._fb_width = width;
-        this._fb_height = height;
+        this._fbWidth = width;
+        this._fbHeight = height;
 
         const canvas = this._backbuffer;
         if (canvas.width !== width || canvas.height !== height) {
@@ -269,9 +257,9 @@ export default class Display {
 
     // Update the visible canvas with the contents of the
     // rendering canvas
-    flip(from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            this._renderQ_push({
+    flip(fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
+            this._renderQPush({
                 'type': 'flip'
             });
         } else {
@@ -306,8 +294,8 @@ export default class Display {
                 //        as well (see copyImage()), but we haven't
                 //        noticed any problem yet.
                 this._targetCtx.drawImage(this._backbuffer,
-                    x, y, w, h,
-                    vx, vy, w, h);
+                                          x, y, w, h,
+                                          vx, vy, w, h);
             }
 
             this._damageBounds.left = this._damageBounds.top = 65535;
@@ -327,9 +315,9 @@ export default class Display {
         }
     }
 
-    fillRect(x, y, width, height, color, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            this._renderQ_push({
+    fillRect(x, y, width, height, color, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
+            this._renderQPush({
                 'type': 'fill',
                 'x': x,
                 'y': y,
@@ -345,17 +333,17 @@ export default class Display {
             var h0;
             if (this._rotate === 'right') {
                 y0 = x;
-                x0 = this._fb_width - y - 1 - height;
+                x0 = this._fbWidth - y - 1 - height;
                 w0 = height;
                 h0 = width;
             } else if (this._rotate === 'left') {
-                y0 = this._fb_height - x - 1 - width;
+                y0 = this._fbHeight - x - 1 - width;
                 x0 = y;
                 w0 = height;
                 h0 = width;
             } else if (this._rotate === 'double') {
-                x0 = this._fb_width - x - 1 - width;
-                y0 = this._fb_height - y - 1 - height;
+                x0 = this._fbWidth - x - 1 - width;
+                y0 = this._fbHeight - y - 1 - height;
                 w0 = width;
                 h0 = height;
             } else {
@@ -369,14 +357,14 @@ export default class Display {
         }
     }
 
-    copyImage(old_x, old_y, new_x, new_y, w, h, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            this._renderQ_push({
+    copyImage(oldX, oldY, newX, newY, w, h, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
+            this._renderQPush({
                 'type': 'copy',
-                'old_x': old_x,
-                'old_y': old_y,
-                'x': new_x,
-                'y': new_y,
+                'oldX': oldX,
+                'oldY': oldY,
+                'x': newX,
+                'y': newY,
                 'width': w,
                 'height': h,
             });
@@ -394,178 +382,74 @@ export default class Display {
             this._drawCtx.imageSmoothingEnabled = false;
 
             if (this._rotate === 'right') {
-                var a = old_x;
-                old_x = this._fb_width - old_y - 1 - h;
-                old_y = a;
-                a = new_x;
-                new_x = this._fb_width - new_y - 1;
-                new_y = a;
+                var a = oldX;
+                oldX = this._fbWidth - oldY - 1 - h;
+                oldY = a;
+                a = newX;
+                newX = this._fbWidth - newY - 1;
+                newY = a;
             } else if (this._rotate === 'left') {
                 var a = old_y;
-                old_y = this._fb_height - old_x - 1 - w;
-                old_x = a;
+                oldY = this._fbHeight - oldX - 1 - w;
+                oldX = a;
                 var a = new_y;
-                new_y = this._fb_height - new_x - 1;
-                new_x = a;
+                newY = this._fbHeight - newX - 1;
+                newX = a;
             } else if (this._rotate === 'double') {
-                old_y = this._fb_height - old_y - 1 - h;
-                old_x = this._fb_width - old_x - 1 - w;
-                new_y = this._fb_height - new_y - 1;
-                new_x = this._fb_width - new_x - 1;
+                oldY = this._fbHeight - oldY - 1 - h;
+                oldX = this._fbWidth - oldX - 1 - w;
+                newY = this._fbHeight - newY - 1;
+                newX = this._fbWidth - newX - 1;
             }
             this._drawCtx.drawImage(this._backbuffer,
-                old_x, old_y, w, h,
-                new_x, new_y, w, h);
-            this._damage(new_x, new_y, w, h);
+                                    oldX, oldY, w, h,
+                                    newX, newY, w, h);
+            this._damage(newX, newY, w, h);
         }
     }
 
-    imageRect(x, y, mime, arr) {
+    imageRect(x, y, width, height, mime, arr) {
+        /* The internal logic cannot handle empty images, so bail early */
+        if ((width === 0) || (height === 0)) {
+            return;
+        }
+
         const img = new Image();
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
-        this._renderQ_push({
+
+        this._renderQPush({
             'type': 'img',
             'img': img,
             'x': x,
-            'y': y
+            'y': y,
+            'width': width,
+            'height': height
         });
     }
 
-    // start updating a tile
-    startTile(x, y, width, height, color) {
-        this._tile_x = x;
-        this._tile_y = y;
-        if (width === 16 && height === 16) {
-            this._tile = this._tile16x16;
-        } else {
-            this._tile = this._drawCtx.createImageData(width, height);
-        }
-		
-		if (this._rotate === 'right' || this._rotate === 'left') {
-			this.fillRect(x, y, width, height, color, true);
-		} else {
-			const red = color[2];
-			const green = color[1];
-			const blue = color[0];
-
-			const data = this._tile.data;
-			for (let i = 0; i < width * height * 4; i += 4) {
-				data[i] = red;
-				data[i + 1] = green;
-				data[i + 2] = blue;
-				data[i + 3] = 255;
-			}
-		}
-    }
-
-    // update sub-rectangle of the current tile
-    subTile(x, y, w, h, color) {
-		if (this._rotate === 'right' || this._rotate === 'left') {
-			var x0 = this._tile_x + x;
-            var y0 = this._tile_y + y;
-            this.fillRect(x0, y0, w, h, color, true);
-		} else {
-			const red = color[2];
-			const green = color[1];
-			const blue = color[0];
-			const xend = x + w;
-			const yend = y + h;
-
-			const data = this._tile.data;
-			const width = this._tile.width;
-
-			for (let j = y; j < yend; j++) {
-				for (let i = x; i < xend; i++) {
-					const p = (i + (j * width)) * 4;
-					data[p] = red;
-					data[p + 1] = green;
-					data[p + 2] = blue;
-					data[p + 3] = 255;
-				}
-			}
-		}
-    }
-
-    // draw the current tile to the screen
-    finishTile() {
-		if (!this._rotate) {
-			var x0 = this._tile_x;
-			var y0 = this._tile_y;
-			if (this._rotate === 'right') {
-				var a = x0;
-				x0 = this._fb_width - y0 - this._tile.height;
-				y0 = a;
-			} else if (this._rotate === 'left') {
-				var a = y0;
-				y0 = this._fb_height - x0;
-				x0 = a;
-			} else if (this._rotate === 'double') {
-				y0 = this._fb_height - y0;
-				x0 = this._fb_width - x0;
-			}
-			this._drawCtx.putImageData(this._tile, x0, y0);
-			this._damage(x0, y0,
-				this._tile.width, this._tile.height);
-		}
-    }
-
-    blitImage(x, y, width, height, arr, offset, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
+    blitImage(x, y, width, height, arr, offset, fromQueue) {
+        if (this._renderQ.length !== 0 && !fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
-            const new_arr = new Uint8Array(width * height * 4);
-            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-            this._renderQ_push({
+            const newArr = new Uint8Array(width * height * 4);
+            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
+            this._renderQPush({
                 'type': 'blit',
-                'data': new_arr,
+                'data': newArr,
                 'x': x,
                 'y': y,
                 'width': width,
                 'height': height,
             });
         } else {
-            this._bgrxImageData(x, y, width, height, arr, offset);
-        }
-    }
-
-    blitRgbImage(x, y, width, height, arr, offset, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            // NB(directxman12): it's technically more performant here to use preallocated arrays,
-            // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
-            // this probably isn't getting called *nearly* as much
-            const new_arr = new Uint8Array(width * height * 3);
-            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-            this._renderQ_push({
-                'type': 'blitRgb',
-                'data': new_arr,
-                'x': x,
-                'y': y,
-                'width': width,
-                'height': height,
-            });
-        } else {
-            this._rgbImageData(x, y, width, height, arr, offset);
-        }
-    }
-
-    blitRgbxImage(x, y, width, height, arr, offset, from_queue) {
-        if (this._renderQ.length !== 0 && !from_queue) {
-            // NB(directxman12): it's technically more performant here to use preallocated arrays,
-            // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
-            // this probably isn't getting called *nearly* as much
-            const new_arr = new Uint8Array(width * height * 4);
-            new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
-            this._renderQ_push({
-                'type': 'blitRgbx',
-                'data': new_arr,
-                'x': x,
-                'y': y,
-                'width': width,
-                'height': height,
-            });
-        } else {
-            this._rgbxImageData(x, y, width, height, arr, offset);
+            // NB(directxman12): arr must be an Type Array view
+            let data = new Uint8ClampedArray(arr.buffer,
+                                             arr.byteOffset + offset,
+                                             width * height * 4);
+            let img = new ImageData(data, width, height);
+            this._drawCtx.putImageData(img, x, y);
+            this._damage(x, y, width, height);
         }
     }
 
@@ -631,202 +515,58 @@ export default class Display {
     }
 
     _setFillColor(color) {
-        const newStyle = 'rgb(' + color[2] + ',' + color[1] + ',' + color[0] + ')';
+        const newStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
         if (newStyle !== this._prevDrawStyle) {
             this._drawCtx.fillStyle = newStyle;
             this._prevDrawStyle = newStyle;
         }
     }
 
-    _rgbImageData(x, y, width, height, arr, offset) {
-        const img = this._drawCtx.createImageData(width, height);
-        const data = img.data;
-
-        if (this._rotate === 'right') {
-            let j = offset;
-            for (let yv = 0; yv < height; yv++) {
-                for (let xv = 0; xv < width; xv++) {
-                    let doff = ((xv * height) + (width - yv - 1)) * 4;
-                    data[doff]     = arr[j];
-                    data[doff + 1] = arr[j + 1];
-                    data[doff + 2] = arr[j + 2];
-                    data[doff + 3] = 255;  // Alpha
-                    j += 3;
-                }
-            }
-        } else if (this._rotate === 'left') {
-            let j = offset;
-            for (let yv = height - 1; yv >= 0; yv--) {
-                for (let xv = width - 1; xv >= 0; xv--) {
-                    let doff = ((xv * height) + (width - yv - 1)) * 4; //((height - xv - 1) + (width * yv)) * 4;
-                    data[doff]     = arr[j];
-                    data[doff + 1] = arr[j + 1];
-                    data[doff + 2] = arr[j + 2];
-                    data[doff + 3] = 255;  // Alpha
-                    j += 3;
-                }
-            }
-        } else if (this._rotate === 'double') {
-            let length = width * height * 4;
-            for (let i = 4, j = offset; i <= length; i += 4, j += 3) {
-                data[length - i]     = arr[j];
-                data[length - i + 1] = arr[j + 1];
-                data[length - i + 2] = arr[j + 2];
-                data[length - i + 3] = 255;  // Alpha
-            }
-        } else {
-            for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 3) {
-                data[i]     = arr[j];
-                data[i + 1] = arr[j + 1];
-                data[i + 2] = arr[j + 2];
-                data[i + 3] = 255;  // Alpha
-            }
-        }
-        let x0 = x;
-        let y0 = y;
-        if (this._rotate === 'right') {
-            let a = x0;
-            x0 = this._fb_width - y0 - 1 - height;
-            y0 = a;
-        } else if (this._rotate === 'left') {
-            let a = y0;
-            y0 = this._fb_height - x0 - 1 - width;
-            x0 = a;
-        } else if (this._rotate === 'double') {
-            y0 = this._fb_height - y0 - 1 - height;
-            x0 = this._fb_width - x0 - 1 - width;
-        }
-        this._drawCtx.putImageData(img, x0, y0);
-        this._damage(x0, y0, img.width, img.height);
-    }
-
-    _bgrxImageData(x, y, width, height, arr, offset) {
-        const img = this._drawCtx.createImageData(width, height);
-        const data = img.data;
-
-        if (this._rotate === 'right') {
-            let j = offset;
-            for (let yv = 0; yv < height; yv++) {
-                for (let xv = 0; xv < width; xv++) {
-                    let doff = ((xv * height) + (width - yv - 1)) * 4;
-                    data[doff]     = arr[j + 2];
-                    data[doff + 1] = arr[j + 1];
-                    data[doff + 2] = arr[j];
-                    data[doff + 3] = 255;  // Alpha
-                    j += 4;
-                }
-            }
-        } else if (this._rotate === 'left') {
-            let j = offset;
-            for (let yv = height - 1; yv >= 0; yv--) {
-                for (let xv = width - 1; xv >= 0; xv--) {
-                    let doff = ((xv * height) + (width - yv - 1)) * 4; //((height - xv - 1) + (width * yv)) * 4;
-                    data[doff]     = arr[j + 2];
-                    data[doff + 1] = arr[j + 1];
-                    data[doff + 2] = arr[j];
-                    data[doff + 3] = 255;  // Alpha
-                    j += 4;
-                }
-            }
-        } else if (this._rotate === 'double') {
-            let length = width * height * 4;
-            for (let i = 4, j = offset; i <= length; i += 4, j += 4) {
-                data[length - i]     = arr[j + 2];
-                data[length - i + 1] = arr[j + 1];
-                data[length - i + 2] = arr[j];
-                data[length - i + 3] = 255;  // Alpha
-            }
-        } else {
-            for (let i = 0, j = offset; i < width * height * 4; i += 4, j += 4) {
-                data[i]     = arr[j + 2];
-                data[i + 1] = arr[j + 1];
-                data[i + 2] = arr[j];
-                data[i + 3] = 255;  // Alpha
-            }
-        }
-        let x0 = x;
-        let y0 = y;
-        if (this._rotate === 'right') {
-            let a = x0;
-            x0 = this._fb_width - y0 - 1 - height;
-            y0 = a;
-        } else if (this._rotate === 'left') {
-            let a = y0;
-            y0 = this._fb_height - x0 - 1 - width;
-            x0 = a;
-        } else if (this._rotate === 'double') {
-            y0 = this._fb_height - y0 - 1 - height;
-            x0 = this._fb_width - x0 - 1 - width;
-        }
-        this._drawCtx.putImageData(img, x0, y0);
-        this._damage(x0, y0, img.width, img.height);
-    }
-
-    _rgbxImageData(x, y, width, height, arr, offset) {
-        // NB(directxman12): arr must be an Type Array view
-        let img;
-        if (supportsImageMetadata) {
-            img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
-        } else {
-            img = this._drawCtx.createImageData(width, height);
-            img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
-        }
-        this._drawCtx.putImageData(img, x, y);
-        this._damage(x, y, img.width, img.height);
-    }
-
-    _renderQ_push(action) {
+    _renderQPush(action) {
         this._renderQ.push(action);
         if (this._renderQ.length === 1) {
             // If this can be rendered immediately it will be, otherwise
             // the scanner will wait for the relevant event
-            this._scan_renderQ();
+            this._scanRenderQ();
         }
     }
 
-    _resume_renderQ() {
+    _resumeRenderQ() {
         // "this" is the object that is ready, not the
         // display object
-        this.removeEventListener('load', this._noVNC_display._resume_renderQ);
-        this._noVNC_display._scan_renderQ();
+        this.removeEventListener('load', this._noVNCDisplay._resumeRenderQ);
+        this._noVNCDisplay._scanRenderQ();
     }
 
-    _scan_renderQ() {
+    _scanRenderQ() {
         let ready = true;
         while (ready && this._renderQ.length > 0) {
             const a = this._renderQ[0];
-            Log.Info(a);
             switch (a.type) {
                 case 'flip':
                     this.flip(true);
                     break;
                 case 'copy':
-                    Log.Info("_scan_renderQ: copy");
-                    this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
+                    this.copyImage(a.oldX, a.oldY, a.x, a.y, a.width, a.height, true);
                     break;
                 case 'fill':
-                    Log.Info("_scan_renderQ: fill");
                     this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                     break;
                 case 'blit':
-                    Log.Info("_scan_renderQ: blit");
                     this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
-                case 'blitRgb':
-                    Log.Info("_scan_renderQ: blitRgb");
-                    this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
-                    break;
-                case 'blitRgbx':
-                    Log.Info("_scan_renderQ: blitRgbx");
-                    this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
-                    break;
                 case 'img':
-                    Log.Info("_scan_renderQ: img");
                     if (a.img.complete) {
+                        if (a.img.width !== a.width || a.img.height !== a.height) {
+                            Log.Error("Decoded image has incorrect dimensions. Got " +
+                                      a.img.width + "x" + a.img.height + ". Expected " +
+                                      a.width + "x" + a.height + ".");
+                            return;
+                        }
                         this.drawImage(a.img, a.x, a.y);
                     } else {
-                        a.img._noVNC_display = this;
-                        a.img.addEventListener('load', this._resume_renderQ);
+                        a.img._noVNCDisplay = this;
+                        a.img.addEventListener('load', this._resumeRenderQ);
                         // We need to wait for this image to 'load'
                         // to keep things in-order
                         ready = false;

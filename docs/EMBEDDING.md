@@ -61,29 +61,15 @@ query string. Currently the following options are available:
 * `resize` - How to resize the remote session if it is not the same size as
   the browser window. Can be one of `off`, `scale` and `remote`.
 
+* `quality` - The session JPEG quality level. Can be `0` to `9`.
+
+* `compression` - The session compression level. Can be `0` to `9`.
+
 * `show_dot` - If a dot cursor should be shown when the remote server provides
   no local cursor, or provides a fully-transparent (invisible) cursor.
 
 * `logging` - The console log level. Can be one of `error`, `warn`, `info` or
   `debug`.
-
-## Pre-conversion of Modules
-
-noVNC is written using ECMAScript 6 modules. Many of the major browsers support
-these modules natively, but not all. By default the noVNC application includes
-a script that can convert these modules to an older format as they are being
-loaded. However this process can be slow and severely increases the load time
-for the application.
-
-It is possible to perform this conversion ahead of time, avoiding the extra
-load times. To do this please follow these steps:
-
- 1. Install Node.js
- 2. Run `npm install` in the noVNC directory
- 3. Run `./utils/use_require.js --with-app --as commonjs`
-
-This will produce a `build/` directory that includes everything needed to run
-the noVNC application.
 
 ## HTTP Serving Considerations
 ### Browser Cache Issue

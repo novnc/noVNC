@@ -22,9 +22,8 @@ export function getKeycode(evt) {
     }
 
     // The de-facto standard is to use Windows Virtual-Key codes
-    // in the 'keyCode' field for non-printable characters. However
-    // Webkit sets it to the same as charCode in 'keypress' events.
-    if ((evt.type !== 'keypress') && (evt.keyCode in vkeys)) {
+    // in the 'keyCode' field for non-printable characters
+    if (evt.keyCode in vkeys) {
         let code = vkeys[evt.keyCode];
 
         // macOS has messed up this code for some reason
@@ -69,26 +68,6 @@ export function getKeycode(evt) {
 export function getKey(evt) {
     // Are we getting a proper key value?
     if (evt.key !== undefined) {
-        // IE and Edge use some ancient version of the spec
-        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
-        switch (evt.key) {
-            case 'Spacebar': return ' ';
-            case 'Esc': return 'Escape';
-            case 'Scroll': return 'ScrollLock';
-            case 'Win': return 'Meta';
-            case 'Apps': return 'ContextMenu';
-            case 'Up': return 'ArrowUp';
-            case 'Left': return 'ArrowLeft';
-            case 'Right': return 'ArrowRight';
-            case 'Down': return 'ArrowDown';
-            case 'Del': return 'Delete';
-            case 'Divide': return '/';
-            case 'Multiply': return '*';
-            case 'Subtract': return '-';
-            case 'Add': return '+';
-            case 'Decimal': return evt.char;
-        }
-
         // Mozilla isn't fully in sync with the spec yet
         switch (evt.key) {
             case 'OS': return 'Meta';
@@ -110,18 +89,7 @@ export function getKey(evt) {
             return 'Delete';
         }
 
-        // IE and Edge need special handling, but for everyone else we
-        // can trust the value provided
-        if (!browser.isIE() && !browser.isEdge()) {
-            return evt.key;
-        }
-
-        // IE and Edge have broken handling of AltGraph so we can only
-        // trust them for non-printable characters (and unfortunately
-        // they also specify 'Unidentified' for some problem keys)
-        if ((evt.key.length !== 1) && (evt.key !== 'Unidentified')) {
-            return evt.key;
-        }
+        return evt.key;
     }
 
     // Try to deduce it based on the physical key
@@ -186,6 +154,21 @@ export function getKeysym(evt) {
             let code = getKeycode(evt);
             if (code === 'NumLock') {
                 return KeyTable.XK_Num_Lock;
+            }
+        }
+
+        // Windows sends alternating symbols for some keys when using a
+        // Japanese layout. We have no way of synchronising with the IM
+        // running on the remote system, so we send some combined keysym
+        // instead and hope for the best.
+        if (browser.isWindows()) {
+            switch (key) {
+                case 'Zenkaku':
+                case 'Hankaku':
+                    return KeyTable.XK_Zenkaku_Hankaku;
+                case 'Romaji':
+                case 'KanaMode':
+                    return KeyTable.XK_Romaji;
             }
         }
 

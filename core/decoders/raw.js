@@ -13,6 +13,10 @@ export default class RawDecoder {
     }
 
     decodeRect(x, y, width, height, sock, display, depth) {
+        if ((width === 0) || (height === 0)) {
+            return true;
+        }
+
         if (this._lines === 0) {
             this._lines = height;
         }
@@ -24,29 +28,35 @@ export default class RawDecoder {
             return false;
         }
 
-        const cur_y = y + (height - this._lines);
-        const curr_height = Math.min(this._lines,
-                                     Math.floor(sock.rQlen / bytesPerLine));
+        const curY = y + (height - this._lines);
+        const currHeight = Math.min(this._lines,
+                                    Math.floor(sock.rQlen / bytesPerLine));
+        const pixels = width * currHeight;
+
         let data = sock.rQ;
         let index = sock.rQi;
 
         // Convert data if needed
         if (depth == 8) {
-            const pixels = width * curr_height;
             const newdata = new Uint8Array(pixels * 4);
             for (let i = 0; i < pixels; i++) {
                 newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
                 newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
                 newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
-                newdata[i * 4 + 4] = 0;
+                newdata[i * 4 + 3] = 255;
             }
             data = newdata;
             index = 0;
         }
 
-        display.blitImage(x, cur_y, width, curr_height, data, index);
-        sock.rQskipBytes(curr_height * bytesPerLine);
-        this._lines -= curr_height;
+        // Max sure the image is fully opaque
+        for (let i = 0; i < pixels; i++) {
+            data[i * 4 + 3] = 255;
+        }
+
+        display.blitImage(x, curY, width, currHeight, data, index);
+        sock.rQskipBytes(currHeight * bytesPerLine);
+        this._lines -= currHeight;
         if (this._lines > 0) {
             return false;
         }

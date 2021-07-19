@@ -25,6 +25,7 @@
 
         "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
         "indent": ["error", 4, { "SwitchCase": 1,
+                                 "FunctionDeclaration": { "parameters": "first" },
                                  "CallExpression": { "arguments": "first" },
                                  "ArrayExpression": "first",
                                  "ObjectExpression": "first",
@@ -44,5 +45,6 @@
                                                    "named": "never",
                                                    "asyncArrow": "always" }],
         "switch-colon-spacing": ["error"],
+        "camelcase": ["error", { allow: ["^XK_", "^XF86XK_"] }],
     }
 }

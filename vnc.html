@@ -50,17 +50,8 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/base.css">
 
-    <!-- this is included as a normal file in order to catch script-loading errors as well -->
     <script src="app/error-handler.js"></script>
-
-    <!-- begin scripts -->
-    <!-- promise polyfills promises for IE11 -->
-    <script src="vendor/promise.js"></script>
-    <!-- ES2015/ES6 modules polyfill -->
-    <script nomodule src="vendor/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
-    <!-- actual script modules -->
     <script type="module" crossorigin="anonymous" src="app/ui.js"></script>
-    <!-- end scripts -->
 </head>
 
 <body>
@@ -90,49 +81,35 @@
 
             <!--noVNC Touch Device only buttons-->
             <div id="noVNC_mobile_buttons">
-                <input type="image" alt="No mousebutton" src="app/images/mouse_none.svg"
-                    id="noVNC_mouse_button0" class="noVNC_button"
-                    title="Active Mouse Button">
-                <input type="image" alt="Left mousebutton" src="app/images/mouse_left.svg"
-                    id="noVNC_mouse_button1" class="noVNC_button"
-                    title="Active Mouse Button">
-                <input type="image" alt="Middle mousebutton" src="app/images/mouse_middle.svg"
-                    id="noVNC_mouse_button2" class="noVNC_button"
-                    title="Active Mouse Button">
-                <input type="image" alt="Right mousebutton" src="app/images/mouse_right.svg"
-                    id="noVNC_mouse_button4" class="noVNC_button"
-                    title="Active Mouse Button">
                 <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
                     id="noVNC_keyboard_button" class="noVNC_button" title="Show Keyboard">
             </div>
 
             <!-- Extra manual keys -->
-            <div id="noVNC_extra_keys">
-                <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
-                    id="noVNC_toggle_extra_keys_button" class="noVNC_button"
-                    title="Show Extra Keys">
-                <div class="noVNC_vcenter">
-                <div id="noVNC_modifiers" class="noVNC_panel">
-                    <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
-                        id="noVNC_toggle_ctrl_button" class="noVNC_button"
-                        title="Toggle Ctrl">
-                    <input type="image" alt="Alt" src="app/images/alt.svg"
-                        id="noVNC_toggle_alt_button" class="noVNC_button"
-                        title="Toggle Alt">
-                    <input type="image" alt="Windows" src="app/images/windows.svg"
-                        id="noVNC_toggle_windows_button" class="noVNC_button"
-                        title="Toggle Windows">
-                    <input type="image" alt="Tab" src="app/images/tab.svg"
-                        id="noVNC_send_tab_button" class="noVNC_button"
-                        title="Send Tab">
-                    <input type="image" alt="Esc" src="app/images/esc.svg"
-                        id="noVNC_send_esc_button" class="noVNC_button"
-                        title="Send Escape">
-                    <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
-                        id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
-                        title="Send Ctrl-Alt-Del">
-                </div>
-                </div>
+            <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
+                id="noVNC_toggle_extra_keys_button" class="noVNC_button"
+                title="Show Extra Keys">
+            <div class="noVNC_vcenter">
+            <div id="noVNC_modifiers" class="noVNC_panel">
+                <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
+                    id="noVNC_toggle_ctrl_button" class="noVNC_button"
+                    title="Toggle Ctrl">
+                <input type="image" alt="Alt" src="app/images/alt.svg"
+                    id="noVNC_toggle_alt_button" class="noVNC_button"
+                    title="Toggle Alt">
+                <input type="image" alt="Windows" src="app/images/windows.svg"
+                    id="noVNC_toggle_windows_button" class="noVNC_button"
+                    title="Toggle Windows">
+                <input type="image" alt="Tab" src="app/images/tab.svg"
+                    id="noVNC_send_tab_button" class="noVNC_button"
+                    title="Send Tab">
+                <input type="image" alt="Esc" src="app/images/esc.svg"
+                    id="noVNC_send_esc_button" class="noVNC_button"
+                    title="Send Escape">
+                <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
+                    id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
+                    title="Send Ctrl-Alt-Del">
+            </div>
             </div>
 
             <!-- Shutdown/Reboot -->
@@ -203,6 +180,15 @@
                     <li>
                         <div class="noVNC_expander">Advanced</div>
                         <div><ul>
+                            <li>
+                                <label for="noVNC_setting_quality">Quality:</label>
+                                <input id="noVNC_setting_quality" type="range" min="0" max="9" value="6">
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_compression">Compression level:</label>
+                                <input id="noVNC_setting_compression" type="range" min="0" max="9" value="2">
+                            </li>
+                            <li><hr></li>
                             <li>
                                 <label for="noVNC_setting_repeaterID">Repeater ID:</label>
                                 <input id="noVNC_setting_repeaterID" type="text" value="">

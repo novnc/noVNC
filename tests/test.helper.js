@@ -2,7 +2,6 @@
 
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
-import * as browser from '../core/util/browser.js';
 
 describe('Helpers', function () {
     "use strict";
@@ -70,11 +69,6 @@ describe('Helpers', function () {
                 // environments, so we need to redefine it whilst running these
                 // tests.
                 origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-                if (origNavigator === undefined) {
-                    // Object.getOwnPropertyDescriptor() doesn't work
-                    // properly in any version of IE
-                    this.skip();
-                }
 
                 Object.defineProperty(window, "navigator", {value: {}});
                 if (window.navigator.platform !== undefined) {
@@ -86,7 +80,9 @@ describe('Helpers', function () {
                 window.navigator.platform = "Mac x86_64";
             });
             afterEach(function () {
-                Object.defineProperty(window, "navigator", origNavigator);
+                if (origNavigator !== undefined) {
+                    Object.defineProperty(window, "navigator", origNavigator);
+                }
             });
 
             it('should respect ContextMenu on modern browser', function () {
@@ -100,14 +96,10 @@ describe('Helpers', function () {
 
     describe('getKey', function () {
         it('should prefer key', function () {
-            if (browser.isIE() || browser.isEdge()) this.skip();
             expect(KeyboardUtil.getKey({key: 'a', charCode: 'Š'.charCodeAt(), keyCode: 0x42, which: 0x43})).to.be.equal('a');
         });
         it('should map legacy values', function () {
-            expect(KeyboardUtil.getKey({key: 'Spacebar'})).to.be.equal(' ');
-            expect(KeyboardUtil.getKey({key: 'Left'})).to.be.equal('ArrowLeft');
             expect(KeyboardUtil.getKey({key: 'OS'})).to.be.equal('Meta');
-            expect(KeyboardUtil.getKey({key: 'Win'})).to.be.equal('Meta');
             expect(KeyboardUtil.getKey({key: 'UIKeyInputLeftArrow'})).to.be.equal('ArrowLeft');
         });
         it('should handle broken Delete', function () {
@@ -127,58 +119,6 @@ describe('Helpers', function () {
         });
         it('should return Unidentified when it cannot map the key', function () {
             expect(KeyboardUtil.getKey({keycode: 0x42})).to.be.equal('Unidentified');
-        });
-
-        describe('Broken key AltGraph on IE/Edge', function () {
-            let origNavigator;
-            beforeEach(function () {
-                // window.navigator is a protected read-only property in many
-                // environments, so we need to redefine it whilst running these
-                // tests.
-                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
-                if (origNavigator === undefined) {
-                    // Object.getOwnPropertyDescriptor() doesn't work
-                    // properly in any version of IE
-                    this.skip();
-                }
-
-                Object.defineProperty(window, "navigator", {value: {}});
-                if (window.navigator.platform !== undefined) {
-                    // Object.defineProperty() doesn't work properly in old
-                    // versions of Chrome
-                    this.skip();
-                }
-            });
-            afterEach(function () {
-                Object.defineProperty(window, "navigator", origNavigator);
-            });
-
-            it('should ignore printable character key on IE', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
-                expect(KeyboardUtil.getKey({key: 'a'})).to.be.equal('Unidentified');
-            });
-            it('should ignore printable character key on Edge', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
-                expect(KeyboardUtil.getKey({key: 'a'})).to.be.equal('Unidentified');
-            });
-            it('should allow non-printable character key on IE', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
-                expect(KeyboardUtil.getKey({key: 'Shift'})).to.be.equal('Shift');
-            });
-            it('should allow non-printable character key on Edge', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
-                expect(KeyboardUtil.getKey({key: 'Shift'})).to.be.equal('Shift');
-            });
-            it('should allow printable character key with charCode on IE', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
-                expect(KeyboardUtil.getKey({key: 'a', charCode: 0x61})).to.be.equal('a');
-                expect(KeyboardUtil.getKey({key: 'Unidentified', charCode: 0x61})).to.be.equal('a');
-            });
-            it('should allow printable character key with charCode on Edge', function () {
-                window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393";
-                expect(KeyboardUtil.getKey({key: 'a', charCode: 0x61})).to.be.equal('a');
-                expect(KeyboardUtil.getKey({key: 'Unidentified', charCode: 0x61})).to.be.equal('a');
-            });
         });
     });
 
@@ -232,7 +172,6 @@ describe('Helpers', function () {
 
         describe('Numpad', function () {
             it('should handle Numpad numbers', function () {
-                if (browser.isIE() || browser.isEdge()) this.skip();
                 expect(KeyboardUtil.getKeysym({code: 'Digit5', key: '5', location: 0})).to.be.equal(0x0035);
                 expect(KeyboardUtil.getKeysym({code: 'Numpad5', key: '5', location: 3})).to.be.equal(0xFFB5);
             });
@@ -243,10 +182,42 @@ describe('Helpers', function () {
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: 'Delete', location: 3})).to.be.equal(0xFF9F);
             });
             it('should handle Numpad Decimal key', function () {
-                if (browser.isIE() || browser.isEdge()) this.skip();
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: '.', location: 3})).to.be.equal(0xFFAE);
                 expect(KeyboardUtil.getKeysym({code: 'NumpadDecimal', key: ',', location: 3})).to.be.equal(0xFFAC);
             });
+        });
+
+        describe('Japanese IM keys on Windows', function () {
+            let origNavigator;
+            beforeEach(function () {
+                // window.navigator is a protected read-only property in many
+                // environments, so we need to redefine it whilst running these
+                // tests.
+                origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+
+                Object.defineProperty(window, "navigator", {value: {}});
+                if (window.navigator.platform !== undefined) {
+                    // Object.defineProperty() doesn't work properly in old
+                    // versions of Chrome
+                    this.skip();
+                }
+
+                window.navigator.platform = "Windows";
+            });
+
+            afterEach(function () {
+                if (origNavigator !== undefined) {
+                    Object.defineProperty(window, "navigator", origNavigator);
+                }
+            });
+
+            const keys = { 'Zenkaku': 0xff2a, 'Hankaku': 0xff2a,
+                           'Romaji': 0xff24, 'KanaMode': 0xff24 };
+            for (let [key, keysym] of Object.entries(keys)) {
+                it(`should fake combined key for ${key} on Windows`, function () {
+                    expect(KeyboardUtil.getKeysym({code: 'FakeIM', key: key})).to.be.equal(keysym);
+                });
+            }
         });
     });
 });

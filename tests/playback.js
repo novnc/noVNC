@@ -49,10 +49,10 @@ export default class RecordingPlayer {
         this._disconnected = disconnected;
 
         this._rfb = undefined;
-        this._frame_length = this._frames.length;
+        this._frameLength = this._frames.length;
 
-        this._frame_index = 0;
-        this._start_time = undefined;
+        this._frameIndex = 0;
+        this._startTime = undefined;
         this._realtime = true;
         this._trafficManagement = true;
 
@@ -72,8 +72,8 @@ export default class RecordingPlayer {
         this._enablePlaybackMode();
 
         // reset the frame index and timer
-        this._frame_index = 0;
-        this._start_time = (new Date()).getTime();
+        this._frameIndex = 0;
+        this._startTime = (new Date()).getTime();
 
         this._realtime = realtime;
         this._trafficManagement = (trafficManagement === undefined) ? !realtime : trafficManagement;
@@ -97,22 +97,22 @@ export default class RecordingPlayer {
     _queueNextPacket() {
         if (!this._running) { return; }
 
-        let frame = this._frames[this._frame_index];
+        let frame = this._frames[this._frameIndex];
 
         // skip send frames
-        while (this._frame_index < this._frame_length && frame.fromClient) {
-            this._frame_index++;
-            frame = this._frames[this._frame_index];
+        while (this._frameIndex < this._frameLength && frame.fromClient) {
+            this._frameIndex++;
+            frame = this._frames[this._frameIndex];
         }
 
-        if (this._frame_index >= this._frame_length) {
+        if (this._frameIndex >= this._frameLength) {
             Log.Debug('Finished, no more frames');
             this._finish();
             return;
         }
 
         if (this._realtime) {
-            const toffset = (new Date()).getTime() - this._start_time;
+            const toffset = (new Date()).getTime() - this._startTime;
             let delay = frame.timestamp - toffset;
             if (delay < 1) delay = 1;
 
@@ -134,10 +134,10 @@ export default class RecordingPlayer {
             return;
         }
 
-        const frame = this._frames[this._frame_index];
+        const frame = this._frames[this._frameIndex];
 
-        this._rfb._sock._recv_message({'data': frame.data});
-        this._frame_index++;
+        this._rfb._sock._recvMessage({'data': frame.data});
+        this._frameIndex++;
 
         this._queueNextPacket();
     }
@@ -155,13 +155,13 @@ export default class RecordingPlayer {
             this._running = false;
             this._rfb._sock._eventHandlers.close({code: 1000, reason: ""});
             delete this._rfb;
-            this.onfinish((new Date()).getTime() - this._start_time);
+            this.onfinish((new Date()).getTime() - this._startTime);
         }
     }
 
     _handleDisconnect(evt) {
         this._running = false;
-        this._disconnected(evt.detail.clean, this._frame_index);
+        this._disconnected(evt.detail.clean, this._frameIndex);
     }
 
     _handleCredentials(evt) {

@@ -15,6 +15,11 @@ export default class CopyRectDecoder {
 
         let deltaX = sock.rQshift16();
         let deltaY = sock.rQshift16();
+
+        if ((width === 0) || (height === 0)) {
+            return true;
+        }
+
         display.copyImage(deltaX, deltaY, x, y, width, height);
 
         return true;

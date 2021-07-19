@@ -16,7 +16,7 @@ export default class TightPNGDecoder extends TightDecoder {
             return false;
         }
 
-        display.imageRect(x, y, "image/png", data);
+        display.imageRect(x, y, width, height, "image/png", data);
 
         return true;
     }

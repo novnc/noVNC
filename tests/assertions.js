@@ -1,32 +1,33 @@
 // noVNC specific assertions
 chai.use(function (_chai, utils) {
-    _chai.Assertion.addMethod('displayed', function (target_data) {
+    function _equal(a, b) {
+        return a === b;
+    }
+    _chai.Assertion.addMethod('displayed', function (targetData, cmp=_equal) {
         const obj = this._obj;
         const ctx = obj._target.getContext('2d');
-        const data_cl = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
-        // NB(directxman12): PhantomJS 1.x doesn't implement Uint8ClampedArray, so work around that
-        const data = new Uint8Array(data_cl);
-        const len = data_cl.length;
-        new chai.Assertion(len).to.be.equal(target_data.length, "unexpected display size");
+        const data = ctx.getImageData(0, 0, obj._target.width, obj._target.height).data;
+        const len = data.length;
+        new chai.Assertion(len).to.be.equal(targetData.length, "unexpected display size");
         let same = true;
         for (let i = 0; i < len; i++) {
-            if (data[i] != target_data[i]) {
+            if (!cmp(data[i], targetData[i])) {
                 same = false;
                 break;
             }
         }
         if (!same) {
             // eslint-disable-next-line no-console
-            console.log("expected data: %o, actual data: %o", target_data, data);
+            console.log("expected data: %o, actual data: %o", targetData, data);
         }
         this.assert(same,
                     "expected #{this} to have displayed the image #{exp}, but instead it displayed #{act}",
                     "expected #{this} not to have displayed the image #{act}",
-                    target_data,
+                    targetData,
                     data);
     });
 
-    _chai.Assertion.addMethod('sent', function (target_data) {
+    _chai.Assertion.addMethod('sent', function (targetData) {
         const obj = this._obj;
         obj.inspect = () => {
             const res = { _websocket: obj._websocket, rQi: obj._rQi, _rQ: new Uint8Array(obj._rQ.buffer, 0, obj._rQlen),
@@ -34,13 +35,13 @@ chai.use(function (_chai, utils) {
             res.prototype = obj;
             return res;
         };
-        const data = obj._websocket._get_sent_data();
+        const data = obj._websocket._getSentData();
         let same = true;
-        if (data.length != target_data.length) {
+        if (data.length != targetData.length) {
             same = false;
         } else {
             for (let i = 0; i < data.length; i++) {
-                if (data[i] != target_data[i]) {
+                if (data[i] != targetData[i]) {
                     same = false;
                     break;
                 }
@@ -48,12 +49,12 @@ chai.use(function (_chai, utils) {
         }
         if (!same) {
             // eslint-disable-next-line no-console
-            console.log("expected data: %o, actual data: %o", target_data, data);
+            console.log("expected data: %o, actual data: %o", targetData, data);
         }
         this.assert(same,
                     "expected #{this} to have sent the data #{exp}, but it actually sent #{act}",
                     "expected #{this} not to have sent the data #{act}",
-                    Array.prototype.slice.call(target_data),
+                    Array.prototype.slice.call(targetData),
                     Array.prototype.slice.call(data));
     });
 

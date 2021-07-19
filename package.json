@@ -20,8 +20,8 @@
   ],
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
-    "test": "echo 'TEST disabled - karma start karma.conf.js'",
-    "prepublish": "node ./utils/use_require.js --as commonjs --clean"
+    "test": "karma start karma.conf.js",
+    "prepublish": "node ./utils/use_require.js --clean"
   },
   "repository": {
     "type": "git",
@@ -42,10 +42,7 @@
   "devDependencies": {
     "@babel/core": "*",
     "@babel/plugin-syntax-dynamic-import": "*",
-    "@babel/plugin-transform-modules-amd": "*",
     "@babel/plugin-transform-modules-commonjs": "*",
-    "@babel/plugin-transform-modules-systemjs": "*",
-    "@babel/plugin-transform-modules-umd": "*",
     "@babel/preset-env": "*",
     "@babel/cli": "*",
     "babel-plugin-import-redirect": "*",
@@ -60,8 +57,13 @@
     "jsdom": "*",
     "karma": "*",
     "karma-mocha": "*",
+    "karma-chrome-launcher": "*",
+    "@chiragrupani/karma-chromium-edge-launcher": "*",
+    "karma-firefox-launcher": "*",
+    "karma-ie-launcher": "*",
     "karma-mocha-reporter": "*",
-    "karma-sauce-launcher": "*",
+    "karma-safari-launcher": "*",
+    "karma-script-launcher": "*",
     "karma-sinon-chai": "*",
     "mocha": "*",
     "node-getopt": "*",
