@@ -42,6 +42,24 @@ if (window.setImmediate === undefined) {
     });
 }
 
+class FakeWebSocket {
+    constructor() {
+        this.binaryType = "arraybuffer";
+        this.protocol = "";
+        this.readyState = "open";
+
+        this.onerror = () => {};
+        this.onmessage = () => {};
+        this.onopen = () => {};
+    }
+
+    send() {
+    }
+
+    close() {
+    }
+}
+
 export default class RecordingPlayer {
     constructor(frames, disconnected) {
         this._frames = frames;
@@ -63,13 +81,13 @@ export default class RecordingPlayer {
 
     run(realtime, trafficManagement) {
         // initialize a new RFB
-        this._rfb = new RFB(document.getElementById('VNC_screen'), 'wss://test');
+        this._ws = new FakeWebSocket();
+        this._rfb = new RFB(document.getElementById('VNC_screen'), this._ws);
         this._rfb.viewOnly = true;
         this._rfb.addEventListener("disconnect",
                                    this._handleDisconnect.bind(this));
         this._rfb.addEventListener("credentialsrequired",
                                    this._handleCredentials.bind(this));
-        this._enablePlaybackMode();
 
         // reset the frame index and timer
         this._frameIndex = 0;
@@ -79,19 +97,7 @@ export default class RecordingPlayer {
         this._trafficManagement = (trafficManagement === undefined) ? !realtime : trafficManagement;
 
         this._running = true;
-    }
-
-    // _enablePlaybackMode mocks out things not required for running playback
-    _enablePlaybackMode() {
-        const self = this;
-        this._rfb._sock.send = () => {};
-        this._rfb._sock.close = () => {};
-        this._rfb._sock.flush = () => {};
-        this._rfb._sock.open = function () {
-            this.init();
-            this._eventHandlers.open();
-            self._queueNextPacket();
-        };
+        this._queueNextPacket();
     }
 
     _queueNextPacket() {
@@ -136,7 +142,7 @@ export default class RecordingPlayer {
 
         const frame = this._frames[this._frameIndex];
 
-        this._rfb._sock._recvMessage({'data': frame.data});
+        this._ws.onmessage({'data': frame.data});
         this._frameIndex++;
 
         this._queueNextPacket();
@@ -153,7 +159,7 @@ export default class RecordingPlayer {
             this._rfb._display.flush();
         } else {
             this._running = false;
-            this._rfb._sock._eventHandlers.close({code: 1000, reason: ""});
+            this._ws.onclose({code: 1000, reason: ""});
             delete this._rfb;
             this.onfinish((new Date()).getTime() - this._startTime);
         }
