@@ -142,6 +142,8 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
 
+        this._trackFrameStats = false;
+
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
         this._clipboardServerCapabilitiesFormats = {};
@@ -2250,10 +2252,17 @@ export default class RFB extends EventTargetMixin {
         let first, ret;
         switch (msgType) {
             case 0:  // FramebufferUpdate
+                let before = Date.now();
+                this._display.renderMs = 0;
                 ret = this._framebufferUpdate();
                 if (ret && !this._enabledContinuousUpdates) {
                     RFB.messages.fbUpdateRequest(this._sock, true, 0, 0,
                                                  this._fbWidth, this._fbHeight);
+                }
+                let elapsed = Date.now() - before;
+                if (this._trackFrameStats) {
+                    RFB.messages.sendFrameStats(this._sock, elapsed, this._display.renderMs);
+                    this._trackFrameStats = false;
                 }
                 return ret;
 
@@ -2286,6 +2295,10 @@ export default class RFB extends EventTargetMixin {
 
             case 178: // KASM bottleneck stats
                 return this._handle_server_stats_msg();
+
+            case 179: // KASM requesting frame stats
+                this._trackFrameStats = true;
+                return true;
 
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
@@ -3032,6 +3045,32 @@ RFB.messages = {
         buff[offset + 3] = 0; // padding
 
         sock._sQlen += 4;
+        sock.flush();
+    },
+
+    sendFrameStats(sock, allMs, renderMs) {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+	if (buff == null) { return; }
+
+        buff[offset] = 179; // msg-type
+
+        buff[offset + 1] = 0; // padding
+        buff[offset + 2] = 0; // padding
+        buff[offset + 3] = 0; // padding
+
+        buff[offset + 4] = allMs >> 24;
+        buff[offset + 5] = allMs >> 16;
+        buff[offset + 6] = allMs >> 8;
+        buff[offset + 7] = allMs;
+
+        buff[offset + 8] = renderMs >> 24;
+        buff[offset + 9] = renderMs >> 16;
+        buff[offset + 10] = renderMs >> 8;
+        buff[offset + 11] = renderMs;
+
+        sock._sQlen += 12;
         sock.flush();
     },
 
