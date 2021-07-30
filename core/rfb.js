@@ -2252,14 +2252,14 @@ export default class RFB extends EventTargetMixin {
         let first, ret;
         switch (msgType) {
             case 0:  // FramebufferUpdate
-                let before = Date.now();
+                let before = performance.now();
                 this._display.renderMs = 0;
                 ret = this._framebufferUpdate();
                 if (ret && !this._enabledContinuousUpdates) {
                     RFB.messages.fbUpdateRequest(this._sock, true, 0, 0,
                                                  this._fbWidth, this._fbHeight);
                 }
-                let elapsed = Date.now() - before;
+                let elapsed = performance.now() - before;
                 if (this._trackFrameStats) {
                     RFB.messages.sendFrameStats(this._sock, elapsed, this._display.renderMs);
                     this._trackFrameStats = false;
