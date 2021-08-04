@@ -1335,6 +1335,8 @@ const UI = {
                  }
              }
              }, 30000);
+         } else {
+            document.getElementById('noVNC_status').style.visibility = "visible";
          }
 
          // Send an event to the parent document (kasm app) to toggle the control panel when ctl is double clicked
@@ -1705,6 +1707,7 @@ const UI = {
                 UI.rfb.maxVideoResolutionY = parseInt(UI.getSetting('max_video_resolution_y'));
                 UI.rfb.frameRate = parseInt(UI.getSetting('framerate'));
                 UI.rfb.enableWebP = UI.getSetting('enable_webp');
+                UI.showStatus("Refresh page to apply encoding changes.");
             }, 2000);
 
         }
