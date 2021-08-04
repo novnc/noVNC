@@ -188,6 +188,18 @@ const UI = {
         UI.initSetting('view_clip', false);
         /* UI.initSetting('resize', 'off'); */
         UI.initSetting('quality', 6);
+        UI.initSetting('dynamic_quality_min', 3);
+        UI.initSetting('dynamic_quality_max', 9);
+        UI.initSetting('treat_lossless', 7);
+        UI.initSetting('jpeg_video_quality', 5);
+        UI.initSetting('webp_video_quality', 5);
+        UI.initSetting('video_area', 65);
+        UI.initSetting('video_time', 5);
+        UI.initSetting('video_out_time', 3);
+        UI.initSetting('video_scaling', 2);
+        UI.initSetting('max_video_resolution_x', 960);
+        UI.initSetting('max_video_resolution_y', 540);
+        UI.initSetting('framerate', 30);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
@@ -394,6 +406,30 @@ const UI = {
         UI.addSettingChangeHandler('resize', UI.updateViewClip);
         UI.addSettingChangeHandler('quality');
         UI.addSettingChangeHandler('quality', UI.updateQuality);
+        UI.addSettingChangeHandler('dynamic_quality_min');
+        UI.addSettingChangeHandler('dynamic_quality_min', UI.updateQuality);
+        UI.addSettingChangeHandler('dynamic_quality_max');
+        UI.addSettingChangeHandler('dynamic_quality_max', UI.updateQuality);
+        UI.addSettingChangeHandler('treat_lossless');
+        UI.addSettingChangeHandler('treat_lossless', UI.updateQuality);
+        UI.addSettingChangeHandler('jpeg_video_quality');
+        UI.addSettingChangeHandler('jpeg_video_quality', UI.updateQuality);
+        UI.addSettingChangeHandler('webp_video_quality');
+        UI.addSettingChangeHandler('webp_video_quality', UI.updateQuality);
+        UI.addSettingChangeHandler('video_area');
+        UI.addSettingChangeHandler('video_area', UI.updateQuality);
+        UI.addSettingChangeHandler('video_time');
+        UI.addSettingChangeHandler('video_time', UI.updateQuality);
+        UI.addSettingChangeHandler('video_out_time');
+        UI.addSettingChangeHandler('video_out_time', UI.updateQuality);
+        UI.addSettingChangeHandler('video_scaling');
+        UI.addSettingChangeHandler('video_scaling', UI.updateQuality);
+        UI.addSettingChangeHandler('max_video_resolution_x');
+        UI.addSettingChangeHandler('max_video_resolution_x', UI.updateQuality);
+        UI.addSettingChangeHandler('max_video_resolution_y');
+        UI.addSettingChangeHandler('max_video_resolution_y', UI.updateQuality);
+        UI.addSettingChangeHandler('framerate');
+        UI.addSettingChangeHandler('framerate', UI.updateQuality);
         UI.addSettingChangeHandler('compression');
         UI.addSettingChangeHandler('compression', UI.updateCompression);
         UI.addSettingChangeHandler('view_clip');
@@ -833,7 +869,11 @@ const UI = {
                 }
             }
         } else {
+            let value_label = document.getElementById('noVNC_setting_' + name + '_output');
             ctrl.value = value;
+            if (value_label) {
+                value_label.value = value;
+            }
         }
     },
 
@@ -910,6 +950,18 @@ const UI = {
         UI.updateSetting('view_clip');
         UI.updateSetting('resize');
         UI.updateSetting('quality');
+        UI.updateSetting('dynamic_quality_min', 3);
+        UI.updateSetting('dynamic_quality_max', 9);
+        UI.updateSetting('treat_lossless', 7);
+        UI.updateSetting('jpeg_video_quality', 5);
+        UI.updateSetting('webp_video_quality', 5);
+        UI.updateSetting('video_area', 65);
+        UI.updateSetting('video_time', 5);
+        UI.updateSetting('video_out_time', 3);
+        UI.updateSetting('video_scaling', 2);
+        UI.updateSetting('max_video_resolution_x', 960);
+        UI.updateSetting('max_video_resolution_y', 540);
+        UI.updateSetting('framerate', 30);
         UI.updateSetting('compression');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
@@ -1214,6 +1266,18 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+        UI.rfb.dynamicQualityMin = parseInt(UI.getSetting('dynamic_quality_min'));
+        UI.rfb.dynamicQualityMax = parseInt(UI.getSetting('dynamic_quality_max'));
+        UI.rfb.jpegVideoQuality = parseInt(UI.getSetting('jpeg_video_quality'));
+        UI.rfb.webpVideoQuality = parseInt(UI.getSetting('webp_video_quality'));
+        UI.rfb.videoArea = parseInt(UI.getSetting('video_area'));
+        UI.rfb.videoTime = parseInt(UI.getSetting('video_time'));
+        UI.rfb.videoOutTime = parseInt(UI.getSetting('video_out_time'));
+        UI.rfb.videoScaling = parseInt(UI.getSetting('video_scaling'));
+        UI.rfb.treatLossless = parseInt(UI.getSetting('treat_lossless'));
+        UI.rfb.maxVideoResolutionX = parseInt(UI.getSetting('max_video_resolution_x'));
+        UI.rfb.maxVideoResolutionY = parseInt(UI.getSetting('max_video_resolution_y'));
+        UI.rfb.frameRate = parseInt(UI.getSetting('framerate'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
         UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
@@ -1271,6 +1335,8 @@ const UI = {
                  }
              }
              }, 30000);
+         } else {
+            document.getElementById('noVNC_status').style.visibility = "visible";
          }
 
          // Send an event to the parent document (kasm app) to toggle the control panel when ctl is double clicked
@@ -1624,7 +1690,27 @@ const UI = {
     updateQuality() {
         if (!UI.rfb) return;
 
-        UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+        if (!UI.updatingSettings) {
+            // avoid sending too many, will only apply when there are changes
+            setTimeout(function() {
+                UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+                UI.rfb.dynamicQualityMin = parseInt(UI.getSetting('dynamic_quality_min'));
+                UI.rfb.dynamicQualityMax = parseInt(UI.getSetting('dynamic_quality_max'));
+                UI.rfb.jpegVideoQuality = parseInt(UI.getSetting('jpeg_video_quality'));
+                UI.rfb.webpVideoQuality = parseInt(UI.getSetting('webp_video_quality'));
+                UI.rfb.videoArea = parseInt(UI.getSetting('video_area'));
+                UI.rfb.videoTime = parseInt(UI.getSetting('video_time'));
+                UI.rfb.videoOutTime = parseInt(UI.getSetting('video_out_time'));
+                UI.rfb.videoScaling = parseInt(UI.getSetting('video_scaling'));
+                UI.rfb.treatLossless = parseInt(UI.getSetting('treat_lossless'));
+                UI.rfb.maxVideoResolutionX = parseInt(UI.getSetting('max_video_resolution_x'));
+                UI.rfb.maxVideoResolutionY = parseInt(UI.getSetting('max_video_resolution_y'));
+                UI.rfb.frameRate = parseInt(UI.getSetting('framerate'));
+                UI.rfb.enableWebP = UI.getSetting('enable_webp');
+                UI.showStatus("Refresh page to apply encoding changes.");
+            }, 2000);
+
+        }
     },
 
 /* ------^-------

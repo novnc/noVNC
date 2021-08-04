@@ -337,47 +337,8 @@ export default class RFB extends EventTargetMixin {
     get videoQuality() { return this._videoQuality; }
     set videoQuality(quality) { this._videoQuality = quality; }
 
-    get enableWebP() { return this._enableWebP; }
-    set enableWebP(enabled) { this._enableWebP = enabled; }
-
-    get jpegVideoQuality() { return this._jpegVideoQuality; }
-    set jpegVideoQuality(val) { this._jpegVideoQuality = val; }
-
-    get webpVideoQuality() { return this._webpVideoQuality; }
-    set webpVideoQuality(val) { this._webpVideoQuality = val; }
-
-    get treatLossless() { return this._treatLossless; }
-    set treatLossless(val) { this._treatLossless = val; }
-
     get preferBandwidth() { return this._preferBandwidth; }
     set preferBandwidth(val) { this._preferBandwidth = val; }
-
-    get dynamicQualityMin() { return this._dynamicQualityMin; }
-    set dynamicQualityMin(val) { this._dynamicQualityMin = val; }
-
-    get dynamicQualityMax() { return this._dynamicQualityMax; }
-    set dynamicQualityMax(val) { this._dynamicQualityMax = val; }
-
-    get videoArea() { return this._videoArea; }
-    set videoArea(val) { this._videoArea = val; }
-
-    get videoTime() { return this._videoTime; }
-    set videoTime(val) { this._videoTime = val; }
-
-    get videoOutTime() { return this._videoOutTime; }
-    set videoOutTime(val) { this._videoOutTime = val; }
-
-    get videoScaling() { return this._videoScaling; }
-    set videoScaling(val) { this._videoScaling = val; }
-
-    get frameRate() { return this._frameRate; }
-    set frameRate(val) { this._frameRate = val; }
-
-    get maxVideoResolutionX() { return this._maxVideoResolutionX; }
-    set maxVideoResolutionX(val) { this._maxVideoResolutionX = val; }
-
-    get maxVideoResolutionY() { return this._maxVideoResolutionY; }
-    set maxVideoResolutionY(val) { this._maxVideoResolutionY = val; }
 
     get viewOnly() { return this._viewOnly; }
     set viewOnly(viewOnly) {
@@ -435,6 +396,246 @@ export default class RFB extends EventTargetMixin {
 
     get background() { return this._screen.style.background; }
     set background(cssValue) { this._screen.style.background = cssValue; }
+
+    get enableWebP() { return this._enableWebP; }
+    set enableWebP(enabled) { 
+        if (this._enableWebP === enabled) {
+            return;
+        }
+        this._enableWebP = enabled; 
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get jpegVideoQuality() { return this._jpegVideoQuality; }
+    set jpegVideoQuality(qualityLevel) {
+        if (!Number.isInteger(qualityLevel) || qualityLevel < 0 || qualityLevel > 9) {
+            Log.Error("qualityLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._jpegVideoQuality === qualityLevel) {
+            return;
+        }
+
+        this._jpegVideoQuality = qualityLevel;
+
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get webpVideoQuality() { return this._webpVideoQuality; }
+    set webpVideoQuality(qualityLevel) {
+        if (!Number.isInteger(qualityLevel) || qualityLevel < 0 || qualityLevel > 9) {
+            Log.Error("qualityLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._webpVideoQuality === qualityLevel) {
+            return;
+        }
+
+        this._webpVideoQuality = qualityLevel;
+        
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get treatLossless() { return this._treatLossless; }
+    set treatLossless(qualityLevel) {
+        if (!Number.isInteger(qualityLevel) || qualityLevel < 0 || qualityLevel > 9) {
+            Log.Error("qualityLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._treatLossless === qualityLevel) {
+            return;
+        }
+
+        this._treatLossless = qualityLevel;
+        
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get dynamicQualityMin() { return this._dynamicQualityMin; }
+    set dynamicQualityMin(qualityLevel) {
+        if (!Number.isInteger(qualityLevel) || qualityLevel < 0 || qualityLevel > 9) {
+            Log.Error("qualityLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._dynamicQualityMin === qualityLevel) {
+            return;
+        }
+
+        this._dynamicQualityMin = qualityLevel;
+        
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get dynamicQualityMax() { return this._dynamicQualityMax; }
+    set dynamicQualityMax(qualityLevel) {
+        if (!Number.isInteger(qualityLevel) || qualityLevel < 0 || qualityLevel > 9) {
+            Log.Error("qualityLevel must be an integer between 0 and 9");
+            return;
+        }
+
+        if (this._dynamicQualityMax === qualityLevel) {
+            return;
+        }
+
+        this._dynamicQualityMax = qualityLevel;
+        
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get videoArea() {
+        return this._videoArea;
+    }
+    set videoArea(area) {
+        if (!Number.isInteger(area) || area < 0 || area > 100) {
+            Log.Error("video area must be an integer between 0 and 100");
+            return;
+        }
+
+        if (this._videoArea === area) {
+            return;
+        }
+
+        this._videoArea = area;
+
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get videoTime() {
+        return this._videoTime;
+    }
+    set videoTime(value) {
+        if (!Number.isInteger(value) || value < 0 || value > 100) {
+            Log.Error("video time must be an integer between 0 and 100");
+            return;
+        }
+
+        if (this._videoTime === value) {
+            return;
+        }
+
+        this._videoTime = value;
+
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get videoOutTime() {
+        return this._videoOutTime;
+    }
+    set videoOutTime(value) {
+        if (!Number.isInteger(value) || value < 0 || value > 100) {
+            Log.Error("video out time must be an integer between 0 and 100");
+            return;
+        }
+
+        if (this._videoOutTime === value) {
+            return;
+        }
+
+        this._videoOutTime = value;
+
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get videoScaling() {
+        return this._videoScaling;
+    }
+    set videoScaling(value) {
+        if (!Number.isInteger(value) || value < 0 || value > 2) {
+            Log.Error("video scaling must be an integer between 0 and 2");
+            return;
+        }
+
+        if (this._videoScaling === value) {
+            return;
+        }
+
+        this._videoScaling = value;
+
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get frameRate() { return this._frameRate; }
+    set frameRate(value) {
+        if (!Number.isInteger(value) || value < 1 || value > 120) {
+            Log.Error("frame rate must be an integer between 1 and 120");
+            return;
+        }
+
+        if (this._frameRate === value) {
+            return;
+        }
+
+        this._frameRate = value;
+
+        if (this._rfbConnectionState === 'connected') {
+            this._sendEncodings();
+        }
+    }
+
+    get maxVideoResolutionX() { return this._maxVideoResolutionX; }
+    set maxVideoResolutionX(value) {
+        if (!Number.isInteger(value) || value < 100 ) {
+            Log.Error("max video resolution must be an integer greater than 100");
+            return;
+        }
+
+        if (this._maxVideoResolutionX === value) {
+            return;
+        }
+
+        this._maxVideoResolutionX = value;
+
+        if (this._rfbConnectionState === 'connected') {
+            RFB.messages.setMaxVideoResolution(this._sock,
+                this._maxVideoResolutionX,
+                this._maxVideoResolutionY);
+        }
+
+    }
+
+    get maxVideoResolutionY() { return this._maxVideoResolutionY; }
+    set maxVideoResolutionY(value) {
+        if (!Number.isInteger(value) || value < 100 ) {
+            Log.Error("max video resolution must be an integer greater than 100");
+            return;
+        }
+
+        if (this._maxVideoResolutionY === value) {
+            return;
+        }
+
+        this._maxVideoResolutionY = value;
+
+        if (this._rfbConnectionState === 'connected') {
+            RFB.messages.setMaxVideoResolution(this._sock,
+                this._maxVideoResolutionX,
+                this._maxVideoResolutionY);
+        }
+    }
 
     get qualityLevel() {
         return this._qualityLevel;
@@ -1878,7 +2079,6 @@ export default class RFB extends EventTargetMixin {
 
     _sendEncodings() {
         const encs = [];
-        var hasWebp;
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
@@ -1932,6 +2132,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingVideoScalingLevel0 + this.videoScaling);
         encs.push(encodings.pseudoEncodingFrameRateLevel10 + this.frameRate - 10);
         encs.push(encodings.pseudoEncodingMaxVideoResolution);
+        // preferBandwidth choses preset settings. Since we expose all the settings, lets not pass this
         if (this.preferBandwidth) // must be last - server processes in reverse order
             encs.push(encodings.pseudoEncodingPreferBandwidth);
 
