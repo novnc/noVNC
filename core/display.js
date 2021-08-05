@@ -21,6 +21,8 @@ export default class Display {
         this._fbWidth = 0;
         this._fbHeight = 0;
 
+        this._renderMs = 0;
+
         this._prevDrawStyle = "";
 
         Log.Debug(">> Display.constructor");
@@ -89,6 +91,13 @@ export default class Display {
 
     get height() {
         return this._fbHeight;
+    }
+
+    get renderMs() {
+        return this._renderMs;
+    }
+    set renderMs(val) {
+        this._renderMs = val;
     }
 
     // ===== PUBLIC METHODS =====
@@ -470,6 +479,7 @@ export default class Display {
 
     _scanRenderQ() {
         let ready = true;
+        let before = Date.now();
         while (ready && this._renderQ.length > 0) {
             const a = this._renderQ[0];
             switch (a.type) {
@@ -513,5 +523,8 @@ export default class Display {
             this._flushing = false;
             this.onflush();
         }
+
+        let elapsed = Date.now() - before;
+        this._renderMs += elapsed;
     }
 }
