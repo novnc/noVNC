@@ -198,14 +198,6 @@
                     <li>
                         <label><input id="noVNC_setting_toggle_control_panel" type="checkbox" /> Toggle Control Panel via Keystrokes</label></li>
                     <li>
-                        <label for="noVNC_setting_video_quality">Video Quality:</label>
-                        <select id="noVNC_setting_video_quality" name="vncVideoQuality">
-                            <option value=0>Low</option>
-                            <option value=1>Medium</option>
-                            <option value=2>High</option>
-                        </select>
-                    </li>
-                    <li>
                         <label for="noVNC_setting_idle_disconnect">Idle Timeout:</label>
                         <select id="noVNC_setting_idle_disconnect" name="vncIdleDisconnect">
                             <option value=20>20</option>
@@ -225,11 +217,85 @@
                     </li>
                     <li><hr></li>
                     <li>
-                        <div class="noVNC_expander">Advanced</div>
+                        <div class="noVNC_expander">Video Mode Settings</div>
                         <div><ul>
                             <li>
+                                <label for="noVNC_setting_video_quality">Video Quality:</label>
+                                <select id="noVNC_setting_video_quality" name="vncVideoQuality">
+                                    <option value=0>Low</option>
+                                    <option value=1>Medium</option>
+                                    <option value=2>High</option>
+                                </select>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_jpeg_video_quality">JPEG Quality:</label>
+                                <input id="noVNC_setting_jpeg_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_jpeg_video_quality_output.value=value">
+                                <output id="noVNC_setting_jpeg_video_quality_output">5</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_webp_video_quality">WEBP Quality:</label>
+                                <input id="noVNC_setting_webp_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_webp_video_quality_output.value=value">
+                                <output id="noVNC_setting_webp_video_quality_output">5</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_video_area">Video Area:</label>
+                                <input id="noVNC_setting_video_area" type="range" min="0" max="100" value="65" onchange="noVNC_setting_video_area_output.value=value">
+                                <output id="noVNC_setting_video_area_output">65</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_video_time">Video Time:</label>
+                                <input id="noVNC_setting_video_time" type="range" min="0" max="60" value="5" onchange="noVNC_setting_video_time_output.value=value">
+                                <output id="noVNC_setting_video_time_output">5</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_video_out_time">Video Out Time:</label>
+                                <input id="noVNC_setting_video_out_time" type="range" min="0" max="60" value="3" onchange="noVNC_setting_video_out_time_output.value=value">
+                                <output id="noVNC_setting_video_out_time_output">3</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_video_scaling">Scaling Mode:</label>
+                                <select id="noVNC_setting_video_scaling" name="vncVideoModeScaling">
+                                    <option value="0">Nearest</option>
+                                    <option value="1">Bilinear</option>
+                                    <option value="2">Progressive Bilinear</option>
+                                </select>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_max_video_resolution_x">Max Width:</label>
+                                <input id="noVNC_setting_max_video_resolution_x" type="number" min="100" max="3840" value="960">
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_max_video_resolution_y">Max Height:</label>
+                                <input id="noVNC_setting_max_video_resolution_y" type="number" min="100" max="2160" value="540">
+                            </li>
+                        </ul></div>
+                    </li>
+                    <li><hr></li>
+                    <li>
+                        <div class="noVNC_expander">Advanced</div>
+                        <div><ul>
+                            <li style="display: none;">
                                 <label for="noVNC_setting_quality">Quality:</label>
                                 <input id="noVNC_setting_quality" type="range" min="0" max="9" value="6">
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_dynamic_quality_min">Dynamic Quality Min:</label>
+                                <input id="noVNC_setting_dynamic_quality_min" type="range" min="0" max="9" value="3" onchange="noVNC_setting_dynamic_quality_min_output.value=value">
+                                <output id="noVNC_setting_dynamic_quality_min_output">3</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_dynamic_quality_max">Dynamic Quality Max:</label>
+                                <input id="noVNC_setting_dynamic_quality_max" type="range" min="0" max="9" value="9" onchange="noVNC_setting_dynamic_quality_max_output.value=value">
+                                <output id="noVNC_setting_dynamic_quality_max_output">9</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_treat_lossless">Treat Lossless:</label>
+                                <input id="noVNC_setting_treat_lossless" type="range" min="0" max="9" value="7" onchange="noVNC_setting_treat_lossless_output.value=value">
+                                <output id="noVNC_setting_treat_lossless_output">7</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_framerate">Frame Rate:</label>
+                                <input id="noVNC_setting_framerate" type="number" min="1" max="120" value="30">
                             </li>
                             <li>
                                 <label for="noVNC_setting_compression">Compression level:</label>
