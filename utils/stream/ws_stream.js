@@ -1,10 +1,29 @@
 'use strict';
 
 document.addEventListener('oncreateroom', function(){
+    let ws_scheme;
+    //var ws_scheme = window.location.protocol == "https:" ? "wss://" : "ws://";
+    if (server === '127.0.0.1'){
+        // Local deploy
+        server = '127.0.0.1:8000';
+        ws_scheme = "ws://";
+    }else{
+        ws_scheme = "wss://";
+    }
+    
     // Creo WS de stream
+    console.log('STREAM WS: ', ws_scheme +
+    //'test.unibotics.org' +
+    //'127.0.0.1:8000' +
+    server +
+    '/ws/stream/' +
+    room_name +
+    '/');
     streamws = new WebSocket(
-        'ws://' +
-        '127.0.0.1:8000' +
+        ws_scheme +
+        //'test.unibotics.org'+
+        //'127.0.0.1:8000' +
+        server +
         '/ws/stream/' +
         room_name +
         '/'

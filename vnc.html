@@ -330,6 +330,7 @@
         let room_name;
         let users = false;
         let streamws;
+        let server;
 
         function createRoom(){
             room_name = Date.now()+Math.round(Math.random()*10000);
@@ -341,8 +342,12 @@
         var canvas = document.querySelector('#noVNC_container canvas');
         // Search for canvas element
         setInterval(function(){
+            canvas = document.querySelector('#noVNC_container canvas');
             if(canvas === null){
                 canvas = document.querySelector('#noVNC_container canvas');
+                console.log('[NOVNC] ',canvas);
+                stream_set = false;
+                users = false;
             }else{
                 if(!stream_set){
                     // Send message to parent
@@ -355,12 +360,16 @@
             }
         },2000);
 
-        // Creo la sala
-        createRoom();
-
         window.addEventListener('message', function(e){
             console.log('[NOVNC] mensaje: ', e.data);
-            if(e.data === 'start'){
+            let data = JSON.parse(e.data);
+            if(data['command'] === 'start'){
+                // Set server variable
+                server = data['server'];
+
+                // Creo la sala
+                createRoom();
+
                 console.log('Empezar el stream');
                 // Send stream_room to parent
                 parent.postMessage(JSON.stringify({'stream':room_name}),'*');

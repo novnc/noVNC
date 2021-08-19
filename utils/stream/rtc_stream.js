@@ -173,7 +173,7 @@ async function addLocalDescription(peer) {
 
 function signalRemotePeer(data){
     streamws.send(data);
-    console.log('[NOVNC] Signaling remote peer...');
+    console.log('[NOVNC] Signaling remote peer...', data);
 }
 
 function gotRemoteStream(e){
