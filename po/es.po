@@ -239,10 +239,6 @@ msgstr "ID del Repetidor:"
 msgid "WebSocket"
 msgstr "WebSocket"
 
-#: ../vnc.html:236
-msgid "Encrypt"
-msgstr ""
-
 #: ../vnc.html:239
 msgid "Host:"
 msgstr "Host:"
