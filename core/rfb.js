@@ -176,11 +176,25 @@ export default class RFB extends EventTargetMixin {
         this._mousePos = {};
         this._mouseButtonMask = 0;
         this._mouseLastMoveTime = 0;
+        this._mouseLastPinchAndZoomTime = 0;
         this._viewportDragging = false;
         this._viewportDragPos = {};
         this._viewportHasMoved = false;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
+
+        // On MacOs we simulate the CTRL key being pressed on pinch and zoom
+        // so we need to manually unselect it whenever the action is completed (500ms since last scroll)
+        if (isMac()) {
+            setInterval(() => {
+                const timeSinceLastPinchAndZoom = Math.max(0, +new Date() - this._mouseLastPinchAndZoomTime);
+
+                if (timeSinceLastPinchAndZoom > 500) {
+                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                    this._mouseLastPinchAndZoomTime = Infinity;
+                }
+            }, 10);
+        }
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -1344,6 +1358,12 @@ export default class RFB extends EventTargetMixin {
         if (isMac() && this._keyboard._keyDownList["MetaLeft"]) {
             this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
             this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+        }
+
+        // On MacOs we need to send a CTRL key to let the remote know we are pinch and zooming
+        if (isMac() && ev.ctrlKey && !this._keyboard._keyDownList["ControlLeft"]) {
+            this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+            this._mouseLastPinchAndZoomTime = +new Date();
         }
 
         // Generate a mouse wheel step event when the accumulated delta
