@@ -10,7 +10,7 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
-import { dragThreshold, supportsCursorURIs, isTouchDevice } from './util/browser.js';
+import { dragThreshold, supportsCursorURIs, isTouchDevice, isMac } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -1339,6 +1339,12 @@ export default class RFB extends EventTargetMixin {
         // Therefor, if we get a lot of small mouse wheel events we combine them.
         this._accumulatedWheelDeltaX += dX;
         this._accumulatedWheelDeltaY += dY;
+
+        // On MacOs we need to translate zooming CMD+wheel to CTRL+wheel
+        if (isMac() && this._keyboard._keyDownList["MetaLeft"]) {
+            this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
+            this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+        }
 
         // Generate a mouse wheel step event when the accumulated delta
         // for one of the axes is large enough.
