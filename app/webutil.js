@@ -26,13 +26,13 @@ export function initLogging(level) {
 // For privacy (Using a hastag #, the parameters will not be sent to the server)
 // the url can be requested in the following way:
 // https://www.example.com#myqueryparam=myvalue&password=secreatvalue
-// 
+//
 // Even Mixing public and non public parameters will work:
 // https://www.example.com?nonsecretparam=example.com#password=secreatvalue
 export function getQueryVar(name, defVal) {
     "use strict";
     const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-        match = ''.concat(document.location.href," ", window.location.hash).match(re);
+        match = ''.concat(document.location.href, " ", window.location.hash).match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
 
     if (match) {
