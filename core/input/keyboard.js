@@ -40,6 +40,13 @@ export default class Keyboard {
         if (down) {
             this._keyDownList[code] = keysym;
         } else {
+            // On MacOs zoom and shortcut actions are CMD based so we need to
+            // let the remote know that it should unselect the CTRL key instead
+            if (browser.isMac() && code === "MetaLeft" && this._keyDownList["ControlLeft"]) {
+                keysym = KeyTable.XK_Control_L;
+                code = "ControlLeft";
+            }
+
             // Do we really think this key is down?
             if (!(code in this._keyDownList)) {
                 return;
