@@ -1047,6 +1047,10 @@ const UI = {
     },
 
     disconnect() {
+        // When parameter disconnect_message is set, it will show a message to confirm the disconection being its value the text on the confirm dialog
+        if (WebUtil.getConfigVar('disconnect_message', false) && confirm( WebUtil.getConfigVar('disconnect_message') ) == false ) {
+            return;
+        }
         UI.rfb.disconnect();
 
         UI.connected = false;
