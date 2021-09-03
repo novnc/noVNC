@@ -71,6 +71,18 @@ function deflateWithSize(data) {
 describe('Remote Frame Buffer Protocol Client', function () {
     let clock;
     let raf;
+    let fakeResizeObserver = null;
+    const realObserver = window.ResizeObserver;
+
+    class FakeResizeObserver {
+        constructor(handler) {
+            this.fire = handler;
+            fakeResizeObserver = this;
+        }
+        disconnect() {}
+        observe(target, options) {}
+        unobserve(target) {}
+    }
 
     before(FakeWebSocket.replace);
     after(FakeWebSocket.restore);
@@ -80,6 +92,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
         // sinon doesn't support this yet
         raf = window.requestAnimationFrame;
         window.requestAnimationFrame = setTimeout;
+        // We must do this in a 'before' since it needs to be set before
+        // the RFB constructor, which runs in beforeEach further down
+        window.ResizeObserver = FakeResizeObserver;
         // Use a single set of buffers instead of reallocating to
         // speed up tests
         const sock = new Websock();
@@ -100,6 +115,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         delete Websock.prototype.toString;
         this.clock.restore();
         window.requestAnimationFrame = raf;
+        window.ResizeObserver = realObserver;
     });
 
     let container;
@@ -470,6 +486,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
     describe('Clipping', function () {
         let client;
+
         beforeEach(function () {
             client = makeRFB();
             container.style.width = '70px';
@@ -495,8 +512,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick();
 
             expect(client._display.viewportChangeSize).to.have.been.calledOnce;
@@ -692,8 +708,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick();
 
             expect(client._display.autoscale).to.have.been.calledOnce;
@@ -782,8 +797,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         it('should request a resize when the container resizes', function () {
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
@@ -793,16 +807,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
         it('should not resize until the container size is stable', function () {
             container.style.width = '20px';
             container.style.height = '30px';
-            const event1 = new UIEvent('resize');
-            window.dispatchEvent(event1);
+            fakeResizeObserver.fire();
             clock.tick(400);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event2 = new UIEvent('resize');
-            window.dispatchEvent(event2);
+            fakeResizeObserver.fire();
             clock.tick(400);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
