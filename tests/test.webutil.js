@@ -7,6 +7,48 @@ import * as WebUtil from '../app/webutil.js';
 describe('WebUtil', function () {
     "use strict";
 
+    describe('config variables', function () {
+        it('should parse query string variables', function () {
+            // history.pushState() will not cause the browser to attempt loading
+            // the URL, this is exactly what we want here for the tests.
+            history.pushState({}, '', "test?myvar=myval");
+            expect(WebUtil.getConfigVar("myvar")).to.be.equal("myval");
+        });
+        it('should return default value when no query match', function () {
+            history.pushState({}, '', "test?myvar=myval");
+            expect(WebUtil.getConfigVar("other", "def")).to.be.equal("def");
+        });
+        it('should handle no query match and no default value', function () {
+            history.pushState({}, '', "test?myvar=myval");
+            expect(WebUtil.getConfigVar("other")).to.be.equal(null);
+        });
+        it('should parse fragment variables', function () {
+            history.pushState({}, '', "test#myvar=myval");
+            expect(WebUtil.getConfigVar("myvar")).to.be.equal("myval");
+        });
+        it('should return default value when no fragment match', function () {
+            history.pushState({}, '', "test#myvar=myval");
+            expect(WebUtil.getConfigVar("other", "def")).to.be.equal("def");
+        });
+        it('should handle no fragment match and no default value', function () {
+            history.pushState({}, '', "test#myvar=myval");
+            expect(WebUtil.getConfigVar("other")).to.be.equal(null);
+        });
+        it('should handle both query and fragment', function () {
+            history.pushState({}, '', "test?myquery=1#myhash=2");
+            expect(WebUtil.getConfigVar("myquery")).to.be.equal("1");
+            expect(WebUtil.getConfigVar("myhash")).to.be.equal("2");
+        });
+        it('should prioritize fragment if both provide same var', function () {
+            history.pushState({}, '', "test?myvar=1#myvar=2");
+            expect(WebUtil.getConfigVar("myvar")).to.be.equal("2");
+        });
+    });
+
+    describe('cookies', function () {
+        // TODO
+    });
+
     describe('settings', function () {
 
         describe('localStorage', function () {
