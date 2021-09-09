@@ -111,7 +111,7 @@ msgstr "Ctrl"
 
 #: ../vnc.html:94
 msgid "Toggle Ctrl"
-msgstr "Переключение нажати Ctrl"
+msgstr "Переключение нажатия Ctrl"
 
 #: ../vnc.html:97
 msgid "Alt"
@@ -119,7 +119,7 @@ msgstr "Alt"
 
 #: ../vnc.html:97
 msgid "Toggle Alt"
-msgstr "Передать нажатия Alt"
+msgstr "Переключение нажатия Alt"
 
 #: ../vnc.html:100
 msgid "Toggle Windows"
