@@ -45,12 +45,12 @@ jobs:
       - uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.SNAPCRAFT_LOGIN }}
-          snap: ${{ steps.build.outputs.snap }}
+          snap: ${{ steps.snapcraft.outputs.snap }}
           release: stable
         if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
       - uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.SNAPCRAFT_LOGIN }}
-          snap: ${{ steps.build.outputs.snap }}
+          snap: ${{ steps.snapcraft.outputs.snap }}
           release: beta
         if: ${{ github.event_name == 'release' && github.event.release.prerelease }}
