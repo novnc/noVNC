@@ -43,6 +43,11 @@ export default class Display {
         }
 
         this._targetCtx = this._target.getContext('2d');
+	//Smoothing causes high DPI displays to look blurry
+	this._targetCtx.mozImageSmoothingEnabled = false;
+        this._targetCtx.webkitImageSmoothingEnabled = false;
+        this._targetCtx.msImageSmoothingEnabled = false;
+        this._targetCtx.imageSmoothingEnabled = false;
 
         // the visible canvas viewport (i.e. what actually gets seen)
         this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
@@ -50,6 +55,11 @@ export default class Display {
         // The hidden canvas, where we do the actual rendering
         this._backbuffer = document.createElement('canvas');
         this._drawCtx = this._backbuffer.getContext('2d');
+        //Smoothing causes high DPI displays to look blurry
+	this._drawCtx.mozImageSmoothingEnabled = false;
+        this._drawCtx.webkitImageSmoothingEnabled = false;
+        this._drawCtx.msImageSmoothingEnabled = false;
+        this._drawCtx.imageSmoothingEnabled = false;
 
         this._damageBounds = { left: 0, top: 0,
                                right: this._backbuffer.width,
