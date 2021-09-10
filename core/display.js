@@ -464,7 +464,7 @@ export default class Display {
 
         if (factor === 1 && this._target.style.imageRendering !== 'pixelated') {
             this._target.style.imageRendering = 'pixelated';
-        } else if (factor !== 1 && this._target.style.imageRendering !== 'high-quality') {
+        } else if (factor !== 1 && this._target.style.imageRendering !== 'auto') {
             this._target.style.imageRendering = 'auto';
         }
     }
