@@ -461,6 +461,12 @@ export default class Display {
             this._target.style.width = width;
             this._target.style.height = height;
         }
+
+        if (factor === 1 && this._target.style.imageRendering !== 'pixelated') {
+            this._target.style.imageRendering = 'pixelated';
+        } else if (factor !== 1 && this._target.style.imageRendering !== 'high-quality') {
+            this._target.style.imageRendering = 'auto';
+        }
     }
 
     _setFillColor(color) {
