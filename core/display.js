@@ -43,11 +43,6 @@ export default class Display {
         }
 
         this._targetCtx = this._target.getContext('2d');
-	//Smoothing causes high DPI displays to look blurry
-	this._targetCtx.mozImageSmoothingEnabled = false;
-        this._targetCtx.webkitImageSmoothingEnabled = false;
-        this._targetCtx.msImageSmoothingEnabled = false;
-        this._targetCtx.imageSmoothingEnabled = false;
 
         // the visible canvas viewport (i.e. what actually gets seen)
         this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
@@ -55,11 +50,6 @@ export default class Display {
         // The hidden canvas, where we do the actual rendering
         this._backbuffer = document.createElement('canvas');
         this._drawCtx = this._backbuffer.getContext('2d');
-        //Smoothing causes high DPI displays to look blurry
-	this._drawCtx.mozImageSmoothingEnabled = false;
-        this._drawCtx.webkitImageSmoothingEnabled = false;
-        this._drawCtx.msImageSmoothingEnabled = false;
-        this._drawCtx.imageSmoothingEnabled = false;
 
         this._damageBounds = { left: 0, top: 0,
                                right: this._backbuffer.width,
@@ -73,6 +63,7 @@ export default class Display {
 
         this._scale = 1.0;
         this._clipViewport = false;
+        this._antiAliasing = 0;
 
         // ===== EVENT HANDLERS =====
 
@@ -80,6 +71,12 @@ export default class Display {
     }
 
     // ===== PROPERTIES =====
+    
+    get antiAliasing() { return this._antiAliasing; }
+    set antiAliasing(value) {
+        this._antiAliasing = value;
+        this._rescale(this._scale);
+    }
 
     get scale() { return this._scale; }
     set scale(scale) {
@@ -462,10 +459,17 @@ export default class Display {
             this._target.style.height = height;
         }
 
-        if (factor === 1 && this._target.style.imageRendering !== 'pixelated') {
-            this._target.style.imageRendering = 'pixelated';
-        } else if (factor !== 1 && this._target.style.imageRendering !== 'auto') {
-            this._target.style.imageRendering = 'auto';
+        Log.Debug('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.w + 'x' + vp.h);
+
+        var pixR = Math.abs(Math.ceil(window.devicePixelRatio));
+        var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
+        if (this.antiAliasing === 2 || (this.antiAliasing === 0 && factor === 1 && this._target.style.imageRendering !== 'pixelated' && pixR === window.devicePixelRatio && vp.w > 0)) {
+            this._target.style.imageRendering = ((!isFirefox) ? 'pixelated' : 'crisp-edges' );
+            Log.Debug('Smoothing disabled');
+        } else if (this.antiAliasing === 1 || (this.antiAliasing === 0 && factor !== 1 && this._target.style.imageRendering !== 'auto')) {
+            this._target.style.imageRendering = 'auto'; //auto is really smooth (blurry) using trilinear of linear
+            Log.Debug('Smoothing enabled');
         }
     }
 
