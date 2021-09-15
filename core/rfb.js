@@ -183,19 +183,6 @@ export default class RFB extends EventTargetMixin {
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
 
-        // On MacOs we simulate the CTRL key being pressed on pinch and zoom
-        // so we need to manually unselect it whenever the action is completed (500ms since last scroll)
-        if (isMac()) {
-            setInterval(() => {
-                const timeSinceLastPinchAndZoom = Math.max(0, +new Date() - this._mouseLastPinchAndZoomTime);
-
-                if (timeSinceLastPinchAndZoom > 500) {
-                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
-                    this._mouseLastPinchAndZoomTime = Infinity;
-                }
-            }, 10);
-        }
-
         // Gesture state
         this._gestureLastTapTime = null;
         this._gestureFirstDoubleTapEv = null;
@@ -1365,9 +1352,25 @@ export default class RFB extends EventTargetMixin {
             this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
         }
 
-        // On MacOs we need to send a CTRL key to let the remote know we are pinch and zooming
-        if (isMac() && ev.ctrlKey && !this._keyboard._keyDownList["ControlLeft"]) {
+        // In a pinch and zoom gesture we're sending only a wheel event so we need
+        // to make sure a CTRL press event is sent alongside it if we want to trigger zooming.
+        // Moreover, we don't have a way to know that the gesture has stopped so we
+        // need to check manually every now and then and "unpress" the CTRL key when it ends.
+        if (ev.ctrlKey && !this._keyboard._keyDownList["ControlLeft"]) {
             this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+
+            this._watchForPinchAndZoom = this._watchForPinchAndZoom || setInterval(() => {
+                const timeSinceLastPinchAndZoom = +new Date() - this._mouseLastPinchAndZoomTime;
+                if (timeSinceLastPinchAndZoom > 250) {
+                    clearInterval(this._watchForPinchAndZoom);
+                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                    this._watchForPinchAndZoom = null;
+                    this._mouseLastPinchAndZoomTime = 0;
+                }
+            }, 10);
+        }
+
+        if (this._watchForPinchAndZoom) {
             this._mouseLastPinchAndZoomTime = +new Date();
         }
 
