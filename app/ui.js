@@ -20,6 +20,16 @@ window.addEventListener("load", function() {
     }
 });
 
+window.updateSetting = (name, value) => {
+    WebUtil.writeSetting(name, value);
+
+    switch (name) {
+        case "translate_shortcuts":
+            UI.updateShortcutTranslation();
+        break;
+    }
+}
+
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold }
@@ -190,6 +200,7 @@ const UI = {
         UI.initSetting('quality', 6);
         UI.initSetting('dynamic_quality_min', 3);
         UI.initSetting('dynamic_quality_max', 9);
+        UI.initSetting('translate_shortcuts', true);
         UI.initSetting('treat_lossless', 7);
         UI.initSetting('jpeg_video_quality', 5);
         UI.initSetting('webp_video_quality', 5);
@@ -411,6 +422,8 @@ const UI = {
         UI.addSettingChangeHandler('dynamic_quality_min', UI.updateQuality);
         UI.addSettingChangeHandler('dynamic_quality_max');
         UI.addSettingChangeHandler('dynamic_quality_max', UI.updateQuality);
+        UI.addSettingChangeHandler('translate_shortcuts');
+        UI.addSettingChangeHandler('translate_shortcuts', UI.updateShortcutTranslation);
         UI.addSettingChangeHandler('treat_lossless');
         UI.addSettingChangeHandler('treat_lossless', UI.updateQuality);
         UI.addSettingChangeHandler('anti_aliasing');
@@ -1266,6 +1279,7 @@ const UI = {
         document.addEventListener('mousedown', UI.mouseDownVNC);
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
+        UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
@@ -1731,11 +1745,17 @@ const UI = {
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
     },
 
+
+
 /* ------^-------
  *  /COMPRESSION
  * ==============
- *    KEYBOARD
+ *  MOUSE AND KEYBOARD
  * ------v------*/
+
+    updateShortcutTranslation() {
+        UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
+    },
 
     showVirtualKeyboard() {
         if (!isTouchDevice) return;

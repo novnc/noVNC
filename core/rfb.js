@@ -10,7 +10,7 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
-import { dragThreshold, supportsCursorURIs, isTouchDevice, isMac } from './util/browser.js';
+import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';

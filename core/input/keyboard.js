@@ -9,6 +9,7 @@ import { stopEvent } from '../util/events.js';
 import * as KeyboardUtil from "./util.js";
 import KeyTable from "./keysym.js";
 import * as browser from "../util/browser.js";
+import UI from '../../app/ui.js';
 
 //
 // Keyboard event handler
@@ -129,6 +130,15 @@ export default class Keyboard {
                 this._sendKeyEvent(keysym, code, false);
             }
 
+            stopEvent(e);
+            return;
+        }
+
+        // Translate MacOs CMD based shortcuts to their CTRL based counterpart
+        if (browser.isMac() && UI.rfb.translateShortcuts && code !== "MetaLeft" && e.metaKey && !e.ctrlKey && !e.altKey) {
+            this._sendKeyEvent(this._keyDownList["MetaLeft"], "MetaLeft", false);
+            this._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+            this._sendKeyEvent(keysym, code, true);
             stopEvent(e);
             return;
         }
