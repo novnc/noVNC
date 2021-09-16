@@ -2392,6 +2392,8 @@ export default class RFB extends EventTargetMixin {
         Log.Debug("HandleBinaryClipboard");
 
         let num = this._sock.rQshift8(); // how many different mime types
+        let blobs = [];
+        let clipdata = [];
 
         for (let i = 0; i < num; i++) {
             let mimelen = this._sock.rQshift8();
@@ -2399,10 +2401,25 @@ export default class RFB extends EventTargetMixin {
 
             let len = this._sock.rQshift32();
 
-            const data = this._sock.rQshiftStr(len);
+            const data = this._sock.rQshiftBytes(len);
 
             // TODO, what do we do with this?
             console.log("Mime " + mime + ", len ", len);
+            
+            switch(mime) {
+                case "image/png":
+                    let blob = new Blob([data], { type: mime });
+                    clipdata.push(new ClipboardItem({ [mime]: blob }));
+                    break;
+            }
+        }
+
+        if (clipdata.length > 0) {
+            navigator.clipboard.write(clipdata).then(
+                function() {},
+                function(err) { 
+                    console.log("Error writing to client clipboard: " + err); 
+                });
         }
 
         return true;
