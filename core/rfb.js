@@ -2388,6 +2388,26 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _handleBinaryClipboard() {
+        Log.Debug("HandleBinaryClipboard");
+
+        let num = this._sock.rQshift8(); // how many different mime types
+
+        for (let i = 0; i < num; i++) {
+            let mimelen = this._sock.rQshift8();
+            const mime = this._sock.rQshiftStr(mimelen);
+
+            let len = this._sock.rQshift32();
+
+            const data = this._sock.rQshiftStr(len);
+
+            // TODO, what do we do with this?
+            console.log("Mime " + mime + ", len ", len);
+        }
+
+        return true;
+    }
+
     _handle_server_stats_msg() {
         this._sock.rQskipBytes(3);  // Padding
         const length = this._sock.rQshift32();
@@ -2526,6 +2546,10 @@ export default class RFB extends EventTargetMixin {
 
             case 179: // KASM requesting frame stats
                 this._trackFrameStats = true;
+                return true;
+
+            case 180: // KASM binary clipboard
+                this._handleBinaryClipboard();
                 return true;
 
             case 248: // ServerFence
@@ -3161,6 +3185,49 @@ RFB.messages = {
         buff[offset + 7] = length;
 
         sock._sQlen += 8;
+
+        // We have to keep track of from where in the data we begin creating the
+        // buffer for the flush in the next iteration.
+        let dataOffset = 0;
+
+        let remaining = data.length;
+        while (remaining > 0) {
+
+            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
+            for (let i = 0; i < flushSize; i++) {
+                buff[sock._sQlen + i] = data[dataOffset + i];
+            }
+
+            sock._sQlen += flushSize;
+            sock.flush();
+
+            remaining -= flushSize;
+            dataOffset += flushSize;
+        }
+
+    },
+
+    sendBinaryClipboard(sock, data, mime) {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+        buff[offset] = 180; // msg-type
+
+        buff[offset + 1] = 1; // we're sending one mime type
+        buff[offset + 2] = mime.length;
+
+        for (let i = 0; i < mime.length; i++) {
+            buff[offset + 3 + i] = mime.charCodeAt(i); // change to [] if not a string
+        }
+
+        let length = data.length;
+
+        buff[offset + 3 + mime.length] = length >> 24;
+        buff[offset + 3 + mime.length + 1] = length >> 16;
+        buff[offset + 3 + mime.length + 2] = length >> 8;
+        buff[offset + 3 + mime.length + 3] = length;
+
+        sock._sQlen += 3 + mime.length + 4;
 
         // We have to keep track of from where in the data we begin creating the
         // buffer for the flush in the next iteration.
