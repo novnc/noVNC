@@ -1125,12 +1125,25 @@ const UI = {
     UI.copyFromLocalClipboard();
     },
     copyFromLocalClipboard: function copyFromLocalClipboard() {
+        console.log("copyFromLocalClipboard Called");
+        if (!document.hasFocus()) {
+            console.log("window does not have focus");
+            return;
+        }
         if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
-            UI.readClipboard(function (text) {
+            console.log('checking clipboard');
+            navigator.clipboard.read().then((data) => {
+                console.log('sending clipboard data to server');
+                UI.rfb.clipboardPasteDataFrom(data);
+            });
+
+            /*UI.readClipboard(function (text) {
+                console.log("clipboard read");
                 var maximumBufferSize = 10000;
                 var clipVal = document.getElementById('noVNC_clipboard_text').value;
 
                 if (clipVal != text) {
+                    console.log("clipboard sent")
                     document.getElementById('noVNC_clipboard_text').value = text; // The websocket has a maximum buffer array size
 
                     if (text.length > maximumBufferSize) {
@@ -1144,7 +1157,7 @@ const UI = {
 
 
                 UI.needToCheckClipboardChange = false;
-            });
+            }); */
         }
     },
 
@@ -1285,6 +1298,10 @@ const UI = {
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
+        if (UI.rfb.clipboardSeamless) {
+            // explicitly request permission to the clipboard
+            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { console.log('binary clipboard enabled') });
+        }
         // KASM-960 workaround, disable seamless on Safari
         if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 
         { 

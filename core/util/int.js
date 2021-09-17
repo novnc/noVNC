@@ -13,3 +13,14 @@ export function toUnsigned32bit(toConvert) {
 export function toSigned32bit(toConvert) {
     return toConvert | 0;
 }
+
+/*
+ * Fast hashing function with low entropy, not for security uses.
+*/
+export function hashUInt8Array(data) {
+    let h;
+    for (let i = 0; i < data.length; i++) {
+        h = Math.imul(31, h) + data[i] | 0;
+    }
+    return h;
+}

@@ -10,6 +10,7 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
+import { hashUInt8Array } from './util/int.js';
 import { dragThreshold, supportsCursorURIs, isTouchDevice, isMac } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
@@ -347,6 +348,7 @@ export default class RFB extends EventTargetMixin {
 
         this._qualityLevel = 6;
         this._compressionLevel = 2;
+        this._clipHash = 0;
     }
 
     // ===== PROPERTIES =====
@@ -788,6 +790,43 @@ export default class RFB extends EventTargetMixin {
 
             RFB.messages.clientCutText(this._sock, data);
         }
+    }
+
+    async clipboardPasteDataFrom(clipdata) {
+        if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
+        this.sentEventsCounter+=1;
+
+        let dataset = [];
+        let mimes = [];
+        for (let i = 0; i < clipdata.length; i++) {
+            for (let ti = 0; ti < clipdata[i].types.length; ti++) {
+                let mime = clipdata[i].types[ti];
+                if (mime !== 'image/png') {
+                    console.log('skipping type: ' + mime);
+                    continue;
+                }
+                mimes.push(mime);
+                let blob = await clipdata[i].getType(mime);
+                let buff = await blob.arrayBuffer();
+                let data = new Uint8Array(buff);
+
+                let h = hashUInt8Array(data);
+                console.log('New Clip hash: ' + h);
+                if (h === this._clipHash) {
+                    return;
+                } else {
+                    this._clipHash = h;
+                }
+                dataset.push(data);
+                console.log('Sending mime type: ' + mime);
+            }
+        }
+
+
+        if (dataset.length > 0) {
+            RFB.messages.sendBinaryClipboard(this._sock, dataset[0], mimes[0]);
+        }
+        
     }
 
     requestBottleneckStats() {
@@ -3265,6 +3304,7 @@ RFB.messages = {
             dataOffset += flushSize;
         }
 
+        console.log('clipboard sent');
     },
 
     setDesktopSize(sock, width, height, id, flags) {
