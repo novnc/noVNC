@@ -805,6 +805,7 @@ export default class RFB extends EventTargetMixin {
                     console.log('skipping type: ' + mime);
                     continue;
                 }
+
                 mimes.push(mime);
                 let blob = await clipdata[i].getType(mime);
                 let buff = await blob.arrayBuffer();
@@ -2447,8 +2448,13 @@ export default class RFB extends EventTargetMixin {
             
             switch(mime) {
                 case "image/png":
+                case "text/html":
+                case "text/plain":
                     let blob = new Blob([data], { type: mime });
                     clipdata.push(new ClipboardItem({ [mime]: blob }));
+                    break;
+                default:
+                    console.log('Mime type skipped: ' + mime);
                     break;
             }
         }
