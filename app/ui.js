@@ -193,6 +193,7 @@ const UI = {
         UI.initSetting('treat_lossless', 7);
         UI.initSetting('jpeg_video_quality', 5);
         UI.initSetting('webp_video_quality', 5);
+        UI.initSetting('anti_aliasing', 0);
         UI.initSetting('video_area', 65);
         UI.initSetting('video_time', 5);
         UI.initSetting('video_out_time', 3);
@@ -412,6 +413,8 @@ const UI = {
         UI.addSettingChangeHandler('dynamic_quality_max', UI.updateQuality);
         UI.addSettingChangeHandler('treat_lossless');
         UI.addSettingChangeHandler('treat_lossless', UI.updateQuality);
+        UI.addSettingChangeHandler('anti_aliasing');
+        UI.addSettingChangeHandler('anti_aliasing', UI.updateQuality);
         UI.addSettingChangeHandler('jpeg_video_quality');
         UI.addSettingChangeHandler('jpeg_video_quality', UI.updateQuality);
         UI.addSettingChangeHandler('webp_video_quality');
@@ -953,6 +956,7 @@ const UI = {
         UI.updateSetting('dynamic_quality_min', 3);
         UI.updateSetting('dynamic_quality_max', 9);
         UI.updateSetting('treat_lossless', 7);
+        UI.updateSetting('anti_aliasing', 0);
         UI.updateSetting('jpeg_video_quality', 5);
         UI.updateSetting('webp_video_quality', 5);
         UI.updateSetting('video_area', 65);
@@ -1282,6 +1286,7 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
         UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
         UI.rfb.videoQuality = UI.getSetting('video_quality');
+        UI.rfb.antiAliasing = UI.getSetting('anti_aliasing');
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
@@ -1694,6 +1699,7 @@ const UI = {
             // avoid sending too many, will only apply when there are changes
             setTimeout(function() {
                 UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
+                UI.rfb.antiAliasing = parseInt(UI.getSetting('anti_aliasing'));
                 UI.rfb.dynamicQualityMin = parseInt(UI.getSetting('dynamic_quality_min'));
                 UI.rfb.dynamicQualityMax = parseInt(UI.getSetting('dynamic_quality_max'));
                 UI.rfb.jpegVideoQuality = parseInt(UI.getSetting('jpeg_video_quality'));
