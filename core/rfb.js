@@ -798,34 +798,54 @@ export default class RFB extends EventTargetMixin {
 
         let dataset = [];
         let mimes = [];
+        let h = 0;
         for (let i = 0; i < clipdata.length; i++) {
             for (let ti = 0; ti < clipdata[i].types.length; ti++) {
                 let mime = clipdata[i].types[ti];
-                if (mime !== 'image/png') {
-                    console.log('skipping type: ' + mime);
-                    continue;
+
+                switch (mime) {
+                    case 'image/png':
+                    case 'text/plain':
+                    case 'text/html':
+                        mimes.push(mime);
+                        let blob = await clipdata[i].getType(mime);
+                        let buff = await blob.arrayBuffer();
+                        let data = new Uint8Array(buff);
+
+                        if (!h) {
+                            h = hashUInt8Array(data);
+                            if (h === this._clipHash) {
+                                console.log('No clipboard changes');
+                                return;
+                            } else {
+                                this._clipHash = h;
+                            }
+                        }
+                        dataset.push(data);
+                        console.log('Sending mime type: ' + mime);
+                        break;
+                    default:
+                        console.log('skipping clip send mime type: ' + mime)
                 }
 
-                mimes.push(mime);
-                let blob = await clipdata[i].getType(mime);
-                let buff = await blob.arrayBuffer();
-                let data = new Uint8Array(buff);
-
-                let h = hashUInt8Array(data);
-                console.log('New Clip hash: ' + h);
-                if (h === this._clipHash) {
-                    return;
-                } else {
-                    this._clipHash = h;
-                }
-                dataset.push(data);
-                console.log('Sending mime type: ' + mime);
             }
+        }
+
+        //if png is present and  text/plain is not, remove other variations of images to save bandwidth
+        //if png is present with text/plain, then remove png. Word will put in a png of copied text
+        if (mimes.includes('image/png') && !mimes.includes('text/plain')) {
+            let i = mimes.indexOf('image/png');
+            mimes = mimes.slice(i, i+1);
+            dataset = dataset.slice(i, i+1);
+        } else if (mimes.includes('image/png') && mimes.includes('text/plain')) {
+            let i = mimes.indexOf('image/png');
+            mimes.splice(i, 1);
+            dataset.splice(i, 1);
         }
 
 
         if (dataset.length > 0) {
-            RFB.messages.sendBinaryClipboard(this._sock, dataset[0], mimes[0]);
+            RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
         }
         
     }
@@ -2460,6 +2480,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         if (clipdata.length > 0) {
+            this._clipHash = 0;
             navigator.clipboard.write(clipdata).then(
                 function() {},
                 function(err) { 
@@ -3269,48 +3290,59 @@ RFB.messages = {
 
     },
 
-    sendBinaryClipboard(sock, data, mime) {
+    sendBinaryClipboard(sock, dataset, mimes) {
+
+        
         const buff = sock._sQ;
-        const offset = sock._sQlen;
+        let offset = sock._sQlen;
 
         buff[offset] = 180; // msg-type
+        buff[offset + 1] = dataset.length; // how many mime types
+        sock._sQlen += 2;
+        offset += 2;
 
-        buff[offset + 1] = 1; // we're sending one mime type
-        buff[offset + 2] = mime.length;
+        for (let i=0; i < dataset.length; i++) {
+            let mime = mimes[i];
+            let data = dataset[i];
 
-        for (let i = 0; i < mime.length; i++) {
-            buff[offset + 3 + i] = mime.charCodeAt(i); // change to [] if not a string
-        }
+            buff[offset++] = mime.length;
 
-        let length = data.length;
-
-        buff[offset + 3 + mime.length] = length >> 24;
-        buff[offset + 3 + mime.length + 1] = length >> 16;
-        buff[offset + 3 + mime.length + 2] = length >> 8;
-        buff[offset + 3 + mime.length + 3] = length;
-
-        sock._sQlen += 3 + mime.length + 4;
-
-        // We have to keep track of from where in the data we begin creating the
-        // buffer for the flush in the next iteration.
-        let dataOffset = 0;
-
-        let remaining = data.length;
-        while (remaining > 0) {
-
-            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
-            for (let i = 0; i < flushSize; i++) {
-                buff[sock._sQlen + i] = data[dataOffset + i];
+            for (let i = 0; i < mime.length; i++) {
+                buff[offset++] = mime.charCodeAt(i); // change to [] if not a string
             }
 
-            sock._sQlen += flushSize;
-            sock.flush();
+            let length = data.length;
 
-            remaining -= flushSize;
-            dataOffset += flushSize;
+            console.log('Clipboard data sent mime type ' + mime + ' len ' + length);
+
+            buff[offset++] = length >> 24;
+            buff[offset++] = length >> 16;
+            buff[offset++] = length >> 8;
+            buff[offset++] = length;
+
+            sock._sQlen += 1 + mime.length + 4;
+
+            // We have to keep track of from where in the data we begin creating the
+            // buffer for the flush in the next iteration.
+            let dataOffset = 0;
+
+            let remaining = data.length;
+            while (remaining > 0) {
+
+                let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
+                for (let i = 0; i < flushSize; i++) {
+                    buff[sock._sQlen + i] = data[dataOffset + i];
+                }
+
+                sock._sQlen += flushSize;
+                sock.flush();
+
+                remaining -= flushSize;
+                dataOffset += flushSize;
+            }
+
+            offset = sock._sQlen;
         }
-
-        console.log('clipboard sent');
     },
 
     setDesktopSize(sock, width, height, id, flags) {

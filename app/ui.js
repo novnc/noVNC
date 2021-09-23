@@ -1125,15 +1125,12 @@ const UI = {
     UI.copyFromLocalClipboard();
     },
     copyFromLocalClipboard: function copyFromLocalClipboard() {
-        console.log("copyFromLocalClipboard Called");
         if (!document.hasFocus()) {
             console.log("window does not have focus");
             return;
         }
         if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
-            console.log('checking clipboard');
             navigator.clipboard.read().then((data) => {
-                console.log('sending clipboard data to server');
                 UI.rfb.clipboardPasteDataFrom(data);
             });
 
