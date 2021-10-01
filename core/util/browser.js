@@ -101,3 +101,7 @@ export function isFirefox() {
     return navigator && !!(/firefox/i).exec(navigator.userAgent);
 }
 
+export function supportsBinaryClipboard() {
+    return (typeof navigator.clipboard.read === "function");
+}
+

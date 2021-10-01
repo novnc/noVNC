@@ -22,7 +22,7 @@ window.addEventListener("load", function() {
 
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold }
+import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -1132,6 +1132,7 @@ const UI = {
         if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
             navigator.clipboard.read().then((data) => {
                 UI.rfb.clipboardPasteDataFrom(data);
+                UI.needToCheckClipboardChange = false;
             });
 
             /*UI.readClipboard(function (text) {
@@ -1294,10 +1295,15 @@ const UI = {
         UI.rfb.videoQuality = UI.getSetting('video_quality');
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
+        UI.rfb.clipboardBinary = supportsBinaryClipboard();
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
         if (UI.rfb.clipboardSeamless) {
             // explicitly request permission to the clipboard
-            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { console.log('binary clipboard enabled') });
+            if (UI.rfb.clipboardBinary) {
+                navigator.permissions.query({ name: "clipboard-read" }).then((result) => { console.log('binary clipboard enabled') });
+            } else {
+                navigator.permissions.query({ name: "clipboardRead" }).then((result) => { console.log('binary clipboard enabled') }); 
+            }
         }
         // KASM-960 workaround, disable seamless on Safari
         if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 

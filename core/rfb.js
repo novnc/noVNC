@@ -142,6 +142,7 @@ export default class RFB extends EventTargetMixin {
         this._frameRate = 30;
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
+        this._clipboardBinary = true;
 
         this._trackFrameStats = false;
 
@@ -352,6 +353,9 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+
+    get clipboardBinary() { return this._clipboardMode; }
+    set clipboardBinary(val) { this._clipboardMode = val; }
 
     get videoQuality() { return this._videoQuality; }
     set videoQuality(quality) { this._videoQuality = quality; }
@@ -807,7 +811,6 @@ export default class RFB extends EventTargetMixin {
                     case 'image/png':
                     case 'text/plain':
                     case 'text/html':
-                        mimes.push(mime);
                         let blob = await clipdata[i].getType(mime);
                         let buff = await blob.arrayBuffer();
                         let data = new Uint8Array(buff);
@@ -821,6 +824,12 @@ export default class RFB extends EventTargetMixin {
                                 this._clipHash = h;
                             }
                         }
+
+                        if (mimes.includes(mime)) {
+                            continue;
+                        }
+
+                        mimes.push(mime);
                         dataset.push(data);
                         console.log('Sending mime type: ' + mime);
                         break;
@@ -2454,6 +2463,8 @@ export default class RFB extends EventTargetMixin {
         let num = this._sock.rQshift8(); // how many different mime types
         let blobs = [];
         let clipdata = [];
+        let mimes = [];
+        console.log('Clipboard items recieved.');
 
         for (let i = 0; i < num; i++) {
             let mimelen = this._sock.rQshift8();
@@ -2462,14 +2473,17 @@ export default class RFB extends EventTargetMixin {
             let len = this._sock.rQshift32();
 
             const data = this._sock.rQshiftBytes(len);
-
-            // TODO, what do we do with this?
-            console.log("Mime " + mime + ", len ", len);
             
             switch(mime) {
                 case "image/png":
                 case "text/html":
                 case "text/plain":
+                    if (mimes.includes(mime)){
+                        continue;
+                    }
+                    mimes.push(mime);
+                    console.log("Mime " + mime + ", len ", len);
+                    console.log(data);
                     let blob = new Blob([data], { type: mime });
                     clipdata.push(new ClipboardItem({ [mime]: blob }));
                     break;
