@@ -227,7 +227,6 @@ export default class RFB extends EventTargetMixin {
         this._canvas.style.margin = 'auto';
         // Some browsers add an outline on focus
         this._canvas.style.outline = 'none';
-        this._canvas.style.imageRendering = 'pixelated';
         this._canvas.width = 0;
         this._canvas.height = 0;
         this._canvas.tabIndex = -1;
@@ -429,6 +428,11 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState === 'connected') {
             this._sendEncodings();
         }
+    }
+
+    get antiAliasing() { return this._display.antiAliasing; }
+    set antiAliasing(value) {
+       this._display.antiAliasing = value;
     }
 
     get jpegVideoQuality() { return this._jpegVideoQuality; }

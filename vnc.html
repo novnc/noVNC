@@ -278,6 +278,14 @@
                                 <label for="noVNC_setting_quality">Quality:</label>
                                 <input id="noVNC_setting_quality" type="range" min="0" max="9" value="6">
                             </li>
+			    <li>
+                                <label for="noVNC_setting_anti_aliasing">Smoothing:</label>
+                                <select id="noVNC_setting_anti_aliasing" name="vncAntiAliasing">
+                                    <option value=0>Auto Dynamic</option>
+                                    <option value=1>On</option>
+				    <option value=2>Off</option>
+                                </select>
+                            </li>
                             <li>
                                 <label for="noVNC_setting_dynamic_quality_min">Dynamic Quality Min:</label>
                                 <input id="noVNC_setting_dynamic_quality_min" type="range" min="0" max="9" value="3" onchange="noVNC_setting_dynamic_quality_min_output.value=value">
