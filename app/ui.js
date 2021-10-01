@@ -1134,32 +1134,15 @@ const UI = {
             return;
         }
         if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
-            navigator.clipboard.read().then((data) => {
-                UI.rfb.clipboardPasteDataFrom(data);
-                UI.needToCheckClipboardChange = false;
-            });
 
-            /*UI.readClipboard(function (text) {
-                console.log("clipboard read");
-                var maximumBufferSize = 10000;
-                var clipVal = document.getElementById('noVNC_clipboard_text').value;
-
-                if (clipVal != text) {
-                    console.log("clipboard sent")
-                    document.getElementById('noVNC_clipboard_text').value = text; // The websocket has a maximum buffer array size
-
-                    if (text.length > maximumBufferSize) {
-                        UI.popupMessage("Clipboard contents too large. Data truncated", 2000);
-                        UI.rfb.clipboardPasteFrom(text.slice(0, maximumBufferSize));
-                    } else {
-                        //UI.popupMessage("Copied from Local Clipboard");
-                        UI.rfb.clipboardPasteFrom(text);
-                    }
-                } // Reset flag to prevent checking too often
-
-
-                UI.needToCheckClipboardChange = false;
-            }); */
+            if (UI.rfb.clipboardBinary) {
+                navigator.clipboard.read().then((data) => {
+                    UI.rfb.clipboardPasteDataFrom(data);
+                    UI.needToCheckClipboardChange = false;
+                }, (err) => {
+                    console.log("No data in clipboard");
+                }); 
+            }
         }
     },
 
@@ -1300,15 +1283,13 @@ const UI = {
         UI.rfb.antiAliasing = UI.getSetting('anti_aliasing');
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
-        UI.rfb.clipboardBinary = supportsBinaryClipboard();
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
-        if (UI.rfb.clipboardSeamless) {
+        UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
+
+        //Only explicitly request permission to clipboard on browsers that support binary clipboard access
+        if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
-            if (UI.rfb.clipboardBinary) {
-                navigator.permissions.query({ name: "clipboard-read" }).then((result) => { console.log('binary clipboard enabled') });
-            } else {
-                navigator.permissions.query({ name: "clipboardRead" }).then((result) => { console.log('binary clipboard enabled') }); 
-            }
+            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { console.log('binary clipboard enabled') });
         }
         // KASM-960 workaround, disable seamless on Safari
         if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 

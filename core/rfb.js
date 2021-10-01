@@ -783,21 +783,28 @@ export default class RFB extends EventTargetMixin {
 
     clipboardPasteFrom(text) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
+        if (!(typeof text === 'string' && text.length > 0)) { return; }
+
         this.sentEventsCounter+=1;
-        if (this._clipboardServerCapabilitiesFormats[extendedClipboardFormatText] &&
-            this._clipboardServerCapabilitiesActions[extendedClipboardActionNotify]) {
 
-            this._clipboardText = text;
-            RFB.messages.extendedClipboardNotify(this._sock, [extendedClipboardFormatText]);
-        } else {
-            let data = new Uint8Array(text.length);
-            for (let i = 0; i < text.length; i++) {
-                // FIXME: text can have values outside of Latin1/Uint8
-                data[i] = text.charCodeAt(i);
-            }
-
-            RFB.messages.clientCutText(this._sock, data);
+        let data = new Uint8Array(text.length);
+        for (let i = 0; i < text.length; i++) {
+            data[i] = text.charCodeAt(i);
         }
+
+        let h = hashUInt8Array(data);
+        if (h === this._clipHash) {
+            console.log('No clipboard changes');
+            return;
+        } else {
+            this._clipHash = h;
+        }
+
+        let dataset = [];
+        let mimes = [ 'text/plain' ];
+        dataset.push(data);
+
+        RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
     }
 
     async clipboardPasteDataFrom(clipdata) {
@@ -816,6 +823,9 @@ export default class RFB extends EventTargetMixin {
                     case 'text/plain':
                     case 'text/html':
                         let blob = await clipdata[i].getType(mime);
+                        if (!blob) {
+                            continue;
+                        }
                         let buff = await blob.arrayBuffer();
                         let data = new Uint8Array(buff);
 
@@ -2465,31 +2475,48 @@ export default class RFB extends EventTargetMixin {
         Log.Debug("HandleBinaryClipboard");
 
         let num = this._sock.rQshift8(); // how many different mime types
-        let blobs = [];
-        let clipdata = [];
         let mimes = [];
+        let clipItemData = {};
         console.log('Clipboard items recieved.');
 
         for (let i = 0; i < num; i++) {
             let mimelen = this._sock.rQshift8();
-            const mime = this._sock.rQshiftStr(mimelen);
-
+            let mime = this._sock.rQshiftStr(mimelen);
             let len = this._sock.rQshift32();
-
-            const data = this._sock.rQshiftBytes(len);
+            let data = this._sock.rQshiftBytes(len);
             
             switch(mime) {
                 case "image/png":
                 case "text/html":
                 case "text/plain":
-                    if (mimes.includes(mime)){
+                    //if (mimes.includes(mime)){
+                    //    continue;
+                    //}
+                    mimes.push(mime);
+
+                    if (!this.clipboardBinary) {
+                        if (mime == "text/plain") {
+
+                            let textdata = new TextDecoder().decode(data);
+
+                            if ((textdata.length > 0) && "\0" === textdata.charAt(textdata.length - 1)) {
+                                textdata = textdata.slice(0, -1);
+                            }
+
+                            console.log('Clipboard item raw: ' + data);
+                            console.log('Clipboard item decoded: ' + textdata);
+                            this.dispatchEvent(new CustomEvent(
+                                "clipboard",
+                                { detail: { text: textdata } })
+                            );
+                            continue;
+                        }
                         continue;
                     }
-                    mimes.push(mime);
+                    
                     console.log("Mime " + mime + ", len ", len);
                     console.log(data);
-                    let blob = new Blob([data], { type: mime });
-                    clipdata.push(new ClipboardItem({ [mime]: blob }));
+                    clipItemData[mime] = new Blob([data], { type: mime });
                     break;
                 default:
                     console.log('Mime type skipped: ' + mime);
@@ -2497,13 +2524,15 @@ export default class RFB extends EventTargetMixin {
             }
         }
 
-        if (clipdata.length > 0) {
-            this._clipHash = 0;
-            navigator.clipboard.write(clipdata).then(
-                function() {},
-                function(err) { 
-                    console.log("Error writing to client clipboard: " + err); 
-                });
+        if (Object.keys(clipItemData).length > 0) {
+            if (this.clipboardBinary) {
+                this._clipHash = 0;
+                navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
+                    function() {},
+                    function(err) { 
+                        console.log("Error writing to client clipboard: " + err); 
+                    });
+            }
         }
 
         return true;
