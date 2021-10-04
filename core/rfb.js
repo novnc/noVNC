@@ -1209,6 +1209,18 @@ export default class RFB extends EventTargetMixin {
         switch (ev.type) {
             case 'mousedown':
                 setCapture(this._canvas);
+
+                // Translate CMD+Click into CTRL+click on MacOs
+                if (
+                    isMac() &&
+                    ev.metaKey &&
+                    (this._keyboard._keyDownList["MetaLeft"] || this._keyboard._keyDownList["MetaRight"])
+                ) {
+                    this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
+                    this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaRight"], "MetaRight", false);
+                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+                }
+
                 this._handleMouseButton(pos.x, pos.y,
                                         true, 1 << ev.button);
                 break;
