@@ -945,9 +945,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(client._rfbVersion).to.equal(3.3);
                 });
 
-                it('should interpret version 003.889 as version 3.3', function () {
+                it('should interpret version 003.889 as version 3.8', function () {
                     sendVer('003.889', client);
-                    expect(client._rfbVersion).to.equal(3.3);
+                    expect(client._rfbVersion).to.equal(3.8);
                 });
 
                 it('should interpret version 003.007 as version 3.7', function () {
@@ -1167,6 +1167,79 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
 
                     expect(client._rfbInitState).to.equal('SecurityResult');
+                });
+            });
+
+            describe('ARD Authentication (type 30) Handler', function () {
+
+                beforeEach(function () {
+                    client._rfbInitState = 'Security';
+                    client._rfbVersion = 3.8;
+                });
+
+                it('should fire the credentialsrequired event if all credentials are missing', function () {
+                    const spy = sinon.spy();
+                    client.addEventListener("credentialsrequired", spy);
+                    client._rfbCredentials = {};
+                    sendSecurity(30, client);
+
+                    expect(client._rfbCredentials).to.be.empty;
+                    expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][0].detail.types).to.have.members(["username", "password"]);
+                });
+
+                it('should fire the credentialsrequired event if some credentials are missing', function () {
+                    const spy = sinon.spy();
+                    client.addEventListener("credentialsrequired", spy);
+                    client._rfbCredentials = { password: 'password'};
+                    sendSecurity(30, client);
+
+                    expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][0].detail.types).to.have.members(["username", "password"]);
+                });
+
+                it('should return properly encrypted credentials and public key', async function () {
+                    client._rfbCredentials = { username: 'user',
+                                               password: 'password' };
+                    sendSecurity(30, client);
+
+                    expect(client._sock).to.have.sent([30]);
+
+                    function byteArray(length) {
+                        return Array.from(new Uint8Array(length).keys());
+                    }
+
+                    let generator = [127, 255];
+                    let prime = byteArray(128);
+                    let serverPrivateKey = byteArray(128);
+                    let serverPublicKey = client._modPow(generator, serverPrivateKey, prime);
+
+                    let clientPrivateKey = byteArray(128);
+                    let clientPublicKey = client._modPow(generator, clientPrivateKey, prime);
+
+                    let padding = Array.from(byteArray(64), byte => String.fromCharCode(65+byte%26)).join('');
+
+                    await client._negotiateARDAuthAsync(generator, 128, prime, serverPublicKey, clientPrivateKey, padding);
+
+                    client._negotiateARDAuth();
+
+                    expect(client._rfbInitState).to.equal('SecurityResult');
+
+                    let expectEncrypted = new Uint8Array([
+                        232, 234, 159, 162, 170, 180, 138, 104, 164, 49, 53, 96, 20, 36, 21, 15,
+                        217, 219, 107, 173, 196, 60, 96, 142, 215, 71, 13, 185, 185, 47, 5, 175,
+                        151, 30, 194, 55, 173, 214, 141, 161, 36, 138, 146, 3, 178, 89, 43, 248,
+                        131, 134, 205, 174, 9, 150, 171, 74, 222, 201, 20, 2, 30, 168, 162, 123,
+                        46, 86, 81, 221, 44, 211, 180, 247, 221, 61, 95, 155, 157, 241, 76, 76,
+                        49, 217, 234, 75, 147, 237, 199, 159, 93, 140, 191, 174, 52, 90, 133, 58,
+                        243, 81, 112, 182, 64, 62, 149, 7, 151, 28, 36, 161, 247, 247, 36, 96,
+                        230, 95, 58, 207, 46, 183, 100, 139, 143, 155, 224, 43, 219, 3, 71, 139]);
+
+                    let output = new Uint8Array(256);
+                    output.set(expectEncrypted, 0);
+                    output.set(clientPublicKey, 128);
+
+                    expect(client._sock).to.have.sent(output);
                 });
             });
 
