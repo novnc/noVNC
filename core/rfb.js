@@ -1331,8 +1331,9 @@ export default class RFB extends EventTargetMixin {
         ev.preventDefault();
 
         // On MacOs we need to translate zooming CMD+wheel to CTRL+wheel
-        if (isMac() && this._keyboard._keyDownList["MetaLeft"]) {
+        if (isMac() && (this._keyboard._keyDownList["MetaLeft"] || this._keyboard._keyDownList["MetaRight"])) {
             this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
+            this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaRight"], "MetaRight", false);
             this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
         }
 

@@ -43,7 +43,11 @@ export default class Keyboard {
         } else {
             // On MacOs zoom and shortcut actions are CMD based so we need to
             // let the remote know that it should unselect the CTRL key instead
-            if (browser.isMac() && code === "MetaLeft" && this._keyDownList["ControlLeft"]) {
+            if (
+                browser.isMac() &&
+                this._keyDownList["ControlLeft"] &&
+                (code === "MetaLeft" || code === "MetaRight")
+            ) {
                 keysym = KeyTable.XK_Control_L;
                 code = "ControlLeft";
             }
@@ -135,8 +139,14 @@ export default class Keyboard {
         }
 
         // Translate MacOs CMD based shortcuts to their CTRL based counterpart
-        if (browser.isMac() && UI.rfb.translateShortcuts && code !== "MetaLeft" && e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (
+            browser.isMac() &&
+            UI.rfb && UI.rfb.translateShortcuts &&
+            code !== "MetaLeft" && code !== "MetaRight" &&
+            e.metaKey && !e.ctrlKey && !e.altKey
+        ) {
             this._sendKeyEvent(this._keyDownList["MetaLeft"], "MetaLeft", false);
+            this._sendKeyEvent(this._keyDownList["MetaRight"], "MetaRight", false);
             this._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
             this._sendKeyEvent(keysym, code, true);
             stopEvent(e);
