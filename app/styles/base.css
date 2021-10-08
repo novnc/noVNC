@@ -278,9 +278,6 @@ select:active {
   max-width: 90%;
   padding: 15px;
 
-  transition: 0.5s ease-in-out;
-
-  transform: translateY(-50px);
   opacity: 0;
 
   text-align: center;
@@ -291,7 +288,7 @@ select:active {
   background: rgba(33, 130, 177, 0.8);
 }
 #noVNC_fallback_error.noVNC_open > div {
-  transform: translateY(0);
+  transition: 0.5s ease-in-out;
   opacity: 1;
 }
 
@@ -862,17 +859,24 @@ select:active {
 
 #noVNC_credentials_dlg {
   position: relative;
+}
 
-  transform: translateY(-50px);
-}
-#noVNC_credentials_dlg.noVNC_open {
-  transform: translateY(0);
-}
 #noVNC_credentials_dlg ul {
   list-style: none;
   margin: 0px;
   padding: 0px;
 }
+
+#noVNC_credentials_dlg.noVNC_panel {
+  transition: none;
+  transform: none;
+}
+
+#noVNC_credentials_dlg.noVNC_panel.noVNC_open {
+  transition: none;
+  transform: none;
+}
+
 .noVNC_hidden {
   display: none;
 }
