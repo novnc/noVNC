@@ -2474,27 +2474,40 @@ export default class RFB extends EventTargetMixin {
     _handleBinaryClipboard() {
         Log.Debug("HandleBinaryClipboard");
 
+        if (this._sock.rQwait("Binary Clipboard header", 2, 1)) { return false; }
+
         let num = this._sock.rQshift8(); // how many different mime types
         let mimes = [];
         let clipItemData = {};
-        console.log('Clipboard items recieved.');
+        let buffByteLen = 2;
+        console.log(num + ' Clipboard items recieved.');
+	    console.log('Client sockjs buffer size ' + this._sock.rQlen);
+
+        
 
         for (let i = 0; i < num; i++) {
+            if (this._sock.rQwait("Binary Clipboard mimelen", 1, buffByteLen)) { return false; }
+            buffByteLen++;
             let mimelen = this._sock.rQshift8();
+
+            if (this._sock.rQwait("Binary Clipboard mime", Math.abs(mimelen), buffByteLen)) { return false; }
+            buffByteLen+=mimelen;
             let mime = this._sock.rQshiftStr(mimelen);
+
+            if (this._sock.rQwait("Binary Clipboard data len", 4, buffByteLen)) { return false; }
+            buffByteLen+=4;
             let len = this._sock.rQshift32();
+
+            if (this._sock.rQwait("Binary Clipboard data", Math.abs(len), buffByteLen)) { return false; }
             let data = this._sock.rQshiftBytes(len);
+            buffByteLen+=len;
             
             switch(mime) {
                 case "image/png":
                 case "text/html":
                 case "text/plain":
-                    //if (mimes.includes(mime)){
-                    //    continue;
-                    //}
                     mimes.push(mime);
 
-                    if (!this.clipboardBinary) {
                         if (mime == "text/plain") {
 
                             let textdata = new TextDecoder().decode(data);
@@ -2509,10 +2522,9 @@ export default class RFB extends EventTargetMixin {
                                 "clipboard",
                                 { detail: { text: textdata } })
                             );
-                            continue;
                         }
-                        continue;
-                    }
+
+                    if (!this.clipboardBinary) { continue; }
                     
                     console.log("Mime " + mime + ", len ", len);
                     console.log(data);
@@ -2523,6 +2535,8 @@ export default class RFB extends EventTargetMixin {
                     break;
             }
         }
+
+        console.log('Client sockjs buffer size ' + this._sock.rQlen);
 
         if (Object.keys(clipItemData).length > 0) {
             if (this.clipboardBinary) {
@@ -2679,8 +2693,7 @@ export default class RFB extends EventTargetMixin {
                 return true;
 
             case 180: // KASM binary clipboard
-                this._handleBinaryClipboard();
-                return true;
+                return this._handleBinaryClipboard();
 
             case 248: // ServerFence
                 return this._handleServerFenceMsg();

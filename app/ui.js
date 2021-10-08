@@ -1087,20 +1087,12 @@ const UI = {
       },
 
     clipboardReceive(e) {
-        if (UI.rfb.clipboardDown && UI.rfb.clipboardSeamless ) {
+        if (UI.rfb.clipboardDown) {
            var curvalue = document.getElementById('noVNC_clipboard_text').value;
            if (curvalue != e.detail.text) {
                Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
                document.getElementById('noVNC_clipboard_text').value = e.detail.text;
                Log.Debug("<< UI.clipboardReceive");
-               if (navigator.clipboard && navigator.clipboard.writeText){
-                   navigator.clipboard.writeText(e.detail.text)
-                   .then(function () {
-                       //UI.popupMessage("Selection Copied");
-                   }, function () {
-                       console.error("Failed to write system clipboard (trying to copy from NoVNC clipboard)")
-                   });
-               }
            }
        }
     },
@@ -1137,7 +1129,9 @@ const UI = {
 
             if (UI.rfb.clipboardBinary) {
                 navigator.clipboard.read().then((data) => {
-                    UI.rfb.clipboardPasteDataFrom(data);
+                    if (UI.rfb) {
+                        UI.rfb.clipboardPasteDataFrom(data);
+                    }
                     UI.needToCheckClipboardChange = false;
                 }, (err) => {
                     console.log("No data in clipboard");
