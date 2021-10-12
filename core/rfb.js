@@ -10,7 +10,7 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
-import { dragThreshold, supportsCursorURIs, isTouchDevice, isMac } from './util/browser.js';
+import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -44,8 +44,7 @@ var _enableWebP = false;
 const MOUSE_MOVE_DELAY = 17;
 
 // Wheel thresholds
-const WHEEL_STEP = 50; // Pixels needed for one step
-const WHEEL_LINE_HEIGHT = 19; // Assumed pixels for one line step
+let WHEEL_LINE_HEIGHT = 19; // Pixels for one line step (on Windows)
 
 // Gesture thresholds
 const GESTURE_ZOOMSENS = 75;
@@ -182,19 +181,6 @@ export default class RFB extends EventTargetMixin {
         this._viewportHasMoved = false;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
-
-        // On MacOs we simulate the CTRL key being pressed on pinch and zoom
-        // so we need to manually unselect it whenever the action is completed (500ms since last scroll)
-        if (isMac()) {
-            setInterval(() => {
-                const timeSinceLastPinchAndZoom = Math.max(0, +new Date() - this._mouseLastPinchAndZoomTime);
-
-                if (timeSinceLastPinchAndZoom > 500) {
-                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
-                    this._mouseLastPinchAndZoomTime = Infinity;
-                }
-            }, 10);
-        }
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -1223,6 +1209,18 @@ export default class RFB extends EventTargetMixin {
         switch (ev.type) {
             case 'mousedown':
                 setCapture(this._canvas);
+
+                // Translate CMD+Click into CTRL+click on MacOs
+                if (
+                    isMac() &&
+                    ev.metaKey &&
+                    (this._keyboard._keyDownList["MetaLeft"] || this._keyboard._keyDownList["MetaRight"])
+                ) {
+                    this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
+                    this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaRight"], "MetaRight", false);
+                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+                }
+
                 this._handleMouseButton(pos.x, pos.y,
                                         true, 1 << ev.button);
                 break;
@@ -1330,6 +1328,13 @@ export default class RFB extends EventTargetMixin {
                                   this._display.absY(y), mask);
     }
 
+    _sendScroll(x, y, dX, dY) {
+        if (this._rfbConnectionState !== 'connected') { return; }
+        if (this._viewOnly) { return; } // View only, skip mouse events
+
+        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), 0, dX, dY);
+    }
+
     _handleWheel(ev) {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
@@ -1337,64 +1342,50 @@ export default class RFB extends EventTargetMixin {
         ev.stopPropagation();
         ev.preventDefault();
 
-        let pos = clientToElement(ev.clientX, ev.clientY,
-                                  this._canvas);
+        // On MacOs we need to translate zooming CMD+wheel to CTRL+wheel
+        if (isMac() && (this._keyboard._keyDownList["MetaLeft"] || this._keyboard._keyDownList["MetaRight"])) {
+            this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
+            this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaRight"], "MetaRight", false);
+            this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+        }
 
-        let dX = ev.deltaX;
-        let dY = ev.deltaY;
+        // In a pinch and zoom gesture we're sending only a wheel event so we need
+        // to make sure a CTRL press event is sent alongside it if we want to trigger zooming.
+        // Moreover, we don't have a way to know that the gesture has stopped so we
+        // need to check manually every now and then and "unpress" the CTRL key when it ends.
+        if (ev.ctrlKey && !this._keyboard._keyDownList["ControlLeft"]) {
+            this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+
+            this._watchForPinchAndZoom = this._watchForPinchAndZoom || setInterval(() => {
+                const timeSinceLastPinchAndZoom = +new Date() - this._mouseLastPinchAndZoomTime;
+                if (timeSinceLastPinchAndZoom > 250) {
+                    clearInterval(this._watchForPinchAndZoom);
+                    this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
+                    this._watchForPinchAndZoom = null;
+                    this._mouseLastPinchAndZoomTime = 0;
+                }
+            }, 10);
+        }
+
+        if (this._watchForPinchAndZoom) {
+            this._mouseLastPinchAndZoomTime = +new Date();
+        }
 
         // Pixel units unless it's non-zero.
         // Note that if deltamode is line or page won't matter since we aren't
         // sending the mouse wheel delta to the server anyway.
         // The difference between pixel and line can be important however since
         // we have a threshold that can be smaller than the line height.
+        let dX = ev.deltaX;
+        let dY = ev.deltaY;
+
         if (ev.deltaMode !== 0) {
             dX *= WHEEL_LINE_HEIGHT;
             dY *= WHEEL_LINE_HEIGHT;
         }
 
-        // Mouse wheel events are sent in steps over VNC. This means that the VNC
-        // protocol can't handle a wheel event with specific distance or speed.
-        // Therefor, if we get a lot of small mouse wheel events we combine them.
-        this._accumulatedWheelDeltaX += dX;
-        this._accumulatedWheelDeltaY += dY;
-
-        // On MacOs we need to translate zooming CMD+wheel to CTRL+wheel
-        if (isMac() && this._keyboard._keyDownList["MetaLeft"]) {
-            this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
-            this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
-        }
-
-        // On MacOs we need to send a CTRL key to let the remote know we are pinch and zooming
-        if (isMac() && ev.ctrlKey && !this._keyboard._keyDownList["ControlLeft"]) {
-            this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
-            this._mouseLastPinchAndZoomTime = +new Date();
-        }
-
-        // Generate a mouse wheel step event when the accumulated delta
-        // for one of the axes is large enough.
-        if (Math.abs(this._accumulatedWheelDeltaX) >= WHEEL_STEP) {
-            if (this._accumulatedWheelDeltaX < 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 5);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 5);
-            } else if (this._accumulatedWheelDeltaX > 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 6);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 6);
-            }
-
-            this._accumulatedWheelDeltaX = 0;
-        }
-        if (Math.abs(this._accumulatedWheelDeltaY) >= WHEEL_STEP) {
-            if (this._accumulatedWheelDeltaY < 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 3);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 3);
-            } else if (this._accumulatedWheelDeltaY > 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 4);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 4);
-            }
-
-            this._accumulatedWheelDeltaY = 0;
-        }
+        const pointer = clientToElement(ev.clientX, ev.clientY, this._canvas);
+        this._sendScroll(pointer.x, pointer.y, dX, dY);
     }
 
     _fakeMouseMove(ev, elementX, elementY) {
@@ -3029,7 +3020,7 @@ RFB.messages = {
         sock.flush();
     },
 
-    pointerEvent(sock, x, y, mask) {
+    pointerEvent(sock, x, y, mask, dX = 0, dY = 0) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
@@ -3043,7 +3034,13 @@ RFB.messages = {
         buff[offset + 4] = y >> 8;
         buff[offset + 5] = y;
 
-        sock._sQlen += 6;
+        buff[offset + 6] = dX >> 8;
+        buff[offset + 7] = dX;
+
+        buff[offset + 8] = dY >> 8;
+        buff[offset + 9] = dY;
+
+        sock._sQlen += 10;
         sock.flush();
     },
 
