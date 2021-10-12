@@ -794,7 +794,7 @@ export default class RFB extends EventTargetMixin {
 
         let h = hashUInt8Array(data);
         if (h === this._clipHash) {
-            console.log('No clipboard changes');
+            Log.Debug('No clipboard changes');
             return;
         } else {
             this._clipHash = h;
@@ -832,7 +832,7 @@ export default class RFB extends EventTargetMixin {
                         if (!h) {
                             h = hashUInt8Array(data);
                             if (h === this._clipHash) {
-                                console.log('No clipboard changes');
+                                Log.Debug('No clipboard changes');
                                 return;
                             } else {
                                 this._clipHash = h;
@@ -845,10 +845,10 @@ export default class RFB extends EventTargetMixin {
 
                         mimes.push(mime);
                         dataset.push(data);
-                        console.log('Sending mime type: ' + mime);
+                        Log.Debug('Sending mime type: ' + mime);
                         break;
                     default:
-                        console.log('skipping clip send mime type: ' + mime)
+                        Log.Debug('skipping clip send mime type: ' + mime)
                 }
 
             }
@@ -1073,7 +1073,7 @@ export default class RFB extends EventTargetMixin {
         try {
             if (x > 1280 && limited && this.videoQuality == 1) {
                 var ratio = y / x;
-                console.log(ratio);
+                Log.Debug(ratio);
                 x = 1280;
                 y = x * ratio;
             }
@@ -1082,7 +1082,7 @@ export default class RFB extends EventTargetMixin {
                 y = 720;
             }
         } catch (err) {
-            console.log(err);
+            Log.Debug(err);
         }
 
         return { w: x,
@@ -2480,8 +2480,8 @@ export default class RFB extends EventTargetMixin {
         let mimes = [];
         let clipItemData = {};
         let buffByteLen = 2;
-        console.log(num + ' Clipboard items recieved.');
-	    console.log('Client sockjs buffer size ' + this._sock.rQlen);
+        Log.Debug(num + ' Clipboard items recieved.');
+	    Log.Debug('Started clipbooard processing with Client sockjs buffer size ' + this._sock.rQlen);
 
         
 
@@ -2516,8 +2516,7 @@ export default class RFB extends EventTargetMixin {
                                 textdata = textdata.slice(0, -1);
                             }
 
-                            console.log('Clipboard item raw: ' + data);
-                            console.log('Clipboard item decoded: ' + textdata);
+                            Log.Debug("Plain text clipboard recieved and placed in text element, size: " + textdata.length);
                             this.dispatchEvent(new CustomEvent(
                                 "clipboard",
                                 { detail: { text: textdata } })
@@ -2526,17 +2525,17 @@ export default class RFB extends EventTargetMixin {
 
                     if (!this.clipboardBinary) { continue; }
                     
-                    console.log("Mime " + mime + ", len ", len);
-                    console.log(data);
+                    Log.Debug("Processed binary clipboard of MIME " + mime + " of length " + len);
+
                     clipItemData[mime] = new Blob([data], { type: mime });
                     break;
                 default:
-                    console.log('Mime type skipped: ' + mime);
+                    Log.Debug('Mime type skipped: ' + mime);
                     break;
             }
         }
 
-        console.log('Client sockjs buffer size ' + this._sock.rQlen);
+        Log.Debug('Finished processing binary clipboard with client sockjs buffer size ' + this._sock.rQlen);
 
         if (Object.keys(clipItemData).length > 0) {
             if (this.clipboardBinary) {
@@ -2544,7 +2543,7 @@ export default class RFB extends EventTargetMixin {
                 navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
                     function() {},
                     function(err) { 
-                        console.log("Error writing to client clipboard: " + err); 
+                        Log.Debug("Error writing to client clipboard: " + err); 
                     });
             }
         }
@@ -2559,8 +2558,8 @@ export default class RFB extends EventTargetMixin {
 
         const text = this._sock.rQshiftStr(length);
 
-        console.log("Received KASM bottleneck stats:");
-        console.log(text);
+        Log.Debug("Received KASM bottleneck stats:");
+        Log.Debug(text);
         this.dispatchEvent(new CustomEvent(
             "bottleneck_stats",
             { detail: { text: text } }));
@@ -3373,7 +3372,7 @@ RFB.messages = {
 
             let length = data.length;
 
-            console.log('Clipboard data sent mime type ' + mime + ' len ' + length);
+            Log.Debug('Clipboard data sent mime type ' + mime + ' len ' + length);
 
             buff[offset++] = length >> 24;
             buff[offset++] = length >> 16;

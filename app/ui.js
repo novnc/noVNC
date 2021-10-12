@@ -1122,7 +1122,7 @@ const UI = {
     },
     copyFromLocalClipboard: function copyFromLocalClipboard() {
         if (!document.hasFocus()) {
-            console.log("window does not have focus");
+            Log.Debug("window does not have focus");
             return;
         }
         if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
@@ -1134,7 +1134,7 @@ const UI = {
                     }
                     UI.needToCheckClipboardChange = false;
                 }, (err) => {
-                    console.log("No data in clipboard");
+                    Log.Debug("No data in clipboard");
                 }); 
             }
         }
@@ -1283,7 +1283,7 @@ const UI = {
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
-            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { console.log('binary clipboard enabled') });
+            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { Log.Debug('binary clipboard enabled') });
         }
         // KASM-960 workaround, disable seamless on Safari
         if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 
