@@ -30,6 +30,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox }
