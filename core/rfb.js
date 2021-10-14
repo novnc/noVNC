@@ -834,7 +834,7 @@ export default class RFB extends EventTargetMixin {
                         Log.Debug('Sending mime type: ' + mime);
                         break;
                     default:
-                        Log.Debug('skipping clip send mime type: ' + mime)
+                        Log.Info('skipping clip send mime type: ' + mime)
                 }
 
             }
@@ -2471,7 +2471,8 @@ export default class RFB extends EventTargetMixin {
         let mimes = [];
         let clipItemData = {};
         let buffByteLen = 2;
-        Log.Debug(num + ' Clipboard items recieved.');
+        let textdata = '';
+        Log.Info(num + ' Clipboard items recieved.');
 	    Log.Debug('Started clipbooard processing with Client sockjs buffer size ' + this._sock.rQlen);
 
         
@@ -2501,7 +2502,7 @@ export default class RFB extends EventTargetMixin {
 
                         if (mime == "text/plain") {
 
-                            let textdata = new TextDecoder().decode(data);
+                            textdata = new TextDecoder().decode(data);
 
                             if ((textdata.length > 0) && "\0" === textdata.charAt(textdata.length - 1)) {
                                 textdata = textdata.slice(0, -1);
@@ -2516,7 +2517,7 @@ export default class RFB extends EventTargetMixin {
 
                     if (!this.clipboardBinary) { continue; }
                     
-                    Log.Debug("Processed binary clipboard of MIME " + mime + " of length " + len);
+                    Log.Info("Processed binary clipboard of MIME " + mime + " of length " + len);
 
                     clipItemData[mime] = new Blob([data], { type: mime });
                     break;
@@ -2534,8 +2535,18 @@ export default class RFB extends EventTargetMixin {
                 navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
                     function() {},
                     function(err) { 
-                        Log.Debug("Error writing to client clipboard: " + err); 
-                    });
+                        Log.Error("Error writing to client clipboard: " + err);
+                        // Lets try writeText
+                        if (textdata.length > 0) {
+                            navigator.clipboard.writeText(textdata).then(
+                                function() {},
+                                function(err2) {
+                                    Log.Error("Error writing text to client clipboard: " + err2);
+                                }
+                            );
+                        }
+                    }
+                );
             }
         }
 
@@ -3369,7 +3380,7 @@ RFB.messages = {
 
             let length = data.length;
 
-            Log.Debug('Clipboard data sent mime type ' + mime + ' len ' + length);
+            Log.Info('Clipboard data sent mime type ' + mime + ' len ' + length);
 
             buff[offset++] = length >> 24;
             buff[offset++] = length >> 16;
