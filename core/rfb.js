@@ -10,6 +10,7 @@
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
+import { hashUInt8Array } from './util/int.js';
 import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
@@ -140,6 +141,7 @@ export default class RFB extends EventTargetMixin {
         this._frameRate = 30;
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
+        this._clipboardBinary = true;
 
         this._trackFrameStats = false;
 
@@ -332,9 +334,13 @@ export default class RFB extends EventTargetMixin {
 
         this._qualityLevel = 6;
         this._compressionLevel = 2;
+        this._clipHash = 0;
     }
 
     // ===== PROPERTIES =====
+
+    get clipboardBinary() { return this._clipboardMode; }
+    set clipboardBinary(val) { this._clipboardMode = val; }
 
     get videoQuality() { return this._videoQuality; }
     set videoQuality(quality) { this._videoQuality = quality; }
@@ -763,21 +769,94 @@ export default class RFB extends EventTargetMixin {
 
     clipboardPasteFrom(text) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
+        if (!(typeof text === 'string' && text.length > 0)) { return; }
+
         this.sentEventsCounter+=1;
-        if (this._clipboardServerCapabilitiesFormats[extendedClipboardFormatText] &&
-            this._clipboardServerCapabilitiesActions[extendedClipboardActionNotify]) {
 
-            this._clipboardText = text;
-            RFB.messages.extendedClipboardNotify(this._sock, [extendedClipboardFormatText]);
-        } else {
-            let data = new Uint8Array(text.length);
-            for (let i = 0; i < text.length; i++) {
-                // FIXME: text can have values outside of Latin1/Uint8
-                data[i] = text.charCodeAt(i);
-            }
-
-            RFB.messages.clientCutText(this._sock, data);
+        let data = new Uint8Array(text.length);
+        for (let i = 0; i < text.length; i++) {
+            data[i] = text.charCodeAt(i);
         }
+
+        let h = hashUInt8Array(data);
+        if (h === this._clipHash) {
+            Log.Debug('No clipboard changes');
+            return;
+        } else {
+            this._clipHash = h;
+        }
+
+        let dataset = [];
+        let mimes = [ 'text/plain' ];
+        dataset.push(data);
+
+        RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
+    }
+
+    async clipboardPasteDataFrom(clipdata) {
+        if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
+        this.sentEventsCounter+=1;
+
+        let dataset = [];
+        let mimes = [];
+        let h = 0;
+        for (let i = 0; i < clipdata.length; i++) {
+            for (let ti = 0; ti < clipdata[i].types.length; ti++) {
+                let mime = clipdata[i].types[ti];
+
+                switch (mime) {
+                    case 'image/png':
+                    case 'text/plain':
+                    case 'text/html':
+                        let blob = await clipdata[i].getType(mime);
+                        if (!blob) {
+                            continue;
+                        }
+                        let buff = await blob.arrayBuffer();
+                        let data = new Uint8Array(buff);
+
+                        if (!h) {
+                            h = hashUInt8Array(data);
+                            if (h === this._clipHash) {
+                                Log.Debug('No clipboard changes');
+                                return;
+                            } else {
+                                this._clipHash = h;
+                            }
+                        }
+
+                        if (mimes.includes(mime)) {
+                            continue;
+                        }
+
+                        mimes.push(mime);
+                        dataset.push(data);
+                        Log.Debug('Sending mime type: ' + mime);
+                        break;
+                    default:
+                        Log.Info('skipping clip send mime type: ' + mime)
+                }
+
+            }
+        }
+
+        //if png is present and  text/plain is not, remove other variations of images to save bandwidth
+        //if png is present with text/plain, then remove png. Word will put in a png of copied text
+        if (mimes.includes('image/png') && !mimes.includes('text/plain')) {
+            let i = mimes.indexOf('image/png');
+            mimes = mimes.slice(i, i+1);
+            dataset = dataset.slice(i, i+1);
+        } else if (mimes.includes('image/png') && mimes.includes('text/plain')) {
+            let i = mimes.indexOf('image/png');
+            mimes.splice(i, 1);
+            dataset.splice(i, 1);
+        }
+
+
+        if (dataset.length > 0) {
+            RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
+        }
+        
     }
 
     requestBottleneckStats() {
@@ -980,7 +1059,7 @@ export default class RFB extends EventTargetMixin {
         try {
             if (x > 1280 && limited && this.videoQuality == 1) {
                 var ratio = y / x;
-                console.log(ratio);
+                Log.Debug(ratio);
                 x = 1280;
                 y = x * ratio;
             }
@@ -989,7 +1068,7 @@ export default class RFB extends EventTargetMixin {
                 y = 720;
             }
         } catch (err) {
-            console.log(err);
+            Log.Debug(err);
         }
 
         return { w: x,
@@ -2383,6 +2462,100 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _handleBinaryClipboard() {
+        Log.Debug("HandleBinaryClipboard");
+
+        if (this._sock.rQwait("Binary Clipboard header", 2, 1)) { return false; }
+
+        let num = this._sock.rQshift8(); // how many different mime types
+        let mimes = [];
+        let clipItemData = {};
+        let buffByteLen = 2;
+        let textdata = '';
+        Log.Info(num + ' Clipboard items recieved.');
+	    Log.Debug('Started clipbooard processing with Client sockjs buffer size ' + this._sock.rQlen);
+
+        
+
+        for (let i = 0; i < num; i++) {
+            if (this._sock.rQwait("Binary Clipboard mimelen", 1, buffByteLen)) { return false; }
+            buffByteLen++;
+            let mimelen = this._sock.rQshift8();
+
+            if (this._sock.rQwait("Binary Clipboard mime", Math.abs(mimelen), buffByteLen)) { return false; }
+            buffByteLen+=mimelen;
+            let mime = this._sock.rQshiftStr(mimelen);
+
+            if (this._sock.rQwait("Binary Clipboard data len", 4, buffByteLen)) { return false; }
+            buffByteLen+=4;
+            let len = this._sock.rQshift32();
+
+            if (this._sock.rQwait("Binary Clipboard data", Math.abs(len), buffByteLen)) { return false; }
+            let data = this._sock.rQshiftBytes(len);
+            buffByteLen+=len;
+            
+            switch(mime) {
+                case "image/png":
+                case "text/html":
+                case "text/plain":
+                    mimes.push(mime);
+
+                        if (mime == "text/plain") {
+
+                            //textdata = new TextDecoder().decode(data);
+                            for (let i = 0; i < data.length; i++) {
+                                textdata+=String.fromCharCode(data[i]);
+                            }
+
+                            if ((textdata.length > 0) && "\0" === textdata.charAt(textdata.length - 1)) {
+                                textdata = textdata.slice(0, -1);
+                            }
+
+                            Log.Debug("Plain text clipboard recieved and placed in text element, size: " + textdata.length);
+                            this.dispatchEvent(new CustomEvent(
+                                "clipboard",
+                                { detail: { text: textdata } })
+                            );
+                        }
+
+                    if (!this.clipboardBinary) { continue; }
+                    
+                    Log.Info("Processed binary clipboard of MIME " + mime + " of length " + len);
+
+                    clipItemData[mime] = new Blob([data], { type: mime });
+                    break;
+                default:
+                    Log.Debug('Mime type skipped: ' + mime);
+                    break;
+            }
+        }
+
+        Log.Debug('Finished processing binary clipboard with client sockjs buffer size ' + this._sock.rQlen);
+
+        if (Object.keys(clipItemData).length > 0) {
+            if (this.clipboardBinary) {
+                this._clipHash = 0;
+                navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
+                    function() {},
+                    function(err) { 
+                        Log.Error("Error writing to client clipboard: " + err);
+                        // Lets try writeText
+                        if (textdata.length > 0) {
+                            navigator.clipboard.writeText(textdata).then(
+                                function() {},
+                                function(err2) {
+                                    Log.Error("Error writing text to client clipboard: " + err2);
+                                }
+                            );
+                        }
+                    }
+                );
+            }
+        }
+
+        return true;
+    }
+
     _handle_server_stats_msg() {
         this._sock.rQskipBytes(3);  // Padding
         const length = this._sock.rQshift32();
@@ -2390,8 +2563,8 @@ export default class RFB extends EventTargetMixin {
 
         const text = this._sock.rQshiftStr(length);
 
-        console.log("Received KASM bottleneck stats:");
-        console.log(text);
+        Log.Debug("Received KASM bottleneck stats:");
+        Log.Debug(text);
         this.dispatchEvent(new CustomEvent(
             "bottleneck_stats",
             { detail: { text: text } }));
@@ -2522,6 +2695,9 @@ export default class RFB extends EventTargetMixin {
             case 179: // KASM requesting frame stats
                 this._trackFrameStats = true;
                 return true;
+
+            case 180: // KASM binary clipboard
+                return this._handleBinaryClipboard();
 
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
@@ -3182,6 +3358,61 @@ RFB.messages = {
             dataOffset += flushSize;
         }
 
+    },
+
+    sendBinaryClipboard(sock, dataset, mimes) {
+
+        
+        const buff = sock._sQ;
+        let offset = sock._sQlen;
+
+        buff[offset] = 180; // msg-type
+        buff[offset + 1] = dataset.length; // how many mime types
+        sock._sQlen += 2;
+        offset += 2;
+
+        for (let i=0; i < dataset.length; i++) {
+            let mime = mimes[i];
+            let data = dataset[i];
+
+            buff[offset++] = mime.length;
+
+            for (let i = 0; i < mime.length; i++) {
+                buff[offset++] = mime.charCodeAt(i); // change to [] if not a string
+            }
+
+            let length = data.length;
+
+            Log.Info('Clipboard data sent mime type ' + mime + ' len ' + length);
+
+            buff[offset++] = length >> 24;
+            buff[offset++] = length >> 16;
+            buff[offset++] = length >> 8;
+            buff[offset++] = length;
+
+            sock._sQlen += 1 + mime.length + 4;
+
+            // We have to keep track of from where in the data we begin creating the
+            // buffer for the flush in the next iteration.
+            let dataOffset = 0;
+
+            let remaining = data.length;
+            while (remaining > 0) {
+
+                let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
+                for (let i = 0; i < flushSize; i++) {
+                    buff[sock._sQlen + i] = data[dataOffset + i];
+                }
+
+                sock._sQlen += flushSize;
+                sock.flush();
+
+                remaining -= flushSize;
+                dataOffset += flushSize;
+            }
+
+            offset = sock._sQlen;
+        }
     },
 
     setDesktopSize(sock, width, height, id, flags) {

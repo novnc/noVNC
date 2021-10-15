@@ -30,9 +30,11 @@ window.updateSetting = (name, value) => {
     }
 }
 
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold }
+import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -1100,20 +1102,12 @@ const UI = {
       },
 
     clipboardReceive(e) {
-        if (UI.rfb.clipboardDown && UI.rfb.clipboardSeamless ) {
+        if (UI.rfb.clipboardDown) {
            var curvalue = document.getElementById('noVNC_clipboard_text').value;
            if (curvalue != e.detail.text) {
                Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
                document.getElementById('noVNC_clipboard_text').value = e.detail.text;
                Log.Debug("<< UI.clipboardReceive");
-               if (navigator.clipboard && navigator.clipboard.writeText){
-                   navigator.clipboard.writeText(e.detail.text)
-                   .then(function () {
-                       //UI.popupMessage("Selection Copied");
-                   }, function () {
-                       console.error("Failed to write system clipboard (trying to copy from NoVNC clipboard)")
-                   });
-               }
            }
        }
     },
@@ -1142,26 +1136,22 @@ const UI = {
     UI.copyFromLocalClipboard();
     },
     copyFromLocalClipboard: function copyFromLocalClipboard() {
+        if (!document.hasFocus()) {
+            Log.Debug("window does not have focus");
+            return;
+        }
         if (UI.rfb && UI.rfb.clipboardUp && UI.rfb.clipboardSeamless) {
-            UI.readClipboard(function (text) {
-                var maximumBufferSize = 10000;
-                var clipVal = document.getElementById('noVNC_clipboard_text').value;
 
-                if (clipVal != text) {
-                    document.getElementById('noVNC_clipboard_text').value = text; // The websocket has a maximum buffer array size
-
-                    if (text.length > maximumBufferSize) {
-                        UI.popupMessage("Clipboard contents too large. Data truncated", 2000);
-                        UI.rfb.clipboardPasteFrom(text.slice(0, maximumBufferSize));
-                    } else {
-                        //UI.popupMessage("Copied from Local Clipboard");
-                        UI.rfb.clipboardPasteFrom(text);
+            if (UI.rfb.clipboardBinary) {
+                navigator.clipboard.read().then((data) => {
+                    if (UI.rfb) {
+                        UI.rfb.clipboardPasteDataFrom(data);
                     }
-                } // Reset flag to prevent checking too often
-
-
-                UI.needToCheckClipboardChange = false;
-            });
+                    UI.needToCheckClipboardChange = false;
+                }, (err) => {
+                    Log.Debug("No data in clipboard");
+                }); 
+            }
         }
     },
 
@@ -1304,6 +1294,13 @@ const UI = {
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
+        UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
+
+        //Only explicitly request permission to clipboard on browsers that support binary clipboard access
+        if (supportsBinaryClipboard()) {
+            // explicitly request permission to the clipboard
+            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { Log.Debug('binary clipboard enabled') });
+        }
         // KASM-960 workaround, disable seamless on Safari
         if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 
         { 

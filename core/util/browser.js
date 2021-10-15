@@ -101,3 +101,9 @@ export function isFirefox() {
     return navigator && !!(/firefox/i).exec(navigator.userAgent);
 }
 
+export function supportsBinaryClipboard() {
+    //Safari does support the clipbaord API but has a lot of security restrictions
+    if (isSafari()) { return false; }
+    return (navigator.clipboard && typeof navigator.clipboard.read === "function");
+}
+
