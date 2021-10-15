@@ -2502,7 +2502,10 @@ export default class RFB extends EventTargetMixin {
 
                         if (mime == "text/plain") {
 
-                            textdata = new TextDecoder().decode(data);
+                            //textdata = new TextDecoder().decode(data);
+                            for (let i = 0; i < data.length; i++) {
+                                textdata+=String.fromCharCode(data[i]);
+                            }
 
                             if ((textdata.length > 0) && "\0" === textdata.charAt(textdata.length - 1)) {
                                 textdata = textdata.slice(0, -1);
