@@ -1,5 +1,6 @@
 all:
 .PHONY: update-po update-js update-pot
+.PHONY: FORCE
 
 LINGUAS := cs de el es fr ja ko nl pl pt_BR ru sv tr zh_CN zh_TW
 
@@ -11,10 +12,10 @@ JSONFILES := $(addprefix ../app/locale/,$(addsuffix .json,$(LINGUAS)))
 update-po: $(POFILES)
 update-js: $(JSONFILES)
 
-%.po: noVNC.pot
-	msgmerge --update --lang=$* $@ $<
-../app/locale/%.json: %.po
-	./po2js $< $@
+%.po: FORCE
+	msgmerge --update --lang=$* $@ noVNC.pot
+../app/locale/%.json: FORCE
+	./po2js $*.po $@
 
 update-pot:
 	xgettext --output=noVNC.js.pot \
