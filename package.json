@@ -29,8 +29,6 @@
   },
   "author": "Joel Martin <github@martintribe.org> (https://github.com/kanaka)",
   "contributors": [
-    "Solly Ross <sross@redhat.com> (https://github.com/directxman12)",
-    "Peter Åstrand <astrand@cendio.se> (https://github.com/astrand)",
     "Samuel Mannehed <samuel@cendio.se> (https://github.com/samhed)",
     "Pierre Ossman <ossman@cendio.se> (https://github.com/CendioOssman)"
   ],
