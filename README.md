@@ -114,7 +114,7 @@ proxy.
 
     `./utils/novnc_proxy --vnc localhost:5901`
 
-* Point your browser to the cut-and-paste URL that is output by the `novnc_procy`
+* Point your browser to the cut-and-paste URL that is output by the `novnc_proxy`
   script. Hit the Connect button, enter a password if the VNC server has one
   configured, and enjoy!
 
