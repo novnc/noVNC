@@ -960,6 +960,15 @@ export default class RFB extends EventTargetMixin {
     }
 
     _focusCanvas(event) {
+        // Hack:
+        // On most mobile phones it's only possible to play audio
+        // only if it's triggered by a user action. Moreover, since it's also
+        // impossible to listen for touch events on child frames (only on mobile phones)
+        // we delegate the audio unlocking to the parent window.
+        if (window.parent && !window.parent.KASM_AUDIO_UNLOCKED) {
+            window.parent.unlockAudio();
+        }
+
         if (!this.focusOnClick) {
             return;
         }
