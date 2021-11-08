@@ -971,6 +971,147 @@ select:active {
   display: none;
 }
 
+/* prevent selection */
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/*
+ *
+ */
+.keyboard-controls {
+  display: none;
+  position: fixed;
+  bottom: 5%;
+  right: 5%;
+  z-index: 100000;
+  cursor: pointer;
+}
+
+.keyboard-controls .buttons {
+  display: none;
+  flex-direction: column;
+}
+
+.keyboard-controls .buttons .button {
+  border-radius: 0px;
+}
+
+.keyboard-controls .buttons .button:first-of-type {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.keyboard-controls .button {
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+
+  background-color:rgb(24, 31, 71);
+  border: 6px rgb(24, 31, 71) solid;
+
+  border-radius: 6px;
+  outline: none;
+  user-select: none;
+}
+
+.keyboard-controls .button.ctrl {
+  background-image: url("../images/ctrl.svg");
+  background-size: contain;
+}    
+
+.keyboard-controls .button.alt {
+  background-image: url("../images/alt.svg");
+  background-size: contain;
+}
+
+.keyboard-controls .button.windows {
+  background-size: contain;
+  background-image: url("../images/windows.svg");
+}
+
+.keyboard-controls .button.tab {
+  background-size: contain;
+  background-image: url("../images/tab.svg");
+}
+
+.keyboard-controls .button.escape {
+  background-size: contain;
+  background-image: url("../images/esc.svg");
+}
+
+.keyboard-controls .button.ctrlaltdel {
+  background-size: contain;
+  background-image: url("../images/ctrlaltdel.svg");
+}
+
+.keyboard-controls .button.keyboard {
+  background-size: contain;
+  background-image: url("../images/keyboard.svg");
+}
+
+.keyboard-controls .button.selected {
+  filter: brightness(150%);
+}
+
+.keyboard-controls.is-visible {
+  display: flex;
+  flex-direction: column;
+}
+
+.keyboard-controls.is-open .button.handle {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.keyboard-controls.is-open .buttons {
+  display: flex;
+  flex-direction: column;
+
+  animation-name: showKeyboardControls;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+.keyboard-controls.was-open .buttons {
+  display: flex;
+  flex-direction: column;
+
+  animation-name: hideKeyboardControls;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+@keyframes showKeyboardControls {
+  0% {
+    transform: scale(1, 0.2);
+    transform-origin: bottom center;
+  }
+  100% {
+    transform: scale(1, 1);
+    transform-origin: bottom center;
+  }
+}
+
+@keyframes hideKeyboardControls {
+  0% {
+    transform: scale(1, 1);
+    transform-origin: bottom center;
+  }
+  100% {
+    transform: scale(1, 0);
+    transform-origin: bottom center;
+  }
+}
+
 /* ----------------------------------------
  * Media sizing
  * ----------------------------------------
