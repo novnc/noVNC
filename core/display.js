@@ -418,13 +418,12 @@ export default class Display {
         this._damage(x, y, w, h);
     }
 
-    autoscale(containerWidth, containerHeight) {
-        let scaleRatio;
+    autoscale(containerWidth, containerHeight, scaleRatio=0) {
 
         if (containerWidth === 0 || containerHeight === 0) {
             scaleRatio = 0;
 
-        } else {
+        } else if (scaleRatio === 0) {
 
             const vp = this._viewportLoc;
             const targetAspectRatio = containerWidth / containerHeight;
@@ -459,7 +458,7 @@ export default class Display {
             this._target.style.height = height;
         }
 
-        Log.Debug('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.w + 'x' + vp.h);
+        Log.Info('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.w + 'x' + vp.h);
 
         var pixR = Math.abs(Math.ceil(window.devicePixelRatio));
         var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
