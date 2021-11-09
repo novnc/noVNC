@@ -47,6 +47,8 @@
     <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/368_kasm_logo_only_120x120.png">
     <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/368_kasm_logo_only_152x152.png">
 
+    <script src="vendor/interact.min.js"></script>
+
     <!-- Stylesheets -->
     <!--link rel="stylesheet" href="app/styles/base.css">
 
@@ -84,6 +86,31 @@
         Loading statistics...
     </div>
 
+    <div class="noVNC_vcenter">
+        <div id="noVNC_modifiers" class="noVNC_panel">
+            <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
+                id="noVNC_keyboard_button" class="noVNC_button" title="Show Keyboard">
+            <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
+                id="noVNC_toggle_ctrl_button" class="noVNC_button"
+                title="Toggle Ctrl">
+            <input type="image" alt="Alt" src="app/images/alt.svg"
+                id="noVNC_toggle_alt_button" class="noVNC_button"
+                title="Toggle Alt">
+            <input type="image" alt="Windows" src="app/images/windows.svg"
+                id="noVNC_toggle_windows_button" class="noVNC_button"
+                title="Toggle Windows">
+            <input type="image" alt="Tab" src="app/images/tab.svg"
+                id="noVNC_send_tab_button" class="noVNC_button"
+                title="Send Tab">
+            <input type="image" alt="Esc" src="app/images/esc.svg"
+                id="noVNC_send_esc_button" class="noVNC_button"
+                title="Send Escape">
+            <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
+                id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
+                title="Send Ctrl-Alt-Del">
+        </div>
+    </div>
+
     <!-- noVNC Control Bar -->
     <div id="noVNC_control_bar_anchor" class="noVNC_vcenter">
 
@@ -100,37 +127,10 @@
                 title="Move/Drag Viewport">
 
             <!--noVNC Touch Device only buttons-->
-            <div id="noVNC_mobile_buttons">
-                <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
-                    id="noVNC_keyboard_button" class="noVNC_button" title="Show Keyboard">
-            </div>
-
             <!-- Extra manual keys -->
             <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
                 id="noVNC_toggle_extra_keys_button" class="noVNC_button"
                 title="Show Extra Keys">
-            <div class="noVNC_vcenter">
-            <div id="noVNC_modifiers" class="noVNC_panel">
-                <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
-                    id="noVNC_toggle_ctrl_button" class="noVNC_button"
-                    title="Toggle Ctrl">
-                <input type="image" alt="Alt" src="app/images/alt.svg"
-                    id="noVNC_toggle_alt_button" class="noVNC_button"
-                    title="Toggle Alt">
-                <input type="image" alt="Windows" src="app/images/windows.svg"
-                    id="noVNC_toggle_windows_button" class="noVNC_button"
-                    title="Toggle Windows">
-                <input type="image" alt="Tab" src="app/images/tab.svg"
-                    id="noVNC_send_tab_button" class="noVNC_button"
-                    title="Send Tab">
-                <input type="image" alt="Esc" src="app/images/esc.svg"
-                    id="noVNC_send_esc_button" class="noVNC_button"
-                    title="Send Escape">
-                <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
-                    id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
-                    title="Send Ctrl-Alt-Del">
-            </div>
-            </div>
 
             <!-- Shutdown/Reboot -->
             <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
@@ -443,5 +443,18 @@
         <source src="app/sounds/bell.oga" type="audio/ogg">
         <source src="app/sounds/bell.mp3" type="audio/mpeg">
     </audio>
+
+    <div class="keyboard-controls">
+        <div class="buttons">
+            <div class="button ctrl"></div>
+            <div class="button alt"></div>
+            <div class="button windows"></div>
+            <div class="button tab"></div>
+            <div class="button escape"></div>
+            <div class="button ctrlaltdel"></div>
+        </div>
+        
+        <div class="button keyboard handle"></div>
+    </div>
  </body>
 </html>

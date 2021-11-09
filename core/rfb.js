@@ -11,7 +11,7 @@ import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8 } from './util/strings.js';
 import { hashUInt8Array } from './util/int.js';
-import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac } from './util/browser.js';
+import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac, isIOS } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -192,6 +192,7 @@ export default class RFB extends EventTargetMixin {
 
         // Bound event handlers
         this._eventHandlers = {
+            updateHiddenKeyboard: this._updateHiddenKeyboard.bind(this),
             focusCanvas: this._focusCanvas.bind(this),
             windowResize: this._windowResize.bind(this),
             handleMouse: this._handleMouse.bind(this),
@@ -894,6 +895,15 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
 
+        // In order for the keyboard to not occlude the input being edited
+        // we move the hidden input we use for triggering the keyboard to the last click
+        // position which should trigger a page being moved down enough
+        // to show the input. On Android the whole website gets resized so we don't
+        // have to do anything.
+        if (isIOS()) {
+            this._canvas.addEventListener("touchend", this._eventHandlers.updateHiddenKeyboard);
+        }
+
         // Mouse events
         this._canvas.addEventListener('mousedown', this._eventHandlers.handleMouse);
         this._canvas.addEventListener('mouseup', this._eventHandlers.handleMouse);
@@ -948,6 +958,12 @@ export default class RFB extends EventTargetMixin {
         Log.Debug("<< RFB.disconnect");
     }
 
+    _updateHiddenKeyboard(event) {
+        // On iOS 15 the navigation bar is at the bottom so we need to account for it
+        const y = Math.max(0, event.pageY - 50);
+        document.querySelector("#noVNC_keyboardinput").style.top = `${y}px`;
+    }
+
     _focusCanvas(event) {
         // Hack:
         // On most mobile phones it's only possible to play audio
@@ -955,7 +971,7 @@ export default class RFB extends EventTargetMixin {
         // impossible to listen for touch events on child frames (only on mobile phones)
         // we delegate the audio unlocking to the parent window.
         if (window.parent && !window.parent.KASM_AUDIO_UNLOCKED) {
-            window.parent.unlockAudio();
+            window.parent.unlockAudio && window.parent.unlockAudio();
         }
 
         if (!this.focusOnClick) {

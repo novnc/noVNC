@@ -30,11 +30,19 @@ window.updateSetting = (name, value) => {
     }
 }
 
+window.showKeyboardControlsPanel = () => {
+    document.querySelector(".keyboard-controls").classList.add("is-visible");
+}
+
+window.hideKeyboardControlsPanel = () => {
+    document.querySelector(".keyboard-controls").classList.remove("is-visible");
+}
+
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
-import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox }
+import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS }
     from '../core/util/browser.js';
 import { setCapture, getPointerEvent } from '../core/util/events.js';
 import KeyTable from "../core/input/keysym.js";
@@ -125,6 +133,7 @@ const UI = {
         UI.initFullscreen();
 
         // Setup event handlers
+        UI.addKeyboardControlsPanelHandlers();
         UI.addControlbarHandlers();
         UI.addTouchSpecificHandlers();
         UI.addExtraKeysHandlers();
@@ -152,6 +161,14 @@ const UI = {
             autoconnect = false;
             // Show the connect panel on first load unless autoconnecting
             UI.openConnectPanel();
+        }
+
+        if ( !isWindows() && (
+                (window.parent.KASM_INITIAL_KEYBOARD_CONTROLS_MODE === "on") ||
+                (window.parent.KASM_INITIAL_KEYBOARD_CONTROLS_MODE === "auto" && isTouchDevice)
+            )
+        ) {
+            showKeyboardControlsPanel();
         }
 
         return Promise.resolve(UI.rfb);
@@ -271,6 +288,51 @@ const UI = {
 * ==============
 * EVENT HANDLERS
 * ------v------*/
+
+    addKeyboardControlsPanelHandlers() {
+        // panel dragging
+        interact(".keyboard-controls").draggable({
+            allowFrom: ".handle",
+            listeners: {
+                move: (e) => {
+                    const target = e.target;
+                    const x = (parseFloat(target.getAttribute("data-x")) || 0) + e.dx;
+                    const y = (parseFloat(target.getAttribute("data-y")) || 0) + e.dy;
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+                    target.setAttribute("data-x", x);
+                    target.setAttribute("data-y", y);
+                },
+            },
+        });
+
+        // panel expanding
+        interact(".keyboard-controls .handle")
+        .pointerEvents({ holdDuration: 350 })
+        .on("hold", (e) => {
+            const buttonsEl = document.querySelector(".keyboard-controls");
+    
+            const isOpen = buttonsEl.classList.contains("is-open");
+            buttonsEl.classList.toggle("was-open", isOpen);
+            buttonsEl.classList.toggle("is-open", !isOpen);
+
+            setTimeout(() => buttonsEl.classList.remove("was-open"), 500);
+        });
+
+        // keyboard showing
+        interact(".keyboard-controls .handle").on("tap", (e) => {
+            if (e.dt < 150) {
+                UI.toggleVirtualKeyboard();
+            }
+        });
+
+        // panel buttons
+        interact(".keyboard-controls .button.ctrl").on("tap", UI.toggleCtrl);
+        interact(".keyboard-controls .button.alt").on("tap", UI.toggleAlt);
+        interact(".keyboard-controls .button.windows").on("tap", UI.toggleWindows);
+        interact(".keyboard-controls .button.tab").on("tap", UI.sendTab);
+        interact(".keyboard-controls .button.escape").on("tap", UI.sendEsc);
+        interact(".keyboard-controls .button.ctrlaltdel").on("tap", UI.sendCtrlAltDel);
+    },
 
     addControlbarHandlers() {
         document.getElementById("noVNC_control_bar")
@@ -1268,13 +1330,17 @@ const UI = {
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bottleneck_stats", UI.bottleneckStatsRecieve);
-        document.addEventListener('mouseenter', UI.enterVNC);
-        document.addEventListener('mouseleave', UI.leaveVNC);
-        document.addEventListener('blur', UI.blurVNC);
-        document.addEventListener('focus', UI.focusVNC);
-        document.addEventListener('focusout', UI.focusoutVNC);
-        document.addEventListener('mousemove', UI.mouseMoveVNC);
-        document.addEventListener('mousedown', UI.mouseDownVNC);
+
+        if (!isTouchDevice) {
+            document.addEventListener('mouseenter', UI.enterVNC);
+            document.addEventListener('mouseleave', UI.leaveVNC);
+            document.addEventListener('focusout', UI.focusoutVNC);
+            document.addEventListener('mousemove', UI.mouseMoveVNC);
+            document.addEventListener('mousedown', UI.mouseDownVNC);
+            document.addEventListener('blur', UI.blurVNC);
+            document.addEventListener('focus', UI.focusVNC);
+        }
+
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
@@ -1849,8 +1915,6 @@ const UI = {
     },
 
     showVirtualKeyboard() {
-        if (!isTouchDevice) return;
-
         const input = document.getElementById('noVNC_keyboardinput');
 
         if (document.activeElement == input) return;
@@ -1864,11 +1928,17 @@ const UI = {
         } catch (err) {
             // setSelectionRange is undefined in Google Chrome
         }
+
+        // ensure that the hidden input used for showing the virutal keyboard
+        // does not steal focus if the user has closed it manually
+        document.querySelector("canvas").addEventListener("touchstart", () => {
+            if (document.activeElement === input) {
+                input.blur();
+            }
+        }, { once: true });
     },
 
     hideVirtualKeyboard() {
-        if (!isTouchDevice) return;
-
         const input = document.getElementById('noVNC_keyboardinput');
 
         if (document.activeElement != input) return;
@@ -2025,6 +2095,14 @@ const UI = {
             .classList.add("noVNC_selected");
     },
 
+    disableSoftwareKeyboard() {
+        document.querySelector("#noVNC_keyboard_button").disabled = true;
+    },
+
+    enableSoftwareKeyboard() {
+        document.querySelector("#noVNC_keyboard_button").disabled = false;
+    },
+
     closeExtraKeys() {
         document.getElementById('noVNC_modifiers')
             .classList.remove("noVNC_open");
@@ -2033,8 +2111,7 @@ const UI = {
     },
 
     toggleExtraKeys() {
-        if (document.getElementById('noVNC_modifiers')
-            .classList.contains("noVNC_open")) {
+        if (document.getElementById('noVNC_modifiers').classList.contains("noVNC_open")) {
             UI.closeExtraKeys();
         } else  {
             UI.openExtraKeys();
@@ -2058,6 +2135,8 @@ const UI = {
             UI.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
             btn.classList.add("noVNC_selected");
         }
+
+        document.querySelector(".keyboard-controls .button.ctrl").classList.toggle("selected");
     },
 
     toggleWindows() {
@@ -2069,6 +2148,8 @@ const UI = {
             UI.sendKey(KeyTable.XK_Super_L, "MetaLeft", true);
             btn.classList.add("noVNC_selected");
         }
+
+        document.querySelector(".keyboard-controls .button.windows").classList.toggle("selected");
     },
 
     toggleAlt() {
@@ -2080,6 +2161,8 @@ const UI = {
             UI.sendKey(KeyTable.XK_Alt_L, "AltLeft", true);
             btn.classList.add("noVNC_selected");
         }
+
+        document.querySelector(".keyboard-controls .button.alt").classList.toggle("selected");
     },
 
     sendCtrlAltDel() {
