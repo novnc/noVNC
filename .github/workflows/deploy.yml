@@ -15,7 +15,7 @@ jobs:
           GITREV=$(git rev-parse --short HEAD)
           echo $GITREV
           sed -i "s/^\(.*\"version\".*\)\"\([^\"]\+\)\"\(.*\)\$/\1\"\2-g$GITREV\"\3/" package.json
-        if: ${{ github.event_name == 'push' && github.event.ref == 'ref/heads/master' }}
+        if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/master' }}
       - uses: actions/setup-node@v1
         with:
           # Needs to be explicitly specified for auth to work
@@ -36,7 +36,7 @@ jobs:
       - run: npm publish --access public --tag dev
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-        if: ${{ github.event_name == 'push' && github.event.ref == 'ref/heads/master' }}
+        if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/master' }}
   snap:
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +45,7 @@ jobs:
           GITREV=$(git rev-parse --short HEAD)
           echo $GITREV
           sed -i "s/^\(.*\"version\".*\)\"\([^\"]\+\)\"\(.*\)\$/\1\"\2-g$GITREV\"\3/" package.json
-        if: ${{ github.event_name == 'push' && github.event.ref == 'ref/heads/master' }}
+        if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/master' }}
       - run: |
           VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)
           echo $VERSION
@@ -73,4 +73,4 @@ jobs:
           store_login: ${{ secrets.SNAPCRAFT_LOGIN }}
           snap: ${{ steps.snapcraft.outputs.snap }}
           release: edge
-        if: ${{ github.event_name == 'push' && github.event.ref == 'ref/heads/master' }}
+        if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/master' }}
