@@ -1197,14 +1197,6 @@ const UI = {
     setTimeout(UI.showOverlay.bind(this, msg, secs), 200);
     },
 
-    // Enter and focus events come when we return to NoVNC.
-    // In both cases, check the local clipboard to see if it changed.
-    focusVNC: function() {
-    UI.copyFromLocalClipboard();
-    },
-    enterVNC: function() {
-    UI.copyFromLocalClipboard();
-    },
     copyFromLocalClipboard: function copyFromLocalClipboard() {
         if (!document.hasFocus()) {
             Log.Debug("window does not have focus");
@@ -1223,30 +1215,6 @@ const UI = {
                 }); 
             }
         }
-    },
-
-    // These 3 events indicate the focus has gone outside the NoVNC.
-    // When outside the NoVNC, the system clipboard could change.
-    leaveVNC: function() {
-    UI.needToCheckClipboardChange = true;
-    },
-    blurVNC: function() {
-    UI.needToCheckClipboardChange = true;
-    },
-    focusoutVNC: function() {
-    UI.needToCheckClipboardChange = true;
-    },
-
-    // On these 2 events, check if we need to look at clipboard.
-    mouseMoveVNC: function() {
-    if ( UI.needToCheckClipboardChange ) {
-        UI.copyFromLocalClipboard();
-    }
-    },
-    mouseDownVNC: function() {
-    if ( UI.needToCheckClipboardChange ) {
-        UI.copyFromLocalClipboard();
-    }
     },
 
     clipboardClear() {
@@ -1330,17 +1298,6 @@ const UI = {
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bottleneck_stats", UI.bottleneckStatsRecieve);
-
-        if (!isTouchDevice) {
-            document.addEventListener('mouseenter', UI.enterVNC);
-            document.addEventListener('mouseleave', UI.leaveVNC);
-            document.addEventListener('focusout', UI.focusoutVNC);
-            document.addEventListener('mousemove', UI.mouseMoveVNC);
-            document.addEventListener('mousedown', UI.mouseDownVNC);
-            document.addEventListener('blur', UI.blurVNC);
-            document.addEventListener('focus', UI.focusVNC);
-        }
-
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
@@ -1973,9 +1930,8 @@ const UI = {
 
     keepVirtualKeyboard(event) {
         const input = document.getElementById('noVNC_keyboardinput');
-        if ( UI.needToCheckClipboardChange ) {
-            UI.copyFromLocalClipboard();
-        }
+
+        UI.copyFromLocalClipboard();
 
         // Only prevent focus change if the virtual keyboard is active
         if (document.activeElement != input) {
