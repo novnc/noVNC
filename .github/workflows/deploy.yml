@@ -15,9 +15,7 @@ jobs:
           GITREV=$(git rev-parse --short HEAD)
           echo $GITREV
           sed -i "s/^\(.*\"version\".*\)\"\([^\"]\+\)\"\(.*\)\$/\1\"\2-g$GITREV\"\3/" package.json
-        if: |
-          github.event_name == 'push' &&
-          github.event.ref == 'refs/heads/master'
+        if: github.event_name != 'release'
       - uses: actions/setup-node@v1
         with:
           # Needs to be explicitly specified for auth to work
@@ -56,9 +54,7 @@ jobs:
           GITREV=$(git rev-parse --short HEAD)
           echo $GITREV
           sed -i "s/^\(.*\"version\".*\)\"\([^\"]\+\)\"\(.*\)\$/\1\"\2-g$GITREV\"\3/" package.json
-        if: |
-          github.event_name == 'push' &&
-          github.event.ref == 'refs/heads/master'
+        if: github.event_name != 'release'
       - run: |
           VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)
           echo $VERSION
