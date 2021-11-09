@@ -31,18 +31,21 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
+          github.repository == 'novnc/noVNC' &&
           github.event_name == 'release' &&
           !github.event.release.prerelease
       - run: npm publish --access public --tag beta
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
+          github.repository == 'novnc/noVNC' &&
           github.event_name == 'release' &&
           github.event.release.prerelease
       - run: npm publish --access public --tag dev
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         if: |
+          github.repository == 'novnc/noVNC' &&
           github.event_name == 'push' &&
           github.event.ref == 'refs/heads/master'
   snap:
@@ -72,6 +75,7 @@ jobs:
           snap: ${{ steps.snapcraft.outputs.snap }}
           release: stable
         if: |
+          github.repository == 'novnc/noVNC' &&
           github.event_name == 'release' &&
           !github.event.release.prerelease
       - uses: snapcore/action-publish@v1
@@ -80,6 +84,7 @@ jobs:
           snap: ${{ steps.snapcraft.outputs.snap }}
           release: beta
         if: |
+          github.repository == 'novnc/noVNC' &&
           github.event_name == 'release' &&
           github.event.release.prerelease
       - uses: snapcore/action-publish@v1
@@ -88,5 +93,6 @@ jobs:
           snap: ${{ steps.snapcraft.outputs.snap }}
           release: edge
         if: |
+          github.repository == 'novnc/noVNC' &&
           github.event_name == 'push' &&
           github.event.ref == 'refs/heads/master'
