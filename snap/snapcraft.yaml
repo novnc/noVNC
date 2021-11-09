@@ -23,6 +23,9 @@ parts:
             - core/**/*.js
             - vendor/**/*.js
             - novnc_proxy
+
+    novnc-deps:
+        plugin: nil
         stage-packages:
             - bash
 
@@ -31,6 +34,9 @@ parts:
         plugin: dump
         stage:
             - svc_wrapper.sh
+
+    svc-script-deps:
+        plugin: nil
         stage-packages:
             - bash
             - jq
