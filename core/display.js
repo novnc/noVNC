@@ -410,10 +410,14 @@ export default class Display {
     }
 
     drawImage(img, x, y, w, h) {
-	if (img.width != w || img.height != h) {
-            this._drawCtx.drawImage(img, x, y, w, h);
-        } else {
-            this._drawCtx.drawImage(img, x, y);
+        try {
+	    if (img.width != w || img.height != h) {
+                this._drawCtx.drawImage(img, x, y, w, h);
+            } else {
+                this._drawCtx.drawImage(img, x, y);
+            }
+        } catch (error) {
+            Log.Error('Invalid image recieved.'); //KASM-2090
         }
         this._damage(x, y, w, h);
     }

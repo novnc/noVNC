@@ -245,16 +245,6 @@
                                     <option value=2>Off</option>
                                 </select>
                             </li>
-                            <li>
-                                <label for="noVNC_setting_jpeg_video_quality">JPEG Quality:</label>
-                                <input id="noVNC_setting_jpeg_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_jpeg_video_quality_output.value=value">
-                                <output id="noVNC_setting_jpeg_video_quality_output">5</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_webp_video_quality">WEBP Quality:</label>
-                                <input id="noVNC_setting_webp_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_webp_video_quality_output.value=value">
-                                <output id="noVNC_setting_webp_video_quality_output">5</output>
-                            </li>
                             <li style="display: none;">
                                 <label for="noVNC_setting_quality">Quality:</label>
                                 <input id="noVNC_setting_quality" type="range" min="0" max="9" value="6">
@@ -280,6 +270,16 @@
                                 <input id="noVNC_setting_framerate" type="number" min="1" max="120" value="30">
                             </li>
                             <li>
+                                <label for="noVNC_setting_jpeg_video_quality">Video JPEG Quality:</label>
+                                <input id="noVNC_setting_jpeg_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_jpeg_video_quality_output.value=value">
+                                <output id="noVNC_setting_jpeg_video_quality_output">5</output>
+                            </li>
+                            <li>
+                                <label for="noVNC_setting_webp_video_quality">Video WEBP Quality:</label>
+                                <input id="noVNC_setting_webp_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_webp_video_quality_output.value=value">
+                                <output id="noVNC_setting_webp_video_quality_output">5</output>
+                            </li>
+			    <li>
                                 <label for="noVNC_setting_video_area">Video Area:</label>
                                 <input id="noVNC_setting_video_area" type="range" min="0" max="100" value="65" onchange="noVNC_setting_video_area_output.value=value">
                                 <output id="noVNC_setting_video_area_output">65</output>
