@@ -30,14 +30,6 @@ window.updateSetting = (name, value) => {
     }
 }
 
-window.showKeyboardControlsPanel = () => {
-    document.querySelector(".keyboard-controls").classList.add("is-visible");
-}
-
-window.hideKeyboardControlsPanel = () => {
-    document.querySelector(".keyboard-controls").classList.remove("is-visible");
-}
-
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
@@ -163,13 +155,22 @@ const UI = {
             UI.openConnectPanel();
         }
 
-        if ( !isWindows() && (
-                (window.parent.KASM_INITIAL_KEYBOARD_CONTROLS_MODE === "on") ||
-                (window.parent.KASM_INITIAL_KEYBOARD_CONTROLS_MODE === "auto" && isTouchDevice)
-            )
-        ) {
-            showKeyboardControlsPanel();
-        }
+        window.parent.postMessage({
+            action: "noVNC_initialized",
+            value: null
+        }, "*");
+
+        window.addEventListener("message", (e) => {
+            if (typeof e.data !== "object" || !e.data.action) {
+                return;
+            }
+
+            if (e.data.action === "show_keyboard_controls") {
+                UI.showKeyboardControls();
+            } else if (e.data.action === "hide_keyboard_controls") {
+                UI.hideKeyboardControls();
+            }
+        });
 
         return Promise.resolve(UI.rfb);
     },
@@ -1869,6 +1870,14 @@ const UI = {
 
     updateShortcutTranslation() {
         UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
+    },
+
+    showKeyboardControls() {
+        document.querySelector(".keyboard-controls").classList.add("is-visible");
+    },
+
+    hideKeyboardControls() {
+        document.querySelector(".keyboard-controls").classList.remove("is-visible");
     },
 
     showVirtualKeyboard() {
