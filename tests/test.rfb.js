@@ -392,6 +392,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client.focus();
                 expect(client._canvas.focus).to.have.been.calledOnce;
             });
+
+            it('should include focus options', function () {
+                client._canvas.focus = sinon.spy();
+                client.focus({ foobar: 12, gazonk: true });
+                expect(client._canvas.focus).to.have.been.calledOnce;
+                expect(client._canvas.focus).to.have.been.calledWith({ foobar: 12, gazonk: true});
+            });
         });
 
         describe('#blur', function () {

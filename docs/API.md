@@ -328,7 +328,14 @@ Keyboard events will be sent to the remote server after this point.
 
 ##### Syntax
 
-    RFB.focus( );
+    RFB.focus( [options] );
+
+###### Parameters
+
+**`options`** *Optional*
+  - A `object` providing options to control how the focus will be
+    performed. Please see [`HTMLElement.focus()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus)
+    for available options.
 
 #### RFB.blur()
 

@@ -432,8 +432,8 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    focus() {
-        this._canvas.focus();
+    focus(options) {
+        this._canvas.focus(options);
     }
 
     blur() {
@@ -609,7 +609,7 @@ export default class RFB extends EventTargetMixin {
             return;
         }
 
-        this.focus();
+        this.focus({ preventScroll: true });
     }
 
     _setDesktopName(name) {
