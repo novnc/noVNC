@@ -21,6 +21,12 @@
         try {
             const msg = document.getElementById('noVNC_fallback_errormsg');
 
+            // Work around Firefox bug:
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=1685038
+            if (event.message === "ResizeObserver loop completed with undelivered notifications.") {
+                return false;
+            }
+
             // Only show the initial error
             if (msg.hasChildNodes()) {
                 return false;
