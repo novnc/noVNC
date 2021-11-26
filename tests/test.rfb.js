@@ -1623,6 +1623,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(RFB.messages.pixelFormat).to.have.been.calledBefore(RFB.messages.clientEncodings);
                     expect(RFB.messages.clientEncodings).to.have.been.calledOnce;
                     expect(RFB.messages.clientEncodings.getCall(0).args[1]).to.include(encodings.encodingTight);
+                    RFB.messages.clientEncodings.getCall(0).args[1].forEach(enc => {
+                        expect(enc).to.be.a('number');
+                        expect(Number.isInteger(enc)).to.be.true;
+                    });
                     expect(RFB.messages.clientEncodings).to.have.been.calledBefore(RFB.messages.fbUpdateRequest);
                     expect(RFB.messages.fbUpdateRequest).to.have.been.calledOnce;
                     expect(RFB.messages.fbUpdateRequest).to.have.been.calledWith(client._sock, false, 0, 0, 27, 32);
