@@ -113,6 +113,11 @@ proxy.
   used to specify the location of a running VNC server:
 
     `./utils/novnc_proxy --vnc localhost:5901`
+    
+* If you don't need to expose the web server to public internet, you can
+  bind to localhost:
+  
+    `./utils/novnc_proxy --vnc localhost:5901 --listen localhost:6081`
 
 * Point your browser to the cut-and-paste URL that is output by the `novnc_proxy`
   script. Hit the Connect button, enter a password if the VNC server has one
