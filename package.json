@@ -66,9 +66,6 @@
     "mocha": "*",
     "node-getopt": "*",
     "po2json": "*",
-    "requirejs": "*",
-    "rollup": "*",
-    "rollup-plugin-node-resolve": "*",
     "sinon": "*",
     "sinon-chai": "*"
   },
