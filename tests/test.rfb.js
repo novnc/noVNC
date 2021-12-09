@@ -74,6 +74,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
     let fakeResizeObserver = null;
     const realObserver = window.ResizeObserver;
 
+    // Since we are using fake timers we don't actually want
+    // to wait for the browser to observe the size change,
+    // that's why we use a fake ResizeObserver
     class FakeResizeObserver {
         constructor(handler) {
             this.fire = handler;
@@ -783,14 +786,18 @@ describe('Remote Frame Buffer Protocol Client', function () {
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
                                0x00, 0x00, 0x00, 0x00 ];
 
-            // First message should trigger a resize
-
+            // This property is indirectly used as a marker for the first update
             client._supportsSetDesktopSize = false;
+
+            // First message should trigger a resize
 
             client._sock._websocket._receiveData(new Uint8Array(incoming));
 
+            // It should match the current size of the container,
+            // not the reported size from the server
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
-            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(sinon.match.object, 70, 80, 0, 0);
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                sinon.match.object, 70, 80, 0, 0);
 
             RFB.messages.setDesktopSize.resetHistory();
 
