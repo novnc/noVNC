@@ -780,11 +780,26 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         it('should request a resize when initially connecting', function () {
             // Simple ExtendedDesktopSize FBU message
-            const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x04, 0x00, 0x04, 0xff, 0xff, 0xfe, 0xcc,
-                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
-                               0x00, 0x00, 0x00, 0x00 ];
+            const incoming = [ 0x00,        // msg-type=FBU
+                               0x00,        // padding
+                               0x00, 0x01,  // number of rects = 1
+                               0x00, 0x00,  // reason = server initialized
+                               0x00, 0x00,  // status = no error
+                               0x00, 0x04,  // new width = 4
+                               0x00, 0x04,  // new height = 4
+                               0xff, 0xff,
+                               0xfe, 0xcc,  // enc = (-308) ExtendedDesktopSize
+                               0x01,        // number of screens = 1
+                               0x00, 0x00,
+                               0x00,        // padding
+                               0x00, 0x00,
+                               0x00, 0x00,  // screen id = 0
+                               0x00, 0x00,  // screen x = 0
+                               0x00, 0x00,  // screen y = 0
+                               0x00, 0x04,  // screen width = 4
+                               0x00, 0x04,  // screen height = 4
+                               0x00, 0x00,
+                               0x00, 0x00]; // screen flags
 
             // This property is indirectly used as a marker for the first update
             client._supportsSetDesktopSize = false;
