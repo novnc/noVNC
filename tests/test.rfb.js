@@ -523,7 +523,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick();
+            clock.tick(1000);
 
             expect(client._display.viewportChangeSize).to.have.been.calledOnce;
             expect(client._display.viewportChangeSize).to.have.been.calledWith(40, 50);
@@ -554,7 +554,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick();
+            clock.tick(1000);
 
             expect(client._display.viewportChangeSize).to.not.have.been.called;
         });
@@ -566,7 +566,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick();
+            clock.tick(1000);
 
             expect(client._display.viewportChangeSize).to.not.have.been.called;
         });
@@ -717,7 +717,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick();
+            clock.tick(1000);
 
             expect(client._display.autoscale).to.have.been.calledOnce;
             expect(client._display.autoscale).to.have.been.calledWith(40, 50);
@@ -747,7 +747,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick();
+            clock.tick(1000);
 
             expect(client._display.autoscale).to.not.have.been.called;
         });
