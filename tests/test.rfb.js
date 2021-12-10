@@ -553,8 +553,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick();
 
             expect(client._display.viewportChangeSize).to.not.have.been.called;
@@ -566,8 +565,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick();
 
             expect(client._display.viewportChangeSize).to.not.have.been.called;
@@ -748,8 +746,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick();
 
             expect(client._display.autoscale).to.not.have.been.called;
@@ -859,8 +856,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
@@ -871,8 +867,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
@@ -883,8 +878,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             container.style.width = '40px';
             container.style.height = '50px';
-            const event = new UIEvent('resize');
-            window.dispatchEvent(event);
+            fakeResizeObserver.fire();
             clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
