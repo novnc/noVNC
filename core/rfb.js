@@ -244,6 +244,8 @@ export default class RFB extends EventTargetMixin {
         this._sock.on('message', this._handleMessage.bind(this));
         this._sock.on('error', this._socketError.bind(this));
 
+        this._expectedClientWidth = null;
+        this._expectedClientHeight = null;
         this._resizeObserver = new ResizeObserver(this._eventHandlers.handleResize);
 
         // All prepared, kick off the connection
@@ -623,7 +625,26 @@ export default class RFB extends EventTargetMixin {
             { detail: { name: this._fbName } }));
     }
 
+    _saveExpectedClientSize() {
+        this._expectedClientWidth = this._screen.clientWidth;
+        this._expectedClientHeight = this._screen.clientHeight;
+    }
+
+    _currentClientSize() {
+        return [this._screen.clientWidth, this._screen.clientHeight];
+    }
+
+    _clientHasExpectedSize() {
+        const [currentWidth, currentHeight] = this._currentClientSize();
+        return currentWidth == this._expectedClientWidth &&
+            currentHeight == this._expectedClientHeight;
+    }
+
     _handleResize() {
+        // Don't change anything if the client size is already as expected
+        if (this._clientHasExpectedSize()) {
+            return;
+        }
         // If the window resized then our screen element might have
         // as well. Update the viewport dimensions.
         window.requestAnimationFrame(() => {
@@ -664,6 +685,12 @@ export default class RFB extends EventTargetMixin {
             this._display.viewportChangeSize(size.w, size.h);
             this._fixScrollbars();
         }
+
+        // When changing clipping we might show or hide scrollbars.
+        // This causes the expected client dimensions to change.
+        if (curClip !== newClip) {
+            this._saveExpectedClientSize();
+        }
     }
 
     _updateScale() {
@@ -688,6 +715,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         const size = this._screenSize();
+
         RFB.messages.setDesktopSize(this._sock,
                                     Math.floor(size.w), Math.floor(size.h),
                                     this._screenID, this._screenFlags);
@@ -2507,6 +2535,9 @@ export default class RFB extends EventTargetMixin {
         this._updateScale();
 
         this._updateContinuousUpdates();
+
+        // Keep this size until browser client size changes
+        this._saveExpectedClientSize();
     }
 
     _xvpOp(ver, op) {
