@@ -703,12 +703,13 @@ export default class RFB extends EventTargetMixin {
     }
 
     _fixScrollbars() {
-        // This is a hack because Chrome screws up the calculation
-        // for when scrollbars are needed. So to fix it we temporarily
-        // toggle them off and on.
+        // This is a hack because Safari on macOS screws up the calculation
+        // for when scrollbars are needed. We get scrollbars when making the
+        // browser smaller, despite remote resize being enabled. So to fix it
+        // we temporarily toggle them off and on.
         const orig = this._screen.style.overflow;
         this._screen.style.overflow = 'hidden';
-        // Force Chrome to recalculate the layout by asking for
+        // Force Safari to recalculate the layout by asking for
         // an element's dimensions
         this._screen.getBoundingClientRect();
         this._screen.style.overflow = orig;
