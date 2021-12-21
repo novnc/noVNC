@@ -17,9 +17,11 @@ function handleError(event, err) {
             return false;
         }
 
-        // Only show the initial error
+        // Clear last error
         if (msg.hasChildNodes()) {
-            return false;
+            while (msg.firstChild) {
+                msg.removeChild(msg.firstChild);
+            }
         }
 
         let div = document.createElement("div");
@@ -58,5 +60,14 @@ function handleError(event, err) {
     return false;
 }
 
+function hideError() {
+    document.getElementById('noVNC_fallback_error')
+        .classList.remove("noVNC_open");
+}
+
+window.addEventListener('load', () => {
+    document.getElementById("noVNC_error_dismiss_button")
+        .addEventListener('click', hideError);
+});
 window.addEventListener('error', evt => handleError(evt, evt.error));
 window.addEventListener('unhandledrejection', evt => handleError(evt.reason, evt.reason));
