@@ -57,6 +57,19 @@ export default class Display {
 
         Log.Debug("User Agent: " + navigator.userAgent);
 
+        // performance metrics, try to calc a fps equivelant
+        this._flipCnt = 0;
+        this._currentFrameDamages = [];
+        this._lastFlip = Date.now();
+        setInterval(function() {
+            let delta = Date.now() - this._lastFlip;
+            if (delta > 0) {
+                this._fps = (this._flipCnt / (delta / 1000)).toFixed(2);
+            }
+            this._lastFlip = Date.now();
+            this._flipCnt = 0;
+        }.bind(this), 5000);
+
         Log.Debug("<< Display.constructor");
 
         // ===== PROPERTIES =====
@@ -64,10 +77,11 @@ export default class Display {
         this._scale = 1.0;
         this._clipViewport = false;
         this._antiAliasing = 0;
+        this._fps = 0;
 
         // ===== EVENT HANDLERS =====
 
-        this.onflush = () => {}; // A flush request has finished
+        this.onflush = () => {  }; // A flush request has finished
     }
 
     // ===== PROPERTIES =====
@@ -106,6 +120,8 @@ export default class Display {
     set renderMs(val) {
         this._renderMs = val;
     }
+
+    get fps() { return this._fps; }
 
     // ===== PUBLIC METHODS =====
 
@@ -256,6 +272,21 @@ export default class Display {
         }
     }
 
+    // Attempt to determine when updates overlap an area and thus indicate a new frame
+    isNewFrame(x, y, w, h) {
+        for (var i = 0; i < this._currentFrameDamages.length; i++) {
+            let area = this._currentFrameDamages[i];
+            if (x >= area.x && x <= (area.x + area.w) && y >= area.y && y <= (area.y + area.h)) {
+                this._currentFrameDamages = [];
+                return true;
+            }
+        }
+
+        var new_area = { x: x, y: y, w: w, h: h }
+        this._currentFrameDamages.push(new_area);
+        return false;
+    }
+
     // Update the visible canvas with the contents of the
     // rendering canvas
     flip(fromQueue) {
@@ -297,6 +328,10 @@ export default class Display {
                 this._targetCtx.drawImage(this._backbuffer,
                                           x, y, w, h,
                                           vx, vy, w, h);
+
+                if (this.isNewFrame(x, y, h, w)) {
+                    this._flipCnt += 1;
+                }
             }
 
             this._damageBounds.left = this._damageBounds.top = 65535;
