@@ -459,6 +459,8 @@ const UI = {
             .addEventListener('change', UI.clipboardSend);
         document.getElementById("noVNC_clipboard_clear_button")
             .addEventListener('click', UI.clipboardClear);
+
+        window.addEventListener("focus", UI.copyFromLocalClipboard);
     },
 
     // Add a call to save settings when the element changes,
@@ -1946,8 +1948,6 @@ const UI = {
 
     keepVirtualKeyboard(event) {
         const input = document.getElementById('noVNC_keyboardinput');
-
-        UI.copyFromLocalClipboard();
 
         // Only prevent focus change if the virtual keyboard is active
         if (document.activeElement != input) {
