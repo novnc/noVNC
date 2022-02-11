@@ -321,6 +321,19 @@ export default class Websock {
         this._rQlen += u8.length;
     }
 
+    // Insert some new data into the current position, pushing the old data back
+    _insertIntoMiddle(data) {
+        const u8 = new Uint8Array(data);
+        if (u8.length > this._rQbufferSize - this._rQlen) {
+            this._expandCompactRQ(u8.length);
+        }
+
+        this._rQ.copyWithin(this._rQi + u8.length, this._rQi, this._rQlen - this._rQi);
+
+        this._rQ.set(u8, this._rQi);
+        this._rQlen += u8.length;
+    }
+
     _recvMessage(e) {
         this._DecodeMessage(e.data);
         if (this.rQlen > 0) {

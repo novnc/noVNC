@@ -135,6 +135,7 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
         this._clipboardBinary = true;
+        this._useUdp = true;
 
         this._trackFrameStats = false;
 
@@ -918,6 +919,152 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("gesturestart", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gestureend", this._eventHandlers.handleGesture);
+
+        // WebRTC UDP datachannel
+        if (this._useUdp) {
+            this._udpArray = new Array();
+
+            let udpurl = this._url.split("/")[2];
+            udpurl = udpurl.split(":")[0];
+            udpurl = window.location.protocol + "//" + udpurl + ":" + 9555;
+
+            this._udpPeer = new RTCPeerConnection({
+                iceServers: [{
+                    urls: ["stun:stun.l.google.com:19302"]
+                }]
+            });
+            let peer = this._udpPeer;
+
+            peer.onicecandidate = function(e) {
+                if (e.candidate)
+                    Log.Debug("received ice candidate", e.candidate);
+                else
+                    Log.Debug("all candidates received");
+            }
+
+            peer.ondatachannel = function(e) {
+                Log.Debug("peer connection on data channel", e);
+            }
+
+            this._udpChannel = peer.createDataChannel("webudp", {
+                ordered: false,
+                maxRetransmits: 0
+            });
+            this._udpChannel.binaryType = "arraybuffer";
+
+            this._udpChannel.onerror = function(e) {
+                Log.Error("data channel error " + e.message);
+            }
+
+            let sock = this._sock;
+            let udpArray = this._udpArray;
+            let me = this;
+            this._udpChannel.onmessage = function(e) {
+                //Log.Info("got udp msg", e.data);
+                const u8 = new Uint8Array(e.data);
+                // Got an UDP packet. Do we need reassembly?
+                const id = parseInt(u8[0] +
+                                    (u8[1] << 8) +
+                                    (u8[2] << 16) +
+                                    (u8[3] << 24), 10);
+                const i = parseInt(u8[4] +
+                                   (u8[5] << 8) +
+                                   (u8[6] << 16) +
+                                   (u8[7] << 24), 10);
+                const pieces = parseInt(u8[8] +
+                                        (u8[9] << 8) +
+                                        (u8[10] << 16) +
+                                        (u8[11] << 24), 10);
+
+                if (pieces == 1) { // Handle it immediately
+                    sock._insertIntoMiddle(u8.slice(12));
+                    me._handleUdpRect();
+                } else { // Insert into wait array
+                    const now = Date.now();
+
+                    const item = { id: id,
+                                   i: i,
+                                   pieces: pieces,
+                                   arrival: now,
+                                   data: u8.slice(12)
+                                 };
+                    udpArray.push(item);
+                }
+
+                // Process wait array
+                if (!udpArray.length)
+                    return;
+
+                // Sort by id and i for easier assembly
+                udpArray.sort(function(a, b) {
+                    if (a.id < b.id) return -1;
+                    if (b.id < a.id) return 1;
+
+                    if (a.i < b.id) return -1;
+                    if (b.i < a.i) return 1;
+                    return 0;
+                });
+                //Log.Info("waitarr len " + udpArray.length);
+
+                const now = Date.now();
+                for (let i = 0; i < udpArray.length; i++) {
+                    // Drop any packets older than 100ms
+                    if (now - udpArray[i].arrival > 100) {
+                        udpArray.splice(i, 1);
+                        i--;
+                    }
+                }
+
+                let curid = 0;
+                let cursum = 0;
+                for (let i = 0; i < udpArray.length; i++) {
+                    if (curid != udpArray[i].id) {
+                        curid = udpArray[i].id;
+                        cursum = 0;
+                        var curdata = new Uint8Array(udpArray[i].pieces * 1400);
+                    }
+
+                    curdata.set(udpArray[i].data, udpArray[i].i * 1400);
+                    cursum++;
+
+                    // Did we get all?
+                    if (cursum == udpArray[i].pieces) {
+                        sock._insertIntoMiddle(curdata.slice(0, udpArray[i].i * 1400 + udpArray[i].data.length));
+                        me._handleUdpRect();
+
+                        // Remove them
+                        let pieces = udpArray[i].pieces;
+                        udpArray.splice(i - udpArray[i].pieces, udpArray[i].pieces);
+                        i -= pieces;
+                    }
+                }
+            }
+
+            peer.createOffer().then(function(offer) {
+                return peer.setLocalDescription(offer);
+            }).then(function() {
+                var request = new XMLHttpRequest();
+                request.open("POST", udpurl);
+                request.onload = function() {
+                    if (request.status == 200) {
+                        var response = JSON.parse(request.responseText);
+                        peer.setRemoteDescription(new RTCSessionDescription(response.answer)).then(function() {
+                            var candidate = new RTCIceCandidate(response.candidate);
+                            peer.addIceCandidate(candidate).then(function() {
+                                Log.Debug("success in addicecandidate");
+                            }).catch(function(err) {
+                                Log.Error("Failure in addIceCandidate", err);
+                            });
+                        }).catch(function(e) {
+                            Log.Error("Failure in setRemoteDescription", e);
+                        });
+                    }
+                };
+                request.send(peer.localDescription.sdp);
+            }).catch(function(reason) {
+                Log.Error("Failed to create offer " + reason);
+            });
+        }
 
         Log.Debug("<< RFB.connect");
     }
@@ -2732,6 +2879,35 @@ export default class RFB extends EventTargetMixin {
         if (this._sock.rQlen > 0) {
             this._handleMessage();
         }
+    }
+
+    _handleUdpRect() {
+        if (this._FBU.encoding === null) {
+            const hdr = this._sock.rQshiftBytes(12);
+            this._FBU.x        = (hdr[0] << 8) + hdr[1];
+            this._FBU.y        = (hdr[2] << 8) + hdr[3];
+            this._FBU.width    = (hdr[4] << 8) + hdr[5];
+            this._FBU.height   = (hdr[6] << 8) + hdr[7];
+            this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
+                                          (hdr[10] << 8) + hdr[11], 10);
+        }
+
+        if (this._FBU.encoding === encodings.pseudoEncodingLastRect) {
+        } else {
+            if (!this._handleDataRect()) {
+                return false;
+            }
+        }
+
+        if (this._FBU.encoding === encodings.pseudoEncodingLastRect) {
+            if (document.visibilityState !== "hidden") {
+                this._display.flip();
+            }
+        }
+
+        this._FBU.encoding = null;
+
+        return true;
     }
 
     _framebufferUpdate() {
