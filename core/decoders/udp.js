@@ -30,23 +30,18 @@ export default class UDPDecoder {
         let ret;
 
         if (ctl === 0x08) {
-            Log.Info("Fill Rect");
             ret = this._fillRect(x, y, width, height,
                 data, display, depth);
         } else if (ctl === 0x09) {
-            Log.Info("Fill JPEG");
             ret = this._jpegRect(x, y, width, height,
                 data, display, depth);
         } else if (ctl === 0x0A) {
-            Log.Info("Fill Png");
             ret = this._pngRect(x, y, width, height,
                 data, display, depth);
         } else if ((ctl & 0x08) == 0) {
-            Log.Info("Fill Basic");
             ret = this._basicRect(ctl, x, y, width, height,
                 data, display, depth);
         } else if (ctl === 0x0B) {
-            Log.Info("Fill webp");
             ret = this._webpRect(x, y, width, height,
                 data, display, depth);
         } else {
@@ -115,17 +110,14 @@ export default class UDPDecoder {
 
         switch (filter) {
             case 0: // CopyFilter
-                Log.Info("Filter Copy");
                 ret = this._copyFilter(streamId, x, y, width, height,
                     data, display, depth, data_index);
                 break;
             case 1: // PaletteFilter
-                Log.Info("Filter Palette");
                 ret = this._paletteFilter(streamId, x, y, width, height,
                     data, display, depth);
                 break;
             case 2: // GradientFilter
-                Log.Info("Filter Gradient");
                 ret = this._gradientFilter(streamId, x, y, width, height,
                     data, display, depth);
                 break;
@@ -146,7 +138,6 @@ export default class UDPDecoder {
 
         if (uncompressedSize < 12) {
             data = data.slice(data_index, data_index + uncompressedSize);
-            //data = sock.rQshiftBytes(uncompressedSize);
         } else {
             data = this._readData(data, data_index);
             if (data === null) {
@@ -186,7 +177,6 @@ export default class UDPDecoder {
         }
 
         if (uncompressedSize < 12) {
-            //data = sock.rQshiftBytes(uncompressedSize);
             data = data.slice(data_i, data_i + uncompressedSize);
         } else {
             data = this._readData(data, data_i);
@@ -281,7 +271,7 @@ export default class UDPDecoder {
             }
         }
 
-        // get rid of me
+        //TODO: get rid of me
         if (data.length !== len + i) {
             console.log('Rect of size ' + len + ' with data size ' + data.length + ' index of ' + i);
         }

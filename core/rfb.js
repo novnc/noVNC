@@ -928,7 +928,7 @@ export default class RFB extends EventTargetMixin {
 
             let udpurl = this._url.split("/")[2];
             udpurl = udpurl.split(":")[0];
-	    udpurl = "http://" + udpurl + ":" + 9555;
+	        udpurl = "http://" + udpurl + ":" + 9555;
             //udpurl = window.location.protocol + "//" + udpurl + ":" + 9555;
 
             this._udpPeer = new RTCPeerConnection({
@@ -980,7 +980,6 @@ export default class RFB extends EventTargetMixin {
                                         (u8[11] << 24), 10);
 
                 if (pieces == 1) { // Handle it immediately
-                    Log.Info("Single Piece recieved");
                     me._handleUdpRect(u8.slice(12));
                 } else { // Insert into wait array
                     const now = Date.now();
@@ -1003,7 +1002,6 @@ export default class RFB extends EventTargetMixin {
                                 finaldata.set(item.data[x], z);
                                 z += item.data[x].length;
                             }
-                            Log.Info('Completed message applied: ' + finaldata.length + ' ' + item.total_bytes + ' ' + item.total_pieces);
                             udpBuffer.delete(id);
                             me._handleUdpRect(finaldata);
                         }
@@ -1027,7 +1025,7 @@ export default class RFB extends EventTargetMixin {
                 for (const [key, value] of udpBuffer.entries()) {
                     // Drop any messages older than 100ms
                     if (now - value.arrival > 100) {
-                        Log.Info('Removed id: ' + key);
+                        Log.Info('Removed id: ' + key + ' Buffer size: ' + udpBuffer.size);
                         udpBuffer.delete(key);
                     }
                 }
