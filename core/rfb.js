@@ -33,6 +33,7 @@ import RREDecoder from "./decoders/rre.js";
 import HextileDecoder from "./decoders/hextile.js";
 import TightDecoder from "./decoders/tight.js";
 import TightPNGDecoder from "./decoders/tightpng.js";
+import UDPDecoder from './decoders/udp.js';
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
@@ -234,6 +235,7 @@ export default class RFB extends EventTargetMixin {
         this._decoders[encodings.encodingHextile] = new HextileDecoder();
         this._decoders[encodings.encodingTight] = new TightDecoder();
         this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
+        this._decoders[encodings.encodingUDP] = new UDPDecoder();
 
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
@@ -979,54 +981,56 @@ export default class RFB extends EventTargetMixin {
 
                 if (pieces == 1) { // Handle it immediately
                     Log.Info("Single Piece recieved");
-		    sock._insertIntoMiddle(u8.slice(12));
-                    me._handleUdpRect();
+                    me._handleUdpRect(u8.slice(12));
                 } else { // Insert into wait array
                     const now = Date.now();
 		    
                     if (udpBuffer.has(id)) {
-			let item = udpBuffer.get(id);
-			if (!item) {
-			   Log.Info("Item Missing id: " + id);
-		           return;
-			}
-			item.recieved_pieces += 1;
-			item.data[i] = u8.slice(12);
-			item.total_bytes += item.data[i].length;
-		    } else {
-			let item = {
-			    total_pieces: pieces, // number of pieces expected
-		            arrival: now, //time first piece was recieved
-			    recieved_pieces: 1, // current number of pieces in data
-			    total_bytes: 0, // total size of all data pieces combined
-			    data: new Array(pieces)
-			}
-			item.data[i] = u8.slice(12);
-			item.total_bytes = item.data[i].length;
-	                udpBuffer.set(id, item);
-		    }
+                        let item = udpBuffer.get(id);
+                        if (!item) {
+                        Log.Info("Item Missing id: " + id);
+                            return;
+                        }
+                        item.recieved_pieces += 1;
+                        item.data[i] = u8.slice(12);
+                        item.total_bytes += item.data[i].length;
+
+                        if (item.total_pieces == item.recieved_pieces) {
+                            // Message is complete, combile data into a single array
+                            var finaldata = new Uint8Array(item.total_bytes);
+                            let z = 0;
+                            for (let x = 0; x < item.data.length; x++) {
+                                finaldata.set(item.data[x], z);
+                                z += item.data[x].length;
+                            }
+                            Log.Info('Completed message applied: ' + finaldata.length + ' ' + item.total_bytes + ' ' + item.total_pieces);
+                            udpBuffer.delete(id);
+                            me._handleUdpRect(finaldata);
+                        }
+                    } else {
+                        let item = {
+                            total_pieces: pieces, // number of pieces expected
+                                arrival: now, //time first piece was recieved
+                            recieved_pieces: 1, // current number of pieces in data
+                            total_bytes: 0, // total size of all data pieces combined
+                            data: new Array(pieces)
+                        }
+                        item.data[i] = u8.slice(12);
+                        item.total_bytes = item.data[i].length;
+                                udpBuffer.set(id, item);
+                    }
                 }
 
+                // TODO: this loop is inefficent and likely unneccesary. 
+                // perhaps just keep n number of incomplete messages
                 const now = Date.now();
-		for (const [key, value] of udpBuffer.entries()) {
-		    // Drop any messages older than 100ms
-	            if (now - value.arrival > 100) {
-			Log.Info('Removed id: ' + key);
-			udpBuffer.delete(key);
-		    } else if (value.total_pieces == value.recieved_pieces) {
-			// Message is complete, combile data into a single array
-			var finaldata = new Uint8Array(value.total_bytes);
-			let z = 0;
-			for (let x = 0; x < value.data.length; x++) {
-			    finaldata.set(value.data[x], z);
-			    z += value.data[x].length;
-			}
-			Log.Info('Completed message applied: ' + finaldata.length + ' ' + value.total_bytes + ' ' + value.total_pieces);
-			sock._insertIntoMiddle(finaldata);
-			udpBuffer.delete(key);
-			me._handleUdpRect();
-		    }
-		}
+                for (const [key, value] of udpBuffer.entries()) {
+                    // Drop any messages older than 100ms
+                    if (now - value.arrival > 100) {
+                        Log.Info('Removed id: ' + key);
+                        udpBuffer.delete(key);
+                    }
+                }
 
             }
 
@@ -2871,31 +2875,38 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _handleUdpRect() {
-        if (this._FBU.encoding === null) {
-            const hdr = this._sock.rQshiftBytes(12);
-            this._FBU.x        = (hdr[0] << 8) + hdr[1];
-            this._FBU.y        = (hdr[2] << 8) + hdr[3];
-            this._FBU.width    = (hdr[4] << 8) + hdr[5];
-            this._FBU.height   = (hdr[6] << 8) + hdr[7];
-            this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
-                                          (hdr[10] << 8) + hdr[11], 10);
-        }
+    _handleUdpRect(data) {
+        let frame = {
+            x: (data[0] << 8) + data[1],
+            y: (data[2] << 8) + data[3],
+            width: (data[4] << 8) + data[5],
+            height: (data[6] << 8) + data[7],
+            encoding: parseInt((data[8] << 24) + (data[9] << 16) +
+                                            (data[10] << 8) + data[11], 10)
+        };
 
-        if (this._FBU.encoding === encodings.pseudoEncodingLastRect) {
-        } else {
-            if (!this._handleDataRect()) {
+        switch (frame.encoding) {
+            case encodings.pseudoEncodingLastRect:
+                if (document.visibilityState !== "hidden") {
+                    this._display.flip();
+                }
+                break;
+            case encodings.encodingTight:
+                let decoder = this._decoders[encodings.encodingUDP];
+                try {
+                    decoder.decodeRect(frame.x, frame.y,
+                        frame.width, frame.height,
+                        data, this._display,
+                        this._fbDepth);
+                } catch (err) {
+                    this._fail("Error decoding rect: " + err);
+                    return false;
+                }
+                break;
+            default:
+                Log.Error("Invalid rect encoding via UDP: " + frame.encoding);
                 return false;
-            }
         }
-
-        if (this._FBU.encoding === encodings.pseudoEncodingLastRect) {
-            if (document.visibilityState !== "hidden") {
-                this._display.flip();
-            }
-        }
-
-        this._FBU.encoding = null;
 
         return true;
     }

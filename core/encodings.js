@@ -13,6 +13,7 @@ export const encodings = {
     encodingHextile: 5,
     encodingTight: 7,
     encodingTightPNG: -260,
+    encodingUDP: -261,
 
     pseudoEncodingQualityLevel9: -23,
     pseudoEncodingQualityLevel0: -32,
