@@ -128,13 +128,17 @@ Running the command below will install the latest release of noVNC from Snap:
 
 `sudo snap install novnc`
 
-#### Running noVNC
+#### Running noVNC from Snap Directly
 
 You can run the Snap-package installed novnc directly with, for example:
 
 `novnc --listen 6081 --vnc localhost:5901 # /snap/bin/novnc if /snap/bin is not in your PATH`
 
-#### Running as a Service (Daemon)
+If you want to use certificate files, due to standard Snap confinement restrictions you need to have them in the /home/\<user\>/snap/novnc/current/ directory. If your username is jsmith an example command would be:
+  
+  `novnc --listen 8443 --cert ~jsmith/snap/novnc/current/self.crt --key ~jsmith/snap/novnc/current/self.key --vnc ubuntu.example.com:5901`
+
+#### Running noVNC from Snap as a Service (Daemon)
 The Snap package also has the capability to run a 'novnc' service which can be 
 configured to listen on multiple ports connecting to multiple VNC servers 
 (effectively a service runing multiple instances of novnc).
