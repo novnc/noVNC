@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Nova+Mono');
+:root {
+  --font-header: 'Nova Mono', monospace;
+  --font-text: 'Open Sans', sans-serif;
+  --color-theme: #F1EEDB;
+  --color-bg: #282B24;
+
+  --animation-sentence: 'You know you\'re supposed to leave, right?';
+  --animation-duration: 40s;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  width: 100%;
+  font-family: var(--font-text);
+  color: var(--color-theme);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+.container {
+  text-align: center;
+  margin: 1rem 0.5rem 0;
+}
+.container h1 {
+  font-family: var(--font-header);
+  font-size: calc(4rem + 2vw);
+	text-transform: uppercase;
+}
+.container p {
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  font-size: 2rem;
+  margin: 1.5rem 0 3rem;
+}
+svg.keyhole {
+  height: 82px;
+  width: 82px;
+  opacity: 0;
+  visibility: hidden;
+  /* define an animation for the keyhole, to introduce it
+  paused by default, run with a timeout in JavaScript
+  */
+  animation: showKey 0.5s 0.5s paused ease-out forwards;
+}
+svg.key {
+  height: 164px;
+  width: 164px;
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  /* define an animation for the keyhole, to introduce it
+  paused by default, run with a timeout in JavaScript
+  */
+  animation: showKey 0.5s 0.5s paused ease-out forwards;
+}
+.ghost {
+  /* border: 1px solid tomato; */
+  position: absolute;
+  bottom: 5px;
+  left: calc(50% - 100px);
+  width: 200px;
+  height: 200px;
+  /* have the ghost move to the right and to the left of the screen, turning to its central position and repeating the animation twice */
+  animation: hoverGhost calc(var(--animation-duration)/2) ease-in-out 2;
+
+}
+/* introduce text through a pseudo element, connected to the animated div */
+.ghost:before {
+  content: var(--animation-sentence);
+  color: var(--color-theme);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 100%;
+  text-align: center;
+  line-height: 2;
+  padding: 1rem;
+  visibility: hidden;
+  opacity: 0;
+  /* have each string of text introduced as the ghost returns from the right edge of the screen, and for the length of time it takes to cover the central portion (a fourth, which becomes an eight as the animation length is half the total duration) */
+  /* the delay for an hypothetical duration of 40s is 7.5s for the first, 27.5s for the second and finally 40s for the last
+  in fractions and with a bit of math it boils down to 3/16, 27/40 and 1
+  // ! remember to include a slight delay in the animation of the key and keyhole
+  */
+  animation:
+    showText calc(var(--animation-duration)/8) calc(var(--animation-duration)*3/16) ease-out forwards,
+    showNewText calc(var(--animation-duration)/8) calc(var(--animation-duration)*27/40) ease-out forwards,
+    showFinalText calc(var(--animation-duration)/8) var(--animation-duration) ease-out forwards;
+
+}
+
+/* define the keyframe animations
+- hoverghost to have the ghost move right, left and then back to its default position
+- showKey to introduce into view the key (and keyhole) svg
+- showText, showNewText, showFinalText to show the different strings (the implementation is quite quirky and primed for optimization)
+ */
+@keyframes hoverGhost {
+  25% {
+    transform: translateX(20vw);
+  }
+  75% {
+    transform: translateX(-20vw);
+  }
+}
+
+@keyframes showKey {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+
+/* alter the text changing the value of the custom property, weary of changing its value when the pseudo element is hidden and changing its value in the last keyframe (as the animation gives this value as per the "forwards" value of the fill-mode property)  */
+@keyframes showText {
+  2% {
+    opacity: 1;
+    visibility: visible;
+  }
+  98% {
+
+    opacity: 1;
+    visibility: visible;
+  }
+  99% {
+    --animation-sentence: 'You know you\'re supposed to leave, right?';
+    opacity: 0;
+    visibility: hidden;
+  }
+  100% {
+    --animation-sentence: 'So much to do, so little time...';
+  }
+}
+@keyframes showNewText {
+  2% {
+    --animation-sentence: 'So much to do, so little time...';
+    opacity: 1;
+    visibility: visible;
+  }
+  98% {
+
+    opacity: 1;
+    visibility: visible;
+  }
+  99% {
+    --animation-sentence: 'So much to do, so little time...';
+    opacity: 0;
+    visibility: hidden;
+  }
+  100% {
+    --animation-sentence: 'Okay, you seem to care about this. Here\'s a key just for you';
+  }
+}
+@keyframes showFinalText {
+  2% {
+    opacity: 1;
+    visibility: visible;
+  }
+  98% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
