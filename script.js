@@ -1,3 +1,5 @@
+/* Original Author >> Gabriele Corti : https://codepen.io/borntofrappe/pen/GXLWzP */
+
 // target the elements in the DOM used in the project
 
 /**
