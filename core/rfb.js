@@ -25,6 +25,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
+import RSAAESAuthenticationState from "./ra2.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -100,6 +101,7 @@ export default class RFB extends EventTargetMixin {
         this._rfbInitState = '';
         this._rfbAuthScheme = -1;
         this._rfbCleanDisconnect = true;
+        this._rfbRSAAESAuthenticationState = null;
 
         // Server capabilities
         this._rfbVersion = 0;
@@ -178,6 +180,8 @@ export default class RFB extends EventTargetMixin {
             handleMouse: this._handleMouse.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
+            handleRSAAESCredentialsRequired: this._handleRSAAESCredentialsRequired.bind(this),
+            handleRSAAESServerVerification: this._handleRSAAESServerVerification.bind(this),
         };
 
         // main setup
@@ -376,6 +380,15 @@ export default class RFB extends EventTargetMixin {
         this._sock.off('error');
         this._sock.off('message');
         this._sock.off('open');
+        if (this._rfbRSAAESAuthenticationState !== null) {
+            this._rfbRSAAESAuthenticationState.disconnect();
+        }
+    }
+
+    approveServer() {
+        if (this._rfbRSAAESAuthenticationState !== null) {
+            this._rfbRSAAESAuthenticationState.approveServer();
+        }
     }
 
     sendCredentials(creds) {
@@ -1306,6 +1319,8 @@ export default class RFB extends EventTargetMixin {
                 this._rfbAuthScheme = 22; // XVP
             } else if (types.includes(16)) {
                 this._rfbAuthScheme = 16; // Tight
+            } else if (types.includes(6)) {
+                this._rfbAuthScheme = 6; // RA2ne Auth
             } else if (types.includes(2)) {
                 this._rfbAuthScheme = 2; // VNC Auth
             } else if (types.includes(19)) {
@@ -1623,6 +1638,44 @@ export default class RFB extends EventTargetMixin {
         return this._fail("No supported sub-auth types!");
     }
 
+    _handleRSAAESCredentialsRequired(event) {
+        this.dispatchEvent(event);
+    }
+
+    _handleRSAAESServerVerification(event) {
+        this.dispatchEvent(event);
+    }
+
+    _negotiateRA2neAuth() {
+        if (this._rfbRSAAESAuthenticationState === null) {
+            this._rfbRSAAESAuthenticationState = new RSAAESAuthenticationState(this._sock, () => this._rfbCredentials);
+            this._rfbRSAAESAuthenticationState.addEventListener(
+                "serververification", this._eventHandlers.handleRSAAESServerVerification);
+            this._rfbRSAAESAuthenticationState.addEventListener(
+                "credentialsrequired", this._eventHandlers.handleRSAAESCredentialsRequired);
+        }
+        this._rfbRSAAESAuthenticationState.checkInternalEvents();
+        if (!this._rfbRSAAESAuthenticationState.hasStarted) {
+            this._rfbRSAAESAuthenticationState.negotiateRA2neAuthAsync()
+                .catch((e) => {
+                    if (e.message !== "disconnect normally") {
+                        this._fail(e.message);
+                    }
+                }).then(() => {
+                    this.dispatchEvent(new CustomEvent('securityresult'));
+                    this._rfbInitState = "SecurityResult";
+                    this._initMsg();
+                }).finally(() => {
+                    this._rfbRSAAESAuthenticationState.removeEventListener(
+                        "serververification", this._eventHandlers.handleRSAAESServerVerification);
+                    this._rfbRSAAESAuthenticationState.removeEventListener(
+                        "credentialsrequired", this._eventHandlers.handleRSAAESCredentialsRequired);
+                    this._rfbRSAAESAuthenticationState = null;
+                });
+        }
+        return false;
+    }
+
     _negotiateAuthentication() {
         switch (this._rfbAuthScheme) {
             case 1:  // no auth
@@ -1647,6 +1700,9 @@ export default class RFB extends EventTargetMixin {
 
             case 129:  // TightVNC UNIX Security Type
                 return this._negotiateTightUnixAuth();
+
+            case 6:  // RA2ne Security Type
+                return this._negotiateRA2neAuth();
 
             default:
                 return this._fail("Unsupported auth scheme (scheme: " +

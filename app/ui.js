@@ -316,6 +316,10 @@ const UI = {
         document.getElementById("noVNC_cancel_reconnect_button")
             .addEventListener('click', UI.cancelReconnect);
 
+        document.getElementById("noVNC_approve_server_button")
+            .addEventListener('click', UI.approveServer);
+        document.getElementById("noVNC_reject_server_button")
+            .addEventListener('click', UI.rejectServer);
         document.getElementById("noVNC_credentials_button")
             .addEventListener('click', UI.setCredentials);
     },
@@ -1030,6 +1034,7 @@ const UI = {
                            credentials: { password: password } });
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
+        UI.rfb.addEventListener("serververification", UI.serverVerify);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
@@ -1151,6 +1156,37 @@ const UI = {
 
 /* ------^-------
  *  /CONNECTION
+ * ==============
+ * SERVER VERIFY
+ * ------v------*/
+
+    async serverVerify(e) {
+        const type = e.detail.type;
+        if (type === 'RSA') {
+            const publickey = e.detail.publickey;
+            let fingerprint = await window.crypto.subtle.digest("SHA-1", publickey);
+            // The same fingerprint format as RealVNC
+            fingerprint = Array.from(new Uint8Array(fingerprint).slice(0, 8)).map(
+                x => x.toString(16).padStart(2, '0')).join('-');
+            document.getElementById('noVNC_verify_server_dlg').classList.add('noVNC_open');
+            document.getElementById('noVNC_fingerprint').innerHTML = fingerprint;
+        }
+    },
+
+    approveServer(e) {
+        e.preventDefault();
+        document.getElementById('noVNC_verify_server_dlg').classList.remove('noVNC_open');
+        UI.rfb.approveServer();
+    },
+
+    rejectServer(e) {
+        e.preventDefault();
+        document.getElementById('noVNC_verify_server_dlg').classList.remove('noVNC_open');
+        UI.disconnect();
+    },
+
+/* ------^-------
+ * /SERVER VERIFY
  * ==============
  *   PASSWORD
  * ------v------*/

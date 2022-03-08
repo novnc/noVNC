@@ -274,6 +274,25 @@
         </div>
     </div>
 
+    <!-- Server Key Verification Dialog -->
+    <div class="noVNC_center noVNC_connect_layer">
+    <div id="noVNC_verify_server_dlg" class="noVNC_panel"><form>
+        <ul>
+            <li id="noVNC_fingerprint_block">
+                <label>Fingerprint:</label>
+                <div id="noVNC_fingerprint"></div>
+            </li>
+            <li>
+                Please verify the identification of the server by its fingerprint before you approve it.
+            </li>
+            <li>
+                <input id="noVNC_approve_server_button" type="submit" value="Approve" class="noVNC_submit">
+                <input id="noVNC_reject_server_button" type="button" value="Reject" class="noVNC_submit">
+            </li>
+        </ul>
+    </form></div>
+    </div>
+
     <!-- Password Dialog -->
     <div class="noVNC_center noVNC_connect_layer">
     <div id="noVNC_credentials_dlg" class="noVNC_panel"><form>
