@@ -136,7 +136,7 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
         this._clipboardBinary = true;
-        this._useUdp = true;
+        this._useUdp = false;
 
         this._trackFrameStats = false;
 
@@ -922,12 +922,9 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gestureend", this._eventHandlers.handleGesture);
 
-        // WebRTC UDP datachannel
-        if (this._useUdp) {
-            this._udpBuffer= new Map();
-
-            let udpurl = this._url.split("/")[2];
-            udpurl = window.location.protocol + "//" + udpurl + "/webrtc";
+        // WebRTC UDP datachannel inits
+        {
+            this._udpBuffer = new Map();
 
             this._udpPeer = new RTCPeerConnection({
                 iceServers: [{
@@ -1029,31 +1026,6 @@ export default class RFB extends EventTargetMixin {
                 }
 
             }
-
-            peer.createOffer().then(function(offer) {
-                return peer.setLocalDescription(offer);
-            }).then(function() {
-                var request = new XMLHttpRequest();
-                request.open("POST", udpurl);
-                request.onload = function() {
-                    if (request.status == 200) {
-                        var response = JSON.parse(request.responseText);
-                        peer.setRemoteDescription(new RTCSessionDescription(response.answer)).then(function() {
-                            var candidate = new RTCIceCandidate(response.candidate);
-                            peer.addIceCandidate(candidate).then(function() {
-                                Log.Debug("success in addicecandidate");
-                            }).catch(function(err) {
-                                Log.Error("Failure in addIceCandidate", err);
-                            });
-                        }).catch(function(e) {
-                            Log.Error("Failure in setRemoteDescription", e);
-                        });
-                    }
-                };
-                request.send(peer.localDescription.sdp);
-            }).catch(function(reason) {
-                Log.Error("Failed to create offer " + reason);
-            });
         }
 
         Log.Debug("<< RFB.connect");
@@ -2850,6 +2822,9 @@ export default class RFB extends EventTargetMixin {
             case 180: // KASM binary clipboard
                 return this._handleBinaryClipboard();
 
+            case 181: // KASM UDP upgrade
+                return this._handleUdpUpgrade();
+
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
 
@@ -2905,6 +2880,64 @@ export default class RFB extends EventTargetMixin {
         }
 
         return true;
+    }
+
+    _sendUdpUpgrade() {
+        let peer = this._udpPeer;
+        let sock = this._sock;
+
+        peer.createOffer().then(function(offer) {
+            return peer.setLocalDescription(offer);
+        }).then(function() {
+            const buff = sock._sQ;
+            const offset = sock._sQlen;
+            const str = Uint8Array.from(Array.from(peer.localDescription.sdp).map(letter => letter.charCodeAt(0)));
+
+            buff[offset] = 181; // msg-type
+            buff[offset + 1] = str.length >> 8; // u16 len
+            buff[offset + 2] = str.length;
+
+            buff.set(str, offset + 3);
+
+            sock._sQlen += 3 + str.length;
+            sock.flush();
+        }).catch(function(reason) {
+            Log.Error("Failed to create offer " + reason);
+        });
+    }
+
+    _sendUdpDowngrade() {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+        buff[offset] = 181; // msg-type
+        buff[offset + 1] = 0; // u16 len
+        buff[offset + 2] = 0;
+
+        sock._sQlen += 3;
+        sock.flush();
+    }
+
+    _handleUdpUpgrade() {
+        if (this._sock.rQwait("UdpUgrade header", 2, 1)) { return false; }
+        let len = this._sock.rQshift16();
+        if (this._sock.rQwait("UdpUpgrade payload", len, 3)) { return false; }
+
+        const payload = this._sock.rQshiftStr(len);
+
+        let peer = this._udpPeer;
+
+        var response = JSON.parse(payload);
+        peer.setRemoteDescription(new RTCSessionDescription(response.answer)).then(function() {
+            var candidate = new RTCIceCandidate(response.candidate);
+            peer.addIceCandidate(candidate).then(function() {
+                Log.Debug("success in addicecandidate");
+            }).catch(function(err) {
+                Log.Error("Failure in addIceCandidate", err);
+            });
+        }).catch(function(e) {
+            Log.Error("Failure in setRemoteDescription", e);
+        });
     }
 
     _framebufferUpdate() {
