@@ -927,9 +927,7 @@ export default class RFB extends EventTargetMixin {
             this._udpBuffer= new Map();
 
             let udpurl = this._url.split("/")[2];
-            udpurl = udpurl.split(":")[0];
-	        udpurl = "http://" + udpurl + ":" + 9555;
-            //udpurl = window.location.protocol + "//" + udpurl + ":" + 9555;
+            udpurl = window.location.protocol + "//" + udpurl + "/webrtc";
 
             this._udpPeer = new RTCPeerConnection({
                 iceServers: [{
