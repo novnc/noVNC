@@ -89,6 +89,10 @@ protocol stream.
 [`disconnect`](#disconnected)
   - The `disconnect` event is fired when the `RFB` object disconnects.
 
+[`serververification`](#serververification)
+  - The `serververification` event is fired when the server identity
+    must be confirmed by the user.
+
 [`credentialsrequired`](#credentialsrequired)
   - The `credentialsrequired` event is fired when more credentials must
     be given to continue.
@@ -117,6 +121,11 @@ protocol stream.
 
 [`RFB.disconnect()`](#rfbdisconnect)
   - Disconnect from the server.
+
+[`RFB.approveServer()`](#rfbapproveserver)
+  - Proceed connecting to the server. Should be called after the
+    [`serververification`](#serververification) event has fired and the
+    user has verified the identity of the server.
 
 [`RFB.sendCredentials()`](#rfbsendcredentials)
   - Send credentials to server. Should be called after the
@@ -212,6 +221,20 @@ property `clean`. `clean` is a `boolean` indicating if the termination
 was clean or not. In the event of an unexpected termination or an error
 `clean` will be set to false.
 
+#### serververification
+
+The `serververification` event is fired when the server provides
+information that allows the user to verify that it is the correct server
+and protect against a man-in-the-middle attack. The `detail` property is
+an `Object` containing the property `type` which is a `DOMString`
+specifying which type of information the server has provided. Other
+properties are also available, depending on the value of `type`:
+
+`"RSA"`
+ - The server identity is verified using just a RSA key. The property
+   `publickey` is a `Uint8Array` containing the public key in a unsigned
+   big endian representation.
+
 #### credentialsrequired
 
 The `credentialsrequired` event is fired when the server requests more
@@ -270,6 +293,16 @@ connected server.
 ##### Syntax
 
     RFB.disconnect( );
+
+#### RFB.approveServer()
+
+The `RFB.approveServer()` method is used to signal that the user has
+verified the server identity provided in a `serververification` event
+and that the connection can continue.
+
+##### Syntax
+
+    RFB.approveServer( );
 
 #### RFB.sendCredentials()
 
