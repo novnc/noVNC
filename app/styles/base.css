@@ -842,7 +842,7 @@ select:active {
 }
 
 /* ----------------------------------------
- * Key verification Dialog
+ * Server verification Dialog
  * ----------------------------------------
  */
 
@@ -853,6 +853,9 @@ select:active {
 }
 #noVNC_verify_server_dlg.noVNC_open {
   transform: translateY(0);
+}
+#noVNC_fingerprint_block {
+  margin: 10px;
 }
 
 /* ----------------------------------------
