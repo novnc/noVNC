@@ -212,6 +212,7 @@ that list and you think you should be, feel free to send a PR to fix that.
     * UI and Icons : Pierre Ossman, Chris Gordon
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
+    * RealVNC RSA AES authentication : USTC Vlab Team
 
 * Included libraries:
     * base64 : Martijn Pieters (Digital Creations 2), Samuel Sieb (sieb.net)
