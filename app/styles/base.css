@@ -868,7 +868,8 @@ select:active {
 #noVNC_credentials_dlg.noVNC_open {
   transform: translateY(0);
 }
-.noVNC_hidden {
+#noVNC_username_block.noVNC_hidden,
+#noVNC_password_block.noVNC_hidden {
   display: none;
 }
 
