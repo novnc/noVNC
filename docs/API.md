@@ -86,7 +86,7 @@ protocol stream.
   - The `connect` event is fired when the `RFB` object has completed
     the connection and handshaking with the server.
 
-[`disconnect`](#disconnected)
+[`disconnect`](#disconnect)
   - The `disconnect` event is fired when the `RFB` object disconnects.
 
 [`serververification`](#serververification)
@@ -131,7 +131,7 @@ protocol stream.
   - Send credentials to server. Should be called after the
     [`credentialsrequired`](#credentialsrequired) event has fired.
 
-[`RFB.sendKey()`](#rfbsendKey)
+[`RFB.sendKey()`](#rfbsendkey)
   - Send a key event.
 
 [`RFB.sendCtrlAltDel()`](#rfbsendctrlaltdel)
@@ -152,7 +152,7 @@ protocol stream.
 [`RFB.machineReset()`](#rfbmachinereset)
   - Request a reset of the remote machine.
 
-[`RFB.clipboardPasteFrom()`](#rfbclipboardPasteFrom)
+[`RFB.clipboardPasteFrom()`](#rfbclipboardpastefrom)
   - Send clipboard contents to server.
 
 ### Details
