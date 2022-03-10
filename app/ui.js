@@ -449,6 +449,8 @@ const UI = {
         // State change closes dialogs as they may not be relevant
         // anymore
         UI.closeAllPanels();
+        document.getElementById('noVNC_verify_server_dlg')
+            .classList.remove('noVNC_open');
         document.getElementById('noVNC_credentials_dlg')
             .classList.remove('noVNC_open');
     },
