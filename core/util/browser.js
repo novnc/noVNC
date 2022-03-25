@@ -97,6 +97,10 @@ export function isSafari() {
                          navigator.userAgent.indexOf('Chrome') === -1);
 }
 
+export function isChromiumBased() {
+    return (!!window.chrome);
+}
+
 export function isFirefox() {
     return navigator && !!(/firefox/i).exec(navigator.userAgent);
 }

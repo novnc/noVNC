@@ -65,8 +65,6 @@ const UI = {
     controlbarMouseDownClientY: 0,
     controlbarMouseDownOffsetY: 0,
 
-    lastKeyboardinput: null,
-    defaultKeyboardinputLen: 100,
     needToCheckClipboardChange: false,
 
     inhibitReconnect: true,
@@ -135,10 +133,6 @@ const UI = {
         UI.addSettingsHandlers();
         document.getElementById("noVNC_status")
             .addEventListener('click', UI.hideStatus);
-
-        // Bootstrap fallback input handler
-        UI.keyboardinputReset();
-
         UI.openControlbar();
 
         UI.updateVisualState('init');
@@ -245,6 +239,9 @@ const UI = {
         UI.initSetting('prefer_local_cursor', true);
         UI.initSetting('toggle_control_panel', false);
         UI.initSetting('enable_perf_stats', false);
+        UI.initSetting('virtual_keyboard_visible', false);
+        UI.initSetting('enable_ime', false)
+        UI.toggleKeyboardControls();
 
         if (WebUtil.isInsideKasmVDI()) {
             UI.initSetting('clipboard_up', false);
@@ -371,12 +368,6 @@ const UI = {
     addTouchSpecificHandlers() {
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
-
-        UI.touchKeyboard = new Keyboard(document.getElementById('noVNC_keyboardinput'));
-        UI.touchKeyboard.onkeyevent = UI.keyEvent;
-        UI.touchKeyboard.grab();
-        document.getElementById("noVNC_keyboardinput")
-            .addEventListener('input', UI.keyInput);
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('focus', UI.onfocusVirtualKeyboard);
         document.getElementById("noVNC_keyboardinput")
@@ -536,6 +527,10 @@ const UI = {
         UI.addSettingChangeHandler('clipboard_seamless');
         UI.addSettingChangeHandler('clipboard_up');
         UI.addSettingChangeHandler('clipboard_down');
+        UI.addSettingChangeHandler('virtual_keyboard_visible');
+        UI.addSettingChangeHandler('virtual_keyboard_visible', UI.toggleKeyboardControls);
+        UI.addSettingChangeHandler('enable_ime');
+        UI.addSettingChangeHandler('enable_ime', UI.toggleIMEMode);
     },
 
     addFullscreenHandlers() {
@@ -1297,7 +1292,9 @@ const UI = {
         }
         url += '/' + path;
 
-        UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
+        UI.rfb = new RFB(document.getElementById('noVNC_container'),
+                        document.getElementById('noVNC_keyboardinput'),
+                        url,
                          { shared: UI.getSetting('shared'),
                            repeaterID: UI.getSetting('repeaterID'),
                            credentials: { password: password } });
@@ -1335,6 +1332,7 @@ const UI = {
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up');
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down');
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
+        UI.rfb.keyboard.enableIME = UI.getSetting('enable_ime');
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
 
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
@@ -1543,6 +1541,30 @@ const UI = {
                 case 'setvideoquality':
                     UI.forceSetting('video_quality', parseInt(event.data.value), false);
                     UI.updateQuality();
+                    break;
+                case 'show_keyboard_controls':
+                    if (!UI.getSetting('virtual_keyboard_visible')) {
+                        UI.forceSetting('virtual_keyboard_visible', true, false);
+                        UI.showKeyboardControls();
+                    }
+                    break;
+                case 'hide_keyboard_controls':
+                    if (UI.getSetting('virtual_keyboard_visible')) {
+                        UI.forceSetting('virtual_keyboard_visible', true, false);
+                        UI.hideKeyboardControls();
+                    }
+                    break;
+                case 'enable_ime_mode':
+                    if (!UI.getSetting('enable_ime')) {
+                        UI.forceSetting('enable_ime', true, false);
+                        UI.toggleIMEMode();
+                    }
+                    break;
+                case 'disable_ime_mode':
+                    if (UI.getSetting('enable_ime')) {
+                        UI.forceSetting('enable_ime', false, false);
+                        UI.toggleIMEMode();
+                    }
                     break;
             }
         }
@@ -1881,18 +1903,41 @@ const UI = {
         UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
     },
 
+    toggleKeyboardControls() {
+        if (UI.getSetting('virtual_keyboard_visible')) {
+            UI.showKeyboardControls();
+        } else {
+            UI.hideKeyboardControls();
+        }
+    },
+
+    toggleIMEMode() {
+        if (UI.rfb) {
+            if (UI.getSetting('enable_ime')) {
+                UI.rfb.keyboard.enableIME = true;
+            } else {
+                UI.rfb.keyboard.enableIME = false;
+            }
+        }
+    },
+
     showKeyboardControls() {
-        document.querySelector(".keyboard-controls").classList.add("is-visible");
+        document.getElementById('noVNC_keyboard_control').classList.add("is-visible");
     },
 
     hideKeyboardControls() {
-        document.querySelector(".keyboard-controls").classList.remove("is-visible");
+        document.getElementById('noVNC_keyboard_control').classList.remove("is-visible");
     },
 
     showVirtualKeyboard() {
         const input = document.getElementById('noVNC_keyboardinput');
 
-        if (document.activeElement == input) return;
+        if (document.activeElement == input || !UI.rfb) return;
+
+        if (UI.getSetting('virtual_keyboard_visible')) {
+            document.getElementById('noVNC_keyboard_control_handle')
+                .classList.add("noVNC_selected");
+        }
 
         input.focus();
 
@@ -1916,7 +1961,12 @@ const UI = {
     hideVirtualKeyboard() {
         const input = document.getElementById('noVNC_keyboardinput');
 
-        if (document.activeElement != input) return;
+        if (document.activeElement != input || !UI.rfb) return;
+
+        if (UI.getSetting('virtual_keyboard_visible')) {
+            document.getElementById('noVNC_keyboard_control_handle')
+                .classList.remove("noVNC_selected");
+        }
 
         input.blur();
     },
@@ -1941,6 +1991,12 @@ const UI = {
     onblurVirtualKeyboard(event) {
         document.getElementById('noVNC_keyboard_button')
             .classList.remove("noVNC_selected");
+
+        if (UI.getSetting('virtual_keyboard_visible')) {
+            document.getElementById('noVNC_keyboard_control_handle')
+                .classList.remove("noVNC_selected");
+        }
+
         if (UI.rfb) {
             UI.rfb.focusOnClick = true;
         }
@@ -1972,83 +2028,6 @@ const UI = {
         }
 
         event.preventDefault();
-    },
-
-    keyboardinputReset() {
-        const kbi = document.getElementById('noVNC_keyboardinput');
-        kbi.value = new Array(UI.defaultKeyboardinputLen).join("_");
-        UI.lastKeyboardinput = kbi.value;
-    },
-
-    keyEvent(keysym, code, down) {
-        if (!UI.rfb) return;
-
-        UI.rfb.sendKey(keysym, code, down);
-    },
-
-    // When normal keyboard events are left uncought, use the input events from
-    // the keyboardinput element instead and generate the corresponding key events.
-    // This code is required since some browsers on Android are inconsistent in
-    // sending keyCodes in the normal keyboard events when using on screen keyboards.
-    keyInput(event) {
-
-        if (!UI.rfb) return;
-
-        const newValue = event.target.value;
-
-        if (!UI.lastKeyboardinput) {
-            UI.keyboardinputReset();
-        }
-        const oldValue = UI.lastKeyboardinput;
-
-        let newLen;
-        try {
-            // Try to check caret position since whitespace at the end
-            // will not be considered by value.length in some browsers
-            newLen = Math.max(event.target.selectionStart, newValue.length);
-        } catch (err) {
-            // selectionStart is undefined in Google Chrome
-            newLen = newValue.length;
-        }
-        const oldLen = oldValue.length;
-
-        let inputs = newLen - oldLen;
-        let backspaces = inputs < 0 ? -inputs : 0;
-
-        // Compare the old string with the new to account for
-        // text-corrections or other input that modify existing text
-        for (let i = 0; i < Math.min(oldLen, newLen); i++) {
-            if (newValue.charAt(i) != oldValue.charAt(i)) {
-                inputs = newLen - i;
-                backspaces = oldLen - i;
-                break;
-            }
-        }
-
-        // Send the key events
-        for (let i = 0; i < backspaces; i++) {
-            UI.rfb.sendKey(KeyTable.XK_BackSpace, "Backspace");
-        }
-        for (let i = newLen - inputs; i < newLen; i++) {
-            UI.rfb.sendKey(keysyms.lookup(newValue.charCodeAt(i)));
-        }
-
-        // Control the text content length in the keyboardinput element
-        if (newLen > 2 * UI.defaultKeyboardinputLen) {
-            UI.keyboardinputReset();
-        } else if (newLen < 1) {
-            // There always have to be some text in the keyboardinput
-            // element with which backspace can interact.
-            UI.keyboardinputReset();
-            // This sometimes causes the keyboard to disappear for a second
-            // but it is required for the android keyboard to recognize that
-            // text has been added to the field
-            event.target.blur();
-            // This has to be ran outside of the input handler in order to work
-            setTimeout(event.target.focus.bind(event.target), 0);
-        } else {
-            UI.lastKeyboardinput = newValue;
-        }
     },
 
 /* ------^-------

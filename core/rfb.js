@@ -70,7 +70,7 @@ const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
 
 export default class RFB extends EventTargetMixin {
-    constructor(target, urlOrChannel, options) {
+    constructor(target, touchInput, urlOrChannel, options) {
         if (!target) {
             throw new Error("Must specify target");
         }
@@ -244,7 +244,7 @@ export default class RFB extends EventTargetMixin {
         }
         this._display.onflush = this._onFlush.bind(this);
 
-        this._keyboard = new Keyboard(this._canvas);
+        this._keyboard = new Keyboard(this._canvas, touchInput);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
 
         this._gestures = new GestureHandler();
@@ -332,6 +332,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+
+    get keyboard() { return this._keyboard; }
 
     get clipboardBinary() { return this._clipboardMode; }
     set clipboardBinary(val) { this._clipboardMode = val; }
@@ -745,11 +747,13 @@ export default class RFB extends EventTargetMixin {
     }
 
     focus() {
-        this._canvas.focus();
+        this._keyboard.focus();
+        //this._canvas.focus();
     }
 
     blur() {
-        this._canvas.blur();
+        this._keyboard.blur();
+        //this._canvas.blur();
     }
 
     clipboardPasteFrom(text) {

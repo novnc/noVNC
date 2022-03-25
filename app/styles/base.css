@@ -936,15 +936,15 @@ select:active {
 }
 
 #noVNC_keyboardinput {
-  width: 1px;
-  height: 1px;
-  background-color: #fff;
-  color: #fff;
+  width: 0px;
+  height: 0px;
+  background-color: #fff0;
+  color: rgba(5, 5, 5, 0);
   border: 0;
   position: absolute;
-  left: -40px;
+  left: 35%;
+  top: 40%;
   z-index: -1;
-  ime-mode: disabled;
 }
 
 /*Default noVNC logo.*/
@@ -1019,6 +1019,11 @@ body {
   border-radius: 6px;
   outline: none;
   user-select: none;
+}
+
+#noVNC_keyboard_control .noVNC_selected {
+  background-color:rgb(15, 36, 153);
+  border: 6px rgb(15, 36, 153) solid;
 }
 
 .keyboard-controls .button.ctrl {
