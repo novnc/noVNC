@@ -136,7 +136,7 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
         this._clipboardBinary = true;
-        this._useUdp = false;
+        this._useUdp = true;
 
         this._trackFrameStats = false;
 
@@ -1031,6 +1031,10 @@ export default class RFB extends EventTargetMixin {
                 }
 
             }
+        }
+
+	if (this._useUdp) {
+            setTimeout(function() { this._sendUdpUpgrade() }.bind(this), 3000);
         }
 
         Log.Debug("<< RFB.connect");
