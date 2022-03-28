@@ -14,7 +14,6 @@ import Inflator from "../inflator.js";
 export default class UDPDecoder {
     constructor() {
         this._filter = null;
-        this._numColors = 0;
         this._palette = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
 
         this._zlibs = [];
@@ -190,7 +189,7 @@ export default class UDPDecoder {
         }
 
         // Convert indexed (palette based) image data to RGB
-        if (this._numColors == 2) {
+        if (numColors == 2) {
             this._monoRect(x, y, width, height, data, palette, display);
         } else {
             this._paletteRect(x, y, width, height, data, palette, display);
@@ -277,7 +276,7 @@ export default class UDPDecoder {
         }
         
 
-        return data.slice(i, data.length - 1);
+        return data.slice(i);
     }
 
     _getScratchBuffer(size) {
