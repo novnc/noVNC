@@ -51,7 +51,7 @@ export default class RawDecoder {
 
         // Max sure the image is fully opaque
         for (let i = 0; i < pixels; i++) {
-            data[i * 4 + 3] = 255;
+            data[index + i * 4 + 3] = 255;
         }
 
         display.blitImage(x, curY, width, currHeight, data, index);
