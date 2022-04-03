@@ -1048,11 +1048,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(client._rfbVersion).to.equal(3.3);
                 });
 
-                it('should interpret version 003.889 as version 3.3', function () {
-                    sendVer('003.889', client);
-                    expect(client._rfbVersion).to.equal(3.3);
-                });
-
                 it('should interpret version 003.007 as version 3.7', function () {
                     sendVer('003.007', client);
                     expect(client._rfbVersion).to.equal(3.7);
@@ -1060,6 +1055,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 it('should interpret version 003.008 as version 3.8', function () {
                     sendVer('003.008', client);
+                    expect(client._rfbVersion).to.equal(3.8);
+                });
+
+                it('should interpret version 003.889 as version 3.8', function () {
+                    sendVer('003.889', client);
                     expect(client._rfbVersion).to.equal(3.8);
                 });
 

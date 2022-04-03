@@ -26,6 +26,7 @@ import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
+import ARDAuthenticationState from "./ard.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -102,6 +103,7 @@ export default class RFB extends EventTargetMixin {
         this._rfbAuthScheme = -1;
         this._rfbCleanDisconnect = true;
         this._rfbRSAAESAuthenticationState = null;
+        this._rfbARDAuthenticationState = null;
 
         // Server capabilities
         this._rfbVersion = 0;
@@ -182,6 +184,7 @@ export default class RFB extends EventTargetMixin {
             handleGesture: this._handleGesture.bind(this),
             handleRSAAESCredentialsRequired: this._handleRSAAESCredentialsRequired.bind(this),
             handleRSAAESServerVerification: this._handleRSAAESServerVerification.bind(this),
+            handleARDCredentialsRequired: this._handleARDCredentialsRequired.bind(this),
         };
 
         // main setup
@@ -384,6 +387,9 @@ export default class RFB extends EventTargetMixin {
         this._sock.off('open');
         if (this._rfbRSAAESAuthenticationState !== null) {
             this._rfbRSAAESAuthenticationState.disconnect();
+        }
+        if (this._rfbARDAuthenticationState != null) {
+            this._rfbARDAuthenticationState.disconnect();
         }
     }
 
@@ -1288,13 +1294,13 @@ export default class RFB extends EventTargetMixin {
                 break;
             case "003.003":
             case "003.006":  // UltraVNC
-            case "003.889":  // Apple Remote Desktop
                 this._rfbVersion = 3.3;
                 break;
             case "003.007":
                 this._rfbVersion = 3.7;
                 break;
             case "003.008":
+            case "003.889":  // Apple Remote Desktop
             case "004.000":  // Intel AMT KVM
             case "004.001":  // RealVNC 4.6
             case "005.000":  // RealVNC 5.3
@@ -1354,6 +1360,8 @@ export default class RFB extends EventTargetMixin {
                 this._rfbAuthScheme = 2; // VNC Auth
             } else if (types.includes(19)) {
                 this._rfbAuthScheme = 19; // VeNCrypt Auth
+            } else if (types.includes(30)) {
+                this._rfbAuthScheme = 30; // ARD Auth
             } else {
                 return this._fail("Unsupported security types (types: " + types + ")");
             }
@@ -1705,6 +1713,36 @@ export default class RFB extends EventTargetMixin {
         return false;
     }
 
+    _handleARDCredentialsRequired(event) {
+        this.dispatchEvent(event);
+    }
+
+    _negotiateARDAuth() {
+        if (this._rfbARDAuthenticationState === null) {
+            this._rfbARDAuthenticationState = new ARDAuthenticationState(this._sock, () => this._rfbCredentials);
+            this._rfbARDAuthenticationState.addEventListener(
+                "credentialsrequired", this._eventHandlers.handleARDCredentialsRequired);
+        }
+        this._rfbARDAuthenticationState.checkInternalEvents();
+        if (!this._rfbARDAuthenticationState.hasStarted) {
+            this._rfbARDAuthenticationState.negotiateARDAuthAsync()
+                .catch((e) => {
+                    if (e.message !== "disconnect normally") {
+                        this._fail(e.message);
+                    }
+                }).then(() => {
+                    this.dispatchEvent(new CustomEvent('securityresult'));
+                    this._rfbInitState = "SecurityResult";
+                    this._initMsg();
+                }).finally(() => {
+                    this._rfbARDAuthenticationState.removeEventListener(
+                        "credentialsrequired", this._eventHandlers.handleARDCredentialsRequired);
+                    this._rfbARDAuthenticationState = null;
+                });
+        }
+        return false;
+    }
+
     _negotiateAuthentication() {
         switch (this._rfbAuthScheme) {
             case 1:  // no auth
@@ -1732,6 +1770,9 @@ export default class RFB extends EventTargetMixin {
 
             case 6:  // RA2ne Security Type
                 return this._negotiateRA2neAuth();
+
+            case 30:  // ARD Security Type:
+                return this._negotiateARDAuth();
 
             default:
                 return this._fail("Unsupported auth scheme (scheme: " +
