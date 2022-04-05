@@ -26,6 +26,8 @@ import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
+import { MD5 } from "./util/md5.js";
+import { modPow } from "./util/bigint-mod-arith.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -1288,13 +1290,13 @@ export default class RFB extends EventTargetMixin {
                 break;
             case "003.003":
             case "003.006":  // UltraVNC
-            case "003.889":  // Apple Remote Desktop
                 this._rfbVersion = 3.3;
                 break;
             case "003.007":
                 this._rfbVersion = 3.7;
                 break;
             case "003.008":
+            case "003.889":  // Apple Remote Desktop
             case "004.000":  // Intel AMT KVM
             case "004.001":  // RealVNC 4.6
             case "005.000":  // RealVNC 5.3
@@ -1352,6 +1354,8 @@ export default class RFB extends EventTargetMixin {
                 this._rfbAuthScheme = 6; // RA2ne Auth
             } else if (types.includes(2)) {
                 this._rfbAuthScheme = 2; // VNC Auth
+            } else if (types.includes(30)) {
+                this._rfbAuthScheme = 30; // ARD Auth
             } else if (types.includes(19)) {
                 this._rfbAuthScheme = 19; // VeNCrypt Auth
             } else {
@@ -1544,6 +1548,105 @@ export default class RFB extends EventTargetMixin {
         return true;
     }
 
+    _negotiateARDAuth() {
+
+        if (this._rfbCredentials.username === undefined ||
+            this._rfbCredentials.password === undefined) {
+            this.dispatchEvent(new CustomEvent(
+                "credentialsrequired",
+                { detail: { types: ["username", "password"] } }));
+            return false;
+        }
+
+        if (this._rfbCredentials.ardPublicKey != undefined &&
+            this._rfbCredentials.ardCredentials != undefined) {
+            // if the async web crypto is done return the results
+            this._sock.send(this._rfbCredentials.ardCredentials);
+            this._sock.send(this._rfbCredentials.ardPublicKey);
+            this._rfbCredentials.ardCredentials = null;
+            this._rfbCredentials.ardPublicKey = null;
+            this._rfbInitState = "SecurityResult";
+            return true;
+        }
+
+        if (this._sock.rQwait("read ard", 4)) { return false; }
+
+        let generator = this._sock.rQshiftBytes(2);   // DH base generator value
+
+        let keyLength = this._sock.rQshift16();
+
+        if (this._sock.rQwait("read ard keylength", keyLength*2, 4)) { return false; }
+
+        // read the server values
+        let prime = this._sock.rQshiftBytes(keyLength);  // predetermined prime modulus
+        let serverPublicKey = this._sock.rQshiftBytes(keyLength); // other party's public key
+
+        let clientPrivateKey = window.crypto.getRandomValues(new Uint8Array(keyLength));
+        let padding = Array.from(window.crypto.getRandomValues(new Uint8Array(64)), byte => String.fromCharCode(65+byte%26)).join('');
+
+        this._negotiateARDAuthAsync(generator, keyLength, prime, serverPublicKey, clientPrivateKey, padding);
+
+        return false;
+    }
+
+    _modPow(base, exponent, modulus) {
+
+        let baseHex = "0x"+Array.from(base, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+        let exponentHex = "0x"+Array.from(exponent, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+        let modulusHex = "0x"+Array.from(modulus, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+
+        let hexResult = modPow(BigInt(baseHex), BigInt(exponentHex), BigInt(modulusHex)).toString(16);
+
+        while (hexResult.length/2<exponent.length || (hexResult.length%2 != 0)) {
+            hexResult = "0"+hexResult;
+        }
+
+        let bytesResult = [];
+        for (let c = 0; c < hexResult.length; c += 2) {
+            bytesResult.push(parseInt(hexResult.substr(c, 2), 16));
+        }
+        return bytesResult;
+    }
+
+    async _aesEcbEncrypt(string, key) {
+        // perform AES-ECB blocks
+        let keyString = Array.from(key, byte => String.fromCharCode(byte)).join('');
+        let aesKey = await window.crypto.subtle.importKey("raw", MD5(keyString), {name: "AES-CBC"}, false, ["encrypt"]);
+        let data = new Uint8Array(string.length);
+        for (let i = 0; i < string.length; ++i) {
+            data[i] = string.charCodeAt(i);
+        }
+        let encrypted = new Uint8Array(data.length);
+        for (let i=0;i<data.length;i+=16) {
+            let block = data.slice(i, i+16);
+            let encryptedBlock = await window.crypto.subtle.encrypt({name: "AES-CBC", iv: block},
+                                                                    aesKey, new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            );
+            encrypted.set((new Uint8Array(encryptedBlock)).slice(0, 16), i);
+        }
+        return encrypted;
+    }
+
+    async _negotiateARDAuthAsync(generator, keyLength, prime, serverPublicKey, clientPrivateKey, padding) {
+        // calculate the DH keys
+        let clientPublicKey = this._modPow(generator, clientPrivateKey, prime);
+        let sharedKey = this._modPow(serverPublicKey, clientPrivateKey, prime);
+
+        let username = encodeUTF8(this._rfbCredentials.username).substring(0, 63);
+        let password = encodeUTF8(this._rfbCredentials.password).substring(0, 63);
+
+        let paddedUsername = username + '\0' + padding.substring(0, 63);
+        let paddedPassword = password + '\0' + padding.substring(0, 63);
+        let credentials = paddedUsername.substring(0, 64) + paddedPassword.substring(0, 64);
+
+        let encrypted = await this._aesEcbEncrypt(credentials, sharedKey);
+
+        this._rfbCredentials.ardCredentials = encrypted;
+        this._rfbCredentials.ardPublicKey = clientPublicKey;
+
+        setTimeout(this._initMsg.bind(this), 0);
+    }
+
     _negotiateTightUnixAuth() {
         if (this._rfbCredentials.username === undefined ||
             this._rfbCredentials.password === undefined) {
@@ -1717,6 +1820,9 @@ export default class RFB extends EventTargetMixin {
 
             case 22:  // XVP auth
                 return this._negotiateXvpAuth();
+
+            case 30:  // ARD auth
+                return this._negotiateARDAuth();
 
             case 2:  // VNC authentication
                 return this._negotiateStdVNCAuth();
