@@ -2497,6 +2497,10 @@ export default class RFB extends EventTargetMixin {
         
 
         for (let i = 0; i < num; i++) {
+            if (this._sock.rQwait("Binary Clipboard op id", 4, buffByteLen)) { return false; }
+            buffByteLen += 4;
+            let clipid = this._sock.rQshift32();
+
             if (this._sock.rQwait("Binary Clipboard mimelen", 1, buffByteLen)) { return false; }
             buffByteLen++;
             let mimelen = this._sock.rQshift8();
@@ -2537,10 +2541,10 @@ export default class RFB extends EventTargetMixin {
                             );
                         }
 
-                    if (!this.clipboardBinary) { continue; }
+                    Log.Info("Processed binary clipboard (ID: " + clipid + ")  of MIME " + mime + " of length " + len);
                     
-                    Log.Info("Processed binary clipboard of MIME " + mime + " of length " + len);
-
+	            if (!this.clipboardBinary) { continue; }
+                    
                     clipItemData[mime] = new Blob([data], { type: mime });
                     break;
                 default:
