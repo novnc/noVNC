@@ -27,7 +27,6 @@ import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
 import { MD5 } from "./util/md5.js";
-import { modPow } from "./util/bigint-mod-arith.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -1595,7 +1594,19 @@ export default class RFB extends EventTargetMixin {
         let exponentHex = "0x"+Array.from(exponent, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
         let modulusHex = "0x"+Array.from(modulus, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
 
-        let hexResult = modPow(BigInt(baseHex), BigInt(exponentHex), BigInt(modulusHex)).toString(16);
+        let b = BigInt(baseHex);
+        let e = BigInt(exponentHex);
+        let m = BigInt(modulusHex);
+        let r = 1n;
+        b = b % m;
+        while (e > 0) {
+            if (e % 2n === 1n) {
+                r = (r * b) % m;
+            }
+            e = e / 2n;
+            b = (b * b) % m;
+        }
+        let hexResult = r.toString(16);
 
         while (hexResult.length/2<exponent.length || (hexResult.length%2 != 0)) {
             hexResult = "0"+hexResult;
