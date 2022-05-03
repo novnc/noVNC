@@ -26,6 +26,12 @@
                 return false;
             }
 
+            // Skip allowed errors
+            let allowedErrors = [ "The user has exited the lock before this request was completed." ];
+            if (event.message && allowedErrors.includes(event.message)) {
+                return false;
+            }
+
             let div = document.createElement("div");
             div.classList.add('noVNC_message');
             div.appendChild(document.createTextNode(event.message));

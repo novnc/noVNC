@@ -54,6 +54,7 @@ export const encodings = {
     pseudoEncodingVideoOutTimeLevel100: -1887,
 
     pseudoEncodingVMwareCursor: 0x574d5664,
+    pseudoEncodingVMwareCursorPosition: 0x574d5666,
     pseudoEncodingExtendedClipboard: 0xc0a1e5ce
 };
 

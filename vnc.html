@@ -168,6 +168,11 @@
                 id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
                 title="Fullscreen">
 
+            <!-- Toggle game mode -->
+            <input type="image" alt="Game Mode" src="app/images/gamepad.png"
+                id="noVNC_game_mode_button" class="noVNC_button noVNC_hidden"
+                title="Game Pointer Mode">
+
             <!-- Settings -->
             <input type="image" alt="Settings" src="app/images/settings.svg"
                 id="noVNC_settings_button" class="noVNC_button"
@@ -197,12 +202,15 @@
                             <input id="noVNC_setting_translate_shortcuts" type="checkbox" />Translate keyboard shurtcuts
                         </label>
                     </li>
-                    </li>
                     <li>
                         <label><input id="noVNC_setting_enable_webp" type="checkbox" /> Enable WebP Compression</label></li>
                     <li>
                         <label><input id="noVNC_setting_enable_perf_stats" type="checkbox" /> Enable Performance Stats</label></li>
                     <li>
+                        <label>
+                            <input type="checkbox" id="noVNC_setting_pointer_lock" />  Enable Pointer Lock
+                        </label>
+                    </li>
                         <label><input id="noVNC_setting_enable_ime" type="checkbox" /> IME Input Mode</label></li>
                     <li>
                         <label><input id="noVNC_setting_virtual_keyboard_visible" type="checkbox" /> Show Virtual Keyboard Control</label></li>
@@ -225,6 +233,23 @@
                             <option value="scale">Local Scaling</option>
                             <option value="remote">Remote Resizing</option>
                         </select>
+                    </li>
+                    <li><hr></li>
+                    <li>
+                        <div class="noVNC_expander">Keyboard Shortcuts</div>
+                        <div>
+                            <ul>
+                                <li>
+                                    <label>
+                                        <input id="noVNC_setting_toggle_control_panel" type="checkbox" /> Enable KasmVNC Keyboard Shortcuts
+                                    </label>
+                                </li>
+                                <li>Ctrl+Shift+</li>
+                                <li>1 - Toggle Control Panel</li>
+                                <li>2 - Toggle Game Pointer Mode</li>
+                                <li>3 - Toggle Pointer Lock</li>
+                            </ul>
+                        </div>
                     </li>
                     <li><hr></li>
                     <li>

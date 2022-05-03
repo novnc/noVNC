@@ -15,8 +15,36 @@ export function toSigned32bit(toConvert) {
 }
 
 /*
- * Fast hashing function with low entropy, not for security uses.
+* Converts a signed 32bit integer to a signed 16bit int
+* Uses second most significant bit to represent it is relative
 */
+export function toSignedRelative16bit(toConvert) {
+    // TODO: move these so they are not computed with every func call
+    var negmask16 = 1 << 15;
+    var negmask32 = 1 << 31;
+    var relmask16 = 1 << 14;
+
+    var converted16 = toConvert | 0;
+
+    // number is negative
+    if ((toConvert & negmask32) != 0) {
+        // clear the 32bit negative bit
+        // not neccessary because the last 16bits will get dropped anyway
+        converted16 *= -1;
+        
+        // set the 16bit negative bit
+        converted16 |= negmask16;
+        // set the relative bit
+        converted16 |= relmask16;
+    } else {
+        // set the relative bit
+        converted16 |= relmask16;
+    }
+
+    return converted16;
+}
+
+/* Fast hashing function with low entropy  */
 export function hashUInt8Array(data) {
     let h;
     for (let i = 0; i < data.length; i++) {
