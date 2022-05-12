@@ -79,6 +79,12 @@ export default class RFB extends EventTargetMixin {
             throw new Error("Must specify URL, WebSocket or RTCDataChannel");
         }
 
+        // We rely on modern APIs which might not be available in an
+        // insecure context
+        if (!window.isSecureContext) {
+            Log.Error("noVNC requires a secure context (TLS). Expect crashes!");
+        }
+
         super();
 
         this._target = target;
