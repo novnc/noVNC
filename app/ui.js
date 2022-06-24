@@ -166,6 +166,12 @@ const UI = {
             }
         });
 
+        window.addEventListener("beforeunload", (e) => { 
+            if (UI.rfb) { 
+                UI.disconnect(); 
+            } 
+        });
+
         return Promise.resolve(UI.rfb);
     },
 
