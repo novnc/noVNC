@@ -22,7 +22,8 @@
 body {
   margin:0;
   padding:0;
-  font-family: Helvetica;
+  font-family: "Poppins", "Helvetica";
+  letter-spacing: 0.05em;
   background: white url('../images/icons/kasm_logo.png') no-repeat fixed center;
   height:100%;
   touch-action: none;
@@ -37,7 +38,7 @@ html {
 }
 
 .noVNC_disabled {
-  color: rgb(128, 128, 128);
+  color: rgb(128, 128, 128) !important;
 }
 
 /* ----------------------------------------
@@ -351,8 +352,9 @@ select:active {
   /* Edge misrenders animations wihthout this */
   transform: translateX(0);
 }
+
 :root.noVNC_connected #noVNC_control_bar_anchor.noVNC_idle {
-  opacity: 0.8;
+  /* opacity: 0.8; */
 }
 #noVNC_control_bar_anchor.noVNC_right {
   left: auto;
@@ -365,12 +367,12 @@ select:active {
 
   transition: 0.5s ease-in-out;
 
-  background-color: rgb(80, 89, 101);
+  background-color: rgb(9 2 2 / 0.6);
   border-radius: 0 10px 10px 0;
-
+  border-style: inset;
+  border-color: rgb(255 255 255 / 0.6);
 }
 #noVNC_control_bar.noVNC_open {
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
   left: 0;
 }
 #noVNC_control_bar::before {
@@ -400,28 +402,31 @@ select:active {
 #noVNC_control_bar_handle {
   position: absolute;
   left: -15px;
-  top: 0;
   transform: translateY(35px);
   width: calc(100% + 30px);
   height: 50px;
   z-index: -1;
   cursor: pointer;
   border-radius: 5px;
-  background-color: rgb(83, 99, 122);
   background-image: url("../images/handle_bg.svg");
   background-repeat: no-repeat;
   background-position: right;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
 #noVNC_control_bar_handle:after {
   content: "";
   transition: transform 0.5s ease-in-out;
   background: url("../images/handle.svg");
+  background-repeat: no-repeat;
+  background-position: center;
   position: absolute;
-  top: 22px; /* (50px-6px)/2 */
-  right: 5px;
-  width: 5px;
-  height: 6px;
+  right: 0px;
+  width: 15px;
+  height: 60px;
+  background-color: rgb(9 2 2 / 0.6);
+  border-bottom-right-radius: 10px;
+  border-top-right-radius: 10px;
+  border-color: rgb(255 255 255 / 0.6);
+  border-style: inset;
 }
 #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
   transform: translateX(1px) rotate(180deg);
@@ -431,6 +436,7 @@ select:active {
 }
 .noVNC_right #noVNC_control_bar_handle {
   background-position: left;
+  
 }
 .noVNC_right #noVNC_control_bar_handle:after {
   left: 5px;
@@ -495,18 +501,23 @@ select:active {
   transform: translateY(-50%) scale(1);
 }
 
+.noVNC_button_div {
+  display: block;
+  color: #fff;
+  font-size: 13px;
+}
+
 /* General button style */
 .noVNC_button {
-  display: block;
+  display: inline;
   padding: 4px 4px;
   margin: 10px 0;
   vertical-align: middle;
-  border:1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
 }
+
 .noVNC_button.noVNC_selected {
   border-color: rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(153, 151, 157, 0.68);
 }
 .noVNC_button:disabled {
   opacity: 0.4;
@@ -523,10 +534,10 @@ select:active {
 :root:not(.noVNC_touch) .noVNC_button.noVNC_selected:hover,
 .noVNC_button.noVNC_selected:focus {
   border-color: rgba(0, 0, 0, 0.4);
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(153, 151, 157, 0.68);
 }
-:root:not(.noVNC_touch) .noVNC_button:hover,
-.noVNC_button:focus {
+:root:not(.noVNC_touch) .noVNC_button_div:hover,
+.noVNC_button_div:focus {
   background: rgba(255, 255, 255, 0.2);
 }
 .noVNC_button.noVNC_hidden {
@@ -539,6 +550,7 @@ select:active {
 
   transition: 0.5s ease-in-out;
 
+  width: 300px;
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
   overflow-y: auto;
@@ -548,11 +560,9 @@ select:active {
 
   padding: 15px;
 
-  background: #fff;
+  background: rgb(9 9 0 / 0.77);
   border-radius: 10px;
   color: #000;
-  border: 2px solid #E0E0E0;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 .noVNC_panel.noVNC_open {
   visibility: visible;
@@ -578,10 +588,11 @@ select:active {
 .noVNC_panel label {
   display: block;
   white-space: nowrap;
+  color:white;
 }
 
 .noVNC_panel .noVNC_heading {
-  background-color: rgb(110, 132, 163);
+  background-color: rgb(54,58,64);
   border-radius: 5px;
   padding: 5px;
   /* Compensate for padding in image */
@@ -602,12 +613,16 @@ select:active {
 /* Expanders */
 .noVNC_expander {
   cursor: pointer;
+  color:white;
+
 }
 .noVNC_expander::before {
   content: url("../images/expander.svg");
   display: inline-block;
   margin-right: 5px;
   transition: 0.2s ease-in-out;
+  -webkit-filter: invert(.75); /* safari 6.0 - 9.0 */
+  filter: invert(.75);
 }
 .noVNC_expander.noVNC_open::before {
   transform: rotateZ(90deg);
@@ -628,6 +643,14 @@ select:active {
 #noVNC_control_bar .noVNC_logo {
   font-size: 13px;
   text-align: center;
+}
+
+:root:not(.noVNC_disconnected) .noVNC_hide_on_connect {
+  display: none
+}
+
+:root:not(.noVNC_connected) .noVNC_hide_on_disconnect {
+  display: none;
 }
 
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
@@ -687,6 +710,7 @@ select:active {
   list-style: none;
   margin: 0px;
   padding: 0px;
+  color:white;
 }
 #noVNC_setting_port {
   width: 80px;
@@ -776,81 +800,6 @@ select:active {
   content: url("../images/warning.svg") " ";
 }
 
-/* ----------------------------------------
- * Connect Dialog
- * ----------------------------------------
- */
-
-#noVNC_connect_dlg {
-  transition: 0.5s ease-in-out;
-
-  transform: scale(0, 0);
-  visibility: hidden;
-  opacity: 0;
-}
-#noVNC_connect_dlg.noVNC_open {
-  transform: scale(1, 1);
-  visibility: visible;
-  opacity: 1;
-}
-#noVNC_connect_dlg .noVNC_logo {
-  transition: 0.5s ease-in-out;
-  padding: 10px;
-  margin-bottom: 10px;
-
-  font-size: 80px;
-  text-align: center;
-
-  border-radius: 5px;
-}
-@media (max-width: 440px) {
-  #noVNC_connect_dlg {
-    max-width: calc(100vw - 100px);
-  }
-  #noVNC_connect_dlg .noVNC_logo {
-    font-size: calc(25vw - 30px);
-  }
-}
-#noVNC_connect_button {
-  cursor: pointer;
-  
-  /*
-  padding: 10px;
-
-  color: white;
-  background-color: rgb(110, 132, 163);
-  border-radius: 12px;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
-  */
-
-  text-align: center;
-  font-size: 20px;
-  margin-top: 130px;
-}
-#noVNC_connect_button div {
-  margin: 2px;
-  padding: 5px 30px;
-  border: 1px solid rgb(83, 99, 122);
-  border-bottom-width: 2px;
-  border-radius: 5px;
-  background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
-
-  /* This avoids it jumping around when :active */
-  vertical-align: middle;
-  color: white;
-}
-#noVNC_connect_button div:active {
-  border-bottom-width: 1px;
-  margin-top: 3px;
-}
-:root:not(.noVNC_touch) #noVNC_connect_button div:hover {
-  background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
-}
-
-#noVNC_connect_button img {
-  vertical-align: bottom;
-  height: 1.3em;
-}
 
 /* ----------------------------------------
  * Password Dialog
@@ -930,9 +879,7 @@ select:active {
 #noVNC_container {
   width: 100%;
   height: 100%;
-  background-color: rgb(74, 144, 217, 0.5);
-  border-bottom-right-radius: 800px 600px;
-  /*border-top-left-radius: 800px 600px;*/
+  background-image: url('../images/splash.jpg')
 }
 
 #noVNC_keyboardinput {
@@ -962,6 +909,10 @@ select:active {
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
   line-height:90%;
   text-shadow: 0.1em 0.1em 0 black;
+  margin-bottom: 0px;
+}
+.noVNC_logo img {
+  width: 45%
 }
 .noVNC_logo span{
   color:green;
@@ -1138,4 +1089,76 @@ body {
   #noVNC_logo {
     font-size: 90px;
   }
+}
+
+/* ----------------------------------------
+ * Slider Check boxes
+ * ----------------------------------------
+ */
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 16px;
+  margin: 5px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 4px;
+  bottom: 1px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(10px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.slider-label {
+  padding-left: 26px;
 }

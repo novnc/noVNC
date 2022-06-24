@@ -86,329 +86,434 @@
         Loading statistics...
     </div>
 
-    <div class="noVNC_vcenter">
-        <div id="noVNC_modifiers" class="noVNC_panel">
-            <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
-                id="noVNC_keyboard_button" class="noVNC_button" title="Show Keyboard">
-            <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
-                id="noVNC_toggle_ctrl_button" class="noVNC_button"
-                title="Toggle Ctrl">
-            <input type="image" alt="Alt" src="app/images/alt.svg"
-                id="noVNC_toggle_alt_button" class="noVNC_button"
-                title="Toggle Alt">
-            <input type="image" alt="Windows" src="app/images/windows.svg"
-                id="noVNC_toggle_windows_button" class="noVNC_button"
-                title="Toggle Windows">
-            <input type="image" alt="Tab" src="app/images/tab.svg"
-                id="noVNC_send_tab_button" class="noVNC_button"
-                title="Send Tab">
-            <input type="image" alt="Esc" src="app/images/esc.svg"
-                id="noVNC_send_esc_button" class="noVNC_button"
-                title="Send Escape">
-            <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
-                id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
-                title="Send Ctrl-Alt-Del">
-        </div>
-    </div>
-
     <!-- noVNC Control Bar -->
     <div id="noVNC_control_bar_anchor" class="noVNC_vcenter">
-
         <div id="noVNC_control_bar">
-            <div id="noVNC_control_bar_handle" title="Hide/Show the control bar"><div></div></div>
+            <div id="noVNC_control_bar_handle" title="Hide/Show the control bar">
+                <div></div>
+            </div>
 
             <div class="noVNC_scroll">
 
-                <h1 class="noVNC_logo"><img src="app/images/icons/368_kasm_logo_only_24x24.png" /></h1>
+                <h1 class="noVNC_logo"><img src="app/images/icons/kasm_logo.png" /></h1>
 
-            <!-- Drag/Pan the viewport -->
-            <input type="image" alt="Drag" src="app/images/drag.svg"
-                id="noVNC_view_drag_button" class="noVNC_button noVNC_hidden"
-                title="Move/Drag Viewport">
-
-            <!--noVNC Touch Device only buttons-->
-            <!-- Extra manual keys -->
-            <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
-                id="noVNC_toggle_extra_keys_button" class="noVNC_button"
-                title="Show Extra Keys">
-
-            <!-- Shutdown/Reboot -->
-            <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
-                id="noVNC_power_button" class="noVNC_button"
-                title="Shutdown/Reboot...">
-            <div class="noVNC_vcenter">
-            <div id="noVNC_power" class="noVNC_panel">
-                <div class="noVNC_heading">
-                    <img alt="" src="app/images/power.svg"> Power
+                <!-- Drag/Pan the viewport -->
+                <div class="noVNC_button_div noVNC_hidden noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Drag" src="app/images/drag.svg"
+                        id="noVNC_view_drag_button" class="noVNC_button"
+                        title="Move/Drag Viewport">
+                    Drag Viewport
                 </div>
-                <input type="button" id="noVNC_shutdown_button" value="Shutdown">
-                <input type="button" id="noVNC_reboot_button" value="Reboot">
-                <input type="button" id="noVNC_reset_button" value="Reset">
-            </div>
-            </div>
 
-            <!-- Clipboard -->
-            <input type="image" alt="Clipboard" src="app/images/clipboard.svg"
-                id="noVNC_clipboard_button" class="noVNC_button"
-                title="Clipboard">
-            <div class="noVNC_vcenter">
-            <div id="noVNC_clipboard" class="noVNC_panel">
-                <div class="noVNC_heading">
-                    <img alt="" src="app/images/clipboard.svg"> Clipboard
+                <!--noVNC Touch Device only buttons-->
+                <!-- Extra manual keys -->
+                <div class="noVNC_button_div noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Extra keys" src="app/images/toggleextrakeys.svg"
+                        id="noVNC_toggle_extra_keys_button" class="noVNC_button"
+                        title="Show Extra Keys">
+                    <div class="noVNC_vcenter">
+                        <div id="noVNC_modifiers" class="noVNC_panel">
+                            <input type="image" alt="Keyboard" src="app/images/keyboard.svg"
+                                id="noVNC_keyboard_button" class="noVNC_button" title="Show Keyboard">
+                            <input type="image" alt="Ctrl" src="app/images/ctrl.svg"
+                                id="noVNC_toggle_ctrl_button" class="noVNC_button"
+                                title="Toggle Ctrl">
+                            <input type="image" alt="Alt" src="app/images/alt.svg"
+                                id="noVNC_toggle_alt_button" class="noVNC_button"
+                                title="Toggle Alt">
+                            <input type="image" alt="Windows" src="app/images/windows.svg"
+                                id="noVNC_toggle_windows_button" class="noVNC_button"
+                                title="Toggle Windows">
+                            <input type="image" alt="Tab" src="app/images/tab.svg"
+                                id="noVNC_send_tab_button" class="noVNC_button"
+                                title="Send Tab">
+                            <input type="image" alt="Esc" src="app/images/esc.svg"
+                                id="noVNC_send_esc_button" class="noVNC_button"
+                                title="Send Escape">
+                            <input type="image" alt="Ctrl+Alt+Del" src="app/images/ctrlaltdel.svg"
+                                id="noVNC_send_ctrl_alt_del_button" class="noVNC_button"
+                                title="Send Ctrl-Alt-Del">
+                        </div>
+                    </div>
+                    Keys
                 </div>
-                <textarea id="noVNC_clipboard_text" rows=5></textarea>
-                <br>
-                <input id="noVNC_clipboard_clear_button" type="button"
-                    value="Clear" class="noVNC_submit">
-            </div>
-            </div>
 
-            <!-- Toggle fullscreen -->
-            <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
-                id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
-                title="Fullscreen">
+                <!-- Shutdown/Reboot -->
+                <div class="noVNC_button_div noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Shutdown/Reboot" src="app/images/power.svg"
+                        id="noVNC_power_button" class="noVNC_button"
+                        title="Shutdown/Reboot...">
+                        
+                    <div class="noVNC_vcenter">
+                        <div id="noVNC_power" class="noVNC_panel">
+                            <div class="noVNC_heading">
+                                <img alt="" src="app/images/power.svg"> Power
+                            </div>
+                            <input type="button" id="noVNC_shutdown_button" value="Shutdown">
+                            <input type="button" id="noVNC_reboot_button" value="Reboot">
+                            <input type="button" id="noVNC_reset_button" value="Reset">
+                        </div>
+                    </div>
+                    Power
+                </div>
 
-            <!-- Toggle game mode -->
-            <input type="image" alt="Game Mode" src="app/images/gamepad.png"
-                id="noVNC_game_mode_button" class="noVNC_button noVNC_hidden"
-                title="Game Pointer Mode">
+                <!-- Clipboard -->
+                <div class="noVNC_button_div noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Clipboard" src="app/images/clipboard.svg"
+                        id="noVNC_clipboard_button" class="noVNC_button"
+                        title="Clipboard">
+                    Clipboard
+                    <div class="noVNC_vcenter">
+                        <div id="noVNC_clipboard" class="noVNC_panel">
+                            <div class="noVNC_heading">
+                                <img alt="" src="app/images/clipboard.svg"> Clipboard
+                            </div>
+                            <textarea id="noVNC_clipboard_text" rows=5></textarea>
+                            <br>
+                            <input id="noVNC_clipboard_clear_button" type="button"
+                                value="Clear" class="noVNC_submit">
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Settings -->
-            <input type="image" alt="Settings" src="app/images/settings.svg"
-                id="noVNC_settings_button" class="noVNC_button"
-                title="Settings">
-            <div class="noVNC_vcenter">
-            <div id="noVNC_settings" class="noVNC_panel">
-                <ul>
-                    <li class="noVNC_heading">
-                        <img alt="" src="app/images/settings.svg"> Settings
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_shared" type="checkbox"> Shared Mode</label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_view_only" type="checkbox" /> View Only</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_clipboard_up" type="checkbox" /> Clipboard Up</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_clipboard_down" type="checkbox" /> Clipboard Down</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_clipboard_seamless" type="checkbox" /> Clipboard Seamless</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_prefer_local_cursor" type="checkbox" /> Prefer Local Cursor</label>
-                    </li>
-                    <li>
-                        <label>
-                            <input id="noVNC_setting_translate_shortcuts" type="checkbox" />Translate keyboard shurtcuts
-                        </label>
-                    </li>
-                    <li>
-                        <label><input id="noVNC_setting_enable_webp" type="checkbox" /> Enable WebP Compression</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_enable_perf_stats" type="checkbox" /> Enable Performance Stats</label></li>
-                    <li>
-                        <label>
-                            <input type="checkbox" id="noVNC_setting_pointer_lock" />  Enable Pointer Lock
-                        </label>
-                    </li>
-                        <label><input id="noVNC_setting_enable_ime" type="checkbox" /> IME Input Mode</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_virtual_keyboard_visible" type="checkbox" /> Show Virtual Keyboard Control</label></li>
-                    <li>
-                        <label><input id="noVNC_setting_toggle_control_panel" type="checkbox" /> Toggle Control Panel via Keystrokes</label></li>
-                    <li>
-                        <label for="noVNC_setting_idle_disconnect">Idle Timeout:</label>
-                        <select id="noVNC_setting_idle_disconnect" name="vncIdleDisconnect">
-                            <option value=20>20</option>
-                        </select>
-                    </li>
-                    <li><hr></li>
-                    <li>
-                        <label><input id="noVNC_setting_view_clip" type="checkbox"> Clip to Window</label>
-                    </li>
-                    <li>
-                        <label for="noVNC_setting_resize">Scaling Mode:</label>
-                        <select id="noVNC_setting_resize" name="vncResize">
-                            <option value="off">None</option>
-                            <option value="scale">Local Scaling</option>
-                            <option value="remote">Remote Resizing</option>
-                        </select>
-                    </li>
-                    <li><hr></li>
-                    <li>
-                        <div class="noVNC_expander">Keyboard Shortcuts</div>
-                        <div>
+                <!-- Toggle fullscreen -->
+                <div class="noVNC_button_div noVNC_hidden" >
+                    <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
+                        id="noVNC_fullscreen_button" class="noVNC_button"
+                        title="Fullscreen">
+                    Fullscreen
+                </div>
+
+                <!-- Toggle game mode -->
+                <div class="noVNC_button_div noVNC_hidden noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Game Mode" src="app/images/gamepad.png"
+                        id="noVNC_game_mode_button" class="noVNC_button"
+                        title="Game Pointer Mode">
+                    Game Cursor Mode
+                </div>
+
+                <!-- Settings -->
+                <div class="noVNC_button_div" >
+                    <input type="image" alt="Settings" src="app/images/settings.svg"
+                        id="noVNC_settings_button" class="noVNC_button"
+                        title="Settings">
+                    <div class="noVNC_vcenter">
+                        <div id="noVNC_settings" class="noVNC_panel">
                             <ul>
+                                <li class="noVNC_heading">
+                                    <img alt="" src="app/images/settings.svg"> Settings
+                                </li>
                                 <li>
-                                    <label>
-                                        <input id="noVNC_setting_toggle_control_panel" type="checkbox" /> Enable KasmVNC Keyboard Shortcuts
+                                    <label class="switch"><input id="noVNC_setting_shared" type="checkbox"> 
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Shared Mode</span>
                                     </label>
                                 </li>
-                                <li>Ctrl+Shift+</li>
-                                <li>1 - Toggle Control Panel</li>
-                                <li>2 - Toggle Game Pointer Mode</li>
-                                <li>3 - Toggle Pointer Lock</li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_view_only" type="checkbox" /> 
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">View Only</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_clipboard_up" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Clipboard Up</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_clipboard_down" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Clipboard Down</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_clipboard_seamless" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Clipboard Seamless</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_prefer_local_cursor" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Prefer Local Cursor</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch">
+                                        <input id="noVNC_setting_translate_shortcuts" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Translate keyboard shurtcuts</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_enable_webp" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Enable WebP Compression</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch">
+                                        <input id="noVNC_setting_enable_perf_stats" type="checkbox" /> 
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Enable Performance Stats</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch">
+                                        <input type="checkbox" id="noVNC_setting_pointer_lock" /> 
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Enable Pointer Lock</span>
+                                    </label>
+                                </li>
+                                    <label class="switch"><input id="noVNC_setting_enable_ime" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">IME Input Mode</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_virtual_keyboard_visible" type="checkbox" />
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Show Virtual Keyboard Control</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="switch"><input id="noVNC_setting_toggle_control_panel" type="checkbox" /> 
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Toggle Control Panel via Keystrokes</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="noVNC_setting_idle_disconnect">Idle Timeout:</label>
+                                    <select id="noVNC_setting_idle_disconnect" name="vncIdleDisconnect">
+					<option value=10>10</option>
+					<option value=20>20</option>
+					<option value=30>30</option>
+					<option value=60>60</option>
+                                    </select>
+                                </li>
+                                <li><hr></li>
+                                <li>
+                                    <label class="switch">
+                                        <input id="noVNC_setting_view_clip" type="checkbox"> 
+                                        <span class="slider round"></span>
+                                        <span class="slider-label">Clip to Window</span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="noVNC_setting_resize">Scaling Mode:</label>
+                                    <select id="noVNC_setting_resize" name="vncResize">
+                                        <option value="off">None</option>
+                                        <option value="scale">Local Scaling</option>
+                                        <option value="remote">Remote Resizing</option>
+                                    </select>
+                                </li>
+                                <li><hr></li>
+                                <li>
+                                    <div class="noVNC_expander">Keyboard Shortcuts</div>
+                                    <div>
+                                        <ul>
+                                            <li>
+                                                <label class="switch">
+                                                    <input id="noVNC_setting_toggle_control_panel" type="checkbox" />
+                                                    <span class="slider round"></span>
+                                                    <span class="slider-label">Enable KasmVNC Keyboard Shortcuts</span>
+                                                </label>
+                                            </li>
+                                            <li>Ctrl+Shift+</li>
+                                            <li>1 - Toggle Control Panel</li>
+                                            <li>2 - Toggle Game Pointer Mode</li>
+                                            <li>3 - Toggle Pointer Lock</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li><hr></li>
+                                <li>
+                                    <div class="noVNC_expander">Stream Quality</div>
+                                    <div>
+                                        <ul>
+                                            <li>
+                                                <label for="noVNC_setting_video_quality">Preset Modes:</label>
+                                                <select id="noVNC_setting_video_quality" name="vncVideoQuality">
+                                                    <option value=0>Static</option>
+                                                    <option value=1>Low</option>
+                                                    <option value=2>Medium</option>
+                                                    <option value=3>High</option>
+                                                    <option value=4>Extreme</option>
+                                                    <option value=10>Custom</option>
+                                                </select>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_anti_aliasing">Anti-Aliasing:</label>
+                                                <select id="noVNC_setting_anti_aliasing" name="vncAntiAliasing">
+                                                    <option value=0>Auto Dynamic</option>
+                                                    <option value=1>On</option>
+                                                    <option value=2>Off</option>
+                                                </select>
+                                            </li>
+                                            <li style="display: none;">
+                                                <label for="noVNC_setting_quality">Quality:</label>
+                                                <input id="noVNC_setting_quality" type="range" min="0" max="9" value="6">
+                                            </li>
+                                            
+                                            <li>
+                                                <label for="noVNC_setting_dynamic_quality_min">Dynamic Quality Min:</label>
+                                                <input id="noVNC_setting_dynamic_quality_min" type="range" min="0" max="9" value="3" onchange="noVNC_setting_dynamic_quality_min_output.value=value">
+                                                <output id="noVNC_setting_dynamic_quality_min_output">3</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_dynamic_quality_max">Dynamic Quality Max:</label>
+                                                <input id="noVNC_setting_dynamic_quality_max" type="range" min="0" max="9" value="9" onchange="noVNC_setting_dynamic_quality_max_output.value=value">
+                                                <output id="noVNC_setting_dynamic_quality_max_output">9</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_treat_lossless">Treat Lossless:</label>
+                                                <input id="noVNC_setting_treat_lossless" type="range" min="0" max="9" value="7" onchange="noVNC_setting_treat_lossless_output.value=value">
+                                                <output id="noVNC_setting_treat_lossless_output">7</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_framerate">Frame Rate:</label>
+                                                <input id="noVNC_setting_framerate" type="number" min="1" max="120" value="30">
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_jpeg_video_quality">Video JPEG Quality:</label>
+                                                <input id="noVNC_setting_jpeg_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_jpeg_video_quality_output.value=value">
+                                                <output id="noVNC_setting_jpeg_video_quality_output">5</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_webp_video_quality">Video WEBP Quality:</label>
+                                                <input id="noVNC_setting_webp_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_webp_video_quality_output.value=value">
+                                                <output id="noVNC_setting_webp_video_quality_output">5</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_video_area">Video Area:</label>
+                                                <input id="noVNC_setting_video_area" type="range" min="0" max="100" value="65" onchange="noVNC_setting_video_area_output.value=value">
+                                                <output id="noVNC_setting_video_area_output">65</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_video_time">Video Time:</label>
+                                                <input id="noVNC_setting_video_time" type="range" min="0" max="60" value="5" onchange="noVNC_setting_video_time_output.value=value">
+                                                <output id="noVNC_setting_video_time_output">5</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_video_out_time">Video Out Time:</label>
+                                                <input id="noVNC_setting_video_out_time" type="range" min="0" max="60" value="3" onchange="noVNC_setting_video_out_time_output.value=value">
+                                                <output id="noVNC_setting_video_out_time_output">3</output>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_video_scaling">Scaling Mode:</label>
+                                                <select id="noVNC_setting_video_scaling" name="vncVideoModeScaling">
+                                                    <option value="0">Nearest</option>
+                                                    <option value="1">Bilinear</option>
+                                                    <option value="2">Progressive Bilinear</option>
+                                                </select>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_max_video_resolution_x">Video Mode Width:</label>
+                                                <input id="noVNC_setting_max_video_resolution_x" type="number" min="100" max="3840" value="960">
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_max_video_resolution_y">Video Mode Height:</label>
+                                                <input id="noVNC_setting_max_video_resolution_y" type="number" min="100" max="2160" value="540">
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li><hr></li>
+                                <li>
+                                    <div class="noVNC_expander">Advanced</div>
+                                    <div>
+                                        <ul>
+                                            <li>
+                                                <label for="noVNC_setting_compression">Compression level:</label>
+                                                <input id="noVNC_setting_compression" type="range" min="0" max="9" value="2">
+                                            </li>
+                                            <li><hr></li>
+                                            <li>
+                                                <label for="noVNC_setting_repeaterID">Repeater ID:</label>
+                                                <input id="noVNC_setting_repeaterID" type="text" value="">
+                                            </li>
+                                            <li>
+                                                <div class="noVNC_expander">WebSocket</div>
+                                                <div>
+                                                    <ul>
+                                                        <li>
+                                                            <label class="switch">
+                                                                <input id="noVNC_setting_encrypt" type="checkbox">
+                                                                <span class="slider round"></span>
+                                                                <span class="slider-label">Encrypt</span>
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label for="noVNC_setting_host">Host:</label>
+                                                            <input id="noVNC_setting_host">
+                                                        </li>
+                                                        <li>
+                                                            <label for="noVNC_setting_port">Port:</label>
+                                                            <input id="noVNC_setting_port" type="number">
+                                                        </li>
+                                                        <li>
+                                                            <label for="noVNC_setting_path">Path:</label>
+                                                            <input id="noVNC_setting_path" type="text" value="websockify">
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                            <li><hr></li>
+                                            <li>
+                                                <label class="switch">
+                                                    <input id="noVNC_setting_reconnect" type="checkbox"> 
+                                                    <span class="slider-label">Automatic Reconnect</span>
+                                                </label>
+                                            </li>
+                                            <li>
+                                                <label for="noVNC_setting_reconnect_delay">Reconnect Delay (ms):</label>
+                                                <input id="noVNC_setting_reconnect_delay" type="number">
+                                            </li>
+                                            <li><hr></li>
+                                            <li>
+                                                <label class="switch"><input id="noVNC_setting_show_dot" type="checkbox"> 
+                                                    <span class="slider round"></span>
+                                                    <span class="slider-label">Show Dot when No Cursor</span>
+                                                </label>
+                                            </li>
+                                            <li><hr></li>
+                                            <!-- Logging selection dropdown -->
+                                            <li>
+                                                <label>Logging:
+                                                    <select id="noVNC_setting_logging" name="vncLogging">
+                                                    </select>
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li class="noVNC_version_separator"><hr></li>
+                                <li class="noVNC_version_wrapper">
+                                    <span>Version:</span>
+                                    <span class="noVNC_version"></span>
+                                </li>
                             </ul>
                         </div>
-                    </li>
-                    <li><hr></li>
-                    <li>
-                        <div class="noVNC_expander">Stream Quality</div>
-                        <div><ul>
-                            <li>
-                                <label for="noVNC_setting_video_quality">Preset Modes:</label>
-                                <select id="noVNC_setting_video_quality" name="vncVideoQuality">
-                                    <option value=0>Static</option>
-                                    <option value=1>Low</option>
-                                    <option value=2>Medium</option>
-                                    <option value=3>High</option>
-                                    <option value=4>Extreme</option>
-                                    <option value=10>Custom</option>
-                                </select>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_anti_aliasing">Anti-Aliasing:</label>
-                                <select id="noVNC_setting_anti_aliasing" name="vncAntiAliasing">
-                                    <option value=0>Auto Dynamic</option>
-                                    <option value=1>On</option>
-                                    <option value=2>Off</option>
-                                </select>
-                            </li>
-                            <li style="display: none;">
-                                <label for="noVNC_setting_quality">Quality:</label>
-                                <input id="noVNC_setting_quality" type="range" min="0" max="9" value="6">
-                            </li>
-                            
-                            <li>
-                                <label for="noVNC_setting_dynamic_quality_min">Dynamic Quality Min:</label>
-                                <input id="noVNC_setting_dynamic_quality_min" type="range" min="0" max="9" value="3" onchange="noVNC_setting_dynamic_quality_min_output.value=value">
-                                <output id="noVNC_setting_dynamic_quality_min_output">3</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_dynamic_quality_max">Dynamic Quality Max:</label>
-                                <input id="noVNC_setting_dynamic_quality_max" type="range" min="0" max="9" value="9" onchange="noVNC_setting_dynamic_quality_max_output.value=value">
-                                <output id="noVNC_setting_dynamic_quality_max_output">9</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_treat_lossless">Treat Lossless:</label>
-                                <input id="noVNC_setting_treat_lossless" type="range" min="0" max="9" value="7" onchange="noVNC_setting_treat_lossless_output.value=value">
-                                <output id="noVNC_setting_treat_lossless_output">7</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_framerate">Frame Rate:</label>
-                                <input id="noVNC_setting_framerate" type="number" min="1" max="120" value="30">
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_jpeg_video_quality">Video JPEG Quality:</label>
-                                <input id="noVNC_setting_jpeg_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_jpeg_video_quality_output.value=value">
-                                <output id="noVNC_setting_jpeg_video_quality_output">5</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_webp_video_quality">Video WEBP Quality:</label>
-                                <input id="noVNC_setting_webp_video_quality" type="range" min="0" max="9" value="5" onchange="noVNC_setting_webp_video_quality_output.value=value">
-                                <output id="noVNC_setting_webp_video_quality_output">5</output>
-                            </li>
-			    <li>
-                                <label for="noVNC_setting_video_area">Video Area:</label>
-                                <input id="noVNC_setting_video_area" type="range" min="0" max="100" value="65" onchange="noVNC_setting_video_area_output.value=value">
-                                <output id="noVNC_setting_video_area_output">65</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_video_time">Video Time:</label>
-                                <input id="noVNC_setting_video_time" type="range" min="0" max="60" value="5" onchange="noVNC_setting_video_time_output.value=value">
-                                <output id="noVNC_setting_video_time_output">5</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_video_out_time">Video Out Time:</label>
-                                <input id="noVNC_setting_video_out_time" type="range" min="0" max="60" value="3" onchange="noVNC_setting_video_out_time_output.value=value">
-                                <output id="noVNC_setting_video_out_time_output">3</output>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_video_scaling">Scaling Mode:</label>
-                                <select id="noVNC_setting_video_scaling" name="vncVideoModeScaling">
-                                    <option value="0">Nearest</option>
-                                    <option value="1">Bilinear</option>
-                                    <option value="2">Progressive Bilinear</option>
-                                </select>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_max_video_resolution_x">Video Mode Width:</label>
-                                <input id="noVNC_setting_max_video_resolution_x" type="number" min="100" max="3840" value="960">
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_max_video_resolution_y">Video Mode Height:</label>
-                                <input id="noVNC_setting_max_video_resolution_y" type="number" min="100" max="2160" value="540">
-                            </li>
-                        </ul></div>
-                    </li>
-                    <li><hr></li>
-                    <li>
-                        <div class="noVNC_expander">Advanced</div>
-                        <div><ul>
-                            <li>
-                                <label for="noVNC_setting_compression">Compression level:</label>
-                                <input id="noVNC_setting_compression" type="range" min="0" max="9" value="2">
-                            </li>
-                            <li><hr></li>
-                            <li>
-                                <label for="noVNC_setting_repeaterID">Repeater ID:</label>
-                                <input id="noVNC_setting_repeaterID" type="text" value="">
-                            </li>
-                            <li>
-                                <div class="noVNC_expander">WebSocket</div>
-                                <div><ul>
-                                    <li>
-                                        <label><input id="noVNC_setting_encrypt" type="checkbox"> Encrypt</label>
-                                    </li>
-                                    <li>
-                                        <label for="noVNC_setting_host">Host:</label>
-                                        <input id="noVNC_setting_host">
-                                    </li>
-                                    <li>
-                                        <label for="noVNC_setting_port">Port:</label>
-                                        <input id="noVNC_setting_port" type="number">
-                                    </li>
-                                    <li>
-                                        <label for="noVNC_setting_path">Path:</label>
-                                        <input id="noVNC_setting_path" type="text" value="websockify">
-                                    </li>
-                                </ul></div>
-                            </li>
-                            <li><hr></li>
-                            <li>
-                                <label><input id="noVNC_setting_reconnect" type="checkbox"> Automatic Reconnect</label>
-                            </li>
-                            <li>
-                                <label for="noVNC_setting_reconnect_delay">Reconnect Delay (ms):</label>
-                                <input id="noVNC_setting_reconnect_delay" type="number">
-                            </li>
-                            <li><hr></li>
-                            <li>
-                                <label><input id="noVNC_setting_show_dot" type="checkbox"> Show Dot when No Cursor</label>
-                            </li>
-                            <li><hr></li>
-                            <!-- Logging selection dropdown -->
-                            <li>
-                                <label>Logging:
-                                    <select id="noVNC_setting_logging" name="vncLogging">
-                                    </select>
-                                </label>
-                            </li>
-                        </ul></div>
-                    </li>
-                    <li class="noVNC_version_separator"><hr></li>
-                    <li class="noVNC_version_wrapper">
-                        <span>Version:</span>
-                        <span class="noVNC_version"></span>
-                    </li>
-                </ul>
-            </div>
-            </div>
+                    </div>
+                    Settings
+                </div>
 
-            <!-- Connection Controls -->
-            <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
-                id="noVNC_disconnect_button" class="noVNC_button"
-                title="Disconnect">
+                <!-- Connection Controls -->
+                <div class="noVNC_button_div noVNC_hide_on_disconnect" >
+                    <input type="image" alt="Disconnect" src="app/images/disconnect.svg"
+                        id="noVNC_disconnect_button" class="noVNC_button"
+                        title="Disconnect">
+                    Disconnect
+                </div>
+
+                <!-- Connection Controls -->
+                <div class="noVNC_button_div noVNC_hide_on_connect" id="noVNC_connect_button" >
+                    <input type="image" alt="Connect" src="app/images/connect.svg"
+                         class="noVNC_button"
+                        title="Connect">
+                    Connect
+                </div>
 
             </div>
         </div>
@@ -423,10 +528,11 @@
     <!-- Connect button -->
     <div class="noVNC_center">
         <div id="noVNC_connect_dlg">
-            <!--div class="noVNC_logo" translate="no"><span>no</span>VNC</div-->
-            <div id="noVNC_connect_button"><div>
-                <img alt="" src="app/images/connect.svg"> Connect
-            </div></div>
+            <!--div id="noVNC_connect_button">
+                <div>
+                    <img alt="" src="app/images/connect.svg"> Connect
+                </div>
+            </div-->
         </div>
     </div>
 
