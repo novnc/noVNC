@@ -986,10 +986,6 @@ export default class RFB extends EventTargetMixin {
 		    
                     if (udpBuffer.has(id)) {
                         let item = udpBuffer.get(id);
-                        if (!item) {
-                        Log.Info("Item Missing id: " + id);
-                            return;
-                        }
                         item.recieved_pieces += 1;
                         item.data[i] = u8.slice(16);
                         item.total_bytes += item.data[i].length;
@@ -1007,33 +1003,21 @@ export default class RFB extends EventTargetMixin {
                         }
                     } else {
                         let item = {
-                            total_pieces: pieces, // number of pieces expected
-                                arrival: now, //time first piece was recieved
-                            recieved_pieces: 1, // current number of pieces in data
-                            total_bytes: 0, // total size of all data pieces combined
+                            total_pieces: pieces,   // number of pieces expected
+                                arrival: now,       //time first piece was recieved
+                            recieved_pieces: 1,     // current number of pieces in data
+                            total_bytes: 0,         // total size of all data pieces combined
                             data: new Array(pieces)
                         }
                         item.data[i] = u8.slice(16);
                         item.total_bytes = item.data[i].length;
-                                udpBuffer.set(id, item);
+                        udpBuffer.set(id, item);
                     }
                 }
-
-                // TODO: this loop is inefficent and likely unneccesary. 
-                // perhaps just keep n number of incomplete messages
-                const now = Date.now();
-                for (const [key, value] of udpBuffer.entries()) {
-                    // Drop any messages older than 100ms
-                    if (now - value.arrival > 100) {
-                        Log.Info('Removed id: ' + key + ' Buffer size: ' + udpBuffer.size);
-                        udpBuffer.delete(key);
-                    }
-                }
-
             }
         }
 
-	if (this._useUdp) {
+	    if (this._useUdp) {
             setTimeout(function() { this._sendUdpUpgrade() }.bind(this), 3000);
         }
 
@@ -2869,6 +2853,7 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingLastRect:
                 if (document.visibilityState !== "hidden") {
                     this._display.flip();
+                    this._udpBuffer.clear();
                 }
                 break;
             case encodings.encodingTight:
