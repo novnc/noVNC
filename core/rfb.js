@@ -33,6 +33,7 @@ import RREDecoder from "./decoders/rre.js";
 import HextileDecoder from "./decoders/hextile.js";
 import TightDecoder from "./decoders/tight.js";
 import TightPNGDecoder from "./decoders/tightpng.js";
+import UDPDecoder from './decoders/udp.js';
 import { toSignedRelative16bit } from './util/int.js';
 
 // How many seconds to wait for a disconnect to finish
@@ -136,6 +137,7 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
         this._clipboardBinary = true;
+        this._useUdp = true;
 
         this._trackFrameStats = false;
 
@@ -239,6 +241,7 @@ export default class RFB extends EventTargetMixin {
         this._decoders[encodings.encodingHextile] = new HextileDecoder();
         this._decoders[encodings.encodingTight] = new TightDecoder();
         this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
+        this._decoders[encodings.encodingUDP] = new UDPDecoder();
 
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
@@ -972,6 +975,105 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("gesturestart", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gestureend", this._eventHandlers.handleGesture);
+
+        // WebRTC UDP datachannel inits
+        {
+            this._udpBuffer = new Map();
+
+            this._udpPeer = new RTCPeerConnection({
+                iceServers: [{
+                    urls: ["stun:stun.l.google.com:19302"]
+                }]
+            });
+            let peer = this._udpPeer;
+
+            peer.onicecandidate = function(e) {
+                if (e.candidate)
+                    Log.Debug("received ice candidate", e.candidate);
+                else
+                    Log.Debug("all candidates received");
+            }
+
+            peer.ondatachannel = function(e) {
+                Log.Debug("peer connection on data channel", e);
+            }
+
+            this._udpChannel = peer.createDataChannel("webudp", {
+                ordered: false,
+                maxRetransmits: 0
+            });
+            this._udpChannel.binaryType = "arraybuffer";
+
+            this._udpChannel.onerror = function(e) {
+                Log.Error("data channel error " + e.message);
+            }
+
+            let sock = this._sock;
+            let udpBuffer = this._udpBuffer;
+            let me = this;
+            this._udpChannel.onmessage = function(e) {
+                //Log.Info("got udp msg", e.data);
+                const u8 = new Uint8Array(e.data);
+                // Got an UDP packet. Do we need reassembly?
+                const id = parseInt(u8[0] +
+                                    (u8[1] << 8) +
+                                    (u8[2] << 16) +
+                                    (u8[3] << 24), 10);
+                const i = parseInt(u8[4] +
+                                   (u8[5] << 8) +
+                                   (u8[6] << 16) +
+                                   (u8[7] << 24), 10);
+                const pieces = parseInt(u8[8] +
+                                        (u8[9] << 8) +
+                                        (u8[10] << 16) +
+                                        (u8[11] << 24), 10);
+                const hash = parseInt(u8[12] +
+                                        (u8[13] << 8) +
+                                        (u8[14] << 16) +
+                                        (u8[15] << 24), 10);
+                // TODO: check the hash. It's the low 32 bits of XXH64, seed 0
+
+                if (pieces == 1) { // Handle it immediately
+                    me._handleUdpRect(u8.slice(16));
+                } else { // Insert into wait array
+                    const now = Date.now();
+		    
+                    if (udpBuffer.has(id)) {
+                        let item = udpBuffer.get(id);
+                        item.recieved_pieces += 1;
+                        item.data[i] = u8.slice(16);
+                        item.total_bytes += item.data[i].length;
+
+                        if (item.total_pieces == item.recieved_pieces) {
+                            // Message is complete, combile data into a single array
+                            var finaldata = new Uint8Array(item.total_bytes);
+                            let z = 0;
+                            for (let x = 0; x < item.data.length; x++) {
+                                finaldata.set(item.data[x], z);
+                                z += item.data[x].length;
+                            }
+                            udpBuffer.delete(id);
+                            me._handleUdpRect(finaldata);
+                        }
+                    } else {
+                        let item = {
+                            total_pieces: pieces,   // number of pieces expected
+                                arrival: now,       //time first piece was recieved
+                            recieved_pieces: 1,     // current number of pieces in data
+                            total_bytes: 0,         // total size of all data pieces combined
+                            data: new Array(pieces)
+                        }
+                        item.data[i] = u8.slice(16);
+                        item.total_bytes = item.data[i].length;
+                        udpBuffer.set(id, item);
+                    }
+                }
+            }
+        }
+
+	    if (this._useUdp) {
+            setTimeout(function() { this._sendUdpUpgrade() }.bind(this), 3000);
+        }
 
         Log.Debug("<< RFB.connect");
     }
@@ -2853,6 +2955,9 @@ export default class RFB extends EventTargetMixin {
             case 180: // KASM binary clipboard
                 return this._handleBinaryClipboard();
 
+            case 181: // KASM UDP upgrade
+                return this._handleUdpUpgrade();
+
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
 
@@ -2872,6 +2977,101 @@ export default class RFB extends EventTargetMixin {
         if (this._sock.rQlen > 0) {
             this._handleMessage();
         }
+    }
+
+    _handleUdpRect(data) {
+        let frame = {
+            x: (data[0] << 8) + data[1],
+            y: (data[2] << 8) + data[3],
+            width: (data[4] << 8) + data[5],
+            height: (data[6] << 8) + data[7],
+            encoding: parseInt((data[8] << 24) + (data[9] << 16) +
+                                            (data[10] << 8) + data[11], 10)
+        };
+
+        switch (frame.encoding) {
+            case encodings.pseudoEncodingLastRect:
+                if (document.visibilityState !== "hidden") {
+                    this._display.flip();
+                    this._udpBuffer.clear();
+                }
+                break;
+            case encodings.encodingTight:
+                let decoder = this._decoders[encodings.encodingUDP];
+                try {
+                    decoder.decodeRect(frame.x, frame.y,
+                        frame.width, frame.height,
+                        data, this._display,
+                        this._fbDepth);
+                } catch (err) {
+                    this._fail("Error decoding rect: " + err);
+                    return false;
+                }
+                break;
+            default:
+                Log.Error("Invalid rect encoding via UDP: " + frame.encoding);
+                return false;
+        }
+
+        return true;
+    }
+
+    _sendUdpUpgrade() {
+        let peer = this._udpPeer;
+        let sock = this._sock;
+
+        peer.createOffer().then(function(offer) {
+            return peer.setLocalDescription(offer);
+        }).then(function() {
+            const buff = sock._sQ;
+            const offset = sock._sQlen;
+            const str = Uint8Array.from(Array.from(peer.localDescription.sdp).map(letter => letter.charCodeAt(0)));
+
+            buff[offset] = 181; // msg-type
+            buff[offset + 1] = str.length >> 8; // u16 len
+            buff[offset + 2] = str.length;
+
+            buff.set(str, offset + 3);
+
+            sock._sQlen += 3 + str.length;
+            sock.flush();
+        }).catch(function(reason) {
+            Log.Error("Failed to create offer " + reason);
+        });
+    }
+
+    _sendUdpDowngrade() {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+        buff[offset] = 181; // msg-type
+        buff[offset + 1] = 0; // u16 len
+        buff[offset + 2] = 0;
+
+        sock._sQlen += 3;
+        sock.flush();
+    }
+
+    _handleUdpUpgrade() {
+        if (this._sock.rQwait("UdpUgrade header", 2, 1)) { return false; }
+        let len = this._sock.rQshift16();
+        if (this._sock.rQwait("UdpUpgrade payload", len, 3)) { return false; }
+
+        const payload = this._sock.rQshiftStr(len);
+
+        let peer = this._udpPeer;
+
+        var response = JSON.parse(payload);
+        peer.setRemoteDescription(new RTCSessionDescription(response.answer)).then(function() {
+            var candidate = new RTCIceCandidate(response.candidate);
+            peer.addIceCandidate(candidate).then(function() {
+                Log.Debug("success in addicecandidate");
+            }).catch(function(err) {
+                Log.Error("Failure in addIceCandidate", err);
+            });
+        }).catch(function(e) {
+            Log.Error("Failure in setRemoteDescription", e);
+        });
     }
 
     _framebufferUpdate() {
@@ -3231,7 +3431,7 @@ export default class RFB extends EventTargetMixin {
                                       this._sock, this._display,
                                       this._fbDepth);
         } catch (err) {
-            this._fail("Error decoding rect: " + err);
+	    this._fail("Error decoding rect: " + err);
             return false;
         }
     }

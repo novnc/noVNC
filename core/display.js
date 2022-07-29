@@ -329,11 +329,9 @@ export default class Display {
                                           x, y, w, h,
                                           vx, vy, w, h);
 
-                if (this.isNewFrame(x, y, h, w)) {
-                    this._flipCnt += 1;
-                }
+                this._flipCnt += 1;
             }
-
+	  
             this._damageBounds.left = this._damageBounds.top = 65535;
             this._damageBounds.right = this._damageBounds.bottom = 0;
         }
