@@ -34,6 +34,7 @@ import HextileDecoder from "./decoders/hextile.js";
 import TightDecoder from "./decoders/tight.js";
 import TightPNGDecoder from "./decoders/tightpng.js";
 import UDPDecoder from './decoders/udp.js';
+import { toSignedRelative16bit } from './util/int.js';
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
@@ -43,7 +44,7 @@ var _videoQuality =  2;
 var _enableWebP = false;
 
 // Minimum wait (ms) between two mouse moves
-const MOUSE_MOVE_DELAY = 17;
+const MOUSE_MOVE_DELAY = 17; 
 
 // Wheel thresholds
 let WHEEL_LINE_HEIGHT = 19; // Pixels for one line step (on Windows)
@@ -71,7 +72,7 @@ const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
 
 export default class RFB extends EventTargetMixin {
-    constructor(target, urlOrChannel, options) {
+    constructor(target, touchInput, urlOrChannel, options) {
         if (!target) {
             throw new Error("Must specify target");
         }
@@ -172,6 +173,9 @@ export default class RFB extends EventTargetMixin {
         this._mousePos = {};
         this._mouseButtonMask = 0;
         this._mouseLastMoveTime = 0;
+        this._pointerLock = false;
+        this._pointerLockPos = { x: 0, y: 0 };
+        this._pointerRelativeEnabled = false;
         this._mouseLastPinchAndZoomTime = 0;
         this._viewportDragging = false;
         this._viewportDragPos = {};
@@ -191,6 +195,8 @@ export default class RFB extends EventTargetMixin {
             focusCanvas: this._focusCanvas.bind(this),
             windowResize: this._windowResize.bind(this),
             handleMouse: this._handleMouse.bind(this),
+            handlePointerLockChange: this._handlePointerLockChange.bind(this),
+            handlePointerLockError: this._handlePointerLockError.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
         };
@@ -247,7 +253,7 @@ export default class RFB extends EventTargetMixin {
         }
         this._display.onflush = this._onFlush.bind(this);
 
-        this._keyboard = new Keyboard(this._canvas);
+        this._keyboard = new Keyboard(this._canvas, touchInput);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
 
         this._gestures = new GestureHandler();
@@ -335,6 +341,45 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+
+    get pointerLock() { return this._pointerLock; }
+    set pointerLock(value) {
+        if (!this._pointerLock) {
+            if (this._canvas.requestPointerLock) {
+                this._canvas.requestPointerLock();
+                this._pointerLockChanging = true;
+            } else if (this._canvas.mozRequestPointerLock) {
+                this._canvas.mozRequestPointerLock();
+                this._pointerLockChanging = true;
+            }
+        } else {
+            if (window.document.exitPointerLock) {
+                window.document.exitPointerLock();
+                this._pointerLockChanging = true;
+            } else if (window.document.mozExitPointerLock) {
+                window.document.mozExitPointerLock();
+                this._pointerLockChanging = true;
+            }
+        }
+    }
+
+    get pointerRelative() { return this._pointerRelativeEnabled; }
+    set pointerRelative(value) 
+    { 
+        this._pointerRelativeEnabled = value; 
+        if (value) {
+            let max_w = ((this._display.scale === 1) ? this._fbWidth : (this._fbWidth * this._display.scale));
+            let max_h = ((this._display.scale === 1) ? this._fbHeight : (this._fbHeight * this._display.scale));
+            this._pointerLockPos.x = Math.floor(max_w / 2);
+            this._pointerLockPos.y = Math.floor(max_h / 2);
+
+            // reset the cursor position to center
+            this._mousePos = { x: this._pointerLockPos.x , y: this._pointerLockPos.y };
+            this._cursor.move(this._pointerLockPos.x, this._pointerLockPos.y);
+        }
+    }
+
+    get keyboard() { return this._keyboard; }
 
     get clipboardBinary() { return this._clipboardMode; }
     set clipboardBinary(val) { this._clipboardMode = val; }
@@ -748,11 +793,11 @@ export default class RFB extends EventTargetMixin {
     }
 
     focus() {
-        this._canvas.focus();
+        this._keyboard.focus();
     }
 
     blur() {
-        this._canvas.blur();
+        this._keyboard.blur();
     }
 
     clipboardPasteFrom(text) {
@@ -914,6 +959,15 @@ export default class RFB extends EventTargetMixin {
         // reason so we have to explicitly block it
         this._canvas.addEventListener('contextmenu', this._eventHandlers.handleMouse);
 
+        // Pointer Lock listeners need to be installed in document instead of the canvas.
+        if (document.onpointerlockchange !== undefined) {
+            document.addEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange, false);
+            document.addEventListener('pointerlockerror', this._eventHandlers.handlePointerLockError, false);
+        } else if (document.onmozpointerlockchange !== undefined) {
+            document.addEventListener('mozpointerlockchange', this._eventHandlers.handlePointerLockChange, false);
+            document.addEventListener('mozpointerlockerror', this._eventHandlers.handlePointerLockError, false);
+        }
+
         // Wheel events
         this._canvas.addEventListener("wheel", this._eventHandlers.handleWheel);
 
@@ -1036,6 +1090,13 @@ export default class RFB extends EventTargetMixin {
         this._canvas.removeEventListener('mousemove', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('click', this._eventHandlers.handleMouse);
         this._canvas.removeEventListener('contextmenu', this._eventHandlers.handleMouse);
+        if (document.onpointerlockchange !== undefined) {
+            document.removeEventListener('pointerlockchange', this._eventHandlers.handlePointerLockChange);
+            document.removeEventListener('pointerlockerror', this._eventHandlers.handlePointerLockError);
+        } else if (document.onmozpointerlockchange !== undefined) {
+            document.removeEventListener('mozpointerlockchange', this._eventHandlers.handlePointerLockChange);
+            document.removeEventListener('mozpointerlockerror', this._eventHandlers.handlePointerLockError);
+        }
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
@@ -1074,11 +1135,18 @@ export default class RFB extends EventTargetMixin {
             value: null
         }, "*");
 
+        // Re-enable pointerLock if relative cursor is enabled
+        // pointerLock must come from user initiated event
+        if (!this._pointerLock && this._pointerRelativeEnabled) {
+            this.pointerLock = true;
+        }
+
         if (!this.focusOnClick) {
             return;
         }
 
         this.focus();
+
     }
 
     _setDesktopName(name) {
@@ -1409,8 +1477,34 @@ export default class RFB extends EventTargetMixin {
             return;
         }
 
-        let pos = clientToElement(ev.clientX, ev.clientY,
+        let pos;
+        if (this._pointerLock && !this._pointerRelativeEnabled) {
+            let max_w = ((this._display.scale === 1) ? this._fbWidth : (this._fbWidth * this._display.scale));
+            let max_h = ((this._display.scale === 1) ? this._fbHeight : (this._fbHeight * this._display.scale));
+            pos = {
+                x: this._mousePos.x + ev.movementX,
+                y: this._mousePos.y + ev.movementY,
+            };
+            if (pos.x < 0) {
+                pos.x = 0;
+            } else if (pos.x > max_w) {
+                pos.x = max_w;
+            }
+            if (pos.y < 0) {
+                pos.y = 0;
+            } else if (pos.y > max_h) {
+                pos.y = max_h;
+            }
+            this._cursor.move(pos.x, pos.y);
+        } else if (this._pointerLock && this._pointerRelativeEnabled) {
+            pos = {
+                x: this._mousePos.x + ev.movementX,
+                y: this._mousePos.y + ev.movementY,
+            };
+        } else {
+            pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
+        }
 
         switch (ev.type) {
             case 'mousedown':
@@ -1526,12 +1620,54 @@ export default class RFB extends EventTargetMixin {
         this._mouseLastMoveTime = Date.now();
     }
 
+    _handlePointerLockChange(env) {
+        if (
+            document.pointerLockElement === this._canvas ||
+            document.mozPointerLockElement === this._canvas
+        ) {
+            this._pointerLock = true;
+            this._cursor.setEmulateCursor(true);
+        } else {
+            this._pointerLock = false;
+            this._cursor.setEmulateCursor(false);
+        }
+        this.dispatchEvent(new CustomEvent(
+            "inputlock",
+            { detail: { pointer: this._pointerLock }, }));
+    }
+
+    _handlePointerLockError() {
+        this._pointerLockChanging = false;
+        this.dispatchEvent(new CustomEvent(
+            "inputlockerror",
+            { detail: { pointer: this._pointerLock }, }));
+    }
+
     _sendMouse(x, y, mask) {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x),
+        if (this._pointerLock && this._pointerRelativeEnabled) {
+
+            // Use releative cursor position
+            var rel_16_x = toSignedRelative16bit(x - this._pointerLockPos.x);
+            var rel_16_y = toSignedRelative16bit(y - this._pointerLockPos.y);
+
+            //console.log("new_pos x" + x + ", y" + y);
+            //console.log("lock x " + this._pointerLockPos.x + ", y " + this._pointerLockPos.y);
+            //console.log("rel x " + rel_16_x + ", y " + rel_16_y);
+
+            RFB.messages.pointerEvent(this._sock, rel_16_x,
+                                  rel_16_y, mask);
+            
+            // reset the cursor position to center
+            this._mousePos = { x: this._pointerLockPos.x , y: this._pointerLockPos.y };
+            this._cursor.move(this._pointerLockPos.x, this._pointerLockPos.y);
+        } else {
+            RFB.messages.pointerEvent(this._sock, this._display.absX(x),
                                   this._display.absY(y), mask);
+        }
+        
     }
 
     _sendScroll(x, y, dX, dY) {
@@ -2352,16 +2488,16 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingVideoScalingLevel0 + this.videoScaling);
         encs.push(encodings.pseudoEncodingFrameRateLevel10 + this.frameRate - 10);
         encs.push(encodings.pseudoEncodingMaxVideoResolution);
-        // preferBandwidth choses preset settings. Since we expose all the settings, lets not pass this
+        
+	// preferBandwidth choses preset settings. Since we expose all the settings, lets not pass this
         if (this.preferBandwidth) // must be last - server processes in reverse order
             encs.push(encodings.pseudoEncodingPreferBandwidth);
 
-        if (supportsCursorURIs && this._fbDepth == 24) {
-            if (this.preferLocalCursor || !isTouchDevice) {
-                encs.push(encodings.pseudoEncodingVMwareCursor);
-                encs.push(encodings.pseudoEncodingCursor);
-	    }
+        if (this._fbDepth == 24) {
+            encs.push(encodings.pseudoEncodingVMwareCursor);
+            encs.push(encodings.pseudoEncodingCursor);
         }
+        encs.push(encodings.pseudoEncodingVMwareCursorPosition);
 
         RFB.messages.clientEncodings(this._sock, encs);
     }
@@ -2595,6 +2731,10 @@ export default class RFB extends EventTargetMixin {
         
 
         for (let i = 0; i < num; i++) {
+            if (this._sock.rQwait("Binary Clipboard op id", 4, buffByteLen)) { return false; }
+            buffByteLen += 4;
+            let clipid = this._sock.rQshift32();
+
             if (this._sock.rQwait("Binary Clipboard mimelen", 1, buffByteLen)) { return false; }
             buffByteLen++;
             let mimelen = this._sock.rQshift8();
@@ -2635,10 +2775,10 @@ export default class RFB extends EventTargetMixin {
                             );
                         }
 
-                    if (!this.clipboardBinary) { continue; }
+                    Log.Info("Processed binary clipboard (ID: " + clipid + ")  of MIME " + mime + " of length " + len);
                     
-                    Log.Info("Processed binary clipboard of MIME " + mime + " of length " + len);
-
+	            if (!this.clipboardBinary) { continue; }
+                    
                     clipItemData[mime] = new Blob([data], { type: mime });
                     break;
                 default:
@@ -2987,6 +3127,9 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingVMwareCursor:
                 return this._handleVMwareCursor();
 
+            case encodings.pseudoEncodingVMwareCursorPosition:
+                return this._handleVMwareCursorPosition();
+
             case encodings.pseudoEncodingCursor:
                 return this._handleCursor();
 
@@ -3121,6 +3264,19 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._updateCursor(rgba, hotx, hoty, w, h);
+
+        return true;
+    }
+
+    _handleVMwareCursorPosition() {
+        const x = this._FBU.x;
+        const y = this._FBU.y;
+
+        if (this._pointerLock) {
+            // Only attempt to match the server's pointer position if we are in
+            // pointer lock mode.
+            this._mousePos = { x: x, y: y };
+        }
 
         return true;
     }
