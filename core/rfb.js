@@ -1835,11 +1835,7 @@ export default class RFB extends EventTargetMixin {
     _negotiateAuthentication() {
         switch (this._rfbAuthScheme) {
             case 1:  // no auth
-                if (this._rfbVersion >= 3.8) {
-                    this._rfbInitState = 'SecurityResult';
-                    return true;
-                }
-                this._rfbInitState = 'ClientInitialisation';
+                this._rfbInitState = 'SecurityResult';
                 return true;
 
             case 22:  // XVP auth
@@ -1870,6 +1866,13 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleSecurityResult() {
+        // There is no security choice, and hence no security result
+        // until RFB 3.7
+        if (this._rfbVersion < 3.7) {
+            this._rfbInitState = 'ClientInitialisation';
+            return true;
+        }
+
         if (this._sock.rQwait('VNC auth response ', 4)) { return false; }
 
         const status = this._sock.rQshift32();

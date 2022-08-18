@@ -1144,7 +1144,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 const authSchemes = [2, 1, 3];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
                 expect(client._rfbAuthScheme).to.equal(1);
-                expect(client._sock).to.have.sent(new Uint8Array([1, 1]));
+                expect(client._sock).to.have.sent(new Uint8Array([1]));
             });
 
             it('should choose for the most prefered scheme possible for versions >= 3.7', function () {
@@ -1209,15 +1209,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     'Security negotiation failed on authentication scheme (reason: Whoopsies)');
             });
 
-            it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.8', function () {
-                client._rfbVersion = 3.8;
+            it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.7', function () {
+                client._rfbVersion = 3.7;
                 sendSecurity(1, client);
                 expect(client._rfbInitState).to.equal('SecurityResult');
             });
 
-            it('should transition straight to ServerInitialisation on "no auth" for versions < 3.8', function () {
-                client._rfbVersion = 3.7;
-                sendSecurity(1, client);
+            it('should transition straight to ServerInitialisation on "no auth" for versions < 3.7', function () {
+                client._rfbVersion = 3.6;
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 1]));
                 expect(client._rfbInitState).to.equal('ServerInitialisation');
             });
 
