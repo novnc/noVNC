@@ -1592,31 +1592,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._rfbInitState).to.equal('ServerInitialisation');
             });
 
-            it('should fail on an error code of 1 with the given message for versions >= 3.8', function () {
-                client._rfbVersion = 3.8;
-                sinon.spy(client, '_fail');
-                const failureData = [0, 0, 0, 1, 0, 0, 0, 6, 119, 104, 111, 111, 112, 115];
-                client._sock._websocket._receiveData(new Uint8Array(failureData));
-                expect(client._fail).to.have.been.calledWith(
-                    'Security negotiation failed on security result (reason: whoops)');
-            });
-
-            it('should fail on an error code of 1 with a standard message for version < 3.8', function () {
-                sinon.spy(client, '_fail');
-                client._rfbVersion = 3.7;
-                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 1]));
-                expect(client._fail).to.have.been.calledWith(
-                    'Security handshake failed');
-            });
-
-            it('should result in securityfailure event when receiving a non zero status', function () {
-                const spy = sinon.spy();
-                client.addEventListener("securityfailure", spy);
-                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.status).to.equal(2);
-            });
-
             it('should include reason when provided in securityfailure event', function () {
                 client._rfbVersion = 3.8;
                 const spy = sinon.spy();
@@ -1624,25 +1599,28 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 const failureData = [0, 0, 0, 1, 0, 0, 0, 12, 115, 117, 99, 104,
                                      32, 102, 97, 105, 108, 117, 114, 101];
                 client._sock._websocket._receiveData(new Uint8Array(failureData));
+                expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][0].detail.status).to.equal(1);
                 expect(spy.args[0][0].detail.reason).to.equal('such failure');
             });
 
             it('should not include reason when length is zero in securityfailure event', function () {
-                client._rfbVersion = 3.9;
+                client._rfbVersion = 3.8;
                 const spy = sinon.spy();
                 client.addEventListener("securityfailure", spy);
                 const failureData = [0, 0, 0, 1, 0, 0, 0, 0];
                 client._sock._websocket._receiveData(new Uint8Array(failureData));
+                expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][0].detail.status).to.equal(1);
                 expect('reason' in spy.args[0][0].detail).to.be.false;
             });
 
             it('should not include reason in securityfailure event for version < 3.8', function () {
-                client._rfbVersion = 3.6;
+                client._rfbVersion = 3.7;
                 const spy = sinon.spy();
                 client.addEventListener("securityfailure", spy);
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
+                expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][0].detail.status).to.equal(2);
                 expect('reason' in spy.args[0][0].detail).to.be.false;
             });
