@@ -1354,6 +1354,21 @@ export default class RFB extends EventTargetMixin {
         this._rfbInitState = 'Security';
     }
 
+    _isSupportedSecurityType(type) {
+        const clientTypes = [
+            securityTypeNone,
+            securityTypeVNCAuth,
+            securityTypeRA2ne,
+            securityTypeTight,
+            securityTypeVeNCrypt,
+            securityTypeXVP,
+            securityTypeARD,
+            securityTypePlain,
+        ];
+
+        return clientTypes.includes(type);
+    }
+
     _negotiateSecurity() {
         if (this._rfbVersion >= 3.7) {
             // Server sends supported list, client decides
@@ -1370,22 +1385,17 @@ export default class RFB extends EventTargetMixin {
             const types = this._sock.rQshiftBytes(numTypes);
             Log.Debug("Server security types: " + types);
 
-            // Look for each auth in preferred order
-            if (types.includes(securityTypeNone)) {
-                this._rfbAuthScheme = securityTypeNone;
-            } else if (types.includes(securityTypeXVP)) {
-                this._rfbAuthScheme = securityTypeXVP;
-            } else if (types.includes(securityTypeTight)) {
-                this._rfbAuthScheme = securityTypeTight;
-            } else if (types.includes(securityTypeRA2ne)) {
-                this._rfbAuthScheme = securityTypeRA2ne;
-            } else if (types.includes(securityTypeVNCAuth)) {
-                this._rfbAuthScheme = securityTypeVNCAuth;
-            } else if (types.includes(securityTypeARD)) {
-                this._rfbAuthScheme = securityTypeARD;
-            } else if (types.includes(securityTypeVeNCrypt)) {
-                this._rfbAuthScheme = securityTypeVeNCrypt;
-            } else {
+            // Look for a matching security type in the order that the
+            // server prefers
+            this._rfbAuthScheme = -1;
+            for (let type of types) {
+                if (this._isSupportedSecurityType(type)) {
+                    this._rfbAuthScheme = type;
+                    break;
+                }
+            }
+
+            if (this._rfbAuthScheme === -1) {
                 return this._fail("Unsupported security types (types: " + types + ")");
             }
 

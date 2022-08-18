@@ -1135,18 +1135,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._sock._websocket._getSentData();
             });
 
-            it('should prefer no authentication is possible', function () {
-                const authSchemes = [2, 1, 3];
+            it('should respect server preference order', function () {
+                const authSchemes = [ 6, 79, 30, 188, 16, 6, 1 ];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
-                expect(client._rfbAuthScheme).to.equal(1);
-                expect(client._sock).to.have.sent(new Uint8Array([1]));
-            });
-
-            it('should choose for the most prefered scheme possible', function () {
-                const authSchemes = [2, 22, 16];
-                client._sock._websocket._receiveData(new Uint8Array(authSchemes));
-                expect(client._rfbAuthScheme).to.equal(22);
-                expect(client._sock).to.have.sent(new Uint8Array([22]));
+                expect(client._sock).to.have.sent(new Uint8Array([30]));
             });
 
             it('should fail if there are no supported schemes', function () {
