@@ -922,8 +922,15 @@ export default class RFB extends EventTargetMixin {
                     }
                 }
                 break;
+            case 'connecting':
+                while (this._rfbConnectionState === 'connecting') {
+                    if (!this._initMsg()) {
+                        break;
+                    }
+                }
+                break;
             default:
-                this._initMsg();
+                Log.Error("Got data while in an invalid state");
                 break;
         }
     }
@@ -1342,7 +1349,7 @@ export default class RFB extends EventTargetMixin {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "no security types";
                 this._securityStatus = 1;
-                return this._initMsg();
+                return true;
             }
 
             const types = this._sock.rQshiftBytes(numTypes);
@@ -1377,14 +1384,14 @@ export default class RFB extends EventTargetMixin {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "authentication scheme";
                 this._securityStatus = 1;
-                return this._initMsg();
+                return true;
             }
         }
 
         this._rfbInitState = 'Authentication';
         Log.Debug('Authenticating using scheme: ' + this._rfbAuthScheme);
 
-        return this._initMsg(); // jump to authentication
+        return true;
     }
 
     _handleSecurityReason() {
@@ -1773,10 +1780,10 @@ export default class RFB extends EventTargetMixin {
                         return true;
                     case 'STDVVNCAUTH_': // VNC auth
                         this._rfbAuthScheme = 2;
-                        return this._initMsg();
+                        return true;
                     case 'TGHTULGNAUTH': // UNIX auth
                         this._rfbAuthScheme = 129;
-                        return this._initMsg();
+                        return true;
                     default:
                         return this._fail("Unsupported tiny auth scheme " +
                                           "(scheme: " + authType + ")");
@@ -1813,7 +1820,7 @@ export default class RFB extends EventTargetMixin {
                 }).then(() => {
                     this.dispatchEvent(new CustomEvent('securityresult'));
                     this._rfbInitState = "SecurityResult";
-                    this._initMsg();
+                    return true;
                 }).finally(() => {
                     this._rfbRSAAESAuthenticationState.removeEventListener(
                         "serververification", this._eventHandlers.handleRSAAESServerVerification);
@@ -1833,7 +1840,7 @@ export default class RFB extends EventTargetMixin {
                     return true;
                 }
                 this._rfbInitState = 'ClientInitialisation';
-                return this._initMsg();
+                return true;
 
             case 22:  // XVP auth
                 return this._negotiateXvpAuth();
@@ -1870,13 +1877,13 @@ export default class RFB extends EventTargetMixin {
         if (status === 0) { // OK
             this._rfbInitState = 'ClientInitialisation';
             Log.Debug('Authentication OK');
-            return this._initMsg();
+            return true;
         } else {
             if (this._rfbVersion >= 3.8) {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "security result";
                 this._securityStatus = status;
-                return this._initMsg();
+                return true;
             } else {
                 this.dispatchEvent(new CustomEvent(
                     "securityfailure",
