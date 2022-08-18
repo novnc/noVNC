@@ -1463,16 +1463,68 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(client._fail).to.have.been.calledOnce;
                 });
 
-                it('should fail if the Plain authentication is not present', function () {
+                it('should fail if there are no supported subtypes', function () {
                     // VeNCrypt version
                     client._sock._websocket._receiveData(new Uint8Array([0, 2]));
                     expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
                     // Server ACK.
                     client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list, only list subtype 1.
+                    // Subtype list
                     sinon.spy(client, "_fail");
-                    client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 0, 1]));
+                    client._sock._websocket._receiveData(new Uint8Array([2, 0, 0, 0, 9, 0, 0, 1, 4]));
                     expect(client._fail).to.have.been.calledOnce;
+                });
+
+                it('should support standard types', function () {
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list
+                    client._sock._websocket._receiveData(new Uint8Array([2, 0, 0, 0, 2, 0, 0, 1, 4]));
+
+                    let expectedResponse = [];
+                    push32(expectedResponse, 2); // Chosen subtype.
+
+                    expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
+                });
+
+                it('should respect server preference order', function () {
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list
+                    let subtypes = [ 6 ];
+                    push32(subtypes, 79);
+                    push32(subtypes, 30);
+                    push32(subtypes, 188);
+                    push32(subtypes, 256);
+                    push32(subtypes, 6);
+                    push32(subtypes, 1);
+                    client._sock._websocket._receiveData(new Uint8Array(subtypes));
+
+                    let expectedResponse = [];
+                    push32(expectedResponse, 30); // Chosen subtype.
+
+                    expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
+                });
+
+                it('should ignore redundant VeNCrypt subtype', function () {
+                    // VeNCrypt version
+                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
+                    // Server ACK.
+                    client._sock._websocket._receiveData(new Uint8Array([0]));
+                    // Subtype list
+                    client._sock._websocket._receiveData(new Uint8Array([2, 0, 0, 0, 19, 0, 0, 0, 2]));
+
+                    let expectedResponse = [];
+                    push32(expectedResponse, 2); // Chosen subtype.
+
+                    expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
                 });
 
                 it('should support Plain authentication', function () {

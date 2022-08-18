@@ -1524,46 +1524,64 @@ export default class RFB extends EventTargetMixin {
                 subtypes.push(this._sock.rQshift32());
             }
 
-            if (subtypes.indexOf(securityTypePlain) != -1) {
-                // 0x100 = 256
-                this._sock.send([0, 0, 1, 0]);
-                this._rfbVeNCryptState = 4;
-            } else {
-                return this._fail("VeNCrypt Plain subtype not offered by server");
-            }
-        }
+            // Look for a matching security type in the order that the
+            // server prefers
+            this._rfbAuthScheme = -1;
+            for (let type of subtypes) {
+                // Avoid getting in to a loop
+                if (type === securityTypeVeNCrypt) {
+                    continue;
+                }
 
-        // negotiated Plain subtype, server waits for password
-        if (this._rfbVeNCryptState == 4) {
-            if (this._rfbCredentials.username === undefined ||
-                this._rfbCredentials.password === undefined) {
-                this.dispatchEvent(new CustomEvent(
-                    "credentialsrequired",
-                    { detail: { types: ["username", "password"] } }));
-                return false;
+                if (this._isSupportedSecurityType(type)) {
+                    this._rfbAuthScheme = type;
+                    break;
+                }
             }
 
-            const user = encodeUTF8(this._rfbCredentials.username);
-            const pass = encodeUTF8(this._rfbCredentials.password);
+            if (this._rfbAuthScheme === -1) {
+                return this._fail("Unsupported security types (types: " + subtypes + ")");
+            }
 
-            this._sock.send([
-                (user.length >> 24) & 0xFF,
-                (user.length >> 16) & 0xFF,
-                (user.length >> 8) & 0xFF,
-                user.length & 0xFF
-            ]);
-            this._sock.send([
-                (pass.length >> 24) & 0xFF,
-                (pass.length >> 16) & 0xFF,
-                (pass.length >> 8) & 0xFF,
-                pass.length & 0xFF
-            ]);
-            this._sock.sendString(user);
-            this._sock.sendString(pass);
+            this._sock.send([this._rfbAuthScheme >> 24,
+                             this._rfbAuthScheme >> 16,
+                             this._rfbAuthScheme >> 8,
+                             this._rfbAuthScheme]);
 
-            this._rfbInitState = "SecurityResult";
+            this._rfbVeNCryptState == 4;
             return true;
         }
+    }
+
+    _negotiatePlainAuth() {
+        if (this._rfbCredentials.username === undefined ||
+            this._rfbCredentials.password === undefined) {
+            this.dispatchEvent(new CustomEvent(
+                "credentialsrequired",
+                { detail: { types: ["username", "password"] } }));
+            return false;
+        }
+
+        const user = encodeUTF8(this._rfbCredentials.username);
+        const pass = encodeUTF8(this._rfbCredentials.password);
+
+        this._sock.send([
+            (user.length >> 24) & 0xFF,
+            (user.length >> 16) & 0xFF,
+            (user.length >> 8) & 0xFF,
+            user.length & 0xFF
+        ]);
+        this._sock.send([
+            (pass.length >> 24) & 0xFF,
+            (pass.length >> 16) & 0xFF,
+            (pass.length >> 8) & 0xFF,
+            pass.length & 0xFF
+        ]);
+        this._sock.sendString(user);
+        this._sock.sendString(pass);
+
+        this._rfbInitState = "SecurityResult";
+        return true;
     }
 
     _negotiateStdVNCAuth() {
@@ -1876,6 +1894,9 @@ export default class RFB extends EventTargetMixin {
 
             case securityTypeVeNCrypt:
                 return this._negotiateVeNCryptAuth();
+
+            case securityTypePlain:
+                return this._negotiatePlainAuth();
 
             case securityTypeUnixLogon:
                 return this._negotiateTightUnixAuth();
