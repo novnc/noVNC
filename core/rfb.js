@@ -54,6 +54,21 @@ const GESTURE_SCRLSENS = 50;
 const DOUBLE_TAP_TIMEOUT = 1000;
 const DOUBLE_TAP_THRESHOLD = 50;
 
+// Security types
+const securityTypeNone              = 1;
+const securityTypeVNCAuth           = 2;
+const securityTypeRA2ne             = 6;
+const securityTypeTight             = 16;
+const securityTypeVeNCrypt          = 19;
+const securityTypeXVP               = 22;
+const securityTypeARD               = 30;
+
+// Special Tight security types
+const securityTypeUnixLogon         = 129;
+
+// VeNCrypt security types
+const securityTypePlain             = 256;
+
 // Extended clipboard pseudo-encoding formats
 const extendedClipboardFormatText   = 1;
 /*eslint-disable no-unused-vars */
@@ -1356,20 +1371,20 @@ export default class RFB extends EventTargetMixin {
             Log.Debug("Server security types: " + types);
 
             // Look for each auth in preferred order
-            if (types.includes(1)) {
-                this._rfbAuthScheme = 1; // None
-            } else if (types.includes(22)) {
-                this._rfbAuthScheme = 22; // XVP
-            } else if (types.includes(16)) {
-                this._rfbAuthScheme = 16; // Tight
-            } else if (types.includes(6)) {
-                this._rfbAuthScheme = 6; // RA2ne Auth
-            } else if (types.includes(2)) {
-                this._rfbAuthScheme = 2; // VNC Auth
-            } else if (types.includes(30)) {
-                this._rfbAuthScheme = 30; // ARD Auth
-            } else if (types.includes(19)) {
-                this._rfbAuthScheme = 19; // VeNCrypt Auth
+            if (types.includes(securityTypeNone)) {
+                this._rfbAuthScheme = securityTypeNone;
+            } else if (types.includes(securityTypeXVP)) {
+                this._rfbAuthScheme = securityTypeXVP;
+            } else if (types.includes(securityTypeTight)) {
+                this._rfbAuthScheme = securityTypeTight;
+            } else if (types.includes(securityTypeRA2ne)) {
+                this._rfbAuthScheme = securityTypeRA2ne;
+            } else if (types.includes(securityTypeVNCAuth)) {
+                this._rfbAuthScheme = securityTypeVNCAuth;
+            } else if (types.includes(securityTypeARD)) {
+                this._rfbAuthScheme = securityTypeARD;
+            } else if (types.includes(securityTypeVeNCrypt)) {
+                this._rfbAuthScheme = securityTypeVeNCrypt;
             } else {
                 return this._fail("Unsupported security types (types: " + types + ")");
             }
@@ -1441,7 +1456,7 @@ export default class RFB extends EventTargetMixin {
                            this._rfbCredentials.username +
                            this._rfbCredentials.target;
         this._sock.sendString(xvpAuthStr);
-        this._rfbAuthScheme = 2;
+        this._rfbAuthScheme = securityTypeVNCAuth;
         return this._negotiateAuthentication();
     }
 
@@ -1499,8 +1514,7 @@ export default class RFB extends EventTargetMixin {
                 subtypes.push(this._sock.rQshift32());
             }
 
-            // 256 = Plain subtype
-            if (subtypes.indexOf(256) != -1) {
+            if (subtypes.indexOf(securityTypePlain) != -1) {
                 // 0x100 = 256
                 this._sock.send([0, 0, 1, 0]);
                 this._rfbVeNCryptState = 4;
@@ -1778,11 +1792,11 @@ export default class RFB extends EventTargetMixin {
                     case 'STDVNOAUTH__':  // no auth
                         this._rfbInitState = 'SecurityResult';
                         return true;
-                    case 'STDVVNCAUTH_': // VNC auth
-                        this._rfbAuthScheme = 2;
+                    case 'STDVVNCAUTH_':
+                        this._rfbAuthScheme = securityTypeVNCAuth;
                         return true;
-                    case 'TGHTULGNAUTH': // UNIX auth
-                        this._rfbAuthScheme = 129;
+                    case 'TGHTULGNAUTH':
+                        this._rfbAuthScheme = securityTypeUnixLogon;
                         return true;
                     default:
                         return this._fail("Unsupported tiny auth scheme " +
@@ -1834,29 +1848,29 @@ export default class RFB extends EventTargetMixin {
 
     _negotiateAuthentication() {
         switch (this._rfbAuthScheme) {
-            case 1:  // no auth
+            case securityTypeNone:
                 this._rfbInitState = 'SecurityResult';
                 return true;
 
-            case 22:  // XVP auth
+            case securityTypeXVP:
                 return this._negotiateXvpAuth();
 
-            case 30:  // ARD auth
+            case securityTypeARD:
                 return this._negotiateARDAuth();
 
-            case 2:  // VNC authentication
+            case securityTypeVNCAuth:
                 return this._negotiateStdVNCAuth();
 
-            case 16:  // TightVNC Security Type
+            case securityTypeTight:
                 return this._negotiateTightAuth();
 
-            case 19:  // VeNCrypt Security Type
+            case securityTypeVeNCrypt:
                 return this._negotiateVeNCryptAuth();
 
-            case 129:  // TightVNC UNIX Security Type
+            case securityTypeUnixLogon:
                 return this._negotiateTightUnixAuth();
 
-            case 6:  // RA2ne Security Type
+            case securityTypeRA2ne:
                 return this._negotiateRA2neAuth();
 
             default:
