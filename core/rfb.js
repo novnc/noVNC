@@ -402,7 +402,7 @@ export default class RFB extends EventTargetMixin {
 
     sendCredentials(creds) {
         this._rfbCredentials = creds;
-        setTimeout(this._initMsg.bind(this), 0);
+        this._resumeAuthentication();
     }
 
     sendCtrlAltDel() {
@@ -1661,7 +1661,7 @@ export default class RFB extends EventTargetMixin {
         this._rfbCredentials.ardCredentials = encrypted;
         this._rfbCredentials.ardPublicKey = clientPublicKey;
 
-        setTimeout(this._initMsg.bind(this), 0);
+        this._resumeAuthentication();
     }
 
     _negotiateTightUnixAuth() {
@@ -2050,6 +2050,14 @@ export default class RFB extends EventTargetMixin {
                 return this._fail("Unknown init state (state: " +
                                   this._rfbInitState + ")");
         }
+    }
+
+    // Resume authentication handshake after it was paused for some
+    // reason, e.g. waiting for a password from the user
+    _resumeAuthentication() {
+        // We use setTimeout() so it's run in its own context, just like
+        // it originally did via the WebSocket's event handler
+        setTimeout(this._initMsg.bind(this), 0);
     }
 
     _handleSetColourMapMsg() {
