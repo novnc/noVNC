@@ -1026,17 +1026,21 @@ describe('Remote Frame Buffer Protocol Client', function () {
             client._rfbConnectionState = 'connecting';
         });
 
-        describe('ProtocolVersion', function () {
-            function sendVer(ver, client) {
-                const arr = new Uint8Array(12);
-                for (let i = 0; i < ver.length; i++) {
-                    arr[i+4] = ver.charCodeAt(i);
-                }
-                arr[0] = 'R'; arr[1] = 'F'; arr[2] = 'B'; arr[3] = ' ';
-                arr[11] = '\n';
-                client._sock._websocket._receiveData(arr);
+        function sendVer(ver, client) {
+            const arr = new Uint8Array(12);
+            for (let i = 0; i < ver.length; i++) {
+                arr[i+4] = ver.charCodeAt(i);
             }
+            arr[0] = 'R'; arr[1] = 'F'; arr[2] = 'B'; arr[3] = ' ';
+            arr[11] = '\n';
+            client._sock._websocket._receiveData(arr);
+        }
 
+        function sendSecurity(type, cl) {
+            cl._sock._websocket._receiveData(new Uint8Array([1, type]));
+        }
+
+        describe('ProtocolVersion', function () {
             describe('version parsing', function () {
                 it('should interpret version 003.003 as version 3.3', function () {
                     sendVer('003.003', client);
@@ -1127,44 +1131,32 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('Security', function () {
             beforeEach(function () {
-                client._rfbInitState = 'Security';
-            });
-
-            it('should simply receive the auth scheme when for versions < 3.7', function () {
-                client._rfbVersion = 3.6;
-                const authSchemeRaw = [1, 2, 3, 4];
-                const authScheme = (authSchemeRaw[0] << 24) + (authSchemeRaw[1] << 16) +
-                                  (authSchemeRaw[2] << 8) + authSchemeRaw[3];
-                client._sock._websocket._receiveData(new Uint8Array(authSchemeRaw));
-                expect(client._rfbAuthScheme).to.equal(authScheme);
+                sendVer('003.008\n', client);
+                client._sock._websocket._getSentData();
             });
 
             it('should prefer no authentication is possible', function () {
-                client._rfbVersion = 3.7;
                 const authSchemes = [2, 1, 3];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
                 expect(client._rfbAuthScheme).to.equal(1);
                 expect(client._sock).to.have.sent(new Uint8Array([1]));
             });
 
-            it('should choose for the most prefered scheme possible for versions >= 3.7', function () {
-                client._rfbVersion = 3.7;
+            it('should choose for the most prefered scheme possible', function () {
                 const authSchemes = [2, 22, 16];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
                 expect(client._rfbAuthScheme).to.equal(22);
                 expect(client._sock).to.have.sent(new Uint8Array([22]));
             });
 
-            it('should fail if there are no supported schemes for versions >= 3.7', function () {
+            it('should fail if there are no supported schemes', function () {
                 sinon.spy(client, "_fail");
-                client._rfbVersion = 3.7;
                 const authSchemes = [1, 32];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
                 expect(client._fail).to.have.been.calledOnce;
             });
 
-            it('should fail with the appropriate message if no types are sent for versions >= 3.7', function () {
-                client._rfbVersion = 3.7;
+            it('should fail with the appropriate message if no types are sent', function () {
                 const failureData = [0, 0, 0, 0, 6, 119, 104, 111, 111, 112, 115];
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receiveData(new Uint8Array(failureData));
@@ -1175,7 +1167,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
-                client._rfbVersion = 3.7;
                 const authSchemes = [1, 1];
                 client._negotiateAuthentication = sinon.spy();
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
@@ -1184,17 +1175,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Authentication', function () {
-            beforeEach(function () {
-                client._rfbInitState = 'Security';
-            });
-
-            function sendSecurity(type, cl) {
-                cl._sock._websocket._receiveData(new Uint8Array([1, type]));
-            }
-
+        describe('Legacy Authentication', function () {
             it('should fail on auth scheme 0 (pre 3.7) with the given message', function () {
-                client._rfbVersion = 3.6;
                 const errMsg = "Whoopsies";
                 const data = [0, 0, 0, 0];
                 const errLen = errMsg.length;
@@ -1203,37 +1185,42 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     data.push(errMsg.charCodeAt(i));
                 }
 
+                sendVer('003.006\n', client);
+                client._sock._websocket._getSentData();
+
                 sinon.spy(client, '_fail');
                 client._sock._websocket._receiveData(new Uint8Array(data));
                 expect(client._fail).to.have.been.calledWith(
                     'Security negotiation failed on authentication scheme (reason: Whoopsies)');
             });
 
-            it('should transition straight to SecurityResult on "no auth" (1) for versions >= 3.7', function () {
-                client._rfbVersion = 3.7;
+            it('should transition straight to ServerInitialisation on "no auth" for versions < 3.7', function () {
+                sendVer('003.006\n', client);
+                client._sock._websocket._getSentData();
+
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 1]));
+                expect(client._rfbInitState).to.equal('ServerInitialisation');
+            });
+        });
+
+        describe('Authentication', function () {
+            beforeEach(function () {
+                sendVer('003.008\n', client);
+                client._sock._websocket._getSentData();
+            });
+
+            it('should transition straight to SecurityResult on "no auth" (1)', function () {
                 sendSecurity(1, client);
                 expect(client._rfbInitState).to.equal('SecurityResult');
             });
 
-            it('should transition straight to ServerInitialisation on "no auth" for versions < 3.7', function () {
-                client._rfbVersion = 3.6;
-                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 1]));
-                expect(client._rfbInitState).to.equal('ServerInitialisation');
-            });
-
             it('should fail on an unknown auth scheme', function () {
                 sinon.spy(client, "_fail");
-                client._rfbVersion = 3.8;
                 sendSecurity(57, client);
                 expect(client._fail).to.have.been.calledOnce;
             });
 
             describe('VNC Authentication (type 2) Handler', function () {
-                beforeEach(function () {
-                    client._rfbInitState = 'Security';
-                    client._rfbVersion = 3.8;
-                });
-
                 it('should fire the credentialsrequired event if missing a password', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
@@ -1274,12 +1261,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             describe('ARD Authentication (type 30) Handler', function () {
-
-                beforeEach(function () {
-                    client._rfbInitState = 'Security';
-                    client._rfbVersion = 3.8;
-                });
-
                 it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
@@ -1347,11 +1328,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             describe('XVP Authentication (type 22) Handler', function () {
-                beforeEach(function () {
-                    client._rfbInitState = 'Security';
-                    client._rfbVersion = 3.8;
-                });
-
                 it('should fall through to standard VNC authentication upon completion', function () {
                     client._rfbCredentials = { username: 'user',
                                                target: 'target',
@@ -1400,8 +1376,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             describe('TightVNC Authentication (type 16) Handler', function () {
                 beforeEach(function () {
-                    client._rfbInitState = 'Security';
-                    client._rfbVersion = 3.8;
                     sendSecurity(16, client);
                     client._sock._websocket._getSentData();  // skip the security reply
                 });
@@ -1487,8 +1461,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             describe('VeNCrypt Authentication (type 19) Handler', function () {
                 beforeEach(function () {
-                    client._rfbInitState = 'Security';
-                    client._rfbVersion = 3.8;
                     sendSecurity(19, client);
                     expect(client._sock).to.have.sent(new Uint8Array([19]));
                 });
@@ -1582,9 +1554,30 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
+        describe('Legacy SecurityResult', function () {
+            beforeEach(function () {
+                sendVer('003.007\n', client);
+                client._sock._websocket._getSentData();
+                sendSecurity(1, client);
+                client._sock._websocket._getSentData();
+            });
+
+            it('should not include reason in securityfailure event', function () {
+                const spy = sinon.spy();
+                client.addEventListener("securityfailure", spy);
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
+                expect(spy).to.have.been.calledOnce;
+                expect(spy.args[0][0].detail.status).to.equal(2);
+                expect('reason' in spy.args[0][0].detail).to.be.false;
+            });
+        });
+
         describe('SecurityResult', function () {
             beforeEach(function () {
-                client._rfbInitState = 'SecurityResult';
+                sendVer('003.008\n', client);
+                client._sock._websocket._getSentData();
+                sendSecurity(1, client);
+                client._sock._websocket._getSentData();
             });
 
             it('should fall through to ServerInitialisation on a response code of 0', function () {
@@ -1593,7 +1586,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should include reason when provided in securityfailure event', function () {
-                client._rfbVersion = 3.8;
                 const spy = sinon.spy();
                 client.addEventListener("securityfailure", spy);
                 const failureData = [0, 0, 0, 1, 0, 0, 0, 12, 115, 117, 99, 104,
@@ -1605,23 +1597,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should not include reason when length is zero in securityfailure event', function () {
-                client._rfbVersion = 3.8;
                 const spy = sinon.spy();
                 client.addEventListener("securityfailure", spy);
                 const failureData = [0, 0, 0, 1, 0, 0, 0, 0];
                 client._sock._websocket._receiveData(new Uint8Array(failureData));
                 expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][0].detail.status).to.equal(1);
-                expect('reason' in spy.args[0][0].detail).to.be.false;
-            });
-
-            it('should not include reason in securityfailure event for version < 3.8', function () {
-                client._rfbVersion = 3.7;
-                const spy = sinon.spy();
-                client.addEventListener("securityfailure", spy);
-                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
-                expect(spy).to.have.been.calledOnce;
-                expect(spy.args[0][0].detail.status).to.equal(2);
                 expect('reason' in spy.args[0][0].detail).to.be.false;
             });
         });
