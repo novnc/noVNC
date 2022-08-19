@@ -54,6 +54,21 @@ const GESTURE_SCRLSENS = 50;
 const DOUBLE_TAP_TIMEOUT = 1000;
 const DOUBLE_TAP_THRESHOLD = 50;
 
+// Security types
+const securityTypeNone              = 1;
+const securityTypeVNCAuth           = 2;
+const securityTypeRA2ne             = 6;
+const securityTypeTight             = 16;
+const securityTypeVeNCrypt          = 19;
+const securityTypeXVP               = 22;
+const securityTypeARD               = 30;
+
+// Special Tight security types
+const securityTypeUnixLogon         = 129;
+
+// VeNCrypt security types
+const securityTypePlain             = 256;
+
 // Extended clipboard pseudo-encoding formats
 const extendedClipboardFormatText   = 1;
 /*eslint-disable no-unused-vars */
@@ -402,7 +417,7 @@ export default class RFB extends EventTargetMixin {
 
     sendCredentials(creds) {
         this._rfbCredentials = creds;
-        setTimeout(this._initMsg.bind(this), 0);
+        this._resumeAuthentication();
     }
 
     sendCtrlAltDel() {
@@ -922,8 +937,15 @@ export default class RFB extends EventTargetMixin {
                     }
                 }
                 break;
+            case 'connecting':
+                while (this._rfbConnectionState === 'connecting') {
+                    if (!this._initMsg()) {
+                        break;
+                    }
+                }
+                break;
             default:
-                this._initMsg();
+                Log.Error("Got data while in an invalid state");
                 break;
         }
     }
@@ -1332,6 +1354,21 @@ export default class RFB extends EventTargetMixin {
         this._rfbInitState = 'Security';
     }
 
+    _isSupportedSecurityType(type) {
+        const clientTypes = [
+            securityTypeNone,
+            securityTypeVNCAuth,
+            securityTypeRA2ne,
+            securityTypeTight,
+            securityTypeVeNCrypt,
+            securityTypeXVP,
+            securityTypeARD,
+            securityTypePlain,
+        ];
+
+        return clientTypes.includes(type);
+    }
+
     _negotiateSecurity() {
         if (this._rfbVersion >= 3.7) {
             // Server sends supported list, client decides
@@ -1342,28 +1379,23 @@ export default class RFB extends EventTargetMixin {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "no security types";
                 this._securityStatus = 1;
-                return this._initMsg();
+                return true;
             }
 
             const types = this._sock.rQshiftBytes(numTypes);
             Log.Debug("Server security types: " + types);
 
-            // Look for each auth in preferred order
-            if (types.includes(1)) {
-                this._rfbAuthScheme = 1; // None
-            } else if (types.includes(22)) {
-                this._rfbAuthScheme = 22; // XVP
-            } else if (types.includes(16)) {
-                this._rfbAuthScheme = 16; // Tight
-            } else if (types.includes(6)) {
-                this._rfbAuthScheme = 6; // RA2ne Auth
-            } else if (types.includes(2)) {
-                this._rfbAuthScheme = 2; // VNC Auth
-            } else if (types.includes(30)) {
-                this._rfbAuthScheme = 30; // ARD Auth
-            } else if (types.includes(19)) {
-                this._rfbAuthScheme = 19; // VeNCrypt Auth
-            } else {
+            // Look for a matching security type in the order that the
+            // server prefers
+            this._rfbAuthScheme = -1;
+            for (let type of types) {
+                if (this._isSupportedSecurityType(type)) {
+                    this._rfbAuthScheme = type;
+                    break;
+                }
+            }
+
+            if (this._rfbAuthScheme === -1) {
                 return this._fail("Unsupported security types (types: " + types + ")");
             }
 
@@ -1377,14 +1409,14 @@ export default class RFB extends EventTargetMixin {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "authentication scheme";
                 this._securityStatus = 1;
-                return this._initMsg();
+                return true;
             }
         }
 
         this._rfbInitState = 'Authentication';
         Log.Debug('Authenticating using scheme: ' + this._rfbAuthScheme);
 
-        return this._initMsg(); // jump to authentication
+        return true;
     }
 
     _handleSecurityReason() {
@@ -1434,7 +1466,7 @@ export default class RFB extends EventTargetMixin {
                            this._rfbCredentials.username +
                            this._rfbCredentials.target;
         this._sock.sendString(xvpAuthStr);
-        this._rfbAuthScheme = 2;
+        this._rfbAuthScheme = securityTypeVNCAuth;
         return this._negotiateAuthentication();
     }
 
@@ -1492,47 +1524,64 @@ export default class RFB extends EventTargetMixin {
                 subtypes.push(this._sock.rQshift32());
             }
 
-            // 256 = Plain subtype
-            if (subtypes.indexOf(256) != -1) {
-                // 0x100 = 256
-                this._sock.send([0, 0, 1, 0]);
-                this._rfbVeNCryptState = 4;
-            } else {
-                return this._fail("VeNCrypt Plain subtype not offered by server");
-            }
-        }
+            // Look for a matching security type in the order that the
+            // server prefers
+            this._rfbAuthScheme = -1;
+            for (let type of subtypes) {
+                // Avoid getting in to a loop
+                if (type === securityTypeVeNCrypt) {
+                    continue;
+                }
 
-        // negotiated Plain subtype, server waits for password
-        if (this._rfbVeNCryptState == 4) {
-            if (this._rfbCredentials.username === undefined ||
-                this._rfbCredentials.password === undefined) {
-                this.dispatchEvent(new CustomEvent(
-                    "credentialsrequired",
-                    { detail: { types: ["username", "password"] } }));
-                return false;
+                if (this._isSupportedSecurityType(type)) {
+                    this._rfbAuthScheme = type;
+                    break;
+                }
             }
 
-            const user = encodeUTF8(this._rfbCredentials.username);
-            const pass = encodeUTF8(this._rfbCredentials.password);
+            if (this._rfbAuthScheme === -1) {
+                return this._fail("Unsupported security types (types: " + subtypes + ")");
+            }
 
-            this._sock.send([
-                (user.length >> 24) & 0xFF,
-                (user.length >> 16) & 0xFF,
-                (user.length >> 8) & 0xFF,
-                user.length & 0xFF
-            ]);
-            this._sock.send([
-                (pass.length >> 24) & 0xFF,
-                (pass.length >> 16) & 0xFF,
-                (pass.length >> 8) & 0xFF,
-                pass.length & 0xFF
-            ]);
-            this._sock.sendString(user);
-            this._sock.sendString(pass);
+            this._sock.send([this._rfbAuthScheme >> 24,
+                             this._rfbAuthScheme >> 16,
+                             this._rfbAuthScheme >> 8,
+                             this._rfbAuthScheme]);
 
-            this._rfbInitState = "SecurityResult";
+            this._rfbVeNCryptState == 4;
             return true;
         }
+    }
+
+    _negotiatePlainAuth() {
+        if (this._rfbCredentials.username === undefined ||
+            this._rfbCredentials.password === undefined) {
+            this.dispatchEvent(new CustomEvent(
+                "credentialsrequired",
+                { detail: { types: ["username", "password"] } }));
+            return false;
+        }
+
+        const user = encodeUTF8(this._rfbCredentials.username);
+        const pass = encodeUTF8(this._rfbCredentials.password);
+
+        this._sock.send([
+            (user.length >> 24) & 0xFF,
+            (user.length >> 16) & 0xFF,
+            (user.length >> 8) & 0xFF,
+            user.length & 0xFF
+        ]);
+        this._sock.send([
+            (pass.length >> 24) & 0xFF,
+            (pass.length >> 16) & 0xFF,
+            (pass.length >> 8) & 0xFF,
+            pass.length & 0xFF
+        ]);
+        this._sock.sendString(user);
+        this._sock.sendString(pass);
+
+        this._rfbInitState = "SecurityResult";
+        return true;
     }
 
     _negotiateStdVNCAuth() {
@@ -1661,7 +1710,7 @@ export default class RFB extends EventTargetMixin {
         this._rfbCredentials.ardCredentials = encrypted;
         this._rfbCredentials.ardPublicKey = clientPublicKey;
 
-        setTimeout(this._initMsg.bind(this), 0);
+        this._resumeAuthentication();
     }
 
     _negotiateTightUnixAuth() {
@@ -1771,12 +1820,12 @@ export default class RFB extends EventTargetMixin {
                     case 'STDVNOAUTH__':  // no auth
                         this._rfbInitState = 'SecurityResult';
                         return true;
-                    case 'STDVVNCAUTH_': // VNC auth
-                        this._rfbAuthScheme = 2;
-                        return this._initMsg();
-                    case 'TGHTULGNAUTH': // UNIX auth
-                        this._rfbAuthScheme = 129;
-                        return this._initMsg();
+                    case 'STDVVNCAUTH_':
+                        this._rfbAuthScheme = securityTypeVNCAuth;
+                        return true;
+                    case 'TGHTULGNAUTH':
+                        this._rfbAuthScheme = securityTypeUnixLogon;
+                        return true;
                     default:
                         return this._fail("Unsupported tiny auth scheme " +
                                           "(scheme: " + authType + ")");
@@ -1813,7 +1862,7 @@ export default class RFB extends EventTargetMixin {
                 }).then(() => {
                     this.dispatchEvent(new CustomEvent('securityresult'));
                     this._rfbInitState = "SecurityResult";
-                    this._initMsg();
+                    return true;
                 }).finally(() => {
                     this._rfbRSAAESAuthenticationState.removeEventListener(
                         "serververification", this._eventHandlers.handleRSAAESServerVerification);
@@ -1827,33 +1876,32 @@ export default class RFB extends EventTargetMixin {
 
     _negotiateAuthentication() {
         switch (this._rfbAuthScheme) {
-            case 1:  // no auth
-                if (this._rfbVersion >= 3.8) {
-                    this._rfbInitState = 'SecurityResult';
-                    return true;
-                }
-                this._rfbInitState = 'ClientInitialisation';
-                return this._initMsg();
+            case securityTypeNone:
+                this._rfbInitState = 'SecurityResult';
+                return true;
 
-            case 22:  // XVP auth
+            case securityTypeXVP:
                 return this._negotiateXvpAuth();
 
-            case 30:  // ARD auth
+            case securityTypeARD:
                 return this._negotiateARDAuth();
 
-            case 2:  // VNC authentication
+            case securityTypeVNCAuth:
                 return this._negotiateStdVNCAuth();
 
-            case 16:  // TightVNC Security Type
+            case securityTypeTight:
                 return this._negotiateTightAuth();
 
-            case 19:  // VeNCrypt Security Type
+            case securityTypeVeNCrypt:
                 return this._negotiateVeNCryptAuth();
 
-            case 129:  // TightVNC UNIX Security Type
+            case securityTypePlain:
+                return this._negotiatePlainAuth();
+
+            case securityTypeUnixLogon:
                 return this._negotiateTightUnixAuth();
 
-            case 6:  // RA2ne Security Type
+            case securityTypeRA2ne:
                 return this._negotiateRA2neAuth();
 
             default:
@@ -1863,6 +1911,13 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleSecurityResult() {
+        // There is no security choice, and hence no security result
+        // until RFB 3.7
+        if (this._rfbVersion < 3.7) {
+            this._rfbInitState = 'ClientInitialisation';
+            return true;
+        }
+
         if (this._sock.rQwait('VNC auth response ', 4)) { return false; }
 
         const status = this._sock.rQshift32();
@@ -1870,13 +1925,13 @@ export default class RFB extends EventTargetMixin {
         if (status === 0) { // OK
             this._rfbInitState = 'ClientInitialisation';
             Log.Debug('Authentication OK');
-            return this._initMsg();
+            return true;
         } else {
             if (this._rfbVersion >= 3.8) {
                 this._rfbInitState = "SecurityReason";
                 this._securityContext = "security result";
                 this._securityStatus = status;
-                return this._initMsg();
+                return true;
             } else {
                 this.dispatchEvent(new CustomEvent(
                     "securityfailure",
@@ -2050,6 +2105,14 @@ export default class RFB extends EventTargetMixin {
                 return this._fail("Unknown init state (state: " +
                                   this._rfbInitState + ")");
         }
+    }
+
+    // Resume authentication handshake after it was paused for some
+    // reason, e.g. waiting for a password from the user
+    _resumeAuthentication() {
+        // We use setTimeout() so it's run in its own context, just like
+        // it originally did via the WebSocket's event handler
+        setTimeout(this._initMsg.bind(this), 0);
     }
 
     _handleSetColourMapMsg() {
