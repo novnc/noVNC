@@ -21,6 +21,14 @@ protocol stream.
     movement) should be prevented from being sent to the server.
     Disabled by default.
 
+`remoteCursor`
+  - Is a `boolean` indicating if the cursor should be drawn on the server.
+    Usually the cursor is drawn on the client because it provides a more
+    responsive user experience. However in certain situations, for example
+    in conjuction with `viewOnly` it might be desirable to render the 
+    mouse cursor on the server.
+    Disabled by default.
+
 `focusOnClick`
   - Is a `boolean` indicating if keyboard focus should automatically be
     moved to the remote session when a `mousedown` or `touchstart`

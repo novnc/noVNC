@@ -10,7 +10,8 @@ const useFallback = !supportsCursorURIs || isTouchDevice;
 
 export default class Cursor {
     constructor() {
-        this._target = null;
+        this._target  = null;
+        this._visible = true;
 
         this._canvas = document.createElement('canvas');
 
@@ -109,6 +110,15 @@ export default class Cursor {
         this._hotSpot.y = 0;
     }
 
+    setVisibility(visible) {
+        this._visible = visible;
+        if (visible) {
+            this._showCursor();
+        } else {
+            this._hideCursor();
+        }
+    }
+
     // Mouse events might be emulated, this allows
     // moving the cursor in such cases
     move(clientX, clientY) {
@@ -199,6 +209,9 @@ export default class Cursor {
     // different cursor set)
     _shouldShowCursor(target) {
         if (!target) {
+            return false;
+        }
+        if (!this._visible) {
             return false;
         }
         // Easy case

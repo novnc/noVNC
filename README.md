@@ -67,7 +67,7 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 * Supports all modern browsers including mobile (iOS, Android)
 * Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG
 * Supports scaling, clipping and resizing the desktop
-* Local cursor rendering
+* Local or remote cursor rendering
 * Clipboard copy/paste
 * Translations
 * Touch gestures for emulating common mouse actions
