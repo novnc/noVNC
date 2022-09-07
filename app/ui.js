@@ -30,8 +30,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+//import "core-js/stable";
+//import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
@@ -245,7 +245,8 @@ const UI = {
         UI.initSetting('toggle_control_panel', false);
         UI.initSetting('enable_perf_stats', false);
         UI.initSetting('virtual_keyboard_visible', false);
-        UI.initSetting('enable_ime', false)
+        UI.initSetting('enable_ime', false);
+        UI.initSetting('enable_webrtc', true);
         UI.toggleKeyboardControls();
 
         if (WebUtil.isInsideKasmVDI()) {
@@ -542,6 +543,8 @@ const UI = {
         UI.addSettingChangeHandler('virtual_keyboard_visible', UI.toggleKeyboardControls);
         UI.addSettingChangeHandler('enable_ime');
         UI.addSettingChangeHandler('enable_ime', UI.toggleIMEMode);
+        UI.addSettingChangeHandler('enable_webrtc');
+        UI.addSettingChangeHandler('enable_webrtc', UI.toggleWebRTC);
     },
 
     addFullscreenHandlers() {
@@ -1411,6 +1414,7 @@ const UI = {
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
         UI.rfb.keyboard.enableIME = UI.getSetting('enable_ime');
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
+        UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc');
 
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
@@ -1659,6 +1663,18 @@ const UI = {
                     if (UI.getSetting('enable_ime')) {
                         UI.forceSetting('enable_ime', false, false);
                         UI.toggleIMEMode();
+                    }
+                    break;
+                case 'enable_webrtc':
+                    if (!UI.getSetting('enable_webrtc')) {
+                        UI.forceSetting('enable_webrtc', true, false);
+                        UI.toggleWebRTC();
+                    }
+                    break;
+                case 'disable_webrtc':
+                    if (UI.getSetting('enable_webrtc')) {
+                        UI.forceSetting('enable_webrtc', false, false);
+                        UI.toggleWebRTC();
                     }
                     break;
             }
@@ -2083,6 +2099,16 @@ const UI = {
                 UI.rfb.keyboard.enableIME = true;
             } else {
                 UI.rfb.keyboard.enableIME = false;
+            }
+        }
+    },
+
+    toggleWebRTC() {
+        if (UI.rfb) {
+            if (UI.getSetting('enable_webrtc')) {
+                UI.rfb.enableWebRTC = true;
+            } else {
+                UI.rfb.enableWebRTC = false;
             }
         }
     },

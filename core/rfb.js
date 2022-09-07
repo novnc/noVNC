@@ -138,6 +138,16 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionY = 540;
         this._clipboardBinary = true;
         this._useUdp = true;
+        this.TransitConnectionStates = {
+            Tcp: Symbol("tcp"),
+            Udp: Symbol("udp"),
+            Upgrading: Symbol("upgrading"),
+            Downgrading: Symbol("downgrading"),
+            Failure: Symbol("failure")
+        }
+        this._transitConnectionState = this.TransitConnectionStates.Tcp;
+        this._udpConnectFailures = 0; //Failures in upgrading connection to udp
+        this._udpTransitFailures = 0; //Failures in transit after successful upgrade
 
         this._trackFrameStats = false;
 
@@ -698,6 +708,20 @@ export default class RFB extends EventTargetMixin {
 
     get statsFps() { return this._display.fps; }
 
+    get enableWebRTC() { return this._useUdp; }
+    set enableWebRTC(value) {
+        this._useUdp = value;
+        if (!value) {
+            if (this._rfbConnectionState === 'connected' && this._transitConnectionState == this.TransitConnectionStates.Udp) {
+                this._sendUdpDowngrade();
+            }
+        } else {
+            if (this._rfbConnectionState === 'connected' && (this._transitConnectionState == this.TransitConnectionStates.Tcp)) {
+                this._sendUdpUpgrade();
+            }
+        }
+    }
+
     // ===== PUBLIC METHODS =====
 
     /*
@@ -900,6 +924,11 @@ export default class RFB extends EventTargetMixin {
 
     // ===== PRIVATE METHODS =====
 
+    _changeTransitConnectionState(value) {
+        Log.Debug("Transit state change from " + this._transitConnectionState.toString() + ' to ' + value.toString());
+        this._transitConnectionState = value;
+    }
+
     _connect() {
         Log.Debug(">> RFB.connect");
 
@@ -1006,6 +1035,8 @@ export default class RFB extends EventTargetMixin {
 
             this._udpChannel.onerror = function(e) {
                 Log.Error("data channel error " + e.message);
+                this._udpTransitFailures+=1;
+                this._sendUdpDowngrade();
             }
 
             let sock = this._sock;
@@ -3017,6 +3048,11 @@ export default class RFB extends EventTargetMixin {
     }
 
     _sendUdpUpgrade() {
+        if (this._transitConnectionState == this.TransitConnectionStates.Upgrading) {
+            return;
+        }
+        this._changeTransitConnectionState(this.TransitConnectionStates.Upgrading);
+
         let peer = this._udpPeer;
         let sock = this._sock;
 
@@ -3037,10 +3073,13 @@ export default class RFB extends EventTargetMixin {
             sock.flush();
         }).catch(function(reason) {
             Log.Error("Failed to create offer " + reason);
+            this._changeTransitConnectionState(this.TransitConnectionStates.Tcp);
+            this._udpConnectFailures++;
         });
     }
 
     _sendUdpDowngrade() {
+        this._changeTransitConnectionState(this.TransitConnectionStates.Downgrading);
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
@@ -3062,16 +3101,22 @@ export default class RFB extends EventTargetMixin {
         let peer = this._udpPeer;
 
         var response = JSON.parse(payload);
+        Log.Debug("UDP Upgrade recieved from server: " + payload);
         peer.setRemoteDescription(new RTCSessionDescription(response.answer)).then(function() {
             var candidate = new RTCIceCandidate(response.candidate);
             peer.addIceCandidate(candidate).then(function() {
                 Log.Debug("success in addicecandidate");
-            }).catch(function(err) {
+                this._changeTransitConnectionState(this.TransitConnectionStates.Udp);
+            }.bind(this)).catch(function(err) {
                 Log.Error("Failure in addIceCandidate", err);
-            });
-        }).catch(function(e) {
+                this._changeTransitConnectionState(this.TransitConnectionStates.Failure)
+                this._udpConnectFailures++;
+            }.bind(this));
+        }.bind(this)).catch(function(e) {
             Log.Error("Failure in setRemoteDescription", e);
-        });
+            this._changeTransitConnectionState(this.TransitConnectionStates.Failure)
+            this._udpConnectFailures++;
+        }.bind(this));
     }
 
     _framebufferUpdate() {
@@ -3426,6 +3471,23 @@ export default class RFB extends EventTargetMixin {
         }
 
         try {
+            if (this._transitConnectionState == this.TransitConnectionStates.Udp || this._transitConnectionState == this.TransitConnectionStates.Failure) {
+                if (this._transitConnectionState == this.TransitConnectionStates.Udp) {
+                    Log.Warn("Implicit UDP Transit Failure, TCP rects recieved while in UDP mode.")
+                    this._udpTransitFailures++;
+                }
+                this._changeTransitConnectionState(this.TransitConnectionStates.Tcp);
+                if (this._useUdp) {
+                    if (this._udpConnectFailures < 3 && this._udpTransitFailures < 3) {
+                        setTimeout(function() {
+                            Log.Warn("Attempting to connect via UDP again after failure.")
+                            this.enableWebRTC = true;
+                        }.bind(this), 3000);
+                    } else {
+                        Log.Warn("UDP connection failures exceeded limit, remaining on TCP transit.")
+                    }
+                }
+            }
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,

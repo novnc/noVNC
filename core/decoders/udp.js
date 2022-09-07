@@ -92,7 +92,7 @@ export default class UDPDecoder {
         for (let i = 0; i < 4; i++) {
             if ((zlibs_flags >> i) & 1) {
                 this._zlibs[i].reset();
-                Log.Info("Reset zlib stream " + i);
+                Log.Debug("Reset zlib stream " + i);
             }
         }
 

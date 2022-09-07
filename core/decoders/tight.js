@@ -37,7 +37,7 @@ export default class TightDecoder {
             for (let i = 0; i < 4; i++) {
                 if ((this._ctl >> i) & 1) {
                     this._zlibs[i].reset();
-                    Log.Info("Reset zlib stream " + i);
+                    Log.Debug("Reset zlib stream " + i);
                 }
             }
 
