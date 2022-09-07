@@ -155,6 +155,15 @@ protocol stream.
 [`RFB.clipboardPasteFrom()`](#rfbclipboardpastefrom)
   - Send clipboard contents to server.
 
+[`RFB.getImageData()`](#rfbgetimagedata)
+  - Return the current content of the screen as an ImageData array.
+
+[`RFB.toDataURL()`](#rfbtodataurl)
+  - Return the current content of the screen as data-url encoded image file.
+
+[`RFB.toBlob()`](#rfbtoblob)
+  - Return the current content of the screen as Blob encoded image file.
+
 ### Details
 
 #### RFB()
@@ -423,3 +432,55 @@ to the remote server.
 
 **`text`**
   - A `DOMString` specifying the clipboard data to send.
+
+#### RFB.getImageData()
+
+The `RFB.getImageData()` method is used to return the current content of the
+screen encoded as [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData).
+
+##### Syntax
+
+  RFB.getImageData();
+
+#### RFB.toDataURL()
+
+The `RFB.toDataURL()` method is used to return the current content of the
+screen encoded as a data URL that could for example be put in the `src` attribute
+of an `img` tag.
+
+##### Syntax
+
+  RFB.toDataURL();
+  RFB.toDataURL(type);
+  RFB.toDataURL(type, encoderOptions);
+
+###### Parameters
+
+**`type`** *Optional*
+  - A string indicating the requested MIME type of the image
+
+**`encoderOptions`** *Optional*
+  - A number between 0 and 1 indicating the image quality.
+
+#### RFB.toBlob()
+
+The `RFB.toBlob()` method is used to return the current content of the
+screen encoded as [`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
+
+##### Syntax
+
+  RFB.toDataURL(callback);
+  RFB.toDataURL(callback, type);
+  RFB.toDataURL(callback, type, quality);
+
+###### Parameters
+
+**`callback`**
+  - A callback function which will receive the resulting [`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob)
+    as the single argument
+
+**`type`** *Optional*
+  - A string indicating the requested MIME type of the image
+
+**`encoderOptions`** *Optional*
+  - A number between 0 and 1 indicating the image quality.
