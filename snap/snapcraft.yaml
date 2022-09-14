@@ -1,6 +1,6 @@
 name: novnc
 base: core18 # the base snap is the execution environment for this snap
-version: '@VERSION@'
+version: git
 summary: Open Source VNC client using HTML5 (WebSockets, Canvas)
 description: |
   Open Source VNC client using HTML5 (WebSockets, Canvas).
