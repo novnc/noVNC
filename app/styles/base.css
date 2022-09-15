@@ -19,6 +19,18 @@
  * 10000: Max (used for polyfills)
  */
 
+/*
+ * State variables (set on :root):
+ *
+ * noVNC_touch: Device has touch input
+ *
+ * noVNC_loading: Page is still loading
+ * noVNC_connecting: Connecting to server
+ * noVNC_reconnecting: Re-establishing a connection
+ * noVNC_connected: Connected to server (most common state)
+ * noVNC_disconnecting: Disconnecting from server
+ */
+
 body {
   margin:0;
   padding:0;
