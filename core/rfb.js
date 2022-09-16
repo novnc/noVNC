@@ -824,6 +824,27 @@ export default class RFB extends EventTargetMixin {
         this._keyboard.blur();
     }
 
+    checkLocalClipboard() {
+        if (this.clipboardUp && this.clipboardSeamless) {
+
+            if (this.clipboardBinary) {
+                navigator.clipboard.read().then((data) => {
+                    this.clipboardPasteDataFrom(data);
+                }, (err) => {
+                    Log.Debug("No data in clipboard: " + err);
+                }); 
+            } else {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    navigator.clipboard.readText().then(function (text) {
+                        this.clipboardPasteFrom(text);
+                    }.bind(this)).catch(function () {
+                      return Log.Debug("Failed to read system clipboard");
+                    });
+                }
+            }
+        }
+    }
+
     clipboardPasteFrom(text) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
         if (!(typeof text === 'string' && text.length > 0)) { return; }
@@ -1551,6 +1572,7 @@ export default class RFB extends EventTargetMixin {
                     this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaRight"], "MetaRight", false);
                     this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                 }
+                this.checkLocalClipboard();
 
                 this._handleMouseButton(pos.x, pos.y,
                                         true, 1 << ev.button);
@@ -2599,7 +2621,10 @@ export default class RFB extends EventTargetMixin {
 
             this.dispatchEvent(new CustomEvent(
                 "clipboard",
-                { detail: { text: text } }));
+                { detail: { text: text } })
+            );
+
+            this._clipHash = 0;
 
         } else {
             //Extended msg.
@@ -3080,15 +3105,15 @@ export default class RFB extends EventTargetMixin {
 
     _sendUdpDowngrade() {
         this._changeTransitConnectionState(this.TransitConnectionStates.Downgrading);
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        const buff = this._sock._sQ;
+        const offset = this._sock._sQlen;
 
         buff[offset] = 181; // msg-type
         buff[offset + 1] = 0; // u16 len
         buff[offset + 2] = 0;
 
-        sock._sQlen += 3;
-        sock.flush();
+        this._sock._sQlen += 3;
+        this._sock.flush();
     }
 
     _handleUdpUpgrade() {
