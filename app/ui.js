@@ -244,7 +244,7 @@ const UI = {
         UI.initSetting('enable_perf_stats', false);
         UI.initSetting('virtual_keyboard_visible', false);
         UI.initSetting('enable_ime', false);
-        UI.initSetting('enable_webrtc', true);
+        UI.initSetting('enable_webrtc', false);
         UI.toggleKeyboardControls();
 
         if (WebUtil.isInsideKasmVDI()) {
