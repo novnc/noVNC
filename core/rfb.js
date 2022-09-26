@@ -3659,21 +3659,22 @@ RFB.messages = {
 
         buff[offset] = 5; // msg-type
 
-        buff[offset + 1] = mask;
+        buff[offset + 1] = mask >> 8;
+        buff[offset + 2] = mask;
 
-        buff[offset + 2] = x >> 8;
-        buff[offset + 3] = x;
+        buff[offset + 3] = x >> 8;
+        buff[offset + 4] = x;
 
-        buff[offset + 4] = y >> 8;
-        buff[offset + 5] = y;
+        buff[offset + 5] = y >> 8;
+        buff[offset + 6] = y;
 
-        buff[offset + 6] = dX >> 8;
-        buff[offset + 7] = dX;
+        buff[offset + 7] = dX >> 8;
+        buff[offset + 8] = dX;
 
-        buff[offset + 8] = dY >> 8;
-        buff[offset + 9] = dY;
+        buff[offset + 9] = dY >> 8;
+        buff[offset + 10] = dY;
 
-        sock._sQlen += 10;
+        sock._sQlen += 11;
         sock.flush();
     },
 
