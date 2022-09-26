@@ -50,7 +50,7 @@ addLeftRight("Shift", KeyTable.XK_Shift_L, KeyTable.XK_Shift_R);
 // - Symbol
 // - SymbolLock
 // - Hyper
-// - Super
+addLeftRight("Super", KeyTable.XK_Super_L, KeyTable.XK_Super_R);
 
 // 3.3. Whitespace Keys
 
