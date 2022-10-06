@@ -41,7 +41,7 @@ import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
-import MouseButtonMapper from "../core/mousebuttonmapper.js";
+import { MouseButtonMapper, XVNC_BUTTONS } from "../core/mousebuttonmapper.js";
 import * as WebUtil from "./webutil.js";
 
 const PAGE_TITLE = "KasmVNC";
@@ -274,8 +274,8 @@ const UI = {
             return mouseButtonMapper;
         }
 
-        mouseButtonMapper.set(3, 7);
-        mouseButtonMapper.set(4, 8);
+        mouseButtonMapper.set(3, XVNC_BUTTONS.BACK_BUTTON);
+        mouseButtonMapper.set(4, XVNC_BUTTONS.FORWARD_BUTTON);
         WebUtil.writeSetting("mouseButtonMapper", mouseButtonMapper.dump());
 
         return mouseButtonMapper;
