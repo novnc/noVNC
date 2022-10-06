@@ -26,6 +26,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
+import MouseButtonMapper from "./mousebuttonmapper.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -192,6 +193,7 @@ export default class RFB extends EventTargetMixin {
         this._viewportHasMoved = false;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
+        this.mouseButtonMapper = new MouseButtonMapper();
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -1558,6 +1560,7 @@ export default class RFB extends EventTargetMixin {
                                   this._canvas);
         }
 
+        const mappedButton = this.mouseButtonMapper.get(ev.button);
         switch (ev.type) {
             case 'mousedown':
                 setCapture(this._canvas);
@@ -1575,11 +1578,11 @@ export default class RFB extends EventTargetMixin {
                 this.checkLocalClipboard();
 
                 this._handleMouseButton(pos.x, pos.y,
-                                        true, 1 << ev.button);
+                                        true, 1 << mappedButton);
                 break;
             case 'mouseup':
                 this._handleMouseButton(pos.x, pos.y,
-                                        false, 1 << ev.button);
+                                        false, 1 << mappedButton);
                 break;
             case 'mousemove':
                 this._handleMouseMove(pos.x, pos.y);

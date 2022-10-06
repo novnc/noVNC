@@ -41,6 +41,7 @@ import KeyTable from "../core/input/keysym.js";
 import keysyms from "../core/input/keysymdef.js";
 import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
+import MouseButtonMapper from "../core/mousebuttonmapper.js";
 import * as WebUtil from "./webutil.js";
 
 const PAGE_TITLE = "KasmVNC";
@@ -263,6 +264,21 @@ const UI = {
 
         UI.setupSettingLabels();
         UI.updateQuality();
+    },
+    initMouseButtonMapper() {
+        const mouseButtonMapper = new MouseButtonMapper();
+
+        const settings = WebUtil.readSetting("mouseButtonMapper");
+        if (settings) {
+            mouseButtonMapper.load(settings);
+            return mouseButtonMapper;
+        }
+
+        mouseButtonMapper.set(3, 7);
+        mouseButtonMapper.set(4, 8);
+        WebUtil.writeSetting("mouseButtonMapper", mouseButtonMapper.dump());
+
+        return mouseButtonMapper;
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -1381,6 +1397,7 @@ const UI = {
         UI.rfb.keyboard.enableIME = UI.getSetting('enable_ime');
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
         UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc');
+        UI.rfb.mouseButtonMapper = UI.initMouseButtonMapper();
 
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
