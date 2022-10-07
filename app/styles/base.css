@@ -287,7 +287,7 @@ select:active {
 #noVNC_fallback_error {
   z-index: 1000;
   visibility: hidden;
-  /* Put a white background in front of everything but the error,
+  /* Put a dark background in front of everything but the error,
      and don't let mouse events pass through */
   background: rgba(0, 0, 0, 0.8);
   pointer-events: all;
