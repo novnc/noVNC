@@ -50,6 +50,16 @@ function handleError(event, err) {
 
         document.getElementById('noVNC_fallback_error')
             .classList.add("noVNC_open");
+
+        // Remove focus from the currently focused element in order to
+        // prevent keyboard interaction from continuing
+        document.activeElement.blur();
+
+        // Don't let any element be focusable when showing the error
+        let keyboardFocusable = 'a[href], button, input, textarea, select, details, [tabindex]';
+        document.querySelectorAll(keyboardFocusable).forEach((elem) => {
+            elem.setAttribute("tabindex", "-1");
+        });
     } catch (exc) {
         document.write("noVNC encountered an error.");
     }
