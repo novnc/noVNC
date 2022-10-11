@@ -98,6 +98,11 @@ html {
  * ----------------------------------------
  */
 
+input, select, textarea {
+  /* Respect standard font settings */
+  font: inherit;
+}
+
 input:not([type]),
 input[type=date],
 input[type=datetime-local],
