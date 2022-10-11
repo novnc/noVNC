@@ -117,7 +117,6 @@ textarea {
   -moz-appearance: none;
   background: none;
 
-  margin: 2px;
   padding: 2px;
   border: 1px solid rgb(192, 192, 192);
   border-radius: 5px;
@@ -135,7 +134,6 @@ select {
   -moz-appearance: none;
   background: none;
 
-  margin: 2px;
   padding: 2px;
   border: 1px solid rgb(192, 192, 192);
   border-bottom-width: 2px;
@@ -220,7 +218,7 @@ input[type=reset]:active,
 input[type=submit]:active,
 select:active {
   border-bottom-width: 1px;
-  margin-top: 3px;
+  margin-top: 1px;
 }
 
 :root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
