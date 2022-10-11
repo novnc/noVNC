@@ -1,3 +1,6 @@
+/* The decoder is the original MPL one from Mozilla. The encoder is a faster MIT one
+   from https://github.com/mitschabaude/fast-base64 */
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -6,40 +9,33 @@
 
 import * as Log from './util/logging.js';
 
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const encodeLookup = Object.fromEntries(Array.from(alphabet).map((a, i) => [i, a.charCodeAt(0)]));
+const decoder = new TextDecoder();
+
 export default {
     /* Convert data (an array of integers) to a Base64 string. */
-    toBase64Table: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split(''),
     base64Pad: '=',
 
-    encode(data) {
-        "use strict";
-        let result = '';
-        const length = data.length;
-        const lengthpad = (length % 3);
-        // Convert every three bytes to 4 ascii characters.
+    encode(bytes) {
+        let m = bytes.length;
+        let k = m % 3;
+        let n = Math.floor(m / 3) * 4 + (k && k + 1);
+        let N = Math.ceil(m / 3) * 4;
+        let encoded = new Uint8Array(N);
 
-        for (let i = 0; i < (length - 2); i += 3) {
-            result += this.toBase64Table[data[i] >> 2];
-            result += this.toBase64Table[((data[i] & 0x03) << 4) + (data[i + 1] >> 4)];
-            result += this.toBase64Table[((data[i + 1] & 0x0f) << 2) + (data[i + 2] >> 6)];
-            result += this.toBase64Table[data[i + 2] & 0x3f];
+        for (let i = 0, j = 0; j < m; i += 4, j += 3) {
+            let y = (bytes[j] << 16) + (bytes[j + 1] << 8) + (bytes[j + 2] | 0);
+            encoded[i] = encodeLookup[y >> 18];
+            encoded[i + 1] = encodeLookup[(y >> 12) & 0x3f];
+            encoded[i + 2] = encodeLookup[(y >> 6) & 0x3f];
+            encoded[i + 3] = encodeLookup[y & 0x3f];
         }
 
-        // Convert the remaining 1 or 2 bytes, pad out to 4 characters.
-        const j = length - lengthpad;
-        if (lengthpad === 2) {
-            result += this.toBase64Table[data[j] >> 2];
-            result += this.toBase64Table[((data[j] & 0x03) << 4) + (data[j + 1] >> 4)];
-            result += this.toBase64Table[(data[j + 1] & 0x0f) << 2];
-            result += this.toBase64Table[64];
-        } else if (lengthpad === 1) {
-            result += this.toBase64Table[data[j] >> 2];
-            result += this.toBase64Table[(data[j] & 0x03) << 4];
-            result += this.toBase64Table[64];
-            result += this.toBase64Table[64];
-        }
-
-        return result;
+        let base64 = decoder.decode(new Uint8Array(encoded.buffer, 0, n));
+        if (k === 1) base64 += '==';
+        if (k === 2) base64 += '=';
+        return base64;
     },
 
     /* Convert Base64 data to a string */

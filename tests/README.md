@@ -37,7 +37,9 @@ The following recordings are used by Kasm Technologies to provide repeatable per
 
 This table keeps track of performance of pre-defined recordings, defined in the previous section, on static hardware that can be replicated over time to track performance improvements.
 
-| File | Hardware | OS | Browser | Webpacked | Result Avg |
-|------|---------|----|---------|-------|---------|
-| newyork.1 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2446ms |
-| losangeles.1 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2272ms |
+| File | Commit | Hardware | OS | Browser | Webpacked | Result Avg |
+|------|-----|----|----|---------|-------|---------|
+| newyork.1 | 08233e6 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2446ms |
+| losangeles.1 | 08233e6 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2272ms |
+| newyork.1 | base64opt | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2273ms |
+| losangeles.1 | base64opt | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 1847ms |
