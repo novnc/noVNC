@@ -19,6 +19,16 @@
 
         <br><br>
 
+         <!-- This is where the RFB elements will attach -->
+         <div id="noVNC_container">
+            <!-- Note that Google Chrome on Android doesn't respect any of these,
+                html attributes which attempt to disable text suggestions on the
+                on-screen keyboard. Let's hope Chrome implements the ime-mode
+                style for example -->
+            <textarea id="noVNC_keyboardinput" autocapitalize="off"
+                autocomplete="off" spellcheck="false" tabindex="-1"></textarea>
+        </div>
+
         <div id="VNC_screen">
             <div id="VNC_status">Loading</div>
         </div>
