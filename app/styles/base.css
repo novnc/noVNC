@@ -117,7 +117,7 @@ textarea {
   -moz-appearance: none;
   background: none;
 
-  padding: 2px;
+  padding: 5px;
   border: 1px solid rgb(192, 192, 192);
   border-radius: 5px;
   color: black;
@@ -134,7 +134,7 @@ select {
   -moz-appearance: none;
   background: none;
 
-  padding: 2px;
+  padding: 5px;
   border: 1px solid rgb(192, 192, 192);
   border-bottom-width: 2px;
   border-radius: 5px;
