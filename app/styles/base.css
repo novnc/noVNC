@@ -590,6 +590,11 @@ select:active {
 .noVNC_panel label {
   display: block;
   white-space: nowrap;
+  margin: 5px;
+}
+
+.noVNC_panel li {
+  margin: 5px;
 }
 
 .noVNC_panel .noVNC_heading {
@@ -600,7 +605,7 @@ select:active {
   padding-right: 8px;
   color: white;
   font-size: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 10px !important;
   white-space: nowrap;
 }
 .noVNC_panel .noVNC_heading img {
