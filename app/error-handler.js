@@ -53,7 +53,7 @@ function handleError(event, err) {
 
         // Remove focus from the currently focused element in order to
         // prevent keyboard interaction from continuing
-        document.activeElement.blur();
+        if (document.activeElement) { document.activeElement.blur(); }
 
         // Don't let any element be focusable when showing the error
         let keyboardFocusable = 'a[href], button, input, textarea, select, details, [tabindex]';
