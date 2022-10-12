@@ -51,6 +51,12 @@ function handleError(event, err) {
         document.getElementById('noVNC_fallback_error')
             .classList.add("noVNC_open");
 
+    } catch (exc) {
+        document.write("noVNC encountered an error.");
+    }
+
+    // Try to disable keyboard interaction, best effort
+    try {
         // Remove focus from the currently focused element in order to
         // prevent keyboard interaction from continuing
         if (document.activeElement) { document.activeElement.blur(); }
@@ -61,8 +67,9 @@ function handleError(event, err) {
             elem.setAttribute("tabindex", "-1");
         });
     } catch (exc) {
-        document.write("noVNC encountered an error.");
+        // Do nothing
     }
+
     // Don't return true since this would prevent the error
     // from being printed to the browser console.
     return false;
