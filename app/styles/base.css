@@ -512,7 +512,7 @@ select:active {
   transform: scale(1);
 }
 
-/* General button style */
+/* Control bar buttons */
 .noVNC_button {
   display: block;
   padding: 4px 4px;
