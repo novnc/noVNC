@@ -26,7 +26,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
-import MouseButtonMapper from "./mousebuttonmapper.js";
+import { MouseButtonMapper, xvncButtonToMask } from "./mousebuttonmapper.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -1578,11 +1578,11 @@ export default class RFB extends EventTargetMixin {
                 this.checkLocalClipboard();
 
                 this._handleMouseButton(pos.x, pos.y,
-                                        true, 1 << mappedButton);
+                                        true, xvncButtonToMask(mappedButton));
                 break;
             case 'mouseup':
                 this._handleMouseButton(pos.x, pos.y,
-                                        false, 1 << mappedButton);
+                                        false, xvncButtonToMask(mappedButton));
                 break;
             case 'mousemove':
                 this._handleMouseMove(pos.x, pos.y);

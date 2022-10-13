@@ -274,6 +274,9 @@ const UI = {
             return mouseButtonMapper;
         }
 
+        mouseButtonMapper.set(0, XVNC_BUTTONS.LEFT_BUTTON);
+        mouseButtonMapper.set(1, XVNC_BUTTONS.MIDDLE_BUTTON);
+        mouseButtonMapper.set(2, XVNC_BUTTONS.RIGHT_BUTTON);
         mouseButtonMapper.set(3, XVNC_BUTTONS.BACK_BUTTON);
         mouseButtonMapper.set(4, XVNC_BUTTONS.FORWARD_BUTTON);
         WebUtil.writeSetting("mouseButtonMapper", mouseButtonMapper.dump());
