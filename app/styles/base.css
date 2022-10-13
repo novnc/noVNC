@@ -267,13 +267,15 @@ select:active {
   pointer-events: auto;
 }
 .noVNC_vcenter {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   justify-content: center;
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
   pointer-events: none;
 }
 .noVNC_vcenter > * {
@@ -479,14 +481,16 @@ select:active {
   right: auto;
 }
 
-#noVNC_control_bar .noVNC_scroll {
+#noVNC_control_bar > .noVNC_scroll {
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0 10px 0 5px;
+  padding: 0 10px;
 }
-.noVNC_right #noVNC_control_bar .noVNC_scroll {
-  padding: 0 5px 0 10px;
+
+#noVNC_control_bar > .noVNC_scroll > * {
+  display: block;
+  margin: 10px auto;
 }
 
 /* Control bar hint */
@@ -521,9 +525,7 @@ select:active {
 
 /* Control bar buttons */
 .noVNC_button {
-  display: block;
   padding: 4px 4px;
-  margin: 10px 0;
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
@@ -554,7 +556,7 @@ select:active {
   background: rgba(255, 255, 255, 0.2);
 }
 .noVNC_button.noVNC_hidden {
-  display: none;
+  display: none !important;
 }
 
 /* Panels */
@@ -594,6 +596,17 @@ select:active {
   transform: translateX(-75px);
 }
 
+.noVNC_panel > * {
+  display: block;
+  margin: 10px auto;
+}
+.noVNC_panel > *:first-child {
+  margin-top: 0 !important;
+}
+.noVNC_panel > *:last-child {
+  margin-bottom: 0 !important;
+}
+
 .noVNC_panel hr {
   border: none;
   border-top: 1px solid rgb(192, 192, 192);
@@ -617,7 +630,6 @@ select:active {
   padding-right: 8px;
   color: white;
   font-size: 20px;
-  margin-bottom: 10px !important;
   white-space: nowrap;
 }
 .noVNC_panel .noVNC_heading img {
@@ -678,7 +690,7 @@ select:active {
 #noVNC_modifiers {
   background-color: rgb(92, 92, 92);
   border: none;
-  padding: 0 10px;
+  padding: 10px;
 }
 
 /* Shutdown/Reboot */
@@ -713,7 +725,6 @@ select:active {
 }
 #noVNC_settings ul {
   list-style: none;
-  margin: 0px;
   padding: 0px;
 }
 #noVNC_setting_port {
