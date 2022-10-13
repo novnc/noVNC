@@ -133,6 +133,7 @@ input[type=button],
 input[type=color],
 input[type=reset],
 input[type=submit],
+button,
 select {
   /* Disable default rendering */
   -webkit-appearance: none;
@@ -153,7 +154,8 @@ select {
 input[type=button],
 input[type=color],
 input[type=reset],
-input[type=submit] {
+input[type=submit],
+button {
   padding-left: 20px;
   padding-right: 20px;
 }
@@ -180,6 +182,7 @@ input[type=text]:focus,
 input[type=time]:focus,
 input[type=url]:focus,
 input[type=week]:focus,
+button:focus,
 select:focus,
 textarea:focus {
   box-shadow: 0px 0px 3px rgba(74, 144, 217, 0.5);
@@ -190,7 +193,8 @@ textarea:focus {
 input[type=button]::-moz-focus-inner,
 input[type=color]::-moz-focus-inner,
 input[type=reset]::-moz-focus-inner,
-input[type=submit]::-moz-focus-inner {
+input[type=submit]::-moz-focus-inner,
+button::-moz-focus-inner {
   border: none;
 }
 
@@ -211,6 +215,7 @@ input[type=text]:disabled,
 input[type=time]:disabled,
 input[type=url]:disabled,
 input[type=week]:disabled,
+button:disabled,
 select:disabled,
 textarea:disabled {
   color: rgb(128, 128, 128);
@@ -221,6 +226,7 @@ input[type=button]:active,
 input[type=color]:active,
 input[type=reset]:active,
 input[type=submit]:active,
+button:active,
 select:active {
   border-bottom-width: 1px;
   margin-top: 1px;
@@ -230,6 +236,7 @@ select:active {
 :root:not(.noVNC_touch) input[type=color]:hover:not(:disabled),
 :root:not(.noVNC_touch) input[type=reset]:hover:not(:disabled),
 :root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
+:root:not(.noVNC_touch) button:hover:not(:disabled),
 :root:not(.noVNC_touch) select:hover:not(:disabled) {
   background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
 }
