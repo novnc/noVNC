@@ -287,6 +287,7 @@ export default class RFB extends EventTargetMixin {
 
         this._viewOnly = false;
         this._clipViewport = false;
+        this._clippingViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
 
@@ -317,6 +318,16 @@ export default class RFB extends EventTargetMixin {
     }
 
     get capabilities() { return this._capabilities; }
+
+    get clippingViewport() { return this._clippingViewport; }
+    _setClippingViewport(on) {
+        if (on === this._clippingViewport) {
+            return;
+        }
+        this._clippingViewport = on;
+        this.dispatchEvent(new CustomEvent("clippingviewport",
+                                           { detail: this._clippingViewport }));
+    }
 
     get touchButton() { return 0; }
     set touchButton(button) { Log.Warn("Using old API!"); }
@@ -749,6 +760,10 @@ export default class RFB extends EventTargetMixin {
             const size = this._screenSize();
             this._display.viewportChangeSize(size.w, size.h);
             this._fixScrollbars();
+            this._setClippingViewport(size.w < this._display.width ||
+                                      size.h < this._display.height);
+        } else {
+            this._setClippingViewport(false);
         }
 
         // When changing clipping we might show or hide scrollbars.

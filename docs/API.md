@@ -31,6 +31,11 @@ protocol stream.
     | -------- | --------- | -----------
     | `power`  | `boolean` | Machine power control is available
 
+`clippingViewport` *Read only*
+  - Is a `boolean` indicating if the remote session is currently being
+    clipped to its container. Only relevant if `clipViewport` is
+    enabled.
+
 `clipViewport`
   - Is a `boolean` indicating if the remote session should be clipped
     to its container. When disabled scrollbars will be shown to handle
@@ -93,6 +98,10 @@ protocol stream.
 [`clipboard`](#clipboard)
   - The `clipboard` event is fired when clipboard data is received from
     the server.
+
+[`clippingviewport`](#clippingviewport)
+  - The `clippingviewport` event is fired when `RFB.clippingViewport` is
+    updated.
 
 [`connect`](#connect)
   - The `connect` event is fired when the `RFB` object has completed
@@ -226,6 +235,12 @@ bell.
 The `capabilities` event is fired whenever an entry is added or removed
 from `RFB.capabilities`. The `detail` property is an `Object` with the
 property `capabilities` containing the new value of `RFB.capabilities`.
+
+#### clippingviewport
+
+The `clippingviewport` event is fired whenever `RFB.clippingViewport`
+changes between `true` and `false`. The `detail` property is a `boolean`
+with the new value of `RFB.clippingViewport`.
 
 #### clipboard
 
