@@ -78,26 +78,25 @@ export const hasScrollbarGutter = _hasScrollbarGutter;
  */
 
 export function isMac() {
-    return navigator && !!(/mac/i).exec(navigator.platform);
+    return !!(/mac/i).exec(navigator.platform);
 }
 
 export function isWindows() {
-    return navigator && !!(/win/i).exec(navigator.platform);
+    return !!(/win/i).exec(navigator.platform);
 }
 
 export function isIOS() {
-    return navigator &&
-           (!!(/ipad/i).exec(navigator.platform) ||
+    return (!!(/ipad/i).exec(navigator.platform) ||
             !!(/iphone/i).exec(navigator.platform) ||
             !!(/ipod/i).exec(navigator.platform));
 }
 
 export function isSafari() {
-    return navigator && (navigator.userAgent.indexOf('Safari') !== -1 &&
-                         navigator.userAgent.indexOf('Chrome') === -1);
+    return (navigator.userAgent.indexOf('Safari') !== -1 &&
+            navigator.userAgent.indexOf('Chrome') === -1);
 }
 
 export function isFirefox() {
-    return navigator && !!(/firefox/i).exec(navigator.userAgent);
+    return !!(/firefox/i).exec(navigator.userAgent);
 }
 
