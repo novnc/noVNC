@@ -77,6 +77,8 @@ export const hasScrollbarGutter = _hasScrollbarGutter;
  * It's better to use feature detection than platform detection.
  */
 
+/* OS */
+
 export function isMac() {
     return !!(/mac/i).exec(navigator.platform);
 }
@@ -91,12 +93,50 @@ export function isIOS() {
             !!(/ipod/i).exec(navigator.platform));
 }
 
+/* Browser */
+
 export function isSafari() {
-    return (navigator.userAgent.indexOf('Safari') !== -1 &&
-            navigator.userAgent.indexOf('Chrome') === -1);
+    return !!navigator.userAgent.match('Safari/...') &&
+           !navigator.userAgent.match('Chrome/...') &&
+           !navigator.userAgent.match('Chromium/...') &&
+           !navigator.userAgent.match('Epiphany/...');
 }
 
 export function isFirefox() {
-    return !!(/firefox/i).exec(navigator.userAgent);
+    return !!navigator.userAgent.match('Firefox/...') &&
+           !navigator.userAgent.match('Seamonkey/...');
 }
 
+export function isChrome() {
+    return !!navigator.userAgent.match('Chrome/...') &&
+           !navigator.userAgent.match('Chromium/...') &&
+           !navigator.userAgent.match('Edg/...') &&
+           !navigator.userAgent.match('OPR/...');
+}
+
+export function isChromium() {
+    return !!navigator.userAgent.match('Chromium/...');
+}
+
+export function isOpera() {
+    return !!navigator.userAgent.match('OPR/...');
+}
+
+export function isEdge() {
+    return !!navigator.userAgent.match('Edg/...');
+}
+
+/* Engine */
+
+export function isGecko() {
+    return !!navigator.userAgent.match('Gecko/...');
+}
+
+export function isWebKit() {
+    return !!navigator.userAgent.match('AppleWebKit/...') &&
+           !navigator.userAgent.match('Chrome/...');
+}
+
+export function isBlink() {
+    return !!navigator.userAgent.match('Chrome/...');
+}

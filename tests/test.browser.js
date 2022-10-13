@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 const expect = chai.expect;
 
-import { isSafari, isFirefox } from '../core/util/browser.js';
+import { isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
+         isGecko, isWebKit, isBlink } from '../core/util/browser.js';
 
 describe('Browser detection', function () {
     let origNavigator;
@@ -23,6 +24,14 @@ describe('Browser detection', function () {
 
         expect(isSafari()).to.be.false;
         expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.true;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.false;
+        expect(isWebKit()).to.be.false;
+        expect(isBlink()).to.be.true;
     });
 
     it('should handle Chromium', function () {
@@ -30,6 +39,14 @@ describe('Browser detection', function () {
 
         expect(isSafari()).to.be.false;
         expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.true;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.false;
+        expect(isWebKit()).to.be.false;
+        expect(isBlink()).to.be.true;
     });
 
     it('should handle Firefox', function () {
@@ -37,6 +54,44 @@ describe('Browser detection', function () {
 
         expect(isSafari()).to.be.false;
         expect(isFirefox()).to.be.true;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.true;
+        expect(isWebKit()).to.be.false;
+        expect(isBlink()).to.be.false;
+    });
+
+    it('should handle Seamonkey', function () {
+        navigator.userAgent = "Mozilla/5.0 (Windows NT 6.1; rv:36.0) Gecko/20100101 Firefox/36.0 Seamonkey/2.33.1";
+
+        expect(isSafari()).to.be.false;
+        expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.true;
+        expect(isWebKit()).to.be.false;
+        expect(isBlink()).to.be.false;
+    });
+
+    it('should handle Safari', function () {
+        navigator.userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Safari/605.1.15";
+
+        expect(isSafari()).to.be.true;
+        expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.false;
+        expect(isWebKit()).to.be.true;
+        expect(isBlink()).to.be.false;
     });
 
     it('should handle Edge', function () {
@@ -44,6 +99,14 @@ describe('Browser detection', function () {
 
         expect(isSafari()).to.be.false;
         expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.true;
+
+        expect(isGecko()).to.be.false;
+        expect(isWebKit()).to.be.false;
+        expect(isBlink()).to.be.true;
     });
 
     it('should handle Opera', function () {
@@ -51,5 +114,28 @@ describe('Browser detection', function () {
 
         expect(isSafari()).to.be.false;
         expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.true;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.false;
+        expect(isWebKit()).to.be.false;
+        expect(isBlink()).to.be.true;
+    });
+
+    it('should handle Epiphany', function () {
+        navigator.userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Safari/605.1.15 Epiphany/605.1.15";
+
+        expect(isSafari()).to.be.false;
+        expect(isFirefox()).to.be.false;
+        expect(isChrome()).to.be.false;
+        expect(isChromium()).to.be.false;
+        expect(isOpera()).to.be.false;
+        expect(isEdge()).to.be.false;
+
+        expect(isGecko()).to.be.false;
+        expect(isWebKit()).to.be.true;
+        expect(isBlink()).to.be.false;
     });
 });
