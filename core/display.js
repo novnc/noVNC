@@ -12,9 +12,9 @@ import { toSigned32bit } from './util/int.js';
 
 export default class Display {
     constructor(target) {
-        this._drawCtx = null;
-
         this._renderQ = [];  // queue drawing actions for in-oder rendering
+        this._currentFrame = [];
+        this._nextFrame = [];
         this._flushing = false;
 
         // the full frame buffer (logical canvas) size
@@ -47,27 +47,18 @@ export default class Display {
         // the visible canvas viewport (i.e. what actually gets seen)
         this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
 
-        // The hidden canvas, where we do the actual rendering
-        this._backbuffer = document.createElement('canvas');
-        this._drawCtx = this._backbuffer.getContext('2d');
-
-        this._damageBounds = { left: 0, top: 0,
-                               right: this._backbuffer.width,
-                               bottom: this._backbuffer.height };
-
         Log.Debug("User Agent: " + navigator.userAgent);
 
         // performance metrics, try to calc a fps equivelant
         this._flipCnt = 0;
-        this._currentFrameDamages = [];
         this._lastFlip = Date.now();
         setInterval(function() {
             let delta = Date.now() - this._lastFlip;
             if (delta > 0) {
                 this._fps = (this._flipCnt / (delta / 1000)).toFixed(2);
             }
-            this._lastFlip = Date.now();
             this._flipCnt = 0;
+            this._lastFlip = Date.now();
         }.bind(this), 5000);
 
         Log.Debug("<< Display.constructor");
@@ -159,11 +150,6 @@ export default class Display {
         }
         Log.Debug("viewportChange deltaX: " + deltaX + ", deltaY: " + deltaY);
 
-        vp.x += deltaX;
-        vp.y += deltaY;
-
-        this._damage(vp.x, vp.y, vp.w, vp.h);
-
         this.flip();
     }
 
@@ -200,7 +186,6 @@ export default class Display {
             // The position might need to be updated if we've grown
             this.viewportChangePos(0, 0);
 
-            this._damage(vp.x, vp.y, vp.w, vp.h);
             this.flip();
 
             // Update the visible size of the target canvas
@@ -228,13 +213,14 @@ export default class Display {
         this._fbWidth = width;
         this._fbHeight = height;
 
-        const canvas = this._backbuffer;
+        const canvas = this._target;
+        if (canvas == undefined) { return; }
         if (canvas.width !== width || canvas.height !== height) {
 
             // We have to save the canvas data since changing the size will clear it
             let saveImg = null;
             if (canvas.width > 0 && canvas.height > 0) {
-                saveImg = this._drawCtx.getImageData(0, 0, canvas.width, canvas.height);
+                saveImg = this._targetCtx.getImageData(0, 0, canvas.width, canvas.height);
             }
 
             if (canvas.width !== width) {
@@ -245,7 +231,7 @@ export default class Display {
             }
 
             if (saveImg) {
-                this._drawCtx.putImageData(saveImg, 0, 0);
+                this._targetCtx.putImageData(saveImg, 0, 0);
             }
         }
 
@@ -256,84 +242,31 @@ export default class Display {
         this.viewportChangePos(0, 0);
     }
 
-    // Track what parts of the visible canvas that need updating
-    _damage(x, y, w, h) {
-        if (x < this._damageBounds.left) {
-            this._damageBounds.left = x;
-        }
-        if (y < this._damageBounds.top) {
-            this._damageBounds.top = y;
-        }
-        if ((x + w) > this._damageBounds.right) {
-            this._damageBounds.right = x + w;
-        }
-        if ((y + h) > this._damageBounds.bottom) {
-            this._damageBounds.bottom = y + h;
-        }
-    }
-
-    // Attempt to determine when updates overlap an area and thus indicate a new frame
-    isNewFrame(x, y, w, h) {
-        for (var i = 0; i < this._currentFrameDamages.length; i++) {
-            let area = this._currentFrameDamages[i];
-            if (x >= area.x && x <= (area.x + area.w) && y >= area.y && y <= (area.y + area.h)) {
-                this._currentFrameDamages = [];
-                return true;
-            }
-        }
-
-        var new_area = { x: x, y: y, w: w, h: h }
-        this._currentFrameDamages.push(new_area);
-        return false;
-    }
-
-    // Update the visible canvas with the contents of the
     // rendering canvas
     flip(fromQueue) {
-        if (this._renderQ.length !== 0 && !fromQueue) {
+        if (!fromQueue) {
             this._renderQPush({
                 'type': 'flip'
             });
         } else {
-            let x = this._damageBounds.left;
-            let y = this._damageBounds.top;
-            let w = this._damageBounds.right - x;
-            let h = this._damageBounds.bottom - y;
-
-            let vx = x - this._viewportLoc.x;
-            let vy = y - this._viewportLoc.y;
-
-            if (vx < 0) {
-                w += vx;
-                x -= vx;
-                vx = 0;
+            for (let i = 0; i < this._currentFrame.length; i++) {
+                const a = this._currentFrame[i];
+                switch (a.type) {
+                    case 'copy':
+                        this.copyImage(a.oldX, a.oldY, a.x, a.y, a.width, a.height, true);
+                        break;
+                    case 'fill':
+                        this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
+                        break;
+                    case 'blit':
+                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
+                        break;
+                    case 'img':
+                        this.drawImage(a.img, a.x, a.y, a.width, a.height);
+                        break;
+                }
             }
-            if (vy < 0) {
-                h += vy;
-                y -= vy;
-                vy = 0;
-            }
-
-            if ((vx + w) > this._viewportLoc.w) {
-                w = this._viewportLoc.w - vx;
-            }
-            if ((vy + h) > this._viewportLoc.h) {
-                h = this._viewportLoc.h - vy;
-            }
-
-            if ((w > 0) && (h > 0)) {
-                // FIXME: We may need to disable image smoothing here
-                //        as well (see copyImage()), but we haven't
-                //        noticed any problem yet.
-                this._targetCtx.drawImage(this._backbuffer,
-                                          x, y, w, h,
-                                          vx, vy, w, h);
-
-                this._flipCnt += 1;
-            }
-	  
-            this._damageBounds.left = this._damageBounds.top = 65535;
-            this._damageBounds.right = this._damageBounds.bottom = 0;
+            this._flipCnt += 1;
         }
     }
 
@@ -350,7 +283,7 @@ export default class Display {
     }
 
     fillRect(x, y, width, height, color, fromQueue) {
-        if (this._renderQ.length !== 0 && !fromQueue) {
+        if (!fromQueue) {
             this._renderQPush({
                 'type': 'fill',
                 'x': x,
@@ -361,13 +294,12 @@ export default class Display {
             });
         } else {
             this._setFillColor(color);
-            this._drawCtx.fillRect(x, y, width, height);
-            this._damage(x, y, width, height);
+            this._targetCtx.fillRect(x, y, width, height);
         }
     }
 
     copyImage(oldX, oldY, newX, newY, w, h, fromQueue) {
-        if (this._renderQ.length !== 0 && !fromQueue) {
+        if (!fromQueue) {
             this._renderQPush({
                 'type': 'copy',
                 'oldX': oldX,
@@ -385,15 +317,14 @@ export default class Display {
             //
             // We need to set these every time since all properties are reset
             // when the the size is changed
-            this._drawCtx.mozImageSmoothingEnabled = false;
-            this._drawCtx.webkitImageSmoothingEnabled = false;
-            this._drawCtx.msImageSmoothingEnabled = false;
-            this._drawCtx.imageSmoothingEnabled = false;
+            this._targetCtx.mozImageSmoothingEnabled = false;
+            this._targetCtx.webkitImageSmoothingEnabled = false;
+            this._targetCtx.msImageSmoothingEnabled = false;
+            this._targetCtx.imageSmoothingEnabled = false;
 
-            this._drawCtx.drawImage(this._backbuffer,
+            this._targetCtx.drawImage(this._target,
                                     oldX, oldY, w, h,
                                     newX, newY, w, h);
-            this._damage(newX, newY, w, h);
         }
     }
 
@@ -417,7 +348,7 @@ export default class Display {
     }
 
     blitImage(x, y, width, height, arr, offset, fromQueue) {
-        if (this._renderQ.length !== 0 && !fromQueue) {
+        if (!fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
@@ -437,22 +368,20 @@ export default class Display {
                                              arr.byteOffset + offset,
                                              width * height * 4);
             let img = new ImageData(data, width, height);
-            this._drawCtx.putImageData(img, x, y);
-            this._damage(x, y, width, height);
+            this._targetCtx.putImageData(img, x, y);
         }
     }
 
     drawImage(img, x, y, w, h) {
         try {
 	    if (img.width != w || img.height != h) {
-                this._drawCtx.drawImage(img, x, y, w, h);
+                this._targetCtx.drawImage(img, x, y, w, h);
             } else {
-                this._drawCtx.drawImage(img, x, y);
+                this._targetCtx.drawImage(img, x, y);
             }
         } catch (error) {
             Log.Error('Invalid image recieved.'); //KASM-2090
         }
-        this._damage(x, y, w, h);
     }
 
     autoscale(containerWidth, containerHeight, scaleRatio=0) {
@@ -512,7 +441,7 @@ export default class Display {
     _setFillColor(color) {
         const newStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
         if (newStyle !== this._prevDrawStyle) {
-            this._drawCtx.fillStyle = newStyle;
+            this._targetCtx.fillStyle = newStyle;
             this._prevDrawStyle = newStyle;
         }
     }
@@ -520,15 +449,11 @@ export default class Display {
     _renderQPush(action) {
         this._renderQ.push(action);
         if (this._renderQ.length === 1) {
-            // If this can be rendered immediately it will be, otherwise
-            // the scanner will wait for the relevant event
             this._scanRenderQ();
         }
     }
 
     _resumeRenderQ() {
-        // "this" is the object that is ready, not the
-        // display object
         this.removeEventListener('load', this._noVNCDisplay._resumeRenderQ);
         this._noVNCDisplay._scanRenderQ();
     }
@@ -540,33 +465,22 @@ export default class Display {
             const a = this._renderQ[0];
             switch (a.type) {
                 case 'flip':
+                    this._currentFrame = this._nextFrame;
+                    this._nextFrame = [];
                     this.flip(true);
-                    break;
-                case 'copy':
-                    this.copyImage(a.oldX, a.oldY, a.x, a.y, a.width, a.height, true);
-                    break;
-                case 'fill':
-                    this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
-                    break;
-                case 'blit':
-                    this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
                     if (a.img.complete) {
-                        /* if (a.img.width !== a.width || a.img.height !== a.height) {
-                            Log.Error("Decoded image has incorrect dimensions. Got " +
-                                      a.img.width + "x" + a.img.height + ". Expected " +
-                                      a.width + "x" + a.height + ".");
-                            return;
-                        }*/
-                        this.drawImage(a.img, a.x, a.y, a.width, a.height);
+                        this._nextFrame.push(a);
                     } else {
                         a.img._noVNCDisplay = this;
                         a.img.addEventListener('load', this._resumeRenderQ);
                         // We need to wait for this image to 'load'
-                        // to keep things in-order
                         ready = false;
                     }
+                    break;
+                default:
+                    this._nextFrame.push(a);
                     break;
             }
 

@@ -147,6 +147,7 @@ export default class RFB extends EventTargetMixin {
             Failure: Symbol("failure")
         }
         this._transitConnectionState = this.TransitConnectionStates.Tcp;
+        this._lastTransition = null;
         this._udpConnectFailures = 0; //Failures in upgrading connection to udp
         this._udpTransitFailures = 0; //Failures in transit after successful upgrade
 
@@ -230,6 +231,7 @@ export default class RFB extends EventTargetMixin {
         this._canvas.width = 0;
         this._canvas.height = 0;
         this._canvas.tabIndex = -1;
+        this._canvas.overflow = 'hidden';
         this._screen.appendChild(this._canvas);
 
         // Cursor
@@ -714,11 +716,11 @@ export default class RFB extends EventTargetMixin {
     set enableWebRTC(value) {
         this._useUdp = value;
         if (!value) {
-            if (this._rfbConnectionState === 'connected' && this._transitConnectionState == this.TransitConnectionStates.Udp) {
+            if (this._rfbConnectionState === 'connected' && (this._transitConnectionState !== this.TransitConnectionStates.Tcp)) {
                 this._sendUdpDowngrade();
-            }
+            } 
         } else {
-            if (this._rfbConnectionState === 'connected' && (this._transitConnectionState == this.TransitConnectionStates.Tcp)) {
+            if (this._rfbConnectionState === 'connected' && (this._transitConnectionState !== this.TransitConnectionStates.Udp)) {
                 this._sendUdpUpgrade();
             }
         }
@@ -948,7 +950,7 @@ export default class RFB extends EventTargetMixin {
     // ===== PRIVATE METHODS =====
 
     _changeTransitConnectionState(value) {
-        Log.Debug("Transit state change from " + this._transitConnectionState.toString() + ' to ' + value.toString());
+        Log.Info("Transit state change from " + this._transitConnectionState.toString() + ' to ' + value.toString());
         this._transitConnectionState = value;
     }
 
@@ -1086,6 +1088,10 @@ export default class RFB extends EventTargetMixin {
                                         (u8[14] << 16) +
                                         (u8[15] << 24), 10);
                 // TODO: check the hash. It's the low 32 bits of XXH64, seed 0
+
+                if (me._transitConnectionState !== me.TransitConnectionStates.Udp) {
+                    me._changeTransitConnectionState(me.TransitConnectionStates.Udp);
+                }
 
                 if (pieces == 1) { // Handle it immediately
                     me._handleUdpRect(u8.slice(16));
@@ -3134,7 +3140,6 @@ export default class RFB extends EventTargetMixin {
             var candidate = new RTCIceCandidate(response.candidate);
             peer.addIceCandidate(candidate).then(function() {
                 Log.Debug("success in addicecandidate");
-                this._changeTransitConnectionState(this.TransitConnectionStates.Udp);
             }.bind(this)).catch(function(err) {
                 Log.Error("Failure in addIceCandidate", err);
                 this._changeTransitConnectionState(this.TransitConnectionStates.Failure)
@@ -3184,9 +3189,7 @@ export default class RFB extends EventTargetMixin {
             this._FBU.encoding = null;
         }
 
-        if (document.visibilityState !== "hidden") {
-            this._display.flip();
-        }
+        this._display.flip();
 
         return true;  // We finished this FBU
     }
@@ -3515,6 +3518,8 @@ export default class RFB extends EventTargetMixin {
                         Log.Warn("UDP connection failures exceeded limit, remaining on TCP transit.")
                     }
                 }
+            } else if (this._transitConnectionState == this.TransitConnectionStates.Downgrading) {
+                this._changeTransitConnectionState(this.TransitConnectionStates.Tcp);
             }
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,

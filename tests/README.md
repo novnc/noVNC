@@ -23,6 +23,10 @@ mv /home/ubuntu/record.bin.8 /usr/share/kasmvnc/www/recordings
 
 Place recordings on the KasmVNC server in the /usr/share/kasmvnc/www/recordings directory, you may need to create this directory. Then navigate to https://server-ip:8444/tests/vnc_playback.html?data=record.bin.8 where record.bin.8 is the name of the playback file you placed in the recordings directory.
 
+## Pre-Test Modifications
+
+Before running performance testing using recording playback, you need to run noVNC from source, rather than the 'compiled' webpack. See the docs at docs/DEVELOP.md for running noVNC from source. 
+
 ## Kasm Provided Recordings
 
 The following recordings are used by Kasm Technologies to provide repeatable performance statisitics using different rendering settings.
