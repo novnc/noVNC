@@ -26,6 +26,7 @@ import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
+import { MouseButtonMapper, xvncButtonToMask } from "./mousebuttonmapper.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -192,6 +193,7 @@ export default class RFB extends EventTargetMixin {
         this._viewportHasMoved = false;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
+        this.mouseButtonMapper = null;
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -1558,6 +1560,7 @@ export default class RFB extends EventTargetMixin {
                                   this._canvas);
         }
 
+        const mappedButton = this.mouseButtonMapper.get(ev.button);
         switch (ev.type) {
             case 'mousedown':
                 setCapture(this._canvas);
@@ -1575,11 +1578,11 @@ export default class RFB extends EventTargetMixin {
                 this.checkLocalClipboard();
 
                 this._handleMouseButton(pos.x, pos.y,
-                                        true, 1 << ev.button);
+                                        true, xvncButtonToMask(mappedButton));
                 break;
             case 'mouseup':
                 this._handleMouseButton(pos.x, pos.y,
-                                        false, 1 << ev.button);
+                                        false, xvncButtonToMask(mappedButton));
                 break;
             case 'mousemove':
                 this._handleMouseMove(pos.x, pos.y);
@@ -3659,21 +3662,22 @@ RFB.messages = {
 
         buff[offset] = 5; // msg-type
 
-        buff[offset + 1] = mask;
+        buff[offset + 1] = mask >> 8;
+        buff[offset + 2] = mask;
 
-        buff[offset + 2] = x >> 8;
-        buff[offset + 3] = x;
+        buff[offset + 3] = x >> 8;
+        buff[offset + 4] = x;
 
-        buff[offset + 4] = y >> 8;
-        buff[offset + 5] = y;
+        buff[offset + 5] = y >> 8;
+        buff[offset + 6] = y;
 
-        buff[offset + 6] = dX >> 8;
-        buff[offset + 7] = dX;
+        buff[offset + 7] = dX >> 8;
+        buff[offset + 8] = dX;
 
-        buff[offset + 8] = dY >> 8;
-        buff[offset + 9] = dY;
+        buff[offset + 9] = dY >> 8;
+        buff[offset + 10] = dY;
 
-        sock._sQlen += 10;
+        sock._sQlen += 11;
         sock.flush();
     },
 
