@@ -153,6 +153,16 @@ export default class Keyboard {
             keysym = this._keyDownList[code];
         }
 
+        // macOS doesn't send proper key releases if a key is pressed
+        // while meta is held down
+        if ((browser.isMac() || browser.isIOS()) &&
+            (e.metaKey && code !== 'MetaLeft' && code !== 'MetaRight')) {
+            this._sendKeyEvent(keysym, code, true);
+            this._sendKeyEvent(keysym, code, false);
+            stopEvent(e);
+            return;
+        }
+
         // macOS doesn't send proper key events for modifiers, only
         // state change events. That gets extra confusing for CapsLock
         // which toggles on each press, but not on release. So pretend
