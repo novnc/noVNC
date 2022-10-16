@@ -25,7 +25,7 @@ describe('Automatic Clipboard Sync', function () {
         });
     }
 
-    it('incoming clipboard data from the server is copied to the local clipboard', function () {
+    it('incoming clipboard data from the server is copied to the local clipboard', async function () {
         const text = 'Random string for testing';
         const clipboard = new Clipboard();
         if (Clipboard.isSupported) {
@@ -36,14 +36,14 @@ describe('Automatic Clipboard Sync', function () {
             if (!clipboardEvent.clipboardData.items.length) {
                 clipboardEvent.clipboardData.items.add(text, "text/plain");
             }
-            clipboard._handleCopy(clipboardEvent);
+            await clipboard._handleCopy(clipboardEvent);
             if (navigator.clipboard.writeText) {
                 expect(navigator.clipboard.writeText).to.have.been.calledWith(text);
             }
         }
     });
 
-    it('should copy local pasted data to the server clipboard', function () {
+    it('should copy local pasted data to the server clipboard', async function () {
         const text = 'Another random string for testing';
         const clipboard = new Clipboard();
         clipboard.onpaste = pasterText => expect(pasterText).to.equal(text);
@@ -55,7 +55,7 @@ describe('Automatic Clipboard Sync', function () {
             if (!clipboardEvent.clipboardData.items.length) {
                 clipboardEvent.clipboardData.items.add(text, "text/plain");
             }
-            clipboard._handlePaste(clipboardEvent);
+            await clipboard._handlePaste(clipboardEvent);
             if (navigator.clipboard.readText) {
                 expect(navigator.clipboard.readText).to.have.been.called;
             }
