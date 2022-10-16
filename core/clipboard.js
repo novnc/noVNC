@@ -14,18 +14,47 @@ export default class Clipboard {
 
     // ===== PRIVATE METHODS =====
 
-    _handleCopy(e) {
+    async _handleCopy(e) {
+        try {
+            if (navigator.permissions && navigator.permissions.query) {
+                const permission = await navigator.permissions.query({ name: "clipboard-write", allowWithoutGesture: false });
+                if (permission.state === 'denied') return;
+            }
+        } catch (err) {
+            // Some browsers might error due to lack of support, e.g. Firefox.
+        }
+
         if (navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(e.clipboardData.getData('text/plain')).catch(() => {/* Do nothing */});
+            try {
+                await navigator.clipboard.writeText(e.clipboardData.getData('text/plain'));
+            } catch (e) {
+                /* Do nothing */
+            }
         }
     }
 
-    _handlePaste(e) {
-        if (navigator.clipboard.readText) {
-            navigator.clipboard.readText().then(this.onpaste).catch(() => {/* Do nothing */});
-        } else if (e.clipboardData) {
-            this.onpaste(e.clipboardData.getData('text/plain'));
+    async _handlePaste(e) {
+        try {
+            if (navigator.permissions && navigator.permissions.query) {
+                const permission = await navigator.permissions.query({ name: "clipboard-read", allowWithoutGesture: false });
+                if (permission.state === 'denied') return;
+            }
+        } catch (err) {
+            // Some browsers might error due to lack of support, e.g. Firefox.
         }
+
+        let data;
+        if (navigator.clipboard.readText) {
+            try {
+                data = await navigator.clipboard.readText();
+            } catch (e) {
+                /* Do nothing */
+                return;
+            }
+        } else if (e.clipboardData) {
+            data = e.clipboardData.getData('text/plain');
+        }
+        this.onpaste(data);
     }
 
     // ===== PUBLIC METHODS =====
