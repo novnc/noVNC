@@ -287,6 +287,7 @@ export default class RFB extends EventTargetMixin {
         this._viewOnly = false;
         this._clipViewport = false;
         this._scaleViewport = false;
+        this._customScale = null;
         this._resizeSession = false;
 
         this._showDotCursor = false;
@@ -326,8 +327,19 @@ export default class RFB extends EventTargetMixin {
         this._updateClip();
     }
 
+    get customScale() { return this._customScale; }
+    set customScale(level) {
+        this._customScale = level;
+        if (level) {
+            this.scaleViewport = false;
+        }
+    }
+
     get scaleViewport() { return this._scaleViewport; }
     set scaleViewport(scale) {
+        if (scale) {
+            this.customScale = null;
+        }
         this._scaleViewport = scale;
         // Scaling trumps clipping, so we may need to adjust
         // clipping when enabling or disabling scaling
@@ -742,7 +754,7 @@ export default class RFB extends EventTargetMixin {
 
     _updateScale() {
         if (!this._scaleViewport) {
-            this._display.scale = 1.0;
+            this._display.scale = this._customScale || 1.0;
         } else {
             const size = this._screenSize();
             this._display.autoscale(size.w, size.h);

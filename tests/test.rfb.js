@@ -741,6 +741,21 @@ describe('Remote Frame Buffer Protocol Client', function () {
             expect(spy.set).to.have.been.calledWith(false);
         });
 
+        it('should update the custom scale setting when changing the property', function () {
+            client.customScale = 1.5;
+
+            const spy = sinon.spy(client, "customScale", ["set"]);
+
+            client.scaleViewport = false;
+            expect(spy.set).to.not.have.been.called;
+
+            spy.set.resetHistory();
+
+            client.scaleViewport = true;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(null);
+        });
+
         it('should update the scaling when the container size changes', function () {
             sinon.spy(client._display, "autoscale");
 
@@ -785,6 +800,34 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             expect(client._display.autoscale).to.not.have.been.called;
         });
+    });
+
+    describe('Custom Scale', function () {
+        let client;
+        beforeEach(function () {
+            client = makeRFB();
+            container.style.width = '70px';
+            container.style.height = '80px';
+            client.scaleViewport = true;
+        });
+
+        it('should update display scale factor when setting the property', function () {
+            const spy = sinon.spy(client._display, "scale", ["set"]);
+            sinon.spy(client._display, "autoscale");
+
+            client.customScale = 1.5;
+            expect(spy.set).to.have.been.calledOnce;
+            expect(spy.set).to.have.been.calledWith(1.5);
+            expect(client._display.autoscale).to.not.have.been.called;
+        });
+
+        it('should not update display scale factor when nullifying the property', function () {
+            const spy = sinon.spy(client._display, "scale", ["set"]);
+
+            client.customScale = null;
+            expect(spy.set).to.not.have.been.called;
+        });
+
     });
 
     describe('Remote resize', function () {
