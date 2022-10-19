@@ -197,6 +197,67 @@ describe('Key Event Handling', function () {
         });
     });
 
+    describe('Meta key combination on iOS and macOS', function () {
+        let origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+
+            Object.defineProperty(window, "navigator", {value: {}});
+            if (window.navigator.platform !== undefined) {
+                // Object.defineProperty() doesn't work properly in old
+                // versions of Chrome
+                this.skip();
+            }
+        });
+
+        afterEach(function () {
+            if (origNavigator !== undefined) {
+                Object.defineProperty(window, "navigator", origNavigator);
+            }
+        });
+
+        it('should send keyup when meta key is pressed on iOS', function () {
+            window.navigator.platform = "iPad";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a', metaKey: true}));
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", true);
+            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", false);
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyUp(keyevent('keyup', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+        });
+
+        it('should send keyup when meta key is pressed on macOS', function () {
+            window.navigator.platform = "Mac";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'a', metaKey: true}));
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", true);
+            expect(kbd.onkeyevent).to.have.been.calledWith(0x61, "KeyA", false);
+            kbd.onkeyevent.resetHistory();
+
+            kbd._handleKeyUp(keyevent('keyup', {code: 'MetaRight', key: 'Meta', location: 2, metaKey: true}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+        });
+    });
+
     describe('Caps Lock on iOS and macOS', function () {
         let origNavigator;
         beforeEach(function () {
