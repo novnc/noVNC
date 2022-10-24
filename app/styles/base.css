@@ -346,11 +346,17 @@ html {
 }
 
 /* Control bar hint */
-#noVNC_control_bar_hint {
+#noVNC_hint_anchor {
   position: fixed;
-  left: calc(100vw - 50px);
+  right: -50px;
+  left: auto;
+}
+#noVNC_control_bar_anchor.noVNC_right + #noVNC_hint_anchor {
+  left: -50px;
   right: auto;
-  top: calc(50vh - 25%);
+}
+#noVNC_control_bar_hint {
+  position: relative;
   transform: scale(0);
   width: 100px;
   height: 50%;
@@ -363,10 +369,6 @@ html {
   box-shadow: 0 0 10px black, inset 0 0 10px 10px rgba(110, 132, 163, 0.8);
   border-radius: 10px;
   transition-delay: 0s;
-}
-#noVNC_control_bar_anchor.noVNC_right #noVNC_control_bar_hint{
-  left: auto;
-  right: calc(100vw - 50px);
 }
 #noVNC_control_bar_hint.noVNC_active {
   visibility: visible;
