@@ -374,6 +374,9 @@ html {
   transition-delay: 0.2s;
   transform: scale(1);
 }
+#noVNC_control_bar_hint.noVNC_notransition {
+  transition: none !important;
+}
 
 /* Control bar buttons */
 .noVNC_button {
