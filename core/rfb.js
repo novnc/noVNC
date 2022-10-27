@@ -490,16 +490,27 @@ export default class RFB extends EventTargetMixin {
             this._clipboardText = text;
             RFB.messages.extendedClipboardNotify(this._sock, [extendedClipboardFormatText]);
         } else {
-            let data = new Uint8Array(text.length);
-            for (let i = 0; i < text.length; i++) {
-                let code = text.charCodeAt(i);
+            let length, i;
+            let data;
+
+            length = 0;
+            // eslint-disable-next-line no-unused-vars
+            for (let codePoint of text) {
+                length++;
+            }
+
+            data = new Uint8Array(length);
+
+            i = 0;
+            for (let codePoint of text) {
+                let code = codePoint.codePointAt(0);
 
                 /* Only ISO 8859-1 is supported */
                 if (code > 0xff) {
                     code = 0x3f; // '?'
                 }
 
-                data[i] = code;
+                data[i++] = code;
             }
 
             RFB.messages.clientCutText(this._sock, data);
