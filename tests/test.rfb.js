@@ -115,6 +115,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
     });
 
     after(function () {
+        Websock.prototype._allocateBuffers = Websock.prototype._oldAllocateBuffers;
         delete Websock.prototype.inspect;
         this.clock.restore();
         window.requestAnimationFrame = raf;
