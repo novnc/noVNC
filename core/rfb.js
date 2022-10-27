@@ -492,8 +492,14 @@ export default class RFB extends EventTargetMixin {
         } else {
             let data = new Uint8Array(text.length);
             for (let i = 0; i < text.length; i++) {
-                // FIXME: text can have values outside of Latin1/Uint8
-                data[i] = text.charCodeAt(i);
+                let code = text.charCodeAt(i);
+
+                /* Only ISO 8859-1 is supported */
+                if (code > 0xff) {
+                    code = 0x3f; // '?'
+                }
+
+                data[i] = code;
             }
 
             RFB.messages.clientCutText(this._sock, data);

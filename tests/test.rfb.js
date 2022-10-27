@@ -433,6 +433,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                                                                                new Uint8Array([97, 98, 99]));
                 });
 
+                it('should mask unsupported characters', function () {
+                    client.clipboardPasteFrom('abc€');
+
+                    expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                    expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock,
+                                                                               new Uint8Array([97, 98, 99, 63]));
+                });
+
                 it('should send an notify if extended clipboard is supported by server', function () {
                     // Send our capabilities
                     let data = [3, 0, 0, 0];
