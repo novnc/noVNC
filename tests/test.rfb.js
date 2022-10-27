@@ -111,11 +111,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
         };
 
         // Avoiding printing the entire Websock buffer on errors
-        Websock.prototype.toString = function () { return "[object Websock]"; };
+        Websock.prototype.inspect = function () { return "[object Websock]"; };
     });
 
     after(function () {
-        delete Websock.prototype.toString;
+        Websock.prototype._allocateBuffers = Websock.prototype._oldAllocateBuffers;
+        delete Websock.prototype.inspect;
         this.clock.restore();
         window.requestAnimationFrame = raf;
         window.ResizeObserver = realObserver;
@@ -430,6 +431,22 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(RFB.messages.clientCutText).to.have.been.calledOnce;
                     expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock,
                                                                                new Uint8Array([97, 98, 99]));
+                });
+
+                it('should mask unsupported characters', function () {
+                    client.clipboardPasteFrom('abc€');
+
+                    expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                    expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock,
+                                                                               new Uint8Array([97, 98, 99, 63]));
+                });
+
+                it('should mask characters, not UTF-16 code points', function () {
+                    client.clipboardPasteFrom('😂');
+
+                    expect(RFB.messages.clientCutText).to.have.been.calledOnce;
+                    expect(RFB.messages.clientCutText).to.have.been.calledWith(client._sock,
+                                                                               new Uint8Array([63]));
                 });
 
                 it('should send an notify if extended clipboard is supported by server', function () {
