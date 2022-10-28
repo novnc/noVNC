@@ -572,6 +572,7 @@ html {
 }
 #noVNC_clipboard_text {
   width: 500px;
+  min-width: 150px;
 
   box-sizing: border-box;
   max-width: 100%;
