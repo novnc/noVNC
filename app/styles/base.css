@@ -422,6 +422,7 @@ html {
 
   transition: 0.5s ease-in-out;
 
+  max-width: calc(100vw - 2*15px - 75px - 25px); /* minus padding, and left and right margins */
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
   overflow-y: auto;
@@ -567,10 +568,6 @@ html {
 /* Clipboard */
 :root:not(.noVNC_connected) #noVNC_clipboard_button {
   display: none;
-}
-#noVNC_clipboard {
-  /* Full screen, minus padding and left and right margins */
-  max-width: calc(100vw - 2*15px - 75px - 25px);
 }
 #noVNC_clipboard_text {
   width: 500px;
