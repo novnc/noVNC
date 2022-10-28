@@ -422,7 +422,8 @@ html {
 
   transition: 0.5s ease-in-out;
 
-  max-width: calc(100vw - 2*15px - 75px - 25px); /* minus padding, and left and right margins */
+  box-sizing: border-box; /* so max-width don't have to care about padding */
+  max-width: calc(100vw - 75px - 25px); /* minus left and right margins */
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
   overflow-y: auto;
