@@ -393,6 +393,9 @@ html {
 }
 .noVNC_button:disabled {
   opacity: 0.4;
+  /* See firefox bug regarding cursor on disabled <input type="image">:
+   https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
+  cursor: default;
 }
 .noVNC_button:focus {
   outline: none;
