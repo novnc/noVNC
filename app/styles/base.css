@@ -248,6 +248,7 @@ html {
 
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none; /* Disable iOS image long-press popup */
 }
 #noVNC_control_bar.noVNC_open {
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
