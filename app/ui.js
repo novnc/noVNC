@@ -245,6 +245,7 @@ const UI = {
         UI.initSetting('enable_perf_stats', false);
         UI.initSetting('virtual_keyboard_visible', false);
         UI.initSetting('enable_ime', false);
+        UI.initSetting('enable_qoi', false);
         UI.initSetting('enable_webrtc', false);
         UI.toggleKeyboardControls();
 
@@ -558,6 +559,8 @@ const UI = {
         UI.addSettingChangeHandler('virtual_keyboard_visible', UI.toggleKeyboardControls);
         UI.addSettingChangeHandler('enable_ime');
         UI.addSettingChangeHandler('enable_ime', UI.toggleIMEMode);
+        UI.addSettingChangeHandler('enable_qoi');
+        UI.addSettingChangeHandler('enable_qoi', UI.toggleQOI);
         UI.addSettingChangeHandler('enable_webrtc');
         UI.addSettingChangeHandler('enable_webrtc', UI.toggleWebRTC);
     },
@@ -1399,6 +1402,7 @@ const UI = {
         UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless');
         UI.rfb.keyboard.enableIME = UI.getSetting('enable_ime');
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
+        UI.rfb.enableQOI = UI.getSetting('enable_qoi');
         UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc');
         UI.rfb.mouseButtonMapper = UI.initMouseButtonMapper();
 
@@ -1650,6 +1654,18 @@ const UI = {
                         UI.forceSetting('enable_ime', false, false);
                         UI.toggleIMEMode();
                     }
+                    break;
+                case 'disable_qoi':
+                    if(UI.getSetting('enable_qoi')) {
+                        UI.forceSetting('enable_qoi', false, false);
+                    }
+                    UI.toggleQOI();
+                    break;
+                case 'enable_qoi':
+                    if(!UI.getSetting('enable_qoi')) {
+                        UI.forceSetting('enable_qoi', true, false);
+                    }
+                    UI.toggleQOI();
                     break;
                 case 'enable_webrtc':
                     if (!UI.getSetting('enable_webrtc')) {
@@ -1961,6 +1977,8 @@ const UI = {
                 UI.enableSetting('video_out_time');
                 UI.showStatus("Refresh or reconnect to apply changes.");
                 return;
+            case 5: //extreme+lossless
+                UI.forceSetting('enable_qoi', true, false);
             case 4: //extreme
                 UI.forceSetting('dynamic_quality_min', 9);
                 UI.forceSetting('dynamic_quality_max', 9);
@@ -2024,6 +2042,12 @@ const UI = {
                 break;
         }
 
+        //force QOI off if mode is below extreme
+        if (present_mode !== 4 && UI.getSetting('enable_qoi')) {
+            UI.showStatus("Lossless QOI disabled when not in extreme quality mode.");
+            UI.forceSetting('enable_qoi', false, false);
+        }
+
         if (UI.rfb) {
             UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
             UI.rfb.antiAliasing = parseInt(UI.getSetting('anti_aliasing'));
@@ -2041,6 +2065,7 @@ const UI = {
             UI.rfb.frameRate = parseInt(UI.getSetting('framerate'));
             UI.rfb.enableWebP = UI.getSetting('enable_webp');
             UI.rfb.videoQuality = parseInt(UI.getSetting('video_quality'));
+            UI.rfb.enableQOI = UI.getSetting('enable_qoi');
 
             // Gracefully update settings server side
             UI.rfb.updateConnectionSettings();
@@ -2096,7 +2121,25 @@ const UI = {
             } else {
                 UI.rfb.enableWebRTC = false;
             }
+            UI.updateQuality();
         }
+    },
+
+    toggleQOI() {
+      if(UI.rfb) {
+          if(UI.getSetting('enable_qoi')) {
+              UI.rfb.enableQOI = true;
+              if (!UI.rfb.enableQOI) {
+                UI.showStatus("Enabling QOI failed, browser may not be compatible with WASM and/or Workers.");
+                UI.forceSetting('enable_qoi', false, false);
+                return;
+              }
+              UI.forceSetting('video_quality', 4, false); //force into extreme quality mode
+          } else {
+              UI.rfb.enableQOI = false;
+          }
+          UI.updateQuality();
+      }
     },
 
     showKeyboardControls() {

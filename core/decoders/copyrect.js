@@ -8,7 +8,8 @@
  */
 
 export default class CopyRectDecoder {
-    decodeRect(x, y, width, height, sock, display, depth) {
+
+    decodeRect(x, y, width, height, sock, display, depth, frame_id) {
         if (sock.rQwait("COPYRECT", 4)) {
             return false;
         }
@@ -20,7 +21,7 @@ export default class CopyRectDecoder {
             return true;
         }
 
-        display.copyImage(deltaX, deltaY, x, y, width, height);
+        display.copyImage(deltaX, deltaY, x, y, width, height, frame_id);
 
         return true;
     }

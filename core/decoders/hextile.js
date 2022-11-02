@@ -16,7 +16,7 @@ export default class HextileDecoder {
         this._tileBuffer = new Uint8Array(16 * 16 * 4);
     }
 
-    decodeRect(x, y, width, height, sock, display, depth) {
+    decodeRect(x, y, width, height, sock, display, depth, frame_id) {
         if (this._tiles === 0) {
             this._tilesX = Math.ceil(width / 16);
             this._tilesY = Math.ceil(height / 16);
@@ -85,7 +85,7 @@ export default class HextileDecoder {
                     // Weird: ignore blanks are RAW
                     Log.Debug("     Ignoring blank after RAW");
                 } else {
-                    display.fillRect(tx, ty, tw, th, this._background);
+                    display.fillRect(tx, ty, tw, th, this._background, frame_id);
                 }
             } else if (subencoding & 0x01) {  // Raw
                 let pixels = tw * th;
@@ -93,7 +93,7 @@ export default class HextileDecoder {
                 for (let i = 0;i <  pixels;i++) {
                     rQ[rQi + i * 4 + 3] = 255;
                 }
-                display.blitImage(tx, ty, tw, th, rQ, rQi);
+                display.blitImage(tx, ty, tw, th, rQ, rQi, frame_id);
                 rQi += bytes - 1;
             } else {
                 if (subencoding & 0x02) {  // Background
@@ -131,7 +131,7 @@ export default class HextileDecoder {
                         this._subTile(sx, sy, sw, sh, color);
                     }
                 }
-                this._finishTile(display);
+                this._finishTile(display, frame_id);
             }
             sock.rQi = rQi;
             this._lastsubencoding = subencoding;
@@ -183,9 +183,9 @@ export default class HextileDecoder {
     }
 
     // draw the current tile to the screen
-    _finishTile(display) {
+    _finishTile(display, frame_id) {
         display.blitImage(this._tileX, this._tileY,
                           this._tileW, this._tileH,
-                          this._tileBuffer, 0);
+                          this._tileBuffer, 0, frame_id);
     }
 }

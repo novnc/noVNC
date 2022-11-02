@@ -10,13 +10,13 @@
 import TightDecoder from './tight.js';
 
 export default class TightPNGDecoder extends TightDecoder {
-    _pngRect(x, y, width, height, sock, display, depth) {
+    _pngRect(x, y, width, height, sock, display, depth, frame_id) {
         let data = this._readData(sock);
         if (data === null) {
             return false;
         }
 
-        display.imageRect(x, y, width, height, "image/png", data);
+        display.imageRect(x, y, width, height, "image/png", data, frame_id);
 
         return true;
     }

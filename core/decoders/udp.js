@@ -22,7 +22,7 @@ export default class UDPDecoder {
         }
     }
 
-    decodeRect(x, y, width, height, data, display, depth) {
+    decodeRect(x, y, width, height, data, display, depth, frame_id) {
         let ctl = data[12];
         ctl = ctl >> 4;
 

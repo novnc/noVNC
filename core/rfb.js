@@ -43,6 +43,7 @@ const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
 
 var _videoQuality =  2;
 var _enableWebP = false;
+var _enableQOI = false;
 
 // Minimum wait (ms) between two mouse moves
 const MOUSE_MOVE_DELAY = 17; 
@@ -139,6 +140,7 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionY = 540;
         this._clipboardBinary = true;
         this._useUdp = true;
+        this._enableQOI = false;
         this.TransitConnectionStates = {
             Tcp: Symbol("tcp"),
             Udp: Symbol("udp"),
@@ -173,12 +175,14 @@ export default class RFB extends EventTargetMixin {
         this._decoders = {};
 
         this._FBU = {
-            rects: 0,
+            rects: 0, // current rect number
             x: 0,
             y: 0,
             width: 0,
             height: 0,
             encoding: null,
+            frame_id: 0,
+            rect_total: 0, //Total rects in frame
         };
 
         // Mouse state
@@ -248,15 +252,6 @@ export default class RFB extends EventTargetMixin {
         // initial cursor instead.
         this._cursorImage = RFB.cursors.none;
 
-        // populate decoder array with objects
-        this._decoders[encodings.encodingRaw] = new RawDecoder();
-        this._decoders[encodings.encodingCopyRect] = new CopyRectDecoder();
-        this._decoders[encodings.encodingRRE] = new RREDecoder();
-        this._decoders[encodings.encodingHextile] = new HextileDecoder();
-        this._decoders[encodings.encodingTight] = new TightDecoder();
-        this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
-        this._decoders[encodings.encodingUDP] = new UDPDecoder();
-
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
         try {
@@ -266,6 +261,15 @@ export default class RFB extends EventTargetMixin {
             throw exc;
         }
         this._display.onflush = this._onFlush.bind(this);
+
+        // populate decoder array with objects
+        this._decoders[encodings.encodingRaw] = new RawDecoder();
+        this._decoders[encodings.encodingCopyRect] = new CopyRectDecoder();
+        this._decoders[encodings.encodingRRE] = new RREDecoder();
+        this._decoders[encodings.encodingHextile] = new HextileDecoder();
+        this._decoders[encodings.encodingTight] = new TightDecoder(this._display);
+        this._decoders[encodings.encodingTightPNG] = new TightPNGDecoder();
+        this._decoders[encodings.encodingUDP] = new UDPDecoder();
 
         this._keyboard = new Keyboard(this._canvas, touchInput);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
@@ -478,6 +482,21 @@ export default class RFB extends EventTargetMixin {
             return;
         }
         this._enableWebP = enabled; 
+        this._pendingApplyEncodingChanges = true;
+    }
+
+    get enableQOI() { return this._enableQOI; }
+    set enableQOI(enabled) {
+        if(this._enableQOI === enabled) {
+            return;
+        }
+        if (enabled) {
+            if (!this._decoders[encodings.encodingTight].enableQOI()) {
+                //enabling qoi failed
+                return;
+            }
+        }
+        this._enableQOI = enabled;
         this._pendingApplyEncodingChanges = true;
     }
 
@@ -2520,12 +2539,8 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.encodingRaw);
 
         // Psuedo-encoding settings
-        var quality = 6;
-        var compression = 2;
-        var screensize = this._screenSize(false);
         encs.push(encodings.pseudoEncodingQualityLevel0 + this._qualityLevel);
         encs.push(encodings.pseudoEncodingCompressLevel0 + this._compressionLevel);
-
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
         encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
@@ -2537,6 +2552,9 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingExtendedClipboard);
         if (this._hasWebp())
             encs.push(encodings.pseudoEncodingWEBP);
+        if (this._enableQOI)
+            encs.push(encodings.pseudoEncodingQOI);
+            
 
         // kasm settings; the server may be configured to ignore these
         encs.push(encodings.pseudoEncodingJpegVideoQualityLevel0 + this.jpegVideoQuality);
@@ -3053,11 +3071,11 @@ export default class RFB extends EventTargetMixin {
             encoding: parseInt((data[8] << 24) + (data[9] << 16) +
                                             (data[10] << 8) + data[11], 10)
         };
-
+        
         switch (frame.encoding) {
             case encodings.pseudoEncodingLastRect:
                 if (document.visibilityState !== "hidden") {
-                    this._display.flip();
+                    this._display.flip(false); //TODO: UDP is now broken, flip needs rect count and frame number
                     this._udpBuffer.clear();
                 }
                 break;
@@ -3158,6 +3176,9 @@ export default class RFB extends EventTargetMixin {
             this._sock.rQskipBytes(1);  // Padding
             this._FBU.rects = this._sock.rQshift16();
 
+            this._FBU.frame_id++;
+            this._FBU.rect_total = 0;
+
             // Make sure the previous frame is fully rendered first
             // to avoid building up an excessive queue
             if (this._display.pending()) {
@@ -3180,7 +3201,8 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
                                               (hdr[10] << 8) + hdr[11], 10);
             }
-
+            
+            
             if (!this._handleRect()) {
                 return false;
             }
@@ -3189,14 +3211,17 @@ export default class RFB extends EventTargetMixin {
             this._FBU.encoding = null;
         }
 
-        this._display.flip();
-
+        if (this._FBU.rect_total > 0) {
+            this._display.flip(this._FBU.frame_id, this._FBU.rect_total);
+        }
+        
         return true;  // We finished this FBU
     }
 
     _handleRect() {
         switch (this._FBU.encoding) {
             case encodings.pseudoEncodingLastRect:
+                this._FBU.rect_total++; //only track rendered rects and last rect
                 this._FBU.rects = 1; // Will be decreased when we return
                 return true;
 
@@ -3224,7 +3249,11 @@ export default class RFB extends EventTargetMixin {
                 return this._handleExtendedDesktopSize();
 
             default:
-                return this._handleDataRect();
+                if (this._handleDataRect()) {
+                    this._FBU.rect_total++; //only track rendered rects and last rect
+                    return true;
+                } 
+                return false;
         }
     }
 
@@ -3524,9 +3553,9 @@ export default class RFB extends EventTargetMixin {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,
-                                      this._fbDepth);
+                                      this._fbDepth, this._FBU.frame_id);
         } catch (err) {
-	    this._fail("Error decoding rect: " + err);
+            this._fail("Error decoding rect: " + err);
             return false;
         }
     }

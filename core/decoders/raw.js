@@ -12,7 +12,7 @@ export default class RawDecoder {
         this._lines = 0;
     }
 
-    decodeRect(x, y, width, height, sock, display, depth) {
+    decodeRect(x, y, width, height, sock, display, depth, frame_id) {
         if ((width === 0) || (height === 0)) {
             return true;
         }
@@ -54,7 +54,7 @@ export default class RawDecoder {
             data[i * 4 + 3] = 255;
         }
 
-        display.blitImage(x, curY, width, currHeight, data, index);
+        display.blitImage(x, curY, width, currHeight, data, index, frame_id);
         sock.rQskipBytes(currHeight * bytesPerLine);
         this._lines -= currHeight;
         if (this._lines > 0) {

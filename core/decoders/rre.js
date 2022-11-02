@@ -12,7 +12,7 @@ export default class RREDecoder {
         this._subrects = 0;
     }
 
-    decodeRect(x, y, width, height, sock, display, depth) {
+    decodeRect(x, y, width, height, sock, display, depth, frame_id) {
         if (this._subrects === 0) {
             if (sock.rQwait("RRE", 4 + 4)) {
                 return false;
@@ -34,7 +34,7 @@ export default class RREDecoder {
             let sy = sock.rQshift16();
             let swidth = sock.rQshift16();
             let sheight = sock.rQshift16();
-            display.fillRect(x + sx, y + sy, swidth, sheight, color);
+            display.fillRect(x + sx, y + sy, swidth, sheight, color, frame_id);
 
             this._subrects--;
         }
