@@ -249,7 +249,7 @@ async function load(module, imports) {
 
 async function init(input) {
   if (typeof input === 'undefined') {
-    input = '/core/decoders/qoi/qoi_viewer_bg.wasm';
+    input = path + 'core/decoders/qoi/qoi_viewer_bg.wasm';
   }
   const imports = {};
   imports.wbg = {};
@@ -296,47 +296,50 @@ async function init(input) {
 }
 
 var arr;
+var path;
 
 async function run() {
-  self.addEventListener('message', function(evt) {
-    try {
-      let length = evt.data.length;
-      let data = new Uint8Array(evt.data.sab.slice(0, length));
-      let resultData = decode_qoi(data);
-      if (!arr) {
-        arr = new Uint8Array(evt.data.sabR);
+  self.addEventListener('message', async function(evt) {
+    if (evt.data.path) {
+      path = evt.data.path;
+      await init();
+      //Send message that worker is ready
+      self.postMessage({
+        result: 1
+      })
+    } else {
+      try {
+        let length = evt.data.length;
+        let data = new Uint8Array(evt.data.sab.slice(0, length));
+        let resultData = decode_qoi(data);
+        if (!arr) {
+          arr = new Uint8Array(evt.data.sabR);
+        }
+        let lengthR = resultData.data.length;
+        arr.set(resultData.data);
+        let img = {
+          colorSpace: resultData.colorSpace,
+          width: resultData.width,
+          height: resultData.height
+        };
+        self.postMessage({
+          result: 0,
+          img: img,
+          length: lengthR,
+          width: evt.data.width,
+          height: evt.data.height,
+          x: evt.data.x,
+          y: evt.data.y,
+          frame_id: evt.data.frame_id
+        });
+      } catch (err) {
+        self.postMessage({
+          result: 2,
+          error: err
+        });
       }
-      let lengthR = resultData.data.length;
-      arr.set(resultData.data);
-      let img = {
-        colorSpace: resultData.colorSpace,
-        width: resultData.width,
-        height: resultData.height
-      };
-      self.postMessage({
-        result: 0,
-        img: img,
-        length: lengthR,
-        width: evt.data.width,
-        height: evt.data.height,
-        x: evt.data.x,
-        y: evt.data.y,
-        frame_id: evt.data.frame_id
-      });
-    } catch (err) {
-      self.postMessage({
-        result: 2,
-        error: err
-      });
     }
   }, false);
-
-  await init();
-
-  //Send message that worker is ready
-  self.postMessage({
-    result: 1
-  })
 }
 
 run();

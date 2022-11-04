@@ -1609,6 +1609,7 @@ const UI = {
                     break;
                 case 'setvideoquality':
                     UI.forceSetting('video_quality', parseInt(event.data.value), false);
+                    UI.forceSetting('enable_qoi', false, false); // QOI controlled via video quality mode when in iframe
                     UI.updateQuality();
                     break;
                 case 'enable_game_mode':
@@ -2043,7 +2044,7 @@ const UI = {
         }
 
         //force QOI off if mode is below extreme
-        if (present_mode !== 4 && UI.getSetting('enable_qoi')) {
+        if (present_mode < 4 && UI.getSetting('enable_qoi')) {
             UI.showStatus("Lossless QOI disabled when not in extreme quality mode.");
             UI.forceSetting('enable_qoi', false, false);
         }

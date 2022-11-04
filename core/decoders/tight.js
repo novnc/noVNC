@@ -398,6 +398,8 @@ export default class TightDecoder {
     }
 
     _enableQOIWorkers() {
+        let fullPath = window.location.pathname;
+        let path = fullPath.substring(0, fullPath.lastIndexOf('/')+1);
         let sabTest = typeof SharedArrayBuffer;
         if (sabTest !== 'undefined') {
             this._enableQOI = true;
@@ -416,7 +418,7 @@ export default class TightDecoder {
             this._qoiRects = [];
             this._rectQlooping = false;
             for (let i = 0; i < this._threads; i++) {
-                this._workers.push(new Worker("/core/decoders/qoi/decoder.js"));
+                this._workers.push(new Worker("core/decoders/qoi/decoder.js"));
                 this._sabs.push(new SharedArrayBuffer(300000));
                 this._sabsR.push(new SharedArrayBuffer(400000));
                 this._arrs.push(new Uint8Array(this._sabs[i]));
@@ -449,6 +451,9 @@ export default class TightDecoder {
                             break;
                     }
                 };
+            }
+            for (let i = 0; i < this._threads; i++) {
+                this._workers[i].postMessage({path:path});
             }
         } else {
             this._enableQOI = false;
