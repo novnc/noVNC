@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: npm install
+      - run: npm update
       - run: sudo apt-get install gettext
       - run: make -C po update-pot
       - run: make -C po update-po
