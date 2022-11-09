@@ -30,8 +30,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+//import "core-js/stable";
+//import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
@@ -231,6 +231,7 @@ const UI = {
         UI.initSetting('max_video_resolution_x', 960);
         UI.initSetting('max_video_resolution_y', 540);
         UI.initSetting('framerate', 30);
+        UI.saveSetting('framerate');
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
@@ -1146,6 +1147,7 @@ const UI = {
         UI.updateSetting('max_video_resolution_x', 960);
         UI.updateSetting('max_video_resolution_y', 540);
         UI.updateSetting('framerate', 30);
+        UI.saveSetting('framerate');
         UI.updateSetting('compression');
         UI.updateSetting('shared');
         UI.updateSetting('view_only');
@@ -1680,6 +1682,42 @@ const UI = {
                         UI.toggleWebRTC();
                     }
                     break;
+                case 'resize':
+                    UI.forceSetting('resize', event.data.value, false);
+                    if (UI.rfb) {
+                        if (event.data.value === "remote") {
+                            UI.rfb.resizeSession = true;
+                        } else {
+                            UI.applyResizeMode();
+                            UI.rfb.resizeSession = false;
+                        }
+                    }
+                    break;
+                case 'set_resolution':
+                    if (UI.rfb) {
+                        UI.rfb.forcedResolutionX = event.data.value_x;
+                        UI.rfb.forcedResolutionY = event.data.value_y;
+                        UI.applyResizeMode();
+                        UI.rfb.forcedResolutionX = null;
+                        UI.rfb.forcedResolutionY = null;
+                        UI.rfb._resizeSession =  UI.getSetting('resize') === 'remote';
+                    }
+                    break;
+                case 'set_framerate':
+                    UI.forceSetting('framerate', event.data.value);
+                    UI.saveSetting('framerate');
+                    debugger;
+                    if (UI.rfb){
+                        UI.rfb.frameRate = parseInt(UI.getSetting('framerate'));
+                        UI.rfb.updateConnectionSettings();
+                    }
+                    break;
+                case 'set_perf_stats':
+                    UI.forceSetting('enable_perf_stats', event.data.value, false);
+                    UI.showStats();
+                    break;
+
+
             }
         }
     },
@@ -1814,7 +1852,7 @@ const UI = {
         if (!UI.rfb) return;
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
-        UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.resizeSession = UI.getSetting('resize') === 'remote' || UI.rfb.forcedResolutionX && UI.rfb.forcedResolutionY;
         UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
         UI.rfb.videoQuality = UI.getSetting('video_quality');
         UI.rfb.enableWebP = UI.getSetting('enable_webp');
@@ -1984,6 +2022,7 @@ const UI = {
                 UI.forceSetting('dynamic_quality_min', 9);
                 UI.forceSetting('dynamic_quality_max', 9);
                 UI.forceSetting('framerate', 60);
+                UI.saveSetting('framerate');
                 UI.forceSetting('treat_lossless', 9);
 
                 // effectively disables video mode
@@ -2005,6 +2044,7 @@ const UI = {
                 UI.forceSetting('max_video_resolution_x', 1920);
                 UI.forceSetting('max_video_resolution_y', 1080);
                 UI.forceSetting('framerate', 60);
+                UI.saveSetting('framerate');
                 UI.forceSetting('treat_lossless', 8);
                 UI.forceSetting('video_time', 5);
                 UI.forceSetting('video_area', 65);
@@ -2019,6 +2059,7 @@ const UI = {
                 UI.forceSetting('max_video_resolution_x', 960);
                 UI.forceSetting('max_video_resolution_y', 540);
                 UI.forceSetting('framerate', 22);
+                UI.saveSetting('framerate');
                 UI.forceSetting('treat_lossless', 7);
                 UI.forceSetting('video_time', 5);
                 UI.forceSetting('video_area', 65);
@@ -2035,6 +2076,7 @@ const UI = {
                 UI.forceSetting('max_video_resolution_x', 960);
                 UI.forceSetting('max_video_resolution_y', 540);
                 UI.forceSetting('framerate', 24);
+                UI.saveSetting('framerate');
                 UI.forceSetting('treat_lossless', 7);
                 UI.forceSetting('video_time', 5);
                 UI.forceSetting('video_area', 65);
