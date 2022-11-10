@@ -2211,6 +2211,21 @@ export default class RFB extends EventTargetMixin {
         return this._fail("Unexpected SetColorMapEntries message");
     }
 
+    _triggerClipboardEvent(text) {
+        this.dispatchEvent(new CustomEvent("clipboard", { detail: { text: text } }));
+
+        if (Clipboard.isSupported) {
+            const clipboardData = new DataTransfer();
+            clipboardData.setData("text/plain", text);
+            const clipboardEvent = new ClipboardEvent('copy', { clipboardData });
+            // Force initialization since the constructor is broken in Firefox
+            if (!clipboardEvent.clipboardData.items.length) {
+                clipboardEvent.clipboardData.items.add(text, "text/plain");
+            }
+            this._canvas.dispatchEvent(clipboardEvent);
+        }
+    }
+
     _handleServerCutText() {
         Log.Debug("ServerCutText");
 
@@ -2230,19 +2245,7 @@ export default class RFB extends EventTargetMixin {
                 return true;
             }
 
-            this.dispatchEvent(new CustomEvent("clipboard", { detail: { text: text } }));
-
-            if (Clipboard.isSupported) {
-                const clipboardData = new DataTransfer();
-                clipboardData.setData("text/plain", text);
-                const clipboardEvent = new ClipboardEvent('copy', { clipboardData });
-                // Force initialization since the constructor is broken in Firefox
-                if (!clipboardEvent.clipboardData.items.length) {
-                    clipboardEvent.clipboardData.items.add(text, "text/plain");
-                }
-                this._canvas.dispatchEvent(clipboardEvent);
-            }
-
+            this._triggerClipboardEvent(text);
         } else {
             //Extended msg.
             length = Math.abs(length);
@@ -2377,9 +2380,7 @@ export default class RFB extends EventTargetMixin {
 
                     textData = textData.replace("\r\n", "\n");
 
-                    this.dispatchEvent(new CustomEvent(
-                        "clipboard",
-                        { detail: { text: textData } }));
+                    this._triggerClipboardEvent(textData);
                 }
             } else {
                 return this._fail("Unexpected action in extended clipboard message: " + actions);
