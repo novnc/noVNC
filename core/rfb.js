@@ -340,7 +340,7 @@ export default class RFB extends EventTargetMixin {
 
         this.dragViewport = false;
         this.focusOnClick = true;
-        this.sentEventsCounter = 0;
+        this.lastActiveAt = Date.now();
 
         this._viewOnly = false;
         this._clipViewport = false;
@@ -813,8 +813,10 @@ export default class RFB extends EventTargetMixin {
     sendKey(keysym, code, down) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
 
-        this.sentEventsCounter+=1;
-
+        if (code !== null) {
+            this._setLastActive();
+        }
+        
         if (down === undefined) {
             this.sendKey(keysym, code, true);
             this.sendKey(keysym, code, false);
@@ -872,8 +874,6 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
         if (!(typeof text === 'string' && text.length > 0)) { return; }
 
-        this.sentEventsCounter+=1;
-
         let data = new TextEncoder().encode(text);
 
         let h = hashUInt8Array(data);
@@ -894,7 +894,6 @@ export default class RFB extends EventTargetMixin {
 
     async clipboardPasteDataFrom(clipdata) {
         if (this._rfbConnectionState !== 'connected' || this._viewOnly) { return; }
-        this.sentEventsCounter+=1;
 
         let dataset = [];
         let mimes = [];
@@ -965,6 +964,10 @@ export default class RFB extends EventTargetMixin {
 
     // ===== PRIVATE METHODS =====
 
+    _setLastActive() {
+        this.lastActiveAt = Date.now();
+    }
+
     _changeTransitConnectionState(value) {
         Log.Info("Transit state change from " + this._transitConnectionState.toString() + ' to ' + value.toString());
         this._transitConnectionState = value;
@@ -977,7 +980,7 @@ export default class RFB extends EventTargetMixin {
             try {
                 Log.Info(`connecting to ${this._url}`);
                 this._sock.open(this._url, this._wsProtocols);
-                this.sentEventsCounter+=1;
+                this._setLastActive();
             } catch (e) {
                 if (e.name === 'SyntaxError') {
                     this._fail("Invalid host or port (" + e + ")");
@@ -1301,8 +1304,6 @@ export default class RFB extends EventTargetMixin {
                                     Math.floor(size.w), Math.floor(size.h),
                                     this._screenID, this._screenFlags);
 
-        this.sentEventsCounter+=1;
-
         Log.Debug('Requested new desktop size: ' +
                    size.w + 'x' + size.h);
     }
@@ -1582,6 +1583,7 @@ export default class RFB extends EventTargetMixin {
                                   this._canvas);
         }
 
+        this._setLastActive();
         const mappedButton = this.mouseButtonMapper.get(ev.button);
         switch (ev.type) {
             case 'mousedown':
@@ -1633,12 +1635,9 @@ export default class RFB extends EventTargetMixin {
                 // Otherwise we treat this as a mouse click event.
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
-                this.sentEventsCounter+=1;
                 this._sendMouse(x, y, bmask);
             }
         }
-
-        this.sentEventsCounter+=1;
 
         // Flush waiting move event first
         if (this._mouseMoveTimer !== null) {
@@ -3460,7 +3459,6 @@ export default class RFB extends EventTargetMixin {
             RFB.messages.setMaxVideoResolution(this._sock,
                 this._maxVideoResolutionX,
                 this._maxVideoResolutionY);
-            this.sentEventsCounter+=1;
         }
 
         this._sock.rQskipBytes(1);  // number-of-screens

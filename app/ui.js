@@ -46,9 +46,6 @@ import * as WebUtil from "./webutil.js";
 
 const PAGE_TITLE = "KasmVNC";
 
-var delta = 500;
-var lastKeypressTime = 0;
-var lastKeypressCode = -1;
 var currentEventCount = -1;
 var idleCounter = 0;
 
@@ -1423,46 +1420,41 @@ const UI = {
         /****
         *    Kasm VDI specific
         *****/
-         if (WebUtil.isInsideKasmVDI())
-         {
-             if (window.addEventListener) { // Mozilla, Netscape, Firefox
-                 //window.addEventListener('load', WindowLoad, false);
-                 window.addEventListener('message', UI.receiveMessage, false);
-             } else if (window.attachEvent) { //IE
-                 window.attachEvent('onload', WindowLoad);
-                 window.attachEvent('message', UI.receiveMessage);
-             }
-             if (UI.rfb.clipboardDown){            
-                 UI.rfb.addEventListener("clipboard", UI.clipboardRx);
-         }
-             UI.rfb.addEventListener("disconnect", UI.disconnectedRx);
-             document.getElementById('noVNC_control_bar_anchor').setAttribute('style', 'display: none');
- 
-             //keep alive for websocket connection to stay open, since we may not control reverse proxies
-             //send a keep alive within a window that we control
-             setInterval(function() {
-             if (currentEventCount!=UI.rfb.sentEventsCounter) {
-                 idleCounter=0;
-                 currentEventCount=UI.rfb.sentEventsCounter;
-             } else {
-                 idleCounter+=1;
-                 var idleDisconnect = parseFloat(UI.rfb.idleDisconnect);
-                 if ((idleCounter / 2) >= idleDisconnect) {
-                     //idle for longer than the limit, disconnect
-                     currentEventCount = -1;
-                     idleCounter = 0;
-                     parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
-                     //UI.rfb.disconnect();
-                 } else {
-                     //send a keep alive
-                     UI.rfb.sendKey(1, null, false);
-                     currentEventCount=UI.rfb.sentEventsCounter;
-                 }
-             }
-             }, 30000);
-         } else {
+        if (WebUtil.isInsideKasmVDI()) {
+            if (window.addEventListener) { // Mozilla, Netscape, Firefox
+                //window.addEventListener('load', WindowLoad, false);
+                window.addEventListener('message', UI.receiveMessage, false);
+            } else if (window.attachEvent) { //IE
+                window.attachEvent('onload', WindowLoad);
+                window.attachEvent('message', UI.receiveMessage);
+            }
+            if (UI.rfb.clipboardDown){            
+                UI.rfb.addEventListener("clipboard", UI.clipboardRx);
+            }
+            UI.rfb.addEventListener("disconnect", UI.disconnectedRx);
+            document.getElementById('noVNC_control_bar_anchor').setAttribute('style', 'display: none');
+
+            //keep alive for websocket connection to stay open, since we may not control reverse proxies
+            //send a keep alive within a window that we control
+            UI._sessionTimeoutInterval = setInterval(function() {
+
+                const timeSinceLastActivityInS = (Date.now() - UI.rfb.lastActiveAt) / 1000;
+                let idleDisconnectInS = 1200; //20 minute default 
+                if (Number.isFinite(UI.rfb.idleDisconnect)) {
+                    idleDisconnectInS = parseFloat(UI.rfb.idleDisconnect) * 60;
+                }
+                console.log("Current idle time " + timeSinceLastActivityInS + " max value is " + idleDisconnectInS); 
+
+                if (timeSinceLastActivityInS > idleDisconnectInS) {
+                    parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
+                } else {
+                    //send keep-alive
+                    UI.rfb.sendKey(1, null, false);
+                }
+            }, 5000);
+        } else {
             document.getElementById('noVNC_status').style.visibility = "visible";
-         }
+        }
 
         //key events for KasmVNC control
         document.addEventListener('keyup', function (event) {
@@ -1493,7 +1485,7 @@ const UI = {
 
         UI.updateVisualState('disconnecting');
 
-        // Don't display the connection settings until we're actually disconnected
+        clearInterval(UI._sessionTimeoutInterval);
     },
 
     reconnect() {
@@ -1679,6 +1671,14 @@ const UI = {
                         UI.forceSetting('enable_webrtc', false, false);
                         UI.toggleWebRTC();
                     }
+                    break;
+
+                case 'set_idle_timeout':
+                    //message value in seconds
+                    const idle_timeout_min = Math.ceil(event.data.value / 60);
+                    UI.forceSetting('idle_disconnect', idle_timeout_min, false);
+                    UI.rfb.idleDisconnect = idle_timeout_min;
+                    console.log(`Updated the idle timeout to ${event.data.value}s`);
                     break;
             }
         }
