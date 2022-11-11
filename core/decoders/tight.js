@@ -1,5 +1,6 @@
 /*
- * noVNC: HTML5 VNC client
+ * KasmVNC: HTML5 VNC client
+ * Copyright (C) 2020 Kasm Technologies
  * Copyright (C) 2019 The noVNC Authors
  * (c) 2012 Michael Tinglof, Joe Balaz, Les Piech (Mercuri.ca)
  * Licensed under MPL 2.0 (see LICENSE.txt)

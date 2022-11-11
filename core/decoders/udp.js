@@ -1,7 +1,6 @@
 /*
- * noVNC: HTML5 VNC client
- * Copyright (C) 2019 The noVNC Authors
- * (c) 2012 Michael Tinglof, Joe Balaz, Les Piech (Mercuri.ca)
+ * KasmVNC: HTML5 VNC client
+ * Copyright (C) 2020 Kasm Technologies
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -15,6 +14,7 @@ export default class UDPDecoder {
     constructor() {
         this._filter = null;
         this._palette = new Uint8Array(1024);  // 256 * 4 (max palette size * max bytes-per-pixel)
+        this._directDraw = false; //Draw directly to the canvas without ordering
 
         this._zlibs = [];
         for (let i = 0; i < 4; i++) {
@@ -29,20 +29,15 @@ export default class UDPDecoder {
         let ret;
 
         if (ctl === 0x08) {
-            ret = this._fillRect(x, y, width, height,
-                data, display, depth);
+            ret = this._fillRect(x, y, width, height, data, display, depth, frame_id);
         } else if (ctl === 0x09) {
-            ret = this._jpegRect(x, y, width, height,
-                data, display, depth);
+            ret = this._jpegRect(x, y, width, height, data, display, depth, frame_id);
         } else if (ctl === 0x0A) {
-            ret = this._pngRect(x, y, width, height,
-                data, display, depth);
+            ret = this._pngRect(x, y, width, height, data, display, depth, frame_id);
         } else if ((ctl & 0x08) == 0) {
-            ret = this._basicRect(ctl, x, y, width, height,
-                data, display, depth);
+            ret = this._basicRect(ctl, x, y, width, height, data, display, depth, frame_id);
         } else if (ctl === 0x0B) {
-            ret = this._webpRect(x, y, width, height,
-                data, display, depth);
+            ret = this._webpRect(x, y, width, height, data, display, depth, frame_id);
         } else {
             throw new Error("Illegal udp compression received (ctl: " +
                 ctl + ")");
@@ -51,48 +46,48 @@ export default class UDPDecoder {
         return ret;
     }
 
-    _fillRect(x, y, width, height, data, display, depth) {
+    _fillRect(x, y, width, height, data, display, depth, frame_id) {
 
         display.fillRect(x, y, width, height,
-            [data[13], data[14], data[15]], false);
+            [data[13], data[14], data[15]], frame_id, this._directDraw);
 
         return true;
     }
 
-    _jpegRect(x, y, width, height, data, display, depth) {
+    _jpegRect(x, y, width, height, data, display, depth, frame_id) {
         let img = this._readData(data);
         if (img === null) {
             return false;
         }
 
-        display.imageRect(x, y, width, height, "image/jpeg", img);
+        display.imageRect(x, y, width, height, "image/jpeg", img, frame_id, this._directDraw);
 
         return true;
     }
 
-    _webpRect(x, y, width, height, data, display, depth) {
+    _webpRect(x, y, width, height, data, display, depth, frame_id) {
         let img = this._readData(data);
         if (img === null) {
             return false;
         }
 
-        display.imageRect(x, y, width, height, "image/webp", img);
+        display.imageRect(x, y, width, height, "image/webp", img, frame_id, this._directDraw);
 
         return true;
     }
 
-    _pngRect(x, y, width, height, data, display, depth) {
+    _pngRect(x, y, width, height, data, display, depth, frame_id) {
         //throw new Error("PNG received in UDP rect");
         Log.Error("PNG received in UDP rect");
     }
 
-    _basicRect(ctl, x, y, width, height, data, display, depth) {
+    _basicRect(ctl, x, y, width, height, data, display, depth, frame_id) {
         let zlibs_flags = data[12];
         // Reset streams if the server requests it
         for (let i = 0; i < 4; i++) {
             if ((zlibs_flags >> i) & 1) {
                 this._zlibs[i].reset();
-                Log.Debug("Reset zlib stream " + i);
+                //Log.Debug("Reset zlib stream " + i);
             }
         }
 
@@ -110,15 +105,15 @@ export default class UDPDecoder {
         switch (filter) {
             case 0: // CopyFilter
                 ret = this._copyFilter(streamId, x, y, width, height,
-                    data, display, depth, data_index);
+                    data, display, depth, frame_id, data_index);
                 break;
             case 1: // PaletteFilter
                 ret = this._paletteFilter(streamId, x, y, width, height,
-                    data, display, depth);
+                    data, display, depth, frame_id);
                 break;
             case 2: // GradientFilter
                 ret = this._gradientFilter(streamId, x, y, width, height,
-                    data, display, depth);
+                    data, display, depth, frame_id);
                 break;
             default:
                 throw new Error("Illegal tight filter received (ctl: " +
@@ -128,7 +123,7 @@ export default class UDPDecoder {
         return ret;
     }
 
-    _copyFilter(streamId, x, y, width, height, data, display, depth, data_index=14) {
+    _copyFilter(streamId, x, y, width, height, data, display, depth, frame_id, data_index=14) {
         const uncompressedSize = width * height * 3;
 
         if (uncompressedSize === 0) {
@@ -156,12 +151,12 @@ export default class UDPDecoder {
             rgbx[i + 3] = 255;  // Alpha
         }
 
-        display.blitImage(x, y, width, height, rgbx, 0, false);
+        display.blitImage(x, y, width, height, rgbx, 0, frame_id, this._directDraw);
 
         return true;
     }
 
-    _paletteFilter(streamId, x, y, width, height, data, display, depth) {
+    _paletteFilter(streamId, x, y, width, height, data, display, depth, frame_id) {
         const numColors = data[14] + 1;
         const paletteSize = numColors * 3;
         let palette = data.slice(15, 15 + paletteSize);
@@ -190,15 +185,15 @@ export default class UDPDecoder {
 
         // Convert indexed (palette based) image data to RGB
         if (numColors == 2) {
-            this._monoRect(x, y, width, height, data, palette, display);
+            this._monoRect(x, y, width, height, data, palette, display, frame_id);
         } else {
-            this._paletteRect(x, y, width, height, data, palette, display);
+            this._paletteRect(x, y, width, height, data, palette, display, frame_id);
         }
 
         return true;
     }
 
-    _monoRect(x, y, width, height, data, palette, display) {
+    _monoRect(x, y, width, height, data, palette, display, frame_id) {
         // Convert indexed (palette based) image data to RGB
         // TODO: reduce number of calculations inside loop
         const dest = this._getScratchBuffer(width * height * 4);
@@ -228,10 +223,10 @@ export default class UDPDecoder {
             }
         }
 
-        display.blitImage(x, y, width, height, dest, 0, false);
+        display.blitImage(x, y, width, height, dest, 0, frame_id, this._directDraw);
     }
 
-    _paletteRect(x, y, width, height, data, palette, display) {
+    _paletteRect(x, y, width, height, data, palette, display, frame_id) {
         // Convert indexed (palette based) image data to RGB
         const dest = this._getScratchBuffer(width * height * 4);
         const total = width * height * 4;
@@ -243,10 +238,10 @@ export default class UDPDecoder {
             dest[i + 3] = 255;
         }
 
-        display.blitImage(x, y, width, height, dest, 0, false);
+        display.blitImage(x, y, width, height, dest, 0, frame_id, this._directDraw);
     }
 
-    _gradientFilter(streamId, x, y, width, height, data, display, depth) {
+    _gradientFilter(streamId, x, y, width, height, data, display, depth, frame_id) {
         throw new Error("Gradient filter not implemented");
     }
 

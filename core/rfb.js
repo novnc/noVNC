@@ -1,5 +1,6 @@
 /*
- * noVNC: HTML5 VNC client
+ * KasmVNC: HTML5 VNC client
+ * Copyright (C) 2020 Kasm Technologies
  * Copyright (C) 2020 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
@@ -1107,20 +1108,25 @@ export default class RFB extends EventTargetMixin {
                                         (u8[14] << 16) +
                                         (u8[15] << 24), 10);
                 // TODO: check the hash. It's the low 32 bits of XXH64, seed 0
+                const frame_id = parseInt(u8[16] +
+                                        (u8[17] << 8) +
+                                        (u8[18] << 16) +
+                                        (u8[19] << 24), 10);
 
                 if (me._transitConnectionState !== me.TransitConnectionStates.Udp) {
+                    me._display.clear();
                     me._changeTransitConnectionState(me.TransitConnectionStates.Udp);
                 }
 
                 if (pieces == 1) { // Handle it immediately
-                    me._handleUdpRect(u8.slice(16));
-                } else { // Insert into wait array
+                    me._handleUdpRect(u8.slice(20), frame_id);
+                } else { // Use buffer
                     const now = Date.now();
 		    
                     if (udpBuffer.has(id)) {
                         let item = udpBuffer.get(id);
                         item.recieved_pieces += 1;
-                        item.data[i] = u8.slice(16);
+                        item.data[i] = u8.slice(20);
                         item.total_bytes += item.data[i].length;
 
                         if (item.total_pieces == item.recieved_pieces) {
@@ -1132,7 +1138,7 @@ export default class RFB extends EventTargetMixin {
                                 z += item.data[x].length;
                             }
                             udpBuffer.delete(id);
-                            me._handleUdpRect(finaldata);
+                            me._handleUdpRect(finaldata, frame_id);
                         }
                     } else {
                         let item = {
@@ -1142,7 +1148,7 @@ export default class RFB extends EventTargetMixin {
                             total_bytes: 0,         // total size of all data pieces combined
                             data: new Array(pieces)
                         }
-                        item.data[i] = u8.slice(16);
+                        item.data[i] = u8.slice(20);
                         item.total_bytes = item.data[i].length;
                         udpBuffer.set(id, item);
                     }
@@ -1192,6 +1198,7 @@ export default class RFB extends EventTargetMixin {
                 throw e;
             }
         }
+        this._display.dispose();
         clearTimeout(this._resizeTimeout);
         clearTimeout(this._mouseMoveTimer);
         Log.Debug("<< RFB.disconnect");
@@ -3054,7 +3061,7 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _handleUdpRect(data) {
+    _handleUdpRect(data, frame_id) {
         let frame = {
             x: (data[0] << 8) + data[1],
             y: (data[2] << 8) + data[3],
@@ -3066,10 +3073,9 @@ export default class RFB extends EventTargetMixin {
         
         switch (frame.encoding) {
             case encodings.pseudoEncodingLastRect:
-                if (document.visibilityState !== "hidden") {
-                    this._display.flip(false); //TODO: UDP is now broken, flip needs rect count and frame number
-                    this._udpBuffer.clear();
-                }
+                this._display.flip(frame_id, frame.x + 1); //Last Rect message, first 16 bytes contain rect count
+                if (this._display.pending())
+                    this._display.flush(false);
                 break;
             case encodings.encodingTight:
                 let decoder = this._decoders[encodings.encodingUDP];
@@ -3077,7 +3083,7 @@ export default class RFB extends EventTargetMixin {
                     decoder.decodeRect(frame.x, frame.y,
                         frame.width, frame.height,
                         data, this._display,
-                        this._fbDepth);
+                        this._fbDepth, frame_id);
                 } catch (err) {
                     this._fail("Error decoding rect: " + err);
                     return false;
@@ -3203,7 +3209,7 @@ export default class RFB extends EventTargetMixin {
             this._FBU.encoding = null;
         }
 
-        if (this._FBU.rect_total > 0) {
+        if (this._FBU.rect_total > 1) {
             this._display.flip(this._FBU.frame_id, this._FBU.rect_total);
         }
         
@@ -3528,6 +3534,7 @@ export default class RFB extends EventTargetMixin {
                     this._udpTransitFailures++;
                 }
                 this._changeTransitConnectionState(this.TransitConnectionStates.Tcp);
+                this._display.clear();
                 if (this._useUdp) {
                     if (this._udpConnectFailures < 3 && this._udpTransitFailures < 3) {
                         setTimeout(function() {
@@ -3539,6 +3546,7 @@ export default class RFB extends EventTargetMixin {
                     }
                 }
             } else if (this._transitConnectionState == this.TransitConnectionStates.Downgrading) {
+                this._display.clear();
                 this._changeTransitConnectionState(this.TransitConnectionStates.Tcp);
             }
             return decoder.decodeRect(this._FBU.x, this._FBU.y,

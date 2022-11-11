@@ -1,5 +1,6 @@
 /*
- * noVNC: HTML5 VNC client
+ * KasmVNC: HTML5 VNC client
+ * Copyright (C) 2020 Kasm Technologies
  * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
@@ -18,7 +19,7 @@ export default class Display {
         /*
         For performance reasons we use a multi dimensional array
         1st Dimension of Array Represents Frames, each element is a Frame
-        2nd Dimension contains 4 elements
+        2nd Dimension is the contents of a frame and meta data, contains 4 elements
             0 - int, FrameID
             1 - int, Rect Count
             2 - Array of Rect objects
@@ -26,11 +27,6 @@ export default class Display {
             4 - int, index of current rect (post-processing)
         */
         this._asyncFrameQueue = [];
-        /*
-        Buffer for incoming frames. The larger the buffer the more time there is to collect, process, and order rects
-        but the more delay there is. May need to adjust this higher for lower power devices when UDP is complete.
-        Decoders that use WASM in parallel can also cause out of order rects
-        */
         this._maxAsyncFrameQueue = 3;
         this._clearAsyncQueue();
 
@@ -68,13 +64,15 @@ export default class Display {
         this._lastFlip = Date.now();
         this._droppedFrames = 0;
         this._droppedRects = 0;
-        this._missingRectCnt = 0;
-        setInterval(function() {
+        this._forcedFrameCnt = 0;
+        this._missingFlipRect = 0;
+        this._lateFlipRect = 0;
+        this._frameStatsInterval = setInterval(function() {
             let delta = Date.now() - this._lastFlip;
             if (delta > 0) {
                 this._fps = (this._flipCnt / (delta / 1000)).toFixed(2);
             }
-            Log.Info('Dropped Frames: ' + this._droppedFrames + ' Dropped Rects: ' + this._droppedRects + ' Missing Rect Cnt: ' + this._missingRectCnt);
+            Log.Info('Dropped Frames: ' + this._droppedFrames + ' Dropped Rects: ' + this._droppedRects + ' Forced Frames: ' + this._forcedFrameCnt + ' Missing Flips: ' + this._missingFlipRect + ' Late Flips: ' + this._lateFlipRect);
             this._flipCnt = 0;
             this._lastFlip = Date.now();
         }.bind(this), 5000);
@@ -91,7 +89,7 @@ export default class Display {
         this.onflush = () => {  }; // A flush request has finished
 
         // Use requestAnimationFrame to write to canvas, to match display refresh rate
-        window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
 
         Log.Debug("<< Display.constructor");
     }
@@ -259,7 +257,11 @@ export default class Display {
         this.viewportChangePos(0, 0);
     }
 
-    // rendering canvas
+    /*
+    * Mark the specified frame with a rect count
+    * @param {number} frame_id - The frame ID of the target frame
+    * @param {number} rect_cnt - The number of rects in the target frame
+    */
     flip(frame_id, rect_cnt) {
         this._asyncRenderQPush({
             'type': 'flip',
@@ -268,17 +270,44 @@ export default class Display {
         });
     }
 
+    /*
+    * Is the frame queue full
+    * @returns {bool} is the queue full
+    */
     pending() {
         //is the slot in the queue for the newest frame in use
         return this._asyncFrameQueue[this._maxAsyncFrameQueue - 1][0] > 0;
     }
 
-    flush() {
+    /*
+    * Force the oldest frame in the queue to render, whether ready or not.
+    * @param {bool} onflush_message - The caller wants an onflush event triggered once complete. This is
+    *   useful for TCP, allowing the websocket to block until we are ready to process the next frame.
+    *   UDP cannot block and thus no need to notify the caller when complete.
+    */
+    flush(onflush_message=true) {
         //force oldest frame to render
         this._asyncFrameComplete(0, true);
 
-        //this in effect blocks more incoming frames until the oldest frame has been rendered to canvas (tcp only)
-        this._flushing = true;
+        if (onflush_message)
+            this._flushing = true;
+    }
+    
+    /*
+    * Clears the buffer of anything that has not yet been displayed.
+    * This must be called when switching between transit modes tcp/udp
+    */
+    clear() {
+       this._clearAsyncQueue();
+    }
+
+    /*
+    * Cleans up resources, should be called on a disconnect
+    */
+    dispose() {
+        clearInterval(this._frameStatsInterval);
+        cancelAnimationFrame(this._animationFrameID);
+        this.clear();
     }
 
     fillRect(x, y, width, height, color, frame_id, fromQueue) {
@@ -432,7 +461,7 @@ export default class Display {
         let frameIx = -1;
         let oldestFrameID = Number.MAX_SAFE_INTEGER;
         let newestFrameID = 0;
-        for (let i=0; i<this._maxAsyncFrameQueue; i++) {
+        for (let i=0; i<this._asyncFrameQueue.length; i++) {
             if (rect.frame_id == this._asyncFrameQueue[i][0]) {
                 this._asyncFrameQueue[i][2].push(rect);
                 frameIx = i;
@@ -440,7 +469,6 @@ export default class Display {
             } else if (this._asyncFrameQueue[i][0] == 0) {
                 let rect_cnt = ((rect.type == "flip") ? rect.rect_cnt : 0);
                 this._asyncFrameQueue[i][0] = rect.frame_id;
-                this._asyncFrameQueue[i][1] = rect_cnt;
                 this._asyncFrameQueue[i][2].push(rect);
                 this._asyncFrameQueue[i][3] = (rect_cnt == 1);
                 frameIx = i;
@@ -453,7 +481,13 @@ export default class Display {
         if (frameIx >= 0) {
             if (rect.type == "flip") {
                 //flip rect contains the rect count for the frame
+                if (this._asyncFrameQueue[frameIx][1] !== 0) {
+                    Log.Warn("Redundant flip rect, current rect_cnt: " + this._asyncFrameQueue[frameIx][1] + ", new rect_cnt: " + rect.rect_cnt );
+                }
                 this._asyncFrameQueue[frameIx][1] = rect.rect_cnt;
+                if (rect.rect_cnt == 0) {
+                    Log.Warn("Invalid rect count");
+                }  
             }
 
             if (this._asyncFrameQueue[frameIx][1] == this._asyncFrameQueue[frameIx][2].length) {
@@ -464,6 +498,7 @@ export default class Display {
             if (rect.frame_id < oldestFrameID) {
                 //rect is older than any frame in the queue, drop it
                 this._droppedRects++;
+                if (rect.type == "flip") { this._lateFlipRect++; }
                 return;
             } else if (rect.frame_id > newestFrameID) {
                 //frame is newer than any frame in the queue, drop old frames
@@ -497,9 +532,12 @@ export default class Display {
 
         if (force) {
             if (this._asyncFrameQueue[frameIx][1] == 0) {
-                this._missingRectCnt++;
+                this._missingFlipRect++; //at minimum the flip rect is missing
             } else if (this._asyncFrameQueue[frameIx][1] !== this._asyncFrameQueue[frameIx][2].length) {
                 this._droppedRects += (this._asyncFrameQueue[frameIx][1] - this._asyncFrameQueue[frameIx][2].length);
+                if (this._asyncFrameQueue[frameIx][2].length > this._asyncFrameQueue[frameIx][1]) {
+                    Log.Warn("Frame has more rects than the reported rect_cnt.");
+                }
             }
             while (currentFrameRectIx < this._asyncFrameQueue[frameIx][2].length) {   
                 if (this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type == 'img' && !this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img.complete) {
@@ -525,10 +563,12 @@ export default class Display {
     /*
     Push the oldest frame in the buffer to the canvas if it is marked ready
     */
-    _pushAsyncFrame() {
+    _pushAsyncFrame(force=false) {
         if (this._asyncFrameQueue[0][3]) {
             let frame = this._asyncFrameQueue.shift()[2];
-            this._asyncFrameQueue.push([ 0, 0, [], false, 0 ]);
+            if (this._asyncFrameQueue.length < this._maxAsyncFrameQueue) {
+                this._asyncFrameQueue.push([ 0, 0, [], false, 0 ]);
+            }
             
             //render the selected frame
             for (let i = 0; i < frame.length; i++) {
@@ -560,7 +600,9 @@ export default class Display {
             }
         }
 
-        window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        if (!force) {
+            window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        }
     }
 
     _rescale(factor) {
