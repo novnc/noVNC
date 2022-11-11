@@ -384,41 +384,41 @@ html {
 }
 
 /* Control bar buttons */
-.noVNC_button {
+#noVNC_control_bar .noVNC_button {
   padding: 4px 4px;
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
 }
-.noVNC_button.noVNC_selected {
+#noVNC_control_bar .noVNC_button.noVNC_selected {
   border-color: rgba(0, 0, 0, 0.8);
   background: rgba(0, 0, 0, 0.5);
 }
-.noVNC_button:disabled {
+#noVNC_control_bar .noVNC_button:disabled {
   opacity: 0.4;
   /* See firefox bug regarding cursor on disabled <input type="image">:
    https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
   cursor: default;
 }
-.noVNC_button:focus {
+#noVNC_control_bar .noVNC_button:focus {
   outline: none;
 }
-.noVNC_button:not(:disabled):active {
+#noVNC_control_bar .noVNC_button:not(:disabled):active {
   padding-top: 5px;
   padding-bottom: 3px;
 }
 /* Android browsers don't properly update hover state if touch events
  * are intercepted, but focus should be safe to display */
-:root:not(.noVNC_touch) .noVNC_button.noVNC_selected:not(:disabled):hover,
-.noVNC_button.noVNC_selected:not(:disabled):focus {
+:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover,
+#noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):focus {
   border-color: rgba(0, 0, 0, 0.4);
   background: rgba(0, 0, 0, 0.2);
 }
-:root:not(.noVNC_touch) .noVNC_button:not(:disabled):hover,
-.noVNC_button:not(:disabled):focus {
+:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button:not(:disabled):hover,
+#noVNC_control_bar .noVNC_button:not(:disabled):focus {
   background: rgba(255, 255, 255, 0.2);
 }
-.noVNC_button.noVNC_hidden {
+#noVNC_control_bar .noVNC_button.noVNC_hidden {
   display: none !important;
 }
 
