@@ -1,3 +1,9 @@
+/*
+ * noVNC: HTML5 VNC client
+ * Copyright (c) 2021 Juanjo Díaz
+ * Licensed under MPL 2.0 or any later version (see LICENSE.txt)
+ */
+
 export default class Clipboard {
     constructor(target) {
         this._target = target;

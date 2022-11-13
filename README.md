@@ -219,6 +219,7 @@ that list and you think you should be, feel free to send a PR to fix that.
     * Original Logo : Michael Sersen
     * tight encoding : Michael Tinglof (Mercuri.ca)
     * RealVNC RSA AES authentication : USTC Vlab Team
+    * Clipboard support: Juanjo Díaz
 
 * Included libraries:
     * base64 : Martijn Pieters (Digital Creations 2), Samuel Sieb (sieb.net)
