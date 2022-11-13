@@ -4,7 +4,8 @@ export default class Clipboard {
 
         this._eventHandlers = {
             'copy': this._handleCopy.bind(this),
-            'paste': this._handlePaste.bind(this)
+            'paste': this._handlePaste.bind(this),
+            'pasteOnWindows': this._handlePasteOnWindow.bind(this)
         };
 
         // ===== EVENT HANDLERS =====
@@ -57,18 +58,28 @@ export default class Clipboard {
         this.onpaste(data);
     }
 
+    // For some reason, the paste event doesn't trigger on the canvas element.
+    // As a workaround, we capture it on the window and check if the active
+    // element is the canvas.
+    async _handlePasteOnWindow(e) {
+        if (document.activeElement !== this._target) return;
+        this._eventHandlers.paste(e);
+    }
+
     // ===== PUBLIC METHODS =====
 
     grab() {
         if (!Clipboard.isSupported) return;
         this._target.addEventListener('copy', this._eventHandlers.copy);
-        this._target.addEventListener('paste', this._eventHandlers.paste);
+        // this._target.addEventListener('paste', this._eventHandlers.paste);
+        window.addEventListener('paste', this._eventHandlers.pasteOnWindows);
     }
 
     ungrab() {
         if (!Clipboard.isSupported) return;
         this._target.removeEventListener('copy', this._eventHandlers.copy);
-        this._target.removeEventListener('paste', this._eventHandlers.paste);
+        // this._target.removeEventListener('paste', this._eventHandlers.paste);
+        window.removeEventListener('paste', this._eventHandlers.pasteOnWindows);
     }
 }
 
