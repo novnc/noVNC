@@ -535,6 +535,12 @@ html {
   font-size: 13px;
 }
 
+.noVNC_logo + hr {
+    /* Remove all but top border */
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
   display: none;
 }
