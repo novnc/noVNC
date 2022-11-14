@@ -497,6 +497,7 @@ export default class RFB extends EventTargetMixin {
                 return;
             }
         }
+
         this._enableQOI = enabled;
         this._pendingApplyEncodingChanges = true;
     }

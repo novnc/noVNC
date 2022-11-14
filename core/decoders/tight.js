@@ -54,7 +54,7 @@ export default class TightDecoder {
             // Figure out filter
             this._ctl = this._ctl >> 4;
         }
-
+        
         let ret;
 
         if (this._ctl === 0x08) {
@@ -404,12 +404,11 @@ export default class TightDecoder {
         let sabTest = typeof SharedArrayBuffer;
         if (sabTest !== 'undefined') {
             this._enableQOI = true;
-            if ((window.navigator.hardwareConcurrency) && (window.navigator.hardwareConcurrency > 8)) {
-                this._threads = window.navigator.hardwareConcurrency;
+            if ((window.navigator.hardwareConcurrency) && (window.navigator.hardwareConcurrency >= 4)) {
+                this._threads = 16;
             } else {
                 this._threads = 8;
             }
-            this._workerEnabled = false;
             this._workers = [];
             this._availableWorkers = [];
             this._sabs = [];
