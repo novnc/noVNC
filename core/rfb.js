@@ -491,15 +491,14 @@ export default class RFB extends EventTargetMixin {
         if(this._enableQOI === enabled) {
             return;
         }
-        if (enabled) {
-            if (!this._decoders[encodings.encodingTight].enableQOI()) {
-                //enabling qoi failed
-                return;
-            }
-        }
 
-        this._enableQOI = enabled;
-        this._pendingApplyEncodingChanges = true;
+        this._decoders[encodings.encodingTight].enableQOI = enabled;
+        this._enableQOI = this._decoders[encodings.encodingTight].enableQOI
+        
+        if (this._enableQOI === enabled) {
+            this._pendingApplyEncodingChanges = true;
+        }
+        
     }
 
     get antiAliasing() { return this._display.antiAliasing; }

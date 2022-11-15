@@ -28,12 +28,23 @@ export default class TightDecoder {
         }
     }
 
-    enableQOI() {
-        if (!this._enableQOI) {
-            this._enableQOIWorkers();
+    // ===== PROPERTIES =====
+    
+    get enableQOI() { return this._enableQOI; }
+    set enableQOI(enabled) {
+        if(this._enableQOI === enabled) {
+            return;
         }
-        return this._enableQOI; //did it succeed
+
+        if (enabled) {
+            this._enableQOI = this._enableQOIWorkers();
+        } else {
+            this._enableQOI = false;
+            this._disableQOIWorkers();
+        }
     }
+
+    // ===== Public Methods =====
 
     decodeRect(x, y, width, height, sock, display, depth, frame_id) {
         if (this._ctl === null) {
@@ -86,6 +97,8 @@ export default class TightDecoder {
 
         return ret;
     }
+
+    // ===== Private Methods =====
 
     _fillRect(x, y, width, height, sock, display, depth, frame_id) {
         if (sock.rQwait("TIGHT", 3)) {
@@ -398,66 +411,85 @@ export default class TightDecoder {
         return this._scratchBuffer;
     }
 
+    async _disableQOIWorkers() {
+        if (this._workers) {
+            this._enableQOI = false;
+            this._availableWorkers = null;
+            this._sabs = null;
+            this._sabsR = null;
+            this._arrs = null;
+            this._arrsR = null;
+            this._qoiRects = null;
+            this._rectQlooping = null;
+            for await (let i of Array.from(Array(this._threads).keys())) {
+                this._workers[i].terminate();
+                delete this._workers[i];
+            }
+            this._workers = null;
+        }
+    }
+
     _enableQOIWorkers() {
+        const supportsSharedArrayBuffers = typeof SharedArrayBuffer !== "undefined";
+        if (!supportsSharedArrayBuffers) {
+            Log.Warn("Enabling QOI Failed, client not compatible.");
+            return false;
+        }
+
         let fullPath = window.location.pathname;
         let path = fullPath.substring(0, fullPath.lastIndexOf('/')+1);
-        let sabTest = typeof SharedArrayBuffer;
-        if (sabTest !== 'undefined') {
-            this._enableQOI = true;
-            if ((window.navigator.hardwareConcurrency) && (window.navigator.hardwareConcurrency >= 4)) {
-                this._threads = 16;
-            } else {
-                this._threads = 8;
-            }
-            this._workers = [];
-            this._availableWorkers = [];
-            this._sabs = [];
-            this._sabsR = [];
-            this._arrs = [];
-            this._arrsR = [];
-            this._qoiRects = [];
-            this._rectQlooping = false;
-            for (let i = 0; i < this._threads; i++) {
-                this._workers.push(new Worker("core/decoders/qoi/decoder.js"));
-                this._sabs.push(new SharedArrayBuffer(300000));
-                this._sabsR.push(new SharedArrayBuffer(400000));
-                this._arrs.push(new Uint8Array(this._sabs[i]));
-                this._arrsR.push(new Uint8ClampedArray(this._sabsR[i]));
-                this._workers[i].onmessage = (evt) => {
-                    this._availableWorkers.push(i);
-                    switch(evt.data.result) {
-                        case 0:
-                            let data = new Uint8ClampedArray(evt.data.length);
-                            data.set(this._arrsR[i].slice(0, evt.data.length));
-                            let img = new ImageData(data, evt.data.img.width, evt.data.img.height, {colorSpace: evt.data.img.colorSpace});
-                            
-                            this._displayGlobal.blitQoi(
-                                evt.data.x,
-                                evt.data.y,
-                                evt.data.width,
-                                evt.data.height,
-                                img,
-                                0,
-                                evt.data.frame_id,
-                                false
-                            );
-                            this._processRectQ();
-                            break;
-                        case 1:
-                            Log.Info("QOI Worker is now available.");
-                            break;
-                        case 2:
-                            Log.Info("Error on worker: " + evt.error);
-                            break;
-                    }
-                };
-            }
-            for (let i = 0; i < this._threads; i++) {
-                this._workers[i].postMessage({path:path});
-            }
+        if ((window.navigator.hardwareConcurrency) && (window.navigator.hardwareConcurrency >= 4)) {
+            this._threads = 16;
         } else {
-            this._enableQOI = false;
-            Log.Warn("Enabling QOI Failed, client not compatible.");
+            this._threads = 8;
         }
+        this._workers = [];
+        this._availableWorkers = [];
+        this._sabs = [];
+        this._sabsR = [];
+        this._arrs = [];
+        this._arrsR = [];
+        this._qoiRects = [];
+        this._rectQlooping = false;
+        for (let i = 0; i < this._threads; i++) {
+            this._workers.push(new Worker("core/decoders/qoi/decoder.js"));
+            this._sabs.push(new SharedArrayBuffer(300000));
+            this._sabsR.push(new SharedArrayBuffer(400000));
+            this._arrs.push(new Uint8Array(this._sabs[i]));
+            this._arrsR.push(new Uint8ClampedArray(this._sabsR[i]));
+            this._workers[i].onmessage = (evt) => {
+                this._availableWorkers.push(i);
+                switch(evt.data.result) {
+                    case 0:
+                        let data = new Uint8ClampedArray(evt.data.length);
+                        data.set(this._arrsR[i].slice(0, evt.data.length));
+                        let img = new ImageData(data, evt.data.img.width, evt.data.img.height, {colorSpace: evt.data.img.colorSpace});
+                        
+                        this._displayGlobal.blitQoi(
+                            evt.data.x,
+                            evt.data.y,
+                            evt.data.width,
+                            evt.data.height,
+                            img,
+                            0,
+                            evt.data.frame_id,
+                            false
+                        );
+                        this._processRectQ();
+                        break;
+                    case 1:
+                        Log.Info("QOI Worker is now available.");
+                        break;
+                    case 2:
+                        Log.Info("Error on worker: " + evt.error);
+                        break;
+                }
+            };
+        }
+        for (let i = 0; i < this._threads; i++) {
+            this._workers[i].postMessage({path:path});
+        }
+
+        return true;
     }
 }
