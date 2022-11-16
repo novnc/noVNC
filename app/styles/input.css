@@ -65,6 +65,10 @@ button {
   padding-right: 20px;
 }
 
+select {
+  padding-right: 7px;
+  padding-left: 7px;
+}
 option {
   color: black;
   background: white;
