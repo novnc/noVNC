@@ -139,6 +139,8 @@ export default class RFB extends EventTargetMixin {
         this._frameRate = 30;
         this._maxVideoResolutionX = 960;
         this._maxVideoResolutionY = 540;
+        this._forcedResolutionX = null;
+        this._forcedResolutionY = null;
         this._clipboardBinary = true;
         this._useUdp = true;
         this._enableQOI = false;
@@ -692,6 +694,11 @@ export default class RFB extends EventTargetMixin {
         this._maxVideoResolutionY = value;
         this._pendingApplyVideoRes = true;
     }
+
+    get forcedResolutionX() { return this._forcedResolutionX; }
+    set forcedResolutionX(value) {this._forcedResolutionX = value;}
+    get forcedResolutionY() { return this._forcedResolutionY; }
+    set forcedResolutionY(value) {this._forcedResolutionY = value;}
 
     get qualityLevel() {
         return this._qualityLevel;
@@ -1320,8 +1327,8 @@ export default class RFB extends EventTargetMixin {
         if (limited === undefined) {
             limited = true;
         }
-        var x = this._screen.offsetWidth;
-        var y = this._screen.offsetHeight;
+        var x = this.forcedResolutionX ||  this._screen.offsetWidth;
+        var y = this.forcedResolutionY || this._screen.offsetHeight;
         var scale = 0; // 0=auto
         try {
             if (x > 1280 && limited && this.videoQuality == 1) {
