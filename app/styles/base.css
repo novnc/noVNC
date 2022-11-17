@@ -848,9 +848,8 @@ html {
   /*border-top-left-radius: 800px 600px;*/
 
   /* If selection isn't disabled, long-pressing stuff in the sidebar
-     can accidentally select the container or the canvas. This in turn,
-     results in a broken state where the user can't interact with the
-     remote */
+     can accidentally select the container or the canvas. This can
+     happen when attempting to move the handle. */
   user-select: none;
   -webkit-user-select: none;
 }
