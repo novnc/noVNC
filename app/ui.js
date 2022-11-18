@@ -1681,6 +1681,7 @@ const UI = {
                 case 'set_perf_stats':
                     UI.forceSetting('enable_perf_stats', event.data.value, false);
                     UI.showStats();
+                    break;
                 case 'set_idle_timeout':
                     //message value in seconds
                     const idle_timeout_min = Math.ceil(event.data.value / 60);
