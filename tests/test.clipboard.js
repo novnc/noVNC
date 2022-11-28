@@ -46,16 +46,14 @@ describe('Automatic Clipboard Sync', function () {
     it('should copy local pasted data to the server clipboard', async function () {
         const text = 'Another random string for testing';
         const clipboard = new Clipboard();
-        clipboard.onpaste = pasterText => expect(pasterText).to.equal(text);
+
+        clipboard.onpaste = pastedText => expect(pastedText).to.equal(text);
         if (Clipboard.isSupported) {
-            const clipboardData = new DataTransfer();
-            clipboardData.setData("text/plain", text);
-            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
-            // Force initialization since the constructor is broken in Firefox
-            if (!clipboardEvent.clipboardData.items.length) {
-                clipboardEvent.clipboardData.items.add(text, "text/plain");
+            if (navigator.clipboard.readText) {
+                navigator.clipboard.readText.restore();
+                sinon.stub(navigator.clipboard, "readText").returns(text);
             }
-            await clipboard._handlePaste(clipboardEvent);
+            await clipboard._handleFocus();
             if (navigator.clipboard.readText) {
                 expect(navigator.clipboard.readText).to.have.been.called;
             }
