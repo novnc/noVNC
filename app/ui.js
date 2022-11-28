@@ -83,8 +83,9 @@ const UI = {
 
     // Render default UI and initialize settings menu
     start() {
-
+        //initialize settings then apply quality presents
         UI.initSettings();
+        UI.updateQuality();
 
         // Translate the DOM
         l10n.translateDOM();
@@ -1400,6 +1401,9 @@ const UI = {
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
         UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc');
         UI.rfb.mouseButtonMapper = UI.initMouseButtonMapper();
+        if (UI.rfb.videoQuality === 5) {
+            UI.rfb.enableQOI = true;
+	}
 
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
@@ -1441,7 +1445,6 @@ const UI = {
                 if (Number.isFinite(UI.rfb.idleDisconnect)) {
                     idleDisconnectInS = parseFloat(UI.rfb.idleDisconnect) * 60;
                 }
-                console.log("Current idle time " + timeSinceLastActivityInS + " max value is " + idleDisconnectInS); 
 
                 if (timeSinceLastActivityInS > idleDisconnectInS) {
                     parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
