@@ -2008,7 +2008,7 @@ const UI = {
                 break;
             case 4: //extreme
                 fps = (fps && Number.isFinite(fps)) ? fps : 60;
-                UI.forceSetting('dynamic_quality_min', 9);
+                UI.forceSetting('dynamic_quality_min', 8);
                 UI.forceSetting('dynamic_quality_max', 9);
                 UI.forceSetting('framerate', fps);
                 UI.forceSetting('treat_lossless', 9);
