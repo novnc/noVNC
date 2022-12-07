@@ -37,6 +37,7 @@ textarea {
 
 input[type=button],
 input[type=color],
+input[type=image],
 input[type=reset],
 input[type=submit],
 button,
@@ -91,6 +92,7 @@ option {
 input:not([type]):focus,
 input[type=button]:focus,
 input[type=color]:focus,
+input[type=image]:focus,
 input[type=date]:focus,
 input[type=datetime-local]:focus,
 input[type=email]:focus,
@@ -116,6 +118,7 @@ textarea:focus {
 input:not([type]):disabled,
 input[type=button]:disabled,
 input[type=color]:disabled,
+input[type=image]:disabled,
 input[type=date]:disabled,
 input[type=datetime-local]:disabled,
 input[type=email]:disabled,
@@ -139,6 +142,7 @@ textarea:disabled {
 
 input[type=button]:active,
 input[type=color]:active,
+input[type=image]:active,
 input[type=reset]:active,
 input[type=submit]:active,
 button:active,
@@ -149,6 +153,7 @@ select:active {
 
 :root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
 :root:not(.noVNC_touch) input[type=color]:hover:not(:disabled),
+:root:not(.noVNC_touch) input[type=image]:hover:not(:disabled),
 :root:not(.noVNC_touch) input[type=reset]:hover:not(:disabled),
 :root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
 :root:not(.noVNC_touch) button:hover:not(:disabled) {
