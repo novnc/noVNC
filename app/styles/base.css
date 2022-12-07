@@ -586,6 +586,7 @@ html {
   width: 360px;
   min-width: 150px;
   height: 160px;
+  min-height: 70px;
 
   box-sizing: border-box;
   max-width: 100%;
