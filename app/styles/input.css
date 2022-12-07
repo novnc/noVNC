@@ -89,6 +89,31 @@ option {
   background: white;
 }
 
+input[type=checkbox] {
+  position: relative;
+  appearance: none;
+  border: 1px solid dimgrey;
+  border-radius: 3px;
+  width: 0.8em;
+  height: 0.8em;
+  vertical-align: bottom;
+}
+input[type=checkbox]:checked {
+  background-color: rgb(110, 132, 163);
+  border-color: rgb(110, 132, 163);
+}
+input[type=checkbox]:checked::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 3px;
+  width: 3px;
+  height: 7px;
+  border: 1px solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(40deg);
+}
+
 input:not([type]):focus,
 input[type=button]:focus,
 input[type=color]:focus,
@@ -107,6 +132,7 @@ input[type=text]:focus,
 input[type=time]:focus,
 input[type=url]:focus,
 input[type=week]:focus,
+input[type=checkbox]:focus,
 button:focus,
 select:focus,
 textarea:focus {
@@ -138,6 +164,9 @@ select:disabled,
 textarea:disabled {
   color: rgb(128, 128, 128);
   background: rgb(240, 240, 240);
+}
+input[type=checkbox]:disabled {
+  opacity: 0.4;
 }
 
 input[type=button]:active,
