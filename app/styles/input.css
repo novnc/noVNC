@@ -174,9 +174,8 @@ input[type=range]:focus-visible,
 button:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  box-shadow: 0px 0px 3px rgba(74, 144, 217, 0.5);
-  border-color: rgb(74, 144, 217);
-  outline: none;
+  outline: 2px solid rgb(74, 144, 217);
+  outline-offset: 1px;
 }
 
 input:not([type]):disabled,
