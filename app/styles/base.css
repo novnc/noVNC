@@ -401,23 +401,17 @@ html {
      https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
   cursor: default;
 }
-#noVNC_control_bar .noVNC_button:focus {
-  outline: none;
-  box-shadow: none;
-}
 #noVNC_control_bar .noVNC_button:not(:disabled):active {
   padding-top: 5px;
   padding-bottom: 3px;
 }
-/* Android browsers don't properly update hover state if touch events
- * are intercepted, but focus should be safe to display */
-:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover,
-#noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):focus {
+/* Android browsers don't properly update hover state if touch events are
+ * intercepted */
+:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
   border-color: rgba(0, 0, 0, 0.4);
   background: rgba(0, 0, 0, 0.2);
 }
-:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button:not(:disabled):hover,
-#noVNC_control_bar .noVNC_button:not(:disabled):focus {
+:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button:not(:disabled):hover {
   background: rgba(255, 255, 255, 0.2);
 }
 #noVNC_control_bar .noVNC_button.noVNC_hidden {
