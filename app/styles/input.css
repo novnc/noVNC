@@ -114,6 +114,43 @@ input[type=checkbox]:checked::after {
   transform: rotate(40deg);
 }
 
+input[type=range] {
+  appearance: none;
+  border-radius: 3px;
+  height: 20px;
+  background: transparent;
+}
+/* -webkit-slider.. & -moz-range.. cant be in selector lists:
+   https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
+input[type=range]::-webkit-slider-runnable-track {
+  background-color: rgb(110, 132, 163);
+  height: 6px;
+  border-radius: 3px;
+}
+input[type=range]::-moz-range-track {
+  background-color: rgb(110, 132, 163);
+  height: 6px;
+  border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 20px;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid dimgray;
+  margin-top: -7px;
+}
+input[type=range]::-moz-range-thumb {
+  appearance: none;
+  width: 18px;
+  height: 20px;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid dimgray;
+  margin-top: -7px;
+}
+
 input:not([type]):focus,
 input[type=button]:focus,
 input[type=color]:focus,
@@ -133,6 +170,7 @@ input[type=time]:focus,
 input[type=url]:focus,
 input[type=week]:focus,
 input[type=checkbox]:focus,
+input[type=range]:focus,
 button:focus,
 select:focus,
 textarea:focus {
@@ -165,7 +203,8 @@ textarea:disabled {
   color: rgb(128, 128, 128);
   background: rgb(240, 240, 240);
 }
-input[type=checkbox]:disabled {
+input[type=checkbox]:disabled,
+input[type=range]:disabled {
   opacity: 0.4;
 }
 
