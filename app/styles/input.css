@@ -79,10 +79,6 @@ select {
   padding-right: calc(2*7px + 8px);
   padding-left: 7px;
 }
-:root:not(.noVNC_touch) select:hover:not(:disabled) {
-  background: var(--select-arrow),
-              linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
-}
 
 option {
   color: black;
@@ -225,4 +221,8 @@ select:active {
 :root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
 :root:not(.noVNC_touch) button:hover:not(:disabled) {
   background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+}
+:root:not(.noVNC_touch) select:hover:not(:disabled) {
+  background: var(--select-arrow),
+              linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
 }
