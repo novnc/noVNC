@@ -115,6 +115,19 @@ input[type=checkbox]:checked::after {
   transform: rotate(40deg);
 }
 
+input[type=radio] {
+  border-radius: 50%;
+  border: 1px solid dimgrey;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  margin-right: 6px;
+  transition: 0.2s border linear;
+}
+input[type=radio]:checked {
+  border: 6px solid rgb(110, 132, 163);
+}
+
 input[type=range] {
   appearance: none;
   border-radius: 3px;
@@ -163,6 +176,7 @@ input[type=image]:focus-visible,
 input[type=month]:focus-visible,
 input[type=number]:focus-visible,
 input[type=password]:focus-visible,
+input[type=radio]:focus-visible,
 input[type=range]:focus-visible,
 input[type=reset]:focus-visible,
 input[type=search]:focus-visible,
@@ -190,6 +204,7 @@ input[type=image]:disabled,
 input[type=month]:disabled,
 input[type=number]:disabled,
 input[type=password]:disabled,
+input[type=radio]:disabled,
 input[type=range]:disabled,
 input[type=reset]:disabled,
 input[type=search]:disabled,
