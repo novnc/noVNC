@@ -90,6 +90,7 @@ option {
 input[type=checkbox] {
   position: relative;
   appearance: none;
+  background-color: white;
   border: 1px solid dimgrey;
   border-radius: 3px;
   width: 0.8em;
