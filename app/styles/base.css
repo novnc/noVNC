@@ -395,9 +395,6 @@ html {
   border-color: rgba(0, 0, 0, 0.8);
   background-color: rgba(0, 0, 0, 0.5);
 }
-#noVNC_control_bar .noVNC_button:disabled {
-  opacity: 0.4;
-}
 #noVNC_control_bar .noVNC_button:not(:disabled):active {
   padding-top: 5px;
   padding-bottom: 3px;
