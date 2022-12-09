@@ -280,3 +280,8 @@ input[type=file]:disabled {
   background-image: var(--select-arrow),
     linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
 }
+input[type=image]:disabled {
+  /* See Firefox bug:
+     https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
+  cursor: default;
+}
