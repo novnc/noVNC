@@ -175,6 +175,34 @@ input::file-selector-button {
   margin-right: 6px;
 }
 
+:root:not(.noVNC_touch) input[type=button]:hover,
+:root:not(.noVNC_touch) input[type=color]:hover,
+:root:not(.noVNC_touch) input[type=image]:hover,
+:root:not(.noVNC_touch) input[type=reset]:hover,
+:root:not(.noVNC_touch) input[type=submit]:hover,
+:root:not(.noVNC_touch) input::file-selector-button:hover,
+:root:not(.noVNC_touch) button:hover {
+  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+}
+:root:not(.noVNC_touch) select:hover {
+  background-image: var(--select-arrow),
+    linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+  background-position: calc(100% - 7px), left top;
+  background-repeat: no-repeat;
+}
+
+input[type=button]:active,
+input[type=color]:active,
+input[type=image]:active,
+input[type=reset]:active,
+input[type=submit]:active,
+input::file-selector-button:active,
+button:active,
+select:active {
+  border-bottom-width: 1px;
+  margin-top: 1px;
+}
+
 input:not([type]):focus-visible,
 input[type=button]:focus-visible,
 input[type=checkbox]:focus-visible,
@@ -235,31 +263,20 @@ select:disabled,
 textarea:disabled {
   opacity: 0.4;
 }
-
-input[type=button]:active,
-input[type=color]:active,
-input[type=image]:active,
-input[type=reset]:active,
-input[type=submit]:active,
-input::file-selector-button:active,
-button:active,
-select:active {
-  border-bottom-width: 1px;
-  margin-top: 1px;
+:root:not(.noVNC_touch) input[type=button]:disabled,
+:root:not(.noVNC_touch) input[type=color]:disabled,
+:root:not(.noVNC_touch) input[type=image]:disabled,
+:root:not(.noVNC_touch) input[type=reset]:disabled,
+:root:not(.noVNC_touch) input[type=submit]:disabled,
+:root:not(.noVNC_touch) input:disabled::file-selector-button,
+:root:not(.noVNC_touch) button:disabled,
+:root:not(.noVNC_touch) select:disabled {
+  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
 }
-
-:root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=color]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=image]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=reset]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
-:root:not(.noVNC_touch) input::file-selector-button:hover:not(:disabled),
-:root:not(.noVNC_touch) button:hover:not(:disabled) {
-  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+input[type=file]:disabled {
+  background-image: none;
 }
-:root:not(.noVNC_touch) select:hover:not(:disabled) {
+:root:not(.noVNC_touch) select:disabled {
   background-image: var(--select-arrow),
-    linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
-  background-position: calc(100% - 7px), left top;
-  background-repeat: no-repeat;
+    linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
 }
