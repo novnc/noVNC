@@ -96,6 +96,7 @@ input[type=checkbox] {
   width: 13px;
   height: 13px;
   vertical-align: bottom;
+  transition: 0.2s background-color linear;
 }
 input[type=checkbox]:checked {
   background-color: rgb(110, 132, 163);
