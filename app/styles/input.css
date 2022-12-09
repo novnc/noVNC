@@ -176,6 +176,7 @@ textarea:focus-visible {
 
 input:not([type]):disabled,
 input[type=button]:disabled,
+input[type=checkbox]:disabled,
 input[type=color]:disabled,
 input[type=date]:disabled,
 input[type=datetime-local]:disabled,
@@ -184,6 +185,7 @@ input[type=image]:disabled,
 input[type=month]:disabled,
 input[type=number]:disabled,
 input[type=password]:disabled,
+input[type=range]:disabled,
 input[type=reset]:disabled,
 input[type=search]:disabled,
 input[type=submit]:disabled,
@@ -195,11 +197,6 @@ input[type=week]:disabled,
 button:disabled,
 select:disabled,
 textarea:disabled {
-  color: rgb(128, 128, 128);
-  background: rgb(240, 240, 240);
-}
-input[type=checkbox]:disabled,
-input[type=range]:disabled {
   opacity: 0.4;
 }
 
