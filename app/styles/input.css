@@ -5,7 +5,7 @@
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
-input, select, textarea {
+input, button, select, textarea {
   /* Respect standard font settings */
   font: inherit;
 }
