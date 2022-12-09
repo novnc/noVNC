@@ -389,11 +389,11 @@ html {
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  background: transparent;
+  background-image: unset; /* we don't want the gradiant from input.css */
 }
 #noVNC_control_bar .noVNC_button.noVNC_selected {
   border-color: rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 #noVNC_control_bar .noVNC_button:disabled {
   opacity: 0.4;
@@ -409,10 +409,10 @@ html {
  * intercepted */
 :root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
   border-color: rgba(0, 0, 0, 0.4);
-  background: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 :root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button:not(:disabled):hover {
-  background: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 #noVNC_control_bar .noVNC_button.noVNC_hidden {
   display: none !important;
