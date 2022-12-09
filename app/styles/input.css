@@ -93,8 +93,8 @@ input[type=checkbox] {
   background-color: white;
   border: 1px solid dimgrey;
   border-radius: 3px;
-  width: 0.8em;
-  height: 0.8em;
+  width: 13px;
+  height: 13px;
   vertical-align: bottom;
 }
 input[type=checkbox]:checked {
