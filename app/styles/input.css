@@ -95,6 +95,7 @@ input[type=checkbox] {
   border-radius: 3px;
   width: 13px;
   height: 13px;
+  margin-right: 6px;
   vertical-align: bottom;
   transition: 0.2s background-color linear;
 }
