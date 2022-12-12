@@ -5,6 +5,9 @@
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
+/*
+ * Common for all inputs
+ */
 input, input::file-selector-button, button, select, textarea {
   /* Respect standard font settings */
   font: inherit;
@@ -20,6 +23,9 @@ input, input::file-selector-button, button, select, textarea {
   background-image: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
 }
 
+/*
+ * Buttons
+ */
 input[type=button],
 input[type=color],
 input[type=image],
@@ -37,6 +43,9 @@ select {
   padding-right: 20px;
 }
 
+/*
+ * Select dropdowns
+ */
 select {
   --select-arrow: url('data:image/svg+xml;utf8, \
       <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
@@ -67,6 +76,9 @@ option {
   background: white;
 }
 
+/*
+ * Checkboxes
+ */
 input[type=checkbox] {
   position: relative;
   background-color: white;
@@ -95,6 +107,9 @@ input[type=checkbox]:checked::after {
   transform: rotate(40deg);
 }
 
+/*
+ * Radiobuttons
+ */
 input[type=radio] {
   border-radius: 50%;
   border: 1px solid dimgrey;
@@ -108,6 +123,9 @@ input[type=radio]:checked {
   border: 6px solid rgb(110, 132, 163);
 }
 
+/*
+ * Range sliders
+ */
 input[type=range] {
   border: unset;
   border-radius: 3px;
@@ -146,6 +164,9 @@ input[type=range]::-moz-range-thumb {
   margin-top: -7px;
 }
 
+/*
+ * File choosers
+ */
 input[type=file] {
   background-image: none;
   border: none;
@@ -154,6 +175,9 @@ input::file-selector-button {
   margin-right: 6px;
 }
 
+/*
+ * Hover
+ */
 :root:not(.noVNC_touch) input[type=button]:hover,
 :root:not(.noVNC_touch) input[type=color]:hover,
 :root:not(.noVNC_touch) input[type=image]:hover,
@@ -170,6 +194,9 @@ input::file-selector-button {
   background-repeat: no-repeat;
 }
 
+/*
+ * Active (clicked)
+ */
 input[type=button]:active,
 input[type=color]:active,
 input[type=image]:active,
@@ -182,6 +209,9 @@ select:active {
   margin-top: 1px;
 }
 
+/*
+ * Focus (tab)
+ */
 input:focus-visible,
 input:focus-visible::file-selector-button,
 button:focus-visible,
@@ -194,6 +224,9 @@ input[type=file]:focus-visible {
   outline: none; /* We outline the button instead of the entire element */
 }
 
+/*
+ * Disabled
+ */
 input:disabled,
 input:disabled::file-selector-button,
 button:disabled,
