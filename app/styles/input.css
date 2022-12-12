@@ -243,6 +243,8 @@ textarea:disabled {
 :root:not(.noVNC_touch) button:disabled,
 :root:not(.noVNC_touch) select:disabled {
   background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  border-bottom-width: 2px;
+  margin-top: 0;
 }
 input[type=file]:disabled {
   background-image: none;
