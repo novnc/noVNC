@@ -83,7 +83,16 @@ select {
   padding-right: calc(2*7px + 8px);
   padding-left: 7px;
 }
-
+select:active {
+  /* Rotated arrow */
+  --select-arrow: url('data:image/svg+xml;utf8, \
+      <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
+           xmlns="http://www.w3.org/2000/svg" transform="rotate(180)" > \
+          <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
+                stroke="rgb(31,31,31)" fill="none" \
+                stroke-linecap="round" stroke-linejoin="round" /> \
+      </svg>');
+}
 option {
   color: black;
   background: white;
