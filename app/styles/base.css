@@ -389,30 +389,24 @@ html {
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  background: transparent;
+  background-image: unset; /* we don't want the gradiant from input.css */
 }
 #noVNC_control_bar .noVNC_button.noVNC_selected {
   border-color: rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
-#noVNC_control_bar .noVNC_button:disabled {
-  opacity: 0.4;
-  /* See firefox bug regarding cursor on disabled <input type="image">:
-     https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
-  cursor: default;
+/* Android browsers don't properly update hover state if touch events are
+ * intercepted, like they are when clicking on the remote screen. */
+:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
+  border-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button:not(:disabled):hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 #noVNC_control_bar .noVNC_button:not(:disabled):active {
   padding-top: 5px;
   padding-bottom: 3px;
-}
-/* Android browsers don't properly update hover state if touch events are
- * intercepted */
-:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
-  border-color: rgba(0, 0, 0, 0.4);
-  background: rgba(0, 0, 0, 0.2);
-}
-:root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button:not(:disabled):hover {
-  background: rgba(255, 255, 255, 0.2);
 }
 #noVNC_control_bar .noVNC_button.noVNC_hidden {
   display: none !important;

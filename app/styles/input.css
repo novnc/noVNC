@@ -5,25 +5,13 @@
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
-input, select, textarea {
+/*
+ * Common for all inputs
+ */
+input, input::file-selector-button, button, select, textarea {
   /* Respect standard font settings */
   font: inherit;
-}
 
-input:not([type]),
-input[type=date],
-input[type=datetime-local],
-input[type=email],
-input[type=month],
-input[type=number],
-input[type=password],
-input[type=search],
-input[type=tel],
-input[type=text],
-input[type=time],
-input[type=url],
-input[type=week],
-textarea {
   /* Disable default rendering */
   appearance: none;
   background: none;
@@ -32,71 +20,76 @@ textarea {
   border: 1px solid rgb(192, 192, 192);
   border-radius: 5px;
   color: black;
-  background: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
+  background-image: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
 }
 
+/*
+ * Buttons
+ */
 input[type=button],
 input[type=color],
 input[type=image],
 input[type=reset],
 input[type=submit],
+input::file-selector-button,
 button,
 select {
-  /* Disable default rendering */
-  appearance: none;
-  background: none;
-
-  padding: 5px;
-  border: 1px solid rgb(192, 192, 192);
   border-bottom-width: 2px;
-  border-radius: 5px;
-  color: black;
-  background: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
-}
 
-input[type=button],
-input[type=color],
-input[type=reset],
-input[type=submit],
-button {
   padding-left: 20px;
   padding-right: 20px;
 }
 
+/*
+ * Select dropdowns
+ */
 select {
-  --select-arrow: calc(100% - 7px) no-repeat url('data:image/svg+xml;utf8, \
+  --select-arrow: url('data:image/svg+xml;utf8, \
       <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
            xmlns="http://www.w3.org/2000/svg"> \
           <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
                 stroke="rgb(31,31,31)" fill="none" \
                 stroke-linecap="round" stroke-linejoin="round" /> \
       </svg>');
-  background: var(--select-arrow),
-              linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  background-image: var(--select-arrow),
+    linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  background-position: calc(100% - 7px), left top;
+  background-repeat: no-repeat;
   padding-right: calc(2*7px + 8px);
   padding-left: 7px;
 }
-:root:not(.noVNC_touch) select:hover:not(:disabled) {
-  background: var(--select-arrow),
-              linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+select:active {
+  /* Rotated arrow */
+  --select-arrow: url('data:image/svg+xml;utf8, \
+      <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
+           xmlns="http://www.w3.org/2000/svg" transform="rotate(180)" > \
+          <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
+                stroke="rgb(31,31,31)" fill="none" \
+                stroke-linecap="round" stroke-linejoin="round" /> \
+      </svg>');
 }
-
 option {
   color: black;
   background: white;
 }
 
+/*
+ * Checkboxes
+ */
 input[type=checkbox] {
   position: relative;
-  appearance: none;
+  background-color: white;
+  background-image: unset;
   border: 1px solid dimgrey;
   border-radius: 3px;
-  width: 0.8em;
-  height: 0.8em;
+  width: 13px;
+  height: 13px;
+  margin-right: 6px;
   vertical-align: bottom;
+  transition: 0.2s background-color linear;
 }
 input[type=checkbox]:checked {
   background-color: rgb(110, 132, 163);
@@ -114,10 +107,30 @@ input[type=checkbox]:checked::after {
   transform: rotate(40deg);
 }
 
+/*
+ * Radiobuttons
+ */
+input[type=radio] {
+  border-radius: 50%;
+  border: 1px solid dimgrey;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  margin-right: 6px;
+  transition: 0.2s border linear;
+}
+input[type=radio]:checked {
+  border: 6px solid rgb(110, 132, 163);
+}
+
+/*
+ * Range sliders
+ */
 input[type=range] {
-  appearance: none;
+  border: unset;
   border-radius: 3px;
   height: 20px;
+  padding: 0;
   background: transparent;
 }
 /* -webkit-slider.. & -moz-range.. cant be in selector lists:
@@ -151,78 +164,97 @@ input[type=range]::-moz-range-thumb {
   margin-top: -7px;
 }
 
-input:not([type]):focus-visible,
-input[type=button]:focus-visible,
-input[type=color]:focus-visible,
-input[type=image]:focus-visible,
-input[type=date]:focus-visible,
-input[type=datetime-local]:focus-visible,
-input[type=email]:focus-visible,
-input[type=month]:focus-visible,
-input[type=number]:focus-visible,
-input[type=password]:focus-visible,
-input[type=reset]:focus-visible,
-input[type=search]:focus-visible,
-input[type=submit]:focus-visible,
-input[type=tel]:focus-visible,
-input[type=text]:focus-visible,
-input[type=time]:focus-visible,
-input[type=url]:focus-visible,
-input[type=week]:focus-visible,
-input[type=checkbox]:focus-visible,
-input[type=range]:focus-visible,
-button:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid rgb(74, 144, 217);
-  outline-offset: 1px;
+/*
+ * File choosers
+ */
+input[type=file] {
+  background-image: none;
+  border: none;
+}
+input::file-selector-button {
+  margin-right: 6px;
 }
 
-input:not([type]):disabled,
-input[type=button]:disabled,
-input[type=color]:disabled,
-input[type=image]:disabled,
-input[type=date]:disabled,
-input[type=datetime-local]:disabled,
-input[type=email]:disabled,
-input[type=month]:disabled,
-input[type=number]:disabled,
-input[type=password]:disabled,
-input[type=reset]:disabled,
-input[type=search]:disabled,
-input[type=submit]:disabled,
-input[type=tel]:disabled,
-input[type=text]:disabled,
-input[type=time]:disabled,
-input[type=url]:disabled,
-input[type=week]:disabled,
-button:disabled,
-select:disabled,
-textarea:disabled {
-  color: rgb(128, 128, 128);
-  background: rgb(240, 240, 240);
+/*
+ * Hover
+ */
+:root:not(.noVNC_touch) input[type=button]:hover,
+:root:not(.noVNC_touch) input[type=color]:hover,
+:root:not(.noVNC_touch) input[type=image]:hover,
+:root:not(.noVNC_touch) input[type=reset]:hover,
+:root:not(.noVNC_touch) input[type=submit]:hover,
+:root:not(.noVNC_touch) input::file-selector-button:hover,
+:root:not(.noVNC_touch) button:hover {
+  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
 }
-input[type=checkbox]:disabled,
-input[type=range]:disabled {
-  opacity: 0.4;
+:root:not(.noVNC_touch) select:hover {
+  background-image: var(--select-arrow),
+    linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+  background-position: calc(100% - 7px), left top;
+  background-repeat: no-repeat;
 }
 
+/*
+ * Active (clicked)
+ */
 input[type=button]:active,
 input[type=color]:active,
 input[type=image]:active,
 input[type=reset]:active,
 input[type=submit]:active,
+input::file-selector-button:active,
 button:active,
 select:active {
   border-bottom-width: 1px;
   margin-top: 1px;
 }
 
-:root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=color]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=image]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=reset]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
-:root:not(.noVNC_touch) button:hover:not(:disabled) {
-  background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+/*
+ * Focus (tab)
+ */
+input:focus-visible,
+input:focus-visible::file-selector-button,
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgb(74, 144, 217);
+  outline-offset: 1px;
+}
+input[type=file]:focus-visible {
+  outline: none; /* We outline the button instead of the entire element */
+}
+
+/*
+ * Disabled
+ */
+input:disabled,
+input:disabled::file-selector-button,
+button:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.4;
+}
+:root:not(.noVNC_touch) input[type=button]:disabled,
+:root:not(.noVNC_touch) input[type=color]:disabled,
+:root:not(.noVNC_touch) input[type=image]:disabled,
+:root:not(.noVNC_touch) input[type=reset]:disabled,
+:root:not(.noVNC_touch) input[type=submit]:disabled,
+:root:not(.noVNC_touch) input:disabled::file-selector-button,
+:root:not(.noVNC_touch) button:disabled,
+:root:not(.noVNC_touch) select:disabled {
+  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  border-bottom-width: 2px;
+  margin-top: 0;
+}
+input[type=file]:disabled {
+  background-image: none;
+}
+:root:not(.noVNC_touch) select:disabled {
+  background-image: var(--select-arrow),
+    linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+}
+input[type=image]:disabled {
+  /* See Firefox bug:
+     https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
+  cursor: default;
 }
