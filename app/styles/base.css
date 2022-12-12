@@ -400,7 +400,7 @@ html {
   padding-bottom: 3px;
 }
 /* Android browsers don't properly update hover state if touch events are
- * intercepted */
+ * intercepted, like they are when clicking on the remote screen. */
 :root:not(.noVNC_touch) #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
   border-color: rgba(0, 0, 0, 0.4);
   background-color: rgba(0, 0, 0, 0.2);
