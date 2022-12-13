@@ -180,20 +180,33 @@ input::file-selector-button {
 /*
  * Hover
  */
-:root:not(.noVNC_touch) input[type=button]:hover,
-:root:not(.noVNC_touch) input[type=color]:hover,
-:root:not(.noVNC_touch) input[type=image]:hover,
-:root:not(.noVNC_touch) input[type=reset]:hover,
-:root:not(.noVNC_touch) input[type=submit]:hover,
-:root:not(.noVNC_touch) input::file-selector-button:hover,
-:root:not(.noVNC_touch) button:hover {
+input[type=button]:hover,
+input[type=color]:hover,
+input[type=image]:hover,
+input[type=reset]:hover,
+input[type=submit]:hover,
+input::file-selector-button:hover,
+button:hover {
   background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
 }
-:root:not(.noVNC_touch) select:hover {
+select:hover {
   background-image: var(--select-arrow),
     linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
   background-position: calc(100% - 7px), left top;
   background-repeat: no-repeat;
+}
+/* We don't want a hover style after touch input */
+:root.noVNC_touch input[type=button]:hover,
+:root.noVNC_touch input[type=color]:hover,
+:root.noVNC_touch input[type=image]:hover,
+:root.noVNC_touch input[type=reset]:hover,
+:root.noVNC_touch input[type=submit]:hover,
+:root.noVNC_touch input::file-selector-button:hover,
+:root.noVNC_touch button:hover {
+  background-image: var(--bg-gradient);
+}
+:root.noVNC_touch select:hover {
+  background-image: var(--select-arrow), var(--bg-gradient);
 }
 
 /*
