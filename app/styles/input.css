@@ -42,6 +42,9 @@ select {
 
   padding-left: 20px;
   padding-right: 20px;
+
+  /* Disable Chrome's touch tap highlight */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /*
