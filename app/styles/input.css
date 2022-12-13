@@ -20,7 +20,8 @@ input, input::file-selector-button, button, select, textarea {
   border: 1px solid rgb(192, 192, 192);
   border-radius: 5px;
   color: black;
-  background-image: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
+  --bg-gradient: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
+  background-image: var(--bg-gradient);
 }
 
 /*
@@ -54,8 +55,7 @@ select {
                 stroke="rgb(31,31,31)" fill="none" \
                 stroke-linecap="round" stroke-linejoin="round" /> \
       </svg>');
-  background-image: var(--select-arrow),
-    linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  background-image: var(--select-arrow), var(--bg-gradient);
   background-position: calc(100% - 7px), left top;
   background-repeat: no-repeat;
   padding-right: calc(2*7px + 8px);
@@ -244,7 +244,7 @@ textarea:disabled {
 :root:not(.noVNC_touch) input:disabled::file-selector-button,
 :root:not(.noVNC_touch) button:disabled,
 :root:not(.noVNC_touch) select:disabled {
-  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  background-image: var(--bg-gradient);
   border-bottom-width: 2px;
   margin-top: 0;
 }
@@ -252,8 +252,7 @@ input[type=file]:disabled {
   background-image: none;
 }
 :root:not(.noVNC_touch) select:disabled {
-  background-image: var(--select-arrow),
-    linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
+  background-image: var(--select-arrow), var(--bg-gradient);
 }
 input[type=image]:disabled {
   /* See Firefox bug:
