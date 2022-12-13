@@ -61,6 +61,8 @@ select {
   padding-right: calc(2*7px + 8px);
   padding-left: 7px;
 }
+/* FIXME: :active isn't set when the <select> is opened in Firefox:
+          https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
 select:active {
   /* Rotated arrow */
   --select-arrow: url('data:image/svg+xml;utf8, \
