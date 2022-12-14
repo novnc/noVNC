@@ -198,18 +198,20 @@ select:hover {
   background-position: calc(100% - 7px), left top;
   background-repeat: no-repeat;
 }
-/* We don't want a hover style after touch input */
-:root.noVNC_touch input[type=button]:hover,
-:root.noVNC_touch input[type=color]:hover,
-:root.noVNC_touch input[type=image]:hover,
-:root.noVNC_touch input[type=reset]:hover,
-:root.noVNC_touch input[type=submit]:hover,
-:root.noVNC_touch input::file-selector-button:hover,
-:root.noVNC_touch button:hover {
-  background-image: var(--bg-gradient);
-}
-:root.noVNC_touch select:hover {
-  background-image: var(--select-arrow), var(--bg-gradient);
+@media (any-pointer: coarse) {
+  /* We don't want a hover style after touch input */
+  input[type=button]:hover,
+  input[type=color]:hover,
+  input[type=image]:hover,
+  input[type=reset]:hover,
+  input[type=submit]:hover,
+  input::file-selector-button:hover,
+  button:hover {
+    background-image: var(--bg-gradient);
+  }
+  select:hover {
+    background-image: var(--select-arrow), var(--bg-gradient);
+  }
 }
 
 /*
@@ -252,14 +254,14 @@ select:disabled,
 textarea:disabled {
   opacity: 0.4;
 }
-:root:not(.noVNC_touch) input[type=button]:disabled,
-:root:not(.noVNC_touch) input[type=color]:disabled,
-:root:not(.noVNC_touch) input[type=image]:disabled,
-:root:not(.noVNC_touch) input[type=reset]:disabled,
-:root:not(.noVNC_touch) input[type=submit]:disabled,
-:root:not(.noVNC_touch) input:disabled::file-selector-button,
-:root:not(.noVNC_touch) button:disabled,
-:root:not(.noVNC_touch) select:disabled {
+input[type=button]:disabled,
+input[type=color]:disabled,
+input[type=image]:disabled,
+input[type=reset]:disabled,
+input[type=submit]:disabled,
+input:disabled::file-selector-button,
+button:disabled,
+select:disabled {
   background-image: var(--bg-gradient);
   border-bottom-width: 2px;
   margin-top: 0;
@@ -267,7 +269,7 @@ textarea:disabled {
 input[type=file]:disabled {
   background-image: none;
 }
-:root:not(.noVNC_touch) select:disabled {
+select:disabled {
   background-image: var(--select-arrow), var(--bg-gradient);
 }
 input[type=image]:disabled {

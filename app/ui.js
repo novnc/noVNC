@@ -88,7 +88,6 @@ const UI = {
 
         // Adapt the interface for touch screen devices
         if (isTouchDevice) {
-            document.documentElement.classList.add("noVNC_touch");
             // Remove the address bar
             setTimeout(() => window.scrollTo(0, 1), 100);
         }

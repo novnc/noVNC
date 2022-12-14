@@ -22,8 +22,6 @@
 /*
  * State variables (set on :root):
  *
- * noVNC_touch: Device has touch input
- *
  * noVNC_loading: Page is still loading
  * noVNC_connecting: Connecting to server
  * noVNC_reconnecting: Re-establishing a connection
@@ -328,9 +326,12 @@ html {
   top: 0;
   width: 50px;
   height: 100%;
-}
-:root:not(.noVNC_touch) #noVNC_control_bar_handle div {
   display: none;
+}
+@media (any-pointer: coarse) {
+  #noVNC_control_bar_handle div {
+    display: unset;
+  }
 }
 .noVNC_right #noVNC_control_bar_handle div {
   left: -35px;
@@ -414,12 +415,14 @@ html {
 
 /* Android browsers don't properly update hover state if touch events are
  * intercepted, like they are when clicking on the remote screen. */
-:root.noVNC_touch #noVNC_control_bar .noVNC_button:not(:disabled):hover {
-  background-color: transparent;
-}
-:root.noVNC_touch #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
-  border-color: rgba(0, 0, 0, 0.8);
-  background-color: rgba(0, 0, 0, 0.5);
+@media (any-pointer: coarse) {
+  #noVNC_control_bar .noVNC_button:not(:disabled):hover {
+    background-color: transparent;
+  }
+  #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
+    border-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
 
 
@@ -550,8 +553,10 @@ html {
 :root:not(.noVNC_connected) #noVNC_mobile_buttons {
   display: none;
 }
-:root:not(.noVNC_touch) #noVNC_mobile_buttons {
-  display: none;
+@media not (any-pointer: coarse) {
+  :root.noVNC_connected #noVNC_mobile_buttons {
+    display: none;
+  }
 }
 
 /* Extra manual keys */
