@@ -321,6 +321,7 @@ html {
 .noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
   transform: none;
 }
+/* Larger touch area for the handle, used when a touch screen is available */
 #noVNC_control_bar_handle div {
   position: absolute;
   right: -35px;
