@@ -725,12 +725,9 @@ html {
     font-size: calc(25vw - 30px);
   }
 }
-#noVNC_connect_button {
-  cursor: pointer;
+#noVNC_connect_box {
+  padding: 12px;
 
-  padding: 10px;
-
-  color: white;
   background-color: rgb(110, 132, 163);
   border-radius: 12px;
 
@@ -739,26 +736,26 @@ html {
 
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
-#noVNC_connect_button div {
-  margin: 2px;
+#noVNC_connect_box button {
+  width: 100%;
   padding: 5px 30px;
-  border: 1px solid rgb(83, 99, 122);
-  border-bottom-width: 2px;
+
+  cursor: pointer;
+
+  border-color: rgb(83, 99, 122);
   border-radius: 5px;
+
   background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
+  color: white;
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
 }
-#noVNC_connect_button div:active {
-  border-bottom-width: 1px;
-  margin-top: 3px;
-}
-:root:not(.noVNC_touch) #noVNC_connect_button div:hover {
+#noVNC_connect_box button:hover {
   background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
 }
 
-#noVNC_connect_button img {
+#noVNC_connect_box img {
   vertical-align: bottom;
   height: 1.3em;
 }
