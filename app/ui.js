@@ -318,8 +318,7 @@ const UI = {
     addConnectionControlHandlers() {
         document.getElementById("noVNC_disconnect_button")
             .addEventListener('click', UI.disconnect);
-        document.getElementById("noVNC_connect_box")
-            .getElementsByTagName('button')[0]
+        document.getElementById("noVNC_connect_button")
             .addEventListener('click', UI.connect);
         document.getElementById("noVNC_cancel_reconnect_button")
             .addEventListener('click', UI.cancelReconnect);
