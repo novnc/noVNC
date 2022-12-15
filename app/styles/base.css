@@ -330,7 +330,7 @@ html {
 }
 @media (any-pointer: coarse) {
   #noVNC_control_bar_handle div {
-    display: unset;
+    display: initial;
   }
 }
 .noVNC_right #noVNC_control_bar_handle div {
