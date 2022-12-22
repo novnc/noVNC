@@ -1,4 +1,4 @@
-ICONS := \
+BROWSER := \
 	novnc-16x16.png \
 	novnc-24x24.png \
 	novnc-32x32.png \
@@ -20,7 +20,7 @@ IPAD_LAUNCHER := \
 	novnc-76x76.png \
 	novnc-152x152.png
 
-ALL_ICONS := $(ICONS) $(ANDROID_LAUNCHER) $(IPHONE_LAUNCHER) $(IPAD_LAUNCHER)
+ALL_ICONS := $(BROWSER) $(ANDROID_LAUNCHER) $(IPHONE_LAUNCHER) $(IPAD_LAUNCHER)
 
 all: $(ALL_ICONS)
 
