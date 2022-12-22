@@ -13,23 +13,18 @@ ALL_ICONS := \
 
 all: $(ALL_ICONS)
 
-novnc-16.png: novnc-icon-sm.svg
-	convert -density 90 \
-		-background transparent "$<" "$@"
-novnc-24.png: novnc-icon-sm.svg
-	convert -density 135 \
-		-background transparent "$<" "$@"
-novnc-32.png: novnc-icon-sm.svg
-	convert -density 180 \
-		-background transparent "$<" "$@"
-
+# General conversion
 novnc-%.png: novnc-icon.svg
-	convert -density $$[`echo $*` * 90 / 48] \
-		-background transparent "$<" "$@"
+	convert -depth 8 -background transparent \
+		-size $*x$* "$(lastword $^)" "$@"
 
+# iOS icons use their own SVG
 novnc-ios-%.png: novnc-ios-icon.svg
 	convert -depth 8 -background transparent \
-		-size $*x$* "$<" "$@"
+		-size $*x$* "$(lastword $^)" "$@"
+
+# The smallest sizes are generated using a different SVG
+novnc-16.png novnc-24.png novnc-32.png: novnc-icon-sm.svg
 
 clean:
 	rm -f *.png
