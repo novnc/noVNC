@@ -1,26 +1,10 @@
-BROWSER := \
-	novnc-16x16.png \
-	novnc-24x24.png \
-	novnc-32x32.png \
-	novnc-48x48.png \
-	novnc-64x64.png
+BROWSER_SIZES := 16 24 32 48 64
+ANDROID_SIZES := 48 72 96 144 192
+IPHONE_SIZES := 60 120
+IPAD_SIZES := 76 152
 
-ANDROID_LAUNCHER := \
-	novnc-48x48.png \
-	novnc-72x72.png \
-	novnc-96x96.png \
-	novnc-144x144.png \
-	novnc-192x192.png
-
-IPHONE_LAUNCHER := \
-	novnc-60x60.png \
-	novnc-120x120.png
-
-IPAD_LAUNCHER := \
-	novnc-76x76.png \
-	novnc-152x152.png
-
-ALL_ICONS := $(BROWSER) $(ANDROID_LAUNCHER) $(IPHONE_LAUNCHER) $(IPAD_LAUNCHER)
+ALL_SIZES := $(BROWSER_SIZES) $(ANDROID_SIZES) $(IPHONE_SIZES) $(IPAD_SIZES)
+ALL_ICONS := $(foreach SIZE, $(ALL_SIZES), novnc-$(SIZE)x$(SIZE).png)
 
 all: $(ALL_ICONS)
 
