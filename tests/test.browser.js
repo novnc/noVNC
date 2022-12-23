@@ -73,13 +73,14 @@ describe('OS detection', function () {
     });
 
     it('should handle Android', function () {
-        const platforms = [
-            "Android",
+        let userAgents = [
+            "Mozilla/5.0 (Linux; Android 13; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.128 Mobile Safari/537.36",
+            "Mozilla/5.0 (Android 13; Mobile; LG-M255; rv:108.0) Gecko/108.0 Firefox/108.0",
         ];
 
-        navigator.userAgent = "Mozilla/5.0 (Android; Mobile; rv:13.0) Gecko/13.0 Firefox/13.0";
-        platforms.forEach((platform) => {
-            navigator.platform = platform;
+        navigator.platform = "Linux x86_64";
+        userAgents.forEach((ua) => {
+            navigator.userAgent = ua;
             expect(isMac()).to.be.false;
             expect(isWindows()).to.be.false;
             expect(isIOS()).to.be.false;

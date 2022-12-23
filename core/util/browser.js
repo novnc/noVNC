@@ -94,7 +94,8 @@ export function isIOS() {
 }
 
 export function isAndroid() {
-    return !!(/android/i).exec(navigator.platform);
+    /* Android sets navigator.platform to Linux :/ */
+    return !!navigator.userAgent.match('Android ');
 }
 
 export function isChromeOS() {
