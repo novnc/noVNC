@@ -1,8 +1,68 @@
 /* eslint-disable no-console */
 const expect = chai.expect;
 
-import { isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
+import { isMac, isWindows, isIOS,
+         isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
          isGecko, isWebKit, isBlink } from '../core/util/browser.js';
+
+describe('OS detection', function () {
+    let origNavigator;
+    beforeEach(function () {
+        // window.navigator is a protected read-only property in many
+        // environments, so we need to redefine it whilst running these
+        // tests.
+        origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+
+        Object.defineProperty(window, "navigator", {value: {}});
+    });
+
+    afterEach(function () {
+        Object.defineProperty(window, "navigator", origNavigator);
+    });
+
+    it('should handle macOS', function () {
+        const platforms = [
+            "MacIntel",
+            "MacPPC",
+        ];
+
+        platforms.forEach((platform) => {
+            navigator.platform = platform;
+            expect(isMac()).to.be.true;
+            expect(isWindows()).to.be.false;
+            expect(isIOS()).to.be.false;
+        });
+    });
+
+    it('should handle Windows', function () {
+        const platforms = [
+            "Win32",
+            "Win64",
+        ];
+
+        platforms.forEach((platform) => {
+            navigator.platform = platform;
+            expect(isMac()).to.be.false;
+            expect(isWindows()).to.be.true;
+            expect(isIOS()).to.be.false;
+        });
+    });
+
+    it('should handle iOS', function () {
+        const platforms = [
+            "iPhone",
+            "iPod",
+            "iPad",
+        ];
+
+        platforms.forEach((platform) => {
+            navigator.platform = platform;
+            expect(isMac()).to.be.false;
+            expect(isWindows()).to.be.false;
+            expect(isIOS()).to.be.true;
+        });
+    });
+});
 
 describe('Browser detection', function () {
     let origNavigator;
