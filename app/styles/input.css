@@ -39,6 +39,7 @@ select {
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
+  margin-top: 0;
 
   padding-left: 20px;
   padding-right: 20px;
