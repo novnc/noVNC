@@ -93,6 +93,15 @@ export function isIOS() {
             !!(/ipod/i).exec(navigator.platform));
 }
 
+export function isAndroid() {
+    return !!(/android/i).exec(navigator.platform);
+}
+
+export function isChromeOS() {
+    /* ChromeOS sets navigator.platform to Linux :/ */
+    return !!navigator.userAgent.match(' CrOS ');
+}
+
 /* Browser */
 
 export function isSafari() {
