@@ -1335,7 +1335,7 @@ const UI = {
 
         let brokenScrollbars = false;
 
-        if (!hasScrollbarGutter) {
+        if (!hasScrollbarGutter()) {
             if (isIOS() || isAndroid() || isMac() || isChromeOS()) {
                 brokenScrollbars = true;
             }

@@ -45,30 +45,32 @@ try {
 
 export const supportsCursorURIs = _supportsCursorURIs;
 
-let _hasScrollbarGutter = true;
-try {
-    // Create invisible container
-    const container = document.createElement('div');
-    container.style.visibility = 'hidden';
-    container.style.overflow = 'scroll'; // forcing scrollbars
-    document.body.appendChild(container);
+export const hasScrollbarGutter = () => {
+    let _hasScrollbarGutter = true;
+    try {
+        // Create invisible container
+        const container = document.createElement('div');
+        container.style.visibility = 'hidden';
+        container.style.overflow = 'scroll'; // forcing scrollbars
+        document.body.appendChild(container);
 
-    // Create a div and place it in the container
-    const child = document.createElement('div');
-    container.appendChild(child);
+        // Create a div and place it in the container
+        const child = document.createElement('div');
+        container.appendChild(child);
 
-    // Calculate the difference between the container's full width
-    // and the child's width - the difference is the scrollbars
-    const scrollbarWidth = (container.offsetWidth - child.offsetWidth);
+        // Calculate the difference between the container's full width
+        // and the child's width - the difference is the scrollbars
+        const scrollbarWidth = (container.offsetWidth - child.offsetWidth);
 
-    // Clean up
-    container.parentNode.removeChild(container);
+        // Clean up
+        container.parentNode.removeChild(container);
 
-    _hasScrollbarGutter = scrollbarWidth != 0;
-} catch (exc) {
-    Log.Error("Scrollbar test exception: " + exc);
-}
-export const hasScrollbarGutter = _hasScrollbarGutter;
+        _hasScrollbarGutter = scrollbarWidth != 0;
+    } catch (exc) {
+        Log.Error("Scrollbar test exception: " + exc);
+    }
+    return _hasScrollbarGutter;
+};
 
 /*
  * The functions for detection of platforms and browsers below are exported
