@@ -184,7 +184,8 @@ connection to a specified VNC server.
 
 ##### Syntax
 
-    let rfb = new RFB( target, urlOrChannel [, options] );
+    new RFB( target, urlOrChannel );
+    new RFB( target, urlOrChannel, options );
 
 ###### Parameters
 
@@ -364,7 +365,8 @@ Keyboard events will be sent to the remote server after this point.
 
 ##### Syntax
 
-    RFB.focus( [options] );
+    RFB.focus( );
+    RFB.focus( options );
 
 ###### Parameters
 
@@ -447,7 +449,8 @@ The `RFB.sendKey()` method is used to send a key event to the server.
 
 ##### Syntax
 
-    RFB.sendKey( keysym, code [, down] );
+    RFB.sendKey( keysym, code );
+    RFB.sendKey( keysym, code, down );
 
 ###### Parameters
 
