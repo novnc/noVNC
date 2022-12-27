@@ -476,9 +476,9 @@ screen encoded as [`Blob`][mdn-blob].
 
 ##### Syntax
 
-    RFB.toDataURL( callback );
-    RFB.toDataURL( callback, type );
-    RFB.toDataURL( callback, type, quality );
+    RFB.toBlob( callback );
+    RFB.toBlob( callback, type );
+    RFB.toBlob( callback, type, quality );
 
 ###### Parameters
 
@@ -489,7 +489,7 @@ screen encoded as [`Blob`][mdn-blob].
 **`type`** *Optional*
   - A string indicating the requested MIME type of the image
 
-**`encoderOptions`** *Optional*
+**`quality`** *Optional*
   - A number between 0 and 1 indicating the image quality.
 
 #### RFB.toDataURL()
