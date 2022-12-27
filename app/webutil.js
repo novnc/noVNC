@@ -32,7 +32,7 @@ export function initLogging(level) {
 export function getQueryVar(name, defVal) {
     "use strict";
     const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-        match = ''.concat(document.location.href, window.location.hash).match(re);
+          match = ''.concat(document.location.href, window.location.hash).match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
 
     if (match) {
@@ -46,7 +46,7 @@ export function getQueryVar(name, defVal) {
 export function getHashVar(name, defVal) {
     "use strict";
     const re = new RegExp('.*[&#]' + name + '=([^&]*)'),
-        match = document.location.hash.match(re);
+          match = document.location.hash.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
 
     if (match) {
