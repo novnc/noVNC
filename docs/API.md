@@ -184,8 +184,10 @@ connection to a specified VNC server.
 
 ##### Syntax
 
-    new RFB( target, urlOrChannel );
-    new RFB( target, urlOrChannel, options );
+```js
+new RFB(target, urlOrChannel);
+new RFB(target, urlOrChannel, options);
+```
 
 ###### Parameters
 
@@ -323,7 +325,9 @@ and that the connection can continue.
 
 ##### Syntax
 
-    RFB.approveServer( );
+```js
+RFB.approveServer();
+```
 
 #### RFB.blur()
 
@@ -333,7 +337,9 @@ point.
 
 ##### Syntax
 
-    RFB.blur( );
+```js
+RFB.blur();
+```
 
 #### RFB.clipboardPasteFrom()
 
@@ -342,7 +348,9 @@ to the remote server.
 
 ##### Syntax
 
-    RFB.clipboardPasteFrom( text );
+```js
+RFB.clipboardPasteFrom(text);
+```
 
 ###### Parameters
 
@@ -356,7 +364,9 @@ connected server.
 
 ##### Syntax
 
-    RFB.disconnect( );
+```js
+RFB.disconnect();
+```
 
 #### RFB.focus()
 
@@ -365,8 +375,10 @@ Keyboard events will be sent to the remote server after this point.
 
 ##### Syntax
 
-    RFB.focus( );
-    RFB.focus( options );
+```js
+RFB.focus();
+RFB.focus(options);
+```
 
 ###### Parameters
 
@@ -386,7 +398,9 @@ the screen encoded as [`ImageData`][mdn-imagedata].
 
 ##### Syntax
 
-    RFB.getImageData( );
+```js
+RFB.getImageData();
+```
 
 #### RFB.machineReboot()
 
@@ -396,7 +410,9 @@ to have any effect.
 
 ##### Syntax
 
-    RFB.machineReboot( );
+```js
+RFB.machineReboot();
+```
 
 #### RFB.machineReset()
 
@@ -406,7 +422,9 @@ to have any effect.
 
 ##### Syntax
 
-    RFB.machineReset( );
+```js
+RFB.machineReset();
+```
 
 #### RFB.machineShutdown()
 
@@ -416,7 +434,9 @@ have any effect.
 
 ##### Syntax
 
-    RFB.machineShutdown( );
+```js
+RFB.machineShutdown();
+```
 
 #### RFB.sendCredentials()
 
@@ -425,7 +445,9 @@ credentials after a `credentialsrequired` event has been fired.
 
 ##### Syntax
 
-    RFB.sendCredentials( credentials );
+```js
+RFB.sendCredentials(credentials);
+```
 
 ###### Parameters
 
@@ -441,7 +463,9 @@ around [`RFB.sendKey()`](#rfbsendkey).
 
 ##### Syntax
 
-    RFB.sendCtrlAltDel( );
+```js
+RFB.sendCtrlAltDel();
+```
 
 #### RFB.sendKey()
 
@@ -449,8 +473,10 @@ The `RFB.sendKey()` method is used to send a key event to the server.
 
 ##### Syntax
 
-    RFB.sendKey( keysym, code );
-    RFB.sendKey( keysym, code, down );
+```js
+RFB.sendKey(keysym, code);
+RFB.sendKey(keysym, code, down);
+```
 
 ###### Parameters
 
@@ -479,9 +505,11 @@ screen encoded as [`Blob`][mdn-blob].
 
 ##### Syntax
 
-    RFB.toBlob( callback );
-    RFB.toBlob( callback, type );
-    RFB.toBlob( callback, type, quality );
+```js
+RFB.toBlob(callback);
+RFB.toBlob(callback, type);
+RFB.toBlob(callback, type, quality);
+```
 
 ###### Parameters
 
@@ -503,9 +531,11 @@ of an `img` tag.
 
 ##### Syntax
 
-    RFB.toDataURL( );
-    RFB.toDataURL( type );
-    RFB.toDataURL( type, encoderOptions );
+```js
+RFB.toDataURL();
+RFB.toDataURL(type);
+RFB.toDataURL(type, encoderOptions);
+```
 
 ###### Parameters
 
