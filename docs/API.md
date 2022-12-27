@@ -17,10 +17,12 @@ protocol stream.
 ### Properties
 
 `background`
-  - Is a valid CSS [background](https://developer.mozilla.org/en-US/docs/Web/CSS/background)
-    style value indicating which background style should be applied
-    to the element containing the remote session screen. The default value is `rgb(40, 40, 40)`
-    (solid gray color).
+  - Is a valid CSS [background][mdn-bg] style value indicating which
+    background style should be applied to the element containing the
+    remote session screen. The default value is `rgb(40, 40, 40)` (solid
+    gray color).
+
+[mdn-bg]: https://developer.mozilla.org/en-US/docs/Web/CSS/background
 
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
@@ -187,10 +189,12 @@ connection to a specified VNC server.
 ###### Parameters
 
 **`target`**
-  - A block [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
-    that specifies where the `RFB` object should attach itself. The
-    existing contents of the `HTMLElement` will be untouched, but new
-    elements will be added during the lifetime of the `RFB` object.
+  - A block [`HTMLElement`][mdn-elem] that specifies where the `RFB`
+    object should attach itself. The existing contents of the
+    `HTMLElement` will be untouched, but new elements will be added
+    during the lifetime of the `RFB` object.
+
+[mdn-elem]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 
 **`urlOrDataChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
@@ -286,14 +290,15 @@ property is an `Object` containing the following properties:
 | `status` | `long`      | The failure status code
 | `reason` | `DOMString` | The **optional** reason for the failure
 
-The property `status` corresponds to the
-[SecurityResult](https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#securityresult)
+The property `status` corresponds to the [SecurityResult][rfb-secresult]
 status code in cases of failure. A status of zero will not be sent in
 this event since that indicates a successful security handshaking
 process. The optional property `reason` is provided by the server and
 thus the language of the string is not known. However most servers will
 probably send English strings. The server can choose to not send a
 reason and in these cases the `reason` property will be omitted.
+
+[rfb-secresult]: https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#securityresult
 
 #### serververification
 
@@ -365,13 +370,17 @@ Keyboard events will be sent to the remote server after this point.
 
 **`options`** *Optional*
   - A `object` providing options to control how the focus will be
-    performed. Please see [`HTMLElement.focus()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus)
-    for available options.
+    performed. Please see [`HTMLElement.focus()`][mdn-focus] for
+    available options.
+
+[mdn-focus]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus
 
 #### RFB.getImageData()
 
-The `RFB.getImageData()` method is used to return the current content of the
-screen encoded as [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData).
+The `RFB.getImageData()` method is used to return the current content of
+the screen encoded as [`ImageData`][mdn-imagedata].
+
+[mdn-imagedata]: https://developer.mozilla.org/en-US/docs/Web/API/ImageData
 
 ##### Syntax
 
@@ -448,10 +457,11 @@ The `RFB.sendKey()` method is used to send a key event to the server.
 
 **`code`**
   - A `DOMString` specifying the physical key to send. Valid values are
-    those that can be specified to
-    [`KeyboardEvent.code`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code).
+    those that can be specified to [`KeyboardEvent.code`][mdn-keycode].
     If the physical key cannot be determined then `null` shall be
     specified.
+
+[mdn-keycode]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
 
 **`down`** *Optional*
   - A `boolean` specifying if a press or a release event should be
@@ -460,7 +470,9 @@ The `RFB.sendKey()` method is used to send a key event to the server.
 #### RFB.toBlob()
 
 The `RFB.toBlob()` method is used to return the current content of the
-screen encoded as [`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
+screen encoded as [`Blob`][mdn-blob].
+
+[mdn-blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob
 
 ##### Syntax
 
@@ -471,8 +483,8 @@ screen encoded as [`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob
 ###### Parameters
 
 **`callback`**
-  - A callback function which will receive the resulting [`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob)
-    as the single argument
+  - A callback function which will receive the resulting
+    [`Blob`][mdn-blob] as the single argument
 
 **`type`** *Optional*
   - A string indicating the requested MIME type of the image
