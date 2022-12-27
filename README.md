@@ -65,10 +65,14 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 ### Features
 
 * Supports all modern browsers including mobile (iOS, Android)
-* Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG
+* Supported authentication methods: none, classical VNC, RealVNC's
+  RSA-AES, Tight, VeNCrypt Plain, XVP, Apple's Diffie-Hellman,
+  UltraVNC's MSLogonII
+* Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG,
+  ZRLE, JPEG
 * Supports scaling, clipping and resizing the desktop
 * Local cursor rendering
-* Clipboard copy/paste
+* Clipboard copy/paste with full Unicode support
 * Translations
 * Touch gestures for emulating common mouse actions
 * Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
