@@ -384,7 +384,7 @@ the screen encoded as [`ImageData`][mdn-imagedata].
 
 ##### Syntax
 
-  RFB.getImageData();
+    RFB.getImageData( );
 
 #### RFB.machineReboot()
 
@@ -476,9 +476,9 @@ screen encoded as [`Blob`][mdn-blob].
 
 ##### Syntax
 
-  RFB.toDataURL(callback);
-  RFB.toDataURL(callback, type);
-  RFB.toDataURL(callback, type, quality);
+    RFB.toDataURL( callback );
+    RFB.toDataURL( callback, type );
+    RFB.toDataURL( callback, type, quality );
 
 ###### Parameters
 
@@ -500,9 +500,9 @@ of an `img` tag.
 
 ##### Syntax
 
-  RFB.toDataURL();
-  RFB.toDataURL(type);
-  RFB.toDataURL(type, encoderOptions);
+    RFB.toDataURL( );
+    RFB.toDataURL( type );
+    RFB.toDataURL( type, encoderOptions );
 
 ###### Parameters
 
