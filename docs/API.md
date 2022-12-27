@@ -184,7 +184,7 @@ connection to a specified VNC server.
 
 ##### Syntax
 
-    let rfb = new RFB( target, url [, options] );
+    let rfb = new RFB( target, urlOrChannel [, options] );
 
 ###### Parameters
 
@@ -196,7 +196,7 @@ connection to a specified VNC server.
 
 [mdn-elem]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 
-**`urlOrDataChannel`**
+**`urlOrChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
     a valid WebSocket URL. This can also be a `WebSocket` or `RTCDataChannel`.
 
