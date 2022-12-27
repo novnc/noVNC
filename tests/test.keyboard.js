@@ -144,18 +144,10 @@ describe('Key Event Handling', function () {
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
             Object.defineProperty(window, "navigator", {value: {}});
-            if (window.navigator.platform !== undefined) {
-                // Object.defineProperty() doesn't work properly in old
-                // versions of Chrome
-                this.skip();
-            }
-
             window.navigator.platform = "Mac x86_64";
         });
         afterEach(function () {
-            if (origNavigator !== undefined) {
-                Object.defineProperty(window, "navigator", origNavigator);
-            }
+            Object.defineProperty(window, "navigator", origNavigator);
         });
 
         it('should change Alt to AltGraph', function () {
@@ -267,17 +259,10 @@ describe('Key Event Handling', function () {
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
             Object.defineProperty(window, "navigator", {value: {}});
-            if (window.navigator.platform !== undefined) {
-                // Object.defineProperty() doesn't work properly in old
-                // versions of Chrome
-                this.skip();
-            }
         });
 
         afterEach(function () {
-            if (origNavigator !== undefined) {
-                Object.defineProperty(window, "navigator", origNavigator);
-            }
+            Object.defineProperty(window, "navigator", origNavigator);
         });
 
         it('should toggle caps lock on key press on iOS', function () {
@@ -334,19 +319,11 @@ describe('Key Event Handling', function () {
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
             Object.defineProperty(window, "navigator", {value: {}});
-            if (window.navigator.platform !== undefined) {
-                // Object.defineProperty() doesn't work properly in old
-                // versions of Chrome
-                this.skip();
-            }
-
             window.navigator.platform = "Windows";
         });
 
         afterEach(function () {
-            if (origNavigator !== undefined) {
-                Object.defineProperty(window, "navigator", origNavigator);
-            }
+            Object.defineProperty(window, "navigator", origNavigator);
         });
 
         const keys = { 'Zenkaku': 0xff2a, 'Hankaku': 0xff2a,
@@ -375,20 +352,12 @@ describe('Key Event Handling', function () {
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
             Object.defineProperty(window, "navigator", {value: {}});
-            if (window.navigator.platform !== undefined) {
-                // Object.defineProperty() doesn't work properly in old
-                // versions of Chrome
-                this.skip();
-            }
-
             window.navigator.platform = "Windows x86_64";
 
             this.clock = sinon.useFakeTimers();
         });
         afterEach(function () {
-            if (origNavigator !== undefined) {
-                Object.defineProperty(window, "navigator", origNavigator);
-            }
+            Object.defineProperty(window, "navigator", origNavigator);
             if (this.clock !== undefined) {
                 this.clock.restore();
             }
@@ -520,20 +489,12 @@ describe('Key Event Handling', function () {
             origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
             Object.defineProperty(window, "navigator", {value: {}});
-            if (window.navigator.platform !== undefined) {
-                // Object.defineProperty() doesn't work properly in old
-                // versions of Chrome
-                this.skip();
-            }
-
             window.navigator.platform = "Windows x86_64";
 
             this.clock = sinon.useFakeTimers();
         });
         afterEach(function () {
-            if (origNavigator !== undefined) {
-                Object.defineProperty(window, "navigator", origNavigator);
-            }
+            Object.defineProperty(window, "navigator", origNavigator);
             if (this.clock !== undefined) {
                 this.clock.restore();
             }

@@ -66,11 +66,6 @@ describe('WebUtil', function () {
                 origLocalStorage = Object.getOwnPropertyDescriptor(window, "localStorage");
 
                 Object.defineProperty(window, "localStorage", {value: {}});
-                if (window.localStorage.setItem !== undefined) {
-                    // Object.defineProperty() doesn't work properly in old
-                    // versions of Chrome
-                    this.skip();
-                }
 
                 window.localStorage.setItem = sinon.stub();
                 window.localStorage.getItem = sinon.stub();
@@ -79,9 +74,7 @@ describe('WebUtil', function () {
                 return WebUtil.initSettings();
             });
             afterEach(function () {
-                if (origLocalStorage !== undefined) {
-                    Object.defineProperty(window, "localStorage", origLocalStorage);
-                }
+                Object.defineProperty(window, "localStorage", origLocalStorage);
             });
 
             describe('writeSetting', function () {
