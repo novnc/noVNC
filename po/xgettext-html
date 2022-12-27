@@ -17,6 +17,10 @@ const opt = getopt.create([
 const strings = {};
 
 function addString(str, location) {
+    // We assume surrounding whitespace, and whitespace around line
+    // breaks, is just for source formatting
+    str = str.split("\n").map(s => s.trim()).join(" ").trim();
+
     if (str.length == 0) {
         return;
     }
@@ -78,7 +82,7 @@ function process(elem, locator, enabled) {
         if (node.nodeType === node.ELEMENT_NODE) {
             process(node, locator, enabled);
         } else if (node.nodeType === node.TEXT_NODE && enabled) {
-            addString(node.data.trim(), locator(node));
+            addString(node.data, locator(node));
         }
     }
 }

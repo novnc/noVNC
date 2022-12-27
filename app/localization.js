@@ -103,13 +103,20 @@ export class Localizer {
                 return items.indexOf(searchElement) !== -1;
             }
 
+            function translateString(str) {
+                // We assume surrounding whitespace, and whitespace around line
+                // breaks is just for source formatting
+                str = str.split("\n").map(s => s.trim()).join(" ").trim();
+                return self.get(str);
+            }
+
             function translateAttribute(elem, attr) {
-                const str = self.get(elem.getAttribute(attr));
+                const str = translateString(elem.getAttribute(attr));
                 elem.setAttribute(attr, str);
             }
 
             function translateTextNode(node) {
-                const str = self.get(node.data.trim());
+                const str = translateString(node.data);
                 node.data = str;
             }
 
