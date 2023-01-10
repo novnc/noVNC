@@ -46,9 +46,15 @@ export function toSignedRelative16bit(toConvert) {
 
 /* Fast hashing function with low entropy  */
 export function hashUInt8Array(data) {
-    let h;
+    if (typeof data === "string") {
+        data = [...data].map(character => character.charCodeAt(0));
+    }
+
+    let h = 0;
+
     for (let i = 0; i < data.length; i++) {
         h = Math.imul(31, h) + data[i] | 0;
     }
+
     return h;
 }

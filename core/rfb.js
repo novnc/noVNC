@@ -2881,16 +2881,23 @@ export default class RFB extends EventTargetMixin {
         if (Object.keys(clipItemData).length > 0) {
             if (this.clipboardBinary) {
                 this._clipHash = 0;
+
                 navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
-                    function() {},
-                    function(err) { 
+                    () => {
+                        if (textdata) {
+                            this._clipHash = hashUInt8Array(textdata);
+                        }
+                    },
+                    (err) => { 
                         Log.Error("Error writing to client clipboard: " + err);
                         // Lets try writeText
                         if (textdata.length > 0) {
                             navigator.clipboard.writeText(textdata).then(
-                                function() {},
-                                function(err2) {
-                                    Log.Error("Error writing text to client clipboard: " + err2);
+                                () => {
+                                    this._clipHash = hashUInt8Array(textdata);
+                                },
+                                (err) => {
+                                    Log.Error("Error writing text to client clipboard: " + err);
                                 }
                             );
                         }
