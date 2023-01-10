@@ -86,6 +86,9 @@ option {
  * Checkboxes
  */
 input[type=checkbox] {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   background-color: white;
   background-image: unset;
   border: 1px solid dimgrey;
@@ -104,14 +107,11 @@ input[type=checkbox]:checked {
 input[type=checkbox]:checked::after {
   content: "";
   display: block; /* width & height doesn't work on inline elements */
-  position: relative;
-  top: 0;
-  left: 3px;
   width: 3px;
   height: 7px;
   border: 1px solid white;
   border-width: 0 2px 2px 0;
-  transform: rotate(40deg);
+  transform: rotate(40deg) translateY(-1px);
 }
 
 /*
