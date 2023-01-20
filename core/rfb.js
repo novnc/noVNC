@@ -21,12 +21,11 @@ import Keyboard from "./input/keyboard.js";
 import GestureHandler from "./input/gesturehandler.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
-import DES from "./des.js";
 import KeyTable from "./input/keysym.js";
 import XtScancode from "./input/xtscancodes.js";
 import { encodings } from "./encodings.js";
 import RSAAESAuthenticationState from "./ra2.js";
-import { MD5 } from "./util/md5.js";
+import legacyCrypto from "./crypto/crypto.js";
 
 import RawDecoder from "./decoders/raw.js";
 import CopyRectDecoder from "./decoders/copyrect.js";
@@ -1681,77 +1680,35 @@ export default class RFB extends EventTargetMixin {
         let prime = this._sock.rQshiftBytes(keyLength);  // predetermined prime modulus
         let serverPublicKey = this._sock.rQshiftBytes(keyLength); // other party's public key
 
-        let clientPrivateKey = window.crypto.getRandomValues(new Uint8Array(keyLength));
-        let padding = Array.from(window.crypto.getRandomValues(new Uint8Array(64)), byte => String.fromCharCode(65+byte%26)).join('');
-
-        this._negotiateARDAuthAsync(generator, keyLength, prime, serverPublicKey, clientPrivateKey, padding);
+        let clientKey = legacyCrypto.generateKey(
+            { name: "DH", g: generator, p: prime }, false, ["deriveBits"]);
+        this._negotiateARDAuthAsync(keyLength, serverPublicKey, clientKey);
 
         return false;
     }
 
-    _modPow(base, exponent, modulus) {
+    async _negotiateARDAuthAsync(keyLength, serverPublicKey, clientKey) {
+        const clientPublicKey = legacyCrypto.exportKey("raw", clientKey.publicKey);
+        const sharedKey = legacyCrypto.deriveBits(
+            { name: "DH", public: serverPublicKey }, clientKey.privateKey, keyLength * 8);
 
-        let baseHex = "0x"+Array.from(base, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
-        let exponentHex = "0x"+Array.from(exponent, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
-        let modulusHex = "0x"+Array.from(modulus, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+        const username = encodeUTF8(this._rfbCredentials.username).substring(0, 63);
+        const password = encodeUTF8(this._rfbCredentials.password).substring(0, 63);
 
-        let b = BigInt(baseHex);
-        let e = BigInt(exponentHex);
-        let m = BigInt(modulusHex);
-        let r = 1n;
-        b = b % m;
-        while (e > 0) {
-            if (e % 2n === 1n) {
-                r = (r * b) % m;
-            }
-            e = e / 2n;
-            b = (b * b) % m;
+        const credentials = window.crypto.getRandomValues(new Uint8Array(128));
+        for (let i = 0; i < username.length; i++) {
+            credentials[i] = username.charCodeAt(i);
         }
-        let hexResult = r.toString(16);
-
-        while (hexResult.length/2<exponent.length || (hexResult.length%2 != 0)) {
-            hexResult = "0"+hexResult;
+        credentials[username.length] = 0;
+        for (let i = 0; i < password.length; i++) {
+            credentials[64 + i] = password.charCodeAt(i);
         }
+        credentials[64 + password.length] = 0;
 
-        let bytesResult = [];
-        for (let c = 0; c < hexResult.length; c += 2) {
-            bytesResult.push(parseInt(hexResult.substr(c, 2), 16));
-        }
-        return bytesResult;
-    }
-
-    async _aesEcbEncrypt(string, key) {
-        // perform AES-ECB blocks
-        let keyString = Array.from(key, byte => String.fromCharCode(byte)).join('');
-        let aesKey = await window.crypto.subtle.importKey("raw", MD5(keyString), {name: "AES-CBC"}, false, ["encrypt"]);
-        let data = new Uint8Array(string.length);
-        for (let i = 0; i < string.length; ++i) {
-            data[i] = string.charCodeAt(i);
-        }
-        let encrypted = new Uint8Array(data.length);
-        for (let i=0;i<data.length;i+=16) {
-            let block = data.slice(i, i+16);
-            let encryptedBlock = await window.crypto.subtle.encrypt({name: "AES-CBC", iv: block},
-                                                                    aesKey, new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-            );
-            encrypted.set((new Uint8Array(encryptedBlock)).slice(0, 16), i);
-        }
-        return encrypted;
-    }
-
-    async _negotiateARDAuthAsync(generator, keyLength, prime, serverPublicKey, clientPrivateKey, padding) {
-        // calculate the DH keys
-        let clientPublicKey = this._modPow(generator, clientPrivateKey, prime);
-        let sharedKey = this._modPow(serverPublicKey, clientPrivateKey, prime);
-
-        let username = encodeUTF8(this._rfbCredentials.username).substring(0, 63);
-        let password = encodeUTF8(this._rfbCredentials.password).substring(0, 63);
-
-        let paddedUsername = username + '\0' + padding.substring(0, 63);
-        let paddedPassword = password + '\0' + padding.substring(0, 63);
-        let credentials = paddedUsername.substring(0, 64) + paddedPassword.substring(0, 64);
-
-        let encrypted = await this._aesEcbEncrypt(credentials, sharedKey);
+        const key = await legacyCrypto.digest("MD5", sharedKey);
+        const cipher = await legacyCrypto.importKey(
+            "raw", key, { name: "AES-ECB" }, false, ["encrypt"]);
+        const encrypted = await legacyCrypto.encrypt({ name: "AES-ECB" }, cipher, credentials);
 
         this._rfbCredentials.ardCredentials = encrypted;
         this._rfbCredentials.ardPublicKey = clientPublicKey;
@@ -1905,7 +1862,8 @@ export default class RFB extends EventTargetMixin {
                     if (e.message !== "disconnect normally") {
                         this._fail(e.message);
                     }
-                }).then(() => {
+                })
+                .then(() => {
                     this.dispatchEvent(new CustomEvent('securityresult'));
                     this._rfbInitState = "SecurityResult";
                     return true;
@@ -1934,15 +1892,15 @@ export default class RFB extends EventTargetMixin {
         const g = this._sock.rQshiftBytes(8);
         const p = this._sock.rQshiftBytes(8);
         const A = this._sock.rQshiftBytes(8);
-        const b = window.crypto.getRandomValues(new Uint8Array(8));
-        const B = new Uint8Array(this._modPow(g, b, p));
-        const secret = new Uint8Array(this._modPow(A, b, p));
+        const dhKey = legacyCrypto.generateKey({ name: "DH", g: g, p: p }, true, ["deriveBits"]);
+        const B = legacyCrypto.exportKey("raw", dhKey.publicKey);
+        const secret = legacyCrypto.deriveBits({ name: "DH", public: A }, dhKey.privateKey, 64);
 
-        const des = new DES(secret);
+        const key = legacyCrypto.importKey("raw", secret, { name: "DES-CBC" }, false, ["encrypt"]);
         const username = encodeUTF8(this._rfbCredentials.username).substring(0, 255);
         const password = encodeUTF8(this._rfbCredentials.password).substring(0, 63);
-        const usernameBytes = new Uint8Array(256);
-        const passwordBytes = new Uint8Array(64);
+        let usernameBytes = new Uint8Array(256);
+        let passwordBytes = new Uint8Array(64);
         window.crypto.getRandomValues(usernameBytes);
         window.crypto.getRandomValues(passwordBytes);
         for (let i = 0; i < username.length; i++) {
@@ -1953,22 +1911,8 @@ export default class RFB extends EventTargetMixin {
             passwordBytes[i] = password.charCodeAt(i);
         }
         passwordBytes[password.length] = 0;
-        let x = new Uint8Array(secret);
-        for (let i = 0; i < 32; i++) {
-            for (let j = 0; j < 8; j++) {
-                x[j] ^= usernameBytes[i * 8 + j];
-            }
-            x = des.enc8(x);
-            usernameBytes.set(x, i * 8);
-        }
-        x = new Uint8Array(secret);
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                x[j] ^= passwordBytes[i * 8 + j];
-            }
-            x = des.enc8(x);
-            passwordBytes.set(x, i * 8);
-        }
+        usernameBytes = legacyCrypto.encrypt({ name: "DES-CBC", iv: secret }, key, usernameBytes);
+        passwordBytes = legacyCrypto.encrypt({ name: "DES-CBC", iv: secret }, key, passwordBytes);
         this._sock.send(B);
         this._sock.send(usernameBytes);
         this._sock.send(passwordBytes);
@@ -2937,7 +2881,9 @@ export default class RFB extends EventTargetMixin {
 
     static genDES(password, challenge) {
         const passwordChars = password.split('').map(c => c.charCodeAt(0));
-        return (new DES(passwordChars)).encrypt(challenge);
+        const key = legacyCrypto.importKey(
+            "raw", passwordChars, { name: "DES-ECB" }, false, ["encrypt"]);
+        return legacyCrypto.encrypt({ name: "DES-ECB" }, key, challenge);
     }
 }
 

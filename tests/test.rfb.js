@@ -8,6 +8,7 @@ import { encodings } from '../core/encodings.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
 import KeyTable from '../core/input/keysym.js';
+import legacyCrypto from '../core/crypto/crypto.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
@@ -1270,6 +1271,19 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             describe('ARD Authentication (type 30) Handler', function () {
+                let byteArray = new Uint8Array(Array.from(new Uint8Array(128).keys()));
+                function fakeGetRandomValues(arr) {
+                    if (arr.length == 128) {
+                        arr.set(byteArray);
+                    }
+                    return arr;
+                }
+                before(() => {
+                    sinon.stub(window.crypto, "getRandomValues").callsFake(fakeGetRandomValues);
+                });
+                after(() => {
+                    window.crypto.getRandomValues.restore();
+                });
                 it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
@@ -1298,35 +1312,30 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                     expect(client._sock).to.have.sent([30]);
 
-                    function byteArray(length) {
-                        return Array.from(new Uint8Array(length).keys());
-                    }
+                    const generator = new Uint8Array([127, 255]);
+                    const prime = new Uint8Array(byteArray);
+                    const serverKey = legacyCrypto.generateKey(
+                        { name: "DH", g: generator, p: prime }, false, ["deriveBits"]);
+                    const clientKey = legacyCrypto.generateKey(
+                        { name: "DH", g: generator, p: prime }, false, ["deriveBits"]);
+                    const serverPublicKey = legacyCrypto.exportKey("raw", serverKey.publicKey);
+                    const clientPublicKey = legacyCrypto.exportKey("raw", clientKey.publicKey);
 
-                    let generator = [127, 255];
-                    let prime = byteArray(128);
-                    let serverPrivateKey = byteArray(128);
-                    let serverPublicKey = client._modPow(generator, serverPrivateKey, prime);
-
-                    let clientPrivateKey = byteArray(128);
-                    let clientPublicKey = client._modPow(generator, clientPrivateKey, prime);
-
-                    let padding = Array.from(byteArray(64), byte => String.fromCharCode(65+byte%26)).join('');
-
-                    await client._negotiateARDAuthAsync(generator, 128, prime, serverPublicKey, clientPrivateKey, padding);
+                    await client._negotiateARDAuthAsync(128, serverPublicKey, clientKey);
 
                     client._negotiateARDAuth();
 
                     expect(client._rfbInitState).to.equal('SecurityResult');
 
                     let expectEncrypted = new Uint8Array([
-                        232, 234, 159, 162, 170, 180, 138, 104, 164, 49, 53, 96, 20, 36, 21, 15,
-                        217, 219, 107, 173, 196, 60, 96, 142, 215, 71, 13, 185, 185, 47, 5, 175,
-                        151, 30, 194, 55, 173, 214, 141, 161, 36, 138, 146, 3, 178, 89, 43, 248,
-                        131, 134, 205, 174, 9, 150, 171, 74, 222, 201, 20, 2, 30, 168, 162, 123,
-                        46, 86, 81, 221, 44, 211, 180, 247, 221, 61, 95, 155, 157, 241, 76, 76,
-                        49, 217, 234, 75, 147, 237, 199, 159, 93, 140, 191, 174, 52, 90, 133, 58,
-                        243, 81, 112, 182, 64, 62, 149, 7, 151, 28, 36, 161, 247, 247, 36, 96,
-                        230, 95, 58, 207, 46, 183, 100, 139, 143, 155, 224, 43, 219, 3, 71, 139]);
+                        199, 39, 204, 95, 190, 70, 127, 66, 5, 106, 153, 228, 123, 236, 150, 206,
+                        62, 107, 11, 4, 21, 242, 92, 184, 9, 81, 35, 125, 56, 167, 1, 215,
+                        182, 145, 183, 75, 245, 197, 47, 19, 122, 94, 64, 76, 77, 163, 222, 143,
+                        186, 174, 84, 39, 244, 179, 227, 114, 83, 231, 42, 106, 205, 43, 159, 110,
+                        209, 240, 157, 246, 237, 206, 134, 153, 195, 112, 92, 60, 28, 234, 91, 66,
+                        131, 38, 187, 195, 110, 167, 212, 241, 32, 250, 212, 213, 202, 89, 180, 21,
+                        71, 217, 209, 81, 42, 61, 118, 248, 65, 123, 98, 78, 139, 111, 202, 137,
+                        50, 185, 37, 173, 58, 99, 187, 53, 42, 125, 13, 165, 232, 163, 151, 42, 0]);
 
                     let output = new Uint8Array(256);
                     output.set(expectEncrypted, 0);
