@@ -42,7 +42,7 @@ parts:
             - jq
 
     websockify:
-        source: https://github.com/novnc/websockify/archive/v0.9.0.tar.gz
+        source: https://github.com/novnc/websockify/archive/v0.11.0.tar.gz
         plugin: python
         stage-packages:
             - python3-numpy
