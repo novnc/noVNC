@@ -298,3 +298,6 @@ msgstr "Berechtigungen sind erforderlich\n"
 
 msgid "Quality:"
 msgstr "Qualität"
+
+msgid "HTTPS is required for full functionality"
+msgstr "HTTPS ist für die volle Funktionalität erforderlich"
