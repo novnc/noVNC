@@ -325,3 +325,6 @@ msgid ""
 msgstr ""
 "Bitte überprüfen Sie, ob die Angaben korrekt sind, und drücken Sie auf "
 "\"Genehmigen\". Andernfalls drücken Sie \"Ablehnen\"."
+
+msgid "Approve"
+msgstr "Bestätigen "
