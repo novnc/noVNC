@@ -313,3 +313,8 @@ msgstr "Serveridentität "
 
 msgid "Fingerprint:"
 msgstr "Fingerabdruck"
+
+msgid "The server has provided the following identifying information:"
+msgstr ""
+"Derr Server hat die folgenden Informationen zur Identifizierung "
+"bereitgestellt:"
