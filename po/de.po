@@ -301,3 +301,6 @@ msgstr "Qualität"
 
 msgid "HTTPS is required for full functionality"
 msgstr "HTTPS ist für die volle Funktionalität erforderlich"
+
+msgid "Edit clipboard content in the textarea below."
+msgstr "Bearbeiten Sie den Inhalt Zwischenablage in dem unten stehenden Textfeld."
