@@ -211,7 +211,7 @@ msgstr "Skalierungsmodus:"
 
 #: ../vnc.html:214
 msgid "None"
-msgstr "Keiner"
+msgstr "Keine"
 
 #: ../vnc.html:215
 msgid "Local Scaling"
