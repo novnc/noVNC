@@ -251,7 +251,7 @@ msgstr "Pfad:"
 
 #: ../vnc.html:249
 msgid "Automatic Reconnect"
-msgstr "Automatisch wiederverbinden"
+msgstr "Automatische wieder Verbinden "
 
 #: ../vnc.html:252
 msgid "Reconnect Delay (ms):"
