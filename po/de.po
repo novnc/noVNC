@@ -310,3 +310,6 @@ msgstr "Vollbild "
 
 msgid "Server identity"
 msgstr "Serveridentität "
+
+msgid "Fingerprint:"
+msgstr "Fingerabdruck"
