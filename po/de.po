@@ -331,3 +331,6 @@ msgstr "Bestätigen "
 
 msgid "Reject"
 msgstr "Ablehnen"
+
+msgid "Credentials"
+msgstr "Berechtigung"
