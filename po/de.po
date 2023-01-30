@@ -289,3 +289,6 @@ msgstr "Punkt anzeigen, wenn kein Cursor"
 
 msgid "Send Password"
 msgstr "Passwort senden"
+
+msgid "Drag"
+msgstr "ziehen "
