@@ -328,3 +328,6 @@ msgstr ""
 
 msgid "Approve"
 msgstr "Bestätigen "
+
+msgid "Reject"
+msgstr "Ablehnen"
