@@ -292,3 +292,6 @@ msgstr "Passwort senden"
 
 msgid "Drag"
 msgstr "ziehen "
+
+msgid "Credentials are required"
+msgstr "Berechtigungen sind erforderlich\n"
