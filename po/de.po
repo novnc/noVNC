@@ -285,4 +285,4 @@ msgid "Failed to connect to server"
 msgstr "Verbindung zum Server fehlgeschlagen"
 
 msgid "Show Dot when No Cursor"
-msgstr "Punkt anzeigen, wenn kein Cursor\n"
+msgstr "Punkt anzeigen, wenn kein Cursor"
