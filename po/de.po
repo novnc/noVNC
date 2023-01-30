@@ -295,3 +295,6 @@ msgstr "ziehen "
 
 msgid "Credentials are required"
 msgstr "Berechtigungen sind erforderlich\n"
+
+msgid "Quality:"
+msgstr "Qualität"
