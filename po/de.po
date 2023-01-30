@@ -307,3 +307,6 @@ msgstr "Bearbeiten Sie den Inhalt Zwischenablage in dem unten stehenden Textfeld
 
 msgid "Full Screen"
 msgstr "Vollbild "
+
+msgid "Server identity"
+msgstr "Serveridentität "
