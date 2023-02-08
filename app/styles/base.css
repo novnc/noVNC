@@ -1162,3 +1162,11 @@ input:checked + .slider:before {
 .slider-label {
   padding-left: 26px;
 }
+
+/* Do not use default link colors */
+a:link {
+  color: white;
+}
+a:visited {
+  color: white;
+}
