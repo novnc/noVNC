@@ -775,6 +775,9 @@ const UI = {
     openControlbar() {
         document.getElementById('noVNC_control_bar')
             .classList.add("noVNC_open");
+        if (WebUtil.isInsideKasmVDI()) {
+             parent.postMessage({ action: 'control_open', value: 'Control bar opened'}, '*' );
+        }
     },
 
     closeControlbar() {
@@ -783,6 +786,9 @@ const UI = {
             .classList.remove("noVNC_open");
         if (UI.rfb) {
             UI.rfb.focus();
+        }
+        if (WebUtil.isInsideKasmVDI()) {
+             parent.postMessage({ action: 'control_close', value: 'Control bar closed'}, '*' );
         }
     },
 
@@ -1434,7 +1440,9 @@ const UI = {
                 UI.rfb.addEventListener("clipboard", UI.clipboardRx);
             }
             UI.rfb.addEventListener("disconnect", UI.disconnectedRx);
-            document.getElementById('noVNC_control_bar_anchor').setAttribute('style', 'display: none');
+            if (! WebUtil.getConfigVar('show_control_bar')) {
+                document.getElementById('noVNC_control_bar_anchor').setAttribute('style', 'display: none');
+            }
 
             //keep alive for websocket connection to stay open, since we may not control reverse proxies
             //send a keep alive within a window that we control
@@ -1774,6 +1782,10 @@ const UI = {
  * ------v------*/
 
     toggleFullscreen() {
+        if (WebUtil.isInsideKasmVDI()) {
+             parent.postMessage({ action: 'fullscreen', value: 'Fullscreen clicked'}, '*' );
+             return;
+        }
         if (document.fullscreenElement || // alternative standard method
             document.mozFullScreenElement || // currently working methods
             document.webkitFullscreenElement ||
