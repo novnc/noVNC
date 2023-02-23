@@ -143,6 +143,7 @@ export default class RFB extends EventTargetMixin {
         this._forcedResolutionY = null;
         this._clipboardBinary = true;
         this._useUdp = true;
+        this._hiDpi = false;
         this._enableQOI = false;
         this.TransitConnectionStates = {
             Tcp: Symbol("tcp"),
@@ -753,6 +754,14 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    get enableHiDpi() { return this._hiDpi; }
+    set enableHiDpi(value) {
+        if (value !== this._hiDpi) {
+            this._hiDpi = value;
+            this._requestRemoteResize();
+        }
+    }
+
     // ===== PUBLIC METHODS =====
 
     /*
@@ -1312,7 +1321,6 @@ export default class RFB extends EventTargetMixin {
             !this._supportsSetDesktopSize) {
             return;
         }
-
         const size = this._screenSize();
         RFB.messages.setDesktopSize(this._sock,
                                     Math.floor(size.w), Math.floor(size.h),
@@ -1340,6 +1348,10 @@ export default class RFB extends EventTargetMixin {
             else if (limited && this.videoQuality == 0){
                 x = 1280;
                 y = 720;
+            } else if (this._hiDpi == true) {
+                x = x * window.devicePixelRatio;
+                y = y * window.devicePixelRatio;
+                scale = 1 / window.devicePixelRatio;
             } else if (this._display.antiAliasing === 0 && window.devicePixelRatio > 1 && x < 1000 && x > 0) {
                 // small device with high resolution, browser is essentially zooming greater than 200%
                 Log.Info('Device Pixel ratio: ' + window.devicePixelRatio + ' Reported Resolution: ' + x + 'x' + y); 
@@ -1355,7 +1367,7 @@ export default class RFB extends EventTargetMixin {
         } catch (err) {
             Log.Debug(err);
         }
-
+        
         return { w: x,
                  h: y,
                  scale: scale };
