@@ -25,6 +25,7 @@ export default class Display {
             2 - Array of Rect objects
             3 - bool, is the frame complete
             4 - int, index of current rect (post-processing)
+            5 - int, number of times requestAnimationFrame called _pushAsyncFrame and the frame had all rects, however, the frame was not marked complete
         */
         this._asyncFrameQueue = [];
         this._maxAsyncFrameQueue = 3;
@@ -377,6 +378,31 @@ export default class Display {
         });
     }
 
+    transparentRect(x, y, width, height, img, frame_id) {
+        /* The internal logic cannot handle empty images, so bail early */
+        if ((width === 0) || (height === 0)) {
+            return;
+        }
+
+        var rect = {
+            'type': 'transparent',
+            'img': null,
+            'x': x,
+            'y': y,
+            'width': width,
+            'height': height,
+            'frame_id': frame_id
+        }
+
+        let imageBmpPromise = createImageBitmap(img);
+        imageBmpPromise.then( function(img) {
+            rect.img = img;
+            rect.img.complete = true;
+        }.bind(rect) );
+
+        this._asyncRenderQPush(rect);
+    }
+
     blitImage(x, y, width, height, arr, offset, frame_id, fromQueue) {
         if (!fromQueue) {
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
@@ -504,7 +530,7 @@ export default class Display {
                 //frame is newer than any frame in the queue, drop old frames
                 this._asyncFrameQueue.shift();
                 let rect_cnt = ((rect.type == "flip") ? rect.rect_cnt : 0);
-                this._asyncFrameQueue.push([ rect.frame_id, rect_cnt, [ rect ], (rect_cnt == 1), 0 ]);
+                this._asyncFrameQueue.push([ rect.frame_id, rect_cnt, [ rect ], (rect_cnt == 1), 0, 0 ]);
                 this._droppedFrames++;
             }
         }
@@ -519,7 +545,7 @@ export default class Display {
 
         this._asyncFrameQueue = [];
         for (let i=0; i<this._maxAsyncFrameQueue; i++) {
-            this._asyncFrameQueue.push([ 0, 0, [], false, 0 ])
+            this._asyncFrameQueue.push([ 0, 0, [], false, 0, 0 ])
         }
     }
 
@@ -552,7 +578,10 @@ export default class Display {
                     this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img.addEventListener('load', () => { this._asyncFrameComplete(frameIx); });
                     this._asyncFrameQueue[frameIx][4] = currentFrameRectIx;
                     return;
+                } else if (this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type == 'transparent' && !this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img) {
+                    return;
                 }
+
                 currentFrameRectIx++;
             }
         }
@@ -564,11 +593,13 @@ export default class Display {
     Push the oldest frame in the buffer to the canvas if it is marked ready
     */
     _pushAsyncFrame(force=false) {
-        if (this._asyncFrameQueue[0][3]) {
+        if (this._asyncFrameQueue[0][3] || force) {
             let frame = this._asyncFrameQueue.shift()[2];
             if (this._asyncFrameQueue.length < this._maxAsyncFrameQueue) {
-                this._asyncFrameQueue.push([ 0, 0, [], false, 0 ]);
+                this._asyncFrameQueue.push([ 0, 0, [], false, 0, 0 ]);
             }
+
+            let transparent_rects = [];
             
             //render the selected frame
             for (let i = 0; i < frame.length; i++) {
@@ -590,13 +621,33 @@ export default class Display {
                     case 'img':
                         this.drawImage(a.img, a.x, a.y, a.width, a.height);
                         break;
+                    case 'transparent':
+                        transparent_rects.push(a);
+                        break;
                 }
             }
+
+            //rects with transparency get applied last
+            for (let i = 0; i < transparent_rects.length; i++) {
+                const a = transparent_rects[i];
+                
+                if (a.img) {
+                    this.drawImage(a.img, a.x, a.y, a.width, a.height);
+                }
+            }
+
             this._flipCnt += 1;
 
             if (this._flushing) {
                 this._flushing = false;
                 this.onflush();
+            }
+        } else if (this._asyncFrameQueue[0][1] > 0 && this._asyncFrameQueue[0][1] == this._asyncFrameQueue[0][2].length) {
+            //how many times has _pushAsyncFrame been called when the frame had all rects but has not been drawn
+            this._asyncFrameQueue[0][5] += 1;
+            //force the frame to be drawn if it has been here too long
+            if (this._asyncFrameQueue[0][5] > 5) { 
+                this._pushAsyncFrame(true);
             }
         }
 

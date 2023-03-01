@@ -26,6 +26,7 @@ export default class TightDecoder {
         for (let i = 0; i < 4; i++) {
             this._zlibs[i] = new Inflator();
         }
+        this._itzlib = new Inflator();
     }
 
     // ===== PROPERTIES =====
@@ -85,6 +86,9 @@ export default class TightDecoder {
                                 sock, display, depth, frame_id);
         } else if (this._ctl === 0x0C) {
             ret = this._qoiRect(x, y, width, height,
+                                sock, display, depth, frame_id);
+        } else if (this._ctl === 0x0D) {
+            ret = this._itRect(x, y, width, height,
                                 sock, display, depth, frame_id);
         } else {
             throw new Error("Illegal tight compression received (ctl: " +
@@ -175,6 +179,47 @@ export default class TightDecoder {
             }
             
         }
+
+        return true;
+    }
+
+    // intensity tinted
+    _itRect(x, y, width, height, sock, display, depth, frame_id) {
+        let data = this._readData(sock);
+        if (data === null) {
+            return false;
+        }
+
+        const r = data[0];
+        const g = data[1];
+        const b = data[2];
+        const a = data[3];
+
+        const uncompressedSize = width * height / 2 + 1;
+
+        this._itzlib.reset();
+        this._itzlib.setInput(data.slice(4));
+        data = this._itzlib.inflate(uncompressedSize);
+        this._itzlib.setInput(null);
+
+        // unpack
+        let rgba = new Uint8Array(width * height * 4 + 4);
+        for (let i = 0, d = 0; i < uncompressedSize; i++, d += 8) {
+            let p = data[i];
+
+            rgba[d + 0] = r;
+            rgba[d + 1] = g;
+            rgba[d + 2] = b;
+            rgba[d + 3] = a * ((p & 15) << 4) / 255;
+
+            rgba[d + 4] = r;
+            rgba[d + 5] = g;
+            rgba[d + 6] = b;
+            rgba[d + 7] = a * (p & 240) / 255;
+        }
+
+        let img = new ImageData(new Uint8ClampedArray(rgba.buffer, 0, width * height * 4), width, height);
+        display.transparentRect(x, y, width, height, img, frame_id);
 
         return true;
     }
