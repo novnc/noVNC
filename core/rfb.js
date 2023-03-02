@@ -142,6 +142,7 @@ export default class RFB extends EventTargetMixin {
         this._forcedResolutionX = null;
         this._forcedResolutionY = null;
         this._clipboardBinary = true;
+        this._resendClipboardNextUserDrivenEvent = true;
         this._useUdp = true;
         this._hiDpi = false;
         this._enableQOI = false;
@@ -220,6 +221,7 @@ export default class RFB extends EventTargetMixin {
             handlePointerLockError: this._handlePointerLockError.bind(this),
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
+            handleFocusChange: this._handleFocusChange.bind(this),
         };
 
         // main setup
@@ -867,8 +869,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     checkLocalClipboard() {
-        if (this.clipboardUp && this.clipboardSeamless) {
-
+        if (this.clipboardUp && this.clipboardSeamless && this._resendClipboardNextUserDrivenEvent) {
+            this._resendClipboardNextUserDrivenEvent = false;
             if (this.clipboardBinary) {
                 navigator.clipboard.read().then((data) => {
                     this.clipboardPasteDataFrom(data);
@@ -1029,6 +1031,9 @@ export default class RFB extends EventTargetMixin {
         // Always grab focus on some kind of click event
         this._canvas.addEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.addEventListener("touchstart", this._eventHandlers.focusCanvas);
+        this._canvas.addEventListener("focus", this._eventHandlers.handleFocusChange);
+        window.addEventListener("focus", this._eventHandlers.handleFocusChange);
+        window.addEventListener("blur", this._eventHandlers.handleFocusChange);
 
         // In order for the keyboard to not occlude the input being edited
         // we move the hidden input we use for triggering the keyboard to the last click
@@ -1065,6 +1070,8 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("gesturestart", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gesturemove", this._eventHandlers.handleGesture);
         this._canvas.addEventListener("gestureend", this._eventHandlers.handleGesture);
+
+        this._resendClipboardNextUserDrivenEvent = true;
 
         // WebRTC UDP datachannel inits
         {
@@ -1200,7 +1207,10 @@ export default class RFB extends EventTargetMixin {
         }
         this._canvas.removeEventListener("mousedown", this._eventHandlers.focusCanvas);
         this._canvas.removeEventListener("touchstart", this._eventHandlers.focusCanvas);
+        this._canvas.removeEventListener("focus", this._eventHandlers.handleFocusChange);
         window.removeEventListener('resize', this._eventHandlers.windowResize);
+        window.removeEventListener('focus', this._eventHandlers.handleFocusChange);
+        window.removeEventListener('focus', this._eventHandlers.handleFocusChange);
         this._keyboard.ungrab();
         this._gestures.detach();
         this._sock.close();
@@ -1226,6 +1236,10 @@ export default class RFB extends EventTargetMixin {
         document.querySelector("#noVNC_keyboardinput").style.top = `${y}px`;
     }
 
+    _handleFocusChange(event) {
+        this._resendClipboardNextUserDrivenEvent = true;
+    }
+
     _focusCanvas(event) {
         // Hack:
         // On most mobile phones it's possible to play audio
@@ -1241,6 +1255,10 @@ export default class RFB extends EventTargetMixin {
         // pointerLock must come from user initiated event
         if (!this._pointerLock && this._pointerRelativeEnabled) {
             this.pointerLock = true;
+        }
+
+        if (this._resendClipboardNextUserDrivenEvent) {
+            this.checkLocalClipboard();
         }
 
         if (!this.focusOnClick) {
@@ -1625,7 +1643,6 @@ export default class RFB extends EventTargetMixin {
                     this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaRight"], "MetaRight", false);
                     this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                 }
-                this.checkLocalClipboard();
 
                 this._handleMouseButton(pos.x, pos.y,
                                         true, xvncButtonToMask(mappedButton));
