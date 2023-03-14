@@ -24,7 +24,7 @@ body {
   padding:0;
   font-family: "Poppins", "Helvetica";
   letter-spacing: 0.05em;
-  background: white url('../images/icons/kasm_logo.png') no-repeat fixed center;
+  background: white url('../images/icons/kasm_logo.svg') no-repeat fixed center;
   height:100%;
   touch-action: none;
 }
@@ -847,7 +847,7 @@ select:active {
   right: 0;
 
   color: #0084C2;
-  background: white url('../images/icons/kasm_logo.png') no-repeat fixed center;
+  background: white url('../images/icons/kasm_logo.svg') no-repeat fixed center;
   z-index: 50;
 
   /*display: flex;*/
@@ -910,6 +910,9 @@ select:active {
   line-height:90%;
   text-shadow: 0.1em 0.1em 0 black;
   margin-bottom: 0px;
+  background: white;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .noVNC_logo img {
   width: 45%
