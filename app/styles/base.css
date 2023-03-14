@@ -911,8 +911,8 @@ select:active {
   text-shadow: 0.1em 0.1em 0 black;
   margin-bottom: 0px;
   background: white;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding: 5px;
+  border-radius: 5px;
 }
 .noVNC_logo img {
   width: 45%
