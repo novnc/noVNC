@@ -848,6 +848,7 @@ select:active {
 
   color: #0084C2;
   background: white url('../images/icons/kasm_logo.svg') no-repeat fixed center;
+  background-size: 20%;
   z-index: 50;
 
   /*display: flex;*/
