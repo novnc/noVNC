@@ -2175,6 +2175,11 @@ const UI = {
 
     toggleWebRTC() {
         if (UI.rfb) {
+            if (typeof RTCPeerConnection === 'undefined') {
+                UI.showStatus('This browser does not support WebRTC UDP Data Channels.', 'warn', 5000, true);
+                return;
+            }
+
             if (UI.getSetting('enable_webrtc')) {
                 UI.rfb.enableWebRTC = true;
             } else {

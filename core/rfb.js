@@ -1074,7 +1074,7 @@ export default class RFB extends EventTargetMixin {
         this._resendClipboardNextUserDrivenEvent = true;
 
         // WebRTC UDP datachannel inits
-        {
+        if (typeof RTCPeerConnection !== 'undefined') {
             this._udpBuffer = new Map();
 
             this._udpPeer = new RTCPeerConnection({
@@ -1179,7 +1179,7 @@ export default class RFB extends EventTargetMixin {
             }
         }
 
-	    if (this._useUdp) {
+	    if (this._useUdp && typeof RTCPeerConnection !== 'undefined') {
             setTimeout(function() { this._sendUdpUpgrade() }.bind(this), 3000);
         }
 
