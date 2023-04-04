@@ -24,7 +24,7 @@ function loadFile() {
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
         script.onload = resolve;
-        script.onerror = reject;
+        script.onerror = () => { reject("Failed to load " + fname); };
         document.body.appendChild(script);
         script.src = "../recordings/" + fname;
     });
