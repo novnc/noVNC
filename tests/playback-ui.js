@@ -200,6 +200,9 @@ function start() {
     player.onrfbdisconnected = (evt) => {
         if (!evt.detail.clean) {
             message(`noVNC sent disconnected during iteration ${evt.detail.iteration} frame ${evt.detail.frame}`);
+
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('startButton').value = "Start";
         }
     };
     player.onfinish = (evt) => {
