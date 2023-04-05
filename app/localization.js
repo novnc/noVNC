@@ -40,12 +40,6 @@ export class Localizer {
                 .replace("_", "-")
                 .split("-");
 
-            // Built-in default?
-            if ((userLang[0] === 'en') &&
-                ((userLang[1] === undefined) || (userLang[1] === 'us'))) {
-                return;
-            }
-
             // First pass: perfect match
             for (let j = 0; j < supportedLanguages.length; j++) {
                 const supLang = supportedLanguages[j]
@@ -64,7 +58,12 @@ export class Localizer {
                 return;
             }
 
-            // Second pass: fallback
+            // Second pass: English fallback
+            if (userLang[0] === 'en') {
+                return;
+            }
+
+            // Third pass pass: other fallback
             for (let j = 0;j < supportedLanguages.length;j++) {
                 const supLang = supportedLanguages[j]
                     .toLowerCase()

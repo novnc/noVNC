@@ -27,6 +27,16 @@ describe('Localization', function () {
             l10n.setup(["es", "fr"]);
             expect(l10n.language).to.equal('en');
         });
+        it('should fall back to generic English for other English', function () {
+            window.navigator.languages = ["en-AU", "de"];
+            l10n.setup(["de", "fr", "en-GB"]);
+            expect(l10n.language).to.equal('en');
+        });
+        it('should prefer specific English over generic', function () {
+            window.navigator.languages = ["en-GB", "de"];
+            l10n.setup(["de", "en-AU", "en-GB"]);
+            expect(l10n.language).to.equal('en-GB');
+        });
         it('should use the most preferred user language', function () {
             window.navigator.languages = ["nl", "de", "fr"];
             l10n.setup(["es", "fr", "de"]);
