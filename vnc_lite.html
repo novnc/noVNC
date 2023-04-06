@@ -107,20 +107,13 @@
         // query string. If the variable isn't defined in the URL
         // it returns the default value instead.
         function readQueryVariable(name, defaultValue) {
-            // A URL with a query parameter can look like this (But will most probably get logged on the http server):
+            // A URL with a query parameter can look like this:
             // https://www.example.com?myqueryparam=myvalue
-            //
-            // For privacy (Using a hastag #, the parameters will not be sent to the server)
-            // the url can be requested in the following way:
-            // https://www.example.com#myqueryparam=myvalue&password=secreatvalue
-            //
-            // Even Mixing public and non public parameters will work:
-            // https://www.example.com?nonsecretparam=example.com#password=secreatvalue
             //
             // Note that we use location.href instead of location.search
             // because Firefox < 53 has a bug w.r.t location.search
             const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-                  match = ''.concat(document.location.href, window.location.hash).match(re);
+                  match = document.location.href.match(re);
 
             if (match) {
                 // We have to decode the URL since want the cleartext value

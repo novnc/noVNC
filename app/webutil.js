@@ -32,7 +32,7 @@ export function initLogging(level) {
 export function getQueryVar(name, defVal) {
     "use strict";
     const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-          match = ''.concat(document.location.href, window.location.hash).match(re);
+          match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
 
     if (match) {
