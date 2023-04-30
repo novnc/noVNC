@@ -293,7 +293,7 @@ export default class Websock {
     // e.g. compacting.
     // The function also expands the receive que if needed, and for
     // performance reasons we combine these two actions to avoid
-    // unneccessary copying.
+    // unnecessary copying.
     _expandCompactRQ(minFit) {
         // if we're using less than 1/8th of the buffer even with the incoming bytes, compact in place
         // instead of resizing
