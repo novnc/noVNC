@@ -124,7 +124,7 @@ export default class JPEGDecoder {
                 if (sock.rQwait("JPEG", length-2+extra, 4)) {
                     return null;
                 }
-                let data = sock.rQslice(0, length-2+extra);
+                let data = sock.rQpeekBytes(length-2+extra);
                 if (data.at(-2) === 0xFF && data.at(-1) !== 0x00 &&
                     !(data.at(-1) >= 0xD0 && data.at(-1) <= 0xD7)) {
                     extra -= 2;

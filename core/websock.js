@@ -168,8 +168,9 @@ export default class Websock {
         this._rQi += len;
     }
 
-    rQslice(start, end = this.rQlen) {
-        return new Uint8Array(this._rQ.buffer, this._rQi + start, end - start);
+    rQpeekBytes(len) {
+        if (typeof(len) === 'undefined') { len = this.rQlen; }
+        return new Uint8Array(this._rQ.buffer, this._rQi, len);
     }
 
     // Check to see if we must wait for 'num' bytes (default to FBU.bytes)

@@ -2455,7 +2455,7 @@ export default class RFB extends EventTargetMixin {
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
-                Log.Debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
+                Log.Debug("sock.rQpeekBytes(30): " + this._sock.rQpeekBytes(30));
                 return true;
         }
     }

@@ -126,32 +126,32 @@ describe('Websock', function () {
             });
         });
 
-        describe('rQslice', function () {
+        describe('rQpeekBytes', function () {
             beforeEach(function () {
                 sock.rQi = 0;
             });
 
             it('should not modify the receive queue', function () {
                 const befLen = sock.rQlen;
-                sock.rQslice(0, 2);
+                sock.rQpeekBytes(2);
                 expect(sock.rQlen).to.equal(befLen);
             });
 
-            it('should return an array containing the given slice of the receive queue', function () {
-                const sl = sock.rQslice(0, 2);
+            it('should return an array containing the requested bytes of the receive queue', function () {
+                const sl = sock.rQpeekBytes(2);
                 expect(sl).to.be.an.instanceof(Uint8Array);
                 expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 0, 2));
             });
 
             it('should use the rest of the receive queue if no end is given', function () {
-                const sl = sock.rQslice(1);
-                expect(sl).to.have.length(RQ_TEMPLATE.length - 1);
-                expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1));
+                const sl = sock.rQpeekBytes();
+                expect(sl).to.have.length(RQ_TEMPLATE.length);
+                expect(sl).to.array.equal(RQ_TEMPLATE);
             });
 
             it('should take the current rQi in to account', function () {
                 sock.rQi = 1;
-                expect(sock.rQslice(0, 2)).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1, 2));
+                expect(sock.rQpeekBytes(2)).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1, 2));
             });
         });
 

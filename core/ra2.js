@@ -139,7 +139,7 @@ export default class RSAAESAuthenticationState extends EventTargetMixin {
         this._hasStarted = true;
         // 1: Receive server public key
         await this._waitSockAsync(4);
-        const serverKeyLengthBuffer = this._sock.rQslice(0, 4);
+        const serverKeyLengthBuffer = this._sock.rQpeekBytes(4);
         const serverKeyLength = this._sock.rQshift32();
         if (serverKeyLength < 1024) {
             throw new Error("RA2: server public key is too short: " + serverKeyLength);
