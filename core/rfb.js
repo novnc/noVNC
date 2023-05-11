@@ -1593,7 +1593,7 @@ export default class RFB extends EventTargetMixin {
                              this._rfbAuthScheme >> 8,
                              this._rfbAuthScheme]);
 
-            this._rfbVeNCryptState == 4;
+            this._rfbVeNCryptState = 4;
             return true;
         }
     }
