@@ -81,9 +81,3 @@ None
 | blitImage          | (x, y, width, height, arr, offset, from_queue)          | Blit pixels (of R,G,B,A) to the display
 | drawImage          | (img, x, y)                                             | Draw image and track damage
 | autoscale          | (containerWidth, containerHeight)                       | Scale the display
-
-### 2.2.3 Callbacks
-
-| name    | parameters | description
-| ------- | ---------- | ------------
-| onflush | ()         | A display flush has been requested and we are now ready to resume FBU processing

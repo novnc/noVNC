@@ -44,7 +44,7 @@ describe('JPEG Decoder', function () {
         display.resize(4, 4);
     });
 
-    it('should handle JPEG rects', function (done) {
+    it('should handle JPEG rects', async function () {
         let data = [
             // JPEG data
             0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
@@ -151,14 +151,11 @@ describe('JPEG Decoder', function () {
             return diff < 5;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        await display.flush();
+        expect(display).to.have.displayed(targetData, almost);
     });
 
-    it('should handle JPEG rects without Huffman and quantification tables', function (done) {
+    it('should handle JPEG rects without Huffman and quantification tables', async function () {
         let data1 = [
             // JPEG data
             0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
@@ -289,10 +286,7 @@ describe('JPEG Decoder', function () {
             return diff < 5;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        await display.flush();
+        expect(display).to.have.displayed(targetData, almost);
     });
 });
