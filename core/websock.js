@@ -94,22 +94,6 @@ export default class Websock {
         return "unknown";
     }
 
-    get sQ() {
-        return this._sQ;
-    }
-
-    get rQ() {
-        return this._rQ;
-    }
-
-    get rQi() {
-        return this._rQi;
-    }
-
-    set rQi(val) {
-        this._rQi = val;
-    }
-
     // Receive Queue
     get rQlen() {
         return this._rQlen - this._rQi;

@@ -33,29 +33,26 @@ export default class RawDecoder {
                                     Math.floor(sock.rQlen / bytesPerLine));
         const pixels = width * currHeight;
 
-        let data = sock.rQ;
-        let index = sock.rQi;
+        let data = sock.rQshiftBytes(currHeight * bytesPerLine);
 
         // Convert data if needed
         if (depth == 8) {
             const newdata = new Uint8Array(pixels * 4);
             for (let i = 0; i < pixels; i++) {
-                newdata[i * 4 + 0] = ((data[index + i] >> 0) & 0x3) * 255 / 3;
-                newdata[i * 4 + 1] = ((data[index + i] >> 2) & 0x3) * 255 / 3;
-                newdata[i * 4 + 2] = ((data[index + i] >> 4) & 0x3) * 255 / 3;
+                newdata[i * 4 + 0] = ((data[i] >> 0) & 0x3) * 255 / 3;
+                newdata[i * 4 + 1] = ((data[i] >> 2) & 0x3) * 255 / 3;
+                newdata[i * 4 + 2] = ((data[i] >> 4) & 0x3) * 255 / 3;
                 newdata[i * 4 + 3] = 255;
             }
             data = newdata;
-            index = 0;
         }
 
         // Max sure the image is fully opaque
         for (let i = 0; i < pixels; i++) {
-            data[index + i * 4 + 3] = 255;
+            data[i * 4 + 3] = 255;
         }
 
-        display.blitImage(x, curY, width, currHeight, data, index);
-        sock.rQskipBytes(currHeight * bytesPerLine);
+        display.blitImage(x, curY, width, currHeight, data, 0);
         this._lines -= currHeight;
         if (this._lines > 0) {
             return false;

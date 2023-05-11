@@ -19,13 +19,13 @@ describe('Websock', function () {
         });
         describe('rQlen', function () {
             it('should return the length of the receive queue', function () {
-                sock.rQi = 0;
+                sock._rQi = 0;
 
                 expect(sock.rQlen).to.equal(RQ_TEMPLATE.length);
             });
 
             it("should return the proper length if we read some from the receive queue", function () {
-                sock.rQi = 1;
+                sock._rQi = 1;
 
                 expect(sock.rQlen).to.equal(RQ_TEMPLATE.length - 1);
             });
@@ -72,8 +72,8 @@ describe('Websock', function () {
 
         describe('rQshiftStr', function () {
             it('should shift the given number of bytes off of the receive queue and return a string', function () {
-                const befLen = sock.rQlen;
-                const befRQi = sock.rQi;
+                const befLen = sock._rQlen;
+                const befRQi = sock._rQi;
                 const shifted = sock.rQshiftStr(3);
                 expect(shifted).to.be.a('string');
                 expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3))));
@@ -112,8 +112,8 @@ describe('Websock', function () {
 
         describe('rQshiftBytes', function () {
             it('should shift the given number of bytes of the receive queue and return an array', function () {
-                const befLen = sock.rQlen;
-                const befRQi = sock.rQi;
+                const befLen = sock._rQlen;
+                const befRQi = sock._rQi;
                 const shifted = sock.rQshiftBytes(3);
                 expect(shifted).to.be.an.instanceof(Uint8Array);
                 expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
@@ -128,7 +128,7 @@ describe('Websock', function () {
 
         describe('rQpeekBytes', function () {
             beforeEach(function () {
-                sock.rQi = 0;
+                sock._rQi = 0;
             });
 
             it('should not modify the receive queue', function () {
@@ -150,14 +150,14 @@ describe('Websock', function () {
             });
 
             it('should take the current rQi in to account', function () {
-                sock.rQi = 1;
+                sock._rQi = 1;
                 expect(sock.rQpeekBytes(2)).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1, 2));
             });
         });
 
         describe('rQwait', function () {
             beforeEach(function () {
-                sock.rQi = 0;
+                sock._rQi = 0;
             });
 
             it('should return true if there are not enough bytes in the receive queue', function () {
@@ -169,20 +169,20 @@ describe('Websock', function () {
             });
 
             it('should return true and reduce rQi by "goback" if there are not enough bytes', function () {
-                sock.rQi = 5;
+                sock._rQi = 5;
                 expect(sock.rQwait('hi', RQ_TEMPLATE.length, 4)).to.be.true;
-                expect(sock.rQi).to.equal(1);
+                expect(sock._rQi).to.equal(1);
             });
 
             it('should raise an error if we try to go back more than possible', function () {
-                sock.rQi = 5;
+                sock._rQi = 5;
                 expect(() => sock.rQwait('hi', RQ_TEMPLATE.length, 6)).to.throw(Error);
             });
 
             it('should not reduce rQi if there are enough bytes', function () {
-                sock.rQi = 5;
+                sock._rQi = 5;
                 sock.rQwait('hi', 1, 6);
-                expect(sock.rQi).to.equal(5);
+                expect(sock._rQi).to.equal(5);
             });
         });
     });
@@ -461,52 +461,52 @@ describe('Websock', function () {
         });
 
         it('should compact the receive queue when a message handler empties it', function () {
-            sock._eventHandlers.message = () => { sock.rQi = sock._rQlen; };
+            sock._eventHandlers.message = () => { sock._rQi = sock._rQlen; };
             sock._rQ = new Uint8Array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0]);
             sock._rQlen = 6;
-            sock.rQi = 6;
+            sock._rQi = 6;
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
             sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(0);
-            expect(sock.rQi).to.equal(0);
+            expect(sock._rQi).to.equal(0);
         });
 
         it('should compact the receive queue when we reach the end of the buffer', function () {
             sock._rQ = new Uint8Array(20);
             sock._rQbufferSize = 20;
             sock._rQlen = 20;
-            sock.rQi = 10;
+            sock._rQi = 10;
             const msg = { data: new Uint8Array([1, 2]).buffer };
             sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(12);
-            expect(sock.rQi).to.equal(0);
+            expect(sock._rQi).to.equal(0);
         });
 
         it('should automatically resize the receive queue if the incoming message is larger than the buffer', function () {
             sock._rQ = new Uint8Array(20);
             sock._rQlen = 0;
-            sock.rQi = 0;
+            sock._rQi = 0;
             sock._rQbufferSize = 20;
             const msg = { data: new Uint8Array(30).buffer };
             sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(30);
-            expect(sock.rQi).to.equal(0);
+            expect(sock._rQi).to.equal(0);
             expect(sock._rQ.length).to.equal(240);  // keep the invariant that rQbufferSize / 8 >= rQlen
         });
 
         it('should automatically resize the receive queue if the incoming message is larger than 1/8th of the buffer and we reach the end of the buffer', function () {
             sock._rQ = new Uint8Array(20);
             sock._rQlen = 16;
-            sock.rQi = 16;
+            sock._rQi = 16;
             sock._rQbufferSize = 20;
             const msg = { data: new Uint8Array(6).buffer };
             sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(6);
-            expect(sock.rQi).to.equal(0);
+            expect(sock._rQi).to.equal(0);
             expect(sock._rQ.length).to.equal(48);
         });
     });
