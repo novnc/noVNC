@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Prisijungiama..."
+
+msgid "Disconnecting..."
+msgstr "Atjungiama..."
+
+msgid "Reconnecting..."
+msgstr "Prisijungiama iš naujo..."
+
+msgid "Internal error"
+msgstr "Vidinė klaida"
+
+msgid "Must set host"
+msgstr "Turi nustatyti šeimininką"
+
+msgid "Connected (encrypted) to "
+msgstr "Prisijungta (užšifruota) prie"
+
+msgid "Connected (unencrypted) to "
+msgstr "Prisijungta (nešifruota) prie"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Kažkas ne taip, ryšys nutrauktas"
+
+msgid "Failed to connect to server"
+msgstr "Nepavyko prisijungti prie serverio"
+
+msgid "Disconnected"
+msgstr "Atjungtas"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Naujas ryšys buvo atmestas dėl priežasties:"
+
+msgid "New connection has been rejected"
+msgstr "Naujas ryšys buvo atmestas"
+
+msgid "Credentials are required"
+msgstr "Reikalingi kredencialai"
+
+msgid "noVNC encountered an error:"
+msgstr "NoVNC aptiko klaida:"
+
+msgid "Hide/Show the control bar"
+msgstr "Slėpti / rodyti valdymo juostą"
+
+msgid "Drag"
+msgstr "vilkti"
+
+msgid "Move/Drag Viewport"
+msgstr "Perkelti / vilkti peržiūros sritį"
+
+msgid "Keyboard"
+msgstr "Klaviatūra"
+
+msgid "Show Keyboard"
+msgstr "Rodyti klaviatūrą"
+
+msgid "Extra keys"
+msgstr "Papildomi raktai"
+
+msgid "Show Extra Keys"
+msgstr "Rodyti papildomus klavišus"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Perjungti Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Perjungti Alt"
+
+msgid "Toggle Windows"
+msgstr "Perjungti Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Siųsti skirtuką"
+
+msgid "Tab"
+msgstr "skirtukas"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Siųsti pabėgimą"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl + Alt + Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Siųsti Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Išjungti / paleisti iš naujo"
+
+msgid "Shutdown/Reboot..."
+msgstr "Išjungti / paleisti iš naujo..."
+
+msgid "Power"
+msgstr "Galia"
+
+msgid "Shutdown"
+msgstr "Išjungti"
+
+msgid "Reboot"
+msgstr "Paleisti iš naujo"
+
+msgid "Reset"
+msgstr "Atstatyti"
+
+msgid "Clipboard"
+msgstr "Iškarpinė"
+
+msgid "Clear"
+msgstr "Išvalyti"
+
+msgid "Fullscreen"
+msgstr "Per visą ekraną"
+
+msgid "Settings"
+msgstr "Nustatymai"
+
+msgid "Shared Mode"
+msgstr "Bendrinamas režimas"
+
+msgid "View Only"
+msgstr "Tik peržiūrėti"
+
+msgid "Clip to Window"
+msgstr "Klipas į langą"
+
+msgid "Scaling Mode:"
+msgstr "Mastelio keitimo režimas:"
+
+msgid "None"
+msgstr "Nė vienas"
+
+msgid "Local Scaling"
+msgstr "Vietinis mastelio keitimas"
+
+msgid "Remote Resizing"
+msgstr "Nuotolinis dydžio keitimas"
+
+msgid "Advanced"
+msgstr "Išplėstinė"
+
+msgid "Quality:"
+msgstr "Kokybė:"
+
+msgid "Compression level:"
+msgstr "Suspaudimo lygis:"
+
+msgid "Repeater ID:"
+msgstr "Kartotuvo ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Šifruoti"
+
+msgid "Host:"
+msgstr "Šeimininkas:"
+
+msgid "Port:"
+msgstr "Uostas:"
+
+msgid "Path:"
+msgstr "Kelias:"
+
+msgid "Automatic Reconnect"
+msgstr "Automatinis pakartotinis prisijungimas"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Reconnect Delay (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Rodyti tašką, kai nėra žymeklio"
+
+msgid "Logging:"
+msgstr "Žurnalas:"
+
+msgid "Version:"
+msgstr "Versija:"
+
+msgid "Disconnect"
+msgstr "Atjungti"
+
+msgid "Connect"
+msgstr "Prisijungti"
+
+msgid "Username:"
+msgstr "Vartotojo vardas:"
+
+msgid "Password:"
+msgstr "Slaptažodis:"
+
+msgid "Send Credentials"
+msgstr "Siųsti kredencialus"
+
+msgid "Cancel"
+msgstr "Atšaukti"
+
+msgid "Keys"
+msgstr "Raktai"
+
+msgid "Game Cursor Mode"
+msgstr "Žaidimo žymeklio režimas"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Paspauskite Esc klavišą, kad išeitumėte iš žymeklio užrakto režimo"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Žaidimo režimas pristabdytas, spustelėkite ekraną, kad atnaujintumėte žaidimo režimą."
+
+msgid "Clipboard Up"
+msgstr "Iškarpinė aukštyn"
+
+msgid "CLipboard Down"
+msgstr "Nuomėta mainų sritis"
+
+msgid "Clipboard Seamless"
+msgstr "Besiūlė iškarpinė"
+
+msgid "Prefer Local Cursor"
+msgstr "Pirmenybė teikiama vietiniam žymekliui"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Išversti sparčiuosius klavišus"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Įgalinti WebRTC UDP tranzitą"
+
+msgid "Enable WebP Compression"
+msgstr "Įgalinti WebP glaudinimą"
+
+msgid "Enable Performance Stats"
+msgstr "Įgalinti našumo statistiką"
+
+msgid "Enable Pointer Lock"
+msgstr "Įjungti rodyklės užraktą"
+
+msgid "IME Input Mode"
+msgstr "IME įvesties režimas"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Rodyti virtualios klaviatūros valdymą"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Perjungti valdymo skydelį klavišų paspaudimais"
+
+msgid "Render Native Resolution"
+msgstr "Pateikti vietinę skiriamąją gebą"
+
+msgid "Keyboard Shortcuts"
+msgstr "Klaviatūros nuorodos"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Įgalinti KasmVNC sparčiuosius klavišus"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 – perjungti valdymo skydelį"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 – perjungti žaidimo žymeklio režimą"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 – perjungti žymeklio užraktą"
+
+msgid "Stream Quality"
+msgstr "Srauto kokybė"
+
+msgid "Preset Modes:"
+msgstr "Iš anksto nustatyti režimai:"
+
+msgid "Static"
+msgstr "Statinis"
+
+msgid "Low"
+msgstr "Žemas"
+
+msgid "Medium"
+msgstr "Vidutinis"
+
+msgid "High"
+msgstr "aukštas"
+
+msgid "Extreme"
+msgstr "Ekstremalus"
+
+msgid "Lossless"
+msgstr "be nuostolių"
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Išjungta"
+
+msgid "On"
+msgstr "Įjungta"
+
+msgid "Dynamic Quality Min:"
+msgstr "Min. dinaminė kokybė:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maksimali dinaminė kokybė:"
+
+msgid "Treat Lossless:"
+msgstr "Treatless Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Kadrų dažnis:"
+
+msgid "Video JPEG Quality:"
+msgstr "Vaizdo JPEG kokybė:"
+
+msgid "Video WEBP Quality:"
+msgstr "Vaizdo įrašo WEBP kokybė:"
+
+msgid "Video Area:"
+msgstr "Vaizdo įrašų sritis:"
+
+msgid "Video Time:"
+msgstr "Vaizdo įrašo laikas:"
+
+msgid "Video Out Time:"
+msgstr "Vaizdo įrašo pasibaigimo laikas:"
+
+msgid "Video Mode Width:"
+msgstr "Vaizdo režimo plotis:"
+
+msgid "Video Mode Height:"
+msgstr "Vaizdo režimo aukštis:"
+
+msgid "Documentation"
+msgstr "Dokumentacija"
+
+msgid "Drag Viewport"
+msgstr "Drag Viewport"

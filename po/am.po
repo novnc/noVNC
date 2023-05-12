@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "በማገናኘት ላይ..."
+
+msgid "Disconnecting..."
+msgstr "ግንኙነት ማቋረጥ..."
+
+msgid "Reconnecting..."
+msgstr "እንደገና በመገናኘት ላይ..."
+
+msgid "Internal error"
+msgstr "ውስጣዊ ስህተት"
+
+msgid "Must set host"
+msgstr "አስተናጋጅ ማዘጋጀት አለበት"
+
+msgid "Connected (encrypted) to "
+msgstr "ተገናኝቷል (የተመሰጠረ)"
+
+msgid "Connected (unencrypted) to "
+msgstr "ተገናኝቷል (ያልተመሰጠረ)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "የሆነ ችግር ተፈጥሯል፣ ግንኙነቱ ተዘግቷል"
+
+msgid "Failed to connect to server"
+msgstr "ከአገልጋይ ጋር መገናኘት አልተሳካም"
+
+msgid "Disconnected"
+msgstr "ግንኙነት ተቋርጧል"
+
+msgid "New connection has been rejected with reason: "
+msgstr "አዲስ ግንኙነት በምክንያት ውድቅ ተደርጓል፡"
+
+msgid "New connection has been rejected"
+msgstr "አዲስ ግንኙነት ውድቅ ተደርጓል"
+
+msgid "Credentials are required"
+msgstr "ማስረጃዎች ያስፈልጋሉ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ስህተት አጋጥሞታል:"
+
+msgid "Hide/Show the control bar"
+msgstr "የቁጥጥር አሞሌን ደብቅ/ አሳይ"
+
+msgid "Drag"
+msgstr "ጎትት"
+
+msgid "Move/Drag Viewport"
+msgstr "የእይታ ቦታን አንቀሳቅስ/ጎትት"
+
+msgid "Keyboard"
+msgstr "የቁልፍ ሰሌዳ"
+
+msgid "Show Keyboard"
+msgstr "የቁልፍ ሰሌዳ አሳይ"
+
+msgid "Extra keys"
+msgstr "ተጨማሪ ቁልፎች"
+
+msgid "Show Extra Keys"
+msgstr "ተጨማሪ ቁልፎችን አሳይ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ቀያይር"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt ቀይር"
+
+msgid "Toggle Windows"
+msgstr "ዊንዶውስ ቀያይር"
+
+msgid "Windows"
+msgstr "ዊንዶውስ"
+
+msgid "Send Tab"
+msgstr "ትር ላክ"
+
+msgid "Tab"
+msgstr "ታብ"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "ማምለጫ ላክ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ላክ"
+
+msgid "Shutdown/Reboot"
+msgstr "ዝጋ/ዳግም አስነሳ"
+
+msgid "Shutdown/Reboot..."
+msgstr "ዝጋ/ዳግም አስነሳ..."
+
+msgid "Power"
+msgstr "ኃይል"
+
+msgid "Shutdown"
+msgstr "ዝጋው"
+
+msgid "Reboot"
+msgstr "ዳግም አስነሳ"
+
+msgid "Reset"
+msgstr "ዳግም አስጀምር"
+
+msgid "Clipboard"
+msgstr "ክሊፕቦርድ"
+
+msgid "Clear"
+msgstr "ግልጽ"
+
+msgid "Fullscreen"
+msgstr "ሙሉ ማያ"
+
+msgid "Settings"
+msgstr "ቅንብሮች"
+
+msgid "Shared Mode"
+msgstr "የተጋራ ሁነታ"
+
+msgid "View Only"
+msgstr "እይታ ብቻ"
+
+msgid "Clip to Window"
+msgstr "ወደ መስኮት ቅንጥብ"
+
+msgid "Scaling Mode:"
+msgstr "መለኪያ ሁነታ:"
+
+msgid "None"
+msgstr "ምንም"
+
+msgid "Local Scaling"
+msgstr "አካባቢያዊ ልኬት"
+
+msgid "Remote Resizing"
+msgstr "የርቀት ማስተካከያ"
+
+msgid "Advanced"
+msgstr "የላቀ"
+
+msgid "Quality:"
+msgstr "ጥራት:"
+
+msgid "Compression level:"
+msgstr "የመጨናነቅ ደረጃ"
+
+msgid "Repeater ID:"
+msgstr "ተደጋጋሚ መታወቂያ:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "አመስጥር"
+
+msgid "Host:"
+msgstr "አስተናጋጅ:"
+
+msgid "Port:"
+msgstr "ወደብ:"
+
+msgid "Path:"
+msgstr "መንገድ:"
+
+msgid "Automatic Reconnect"
+msgstr "ራስ-ሰር ዳግም ማገናኘት"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ዘግይቶ እንደገና ያገናኙ (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "ጠቋሚ በማይኖርበት ጊዜ ነጥብ አሳይ"
+
+msgid "Logging:"
+msgstr "መመዝገብ:"
+
+msgid "Version:"
+msgstr "ስሪት:"
+
+msgid "Disconnect"
+msgstr "ግንኙነት አቋርጥ"
+
+msgid "Connect"
+msgstr "ተገናኝ"
+
+msgid "Username:"
+msgstr "የተጠቃሚ ስም"
+
+msgid "Password:"
+msgstr "የይለፍ ቃል:"
+
+msgid "Send Credentials"
+msgstr "ምስክርነቶችን ላክ"
+
+msgid "Cancel"
+msgstr "ሰርዝ"
+
+msgid "Keys"
+msgstr "ቁልፎች"
+
+msgid "Game Cursor Mode"
+msgstr "የጨዋታ ጠቋሚ ሁነታ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ከጠቋሚ መቆለፊያ ሁነታ ለመውጣት Esc ቁልፍን ተጫን"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "የጨዋታ ሁነታ ባለበት ቆሟል፣ የጨዋታ ሁነታን ለመቀጠል ስክሪኑ ላይ ጠቅ ያድርጉ።"
+
+msgid "Clipboard Up"
+msgstr "ክሊፕቦርድ ወደ ላይ"
+
+msgid "CLipboard Down"
+msgstr "ክሊፕቦርድ ወደታች"
+
+msgid "Clipboard Seamless"
+msgstr "ክሊፕቦርድ እንከን የለሽ"
+
+msgid "Prefer Local Cursor"
+msgstr "አካባቢያዊ ጠቋሚን ምረጥ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "የቁልፍ ሰሌዳ አቋራጮችን ተርጉም"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit አንቃ"
+
+msgid "Enable WebP Compression"
+msgstr "WebP compression አንቃ"
+
+msgid "Enable Performance Stats"
+msgstr "የአፈጻጸም ስታቲስቲክስን አንቃ"
+
+msgid "Enable Pointer Lock"
+msgstr "ጠቋሚ መቆለፊያን አንቃ"
+
+msgid "IME Input Mode"
+msgstr "IME ግቤት ሁነታ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ምናባዊ የቁልፍ ሰሌዳ ቁጥጥር አሳይ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "የቁጥጥር ፓነልን በቁልፍ ጭነቶች ቀይር"
+
+msgid "Render Native Resolution"
+msgstr "ቤተኛ መፍትሄ ስጥ"
+
+msgid "Keyboard Shortcuts"
+msgstr "የቁልፍ ሰሌዳ አቋራጮች"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ቁልፍ ሰሌዳ አቋራጮችን አንቃ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - የቁጥጥር ፓነልን ቀይር"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - የጨዋታ ጠቋሚ ሁነታን ቀይር"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - የጠቋሚ መቆለፊያን ቀይር"
+
+msgid "Stream Quality"
+msgstr "የዥረት ጥራት"
+
+msgid "Preset Modes:"
+msgstr "ቅድመ-ሁኔታዎች"
+
+msgid "Static"
+msgstr "ስታቲክ"
+
+msgid "Low"
+msgstr "ዝቅተኛ"
+
+msgid "Medium"
+msgstr "መካከለኛ"
+
+msgid "High"
+msgstr "ከፍተኛ"
+
+msgid "Extreme"
+msgstr "እጅግ"
+
+msgid "Lossless"
+msgstr "የማይጠፋ"
+
+msgid "Custom"
+msgstr "ብጁ"
+
+msgid "Anti-Aliasing:"
+msgstr "የትብብር ተቃራኒዎች:"
+
+msgid "Auto Dynamic"
+msgstr "ራስ-ሰር ተለዋዋጭ"
+
+msgid "Off"
+msgstr "ጠፍቷል"
+
+msgid "On"
+msgstr "በርቷል"
+
+msgid "Dynamic Quality Min:"
+msgstr "ተለዋዋጭ ጥራት ደቂቃ:"
+
+msgid "Dynamic Quality Max:"
+msgstr "ተለዋዋጭ ጥራት ከፍተኛ፡"
+
+msgid "Treat Lossless:"
+msgstr "ያለ ኪሳራ ማከም:"
+
+msgid "Frame Rate:"
+msgstr "የፍሬም መጠን:"
+
+msgid "Video JPEG Quality:"
+msgstr "የቪዲዮ JPEG ጥራት:"
+
+msgid "Video WEBP Quality:"
+msgstr "የቪዲዮ WEBP ጥራት:"
+
+msgid "Video Area:"
+msgstr "የቪዲዮ አካባቢ:"
+
+msgid "Video Time:"
+msgstr "የቪዲዮ ጊዜ:"
+
+msgid "Video Out Time:"
+msgstr "የቪዲዮ ማብቂያ ጊዜ:"
+
+msgid "Video Mode Width:"
+msgstr "የቪዲዮ ሁነታ ስፋት:"
+
+msgid "Video Mode Height:"
+msgstr "የቪዲዮ ሁነታ ቁመት:"
+
+msgid "Documentation"
+msgstr "ሰነድ"
+
+msgid "Drag Viewport"
+msgstr "መመልከቻ ጎትት"

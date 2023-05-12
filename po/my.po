@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "ချိတ်ဆက်နေသည်..."
+
+msgid "Disconnecting..."
+msgstr "အဆက်ဖြတ်နေသည်..."
+
+msgid "Reconnecting..."
+msgstr "ပြန်လည်ချိတ်ဆက်နေသည်..."
+
+msgid "Internal error"
+msgstr "အတွင်းပိုင်းအမှား"
+
+msgid "Must set host"
+msgstr "အိမ်ရှင်သတ်မှတ်ရမယ်"
+
+msgid "Connected (encrypted) to "
+msgstr "ချိတ်ဆက်ထားသည် (ကုဒ်ဝှက်ထားသည်)"
+
+msgid "Connected (unencrypted) to "
+msgstr "ချိတ်ဆက်ထားသည် (စာဝှက်မထားသော)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "တစ်ခုခုမှားနေပြီ၊ ချိတ်ဆက်မှုပိတ်ထား"
+
+msgid "Failed to connect to server"
+msgstr "ဆာဗာသို့ ချိတ်ဆက်၍မရပါ"
+
+msgid "Disconnected"
+msgstr "အဆက်ပြတ်သွားပြီ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ချိတ်ဆက်မှုအသစ်ကို အကြောင်းပြချက်ဖြင့် ပယ်ချခဲ့သည်"
+
+msgid "New connection has been rejected"
+msgstr "ချိတ်ဆက်မှုအသစ်ကို ငြင်းပယ်ထားသည်"
+
+msgid "Credentials are required"
+msgstr "အထောက်အထားများ လိုအပ်သည်"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-"
+
+msgid "Hide/Show the control bar"
+msgstr "ထိန်းချုပ်မှုဘားကို ဖျောက်/ပြပါ"
+
+msgid "Drag"
+msgstr "ဆွဲ"
+
+msgid "Move/Drag Viewport"
+msgstr "ရှုခင်းကိုရွှေ့/ဆွဲပါ"
+
+msgid "Keyboard"
+msgstr "ကီးဘုတ်"
+
+msgid "Show Keyboard"
+msgstr "လက်ကွက်ကို ပြပါ"
+
+msgid "Extra keys"
+msgstr "အပိုသော့များ"
+
+msgid "Show Extra Keys"
+msgstr "အပိုသော့များကိုပြပါ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ကိုပြောင်းရန်"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt ကို ပြောင်းရန်"
+
+msgid "Toggle Windows"
+msgstr "Windows ကိုပြောင်းရန်"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "တဘ်ပို့ရန်"
+
+msgid "Tab"
+msgstr "တက်ဘ်"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "လွတ်မြောက်အောင် ပို့ပေးပါ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ပို့ပါ"
+
+msgid "Shutdown/Reboot"
+msgstr "ပိတ်/ပြန်ဖွင့်ပါ"
+
+msgid "Shutdown/Reboot..."
+msgstr "ပိတ်/ပြန်ဖွင့်..."
+
+msgid "Power"
+msgstr "ပါဝါ"
+
+msgid "Shutdown"
+msgstr "အပြီးပိတ်လိုက်သည်"
+
+msgid "Reboot"
+msgstr "ပြန်ဖွင့်ပါ"
+
+msgid "Reset"
+msgstr "ပြန်လည်သတ်မှတ်ခြင်း"
+
+msgid "Clipboard"
+msgstr "ကလစ်ဘုတ်"
+
+msgid "Clear"
+msgstr "ရှင်းလင်းသော"
+
+msgid "Fullscreen"
+msgstr "မျက်နှာပြင်အပြည့်"
+
+msgid "Settings"
+msgstr "ဆက်တင်များ"
+
+msgid "Shared Mode"
+msgstr "မျှဝေထားသည့်မုဒ်"
+
+msgid "View Only"
+msgstr "ကြည့်ရန်သာ"
+
+msgid "Clip to Window"
+msgstr "ပြတင်းပေါက်မှ ကလစ်"
+
+msgid "Scaling Mode:"
+msgstr "စကေးမုဒ်-"
+
+msgid "None"
+msgstr "မရှိဘူး"
+
+msgid "Local Scaling"
+msgstr "ဒေသအလိုက် အတိုင်းအတာ"
+
+msgid "Remote Resizing"
+msgstr "အဝေးမှ အရွယ်အစားပြောင်းလဲခြင်း"
+
+msgid "Advanced"
+msgstr "အဆင့်မြင့်"
+
+msgid "Quality:"
+msgstr "အရည်အသွေး:"
+
+msgid "Compression level:"
+msgstr "ချုံ့မှုအဆင့်-"
+
+msgid "Repeater ID:"
+msgstr "ထပ်ယူသူ ID-"
+
+msgid "WebSocket"
+msgstr "ဝဘ်ပေါက်ပေါက်"
+
+msgid "Encrypt"
+msgstr "စာဝှက်ရန်"
+
+msgid "Host:"
+msgstr "အိမ်ရှင်-"
+
+msgid "Port:"
+msgstr "ဆိပ်ကမ်း-"
+
+msgid "Path:"
+msgstr "လမ်း:"
+
+msgid "Automatic Reconnect"
+msgstr "အလိုအလျောက် ပြန်လည်ချိတ်ဆက်ခြင်း"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ပြန်ချိတ်ဆက်ရန်နှောင့်နှေး (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "ကာဆာမရှိသည့်အခါ အစက်ပြပါ"
+
+msgid "Logging:"
+msgstr "မှတ်တမ်း-"
+
+msgid "Version:"
+msgstr "ဗားရှင်း-"
+
+msgid "Disconnect"
+msgstr "အဆက်ဖြတ်ရန်"
+
+msgid "Connect"
+msgstr "ချိတ်ဆက်"
+
+msgid "Username:"
+msgstr "အသုံးပြုသူအမည်-"
+
+msgid "Password:"
+msgstr "စကားဝှက်-"
+
+msgid "Send Credentials"
+msgstr "အထောက်အထားများ ပေးပို့ပါ"
+
+msgid "Cancel"
+msgstr "ပယ်ဖျက်"
+
+msgid "Keys"
+msgstr "သော့များ"
+
+msgid "Game Cursor Mode"
+msgstr "ဂိမ်း Cursor မုဒ်"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Pointer Lock Mode မှထွက်ရန် Esc Key ကိုနှိပ်ပါ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ဂိမ်းမုဒ်ကို ခေတ္တရပ်ထားပြီး၊ ဂိမ်းမုဒ်ကို ပြန်လည်စတင်ရန် မျက်နှာပြင်ပေါ်တွင် နှိပ်ပါ။"
+
+msgid "Clipboard Up"
+msgstr "ကလစ်ဘုတ်ပေါ်"
+
+msgid "CLipboard Down"
+msgstr "ကလစ်ဘုတ်အောက်"
+
+msgid "Clipboard Seamless"
+msgstr "ညှပ်ဘုတ် ချောမွေ့ခြင်း"
+
+msgid "Prefer Local Cursor"
+msgstr "ဒေသခံကာဆာကို ဦးစားပေးပါ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ဘာသာပြန်ရန် ကီးဘုတ်ဖြတ်လမ်းများ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit ကိုဖွင့်ပါ"
+
+msgid "Enable WebP Compression"
+msgstr "WebP Compression ကိုဖွင့်ပါ"
+
+msgid "Enable Performance Stats"
+msgstr "စွမ်းဆောင်ရည်စာရင်းများကိုဖွင့်ပါ"
+
+msgid "Enable Pointer Lock"
+msgstr "ညွှန်ပြလော့ခ်ကိုဖွင့်ပါ"
+
+msgid "IME Input Mode"
+msgstr "IME ထည့်သွင်းမုဒ်"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "လက်ကွက်အတု ထိန်းချုပ်မှုကို ပြပါ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Keystrokes မှတဆင့် Control Panel ကိုပြောင်းရန်"
+
+msgid "Render Native Resolution"
+msgstr "ဇာတိဆုံးဖြတ်ချက်ကို တင်ဆက်ခြင်း"
+
+msgid "Keyboard Shortcuts"
+msgstr "ကီးဘုတ်ဖြတ်လမ်းများ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ကီးဘုတ်ဖြတ်လမ်းများကိုဖွင့်ပါ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Control Panel ကို ပြောင်းရန်"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Game Pointer Mode ကို ပြောင်းရန်"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Pointer Lock ကို ပြောင်းရန်"
+
+msgid "Stream Quality"
+msgstr "ထုတ်လွှင့်မှုအရည်အသွေး"
+
+msgid "Preset Modes:"
+msgstr "ကြိုတင်သတ်မှတ်မုဒ်များ-"
+
+msgid "Static"
+msgstr "ငြိမ်"
+
+msgid "Low"
+msgstr "နိမ့်"
+
+msgid "Medium"
+msgstr "အလယ်အလတ်"
+
+msgid "High"
+msgstr "မြင့်"
+
+msgid "Extreme"
+msgstr "အလွန်အမင်း"
+
+msgid "Lossless"
+msgstr "အရှုံးမရှိ"
+
+msgid "Custom"
+msgstr "စိတ်ကြိုက်"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "အလိုအလျောက် ဒိုင်းနမစ်"
+
+msgid "Off"
+msgstr "ပိတ်"
+
+msgid "On"
+msgstr "ဂ"
+
+msgid "Dynamic Quality Min:"
+msgstr "ဒိုင်နမစ် အရည်အသွေး အနည်းဆုံး-"
+
+msgid "Dynamic Quality Max:"
+msgstr "ဒိုင်နမစ် အရည်အသွေး အများဆုံး-"
+
+msgid "Treat Lossless:"
+msgstr "အရှုံးမရှိအောင် ကုသပါ"
+
+msgid "Frame Rate:"
+msgstr "ဘောင်နှုန်း-"
+
+msgid "Video JPEG Quality:"
+msgstr "ဗီဒီယို JPEG အရည်အသွေး-"
+
+msgid "Video WEBP Quality:"
+msgstr "ဗီဒီယို WEBP အရည်အသွေး-"
+
+msgid "Video Area:"
+msgstr "ဗီဒီယိုဧရိယာ-"
+
+msgid "Video Time:"
+msgstr "ဗီဒီယိုအချိန်-"
+
+msgid "Video Out Time:"
+msgstr "ဗီဒီယိုထွက်ချိန်-"
+
+msgid "Video Mode Width:"
+msgstr "ဗီဒီယိုမုဒ် အကျယ်-"
+
+msgid "Video Mode Height:"
+msgstr "ဗီဒီယိုမုဒ် အမြင့်-"
+
+msgid "Documentation"
+msgstr "စာရွက်စာတမ်း"
+
+msgid "Drag Viewport"
+msgstr "ရှုထောင့်ကို ဆွဲယူပါ"

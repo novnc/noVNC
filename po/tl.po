@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Kumokonekta..."
+
+msgid "Disconnecting..."
+msgstr "Nagdidiskonekta..."
+
+msgid "Reconnecting..."
+msgstr "Muling kumonekta..."
+
+msgid "Internal error"
+msgstr "Internal na error"
+
+msgid "Must set host"
+msgstr "Dapat magtakda ng host"
+
+msgid "Connected (encrypted) to "
+msgstr "Nakakonekta (naka-encrypt) sa "
+
+msgid "Connected (unencrypted) to "
+msgstr "Nakakonekta (hindi naka-encrypt) sa "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Nagkaroon ng problema, sarado ang koneksyon"
+
+msgid "Failed to connect to server"
+msgstr "Nabigong kumonekta sa server"
+
+msgid "Disconnected"
+msgstr "Nadiskonekta"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Ang bagong koneksyon ay tinanggihan nang may dahilan: "
+
+msgid "New connection has been rejected"
+msgstr "Ang bagong koneksyon ay tinanggihan"
+
+msgid "Credentials are required"
+msgstr "Kinakailangan ang mga kredensyal"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ay nakatagpo ng isang error:"
+
+msgid "Hide/Show the control bar"
+msgstr "Itago/Ipakita ang control bar"
+
+msgid "Drag"
+msgstr "I-drag"
+
+msgid "Move/Drag Viewport"
+msgstr "Ilipat/I-drag ang Viewport"
+
+msgid "Keyboard"
+msgstr "Keyboard"
+
+msgid "Show Keyboard"
+msgstr "Ipakita ang Keyboard"
+
+msgid "Extra keys"
+msgstr "Mga karagdagang susi"
+
+msgid "Show Extra Keys"
+msgstr "Ipakita ang Mga Dagdag na Susi"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "I-toggle ang Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "I-toggle ang Alt"
+
+msgid "Toggle Windows"
+msgstr "I-toggle ang Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Ipadala ang Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Ipadala ang Pagtakas"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ipadala ang Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Shutdown/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Isara/I-reboot..."
+
+msgid "Power"
+msgstr "Kapangyarihan"
+
+msgid "Shutdown"
+msgstr "Shutdown"
+
+msgid "Reboot"
+msgstr "I-reboot"
+
+msgid "Reset"
+msgstr "I-reset"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Malinaw"
+
+msgid "Fullscreen"
+msgstr "Fullscreen"
+
+msgid "Settings"
+msgstr "Mga Setting"
+
+msgid "Shared Mode"
+msgstr "Nakabahaging Mode"
+
+msgid "View Only"
+msgstr "Tingnan lamang"
+
+msgid "Clip to Window"
+msgstr "Clip sa Window"
+
+msgid "Scaling Mode:"
+msgstr "Scaling Mode:"
+
+msgid "None"
+msgstr "Wala"
+
+msgid "Local Scaling"
+msgstr "Lokal na Pagsusukat"
+
+msgid "Remote Resizing"
+msgstr "Remote Resizing"
+
+msgid "Advanced"
+msgstr "Advanced"
+
+msgid "Quality:"
+msgstr "Kalidad:"
+
+msgid "Compression level:"
+msgstr "Antas ng compression:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "I-encrypt"
+
+msgid "Host:"
+msgstr "Host:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Path:"
+
+msgid "Automatic Reconnect"
+msgstr "Awtomatikong Kumonekta muli"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Reconnect Delay (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Ipakita ang Dot kapag Walang Cursor"
+
+msgid "Logging:"
+msgstr "Pagtotroso:"
+
+msgid "Version:"
+msgstr "Bersyon:"
+
+msgid "Disconnect"
+msgstr "Idiskonekta"
+
+msgid "Connect"
+msgstr "Kumonekta"
+
+msgid "Username:"
+msgstr "Username:"
+
+msgid "Password:"
+msgstr "Password:"
+
+msgid "Send Credentials"
+msgstr "Magpadala ng Mga Kredensyal"
+
+msgid "Cancel"
+msgstr "Kanselahin"
+
+msgid "Keys"
+msgstr "Mga susi"
+
+msgid "Game Cursor Mode"
+msgstr "Game Cursor Mode"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Pindutin ang Esc Key upang lumabas sa Pointer Lock Mode"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Naka-pause ang Game Mode, mag-click sa screen para ipagpatuloy ang Game Mode."
+
+msgid "Clipboard Up"
+msgstr "Itaas ang Clipboard"
+
+msgid "CLipboard Down"
+msgstr "CLipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Mas gusto ang Lokal na Cursor"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Isalin ang mga keyboard shortcut"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Paganahin ang WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Paganahin ang WebP Compression"
+
+msgid "Enable Performance Stats"
+msgstr "I-enable ang Performance Stats"
+
+msgid "Enable Pointer Lock"
+msgstr "Paganahin ang Pointer Lock"
+
+msgid "IME Input Mode"
+msgstr "IME Input Mode"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Ipakita ang Virtual Keyboard Control"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "I-toggle ang Control Panel sa pamamagitan ng mga Keystroke"
+
+msgid "Render Native Resolution"
+msgstr "I-render ang Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Mga Keyboard Shortcut"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Paganahin ang KasmVNC Keyboard Shortcuts"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - I-toggle ang Control Panel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - I-toggle ang Game Pointer Mode"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - I-toggle ang Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Kalidad ng Stream"
+
+msgid "Preset Modes:"
+msgstr "Mga Preset na Mode:"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Low"
+msgstr "Mababa"
+
+msgid "Medium"
+msgstr "Katamtaman"
+
+msgid "High"
+msgstr "Mataas"
+
+msgid "Extreme"
+msgstr "Extreme"
+
+msgid "Lossless"
+msgstr "Walang kawalan"
+
+msgid "Custom"
+msgstr "Pasadya"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "off"
+
+msgid "On"
+msgstr "Naka-on"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamic na Kalidad Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamic na Marka ng Max:"
+
+msgid "Treat Lossless:"
+msgstr "Treat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Frame rate:"
+
+msgid "Video JPEG Quality:"
+msgstr "Kalidad ng JPEG ng Video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Kalidad ng Video WEBP:"
+
+msgid "Video Area:"
+msgstr "Lugar ng Video:"
+
+msgid "Video Time:"
+msgstr "Oras ng Video:"
+
+msgid "Video Out Time:"
+msgstr "Oras ng Video Out:"
+
+msgid "Video Mode Width:"
+msgstr "Lapad ng Video Mode:"
+
+msgid "Video Mode Height:"
+msgstr "Taas ng Video Mode:"
+
+msgid "Documentation"
+msgstr "Dokumentasyon"
+
+msgid "Drag Viewport"
+msgstr "I-drag ang Viewport"

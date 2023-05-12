@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Холбож байна..."
+
+msgid "Disconnecting..."
+msgstr "Салгаж байна..."
+
+msgid "Reconnecting..."
+msgstr "Дахин холбогдож байна..."
+
+msgid "Internal error"
+msgstr "Дотоод алдаа"
+
+msgid "Must set host"
+msgstr "Хастыг тохируулах ёстой"
+
+msgid "Connected (encrypted) to "
+msgstr "Холбогдсон (шифрлэгдсэн)"
+
+msgid "Connected (unencrypted) to "
+msgstr "Холбогдсон (шифрлэгдээгүй)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Ямар нэг алдаа гарлаа, холболт хаагдсан"
+
+msgid "Failed to connect to server"
+msgstr "Сервертэй холбогдож чадсангүй"
+
+msgid "Disconnected"
+msgstr "Таслагдсан"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Шинэ холболтоос татгалзсан шалтгаан нь:"
+
+msgid "New connection has been rejected"
+msgstr "Шинэ холболтоос татгалзсан"
+
+msgid "Credentials are required"
+msgstr "Итгэмжлэх жуух бичиг шаардлагатай"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC алдаа гарлаа:"
+
+msgid "Hide/Show the control bar"
+msgstr "Хяналтын мөрийг нуух/ харуулах"
+
+msgid "Drag"
+msgstr "Чирэх"
+
+msgid "Move/Drag Viewport"
+msgstr "Харах талбарыг зөөх/чирэх"
+
+msgid "Keyboard"
+msgstr "Гар"
+
+msgid "Show Keyboard"
+msgstr "Гарыг харуулах"
+
+msgid "Extra keys"
+msgstr "Нэмэлт түлхүүрүүд"
+
+msgid "Show Extra Keys"
+msgstr "Нэмэлт түлхүүрүүдийг харуулах"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl-г асаах/унтраах"
+
+msgid "Alt"
+msgstr "Алт"
+
+msgid "Toggle Alt"
+msgstr "Alt-ыг асаах/унтраах"
+
+msgid "Toggle Windows"
+msgstr "Windows-ыг асаах/унтраах"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Илгээх таб"
+
+msgid "Tab"
+msgstr "Таб"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Зутгал илгээх"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del илгээх"
+
+msgid "Shutdown/Reboot"
+msgstr "Унтраах/дахин ачаалах"
+
+msgid "Shutdown/Reboot..."
+msgstr "Унтраах/дахин ачаалах..."
+
+msgid "Power"
+msgstr "Хүч"
+
+msgid "Shutdown"
+msgstr "Унтраах"
+
+msgid "Reboot"
+msgstr "Дахин ачаалах"
+
+msgid "Reset"
+msgstr "Дахин тохируулах"
+
+msgid "Clipboard"
+msgstr "Хүрээний санах ой"
+
+msgid "Clear"
+msgstr "Цэвэр"
+
+msgid "Fullscreen"
+msgstr "Дэлгэц дүүрэн"
+
+msgid "Settings"
+msgstr "Тохиргоо"
+
+msgid "Shared Mode"
+msgstr "Хуваалцсан горим"
+
+msgid "View Only"
+msgstr "Зөвхөн харах"
+
+msgid "Clip to Window"
+msgstr "Цонхонд хавчих"
+
+msgid "Scaling Mode:"
+msgstr "Хамшрах горим:"
+
+msgid "None"
+msgstr "Үгүй"
+
+msgid "Local Scaling"
+msgstr "Орон нутгийн масштаб"
+
+msgid "Remote Resizing"
+msgstr "Алсын хэмжээг өөрчлөх"
+
+msgid "Advanced"
+msgstr "Дэвшилтэт"
+
+msgid "Quality:"
+msgstr "Чанар:"
+
+msgid "Compression level:"
+msgstr "Шахалтын түвшин:"
+
+msgid "Repeater ID:"
+msgstr "Давтагч ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Шифрлэх"
+
+msgid "Host:"
+msgstr "Хөтлөгч:"
+
+msgid "Port:"
+msgstr "Порт:"
+
+msgid "Path:"
+msgstr "Зам:"
+
+msgid "Automatic Reconnect"
+msgstr "Автоматаар дахин холбох"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Дахин холболтын саатал (мс):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Курсор байхгүй үед цэгийг харуулах"
+
+msgid "Logging:"
+msgstr "Бүртгэл:"
+
+msgid "Version:"
+msgstr "Хувилбар:"
+
+msgid "Disconnect"
+msgstr "Таслах"
+
+msgid "Connect"
+msgstr "Холбох"
+
+msgid "Username:"
+msgstr "Хэрэглэгчийн нэр:"
+
+msgid "Password:"
+msgstr "Нууц үг:"
+
+msgid "Send Credentials"
+msgstr "Итгэмжлэх жуух бичгээ илгээх"
+
+msgid "Cancel"
+msgstr "Цуцлах"
+
+msgid "Keys"
+msgstr "Түлхүүр"
+
+msgid "Game Cursor Mode"
+msgstr "Тоглоомын курсорын горим"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Заагч түгжих горимоос гарахын тулд Esc товчийг дарна уу"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Тоглоомын горим түр зогссон. Тоглоомын горимыг үргэлжлүүлэхийн тулд дэлгэцэн дээр дарна уу."
+
+msgid "Clipboard Up"
+msgstr "Цахилгаан санах ой"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Цахилгаан санах ойгүй"
+
+msgid "Prefer Local Cursor"
+msgstr "Орон нутгийн курсорыг илүүд үзэх"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Гарын товчлолыг орчуулах"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit-г идэвхжүүлэх"
+
+msgid "Enable WebP Compression"
+msgstr "WebP шахалтыг идэвхжүүлэх"
+
+msgid "Enable Performance Stats"
+msgstr "Гүйцэтгэлийн статистикийг идэвхжүүлэх"
+
+msgid "Enable Pointer Lock"
+msgstr "Заагч түгжээг идэвхжүүлэх"
+
+msgid "IME Input Mode"
+msgstr "IME оролтын горим"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Виртуал гарын удирдлагыг харуулах"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Хяналтын самбарыг товчлуураар солих"
+
+msgid "Render Native Resolution"
+msgstr "Үндсэн нарийвчлалыг харуулах"
+
+msgid "Keyboard Shortcuts"
+msgstr "Гарын товчлол"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC гарын товчлолыг идэвхжүүлэх"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Хяналтын самбарыг асаах/унтраах"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Тоглоомын заагч горимыг асаах/унтраах"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Заагч түгжээг сэлгэх"
+
+msgid "Stream Quality"
+msgstr "Дамжуулалтын чанар"
+
+msgid "Preset Modes:"
+msgstr "Урьдчилан тохируулсан горимууд:"
+
+msgid "Static"
+msgstr "Статик"
+
+msgid "Low"
+msgstr "Бага"
+
+msgid "Medium"
+msgstr "Дунд"
+
+msgid "High"
+msgstr "Өндөр"
+
+msgid "Extreme"
+msgstr "Онцгой"
+
+msgid "Lossless"
+msgstr "Алдагдалгүй"
+
+msgid "Custom"
+msgstr "Захиалгат"
+
+msgid "Anti-Aliasing:"
+msgstr "Эсрэг ялгах:"
+
+msgid "Auto Dynamic"
+msgstr "Авто динамик"
+
+msgid "Off"
+msgstr "Унтраах"
+
+msgid "On"
+msgstr "Асаалттай"
+
+msgid "Dynamic Quality Min:"
+msgstr "Динамик чанарын хамгийн бага:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Динамик чанарын дээд тал нь:"
+
+msgid "Treat Lossless:"
+msgstr "Алдагдалгүй эмчил:"
+
+msgid "Frame Rate:"
+msgstr "Хүрээний хурд:"
+
+msgid "Video JPEG Quality:"
+msgstr "Видео JPEG чанар:"
+
+msgid "Video WEBP Quality:"
+msgstr "Видео WEBP чанар:"
+
+msgid "Video Area:"
+msgstr "Видео хэсэг:"
+
+msgid "Video Time:"
+msgstr "Видео цаг:"
+
+msgid "Video Out Time:"
+msgstr "Видео гарах цаг:"
+
+msgid "Video Mode Width:"
+msgstr "Видео горимын өргөн:"
+
+msgid "Video Mode Height:"
+msgstr "Видео горимын өндөр:"
+
+msgid "Documentation"
+msgstr "Баримт бичиг"
+
+msgid "Drag Viewport"
+msgstr "Харах цонхыг чирэх"

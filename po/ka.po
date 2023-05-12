@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "დაკავშირება..."
+
+msgid "Disconnecting..."
+msgstr "გათიშვა..."
+
+msgid "Reconnecting..."
+msgstr "ხელახლა დაკავშირება..."
+
+msgid "Internal error"
+msgstr "შინაგანი შეცდომა"
+
+msgid "Must set host"
+msgstr "აუცილებელი მასპინძელი"
+
+msgid "Connected (encrypted) to "
+msgstr "დაკავშირებულია (დაშიფრულია)"
+
+msgid "Connected (unencrypted) to "
+msgstr "დაკავშირებულია (დაშიფრული)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "რაღაც შეცდომა მოხდა, კავშირი დახურულია"
+
+msgid "Failed to connect to server"
+msgstr "ვერ დაკავშირება სერვერთან"
+
+msgid "Disconnected"
+msgstr "გათიშული"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ახალი კავშირი უარყოფილია მიზეზით:"
+
+msgid "New connection has been rejected"
+msgstr "ახალი კავშირი უარყოფილია"
+
+msgid "Credentials are required"
+msgstr "აუცილებელია რწმუნებათა სიგელები"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC შეექმნა შეცდომა:"
+
+msgid "Hide/Show the control bar"
+msgstr "საკონტროლო ზოლის დამალვა/ჩვენება"
+
+msgid "Drag"
+msgstr "გადაათრიე"
+
+msgid "Move/Drag Viewport"
+msgstr "გადაადგილება/ჩაათრიე ხედის პორტი"
+
+msgid "Keyboard"
+msgstr "კლავიატურა"
+
+msgid "Show Keyboard"
+msgstr "კლავიატურის ჩვენება"
+
+msgid "Extra keys"
+msgstr "დამატებითი გასაღებები"
+
+msgid "Show Extra Keys"
+msgstr "დამატებითი კლავიშების ჩვენება"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl-ის გადართვა"
+
+msgid "Alt"
+msgstr "ალტ"
+
+msgid "Toggle Alt"
+msgstr "გადართვა Alt"
+
+msgid "Toggle Windows"
+msgstr "გადართვა Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "ჩანართის გაგზავნა"
+
+msgid "Tab"
+msgstr "ჩანართი"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "გაქცევის გაგზავნა"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "გაგზავნა Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "გამორთვა/გადატვირთვა"
+
+msgid "Shutdown/Reboot..."
+msgstr "გამორთვა/გადატვირთვა..."
+
+msgid "Power"
+msgstr "Ძალა"
+
+msgid "Shutdown"
+msgstr "Გათიშვა"
+
+msgid "Reboot"
+msgstr "გადატვირთვა"
+
+msgid "Reset"
+msgstr "გადატვირთვა"
+
+msgid "Clipboard"
+msgstr "გაცვლის ბუფერი"
+
+msgid "Clear"
+msgstr "გასუფთავება"
+
+msgid "Fullscreen"
+msgstr "Მთლიანი ეკრანი"
+
+msgid "Settings"
+msgstr "პარამეტრები"
+
+msgid "Shared Mode"
+msgstr "გაზიარებული რეჟიმი"
+
+msgid "View Only"
+msgstr "მხოლოდ ნახვა"
+
+msgid "Clip to Window"
+msgstr "გადაჭერა ფანჯარაში"
+
+msgid "Scaling Mode:"
+msgstr "სკალირების რეჟიმი:"
+
+msgid "None"
+msgstr "არცერთი"
+
+msgid "Local Scaling"
+msgstr "ლოკალური სკალირება"
+
+msgid "Remote Resizing"
+msgstr "დისტანციური ზომის შეცვლა"
+
+msgid "Advanced"
+msgstr "Მოწინავე"
+
+msgid "Quality:"
+msgstr "ხარისხი:"
+
+msgid "Compression level:"
+msgstr "შეკუმშვის დონე:"
+
+msgid "Repeater ID:"
+msgstr "გამეორების ID:"
+
+msgid "WebSocket"
+msgstr "ვებსოკეტი"
+
+msgid "Encrypt"
+msgstr "დაშიფვრა"
+
+msgid "Host:"
+msgstr "მასპინძელი:"
+
+msgid "Port:"
+msgstr "პორტი:"
+
+msgid "Path:"
+msgstr "გზა:"
+
+msgid "Automatic Reconnect"
+msgstr "ავტომატური ხელახლა დაკავშირება"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ხელახლა დაკავშირების დაყოვნება (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "პუნქტის ჩვენება, როდესაც კურსორი არ არის"
+
+msgid "Logging:"
+msgstr "მოწერა:"
+
+msgid "Version:"
+msgstr "ვერსია:"
+
+msgid "Disconnect"
+msgstr "გათიშვა"
+
+msgid "Connect"
+msgstr "დაკავშირება"
+
+msgid "Username:"
+msgstr "მომხმარებლის სახელი:"
+
+msgid "Password:"
+msgstr "პაროლი:"
+
+msgid "Send Credentials"
+msgstr "სერთიფიკატების გაგზავნა"
+
+msgid "Cancel"
+msgstr "გაუქმება"
+
+msgid "Keys"
+msgstr "Გასაღებები"
+
+msgid "Game Cursor Mode"
+msgstr "თამაშის კურსორის რეჟიმი"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "დააჭირეთ Esc ღილაკს პოინტერის დაბლოკვის რეჟიმიდან გასასვლელად"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "თამაშის რეჟიმი შეჩერებულია, დააწკაპუნეთ ეკრანზე თამაშის რეჟიმის გასაგრძელებლად."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard ქვემოთ"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "მირჩევთ ლოკალურ კურსორს"
+
+msgid "Translate keyboard shortcuts"
+msgstr "კლავიატურის მალსახმობების თარგმნა"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit-ის ჩართვა"
+
+msgid "Enable WebP Compression"
+msgstr "WebP შეკუმშვის ჩართვა"
+
+msgid "Enable Performance Stats"
+msgstr "ჩართეთ შესრულების სტატისტიკა"
+
+msgid "Enable Pointer Lock"
+msgstr "Pointer Lock-ის ჩართვა"
+
+msgid "IME Input Mode"
+msgstr "IME შეყვანის რეჟიმი"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ვირტუალური კლავიატურის კონტროლის ჩვენება"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "პანელის გადართვა კლავიშების საშუალებით"
+
+msgid "Render Native Resolution"
+msgstr "რენდერი Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "კლავიატურის მალსახმობები"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "ჩართეთ KasmVNC კლავიატურის მალსახმობები"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - საკონტროლო პანელის გადართვა"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - თამაშის მაჩვენებლის რეჟიმის გადართვა"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - გადართვა Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "ნაკადის ხარისხი"
+
+msgid "Preset Modes:"
+msgstr "წინასწარ დაყენებული რეჟიმები:"
+
+msgid "Static"
+msgstr "სტატიკური"
+
+msgid "Low"
+msgstr "დაბალი"
+
+msgid "Medium"
+msgstr "საშუალო"
+
+msgid "High"
+msgstr "მაღალი"
+
+msgid "Extreme"
+msgstr "ექსტრემალური"
+
+msgid "Lossless"
+msgstr "დაკარგული"
+
+msgid "Custom"
+msgstr "ჩვეულებრივი"
+
+msgid "Anti-Aliasing:"
+msgstr "ანტი-ალიასინგი:"
+
+msgid "Auto Dynamic"
+msgstr "ავტო დინამიური"
+
+msgid "Off"
+msgstr "გამორთული"
+
+msgid "On"
+msgstr "ჩართული"
+
+msgid "Dynamic Quality Min:"
+msgstr "დინამიური ხარისხის მინიმალური:"
+
+msgid "Dynamic Quality Max:"
+msgstr "დინამიური ხარისხის მაქს:"
+
+msgid "Treat Lossless:"
+msgstr "მკურნალობა Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Კადრების სიხშირე:"
+
+msgid "Video JPEG Quality:"
+msgstr "ვიდეოს JPEG ხარისხი:"
+
+msgid "Video WEBP Quality:"
+msgstr "ვიდეოს WEBP ხარისხი:"
+
+msgid "Video Area:"
+msgstr "ვიდეო ზონა:"
+
+msgid "Video Time:"
+msgstr "ვიდეოს დრო:"
+
+msgid "Video Out Time:"
+msgstr "ვიდეოს გამოსვლის დრო:"
+
+msgid "Video Mode Width:"
+msgstr "ვიდეო რეჟიმის სიგანე:"
+
+msgid "Video Mode Height:"
+msgstr "ვიდეო რეჟიმის სიმაღლე:"
+
+msgid "Documentation"
+msgstr "დოკუმენტაცია"
+
+msgid "Drag Viewport"
+msgstr "გადაათრიეთ ხედის პორტი"

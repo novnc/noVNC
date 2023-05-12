@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr ". ןדניבראַפ"
+
+msgid "Disconnecting..."
+msgstr ". גניטקענאַקסיד"
+
+msgid "Reconnecting..."
+msgstr ". גניטקענאַקיר"
+
+msgid "Internal error"
+msgstr "תועט ךעלרעני"
+
+msgid "Must set host"
+msgstr "סאָבעלאַב ןלעטש ןזומ"
+
+msgid "Connected (encrypted) to "
+msgstr "וצ (דיטפּירקנע) ןדנובראפ"
+
+msgid "Connected (unencrypted) to "
+msgstr "וצ (דיטפּירקנענאַ) ןדנובראפ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "טכאמראפ זיא רשק יד ,שלאַפ זיא סעפּע"
+
+msgid "Failed to connect to server"
+msgstr "רעוורעס וצ ןדניבראַפ וצ שרעדנאַ טינ"
+
+msgid "Disconnected"
+msgstr "דיטקענאַקסיד"
+
+msgid "New connection has been rejected with reason: "
+msgstr "הביס טימ ןפראווראפ זיא רשק עיַינ"
+
+msgid "New connection has been rejected"
+msgstr "ןפראווראפ זיא רשק עיַינ"
+
+msgid "Credentials are required"
+msgstr "טגנאלראפ ןענעז זלאַשנעדערק"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC תועט אַ טרעטנאָלפּעג:"
+
+msgid "Hide/Show the control bar"
+msgstr "ראַב לאָרטנאָק יד ןזיַיוו / ןטלאַהאַב"
+
+msgid "Drag"
+msgstr "ןפּעלש"
+
+msgid "Move/Drag Viewport"
+msgstr "טראָפּויוו ןפּעלש / ךאַמ"
+
+msgid "Keyboard"
+msgstr "דראביק"
+
+msgid "Show Keyboard"
+msgstr "רוטאַיוואַלק ןזיַיוו"
+
+msgid "Extra keys"
+msgstr "ןעלסילש ערטסקע"
+
+msgid "Show Extra Keys"
+msgstr "ןעלסילש ערטסקע ןזיַיוו"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "לרטק ךאַמ"
+
+msgid "Alt"
+msgstr "טלא"
+
+msgid "Toggle Alt"
+msgstr "טלאַ ןדער"
+
+msgid "Toggle Windows"
+msgstr "רעטצנעפֿ ןכאַמ"
+
+msgid "Windows"
+msgstr "זואָדניוו"
+
+msgid "Send Tab"
+msgstr "לטיווק ןקיש"
+
+msgid "Tab"
+msgstr "באט"
+
+msgid "Esc"
+msgstr "קסע"
+
+msgid "Send Escape"
+msgstr "ןפיולטנאַ ןקיש"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl + Alt + Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ןקיש"
+
+msgid "Shutdown/Reboot"
+msgstr "טאָאָבער / ןואַדטאַש"
+
+msgid "Shutdown/Reboot..."
+msgstr ". טאָאָבער / ןואַדטאַש"
+
+msgid "Power"
+msgstr "טפאַרק"
+
+msgid "Shutdown"
+msgstr "ןואַדטאַש"
+
+msgid "Reboot"
+msgstr "טאָאָבער"
+
+msgid "Reset"
+msgstr "קיטעטשאַב"
+
+msgid "Clipboard"
+msgstr "דראָבפּילק"
+
+msgid "Clear"
+msgstr "ראלק"
+
+msgid "Fullscreen"
+msgstr "ןירקס עצנאג"
+
+msgid "Settings"
+msgstr "סגניטטעס"
+
+msgid "Shared Mode"
+msgstr "עדאָמ דרעש"
+
+msgid "View Only"
+msgstr "View זיולב"
+
+msgid "Clip to Window"
+msgstr "רעטצנעפֿ וצ פּילק"
+
+msgid "Scaling Mode:"
+msgstr "עדאָמ גנילאַקס"
+
+msgid "None"
+msgstr "ןייק"
+
+msgid "Local Scaling"
+msgstr "גנילייקס לאַקאָל"
+
+msgid "Remote Resizing"
+msgstr "גניזיסער טיַיוו"
+
+msgid "Advanced"
+msgstr "עטריסנאַוואַ"
+
+msgid "Quality:"
+msgstr "טעטילאַווק"
+
+msgid "Compression level:"
+msgstr "הגרדמ ןאַשערפּמאַק"
+
+msgid "Repeater ID:"
+msgstr "ןיַיש רעטאַעפּער"
+
+msgid "WebSocket"
+msgstr "טעקקאָס בעוו"
+
+msgid "Encrypt"
+msgstr "טפּירקנע"
+
+msgid "Host:"
+msgstr "סאָבעלאַב"
+
+msgid "Port:"
+msgstr "טראָפּ"
+
+msgid "Path:"
+msgstr "ךרד"
+
+msgid "Automatic Reconnect"
+msgstr "טקענאַקיר קיטאַמאַטאָ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "(סמ) ןטלאַהראַפ טקענאַקיר"
+
+msgid "Show Dot when No Cursor"
+msgstr "רעפֿיול ןייק ןעוו טקנופּ ןזיַיוו"
+
+msgid "Logging:"
+msgstr "גניגאָל"
+
+msgid "Version:"
+msgstr "עיסרעוו"
+
+msgid "Disconnect"
+msgstr "טקענאַקסיד"
+
+msgid "Connect"
+msgstr "ןדניבראַפ"
+
+msgid "Username:"
+msgstr "ןעמאָנ רעצינאַב"
+
+msgid "Password:"
+msgstr "טראָווכירפּש"
+
+msgid "Send Credentials"
+msgstr "זלאַשטנעדאַרק ןקיש"
+
+msgid "Cancel"
+msgstr "ןכאַמ לטאָב"
+
+msgid "Keys"
+msgstr "ןעלסילש"
+
+msgid "Game Cursor Mode"
+msgstr "עדאָמ רעפֿיול ליפּש"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "עדאָמ קאַל רעטניופּ יד גנאַגסיוראַ וצ Esc Key ןקירד"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "עדאָמ ליפּש רעדיוו כיז נעמענ וצ ןלעטשראַפ ףיוא טיג ,דזאָפּ עדאָמ ליפּש"
+
+msgid "Clipboard Up"
+msgstr "ףיוראַ דראָבפּילק"
+
+msgid "CLipboard Down"
+msgstr "פּאָראַ דראָבפּילק"
+
+msgid "Clipboard Seamless"
+msgstr "סאַלמיס דראָבפּילק"
+
+msgid "Prefer Local Cursor"
+msgstr "רעפֿיול עלאקאל רעכליב"
+
+msgid "Translate keyboard shortcuts"
+msgstr "געווכרוד רוטאַיוואַלק ןצעזרעביא"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit ןבעג"
+
+msgid "Enable WebP Compression"
+msgstr "ןאַשערפּמאַק פּבעוו ןבעג"
+
+msgid "Enable Performance Stats"
+msgstr "ץאַטס גנולעטשראָפ ןבעג"
+
+msgid "Enable Pointer Lock"
+msgstr "Enable Pointer Lock"
+
+msgid "IME Input Mode"
+msgstr "IME עדאָמ ביַירשניַיראַ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "לאָרטנאָק רוטאַיוואַלק לאַוטריוו ןזיַיוו"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "סקואָרטסיק ךרוד לענאַפּ לאָרטנאָק ךאַמ"
+
+msgid "Render Native Resolution"
+msgstr "עטאָלכאַה ןריובעג ןבעגסיוראַ"
+
+msgid "Keyboard Shortcuts"
+msgstr "ץאַקטראָש רוטאַיוואַלק"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "ץאַקטראָש רוטאַיוואַלק KasmVNC ןבעג"
+
+msgid "1 - Toggle Control Panel"
+msgstr "לענאַפּ לאָרטנאָק לאַגאַט - 1"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "עדאָמ לטיַיט ליפּש לאַגאַט - 2"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "קאַל רעטניופּ לאַגאַט - 3"
+
+msgid "Stream Quality"
+msgstr "יטילאַווק םירטס"
+
+msgid "Preset Modes:"
+msgstr "סעדאָמ טעסירפּ"
+
+msgid "Static"
+msgstr "קיטאַטס"
+
+msgid "Low"
+msgstr "קירעדינ"
+
+msgid "Medium"
+msgstr "לטימ"
+
+msgid "High"
+msgstr "ךיוה"
+
+msgid "Extreme"
+msgstr "םערטסקע"
+
+msgid "Lossless"
+msgstr "ססעלססאָל"
+
+msgid "Custom"
+msgstr "גהנמ"
+
+msgid "Anti-Aliasing:"
+msgstr "גניסאַילאַ-יטנאַ"
+
+msgid "Auto Dynamic"
+msgstr "קימאַניד אָטואַ"
+
+msgid "Off"
+msgstr "קעוואַ"
+
+msgid "On"
+msgstr "ףיוא"
+
+msgid "Dynamic Quality Min:"
+msgstr "ןימ יטילאַווק שימאַניד"
+
+msgid "Dynamic Quality Max:"
+msgstr "סקאַמ יטילאַווק שימאַניד"
+
+msgid "Treat Lossless:"
+msgstr "ססעלססאָל ןעלדנאַהאַב"
+
+msgid "Frame Rate:"
+msgstr "סרוק םאַר"
+
+msgid "Video JPEG Quality:"
+msgstr "טעטילאַווק געפּשזד אעדיוו"
+
+msgid "Video WEBP Quality:"
+msgstr "טעטילאַווק פּבעוו אעדיוו"
+
+msgid "Video Area:"
+msgstr "חטש אעדיוו"
+
+msgid "Video Time:"
+msgstr "טייצ אעדיוו"
+
+msgid "Video Out Time:"
+msgstr "טייצ טואָ אעדיוו"
+
+msgid "Video Mode Width:"
+msgstr "טיירב עדאָמ אעדיוו"
+
+msgid "Video Mode Height:"
+msgstr "ךייה עדאָמ אעדיוו"
+
+msgid "Documentation"
+msgstr "ןאָיטאַטנעמוקאָד"
+
+msgid "Drag Viewport"
+msgstr "טראָפּויוו ןפּעלש"

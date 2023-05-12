@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Menghubungkan..."
+
+msgid "Disconnecting..."
+msgstr "Memutuskan..."
+
+msgid "Reconnecting..."
+msgstr "Menghubungkan kembali..."
+
+msgid "Internal error"
+msgstr "Kesalahan internal"
+
+msgid "Must set host"
+msgstr "Harus mengatur tuan rumah"
+
+msgid "Connected (encrypted) to "
+msgstr "Terhubung (terenkripsi) ke "
+
+msgid "Connected (unencrypted) to "
+msgstr "Terhubung (tidak terenkripsi) ke "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Ada yang tidak beres, koneksi ditutup"
+
+msgid "Failed to connect to server"
+msgstr "Gagal terhubung ke server"
+
+msgid "Disconnected"
+msgstr "Terputus"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Koneksi baru telah ditolak dengan alasan:"
+
+msgid "New connection has been rejected"
+msgstr "Koneksi baru telah ditolak"
+
+msgid "Credentials are required"
+msgstr "Kredensial diperlukan"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC mengalami kesalahan:"
+
+msgid "Hide/Show the control bar"
+msgstr "Sembunyikan/Tampilkan bilah kontrol"
+
+msgid "Drag"
+msgstr "Menyeret"
+
+msgid "Move/Drag Viewport"
+msgstr "Pindahkan/Seret Area Pandang"
+
+msgid "Keyboard"
+msgstr "Papan ketik"
+
+msgid "Show Keyboard"
+msgstr "Tampilkan Papan Ketik"
+
+msgid "Extra keys"
+msgstr "Kunci tambahan"
+
+msgid "Show Extra Keys"
+msgstr "Tampilkan Kunci Ekstra"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Beralih Ctrl"
+
+msgid "Alt"
+msgstr "alt"
+
+msgid "Toggle Alt"
+msgstr "Alihkan Alt"
+
+msgid "Toggle Windows"
+msgstr "Beralih Windows"
+
+msgid "Windows"
+msgstr "Jendela"
+
+msgid "Send Tab"
+msgstr "Tab Kirim"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "ESC"
+
+msgid "Send Escape"
+msgstr "Kirim Pelarian"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Kirim Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Matikan/Boot Ulang"
+
+msgid "Shutdown/Reboot..."
+msgstr "Matikan/Nyalakan Ulang..."
+
+msgid "Power"
+msgstr "Kekuatan"
+
+msgid "Shutdown"
+msgstr "Matikan"
+
+msgid "Reboot"
+msgstr "Menyalakan ulang"
+
+msgid "Reset"
+msgstr "Mengatur ulang"
+
+msgid "Clipboard"
+msgstr "Papan klip"
+
+msgid "Clear"
+msgstr "Jernih"
+
+msgid "Fullscreen"
+msgstr "Layar penuh"
+
+msgid "Settings"
+msgstr "Pengaturan"
+
+msgid "Shared Mode"
+msgstr "Mode Bersama"
+
+msgid "View Only"
+msgstr "Lihat Saja"
+
+msgid "Clip to Window"
+msgstr "Klip ke Jendela"
+
+msgid "Scaling Mode:"
+msgstr "Mode Penskalaan:"
+
+msgid "None"
+msgstr "Tidak ada"
+
+msgid "Local Scaling"
+msgstr "Penskalaan Lokal"
+
+msgid "Remote Resizing"
+msgstr "Mengubah Ukuran Jarak Jauh"
+
+msgid "Advanced"
+msgstr "Canggih"
+
+msgid "Quality:"
+msgstr "Kualitas:"
+
+msgid "Compression level:"
+msgstr "Tingkat kompresi:"
+
+msgid "Repeater ID:"
+msgstr "ID pengulang:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Enkripsi"
+
+msgid "Host:"
+msgstr "Tuan rumah:"
+
+msgid "Port:"
+msgstr "Pelabuhan:"
+
+msgid "Path:"
+msgstr "Jalur:"
+
+msgid "Automatic Reconnect"
+msgstr "Sambung Ulang Otomatis"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Hubungkan kembali Penundaan (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Tampilkan Titik saat Tidak Ada Kursor"
+
+msgid "Logging:"
+msgstr "Mencatat:"
+
+msgid "Version:"
+msgstr "Versi: kapan:"
+
+msgid "Disconnect"
+msgstr "Memutuskan"
+
+msgid "Connect"
+msgstr "Menghubung"
+
+msgid "Username:"
+msgstr "Nama belakang:"
+
+msgid "Password:"
+msgstr "Kata sandi:"
+
+msgid "Send Credentials"
+msgstr "Kirim Kredensial"
+
+msgid "Cancel"
+msgstr "Membatalkan"
+
+msgid "Keys"
+msgstr "Kunci"
+
+msgid "Game Cursor Mode"
+msgstr "Mode Kursor Permainan"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Tekan Tombol Esc untuk Keluar dari Mode Kunci Penunjuk"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Mode Game dijeda, klik di layar untuk melanjutkan Mode Game."
+
+msgid "Clipboard Up"
+msgstr "Papan Klip Naik"
+
+msgid "CLipboard Down"
+msgstr "Papan klip Turun"
+
+msgid "Clipboard Seamless"
+msgstr "Papan Klip Mulus"
+
+msgid "Prefer Local Cursor"
+msgstr "Lebih suka Kursor Lokal"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Terjemahkan pintasan keyboard"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Aktifkan Transit UDP WebRTC"
+
+msgid "Enable WebP Compression"
+msgstr "Aktifkan Kompresi WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Aktifkan Statistik Performa"
+
+msgid "Enable Pointer Lock"
+msgstr "Aktifkan Kunci Penunjuk"
+
+msgid "IME Input Mode"
+msgstr "Mode Masukan IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Tampilkan Kontrol Keyboard Virtual"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Beralih Panel Kontrol melalui Keystrokes"
+
+msgid "Render Native Resolution"
+msgstr "Buat Resolusi Asli"
+
+msgid "Keyboard Shortcuts"
+msgstr "Pintasan Keyboard"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Aktifkan Pintasan Keyboard KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Alihkan Panel Kontrol"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Alihkan Mode Penunjuk Permainan"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Alihkan Kunci Penunjuk"
+
+msgid "Stream Quality"
+msgstr "Kualitas Aliran"
+
+msgid "Preset Modes:"
+msgstr "Mode Preset:"
+
+msgid "Static"
+msgstr "Statis"
+
+msgid "Low"
+msgstr "Rendah"
+
+msgid "Medium"
+msgstr "Sedang"
+
+msgid "High"
+msgstr "Tinggi"
+
+msgid "Extreme"
+msgstr "Ekstrim"
+
+msgid "Lossless"
+msgstr "Tanpa rugi"
+
+msgid "Custom"
+msgstr "Kebiasaan"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Dinamis Otomatis"
+
+msgid "Off"
+msgstr "Mati"
+
+msgid "On"
+msgstr "Pada"
+
+msgid "Dynamic Quality Min:"
+msgstr "Minimum Kualitas Dinamis:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Kualitas Dinamis Maks:"
+
+msgid "Treat Lossless:"
+msgstr "Perlakukan Tanpa Rugi:"
+
+msgid "Frame Rate:"
+msgstr "Frekuensi Bingkai:"
+
+msgid "Video JPEG Quality:"
+msgstr "Kualitas Video JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Kualitas WEBP Video:"
+
+msgid "Video Area:"
+msgstr "Area Video:"
+
+msgid "Video Time:"
+msgstr "Waktu Video:"
+
+msgid "Video Out Time:"
+msgstr "Waktu Keluar Video:"
+
+msgid "Video Mode Width:"
+msgstr "Lebar Mode Video:"
+
+msgid "Video Mode Height:"
+msgstr "Tinggi Mode Video:"
+
+msgid "Documentation"
+msgstr "Dokumentasi"
+
+msgid "Drag Viewport"
+msgstr "Seret Area Pandang"

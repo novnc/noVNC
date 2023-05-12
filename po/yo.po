@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Nsopọmọra..."
+
+msgid "Disconnecting..."
+msgstr "Ti npa asopọ kuro..."
+
+msgid "Reconnecting..."
+msgstr "Tunsopọ..."
+
+msgid "Internal error"
+msgstr "Aṣiṣe inu"
+
+msgid "Must set host"
+msgstr "A gbọdọ ṣeto olugbalejo"
+
+msgid "Connected (encrypted) to "
+msgstr "Ti sopọ (ti paroko) si"
+
+msgid "Connected (unencrypted) to "
+msgstr "Ti sopọ (ti ko paṣiparọ) si"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Nkankan ti ko tọ, asopọ ti wa ni pipade"
+
+msgid "Failed to connect to server"
+msgstr "O kuna lati sopọ si olupin"
+
+msgid "Disconnected"
+msgstr "Ti ge asopọ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "A ti kọ asopọ tuntun pẹlu idi:"
+
+msgid "New connection has been rejected"
+msgstr "A ti kọ asopọ tuntun"
+
+msgid "Credentials are required"
+msgstr "A nilo awọn iwe-ẹri"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC pade aṣiṣe kan:"
+
+msgid "Hide/Show the control bar"
+msgstr "Fipamọ/Fi ọpa iṣakoso han"
+
+msgid "Drag"
+msgstr "Fa"
+
+msgid "Move/Drag Viewport"
+msgstr "Gbe/Fa Iwowo"
+
+msgid "Keyboard"
+msgstr " Keyboard"
+
+msgid "Show Keyboard"
+msgstr "Fi Keyboard han"
+
+msgid "Extra keys"
+msgstr "Awọn bọtini afikun"
+
+msgid "Show Extra Keys"
+msgstr "Fi awọn bọtini afikun han"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Yi Ctrl pada"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Yi Alt pada"
+
+msgid "Toggle Windows"
+msgstr "Yi Windows pada"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Fi Taabu ranṣẹ"
+
+msgid "Tab"
+msgstr "Taabu"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Firanṣẹ Sa lọ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Firanṣẹ Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Tiipa/Atunbere"
+
+msgid "Shutdown/Reboot..."
+msgstr "Tiipa/Atunbere..."
+
+msgid "Power"
+msgstr "Agbara"
+
+msgid "Shutdown"
+msgstr "Paade"
+
+msgid "Reboot"
+msgstr "Atunbere"
+
+msgid "Reset"
+msgstr "Tunto"
+
+msgid "Clipboard"
+msgstr "Agekuru"
+
+msgid "Clear"
+msgstr "Paarẹ"
+
+msgid "Fullscreen"
+msgstr "Gbogbo sikirini"
+
+msgid "Settings"
+msgstr "Ètò"
+
+msgid "Shared Mode"
+msgstr "Ipo Pipin"
+
+msgid "View Only"
+msgstr "Wo nikan"
+
+msgid "Clip to Window"
+msgstr "Agekuru si Ferese"
+
+msgid "Scaling Mode:"
+msgstr "Ipo Iwọn:"
+
+msgid "None"
+msgstr "Ko si"
+
+msgid "Local Scaling"
+msgstr "Iwọn iwọn agbegbe"
+
+msgid "Remote Resizing"
+msgstr "Iwọn isọdọtun latọna jijin"
+
+msgid "Advanced"
+msgstr "To ti ni ilọsiwaju"
+
+msgid "Quality:"
+msgstr "Didara:"
+
+msgid "Compression level:"
+msgstr "Ipele titẹ:"
+
+msgid "Repeater ID:"
+msgstr "Atunṣe ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Fipamọ"
+
+msgid "Host:"
+msgstr "Olugbalejo:"
+
+msgid "Port:"
+msgstr "ibudo:"
+
+msgid "Path:"
+msgstr "Ọna:"
+
+msgid "Automatic Reconnect"
+msgstr "Atunṣe aifọwọyi"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Tun Idaduro (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Fi aami han nigbati Ko si kọsọ"
+
+msgid "Logging:"
+msgstr "Wiwọle:"
+
+msgid "Version:"
+msgstr "Ẹya:"
+
+msgid "Disconnect"
+msgstr "Ge asopọ"
+
+msgid "Connect"
+msgstr "Sopọ"
+
+msgid "Username:"
+msgstr "Orukọ olumulo:"
+
+msgid "Password:"
+msgstr "Ọrọigbaniwọle:"
+
+msgid "Send Credentials"
+msgstr "Firanṣẹ awọn iwe-ẹri"
+
+msgid "Cancel"
+msgstr "Fagilee"
+
+msgid "Keys"
+msgstr "Awọn bọtini"
+
+msgid "Game Cursor Mode"
+msgstr "Ipo Kọsọ Ere"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Tẹ bọtini Esc lati Jade Ipo Titiipa Atọka"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Ipo ere ti daduro, tẹ loju iboju lati bẹrẹ Ipo Ere."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard isalẹ"
+
+msgid "Clipboard Seamless"
+msgstr "Alaini agekuru fidio"
+
+msgid "Prefer Local Cursor"
+msgstr "Ṣeyan Kọsọ Agbegbe"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tumọ awọn ọna abuja keyboard"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Mu WebRTC UDP Transit ṣiṣẹ"
+
+msgid "Enable WebP Compression"
+msgstr "Jeki funmorawon WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Mu awọn iṣiro iṣẹ ṣiṣẹ"
+
+msgid "Enable Pointer Lock"
+msgstr "Mu Titiipa itọka ṣiṣẹ"
+
+msgid "IME Input Mode"
+msgstr "Ipo Iṣawọle IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Ṣafihan Iṣakoso Keyboard Foju"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Yi Panel Iṣakoso Lọ nipasẹ Awọn bọtini bọtini"
+
+msgid "Render Native Resolution"
+msgstr "Ṣe Ipinnu Ilu abinibi"
+
+msgid "Keyboard Shortcuts"
+msgstr "Awọn ọna abuja keyboard"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Mu awọn ọna abuja Keyboard KasmVNC ṣiṣẹ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Panel Iṣakoso Yipada"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Yipada Ipo Atọka Ere"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Titiipa Atọka Yipada"
+
+msgid "Stream Quality"
+msgstr "Didara ṣiṣan"
+
+msgid "Preset Modes:"
+msgstr "Awọn ipo tito tẹlẹ:"
+
+msgid "Static"
+msgstr "aiduro"
+
+msgid "Low"
+msgstr "Kekere"
+
+msgid "Medium"
+msgstr "Alabọde"
+
+msgid "High"
+msgstr "O ga"
+
+msgid "Extreme"
+msgstr "Alaju"
+
+msgid "Lossless"
+msgstr "Ailafo"
+
+msgid "Custom"
+msgstr "Aṣa"
+
+msgid "Anti-Aliasing:"
+msgstr "Atako-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Aiyipada Aifọwọyi"
+
+msgid "Off"
+msgstr "Paa"
+
+msgid "On"
+msgstr "Lori"
+
+msgid "Dynamic Quality Min:"
+msgstr " Min Didara Didara:"
+
+msgid "Dynamic Quality Max:"
+msgstr "O pọju Didara Didara:"
+
+msgid "Treat Lossless:"
+msgstr "Toju Ainipadanu:"
+
+msgid "Frame Rate:"
+msgstr "Oṣuwọn fireemu:"
+
+msgid "Video JPEG Quality:"
+msgstr "Didara JPEG fidio:"
+
+msgid "Video WEBP Quality:"
+msgstr "Didara WEBP fidio:"
+
+msgid "Video Area:"
+msgstr "Agbegbe Fidio:"
+
+msgid "Video Time:"
+msgstr "Aago fidio:"
+
+msgid "Video Out Time:"
+msgstr "Fidio Jade Akoko:"
+
+msgid "Video Mode Width:"
+msgstr "Ipo Fidio:"
+
+msgid "Video Mode Height:"
+msgstr "Ipo Fidio Giga:"
+
+msgid "Documentation"
+msgstr "Iwe iwe"
+
+msgid "Drag Viewport"
+msgstr "Fa Wiwo"

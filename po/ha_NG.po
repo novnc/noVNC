@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Haɗin kai..."
+
+msgid "Disconnecting..."
+msgstr "Cire haɗin gwiwa..."
+
+msgid "Reconnecting..."
+msgstr "Sake haɗawa..."
+
+msgid "Internal error"
+msgstr "Kuskuren ciki"
+
+msgid "Must set host"
+msgstr "Dole ne saita masauki"
+
+msgid "Connected (encrypted) to "
+msgstr "An haɗa (rufewa) zuwa"
+
+msgid "Connected (unencrypted) to "
+msgstr "An haɗa (ba a ɓoye) zuwa"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Wani abu yayi kuskure, haɗin yana rufe"
+
+msgid "Failed to connect to server"
+msgstr "An kasa haɗi zuwa uwar garken"
+
+msgid "Disconnected"
+msgstr "An katse"
+
+msgid "New connection has been rejected with reason: "
+msgstr "An ƙi sabon haɗin gwiwa tare da dalili:"
+
+msgid "New connection has been rejected"
+msgstr "An ƙi amincewa da sabon haɗin gwiwa"
+
+msgid "Credentials are required"
+msgstr "Ana buƙatar takaddun shaida"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ya ci karo da kuskure:"
+
+msgid "Hide/Show the control bar"
+msgstr "Boye/Nuna sandar sarrafawa"
+
+msgid "Drag"
+msgstr "Jawo"
+
+msgid "Move/Drag Viewport"
+msgstr "Matsar / Jawo Viewport"
+
+msgid "Keyboard"
+msgstr "Allon madannai"
+
+msgid "Show Keyboard"
+msgstr "Nuna Allon madannai"
+
+msgid "Extra keys"
+msgstr "Ƙarin makullin"
+
+msgid "Show Extra Keys"
+msgstr "Nuna Karin Maɓallai"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Toggle Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Toggle Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Aika Tab"
+
+msgid "Tab"
+msgstr "Taba"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Aika tserewa"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Aika Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Rufe/Sake yi"
+
+msgid "Shutdown/Reboot..."
+msgstr "Rufe/Sake yi..."
+
+msgid "Power"
+msgstr "Ikon"
+
+msgid "Shutdown"
+msgstr "Rufewa"
+
+msgid "Reboot"
+msgstr "Sake yi"
+
+msgid "Reset"
+msgstr "Sake saiti"
+
+msgid "Clipboard"
+msgstr "Klipboard"
+
+msgid "Clear"
+msgstr "share"
+
+msgid "Fullscreen"
+msgstr "Cikakken kariya"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Shared Mode"
+msgstr "Yanayin Raba"
+
+msgid "View Only"
+msgstr "Duba Kawai"
+
+msgid "Clip to Window"
+msgstr "Clip to Window"
+
+msgid "Scaling Mode:"
+msgstr "Yanayin Sikeli:"
+
+msgid "None"
+msgstr "Babu"
+
+msgid "Local Scaling"
+msgstr "Scaling na gida"
+
+msgid "Remote Resizing"
+msgstr "Remote Resizing"
+
+msgid "Advanced"
+msgstr "Na ci gaba"
+
+msgid "Quality:"
+msgstr "Kyauta:"
+
+msgid "Compression level:"
+msgstr "matakin matsawa:"
+
+msgid "Repeater ID:"
+msgstr "Mai maimaita ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Encrypt"
+
+msgid "Host:"
+msgstr "Mai watsa shiri:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Tafarki:"
+
+msgid "Automatic Reconnect"
+msgstr "Sake haɗawa ta atomatik"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Sake haɗa jinkiri (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Nuna Dot lokacin da Babu siginan kwamfuta"
+
+msgid "Logging:"
+msgstr "Logging:"
+
+msgid "Version:"
+msgstr "Sigar:"
+
+msgid "Disconnect"
+msgstr "Cire haɗin gwiwa"
+
+msgid "Connect"
+msgstr "Haɗa"
+
+msgid "Username:"
+msgstr "Username:"
+
+msgid "Password:"
+msgstr "Password:"
+
+msgid "Send Credentials"
+msgstr "Aika Takardun shaida"
+
+msgid "Cancel"
+msgstr "Soke"
+
+msgid "Keys"
+msgstr "Makullin"
+
+msgid "Game Cursor Mode"
+msgstr "Yanayin Siginan Wasan"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Latsa maɓallin Esc don fita yanayin Kulle mai nuni"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Yanayin wasan ya tsaya, danna kan allo don ci gaba da Yanayin Wasan."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Fifi na gida siginan kwamfuta"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Fassara gajerun hanyoyin keyboard"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Kuna Canja Wuta ta WebRTC UDP"
+
+msgid "Enable WebP Compression"
+msgstr "Kaddamar da Matsi na Yanar Gizo"
+
+msgid "Enable Performance Stats"
+msgstr "Kuna Ƙididdiga Ayyuka"
+
+msgid "Enable Pointer Lock"
+msgstr "Enable Makullin Nuni"
+
+msgid "IME Input Mode"
+msgstr "Yanayin shigar da IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Nuna Virtual Keyboard Control"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Sauya Control Panel ta hanyar Maɓallin Maɓalli"
+
+msgid "Render Native Resolution"
+msgstr "Samar da Ƙaddamar Ƙarshen Ƙasa"
+
+msgid "Keyboard Shortcuts"
+msgstr "Gajerun hanyoyin Allon madannai"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Kunna KasmVNC Gajerun hanyoyin Allon madannai"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Kunna Control Panel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Juya Yanayin Nuni Game"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Juya Makullin Nuni"
+
+msgid "Stream Quality"
+msgstr "Ingantacciyar Rarraba"
+
+msgid "Preset Modes:"
+msgstr "Hanyoyin da aka saita:"
+
+msgid "Static"
+msgstr "A tsaye"
+
+msgid "Low"
+msgstr "Ƙananan"
+
+msgid "Medium"
+msgstr "Matsakaici"
+
+msgid "High"
+msgstr "Babba"
+
+msgid "Extreme"
+msgstr "Mai girma"
+
+msgid "Lossless"
+msgstr "Rashi"
+
+msgid "Custom"
+msgstr "Al'ada"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "A kashe"
+
+msgid "On"
+msgstr "Kuna"
+
+msgid "Dynamic Quality Min:"
+msgstr "Tsarin inganci Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maxaukaka Ingancin Matsayi:"
+
+msgid "Treat Lossless:"
+msgstr "Maganin Rashin Lafiya:"
+
+msgid "Frame Rate:"
+msgstr "Farashin Ƙimar:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG Quality:"
+
+msgid "Video WEBP Quality:"
+msgstr "Ingantacciyar WEBP na bidiyo:"
+
+msgid "Video Area:"
+msgstr "Yankin Bidiyo:"
+
+msgid "Video Time:"
+msgstr "Lokacin Bidiyo:"
+
+msgid "Video Out Time:"
+msgstr "Lokacin Fitar Bidiyo:"
+
+msgid "Video Mode Width:"
+msgstr "Nisa Yanayin Bidiyo:"
+
+msgid "Video Mode Height:"
+msgstr "Tsarin Yanayin Bidiyo:"
+
+msgid "Documentation"
+msgstr "Takardu"
+
+msgid "Drag Viewport"
+msgstr "Jawo Viewport"

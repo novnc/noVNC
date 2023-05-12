@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr ".ﻱﺪﻨﻳﮃﻨﮘ"
+
+msgid "Disconnecting..."
+msgstr ". ﻲﻫﺁ ﻮﻴﻫﺭ ﻲﭤ ﻊﻄﻘﻨﻣ"
+
+msgid "Reconnecting..."
+msgstr ". ﻲﻫﺁ ﻮﻴﻫﺭ ﻱﮃﻨﮘ ﺮﻬﻴﭔ"
+
+msgid "Internal error"
+msgstr "ﻲﻄﻠﻏ ﻲﻧﻭﺭﺪﻧﺍ"
+
+msgid "Must set host"
+msgstr "ﻲﺟﺮﻬﮔ ﮠﺮڪ ﺭﺮﻘﻣ ﻥﺎﺑﺰﻴﻣ"
+
+msgid "Connected (encrypted) to "
+msgstr "ﻥﺎﺳ (ﻞﻴﭤ ٽﭘﺮڪﻧﺍ) ڪﻠﺴﻨﻣ"
+
+msgid "Connected (unencrypted) to "
+msgstr "ﻥﺎﺳ (ﻞﻳﮃﻨﮘ ﮠﺍ) ﻞﻳﮃﻨﮘ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ﻲﻫﺁ ﺪﻨﺑ ﻦﺸڪﻴﻨڪ ،ﻮﻳﻭ ﻲﭤ ﻂﻠﻏ ﻪﻬﺠڪ"
+
+msgid "Failed to connect to server"
+msgstr "ﻮﻴﭤ ﻡﺎڪﺎﻧ ۾ ﮠﮃﻨﮘ ﻥﺎﺳ ﺭﻭﺮﺳ"
+
+msgid "Disconnected"
+msgstr "ﻊﻄﻘﻨﻣ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ﻲﻫﺁ ﻮﻳﻭ ﻮﻴڪ ﺩﺭ ﺐﺒﺳ ﻦﺸڪﻴﻨڪ ﻦﻴﺌﻧ"
+
+msgid "New connection has been rejected"
+msgstr "ﻲﻫﺁ ﻮﻳﻭ ﻮﻴڪ ﺩﺭ ﻦﺸڪﻴﻨڪ ﻥﻮﺌﻧ"
+
+msgid "Credentials are required"
+msgstr "ﻲﻫﺁ ﺕﺭﻭﺮﺿ ﻲﺟ ﻦﭤﺎﺳ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:"
+
+msgid "Hide/Show the control bar"
+msgstr "ﺭﺎﺑ ﻝﻭﺮٽﻨڪ ﻮﻳﺭﺎﮑﻳڏ / ﻮﻳﺎڪﻟ"
+
+msgid "Drag"
+msgstr "ﻮﻳڏﮀ"
+
+msgid "Move/Drag Viewport"
+msgstr "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻴڪﮀ / ﻞﻘﺘﻨﻣ"
+
+msgid "Keyboard"
+msgstr "ڊﺭﻮﺑ ﻲڪ"
+
+msgid "Show Keyboard"
+msgstr "ﻮﻳﺭﺎﮑﻳڏ ڊﺭﻮﺑ ﻲڪ"
+
+msgid "Extra keys"
+msgstr "ﻥﻮﻴﺑﺎﭼ ﻲﻓﺎﺿﺍ"
+
+msgid "Show Extra Keys"
+msgstr "ﻮﻳﺭﺎﮑﻳڏ ﻥﻮﻴﺑﺎﭼ ﻲﻓﺎﺿﺍ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ﻞﮕٽ"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt ﻞﮕٽ"
+
+msgid "Toggle Windows"
+msgstr "ﻮﻳﺮڪ ﻞﮔﻮٽ ﻲﮐ ﺯﻭڊﻧﻭ"
+
+msgid "Windows"
+msgstr "ﺯﻭڊﻧﻭ"
+
+msgid "Send Tab"
+msgstr "ﻮﻴﻠڪﻮﻣ ﺐﻴٽ"
+
+msgid "Tab"
+msgstr "ﺐﻴٽ"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "ﻮﻴﻠڪﻮﻣ ﺭﺍﺮﻓ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ﻮﻴﻠڪﻮﻣ"
+
+msgid "Shutdown/Reboot"
+msgstr "ٽﻮﺒﻳﺭ / ﺪﻨﺑ"
+
+msgid "Shutdown/Reboot..."
+msgstr ". ٽﻮﺒﻳﺭ / ﺪﻨﺑ"
+
+msgid "Power"
+msgstr "ﺖﻗﺎﻃ"
+
+msgid "Shutdown"
+msgstr "ﻮﻳﺮڪ ﺪﻨﺑ"
+
+msgid "Reboot"
+msgstr "ٽﻮﺒﻳﺭ"
+
+msgid "Reset"
+msgstr "ﻮﻳﺮڪ ٽﻴﺳ ﺮﻬﻴﭔ"
+
+msgid "Clipboard"
+msgstr "ڊﺭﻮﺑ ﭗﻠڪ"
+
+msgid "Clear"
+msgstr "ﻑﺎﺻ"
+
+msgid "Fullscreen"
+msgstr "ﻦﻳﺮڪﺳﺍ ﻞﻤڪﻣ"
+
+msgid "Settings"
+msgstr "ﻥﻮﮕﻨٽﻴﺳ"
+
+msgid "Shared Mode"
+msgstr "ڊﻮﻣ ﻞﻴﭤ ﺮﺌﻴﺷ"
+
+msgid "View Only"
+msgstr "ﻮﺳڏ ﻑﺮﺻ"
+
+msgid "Clip to Window"
+msgstr "ﭗﻠڪ ﻦﻬﻧﺍڏ ﻭڊﻧﻭ"
+
+msgid "Scaling Mode:"
+msgstr "ڊﻮﻣ ﮓﻨﻠﻴڪﺳﺍ"
+
+msgid "None"
+msgstr "ﻪﻧ ﻪﺑ ﻮڪ"
+
+msgid "Local Scaling"
+msgstr "ﮓﻨﻠﻴڪﺳﺍ ﻲﻣﺎﻘﻣ"
+
+msgid "Remote Resizing"
+msgstr "ﮓﻧﺰﻴﺋﺎﺴﻳﺭ ٽﻮﻤﻳﺭ"
+
+msgid "Advanced"
+msgstr "ﻪﺘﻓﺎﻳ ﻲﻗﺮﺗ"
+
+msgid "Quality:"
+msgstr "ﺭﺎﻴﻌﻣ"
+
+msgid "Compression level:"
+msgstr "ﺢﻄﺳ ﻦﺸﻳﺮﭙﻤﮐ"
+
+msgid "Repeater ID:"
+msgstr "ID ﺮٽﻴﭙﻳﺭ"
+
+msgid "WebSocket"
+msgstr "ٽﮐﺎﺳ ﺐﻳﻭ"
+
+msgid "Encrypt"
+msgstr "ٽﭘﺮڪﻧﺍ"
+
+msgid "Host:"
+msgstr "ﻥﺎﺑﺰﻴﻣ"
+
+msgid "Port:"
+msgstr "ٽﺭﻮﭘ"
+
+msgid "Path:"
+msgstr "ﻮﺘﺳﺭ"
+
+msgid "Automatic Reconnect"
+msgstr "ﻮﻳﮃﻨﮘ ﺮﻬﻴﭔ ﺭﺎڪﺩﻮﺧ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "(ms) ﺮﻳﺩ ﻮﻳﮃﻨﮘ ﺮﻬﻴﭔ"
+
+msgid "Show Dot when No Cursor"
+msgstr "ﻮﻳﺭﺎﮑﻳڏ ٽڊ ﻲﮬﺁ ﻪﻧ ﺮﺴڪ ﻦﮬڏﺟ"
+
+msgid "Logging:"
+msgstr "ﮓﻨﮔﻻ﻿"
+
+msgid "Version:"
+msgstr "ﺦﺴﻧ"
+
+msgid "Disconnect"
+msgstr "ﻮﻳﮃﻨﮘ"
+
+msgid "Connect"
+msgstr "ﻮﻳﮃﻨﮘ"
+
+msgid "Username:"
+msgstr "ﻮﻟﺎﻧ ﻮﺟ ڙﺪﻨڪ ﻝﺎﻤﻌﺘﺳﺍ"
+
+msgid "Password:"
+msgstr "ڊﺭﻮﺳﺎﭘ"
+
+msgid "Send Credentials"
+msgstr "ﻮﻴﻠڪﻮﻣ ﭗﮢﺎﭹﺳ"
+
+msgid "Cancel"
+msgstr "ﺥﻮﺴﻨﻣ"
+
+msgid "Keys"
+msgstr "ﻲﭔﺎﭼ"
+
+msgid "Game Cursor Mode"
+msgstr "ڊﻮﻣ ﺮﺳﺮڪ ﺪﻧﺍﺭ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ﻮﻳﺎﭔﺩ ﻲﮐ ﻲﺌﻴڪ Esc ءِﻻ﻿ ﮠﺮڪﻧ ﻥﺎﻣ ڊﻮﻣ ڪﻻ﻿ ﺮٽﻨﺋﺎﭘ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ﻮﻳﺮڪ ڪﻠڪ ﻲﺗ ﻦﻳﺮڪﺳﺍ ءﻻ﻿ ﮠﺮڪ ﻉﻭﺮﺷ ﺮﻬﻴﭔ ﻲﮐ ڊﻮﻣ ﺪﻧﺍﺭ ،ﻮﻳﻭ ﻮﻴڪﻭﺭ ڊﻮﻣ ﺪﻧﺍﺭ"
+
+msgid "Clipboard Up"
+msgstr "ﻲﭥﻣ ڊﺭﻮﺑ ﭗﻠڪ"
+
+msgid "CLipboard Down"
+msgstr "ﭟﻴﻫ ڊﺭﻮﺑ ﭗﻠڪ"
+
+msgid "Clipboard Seamless"
+msgstr "ﺪﺤﻴﺑ ڊﺭﻮﺑ ﭗﻠڪ"
+
+msgid "Prefer Local Cursor"
+msgstr "ﻮﻳڏ ﺢﻴﺟﺮﺗ ﻲﮐ ﺮﺴڪ ﻲﻣﺎﻘﻣ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ﻮﻳﺮڪ ﻮﻤﺟﺮﺗ ﻮﺟ ﺲٽڪ ٽﺭﺎﺷ ڊﺭﻮﺑ ﻲڪ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ٽﺰﻧﺍﺮٽ"
+
+msgid "Enable WebP Compression"
+msgstr "WebP ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ﻦﺸﻳﺮﭙﻤﮐ"
+
+msgid "Enable Performance Stats"
+msgstr "ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ﻥﺮﮐﺍ ﻦﮕﻧﺍ ﻲﺟ ﻲﮔﺩﺮڪﺭﺎڪ"
+
+msgid "Enable Pointer Lock"
+msgstr "ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ﮎﻻ﻿ ﺮٽﻨﺋﺍﻮﭘ"
+
+msgid "IME Input Mode"
+msgstr "IME ڊﻮﻣ ٽﭘ ﻥﺍ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ﻮﻳﺭﺎﮑﻳڏ ﻝﻭﺮٽﻨڪ ڊﺭﻮﺑ ﻲڪ ﻞﺋﻮﭼﺭﻭ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "ﻮﻳﺮڪ ﻞﮔﻮٽ ﻲﮐ ﻞﻨﻴﭘ ﻝﻭﺮٽﻨڪ ﻲﻌﻳﺭﺫ ڪﻭﺮٽﺳﺍ ﻲڪ"
+
+msgid "Render Native Resolution"
+msgstr "ﻮﻳﺮڪ ﺶﻴﭘ ﺩﺍﺩﺭﺍﺮﻗ ﻲﻣﺎﻘﻣ"
+
+msgid "Keyboard Shortcuts"
+msgstr "ﺲٽڪ ٽﺭﺎﺷ ڊﺭﻮﺑ ﻲڪ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ﺲٽڪ ٽﺭﺎﺷ ڊﺭﻮﺑ ﻲڪ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "ﻮﻳﺮڪ ﻞﮔﻮٽ ﻲﮐ ﻞﻨﻴﭘ ﻝﻭﺮٽﻨڪ - 1"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "ڊﻮﻣ ﺮٽﻨﺋﺍﻮﭘ ﻢﻴﮔ ﻞﮔﻮٽ - 2"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "ڪﻻ﻿ ﺮٽﻨﺋﺍﻮﭘ ﻞﮔﻮٽ - 3"
+
+msgid "Stream Quality"
+msgstr "ﺭﺎﻴﻌﻣ ﻢﻳﺮٽﺳﺍ"
+
+msgid "Preset Modes:"
+msgstr "ﺱڊﻮﻣ ﻲﮢﻮﮘﺍ"
+
+msgid "Static"
+msgstr "ﺪﻣﺎﺟ"
+
+msgid "Low"
+msgstr "ٽﻬﮔ"
+
+msgid "Medium"
+msgstr "ﻲﻟﻮﭼﻭ"
+
+msgid "High"
+msgstr "ﺪﻨﻠﺑ"
+
+msgid "Extreme"
+msgstr "ﻲﺋﺎﻬﺘﻧﺍ"
+
+msgid "Lossless"
+msgstr "ﻥﺎﺼﻘﻧ ﻲﺑ"
+
+msgid "Custom"
+msgstr "ﻲﺿﺮﻣ"
+
+msgid "Anti-Aliasing:"
+msgstr "Aliasing ﻒﻟﺎﺨﻣ:"
+
+msgid "Auto Dynamic"
+msgstr "ڪﺮﺤﺘﻣ ﺭﺎڪﺩﻮﺧ"
+
+msgid "Off"
+msgstr "ﺪﻨﺑ"
+
+msgid "On"
+msgstr "ﻲﺗ"
+
+msgid "Dynamic Quality Min:"
+msgstr "ٽﻨﻣ ﺭﺎﻴﻌﻣ ڪﺮﺤﺘﻣ"
+
+msgid "Dynamic Quality Max:"
+msgstr "ﮄﻭ ۾ ﮄﻭ ﺭﺎﻴﻌﻣ ڪﺮﺤﺘﻣ"
+
+msgid "Treat Lossless:"
+msgstr "ﻮﻳﺮڪ ﺝﻼ﻿ﻋ ﻮﺟ ﻥﺎﺼﻘﻧ ﻲﺑ"
+
+msgid "Frame Rate:"
+msgstr "ﺡﺮﺷ ﻲﺟ ﻢﻳﺮﻓ"
+
+msgid "Video JPEG Quality:"
+msgstr "ﺭﺎﻴﻌﻣ JPEG ﻮﻳڊﻳﻭ"
+
+msgid "Video WEBP Quality:"
+msgstr "ﺭﺎﻴﻌﻣ WEBP ﻮﻳڊﻳﻭ"
+
+msgid "Video Area:"
+msgstr "ﺎﻳﺮﻳﺍ ﻮﻳڊﻭ"
+
+msgid "Video Time:"
+msgstr "ﺖﻗﻭ ﻮﻳڊﻭ"
+
+msgid "Video Out Time:"
+msgstr "ﺖﻗﻭ ﻮﺟ ﮡﻴﭤ ﻢﺘﺧ ﻮﻳڊﻭ"
+
+msgid "Video Mode Width:"
+msgstr "ﺮڪﻳﻭ ڊﻮﻣ ﻮﻳڊﻭ"
+
+msgid "Video Mode Height:"
+msgstr "ﻲﺋﺎﭽﻧﻭﺍ ڊﻮﻣ ﻮﻳڊﻭ"
+
+msgid "Documentation"
+msgstr "ﺰﻳﻭﺎﺘﺳﺩ"
+
+msgid "Drag Viewport"
+msgstr "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻳڏﮀ"

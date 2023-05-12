@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Ferbine..."
+
+msgid "Disconnecting..."
+msgstr "Ferbrûkt ..."
+
+msgid "Reconnecting..."
+msgstr "Opnij ferbinen..."
+
+msgid "Internal error"
+msgstr "Ynterne flater"
+
+msgid "Must set host"
+msgstr "Moat host ynstelle"
+
+msgid "Connected (encrypted) to "
+msgstr "Ferbûn (fersifere) oan"
+
+msgid "Connected (unencrypted) to "
+msgstr "Ferbûn (net fersifere) oan"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Der gie der mis, ferbining is sluten"
+
+msgid "Failed to connect to server"
+msgstr "Ferbine mei tsjinner mislearre"
+
+msgid "Disconnected"
+msgstr "Ferbûn"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nije ferbining is ôfwiisd mei reden:"
+
+msgid "New connection has been rejected"
+msgstr "Nije ferbining is ôfwiisd"
+
+msgid "Credentials are required"
+msgstr "Referinsjes binne ferplicht"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC tsjinkaam in flater:"
+
+msgid "Hide/Show the control bar"
+msgstr "De kontrôlebalke ferbergje / sjen litte"
+
+msgid "Drag"
+msgstr "Slep"
+
+msgid "Move/Drag Viewport"
+msgstr "Ferpleats / Sleep Viewport"
+
+msgid "Keyboard"
+msgstr "Toetseboerd"
+
+msgid "Show Keyboard"
+msgstr "Toetseboerd sjen litte"
+
+msgid "Extra keys"
+msgstr "Ekstra toetsen"
+
+msgid "Show Extra Keys"
+msgstr "Toan ekstra toetsen sjen"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Omskeakelje Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt wikselje"
+
+msgid "Toggle Windows"
+msgstr "Wiskje Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Tjep ferstjoere"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esk"
+
+msgid "Send Escape"
+msgstr "Stjoer Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Stjoer Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Shutdown/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Shutdown/Reboot..."
+
+msgid "Power"
+msgstr "Krêft"
+
+msgid "Shutdown"
+msgstr "Ofslúte"
+
+msgid "Reboot"
+msgstr "Reboot"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Clipboard"
+msgstr "Klipboard"
+
+msgid "Clear"
+msgstr "Opklearje"
+
+msgid "Fullscreen"
+msgstr "Folslein skerm"
+
+msgid "Settings"
+msgstr "Ynstellings"
+
+msgid "Shared Mode"
+msgstr "Dielde modus"
+
+msgid "View Only"
+msgstr "Allinne sjen"
+
+msgid "Clip to Window"
+msgstr "Klip nei finster"
+
+msgid "Scaling Mode:"
+msgstr "Skaalmodus:"
+
+msgid "None"
+msgstr "Gjin"
+
+msgid "Local Scaling"
+msgstr "Lokale skaalfergrutting"
+
+msgid "Remote Resizing"
+msgstr "Remote Resizing"
+
+msgid "Advanced"
+msgstr "Avansearre"
+
+msgid "Quality:"
+msgstr "Kwaliteit:"
+
+msgid "Compression level:"
+msgstr "Kompresjenivo:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Encrypt"
+
+msgid "Host:"
+msgstr "Gasthear:"
+
+msgid "Port:"
+msgstr "Haven:"
+
+msgid "Path:"
+msgstr "Paad:"
+
+msgid "Automatic Reconnect"
+msgstr "Automatysk opnij ferbine"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Reconnect Delay (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Dot sjen litte as gjin rinnerke"
+
+msgid "Logging:"
+msgstr "Logearje:"
+
+msgid "Version:"
+msgstr "Ferzje:"
+
+msgid "Disconnect"
+msgstr "Disconnect"
+
+msgid "Connect"
+msgstr "Ferbine"
+
+msgid "Username:"
+msgstr "Brûkersnamme:"
+
+msgid "Password:"
+msgstr "Wachtwurd:"
+
+msgid "Send Credentials"
+msgstr "Stjoer referinsjes"
+
+msgid "Cancel"
+msgstr "Ofbrekke"
+
+msgid "Keys"
+msgstr "Kaaien"
+
+msgid "Game Cursor Mode"
+msgstr "Game Cursor Mode"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Druk op Esc-toets om de Pointer Lock Mode te ferlitten"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Spulmodus ûnderbrutsen, klikje op it skerm om de spielmodus te hervatten."
+
+msgid "Clipboard Up"
+msgstr "Klimboerd omheech"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Klipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Lokaal rinnerke foarkar"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Oersette toetseboerd fluchtoetsen"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit ynskeakelje"
+
+msgid "Enable WebP Compression"
+msgstr "WebP-kompresje ynskeakelje"
+
+msgid "Enable Performance Stats"
+msgstr "Prestaasjestatistiken ynskeakelje"
+
+msgid "Enable Pointer Lock"
+msgstr "Aanwizerslot ynskeakelje"
+
+msgid "IME Input Mode"
+msgstr "IME-ynfiermodus"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Lit firtuele toetseboerdkontrôle sjen"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Kontrolpaniel wikselje fia toetsoanslaggen"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Sneltoetsen"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC-toetseboerd fluchtoetsen ynskeakelje"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Skeakelje kontrôlepaniel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Toggle Game Pointer Mode"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Toggle Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Streamkwaliteit"
+
+msgid "Preset Modes:"
+msgstr "Foarynstelde modi:"
+
+msgid "Static"
+msgstr "Statysk"
+
+msgid "Low"
+msgstr "Leech"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "High"
+msgstr "Heech"
+
+msgid "Extreme"
+msgstr "Ekstreem"
+
+msgid "Lossless"
+msgstr "Lossless"
+
+msgid "Custom"
+msgstr "Oanpaste"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Út"
+
+msgid "On"
+msgstr "Op"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamyske kwaliteit min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamyske kwaliteit Max:"
+
+msgid "Treat Lossless:"
+msgstr "Behannelje Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Byldsnelheid:"
+
+msgid "Video JPEG Quality:"
+msgstr "Fideo JPEG-kwaliteit:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP Quality:"
+
+msgid "Video Area:"
+msgstr "Fideogebiet:"
+
+msgid "Video Time:"
+msgstr "Fideotiid:"
+
+msgid "Video Out Time:"
+msgstr "Video Out Time:"
+
+msgid "Video Mode Width:"
+msgstr "Breedte fan fideomodus:"
+
+msgid "Video Mode Height:"
+msgstr "Hichte fan fideomodus:"
+
+msgid "Documentation"
+msgstr "Dokumintaasje"
+
+msgid "Drag Viewport"
+msgstr "Sleep Viewport"

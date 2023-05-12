@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "ກຳລັງເຊື່ອມຕໍ່..."
+
+msgid "Disconnecting..."
+msgstr "ກຳລັງຕັດການເຊື່ອມຕໍ່..."
+
+msgid "Reconnecting..."
+msgstr "ກຳລັງເຊື່ອມຕໍ່ຄືນໃໝ່..."
+
+msgid "Internal error"
+msgstr "ຄວາມຜິດພາດພາຍໃນ"
+
+msgid "Must set host"
+msgstr "ຕ້ອງຕັ້ງເຈົ້າພາບ"
+
+msgid "Connected (encrypted) to "
+msgstr "ເຊື່ອມຕໍ່ (ເຂົ້າລະຫັດ) ກັບ"
+
+msgid "Connected (unencrypted) to "
+msgstr "ເຊື່ອມຕໍ່ (ບໍ່ໄດ້ເຂົ້າລະຫັດ) ກັບ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ມີບາງຢ່າງຜິດພາດ, ການເຊື່ອມຕໍ່ຖືກປິດ"
+
+msgid "Failed to connect to server"
+msgstr "ເຊື່ອມຕໍ່ກັບເຊີບເວີບໍ່ສຳເລັດ"
+
+msgid "Disconnected"
+msgstr "ຕັດການເຊື່ອມຕໍ່"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ການເຊື່ອມຕໍ່ໃຫມ່ໄດ້ຖືກປະຕິເສດດ້ວຍເຫດຜົນ:"
+
+msgid "New connection has been rejected"
+msgstr "ການເຊື່ອມຕໍ່ໃຫມ່ໄດ້ຖືກປະຕິເສດ"
+
+msgid "Credentials are required"
+msgstr "ຕ້ອງການຂໍ້ມູນປະຈໍາຕົວ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ພົບຂໍ້ຜິດພາດ:"
+
+msgid "Hide/Show the control bar"
+msgstr "ເຊື່ອງ/ສະແດງແຖບຄວບຄຸມ"
+
+msgid "Drag"
+msgstr "ລາກ"
+
+msgid "Move/Drag Viewport"
+msgstr "ຍ້າຍ/ລາກ Viewport"
+
+msgid "Keyboard"
+msgstr "ແປ້ນພິມ"
+
+msgid "Show Keyboard"
+msgstr "ສະແດງແປ້ນພິມ"
+
+msgid "Extra keys"
+msgstr "ກະແຈພິເສດ"
+
+msgid "Show Extra Keys"
+msgstr "ສະແດງລະຫັດພິເສດ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "ສະຫຼັບ Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "ສະຫຼັບ Alt"
+
+msgid "Toggle Windows"
+msgstr "ສະຫຼັບ Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "ສົ່ງແຖບ"
+
+msgid "Tab"
+msgstr "ແຖບ"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "ສົ່ງຫນີ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "ສົ່ງ Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "ປິດ/ປິດເປີດໃໝ່"
+
+msgid "Shutdown/Reboot..."
+msgstr "ປິດ/ປິດເປີດໃໝ່..."
+
+msgid "Power"
+msgstr "ພະລັງງານ"
+
+msgid "Shutdown"
+msgstr "ປິດເຄື່ອງ"
+
+msgid "Reboot"
+msgstr "ປິດເປີດໃໝ່"
+
+msgid "Reset"
+msgstr "ຣີເຊັດ"
+
+msgid "Clipboard"
+msgstr "ຄລິບບອດ"
+
+msgid "Clear"
+msgstr "ຈະແຈ້ງ"
+
+msgid "Fullscreen"
+msgstr "ເຕັມຈໍ"
+
+msgid "Settings"
+msgstr "ການຕັ້ງຄ່າ"
+
+msgid "Shared Mode"
+msgstr "ຮູບແບບທີ່ແບ່ງປັນ"
+
+msgid "View Only"
+msgstr "ເບິ່ງເທົ່ານັ້ນ"
+
+msgid "Clip to Window"
+msgstr "ຄລິບໃສ່ປ່ອງຢ້ຽມ"
+
+msgid "Scaling Mode:"
+msgstr "ຮູບແບບການປັບຂະຫນາດ:"
+
+msgid "None"
+msgstr "ບໍ່ມີ"
+
+msgid "Local Scaling"
+msgstr "ການຂະຫຍາຍທ້ອງຖິ່ນ"
+
+msgid "Remote Resizing"
+msgstr "ການປັບຂະຫນາດໄລຍະໄກ"
+
+msgid "Advanced"
+msgstr "ຂັ້ນສູງ"
+
+msgid "Quality:"
+msgstr "ຄຸນນະພາບ:"
+
+msgid "Compression level:"
+msgstr "ລະດັບການບີບອັດ:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "ເຂົ້າລະຫັດ"
+
+msgid "Host:"
+msgstr "ເຈົ້າພາບ:"
+
+msgid "Port:"
+msgstr "ພອດ:"
+
+msgid "Path:"
+msgstr "ເສັ້ນທາງ:"
+
+msgid "Automatic Reconnect"
+msgstr "ເຊື່ອມຕໍ່ອັດຕະໂນມັດ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ເຊື່ອມຕໍ່ຄືນໃໝ່ການຊັກຊ້າ (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "ສະແດງຈຸດໃນເວລາທີ່ບໍ່ມີຕົວກະພິບ"
+
+msgid "Logging:"
+msgstr "ບັນທຶກ:"
+
+msgid "Version:"
+msgstr "ຮຸ່ນ:"
+
+msgid "Disconnect"
+msgstr "ຕັດການເຊື່ອມຕໍ່"
+
+msgid "Connect"
+msgstr "ເຊື່ອມຕໍ່"
+
+msgid "Username:"
+msgstr "ຊື່ຜູ້ໃຊ້:"
+
+msgid "Password:"
+msgstr "ລະຫັດຜ່ານ:"
+
+msgid "Send Credentials"
+msgstr "ສົ່ງຂໍ້ມູນປະຈໍາຕົວ"
+
+msgid "Cancel"
+msgstr "ຍົກເລີກ"
+
+msgid "Keys"
+msgstr "ກະແຈ"
+
+msgid "Game Cursor Mode"
+msgstr "ຮູບແບບຕົວກະພິບເກມ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ກົດປຸ່ມ Esc ເພື່ອອອກຈາກໂຫມດລັອກຕົວຊີ້"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ໂໝດເກມຢຸດຊົ່ວຄາວ, ຄລິກທີ່ໜ້າຈໍເພື່ອສືບຕໍ່ໂໝດເກມ."
+
+msgid "Clipboard Up"
+msgstr "ຄລິບບອດຂຶ້ນ"
+
+msgid "CLipboard Down"
+msgstr "ຄລິບບອດລົງ"
+
+msgid "Clipboard Seamless"
+msgstr "ຄລິບບອດບໍ່ມີຮອຍຕໍ່"
+
+msgid "Prefer Local Cursor"
+msgstr "ຕ້ອງການຕົວກະພິບທ້ອງຖິ່ນ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ແປແປ້ນພິມລັດ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "ເປີດໃຊ້ WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "ເປີດໃຊ້ WebP Compression"
+
+msgid "Enable Performance Stats"
+msgstr "ເປີດໃຊ້ສະຖິຕິການປະຕິບັດ"
+
+msgid "Enable Pointer Lock"
+msgstr "ເປີດໃຊ້ການລັອກຕົວຊີ້"
+
+msgid "IME Input Mode"
+msgstr "ຮູບແບບການປ້ອນຂໍ້ມູນ IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ສະແດງການຄວບຄຸມແປ້ນພິມສະເໝືອນ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "ສະຫຼັບແຜງຄວບຄຸມດ້ວຍການກົດແປ້ນພິມ"
+
+msgid "Render Native Resolution"
+msgstr "ສະແດງຄວາມລະອຽດເດີມ"
+
+msgid "Keyboard Shortcuts"
+msgstr "ທາງລັດແປ້ນພິມ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "ເປີດໃຊ້ປຸ່ມລັດ KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - ສະຫຼັບແຜງຄວບຄຸມ"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - ສະຫຼັບໂໝດຕົວຊີ້ເກມ"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - ສະຫຼັບຕົວຊີ້ຕົວຊີ້"
+
+msgid "Stream Quality"
+msgstr "ຄຸນນະພາບການຖ່າຍທອດ"
+
+msgid "Preset Modes:"
+msgstr "ໂໝດທີ່ຕັ້ງໄວ້ລ່ວງໜ້າ:"
+
+msgid "Static"
+msgstr "ຄົງທີ່"
+
+msgid "Low"
+msgstr "ຕໍ່າ"
+
+msgid "Medium"
+msgstr "ຂະຫນາດກາງ"
+
+msgid "High"
+msgstr "ສູງ"
+
+msgid "Extreme"
+msgstr "ທີ່ສຸດ"
+
+msgid "Lossless"
+msgstr "ສູນເສຍ"
+
+msgid "Custom"
+msgstr "ກຳນົດເອງ"
+
+msgid "Anti-Aliasing:"
+msgstr "ການຕ້ານການນາມແຝງ:"
+
+msgid "Auto Dynamic"
+msgstr "ໄດນາມິກອັດຕະໂນມັດ"
+
+msgid "Off"
+msgstr "ປິດ"
+
+msgid "On"
+msgstr "ເປີດ"
+
+msgid "Dynamic Quality Min:"
+msgstr "ຄຸນະພາບຕ່ຳສຸດແບບໄດນາມິກ:"
+
+msgid "Dynamic Quality Max:"
+msgstr "ຄຸນນະພາບສູງສຸດແບບໄດນາມິກ:"
+
+msgid "Treat Lossless:"
+msgstr "ຮັກສາການສູນເສຍ:"
+
+msgid "Frame Rate:"
+msgstr "ອັດຕາກອບ:"
+
+msgid "Video JPEG Quality:"
+msgstr "ຄຸນນະພາບ JPEG ວິດີໂອ:"
+
+msgid "Video WEBP Quality:"
+msgstr "ວິດີໂອຄຸນນະພາບ WEBP:"
+
+msgid "Video Area:"
+msgstr "ພື້ນທີ່ວິດີໂອ:"
+
+msgid "Video Time:"
+msgstr "ເວລາວິດີໂອ:"
+
+msgid "Video Out Time:"
+msgstr "ເວລາອອກວິດີໂອ:"
+
+msgid "Video Mode Width:"
+msgstr "ຄວາມກວ້າງຂອງໂໝດວິດີໂອ:"
+
+msgid "Video Mode Height:"
+msgstr "ຄວາມສູງຂອງໂໝດວິດີໂອ:"
+
+msgid "Documentation"
+msgstr "ເອກະສານ"
+
+msgid "Drag Viewport"
+msgstr "Drag Viewport"

@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Csatlakozás..."
+
+msgid "Disconnecting..."
+msgstr "Lekapcsolás..."
+
+msgid "Reconnecting..."
+msgstr "Újracsatlakozás..."
+
+msgid "Internal error"
+msgstr "Belső hiba"
+
+msgid "Must set host"
+msgstr "Be kell állítani a házigazdát"
+
+msgid "Connected (encrypted) to "
+msgstr "Csatlakoztatva (titkosítva) a következőhöz: "
+
+msgid "Connected (unencrypted) to "
+msgstr "Csatlakoztatva (titkosítatlan) a következőhöz: "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Valami hiba történt, a kapcsolat megszakadt"
+
+msgid "Failed to connect to server"
+msgstr "Nem sikerült csatlakozni a szerverhez"
+
+msgid "Disconnected"
+msgstr "Szétkapcsolt"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Az új csatlakozást okkal utasították el:"
+
+msgid "New connection has been rejected"
+msgstr "Az új kapcsolat elutasítva"
+
+msgid "Credentials are required"
+msgstr "Megjelenítő adatok szükségesek"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC hibát észlelt:"
+
+msgid "Hide/Show the control bar"
+msgstr "A vezérlősáv elrejtése/megjelenítése"
+
+msgid "Drag"
+msgstr "Húzás"
+
+msgid "Move/Drag Viewport"
+msgstr "Nézetkép mozgatása/húzása"
+
+msgid "Keyboard"
+msgstr "Billentyűzet"
+
+msgid "Show Keyboard"
+msgstr "Billentyűzet megjelenítése"
+
+msgid "Extra keys"
+msgstr "Extra kulcsok"
+
+msgid "Show Extra Keys"
+msgstr "Extra kulcsok megjelenítése"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt váltás"
+
+msgid "Toggle Windows"
+msgstr "Windows váltás"
+
+msgid "Windows"
+msgstr "Ablakok"
+
+msgid "Send Tab"
+msgstr "Send Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Kilépés"
+
+msgid "Send Escape"
+msgstr "Send Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del küldése"
+
+msgid "Shutdown/Reboot"
+msgstr "Kikapcsolás/Újraindítás"
+
+msgid "Shutdown/Reboot..."
+msgstr "Shutdown/Reboot..."
+
+msgid "Power"
+msgstr "Erő"
+
+msgid "Shutdown"
+msgstr "Leállitás"
+
+msgid "Reboot"
+msgstr "Újraindítás"
+
+msgid "Reset"
+msgstr "Visszaállítás"
+
+msgid "Clipboard"
+msgstr "Vágólap"
+
+msgid "Clear"
+msgstr "Egyértelmű"
+
+msgid "Fullscreen"
+msgstr "Teljes képernyő"
+
+msgid "Settings"
+msgstr "Beállítások"
+
+msgid "Shared Mode"
+msgstr "Megosztott mód"
+
+msgid "View Only"
+msgstr "Csak megtekintésre"
+
+msgid "Clip to Window"
+msgstr "Klip az ablakba"
+
+msgid "Scaling Mode:"
+msgstr "Skálázási mód:"
+
+msgid "None"
+msgstr "Egyik sem"
+
+msgid "Local Scaling"
+msgstr "Helyi méretezés"
+
+msgid "Remote Resizing"
+msgstr "Távoli átméretezés"
+
+msgid "Advanced"
+msgstr "Fejlett"
+
+msgid "Quality:"
+msgstr "Minőség:"
+
+msgid "Compression level:"
+msgstr "Tömörítési szint:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Titkosítás"
+
+msgid "Host:"
+msgstr "Házigazda:"
+
+msgid "Port:"
+msgstr "Kikötő:"
+
+msgid "Path:"
+msgstr "Pálya:"
+
+msgid "Automatic Reconnect"
+msgstr "Automatikus újracsatlakozás"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Újracsatlakozási késleltetés (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Show Dot when No Cursor"
+
+msgid "Logging:"
+msgstr "Fakitermelés:"
+
+msgid "Version:"
+msgstr "Változat:"
+
+msgid "Disconnect"
+msgstr "Leválasztás"
+
+msgid "Connect"
+msgstr "Csatlakozás"
+
+msgid "Username:"
+msgstr "Felhasználónév:"
+
+msgid "Password:"
+msgstr "Jelszó:"
+
+msgid "Send Credentials"
+msgstr "Hitelesítő adatok küldése"
+
+msgid "Cancel"
+msgstr "Megszünteti"
+
+msgid "Keys"
+msgstr "Kulcsok"
+
+msgid "Game Cursor Mode"
+msgstr "Játékkurzor mód"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Nyomja meg az Esc billentyűt a mutatózár módból való kilépéshez"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "A játékmód szünetel, kattintson a képernyőre a Játék mód folytatásához."
+
+msgid "Clipboard Up"
+msgstr "Vágólap fel"
+
+msgid "CLipboard Down"
+msgstr "Vágólap le"
+
+msgid "Clipboard Seamless"
+msgstr "Vágólap zökkenőmentes"
+
+msgid "Prefer Local Cursor"
+msgstr "Helyi kurzor előnyben részesítése"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Billentyűparancsok fordítása"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit engedélyezése"
+
+msgid "Enable WebP Compression"
+msgstr "WebP tömörítés engedélyezése"
+
+msgid "Enable Performance Stats"
+msgstr "Teljesítménystatisztikák engedélyezése"
+
+msgid "Enable Pointer Lock"
+msgstr "Mutatózár engedélyezése"
+
+msgid "IME Input Mode"
+msgstr "IME beviteli mód"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Virtuális billentyűzetvezérlés megjelenítése"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Vezérlőpult váltása billentyűleütésekkel"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Gyorsbillentyűket"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "A KasmVNC billentyűparancsok engedélyezése"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Vezérlőpult váltása"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 – Játékmutató mód váltása"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Mutatózár váltása"
+
+msgid "Stream Quality"
+msgstr "Streamminőség"
+
+msgid "Preset Modes:"
+msgstr "Előre beállított módok:"
+
+msgid "Static"
+msgstr "Statikus"
+
+msgid "Low"
+msgstr "Alacsony"
+
+msgid "Medium"
+msgstr "Közepes"
+
+msgid "High"
+msgstr "Magas"
+
+msgid "Extreme"
+msgstr "Szélső"
+
+msgid "Lossless"
+msgstr "Veszteségmentes"
+
+msgid "Custom"
+msgstr "Egyedi"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Automatikus dinamikus"
+
+msgid "Off"
+msgstr "Ki"
+
+msgid "On"
+msgstr "Tovább"
+
+msgid "Dynamic Quality Min:"
+msgstr "Minim. dinamikus minőség:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Max. dinamikus minőség:"
+
+msgid "Treat Lossless:"
+msgstr "Treat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Filmkocka szám:"
+
+msgid "Video JPEG Quality:"
+msgstr "Videó JPEG minősége:"
+
+msgid "Video WEBP Quality:"
+msgstr "Videó WEBP minősége:"
+
+msgid "Video Area:"
+msgstr "Videóterület:"
+
+msgid "Video Time:"
+msgstr "Videó ideje:"
+
+msgid "Video Out Time:"
+msgstr "Video Out Time:"
+
+msgid "Video Mode Width:"
+msgstr "Video mód szélessége:"
+
+msgid "Video Mode Height:"
+msgstr "Videó mód magassága:"
+
+msgid "Documentation"
+msgstr "Dokumentáció"
+
+msgid "Drag Viewport"
+msgstr "Nézetablak húzása"

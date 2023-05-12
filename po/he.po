@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr ".רשֵׁקַמְ"
+
+msgid "Disconnecting..."
+msgstr ".קתנתמ"
+
+msgid "Reconnecting..."
+msgstr ".שדחמ רבחתמ"
+
+msgid "Internal error"
+msgstr "תימינפ האיגש"
+
+msgid "Must set host"
+msgstr "חראמ רידגהל בייח"
+
+msgid "Connected (encrypted) to "
+msgstr "ל (ןפצומ) רבוחמ"
+
+msgid "Connected (unencrypted) to "
+msgstr "ל (ןפצומ אל) רבוחמ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "רגסנ רוביחה ,שבתשה והשמ"
+
+msgid "Failed to connect to server"
+msgstr "תרשל רבחתהל ןויסנ לשכנ"
+
+msgid "Disconnected"
+msgstr "קתָוּנמְ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "הביס םע החדנ שדח רוביח"
+
+msgid "New connection has been rejected"
+msgstr "החדנ שדח רוביח"
+
+msgid "Credentials are required"
+msgstr "םירושיא םישרדנ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC האיגשב לקתנ:"
+
+msgid "Hide/Show the control bar"
+msgstr "הרקבה לגרס תא גצה/רתסה"
+
+msgid "Drag"
+msgstr "רוֹרגלִ"
+
+msgid "Move/Drag Viewport"
+msgstr "טבמ תדוקנ רורג/זזה"
+
+msgid "Keyboard"
+msgstr "תדלקמ"
+
+msgid "Show Keyboard"
+msgstr "תדלקמ גצה"
+
+msgid "Extra keys"
+msgstr "םיפסונ תוחתפמ"
+
+msgid "Show Extra Keys"
+msgstr "םיפסונ תוחתפמ גצה"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ףלחה"
+
+msgid "Alt"
+msgstr "טלא"
+
+msgid "Toggle Alt"
+msgstr "לא ףלחה"
+
+msgid "Toggle Windows"
+msgstr "תונולח תפלחה"
+
+msgid "Windows"
+msgstr "תונולח"
+
+msgid "Send Tab"
+msgstr "הייסיטרכ חלש"
+
+msgid "Tab"
+msgstr "הייסיטרכ"
+
+msgid "Esc"
+msgstr "האיצי"
+
+msgid "Send Escape"
+msgstr "החירב חלש"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del חלש"
+
+msgid "Shutdown/Reboot"
+msgstr "שדחמ לוחתא/יוביכ"
+
+msgid "Shutdown/Reboot..."
+msgstr ".לוחתא/יוביכ"
+
+msgid "Power"
+msgstr "חַוֹכּ"
+
+msgid "Shutdown"
+msgstr "תובכל"
+
+msgid "Reboot"
+msgstr "לחֵתאַלְ"
+
+msgid "Reset"
+msgstr "לוּחתאִ"
+
+msgid "Clipboard"
+msgstr "חול"
+
+msgid "Clear"
+msgstr "רורב"
+
+msgid "Fullscreen"
+msgstr "אלמ ךסמ"
+
+msgid "Settings"
+msgstr "תורדגה"
+
+msgid "Shared Mode"
+msgstr "ףתושמ בצמ"
+
+msgid "View Only"
+msgstr "דבלב הייפצל"
+
+msgid "Clip to Window"
+msgstr "ןולחל פילק"
+
+msgid "Scaling Mode:"
+msgstr "הדימ הנק בצמ"
+
+msgid "None"
+msgstr "דחא ףא"
+
+msgid "Local Scaling"
+msgstr "ימוקמ הדימ הנק"
+
+msgid "Remote Resizing"
+msgstr "קוחרמ לדוג יוניש"
+
+msgid "Advanced"
+msgstr "םדֵקַתמִ"
+
+msgid "Quality:"
+msgstr "תוכיא"
+
+msgid "Compression level:"
+msgstr "הסיחד תמר"
+
+msgid "Repeater ID:"
+msgstr "רזוח יוהיז"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "ןיפצה"
+
+msgid "Host:"
+msgstr "החנמ"
+
+msgid "Port:"
+msgstr "למנ"
+
+msgid "Path:"
+msgstr "ביתִנָ"
+
+msgid "Automatic Reconnect"
+msgstr "תיטמוטוא שדחמ רבחתה"
+
+msgid "Reconnect Delay (ms):"
+msgstr "(ms) שדחמ רוביח תייהשה"
+
+msgid "Show Dot when No Cursor"
+msgstr "ןמס ןיא רשאכ הדוקנ גצה"
+
+msgid "Logging:"
+msgstr "םושיר"
+
+msgid "Version:"
+msgstr "הסָרְגִ"
+
+msgid "Disconnect"
+msgstr "קתֵנַלְ"
+
+msgid "Connect"
+msgstr "רבֵּחַלְ"
+
+msgid "Username:"
+msgstr "שמתשמ םש"
+
+msgid "Password:"
+msgstr "המסיס"
+
+msgid "Send Credentials"
+msgstr "םירושיא חלש"
+
+msgid "Cancel"
+msgstr "לטֵבַלְ"
+
+msgid "Keys"
+msgstr "תוחתפמ"
+
+msgid "Game Cursor Mode"
+msgstr "קחשמ ןמס בצמ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "עיבצמ תליענ בצממ תאצל ידכ Esc שקמ לע ץחל"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "קחשמ בצמ תא שדחל ידכ ךסמה לע ץחל ,ההשומ קחשמ בצמ"
+
+msgid "Clipboard Up"
+msgstr "הלעמל חול"
+
+msgid "CLipboard Down"
+msgstr "הטמל חול"
+
+msgid "Clipboard Seamless"
+msgstr "םירפת אלל חול"
+
+msgid "Prefer Local Cursor"
+msgstr "ימוקמ ןמס ףידעה"
+
+msgid "Translate keyboard shortcuts"
+msgstr "םישקמ ירוציק םגרת"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit לעפה"
+
+msgid "Enable WebP Compression"
+msgstr "WebP תסיחד רשפא"
+
+msgid "Enable Performance Stats"
+msgstr "םיעוציב תקיטסיטטס לעפה"
+
+msgid "Enable Pointer Lock"
+msgstr "עיבצמ תליענ רשפא"
+
+msgid "IME Input Mode"
+msgstr "IME טלק בצמ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "תילאוטריו תדלקמ תרקב גצה"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "תושקה תועצמאב הרקבה חול תפלחה"
+
+msgid "Render Native Resolution"
+msgstr "תירוקמ היצולוזר דוביע"
+
+msgid "Keyboard Shortcuts"
+msgstr "תדלקמב ךרד ירוציק"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC לש םישקמ ירוציק לעפה"
+
+msgid "1 - Toggle Control Panel"
+msgstr "הרקבה חול תא ףלחה - 1"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "קחשמ עיבצמ בצמ ףלחה - 2"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "עיבצמ תליענ תפלחה - 3"
+
+msgid "Stream Quality"
+msgstr "םרז תוכיא"
+
+msgid "Preset Modes:"
+msgstr "שארמ םירדגומ םיבצמ"
+
+msgid "Static"
+msgstr "יטִטָס"
+
+msgid "Low"
+msgstr "ךוּמנָ"
+
+msgid "Medium"
+msgstr "ינוניב"
+
+msgid "High"
+msgstr "הַוֹבגָ"
+
+msgid "Extreme"
+msgstr "ינוציק"
+
+msgid "Lossless"
+msgstr "תוחפ דיספת"
+
+msgid "Custom"
+msgstr "תישיא םאתומה"
+
+msgid "Anti-Aliasing:"
+msgstr "תומוקע תקלחה"
+
+msgid "Auto Dynamic"
+msgstr "ימניד יטמוטוא"
+
+msgid "Off"
+msgstr "יובכ"
+
+msgid "On"
+msgstr "לעַ"
+
+msgid "Dynamic Quality Min:"
+msgstr "תימניד תוכיא םומינימ"
+
+msgid "Dynamic Quality Max:"
+msgstr "תימניד תוכיא םומיסקמ"
+
+msgid "Treat Lossless:"
+msgstr "ןדבוא אלל לפט"
+
+msgid "Frame Rate:"
+msgstr "םימיירפ בצק"
+
+msgid "Video JPEG Quality:"
+msgstr "JPEG ואדיו תוכיא"
+
+msgid "Video WEBP Quality:"
+msgstr "ואדיו לש WEBP תוכיא"
+
+msgid "Video Area:"
+msgstr "ואדיו רוזא"
+
+msgid "Video Time:"
+msgstr "ואדיו ןמז"
+
+msgid "Video Out Time:"
+msgstr "ןוטרסה לש האיצי ןמז"
+
+msgid "Video Mode Width:"
+msgstr "ואדיו בצמ בחור"
+
+msgid "Video Mode Height:"
+msgstr "ואדיו בצמ הבוג"
+
+msgid "Documentation"
+msgstr "דועית"
+
+msgid "Drag Viewport"
+msgstr "טבמ תדוקנ רורג"

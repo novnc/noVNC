@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Tengir..."
+
+msgid "Disconnecting..."
+msgstr "Aftengdar..."
+
+msgid "Reconnecting..."
+msgstr "Tengist aftur..."
+
+msgid "Internal error"
+msgstr "Innri villa"
+
+msgid "Must set host"
+msgstr "Verður að stilla gestgjafa"
+
+msgid "Connected (encrypted) to "
+msgstr "Tengt (dulkóðað) við "
+
+msgid "Connected (unencrypted) to "
+msgstr "Tengt (ódulkóðað) við "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Eitthvað fór úrskeiðis, tenging er lokuð"
+
+msgid "Failed to connect to server"
+msgstr "Tókst ekki að tengjast þjóninum"
+
+msgid "Disconnected"
+msgstr "Aftengdur"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nýrri tengingu hefur verið hafnað með ástæðu:"
+
+msgid "New connection has been rejected"
+msgstr "Nýrri tengingu hefur verið hafnað"
+
+msgid "Credentials are required"
+msgstr "Leikskilríki eru nauðsynleg"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC rakst á villu:"
+
+msgid "Hide/Show the control bar"
+msgstr "Fela/sýna stjórnstikuna"
+
+msgid "Drag"
+msgstr "Draga"
+
+msgid "Move/Drag Viewport"
+msgstr "Færa/draga útsýni"
+
+msgid "Keyboard"
+msgstr "Lyklaborð"
+
+msgid "Show Keyboard"
+msgstr "Sýna lyklaborð"
+
+msgid "Extra keys"
+msgstr "Auka lyklar"
+
+msgid "Show Extra Keys"
+msgstr "Sýna aukalykla"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Slökktu á Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Slökkva á Alt"
+
+msgid "Toggle Windows"
+msgstr "Slökkva á Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Senda flipi"
+
+msgid "Tab"
+msgstr "flipi"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Senda flýja"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Senda Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Slökkva/endurræsa"
+
+msgid "Shutdown/Reboot..."
+msgstr "Slökkva/endurræsa..."
+
+msgid "Power"
+msgstr "Máttur"
+
+msgid "Shutdown"
+msgstr "Slökkvun"
+
+msgid "Reboot"
+msgstr "Endurræsa"
+
+msgid "Reset"
+msgstr "Endurstilla"
+
+msgid "Clipboard"
+msgstr "Klippiborð"
+
+msgid "Clear"
+msgstr "Hreinsa"
+
+msgid "Fullscreen"
+msgstr "Allur skjár"
+
+msgid "Settings"
+msgstr "Stillingar"
+
+msgid "Shared Mode"
+msgstr "Deilt stilling"
+
+msgid "View Only"
+msgstr "Aðeins skoða"
+
+msgid "Clip to Window"
+msgstr "Klippa í glugga"
+
+msgid "Scaling Mode:"
+msgstr "Skalunarstilling:"
+
+msgid "None"
+msgstr "Enginn"
+
+msgid "Local Scaling"
+msgstr "Staðbundin mælikvarði"
+
+msgid "Remote Resizing"
+msgstr "Fjarstærðarbreyting"
+
+msgid "Advanced"
+msgstr "Ítarlegri"
+
+msgid "Quality:"
+msgstr "Gæði:"
+
+msgid "Compression level:"
+msgstr "Þjöppunarstig:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "dulkóða"
+
+msgid "Host:"
+msgstr "Gestgjafi:"
+
+msgid "Port:"
+msgstr "Höfn:"
+
+msgid "Path:"
+msgstr "Leið:"
+
+msgid "Automatic Reconnect"
+msgstr "Sjálfvirkt endurtengja"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Töf á endurtengingu (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Sýna punkt þegar enginn bendil"
+
+msgid "Logging:"
+msgstr "Skrá:"
+
+msgid "Version:"
+msgstr "Útgáfa:"
+
+msgid "Disconnect"
+msgstr "Aftengdu"
+
+msgid "Connect"
+msgstr "Tengdu"
+
+msgid "Username:"
+msgstr "Notendanafn:"
+
+msgid "Password:"
+msgstr "Lykilorð:"
+
+msgid "Send Credentials"
+msgstr "Senda skilríki"
+
+msgid "Cancel"
+msgstr "Hætta við"
+
+msgid "Keys"
+msgstr "Lyklar"
+
+msgid "Game Cursor Mode"
+msgstr "Game Bendill Mode"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Ýttu á Esc takkann til að hætta við bendilásstillingu"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Hlé gert á leikjastillingu, smelltu á skjáinn til að halda áfram leikstillingu."
+
+msgid "Clipboard Up"
+msgstr "Klippborð upp"
+
+msgid "CLipboard Down"
+msgstr "Klippborð niður"
+
+msgid "Clipboard Seamless"
+msgstr "Klemmuspjald óaðfinnanlegur"
+
+msgid "Prefer Local Cursor"
+msgstr "Vel frekar staðbundinn bendil"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Þýða flýtivísa"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Virkja WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Virkja WebP þjöppun"
+
+msgid "Enable Performance Stats"
+msgstr "Virkja árangurstölfræði"
+
+msgid "Enable Pointer Lock"
+msgstr "Virkja bendilás"
+
+msgid "IME Input Mode"
+msgstr "IME inntaksstilling"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Sýna sýndarlyklaborðsstýringu"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Slökktu á stjórnborði með ásláttum"
+
+msgid "Render Native Resolution"
+msgstr "Gefðu upprunalega upplausn"
+
+msgid "Keyboard Shortcuts"
+msgstr "Flýtivísar"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Virkja KasmVNC flýtilykla"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Skiptu um stjórnborð"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Skiptu um leikbendiham"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Víxla bendilás"
+
+msgid "Stream Quality"
+msgstr "Streamgæði"
+
+msgid "Preset Modes:"
+msgstr "Forstilltar stillingar:"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Low"
+msgstr "Lágt"
+
+msgid "Medium"
+msgstr "miðlungs"
+
+msgid "High"
+msgstr "Hár"
+
+msgid "Extreme"
+msgstr "Öfga"
+
+msgid "Lossless"
+msgstr "Taplaust"
+
+msgid "Custom"
+msgstr "Sérsniðin"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Af"
+
+msgid "On"
+msgstr "Á"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamísk gæði mín:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamísk gæði hámarks:"
+
+msgid "Treat Lossless:"
+msgstr "Meðhöndla Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Rammatíðni:"
+
+msgid "Video JPEG Quality:"
+msgstr "JPEG myndgæði:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP gæði:"
+
+msgid "Video Area:"
+msgstr "Myndbandssvæði:"
+
+msgid "Video Time:"
+msgstr "Video Time:"
+
+msgid "Video Out Time:"
+msgstr "Úttími myndbands:"
+
+msgid "Video Mode Width:"
+msgstr "Video Mode Breidd:"
+
+msgid "Video Mode Height:"
+msgstr "Hæð myndbandshams:"
+
+msgid "Documentation"
+msgstr "Skjölun"
+
+msgid "Drag Viewport"
+msgstr "Dragðu útsýnisgátt"

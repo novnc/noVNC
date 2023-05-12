@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Se conectează..."
+
+msgid "Disconnecting..."
+msgstr "Se deconectează..."
+
+msgid "Reconnecting..."
+msgstr "Reconectare..."
+
+msgid "Internal error"
+msgstr "Eroare internă"
+
+msgid "Must set host"
+msgstr "Trebuie să setați gazda"
+
+msgid "Connected (encrypted) to "
+msgstr "Conectat (criptat) la "
+
+msgid "Connected (unencrypted) to "
+msgstr "Conectat (necriptat) la "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Ceva a mers prost, conexiunea este închisă"
+
+msgid "Failed to connect to server"
+msgstr "Conectare eșuată la server"
+
+msgid "Disconnected"
+msgstr "Deconectat"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Noua conexiune a fost respinsă cu motiv: "
+
+msgid "New connection has been rejected"
+msgstr "Noua conexiune a fost respinsă"
+
+msgid "Credentials are required"
+msgstr "Sunt necesare acreditări"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC a întâmpinat o eroare:"
+
+msgid "Hide/Show the control bar"
+msgstr "Ascunde/Afișează bara de control"
+
+msgid "Drag"
+msgstr "Trage"
+
+msgid "Move/Drag Viewport"
+msgstr "Mutați/Trageți fereastra de vizualizare"
+
+msgid "Keyboard"
+msgstr "Tastatură"
+
+msgid "Show Keyboard"
+msgstr "Afișează tastatura"
+
+msgid "Extra keys"
+msgstr "Chei suplimentare"
+
+msgid "Show Extra Keys"
+msgstr "Afișați cheile suplimentare"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Comută Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Comută Alt"
+
+msgid "Toggle Windows"
+msgstr "Comută Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Trimite fila"
+
+msgid "Tab"
+msgstr "Fila"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Trimite evadare"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Trimite Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Oprire/Repornire"
+
+msgid "Shutdown/Reboot..."
+msgstr "Oprire/Repornire..."
+
+msgid "Power"
+msgstr "Putere"
+
+msgid "Shutdown"
+msgstr "Închide"
+
+msgid "Reboot"
+msgstr "Reporniți"
+
+msgid "Reset"
+msgstr "Resetare"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Clar"
+
+msgid "Fullscreen"
+msgstr "Ecran complet"
+
+msgid "Settings"
+msgstr "Setări"
+
+msgid "Shared Mode"
+msgstr "Mod partajat"
+
+msgid "View Only"
+msgstr "Doar vizualizare"
+
+msgid "Clip to Window"
+msgstr "Clip la fereastră"
+
+msgid "Scaling Mode:"
+msgstr "Modul de scalare:"
+
+msgid "None"
+msgstr "Nici unul"
+
+msgid "Local Scaling"
+msgstr "Scalarea locală"
+
+msgid "Remote Resizing"
+msgstr "Redimensionare la distanță"
+
+msgid "Advanced"
+msgstr "Avansat"
+
+msgid "Quality:"
+msgstr "Calitate:"
+
+msgid "Compression level:"
+msgstr "Nivel de compresie:"
+
+msgid "Repeater ID:"
+msgstr "ID repetitor:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "criptare"
+
+msgid "Host:"
+msgstr "Gazdă:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Cale:"
+
+msgid "Automatic Reconnect"
+msgstr "Reconectare automată"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Întârziere reconectare (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Afișați punctul când nu există cursor"
+
+msgid "Logging:"
+msgstr "Logare:"
+
+msgid "Version:"
+msgstr "Versiune:"
+
+msgid "Disconnect"
+msgstr "Deconectat"
+
+msgid "Connect"
+msgstr "Conectați"
+
+msgid "Username:"
+msgstr "Nume de utilizator:"
+
+msgid "Password:"
+msgstr "Parola:"
+
+msgid "Send Credentials"
+msgstr "Trimiteți acreditări"
+
+msgid "Cancel"
+msgstr "Anulare"
+
+msgid "Keys"
+msgstr "Chei"
+
+msgid "Game Cursor Mode"
+msgstr "Modul cursor de joc"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Apăsați tasta Esc pentru a ieși din modul de blocare a indicatorului"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Modul de joc a fost întrerupt, faceți clic pe ecran pentru a relua modul de joc."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard fără sudură"
+
+msgid "Prefer Local Cursor"
+msgstr "Preferați cursorul local"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Traduceți comenzile rapide de la tastatură"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Activați tranzitul WebRTC UDP"
+
+msgid "Enable WebP Compression"
+msgstr "Activați compresia WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Activați statisticile de performanță"
+
+msgid "Enable Pointer Lock"
+msgstr "Activați blocarea pointerului"
+
+msgid "IME Input Mode"
+msgstr "Mod de intrare IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Afișați controlul tastaturii virtuale"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Comutați panoul de control prin apăsări de taste"
+
+msgid "Render Native Resolution"
+msgstr "Redare rezoluție nativă"
+
+msgid "Keyboard Shortcuts"
+msgstr "Comenzi rapide de la tastatură"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Activați comenzile rapide de la tastatură KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Comutați panoul de control"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Comutați modul indicator de joc"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Comutați blocarea indicatorului"
+
+msgid "Stream Quality"
+msgstr "Calitatea fluxului"
+
+msgid "Preset Modes:"
+msgstr "Moduri presetate:"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Low"
+msgstr "Scăzut"
+
+msgid "Medium"
+msgstr "Mediu"
+
+msgid "High"
+msgstr "Înalt"
+
+msgid "Extreme"
+msgstr "Extrem"
+
+msgid "Lossless"
+msgstr "Fara pierderi"
+
+msgid "Custom"
+msgstr "Personalizat"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Autodinamic"
+
+msgid "Off"
+msgstr "Oprit"
+
+msgid "On"
+msgstr "Pe"
+
+msgid "Dynamic Quality Min:"
+msgstr "Calitate dinamică min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Calitate dinamică maximă:"
+
+msgid "Treat Lossless:"
+msgstr "Tratați fără pierderi:"
+
+msgid "Frame Rate:"
+msgstr "Rata de cadre:"
+
+msgid "Video JPEG Quality:"
+msgstr "Calitate JPEG video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Calitate WEBP video:"
+
+msgid "Video Area:"
+msgstr "Zona video:"
+
+msgid "Video Time:"
+msgstr "Timp video:"
+
+msgid "Video Out Time:"
+msgstr "Timp de ieșire video:"
+
+msgid "Video Mode Width:"
+msgstr "Lățimea modului video:"
+
+msgid "Video Mode Height:"
+msgstr "Înălțimea modului video:"
+
+msgid "Documentation"
+msgstr "Documentație"
+
+msgid "Drag Viewport"
+msgstr "Trasați fereastra de vizualizare"

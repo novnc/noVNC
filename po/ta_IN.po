@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "இணைக்கிறது..."
+
+msgid "Disconnecting..."
+msgstr "துண்டிக்கிறது..."
+
+msgid "Reconnecting..."
+msgstr "மீண்டும் இணைக்கிறது..."
+
+msgid "Internal error"
+msgstr "உள் பிழை"
+
+msgid "Must set host"
+msgstr "ஹோஸ்ட் அமைக்க வேண்டும்"
+
+msgid "Connected (encrypted) to "
+msgstr "இணைக்கப்பட்டது (குறியாக்கம்)"
+
+msgid "Connected (unencrypted) to "
+msgstr "இணைக்கப்பட்டது (மறைகுறியாக்கப்படாதது)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ஏதோ தவறாகிவிட்டது, இணைப்பு மூடப்பட்டுள்ளது"
+
+msgid "Failed to connect to server"
+msgstr "சேவகையத்திடம் தொடர்பு கொள்ள முடியவில்லை"
+
+msgid "Disconnected"
+msgstr "துண்டிக்கப்பட்டது"
+
+msgid "New connection has been rejected with reason: "
+msgstr "புதிய இணைப்பு காரணத்துடன் நிராகரிக்கப்பட்டது:"
+
+msgid "New connection has been rejected"
+msgstr "புதிய இணைப்பு நிராகரிக்கப்பட்டது"
+
+msgid "Credentials are required"
+msgstr "நற்சான்றிதழ்கள் தேவை"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ஒரு பிழையை எதிர்கொண்டது:"
+
+msgid "Hide/Show the control bar"
+msgstr "கட்டுப்பாட்டு பட்டியை மறை/காட்டு"
+
+msgid "Drag"
+msgstr "இழு"
+
+msgid "Move/Drag Viewport"
+msgstr "வியூபோர்ட்டை நகர்த்த/இழுக்கவும்"
+
+msgid "Keyboard"
+msgstr "விசைப்பலகை"
+
+msgid "Show Keyboard"
+msgstr "விசைப்பலகையைக் காட்டு"
+
+msgid "Extra keys"
+msgstr "கூடுதல் விசைகள்"
+
+msgid "Show Extra Keys"
+msgstr "கூடுதல் விசைகளைக் காட்டு"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ஐ மாற்று"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "ஆல்ட்டை மாற்று"
+
+msgid "Toggle Windows"
+msgstr "விண்டோஸை மாற்று"
+
+msgid "Windows"
+msgstr "விண்டோஸ்"
+
+msgid "Send Tab"
+msgstr "அனுப்பு தாவல்"
+
+msgid "Tab"
+msgstr "தாவல்"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "எஸ்கேப் அனுப்பு"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ஐ அனுப்பு"
+
+msgid "Shutdown/Reboot"
+msgstr "பணிநிறுத்தம்/மறுதொடக்கம்"
+
+msgid "Shutdown/Reboot..."
+msgstr "பணிநிறுத்தம்/மறுதொடக்கம்..."
+
+msgid "Power"
+msgstr "சக்தி"
+
+msgid "Shutdown"
+msgstr "பணிநிறுத்தம்"
+
+msgid "Reboot"
+msgstr "மறுதொடக்கம்"
+
+msgid "Reset"
+msgstr "மீட்டமை"
+
+msgid "Clipboard"
+msgstr "கிளிப்போர்டு"
+
+msgid "Clear"
+msgstr "தெளிவு"
+
+msgid "Fullscreen"
+msgstr "முழு திரை"
+
+msgid "Settings"
+msgstr "அமைப்புகள்"
+
+msgid "Shared Mode"
+msgstr "பகிரப்பட்ட பயன்முறை"
+
+msgid "View Only"
+msgstr "பார்க்க மட்டும்"
+
+msgid "Clip to Window"
+msgstr "கிளிப் டு விண்டோ"
+
+msgid "Scaling Mode:"
+msgstr "அளவிடுதல் முறை:"
+
+msgid "None"
+msgstr "இல்லை"
+
+msgid "Local Scaling"
+msgstr "உள்ளூர் அளவிடுதல்"
+
+msgid "Remote Resizing"
+msgstr "ரிமோட் மறுஅளவாக்கம்"
+
+msgid "Advanced"
+msgstr "மேம்படுத்தபட்ட"
+
+msgid "Quality:"
+msgstr "தரம்:"
+
+msgid "Compression level:"
+msgstr "சுருக்க நிலை:"
+
+msgid "Repeater ID:"
+msgstr "ரிப்பீட்டர் ஐடி:"
+
+msgid "WebSocket"
+msgstr "வெப்சாக்கெட்"
+
+msgid "Encrypt"
+msgstr "குறியாக்கம்"
+
+msgid "Host:"
+msgstr "தொகுப்பாளர்:"
+
+msgid "Port:"
+msgstr "துறைமுகம்:"
+
+msgid "Path:"
+msgstr "பாதை:"
+
+msgid "Automatic Reconnect"
+msgstr "தானியங்கி மறு இணைப்பு"
+
+msgid "Reconnect Delay (ms):"
+msgstr "தாமதம் (மிஎஸ்) மீண்டும் இணைக்கவும்:"
+
+msgid "Show Dot when No Cursor"
+msgstr "கர்சர் இல்லாதபோது புள்ளியைக் காட்டு"
+
+msgid "Logging:"
+msgstr "பதிவு:"
+
+msgid "Version:"
+msgstr "பதிப்பு:"
+
+msgid "Disconnect"
+msgstr "துண்டிக்கவும்"
+
+msgid "Connect"
+msgstr "இணை"
+
+msgid "Username:"
+msgstr "பயனர் பெயர்:"
+
+msgid "Password:"
+msgstr "கடவுச்சொல்:"
+
+msgid "Send Credentials"
+msgstr "நற்சான்றிதழ்களை அனுப்பு"
+
+msgid "Cancel"
+msgstr "ரத்துசெய்"
+
+msgid "Keys"
+msgstr "விசைகள்"
+
+msgid "Game Cursor Mode"
+msgstr "கேம் கர்சர் பயன்முறை"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "பாயிண்டர் லாக் பயன்முறையிலிருந்து வெளியேற Esc விசையை அழுத்தவும்"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "கேம் பயன்முறை இடைநிறுத்தப்பட்டது, கேம் பயன்முறையை மீண்டும் தொடங்க திரையில் கிளிக் செய்யவும்."
+
+msgid "Clipboard Up"
+msgstr "கிளிப்போர்டு அப்"
+
+msgid "CLipboard Down"
+msgstr "கிளிப்போர்டு டவுன்"
+
+msgid "Clipboard Seamless"
+msgstr "கிளிப்போர்டு தடையற்றது"
+
+msgid "Prefer Local Cursor"
+msgstr "உள்ளூர் கர்சரை விரும்பு"
+
+msgid "Translate keyboard shortcuts"
+msgstr "விசைப்பலகை குறுக்குவழிகளை மொழிபெயர்"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP டிரான்ஸிட்டை இயக்கு"
+
+msgid "Enable WebP Compression"
+msgstr "WebP சுருக்கத்தை இயக்கு"
+
+msgid "Enable Performance Stats"
+msgstr "செயல்திறன் புள்ளிவிவரங்களை இயக்கு"
+
+msgid "Enable Pointer Lock"
+msgstr "சுட்டி பூட்டை இயக்கு"
+
+msgid "IME Input Mode"
+msgstr "IME உள்ளீட்டு முறை"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "விர்ச்சுவல் விசைப்பலகை கட்டுப்பாட்டைக் காட்டு"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "விசை அழுத்தங்கள் வழியாக கண்ட்ரோல் பேனலை மாற்று"
+
+msgid "Render Native Resolution"
+msgstr "இன்டர் நேட்டிவ் ரெசல்யூஷன்"
+
+msgid "Keyboard Shortcuts"
+msgstr "விசைப்பலகை குறுக்குவழிகள்"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC விசைப்பலகை குறுக்குவழிகளை இயக்கு"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - கண்ட்ரோல் பேனலை மாற்று"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - கேம் பாயிண்டர் பயன்முறையை மாற்று"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - சுட்டி பூட்டை மாற்று"
+
+msgid "Stream Quality"
+msgstr "ஸ்ட்ரீம் தரம்"
+
+msgid "Preset Modes:"
+msgstr "முன்னமைக்கப்பட்ட முறைகள்:"
+
+msgid "Static"
+msgstr "நிலையான"
+
+msgid "Low"
+msgstr "குறைந்த"
+
+msgid "Medium"
+msgstr "நடுத்தர"
+
+msgid "High"
+msgstr "உயர்"
+
+msgid "Extreme"
+msgstr "அதிக"
+
+msgid "Lossless"
+msgstr "இழப்பற்ற"
+
+msgid "Custom"
+msgstr "விருப்ப"
+
+msgid "Anti-Aliasing:"
+msgstr "எதிர்ப்பு மாற்றுப்பெயர்:"
+
+msgid "Auto Dynamic"
+msgstr "ஆட்டோ டைனமிக்"
+
+msgid "Off"
+msgstr "ஆஃப்"
+
+msgid "On"
+msgstr "ஆன்"
+
+msgid "Dynamic Quality Min:"
+msgstr "டைனமிக் தர குறைந்தபட்சம்:"
+
+msgid "Dynamic Quality Max:"
+msgstr "டைனமிக் குவாலிட்டி மேக்ஸ்:"
+
+msgid "Treat Lossless:"
+msgstr "இழப்பற்ற சிகிச்சை:"
+
+msgid "Frame Rate:"
+msgstr "பிரேம் வீதம்:"
+
+msgid "Video JPEG Quality:"
+msgstr "வீடியோ JPEG தரம்:"
+
+msgid "Video WEBP Quality:"
+msgstr "வீடியோ WEBP தரம்:"
+
+msgid "Video Area:"
+msgstr "வீடியோ பகுதி:"
+
+msgid "Video Time:"
+msgstr "வீடியோ நேரம்:"
+
+msgid "Video Out Time:"
+msgstr "வீடியோ அவுட் நேரம்:"
+
+msgid "Video Mode Width:"
+msgstr "வீடியோ பயன்முறை அகலம்:"
+
+msgid "Video Mode Height:"
+msgstr "வீடியோ பயன்முறை உயரம்:"
+
+msgid "Documentation"
+msgstr "ஆவணம்"
+
+msgid "Drag Viewport"
+msgstr "வியூபோர்ட்டை இழுக்கவும்"

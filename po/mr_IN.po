@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "कनेक्ट करत आहे..."
+
+msgid "Disconnecting..."
+msgstr "डिस्कनेक्ट करत आहे..."
+
+msgid "Reconnecting..."
+msgstr "पुन्हा कनेक्ट करत आहे..."
+
+msgid "Internal error"
+msgstr "अंतर्गत त्रुटी"
+
+msgid "Must set host"
+msgstr "होस्ट सेट करणे आवश्यक आहे"
+
+msgid "Connected (encrypted) to "
+msgstr "शी कनेक्ट केलेले (एनक्रिप्ट केलेले) "
+
+msgid "Connected (unencrypted) to "
+msgstr "शी कनेक्ट केलेले (एनक्रिप्ट केलेले) "
+
+msgid "Something went wrong, connection is closed"
+msgstr "काहीतरी चूक झाली, कनेक्शन बंद आहे"
+
+msgid "Failed to connect to server"
+msgstr "सर्व्हरशी जोडण्यास असमर्थ"
+
+msgid "Disconnected"
+msgstr "डिस्कनेक्ट केलेले"
+
+msgid "New connection has been rejected with reason: "
+msgstr "नवीन कनेक्शन कारणास्तव नाकारले गेले आहे:"
+
+msgid "New connection has been rejected"
+msgstr "नवीन कनेक्शन नाकारले गेले आहे"
+
+msgid "Credentials are required"
+msgstr "प्रमाणपत्रे आवश्यक आहेत"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC मध्ये त्रुटी आली:"
+
+msgid "Hide/Show the control bar"
+msgstr "नियंत्रण पट्टी लपवा/दाखवा"
+
+msgid "Drag"
+msgstr "ड्रॅग"
+
+msgid "Move/Drag Viewport"
+msgstr "व्ह्यूपोर्ट हलवा/ड्रॅग करा"
+
+msgid "Keyboard"
+msgstr "कीबोर्ड"
+
+msgid "Show Keyboard"
+msgstr "कीबोर्ड दाखवा"
+
+msgid "Extra keys"
+msgstr "अतिरिक्त कळा"
+
+msgid "Show Extra Keys"
+msgstr "अतिरिक्त की दर्शवा"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl टॉगल करा"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt टॉगल करा"
+
+msgid "Toggle Windows"
+msgstr "विंडोज टॉगल करा"
+
+msgid "Windows"
+msgstr "विंडोज"
+
+msgid "Send Tab"
+msgstr "टॅब पाठवा"
+
+msgid "Tab"
+msgstr "टॅब"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "पलायन पाठवा"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del पाठवा"
+
+msgid "Shutdown/Reboot"
+msgstr "शटडाउन/रीबूट"
+
+msgid "Shutdown/Reboot..."
+msgstr "शटडाउन/रीबूट..."
+
+msgid "Power"
+msgstr "शक्ती"
+
+msgid "Shutdown"
+msgstr "बंद"
+
+msgid "Reboot"
+msgstr "रीबूट करा"
+
+msgid "Reset"
+msgstr "रीसेट करा"
+
+msgid "Clipboard"
+msgstr "क्लिपबोर्ड"
+
+msgid "Clear"
+msgstr "साफ"
+
+msgid "Fullscreen"
+msgstr "फुलस्क्रीन"
+
+msgid "Settings"
+msgstr "सेटिंग्ज"
+
+msgid "Shared Mode"
+msgstr "सामायिक मोड"
+
+msgid "View Only"
+msgstr "केवळ पहा"
+
+msgid "Clip to Window"
+msgstr "क्लिप टू विंडो"
+
+msgid "Scaling Mode:"
+msgstr "स्केलिंग मोड:"
+
+msgid "None"
+msgstr "काहीही नाही"
+
+msgid "Local Scaling"
+msgstr "स्थानिक स्केलिंग"
+
+msgid "Remote Resizing"
+msgstr "दूरस्थ आकार बदलणे"
+
+msgid "Advanced"
+msgstr "प्रगत"
+
+msgid "Quality:"
+msgstr "गुणवत्ता:"
+
+msgid "Compression level:"
+msgstr "संक्षेप पातळी:"
+
+msgid "Repeater ID:"
+msgstr "रिपीटर आयडी:"
+
+msgid "WebSocket"
+msgstr "वेबसॉकेट"
+
+msgid "Encrypt"
+msgstr "एनक्रिप्ट"
+
+msgid "Host:"
+msgstr "होस्ट:"
+
+msgid "Port:"
+msgstr "पोर्ट:"
+
+msgid "Path:"
+msgstr "पथ:"
+
+msgid "Automatic Reconnect"
+msgstr "स्वयंचलित पुन्हा कनेक्ट करा"
+
+msgid "Reconnect Delay (ms):"
+msgstr "पुन्हा कनेक्ट करा विलंब (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "कर्सर नसताना बिंदू दाखवा"
+
+msgid "Logging:"
+msgstr "लॉगिंग:"
+
+msgid "Version:"
+msgstr "आवृत्ती:"
+
+msgid "Disconnect"
+msgstr "डिस्कनेक्ट करा"
+
+msgid "Connect"
+msgstr "कनेक्ट करा"
+
+msgid "Username:"
+msgstr "वापरकर्तानाव:"
+
+msgid "Password:"
+msgstr "पासवर्ड:"
+
+msgid "Send Credentials"
+msgstr "क्रेडेन्शियल पाठवा"
+
+msgid "Cancel"
+msgstr "रद्द करा"
+
+msgid "Keys"
+msgstr "चाव्या"
+
+msgid "Game Cursor Mode"
+msgstr "गेम कर्सर मोड"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "पॉइंटर लॉक मोडमधून बाहेर पडण्यासाठी Esc की दाबा"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "गेम मोडला विराम दिला, गेम मोड पुन्हा सुरू करण्यासाठी स्क्रीनवर क्लिक करा."
+
+msgid "Clipboard Up"
+msgstr "क्लिपबोर्ड वर"
+
+msgid "CLipboard Down"
+msgstr "क्लिपबोर्ड खाली"
+
+msgid "Clipboard Seamless"
+msgstr "क्लिपबोर्ड सीमलेस"
+
+msgid "Prefer Local Cursor"
+msgstr "स्थानिक कर्सरला प्राधान्य द्या"
+
+msgid "Translate keyboard shortcuts"
+msgstr "कीबोर्ड शॉर्टकटचे भाषांतर करा"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP ट्रान्झिट सक्षम करा"
+
+msgid "Enable WebP Compression"
+msgstr "वेबपी कॉम्प्रेशन सक्षम करा"
+
+msgid "Enable Performance Stats"
+msgstr "कार्यप्रदर्शन आकडेवारी सक्षम करा"
+
+msgid "Enable Pointer Lock"
+msgstr "पॉइंटर लॉक सक्षम करा"
+
+msgid "IME Input Mode"
+msgstr "IME इनपुट मोड"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "व्हर्च्युअल कीबोर्ड नियंत्रण दर्शवा"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "कीस्ट्रोकद्वारे नियंत्रण पॅनेल टॉगल करा"
+
+msgid "Render Native Resolution"
+msgstr "नेटिव्ह रिझोल्यूशन रेंडर करा"
+
+msgid "Keyboard Shortcuts"
+msgstr "कीबोर्ड शॉर्टकट"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC कीबोर्ड शॉर्टकट सक्षम करा"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - नियंत्रण पॅनेल टॉगल करा"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - गेम पॉइंटर मोड टॉगल करा"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - पॉइंटर लॉक टॉगल करा"
+
+msgid "Stream Quality"
+msgstr "प्रवाह गुणवत्ता"
+
+msgid "Preset Modes:"
+msgstr "प्रीसेट मोड:"
+
+msgid "Static"
+msgstr "स्थिर"
+
+msgid "Low"
+msgstr "कमी"
+
+msgid "Medium"
+msgstr "मध्यम"
+
+msgid "High"
+msgstr "उच्च"
+
+msgid "Extreme"
+msgstr "अत्यंत"
+
+msgid "Lossless"
+msgstr "तोटाहीन"
+
+msgid "Custom"
+msgstr "सानुकूल"
+
+msgid "Anti-Aliasing:"
+msgstr "विरोधी aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "ऑटो डायनॅमिक"
+
+msgid "Off"
+msgstr "बंद"
+
+msgid "On"
+msgstr "चालू"
+
+msgid "Dynamic Quality Min:"
+msgstr "डायनॅमिक गुणवत्ता किमान:"
+
+msgid "Dynamic Quality Max:"
+msgstr "डायनॅमिक गुणवत्ता कमाल:"
+
+msgid "Treat Lossless:"
+msgstr "तोटारहित उपचार करा:"
+
+msgid "Frame Rate:"
+msgstr "फ्रेम दर:"
+
+msgid "Video JPEG Quality:"
+msgstr "व्हिडिओ JPEG गुणवत्ता:"
+
+msgid "Video WEBP Quality:"
+msgstr "व्हिडिओ WEBP गुणवत्ता:"
+
+msgid "Video Area:"
+msgstr "व्हिडिओ क्षेत्र:"
+
+msgid "Video Time:"
+msgstr "व्हिडिओ वेळ:"
+
+msgid "Video Out Time:"
+msgstr "व्हिडिओ संपण्याची वेळ:"
+
+msgid "Video Mode Width:"
+msgstr "व्हिडिओ मोड रुंदी:"
+
+msgid "Video Mode Height:"
+msgstr "व्हिडिओ मोड उंची:"
+
+msgid "Documentation"
+msgstr "दस्तऐवजीकरण"
+
+msgid "Drag Viewport"
+msgstr "व्ह्यूपोर्ट ड्रॅग करा"

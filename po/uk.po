@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Підключення..."
+
+msgid "Disconnecting..."
+msgstr "Відключення..."
+
+msgid "Reconnecting..."
+msgstr "Повторне підключення..."
+
+msgid "Internal error"
+msgstr "Внутрішня помилка"
+
+msgid "Must set host"
+msgstr "Потрібно встановити хост"
+
+msgid "Connected (encrypted) to "
+msgstr "Підключено (зашифровано) до "
+
+msgid "Connected (unencrypted) to "
+msgstr "Підключено (не зашифровано) до "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Щось пішло не так, з'єднання закрито"
+
+msgid "Failed to connect to server"
+msgstr "Не вдалося підключитися до сервера"
+
+msgid "Disconnected"
+msgstr "Відключено"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Нове підключення відхилено з причиною: "
+
+msgid "New connection has been rejected"
+msgstr "Нове підключення відхилено"
+
+msgid "Credentials are required"
+msgstr "Потрібні облікові дані"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC виявив помилку:"
+
+msgid "Hide/Show the control bar"
+msgstr "Приховати/показати панель керування"
+
+msgid "Drag"
+msgstr "перетягнути"
+
+msgid "Move/Drag Viewport"
+msgstr "Перемістити/перетягнути вікно перегляду"
+
+msgid "Keyboard"
+msgstr "Клавіатура"
+
+msgid "Show Keyboard"
+msgstr "Показати клавіатуру"
+
+msgid "Extra keys"
+msgstr "Додаткові ключі"
+
+msgid "Show Extra Keys"
+msgstr "Показати додаткові ключі"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Переключити Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Переключити Alt"
+
+msgid "Toggle Windows"
+msgstr "Переключити вікна"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Надіслати вкладку"
+
+msgid "Tab"
+msgstr "Вкладка"
+
+msgid "Esc"
+msgstr "Вихід"
+
+msgid "Send Escape"
+msgstr "Надіслати Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Надіслати Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Вимкнення/перезавантаження"
+
+msgid "Shutdown/Reboot..."
+msgstr "Вимкнення/перезавантаження..."
+
+msgid "Power"
+msgstr "Влада"
+
+msgid "Shutdown"
+msgstr "Закрити"
+
+msgid "Reboot"
+msgstr "Перезавантажити"
+
+msgid "Reset"
+msgstr "Скинути"
+
+msgid "Clipboard"
+msgstr "Буфер обміну"
+
+msgid "Clear"
+msgstr "Очистити"
+
+msgid "Fullscreen"
+msgstr "Повноекранний"
+
+msgid "Settings"
+msgstr "Налаштування"
+
+msgid "Shared Mode"
+msgstr "Спільний режим"
+
+msgid "View Only"
+msgstr "Тільки перегляд"
+
+msgid "Clip to Window"
+msgstr "Кліп до вікна"
+
+msgid "Scaling Mode:"
+msgstr "Режим масштабування:"
+
+msgid "None"
+msgstr "Жодного"
+
+msgid "Local Scaling"
+msgstr "Локальне масштабування"
+
+msgid "Remote Resizing"
+msgstr "Віддалена зміна розміру"
+
+msgid "Advanced"
+msgstr "Просунутий"
+
+msgid "Quality:"
+msgstr "Якість:"
+
+msgid "Compression level:"
+msgstr "Рівень стиснення:"
+
+msgid "Repeater ID:"
+msgstr "Ідентифікатор ретранслятора:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Зашифрувати"
+
+msgid "Host:"
+msgstr "Ведучий:"
+
+msgid "Port:"
+msgstr "Порт:"
+
+msgid "Path:"
+msgstr "Шлях:"
+
+msgid "Automatic Reconnect"
+msgstr "Автоматичне повторне підключення"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Затримка повторного підключення (мс):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Показувати точку, коли курсор відсутній"
+
+msgid "Logging:"
+msgstr "Введення журналу:"
+
+msgid "Version:"
+msgstr "Версія:"
+
+msgid "Disconnect"
+msgstr "Відключити"
+
+msgid "Connect"
+msgstr "Підключити"
+
+msgid "Username:"
+msgstr "Ім'я користувача:"
+
+msgid "Password:"
+msgstr "Пароль:"
+
+msgid "Send Credentials"
+msgstr "Надіслати облікові дані"
+
+msgid "Cancel"
+msgstr "Скасувати"
+
+msgid "Keys"
+msgstr "Ключі"
+
+msgid "Game Cursor Mode"
+msgstr "Режим ігрового курсора"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Натисніть клавішу Esc, щоб вийти з режиму блокування вказівника"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Ігровий режим призупинено, клацніть на екрані, щоб відновити ігровий режим."
+
+msgid "Clipboard Up"
+msgstr "Буфер обміну вгору"
+
+msgid "CLipboard Down"
+msgstr "Буфер обміну вниз"
+
+msgid "Clipboard Seamless"
+msgstr "Безшовний буфер обміну"
+
+msgid "Prefer Local Cursor"
+msgstr "Надати перевагу локальному курсору"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Перекласти комбінації клавіш"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Увімкнути WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Увімкнути стиснення WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Увімкнути статистику продуктивності"
+
+msgid "Enable Pointer Lock"
+msgstr "Увімкнути блокування вказівника"
+
+msgid "IME Input Mode"
+msgstr "Режим введення IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Показати керування віртуальною клавіатурою"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Переключити панель керування за допомогою натискання клавіш"
+
+msgid "Render Native Resolution"
+msgstr "Візуалізація рідної роздільної здатності"
+
+msgid "Keyboard Shortcuts"
+msgstr "Гарячі клавіши"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Увімкнути комбінації клавіш KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 – Перемкнути панель керування"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Перемкнути режим покажчика гри"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Перемкнути блокування вказівника"
+
+msgid "Stream Quality"
+msgstr "Якість потоку"
+
+msgid "Preset Modes:"
+msgstr "Попередньо встановлені режими:"
+
+msgid "Static"
+msgstr "Статичний"
+
+msgid "Low"
+msgstr "Низький"
+
+msgid "Medium"
+msgstr "Середній"
+
+msgid "High"
+msgstr "Високий"
+
+msgid "Extreme"
+msgstr "Екстремальний"
+
+msgid "Lossless"
+msgstr "без втрат"
+
+msgid "Custom"
+msgstr "На замовлення"
+
+msgid "Anti-Aliasing:"
+msgstr "Згладжування:"
+
+msgid "Auto Dynamic"
+msgstr "Авто динамічний"
+
+msgid "Off"
+msgstr "Вимкнено"
+
+msgid "On"
+msgstr "Увімкнено"
+
+msgid "Dynamic Quality Min:"
+msgstr "Мін. динамічна якість:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Макс. динамічна якість"
+
+msgid "Treat Lossless:"
+msgstr "Лікувати Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Частота кадрів:"
+
+msgid "Video JPEG Quality:"
+msgstr "Якість відео JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Якість відео WEBP:"
+
+msgid "Video Area:"
+msgstr "Зона відео:"
+
+msgid "Video Time:"
+msgstr "Час відео:"
+
+msgid "Video Out Time:"
+msgstr "Час виходу відео:"
+
+msgid "Video Mode Width:"
+msgstr "Ширина режиму відео:"
+
+msgid "Video Mode Height:"
+msgstr "Висота режиму відео:"
+
+msgid "Documentation"
+msgstr "Документація"
+
+msgid "Drag Viewport"
+msgstr "Перетягнути вікно перегляду"

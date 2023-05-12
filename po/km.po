@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "កំពុងភ្ជាប់ ... "
+
+msgid "Disconnecting..."
+msgstr "កំពុងផ្ដាច់..."
+
+msgid "Reconnecting..."
+msgstr "កំពុងភ្ជាប់ឡើងវិញ ... "
+
+msgid "Internal error"
+msgstr "កំហុសខាងក្នុង"
+
+msgid "Must set host"
+msgstr "ត្រូវតែកំណត់ម្ចាស់ផ្ទះ"
+
+msgid "Connected (encrypted) to "
+msgstr "បានភ្ជាប់ (អ៊ិនគ្រីប) ទៅ"
+
+msgid "Connected (unencrypted) to "
+msgstr "បានភ្ជាប់ (មិនបានអ៊ិនគ្រីប) ទៅ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "មានអ្វីមួយខុសប្រក្រតី ការតភ្ជាប់ត្រូវបានបិទ"
+
+msgid "Failed to connect to server"
+msgstr "បានបរាជ័យក្នុងការតភ្ជាប់ទៅម៉ាស៊ីនមេ"
+
+msgid "Disconnected"
+msgstr "ផ្តាច់"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ការតភ្ជាប់ថ្មីត្រូវបានបដិសេធដោយមានហេតុផល ៖"
+
+msgid "New connection has been rejected"
+msgstr "ការតភ្ជាប់ថ្មីត្រូវបានបដិសេធ"
+
+msgid "Credentials are required"
+msgstr "តម្រូវឱ្យមានការបញ្ជាក់អត្តសញ្ញាណ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC បានជួបប្រទះកំហុសមួយ៖"
+
+msgid "Hide/Show the control bar"
+msgstr "លាក់/បង្ហាញរបារបញ្ជា"
+
+msgid "Drag"
+msgstr "អូស"
+
+msgid "Move/Drag Viewport"
+msgstr "ផ្លាស់ទី/អូសច្រកទិដ្ឋភាព"
+
+msgid "Keyboard"
+msgstr "ក្តារចុច"
+
+msgid "Show Keyboard"
+msgstr "បង្ហាញក្តារចុច"
+
+msgid "Extra keys"
+msgstr "គ្រាប់ចុចបន្ថែម"
+
+msgid "Show Extra Keys"
+msgstr "បង្ហាញសោបន្ថែម"
+
+msgid "Ctrl"
+msgstr "បញ្ជា"
+
+msgid "Toggle Ctrl"
+msgstr "បិទ/បើក Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "បិទ/បើក Alt"
+
+msgid "Toggle Windows"
+msgstr "បិទ/បើក Windows"
+
+msgid "Windows"
+msgstr "វីនដូ"
+
+msgid "Send Tab"
+msgstr "ផ្ញើផ្ទាំង"
+
+msgid "Tab"
+msgstr "ផ្ទាំង"
+
+msgid "Esc"
+msgstr "អេស"
+
+msgid "Send Escape"
+msgstr "ផ្ញើការរត់គេចខ្លួន"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "ផ្ញើ Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "បិទ/ចាប់ផ្ដើមឡើងវិញ"
+
+msgid "Shutdown/Reboot..."
+msgstr "បិទ / ចាប់ផ្តើមឡើងវិញ ... "
+
+msgid "Power"
+msgstr "ថាមពល"
+
+msgid "Shutdown"
+msgstr "បិទ"
+
+msgid "Reboot"
+msgstr "ចាប់ផ្ដើមឡើងវិញ"
+
+msgid "Reset"
+msgstr "កំណត់ឡើងវិញ"
+
+msgid "Clipboard"
+msgstr "ក្ដារតម្បៀតខ្ទាស់"
+
+msgid "Clear"
+msgstr "ច្បាស់"
+
+msgid "Fullscreen"
+msgstr "ពេញអេក្រង់"
+
+msgid "Settings"
+msgstr "ការកំណត់"
+
+msgid "Shared Mode"
+msgstr "របៀបចែករំលែក"
+
+msgid "View Only"
+msgstr "មើលតែប៉ុណ្ណោះ"
+
+msgid "Clip to Window"
+msgstr "ឃ្លីបទៅបង្អួច"
+
+msgid "Scaling Mode:"
+msgstr "របៀបធ្វើមាត្រដ្ឋាន៖"
+
+msgid "None"
+msgstr "គ្មាន"
+
+msgid "Local Scaling"
+msgstr "ការធ្វើមាត្រដ្ឋានក្នុងស្រុក"
+
+msgid "Remote Resizing"
+msgstr "ការផ្លាស់ប្តូរទំហំពីចម្ងាយ"
+
+msgid "Advanced"
+msgstr "កម្រិតខ្ពស់"
+
+msgid "Quality:"
+msgstr "គុណភាព៖"
+
+msgid "Compression level:"
+msgstr "កម្រិតបង្ហាប់៖"
+
+msgid "Repeater ID:"
+msgstr "លេខសម្គាល់អ្នកធ្វើម្តងទៀត៖"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "អ៊ិនគ្រីប"
+
+msgid "Host:"
+msgstr "ម្ចាស់ផ្ទះ៖"
+
+msgid "Port:"
+msgstr "ច្រក៖"
+
+msgid "Path:"
+msgstr "ផ្លូវ៖"
+
+msgid "Automatic Reconnect"
+msgstr "ភ្ជាប់ឡើងវិញដោយស្វ័យប្រវត្តិ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ភ្ជាប់ការពន្យារពេលឡើងវិញ (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "បង្ហាញចំណុចនៅពេលគ្មានទស្សន៍ទ្រនិច"
+
+msgid "Logging:"
+msgstr "កត់ត្រា៖"
+
+msgid "Version:"
+msgstr "កំណែ៖"
+
+msgid "Disconnect"
+msgstr "ផ្តាច់"
+
+msgid "Connect"
+msgstr "ភ្ជាប់"
+
+msgid "Username:"
+msgstr "ឈ្មោះអ្នកប្រើប្រាស់:"
+
+msgid "Password:"
+msgstr "ពាក្យសម្ងាត់៖"
+
+msgid "Send Credentials"
+msgstr "ផ្ញើលិខិតបញ្ជាក់"
+
+msgid "Cancel"
+msgstr "បោះបង់"
+
+msgid "Keys"
+msgstr "សោ"
+
+msgid "Game Cursor Mode"
+msgstr "របៀបទស្សន៍ទ្រនិចហ្គេម"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ចុចគ្រាប់ចុច Esc ដើម្បីចេញពីរបៀបចាក់សោទ្រនិច"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "បានផ្អាកមុខងារហ្គេម ចុចលើអេក្រង់ដើម្បីបន្តមុខងារហ្គេម។"
+
+msgid "Clipboard Up"
+msgstr "ក្ដារតម្បៀតខ្ទាស់ឡើង"
+
+msgid "CLipboard Down"
+msgstr "ក្ដារតម្បៀតខ្ទាស់ចុះក្រោម"
+
+msgid "Clipboard Seamless"
+msgstr "ក្តារតម្បៀតខ្ទាស់"
+
+msgid "Prefer Local Cursor"
+msgstr "ចូលចិត្តទស្សន៍ទ្រនិចមូលដ្ឋាន"
+
+msgid "Translate keyboard shortcuts"
+msgstr "បកប្រែផ្លូវកាត់ក្តារចុច"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "បើកដំណើរការ WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "បើកការបង្ហាប់ WebP"
+
+msgid "Enable Performance Stats"
+msgstr "បើកដំណើរការស្ថិតិ"
+
+msgid "Enable Pointer Lock"
+msgstr "បើកការចាក់សោទ្រនិច"
+
+msgid "IME Input Mode"
+msgstr "របៀបបញ្ចូល IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "បង្ហាញការគ្រប់គ្រងក្តារចុចនិម្មិត"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "បិទ/បើកផ្ទាំងបញ្ជាតាមរយៈការចុចគ្រាប់ចុច"
+
+msgid "Render Native Resolution"
+msgstr "បង្ហាញដំណោះស្រាយដើម"
+
+msgid "Keyboard Shortcuts"
+msgstr "ផ្លូវកាត់ក្តារចុច"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "បើកផ្លូវកាត់ក្តារចុច KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - បិទបើកផ្ទាំងបញ្ជា"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - បិទបើករបៀបទ្រនិចហ្គេម"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - បិទ/បើក ទ្រនិចចាក់សោ"
+
+msgid "Stream Quality"
+msgstr "គុណភាពស្ទ្រីម"
+
+msgid "Preset Modes:"
+msgstr "របៀបកំណត់ជាមុន៖"
+
+msgid "Static"
+msgstr "ឋិតិវន្ត"
+
+msgid "Low"
+msgstr "ទាប"
+
+msgid "Medium"
+msgstr "មធ្យម"
+
+msgid "High"
+msgstr "ខ្ពស់"
+
+msgid "Extreme"
+msgstr "ខ្លាំង"
+
+msgid "Lossless"
+msgstr "គ្មានការខាតបង់"
+
+msgid "Custom"
+msgstr "ផ្ទាល់ខ្លួន"
+
+msgid "Anti-Aliasing:"
+msgstr "ប្រឆាំងឈ្មោះក្លែងក្លាយ៖"
+
+msgid "Auto Dynamic"
+msgstr "ឌីណាមិកស្វ័យប្រវត្តិ"
+
+msgid "Off"
+msgstr "បិទ"
+
+msgid "On"
+msgstr "បើក"
+
+msgid "Dynamic Quality Min:"
+msgstr "គុណភាពថាមវន្តអប្បបរមា៖"
+
+msgid "Dynamic Quality Max:"
+msgstr "គុណភាពថាមវន្តអតិបរមា៖"
+
+msgid "Treat Lossless:"
+msgstr "ព្យាបាលការខាតបង់:"
+
+msgid "Frame Rate:"
+msgstr "អត្រាស៊ុម៖"
+
+msgid "Video JPEG Quality:"
+msgstr "គុណភាព JPEG វីដេអូ៖"
+
+msgid "Video WEBP Quality:"
+msgstr "គុណភាព WEBP វីដេអូ៖"
+
+msgid "Video Area:"
+msgstr "តំបន់វីដេអូ៖"
+
+msgid "Video Time:"
+msgstr "ម៉ោងវីដេអូ៖"
+
+msgid "Video Out Time:"
+msgstr "ម៉ោងចេញវីដេអូ៖"
+
+msgid "Video Mode Width:"
+msgstr "ទទឹងរបៀបវីដេអូ៖"
+
+msgid "Video Mode Height:"
+msgstr "កម្ពស់របៀបវីដេអូ៖"
+
+msgid "Documentation"
+msgstr "ឯកសារ"
+
+msgid "Drag Viewport"
+msgstr "ច្រកទិដ្ឋភាពអូស"

@@ -283,3 +283,177 @@ msgstr "密碼："
 #: ../vnc.html:313
 msgid "Cancel"
 msgstr "取消"
+
+msgid "Credentials are required"
+msgstr "需要證件"
+
+msgid "Drag"
+msgstr "拖"
+
+msgid "Toggle Windows"
+msgstr "切換窗口"
+
+msgid "Windows"
+msgstr "視窗"
+
+msgid "Quality:"
+msgstr "質量："
+
+msgid "Compression level:"
+msgstr "壓縮級別："
+
+msgid "Show Dot when No Cursor"
+msgstr "沒有光標時顯示點"
+
+msgid "Version:"
+msgstr "版本："
+
+msgid "Username:"
+msgstr "用戶名："
+
+msgid "Send Credentials"
+msgstr "發送憑證"
+
+msgid "Keys"
+msgstr "鑰匙"
+
+msgid "Game Cursor Mode"
+msgstr "遊戲光標模式"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "按 Esc 鍵退出指針鎖定模式"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "遊戲模式暫停，點擊屏幕恢復遊戲模式。"
+
+msgid "Clipboard Up"
+msgstr "向上剪貼板"
+
+msgid "CLipboard Down"
+msgstr "剪貼板下"
+
+msgid "Clipboard Seamless"
+msgstr "無縫剪貼板"
+
+msgid "Prefer Local Cursor"
+msgstr "首選本地光標"
+
+msgid "Translate keyboard shortcuts"
+msgstr "翻譯鍵盤快捷鍵"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "啟用 WebRTC UDP 傳輸"
+
+msgid "Enable WebP Compression"
+msgstr "啟用 WebP 壓縮"
+
+msgid "Enable Performance Stats"
+msgstr "啟用性能統計"
+
+msgid "Enable Pointer Lock"
+msgstr "啟用指針鎖定"
+
+msgid "IME Input Mode"
+msgstr "輸入法輸入法"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "顯示虛擬鍵盤控制"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "通過擊鍵切換控制面板"
+
+msgid "Render Native Resolution"
+msgstr "渲染本機分辨率"
+
+msgid "Keyboard Shortcuts"
+msgstr "鍵盤快捷鍵"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "啟用 KasmVNC 鍵盤快捷鍵"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - 切換控制面板"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - 切換遊戲指針模式"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - 切換指針鎖定"
+
+msgid "Stream Quality"
+msgstr "流媒體質量"
+
+msgid "Preset Modes:"
+msgstr "預設模式："
+
+msgid "Static"
+msgstr "靜止的"
+
+msgid "Low"
+msgstr "低的"
+
+msgid "Medium"
+msgstr "中等的"
+
+msgid "High"
+msgstr "高的"
+
+msgid "Extreme"
+msgstr "極端"
+
+msgid "Lossless"
+msgstr "無損"
+
+msgid "Custom"
+msgstr "風俗"
+
+msgid "Anti-Aliasing:"
+msgstr "抗鋸齒："
+
+msgid "Auto Dynamic"
+msgstr "自動動態"
+
+msgid "Off"
+msgstr "離開"
+
+msgid "On"
+msgstr "在"
+
+msgid "Dynamic Quality Min:"
+msgstr "動態質量分鐘："
+
+msgid "Dynamic Quality Max:"
+msgstr "動態質量最大值："
+
+msgid "Treat Lossless:"
+msgstr "對待無損："
+
+msgid "Frame Rate:"
+msgstr "幀率："
+
+msgid "Video JPEG Quality:"
+msgstr "視頻 JPEG 質量："
+
+msgid "Video WEBP Quality:"
+msgstr "視頻 WEBP 質量："
+
+msgid "Video Area:"
+msgstr "視頻區："
+
+msgid "Video Time:"
+msgstr "視頻時間："
+
+msgid "Video Out Time:"
+msgstr "視頻輸出時間："
+
+msgid "Video Mode Width:"
+msgstr "視頻模式寬度："
+
+msgid "Video Mode Height:"
+msgstr "視頻模式高度："
+
+msgid "Documentation"
+msgstr "文檔"
+
+msgid "Drag Viewport"
+msgstr "拖動視口"

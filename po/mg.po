@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Mifandray..."
+
+msgid "Disconnecting..."
+msgstr "Misaraka..."
+
+msgid "Reconnecting..."
+msgstr "Mifandray indray..."
+
+msgid "Internal error"
+msgstr "Error anatiny"
+
+msgid "Must set host"
+msgstr "Tsy maintsy mametraka mpampiantrano"
+
+msgid "Connected (encrypted) to "
+msgstr "Mifandray (nafenina) amin'ny"
+
+msgid "Connected (unencrypted) to "
+msgstr "Mifandray (tsy misy encryption) amin'ny"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Nisy tsy nety, nikatona ny fifandraisana"
+
+msgid "Failed to connect to server"
+msgstr "Tsy afaka nifandray tamin'ny mpizara"
+
+msgid "Disconnected"
+msgstr "Tapaka"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Ny fifandraisana vaovao dia nolavina noho ny antony:"
+
+msgid "New connection has been rejected"
+msgstr "Nolavina ny fifandraisana vaovao"
+
+msgid "Credentials are required"
+msgstr "Ilaina ny fahazoan-dàlana"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC nahita hadisoana:"
+
+msgid "Hide/Show the control bar"
+msgstr "Afeno/Asehoy ny bara fanaraha-maso"
+
+msgid "Drag"
+msgstr "Drag"
+
+msgid "Move/Drag Viewport"
+msgstr "Move/Drag Viewport"
+
+msgid "Keyboard"
+msgstr "Kyboard"
+
+msgid "Show Keyboard"
+msgstr "Asehoy ny kitendry"
+
+msgid "Extra keys"
+msgstr "Klay fanampiny"
+
+msgid "Show Extra Keys"
+msgstr "Asehoy ny fanalahidy fanampiny"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Toggle Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Toggle Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Send Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Alefaso escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Alefaso Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Shutdown/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Atsaharo / Avereno ..."
+
+msgid "Power"
+msgstr "Hery"
+
+msgid "Shutdown"
+msgstr "Hidio"
+
+msgid "Reboot"
+msgstr "Reboot"
+
+msgid "Reset"
+msgstr "Mamerina"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Mazava"
+
+msgid "Fullscreen"
+msgstr "Mameno efijery"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Shared Mode"
+msgstr "Mode zaraina"
+
+msgid "View Only"
+msgstr "Jereo ihany"
+
+msgid "Clip to Window"
+msgstr "Clip to Window"
+
+msgid "Scaling Mode:"
+msgstr "Scaling Mode:"
+
+msgid "None"
+msgstr "Tsy misy"
+
+msgid "Local Scaling"
+msgstr "Scaling eo an-toerana"
+
+msgid "Remote Resizing"
+msgstr "Fanovàna lavitra"
+
+msgid "Advanced"
+msgstr "Advanced"
+
+msgid "Quality:"
+msgstr "Qualité:"
+
+msgid "Compression level:"
+msgstr "Ambaratonga famatrarana:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Encrypt"
+
+msgid "Host:"
+msgstr "Host:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Lalana:"
+
+msgid "Automatic Reconnect"
+msgstr "Reconnect automatique"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Avereno ny fahatarana (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Asehoy ny teboka rehefa tsy misy cursor"
+
+msgid "Logging:"
+msgstr "Logging:"
+
+msgid "Version:"
+msgstr "Dikan-teny:"
+
+msgid "Disconnect"
+msgstr "Disconnect"
+
+msgid "Connect"
+msgstr "Mifandray"
+
+msgid "Username:"
+msgstr "Username:"
+
+msgid "Password:"
+msgstr "Tenimiafina:"
+
+msgid "Send Credentials"
+msgstr "Alefaso ny fahazoan-dàlana"
+
+msgid "Cancel"
+msgstr "Afohy"
+
+msgid "Keys"
+msgstr "Keys"
+
+msgid "Game Cursor Mode"
+msgstr "Lalao Cursor Mode"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Tsindrio ny lakilen'ny Esc mba hialana amin'ny fomba hidin'ny fanondro"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Niato ny lalao lalao, tsindrio eo amin'ny efijery mba hanohy ny lalao lalao."
+
+msgid "Clipboard Up"
+msgstr "Clipboard miakatra"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Midina"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Tianao ny Cursor eo an-toerana"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Handika hitsin-dàlana kitendry"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Alefaso ny WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Avelao ny WebP Compression"
+
+msgid "Enable Performance Stats"
+msgstr "Enable Performance Stats"
+
+msgid "Enable Pointer Lock"
+msgstr "Enable Pointer Lock"
+
+msgid "IME Input Mode"
+msgstr "Mode fampidirana IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Asehoy ny fanaraha-maso kitendry virtoaly"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Toggle Control Panel amin'ny alalan'ny Keystrokes"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Shortcuts keyboard"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Avelao ny KasmVNC Keyboard Shortcuts"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Toggle Control Panel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Toggle Game Pointer Mode"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Toggle Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Kalitaon'ny Stream"
+
+msgid "Preset Modes:"
+msgstr "Modely preset:"
+
+msgid "Static"
+msgstr "Statika"
+
+msgid "Low"
+msgstr "Ambany"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "High"
+msgstr "Avo"
+
+msgid "Extreme"
+msgstr "Extreme"
+
+msgid "Lossless"
+msgstr "Tsy very"
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Efa"
+
+msgid "On"
+msgstr "Eny"
+
+msgid "Dynamic Quality Min:"
+msgstr "Quité Dynamic Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Max Quality Dynamic:"
+
+msgid "Treat Lossless:"
+msgstr "Treat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Tamin'ny Frame:"
+
+msgid "Video JPEG Quality:"
+msgstr "Kalitao JPEG Video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Kalitaon'ny horonan-tsary WEBP:"
+
+msgid "Video Area:"
+msgstr "Faritra Video:"
+
+msgid "Video Time:"
+msgstr "Fotoan'ny horonan-tsary:"
+
+msgid "Video Out Time:"
+msgstr "Fotoam-potoana hivoahan'ny horonan-tsary:"
+
+msgid "Video Mode Width:"
+msgstr "Sakan'ny Video Mode:"
+
+msgid "Video Mode Height:"
+msgstr "Haavo maodely video:"
+
+msgid "Documentation"
+msgstr "Dokumentation"
+
+msgid "Drag Viewport"
+msgstr "Drag Viewport"

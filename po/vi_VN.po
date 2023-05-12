@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Đang kết nối..."
+
+msgid "Disconnecting..."
+msgstr "Ngắt kết nối..."
+
+msgid "Reconnecting..."
+msgstr "Kết nối lại..."
+
+msgid "Internal error"
+msgstr "Lỗi bên trong"
+
+msgid "Must set host"
+msgstr "Phải đặt máy chủ"
+
+msgid "Connected (encrypted) to "
+msgstr "Đã kết nối (được mã hóa) với"
+
+msgid "Connected (unencrypted) to "
+msgstr "Đã kết nối (không được mã hóa) với"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Đã xảy ra sự cố, kết nối bị ngắt"
+
+msgid "Failed to connect to server"
+msgstr "Kết nối thất bại"
+
+msgid "Disconnected"
+msgstr "Đã ngắt kết nối"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Kết nối mới đã bị từ chối với lý do:"
+
+msgid "New connection has been rejected"
+msgstr "Kết nối mới đã bị từ chối"
+
+msgid "Credentials are required"
+msgstr "Bằng chứng được yêu cầu"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC gặp lỗi:"
+
+msgid "Hide/Show the control bar"
+msgstr "Ẩn/Hiện thanh điều khiển"
+
+msgid "Drag"
+msgstr "Lôi kéo"
+
+msgid "Move/Drag Viewport"
+msgstr "Di chuyển/Kéo cổng xem"
+
+msgid "Keyboard"
+msgstr "bàn phím"
+
+msgid "Show Keyboard"
+msgstr "Hiển thị bàn phím"
+
+msgid "Extra keys"
+msgstr "Chìa khóa phụ"
+
+msgid "Show Extra Keys"
+msgstr "Hiển thị các phím phụ"
+
+msgid "Ctrl"
+msgstr "Điều khiển"
+
+msgid "Toggle Ctrl"
+msgstr "Chuyển đổi Ctrl"
+
+msgid "Alt"
+msgstr "thay thế"
+
+msgid "Toggle Alt"
+msgstr "Chuyển đổi Alt"
+
+msgid "Toggle Windows"
+msgstr "Chuyển đổi Windows"
+
+msgid "Windows"
+msgstr "Các cửa sổ"
+
+msgid "Send Tab"
+msgstr "Gửi thẻ"
+
+msgid "Tab"
+msgstr "Chuyển hướng"
+
+msgid "Esc"
+msgstr "Thoát ra"
+
+msgid "Send Escape"
+msgstr "Gửi lối thoát"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Gửi Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Tắt máy/Khởi động lại"
+
+msgid "Shutdown/Reboot..."
+msgstr "Tắt máy/Khởi động lại..."
+
+msgid "Power"
+msgstr "Quyền lực"
+
+msgid "Shutdown"
+msgstr "Tắt"
+
+msgid "Reboot"
+msgstr "Khởi động lại"
+
+msgid "Reset"
+msgstr "Cài lại"
+
+msgid "Clipboard"
+msgstr "Khay nhớ tạm"
+
+msgid "Clear"
+msgstr "Thông thoáng"
+
+msgid "Fullscreen"
+msgstr "Toàn màn hình"
+
+msgid "Settings"
+msgstr "Cài đặt"
+
+msgid "Shared Mode"
+msgstr "Chế độ chia sẻ"
+
+msgid "View Only"
+msgstr "Chỉ xem"
+
+msgid "Clip to Window"
+msgstr "Kẹp vào cửa sổ"
+
+msgid "Scaling Mode:"
+msgstr "Chế độ mở rộng quy mô:"
+
+msgid "None"
+msgstr "Không có"
+
+msgid "Local Scaling"
+msgstr "Quy mô cục bộ"
+
+msgid "Remote Resizing"
+msgstr "Thay đổi kích thước từ xa"
+
+msgid "Advanced"
+msgstr "Trình độ cao"
+
+msgid "Quality:"
+msgstr "Chất lượng:"
+
+msgid "Compression level:"
+msgstr "Mức độ nén:"
+
+msgid "Repeater ID:"
+msgstr "ID bộ lặp:"
+
+msgid "WebSocket"
+msgstr "Ổ cắm Web"
+
+msgid "Encrypt"
+msgstr "Mã hóa"
+
+msgid "Host:"
+msgstr "Chủ nhà:"
+
+msgid "Port:"
+msgstr "Hải cảng:"
+
+msgid "Path:"
+msgstr "Con đường:"
+
+msgid "Automatic Reconnect"
+msgstr "Tự động kết nối lại"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Trễ kết nối lại (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Hiển thị dấu chấm khi không có con trỏ"
+
+msgid "Logging:"
+msgstr "Ghi nhật ký:"
+
+msgid "Version:"
+msgstr "Phiên bản:"
+
+msgid "Disconnect"
+msgstr "Ngắt kết nối"
+
+msgid "Connect"
+msgstr "Kết nối"
+
+msgid "Username:"
+msgstr "Tên tài khoản:"
+
+msgid "Password:"
+msgstr "Mật khẩu:"
+
+msgid "Send Credentials"
+msgstr "Gửi thông tin xác thực"
+
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+msgid "Keys"
+msgstr "Chìa khóa"
+
+msgid "Game Cursor Mode"
+msgstr "Chế độ con trỏ trò chơi"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Nhấn phím Esc để thoát chế độ khóa con trỏ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Chế độ Trò chơi đã tạm dừng, nhấp vào màn hình để tiếp tục Chế độ Trò chơi."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Xuống Clipboard"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard liền mạch"
+
+msgid "Prefer Local Cursor"
+msgstr "Ưu tiên con trỏ cục bộ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Dịch phím tắt"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Bật Chuyển tuyến UDP WebRTC"
+
+msgid "Enable WebP Compression"
+msgstr "Kích hoạt tính năng nén WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Bật thống kê hiệu suất"
+
+msgid "Enable Pointer Lock"
+msgstr "Kích hoạt khóa con trỏ"
+
+msgid "IME Input Mode"
+msgstr "Chế độ nhập IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Hiển thị điều khiển bàn phím ảo"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Chuyển đổi Bảng điều khiển thông qua tổ hợp phím"
+
+msgid "Render Native Resolution"
+msgstr "Kết xuất độ phân giải gốc"
+
+msgid "Keyboard Shortcuts"
+msgstr "Các phím tắt bàn phím"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Bật phím tắt KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Chuyển đổi bảng điều khiển"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Chuyển đổi chế độ con trỏ trò chơi"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Chuyển đổi khóa con trỏ"
+
+msgid "Stream Quality"
+msgstr "Chất lượng luồng"
+
+msgid "Preset Modes:"
+msgstr "Chế độ cài sẵn:"
+
+msgid "Static"
+msgstr "Tĩnh"
+
+msgid "Low"
+msgstr "Thấp"
+
+msgid "Medium"
+msgstr "Trung bình"
+
+msgid "High"
+msgstr "Cao"
+
+msgid "Extreme"
+msgstr "Vô cùng"
+
+msgid "Lossless"
+msgstr "Không mất mát"
+
+msgid "Custom"
+msgstr "Phong tục"
+
+msgid "Anti-Aliasing:"
+msgstr "Chống răng cưa:"
+
+msgid "Auto Dynamic"
+msgstr "Tự động động"
+
+msgid "Off"
+msgstr "Tắt"
+
+msgid "On"
+msgstr "TRÊN"
+
+msgid "Dynamic Quality Min:"
+msgstr "Chất lượng động tối thiểu:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Tối đa chất lượng động:"
+
+msgid "Treat Lossless:"
+msgstr "Điều trị Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Tỷ lệ khung hình:"
+
+msgid "Video JPEG Quality:"
+msgstr "Chất lượng JPEG của video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Chất lượng WEBP video:"
+
+msgid "Video Area:"
+msgstr "Khu vực video:"
+
+msgid "Video Time:"
+msgstr "Thời gian quay video:"
+
+msgid "Video Out Time:"
+msgstr "Thời gian phát video:"
+
+msgid "Video Mode Width:"
+msgstr "Chiều rộng chế độ video:"
+
+msgid "Video Mode Height:"
+msgstr "Chiều cao chế độ video:"
+
+msgid "Documentation"
+msgstr "Tài liệu"
+
+msgid "Drag Viewport"
+msgstr "Kéo khung nhìn"

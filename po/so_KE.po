@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "isku xidhka..."
+
+msgid "Disconnecting..."
+msgstr "Xiriirka gooya..."
+
+msgid "Reconnecting..."
+msgstr "Dib u xidhidhinta..."
+
+msgid "Internal error"
+msgstr "khalad gudaha ah"
+
+msgid "Must set host"
+msgstr "Waa in la dejiyaa martigeliyaha"
+
+msgid "Connected (encrypted) to "
+msgstr "Waxa lagu xidhay ( sir ah) "
+
+msgid "Connected (unencrypted) to "
+msgstr "Ku xidhan (aan qarsoodi ahayn)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Waxbaa khaldamay, xidhiidhku waa xidhan yahay"
+
+msgid "Failed to connect to server"
+msgstr "Waa lagu guul daraystay in lagu xidho serfarka"
+
+msgid "Disconnected"
+msgstr "Go'ay"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Xiriirka cusub waxaa lagu diiday sabab:"
+
+msgid "New connection has been rejected"
+msgstr "Xiriirka cusub waa la diiday"
+
+msgid "Credentials are required"
+msgstr "Waxyaabaha aqoonsiga ayaa loo baahan yahay"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC waxay la kulantay cilad:"
+
+msgid "Hide/Show the control bar"
+msgstr "Qari/muuji barta kontoroolka"
+
+msgid "Drag"
+msgstr "Jiid"
+
+msgid "Move/Drag Viewport"
+msgstr "Dhaqdhaqaaq / Jiid Daawashada"
+
+msgid "Keyboard"
+msgstr "Keyboard"
+
+msgid "Show Keyboard"
+msgstr "muuji kiiboodhka"
+
+msgid "Extra keys"
+msgstr "furayaal dheeri ah"
+
+msgid "Show Extra Keys"
+msgstr "muuji furayaal dheeri ah"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Beddel Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Toggle Windows"
+
+msgid "Windows"
+msgstr "Daaqadaha"
+
+msgid "Send Tab"
+msgstr "Dir Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Dir baxso"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "U dir Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Xiritaanka/dib u kabashada"
+
+msgid "Shutdown/Reboot..."
+msgstr " Xir/Dib u kici..."
+
+msgid "Power"
+msgstr "Awood"
+
+msgid "Shutdown"
+msgstr "Bakhtii"
+
+msgid "Reboot"
+msgstr "dib u kici"
+
+msgid "Reset"
+msgstr "Dib u habeyn"
+
+msgid "Clipboard"
+msgstr "Klipboard"
+
+msgid "Clear"
+msgstr "Nadiifi"
+
+msgid "Fullscreen"
+msgstr "shaashadda buuxda"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Shared Mode"
+msgstr "Qaabka la wadaago"
+
+msgid "View Only"
+msgstr "Kaliya arag"
+
+msgid "Clip to Window"
+msgstr "Ku duub daaqadda"
+
+msgid "Scaling Mode:"
+msgstr "Qaabka cabbirka:"
+
+msgid "None"
+msgstr "Maya"
+
+msgid "Local Scaling"
+msgstr "Qiimaynta Deegaanka"
+
+msgid "Remote Resizing"
+msgstr "Qiimaynta fog"
+
+msgid "Advanced"
+msgstr "Hore"
+
+msgid "Quality:"
+msgstr "Tayada:"
+
+msgid "Compression level:"
+msgstr "Heerka cadaadiska:"
+
+msgid "Repeater ID:"
+msgstr "Aqoonsiga soo noqnoqda:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Sirta"
+
+msgid "Host:"
+msgstr "Martigeliyaha:"
+
+msgid "Port:"
+msgstr "Dekedda:"
+
+msgid "Path:"
+msgstr "Wadada:"
+
+msgid "Automatic Reconnect"
+msgstr "Dib u xidhid toos ah"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Dib u xidhid dib u dhac (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Show dhibic marka aanay Cursor jirin"
+
+msgid "Logging:"
+msgstr "Goynta:"
+
+msgid "Version:"
+msgstr "Nooca:"
+
+msgid "Disconnect"
+msgstr "Xiriirka ka saar"
+
+msgid "Connect"
+msgstr "isku xidh"
+
+msgid "Username:"
+msgstr "Username:"
+
+msgid "Password:"
+msgstr "Password:"
+
+msgid "Send Credentials"
+msgstr "Soo dir warqadaha aqoonsiga"
+
+msgid "Cancel"
+msgstr "Bejis"
+
+msgid "Keys"
+msgstr "Furayaasha"
+
+msgid "Game Cursor Mode"
+msgstr "Qaabka Cursorka Ciyaarta"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Riix furaha Esc si aad uga baxdo Habka Qufulka Tilmaamaha"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Qaabka ciyaarta waa la hakiyay, guji shaashadda si aad dib ugu bilowdo Habka Ciyaarta."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard-ka bilaa-xun"
+
+msgid "Prefer Local Cursor"
+msgstr "Doorbi Cursor Local"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Turjun furayaasha kiiboodhka"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Dari WebRTC UDP Gaadiidka"
+
+msgid "Enable WebP Compression"
+msgstr "Dari isku-buufinta WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Kor u yeel Tirakoobka Waxqabadka"
+
+msgid "Enable Pointer Lock"
+msgstr "Dari qufulka tilmaanta"
+
+msgid "IME Input Mode"
+msgstr "Qaabka galitaanka IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "muuji xakamaynta kiiboodhka Virtual"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Ku beddel kontoroolka furaha"
+
+msgid "Render Native Resolution"
+msgstr "Samee Qaraarka Dhaladka"
+
+msgid "Keyboard Shortcuts"
+msgstr "Keyboodhka Gaaban"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Kor-geli KasmVNC Kiiboodhka Gaaban"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Beddel kontoroolka"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Beddel Habka Tilmaamaha Ciyaarta"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Beddel Qufulka Tilmaamaha"
+
+msgid "Stream Quality"
+msgstr "Tayada socodka"
+
+msgid "Preset Modes:"
+msgstr "Qaababka hore loo dhigay:"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Low"
+msgstr "hooseeya"
+
+msgid "Medium"
+msgstr " Dhexdhexaad "
+
+msgid "High"
+msgstr "sare"
+
+msgid "Extreme"
+msgstr "aad u daran"
+
+msgid "Lossless"
+msgstr " khasaare la'aan "
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Anti-Aliasing:"
+msgstr "Ka-hortagga aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Dam"
+
+msgid "On"
+msgstr "Daran"
+
+msgid "Dynamic Quality Min:"
+msgstr "Tayada firfircoon Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Tayada firfircoonida ugu badan:"
+
+msgid "Treat Lossless:"
+msgstr "La dawee Khasaare La'aan:"
+
+msgid "Frame Rate:"
+msgstr "Heerka jir:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG Tayada:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP Tayada:"
+
+msgid "Video Area:"
+msgstr "Aagga Muuqaalka:"
+
+msgid "Video Time:"
+msgstr "Waqtiga Fiidiyowga:"
+
+msgid "Video Out Time:"
+msgstr "Waqtiga Fiidiyaha:"
+
+msgid "Video Mode Width:"
+msgstr "Balac ahaan Qaabka Fiidiyowga:"
+
+msgid "Video Mode Height:"
+msgstr "Habka Fiidiyowga Dhererka:"
+
+msgid "Documentation"
+msgstr "Documentation"
+
+msgid "Drag Viewport"
+msgstr "Deegaanka Jiid"

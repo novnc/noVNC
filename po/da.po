@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Tilslutning..."
+
+msgid "Disconnecting..."
+msgstr "Afbryder forbindelsen..."
+
+msgid "Reconnecting..."
+msgstr "Opretter forbindelse igen..."
+
+msgid "Internal error"
+msgstr "Intern fejl"
+
+msgid "Must set host"
+msgstr "Skal være vært"
+
+msgid "Connected (encrypted) to "
+msgstr "Forbundet (krypteret) til"
+
+msgid "Connected (unencrypted) to "
+msgstr "Forbundet (ukrypteret) til "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Noget gik galt, forbindelsen er lukket"
+
+msgid "Failed to connect to server"
+msgstr "Det lykkedes ikke at oprette forbindelse til serveren"
+
+msgid "Disconnected"
+msgstr "Afbrudt"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Ny forbindelse er blevet afvist med grund: "
+
+msgid "New connection has been rejected"
+msgstr "Ny forbindelse er blevet afvist"
+
+msgid "Credentials are required"
+msgstr "Legitimationsoplysninger er påkrævet"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC stødte på en fejl:"
+
+msgid "Hide/Show the control bar"
+msgstr "Skjul/vis kontrollinjen"
+
+msgid "Drag"
+msgstr "Træk"
+
+msgid "Move/Drag Viewport"
+msgstr "Flyt/træk visningsport"
+
+msgid "Keyboard"
+msgstr "Tastatur"
+
+msgid "Show Keyboard"
+msgstr "Vis tastatur"
+
+msgid "Extra keys"
+msgstr "Ekstra nøgler"
+
+msgid "Show Extra Keys"
+msgstr "Vis ekstra nøgler"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Skift Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Skift alt"
+
+msgid "Toggle Windows"
+msgstr "Skift Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Send fane"
+
+msgid "Tab"
+msgstr "Fane"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Send Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Send Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Sluk/genstart"
+
+msgid "Shutdown/Reboot..."
+msgstr "Sluk/genstart..."
+
+msgid "Power"
+msgstr "Strøm"
+
+msgid "Shutdown"
+msgstr "Lukke ned"
+
+msgid "Reboot"
+msgstr "Genstart"
+
+msgid "Reset"
+msgstr "Nulstil"
+
+msgid "Clipboard"
+msgstr "Udklipsholder"
+
+msgid "Clear"
+msgstr "Klar"
+
+msgid "Fullscreen"
+msgstr "Fuld skærm"
+
+msgid "Settings"
+msgstr "Indstillinger"
+
+msgid "Shared Mode"
+msgstr "Delt tilstand"
+
+msgid "View Only"
+msgstr "Kun se"
+
+msgid "Clip to Window"
+msgstr "Klip til vindue"
+
+msgid "Scaling Mode:"
+msgstr "Skaleringstilstand:"
+
+msgid "None"
+msgstr "Ingen"
+
+msgid "Local Scaling"
+msgstr "Lokal skalering"
+
+msgid "Remote Resizing"
+msgstr "Remote resizing"
+
+msgid "Advanced"
+msgstr "Fremskreden"
+
+msgid "Quality:"
+msgstr "Kvalitet:"
+
+msgid "Compression level:"
+msgstr "Kompressionsniveau:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Krypter"
+
+msgid "Host:"
+msgstr "Vært:"
+
+msgid "Port:"
+msgstr "Havn:"
+
+msgid "Path:"
+msgstr "Sti:"
+
+msgid "Automatic Reconnect"
+msgstr "Automatisk genforbindelse"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Genforbindelsesforsinkelse (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Vis prik, når ingen markør"
+
+msgid "Logging:"
+msgstr "Logger:"
+
+msgid "Version:"
+msgstr "Version:"
+
+msgid "Disconnect"
+msgstr "Koble fra"
+
+msgid "Connect"
+msgstr "Forbinde"
+
+msgid "Username:"
+msgstr "Brugernavn:"
+
+msgid "Password:"
+msgstr "Adgangskode:"
+
+msgid "Send Credentials"
+msgstr "Send legitimationsoplysninger"
+
+msgid "Cancel"
+msgstr "Afbestille"
+
+msgid "Keys"
+msgstr "Nøgler"
+
+msgid "Game Cursor Mode"
+msgstr "Spilmarkørtilstand"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Tryk på Esc-tasten for at afslutte markørlåsetilstand"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Spiltilstand sat på pause, klik på skærmen for at genoptage spiltilstand."
+
+msgid "Clipboard Up"
+msgstr "Udklipsholder op"
+
+msgid "CLipboard Down"
+msgstr "Udklipsholder ned"
+
+msgid "Clipboard Seamless"
+msgstr "Udklipsholder sømløs"
+
+msgid "Prefer Local Cursor"
+msgstr "Foretrækker lokal markør"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Oversæt tastaturgenveje"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Aktiver WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Aktiver WebP-komprimering"
+
+msgid "Enable Performance Stats"
+msgstr "Aktiver præstationsstatistikker"
+
+msgid "Enable Pointer Lock"
+msgstr "Aktiver markørlås"
+
+msgid "IME Input Mode"
+msgstr "IME Input Mode"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Vis Virtual Keyboard Control"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Skift kontrolpanel via tastetryk"
+
+msgid "Render Native Resolution"
+msgstr "Gengiver oprindelig opløsning"
+
+msgid "Keyboard Shortcuts"
+msgstr "Tastaturgenveje"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Aktiver KasmVNC-tastaturgenveje"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Skift kontrolpanel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Skift Game Pointer Mode"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Toggle Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Streamkvalitet"
+
+msgid "Preset Modes:"
+msgstr "Forudindstillede tilstande:"
+
+msgid "Static"
+msgstr "Statisk"
+
+msgid "Low"
+msgstr "Lav"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "High"
+msgstr "Høj"
+
+msgid "Extreme"
+msgstr "Ekstrem"
+
+msgid "Lossless"
+msgstr "tabsfri"
+
+msgid "Custom"
+msgstr "Brugerdefinerede"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Af"
+
+msgid "On"
+msgstr "På"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamisk kvalitet min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamisk kvalitet Max:"
+
+msgid "Treat Lossless:"
+msgstr "Behandl Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Billedhastighed:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG-kvalitet:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP-kvalitet:"
+
+msgid "Video Area:"
+msgstr "Videoområde:"
+
+msgid "Video Time:"
+msgstr "Videotid:"
+
+msgid "Video Out Time:"
+msgstr "Video Out Time:"
+
+msgid "Video Mode Width:"
+msgstr "Videotilstandsbredde:"
+
+msgid "Video Mode Height:"
+msgstr "Video Mode Højde:"
+
+msgid "Documentation"
+msgstr "Dokumentation"
+
+msgid "Drag Viewport"
+msgstr "Træk visningsport"

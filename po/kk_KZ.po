@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Қосылуда..."
+
+msgid "Disconnecting..."
+msgstr "Ажыратылуда..."
+
+msgid "Reconnecting..."
+msgstr "Қайта қосылуда..."
+
+msgid "Internal error"
+msgstr "Ішкі қате"
+
+msgid "Must set host"
+msgstr "Хост орнату керек"
+
+msgid "Connected (encrypted) to "
+msgstr "Қосылған (шифрланған)"
+
+msgid "Connected (unencrypted) to "
+msgstr "Қосылған (шифрланбаған)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Бірдеңе дұрыс болмады, байланыс жабылды"
+
+msgid "Failed to connect to server"
+msgstr "Серверге қосылу мүмкін болмады"
+
+msgid "Disconnected"
+msgstr "Ажыратылған"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Жаңа қосылым себеппен қабылданбады:"
+
+msgid "New connection has been rejected"
+msgstr "Жаңа қосылым қабылданбады"
+
+msgid "Credentials are required"
+msgstr "Тіркелгі деректері қажет"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC қатеге тап болды:"
+
+msgid "Hide/Show the control bar"
+msgstr "Басқару жолағын жасыру/көрсету"
+
+msgid "Drag"
+msgstr "Сүйреу"
+
+msgid "Move/Drag Viewport"
+msgstr "Көру алаңын жылжыту/сүйреп апару"
+
+msgid "Keyboard"
+msgstr "Пернетақта"
+
+msgid "Show Keyboard"
+msgstr "Пернетақтаны көрсету"
+
+msgid "Extra keys"
+msgstr "Қосымша кілттер"
+
+msgid "Show Extra Keys"
+msgstr "Қосымша кілттерді көрсету"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl-ді ауыстырып қосу"
+
+msgid "Alt"
+msgstr "Альт"
+
+msgid "Toggle Alt"
+msgstr "Alt түймесін ауыстыру"
+
+msgid "Toggle Windows"
+msgstr "Windows жүйесін ауыстыру"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Жіберу қойындысы"
+
+msgid "Tab"
+msgstr "Қойынды"
+
+msgid "Esc"
+msgstr "Шығу"
+
+msgid "Send Escape"
+msgstr "Қашуды жіберу"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del жіберу"
+
+msgid "Shutdown/Reboot"
+msgstr "Өшіру/қайта жүктеу"
+
+msgid "Shutdown/Reboot..."
+msgstr "Өшіру/қайта жүктеу..."
+
+msgid "Power"
+msgstr "Күш"
+
+msgid "Shutdown"
+msgstr "Жабу"
+
+msgid "Reboot"
+msgstr "Қайта жүктеу"
+
+msgid "Reset"
+msgstr "Қалпына келтіру"
+
+msgid "Clipboard"
+msgstr "Буфер"
+
+msgid "Clear"
+msgstr "Таза"
+
+msgid "Fullscreen"
+msgstr "Толық экран"
+
+msgid "Settings"
+msgstr "Параметрлер"
+
+msgid "Shared Mode"
+msgstr "Ортақ режим"
+
+msgid "View Only"
+msgstr "Тек көру"
+
+msgid "Clip to Window"
+msgstr "Терезеге клип"
+
+msgid "Scaling Mode:"
+msgstr "Масштабтау режимі:"
+
+msgid "None"
+msgstr "Жоқ"
+
+msgid "Local Scaling"
+msgstr "Жергілікті масштабтау"
+
+msgid "Remote Resizing"
+msgstr "Қашықтан өлшемін өзгерту"
+
+msgid "Advanced"
+msgstr "Озат"
+
+msgid "Quality:"
+msgstr "Сапа:"
+
+msgid "Compression level:"
+msgstr "Сығу деңгейі:"
+
+msgid "Repeater ID:"
+msgstr "Қайталаушы идентификаторы:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Шифрлау"
+
+msgid "Host:"
+msgstr "Хост:"
+
+msgid "Port:"
+msgstr "Порт:"
+
+msgid "Path:"
+msgstr "Жол:"
+
+msgid "Automatic Reconnect"
+msgstr "Автоматты қайта қосу"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Қайта қосылу кідірісі (мс):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Меңзер жоқ кезде нүктені көрсету"
+
+msgid "Logging:"
+msgstr "Тіркеу:"
+
+msgid "Version:"
+msgstr "Нұсқа:"
+
+msgid "Disconnect"
+msgstr "Ажырату"
+
+msgid "Connect"
+msgstr "Қосылу"
+
+msgid "Username:"
+msgstr "Пайдаланушы аты:"
+
+msgid "Password:"
+msgstr "Пароль:"
+
+msgid "Send Credentials"
+msgstr "Тіркелгі деректерін жіберу"
+
+msgid "Cancel"
+msgstr "Болдырмау"
+
+msgid "Keys"
+msgstr "Кілттер"
+
+msgid "Game Cursor Mode"
+msgstr "Ойын курсоры режимі"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Меңзерді құлыптау режимінен шығу үшін Esc пернесін басыңыз"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Ойын режимі кідіртілді, ойын режимін жалғастыру үшін экранды басыңыз."
+
+msgid "Clipboard Up"
+msgstr "Аралық сақтағыш жоғары"
+
+msgid "CLipboard Down"
+msgstr "Аралық буфер төмен"
+
+msgid "Clipboard Seamless"
+msgstr "Аралық сақтағыш біртұтас"
+
+msgid "Prefer Local Cursor"
+msgstr "Жергілікті курсорға артықшылық беру"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Пернелер тіркесімін аудару"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP транзитін қосу"
+
+msgid "Enable WebP Compression"
+msgstr "WebP қысуын қосу"
+
+msgid "Enable Performance Stats"
+msgstr "Өнімділік статистикасын қосу"
+
+msgid "Enable Pointer Lock"
+msgstr "Меңзер құлпын қосу"
+
+msgid "IME Input Mode"
+msgstr "IME енгізу режимі"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Виртуалды пернетақтаны басқаруды көрсету"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Басқару тақтасын пернелерді басу арқылы ауыстыру"
+
+msgid "Render Native Resolution"
+msgstr "Негізгі ажыратымдылықты көрсету"
+
+msgid "Keyboard Shortcuts"
+msgstr "Пернелер тіркесімі"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC пернелер тіркесімін қосу"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Басқару тақтасын ауыстыру"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Ойын көрсеткіші режимін ауыстыру"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Меңзер құлпын ауыстыру"
+
+msgid "Stream Quality"
+msgstr "Ағынның сапасы"
+
+msgid "Preset Modes:"
+msgstr "Алдын ала орнатылған режимдер:"
+
+msgid "Static"
+msgstr "Статикалық"
+
+msgid "Low"
+msgstr "Төмен"
+
+msgid "Medium"
+msgstr "Орташа"
+
+msgid "High"
+msgstr "Жоғары"
+
+msgid "Extreme"
+msgstr "Төтенше"
+
+msgid "Lossless"
+msgstr "Шығыссыз"
+
+msgid "Custom"
+msgstr "Тапсырыс"
+
+msgid "Anti-Aliasing:"
+msgstr "Бөренелеуге қарсы:"
+
+msgid "Auto Dynamic"
+msgstr "Авто динамикалық"
+
+msgid "Off"
+msgstr "Өшірулі"
+
+msgid "On"
+msgstr "Қосулы"
+
+msgid "Dynamic Quality Min:"
+msgstr "Динамикалық сапа минимум:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Динамикалық сапа максимум:"
+
+msgid "Treat Lossless:"
+msgstr "Шығынсыз емдеу:"
+
+msgid "Frame Rate:"
+msgstr "Кадр жиілігі:"
+
+msgid "Video JPEG Quality:"
+msgstr "Бейне JPEG сапасы:"
+
+msgid "Video WEBP Quality:"
+msgstr "Бейне WEBP сапасы:"
+
+msgid "Video Area:"
+msgstr "Бейне аймағы:"
+
+msgid "Video Time:"
+msgstr "Бейне уақыты:"
+
+msgid "Video Out Time:"
+msgstr "Бейненің шығу уақыты:"
+
+msgid "Video Mode Width:"
+msgstr "Бейне режимінің ені:"
+
+msgid "Video Mode Height:"
+msgstr "Бейне режимінің биіктігі:"
+
+msgid "Documentation"
+msgstr "Құжаттама"
+
+msgid "Drag Viewport"
+msgstr "Көру алаңын сүйреу"

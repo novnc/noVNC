@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Cysylltu..."
+
+msgid "Disconnecting..."
+msgstr "Datgysylltu..."
+
+msgid "Reconnecting..."
+msgstr "Ailgysylltu..."
+
+msgid "Internal error"
+msgstr "Gwall mewnol"
+
+msgid "Must set host"
+msgstr "Rhaid gosod gwesteiwr"
+
+msgid "Connected (encrypted) to "
+msgstr "Cysylltiedig (amgryptio) i "
+
+msgid "Connected (unencrypted) to "
+msgstr " Wedi cysylltu (heb ei amgryptio) i "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Aeth rhywbeth o'i le, mae'r cysylltiad ar gau"
+
+msgid "Failed to connect to server"
+msgstr "Methu cysylltu i'r gweinydd"
+
+msgid "Disconnected"
+msgstr "Datgysylltu"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Cysylltiad newydd wedi'i wrthod gyda rheswm:"
+
+msgid "New connection has been rejected"
+msgstr "Cysylltiad newydd wedi'i wrthod"
+
+msgid "Credentials are required"
+msgstr "Mae angen tystlythyrau"
+
+msgid "noVNC encountered an error:"
+msgstr " daeth noVNC ar draws gwall:"
+
+msgid "Hide/Show the control bar"
+msgstr "Cuddio/Dangos y bar rheoli"
+
+msgid "Drag"
+msgstr "Llusgo"
+
+msgid "Move/Drag Viewport"
+msgstr "Symud/Llusgwch Viewport"
+
+msgid "Keyboard"
+msgstr "Bellfwrdd"
+
+msgid "Show Keyboard"
+msgstr "Dangos bysellfwrdd"
+
+msgid "Extra keys"
+msgstr "Allweddi ychwanegol"
+
+msgid "Show Extra Keys"
+msgstr "Dangos Allweddi Ychwanegol"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Toggle Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Toggle Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Anfon Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Anfon Dianc"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Anfon Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Cau i Lawr/Ailgychwyn"
+
+msgid "Shutdown/Reboot..."
+msgstr "Cau i Lawr/Ailgychwyn..."
+
+msgid "Power"
+msgstr "Pŵer"
+
+msgid "Shutdown"
+msgstr "Cau i lawr"
+
+msgid "Reboot"
+msgstr "Ailgychwyn"
+
+msgid "Reset"
+msgstr "Ail gychwyn"
+
+msgid "Clipboard"
+msgstr "Clipfwrdd"
+
+msgid "Clear"
+msgstr "Clir"
+
+msgid "Fullscreen"
+msgstr "Sgrin llawn"
+
+msgid "Settings"
+msgstr "Gosodiadau"
+
+msgid "Shared Mode"
+msgstr "Modd a Rennir"
+
+msgid "View Only"
+msgstr "Gweld yn Unig"
+
+msgid "Clip to Window"
+msgstr "Clip i Ffenestr"
+
+msgid "Scaling Mode:"
+msgstr "Modd Graddio:"
+
+msgid "None"
+msgstr "Dim"
+
+msgid "Local Scaling"
+msgstr "Graddio lleol"
+
+msgid "Remote Resizing"
+msgstr "Newid maint o bell"
+
+msgid "Advanced"
+msgstr "Uwch"
+
+msgid "Quality:"
+msgstr "Ansawdd:"
+
+msgid "Compression level:"
+msgstr "Lefel cywasgu:"
+
+msgid "Repeater ID:"
+msgstr "ID ailadroddydd:"
+
+msgid "WebSocket"
+msgstr "WebSoced"
+
+msgid "Encrypt"
+msgstr "Amgryptio"
+
+msgid "Host:"
+msgstr "Gwesteiwr:"
+
+msgid "Port:"
+msgstr "Porthladd:"
+
+msgid "Path:"
+msgstr "Llwybr:"
+
+msgid "Automatic Reconnect"
+msgstr "Ailgysylltu Awtomatig"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Ailgysylltu Oedi (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Dangos Dot pan nad oes Cyrchwr"
+
+msgid "Logging:"
+msgstr "Logio:"
+
+msgid "Version:"
+msgstr "Fersiwn:"
+
+msgid "Disconnect"
+msgstr "Datgysylltu"
+
+msgid "Connect"
+msgstr "Cysylltu"
+
+msgid "Username:"
+msgstr "Enw defnyddiwr:"
+
+msgid "Password:"
+msgstr "Cyfrinair:"
+
+msgid "Send Credentials"
+msgstr "Anfon Manylion"
+
+msgid "Cancel"
+msgstr "Canslo"
+
+msgid "Keys"
+msgstr "Allweddi"
+
+msgid "Game Cursor Mode"
+msgstr "Modd Cyrchwr Gêm"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Pwyswch Allwedd Esc i Gadael Modd Cloi Pwyntydd"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Modd Gêm seibio, cliciwch ar y sgrin i ailddechrau Modd Gêm."
+
+msgid "Clipboard Up"
+msgstr "Clipfwrdd i Fyny"
+
+msgid "CLipboard Down"
+msgstr "Clipfwrdd i lawr"
+
+msgid "Clipboard Seamless"
+msgstr "Clipfwrdd Di-dor"
+
+msgid "Prefer Local Cursor"
+msgstr "Gwell cyrchwr lleol"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Cyfieithu llwybrau byr bysellfwrdd"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Galluogi WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Galluogi Cywasgiad WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Galluogi Ystadegau Perfformiad"
+
+msgid "Enable Pointer Lock"
+msgstr "Galluogi Lock Pointer"
+
+msgid "IME Input Mode"
+msgstr "Modd Mewnbwn IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Dangos Rheolaeth Bysellfwrdd Rhithwir"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Toggle Control Panel trwy Keystrokes"
+
+msgid "Render Native Resolution"
+msgstr "Rendro Datrysiad Brodorol"
+
+msgid "Keyboard Shortcuts"
+msgstr "Llwybrau byr bysellfwrdd"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Galluogi Llwybrau Byr Bysellfwrdd KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Toglo Panel Rheoli"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Toglo Modd Pwyntiwr Gêm"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Toggle Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Ansawdd llif"
+
+msgid "Preset Modes:"
+msgstr "Moddau Rhagosodedig:"
+
+msgid "Static"
+msgstr "Statig"
+
+msgid "Low"
+msgstr "Isel"
+
+msgid "Medium"
+msgstr "Canolig"
+
+msgid "High"
+msgstr "Uchel"
+
+msgid "Extreme"
+msgstr "Eithafol"
+
+msgid "Lossless"
+msgstr "di-golled"
+
+msgid "Custom"
+msgstr "Cwsmer"
+
+msgid "Anti-Aliasing:"
+msgstr "Gwrth-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Deinamig Awtomatig"
+
+msgid "Off"
+msgstr "i ffwrdd"
+
+msgid "On"
+msgstr "Ar"
+
+msgid "Dynamic Quality Min:"
+msgstr "Isafswm Ansawdd Dynamig:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Uchafswm Ansawdd Dynamig:"
+
+msgid "Treat Lossless:"
+msgstr "Trin yn Ddi-golled:"
+
+msgid "Frame Rate:"
+msgstr "Cyfradd Ffram:"
+
+msgid "Video JPEG Quality:"
+msgstr "Ansawdd Fideo JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Ansawdd Fideo WEBP:"
+
+msgid "Video Area:"
+msgstr "Maes Fideo:"
+
+msgid "Video Time:"
+msgstr "Amser Fideo:"
+
+msgid "Video Out Time:"
+msgstr "Amser Allan Fideo:"
+
+msgid "Video Mode Width:"
+msgstr "Lled Modd Fideo:"
+
+msgid "Video Mode Height:"
+msgstr "Uchder Modd Fideo:"
+
+msgid "Documentation"
+msgstr "Dogfennaeth"
+
+msgid "Drag Viewport"
+msgstr "Llusgwch Viewport"

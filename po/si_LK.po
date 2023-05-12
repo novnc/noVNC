@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "සම්බන්ධ වෙමින්..."
+
+msgid "Disconnecting..."
+msgstr "විසන්ධි කරමින්..."
+
+msgid "Reconnecting..."
+msgstr "නැවත සම්බන්ධ වෙමින්..."
+
+msgid "Internal error"
+msgstr "අභ්u200dයන්තර දෝෂය"
+
+msgid "Must set host"
+msgstr "ධාරකය සැකසිය යුතුය"
+
+msgid "Connected (encrypted) to "
+msgstr "සම්බන්ධිත (සංකේතනය) වෙත"
+
+msgid "Connected (unencrypted) to "
+msgstr "සම්බන්ධිත (සංකේතනය නොකළ)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "යමක් වැරදී ඇත, සම්බන්ධතාවය වසා ඇත"
+
+msgid "Failed to connect to server"
+msgstr "සේවාදායකයට සම්බන්ධ වීමට අපොහොසත් විය"
+
+msgid "Disconnected"
+msgstr "විසන්ධි විය"
+
+msgid "New connection has been rejected with reason: "
+msgstr "නව සම්බන්ධතාවය හේතු සහිතව ප්u200dරතික්ෂේප කර ඇත:"
+
+msgid "New connection has been rejected"
+msgstr "නව සම්බන්ධතාවය ප්u200dරතික්ෂේප කර ඇත"
+
+msgid "Credentials are required"
+msgstr "ඇත්තපත්u200dර අවශ්u200dයයි"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC දෝෂයකට මුහුණ දී ඇත:"
+
+msgid "Hide/Show the control bar"
+msgstr "පාලක තීරුව සඟවන්න/පෙන්වන්න"
+
+msgid "Drag"
+msgstr "අදින්න"
+
+msgid "Move/Drag Viewport"
+msgstr "වීව්පෝට් ගෙනයන්න/අදින්න"
+
+msgid "Keyboard"
+msgstr "යතුරු පුවරුව"
+
+msgid "Show Keyboard"
+msgstr "යතුරු පුවරුව පෙන්වන්න"
+
+msgid "Extra keys"
+msgstr "අමතර යතුරු"
+
+msgid "Show Extra Keys"
+msgstr "අමතර යතුරු පෙන්වන්න"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ටොගල් කරන්න"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt ටොගල් කරන්න"
+
+msgid "Toggle Windows"
+msgstr "වින්ඩෝස් ටොගල් කරන්න"
+
+msgid "Windows"
+msgstr "වින්ඩෝස්"
+
+msgid "Send Tab"
+msgstr "යවන්න ටැබ්"
+
+msgid "Tab"
+msgstr "ටැබ්"
+
+msgid "Esc"
+msgstr "පිට වීම"
+
+msgid "Send Escape"
+msgstr "පලා යාම යවන්න"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del යවන්න"
+
+msgid "Shutdown/Reboot"
+msgstr "වසා දැමීම / නැවත ආරම්භ කිරීම"
+
+msgid "Shutdown/Reboot..."
+msgstr "වසා දැමීම / නැවත ආරම්භ කිරීම..."
+
+msgid "Power"
+msgstr "බලය"
+
+msgid "Shutdown"
+msgstr "වසා දමන්න"
+
+msgid "Reboot"
+msgstr "නැවත ආරම්භ කරන්න"
+
+msgid "Reset"
+msgstr "නැවත පිහිටුවන්න"
+
+msgid "Clipboard"
+msgstr "ක්ලිප්බෝඩ්"
+
+msgid "Clear"
+msgstr "පැහැදිලිව"
+
+msgid "Fullscreen"
+msgstr "පුන් තිරය"
+
+msgid "Settings"
+msgstr "සැකසුම්"
+
+msgid "Shared Mode"
+msgstr "බෙදාගත් මාදිලිය"
+
+msgid "View Only"
+msgstr "බලන්න පමණයි"
+
+msgid "Clip to Window"
+msgstr "කවුළුව වෙත ක්ලිප් කරන්න"
+
+msgid "Scaling Mode:"
+msgstr "පරිමාණ මාදිලිය:"
+
+msgid "None"
+msgstr "කිසිවක් නැත"
+
+msgid "Local Scaling"
+msgstr "දේශීය පරිමාණය"
+
+msgid "Remote Resizing"
+msgstr "දුරස්ථ ප්u200dරමාණය වෙනස් කිරීම"
+
+msgid "Advanced"
+msgstr "උසස්"
+
+msgid "Quality:"
+msgstr "ගුණාත්මක:"
+
+msgid "Compression level:"
+msgstr "සම්පීඩන මට්ටම:"
+
+msgid "Repeater ID:"
+msgstr "පුනරාවර්තන හැඳුනුම්පත:"
+
+msgid "WebSocket"
+msgstr "වෙබ්සොකට්"
+
+msgid "Encrypt"
+msgstr "සංකේතනය කරන්න"
+
+msgid "Host:"
+msgstr "සත්කාරක:"
+
+msgid "Port:"
+msgstr "වරාය:"
+
+msgid "Path:"
+msgstr "මාර්ගය:"
+
+msgid "Automatic Reconnect"
+msgstr "ස්වයංක්u200dරීය නැවත සම්බන්ධ කිරීම"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ප්u200dරමාදය නැවත සම්බන්ධ කරන්න (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "කර්සරය නොමැති විට තිත පෙන්වන්න"
+
+msgid "Logging:"
+msgstr "ලොග් කිරීම:"
+
+msgid "Version:"
+msgstr "පිටපත:"
+
+msgid "Disconnect"
+msgstr "විසන්ධි කරන්න"
+
+msgid "Connect"
+msgstr "සම්බන්ධ කරන්න"
+
+msgid "Username:"
+msgstr "පරිශීලක නාමය:"
+
+msgid "Password:"
+msgstr "මුරපදය:"
+
+msgid "Send Credentials"
+msgstr "ඇත්තපත්u200dර යවන්න"
+
+msgid "Cancel"
+msgstr "අවලංගු කරන්න"
+
+msgid "Keys"
+msgstr "යතුරු"
+
+msgid "Game Cursor Mode"
+msgstr "ගේම් කර්සර මාදිලිය"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Pointer Lock Mode එකෙන් පිටවීමට Esc යතුර ඔබන්න"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ක්u200dරීඩා ප්u200dරකාරය විරාම කරන ලදී, ක්u200dරීඩා ප්u200dරකාරය නැවත ආරම්භ කිරීමට තිරය මත ක්ලික් කරන්න."
+
+msgid "Clipboard Up"
+msgstr "ක්ලිප්බෝඩ් ඉහළට"
+
+msgid "CLipboard Down"
+msgstr "ක්ලිප්බෝඩ් පහලට"
+
+msgid "Clipboard Seamless"
+msgstr "ක්ලිප්බෝඩ් බාධාවකින් තොරව"
+
+msgid "Prefer Local Cursor"
+msgstr "දේශීය කර්සරය කැමති"
+
+msgid "Translate keyboard shortcuts"
+msgstr "යතුරු පුවරු කෙටිමං පරිවර්තනය කරන්න"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP සංක්u200dරමණය සබල කරන්න"
+
+msgid "Enable WebP Compression"
+msgstr "WebP සම්පීඩනය සබල කරන්න"
+
+msgid "Enable Performance Stats"
+msgstr "කාර්ය සාධන සංඛ්යාලේඛන සබල කරන්න"
+
+msgid "Enable Pointer Lock"
+msgstr "පොයින්ටර් අගුල සබල කරන්න"
+
+msgid "IME Input Mode"
+msgstr "IME ආදාන මාදිලිය"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "අතථ්u200dය යතුරුපුවරු පාලනය පෙන්වන්න"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "යතුරු පහර හරහා පාලන පැනලය ටොගල් කරන්න"
+
+msgid "Render Native Resolution"
+msgstr "දේශීය විභේදනය ඉදිරිපත් කරන්න"
+
+msgid "Keyboard Shortcuts"
+msgstr "යතුරුපුවරු කෙටිමං"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC යතුරුපුවරු කෙටිමං සබල කරන්න"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - පාලක පැනලය ටොගල් කරන්න"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - ටොගල් ගේම් පොයින්ටර් මාදිලිය"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - ටොගල් පොයින්ටර් ලොක්"
+
+msgid "Stream Quality"
+msgstr "ප්රවාහයේ ගුණාත්මකභාවය"
+
+msgid "Preset Modes:"
+msgstr "පෙරසැකසුම් මාදිලි:"
+
+msgid "Static"
+msgstr "ස්ථිතික"
+
+msgid "Low"
+msgstr "අඩු"
+
+msgid "Medium"
+msgstr "මධ්යම"
+
+msgid "High"
+msgstr "අධි"
+
+msgid "Extreme"
+msgstr "අතිශයින්"
+
+msgid "Lossless"
+msgstr "පාඩු නැති"
+
+msgid "Custom"
+msgstr "අභිරුචි"
+
+msgid "Anti-Aliasing:"
+msgstr "විරෝධී අන්වර්ථකරණය:"
+
+msgid "Auto Dynamic"
+msgstr "ස්වයං ගතික"
+
+msgid "Off"
+msgstr "අක්රිය"
+
+msgid "On"
+msgstr "මත"
+
+msgid "Dynamic Quality Min:"
+msgstr "ගතික තත්ත්ව අවම:"
+
+msgid "Dynamic Quality Max:"
+msgstr "ගතික තත්ත්ව උපරිම:"
+
+msgid "Treat Lossless:"
+msgstr "අහිමියෙන් සලකන්න:"
+
+msgid "Frame Rate:"
+msgstr "රාමු අනුපාතය:"
+
+msgid "Video JPEG Quality:"
+msgstr "වීඩියෝ JPEG ගුණාත්මකභාවය:"
+
+msgid "Video WEBP Quality:"
+msgstr "වීඩියෝ WEBP ගුණාත්මකභාවය:"
+
+msgid "Video Area:"
+msgstr "වීඩියෝ ප්රදේශය:"
+
+msgid "Video Time:"
+msgstr "වීඩියෝ වේලාව:"
+
+msgid "Video Out Time:"
+msgstr "වීඩියෝ අවසන් වන වේලාව:"
+
+msgid "Video Mode Width:"
+msgstr "වීඩියෝ මාදිලියේ පළල:"
+
+msgid "Video Mode Height:"
+msgstr "වීඩියෝ මාදිලියේ උස:"
+
+msgid "Documentation"
+msgstr "ලේඛන"
+
+msgid "Drag Viewport"
+msgstr "Drag Viewport"

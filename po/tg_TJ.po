@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Пайваст мешавад..."
+
+msgid "Disconnecting..."
+msgstr "Қатъ карда мешавад..."
+
+msgid "Reconnecting..."
+msgstr "Аз нав пайваст карда мешавад..."
+
+msgid "Internal error"
+msgstr "Хатои дохилӣ"
+
+msgid "Must set host"
+msgstr "Бояд мизбон таъин карда шавад"
+
+msgid "Connected (encrypted) to "
+msgstr "Пайваст (рамзшуда) ба"
+
+msgid "Connected (unencrypted) to "
+msgstr "Пайваст (бешифрнашуда) ба"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Чизе хато кард, пайвастшавӣ баста шуд"
+
+msgid "Failed to connect to server"
+msgstr "Ба сервер пайваст нашуд"
+
+msgid "Disconnected"
+msgstr "Қуръшуда"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Пайванди нав бо сабабҳо рад карда шуд:"
+
+msgid "New connection has been rejected"
+msgstr "Пайвасти нав рад карда шуд"
+
+msgid "Credentials are required"
+msgstr "Маълумотнома талаб карда мешавад"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ба хатогӣ дучор шуд:"
+
+msgid "Hide/Show the control bar"
+msgstr "Пинҳон/нишон додани сатри идоракунӣ"
+
+msgid "Drag"
+msgstr "Кашола кардан"
+
+msgid "Move/Drag Viewport"
+msgstr "Намоишгоҳро интиқол додан/каш кардан"
+
+msgid "Keyboard"
+msgstr "Клавиатура"
+
+msgid "Show Keyboard"
+msgstr "Намоиши клавиатура"
+
+msgid "Extra keys"
+msgstr "Калидҳои иловагӣ"
+
+msgid "Show Extra Keys"
+msgstr "Нишон додани калидҳои иловагӣ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Тағйир додани Ctrl"
+
+msgid "Alt"
+msgstr "Алт"
+
+msgid "Toggle Alt"
+msgstr "Тағйир додани Alt"
+
+msgid "Toggle Windows"
+msgstr "Тағйир додани Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Варақаи ирсол"
+
+msgid "Tab"
+msgstr "Таб"
+
+msgid "Esc"
+msgstr "Фарор"
+
+msgid "Send Escape"
+msgstr "Фиристодани фирор"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ирсол Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Хомӯш/Бозоғоз"
+
+msgid "Shutdown/Reboot..."
+msgstr "Хомӯш/Бозоғоз кардан..."
+
+msgid "Power"
+msgstr "Қувва"
+
+msgid "Shutdown"
+msgstr "Пӯшида шудан"
+
+msgid "Reboot"
+msgstr "Бозоғоз"
+
+msgid "Reset"
+msgstr "Бозсозӣ"
+
+msgid "Clipboard"
+msgstr "Буфери мухобиротӣ"
+
+msgid "Clear"
+msgstr "Тоза"
+
+msgid "Fullscreen"
+msgstr "Тамомсафҳа"
+
+msgid "Settings"
+msgstr "Танзимот"
+
+msgid "Shared Mode"
+msgstr "Усули муштарак"
+
+msgid "View Only"
+msgstr "Танҳо дидан"
+
+msgid "Clip to Window"
+msgstr "Клип ба тиреза"
+
+msgid "Scaling Mode:"
+msgstr "Усули миқёс:"
+
+msgid "None"
+msgstr "Ҳеҷ"
+
+msgid "Local Scaling"
+msgstr "Миқёси маҳаллӣ"
+
+msgid "Remote Resizing"
+msgstr "Тағйир додани андозагирии дурдаст"
+
+msgid "Advanced"
+msgstr "Мукаммал"
+
+msgid "Quality:"
+msgstr "Сифат:"
+
+msgid "Compression level:"
+msgstr "Сатҳи фишурдашавӣ:"
+
+msgid "Repeater ID:"
+msgstr "Идентификатори такрорӣ:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Рамзгузорӣ"
+
+msgid "Host:"
+msgstr "Созмон:"
+
+msgid "Port:"
+msgstr "Бандар:"
+
+msgid "Path:"
+msgstr "Роҳ:"
+
+msgid "Automatic Reconnect"
+msgstr "Бозсозии худкор"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Таъхири дубора пайвастшавӣ (мс):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Нуқтаро ҳангоми мавҷуд набудани курсор нишон диҳед"
+
+msgid "Logging:"
+msgstr "Бақайдгирӣ:"
+
+msgid "Version:"
+msgstr "Версия:"
+
+msgid "Disconnect"
+msgstr "Қатъ кардан"
+
+msgid "Connect"
+msgstr "Пайваст"
+
+msgid "Username:"
+msgstr "Номи корбар:"
+
+msgid "Password:"
+msgstr "Парол:"
+
+msgid "Send Credentials"
+msgstr "Ирсол кардани эътимоднома"
+
+msgid "Cancel"
+msgstr "Бекор кардан"
+
+msgid "Keys"
+msgstr "Калидҳо"
+
+msgid "Game Cursor Mode"
+msgstr "Усули курсори бозӣ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Барои баромадан аз режими қулфи ишоратӣ тугмаи Esc -ро пахш кунед"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Усули бозӣ таваққуф карда шуд, барои идомаи режими бозӣ дар экран клик кунед."
+
+msgid "Clipboard Up"
+msgstr "Бо буфер боло"
+
+msgid "CLipboard Down"
+msgstr "Поён кардани буфер"
+
+msgid "Clipboard Seamless"
+msgstr "Буфери бефосила"
+
+msgid "Prefer Local Cursor"
+msgstr "Курсори маҳаллиро бартарӣ диҳед"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Тарҷумаи миёнабурҳои клавиатура"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit-ро фаъол созед"
+
+msgid "Enable WebP Compression"
+msgstr "Фиқшоркунии WebP-ро фаъол созед"
+
+msgid "Enable Performance Stats"
+msgstr "Омори иҷроишро фаъол созед"
+
+msgid "Enable Pointer Lock"
+msgstr "Фаъол кардани Қулфи Нишондиҳанда"
+
+msgid "IME Input Mode"
+msgstr "Усули вуруди IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Намоиши назорати клавиатураи виртуалӣ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Панели идоракуниро ба воситаи тугмачаҳо иваз кунед"
+
+msgid "Render Native Resolution"
+msgstr "Резолюсияи маҳаллӣ"
+
+msgid "Keyboard Shortcuts"
+msgstr "Миёнбурҳои клавиатура"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Миёнбурҳои клавиатураи KasmVNC-ро фаъол созед"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Гузариш ба панели идоракунӣ"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Гузариш ба ҳолати нишондиҳандаи бозӣ"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Гузариш ба қулфи ишора"
+
+msgid "Stream Quality"
+msgstr "Сифати ҷараён"
+
+msgid "Preset Modes:"
+msgstr "Усулҳои пешакӣ:"
+
+msgid "Static"
+msgstr "статикӣ"
+
+msgid "Low"
+msgstr "паст"
+
+msgid "Medium"
+msgstr "миёна"
+
+msgid "High"
+msgstr "баланд"
+
+msgid "Extreme"
+msgstr "Аз ҳад зиёд"
+
+msgid "Lossless"
+msgstr "Бе талафот"
+
+msgid "Custom"
+msgstr "Одатӣ"
+
+msgid "Anti-Aliasing:"
+msgstr "Анти-алиасинг:"
+
+msgid "Auto Dynamic"
+msgstr "Автодинамикӣ"
+
+msgid "Off"
+msgstr "Хомуш"
+
+msgid "On"
+msgstr "Даргир"
+
+msgid "Dynamic Quality Min:"
+msgstr "Сифати динамикӣ ҳадди ақал:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Максҳои сифат динамикӣ:"
+
+msgid "Treat Lossless:"
+msgstr "Муолиҷаи бе талафот:"
+
+msgid "Frame Rate:"
+msgstr "Меъёри чаҳорчӯба:"
+
+msgid "Video JPEG Quality:"
+msgstr "Сифати JPEG видео:"
+
+msgid "Video WEBP Quality:"
+msgstr "Сифати видеои WEBP:"
+
+msgid "Video Area:"
+msgstr "Майдони видео:"
+
+msgid "Video Time:"
+msgstr "Вақти видео:"
+
+msgid "Video Out Time:"
+msgstr "Вақти баромади видео:"
+
+msgid "Video Mode Width:"
+msgstr "Паснои ҳолати видео:"
+
+msgid "Video Mode Height:"
+msgstr "Бандии ҳолати видео:"
+
+msgid "Documentation"
+msgstr "Ҳуҷҷатҳо"
+
+msgid "Drag Viewport"
+msgstr "Кашолакунии Viewport"

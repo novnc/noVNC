@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Konekte..."
+
+msgid "Disconnecting..."
+msgstr "Dekonekte..."
+
+msgid "Reconnecting..."
+msgstr "Rekonekte..."
+
+msgid "Internal error"
+msgstr "Erè entèn"
+
+msgid "Must set host"
+msgstr "Ou dwe mete lame"
+
+msgid "Connected (encrypted) to "
+msgstr "Konekte (kode) ak"
+
+msgid "Connected (unencrypted) to "
+msgstr "Konekte (ki pa kode) nan"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Yon bagay ale mal, koneksyon fèmen"
+
+msgid "Failed to connect to server"
+msgstr "Echwe pou konekte ak sèvè"
+
+msgid "Disconnected"
+msgstr "Dekonekte"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nouvo koneksyon te rejte ak rezon:"
+
+msgid "New connection has been rejected"
+msgstr "Nouvo koneksyon te rejte"
+
+msgid "Credentials are required"
+msgstr "Kredansyèl yo obligatwa"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC te rankontre yon erè:"
+
+msgid "Hide/Show the control bar"
+msgstr "Kache/Montre ba kontwòl la"
+
+msgid "Drag"
+msgstr "Trennen"
+
+msgid "Move/Drag Viewport"
+msgstr "Deplase / Trennen Viewport"
+
+msgid "Keyboard"
+msgstr "Klavye"
+
+msgid "Show Keyboard"
+msgstr "Montre klavye"
+
+msgid "Extra keys"
+msgstr "Kle siplemantè"
+
+msgid "Show Extra Keys"
+msgstr "Montre kle siplemantè"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Toggle Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Toggle Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Voye Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Voye chape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl + Alt + Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Voye Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Arè/Rdemare"
+
+msgid "Shutdown/Reboot..."
+msgstr "Arè/Rdemare..."
+
+msgid "Power"
+msgstr "pouvwa"
+
+msgid "Shutdown"
+msgstr "Fèmen"
+
+msgid "Reboot"
+msgstr "Rdemare"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Clipboard"
+msgstr "Klipboard"
+
+msgid "Clear"
+msgstr "Klè"
+
+msgid "Fullscreen"
+msgstr "Ecran konplè"
+
+msgid "Settings"
+msgstr "Anviwònman"
+
+msgid "Shared Mode"
+msgstr "Mòd pataje"
+
+msgid "View Only"
+msgstr "View sèlman"
+
+msgid "Clip to Window"
+msgstr "Klip nan fenèt"
+
+msgid "Scaling Mode:"
+msgstr "Echèl mòd:"
+
+msgid "None"
+msgstr "Okenn"
+
+msgid "Local Scaling"
+msgstr "Echèl lokal"
+
+msgid "Remote Resizing"
+msgstr "Redimansyon Remote"
+
+msgid "Advanced"
+msgstr "Avanse"
+
+msgid "Quality:"
+msgstr "Kalite:"
+
+msgid "Compression level:"
+msgstr "Nivo konpresyon:"
+
+msgid "Repeater ID:"
+msgstr "Idantifikasyon repetiteur:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Ankripte"
+
+msgid "Host:"
+msgstr "Lame:"
+
+msgid "Port:"
+msgstr "Pò:"
+
+msgid "Path:"
+msgstr "Chemen:"
+
+msgid "Automatic Reconnect"
+msgstr "Rekonekte otomatik"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Rekonekte Reta (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Montre pwen lè pa gen kurseur"
+
+msgid "Logging:"
+msgstr "Enregistrement:"
+
+msgid "Version:"
+msgstr "Vèsyon:"
+
+msgid "Disconnect"
+msgstr "Dekonekte"
+
+msgid "Connect"
+msgstr "Konekte"
+
+msgid "Username:"
+msgstr "Non itilizatè:"
+
+msgid "Password:"
+msgstr "Modpas:"
+
+msgid "Send Credentials"
+msgstr "Voye kalifikasyon yo"
+
+msgid "Cancel"
+msgstr "Anile"
+
+msgid "Keys"
+msgstr "Kle"
+
+msgid "Game Cursor Mode"
+msgstr "Mòd kurseur jwèt"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Peze kle Echap pou sòti nan mòd Lock Pointer"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Mòd jwèt pran yon poz, klike sou ekran an pou rekòmanse mòd jwèt."
+
+msgid "Clipboard Up"
+msgstr "Klipboard moute"
+
+msgid "CLipboard Down"
+msgstr "Klipboard desann"
+
+msgid "Clipboard Seamless"
+msgstr "Klipboard san pwoblèm"
+
+msgid "Prefer Local Cursor"
+msgstr "Pwofere kurseur lokal"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tradwi rakoursi klavye"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Pèmèt WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Pèmèt konpresyon WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Pèmèt estatistik pèfòmans"
+
+msgid "Enable Pointer Lock"
+msgstr "Pèmèt Lock Pointer"
+
+msgid "IME Input Mode"
+msgstr "Mòd Antre IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Montre kontwòl klavye vityèl"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Toggle Kontwòl Panel atravè Keystrokes"
+
+msgid "Render Native Resolution"
+msgstr "Rann rezolisyon natif natal"
+
+msgid "Keyboard Shortcuts"
+msgstr "Rakoursi klavye"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Pèmèt rakoursi klavye KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Activer panèl kontwòl"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Activer mòd Pointer jwèt"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Aktive Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Kalite kouran"
+
+msgid "Preset Modes:"
+msgstr "Mòd Prereglaj:"
+
+msgid "Static"
+msgstr "Estatik"
+
+msgid "Low"
+msgstr "Ba"
+
+msgid "Medium"
+msgstr "Mwayen"
+
+msgid "High"
+msgstr "Segondè"
+
+msgid "Extreme"
+msgstr "ekstrèm"
+
+msgid "Lossless"
+msgstr "San pèt"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Oto dinamik"
+
+msgid "Off"
+msgstr "Ete"
+
+msgid "On"
+msgstr "sou"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamic Quality Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamic Quality Max:"
+
+msgid "Treat Lossless:"
+msgstr "Trete Lossless:"
+
+msgid "Frame Rate:"
+msgstr "To Frame:"
+
+msgid "Video JPEG Quality:"
+msgstr "Videyo JPEG Kalite:"
+
+msgid "Video WEBP Quality:"
+msgstr "Videyo WEBP Kalite:"
+
+msgid "Video Area:"
+msgstr "Zòn videyo:"
+
+msgid "Video Time:"
+msgstr "Tan videyo:"
+
+msgid "Video Out Time:"
+msgstr "Videyo soti tan:"
+
+msgid "Video Mode Width:"
+msgstr "Lajè mòd videyo:"
+
+msgid "Video Mode Height:"
+msgstr "Watè mòd videyo:"
+
+msgid "Documentation"
+msgstr "Dokimantasyon"
+
+msgid "Drag Viewport"
+msgstr "Trennen Viewport"

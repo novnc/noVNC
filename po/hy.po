@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Միանում է…"
+
+msgid "Disconnecting..."
+msgstr "Անջատվում է…"
+
+msgid "Reconnecting..."
+msgstr "Վերամիացում…"
+
+msgid "Internal error"
+msgstr "Ներքին սխալ"
+
+msgid "Must set host"
+msgstr "Պետք է նշանակել հյուրընկալող"
+
+msgid "Connected (encrypted) to "
+msgstr "Միացված է (գաղտնագրված)"
+
+msgid "Connected (unencrypted) to "
+msgstr "Միացված է (չկոդավորված)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Սխալ առաջացավ, կապը փակ է"
+
+msgid "Failed to connect to server"
+msgstr "Չհաջողվեց միանալ սերվերին"
+
+msgid "Disconnected"
+msgstr "Անջատված է"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Նոր կապը մերժվել է պատճառաբանությամբ."
+
+msgid "New connection has been rejected"
+msgstr "Նոր կապը մերժվել է."
+
+msgid "Credentials are required"
+msgstr "Հավատարմագրերը պարտադիր են"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC-ն սխալ է հանդիպել."
+
+msgid "Hide/Show the control bar"
+msgstr "Թաքցնել/Ցույց տալ կառավարման տողը"
+
+msgid "Drag"
+msgstr "Քաշել"
+
+msgid "Move/Drag Viewport"
+msgstr "Տեղափոխել/քաշել տեսադաշտը"
+
+msgid "Keyboard"
+msgstr "Ստեղնաշար"
+
+msgid "Show Keyboard"
+msgstr "Ցույց տալ ստեղնաշարը"
+
+msgid "Extra keys"
+msgstr "Լրացուցիչ բանալիներ"
+
+msgid "Show Extra Keys"
+msgstr "Ցույց տալ լրացուցիչ բանալիներ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Փոխարկել Ctrl"
+
+msgid "Alt"
+msgstr "Ալտ"
+
+msgid "Toggle Alt"
+msgstr "Փոխարկել Alt"
+
+msgid "Toggle Windows"
+msgstr "Փոխարկել Windows"
+
+msgid "Windows"
+msgstr "Պատուհաններ"
+
+msgid "Send Tab"
+msgstr "Ուղարկել ներդիր"
+
+msgid "Tab"
+msgstr "ներդիր"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Ուղարկել փախուստ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ուղարկել Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Անջատում/վերագործարկում"
+
+msgid "Shutdown/Reboot..."
+msgstr "Անջատում/վերագործարկում…"
+
+msgid "Power"
+msgstr "Ուժ"
+
+msgid "Shutdown"
+msgstr "Անջատել"
+
+msgid "Reboot"
+msgstr "Վերագործարկեք"
+
+msgid "Reset"
+msgstr "Վերականգնել"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Մաքուր"
+
+msgid "Fullscreen"
+msgstr "Ամբողջ էկրանով"
+
+msgid "Settings"
+msgstr "Կարգավորումներ"
+
+msgid "Shared Mode"
+msgstr "Համօգտագործվող ռեժիմ"
+
+msgid "View Only"
+msgstr "Միայն դիտել"
+
+msgid "Clip to Window"
+msgstr "Սեղմել պատուհանին"
+
+msgid "Scaling Mode:"
+msgstr "Scaling Mode:"
+
+msgid "None"
+msgstr "Ոչ ոք"
+
+msgid "Local Scaling"
+msgstr "Տեղական մասշտաբավորում"
+
+msgid "Remote Resizing"
+msgstr "Հեռավոր չափափոխում"
+
+msgid "Advanced"
+msgstr "Ընդլայնված"
+
+msgid "Quality:"
+msgstr "Որակ."
+
+msgid "Compression level:"
+msgstr "Սեղմման մակարդակ."
+
+msgid "Repeater ID:"
+msgstr "Կրկնիչ ID."
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Գաղտնագրել"
+
+msgid "Host:"
+msgstr "Հաղորդավար."
+
+msgid "Port:"
+msgstr "Պորտ:"
+
+msgid "Path:"
+msgstr "Ճանապարհ."
+
+msgid "Automatic Reconnect"
+msgstr "Ավտոմատ վերամիացում"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Վերամիացման հետաձգում (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Ցույց տալ կետը, երբ կուրսորը չկա"
+
+msgid "Logging:"
+msgstr "Գրանցում."
+
+msgid "Version:"
+msgstr "Տարբերակ."
+
+msgid "Disconnect"
+msgstr "Անջատել"
+
+msgid "Connect"
+msgstr "Միացեք"
+
+msgid "Username:"
+msgstr "Օգտագործողի անունը:"
+
+msgid "Password:"
+msgstr "Գաղտնաբառ."
+
+msgid "Send Credentials"
+msgstr "Ուղարկել հավատարմագրերը"
+
+msgid "Cancel"
+msgstr "Չեղարկել"
+
+msgid "Keys"
+msgstr "Բանալիններ"
+
+msgid "Game Cursor Mode"
+msgstr "Խաղի կուրսորի ռեժիմը"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Սեղմեք Esc ստեղնը՝ ցուցիչի կողպման ռեժիմից դուրս գալու համար"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Խաղի ռեժիմը դադարեցված է, սեղմեք էկրանին՝ խաղի ռեժիմը վերսկսելու համար:"
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Նախընտրել տեղական կուրսորը"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Թարգմանել ստեղնաշարի դյուրանցումները"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Միացնել WebRTC UDP տարանցումը"
+
+msgid "Enable WebP Compression"
+msgstr "Միացնել WebP սեղմումը"
+
+msgid "Enable Performance Stats"
+msgstr "Միացնել կատարողականի վիճակագրությունը"
+
+msgid "Enable Pointer Lock"
+msgstr "Միացնել ցուցիչի կողպումը"
+
+msgid "IME Input Mode"
+msgstr "IME մուտքագրման ռեժիմ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Ցույց տալ վիրտուալ ստեղնաշարի կառավարումը"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Փոխարկել կառավարման վահանակը ստեղնաշարի միջոցով"
+
+msgid "Render Native Resolution"
+msgstr "Ներկայացնել հայրենի բանաձեւը"
+
+msgid "Keyboard Shortcuts"
+msgstr "Ստեղնաշարի դյուրանցումներ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Միացնել KasmVNC ստեղնաշարի դյուրանցումները"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - միացնել կառավարման վահանակը"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Փոխարկել խաղի ցուցիչի ռեժիմը"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Փոխարկել ցուցիչի կողպեքը"
+
+msgid "Stream Quality"
+msgstr "Հոսքի որակ"
+
+msgid "Preset Modes:"
+msgstr "Նախադրված ռեժիմներ."
+
+msgid "Static"
+msgstr "Ստատիկ"
+
+msgid "Low"
+msgstr "Ցածր"
+
+msgid "Medium"
+msgstr "Միջին"
+
+msgid "High"
+msgstr "Բարձր"
+
+msgid "Extreme"
+msgstr "Ծայրահեղ"
+
+msgid "Lossless"
+msgstr "Անկորուստ"
+
+msgid "Custom"
+msgstr "Պատվերով"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing."
+
+msgid "Auto Dynamic"
+msgstr "Ավտո դինամիկ"
+
+msgid "Off"
+msgstr "Անջատված"
+
+msgid "On"
+msgstr "Վրա"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamic Quality Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamic Quality Max:"
+
+msgid "Treat Lossless:"
+msgstr "Breat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Frame Rate:"
+
+msgid "Video JPEG Quality:"
+msgstr "Տեսանյութի JPEG որակ."
+
+msgid "Video WEBP Quality:"
+msgstr "Տեսանյութի WEBP որակ."
+
+msgid "Video Area:"
+msgstr "Տեսանյութի տարածք."
+
+msgid "Video Time:"
+msgstr "Տեսանյութի ժամանակ."
+
+msgid "Video Out Time:"
+msgstr "Տեսանյութի թողարկման ժամանակը."
+
+msgid "Video Mode Width:"
+msgstr "Տեսանյութի ռեժիմի լայնություն."
+
+msgid "Video Mode Height:"
+msgstr "Տեսանյութի ռեժիմի բարձրություն."
+
+msgid "Documentation"
+msgstr "Փաստաթղթեր"
+
+msgid "Drag Viewport"
+msgstr "Քաշել տեսադաշտը"

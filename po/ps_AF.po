@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr ". ﻝﻮﻠښﻧ "
+
+msgid "Disconnecting..."
+msgstr ". ﻝﻮﮐ ﻊﻄﻘﻨﻣ"
+
+msgid "Reconnecting..."
+msgstr ". ﻝﻮﻠښﻧ ﺎﯿﺑ"
+
+msgid "Internal error"
+msgstr "ﻪﻨﺗﻭﺮﯧﺗ ﻲﻠﺧﺍﺩ"
+
+msgid "Must set host"
+msgstr "ﺉړﮐ ﻢﯿﻈﻨﺗ ﻪﺑﺭﻮﮐ ﺪﯾﺎﺑ"
+
+msgid "Connected (encrypted) to "
+msgstr "(ﯼﻮﺷ ډﻮﮐ) ﯼﻮﺷ ﻞﺻﻭ ﻩﺮﺳ"
+
+msgid "Connected (unencrypted) to "
+msgstr "(ﯼﻮﺷ ډﻮﮐ ﻪﻧ) ﯼﻮﺷ ﻞﺻﻭ ﻩﺮﺳ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ﯤﻮﺷ ﻝړﺗ ﻪﮑﯾړﺍ ،ﻱﻮﺷ ﻂﻠﻏ ﻪڅ ﻮﯾ"
+
+msgid "Failed to connect to server"
+msgstr "ﯽﻠﻏﺍﺭ ﯥﺗﺎﭘ ﯥﮐ ﻮﻟﻮﻠښﻧ ﻪﭘ ﻩﺮﺳ ﺭﻭﺮﺳ ﺩ"
+
+msgid "Disconnected"
+msgstr "ﯼﻮﺷ ﻞﺤﻨﻣ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ﯼﺩ ﯼﻮﺷ ﺩﺭ ﻩﺮﺳ ﻞﯿﻟﺩ ﺩ ﻁﺎﺒﺗﺭﺍ ﯼﻮﻧ"
+
+msgid "New connection has been rejected"
+msgstr "ﯼﻮﺷ ﺩﺭ ﻁﺎﺒﺗﺭﺍ ﯼﻮﻧ"
+
+msgid "Credentials are required"
+msgstr "ﻩﺩ ﺎﯿﺗړﺍ ﻭﺩﺎﻨﺳﺍ ﺩ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ﻮﺷ ﺦﻣ ﻩﺮﺳ ﯥﻨﺗﻭﺮﯧﺗ ﯤﻮﯾ ﺩ:"
+
+msgid "Hide/Show the control bar"
+msgstr "ﺉړﮐ ﻩﺭﺎﮑښ / ﺉړﮐ ټﭘ ﺭﺎﺑ ﻝﻭﺮټﻨﮐ ﺩ"
+
+msgid "Drag"
+msgstr "ﺶﺸﮐ"
+
+msgid "Move/Drag Viewport"
+msgstr "ګﯾﺭډ / ﺖﮐﺮﺣ ټﺭﻮﭘﻮﯿﻟ"
+
+msgid "Keyboard"
+msgstr "ډﺭﻮﺒﯿﮐ"
+
+msgid "Show Keyboard"
+msgstr "ﺖﺳﺎﯾﺎښﻭ ډﺭﻮﺒﯿﮐ"
+
+msgid "Extra keys"
+msgstr "ﻲﻠﯿﮐ ﻲﻓﺎﺿﺍ"
+
+msgid "Show Extra Keys"
+msgstr "ﺖﺳﺎﯾﺎښﻭ ﻲﻠﯿﮐ ﻲﻓﺎﺿﺍ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ﺉړﮐ ﻝﺪﺑ"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt ﺉړﮐ ﻝﺪﺑ"
+
+msgid "Toggle Windows"
+msgstr "ﺉړﮐ ﻞﮕټ ﺯﻭډﻨﯾﻭ"
+
+msgid "Windows"
+msgstr "ﺯﻭډﻨﯾﻭ"
+
+msgid "Send Tab"
+msgstr "ﺉږﯧﻟﻭ ﺐټ"
+
+msgid "Tab"
+msgstr "ﺐټ"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "ﺉږﯧﻟﻭ ﯥﺘښﯧﺗ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ﺉږﯧﻟﻭ"
+
+msgid "Shutdown/Reboot"
+msgstr "ټﻮﺒﯾﺭ / ﺪﻨﺑ"
+
+msgid "Shutdown/Reboot..."
+msgstr ". ټﻮﺒﯾﺭ / ﺪﻨﺑ"
+
+msgid "Power"
+msgstr "ﮎﺍﻮځ"
+
+msgid "Shutdown"
+msgstr "u200du200du200dﻝﻭﺪﻨﺑ"
+
+msgid "Reboot"
+msgstr "ټﻮﺒﯾﺭ"
+
+msgid "Reset"
+msgstr "ﺉړﮐ ﻢﯿﻈﻨﺗ ﺎﯿﺑ"
+
+msgid "Clipboard"
+msgstr "ډﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "Clear"
+msgstr "ﮎﺎﭘ"
+
+msgid "Fullscreen"
+msgstr "ﻪﺤﻔﺻ ﻪﻠﻤﮑﻣ"
+
+msgid "Settings"
+msgstr "ﺕﺎﺒﯿﺗﺮﺗ"
+
+msgid "Shared Mode"
+msgstr "ﺖﻟﺎﺣ ﮏﯾﺮﺷ"
+
+msgid "View Only"
+msgstr "ﻝﺪﯿﻟ ﯤﺯﺍﻮﯾ"
+
+msgid "Clip to Window"
+msgstr "ﮏﯿﻠﮐ ﻪﺗ ۍﮐړﮐ"
+
+msgid "Scaling Mode:"
+msgstr "ﺖﻟﺎﺣ ﻮﻟﻮﮐ ﻩﺯﺍﺪﻧﺍ ﺩ"
+
+msgid "None"
+msgstr "ﻪﻧ څﯿﻫ"
+
+msgid "Local Scaling"
+msgstr "ﻝﻮﮐ ﻩﺯﺍﺪﻧﺍ ﺰﯾﺍ ﻪﻤﯿﺳ"
+
+msgid "Remote Resizing"
+msgstr "ﻝﻮﮐ ﻩﺯﺍﺪﻧﺍ ټﻮﻤﯾﺭ ﺩ"
+
+msgid "Advanced"
+msgstr "ﯽﻠﻠﺘﺨﻣﺮﭘ"
+
+msgid "Quality:"
+msgstr "ﺖﯿﻔﯿﮐ"
+
+msgid "Compression level:"
+msgstr "ﻪﭽﮐ ﻦﺸﯾﺮﭙﻤﮐ ﺩ"
+
+msgid "Repeater ID:"
+msgstr "ID ﻱﺭﺍﺮﮑﺗ ﺩ"
+
+msgid "WebSocket"
+msgstr "ټﮐﺎﺳ ﺐﯾﻭ"
+
+msgid "Encrypt"
+msgstr "ﻝﻮﮐ ډﻮﮐ"
+
+msgid "Host:"
+msgstr "ﻪﺑﺭﻮﮐ"
+
+msgid "Port:"
+msgstr "ټﺭﻮﭘ"
+
+msgid "Path:"
+msgstr "ﻩﺭﻻ﻿"
+
+msgid "Automatic Reconnect"
+msgstr "ﻝﻮﻠښﻧ ﻝﻭډ ﮏﻴﺗﺎﻣﻮﺗﺍ ﻪﭘ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "(ms) ﻝﻮﻠښﻧ ﺎﯿﺑ ډﻨځ"
+
+msgid "Show Dot when No Cursor"
+msgstr "ﺉړﮐ ﻩﺭﺎﮑښ ﻪﻄﻘﻧ ﻱﻭ ﻪﻧ ﺮﺳﺮﮐ ﯥﭼ ﻪﻠﮐ"
+
+msgid "Logging:"
+msgstr "ﻞﺗﻮﻨﻧ"
+
+msgid "Version:"
+msgstr "ﻪﺨﺴﻧ"
+
+msgid "Disconnect"
+msgstr "ﻝﻮﮐ ﯤﺮﭘ ﯥﺑ"
+
+msgid "Connect"
+msgstr "ﻞﺻﻭ"
+
+msgid "Username:"
+msgstr "ﻡﻮﻧ ﻥﺭﺎﮐ"
+
+msgid "Password:"
+msgstr "ﺰﻣﺭ"
+
+msgid "Send Credentials"
+msgstr "ﻝږﯿﻟ ﻭﺩﺎﻨﺳﺍ ﺩ"
+
+msgid "Cancel"
+msgstr "ﻝﻮﮐ ﻪﺨﺴﻓ"
+
+msgid "Keys"
+msgstr "ﻲﻠﯿﮐ"
+
+msgid "Game Cursor Mode"
+msgstr "ﺖﻟﺎﺣ ﺮﺳﺮﮐ ﯥﺑﻮﻟ ﺩ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ﺉړﮐﺭﻭ ﺭﺎﺸﻓ ﻲﻠﯿﮐ Esc ﺩ ﻩﺭﺎﭙﻟ ﻮﻠﺗﻭ ﻪﺨڅ ﺖﻟﺎﺣ ﮎﻻ﻿ ﺮټﻨﺋﺍﻮﭘ ﺩ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ﺉړﮐﻭ ﮏﯿﻠﮐ ﯤﺪﻧﺎﺑ ﻦﯾﺮﮑﺳ ﻪﭘ ﻩﺭﺎﭙﻟ ﻮﻟﻮﻠﯿﭘ ﺎﯿﺑ ﺖﻟﺎﺣ ﯥﺑﻮﻟ ﺩ ،ﻮﺷ ﻝﻭﺭﺩﻭ ﺖﻟﺎﺣ ﯥﺑﻮﻟ ﺩ"
+
+msgid "Clipboard Up"
+msgstr "ﻪﺗﺭﻮﭘ ډﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "CLipboard Down"
+msgstr "ﻪﺘﮑښ ډﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "Clipboard Seamless"
+msgstr "ﻪﻤﯿﺳ ﯥﺑ ډﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "Prefer Local Cursor"
+msgstr "ﺉړﮐ ﻩﺭﻮﻏ ﺮﺳﺮﮐ ﺰﯾﺍ ﻪﻤﯿﺳ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ﺉړﺎﺑﮊﻭ ﻮﻧﻮټﮐ ټﺭﺎﺷ ډﺭﻮﺒﯿﮐ ﺩ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP ﺉړﮐ ﻝﺎﻌﻓ ﺩږﯿﻟ"
+
+msgid "Enable WebP Compression"
+msgstr "WebP ﺉړﮐ ﻝﺎﻌﻓ ﻦﺸﯾﺮﭙﻤﮐ"
+
+msgid "Enable Performance Stats"
+msgstr "ﺉړﮐ ﻝﺎﻌﻓ ﯥﯾﺎﺼﺣﺍ ﺖﯿﻟﺎﻌﻓ ﺩ"
+
+msgid "Enable Pointer Lock"
+msgstr "ﺉړﮐ ﻝﺎﻌﻓ ﮎﻻ﻿ ﺮټﻨﺋﺍﻮﭘ ﺩ"
+
+msgid "IME Input Mode"
+msgstr "IME ﺖﻟﺎﺣ ټﭘ ﻥﺍ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ﺖﺳﺎﯾﺎښﻭ ﻝﻭﺮټﻨﮐ ډﺭﻮﺒﯿﮐ ﯼﺯﺎﺠﻣ ﺩ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "ﺉړﮐ ﻝﺪﺑ ﻞﻨﯿﭘ ﻝﻭﺮټﻨﮐ ﺩ ﯤﺭﻻ﻿ ﻪﻟ ﮎﻭﺮټﺴﯿﮐ ﺩ"
+
+msgid "Render Native Resolution"
+msgstr "ﻝﻮﮐ ﯤﺪﻧﺍړﻭ ﻞﺣ ﻲﻠﺻﺍ ﺩ"
+
+msgid "Keyboard Shortcuts"
+msgstr "ﻪﻧﻮټﮐ ټﺭﺎﺷ ډﺭﻮﺑ ﯽﮐ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ﺉړﮐ ﻝﺎﻌﻓ ﻪﻧﻮټﮐ ټﺭﺎﺷ ډﺭﻮﺑ ﯽﮐ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "ﺉړﮐ ﻝﺪﺑ ﻞﻨﯿﭘ ﻝﻭﺮټﻨﮐ ﺩ - 1"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "ﺉړﮐ ﻝﺪﺑ ﺖﻟﺎﺣ ﺮټﻨﯾﻮﭘ ﯥﺑﻮﻟ ﺩ - 2"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "ﺉړﮐ ﻝﺪﺑ ﮎﻻ﻿ ﺮټﻨﺋﺍﻮﭘ ﺩ - 3"
+
+msgid "Stream Quality"
+msgstr "ﺖﯿﻔﯿﮐ ﻥﺎﯾﺮﺟ ﺩ"
+
+msgid "Preset Modes:"
+msgstr "ﯥﻘﯾﺮﻃ ۍﻨﯿﮑﺨﻣ"
+
+msgid "Static"
+msgstr "ﺪﻣﺎﺟ"
+
+msgid "Low"
+msgstr "ټﻴټ"
+
+msgid "Medium"
+msgstr "ﯽﻨځﻨﻣ"
+
+msgid "High"
+msgstr "ړﻮﻟ"
+
+msgid "Extreme"
+msgstr "ﺖﺨﺳ"
+
+msgid "Lossless"
+msgstr "ﻥﺍﻭﺎﺗ ﯥﺑ"
+
+msgid "Custom"
+msgstr "ﺐﻠﻄﻣ"
+
+msgid "Anti-Aliasing:"
+msgstr "ﺪﺿ ﻮﻟﻮﮐ ﺱﺎﯿﻟﺍ ﺩ"
+
+msgid "Auto Dynamic"
+msgstr "ﮎﺮﺤﺘﻣ ﻮټﺁ"
+
+msgid "Off"
+msgstr "ﺪﻨﺑ"
+
+msgid "On"
+msgstr "ﺮﭘ"
+
+msgid "Dynamic Quality Min:"
+msgstr "ﻖﯿﻗﺩ ﺖﯿﻔﯿﮐ ﮎﺮﺤﺘﻣ"
+
+msgid "Dynamic Quality Max:"
+msgstr "ﻲﻤﻈﻋﺍ ﺖﯿﻔﯿﮐ ﮎﺮﺤﺘﻣ"
+
+msgid "Treat Lossless:"
+msgstr "ﺉړﮐﻭ ﻪﻨﻠﻣﺭﺩ ﻩﺭﺮﺿ ﯥﺑ"
+
+msgid "Frame Rate:"
+msgstr "ﺥﺮﻧ ټﺎﮐﻮﭼ ﺩ"
+
+msgid "Video JPEG Quality:"
+msgstr "ﺖﯿﻔﯿﮐ JPEG ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Video WEBP Quality:"
+msgstr "ﺖﯿﻔﯿﮐ ﭗﺒﯾﻭ ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Video Area:"
+msgstr "ﻪﺣﺎﺳ ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Video Time:"
+msgstr "ﺖﺧﻭ ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Video Out Time:"
+msgstr "ﺖﺧﻭ ﻮﻟﻮﻤﺘﺧ ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Video Mode Width:"
+msgstr "ﺽﺮﻋ ﺖﻟﺎﺣ ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Video Mode Height:"
+msgstr "ﯽﻟﺍﻭړﻮﻟ ﺖﻟﺎﺣ ﻮﯾډﯾﻭ ﺩ"
+
+msgid "Documentation"
+msgstr "ﺩﺎﻨﺳﺍ"
+
+msgid "Drag Viewport"
+msgstr "ګﯾﺭډ ﺪﯿﻟ ﺪﯿﻟ ﺩ"

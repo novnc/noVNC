@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr ".ﻁﺎﺒﺗﺭﺍ ﯼﺭﺍﺮﻗﺮﺑ"
+
+msgid "Disconnecting..."
+msgstr ".ﻁﺎﺒﺗﺭﺍ ﻊﻄﻗ"
+
+msgid "Reconnecting..."
+msgstr ".ﺩﺪﺠﻣ ﻞﺻﻭ"
+
+msgid "Internal error"
+msgstr "ﯽﻠﺧﺍﺩ ﯼﺎﻄﺧ"
+
+msgid "Must set host"
+msgstr "ﺩﻮﺷ ﻢﯿﻈﻨﺗ ﺪﯾﺎﺑ ﻥﺎﺑﺰﯿﻣ"
+
+msgid "Connected (encrypted) to "
+msgstr "ﻪﺑ (ﻩﺪﺷ ﯼﺭﺍﺬﮔﺰﻣﺭ) ﻞﺼﺘﻣ"
+
+msgid "Connected (unencrypted) to "
+msgstr "ﻪﺑ (ﺰﻣﺭ ﻥﻭﺪﺑ) ﻞﺼﺘﻣ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ﺖﺳﺍ ﻪﺘﺴﺑ ﻝﺎﺼﺗﺍ ،ﺪﻣﺁ ﺶﯿﭘ ﯽﻠﮑﺸﻣ"
+
+msgid "Failed to connect to server"
+msgstr "ﺪﺸﻧ ﻦﮑﻤﻣ ﺭﻭﺮﺳ ﻪﺑ ﻝﺎﺼﺗﺍ"
+
+msgid "Disconnected"
+msgstr "ﻩﺪﺷ ﻊﻄﻗ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ﺖﺳﺍ ﻩﺪﺷ ﺩﺭ ﻞﯿﻟﺩ ﺎﺑ ﺪﯾﺪﺟ ﻁﺎﺒﺗﺭﺍ"
+
+msgid "New connection has been rejected"
+msgstr "ﺖﺳﺍ ﻩﺪﺷ ﺩﺭ ﺪﯾﺪﺟ ﻝﺎﺼﺗﺍ"
+
+msgid "Credentials are required"
+msgstr "ﺖﺳﺍ ﻡﺯﻻ﻿ ﮎﺭﺍﺪﻣ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:"
+
+msgid "Hide/Show the control bar"
+msgstr "ﻝﺮﺘﻨﮐ ﺭﺍﻮﻧ ﺶﯾﺎﻤﻧ/ﻥﺩﺮﮐ ﻥﺎﻬﻨﭘ"
+
+msgid "Drag"
+msgstr "ﻥﺪﯿﺸﮐ"
+
+msgid "Move/Drag Viewport"
+msgstr "Move/Drag Viewport"
+
+msgid "Keyboard"
+msgstr "ﺪﯿﻠﮐ ﻪﺤﻔﺻ"
+
+msgid "Show Keyboard"
+msgstr "ﺪﯿﻠﮐ ﻪﺤﻔﺻ ﺶﯾﺎﻤﻧ"
+
+msgid "Extra keys"
+msgstr "ﯽﻓﺎﺿﺍ ﯼﺎﻫﺪﯿﻠﮐ"
+
+msgid "Show Extra Keys"
+msgstr "ﯽﻓﺎﺿﺍ ﯼﺎﻫﺪﯿﻠﮐ ﺶﯾﺎﻤﻧ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ﺮﯿﯿﻐﺗ"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt ﺮﯿﯿﻐﺗ"
+
+msgid "Toggle Windows"
+msgstr "ﺯﻭﺪﻨﯾﻭ ﺮﯿﯿﻐﺗ"
+
+msgid "Windows"
+msgstr "ﺎﻫ ﻩﺮﺠﻨﭘ"
+
+msgid "Send Tab"
+msgstr "ﻪﮔﺮﺑ ﻝﺎﺳﺭﺍ"
+
+msgid "Tab"
+msgstr "ﺐﺗ"
+
+msgid "Esc"
+msgstr "ﺝﻭﺮﺧ"
+
+msgid "Send Escape"
+msgstr "ﺭﺍﺮﻓ ﻝﺎﺳﺭﺍ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ﻝﺎﺳﺭﺍ"
+
+msgid "Shutdown/Reboot"
+msgstr "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ"
+
+msgid "Shutdown/Reboot..."
+msgstr ".ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ"
+
+msgid "Power"
+msgstr "ﺕﺭﺪﻗ"
+
+msgid "Shutdown"
+msgstr "ﻥﺪﺷ ﺵﻮﻣﺎﺧ"
+
+msgid "Reboot"
+msgstr "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ"
+
+msgid "Reset"
+msgstr "ﯽﻧﺎﺸﻧﺯﺎﺑ"
+
+msgid "Clipboard"
+msgstr "ﺩﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "Clear"
+msgstr "ﻥﺩﺮﮐ ﮎﺎﭘ"
+
+msgid "Fullscreen"
+msgstr "ﻪﺤﻔﺻ ﻡﺎﻤﺗ"
+
+msgid "Settings"
+msgstr "ﺕﺎﻤﯿﻈﻨﺗ"
+
+msgid "Shared Mode"
+msgstr "ﯽﮐﺍﺮﺘﺷﺍ ﺖﻟﺎﺣ"
+
+msgid "View Only"
+msgstr "ﻩﺪﻫﺎﺸﻣ ﻂﻘﻓ"
+
+msgid "Clip to Window"
+msgstr "ﻩﺮﺠﻨﭘ ﻪﺑ ﭗﯿﻠﮐ"
+
+msgid "Scaling Mode:"
+msgstr "ﯼﺪﻨﺑ ﺱﺎﯿﻘﻣ ﺖﻟﺎﺣ"
+
+msgid "None"
+msgstr "ﮏﯾ ﭻﯿﻫ"
+
+msgid "Local Scaling"
+msgstr "ﯽﻠﺤﻣ ﯼﺪﻨﺑ ﺱﺎﯿﻘﻣ"
+
+msgid "Remote Resizing"
+msgstr "ﺭﻭﺩ ﻩﺍﺭ ﺯﺍ ﻩﺯﺍﺪﻧﺍ ﺮﯿﯿﻐﺗ"
+
+msgid "Advanced"
+msgstr "ﻪﺘﻓﺮﺸﯿﭘ"
+
+msgid "Quality:"
+msgstr "ﺖﯿﻔﯿﮐ"
+
+msgid "Compression level:"
+msgstr "ﯼﺯﺎﺳ ﻩﺩﺮﺸﻓ ﺢﻄﺳ"
+
+msgid "Repeater ID:"
+msgstr "ﻩﺪﻨﻨﮐ ﺭﺍﺮﮑﺗ ﻪﺳﺎﻨﺷ"
+
+msgid "WebSocket"
+msgstr "ﺖﮐﻮﺳ ﺏﻭ"
+
+msgid "Encrypt"
+msgstr "ﯼﺭﺍﺬﮔﺰﻣﺭ"
+
+msgid "Host:"
+msgstr "ﻥﺎﺑﺰﯿﻣ"
+
+msgid "Port:"
+msgstr "ﺭﺪﻨﺑ"
+
+msgid "Path:"
+msgstr "ﺮﯿﺴﻣ"
+
+msgid "Automatic Reconnect"
+msgstr "ﺭﺎﮐﺩﻮﺧ ﺩﺪﺠﻣ ﻝﺎﺼﺗﺍ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "(ms) ﺩﺪﺠﻣ ﻝﺎﺼﺗﺍ ﺮﯿﺧﺎﺗ"
+
+msgid "Show Dot when No Cursor"
+msgstr "ﺎﻤﻧ ﻥﺎﮑﻣ ﻡﺪﻋ ﺕﺭﻮﺻ ﺭﺩ ﻪﻄﻘﻧ ﺶﯾﺎﻤﻧ"
+
+msgid "Logging:"
+msgstr "ﻢﺘﺴﯿﺳ ﻪﺑ ﺩﻭﺭﻭ"
+
+msgid "Version:"
+msgstr "ﻪﺨﺴﻧ"
+
+msgid "Disconnect"
+msgstr "ﻥﺪﺷ ﻊﻄﻗ"
+
+msgid "Connect"
+msgstr "ﻝﺎﺼﺗﺍ"
+
+msgid "Username:"
+msgstr "ﯼﺮﺑﺭﺎﮐ ﻡﺎﻧ"
+
+msgid "Password:"
+msgstr "ﺭﻮﺒﻋ ﻪﻤﻠﮐ"
+
+msgid "Send Credentials"
+msgstr "ﯼﺭﺎﺒﺘﻋﺍ ﮎﺭﺍﺪﻣ ﻝﺎﺳﺭﺍ"
+
+msgid "Cancel"
+msgstr "ﻮﻐﻟ"
+
+msgid "Keys"
+msgstr "ﺎﻫﺪﯿﻠﮐ"
+
+msgid "Game Cursor Mode"
+msgstr "ﯼﺯﺎﺑ ﺎﻤﻧ ﻥﺎﮑﻣ ﺖﻟﺎﺣ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ﺪﯿﻫﺩ ﺭﺎﺸﻓ ﺮﮔ ﻩﺭﺎﺷﺍ ﻞﻔﻗ ﺖﻟﺎﺣ ﺯﺍ ﺝﻭﺮﺧ ﯼﺍﺮﺑ ﺍﺭ Esc ﺪﯿﻠﮐ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ﺪﯿﻨﮐ ﮏﯿﻠﮐ ﻪﺤﻔﺻ ﯼﻭﺭ ﯼﺯﺎﺑ ﺖﻟﺎﺣ ﯼﺮﯿﮔﺮﺳ ﺯﺍ ﯼﺍﺮﺑ ،ﺪﺷ ﻒﻗﻮﺘﻣ ﯼﺯﺎﺑ ﺖﻟﺎﺣ"
+
+msgid "Clipboard Up"
+msgstr "ﺩﺭﻮﺑ ﭗﯿﻠﮐ ﻻ﻿ﺎﺑ"
+
+msgid "CLipboard Down"
+msgstr "ﻦﯿﯾﺎﭘ ﺩﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "Clipboard Seamless"
+msgstr "ﺯﺭﺩ ﻥﻭﺪﺑ ﺩﺭﻮﺑ ﭗﯿﻠﮐ"
+
+msgid "Prefer Local Cursor"
+msgstr "ﯽﻠﺤﻣ ﺎﻤﻧ ﻥﺎﮑﻣ ﺢﯿﺟﺮﺗ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ﺪﯿﻠﮐ ﻪﺤﻔﺻ ﯼﺎﻫﺮﺒﻧﺎﯿﻣ ﻪﻤﺟﺮﺗ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit ﻥﺩﺮﮐ ﻝﺎﻌﻓ"
+
+msgid "Enable WebP Compression"
+msgstr "WebP ﯼﺯﺎﺳ ﻩﺩﺮﺸﻓ ﻥﺩﺮﮐ ﻝﺎﻌﻓ"
+
+msgid "Enable Performance Stats"
+msgstr "ﺩﺮﮑﻠﻤﻋ ﺭﺎﻣﺁ ﻥﺩﺮﮐ ﻝﺎﻌﻓ"
+
+msgid "Enable Pointer Lock"
+msgstr "Pointer Lock ﻥﺩﺮﮐ ﻝﺎﻌﻓ"
+
+msgid "IME Input Mode"
+msgstr "IME ﯼﺩﻭﺭﻭ ﺖﻟﺎﺣ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ﯼﺯﺎﺠﻣ ﺪﯿﻠﮐ ﻪﺤﻔﺻ ﻝﺮﺘﻨﮐ ﺶﯾﺎﻤﻧ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "ﺪﯿﻠﮐ ﻥﺩﺍﺩ ﺭﺎﺸﻓ ﻖﯾﺮﻃ ﺯﺍ ﻞﻨﭘ ﻝﺮﺘﻨﮐ ﺮﯿﯿﻐﺗ"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "ﺪﯿﻠﮐ ﻪﺤﻔﺻ ﯼﺎﻫﺮﺒﻧﺎﯿﻣ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ﺪﯿﻠﮐ ﻪﺤﻔﺻ ﯼﺎﻫﺮﺒﻧﺎﯿﻣ ﻥﺩﺮﮐ ﻝﺎﻌﻓ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "ﺪﯿﻫﺩ ﺮﯿﯿﻐﺗ ﺍﺭ ﻞﻨﭘ ﻝﺮﺘﻨﮐ - 1"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "ﯼﺯﺎﺑ ﺮﮕﻧﺎﺸﻧ ﺖﻟﺎﺣ ﺮﯿﯿﻐﺗ - 2"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "ﺪﯿﻫﺩ ﺮﯿﯿﻐﺗ ﺍﺭ ﺮﮕﻧﺎﺸﻧ ﻞﻔﻗ - 3"
+
+msgid "Stream Quality"
+msgstr "ﻥﺎﯾﺮﺟ ﺖﯿﻔﯿﮐ"
+
+msgid "Preset Modes:"
+msgstr "ﻩﺪﺷ ﻦﯿﯿﻌﺗ ﺶﯿﭘ ﺯﺍ ﯼﺎﻫ ﺖﻟﺎﺣ"
+
+msgid "Static"
+msgstr "ﺎﺘﺴﯾﺍ"
+
+msgid "Low"
+msgstr "ﻢﮐ"
+
+msgid "Medium"
+msgstr "ﻂﺳﻮﺘﻣ"
+
+msgid "High"
+msgstr "ﻻ﻿ﺎﺑ"
+
+msgid "Extreme"
+msgstr "ﻁﺮﻔﻣ"
+
+msgid "Lossless"
+msgstr "ﺭﺮﺿ ﯽﺑ"
+
+msgid "Custom"
+msgstr "ﯽﺷﺭﺎﻔﺳ"
+
+msgid "Anti-Aliasing:"
+msgstr "ﮓﻨﯿﺳﺎﯿﻟﺁ ﺪﺿ"
+
+msgid "Auto Dynamic"
+msgstr "ﺭﺎﮐﺩﻮﺧ ﮏﯿﻣﺎﻨﯾﺩ"
+
+msgid "Off"
+msgstr "ﺵﻮﻣﺎﺧ"
+
+msgid "On"
+msgstr "ﺮﺑ"
+
+msgid "Dynamic Quality Min:"
+msgstr "ﺎﯾﻮﭘ ﺖﯿﻔﯿﮐ ﻞﻗﺍﺪﺣ"
+
+msgid "Dynamic Quality Max:"
+msgstr "ﺎﯾﻮﭘ ﺖﯿﻔﯿﮐ ﺮﺜﮐﺍﺪﺣ"
+
+msgid "Treat Lossless:"
+msgstr "ﺭﺮﺿ ﻥﻭﺪﺑ ﻥﺎﻣﺭﺩ"
+
+msgid "Frame Rate:"
+msgstr "ﻢﯾﺮﻓ ﺥﺮﻧ"
+
+msgid "Video JPEG Quality:"
+msgstr "JPEG ﻮﺋﺪﯾﻭ ﺖﯿﻔﯿﮐ"
+
+msgid "Video WEBP Quality:"
+msgstr "ﻮﺋﺪﯾﻭ WEBP ﺖﯿﻔﯿﮐ"
+
+msgid "Video Area:"
+msgstr "ﻮﺋﺪﯾﻭ ﻪﻘﻄﻨﻣ"
+
+msgid "Video Time:"
+msgstr "ﻮﺋﺪﯾﻭ ﻥﺎﻣﺯ"
+
+msgid "Video Out Time:"
+msgstr "ﻮﺋﺪﯾﻭ ﺝﻭﺮﺧ ﻥﺎﻣﺯ"
+
+msgid "Video Mode Width:"
+msgstr "ﻮﺋﺪﯾﻭ ﺖﻟﺎﺣ ﺽﺮﻋ"
+
+msgid "Video Mode Height:"
+msgstr "ﻮﺋﺪﯾﻭ ﺖﻟﺎﺣ ﻉﺎﻔﺗﺭﺍ"
+
+msgid "Documentation"
+msgstr "ﺕﺍﺪﻨﺘﺴﻣ"
+
+msgid "Drag Viewport"
+msgstr "ﺕﺭﻮﭙﯾﺎﻤﻧ ﮒﺭﺩ"

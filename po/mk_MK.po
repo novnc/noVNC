@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Се поврзува..."
+
+msgid "Disconnecting..."
+msgstr "Се исклучува..."
+
+msgid "Reconnecting..."
+msgstr "Повторно поврзување..."
+
+msgid "Internal error"
+msgstr "Внатрешна грешка"
+
+msgid "Must set host"
+msgstr "Мора да се постави домаќин"
+
+msgid "Connected (encrypted) to "
+msgstr "Поврзан (шифриран) со"
+
+msgid "Connected (unencrypted) to "
+msgstr "Поврзано (нешифрирано) со"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Нешто тргна наопаку, врската е затворена"
+
+msgid "Failed to connect to server"
+msgstr "Не можам да се поврзам на серверот"
+
+msgid "Disconnected"
+msgstr "Исклучено"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Новата врска е отфрлена со причина:"
+
+msgid "New connection has been rejected"
+msgstr "Новата врска е одбиена"
+
+msgid "Credentials are required"
+msgstr "Потребни се акредитиви"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC наиде на грешка:"
+
+msgid "Hide/Show the control bar"
+msgstr "Сокриј/Покажи ја контролната лента"
+
+msgid "Drag"
+msgstr "Повлечете"
+
+msgid "Move/Drag Viewport"
+msgstr "Премести/Повлечете го приказот"
+
+msgid "Keyboard"
+msgstr "Тастатура"
+
+msgid "Show Keyboard"
+msgstr "Прикажи тастатура"
+
+msgid "Extra keys"
+msgstr "Дополнителни клучеви"
+
+msgid "Show Extra Keys"
+msgstr "Прикажи дополнителни клучеви"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Премести Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Вклучи Alt"
+
+msgid "Toggle Windows"
+msgstr "Премести Windows"
+
+msgid "Windows"
+msgstr "Виндоус"
+
+msgid "Send Tab"
+msgstr "Испрати јазиче"
+
+msgid "Tab"
+msgstr "Таб"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Испрати бегство"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Испрати Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Исклучување/рестартирање"
+
+msgid "Shutdown/Reboot..."
+msgstr "Исклучување/рестартирање..."
+
+msgid "Power"
+msgstr "Моќ"
+
+msgid "Shutdown"
+msgstr "Исклучи"
+
+msgid "Reboot"
+msgstr "Рестартирај"
+
+msgid "Reset"
+msgstr "Ресетирање"
+
+msgid "Clipboard"
+msgstr "Табла со исечоци"
+
+msgid "Clear"
+msgstr "Јасно"
+
+msgid "Fullscreen"
+msgstr "Цел екран"
+
+msgid "Settings"
+msgstr "Поставки"
+
+msgid "Shared Mode"
+msgstr "Споделен режим"
+
+msgid "View Only"
+msgstr "Само преглед"
+
+msgid "Clip to Window"
+msgstr "Клип до прозорец"
+
+msgid "Scaling Mode:"
+msgstr "Режим на скалирање:"
+
+msgid "None"
+msgstr "Никој"
+
+msgid "Local Scaling"
+msgstr "Локално скалирање"
+
+msgid "Remote Resizing"
+msgstr "Далечинска промена на големината"
+
+msgid "Advanced"
+msgstr "Напредно"
+
+msgid "Quality:"
+msgstr "Квалитет:"
+
+msgid "Compression level:"
+msgstr "Ниво на компресија:"
+
+msgid "Repeater ID:"
+msgstr "ID на повторувач:"
+
+msgid "WebSocket"
+msgstr "Вебсокет"
+
+msgid "Encrypt"
+msgstr "Шифрирај"
+
+msgid "Host:"
+msgstr "Домаќин:"
+
+msgid "Port:"
+msgstr "Пристаниште:"
+
+msgid "Path:"
+msgstr "Пат:"
+
+msgid "Automatic Reconnect"
+msgstr "Автоматско повторно поврзување"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Одложено повторно поврзување (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Прикажи точка кога нема курсор"
+
+msgid "Logging:"
+msgstr "Сеча:"
+
+msgid "Version:"
+msgstr "Верзија:"
+
+msgid "Disconnect"
+msgstr "Исклучи се"
+
+msgid "Connect"
+msgstr "Поврзи"
+
+msgid "Username:"
+msgstr "Корисничко име:"
+
+msgid "Password:"
+msgstr "Лозинка:"
+
+msgid "Send Credentials"
+msgstr "Испрати ингеренции"
+
+msgid "Cancel"
+msgstr "Откажи"
+
+msgid "Keys"
+msgstr "Клучеви"
+
+msgid "Game Cursor Mode"
+msgstr "Режим на курсорот на играта"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Притиснете го копчето Esc за да излезете од режимот за заклучување на покажувачот"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Режимот на игра е паузиран, кликнете на екранот за да продолжите со режимот на игра."
+
+msgid "Clipboard Up"
+msgstr "Таблата со исечоци нагоре"
+
+msgid "CLipboard Down"
+msgstr "Клипборд надолу"
+
+msgid "Clipboard Seamless"
+msgstr "Безшевната табла со исечоци"
+
+msgid "Prefer Local Cursor"
+msgstr "Преферирај локален курсор"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Преведи кратенки на тастатурата"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Овозможи WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Овозможи компресија на WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Овозможи статистика за перформанси"
+
+msgid "Enable Pointer Lock"
+msgstr "Овозможи заклучување на покажувачот"
+
+msgid "IME Input Mode"
+msgstr "Режим за внесување IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Прикажи контрола на виртуелна тастатура"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Вклучете ја контролната табла преку притискање на копчињата"
+
+msgid "Render Native Resolution"
+msgstr "Изнеси мајчин резолуција"
+
+msgid "Keyboard Shortcuts"
+msgstr "Кратенки на тастатурата"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Овозможи кратенки на тастатура KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Вклучи контролен панел"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Вклучи го режимот на покажувачот на играта"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Вклучи заклучување на покажувачот"
+
+msgid "Stream Quality"
+msgstr "Квалитет на пренос"
+
+msgid "Preset Modes:"
+msgstr "Претпоставени режими:"
+
+msgid "Static"
+msgstr "статички"
+
+msgid "Low"
+msgstr "Ниско"
+
+msgid "Medium"
+msgstr "Среден"
+
+msgid "High"
+msgstr "високо"
+
+msgid "Extreme"
+msgstr "Екстремно"
+
+msgid "Lossless"
+msgstr "Без загуба"
+
+msgid "Custom"
+msgstr "Прилагодено"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Автодинамика"
+
+msgid "Off"
+msgstr "Исклучено"
+
+msgid "On"
+msgstr "На"
+
+msgid "Dynamic Quality Min:"
+msgstr "Мин динамички квалитет:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Макс за динамички квалитет:"
+
+msgid "Treat Lossless:"
+msgstr "Третирајте без загуба:"
+
+msgid "Frame Rate:"
+msgstr "Стапка на слики:"
+
+msgid "Video JPEG Quality:"
+msgstr "Квалитет на видео JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Видео WEBP квалитет:"
+
+msgid "Video Area:"
+msgstr "Видео област:"
+
+msgid "Video Time:"
+msgstr "Време за видео:"
+
+msgid "Video Out Time:"
+msgstr "Време на излегување на видеото:"
+
+msgid "Video Mode Width:"
+msgstr "Ширина на видео режим:"
+
+msgid "Video Mode Height:"
+msgstr "Висина на режимот на видео:"
+
+msgid "Documentation"
+msgstr "Документација"
+
+msgid "Drag Viewport"
+msgstr "Повлечете го погледот"

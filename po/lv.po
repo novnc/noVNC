@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Notiek savienojuma izveide..."
+
+msgid "Disconnecting..."
+msgstr "Notiek savienojuma atvienošana..."
+
+msgid "Reconnecting..."
+msgstr "Notiek savienojuma atjaunošana..."
+
+msgid "Internal error"
+msgstr "Iekšēja kļūda"
+
+msgid "Must set host"
+msgstr "Jāiestata saimniekdators"
+
+msgid "Connected (encrypted) to "
+msgstr "Savienots (šifrēts) ar"
+
+msgid "Connected (unencrypted) to "
+msgstr "Savienots (nešifrēts) ar "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Kaut kas nogāja greizi, savienojums ir slēgts"
+
+msgid "Failed to connect to server"
+msgstr "Neizdevās izveidot savienojumu ar serveri"
+
+msgid "Disconnected"
+msgstr "Atvienots"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Jauns savienojums ir noraidīts ar iemeslu:"
+
+msgid "New connection has been rejected"
+msgstr "Jauns savienojums ir noraidīts"
+
+msgid "Credentials are required"
+msgstr "Ir nepieciešami akreditācijas dati"
+
+msgid "noVNC encountered an error:"
+msgstr "NoVNC radās kļūda:"
+
+msgid "Hide/Show the control bar"
+msgstr "Paslēpt/rādīt vadības joslu"
+
+msgid "Drag"
+msgstr "velciet"
+
+msgid "Move/Drag Viewport"
+msgstr "Pārvietot/velciet skata logs"
+
+msgid "Keyboard"
+msgstr "Tastatūra"
+
+msgid "Show Keyboard"
+msgstr "Rādīt tastatūru"
+
+msgid "Extra keys"
+msgstr "Papildu atslēgas"
+
+msgid "Show Extra Keys"
+msgstr "Rādīt papildu atslēgas"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Pārslēgt Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Pārslēgt Alt"
+
+msgid "Toggle Windows"
+msgstr "Pārslēgt Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Sūtīt cilni"
+
+msgid "Tab"
+msgstr "Cilne"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Sūtīt bēgšanu"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Sūtīt Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Izslēgšana/atsāknēšana"
+
+msgid "Shutdown/Reboot..."
+msgstr "Shutdown/Reboot..."
+
+msgid "Power"
+msgstr "Spēks"
+
+msgid "Shutdown"
+msgstr "Izslēgt"
+
+msgid "Reboot"
+msgstr "Reboot"
+
+msgid "Reset"
+msgstr "Atiestatīt"
+
+msgid "Clipboard"
+msgstr "Starpliktuve"
+
+msgid "Clear"
+msgstr "Notīrīt"
+
+msgid "Fullscreen"
+msgstr "Pilnekrāna režīms"
+
+msgid "Settings"
+msgstr "Iestatījumi"
+
+msgid "Shared Mode"
+msgstr "Koplietotais režīms"
+
+msgid "View Only"
+msgstr "Tikai skatīt"
+
+msgid "Clip to Window"
+msgstr "Klips uz logu"
+
+msgid "Scaling Mode:"
+msgstr "Mērogošanas režīms:"
+
+msgid "None"
+msgstr "Neviens"
+
+msgid "Local Scaling"
+msgstr "Vietējā mērogošana"
+
+msgid "Remote Resizing"
+msgstr "Attālā izmēra maiņa"
+
+msgid "Advanced"
+msgstr "Papildu"
+
+msgid "Quality:"
+msgstr "Kvalitāte:"
+
+msgid "Compression level:"
+msgstr "Kompresijas līmenis:"
+
+msgid "Repeater ID:"
+msgstr "Atkārtotāja ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Šifrēt"
+
+msgid "Host:"
+msgstr "Saimnieks:"
+
+msgid "Port:"
+msgstr "Ports:"
+
+msgid "Path:"
+msgstr "Ceļš:"
+
+msgid "Automatic Reconnect"
+msgstr "Automātiska atkārtota savienošana"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Atkārtota savienojuma aizkave (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Rādīt punktu, kad nav kursora"
+
+msgid "Logging:"
+msgstr "Reģistrācija:"
+
+msgid "Version:"
+msgstr "Versija:"
+
+msgid "Disconnect"
+msgstr "Atvienot"
+
+msgid "Connect"
+msgstr "Savienot"
+
+msgid "Username:"
+msgstr "Lietotājvārds:"
+
+msgid "Password:"
+msgstr "Parole:"
+
+msgid "Send Credentials"
+msgstr "Sūtīt akreditācijas datus"
+
+msgid "Cancel"
+msgstr "Atcelt"
+
+msgid "Keys"
+msgstr "Atslēgas"
+
+msgid "Game Cursor Mode"
+msgstr "Spēles kursora režīms"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Nospiediet taustiņu Esc, lai izietu no rādītāja bloķēšanas režīma"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Spēles režīms apturēts, noklikšķiniet uz ekrāna, lai atsāktu spēles režīmu."
+
+msgid "Clipboard Up"
+msgstr "Starpliktuve uz augšu"
+
+msgid "CLipboard Down"
+msgstr "Starpliktuve uz leju"
+
+msgid "Clipboard Seamless"
+msgstr "Bezšuvju starpliktuves"
+
+msgid "Prefer Local Cursor"
+msgstr "Priekšroku lokālajam kursoram"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tulkot īsinājumtaustiņus"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Iespējot WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Iespējot WebP saspiešanu"
+
+msgid "Enable Performance Stats"
+msgstr "Iespējot veiktspējas statistiku"
+
+msgid "Enable Pointer Lock"
+msgstr "Iespējot rādītāja bloķēšanu"
+
+msgid "IME Input Mode"
+msgstr "IME ievades režīms"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Rādīt virtuālās tastatūras vadību"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Pārslēgt vadības paneli, izmantojot taustiņsitienus"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Tastatūras īsinājumtaustiņi"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Iespējot KasmVNC īsinājumtaustiņus"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 — pārslēgt vadības paneli"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 — pārslēgt spēles rādītāja režīmu"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 — pārslēgt rādītāja bloķēšanu"
+
+msgid "Stream Quality"
+msgstr "Straumes kvalitāte"
+
+msgid "Preset Modes:"
+msgstr "Iepriekš iestatītie režīmi:"
+
+msgid "Static"
+msgstr "Statisks"
+
+msgid "Low"
+msgstr "Zems"
+
+msgid "Medium"
+msgstr "Vidējs"
+
+msgid "High"
+msgstr "Augsti"
+
+msgid "Extreme"
+msgstr "Ekstrēms"
+
+msgid "Lossless"
+msgstr "Bez zaudējumiem"
+
+msgid "Custom"
+msgstr "Pielāgots"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Izslēgts"
+
+msgid "On"
+msgstr "Ieslēgts"
+
+msgid "Dynamic Quality Min:"
+msgstr "Minimālā dinamiskā kvalitāte:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maksimālā dinamiskā kvalitāte:"
+
+msgid "Treat Lossless:"
+msgstr "Ārstēt bez zaudējumiem:"
+
+msgid "Frame Rate:"
+msgstr "Kadru ātrums:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG kvalitāte:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP kvalitāte:"
+
+msgid "Video Area:"
+msgstr "Video apgabals:"
+
+msgid "Video Time:"
+msgstr "Video laiks:"
+
+msgid "Video Out Time:"
+msgstr "Video izlaiduma laiks:"
+
+msgid "Video Mode Width:"
+msgstr "Video režīma platums:"
+
+msgid "Video Mode Height:"
+msgstr "Video režīma augstums:"
+
+msgid "Documentation"
+msgstr "Dokumentācija"
+
+msgid "Drag Viewport"
+msgstr "Velciet skata logu"

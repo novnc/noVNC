@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Ulanilmoqda..."
+
+msgid "Disconnecting..."
+msgstr "Uzilish uzilmoqda..."
+
+msgid "Reconnecting..."
+msgstr "Qayta ulanmoqda..."
+
+msgid "Internal error"
+msgstr "Ichki xato"
+
+msgid "Must set host"
+msgstr "Xostni sozlash kerak"
+
+msgid "Connected (encrypted) to "
+msgstr "Ulangan (shifrlangan)"
+
+msgid "Connected (unencrypted) to "
+msgstr "Ulangan (shifrlanmagan)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Nimadir xato ketdi, ulanish yopildi"
+
+msgid "Failed to connect to server"
+msgstr "Serverga ulanib bo'lmadi"
+
+msgid "Disconnected"
+msgstr "Uzilgan"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Yangi ulanish sabab bilan rad etildi:"
+
+msgid "New connection has been rejected"
+msgstr "Yangi ulanish rad etildi"
+
+msgid "Credentials are required"
+msgstr "Hisob ma'lumotlari talab qilinadi"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC xatolikka duch keldi:"
+
+msgid "Hide/Show the control bar"
+msgstr "Boshqaruv panelini yashirish/ko'rsatish"
+
+msgid "Drag"
+msgstr "Tartib tashlang"
+
+msgid "Move/Drag Viewport"
+msgstr "Ko'rish maydonini ko'chirish/tortish"
+
+msgid "Keyboard"
+msgstr "Klaviatura"
+
+msgid "Show Keyboard"
+msgstr "Klaviaturani ko'rsatish"
+
+msgid "Extra keys"
+msgstr "Qo'shimcha kalitlar"
+
+msgid "Show Extra Keys"
+msgstr "Qo'shimcha kalitlarni ko'rsatish"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl tugmachasini o'zgartirish"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt tugmachasini o'zgartirish"
+
+msgid "Toggle Windows"
+msgstr "Windows-ni almashtirish"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Yuborish yorlig'i"
+
+msgid "Tab"
+msgstr "tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Qochishni yuborish"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del-ni yuborish"
+
+msgid "Shutdown/Reboot"
+msgstr "O'chirish/qayta yuklash"
+
+msgid "Shutdown/Reboot..."
+msgstr "O'chirish/qayta yuklash..."
+
+msgid "Power"
+msgstr "Kuch"
+
+msgid "Shutdown"
+msgstr "O'chirish; yopish"
+
+msgid "Reboot"
+msgstr "Qayta ishga tushirish"
+
+msgid "Reset"
+msgstr "Qayta o'rnatish"
+
+msgid "Clipboard"
+msgstr "Bufer yozuvi"
+
+msgid "Clear"
+msgstr "Tozalash"
+
+msgid "Fullscreen"
+msgstr "To'liq ekran"
+
+msgid "Settings"
+msgstr "Sozlamalar"
+
+msgid "Shared Mode"
+msgstr "Umumiy rejim"
+
+msgid "View Only"
+msgstr "Faqat ko'rish"
+
+msgid "Clip to Window"
+msgstr "Oynaga klip"
+
+msgid "Scaling Mode:"
+msgstr "Majshlash rejimi:"
+
+msgid "None"
+msgstr "Yo'q"
+
+msgid "Local Scaling"
+msgstr "Mahalliy o'lchov"
+
+msgid "Remote Resizing"
+msgstr "Masofaviy o'lchamni o'zgartirish"
+
+msgid "Advanced"
+msgstr "Kengaytirilgan"
+
+msgid "Quality:"
+msgstr "Sifat:"
+
+msgid "Compression level:"
+msgstr "Siqish darajasi:"
+
+msgid "Repeater ID:"
+msgstr "Takrorlovchi identifikatori:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "shifrlash"
+
+msgid "Host:"
+msgstr "Mezbon:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Yo'l:"
+
+msgid "Automatic Reconnect"
+msgstr "Avtomatik qayta ulanish"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Qayta ulanish kechikishi (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Kursor bo'lmaganda nuqtani ko'rsatish"
+
+msgid "Logging:"
+msgstr "Ro'yxatga olish:"
+
+msgid "Version:"
+msgstr "Versiya:"
+
+msgid "Disconnect"
+msgstr "Ajratish"
+
+msgid "Connect"
+msgstr "Ulanmoq"
+
+msgid "Username:"
+msgstr "Foydalanuvchi nomi:"
+
+msgid "Password:"
+msgstr "Parol:"
+
+msgid "Send Credentials"
+msgstr "Hisob ma'lumotlarini yuborish"
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "Keys"
+msgstr "Kalitlar"
+
+msgid "Game Cursor Mode"
+msgstr "O'yin kursori rejimi"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Ko'rsatkichni blokirovka qilish rejimidan chiqish uchun Esc tugmasini bosing"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "O'yin rejimi to'xtatildi, o'yin rejimini davom ettirish uchun ekranni bosing."
+
+msgid "Clipboard Up"
+msgstr "Bufer yuqoriga"
+
+msgid "CLipboard Down"
+msgstr "Klipboard pastga"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard uzluksiz"
+
+msgid "Prefer Local Cursor"
+msgstr "Mahalliy kursorni afzal ko'ring"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Klaviatura yorliqlarini tarjima qilish"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP tranzitini yoqish"
+
+msgid "Enable WebP Compression"
+msgstr "WebP siqishni yoqish"
+
+msgid "Enable Performance Stats"
+msgstr "Umumiylik statistikasini yoqish"
+
+msgid "Enable Pointer Lock"
+msgstr "Ko'rsatkich blokini yoqish"
+
+msgid "IME Input Mode"
+msgstr "IME kiritish rejimi"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Virtual klaviatura boshqaruvini ko'rsatish"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Boshqarish panelini tugmachalarni bosish orqali almashtirish"
+
+msgid "Render Native Resolution"
+msgstr "Native rezolyutsiyani ko'rsatish"
+
+msgid "Keyboard Shortcuts"
+msgstr "Klaviatura yorliqlari"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC klaviatura yorliqlarini yoqish"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Boshqaruv panelini almashtirish"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - o'yin ko'rsatkichi rejimini almashtirish"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Pointer qulfini almashtirish"
+
+msgid "Stream Quality"
+msgstr "Oqim sifati"
+
+msgid "Preset Modes:"
+msgstr "Oldindan o'rnatilgan rejimlar:"
+
+msgid "Static"
+msgstr "Statik"
+
+msgid "Low"
+msgstr "past"
+
+msgid "Medium"
+msgstr "O'rta"
+
+msgid "High"
+msgstr "Yuqori"
+
+msgid "Extreme"
+msgstr "Ekstremal"
+
+msgid "Lossless"
+msgstr "Yo'qotishsiz"
+
+msgid "Custom"
+msgstr "Maxsus"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Avto dinamik"
+
+msgid "Off"
+msgstr "O'chirilgan"
+
+msgid "On"
+msgstr "yoqilgan"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dinamik sifat minimal:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maksimum dinamik sifat:"
+
+msgid "Treat Lossless:"
+msgstr "Yo'qotmasdan davolang:"
+
+msgid "Frame Rate:"
+msgstr "Kadr tezligi:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG sifati:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP sifati:"
+
+msgid "Video Area:"
+msgstr "Video maydoni:"
+
+msgid "Video Time:"
+msgstr "Video vaqti:"
+
+msgid "Video Out Time:"
+msgstr "Video chiqish vaqti:"
+
+msgid "Video Mode Width:"
+msgstr "Video rejimining kengligi:"
+
+msgid "Video Mode Height:"
+msgstr "Video rejimi balandligi:"
+
+msgid "Documentation"
+msgstr "Hujjatlar"
+
+msgid "Drag Viewport"
+msgstr "Ko'rish oynasini sudrab olib boring"

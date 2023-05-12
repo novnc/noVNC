@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Pripája sa..."
+
+msgid "Disconnecting..."
+msgstr "Odpája sa..."
+
+msgid "Reconnecting..."
+msgstr "Opätovné pripojenie..."
+
+msgid "Internal error"
+msgstr "Vnútorná chyba"
+
+msgid "Must set host"
+msgstr "Musíte nastaviť hostiteľa"
+
+msgid "Connected (encrypted) to "
+msgstr "Pripojené (šifrované) k "
+
+msgid "Connected (unencrypted) to "
+msgstr "Pripojené (nešifrované) k "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Vyskytol sa problém, pripojenie je zatvorené"
+
+msgid "Failed to connect to server"
+msgstr "Nepodarilo sa pripojiť k serveru"
+
+msgid "Disconnected"
+msgstr "Odpojené"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nové pripojenie bolo odmietnuté s dôvodom: "
+
+msgid "New connection has been rejected"
+msgstr "Nové pripojenie bolo odmietnuté"
+
+msgid "Credentials are required"
+msgstr "Vyžadujú sa poverenia"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC zaznamenalo chybu:"
+
+msgid "Hide/Show the control bar"
+msgstr "Skryť/Zobraziť ovládací panel"
+
+msgid "Drag"
+msgstr "Pretiahnuť"
+
+msgid "Move/Drag Viewport"
+msgstr "Presunúť/pretiahnuť výrez"
+
+msgid "Keyboard"
+msgstr "klávesnica"
+
+msgid "Show Keyboard"
+msgstr "Zobraziť klávesnicu"
+
+msgid "Extra keys"
+msgstr "Extra kľúče"
+
+msgid "Show Extra Keys"
+msgstr "Zobraziť ďalšie kľúče"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Prepnúť Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Prepnúť Alt"
+
+msgid "Toggle Windows"
+msgstr "Prepnúť Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Odoslať kartu"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Poslať únik"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Odoslať Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Vypnutie/Reštart"
+
+msgid "Shutdown/Reboot..."
+msgstr "Vypnúť/Reštartovať..."
+
+msgid "Power"
+msgstr "Moc"
+
+msgid "Shutdown"
+msgstr "Vypnúť"
+
+msgid "Reboot"
+msgstr "Reštartovať"
+
+msgid "Reset"
+msgstr "Obnoviť"
+
+msgid "Clipboard"
+msgstr "schránka"
+
+msgid "Clear"
+msgstr "Jasný"
+
+msgid "Fullscreen"
+msgstr "Celá obrazovka"
+
+msgid "Settings"
+msgstr "Nastavenie"
+
+msgid "Shared Mode"
+msgstr "Zdieľaný režim"
+
+msgid "View Only"
+msgstr "Len prezerať"
+
+msgid "Clip to Window"
+msgstr "Klip do okna"
+
+msgid "Scaling Mode:"
+msgstr "Režim škálovania:"
+
+msgid "None"
+msgstr "žiadny"
+
+msgid "Local Scaling"
+msgstr "Miestne škálovanie"
+
+msgid "Remote Resizing"
+msgstr "Vzdialená zmena veľkosti"
+
+msgid "Advanced"
+msgstr "Pokročilé"
+
+msgid "Quality:"
+msgstr "Kvalita:"
+
+msgid "Compression level:"
+msgstr "Úroveň kompresie:"
+
+msgid "Repeater ID:"
+msgstr "ID opakovača:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "šifrovať"
+
+msgid "Host:"
+msgstr "Hostiteľ:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Cesta:"
+
+msgid "Automatic Reconnect"
+msgstr "Automatické opätovné pripojenie"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Oneskorenie opätovného pripojenia (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Zobraziť bodku, keď nie je žiadny kurzor"
+
+msgid "Logging:"
+msgstr "Prihlasovanie:"
+
+msgid "Version:"
+msgstr "Verzia:"
+
+msgid "Disconnect"
+msgstr "Odpojiť"
+
+msgid "Connect"
+msgstr "Pripojiť"
+
+msgid "Username:"
+msgstr "Používateľské meno:"
+
+msgid "Password:"
+msgstr "Heslo:"
+
+msgid "Send Credentials"
+msgstr "Odoslať poverenia"
+
+msgid "Cancel"
+msgstr "Zrušiť"
+
+msgid "Keys"
+msgstr "kľúče"
+
+msgid "Game Cursor Mode"
+msgstr "Režim herného kurzora"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Stlačením klávesu Esc ukončíte režim uzamknutia ukazovateľa"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Herný režim pozastavený, kliknutím na obrazovku obnovíte herný režim."
+
+msgid "Clipboard Up"
+msgstr "Schránka hore"
+
+msgid "CLipboard Down"
+msgstr "Schránka dole"
+
+msgid "Clipboard Seamless"
+msgstr "Bezšvová schránka"
+
+msgid "Prefer Local Cursor"
+msgstr "Uprednostniť miestny kurzor"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Preložiť klávesové skratky"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Povoliť WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Povoliť kompresiu WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Povoliť štatistiky výkonnosti"
+
+msgid "Enable Pointer Lock"
+msgstr "Povoliť uzamknutie ukazovateľa"
+
+msgid "IME Input Mode"
+msgstr "Režim vstupu IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Zobraziť ovládanie virtuálnej klávesnice"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Prepínanie ovládacieho panela pomocou klávesov"
+
+msgid "Render Native Resolution"
+msgstr "Vykresliť natívne rozlíšenie"
+
+msgid "Keyboard Shortcuts"
+msgstr "Klávesové skratky"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Povoliť klávesové skratky KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Prepnúť ovládací panel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Prepnúť režim ukazovateľa hry"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Prepnúť zámok ukazovateľa"
+
+msgid "Stream Quality"
+msgstr "Kvalita streamu"
+
+msgid "Preset Modes:"
+msgstr "Prednastavené režimy:"
+
+msgid "Static"
+msgstr "statický"
+
+msgid "Low"
+msgstr "nízka"
+
+msgid "Medium"
+msgstr "stredne"
+
+msgid "High"
+msgstr "vysoké"
+
+msgid "Extreme"
+msgstr "extrémne"
+
+msgid "Lossless"
+msgstr "bezstratový"
+
+msgid "Custom"
+msgstr "Vlastné"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "vypnuté"
+
+msgid "On"
+msgstr "zapnuté"
+
+msgid "Dynamic Quality Min:"
+msgstr "Minimálna dynamická kvalita:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maximálna dynamická kvalita:"
+
+msgid "Treat Lossless:"
+msgstr "Treat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Snímok za sekundu:"
+
+msgid "Video JPEG Quality:"
+msgstr "Kvalita videa JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP kvalita:"
+
+msgid "Video Area:"
+msgstr "Oblasť videa:"
+
+msgid "Video Time:"
+msgstr "Čas videa:"
+
+msgid "Video Out Time:"
+msgstr "Čas výstupu videa:"
+
+msgid "Video Mode Width:"
+msgstr "Šírka režimu videa:"
+
+msgid "Video Mode Height:"
+msgstr "Výška režimu videa:"
+
+msgid "Documentation"
+msgstr "dokumentácia"
+
+msgid "Drag Viewport"
+msgstr "Pretiahnuť výrez"

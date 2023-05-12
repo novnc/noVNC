@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Ag nascadh..."
+
+msgid "Disconnecting..."
+msgstr "Á dhícheangal..."
+
+msgid "Reconnecting..."
+msgstr "Athcheangail..."
+
+msgid "Internal error"
+msgstr "Earráid inmheánach"
+
+msgid "Must set host"
+msgstr "Ní mór óstach a shocrú"
+
+msgid "Connected (encrypted) to "
+msgstr "Ceangailte (criptithe) le"
+
+msgid "Connected (unencrypted) to "
+msgstr "Ceangailte (neamhchriptithe) le"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Tharla earráid, tá an nasc dúnta"
+
+msgid "Failed to connect to server"
+msgstr "Theip ar nascadh leis an bhfreastalaí"
+
+msgid "Disconnected"
+msgstr "Dícheangailte"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Diúltaíodh do cheangal nua le cúis:"
+
+msgid "New connection has been rejected"
+msgstr "Diúltaíodh do cheangal nua"
+
+msgid "Credentials are required"
+msgstr "Tá dintiúir ag teastáil"
+
+msgid "noVNC encountered an error:"
+msgstr "Tharla earráid ar noVNC:"
+
+msgid "Hide/Show the control bar"
+msgstr "Folaigh/Taispeáin an barra rialaithe"
+
+msgid "Drag"
+msgstr "Tarraing"
+
+msgid "Move/Drag Viewport"
+msgstr "Bog/Tarraing Viewport"
+
+msgid "Keyboard"
+msgstr "Méarchláir"
+
+msgid "Show Keyboard"
+msgstr "Taispeáin Méarchlár"
+
+msgid "Extra keys"
+msgstr "Eochracha breise"
+
+msgid "Show Extra Keys"
+msgstr "Taispeáin Eochracha Breise"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Scoránaigh Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Scoránaigh Alt"
+
+msgid "Toggle Windows"
+msgstr "Scoránaigh Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Seol Cluaisín"
+
+msgid "Tab"
+msgstr "Cluaisín"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Seol Éalú"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Seol Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Múchadh/Atosaigh"
+
+msgid "Shutdown/Reboot..."
+msgstr "Múchadh/Atosaigh..."
+
+msgid "Power"
+msgstr "Cumhacht"
+
+msgid "Shutdown"
+msgstr "Múchadh"
+
+msgid "Reboot"
+msgstr "Atosaigh"
+
+msgid "Reset"
+msgstr "Athshocraigh"
+
+msgid "Clipboard"
+msgstr "gearrthaisce"
+
+msgid "Clear"
+msgstr "Glan"
+
+msgid "Fullscreen"
+msgstr "Scáileán iomlán"
+
+msgid "Settings"
+msgstr "Socruithe"
+
+msgid "Shared Mode"
+msgstr "Mód Comhroinnte"
+
+msgid "View Only"
+msgstr "Amharc Amháin"
+
+msgid "Clip to Window"
+msgstr "Gearrtha go Fuinneog"
+
+msgid "Scaling Mode:"
+msgstr "Mód Scálú:"
+
+msgid "None"
+msgstr "Níl"
+
+msgid "Local Scaling"
+msgstr "Scálú Áitiúil"
+
+msgid "Remote Resizing"
+msgstr "Cianmhéid a Athrú"
+
+msgid "Advanced"
+msgstr "Casta"
+
+msgid "Quality:"
+msgstr "Caighdeán:"
+
+msgid "Compression level:"
+msgstr "Leibhéal comhbhrú:"
+
+msgid "Repeater ID:"
+msgstr "Aitheantas an Athsheoltóra:"
+
+msgid "WebSocket"
+msgstr "Soicéad Gréasáin"
+
+msgid "Encrypt"
+msgstr "Criptigh"
+
+msgid "Host:"
+msgstr "Óstríomhaire:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Conair:"
+
+msgid "Automatic Reconnect"
+msgstr "Athcheangail Uathoibríoch"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Athcheangail Moill (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Taispeáin Dot nuair Gan Cúrsóir"
+
+msgid "Logging:"
+msgstr "Logáil:"
+
+msgid "Version:"
+msgstr "Leagan:"
+
+msgid "Disconnect"
+msgstr "Dícheangail"
+
+msgid "Connect"
+msgstr "Ceangal"
+
+msgid "Username:"
+msgstr "Ainm úsáideora:"
+
+msgid "Password:"
+msgstr "Focal Faire:"
+
+msgid "Send Credentials"
+msgstr "Seol Dintiúir"
+
+msgid "Cancel"
+msgstr "Cealaigh"
+
+msgid "Keys"
+msgstr "Eochracha"
+
+msgid "Game Cursor Mode"
+msgstr "Mód Cúrsóir Cluiche"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Brúigh Esc Key chun Mód Glais Pointeora a Scoir"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Mód Cluiche ar sos, cliceáil ar an scáileán chun Mód Cluiche a atosú."
+
+msgid "Clipboard Up"
+msgstr "Gearrthaisce Suas"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Gearrthaisce gan uaim"
+
+msgid "Prefer Local Cursor"
+msgstr "Is fearr Cúrsóir Áitiúil"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Aistrigh aicearraí méarchláir"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Cumasaigh WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Cumasaigh Comhbhrú WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Cumasaigh Staitisticí Feidhmíochta"
+
+msgid "Enable Pointer Lock"
+msgstr "Cumasaigh Pointeoir Glas"
+
+msgid "IME Input Mode"
+msgstr "Mód Ionchuir IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Taispeáin Rialú Méarchlár Fíorúil"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Scoránaigh an Painéal Rialúcháin trí Eochairbhuillí"
+
+msgid "Render Native Resolution"
+msgstr "Render Taifeach Dúchasach"
+
+msgid "Keyboard Shortcuts"
+msgstr "Aicearraí méarchláir"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Cumasaigh Aicearraí Méarchláir KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Scoránaigh Painéal Rialúcháin"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Scoránaigh Mód Pointeora Cluiche"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Scoránaigh Glasáil Pointeora"
+
+msgid "Stream Quality"
+msgstr "Caighdeán Sruth"
+
+msgid "Preset Modes:"
+msgstr "Móid Réamhshocraithe:"
+
+msgid "Static"
+msgstr "Statach"
+
+msgid "Low"
+msgstr "Íseal"
+
+msgid "Medium"
+msgstr "Mheán"
+
+msgid "High"
+msgstr "Ard"
+
+msgid "Extreme"
+msgstr "Extreme"
+
+msgid "Lossless"
+msgstr "gan chailleadh"
+
+msgid "Custom"
+msgstr "Saincheaptha"
+
+msgid "Anti-Aliasing:"
+msgstr "Frith-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Uathdhinimiciúla"
+
+msgid "Off"
+msgstr "as"
+
+msgid "On"
+msgstr "ar"
+
+msgid "Dynamic Quality Min:"
+msgstr "Íosmhéid Cáilíochta Dinimiciúla:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Uasmhéid Cáilíochta Dinimiciúla:"
+
+msgid "Treat Lossless:"
+msgstr "Caitheamh gan chailleadh:"
+
+msgid "Frame Rate:"
+msgstr "Ráta fhráma:"
+
+msgid "Video JPEG Quality:"
+msgstr "Cáilíocht JPEG Físeáin:"
+
+msgid "Video WEBP Quality:"
+msgstr "Cáilíocht WEBP Físeáin:"
+
+msgid "Video Area:"
+msgstr "Réimse Físe:"
+
+msgid "Video Time:"
+msgstr "Am Físe:"
+
+msgid "Video Out Time:"
+msgstr "Fís Amach Am:"
+
+msgid "Video Mode Width:"
+msgstr "Leithead Mhód Físe:"
+
+msgid "Video Mode Height:"
+msgstr "Airde Mód Físe:"
+
+msgid "Documentation"
+msgstr "Doiciméad"
+
+msgid "Drag Viewport"
+msgstr "Tarraing Viewport"

@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Iyaxhuma..."
+
+msgid "Disconnecting..."
+msgstr "Inqamula..."
+
+msgid "Reconnecting..."
+msgstr "Iyaxhuma futhi..."
+
+msgid "Internal error"
+msgstr "Iphutha langaphakathi"
+
+msgid "Must set host"
+msgstr "Kumelwe usethe umsingathi"
+
+msgid "Connected (encrypted) to "
+msgstr "Kuxhunywe (kubethelwe) ku-"
+
+msgid "Connected (unencrypted) to "
+msgstr "Kuxhunywe (akubetheliwe) ku-"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Kukhona okungahambanga kahle, ukuxhumana kuvaliwe"
+
+msgid "Failed to connect to server"
+msgstr "Yehlulekile ukuxhuma kuseva"
+
+msgid "Disconnected"
+msgstr "Inqanyuliwe"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Uxhumano olusha lunqatshiwe ngesizathu: "
+
+msgid "New connection has been rejected"
+msgstr "Uxhumano olusha lunqatshiwe"
+
+msgid "Credentials are required"
+msgstr "Kudingeka izifakazo"
+
+msgid "noVNC encountered an error:"
+msgstr "i-noVNC ihlangabezane nephutha:"
+
+msgid "Hide/Show the control bar"
+msgstr "Fihla/Bonisa ibha yokulawula"
+
+msgid "Drag"
+msgstr "Hudula"
+
+msgid "Move/Drag Viewport"
+msgstr "Hambisa/Hudula imbobo yokubuka"
+
+msgid "Keyboard"
+msgstr "Ikhibhodi"
+
+msgid "Show Keyboard"
+msgstr "Bonisa Ikhibhodi"
+
+msgid "Extra keys"
+msgstr "Okhiye abengeziwe"
+
+msgid "Show Extra Keys"
+msgstr "Bonisa Okhiye Abangeziwe"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Shintsha u-Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Shintsha i-Alt"
+
+msgid "Toggle Windows"
+msgstr "Shintsha iWindows"
+
+msgid "Windows"
+msgstr "IWindows"
+
+msgid "Send Tab"
+msgstr "Thumela Ithebhu"
+
+msgid "Tab"
+msgstr "Ithebhu"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Thumela u-Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Thumela u-Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Vala/Qalisa kabusha"
+
+msgid "Shutdown/Reboot..."
+msgstr "Vala/Qalisa kabusha..."
+
+msgid "Power"
+msgstr "Amandla"
+
+msgid "Shutdown"
+msgstr "Vala shaqa"
+
+msgid "Reboot"
+msgstr "Qalisa kabusha"
+
+msgid "Reset"
+msgstr "Setha kabusha"
+
+msgid "Clipboard"
+msgstr "Ibhodi lokunamathisela"
+
+msgid "Clear"
+msgstr "Sula"
+
+msgid "Fullscreen"
+msgstr "Iskrini esigcwele"
+
+msgid "Settings"
+msgstr "Izilungiselelo"
+
+msgid "Shared Mode"
+msgstr "Imodi eyabiwe"
+
+msgid "View Only"
+msgstr "Buka Kuphela"
+
+msgid "Clip to Window"
+msgstr "Clip efasiteleni"
+
+msgid "Scaling Mode:"
+msgstr "Imodi yokukala:"
+
+msgid "None"
+msgstr "Lutho"
+
+msgid "Local Scaling"
+msgstr "Ukukala kwendawo"
+
+msgid "Remote Resizing"
+msgstr "Ukushintsha usayizi wesilawuli kude"
+
+msgid "Advanced"
+msgstr "Okuthuthukile"
+
+msgid "Quality:"
+msgstr "Ikhwalithi:"
+
+msgid "Compression level:"
+msgstr "Izinga lokucindezela:"
+
+msgid "Repeater ID:"
+msgstr "I-ID yesiphindi:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Bethela"
+
+msgid "Host:"
+msgstr "Umphathi:"
+
+msgid "Port:"
+msgstr "Imbobo:"
+
+msgid "Path:"
+msgstr "Indlela:"
+
+msgid "Automatic Reconnect"
+msgstr "Ukuxhuma kabusha okuzenzakalelayo"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Xhuma kabusha Ukubambezeleka (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Bonisa Ichashazi uma Lingekho Ikhesa"
+
+msgid "Logging:"
+msgstr "Ukugawula:"
+
+msgid "Version:"
+msgstr "Inguqulo:"
+
+msgid "Disconnect"
+msgstr "Nqamula"
+
+msgid "Connect"
+msgstr "Xhuma"
+
+msgid "Username:"
+msgstr "Igama lomsebenzisi:"
+
+msgid "Password:"
+msgstr "Iphasiwedi:"
+
+msgid "Send Credentials"
+msgstr "Thumela Imininingwane"
+
+msgid "Cancel"
+msgstr "Khansela"
+
+msgid "Keys"
+msgstr "Okhiye"
+
+msgid "Game Cursor Mode"
+msgstr "Imodi Yekhesa Yegeyimu"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Cindezela u-Esc Key ukuze uphume kumodi yokukhiya isikhombi"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Imodi yegeyimu imisiwe, chofoza esikrinini ukuze uqalise kabusha i-Game Mode."
+
+msgid "Clipboard Up"
+msgstr "Ibhodi lokunamathisela phezulu"
+
+msgid "CLipboard Down"
+msgstr "I-Clipboard Phansi"
+
+msgid "Clipboard Seamless"
+msgstr "Ibhodi lokunamathisela elingenamthungo"
+
+msgid "Prefer Local Cursor"
+msgstr "Ncamela ikhesa yasendaweni"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Humusha izinqamuleli zekhibhodi"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Vumela i-WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Vumela i-WebP Compression"
+
+msgid "Enable Performance Stats"
+msgstr "Vumela Izibalo Zokusebenza"
+
+msgid "Enable Pointer Lock"
+msgstr "Vumela Ukukhiya Kwesikhombi"
+
+msgid "IME Input Mode"
+msgstr "Imodi yokufaka ye-IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Show Virtual Keyboard Control"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Guqula Iphaneli Yokulawula ngokusebenzisa Izinkinobho Zokhiye"
+
+msgid "Render Native Resolution"
+msgstr "Nikeza isixazululo somdabu"
+
+msgid "Keyboard Shortcuts"
+msgstr "Izinqamuleli zekhibhodi"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Vumela Izinqamuleli Zekhibhodi ye-KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Guqula Iphaneli Yokulawula"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Guqula Imodi Yesikhombi Segeyimu"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Guqula Isikhiya Sesikhombi"
+
+msgid "Stream Quality"
+msgstr "Ikhwalithi yokusakaza"
+
+msgid "Preset Modes:"
+msgstr "Amamodi Asethiwe:"
+
+msgid "Static"
+msgstr "I-Static"
+
+msgid "Low"
+msgstr "Phansi"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "High"
+msgstr "Phezulu"
+
+msgid "Extreme"
+msgstr "Okudlulele"
+
+msgid "Lossless"
+msgstr "Ngalahlekelwa"
+
+msgid "Custom"
+msgstr "Ngokwezifiso"
+
+msgid "Anti-Aliasing:"
+msgstr "I-anti aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Valiwe"
+
+msgid "On"
+msgstr "Vula"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamic Quality Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamic Quality Max:"
+
+msgid "Treat Lossless:"
+msgstr "Phatha Ukulahlekelwa:"
+
+msgid "Frame Rate:"
+msgstr "Ukukalwa kwe fulemu:"
+
+msgid "Video JPEG Quality:"
+msgstr "Ikhwalithi ye-JPEG yevidiyo:"
+
+msgid "Video WEBP Quality:"
+msgstr "Ikhwalithi ye-WEBP yevidiyo:"
+
+msgid "Video Area:"
+msgstr "Indawo yevidiyo:"
+
+msgid "Video Time:"
+msgstr "Isikhathi Sevidiyo:"
+
+msgid "Video Out Time:"
+msgstr "Isikhathi Sokuphela Kwevidiyo:"
+
+msgid "Video Mode Width:"
+msgstr "Ububanzi bemodi yevidiyo:"
+
+msgid "Video Mode Height:"
+msgstr "Ubude bemodi yevidiyo:"
+
+msgid "Documentation"
+msgstr "Amadokhumenti"
+
+msgid "Drag Viewport"
+msgstr "Hudula imbobo yokubuka"

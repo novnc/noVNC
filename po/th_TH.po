@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "กำลังเชื่อมต่อ..."
+
+msgid "Disconnecting..."
+msgstr "กำลังตัดการเชื่อมต่อ..."
+
+msgid "Reconnecting..."
+msgstr "กำลังเชื่อมต่อใหม่..."
+
+msgid "Internal error"
+msgstr "ข้อผิดพลาดภายใน"
+
+msgid "Must set host"
+msgstr "ต้องตั้งค่าโฮสต์"
+
+msgid "Connected (encrypted) to "
+msgstr "เชื่อมต่อ (เข้ารหัส) กับ "
+
+msgid "Connected (unencrypted) to "
+msgstr "เชื่อมต่อ (ไม่ได้เข้ารหัส) กับ "
+
+msgid "Something went wrong, connection is closed"
+msgstr "เกิดข้อผิดพลาด การเชื่อมต่อถูกปิด"
+
+msgid "Failed to connect to server"
+msgstr "ล้มเหลวในการเชื่อมต่อกับเซิร์ฟเวอร์"
+
+msgid "Disconnected"
+msgstr "ตัดการเชื่อมต่อ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "การเชื่อมต่อใหม่ถูกปฏิเสธด้วยเหตุผล: "
+
+msgid "New connection has been rejected"
+msgstr "การเชื่อมต่อใหม่ถูกปฏิเสธ"
+
+msgid "Credentials are required"
+msgstr "จำเป็นต้องมีข้อมูลประจำตัว"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC พบข้อผิดพลาด:"
+
+msgid "Hide/Show the control bar"
+msgstr "ซ่อน/แสดงแถบควบคุม"
+
+msgid "Drag"
+msgstr "ลาก"
+
+msgid "Move/Drag Viewport"
+msgstr "ย้าย/ลากวิวพอร์ต"
+
+msgid "Keyboard"
+msgstr "คีย์บอร์ด"
+
+msgid "Show Keyboard"
+msgstr "แสดงแป้นพิมพ์"
+
+msgid "Extra keys"
+msgstr "กุญแจเสริม"
+
+msgid "Show Extra Keys"
+msgstr "แสดงคีย์พิเศษ"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "สลับ Ctrl"
+
+msgid "Alt"
+msgstr "อัลท์"
+
+msgid "Toggle Alt"
+msgstr "สลับ Alt"
+
+msgid "Toggle Windows"
+msgstr "สลับหน้าต่าง"
+
+msgid "Windows"
+msgstr "หน้าต่าง"
+
+msgid "Send Tab"
+msgstr "แท็บส่ง"
+
+msgid "Tab"
+msgstr "แท็บ"
+
+msgid "Esc"
+msgstr "เอส"
+
+msgid "Send Escape"
+msgstr "ส่งหนี"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+เดล"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "ส่ง Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "ปิด/รีบูต"
+
+msgid "Shutdown/Reboot..."
+msgstr "ปิด/รีบูต..."
+
+msgid "Power"
+msgstr "พลัง"
+
+msgid "Shutdown"
+msgstr "ปิดตัวลง"
+
+msgid "Reboot"
+msgstr "รีบูต"
+
+msgid "Reset"
+msgstr "รีเซ็ต"
+
+msgid "Clipboard"
+msgstr "คลิปบอร์ด"
+
+msgid "Clear"
+msgstr "ชัดเจน"
+
+msgid "Fullscreen"
+msgstr "เต็มจอ"
+
+msgid "Settings"
+msgstr "การตั้งค่า"
+
+msgid "Shared Mode"
+msgstr "โหมดแชร์"
+
+msgid "View Only"
+msgstr "สำหรับดูเท่านั้น"
+
+msgid "Clip to Window"
+msgstr "คลิปไปที่หน้าต่าง"
+
+msgid "Scaling Mode:"
+msgstr "โหมดปรับขนาด:"
+
+msgid "None"
+msgstr "ไม่มี"
+
+msgid "Local Scaling"
+msgstr "มาตราส่วนท้องถิ่น"
+
+msgid "Remote Resizing"
+msgstr "การปรับขนาดระยะไกล"
+
+msgid "Advanced"
+msgstr "ขั้นสูง"
+
+msgid "Quality:"
+msgstr "คุณภาพ:"
+
+msgid "Compression level:"
+msgstr "ระดับการบีบอัด:"
+
+msgid "Repeater ID:"
+msgstr "รหัสทวน:"
+
+msgid "WebSocket"
+msgstr "เว็บซ็อกเก็ต"
+
+msgid "Encrypt"
+msgstr "เข้ารหัส"
+
+msgid "Host:"
+msgstr "เจ้าภาพ:"
+
+msgid "Port:"
+msgstr "ท่าเรือ:"
+
+msgid "Path:"
+msgstr "เส้นทาง:"
+
+msgid "Automatic Reconnect"
+msgstr "เชื่อมต่อใหม่อัตโนมัติ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ความล่าช้าในการเชื่อมต่อใหม่ (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "แสดงจุดเมื่อไม่มีเคอร์เซอร์"
+
+msgid "Logging:"
+msgstr "บันทึก:"
+
+msgid "Version:"
+msgstr "เวอร์ชัน:"
+
+msgid "Disconnect"
+msgstr "ยกเลิกการเชื่อมต่อ"
+
+msgid "Connect"
+msgstr "เชื่อมต่อ"
+
+msgid "Username:"
+msgstr "ชื่อผู้ใช้:"
+
+msgid "Password:"
+msgstr "รหัสผ่าน:"
+
+msgid "Send Credentials"
+msgstr "ส่งข้อมูลประจำตัว"
+
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+msgid "Keys"
+msgstr "กุญแจ"
+
+msgid "Game Cursor Mode"
+msgstr "โหมดเคอร์เซอร์เกม"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "กดปุ่ม Esc เพื่อออกจากโหมดล็อคตัวชี้"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "โหมดเกมหยุดชั่วคราว คลิกบนหน้าจอเพื่อเล่นโหมดเกมต่อ"
+
+msgid "Clipboard Up"
+msgstr "คลิปบอร์ดขึ้น"
+
+msgid "CLipboard Down"
+msgstr "คลิปบอร์ดลง"
+
+msgid "Clipboard Seamless"
+msgstr "คลิปบอร์ดไร้รอยต่อ"
+
+msgid "Prefer Local Cursor"
+msgstr "ต้องการเคอร์เซอร์ท้องถิ่น"
+
+msgid "Translate keyboard shortcuts"
+msgstr "แปลแป้นพิมพ์ลัด"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "เปิดใช้งานการเปลี่ยน UDP ของ WebRTC"
+
+msgid "Enable WebP Compression"
+msgstr "เปิดใช้งานการบีบอัด WebP"
+
+msgid "Enable Performance Stats"
+msgstr "เปิดใช้งานสถิติประสิทธิภาพ"
+
+msgid "Enable Pointer Lock"
+msgstr "เปิดใช้งานการล็อคตัวชี้"
+
+msgid "IME Input Mode"
+msgstr "โหมดอินพุต IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "แสดงการควบคุมแป้นพิมพ์เสมือนจริง"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "สลับแผงควบคุมผ่านการกดแป้นพิมพ์"
+
+msgid "Render Native Resolution"
+msgstr "เรนเดอร์ Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "แป้นพิมพ์ลัด"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "เปิดใช้งานแป้นพิมพ์ลัด KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - สลับแผงควบคุม"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - สลับโหมดตัวชี้เกม"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - ล็อคตัวชี้สลับ"
+
+msgid "Stream Quality"
+msgstr "คุณภาพการสตรีม"
+
+msgid "Preset Modes:"
+msgstr "โหมดพรีเซ็ต:"
+
+msgid "Static"
+msgstr "คงที่"
+
+msgid "Low"
+msgstr "ต่ำ"
+
+msgid "Medium"
+msgstr "ปานกลาง"
+
+msgid "High"
+msgstr "สูง"
+
+msgid "Extreme"
+msgstr "สุดขีด"
+
+msgid "Lossless"
+msgstr "ไร้พ่าย"
+
+msgid "Custom"
+msgstr "กำหนดเอง"
+
+msgid "Anti-Aliasing:"
+msgstr "ต่อต้านนามแฝง:"
+
+msgid "Auto Dynamic"
+msgstr "ไดนามิกอัตโนมัติ"
+
+msgid "Off"
+msgstr "ปิด"
+
+msgid "On"
+msgstr "บน"
+
+msgid "Dynamic Quality Min:"
+msgstr "คุณภาพไดนามิกขั้นต่ำ:"
+
+msgid "Dynamic Quality Max:"
+msgstr "ไดนามิกคุณภาพสูงสุด:"
+
+msgid "Treat Lossless:"
+msgstr "รักษาแบบไม่สูญเสีย:"
+
+msgid "Frame Rate:"
+msgstr "อัตราเฟรม:"
+
+msgid "Video JPEG Quality:"
+msgstr "คุณภาพวิดีโอ JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "คุณภาพวิดีโอ WEBP:"
+
+msgid "Video Area:"
+msgstr "พื้นที่วิดีโอ:"
+
+msgid "Video Time:"
+msgstr "เวลาวิดีโอ:"
+
+msgid "Video Out Time:"
+msgstr "เวลาวิดีโอออก:"
+
+msgid "Video Mode Width:"
+msgstr "ความกว้างของโหมดวิดีโอ:"
+
+msgid "Video Mode Height:"
+msgstr "ความสูงของโหมดวิดีโอ:"
+
+msgid "Documentation"
+msgstr "เอกสาร"
+
+msgid "Drag Viewport"
+msgstr "ลากวิวพอร์ต"

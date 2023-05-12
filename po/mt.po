@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Konnessjoni..."
+
+msgid "Disconnecting..."
+msgstr "Skonnettja..."
+
+msgid "Reconnecting..."
+msgstr "Qiegħed mill-ġdid..."
+
+msgid "Internal error"
+msgstr "Żball intern"
+
+msgid "Must set host"
+msgstr "Irid issettja l-ospitant"
+
+msgid "Connected (encrypted) to "
+msgstr "Konnessi (kodifikat) ma'"
+
+msgid "Connected (unencrypted) to "
+msgstr "Konnessi (mhux kriptat) ma'"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Xi ħaġa marret ħażin, il-konnessjoni hija magħluqa"
+
+msgid "Failed to connect to server"
+msgstr "Ma rnexxiex tikkonnettja mas-server"
+
+msgid "Disconnected"
+msgstr "Skonnettjat"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Konnessjoni ġdida ġiet miċħuda bir-raġuni: "
+
+msgid "New connection has been rejected"
+msgstr "Konnessjoni ġdida ġiet miċħuda"
+
+msgid "Credentials are required"
+msgstr "Kredenzjali huma meħtieġa"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC sab żball:"
+
+msgid "Hide/Show the control bar"
+msgstr "Aħbi/Uri l-bar tal-kontroll"
+
+msgid "Drag"
+msgstr "Ikaxkar"
+
+msgid "Move/Drag Viewport"
+msgstr "Mexxi/Idreggja l-Viewport"
+
+msgid "Keyboard"
+msgstr "Tastiera"
+
+msgid "Show Keyboard"
+msgstr "Uri Keyboard"
+
+msgid "Extra keys"
+msgstr "Ċwievet żejda"
+
+msgid "Show Extra Keys"
+msgstr "Uri Ċwievet Extra"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Aqleb Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Aqleb Alt"
+
+msgid "Toggle Windows"
+msgstr "Aqleb Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Ibgħat Tab"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Ibgħat Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ibgħat Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Tfiq/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Itfi/Reboot..."
+
+msgid "Power"
+msgstr "Qawwa"
+
+msgid "Shutdown"
+msgstr "Għalaq"
+
+msgid "Reboot"
+msgstr "Reboot"
+
+msgid "Reset"
+msgstr "Irrisettja"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Ċara"
+
+msgid "Fullscreen"
+msgstr "Fullscreen"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Shared Mode"
+msgstr "Modalità Kondiviża"
+
+msgid "View Only"
+msgstr "Ara biss"
+
+msgid "Clip to Window"
+msgstr "Klip għat-Tieqa"
+
+msgid "Scaling Mode:"
+msgstr "Modalità ta' Skala:"
+
+msgid "None"
+msgstr "Xejn"
+
+msgid "Local Scaling"
+msgstr "Skalar Lokali"
+
+msgid "Remote Resizing"
+msgstr "Ridimensjonar mill-bogħod"
+
+msgid "Advanced"
+msgstr "Avvanzat"
+
+msgid "Quality:"
+msgstr "Kwalità:"
+
+msgid "Compression level:"
+msgstr "Livell ta' kompressjoni:"
+
+msgid "Repeater ID:"
+msgstr "ID tar-ripetitur:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Encrypt"
+
+msgid "Host:"
+msgstr "Ospitanti:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Path:"
+
+msgid "Automatic Reconnect"
+msgstr "Konnettja mill-ġdid awtomatika"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Dawn mill-ġdid (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Uri Dot meta L-ebda Cursor"
+
+msgid "Logging:"
+msgstr "Logging:"
+
+msgid "Version:"
+msgstr "Verżjoni:"
+
+msgid "Disconnect"
+msgstr "Skonnettja"
+
+msgid "Connect"
+msgstr "Ikkonnettja"
+
+msgid "Username:"
+msgstr "Isem tal-Utent:"
+
+msgid "Password:"
+msgstr "Password:"
+
+msgid "Send Credentials"
+msgstr "Ibgħat Kredenzjali"
+
+msgid "Cancel"
+msgstr "Ikkanċella"
+
+msgid "Keys"
+msgstr "Ċwievet"
+
+msgid "Game Cursor Mode"
+msgstr "Modalità tal-Kursur tal-Logħba"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Agħfas Esc Key biex toħroġ mill-Modalità Lock Pointer"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Modalità Logħba waqfa qasira, ikklikkja fuq l-iskrin biex terġa 'tibda Modalità Logħba."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "CLIPboard 'l isfel"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Ippreferi Kursur Lokali"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Ittraduċi shortcuts tat-tastiera"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Ippermetti WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Ippermetti Kompressjoni WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Ippermetti Stats tal-Prestazzjoni"
+
+msgid "Enable Pointer Lock"
+msgstr "Ippermetti Pointer Lock"
+
+msgid "IME Input Mode"
+msgstr "Modalità ta' Input IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Uri Kontroll tat-Tastiera Virtwali"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Aqleb il-Panew tal-Kontroll permezz tat-Tasti"
+
+msgid "Render Native Resolution"
+msgstr "Irrendi Riżoluzzjoni Nattiva"
+
+msgid "Keyboard Shortcuts"
+msgstr "Shortcuts tat-Tastiera"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Ippermetti KasmVNC Shortcuts tat-Tastiera"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Toggle Control Panel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Toggle Game Pointer Mode"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Toggle Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Kwalità tan-nixxiegħa"
+
+msgid "Preset Modes:"
+msgstr "Modi ssettjati minn qabel:"
+
+msgid "Static"
+msgstr "Statiku"
+
+msgid "Low"
+msgstr "Baxx"
+
+msgid "Medium"
+msgstr "Medju"
+
+msgid "High"
+msgstr "Għoli"
+
+msgid "Extreme"
+msgstr "Estremi"
+
+msgid "Lossless"
+msgstr "Mingħajr telf"
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Awtodinamiku"
+
+msgid "Off"
+msgstr "Itfi"
+
+msgid "On"
+msgstr "Fuq"
+
+msgid "Dynamic Quality Min:"
+msgstr "Kwalità Dinamika Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Kwalità Dinamika Max:"
+
+msgid "Treat Lossless:"
+msgstr "Itratta Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Frame Rate:"
+
+msgid "Video JPEG Quality:"
+msgstr "Kwalità JPEG tal-vidjo:"
+
+msgid "Video WEBP Quality:"
+msgstr "Kwalità tal-WEBP tal-vidjo:"
+
+msgid "Video Area:"
+msgstr "Żona tal-vidjo:"
+
+msgid "Video Time:"
+msgstr "Ħin tal-vidjo:"
+
+msgid "Video Out Time:"
+msgstr "Ħin tal-Ħruġ tal-Video:"
+
+msgid "Video Mode Width:"
+msgstr "Wsa 'Modalità Video:"
+
+msgid "Video Mode Height:"
+msgstr "Għoli tal-Modalità Video:"
+
+msgid "Documentation"
+msgstr "Dokumentazzjoni"
+
+msgid "Drag Viewport"
+msgstr "Dragg Viewport"

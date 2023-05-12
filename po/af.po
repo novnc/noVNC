@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Verbind tans..."
+
+msgid "Disconnecting..."
+msgstr "Ontkoppel tans ..."
+
+msgid "Reconnecting..."
+msgstr "Herkoppel tans..."
+
+msgid "Internal error"
+msgstr "Interne fout"
+
+msgid "Must set host"
+msgstr "Moet gasheer stel"
+
+msgid "Connected (encrypted) to "
+msgstr "Gekoppel (geïnkripteer) aan "
+
+msgid "Connected (unencrypted) to "
+msgstr "Gekoppel (ongenkripteer) aan "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Iets het verkeerd geloop, verbinding is gesluit"
+
+msgid "Failed to connect to server"
+msgstr "Kon nie aan bediener koppel"
+
+msgid "Disconnected"
+msgstr "Ontkoppel"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nuwe verbinding is verwerp met rede:"
+
+msgid "New connection has been rejected"
+msgstr "Nuwe verbinding is afgekeur"
+
+msgid "Credentials are required"
+msgstr "Geloofsbriewe word vereis"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC het 'n fout teëgekom:"
+
+msgid "Hide/Show the control bar"
+msgstr "Versteek/wys die beheerbalk"
+
+msgid "Drag"
+msgstr "Sleep"
+
+msgid "Move/Drag Viewport"
+msgstr "Skuif/sleep Viewport"
+
+msgid "Keyboard"
+msgstr "Sleutelbord"
+
+msgid "Show Keyboard"
+msgstr "Wys sleutelbord"
+
+msgid "Extra keys"
+msgstr "Ekstra sleutels"
+
+msgid "Show Extra Keys"
+msgstr "Wys ekstra sleutels"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Wissel Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Wissel Alt"
+
+msgid "Toggle Windows"
+msgstr "Wissel Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Stuur oortjie"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Stuur ontsnap"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Stuur Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Sluit af/herlaai"
+
+msgid "Shutdown/Reboot..."
+msgstr "Sluit af/herlaai..."
+
+msgid "Power"
+msgstr "Krag"
+
+msgid "Shutdown"
+msgstr "Sluit af"
+
+msgid "Reboot"
+msgstr "Herlaai"
+
+msgid "Reset"
+msgstr "Herstel"
+
+msgid "Clipboard"
+msgstr "Klipbord"
+
+msgid "Clear"
+msgstr "Vee"
+
+msgid "Fullscreen"
+msgstr "Volskerm"
+
+msgid "Settings"
+msgstr "Instellings"
+
+msgid "Shared Mode"
+msgstr "Gedeelde modus"
+
+msgid "View Only"
+msgstr "Slegs kyk"
+
+msgid "Clip to Window"
+msgstr "Klip na venster"
+
+msgid "Scaling Mode:"
+msgstr "Skaalmodus:"
+
+msgid "None"
+msgstr "Geen"
+
+msgid "Local Scaling"
+msgstr "Plaaslike skaal"
+
+msgid "Remote Resizing"
+msgstr "Verander grootte op afstand"
+
+msgid "Advanced"
+msgstr "Gevorderd"
+
+msgid "Quality:"
+msgstr "Gehalte:"
+
+msgid "Compression level:"
+msgstr "Kompressievlak:"
+
+msgid "Repeater ID:"
+msgstr "Herhaler ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Enkripteer"
+
+msgid "Host:"
+msgstr "Gasheer:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Pad:"
+
+msgid "Automatic Reconnect"
+msgstr "Outomatiese herkoppel"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Herkoppel vertraging (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Wys punt wanneer geen wyser is nie"
+
+msgid "Logging:"
+msgstr "Aanteken:"
+
+msgid "Version:"
+msgstr "Weergawe:"
+
+msgid "Disconnect"
+msgstr "Ontkoppel"
+
+msgid "Connect"
+msgstr "Verbind"
+
+msgid "Username:"
+msgstr "Gebruikersnaam:"
+
+msgid "Password:"
+msgstr "Wagwoord:"
+
+msgid "Send Credentials"
+msgstr "Stuur geloofsbriewe"
+
+msgid "Cancel"
+msgstr "Kanselleer"
+
+msgid "Keys"
+msgstr "Sleutels"
+
+msgid "Game Cursor Mode"
+msgstr "Spelwysermodus"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Druk Esc-sleutel om die aanwyserslotmodus te verlaat"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Spelmodus is onderbreek, klik op die skerm om Spelmodus te hervat."
+
+msgid "Clipboard Up"
+msgstr "Klipbord op"
+
+msgid "CLipboard Down"
+msgstr "Klipbord af"
+
+msgid "Clipboard Seamless"
+msgstr "Klipbord Naatloos"
+
+msgid "Prefer Local Cursor"
+msgstr "Verkies plaaslike wyser"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Vertaal sleutelbordkortpaaie"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Aktiveer WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Aktiveer WebP-kompressie"
+
+msgid "Enable Performance Stats"
+msgstr "Aktiveer prestasiestatistieke"
+
+msgid "Enable Pointer Lock"
+msgstr "Aktiveer wyserslot"
+
+msgid "IME Input Mode"
+msgstr "IME-invoermodus"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Wys virtuele sleutelbordbeheer"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Wissel beheerpaneel via toetsaanslagen"
+
+msgid "Render Native Resolution"
+msgstr "Lewer oorspronklike resolusie"
+
+msgid "Keyboard Shortcuts"
+msgstr "Sleutelbord kortpaaie"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Aktiveer KasmVNC-sleutelbordkortpaaie"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Wissel beheerpaneel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Wissel spelwysermodus"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Wissel wyserslot"
+
+msgid "Stream Quality"
+msgstr "Stroomkwaliteit"
+
+msgid "Preset Modes:"
+msgstr "Vooraf ingestelde modusse:"
+
+msgid "Static"
+msgstr "Staties"
+
+msgid "Low"
+msgstr "Laag"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "High"
+msgstr "Hoog"
+
+msgid "Extreme"
+msgstr "Ekstreem"
+
+msgid "Lossless"
+msgstr "Verliesloos"
+
+msgid "Custom"
+msgstr "Gepasmaakte"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Outomatiese dinamiese"
+
+msgid "Off"
+msgstr "Af"
+
+msgid "On"
+msgstr "Aan"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamiese kwaliteit min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamiese kwaliteit maksimum:"
+
+msgid "Treat Lossless:"
+msgstr "Behandel Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Raamtempo:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG Kwaliteit:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP kwaliteit:"
+
+msgid "Video Area:"
+msgstr "Video-area:"
+
+msgid "Video Time:"
+msgstr "Video Tyd:"
+
+msgid "Video Out Time:"
+msgstr "Video-uittyd:"
+
+msgid "Video Mode Width:"
+msgstr "Videomoduswydte:"
+
+msgid "Video Mode Height:"
+msgstr "Videomodus Hoogte:"
+
+msgid "Documentation"
+msgstr "Dokumentasie"
+
+msgid "Drag Viewport"
+msgstr "Sleep Viewport"

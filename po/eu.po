@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Konektatzen..."
+
+msgid "Disconnecting..."
+msgstr "Deskonektatzen..."
+
+msgid "Reconnecting..."
+msgstr "Berriz konektatzen..."
+
+msgid "Internal error"
+msgstr "Barne akatsa"
+
+msgid "Must set host"
+msgstr "Ostalari ezarri behar da"
+
+msgid "Connected (encrypted) to "
+msgstr "Konektatuta (zifratuta)"
+
+msgid "Connected (unencrypted) to "
+msgstr "Konektatuta (zifratu gabe)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Arazoren bat izan da, konexioa itxita dago"
+
+msgid "Failed to connect to server"
+msgstr "Ezin izan da zerbitzariarekin konektatu"
+
+msgid "Disconnected"
+msgstr "Deskonektatuta"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Konexio berria arrazoiarekin baztertu da:"
+
+msgid "New connection has been rejected"
+msgstr "Konexio berria baztertu da"
+
+msgid "Credentials are required"
+msgstr "Kredentzialak behar dira"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC-k errore bat aurkitu du:"
+
+msgid "Hide/Show the control bar"
+msgstr "Ezkutatu/Erakutsi kontrol-barra"
+
+msgid "Drag"
+msgstr "Arrastatu"
+
+msgid "Move/Drag Viewport"
+msgstr "Mugitu/Arrastatu ikuspegia"
+
+msgid "Keyboard"
+msgstr "Teklatua"
+
+msgid "Show Keyboard"
+msgstr "Erakutsi teklatua"
+
+msgid "Extra keys"
+msgstr "Gako gehigarriak"
+
+msgid "Show Extra Keys"
+msgstr "Erakutsi gako gehigarriak"
+
+msgid "Ctrl"
+msgstr "Ktrl"
+
+msgid "Toggle Ctrl"
+msgstr "Aktibatu Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Aktibatu Alt"
+
+msgid "Toggle Windows"
+msgstr "Aktibatu Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Bidali fitxa"
+
+msgid "Tab"
+msgstr "Fitxa"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Bidali ihesa"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ktrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Bidali Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Itzali/Berrabiarazi"
+
+msgid "Shutdown/Reboot..."
+msgstr "Itzali/Berrabiarazi..."
+
+msgid "Power"
+msgstr "Botere"
+
+msgid "Shutdown"
+msgstr "Itzali"
+
+msgid "Reboot"
+msgstr "Berrabiarazi"
+
+msgid "Reset"
+msgstr "Berrezarri"
+
+msgid "Clipboard"
+msgstr "Arbela"
+
+msgid "Clear"
+msgstr "Argi"
+
+msgid "Fullscreen"
+msgstr "Pantaila osoa"
+
+msgid "Settings"
+msgstr "Ezarpenak"
+
+msgid "Shared Mode"
+msgstr "Modu partekatua"
+
+msgid "View Only"
+msgstr "Ikusi bakarrik"
+
+msgid "Clip to Window"
+msgstr "Kliptu leihora"
+
+msgid "Scaling Mode:"
+msgstr "Eskalatzeko modua:"
+
+msgid "None"
+msgstr "Inor ez"
+
+msgid "Local Scaling"
+msgstr "Tokiko eskalatzea"
+
+msgid "Remote Resizing"
+msgstr "Urrutiko tamaina aldatzea"
+
+msgid "Advanced"
+msgstr "Aurreratua"
+
+msgid "Quality:"
+msgstr "Kalitatea:"
+
+msgid "Compression level:"
+msgstr "Konpresio maila:"
+
+msgid "Repeater ID:"
+msgstr "Errepikatzailearen IDa:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Enkriptatu"
+
+msgid "Host:"
+msgstr "Ostalaria:"
+
+msgid "Port:"
+msgstr "Porta:"
+
+msgid "Path:"
+msgstr "Bidea:"
+
+msgid "Automatic Reconnect"
+msgstr "Birkonektatu automatikoa"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Birkonektatzeko atzerapena (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Erakutsi puntua kurtsorerik ez dagoenean"
+
+msgid "Logging:"
+msgstr "Erregistroa:"
+
+msgid "Version:"
+msgstr "Bertsioa:"
+
+msgid "Disconnect"
+msgstr "Deskonektatu"
+
+msgid "Connect"
+msgstr "Konektatu"
+
+msgid "Username:"
+msgstr "Erabiltzaile izena:"
+
+msgid "Password:"
+msgstr "Pasahitza:"
+
+msgid "Send Credentials"
+msgstr "Bidali kredentzialak"
+
+msgid "Cancel"
+msgstr "Utzi"
+
+msgid "Keys"
+msgstr "Giltzak"
+
+msgid "Game Cursor Mode"
+msgstr "Joko kurtsore modua"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Sakatu Esc tekla erakuslea blokeatzeko modua irteteko"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Joko modua pausatu da, egin klik pantailan Joko modua berriro hasteko"
+
+msgid "Clipboard Up"
+msgstr "Arbela gora"
+
+msgid "CLipboard Down"
+msgstr "Arbela behera"
+
+msgid "Clipboard Seamless"
+msgstr "Arbelenik gabe"
+
+msgid "Prefer Local Cursor"
+msgstr "Hobestu tokiko kurtsorea"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Itzuli teklatuko lasterbideak"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Gaitu WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Gaitu WebP konpresioa"
+
+msgid "Enable Performance Stats"
+msgstr "Gaitu errendimendu-estatistikak"
+
+msgid "Enable Pointer Lock"
+msgstr "Gaitu Erakuslearen blokeoa"
+
+msgid "IME Input Mode"
+msgstr "IME Sarrera modua"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Erakutsi teklatu birtuala kontrola"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Aldatu kontrol panela tekla sakatuen bidez"
+
+msgid "Render Native Resolution"
+msgstr "Errendatu jatorrizko ebazpena"
+
+msgid "Keyboard Shortcuts"
+msgstr "Teklatuko lasterbideak"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Gaitu KasmVNC teklatu-lasterbideak"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Aldatu kontrol panela"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Aldatu joko erakuslea modua"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Erakuslea blokeatzea"
+
+msgid "Stream Quality"
+msgstr "Korrika-kalitatea"
+
+msgid "Preset Modes:"
+msgstr "Aurrez ezarritako moduak:"
+
+msgid "Static"
+msgstr "Estatikoa"
+
+msgid "Low"
+msgstr "Baxua"
+
+msgid "Medium"
+msgstr "Ertaina"
+
+msgid "High"
+msgstr "Altua"
+
+msgid "Extreme"
+msgstr "Muturreko"
+
+msgid "Lossless"
+msgstr "Galerik gabekoa"
+
+msgid "Custom"
+msgstr "Pertsonalizatua"
+
+msgid "Anti-Aliasing:"
+msgstr "Aliasingaren aurkakoa:"
+
+msgid "Auto Dynamic"
+msgstr "Auto dinamikoa"
+
+msgid "Off"
+msgstr "Desaktibatuta"
+
+msgid "On"
+msgstr "Aktibatuta"
+
+msgid "Dynamic Quality Min:"
+msgstr "Kalitate dinamikoa minimoa:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Kalitate dinamikoa gehienez:"
+
+msgid "Treat Lossless:"
+msgstr "Tratatu Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Fotograma-tasa:"
+
+msgid "Video JPEG Quality:"
+msgstr "Bideoaren JPEG kalitatea:"
+
+msgid "Video WEBP Quality:"
+msgstr "Bideoaren WEBP kalitatea:"
+
+msgid "Video Area:"
+msgstr "Bideo eremua:"
+
+msgid "Video Time:"
+msgstr "Bideoaren denbora:"
+
+msgid "Video Out Time:"
+msgstr "Bideoa ateratzeko ordua:"
+
+msgid "Video Mode Width:"
+msgstr "Bideo moduaren zabalera:"
+
+msgid "Video Mode Height:"
+msgstr "Bideo moduaren altuera:"
+
+msgid "Documentation"
+msgstr "Dokumentazioa"
+
+msgid "Drag Viewport"
+msgstr "Arrastatu ikuspegia"

@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Qoşulur..."
+
+msgid "Disconnecting..."
+msgstr "Bağlantı kəsilir..."
+
+msgid "Reconnecting..."
+msgstr "Yenidən qoşulur..."
+
+msgid "Internal error"
+msgstr "Daxili səhv"
+
+msgid "Must set host"
+msgstr "Host təyin etməlidir"
+
+msgid "Connected (encrypted) to "
+msgstr "Qoşuldu (şifrələnmiş)"
+
+msgid "Connected (unencrypted) to "
+msgstr "Qoşuldu (şifrlənməmiş)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Nəsə xəta baş verdi, əlaqə bağlanıb"
+
+msgid "Failed to connect to server"
+msgstr "Serverə qoşulmaq alınmadı"
+
+msgid "Disconnected"
+msgstr "Əlaqə kəsildi"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Yeni əlaqə səbəblə rədd edildi:"
+
+msgid "New connection has been rejected"
+msgstr "Yeni əlaqə rədd edildi"
+
+msgid "Credentials are required"
+msgstr "Etibarnamə tələb olunur"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC xəta ilə qarşılaşdı:"
+
+msgid "Hide/Show the control bar"
+msgstr "İdarə çubuğunu gizlət/göstər"
+
+msgid "Drag"
+msgstr "Sürük"
+
+msgid "Move/Drag Viewport"
+msgstr "Görünüş portunu köçürün/çəkin"
+
+msgid "Keyboard"
+msgstr "Klaviatura"
+
+msgid "Show Keyboard"
+msgstr "Klaviaturanı göstər"
+
+msgid "Extra keys"
+msgstr "Əlavə açarlar"
+
+msgid "Show Extra Keys"
+msgstr "Əlavə açarları göstər"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl-ə keçid"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt düyməsini dəyişdirin"
+
+msgid "Toggle Windows"
+msgstr "Windows-u dəyişdirin"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Göndər nişanı"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Qaçış göndər"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del göndər"
+
+msgid "Shutdown/Reboot"
+msgstr "Söndürmə/Yenidən başla"
+
+msgid "Shutdown/Reboot..."
+msgstr "Söndürmə/Yenidən başla..."
+
+msgid "Power"
+msgstr "Güc"
+
+msgid "Shutdown"
+msgstr "Söndür"
+
+msgid "Reboot"
+msgstr "Yenidən başladın"
+
+msgid "Reset"
+msgstr "Sıfırla"
+
+msgid "Clipboard"
+msgstr "Bufer"
+
+msgid "Clear"
+msgstr "Aydın"
+
+msgid "Fullscreen"
+msgstr "Tam ekran"
+
+msgid "Settings"
+msgstr "Parametrlər"
+
+msgid "Shared Mode"
+msgstr "Paylaşılan rejim"
+
+msgid "View Only"
+msgstr "Yalnız Baxış"
+
+msgid "Clip to Window"
+msgstr "Pəncərəyə Klip"
+
+msgid "Scaling Mode:"
+msgstr "Ölçmə rejimi:"
+
+msgid "None"
+msgstr "Yox"
+
+msgid "Local Scaling"
+msgstr "Yerli Ölçəkləmə"
+
+msgid "Remote Resizing"
+msgstr "Uzaqdan Ölçüsü"
+
+msgid "Advanced"
+msgstr "Qabaqcıl"
+
+msgid "Quality:"
+msgstr "Keyfiyyət:"
+
+msgid "Compression level:"
+msgstr "Sıxılma səviyyəsi:"
+
+msgid "Repeater ID:"
+msgstr "Təkrarlayıcı ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Şifrələ"
+
+msgid "Host:"
+msgstr "Ev sahibi:"
+
+msgid "Port:"
+msgstr "Liman:"
+
+msgid "Path:"
+msgstr "Yol:"
+
+msgid "Automatic Reconnect"
+msgstr "Avtomatik yenidən qoşulma"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Yenidən qoşulma gecikməsi (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Kursor olmayanda Nöqtə göstər"
+
+msgid "Logging:"
+msgstr "Giriş:"
+
+msgid "Version:"
+msgstr "Versiya:"
+
+msgid "Disconnect"
+msgstr "Bağlantıyı kəs"
+
+msgid "Connect"
+msgstr "Qoşun"
+
+msgid "Username:"
+msgstr "İstifadəçi adı:"
+
+msgid "Password:"
+msgstr "Parol:"
+
+msgid "Send Credentials"
+msgstr "Etibarnamələri göndər"
+
+msgid "Cancel"
+msgstr "Ləğv et"
+
+msgid "Keys"
+msgstr "Açarlar"
+
+msgid "Game Cursor Mode"
+msgstr "Oyun kursoru rejimi"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Göstərici kilidi rejimindən çıxmaq üçün Esc düyməsini basın"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Oyun rejimi dayandırıldı, Oyun rejimini davam etdirmək üçün ekrana klikləyin."
+
+msgid "Clipboard Up"
+msgstr "Bufer Yuxarı"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Aşağı"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Sorunsuz"
+
+msgid "Prefer Local Cursor"
+msgstr "Yerli kursora üstünlük verin"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Klaviatura qısa yollarını tərcümə et"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transitini aktivləşdirin"
+
+msgid "Enable WebP Compression"
+msgstr "WebP sıxılmasını aktivləşdir"
+
+msgid "Enable Performance Stats"
+msgstr "Performans statistikasını aktivləşdirin"
+
+msgid "Enable Pointer Lock"
+msgstr "Göstərici kilidini aktivləşdir"
+
+msgid "IME Input Mode"
+msgstr "IME Giriş rejimi"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Virtual klaviatura nəzarətini göstər"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "İdarəetmə panelini düymə vuruşları ilə dəyişdirin"
+
+msgid "Render Native Resolution"
+msgstr "Doğma Çözünürlük göstərin"
+
+msgid "Keyboard Shortcuts"
+msgstr "Klaviatura Qısayolları"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC Klaviatura Qısayollarını Aktivləşdirin"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - İdarəetmə Panelini dəyişdirin"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Oyun Göstərici rejimini dəyişdirin"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Göstərici Kilidini dəyişdirin"
+
+msgid "Stream Quality"
+msgstr "Yayın keyfiyyəti"
+
+msgid "Preset Modes:"
+msgstr "Öncədən qurulmuş rejimlər:"
+
+msgid "Static"
+msgstr "Statik"
+
+msgid "Low"
+msgstr "Aşağı"
+
+msgid "Medium"
+msgstr "Orta"
+
+msgid "High"
+msgstr "Yüksək"
+
+msgid "Extreme"
+msgstr "Həddindən artıq"
+
+msgid "Lossless"
+msgstr "İtkisiz"
+
+msgid "Custom"
+msgstr "Xüsusi"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Avtomatik dinamik"
+
+msgid "Off"
+msgstr "Söndürülmüş"
+
+msgid "On"
+msgstr "Aktiv"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dinamik Keyfiyyət Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maks. Dinamik Keyfiyyət:"
+
+msgid "Treat Lossless:"
+msgstr "İtkisiz Müalicə:"
+
+msgid "Frame Rate:"
+msgstr "Çərçivə Tezliyi:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG Keyfiyyəti:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP Keyfiyyəti:"
+
+msgid "Video Area:"
+msgstr "Video sahəsi:"
+
+msgid "Video Time:"
+msgstr "Video vaxtı:"
+
+msgid "Video Out Time:"
+msgstr "Videonun Çıxış vaxtı:"
+
+msgid "Video Mode Width:"
+msgstr "Video rejiminin eni:"
+
+msgid "Video Mode Height:"
+msgstr "Video rejimi hündürlüyü:"
+
+msgid "Documentation"
+msgstr "Sənədlər"
+
+msgid "Drag Viewport"
+msgstr "Görünüş sahəsini sürükləyin"

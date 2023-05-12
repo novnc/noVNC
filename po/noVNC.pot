@@ -296,3 +296,147 @@ msgstr ""
 #: ../vnc.html:308
 msgid "Cancel"
 msgstr ""
+
+msgid "Keys"
+msgstr ""
+
+msgid "Game Cursor Mode"
+msgstr ""
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr ""
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr ""
+
+msgid "Clipboard Up"
+msgstr ""
+
+msgid "CLipboard Down"
+msgstr ""
+
+msgid "Clipboard Seamless"
+msgstr ""
+
+msgid "Prefer Local Cursor"
+msgstr ""
+
+msgid "Translate keyboard shortcuts"
+msgstr ""
+
+msgid "Enable WebRTC UDP Transit"
+msgstr ""
+
+msgid "Enable WebP Compression"
+msgstr ""
+
+msgid "Enable Performance Stats"
+msgstr ""
+
+msgid "Enable Pointer Lock"
+msgstr ""
+
+msgid "IME Input Mode"
+msgstr ""
+
+msgid "Show Virtual Keyboard Control"
+msgstr ""
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr ""
+
+msgid "Render Native Resolution"
+msgstr ""
+
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr ""
+
+msgid "1 - Toggle Control Panel"
+msgstr ""
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr ""
+
+msgid "3 - Toggle Pointer Lock"
+msgstr ""
+
+msgid "Stream Quality"
+msgstr ""
+
+msgid "Preset Modes:"
+msgstr ""
+
+msgid "Static"
+msgstr ""
+
+msgid "Low"
+msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Extreme"
+msgstr ""
+
+msgid "Lossless"
+msgstr ""
+
+msgid "Custom"
+msgstr ""
+
+msgid "Anti-Aliasing:"
+msgstr ""
+
+msgid "Auto Dynamic"
+msgstr ""
+
+msgid "Off"
+msgstr ""
+
+msgid "On"
+msgstr ""
+
+msgid "Dynamic Quality Min:"
+msgstr ""
+
+msgid "Dynamic Quality Max:"
+msgstr ""
+
+msgid "Treat Lossless:"
+msgstr ""
+
+msgid "Frame Rate:"
+msgstr ""
+
+msgid "Video JPEG Quality:"
+msgstr ""
+
+msgid "Video WEBP Quality:"
+msgstr ""
+
+msgid "Video Area:"
+msgstr ""
+
+msgid "Video Time:"
+msgstr ""
+
+msgid "Video Out Time:"
+msgstr ""
+
+msgid "Video Mode Width:"
+msgstr ""
+
+msgid "Video Mode Height:"
+msgstr ""
+
+msgid "Documentation"
+msgstr ""
+
+msgid "Drag Viewport"
+msgstr ""

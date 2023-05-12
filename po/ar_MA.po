@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr ".ﻞﻴﺻﻮﺗ"
+
+msgid "Disconnecting..."
+msgstr ". ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻗ"
+
+msgid "Reconnecting..."
+msgstr ". ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ"
+
+msgid "Internal error"
+msgstr "ﻲﻠﺧﺍﺩ ﺄﻄﺧ"
+
+msgid "Must set host"
+msgstr "ﻒﻴﻀﻤﻟﺍ ﻦﻴﻴﻌﺗ ﺐﺠﻳ"
+
+msgid "Connected (encrypted) to "
+msgstr "ـﺑ (ﺮﻔﺸﻣ) ﻞﺼﺘﻣ"
+
+msgid "Connected (unencrypted) to "
+msgstr "ـﺑ (ﺮﻔﺸﻣ ﺮﻴﻏ) ﻞﺼﺘﻣ"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ﻖﻠﻐﻣ ﻝﺎﺼﺗﻻ﻿ﺍ ، ﺄﻄﺧ ﺙﺪﺣ"
+
+msgid "Failed to connect to server"
+msgstr "ﻡﺩﺎﺨﻟﺎﺑ ﻝﺎﺼﺗﻻ﻿ﺍ ﻞﺸﻓ"
+
+msgid "Disconnected"
+msgstr "ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻘﻧﺍ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ﺐﺒﺴﺑ ﺪﻳﺪﺠﻟﺍ ﻝﺎﺼﺗﻻ﻿ﺍ ﺾﻓﺭ ﻢﺗ"
+
+msgid "New connection has been rejected"
+msgstr "ﺪﻳﺪﺠﻟﺍ ﻝﺎﺼﺗﻻ﻿ﺍ ﺾﻓﺭ ﻢﺗ"
+
+msgid "Credentials are required"
+msgstr "ﺔﺑﻮﻠﻄﻣ ﺩﺎﻤﺘﻋﻻ﻿ﺍ ﻕﺍﺭﻭﺃ"
+
+msgid "noVNC encountered an error:"
+msgstr "ﺄﻄﺧ noVNC ﻪﺟﺍﻭ"
+
+msgid "Hide/Show the control bar"
+msgstr "ﻢﻜﺤﺘﻟﺍ ﻂﻳﺮﺷ ﺭﺎﻬﻇﺇ / ءﺎﻔﺧﺇ"
+
+msgid "Drag"
+msgstr "ﺮﺠﻳ"
+
+msgid "Move/Drag Viewport"
+msgstr "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳ / ﻞﻘﻧ"
+
+msgid "Keyboard"
+msgstr "ﺢﻴﺗﺎﻔﻤﻟﺍ ﺔﺣﻮﻟ"
+
+msgid "Show Keyboard"
+msgstr "ﺢﻴﺗﺎﻔﻤﻟﺍ ﺔﺣﻮﻟ ﺭﺎﻬﻇﺇ"
+
+msgid "Extra keys"
+msgstr "ﺔﻴﻓﺎﺿﺇ ﺢﻴﺗﺎﻔﻣ"
+
+msgid "Show Extra Keys"
+msgstr "ﺔﻴﻓﺎﺿﻹ﻿ﺍ ﺢﻴﺗﺎﻔﻤﻟﺍ ﺭﺎﻬﻇﺇ"
+
+msgid "Ctrl"
+msgstr "ﻝﻭﺮﺘﻨﻛ"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ﻞﻳﺪﺒﺗ"
+
+msgid "Alt"
+msgstr "ﻞﻳﺪﺑ"
+
+msgid "Toggle Alt"
+msgstr "Alt ﻞﻳﺪﺒﺗ"
+
+msgid "Toggle Windows"
+msgstr "Windows ﻞﻳﺪﺒﺗ"
+
+msgid "Windows"
+msgstr "ﻚﻴﺑﺎﺒﺷ"
+
+msgid "Send Tab"
+msgstr "ﺐﻳﻮﺒﺘﻟﺍ ﺔﻣﻼ﻿ﻋ ﻝﺎﺳﺭﺇ"
+
+msgid "Tab"
+msgstr "ﺔﻋﻮﻓﺪﻣ ﺮﻴﻏ ﺓﺭﻮﺗﺎﻓ"
+
+msgid "Esc"
+msgstr "ﺝﻭﺮﺧ"
+
+msgid "Send Escape"
+msgstr "ﺏﻭﺮﻬﻟﺍ ﺔﻟﺎﺳﺭ ﻝﺎﺳﺭﺇ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl + Alt + Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ﻝﺎﺳﺭﺇ"
+
+msgid "Shutdown/Reboot"
+msgstr "ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ"
+
+msgid "Shutdown/Reboot..."
+msgstr ". ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ"
+
+msgid "Power"
+msgstr "ﺓﻮﻗ"
+
+msgid "Shutdown"
+msgstr "ﻖﻠﻏﺍ"
+
+msgid "Reboot"
+msgstr "ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺍ"
+
+msgid "Reset"
+msgstr "ﻂﺒﺿ ﺓﺩﺎﻋﺇ"
+
+msgid "Clipboard"
+msgstr "ﺔﻈﻓﺎﺤﻟﺍ"
+
+msgid "Clear"
+msgstr "ﺢﺿﺍﻭ"
+
+msgid "Fullscreen"
+msgstr "ﺔﺷﺎﺸﻟﺍ ﺮﻴﺒﻜﺗ"
+
+msgid "Settings"
+msgstr "ﺕﺍﺩﺍﺪﻋﺇ"
+
+msgid "Shared Mode"
+msgstr "ﻙﺮﺘﺸﻤﻟﺍ ﻊﺿﻮﻟﺍ"
+
+msgid "View Only"
+msgstr "ﻂﻘﻓ ﻉﻼ﻿ﻃﻼ﻿ﻟ"
+
+msgid "Clip to Window"
+msgstr "ﺓﺬﻓﺎﻨﻟﺍ ﻲﻓ ﺺﻗ"
+
+msgid "Scaling Mode:"
+msgstr "ﻢﻴﺠﺤﺘﻟﺍ ﻊﺿﻭ"
+
+msgid "None"
+msgstr "ﺪﺣﺃ ﻻ﻿"
+
+msgid "Local Scaling"
+msgstr "ﻲﻠﺤﻤﻟﺍ ﻢﻴﺠﺤﺘﻟﺍ"
+
+msgid "Remote Resizing"
+msgstr "ﺪﻌﺑ ﻦﻋ ﻢﺠﺤﻟﺍ ﺮﻴﻴﻐﺗ"
+
+msgid "Advanced"
+msgstr "ﻡﺪﻘﺘﻣ"
+
+msgid "Quality:"
+msgstr "ﺓﺩﻮﺟ"
+
+msgid "Compression level:"
+msgstr "ﻂﻐﻀﻟﺍ ﻯﻮﺘﺴﻣ"
+
+msgid "Repeater ID:"
+msgstr "ﺭﺮﻜﻤﻟﺍ ﻑﺮﻌﻣ"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "ﺮﻴﻔﺸﺗ"
+
+msgid "Host:"
+msgstr "ﻒﻴﻀﺘﺴﻳ"
+
+msgid "Port:"
+msgstr "ءﺎﻨﻴﻣ"
+
+msgid "Path:"
+msgstr "ﻖﻳﺮﻃ"
+
+msgid "Automatic Reconnect"
+msgstr "ﻲﺋﺎﻘﻠﺘﻟﺍ ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "(ﺔﻴﻧﺎﺛ ﻲﻠﻠﻣ) ﺮﻴﺧﺄﺗ ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ"
+
+msgid "Show Dot when No Cursor"
+msgstr "ﺮﺷﺆﻣ ﺩﻮﺟﻭ ﻡﺪﻋ ﺪﻨﻋ ﺔﻄﻘﻨﻟﺍ ﺭﺎﻬﻇﺇ"
+
+msgid "Logging:"
+msgstr "ﻞﻴﺠﺴﺗ"
+
+msgid "Version:"
+msgstr "ﺭﺍﺪﺻﺇ"
+
+msgid "Disconnect"
+msgstr "ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻗ"
+
+msgid "Connect"
+msgstr "ﻞﺼﺘﻳ"
+
+msgid "Username:"
+msgstr "ﻡﺪﺨﺘﺴﻤﻟﺍ ﻢﺳﺍ"
+
+msgid "Password:"
+msgstr "ﺭﻭﺮﻤﻟﺍ ﺔﻤﻠﻛ"
+
+msgid "Send Credentials"
+msgstr "ﺩﺎﻤﺘﻋﻻ﻿ﺍ ﺕﺎﻧﺎﻴﺑ ﻝﺎﺳﺭﺇ"
+
+msgid "Cancel"
+msgstr "ﻲﻐﻠﻳ"
+
+msgid "Keys"
+msgstr "ﺢﻴﺗﺎﻔﻣ"
+
+msgid "Game Cursor Mode"
+msgstr "ﺔﺒﻌﻠﻟﺍ ﺮﺷﺆﻣ ﻊﺿﻭ"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ﺮﺷﺆﻤﻟﺍ ﻞﻔﻗ ﻊﺿﻭ ﻦﻣ ﺝﻭﺮﺨﻠﻟ Esc ﺡﺎﺘﻔﻣ ﻰﻠﻋ ﻂﻐﺿﺍ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ﺔﺒﻌﻠﻟﺍ ﻊﺿﻭ ﻑﺎﻨﺌﺘﺳﻻ﻿ ﺔﺷﺎﺸﻟﺍ ﻰﻠﻋ ﺮﻘﻧﺍ ، ﺎﺘًﻗﺆﻣ ﺔﺒﻌﻠﻟﺍ ﻊﺿﻭ ﻒﻗﻮﺗ"
+
+msgid "Clipboard Up"
+msgstr "ﺔﻈﻓﺎﺤﻟﺍ"
+
+msgid "CLipboard Down"
+msgstr "CLipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "ﺲﻠﺴﻟﺍ ﺔﻈﻓﺎﺤﻟﺍ"
+
+msgid "Prefer Local Cursor"
+msgstr "ﻲﻠﺤﻤﻟﺍ ﺮﺷﺆﻤﻟﺍ ﻞﻴﻀﻔﺗ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ﺢﻴﺗﺎﻔﻤﻟﺍ ﺔﺣﻮﻟ ﺕﺍﺭﺎﺼﺘﺧﺍ ﺔﻤﺟﺮﺗ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit ﻦﻴﻜﻤﺗ"
+
+msgid "Enable WebP Compression"
+msgstr "WebP ﻂﻐﺿ ﻦﻴﻜﻤﺗ"
+
+msgid "Enable Performance Stats"
+msgstr "ءﺍﺩﻷ﻿ﺍ ﺕﺎﻴﺋﺎﺼﺣﺇ ﻦﻴﻜﻤﺗ"
+
+msgid "Enable Pointer Lock"
+msgstr "ﺮﺷﺆﻤﻟﺍ ﻞﻔﻗ ﻦﻴﻜﻤﺗ"
+
+msgid "IME Input Mode"
+msgstr "IME ﻝﺎﺧﺩﺇ ﻊﺿﻭ"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ﺔﻴﺿﺍﺮﺘﻓﻻ﻿ﺍ ﺢﻴﺗﺎﻔﻤﻟﺍ ﺔﺣﻮﻟ ﻲﻓ ﻢﻜﺤﺘﻟﺍ ﺭﺎﻬﻇﺇ"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "ﺢﻴﺗﺎﻔﻤﻟﺍ ﺕﺎﻄﻐﺿ ﺮﺒﻋ ﻢﻜﺤﺘﻟﺍ ﺔﺣﻮﻟ ﻞﻳﺪﺒﺗ"
+
+msgid "Render Native Resolution"
+msgstr "ﻲﻠﺻﻷ﻿ﺍ ﻞﺤﻟﺍ ﺽﺮﻋ"
+
+msgid "Keyboard Shortcuts"
+msgstr "ﺢﻴﺗﺎﻔﻤﻟﺍ ﺔﺣﻮﻟ ﺕﺍﺭﺎﺼﺘﺧﺍ"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ﺢﻴﺗﺎﻔﻣ ﺔﺣﻮﻟ ﺕﺍﺭﺎﺼﺘﺧﺍ ﻦﻴﻜﻤﺗ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "ﻢﻜﺤﺘﻟﺍ ﺔﺣﻮﻟ ﻞﻳﺪﺒﺗ - 1"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "ﺔﺒﻌﻠﻟﺍ ﺮﺷﺆﻣ ﻊﺿﻭ ﻞﻳﺪﺒﺗ - 2"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "ﺮﺷﺆﻤﻟﺍ ﻞﻔﻗ ﻞﻳﺪﺒﺗ - 3"
+
+msgid "Stream Quality"
+msgstr "ﺚﺒﻟﺍ ﺓﺩﻮﺟ"
+
+msgid "Preset Modes:"
+msgstr "ﻖﺒﺴﻤﻟﺍ ﻂﺒﻀﻟﺍ ﻉﺎﺿﻭﺃ"
+
+msgid "Static"
+msgstr "ﺔﺘﺑﺎﺛ"
+
+msgid "Low"
+msgstr "ﻞﻴﻠﻗ"
+
+msgid "Medium"
+msgstr "ﺔﻄﺳﺍﻭ"
+
+msgid "High"
+msgstr "ﻲﻟﺎﻋ"
+
+msgid "Extreme"
+msgstr "ﻰﺼﻗﺃ"
+
+msgid "Lossless"
+msgstr "ﺕﺎﻧﺎﻴﺑ ﻥﺍﺪﻘﻓ ﻥﻭﺪﺑ"
+
+msgid "Custom"
+msgstr "ﺺﺼﺨﻣ"
+
+msgid "Anti-Aliasing:"
+msgstr "ﻞﻘﺼﻟﺍ"
+
+msgid "Auto Dynamic"
+msgstr "ﻲﺋﺎﻘﻠﺗ ﻲﻜﻴﻣﺎﻨﻳﺩ"
+
+msgid "Off"
+msgstr "ﻦﻋ"
+
+msgid "On"
+msgstr "ﻰﻠﻋ"
+
+msgid "Dynamic Quality Min:"
+msgstr "ﺔﻴﻜﻴﻣﺎﻨﻳﺪﻟﺍ ﺓﺩﻮﺠﻠﻟ ﻰﻧﺩﻷ﻿ﺍ ﺪﺤﻟﺍ"
+
+msgid "Dynamic Quality Max:"
+msgstr "ﺔﻴﻜﻴﻣﺎﻨﻳﺩ ﺓﺩﻮﺟ ﻰﺼﻗﺃ"
+
+msgid "Treat Lossless:"
+msgstr "ﺓﺭﺎﺴﺧ ﻼ﻿ﺑ ﺝﻼ﻿ﻋ"
+
+msgid "Frame Rate:"
+msgstr "ﺭﺎﻃﻹ﻿ﺍ ﻝﺪﻌﻣ"
+
+msgid "Video JPEG Quality:"
+msgstr "JPEG ﻮﻳﺪﻴﻔﻟﺍ ﺓﺩﻮﺟ"
+
+msgid "Video WEBP Quality:"
+msgstr "WEBP ﻮﻳﺪﻴﻔﻟﺍ ﺓﺩﻮﺟ"
+
+msgid "Video Area:"
+msgstr "ﻮﻳﺪﻴﻔﻟﺍ ﺔﻘﻄﻨﻣ"
+
+msgid "Video Time:"
+msgstr "ﻮﻳﺪﻴﻔﻟﺍ ﺖﻗﻭ"
+
+msgid "Video Out Time:"
+msgstr "ﻮﻳﺪﻴﻔﻟﺍ ﺝﻭﺮﺧ ﺖﻗﻭ"
+
+msgid "Video Mode Width:"
+msgstr "ﻮﻳﺪﻴﻔﻟﺍ ﻊﺿﻭ ﺽﺮﻋ"
+
+msgid "Video Mode Height:"
+msgstr "ﻮﻳﺪﻴﻔﻟﺍ ﻊﺿﻭ ﻉﺎﻔﺗﺭﺍ"
+
+msgid "Documentation"
+msgstr "ﻖﻴﺛﻮﺗ"
+
+msgid "Drag Viewport"
+msgstr "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳﺍ"

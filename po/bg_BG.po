@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Свързване..."
+
+msgid "Disconnecting..."
+msgstr "Прекъсване на връзката..."
+
+msgid "Reconnecting..."
+msgstr "Повторно свързване..."
+
+msgid "Internal error"
+msgstr "Вътрешна грешка"
+
+msgid "Must set host"
+msgstr "Трябва да зададете хост"
+
+msgid "Connected (encrypted) to "
+msgstr "Свързан (криптиран) към "
+
+msgid "Connected (unencrypted) to "
+msgstr "Свързан (некриптиран) с "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Нещо се обърка, връзката е затворена"
+
+msgid "Failed to connect to server"
+msgstr "Не може да се свърже със сървъра"
+
+msgid "Disconnected"
+msgstr "Прекъснат"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Нова връзка е отхвърлена с причина:"
+
+msgid "New connection has been rejected"
+msgstr "Нова връзка е отхвърлена"
+
+msgid "Credentials are required"
+msgstr "Изискват се идентификационни данни"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC откри грешка:"
+
+msgid "Hide/Show the control bar"
+msgstr "Скриване/Показване на контролната лента"
+
+msgid "Drag"
+msgstr "Плъзнете"
+
+msgid "Move/Drag Viewport"
+msgstr "Преместване/плъзгане на изгледен прозорец"
+
+msgid "Keyboard"
+msgstr "Клавиатура"
+
+msgid "Show Keyboard"
+msgstr "Покажи клавиатурата"
+
+msgid "Extra keys"
+msgstr "Допълнителни ключове"
+
+msgid "Show Extra Keys"
+msgstr "Покажи допълнителни ключове"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Превключване на Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Превключване на Alt"
+
+msgid "Toggle Windows"
+msgstr "Превключване на Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Раздел Изпращане"
+
+msgid "Tab"
+msgstr "Раздел"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Изпрати Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Изпращане на Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Изключване/Рестартиране"
+
+msgid "Shutdown/Reboot..."
+msgstr "Изключване/Рестартиране..."
+
+msgid "Power"
+msgstr "мощност"
+
+msgid "Shutdown"
+msgstr "Изключвам"
+
+msgid "Reboot"
+msgstr "Рестартиране"
+
+msgid "Reset"
+msgstr "Нулиране"
+
+msgid "Clipboard"
+msgstr "Клипборд"
+
+msgid "Clear"
+msgstr "Ясно"
+
+msgid "Fullscreen"
+msgstr "Цял екран"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Shared Mode"
+msgstr "Споделен режим"
+
+msgid "View Only"
+msgstr "Само преглед"
+
+msgid "Clip to Window"
+msgstr "Клип към прозорец"
+
+msgid "Scaling Mode:"
+msgstr "Режим на мащабиране:"
+
+msgid "None"
+msgstr "Нито един"
+
+msgid "Local Scaling"
+msgstr "Локално мащабиране"
+
+msgid "Remote Resizing"
+msgstr "Отдалечено преоразмеряване"
+
+msgid "Advanced"
+msgstr "Напреднали"
+
+msgid "Quality:"
+msgstr "Качество:"
+
+msgid "Compression level:"
+msgstr "Ниво на компресия:"
+
+msgid "Repeater ID:"
+msgstr "ID на ретранслатора:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Шифроване"
+
+msgid "Host:"
+msgstr "Домакин:"
+
+msgid "Port:"
+msgstr "Порт:"
+
+msgid "Path:"
+msgstr "Път:"
+
+msgid "Automatic Reconnect"
+msgstr "Автоматично повторно свързване"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Забавяне при повторно свързване (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Показване на точка, когато няма курсор"
+
+msgid "Logging:"
+msgstr "Регистриране:"
+
+msgid "Version:"
+msgstr "Версия:"
+
+msgid "Disconnect"
+msgstr "Прекъсване"
+
+msgid "Connect"
+msgstr "Свързване"
+
+msgid "Username:"
+msgstr "Потребителско име:"
+
+msgid "Password:"
+msgstr "Парола:"
+
+msgid "Send Credentials"
+msgstr "Изпращане на идентификационни данни"
+
+msgid "Cancel"
+msgstr "Отказ"
+
+msgid "Keys"
+msgstr "Ключове"
+
+msgid "Game Cursor Mode"
+msgstr "Режим на курсора на играта"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Натиснете клавиша Esc, за да излезете от режима на заключване на показалеца"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Режимът на играта е на пауза, щракнете върху екрана, за да възобновите режима на игра."
+
+msgid "Clipboard Up"
+msgstr "Клипборда нагоре"
+
+msgid "CLipboard Down"
+msgstr "Клипборда надолу"
+
+msgid "Clipboard Seamless"
+msgstr "Безпроблемно клипборд"
+
+msgid "Prefer Local Cursor"
+msgstr "Предпочитам локален курсор"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Превод на клавишни комбинации"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Активиране на WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Активиране на WebP компресия"
+
+msgid "Enable Performance Stats"
+msgstr "Активиране на статистика за ефективността"
+
+msgid "Enable Pointer Lock"
+msgstr "Активиране на заключване на показалеца"
+
+msgid "IME Input Mode"
+msgstr "Режим на въвеждане на IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Показване на управлението на виртуалната клавиатура"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Превключване на контролния панел чрез натискане на клавиши"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Комбинация от клавиши"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Активиране на клавишните комбинации на KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 – Превключване на контролния панел"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 – Превключване на режима на показалеца на играта"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 – Превключване на заключването на показалеца"
+
+msgid "Stream Quality"
+msgstr "Качество на потока"
+
+msgid "Preset Modes:"
+msgstr "Предварително зададени режими:"
+
+msgid "Static"
+msgstr "Статичен"
+
+msgid "Low"
+msgstr "Нисък"
+
+msgid "Medium"
+msgstr "среден"
+
+msgid "High"
+msgstr "Високо"
+
+msgid "Extreme"
+msgstr "Екстремни"
+
+msgid "Lossless"
+msgstr "без загуба"
+
+msgid "Custom"
+msgstr "Персонализиран"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Авто динамичен"
+
+msgid "Off"
+msgstr "Изключено"
+
+msgid "On"
+msgstr "На"
+
+msgid "Dynamic Quality Min:"
+msgstr "Минимално динамично качество:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Макс. динамично качество:"
+
+msgid "Treat Lossless:"
+msgstr "Лекувайте без загуба:"
+
+msgid "Frame Rate:"
+msgstr "Скорост на кадрите:"
+
+msgid "Video JPEG Quality:"
+msgstr "Видео JPEG качество:"
+
+msgid "Video WEBP Quality:"
+msgstr "Качество на видео WEBP:"
+
+msgid "Video Area:"
+msgstr "Видео зона:"
+
+msgid "Video Time:"
+msgstr "Време на видеото:"
+
+msgid "Video Out Time:"
+msgstr "Време за изход на видео:"
+
+msgid "Video Mode Width:"
+msgstr "Ширина на видео режим:"
+
+msgid "Video Mode Height:"
+msgstr "Височина на видео режим:"
+
+msgid "Documentation"
+msgstr "документация"
+
+msgid "Drag Viewport"
+msgstr "Изглед с плъзгане"

@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Po lidhet..."
+
+msgid "Disconnecting..."
+msgstr "Po shkëputet..."
+
+msgid "Reconnecting..."
+msgstr "Rilidhja..."
+
+msgid "Internal error"
+msgstr "Gabim i brendshëm"
+
+msgid "Must set host"
+msgstr "Duhet të vendoset pritësi"
+
+msgid "Connected (encrypted) to "
+msgstr "I lidhur (i koduar) me"
+
+msgid "Connected (unencrypted) to "
+msgstr "I lidhur (i pakriptuar) me "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Diçka shkoi keq, lidhja u mbyll"
+
+msgid "Failed to connect to server"
+msgstr "Dështoi për t'u lidhur me serverin"
+
+msgid "Disconnected"
+msgstr "E shkëputur"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Lidhja e re është refuzuar me arsye:"
+
+msgid "New connection has been rejected"
+msgstr "Lidhja e re është refuzuar"
+
+msgid "Credentials are required"
+msgstr "Duhen kredenciale"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC hasi në një gabim:"
+
+msgid "Hide/Show the control bar"
+msgstr "Fshihe/Shfaq shiritin e kontrollit"
+
+msgid "Drag"
+msgstr "Zvarrit"
+
+msgid "Move/Drag Viewport"
+msgstr "Lëviz/Zvarrit portën e shikimit"
+
+msgid "Keyboard"
+msgstr "Tastiera"
+
+msgid "Show Keyboard"
+msgstr "Shfaq tastierën"
+
+msgid "Extra keys"
+msgstr "Çelësat shtesë"
+
+msgid "Show Extra Keys"
+msgstr "Trego çelësat shtesë"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ndrysho Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Ndrysho Alt"
+
+msgid "Toggle Windows"
+msgstr "Ndrysho Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Dërgo skedën"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Dërgo arratisje"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Dërgo Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Fikja / Rindezja"
+
+msgid "Shutdown/Reboot..."
+msgstr "Fikja/rinisja..."
+
+msgid "Power"
+msgstr "fuqi"
+
+msgid "Shutdown"
+msgstr "Fike"
+
+msgid "Reboot"
+msgstr "Rinisni"
+
+msgid "Reset"
+msgstr "Rivendos"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Qartë"
+
+msgid "Fullscreen"
+msgstr "Ekran i plotë"
+
+msgid "Settings"
+msgstr "Cilësimet"
+
+msgid "Shared Mode"
+msgstr "Modaliteti i përbashkët"
+
+msgid "View Only"
+msgstr "Vetëm shikim"
+
+msgid "Clip to Window"
+msgstr "Klip në dritare"
+
+msgid "Scaling Mode:"
+msgstr "Modaliteti i shkallëzimit:"
+
+msgid "None"
+msgstr "Asnje"
+
+msgid "Local Scaling"
+msgstr "Shkallëzimi lokal"
+
+msgid "Remote Resizing"
+msgstr "Ndryshimi i madhësisë në distancë"
+
+msgid "Advanced"
+msgstr "E avancuar"
+
+msgid "Quality:"
+msgstr "Cilësia:"
+
+msgid "Compression level:"
+msgstr "Niveli i kompresimit:"
+
+msgid "Repeater ID:"
+msgstr "ID-ja e përsëritësit:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Enkripto"
+
+msgid "Host:"
+msgstr "Mikpritës:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Rrugë:"
+
+msgid "Automatic Reconnect"
+msgstr "Rilidhja automatike"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Vonesë e rilidhjes (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Trego pikën kur nuk ka kursor"
+
+msgid "Logging:"
+msgstr "Regjistrimi:"
+
+msgid "Version:"
+msgstr "Version:"
+
+msgid "Disconnect"
+msgstr "Shkëputje"
+
+msgid "Connect"
+msgstr "Lidhu"
+
+msgid "Username:"
+msgstr "Emri i përdoruesit:"
+
+msgid "Password:"
+msgstr "Fjalëkalimi:"
+
+msgid "Send Credentials"
+msgstr "Dërgo kredencialet"
+
+msgid "Cancel"
+msgstr "Anulo"
+
+msgid "Keys"
+msgstr "Çelësat"
+
+msgid "Game Cursor Mode"
+msgstr "Modaliteti i kursorit të lojës"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Shtypni tastin Esc për të dalë nga modaliteti i kyçjes së treguesit"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Modaliteti i lojës u ndërpre, klikoni në ekran për të rifilluar modalitetin e lojës."
+
+msgid "Clipboard Up"
+msgstr "Klipboard lart"
+
+msgid "CLipboard Down"
+msgstr "Clipboard poshtë"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Preferoj kursorin lokal"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Përkthe shkurtoret e tastierës"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Aktivizo WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Aktivizo kompresimin e WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Aktivizo statistikat e performancës"
+
+msgid "Enable Pointer Lock"
+msgstr "Aktivizo kyçjen e treguesit"
+
+msgid "IME Input Mode"
+msgstr "Modaliteti i hyrjes IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Trego kontrollin e tastierës virtuale"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Ndrysho panelin e kontrollit nëpërmjet goditjeve të tasteve"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Shkurtoret e tastierës"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Aktivizo shkurtoret e tastierës KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Ndrysho panelin e kontrollit"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Ndrysho modalitetin e treguesit të lojës"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Ndrysho kyçjen e treguesit"
+
+msgid "Stream Quality"
+msgstr "Cilësia e transmetimit"
+
+msgid "Preset Modes:"
+msgstr "Modalitetet e paracaktuara:"
+
+msgid "Static"
+msgstr "Statike"
+
+msgid "Low"
+msgstr "I ulët"
+
+msgid "Medium"
+msgstr "e mesme"
+
+msgid "High"
+msgstr "i lartë"
+
+msgid "Extreme"
+msgstr "Ekstreme"
+
+msgid "Lossless"
+msgstr "Pa humbje"
+
+msgid "Custom"
+msgstr "Me porosi"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Fikur"
+
+msgid "On"
+msgstr "On"
+
+msgid "Dynamic Quality Min:"
+msgstr "Minimi i cilësisë dinamike:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maksimi i cilësisë dinamike:"
+
+msgid "Treat Lossless:"
+msgstr "Trajtoni pa humbje:"
+
+msgid "Frame Rate:"
+msgstr "Shkalla e kornizës:"
+
+msgid "Video JPEG Quality:"
+msgstr "Cilësia e videos JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Cilësia e videos WEBP:"
+
+msgid "Video Area:"
+msgstr "Zona e videos:"
+
+msgid "Video Time:"
+msgstr "Koha e videos:"
+
+msgid "Video Out Time:"
+msgstr "Koha e daljes së videos:"
+
+msgid "Video Mode Width:"
+msgstr "Gjerësia e modalitetit të videos:"
+
+msgid "Video Mode Height:"
+msgstr "Lartësia e modalitetit të videos:"
+
+msgid "Documentation"
+msgstr "Dokumentacioni"
+
+msgid "Drag Viewport"
+msgstr "Zvarrit portin e shikimit"

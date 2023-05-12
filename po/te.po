@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "కనెక్ట్ అవుతోంది..."
+
+msgid "Disconnecting..."
+msgstr "డిస్u200cకనెక్ట్ చేస్తోంది..."
+
+msgid "Reconnecting..."
+msgstr "మళ్లీ కనెక్ట్ అవుతోంది..."
+
+msgid "Internal error"
+msgstr "అంతర్గత లోపం"
+
+msgid "Must set host"
+msgstr "తప్పనిసరిగా సెట్ చేయాలి"
+
+msgid "Connected (encrypted) to "
+msgstr "కి కనెక్ట్ చేయబడింది (ఎన్u200cక్రిప్ట్ చేయబడింది)"
+
+msgid "Connected (unencrypted) to "
+msgstr "కి కనెక్ట్ చేయబడింది (ఎన్u200cక్రిప్ట్ చేయబడింది)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ఏదో తప్పు జరిగింది, కనెక్షన్ మూసివేయబడింది"
+
+msgid "Failed to connect to server"
+msgstr "సర్వర్ తో అనుసంధాన ప్రయత్నం విఫలమైనది"
+
+msgid "Disconnected"
+msgstr "డిస్u200cకనెక్ట్ చేయబడింది"
+
+msgid "New connection has been rejected with reason: "
+msgstr "కొత్త కనెక్షన్ కారణంతో తిరస్కరించబడింది:"
+
+msgid "New connection has been rejected"
+msgstr "కొత్త కనెక్షన్ తిరస్కరించబడింది"
+
+msgid "Credentials are required"
+msgstr "క్రెడెన్షియల్స్ అవసరం"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC లోపాన్ని ఎదుర్కొంది:"
+
+msgid "Hide/Show the control bar"
+msgstr "నియంత్రణ పట్టీని దాచు/చూపించు"
+
+msgid "Drag"
+msgstr "లాగండి"
+
+msgid "Move/Drag Viewport"
+msgstr "వ్యూపోర్ట్u200cని తరలించు/లాగండి"
+
+msgid "Keyboard"
+msgstr "కీబోర్డ్"
+
+msgid "Show Keyboard"
+msgstr "కీబోర్డ్ చూపించు"
+
+msgid "Extra keys"
+msgstr "అదనపు కీలు"
+
+msgid "Show Extra Keys"
+msgstr "అదనపు కీలను చూపించు"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrlని టోగుల్ చేయి"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Altని టోగుల్ చేయి"
+
+msgid "Toggle Windows"
+msgstr "విండోస్u200cని టోగుల్ చేయి"
+
+msgid "Windows"
+msgstr "విండోస్"
+
+msgid "Send Tab"
+msgstr "పంపు ట్యాబ్"
+
+msgid "Tab"
+msgstr "ట్యాబ్"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "ఎస్కేప్ పంపు"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Delని పంపు"
+
+msgid "Shutdown/Reboot"
+msgstr "షట్u200cడౌన్/రీబూట్"
+
+msgid "Shutdown/Reboot..."
+msgstr "షట్u200cడౌన్/రీబూట్..."
+
+msgid "Power"
+msgstr "శక్తి"
+
+msgid "Shutdown"
+msgstr "షట్డౌన్"
+
+msgid "Reboot"
+msgstr "రీబూట్"
+
+msgid "Reset"
+msgstr "రీసెట్"
+
+msgid "Clipboard"
+msgstr "క్లిప్u200cబోర్డ్"
+
+msgid "Clear"
+msgstr "క్లియర్"
+
+msgid "Fullscreen"
+msgstr "పూర్తి స్క్రీన్"
+
+msgid "Settings"
+msgstr "సెట్టింగ్u200cలు"
+
+msgid "Shared Mode"
+msgstr "షేర్డ్ మోడ్"
+
+msgid "View Only"
+msgstr "వీక్షణ మాత్రమే"
+
+msgid "Clip to Window"
+msgstr "క్లిప్ టు విండో"
+
+msgid "Scaling Mode:"
+msgstr "స్కేలింగ్ మోడ్:"
+
+msgid "None"
+msgstr "ఏదీ లేదు"
+
+msgid "Local Scaling"
+msgstr "స్థానిక స్కేలింగ్"
+
+msgid "Remote Resizing"
+msgstr "రిమోట్ పునఃపరిమాణం"
+
+msgid "Advanced"
+msgstr "ఆధునిక"
+
+msgid "Quality:"
+msgstr "నాణ్యత:"
+
+msgid "Compression level:"
+msgstr "కంప్రెషన్ స్థాయి:"
+
+msgid "Repeater ID:"
+msgstr "రిపీటర్ ID:"
+
+msgid "WebSocket"
+msgstr "వెబ్u200cసాకెట్"
+
+msgid "Encrypt"
+msgstr "ఎన్క్రిప్ట్"
+
+msgid "Host:"
+msgstr "హోస్ట్:"
+
+msgid "Port:"
+msgstr "పోర్ట్:"
+
+msgid "Path:"
+msgstr "మార్గం:"
+
+msgid "Automatic Reconnect"
+msgstr "ఆటోమేటిక్ రీకనెక్ట్"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ఆలస్యాన్ని మళ్లీ కనెక్ట్ చేయండి (మిస్):"
+
+msgid "Show Dot when No Cursor"
+msgstr "కర్సర్ లేనప్పుడు డాట్ చూపించు"
+
+msgid "Logging:"
+msgstr "లాగింగ్:"
+
+msgid "Version:"
+msgstr "సంస్కరణ: Telugu:"
+
+msgid "Disconnect"
+msgstr "డిస్u200cకనెక్ట్"
+
+msgid "Connect"
+msgstr "కనెక్ట్"
+
+msgid "Username:"
+msgstr "వినియోగదారు పేరు:"
+
+msgid "Password:"
+msgstr "పాస్u200cవర్డ్:"
+
+msgid "Send Credentials"
+msgstr "క్రెడెన్షియల్స్ పంపండి"
+
+msgid "Cancel"
+msgstr "రద్దు చేయండి"
+
+msgid "Keys"
+msgstr "కీలు"
+
+msgid "Game Cursor Mode"
+msgstr "గేమ్ కర్సర్ మోడ్"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "పాయింటర్ లాక్ మోడ్ నుండి నిష్క్రమించడానికి Esc కీని నొక్కండి"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "గేమ్ మోడ్ పాజ్ చేయబడింది, గేమ్ మోడ్u200cని రెస్యూమ్ చేయడానికి స్క్రీన్u200cపై క్లిక్ చేయండి."
+
+msgid "Clipboard Up"
+msgstr "క్లిప్u200cబోర్డ్ పైకి"
+
+msgid "CLipboard Down"
+msgstr "క్లిప్u200cబోర్డ్ డౌన్"
+
+msgid "Clipboard Seamless"
+msgstr "క్లిప్u200cబోర్డ్ అతుకులు"
+
+msgid "Prefer Local Cursor"
+msgstr "స్థానిక కర్సర్u200cకు ప్రాధాన్యత ఇవ్వండి"
+
+msgid "Translate keyboard shortcuts"
+msgstr "కీబోర్డ్ సత్వరమార్గాలను అనువదించు"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP రవాణాను ప్రారంభించు"
+
+msgid "Enable WebP Compression"
+msgstr "WebP కంప్రెషన్u200cని ప్రారంభించు"
+
+msgid "Enable Performance Stats"
+msgstr "పనితీరు గణాంకాలను ప్రారంభించు"
+
+msgid "Enable Pointer Lock"
+msgstr "పాయింటర్ లాక్u200cని ప్రారంభించు"
+
+msgid "IME Input Mode"
+msgstr "IME ఇన్u200cపుట్ మోడ్"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "వర్చువల్ కీబోర్డ్ నియంత్రణను చూపించు"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "కీస్ట్రోక్u200cల ద్వారా కంట్రోల్ ప్యానెల్u200cని టోగుల్ చేయండి"
+
+msgid "Render Native Resolution"
+msgstr "రెండర్ స్థానిక రిజల్యూషన్"
+
+msgid "Keyboard Shortcuts"
+msgstr "కీబోర్డ్ సత్వరమార్గాలు"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC కీబోర్డ్ సత్వరమార్గాలను ప్రారంభించు"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - కంట్రోల్ ప్యానెల్u200cని టోగుల్ చేయి"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - గేమ్ పాయింటర్ మోడ్u200cని టోగుల్ చేయండి"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - పాయింటర్ లాక్u200cని టోగుల్ చేయి"
+
+msgid "Stream Quality"
+msgstr "స్ట్రీమ్ నాణ్యత"
+
+msgid "Preset Modes:"
+msgstr "ప్రీసెట్ మోడ్u200cలు:"
+
+msgid "Static"
+msgstr "స్టాటిక్"
+
+msgid "Low"
+msgstr "తక్కువ"
+
+msgid "Medium"
+msgstr "మీడియం"
+
+msgid "High"
+msgstr "అధిక"
+
+msgid "Extreme"
+msgstr "అతి"
+
+msgid "Lossless"
+msgstr "నష్టం లేనిది"
+
+msgid "Custom"
+msgstr "కస్టమ్"
+
+msgid "Anti-Aliasing:"
+msgstr "యాంటీ అలియాసింగ్:"
+
+msgid "Auto Dynamic"
+msgstr "ఆటో డైనమిక్"
+
+msgid "Off"
+msgstr "ఆఫ్"
+
+msgid "On"
+msgstr "పై"
+
+msgid "Dynamic Quality Min:"
+msgstr "డైనమిక్ క్వాలిటీ మిని:"
+
+msgid "Dynamic Quality Max:"
+msgstr "డైనమిక్ క్వాలిటీ మ్యాక్స్:"
+
+msgid "Treat Lossless:"
+msgstr "లాస్లెస్ ట్రీట్:"
+
+msgid "Frame Rate:"
+msgstr "ఫ్రేమ్ రేట్:"
+
+msgid "Video JPEG Quality:"
+msgstr "వీడియో JPEG నాణ్యత:"
+
+msgid "Video WEBP Quality:"
+msgstr "వీడియో WEBP నాణ్యత:"
+
+msgid "Video Area:"
+msgstr "వీడియో ప్రాంతం:"
+
+msgid "Video Time:"
+msgstr "వీడియో సమయం:"
+
+msgid "Video Out Time:"
+msgstr "వీడియో అవుట్ టైమ్:"
+
+msgid "Video Mode Width:"
+msgstr "వీడియో మోడ్ వెడల్పు:"
+
+msgid "Video Mode Height:"
+msgstr "వీడియో మోడ్ ఎత్తు:"
+
+msgid "Documentation"
+msgstr "డాక్యుమెంటేషన్"
+
+msgid "Drag Viewport"
+msgstr "డ్రాగ్ వ్యూపోర్ట్"

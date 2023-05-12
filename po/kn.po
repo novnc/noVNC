@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ..."
+
+msgid "Disconnecting..."
+msgstr "ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಲಾಗುತ್ತಿದೆ..."
+
+msgid "Reconnecting..."
+msgstr "ಮರುಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ..."
+
+msgid "Internal error"
+msgstr "ಆಂತರಿಕ ದೋಷ"
+
+msgid "Must set host"
+msgstr "ಹೋಸ್ಟ್ ಅನ್ನು ಹೊಂದಿಸಬೇಕು"
+
+msgid "Connected (encrypted) to "
+msgstr "ಸಂಪರ್ಕಿಸಲಾಗಿದೆ (ಎನ್u200cಕ್ರಿಪ್ಟ್ ಮಾಡಲಾಗಿದೆ)"
+
+msgid "Connected (unencrypted) to "
+msgstr "ಸಂಪರ್ಕಿಸಲಾಗಿದೆ (ಎನ್u200cಕ್ರಿಪ್ಟ್ ಮಾಡಲಾಗಿಲ್ಲ)"
+
+msgid "Something went wrong, connection is closed"
+msgstr "ಏನೋ ತಪ್ಪಾಗಿದೆ, ಸಂಪರ್ಕವನ್ನು ಮುಚ್ಚಲಾಗಿದೆ"
+
+msgid "Failed to connect to server"
+msgstr "ಸರ್ವರ್u200cಗೆ ಸಂಪರ್ಕಿಸಲು ವಿಫಲವಾಗಿದೆ"
+
+msgid "Disconnected"
+msgstr "ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "ಹೊಸ ಸಂಪರ್ಕವನ್ನು ಕಾರಣದೊಂದಿಗೆ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ:"
+
+msgid "New connection has been rejected"
+msgstr "ಹೊಸ ಸಂಪರ್ಕವನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ"
+
+msgid "Credentials are required"
+msgstr "ರುಜುವಾತುಗಳು ಅಗತ್ಯವಿದೆ"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ದೋಷವನ್ನು ಎದುರಿಸಿದೆ:"
+
+msgid "Hide/Show the control bar"
+msgstr "ಕಂಟ್ರೋಲ್ ಬಾರ್ ಅನ್ನು ಮರೆಮಾಡಿ / ತೋರಿಸು"
+
+msgid "Drag"
+msgstr "ಎಳೆಯಿರಿ"
+
+msgid "Move/Drag Viewport"
+msgstr "ಮೂವ್/ಡ್ರ್ಯಾಗ್ ವ್ಯೂಪೋರ್ಟ್"
+
+msgid "Keyboard"
+msgstr "ಕೀಬೋರ್ಡ್"
+
+msgid "Show Keyboard"
+msgstr "ಕೀಬೋರ್ಡ್ ತೋರಿಸು"
+
+msgid "Extra keys"
+msgstr "ಹೆಚ್ಚುವರಿ ಕೀಗಳು"
+
+msgid "Show Extra Keys"
+msgstr "ಹೆಚ್ಚುವರಿ ಕೀಗಳನ್ನು ತೋರಿಸು"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl ಅನ್ನು ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "Alt"
+msgstr "ಆಲ್ಟ್"
+
+msgid "Toggle Alt"
+msgstr "ಆಲ್ಟ್ ಅನ್ನು ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "Toggle Windows"
+msgstr "ವಿಂಡೋಸ್ ಅನ್ನು ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "Windows"
+msgstr "ವಿಂಡೋಸ್"
+
+msgid "Send Tab"
+msgstr "ಟ್ಯಾಬ್ ಕಳುಹಿಸಿ"
+
+msgid "Tab"
+msgstr "ಟ್ಯಾಬ್"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "ಎಸ್ಕೇಪ್ ಕಳುಹಿಸಿ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del ಕಳುಹಿಸಿ"
+
+msgid "Shutdown/Reboot"
+msgstr "ಸ್ಥಗಿತಗೊಳಿಸುವಿಕೆ/ರೀಬೂಟ್"
+
+msgid "Shutdown/Reboot..."
+msgstr "ಶಟ್u200cಡೌನ್/ರೀಬೂಟ್..."
+
+msgid "Power"
+msgstr "ಶಕ್ತಿ"
+
+msgid "Shutdown"
+msgstr "ಮುಚ್ಚಲಾಯಿತು"
+
+msgid "Reboot"
+msgstr "ರೀಬೂಟ್"
+
+msgid "Reset"
+msgstr "ಮರುಹೊಂದಿಸಿ"
+
+msgid "Clipboard"
+msgstr "ಕ್ಲಿಪ್ಬೋರ್ಡ್"
+
+msgid "Clear"
+msgstr "ಸ್ಪಷ್ಟ"
+
+msgid "Fullscreen"
+msgstr "ಪೂರ್ಣ ಪರದೆ"
+
+msgid "Settings"
+msgstr "ಸಂಯೋಜನೆಗಳು"
+
+msgid "Shared Mode"
+msgstr "ಹಂಚಿದ ಮೋಡ್"
+
+msgid "View Only"
+msgstr "ವೀಕ್ಷಣೆ ಮಾತ್ರ"
+
+msgid "Clip to Window"
+msgstr "ಕಿಟಕಿಗೆ ಕ್ಲಿಪ್ ಮಾಡಿ"
+
+msgid "Scaling Mode:"
+msgstr "ಸ್ಕೇಲಿಂಗ್ ಮೋಡ್:"
+
+msgid "None"
+msgstr "ಯಾವುದೂ"
+
+msgid "Local Scaling"
+msgstr "ಸ್ಥಳೀಯ ಸ್ಕೇಲಿಂಗ್"
+
+msgid "Remote Resizing"
+msgstr "ರಿಮೋಟ್ ಮರುಗಾತ್ರಗೊಳಿಸುವಿಕೆ"
+
+msgid "Advanced"
+msgstr "ಸುಧಾರಿತ"
+
+msgid "Quality:"
+msgstr "ಗುಣಮಟ್ಟ:"
+
+msgid "Compression level:"
+msgstr "ಸಂಕೋಚನ ಮಟ್ಟ:"
+
+msgid "Repeater ID:"
+msgstr "ಪುನರಾವರ್ತಕ ID:"
+
+msgid "WebSocket"
+msgstr "ವೆಬ್ಸಾಕೆಟ್"
+
+msgid "Encrypt"
+msgstr "ಎನ್ಕ್ರಿಪ್ಟ್"
+
+msgid "Host:"
+msgstr "ಅತಿಥೆಯ:"
+
+msgid "Port:"
+msgstr "ಬಂದರು:"
+
+msgid "Path:"
+msgstr "ಮಾರ್ಗ:"
+
+msgid "Automatic Reconnect"
+msgstr "ಸ್ವಯಂಚಾಲಿತ ಮರುಸಂಪರ್ಕ"
+
+msgid "Reconnect Delay (ms):"
+msgstr "ಮರುಸಂಪರ್ಕ ವಿಳಂಬ (ಮಿಸೆಸ್):"
+
+msgid "Show Dot when No Cursor"
+msgstr "ಕರ್ಸರ್ ಇಲ್ಲದಿದ್ದಾಗ ಡಾಟ್ ತೋರಿಸು"
+
+msgid "Logging:"
+msgstr "ಲಾಗಿಂಗ್:"
+
+msgid "Version:"
+msgstr "ಆವೃತ್ತಿ:"
+
+msgid "Disconnect"
+msgstr "ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಿ"
+
+msgid "Connect"
+msgstr "ಸಂಪರ್ಕ"
+
+msgid "Username:"
+msgstr "ಬಳಕೆದಾರ ಹೆಸರು:"
+
+msgid "Password:"
+msgstr "ಗುಪ್ತಪದ:"
+
+msgid "Send Credentials"
+msgstr "ರುಜುವಾತುಗಳನ್ನು ಕಳುಹಿಸಿ"
+
+msgid "Cancel"
+msgstr "ರದ್ದುಮಾಡು"
+
+msgid "Keys"
+msgstr "ಕೀಗಳು"
+
+msgid "Game Cursor Mode"
+msgstr "ಗೇಮ್ ಕರ್ಸರ್ ಮೋಡ್"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "ಪಾಯಿಂಟರ್ ಲಾಕ್ ಮೋಡ್u200cನಿಂದ ನಿರ್ಗಮಿಸಲು Esc ಕೀಲಿಯನ್ನು ಒತ್ತಿರಿ"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "ಗೇಮ್ ಮೋಡ್ ಅನ್ನು ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ, ಗೇಮ್ ಮೋಡ್ ಅನ್ನು ಪುನರಾರಂಭಿಸಲು ಪರದೆಯ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ."
+
+msgid "Clipboard Up"
+msgstr "ಕ್ಲಿಪ್ಬೋರ್ಡ್ ಅಪ್"
+
+msgid "CLipboard Down"
+msgstr "ಕ್ಲಿಪ್ಬೋರ್ಡ್ ಡೌನ್"
+
+msgid "Clipboard Seamless"
+msgstr "ಕ್ಲಿಪ್ಬೋರ್ಡ್ ತಡೆರಹಿತ"
+
+msgid "Prefer Local Cursor"
+msgstr "ಸ್ಥಳೀಯ ಕರ್ಸರ್ ಆದ್ಯತೆ"
+
+msgid "Translate keyboard shortcuts"
+msgstr "ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್u200cಕಟ್u200cಗಳನ್ನು ಅನುವಾದಿಸಿ"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP ಟ್ರಾನ್ಸಿಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Enable WebP Compression"
+msgstr "ವೆಬ್ಪಿ ಕಂಪ್ರೆಷನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Enable Performance Stats"
+msgstr "ಕಾರ್ಯಕ್ಷಮತೆಯ ಅಂಕಿಅಂಶಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Enable Pointer Lock"
+msgstr "ಪಾಯಿಂಟರ್ ಲಾಕ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "IME Input Mode"
+msgstr "IME ಇನ್u200cಪುಟ್ ಮೋಡ್"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "ವರ್ಚುವಲ್ ಕೀಬೋರ್ಡ್ ನಿಯಂತ್ರಣವನ್ನು ತೋರಿಸು"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "ಕೀಸ್ಟ್ರೋಕ್u200cಗಳ ಮೂಲಕ ನಿಯಂತ್ರಣ ಫಲಕವನ್ನು ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "Render Native Resolution"
+msgstr "ಸ್ಥಳೀಯ ರೆಸಲ್ಯೂಶನ್ ನಿರೂಪಿಸು"
+
+msgid "Keyboard Shortcuts"
+msgstr "ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್u200cಕಟ್u200cಗಳು"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್u200cಕಟ್u200cಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - ನಿಯಂತ್ರಣ ಫಲಕವನ್ನು ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - ಟಾಗಲ್ ಗೇಮ್ ಪಾಯಿಂಟರ್ ಮೋಡ್"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - ಟಾಗಲ್ ಪಾಯಿಂಟರ್ ಲಾಕ್"
+
+msgid "Stream Quality"
+msgstr "ಸ್ಟ್ರೀಮ್ ಗುಣಮಟ್ಟ"
+
+msgid "Preset Modes:"
+msgstr "ಪ್ರಿಸೆಟ್ ಮೋಡ್u200cಗಳು:"
+
+msgid "Static"
+msgstr "ಸ್ಥಿರ"
+
+msgid "Low"
+msgstr "ಕಡಿಮೆ"
+
+msgid "Medium"
+msgstr "ಮಾಧ್ಯಮ"
+
+msgid "High"
+msgstr "ಹೆಚ್ಚು"
+
+msgid "Extreme"
+msgstr "ಅತ್ಯಂತ"
+
+msgid "Lossless"
+msgstr "ನಷ್ಟವಿಲ್ಲದ"
+
+msgid "Custom"
+msgstr "ಕಸ್ಟಮ್"
+
+msgid "Anti-Aliasing:"
+msgstr "ವಿರೋಧಿ ಉಪನಾಮ:"
+
+msgid "Auto Dynamic"
+msgstr "ಆಟೋ ಡೈನಾಮಿಕ್"
+
+msgid "Off"
+msgstr "ಆರಿಸಿ"
+
+msgid "On"
+msgstr "ಆನ್"
+
+msgid "Dynamic Quality Min:"
+msgstr "ಡೈನಾಮಿಕ್ ಗುಣಮಟ್ಟ ಕನಿಷ್ಠ:"
+
+msgid "Dynamic Quality Max:"
+msgstr "ಡೈನಾಮಿಕ್ ಕ್ವಾಲಿಟಿ ಮ್ಯಾಕ್ಸ್:"
+
+msgid "Treat Lossless:"
+msgstr "ಲಾಸ್ಲೆಸ್ ಟ್ರೀಟ್:"
+
+msgid "Frame Rate:"
+msgstr "ಚೌಕಟ್ಟು ಬೆಲೆ:"
+
+msgid "Video JPEG Quality:"
+msgstr "ವೀಡಿಯೊ JPEG ಗುಣಮಟ್ಟ:"
+
+msgid "Video WEBP Quality:"
+msgstr "ವೀಡಿಯೊ WEBP ಗುಣಮಟ್ಟ:"
+
+msgid "Video Area:"
+msgstr "ವೀಡಿಯೊ ಪ್ರದೇಶ:"
+
+msgid "Video Time:"
+msgstr "ವೀಡಿಯೊ ಸಮಯ:"
+
+msgid "Video Out Time:"
+msgstr "ವೀಡಿಯೊ ಔಟ್ ಟೈಮ್:"
+
+msgid "Video Mode Width:"
+msgstr "ವೀಡಿಯೊ ಮೋಡ್ ಅಗಲ:"
+
+msgid "Video Mode Height:"
+msgstr "ವೀಡಿಯೊ ಮೋಡ್ ಎತ್ತರ:"
+
+msgid "Documentation"
+msgstr "ದಾಖಲೆ"
+
+msgid "Drag Viewport"
+msgstr "ಡ್ರ್ಯಾಗ್ ವ್ಯೂಪೋರ್ಟ್"

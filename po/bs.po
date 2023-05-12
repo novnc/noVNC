@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Povezivanje..."
+
+msgid "Disconnecting..."
+msgstr "Prekidanje veze..."
+
+msgid "Reconnecting..."
+msgstr "Ponovno povezivanje..."
+
+msgid "Internal error"
+msgstr "Interna greška"
+
+msgid "Must set host"
+msgstr "Mora se postaviti host"
+
+msgid "Connected (encrypted) to "
+msgstr "Povezano (šifrirano) na "
+
+msgid "Connected (unencrypted) to "
+msgstr "Povezano (nešifrirano) na "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Nešto nije u redu, veza je zatvorena"
+
+msgid "Failed to connect to server"
+msgstr "Neuspjelo povezivanje na server"
+
+msgid "Disconnected"
+msgstr "isključeno"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nova veza je odbijena s razlogom: "
+
+msgid "New connection has been rejected"
+msgstr "Nova veza je odbijena"
+
+msgid "Credentials are required"
+msgstr "Potrebni su akreditivi"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC je naišao na grešku:"
+
+msgid "Hide/Show the control bar"
+msgstr "Sakrij/Prikaži kontrolnu traku"
+
+msgid "Drag"
+msgstr "povuci"
+
+msgid "Move/Drag Viewport"
+msgstr "Premjesti/povucite okvir za prikaz"
+
+msgid "Keyboard"
+msgstr "tastatura"
+
+msgid "Show Keyboard"
+msgstr "Prikaži tastaturu"
+
+msgid "Extra keys"
+msgstr "dodatni ključevi"
+
+msgid "Show Extra Keys"
+msgstr "Prikaži dodatne ključeve"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Prebaci Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Toggle Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Pošalji karticu"
+
+msgid "Tab"
+msgstr "tab"
+
+msgid "Esc"
+msgstr "Itd"
+
+msgid "Send Escape"
+msgstr "Pošalji bijeg"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Pošalji Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Shutdown/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Shutdown/Reboot..."
+
+msgid "Power"
+msgstr "snaga"
+
+msgid "Shutdown"
+msgstr "Ugasiti"
+
+msgid "Reboot"
+msgstr "ponovno pokretanje"
+
+msgid "Reset"
+msgstr "Resetovati"
+
+msgid "Clipboard"
+msgstr "međuspremnik"
+
+msgid "Clear"
+msgstr "jasno"
+
+msgid "Fullscreen"
+msgstr "Cijeli ekran"
+
+msgid "Settings"
+msgstr "Postavke"
+
+msgid "Shared Mode"
+msgstr "Shared Mode"
+
+msgid "View Only"
+msgstr "Samo prikaz"
+
+msgid "Clip to Window"
+msgstr "Klip to prozor"
+
+msgid "Scaling Mode:"
+msgstr "Način skaliranja:"
+
+msgid "None"
+msgstr "nijedno"
+
+msgid "Local Scaling"
+msgstr "Lokalno skaliranje"
+
+msgid "Remote Resizing"
+msgstr "Daljinsko mijenjanje veličine"
+
+msgid "Advanced"
+msgstr "napredni"
+
+msgid "Quality:"
+msgstr "Kvalitet:"
+
+msgid "Compression level:"
+msgstr "Nivo kompresije:"
+
+msgid "Repeater ID:"
+msgstr "ID repetitora:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "šifriranje"
+
+msgid "Host:"
+msgstr "domaćin:"
+
+msgid "Port:"
+msgstr "Luka:"
+
+msgid "Path:"
+msgstr "Put:"
+
+msgid "Automatic Reconnect"
+msgstr "Automatsko ponovno povezivanje"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Kašnjenje ponovnog povezivanja (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Prikaži tačku kada nema kursora"
+
+msgid "Logging:"
+msgstr "Logiranje:"
+
+msgid "Version:"
+msgstr "Verzija:"
+
+msgid "Disconnect"
+msgstr "Prekini"
+
+msgid "Connect"
+msgstr "poveži se"
+
+msgid "Username:"
+msgstr "Korisničko ime:"
+
+msgid "Password:"
+msgstr "Lozinka:"
+
+msgid "Send Credentials"
+msgstr "Pošalji akreditive"
+
+msgid "Cancel"
+msgstr "Otkaži"
+
+msgid "Keys"
+msgstr "ključevi"
+
+msgid "Game Cursor Mode"
+msgstr "Način kursora igre"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Pritisnite tipku Esc da izađete iz načina zaključavanja pokazivača"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Režim igre je pauziran, kliknite na ekran da nastavite Game Mode."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Bešavni međuspremnik"
+
+msgid "Prefer Local Cursor"
+msgstr "Preferiraj lokalni kursor"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Prevedi prečice na tastaturi"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Omogući WebRTC UDP tranzit"
+
+msgid "Enable WebP Compression"
+msgstr "Omogući WebP kompresiju"
+
+msgid "Enable Performance Stats"
+msgstr "Omogući statistiku performansi"
+
+msgid "Enable Pointer Lock"
+msgstr "Omogući zaključavanje pokazivača"
+
+msgid "IME Input Mode"
+msgstr "IME način unosa"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Prikaži kontrolu virtuelne tastature"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Prebacite kontrolnu tablu pritiskom na tipke"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Prečice na tastaturi"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Omogući KasmVNC prečice na tastaturi"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Uključite kontrolnu tablu"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Uključite način rada pokazivača igre"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Prebaci zaključavanje pokazivača"
+
+msgid "Stream Quality"
+msgstr "Kvalitet prijenosa"
+
+msgid "Preset Modes:"
+msgstr "Unaprijed postavljeni načini rada:"
+
+msgid "Static"
+msgstr "statična"
+
+msgid "Low"
+msgstr "nisko"
+
+msgid "Medium"
+msgstr "srednji"
+
+msgid "High"
+msgstr "visoko"
+
+msgid "Extreme"
+msgstr "ekstremno"
+
+msgid "Lossless"
+msgstr "bez gubitaka"
+
+msgid "Custom"
+msgstr "prilagođeno"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Isključeno"
+
+msgid "On"
+msgstr "Uključeno"
+
+msgid "Dynamic Quality Min:"
+msgstr "Minimalni dinamički kvalitet:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maksimalni dinamički kvalitet:"
+
+msgid "Treat Lossless:"
+msgstr "Treat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Brzina kadrova:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG kvalitet:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP kvalitet:"
+
+msgid "Video Area:"
+msgstr "Video područje:"
+
+msgid "Video Time:"
+msgstr "Vrijeme videa:"
+
+msgid "Video Out Time:"
+msgstr "Vrijeme izlaza videa:"
+
+msgid "Video Mode Width:"
+msgstr "Širina video načina rada:"
+
+msgid "Video Mode Height:"
+msgstr "Visina video načina:"
+
+msgid "Documentation"
+msgstr "dokumentacija"
+
+msgid "Drag Viewport"
+msgstr "Drag Viewport"

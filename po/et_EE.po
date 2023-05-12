@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Ühendamine..."
+
+msgid "Disconnecting..."
+msgstr "Ühendust katkestatakse..."
+
+msgid "Reconnecting..."
+msgstr "Taasühendamine..."
+
+msgid "Internal error"
+msgstr "Sisemine viga"
+
+msgid "Must set host"
+msgstr "Peab hosti määrama"
+
+msgid "Connected (encrypted) to "
+msgstr "Ühendatud (krüpteeritud) võrguga "
+
+msgid "Connected (unencrypted) to "
+msgstr "Ühendatud (krüpteerimata) võrguga "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Midagi läks valesti, ühendus on suletud"
+
+msgid "Failed to connect to server"
+msgstr "Serveriga ühenduse loomine nurjus"
+
+msgid "Disconnected"
+msgstr "Katkestatud"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Uus ühendus on tagasi lükatud põhjusel:"
+
+msgid "New connection has been rejected"
+msgstr "Uus ühendus on tagasi lükatud"
+
+msgid "Credentials are required"
+msgstr "Mandaat on nõutav"
+
+msgid "noVNC encountered an error:"
+msgstr "NoVNC-l ilmnes viga:"
+
+msgid "Hide/Show the control bar"
+msgstr "Peida/kuva juhtriba"
+
+msgid "Drag"
+msgstr "Vedama"
+
+msgid "Move/Drag Viewport"
+msgstr "Teisalda/lohistamisvaade"
+
+msgid "Keyboard"
+msgstr "Klaviatuur"
+
+msgid "Show Keyboard"
+msgstr "Kuva klaviatuur"
+
+msgid "Extra keys"
+msgstr "Lisaklahvid"
+
+msgid "Show Extra Keys"
+msgstr "Näita lisaklahve"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Lülita Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Lülita Alt"
+
+msgid "Toggle Windows"
+msgstr "Lülita Windowsi sisse"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Saada vahekaart"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Saada põgenemine"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl + Alt + Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Saada Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Shutdown/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Shutdown/Reboot..."
+
+msgid "Power"
+msgstr "Võim"
+
+msgid "Shutdown"
+msgstr "Lülita välja"
+
+msgid "Reboot"
+msgstr "Taaskäivitamine"
+
+msgid "Reset"
+msgstr "Lähtesta"
+
+msgid "Clipboard"
+msgstr "Lõikelaud"
+
+msgid "Clear"
+msgstr "Tühjenda"
+
+msgid "Fullscreen"
+msgstr "Täisekraan"
+
+msgid "Settings"
+msgstr "Seaded"
+
+msgid "Shared Mode"
+msgstr "Jagatud režiim"
+
+msgid "View Only"
+msgstr "Ainult vaatamine"
+
+msgid "Clip to Window"
+msgstr "Klip aknasse"
+
+msgid "Scaling Mode:"
+msgstr "Skaleerimisrežiim:"
+
+msgid "None"
+msgstr "Mitte ükski"
+
+msgid "Local Scaling"
+msgstr "Kohalik skaleerimine"
+
+msgid "Remote Resizing"
+msgstr "Suuruse kaugmuutmine"
+
+msgid "Advanced"
+msgstr "Täpsem"
+
+msgid "Quality:"
+msgstr "Kvaliteet:"
+
+msgid "Compression level:"
+msgstr "Tihenduse tase:"
+
+msgid "Repeater ID:"
+msgstr "Repeateri ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Krüpti"
+
+msgid "Host:"
+msgstr "Võõrustaja:"
+
+msgid "Port:"
+msgstr "Sadam:"
+
+msgid "Path:"
+msgstr "Tee:"
+
+msgid "Automatic Reconnect"
+msgstr "Automaatne taasühendamine"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Taasühendamise viivitus (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Näita punkti, kui kursorit pole"
+
+msgid "Logging:"
+msgstr "Logimine:"
+
+msgid "Version:"
+msgstr "Versioon:"
+
+msgid "Disconnect"
+msgstr "Katkesta ühendus"
+
+msgid "Connect"
+msgstr "Ühenda"
+
+msgid "Username:"
+msgstr "Kasutajanimi:"
+
+msgid "Password:"
+msgstr "Parool:"
+
+msgid "Send Credentials"
+msgstr "Saada mandaadid"
+
+msgid "Cancel"
+msgstr "Tühista"
+
+msgid "Keys"
+msgstr "Võtmed"
+
+msgid "Game Cursor Mode"
+msgstr "Mängu kursori režiim"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Osuri lukustusrežiimist väljumiseks vajutage klahvi Esc"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Mängurežiim peatatud, mängurežiimi jätkamiseks klõpsake ekraanil."
+
+msgid "Clipboard Up"
+msgstr "Lõikelaud üles"
+
+msgid "CLipboard Down"
+msgstr "Lõikelaud alla"
+
+msgid "Clipboard Seamless"
+msgstr "Sujuv lõikelaud"
+
+msgid "Prefer Local Cursor"
+msgstr "Eelista kohalikku kursorit"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tõlgi klaviatuuri otseteed"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Luba WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Luba WebP tihendamine"
+
+msgid "Enable Performance Stats"
+msgstr "Luba jõudlusstatistika"
+
+msgid "Enable Pointer Lock"
+msgstr "Luba kursori lukk"
+
+msgid "IME Input Mode"
+msgstr "IME sisestusrežiim"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Kuva virtuaalse klaviatuuri juhtimine"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Lülita juhtpaneeli klahvivajutuste kaudu sisse"
+
+msgid "Render Native Resolution"
+msgstr "Render Native Resolution"
+
+msgid "Keyboard Shortcuts"
+msgstr "Klaviatuuri otseteed"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "KasmVNC kiirklahvide lubamine"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 – juhtpaneeli sisse- ja väljalülitamine"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Mängu osuti režiimi sisse- ja väljalülitamine"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 – Lülita kursori lukustus sisse"
+
+msgid "Stream Quality"
+msgstr "Voo kvaliteet"
+
+msgid "Preset Modes:"
+msgstr "Eelseadistatud režiimid:"
+
+msgid "Static"
+msgstr "Staatiline"
+
+msgid "Low"
+msgstr "Madal"
+
+msgid "Medium"
+msgstr "Keskmine"
+
+msgid "High"
+msgstr "Kõrge"
+
+msgid "Extreme"
+msgstr "Äärmuslik"
+
+msgid "Lossless"
+msgstr "Kaotusteta"
+
+msgid "Custom"
+msgstr "Kohandatud"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Automaatne dünaamiline"
+
+msgid "Off"
+msgstr "Väljas"
+
+msgid "On"
+msgstr "Peal"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dünaamiline kvaliteet min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dünaamiline kvaliteet max:"
+
+msgid "Treat Lossless:"
+msgstr "Treat Lossless:"
+
+msgid "Frame Rate:"
+msgstr "Kaadrisagedus:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG kvaliteet:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP kvaliteet:"
+
+msgid "Video Area:"
+msgstr "Videoala:"
+
+msgid "Video Time:"
+msgstr "Video aeg:"
+
+msgid "Video Out Time:"
+msgstr "Video lõppaeg:"
+
+msgid "Video Mode Width:"
+msgstr "Videorežiimi laius:"
+
+msgid "Video Mode Height:"
+msgstr "Videorežiimi kõrgus:"
+
+msgid "Documentation"
+msgstr "Dokumentatsioon"
+
+msgid "Drag Viewport"
+msgstr "Lohistamisvaade"

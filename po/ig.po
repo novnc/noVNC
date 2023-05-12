@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Na-ejikọta..."
+
+msgid "Disconnecting..."
+msgstr "Ịkwụsị njikọ..."
+
+msgid "Reconnecting..."
+msgstr "Na-ejikọta ọzọ..."
+
+msgid "Internal error"
+msgstr "Njehie dị n'ime"
+
+msgid "Must set host"
+msgstr "Ekwesịrị ịtọ onye ọbịa"
+
+msgid "Connected (encrypted) to "
+msgstr "Ejikọrọ (ezoro ezo) na"
+
+msgid "Connected (unencrypted) to "
+msgstr "Ejikọrọ (anaghị ezoro ezo) na"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Ọnwere ihe adịghị mma, njikọ emechiela"
+
+msgid "Failed to connect to server"
+msgstr "Ọ dịghị njikọ na ihe nkesa"
+
+msgid "Disconnected"
+msgstr "Ekwụpụrụ"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Ajụrụ njikọ ọhụrụ n'ihi ihe kpatara ya:"
+
+msgid "New connection has been rejected"
+msgstr "Ajụjụ njikọ ọhụrụ"
+
+msgid "Credentials are required"
+msgstr "Achọrọ nzere"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC zutere mperi:"
+
+msgid "Hide/Show the control bar"
+msgstr "Zoo/Gosi akara njikwa"
+
+msgid "Drag"
+msgstr "Dọrọ"
+
+msgid "Move/Drag Viewport"
+msgstr "Bugharịa / Dọrọ nlegharị anya"
+
+msgid "Keyboard"
+msgstr "ahụigodo"
+
+msgid "Show Keyboard"
+msgstr "Gosi ahụigodo"
+
+msgid "Extra keys"
+msgstr "Igodo ọzọ"
+
+msgid "Show Extra Keys"
+msgstr "Gosi mgbakwunye igodo"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Tụgharịa Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Tụgharịa Alt"
+
+msgid "Toggle Windows"
+msgstr "Tụgharịa Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Zipu Tab"
+
+msgid "Tab"
+msgstr "Taabụ"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Zipu mgbapụ"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Zipu Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Mmechibido / malitegharịa"
+
+msgid "Shutdown/Reboot..."
+msgstr "Mechie / malitegharịa..."
+
+msgid "Power"
+msgstr "Ike"
+
+msgid "Shutdown"
+msgstr "Mechie"
+
+msgid "Reboot"
+msgstr "Malitegharịa ekwentị"
+
+msgid "Reset"
+msgstr "Tọgharia"
+
+msgid "Clipboard"
+msgstr "Klipbọọdụ"
+
+msgid "Clear"
+msgstr "Kpochapụ"
+
+msgid "Fullscreen"
+msgstr "Ihuenyo zuru oke"
+
+msgid "Settings"
+msgstr "Ntọala"
+
+msgid "Shared Mode"
+msgstr "Ụdị Ekekọrịtara"
+
+msgid "View Only"
+msgstr "Lee naanị"
+
+msgid "Clip to Window"
+msgstr "Kpọọ na windo"
+
+msgid "Scaling Mode:"
+msgstr "Ụdị ntọlite:"
+
+msgid "None"
+msgstr "Ọ dịghị"
+
+msgid "Local Scaling"
+msgstr "Ntụle mpaghara"
+
+msgid "Remote Resizing"
+msgstr "Mgbanwe nha anya"
+
+msgid "Advanced"
+msgstr "Ego elu"
+
+msgid "Quality:"
+msgstr "Ọdịmma:"
+
+msgid "Compression level:"
+msgstr "Ọkwa mkpakọ:"
+
+msgid "Repeater ID:"
+msgstr "NJ ugboro ugboro:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Encrypt"
+
+msgid "Host:"
+msgstr "Onye ọbịa:"
+
+msgid "Port:"
+msgstr "Ọdụ ụgbọ mmiri:"
+
+msgid "Path:"
+msgstr "Ụzọ:"
+
+msgid "Automatic Reconnect"
+msgstr "njikọ akpaaka"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Tigharịa oge igbu oge (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Gosi ntụpọ mgbe ọ nweghị cursor"
+
+msgid "Logging:"
+msgstr "Ịbanye:"
+
+msgid "Version:"
+msgstr "Ụdị:"
+
+msgid "Disconnect"
+msgstr "Kwụpụ"
+
+msgid "Connect"
+msgstr "Jikọọ"
+
+msgid "Username:"
+msgstr "Aha njirimara:"
+
+msgid "Password:"
+msgstr "Paswọọdụ:"
+
+msgid "Send Credentials"
+msgstr "Zipu nzere"
+
+msgid "Cancel"
+msgstr "Kagbuo"
+
+msgid "Keys"
+msgstr "Igodo"
+
+msgid "Game Cursor Mode"
+msgstr "Ụdị cursor egwuregwu"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "pịa igodo Esc ka ịpụ na ọnọdụ mkpọchi ntụnye"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Ụdị egwuregwu kwụsịrị, pịa ihuenyo ka ịmaliteghachi ọnọdụ egwuregwu."
+
+msgid "Clipboard Up"
+msgstr "Klipbọọdụ Elu"
+
+msgid "CLipboard Down"
+msgstr "Klipbọọdụ ala"
+
+msgid "Clipboard Seamless"
+msgstr "Klipbọọdụ enweghị nkebi"
+
+msgid "Prefer Local Cursor"
+msgstr "Họrọ ihe nhịahụ mpaghara"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tụgharịa asụsụ mkpirisi ahụigodo"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Kwado WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Kwado mkpakọ WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Kwado stats arụmọrụ"
+
+msgid "Enable Pointer Lock"
+msgstr "Kwado mkpọchi ntụnye"
+
+msgid "IME Input Mode"
+msgstr "Ụdị ntinye IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Gosi njikwa ahụigodo mebere"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Tụgharịa Ogwe njikwa site na igodo igodo"
+
+msgid "Render Native Resolution"
+msgstr "Mepụta mkpebi obodo"
+
+msgid "Keyboard Shortcuts"
+msgstr "Ụzọ mkpirisi ahụigodo"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Kwado ụzọ mkpirisi ahụigodo KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Gbanwee Ogwe njikwa"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Gbanwee ụkpụrụ ntụnye egwuregwu"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Gbanwee mkpọchi ntụnye"
+
+msgid "Stream Quality"
+msgstr "Ọdịmma Stream"
+
+msgid "Preset Modes:"
+msgstr "Ụdị atọrọ:"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Low"
+msgstr "Obere"
+
+msgid "Medium"
+msgstr "Ọkara"
+
+msgid "High"
+msgstr "Elu"
+
+msgid "Extreme"
+msgstr "oke"
+
+msgid "Lossless"
+msgstr "Enweghị efu"
+
+msgid "Custom"
+msgstr "Omenala"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Akụkụ na-agbanwe agbanwe"
+
+msgid "Off"
+msgstr "gbanyụọ"
+
+msgid "On"
+msgstr "Na"
+
+msgid "Dynamic Quality Min:"
+msgstr "Njiri mara mma na-agbanwe agbanwe:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Ọdịmma kacha mma:"
+
+msgid "Treat Lossless:"
+msgstr "Mee ihe efu:"
+
+msgid "Frame Rate:"
+msgstr "Ọnụ ego etiti:"
+
+msgid "Video JPEG Quality:"
+msgstr "Video JPEG Ogo:"
+
+msgid "Video WEBP Quality:"
+msgstr "Video WEBP Ogo:"
+
+msgid "Video Area:"
+msgstr "Ebe vidiyo:"
+
+msgid "Video Time:"
+msgstr "Oge vidiyo:"
+
+msgid "Video Out Time:"
+msgstr "Oge Ọpụpụ vidiyo:"
+
+msgid "Video Mode Width:"
+msgstr "Obosara ọnọdụ vidiyo:"
+
+msgid "Video Mode Height:"
+msgstr "Ụdị vidiyo dị elu:"
+
+msgid "Documentation"
+msgstr "Akwụkwọ"
+
+msgid "Drag Viewport"
+msgstr "Dọrọ nlegharị anya"

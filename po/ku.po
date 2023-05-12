@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Girêdayîn..."
+
+msgid "Disconnecting..."
+msgstr "Qetkirin..."
+
+msgid "Reconnecting..."
+msgstr "Ji nû ve girêdan..."
+
+msgid "Internal error"
+msgstr "Çewtiya navxweyî"
+
+msgid "Must set host"
+msgstr "Divê mêvandar were danîn"
+
+msgid "Connected (encrypted) to "
+msgstr "Pêwendî (şîfrekirî) bi"
+
+msgid "Connected (unencrypted) to "
+msgstr "Pêwendî (neşîfrekirî) bi"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Tiştek xelet derket, têkilî girtî ye"
+
+msgid "Failed to connect to server"
+msgstr "Girêdana bi serverê re têk çû"
+
+msgid "Disconnected"
+msgstr "Qet kirin"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Pêwendiya nû bi sedem hate red kirin:"
+
+msgid "New connection has been rejected"
+msgstr "Têkiliya nû hat redkirin"
+
+msgid "Credentials are required"
+msgstr "Peymanname hewce ne"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC rastî xeletiyek hat:"
+
+msgid "Hide/Show the control bar"
+msgstr "Bara kontrolê veşêre/nîşan bide"
+
+msgid "Drag"
+msgstr "Xwêrvekişandin"
+
+msgid "Move/Drag Viewport"
+msgstr "Gove/Drag Viewport"
+
+msgid "Keyboard"
+msgstr "Kilawye"
+
+msgid "Show Keyboard"
+msgstr "Klavyeyê nîşan bide"
+
+msgid "Extra keys"
+msgstr "Bişkojkên Zêde"
+
+msgid "Show Extra Keys"
+msgstr "Bişkojkên Zêde Nîşan Bide"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Ctrl biguherîne"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Alt biguherîne"
+
+msgid "Toggle Windows"
+msgstr "Windows biguherîne"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Tab bişîne"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Send Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Ctrl-Alt-Del bişîne"
+
+msgid "Shutdown/Reboot"
+msgstr "Girtin/Ji nû ve destpêkirinê"
+
+msgid "Shutdown/Reboot..."
+msgstr "Seqandin/Ji nû ve destpêkirin..."
+
+msgid "Power"
+msgstr "Erk"
+
+msgid "Shutdown"
+msgstr "Temirandin"
+
+msgid "Reboot"
+msgstr "Reboot"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Zelal"
+
+msgid "Fullscreen"
+msgstr "Temû ekran"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Shared Mode"
+msgstr "Moda Parvekirî"
+
+msgid "View Only"
+msgstr "Tenê Dîtin"
+
+msgid "Clip to Window"
+msgstr "Klîp berbi pencereyê"
+
+msgid "Scaling Mode:"
+msgstr "Moda Scaling:"
+
+msgid "None"
+msgstr "Netû"
+
+msgid "Local Scaling"
+msgstr "Pêkanîna Herêmî"
+
+msgid "Remote Resizing"
+msgstr "Ji Dûr Veguherandin"
+
+msgid "Advanced"
+msgstr "Pêşveçû"
+
+msgid "Quality:"
+msgstr "Çêwe:"
+
+msgid "Compression level:"
+msgstr "Asta compression:"
+
+msgid "Repeater ID:"
+msgstr "Nasnameya dubareker:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Şîfrekirin"
+
+msgid "Host:"
+msgstr "Mazûban:"
+
+msgid "Port:"
+msgstr "Bender:"
+
+msgid "Path:"
+msgstr "Şop:"
+
+msgid "Automatic Reconnect"
+msgstr "Ji nû ve girêdana otomatîk"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Derengiya ji nû ve girêdanê (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Dema ku Kursor tunebe xalê nîşan bide"
+
+msgid "Logging:"
+msgstr "Têketin:"
+
+msgid "Version:"
+msgstr "Awa:"
+
+msgid "Disconnect"
+msgstr "Hevqetandin"
+
+msgid "Connect"
+msgstr "Bihevgirêdan"
+
+msgid "Username:"
+msgstr "Navê bikarhêner:"
+
+msgid "Password:"
+msgstr "Şîfre:"
+
+msgid "Send Credentials"
+msgstr "Send Nasname"
+
+msgid "Cancel"
+msgstr "Bişûndekirin"
+
+msgid "Keys"
+msgstr "Bişkoj"
+
+msgid "Game Cursor Mode"
+msgstr "Moda nîşankerê lîstikê"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Bişkojka Esc bikirtînin da ku hûn ji moda kilîtkirina nîşankerê derkevin"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Moda lîstikê rawestiya, li ser ekranê bikirtînin da ku moda lîstikê ji nû ve bidin destpêkirin."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard Seamless"
+
+msgid "Prefer Local Cursor"
+msgstr "Nivîsa herêmî tercîh bikin"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Kurtereyên klavyeyê wergerîne"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "WebRTC UDP Transit çalak bike"
+
+msgid "Enable WebP Compression"
+msgstr "Compression WebP çalak bike"
+
+msgid "Enable Performance Stats"
+msgstr "Amarên Performansê çalak bikin"
+
+msgid "Enable Pointer Lock"
+msgstr "Girtina nîşanê çalak bike"
+
+msgid "IME Input Mode"
+msgstr "Moda Ketina IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Kontrola Klavyeya Virtual nîşan bide"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Panela Kontrolê bi Bişkojka Bişkojka Veguhezîne"
+
+msgid "Render Native Resolution"
+msgstr "Çareseriya xwecihî bidin"
+
+msgid "Keyboard Shortcuts"
+msgstr "Kurteyên Klavyeyê"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Kurteyên Klavyeyê KasmVNC çalak bike"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Panela Kontrolê Biguherîne"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Moda Nîşana Lîstikê Biguherîne"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Girtina Nîşanê Veguherîne"
+
+msgid "Stream Quality"
+msgstr "Qalîteya Stream"
+
+msgid "Preset Modes:"
+msgstr "Modes Preset:"
+
+msgid "Static"
+msgstr "Statîk"
+
+msgid "Low"
+msgstr "Nizm"
+
+msgid "Medium"
+msgstr "Medya"
+
+msgid "High"
+msgstr "Bilind"
+
+msgid "Extreme"
+msgstr "Bêfêhm zêde"
+
+msgid "Lossless"
+msgstr "Bê windahî"
+
+msgid "Custom"
+msgstr "Hûnbunî"
+
+msgid "Anti-Aliasing:"
+msgstr "Dij-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Ji"
+
+msgid "On"
+msgstr "Li"
+
+msgid "Dynamic Quality Min:"
+msgstr "Min Qalîteya Dînamîk:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Maksê Qalîteya Dînamîk:"
+
+msgid "Treat Lossless:"
+msgstr "Bê windahî derman bikin:"
+
+msgid "Frame Rate:"
+msgstr "Rêjeya Çarçoveyê:"
+
+msgid "Video JPEG Quality:"
+msgstr "Qalîteya JPEG ya Vîdyoyê:"
+
+msgid "Video WEBP Quality:"
+msgstr "Qalîteya WEBP ya Vîdyoyê:"
+
+msgid "Video Area:"
+msgstr "Herêma Vîdyoyê:"
+
+msgid "Video Time:"
+msgstr "Dema Vîdyoyê:"
+
+msgid "Video Out Time:"
+msgstr "Dema Derketina Vîdyoyê:"
+
+msgid "Video Mode Width:"
+msgstr "Pirahiya Moda Vîdyoyê:"
+
+msgid "Video Mode Height:"
+msgstr "Bilindahiya Moda Vîdyoyê:"
+
+msgid "Documentation"
+msgstr "Belgekirin"
+
+msgid "Drag Viewport"
+msgstr "Portê Dîmenê Kaş bikin"

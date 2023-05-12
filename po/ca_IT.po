@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Connectant..."
+
+msgid "Disconnecting..."
+msgstr "Desconnectant..."
+
+msgid "Reconnecting..."
+msgstr "Reconnectant..."
+
+msgid "Internal error"
+msgstr "Error intern"
+
+msgid "Must set host"
+msgstr "Cal configurar l'amfitrió"
+
+msgid "Connected (encrypted) to "
+msgstr "Connectat (xifrat) a"
+
+msgid "Connected (unencrypted) to "
+msgstr "Connectat (sense xifrar) a"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Alguna cosa ha anat malament, la connexió està tancada"
+
+msgid "Failed to connect to server"
+msgstr "Ha fallat la connexió amb el servidor"
+
+msgid "Disconnected"
+msgstr "Desconnectat"
+
+msgid "New connection has been rejected with reason: "
+msgstr "S'ha rebutjat una connexió nova per un motiu:"
+
+msgid "New connection has been rejected"
+msgstr "S'ha rebutjat una connexió nova"
+
+msgid "Credentials are required"
+msgstr "Les credencials són necessàries"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ha trobat un error:"
+
+msgid "Hide/Show the control bar"
+msgstr "Oculta/Mostra la barra de control"
+
+msgid "Drag"
+msgstr "Arrossegar"
+
+msgid "Move/Drag Viewport"
+msgstr "Mou/Arrossegueu la finestra gràfica"
+
+msgid "Keyboard"
+msgstr "Teclat"
+
+msgid "Show Keyboard"
+msgstr "Mostra el teclat"
+
+msgid "Extra keys"
+msgstr "Claus addicionals"
+
+msgid "Show Extra Keys"
+msgstr "Mostra les claus addicionals"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Canvia Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Canvia Alt"
+
+msgid "Toggle Windows"
+msgstr "Canvia Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Envia la pestanya"
+
+msgid "Tab"
+msgstr "pestanya"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Envia escapar"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Envia Ctrl-Alt-Supr"
+
+msgid "Shutdown/Reboot"
+msgstr "Apagar/Reiniciar"
+
+msgid "Shutdown/Reboot..."
+msgstr "Apagar/Reiniciar..."
+
+msgid "Power"
+msgstr "Poder"
+
+msgid "Shutdown"
+msgstr "Tancar"
+
+msgid "Reboot"
+msgstr "Reiniciar"
+
+msgid "Reset"
+msgstr "Restablir"
+
+msgid "Clipboard"
+msgstr "Porta-retalls"
+
+msgid "Clear"
+msgstr "Netejar"
+
+msgid "Fullscreen"
+msgstr "Pantalla completa"
+
+msgid "Settings"
+msgstr "Configuració"
+
+msgid "Shared Mode"
+msgstr "Mode compartit"
+
+msgid "View Only"
+msgstr "Només vista"
+
+msgid "Clip to Window"
+msgstr "Clip a la finestra"
+
+msgid "Scaling Mode:"
+msgstr "Mode d'escala:"
+
+msgid "None"
+msgstr "Cap"
+
+msgid "Local Scaling"
+msgstr "Escala local"
+
+msgid "Remote Resizing"
+msgstr "Redimensionament remot"
+
+msgid "Advanced"
+msgstr "Avançat"
+
+msgid "Quality:"
+msgstr "Qualitat:"
+
+msgid "Compression level:"
+msgstr "Nivell de compressió:"
+
+msgid "Repeater ID:"
+msgstr "ID del repetidor:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Xifrar"
+
+msgid "Host:"
+msgstr "Amfitrió:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Camí:"
+
+msgid "Automatic Reconnect"
+msgstr "Reconnexió automàtica"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Retard de tornada a connectar (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Mostra el punt quan no hi ha cursor"
+
+msgid "Logging:"
+msgstr "Registre:"
+
+msgid "Version:"
+msgstr "Versió:"
+
+msgid "Disconnect"
+msgstr "Desconnectar"
+
+msgid "Connect"
+msgstr "Connexió"
+
+msgid "Username:"
+msgstr "Nom d'usuari:"
+
+msgid "Password:"
+msgstr "Contrasenya:"
+
+msgid "Send Credentials"
+msgstr "Envia credencials"
+
+msgid "Cancel"
+msgstr "Cancel · lar"
+
+msgid "Keys"
+msgstr "Claus"
+
+msgid "Game Cursor Mode"
+msgstr "Mode de cursor de joc"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Premeu la tecla Esc per sortir del mode de bloqueig del punter"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Mode de joc en pausa, feu clic a la pantalla per reprendre el mode de joc"
+
+msgid "Clipboard Up"
+msgstr "Porta-retalls amunt"
+
+msgid "CLipboard Down"
+msgstr "Porta-retalls avall"
+
+msgid "Clipboard Seamless"
+msgstr "Porta-retalls sense costures"
+
+msgid "Prefer Local Cursor"
+msgstr "Preferir el cursor local"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tradueix les dreceres del teclat"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Activa WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Activa la compressió WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Activa les estadístiques de rendiment"
+
+msgid "Enable Pointer Lock"
+msgstr "Activa el bloqueig del punter"
+
+msgid "IME Input Mode"
+msgstr "Mode d'entrada IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Mostra el control del teclat virtual"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Canvia el tauler de control mitjançant les pulsacions de tecles"
+
+msgid "Render Native Resolution"
+msgstr "Representa la resolució nativa"
+
+msgid "Keyboard Shortcuts"
+msgstr "Dreceres de teclat"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Activa les dreceres de teclat de KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Canvia el tauler de control"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Canvia el mode de punter de joc"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Commuta el bloqueig del punter"
+
+msgid "Stream Quality"
+msgstr "Qualitat del flux"
+
+msgid "Preset Modes:"
+msgstr "Modes preestablerts:"
+
+msgid "Static"
+msgstr "Estàtic"
+
+msgid "Low"
+msgstr "Baix"
+
+msgid "Medium"
+msgstr "mitjà"
+
+msgid "High"
+msgstr "Alt"
+
+msgid "Extreme"
+msgstr "Extrem"
+
+msgid "Lossless"
+msgstr "Sense pèrdues"
+
+msgid "Custom"
+msgstr "Personalitzat"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Dinàmica automàtica"
+
+msgid "Off"
+msgstr "Desactivat"
+
+msgid "On"
+msgstr "Activat"
+
+msgid "Dynamic Quality Min:"
+msgstr "Qualitat dinàmica mínima:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Qualitat dinàmica màxima:"
+
+msgid "Treat Lossless:"
+msgstr "Traiteu sense pèrdues:"
+
+msgid "Frame Rate:"
+msgstr "Velocitat de fotogrames:"
+
+msgid "Video JPEG Quality:"
+msgstr "Qualitat del vídeo JPEG:"
+
+msgid "Video WEBP Quality:"
+msgstr "Qualitat del WEBP del vídeo:"
+
+msgid "Video Area:"
+msgstr "Àrea de vídeo:"
+
+msgid "Video Time:"
+msgstr "Hora del vídeo:"
+
+msgid "Video Out Time:"
+msgstr "Hora de sortida del vídeo:"
+
+msgid "Video Mode Width:"
+msgstr "Amplada del mode de vídeo:"
+
+msgid "Video Mode Height:"
+msgstr "Alçada del mode de vídeo:"
+
+msgid "Documentation"
+msgstr "Documentació"
+
+msgid "Drag Viewport"
+msgstr "Arrossegar la finestra gràfica"

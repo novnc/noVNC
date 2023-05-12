@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "E kopanya ..."
+
+msgid "Disconnecting..."
+msgstr "Ho khaola..."
+
+msgid "Reconnecting..."
+msgstr "E kopanya hape..."
+
+msgid "Internal error"
+msgstr "Phoso ea ka hare"
+
+msgid "Must set host"
+msgstr "E tlameha ho seta moamoheli"
+
+msgid "Connected (encrypted) to "
+msgstr "E hokahane (e patiloe) ho "
+
+msgid "Connected (unencrypted) to "
+msgstr "E kopantsoe (e sa ngolisoa) ho "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Ho na le phoso, khokahano e koetsoe"
+
+msgid "Failed to connect to server"
+msgstr "E hlolehile ho hokela ho seva"
+
+msgid "Disconnected"
+msgstr "E khaotsoe"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Khokahano e ncha e hanngoe ka lebaka: "
+
+msgid "New connection has been rejected"
+msgstr "Khokahano e ncha e hanngoe"
+
+msgid "Credentials are required"
+msgstr "Boitsebiso boa hlokahala"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC e fumane phoso:"
+
+msgid "Hide/Show the control bar"
+msgstr "Pata / Bontša sebaka sa taolo"
+
+msgid "Drag"
+msgstr "Hula"
+
+msgid "Move/Drag Viewport"
+msgstr "Sutha/Hula Viewport"
+
+msgid "Keyboard"
+msgstr "Keyboard"
+
+msgid "Show Keyboard"
+msgstr "Bontša Keyboard"
+
+msgid "Extra keys"
+msgstr "Linotlolo tse ling"
+
+msgid "Show Extra Keys"
+msgstr "Show Extra Keys"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Fetola Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Toggle Alt"
+
+msgid "Toggle Windows"
+msgstr "Fetola Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Romela Tab"
+
+msgid "Tab"
+msgstr "Taba"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Send Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Romela Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Shutdown/Reboot"
+
+msgid "Shutdown/Reboot..."
+msgstr "Shutdown/Reboot..."
+
+msgid "Power"
+msgstr "Matla"
+
+msgid "Shutdown"
+msgstr "Koala"
+
+msgid "Reboot"
+msgstr "Qala bocha"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Clipboard"
+msgstr "Clipboard"
+
+msgid "Clear"
+msgstr "Ho hlakile"
+
+msgid "Fullscreen"
+msgstr "Skrine se felletseng"
+
+msgid "Settings"
+msgstr "Litlhophiso"
+
+msgid "Shared Mode"
+msgstr "Mokhoa o arolelanoeng"
+
+msgid "View Only"
+msgstr "Sheba Feela"
+
+msgid "Clip to Window"
+msgstr "Clip to Window"
+
+msgid "Scaling Mode:"
+msgstr "Scaling Mode:"
+
+msgid "None"
+msgstr "Ha ho letho"
+
+msgid "Local Scaling"
+msgstr "Local Scaling"
+
+msgid "Remote Resizing"
+msgstr "Remote Resize"
+
+msgid "Advanced"
+msgstr "E tsoetseng pele"
+
+msgid "Quality:"
+msgstr "Boleng:"
+
+msgid "Compression level:"
+msgstr "Boemo ba compression:"
+
+msgid "Repeater ID:"
+msgstr "Repeater ID:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Encrypt"
+
+msgid "Host:"
+msgstr "Moamoheli:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Path:"
+msgstr "Tsela:"
+
+msgid "Automatic Reconnect"
+msgstr "Hokela hape ka othomathiki"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Hokahanya Teeho hape (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Show Dot when No Cursor"
+
+msgid "Logging:"
+msgstr "Ho rema lifate:"
+
+msgid "Version:"
+msgstr "Version:"
+
+msgid "Disconnect"
+msgstr "Haola"
+
+msgid "Connect"
+msgstr "Hokela"
+
+msgid "Username:"
+msgstr "Lebitso la mosebelisi:"
+
+msgid "Password:"
+msgstr "Password:"
+
+msgid "Send Credentials"
+msgstr "Romela Litlhaloso"
+
+msgid "Cancel"
+msgstr "Hlakola"
+
+msgid "Keys"
+msgstr "Linotlolo"
+
+msgid "Game Cursor Mode"
+msgstr "Game Cursor Mode"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Tobetsa Esc Key ho Tsoa Mokhoa oa Lock ea Pointer"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Game Mode e emisitsoe, tobetsa skrineng ho qala Mokhoa oa Papali hape."
+
+msgid "Clipboard Up"
+msgstr "Clipboard Up"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Down"
+
+msgid "Clipboard Seamless"
+msgstr "Clipboard e sa tsitsang"
+
+msgid "Prefer Local Cursor"
+msgstr "Rata Cursor ea Lehae"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Fetolela likhutšoane tsa keyboard"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Lumella WebRTC UDP Transit"
+
+msgid "Enable WebP Compression"
+msgstr "Enable WebP Compression"
+
+msgid "Enable Performance Stats"
+msgstr "Enable Performance Stats"
+
+msgid "Enable Pointer Lock"
+msgstr "Enable Pointer Lock"
+
+msgid "IME Input Mode"
+msgstr "IME Mokhoa oa ho Kenya"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Show Virtual Keyboard Control"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Toggle Control Panel ka Keystrokes"
+
+msgid "Render Native Resolution"
+msgstr "Fana ka Qeto ea Naha"
+
+msgid "Keyboard Shortcuts"
+msgstr "Likhaoletso tsa Keyboard"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Lumella likhutšoane tsa keyboard ea KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Toggle Control Panel"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Toggle Game Pointer Mode"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Toggle Pointer Lock"
+
+msgid "Stream Quality"
+msgstr "Boleng ba Phallo"
+
+msgid "Preset Modes:"
+msgstr "Mefuta e setang esale pele:"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Low"
+msgstr "tlase"
+
+msgid "Medium"
+msgstr "Bohareng"
+
+msgid "High"
+msgstr "Holimo"
+
+msgid "Extreme"
+msgstr "E feteletseng"
+
+msgid "Lossless"
+msgstr "Tahlehelo"
+
+msgid "Custom"
+msgstr "Tloaelo"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Tima"
+
+msgid "On"
+msgstr "Bula"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dynamic Quality Min:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Dynamic Quality Max:"
+
+msgid "Treat Lossless:"
+msgstr "Tšoara U se Nang tahlehelo:"
+
+msgid "Frame Rate:"
+msgstr "Sekhahla sa Frame:"
+
+msgid "Video JPEG Quality:"
+msgstr "Boleng ba JPEG ea Video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Boleng ba Video WEBP:"
+
+msgid "Video Area:"
+msgstr "Sebaka sa Video:"
+
+msgid "Video Time:"
+msgstr "Nako ea Video:"
+
+msgid "Video Out Time:"
+msgstr "Nako ea ho Fella ha Video:"
+
+msgid "Video Mode Width:"
+msgstr "Bophara ba Mokhoa oa Video:"
+
+msgid "Video Mode Height:"
+msgstr "Boemo ba Mokhoa oa Video:"
+
+msgid "Documentation"
+msgstr "Litokomane"
+
+msgid "Drag Viewport"
+msgstr "Hula Viewport"

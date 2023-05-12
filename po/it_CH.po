@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Collegamento..."
+
+msgid "Disconnecting..."
+msgstr "Disconnessione..."
+
+msgid "Reconnecting..."
+msgstr "Riconnessione..."
+
+msgid "Internal error"
+msgstr "Errore interno"
+
+msgid "Must set host"
+msgstr "Devi impostare l'host"
+
+msgid "Connected (encrypted) to "
+msgstr "Connesso (crittografato) a "
+
+msgid "Connected (unencrypted) to "
+msgstr "Connesso (non crittografato) a "
+
+msgid "Something went wrong, connection is closed"
+msgstr "Qualcosa è andato storto, la connessione è chiusa"
+
+msgid "Failed to connect to server"
+msgstr "Impossibile connettersi al server"
+
+msgid "Disconnected"
+msgstr "Disconnesso"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Nuova connessione rifiutata con motivo: "
+
+msgid "New connection has been rejected"
+msgstr "La nuova connessione è stata rifiutata"
+
+msgid "Credentials are required"
+msgstr "Le credenziali sono necessarie"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ha rilevato un errore:"
+
+msgid "Hide/Show the control bar"
+msgstr "Nascondi/Mostra la barra di controllo"
+
+msgid "Drag"
+msgstr "Lagna"
+
+msgid "Move/Drag Viewport"
+msgstr "Sposta/Trascina finestra"
+
+msgid "Keyboard"
+msgstr "Tastiera"
+
+msgid "Show Keyboard"
+msgstr "Mostra tastiera"
+
+msgid "Extra keys"
+msgstr "Chiavi extra"
+
+msgid "Show Extra Keys"
+msgstr "Mostra chiavi extra"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Commuta Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Attiva/disattiva ALT"
+
+msgid "Toggle Windows"
+msgstr "Attiva/disattiva Windows"
+
+msgid "Windows"
+msgstr "Finestre"
+
+msgid "Send Tab"
+msgstr "Scheda Invia"
+
+msgid "Tab"
+msgstr "Scheda"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Invia fuga"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Canc"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Invia Ctrl-Alt-Canc"
+
+msgid "Shutdown/Reboot"
+msgstr "Arresta/Riavvia"
+
+msgid "Shutdown/Reboot..."
+msgstr "Arresta/Riavvia..."
+
+msgid "Power"
+msgstr "Energia"
+
+msgid "Shutdown"
+msgstr "Fermare"
+
+msgid "Reboot"
+msgstr "Riavviare"
+
+msgid "Reset"
+msgstr "Ripristina"
+
+msgid "Clipboard"
+msgstr "Appunti"
+
+msgid "Clear"
+msgstr "Chiaro"
+
+msgid "Fullscreen"
+msgstr "A schermo intero"
+
+msgid "Settings"
+msgstr "Impostazioni"
+
+msgid "Shared Mode"
+msgstr "Modalità condivisa"
+
+msgid "View Only"
+msgstr "Visualizzare solamente"
+
+msgid "Clip to Window"
+msgstr "Aggancia alla finestra"
+
+msgid "Scaling Mode:"
+msgstr "Modalità ridimensionamento:"
+
+msgid "None"
+msgstr "Nessuno"
+
+msgid "Local Scaling"
+msgstr "Ridimensionamento locale"
+
+msgid "Remote Resizing"
+msgstr "Ridimensionamento remoto"
+
+msgid "Advanced"
+msgstr "Avanzate"
+
+msgid "Quality:"
+msgstr "Qualità:"
+
+msgid "Compression level:"
+msgstr "Livello di compressione:"
+
+msgid "Repeater ID:"
+msgstr "ID ripetitore:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Crittografare"
+
+msgid "Host:"
+msgstr "Ospite:"
+
+msgid "Port:"
+msgstr "Porta:"
+
+msgid "Path:"
+msgstr "Sentiero:"
+
+msgid "Automatic Reconnect"
+msgstr "Riconnessione automatica"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Ritardo riconnessione (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Mostra punto quando nessun cursore"
+
+msgid "Logging:"
+msgstr "Registrazione:"
+
+msgid "Version:"
+msgstr "Versione:"
+
+msgid "Disconnect"
+msgstr "Disconnetti"
+
+msgid "Connect"
+msgstr "Collegare"
+
+msgid "Username:"
+msgstr "Nome utente:"
+
+msgid "Password:"
+msgstr "Parola d'ordine:"
+
+msgid "Send Credentials"
+msgstr "Invia credenziali"
+
+msgid "Cancel"
+msgstr "Annulla"
+
+msgid "Keys"
+msgstr "Chiavi"
+
+msgid "Game Cursor Mode"
+msgstr "Modalità cursore di gioco"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Premi il tasto Esc per uscire dalla modalità di blocco del puntatore"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Modalità di gioco in pausa, fai clic sullo schermo per riprendere la modalità di gioco."
+
+msgid "Clipboard Up"
+msgstr "Appunti in alto"
+
+msgid "CLipboard Down"
+msgstr "Appunti giù"
+
+msgid "Clipboard Seamless"
+msgstr "Appunti senza soluzione di continuità"
+
+msgid "Prefer Local Cursor"
+msgstr "Preferisci cursore locale"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Traduci scorciatoie da tastiera"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Abilita transito UDP WebRTC"
+
+msgid "Enable WebP Compression"
+msgstr "Abilita compressione WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Abilita statistiche sul rendimento"
+
+msgid "Enable Pointer Lock"
+msgstr "Abilita blocco puntatore"
+
+msgid "IME Input Mode"
+msgstr "Modalità di immissione IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Mostra il controllo della tastiera virtuale"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Attiva/disattiva pannello di controllo tramite sequenze di tasti"
+
+msgid "Render Native Resolution"
+msgstr "Risoluzione nativa del rendering"
+
+msgid "Keyboard Shortcuts"
+msgstr "Tasti rapidi"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Abilita le scorciatoie da tastiera di KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Attiva/disattiva pannello di controllo"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Attiva/disattiva modalità puntatore di gioco"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Attiva/disattiva il blocco del puntatore"
+
+msgid "Stream Quality"
+msgstr "Qualità del flusso"
+
+msgid "Preset Modes:"
+msgstr "Modalità predefinite:"
+
+msgid "Static"
+msgstr "Statico"
+
+msgid "Low"
+msgstr "Basso"
+
+msgid "Medium"
+msgstr "Medio"
+
+msgid "High"
+msgstr "Alto"
+
+msgid "Extreme"
+msgstr "Estremo"
+
+msgid "Lossless"
+msgstr "Senza perdita"
+
+msgid "Custom"
+msgstr "Costume"
+
+msgid "Anti-Aliasing:"
+msgstr "Anti aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Dinamica automatica"
+
+msgid "Off"
+msgstr "Spento"
+
+msgid "On"
+msgstr "SU"
+
+msgid "Dynamic Quality Min:"
+msgstr "Qualità dinamica minima:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Qualità dinamica massima:"
+
+msgid "Treat Lossless:"
+msgstr "Tratta senza perdita:"
+
+msgid "Frame Rate:"
+msgstr "Frequenza dei fotogrammi:"
+
+msgid "Video JPEG Quality:"
+msgstr "Qualità JPEG video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Qualità WEBP video:"
+
+msgid "Video Area:"
+msgstr "Area video:"
+
+msgid "Video Time:"
+msgstr "Tempo video:"
+
+msgid "Video Out Time:"
+msgstr "Tempo uscita video:"
+
+msgid "Video Mode Width:"
+msgstr "Larghezza modalità video:"
+
+msgid "Video Mode Height:"
+msgstr "Altezza modalità video:"
+
+msgid "Documentation"
+msgstr "Documentazione"
+
+msgid "Drag Viewport"
+msgstr "Trascina finestra"

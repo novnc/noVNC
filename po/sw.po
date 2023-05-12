@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "Inaunganisha ..."
+
+msgid "Disconnecting..."
+msgstr "Inatenganisha ..."
+
+msgid "Reconnecting..."
+msgstr "Inaunganisha tena ..."
+
+msgid "Internal error"
+msgstr "Hitilafu ya ndani"
+
+msgid "Must set host"
+msgstr "Lazima uweke mwenyeji"
+
+msgid "Connected (encrypted) to "
+msgstr "Imeunganishwa (iliyosimbwa) kwa"
+
+msgid "Connected (unencrypted) to "
+msgstr "Imeunganishwa (isiyosimbwa) kwa"
+
+msgid "Something went wrong, connection is closed"
+msgstr "Kuna hitilafu, muunganisho umefungwa"
+
+msgid "Failed to connect to server"
+msgstr "Imeshindwa kuunganisha kwenye seva"
+
+msgid "Disconnected"
+msgstr "Imetenganishwa"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Muunganisho mpya umekataliwa kwa sababu: "
+
+msgid "New connection has been rejected"
+msgstr "Muunganisho mpya umekataliwa"
+
+msgid "Credentials are required"
+msgstr "Vyeti vitahitajika"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC ilipata hitilafu:"
+
+msgid "Hide/Show the control bar"
+msgstr "Ficha/Onyesha upau wa kudhibiti"
+
+msgid "Drag"
+msgstr "Buruta"
+
+msgid "Move/Drag Viewport"
+msgstr "Sogeza/Buruta Mtazamo"
+
+msgid "Keyboard"
+msgstr "Kibodi"
+
+msgid "Show Keyboard"
+msgstr "Onyesha Kibodi"
+
+msgid "Extra keys"
+msgstr "Funguo za ziada"
+
+msgid "Show Extra Keys"
+msgstr "Onyesha Funguo za Ziada"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Geuza Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Geuza Alt"
+
+msgid "Toggle Windows"
+msgstr "Geuza Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Tuma Kichupo"
+
+msgid "Tab"
+msgstr "Tabo"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Tuma Escape"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Tuma Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Zima/Washa upya"
+
+msgid "Shutdown/Reboot..."
+msgstr "Zima/Washa upya ..."
+
+msgid "Power"
+msgstr "Nguvu"
+
+msgid "Shutdown"
+msgstr "Kuzimisha"
+
+msgid "Reboot"
+msgstr "Washa upya"
+
+msgid "Reset"
+msgstr "Weka upya"
+
+msgid "Clipboard"
+msgstr "Ubao wa kunakili"
+
+msgid "Clear"
+msgstr "Wazi"
+
+msgid "Fullscreen"
+msgstr "Skrini nzima"
+
+msgid "Settings"
+msgstr "Mipangilio"
+
+msgid "Shared Mode"
+msgstr "Njia iliyoshirikiwa"
+
+msgid "View Only"
+msgstr "Tazama Pekee"
+
+msgid "Clip to Window"
+msgstr "Bonyeza kwenye Dirisha"
+
+msgid "Scaling Mode:"
+msgstr "Njia ya Kuongeza:"
+
+msgid "None"
+msgstr "Hakuna"
+
+msgid "Local Scaling"
+msgstr "Upimaji wa Mitaa"
+
+msgid "Remote Resizing"
+msgstr "Kubadilisha ukubwa wa Mbali"
+
+msgid "Advanced"
+msgstr "Advanced"
+
+msgid "Quality:"
+msgstr "Ubora:"
+
+msgid "Compression level:"
+msgstr "Kiwango cha kukandamiza:"
+
+msgid "Repeater ID:"
+msgstr "Kitambulisho cha kurudia:"
+
+msgid "WebSocket"
+msgstr "WebSocket"
+
+msgid "Encrypt"
+msgstr "Simba kwa njia fiche"
+
+msgid "Host:"
+msgstr "Mwenyeji:"
+
+msgid "Port:"
+msgstr "Bandari:"
+
+msgid "Path:"
+msgstr "Njia:"
+
+msgid "Automatic Reconnect"
+msgstr "Unganisha upya kiotomatiki"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Unganisha tena Ucheleweshaji (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Onyesha Nukta Wakati Hakuna Mshale"
+
+msgid "Logging:"
+msgstr "Ukataji miti:"
+
+msgid "Version:"
+msgstr "Toleo:"
+
+msgid "Disconnect"
+msgstr "Tenganisha"
+
+msgid "Connect"
+msgstr "Unganisha"
+
+msgid "Username:"
+msgstr "Jina la mtumiaji:"
+
+msgid "Password:"
+msgstr "Nenosiri:"
+
+msgid "Send Credentials"
+msgstr "Tuma Hati za Utambulisho"
+
+msgid "Cancel"
+msgstr "Ghairi"
+
+msgid "Keys"
+msgstr "Funguo"
+
+msgid "Game Cursor Mode"
+msgstr "Njia ya Mshale wa Mchezo"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Bonyeza kitufe cha Esc ili Kuondoka kwenye Njia ya Kufunga Kielekezi"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Njia ya Mchezo imesitishwa, bofya skrini ili kuendelea na Hali ya Mchezo."
+
+msgid "Clipboard Up"
+msgstr "Ubao wa kunakili Juu"
+
+msgid "CLipboard Down"
+msgstr "Clipboard Chini"
+
+msgid "Clipboard Seamless"
+msgstr "Ubao wa kunakili Imefumwa"
+
+msgid "Prefer Local Cursor"
+msgstr "Pendelea Mshale wa Karibu"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Tafsiri njia za mkato za kibodi"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Washa Usafiri wa UDP wa WebRTC"
+
+msgid "Enable WebP Compression"
+msgstr "Washa Mfinyazo wa WebP"
+
+msgid "Enable Performance Stats"
+msgstr "Wezesha Takwimu za Utendaji"
+
+msgid "Enable Pointer Lock"
+msgstr "Washa Kufuli ya Kielekezi"
+
+msgid "IME Input Mode"
+msgstr "Njia ya Kuingiza IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Onyesha Udhibiti wa Kibodi Pekee"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Geuza Paneli ya Kudhibiti kupitia Vibonyezo"
+
+msgid "Render Native Resolution"
+msgstr "Toa Azimio la Asili"
+
+msgid "Keyboard Shortcuts"
+msgstr "Njia za mkato za kibodi"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Wezesha Njia za Mkato za Kibodi ya KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Geuza Paneli ya Kudhibiti"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Geuza Modi ya Kielekezi cha Mchezo"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Geuza Kufuli la Vielekezi"
+
+msgid "Stream Quality"
+msgstr "Ubora wa Utiririshaji"
+
+msgid "Preset Modes:"
+msgstr "Njia zilizowekwa mapema:"
+
+msgid "Static"
+msgstr "Tuli"
+
+msgid "Low"
+msgstr "Chini"
+
+msgid "Medium"
+msgstr "Kati"
+
+msgid "High"
+msgstr "Juu"
+
+msgid "Extreme"
+msgstr "Uliokithiri"
+
+msgid "Lossless"
+msgstr "Bila hasara"
+
+msgid "Custom"
+msgstr "Custom"
+
+msgid "Anti-Aliasing:"
+msgstr "Kupinga Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Auto Dynamic"
+
+msgid "Off"
+msgstr "Zima"
+
+msgid "On"
+msgstr "Washa"
+
+msgid "Dynamic Quality Min:"
+msgstr "Dak ya Ubora wa Nguvu:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Ubora wa Nguvu Zaidi:"
+
+msgid "Treat Lossless:"
+msgstr "Tibu Bila hasara:"
+
+msgid "Frame Rate:"
+msgstr "Kiwango cha Fremu:"
+
+msgid "Video JPEG Quality:"
+msgstr "Ubora wa JPEG ya Video:"
+
+msgid "Video WEBP Quality:"
+msgstr "Ubora wa WEBP ya Video:"
+
+msgid "Video Area:"
+msgstr "Eneo la Video:"
+
+msgid "Video Time:"
+msgstr "Wakati wa Video:"
+
+msgid "Video Out Time:"
+msgstr "Muda wa Kuisha kwa Video:"
+
+msgid "Video Mode Width:"
+msgstr "Upana wa Modi ya Video:"
+
+msgid "Video Mode Height:"
+msgstr "Urefu wa Modi ya Video:"
+
+msgid "Documentation"
+msgstr "Nyaraka"
+
+msgid "Drag Viewport"
+msgstr "Buruta Viewport"

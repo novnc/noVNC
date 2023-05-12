@@ -1,0 +1,354 @@
+
+msgid "Connecting..."
+msgstr "E hono ana..."
+
+msgid "Disconnecting..."
+msgstr "Kei te momotu..."
+
+msgid "Reconnecting..."
+msgstr "Kei te hono ano..."
+
+msgid "Internal error"
+msgstr "Hapa o roto"
+
+msgid "Must set host"
+msgstr "Me whakarite kaihautu"
+
+msgid "Connected (encrypted) to "
+msgstr "Kua hono (whakamuna) ki "
+
+msgid "Connected (unencrypted) to "
+msgstr "Kua hono (kore whakamuna) ki "
+
+msgid "Something went wrong, connection is closed"
+msgstr "I hapa tetahi mea, kua kati te hononga"
+
+msgid "Failed to connect to server"
+msgstr "I rahua te hono ki te tūmau"
+
+msgid "Disconnected"
+msgstr "Kua Momotu"
+
+msgid "New connection has been rejected with reason: "
+msgstr "Kua paopaohia te hononga hou me te take:"
+
+msgid "New connection has been rejected"
+msgstr "Kua paopaohia te hononga hou"
+
+msgid "Credentials are required"
+msgstr "Me whai tohu tohu"
+
+msgid "noVNC encountered an error:"
+msgstr "noVNC i tupono he hapa:"
+
+msgid "Hide/Show the control bar"
+msgstr "Huna/Whakaatuhia te pae mana"
+
+msgid "Drag"
+msgstr "Toia"
+
+msgid "Move/Drag Viewport"
+msgstr "Nuku/Toia Tauranga Tirohanga"
+
+msgid "Keyboard"
+msgstr "Papapātuhi"
+
+msgid "Show Keyboard"
+msgstr "Whakaatu Papapātuhi"
+
+msgid "Extra keys"
+msgstr "Tahi taapiri"
+
+msgid "Show Extra Keys"
+msgstr "Whakaatuhia nga Kī Anō"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Toggle Ctrl"
+msgstr "Tahuri Ctrl"
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Toggle Alt"
+msgstr "Tahuri Alt"
+
+msgid "Toggle Windows"
+msgstr "Tahuri Windows"
+
+msgid "Windows"
+msgstr "Windows"
+
+msgid "Send Tab"
+msgstr "Tukua Ripa"
+
+msgid "Tab"
+msgstr "Ripa"
+
+msgid "Esc"
+msgstr "Esc"
+
+msgid "Send Escape"
+msgstr "Tukua Mawhiti"
+
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del"
+
+msgid "Send Ctrl-Alt-Del"
+msgstr "Tukua Ctrl-Alt-Del"
+
+msgid "Shutdown/Reboot"
+msgstr "Whakaweto/Whakahou"
+
+msgid "Shutdown/Reboot..."
+msgstr "Whakaweto/Whakahou..."
+
+msgid "Power"
+msgstr "Mana"
+
+msgid "Shutdown"
+msgstr "Whakaweto"
+
+msgid "Reboot"
+msgstr "Whakahou"
+
+msgid "Reset"
+msgstr "Tautuhi"
+
+msgid "Clipboard"
+msgstr "Papa Topenga"
+
+msgid "Clear"
+msgstr "Maama"
+
+msgid "Fullscreen"
+msgstr "Mata Katoa"
+
+msgid "Settings"
+msgstr "Tautuhinga"
+
+msgid "Shared Mode"
+msgstr "Aratau tiritahi"
+
+msgid "View Only"
+msgstr "Tirohia Anake"
+
+msgid "Clip to Window"
+msgstr "Tope ki te Matapihi"
+
+msgid "Scaling Mode:"
+msgstr "Aratau Tauine:"
+
+msgid "None"
+msgstr "Karekau"
+
+msgid "Local Scaling"
+msgstr "Whakatauine Paetata"
+
+msgid "Remote Resizing"
+msgstr "Te Rahinga Mamao"
+
+msgid "Advanced"
+msgstr "Arā Atu Anō"
+
+msgid "Quality:"
+msgstr "Kounga:"
+
+msgid "Compression level:"
+msgstr "Taumata kōpeketanga:"
+
+msgid "Repeater ID:"
+msgstr "Tuuturu ID:"
+
+msgid "WebSocket"
+msgstr "Tukutuku"
+
+msgid "Encrypt"
+msgstr "Whakamuna"
+
+msgid "Host:"
+msgstr "Kaihautū:"
+
+msgid "Port:"
+msgstr "Tauranga:"
+
+msgid "Path:"
+msgstr "Ara:"
+
+msgid "Automatic Reconnect"
+msgstr "Tuhono Aunoa"
+
+msgid "Reconnect Delay (ms):"
+msgstr "Tuhono A Taarua (ms):"
+
+msgid "Show Dot when No Cursor"
+msgstr "Whakaatu Ira ina Kore he Pehu"
+
+msgid "Logging:"
+msgstr "Te takiuru:"
+
+msgid "Version:"
+msgstr "Putanga:"
+
+msgid "Disconnect"
+msgstr "Momotu"
+
+msgid "Connect"
+msgstr "Hono"
+
+msgid "Username:"
+msgstr "Ingoa Kaiwhakamahi:"
+
+msgid "Password:"
+msgstr "Kupuhipa:"
+
+msgid "Send Credentials"
+msgstr "Tukua Taipitopito"
+
+msgid "Cancel"
+msgstr "Whakakore"
+
+msgid "Keys"
+msgstr "Kī"
+
+msgid "Game Cursor Mode"
+msgstr "Aratau Pehu Kemu"
+
+msgid "Press Esc Key to Exit Pointer Lock Mode"
+msgstr "Pēhia te Kī Esc ki te puta i te Aratau Maukati Tohu"
+
+msgid "Game Mode paused, click on screen to resume Game Mode."
+msgstr "Kua okioki te Aratau Keemu, pawhiria te mata ki te whakaara ano i te Aratau Keemu."
+
+msgid "Clipboard Up"
+msgstr "Papa Topenga ki runga"
+
+msgid "CLipboard Down"
+msgstr "Papa Topa ki Raro"
+
+msgid "Clipboard Seamless"
+msgstr "Papa Topenga Kore"
+
+msgid "Prefer Local Cursor"
+msgstr "Me pai ki te Pehu Paetata"
+
+msgid "Translate keyboard shortcuts"
+msgstr "Whakamaorihia nga pokatata papapātuhi"
+
+msgid "Enable WebRTC UDP Transit"
+msgstr "Whakahohea te Tukutuku UDP WebRTC"
+
+msgid "Enable WebP Compression"
+msgstr "Whakahohehia te Kopeke Tukutuku"
+
+msgid "Enable Performance Stats"
+msgstr "Whakahohehia nga Tauanga Mahinga"
+
+msgid "Enable Pointer Lock"
+msgstr "Whakahohe Maukati Tohu"
+
+msgid "IME Input Mode"
+msgstr "Aratau Whakauru IME"
+
+msgid "Show Virtual Keyboard Control"
+msgstr "Whakaatu Mana Papapātuhi Mariko"
+
+msgid "Toggle Control Panel via Keystrokes"
+msgstr "Tahurihia te Paewhiri Mana ma te Patua"
+
+msgid "Render Native Resolution"
+msgstr "Whakaahua Whakatau Maori"
+
+msgid "Keyboard Shortcuts"
+msgstr "Pokatata Papapātuhi"
+
+msgid "Enable KasmVNC Keyboard Shortcuts"
+msgstr "Whakahohehia nga Pokatata Papapātuhi KasmVNC"
+
+msgid "1 - Toggle Control Panel"
+msgstr "1 - Takahuri Paewhiri Mana"
+
+msgid "2 - Toggle Game Pointer Mode"
+msgstr "2 - Takahuri Aratau Aratohu Kēmu"
+
+msgid "3 - Toggle Pointer Lock"
+msgstr "3 - Takahuri Maukati Aratohu"
+
+msgid "Stream Quality"
+msgstr "Kounga Rerema"
+
+msgid "Preset Modes:"
+msgstr "Aratau Tatūkē:"
+
+msgid "Static"
+msgstr "Patika"
+
+msgid "Low"
+msgstr "Paheke"
+
+msgid "Medium"
+msgstr "Waenga"
+
+msgid "High"
+msgstr "Teitei"
+
+msgid "Extreme"
+msgstr "Tino rawa"
+
+msgid "Lossless"
+msgstr "Ngarokore"
+
+msgid "Custom"
+msgstr " Ritenga "
+
+msgid "Anti-Aliasing:"
+msgstr "Ati-Aliasing:"
+
+msgid "Auto Dynamic"
+msgstr "Hini Aunoa"
+
+msgid "Off"
+msgstr "Wehe"
+
+msgid "On"
+msgstr "Kei"
+
+msgid "Dynamic Quality Min:"
+msgstr "Min Kounga Hihiko:"
+
+msgid "Dynamic Quality Max:"
+msgstr "Mōrahi Kounga Hihiko:"
+
+msgid "Treat Lossless:"
+msgstr "Whakaaro Ngarokore:"
+
+msgid "Frame Rate:"
+msgstr "Rere Tapare:"
+
+msgid "Video JPEG Quality:"
+msgstr "Kounga JPEG Ataata:"
+
+msgid "Video WEBP Quality:"
+msgstr "Kounga WEBP Ataata:"
+
+msgid "Video Area:"
+msgstr "Horahanga Ataata:"
+
+msgid "Video Time:"
+msgstr "Wā Ataata:"
+
+msgid "Video Out Time:"
+msgstr "Wā Whakaputa Ataata:"
+
+msgid "Video Mode Width:"
+msgstr "Aratau Ataata Whānui:"
+
+msgid "Video Mode Height:"
+msgstr "Teitei Aratau Ataata:"
+
+msgid "Documentation"
+msgstr "Tuhinga"
+
+msgid "Drag Viewport"
+msgstr "Toia Tauranga Tirohanga"
