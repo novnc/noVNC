@@ -2528,17 +2528,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
 
-                        /* The size 10 (utf8 encoded string size) and the
-                        string "Aå漢字!" utf8 encoded and deflated. */
-                        let deflatedData = [120, 94, 99, 96, 96, 224, 114, 60,
-                                            188, 244, 217, 158, 69, 79, 215,
-                                            78, 87, 4, 0, 35, 207, 6, 66];
+                        let text = encodeUTF8("Aå漢字!");
+                        let deflatedText = deflateWithSize(text);
 
                         // How much data we are sending.
-                        push32(data, toUnsigned32bit(-(4 + deflatedData.length)));
+                        push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
 
                         data = data.concat(flags);
-                        data = data.concat(deflatedData);
+                        data = data.concat(Array.from(deflatedText));
 
                         const spy = sinon.spy();
                         client.addEventListener("clipboard", spy);
@@ -2562,15 +2559,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
 
                         data = data.concat(flags);
-
-                        let sendData = new Uint8Array(data.length + deflatedText.length);
-                        sendData.set(data);
-                        sendData.set(deflatedText, data.length);
+                        data = data.concat(Array.from(deflatedText));
 
                         const spy = sinon.spy();
                         client.addEventListener("clipboard", spy);
 
-                        client._sock._websocket._receiveData(sendData);
+                        client._sock._websocket._receiveData(new Uint8Array(data));
                         expect(spy).to.have.been.calledOnce;
                         expect(spy.args[0][0].detail.text).to.equal(expectedData);
                         client.removeEventListener("clipboard", spy);
@@ -2589,15 +2583,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
 
                         data = data.concat(flags);
-
-                        let sendData = new Uint8Array(data.length + deflatedText.length);
-                        sendData.set(data);
-                        sendData.set(deflatedText, data.length);
+                        data = data.concat(Array.from(deflatedText));
 
                         const spy = sinon.spy();
                         client.addEventListener("clipboard", spy);
 
-                        client._sock._websocket._receiveData(sendData);
+                        client._sock._websocket._receiveData(new Uint8Array(data));
                         expect(spy).to.have.been.calledOnce;
                         expect(spy.args[0][0].detail.text).to.equal(expectedData);
                         client.removeEventListener("clipboard", spy);
