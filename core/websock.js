@@ -125,7 +125,6 @@ export default class Websock {
     }
 
     rQshiftStr(len) {
-        if (typeof(len) === 'undefined') { len = this._rQlen - this._rQi; }
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
         for (let i = 0; i < len; i += 4096) {
@@ -136,20 +135,17 @@ export default class Websock {
     }
 
     rQshiftBytes(len) {
-        if (typeof(len) === 'undefined') { len = this._rQlen - this._rQi; }
         this._rQi += len;
         return new Uint8Array(this._rQ.buffer, this._rQi - len, len);
     }
 
     rQshiftTo(target, len) {
-        if (len === undefined) { len = this._rQlen - this._rQi; }
         // TODO: make this just use set with views when using a ArrayBuffer to store the rQ
         target.set(new Uint8Array(this._rQ.buffer, this._rQi, len));
         this._rQi += len;
     }
 
     rQpeekBytes(len) {
-        if (typeof(len) === 'undefined') { len = this._rQlen - this._rQi; }
         return new Uint8Array(this._rQ.buffer, this._rQi, len);
     }
 

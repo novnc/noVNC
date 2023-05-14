@@ -67,11 +67,6 @@ describe('Websock', function () {
                 expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
             });
 
-            it('should shift the entire rest of the queue off if no length is given', function () {
-                sock.rQshiftStr();
-                expect(sock._rQlen - sock._rQi).to.equal(0);
-            });
-
             it('should be able to handle very large strings', function () {
                 const BIG_LEN = 500000;
                 const RQ_BIG = new Uint8Array(BIG_LEN);
@@ -90,7 +85,7 @@ describe('Websock', function () {
                 sock._rQ.set(RQ_BIG);
                 sock._rQlen = RQ_BIG.length;
 
-                const shifted = sock.rQshiftStr();
+                const shifted = sock.rQshiftStr(BIG_LEN);
 
                 expect(shifted).to.be.equal(expected);
                 expect(sock._rQlen - sock._rQi).to.equal(0);
@@ -105,11 +100,6 @@ describe('Websock', function () {
                 expect(shifted).to.be.an.instanceof(Uint8Array);
                 expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
                 expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
-            });
-
-            it('should shift the entire rest of the queue off if no length is given', function () {
-                sock.rQshiftBytes();
-                expect(sock._rQlen - sock._rQi).to.equal(0);
             });
         });
 
@@ -128,12 +118,6 @@ describe('Websock', function () {
                 const sl = sock.rQpeekBytes(2);
                 expect(sl).to.be.an.instanceof(Uint8Array);
                 expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 0, 2));
-            });
-
-            it('should use the rest of the receive queue if no end is given', function () {
-                const sl = sock.rQpeekBytes();
-                expect(sl).to.have.length(RQ_TEMPLATE.length);
-                expect(sl).to.array.equal(RQ_TEMPLATE);
             });
 
             it('should take the current rQi in to account', function () {
