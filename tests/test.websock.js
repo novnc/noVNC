@@ -17,56 +17,43 @@ describe('Websock', function () {
             sock._rQ.set(RQ_TEMPLATE);
             sock._rQlen = RQ_TEMPLATE.length;
         });
-        describe('rQlen', function () {
-            it('should return the length of the receive queue', function () {
-                sock._rQi = 0;
-
-                expect(sock.rQlen).to.equal(RQ_TEMPLATE.length);
-            });
-
-            it("should return the proper length if we read some from the receive queue", function () {
-                sock._rQi = 1;
-
-                expect(sock.rQlen).to.equal(RQ_TEMPLATE.length - 1);
-            });
-        });
 
         describe('rQpeek8', function () {
             it('should peek at the next byte without poping it off the queue', function () {
-                const befLen = sock.rQlen;
+                const befLen = sock._rQlen - sock._rQi;
                 const peek = sock.rQpeek8();
                 expect(sock.rQpeek8()).to.equal(peek);
-                expect(sock.rQlen).to.equal(befLen);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen);
             });
         });
 
         describe('rQshift8()', function () {
             it('should pop a single byte from the receive queue', function () {
                 const peek = sock.rQpeek8();
-                const befLen = sock.rQlen;
+                const befLen = sock._rQlen - sock._rQi;
                 expect(sock.rQshift8()).to.equal(peek);
-                expect(sock.rQlen).to.equal(befLen - 1);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen - 1);
             });
         });
 
         describe('rQshift16()', function () {
             it('should pop two bytes from the receive queue and return a single number', function () {
-                const befLen = sock.rQlen;
+                const befLen = sock._rQlen - sock._rQi;
                 const expected = (RQ_TEMPLATE[0] << 8) + RQ_TEMPLATE[1];
                 expect(sock.rQshift16()).to.equal(expected);
-                expect(sock.rQlen).to.equal(befLen - 2);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen - 2);
             });
         });
 
         describe('rQshift32()', function () {
             it('should pop four bytes from the receive queue and return a single number', function () {
-                const befLen = sock.rQlen;
+                const befLen = sock._rQlen - sock._rQi;
                 const expected = (RQ_TEMPLATE[0] << 24) +
                                (RQ_TEMPLATE[1] << 16) +
                                (RQ_TEMPLATE[2] << 8) +
                                RQ_TEMPLATE[3];
                 expect(sock.rQshift32()).to.equal(expected);
-                expect(sock.rQlen).to.equal(befLen - 4);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen - 4);
             });
         });
 
@@ -77,12 +64,12 @@ describe('Websock', function () {
                 const shifted = sock.rQshiftStr(3);
                 expect(shifted).to.be.a('string');
                 expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3))));
-                expect(sock.rQlen).to.equal(befLen - 3);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
             });
 
             it('should shift the entire rest of the queue off if no length is given', function () {
                 sock.rQshiftStr();
-                expect(sock.rQlen).to.equal(0);
+                expect(sock._rQlen - sock._rQi).to.equal(0);
             });
 
             it('should be able to handle very large strings', function () {
@@ -106,7 +93,7 @@ describe('Websock', function () {
                 const shifted = sock.rQshiftStr();
 
                 expect(shifted).to.be.equal(expected);
-                expect(sock.rQlen).to.equal(0);
+                expect(sock._rQlen - sock._rQi).to.equal(0);
             });
         });
 
@@ -117,12 +104,12 @@ describe('Websock', function () {
                 const shifted = sock.rQshiftBytes(3);
                 expect(shifted).to.be.an.instanceof(Uint8Array);
                 expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
-                expect(sock.rQlen).to.equal(befLen - 3);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
             });
 
             it('should shift the entire rest of the queue off if no length is given', function () {
                 sock.rQshiftBytes();
-                expect(sock.rQlen).to.equal(0);
+                expect(sock._rQlen - sock._rQi).to.equal(0);
             });
         });
 
@@ -132,9 +119,9 @@ describe('Websock', function () {
             });
 
             it('should not modify the receive queue', function () {
-                const befLen = sock.rQlen;
+                const befLen = sock._rQlen - sock._rQi;
                 sock.rQpeekBytes(2);
-                expect(sock.rQlen).to.equal(befLen);
+                expect(sock._rQlen - sock._rQi).to.equal(befLen);
             });
 
             it('should return an array containing the requested bytes of the receive queue', function () {

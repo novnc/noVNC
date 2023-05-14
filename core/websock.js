@@ -95,10 +95,6 @@ export default class Websock {
     }
 
     // Receive Queue
-    get rQlen() {
-        return this._rQlen - this._rQi;
-    }
-
     rQpeek8() {
         return this._rQ[this._rQi];
     }
@@ -129,7 +125,7 @@ export default class Websock {
     }
 
     rQshiftStr(len) {
-        if (typeof(len) === 'undefined') { len = this.rQlen; }
+        if (typeof(len) === 'undefined') { len = this._rQlen - this._rQi; }
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
         for (let i = 0; i < len; i += 4096) {
@@ -140,20 +136,20 @@ export default class Websock {
     }
 
     rQshiftBytes(len) {
-        if (typeof(len) === 'undefined') { len = this.rQlen; }
+        if (typeof(len) === 'undefined') { len = this._rQlen - this._rQi; }
         this._rQi += len;
         return new Uint8Array(this._rQ.buffer, this._rQi - len, len);
     }
 
     rQshiftTo(target, len) {
-        if (len === undefined) { len = this.rQlen; }
+        if (len === undefined) { len = this._rQlen - this._rQi; }
         // TODO: make this just use set with views when using a ArrayBuffer to store the rQ
         target.set(new Uint8Array(this._rQ.buffer, this._rQi, len));
         this._rQi += len;
     }
 
     rQpeekBytes(len) {
-        if (typeof(len) === 'undefined') { len = this.rQlen; }
+        if (typeof(len) === 'undefined') { len = this._rQlen - this._rQi; }
         return new Uint8Array(this._rQ.buffer, this._rQi, len);
     }
 
@@ -161,7 +157,7 @@ export default class Websock {
     // to be available in the receive queue. Return true if we need to
     // wait (and possibly print a debug message), otherwise false.
     rQwait(msg, num, goback) {
-        if (this.rQlen < num) {
+        if (this._rQlen - this._rQi < num) {
             if (goback) {
                 if (this._rQi < goback) {
                     throw new Error("rQwait cannot backup " + goback + " bytes");
@@ -294,7 +290,7 @@ export default class Websock {
         // we don't want to grow unboundedly
         if (this._rQbufferSize > MAX_RQ_GROW_SIZE) {
             this._rQbufferSize = MAX_RQ_GROW_SIZE;
-            if (this._rQbufferSize - this.rQlen < minFit) {
+            if (this._rQbufferSize - (this._rQlen - this._rQi) < minFit) {
                 throw new Error("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
             }
         }
@@ -323,7 +319,7 @@ export default class Websock {
 
     _recvMessage(e) {
         this._DecodeMessage(e.data);
-        if (this.rQlen > 0) {
+        if (this._rQlen - this._rQi > 0) {
             this._eventHandlers.message();
             if (this._rQlen == this._rQi) {
                 // All data has now been processed, this means we
