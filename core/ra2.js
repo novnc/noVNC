@@ -158,10 +158,11 @@ export default class RSAAESAuthenticationState extends EventTargetMixin {
         serverPublickey.set(serverE, 4 + serverKeyBytes);
 
         // verify server public key
+        let approveKey = this._waitApproveKeyAsync();
         this.dispatchEvent(new CustomEvent("serververification", {
             detail: { type: "RSA", publickey: serverPublickey }
         }));
-        await this._waitApproveKeyAsync();
+        await approveKey;
 
         // 2: Send client public key
         const clientKeyLength = 2048;
@@ -260,6 +261,7 @@ export default class RSAAESAuthenticationState extends EventTargetMixin {
             throw new Error("RA2: failed to authenticate the message");
         }
         subtype = subtype[0];
+        let waitCredentials = this._waitCredentialsAsync(subtype);
         if (subtype === 1) {
             if (this._getCredentials().username === undefined ||
                 this._getCredentials().password === undefined) {
@@ -276,7 +278,7 @@ export default class RSAAESAuthenticationState extends EventTargetMixin {
         } else {
             throw new Error("RA2: wrong subtype");
         }
-        await this._waitCredentialsAsync(subtype);
+        await waitCredentials;
         let username;
         if (subtype === 1) {
             username = encodeUTF8(this._getCredentials().username).slice(0, 255);
