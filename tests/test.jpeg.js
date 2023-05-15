@@ -246,6 +246,8 @@ describe('JPEG Decoder', function () {
 
         testDecodeRect(decoder, 0, 0, 4, 4, data1, display, 24);
 
+        display.fillRect(0, 0, 4, 4, [128, 128, 128, 255]);
+
         let data2 = [
             // JPEG data
             0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
