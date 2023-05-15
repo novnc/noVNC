@@ -177,7 +177,7 @@ export default class Websock {
 
     flush() {
         if (this._sQlen > 0 && this.readyState === 'open') {
-            this._websocket.send(this._encodeMessage());
+            this._websocket.send(new Uint8Array(this._sQ.buffer, 0, this._sQlen));
             this._sQlen = 0;
         }
     }
@@ -268,11 +268,6 @@ export default class Websock {
     }
 
     // private methods
-    _encodeMessage() {
-        // Put in a binary arraybuffer
-        // according to the spec, you can send ArrayBufferViews with the send method
-        return new Uint8Array(this._sQ.buffer, 0, this._sQlen);
-    }
 
     // We want to move all the unread data to the start of the queue,
     // e.g. compacting.
@@ -312,17 +307,14 @@ export default class Websock {
     }
 
     // push arraybuffer values onto the end of the receive que
-    _DecodeMessage(data) {
-        const u8 = new Uint8Array(data);
+    _recvMessage(e) {
+        const u8 = new Uint8Array(e.data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expandCompactRQ(u8.length);
         }
         this._rQ.set(u8, this._rQlen);
         this._rQlen += u8.length;
-    }
 
-    _recvMessage(e) {
-        this._DecodeMessage(e.data);
         if (this._rQlen - this._rQi > 0) {
             this._eventHandlers.message();
             if (this._rQlen == this._rQi) {

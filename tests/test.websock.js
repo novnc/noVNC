@@ -161,10 +161,9 @@ describe('Websock', function () {
             it('should actually send on the websocket', function () {
                 sock._sQ = new Uint8Array([1, 2, 3]);
                 sock._sQlen = 3;
-                const encoded = sock._encodeMessage();
 
                 sock.flush();
-                expect(sock).to.have.sent(encoded);
+                expect(sock).to.have.sent(new Uint8Array([1, 2, 3]));
             });
 
             it('should not call send if we do not have anything queued up', function () {
@@ -397,9 +396,8 @@ describe('Websock', function () {
             sock._allocateBuffers();
         });
 
-        it('should support adding binary Uint8Array data to the receive queue', function () {
+        it('should support adding data to the receive queue', function () {
             const msg = { data: new Uint8Array([1, 2, 3]) };
-            sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock.rQshiftStr(3)).to.equal('\x01\x02\x03');
         });
@@ -426,7 +424,6 @@ describe('Websock', function () {
             sock._rQlen = 6;
             sock._rQi = 6;
             const msg = { data: new Uint8Array([1, 2, 3]).buffer };
-            sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(0);
             expect(sock._rQi).to.equal(0);
@@ -438,7 +435,6 @@ describe('Websock', function () {
             sock._rQlen = 20;
             sock._rQi = 10;
             const msg = { data: new Uint8Array([1, 2]).buffer };
-            sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(12);
             expect(sock._rQi).to.equal(0);
@@ -450,7 +446,6 @@ describe('Websock', function () {
             sock._rQi = 0;
             sock._rQbufferSize = 20;
             const msg = { data: new Uint8Array(30).buffer };
-            sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(30);
             expect(sock._rQi).to.equal(0);
@@ -463,37 +458,10 @@ describe('Websock', function () {
             sock._rQi = 16;
             sock._rQbufferSize = 20;
             const msg = { data: new Uint8Array(6).buffer };
-            sock._mode = 'binary';
             sock._recvMessage(msg);
             expect(sock._rQlen).to.equal(6);
             expect(sock._rQi).to.equal(0);
             expect(sock._rQ.length).to.equal(48);
-        });
-    });
-
-    describe('Data encoding', function () {
-        before(function () { FakeWebSocket.replace(); });
-        after(function () { FakeWebSocket.restore(); });
-
-        describe('as binary data', function () {
-            let sock;
-            beforeEach(function () {
-                sock = new Websock();
-                sock.open('ws://', 'binary');
-                sock._websocket._open();
-            });
-
-            it('should only send the send queue up to the send queue length', function () {
-                sock._sQ = new Uint8Array([1, 2, 3, 4, 5]);
-                sock._sQlen = 3;
-                const res = sock._encodeMessage();
-                expect(res).to.array.equal(new Uint8Array([1, 2, 3]));
-            });
-
-            it('should properly pass the encoded data off to the actual WebSocket', function () {
-                sock.send([1, 2, 3]);
-                expect(sock._websocket._getSentData()).to.array.equal(new Uint8Array([1, 2, 3]));
-            });
         });
     });
 });
