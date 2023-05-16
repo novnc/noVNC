@@ -1522,15 +1522,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(client._rfbInitState).to.equal('SecurityResult');
                 });
 
-                /*it('should attempt to use VNC auth over no auth when possible', function () {
-                    client._rfbTightVNC = true;
-                    sinon.spy(client, "_negotiateStdVNCAuth");
-                    sendNumStrPairs([[1, 'STDV', 'NOAUTH__'], [2, 'STDV', 'VNCAUTH_']], client);
-                    expect(client._sock).to.have.sent([0, 0, 0, 1]);
-                    expect(client._negotiateStdVNCAuth).to.have.been.calledOnce;
-                    expect(client._rfbAuthScheme).to.equal(2);
-                });*/ // while this would make sense, the original code doesn't actually do this
-
                 it('should accept the "no auth" auth type and transition to SecurityResult', function () {
                     client._rfbTightVNC = true;
                     sendNumStrPairs([[1, 'STDV', 'NOAUTH__']], client);
