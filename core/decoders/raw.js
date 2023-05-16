@@ -31,7 +31,7 @@ export default class RawDecoder {
 
             const curY = y + (height - this._lines);
 
-            let data = sock.rQshiftBytes(bytesPerLine);
+            let data = sock.rQshiftBytes(bytesPerLine, false);
 
             // Convert data if needed
             if (depth == 8) {

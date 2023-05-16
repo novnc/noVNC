@@ -128,15 +128,19 @@ export default class Websock {
         let str = "";
         // Handle large arrays in steps to avoid long strings on the stack
         for (let i = 0; i < len; i += 4096) {
-            let part = this.rQshiftBytes(Math.min(4096, len - i));
+            let part = this.rQshiftBytes(Math.min(4096, len - i), false);
             str += String.fromCharCode.apply(null, part);
         }
         return str;
     }
 
-    rQshiftBytes(len) {
+    rQshiftBytes(len, copy=true) {
         this._rQi += len;
-        return new Uint8Array(this._rQ.buffer, this._rQi - len, len);
+        if (copy) {
+            return this._rQ.slice(this._rQi - len, this._rQi);
+        } else {
+            return this._rQ.subarray(this._rQi - len, this._rQi);
+        }
     }
 
     rQshiftTo(target, len) {
@@ -145,8 +149,12 @@ export default class Websock {
         this._rQi += len;
     }
 
-    rQpeekBytes(len) {
-        return new Uint8Array(this._rQ.buffer, this._rQi, len);
+    rQpeekBytes(len, copy=true) {
+        if (copy) {
+            return this._rQ.slice(this._rQi, this._rQi + len);
+        } else {
+            return this._rQ.subarray(this._rQi, this._rQi + len);
+        }
     }
 
     // Check to see if we must wait for 'num' bytes (default to FBU.bytes)

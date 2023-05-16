@@ -86,7 +86,7 @@ export default class HextileDecoder {
                 }
             } else if (subencoding & 0x01) {  // Raw
                 let pixels = tw * th;
-                let data = sock.rQshiftBytes(pixels * 4);
+                let data = sock.rQshiftBytes(pixels * 4, false);
                 // Max sure the image is fully opaque
                 for (let i = 0;i <  pixels;i++) {
                     data[i * 4 + 3] = 255;

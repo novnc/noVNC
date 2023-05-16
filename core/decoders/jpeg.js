@@ -124,7 +124,7 @@ export default class JPEGDecoder {
                 if (sock.rQwait("JPEG", length-2+extra, 4)) {
                     return null;
                 }
-                let data = sock.rQpeekBytes(length-2+extra);
+                let data = sock.rQpeekBytes(length-2+extra, false);
                 if (data.at(-2) === 0xFF && data.at(-1) !== 0x00 &&
                     !(data.at(-1) >= 0xD0 && data.at(-1) <= 0xD7)) {
                     extra -= 2;
@@ -139,7 +139,7 @@ export default class JPEGDecoder {
         segment[1] = type;
         segment[2] = length >> 8;
         segment[3] = length;
-        segment.set(sock.rQshiftBytes(length-2+extra), 4);
+        segment.set(sock.rQshiftBytes(length-2+extra, false), 4);
 
         return segment;
     }

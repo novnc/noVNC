@@ -101,6 +101,12 @@ describe('Websock', function () {
                 expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
                 expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
             });
+            it('should return a shared array if requested', function () {
+                const befRQi = sock._rQi;
+                const shifted = sock.rQshiftBytes(3, false);
+                expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
+                expect(shifted.buffer.byteLength).to.not.equal(shifted.length);
+            });
         });
 
         describe('rQpeekBytes', function () {
@@ -123,6 +129,12 @@ describe('Websock', function () {
             it('should take the current rQi in to account', function () {
                 sock._rQi = 1;
                 expect(sock.rQpeekBytes(2)).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1, 2));
+            });
+
+            it('should return a shared array if requested', function () {
+                const sl = sock.rQpeekBytes(2, false);
+                expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 0, 2));
+                expect(sl.buffer.byteLength).to.not.equal(sl.length);
             });
         });
 

@@ -312,7 +312,7 @@ export default class TightDecoder {
             return null;
         }
 
-        let data = sock.rQshiftBytes(this._len);
+        let data = sock.rQshiftBytes(this._len, false);
         this._len = 0;
 
         return data;
