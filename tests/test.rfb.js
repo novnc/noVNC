@@ -1639,10 +1639,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, client._rfbCredentials.username.length);
-                    push32(expectedResponse, client._rfbCredentials.password.length);
-                    pushString(expectedResponse, client._rfbCredentials.username);
-                    pushString(expectedResponse, client._rfbCredentials.password);
+                    push32(expectedResponse, 8);
+                    push32(expectedResponse, 8);
+                    pushString(expectedResponse, 'username');
+                    pushString(expectedResponse, 'password');
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
 
                     sinon.spy(client, "_initMsg");
@@ -1660,10 +1660,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, client._rfbCredentials.username.length);
-                    push32(expectedResponse, client._rfbCredentials.password.length);
-                    pushString(expectedResponse, client._rfbCredentials.username);
-                    pushString(expectedResponse, client._rfbCredentials.password);
+                    push32(expectedResponse, 8);
+                    push32(expectedResponse, 0);
+                    pushString(expectedResponse, 'username');
+                    pushString(expectedResponse, '');
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
 
                     sinon.spy(client, "_initMsg");
@@ -1681,10 +1681,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, client._rfbCredentials.username.length);
-                    push32(expectedResponse, client._rfbCredentials.password.length);
-                    pushString(expectedResponse, client._rfbCredentials.username);
-                    pushString(expectedResponse, client._rfbCredentials.password);
+                    push32(expectedResponse, 300);
+                    push32(expectedResponse, 300);
+                    pushString(expectedResponse, 'a'.repeat(300));
+                    pushString(expectedResponse, 'b'.repeat(300));
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
 
                     sinon.spy(client, "_initMsg");
