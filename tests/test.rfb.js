@@ -1616,23 +1616,29 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
                 });
+            });
 
-                it('should support Plain authentication', function () {
-                    client.addEventListener("credentialsrequired", () => {
-                        client.sendCredentials({ username: 'username', password: 'password' });
-                    });
+            describe('Plain Authentication (type 256) Handler', function () {
+                beforeEach(function () {
+                    sendSecurity(19, client);
+                    expect(client._sock).to.have.sent(new Uint8Array([19]));
                     // VeNCrypt version
                     client._sock._websocket._receiveData(new Uint8Array([0, 2]));
                     expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
                     // Server ACK.
                     client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list.
+                });
+
+                it('should support Plain authentication', function () {
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username', password: 'password' });
+                    });
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 1, 0]));
 
                     clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, 256); // Chosen subtype.
                     push32(expectedResponse, client._rfbCredentials.username.length);
                     push32(expectedResponse, client._rfbCredentials.password.length);
                     pushString(expectedResponse, client._rfbCredentials.username);
@@ -1648,18 +1654,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client.addEventListener("credentialsrequired", () => {
                         client.sendCredentials({ username: 'username', password: '' });
                     });
-                    // VeNCrypt version
-                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
-                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
-                    // Server ACK.
-                    client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list.
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 1, 0]));
 
                     clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, 256); // Chosen subtype.
                     push32(expectedResponse, client._rfbCredentials.username.length);
                     push32(expectedResponse, client._rfbCredentials.password.length);
                     pushString(expectedResponse, client._rfbCredentials.username);
@@ -1675,18 +1675,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client.addEventListener("credentialsrequired", () => {
                         client.sendCredentials({ username: 'a'.repeat(300), password: 'b'.repeat(300) });
                     });
-                    // VeNCrypt version
-                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
-                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
-                    // Server ACK.
-                    client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list.
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 1, 0]));
 
                     clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, 256); // Chosen subtype.
                     push32(expectedResponse, client._rfbCredentials.username.length);
                     push32(expectedResponse, client._rfbCredentials.password.length);
                     pushString(expectedResponse, client._rfbCredentials.username);
