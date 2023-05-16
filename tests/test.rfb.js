@@ -287,26 +287,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._sock.off).to.have.been.calledWith('open');
             });
         });
-
-        describe('#sendCredentials', function () {
-            let client;
-            beforeEach(function () {
-                client = makeRFB();
-                client._rfbConnectionState = 'connecting';
-            });
-
-            it('should set the rfb credentials properly"', function () {
-                client.sendCredentials({ password: 'pass' });
-                expect(client._rfbCredentials).to.deep.equal({ password: 'pass' });
-            });
-
-            it('should call initMsg "soon"', function () {
-                sinon.spy(client, "_initMsg");
-                client.sendCredentials({ password: 'pass' });
-                this.clock.tick(5);
-                expect(client._initMsg).to.have.been.calledOnce;
-            });
-        });
     });
 
     describe('Public API Basic Behavior', function () {
@@ -1240,31 +1220,36 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     for (let i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
 
-                    expect(client._rfbCredentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.types).to.have.members(["password"]);
                 });
 
                 it('should encrypt the password with DES and then send it back', function () {
-                    client._rfbCredentials = { password: 'passwd' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ password: 'passwd' });
+                    });
                     sendSecurity(2, client);
                     client._sock._websocket._getSentData(); // skip the choice of auth reply
 
                     const challenge = [];
                     for (let i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
+                    clock.tick();
 
                     const desPass = RFB.genDES('passwd', challenge);
                     expect(client._sock).to.have.sent(new Uint8Array(desPass));
                 });
 
                 it('should transition to SecurityResult immediately after sending the password', function () {
-                    client._rfbCredentials = { password: 'passwd' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ password: 'passwd' });
+                    });
                     sendSecurity(2, client);
 
                     const challenge = [];
                     for (let i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
+                    clock.tick();
 
                     expect(client._rfbInitState).to.equal('SecurityResult');
                 });
@@ -1287,10 +1272,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = {};
                     sendSecurity(30, client);
 
-                    expect(client._rfbCredentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.types).to.have.members(["username", "password"]);
                 });
@@ -1298,7 +1281,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should fire the credentialsrequired event if some credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = { password: 'password'};
+                    client.sendCredentials({ password: 'password'});
                     sendSecurity(30, client);
 
                     expect(spy).to.have.been.calledOnce;
@@ -1306,8 +1289,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should return properly encrypted credentials and public key', async function () {
-                    client._rfbCredentials = { username: 'user',
-                                               password: 'password' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'user',
+                                                 password: 'password' });
+                    });
                     sendSecurity(30, client);
 
                     expect(client._sock).to.have.sent([30]);
@@ -1406,8 +1391,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     window.crypto.getRandomValues.restore();
                 });
                 it('should send public value and encrypted credentials', function () {
-                    client._rfbCredentials = { username: 'username',
-                                               password: 'password123456' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username',
+                                                 password: 'password123456' });
+                    });
                     sendSecurity(113, client);
 
                     expect(client._sock).to.have.sent([113]);
@@ -1419,6 +1406,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client._sock._websocket._receiveData(g);
                     client._sock._websocket._receiveData(p);
                     client._sock._websocket._receiveData(A);
+                    clock.tick();
 
                     expect(client._sock).to.have.sent(expected);
                     expect(client._rfbInitState).to.equal('SecurityResult');
@@ -1427,21 +1415,22 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             describe('XVP Authentication (type 22) Handler', function () {
                 it('should fall through to standard VNC authentication upon completion', function () {
-                    client._rfbCredentials = { username: 'user',
-                                               target: 'target',
-                                               password: 'password' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'user',
+                                                 target: 'target',
+                                                 password: 'password' });
+                    });
                     sinon.spy(client, "_negotiateStdVNCAuth");
                     sendSecurity(22, client);
+                    clock.tick();
                     expect(client._negotiateStdVNCAuth).to.have.been.calledOnce;
                 });
 
                 it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = {};
                     sendSecurity(22, client);
 
-                    expect(client._rfbCredentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.types).to.have.members(["username", "password", "target"]);
                 });
@@ -1449,8 +1438,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should fire the credentialsrequired event if some credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = { username: 'user',
-                                               target: 'target' };
+                    client.sendCredentials({ username: 'user',
+                                             target: 'target' });
                     sendSecurity(22, client);
 
                     expect(spy).to.have.been.calledOnce;
@@ -1458,10 +1447,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should send user and target separately', function () {
-                    client._rfbCredentials = { username: 'user',
-                                               target: 'target',
-                                               password: 'password' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'user',
+                                                 target: 'target',
+                                                 password: 'password' });
+                    });
                     sendSecurity(22, client);
+                    clock.tick();
 
                     const expected = [22, 4, 6]; // auth selection, len user, len target
                     for (let i = 0; i < 10; i++) { expected[i+3] = 'usertarget'.charCodeAt(i); }
@@ -1626,7 +1618,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should support Plain authentication', function () {
-                    client._rfbCredentials = { username: 'username', password: 'password' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username', password: 'password' });
+                    });
                     // VeNCrypt version
                     client._sock._websocket._receiveData(new Uint8Array([0, 2]));
                     expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
@@ -1634,6 +1628,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client._sock._websocket._receiveData(new Uint8Array([0]));
                     // Subtype list.
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+
+                    clock.tick();
 
                     const expectedResponse = [];
                     push32(expectedResponse, 256); // Chosen subtype.
@@ -1649,7 +1645,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should support Plain authentication with an empty password', function () {
-                    client._rfbCredentials = { username: 'username', password: '' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username', password: '' });
+                    });
                     // VeNCrypt version
                     client._sock._websocket._receiveData(new Uint8Array([0, 2]));
                     expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
@@ -1657,6 +1655,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client._sock._websocket._receiveData(new Uint8Array([0]));
                     // Subtype list.
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+
+                    clock.tick();
 
                     const expectedResponse = [];
                     push32(expectedResponse, 256); // Chosen subtype.
@@ -1672,7 +1672,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should support Plain authentication with a very long username and password', function () {
-                    client._rfbCredentials = { username: 'a'.repeat(300), password: 'a'.repeat(300) };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'a'.repeat(300), password: 'b'.repeat(300) });
+                    });
                     // VeNCrypt version
                     client._sock._websocket._receiveData(new Uint8Array([0, 2]));
                     expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
@@ -1680,6 +1682,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client._sock._websocket._receiveData(new Uint8Array([0]));
                     // Subtype list.
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+
+                    clock.tick();
 
                     const expectedResponse = [];
                     push32(expectedResponse, 256); // Chosen subtype.
