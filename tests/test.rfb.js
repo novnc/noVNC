@@ -1631,10 +1631,20 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client.addEventListener("credentialsrequired", (e) => {
                         client.sendCredentials({ "password": "123456" });
                         clock.tick();
-                    });
-                    client.addEventListener("securityresult", (event) => {
-                        expect(client._sock).to.have.sent(sendData);
-                        done();
+                        // FIXME: We don't have a good way to know when
+                        //        the async stuff is done, so we hook in
+                        //        to this internal function that is
+                        //        called at the end
+                        new Promise((resolve, reject) => {
+                            sinon.stub(client._sock._websocket, "send")
+                                .callsFake((data) => {
+                                    FakeWebSocket.prototype.send.call(client._sock._websocket, data);
+                                    resolve();
+                                });
+                        }).then(() => {
+                            expect(client._sock).to.have.sent(sendData);
+                            done();
+                        });
                     });
                     client._sock._websocket._receiveData(receiveData);
                 });
