@@ -1177,7 +1177,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
-                const authSchemes = [1, 1];
+                const authSchemes = [1, 2];
                 client._negotiateAuthentication = sinon.spy();
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
                 expect(client._rfbInitState).to.equal('Authentication');
