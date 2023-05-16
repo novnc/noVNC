@@ -1306,9 +1306,27 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     const serverPublicKey = legacyCrypto.exportKey("raw", serverKey.publicKey);
                     const clientPublicKey = legacyCrypto.exportKey("raw", clientKey.publicKey);
 
-                    await client._negotiateARDAuthAsync(128, serverPublicKey, clientKey);
+                    let data = [];
 
-                    client._negotiateARDAuth();
+                    data = data.concat(Array.from(generator));
+                    push16(data, prime.length);
+                    data = data.concat(Array.from(prime));
+                    data = data.concat(Array.from(serverPublicKey));
+
+                    client._sock._websocket._receiveData(new Uint8Array(data));
+
+                    // FIXME: We don't have a good way to know when the
+                    //        async stuff is done, so we hook in to this
+                    //        internal function that is called at the
+                    //        end
+                    await new Promise((resolve, reject) => {
+                        sinon.stub(client, "_resumeAuthentication")
+                            .callsFake(() => {
+                                RFB.prototype._resumeAuthentication.call(client);
+                                resolve();
+                            });
+                    });
+                    clock.tick();
 
                     expect(client._rfbInitState).to.equal('SecurityResult');
 
