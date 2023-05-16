@@ -1523,14 +1523,16 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should accept the "no auth" auth type and transition to SecurityResult', function () {
-                    client._rfbTightVNC = true;
+                    sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
+                    client._sock._websocket._getSentData();  // skip the tunnel choice here
                     sendNumStrPairs([[1, 'STDV', 'NOAUTH__']], client);
                     expect(client._sock).to.have.sent(new Uint8Array([0, 0, 0, 1]));
                     expect(client._rfbInitState).to.equal('SecurityResult');
                 });
 
                 it('should accept VNC authentication and transition to that', function () {
-                    client._rfbTightVNC = true;
+                    sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
+                    client._sock._websocket._getSentData();  // skip the tunnel choice here
                     sinon.spy(client, "_negotiateStdVNCAuth");
                     sendNumStrPairs([[2, 'STDV', 'VNCAUTH__']], client);
                     expect(client._sock).to.have.sent(new Uint8Array([0, 0, 0, 2]));
@@ -1540,7 +1542,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 it('should fail if there are no supported auth types', function () {
                     sinon.spy(client, "_fail");
-                    client._rfbTightVNC = true;
+                    sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
+                    client._sock._websocket._getSentData();  // skip the tunnel choice here
                     sendNumStrPairs([[23, 'stdv', 'badval__']], client);
                     expect(client._fail).to.have.been.calledOnce;
                 });
