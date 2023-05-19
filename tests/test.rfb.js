@@ -1605,48 +1605,72 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     0x91, 0x38,
                 ]);
 
-                it('should fire the serververification event', function (done) {
-                    client.addEventListener("serververification", (e) => {
-                        expect(e.detail.publickey).to.eql(receiveData.slice(0, 516));
-                        done();
-                    });
-                    client._sock._websocket._receiveData(receiveData);
-                });
-
-                it('should handle approveServer and fire the credentialsrequired event', function (done) {
-                    client.addEventListener("serververification", (e) => {
-                        client.approveServer();
-                    });
-                    client.addEventListener("credentialsrequired", (e) => {
-                        expect(e.detail.types).to.eql(["password"]);
-                        done();
-                    });
-                    client._sock._websocket._receiveData(receiveData);
-                });
-
-                it('should match sendData after sending credentials', function (done) {
-                    client.addEventListener("serververification", (e) => {
-                        client.approveServer();
-                    });
-                    client.addEventListener("credentialsrequired", (e) => {
-                        client.sendCredentials({ "password": "123456" });
-                        clock.tick();
-                        // FIXME: We don't have a good way to know when
-                        //        the async stuff is done, so we hook in
-                        //        to this internal function that is
-                        //        called at the end
-                        new Promise((resolve, reject) => {
-                            sinon.stub(client._sock._websocket, "send")
-                                .callsFake((data) => {
-                                    FakeWebSocket.prototype.send.call(client._sock._websocket, data);
-                                    resolve();
-                                });
-                        }).then(() => {
-                            expect(client._sock).to.have.sent(sendData);
-                            done();
+                it('should fire the serververification event', async function () {
+                    let verification = new Promise((resolve, reject) => {
+                        client.addEventListener("serververification", (e) => {
+                            resolve(e.detail.publickey);
                         });
                     });
+
                     client._sock._websocket._receiveData(receiveData);
+
+                    expect(await verification).to.deep.equal(receiveData.slice(0, 516));
+                });
+
+                it('should handle approveServer and fire the credentialsrequired event', async function () {
+                    let verification = new Promise((resolve, reject) => {
+                        client.addEventListener("serververification", (e) => {
+                            resolve(e.detail.publickey);
+                        });
+                    });
+                    let credentials = new Promise((resolve, reject) => {
+                        client.addEventListener("credentialsrequired", (e) => {
+                            resolve(e.detail.types);
+                        });
+                    });
+
+                    client._sock._websocket._receiveData(receiveData);
+
+                    await verification;
+                    client.approveServer();
+
+                    expect(await credentials).to.have.members(["password"]);
+                });
+
+                it('should send credentials to server', async function () {
+                    let verification = new Promise((resolve, reject) => {
+                        client.addEventListener("serververification", (e) => {
+                            resolve(e.detail.publickey);
+                        });
+                    });
+                    let credentials = new Promise((resolve, reject) => {
+                        client.addEventListener("credentialsrequired", (e) => {
+                            resolve(e.detail.types);
+                        });
+                    });
+
+                    client._sock._websocket._receiveData(receiveData);
+
+                    await verification;
+                    client.approveServer();
+
+                    await credentials;
+                    client.sendCredentials({ "password": "123456" });
+                    clock.tick();
+
+                    // FIXME: We don't have a good way to know when
+                    //        the async stuff is done, so we hook in
+                    //        to this internal function that is
+                    //        called at the end
+                    await new Promise((resolve, reject) => {
+                        sinon.stub(client._sock._websocket, "send")
+                            .callsFake((data) => {
+                                FakeWebSocket.prototype.send.call(client._sock._websocket, data);
+                                resolve();
+                            });
+                    });
+
+                    expect(client._sock).to.have.sent(sendData);
                 });
             });
 
