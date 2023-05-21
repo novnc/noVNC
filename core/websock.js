@@ -308,6 +308,12 @@ export default class Websock {
 
     // push arraybuffer values onto the end of the receive que
     _recvMessage(e) {
+        if (this._rQlen == this._rQi) {
+            // All data has now been processed, this means we
+            // can reset the receive queue.
+            this._rQlen = 0;
+            this._rQi = 0;
+        }
         const u8 = new Uint8Array(e.data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expandCompactRQ(u8.length);
@@ -317,12 +323,6 @@ export default class Websock {
 
         if (this._rQlen - this._rQi > 0) {
             this._eventHandlers.message();
-            if (this._rQlen == this._rQi) {
-                // All data has now been processed, this means we
-                // can reset the receive queue.
-                this._rQlen = 0;
-                this._rQi = 0;
-            }
         } else {
             Log.Debug("Ignoring empty message");
         }
