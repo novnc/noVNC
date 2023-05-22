@@ -2873,7 +2873,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 it('should handle the last_rect pseudo-encoding', function () {
                     sendFbuMsg([{ x: 0, y: 0, width: 0, height: 0, encoding: -224}], [[]], client, 100);
-                    expect(client._FBU.rects).to.equal(0);
+                    // Send a bell message and make sure it is parsed
+                    let spy = sinon.spy();
+                    client.addEventListener("bell", spy);
+                    client._sock._websocket._receiveData(new Uint8Array([0x02]));
+                    expect(spy).to.have.been.calledOnce;
                 });
 
                 it('should handle the DesktopName pseudo-encoding', function () {
