@@ -1081,9 +1081,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail on an invalid version', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     sendVer('002.000', client);
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
             });
 
@@ -1140,20 +1144,26 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail if there are no supported schemes', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 const authSchemes = [1, 32];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
             it('should fail with the appropriate message if no types are sent', function () {
                 const failureData = [0, 0, 0, 0, 6, 119, 104, 111, 111, 112, 115];
-                sinon.spy(client, '_fail');
+                let callback = sinon.spy();
+                client.addEventListener("securityfailure", callback);
+
                 client._sock._websocket._receiveData(new Uint8Array(failureData));
 
-                expect(client._fail).to.have.been.calledOnce;
-                expect(client._fail).to.have.been.calledWith(
-                    'Security negotiation failed on no security types (reason: whoops)');
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.status).to.equal(1);
+                expect(callback.args[0][0].detail.reason).to.equal("whoops");
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
@@ -1177,11 +1187,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 sendVer('003.006\n', client);
                 client._sock._websocket._getSentData();
+                let callback = sinon.spy();
+                client.addEventListener("securityfailure", callback);
 
-                sinon.spy(client, '_fail');
                 client._sock._websocket._receiveData(new Uint8Array(data));
-                expect(client._fail).to.have.been.calledWith(
-                    'Security negotiation failed on authentication scheme (reason: Whoopsies)');
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.status).to.equal(1);
+                expect(callback.args[0][0].detail.reason).to.equal("Whoopsies");
             });
 
             it('should transition straight to ServerInitialisation on "no auth" for versions < 3.7', function () {
@@ -1205,9 +1218,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail on an unknown auth scheme', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 sendSecurity(57, client);
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
             describe('VNC Authentication (type 2) Handler', function () {
@@ -1954,9 +1971,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail if no supported tunnels are listed', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     sendNumStrPairs([[123, 'OTHR', 'SOMETHNG']], client);
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
 
                 it('should choose the notunnel tunnel type', function () {
@@ -1996,11 +2017,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail if there are no supported auth types', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
                     client._sock._websocket._getSentData();  // skip the tunnel choice here
                     sendNumStrPairs([[23, 'stdv', 'badval__']], client);
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
             });
 
@@ -2011,9 +2036,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail with non-0.2 versions', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     client._sock._websocket._receiveData(new Uint8Array([0, 1]));
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
 
                 it('should fail if there are no supported subtypes', function () {
@@ -2023,9 +2052,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     // Server ACK.
                     client._sock._websocket._receiveData(new Uint8Array([0]));
                     // Subtype list
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
                     client._sock._websocket._receiveData(new Uint8Array([2, 0, 0, 0, 9, 0, 0, 1, 4]));
-                    expect(client._fail).to.have.been.calledOnce;
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
 
                 it('should support standard types', function () {
@@ -2460,10 +2491,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail on an unsupported encoding', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 const rectInfo = { x: 8, y: 11, width: 27, height: 32, encoding: 234 };
                 sendFbuMsg([rectInfo], [[]], client);
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
             describe('Message Encoding Handlers', function () {
@@ -2909,9 +2944,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail on unknown XVP message types', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 client._sock._websocket._receiveData(new Uint8Array([250, 0, 10, 237]));
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
         });
 
@@ -3216,9 +3255,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         it('should fail on an unknown message type', function () {
-            sinon.spy(client, "_fail");
+            let callback = sinon.spy();
+            client.addEventListener("disconnect", callback);
+
             client._sock._websocket._receiveData(new Uint8Array([87]));
-            expect(client._fail).to.have.been.calledOnce;
+
+            expect(callback).to.have.been.calledOnce;
+            expect(callback.args[0][0].detail.clean).to.be.false;
         });
     });
 
