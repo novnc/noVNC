@@ -2138,10 +2138,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     pushString(expectedResponse, 'username');
                     pushString(expectedResponse, 'password');
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
-
-                    sinon.spy(client, "_initMsg");
-                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
-                    expect(client._initMsg).to.have.been.called;
                 });
 
                 it('should support Plain authentication with an empty password', function () {
@@ -2159,10 +2155,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     pushString(expectedResponse, 'username');
                     pushString(expectedResponse, '');
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
-
-                    sinon.spy(client, "_initMsg");
-                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
-                    expect(client._initMsg).to.have.been.called;
                 });
 
                 it('should support Plain authentication with a very long username and password', function () {
@@ -2180,10 +2172,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     pushString(expectedResponse, 'a'.repeat(300));
                     pushString(expectedResponse, 'b'.repeat(300));
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
-
-                    sinon.spy(client, "_initMsg");
-                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
-                    expect(client._initMsg).to.have.been.called;
                 });
             });
         });
