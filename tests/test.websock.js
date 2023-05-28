@@ -157,6 +157,66 @@ describe('Websock', function () {
             sock.attach(websock);
         });
 
+        describe('sQpush8()', function () {
+            it('should send a single byte', function () {
+                sock.sQpush8(42);
+                sock.flush();
+                expect(sock).to.have.sent(new Uint8Array([42]));
+            });
+            it('should not send any data until flushing', function () {
+                sock.sQpush8(42);
+                expect(sock).to.have.sent(new Uint8Array([]));
+            });
+        });
+
+        describe('sQpush16()', function () {
+            it('should send a number as two bytes', function () {
+                sock.sQpush16(420);
+                sock.flush();
+                expect(sock).to.have.sent(new Uint8Array([1, 164]));
+            });
+            it('should not send any data until flushing', function () {
+                sock.sQpush16(420);
+                expect(sock).to.have.sent(new Uint8Array([]));
+            });
+        });
+
+        describe('sQpush32()', function () {
+            it('should send a number as two bytes', function () {
+                sock.sQpush32(420420);
+                sock.flush();
+                expect(sock).to.have.sent(new Uint8Array([0, 6, 106, 68]));
+            });
+            it('should not send any data until flushing', function () {
+                sock.sQpush32(420420);
+                expect(sock).to.have.sent(new Uint8Array([]));
+            });
+        });
+
+        describe('sQpushString()', function () {
+            it('should send a string buffer', function () {
+                sock.sQpushString('\x12\x34\x56\x78\x90');
+                sock.flush();
+                expect(sock).to.have.sent(new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x90]));
+            });
+            it('should not send any data until flushing', function () {
+                sock.sQpushString('\x12\x34\x56\x78\x90');
+                expect(sock).to.have.sent(new Uint8Array([]));
+            });
+        });
+
+        describe('sQpushBytes()', function () {
+            it('should send a byte buffer', function () {
+                sock.sQpushBytes(new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x90]));
+                sock.flush();
+                expect(sock).to.have.sent(new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x90]));
+            });
+            it('should not send any data until flushing', function () {
+                sock.sQpushBytes(new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x90]));
+                expect(sock).to.have.sent(new Uint8Array([]));
+            });
+        });
+
         describe('flush', function () {
             it('should actually send on the websocket', function () {
                 sock._sQ = new Uint8Array([1, 2, 3]);
@@ -172,20 +232,6 @@ describe('Websock', function () {
                 sock.flush();
 
                 expect(sock).to.have.sent(new Uint8Array([]));
-            });
-        });
-
-        describe('send', function () {
-            it('should send the given data immediately', function () {
-                sock.send([1, 2, 3]);
-                expect(sock).to.have.sent(new Uint8Array([1, 2, 3]));
-            });
-        });
-
-        describe('sendString', function () {
-            it('should send after converting the string to an array', function () {
-                sock.sendString("\x01\x02\x03");
-                expect(sock).to.have.sent(new Uint8Array([1, 2, 3]));
             });
         });
     });

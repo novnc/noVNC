@@ -175,21 +175,37 @@ export default class Websock {
 
     // Send Queue
 
+    sQpush8(num) {
+        this._sQ[this._sQlen++] = num;
+    }
+
+    sQpush16(num) {
+        this._sQ[this._sQlen++] = (num >> 8) & 0xff;
+        this._sQ[this._sQlen++] = (num >> 0) & 0xff;
+    }
+
+    sQpush32(num) {
+        this._sQ[this._sQlen++] = (num >> 24) & 0xff;
+        this._sQ[this._sQlen++] = (num >> 16) & 0xff;
+        this._sQ[this._sQlen++] = (num >>  8) & 0xff;
+        this._sQ[this._sQlen++] = (num >>  0) & 0xff;
+    }
+
+    sQpushString(str) {
+        let bytes = str.split('').map(chr => chr.charCodeAt(0));
+        this.sQpushBytes(new Uint8Array(bytes));
+    }
+
+    sQpushBytes(bytes) {
+        this._sQ.set(bytes, this._sQlen);
+        this._sQlen += bytes.length;
+    }
+
     flush() {
         if (this._sQlen > 0 && this.readyState === 'open') {
             this._websocket.send(new Uint8Array(this._sQ.buffer, 0, this._sQlen));
             this._sQlen = 0;
         }
-    }
-
-    send(arr) {
-        this._sQ.set(arr, this._sQlen);
-        this._sQlen += arr.length;
-        this.flush();
-    }
-
-    sendString(str) {
-        this.send(str.split('').map(chr => chr.charCodeAt(0)));
     }
 
     // Event Handlers
