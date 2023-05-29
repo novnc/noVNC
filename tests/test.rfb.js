@@ -297,77 +297,102 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('#sendCtrlAlDel', function () {
             it('should sent ctrl[down]-alt[down]-del[down] then del[up]-alt[up]-ctrl[up]', function () {
-                const expected = {_sQ: new Uint8Array(48), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 0xFFE3, 1);
-                RFB.messages.keyEvent(expected, 0xFFE9, 1);
-                RFB.messages.keyEvent(expected, 0xFFFF, 1);
-                RFB.messages.keyEvent(expected, 0xFFFF, 0);
-                RFB.messages.keyEvent(expected, 0xFFE9, 0);
-                RFB.messages.keyEvent(expected, 0xFFE3, 0);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 0xFFE3, 1);
+                RFB.messages.keyEvent(esock, 0xFFE9, 1);
+                RFB.messages.keyEvent(esock, 0xFFFF, 1);
+                RFB.messages.keyEvent(esock, 0xFFFF, 0);
+                RFB.messages.keyEvent(esock, 0xFFE9, 0);
+                RFB.messages.keyEvent(esock, 0xFFE3, 0);
+                let expected = ews._getSentData();
 
                 client.sendCtrlAltDel();
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send the keys if we are not in a normal state', function () {
-                sinon.spy(client._sock, 'flush');
                 client._rfbConnectionState = "connecting";
                 client.sendCtrlAltDel();
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should not send the keys if we are set as view_only', function () {
-                sinon.spy(client._sock, 'flush');
                 client._viewOnly = true;
                 client.sendCtrlAltDel();
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
         });
 
         describe('#sendKey', function () {
             it('should send a single key with the given code and state (down = true)', function () {
-                const expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 123, 1);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 123, 1);
+                let expected = ews._getSentData();
+
                 client.sendKey(123, 'Key123', true);
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should send both a down and up event if the state is not specified', function () {
-                const expected = {_sQ: new Uint8Array(16), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 123, 1);
-                RFB.messages.keyEvent(expected, 123, 0);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 123, 1);
+                RFB.messages.keyEvent(esock, 123, 0);
+                let expected = ews._getSentData();
+
                 client.sendKey(123, 'Key123');
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send the key if we are not in a normal state', function () {
-                sinon.spy(client._sock, 'flush');
                 client._rfbConnectionState = "connecting";
                 client.sendKey(123, 'Key123');
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should not send the key if we are set as view_only', function () {
-                sinon.spy(client._sock, 'flush');
                 client._viewOnly = true;
                 client.sendKey(123, 'Key123');
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should send QEMU extended events if supported', function () {
                 client._qemuExtKeyEventSupported = true;
-                const expected = {_sQ: new Uint8Array(12), _sQlen: 0, flush: () => {}};
-                RFB.messages.QEMUExtendedKeyEvent(expected, 0x20, true, 0x0039);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.QEMUExtendedKeyEvent(esock, 0x20, true, 0x0039);
+                let expected = ews._getSentData();
+
                 client.sendKey(0x20, 'Space', true);
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send QEMU extended events if unknown key code', function () {
                 client._qemuExtKeyEventSupported = true;
-                const expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 123, 1);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 123, 1);
+                let expected = ews._getSentData();
+
                 client.sendKey(123, 'FooBar', true);
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
         });
 
@@ -2442,23 +2467,31 @@ describe('Remote Frame Buffer Protocol Client', function () {
             }
 
             it('should send an update request if there is sufficient data', function () {
-                const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-                RFB.messages.fbUpdateRequest(expectedMsg, true, 0, 0, 640, 20);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.fbUpdateRequest(esock, true, 0, 0, 640, 20);
+                let expected = ews._getSentData();
 
                 client._framebufferUpdate = () => true;
                 client._sock._websocket._receiveData(new Uint8Array([0]));
 
-                expect(client._sock).to.have.sent(expectedMsg._sQ);
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send an update request if we need more data', function () {
                 client._sock._websocket._receiveData(new Uint8Array([0]));
-                expect(client._sock._websocket._getSentData()).to.have.length(0);
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should resume receiving an update if we previously did not have enough data', function () {
-                const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-                RFB.messages.fbUpdateRequest(expectedMsg, true, 0, 0, 640, 20);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.fbUpdateRequest(esock, true, 0, 0, 640, 20);
+                let expected = ews._getSentData();
 
                 // just enough to set FBU.rects
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 3]));
@@ -2467,7 +2500,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._framebufferUpdate = function () { this._sock.rQskipBytes(1); return true; };  // we magically have enough data
                 // 247 should *not* be used as the message type here
                 client._sock._websocket._receiveData(new Uint8Array([247]));
-                expect(client._sock).to.have.sent(expectedMsg._sQ);
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send a request in continuous updates mode', function () {
@@ -2475,7 +2508,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._framebufferUpdate = () => true;
                 client._sock._websocket._receiveData(new Uint8Array([0]));
 
-                expect(client._sock._websocket._getSentData()).to.have.length(0);
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should fail on an unsupported encoding', function () {
@@ -3181,41 +3214,47 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         it('should respond correctly to ServerFence', function () {
-            const expectedMsg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: () => {}};
-            const incomingMsg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: () => {}};
-
             const payload = "foo\x00ab9";
 
+            let esock = new Websock();
+            let ews = new FakeWebSocket();
+            ews._open();
+            esock.attach(ews);
+
             // ClientFence and ServerFence are identical in structure
-            RFB.messages.clientFence(expectedMsg, (1<<0) | (1<<1), payload);
-            RFB.messages.clientFence(incomingMsg, 0xffffffff, payload);
+            RFB.messages.clientFence(esock, (1<<0) | (1<<1), payload);
+            let expected = ews._getSentData();
+            RFB.messages.clientFence(esock, 0xffffffff, payload);
+            let incoming = ews._getSentData();
 
-            client._sock._websocket._receiveData(incomingMsg._sQ);
+            client._sock._websocket._receiveData(incoming);
 
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
 
-            expectedMsg._sQlen = 0;
-            incomingMsg._sQlen = 0;
+            RFB.messages.clientFence(esock, (1<<0), payload);
+            expected = ews._getSentData();
+            RFB.messages.clientFence(esock, (1<<0) | (1<<31), payload);
+            incoming = ews._getSentData();
 
-            RFB.messages.clientFence(expectedMsg, (1<<0), payload);
-            RFB.messages.clientFence(incomingMsg, (1<<0) | (1<<31), payload);
+            client._sock._websocket._receiveData(incoming);
 
-            client._sock._websocket._receiveData(incomingMsg._sQ);
-
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
         });
 
         it('should enable continuous updates on first EndOfContinousUpdates', function () {
-            const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-
-            RFB.messages.enableContinuousUpdates(expectedMsg, true, 0, 0, 640, 20);
+            let esock = new Websock();
+            let ews = new FakeWebSocket();
+            ews._open();
+            esock.attach(ews);
+            RFB.messages.enableContinuousUpdates(esock, true, 0, 0, 640, 20);
+            let expected = ews._getSentData();
 
             expect(client._enabledContinuousUpdates).to.be.false;
 
             client._sock._websocket._receiveData(new Uint8Array([150]));
 
             expect(client._enabledContinuousUpdates).to.be.true;
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
         });
 
         it('should disable continuous updates on subsequent EndOfContinousUpdates', function () {
@@ -3228,18 +3267,22 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         it('should update continuous updates on resize', function () {
-            const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-            RFB.messages.enableContinuousUpdates(expectedMsg, true, 0, 0, 90, 700);
+            let esock = new Websock();
+            let ews = new FakeWebSocket();
+            ews._open();
+            esock.attach(ews);
+            RFB.messages.enableContinuousUpdates(esock, true, 0, 0, 90, 700);
+            let expected = ews._getSentData();
 
             client._resize(450, 160);
 
-            expect(client._sock._websocket._getSentData()).to.have.length(0);
+            expect(client._sock).to.have.sent(new Uint8Array([]));
 
             client._enabledContinuousUpdates = true;
 
             client._resize(90, 700);
 
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
         });
 
         it('should fail on an unknown message type', function () {
@@ -3662,10 +3705,16 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('Keyboard Events', function () {
             it('should send a key message on a key press', function () {
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 0x41, 1);
+                let expected = ews._getSentData();
+
                 client._handleKeyEvent(0x41, 'KeyA', true);
-                const keyMsg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(keyMsg, 0x41, 1);
-                expect(client._sock).to.have.sent(keyMsg._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send messages in view-only mode', function () {
