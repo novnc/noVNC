@@ -42,7 +42,7 @@ export default class FakeWebSocket {
     }
 
     _getSentData() {
-        const res = new Uint8Array(this._sendQueue.buffer, 0, this.bufferedAmount);
+        const res = this._sendQueue.slice(0, this.bufferedAmount);
         this.bufferedAmount = 0;
         return res;
     }
