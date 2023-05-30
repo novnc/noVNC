@@ -3047,23 +3047,8 @@ RFB.messages = {
         }
 
         sock.sQpush32(length);
-
-        // We have to keep track of from where in the data we begin creating the
-        // buffer for the flush in the next iteration.
-        let dataOffset = 0;
-
-        let remaining = data.length;
-        while (remaining > 0) {
-
-            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
-
-            sock.sQpushBytes(data.subarray(dataOffset, dataOffset + flushSize));
-            sock.flush();
-
-            remaining -= flushSize;
-            dataOffset += flushSize;
-        }
-
+        sock.sQpushBytes(data);
+        sock.flush();
     },
 
     setDesktopSize(sock, width, height, id, flags) {

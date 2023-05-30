@@ -176,15 +176,18 @@ export default class Websock {
     // Send Queue
 
     sQpush8(num) {
+        this._sQensureSpace(1);
         this._sQ[this._sQlen++] = num;
     }
 
     sQpush16(num) {
+        this._sQensureSpace(2);
         this._sQ[this._sQlen++] = (num >> 8) & 0xff;
         this._sQ[this._sQlen++] = (num >> 0) & 0xff;
     }
 
     sQpush32(num) {
+        this._sQensureSpace(4);
         this._sQ[this._sQlen++] = (num >> 24) & 0xff;
         this._sQ[this._sQlen++] = (num >> 16) & 0xff;
         this._sQ[this._sQlen++] = (num >>  8) & 0xff;
@@ -197,14 +200,30 @@ export default class Websock {
     }
 
     sQpushBytes(bytes) {
-        this._sQ.set(bytes, this._sQlen);
-        this._sQlen += bytes.length;
+        for (let offset = 0;offset < bytes.length;) {
+            this._sQensureSpace(1);
+
+            let chunkSize = this._sQbufferSize - this._sQlen;
+            if (chunkSize > bytes.length - offset) {
+                chunkSize = bytes.length - offset;
+            }
+
+            this._sQ.set(bytes.subarray(offset, chunkSize), this._sQlen);
+            this._sQlen += chunkSize;
+            offset += chunkSize;
+        }
     }
 
     flush() {
         if (this._sQlen > 0 && this.readyState === 'open') {
             this._websocket.send(new Uint8Array(this._sQ.buffer, 0, this._sQlen));
             this._sQlen = 0;
+        }
+    }
+
+    _sQensureSpace(bytes) {
+        if (this._sQbufferSize - this._sQlen < bytes) {
+            this.flush();
         }
     }
 

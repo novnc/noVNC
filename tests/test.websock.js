@@ -150,6 +150,8 @@ describe('Websock', function () {
     describe('Send queue methods', function () {
         let sock;
 
+        const bufferSize = 10 * 1024;
+
         beforeEach(function () {
             let websock = new FakeWebSocket();
             websock._open();
@@ -167,6 +169,18 @@ describe('Websock', function () {
                 sock.sQpush8(42);
                 expect(sock).to.have.sent(new Uint8Array([]));
             });
+            it('should implicitly flush if the queue is full', function () {
+                for (let i = 0;i <= bufferSize;i++) {
+                    sock.sQpush8(42);
+                }
+
+                let expected = [];
+                for (let i = 0;i < bufferSize;i++) {
+                    expected.push(42);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
+            });
         });
 
         describe('sQpush16()', function () {
@@ -178,6 +192,19 @@ describe('Websock', function () {
             it('should not send any data until flushing', function () {
                 sock.sQpush16(420);
                 expect(sock).to.have.sent(new Uint8Array([]));
+            });
+            it('should implicitly flush if the queue is full', function () {
+                for (let i = 0;i <= bufferSize/2;i++) {
+                    sock.sQpush16(420);
+                }
+
+                let expected = [];
+                for (let i = 0;i < bufferSize/2;i++) {
+                    expected.push(1);
+                    expected.push(164);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
             });
         });
 
@@ -191,6 +218,21 @@ describe('Websock', function () {
                 sock.sQpush32(420420);
                 expect(sock).to.have.sent(new Uint8Array([]));
             });
+            it('should implicitly flush if the queue is full', function () {
+                for (let i = 0;i <= bufferSize/4;i++) {
+                    sock.sQpush32(420420);
+                }
+
+                let expected = [];
+                for (let i = 0;i < bufferSize/4;i++) {
+                    expected.push(0);
+                    expected.push(6);
+                    expected.push(106);
+                    expected.push(68);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
+            });
         });
 
         describe('sQpushString()', function () {
@@ -203,6 +245,41 @@ describe('Websock', function () {
                 sock.sQpushString('\x12\x34\x56\x78\x90');
                 expect(sock).to.have.sent(new Uint8Array([]));
             });
+            it('should implicitly flush if the queue is full', function () {
+                for (let i = 0;i <= bufferSize/5;i++) {
+                    sock.sQpushString('\x12\x34\x56\x78\x90');
+                }
+
+                let expected = [];
+                for (let i = 0;i < bufferSize/5;i++) {
+                    expected.push(0x12);
+                    expected.push(0x34);
+                    expected.push(0x56);
+                    expected.push(0x78);
+                    expected.push(0x90);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
+            });
+            it('should implicitly split a large buffer', function () {
+                let str = '';
+                for (let i = 0;i <= bufferSize/5;i++) {
+                    str += '\x12\x34\x56\x78\x90';
+                }
+
+                sock.sQpushString(str);
+
+                let expected = [];
+                for (let i = 0;i < bufferSize/5;i++) {
+                    expected.push(0x12);
+                    expected.push(0x34);
+                    expected.push(0x56);
+                    expected.push(0x78);
+                    expected.push(0x90);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
+            });
         });
 
         describe('sQpushBytes()', function () {
@@ -214,6 +291,45 @@ describe('Websock', function () {
             it('should not send any data until flushing', function () {
                 sock.sQpushBytes(new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x90]));
                 expect(sock).to.have.sent(new Uint8Array([]));
+            });
+            it('should implicitly flush if the queue is full', function () {
+                for (let i = 0;i <= bufferSize/5;i++) {
+                    sock.sQpushBytes(new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x90]));
+                }
+
+                let expected = [];
+                for (let i = 0;i < bufferSize/5;i++) {
+                    expected.push(0x12);
+                    expected.push(0x34);
+                    expected.push(0x56);
+                    expected.push(0x78);
+                    expected.push(0x90);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
+            });
+            it('should implicitly split a large buffer', function () {
+                let buffer = [];
+                for (let i = 0;i <= bufferSize/5;i++) {
+                    buffer.push(0x12);
+                    buffer.push(0x34);
+                    buffer.push(0x56);
+                    buffer.push(0x78);
+                    buffer.push(0x90);
+                }
+
+                sock.sQpushBytes(new Uint8Array(buffer));
+
+                let expected = [];
+                for (let i = 0;i < bufferSize/5;i++) {
+                    expected.push(0x12);
+                    expected.push(0x34);
+                    expected.push(0x56);
+                    expected.push(0x78);
+                    expected.push(0x90);
+                }
+
+                expect(sock).to.have.sent(new Uint8Array(expected));
             });
         });
 
