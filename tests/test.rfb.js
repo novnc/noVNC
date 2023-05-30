@@ -4697,14 +4697,56 @@ describe('Remote Frame Buffer Protocol Client', function () {
 describe('RFB messages', function () {
     let sock;
 
-    before(function () {
-        FakeWebSocket.replace();
+    beforeEach(function () {
+        let websock = new FakeWebSocket();
+        websock._open();
         sock = new Websock();
-        sock.open();
+        sock.attach(websock);
     });
 
-    after(function () {
-        FakeWebSocket.restore();
+    describe('Input Events', function () {
+        it('should send correct data for keyboard events', function () {
+            // FIXME: down should be boolean
+            RFB.messages.keyEvent(sock, 0x12345678, 0);
+            let expected =
+                [ 4, 0, 0, 0, 0x12, 0x34, 0x56, 0x78];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+
+            RFB.messages.keyEvent(sock, 0x90abcdef, 1);
+            expected =
+                [ 4, 1, 0, 0, 0x90, 0xab, 0xcd, 0xef];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for QEMU keyboard events', function () {
+            // FIXME: down should be boolean
+            RFB.messages.QEMUExtendedKeyEvent(sock, 0x12345678, 0, 0x55);
+            let expected =
+                [ 255, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x00, 0x00, 0x00, 0x55];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+
+            RFB.messages.QEMUExtendedKeyEvent(sock, 0x90abcdef, 1, 0xe055);
+            expected =
+                [ 255, 0, 0, 1, 0x90, 0xab, 0xcd, 0xef, 0x00, 0x00, 0x00, 0xd5];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for pointer events', function () {
+            RFB.messages.pointerEvent(sock, 12345, 54321, 0xab);
+            let expected =
+                [ 5, 0xab, 0x30, 0x39, 0xd4, 0x31];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Clipboard Events', function () {
+        it('should send correct data for clipboard events', function () {
+            RFB.messages.clientCutText(sock, new Uint8Array([ 0x01, 0x23, 0x45, 0x67 ]));
+            let expected =
+                [ 6, 0, 0, 0, 0x00, 0x00, 0x00, 0x04,
+                  0x01, 0x23, 0x45, 0x67 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
     });
 
     describe('Extended Clipboard Handling Send', function () {
@@ -4853,6 +4895,86 @@ describe('RFB messages', function () {
                 expect(RFB.messages.clientCutText).to.have.been.calledOnce;
                 expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
             });
+        });
+    });
+
+    describe('Screen Layout', function () {
+        it('should send correct data for screen layout changes', function () {
+            RFB.messages.setDesktopSize(sock, 12345, 54321, 0x12345678, 0x90abcdef);
+            let expected =
+                [ 251, 0, 0x30, 0x39, 0xd4, 0x31, 0x01, 0x00,
+                  0x12, 0x34, 0x56, 0x78, 0x00, 0x00, 0x00, 0x00,
+                  0x30, 0x39, 0xd4, 0x31, 0x90, 0xab, 0xcd, 0xef ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Fences', function () {
+        it('should send correct data for fences', function () {
+            // FIXME: Payload should be a byte array
+            RFB.messages.clientFence(sock, 0x12345678, "text");
+            let expected =
+                [ 248, 0, 0, 0, 0x12, 0x34, 0x56, 0x78,
+                  4, 0x74, 0x65, 0x78, 0x74 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Continuous Updates', function () {
+        it('should send correct data for continuous updates configuration', function () {
+            // FIXME: enable should be boolean
+            RFB.messages.enableContinuousUpdates(sock, 0, 12345, 54321, 34343, 18181);
+            let expected =
+                [ 150, 0, 0x30, 0x39, 0xd4, 0x31, 0x86, 0x27, 0x47, 0x05 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Pixel Format', function () {
+        it('should send correct data for normal depth', function () {
+            RFB.messages.pixelFormat(sock, 24, true);
+            let expected =
+                [ 0, 0, 0, 0, 32, 24, 0, 1,
+                  0, 255, 0, 255, 0, 255, 0, 8, 16, 0, 0, 0 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for low depth', function () {
+            RFB.messages.pixelFormat(sock, 8, true);
+            let expected =
+                [ 0, 0, 0, 0, 8, 8, 0, 1,
+                  0, 3, 0, 3, 0, 3, 0, 2, 4, 0, 0, 0 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Encodings', function () {
+        it('should send correct data for supported encodings', function () {
+            RFB.messages.clientEncodings(sock, [ 0x12345678,
+                                                 0x90abcdef,
+                                                 0x10293847 ]);
+            let expected =
+                [ 2, 0, 0, 3, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd,
+                  0xef, 0x10, 0x29, 0x38, 0x47 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Update request', function () {
+        it('should send correct data for update request', function () {
+            RFB.messages.fbUpdateRequest(sock, true, 12345, 54321, 34343, 18181);
+            let expected =
+                [ 3, 1, 0x30, 0x39, 0xd4, 0x31, 0x86, 0x27, 0x47, 0x05 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('XVP operations', function () {
+        it('should send correct data for XVP operations', function () {
+            RFB.messages.xvpOp(sock, 123, 45);
+            let expected =
+                [ 250, 0, 123, 45 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
         });
     });
 });
