@@ -4750,20 +4750,14 @@ describe('RFB messages', function () {
     });
 
     describe('Extended Clipboard Handling Send', function () {
-        beforeEach(function () {
-            sinon.spy(RFB.messages, 'clientCutText');
-        });
-
-        afterEach(function () {
-            RFB.messages.clientCutText.restore();
-        });
-
         it('should call clientCutText with correct Caps data', function () {
             let formats = {
                 0: 2,
                 2: 4121
             };
-            let expectedData = new Uint8Array([0x1F, 0x00, 0x00, 0x05,
+            let expectedData = new Uint8Array([0x06, 0x00, 0x00, 0x00,
+                                               0xFF, 0xFF, 0xFF, 0xF4,
+                                               0x1F, 0x00, 0x00, 0x05,
                                                0x00, 0x00, 0x00, 0x02,
                                                0x00, 0x00, 0x10, 0x19]);
             let actions = [
@@ -4775,26 +4769,30 @@ describe('RFB messages', function () {
             ];
 
             RFB.messages.extendedClipboardCaps(sock, actions, formats);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+
+            expect(sock).to.have.sent(expectedData);
         });
 
         it('should call clientCutText with correct Request data', function () {
             let formats = new Uint8Array([0x01]);
-            let expectedData = new Uint8Array([0x02, 0x00, 0x00, 0x01]);
+            let expectedData = new Uint8Array([0x06, 0x00, 0x00, 0x00,
+                                               0xFF, 0xFF, 0xFF, 0xFC,
+                                               0x02, 0x00, 0x00, 0x01]);
 
             RFB.messages.extendedClipboardRequest(sock, formats);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+
+            expect(sock).to.have.sent(expectedData);
         });
 
         it('should call clientCutText with correct Notify data', function () {
             let formats = new Uint8Array([0x01]);
-            let expectedData = new Uint8Array([0x08, 0x00, 0x00, 0x01]);
+            let expectedData = new Uint8Array([0x06, 0x00, 0x00, 0x00,
+                                               0xFF, 0xFF, 0xFF, 0xFC,
+                                               0x08, 0x00, 0x00, 0x01]);
 
             RFB.messages.extendedClipboardNotify(sock, formats);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+
+            expect(sock).to.have.sent(expectedData);
         });
 
         it('should call clientCutText with correct Provide data', function () {
@@ -4804,16 +4802,24 @@ describe('RFB messages', function () {
             let deflatedData =  deflateWithSize(expectedText);
 
             // Build Expected with flags and deflated data
-            let expectedData = new Uint8Array(4 + deflatedData.length);
-            expectedData[0] = 0x10; // The client capabilities
-            expectedData[1] = 0x00; // Reserved flags
-            expectedData[2] = 0x00; // Reserved flags
-            expectedData[3] = 0x01; // The formats client supports
-            expectedData.set(deflatedData, 4);
+            let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+            expectedData[0] = 0x06; // Message type
+            expectedData[1] = 0x00;
+            expectedData[2] = 0x00;
+            expectedData[3] = 0x00;
+            expectedData[4] = 0xFF; // Size
+            expectedData[5] = 0xFF;
+            expectedData[6] = 0xFF;
+            expectedData[7] = 256 - (4 + deflatedData.length);
+            expectedData[8] = 0x10; // The client capabilities
+            expectedData[9] = 0x00; // Reserved flags
+            expectedData[10] = 0x00; // Reserved flags
+            expectedData[11] = 0x01; // The formats client supports
+            expectedData.set(deflatedData, 12);
 
             RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+            expect(sock).to.have.sent(expectedData);
 
         });
 
@@ -4826,16 +4832,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
 
             it('Carriage return Line feed', function () {
@@ -4846,16 +4860,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
 
             it('Line feed', function () {
@@ -4865,16 +4887,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
 
             it('Carriage return and Line feed mixed', function () {
@@ -4884,16 +4914,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
         });
     });
