@@ -121,7 +121,7 @@ export default class Websock {
         for (let byte = bytes - 1; byte >= 0; byte--) {
             res += this._rQ[this._rQi++] << (byte * 8);
         }
-        return res;
+        return res >>> 0;
     }
 
     rQshiftStr(len) {
