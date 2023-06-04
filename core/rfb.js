@@ -2740,12 +2740,12 @@ export default class RFB extends EventTargetMixin {
         for (let i = 0; i < numberOfScreens; i += 1) {
             // Save the id and flags of the first screen
             if (i === 0) {
-                this._screenID = this._sock.rQshiftBytes(4);    // id
-                this._sock.rQskipBytes(2);                       // x-position
-                this._sock.rQskipBytes(2);                       // y-position
-                this._sock.rQskipBytes(2);                       // width
-                this._sock.rQskipBytes(2);                       // height
-                this._screenFlags = this._sock.rQshiftBytes(4); // flags
+                this._screenID = this._sock.rQshift32();    // id
+                this._sock.rQskipBytes(2);                  // x-position
+                this._sock.rQskipBytes(2);                  // y-position
+                this._sock.rQskipBytes(2);                  // width
+                this._sock.rQskipBytes(2);                  // height
+                this._screenFlags = this._sock.rQshift32(); // flags
             } else {
                 this._sock.rQskipBytes(16);
             }
