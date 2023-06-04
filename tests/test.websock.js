@@ -6,7 +6,7 @@ import FakeWebSocket from './fake.websocket.js';
 describe('Websock', function () {
     "use strict";
 
-    describe('Queue methods', function () {
+    describe('Receive queue methods', function () {
         let sock;
         const RQ_TEMPLATE = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]);
 
@@ -185,61 +185,48 @@ describe('Websock', function () {
                 expect(sock.rQi).to.equal(5);
             });
         });
+    });
+
+    describe('Send queue methods', function () {
+        let sock;
+
+        beforeEach(function () {
+            let websock = new FakeWebSocket();
+            websock._open();
+            sock = new Websock();
+            sock.attach(websock);
+        });
 
         describe('flush', function () {
-            beforeEach(function () {
-                sock._websocket = {
-                    send: sinon.spy()
-                };
-            });
-
             it('should actually send on the websocket', function () {
-                sock._websocket.bufferedAmount = 8;
-                sock._websocket.readyState = WebSocket.OPEN;
                 sock._sQ = new Uint8Array([1, 2, 3]);
                 sock._sQlen = 3;
                 const encoded = sock._encodeMessage();
 
                 sock.flush();
-                expect(sock._websocket.send).to.have.been.calledOnce;
-                expect(sock._websocket.send).to.have.been.calledWith(encoded);
+                expect(sock).to.have.sent(encoded);
             });
 
             it('should not call send if we do not have anything queued up', function () {
                 sock._sQlen = 0;
-                sock._websocket.bufferedAmount = 8;
 
                 sock.flush();
 
-                expect(sock._websocket.send).not.to.have.been.called;
+                expect(sock).to.have.sent(new Uint8Array([]));
             });
         });
 
         describe('send', function () {
-            beforeEach(function () {
-                sock.flush = sinon.spy();
-            });
-
-            it('should add to the send queue', function () {
+            it('should send the given data immediately', function () {
                 sock.send([1, 2, 3]);
-                const sq = sock.sQ;
-                expect(new Uint8Array(sq.buffer, sock._sQlen - 3, 3)).to.array.equal(new Uint8Array([1, 2, 3]));
-            });
-
-            it('should call flush', function () {
-                sock.send([1, 2, 3]);
-                expect(sock.flush).to.have.been.calledOnce;
+                expect(sock).to.have.sent(new Uint8Array([1, 2, 3]));
             });
         });
 
         describe('sendString', function () {
-            beforeEach(function () {
-                sock.send = sinon.spy();
-            });
-
-            it('should call send after converting the string to an array', function () {
+            it('should send after converting the string to an array', function () {
                 sock.sendString("\x01\x02\x03");
-                expect(sock.send).to.have.been.calledWith([1, 2, 3]);
+                expect(sock).to.have.sent(new Uint8Array([1, 2, 3]));
             });
         });
     });

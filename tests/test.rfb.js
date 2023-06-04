@@ -287,26 +287,6 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._sock.off).to.have.been.calledWith('open');
             });
         });
-
-        describe('#sendCredentials', function () {
-            let client;
-            beforeEach(function () {
-                client = makeRFB();
-                client._rfbConnectionState = 'connecting';
-            });
-
-            it('should set the rfb credentials properly"', function () {
-                client.sendCredentials({ password: 'pass' });
-                expect(client._rfbCredentials).to.deep.equal({ password: 'pass' });
-            });
-
-            it('should call initMsg "soon"', function () {
-                client._initMsg = sinon.spy();
-                client.sendCredentials({ password: 'pass' });
-                this.clock.tick(5);
-                expect(client._initMsg).to.have.been.calledOnce;
-            });
-        });
     });
 
     describe('Public API Basic Behavior', function () {
@@ -317,89 +297,114 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('#sendCtrlAlDel', function () {
             it('should sent ctrl[down]-alt[down]-del[down] then del[up]-alt[up]-ctrl[up]', function () {
-                const expected = {_sQ: new Uint8Array(48), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 0xFFE3, 1);
-                RFB.messages.keyEvent(expected, 0xFFE9, 1);
-                RFB.messages.keyEvent(expected, 0xFFFF, 1);
-                RFB.messages.keyEvent(expected, 0xFFFF, 0);
-                RFB.messages.keyEvent(expected, 0xFFE9, 0);
-                RFB.messages.keyEvent(expected, 0xFFE3, 0);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 0xFFE3, 1);
+                RFB.messages.keyEvent(esock, 0xFFE9, 1);
+                RFB.messages.keyEvent(esock, 0xFFFF, 1);
+                RFB.messages.keyEvent(esock, 0xFFFF, 0);
+                RFB.messages.keyEvent(esock, 0xFFE9, 0);
+                RFB.messages.keyEvent(esock, 0xFFE3, 0);
+                let expected = ews._getSentData();
 
                 client.sendCtrlAltDel();
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send the keys if we are not in a normal state', function () {
-                sinon.spy(client._sock, 'flush');
                 client._rfbConnectionState = "connecting";
                 client.sendCtrlAltDel();
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should not send the keys if we are set as view_only', function () {
-                sinon.spy(client._sock, 'flush');
                 client._viewOnly = true;
                 client.sendCtrlAltDel();
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
         });
 
         describe('#sendKey', function () {
             it('should send a single key with the given code and state (down = true)', function () {
-                const expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 123, 1);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 123, 1);
+                let expected = ews._getSentData();
+
                 client.sendKey(123, 'Key123', true);
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should send both a down and up event if the state is not specified', function () {
-                const expected = {_sQ: new Uint8Array(16), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 123, 1);
-                RFB.messages.keyEvent(expected, 123, 0);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 123, 1);
+                RFB.messages.keyEvent(esock, 123, 0);
+                let expected = ews._getSentData();
+
                 client.sendKey(123, 'Key123');
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send the key if we are not in a normal state', function () {
-                sinon.spy(client._sock, 'flush');
                 client._rfbConnectionState = "connecting";
                 client.sendKey(123, 'Key123');
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should not send the key if we are set as view_only', function () {
-                sinon.spy(client._sock, 'flush');
                 client._viewOnly = true;
                 client.sendKey(123, 'Key123');
-                expect(client._sock.flush).to.not.have.been.called;
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should send QEMU extended events if supported', function () {
                 client._qemuExtKeyEventSupported = true;
-                const expected = {_sQ: new Uint8Array(12), _sQlen: 0, flush: () => {}};
-                RFB.messages.QEMUExtendedKeyEvent(expected, 0x20, true, 0x0039);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.QEMUExtendedKeyEvent(esock, 0x20, true, 0x0039);
+                let expected = ews._getSentData();
+
                 client.sendKey(0x20, 'Space', true);
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send QEMU extended events if unknown key code', function () {
                 client._qemuExtKeyEventSupported = true;
-                const expected = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(expected, 123, 1);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 123, 1);
+                let expected = ews._getSentData();
+
                 client.sendKey(123, 'FooBar', true);
-                expect(client._sock).to.have.sent(expected._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
         });
 
         describe('#focus', function () {
             it('should move focus to canvas object', function () {
-                client._canvas.focus = sinon.spy();
+                sinon.spy(client._canvas, "focus");
                 client.focus();
                 expect(client._canvas.focus).to.have.been.calledOnce;
             });
 
             it('should include focus options', function () {
-                client._canvas.focus = sinon.spy();
+                sinon.spy(client._canvas, "focus");
                 client.focus({ foobar: 12, gazonk: true });
                 expect(client._canvas.focus).to.have.been.calledOnce;
                 expect(client._canvas.focus).to.have.been.calledWith({ foobar: 12, gazonk: true});
@@ -408,7 +413,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('#blur', function () {
             it('should remove focus from canvas object', function () {
-                client._canvas.blur = sinon.spy();
+                sinon.spy(client._canvas, "blur");
                 client.blur();
                 expect(client._canvas.blur).to.have.been.calledOnce;
             });
@@ -1101,9 +1106,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail on an invalid version', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     sendVer('002.000', client);
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
             });
 
@@ -1160,25 +1169,31 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail if there are no supported schemes', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 const authSchemes = [1, 32];
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
             it('should fail with the appropriate message if no types are sent', function () {
                 const failureData = [0, 0, 0, 0, 6, 119, 104, 111, 111, 112, 115];
-                sinon.spy(client, '_fail');
+                let callback = sinon.spy();
+                client.addEventListener("securityfailure", callback);
+
                 client._sock._websocket._receiveData(new Uint8Array(failureData));
 
-                expect(client._fail).to.have.been.calledOnce;
-                expect(client._fail).to.have.been.calledWith(
-                    'Security negotiation failed on no security types (reason: whoops)');
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.status).to.equal(1);
+                expect(callback.args[0][0].detail.reason).to.equal("whoops");
             });
 
             it('should transition to the Authentication state and continue on successful negotiation', function () {
-                const authSchemes = [1, 1];
-                client._negotiateAuthentication = sinon.spy();
+                const authSchemes = [1, 2];
+                sinon.spy(client, "_negotiateAuthentication");
                 client._sock._websocket._receiveData(new Uint8Array(authSchemes));
                 expect(client._rfbInitState).to.equal('Authentication');
                 expect(client._negotiateAuthentication).to.have.been.calledOnce;
@@ -1197,11 +1212,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 sendVer('003.006\n', client);
                 client._sock._websocket._getSentData();
+                let callback = sinon.spy();
+                client.addEventListener("securityfailure", callback);
 
-                sinon.spy(client, '_fail');
                 client._sock._websocket._receiveData(new Uint8Array(data));
-                expect(client._fail).to.have.been.calledWith(
-                    'Security negotiation failed on authentication scheme (reason: Whoopsies)');
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.status).to.equal(1);
+                expect(callback.args[0][0].detail.reason).to.equal("Whoopsies");
             });
 
             it('should transition straight to ServerInitialisation on "no auth" for versions < 3.7', function () {
@@ -1225,9 +1243,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail on an unknown auth scheme', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 sendSecurity(57, client);
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
             describe('VNC Authentication (type 2) Handler', function () {
@@ -1240,33 +1262,483 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     for (let i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
 
-                    expect(client._rfbCredentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.types).to.have.members(["password"]);
                 });
 
                 it('should encrypt the password with DES and then send it back', function () {
-                    client._rfbCredentials = { password: 'passwd' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ password: 'passwd' });
+                    });
                     sendSecurity(2, client);
                     client._sock._websocket._getSentData(); // skip the choice of auth reply
 
                     const challenge = [];
                     for (let i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
+                    clock.tick();
 
                     const desPass = RFB.genDES('passwd', challenge);
                     expect(client._sock).to.have.sent(new Uint8Array(desPass));
                 });
 
                 it('should transition to SecurityResult immediately after sending the password', function () {
-                    client._rfbCredentials = { password: 'passwd' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ password: 'passwd' });
+                    });
                     sendSecurity(2, client);
 
                     const challenge = [];
                     for (let i = 0; i < 16; i++) { challenge[i] = i; }
                     client._sock._websocket._receiveData(new Uint8Array(challenge));
+                    clock.tick();
 
                     expect(client._rfbInitState).to.equal('SecurityResult');
+                });
+            });
+
+            describe('RSA-AES Authentication (type 6) Handler', function () {
+                function fakeGetRandomValues(arr) {
+                    if (arr.length === 16) {
+                        arr.set(new Uint8Array([
+                            0x1c, 0x08, 0xfe, 0x21, 0x78, 0xef, 0x4e, 0xf9,
+                            0x3f, 0x05, 0xec, 0xea, 0xd4, 0x6b, 0xa5, 0xd5,
+                        ]));
+                    } else {
+                        arr.set(new Uint8Array([
+                            0xee, 0xe2, 0xf1, 0x5a, 0x3c, 0xa7, 0xbe, 0x95,
+                            0x6f, 0x2a, 0x75, 0xfd, 0x62, 0x01, 0xcb, 0xbf,
+                            0x43, 0x74, 0xca, 0x47, 0x4d, 0xfb, 0x0f, 0xcf,
+                            0x3a, 0x6d, 0x55, 0x6b, 0x59, 0x3a, 0xf6, 0x87,
+                            0xcb, 0x03, 0xb7, 0x28, 0x35, 0x7b, 0x15, 0x8e,
+                            0xb6, 0xc8, 0x8f, 0x2d, 0x5e, 0x7b, 0x1c, 0x9a,
+                            0x32, 0x55, 0xe7, 0x64, 0x36, 0x25, 0x7b, 0xa3,
+                            0xe9, 0x4f, 0x6f, 0x97, 0xdc, 0xa4, 0xd4, 0x62,
+                            0x6d, 0x7f, 0xab, 0x02, 0x6b, 0x13, 0x56, 0x69,
+                            0xfb, 0xd0, 0xd4, 0x13, 0x76, 0xcd, 0x0d, 0xd0,
+                            0x1f, 0xd1, 0x0c, 0x63, 0x3a, 0x34, 0x20, 0x6c,
+                            0xbb, 0x60, 0x45, 0x82, 0x23, 0xfd, 0x7c, 0x77,
+                            0x6d, 0xcc, 0x5e, 0xaa, 0xc3, 0x0c, 0x43, 0xb7,
+                            0x8d, 0xc0, 0x27, 0x6e, 0xeb, 0x1d, 0x6c, 0x5f,
+                            0xd8, 0x1c, 0x3c, 0x1c, 0x60, 0x2e, 0x82, 0x15,
+                            0xfd, 0x2e, 0x5f, 0x3a, 0x15, 0x53, 0x14, 0x70,
+                            0x4f, 0xe1, 0x65, 0x68, 0x35, 0x6d, 0xc7, 0x64,
+                            0xdb, 0xdd, 0x09, 0x31, 0x4f, 0x7b, 0x6d, 0x6c,
+                            0x77, 0x59, 0x5e, 0x1e, 0xfa, 0x4b, 0x06, 0x14,
+                            0xbe, 0xdc, 0x9c, 0x3d, 0x7b, 0xed, 0xf3, 0x2b,
+                            0x19, 0x26, 0x11, 0x8e, 0x3f, 0xab, 0x73, 0x9a,
+                            0x0a, 0x3a, 0xaa, 0x85, 0x06, 0xd5, 0xca, 0x3f,
+                            0xc3, 0xe2, 0x33, 0x7f, 0x97, 0x74, 0x98, 0x8f,
+                            0x2f, 0xa5, 0xfc, 0x7e, 0xb1, 0x77, 0x71, 0x58,
+                            0xf0, 0xbc, 0x04, 0x59, 0xbb, 0xb4, 0xc6, 0xcc,
+                            0x0f, 0x06, 0xcd, 0xa2, 0xd5, 0x01, 0x2f, 0xb2,
+                            0x22, 0x0b, 0xfc, 0x1e, 0x59, 0x9f, 0xd3, 0x4f,
+                            0x30, 0x95, 0xc6, 0x80, 0x0f, 0x69, 0xf3, 0x4a,
+                            0xd4, 0x36, 0xb6, 0x5a, 0x0b, 0x16, 0x0d, 0x81,
+                            0x31, 0xb0, 0x69, 0xd4, 0x4e,
+                        ]));
+                    }
+                }
+
+                async function fakeGeneratekey() {
+                    let key = { "alg": "RSA-OAEP-256",
+                                "d": "B7QR2yI8sXjo8vQhJpX9odqqR6wIuPr" +
+                                     "TM1B1JJEKVeSrr7OYcc1FRJ52Vap9LI" +
+                                     "AU-ezigs9QDvWMxknB8motLnG69Wck3" +
+                                     "7nt9_z4s8lFQp0nROA-oaR92HW34KNL" +
+                                     "1b2fEVWGI0N86h730MvTJC5O2cmKeMe" +
+                                     "zIG-oNqbbfFyP8AW-WLdDlgZm11-Fjz" +
+                                     "hbVpb0Bc7nRSgBPSV-EY6Sl-LuglxDx" +
+                                     "4LaTdQW7QE_WXoRUt-GYGfTseuFQQK5" +
+                                     "WeoyX3yBtQydpauW6rrgyWdtP4hDFIo" +
+                                     "ZsX6w1i-UMWMMwlIB5FdnUSi26igVGA" +
+                                     "DGpV_vGMP36bv-EHp0bY-Qp0gpIfLfgQ",
+                                "dp": "Z1v5UceFfV2bhmbG19eGYb30jFxqoR" +
+                                      "Bq36PKNY7IunMs1keYy0FpLbyGhtgM" +
+                                      "Z1Ymmc8wEzGYsCPEP-ykcun_rlyu7Y" +
+                                      "xmcnyC9YQqTqLyqvO-7rUqDvk9TMfd" +
+                                      "qWFP6heADRhKZmEbmcau6_m2MwwK9k" +
+                                      "OkMKWvpqp8_TpJMnAH7zE",
+                                "dq": "OBacRE15aY3NtCR4cvP5os3sT70JbD" +
+                                      "dDLHT3IHZM6rE35CYNpLDia2chm_wn" +
+                                      "McYvKFW9zC2ajRZ15i9c_VXQzS7ZlT" +
+                                      "aQYBFyMt7kVhxMEMFsPv1crD6t3uEI" +
+                                      "j0LNuNYyy0jkon_LPZKQFK654CiL-L" +
+                                      "2YaNXOH4HbHP02dWeVQIE",
+                                "e": "AQAB",
+                                "ext": true,
+                                "key_ops": ["decrypt"],
+                                "kty": "RSA",
+                                "n": "m1c92ZFk9ZI6l_O4YFiNxbv0Ng94SB3" +
+                                     "yThy1P_mcqrGDQkRiGVdcTxAk38T9Pg" +
+                                     "LztmspF-6U5TAHO-gSmmW88AC9m6f1M" +
+                                     "spps6r7zl-M_OG-TwvGzf3BDz8zEg1F" +
+                                     "PbZV7whO1M4TCAZ0PqwG7qCc6nK1WiA" +
+                                     "haKrSpzuPdL1igfNBsX7qu5wgw4ZTTG" +
+                                     "SLbVC_LfULQ5FADgFTRXUSaxm1F8C_L" +
+                                     "wy6a2e4nTcXilmtN2IHUjHegzm-Tq2H" +
+                                     "izmR3ARdWJpESYIW5-AXoiqj29tDrqC" +
+                                     "mu2WPkB2psVp83IzZfaQNQzjNfvA8Gp" +
+                                     "imkcDCkP5VMRrtKCcG4ZAFnO-A3NBX_Q",
+                                "p": "2Q_lNL7vCOBzAppYzCZo3WSh0hX-MOZ" +
+                                     "yPUznks5U2TjmfdNZoL6_FJRiGyyLvw" +
+                                     "SiZFdEAAvpAyESFfFigngAqMLSf448n" +
+                                     "Pg15VUGj533CotsEM0WpoEr1JCgqdUb" +
+                                     "gDAfJQIBcwOmegBqd7lWm7uzEnRCvou" +
+                                     "B70ybkJfpdprhkVE",
+                                "q": "tzTt-F3g2u_3Ctj26Ho9iN_wC_W0lXG" +
+                                     "zslLt5nLmss8JqdLoDDrijjU-gjeRh7" +
+                                     "lgiuHdUc3dorfFKbaMNOjoW3QKqt9oZ" +
+                                     "1JM0HKeRw0X2PnWW_0WK6DK5ASWDTXb" +
+                                     "Mq2sUZqJvYEyL74H2Zrt0RPAux7XQLE" +
+                                     "VgND6ROdXnMJ70O0",
+                                "qi": "qfl4cXQkz4BNqa2De0-PfdU-8d1w3o" +
+                                      "nnaGqx1Ds2fHzD_SJ4cNghn2TksoT9" +
+                                      "Qo64b3pUjH9igi2pyEjomk6D12N6FG" +
+                                      "0e10u7vFKv3W5YqUOgTpYdbcWHdZ2q" +
+                                      "ZWJU0XQZIrF8jLGTOO4GYP6_9sJ5R7" +
+                                      "Wk_0MdqQy8qvixWD4zLcY",
+                    };
+                    key = await window.crypto.subtle.importKey("jwk", key, {
+                        name: "RSA-OAEP",
+                        hash: {name: "SHA-256"}
+                    }, true, ["decrypt"]);
+                    return {privateKey: key};
+                }
+
+                before(() => {
+                    sinon.stub(window.crypto, "getRandomValues").callsFake(fakeGetRandomValues);
+                    sinon.stub(window.crypto.subtle, "generateKey").callsFake(fakeGeneratekey);
+                });
+                after(() => {
+                    window.crypto.getRandomValues.restore();
+                    window.crypto.subtle.generateKey.restore();
+                });
+
+                beforeEach(function () {
+                    sendSecurity(6, client);
+                    expect(client._sock).to.have.sent(new Uint8Array([6]));
+                });
+
+                const serverPublicKey = [
+                    0x00, 0x00, 0x08, 0x00, 0xac, 0x1a, 0xbc, 0x42,
+                    0x8a, 0x2a, 0x69, 0x65, 0x54, 0xf8, 0x9a, 0xe6,
+                    0x43, 0xaa, 0xf7, 0x27, 0xf6, 0x2a, 0xf8, 0x8f,
+                    0x36, 0xd4, 0xae, 0x54, 0x0f, 0x16, 0x28, 0x08,
+                    0xc2, 0x5b, 0xca, 0x23, 0xdc, 0x27, 0x88, 0x1a,
+                    0x12, 0x82, 0xa8, 0x54, 0xea, 0x00, 0x99, 0x8d,
+                    0x02, 0x1d, 0x77, 0x4a, 0xeb, 0xd0, 0x93, 0x40,
+                    0x79, 0x86, 0xcb, 0x37, 0xd4, 0xb2, 0xc7, 0xcd,
+                    0x93, 0xe1, 0x00, 0x4d, 0x86, 0xff, 0x97, 0x33,
+                    0x0c, 0xad, 0x51, 0x47, 0x45, 0x85, 0x56, 0x07,
+                    0x65, 0x21, 0x7c, 0x57, 0x6d, 0x68, 0x7d, 0xd7,
+                    0x00, 0x43, 0x0c, 0x9d, 0x3b, 0xa1, 0x5a, 0x11,
+                    0xed, 0x51, 0x77, 0xf9, 0xd1, 0x5b, 0x33, 0xd7,
+                    0x1a, 0xeb, 0x65, 0x57, 0xc0, 0x01, 0x51, 0xff,
+                    0x9b, 0x82, 0xb3, 0xeb, 0x82, 0xc2, 0x1f, 0xca,
+                    0x47, 0xc0, 0x6a, 0x09, 0xe0, 0xf7, 0xda, 0x39,
+                    0x85, 0x12, 0xe7, 0x45, 0x8d, 0xb4, 0x1a, 0xda,
+                    0xcb, 0x86, 0x58, 0x52, 0x37, 0x66, 0x9d, 0x8a,
+                    0xce, 0xf2, 0x18, 0x78, 0x7d, 0x7f, 0xf0, 0x07,
+                    0x94, 0x8e, 0x6b, 0x17, 0xd9, 0x00, 0x2a, 0x3a,
+                    0xb9, 0xd4, 0x77, 0xde, 0x70, 0x85, 0xc4, 0x3a,
+                    0x62, 0x10, 0x02, 0xee, 0xba, 0xd8, 0xc0, 0x62,
+                    0xd0, 0x8e, 0xc1, 0x98, 0x19, 0x8e, 0x39, 0x0f,
+                    0x3e, 0x1d, 0x61, 0xb1, 0x93, 0x13, 0x59, 0x39,
+                    0xcb, 0x96, 0xf2, 0x17, 0xc9, 0xe1, 0x41, 0xd3,
+                    0x20, 0xdd, 0x62, 0x5e, 0x7d, 0x53, 0xd6, 0xb7,
+                    0x1d, 0xfe, 0x02, 0x18, 0x1f, 0xe0, 0xef, 0x3d,
+                    0x94, 0xe3, 0x0a, 0x9c, 0x59, 0x54, 0xd8, 0x98,
+                    0x16, 0x9c, 0x31, 0xda, 0x41, 0x0f, 0x2e, 0x71,
+                    0x68, 0xe0, 0xa2, 0x62, 0x3e, 0xe5, 0x25, 0x31,
+                    0xcf, 0xfc, 0x67, 0x63, 0xc3, 0xb0, 0xda, 0x3f,
+                    0x7b, 0x59, 0xbe, 0x7e, 0x9e, 0xa8, 0xd0, 0x01,
+                    0x4f, 0x43, 0x7f, 0x8d, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x01, 0x00, 0x01,
+                ];
+
+                const serverRandom = [
+                    0x01, 0x00, 0x5b, 0x58, 0x2a, 0x96, 0x2d, 0xbb,
+                    0x88, 0xec, 0xc3, 0x54, 0x00, 0xf3, 0xbb, 0xbe,
+                    0x17, 0xa3, 0x84, 0xd3, 0xef, 0xd8, 0x4a, 0x31,
+                    0x09, 0x20, 0xdd, 0xbc, 0x16, 0x9d, 0xc9, 0x5b,
+                    0x99, 0x62, 0x86, 0xfe, 0x0b, 0x28, 0x4b, 0xfe,
+                    0x5b, 0x56, 0x2d, 0xcb, 0x6e, 0x6f, 0xec, 0xf0,
+                    0x53, 0x0c, 0x33, 0x84, 0x93, 0xc9, 0xbf, 0x79,
+                    0xde, 0xb3, 0xb9, 0x29, 0x60, 0x78, 0xde, 0xe6,
+                    0x1d, 0xa7, 0x89, 0x48, 0x3f, 0xd1, 0x58, 0x66,
+                    0x27, 0x9c, 0xd4, 0x6e, 0x72, 0x9c, 0x6e, 0x4a,
+                    0xc0, 0x69, 0x79, 0x6f, 0x79, 0x0f, 0x13, 0xc4,
+                    0x20, 0xcf, 0xa6, 0xbb, 0xce, 0x18, 0x6d, 0xd5,
+                    0x9e, 0xd9, 0x67, 0xbe, 0x61, 0x43, 0x67, 0x11,
+                    0x76, 0x2f, 0xfd, 0x78, 0x75, 0x2b, 0x89, 0x35,
+                    0xdd, 0x0f, 0x13, 0x7f, 0xee, 0x78, 0xad, 0x32,
+                    0x56, 0x21, 0x81, 0x08, 0x1f, 0xcf, 0x4c, 0x29,
+                    0xa3, 0xeb, 0x89, 0x2d, 0xbe, 0xba, 0x8d, 0xe4,
+                    0x69, 0x28, 0xba, 0x53, 0x82, 0xce, 0x5c, 0xf6,
+                    0x5e, 0x5e, 0xa5, 0xb3, 0x88, 0xd8, 0x3d, 0xab,
+                    0xf4, 0x24, 0x9e, 0x3f, 0x04, 0xaf, 0xdc, 0x48,
+                    0x90, 0x53, 0x37, 0xe6, 0x82, 0x1d, 0xe0, 0x15,
+                    0x91, 0xa1, 0xc6, 0xa9, 0x54, 0xe5, 0x2a, 0xb5,
+                    0x64, 0x2d, 0x93, 0xc0, 0xc0, 0xe1, 0x0f, 0x6a,
+                    0x4b, 0xdb, 0x77, 0xf8, 0x4a, 0x0f, 0x83, 0x36,
+                    0xdd, 0x5e, 0x1e, 0xdd, 0x39, 0x65, 0xa2, 0x11,
+                    0xc2, 0xcf, 0x56, 0x1e, 0xa1, 0x29, 0xae, 0x11,
+                    0x9f, 0x3a, 0x82, 0xc7, 0xbd, 0x89, 0x6e, 0x59,
+                    0xb8, 0x59, 0x17, 0xcb, 0x65, 0xa0, 0x4b, 0x4d,
+                    0xbe, 0x33, 0x32, 0x85, 0x9c, 0xca, 0x5e, 0x95,
+                    0xc2, 0x5a, 0xd0, 0xc9, 0x8b, 0xf1, 0xf5, 0x14,
+                    0xcf, 0x76, 0x80, 0xc2, 0x24, 0x0a, 0x39, 0x7e,
+                    0x60, 0x64, 0xce, 0xd9, 0xb8, 0xad, 0x24, 0xa8,
+                    0xdf, 0xcb,
+                ];
+
+                const serverHash = [
+                    0x00, 0x14, 0x39, 0x30, 0x66, 0xb5, 0x66, 0x8a,
+                    0xcd, 0xb9, 0xda, 0xe0, 0xde, 0xcb, 0xf6, 0x47,
+                    0x5f, 0x54, 0x66, 0xe0, 0xbc, 0x49, 0x37, 0x01,
+                    0xf2, 0x9e, 0xef, 0xcc, 0xcd, 0x4d, 0x6c, 0x0e,
+                    0xc6, 0xab, 0x28, 0xd4, 0x7b, 0x13,
+                ];
+
+                const subType = [
+                    0x00, 0x01, 0x30, 0x2a, 0xc3, 0x0b, 0xc2, 0x1c,
+                    0xeb, 0x02, 0x44, 0x92, 0x5d, 0xfd, 0xf9, 0xa7,
+                    0x94, 0xd0, 0x19,
+                ];
+
+                const clientPublicKey = [
+                    0x00, 0x00, 0x08, 0x00, 0x9b, 0x57, 0x3d, 0xd9,
+                    0x91, 0x64, 0xf5, 0x92, 0x3a, 0x97, 0xf3, 0xb8,
+                    0x60, 0x58, 0x8d, 0xc5, 0xbb, 0xf4, 0x36, 0x0f,
+                    0x78, 0x48, 0x1d, 0xf2, 0x4e, 0x1c, 0xb5, 0x3f,
+                    0xf9, 0x9c, 0xaa, 0xb1, 0x83, 0x42, 0x44, 0x62,
+                    0x19, 0x57, 0x5c, 0x4f, 0x10, 0x24, 0xdf, 0xc4,
+                    0xfd, 0x3e, 0x02, 0xf3, 0xb6, 0x6b, 0x29, 0x17,
+                    0xee, 0x94, 0xe5, 0x30, 0x07, 0x3b, 0xe8, 0x12,
+                    0x9a, 0x65, 0xbc, 0xf0, 0x00, 0xbd, 0x9b, 0xa7,
+                    0xf5, 0x32, 0xca, 0x69, 0xb3, 0xaa, 0xfb, 0xce,
+                    0x5f, 0x8c, 0xfc, 0xe1, 0xbe, 0x4f, 0x0b, 0xc6,
+                    0xcd, 0xfd, 0xc1, 0x0f, 0x3f, 0x33, 0x12, 0x0d,
+                    0x45, 0x3d, 0xb6, 0x55, 0xef, 0x08, 0x4e, 0xd4,
+                    0xce, 0x13, 0x08, 0x06, 0x74, 0x3e, 0xac, 0x06,
+                    0xee, 0xa0, 0x9c, 0xea, 0x72, 0xb5, 0x5a, 0x20,
+                    0x21, 0x68, 0xaa, 0xd2, 0xa7, 0x3b, 0x8f, 0x74,
+                    0xbd, 0x62, 0x81, 0xf3, 0x41, 0xb1, 0x7e, 0xea,
+                    0xbb, 0x9c, 0x20, 0xc3, 0x86, 0x53, 0x4c, 0x64,
+                    0x8b, 0x6d, 0x50, 0xbf, 0x2d, 0xf5, 0x0b, 0x43,
+                    0x91, 0x40, 0x0e, 0x01, 0x53, 0x45, 0x75, 0x12,
+                    0x6b, 0x19, 0xb5, 0x17, 0xc0, 0xbf, 0x2f, 0x0c,
+                    0xba, 0x6b, 0x67, 0xb8, 0x9d, 0x37, 0x17, 0x8a,
+                    0x59, 0xad, 0x37, 0x62, 0x07, 0x52, 0x31, 0xde,
+                    0x83, 0x39, 0xbe, 0x4e, 0xad, 0x87, 0x8b, 0x39,
+                    0x91, 0xdc, 0x04, 0x5d, 0x58, 0x9a, 0x44, 0x49,
+                    0x82, 0x16, 0xe7, 0xe0, 0x17, 0xa2, 0x2a, 0xa3,
+                    0xdb, 0xdb, 0x43, 0xae, 0xa0, 0xa6, 0xbb, 0x65,
+                    0x8f, 0x90, 0x1d, 0xa9, 0xb1, 0x5a, 0x7c, 0xdc,
+                    0x8c, 0xd9, 0x7d, 0xa4, 0x0d, 0x43, 0x38, 0xcd,
+                    0x7e, 0xf0, 0x3c, 0x1a, 0x98, 0xa6, 0x91, 0xc0,
+                    0xc2, 0x90, 0xfe, 0x55, 0x31, 0x1a, 0xed, 0x28,
+                    0x27, 0x06, 0xe1, 0x90, 0x05, 0x9c, 0xef, 0x80,
+                    0xdc, 0xd0, 0x57, 0xfd, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x01, 0x00, 0x01,
+                ];
+
+                const clientRandom = [
+                    0x01, 0x00, 0x84, 0x7f, 0x26, 0x54, 0x74, 0xf6,
+                    0x47, 0xaf, 0x33, 0x64, 0x0d, 0xa6, 0xe5, 0x30,
+                    0xba, 0xe6, 0xe4, 0x8e, 0x50, 0x40, 0x71, 0x1c,
+                    0x0e, 0x06, 0x63, 0xf5, 0x07, 0x2a, 0x26, 0x68,
+                    0xd6, 0xcf, 0xa6, 0x80, 0x84, 0x5e, 0x64, 0xd4,
+                    0x5e, 0x62, 0x31, 0xfe, 0x44, 0x51, 0x0b, 0x7c,
+                    0x4d, 0x55, 0xc5, 0x4a, 0x7e, 0x0d, 0x4d, 0x9b,
+                    0x84, 0xb4, 0x32, 0x2b, 0x4d, 0x8a, 0x34, 0x8d,
+                    0xc8, 0xcf, 0x19, 0x3b, 0x64, 0x82, 0x27, 0x9e,
+                    0xa7, 0x70, 0x2a, 0xc1, 0xb8, 0xf3, 0x6a, 0x3a,
+                    0xf2, 0x75, 0x6e, 0x1d, 0xeb, 0xb6, 0x70, 0x7a,
+                    0x15, 0x18, 0x38, 0x00, 0xb4, 0x4f, 0x55, 0xb5,
+                    0xd8, 0x03, 0x4e, 0xb8, 0x53, 0xff, 0x80, 0x62,
+                    0xf1, 0x9d, 0x27, 0xe8, 0x2a, 0x3d, 0x98, 0x19,
+                    0x32, 0x09, 0x7e, 0x9a, 0xb0, 0xc7, 0x46, 0x23,
+                    0x10, 0x85, 0x35, 0x00, 0x96, 0xce, 0xb3, 0x2c,
+                    0x84, 0x8d, 0xf4, 0x9e, 0xa8, 0x42, 0x67, 0xed,
+                    0x09, 0xa6, 0x09, 0x97, 0xb3, 0x64, 0x26, 0xfb,
+                    0x71, 0x11, 0x9b, 0x3f, 0xbb, 0x57, 0xb8, 0x5b,
+                    0x2e, 0xc5, 0x2d, 0x8c, 0x5c, 0xf7, 0xef, 0x27,
+                    0x25, 0x88, 0x42, 0x45, 0x43, 0xa4, 0xe7, 0xde,
+                    0xea, 0xf9, 0x15, 0x7b, 0x5d, 0x66, 0x24, 0xce,
+                    0xf7, 0xc8, 0x2f, 0xc5, 0xc0, 0x3d, 0xcd, 0xf2,
+                    0x62, 0xfc, 0x1a, 0x5e, 0xec, 0xff, 0xf1, 0x1b,
+                    0xc8, 0xdb, 0xc1, 0x0f, 0x54, 0x66, 0x9e, 0xfd,
+                    0x99, 0x9b, 0x23, 0x70, 0x62, 0x37, 0x80, 0xad,
+                    0x91, 0x6b, 0x84, 0x85, 0x6a, 0x4c, 0x80, 0x9e,
+                    0x60, 0x8a, 0x93, 0xa3, 0xc8, 0x8e, 0xc4, 0x4b,
+                    0x4d, 0xb4, 0x8e, 0x3e, 0xaf, 0xce, 0xcd, 0x83,
+                    0xe5, 0x21, 0x90, 0x95, 0x20, 0x3c, 0x82, 0xb4,
+                    0x7c, 0xab, 0x63, 0x9c, 0xae, 0xc3, 0xc9, 0x71,
+                    0x1a, 0xec, 0x34, 0x18, 0x47, 0xec, 0x5c, 0x4d,
+                    0xed, 0x84,
+                ];
+
+                const clientHash = [
+                    0x00, 0x14, 0x9c, 0x91, 0x9e, 0x76, 0xcf, 0x1e,
+                    0x66, 0x87, 0x5e, 0x29, 0xf1, 0x13, 0x80, 0xea,
+                    0x7d, 0xec, 0xae, 0xf9, 0x60, 0x01, 0xd3, 0x6f,
+                    0xb7, 0x9e, 0xb2, 0xcd, 0x2d, 0xc8, 0xf8, 0x84,
+                    0xb2, 0x9f, 0xc3, 0x7e, 0xb4, 0xbe,
+                ];
+
+                const credentialsData = [
+                    0x00, 0x08, 0x9d, 0xc8, 0x3a, 0xb8, 0x80, 0x4f,
+                    0xe3, 0x52, 0xdb, 0x62, 0x9e, 0x97, 0x64, 0x82,
+                    0xa8, 0xa1, 0x6b, 0x7e, 0x4d, 0x68, 0x8c, 0x29,
+                    0x91, 0x38,
+                ];
+
+                it('should fire the serververification event', async function () {
+                    let verification = new Promise((resolve, reject) => {
+                        client.addEventListener("serververification", (e) => {
+                            resolve(e.detail.publickey);
+                        });
+                    });
+
+                    client._sock._websocket._receiveData(new Uint8Array(serverPublicKey));
+                    client._sock._websocket._receiveData(new Uint8Array(serverRandom));
+
+                    expect(await verification).to.deep.equal(new Uint8Array(serverPublicKey));
+                });
+
+                it('should handle approveServer and fire the credentialsrequired event', async function () {
+                    let verification = new Promise((resolve, reject) => {
+                        client.addEventListener("serververification", (e) => {
+                            resolve(e.detail.publickey);
+                        });
+                    });
+                    let credentials = new Promise((resolve, reject) => {
+                        client.addEventListener("credentialsrequired", (e) => {
+                            resolve(e.detail.types);
+                        });
+                    });
+
+                    client._sock._websocket._receiveData(new Uint8Array(serverPublicKey));
+                    client._sock._websocket._receiveData(new Uint8Array(serverRandom));
+
+                    await verification;
+                    client.approveServer();
+
+                    client._sock._websocket._receiveData(new Uint8Array(serverHash));
+                    client._sock._websocket._receiveData(new Uint8Array(subType));
+
+                    expect(await credentials).to.have.members(["password"]);
+                });
+
+                it('should send credentials to server', async function () {
+                    let verification = new Promise((resolve, reject) => {
+                        client.addEventListener("serververification", (e) => {
+                            resolve(e.detail.publickey);
+                        });
+                    });
+                    let credentials = new Promise((resolve, reject) => {
+                        client.addEventListener("credentialsrequired", (e) => {
+                            resolve(e.detail.types);
+                        });
+                    });
+
+                    client._sock._websocket._receiveData(new Uint8Array(serverPublicKey));
+                    client._sock._websocket._receiveData(new Uint8Array(serverRandom));
+
+                    await verification;
+                    client.approveServer();
+
+                    client._sock._websocket._receiveData(new Uint8Array(serverHash));
+                    client._sock._websocket._receiveData(new Uint8Array(subType));
+
+                    await credentials;
+
+                    let expected = [];
+                    expected = expected.concat(clientPublicKey);
+                    expected = expected.concat(clientRandom);
+                    expected = expected.concat(clientHash);
+                    expect(client._sock).to.have.sent(new Uint8Array(expected));
+
+                    client.sendCredentials({ "password": "123456" });
+                    clock.tick();
+
+                    // FIXME: We don't have a good way to know when
+                    //        the async stuff is done, so we hook in
+                    //        to this internal function that is
+                    //        called at the end
+                    await new Promise((resolve, reject) => {
+                        sinon.stub(client._sock._websocket, "send")
+                            .callsFake((data) => {
+                                FakeWebSocket.prototype.send.call(client._sock._websocket, data);
+                                resolve();
+                            });
+                    });
+
+                    expect(client._sock).to.have.sent(new Uint8Array(credentialsData));
                 });
             });
 
@@ -1287,10 +1759,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = {};
                     sendSecurity(30, client);
 
-                    expect(client._rfbCredentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.types).to.have.members(["username", "password"]);
                 });
@@ -1298,7 +1768,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should fire the credentialsrequired event if some credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = { password: 'password'};
+                    client.sendCredentials({ password: 'password'});
                     sendSecurity(30, client);
 
                     expect(spy).to.have.been.calledOnce;
@@ -1306,8 +1776,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should return properly encrypted credentials and public key', async function () {
-                    client._rfbCredentials = { username: 'user',
-                                               password: 'password' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'user',
+                                                 password: 'password' });
+                    });
                     sendSecurity(30, client);
 
                     expect(client._sock).to.have.sent([30]);
@@ -1321,9 +1793,27 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     const serverPublicKey = legacyCrypto.exportKey("raw", serverKey.publicKey);
                     const clientPublicKey = legacyCrypto.exportKey("raw", clientKey.publicKey);
 
-                    await client._negotiateARDAuthAsync(128, serverPublicKey, clientKey);
+                    let data = [];
 
-                    client._negotiateARDAuth();
+                    data = data.concat(Array.from(generator));
+                    push16(data, prime.length);
+                    data = data.concat(Array.from(prime));
+                    data = data.concat(Array.from(serverPublicKey));
+
+                    client._sock._websocket._receiveData(new Uint8Array(data));
+
+                    // FIXME: We don't have a good way to know when the
+                    //        async stuff is done, so we hook in to this
+                    //        internal function that is called at the
+                    //        end
+                    await new Promise((resolve, reject) => {
+                        sinon.stub(client, "_resumeAuthentication")
+                            .callsFake(() => {
+                                RFB.prototype._resumeAuthentication.call(client);
+                                resolve();
+                            });
+                    });
+                    clock.tick();
 
                     expect(client._rfbInitState).to.equal('SecurityResult');
 
@@ -1406,8 +1896,10 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     window.crypto.getRandomValues.restore();
                 });
                 it('should send public value and encrypted credentials', function () {
-                    client._rfbCredentials = { username: 'username',
-                                               password: 'password123456' };
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username',
+                                                 password: 'password123456' });
+                    });
                     sendSecurity(113, client);
 
                     expect(client._sock).to.have.sent([113]);
@@ -1419,6 +1911,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     client._sock._websocket._receiveData(g);
                     client._sock._websocket._receiveData(p);
                     client._sock._websocket._receiveData(A);
+                    clock.tick();
 
                     expect(client._sock).to.have.sent(expected);
                     expect(client._rfbInitState).to.equal('SecurityResult');
@@ -1427,21 +1920,22 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             describe('XVP Authentication (type 22) Handler', function () {
                 it('should fall through to standard VNC authentication upon completion', function () {
-                    client._rfbCredentials = { username: 'user',
-                                               target: 'target',
-                                               password: 'password' };
-                    client._negotiateStdVNCAuth = sinon.spy();
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'user',
+                                                 target: 'target',
+                                                 password: 'password' });
+                    });
+                    sinon.spy(client, "_negotiateStdVNCAuth");
                     sendSecurity(22, client);
+                    clock.tick();
                     expect(client._negotiateStdVNCAuth).to.have.been.calledOnce;
                 });
 
                 it('should fire the credentialsrequired event if all credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = {};
                     sendSecurity(22, client);
 
-                    expect(client._rfbCredentials).to.be.empty;
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.types).to.have.members(["username", "password", "target"]);
                 });
@@ -1449,8 +1943,8 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 it('should fire the credentialsrequired event if some credentials are missing', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
-                    client._rfbCredentials = { username: 'user',
-                                               target: 'target' };
+                    client.sendCredentials({ username: 'user',
+                                             target: 'target' });
                     sendSecurity(22, client);
 
                     expect(spy).to.have.been.calledOnce;
@@ -1458,12 +1952,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should send user and target separately', function () {
-                    client._rfbCredentials = { username: 'user',
-                                               target: 'target',
-                                               password: 'password' };
-                    client._negotiateStdVNCAuth = sinon.spy();
-
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'user',
+                                                 target: 'target',
+                                                 password: 'password' });
+                    });
                     sendSecurity(22, client);
+                    clock.tick();
 
                     const expected = [22, 4, 6]; // auth selection, len user, len target
                     for (let i = 0; i < 10; i++) { expected[i+3] = 'usertarget'.charCodeAt(i); }
@@ -1501,9 +1996,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail if no supported tunnels are listed', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     sendNumStrPairs([[123, 'OTHR', 'SOMETHNG']], client);
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
 
                 it('should choose the notunnel tunnel type', function () {
@@ -1524,25 +2023,18 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(client._rfbInitState).to.equal('SecurityResult');
                 });
 
-                /*it('should attempt to use VNC auth over no auth when possible', function () {
-                    client._rfbTightVNC = true;
-                    client._negotiateStdVNCAuth = sinon.spy();
-                    sendNumStrPairs([[1, 'STDV', 'NOAUTH__'], [2, 'STDV', 'VNCAUTH_']], client);
-                    expect(client._sock).to.have.sent([0, 0, 0, 1]);
-                    expect(client._negotiateStdVNCAuth).to.have.been.calledOnce;
-                    expect(client._rfbAuthScheme).to.equal(2);
-                });*/ // while this would make sense, the original code doesn't actually do this
-
                 it('should accept the "no auth" auth type and transition to SecurityResult', function () {
-                    client._rfbTightVNC = true;
+                    sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
+                    client._sock._websocket._getSentData();  // skip the tunnel choice here
                     sendNumStrPairs([[1, 'STDV', 'NOAUTH__']], client);
                     expect(client._sock).to.have.sent(new Uint8Array([0, 0, 0, 1]));
                     expect(client._rfbInitState).to.equal('SecurityResult');
                 });
 
                 it('should accept VNC authentication and transition to that', function () {
-                    client._rfbTightVNC = true;
-                    client._negotiateStdVNCAuth = sinon.spy();
+                    sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
+                    client._sock._websocket._getSentData();  // skip the tunnel choice here
+                    sinon.spy(client, "_negotiateStdVNCAuth");
                     sendNumStrPairs([[2, 'STDV', 'VNCAUTH__']], client);
                     expect(client._sock).to.have.sent(new Uint8Array([0, 0, 0, 2]));
                     expect(client._negotiateStdVNCAuth).to.have.been.calledOnce;
@@ -1550,10 +2042,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail if there are no supported auth types', function () {
-                    sinon.spy(client, "_fail");
-                    client._rfbTightVNC = true;
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
+                    sendNumStrPairs([[0, 'TGHT', 'NOTUNNEL']], client);
+                    client._sock._websocket._getSentData();  // skip the tunnel choice here
                     sendNumStrPairs([[23, 'stdv', 'badval__']], client);
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
             });
 
@@ -1564,9 +2061,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
 
                 it('should fail with non-0.2 versions', function () {
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
+
                     client._sock._websocket._receiveData(new Uint8Array([0, 1]));
-                    expect(client._fail).to.have.been.calledOnce;
+
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
 
                 it('should fail if there are no supported subtypes', function () {
@@ -1576,9 +2077,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     // Server ACK.
                     client._sock._websocket._receiveData(new Uint8Array([0]));
                     // Subtype list
-                    sinon.spy(client, "_fail");
+                    let callback = sinon.spy();
+                    client.addEventListener("disconnect", callback);
                     client._sock._websocket._receiveData(new Uint8Array([2, 0, 0, 0, 9, 0, 0, 1, 4]));
-                    expect(client._fail).to.have.been.calledOnce;
+                    expect(callback).to.have.been.calledOnce;
+                    expect(callback.args[0][0].detail.clean).to.be.false;
                 });
 
                 it('should support standard types', function () {
@@ -1632,74 +2135,68 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
                 });
+            });
 
-                it('should support Plain authentication', function () {
-                    client._rfbCredentials = { username: 'username', password: 'password' };
+            describe('Plain Authentication (type 256) Handler', function () {
+                beforeEach(function () {
+                    sendSecurity(19, client);
+                    expect(client._sock).to.have.sent(new Uint8Array([19]));
                     // VeNCrypt version
                     client._sock._websocket._receiveData(new Uint8Array([0, 2]));
                     expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
                     // Server ACK.
                     client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list.
+                });
+
+                it('should support Plain authentication', function () {
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username', password: 'password' });
+                    });
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 1, 0]));
+
+                    clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, 256); // Chosen subtype.
-                    push32(expectedResponse, client._rfbCredentials.username.length);
-                    push32(expectedResponse, client._rfbCredentials.password.length);
-                    pushString(expectedResponse, client._rfbCredentials.username);
-                    pushString(expectedResponse, client._rfbCredentials.password);
+                    push32(expectedResponse, 8);
+                    push32(expectedResponse, 8);
+                    pushString(expectedResponse, 'username');
+                    pushString(expectedResponse, 'password');
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
-
-                    client._initMsg = sinon.spy();
-                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
-                    expect(client._initMsg).to.have.been.called;
                 });
 
                 it('should support Plain authentication with an empty password', function () {
-                    client._rfbCredentials = { username: 'username', password: '' };
-                    // VeNCrypt version
-                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
-                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
-                    // Server ACK.
-                    client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list.
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'username', password: '' });
+                    });
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 1, 0]));
+
+                    clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, 256); // Chosen subtype.
-                    push32(expectedResponse, client._rfbCredentials.username.length);
-                    push32(expectedResponse, client._rfbCredentials.password.length);
-                    pushString(expectedResponse, client._rfbCredentials.username);
-                    pushString(expectedResponse, client._rfbCredentials.password);
+                    push32(expectedResponse, 8);
+                    push32(expectedResponse, 0);
+                    pushString(expectedResponse, 'username');
+                    pushString(expectedResponse, '');
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
-
-                    client._initMsg = sinon.spy();
-                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
-                    expect(client._initMsg).to.have.been.called;
                 });
 
                 it('should support Plain authentication with a very long username and password', function () {
-                    client._rfbCredentials = { username: 'a'.repeat(300), password: 'a'.repeat(300) };
-                    // VeNCrypt version
-                    client._sock._websocket._receiveData(new Uint8Array([0, 2]));
-                    expect(client._sock).to.have.sent(new Uint8Array([0, 2]));
-                    // Server ACK.
-                    client._sock._websocket._receiveData(new Uint8Array([0]));
-                    // Subtype list.
+                    client.addEventListener("credentialsrequired", () => {
+                        client.sendCredentials({ username: 'a'.repeat(300), password: 'b'.repeat(300) });
+                    });
                     client._sock._websocket._receiveData(new Uint8Array([1, 0, 0, 1, 0]));
+                    expect(client._sock).to.have.sent(new Uint8Array([0, 0, 1, 0]));
+
+                    clock.tick();
 
                     const expectedResponse = [];
-                    push32(expectedResponse, 256); // Chosen subtype.
-                    push32(expectedResponse, client._rfbCredentials.username.length);
-                    push32(expectedResponse, client._rfbCredentials.password.length);
-                    pushString(expectedResponse, client._rfbCredentials.username);
-                    pushString(expectedResponse, client._rfbCredentials.password);
+                    push32(expectedResponse, 300);
+                    push32(expectedResponse, 300);
+                    pushString(expectedResponse, 'a'.repeat(300));
+                    pushString(expectedResponse, 'b'.repeat(300));
                     expect(client._sock).to.have.sent(new Uint8Array(expectedResponse));
-
-                    client._initMsg = sinon.spy();
-                    client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 0]));
-                    expect(client._initMsg).to.have.been.called;
                 });
             });
         });
@@ -1970,23 +2467,31 @@ describe('Remote Frame Buffer Protocol Client', function () {
             }
 
             it('should send an update request if there is sufficient data', function () {
-                const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-                RFB.messages.fbUpdateRequest(expectedMsg, true, 0, 0, 640, 20);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.fbUpdateRequest(esock, true, 0, 0, 640, 20);
+                let expected = ews._getSentData();
 
                 client._framebufferUpdate = () => true;
                 client._sock._websocket._receiveData(new Uint8Array([0]));
 
-                expect(client._sock).to.have.sent(expectedMsg._sQ);
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send an update request if we need more data', function () {
                 client._sock._websocket._receiveData(new Uint8Array([0]));
-                expect(client._sock._websocket._getSentData()).to.have.length(0);
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should resume receiving an update if we previously did not have enough data', function () {
-                const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-                RFB.messages.fbUpdateRequest(expectedMsg, true, 0, 0, 640, 20);
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.fbUpdateRequest(esock, true, 0, 0, 640, 20);
+                let expected = ews._getSentData();
 
                 // just enough to set FBU.rects
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 3]));
@@ -1995,7 +2500,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._framebufferUpdate = function () { this._sock.rQskipBytes(1); return true; };  // we magically have enough data
                 // 247 should *not* be used as the message type here
                 client._sock._websocket._receiveData(new Uint8Array([247]));
-                expect(client._sock).to.have.sent(expectedMsg._sQ);
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send a request in continuous updates mode', function () {
@@ -2003,14 +2508,18 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._framebufferUpdate = () => true;
                 client._sock._websocket._receiveData(new Uint8Array([0]));
 
-                expect(client._sock._websocket._getSentData()).to.have.length(0);
+                expect(client._sock).to.have.sent(new Uint8Array([]));
             });
 
             it('should fail on an unsupported encoding', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 const rectInfo = { x: 8, y: 11, width: 27, height: 32, encoding: 234 };
                 sendFbuMsg([rectInfo], [[]], client);
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
             describe('Message Encoding Handlers', function () {
@@ -2420,7 +2929,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
                 it('should handle the last_rect pseudo-encoding', function () {
                     sendFbuMsg([{ x: 0, y: 0, width: 0, height: 0, encoding: -224}], [[]], client, 100);
-                    expect(client._FBU.rects).to.equal(0);
+                    // Send a bell message and make sure it is parsed
+                    let spy = sinon.spy();
+                    client.addEventListener("bell", spy);
+                    client._sock._websocket._receiveData(new Uint8Array([0x02]));
+                    expect(spy).to.have.been.calledOnce;
                 });
 
                 it('should handle the DesktopName pseudo-encoding', function () {
@@ -2452,9 +2965,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
 
             it('should fail on unknown XVP message types', function () {
-                sinon.spy(client, "_fail");
+                let callback = sinon.spy();
+                client.addEventListener("disconnect", callback);
+
                 client._sock._websocket._receiveData(new Uint8Array([250, 0, 10, 237]));
-                expect(client._fail).to.have.been.calledOnce;
+
+                expect(callback).to.have.been.calledOnce;
+                expect(callback.args[0][0].detail.clean).to.be.false;
             });
         });
 
@@ -2528,17 +3045,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
 
-                        /* The size 10 (utf8 encoded string size) and the
-                        string "Aå漢字!" utf8 encoded and deflated. */
-                        let deflatedData = [120, 94, 99, 96, 96, 224, 114, 60,
-                                            188, 244, 217, 158, 69, 79, 215,
-                                            78, 87, 4, 0, 35, 207, 6, 66];
+                        let text = encodeUTF8("Aå漢字!");
+                        let deflatedText = deflateWithSize(text);
 
                         // How much data we are sending.
-                        push32(data, toUnsigned32bit(-(4 + deflatedData.length)));
+                        push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
 
                         data = data.concat(flags);
-                        data = data.concat(deflatedData);
+                        data = data.concat(Array.from(deflatedText));
 
                         const spy = sinon.spy();
                         client.addEventListener("clipboard", spy);
@@ -2562,15 +3076,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
 
                         data = data.concat(flags);
-
-                        let sendData = new Uint8Array(data.length + deflatedText.length);
-                        sendData.set(data);
-                        sendData.set(deflatedText, data.length);
+                        data = data.concat(Array.from(deflatedText));
 
                         const spy = sinon.spy();
                         client.addEventListener("clipboard", spy);
 
-                        client._sock._websocket._receiveData(sendData);
+                        client._sock._websocket._receiveData(new Uint8Array(data));
                         expect(spy).to.have.been.calledOnce;
                         expect(spy.args[0][0].detail.text).to.equal(expectedData);
                         client.removeEventListener("clipboard", spy);
@@ -2589,15 +3100,12 @@ describe('Remote Frame Buffer Protocol Client', function () {
                         push32(data, toUnsigned32bit(-(4 + deflatedText.length)));
 
                         data = data.concat(flags);
-
-                        let sendData = new Uint8Array(data.length + deflatedText.length);
-                        sendData.set(data);
-                        sendData.set(deflatedText, data.length);
+                        data = data.concat(Array.from(deflatedText));
 
                         const spy = sinon.spy();
                         client.addEventListener("clipboard", spy);
 
-                        client._sock._websocket._receiveData(sendData);
+                        client._sock._websocket._receiveData(new Uint8Array(data));
                         expect(spy).to.have.been.calledOnce;
                         expect(spy.args[0][0].detail.text).to.equal(expectedData);
                         client.removeEventListener("clipboard", spy);
@@ -2706,41 +3214,47 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         it('should respond correctly to ServerFence', function () {
-            const expectedMsg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: () => {}};
-            const incomingMsg = {_sQ: new Uint8Array(16), _sQlen: 0, flush: () => {}};
-
             const payload = "foo\x00ab9";
 
+            let esock = new Websock();
+            let ews = new FakeWebSocket();
+            ews._open();
+            esock.attach(ews);
+
             // ClientFence and ServerFence are identical in structure
-            RFB.messages.clientFence(expectedMsg, (1<<0) | (1<<1), payload);
-            RFB.messages.clientFence(incomingMsg, 0xffffffff, payload);
+            RFB.messages.clientFence(esock, (1<<0) | (1<<1), payload);
+            let expected = ews._getSentData();
+            RFB.messages.clientFence(esock, 0xffffffff, payload);
+            let incoming = ews._getSentData();
 
-            client._sock._websocket._receiveData(incomingMsg._sQ);
+            client._sock._websocket._receiveData(incoming);
 
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
 
-            expectedMsg._sQlen = 0;
-            incomingMsg._sQlen = 0;
+            RFB.messages.clientFence(esock, (1<<0), payload);
+            expected = ews._getSentData();
+            RFB.messages.clientFence(esock, (1<<0) | (1<<31), payload);
+            incoming = ews._getSentData();
 
-            RFB.messages.clientFence(expectedMsg, (1<<0), payload);
-            RFB.messages.clientFence(incomingMsg, (1<<0) | (1<<31), payload);
+            client._sock._websocket._receiveData(incoming);
 
-            client._sock._websocket._receiveData(incomingMsg._sQ);
-
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
         });
 
         it('should enable continuous updates on first EndOfContinousUpdates', function () {
-            const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-
-            RFB.messages.enableContinuousUpdates(expectedMsg, true, 0, 0, 640, 20);
+            let esock = new Websock();
+            let ews = new FakeWebSocket();
+            ews._open();
+            esock.attach(ews);
+            RFB.messages.enableContinuousUpdates(esock, true, 0, 0, 640, 20);
+            let expected = ews._getSentData();
 
             expect(client._enabledContinuousUpdates).to.be.false;
 
             client._sock._websocket._receiveData(new Uint8Array([150]));
 
             expect(client._enabledContinuousUpdates).to.be.true;
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
         });
 
         it('should disable continuous updates on subsequent EndOfContinousUpdates', function () {
@@ -2753,24 +3267,32 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         it('should update continuous updates on resize', function () {
-            const expectedMsg = {_sQ: new Uint8Array(10), _sQlen: 0, flush: () => {}};
-            RFB.messages.enableContinuousUpdates(expectedMsg, true, 0, 0, 90, 700);
+            let esock = new Websock();
+            let ews = new FakeWebSocket();
+            ews._open();
+            esock.attach(ews);
+            RFB.messages.enableContinuousUpdates(esock, true, 0, 0, 90, 700);
+            let expected = ews._getSentData();
 
             client._resize(450, 160);
 
-            expect(client._sock._websocket._getSentData()).to.have.length(0);
+            expect(client._sock).to.have.sent(new Uint8Array([]));
 
             client._enabledContinuousUpdates = true;
 
             client._resize(90, 700);
 
-            expect(client._sock).to.have.sent(expectedMsg._sQ);
+            expect(client._sock).to.have.sent(expected);
         });
 
         it('should fail on an unknown message type', function () {
-            sinon.spy(client, "_fail");
+            let callback = sinon.spy();
+            client.addEventListener("disconnect", callback);
+
             client._sock._websocket._receiveData(new Uint8Array([87]));
-            expect(client._fail).to.have.been.calledOnce;
+
+            expect(callback).to.have.been.calledOnce;
+            expect(callback.args[0][0].detail.clean).to.be.false;
         });
     });
 
@@ -3183,10 +3705,16 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('Keyboard Events', function () {
             it('should send a key message on a key press', function () {
+                let esock = new Websock();
+                let ews = new FakeWebSocket();
+                ews._open();
+                esock.attach(ews);
+                RFB.messages.keyEvent(esock, 0x41, 1);
+                let expected = ews._getSentData();
+
                 client._handleKeyEvent(0x41, 'KeyA', true);
-                const keyMsg = {_sQ: new Uint8Array(8), _sQlen: 0, flush: () => {}};
-                RFB.messages.keyEvent(keyMsg, 0x41, 1);
-                expect(client._sock).to.have.sent(keyMsg._sQ);
+
+                expect(client._sock).to.have.sent(expected);
             });
 
             it('should not send messages in view-only mode', function () {
@@ -3891,13 +4419,13 @@ describe('Remote Frame Buffer Protocol Client', function () {
         describe('WebSocket Events', function () {
             // message events
             it('should do nothing if we receive an empty message and have nothing in the queue', function () {
-                client._normalMsg = sinon.spy();
+                sinon.spy(client, "_normalMsg");
                 client._sock._websocket._receiveData(new Uint8Array([]));
                 expect(client._normalMsg).to.not.have.been.called;
             });
 
             it('should handle a message in the connected state as a normal message', function () {
-                client._normalMsg = sinon.spy();
+                sinon.spy(client, "_normalMsg");
                 client._sock._websocket._receiveData(new Uint8Array([1, 2, 3]));
                 expect(client._normalMsg).to.have.been.called;
             });
@@ -3905,7 +4433,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             it('should handle a message in any non-disconnected/failed state like an init message', function () {
                 client._rfbConnectionState = 'connecting';
                 client._rfbInitState = 'ProtocolVersion';
-                client._initMsg = sinon.spy();
+                sinon.spy(client, "_initMsg");
                 client._sock._websocket._receiveData(new Uint8Array([1, 2, 3]));
                 expect(client._initMsg).to.have.been.called;
             });
@@ -4169,31 +4697,67 @@ describe('Remote Frame Buffer Protocol Client', function () {
 describe('RFB messages', function () {
     let sock;
 
-    before(function () {
-        FakeWebSocket.replace();
+    beforeEach(function () {
+        let websock = new FakeWebSocket();
+        websock._open();
         sock = new Websock();
-        sock.open();
+        sock.attach(websock);
     });
 
-    after(function () {
-        FakeWebSocket.restore();
+    describe('Input Events', function () {
+        it('should send correct data for keyboard events', function () {
+            // FIXME: down should be boolean
+            RFB.messages.keyEvent(sock, 0x12345678, 0);
+            let expected =
+                [ 4, 0, 0, 0, 0x12, 0x34, 0x56, 0x78];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+
+            RFB.messages.keyEvent(sock, 0x90abcdef, 1);
+            expected =
+                [ 4, 1, 0, 0, 0x90, 0xab, 0xcd, 0xef];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for QEMU keyboard events', function () {
+            // FIXME: down should be boolean
+            RFB.messages.QEMUExtendedKeyEvent(sock, 0x12345678, 0, 0x55);
+            let expected =
+                [ 255, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x00, 0x00, 0x00, 0x55];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+
+            RFB.messages.QEMUExtendedKeyEvent(sock, 0x90abcdef, 1, 0xe055);
+            expected =
+                [ 255, 0, 0, 1, 0x90, 0xab, 0xcd, 0xef, 0x00, 0x00, 0x00, 0xd5];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for pointer events', function () {
+            RFB.messages.pointerEvent(sock, 12345, 54321, 0xab);
+            let expected =
+                [ 5, 0xab, 0x30, 0x39, 0xd4, 0x31];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Clipboard Events', function () {
+        it('should send correct data for clipboard events', function () {
+            RFB.messages.clientCutText(sock, new Uint8Array([ 0x01, 0x23, 0x45, 0x67 ]));
+            let expected =
+                [ 6, 0, 0, 0, 0x00, 0x00, 0x00, 0x04,
+                  0x01, 0x23, 0x45, 0x67 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
     });
 
     describe('Extended Clipboard Handling Send', function () {
-        beforeEach(function () {
-            sinon.spy(RFB.messages, 'clientCutText');
-        });
-
-        afterEach(function () {
-            RFB.messages.clientCutText.restore();
-        });
-
         it('should call clientCutText with correct Caps data', function () {
             let formats = {
                 0: 2,
                 2: 4121
             };
-            let expectedData = new Uint8Array([0x1F, 0x00, 0x00, 0x05,
+            let expectedData = new Uint8Array([0x06, 0x00, 0x00, 0x00,
+                                               0xFF, 0xFF, 0xFF, 0xF4,
+                                               0x1F, 0x00, 0x00, 0x05,
                                                0x00, 0x00, 0x00, 0x02,
                                                0x00, 0x00, 0x10, 0x19]);
             let actions = [
@@ -4205,26 +4769,30 @@ describe('RFB messages', function () {
             ];
 
             RFB.messages.extendedClipboardCaps(sock, actions, formats);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+
+            expect(sock).to.have.sent(expectedData);
         });
 
         it('should call clientCutText with correct Request data', function () {
             let formats = new Uint8Array([0x01]);
-            let expectedData = new Uint8Array([0x02, 0x00, 0x00, 0x01]);
+            let expectedData = new Uint8Array([0x06, 0x00, 0x00, 0x00,
+                                               0xFF, 0xFF, 0xFF, 0xFC,
+                                               0x02, 0x00, 0x00, 0x01]);
 
             RFB.messages.extendedClipboardRequest(sock, formats);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+
+            expect(sock).to.have.sent(expectedData);
         });
 
         it('should call clientCutText with correct Notify data', function () {
             let formats = new Uint8Array([0x01]);
-            let expectedData = new Uint8Array([0x08, 0x00, 0x00, 0x01]);
+            let expectedData = new Uint8Array([0x06, 0x00, 0x00, 0x00,
+                                               0xFF, 0xFF, 0xFF, 0xFC,
+                                               0x08, 0x00, 0x00, 0x01]);
 
             RFB.messages.extendedClipboardNotify(sock, formats);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData);
+
+            expect(sock).to.have.sent(expectedData);
         });
 
         it('should call clientCutText with correct Provide data', function () {
@@ -4234,16 +4802,24 @@ describe('RFB messages', function () {
             let deflatedData =  deflateWithSize(expectedText);
 
             // Build Expected with flags and deflated data
-            let expectedData = new Uint8Array(4 + deflatedData.length);
-            expectedData[0] = 0x10; // The client capabilities
-            expectedData[1] = 0x00; // Reserved flags
-            expectedData[2] = 0x00; // Reserved flags
-            expectedData[3] = 0x01; // The formats client supports
-            expectedData.set(deflatedData, 4);
+            let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+            expectedData[0] = 0x06; // Message type
+            expectedData[1] = 0x00;
+            expectedData[2] = 0x00;
+            expectedData[3] = 0x00;
+            expectedData[4] = 0xFF; // Size
+            expectedData[5] = 0xFF;
+            expectedData[6] = 0xFF;
+            expectedData[7] = 256 - (4 + deflatedData.length);
+            expectedData[8] = 0x10; // The client capabilities
+            expectedData[9] = 0x00; // Reserved flags
+            expectedData[10] = 0x00; // Reserved flags
+            expectedData[11] = 0x01; // The formats client supports
+            expectedData.set(deflatedData, 12);
 
             RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-            expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-            expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+            expect(sock).to.have.sent(expectedData);
 
         });
 
@@ -4256,16 +4832,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
 
             it('Carriage return Line feed', function () {
@@ -4276,16 +4860,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
 
             it('Line feed', function () {
@@ -4295,16 +4887,24 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
 
             it('Carriage return and Line feed mixed', function () {
@@ -4314,17 +4914,105 @@ describe('RFB messages', function () {
                 let deflatedData =  deflateWithSize(expectedText);
 
                 // Build Expected with flags and deflated data
-                let expectedData = new Uint8Array(4 + deflatedData.length);
-                expectedData[0] = 0x10; // The client capabilities
-                expectedData[1] = 0x00; // Reserved flags
-                expectedData[2] = 0x00; // Reserved flags
-                expectedData[3] = 0x01; // The formats client supports
-                expectedData.set(deflatedData, 4);
+                let expectedData = new Uint8Array(8 + 4 + deflatedData.length);
+                expectedData[0] = 0x06; // Message type
+                expectedData[1] = 0x00;
+                expectedData[2] = 0x00;
+                expectedData[3] = 0x00;
+                expectedData[4] = 0xFF; // Size
+                expectedData[5] = 0xFF;
+                expectedData[6] = 0xFF;
+                expectedData[7] = 256 - (4 + deflatedData.length);
+                expectedData[8] = 0x10; // The client capabilities
+                expectedData[9] = 0x00; // Reserved flags
+                expectedData[10] = 0x00; // Reserved flags
+                expectedData[11] = 0x01; // The formats client supports
+                expectedData.set(deflatedData, 12);
 
                 RFB.messages.extendedClipboardProvide(sock, [0x01], [testText]);
-                expect(RFB.messages.clientCutText).to.have.been.calledOnce;
-                expect(RFB.messages.clientCutText).to.have.been.calledWith(sock, expectedData, true);
+
+                expect(sock).to.have.sent(expectedData);
             });
+        });
+    });
+
+    describe('Screen Layout', function () {
+        it('should send correct data for screen layout changes', function () {
+            RFB.messages.setDesktopSize(sock, 12345, 54321, 0x12345678, 0x90abcdef);
+            let expected =
+                [ 251, 0, 0x30, 0x39, 0xd4, 0x31, 0x01, 0x00,
+                  0x12, 0x34, 0x56, 0x78, 0x00, 0x00, 0x00, 0x00,
+                  0x30, 0x39, 0xd4, 0x31, 0x90, 0xab, 0xcd, 0xef ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Fences', function () {
+        it('should send correct data for fences', function () {
+            // FIXME: Payload should be a byte array
+            RFB.messages.clientFence(sock, 0x12345678, "text");
+            let expected =
+                [ 248, 0, 0, 0, 0x12, 0x34, 0x56, 0x78,
+                  4, 0x74, 0x65, 0x78, 0x74 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Continuous Updates', function () {
+        it('should send correct data for continuous updates configuration', function () {
+            // FIXME: enable should be boolean
+            RFB.messages.enableContinuousUpdates(sock, 0, 12345, 54321, 34343, 18181);
+            let expected =
+                [ 150, 0, 0x30, 0x39, 0xd4, 0x31, 0x86, 0x27, 0x47, 0x05 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Pixel Format', function () {
+        it('should send correct data for normal depth', function () {
+            RFB.messages.pixelFormat(sock, 24, true);
+            let expected =
+                [ 0, 0, 0, 0, 32, 24, 0, 1,
+                  0, 255, 0, 255, 0, 255, 0, 8, 16, 0, 0, 0 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for low depth', function () {
+            RFB.messages.pixelFormat(sock, 8, true);
+            let expected =
+                [ 0, 0, 0, 0, 8, 8, 0, 1,
+                  0, 3, 0, 3, 0, 3, 0, 2, 4, 0, 0, 0 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Encodings', function () {
+        it('should send correct data for supported encodings', function () {
+            RFB.messages.clientEncodings(sock, [ 0x12345678,
+                                                 0x90abcdef,
+                                                 0x10293847 ]);
+            let expected =
+                [ 2, 0, 0, 3, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd,
+                  0xef, 0x10, 0x29, 0x38, 0x47 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('Update request', function () {
+        it('should send correct data for update request', function () {
+            RFB.messages.fbUpdateRequest(sock, true, 12345, 54321, 34343, 18181);
+            let expected =
+                [ 3, 1, 0x30, 0x39, 0xd4, 0x31, 0x86, 0x27, 0x47, 0x05 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+    });
+
+    describe('XVP operations', function () {
+        it('should send correct data for XVP operations', function () {
+            RFB.messages.xvpOp(sock, 123, 45);
+            let expected =
+                [ 250, 0, 123, 45 ];
+            expect(sock).to.have.sent(new Uint8Array(expected));
         });
     });
 });

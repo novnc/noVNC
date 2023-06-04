@@ -42,7 +42,7 @@ export default class FakeWebSocket {
     }
 
     _getSentData() {
-        const res = new Uint8Array(this._sendQueue.buffer, 0, this.bufferedAmount);
+        const res = this._sendQueue.slice(0, this.bufferedAmount);
         this.bufferedAmount = 0;
         return res;
     }
@@ -58,8 +58,8 @@ export default class FakeWebSocket {
         // Break apart the data to expose bugs where we assume data is
         // neatly packaged
         for (let i = 0;i < data.length;i++) {
-            let buf = data.subarray(i, i+1);
-            this.onmessage(new MessageEvent("message", { 'data': buf }));
+            let buf = data.slice(i, i+1);
+            this.onmessage(new MessageEvent("message", { 'data': buf.buffer }));
         }
     }
 }
