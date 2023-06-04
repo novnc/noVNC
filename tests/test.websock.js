@@ -7,73 +7,63 @@ describe('Websock', function () {
     "use strict";
 
     describe('Receive queue methods', function () {
-        let sock;
-        const RQ_TEMPLATE = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]);
+        let sock, websock;
 
         beforeEach(function () {
             sock = new Websock();
-            // skip init
-            sock._allocateBuffers();
-            sock._rQ.set(RQ_TEMPLATE);
-            sock._rQlen = RQ_TEMPLATE.length;
+            websock = new FakeWebSocket();
+            websock._open();
+            sock.attach(websock);
         });
 
         describe('rQpeek8', function () {
             it('should peek at the next byte without poping it off the queue', function () {
-                const befLen = sock._rQlen - sock._rQi;
-                const peek = sock.rQpeek8();
-                expect(sock.rQpeek8()).to.equal(peek);
-                expect(sock._rQlen - sock._rQi).to.equal(befLen);
+                websock._receiveData(new Uint8Array([0xab, 0xcd]));
+                expect(sock.rQpeek8()).to.equal(0xab);
+                expect(sock.rQpeek8()).to.equal(0xab);
             });
         });
 
         describe('rQshift8()', function () {
             it('should pop a single byte from the receive queue', function () {
-                const peek = sock.rQpeek8();
-                const befLen = sock._rQlen - sock._rQi;
-                expect(sock.rQshift8()).to.equal(peek);
-                expect(sock._rQlen - sock._rQi).to.equal(befLen - 1);
+                websock._receiveData(new Uint8Array([0xab, 0xcd]));
+                expect(sock.rQshift8()).to.equal(0xab);
+                expect(sock.rQshift8()).to.equal(0xcd);
             });
         });
 
         describe('rQshift16()', function () {
             it('should pop two bytes from the receive queue and return a single number', function () {
-                const befLen = sock._rQlen - sock._rQi;
-                const expected = (RQ_TEMPLATE[0] << 8) + RQ_TEMPLATE[1];
-                expect(sock.rQshift16()).to.equal(expected);
-                expect(sock._rQlen - sock._rQi).to.equal(befLen - 2);
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34]));
+                expect(sock.rQshift16()).to.equal(0xabcd);
+                expect(sock.rQshift16()).to.equal(0x1234);
             });
         });
 
         describe('rQshift32()', function () {
             it('should pop four bytes from the receive queue and return a single number', function () {
-                const befLen = sock._rQlen - sock._rQi;
-                const expected = (RQ_TEMPLATE[0] << 24) +
-                               (RQ_TEMPLATE[1] << 16) +
-                               (RQ_TEMPLATE[2] << 8) +
-                               RQ_TEMPLATE[3];
-                expect(sock.rQshift32()).to.equal(expected);
-                expect(sock._rQlen - sock._rQi).to.equal(befLen - 4);
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                expect(sock.rQshift32()).to.equal(0xabcd1234);
+                expect(sock.rQshift32()).to.equal(0x88ee1133);
             });
         });
 
         describe('rQshiftStr', function () {
             it('should shift the given number of bytes off of the receive queue and return a string', function () {
-                const befLen = sock._rQlen;
-                const befRQi = sock._rQi;
-                const shifted = sock.rQshiftStr(3);
-                expect(shifted).to.be.a('string');
-                expect(shifted).to.equal(String.fromCharCode.apply(null, Array.prototype.slice.call(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3))));
-                expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                expect(sock.rQshiftStr(4)).to.equal('\xab\xcd\x12\x34');
+                expect(sock.rQshiftStr(4)).to.equal('\x88\xee\x11\x33');
             });
 
             it('should be able to handle very large strings', function () {
                 const BIG_LEN = 500000;
-                const RQ_BIG = new Uint8Array(BIG_LEN);
+                const incoming = new Uint8Array(BIG_LEN);
                 let expected = "";
                 let letterCode = 'a'.charCodeAt(0);
                 for (let i = 0; i < BIG_LEN; i++) {
-                    RQ_BIG[i] = letterCode;
+                    incoming[i] = letterCode;
                     expected += String.fromCharCode(letterCode);
 
                     if (letterCode < 'z'.charCodeAt(0)) {
@@ -82,90 +72,77 @@ describe('Websock', function () {
                         letterCode = 'a'.charCodeAt(0);
                     }
                 }
-                sock._rQ.set(RQ_BIG);
-                sock._rQlen = RQ_BIG.length;
+                websock._receiveData(incoming);
 
                 const shifted = sock.rQshiftStr(BIG_LEN);
 
                 expect(shifted).to.be.equal(expected);
-                expect(sock._rQlen - sock._rQi).to.equal(0);
             });
         });
 
         describe('rQshiftBytes', function () {
             it('should shift the given number of bytes of the receive queue and return an array', function () {
-                const befLen = sock._rQlen;
-                const befRQi = sock._rQi;
-                const shifted = sock.rQshiftBytes(3);
-                expect(shifted).to.be.an.instanceof(Uint8Array);
-                expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
-                expect(sock._rQlen - sock._rQi).to.equal(befLen - 3);
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                expect(sock.rQshiftBytes(4)).to.array.equal(new Uint8Array([0xab, 0xcd, 0x12, 0x34]));
+                expect(sock.rQshiftBytes(4)).to.array.equal(new Uint8Array([0x88, 0xee, 0x11, 0x33]));
             });
+
             it('should return a shared array if requested', function () {
-                const befRQi = sock._rQi;
-                const shifted = sock.rQshiftBytes(3, false);
-                expect(shifted).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, befRQi, 3));
-                expect(shifted.buffer.byteLength).to.not.equal(shifted.length);
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                const bytes = sock.rQshiftBytes(4, false);
+                expect(bytes).to.array.equal(new Uint8Array([0xab, 0xcd, 0x12, 0x34]));
+                expect(bytes.buffer.byteLength).to.not.equal(bytes.length);
             });
         });
 
         describe('rQpeekBytes', function () {
-            beforeEach(function () {
-                sock._rQi = 0;
-            });
-
             it('should not modify the receive queue', function () {
-                const befLen = sock._rQlen - sock._rQi;
-                sock.rQpeekBytes(2);
-                expect(sock._rQlen - sock._rQi).to.equal(befLen);
-            });
-
-            it('should return an array containing the requested bytes of the receive queue', function () {
-                const sl = sock.rQpeekBytes(2);
-                expect(sl).to.be.an.instanceof(Uint8Array);
-                expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 0, 2));
-            });
-
-            it('should take the current rQi in to account', function () {
-                sock._rQi = 1;
-                expect(sock.rQpeekBytes(2)).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 1, 2));
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                expect(sock.rQpeekBytes(4)).to.array.equal(new Uint8Array([0xab, 0xcd, 0x12, 0x34]));
+                expect(sock.rQpeekBytes(4)).to.array.equal(new Uint8Array([0xab, 0xcd, 0x12, 0x34]));
             });
 
             it('should return a shared array if requested', function () {
-                const sl = sock.rQpeekBytes(2, false);
-                expect(sl).to.array.equal(new Uint8Array(RQ_TEMPLATE.buffer, 0, 2));
-                expect(sl.buffer.byteLength).to.not.equal(sl.length);
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
+                const bytes = sock.rQpeekBytes(4, false);
+                expect(bytes).to.array.equal(new Uint8Array([0xab, 0xcd, 0x12, 0x34]));
+                expect(bytes.buffer.byteLength).to.not.equal(bytes.length);
             });
         });
 
         describe('rQwait', function () {
             beforeEach(function () {
-                sock._rQi = 0;
+                websock._receiveData(new Uint8Array([0xab, 0xcd, 0x12, 0x34,
+                                                     0x88, 0xee, 0x11, 0x33]));
             });
 
             it('should return true if there are not enough bytes in the receive queue', function () {
-                expect(sock.rQwait('hi', RQ_TEMPLATE.length + 1)).to.be.true;
+                expect(sock.rQwait('hi', 9)).to.be.true;
             });
 
             it('should return false if there are enough bytes in the receive queue', function () {
-                expect(sock.rQwait('hi', RQ_TEMPLATE.length)).to.be.false;
+                expect(sock.rQwait('hi', 8)).to.be.false;
             });
 
             it('should return true and reduce rQi by "goback" if there are not enough bytes', function () {
-                sock._rQi = 5;
-                expect(sock.rQwait('hi', RQ_TEMPLATE.length, 4)).to.be.true;
-                expect(sock._rQi).to.equal(1);
+                expect(sock.rQshift32()).to.equal(0xabcd1234);
+                expect(sock.rQwait('hi', 8, 2)).to.be.true;
+                expect(sock.rQshift32()).to.equal(0x123488ee);
             });
 
             it('should raise an error if we try to go back more than possible', function () {
-                sock._rQi = 5;
-                expect(() => sock.rQwait('hi', RQ_TEMPLATE.length, 6)).to.throw(Error);
+                expect(sock.rQshift32()).to.equal(0xabcd1234);
+                expect(() => sock.rQwait('hi', 8, 6)).to.throw(Error);
             });
 
             it('should not reduce rQi if there are enough bytes', function () {
-                sock._rQi = 5;
-                sock.rQwait('hi', 1, 6);
-                expect(sock._rQi).to.equal(5);
+                expect(sock.rQshift32()).to.equal(0xabcd1234);
+                expect(sock.rQwait('hi', 4, 2)).to.be.false;
+                expect(sock.rQshift32()).to.equal(0x88ee1133);
             });
         });
     });
