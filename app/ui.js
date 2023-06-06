@@ -1468,7 +1468,7 @@ const UI = {
 
                 const timeSinceLastActivityInS = (Date.now() - UI.rfb.lastActiveAt) / 1000;
                 let idleDisconnectInS = 1200; //20 minute default 
-                if (Number.isFinite(UI.rfb.idleDisconnect)) {
+                if (Number.isFinite(parseFloat(UI.rfb.idleDisconnect))) {
                     idleDisconnectInS = parseFloat(UI.rfb.idleDisconnect) * 60;
                 }
 

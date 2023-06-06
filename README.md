@@ -56,4 +56,4 @@ KasmVNC has a built in web server and the web code is baked into KasmVNC. There 
 
 ## Development
 
-The noVNC code is webpacked for performance reasons. The CI pipeline in the KasmVNC project is repsonsible for building the web code and packaging it with KasmVNC.
+The noVNC code is webpacked for performance reasons. The CI pipeline in the KasmVNC project is responsible for building the web code and packaging it with KasmVNC.
