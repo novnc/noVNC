@@ -295,7 +295,7 @@ describe('Tight Decoder', function () {
         expect(display).to.have.displayed(targetData);
     });
 
-    it('should handle JPEG rects', function (done) {
+    it('should handle JPEG rects', async function () {
         let data = [
             // Control bytes
             0x90, 0xd6, 0x05,
@@ -410,10 +410,7 @@ describe('Tight Decoder', function () {
             return diff < 5;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        await display.flush();
+        expect(display).to.have.displayed(targetData, almost);
     });
 });

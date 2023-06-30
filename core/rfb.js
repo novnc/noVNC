@@ -257,7 +257,6 @@ export default class RFB extends EventTargetMixin {
             Log.Error("Display exception: " + exc);
             throw exc;
         }
-        this._display.onflush = this._onFlush.bind(this);
 
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
@@ -959,7 +958,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleMessage() {
-        if (this._sock.rQlen === 0) {
+        if (this._sock.rQwait("message", 1)) {
             Log.Warn("handleMessage called on an empty receive queue");
             return;
         }
@@ -976,7 +975,7 @@ export default class RFB extends EventTargetMixin {
                     if (!this._normalMsg()) {
                         break;
                     }
-                    if (this._sock.rQlen === 0) {
+                    if (this._sock.rQwait("message", 1)) {
                         break;
                     }
                 }
@@ -1382,7 +1381,8 @@ export default class RFB extends EventTargetMixin {
             while (repeaterID.length < 250) {
                 repeaterID += "\0";
             }
-            this._sock.sendString(repeaterID);
+            this._sock.sQpushString(repeaterID);
+            this._sock.flush();
             return true;
         }
 
@@ -1392,7 +1392,8 @@ export default class RFB extends EventTargetMixin {
 
         const cversion = "00" + parseInt(this._rfbVersion, 10) +
                        ".00" + ((this._rfbVersion * 10) % 10);
-        this._sock.sendString("RFB " + cversion + "\n");
+        this._sock.sQpushString("RFB " + cversion + "\n");
+        this._sock.flush();
         Log.Debug('Sent ProtocolVersion: ' + cversion);
 
         this._rfbInitState = 'Security';
@@ -1444,7 +1445,8 @@ export default class RFB extends EventTargetMixin {
                 return this._fail("Unsupported security types (types: " + types + ")");
             }
 
-            this._sock.send([this._rfbAuthScheme]);
+            this._sock.sQpush8(this._rfbAuthScheme);
+            this._sock.flush();
         } else {
             // Server decides
             if (this._sock.rQwait("security scheme", 4)) { return false; }
@@ -1506,12 +1508,15 @@ export default class RFB extends EventTargetMixin {
             return false;
         }
 
-        const xvpAuthStr = String.fromCharCode(this._rfbCredentials.username.length) +
-                           String.fromCharCode(this._rfbCredentials.target.length) +
-                           this._rfbCredentials.username +
-                           this._rfbCredentials.target;
-        this._sock.sendString(xvpAuthStr);
+        this._sock.sQpush8(this._rfbCredentials.username.length);
+        this._sock.sQpush8(this._rfbCredentials.target.length);
+        this._sock.sQpushString(this._rfbCredentials.username);
+        this._sock.sQpushString(this._rfbCredentials.target);
+
+        this._sock.flush();
+
         this._rfbAuthScheme = securityTypeVNCAuth;
+
         return this._negotiateAuthentication();
     }
 
@@ -1529,7 +1534,9 @@ export default class RFB extends EventTargetMixin {
                 return this._fail("Unsupported VeNCrypt version " + major + "." + minor);
             }
 
-            this._sock.send([0, 2]);
+            this._sock.sQpush8(0);
+            this._sock.sQpush8(2);
+            this._sock.flush();
             this._rfbVeNCryptState = 1;
         }
 
@@ -1588,10 +1595,8 @@ export default class RFB extends EventTargetMixin {
                 return this._fail("Unsupported security types (types: " + subtypes + ")");
             }
 
-            this._sock.send([this._rfbAuthScheme >> 24,
-                             this._rfbAuthScheme >> 16,
-                             this._rfbAuthScheme >> 8,
-                             this._rfbAuthScheme]);
+            this._sock.sQpush32(this._rfbAuthScheme);
+            this._sock.flush();
 
             this._rfbVeNCryptState = 4;
             return true;
@@ -1610,20 +1615,11 @@ export default class RFB extends EventTargetMixin {
         const user = encodeUTF8(this._rfbCredentials.username);
         const pass = encodeUTF8(this._rfbCredentials.password);
 
-        this._sock.send([
-            (user.length >> 24) & 0xFF,
-            (user.length >> 16) & 0xFF,
-            (user.length >> 8) & 0xFF,
-            user.length & 0xFF
-        ]);
-        this._sock.send([
-            (pass.length >> 24) & 0xFF,
-            (pass.length >> 16) & 0xFF,
-            (pass.length >> 8) & 0xFF,
-            pass.length & 0xFF
-        ]);
-        this._sock.sendString(user);
-        this._sock.sendString(pass);
+        this._sock.sQpush32(user.length);
+        this._sock.sQpush32(pass.length);
+        this._sock.sQpushString(user);
+        this._sock.sQpushString(pass);
+        this._sock.flush();
 
         this._rfbInitState = "SecurityResult";
         return true;
@@ -1642,7 +1638,8 @@ export default class RFB extends EventTargetMixin {
         // TODO(directxman12): make genDES not require an Array
         const challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
         const response = RFB.genDES(this._rfbCredentials.password, challenge);
-        this._sock.send(response);
+        this._sock.sQpushBytes(response);
+        this._sock.flush();
         this._rfbInitState = "SecurityResult";
         return true;
     }
@@ -1660,8 +1657,9 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbCredentials.ardPublicKey != undefined &&
             this._rfbCredentials.ardCredentials != undefined) {
             // if the async web crypto is done return the results
-            this._sock.send(this._rfbCredentials.ardCredentials);
-            this._sock.send(this._rfbCredentials.ardPublicKey);
+            this._sock.sQpushBytes(this._rfbCredentials.ardCredentials);
+            this._sock.sQpushBytes(this._rfbCredentials.ardPublicKey);
+            this._sock.flush();
             this._rfbCredentials.ardCredentials = null;
             this._rfbCredentials.ardPublicKey = null;
             this._rfbInitState = "SecurityResult";
@@ -1725,10 +1723,12 @@ export default class RFB extends EventTargetMixin {
             return false;
         }
 
-        this._sock.send([0, 0, 0, this._rfbCredentials.username.length]);
-        this._sock.send([0, 0, 0, this._rfbCredentials.password.length]);
-        this._sock.sendString(this._rfbCredentials.username);
-        this._sock.sendString(this._rfbCredentials.password);
+        this._sock.sQpush32(this._rfbCredentials.username.length);
+        this._sock.sQpush32(this._rfbCredentials.password.length);
+        this._sock.sQpushString(this._rfbCredentials.username);
+        this._sock.sQpushString(this._rfbCredentials.password);
+        this._sock.flush();
+
         this._rfbInitState = "SecurityResult";
         return true;
     }
@@ -1766,7 +1766,8 @@ export default class RFB extends EventTargetMixin {
                                   "vendor or signature");
             }
             Log.Debug("Selected tunnel type: " + clientSupportedTunnelTypes[0]);
-            this._sock.send([0, 0, 0, 0]);  // use NOTUNNEL
+            this._sock.sQpush32(0); // use NOTUNNEL
+            this._sock.flush();
             return false; // wait until we receive the sub auth count to continue
         } else {
             return this._fail("Server wanted tunnels, but doesn't support " +
@@ -1816,7 +1817,8 @@ export default class RFB extends EventTargetMixin {
 
         for (let authType in clientSupportedTypes) {
             if (serverSupportedTypes.indexOf(authType) != -1) {
-                this._sock.send([0, 0, 0, clientSupportedTypes[authType]]);
+                this._sock.sQpush32(clientSupportedTypes[authType]);
+                this._sock.flush();
                 Log.Debug("Selected authentication type: " + authType);
 
                 switch (authType) {
@@ -1912,9 +1914,10 @@ export default class RFB extends EventTargetMixin {
         passwordBytes[password.length] = 0;
         usernameBytes = legacyCrypto.encrypt({ name: "DES-CBC", iv: secret }, key, usernameBytes);
         passwordBytes = legacyCrypto.encrypt({ name: "DES-CBC", iv: secret }, key, passwordBytes);
-        this._sock.send(B);
-        this._sock.send(usernameBytes);
-        this._sock.send(passwordBytes);
+        this._sock.sQpushBytes(B);
+        this._sock.sQpushBytes(usernameBytes);
+        this._sock.sQpushBytes(passwordBytes);
+        this._sock.flush();
         this._rfbInitState = "SecurityResult";
         return true;
     }
@@ -2142,7 +2145,8 @@ export default class RFB extends EventTargetMixin {
                 return this._handleSecurityReason();
 
             case 'ClientInitialisation':
-                this._sock.send([this._shared ? 1 : 0]); // ClientInitialisation
+                this._sock.sQpush8(this._shared ? 1 : 0); // ClientInitialisation
+                this._sock.flush();
                 this._rfbInitState = 'ServerInitialisation';
                 return true;
 
@@ -2455,16 +2459,8 @@ export default class RFB extends EventTargetMixin {
 
             default:
                 this._fail("Unexpected server message (type " + msgType + ")");
-                Log.Debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
+                Log.Debug("sock.rQpeekBytes(30): " + this._sock.rQpeekBytes(30));
                 return true;
-        }
-    }
-
-    _onFlush() {
-        this._flushing = false;
-        // Resume processing
-        if (this._sock.rQlen > 0) {
-            this._handleMessage();
         }
     }
 
@@ -2478,7 +2474,14 @@ export default class RFB extends EventTargetMixin {
             // to avoid building up an excessive queue
             if (this._display.pending()) {
                 this._flushing = true;
-                this._display.flush();
+                this._display.flush()
+                    .then(() => {
+                        this._flushing = false;
+                        // Resume processing
+                        if (!this._sock.rQwait("message", 1)) {
+                            this._handleMessage();
+                        }
+                    });
                 return false;
             }
         }
@@ -2488,13 +2491,13 @@ export default class RFB extends EventTargetMixin {
                 if (this._sock.rQwait("rect header", 12)) { return false; }
                 /* New FramebufferUpdate */
 
-                const hdr = this._sock.rQshiftBytes(12);
-                this._FBU.x        = (hdr[0] << 8) + hdr[1];
-                this._FBU.y        = (hdr[2] << 8) + hdr[3];
-                this._FBU.width    = (hdr[4] << 8) + hdr[5];
-                this._FBU.height   = (hdr[6] << 8) + hdr[7];
-                this._FBU.encoding = parseInt((hdr[8] << 24) + (hdr[9] << 16) +
-                                              (hdr[10] << 8) + hdr[11], 10);
+                this._FBU.x = this._sock.rQshift16();
+                this._FBU.y = this._sock.rQshift16();
+                this._FBU.width = this._sock.rQshift16();
+                this._FBU.height = this._sock.rQshift16();
+                this._FBU.encoding = this._sock.rQshift32();
+                /* Encodings are signed */
+                this._FBU.encoding >>= 0;
             }
 
             if (!this._handleRect()) {
@@ -2728,26 +2731,18 @@ export default class RFB extends EventTargetMixin {
         const firstUpdate = !this._supportsSetDesktopSize;
         this._supportsSetDesktopSize = true;
 
-        // Normally we only apply the current resize mode after a
-        // window resize event. However there is no such trigger on the
-        // initial connect. And we don't know if the server supports
-        // resizing until we've gotten here.
-        if (firstUpdate) {
-            this._requestRemoteResize();
-        }
-
         this._sock.rQskipBytes(1);  // number-of-screens
         this._sock.rQskipBytes(3);  // padding
 
         for (let i = 0; i < numberOfScreens; i += 1) {
             // Save the id and flags of the first screen
             if (i === 0) {
-                this._screenID = this._sock.rQshiftBytes(4);    // id
-                this._sock.rQskipBytes(2);                       // x-position
-                this._sock.rQskipBytes(2);                       // y-position
-                this._sock.rQskipBytes(2);                       // width
-                this._sock.rQskipBytes(2);                       // height
-                this._screenFlags = this._sock.rQshiftBytes(4); // flags
+                this._screenID = this._sock.rQshift32();    // id
+                this._sock.rQskipBytes(2);                  // x-position
+                this._sock.rQskipBytes(2);                  // y-position
+                this._sock.rQskipBytes(2);                  // width
+                this._sock.rQskipBytes(2);                  // height
+                this._screenFlags = this._sock.rQshift32(); // flags
             } else {
                 this._sock.rQskipBytes(16);
             }
@@ -2783,6 +2778,14 @@ export default class RFB extends EventTargetMixin {
                      + msg);
         } else {
             this._resize(this._FBU.width, this._FBU.height);
+        }
+
+        // Normally we only apply the current resize mode after a
+        // window resize event. However there is no such trigger on the
+        // initial connect. And we don't know if the server supports
+        // resizing until we've gotten here.
+        if (firstUpdate) {
+            this._requestRemoteResize();
         }
 
         return true;
@@ -2889,21 +2892,13 @@ export default class RFB extends EventTargetMixin {
 // Class Methods
 RFB.messages = {
     keyEvent(sock, keysym, down) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(4); // msg-type
+        sock.sQpush8(down);
 
-        buff[offset] = 4;  // msg-type
-        buff[offset + 1] = down;
+        sock.sQpush16(0);
 
-        buff[offset + 2] = 0;
-        buff[offset + 3] = 0;
+        sock.sQpush32(keysym);
 
-        buff[offset + 4] = (keysym >> 24);
-        buff[offset + 5] = (keysym >> 16);
-        buff[offset + 6] = (keysym >> 8);
-        buff[offset + 7] = keysym;
-
-        sock._sQlen += 8;
         sock.flush();
     },
 
@@ -2917,46 +2912,28 @@ RFB.messages = {
             return xtScanCode;
         }
 
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(255); // msg-type
+        sock.sQpush8(0); // sub msg-type
 
-        buff[offset] = 255; // msg-type
-        buff[offset + 1] = 0; // sub msg-type
+        sock.sQpush16(down);
 
-        buff[offset + 2] = (down >> 8);
-        buff[offset + 3] = down;
-
-        buff[offset + 4] = (keysym >> 24);
-        buff[offset + 5] = (keysym >> 16);
-        buff[offset + 6] = (keysym >> 8);
-        buff[offset + 7] = keysym;
+        sock.sQpush32(keysym);
 
         const RFBkeycode = getRFBkeycode(keycode);
 
-        buff[offset + 8] = (RFBkeycode >> 24);
-        buff[offset + 9] = (RFBkeycode >> 16);
-        buff[offset + 10] = (RFBkeycode >> 8);
-        buff[offset + 11] = RFBkeycode;
+        sock.sQpush32(RFBkeycode);
 
-        sock._sQlen += 12;
         sock.flush();
     },
 
     pointerEvent(sock, x, y, mask) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(5); // msg-type
 
-        buff[offset] = 5; // msg-type
+        sock.sQpush8(mask);
 
-        buff[offset + 1] = mask;
+        sock.sQpush16(x);
+        sock.sQpush16(y);
 
-        buff[offset + 2] = x >> 8;
-        buff[offset + 3] = x;
-
-        buff[offset + 4] = y >> 8;
-        buff[offset + 5] = y;
-
-        sock._sQlen += 6;
         sock.flush();
     },
 
@@ -3056,14 +3033,11 @@ RFB.messages = {
     },
 
     clientCutText(sock, data, extended = false) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(6); // msg-type
 
-        buff[offset] = 6; // msg-type
-
-        buff[offset + 1] = 0; // padding
-        buff[offset + 2] = 0; // padding
-        buff[offset + 3] = 0; // padding
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
 
         let length;
         if (extended) {
@@ -3072,121 +3046,63 @@ RFB.messages = {
             length = data.length;
         }
 
-        buff[offset + 4] = length >> 24;
-        buff[offset + 5] = length >> 16;
-        buff[offset + 6] = length >> 8;
-        buff[offset + 7] = length;
-
-        sock._sQlen += 8;
-
-        // We have to keep track of from where in the data we begin creating the
-        // buffer for the flush in the next iteration.
-        let dataOffset = 0;
-
-        let remaining = data.length;
-        while (remaining > 0) {
-
-            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
-            for (let i = 0; i < flushSize; i++) {
-                buff[sock._sQlen + i] = data[dataOffset + i];
-            }
-
-            sock._sQlen += flushSize;
-            sock.flush();
-
-            remaining -= flushSize;
-            dataOffset += flushSize;
-        }
-
+        sock.sQpush32(length);
+        sock.sQpushBytes(data);
+        sock.flush();
     },
 
     setDesktopSize(sock, width, height, id, flags) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(251); // msg-type
 
-        buff[offset] = 251;              // msg-type
-        buff[offset + 1] = 0;            // padding
-        buff[offset + 2] = width >> 8;   // width
-        buff[offset + 3] = width;
-        buff[offset + 4] = height >> 8;  // height
-        buff[offset + 5] = height;
+        sock.sQpush8(0); // padding
 
-        buff[offset + 6] = 1;            // number-of-screens
-        buff[offset + 7] = 0;            // padding
+        sock.sQpush16(width);
+        sock.sQpush16(height);
+
+        sock.sQpush8(1); // number-of-screens
+
+        sock.sQpush8(0); // padding
 
         // screen array
-        buff[offset + 8] = id >> 24;     // id
-        buff[offset + 9] = id >> 16;
-        buff[offset + 10] = id >> 8;
-        buff[offset + 11] = id;
-        buff[offset + 12] = 0;           // x-position
-        buff[offset + 13] = 0;
-        buff[offset + 14] = 0;           // y-position
-        buff[offset + 15] = 0;
-        buff[offset + 16] = width >> 8;  // width
-        buff[offset + 17] = width;
-        buff[offset + 18] = height >> 8; // height
-        buff[offset + 19] = height;
-        buff[offset + 20] = flags >> 24; // flags
-        buff[offset + 21] = flags >> 16;
-        buff[offset + 22] = flags >> 8;
-        buff[offset + 23] = flags;
+        sock.sQpush32(id);
+        sock.sQpush16(0); // x-position
+        sock.sQpush16(0); // y-position
+        sock.sQpush16(width);
+        sock.sQpush16(height);
+        sock.sQpush32(flags);
 
-        sock._sQlen += 24;
         sock.flush();
     },
 
     clientFence(sock, flags, payload) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(248); // msg-type
 
-        buff[offset] = 248; // msg-type
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
 
-        buff[offset + 1] = 0; // padding
-        buff[offset + 2] = 0; // padding
-        buff[offset + 3] = 0; // padding
+        sock.sQpush32(flags);
 
-        buff[offset + 4] = flags >> 24; // flags
-        buff[offset + 5] = flags >> 16;
-        buff[offset + 6] = flags >> 8;
-        buff[offset + 7] = flags;
+        sock.sQpush8(payload.length);
+        sock.sQpushString(payload);
 
-        const n = payload.length;
-
-        buff[offset + 8] = n; // length
-
-        for (let i = 0; i < n; i++) {
-            buff[offset + 9 + i] = payload.charCodeAt(i);
-        }
-
-        sock._sQlen += 9 + n;
         sock.flush();
     },
 
     enableContinuousUpdates(sock, enable, x, y, width, height) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(150); // msg-type
 
-        buff[offset] = 150;             // msg-type
-        buff[offset + 1] = enable;      // enable-flag
+        sock.sQpush8(enable);
 
-        buff[offset + 2] = x >> 8;      // x
-        buff[offset + 3] = x;
-        buff[offset + 4] = y >> 8;      // y
-        buff[offset + 5] = y;
-        buff[offset + 6] = width >> 8;  // width
-        buff[offset + 7] = width;
-        buff[offset + 8] = height >> 8; // height
-        buff[offset + 9] = height;
+        sock.sQpush16(x);
+        sock.sQpush16(y);
+        sock.sQpush16(width);
+        sock.sQpush16(height);
 
-        sock._sQlen += 10;
         sock.flush();
     },
 
     pixelFormat(sock, depth, trueColor) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
-
         let bpp;
 
         if (depth > 16) {
@@ -3199,100 +3115,69 @@ RFB.messages = {
 
         const bits = Math.floor(depth/3);
 
-        buff[offset] = 0;  // msg-type
+        sock.sQpush8(0); // msg-type
 
-        buff[offset + 1] = 0; // padding
-        buff[offset + 2] = 0; // padding
-        buff[offset + 3] = 0; // padding
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
 
-        buff[offset + 4] = bpp;                 // bits-per-pixel
-        buff[offset + 5] = depth;               // depth
-        buff[offset + 6] = 0;                   // little-endian
-        buff[offset + 7] = trueColor ? 1 : 0;  // true-color
+        sock.sQpush8(bpp);
+        sock.sQpush8(depth);
+        sock.sQpush8(0); // little-endian
+        sock.sQpush8(trueColor ? 1 : 0);
 
-        buff[offset + 8] = 0;    // red-max
-        buff[offset + 9] = (1 << bits) - 1;  // red-max
+        sock.sQpush16((1 << bits) - 1); // red-max
+        sock.sQpush16((1 << bits) - 1); // green-max
+        sock.sQpush16((1 << bits) - 1); // blue-max
 
-        buff[offset + 10] = 0;   // green-max
-        buff[offset + 11] = (1 << bits) - 1; // green-max
+        sock.sQpush8(bits * 0); // red-shift
+        sock.sQpush8(bits * 1); // green-shift
+        sock.sQpush8(bits * 2); // blue-shift
 
-        buff[offset + 12] = 0;   // blue-max
-        buff[offset + 13] = (1 << bits) - 1; // blue-max
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
+        sock.sQpush8(0); // padding
 
-        buff[offset + 14] = bits * 0; // red-shift
-        buff[offset + 15] = bits * 1; // green-shift
-        buff[offset + 16] = bits * 2; // blue-shift
-
-        buff[offset + 17] = 0;   // padding
-        buff[offset + 18] = 0;   // padding
-        buff[offset + 19] = 0;   // padding
-
-        sock._sQlen += 20;
         sock.flush();
     },
 
     clientEncodings(sock, encodings) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(2); // msg-type
 
-        buff[offset] = 2; // msg-type
-        buff[offset + 1] = 0; // padding
+        sock.sQpush8(0); // padding
 
-        buff[offset + 2] = encodings.length >> 8;
-        buff[offset + 3] = encodings.length;
-
-        let j = offset + 4;
+        sock.sQpush16(encodings.length);
         for (let i = 0; i < encodings.length; i++) {
-            const enc = encodings[i];
-            buff[j] = enc >> 24;
-            buff[j + 1] = enc >> 16;
-            buff[j + 2] = enc >> 8;
-            buff[j + 3] = enc;
-
-            j += 4;
+            sock.sQpush32(encodings[i]);
         }
 
-        sock._sQlen += j - offset;
         sock.flush();
     },
 
     fbUpdateRequest(sock, incremental, x, y, w, h) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
-
         if (typeof(x) === "undefined") { x = 0; }
         if (typeof(y) === "undefined") { y = 0; }
 
-        buff[offset] = 3;  // msg-type
-        buff[offset + 1] = incremental ? 1 : 0;
+        sock.sQpush8(3); // msg-type
 
-        buff[offset + 2] = (x >> 8) & 0xFF;
-        buff[offset + 3] = x & 0xFF;
+        sock.sQpush8(incremental ? 1 : 0);
 
-        buff[offset + 4] = (y >> 8) & 0xFF;
-        buff[offset + 5] = y & 0xFF;
+        sock.sQpush16(x);
+        sock.sQpush16(y);
+        sock.sQpush16(w);
+        sock.sQpush16(h);
 
-        buff[offset + 6] = (w >> 8) & 0xFF;
-        buff[offset + 7] = w & 0xFF;
-
-        buff[offset + 8] = (h >> 8) & 0xFF;
-        buff[offset + 9] = h & 0xFF;
-
-        sock._sQlen += 10;
         sock.flush();
     },
 
     xvpOp(sock, ver, op) {
-        const buff = sock._sQ;
-        const offset = sock._sQlen;
+        sock.sQpush8(250); // msg-type
 
-        buff[offset] = 250; // msg-type
-        buff[offset + 1] = 0; // padding
+        sock.sQpush8(0); // padding
 
-        buff[offset + 2] = ver;
-        buff[offset + 3] = op;
+        sock.sQpush8(ver);
+        sock.sQpush8(op);
 
-        sock._sQlen += 4;
         sock.flush();
     }
 };

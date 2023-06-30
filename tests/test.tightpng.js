@@ -44,7 +44,7 @@ describe('TightPng Decoder', function () {
         display.resize(4, 4);
     });
 
-    it('should handle the TightPng encoding', function (done) {
+    it('should handle the TightPng encoding', async function () {
         let data = [
             // Control bytes
             0xa0, 0xb4, 0x04,
@@ -139,10 +139,7 @@ describe('TightPng Decoder', function () {
             return diff < 30;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        await display.flush();
+        expect(display).to.have.displayed(targetData, almost);
     });
 });
