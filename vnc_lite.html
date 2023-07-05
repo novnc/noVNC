@@ -123,6 +123,10 @@
             return defaultValue;
         }
 
+        if (readQueryVariable('status_bar', true) == true) {
+            document.getElementById('top_bar').removeAttribute("hidden")
+        }
+
         document.getElementById('sendCtrlAltDelButton')
             .onclick = sendCtrlAltDel;
 
@@ -169,7 +173,7 @@
 </head>
 
 <body>
-    <div id="top_bar">
+    <div id="top_bar" hidden>
         <div id="status">Loading</div>
         <div id="sendCtrlAltDelButton">Send CtrlAltDel</div>
     </div>
