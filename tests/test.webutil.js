@@ -92,6 +92,11 @@ describe('WebUtil', function () {
                     expect(window.localStorage.setItem).to.have.been.calledWithExactly('test', 'value');
                     expect(WebUtil.readSetting('test')).to.equal('value');
                 });
+
+                it('should not crash when local storage save fails', function () {
+                    localStorage.setItem.throws(new DOMException());
+                    expect(WebUtil.writeSetting('test', 'value')).to.not.throw;
+                });
             });
 
             describe('setSetting', function () {
@@ -137,6 +142,11 @@ describe('WebUtil', function () {
                     WebUtil.writeSetting('test', 'something else');
                     expect(WebUtil.readSetting('test')).to.equal('something else');
                 });
+
+                it('should not crash when local storage read fails', function () {
+                    localStorage.getItem.throws(new DOMException());
+                    expect(WebUtil.readSetting('test')).to.not.throw;
+                });
             });
 
             // this doesn't appear to be used anywhere
@@ -144,6 +154,11 @@ describe('WebUtil', function () {
                 it('should remove the setting from local storage', function () {
                     WebUtil.eraseSetting('test');
                     expect(window.localStorage.removeItem).to.have.been.calledWithExactly('test');
+                });
+
+                it('should not crash when local storage remove fails', function () {
+                    localStorage.removeItem.throws(new DOMException());
+                    expect(WebUtil.eraseSetting('test')).to.not.throw;
                 });
             });
         });
