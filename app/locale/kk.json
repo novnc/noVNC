@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Жаңа қосылым себеппен қабылданбады:",
     "New connection has been rejected": "Жаңа қосылым қабылданбады",
     "Credentials are required": "Тіркелгі деректері қажет",
-    "noVNC encountered an error:": "noVNC қатеге тап болды:",
     "Hide/Show the control bar": "Басқару жолағын жасыру/көрсету",
     "Drag": "Сүйреу",
     "Move/Drag Viewport": "Көру алаңын жылжыту/сүйреп апару",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Бейне режимінің ені:",
     "Video Mode Height:": "Бейне режимінің биіктігі:",
     "Documentation": "Құжаттама",
-    "Drag Viewport": "Көру алаңын сүйреу"
+    "Drag Viewport": "Көру алаңын сүйреу",
+    "KasmVNC encountered an error:": "KasmVNC қатеге тап болды:"
 }

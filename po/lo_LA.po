@@ -38,9 +38,6 @@ msgstr "ການເຊື່ອມຕໍ່ໃຫມ່ໄດ້ຖືກປະ
 msgid "Credentials are required"
 msgstr "ຕ້ອງການຂໍ້ມູນປະຈໍາຕົວ"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ພົບຂໍ້ຜິດພາດ:"
-
 msgid "Hide/Show the control bar"
 msgstr "ເຊື່ອງ/ສະແດງແຖບຄວບຄຸມ"
 
@@ -352,3 +349,6 @@ msgstr "ເອກະສານ"
 
 msgid "Drag Viewport"
 msgstr "Drag Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ພົບຂໍ້ຜິດພາດ:"

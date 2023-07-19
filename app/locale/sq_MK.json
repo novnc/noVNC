@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Lidhja e re është refuzuar me arsye:",
     "New connection has been rejected": "Lidhja e re është refuzuar",
     "Credentials are required": "Duhen kredenciale",
-    "noVNC encountered an error:": "noVNC hasi në një gabim:",
     "Hide/Show the control bar": "Fshihe/Shfaq shiritin e kontrollit",
     "Drag": "Zvarrit",
     "Move/Drag Viewport": "Lëviz/Zvarrit portën e shikimit",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Gjerësia e modalitetit të videos:",
     "Video Mode Height:": "Lartësia e modalitetit të videos:",
     "Documentation": "Dokumentacioni",
-    "Drag Viewport": "Zvarrit portin e shikimit"
+    "Drag Viewport": "Zvarrit portin e shikimit",
+    "KasmVNC encountered an error:": "KasmVNC hasi në një gabim:"
 }

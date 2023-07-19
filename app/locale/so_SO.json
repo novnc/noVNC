@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Xiriirka cusub waxaa lagu diiday sabab:",
     "New connection has been rejected": "Xiriirka cusub waa la diiday",
     "Credentials are required": "Waxyaabaha aqoonsiga ayaa loo baahan yahay",
-    "noVNC encountered an error:": "noVNC waxay la kulantay cilad:",
     "Hide/Show the control bar": "Qari/muuji barta kontoroolka",
     "Drag": "Jiid",
     "Move/Drag Viewport": "Dhaqdhaqaaq / Jiid Daawashada",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Balac ahaan Qaabka Fiidiyowga:",
     "Video Mode Height:": "Habka Fiidiyowga Dhererka:",
     "Documentation": "Documentation",
-    "Drag Viewport": "Deegaanka Jiid"
+    "Drag Viewport": "Deegaanka Jiid",
+    "KasmVNC encountered an error:": "KasmVNC waxay la kulantay cilad:"
 }

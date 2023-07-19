@@ -68,9 +68,6 @@ msgid "Password is required"
 msgstr "Şifre gerekli"
 
 #: ../vnc.html:89
-msgid "noVNC encountered an error:"
-msgstr "Bir hata oluştu:"
-
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
 msgstr "Denetim masasını Gizle/Göster"
@@ -463,3 +460,6 @@ msgstr "Belgeler"
 
 msgid "Drag Viewport"
 msgstr "Görüntü Penceresini Sürükleyin"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC bir hatayla karşılaştı:"

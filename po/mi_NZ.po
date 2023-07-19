@@ -38,9 +38,6 @@ msgstr "Kua paopaohia te hononga hou"
 msgid "Credentials are required"
 msgstr "Me whai tohu tohu"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC i tupono he hapa:"
-
 msgid "Hide/Show the control bar"
 msgstr "Huna/Whakaatuhia te pae mana"
 
@@ -352,3 +349,6 @@ msgstr "Tuhinga"
 
 msgid "Drag Viewport"
 msgstr "Toia Tauranga Tirohanga"
+
+msgid "KasmVNC encountered an error:"
+msgstr "I hapa a KasmVNC:"

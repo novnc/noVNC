@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ".ﮯﮨ ﺎﮨﺭ ﮌﻮﺟ"
+msgstr "ﮯﮨ ﺎﮨﺭ ﮌﻮﺟ"
 
 msgid "Disconnecting..."
-msgstr ".ﮯﮨ ﺎﮨﺭ ﻮﮨ ﻊﻄﻘﻨﻣ"
+msgstr "ﮯﮨ ﺎﮨﺭ ﻮﮨ ﻊﻄﻘﻨﻣ"
 
 msgid "Reconnecting..."
-msgstr ".ﮯﮨ ﺎﮨﺭ ﻮﮨ ﮏﻠﺴﻨﻣ ﮦﺭﺎﺑﻭﺩ"
+msgstr "ﮯﮨ ﺎﮨﺭ ﻮﮨ ﮏﻠﺴﻨﻣ ﮦﺭﺎﺑﻭﺩ"
 
 msgid "Internal error"
 msgstr "ﯽﻣﺎﺧ ﯽﻠﺧﺍﺩ"
@@ -37,9 +37,6 @@ msgstr "ﮯﮨ ﺎﯿﮔ ﺎﯾﺩ ﺮﮐ ﺩﺮﺘﺴﻣ ﻦﺸﮑﻨﮐ ﺎﯿ
 
 msgid "Credentials are required"
 msgstr "ﮟﯿﮨ ﺭﺎﮐﺭﺩ ﺩﺎﻨﺳﺍ "
-
-msgid "noVNC encountered an error:"
-msgstr "noVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:"
 
 msgid "Hide/Show the control bar"
 msgstr "ﮟﯿﺋﺎﮭﮐﺩ/ﮟﯿﺋﺎﭙﮭﭼ ﻮﮐ ﺭﺎﺑ ﻝﻭﺮﭩﻨﮐ"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "ﭦﻮﺒﯾﺭ/ﻥﺅﺍﮈ ﭧﺷ"
 
 msgid "Shutdown/Reboot..."
-msgstr ".ﭦﻮﺒﯾﺭ/ﻥﺅﺍﮈ ﭧﺷ"
+msgstr "ﭦﻮﺒﯾﺭ/ﻥﺅﺍﮈ ﭧﺷ"
 
 msgid "Power"
 msgstr "ﺖﻗﺎﻃ"
@@ -352,3 +349,6 @@ msgstr "ﺕﺍﺰﯾﻭﺎﺘﺳﺩ"
 
 msgid "Drag Viewport"
 msgstr "ﭦﺭﻮﭘ ﻮﯾﻭ ﮓﯾﺭﮈ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:"

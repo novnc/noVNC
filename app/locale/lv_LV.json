@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Jauns savienojums ir noraidīts ar iemeslu:",
     "New connection has been rejected": "Jauns savienojums ir noraidīts",
     "Credentials are required": "Ir nepieciešami akreditācijas dati",
-    "noVNC encountered an error:": "NoVNC radās kļūda:",
     "Hide/Show the control bar": "Paslēpt/rādīt vadības joslu",
     "Drag": "velciet",
     "Move/Drag Viewport": "Pārvietot/velciet skata logs",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Video režīma platums:",
     "Video Mode Height:": "Video režīma augstums:",
     "Documentation": "Dokumentācija",
-    "Drag Viewport": "Velciet skata logu"
+    "Drag Viewport": "Velciet skata logu",
+    "KasmVNC encountered an error:": "KasmVNC radās kļūda:"
 }

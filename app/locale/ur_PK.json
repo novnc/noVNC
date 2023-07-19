@@ -1,7 +1,7 @@
 {
-    "Connecting...": ".ﮯﮨ ﺎﮨﺭ ﮌﻮﺟ",
-    "Disconnecting...": ".ﮯﮨ ﺎﮨﺭ ﻮﮨ ﻊﻄﻘﻨﻣ",
-    "Reconnecting...": ".ﮯﮨ ﺎﮨﺭ ﻮﮨ ﮏﻠﺴﻨﻣ ﮦﺭﺎﺑﻭﺩ",
+    "Connecting...": "ﮯﮨ ﺎﮨﺭ ﮌﻮﺟ",
+    "Disconnecting...": "ﮯﮨ ﺎﮨﺭ ﻮﮨ ﻊﻄﻘﻨﻣ",
+    "Reconnecting...": "ﮯﮨ ﺎﮨﺭ ﻮﮨ ﮏﻠﺴﻨﻣ ﮦﺭﺎﺑﻭﺩ",
     "Internal error": "ﯽﻣﺎﺧ ﯽﻠﺧﺍﺩ",
     "Must set host": "ﮯﮨ ﯼﺭﻭﺮﺿ ﺎﻧﺮﮐ ﺭﺮﻘﻣ ﻥﺎﺑﺰﯿﻣ",
     "Connected (encrypted) to ": "ﮯﺳ (ﮉﭩﭘﺮﮑﻧﺍ) ﮏﻠﺴﻨﻣ",
@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ﮯﮨ ﺎﯿﮔ ﺎﯾﺩ ﺮﮐ ﺩﺮﺘﺴﻣ ﮫﺗﺎﺳ ﮯﮐ ﮧﺟﻭ ﻮﮐ ﻦﺸﮑﻨﮐ ﮯﺌﻧ",
     "New connection has been rejected": "ﮯﮨ ﺎﯿﮔ ﺎﯾﺩ ﺮﮐ ﺩﺮﺘﺴﻣ ﻦﺸﮑﻨﮐ ﺎﯿﻧ",
     "Credentials are required": "ﮟﯿﮨ ﺭﺎﮐﺭﺩ ﺩﺎﻨﺳﺍ ",
-    "noVNC encountered an error:": "noVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:",
     "Hide/Show the control bar": "ﮟﯿﺋﺎﮭﮐﺩ/ﮟﯿﺋﺎﭙﮭﭼ ﻮﮐ ﺭﺎﺑ ﻝﻭﺮﭩﻨﮐ",
     "Drag": "ﮟﯿﭩﯿﺴﮭﮔ",
     "Move/Drag Viewport": "ﮟﯾﺮﮐ ﮓﯾﺭﮈ/ﻞﻘﺘﻨﻣ ﻮﮐ ﭦﺭﻮﭘ ﻮﯾﻭ",
@@ -33,7 +32,7 @@
     "Ctrl+Alt+Del": "Ctrl+Alt+Del",
     "Send Ctrl-Alt-Del": "Ctrl-Alt-Del ﮟﯿﺠﯿﮭﺑ",
     "Shutdown/Reboot": "ﭦﻮﺒﯾﺭ/ﻥﺅﺍﮈ ﭧﺷ",
-    "Shutdown/Reboot...": ".ﭦﻮﺒﯾﺭ/ﻥﺅﺍﮈ ﭧﺷ",
+    "Shutdown/Reboot...": "ﭦﻮﺒﯾﺭ/ﻥﺅﺍﮈ ﭧﺷ",
     "Power": "ﺖﻗﺎﻃ",
     "Shutdown": "ﺪﻨﺑ",
     "Reboot": "ﭦﻮﺒﯾﺭ",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ﯽﺋﺍﮌﻮﭼ ﮈﻮﻣ ﻮﯾﮉﯾﻭ",
     "Video Mode Height:": "ﯽﺋﺎﭽﻧﻭﺍ ﯽﮐ ﮈﻮﻣ ﻮﯾﮉﯾﻭ",
     "Documentation": "ﺕﺍﺰﯾﻭﺎﺘﺳﺩ",
-    "Drag Viewport": "ﭦﺭﻮﭘ ﻮﯾﻭ ﮓﯾﺭﮈ"
+    "Drag Viewport": "ﭦﺭﻮﭘ ﻮﯾﻭ ﮓﯾﺭﮈ",
+    "KasmVNC encountered an error:": "KasmVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:"
 }

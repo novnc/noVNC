@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "An ƙi sabon haɗin gwiwa tare da dalili:",
     "New connection has been rejected": "An ƙi amincewa da sabon haɗin gwiwa",
     "Credentials are required": "Ana buƙatar takaddun shaida",
-    "noVNC encountered an error:": "noVNC ya ci karo da kuskure:",
     "Hide/Show the control bar": "Boye/Nuna sandar sarrafawa",
     "Drag": "Jawo",
     "Move/Drag Viewport": "Matsar / Jawo Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Nisa Yanayin Bidiyo:",
     "Video Mode Height:": "Tsarin Yanayin Bidiyo:",
     "Documentation": "Takardu",
-    "Drag Viewport": "Jawo Viewport"
+    "Drag Viewport": "Jawo Viewport",
+    "KasmVNC encountered an error:": "KasmVNC ya ci karo da kuskure:"
 }

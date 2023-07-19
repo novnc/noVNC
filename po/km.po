@@ -38,9 +38,6 @@ msgstr "ការតភ្ជាប់ថ្មីត្រូវបានបដ
 msgid "Credentials are required"
 msgstr "តម្រូវឱ្យមានការបញ្ជាក់អត្តសញ្ញាណ"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC បានជួបប្រទះកំហុសមួយ៖"
-
 msgid "Hide/Show the control bar"
 msgstr "លាក់/បង្ហាញរបារបញ្ជា"
 
@@ -352,3 +349,6 @@ msgstr "ឯកសារ"
 
 msgid "Drag Viewport"
 msgstr "ច្រកទិដ្ឋភាពអូស"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC បានជួបប្រទះបញ្ហាមួយ៖"

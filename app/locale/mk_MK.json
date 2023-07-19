@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Новата врска е отфрлена со причина:",
     "New connection has been rejected": "Новата врска е одбиена",
     "Credentials are required": "Потребни се акредитиви",
-    "noVNC encountered an error:": "noVNC наиде на грешка:",
     "Hide/Show the control bar": "Сокриј/Покажи ја контролната лента",
     "Drag": "Повлечете",
     "Move/Drag Viewport": "Премести/Повлечете го приказот",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Ширина на видео режим:",
     "Video Mode Height:": "Висина на режимот на видео:",
     "Documentation": "Документација",
-    "Drag Viewport": "Повлечете го погледот"
+    "Drag Viewport": "Повлечете го погледот",
+    "KasmVNC encountered an error:": "KasmVNC наиде на грешка:"
 }

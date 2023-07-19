@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Ajụrụ njikọ ọhụrụ n'ihi ihe kpatara ya:",
     "New connection has been rejected": "Ajụjụ njikọ ọhụrụ",
     "Credentials are required": "Achọrọ nzere",
-    "noVNC encountered an error:": "noVNC zutere mperi:",
     "Hide/Show the control bar": "Zoo/Gosi akara njikwa",
     "Drag": "Dọrọ",
     "Move/Drag Viewport": "Bugharịa / Dọrọ nlegharị anya",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Obosara ọnọdụ vidiyo:",
     "Video Mode Height:": "Ụdị vidiyo dị elu:",
     "Documentation": "Akwụkwọ",
-    "Drag Viewport": "Dọrọ nlegharị anya"
+    "Drag Viewport": "Dọrọ nlegharị anya",
+    "KasmVNC encountered an error:": "KasmVNC zutere mperi:"
 }

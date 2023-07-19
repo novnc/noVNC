@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nieuwe verbinding is geweigerd omwille van de volgende reden: ",
     "New connection has been rejected": "Nieuwe verbinding is geweigerd",
     "Password is required": "Wachtwoord is vereist",
-    "noVNC encountered an error:": "noVNC heeft een fout bemerkt:",
     "Hide/Show the control bar": "Verberg/Toon de bedieningsbalk",
     "Move/Drag Viewport": "Verplaats/Versleep Kijkvenster",
     "viewport drag": "kijkvenster slepen",
@@ -124,5 +123,6 @@
     "Video Mode Width:": "Breedte videomodus:",
     "Video Mode Height:": "Hoogte videomodus:",
     "Documentation": "Documentatie",
-    "Drag Viewport": "Sleep Viewport"
+    "Drag Viewport": "Sleep Viewport",
+    "KasmVNC encountered an error:": "KasmVNC heeft een fout aangetroffen:"
 }

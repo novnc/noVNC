@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Koneksi baru telah ditolak dengan alasan:",
     "New connection has been rejected": "Koneksi baru telah ditolak",
     "Credentials are required": "Kredensial diperlukan",
-    "noVNC encountered an error:": "noVNC mengalami kesalahan:",
     "Hide/Show the control bar": "Sembunyikan/Tampilkan bilah kontrol",
     "Drag": "Menyeret",
     "Move/Drag Viewport": "Pindahkan/Seret Area Pandang",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Lebar Mode Video:",
     "Video Mode Height:": "Tinggi Mode Video:",
     "Documentation": "Dokumentasi",
-    "Drag Viewport": "Seret Area Pandang"
+    "Drag Viewport": "Seret Area Pandang",
+    "KasmVNC encountered an error:": "KasmVNC mengalami kesalahan:"
 }

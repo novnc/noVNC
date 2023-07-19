@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "නව සම්බන්ධතාවය හේතු සහිතව ප්u200dරතික්ෂේප කර ඇත:",
     "New connection has been rejected": "නව සම්බන්ධතාවය ප්u200dරතික්ෂේප කර ඇත",
     "Credentials are required": "ඇත්තපත්u200dර අවශ්u200dයයි",
-    "noVNC encountered an error:": "noVNC දෝෂයකට මුහුණ දී ඇත:",
     "Hide/Show the control bar": "පාලක තීරුව සඟවන්න/පෙන්වන්න",
     "Drag": "අදින්න",
     "Move/Drag Viewport": "වීව්පෝට් ගෙනයන්න/අදින්න",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "වීඩියෝ මාදිලියේ පළල:",
     "Video Mode Height:": "වීඩියෝ මාදිලියේ උස:",
     "Documentation": "ලේඛන",
-    "Drag Viewport": "Drag Viewport"
+    "Drag Viewport": "Drag Viewport",
+    "KasmVNC encountered an error:": "KasmVNC දෝෂයක් ඇති විය:"
 }

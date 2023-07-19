@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Ny fifandraisana vaovao dia nolavina noho ny antony:",
     "New connection has been rejected": "Nolavina ny fifandraisana vaovao",
     "Credentials are required": "Ilaina ny fahazoan-dàlana",
-    "noVNC encountered an error:": "noVNC nahita hadisoana:",
     "Hide/Show the control bar": "Afeno/Asehoy ny bara fanaraha-maso",
     "Drag": "Drag",
     "Move/Drag Viewport": "Move/Drag Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Sakan'ny Video Mode:",
     "Video Mode Height:": "Haavo maodely video:",
     "Documentation": "Dokumentation",
-    "Drag Viewport": "Drag Viewport"
+    "Drag Viewport": "Drag Viewport",
+    "KasmVNC encountered an error:": "Nahita hadisoana ny KasmVNC:"
 }

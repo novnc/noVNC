@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Նոր կապը մերժվել է պատճառաբանությամբ.",
     "New connection has been rejected": "Նոր կապը մերժվել է.",
     "Credentials are required": "Հավատարմագրերը պարտադիր են",
-    "noVNC encountered an error:": "noVNC-ն սխալ է հանդիպել.",
     "Hide/Show the control bar": "Թաքցնել/Ցույց տալ կառավարման տողը",
     "Drag": "Քաշել",
     "Move/Drag Viewport": "Տեղափոխել/քաշել տեսադաշտը",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Տեսանյութի ռեժիմի լայնություն.",
     "Video Mode Height:": "Տեսանյութի ռեժիմի բարձրություն.",
     "Documentation": "Փաստաթղթեր",
-    "Drag Viewport": "Քաշել տեսադաշտը"
+    "Drag Viewport": "Քաշել տեսադաշտը",
+    "KasmVNC encountered an error:": "KasmVNC-ն սխալ է հանդիպել."
 }

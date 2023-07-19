@@ -1,7 +1,7 @@
 {
-    "Connecting...": ".ﻁﺎﺒﺗﺭﺍ ﯼﺭﺍﺮﻗﺮﺑ",
-    "Disconnecting...": ".ﻁﺎﺒﺗﺭﺍ ﻊﻄﻗ",
-    "Reconnecting...": ".ﺩﺪﺠﻣ ﻞﺻﻭ",
+    "Connecting...": "ﻁﺎﺒﺗﺭﺍ ﯼﺭﺍﺮﻗﺮﺑ",
+    "Disconnecting...": "ﻁﺎﺒﺗﺭﺍ ﻊﻄﻗ",
+    "Reconnecting...": "ﺩﺪﺠﻣ ﻞﺻﻭ",
     "Internal error": "ﯽﻠﺧﺍﺩ ﯼﺎﻄﺧ",
     "Must set host": "ﺩﻮﺷ ﻢﯿﻈﻨﺗ ﺪﯾﺎﺑ ﻥﺎﺑﺰﯿﻣ",
     "Connected (encrypted) to ": "ﻪﺑ (ﻩﺪﺷ ﯼﺭﺍﺬﮔﺰﻣﺭ) ﻞﺼﺘﻣ",
@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ﺖﺳﺍ ﻩﺪﺷ ﺩﺭ ﻞﯿﻟﺩ ﺎﺑ ﺪﯾﺪﺟ ﻁﺎﺒﺗﺭﺍ",
     "New connection has been rejected": "ﺖﺳﺍ ﻩﺪﺷ ﺩﺭ ﺪﯾﺪﺟ ﻝﺎﺼﺗﺍ",
     "Credentials are required": "ﺖﺳﺍ ﻡﺯﻻ﻿ ﮎﺭﺍﺪﻣ",
-    "noVNC encountered an error:": "noVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:",
     "Hide/Show the control bar": "ﻝﺮﺘﻨﮐ ﺭﺍﻮﻧ ﺶﯾﺎﻤﻧ/ﻥﺩﺮﮐ ﻥﺎﻬﻨﭘ",
     "Drag": "ﻥﺪﯿﺸﮐ",
     "Move/Drag Viewport": "Move/Drag Viewport",
@@ -33,7 +32,7 @@
     "Ctrl+Alt+Del": "Ctrl+Alt+Del",
     "Send Ctrl-Alt-Del": "Ctrl-Alt-Del ﻝﺎﺳﺭﺍ",
     "Shutdown/Reboot": "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ",
-    "Shutdown/Reboot...": ".ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ",
+    "Shutdown/Reboot...": "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ",
     "Power": "ﺕﺭﺪﻗ",
     "Shutdown": "ﻥﺪﺷ ﺵﻮﻣﺎﺧ",
     "Reboot": "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ﻮﺋﺪﯾﻭ ﺖﻟﺎﺣ ﺽﺮﻋ",
     "Video Mode Height:": "ﻮﺋﺪﯾﻭ ﺖﻟﺎﺣ ﻉﺎﻔﺗﺭﺍ",
     "Documentation": "ﺕﺍﺪﻨﺘﺴﻣ",
-    "Drag Viewport": "ﺕﺭﻮﭙﯾﺎﻤﻧ ﮒﺭﺩ"
+    "Drag Viewport": "ﺕﺭﻮﭙﯾﺎﻤﻧ ﮒﺭﺩ",
+    "KasmVNC encountered an error:": "KasmVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:"
 }

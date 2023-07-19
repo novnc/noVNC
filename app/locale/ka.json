@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ახალი კავშირი უარყოფილია მიზეზით:",
     "New connection has been rejected": "ახალი კავშირი უარყოფილია",
     "Credentials are required": "აუცილებელია რწმუნებათა სიგელები",
-    "noVNC encountered an error:": "noVNC შეექმნა შეცდომა:",
     "Hide/Show the control bar": "საკონტროლო ზოლის დამალვა/ჩვენება",
     "Drag": "გადაათრიე",
     "Move/Drag Viewport": "გადაადგილება/ჩაათრიე ხედის პორტი",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ვიდეო რეჟიმის სიგანე:",
     "Video Mode Height:": "ვიდეო რეჟიმის სიმაღლე:",
     "Documentation": "დოკუმენტაცია",
-    "Drag Viewport": "გადაათრიეთ ხედის პორტი"
+    "Drag Viewport": "გადაათრიეთ ხედის პორტი",
+    "KasmVNC encountered an error:": "KasmVNC შეექმნა შეცდომა:"
 }

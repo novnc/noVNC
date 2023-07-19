@@ -38,9 +38,6 @@ msgstr "Нове підключення відхилено"
 msgid "Credentials are required"
 msgstr "Потрібні облікові дані"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC виявив помилку:"
-
 msgid "Hide/Show the control bar"
 msgstr "Приховати/показати панель керування"
 
@@ -352,3 +349,6 @@ msgstr "Документація"
 
 msgid "Drag Viewport"
 msgstr "Перетягнути вікно перегляду"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC виявив помилку:"

@@ -38,9 +38,6 @@ msgstr "Nouvo koneksyon te rejte"
 msgid "Credentials are required"
 msgstr "Kredansyèl yo obligatwa"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC te rankontre yon erè:"
-
 msgid "Hide/Show the control bar"
 msgstr "Kache/Montre ba kontwòl la"
 
@@ -352,3 +349,6 @@ msgstr "Dokimantasyon"
 
 msgid "Drag Viewport"
 msgstr "Trennen Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC te rankontre yon erè:"

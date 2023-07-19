@@ -38,9 +38,6 @@ msgstr "Lidhja e re është refuzuar"
 msgid "Credentials are required"
 msgstr "Duhen kredenciale"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC hasi në një gabim:"
-
 msgid "Hide/Show the control bar"
 msgstr "Fshihe/Shfaq shiritin e kontrollit"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentacioni"
 
 msgid "Drag Viewport"
 msgstr "Zvarrit portin e shikimit"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC hasi në një gabim:"

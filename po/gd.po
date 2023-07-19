@@ -38,9 +38,6 @@ msgstr "Chaidh ceangal ùr a dhiùltadh"
 msgid "Credentials are required"
 msgstr "Tha feum air teisteanasan"
 
-msgid "noVNC encountered an error:"
-msgstr "Thachair noVNC ri mearachd:"
-
 msgid "Hide/Show the control bar"
 msgstr "Falaich/Seall am bàr-smachd"
 
@@ -352,3 +349,6 @@ msgstr "Sgrìobhainn"
 
 msgid "Drag Viewport"
 msgstr "Slaod am port-seallaidh"
+
+msgid "KasmVNC encountered an error:"
+msgstr "Thachair KasmVNC ri mearachd:"

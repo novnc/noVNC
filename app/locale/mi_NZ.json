@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Kua paopaohia te hononga hou me te take:",
     "New connection has been rejected": "Kua paopaohia te hononga hou",
     "Credentials are required": "Me whai tohu tohu",
-    "noVNC encountered an error:": "noVNC i tupono he hapa:",
     "Hide/Show the control bar": "Huna/Whakaatuhia te pae mana",
     "Drag": "Toia",
     "Move/Drag Viewport": "Nuku/Toia Tauranga Tirohanga",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Aratau Ataata Whānui:",
     "Video Mode Height:": "Teitei Aratau Ataata:",
     "Documentation": "Tuhinga",
-    "Drag Viewport": "Toia Tauranga Tirohanga"
+    "Drag Viewport": "Toia Tauranga Tirohanga",
+    "KasmVNC encountered an error:": "I hapa a KasmVNC:"
 }

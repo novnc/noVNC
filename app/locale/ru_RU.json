@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Подключиться не удалось: ",
     "New connection has been rejected": "Подключиться не удалось",
     "Password is required": "Требуется пароль",
-    "noVNC encountered an error:": "Ошибка noVNC: ",
     "Hide/Show the control bar": "Скрыть/Показать контрольную панель",
     "Move/Drag Viewport": "Переместить окно",
     "viewport drag": "Переместить окно",
@@ -124,5 +123,6 @@
     "Video Mode Width:": "Ширина видеорежима:",
     "Video Mode Height:": "Высота режима видео:",
     "Documentation": "Документация",
-    "Drag Viewport": "Перетаскивание видового экрана"
+    "Drag Viewport": "Перетаскивание видового экрана",
+    "KasmVNC encountered an error:": "KasmVNC обнаружил ошибку:"
 }

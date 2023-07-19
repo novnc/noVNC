@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Uusi yhteys on hylätty syystä:",
     "New connection has been rejected": "Uusi yhteys on hylätty",
     "Credentials are required": "Kirjaustiedot vaaditaan",
-    "noVNC encountered an error:": "noVNC havaitsi virheen:",
     "Hide/Show the control bar": "Piilota/näytä ohjauspalkki",
     "Drag": "Raahata",
     "Move/Drag Viewport": "Siirrä/vedä-näkymä",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Videotilan leveys:",
     "Video Mode Height:": "Videotilan korkeus:",
     "Documentation": "Dokumentointi",
-    "Drag Viewport": "Vedä näkymä"
+    "Drag Viewport": "Vedä näkymä",
+    "KasmVNC encountered an error:": "KasmVNC havaitsi virheen:"
 }

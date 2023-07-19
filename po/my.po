@@ -38,9 +38,6 @@ msgstr "ချိတ်ဆက်မှုအသစ်ကို ငြင်း�
 msgid "Credentials are required"
 msgstr "အထောက်အထားများ လိုအပ်သည်"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-"
-
 msgid "Hide/Show the control bar"
 msgstr "ထိန်းချုပ်မှုဘားကို ဖျောက်/ပြပါ"
 
@@ -352,3 +349,6 @@ msgstr "စာရွက်စာတမ်း"
 
 msgid "Drag Viewport"
 msgstr "ရှုထောင့်ကို ဆွဲယူပါ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-"

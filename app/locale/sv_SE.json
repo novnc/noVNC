@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Ny anslutning har blivit nekad med följande skäl: ",
     "New connection has been rejected": "Ny anslutning har blivit nekad",
     "Credentials are required": "Användaruppgifter krävs",
-    "noVNC encountered an error:": "noVNC stötte på ett problem:",
     "Hide/Show the control bar": "Göm/Visa kontrollbaren",
     "Drag": "Dra",
     "Move/Drag Viewport": "Flytta/Dra Vyn",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Videolägesbredd:",
     "Video Mode Height:": "Videolägeshöjd:",
     "Documentation": "Dokumentation",
-    "Drag Viewport": "Dra Viewport"
+    "Drag Viewport": "Dra Viewport",
+    "KasmVNC encountered an error:": "KasmVNC stötte på ett fel:"
 }

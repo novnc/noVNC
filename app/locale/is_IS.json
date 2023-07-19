@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nýrri tengingu hefur verið hafnað með ástæðu:",
     "New connection has been rejected": "Nýrri tengingu hefur verið hafnað",
     "Credentials are required": "Leikskilríki eru nauðsynleg",
-    "noVNC encountered an error:": "noVNC rakst á villu:",
     "Hide/Show the control bar": "Fela/sýna stjórnstikuna",
     "Drag": "Draga",
     "Move/Drag Viewport": "Færa/draga útsýni",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Video Mode Breidd:",
     "Video Mode Height:": "Hæð myndbandshams:",
     "Documentation": "Skjölun",
-    "Drag Viewport": "Dragðu útsýnisgátt"
+    "Drag Viewport": "Dragðu útsýnisgátt",
+    "KasmVNC encountered an error:": "KasmVNC rakst á villu:"
 }

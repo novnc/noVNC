@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "కొత్త కనెక్షన్ కారణంతో తిరస్కరించబడింది:",
     "New connection has been rejected": "కొత్త కనెక్షన్ తిరస్కరించబడింది",
     "Credentials are required": "క్రెడెన్షియల్స్ అవసరం",
-    "noVNC encountered an error:": "noVNC లోపాన్ని ఎదుర్కొంది:",
     "Hide/Show the control bar": "నియంత్రణ పట్టీని దాచు/చూపించు",
     "Drag": "లాగండి",
     "Move/Drag Viewport": "వ్యూపోర్ట్u200cని తరలించు/లాగండి",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "వీడియో మోడ్ వెడల్పు:",
     "Video Mode Height:": "వీడియో మోడ్ ఎత్తు:",
     "Documentation": "డాక్యుమెంటేషన్",
-    "Drag Viewport": "డ్రాగ్ వ్యూపోర్ట్"
+    "Drag Viewport": "డ్రాగ్ వ్యూపోర్ట్",
+    "KasmVNC encountered an error:": "KasmVNC లోపాన్ని ఎదుర్కొంది:"
 }

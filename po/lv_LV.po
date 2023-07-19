@@ -38,9 +38,6 @@ msgstr "Jauns savienojums ir noraidīts"
 msgid "Credentials are required"
 msgstr "Ir nepieciešami akreditācijas dati"
 
-msgid "noVNC encountered an error:"
-msgstr "NoVNC radās kļūda:"
-
 msgid "Hide/Show the control bar"
 msgstr "Paslēpt/rādīt vadības joslu"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentācija"
 
 msgid "Drag Viewport"
 msgstr "Velciet skata logu"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC radās kļūda:"

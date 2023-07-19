@@ -74,9 +74,6 @@ msgid "Password is required"
 msgstr "Требуется пароль"
 
 #: ../vnc.html:84
-msgid "noVNC encountered an error:"
-msgstr "Ошибка noVNC: "
-
 #: ../vnc.html:94
 msgid "Hide/Show the control bar"
 msgstr "Скрыть/Показать контрольную панель"
@@ -469,3 +466,6 @@ msgstr "Документация"
 
 msgid "Drag Viewport"
 msgstr "Перетаскивание видового экрана"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC обнаружил ошибку:"

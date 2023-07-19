@@ -38,9 +38,6 @@ msgstr "ਨਵਾਂ ਕੁਨੈਕਸ਼ਨ ਅਸਵੀਕਾਰ ਕੀਤਾ
 msgid "Credentials are required"
 msgstr "ਪ੍ਰਮਾਣ ਪੱਤਰ ਲੋੜੀਂਦੇ ਹਨ"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ਵਿੱਚ ਇੱਕ ਗਲਤੀ ਆਈ ਹੈ:"
-
 msgid "Hide/Show the control bar"
 msgstr "ਕੰਟਰੋਲ ਬਾਰ ਨੂੰ ਲੁਕਾਓ/ਵੇਖੋ"
 
@@ -352,3 +349,6 @@ msgstr "ਦਸਤਾਵੇਜ਼"
 
 msgid "Drag Viewport"
 msgstr "ਡਰੈਗ ਵਿਊਪੋਰਟ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ਨੇ ਇੱਕ ਗਲਤੀ ਦਾ ਸਾਹਮਣਾ ਕੀਤਾ:"

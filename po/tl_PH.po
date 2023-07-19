@@ -38,9 +38,6 @@ msgstr "Ang bagong koneksyon ay tinanggihan"
 msgid "Credentials are required"
 msgstr "Kinakailangan ang mga kredensyal"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ay nakatagpo ng isang error:"
-
 msgid "Hide/Show the control bar"
 msgstr "Itago/Ipakita ang control bar"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentasyon"
 
 msgid "Drag Viewport"
 msgstr "I-drag ang Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "Nakaranas ng error ang KasmVNC:"

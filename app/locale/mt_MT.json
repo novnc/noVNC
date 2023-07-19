@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Konnessjoni ġdida ġiet miċħuda bir-raġuni: ",
     "New connection has been rejected": "Konnessjoni ġdida ġiet miċħuda",
     "Credentials are required": "Kredenzjali huma meħtieġa",
-    "noVNC encountered an error:": "noVNC sab żball:",
     "Hide/Show the control bar": "Aħbi/Uri l-bar tal-kontroll",
     "Drag": "Ikaxkar",
     "Move/Drag Viewport": "Mexxi/Idreggja l-Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Wsa 'Modalità Video:",
     "Video Mode Height:": "Għoli tal-Modalità Video:",
     "Documentation": "Dokumentazzjoni",
-    "Drag Viewport": "Dragg Viewport"
+    "Drag Viewport": "Dragg Viewport",
+    "KasmVNC encountered an error:": "KasmVNC iltaqa' ma' żball:"
 }

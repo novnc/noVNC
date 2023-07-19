@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Ang bagong koneksyon ay tinanggihan nang may dahilan: ",
     "New connection has been rejected": "Ang bagong koneksyon ay tinanggihan",
     "Credentials are required": "Kinakailangan ang mga kredensyal",
-    "noVNC encountered an error:": "noVNC ay nakatagpo ng isang error:",
     "Hide/Show the control bar": "Itago/Ipakita ang control bar",
     "Drag": "I-drag",
     "Move/Drag Viewport": "Ilipat/I-drag ang Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Lapad ng Video Mode:",
     "Video Mode Height:": "Taas ng Video Mode:",
     "Documentation": "Dokumentasyon",
-    "Drag Viewport": "I-drag ang Viewport"
+    "Drag Viewport": "I-drag ang Viewport",
+    "KasmVNC encountered an error:": "Nakaranas ng error ang KasmVNC:"
 }

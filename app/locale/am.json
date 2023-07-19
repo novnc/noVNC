@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "አዲስ ግንኙነት በምክንያት ውድቅ ተደርጓል፡",
     "New connection has been rejected": "አዲስ ግንኙነት ውድቅ ተደርጓል",
     "Credentials are required": "ማስረጃዎች ያስፈልጋሉ",
-    "noVNC encountered an error:": "noVNC ስህተት አጋጥሞታል:",
     "Hide/Show the control bar": "የቁጥጥር አሞሌን ደብቅ/ አሳይ",
     "Drag": "ጎትት",
     "Move/Drag Viewport": "የእይታ ቦታን አንቀሳቅስ/ጎትት",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "የቪዲዮ ሁነታ ስፋት:",
     "Video Mode Height:": "የቪዲዮ ሁነታ ቁመት:",
     "Documentation": "ሰነድ",
-    "Drag Viewport": "መመልከቻ ጎትት"
+    "Drag Viewport": "መመልከቻ ጎትት",
+    "KasmVNC encountered an error:": "KasmVNC ስህተት አጋጥሞታል::"
 }

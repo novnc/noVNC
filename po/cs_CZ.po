@@ -70,9 +70,6 @@ msgid "Password is required"
 msgstr "Je vyžadováno heslo"
 
 #: ../vnc.html:84
-msgid "noVNC encountered an error:"
-msgstr "noVNC narazilo na chybu:"
-
 #: ../vnc.html:94
 msgid "Hide/Show the control bar"
 msgstr "Skrýt/zobrazit ovládací panel"
@@ -463,3 +460,6 @@ msgstr "Dokumentace"
 
 msgid "Drag Viewport"
 msgstr "Přetáhnout výřez"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC narazil na chybu:"

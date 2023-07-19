@@ -323,6 +323,23 @@ select:active {
   overflow: auto;
 }
 
+#noVNC_close_error {
+  position: flex;
+  margin-left: auto; 
+  margin-right: 0;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  z-index: 3;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#noVNC_close_error:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
 /* ----------------------------------------
  * Connection Stats
  * ----------------------------------------

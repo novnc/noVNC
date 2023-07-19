@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Yeni əlaqə səbəblə rədd edildi:",
     "New connection has been rejected": "Yeni əlaqə rədd edildi",
     "Credentials are required": "Etibarnamə tələb olunur",
-    "noVNC encountered an error:": "noVNC xəta ilə qarşılaşdı:",
     "Hide/Show the control bar": "İdarə çubuğunu gizlət/göstər",
     "Drag": "Sürük",
     "Move/Drag Viewport": "Görünüş portunu köçürün/çəkin",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Video rejiminin eni:",
     "Video Mode Height:": "Video rejimi hündürlüyü:",
     "Documentation": "Sənədlər",
-    "Drag Viewport": "Görünüş sahəsini sürükləyin"
+    "Drag Viewport": "Görünüş sahəsini sürükləyin",
+    "KasmVNC encountered an error:": "KasmVNC xəta ilə qarşılaşdı:"
 }

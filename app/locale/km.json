@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ការតភ្ជាប់ថ្មីត្រូវបានបដិសេធដោយមានហេតុផល ៖",
     "New connection has been rejected": "ការតភ្ជាប់ថ្មីត្រូវបានបដិសេធ",
     "Credentials are required": "តម្រូវឱ្យមានការបញ្ជាក់អត្តសញ្ញាណ",
-    "noVNC encountered an error:": "noVNC បានជួបប្រទះកំហុសមួយ៖",
     "Hide/Show the control bar": "លាក់/បង្ហាញរបារបញ្ជា",
     "Drag": "អូស",
     "Move/Drag Viewport": "ផ្លាស់ទី/អូសច្រកទិដ្ឋភាព",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ទទឹងរបៀបវីដេអូ៖",
     "Video Mode Height:": "កម្ពស់របៀបវីដេអូ៖",
     "Documentation": "ឯកសារ",
-    "Drag Viewport": "ច្រកទិដ្ឋភាពអូស"
+    "Drag Viewport": "ច្រកទិដ្ឋភាពអូស",
+    "KasmVNC encountered an error:": "KasmVNC បានជួបប្រទះបញ្ហាមួយ៖"
 }

@@ -70,7 +70,8 @@
 
     <div id="noVNC_fallback_error" class="noVNC_center">
         <div>
-            <div>noVNC encountered an error:</div>
+            <div id="noVNC_close_error" onclick="document.getElementById('noVNC_fallback_error').remove()"></div>
+            <div>KasmVNC encountered an error:</div>
             <br>
             <div id="noVNC_fallback_errormsg"></div>
         </div>

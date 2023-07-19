@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ".רשֵׁקַמְ"
+msgstr "רשֵׁקַמְ"
 
 msgid "Disconnecting..."
-msgstr ".קתנתמ"
+msgstr "קתנתמ"
 
 msgid "Reconnecting..."
-msgstr ".שדחמ רבחתמ"
+msgstr "שדחמ רבחתמ"
 
 msgid "Internal error"
 msgstr "תימינפ האיגש"
@@ -37,9 +37,6 @@ msgstr "החדנ שדח רוביח"
 
 msgid "Credentials are required"
 msgstr "םירושיא םישרדנ"
-
-msgid "noVNC encountered an error:"
-msgstr "noVNC האיגשב לקתנ:"
 
 msgid "Hide/Show the control bar"
 msgstr "הרקבה לגרס תא גצה/רתסה"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "שדחמ לוחתא/יוביכ"
 
 msgid "Shutdown/Reboot..."
-msgstr ".לוחתא/יוביכ"
+msgstr "לוחתא/יוביכ"
 
 msgid "Power"
 msgstr "חַוֹכּ"
@@ -352,3 +349,6 @@ msgstr "דועית"
 
 msgid "Drag Viewport"
 msgstr "טבמ תדוקנ רורג"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC האיגשב לקתנ:"

@@ -38,9 +38,6 @@ msgstr "An ƙi amincewa da sabon haɗin gwiwa"
 msgid "Credentials are required"
 msgstr "Ana buƙatar takaddun shaida"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ya ci karo da kuskure:"
-
 msgid "Hide/Show the control bar"
 msgstr "Boye/Nuna sandar sarrafawa"
 
@@ -352,3 +349,6 @@ msgstr "Takardu"
 
 msgid "Drag Viewport"
 msgstr "Jawo Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ya ci karo da kuskure:"

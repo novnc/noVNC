@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Khokahano e ncha e hanngoe ka lebaka: ",
     "New connection has been rejected": "Khokahano e ncha e hanngoe",
     "Credentials are required": "Boitsebiso boa hlokahala",
-    "noVNC encountered an error:": "noVNC e fumane phoso:",
     "Hide/Show the control bar": "Pata / Bontša sebaka sa taolo",
     "Drag": "Hula",
     "Move/Drag Viewport": "Sutha/Hula Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Bophara ba Mokhoa oa Video:",
     "Video Mode Height:": "Boemo ba Mokhoa oa Video:",
     "Documentation": "Litokomane",
-    "Drag Viewport": "Hula Viewport"
+    "Drag Viewport": "Hula Viewport",
+    "KasmVNC encountered an error:": "KasmVNC e fumane phoso:"
 }

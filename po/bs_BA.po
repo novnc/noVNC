@@ -38,9 +38,6 @@ msgstr "Nova veza je odbijena"
 msgid "Credentials are required"
 msgstr "Potrebni su akreditivi"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC je naišao na grešku:"
-
 msgid "Hide/Show the control bar"
 msgstr "Sakrij/Prikaži kontrolnu traku"
 
@@ -352,3 +349,6 @@ msgstr "dokumentacija"
 
 msgid "Drag Viewport"
 msgstr "Drag Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC je naišao na grešku:"

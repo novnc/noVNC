@@ -38,9 +38,6 @@ msgstr "Ajụjụ njikọ ọhụrụ"
 msgid "Credentials are required"
 msgstr "Achọrọ nzere"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC zutere mperi:"
-
 msgid "Hide/Show the control bar"
 msgstr "Zoo/Gosi akara njikwa"
 
@@ -352,3 +349,6 @@ msgstr "Akwụkwọ"
 
 msgid "Drag Viewport"
 msgstr "Dọrọ nlegharị anya"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC zutere mperi:"

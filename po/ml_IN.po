@@ -38,9 +38,6 @@ msgstr "പുതിയ കണക്ഷൻ നിരസിച്ചു"
 msgid "Credentials are required"
 msgstr "ക്രെഡൻഷ്യലുകൾ ആവശ്യമാണ്"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ഒരു പിശക് നേരിട്ടു:"
-
 msgid "Hide/Show the control bar"
 msgstr "നിയന്ത്രണ ബാർ മറയ്ക്കുക/കാണിക്കുക"
 
@@ -352,3 +349,6 @@ msgstr "പ്രമാണീകരണം"
 
 msgid "Drag Viewport"
 msgstr "വ്യൂപോർട്ട് വലിച്ചിടുക"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ഒരു പിശക് നേരിട്ടു:"

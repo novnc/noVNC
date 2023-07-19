@@ -38,9 +38,6 @@ msgstr "Ny forbindelse er blevet afvist"
 msgid "Credentials are required"
 msgstr "Legitimationsoplysninger er påkrævet"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC stødte på en fejl:"
-
 msgid "Hide/Show the control bar"
 msgstr "Skjul/vis kontrollinjen"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentation"
 
 msgid "Drag Viewport"
 msgstr "Træk visningsport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC stødte på en fejl:"

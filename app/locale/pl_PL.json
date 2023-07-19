@@ -11,7 +11,6 @@
     "New connection has been rejected with reason: ": "Nowe połączenie zostało odrzucone z powodu: ",
     "New connection has been rejected": "Nowe połączenie zostało odrzucone",
     "Password is required": "Hasło jest wymagane",
-    "noVNC encountered an error:": "noVNC napotkało błąd:",
     "Hide/Show the control bar": "Pokaż/Ukryj pasek ustawień",
     "Move/Drag Viewport": "Ruszaj/Przeciągaj Viewport",
     "viewport drag": "przeciągnij viewport",
@@ -124,5 +123,6 @@
     "Video Mode Width:": "Szerokość trybu wideo:",
     "Video Mode Height:": "Wysokość trybu wideo:",
     "Documentation": "Dokumentacja",
-    "Drag Viewport": "Przeciągnij rzutnię"
+    "Drag Viewport": "Przeciągnij rzutnię",
+    "KasmVNC encountered an error:": "KasmVNC napotkał błąd:"
 }

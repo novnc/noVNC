@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "പുതിയ കണക്ഷൻ കാരണം നിരസിച്ചു:",
     "New connection has been rejected": "പുതിയ കണക്ഷൻ നിരസിച്ചു",
     "Credentials are required": "ക്രെഡൻഷ്യലുകൾ ആവശ്യമാണ്",
-    "noVNC encountered an error:": "noVNC ഒരു പിശക് നേരിട്ടു:",
     "Hide/Show the control bar": "നിയന്ത്രണ ബാർ മറയ്ക്കുക/കാണിക്കുക",
     "Drag": "വലിച്ചിടുക",
     "Move/Drag Viewport": "വ്യൂപോർട്ട് നീക്കുക/വലിക്കുക",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "വീഡിയോ മോഡ് വീതി:",
     "Video Mode Height:": "വീഡിയോ മോഡ് ഉയരം:",
     "Documentation": "പ്രമാണീകരണം",
-    "Drag Viewport": "വ്യൂപോർട്ട് വലിച്ചിടുക"
+    "Drag Viewport": "വ്യൂപോർട്ട് വലിച്ചിടുക",
+    "KasmVNC encountered an error:": "KasmVNC ഒരു പിശക് നേരിട്ടു:"
 }

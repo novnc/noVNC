@@ -8,7 +8,6 @@
     "Reconnecting...": "Reconectando...",
     "Password is required": "Contraseña es obligatoria",
     "Disconnect timeout": "Tiempo de desconexión agotado",
-    "noVNC encountered an error:": "noVNC ha encontrado un error:",
     "Hide/Show the control bar": "Ocultar/Mostrar la barra de control",
     "Move/Drag Viewport": "Mover/Arrastrar la ventana",
     "viewport drag": "Arrastrar la ventana",
@@ -127,5 +126,6 @@
     "Video Mode Width:": "Ancho del modo de vídeo:",
     "Video Mode Height:": "Altura del modo de vídeo:",
     "Documentation": "Documentación",
-    "Drag Viewport": "Arrastrar ventana gráfica"
+    "Drag Viewport": "Arrastrar ventana gráfica",
+    "KasmVNC encountered an error:": "KasmVNC encontró un error:"
 }

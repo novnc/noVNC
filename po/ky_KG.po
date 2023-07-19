@@ -38,9 +38,6 @@ msgstr "Жаңы байланыш четке кагылды"
 msgid "Credentials are required"
 msgstr "Ишенимдүү маалымат талап кылынат"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC катага туш болду:"
-
 msgid "Hide/Show the control bar"
 msgstr "Башкаруу тилкесин жашыруу/көрсөтүү"
 
@@ -352,3 +349,6 @@ msgstr "Документтер"
 
 msgid "Drag Viewport"
 msgstr "Көрүү портун сүйрөө"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC катага туш болду:"

@@ -38,9 +38,6 @@ msgstr "Konexio berria baztertu da"
 msgid "Credentials are required"
 msgstr "Kredentzialak behar dira"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC-k errore bat aurkitu du:"
-
 msgid "Hide/Show the control bar"
 msgstr "Ezkutatu/Erakutsi kontrol-barra"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentazioa"
 
 msgid "Drag Viewport"
 msgstr "Arrastatu ikuspegia"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC-k errore bat aurkitu du:"

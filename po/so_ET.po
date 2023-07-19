@@ -38,9 +38,6 @@ msgstr "Xiriirka cusub waa la diiday"
 msgid "Credentials are required"
 msgstr "Waxyaabaha aqoonsiga ayaa loo baahan yahay"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC waxay la kulantay cilad:"
-
 msgid "Hide/Show the control bar"
 msgstr "Qari/muuji barta kontoroolka"
 
@@ -352,3 +349,6 @@ msgstr "Documentation"
 
 msgid "Drag Viewport"
 msgstr "Deegaanka Jiid"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC waxay la kulantay cilad:"

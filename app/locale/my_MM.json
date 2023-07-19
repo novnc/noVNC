@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ချိတ်ဆက်မှုအသစ်ကို အကြောင်းပြချက်ဖြင့် ပယ်ချခဲ့သည်",
     "New connection has been rejected": "ချိတ်ဆက်မှုအသစ်ကို ငြင်းပယ်ထားသည်",
     "Credentials are required": "အထောက်အထားများ လိုအပ်သည်",
-    "noVNC encountered an error:": "noVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-",
     "Hide/Show the control bar": "ထိန်းချုပ်မှုဘားကို ဖျောက်/ပြပါ",
     "Drag": "ဆွဲ",
     "Move/Drag Viewport": "ရှုခင်းကိုရွှေ့/ဆွဲပါ",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ဗီဒီယိုမုဒ် အကျယ်-",
     "Video Mode Height:": "ဗီဒီယိုမုဒ် အမြင့်-",
     "Documentation": "စာရွက်စာတမ်း",
-    "Drag Viewport": "ရှုထောင့်ကို ဆွဲယူပါ"
+    "Drag Viewport": "ရှုထောင့်ကို ဆွဲယူပါ",
+    "KasmVNC encountered an error:": "KasmVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-"
 }

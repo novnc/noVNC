@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Konexio berria arrazoiarekin baztertu da:",
     "New connection has been rejected": "Konexio berria baztertu da",
     "Credentials are required": "Kredentzialak behar dira",
-    "noVNC encountered an error:": "noVNC-k errore bat aurkitu du:",
     "Hide/Show the control bar": "Ezkutatu/Erakutsi kontrol-barra",
     "Drag": "Arrastatu",
     "Move/Drag Viewport": "Mugitu/Arrastatu ikuspegia",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Bideo moduaren zabalera:",
     "Video Mode Height:": "Bideo moduaren altuera:",
     "Documentation": "Dokumentazioa",
-    "Drag Viewport": "Arrastatu ikuspegia"
+    "Drag Viewport": "Arrastatu ikuspegia",
+    "KasmVNC encountered an error:": "KasmVNC-k errore bat aurkitu du:"
 }

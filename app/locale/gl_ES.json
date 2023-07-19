@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "A nova conexión foi rexeitada polo motivo: ",
     "New connection has been rejected": "Rexeitouse a nova conexión",
     "Credentials are required": "Requírense credenciais",
-    "noVNC encountered an error:": "noVNC atopou un erro:",
     "Hide/Show the control bar": "Ocultar/Mostrar a barra de control",
     "Drag": "Arrastrar",
     "Move/Drag Viewport": "Mover/Arrastrar a xanela",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Ancho do modo de vídeo:",
     "Video Mode Height:": "Altura do modo de vídeo:",
     "Documentation": "Documentación",
-    "Drag Viewport": "Arrastrar a xanela"
+    "Drag Viewport": "Arrastrar a xanela",
+    "KasmVNC encountered an error:": "KasmVNC atopou un erro:"
 }

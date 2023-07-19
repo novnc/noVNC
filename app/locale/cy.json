@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Cysylltiad newydd wedi'i wrthod gyda rheswm:",
     "New connection has been rejected": "Cysylltiad newydd wedi'i wrthod",
     "Credentials are required": "Mae angen tystlythyrau",
-    "noVNC encountered an error:": " daeth noVNC ar draws gwall:",
     "Hide/Show the control bar": "Cuddio/Dangos y bar rheoli",
     "Drag": "Llusgo",
     "Move/Drag Viewport": "Symud/Llusgwch Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Lled Modd Fideo:",
     "Video Mode Height:": "Uchder Modd Fideo:",
     "Documentation": "Dogfennaeth",
-    "Drag Viewport": "Llusgwch Viewport"
+    "Drag Viewport": "Llusgwch Viewport",
+    "KasmVNC encountered an error:": "Mae KasmVNC wedi dod ar draws gwall:"
 }

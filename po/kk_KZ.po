@@ -38,9 +38,6 @@ msgstr "Жаңа қосылым қабылданбады"
 msgid "Credentials are required"
 msgstr "Тіркелгі деректері қажет"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC қатеге тап болды:"
-
 msgid "Hide/Show the control bar"
 msgstr "Басқару жолағын жасыру/көрсету"
 
@@ -352,3 +349,6 @@ msgstr "Құжаттама"
 
 msgid "Drag Viewport"
 msgstr "Көру алаңын сүйреу"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC қатеге тап болды:"

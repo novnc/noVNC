@@ -38,9 +38,6 @@ msgstr "Az új kapcsolat elutasítva"
 msgid "Credentials are required"
 msgstr "Megjelenítő adatok szükségesek"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC hibát észlelt:"
-
 msgid "Hide/Show the control bar"
 msgstr "A vezérlősáv elrejtése/megjelenítése"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentáció"
 
 msgid "Drag Viewport"
 msgstr "Nézetablak húzása"
+
+msgid "KasmVNC encountered an error:"
+msgstr "A KasmVNC hibát észlelt:"

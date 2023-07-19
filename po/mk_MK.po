@@ -38,9 +38,6 @@ msgstr "Новата врска е одбиена"
 msgid "Credentials are required"
 msgstr "Потребни се акредитиви"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC наиде на грешка:"
-
 msgid "Hide/Show the control bar"
 msgstr "Сокриј/Покажи ја контролната лента"
 
@@ -352,3 +349,6 @@ msgstr "Документација"
 
 msgid "Drag Viewport"
 msgstr "Повлечете го погледот"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC наиде на грешка:"

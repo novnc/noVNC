@@ -71,9 +71,6 @@ msgid "Credentials are required"
 msgstr "Credenciais são obrigatórias"
 
 #: ../vnc.html:61
-msgid "noVNC encountered an error:"
-msgstr "O noVNC encontrou um erro:"
-
 #: ../vnc.html:71
 msgid "Hide/Show the control bar"
 msgstr "Esconder/mostrar a barra de controles"
@@ -441,3 +438,6 @@ msgstr "Documentação"
 
 msgid "Drag Viewport"
 msgstr "Arrastar janela de visualização"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC encontrou um erro:"

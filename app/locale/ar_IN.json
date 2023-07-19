@@ -1,7 +1,7 @@
 {
-    "Connecting...": ".ﻞﻴﺻﻮﺗ",
-    "Disconnecting...": ". ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻗ",
-    "Reconnecting...": ". ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ",
+    "Connecting...": "ﻞﻴﺻﻮﺗ",
+    "Disconnecting...": " ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻗ",
+    "Reconnecting...": " ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ",
     "Internal error": "ﻲﻠﺧﺍﺩ ﺄﻄﺧ",
     "Must set host": "ﻒﻴﻀﻤﻟﺍ ﻦﻴﻴﻌﺗ ﺐﺠﻳ",
     "Connected (encrypted) to ": "ـﺑ (ﺮﻔﺸﻣ) ﻞﺼﺘﻣ",
@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ﺐﺒﺴﺑ ﺪﻳﺪﺠﻟﺍ ﻝﺎﺼﺗﻻ﻿ﺍ ﺾﻓﺭ ﻢﺗ",
     "New connection has been rejected": "ﺪﻳﺪﺠﻟﺍ ﻝﺎﺼﺗﻻ﻿ﺍ ﺾﻓﺭ ﻢﺗ",
     "Credentials are required": "ﺔﺑﻮﻠﻄﻣ ﺩﺎﻤﺘﻋﻻ﻿ﺍ ﻕﺍﺭﻭﺃ",
-    "noVNC encountered an error:": "ﺄﻄﺧ noVNC ﻪﺟﺍﻭ",
     "Hide/Show the control bar": "ﻢﻜﺤﺘﻟﺍ ﻂﻳﺮﺷ ﺭﺎﻬﻇﺇ / ءﺎﻔﺧﺇ",
     "Drag": "ﺮﺠﻳ",
     "Move/Drag Viewport": "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳ / ﻞﻘﻧ",
@@ -33,7 +32,7 @@
     "Ctrl+Alt+Del": "Ctrl + Alt + Del",
     "Send Ctrl-Alt-Del": "Ctrl-Alt-Del ﻝﺎﺳﺭﺇ",
     "Shutdown/Reboot": "ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ",
-    "Shutdown/Reboot...": ". ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ",
+    "Shutdown/Reboot...": " ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ",
     "Power": "ﺓﻮﻗ",
     "Shutdown": "ﻖﻠﻏﺍ",
     "Reboot": "ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺍ",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ﻮﻳﺪﻴﻔﻟﺍ ﻊﺿﻭ ﺽﺮﻋ",
     "Video Mode Height:": "ﻮﻳﺪﻴﻔﻟﺍ ﻊﺿﻭ ﻉﺎﻔﺗﺭﺍ",
     "Documentation": "ﻖﻴﺛﻮﺗ",
-    "Drag Viewport": "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳﺍ"
+    "Drag Viewport": "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳﺍ",
+    "KasmVNC encountered an error:": "ﺄﻄﺧ KasmVNC ﻪﺟﺍﻭ"
 }

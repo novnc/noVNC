@@ -38,9 +38,6 @@ msgstr "Яңа элемтә кире кагылды"
 msgid "Credentials are required"
 msgstr "Сертификатлар кирәк"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC хата белән очрашты:"
-
 msgid "Hide/Show the control bar"
 msgstr "Контроль тактаны яшерегез / күрсәтегез"
 
@@ -352,3 +349,6 @@ msgstr "Документация"
 
 msgid "Drag Viewport"
 msgstr "Визпортны тарту"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC хата белән очрашты:"

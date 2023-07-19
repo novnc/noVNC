@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nové pripojenie bolo odmietnuté s dôvodom: ",
     "New connection has been rejected": "Nové pripojenie bolo odmietnuté",
     "Credentials are required": "Vyžadujú sa poverenia",
-    "noVNC encountered an error:": "noVNC zaznamenalo chybu:",
     "Hide/Show the control bar": "Skryť/Zobraziť ovládací panel",
     "Drag": "Pretiahnuť",
     "Move/Drag Viewport": "Presunúť/pretiahnuť výrez",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Šírka režimu videa:",
     "Video Mode Height:": "Výška režimu videa:",
     "Documentation": "dokumentácia",
-    "Drag Viewport": "Pretiahnuť výrez"
+    "Drag Viewport": "Pretiahnuť výrez",
+    "KasmVNC encountered an error:": "KasmVNC narazil na chybu:"
 }

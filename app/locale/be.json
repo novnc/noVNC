@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Новае злучэнне было адхілена па прычыне: ",
     "New connection has been rejected": "Новае злучэнне было адхілена",
     "Credentials are required": "Патрабуюцца ўліковыя даныя",
-    "noVNC encountered an error:": "noVNC выявіў памылку:",
     "Hide/Show the control bar": "Схаваць/паказаць панэль кіравання",
     "Drag": "перацягнуць",
     "Move/Drag Viewport": "Перамясціць/перацягнуць акно прагляду",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Шырыня рэжыму відэа:",
     "Video Mode Height:": "Вышыня рэжыму відэа:",
     "Documentation": "Дакументацыя",
-    "Drag Viewport": "Перацягнуць акно прагляду"
+    "Drag Viewport": "Перацягнуць акно прагляду",
+    "KasmVNC encountered an error:": "KasmVNC выявіў памылку:"
 }

@@ -38,9 +38,6 @@ msgstr "La nouvelle connexion a été rejetée"
 msgid "Credentials are required"
 msgstr "Les justificatifs sont obligatoires"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC a rencontré une erreur :"
-
 msgid "Hide/Show the control bar"
 msgstr "Masquer/Afficher la barre de contrôle"
 
@@ -352,3 +349,6 @@ msgstr "Documentation"
 
 msgid "Drag Viewport"
 msgstr "Faire glisser la fenêtre"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC a rencontré une erreur :"

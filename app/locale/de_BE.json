@@ -11,7 +11,6 @@
     "New connection has been rejected with reason: ": "Verbindung wurde aus folgendem Grund abgelehnt: ",
     "New connection has been rejected": "Verbindung wurde abgelehnt",
     "Password is required": "Passwort ist erforderlich",
-    "noVNC encountered an error:": "Ein Fehler ist aufgetreten:",
     "Hide/Show the control bar": "Kontrollleiste verstecken/anzeigen",
     "Move/Drag Viewport": "Ansichtsfenster verschieben/ziehen",
     "viewport drag": "Ansichtsfenster ziehen",
@@ -124,5 +123,6 @@
     "Video Mode Width:": "Breite des Videomodus:",
     "Video Mode Height:": "Höhe im Videomodus:",
     "Documentation": "Dokumentation",
-    "Drag Viewport": "Darstellungsfenster ziehen"
+    "Drag Viewport": "Darstellungsfenster ziehen",
+    "KasmVNC encountered an error:": "KasmVNC hat einen Fehler festgestellt:"
 }

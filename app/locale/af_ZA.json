@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nuwe verbinding is verwerp met rede:",
     "New connection has been rejected": "Nuwe verbinding is afgekeur",
     "Credentials are required": "Geloofsbriewe word vereis",
-    "noVNC encountered an error:": "noVNC het 'n fout teëgekom:",
     "Hide/Show the control bar": "Versteek/wys die beheerbalk",
     "Drag": "Sleep",
     "Move/Drag Viewport": "Skuif/sleep Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Videomoduswydte:",
     "Video Mode Height:": "Videomodus Hoogte:",
     "Documentation": "Dokumentasie",
-    "Drag Viewport": "Sleep Viewport"
+    "Drag Viewport": "Sleep Viewport",
+    "KasmVNC encountered an error:": "KasmVNC het 'n fout teëgekom:"
 }

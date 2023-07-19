@@ -38,9 +38,6 @@ msgstr "Konnessjoni ġdida ġiet miċħuda"
 msgid "Credentials are required"
 msgstr "Kredenzjali huma meħtieġa"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC sab żball:"
-
 msgid "Hide/Show the control bar"
 msgstr "Aħbi/Uri l-bar tal-kontroll"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentazzjoni"
 
 msgid "Drag Viewport"
 msgstr "Dragg Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC iltaqa' ma' żball:"

@@ -1,7 +1,7 @@
 {
-    "Connecting...": ". ןדניבראַפ",
-    "Disconnecting...": ". גניטקענאַקסיד",
-    "Reconnecting...": ". גניטקענאַקיר",
+    "Connecting...": " ןדניבראַפ",
+    "Disconnecting...": " גניטקענאַקסיד",
+    "Reconnecting...": " גניטקענאַקיר",
     "Internal error": "תועט ךעלרעני",
     "Must set host": "סאָבעלאַב ןלעטש ןזומ",
     "Connected (encrypted) to ": "וצ (דיטפּירקנע) ןדנובראפ",
@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "הביס טימ ןפראווראפ זיא רשק עיַינ",
     "New connection has been rejected": "ןפראווראפ זיא רשק עיַינ",
     "Credentials are required": "טגנאלראפ ןענעז זלאַשנעדערק",
-    "noVNC encountered an error:": "noVNC תועט אַ טרעטנאָלפּעג:",
     "Hide/Show the control bar": "ראַב לאָרטנאָק יד ןזיַיוו / ןטלאַהאַב",
     "Drag": "ןפּעלש",
     "Move/Drag Viewport": "טראָפּויוו ןפּעלש / ךאַמ",
@@ -33,7 +32,7 @@
     "Ctrl+Alt+Del": "Ctrl + Alt + Del",
     "Send Ctrl-Alt-Del": "Ctrl-Alt-Del ןקיש",
     "Shutdown/Reboot": "טאָאָבער / ןואַדטאַש",
-    "Shutdown/Reboot...": ". טאָאָבער / ןואַדטאַש",
+    "Shutdown/Reboot...": " טאָאָבער / ןואַדטאַש",
     "Power": "טפאַרק",
     "Shutdown": "ןואַדטאַש",
     "Reboot": "טאָאָבער",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "טיירב עדאָמ אעדיוו",
     "Video Mode Height:": "ךייה עדאָמ אעדיוו",
     "Documentation": "ןאָיטאַטנעמוקאָד",
-    "Drag Viewport": "טראָפּויוו ןפּעלש"
+    "Drag Viewport": "טראָפּויוו ןפּעלש",
+    "KasmVNC encountered an error:": "KasmVNC תועט אַ טרעטנאָלפּעג:"
 }

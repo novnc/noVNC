@@ -38,9 +38,6 @@ msgstr "Muunganisho mpya umekataliwa"
 msgid "Credentials are required"
 msgstr "Vyeti vitahitajika"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ilipata hitilafu:"
-
 msgid "Hide/Show the control bar"
 msgstr "Ficha/Onyesha upau wa kudhibiti"
 
@@ -352,3 +349,6 @@ msgstr "Nyaraka"
 
 msgid "Drag Viewport"
 msgstr "Buruta Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ilipata hitilafu:"

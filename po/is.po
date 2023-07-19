@@ -38,9 +38,6 @@ msgstr "Nýrri tengingu hefur verið hafnað"
 msgid "Credentials are required"
 msgstr "Leikskilríki eru nauðsynleg"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC rakst á villu:"
-
 msgid "Hide/Show the control bar"
 msgstr "Fela/sýna stjórnstikuna"
 
@@ -352,3 +349,6 @@ msgstr "Skjölun"
 
 msgid "Drag Viewport"
 msgstr "Dragðu útsýnisgátt"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC rakst á villu:"

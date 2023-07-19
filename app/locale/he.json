@@ -1,7 +1,7 @@
 {
-    "Connecting...": ".רשֵׁקַמְ",
-    "Disconnecting...": ".קתנתמ",
-    "Reconnecting...": ".שדחמ רבחתמ",
+    "Connecting...": "רשֵׁקַמְ",
+    "Disconnecting...": "קתנתמ",
+    "Reconnecting...": "שדחמ רבחתמ",
     "Internal error": "תימינפ האיגש",
     "Must set host": "חראמ רידגהל בייח",
     "Connected (encrypted) to ": "ל (ןפצומ) רבוחמ",
@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "הביס םע החדנ שדח רוביח",
     "New connection has been rejected": "החדנ שדח רוביח",
     "Credentials are required": "םירושיא םישרדנ",
-    "noVNC encountered an error:": "noVNC האיגשב לקתנ:",
     "Hide/Show the control bar": "הרקבה לגרס תא גצה/רתסה",
     "Drag": "רוֹרגלִ",
     "Move/Drag Viewport": "טבמ תדוקנ רורג/זזה",
@@ -33,7 +32,7 @@
     "Ctrl+Alt+Del": "Ctrl+Alt+Del",
     "Send Ctrl-Alt-Del": "Ctrl-Alt-Del חלש",
     "Shutdown/Reboot": "שדחמ לוחתא/יוביכ",
-    "Shutdown/Reboot...": ".לוחתא/יוביכ",
+    "Shutdown/Reboot...": "לוחתא/יוביכ",
     "Power": "חַוֹכּ",
     "Shutdown": "תובכל",
     "Reboot": "לחֵתאַלְ",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ואדיו בצמ בחור",
     "Video Mode Height:": "ואדיו בצמ הבוג",
     "Documentation": "דועית",
-    "Drag Viewport": "טבמ תדוקנ רורג"
+    "Drag Viewport": "טבמ תדוקנ רורג",
+    "KasmVNC encountered an error:": "KasmVNC האיגשב לקתנ:"
 }

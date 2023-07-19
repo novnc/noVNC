@@ -71,9 +71,6 @@ msgid "Password is required"
 msgstr "Wachtwoord is vereist"
 
 #: ../vnc.html:80
-msgid "noVNC encountered an error:"
-msgstr "noVNC heeft een fout bemerkt:"
-
 #: ../vnc.html:90
 msgid "Hide/Show the control bar"
 msgstr "Verberg/Toon de bedieningsbalk"
@@ -303,21 +300,21 @@ msgid "Cancel"
 msgstr "Annuleren"
 
 #~ msgid "Disconnect timeout"
-#~ msgstr """""""""""Timeout tijdens verbreken van verbinding"
+#~ msgstr """"""""""""Timeout tijdens verbreken van verbinding"
 
 #~ msgid "Local Downscaling"
-#~ msgstr """""""""""Lokaal Neerschalen"
+#~ msgstr """"""""""""Lokaal Neerschalen"
 
 #~ msgid "Local Cursor"
-#~ msgstr """""""""""Lokale Cursor"
+#~ msgstr """"""""""""Lokale Cursor"
 
 #~ msgid "Canvas not supported."
-#~ msgstr """""""""""Canvas wordt niet ondersteund."
+#~ msgstr """"""""""""Canvas wordt niet ondersteund."
 
 #~ msgid ""
 #~ "Forcing clipping mode since scrollbars aren't supported by IE in "
 #~ "fullscreen"
-#~ msgstr """"""""""""
+#~ msgstr """""""""""""
 #~ "''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-"
 #~ "modus in IE niet worden ondersteund"
 
@@ -485,3 +482,6 @@ msgstr "Documentatie"
 
 msgid "Drag Viewport"
 msgstr "Sleep Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC heeft een fout aangetroffen:"

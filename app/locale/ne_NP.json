@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "नयाँ जडान कारणले अस्वीकार गरिएको छ:",
     "New connection has been rejected": "नयाँ जडान अस्वीकार गरिएको छ",
     "Credentials are required": "प्रमाणपत्र आवश्यक छ",
-    "noVNC encountered an error:": "noVNC ले त्रुटिको सामना गर्यो:",
     "Hide/Show the control bar": "नियन्त्रण पट्टी लुकाउनुहोस्/देखाउनुहोस्",
     "Drag": "तान्नुहोस्",
     "Move/Drag Viewport": "भ्यूपोर्ट सार्नुहोस्/तान्नुहोस्",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "भिडियो मोड चौडाई:",
     "Video Mode Height:": "भिडियो मोड उचाइ:",
     "Documentation": "कागजात",
-    "Drag Viewport": "ड्र्याग भ्यूपोर्ट"
+    "Drag Viewport": "ड्र्याग भ्यूपोर्ट",
+    "KasmVNC encountered an error:": "KasmVNC ले त्रुटिको सामना गर्यो:"
 }

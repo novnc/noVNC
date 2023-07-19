@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "নতুন সংযোগ কারণ সহ প্রত্যাখ্যান করা হয়েছে:",
     "New connection has been rejected": "নতুন সংযোগ প্রত্যাখ্যান করা হয়েছে",
     "Credentials are required": "শংসাপত্র প্রয়োজন",
-    "noVNC encountered an error:": "noVNC একটি ত্রুটির সম্মুখীন হয়েছে:",
     "Hide/Show the control bar": "কন্ট্রোল বার লুকান/দেখান",
     "Drag": "টেনে আনুন",
     "Move/Drag Viewport": "ভিউপোর্ট সরান/টেনে আনুন",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ভিডিও মোড প্রস্থ:",
     "Video Mode Height:": "ভিডিও মোড উচ্চতা:",
     "Documentation": "ডকুমেন্টেশন",
-    "Drag Viewport": "ভিউপোর্ট টানুন"
+    "Drag Viewport": "ভিউপোর্ট টানুন",
+    "KasmVNC encountered an error:": "KasmVNC একটি ত্রুটির সম্মুখীন হয়েছে:"
 }

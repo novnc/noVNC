@@ -38,9 +38,6 @@ msgstr "Yangi ulanish rad etildi"
 msgid "Credentials are required"
 msgstr "Hisob ma'lumotlari talab qilinadi"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC xatolikka duch keldi:"
-
 msgid "Hide/Show the control bar"
 msgstr "Boshqaruv panelini yashirish/ko'rsatish"
 
@@ -352,3 +349,6 @@ msgstr "Hujjatlar"
 
 msgid "Drag Viewport"
 msgstr "Ko'rish oynasini sudrab olib boring"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC xatolikka duch keldi:"

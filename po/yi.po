@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ". ןדניבראַפ"
+msgstr " ןדניבראַפ"
 
 msgid "Disconnecting..."
-msgstr ". גניטקענאַקסיד"
+msgstr " גניטקענאַקסיד"
 
 msgid "Reconnecting..."
-msgstr ". גניטקענאַקיר"
+msgstr " גניטקענאַקיר"
 
 msgid "Internal error"
 msgstr "תועט ךעלרעני"
@@ -37,9 +37,6 @@ msgstr "ןפראווראפ זיא רשק עיַינ"
 
 msgid "Credentials are required"
 msgstr "טגנאלראפ ןענעז זלאַשנעדערק"
-
-msgid "noVNC encountered an error:"
-msgstr "noVNC תועט אַ טרעטנאָלפּעג:"
 
 msgid "Hide/Show the control bar"
 msgstr "ראַב לאָרטנאָק יד ןזיַיוו / ןטלאַהאַב"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "טאָאָבער / ןואַדטאַש"
 
 msgid "Shutdown/Reboot..."
-msgstr ". טאָאָבער / ןואַדטאַש"
+msgstr " טאָאָבער / ןואַדטאַש"
 
 msgid "Power"
 msgstr "טפאַרק"
@@ -352,3 +349,6 @@ msgstr "ןאָיטאַטנעמוקאָד"
 
 msgid "Drag Viewport"
 msgstr "טראָפּויוו ןפּעלש"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC תועט אַ טרעטנאָלפּעג:"

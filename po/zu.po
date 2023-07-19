@@ -38,9 +38,6 @@ msgstr "Uxhumano olusha lunqatshiwe"
 msgid "Credentials are required"
 msgstr "Kudingeka izifakazo"
 
-msgid "noVNC encountered an error:"
-msgstr "i-noVNC ihlangabezane nephutha:"
-
 msgid "Hide/Show the control bar"
 msgstr "Fihla/Bonisa ibha yokulawula"
 
@@ -352,3 +349,6 @@ msgstr "Amadokhumenti"
 
 msgid "Drag Viewport"
 msgstr "Hudula imbobo yokubuka"
+
+msgid "KasmVNC encountered an error:"
+msgstr "I-KasmVNC ihlangabezane nephutha:"

@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Kết nối mới đã bị từ chối với lý do:",
     "New connection has been rejected": "Kết nối mới đã bị từ chối",
     "Credentials are required": "Bằng chứng được yêu cầu",
-    "noVNC encountered an error:": "noVNC gặp lỗi:",
     "Hide/Show the control bar": "Ẩn/Hiện thanh điều khiển",
     "Drag": "Lôi kéo",
     "Move/Drag Viewport": "Di chuyển/Kéo cổng xem",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Chiều rộng chế độ video:",
     "Video Mode Height:": "Chiều cao chế độ video:",
     "Documentation": "Tài liệu",
-    "Drag Viewport": "Kéo khung nhìn"
+    "Drag Viewport": "Kéo khung nhìn",
+    "KasmVNC encountered an error:": "KasmVNC gặp lỗi:"
 }

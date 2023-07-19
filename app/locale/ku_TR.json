@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Pêwendiya nû bi sedem hate red kirin:",
     "New connection has been rejected": "Têkiliya nû hat redkirin",
     "Credentials are required": "Peymanname hewce ne",
-    "noVNC encountered an error:": "noVNC rastî xeletiyek hat:",
     "Hide/Show the control bar": "Bara kontrolê veşêre/nîşan bide",
     "Drag": "Xwêrvekişandin",
     "Move/Drag Viewport": "Gove/Drag Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Pirahiya Moda Vîdyoyê:",
     "Video Mode Height:": "Bilindahiya Moda Vîdyoyê:",
     "Documentation": "Belgekirin",
-    "Drag Viewport": "Portê Dîmenê Kaş bikin"
+    "Drag Viewport": "Portê Dîmenê Kaş bikin",
+    "KasmVNC encountered an error:": "KasmVNC rastî xeletiyek hat:"
 }

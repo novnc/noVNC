@@ -38,9 +38,6 @@ msgstr "Nije ferbining is ôfwiisd"
 msgid "Credentials are required"
 msgstr "Referinsjes binne ferplicht"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC tsjinkaam in flater:"
-
 msgid "Hide/Show the control bar"
 msgstr "De kontrôlebalke ferbergje / sjen litte"
 
@@ -352,3 +349,6 @@ msgstr "Dokumintaasje"
 
 msgid "Drag Viewport"
 msgstr "Sleep Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC tsjinkaam in flater:"

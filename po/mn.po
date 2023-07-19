@@ -38,9 +38,6 @@ msgstr "Шинэ холболтоос татгалзсан"
 msgid "Credentials are required"
 msgstr "Итгэмжлэх жуух бичиг шаардлагатай"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC алдаа гарлаа:"
-
 msgid "Hide/Show the control bar"
 msgstr "Хяналтын мөрийг нуух/ харуулах"
 
@@ -352,3 +349,6 @@ msgstr "Баримт бичиг"
 
 msgid "Drag Viewport"
 msgstr "Харах цонхыг чирэх"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC алдаа гарлаа:"

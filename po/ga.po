@@ -38,9 +38,6 @@ msgstr "Diúltaíodh do cheangal nua"
 msgid "Credentials are required"
 msgstr "Tá dintiúir ag teastáil"
 
-msgid "noVNC encountered an error:"
-msgstr "Tharla earráid ar noVNC:"
-
 msgid "Hide/Show the control bar"
 msgstr "Folaigh/Taispeáin an barra rialaithe"
 
@@ -352,3 +349,6 @@ msgstr "Doiciméad"
 
 msgid "Drag Viewport"
 msgstr "Tarraing Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "Tharla earráid i KasmVNC:"

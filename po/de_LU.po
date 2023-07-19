@@ -38,9 +38,6 @@ msgstr "Neue Verbindung wurde abgelehnt"
 msgid "Credentials are required"
 msgstr "Anmeldeinformationen sind erforderlich"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC hat einen Fehler festgestellt:"
-
 msgid "Hide/Show the control bar"
 msgstr "Steuerleiste ausblenden/einblenden"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentation"
 
 msgid "Drag Viewport"
 msgstr "Darstellungsfenster ziehen"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC hat einen Fehler festgestellt:"

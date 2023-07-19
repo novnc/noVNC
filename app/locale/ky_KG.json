@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Жаңы байланыш себеп менен четке кагылды:",
     "New connection has been rejected": "Жаңы байланыш четке кагылды",
     "Credentials are required": "Ишенимдүү маалымат талап кылынат",
-    "noVNC encountered an error:": "noVNC катага туш болду:",
     "Hide/Show the control bar": "Башкаруу тилкесин жашыруу/көрсөтүү",
     "Drag": "Сүрөө",
     "Move/Drag Viewport": "Көрүү портун жылдыруу/сүйрөө",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Видео режиминин туурасы:",
     "Video Mode Height:": "Видео режиминин бийиктиги:",
     "Documentation": "Документтер",
-    "Drag Viewport": "Көрүү портун сүйрөө"
+    "Drag Viewport": "Көрүү портун сүйрөө",
+    "KasmVNC encountered an error:": "KasmVNC катага туш болду:"
 }

@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Нова връзка е отхвърлена с причина:",
     "New connection has been rejected": "Нова връзка е отхвърлена",
     "Credentials are required": "Изискват се идентификационни данни",
-    "noVNC encountered an error:": "noVNC откри грешка:",
     "Hide/Show the control bar": "Скриване/Показване на контролната лента",
     "Drag": "Плъзнете",
     "Move/Drag Viewport": "Преместване/плъзгане на изгледен прозорец",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Ширина на видео режим:",
     "Video Mode Height:": "Височина на видео режим:",
     "Documentation": "документация",
-    "Drag Viewport": "Изглед с плъзгане"
+    "Drag Viewport": "Изглед с плъзгане",
+    "KasmVNC encountered an error:": "KasmVNC откри грешка:"
 }

@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nova povezava je bila zavrnjena z razlogom: ",
     "New connection has been rejected": "Nova povezava je bila zavrnjena",
     "Credentials are required": "Potrebne so poverilnice",
-    "noVNC encountered an error:": "noVNC je naletel na napako:",
     "Hide/Show the control bar": "Skrij/prikaži nadzorno vrstico",
     "Drag": "povleci",
     "Move/Drag Viewport": "Premakni/povleci vidno polje",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Širina video načina:",
     "Video Mode Height:": "Višina video načina:",
     "Documentation": "Dokumentacija",
-    "Drag Viewport": "Povlecite vidno polje"
+    "Drag Viewport": "Povlecite vidno polje",
+    "KasmVNC encountered an error:": "KasmVNC je naletel na napako:"
 }

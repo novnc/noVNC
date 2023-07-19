@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ". ﻝﻮﻠښﻧ "
+msgstr " ﻝﻮﻠښﻧ "
 
 msgid "Disconnecting..."
-msgstr ". ﻝﻮﮐ ﻊﻄﻘﻨﻣ"
+msgstr " ﻝﻮﮐ ﻊﻄﻘﻨﻣ"
 
 msgid "Reconnecting..."
-msgstr ". ﻝﻮﻠښﻧ ﺎﯿﺑ"
+msgstr " ﻝﻮﻠښﻧ ﺎﯿﺑ"
 
 msgid "Internal error"
 msgstr "ﻪﻨﺗﻭﺮﯧﺗ ﻲﻠﺧﺍﺩ"
@@ -37,9 +37,6 @@ msgstr "ﯼﻮﺷ ﺩﺭ ﻁﺎﺒﺗﺭﺍ ﯼﻮﻧ"
 
 msgid "Credentials are required"
 msgstr "ﻩﺩ ﺎﯿﺗړﺍ ﻭﺩﺎﻨﺳﺍ ﺩ"
-
-msgid "noVNC encountered an error:"
-msgstr "noVNC ﻮﺷ ﺦﻣ ﻩﺮﺳ ﯥﻨﺗﻭﺮﯧﺗ ﯤﻮﯾ ﺩ:"
 
 msgid "Hide/Show the control bar"
 msgstr "ﺉړﮐ ﻩﺭﺎﮑښ / ﺉړﮐ ټﭘ ﺭﺎﺑ ﻝﻭﺮټﻨﮐ ﺩ"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "ټﻮﺒﯾﺭ / ﺪﻨﺑ"
 
 msgid "Shutdown/Reboot..."
-msgstr ". ټﻮﺒﯾﺭ / ﺪﻨﺑ"
+msgstr " ټﻮﺒﯾﺭ / ﺪﻨﺑ"
 
 msgid "Power"
 msgstr "ﮎﺍﻮځ"
@@ -352,3 +349,6 @@ msgstr "ﺩﺎﻨﺳﺍ"
 
 msgid "Drag Viewport"
 msgstr "ګﯾﺭډ ﺪﯿﻟ ﺪﯿﻟ ﺩ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ﻮﺷ ﺦﻣ ﻩﺮﺳ ﯥﻨﺗﻭﺮﯧﺗ ﯤﻮﯾ ﺩ:"

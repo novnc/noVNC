@@ -38,9 +38,6 @@ msgstr "Noua conexiune a fost respinsă"
 msgid "Credentials are required"
 msgstr "Sunt necesare acreditări"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC a întâmpinat o eroare:"
-
 msgid "Hide/Show the control bar"
 msgstr "Ascunde/Afișează bara de control"
 
@@ -352,3 +349,6 @@ msgstr "Documentație"
 
 msgid "Drag Viewport"
 msgstr "Trasați fereastra de vizualizare"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC a întâmpinat o eroare:"

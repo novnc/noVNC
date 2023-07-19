@@ -55,9 +55,6 @@ msgid "Disconnect timeout"
 msgstr "Tiempo de desconexión agotado"
 
 #: ../vnc.html:89
-msgid "noVNC encountered an error:"
-msgstr "noVNC ha encontrado un error:"
-
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
 msgstr "Ocultar/Mostrar la barra de control"
@@ -470,3 +467,6 @@ msgstr "Documentación"
 
 msgid "Drag Viewport"
 msgstr "Arrastrar ventana gráfica"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC encontró un error:"

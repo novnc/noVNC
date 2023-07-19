@@ -69,9 +69,6 @@ msgid "Password is required"
 msgstr "請提供密碼"
 
 #: ../vnc.html:89
-msgid "noVNC encountered an error:"
-msgstr "noVNC 遇到一個錯誤："
-
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
 msgstr "顯示/隱藏控制列"
@@ -457,3 +454,6 @@ msgstr "文檔"
 
 msgid "Drag Viewport"
 msgstr "拖動視口"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC 遇到錯誤："

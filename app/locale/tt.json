@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Яңа бәйләнеш сәбәп белән кире кагылды:",
     "New connection has been rejected": "Яңа элемтә кире кагылды",
     "Credentials are required": "Сертификатлар кирәк",
-    "noVNC encountered an error:": "noVNC хата белән очрашты:",
     "Hide/Show the control bar": "Контроль тактаны яшерегез / күрсәтегез",
     "Drag": "Сөйләү",
     "Move/Drag Viewport": "Күрү / Күчереп карау",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Видео режимының киңлеге:",
     "Video Mode Height:": "Видео режим биеклеге:",
     "Documentation": "Документация",
-    "Drag Viewport": "Визпортны тарту"
+    "Drag Viewport": "Визпортны тарту",
+    "KasmVNC encountered an error:": "KasmVNC хата белән очрашты:"
 }

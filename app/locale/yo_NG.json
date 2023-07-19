@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "A ti kọ asopọ tuntun pẹlu idi:",
     "New connection has been rejected": "A ti kọ asopọ tuntun",
     "Credentials are required": "A nilo awọn iwe-ẹri",
-    "noVNC encountered an error:": "noVNC pade aṣiṣe kan:",
     "Hide/Show the control bar": "Fipamọ/Fi ọpa iṣakoso han",
     "Drag": "Fa",
     "Move/Drag Viewport": "Gbe/Fa Iwowo",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Ipo Fidio:",
     "Video Mode Height:": "Ipo Fidio Giga:",
     "Documentation": "Iwe iwe",
-    "Drag Viewport": "Fa Wiwo"
+    "Drag Viewport": "Fa Wiwo",
+    "KasmVNC encountered an error:": "KasmVNC pade aṣiṣe kan:"
 }

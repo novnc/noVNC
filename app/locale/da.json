@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Ny forbindelse er blevet afvist med grund: ",
     "New connection has been rejected": "Ny forbindelse er blevet afvist",
     "Credentials are required": "Legitimationsoplysninger er påkrævet",
-    "noVNC encountered an error:": "noVNC stødte på en fejl:",
     "Hide/Show the control bar": "Skjul/vis kontrollinjen",
     "Drag": "Træk",
     "Move/Drag Viewport": "Flyt/træk visningsport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Videotilstandsbredde:",
     "Video Mode Height:": "Video Mode Højde:",
     "Documentation": "Dokumentation",
-    "Drag Viewport": "Træk visningsport"
+    "Drag Viewport": "Træk visningsport",
+    "KasmVNC encountered an error:": "KasmVNC stødte på en fejl:"
 }

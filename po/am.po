@@ -38,9 +38,6 @@ msgstr "አዲስ ግንኙነት ውድቅ ተደርጓል"
 msgid "Credentials are required"
 msgstr "ማስረጃዎች ያስፈልጋሉ"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ስህተት አጋጥሞታል:"
-
 msgid "Hide/Show the control bar"
 msgstr "የቁጥጥር አሞሌን ደብቅ/ አሳይ"
 
@@ -352,3 +349,6 @@ msgstr "ሰነድ"
 
 msgid "Drag Viewport"
 msgstr "መመልከቻ ጎትት"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ስህተት አጋጥሞታል::"

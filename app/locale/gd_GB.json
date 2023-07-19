@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Chaidh ceangal ùr a dhiùltadh le adhbhar:",
     "New connection has been rejected": "Chaidh ceangal ùr a dhiùltadh",
     "Credentials are required": "Tha feum air teisteanasan",
-    "noVNC encountered an error:": "Thachair noVNC ri mearachd:",
     "Hide/Show the control bar": "Falaich/Seall am bàr-smachd",
     "Drag": "Slaod",
     "Move/Drag Viewport": "Gluais / Slaod Sealladh-amhairc",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Leud modh bhidio:",
     "Video Mode Height:": "Àrd modh bhidio:",
     "Documentation": "Sgrìobhainn",
-    "Drag Viewport": "Slaod am port-seallaidh"
+    "Drag Viewport": "Slaod am port-seallaidh",
+    "KasmVNC encountered an error:": "Thachair KasmVNC ri mearachd:"
 }

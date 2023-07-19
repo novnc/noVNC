@@ -38,9 +38,6 @@ msgstr "Nuwe verbinding is afgekeur"
 msgid "Credentials are required"
 msgstr "Geloofsbriewe word vereis"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC het 'n fout teëgekom:"
-
 msgid "Hide/Show the control bar"
 msgstr "Versteek/wys die beheerbalk"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentasie"
 
 msgid "Drag Viewport"
 msgstr "Sleep Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC het 'n fout teëgekom:"

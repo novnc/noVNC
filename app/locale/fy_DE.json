@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nije ferbining is ôfwiisd mei reden:",
     "New connection has been rejected": "Nije ferbining is ôfwiisd",
     "Credentials are required": "Referinsjes binne ferplicht",
-    "noVNC encountered an error:": "noVNC tsjinkaam in flater:",
     "Hide/Show the control bar": "De kontrôlebalke ferbergje / sjen litte",
     "Drag": "Slep",
     "Move/Drag Viewport": "Ferpleats / Sleep Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Breedte fan fideomodus:",
     "Video Mode Height:": "Hichte fan fideomodus:",
     "Documentation": "Dokumintaasje",
-    "Drag Viewport": "Sleep Viewport"
+    "Drag Viewport": "Sleep Viewport",
+    "KasmVNC encountered an error:": "KasmVNC tsjinkaam in flater:"
 }

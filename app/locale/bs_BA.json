@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nova veza je odbijena s razlogom: ",
     "New connection has been rejected": "Nova veza je odbijena",
     "Credentials are required": "Potrebni su akreditivi",
-    "noVNC encountered an error:": "noVNC je naišao na grešku:",
     "Hide/Show the control bar": "Sakrij/Prikaži kontrolnu traku",
     "Drag": "povuci",
     "Move/Drag Viewport": "Premjesti/povucite okvir za prikaz",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Širina video načina rada:",
     "Video Mode Height:": "Visina video načina:",
     "Documentation": "dokumentacija",
-    "Drag Viewport": "Drag Viewport"
+    "Drag Viewport": "Drag Viewport",
+    "KasmVNC encountered an error:": "KasmVNC je naišao na grešku:"
 }

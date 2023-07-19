@@ -38,9 +38,6 @@ msgstr "Nolavina ny fifandraisana vaovao"
 msgid "Credentials are required"
 msgstr "Ilaina ny fahazoan-dàlana"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC nahita hadisoana:"
-
 msgid "Hide/Show the control bar"
 msgstr "Afeno/Asehoy ny bara fanaraha-maso"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentation"
 
 msgid "Drag Viewport"
 msgstr "Drag Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "Nahita hadisoana ny KasmVNC:"

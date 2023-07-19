@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ".ﻞﻴﺻﻮﺗ"
+msgstr "ﻞﻴﺻﻮﺗ"
 
 msgid "Disconnecting..."
-msgstr ". ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻗ"
+msgstr " ﻝﺎﺼﺗﻻ﻿ﺍ ﻊﻄﻗ"
 
 msgid "Reconnecting..."
-msgstr ". ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ"
+msgstr " ﻝﺎﺼﺗﻻ﻿ﺍ ﺓﺩﺎﻋﺇ"
 
 msgid "Internal error"
 msgstr "ﻲﻠﺧﺍﺩ ﺄﻄﺧ"
@@ -37,9 +37,6 @@ msgstr "ﺪﻳﺪﺠﻟﺍ ﻝﺎﺼﺗﻻ﻿ﺍ ﺾﻓﺭ ﻢﺗ"
 
 msgid "Credentials are required"
 msgstr "ﺔﺑﻮﻠﻄﻣ ﺩﺎﻤﺘﻋﻻ﻿ﺍ ﻕﺍﺭﻭﺃ"
-
-msgid "noVNC encountered an error:"
-msgstr "ﺄﻄﺧ noVNC ﻪﺟﺍﻭ"
 
 msgid "Hide/Show the control bar"
 msgstr "ﻢﻜﺤﺘﻟﺍ ﻂﻳﺮﺷ ﺭﺎﻬﻇﺇ / ءﺎﻔﺧﺇ"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ"
 
 msgid "Shutdown/Reboot..."
-msgstr ". ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ"
+msgstr " ﻞﻴﻐﺸﺘﻟﺍ ﺓﺩﺎﻋﺇ / ﻞﻴﻐﺸﺘﻟﺍ ﻑﺎﻘﻳﺇ"
 
 msgid "Power"
 msgstr "ﺓﻮﻗ"
@@ -352,3 +349,6 @@ msgstr "ﻖﻴﺛﻮﺗ"
 
 msgid "Drag Viewport"
 msgstr "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳﺍ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "ﺄﻄﺧ KasmVNC ﻪﺟﺍﻭ"

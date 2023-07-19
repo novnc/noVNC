@@ -38,9 +38,6 @@ msgstr "ახალი კავშირი უარყოფილია"
 msgid "Credentials are required"
 msgstr "აუცილებელია რწმუნებათა სიგელები"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC შეექმნა შეცდომა:"
-
 msgid "Hide/Show the control bar"
 msgstr "საკონტროლო ზოლის დამალვა/ჩვენება"
 
@@ -352,3 +349,6 @@ msgstr "დოკუმენტაცია"
 
 msgid "Drag Viewport"
 msgstr "გადაათრიეთ ხედის პორტი"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC შეექმნა შეცდომა:"

@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "புதிய இணைப்பு காரணத்துடன் நிராகரிக்கப்பட்டது:",
     "New connection has been rejected": "புதிய இணைப்பு நிராகரிக்கப்பட்டது",
     "Credentials are required": "நற்சான்றிதழ்கள் தேவை",
-    "noVNC encountered an error:": "noVNC ஒரு பிழையை எதிர்கொண்டது:",
     "Hide/Show the control bar": "கட்டுப்பாட்டு பட்டியை மறை/காட்டு",
     "Drag": "இழு",
     "Move/Drag Viewport": "வியூபோர்ட்டை நகர்த்த/இழுக்கவும்",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "வீடியோ பயன்முறை அகலம்:",
     "Video Mode Height:": "வீடியோ பயன்முறை உயரம்:",
     "Documentation": "ஆவணம்",
-    "Drag Viewport": "வியூபோர்ட்டை இழுக்கவும்"
+    "Drag Viewport": "வியூபோர்ட்டை இழுக்கவும்",
+    "KasmVNC encountered an error:": "KasmVNC ஒரு பிழையை எதிர்கொண்டது:"
 }

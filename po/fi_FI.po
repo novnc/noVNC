@@ -38,9 +38,6 @@ msgstr "Uusi yhteys on hylätty"
 msgid "Credentials are required"
 msgstr "Kirjaustiedot vaaditaan"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC havaitsi virheen:"
-
 msgid "Hide/Show the control bar"
 msgstr "Piilota/näytä ohjauspalkki"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentointi"
 
 msgid "Drag Viewport"
 msgstr "Vedä näkymä"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC havaitsi virheen:"

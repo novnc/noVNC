@@ -38,9 +38,6 @@ msgstr "Пайвасти нав рад карда шуд"
 msgid "Credentials are required"
 msgstr "Маълумотнома талаб карда мешавад"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ба хатогӣ дучор шуд:"
-
 msgid "Hide/Show the control bar"
 msgstr "Пинҳон/нишон додани сатри идоракунӣ"
 
@@ -352,3 +349,6 @@ msgstr "Ҳуҷҷатҳо"
 
 msgid "Drag Viewport"
 msgstr "Кашолакунии Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ба хатогӣ дучор шуд:"

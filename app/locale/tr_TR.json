@@ -11,7 +11,6 @@
     "New connection has been rejected with reason: ": "Bağlantı aşağıdaki nedenlerden dolayı reddedildi: ",
     "New connection has been rejected": "Bağlantı reddedildi",
     "Password is required": "Şifre gerekli",
-    "noVNC encountered an error:": "Bir hata oluştu:",
     "Hide/Show the control bar": "Denetim masasını Gizle/Göster",
     "Move/Drag Viewport": "Görünümü Taşı/Sürükle",
     "viewport drag": "Görüntü penceresini sürükle",
@@ -124,5 +123,6 @@
     "Video Mode Width:": "Video Modu Genişliği:",
     "Video Mode Height:": "Video Modu Yüksekliği:",
     "Documentation": "Belgeler",
-    "Drag Viewport": "Görüntü Penceresini Sürükleyin"
+    "Drag Viewport": "Görüntü Penceresini Sürükleyin",
+    "KasmVNC encountered an error:": "KasmVNC bir hatayla karşılaştı:"
 }

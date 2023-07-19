@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "連線被拒絕，原因：",
     "New connection has been rejected": "連線被拒絕",
     "Password is required": "請提供密碼",
-    "noVNC encountered an error:": "noVNC 遇到一個錯誤：",
     "Hide/Show the control bar": "顯示/隱藏控制列",
     "Move/Drag Viewport": "拖放顯示範圍",
     "viewport drag": "顯示範圍拖放",
@@ -123,5 +122,6 @@
     "Video Mode Width:": "視頻模式寬度：",
     "Video Mode Height:": "視頻模式高度：",
     "Documentation": "文檔",
-    "Drag Viewport": "拖動視口"
+    "Drag Viewport": "拖動視口",
+    "KasmVNC encountered an error:": "KasmVNC 遇到錯誤："
 }

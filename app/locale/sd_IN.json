@@ -1,7 +1,7 @@
 {
-    "Connecting...": ".ﻱﺪﻨﻳﮃﻨﮘ",
-    "Disconnecting...": ". ﻲﻫﺁ ﻮﻴﻫﺭ ﻲﭤ ﻊﻄﻘﻨﻣ",
-    "Reconnecting...": ". ﻲﻫﺁ ﻮﻴﻫﺭ ﻱﮃﻨﮘ ﺮﻬﻴﭔ",
+    "Connecting...": "ﻱﺪﻨﻳﮃﻨﮘ",
+    "Disconnecting...": " ﻲﻫﺁ ﻮﻴﻫﺭ ﻲﭤ ﻊﻄﻘﻨﻣ",
+    "Reconnecting...": " ﻲﻫﺁ ﻮﻴﻫﺭ ﻱﮃﻨﮘ ﺮﻬﻴﭔ",
     "Internal error": "ﻲﻄﻠﻏ ﻲﻧﻭﺭﺪﻧﺍ",
     "Must set host": "ﻲﺟﺮﻬﮔ ﮠﺮڪ ﺭﺮﻘﻣ ﻥﺎﺑﺰﻴﻣ",
     "Connected (encrypted) to ": "ﻥﺎﺳ (ﻞﻴﭤ ٽﭘﺮڪﻧﺍ) ڪﻠﺴﻨﻣ",
@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ﻲﻫﺁ ﻮﻳﻭ ﻮﻴڪ ﺩﺭ ﺐﺒﺳ ﻦﺸڪﻴﻨڪ ﻦﻴﺌﻧ",
     "New connection has been rejected": "ﻲﻫﺁ ﻮﻳﻭ ﻮﻴڪ ﺩﺭ ﻦﺸڪﻴﻨڪ ﻥﻮﺌﻧ",
     "Credentials are required": "ﻲﻫﺁ ﺕﺭﻭﺮﺿ ﻲﺟ ﻦﭤﺎﺳ",
-    "noVNC encountered an error:": "noVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:",
     "Hide/Show the control bar": "ﺭﺎﺑ ﻝﻭﺮٽﻨڪ ﻮﻳﺭﺎﮑﻳڏ / ﻮﻳﺎڪﻟ",
     "Drag": "ﻮﻳڏﮀ",
     "Move/Drag Viewport": "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻴڪﮀ / ﻞﻘﺘﻨﻣ",
@@ -33,7 +32,7 @@
     "Ctrl+Alt+Del": "Ctrl+Alt+Del",
     "Send Ctrl-Alt-Del": "Ctrl-Alt-Del ﻮﻴﻠڪﻮﻣ",
     "Shutdown/Reboot": "ٽﻮﺒﻳﺭ / ﺪﻨﺑ",
-    "Shutdown/Reboot...": ". ٽﻮﺒﻳﺭ / ﺪﻨﺑ",
+    "Shutdown/Reboot...": " ٽﻮﺒﻳﺭ / ﺪﻨﺑ",
     "Power": "ﺖﻗﺎﻃ",
     "Shutdown": "ﻮﻳﺮڪ ﺪﻨﺑ",
     "Reboot": "ٽﻮﺒﻳﺭ",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ﺮڪﻳﻭ ڊﻮﻣ ﻮﻳڊﻭ",
     "Video Mode Height:": "ﻲﺋﺎﭽﻧﻭﺍ ڊﻮﻣ ﻮﻳڊﻭ",
     "Documentation": "ﺰﻳﻭﺎﺘﺳﺩ",
-    "Drag Viewport": "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻳڏﮀ"
+    "Drag Viewport": "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻳڏﮀ",
+    "KasmVNC encountered an error:": "KasmVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:"
 }

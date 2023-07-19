@@ -38,9 +38,6 @@ msgstr "Nové pripojenie bolo odmietnuté"
 msgid "Credentials are required"
 msgstr "Vyžadujú sa poverenia"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC zaznamenalo chybu:"
-
 msgid "Hide/Show the control bar"
 msgstr "Skryť/Zobraziť ovládací panel"
 
@@ -352,3 +349,6 @@ msgstr "dokumentácia"
 
 msgid "Drag Viewport"
 msgstr "Pretiahnuť výrez"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC narazil na chybu:"

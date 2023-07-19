@@ -68,9 +68,6 @@ msgid "Password is required"
 msgstr "Passwort ist erforderlich"
 
 #: ../vnc.html:89
-msgid "noVNC encountered an error:"
-msgstr "Ein Fehler ist aufgetreten:"
-
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
 msgstr "Kontrollleiste verstecken/anzeigen"
@@ -288,19 +285,19 @@ msgid "Canvas not supported."
 msgstr "Canvas nicht unterstützt."
 
 #~ msgid "Disconnect timeout"
-#~ msgstr """""""""""Zeitüberschreitung beim Trennen"
+#~ msgstr """"""""""""Zeitüberschreitung beim Trennen"
 
 #~ msgid "Local Downscaling"
-#~ msgstr """""""""""Lokales herunterskalieren"
+#~ msgstr """"""""""""Lokales herunterskalieren"
 
 #~ msgid "Local Cursor"
-#~ msgstr """""""""""Lokaler Mauszeiger"
+#~ msgstr """"""""""""Lokaler Mauszeiger"
 
 #~ msgid "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen"
-#~ msgstr """""""""""'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt"
+#~ msgstr """"""""""""'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt"
 
 #~ msgid "True Color"
-#~ msgstr """""""""""True Color"
+#~ msgstr """"""""""""True Color"
 
 msgid "Failed to connect to server"
 msgstr "Verbindung zum Server fehlgeschlagen"
@@ -478,3 +475,6 @@ msgstr "Dokumentation"
 
 msgid "Drag Viewport"
 msgstr "Darstellungsfenster ziehen"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC hat einen Fehler festgestellt:"

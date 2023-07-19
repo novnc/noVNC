@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ".ﻁﺎﺒﺗﺭﺍ ﯼﺭﺍﺮﻗﺮﺑ"
+msgstr "ﻁﺎﺒﺗﺭﺍ ﯼﺭﺍﺮﻗﺮﺑ"
 
 msgid "Disconnecting..."
-msgstr ".ﻁﺎﺒﺗﺭﺍ ﻊﻄﻗ"
+msgstr "ﻁﺎﺒﺗﺭﺍ ﻊﻄﻗ"
 
 msgid "Reconnecting..."
-msgstr ".ﺩﺪﺠﻣ ﻞﺻﻭ"
+msgstr "ﺩﺪﺠﻣ ﻞﺻﻭ"
 
 msgid "Internal error"
 msgstr "ﯽﻠﺧﺍﺩ ﯼﺎﻄﺧ"
@@ -37,9 +37,6 @@ msgstr "ﺖﺳﺍ ﻩﺪﺷ ﺩﺭ ﺪﯾﺪﺟ ﻝﺎﺼﺗﺍ"
 
 msgid "Credentials are required"
 msgstr "ﺖﺳﺍ ﻡﺯﻻ﻿ ﮎﺭﺍﺪﻣ"
-
-msgid "noVNC encountered an error:"
-msgstr "noVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:"
 
 msgid "Hide/Show the control bar"
 msgstr "ﻝﺮﺘﻨﮐ ﺭﺍﻮﻧ ﺶﯾﺎﻤﻧ/ﻥﺩﺮﮐ ﻥﺎﻬﻨﭘ"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ"
 
 msgid "Shutdown/Reboot..."
-msgstr ".ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ"
+msgstr "ﺩﺪﺠﻣ ﯼﺯﺍﺪﻧﺍ ﻩﺍﺭ/ﻥﺩﺮﮐ ﺵﻮﻣﺎﺧ"
 
 msgid "Power"
 msgstr "ﺕﺭﺪﻗ"
@@ -352,3 +349,6 @@ msgstr "ﺕﺍﺪﻨﺘﺴﻣ"
 
 msgid "Drag Viewport"
 msgstr "ﺕﺭﻮﭙﯾﺎﻤﻧ ﮒﺭﺩ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:"

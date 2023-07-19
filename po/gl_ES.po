@@ -38,9 +38,6 @@ msgstr "Rexeitouse a nova conexión"
 msgid "Credentials are required"
 msgstr "Requírense credenciais"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC atopou un erro:"
-
 msgid "Hide/Show the control bar"
 msgstr "Ocultar/Mostrar a barra de control"
 
@@ -352,3 +349,6 @@ msgstr "Documentación"
 
 msgid "Drag Viewport"
 msgstr "Arrastrar a xanela"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC atopou un erro:"

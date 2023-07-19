@@ -38,9 +38,6 @@ msgstr "Нова връзка е отхвърлена"
 msgid "Credentials are required"
 msgstr "Изискват се идентификационни данни"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC откри грешка:"
-
 msgid "Hide/Show the control bar"
 msgstr "Скриване/Показване на контролната лента"
 
@@ -352,3 +349,6 @@ msgstr "документация"
 
 msgid "Drag Viewport"
 msgstr "Изглед с плъзгане"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC откри грешка:"

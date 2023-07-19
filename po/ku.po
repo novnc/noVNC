@@ -38,9 +38,6 @@ msgstr "Têkiliya nû hat redkirin"
 msgid "Credentials are required"
 msgstr "Peymanname hewce ne"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC rastî xeletiyek hat:"
-
 msgid "Hide/Show the control bar"
 msgstr "Bara kontrolê veşêre/nîşan bide"
 
@@ -352,3 +349,6 @@ msgstr "Belgekirin"
 
 msgid "Drag Viewport"
 msgstr "Portê Dîmenê Kaş bikin"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC rastî xeletiyek hat:"

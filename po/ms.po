@@ -38,9 +38,6 @@ msgstr "Sambungan baharu telah ditolak"
 msgid "Credentials are required"
 msgstr "Tauliah diperlukan"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC mengalami ralat:"
-
 msgid "Hide/Show the control bar"
 msgstr "Sembunyikan/Tunjukkan bar kawalan"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentasi"
 
 msgid "Drag Viewport"
 msgstr "Seret Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC mengalami ralat:"

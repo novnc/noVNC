@@ -38,9 +38,6 @@ msgstr "Nova povezava je bila zavrnjena"
 msgid "Credentials are required"
 msgstr "Potrebne so poverilnice"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC je naletel na napako:"
-
 msgid "Hide/Show the control bar"
 msgstr "Skrij/prikaži nadzorno vrstico"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentacija"
 
 msgid "Drag Viewport"
 msgstr "Povlecite vidno polje"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC je naletel na napako:"

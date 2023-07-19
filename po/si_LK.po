@@ -38,9 +38,6 @@ msgstr "නව සම්බන්ධතාවය ප්u200dරතික්ෂ�
 msgid "Credentials are required"
 msgstr "ඇත්තපත්u200dර අවශ්u200dයයි"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC දෝෂයකට මුහුණ දී ඇත:"
-
 msgid "Hide/Show the control bar"
 msgstr "පාලක තීරුව සඟවන්න/පෙන්වන්න"
 
@@ -352,3 +349,6 @@ msgstr "ලේඛන"
 
 msgid "Drag Viewport"
 msgstr "Drag Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC දෝෂයක් ඇති විය:"

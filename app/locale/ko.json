@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "새 연결이 다음 이유로 거부되었습니다:",
     "New connection has been rejected": "새 연결이 거부되었습니다.",
     "Password is required": "비밀번호가 필요합니다.",
-    "noVNC encountered an error:": "noVNC에 오류가 발생했습니다:",
     "Hide/Show the control bar": "컨트롤 바 숨기기/보이기",
     "Move/Drag Viewport": "움직이기/드래그 뷰포트",
     "viewport drag": "뷰포트 드래그",
@@ -124,5 +123,6 @@
     "Video Mode Width:": "비디오 모드 너비:",
     "Video Mode Height:": "비디오 모드 높이:",
     "Documentation": "선적 서류 비치",
-    "Drag Viewport": "드래그 뷰포트"
+    "Drag Viewport": "드래그 뷰포트",
+    "KasmVNC encountered an error:": "KasmVNC에 오류가 발생했습니다:"
 }

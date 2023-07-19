@@ -38,9 +38,6 @@ msgstr "Naujas ryšys buvo atmestas"
 msgid "Credentials are required"
 msgstr "Reikalingi kredencialai"
 
-msgid "noVNC encountered an error:"
-msgstr "NoVNC aptiko klaida:"
-
 msgid "Hide/Show the control bar"
 msgstr "Slėpti / rodyti valdymo juostą"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentacija"
 
 msgid "Drag Viewport"
 msgstr "Drag Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC susidūrė su klaida:"

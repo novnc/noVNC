@@ -38,9 +38,6 @@ msgstr "Yeni əlaqə rədd edildi"
 msgid "Credentials are required"
 msgstr "Etibarnamə tələb olunur"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC xəta ilə qarşılaşdı:"
-
 msgid "Hide/Show the control bar"
 msgstr "İdarə çubuğunu gizlət/göstər"
 
@@ -352,3 +349,6 @@ msgstr "Sənədlər"
 
 msgid "Drag Viewport"
 msgstr "Görünüş sahəsini sürükləyin"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC xəta ilə qarşılaşdı:"

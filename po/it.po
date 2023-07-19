@@ -38,9 +38,6 @@ msgstr "La nuova connessione è stata rifiutata"
 msgid "Credentials are required"
 msgstr "Le credenziali sono necessarie"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ha rilevato un errore:"
-
 msgid "Hide/Show the control bar"
 msgstr "Nascondi/Mostra la barra di controllo"
 
@@ -352,3 +349,6 @@ msgstr "Documentazione"
 
 msgid "Drag Viewport"
 msgstr "Trascina finestra"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ha rilevato un errore:"

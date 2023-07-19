@@ -38,9 +38,6 @@ msgstr "নতুন সংযোগ প্রত্যাখ্যান কর
 msgid "Credentials are required"
 msgstr "শংসাপত্র প্রয়োজন"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC একটি ত্রুটির সম্মুখীন হয়েছে:"
-
 msgid "Hide/Show the control bar"
 msgstr "কন্ট্রোল বার লুকান/দেখান"
 
@@ -352,3 +349,6 @@ msgstr "ডকুমেন্টেশন"
 
 msgid "Drag Viewport"
 msgstr "ভিউপোর্ট টানুন"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC একটি ত্রুটির সম্মুখীন হয়েছে:"

@@ -38,9 +38,6 @@ msgstr "Khokahano e ncha e hanngoe"
 msgid "Credentials are required"
 msgstr "Boitsebiso boa hlokahala"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC e fumane phoso:"
-
 msgid "Hide/Show the control bar"
 msgstr "Pata / Bontša sebaka sa taolo"
 
@@ -352,3 +349,6 @@ msgstr "Litokomane"
 
 msgid "Drag Viewport"
 msgstr "Hula Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC e fumane phoso:"

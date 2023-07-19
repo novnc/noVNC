@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Nouvo koneksyon te rejte ak rezon:",
     "New connection has been rejected": "Nouvo koneksyon te rejte",
     "Credentials are required": "Kredansyèl yo obligatwa",
-    "noVNC encountered an error:": "noVNC te rankontre yon erè:",
     "Hide/Show the control bar": "Kache/Montre ba kontwòl la",
     "Drag": "Trennen",
     "Move/Drag Viewport": "Deplase / Trennen Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Lajè mòd videyo:",
     "Video Mode Height:": "Watè mòd videyo:",
     "Documentation": "Dokimantasyon",
-    "Drag Viewport": "Trennen Viewport"
+    "Drag Viewport": "Trennen Viewport",
+    "KasmVNC encountered an error:": "KasmVNC te rankontre yon erè:"
 }

@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Пайванди нав бо сабабҳо рад карда шуд:",
     "New connection has been rejected": "Пайвасти нав рад карда шуд",
     "Credentials are required": "Маълумотнома талаб карда мешавад",
-    "noVNC encountered an error:": "noVNC ба хатогӣ дучор шуд:",
     "Hide/Show the control bar": "Пинҳон/нишон додани сатри идоракунӣ",
     "Drag": "Кашола кардан",
     "Move/Drag Viewport": "Намоишгоҳро интиқол додан/каш кардан",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Паснои ҳолати видео:",
     "Video Mode Height:": "Бандии ҳолати видео:",
     "Documentation": "Ҳуҷҷатҳо",
-    "Drag Viewport": "Кашолакунии Viewport"
+    "Drag Viewport": "Кашолакунии Viewport",
+    "KasmVNC encountered an error:": "KasmVNC ба хатогӣ дучор шуд:"
 }

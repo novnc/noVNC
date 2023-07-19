@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "การเชื่อมต่อใหม่ถูกปฏิเสธด้วยเหตุผล: ",
     "New connection has been rejected": "การเชื่อมต่อใหม่ถูกปฏิเสธ",
     "Credentials are required": "จำเป็นต้องมีข้อมูลประจำตัว",
-    "noVNC encountered an error:": "noVNC พบข้อผิดพลาด:",
     "Hide/Show the control bar": "ซ่อน/แสดงแถบควบคุม",
     "Drag": "ลาก",
     "Move/Drag Viewport": "ย้าย/ลากวิวพอร์ต",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ความกว้างของโหมดวิดีโอ:",
     "Video Mode Height:": "ความสูงของโหมดวิดีโอ:",
     "Documentation": "เอกสาร",
-    "Drag Viewport": "ลากวิวพอร์ต"
+    "Drag Viewport": "ลากวิวพอร์ต",
+    "KasmVNC encountered an error:": "KasmVNC พบข้อผิดพลาด:"
 }

@@ -38,9 +38,6 @@ msgstr "Uus ühendus on tagasi lükatud"
 msgid "Credentials are required"
 msgstr "Mandaat on nõutav"
 
-msgid "noVNC encountered an error:"
-msgstr "NoVNC-l ilmnes viga:"
-
 msgid "Hide/Show the control bar"
 msgstr "Peida/kuva juhtriba"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentatsioon"
 
 msgid "Drag Viewport"
 msgstr "Lohistamisvaade"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC-s ilmnes viga:"

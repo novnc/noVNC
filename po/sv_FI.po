@@ -72,9 +72,6 @@ msgid "Credentials are required"
 msgstr "Användaruppgifter krävs"
 
 #: ../vnc.html:74
-msgid "noVNC encountered an error:"
-msgstr "noVNC stötte på ett problem:"
-
 #: ../vnc.html:84
 msgid "Hide/Show the control bar"
 msgstr "Göm/Visa kontrollbaren"
@@ -441,3 +438,6 @@ msgstr "Dokumentation"
 
 msgid "Drag Viewport"
 msgstr "Dra Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC stötte på ett fel:"

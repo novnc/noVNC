@@ -38,9 +38,6 @@ msgstr "Kết nối mới đã bị từ chối"
 msgid "Credentials are required"
 msgstr "Bằng chứng được yêu cầu"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC gặp lỗi:"
-
 msgid "Hide/Show the control bar"
 msgstr "Ẩn/Hiện thanh điều khiển"
 
@@ -352,3 +349,6 @@ msgstr "Tài liệu"
 
 msgid "Drag Viewport"
 msgstr "Kéo khung nhìn"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC gặp lỗi:"

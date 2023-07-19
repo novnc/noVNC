@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Muunganisho mpya umekataliwa kwa sababu: ",
     "New connection has been rejected": "Muunganisho mpya umekataliwa",
     "Credentials are required": "Vyeti vitahitajika",
-    "noVNC encountered an error:": "noVNC ilipata hitilafu:",
     "Hide/Show the control bar": "Ficha/Onyesha upau wa kudhibiti",
     "Drag": "Buruta",
     "Move/Drag Viewport": "Sogeza/Buruta Mtazamo",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Upana wa Modi ya Video:",
     "Video Mode Height:": "Urefu wa Modi ya Video:",
     "Documentation": "Nyaraka",
-    "Drag Viewport": "Buruta Viewport"
+    "Drag Viewport": "Buruta Viewport",
+    "KasmVNC encountered an error:": "KasmVNC ilipata hitilafu:"
 }

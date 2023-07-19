@@ -38,9 +38,6 @@ msgstr "A ti kọ asopọ tuntun"
 msgid "Credentials are required"
 msgstr "A nilo awọn iwe-ẹri"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC pade aṣiṣe kan:"
-
 msgid "Hide/Show the control bar"
 msgstr "Fipamọ/Fi ọpa iṣakoso han"
 
@@ -352,3 +349,6 @@ msgstr "Iwe iwe"
 
 msgid "Drag Viewport"
 msgstr "Fa Wiwo"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC pade aṣiṣe kan:"

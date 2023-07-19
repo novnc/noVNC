@@ -38,9 +38,6 @@ msgstr "Նոր կապը մերժվել է."
 msgid "Credentials are required"
 msgstr "Հավատարմագրերը պարտադիր են"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC-ն սխալ է հանդիպել."
-
 msgid "Hide/Show the control bar"
 msgstr "Թաքցնել/Ցույց տալ կառավարման տողը"
 
@@ -352,3 +349,6 @@ msgstr "Փաստաթղթեր"
 
 msgid "Drag Viewport"
 msgstr "Քաշել տեսադաշտը"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC-ն սխալ է հանդիպել."

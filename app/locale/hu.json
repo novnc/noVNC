@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Az új csatlakozást okkal utasították el:",
     "New connection has been rejected": "Az új kapcsolat elutasítva",
     "Credentials are required": "Megjelenítő adatok szükségesek",
-    "noVNC encountered an error:": "noVNC hibát észlelt:",
     "Hide/Show the control bar": "A vezérlősáv elrejtése/megjelenítése",
     "Drag": "Húzás",
     "Move/Drag Viewport": "Nézetkép mozgatása/húzása",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Video mód szélessége:",
     "Video Mode Height:": "Videó mód magassága:",
     "Documentation": "Dokumentáció",
-    "Drag Viewport": "Nézetablak húzása"
+    "Drag Viewport": "Nézetablak húzása",
+    "KasmVNC encountered an error:": "A KasmVNC hibát észlelt:"
 }

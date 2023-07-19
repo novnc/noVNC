@@ -66,9 +66,6 @@ msgid "Password is required"
 msgstr "Απαιτείται ο κωδικός πρόσβασης"
 
 #: ../vnc.html:89
-msgid "noVNC encountered an error:"
-msgstr "το noVNC αντιμετώπισε ένα σφάλμα:"
-
 #: ../vnc.html:99
 msgid "Hide/Show the control bar"
 msgstr "Απόκρυψη/Εμφάνιση γραμμής ελέγχου"

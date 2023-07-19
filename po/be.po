@@ -38,9 +38,6 @@ msgstr "Новае злучэнне было адхілена"
 msgid "Credentials are required"
 msgstr "Патрабуюцца ўліковыя даныя"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC выявіў памылку:"
-
 msgid "Hide/Show the control bar"
 msgstr "Схаваць/паказаць панэль кіравання"
 
@@ -352,3 +349,6 @@ msgstr "Дакументацыя"
 
 msgid "Drag Viewport"
 msgstr "Перацягнуць акно прагляду"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC выявіў памылку:"

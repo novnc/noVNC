@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Noua conexiune a fost respinsă cu motiv: ",
     "New connection has been rejected": "Noua conexiune a fost respinsă",
     "Credentials are required": "Sunt necesare acreditări",
-    "noVNC encountered an error:": "noVNC a întâmpinat o eroare:",
     "Hide/Show the control bar": "Ascunde/Afișează bara de control",
     "Drag": "Trage",
     "Move/Drag Viewport": "Mutați/Trageți fereastra de vizualizare",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Lățimea modului video:",
     "Video Mode Height:": "Înălțimea modului video:",
     "Documentation": "Documentație",
-    "Drag Viewport": "Trasați fereastra de vizualizare"
+    "Drag Viewport": "Trasați fereastra de vizualizare",
+    "KasmVNC encountered an error:": "KasmVNC a întâmpinat o eroare:"
 }

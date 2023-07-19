@@ -38,9 +38,6 @@ msgstr "Cysylltiad newydd wedi'i wrthod"
 msgid "Credentials are required"
 msgstr "Mae angen tystlythyrau"
 
-msgid "noVNC encountered an error:"
-msgstr " daeth noVNC ar draws gwall:"
-
 msgid "Hide/Show the control bar"
 msgstr "Cuddio/Dangos y bar rheoli"
 
@@ -352,3 +349,6 @@ msgstr "Dogfennaeth"
 
 msgid "Drag Viewport"
 msgstr "Llusgwch Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "Mae KasmVNC wedi dod ar draws gwall:"

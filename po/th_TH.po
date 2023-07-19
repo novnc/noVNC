@@ -38,9 +38,6 @@ msgstr "การเชื่อมต่อใหม่ถูกปฏิเส
 msgid "Credentials are required"
 msgstr "จำเป็นต้องมีข้อมูลประจำตัว"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC พบข้อผิดพลาด:"
-
 msgid "Hide/Show the control bar"
 msgstr "ซ่อน/แสดงแถบควบคุม"
 
@@ -352,3 +349,6 @@ msgstr "เอกสาร"
 
 msgid "Drag Viewport"
 msgstr "ลากวิวพอร์ต"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC พบข้อผิดพลาด:"

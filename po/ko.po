@@ -70,9 +70,6 @@ msgid "Password is required"
 msgstr "비밀번호가 필요합니다."
 
 #: ../vnc.html:91
-msgid "noVNC encountered an error:"
-msgstr "noVNC에 오류가 발생했습니다:"
-
 #: ../vnc.html:101
 msgid "Hide/Show the control bar"
 msgstr "컨트롤 바 숨기기/보이기"
@@ -462,3 +459,6 @@ msgstr "선적 서류 비치"
 
 msgid "Drag Viewport"
 msgstr "드래그 뷰포트"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC에 오류가 발생했습니다:"

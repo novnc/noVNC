@@ -38,9 +38,6 @@ msgstr "Nei Verbindung gouf refuséiert"
 msgid "Credentials are required"
 msgstr "Umeldungsinformatiounen sinn erfuerderlech"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC huet e Feeler begéint:"
-
 msgid "Hide/Show the control bar"
 msgstr "D'Kontrollbar verstoppen / weisen"
 
@@ -352,3 +349,6 @@ msgstr "Dokumentatioun"
 
 msgid "Drag Viewport"
 msgstr "Drag Viewport"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC huet e Feeler begéint:"

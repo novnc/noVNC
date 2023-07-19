@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Diúltaíodh do cheangal nua le cúis:",
     "New connection has been rejected": "Diúltaíodh do cheangal nua",
     "Credentials are required": "Tá dintiúir ag teastáil",
-    "noVNC encountered an error:": "Tharla earráid ar noVNC:",
     "Hide/Show the control bar": "Folaigh/Taispeáin an barra rialaithe",
     "Drag": "Tarraing",
     "Move/Drag Viewport": "Bog/Tarraing Viewport",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Leithead Mhód Físe:",
     "Video Mode Height:": "Airde Mód Físe:",
     "Documentation": "Doiciméad",
-    "Drag Viewport": "Tarraing Viewport"
+    "Drag Viewport": "Tarraing Viewport",
+    "KasmVNC encountered an error:": "Tharla earráid i KasmVNC:"
 }

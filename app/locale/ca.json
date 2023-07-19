@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "S'ha rebutjat una connexió nova per un motiu:",
     "New connection has been rejected": "S'ha rebutjat una connexió nova",
     "Credentials are required": "Les credencials són necessàries",
-    "noVNC encountered an error:": "noVNC ha trobat un error:",
     "Hide/Show the control bar": "Oculta/Mostra la barra de control",
     "Drag": "Arrossegar",
     "Move/Drag Viewport": "Mou/Arrossegueu la finestra gràfica",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Amplada del mode de vídeo:",
     "Video Mode Height:": "Alçada del mode de vídeo:",
     "Documentation": "Documentació",
-    "Drag Viewport": "Arrossegar la finestra gràfica"
+    "Drag Viewport": "Arrossegar la finestra gràfica",
+    "KasmVNC encountered an error:": "KasmVNC ha trobat un error:"
 }

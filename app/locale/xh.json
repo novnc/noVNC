@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Unxibelelwano olutsha lwaliwe ngesizathu: ",
     "New connection has been rejected": "Uqhagamshelwano olutsha lwaliwe",
     "Credentials are required": "Iziqinisekiso ziyafuneka",
-    "noVNC encountered an error:": "I-noVNC ifumene impazamo:",
     "Hide/Show the control bar": "Fihla / Bonisa ibha yokulawula",
     "Drag": "Thamba",
     "Move/Drag Viewport": "Hambisa/ Tsala izibuko lokujonga",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Ububanzi beModi yeVidiyo:",
     "Video Mode Height:": "Ubude beModi yeVidiyo:",
     "Documentation": "Amaxwebhu",
-    "Drag Viewport": "Thatha indawo yokujonga"
+    "Drag Viewport": "Thatha indawo yokujonga",
+    "KasmVNC encountered an error:": "I-KasmVNC ifumene impazamo:"
 }

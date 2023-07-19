@@ -38,9 +38,6 @@ msgstr "નવું જોડાણ નકારવામાં આવ્યુ
 msgid "Credentials are required"
 msgstr "પ્રમાણપત્ર જરૂરી છે"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ને ભૂલ આવી છે:"
-
 msgid "Hide/Show the control bar"
 msgstr "કંટ્રોલ બાર છુપાવો/બતાવો"
 
@@ -352,3 +349,6 @@ msgstr "દસ્તાવેજીકરણ"
 
 msgid "Drag Viewport"
 msgstr "ડ્રેગ વ્યૂપોર્ટ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ને એક ભૂલ આવી:"

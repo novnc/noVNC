@@ -38,9 +38,6 @@ msgstr "S'ha rebutjat una connexió nova"
 msgid "Credentials are required"
 msgstr "Les credencials són necessàries"
 
-msgid "noVNC encountered an error:"
-msgstr "noVNC ha trobat un error:"
-
 msgid "Hide/Show the control bar"
 msgstr "Oculta/Mostra la barra de control"
 
@@ -352,3 +349,6 @@ msgstr "Documentació"
 
 msgid "Drag Viewport"
 msgstr "Arrossegar la finestra gràfica"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ha trobat un error:"

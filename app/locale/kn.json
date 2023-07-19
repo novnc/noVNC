@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "ಹೊಸ ಸಂಪರ್ಕವನ್ನು ಕಾರಣದೊಂದಿಗೆ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ:",
     "New connection has been rejected": "ಹೊಸ ಸಂಪರ್ಕವನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ",
     "Credentials are required": "ರುಜುವಾತುಗಳು ಅಗತ್ಯವಿದೆ",
-    "noVNC encountered an error:": "noVNC ದೋಷವನ್ನು ಎದುರಿಸಿದೆ:",
     "Hide/Show the control bar": "ಕಂಟ್ರೋಲ್ ಬಾರ್ ಅನ್ನು ಮರೆಮಾಡಿ / ತೋರಿಸು",
     "Drag": "ಎಳೆಯಿರಿ",
     "Move/Drag Viewport": "ಮೂವ್/ಡ್ರ್ಯಾಗ್ ವ್ಯೂಪೋರ್ಟ್",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "ವೀಡಿಯೊ ಮೋಡ್ ಅಗಲ:",
     "Video Mode Height:": "ವೀಡಿಯೊ ಮೋಡ್ ಎತ್ತರ:",
     "Documentation": "ದಾಖಲೆ",
-    "Drag Viewport": "ಡ್ರ್ಯಾಗ್ ವ್ಯೂಪೋರ್ಟ್"
+    "Drag Viewport": "ಡ್ರ್ಯಾಗ್ ವ್ಯೂಪೋರ್ಟ್",
+    "KasmVNC encountered an error:": "KasmVNC ದೋಷವನ್ನು ಎದುರಿಸಿದೆ:"
 }

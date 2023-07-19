@@ -1,12 +1,12 @@
 
 msgid "Connecting..."
-msgstr ".ﻱﺪﻨﻳﮃﻨﮘ"
+msgstr "ﻱﺪﻨﻳﮃﻨﮘ"
 
 msgid "Disconnecting..."
-msgstr ". ﻲﻫﺁ ﻮﻴﻫﺭ ﻲﭤ ﻊﻄﻘﻨﻣ"
+msgstr " ﻲﻫﺁ ﻮﻴﻫﺭ ﻲﭤ ﻊﻄﻘﻨﻣ"
 
 msgid "Reconnecting..."
-msgstr ". ﻲﻫﺁ ﻮﻴﻫﺭ ﻱﮃﻨﮘ ﺮﻬﻴﭔ"
+msgstr " ﻲﻫﺁ ﻮﻴﻫﺭ ﻱﮃﻨﮘ ﺮﻬﻴﭔ"
 
 msgid "Internal error"
 msgstr "ﻲﻄﻠﻏ ﻲﻧﻭﺭﺪﻧﺍ"
@@ -37,9 +37,6 @@ msgstr "ﻲﻫﺁ ﻮﻳﻭ ﻮﻴڪ ﺩﺭ ﻦﺸڪﻴﻨڪ ﻥﻮﺌﻧ"
 
 msgid "Credentials are required"
 msgstr "ﻲﻫﺁ ﺕﺭﻭﺮﺿ ﻲﺟ ﻦﭤﺎﺳ"
-
-msgid "noVNC encountered an error:"
-msgstr "noVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:"
 
 msgid "Hide/Show the control bar"
 msgstr "ﺭﺎﺑ ﻝﻭﺮٽﻨڪ ﻮﻳﺭﺎﮑﻳڏ / ﻮﻳﺎڪﻟ"
@@ -102,7 +99,7 @@ msgid "Shutdown/Reboot"
 msgstr "ٽﻮﺒﻳﺭ / ﺪﻨﺑ"
 
 msgid "Shutdown/Reboot..."
-msgstr ". ٽﻮﺒﻳﺭ / ﺪﻨﺑ"
+msgstr " ٽﻮﺒﻳﺭ / ﺪﻨﺑ"
 
 msgid "Power"
 msgstr "ﺖﻗﺎﻃ"
@@ -352,3 +349,6 @@ msgstr "ﺰﻳﻭﺎﺘﺳﺩ"
 
 msgid "Drag Viewport"
 msgstr "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻳڏﮀ"
+
+msgid "KasmVNC encountered an error:"
+msgstr "KasmVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:"

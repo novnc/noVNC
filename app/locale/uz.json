@@ -12,7 +12,6 @@
     "New connection has been rejected with reason: ": "Yangi ulanish sabab bilan rad etildi:",
     "New connection has been rejected": "Yangi ulanish rad etildi",
     "Credentials are required": "Hisob ma'lumotlari talab qilinadi",
-    "noVNC encountered an error:": "noVNC xatolikka duch keldi:",
     "Hide/Show the control bar": "Boshqaruv panelini yashirish/ko'rsatish",
     "Drag": "Tartib tashlang",
     "Move/Drag Viewport": "Ko'rish maydonini ko'chirish/tortish",
@@ -116,5 +115,6 @@
     "Video Mode Width:": "Video rejimining kengligi:",
     "Video Mode Height:": "Video rejimi balandligi:",
     "Documentation": "Hujjatlar",
-    "Drag Viewport": "Ko'rish oynasini sudrab olib boring"
+    "Drag Viewport": "Ko'rish oynasini sudrab olib boring",
+    "KasmVNC encountered an error:": "KasmVNC xatolikka duch keldi:"
 }
