@@ -276,6 +276,8 @@ export default class RFB extends EventTargetMixin {
         // All prepared, kick off the connection
         this._updateConnectionState('connecting');
 
+        this.onCanvasFocus = () => {}; // Handler for canvas focused
+
         Log.Debug("<< RFB.constructor");
 
         // ===== PROPERTIES =====
@@ -484,6 +486,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     focus(options) {
+        this.onCanvasFocus();
         this._canvas.focus(options);
     }
 
@@ -958,6 +961,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleMessage() {
+        window.parent.postMessage(JSON.stringify({method: 'noVNCPing'}), '*');
+
         if (this._sock.rQwait("message", 1)) {
             Log.Warn("handleMessage called on an empty receive queue");
             return;

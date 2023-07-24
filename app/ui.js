@@ -120,7 +120,7 @@ const UI = {
 
         document.documentElement.classList.remove("noVNC_loading");
 
-        let autoconnect = WebUtil.getConfigVar('autoconnect', false);
+        let autoconnect = WebUtil.getConfigVar('autoconnect', true);
         if (autoconnect === 'true' || autoconnect == '1') {
             autoconnect = true;
             UI.connect();
@@ -337,6 +337,8 @@ const UI = {
             .addEventListener('click', UI.toggleClipboardPanel);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
+        document.getElementById("noVNC_clipboard_text")
+            .addEventListener('input', UI.syncClipboardPanelToLocalClipboard);
     },
 
     // Add a call to save settings when the element changes,
@@ -943,7 +945,48 @@ const UI = {
  * ==============
  *   CLIPBOARD
  * ------v------*/
+    // Read and write text to local clipboard is currently only supported in Chrome 66+ and Opera53+
+    // further information at https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
 
+    writeLocalClipboard(text) {
+        if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.writeText !== "undefined" &&
+          typeof navigator.permissions !== "undefined" && typeof navigator.permissions.query !== "undefined"
+        ) {
+            navigator.permissions.query({name: 'clipboard-write'})
+                .then(() => navigator.clipboard.writeText(text))
+                .then(() => {
+                    const debugMessage = text.substring(0, 40) + "...";
+                    Log.Debug('>> UI.setClipboardText: navigator.clipboard.writeText with ' + debugMessage);
+                })
+                .catch((err) => {
+                    if (err.name !== 'TypeError') {
+                        Log.Error(">> UI.setClipboardText: Failed to write system clipboard (trying to copy from NoVNC clipboard)");
+                    }
+                });
+        }
+    },
+
+    readLocalClipboard() {
+        // navigator.clipboard and navigator.clipbaord.readText is not available in all browsers
+        if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.readText !== "undefined" &&
+          typeof navigator.permissions !== "undefined" && typeof navigator.permissions.query !== "undefined"
+        ) {
+            navigator.permissions.query({name: 'clipboard-read'})
+                .then(() => navigator.clipboard.readText())
+                .then((clipboardText) => {
+                    const text = document.getElementById('noVNC_clipboard_text').value;
+                    if (clipboardText !== text) {
+                        document.getElementById('noVNC_clipboard_text').value = clipboardText;
+                        UI.clipboardSend();
+                    }
+                })
+                .catch((err) => {
+                    if (err.name !== 'TypeError') {
+                        Log.Warn("<< UI.readLocalClipboard: Failed to read system clipboard-: " + err);
+                    }
+                });
+        }
+    },
     openClipboardPanel() {
         UI.closeAllPanels();
         UI.openControlbar();
@@ -973,6 +1016,7 @@ const UI = {
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
+        UI.writeLocalClipboard(e.detail.text);
         Log.Debug("<< UI.clipboardReceive");
     },
 
@@ -981,6 +1025,12 @@ const UI = {
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
         Log.Debug("<< UI.clipboardSend");
+    },
+    syncClipboardPanelToLocalClipboard() {
+        // Reads text from clipboard panel and set it to local clipboard
+        // Mainly used to synchronize clipboard panel with local clipboard
+        const text = document.getElementById('noVNC_clipboard_text').value;
+        UI.writeLocalClipboard(text);
     },
 
 /* ------^-------
@@ -1053,6 +1103,7 @@ const UI = {
         UI.rfb.addEventListener("clippingviewport", UI.updateViewDrag);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
+        UI.rfb.onCanvasFocus = UI.readLocalClipboard;
         UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');

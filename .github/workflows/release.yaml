@@ -1,0 +1,22 @@
+name: Publish New Release
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Upload to s3
+        run: ./uploadToS3.sh "${{ secrets.ASSETS_UPLOADER_KEY }}" "${{ secrets.ASSETS_UPLOADER_SECRET }}" "${{ github.event.release.tag_name }}"
+
+      - name: Slack
+        uses: codio/codio-slack-action@master
+        if: always()
+        with:
+          slack_hook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          message: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} release> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}"
+          success: ${{ job.status }}
