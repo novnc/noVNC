@@ -20,6 +20,7 @@ import Display from "./display.js";
 import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
+import initializePrinterRelay from "./output/printer.js";
 import GestureHandler from "./input/gesturehandler.js";
 import Cursor from "./util/cursor.js";
 import Websock from "./websock.js";
@@ -979,6 +980,16 @@ export default class RFB extends EventTargetMixin {
 
     requestBottleneckStats() {
         RFB.messages.requestStats(this._sock);
+    }
+
+    subscribeUnixRelay(name, processRelayFn) {
+        this._unixRelays = this._unixRelays || {};
+        this._unixRelays[name] = processRelayFn;
+        RFB.messages.sendSubscribeUnixRelay(this._sock, name);
+    }
+
+    sendUnixRelayData(name, payload) {
+        RFB.messages.sendUnixRelay(this._sock, name, payload);
     }
 
     // ===== PRIVATE METHODS =====
@@ -2536,6 +2547,10 @@ export default class RFB extends EventTargetMixin {
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fbWidth, this._fbHeight);
 
         this._updateConnectionState('connected');
+
+        //Register pipe based extensions
+        initializePrinterRelay(this);
+
         return true;
     }
 
@@ -3083,6 +3098,12 @@ export default class RFB extends EventTargetMixin {
             case 181: // KASM UDP upgrade
                 return this._handleUdpUpgrade();
 
+            case 182: // KASM unix relay subscription
+                return this._handleSubscribeUnixRelay();
+
+            case 183: // KASM unix relay data
+                return this._handleUnixRelay();
+
             case 248: // ServerFence
                 return this._handleServerFenceMsg();
 
@@ -3209,6 +3230,36 @@ export default class RFB extends EventTargetMixin {
             this._changeTransitConnectionState(this.TransitConnectionStates.Failure)
             this._udpConnectFailures++;
         }.bind(this));
+    }
+
+    _handleSubscribeUnixRelay() {
+        if (this._sock.rQwait("SubscribeUnixRelay header", 2, 1)) { return false; }
+        let status = this._sock.rQshift8();
+        let len = this._sock.rQshift8();
+        if (this._sock.rQwait("SubscribeUnixRelay message", len, 3)) { return false; }
+
+        const payload = this._sock.rQshiftStr(len);
+
+        if (status) {
+            console.log("Unix relay subscription succeeded");
+        } else {
+            console.log("Unix relay subscription failed, " + payload);
+        }
+    }
+
+    _handleUnixRelay() {
+        if (this._sock.rQwait("UnixRelay header", 1, 1)) { return false; }
+        let namelen = this._sock.rQshift8();
+        if (this._sock.rQwait("UnixRelay name", namelen, 2)) { return false; }
+        const name = this._sock.rQshiftStr(namelen);
+
+        if (this._sock.rQwait("UnixRelay len", 4, 2 + namelen)) { return false; }
+        let len = this._sock.rQshift32();
+        if (this._sock.rQwait("UnixRelay data", len, 6 + namelen)) { return false; }
+
+        const payload = this._sock.rQshiftBytes(len);
+        const processRelay = this._unixRelays[name];
+        processRelay && processRelay(payload);
     }
 
     _framebufferUpdate() {
@@ -3949,6 +4000,61 @@ RFB.messages = {
             }
 
             offset = sock._sQlen;
+        }
+    },
+
+    sendSubscribeUnixRelay(sock, name) {
+        const buff = sock._sQ;
+        const offset = sock._sQlen;
+
+        buff[offset] = 182;              // msg-type
+        buff[offset + 1] = name.length;  // len
+        for (let i = 0; i < name.length; i++) {
+            buff[offset + 2 + i] = name.charCodeAt(i);
+        }
+
+        sock._sQlen += 2 + name.length;
+        sock.flush();
+    },
+
+    sendUnixRelay(sock, name, data) {
+        const buff = sock._sQ;
+        let offset = sock._sQlen;
+
+        buff[offset++] = 183;              // msg-type
+        buff[offset++] = name.length;  // len
+        for (let i = 0; i < name.length; i++) {
+            buff[offset++] = name.charCodeAt(i);
+        }
+
+        let length = data.length;
+
+        Log.Info('Sent unix relay data len ' + length);
+
+        buff[offset++] = length >> 24;
+        buff[offset++] = length >> 16;
+        buff[offset++] = length >> 8;
+        buff[offset++] = length;
+
+        sock._sQlen += 2 + name.length + 4;
+
+        // We have to keep track of from where in the data we begin creating the
+        // buffer for the flush in the next iteration.
+        let dataOffset = 0;
+
+        let remaining = data.length;
+        while (remaining > 0) {
+
+            let flushSize = Math.min(remaining, (sock._sQbufferSize - sock._sQlen));
+            for (let i = 0; i < flushSize; i++) {
+                buff[sock._sQlen + i] = data[dataOffset + i];
+            }
+
+            sock._sQlen += flushSize;
+            sock.flush();
+
+            remaining -= flushSize;
+            dataOffset += flushSize;
         }
     },
 
