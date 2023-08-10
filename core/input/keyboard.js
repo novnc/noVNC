@@ -58,21 +58,52 @@ export default class Keyboard {
 
     // ===== PRIVATE METHODS =====
 
+    _clearKeysDown(event) {
+        // On some Operating systems, the browser will lose key up events when a shortcut key combination triggers something
+        // on the OS that is outside the scope of the browser. For example, MacOS Cmd+Shift+Ctrl+4 brings up a screen capture
+        // tool and the browser only recieves some of the key down events, but not the key up events. This leaves the server 
+        // out of sync, with cetain keys stuck down. This attempts to discover and fix these occurances in a OS nuetral way
+        if (event) {
+            
+            for (const [key, value] of Object.entries(this._keyDownList)) {
+                switch(key) {
+                    case "ControlLeft":
+                    case "ControlRight":
+                        if (!event.ctrlKey) {
+                            Log.Error("A control key is stuck down, sending up.");
+                            this._sendKeyEvent(value, key, false);
+                        }
+                        break;
+                    case "MetaLeft":
+                    case "MetaRight":
+                        if (!event.metaKey) {
+                            Log.Error("A meta key is stuck down, sending up.");
+                            this._sendKeyEvent(value, key, false);
+                        }
+                        break;
+                    case "AltLeft":
+                    case "AltRight":
+                        if (!event.altKey) {
+                            Log.Error("A alt key is stuck down, sending up. ");
+                            this._sendKeyEvent(value, key, false);
+                        }
+                        break;
+                    case "ShiftRight":
+                    case "ShiftLeft":
+                        if (!event.shiftKey) {
+                            Log.Error("A shift key is stuck down, sending up.");
+                            this._sendKeyEvent(value, key, false);
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
     _sendKeyEvent(keysym, code, down) {
         if (down) {
             this._keyDownList[code] = keysym;
         } else {
-            // On MacOs zoom and shortcut actions are CMD based so we need to
-            // let the remote know that it should unselect the CTRL key instead
-            if (
-                browser.isMac() &&
-                this._keyDownList["ControlLeft"] &&
-                (code === "MetaLeft" || code === "MetaRight")
-            ) {
-                keysym = KeyTable.XK_Control_L;
-                code = "ControlLeft";
-            }
-
             // Do we really think this key is down?
             if (!(code in this._keyDownList)) {
                 return;
@@ -238,7 +269,8 @@ export default class Keyboard {
     _handleKeyDown(e) {
         const code = this._getKeyCode(e);
         let keysym = KeyboardUtil.getKeysym(e);
-
+        this._clearKeysDown(e);
+        
         if (this._isIMEInteraction(e)) {
             //skip event if IME related
             Log.Debug("Skipping keydown, IME interaction, code: " + code + " keysym: " + keysym + " keycode: " + e.keyCode);
