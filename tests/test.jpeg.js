@@ -9,23 +9,26 @@ import FakeWebSocket from './fake.websocket.js';
 
 function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     let sock;
+    let done = false;
 
     sock = new Websock;
     sock.open("ws://example.com");
 
     sock.on('message', () => {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        done = decoder.decodeRect(x, y, width, height, sock, display, depth);
     });
 
     // Empty messages are filtered at multiple layers, so we need to
     // do a direct call
     if (data.length === 0) {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        done = decoder.decodeRect(x, y, width, height, sock, display, depth);
     } else {
         sock._websocket._receiveData(new Uint8Array(data));
     }
 
     display.flip();
+
+    return done;
 }
 
 describe('JPEG Decoder', function () {
@@ -41,7 +44,7 @@ describe('JPEG Decoder', function () {
         display.resize(4, 4);
     });
 
-    it('should handle JPEG rects', function (done) {
+    it('should handle JPEG rects', async function () {
         let data = [
             // JPEG data
             0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
@@ -131,7 +134,8 @@ describe('JPEG Decoder', function () {
             0xff, 0xd9,
         ];
 
-        testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
+        let decodeDone = testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
+        expect(decodeDone).to.be.true;
 
         let targetData = new Uint8Array([
             0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255,
@@ -147,14 +151,11 @@ describe('JPEG Decoder', function () {
             return diff < 5;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        await display.flush();
+        expect(display).to.have.displayed(targetData, almost);
     });
 
-    it('should handle JPEG rects without Huffman and quantification tables', function (done) {
+    it('should handle JPEG rects without Huffman and quantification tables', async function () {
         let data1 = [
             // JPEG data
             0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
@@ -244,7 +245,12 @@ describe('JPEG Decoder', function () {
             0xff, 0xd9,
         ];
 
-        testDecodeRect(decoder, 0, 0, 4, 4, data1, display, 24);
+        let decodeDone;
+
+        decodeDone = testDecodeRect(decoder, 0, 0, 4, 4, data1, display, 24);
+        expect(decodeDone).to.be.true;
+
+        display.fillRect(0, 0, 4, 4, [128, 128, 128, 255]);
 
         let data2 = [
             // JPEG data
@@ -263,7 +269,8 @@ describe('JPEG Decoder', function () {
             0xcf, 0xff, 0x00, 0x0b, 0xab, 0x1f, 0xff, 0xd9,
         ];
 
-        testDecodeRect(decoder, 0, 0, 4, 4, data2, display, 24);
+        decodeDone = testDecodeRect(decoder, 0, 0, 4, 4, data2, display, 24);
+        expect(decodeDone).to.be.true;
 
         let targetData = new Uint8Array([
             0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255, 0xff, 0x00, 0x00, 255,
@@ -279,10 +286,7 @@ describe('JPEG Decoder', function () {
             return diff < 5;
         }
 
-        display.onflush = () => {
-            expect(display).to.have.displayed(targetData, almost);
-            done();
-        };
-        display.flush();
+        await display.flush();
+        expect(display).to.have.displayed(targetData, almost);
     });
 });

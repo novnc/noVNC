@@ -661,7 +661,7 @@ html {
   justify-content: center;
   align-content: center;
 
-  line-height: 25px;
+  line-height: 1.6;
   word-wrap: break-word;
   color: #fff;
 
@@ -887,7 +887,7 @@ html {
 .noVNC_logo {
   color:yellow;
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
-  line-height:90%;
+  line-height: 0.9;
   text-shadow: 0.1em 0.1em 0 black;
 }
 .noVNC_logo span{

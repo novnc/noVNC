@@ -9,23 +9,26 @@ import FakeWebSocket from './fake.websocket.js';
 
 function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     let sock;
+    let done = false;
 
     sock = new Websock;
     sock.open("ws://example.com");
 
     sock.on('message', () => {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        done = decoder.decodeRect(x, y, width, height, sock, display, depth);
     });
 
     // Empty messages are filtered at multiple layers, so we need to
     // do a direct call
     if (data.length === 0) {
-        decoder.decodeRect(x, y, width, height, sock, display, depth);
+        done = decoder.decodeRect(x, y, width, height, sock, display, depth);
     } else {
         sock._websocket._receiveData(new Uint8Array(data));
     }
 
     display.flip();
+
+    return done;
 }
 
 function push16(arr, num) {
@@ -76,7 +79,7 @@ describe('RRE Decoder', function () {
         push16(data, 2); // width: 2
         push16(data, 2); // height: 2
 
-        testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
+        let done = testDecodeRect(decoder, 0, 0, 4, 4, data, display, 24);
 
         let targetData = new Uint8Array([
             0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
@@ -85,6 +88,7 @@ describe('RRE Decoder', function () {
             0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255
         ]);
 
+        expect(done).to.be.true;
         expect(display).to.have.displayed(targetData);
     });
 
@@ -93,7 +97,10 @@ describe('RRE Decoder', function () {
         display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
         display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ]);
 
-        testDecodeRect(decoder, 1, 2, 0, 0, [ 0x00, 0xff, 0xff, 0xff, 0xff ], display, 24);
+        let done = testDecodeRect(decoder, 1, 2, 0, 0,
+                                  [ 0x00, 0x00, 0x00, 0x00,
+                                    0xff, 0xff, 0xff, 0xff ],
+                                  display, 24);
 
         let targetData = new Uint8Array([
             0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
@@ -102,6 +109,7 @@ describe('RRE Decoder', function () {
             0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255
         ]);
 
+        expect(done).to.be.true;
         expect(display).to.have.displayed(targetData);
     });
 });

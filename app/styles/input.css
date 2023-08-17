@@ -86,13 +86,16 @@ option {
  * Checkboxes
  */
 input[type=checkbox] {
-  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   background-color: white;
   background-image: unset;
   border: 1px solid dimgrey;
   border-radius: 3px;
   width: 13px;
   height: 13px;
+  padding: 0;
   margin-right: 6px;
   vertical-align: bottom;
   transition: 0.2s background-color linear;
@@ -103,14 +106,12 @@ input[type=checkbox]:checked {
 }
 input[type=checkbox]:checked::after {
   content: "";
-  position: absolute;
-  top: 0;
-  left: 3px;
+  display: block; /* width & height doesn't work on inline elements */
   width: 3px;
   height: 7px;
   border: 1px solid white;
   border-width: 0 2px 2px 0;
-  transform: rotate(40deg);
+  transform: rotate(40deg) translateY(-1px);
 }
 
 /*

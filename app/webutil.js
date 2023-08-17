@@ -6,16 +6,16 @@
  * See README.md for usage and integration instructions.
  */
 
-import { initLogging as mainInitLogging } from '../core/util/logging.js';
+import * as Log from '../core/util/logging.js';
 
 // init log level reading the logging HTTP param
 export function initLogging(level) {
     "use strict";
     if (typeof level !== "undefined") {
-        mainInitLogging(level);
+        Log.initLogging(level);
     } else {
         const param = document.location.href.match(/logging=([A-Za-z0-9._-]*)/);
-        mainInitLogging(param || undefined);
+        Log.initLogging(param || undefined);
     }
 }
 
@@ -25,14 +25,14 @@ export function initLogging(level) {
 //
 // For privacy (Using a hastag #, the parameters will not be sent to the server)
 // the url can be requested in the following way:
-// https://www.example.com#myqueryparam=myvalue&password=secreatvalue
+// https://www.example.com#myqueryparam=myvalue&password=secretvalue
 //
 // Even Mixing public and non public parameters will work:
-// https://www.example.com?nonsecretparam=example.com#password=secreatvalue
+// https://www.example.com?nonsecretparam=example.com#password=secretvalue
 export function getQueryVar(name, defVal) {
     "use strict";
     const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-          match = ''.concat(document.location.href, window.location.hash).match(re);
+          match = document.location.href.match(re);
     if (typeof defVal === 'undefined') { defVal = null; }
 
     if (match) {
@@ -146,7 +146,7 @@ export function writeSetting(name, value) {
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.set(settings);
     } else {
-        localStorage.setItem(name, value);
+        localStorageSet(name, value);
     }
 }
 
@@ -156,7 +156,7 @@ export function readSetting(name, defaultValue) {
     if ((name in settings) || (window.chrome && window.chrome.storage)) {
         value = settings[name];
     } else {
-        value = localStorage.getItem(name);
+        value = localStorageGet(name);
         settings[name] = value;
     }
     if (typeof value === "undefined") {
@@ -181,6 +181,70 @@ export function eraseSetting(name) {
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.remove(name);
     } else {
+        localStorageRemove(name);
+    }
+}
+
+let loggedMsgs = [];
+function logOnce(msg, level = "warn") {
+    if (!loggedMsgs.includes(msg)) {
+        switch (level) {
+            case "error":
+                Log.Error(msg);
+                break;
+            case "warn":
+                Log.Warn(msg);
+                break;
+            case "debug":
+                Log.Debug(msg);
+                break;
+            default:
+                Log.Info(msg);
+        }
+        loggedMsgs.push(msg);
+    }
+}
+
+let cookiesMsg = "Couldn't access noVNC settings, are cookies disabled?";
+
+function localStorageGet(name) {
+    let r;
+    try {
+        r = localStorage.getItem(name);
+    } catch (e) {
+        if (e instanceof DOMException) {
+            logOnce(cookiesMsg);
+            logOnce("'localStorage.getItem(" + name + ")' failed: " + e,
+                    "debug");
+        } else {
+            throw e;
+        }
+    }
+    return r;
+}
+function localStorageSet(name, value) {
+    try {
+        localStorage.setItem(name, value);
+    } catch (e) {
+        if (e instanceof DOMException) {
+            logOnce(cookiesMsg);
+            logOnce("'localStorage.setItem(" + name + "," + value +
+                    ")' failed: " + e, "debug");
+        } else {
+            throw e;
+        }
+    }
+}
+function localStorageRemove(name) {
+    try {
         localStorage.removeItem(name);
+    } catch (e) {
+        if (e instanceof DOMException) {
+            logOnce(cookiesMsg);
+            logOnce("'localStorage.removeItem(" + name + ")' failed: " + e,
+                    "debug");
+        } else {
+            throw e;
+        }
     }
 }

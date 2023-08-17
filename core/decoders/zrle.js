@@ -32,7 +32,7 @@ export default class ZRLEDecoder {
             return false;
         }
 
-        const data = sock.rQshiftBytes(this._length);
+        const data = sock.rQshiftBytes(this._length, false);
 
         this._inflator.setInput(data);
 

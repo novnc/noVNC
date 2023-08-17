@@ -298,14 +298,11 @@ describe('Display/Canvas Helper', function () {
             expect(display).to.have.displayed(checkedData);
         });
 
-        it('should support drawing images via #imageRect', function (done) {
+        it('should support drawing images via #imageRect', async function () {
             display.imageRect(0, 0, 4, 4, "image/png", makeImagePng(checkedData, 4, 4));
             display.flip();
-            display.onflush = () => {
-                expect(display).to.have.displayed(checkedData);
-                done();
-            };
-            display.flush();
+            await display.flush();
+            expect(display).to.have.displayed(checkedData);
         });
 
         it('should support blit images with true color via #blitImage', function () {
@@ -360,12 +357,11 @@ describe('Display/Canvas Helper', function () {
             expect(img.addEventListener).to.have.been.calledOnce;
         });
 
-        it('should call callback when queue is flushed', function () {
-            display.onflush = sinon.spy();
+        it('should resolve promise when queue is flushed', async function () {
             display.fillRect(0, 0, 4, 4, [0, 0xff, 0]);
-            expect(display.onflush).to.not.have.been.called;
-            display.flush();
-            expect(display.onflush).to.have.been.calledOnce;
+            let promise = display.flush();
+            expect(promise).to.be.an.instanceOf(Promise);
+            await promise;
         });
 
         it('should draw a blit image on type "blit"', function () {

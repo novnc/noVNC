@@ -16,13 +16,19 @@ export class Localizer {
         this.language = 'en';
 
         // Current dictionary of translations
-        this.dictionary = undefined;
+        this._dictionary = undefined;
     }
 
     // Configure suitable language based on user preferences
-    setup(supportedLanguages) {
+    async setup(supportedLanguages, baseURL) {
         this.language = 'en'; // Default: US English
+        this._dictionary = undefined;
 
+        this._setupLanguage(supportedLanguages);
+        await this._setupDictionary(baseURL);
+    }
+
+    _setupLanguage(supportedLanguages) {
         /*
          * Navigator.languages only available in Chrome (32+) and FireFox (32+)
          * Fall back to navigator.language for other browsers
@@ -39,12 +45,6 @@ export class Localizer {
                 .toLowerCase()
                 .replace("_", "-")
                 .split("-");
-
-            // Built-in default?
-            if ((userLang[0] === 'en') &&
-                ((userLang[1] === undefined) || (userLang[1] === 'us'))) {
-                return;
-            }
 
             // First pass: perfect match
             for (let j = 0; j < supportedLanguages.length; j++) {
@@ -64,7 +64,12 @@ export class Localizer {
                 return;
             }
 
-            // Second pass: fallback
+            // Second pass: English fallback
+            if (userLang[0] === 'en') {
+                return;
+            }
+
+            // Third pass pass: other fallback
             for (let j = 0;j < supportedLanguages.length;j++) {
                 const supLang = supportedLanguages[j]
                     .toLowerCase()
@@ -84,10 +89,32 @@ export class Localizer {
         }
     }
 
+    async _setupDictionary(baseURL) {
+        if (baseURL) {
+            if (!baseURL.endsWith("/")) {
+                baseURL = baseURL + "/";
+            }
+        } else {
+            baseURL = "";
+        }
+
+        if (this.language === "en") {
+            return;
+        }
+
+        let response = await fetch(baseURL + this.language + ".json");
+        if (!response.ok) {
+            throw Error("" + response.status + " " + response.statusText);
+        }
+
+        this._dictionary = await response.json();
+    }
+
     // Retrieve localised text
     get(id) {
-        if (typeof this.dictionary !== 'undefined' && this.dictionary[id]) {
-            return this.dictionary[id];
+        if (typeof this._dictionary !== 'undefined' &&
+            this._dictionary[id]) {
+            return this._dictionary[id];
         } else {
             return id;
         }
