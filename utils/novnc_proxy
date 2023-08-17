@@ -93,14 +93,14 @@ while [ "$*" ]; do
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
     --file-only) FILEONLY_ARG="--file-only"      ;;
-    --record) RECORD_ARG='--record "${OPTARG}"'; shift ;;
-    --syslog) SYSLOG_ARG='--syslog "${OPTARG}"'; shift ;;
+    --record) RECORD_ARG="--record '${OPTARG}'"; shift ;;
+    --syslog) SYSLOG_ARG="--syslog '${OPTARG}'"; shift ;;
     --heartbeat) HEARTBEAT_ARG="--heartbeat ${OPTARG}"; shift ;;
     --idle-timeout) IDLETIMEOUT_ARG="--idle-timeout ${OPTARG}"; shift ;;
     --timeout) TIMEOUT_ARG="--timeout ${OPTARG}"; shift ;;
     --web-auth) WEBAUTH_ARG="--web-auth"                ;;
-    --auth-plugin) AUTHPLUGIN_ARG='--auth-plugin "${OPTARG}"'; shift ;;
-    --auth-source) AUTHSOURCE_ARG='--auth-source "${OPTARG}"'; shift ;;
+    --auth-plugin) AUTHPLUGIN_ARG="--auth-plugin '${OPTARG}'"; shift ;;
+    --auth-source) AUTHSOURCE_ARG="--auth-source '${OPTARG}'"; shift ;;
     -h|--help) usage                              ;;
     -*) usage "Unknown chrooter option: ${param}" ;;
     *) break                                      ;;
