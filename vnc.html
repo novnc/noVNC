@@ -43,13 +43,28 @@
     <link rel="preload" as="image" href="app/images/info.svg">
     <link rel="preload" as="image" href="app/images/error.svg">
     <link rel="preload" as="image" href="app/images/warning.svg">
-
+    <script
+      src="https://js.sentry-cdn.com/d08e273c89d12afcde41b3ec30d37ace.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+        const prodRe = /https:\/\/.+\.codio\.io$/
+        const prodUkRe = /https:\/\/.+\.codio-box\.uk$/
+        const isProd = prodRe.test(location.origin) || prodUkRe.test(location.origin)
+        Sentry.onLoad(function() {
+            Sentry.init({
+                // No need to configure DSN here, it is already configured in the loader script
+                // You can add any additional configuration here
+                release: 'TAG_VERSION',
+                environment: isProd ? 'production' : 'development'
+            });
+        });
+    </script>
     <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
     <script type="module" crossorigin="anonymous" src="app/ui.js"></script>
 </head>
 
 <body>
-
     <div id="noVNC_fallback_error" class="noVNC_center">
         <div>
             <div>noVNC encountered an error:</div>

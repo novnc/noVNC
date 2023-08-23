@@ -10,10 +10,15 @@ replaceHtmlUrls () {
   sed -i "s/$1/$2/" "./vnc.html"
 }
 
+replaceTagVersion () {
+  sed -i "s/TAG_VERSION/${tag}/" "./vnc.html"
+}
+
 prepareHtml () {
   cdn="\/\/static-assets.codio.com\/${folder}\/${tag}"
   replaceHtmlUrls "href=\"app\/" "href=\"${cdn}\/app\/"
   replaceHtmlUrls "src=\"app\/" "src=\"${cdn}\/app\/"
+  replaceTagVersion
 }
 
 readarray -d '' files < <(find ./ -type f -print0)
