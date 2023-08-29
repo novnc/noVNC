@@ -58,7 +58,7 @@ export default class Keyboard {
 
     // ===== PRIVATE METHODS =====
 
-    _clearKeysDown(event) {
+    clearKeysDown(event) {
         // On some Operating systems, the browser will lose key up events when a shortcut key combination triggers something
         // on the OS that is outside the scope of the browser. For example, MacOS Cmd+Shift+Ctrl+4 brings up a screen capture
         // tool and the browser only recieves some of the key down events, but not the key up events. This leaves the server 
@@ -269,7 +269,7 @@ export default class Keyboard {
     _handleKeyDown(e) {
         const code = this._getKeyCode(e);
         let keysym = KeyboardUtil.getKeysym(e);
-        this._clearKeysDown(e);
+        this.clearKeysDown(e);
         
         if (this._isIMEInteraction(e)) {
             //skip event if IME related

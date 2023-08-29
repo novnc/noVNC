@@ -1655,6 +1655,9 @@ export default class RFB extends EventTargetMixin {
                     this._keyboard._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                 }
 
+                // Ensure keys down are synced between client and server
+                this._keyboard.clearKeysDown(ev);
+
                 this._handleMouseButton(pos.x, pos.y,
                                         true, xvncButtonToMask(mappedButton));
                 break;
