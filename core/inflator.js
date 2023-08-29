@@ -14,9 +14,8 @@ export default class Inflate {
         this.strm = new ZStream();
         this.chunkSize = 1024 * 10 * 10;
         this.strm.output = new Uint8Array(this.chunkSize);
-        this.windowBits = 5;
 
-        inflateInit(this.strm, this.windowBits);
+        inflateInit(this.strm);
     }
 
     setInput(data) {
