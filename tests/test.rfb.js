@@ -3,7 +3,7 @@ const expect = chai.expect;
 import RFB from '../core/rfb.js';
 import Websock from '../core/websock.js';
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
-import { deflateInit, deflate } from "../vendor/pako/lib/zlib/deflate.js";
+import { deflateInit, deflate, Z_DEFAULT_COMPRESSION } from "../vendor/pako/lib/zlib/deflate.js";
 import { encodings } from '../core/encodings.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
@@ -54,7 +54,7 @@ function deflateWithSize(data) {
     let strm = new ZStream();
     let chunkSize = 1024 * 10 * 10;
     strm.output = new Uint8Array(chunkSize);
-    deflateInit(strm, 5);
+    deflateInit(strm, Z_DEFAULT_COMPRESSION);
 
     /* eslint-disable camelcase */
     strm.input = unCompData;
