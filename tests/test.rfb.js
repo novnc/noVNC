@@ -1265,7 +1265,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 sendSecurity(1, client);
                 expect(client._rfbInitState).to.equal('ServerInitialisation');
             });
-       });
+        });
 
         describe('Authentication', function () {
             beforeEach(function () {
