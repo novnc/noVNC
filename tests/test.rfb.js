@@ -1257,7 +1257,15 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 1]));
                 expect(client._rfbInitState).to.equal('ServerInitialisation');
             });
-        });
+
+            it('should transition straight to ServerInitialisation on "no auth" for versions < 3.8', function () {
+                sendVer('003.007\n', client);
+                client._sock._websocket._getSentData();
+
+                sendSecurity(1, client);
+                expect(client._rfbInitState).to.equal('ServerInitialisation');
+            });
+       });
 
         describe('Authentication', function () {
             beforeEach(function () {
@@ -2231,10 +2239,17 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         describe('Legacy SecurityResult', function () {
             beforeEach(function () {
+                client.addEventListener("credentialsrequired", () => {
+                    client.sendCredentials({ password: 'passwd' });
+                });
                 sendVer('003.007\n', client);
                 client._sock._websocket._getSentData();
-                sendSecurity(1, client);
+                sendSecurity(2, client);
+                const challenge = [];
+                for (let i = 0; i < 16; i++) { challenge[i] = i; }
+                client._sock._websocket._receiveData(new Uint8Array(challenge));
                 client._sock._websocket._getSentData();
+                clock.tick();
             });
 
             it('should not include reason in securityfailure event', function () {
