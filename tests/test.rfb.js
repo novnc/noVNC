@@ -2238,23 +2238,36 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('Legacy SecurityResult', function () {
-            beforeEach(function () {
+            it('should not include reason in securityfailure event for versions < 3.7', function () {
                 client.addEventListener("credentialsrequired", () => {
                     client.sendCredentials({ password: 'passwd' });
                 });
+                const spy = sinon.spy();
+                client.addEventListener("securityfailure", spy);
+                sendVer('003.006\n', client);
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
+                const challenge = [];
+                for (let i = 0; i < 16; i++) { challenge[i] = i; }
+                client._sock._websocket._receiveData(new Uint8Array(challenge));
+
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
+                expect(spy).to.have.been.calledOnce;
+                expect(spy.args[0][0].detail.status).to.equal(2);
+                expect('reason' in spy.args[0][0].detail).to.be.false;
+            });
+
+            it('should not include reason in securityfailure event for versions < 3.8', function () {
+                client.addEventListener("credentialsrequired", () => {
+                    client.sendCredentials({ password: 'passwd' });
+                });
+                const spy = sinon.spy();
+                client.addEventListener("securityfailure", spy);
                 sendVer('003.007\n', client);
-                client._sock._websocket._getSentData();
                 sendSecurity(2, client);
                 const challenge = [];
                 for (let i = 0; i < 16; i++) { challenge[i] = i; }
                 client._sock._websocket._receiveData(new Uint8Array(challenge));
-                client._sock._websocket._getSentData();
-                clock.tick();
-            });
 
-            it('should not include reason in securityfailure event', function () {
-                const spy = sinon.spy();
-                client.addEventListener("securityfailure", spy);
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
                 expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][0].detail.status).to.equal(2);
