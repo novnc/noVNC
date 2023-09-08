@@ -5,6 +5,7 @@ s3Key=$1
 s3Secret=$2
 tag=$3
 folder="noVNC"
+cdn="\/\/static-assets.codio.com\/${folder}\/${tag}"
 
 replaceHtmlUrls () {
   sed -i "s/$1/$2/" "./vnc.html"
@@ -14,11 +15,15 @@ replaceTagVersion () {
   sed -i "s/TAG_VERSION/${tag}/" "./vnc.html"
 }
 
-prepareHtml () {
-  cdn="\/\/static-assets.codio.com\/${folder}\/${tag}"
+replaceJsUrls () {
+  sed -i "s/\.\/package\.json/${cdn}\/package\.json/" "./app/ui.js"
+}
+
+prepareSources () {
   replaceHtmlUrls "href=\"app\/" "href=\"${cdn}\/app\/"
   replaceHtmlUrls "src=\"app\/" "src=\"${cdn}\/app\/"
   replaceTagVersion
+  replaceJsUrls
 }
 
 readarray -d '' files < <(find ./ -type f -print0)
@@ -65,7 +70,7 @@ uploadFile () {
     https://${bucket}.s3.amazonaws.com/"${folder}"/"${tag}"/"${fName}" || exit 1
 }
 
-prepareHtml
+prepareSources
 
 for file in "${files[@]}"
 do

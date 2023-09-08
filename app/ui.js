@@ -949,6 +949,7 @@ const UI = {
     // further information at https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
 
     writeLocalClipboard(text) {
+        Log.Debug(">> UI.writeLocalClipboard: " + text.substr(0, 40) + "...");
         if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.writeText !== "undefined" &&
           typeof navigator.permissions !== "undefined" && typeof navigator.permissions.query !== "undefined"
         ) {
@@ -964,9 +965,11 @@ const UI = {
                     }
                 });
         }
+        Log.Debug("<< UI.writeLocalClipboard");
     },
 
     readLocalClipboard() {
+        Log.Debug(">> UI.readLocalClipboard");
         // navigator.clipboard and navigator.clipbaord.readText is not available in all browsers
         if (typeof navigator.clipboard !== "undefined" && typeof navigator.clipboard.readText !== "undefined" &&
           typeof navigator.permissions !== "undefined" && typeof navigator.permissions.query !== "undefined"
@@ -986,6 +989,7 @@ const UI = {
                     }
                 });
         }
+        Log.Debug("<< UI.readLocalClipboard");
     },
     openClipboardPanel() {
         UI.closeAllPanels();

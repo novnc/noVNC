@@ -56,7 +56,10 @@
                 // No need to configure DSN here, it is already configured in the loader script
                 // You can add any additional configuration here
                 release: 'TAG_VERSION',
-                environment: isProd ? 'production' : 'development'
+                environment: isProd ? 'production' : 'development',
+                ignoreErrors: [
+                    'ResizeObserver loop completed with undelivered notifications' // https://bugzilla.mozilla.org/show_bug.cgi?id=1685038
+                ]
             });
         });
     </script>
