@@ -50,7 +50,7 @@
     <script src="vendor/interact.min.js"></script>
 
     <!-- Stylesheets -->
-    <!--link rel="stylesheet" href="app/styles/base.css">
+    <link rel="stylesheet" href="app/styles/base.css">
 
     <script src="app/error-handler.js"></script>
 
@@ -63,7 +63,7 @@
         }
     </script>
 
-    <script type="module" crossorigin="use-credentials" src="app/ui.js"></script-->
+    <script type="module" crossorigin="use-credentials" src="app/ui.js"></script>
 </head>
 
 <body>
@@ -183,6 +183,14 @@
                         id="noVNC_fullscreen_button" class="noVNC_button"
                         title="Fullscreen">
                     Fullscreen
+                </div>
+
+                <!-- Add Second Screen -->
+                <div class="noVNC_button_div noVNC_hidden" >
+                    <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
+                        id="noVNC_addmonitor_button" class="noVNC_button"
+                        title="Add Monitor">
+                    Add Monitor
                 </div>
 
                 <!-- Toggle game mode -->
@@ -546,25 +554,6 @@
                 </div>
             </div-->
         </div>
-    </div>
-
-    <!-- Password Dialog -->
-    <div class="noVNC_center noVNC_connect_layer">
-    <div id="noVNC_credentials_dlg" class="noVNC_panel"><form>
-        <ul>
-            <li id="noVNC_username_block">
-                <label>Username:</label>
-                <input id="noVNC_username_input">
-            </li>
-            <li id="noVNC_password_block">
-                <label>Password:</label>
-                <input id="noVNC_password_input" type="password">
-            </li>
-            <li>
-                <input id="noVNC_credentials_button" type="submit" value="Send Credentials" class="noVNC_submit">
-            </li>
-        </ul>
-    </form></div>
     </div>
 
     <!-- Transition Screens -->

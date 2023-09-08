@@ -11,6 +11,7 @@ import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 import { toSigned32bit } from './util/int.js';
 import { isWindows } from './util/browser.js';
+import { uuidv4 } from './util/strings.js'
 
 export default class Display {
     constructor(target) {
@@ -56,7 +57,7 @@ export default class Display {
         this._targetCtx = this._target.getContext('2d');
 
         // the visible canvas viewport (i.e. what actually gets seen)
-        this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
+        //this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
 
         Log.Debug("User Agent: " + navigator.userAgent);
 
@@ -84,6 +85,21 @@ export default class Display {
         this._clipViewport = false;
         this._antiAliasing = 0;
         this._fps = 0;
+        this._screens = [{ 
+            screenID: uuidv4(),
+            screenIndex: 0,
+            width: this._target.width, //client
+            height: this._target.height, //client
+            serverWidth: 0, //calculated
+            serverHeight: 0, //calculated
+            x: 0,
+            y: 0,
+            relativePosition: 0,
+            pixelRatio: window.devicePixelRatio,
+            containerHeight: this._target.parentNode.offsetHeight,
+            containerWidth: this._target.parentNode.offsetWidth,
+            channel: null
+        }];
 
         // ===== EVENT HANDLERS =====
 
@@ -96,6 +112,8 @@ export default class Display {
     }
 
     // ===== PROPERTIES =====
+
+    get screens() { return this._screens; }
     
     get antiAliasing() { return this._antiAliasing; }
     set antiAliasing(value) {
@@ -112,8 +130,8 @@ export default class Display {
     set clipViewport(viewport) {
         this._clipViewport = viewport;
         // May need to readjust the viewport dimensions
-        const vp = this._viewportLoc;
-        this.viewportChangeSize(vp.w, vp.h);
+        const vp = this._screens[0];
+        this.viewportChangeSize(vp.width, vp.height);
         this.viewportChangePos(0, 0);
     }
 
@@ -136,18 +154,167 @@ export default class Display {
 
     // ===== PUBLIC METHODS =====
 
+    getScreenSize(resolutionQuality, max_width, max_height, hiDpi, disableLimit) {
+        let data = {
+            screens: null,
+            serverWidth: 0,
+            serverHeight: 0,
+            clientWidth: 0,
+            clientHeight: 0
+        }
+
+        //recalculate primary display container size
+        this._screens[0].containerHeight = this._target.parentNode.offsetHeight;
+        this._screens[0].containerWidth = this._target.parentNode.offsetWidth;
+
+        //calculate server-side resolution of each screen
+        for (let i=0; i<this._screens.length; i++) {
+            let width = max_width || this._screens[i].containerWidth;
+            let height = max_height || this._screens[i].containerHeight;
+            let scale = 0;
+
+            //max the resolution of a single screen to 1280
+            if (width > 1280 && !disableLimit && resolutionQuality == 1) {
+                height = 1280 * (height/width); //keeping the aspect ratio of original resolution, shrink y to match x
+                width = 1280;
+            }
+            //hard coded 720p
+            else if (resolutionQuality == 0 && !disableLimit) {
+                width = 1280;
+                height = 720;
+            }
+            //force full resolution on a high DPI monitor where the OS is scaling
+            else if (hiDpi) {
+                width = width * this._screens[i].pixelRatio;
+                height = height * this._screens[i].pixelRatio;
+                scale = 1 / this._screens[i].pixelRatio;
+            }
+            //physically small device with high DPI
+            else if (this._antiAliasing === 0 && this._screens[i].pixelRatio > 1 && width < 1000 & width > 0) {
+                Log.Info('Device Pixel ratio: ' + this._screens[i].pixelRatio + ' Reported Resolution: ' + width + 'x' + height); 
+                let targetDevicePixelRatio = 1.5;
+                if (this._screens[i].pixelRatio > 2) { targetDevicePixelRatio = 2; }
+                let scaledWidth = (width * this._screens[i].pixelRatio) * (1 / targetDevicePixelRatio);
+                let scaleRatio = scaledWidth / x;
+                width = width * scaleRatio;
+                height = height * scaleRatio;
+                scale = 1 / scaleRatio;
+                Log.Info('Small device with hDPI screen detected, auto scaling at ' + scaleRatio + ' to ' + width + 'x' + height);
+            }
+
+            this._screens[i].serverWidth = width;
+            this._screens[i].serverHeight = height;
+            
+            //this logic will only support monitors laid out side by side
+            //TODO: two vertically stacked monitors would require light refactoring here
+            data.serverWidth += width;
+            data.serverHeight = Math.max(data.serverHeight, height);
+            data.clientWidth += this._screens[i].width;
+            data.clientHeight = Math.max(data.clientHeight, this._screens[i].height);
+            this._screens[i].scale = scale;
+        }
+
+        //calculate positions of monitors, this logic will only support two monitors side by side in either order
+        if (this._screens.length > 1) {
+            const primary_screen = this._screens[0];
+            const secondary_screen = this._screens[1];
+            switch (this._screens[1].relativePosition) {
+                case 0:
+                    //primary screen is to left
+                    total_width = secondary_screen.serverWidth + primary_screen.serverWidth;
+                    total_height = Math.max(primary_screen.serverHeight, secondary_screen.serverHeight);
+                    secondary_screen.x = primary_screen.serverWidth;
+                    if (secondary_screen.serverHeight < primary_screen.serverHeight) {
+                        if ((total_height - secondary_screen.serverHeight) > 1) {
+                            secondary_screen.y = Math.abs(Math.round(((total_height - secondary_screen.serverHeight) / 2)))
+                        }
+                    } else {
+                        secondary_screen.y = 0;
+                        if ((total_height - secondary_screen.serverHeight) > 1) {
+                            this._screens[0].y = Math.abs(Math.round(((total_height - secondary_screen.serverHeight) / 2)))
+                        }
+                    }
+                    break;
+                case 2:
+                    //primary screen is to right
+                    total_width = primary_screen.serverWidth + secondary_screen.serverWidth;
+                    total_height = Math.max(primary_screen.serverHeight, secondary_screen.serverHeight);
+                    this._screens[0].x = secondary_screen.serverWidth;
+                    if (secondary_screen.serverHeight < primary_screen.serverHeight) {
+                        if ((total_height - secondary_screen.serverHeight) > 1) {
+                            secondary_screen.y = Math.abs(Math.round(((total_height - secondary_screen.serverHeight) / 2)))
+                        }
+                    } else {
+                        secondary_screen.y = 0;
+                        if ((total_height - secondary_screen.serverHeight) > 1) {
+                            primary_screen.y = Math.abs(Math.round(((total_height - secondary_screen.serverHeight) / 2)))
+                        }
+                    }
+                    break;
+                default:
+                    //TODO: It would not be hard to support vertically stacked monitors
+                    throw new Error("Unsupported screen orientation.");
+            }
+        }
+
+        data.screens = structuredClone(this._screens);
+
+        return data;
+    }
+
+    addScreen(screenID, width, height, relativePosition, pixelRatio, containerHeight, containerWidth) {
+        //currently only support one secondary screen
+        if (this._screens.length > 1) {
+            this._screens[1].channel.close();
+            this._screens.pop()
+        }
+        screenIdx = this.screens.length;
+        new_screen = {
+            screenID: screenID,
+            screenIndex: screenIdx,
+            width: width, //client
+            height: height, //client
+            serverWidth: 0, //calculated
+            serverHeight: 0, //calculated
+            x: 0,
+            y: 0,
+            relativePosition: relativePosition,
+            pixelRatio: pixelRatio,
+            containerHeight: containerHeight,
+            containerWidth: containerWidth,
+            channel: null,
+            scale: 0
+        }
+
+        new_screen.channel = new BroadcastChannel(`screen_${screenID}_channel`);
+        //new_screen.channel.message = this._handleSecondaryDisplayMessage().bind(this);
+
+        this._screens.push(new_screen);
+        new_screen.channel.postMessage({ eventType: "registered", screenIndex: screenIdx });
+    }
+
+    removeScreen(screenID) {
+        for (let i=1; i<this._screens.length; i++) {
+            if (this._screens[i].screenID == screenID) {
+                this._screens.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
     viewportChangePos(deltaX, deltaY) {
-        const vp = this._viewportLoc;
+        const vp = this._screens[0];
         deltaX = Math.floor(deltaX);
         deltaY = Math.floor(deltaY);
 
         if (!this._clipViewport) {
-            deltaX = -vp.w;  // clamped later of out of bounds
-            deltaY = -vp.h;
+            deltaX = -vp.width;  // clamped later of out of bounds
+            deltaY = -vp.height;
         }
 
-        const vx2 = vp.x + vp.w - 1;
-        const vy2 = vp.y + vp.h - 1;
+        const vx2 = vp.x + vp.width - 1;
+        const vy2 = vp.y + vp.height - 1;
 
         // Position change
 
@@ -192,10 +359,10 @@ export default class Display {
             height = this._fbHeight;
         }
 
-        const vp = this._viewportLoc;
-        if (vp.w !== width || vp.h !== height) {
-            vp.w = width;
-            vp.h = height;
+        const vp = this._screens[0];
+        if (vp.width !== width || vp.height !== height) {
+            vp.width = width;
+            vp.height = height;
 
             const canvas = this._target;
             canvas.width = width;
@@ -213,14 +380,14 @@ export default class Display {
         if (this._scale === 0) {
             return 0;
         }
-        return toSigned32bit(x / this._scale + this._viewportLoc.x);
+        return toSigned32bit(x / this._scale + this._screens[0].x);
     }
 
     absY(y) {
         if (this._scale === 0) {
             return 0;
         }
-        return toSigned32bit(y / this._scale + this._viewportLoc.y);
+        return toSigned32bit(y / this._scale + this._screens[0].y);
     }
 
     resize(width, height) {
@@ -253,8 +420,8 @@ export default class Display {
 
         // Readjust the viewport as it may be incorrectly sized
         // and positioned
-        const vp = this._viewportLoc;
-        this.viewportChangeSize(vp.w, vp.h);
+        const vp = this._screens[0];
+        this.viewportChangeSize(vp.width, vp.height);
         this.viewportChangePos(0, 0);
     }
 
@@ -464,14 +631,14 @@ export default class Display {
 
         } else if (scaleRatio === 0) {
 
-            const vp = this._viewportLoc;
+            const vp = this._screens[0];
             const targetAspectRatio = containerWidth / containerHeight;
-            const fbAspectRatio = vp.w / vp.h;
+            const fbAspectRatio = vp.width / vp.height;
 
             if (fbAspectRatio >= targetAspectRatio) {
-                scaleRatio = containerWidth / vp.w;
+                scaleRatio = containerWidth / vp.width;
             } else {
-                scaleRatio = containerHeight / vp.h;
+                scaleRatio = containerHeight / vp.height;
             }
         }
 
@@ -658,14 +825,14 @@ export default class Display {
 
     _rescale(factor) {
         this._scale = factor;
-        const vp = this._viewportLoc;
+        const vp = this._screens[0];
 
         // NB(directxman12): If you set the width directly, or set the
         //                   style width to a number, the canvas is cleared.
         //                   However, if you set the style width to a string
         //                   ('NNNpx'), the canvas is scaled without clearing.
-        const width = factor * vp.w + 'px';
-        const height = factor * vp.h + 'px';
+        const width = factor * vp.width + 'px';
+        const height = factor * vp.height + 'px';
 
         if ((this._target.style.width !== width) ||
             (this._target.style.height !== height)) {
@@ -673,12 +840,12 @@ export default class Display {
             this._target.style.height = height;
         }
 
-        Log.Info('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.w + 'x' + vp.h);
+        Log.Info('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.width + 'x' + vp.height);
 
         var pixR = Math.abs(Math.ceil(window.devicePixelRatio));
         var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
-        if (this.antiAliasing === 2 || (this.antiAliasing === 0 && factor === 1 && this._target.style.imageRendering !== 'pixelated' && pixR === window.devicePixelRatio && vp.w > 0)) {
+        if (this.antiAliasing === 2 || (this.antiAliasing === 0 && factor === 1 && this._target.style.imageRendering !== 'pixelated' && pixR === window.devicePixelRatio && vp.width > 0)) {
             this._target.style.imageRendering = ((!isFirefox) ? 'pixelated' : 'crisp-edges' );
             Log.Debug('Smoothing disabled');
         } else if (this.antiAliasing === 1 || (this.antiAliasing === 0 && factor !== 1 && this._target.style.imageRendering !== 'auto')) {

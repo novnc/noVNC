@@ -31,8 +31,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+//import "core-js/stable";
+//import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
@@ -68,6 +68,8 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+
+    supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
 
     prime() {
         return WebUtil.initSettings().then(() => {
@@ -128,14 +130,13 @@ const UI = {
         UI.addExtraKeysHandlers();
         UI.addGamingHandlers();
         UI.addMachineHandlers();
-        UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
         UI.addSettingsHandlers();
+        UI.addMultiMonitorAddHandler();
         document.getElementById("noVNC_status")
             .addEventListener('click', UI.hideStatus);
         UI.openControlbar();
 
-        // 
 
         UI.updateVisualState('init');
 
@@ -472,21 +473,6 @@ const UI = {
             .addEventListener('click', () => UI.rfb.machineReset());
     },
 
-    addConnectionControlHandlers() {
-        UI.addClickHandle('noVNC_disconnect_button', UI.disconnect);
-
-        var connect_btn_el = document.getElementById("noVNC_connect_button");
-        if (typeof(connect_btn_el) != 'undefined' && connect_btn_el != null)
-        {
-            connect_btn_el.addEventListener('click', UI.connect);
-        }
-        document.getElementById("noVNC_cancel_reconnect_button")
-            .addEventListener('click', UI.cancelReconnect);
-
-        document.getElementById("noVNC_credentials_button")
-            .addEventListener('click', UI.setCredentials);
-    },
-
     addClipboardHandlers() {
         UI.addClickHandle('noVNC_clipboard_button', UI.toggleClipboardPanel);
 
@@ -588,6 +574,13 @@ const UI = {
         window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
     },
 
+    addMultiMonitorAddHandler() {
+        if (UI.supportsBroadcastChannel) {
+            UI.showControlInput("noVNC_addmonitor_button");
+            UI.addClickHandle('noVNC_addmonitor_button', UI.addSecondaryMonitor);
+        }
+    },
+
 /* ------^-------
  * /EVENT HANDLERS
  * ==============
@@ -676,8 +669,6 @@ const UI = {
         // State change closes dialogs as they may not be relevant
         // anymore
         UI.closeAllPanels();
-        document.getElementById('noVNC_credentials_dlg')
-            .classList.remove('noVNC_open');
     },
 
     showStats() {
@@ -1380,9 +1371,12 @@ const UI = {
         UI.rfb = new RFB(document.getElementById('noVNC_container'),
                         document.getElementById('noVNC_keyboardinput'),
                         url,
-                         { shared: UI.getSetting('shared'),
-                           repeaterID: UI.getSetting('repeaterID'),
-                           credentials: { password: password } });
+                        { 
+                            shared: UI.getSetting('shared'),
+                            repeaterID: UI.getSetting('repeaterID'),
+                            credentials: { password: password } 
+                        },
+                        true );
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
@@ -1747,57 +1741,6 @@ const UI = {
     },
 
 /* ------^-------
- *  /CONNECTION
- * ==============
- *   PASSWORD
- * ------v------*/
-
-    credentials(e) {
-        // FIXME: handle more types
-
-        document.getElementById("noVNC_username_block").classList.remove("noVNC_hidden");
-        document.getElementById("noVNC_password_block").classList.remove("noVNC_hidden");
-
-        let inputFocus = "none";
-        if (e.detail.types.indexOf("username") === -1) {
-            document.getElementById("noVNC_username_block").classList.add("noVNC_hidden");
-        } else {
-            inputFocus = inputFocus === "none" ? "noVNC_username_input" : inputFocus;
-        }
-        if (e.detail.types.indexOf("password") === -1) {
-            document.getElementById("noVNC_password_block").classList.add("noVNC_hidden");
-        } else {
-            inputFocus = inputFocus === "none" ? "noVNC_password_input" : inputFocus;
-        }
-        document.getElementById('noVNC_credentials_dlg')
-            .classList.add('noVNC_open');
-
-        setTimeout(() => document
-            .getElementById(inputFocus).focus(), 100);
-
-        Log.Warn("Server asked for credentials");
-        UI.showStatus(_("Credentials are required"), "warning");
-    },
-
-    setCredentials(e) {
-        // Prevent actually submitting the form
-        e.preventDefault();
-
-        let inputElemUsername = document.getElementById('noVNC_username_input');
-        const username = inputElemUsername.value;
-
-        let inputElemPassword = document.getElementById('noVNC_password_input');
-        const password = inputElemPassword.value;
-        // Clear the input after reading the password
-        inputElemPassword.value = "";
-
-        UI.rfb.sendCredentials({ username: username, password: password });
-        UI.reconnectPassword = password;
-        document.getElementById('noVNC_credentials_dlg')
-            .classList.remove('noVNC_open');
-    },
-
-/* ------^-------
  *  /PASSWORD
  * ==============
  *   FULLSCREEN
@@ -1866,6 +1809,20 @@ const UI = {
         UI.rfb.enableWebP = UI.getSetting('enable_webp');
         UI.rfb.enableHiDpi = UI.getSetting('enable_hidpi');
     },
+
+/* ------^-------
+ *  /MULTI-MONITOR SUPPORT
+ * ==============*/
+
+    addSecondaryMonitor() {
+        let new_display_path = window.location.pathname.replace(/[^/]*$/, '')
+        let new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html`;
+        
+        Log.Debug(`Opening a secondary display ${new_display_url}`)
+        window.open(new_display_url);
+    },
+
+
 
 /* ------^-------
  *    /RESIZE
