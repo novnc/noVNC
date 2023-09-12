@@ -11,7 +11,6 @@ import KeyTable from "./keysym.js";
 import keysyms from "./keysymdef.js";
 import imekeys from "./imekeys.js";
 import * as browser from "../util/browser.js";
-import UI from '../../app/ui.js';
 import { isChromiumBased } from '../util/browser.js';
 
 //
@@ -46,6 +45,7 @@ export default class Keyboard {
         this._lastKeyboardInput = null;
         this._defaultKeyboardInputLen = 100;
         this._keyboardInputReset();
+        this._translateShortcuts = true;
     }
 
     // ===== PUBLIC METHODS =====
@@ -55,6 +55,9 @@ export default class Keyboard {
         this._enableIME = val; 
         this.focus();
     }
+
+    get translateShortcuts() { return this._translateShortcuts; }
+    set translateShortcuts(value) { this._translateShortcuts = value; }
 
     // ===== PRIVATE METHODS =====
 
@@ -319,7 +322,7 @@ export default class Keyboard {
         // Translate MacOs CMD based shortcuts to their CTRL based counterpart
         if (
             browser.isMac() &&
-            UI.rfb && UI.rfb.translateShortcuts &&
+            this._translateShortcuts &&
             code !== "MetaLeft" && code !== "MetaRight" &&
             e.metaKey && !e.ctrlKey && !e.altKey
         ) {

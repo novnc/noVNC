@@ -14,7 +14,7 @@ import { isWindows } from './util/browser.js';
 import { uuidv4 } from './util/strings.js'
 
 export default class Display {
-    constructor(target) {
+    constructor(target, isPrimaryDisplay) {
         Log.Debug(">> Display.constructor");
 
         /*
@@ -85,8 +85,10 @@ export default class Display {
         this._clipViewport = false;
         this._antiAliasing = 0;
         this._fps = 0;
+        this._isPrimaryDisplay = isPrimaryDisplay;
+        this._screenID = uuidv4();
         this._screens = [{ 
-            screenID: uuidv4(),
+            screenID: this._screenID,
             screenIndex: 0,
             width: this._target.width, //client
             height: this._target.height, //client
@@ -107,6 +109,11 @@ export default class Display {
 
         // Use requestAnimationFrame to write to canvas, to match display refresh rate
         this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+
+        if (!this._isPrimaryDisplay) {
+            this._screens[0].channel = new BroadcastChannel(`screen_${this._screenID}_channel`);
+            this._screens[0].channel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
+        }
 
         Log.Debug("<< Display.constructor");
     }
@@ -166,6 +173,8 @@ export default class Display {
         //recalculate primary display container size
         this._screens[0].containerHeight = this._target.parentNode.offsetHeight;
         this._screens[0].containerWidth = this._target.parentNode.offsetWidth;
+        this._screens[0].width = this._target.width;
+        this._screens[0].height = this._target.height;
 
         //calculate server-side resolution of each screen
         for (let i=0; i<this._screens.length; i++) {
@@ -218,6 +227,9 @@ export default class Display {
         if (this._screens.length > 1) {
             const primary_screen = this._screens[0];
             const secondary_screen = this._screens[1];
+            let total_width = 0;
+            let total_height = 0;
+
             switch (this._screens[1].relativePosition) {
                 case 0:
                     //primary screen is to left
@@ -257,50 +269,59 @@ export default class Display {
             }
         }
 
-        data.screens = structuredClone(this._screens);
+        data.screens = this._screens;
 
         return data;
     }
 
     addScreen(screenID, width, height, relativePosition, pixelRatio, containerHeight, containerWidth) {
-        //currently only support one secondary screen
-        if (this._screens.length > 1) {
-            this._screens[1].channel.close();
-            this._screens.pop()
-        }
-        screenIdx = this.screens.length;
-        new_screen = {
-            screenID: screenID,
-            screenIndex: screenIdx,
-            width: width, //client
-            height: height, //client
-            serverWidth: 0, //calculated
-            serverHeight: 0, //calculated
-            x: 0,
-            y: 0,
-            relativePosition: relativePosition,
-            pixelRatio: pixelRatio,
-            containerHeight: containerHeight,
-            containerWidth: containerWidth,
-            channel: null,
-            scale: 0
-        }
+        if (this._isPrimaryDisplay) {
+            //currently only support one secondary screen
+            if (this._screens.length > 1) {
+                this._screens[1].channel.close();
+                this._screens.pop()
+            }
 
-        new_screen.channel = new BroadcastChannel(`screen_${screenID}_channel`);
-        //new_screen.channel.message = this._handleSecondaryDisplayMessage().bind(this);
+            var new_screen = {
+                screenID: screenID,
+                screenIndex: this.screens.length,
+                width: width, //client
+                height: height, //client
+                serverWidth: 0, //calculated
+                serverHeight: 0, //calculated
+                x: 0,
+                y: 0,
+                relativePosition: relativePosition,
+                pixelRatio: pixelRatio,
+                containerHeight: containerHeight,
+                containerWidth: containerWidth,
+                channel: null,
+                scale: 0
+            }
 
-        this._screens.push(new_screen);
-        new_screen.channel.postMessage({ eventType: "registered", screenIndex: screenIdx });
+            new_screen.channel = new BroadcastChannel(`screen_${screenID}_channel`);
+            //new_screen.channel.message = this._handleSecondaryDisplayMessage().bind(this);
+
+            this._screens.push(new_screen);
+            new_screen.channel.postMessage({ eventType: "registered", screenIndex: new_screen.screenIndex });
+        } else {
+            throw new Error("Cannot add a screen to a secondary display.")
+        }
+        
     }
 
     removeScreen(screenID) {
-        for (let i=1; i<this._screens.length; i++) {
-            if (this._screens[i].screenID == screenID) {
-                this._screens.splice(i, 1);
-                return true;
+        if (this.isPrimaryDisplay) {
+            for (let i=1; i<this._screens.length; i++) {
+                if (this._screens[i].screenID == screenID) {
+                    this._screens.splice(i, 1);
+                    return true;
+                }
             }
+            return false;
+        } else {
+            throw new Error("Secondary screens only allowed on primary display.")
         }
-        return false;
     }
 
     viewportChangePos(deltaX, deltaY) {
@@ -340,7 +361,7 @@ export default class Display {
 
     viewportChangeSize(width, height) {
 
-        if (!this._clipViewport ||
+        if ((!this._clipViewport && this._screens.length === 1 ) ||
             typeof(width) === "undefined" ||
             typeof(height) === "undefined") {
 
@@ -398,6 +419,10 @@ export default class Display {
 
         const canvas = this._target;
         if (canvas == undefined) { return; }
+        if (this._screens.length > 0) {
+            width = this._screens[0].serverWidth;
+            height = this._screens[0].serverHeight;
+        }
         if (canvas.width !== width || canvas.height !== height) {
 
             // We have to save the canvas data since changing the size will clear it
@@ -434,7 +459,8 @@ export default class Display {
         this._asyncRenderQPush({
             'type': 'flip',
             'frame_id': frame_id,
-            'rect_cnt': rect_cnt
+            'rect_cnt': rect_cnt,
+            'screenLocations': [ { screenIndex: 0, x: 0, y: 0 } ]
         });
     }
 
@@ -480,15 +506,17 @@ export default class Display {
 
     fillRect(x, y, width, height, color, frame_id, fromQueue) {
         if (!fromQueue) {
-            this._asyncRenderQPush({
-                'type': 'fill',
-                'x': x,
-                'y': y,
-                'width': width,
-                'height': height,
-                'color': color,
-                'frame_id': frame_id
-            });
+            let rect = {
+                type: 'fill',
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                color: color,
+                frame_id: frame_id
+            }
+            this._processRectScreens(rect);
+            this._asyncRenderQPush(rect);
         } else {
             this._setFillColor(color);
             this._targetCtx.fillRect(x, y, width, height);
@@ -497,7 +525,7 @@ export default class Display {
 
     copyImage(oldX, oldY, newX, newY, w, h, frame_id, fromQueue) {
         if (!fromQueue) {
-            this._asyncRenderQPush({
+            let rect = {
                 'type': 'copy',
                 'oldX': oldX,
                 'oldY': oldY,
@@ -506,7 +534,9 @@ export default class Display {
                 'width': w,
                 'height': h,
                 'frame_id': frame_id
-            });
+            }
+            this._processRectScreens(rect);
+            this._asyncRenderQPush(rect);
         } else {
             // Due to this bug among others [1] we need to disable the image-smoothing to
             // avoid getting a blur effect when copying data.
@@ -531,18 +561,31 @@ export default class Display {
         if ((width === 0) || (height === 0)) {
             return;
         }
-        const img = new Image();
-        img.src = "data: " + mime + ";base64," + Base64.encode(arr);
-
-        this._asyncRenderQPush({
+        
+        let rect = {
             'type': 'img',
-            'img': img,
+            'img': null,
             'x': x,
             'y': y,
             'width': width,
             'height': height,
             'frame_id': frame_id
-        });
+        }
+        this._processRectScreens(rect);
+
+        if (rect.inPrimary) {
+            const img = new Image();
+            img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+            rect.img = img;
+        } else {
+            rect.type = 'img_array'
+        }
+        if (rect.inSecondary) {
+            rect.mime = mime;
+            rect.arr = arr;
+        }
+
+        this._asyncRenderQPush(rect);
     }
 
     transparentRect(x, y, width, height, img, frame_id) {
@@ -560,12 +603,18 @@ export default class Display {
             'height': height,
             'frame_id': frame_id
         }
+        this._processRectScreens(rect);
 
-        let imageBmpPromise = createImageBitmap(img);
-        imageBmpPromise.then( function(img) {
-            rect.img = img;
-            rect.img.complete = true;
-        }.bind(rect) );
+        if (rect.inPrimary) {
+            let imageBmpPromise = createImageBitmap(img);
+            imageBmpPromise.then( function(img) {
+                rect.img = img;
+                rect.img.complete = true;
+            }.bind(rect) );
+        } 
+        if (rect.inSecondary) {
+            rect.arr = img;
+        }
 
         this._asyncRenderQPush(rect);
     }
@@ -577,7 +626,7 @@ export default class Display {
             // this probably isn't getting called *nearly* as much
             const newArr = new Uint8Array(width * height * 4);
             newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
-            this._asyncRenderQPush({
+            let rect = {
                 'type': 'blit',
                 'data': newArr,
                 'x': x,
@@ -585,7 +634,9 @@ export default class Display {
                 'width': width,
                 'height': height,
                 'frame_id': frame_id
-            });
+            }
+            this._processRectScreens(rect);
+            this._asyncRenderQPush(rect);
         } else {
             // NB(directxman12): arr must be an Type Array view
             let data = new Uint8ClampedArray(arr.buffer,
@@ -598,7 +649,7 @@ export default class Display {
 
     blitQoi(x, y, width, height, arr, offset, frame_id, fromQueue) {
         if (!fromQueue) {
-            this._asyncRenderQPush({
+            let rect = {
                 'type': 'blitQ',
                 'data': arr,
                 'x': x,
@@ -606,7 +657,9 @@ export default class Display {
                 'width': width,
                 'height': height,
                 'frame_id': frame_id
-            });
+            }
+            this._processRectScreens(rect);
+            this._asyncRenderQPush(rect);
         } else {
             this._targetCtx.putImageData(arr, x, y);
         }
@@ -646,6 +699,53 @@ export default class Display {
     }
 
     // ===== PRIVATE METHODS =====
+
+    _handleSecondaryDisplayMessage(event) {
+        if (!this._isPrimaryDisplay && event.data) {
+            
+            switch (event.data.eventType) {
+                case 'rect':
+                    let rect = event.data.rect;
+                    let pos = rect.screenLocations[event.data.screenLocationIndex];
+                    if (!pos) {
+                        console.log('wtf');
+                    }
+                    switch (rect.type) {
+                        case 'copy':
+                            this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
+                            break;
+                        case 'fill':
+                            this.fillRect(pos.x, pos.y, rect.width, rect.height, rect.color, rect.frame_id, true);
+                            break;
+                        case 'blit':
+                            this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
+                            break;
+                        case 'blitQ':
+                            this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
+                            break;
+                        case 'img':
+                        case 'img_arr':
+                            rect.img = new Image();
+                            rect.img.src = "data: " + rect.mime + ";base64," + Base64.encode(rect.arr);
+                            if (!rect.img.complete) {
+                                rect.img.addEventListener('load', function (rect) {
+                                    this.drawImage(rect.img, pos.x, pos.y, rect.width, rect.height);
+                                }.bind(this, rect));
+                            } else {
+                                this.drawImage(rect.img, pos.x, pos.y, rect.width, rect.height);
+                            }
+                            break;
+                        case 'transparent':
+                            let imageBmpPromise = createImageBitmap(rect.arr);
+                            imageBmpPromise.then(function(rect, img) {
+                                this.drawImage(img, pos.x, pos.y, rect.width, rect.height);
+                            }).bind(this, rect);
+                            break;
+                    }
+                    break;
+            }
+        }
+    }
 
     /*
     Process incoming rects into a frame buffer, assume rects are out of order due to either UDP or parallel processing of decoding
@@ -772,34 +872,53 @@ export default class Display {
             for (let i = 0; i < frame.length; i++) {
                 
                 const a = frame[i];
-                switch (a.type) {
-                    case 'copy':
-                        this.copyImage(a.oldX, a.oldY, a.x, a.y, a.width, a.height, a.frame_id, true);
-                        break;
-                    case 'fill':
-                        this.fillRect(a.x, a.y, a.width, a.height, a.color, a.frame_id, true);
-                        break;
-                    case 'blit':
-                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, a.frame_id, true);
-                        break;
-                    case 'blitQ':
-                        this.blitQoi(a.x, a.y, a.width, a.height, a.data, 0, a.frame_id, true);
-                        break;
-                    case 'img':
-                        this.drawImage(a.img, a.x, a.y, a.width, a.height);
-                        break;
-                    case 'transparent':
-                        transparent_rects.push(a);
-                        break;
+
+                for (let sI = 0; sI < a.screenLocations.length; sI++) {
+                    let screenLocation = a.screenLocations[sI];
+                    if (screenLocation.screenIndex == 0) {
+                        switch (a.type) {
+                            case 'copy':
+                                this.copyImage(screenLocation.oldX, screenLocation.oldY, screenLocation.x, screenLocation.y, a.width, a.height, a.frame_id, true);
+                                break;
+                            case 'fill':
+                                this.fillRect(screenLocation.x, screenLocation.y, a.width, a.height, a.color, a.frame_id, true);
+                                break;
+                            case 'blit':
+                                this.blitImage(screenLocation.x, screenLocation.y, a.width, a.height, a.data, 0, a.frame_id, true);
+                                break;
+                            case 'blitQ':
+                                this.blitQoi(screenLocation.x, screenLocation.y, a.width, a.height, a.data, 0, a.frame_id, true);
+                                break;
+                            case 'img':
+                                this.drawImage(a.img, screenLocation.x, screenLocation.y, a.width, a.height);
+                                break;
+                            case 'transparent':
+                                transparent_rects.push(a);
+                                break;
+                        }
+                    } else {
+                        if (a.img) {
+                            a.img = null;
+                        }
+                        this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                    }
                 }
             }
 
             //rects with transparency get applied last
             for (let i = 0; i < transparent_rects.length; i++) {
                 const a = transparent_rects[i];
-                
-                if (a.img) {
-                    this.drawImage(a.img, a.x, a.y, a.width, a.height);
+                let screenIndexes = this._getRectScreenIndexes(a);
+
+                for (let sI = 0; sI < screenLocations.length; sI++) {
+                    let screenLocation = a.screenLocations[sI];
+                    if (sI == 0) {
+                        if (a.img) {
+                            this.drawImage(a.img, a.x, a.y, a.width, a.height);
+                        }
+                    } else {
+                        this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                    }
                 }
             }
 
@@ -821,6 +940,41 @@ export default class Display {
         if (!force) {
             window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
+    }
+
+    _processRectScreens(rect) {
+
+        //find which screen this rect belongs to and adjust its x and y to be relative to the destination
+        let indexes = [];
+        rect.inPrimary = false;
+        rect.inSecondary = false;
+        for (let i=0; i < this._screens.length; i++) {
+            let screen = this._screens[i];
+            if ( 
+                ((rect.x >= screen.x && rect.x < screen.x + screen.width) && 
+                (rect.y >= screen.y && rect.y < screen.y + screen.height)) ||
+                ((rect.x+rect.width >= screen.x && rect.x+rect.width < screen.x + screen.width) && 
+                (rect.y+rect.height >= screen.y && rect.y+rect.height < screen.y + screen.height)) 
+            ) {
+                let screenPosition = { 
+                    x: 0 - (screen.x - rect.x), //rect.x - screen.x,
+                    y: 0 - (screen.y - rect.y), //rect.y - screen.y,
+                    screenIndex: i
+                }
+                if (rect.type === 'copy') {
+                    screenPosition.oldX = 0 - (screen.x - rect.oldX); //rect.oldX - screen.x;
+                    screenPosition.oldY = 0 - (screen.y - rect.oldY); //rect.oldY - screen.y;
+                }
+                indexes.push(screenPosition);
+                if (i == 0) {
+                    rect.inPrimary = true;
+                } else {
+                    rect.inSecondary = true;
+                }
+            }
+        }
+
+        rect.screenLocations = indexes;
     }
 
     _rescale(factor) {

@@ -80,7 +80,7 @@ export default class RFB extends EventTargetMixin {
         if (!target) {
             throw new Error("Must specify target");
         }
-        if (!urlOrChannel) {
+        if (!urlOrChannel && isPrimaryDisplay) {
             throw new Error("Must specify URL, WebSocket or RTCDataChannel");
         }
 
@@ -219,7 +219,7 @@ export default class RFB extends EventTargetMixin {
         this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
         if (this._supportsBroadcastChannel) {
             this._controlChannel = new BroadcastChannel("registrationChannel");
-            this._controlChannel.message = this._handleControlMessage.bind(this);
+            this._controlChannel.addEventListener('message', this._handleControlMessage.bind(this));
             Log.Debug("Attached to registrationChannel for secondary displays.")
             
         }
@@ -277,7 +277,7 @@ export default class RFB extends EventTargetMixin {
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
         try {
-            this._display = new Display(this._canvas);
+            this._display = new Display(this._canvas, this._isPrimaryDisplay);
         } catch (exc) {
             Log.Error("Display exception: " + exc);
             throw exc;
@@ -300,6 +300,10 @@ export default class RFB extends EventTargetMixin {
 
         if (this._isPrimaryDisplay) {
             this._setupWebSocket();
+        } else {
+            this._updateConnectionState('connecting');
+            this._registerSecondaryDisplay();
+            this._updateConnectionState('connected');
         }
 
         Log.Debug("<< RFB.constructor");
@@ -326,6 +330,11 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+
+    get translateShortcuts() { return this._keyboard.translateShortcuts; }
+    set translateShortcuts(value) {
+        this._keyboard.translateShortcuts = value;
+    }
 
     get pointerLock() { return this._pointerLock; }
     set pointerLock(value) {
@@ -1065,8 +1074,6 @@ export default class RFB extends EventTargetMixin {
             } catch (e) {
                 this._fail("Error attaching channel (" + e + ")");
             }
-        } else {
-            this._registerSecondaryDisplay();
         }
 
         // Make our elements part of the page
@@ -1608,30 +1615,8 @@ export default class RFB extends EventTargetMixin {
                                            { detail: { capabilities: this._capabilities } }));
     }
 
-    _registerSecondaryDisplay() {
-        this._primaryDisplayChannel = new BroadcastChannel(`screen_${this._screenID}_channel`);
-        this._primaryDisplayChannel.message = this._handleSecondaryDisplayMessage.bind(this);
-        const size = this._screenSize();
-
-        message = {
-            eventType: 'register',
-            screenID: this._screenID,
-            screenIndex: this._screenIndex,
-            width: size.w,
-            height: size.h,
-            x: 0,
-            y: 0,
-            relativePosition: 0,
-            pixelRatio: window.devicePixelRatio,
-            containerWidth: this._screen.offsetWidth,
-            containerHeight: this._screen.offsetWidth,
-            channel: null
-        }
-        this._controlChannel.postMessage(message)
-    }
-
     _proxyRFBMessage(messageType, data) {
-        message = { 
+        let message = { 
             messageType: messageType,
             data: data
         }
@@ -1641,19 +1626,50 @@ export default class RFB extends EventTargetMixin {
     _handleControlMessage(event) {
         console.log(event);
 
-        switch (event.eventType) {
-            case 'register':
-                this._display.addScreen(event.screenID, event.width, event.height, event.relativePosition, event.pixelRatio, event.containerHeight, event.containerWidth);
-                Log.Info(`Secondary monitor (${event.screenID}) has been registered.`);
-                break;
-            case 'unregister':
-                if (this._display.removeScreen(event.screenID)) {
-                    Log.Info(`Secondary monitor (${event.screenID}) has been removed.`);
-                } else {
-                    Log.Info(`Secondary monitor (${event.screenID}) not found.`);
-                }
+        if (this._isPrimaryDisplay) {
+            switch (event.data.eventType) {
+                case 'register':
+                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.relativePosition, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    const size = this._screenSize();
+                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
+                    break;
+                case 'unregister':
+                    if (this._display.removeScreen(event.data.screenID)) {
+                        Log.Info(`Secondary monitor (${event.data.screenID}) has been removed.`);
+                        const size = this._screenSize();
+                        RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    } else {
+                        Log.Info(`Secondary monitor (${event.data.screenID}) not found.`);
+                    }
+            }
         }
+        
+    }
 
+    _registerSecondaryDisplay() {
+        if (!this._isPrimaryDisplay) {
+            let screen = this._screenSize().screens[0];
+            this._display.resize(screen.containerWidth, screen.containerWidth);
+            screen = this._screenSize().screens[0];
+            
+
+            let message = {
+                eventType: 'register',
+                screenID: screen.screenID,
+                screenIndex: 1,
+                width: screen.width,
+                height: screen.height,
+                x: 0,
+                y: 0,
+                relativePosition: 0,
+                pixelRatio: screen.pixelRatio,
+                containerWidth: screen.containerWidth,
+                containerHeight: screen.containerHeight,
+                channel: null
+            }
+            this._controlChannel.postMessage(message);
+        }
         
     }
 
