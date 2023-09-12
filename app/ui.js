@@ -123,6 +123,7 @@ const UI = {
         let autoconnect = WebUtil.getConfigVar('autoconnect', true);
         if (autoconnect === 'true' || autoconnect == '1') {
             autoconnect = true;
+            UI.inhibitReconnect = false;
             UI.connect();
         } else {
             autoconnect = false;
