@@ -578,11 +578,11 @@ export default class Display {
             img.src = "data: " + mime + ";base64," + Base64.encode(arr);
             rect.img = img;
         } else {
-            rect.type = 'img_array'
+            rect.type = "_img";
         }
         if (rect.inSecondary) {
             rect.mime = mime;
-            rect.arr = arr;
+            rect.src = "data: " + mime + ";base64," + Base64.encode(arr);
         }
 
         this._asyncRenderQPush(rect);
@@ -706,43 +706,49 @@ export default class Display {
             switch (event.data.eventType) {
                 case 'rect':
                     let rect = event.data.rect;
-                    let pos = rect.screenLocations[event.data.screenLocationIndex];
-                    if (!pos) {
-                        console.log('wtf');
-                    }
+                    //overwrite screen locations when received on the secondary display
+                    rect.screenLocations = [ rect.screenLocations[event.data.screenLocationIndex] ]
+                    rect.screenLocations[0].screenIndex = 0;
+                    let pos = rect.screenLocations[0];
+                    
                     switch (rect.type) {
                         case 'copy':
-                            this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
+                            //this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
+                            console.log(`Copy Rect: src.x: ${rect.oldX}, src.y: ${rect.oldY}, x: ${pos.x}, y: ${pos.y}, w: ${rect.width}, h: ${rect.height}`)
+                            this._asyncRenderQPush(rect);
                             break;
                         case 'fill':
-                            this.fillRect(pos.x, pos.y, rect.width, rect.height, rect.color, rect.frame_id, true);
+                            this._asyncRenderQPush(rect);
+                            //this.fillRect(pos.x, pos.y, rect.width, rect.height, rect.color, rect.frame_id, true);
                             break;
                         case 'blit':
-                            this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
+                            this._asyncRenderQPush(rect);
+                            //this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
                             break;
                         case 'blitQ':
-                            this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
+                            this._asyncRenderQPush(rect);
+                            //this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
                             break;
                         case 'img':
-                        case 'img_arr':
+                        case '_img':
                             rect.img = new Image();
-                            rect.img.src = "data: " + rect.mime + ";base64," + Base64.encode(rect.arr);
-                            if (!rect.img.complete) {
-                                rect.img.addEventListener('load', function (rect) {
-                                    this.drawImage(rect.img, pos.x, pos.y, rect.width, rect.height);
-                                }.bind(this, rect));
-                            } else {
-                                this.drawImage(rect.img, pos.x, pos.y, rect.width, rect.height);
-                            }
+                            rect.img.src = rect.src;
+                            rect.type = 'img';
+                            this._asyncRenderQPush(rect);
                             break;
                         case 'transparent':
                             let imageBmpPromise = createImageBitmap(rect.arr);
                             imageBmpPromise.then(function(rect, img) {
-                                this.drawImage(img, pos.x, pos.y, rect.width, rect.height);
+                                rect.img.complete = true;
                             }).bind(this, rect);
+                            this._asyncRenderQPush(rect);
                             break;
                     }
                     break;
+                case 'frameComplete':
+                        this.flip(event.data.frameId, event.data.rectCnt);
+
+                        break;
             }
         }
     }
@@ -783,7 +789,7 @@ export default class Display {
                 }  
             }
 
-            if (this._asyncFrameQueue[frameIx][1] == this._asyncFrameQueue[frameIx][2].length) {
+            if (this._asyncFrameQueue[frameIx][2].length >= this._asyncFrameQueue[frameIx][1]) {
                 //frame is complete
                 this._asyncFrameComplete(frameIx);
             }
@@ -795,6 +801,7 @@ export default class Display {
                 return;
             } else if (rect.frame_id > newestFrameID) {
                 //frame is newer than any frame in the queue, drop old frames
+                Log.Warn("Older Rect Dropped");
                 this._asyncFrameQueue.shift();
                 let rect_cnt = ((rect.type == "flip") ? rect.rect_cnt : 0);
                 this._asyncFrameQueue.push([ rect.frame_id, rect_cnt, [ rect ], (rect_cnt == 1), 0, 0 ]);
@@ -861,12 +868,14 @@ export default class Display {
     */
     _pushAsyncFrame(force=false) {
         if (this._asyncFrameQueue[0][3] || force) {
-            let frame = this._asyncFrameQueue.shift()[2];
+            let frame = this._asyncFrameQueue[0][2];
+            let frameId = this._asyncFrameQueue.shift()[0];
             if (this._asyncFrameQueue.length < this._maxAsyncFrameQueue) {
                 this._asyncFrameQueue.push([ 0, 0, [], false, 0, 0 ]);
             }
 
             let transparent_rects = [];
+            let secondaryScreenRects = 0;
             
             //render the selected frame
             for (let i = 0; i < frame.length; i++) {
@@ -900,7 +909,10 @@ export default class Display {
                         if (a.img) {
                             a.img = null;
                         }
-                        this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                        if (a.type !== 'flip') {
+                            secondaryScreenRects++;
+                            this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                        }
                     }
                 }
             }
@@ -917,8 +929,15 @@ export default class Display {
                             this.drawImage(a.img, a.x, a.y, a.width, a.height);
                         }
                     } else {
+                        secondaryScreenRects++;
                         this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
                     }
+                }
+            }
+
+            if (secondaryScreenRects > 0) {
+                for (let i = 1; i < this.screens.length; i++) {
+                    this._screens[i].channel.postMessage({ eventType: 'frameComplete', frameId: frameId, rectCnt: secondaryScreenRects });
                 }
             }
 

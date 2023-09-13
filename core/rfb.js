@@ -1624,8 +1624,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleControlMessage(event) {
-        console.log(event);
-
         if (this._isPrimaryDisplay) {
             switch (event.data.eventType) {
                 case 'register':
@@ -1649,8 +1647,11 @@ export default class RFB extends EventTargetMixin {
 
     _registerSecondaryDisplay() {
         if (!this._isPrimaryDisplay) {
-            let screen = this._screenSize().screens[0];
-            this._display.resize(screen.containerWidth, screen.containerWidth);
+            //let screen = this._screenSize().screens[0];
+            //
+            let size = this._screenSize();
+            this._display.resize(size.screens[0].containerWidth, size.screens[0].containerHeight);
+            this._display.autoscale(size.screens[0].containerWidth, size.screens[0].containerHeight, size.screens[0].scale);
             screen = this._screenSize().screens[0];
             
 
