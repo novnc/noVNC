@@ -1063,6 +1063,8 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
+
+        history.replaceState(null, "", window.location.pathname.substring(1));
     },
 
     disconnect() {
