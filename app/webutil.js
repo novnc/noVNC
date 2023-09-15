@@ -36,6 +36,7 @@ export function getQueryVar(name, defVal) {
     if (typeof defVal === 'undefined') { defVal = null; }
 
     if (match) {
+        history.replaceState(null, "", window.location.pathname.slice(1, 1));
         return decodeURIComponent(match[1]);
     }
 
