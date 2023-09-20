@@ -691,7 +691,7 @@ export default class RFB extends EventTargetMixin {
         if (!this.focusOnClick) {
             return;
         }
-
+        this._sendPingMessage();
         this.focus({ preventScroll: true });
     }
 
@@ -961,8 +961,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleMessage() {
-        window.parent.postMessage(JSON.stringify({method: 'noVNCPing'}), '*');
-
         if (this._sock.rQwait("message", 1)) {
             Log.Warn("handleMessage called on an empty receive queue");
             return;
@@ -998,11 +996,17 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+    _sendPingMessage() {
+        window.parent.postMessage(JSON.stringify({method: 'noVNCPing'}), '*');
+    }
+
     _handleKeyEvent(keysym, code, down) {
+        this._sendPingMessage();
         this.sendKey(keysym, code, down);
     }
 
     _handleMouse(ev) {
+        this._sendPingMessage();
         /*
          * We don't check connection status or viewOnly here as the
          * mouse events might be used to control the viewport
@@ -1142,6 +1146,8 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
+        this._sendPingMessage();
+
         ev.stopPropagation();
         ev.preventDefault();
 
@@ -1230,6 +1236,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleGesture(ev) {
+        this._sendPingMessage();
+
         let magnitude;
 
         let pos = clientToElement(ev.detail.clientX, ev.detail.clientY,
