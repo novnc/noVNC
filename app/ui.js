@@ -1388,6 +1388,7 @@ const UI = {
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.addEventListener("inputlock", UI.inputLockChanged);
         UI.rfb.addEventListener("inputlockerror", UI.inputLockError);
+        UI.rfb.addEventListener("screenregistered", UI.screenRegistered);
         UI.rfb.translateShortcuts = UI.getSetting('translate_shortcuts');
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
@@ -2469,6 +2470,19 @@ const UI = {
                 });
             }
         }
+    },
+
+    screenRegistered(e) {
+        // Get the current screen plan
+        // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
+        let screenPlan = UI.rfb.getScreenPlan();
+
+        // Now make adjustments to the screen plan, this is just an example
+        screenPlan.screens[1].y = 100;
+        
+        // Finally apply the screen plan
+        UI.rfb.applyScreenPlan(screenPlan);
+        console.log(screenPlan);
     },
 
     //Helper to add options to dropdown.

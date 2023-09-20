@@ -11,7 +11,7 @@ import * as Log from './util/logging.js';
 import Base64 from "./base64.js";
 import { toSigned32bit } from './util/int.js';
 import { isWindows } from './util/browser.js';
-import { uuidv4 } from './util/strings.js'
+import { uuidv4 } from './util/strings.js';
 
 export default class Display {
     constructor(target, isPrimaryDisplay) {
@@ -81,6 +81,7 @@ export default class Display {
 
         // ===== PROPERTIES =====
 
+        this._maxScreens = 4;
         this._scale = 1.0;
         this._clipViewport = false;
         this._antiAliasing = 0;
@@ -96,9 +97,9 @@ export default class Display {
             serverHeight: 0, //calculated
             x: 0,
             y: 0,
-            relativePosition: 0,
-            relativePositionX: 0,
-            relativePositionY: 0,
+            relativePosition: 0, //left, right, up, down relative to primary display
+            relativePositionX: 0, //offset relative to primary monitor, always 0 for primary
+            relativePositionY: 0, //offset relative to primary monitor, always 0 for primary
             pixelRatio: window.devicePixelRatio,
             containerHeight: this._target.parentNode.offsetHeight,
             containerWidth: this._target.parentNode.offsetWidth,
@@ -122,32 +123,16 @@ export default class Display {
 
     // ===== PROPERTIES =====
 
-    get relativePosition() { return this._screens[0].relativePosition; }
-    set relativePosition(value) {
-        if (!this._isPrimaryDisplay && value >= 0 && value < 4) {
-            this._screens[0].relativePosition = value;
-            //reset relative X and Y
-            this._screens[0].relativePositionX = 0;
-            this._screens[0].relativePositionY = 0;
-        }
-    }
-
-    get relativePositionX() { return this._screens[0].relativePositionX; }
-    set relativePositionX(value) {
-        if (!this._isPrimaryDisplay && (this._screens[0].relativePosition == 1 || this._screens[0].relativePosition == 3)) {
-            this._screens[0].relativePositionX = value;
-        }
-    }
-
-    get relativePositionY() { return this._screens[0].relativePositionY; }
-    set relativePositionY(value) {
-        if (!this._isPrimaryDisplay && (this._screens[0].relativePosition == 0 || this._screens[0].relativePosition == 2)) {
-            this._screens[0].relativePositionY = value;
-        }
-    }
-
     get screens() { return this._screens; }
     get screenId() { return this._screenID; }
+    get screenIndex() {
+        // A secondary screen should not have a screen index of 0, but it will be 0 until registration is complete
+        // returning a -1 lets the caller know the screen has not been registered yet
+        if (!this._isPrimaryDisplay && this._screens[0].screenIndex == 0) {
+            return -1;
+        }
+        return this._screens[0].screenIndex; 
+    }
     
     get antiAliasing() { return this._antiAliasing; }
     set antiAliasing(value) {
@@ -189,61 +174,20 @@ export default class Display {
     // ===== PUBLIC METHODS =====
 
     /*
-    Returns coordinates that are client relative when multiple monitors are in use
-    Returns an array with the following
-    0 - screen index
-    1 - screenId
-    2 - x
-    3 - y
+    Returns the screen index given serverside relative coordinates
     */
-    getClientRelativeCoordinates(x, y) {
-        if (this._screens.length == 1) {
-            return [ 0, this._screenID, x, y ];
-        }
-        //TODO: The following logic will only support two monitors placed horizontally
-        let screenOrientation = this._screens[1].relativePosition;
-        let screenIdx = 0;
-        let screenId = this._screens[0].screenID;
-        if (screenOrientation == 0) {
-            if (x >= this._screens[1].x) {
-                x -= this._screens[1].x;
-                screenIdx  = 1;
-                screenId = this._screens[1].screenID;
-            }
-        } else if (screenOrientation == 2) {
-            if (x >= this._screens[0].x) {
-                x -= this._screens[0].x;
-            }
-        }
-        return [ screenIdx, screenId, x, y ];
+    getScreenIndexByServerCoords(x, y) {
+
     }
 
     /* 
     Returns coordinates that are server relative when multiple monitors are in use
     */
-    getServerRelativeCoordinates(screenId, x, y) {
-        // If this is the primary screen and only one screen, lets keep it simple
-        if (this._isPrimaryDisplay && this._screens.length == 1) {
-            return [x, y];
+    getServerRelativeCoordinates(screenIndex, x, y) {
+        if (screenIndex >= 0 && screenIndex < this._screens.length) {
+            x += this._screens[screenIndex].x;
+            y += this._screens[screenIndex].y;
         }
-
-        // Find the screen index by ID
-        let screenIdx = -1;
-        for (let i=0; i<this._screens.length; i++) {
-            if (screenId == this._screens[i].screenID) {
-                screenIdx = i;
-                break;
-            }
-        }
-
-        // If we didn't find the screen, log and return coords
-        if (screenIdx < 0) {
-            Log.Warn('Invalid screen ID presented for getServerRelativeCoordinates');
-            return [x, y]
-        }
-        
-        x += this._screens[screenIdx].x;
-        y += this._screens[screenIdx].y;
 
         return [x, y];
     }
@@ -301,90 +245,33 @@ export default class Display {
             this._screens[i].scale = scale;
         }
 
-        const primary_screen = this._screens[0];
-        //reset primary display position
-        primary_screen.x = 0;
-        primary_screen.y = 0;
-        let total_server_width = primary_screen.serverWidth;
-        let total_server_height = primary_screen.serverHeight;
-
-        //TODO: The following logic will only support two monitors
-        // Calculate total area of all screens and positions of each screen within the total area
-        if (this._screens.length > 1) {
-            
-            const secondary_screen = this._screens[1];
-            secondary_screen.x = 0;
-            secondary_screen.y = 0;
-
-            switch (this._screens[1].relativePosition) {
-                case 0:
-                    //primary screen is to left
-                    total_server_width = secondary_screen.serverWidth + primary_screen.serverWidth;
-                    total_server_height = Math.max(primary_screen.serverHeight, secondary_screen.serverHeight) + Math.abs(secondary_screen.relativePositionY);
-                    secondary_screen.x = primary_screen.serverWidth;
-                    
-                    if (secondary_screen.relativePositionY >= 0) {
-                        secondary_screen.y = secondary_screen.relativePositionY;
-                    } else {
-                        primary_screen.y = Math.abs(secondary_screen.relativePositionY);
-                    }
-                    
-                    break;
-                case 1:
-                    //primary screen is up above
-                    total_server_width = Math.max(primary_screen.serverWidth, secondary_screen.serverWidth) + Math.abs(secondary_screen.relativePositionX);
-                    total_server_height = secondary_screen.serverHeight + primary_screen.serverHeight;
-                    secondary_screen.y = primary_screen.serverHeight;
-
-                    if (secondary_screen.relativePositionX >= 0) {
-                        secondary_screen.x = secondary_screen.relativePositionX;
-                    } else {
-                        primary_screen.x = Math.abs(secondary_screen.relativePositionX);
-                    }
-                    break;
-                case 2:
-                    //primary screen is to right
-                    total_server_width = secondary_screen.serverWidth + primary_screen.serverWidth;
-                    total_server_height = Math.max(primary_screen.serverHeight, secondary_screen.serverHeight) + Math.abs(secondary_screen.relativePositionY);
-                    primary_screen.x = secondary_screen.serverWidth;
-
-                    if (secondary_screen.relativePositionY >= 0) {
-                        secondary_screen.y = secondary_screen.relativePositionY;
-                    } else {
-                        primary_screen.y = Math.abs(secondary_screen.relativePositionY);
-                    }
-                    break;
-                case 3:
-                    //primary screen is down below
-                    total_server_width = Math.max(primary_screen.serverWidth, secondary_screen.serverWidth) + Math.abs(secondary_screen.relativePositionX);
-                    total_server_height = secondary_screen.serverHeight + primary_screen.serverHeight;
-                    primary_screen.y = secondary_screen.serverHeight;
-
-                    if (secondary_screen.relativePositionX >= 0) {
-                        secondary_screen.x = secondary_screen.relativePositionX;
-                    } else {
-                        primary_screen.x = Math.abs(secondary_screen.relativePositionX);
-                    }
-                    break;
-                default:
-                    //TODO: It would not be hard to support vertically stacked monitors
-                    throw new Error("Unsupported screen orientation.");
-            }
+        for (let i = 0; i < this._screens.length; i++) {
+            data.serverWidth = Math.max(data.serverWidth, this._screens[i].x + this._screens[i].width);
+            data.serverHeight = Math.max(data.serverHeight, this._screens[i].y + this._screens[i].height);
         }
 
         data.screens = this._screens;
-        data.serverWidth = total_server_width;
-        data.serverHeight = total_server_height;
 
         return data;
     }
 
-    addScreen(screenID, width, height, relativePosition, relativePositionX, relativePositionY, pixelRatio, containerHeight, containerWidth) {
+    applyScreenPlan(screenPlan) {
+        for (let i = 0; i < screenPlan.screens.length; i++) {
+            for (let z = 0; z < this._screens.length; z++) {
+                if (screenPlan.screens[i].screenID === this._screens[z].screenID) {
+                    this._screens[z].x = screenPlan.screens[i].x;
+                    this._screens[z].y = screenPlan.screens[i].y;
+                }
+            }
+        }
+    }
+
+    addScreen(screenID, width, height, pixelRatio, containerHeight, containerWidth) {
         if (this._isPrimaryDisplay) {
-            //currently only support one secondary screen
-            if (this._screens.length > 1) {
-                this._screens[1].channel.close();
-                this._screens.pop()
+            //for now, place new screen to the far right, until the user repositions it
+            let x = 0;
+            for (let i = 0; i < this._screens.length; i++) {
+                x = Math.max(x, this._screens[i].x + this._screens[i].width);
             }
 
             var new_screen = {
@@ -394,11 +281,8 @@ export default class Display {
                 height: height, //client
                 serverWidth: 0, //calculated
                 serverHeight: 0, //calculated
-                x: 0,
+                x: x,
                 y: 0,
-                relativePosition: relativePosition,
-                relativePositionX: relativePositionX,
-                relativePositionY: relativePositionY,
                 pixelRatio: pixelRatio,
                 containerHeight: containerHeight,
                 containerWidth: containerWidth,
@@ -418,15 +302,24 @@ export default class Display {
     }
 
     removeScreen(screenID) {
+        let removed = false;
         if (this._isPrimaryDisplay) {
             for (let i=1; i<this._screens.length; i++) {
                 if (this._screens[i].screenID == screenID) {
                     this._screens[i].channel.close();
                     this._screens.splice(i, 1);
-                    return true;
+                    removed = true;
+                    break;
                 }
             }
-            return false;
+            //recalculate indexes and update secondary displays
+            for (let i=1; i<this._screens.length; i++) {
+                this.screens[i].screenIndex = i;
+                if (i > 0) {
+                    this._screens[i].channel.postMessage({ eventType: "registered", screenIndex: i });
+                }
+            }
+            return removed;
         } else {
             throw new Error("Secondary screens only allowed on primary display.")
         }
@@ -857,6 +750,12 @@ export default class Display {
                         this.flip(event.data.frameId, event.data.rectCnt);
 
                         break;
+                case 'registered':
+                        if (!this._isPrimaryDisplay) {
+                            this._screens[0].screenIndex = event.data.screenIndex;
+                            Log.Info(`Screen with index (${event.data.screenIndex}) successfully registered with the primary display.`);
+                        }
+                    break;
             }
         }
     }

@@ -207,6 +207,7 @@ export default class RFB extends EventTargetMixin {
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
         this.mouseButtonMapper = null;
+        this._mouseLastScreenIndex = 0;
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -732,14 +733,66 @@ export default class RFB extends EventTargetMixin {
 
     // ===== PUBLIC METHODS =====
 
-    attachSecondaryDisplay(relativePosition, relativePositionX, relativePositionY) {
-        this._display.relativePosition = relativePosition;
-        this._display.relativePositionX = relativePositionX;
-        this._display.relativePositionY = relativePositionY;
-
+    attachSecondaryDisplay() {
         this._updateConnectionState('connecting');
         this._registerSecondaryDisplay();
         this._updateConnectionState('connected');
+    }
+
+    applyScreenPlan(screenPlan) {
+        if (this._isPrimaryDisplay) {
+            let fullPlan = this._display.getScreenSize();
+
+            //check plan for validity
+            let minX = Number.MAX_SAFE_INTEGER, minY = Number.MAX_SAFE_INTEGER;
+            let numScreensFound = 0;
+
+            for (let i = 0; i < screenPlan.screens.length; i++) {
+                minX = Math.min(minX, screenPlan.screens[i].x);
+                minY = Math.min(minY, screenPlan.screens[i].y);
+                for (let z = 0; z < fullPlan.screens.length; z++) {
+                    if (screenPlan.screens[i].screenID == fullPlan.screens[z].screenID) {
+                        numScreensFound++;
+                    }
+                }
+            }
+            if (minX !== 0 || minY !== 0) {
+                throw new Error("Screen plan invalid, improper coordinates provided.");
+            }
+            if (numScreensFound > fullPlan.screens.length) {
+                throw new Error("Screen plan contained more screens then there are registered.")
+            } else if (numScreensFound < fullPlan.screens.length) {
+                throw new Error("Screen plan contained fewer screens then there are registered.")
+            }
+
+            this._display.applyScreenPlan(screenPlan);
+            const size = this._screenSize();
+            RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+            this._updateContinuousUpdates();
+        }
+    }
+
+    getScreenPlan() {
+        let fullPlan = this._display.getScreenSize();
+        let sanitizedPlan = {
+            screens: [],
+            serverWidth: fullPlan.serverWidth,
+            serverHeight: fullPlan.serverHeight
+        };
+
+        for (let i=0; i < fullPlan.screens.length; i++) {
+            sanitizedPlan.screens.push(
+                {
+                    screenID: fullPlan.screens[i].screenID,
+                    serverWidth: fullPlan.screens[i].serverWidth,
+                    serverHeight: fullPlan.screens[i].serverHeight,
+                    x: fullPlan.screens[i].x,
+                    y: fullPlan.screens[i].y
+                }
+            )
+        }
+
+        return sanitizedPlan;
     }
 
     /*
@@ -1628,7 +1681,9 @@ export default class RFB extends EventTargetMixin {
         let message = { 
             eventType: messageType,
             args: data,
-            screenId: this._display.screenId
+            screenId: this._display.screenId,
+            screenIndex: this._display.screenIndex,
+            mouseLastScreenIndex: this._mouseLastScreenIndex,
         }
         this._controlChannel.postMessage(message);
     }
@@ -1638,10 +1693,11 @@ export default class RFB extends EventTargetMixin {
             // Secondary to Primary screen message
             switch (event.data.eventType) {
                 case 'register':
-                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.relativePosition, event.data.relativePositionX, event.data.relativePositionY, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
                     const size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     this._updateContinuousUpdates();
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
                 case 'unregister':
@@ -1654,9 +1710,11 @@ export default class RFB extends EventTargetMixin {
                     }
                     break;
                 case 'pointerEvent':
-                    let coords = this._display.getServerRelativeCoordinates(event.data.screenId, event.data.args[0], event.data.args[1]);
+                    let coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
+                    this._mouseLastScreenIndex = event.data.screenIndex;
                     event.data.args[0] = coords[0];
                     event.data.args[1] = coords[1];
+                    console.log(`screenIndex ${event.data.screenIndex}, x: ${coords[0]}, y: ${coords[1]}`);
                     RFB.messages.pointerEvent(this._sock, ...event.data.args);
                     break;
                 case 'keyEvent':
@@ -1665,6 +1723,9 @@ export default class RFB extends EventTargetMixin {
                 case 'sendBinaryClipboard':
                     RFB.messages.sendBinaryClipboard(this._sock, ...event.data.args);
                     break;
+                // The following are primary to secondary messages that should be ignored on the primary
+                case 'updateCursor':
+                    break;
                 default:
                     Log.Warn(`Unhandled message type (${event.data.eventType}) from control channel.`);
             }
@@ -1672,7 +1733,9 @@ export default class RFB extends EventTargetMixin {
             // Primary to secondary screen message
             switch (event.data.eventType) {
                 case 'updateCursor':
-                    this._updateCursor(...event.data.args);
+                    if (event.data.mouseLastScreenIndex === this._display.screenIndex) {
+                        this._updateCursor(...event.data.args);
+                    }
                     break;
             }
         }
@@ -1703,14 +1766,10 @@ export default class RFB extends EventTargetMixin {
             let message = {
                 eventType: 'register',
                 screenID: screen.screenID,
-                screenIndex: 1,
                 width: screen.width,
                 height: screen.height,
                 x: 0,
                 y: 0,
-                relativePosition: screen.relativePosition,
-                relativePositionX: screen.relativePositionX,
-                relativePositionY: screen.relativePositionY,
                 pixelRatio: screen.pixelRatio,
                 containerWidth: screen.containerWidth,
                 containerHeight: screen.containerHeight,
@@ -1818,6 +1877,7 @@ export default class RFB extends EventTargetMixin {
                                   this._canvas);
         }
 
+        this._mouseLastScreenIndex = this._display.screenIndex;
         this._setLastActive();
         const mappedButton = this.mouseButtonMapper.get(ev.button);
         switch (ev.type) {
@@ -1967,15 +2027,11 @@ export default class RFB extends EventTargetMixin {
             var rel_16_x = toSignedRelative16bit(x - this._pointerLockPos.x);
             var rel_16_y = toSignedRelative16bit(y - this._pointerLockPos.y);
 
-            //console.log("new_pos x" + x + ", y" + y);
-            //console.log("lock x " + this._pointerLockPos.x + ", y " + this._pointerLockPos.y);
-            //console.log("rel x " + rel_16_x + ", y " + rel_16_y);
             if (this._isPrimaryDisplay){
                 RFB.messages.pointerEvent(this._sock, rel_16_x, rel_16_y, mask);
             } else {
                 this._proxyRFBMessage('pointerEvent', [ rel_16_x, rel_16_y, mask ]);
             }
-            
             
             // reset the cursor position to center
             this._mousePos = { x: this._pointerLockPos.x , y: this._pointerLockPos.y };
@@ -3436,9 +3492,9 @@ export default class RFB extends EventTargetMixin {
         const payload = this._sock.rQshiftStr(len);
 
         if (status) {
-            console.log("Unix relay subscription succeeded");
+            Log.Info("Unix relay subscription succeeded");
         } else {
-            console.log("Unix relay subscription failed, " + payload);
+            Log.Warn("Unix relay subscription failed, " + payload);
         }
     }
 
@@ -3654,8 +3710,6 @@ export default class RFB extends EventTargetMixin {
                       + cursorType + " given.");
             return false;
         }
-
-        console.log(`VMCursorUpdate x: ${hotx}, y: ${hoty}`);
 
         this._updateCursor(rgba, hotx, hoty, w, h);
 
@@ -3881,6 +3935,7 @@ export default class RFB extends EventTargetMixin {
             rgbaPixels: rgba,
             hotx: hotx, hoty: hoty, w: w, h: h,
         };
+
         this._refreshCursor();
         this._proxyRFBMessage('updateCursor', [ rgba, hotx, hoty, w, h ]);
     }
