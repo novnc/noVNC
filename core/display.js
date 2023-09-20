@@ -121,6 +121,7 @@ export default class Display {
     // ===== PROPERTIES =====
 
     get screens() { return this._screens; }
+    get screenId() { return this._screenID; }
     
     get antiAliasing() { return this._antiAliasing; }
     set antiAliasing(value) {
@@ -160,6 +161,66 @@ export default class Display {
     get fps() { return this._fps; }
 
     // ===== PUBLIC METHODS =====
+
+    /*
+    Returns coordinates that are client relative when multiple monitors are in use
+    Returns an array with the following
+    0 - screen index
+    1 - screenId
+    2 - x
+    3 - y
+    */
+    getClientRelativeCoordinates(x, y) {
+        if (this._screens.length == 1) {
+            return [ 0, this._screenID, x, y ];
+        }
+        //TODO: The following logic will only support two monitors placed horizontally
+        let screenOrientation = this._screens[1].relativePosition;
+        let screenIdx = 0;
+        let screenId = this._screens[0].screenID;
+        if (screenOrientation == 0) {
+            if (x >= this._screens[1].x) {
+                x -= this._screens[1].x;
+                screenIdx  = 1;
+                screenId = this._screens[1].screenID;
+            }
+        } else if (screenOrientation == 2) {
+            if (x >= this._screens[0].x) {
+                x -= this._screens[0].x;
+            }
+        }
+        return [ screenIdx, screenId, x, y ];
+    }
+
+    /* 
+    Returns coordinates that are server relative when multiple monitors are in use
+    */
+    getServerRelativeCoordinates(screenId, x, y) {
+        // If this is the primary screen and only one screen, lets keep it simple
+        if (this._isPrimaryDisplay && this._screens.length == 1) {
+            return [x, y];
+        }
+
+        // Find the screen index by ID
+        let screenIdx = -1;
+        for (let i=0; i<this._screens.length; i++) {
+            if (screenId == this._screens[i].screenID) {
+                screenIdx = i;
+                break;
+            }
+        }
+
+        // If we didn't find the screen, log and return coords
+        if (screenIdx < 0) {
+            Log.Warn('Invalid screen ID presented for getServerRelativeCoordinates');
+            return [x, y]
+        }
+        
+        x += this._screens[screenIdx].x;
+        y += this._screens[screenIdx].y;
+
+        return [x, y];
+    }
 
     getScreenSize(resolutionQuality, max_width, max_height, hiDpi, disableLimit) {
         let data = {
@@ -710,11 +771,10 @@ export default class Display {
                     rect.screenLocations = [ rect.screenLocations[event.data.screenLocationIndex] ]
                     rect.screenLocations[0].screenIndex = 0;
                     let pos = rect.screenLocations[0];
-                    
+                    //console.log(`${rect.type} Rect: x: ${pos.x}, y: ${pos.y}, w: ${rect.width}, h: ${rect.height}`)
                     switch (rect.type) {
                         case 'copy':
                             //this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
-                            console.log(`Copy Rect: src.x: ${rect.oldX}, src.y: ${rect.oldY}, x: ${pos.x}, y: ${pos.y}, w: ${rect.width}, h: ${rect.height}`)
                             this._asyncRenderQPush(rect);
                             break;
                         case 'fill':
@@ -726,6 +786,7 @@ export default class Display {
                             //this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
                             break;
                         case 'blitQ':
+                            
                             this._asyncRenderQPush(rect);
                             //this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
                             break;
@@ -783,7 +844,7 @@ export default class Display {
                 if (this._asyncFrameQueue[frameIx][1] !== 0) {
                     Log.Warn("Redundant flip rect, current rect_cnt: " + this._asyncFrameQueue[frameIx][1] + ", new rect_cnt: " + rect.rect_cnt );
                 }
-                this._asyncFrameQueue[frameIx][1] = rect.rect_cnt;
+                this._asyncFrameQueue[frameIx][1] += rect.rect_cnt;
                 if (rect.rect_cnt == 0) {
                     Log.Warn("Invalid rect count");
                 }  

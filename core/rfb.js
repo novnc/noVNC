@@ -820,7 +820,7 @@ export default class RFB extends EventTargetMixin {
             Log.Info("Sending key (" + (down ? "down" : "up") + "): keysym " + keysym + ", scancode " + scancode);
 
             if (this._isPrimaryDisplay) {
-                RFB.messages.QEMUExtendedKeyEvent(this._sock, [ keysym, down, scancode]);
+                RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
             } else {
                 this._proxyRFBMessage('QEMUExtendedKeyEvent', [ keysym, down, scancode ])
             }
@@ -1617,19 +1617,22 @@ export default class RFB extends EventTargetMixin {
 
     _proxyRFBMessage(messageType, data) {
         let message = { 
-            messageType: messageType,
-            data: data
+            eventType: messageType,
+            args: data,
+            screenId: this._display.screenId
         }
         this._controlChannel.postMessage(message);
     }
 
     _handleControlMessage(event) {
         if (this._isPrimaryDisplay) {
+            // Secondary to Primary screen message
             switch (event.data.eventType) {
                 case 'register':
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.relativePosition, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
                     const size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    this._updateContinuousUpdates();
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
                 case 'unregister':
@@ -1640,6 +1643,28 @@ export default class RFB extends EventTargetMixin {
                     } else {
                         Log.Info(`Secondary monitor (${event.data.screenID}) not found.`);
                     }
+                    break;
+                case 'pointerEvent':
+                    let coords = this._display.getServerRelativeCoordinates(event.data.screenId, event.data.args[0], event.data.args[1]);
+                    event.data.args[0] = coords[0];
+                    event.data.args[1] = coords[1];
+                    RFB.messages.pointerEvent(this._sock, ...event.data.args);
+                    break;
+                case 'keyEvent':
+                    RFB.messages.keyEvent(this._sock, ...event.data.args);
+                    break;
+                case 'sendBinaryClipboard':
+                    RFB.messages.sendBinaryClipboard(this._sock, ...event.data.args);
+                    break;
+                default:
+                    Log.Warn(`Unhandled message type (${event.data.eventType}) from control channel.`);
+            }
+        } else {
+            // Primary to secondary screen message
+            switch (event.data.eventType) {
+                case 'updateCursor':
+                    this._updateCursor(...event.data.args);
+                    break;
             }
         }
         
@@ -1670,6 +1695,8 @@ export default class RFB extends EventTargetMixin {
                 channel: null
             }
             this._controlChannel.postMessage(message);
+
+            if (!this._viewOnly) { this._keyboard.grab(); }
         }
         
     }
@@ -3606,6 +3633,8 @@ export default class RFB extends EventTargetMixin {
             return false;
         }
 
+        console.log(`VMCursorUpdate x: ${hotx}, y: ${hoty}`);
+
         this._updateCursor(rgba, hotx, hoty, w, h);
 
         return true;
@@ -3831,6 +3860,7 @@ export default class RFB extends EventTargetMixin {
             hotx: hotx, hoty: hoty, w: w, h: h,
         };
         this._refreshCursor();
+        this._proxyRFBMessage('updateCursor', [ rgba, hotx, hoty, w, h ]);
     }
 
     _shouldShowDotCursor() {

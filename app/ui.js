@@ -1421,7 +1421,7 @@ const UI = {
         UI.rfb.mouseButtonMapper = UI.initMouseButtonMapper();
         if (UI.rfb.videoQuality === 5) {
             UI.rfb.enableQOI = true;
-	}
+	    }
 
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
