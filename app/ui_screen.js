@@ -220,7 +220,9 @@ const UI = {
     },
 
     disconnect() {
-
+        if (UI.rfb) {
+            UI.rfb.disconnect();
+        }
     },
 
     connectFinished(e) {

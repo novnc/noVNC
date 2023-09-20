@@ -770,11 +770,14 @@ export default class RFB extends EventTargetMixin {
     }
 
     disconnect() {
-        if (this._rfbConnectionState !== 'proxied') {
+        if (this._isPrimaryDisplay) {
             this._updateConnectionState('disconnecting');
             this._sock.off('error');
             this._sock.off('message');
             this._sock.off('open');
+        } else {
+            this._updateConnectionState('disconnecting');
+            this._unregisterSecondaryDisplay();
         }
     }
 
@@ -1672,6 +1675,17 @@ export default class RFB extends EventTargetMixin {
                     this._updateCursor(...event.data.args);
                     break;
             }
+        }
+        
+    }
+
+    _unregisterSecondaryDisplay() {
+        if (!this._isPrimaryDisplay){
+            let message = {
+                eventType: 'unregister',
+                screenID: this._display.screenId
+            }
+            this._controlChannel.postMessage(message);
         }
         
     }

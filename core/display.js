@@ -418,9 +418,10 @@ export default class Display {
     }
 
     removeScreen(screenID) {
-        if (this.isPrimaryDisplay) {
+        if (this._isPrimaryDisplay) {
             for (let i=1; i<this._screens.length; i++) {
                 if (this._screens[i].screenID == screenID) {
+                    this._screens[i].channel.close();
                     this._screens.splice(i, 1);
                     return true;
                 }
