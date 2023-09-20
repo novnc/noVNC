@@ -300,11 +300,7 @@ export default class RFB extends EventTargetMixin {
 
         if (this._isPrimaryDisplay) {
             this._setupWebSocket();
-        } else {
-            this._updateConnectionState('connecting');
-            this._registerSecondaryDisplay();
-            this._updateConnectionState('connected');
-        }
+        } 
 
         Log.Debug("<< RFB.constructor");
 
@@ -735,6 +731,16 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PUBLIC METHODS =====
+
+    attachSecondaryDisplay(relativePosition, relativePositionX, relativePositionY) {
+        this._display.relativePosition = relativePosition;
+        this._display.relativePositionX = relativePositionX;
+        this._display.relativePositionY = relativePositionY;
+
+        this._updateConnectionState('connecting');
+        this._registerSecondaryDisplay();
+        this._updateConnectionState('connected');
+    }
 
     /*
     This function must be called after changing any properties that effect rendering quality
@@ -1629,7 +1635,7 @@ export default class RFB extends EventTargetMixin {
             // Secondary to Primary screen message
             switch (event.data.eventType) {
                 case 'register':
-                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.relativePosition, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.relativePosition, event.data.relativePositionX, event.data.relativePositionY, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
                     const size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     this._updateContinuousUpdates();
@@ -1688,7 +1694,9 @@ export default class RFB extends EventTargetMixin {
                 height: screen.height,
                 x: 0,
                 y: 0,
-                relativePosition: 0,
+                relativePosition: screen.relativePosition,
+                relativePositionX: screen.relativePositionX,
+                relativePositionY: screen.relativePositionY,
                 pixelRatio: screen.pixelRatio,
                 containerWidth: screen.containerWidth,
                 containerHeight: screen.containerHeight,

@@ -92,6 +92,20 @@ const UI = {
             UI.rfb.enableQOI = true;
         }
 
+        // attach secondary display with relative position, relative x, and relative y
+        // relativePosition:
+        //     0: primary display is to left
+        //     1: primary display is up top
+        //     2: primary display is to right
+        //     3: primary display is down below
+        // relativePositionX: 
+        //     non-zero number only allowed if relativePosition is 1 or 3
+        //     How many pixels on the X axis is the secondary screens starting position from the primary displays
+        // relativePositionY: 
+        //     non-zero number only allowed if relativePosition is 0 or 2
+        //     How many pixels on the Y axis is the secondary screens starting position from the primary displays
+        UI.rfb.attachSecondaryDisplay(3, 0, 0);
+
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
             navigator.permissions.query({ name: "clipboard-read" }).then((result) => { Log.Debug('binary clipboard enabled') });
@@ -198,6 +212,11 @@ const UI = {
         if (statusType !== 'error') {
             UI.statusTimeout = window.setTimeout(UI.hideStatus, time);
         }
+    },
+
+    hideStatus() {
+        clearTimeout(UI.statusTimeout);
+        document.getElementById('noVNC_status').classList.remove("noVNC_open");
     },
 
     disconnect() {
