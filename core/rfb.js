@@ -282,6 +282,8 @@ export default class RFB extends EventTargetMixin {
 
         // ===== PROPERTIES =====
 
+        this.gestures = this._gestures;
+
         this.dragViewport = false;
         this.focusOnClick = true;
 
@@ -1444,6 +1446,17 @@ export default class RFB extends EventTargetMixin {
 
         return clientTypes.includes(type);
     }
+
+    _onGestureZoom(scale) {
+        const currentScale = this._display.scale;  // assuming you have a scale property in your _display object
+        const newScale = currentScale * scale;
+    
+        // Calculate the midpoint of the two touches
+        const midX = (this._gestureHandler._tracked[0].clientX + this._gestureHandler._tracked[1].clientX) / 2;
+        const midY = (this._gestureHandler._tracked[0].clientY + this._gestureHandler._tracked[1].clientY) / 2;
+    
+        this._display.setTransform(midX, midY, newScale);
+    }    
 
     _negotiateSecurity() {
         if (this._rfbVersion >= 3.7) {

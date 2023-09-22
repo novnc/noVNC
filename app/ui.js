@@ -64,10 +64,10 @@ const UI = {
 
         // We rely on modern APIs which might not be available in an
         // insecure context
-        if (!window.isSecureContext) {
-            // FIXME: This gets hidden when connecting
-            UI.showStatus(_("HTTPS is required for full functionality"), 'error');
-        }
+        // if (!window.isSecureContext) {
+        //     // FIXME: This gets hidden when connecting
+        //     UI.showStatus(_("HTTPS is required for full functionality"), 'error');
+        // }
 
         // Try to fetch version number
         fetch('./package.json')
@@ -229,8 +229,9 @@ const UI = {
         document.getElementById("noVNC_control_bar")
             .addEventListener('keydown', UI.keepControlbar);
 
-        document.getElementById("noVNC_view_drag_button")
-            .addEventListener('click', UI.toggleViewDrag);
+        // // Agilicus Modified
+        // document.getElementById("noVNC_view_drag_button")
+        //     .addEventListener('click', UI.toggleViewDrag);
 
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('mousedown', UI.controlbarHandleMouseDown);
@@ -1033,13 +1034,14 @@ const UI = {
 
         let url;
 
-        url = UI.getSetting('encrypt') ? 'wss' : 'ws';
+        // url = UI.getSetting('encrypt') ? 'wss' : 'ws';
 
-        url += '://' + host;
-        if (port) {
-            url += ':' + port;
-        }
-        url += '/' + path;
+        // url += '://' + host;
+        // if (port) {
+        //     url += ':' + port;
+        // }
+        // url += '/' + path;
+        url = 'ws://192.168.2.59:6080/websockify';
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
@@ -1050,7 +1052,7 @@ const UI = {
         UI.rfb.addEventListener("serververification", UI.serverVerify);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
-        UI.rfb.addEventListener("clippingviewport", UI.updateViewDrag);
+        // UI.rfb.addEventListener("clippingviewport", UI.updateViewDrag);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
@@ -1104,6 +1106,9 @@ const UI = {
     connectFinished(e) {
         UI.connected = true;
         UI.inhibitReconnect = false;
+        // Agilicus modified from original file
+        // UI.toggleViewDrag();
+        UI.rfb.dragViewport = true;
 
         let msg;
         if (UI.getSetting('encrypt')) {
@@ -1116,6 +1121,22 @@ const UI = {
 
         // Do this last because it can only be used on rendered elements
         UI.rfb.focus();
+        const vncCanvas = document.querySelector('.noVNC_container canvas');
+
+        function resetZoom() {
+            // Reset the transform properties
+            vncCanvas.style.transformOrigin = `0 0`;
+            vncCanvas.style.transform = `scale(1)`;
+
+            // Reset zoom-related variables if they're used
+            UI.rfb.gestures.initialScale = 1;
+            UI.rfb.gestures.currentScale = 1;
+        }
+
+        const resetButton = document.getElementById('resetZoomBtn');
+        if (resetButton) {
+            resetButton.addEventListener('click', resetZoom);
+        }
     },
 
     disconnectFinished(e) {
@@ -1355,7 +1376,7 @@ const UI = {
 
         // Changing the viewport may change the state of
         // the dragging button
-        UI.updateViewDrag();
+        // UI.updateViewDrag();
     },
 
 /* ------^-------
@@ -1364,12 +1385,12 @@ const UI = {
  *    VIEWDRAG
  * ------v------*/
 
-    toggleViewDrag() {
-        if (!UI.rfb) return;
+    // toggleViewDrag() {
+    //     if (!UI.rfb) return;
 
-        UI.rfb.dragViewport = !UI.rfb.dragViewport;
-        UI.updateViewDrag();
-    },
+    //     UI.rfb.dragViewport = !UI.rfb.dragViewport;
+    //     // UI.updateViewDrag();
+    // },
 
     updateViewDrag() {
         if (!UI.connected) return;

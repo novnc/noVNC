@@ -71,9 +71,12 @@
             <hr>
 
             <!-- Drag/Pan the viewport -->
-            <input type="image" alt="Drag" src="app/images/drag.svg"
+            <!-- <input type="image" alt="Drag" src="app/images/drag.svg"
                 id="noVNC_view_drag_button" class="noVNC_button noVNC_hidden"
-                title="Move/Drag Viewport">
+                title="Move/Drag Viewport"> -->
+            <input id="resetZoomBtn" type="image" alt="Zoom reset" src="app/images/reset-zoom-icon.svg"
+                id="novnc_zoom_reset" class="noVNC_button"
+                title="Zoom Reset">
 
             <!--noVNC Touch Device only buttons-->
             <div id="noVNC_mobile_buttons">
@@ -324,7 +327,8 @@
     </div>
 
     <!-- This is where the RFB elements will attach -->
-    <div id="noVNC_container">
+    <!-- <div id="noVNC_container"> -->
+    <div id="noVNC_container" class="noVNC_container">
         <!-- Note that Google Chrome on Android doesn't respect any of these,
              html attributes which attempt to disable text suggestions on the
              on-screen keyboard. Let's hope Chrome implements the ime-mode

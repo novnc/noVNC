@@ -49,6 +49,10 @@ export default class GestureHandler {
         this._twoTouchTimeoutId = null;
 
         this._boundEventHandler = this._eventHandler.bind(this);
+
+        this.initialDistance = 0;
+        this.initialScale = 1;
+        this.currentScale = 1;
     }
 
     attach(target) {
@@ -432,6 +436,31 @@ export default class GestureHandler {
         this._pushEvent('gesturemove');
     }
 
+    onGestureStart(detail) {
+        this.initialDistance = Math.sqrt(detail.magnitudeX**2 + detail.magnitudeY**2);
+    }
+
+    onGestureMove(detail) {
+        if (this.initialDistance === 0) return;
+
+        let currentDistance = Math.sqrt(detail.magnitudeX**2 + detail.magnitudeY**2);
+        let scaleFactor = currentDistance / this.initialDistance;
+
+        this.currentScale = this.initialScale * scaleFactor;
+
+        this.applyZoom(this.currentScale, detail.clientX, detail.clientY);
+    }
+
+    onGestureEnd(detail) {
+        this.initialScale = this.currentScale;
+        this.initialDistance = 0;
+    }
+
+    applyZoom(scale, centerX, centerY) {
+        this._target.style.transformOrigin = `${centerX}px ${centerY}px`;
+        this._target.style.transform = `scale(${scale})`;
+    }
+
     _pushEvent(type) {
         let detail = { type: this._stateToGesture(this._state) };
 
@@ -478,6 +507,23 @@ export default class GestureHandler {
                 let movement = this._getAverageMovement();
                 detail['magnitudeX'] = movement.x;
                 detail['magnitudeY'] = movement.y;
+            }
+        }
+        console.log("gesture is ======= *********** &&&&&&&&& ", type, { detail: detail });
+        console.log("gesture state is ", this._state);
+        if(this._state == GH_PINCH) {
+            console.log("it is pinch ---------");
+        }
+
+        // ... your existing code ...
+
+        if (this._state === GH_PINCH) {
+            if (type === 'gesturestart') {
+                this.onGestureStart(detail);
+            } else if (type === 'gesturemove') {
+                this.onGestureMove(detail);
+            } else if (type === 'gestureend') {
+                this.onGestureEnd(detail);
             }
         }
 
