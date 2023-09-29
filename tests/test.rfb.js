@@ -3007,6 +3007,149 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(spy.args[0][0].detail.name).to.equal('som€ nam€');
                 });
             });
+
+            describe('Caps Lock and Num Lock remote fixup', function () {
+                function sendLedStateUpdate(state) {
+                    let data = [];
+                    push8(data, state);
+                    sendFbuMsg([{ x: 0, y: 0, width: 0, height: 0, encoding: -261 }], [data], client);
+                }
+
+                let client;
+                beforeEach(function () {
+                    client = makeRFB();
+                    sinon.stub(client, 'sendKey');
+                });
+
+                it('should toggle caps lock if remote caps lock is on and local is off', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0x61, "KeyA", true);
+                });
+
+                it('should toggle caps lock if remote caps lock is off and local is on', function () {
+                    sendLedStateUpdate(0b011);
+                    client._handleKeyEvent(0x41, 'KeyA', true, null, true);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0x41, "KeyA", true);
+                });
+
+                it('should not toggle caps lock if remote caps lock is on and local is on', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0x41, 'KeyA', true, null, true);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0x41, "KeyA", true);
+                });
+
+                it('should not toggle caps lock if remote caps lock is off and local is off', function () {
+                    sendLedStateUpdate(0b011);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0x61, "KeyA", true);
+                });
+
+                it('should not toggle caps lock if the key is caps lock', function () {
+                    sendLedStateUpdate(0b011);
+                    client._handleKeyEvent(0xFFE5, 'CapsLock', true, null, true);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                });
+
+                it('should toggle caps lock only once', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+
+                    expect(client.sendKey).to.have.callCount(4);
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0x61, "KeyA", true);
+                    expect(client.sendKey.lastCall).to.have.been.calledWith(0x61, "KeyA", true);
+                });
+
+                it('should retain remote caps lock state on capslock key up', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0xFFE5, 'CapsLock', false, null, true);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client._remoteCapsLock).to.equal(true);
+                });
+
+                it('should toggle num lock if remote num lock is on and local is off', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFF7F, "NumLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                });
+
+                it('should toggle num lock if remote num lock is off and local is on', function () {
+                    sendLedStateUpdate(0b101);
+                    client._handleKeyEvent(0xFFB1, 'NumPad1', true, true, null);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFF7F, "NumLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0xFFB1, "NumPad1", true);
+                });
+
+                it('should not toggle num lock if remote num lock is on and local is on', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFFB1, 'NumPad1', true,  true, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFB1, "NumPad1", true);
+                });
+
+                it('should not toggle num lock if remote num lock is off and local is off', function () {
+                    sendLedStateUpdate(0b101);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                });
+
+                it('should not toggle num lock if the key is num lock', function () {
+                    sendLedStateUpdate(0b101);
+                    client._handleKeyEvent(0xFF7F, 'NumLock', true, true, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                });
+
+                it('should not toggle num lock if local state is unknown', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFFB1, 'NumPad1', true, null, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFB1, "NumPad1", true);
+                });
+
+                it('should toggle num lock only once', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+
+                    expect(client.sendKey).to.have.callCount(4);
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFF7F, "NumLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                    expect(client.sendKey.lastCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                });
+            });
         });
 
         describe('XVP Message Handling', function () {

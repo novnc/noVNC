@@ -260,6 +260,8 @@ export default class RFB extends EventTargetMixin {
 
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
+        this._remoteCapsLock = null; // Null indicates unknown or irrelevant
+        this._remoteNumLock = null;
 
         this._gestures = new GestureHandler();
 
@@ -993,7 +995,35 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    _handleKeyEvent(keysym, code, down) {
+    _handleKeyEvent(keysym, code, down, numlock, capslock) {
+        // If remote state of capslock is known, and it doesn't match the local led state of
+        // the keyboard, we send a capslock keypress first to bring it into sync.
+        // If we just pressed CapsLock, or we toggled it remotely due to it being out of sync
+        // we clear the remote state so that we don't send duplicate or spurious fixes,
+        // since it may take some time to receive the new remote CapsLock state.
+        if (code == 'CapsLock' && down) {
+            this._remoteCapsLock = null;
+        }
+        if (this._remoteCapsLock !== null && capslock !== null && this._remoteCapsLock !== capslock && down) {
+            Log.Debug("Fixing remote caps lock");
+
+            this.sendKey(KeyTable.XK_Caps_Lock, 'CapsLock', true);
+            this.sendKey(KeyTable.XK_Caps_Lock, 'CapsLock', false);
+            // We clear the remote capsLock state when we do this to prevent issues with doing this twice
+            // before we receive an update of the the remote state.
+            this._remoteCapsLock = null;
+        }
+
+        // Logic for numlock is exactly the same.
+        if (code == 'NumLock' && down) {
+            this._remoteNumLock = null;
+        }
+        if (this._remoteNumLock !== null && numlock !== null && this._remoteNumLock !== numlock && down) {
+            Log.Debug("Fixing remote num lock");
+            this.sendKey(KeyTable.XK_Num_Lock, 'NumLock', true);
+            this.sendKey(KeyTable.XK_Num_Lock, 'NumLock', false);
+            this._remoteNumLock = null;
+        }
         this.sendKey(keysym, code, down);
     }
 
@@ -2101,6 +2131,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
         encs.push(encodings.pseudoEncodingQEMUExtendedKeyEvent);
+        encs.push(encodings.pseudoEncodingQEMULedEvent);
         encs.push(encodings.pseudoEncodingExtendedDesktopSize);
         encs.push(encodings.pseudoEncodingXvp);
         encs.push(encodings.pseudoEncodingFence);
@@ -2536,6 +2567,9 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingExtendedDesktopSize:
                 return this._handleExtendedDesktopSize();
 
+            case encodings.pseudoEncodingQEMULedEvent:
+                return this._handleLedEvent();
+
             default:
                 return this._handleDataRect();
         }
@@ -2709,6 +2743,21 @@ export default class RFB extends EventTargetMixin {
         name = decodeUTF8(name, true);
 
         this._setDesktopName(name);
+
+        return true;
+    }
+
+    _handleLedEvent() {
+        if (this._sock.rQwait("LED Status", 1)) {
+            return false;
+        }
+
+        let data = this._sock.rQshift8();
+        // ScrollLock state can be retrieved with data & 1. This is currently not needed.
+        let numLock = data & 2 ? true : false;
+        let capsLock = data & 4 ? true : false;
+        this._remoteCapsLock = capsLock;
+        this._remoteNumLock = numLock;
 
         return true;
     }
