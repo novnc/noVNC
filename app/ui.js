@@ -68,6 +68,9 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    monitors: [],
+    selectedMonitor: null,
+    refreshRotation: 0,
 
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
 
@@ -132,7 +135,8 @@ const UI = {
         UI.addMachineHandlers();
         UI.addClipboardHandlers();
         UI.addSettingsHandlers();
-        UI.addMultiMonitorAddHandler();
+        UI.addDisplaysHandler();
+        // UI.addMultiMonitorAddHandler();
         document.getElementById("noVNC_status")
             .addEventListener('click', UI.hideStatus);
         UI.openControlbar();
@@ -574,12 +578,22 @@ const UI = {
         window.addEventListener('msfullscreenchange', UI.updateFullscreenButton);
     },
 
-    addMultiMonitorAddHandler() {
+    addDisplaysHandler() {
         if (UI.supportsBroadcastChannel) {
-            UI.showControlInput("noVNC_addmonitor_button");
-            UI.addClickHandle('noVNC_addmonitor_button', UI.addSecondaryMonitor);
+            UI.showControlInput("noVNC_displays_button");
+            UI.addClickHandle('noVNC_displays_button', UI.openDisplays);
+            UI.addClickHandle('noVNC_close_displays', UI.closeDisplays);
+            UI.addClickHandle('noVNC_addMonitor', UI.addSecondaryMonitor);
+            UI.addClickHandle('noVNC_refreshMonitors', UI.displaysRefresh);
+            
         }
     },
+
+    /*addMultiMonitorAddHandler() {
+        if (UI.supportsBroadcastChannel) {
+            UI.addClickHandle('noVNC_addmonitor_button', UI.addSecondaryMonitor);
+        }
+    },*/
 
 /* ------^-------
  * /EVENT HANDLERS
@@ -1815,12 +1829,288 @@ const UI = {
  *  /MULTI-MONITOR SUPPORT
  * ==============*/
 
+    openDisplays() {
+        document.getElementById('noVNC_displays').classList.add("noVNC_open");
+        let screenPlan = UI.rfb.getScreenPlan();
+        UI.initMonitors(screenPlan)
+        UI.displayMonitors()
+    },
+
+    closeDisplays() {
+        document.getElementById('noVNC_displays').classList.remove("noVNC_open");
+    },
+
+    displaysRefresh() {
+        const rotation = UI.refreshRotation + 180;
+        let screenPlan = UI.rfb.getScreenPlan();
+        document.getElementById('noVNC_refreshMonitors_icon').style.transform = "rotate(" + rotation + "deg)"
+        UI.refreshRotation = rotation
+        UI.updateMonitors(screenPlan)
+        UI.recenter()
+        UI.draw()
+    },
+
     addSecondaryMonitor() {
         let new_display_path = window.location.pathname.replace(/[^/]*$/, '')
         let new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html`;
         
         Log.Debug(`Opening a secondary display ${new_display_url}`)
         window.open(new_display_url);
+    },
+
+    initMonitors(screenPlan) {
+        const { scale } = UI.multiMonitorSettings()
+        let monitors = []
+        screenPlan.screens.forEach(screen => {
+            monitors.push({
+                id: screen.screenID,
+                x: screen.x / scale,
+                y: screen.y / scale,
+                w: screen.serverWidth / scale,
+                h: screen.serverHeight / scale,
+                scale: 1,
+                fill: '#eeeeeecc',
+                isDragging: false
+            })
+        })
+        UI.monitors = monitors
+    },
+
+    updateMonitors(screenPlan) {
+        UI.initMonitors(screenPlan) 
+        UI.recenter()
+        UI.draw()
+    },
+
+    multiMonitorSettings() {
+        const canvas = document.getElementById("noVNC_multiMonitorWidget")
+        return {
+            canvas,
+            ctx: canvas.getContext("2d"),
+            bb: canvas.getBoundingClientRect(),
+            scale: 12,
+            canvasWidth: 560,
+            canvasHeight: 230,
+        }
+    },
+
+    recenter() {
+        const monitors = UI.monitors
+        UI.removeSpaces()
+        const { startLeft, startTop } = UI.getSizes(monitors)
+
+        for (var i = 0; i < monitors.length; i++) {
+            var m = monitors[i];
+            m.x += startLeft
+            m.y += startTop
+        }
+    },
+
+    removeSpaces() {
+        const monitors = UI.monitors
+        let prev = monitors[0]
+        if (monitors.length > 1) {
+            for (var i = 1; i < monitors.length; i++) {
+                var a = monitors[i];
+                let prevStart = prev.x + prev.w
+                let prevStartTop = prev.y + prev.h
+                if (a.x > prevStart) {
+                    a.x = prevStart
+                }
+                if (a.x < prevStart) {
+                    if (a.y <= prevStartTop) {
+                        a.x = prevStart
+                    }
+                }
+                if (a.y > prevStartTop) {
+                    if (a.x <= prevStart) {
+                        a.y = prevStartTop
+                    }
+                }
+                prev = monitors[i]
+            }
+        }
+    },  
+
+    rect(ctx, x, y, w, h) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 5);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fill();
+    },
+
+    draw() {
+        const { ctx, canvasWidth, canvasHeight, scale } = UI.multiMonitorSettings()
+        const monitors = UI.monitors
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        ctx.rect(0, 0, canvasWidth, canvasHeight);
+
+        for (var i = 0; i < monitors.length; i++) {
+            var m = monitors[i];
+            ctx.fillStyle = m.fill;
+            ctx.lineWidth = 1;
+            ctx.lineJoin = "round";
+            ctx.strokeStyle = m === UI.selectedMonitor ? "#2196F3" : "#aaa";
+            UI.rect(ctx, m.x, m.y, (m.w / m.scale), (m.h / m.scale));
+            ctx.font = "13px sans-serif";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "#000";
+            ctx.fillText((i + 1), (m.x + m.w) - 4, m.y + 4);
+            ctx.font = "200 11px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(m.w * scale + ' x ' + m.h * scale, m.x + (m.w / 2), m.y + (m.h / 2));
+        }
+
+    },
+
+    getSizes(monitors) {
+        const { canvasWidth, canvasHeight } = UI.multiMonitorSettings()
+        let top = monitors[0].y
+        let left = monitors[0].x
+        let width = monitors[0].w
+        let height = monitors[0].h
+        for (var i = 0; i < monitors.length; i++) {
+            var m = monitors[i];
+            if (m.x < left) {
+                left = m.x
+            }
+            if (m.y < top) {
+                top = m.y
+            }
+            if(m.x + m.w > width) {
+                width = m.x + m.w
+            }
+            if(m.y + m.h > height) {
+                height = m.y + m.h
+            }
+        }
+        const startLeft = ((canvasWidth - width - left) / 2);
+        const startTop = ((canvasHeight - height - top) / 2);
+
+        return { top, left, width, height, startLeft, startTop }
+    },
+
+
+    displayMonitors() {
+        const { canvas, ctx, bb, canvasWidth, canvasHeight, scale } = UI.multiMonitorSettings()
+        let offsetX
+        let offsetY
+        let dragok = false
+        let startX;
+        let startY;
+        
+        offsetX = bb.left
+        offsetY = bb.top
+
+        canvas.addEventListener("mousedown", myDown, false);
+        canvas.addEventListener("mouseup", myUp, false);
+        canvas.addEventListener("mousemove", myMove, false);
+        UI.recenter()
+        UI.draw()
+
+        function myDown(e) {
+            let monitors = UI.monitors
+            e.preventDefault();
+            e.stopPropagation();
+            let mx = parseInt(e.clientX - offsetX);
+            let my = parseInt(e.clientY - offsetY);
+            for (var i = 0; i < monitors.length; i++) {
+                var mon = monitors[i];
+                var monw = mon.w / mon.scale
+                var monh = mon.h / mon.scale
+                // Find the closest rect to drag
+                if (mx > mon.x && mx < mon.x + monw && my > mon.y && my < mon.y + monh) {
+                    dragok = true;
+                    mon.isDragging = true;
+                    UI.selectedMonitor = mon
+                    break // get out of the loop rather than dragging multiple
+                }
+            }
+            startX = mx;
+            startY = my;
+            UI.draw()
+        }
+        function myUp(e) {
+            let monitors = UI.monitors
+            e.preventDefault();
+            e.stopPropagation();
+
+            // clear all the dragging flags
+            dragok = false;
+            for (var i = 0; i < monitors.length; i++) {
+                monitors[i].isDragging = false;
+            }
+            const screenplan = setScreenPlan()
+            UI.recenter()
+            UI.draw()
+        }
+        function myMove(e) {
+
+            if (dragok) {
+                let monitors = UI.monitors
+                e.preventDefault();
+                e.stopPropagation();
+
+                // get the current mouse position
+                var mx = parseInt(e.clientX - offsetX);
+                var my = parseInt(e.clientY - offsetY);
+
+                // calculate the distance the mouse has moved
+                // since the last mousemove
+                var dx = mx - startX;
+                var dy = my - startY;
+
+                // move each rect that isDragging 
+                // by the distance the mouse has moved
+                // since the last mousemove
+                for (var i = 0; i < monitors.length; i++) {
+                    var m = monitors[i];
+                    if (m.isDragging) {
+                        m.x += dx;
+                        m.y += dy;
+                        if (m.x) { // don't move into another monitor
+                            // if (m.y )
+                        }
+                    }
+                }
+
+                // redraw the scene with the new rect positions
+                UI.draw();
+
+                // reset the starting mouse position for the next mousemove
+                startX = mx;
+                startY = my;
+
+            }
+        }
+
+
+        function setScreenPlan() {
+            let monitors = UI.monitors
+            const { top, left, width, height } = UI.getSizes(monitors)
+            const screens = []
+            for (var i = 0; i < monitors.length; i++) {
+                var a = monitors[i];
+                screens.push({
+                    screenID: a.id,
+                    serverHeight: a.h * scale,
+                    serverWidth: a.w * scale,
+                    x: (a.x - left) * scale,
+                    y: (a.y - top) * scale
+                })
+            }
+            const screenPlan = {
+                serverHeight: height * scale,
+                serverWidth: width * scale,
+                screens
+            }
+            UI.rfb.applyScreenPlan(screenPlan);
+        }
+
     },
 
 
@@ -2478,11 +2768,12 @@ const UI = {
         let screenPlan = UI.rfb.getScreenPlan();
 
         // Now make adjustments to the screen plan, this is just an example
-        screenPlan.screens[1].y = 100;
+       // screenPlan.screens[1].y = 0;
         
         // Finally apply the screen plan
+
         UI.rfb.applyScreenPlan(screenPlan);
-        console.log(screenPlan);
+        UI.updateMonitors(screenPlan)
     },
 
     //Helper to add options to dropdown.

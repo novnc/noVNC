@@ -1191,3 +1191,122 @@ a:link {
 a:visited {
   color: white;
 }
+
+/* ----------------------------------------
+ * Multi Display Arrangement
+ * ----------------------------------------
+ */
+
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.canvas {
+  background: rgb(225,225,226);
+  background: linear-gradient(0deg, rgba(225,225,226,1) 0%, rgba(237,237,238,1) 100%);  
+}
+.row {
+  background: #e9e9ea;
+  border-radius: 8px;
+  border: 1px solid #dcdcdd;
+  padding: 6px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.row input {
+  border: 1px solid #dcdcdd;
+  padding: 8px 2px;
+  text-align: right;
+  background-color: #ededee;
+}
+
+ #noVNC_displays {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: rgba(0,0,0,0.7);
+
+  cursor: pointer;
+
+  transition: 0.5s ease-in-out;
+
+
+  padding: 5px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  line-height: 25px;
+  word-wrap: break-word;
+
+}
+#noVNC_displays.noVNC_open {
+  display: flex;
+  transform: translateY(0);
+  visibility: visible;
+  opacity: 1;
+}
+#noVNC_displays .canvas {
+  display: flex;
+  flex-direction: column;
+  border-radius: 15px;
+  background: #fdfdfd;
+  padding: 15px 20px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  position: relative;
+}
+#noVNC_displays .canvas-title {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0 10px;
+  line-height: 1;
+  line-height: 1.4;
+}
+#noVNC_displays .canvas-text {
+  font-size: 12px;
+  padding: 0 10px;
+  opacity: 0.6;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+#noVNC_displays .arrange-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+#noVNC_displays .arrange-buttons button {
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 4px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#noVNC_refreshMonitors {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+}
+#noVNC_refreshMonitors_icon {
+  transition: all 0.3s;
+  transform-origin: center;
+}
+#noVNC_addMonitor {
+  background-color: #2196F3;
+  color: white;
+}
+#noVNC_addMonitor svg {
+  margin-right: 5px;
+}
+#noVNC_displays .canvas canvas {
+  background: #f7f7f7;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+}
