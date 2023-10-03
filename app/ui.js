@@ -64,10 +64,10 @@ const UI = {
 
         // We rely on modern APIs which might not be available in an
         // insecure context
-        // if (!window.isSecureContext) {
-        //     // FIXME: This gets hidden when connecting
-        //     UI.showStatus(_("HTTPS is required for full functionality"), 'error');
-        // }
+        if (!window.isSecureContext) {
+            // FIXME: This gets hidden when connecting
+            UI.showStatus(_("HTTPS is required for full functionality"), 'error');
+        }
 
         // Try to fetch version number
         fetch('./package.json')
