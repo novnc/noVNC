@@ -1120,22 +1120,6 @@ const UI = {
 
         // Do this last because it can only be used on rendered elements
         UI.rfb.focus();
-        const vncCanvas = document.querySelector('.noVNC_container canvas');
-
-        function resetZoom() {
-            // Reset the transform properties
-            vncCanvas.style.transformOrigin = `0 0`;
-            vncCanvas.style.transform = `scale(1)`;
-
-            // Reset zoom-related variables if they're used
-            UI.rfb.gestures.initialScale = 1;
-            UI.rfb.gestures.currentScale = 1;
-        }
-
-        const resetButton = document.getElementById('resetZoomBtn');
-        if (resetButton) {
-            resetButton.addEventListener('click', resetZoom);
-        }
     },
 
     disconnectFinished(e) {
