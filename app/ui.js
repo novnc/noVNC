@@ -1034,14 +1034,13 @@ const UI = {
 
         let url;
 
-        // url = UI.getSetting('encrypt') ? 'wss' : 'ws';
+        url = UI.getSetting('encrypt') ? 'wss' : 'ws';
 
-        // url += '://' + host;
-        // if (port) {
-        //     url += ':' + port;
-        // }
-        // url += '/' + path;
-        url = 'ws://192.168.2.59:6080/websockify';
+        url += '://' + host;
+        if (port) {
+            url += ':' + port;
+        }
+        url += '/' + path;
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
