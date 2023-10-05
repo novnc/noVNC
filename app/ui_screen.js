@@ -114,6 +114,8 @@ const UI = {
             parent.postMessage({ action: 'connection_state', value: state}, '*' );
         }
 
+        let connect_el = document.getElementById('noVNC_connect_dlg');
+
         switch (state) {
             case 'init':
                 break;
@@ -123,6 +125,9 @@ const UI = {
                 break;
             case 'connected':
                 document.documentElement.classList.add("noVNC_connected");
+                if (!connect_el.classList.contains("noVNC_hidden")) {
+                    connect_el.classList.add('noVNC_hidden');
+                }
                 break;
             case 'disconnecting':
                 transitionElem.textContent = _("Disconnecting...");
@@ -130,6 +135,9 @@ const UI = {
                 break;
             case 'disconnected':
                 document.documentElement.classList.add("noVNC_disconnected");
+                if (connect_el.classList.contains("noVNC_hidden")) {
+                    connect_el.classList.remove('noVNC_hidden');
+                }
                 break;
             case 'reconnecting':
                 transitionElem.textContent = _("Reconnecting...");

@@ -12,7 +12,6 @@ import Base64 from "./base64.js";
 import { toSigned32bit } from './util/int.js';
 import { isWindows } from './util/browser.js';
 import { uuidv4 } from './util/strings.js';
-import base64 from './base64.js';
 
 export default class Display {
     constructor(target, isPrimaryDisplay) {
@@ -203,8 +202,10 @@ export default class Display {
         //recalculate primary display container size
         this._screens[0].containerHeight = this._target.parentNode.offsetHeight;
         this._screens[0].containerWidth = this._target.parentNode.offsetWidth;
-        this._screens[0].width = this._target.width;
-        this._screens[0].height = this._target.height;
+        this._screens[0].width = this._target.parentNode.offsetWidth;
+        this._screens[0].height = this._target.parentNode.offsetHeight;
+        //this._screens[0].width = this._target.width;
+        //this._screens[0].height = this._target.height;
 
         //calculate server-side resolution of each screen
         for (let i=0; i<this._screens.length; i++) {
@@ -244,6 +245,8 @@ export default class Display {
             this._screens[i].serverWidth = width;
             this._screens[i].serverHeight = height;
             this._screens[i].scale = scale;
+            this._screens[i].x2 = this._screens[i].x + this._screens[i].width;
+            this._screens[i].y2 = this._screens[i].y + this._screens[i].height;
         }
 
         for (let i = 0; i < this._screens.length; i++) {
@@ -268,8 +271,29 @@ export default class Display {
     }
 
     addScreen(screenID, width, height, pixelRatio, containerHeight, containerWidth) {
-        if (this._isPrimaryDisplay) {
-            //for now, place new screen to the far right, until the user repositions it
+        if (!this._isPrimaryDisplay) {
+            throw new Error("Cannot add a screen to a secondary display.");
+        }
+        let screenIdx = -1;
+
+        //Does the screen already exist?
+        for (let i = 0; i < this._screens.length; i++) {
+            if (this._screens[i].screenID === screenID) {
+                screenIdx = i;
+            }
+        }
+
+        if (screenIdx > 0) {
+            //existing screen, update
+            const screen = this._screens[screenIdx];
+            screen.width = width;
+            screen.height = height;
+            screen.containerHeight = containerHeight;
+            screen.containerWidth = containerWidth;
+            screen.pixelRatio = pixelRatio;
+
+        } else {
+            //New Screen, add to far right until user repositions it
             let x = 0;
             for (let i = 0; i < this._screens.length; i++) {
                 x = Math.max(x, this._screens[i].x + this._screens[i].width);
@@ -296,10 +320,7 @@ export default class Display {
 
             this._screens.push(new_screen);
             new_screen.channel.postMessage({ eventType: "registered", screenIndex: new_screen.screenIndex });
-        } else {
-            throw new Error("Cannot add a screen to a secondary display.")
         }
-        
     }
 
     removeScreen(screenID) {
@@ -1017,11 +1038,9 @@ export default class Display {
         rect.inSecondary = false;
         for (let i=0; i < this._screens.length; i++) {
             let screen = this._screens[i];
-            if ( 
-                ((rect.x >= screen.x && rect.x < screen.x + screen.width) && 
-                (rect.y >= screen.y && rect.y < screen.y + screen.height)) ||
-                ((rect.x+rect.width >= screen.x && rect.x+rect.width < screen.x + screen.width) && 
-                (rect.y+rect.height >= screen.y && rect.y+rect.height < screen.y + screen.height)) 
+            
+            if (
+                !((rect.x > screen.x2 || screen.x > (rect.x + rect.width)) && (rect.y > screen.y2 || screen.y > (rect.y + rect.height)))
             ) {
                 let screenPosition = { 
                     x: 0 - (screen.x - rect.x), //rect.x - screen.x,

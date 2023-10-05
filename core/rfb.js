@@ -828,6 +828,7 @@ export default class RFB extends EventTargetMixin {
             this._sock.off('error');
             this._sock.off('message');
             this._sock.off('open');
+            this._proxyRFBMessage('disconnect');
         } else {
             this._updateConnectionState('disconnecting');
             this._unregisterSecondaryDisplay();
@@ -1467,60 +1468,25 @@ export default class RFB extends EventTargetMixin {
         clearTimeout(this._resizeTimeout);
         this._resizeTimeout = null;
 
-        if (!this._resizeSession || this._viewOnly ||
-            !this._supportsSetDesktopSize) {
-            return;
-        }
-        const size = this._screenSize();
-        RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+        if (this._isPrimaryDisplay) {
+            if (!this._resizeSession || this._viewOnly ||
+                !this._supportsSetDesktopSize) {
+                return;
+            }
+            const size = this._screenSize();
+            RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
 
-        Log.Debug('Requested new desktop size: ' +
+            Log.Debug('Requested new desktop size: ' +
                    size.serverWidth + 'x' + size.serverHeight);
+        } else if (this._display.screenIndex > 0) {
+            //re-register the secondary display with new resolution
+            this._registerSecondaryDisplay();
+        }
     }
 
     // Gets the the size of the available screen
     _screenSize (limited) {
         return this._display.getScreenSize(this.videoQuality, this.forcedResolutionX, this.forcedResolutionY, this._hiDpi, limited);
-
-        if (limited === undefined) {
-            limited = true;
-        }
-        var x = this.forcedResolutionX || this._screen.offsetWidth;
-        var y = this.forcedResolutionY || this._screen.offsetHeight;
-        var scale = 0; // 0=auto
-        try {
-            if (x > 1280 && limited && this.videoQuality == 1) {
-                var ratio = y / x;
-                Log.Debug(ratio);
-                x = 1280;
-                y = x * ratio;
-            }
-            else if (limited && this.videoQuality == 0){
-                x = 1280;
-                y = 720;
-            } else if (this._hiDpi == true) {
-                x = x * window.devicePixelRatio;
-                y = y * window.devicePixelRatio;
-                scale = 1 / window.devicePixelRatio;
-            } else if (this._display.antiAliasing === 0 && window.devicePixelRatio > 1 && x < 1000 && x > 0) {
-                // small device with high resolution, browser is essentially zooming greater than 200%
-                Log.Info('Device Pixel ratio: ' + window.devicePixelRatio + ' Reported Resolution: ' + x + 'x' + y); 
-                let targetDevicePixelRatio = 1.5;
-                if (window.devicePixelRatio > 2) { targetDevicePixelRatio = 2; }
-                let scaledWidth = (x * window.devicePixelRatio) * (1 / targetDevicePixelRatio);
-                let scaleRatio = scaledWidth / x;
-                x = x * scaleRatio;
-                y = y * scaleRatio;
-                scale = 1 / scaleRatio;
-                Log.Info('Small device with hDPI screen detected, auto scaling at ' + scaleRatio + ' to ' + x + 'x' + y);
-            }
-        } catch (err) {
-            Log.Debug(err);
-        }
-        
-        return { w: x,
-                 h: y,
-                 scale: scale };
     }
 
     _fixScrollbars() {
@@ -1611,7 +1577,7 @@ export default class RFB extends EventTargetMixin {
             this._disconnTimer = null;
 
             // make sure we don't get a double event
-            if (this._rfbConnectionState !== 'proxied') {
+            if (this._isPrimaryDisplay) {
                 this._sock.off('close');
             }
         }
@@ -1714,7 +1680,6 @@ export default class RFB extends EventTargetMixin {
                     this._mouseLastScreenIndex = event.data.screenIndex;
                     event.data.args[0] = coords[0];
                     event.data.args[1] = coords[1];
-                    console.log(`screenIndex ${event.data.screenIndex}, x: ${coords[0]}, y: ${coords[1]}`);
                     RFB.messages.pointerEvent(this._sock, ...event.data.args);
                     break;
                 case 'keyEvent':
@@ -1737,6 +1702,8 @@ export default class RFB extends EventTargetMixin {
                         this._updateCursor(...event.data.args);
                     }
                     break;
+                case 'disconnect':
+                    this.disconnect();
             }
         }
         
@@ -4312,6 +4279,7 @@ RFB.messages = {
     },
 
     setDesktopSize(sock, size, flags) {
+        console.log(size);
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
