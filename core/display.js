@@ -12,6 +12,7 @@ import Base64 from "./base64.js";
 import { toSigned32bit } from './util/int.js';
 import { isWindows } from './util/browser.js';
 import { uuidv4 } from './util/strings.js';
+import base64 from './base64.js';
 
 export default class Display {
     constructor(target, isPrimaryDisplay) {
@@ -31,6 +32,7 @@ export default class Display {
         this._asyncFrameQueue = [];
         this._maxAsyncFrameQueue = 3;
         this._clearAsyncQueue();
+        this._syncFrameQueue = [];
 
         this._flushing = false;
 
@@ -706,50 +708,24 @@ export default class Display {
                     //overwrite screen locations when received on the secondary display
                     rect.screenLocations = [ rect.screenLocations[event.data.screenLocationIndex] ]
                     rect.screenLocations[0].screenIndex = 0;
-                    let pos = rect.screenLocations[0];
-                    //console.log(`${rect.type} Rect: x: ${pos.x}, y: ${pos.y}, w: ${rect.width}, h: ${rect.height}`)
                     switch (rect.type) {
-                        case 'copy':
-                            this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
-                            //this._asyncRenderQPush(rect);
-                            break;
-                        case 'fill':
-                            //this._asyncRenderQPush(rect);
-                            this.fillRect(pos.x, pos.y, rect.width, rect.height, rect.color, rect.frame_id, true);
-                            break;
-                        case 'blit':
-                            //this._asyncRenderQPush(rect);
-                            this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
-                            break;
-                        case 'blitQ':
-                            //this._asyncRenderQPush(rect);
-                            this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
-                            break;
                         case 'img':
                         case '_img':
                             rect.img = new Image();
                             rect.img.src = rect.src;
                             rect.type = 'img';
-                            //this._asyncRenderQPush(rect);
-                            if (!rect.img.complete) {
-                                rect.img.addEventListener('load', (rect) => {
-                                    this.drawImage(rect.img, rect.x, rect.y, rect.width, rect.height);
-                                });
-                            }
                             break;
                         case 'transparent':
                             let imageBmpPromise = createImageBitmap(rect.arr);
                             imageBmpPromise.then(function(rect, img) {
-                                //rect.img.complete = true;
-                                this.drawImage(img, rect.x, rect.y, rect.width, rect.height);
+                                rect.img.complete = true;
                             }).bind(this, rect);
-                            //this._asyncRenderQPush(rect);
                             break;
                     }
+                    this._syncFrameQueue.push(rect);
                     break;
                 case 'frameComplete':
-                        //this.flip(event.data.frameId, event.data.rectCnt);
-
+                        window.requestAnimationFrame( () => { this._pushSyncRects(); });
                         break;
                 case 'registered':
                         if (!this._isPrimaryDisplay) {
@@ -758,6 +734,59 @@ export default class Display {
                         }
                     break;
             }
+        }
+    }
+
+    _pushSyncRects() {
+        whileLoop:
+        while (this._syncFrameQueue.length > 0) {
+            const a = this._syncFrameQueue[0];
+            const pos = a.screenLocations[0];
+            switch (a.type) {
+                case 'copy':
+                    this.copyImage(pos.oldX, pos.oldY, pos.x, pos.y, a.width, a.height, a.frame_id, true);
+                    break;
+                case 'fill':
+                    this.fillRect(pos.x, pos.y, a.width, a.height, a.color, a.frame_id, true);
+                    break;
+                case 'blit':
+                    this.blitImage(pos.x, pos.y, a.width, a.height, a.data, 0, a.frame_id, true);
+                    break;
+                case 'blitQ':
+                    this.blitQoi(pos.x, pos.y, a.width, a.height, a.data, 0, a.frame_id, true);
+                    break;
+                case 'img':
+                    if (a.img.complete) {
+                        this.drawImage(a.img, pos.x, pos.y, a.width, a.height);
+                    } else {
+                        if (this._syncFrameQueue.length > 1000) {
+                            this._syncFrameQueue.shift();
+                            this._droppedRects++;
+                        } else {
+                            break whileLoop;
+                        }
+                    }
+                    break;
+                case 'transparent':
+                    if (a.img.complete) {
+                        this.drawImage(a.img, pos.x, pos.y, a.width, a.height);
+                    } else {
+                        if (this._syncFrameQueue.length > 1000) {
+                            this._syncFrameQueue.shift();
+                            this._droppedRects++;
+                        } else {
+                            break whileLoop;
+                        }
+                    }
+                    break;
+                default:
+                    Log.Warn(`Unknown rect type: ${rect}`);
+            }
+            this._syncFrameQueue.shift();
+        }
+
+        if (this._syncFrameQueue.length > 0) {
+            window.requestAnimationFrame( () => { this._pushSyncRects(); });
         }
     }
 
@@ -924,6 +953,7 @@ export default class Display {
                         if (a.img) {
                             a.img = null;
                         }
+
                         if (a.type !== 'flip') {
                             secondaryScreenRects++;
                             this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });

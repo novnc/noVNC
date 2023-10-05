@@ -58,7 +58,7 @@ export default {
 
         /* Every four characters is 3 resulting numbers */
         const resultLength = (dataLength >> 2) * 3 + Math.floor((dataLength % 4) / 1.5);
-        const result = new Array(resultLength);
+        const result = new Uint8Array(resultLength);
 
         // Convert one by one.
 
