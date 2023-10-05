@@ -115,6 +115,8 @@ export default class Display {
         if (!this._isPrimaryDisplay) {
             this._screens[0].channel = new BroadcastChannel(`screen_${this._screenID}_channel`);
             this._screens[0].channel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
+        } else {
+            this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
 
         Log.Debug("<< Display.constructor");
@@ -481,7 +483,8 @@ export default class Display {
     */
     flush(onflush_message=true) {
         //force oldest frame to render
-        window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        //window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        this._asyncFrameComplete(0, true);
 
         if (onflush_message)
             this.onflush();
@@ -826,7 +829,7 @@ export default class Display {
                 }  
             }
 
-            if (this._asyncFrameQueue[frameIx][2].length >= this._asyncFrameQueue[frameIx][1]) {
+            if (this._asyncFrameQueue[frameIx][1] > 0 && this._asyncFrameQueue[frameIx][2].length >= this._asyncFrameQueue[frameIx][1]) {
                 //frame is complete
                 this._asyncFrameComplete(frameIx);
             }
@@ -904,7 +907,7 @@ export default class Display {
         this._asyncFrameQueue[frameIx][4] = currentFrameRectIx;
         this._asyncFrameQueue[frameIx][3] = true;
 
-        window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        //window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
     }
 
     /*
@@ -999,6 +1002,10 @@ export default class Display {
             if (this._asyncFrameQueue[0][5] > 5) { 
                 this._pushAsyncFrame(true);
             }
+        }
+
+        if (!force) {
+            window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
     }
 
