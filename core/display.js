@@ -110,9 +110,6 @@ export default class Display {
 
         this.onflush = () => {  }; // A flush request has finished
 
-        // Use requestAnimationFrame to write to canvas, to match display refresh rate
-        this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
-
         if (!this._isPrimaryDisplay) {
             this._screens[0].channel = new BroadcastChannel(`screen_${this._screenID}_channel`);
             this._screens[0].channel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
@@ -482,10 +479,10 @@ export default class Display {
     */
     flush(onflush_message=true) {
         //force oldest frame to render
-        this._asyncFrameComplete(0, true);
+        window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
 
         if (onflush_message)
-            this._flushing = true;
+            this.onflush();
     }
     
     /*
@@ -501,7 +498,6 @@ export default class Display {
     */
     dispose() {
         clearInterval(this._frameStatsInterval);
-        cancelAnimationFrame(this._animationFrameID);
         this.clear();
     }
 
@@ -714,40 +710,45 @@ export default class Display {
                     //console.log(`${rect.type} Rect: x: ${pos.x}, y: ${pos.y}, w: ${rect.width}, h: ${rect.height}`)
                     switch (rect.type) {
                         case 'copy':
-                            //this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
-                            this._asyncRenderQPush(rect);
+                            this.copyImage(rect.oldX, rect.oldY, pos.x, pos.y, rect.width, rect.height, rect.frame_id, true);
+                            //this._asyncRenderQPush(rect);
                             break;
                         case 'fill':
-                            this._asyncRenderQPush(rect);
-                            //this.fillRect(pos.x, pos.y, rect.width, rect.height, rect.color, rect.frame_id, true);
+                            //this._asyncRenderQPush(rect);
+                            this.fillRect(pos.x, pos.y, rect.width, rect.height, rect.color, rect.frame_id, true);
                             break;
                         case 'blit':
-                            this._asyncRenderQPush(rect);
-                            //this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
+                            //this._asyncRenderQPush(rect);
+                            this.blitImage(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
                             break;
                         case 'blitQ':
-                            
-                            this._asyncRenderQPush(rect);
-                            //this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
+                            //this._asyncRenderQPush(rect);
+                            this.blitQoi(pos.x, pos.y, rect.width, rect.height, rect.data, 0, rect.frame_id, true);
                             break;
                         case 'img':
                         case '_img':
                             rect.img = new Image();
                             rect.img.src = rect.src;
                             rect.type = 'img';
-                            this._asyncRenderQPush(rect);
+                            //this._asyncRenderQPush(rect);
+                            if (!rect.img.complete) {
+                                rect.img.addEventListener('load', (rect) => {
+                                    this.drawImage(rect.img, rect.x, rect.y, rect.width, rect.height);
+                                });
+                            }
                             break;
                         case 'transparent':
                             let imageBmpPromise = createImageBitmap(rect.arr);
                             imageBmpPromise.then(function(rect, img) {
-                                rect.img.complete = true;
+                                //rect.img.complete = true;
+                                this.drawImage(img, rect.x, rect.y, rect.width, rect.height);
                             }).bind(this, rect);
-                            this._asyncRenderQPush(rect);
+                            //this._asyncRenderQPush(rect);
                             break;
                     }
                     break;
                 case 'frameComplete':
-                        this.flip(event.data.frameId, event.data.rectCnt);
+                        //this.flip(event.data.frameId, event.data.rectCnt);
 
                         break;
                 case 'registered':
@@ -847,10 +848,15 @@ export default class Display {
                 }
             }
             while (currentFrameRectIx < this._asyncFrameQueue[frameIx][2].length) {   
-                if (this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type == 'img' && !this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img.complete) {
-                    this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type = 'skip';
-                    this._droppedRects++;
+                if (this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type == 'img') {
+                    if (this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img && !this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img.complete) {
+                        this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type = 'skip';
+                        this._droppedRects++;
+                    } else {
+                        Log.Warn(`Oh snap, an image rect without an image: ${this._asyncFrameQueue[frameIx][2][currentFrameRectIx]}`)
+                    }
                 }
+
                 currentFrameRectIx++;
             }
         } else {
@@ -868,6 +874,8 @@ export default class Display {
         }
         this._asyncFrameQueue[frameIx][4] = currentFrameRectIx;
         this._asyncFrameQueue[frameIx][3] = true;
+
+        window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
     }
 
     /*
@@ -961,10 +969,6 @@ export default class Display {
             if (this._asyncFrameQueue[0][5] > 5) { 
                 this._pushAsyncFrame(true);
             }
-        }
-
-        if (!force) {
-            window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
     }
 
