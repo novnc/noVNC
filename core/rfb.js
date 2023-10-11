@@ -728,6 +728,10 @@ export default class RFB extends EventTargetMixin {
         if (value !== this._hiDpi) {
             this._hiDpi = value;
             this._requestRemoteResize();
+            if (this._display.screens.length > 1) {
+                //force secondary displays to re-register and thus apply new hdpi setting
+                this._proxyRFBMessage('forceResize', [ value ]);
+            }
         }
     }
 
@@ -741,7 +745,7 @@ export default class RFB extends EventTargetMixin {
 
     applyScreenPlan(screenPlan) {
         if (this._isPrimaryDisplay) {
-            let fullPlan = this._display.getScreenSize();
+            let fullPlan = this._screenSize();
 
             //check plan for validity
             let minX = Number.MAX_SAFE_INTEGER, minY = Number.MAX_SAFE_INTEGER;
@@ -773,7 +777,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     getScreenPlan() {
-        let fullPlan = this._display.getScreenSize();
+        let fullPlan = this._screenSize();
         let sanitizedPlan = {
             screens: [],
             serverWidth: fullPlan.serverWidth,
@@ -1457,7 +1461,7 @@ export default class RFB extends EventTargetMixin {
             this._display.scale = 1.0;
         } else {
             const size = this._screenSize(false);
-            this._display.autoscale(size.screens[0].containerWidth, size.screens[0].containerHeight, size.screens[0].scale);
+            this._display.autoscale(size.screens[0].serverWidth, size.screens[0].serverHeight, size.screens[0].scale);
         }
         this._fixScrollbars();
     }
@@ -1691,8 +1695,6 @@ export default class RFB extends EventTargetMixin {
                 // The following are primary to secondary messages that should be ignored on the primary
                 case 'updateCursor':
                     break;
-                default:
-                    Log.Warn(`Unhandled message type (${event.data.eventType}) from control channel.`);
             }
         } else {
             // Primary to secondary screen message
@@ -1704,6 +1706,10 @@ export default class RFB extends EventTargetMixin {
                     break;
                 case 'disconnect':
                     this.disconnect();
+                case 'forceResize':
+                    this._hiDpi = event.data.args[0];
+                    this._updateScale();
+                    this._requestRemoteResize();
             }
         }
         

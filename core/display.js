@@ -245,13 +245,13 @@ export default class Display {
             this._screens[i].serverWidth = width;
             this._screens[i].serverHeight = height;
             this._screens[i].scale = scale;
-            this._screens[i].x2 = this._screens[i].x + this._screens[i].width;
-            this._screens[i].y2 = this._screens[i].y + this._screens[i].height;
+            this._screens[i].x2 = this._screens[i].x + this._screens[i].serverWidth;
+            this._screens[i].y2 = this._screens[i].y + this._screens[i].serverHeight;
         }
 
         for (let i = 0; i < this._screens.length; i++) {
-            data.serverWidth = Math.max(data.serverWidth, this._screens[i].x + this._screens[i].width);
-            data.serverHeight = Math.max(data.serverHeight, this._screens[i].y + this._screens[i].height);
+            data.serverWidth = Math.max(data.serverWidth, this._screens[i].x + this._screens[i].serverWidth);
+            data.serverHeight = Math.max(data.serverHeight, this._screens[i].y + this._screens[i].serverHeight);
         }
 
         data.screens = this._screens;
@@ -296,7 +296,7 @@ export default class Display {
             //New Screen, add to far right until user repositions it
             let x = 0;
             for (let i = 0; i < this._screens.length; i++) {
-                x = Math.max(x, this._screens[i].x + this._screens[i].width);
+                x = Math.max(x, this._screens[i].x + this._screens[i].serverWidth);
             }
 
             var new_screen = {
@@ -1038,7 +1038,7 @@ export default class Display {
         rect.inSecondary = false;
         for (let i=0; i < this._screens.length; i++) {
             let screen = this._screens[i];
-            
+
             if (
                 !((rect.x > screen.x2 || screen.x > (rect.x + rect.width)) && (rect.y > screen.y2 || screen.y > (rect.y + rect.height)))
             ) {
@@ -1071,8 +1071,8 @@ export default class Display {
         //                   style width to a number, the canvas is cleared.
         //                   However, if you set the style width to a string
         //                   ('NNNpx'), the canvas is scaled without clearing.
-        const width = factor * vp.width + 'px';
-        const height = factor * vp.height + 'px';
+        const width = factor * vp.serverWidth + 'px';
+        const height = factor * vp.serverHeight + 'px';
 
         if ((this._target.style.width !== width) ||
             (this._target.style.height !== height)) {
@@ -1080,7 +1080,7 @@ export default class Display {
             this._target.style.height = height;
         }
 
-        Log.Info('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.width + 'x' + vp.height);
+        Log.Info('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.serverWidth + 'x' + vp.serverHeight);
 
         var pixR = Math.abs(Math.ceil(window.devicePixelRatio));
         var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
