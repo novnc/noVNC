@@ -791,7 +791,8 @@ export default class RFB extends EventTargetMixin {
                     serverWidth: fullPlan.screens[i].serverWidth,
                     serverHeight: fullPlan.screens[i].serverHeight,
                     x: fullPlan.screens[i].x,
-                    y: fullPlan.screens[i].y
+                    y: fullPlan.screens[i].y,
+                    pixelRatio: fullPlan.screens[i].pixelRatio
                 }
             )
         }
