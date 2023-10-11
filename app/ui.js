@@ -1690,6 +1690,14 @@ const UI = {
                         UI.toggleIMEMode();
                     }
                     break;
+                case 'open_displays_mode':
+                    if (UI.rfb) {
+                        UI.openDisplays()
+                    }
+                    break;
+                case 'close_displays_mode':
+                    UI.closeDisplays()
+                    break;
                 case 'enable_webrtc':
                     if (!UI.getSetting('enable_webrtc')) {
                         UI.forceSetting('enable_webrtc', true, false);
@@ -2044,8 +2052,8 @@ const UI = {
             for (var i = 0; i < monitors.length; i++) {
                 monitors[i].isDragging = false;
             }
-            const screenplan = setScreenPlan()
             UI.recenter()
+            const screenplan = setScreenPlan()
             UI.draw()
         }
         function myMove(e) {
@@ -2097,15 +2105,15 @@ const UI = {
                 var a = monitors[i];
                 screens.push({
                     screenID: a.id,
-                    serverHeight: a.h * scale,
-                    serverWidth: a.w * scale,
-                    x: (a.x - left) * scale,
-                    y: (a.y - top) * scale
+                    serverHeight: Math.floor(a.h * scale),
+                    serverWidth: Math.floor(a.w * scale),
+                    x: Math.floor((a.x - left) * scale),
+                    y: Math.floor((a.y - top) * scale)
                 })
             }
             const screenPlan = {
-                serverHeight: height * scale,
-                serverWidth: width * scale,
+                serverHeight: Math.floor(height * scale),
+                serverWidth: Math.floor(width * scale),
                 screens
             }
             UI.rfb.applyScreenPlan(screenPlan);
