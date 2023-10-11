@@ -239,6 +239,7 @@ export default class RFB extends EventTargetMixin {
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
             handleFocusChange: this._handleFocusChange.bind(this),
+            handleMouseOut: this._handleMouseOut.bind(this),
         };
 
         // main setup
@@ -1163,6 +1164,9 @@ export default class RFB extends EventTargetMixin {
         window.addEventListener("focus", this._eventHandlers.handleFocusChange);
         window.addEventListener("blur", this._eventHandlers.handleFocusChange);
 
+        //User cursor moves outside of the window
+        window.addEventListener("mouseover", this._eventHandlers.handleMouseOut);
+
         // In order for the keyboard to not occlude the input being edited
         // we move the hidden input we use for triggering the keyboard to the last click
         // position which should trigger a page being moved down enough
@@ -1757,7 +1761,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleSecondaryDisplayMessage(event) {
-        console.log("Message Received: " + event);
         if (this._isPrimaryDisplay) {
 
         }
@@ -1794,6 +1797,18 @@ export default class RFB extends EventTargetMixin {
 
     _handleKeyEvent(keysym, code, down) {
         this.sendKey(keysym, code, down);
+    }
+
+    _handleMouseOut(ev) {
+        if (ev.toElement !== null && ev.relatedTarget === null) {
+            //mouse was outside of the window and just came in, this is our chance to do things
+
+            //Ensure the window was not moved to a different screen with a different pixel ratio
+            if (this._display.screens[0].pixelRatio !== window.devicePixelRatio) {
+                Log.Debug("Window moved to another screen with different pixel ratio, sending resize request.");
+                this._requestRemoteResize();
+            }
+        }
     }
 
     _handleMouse(ev) {
@@ -4286,7 +4301,6 @@ RFB.messages = {
     },
 
     setDesktopSize(sock, size, flags) {
-        console.log(size);
         const buff = sock._sQ;
         const offset = sock._sQlen;
 

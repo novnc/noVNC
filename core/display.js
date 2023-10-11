@@ -204,6 +204,7 @@ export default class Display {
         this._screens[0].containerWidth = this._target.parentNode.offsetWidth;
         this._screens[0].width = this._target.parentNode.offsetWidth;
         this._screens[0].height = this._target.parentNode.offsetHeight;
+        this._screens[0].pixelRatio = window.devicePixelRatio;
         //this._screens[0].width = this._target.width;
         //this._screens[0].height = this._target.height;
 
