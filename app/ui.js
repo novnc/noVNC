@@ -1912,6 +1912,7 @@ const UI = {
             m.x += startLeft
             m.y += startTop
         }
+        UI.setScreenPlan()
     },
 
     removeSpaces() {
@@ -2002,6 +2003,30 @@ const UI = {
         return { top, left, width, height, startLeft, startTop }
     },
 
+    setScreenPlan() {
+        let monitors = UI.monitors
+        const { scale } = UI.multiMonitorSettings()
+        const { top, left, width, height } = UI.getSizes(monitors)
+        const screens = []
+        for (var i = 0; i < monitors.length; i++) {
+            var a = monitors[i];
+            screens.push({
+                screenID: a.id,
+                serverHeight: Math.floor(a.h * scale),
+                serverWidth: Math.floor(a.w * scale),
+                x: Math.floor((a.x - left) * scale),
+                y: Math.floor((a.y - top) * scale)
+            })
+        }
+        const screenPlan = {
+            serverHeight: Math.floor(height * scale),
+            serverWidth: Math.floor(width * scale),
+            screens
+        }
+        UI.rfb.applyScreenPlan(screenPlan);
+    },
+
+
 
     displayMonitors() {
         const { canvas, ctx, bb, canvasWidth, canvasHeight, scale } = UI.multiMonitorSettings()
@@ -2053,7 +2078,6 @@ const UI = {
                 monitors[i].isDragging = false;
             }
             UI.recenter()
-            const screenplan = setScreenPlan()
             UI.draw()
         }
         function myMove(e) {
@@ -2094,29 +2118,6 @@ const UI = {
                 startY = my;
 
             }
-        }
-
-
-        function setScreenPlan() {
-            let monitors = UI.monitors
-            const { top, left, width, height } = UI.getSizes(monitors)
-            const screens = []
-            for (var i = 0; i < monitors.length; i++) {
-                var a = monitors[i];
-                screens.push({
-                    screenID: a.id,
-                    serverHeight: Math.floor(a.h * scale),
-                    serverWidth: Math.floor(a.w * scale),
-                    x: Math.floor((a.x - left) * scale),
-                    y: Math.floor((a.y - top) * scale)
-                })
-            }
-            const screenPlan = {
-                serverHeight: Math.floor(height * scale),
-                serverWidth: Math.floor(width * scale),
-                screens
-            }
-            UI.rfb.applyScreenPlan(screenPlan);
         }
 
     },

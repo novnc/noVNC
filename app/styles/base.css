@@ -1281,13 +1281,16 @@ a:visited {
   display: flex;
   justify-content: space-between;
 }
-#noVNC_displays .arrange-buttons button {
+#noVNC_displays .arrange-buttons button, #noVNC_displays .arrange-buttons .button {
   border: none;
   display: flex;
   align-items: center;
   padding: 4px 7px;
   border-radius: 5px;
   cursor: pointer;
+  background-color: #f1f1f1;
+  font-size: 13px;
+  border: 1px solid #e5e5e5;
 }
 #noVNC_refreshMonitors {
   position: absolute;
@@ -1299,8 +1302,9 @@ a:visited {
   transform-origin: center;
 }
 #noVNC_addMonitor {
-  background-color: #2196F3;
+  background-color: #2196F3!important;
   color: white;
+  border: none!important;
 }
 #noVNC_addMonitor svg {
   margin-right: 5px;
