@@ -1271,7 +1271,7 @@ a:visited {
 }
 #noVNC_displays .canvas-text {
   font-size: 12px;
-  padding: 0 10px;
+  padding: 0 35px 0 10px;
   opacity: 0.6;
   line-height: 1.4;
   margin-bottom: 15px;

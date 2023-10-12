@@ -2785,13 +2785,12 @@ const UI = {
         // Get the current screen plan
         // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
         let screenPlan = UI.rfb.getScreenPlan();
-        console.log(e)
         // Now make adjustments to the screen plan, this is just an example
        // screenPlan.screens[1].y = 0;
         
         // Finally apply the screen plan
 
-        UI.rfb.applyScreenPlan(screenPlan);
+        // UI.rfb.applyScreenPlan(screenPlan); // applyScreenPlan is triggered in UI.updateMonitors
         UI.updateMonitors(screenPlan)
     },
 
