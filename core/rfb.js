@@ -1491,6 +1491,7 @@ export default class RFB extends EventTargetMixin {
             //re-register the secondary display with new resolution
             this._registerSecondaryDisplay();
         }
+        this.dispatchEvent(new CustomEvent("screenregistered", {}));
     }
 
     // Gets the the size of the available screen
@@ -1677,6 +1678,7 @@ export default class RFB extends EventTargetMixin {
                     break;
                 case 'unregister':
                     if (this._display.removeScreen(event.data.screenID)) {
+                        this.dispatchEvent(new CustomEvent("screenregistered", {}));
                         Log.Info(`Secondary monitor (${event.data.screenID}) has been removed.`);
                         const size = this._screenSize();
                         RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);

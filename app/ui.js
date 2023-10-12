@@ -1869,18 +1869,28 @@ const UI = {
     initMonitors(screenPlan) {
         const { scale } = UI.multiMonitorSettings()
         let monitors = []
+        let showNativeResolution = false
         screenPlan.screens.forEach(screen => {
+            if (parseFloat(screen.pixelRatio) != 1) {
+                showNativeResolution = true
+            }
             monitors.push({
                 id: screen.screenID,
                 x: screen.x / scale,
                 y: screen.y / scale,
                 w: screen.serverWidth / scale,
                 h: screen.serverHeight / scale,
+                pixelRatio: screen.pixelRatio,
                 scale: 1,
                 fill: '#eeeeeecc',
                 isDragging: false
             })
         })
+        if (showNativeResolution) {
+            document.getElementById('noVNC_setting_enable_hidpi_option').classList.add("show");
+        } else {
+            document.getElementById('noVNC_setting_enable_hidpi_option').classList.remove("show");
+        }
         UI.monitors = monitors
     },
 
@@ -2775,7 +2785,7 @@ const UI = {
         // Get the current screen plan
         // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
         let screenPlan = UI.rfb.getScreenPlan();
-
+        console.log(e)
         // Now make adjustments to the screen plan, this is just an example
        // screenPlan.screens[1].y = 0;
         

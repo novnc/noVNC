@@ -1291,6 +1291,13 @@ a:visited {
   background-color: #f1f1f1;
   font-size: 13px;
   border: 1px solid #e5e5e5;
+  line-height: 1;
+}
+#noVNC_setting_enable_hidpi_option {
+  display: none!important;
+}
+#noVNC_setting_enable_hidpi_option.show {
+  display: flex!important;
 }
 #noVNC_refreshMonitors {
   position: absolute;
