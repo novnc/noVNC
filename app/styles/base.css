@@ -1197,6 +1197,59 @@ a:visited {
  * Multi Display Arrangement
  * ----------------------------------------
  */
+#noVNC_connect_button {
+  background: rgba(0,0,0,0.7);
+  padding: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 100;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+#noVNC_connect_button .image {
+  color:#697ad6;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+#noVNC_connect_button .text {
+  color: #ffffff91
+}
+#noVNC_connect_button .heading {
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+#noVNC_connect_button:hover .image {
+  color:#298453;
+  
+}
+#noVNC_connect_button:hover .go {
+  transition: all 0.3s;
+  transform: translateX(5px);
+}
+#noVNC_connect_button .power {
+  transition: all 0.3s;
+  color: white!important;
+  transform: translateY(50px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#noVNC_connect_button:hover .power {
+  transform: translateY(0);
+}
+#noVNC_connect_button svg {
+  fill: currentColor;
+}
 #noVNC_identify_monitor {
   position: fixed;
   z-index: 999999;
