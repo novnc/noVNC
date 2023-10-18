@@ -584,6 +584,7 @@ const UI = {
             UI.showControlInput("noVNC_displays_button");
             UI.addClickHandle('noVNC_displays_button', UI.openDisplays);
             UI.addClickHandle('noVNC_close_displays', UI.closeDisplays);
+            UI.addClickHandle('noVNC_identify_monitors_button', UI._identify);
             UI.addClickHandle('noVNC_addMonitor', UI.addSecondaryMonitor);
             UI.addClickHandle('noVNC_refreshMonitors', UI.displaysRefresh);
             
@@ -1439,6 +1440,20 @@ const UI = {
             UI.rfb.enableQOI = true;
 	    }
 
+        this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
+        if (this._supportsBroadcastChannel) {
+            this._controlChannel = new BroadcastChannel("registrationChannel");
+            this._controlChannel.addEventListener('message', (event) => {
+                switch (event.data.eventType) {
+                    case 'identify':
+                        UI.identify(event.data)
+                        break;
+                }
+            });
+            
+        }
+
+
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
@@ -1837,6 +1852,20 @@ const UI = {
 /* ------^-------
  *  /MULTI-MONITOR SUPPORT
  * ==============*/
+
+    _identify(e) {
+        UI.rfb.identify(UI.monitors)
+    },
+
+    identify(data) {
+        const screenID = UI.monitors[0].id
+        const screen = data.screens.find(el => el.id === screenID)
+        document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
+        document.getElementById('noVNC_identify_monitor').classList.add("show")
+        setTimeout(() => {
+            document.getElementById('noVNC_identify_monitor').classList.remove("show")
+        }, 3500)
+    },
 
     openDisplays() {
         document.getElementById('noVNC_displays').classList.add("noVNC_open");

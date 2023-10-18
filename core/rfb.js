@@ -740,8 +740,9 @@ export default class RFB extends EventTargetMixin {
 
     attachSecondaryDisplay() {
         this._updateConnectionState('connecting');
-        this._registerSecondaryDisplay();
+        const id = this._registerSecondaryDisplay();
         this._updateConnectionState('connected');
+        return id
     }
 
     applyScreenPlan(screenPlan) {
@@ -1758,8 +1759,17 @@ export default class RFB extends EventTargetMixin {
             this._controlChannel.postMessage(message);
 
             if (!this._viewOnly) { this._keyboard.grab(); }
+            return screen.screenID
         }
         
+    }
+
+    identify(screens) {
+        let message = {
+            eventType: 'identify',
+            screens
+        }
+        this._controlChannel.postMessage(message);
     }
 
     _handleSecondaryDisplayMessage(event) {

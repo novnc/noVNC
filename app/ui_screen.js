@@ -7,7 +7,7 @@ import * as Log from '../core/util/logging.js';
 
 const UI = {
     connected: false,
-
+    screenID: null,
     //Initial Loading of the UI
     prime() {
         this.start();
@@ -92,8 +92,23 @@ const UI = {
             UI.rfb.enableQOI = true;
         }
 
+        this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
+        if (this._supportsBroadcastChannel) {
+            this._controlChannel = new BroadcastChannel("registrationChannel");
+            this._controlChannel.addEventListener('message', (event) => {
+                switch (event.data.eventType) {
+                    case 'identify':
+                        UI.identify(event.data)
+                        break;
+                }
+            });
+            
+        }
+
+
+
         //attach this secondary display to the primary display
-        UI.rfb.attachSecondaryDisplay();
+        UI.screenID = UI.rfb.attachSecondaryDisplay();
 
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
@@ -149,6 +164,16 @@ const UI = {
                 return;
         }
     },
+
+    identify(data) {
+        const screen = data.screens.find(el => el.id === UI.screenID)
+        document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
+        document.getElementById('noVNC_identify_monitor').classList.add("show")
+        setTimeout(() => {
+            document.getElementById('noVNC_identify_monitor').classList.remove("show")
+        }, 3500)
+    },
+
 
     showStatus(text, statusType, time, kasm = false) {
         // If inside the full Kasm CDI framework, don't show messages unless explicitly told to
