@@ -31,8 +31,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+//import "core-js/stable";
+//import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
@@ -69,6 +69,7 @@ const UI = {
     reconnectCallback: null,
     reconnectPassword: null,
     monitors: [],
+    sortedMonitors: [],
     selectedMonitor: null,
     refreshRotation: 0,
 
@@ -1839,8 +1840,10 @@ const UI = {
 
     openDisplays() {
         document.getElementById('noVNC_displays').classList.add("noVNC_open");
-        let screenPlan = UI.rfb.getScreenPlan();
-        UI.initMonitors(screenPlan)
+        if (UI.monitors.length < 1 ) {
+            let screenPlan = UI.rfb.getScreenPlan();
+            UI.initMonitors(screenPlan)
+        }
         UI.displayMonitors()
     },
 
@@ -1870,6 +1873,7 @@ const UI = {
         const { scale } = UI.multiMonitorSettings()
         let monitors = []
         let showNativeResolution = false
+        let num = 1
         screenPlan.screens.forEach(screen => {
             if (parseFloat(screen.pixelRatio) != 1) {
                 showNativeResolution = true
@@ -1883,8 +1887,10 @@ const UI = {
                 pixelRatio: screen.pixelRatio,
                 scale: 1,
                 fill: '#eeeeeecc',
-                isDragging: false
+                isDragging: false,
+                num
             })
+            num++
         })
         if (showNativeResolution) {
             document.getElementById('noVNC_setting_enable_hidpi_option').classList.add("show");
@@ -1892,6 +1898,11 @@ const UI = {
             document.getElementById('noVNC_setting_enable_hidpi_option').classList.remove("show");
         }
         UI.monitors = monitors
+        let deepCopyMonitors = JSON.parse(JSON.stringify(monitors))
+        UI.sortedMonitors = deepCopyMonitors.sort((a, b) => {
+            return  a.x - b.x || a.y - b.y
+        })
+
     },
 
     updateMonitors(screenPlan) {
@@ -1907,13 +1918,13 @@ const UI = {
             ctx: canvas.getContext("2d"),
             bb: canvas.getBoundingClientRect(),
             scale: 12,
-            canvasWidth: 560,
+            canvasWidth: 700,
             canvasHeight: 230,
         }
     },
 
     recenter() {
-        const monitors = UI.monitors
+        const monitors = UI.sortedMonitors
         UI.removeSpaces()
         const { startLeft, startTop } = UI.getSizes(monitors)
 
@@ -1926,7 +1937,7 @@ const UI = {
     },
 
     removeSpaces() {
-        const monitors = UI.monitors
+        const monitors = UI.sortedMonitors
         let prev = monitors[0]
         if (monitors.length > 1) {
             for (var i = 1; i < monitors.length; i++) {
@@ -1961,7 +1972,7 @@ const UI = {
 
     draw() {
         const { ctx, canvasWidth, canvasHeight, scale } = UI.multiMonitorSettings()
-        const monitors = UI.monitors
+        const monitors = UI.sortedMonitors
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         ctx.rect(0, 0, canvasWidth, canvasHeight);
@@ -1977,7 +1988,7 @@ const UI = {
             ctx.textAlign = "right";
             ctx.textBaseline = "top";
             ctx.fillStyle = "#000";
-            ctx.fillText((i + 1), (m.x + m.w) - 4, m.y + 4);
+            ctx.fillText((m.num), (m.x + m.w) - 4, m.y + 4);
             ctx.font = "200 11px sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -2039,7 +2050,10 @@ const UI = {
 
 
     displayMonitors() {
+        // const monitors = UI.sortedMonitors
+        let monitors = UI.sortedMonitors
         const { canvas, ctx, bb, canvasWidth, canvasHeight, scale } = UI.multiMonitorSettings()
+        const { startLeft, startTop } = UI.getSizes(monitors)
         let offsetX
         let offsetY
         let dragok = false
@@ -2056,7 +2070,7 @@ const UI = {
         UI.draw()
 
         function myDown(e) {
-            let monitors = UI.monitors
+            let monitors = UI.sortedMonitors
             e.preventDefault();
             e.stopPropagation();
             let mx = parseInt(e.clientX - offsetX);
@@ -2065,8 +2079,10 @@ const UI = {
                 var mon = monitors[i];
                 var monw = mon.w / mon.scale
                 var monh = mon.h / mon.scale
+                let monx = mon.x
+                let mony = mon.y
                 // Find the closest rect to drag
-                if (mx > mon.x && mx < mon.x + monw && my > mon.y && my < mon.y + monh) {
+                if (mx > monx && mx < (monx + monw) && my > mony && my < (mony + monh)) {
                     dragok = true;
                     mon.isDragging = true;
                     UI.selectedMonitor = mon
@@ -2078,7 +2094,7 @@ const UI = {
             UI.draw()
         }
         function myUp(e) {
-            let monitors = UI.monitors
+            let monitors = UI.sortedMonitors
             e.preventDefault();
             e.stopPropagation();
 
@@ -2087,13 +2103,20 @@ const UI = {
             for (var i = 0; i < monitors.length; i++) {
                 monitors[i].isDragging = false;
             }
+            monitors.sort((a, b) => {
+                if (a.y >= b.y + (b.h / 2)) {
+                    return 1
+                }
+                return  a.x - b.x
+            })
+            // console.log(UI.monitors)
+            console.log(UI.sortedMonitors)
             UI.recenter()
             UI.draw()
         }
         function myMove(e) {
-
+            let monitors = UI.sortedMonitors
             if (dragok) {
-                let monitors = UI.monitors
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -2114,9 +2137,6 @@ const UI = {
                     if (m.isDragging) {
                         m.x += dx;
                         m.y += dy;
-                        if (m.x) { // don't move into another monitor
-                            // if (m.y )
-                        }
                     }
                 }
 

@@ -1255,6 +1255,7 @@ a:visited {
 }
 #noVNC_displays .canvas {
   display: flex;
+  width: 700px;
   flex-direction: column;
   border-radius: 15px;
   background: #fdfdfd;
