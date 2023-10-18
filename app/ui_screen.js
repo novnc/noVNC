@@ -109,6 +109,8 @@ const UI = {
 
         //attach this secondary display to the primary display
         UI.screenID = UI.rfb.attachSecondaryDisplay();
+        document.querySelector('title').textContent = 'Display ' + UI.screenID
+
 
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
@@ -169,6 +171,7 @@ const UI = {
         const screen = data.screens.find(el => el.id === UI.screenID)
         document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
         document.getElementById('noVNC_identify_monitor').classList.add("show")
+        document.querySelector('title').textContent = 'Display ' + screen.num + ' - ' + UI.screenID
         setTimeout(() => {
             document.getElementById('noVNC_identify_monitor').classList.remove("show")
         }, 3500)

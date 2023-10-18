@@ -2842,6 +2842,7 @@ const UI = {
 
         // UI.rfb.applyScreenPlan(screenPlan); // applyScreenPlan is triggered in UI.updateMonitors
         UI.updateMonitors(screenPlan)
+        UI.rfb.identify(UI.monitors)
     },
 
     //Helper to add options to dropdown.
