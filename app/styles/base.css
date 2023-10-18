@@ -897,7 +897,8 @@ select:active {
 #noVNC_container {
   width: 100%;
   height: 100%;
-  background-image: url('../images/splash.jpg')
+  background-image: url('../images/splash.jpg');
+  background-size: cover;
 }
 
 #noVNC_keyboardinput {

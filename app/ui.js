@@ -31,8 +31,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
-//import "core-js/stable";
-//import "regenerator-runtime/runtime";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
@@ -1880,10 +1880,10 @@ const UI = {
             }
             monitors.push({
                 id: screen.screenID,
-                x: screen.x / scale,
-                y: screen.y / scale,
-                w: screen.serverWidth / scale,
-                h: screen.serverHeight / scale,
+                x: Math.round(screen.x / scale),
+                y: Math.round(screen.y / scale),
+                w: Math.round(screen.serverWidth / scale),
+                h: Math.round(screen.serverHeight / scale),
                 pixelRatio: screen.pixelRatio,
                 scale: 1,
                 fill: '#eeeeeecc',
@@ -1900,7 +1900,10 @@ const UI = {
         UI.monitors = monitors
         let deepCopyMonitors = JSON.parse(JSON.stringify(monitors))
         UI.sortedMonitors = deepCopyMonitors.sort((a, b) => {
-            return  a.x - b.x || a.y - b.y
+            if (a.y >= b.y + (b.h / 2)) {
+                return 1
+            }
+            return  a.x - b.x
         })
 
     },
@@ -1948,7 +1951,7 @@ const UI = {
                     a.x = prevStart
                 }
                 if (a.x < prevStart) {
-                    if (a.y <= prevStartTop) {
+                    if (a.y < prevStartTop) {
                         a.x = prevStart
                     }
                 }
@@ -2109,8 +2112,6 @@ const UI = {
                 }
                 return  a.x - b.x
             })
-            // console.log(UI.monitors)
-            console.log(UI.sortedMonitors)
             UI.recenter()
             UI.draw()
         }
