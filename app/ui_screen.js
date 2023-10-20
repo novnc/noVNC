@@ -169,12 +169,14 @@ const UI = {
 
     identify(data) {
         const screen = data.screens.find(el => el.id === UI.screenID)
-        document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
-        document.getElementById('noVNC_identify_monitor').classList.add("show")
-        document.querySelector('title').textContent = 'Display ' + screen.num + ' - ' + UI.screenID
-        setTimeout(() => {
-            document.getElementById('noVNC_identify_monitor').classList.remove("show")
-        }, 3500)
+        if (screen) {
+            document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
+            document.getElementById('noVNC_identify_monitor').classList.add("show")
+            document.querySelector('title').textContent = 'Display ' + screen.num + ' - ' + UI.screenID
+            setTimeout(() => {
+                document.getElementById('noVNC_identify_monitor').classList.remove("show")
+            }, 3500)
+        }
     },
 
 

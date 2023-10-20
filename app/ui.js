@@ -13,13 +13,7 @@ window.addEventListener("load", function() {
     loader.src = "vendor/browser-es-module-loader/dist/browser-es-module-loader.js";
     document.head.appendChild(loader);
 });
-window.addEventListener("load", function() {
-    var connect_btn_el = document.getElementById("noVNC_connect_button");
-    if (typeof(connect_btn_el) != 'undefined' && connect_btn_el != null)
-    {
-        connect_btn_el.click();
-    }
-});
+
 
 window.updateSetting = (name, value) => {
     WebUtil.writeSetting(name, value);
@@ -31,8 +25,8 @@ window.updateSetting = (name, value) => {
     }
 }
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+//import "core-js/stable";
+//import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
 import _, { l10n } from './localization.js';
 import { isTouchDevice, isSafari, hasScrollbarGutter, dragThreshold, supportsBinaryClipboard, isFirefox, isWindows, isIOS, supportsPointerLock }
@@ -134,6 +128,7 @@ const UI = {
         UI.addExtraKeysHandlers();
         UI.addGamingHandlers();
         UI.addMachineHandlers();
+        UI.addConnectionControlHandlers();
         UI.addClipboardHandlers();
         UI.addSettingsHandlers();
         UI.addDisplaysHandler();
@@ -406,6 +401,17 @@ const UI = {
         for (let i = 0;i < exps.length;i++) {
             exps[i].addEventListener('click', UI.toggleExpander);
         }
+    },
+
+    addConnectionControlHandlers() {
+        UI.addClickHandle('noVNC_disconnect_button', UI.disconnect);
+
+        var connect_btn_el = document.getElementById("noVNC_connect_button_2");
+        if (typeof(connect_btn_el) != 'undefined' && connect_btn_el != null)
+        {
+            connect_btn_el.addEventListener('click', UI.connect);
+        }
+
     },
 
     addTouchSpecificHandlers() {
