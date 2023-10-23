@@ -405,9 +405,9 @@ export default class Display {
         }
 
         const vp = this._screens[0];
-        if (vp.width !== width || vp.height !== height) {
-            vp.width = width;
-            vp.height = height;
+        if (vp.serverWidth !== width || vp.serverHeight !== height) {
+            vp.serverWidth = width;
+            vp.serverHeight = height;
 
             const canvas = this._target;
             canvas.width = width;
@@ -470,7 +470,7 @@ export default class Display {
         // Readjust the viewport as it may be incorrectly sized
         // and positioned
         const vp = this._screens[0];
-        this.viewportChangeSize(vp.width, vp.height);
+        this.viewportChangeSize(vp.serverWidth, vp.serverHeight);
         this.viewportChangePos(0, 0);
     }
 
@@ -839,6 +839,11 @@ export default class Display {
             newestFrameID = Math.max(newestFrameID, this._asyncFrameQueue[i][0]);
         }
 
+        if (!this._firstRect) { //TODO: Remove this
+            this._firstRect = true;
+            Log.Info("First rect received.");
+        }
+
         if (frameIx >= 0) {
             if (rect.type == "flip") {
                 //flip rect contains the rect count for the frame
@@ -862,12 +867,21 @@ export default class Display {
                 if (rect.type == "flip") { this._lateFlipRect++; }
                 return;
             } else if (rect.frame_id > newestFrameID) {
-                //frame is newer than any frame in the queue, drop old frames
-                Log.Warn("Older Rect Dropped");
-                this._asyncFrameQueue.shift();
+                //frame is newer than any frame in the queue, drop old frame
+                if (this._asyncFrameQueue[0][3] == true) {
+                    this._pushAsyncFrame(true);
+                    Log.Warn("Forced frame to canvas");
+                    this._droppedFrames += (rect.frame_id - (newestFrameID + 1));
+                    this._forcedFrameCnt++;
+                } else {
+                    this._asyncFrameQueue.shift();
+                    Log.Warn("Old frame dropped");
+                    this._droppedFrames += (rect.frame_id - newestFrameID);
+                }
+                
                 let rect_cnt = ((rect.type == "flip") ? rect.rect_cnt : 0);
                 this._asyncFrameQueue.push([ rect.frame_id, rect_cnt, [ rect ], (rect_cnt == 1), 0, 0 ]);
-                this._droppedFrames++;
+                
             }
         }
         
@@ -906,8 +920,6 @@ export default class Display {
                     if (this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img && !this._asyncFrameQueue[frameIx][2][currentFrameRectIx].img.complete) {
                         this._asyncFrameQueue[frameIx][2][currentFrameRectIx].type = 'skip';
                         this._droppedRects++;
-                    } else {
-                        Log.Warn(`Oh snap, an image rect without an image: ${this._asyncFrameQueue[frameIx][2][currentFrameRectIx]}`)
                     }
                 }
 

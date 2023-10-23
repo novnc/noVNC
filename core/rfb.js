@@ -1492,7 +1492,10 @@ export default class RFB extends EventTargetMixin {
             //re-register the secondary display with new resolution
             this._registerSecondaryDisplay();
         }
-        this.dispatchEvent(new CustomEvent("screenregistered", {}));
+
+        if (this._display.screens.length > 1) {
+            this.dispatchEvent(new CustomEvent("screenregistered", {}));
+        }
     }
 
     // Gets the the size of the available screen
@@ -1671,9 +1674,9 @@ export default class RFB extends EventTargetMixin {
             switch (event.data.eventType) {
                 case 'register':
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
-                    const size = this._screenSize();
-                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
-                    this._updateContinuousUpdates();
+                    //const size = this._screenSize();
+                    //RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    //this._updateContinuousUpdates();
                     this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
@@ -1681,8 +1684,8 @@ export default class RFB extends EventTargetMixin {
                     if (this._display.removeScreen(event.data.screenID)) {
                         this.dispatchEvent(new CustomEvent("screenregistered", {}));
                         Log.Info(`Secondary monitor (${event.data.screenID}) has been removed.`);
-                        const size = this._screenSize();
-                        RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                        //const size = this._screenSize();
+                        //RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     } else {
                         Log.Info(`Secondary monitor (${event.data.screenID}) not found.`);
                     }
@@ -1714,10 +1717,12 @@ export default class RFB extends EventTargetMixin {
                     break;
                 case 'disconnect':
                     this.disconnect();
+                    break;
                 case 'forceResize':
                     this._hiDpi = event.data.args[0];
                     this._updateScale();
                     this._requestRemoteResize();
+                    break;
             }
         }
         
@@ -2052,7 +2057,7 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        if (this.isPrimaryDisplay){
+        if (this._isPrimaryDisplay){
             RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), 0, dX, dY);
         } else {
             this._proxyRFBMessage('pointerEvent', [ this._display.absX(x), this._display.absY(y), 0, dX, dY ]);
