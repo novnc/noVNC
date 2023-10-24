@@ -9,17 +9,22 @@ const UI = {
     connected: false,
     screenID: null,
     screen: {},
+    supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
+    controlChannel: null,
     //Initial Loading of the UI
     prime() {
         this.start();
+        console.log('prime')
     },
 
     //Render default UI
     start() {
+        console.log('prime')
         window.addEventListener("beforeunload", (e) => { 
             if (UI.rfb) { 
                 UI.disconnect(); 
-            } 
+            }
+            console.log('beforeunload')
         });
 
 
@@ -28,7 +33,7 @@ const UI = {
     },
 
     addDefaultHandlers() {
-        document.getElementById('noVNC_connect_button').addEventListener('click', UI.connect);;
+        document.getElementById('noVNC_connect_button').addEventListener('click', UI.connect);
     },
 
     getSetting(name, isBool, default_value) {
@@ -47,6 +52,7 @@ const UI = {
     },
 
     connect() {
+        console.log('connect')
         UI.rfb = new RFB(document.getElementById('noVNC_container'),
                         document.getElementById('noVNC_keyboardinput'),
                         "", //URL
@@ -93,24 +99,11 @@ const UI = {
             UI.rfb.enableQOI = true;
         }
 
-        this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
-        if (this._supportsBroadcastChannel) {
-            this._controlChannel = new BroadcastChannel("registrationChannel");
-            this._controlChannel.onmessage = (event) => {
-                switch (event.data.eventType) {
-                    case 'identify':
-                        UI.identify(event.data)
-                        break;
-                    case 'secondarydisconnected':
-                        UI.updateVisualState('disconnected');
-                        console.log(UI.screenID)
-                        break;
-                }
-            };
-            
+        if (UI.supportsBroadcastChannel) {
+            console.log('add event listener')
+            UI.controlChannel = new BroadcastChannel("registrationChannel");
+            UI.controlChannel.addEventListener('message', UI.handleControlMessage)
         }
-
-
 
         //attach this secondary display to the primary display
         if (UI.screenID === null) {
@@ -128,6 +121,17 @@ const UI = {
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
             navigator.permissions.query({ name: "clipboard-read" }).then((result) => { Log.Debug('binary clipboard enabled') });
+        }
+    },
+
+    handleControlMessage(event) {
+        switch (event.data.eventType) {
+            case 'identify':
+                UI.identify(event.data)
+                break;
+            case 'secondarydisconnected':
+                UI.updateVisualState('disconnected');
+                break;
         }
     },
 
@@ -164,10 +168,12 @@ const UI = {
                 document.documentElement.classList.add("noVNC_disconnecting");
                 break;
             case 'disconnected':
+                console.log('disconnected')
                 document.documentElement.classList.add("noVNC_disconnected");
                 if (connect_el.classList.contains("noVNC_hidden")) {
                     connect_el.classList.remove('noVNC_hidden');
                 }
+                UI.disconnect()
                 break;
             case 'reconnecting':
                 transitionElem.textContent = _("Reconnecting...");
@@ -264,6 +270,11 @@ const UI = {
     disconnect() {
         if (UI.rfb) {
             UI.rfb.disconnect();
+            if (UI.supportsBroadcastChannel) {
+                console.log('remove')
+                UI.controlChannel.removeEventListener('message', UI.handleControlMessage);
+                UI.rfb.removeEventListener("connect", UI.connectFinished);
+            }    
         }
     },
 

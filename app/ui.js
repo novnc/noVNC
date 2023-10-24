@@ -1446,20 +1446,6 @@ const UI = {
             UI.rfb.enableQOI = true;
 	    }
 
-        this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
-        if (this._supportsBroadcastChannel) {
-            this._controlChannel = new BroadcastChannel("registrationChannel");
-            this._controlChannel.addEventListener('message', (event) => {
-                switch (event.data.eventType) {
-                    case 'identify':
-                        UI.identify(event.data)
-                        break;
-                }
-            });
-            
-        }
-
-
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
@@ -1860,13 +1846,12 @@ const UI = {
  * ==============*/
 
     _identify(e) {
+        UI.identify()
         UI.rfb.identify(UI.monitors)
     },
 
     identify(data) {
-        const screenID = UI.monitors[0].id
-        const screen = data.screens.find(el => el.id === screenID)
-        document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
+        document.getElementById('noVNC_identify_monitor').innerHTML = '1'
         document.getElementById('noVNC_identify_monitor').classList.add("show")
         setTimeout(() => {
             document.getElementById('noVNC_identify_monitor').classList.remove("show")
@@ -2855,7 +2840,7 @@ const UI = {
 
         // UI.rfb.applyScreenPlan(screenPlan); // applyScreenPlan is triggered in UI.updateMonitors
         UI.updateMonitors(screenPlan)
-        UI.rfb.identify(UI.monitors)
+        UI._identify(UI.monitors)
     },
 
     //Helper to add options to dropdown.
