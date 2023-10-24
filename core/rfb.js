@@ -740,10 +740,18 @@ export default class RFB extends EventTargetMixin {
 
     attachSecondaryDisplay() {
         this._updateConnectionState('connecting');
-        const id = this._registerSecondaryDisplay();
+        const screen = this._registerSecondaryDisplay();
         this._updateConnectionState('connected');
-        return id
+        return screen
     }
+
+    reattachSecondaryDisplay(screen) {
+        this._updateConnectionState('connecting');
+        this._registerSecondaryDisplay(screen);
+        this._updateConnectionState('connected');
+        return screen
+    }
+
 
     applyScreenPlan(screenPlan) {
         if (this._isPrimaryDisplay) {
@@ -1595,7 +1603,7 @@ export default class RFB extends EventTargetMixin {
                 this._sock.off('close');
             }
         }
-
+        
         switch (state) {
             case 'connecting':
                 this._connect();
@@ -1681,6 +1689,13 @@ export default class RFB extends EventTargetMixin {
                     this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
+                case 'reattach':
+                    console.log('reattach message')
+                    console.log(event.data)
+                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
+                    break;
                 case 'unregister':
                     if (this._display.removeScreen(event.data.screenID)) {
                         this.dispatchEvent(new CustomEvent("screenregistered", {}));
@@ -1740,7 +1755,7 @@ export default class RFB extends EventTargetMixin {
         
     }
 
-    _registerSecondaryDisplay() {
+    _registerSecondaryDisplay(currentScreen = false) {
         if (!this._isPrimaryDisplay) {
             //let screen = this._screenSize().screens[0];
             //
@@ -1749,14 +1764,15 @@ export default class RFB extends EventTargetMixin {
             this._display.autoscale(size.screens[0].containerWidth, size.screens[0].containerHeight, size.screens[0].scale);
             screen = this._screenSize().screens[0];
             
+            const registertype = (currentScreen) ? 'reattach' : 'register'
 
             let message = {
-                eventType: 'register',
+                eventType: registertype,
                 screenID: screen.screenID,
                 width: screen.width,
                 height: screen.height,
-                x: 0,
-                y: 0,
+                x: currentScreen.x || 0,
+                y: currentScreen.y || 0,
                 pixelRatio: screen.pixelRatio,
                 containerWidth: screen.containerWidth,
                 containerHeight: screen.containerHeight,
@@ -1765,7 +1781,8 @@ export default class RFB extends EventTargetMixin {
             this._controlChannel.postMessage(message);
 
             if (!this._viewOnly) { this._keyboard.grab(); }
-            return screen.screenID
+            // return screen.screenID
+            return screen
         }
         
     }

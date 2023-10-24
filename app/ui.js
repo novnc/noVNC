@@ -2064,11 +2064,14 @@ const UI = {
 
     setScreenPlan() {
         let monitors = UI.monitors
+        let sortedMonitors = UI.sortedMonitors
         const { scale } = UI.multiMonitorSettings()
-        const { top, left, width, height } = UI.getSizes(monitors)
+        const { top, left, width, height } = UI.getSizes(sortedMonitors)
         const screens = []
         for (var i = 0; i < monitors.length; i++) {
-            var a = monitors[i];
+            var monitor = monitors[i];
+            var a = sortedMonitors.find(el => el.id === monitor.id)
+            console.log(a)
             screens.push({
                 screenID: a.id,
                 serverHeight: Math.floor(a.h * scale),
@@ -2082,6 +2085,8 @@ const UI = {
             serverWidth: Math.floor(width * scale),
             screens
         }
+        console.log('setScreenPlan')
+        console.log(screenPlan)
         UI.rfb.applyScreenPlan(screenPlan);
     },
 
@@ -2838,9 +2843,11 @@ const UI = {
     },
 
     screenRegistered(e) {
+        console.log('screen registered')
         // Get the current screen plan
         // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
         let screenPlan = UI.rfb.getScreenPlan();
+        console.log(screenPlan)
         // Now make adjustments to the screen plan, this is just an example
        // screenPlan.screens[1].y = 0;
         

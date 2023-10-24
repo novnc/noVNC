@@ -8,6 +8,7 @@ import * as Log from '../core/util/logging.js';
 const UI = {
     connected: false,
     screenID: null,
+    screen: {},
     //Initial Loading of the UI
     prime() {
         this.start();
@@ -102,6 +103,7 @@ const UI = {
                         break;
                     case 'secondarydisconnected':
                         UI.updateVisualState('disconnected');
+                        console.log(UI.screenID)
                         break;
                 }
             };
@@ -111,7 +113,15 @@ const UI = {
 
 
         //attach this secondary display to the primary display
-        UI.screenID = UI.rfb.attachSecondaryDisplay();
+        if (UI.screenID === null) {
+            const screen = UI.rfb.attachSecondaryDisplay();
+            UI.screenID = screen.screenID
+            UI.screen = screen
+        } else {
+            console.log('else reattach screens')
+            console.log(UI.screen)
+            UI.rfb.reattachSecondaryDisplay(UI.screen);
+        }
         document.querySelector('title').textContent = 'Display ' + UI.screenID
 
 
@@ -171,6 +181,8 @@ const UI = {
     },
 
     identify(data) {
+        UI.screens = data.screens
+        console.log('identify')
         const screen = data.screens.find(el => el.id === UI.screenID)
         if (screen) {
             document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
