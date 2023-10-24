@@ -1611,6 +1611,7 @@ export default class RFB extends EventTargetMixin {
                 this._disconnTimer = setTimeout(() => {
                     Log.Error("Disconnection timed out.");
                     this._updateConnectionState('disconnected');
+                    this._proxyRFBMessage('secondarydisconnected')
                 }, DISCONNECT_TIMEOUT * 1000);
                 break;
 

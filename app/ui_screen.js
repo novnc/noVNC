@@ -95,13 +95,16 @@ const UI = {
         this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
         if (this._supportsBroadcastChannel) {
             this._controlChannel = new BroadcastChannel("registrationChannel");
-            this._controlChannel.addEventListener('message', (event) => {
+            this._controlChannel.onmessage = (event) => {
                 switch (event.data.eventType) {
                     case 'identify':
                         UI.identify(event.data)
                         break;
+                    case 'secondarydisconnected':
+                        UI.updateVisualState('disconnected');
+                        break;
                 }
-            });
+            };
             
         }
 
