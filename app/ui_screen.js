@@ -13,13 +13,13 @@ const UI = {
     controlChannel: null,
     //Initial Loading of the UI
     prime() {
-        this.start();
         console.log('prime')
+        this.start();
     },
 
     //Render default UI
     start() {
-        console.log('prime')
+        console.log('start')
         window.addEventListener("beforeunload", (e) => { 
             if (UI.rfb) { 
                 UI.disconnect(); 
@@ -271,7 +271,7 @@ const UI = {
         if (UI.rfb) {
             UI.rfb.disconnect();
             if (UI.supportsBroadcastChannel) {
-                console.log('remove')
+                console.log('remove event listeners')
                 UI.controlChannel.removeEventListener('message', UI.handleControlMessage);
                 UI.rfb.removeEventListener("connect", UI.connectFinished);
             }    

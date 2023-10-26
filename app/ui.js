@@ -1900,10 +1900,10 @@ const UI = {
             }
             monitors.push({
                 id: screen.screenID,
-                x: Math.round(screen.x / scale),
-                y: Math.round(screen.y / scale),
-                w: Math.round(screen.serverWidth / scale),
-                h: Math.round(screen.serverHeight / scale),
+                x: screen.x / scale,
+                y: screen.y / scale,
+                w: screen.serverWidth / scale,
+                h: screen.serverHeight / scale,
                 pixelRatio: screen.pixelRatio,
                 scale: 1,
                 fill: '#eeeeeecc',
@@ -2059,15 +2059,15 @@ const UI = {
             console.log(a)
             screens.push({
                 screenID: a.id,
-                serverHeight: Math.floor(a.h * scale),
-                serverWidth: Math.floor(a.w * scale),
-                x: Math.floor((a.x - left) * scale),
-                y: Math.floor((a.y - top) * scale)
+                serverHeight: Math.round(a.h * scale),
+                serverWidth: Math.round(a.w * scale),
+                x: Math.round((a.x - left) * scale),
+                y: Math.round((a.y - top) * scale)
             })
         }
         const screenPlan = {
-            serverHeight: Math.floor(height * scale),
-            serverWidth: Math.floor(width * scale),
+            serverHeight: Math.round(height * scale),
+            serverWidth: Math.round(width * scale),
             screens
         }
         console.log('setScreenPlan')
