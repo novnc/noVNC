@@ -3963,7 +3963,10 @@ export default class RFB extends EventTargetMixin {
         };
 
         this._refreshCursor();
-        this._proxyRFBMessage('updateCursor', [ rgba, hotx, hoty, w, h ]);
+
+        if (this._isPrimaryDisplay) {
+            this._proxyRFBMessage('updateCursor', [ rgba, hotx, hoty, w, h ]);
+        }
     }
 
     _shouldShowDotCursor() {
