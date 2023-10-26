@@ -9,6 +9,7 @@ const UI = {
     connected: false,
     screenID: null,
     screen: {},
+    screens: [],
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
     controlChannel: null,
     //Initial Loading of the UI
