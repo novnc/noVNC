@@ -1683,9 +1683,9 @@ export default class RFB extends EventTargetMixin {
             switch (event.data.eventType) {
                 case 'register':
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
-                    //const size = this._screenSize();
-                    //RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
-                    //this._updateContinuousUpdates();
+                    const size = this._screenSize();
+                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    this._updateContinuousUpdates();
                     this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
@@ -1700,8 +1700,10 @@ export default class RFB extends EventTargetMixin {
                     if (this._display.removeScreen(event.data.screenID)) {
                         this.dispatchEvent(new CustomEvent("screenregistered", {}));
                         Log.Info(`Secondary monitor (${event.data.screenID}) has been removed.`);
-                        //const size = this._screenSize();
-                        //RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                        const size = this._screenSize();
+                        RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                        this._updateContinuousUpdates();
+                        this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     } else {
                         Log.Info(`Secondary monitor (${event.data.screenID}) not found.`);
                     }
@@ -4378,28 +4380,6 @@ RFB.messages = {
         sock._sQlen += i;
         sock.flush();
 
-        /*
-        // screen array
-        buff[offset + 8] = id >> 24;     // id
-        buff[offset + 9] = id >> 16;
-        buff[offset + 10] = id >> 8;
-        buff[offset + 11] = id;
-        buff[offset + 12] = 0;           // x-position
-        buff[offset + 13] = 0;
-        buff[offset + 14] = 0;           // y-position
-        buff[offset + 15] = 0;
-        buff[offset + 16] = width >> 8;  // width
-        buff[offset + 17] = width;
-        buff[offset + 18] = height >> 8; // height
-        buff[offset + 19] = height;
-        buff[offset + 20] = flags >> 24; // flags
-        buff[offset + 21] = flags >> 16;
-        buff[offset + 22] = flags >> 8;
-        buff[offset + 23] = flags;
-
-        sock._sQlen += 24;
-        sock.flush();
-        */
     },
 
     setMaxVideoResolution(sock, width, height) {

@@ -174,10 +174,22 @@ export default class Display {
     // ===== PUBLIC METHODS =====
 
     /*
-    Returns the screen index given serverside relative coordinates
+    Returns the screen index and relative coordinates given globally scoped coordinates
     */
-    getScreenIndexByServerCoords(x, y) {
-
+    getClientRelativeCoordinates(x, y) {
+        for (let i = 0; i < this._screens.length; i++) {
+            if ( 
+                (x >= this._screens[i].x && x <= this._screens[i].x + this._screens[i].serverWidth) &&
+                (y >= this._screens[i].y && y <= this._screens[i].y + this._screens[i].serverHeight)
+                )
+                {
+                    return {
+                        "screenIndex": i,
+                        "x": x - this._screens[i].x,
+                        "y": y - this._screens[i].y
+                    }
+                }
+        }
     }
 
     /* 
@@ -329,6 +341,8 @@ export default class Display {
         if (this._isPrimaryDisplay) {
             for (let i=1; i<this._screens.length; i++) {
                 if (this._screens[i].screenID == screenID) {
+                    //flush all rects on target screen
+                    this._flushRectsScreen(i);
                     this._screens[i].channel.close();
                     this._screens.splice(i, 1);
                     removed = true;
@@ -755,7 +769,7 @@ export default class Display {
                 case 'registered':
                         if (!this._isPrimaryDisplay) {
                             this._screens[0].screenIndex = event.data.screenIndex;
-                            Log.Info(`Screen with index (${event.data.screenIndex}) successfully registered with the primary display.`);
+                            Log.Error(`Screen with index (${event.data.screenIndex}) successfully registered with the primary display.`);
                         }
                     break;
             }
@@ -812,6 +826,21 @@ export default class Display {
 
         if (this._syncFrameQueue.length > 0) {
             window.requestAnimationFrame( () => { this._pushSyncRects(); });
+        }
+    }
+
+    _flushRectsScreen(screenIndex) {
+        for (let i=0; i<this._asyncFrameQueue.length; i++) {
+            const frame = this._asyncFrameQueue[i];
+            for (let x=0; x < frame[2].length; x++) {
+                const rect = frame[2][x];
+                for (let y=0; y < rect.screenLocations.length; y++) {
+                    if (rect.screenLocations[y].screenIndex === screenIndex) {
+                        rect.screenLocations.splice(y, 1);
+                        break;
+                    }
+                }
+            }
         }
     }
 

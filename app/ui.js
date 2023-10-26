@@ -2831,16 +2831,14 @@ const UI = {
         console.log('screen registered')
         // Get the current screen plan
         // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
-        let screenPlan = UI.rfb.getScreenPlan();
-        console.log(screenPlan)
-        // Now make adjustments to the screen plan, this is just an example
-       // screenPlan.screens[1].y = 0;
-        
-        // Finally apply the screen plan
+        if (UI.rfb) {
+            let screenPlan = UI.rfb.getScreenPlan();
+            console.log(screenPlan)
 
-        // UI.rfb.applyScreenPlan(screenPlan); // applyScreenPlan is triggered in UI.updateMonitors
-        UI.updateMonitors(screenPlan)
-        UI._identify(UI.monitors)
+            UI.updateMonitors(screenPlan)
+            UI._identify(UI.monitors)
+        }
+        
     },
 
     //Helper to add options to dropdown.
