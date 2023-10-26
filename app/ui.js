@@ -1747,6 +1747,10 @@ const UI = {
                     UI.forceSetting('enable_hidpi', event.data.value, false);
                     UI.enableHiDpi();
                     break;
+                case 'control_displays':
+                    parent.postMessage({ action: 'can_control_displays', value: true}, '*' );
+                    break;
+
             }
         }
     },
