@@ -232,6 +232,9 @@ const UI = {
         document.getElementById("noVNC_view_drag_button")
             .addEventListener('click', UI.toggleViewDrag);
 
+        document.getElementById("noVNC_touchpad_button")
+            .addEventListener('click', UI.toggleTouchpadMode);
+
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('mousedown', UI.controlbarHandleMouseDown);
         document.getElementById("noVNC_control_bar_handle")
@@ -1586,11 +1589,34 @@ const UI = {
         }
     },
 
-/* ------^-------
- *   /KEYBOARD
- * ==============
- *   EXTRA KEYS
- * ------v------*/
+    /* ------^-------
+     *  /KEYBOARD
+     * ==============
+     *   TOUCHPAD
+     * ------v------*/
+
+        toggleTouchpadMode() {
+            if (!UI.rfb) return;
+    
+            UI.rfb.touchpadMode = !UI.rfb.touchpadMode;
+            UI.updateTouchpadButton();
+        },
+    
+        updateTouchpadButton() {
+            const touchpadButton = document.getElementById('noVNC_touchpad_button');
+    
+            if (UI.rfb.touchpadMode) {
+                touchpadButton.classList.add("noVNC_selected");
+            } else {
+                touchpadButton.classList.remove("noVNC_selected");
+            }
+        },
+    
+   /* ------^-------
+    *   /TOUCHPAD
+    * ==============
+    *   EXTRA KEYS
+    * ------v------*/
 
     openExtraKeys() {
         UI.closeAllPanels();

@@ -290,6 +290,7 @@ export default class RFB extends EventTargetMixin {
         this._clippingViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
+        this.touchpadMode = false;
 
         this._showDotCursor = false;
         if (options.showDotCursor !== undefined) {
