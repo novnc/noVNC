@@ -21,11 +21,10 @@ const UI = {
     //Render default UI
     start() {
         console.log('start')
-        window.addEventListener("beforeunload", (e) => { 
+        window.addEventListener("unload", (e) => { 
             if (UI.rfb) { 
                 UI.disconnect(); 
             }
-            console.log('beforeunload')
         });
 
 

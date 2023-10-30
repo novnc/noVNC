@@ -166,8 +166,8 @@ const UI = {
                 UI.hideKeyboardControls();
             }
         });
-
-        window.addEventListener("beforeunload", (e) => { 
+        
+        window.addEventListener("unload", (e) => { 
             if (UI.rfb) { 
                 UI.disconnect(); 
             } 

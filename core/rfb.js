@@ -1685,6 +1685,7 @@ export default class RFB extends EventTargetMixin {
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
                     const size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    this._sendEncodings();
                     this._updateContinuousUpdates();
                     this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
@@ -1702,6 +1703,7 @@ export default class RFB extends EventTargetMixin {
                         Log.Info(`Secondary monitor (${event.data.screenID}) has been removed.`);
                         const size = this._screenSize();
                         RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                        this._sendEncodings();
                         this._updateContinuousUpdates();
                         this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     } else {
@@ -2859,7 +2861,10 @@ export default class RFB extends EventTargetMixin {
         const encs = [];
 
         // In preference order
-        encs.push(encodings.encodingCopyRect);
+        // Disable copyrect when using multiple displays
+        if (this._display.screens.length === 1) {
+            encs.push(encodings.encodingCopyRect);
+        }
         // Only supported with full depth support
         if (this._fbDepth == 24) {
             encs.push(encodings.encodingTight);
