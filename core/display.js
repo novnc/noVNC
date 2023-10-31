@@ -248,7 +248,7 @@ export default class Display {
                 let targetDevicePixelRatio = 1.5;
                 if (this._screens[i].pixelRatio > 2) { targetDevicePixelRatio = 2; }
                 let scaledWidth = (width * this._screens[i].pixelRatio) * (1 / targetDevicePixelRatio);
-                let scaleRatio = scaledWidth / x;
+                let scaleRatio = scaledWidth / width;
                 width = width * scaleRatio;
                 height = height * scaleRatio;
                 scale = 1 / scaleRatio;

@@ -27,6 +27,9 @@ const UI = {
             }
         });
 
+        // Settings with immediate effects
+        UI.initSetting('logging', 'warn');
+        UI.updateLogging();
 
         UI.addDefaultHandlers();
         UI.updateVisualState('disconnected');
@@ -66,8 +69,8 @@ const UI = {
         UI.rfb.addEventListener("connect", UI.connectFinished);
         //UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
-        UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
-        UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.scaleViewport = UI.getSetting('resize', false, 'remote') === 'scale';
+        UI.rfb.resizeSession = UI.getSetting('resize', false, 'remote') === 'remote';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.dynamicQualityMin = parseInt(UI.getSetting('dynamic_quality_min'));
         UI.rfb.dynamicQualityMax = parseInt(UI.getSetting('dynamic_quality_max'));
@@ -307,6 +310,22 @@ const UI = {
 
         return mouseButtonMapper;
     },
+
+    updateLogging() {
+        WebUtil.initLogging(UI.getSetting('logging'));
+    },
+
+    // Initial page load read/initialization of settings
+    initSetting(name, defVal) {
+        // Check Query string followed by cookie
+        let val = WebUtil.getConfigVar(name);
+        if (val === null) {
+            val = WebUtil.readSetting(name, defVal);
+        }
+        WebUtil.setSetting(name, val);
+        return val;
+    },
+
 }
 
 UI.prime();
