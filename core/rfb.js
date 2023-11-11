@@ -261,7 +261,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._clipboard = new Clipboard(this._canvas);
-        this._clipboard.onpaste = this.clipboardPasteFrom.bind(this);
+        this._clipboard.onpaste = this._handlePasteEvent.bind(this);
 
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
@@ -498,6 +498,14 @@ export default class RFB extends EventTargetMixin {
 
     blur() {
         this._canvas.blur();
+    }
+
+    _handlePasteEvent(text){
+        this.clipboardPasteFrom(text);
+        this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true)
+        this.sendKey(KeyTable.XK_V, "KeyV", true)
+        this.sendKey(KeyTable.XK_V, "KeyV", false)
+        this.sendKey(KeyTable.XK_Control_L, "ControlLeft", false)
     }
 
     clipboardPasteFrom(text) {

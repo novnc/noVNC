@@ -85,6 +85,10 @@ export default class Keyboard {
 
     _handleKeyDown(e) {
         const code = this._getKeyCode(e);
+        const isCtrlVEvent = code === "KeyV" && e.ctrlKey;
+        if(isCtrlVEvent){
+            return;
+        }
         let keysym = KeyboardUtil.getKeysym(e);
         let numlock = e.getModifierState('NumLock');
         let capslock = e.getModifierState('CapsLock');

@@ -19,13 +19,20 @@ export default class Clipboard {
             navigator.clipboard.writeText(e.clipboardData.getData('text/plain')).catch(() => {/* Do nothing */});
         }
     }
-
+    /**
+     * @param {ClipboardEvent} e 
+     */
     _handlePaste(e) {
-        if (navigator.clipboard.readText) {
-            navigator.clipboard.readText().then(this.onpaste).catch(() => {/* Do nothing */});
-        } else if (e.clipboardData) {
+        if(!this._isVncEvent()){
+            return;
+        }
+        if(e.clipboardData){
             this.onpaste(e.clipboardData.getData('text/plain'));
         }
+    }
+    _isVncEvent(){
+        const isTargetFocused = document.activeElement === this._target;
+        return isTargetFocused;
     }
 
     // ===== PUBLIC METHODS =====
@@ -33,13 +40,14 @@ export default class Clipboard {
     grab() {
         if (!Clipboard.isSupported) return;
         this._target.addEventListener('copy', this._eventHandlers.copy);
-        this._target.addEventListener('paste', this._eventHandlers.paste);
+        // _target can not listen the paste event.
+        document.body.addEventListener('paste', this._eventHandlers.paste);
     }
 
     ungrab() {
         if (!Clipboard.isSupported) return;
         this._target.removeEventListener('copy', this._eventHandlers.copy);
-        this._target.removeEventListener('paste', this._eventHandlers.paste);
+        document.body.removeEventListener('paste', this._eventHandlers.paste);
     }
 }
 
