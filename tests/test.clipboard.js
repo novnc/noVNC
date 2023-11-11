@@ -5,26 +5,6 @@ import Clipboard from '../core/clipboard.js';
 describe('Automatic Clipboard Sync', function () {
     "use strict";
 
-    if (Clipboard.isSupported) {
-        beforeEach(function () {
-            if (navigator.clipboard.writeText) {
-                sinon.spy(navigator.clipboard, 'writeText');
-            }
-            if (navigator.clipboard.readText) {
-                sinon.spy(navigator.clipboard, 'readText');
-            }
-        });
-
-        afterEach(function () {
-            if (navigator.clipboard.writeText) {
-                navigator.clipboard.writeText.restore();
-            }
-            if (navigator.clipboard.readText) {
-                navigator.clipboard.readText.restore();
-            }
-        });
-    }
-
     it('is supported on all target browsers', function () {
         expect(Clipboard.isSupported).to.be.true;
     });
@@ -40,17 +20,16 @@ describe('Automatic Clipboard Sync', function () {
             if (!clipboardEvent.clipboardData.items.length) {
                 clipboardEvent.clipboardData.items.add(text, "text/plain");
             }
+            sinon.spy(clipboard, '_copy');
             clipboard._handleCopy(clipboardEvent);
-            if (navigator.clipboard.writeText) {
-                expect(navigator.clipboard.writeText).to.have.been.calledWith(text);
-            }
+            expect(clipboard._copy).to.have.been.calledWith(text);
+            expect(clipboard._remoteClipboard).to.eq(text);
         }
     });
 
     it('should copy local pasted data to the server clipboard', function () {
         const text = 'Another random string for testing';
         const clipboard = new Clipboard();
-        clipboard.onpaste = pasterText => expect(pasterText).to.equal(text);
         if (Clipboard.isSupported) {
             const clipboardData = new DataTransfer();
             clipboardData.setData("text/plain", text);
@@ -59,10 +38,29 @@ describe('Automatic Clipboard Sync', function () {
             if (!clipboardEvent.clipboardData.items.length) {
                 clipboardEvent.clipboardData.items.add(text, "text/plain");
             }
+            sinon.stub(clipboard, '_isVncEvent').returns(true);
+            sinon.spy(clipboard, 'onpaste');
             clipboard._handlePaste(clipboardEvent);
-            if (navigator.clipboard.readText) {
-                expect(navigator.clipboard.readText).to.have.been.called;
+            expect(clipboard.onpaste).to.have.been.calledWith(text);
+        }
+    });
+
+    it('should not copy local pasted data to the server clipboard', function () {
+        const text = 'Another random string for testing';
+        const clipboard = new Clipboard();
+        clipboard._remoteClipboard = text;
+        if (Clipboard.isSupported) {
+            const clipboardData = new DataTransfer();
+            clipboardData.setData("text/plain", text);
+            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
+            // Force initialization since the constructor is broken in Firefox
+            if (!clipboardEvent.clipboardData.items.length) {
+                clipboardEvent.clipboardData.items.add(text, "text/plain");
             }
+            sinon.stub(clipboard, '_isVncEvent').returns(true);
+            sinon.spy(clipboard, 'onpaste');
+            clipboard._handlePaste(clipboardEvent);
+            expect(clipboard.onpaste).to.have.been.calledWith("", false);
         }
     });
 });

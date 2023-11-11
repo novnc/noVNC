@@ -1,8 +1,4 @@
 export default class Clipboard {
-     /**
-     *  @type {string}
-     */
-     _remoteClipboard
     constructor(target) {
         this._target = target;
 
@@ -10,7 +6,10 @@ export default class Clipboard {
             'copy': this._handleCopy.bind(this),
             'paste': this._handlePaste.bind(this)
         };
-
+        /**
+         *  @type {string}
+         */
+        this._remoteClipboard = null;
         // ===== EVENT HANDLERS =====
 
         this.onpaste = () => {};
@@ -20,7 +19,7 @@ export default class Clipboard {
 
     _handleCopy(e) {
         this._remoteClipboard = e.clipboardData.getData('text/plain');
-        this._copy(this._remoteClipboard)
+        this._copy(this._remoteClipboard);
     }
     /**
      * Has a better browser support compared with navigator.clipboard.writeText.
@@ -31,19 +30,19 @@ export default class Clipboard {
         textarea.innerHTML = text;
         document.body.appendChild(textarea);
         textarea.select();
-        const result = document.execCommand('copy');
+        document.execCommand('copy');
         document.body.removeChild(textarea);
     }
     /**
-     * @param {ClipboardEvent} e 
+     * @param {ClipboardEvent} e
      */
     _handlePaste(e) {
-        if(!this._isVncEvent()){
+        if (!this._isVncEvent()) {
             return;
         }
-        if(e.clipboardData){
+        if (e.clipboardData) {
             const localClipboard = e.clipboardData.getData('text/plain');
-            if(localClipboard === this._remoteClipboard){
+            if (localClipboard === this._remoteClipboard) {
                 this._pasteVncServerInternalClipboard();
                 return;
             }
@@ -53,14 +52,14 @@ export default class Clipboard {
     /**
      * The vnc server clipboard can be non ascii text and server might only support ascii code.
      * In that case, localClipboard received from the vnc server is garbled.
-     * For example, if you copied chinese text "你好" in the vnc server the local clipboard will be changed to "??". 
+     * For example, if you copied chinese text "你好" in the vnc server the local clipboard will be changed to "??".
      * If you press Ctrl+V, the vnc server should paste "你好" instead of "??".
      * So, we shouldn't send the local clipboard to the vnc server because the local clipboard is garbled in this case.
      */
-    _pasteVncServerInternalClipboard(){
+    _pasteVncServerInternalClipboard() {
         this.onpaste("", false);
     }
-    _isVncEvent(){
+    _isVncEvent() {
         const isTargetFocused = document.activeElement === this._target;
         return isTargetFocused;
     }
