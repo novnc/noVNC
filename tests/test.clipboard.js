@@ -13,13 +13,7 @@ describe('Automatic Clipboard Sync', function () {
         const text = 'Random string for testing';
         const clipboard = new Clipboard();
         if (Clipboard.isSupported) {
-            const clipboardData = new DataTransfer();
-            clipboardData.setData("text/plain", text);
-            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
-            // Force initialization since the constructor is broken in Firefox
-            if (!clipboardEvent.clipboardData.items.length) {
-                clipboardEvent.clipboardData.items.add(text, "text/plain");
-            }
+            const clipboardEvent = getClipboardEvent(text);
             sinon.spy(clipboard, '_copy');
             clipboard._handleCopy(clipboardEvent);
             expect(clipboard._copy).to.have.been.calledWith(text);
@@ -31,13 +25,7 @@ describe('Automatic Clipboard Sync', function () {
         const text = 'Another random string for testing';
         const clipboard = new Clipboard();
         if (Clipboard.isSupported) {
-            const clipboardData = new DataTransfer();
-            clipboardData.setData("text/plain", text);
-            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
-            // Force initialization since the constructor is broken in Firefox
-            if (!clipboardEvent.clipboardData.items.length) {
-                clipboardEvent.clipboardData.items.add(text, "text/plain");
-            }
+            const clipboardEvent = getClipboardEvent(text);
             sinon.stub(clipboard, '_isVncEvent').returns(true);
             sinon.spy(clipboard, 'onpaste');
             clipboard._handlePaste(clipboardEvent);
@@ -50,13 +38,7 @@ describe('Automatic Clipboard Sync', function () {
         const clipboard = new Clipboard();
         clipboard._remoteClipboard = text;
         if (Clipboard.isSupported) {
-            const clipboardData = new DataTransfer();
-            clipboardData.setData("text/plain", text);
-            const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
-            // Force initialization since the constructor is broken in Firefox
-            if (!clipboardEvent.clipboardData.items.length) {
-                clipboardEvent.clipboardData.items.add(text, "text/plain");
-            }
+            const clipboardEvent = getClipboardEvent(text);
             sinon.stub(clipboard, '_isVncEvent').returns(true);
             sinon.spy(clipboard, 'onpaste');
             clipboard._handlePaste(clipboardEvent);
@@ -64,3 +46,14 @@ describe('Automatic Clipboard Sync', function () {
         }
     });
 });
+
+function getClipboardEvent(text) {
+    const clipboardData = new DataTransfer();
+    clipboardData.setData("text/plain", text);
+    const clipboardEvent = new ClipboardEvent('paste', { clipboardData });
+    // Force initialization since the constructor is broken in Firefox
+    if (!clipboardEvent.clipboardData.items.length) {
+        clipboardEvent.clipboardData.items.add(text, "text/plain");
+    }
+    return clipboardEvent;
+}
