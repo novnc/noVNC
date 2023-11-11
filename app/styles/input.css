@@ -1,0 +1,281 @@
+/*
+ * noVNC general input element CSS
+ * Copyright (C) 2022 The noVNC Authors
+ * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+ * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+ */
+
+/*
+ * Common for all inputs
+ */
+input, input::file-selector-button, button, select, textarea {
+  /* Respect standard font settings */
+  font: inherit;
+
+  /* Disable default rendering */
+  appearance: none;
+  background: none;
+
+  padding: 5px;
+  border: 1px solid rgb(192, 192, 192);
+  border-radius: 5px;
+  color: black;
+  --bg-gradient: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
+  background-image: var(--bg-gradient);
+}
+
+/*
+ * Buttons
+ */
+input[type=button],
+input[type=color],
+input[type=image],
+input[type=reset],
+input[type=submit],
+input::file-selector-button,
+button,
+select {
+  border-bottom-width: 2px;
+
+  /* This avoids it jumping around when :active */
+  vertical-align: middle;
+  margin-top: 0;
+
+  padding-left: 20px;
+  padding-right: 20px;
+
+  /* Disable Chrome's touch tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * Select dropdowns
+ */
+select {
+  --select-arrow: url('data:image/svg+xml;utf8, \
+      <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
+           xmlns="http://www.w3.org/2000/svg"> \
+          <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
+                stroke="rgb(31,31,31)" fill="none" \
+                stroke-linecap="round" stroke-linejoin="round" /> \
+      </svg>');
+  background-image: var(--select-arrow), var(--bg-gradient);
+  background-position: calc(100% - 7px), left top;
+  background-repeat: no-repeat;
+  padding-right: calc(2*7px + 8px);
+  padding-left: 7px;
+}
+/* FIXME: :active isn't set when the <select> is opened in Firefox:
+          https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
+select:active {
+  /* Rotated arrow */
+  background-image: url('data:image/svg+xml;utf8, \
+      <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
+           xmlns="http://www.w3.org/2000/svg" transform="rotate(180)" > \
+          <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
+                stroke="rgb(31,31,31)" fill="none" \
+                stroke-linecap="round" stroke-linejoin="round" /> \
+      </svg>'), var(--bg-gradient);
+}
+option {
+  color: black;
+  background: white;
+}
+
+/*
+ * Checkboxes
+ */
+input[type=checkbox] {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  background-image: unset;
+  border: 1px solid dimgrey;
+  border-radius: 3px;
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  margin-right: 6px;
+  vertical-align: bottom;
+  transition: 0.2s background-color linear;
+}
+input[type=checkbox]:checked {
+  background-color: rgb(110, 132, 163);
+  border-color: rgb(110, 132, 163);
+}
+input[type=checkbox]:checked::after {
+  content: "";
+  display: block; /* width & height doesn't work on inline elements */
+  width: 3px;
+  height: 7px;
+  border: 1px solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(40deg) translateY(-1px);
+}
+
+/*
+ * Radiobuttons
+ */
+input[type=radio] {
+  border-radius: 50%;
+  border: 1px solid dimgrey;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  margin-right: 6px;
+  transition: 0.2s border linear;
+}
+input[type=radio]:checked {
+  border: 6px solid rgb(110, 132, 163);
+}
+
+/*
+ * Range sliders
+ */
+input[type=range] {
+  border: unset;
+  border-radius: 3px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+}
+/* -webkit-slider.. & -moz-range.. cant be in selector lists:
+   https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
+input[type=range]::-webkit-slider-runnable-track {
+  background-color: rgb(110, 132, 163);
+  height: 6px;
+  border-radius: 3px;
+}
+input[type=range]::-moz-range-track {
+  background-color: rgb(110, 132, 163);
+  height: 6px;
+  border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 20px;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid dimgray;
+  margin-top: -7px;
+}
+input[type=range]::-moz-range-thumb {
+  appearance: none;
+  width: 18px;
+  height: 20px;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid dimgray;
+  margin-top: -7px;
+}
+
+/*
+ * File choosers
+ */
+input[type=file] {
+  background-image: none;
+  border: none;
+}
+input::file-selector-button {
+  margin-right: 6px;
+}
+
+/*
+ * Hover
+ */
+input[type=button]:hover,
+input[type=color]:hover,
+input[type=image]:hover,
+input[type=reset]:hover,
+input[type=submit]:hover,
+input::file-selector-button:hover,
+button:hover {
+  background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+}
+select:hover {
+  background-image: var(--select-arrow),
+    linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+  background-position: calc(100% - 7px), left top;
+  background-repeat: no-repeat;
+}
+@media (any-pointer: coarse) {
+  /* We don't want a hover style after touch input */
+  input[type=button]:hover,
+  input[type=color]:hover,
+  input[type=image]:hover,
+  input[type=reset]:hover,
+  input[type=submit]:hover,
+  input::file-selector-button:hover,
+  button:hover {
+    background-image: var(--bg-gradient);
+  }
+  select:hover {
+    background-image: var(--select-arrow), var(--bg-gradient);
+  }
+}
+
+/*
+ * Active (clicked)
+ */
+input[type=button]:active,
+input[type=color]:active,
+input[type=image]:active,
+input[type=reset]:active,
+input[type=submit]:active,
+input::file-selector-button:active,
+button:active,
+select:active {
+  border-bottom-width: 1px;
+  margin-top: 1px;
+}
+
+/*
+ * Focus (tab)
+ */
+input:focus-visible,
+input:focus-visible::file-selector-button,
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgb(74, 144, 217);
+  outline-offset: 1px;
+}
+input[type=file]:focus-visible {
+  outline: none; /* We outline the button instead of the entire element */
+}
+
+/*
+ * Disabled
+ */
+input:disabled,
+input:disabled::file-selector-button,
+button:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.4;
+}
+input[type=button]:disabled,
+input[type=color]:disabled,
+input[type=image]:disabled,
+input[type=reset]:disabled,
+input[type=submit]:disabled,
+input:disabled::file-selector-button,
+button:disabled,
+select:disabled {
+  background-image: var(--bg-gradient);
+  border-bottom-width: 2px;
+  margin-top: 0;
+}
+input[type=file]:disabled {
+  background-image: none;
+}
+select:disabled {
+  background-image: var(--select-arrow), var(--bg-gradient);
+}
+input[type=image]:disabled {
+  /* See Firefox bug:
+     https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
+  cursor: default;
+}

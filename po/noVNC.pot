@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: noVNC 1.2.0\n"
+"Project-Id-Version: noVNC 1.4.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
-"POT-Creation-Date: 2020-07-03 16:11+0200\n"
+"POT-Creation-Date: 2022-12-27 15:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,282 +17,316 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../app/ui.js:394
+#: ../app/ui.js:69
+msgid "HTTPS is required for full functionality"
+msgstr ""
+
+#: ../app/ui.js:410
 msgid "Connecting..."
 msgstr ""
 
-#: ../app/ui.js:401
+#: ../app/ui.js:417
 msgid "Disconnecting..."
 msgstr ""
 
-#: ../app/ui.js:407
+#: ../app/ui.js:423
 msgid "Reconnecting..."
 msgstr ""
 
-#: ../app/ui.js:412
+#: ../app/ui.js:428
 msgid "Internal error"
 msgstr ""
 
-#: ../app/ui.js:1008
+#: ../app/ui.js:1026
 msgid "Must set host"
 msgstr ""
 
-#: ../app/ui.js:1090
+#: ../app/ui.js:1110
 msgid "Connected (encrypted) to "
 msgstr ""
 
-#: ../app/ui.js:1092
+#: ../app/ui.js:1112
 msgid "Connected (unencrypted) to "
 msgstr ""
 
-#: ../app/ui.js:1115
+#: ../app/ui.js:1135
 msgid "Something went wrong, connection is closed"
 msgstr ""
 
-#: ../app/ui.js:1118
+#: ../app/ui.js:1138
 msgid "Failed to connect to server"
 msgstr ""
 
-#: ../app/ui.js:1128
+#: ../app/ui.js:1150
 msgid "Disconnected"
 msgstr ""
 
-#: ../app/ui.js:1143
+#: ../app/ui.js:1165
 msgid "New connection has been rejected with reason: "
 msgstr ""
 
-#: ../app/ui.js:1146
+#: ../app/ui.js:1168
 msgid "New connection has been rejected"
 msgstr ""
 
-#: ../app/ui.js:1181
+#: ../app/ui.js:1234
 msgid "Credentials are required"
 msgstr ""
 
-#: ../vnc.html:74
+#: ../vnc.html:57
 msgid "noVNC encountered an error:"
 msgstr ""
 
-#: ../vnc.html:84
+#: ../vnc.html:67
 msgid "Hide/Show the control bar"
 msgstr ""
 
-#: ../vnc.html:91
+#: ../vnc.html:76
 msgid "Drag"
 msgstr ""
 
-#: ../vnc.html:91
+#: ../vnc.html:76
 msgid "Move/Drag Viewport"
 msgstr ""
 
-#: ../vnc.html:97
+#: ../vnc.html:82
 msgid "Keyboard"
 msgstr ""
 
-#: ../vnc.html:97
+#: ../vnc.html:82
 msgid "Show Keyboard"
 msgstr ""
 
-#: ../vnc.html:102
+#: ../vnc.html:87
 msgid "Extra keys"
 msgstr ""
 
-#: ../vnc.html:102
+#: ../vnc.html:87
 msgid "Show Extra Keys"
 msgstr ""
 
-#: ../vnc.html:107
+#: ../vnc.html:92
 msgid "Ctrl"
 msgstr ""
 
-#: ../vnc.html:107
+#: ../vnc.html:92
 msgid "Toggle Ctrl"
 msgstr ""
 
-#: ../vnc.html:110
+#: ../vnc.html:95
 msgid "Alt"
 msgstr ""
 
-#: ../vnc.html:110
+#: ../vnc.html:95
 msgid "Toggle Alt"
 msgstr ""
 
-#: ../vnc.html:113
+#: ../vnc.html:98
 msgid "Toggle Windows"
 msgstr ""
 
-#: ../vnc.html:113
+#: ../vnc.html:98
 msgid "Windows"
 msgstr ""
 
-#: ../vnc.html:116
+#: ../vnc.html:101
 msgid "Send Tab"
 msgstr ""
 
-#: ../vnc.html:116
+#: ../vnc.html:101
 msgid "Tab"
 msgstr ""
 
-#: ../vnc.html:119
+#: ../vnc.html:104
 msgid "Esc"
 msgstr ""
 
-#: ../vnc.html:119
+#: ../vnc.html:104
 msgid "Send Escape"
 msgstr ""
 
-#: ../vnc.html:122
+#: ../vnc.html:107
 msgid "Ctrl+Alt+Del"
 msgstr ""
 
-#: ../vnc.html:122
+#: ../vnc.html:107
 msgid "Send Ctrl-Alt-Del"
 msgstr ""
 
-#: ../vnc.html:129
+#: ../vnc.html:114
 msgid "Shutdown/Reboot"
 msgstr ""
 
-#: ../vnc.html:129
+#: ../vnc.html:114
 msgid "Shutdown/Reboot..."
 msgstr ""
 
-#: ../vnc.html:135
+#: ../vnc.html:120
 msgid "Power"
 msgstr ""
 
-#: ../vnc.html:137
+#: ../vnc.html:122
 msgid "Shutdown"
 msgstr ""
 
-#: ../vnc.html:138
+#: ../vnc.html:123
 msgid "Reboot"
 msgstr ""
 
-#: ../vnc.html:139
+#: ../vnc.html:124
 msgid "Reset"
 msgstr ""
 
-#: ../vnc.html:144 ../vnc.html:150
+#: ../vnc.html:129 ../vnc.html:135
 msgid "Clipboard"
 msgstr ""
 
-#: ../vnc.html:154
-msgid "Clear"
+#: ../vnc.html:137
+msgid "Edit clipboard content in the textarea below."
 msgstr ""
 
-#: ../vnc.html:160
-msgid "Fullscreen"
+#: ../vnc.html:145
+msgid "Full Screen"
 msgstr ""
 
-#: ../vnc.html:165 ../vnc.html:172
+#: ../vnc.html:150 ../vnc.html:156
 msgid "Settings"
 msgstr ""
 
-#: ../vnc.html:175
+#: ../vnc.html:160
 msgid "Shared Mode"
 msgstr ""
 
-#: ../vnc.html:178
+#: ../vnc.html:163
 msgid "View Only"
 msgstr ""
 
-#: ../vnc.html:182
+#: ../vnc.html:167
 msgid "Clip to Window"
 msgstr ""
 
-#: ../vnc.html:185
+#: ../vnc.html:170
 msgid "Scaling Mode:"
 msgstr ""
 
-#: ../vnc.html:187
+#: ../vnc.html:172
 msgid "None"
 msgstr ""
 
-#: ../vnc.html:188
+#: ../vnc.html:173
 msgid "Local Scaling"
 msgstr ""
 
-#: ../vnc.html:189
+#: ../vnc.html:174
 msgid "Remote Resizing"
 msgstr ""
 
-#: ../vnc.html:194
+#: ../vnc.html:179
 msgid "Advanced"
 msgstr ""
 
-#: ../vnc.html:197
+#: ../vnc.html:182
 msgid "Quality:"
 msgstr ""
 
-#: ../vnc.html:201
+#: ../vnc.html:186
 msgid "Compression level:"
 msgstr ""
 
-#: ../vnc.html:206
+#: ../vnc.html:191
 msgid "Repeater ID:"
 msgstr ""
 
-#: ../vnc.html:210
+#: ../vnc.html:195
 msgid "WebSocket"
 msgstr ""
 
-#: ../vnc.html:213
+#: ../vnc.html:198
 msgid "Encrypt"
 msgstr ""
 
-#: ../vnc.html:216
+#: ../vnc.html:201
 msgid "Host:"
 msgstr ""
 
-#: ../vnc.html:220
+#: ../vnc.html:205
 msgid "Port:"
 msgstr ""
 
-#: ../vnc.html:224
+#: ../vnc.html:209
 msgid "Path:"
 msgstr ""
 
-#: ../vnc.html:231
+#: ../vnc.html:216
 msgid "Automatic Reconnect"
 msgstr ""
 
-#: ../vnc.html:234
+#: ../vnc.html:219
 msgid "Reconnect Delay (ms):"
 msgstr ""
 
-#: ../vnc.html:239
+#: ../vnc.html:224
 msgid "Show Dot when No Cursor"
 msgstr ""
 
-#: ../vnc.html:244
+#: ../vnc.html:229
 msgid "Logging:"
 msgstr ""
 
-#: ../vnc.html:253
+#: ../vnc.html:238
 msgid "Version:"
 msgstr ""
 
-#: ../vnc.html:261
+#: ../vnc.html:246
 msgid "Disconnect"
 msgstr ""
 
-#: ../vnc.html:280
+#: ../vnc.html:269
 msgid "Connect"
 msgstr ""
 
-#: ../vnc.html:290
-msgid "Username:"
+#: ../vnc.html:278
+msgid "Server identity"
+msgstr ""
+
+#: ../vnc.html:281
+msgid "The server has provided the following identifying information:"
+msgstr ""
+
+#: ../vnc.html:285
+msgid "Fingerprint:"
+msgstr ""
+
+#: ../vnc.html:288
+msgid ""
+"Please verify that the information is correct and press \"Approve\". "
+"Otherwise press \"Reject\"."
+msgstr ""
+
+#: ../vnc.html:293
+msgid "Approve"
 msgstr ""
 
 #: ../vnc.html:294
+msgid "Reject"
+msgstr ""
+
+#: ../vnc.html:302
+msgid "Credentials"
+msgstr ""
+
+#: ../vnc.html:306
+msgid "Username:"
+msgstr ""
+
+#: ../vnc.html:310
 msgid "Password:"
 msgstr ""
 
-#: ../vnc.html:298
+#: ../vnc.html:314
 msgid "Send Credentials"
 msgstr ""
 
-#: ../vnc.html:308
+#: ../vnc.html:323
 msgid "Cancel"
 msgstr ""

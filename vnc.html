@@ -15,42 +15,36 @@
     -->
     <title>noVNC</title>
 
-    <meta charset="utf-8">
-
-    <!-- Icons (see app/images/icons/Makefile for what the sizes are for) -->
-    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/novnc-16x16.png">
-    <link rel="icon" sizes="24x24" type="image/png" href="app/images/icons/novnc-24x24.png">
-    <link rel="icon" sizes="32x32" type="image/png" href="app/images/icons/novnc-32x32.png">
-    <link rel="icon" sizes="48x48" type="image/png" href="app/images/icons/novnc-48x48.png">
-    <link rel="icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
-    <link rel="icon" sizes="64x64" type="image/png" href="app/images/icons/novnc-64x64.png">
-    <link rel="icon" sizes="72x72" type="image/png" href="app/images/icons/novnc-72x72.png">
-    <link rel="icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
-    <link rel="icon" sizes="96x96" type="image/png" href="app/images/icons/novnc-96x96.png">
-    <link rel="icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
-    <link rel="icon" sizes="144x144" type="image/png" href="app/images/icons/novnc-144x144.png">
-    <link rel="icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
-    <link rel="icon" sizes="192x192" type="image/png" href="app/images/icons/novnc-192x192.png">
-    <!-- Firefox currently mishandles SVG, see #1419039
-    <link rel="icon" sizes="any" type="image/svg+xml" href="app/images/icons/novnc-icon.svg">
-    -->
-    <!-- Repeated last so that legacy handling will pick this -->
-    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/novnc-16x16.png">
+    <link rel="icon" type="image/x-icon" href="app/images/icons/novnc.ico">
 
     <!-- Apple iOS Safari settings -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- Home Screen Icons (favourites and bookmarks use the normal icons) -->
-    <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-60x60.png">
-    <link rel="apple-touch-icon" sizes="76x76" type="image/png" href="app/images/icons/novnc-76x76.png">
-    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-120x120.png">
-    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-152x152.png">
+
+    <!-- @2x -->
+    <link rel="apple-touch-icon" sizes="40x40" type="image/png" href="app/images/icons/novnc-ios-40.png">
+    <link rel="apple-touch-icon" sizes="58x58" type="image/png" href="app/images/icons/novnc-ios-58.png">
+    <link rel="apple-touch-icon" sizes="80x80" type="image/png" href="app/images/icons/novnc-ios-80.png">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-ios-120.png">
+    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/novnc-ios-152.png">
+    <link rel="apple-touch-icon" sizes="167x167" type="image/png" href="app/images/icons/novnc-ios-167.png">
+    <!-- @3x -->
+    <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/novnc-ios-60.png">
+    <link rel="apple-touch-icon" sizes="87x87" type="image/png" href="app/images/icons/novnc-ios-87.png">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-ios-120.png">
+    <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="app/images/icons/novnc-ios-180.png">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/base.css">
+    <link rel="stylesheet" href="app/styles/input.css">
 
-    <script src="app/error-handler.js"></script>
+    <!-- Images that will later appear via CSS -->
+    <link rel="preload" as="image" href="app/images/info.svg">
+    <link rel="preload" as="image" href="app/images/error.svg">
+    <link rel="preload" as="image" href="app/images/warning.svg">
+
+    <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
     <script type="module" crossorigin="anonymous" src="app/ui.js"></script>
 </head>
 
@@ -73,6 +67,8 @@
             <div class="noVNC_scroll">
 
             <h1 class="noVNC_logo" translate="no"><span>no</span><br>VNC</h1>
+
+            <hr>
 
             <!-- Drag/Pan the viewport -->
             <input type="image" alt="Drag" src="app/images/drag.svg"
@@ -136,17 +132,17 @@
                 <div class="noVNC_heading">
                     <img alt="" src="app/images/clipboard.svg"> Clipboard
                 </div>
+                <p class="noVNC_subheading">
+                    Edit clipboard content in the textarea below.
+                </p>
                 <textarea id="noVNC_clipboard_text" rows=5></textarea>
-                <br>
-                <input id="noVNC_clipboard_clear_button" type="button"
-                    value="Clear" class="noVNC_submit">
             </div>
             </div>
 
             <!-- Toggle fullscreen -->
-            <input type="image" alt="Fullscreen" src="app/images/fullscreen.svg"
+            <input type="image" alt="Full Screen" src="app/images/fullscreen.svg"
                 id="noVNC_fullscreen_button" class="noVNC_button noVNC_hidden"
-                title="Fullscreen">
+                title="Full Screen">
 
             <!-- Settings -->
             <input type="image" alt="Settings" src="app/images/settings.svg"
@@ -154,10 +150,10 @@
                 title="Settings">
             <div class="noVNC_vcenter">
             <div id="noVNC_settings" class="noVNC_panel">
+                <div class="noVNC_heading">
+                    <img alt="" src="app/images/settings.svg"> Settings
+                </div>
                 <ul>
-                    <li class="noVNC_heading">
-                        <img alt="" src="app/images/settings.svg"> Settings
-                    </li>
                     <li>
                         <label><input id="noVNC_setting_shared" type="checkbox"> Shared Mode</label>
                     </li>
@@ -252,9 +248,12 @@
             </div>
         </div>
 
-        <div id="noVNC_control_bar_hint"></div>
-
     </div> <!-- End of noVNC_control_bar -->
+
+    <div id="noVNC_hint_anchor" class="noVNC_vcenter">
+        <div id="noVNC_control_bar_hint">
+        </div>
+    </div>
 
     <!-- Status Dialog -->
     <div id="noVNC_status"></div>
@@ -262,29 +261,56 @@
     <!-- Connect button -->
     <div class="noVNC_center">
         <div id="noVNC_connect_dlg">
-            <div class="noVNC_logo" translate="no"><span>no</span>VNC</div>
-            <div id="noVNC_connect_button"><div>
-                <img alt="" src="app/images/connect.svg"> Connect
-            </div></div>
+            <p class="noVNC_logo" translate="no"><span>no</span>VNC</p>
+            <div>
+                <button id="noVNC_connect_button">
+                    <img alt="" src="app/images/connect.svg"> Connect
+                </button>
+            </div>
         </div>
+    </div>
+
+    <!-- Server Key Verification Dialog -->
+    <div class="noVNC_center noVNC_connect_layer">
+    <div id="noVNC_verify_server_dlg" class="noVNC_panel"><form>
+        <div class="noVNC_heading">
+            Server identity
+        </div>
+        <div>
+            The server has provided the following identifying information:
+        </div>
+        <div id="noVNC_fingerprint_block">
+            <b>Fingerprint:</b>
+            <span id="noVNC_fingerprint"></span>
+        </div>
+        <div>
+            Please verify that the information is correct and press
+            "Approve". Otherwise press "Reject".
+        </div>
+        <div>
+            <input id="noVNC_approve_server_button" type="submit" value="Approve" class="noVNC_submit">
+            <input id="noVNC_reject_server_button" type="button" value="Reject" class="noVNC_submit">
+        </div>
+    </form></div>
     </div>
 
     <!-- Password Dialog -->
     <div class="noVNC_center noVNC_connect_layer">
     <div id="noVNC_credentials_dlg" class="noVNC_panel"><form>
-        <ul>
-            <li id="noVNC_username_block">
-                <label>Username:</label>
-                <input id="noVNC_username_input">
-            </li>
-            <li id="noVNC_password_block">
-                <label>Password:</label>
-                <input id="noVNC_password_input" type="password">
-            </li>
-            <li>
-                <input id="noVNC_credentials_button" type="submit" value="Send Credentials" class="noVNC_submit">
-            </li>
-        </ul>
+        <div class="noVNC_heading">
+            Credentials
+        </div>
+        <div id="noVNC_username_block">
+            <label for="noVNC_username_input">Username:</label>
+            <input id="noVNC_username_input">
+        </div>
+        <div id="noVNC_password_block">
+            <label for="noVNC_password_input">Password:</label>
+            <input id="noVNC_password_input" type="password">
+        </div>
+        <div>
+            <input id="noVNC_credentials_button" type="submit" value="Send Credentials" class="noVNC_submit">
+        </div>
     </form></div>
     </div>
 

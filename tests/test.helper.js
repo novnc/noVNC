@@ -71,18 +71,10 @@ describe('Helpers', function () {
                 origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
                 Object.defineProperty(window, "navigator", {value: {}});
-                if (window.navigator.platform !== undefined) {
-                    // Object.defineProperty() doesn't work properly in old
-                    // versions of Chrome
-                    this.skip();
-                }
-
                 window.navigator.platform = "Mac x86_64";
             });
             afterEach(function () {
-                if (origNavigator !== undefined) {
-                    Object.defineProperty(window, "navigator", origNavigator);
-                }
+                Object.defineProperty(window, "navigator", origNavigator);
             });
 
             it('should respect ContextMenu on modern browser', function () {
@@ -196,19 +188,11 @@ describe('Helpers', function () {
                 origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
 
                 Object.defineProperty(window, "navigator", {value: {}});
-                if (window.navigator.platform !== undefined) {
-                    // Object.defineProperty() doesn't work properly in old
-                    // versions of Chrome
-                    this.skip();
-                }
-
                 window.navigator.platform = "Windows";
             });
 
             afterEach(function () {
-                if (origNavigator !== undefined) {
-                    Object.defineProperty(window, "navigator", origNavigator);
-                }
+                Object.defineProperty(window, "navigator", origNavigator);
             });
 
             const keys = { 'Zenkaku': 0xff2a, 'Hankaku': 0xff2a,

@@ -3,14 +3,15 @@
 # Copyright (C) 2021 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Jose <jose.matsuda@canada.ca>, 2021.
+# Lowxorx <lowxorx@lahan.fr>, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.2.0\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2020-07-03 16:11+0200\n"
-"PO-Revision-Date: 2021-05-05 20:19-0400\n"
-"Last-Translator: Jose <jose.matsuda@canada.ca>\n"
+"PO-Revision-Date: 2022-04-25 23:40+0200\n"
+"Last-Translator: Lowxorx <lowxorx@lahan.fr>\n"
 "Language-Team: French\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -40,15 +41,15 @@ msgstr "Doit définir l'hôte"
 
 #: ../app/ui.js:1090
 msgid "Connected (encrypted) to "
-msgstr "Connecté (crypté) à "
+msgstr "Connecté (chiffré) à "
 
 #: ../app/ui.js:1092
 msgid "Connected (unencrypted) to "
-msgstr "Connecté (non crypté) à "
+msgstr "Connecté (non chiffré) à "
 
 #: ../app/ui.js:1115
 msgid "Something went wrong, connection is closed"
-msgstr "Quelque chose est arrivé, la connexion est fermée"
+msgstr "Quelque chose s'est mal passé, la connexion a été fermée"
 
 #: ../app/ui.js:1118
 msgid "Failed to connect to server"
@@ -60,7 +61,7 @@ msgstr "Déconnecté"
 
 #: ../app/ui.js:1143
 msgid "New connection has been rejected with reason: "
-msgstr "Une nouvelle connexion a été rejetée avec raison: "
+msgstr "Une nouvelle connexion a été rejetée avec motif : "
 
 #: ../app/ui.js:1146
 msgid "New connection has been rejected"
@@ -72,7 +73,7 @@ msgstr "Les identifiants sont requis"
 
 #: ../vnc.html:74
 msgid "noVNC encountered an error:"
-msgstr "noVNC a rencontré une erreur:"
+msgstr "noVNC a rencontré une erreur :"
 
 #: ../vnc.html:84
 msgid "Hide/Show the control bar"
@@ -84,7 +85,7 @@ msgstr "Faire glisser"
 
 #: ../vnc.html:91
 msgid "Move/Drag Viewport"
-msgstr "Déplacer/faire glisser Viewport"
+msgstr "Déplacer/faire glisser le Viewport"
 
 #: ../vnc.html:97
 msgid "Keyboard"
@@ -204,7 +205,7 @@ msgstr "Clip à fenêtre"
 
 #: ../vnc.html:185
 msgid "Scaling Mode:"
-msgstr "Mode mise à l'échelle:"
+msgstr "Mode mise à l'échelle :"
 
 #: ../vnc.html:187
 msgid "None"
@@ -224,15 +225,15 @@ msgstr "Avancé"
 
 #: ../vnc.html:197
 msgid "Quality:"
-msgstr "Qualité:"
+msgstr "Qualité :"
 
 #: ../vnc.html:201
 msgid "Compression level:"
-msgstr "Niveau de compression:"
+msgstr "Niveau de compression :"
 
 #: ../vnc.html:206
 msgid "Repeater ID:"
-msgstr "ID Répéteur:"
+msgstr "ID Répéteur :"
 
 #: ../vnc.html:210
 msgid "WebSocket"
@@ -240,19 +241,19 @@ msgstr "WebSocket"
 
 #: ../vnc.html:213
 msgid "Encrypt"
-msgstr "Crypter"
+msgstr "Chiffrer"
 
 #: ../vnc.html:216
 msgid "Host:"
-msgstr "Hôte:"
+msgstr "Hôte :"
 
 #: ../vnc.html:220
 msgid "Port:"
-msgstr "Port:"
+msgstr "Port :"
 
 #: ../vnc.html:224
 msgid "Path:"
-msgstr "Chemin:"
+msgstr "Chemin :"
 
 #: ../vnc.html:231
 msgid "Automatic Reconnect"
@@ -260,7 +261,7 @@ msgstr "Reconnecter automatiquemen"
 
 #: ../vnc.html:234
 msgid "Reconnect Delay (ms):"
-msgstr "Délai de reconnexion (ms):"
+msgstr "Délai de reconnexion (ms) :"
 
 #: ../vnc.html:239
 msgid "Show Dot when No Cursor"
@@ -268,11 +269,11 @@ msgstr "Afficher le point lorsqu'il n'y a pas de curseur"
 
 #: ../vnc.html:244
 msgid "Logging:"
-msgstr "Se connecter:"
+msgstr "Se connecter :"
 
 #: ../vnc.html:253
 msgid "Version:"
-msgstr "Version:"
+msgstr "Version :"
 
 #: ../vnc.html:261
 msgid "Disconnect"
@@ -284,11 +285,11 @@ msgstr "Connecter"
 
 #: ../vnc.html:290
 msgid "Username:"
-msgstr "Nom d'utilisateur:"
+msgstr "Nom d'utilisateur :"
 
 #: ../vnc.html:294
 msgid "Password:"
-msgstr "Mot de passe:"
+msgstr "Mot de passe :"
 
 #: ../vnc.html:298
 msgid "Send Credentials"

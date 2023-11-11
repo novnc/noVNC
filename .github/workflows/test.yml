@@ -20,9 +20,9 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - run: npm install
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm update
       - run: npm run test
         env:
           TEST_BROWSER_NAME: ${{ matrix.browser }}

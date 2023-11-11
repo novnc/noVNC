@@ -12,7 +12,9 @@ export const encodings = {
     encodingRRE: 2,
     encodingHextile: 5,
     encodingTight: 7,
+    encodingZRLE: 16,
     encodingTightPNG: -260,
+    encodingJPEG: 21,
 
     pseudoEncodingQualityLevel9: -23,
     pseudoEncodingQualityLevel0: -32,
@@ -20,6 +22,7 @@ export const encodings = {
     pseudoEncodingLastRect: -224,
     pseudoEncodingCursor: -239,
     pseudoEncodingQEMUExtendedKeyEvent: -258,
+    pseudoEncodingQEMULedEvent: -261,
     pseudoEncodingDesktopName: -307,
     pseudoEncodingExtendedDesktopSize: -308,
     pseudoEncodingXvp: -309,
@@ -38,7 +41,9 @@ export function encodingName(num) {
         case encodings.encodingRRE:      return "RRE";
         case encodings.encodingHextile:  return "Hextile";
         case encodings.encodingTight:    return "Tight";
+        case encodings.encodingZRLE:     return "ZRLE";
         case encodings.encodingTightPNG: return "TightPNG";
+        case encodings.encodingJPEG:     return "JPEG";
         default:                         return "[unknown encoding " + num + "]";
     }
 }

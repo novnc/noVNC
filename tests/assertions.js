@@ -29,12 +29,6 @@ chai.use(function (_chai, utils) {
 
     _chai.Assertion.addMethod('sent', function (targetData) {
         const obj = this._obj;
-        obj.inspect = () => {
-            const res = { _websocket: obj._websocket, rQi: obj._rQi, _rQ: new Uint8Array(obj._rQ.buffer, 0, obj._rQlen),
-                          _sQ: new Uint8Array(obj._sQ.buffer, 0, obj._sQlen) };
-            res.prototype = obj;
-            return res;
-        };
         const data = obj._websocket._getSentData();
         let same = true;
         if (data.length != targetData.length) {

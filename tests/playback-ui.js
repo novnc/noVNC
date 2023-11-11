@@ -24,7 +24,7 @@ function loadFile() {
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
         script.onload = resolve;
-        script.onerror = reject;
+        script.onerror = () => { reject("Failed to load " + fname); };
         document.body.appendChild(script);
         script.src = "../recordings/" + fname;
     });
@@ -200,6 +200,9 @@ function start() {
     player.onrfbdisconnected = (evt) => {
         if (!evt.detail.clean) {
             message(`noVNC sent disconnected during iteration ${evt.detail.iteration} frame ${evt.detail.frame}`);
+
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('startButton').value = "Start";
         }
     };
     player.onfinish = (evt) => {

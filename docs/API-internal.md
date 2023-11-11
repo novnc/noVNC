@@ -83,29 +83,3 @@ None
 | blitImage          | (x, y, width, height, arr, offset, from_queue)          | Blit pixels (of R,G,B,A) to the display
 | drawImage          | (img, x, y)                                             | Draw image and track damage
 | autoscale          | (containerWidth, containerHeight)                       | Scale the display
-
-### 2.2.3 Callbacks
-
-| name    | parameters | description
-| ------- | ---------- | ------------
-| onflush | ()         | A display flush has been requested and we are now ready to resume FBU processing
-
-
-## 2.4 Clipboard Module
-
-### 2.4.1 Configuration Attributes
-
-None
-
-### 2.4.2 Methods
-
-| name               | parameters        | description
-| ------------------ | ----------------- | ------------
-| grab               | ()                | Begin capturing clipboard events
-| ungrab             | ()                | Stop capturing clipboard events
-
-### 2.3.3 Callbacks
-
-| name    | parameters | description
-| ------- | ---------- | ------------
-| onpaste | (text)     | Called with the text content of the clipboard when the user paste something

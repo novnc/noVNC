@@ -15,7 +15,7 @@ export default class Display {
         this._drawCtx = null;
 
         this._renderQ = [];  // queue drawing actions for in-oder rendering
-        this._flushing = false;
+        this._flushPromise = null;
 
         // the full frame buffer (logical canvas) size
         this._fbWidth = 0;
@@ -61,10 +61,6 @@ export default class Display {
 
         this._scale = 1.0;
         this._clipViewport = false;
-
-        // ===== EVENT HANDLERS =====
-
-        this.onflush = () => {}; // A flush request has finished
     }
 
     // ===== PROPERTIES =====
@@ -224,6 +220,18 @@ export default class Display {
         this.viewportChangePos(0, 0);
     }
 
+    getImageData() {
+        return this._drawCtx.getImageData(0, 0, this.width, this.height);
+    }
+
+    toDataURL(type, encoderOptions) {
+        return this._backbuffer.toDataURL(type, encoderOptions);
+    }
+
+    toBlob(callback, type, quality) {
+        return this._backbuffer.toBlob(callback, type, quality);
+    }
+
     // Track what parts of the visible canvas that need updating
     _damage(x, y, w, h) {
         if (x < this._damageBounds.left) {
@@ -294,9 +302,14 @@ export default class Display {
 
     flush() {
         if (this._renderQ.length === 0) {
-            this.onflush();
+            return Promise.resolve();
         } else {
-            this._flushing = true;
+            if (this._flushPromise === null) {
+                this._flushPromise = new Promise((resolve) => {
+                    this._flushResolve = resolve;
+                });
+            }
+            return this._flushPromise;
         }
     }
 
@@ -505,9 +518,11 @@ export default class Display {
             }
         }
 
-        if (this._renderQ.length === 0 && this._flushing) {
-            this._flushing = false;
-            this.onflush();
+        if (this._renderQ.length === 0 &&
+            this._flushPromise !== null) {
+            this._flushResolve();
+            this._flushPromise = null;
+            this._flushResolve = null;
         }
     }
 }

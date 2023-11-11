@@ -7,7 +7,7 @@
  */
 
 import { deflateInit, deflate } from "../vendor/pako/lib/zlib/deflate.js";
-import { Z_FULL_FLUSH } from "../vendor/pako/lib/zlib/deflate.js";
+import { Z_FULL_FLUSH, Z_DEFAULT_COMPRESSION } from "../vendor/pako/lib/zlib/deflate.js";
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
 
 export default class Deflator {
@@ -15,9 +15,8 @@ export default class Deflator {
         this.strm = new ZStream();
         this.chunkSize = 1024 * 10 * 10;
         this.outputBuffer = new Uint8Array(this.chunkSize);
-        this.windowBits = 5;
 
-        deflateInit(this.strm, this.windowBits);
+        deflateInit(this.strm, Z_DEFAULT_COMPRESSION);
     }
 
     deflate(inData) {

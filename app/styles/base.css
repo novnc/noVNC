@@ -19,10 +19,23 @@
  * 10000: Max (used for polyfills)
  */
 
+/*
+ * State variables (set on :root):
+ *
+ * noVNC_loading: Page is still loading
+ * noVNC_connecting: Connecting to server
+ * noVNC_reconnecting: Re-establishing a connection
+ * noVNC_connected: Connected to server (most common state)
+ * noVNC_disconnecting: Disconnecting from server
+ */
+
+:root {
+  font-family: sans-serif;
+}
+
 body {
   margin:0;
   padding:0;
-  font-family: Helvetica;
   /*Background image with light grey curve.*/
   background-color:#494949;
   background-repeat:no-repeat;
@@ -79,144 +92,6 @@ html {
 }
 
 /* ----------------------------------------
- * Input Elements
- * ----------------------------------------
- */
-
-input:not([type]),
-input[type=date],
-input[type=datetime-local],
-input[type=email],
-input[type=month],
-input[type=number],
-input[type=password],
-input[type=search],
-input[type=tel],
-input[type=text],
-input[type=time],
-input[type=url],
-input[type=week],
-textarea {
-  /* Disable default rendering */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: none;
-
-  margin: 2px;
-  padding: 2px;
-  border: 1px solid rgb(192, 192, 192);
-  border-radius: 5px;
-  color: black;
-  background: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
-}
-
-input[type=button],
-input[type=color],
-input[type=reset],
-input[type=submit],
-select {
-  /* Disable default rendering */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: none;
-
-  margin: 2px;
-  padding: 2px;
-  border: 1px solid rgb(192, 192, 192);
-  border-bottom-width: 2px;
-  border-radius: 5px;
-  color: black;
-  background: linear-gradient(to top, rgb(255, 255, 255), rgb(240, 240, 240));
-
-  /* This avoids it jumping around when :active */
-  vertical-align: middle;
-}
-
-input[type=button],
-input[type=color],
-input[type=reset],
-input[type=submit] {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-option {
-  color: black;
-  background: white;
-}
-
-input:not([type]):focus,
-input[type=button]:focus,
-input[type=color]:focus,
-input[type=date]:focus,
-input[type=datetime-local]:focus,
-input[type=email]:focus,
-input[type=month]:focus,
-input[type=number]:focus,
-input[type=password]:focus,
-input[type=reset]:focus,
-input[type=search]:focus,
-input[type=submit]:focus,
-input[type=tel]:focus,
-input[type=text]:focus,
-input[type=time]:focus,
-input[type=url]:focus,
-input[type=week]:focus,
-select:focus,
-textarea:focus {
-  box-shadow: 0px 0px 3px rgba(74, 144, 217, 0.5);
-  border-color: rgb(74, 144, 217);
-  outline: none;
-}
-
-input[type=button]::-moz-focus-inner,
-input[type=color]::-moz-focus-inner,
-input[type=reset]::-moz-focus-inner,
-input[type=submit]::-moz-focus-inner {
-  border: none;
-}
-
-input:not([type]):disabled,
-input[type=button]:disabled,
-input[type=color]:disabled,
-input[type=date]:disabled,
-input[type=datetime-local]:disabled,
-input[type=email]:disabled,
-input[type=month]:disabled,
-input[type=number]:disabled,
-input[type=password]:disabled,
-input[type=reset]:disabled,
-input[type=search]:disabled,
-input[type=submit]:disabled,
-input[type=tel]:disabled,
-input[type=text]:disabled,
-input[type=time]:disabled,
-input[type=url]:disabled,
-input[type=week]:disabled,
-select:disabled,
-textarea:disabled {
-  color: rgb(128, 128, 128);
-  background: rgb(240, 240, 240);
-}
-
-input[type=button]:active,
-input[type=color]:active,
-input[type=reset]:active,
-input[type=submit]:active,
-select:active {
-  border-bottom-width: 1px;
-  margin-top: 3px;
-}
-
-:root:not(.noVNC_touch) input[type=button]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=color]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=reset]:hover:not(:disabled),
-:root:not(.noVNC_touch) input[type=submit]:hover:not(:disabled),
-:root:not(.noVNC_touch) select:hover:not(:disabled) {
-  background: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
-}
-
-/* ----------------------------------------
  * WebKit centering hacks
  * ----------------------------------------
  */
@@ -242,13 +117,15 @@ select:active {
   pointer-events: auto;
 }
 .noVNC_vcenter {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   justify-content: center;
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
   pointer-events: none;
 }
 .noVNC_vcenter > * {
@@ -272,13 +149,20 @@ select:active {
 #noVNC_fallback_error {
   z-index: 1000;
   visibility: hidden;
+  /* Put a dark background in front of everything but the error,
+     and don't let mouse events pass through */
+  background: rgba(0, 0, 0, 0.8);
+  pointer-events: all;
 }
 #noVNC_fallback_error.noVNC_open {
   visibility: visible;
 }
 
 #noVNC_fallback_error > div {
-  max-width: 90%;
+  max-width: calc(100vw - 30px - 30px);
+  max-height: calc(100vh - 30px - 30px);
+  overflow: auto;
+
   padding: 15px;
 
   transition: 0.5s ease-in-out;
@@ -317,7 +201,6 @@ select:active {
 }
 
 #noVNC_fallback_error .noVNC_stack {
-  max-height: 50vh;
   padding: 10px;
   margin: 10px;
   font-size: 0.8em;
@@ -361,6 +244,9 @@ select:active {
   background-color: rgb(110, 132, 163);
   border-radius: 0 10px 10px 0;
 
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* Disable iOS image long-press popup */
 }
 #noVNC_control_bar.noVNC_open {
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
@@ -433,38 +319,50 @@ select:active {
 .noVNC_right #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
   transform: none;
 }
+/* Larger touch area for the handle, used when a touch screen is available */
 #noVNC_control_bar_handle div {
   position: absolute;
   right: -35px;
   top: 0;
   width: 50px;
-  height: 50px;
-}
-:root:not(.noVNC_touch) #noVNC_control_bar_handle div {
+  height: 100%;
   display: none;
+}
+@media (any-pointer: coarse) {
+  #noVNC_control_bar_handle div {
+    display: initial;
+  }
 }
 .noVNC_right #noVNC_control_bar_handle div {
   left: -35px;
   right: auto;
 }
 
-#noVNC_control_bar .noVNC_scroll {
+#noVNC_control_bar > .noVNC_scroll {
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0 10px 0 5px;
+  padding: 0 10px;
 }
-.noVNC_right #noVNC_control_bar .noVNC_scroll {
-  padding: 0 5px 0 10px;
+
+#noVNC_control_bar > .noVNC_scroll > * {
+  display: block;
+  margin: 10px auto;
 }
 
 /* Control bar hint */
-#noVNC_control_bar_hint {
+#noVNC_hint_anchor {
   position: fixed;
-  left: calc(100vw - 50px);
+  right: -50px;
+  left: auto;
+}
+#noVNC_control_bar_anchor.noVNC_right + #noVNC_hint_anchor {
+  left: -50px;
   right: auto;
-  top: 50%;
-  transform: translateY(-50%) scale(0);
+}
+#noVNC_control_bar_hint {
+  position: relative;
+  transform: scale(0);
   width: 100px;
   height: 50%;
   max-height: 600px;
@@ -477,54 +375,56 @@ select:active {
   border-radius: 10px;
   transition-delay: 0s;
 }
-#noVNC_control_bar_anchor.noVNC_right #noVNC_control_bar_hint{
-  left: auto;
-  right: calc(100vw - 50px);
-}
 #noVNC_control_bar_hint.noVNC_active {
   visibility: visible;
   opacity: 1;
   transition-delay: 0.2s;
-  transform: translateY(-50%) scale(1);
+  transform: scale(1);
+}
+#noVNC_control_bar_hint.noVNC_notransition {
+  transition: none !important;
 }
 
-/* General button style */
-.noVNC_button {
-  display: block;
+/* Control bar buttons */
+#noVNC_control_bar .noVNC_button {
   padding: 4px 4px;
-  margin: 10px 0;
   vertical-align: middle;
   border:1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
+  background-color: transparent;
+  background-image: unset; /* we don't want the gradiant from input.css */
 }
-.noVNC_button.noVNC_selected {
+#noVNC_control_bar .noVNC_button.noVNC_selected {
   border-color: rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
-.noVNC_button:disabled {
-  opacity: 0.4;
+#noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
+  border-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.2);
 }
-.noVNC_button:focus {
-  outline: none;
+#noVNC_control_bar .noVNC_button:not(:disabled):hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
-.noVNC_button:active {
+#noVNC_control_bar .noVNC_button:not(:disabled):active {
   padding-top: 5px;
   padding-bottom: 3px;
 }
-/* Android browsers don't properly update hover state if touch events
- * are intercepted, but focus should be safe to display */
-:root:not(.noVNC_touch) .noVNC_button.noVNC_selected:hover,
-.noVNC_button.noVNC_selected:focus {
-  border-color: rgba(0, 0, 0, 0.4);
-  background: rgba(0, 0, 0, 0.2);
+#noVNC_control_bar .noVNC_button.noVNC_hidden {
+  display: none !important;
 }
-:root:not(.noVNC_touch) .noVNC_button:hover,
-.noVNC_button:focus {
-  background: rgba(255, 255, 255, 0.2);
+
+/* Android browsers don't properly update hover state if touch events are
+ * intercepted, like they are when clicking on the remote screen. */
+@media (any-pointer: coarse) {
+  #noVNC_control_bar .noVNC_button:not(:disabled):hover {
+    background-color: transparent;
+  }
+  #noVNC_control_bar .noVNC_button.noVNC_selected:not(:disabled):hover {
+    border-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
-.noVNC_button.noVNC_hidden {
-  display: none;
-}
+
 
 /* Panels */
 .noVNC_panel {
@@ -532,6 +432,8 @@ select:active {
 
   transition: 0.5s ease-in-out;
 
+  box-sizing: border-box; /* so max-width don't have to care about padding */
+  max-width: calc(100vw - 75px - 25px); /* minus left and right margins */
   max-height: 100vh; /* Chrome is buggy with 100% */
   overflow-x: hidden;
   overflow-y: auto;
@@ -563,6 +465,17 @@ select:active {
   transform: translateX(-75px);
 }
 
+.noVNC_panel > * {
+  display: block;
+  margin: 10px auto;
+}
+.noVNC_panel > *:first-child {
+  margin-top: 0 !important;
+}
+.noVNC_panel > *:last-child {
+  margin-bottom: 0 !important;
+}
+
 .noVNC_panel hr {
   border: none;
   border-top: 1px solid rgb(192, 192, 192);
@@ -571,6 +484,11 @@ select:active {
 .noVNC_panel label {
   display: block;
   white-space: nowrap;
+  margin: 5px;
+}
+
+.noVNC_panel li {
+  margin: 5px;
 }
 
 .noVNC_panel .noVNC_heading {
@@ -581,7 +499,6 @@ select:active {
   padding-right: 8px;
   color: white;
   font-size: 20px;
-  margin-bottom: 10px;
   white-space: nowrap;
 }
 .noVNC_panel .noVNC_heading img {
@@ -622,6 +539,12 @@ select:active {
   font-size: 13px;
 }
 
+.noVNC_logo + hr {
+    /* Remove all but top border */
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 :root:not(.noVNC_connected) #noVNC_view_drag_button {
   display: none;
 }
@@ -630,8 +553,15 @@ select:active {
 :root:not(.noVNC_connected) #noVNC_mobile_buttons {
   display: none;
 }
-:root:not(.noVNC_touch) #noVNC_mobile_buttons {
-  display: none;
+@media not all and (any-pointer: coarse) {
+  /* FIXME: The button for the virtual keyboard is the only button in this
+            group of "mobile buttons". It is bad to assume that no touch
+            devices have physical keyboards available. Hopefully we can get
+            a media query for this:
+            https://github.com/w3c/csswg-drafts/issues/3871 */
+  :root.noVNC_connected #noVNC_mobile_buttons {
+    display: none;
+  }
 }
 
 /* Extra manual keys */
@@ -642,7 +572,7 @@ select:active {
 #noVNC_modifiers {
   background-color: rgb(92, 92, 92);
   border: none;
-  padding: 0 10px;
+  padding: 10px;
 }
 
 /* Shutdown/Reboot */
@@ -663,13 +593,16 @@ select:active {
 :root:not(.noVNC_connected) #noVNC_clipboard_button {
   display: none;
 }
-#noVNC_clipboard {
-  /* Full screen, minus padding and left and right margins */
-  max-width: calc(100vw - 2*15px - 75px - 25px);
-}
 #noVNC_clipboard_text {
-  width: 500px;
+  width: 360px;
+  min-width: 150px;
+  height: 160px;
+  min-height: 70px;
+
+  box-sizing: border-box;
   max-width: 100%;
+  /* minus approximate height of title, height of subtitle, and margin */
+  max-height: calc(100vh - 10em - 25px);
 }
 
 /* Settings */
@@ -677,7 +610,6 @@ select:active {
 }
 #noVNC_settings ul {
   list-style: none;
-  margin: 0px;
   padding: 0px;
 }
 #noVNC_setting_port {
@@ -729,7 +661,7 @@ select:active {
   justify-content: center;
   align-content: center;
 
-  line-height: 25px;
+  line-height: 1.6;
   word-wrap: break-word;
   color: #fff;
 
@@ -803,42 +735,55 @@ select:active {
     font-size: calc(25vw - 30px);
   }
 }
-#noVNC_connect_button {
-  cursor: pointer;
+#noVNC_connect_dlg div {
+  padding: 12px;
 
-  padding: 10px;
-
-  color: white;
   background-color: rgb(110, 132, 163);
   border-radius: 12px;
-
   text-align: center;
   font-size: 20px;
 
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
-#noVNC_connect_button div {
-  margin: 2px;
+#noVNC_connect_button {
+  width: 100%;
   padding: 5px 30px;
-  border: 1px solid rgb(83, 99, 122);
-  border-bottom-width: 2px;
+
+  cursor: pointer;
+
+  border-color: rgb(83, 99, 122);
   border-radius: 5px;
+
   background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
+  color: white;
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
 }
-#noVNC_connect_button div:active {
-  border-bottom-width: 1px;
-  margin-top: 3px;
-}
-:root:not(.noVNC_touch) #noVNC_connect_button div:hover {
+#noVNC_connect_button:hover {
   background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
 }
 
 #noVNC_connect_button img {
   vertical-align: bottom;
   height: 1.3em;
+}
+
+/* ----------------------------------------
+ * Server verification Dialog
+ * ----------------------------------------
+ */
+
+#noVNC_verify_server_dlg {
+  position: relative;
+
+  transform: translateY(-50px);
+}
+#noVNC_verify_server_dlg.noVNC_open {
+  transform: translateY(0);
+}
+#noVNC_fingerprint_block {
+  margin: 10px;
 }
 
 /* ----------------------------------------
@@ -854,12 +799,8 @@ select:active {
 #noVNC_credentials_dlg.noVNC_open {
   transform: translateY(0);
 }
-#noVNC_credentials_dlg ul {
-  list-style: none;
-  margin: 0px;
-  padding: 0px;
-}
-.noVNC_hidden {
+#noVNC_username_block.noVNC_hidden,
+#noVNC_password_block.noVNC_hidden {
   display: none;
 }
 
@@ -871,7 +812,11 @@ select:active {
 
 /* Transition screen */
 #noVNC_transition {
-  display: none;
+  transition: 0.5s ease-in-out;
+
+  display: flex;
+  opacity: 0;
+  visibility: hidden;
 
   position: fixed;
   top: 0;
@@ -892,7 +837,8 @@ select:active {
 :root.noVNC_connecting #noVNC_transition,
 :root.noVNC_disconnecting #noVNC_transition,
 :root.noVNC_reconnecting #noVNC_transition {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
 }
 :root:not(.noVNC_reconnecting) #noVNC_cancel_reconnect_button {
   display: none;
@@ -908,6 +854,12 @@ select:active {
   background-color: #313131;
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
+
+  /* If selection isn't disabled, long-pressing stuff in the sidebar
+     can accidentally select the container or the canvas. This can
+     happen when attempting to move the handle. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #noVNC_keyboardinput {
@@ -935,7 +887,7 @@ select:active {
 .noVNC_logo {
   color:yellow;
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
-  line-height:90%;
+  line-height: 0.9;
   text-shadow: 0.1em 0.1em 0 black;
 }
 .noVNC_logo span{

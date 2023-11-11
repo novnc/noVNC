@@ -1,10 +1,11 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "es2020": true
     },
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 2020
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -25,10 +26,13 @@
 
         "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
         "indent": ["error", 4, { "SwitchCase": 1,
+                                 "VariableDeclarator": "first",
                                  "FunctionDeclaration": { "parameters": "first" },
+                                 "FunctionExpression": { "parameters": "first" },
                                  "CallExpression": { "arguments": "first" },
                                  "ArrayExpression": "first",
                                  "ObjectExpression": "first",
+                                 "ImportDeclaration": "first",
                                  "ignoreComments": true }],
         "comma-spacing": ["error"],
         "comma-style": ["error"],

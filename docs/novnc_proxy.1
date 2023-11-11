@@ -3,13 +3,13 @@
 .SH NAME
 novnc_proxy - noVNC proxy server
 .SH SYNOPSIS
-.B novnc_proxy [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT] [--ssl-only]
+.B novnc_proxy [--listen [HOST:]PORT] [--vnc VNC_HOST:PORT] [--cert CERT] [--ssl-only]
 
 Starts the WebSockets proxy and a mini-webserver and
 provides a cut-and-paste URL to go to.
 
-    --listen PORT         Port for proxy/webserver to listen on
-                          Default: 6080
+    --listen [HOST:]PORT  Port for proxy/webserver to listen on
+                          Default: 6080 (on all interfaces)
     --vnc VNC_HOST:PORT   VNC server host:port proxy target
                           Default: localhost:5900
     --cert CERT           Path to combined cert/key file, or just

@@ -130,9 +130,11 @@ function makeLibFiles(sourceMaps) {
         });
 }
 
-if (program.clean) {
+let options = program.opts();
+
+if (options.clean) {
     console.log(`Removing ${paths.libDirBase}`);
     fse.removeSync(paths.libDirBase);
 }
 
-makeLibFiles(program.withSourceMaps);
+makeLibFiles(options.withSourceMaps);

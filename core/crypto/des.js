@@ -81,7 +81,7 @@
 const PC2 = [13,16,10,23, 0, 4, 2,27,14, 5,20, 9,22,18,11, 3,
              25, 7,15, 6,26,19,12, 1,40,51,30,36,46,54,29,39,
              50,44,32,47,43,48,38,55,33,52,45,41,49,35,28,31 ],
-    totrot = [ 1, 2, 4, 6, 8,10,12,14,15,17,19,21,23,25,27,28];
+      totrot = [ 1, 2, 4, 6, 8,10,12,14,15,17,19,21,23,25,27,28];
 
 const z = 0x0;
 let a,b,c,d,e,f;
@@ -128,7 +128,7 @@ const SP8 = [b|f,z|e,a|z,c|f,b|z,b|f,z|d,b|z,a|d,c|z,c|f,a|e,c|e,a|f,z|e,z|d,
 
 /* eslint-enable comma-spacing */
 
-export default class DES {
+class DES {
     constructor(password) {
         this.keys = [];
 
@@ -258,9 +258,73 @@ export default class DES {
         }
         return b;
     }
+}
 
-    // Encrypt 16 bytes of text using passwd as key
-    encrypt(t) {
-        return this.enc8(t.slice(0, 8)).concat(this.enc8(t.slice(8, 16)));
+export class DESECBCipher {
+    constructor() {
+        this._cipher = null;
+    }
+
+    get algorithm() {
+        return { name: "DES-ECB" };
+    }
+
+    static importKey(key, _algorithm, _extractable, _keyUsages) {
+        const cipher = new DESECBCipher;
+        cipher._importKey(key);
+        return cipher;
+    }
+
+    _importKey(key, _extractable, _keyUsages) {
+        this._cipher = new DES(key);
+    }
+
+    encrypt(_algorithm, plaintext) {
+        const x = new Uint8Array(plaintext);
+        if (x.length % 8 !== 0 || this._cipher === null) {
+            return null;
+        }
+        const n = x.length / 8;
+        for (let i = 0; i < n; i++) {
+            x.set(this._cipher.enc8(x.slice(i * 8, i * 8 + 8)), i * 8);
+        }
+        return x;
+    }
+}
+
+export class DESCBCCipher {
+    constructor() {
+        this._cipher = null;
+    }
+
+    get algorithm() {
+        return { name: "DES-CBC" };
+    }
+
+    static importKey(key, _algorithm, _extractable, _keyUsages) {
+        const cipher = new DESCBCCipher;
+        cipher._importKey(key);
+        return cipher;
+    }
+
+    _importKey(key) {
+        this._cipher = new DES(key);
+    }
+
+    encrypt(algorithm, plaintext) {
+        const x = new Uint8Array(plaintext);
+        let y = new Uint8Array(algorithm.iv);
+        if (x.length % 8 !== 0 || this._cipher === null) {
+            return null;
+        }
+        const n = x.length / 8;
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < 8; j++) {
+                y[j] ^= plaintext[i * 8 + j];
+            }
+            y = this._cipher.enc8(y);
+            x.set(y, i * 8);
+        }
+        return x;
     }
 }
