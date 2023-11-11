@@ -20,9 +20,19 @@ export default class Clipboard {
 
     _handleCopy(e) {
         this._remoteClipboard = e.clipboardData.getData('text/plain');
-        if (navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(this._remoteClipboard).catch(() => {/* Do nothing */});
-        }
+        this._copy(this._remoteClipboard)
+    }
+    /**
+     * Has a better browser support compared with navigator.clipboard.writeText.
+     * Also, no permission required.
+     */
+    _copy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        const result = document.execCommand('copy');
+        document.body.removeChild(textarea);
     }
     /**
      * @param {ClipboardEvent} e 
