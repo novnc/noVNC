@@ -1,4 +1,8 @@
 export default class Clipboard {
+     /**
+     *  @type {string}
+     */
+     _remoteClipboard
     constructor(target) {
         this._target = target;
 
@@ -15,8 +19,9 @@ export default class Clipboard {
     // ===== PRIVATE METHODS =====
 
     _handleCopy(e) {
+        this._remoteClipboard = e.clipboardData.getData('text/plain');
         if (navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(e.clipboardData.getData('text/plain')).catch(() => {/* Do nothing */});
+            navigator.clipboard.writeText(this._remoteClipboard).catch(() => {/* Do nothing */});
         }
     }
     /**
@@ -27,8 +32,23 @@ export default class Clipboard {
             return;
         }
         if(e.clipboardData){
-            this.onpaste(e.clipboardData.getData('text/plain'));
+            const localClipboard = e.clipboardData.getData('text/plain');
+            if(localClipboard === this._remoteClipboard){
+                this._pasteVncServerInternalClipboard();
+                return;
+            }
+            this.onpaste(localClipboard);
         }
+    }
+    /**
+     * The vnc server clipboard can be non ascii text and server might only support ascii code.
+     * In that case, localClipboard received from the vnc server is garbled.
+     * For example, if you copied chinese text "你好" in the vnc server the local clipboard will be changed to "??". 
+     * If you press Ctrl+V, the vnc server should paste "你好" instead of "??".
+     * So, we shouldn't send the local clipboard to the vnc server because the local clipboard is garbled in this case.
+     */
+    _pasteVncServerInternalClipboard(){
+        this.onpaste("", false);
     }
     _isVncEvent(){
         const isTargetFocused = document.activeElement === this._target;

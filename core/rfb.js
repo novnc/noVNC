@@ -500,8 +500,10 @@ export default class RFB extends EventTargetMixin {
         this._canvas.blur();
     }
 
-    _handlePasteEvent(text){
-        this.clipboardPasteFrom(text);
+    _handlePasteEvent(text, shouldUpdateRemoteClipboard = true){
+        if(shouldUpdateRemoteClipboard){
+            this.clipboardPasteFrom(text);
+        }
         this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true)
         this.sendKey(KeyTable.XK_V, "KeyV", true)
         this.sendKey(KeyTable.XK_V, "KeyV", false)
