@@ -36,6 +36,7 @@ import TightDecoder from "./decoders/tight.js";
 import TightPNGDecoder from "./decoders/tightpng.js";
 import ZRLEDecoder from "./decoders/zrle.js";
 import JPEGDecoder from "./decoders/jpeg.js";
+import * as browser from "./util/browser.js";
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
@@ -504,10 +505,19 @@ export default class RFB extends EventTargetMixin {
         if (shouldUpdateRemoteClipboard) {
             this.clipboardPasteFrom(text);
         }
-        this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
-        this.sendKey(KeyTable.XK_V, "KeyV", true);
-        this.sendKey(KeyTable.XK_V, "KeyV", false);
-        this.sendKey(KeyTable.XK_Control_L, "ControlLeft", false);
+        if (browser.isMac()) {
+            this.sendKey(KeyTable.XK_Meta_L, "Meta", true);
+            this.sendKey(KeyTable.XK_V, "KeyV", true);
+            this.sendKey(KeyTable.XK_V, "KeyV", false);
+            this.sendKey(KeyTable.XK_Meta_L, "Meta", false);
+            return;
+        }
+        if (browser.isWindows()) {
+            this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
+            this.sendKey(KeyTable.XK_V, "KeyV", true);
+            this.sendKey(KeyTable.XK_V, "KeyV", false);
+            this.sendKey(KeyTable.XK_Control_L, "ControlLeft", false);
+        }
     }
 
     clipboardPasteFrom(text) {
