@@ -207,7 +207,7 @@ export default class RFB extends EventTargetMixin {
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
         this.mouseButtonMapper = null;
-        this._mouseLastScreenIndex = 0;
+        this._mouseLastScreenIndex = -1;
 
         // Gesture state
         this._gestureLastTapTime = null;
@@ -1731,8 +1731,9 @@ export default class RFB extends EventTargetMixin {
             // Primary to secondary screen message
             switch (event.data.eventType) {
                 case 'updateCursor':
-                    if (event.data.mouseLastScreenIndex === this._display.screenIndex) {
+                    if (event.data.mouseLastScreenIndex === this._display.screenIndex || this._mouseLastScreenIndex === -1) {
                         this._updateCursor(...event.data.args);
+                        this._mouseLastScreenIndex = event.data.mouseLastScreenIndex;
                     }
                     break;
                 case 'disconnect':
