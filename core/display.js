@@ -115,7 +115,7 @@ export default class Display {
             this._screens[0].channel = new BroadcastChannel(`screen_${this._screenID}_channel`);
             this._screens[0].channel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
         } else {
-            this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+            //this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
 
         Log.Debug("<< Display.constructor");
@@ -519,7 +519,6 @@ export default class Display {
     */
     flush(onflush_message=true) {
         //force oldest frame to render
-        //window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         this._asyncFrameComplete(0, true);
 
         if (onflush_message)
@@ -898,13 +897,13 @@ export default class Display {
             } else if (rect.frame_id > newestFrameID) {
                 //frame is newer than any frame in the queue, drop old frame
                 if (this._asyncFrameQueue[0][3] == true) {
-                    this._pushAsyncFrame(true);
                     Log.Warn("Forced frame to canvas");
+                    this._pushAsyncFrame(true);
                     this._droppedFrames += (rect.frame_id - (newestFrameID + 1));
                     this._forcedFrameCnt++;
                 } else {
-                    this._asyncFrameQueue.shift();
                     Log.Warn("Old frame dropped");
+                    this._asyncFrameQueue.shift();
                     this._droppedFrames += (rect.frame_id - newestFrameID);
                 }
                 
@@ -933,6 +932,10 @@ export default class Display {
     If marked force, unloaded images will be skipped and the frame will be marked complete and ready for rendering
     */
     _asyncFrameComplete(frameIx, force=false) {
+        if (frameIx >= this._asyncFrameQueue.length) {
+            return;
+        }
+
         let currentFrameRectIx = this._asyncFrameQueue[frameIx][4];
 
         if (force) {
@@ -970,7 +973,11 @@ export default class Display {
         this._asyncFrameQueue[frameIx][4] = currentFrameRectIx;
         this._asyncFrameQueue[frameIx][3] = true;
 
-        //window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        if (force && frameIx == 0) {
+            this._pushAsyncFrame(true);
+        } else {
+            window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
+        }
     }
 
     /*
@@ -1065,10 +1072,6 @@ export default class Display {
             if (this._asyncFrameQueue[0][5] > 5) { 
                 this._pushAsyncFrame(true);
             }
-        }
-
-        if (!force) {
-            window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
     }
 
