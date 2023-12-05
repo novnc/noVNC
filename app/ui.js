@@ -1041,10 +1041,18 @@ const UI = {
         }
         url += '/' + path;
 
-        UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
-                         { shared: UI.getSetting('shared'),
-                           repeaterID: UI.getSetting('repeaterID'),
-                           credentials: { password: password } });
+        try {
+            UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
+                             { shared: UI.getSetting('shared'),
+                               repeaterID: UI.getSetting('repeaterID'),
+                               credentials: { password: password } });
+        } catch (exc) {
+            Log.Error("Failed to connect to server: " + exc);
+            UI.updateVisualState('disconnected');
+            UI.showStatus(_("Failed to connect to server: ") + exc, 'error');
+            return;
+        }
+
         UI.rfb.addEventListener("connect", UI.connectFinished);
         UI.rfb.addEventListener("disconnect", UI.disconnectFinished);
         UI.rfb.addEventListener("serververification", UI.serverVerify);
