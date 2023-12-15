@@ -1935,6 +1935,9 @@ export default class RFB extends EventTargetMixin {
                                         false, xvncButtonToMask(mappedButton));
                 break;
             case 'mousemove':
+            	//when there are multiple screens
+            	//This window can get mouse move events when the cursor is outside of the window, if the mouse is down 
+            	//when the cursor crosses the threshold of the window
                 this._handleMouseMove(pos.x, pos.y);
                 break;
         }
