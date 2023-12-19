@@ -10,7 +10,7 @@
 
 import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
-import { encodeUTF8, decodeUTF8 } from './util/strings.js';
+import { encodeUTF8, decodeUTF8, uuidv4 } from './util/strings.js';
 import { hashUInt8Array } from './util/int.js';
 import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac, isIOS } from './util/browser.js';
 import { clientToElement } from './util/element.js';
@@ -76,11 +76,11 @@ const extendedClipboardActionNotify  = 1 << 27;
 const extendedClipboardActionProvide = 1 << 28;
 
 export default class RFB extends EventTargetMixin {
-    constructor(target, touchInput, urlOrChannel, options) {
+    constructor(target, touchInput, urlOrChannel, options, isPrimaryDisplay) {
         if (!target) {
             throw new Error("Must specify target");
         }
-        if (!urlOrChannel) {
+        if (!urlOrChannel && isPrimaryDisplay) {
             throw new Error("Must specify URL, WebSocket or RTCDataChannel");
         }
 
@@ -101,6 +101,7 @@ export default class RFB extends EventTargetMixin {
         this._shared = 'shared' in options ? !!options.shared : true;
         this._repeaterID = options.repeaterID || '';
         this._wsProtocols = options.wsProtocols || ['binary'];
+        this._isPrimaryDisplay = (isPrimaryDisplay !== false);
 
         // Internal state
         this._rfbConnectionState = '';
@@ -122,7 +123,8 @@ export default class RFB extends EventTargetMixin {
         this._supportsContinuousUpdates = false;
         this._enabledContinuousUpdates = false;
         this._supportsSetDesktopSize = false;
-        this._screenID = 0;
+        this._screenID = uuidv4();
+        this._screenIndex = 0;
         this._screenFlags = 0;
         this._qemuExtKeyEventSupported = false;
 
@@ -205,12 +207,26 @@ export default class RFB extends EventTargetMixin {
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
         this.mouseButtonMapper = null;
+        this._mouseLastScreenIndex = -1;
 
         // Gesture state
         this._gestureLastTapTime = null;
         this._gestureFirstDoubleTapEv = null;
         this._gestureLastMagnitudeX = 0;
         this._gestureLastMagnitudeY = 0;
+
+        // Secondary Displays
+        this._secondaryDisplays = {};
+        this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
+        if (this._supportsBroadcastChannel) {
+            this._controlChannel = new BroadcastChannel("registrationChannel");
+            this._controlChannel.addEventListener('message', this._handleControlMessage.bind(this));
+            Log.Debug("Attached to registrationChannel for secondary displays.")
+            
+        }
+        if (!this._isPrimaryDisplay) {
+            this._screenIndex = 2;
+        }
 
         // Bound event handlers
         this._eventHandlers = {
@@ -223,6 +239,7 @@ export default class RFB extends EventTargetMixin {
             handleWheel: this._handleWheel.bind(this),
             handleGesture: this._handleGesture.bind(this),
             handleFocusChange: this._handleFocusChange.bind(this),
+            handleMouseOut: this._handleMouseOut.bind(this),
         };
 
         // main setup
@@ -262,7 +279,7 @@ export default class RFB extends EventTargetMixin {
         // NB: nothing that needs explicit teardown should be done
         // before this point, since this can throw an exception
         try {
-            this._display = new Display(this._canvas);
+            this._display = new Display(this._canvas, this._isPrimaryDisplay);
         } catch (exc) {
             Log.Error("Display exception: " + exc);
             throw exc;
@@ -283,68 +300,13 @@ export default class RFB extends EventTargetMixin {
 
         this._gestures = new GestureHandler();
 
-        this._sock = new Websock();
-        this._sock.on('message', () => {
-            this._handleMessage();
-        });
-        this._sock.on('open', () => {
-            if ((this._rfbConnectionState === 'connecting') &&
-                (this._rfbInitState === '')) {
-                this._rfbInitState = 'ProtocolVersion';
-                Log.Debug("Starting VNC handshake");
-            } else {
-                this._fail("Unexpected server connection while " +
-                           this._rfbConnectionState);
-            }
-        });
-        this._sock.on('close', (e) => {
-            Log.Debug("WebSocket on-close event");
-            let msg = "";
-            if (e.code) {
-                msg = "(code: " + e.code;
-                if (e.reason) {
-                    msg += ", reason: " + e.reason;
-                }
-                msg += ")";
-            }
-            switch (this._rfbConnectionState) {
-                case 'connecting':
-                    this._fail("Connection closed " + msg);
-                    break;
-                case 'connected':
-                    // Handle disconnects that were initiated server-side
-                    this._updateConnectionState('disconnecting');
-                    this._updateConnectionState('disconnected');
-                    break;
-                case 'disconnecting':
-                    // Normal disconnection path
-                    this._updateConnectionState('disconnected');
-                    break;
-                case 'disconnected':
-                    this._fail("Unexpected server disconnect " +
-                               "when already disconnected " + msg);
-                    break;
-                default:
-                    this._fail("Unexpected server disconnect before connecting " +
-                               msg);
-                    break;
-            }
-            this._sock.off('close');
-            // Delete reference to raw channel to allow cleanup.
-            this._rawChannel = null;
-        });
-        this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
-
-        // Slight delay of the actual connection so that the caller has
-        // time to set up callbacks
-        setTimeout(this._updateConnectionState.bind(this, 'connecting'));
+        if (this._isPrimaryDisplay) {
+            this._setupWebSocket();
+        } 
 
         Log.Debug("<< RFB.constructor");
 
         // ===== PROPERTIES =====
-
-        
-
         this.dragViewport = false;
         this.focusOnClick = true;
         this.lastActiveAt = Date.now();
@@ -366,6 +328,11 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+
+    get translateShortcuts() { return this._keyboard.translateShortcuts; }
+    set translateShortcuts(value) {
+        this._keyboard.translateShortcuts = value;
+    }
 
     get pointerLock() { return this._pointerLock; }
     set pointerLock(value) {
@@ -762,10 +729,86 @@ export default class RFB extends EventTargetMixin {
         if (value !== this._hiDpi) {
             this._hiDpi = value;
             this._requestRemoteResize();
+            if (this._display.screens.length > 1) {
+                //force secondary displays to re-register and thus apply new hdpi setting
+                this._proxyRFBMessage('forceResize', [ value ]);
+            }
         }
     }
 
     // ===== PUBLIC METHODS =====
+
+    attachSecondaryDisplay() {
+        this._updateConnectionState('connecting');
+        const screen = this._registerSecondaryDisplay();
+        this._updateConnectionState('connected');
+        return screen
+    }
+
+    reattachSecondaryDisplay(screen) {
+        this._updateConnectionState('connecting');
+        this._registerSecondaryDisplay(screen);
+        this._updateConnectionState('connected');
+        return screen
+    }
+
+
+    applyScreenPlan(screenPlan) {
+        if (this._isPrimaryDisplay) {
+            let fullPlan = this._screenSize();
+
+            //check plan for validity
+            let minX = Number.MAX_SAFE_INTEGER, minY = Number.MAX_SAFE_INTEGER;
+            let numScreensFound = 0;
+
+            for (let i = 0; i < screenPlan.screens.length; i++) {
+                minX = Math.min(minX, screenPlan.screens[i].x);
+                minY = Math.min(minY, screenPlan.screens[i].y);
+                for (let z = 0; z < fullPlan.screens.length; z++) {
+                    if (screenPlan.screens[i].screenID == fullPlan.screens[z].screenID) {
+                        numScreensFound++;
+                    }
+                }
+            }
+            if (minX !== 0 || minY !== 0) {
+                throw new Error("Screen plan invalid, improper coordinates provided.");
+            }
+            if (numScreensFound > fullPlan.screens.length) {
+                throw new Error("Screen plan contained more screens then there are registered.")
+            } else if (numScreensFound < fullPlan.screens.length) {
+                throw new Error("Screen plan contained fewer screens then there are registered.")
+            }
+
+            this._display.applyScreenPlan(screenPlan);
+            const size = this._screenSize();
+            RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+            this._updateContinuousUpdates();
+        }
+    }
+
+    getScreenPlan() {
+        let fullPlan = this._screenSize();
+        let sanitizedPlan = {
+            screens: [],
+            serverWidth: fullPlan.serverWidth,
+            serverHeight: fullPlan.serverHeight
+        };
+
+        for (let i=0; i < fullPlan.screens.length; i++) {
+            sanitizedPlan.screens.push(
+                {
+                    screenID: fullPlan.screens[i].screenID,
+                    serverWidth: fullPlan.screens[i].serverWidth,
+                    serverHeight: fullPlan.screens[i].serverHeight,
+                    x: fullPlan.screens[i].x,
+                    y: fullPlan.screens[i].y,
+                    pixelRatio: fullPlan.screens[i].pixelRatio
+                }
+            )
+        }
+
+        return sanitizedPlan;
+    }
 
     /*
     This function must be called after changing any properties that effect rendering quality
@@ -774,7 +817,9 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState === 'connected') {
             
             if (this._pendingApplyVideoRes) {
-                RFB.messages.setMaxVideoResolution(this._sock, this._maxVideoResolutionX, this._maxVideoResolutionY);
+                if (this._isPrimaryDisplay){
+                    RFB.messages.setMaxVideoResolution(this._sock, this._maxVideoResolutionX, this._maxVideoResolutionY);
+                }
             }
 
             if (this._pendingApplyResolutionChange) {
@@ -793,15 +838,16 @@ export default class RFB extends EventTargetMixin {
     }
 
     disconnect() {
-        this._updateConnectionState('disconnecting');
-        this._sock.off('error');
-        this._sock.off('message');
-        this._sock.off('open');
-    }
-
-    sendCredentials(creds) {
-        this._rfbCredentials = creds;
-        setTimeout(this._initMsg.bind(this), 0);
+        if (this._isPrimaryDisplay) {
+            this._updateConnectionState('disconnecting');
+            this._sock.off('error');
+            this._sock.off('message');
+            this._sock.off('open');
+            this._proxyRFBMessage('disconnect');
+        } else {
+            this._updateConnectionState('disconnecting');
+            this._unregisterSecondaryDisplay();
+        }
     }
 
     sendCtrlAltDel() {
@@ -851,13 +897,21 @@ export default class RFB extends EventTargetMixin {
 
             Log.Info("Sending key (" + (down ? "down" : "up") + "): keysym " + keysym + ", scancode " + scancode);
 
-            RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
+            if (this._isPrimaryDisplay) {
+                RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
+            } else {
+                this._proxyRFBMessage('QEMUExtendedKeyEvent', [ keysym, down, scancode ])
+            }
         } else {
             if (!keysym) {
                 return;
             }
             Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
-            RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
+            if (this._isPrimaryDisplay) {
+                RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
+            } else {
+                this._proxyRFBMessage('keyEvent', [ keysym, down ? 1 : 0 ])
+            }
         }
     }
 
@@ -909,7 +963,12 @@ export default class RFB extends EventTargetMixin {
         let mimes = [ 'text/plain' ];
         dataset.push(data);
 
-        RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
+        if (this._isPrimaryDisplay) {
+            RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
+        } else {
+            this._proxyRFBMessage('sendBinaryClipboard', [ dataset, mimes ]);
+        }
+        
     }
 
     async clipboardPasteDataFrom(clipdata) {
@@ -948,7 +1007,7 @@ export default class RFB extends EventTargetMixin {
                             continue;
                         }
 
-                        mimes.push(mime);
+                        mimes.push(mime); 
                         dataset.push(data);
                         Log.Debug('Sending mime type: ' + mime);
                         break;
@@ -973,23 +1032,33 @@ export default class RFB extends EventTargetMixin {
 
 
         if (dataset.length > 0) {
-            RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
+            if (this._isPrimaryDisplay) {
+                RFB.messages.sendBinaryClipboard(this._sock, dataset, mimes);
+            } else {
+                this._proxyRFBMessage('sendBinaryClipboard', [ dataset, mimes ]);
+            }
         }
         
     }
 
     requestBottleneckStats() {
-        RFB.messages.requestStats(this._sock);
+        if (this._isPrimaryDisplay) {
+            RFB.messages.requestStats(this._sock);
+        }
     }
 
     subscribeUnixRelay(name, processRelayFn) {
-        this._unixRelays = this._unixRelays || {};
-        this._unixRelays[name] = processRelayFn;
-        RFB.messages.sendSubscribeUnixRelay(this._sock, name);
+        if (this._isPrimaryDisplay){
+            this._unixRelays = this._unixRelays || {};
+            this._unixRelays[name] = processRelayFn;
+            RFB.messages.sendSubscribeUnixRelay(this._sock, name);
+        }
     }
 
     sendUnixRelayData(name, payload) {
-        RFB.messages.sendUnixRelay(this._sock, name, payload);
+        if (this._isPrimaryDisplay) {
+            RFB.messages.sendUnixRelay(this._sock, name, payload);
+        }
     }
 
     // ===== PRIVATE METHODS =====
@@ -1003,10 +1072,68 @@ export default class RFB extends EventTargetMixin {
         this._transitConnectionState = value;
     }
 
+    _setupWebSocket() {
+        this._sock = new Websock();
+        this._sock.on('message', () => {
+            this._handleMessage();
+        });
+        this._sock.on('open', () => {
+            if ((this._rfbConnectionState === 'connecting') &&
+                (this._rfbInitState === '')) {
+                this._rfbInitState = 'ProtocolVersion';
+                Log.Debug("Starting VNC handshake");
+            } else {
+                this._fail("Unexpected server connection while " +
+                           this._rfbConnectionState);
+            }
+        });
+        this._sock.on('close', (e) => {
+            Log.Debug("WebSocket on-close event");
+            let msg = "";
+            if (e.code) {
+                msg = "(code: " + e.code;
+                if (e.reason) {
+                    msg += ", reason: " + e.reason;
+                }
+                msg += ")";
+            }
+            switch (this._rfbConnectionState) {
+                case 'connecting':
+                    this._fail("Connection closed " + msg);
+                    break;
+                case 'connected':
+                    // Handle disconnects that were initiated server-side
+                    this._updateConnectionState('disconnecting');
+                    this._updateConnectionState('disconnected');
+                    break;
+                case 'disconnecting':
+                    // Normal disconnection path
+                    this._updateConnectionState('disconnected');
+                    break;
+                case 'disconnected':
+                    this._fail("Unexpected server disconnect " +
+                               "when already disconnected " + msg);
+                    break;
+                default:
+                    this._fail("Unexpected server disconnect before connecting " +
+                               msg);
+                    break;
+            }
+            this._sock.off('close');
+            // Delete reference to raw channel to allow cleanup.
+            this._rawChannel = null;
+        });
+        this._sock.on('error', e => Log.Warn("WebSocket on-error event"));
+
+        // Slight delay of the actual connection so that the caller has
+        // time to set up callbacks
+        setTimeout(this._updateConnectionState.bind(this, 'connecting'));
+    }
+
     _connect() {
         Log.Debug(">> RFB.connect");
 
-        if (this._url) {
+        if (this._url && this._isPrimaryDisplay) {
             try {
                 Log.Info(`connecting to ${this._url}`);
                 this._sock.open(this._url, this._wsProtocols);
@@ -1018,7 +1145,7 @@ export default class RFB extends EventTargetMixin {
                     this._fail("Error when opening socket (" + e + ")");
                 }
             }
-        } else {
+        } else if (this._isPrimaryDisplay) {
             try {
                 Log.Info(`attaching ${this._rawChannel} to Websock`);
                 this._sock.attach(this._rawChannel);
@@ -1045,6 +1172,9 @@ export default class RFB extends EventTargetMixin {
         this._canvas.addEventListener("focus", this._eventHandlers.handleFocusChange);
         window.addEventListener("focus", this._eventHandlers.handleFocusChange);
         window.addEventListener("blur", this._eventHandlers.handleFocusChange);
+
+        //User cursor moves outside of the window
+        window.addEventListener("mouseover", this._eventHandlers.handleMouseOut);
 
         // In order for the keyboard to not occlude the input being edited
         // we move the hidden input we use for triggering the keyboard to the last click
@@ -1085,7 +1215,7 @@ export default class RFB extends EventTargetMixin {
         this._resendClipboardNextUserDrivenEvent = true;
 
         // WebRTC UDP datachannel inits
-        if (typeof RTCPeerConnection !== 'undefined') {
+        if (typeof RTCPeerConnection !== 'undefined' && this._isPrimaryDisplay) {
             this._udpBuffer = new Map();
 
             this._udpPeer = new RTCPeerConnection({
@@ -1190,7 +1320,7 @@ export default class RFB extends EventTargetMixin {
             }
         }
 
-	    if (this._useUdp && typeof RTCPeerConnection !== 'undefined') {
+	    if (this._useUdp && typeof RTCPeerConnection !== 'undefined' && this._isPrimaryDisplay) {
             setTimeout(function() { this._sendUdpUpgrade() }.bind(this), 3000);
         }
 
@@ -1224,7 +1354,17 @@ export default class RFB extends EventTargetMixin {
         window.removeEventListener('focus', this._eventHandlers.handleFocusChange);
         this._keyboard.ungrab();
         this._gestures.detach();
-        this._sock.close();
+        if (this._isPrimaryDisplay) {
+            this._sock.close();
+        } else {
+            if (this._primaryDisplayChannel) {
+                this._primaryDisplayChannel.postMessage({eventType: 'unregister', screenID: this._screenID})
+                this._primaryDisplayChannel.removeEventListener('message', this._handleSecondaryDisplayMessage);
+                this._primaryDisplayChannel.close();
+                this._primaryDisplayChannel = null;
+            }
+        }
+        
         try {
             this._target.removeChild(this._screen);
         } catch (e) {
@@ -1325,7 +1465,7 @@ export default class RFB extends EventTargetMixin {
             // When clipping is enabled, the screen is limited to
             // the size of the container.
             const size = this._screenSize();
-            this._display.viewportChangeSize(size.w, size.h);
+            this._display.viewportChangeSize(size.screens[0].serverWidth, size.screens[0].serverHeight);
             this._fixScrollbars();
         }
     }
@@ -1335,7 +1475,7 @@ export default class RFB extends EventTargetMixin {
             this._display.scale = 1.0;
         } else {
             const size = this._screenSize(false);
-            this._display.autoscale(size.w, size.h, size.scale);
+            this._display.autoscale(size.screens[0].serverWidth, size.screens[0].serverHeight, size.screens[0].scale);
         }
         this._fixScrollbars();
     }
@@ -1346,60 +1486,29 @@ export default class RFB extends EventTargetMixin {
         clearTimeout(this._resizeTimeout);
         this._resizeTimeout = null;
 
-        if (!this._resizeSession || this._viewOnly ||
-            !this._supportsSetDesktopSize) {
-            return;
-        }
-        const size = this._screenSize();
-        RFB.messages.setDesktopSize(this._sock,
-                                    Math.floor(size.w), Math.floor(size.h),
-                                    this._screenID, this._screenFlags);
+        if (this._isPrimaryDisplay) {
+            if (!this._resizeSession || this._viewOnly ||
+                !this._supportsSetDesktopSize) {
+                return;
+            }
+            const size = this._screenSize();
+            RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
 
-        Log.Debug('Requested new desktop size: ' +
-                   size.w + 'x' + size.h);
+            Log.Debug('Requested new desktop size: ' +
+                   size.serverWidth + 'x' + size.serverHeight);
+        } else if (this._display.screenIndex > 0) {
+            //re-register the secondary display with new resolution
+            this._registerSecondaryDisplay();
+        }
+
+        if (this._display.screens.length > 1) {
+            this.dispatchEvent(new CustomEvent("screenregistered", {}));
+        }
     }
 
     // Gets the the size of the available screen
     _screenSize (limited) {
-        if (limited === undefined) {
-            limited = true;
-        }
-        var x = this.forcedResolutionX ||  this._screen.offsetWidth;
-        var y = this.forcedResolutionY || this._screen.offsetHeight;
-        var scale = 0; // 0=auto
-        try {
-            if (x > 1280 && limited && this.videoQuality == 1) {
-                var ratio = y / x;
-                Log.Debug(ratio);
-                x = 1280;
-                y = x * ratio;
-            }
-            else if (limited && this.videoQuality == 0){
-                x = 1280;
-                y = 720;
-            } else if (this._hiDpi == true) {
-                x = x * window.devicePixelRatio;
-                y = y * window.devicePixelRatio;
-                scale = 1 / window.devicePixelRatio;
-            } else if (this._display.antiAliasing === 0 && window.devicePixelRatio > 1 && x < 1000 && x > 0) {
-                // small device with high resolution, browser is essentially zooming greater than 200%
-                Log.Info('Device Pixel ratio: ' + window.devicePixelRatio + ' Reported Resolution: ' + x + 'x' + y); 
-                let targetDevicePixelRatio = 1.5;
-                if (window.devicePixelRatio > 2) { targetDevicePixelRatio = 2; }
-                let scaledWidth = (x * window.devicePixelRatio) * (1 / targetDevicePixelRatio);
-                let scaleRatio = scaledWidth / x;
-                x = x * scaleRatio;
-                y = y * scaleRatio;
-                scale = 1 / scaleRatio;
-                Log.Info('Small device with hDPI screen detected, auto scaling at ' + scaleRatio + ' to ' + x + 'x' + y);
-            }
-        } catch (err) {
-            Log.Debug(err);
-        }
-        
-        return { w: x,
-                 h: y,
-                 scale: scale };
+        return this._display.getScreenSize(this.videoQuality, this.forcedResolutionX, this.forcedResolutionY, this._hiDpi, limited);
     }
 
     _fixScrollbars() {
@@ -1469,6 +1578,10 @@ export default class RFB extends EventTargetMixin {
                 }
                 break;
 
+            case 'proxied':
+                //secondary display that needs to proxy messages through the broadcast channel
+                break;
+
             default:
                 Log.Error("Unknown connection state: " + state);
                 return;
@@ -1486,9 +1599,11 @@ export default class RFB extends EventTargetMixin {
             this._disconnTimer = null;
 
             // make sure we don't get a double event
-            this._sock.off('close');
+            if (this._isPrimaryDisplay) {
+                this._sock.off('close');
+            }
         }
-
+        
         switch (state) {
             case 'connecting':
                 this._connect();
@@ -1504,6 +1619,7 @@ export default class RFB extends EventTargetMixin {
                 this._disconnTimer = setTimeout(() => {
                     Log.Error("Disconnection timed out.");
                     this._updateConnectionState('disconnected');
+                    this._proxyRFBMessage('secondarydisconnected')
                 }, DISCONNECT_TIMEOUT * 1000);
                 break;
 
@@ -1550,6 +1666,146 @@ export default class RFB extends EventTargetMixin {
                                            { detail: { capabilities: this._capabilities } }));
     }
 
+    _proxyRFBMessage(messageType, data) {
+        let message = { 
+            eventType: messageType,
+            args: data,
+            screenId: this._display.screenId,
+            screenIndex: this._display.screenIndex,
+            mouseLastScreenIndex: this._mouseLastScreenIndex,
+        }
+        this._controlChannel.postMessage(message);
+    }
+
+    _handleControlMessage(event) {
+        if (this._isPrimaryDisplay) {
+            // Secondary to Primary screen message
+            switch (event.data.eventType) {
+                case 'register':
+                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    const size = this._screenSize();
+                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    this._sendEncodings();
+                    this._updateContinuousUpdates();
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
+                    break;
+                case 'reattach':
+                    console.log('reattach message')
+                    console.log(event.data)
+                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
+                    break;
+                case 'unregister':
+                    if (this._display.removeScreen(event.data.screenID)) {
+                        this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                        Log.Info(`Secondary monitor (${event.data.screenID}) has been removed.`);
+                        const size = this._screenSize();
+                        RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                        this._sendEncodings();
+                        this._updateContinuousUpdates();
+                        this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    } else {
+                        Log.Info(`Secondary monitor (${event.data.screenID}) not found.`);
+                    }
+                    break;
+                case 'pointerEvent':
+                    let coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
+                    this._mouseLastScreenIndex = event.data.screenIndex;
+                    event.data.args[0] = coords[0];
+                    event.data.args[1] = coords[1];
+                    RFB.messages.pointerEvent(this._sock, ...event.data.args);
+                    break;
+                case 'keyEvent':
+                    RFB.messages.keyEvent(this._sock, ...event.data.args);
+                    break;
+                case 'sendBinaryClipboard':
+                    RFB.messages.sendBinaryClipboard(this._sock, ...event.data.args);
+                    break;
+                // The following are primary to secondary messages that should be ignored on the primary
+                case 'updateCursor':
+                    break;
+            }
+        } else {
+            // Primary to secondary screen message
+            switch (event.data.eventType) {
+                case 'updateCursor':
+                    if (event.data.mouseLastScreenIndex === this._display.screenIndex || this._mouseLastScreenIndex === -1) {
+                        this._updateCursor(...event.data.args);
+                        this._mouseLastScreenIndex = event.data.mouseLastScreenIndex;
+                    }
+                    break;
+                case 'disconnect':
+                    this.disconnect();
+                    break;
+                case 'forceResize':
+                    this._hiDpi = event.data.args[0];
+                    this._updateScale();
+                    this._requestRemoteResize();
+                    break;
+            }
+        }
+        
+    }
+
+    _unregisterSecondaryDisplay() {
+        if (!this._isPrimaryDisplay){
+            let message = {
+                eventType: 'unregister',
+                screenID: this._display.screenId
+            }
+            this._controlChannel.postMessage(message);
+        }
+        
+    }
+
+    _registerSecondaryDisplay(currentScreen = false) {
+        if (!this._isPrimaryDisplay) {
+            //let screen = this._screenSize().screens[0];
+            //
+            let size = this._screenSize();
+            this._display.resize(size.screens[0].containerWidth, size.screens[0].containerHeight);
+            this._display.autoscale(size.screens[0].containerWidth, size.screens[0].containerHeight, size.screens[0].scale);
+            screen = this._screenSize().screens[0];
+            
+            const registertype = (currentScreen) ? 'reattach' : 'register'
+
+            let message = {
+                eventType: registertype,
+                screenID: screen.screenID,
+                width: screen.width,
+                height: screen.height,
+                x: currentScreen.x || 0,
+                y: currentScreen.y || 0,
+                pixelRatio: screen.pixelRatio,
+                containerWidth: screen.containerWidth,
+                containerHeight: screen.containerHeight,
+                channel: null
+            }
+            this._controlChannel.postMessage(message);
+
+            if (!this._viewOnly) { this._keyboard.grab(); }
+            // return screen.screenID
+            return screen
+        }
+        
+    }
+
+    identify(screens) {
+        let message = {
+            eventType: 'identify',
+            screens
+        }
+        this._controlChannel.postMessage(message);
+    }
+
+    _handleSecondaryDisplayMessage(event) {
+        if (this._isPrimaryDisplay) {
+
+        }
+    }
+
     _handleMessage() {
         if (this._sock.rQlen === 0) {
             Log.Warn("handleMessage called on an empty receive queue");
@@ -1581,6 +1837,18 @@ export default class RFB extends EventTargetMixin {
 
     _handleKeyEvent(keysym, code, down) {
         this.sendKey(keysym, code, down);
+    }
+
+    _handleMouseOut(ev) {
+        if (ev.toElement !== null && ev.relatedTarget === null) {
+            //mouse was outside of the window and just came in, this is our chance to do things
+
+            //Ensure the window was not moved to a different screen with a different pixel ratio
+            if (this._display.screens[0].pixelRatio !== window.devicePixelRatio) {
+                Log.Debug("Window moved to another screen with different pixel ratio, sending resize request.");
+                this._requestRemoteResize();
+            }
+        }
     }
 
     _handleMouse(ev) {
@@ -1638,6 +1906,7 @@ export default class RFB extends EventTargetMixin {
                                   this._canvas);
         }
 
+        this._mouseLastScreenIndex = this._display.screenIndex;
         this._setLastActive();
         const mappedButton = this.mouseButtonMapper.get(ev.button);
         switch (ev.type) {
@@ -1666,6 +1935,9 @@ export default class RFB extends EventTargetMixin {
                                         false, xvncButtonToMask(mappedButton));
                 break;
             case 'mousemove':
+            	//when there are multiple screens
+            	//This window can get mouse move events when the cursor is outside of the window, if the mouse is down 
+            	//when the cursor crosses the threshold of the window
                 this._handleMouseMove(pos.x, pos.y);
                 break;
         }
@@ -1787,19 +2059,22 @@ export default class RFB extends EventTargetMixin {
             var rel_16_x = toSignedRelative16bit(x - this._pointerLockPos.x);
             var rel_16_y = toSignedRelative16bit(y - this._pointerLockPos.y);
 
-            //console.log("new_pos x" + x + ", y" + y);
-            //console.log("lock x " + this._pointerLockPos.x + ", y " + this._pointerLockPos.y);
-            //console.log("rel x " + rel_16_x + ", y " + rel_16_y);
-
-            RFB.messages.pointerEvent(this._sock, rel_16_x,
-                                  rel_16_y, mask);
+            if (this._isPrimaryDisplay){
+                RFB.messages.pointerEvent(this._sock, rel_16_x, rel_16_y, mask);
+            } else {
+                this._proxyRFBMessage('pointerEvent', [ rel_16_x, rel_16_y, mask ]);
+            }
             
             // reset the cursor position to center
             this._mousePos = { x: this._pointerLockPos.x , y: this._pointerLockPos.y };
             this._cursor.move(this._pointerLockPos.x, this._pointerLockPos.y);
         } else {
-            RFB.messages.pointerEvent(this._sock, this._display.absX(x),
-                                  this._display.absY(y), mask);
+            if (this._isPrimaryDisplay) {
+                RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), mask);
+            } else {
+                this._proxyRFBMessage('pointerEvent', [ this._display.absX(x), this._display.absY(y), mask ]);
+            }
+            
         }
         
     }
@@ -1808,7 +2083,12 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), 0, dX, dY);
+        if (this._isPrimaryDisplay){
+            RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), 0, dX, dY);
+        } else {
+            this._proxyRFBMessage('pointerEvent', [ this._display.absX(x), this._display.absY(y), 0, dX, dY ]);
+        }
+        
     }
 
     _handleWheel(ev) {
@@ -2585,7 +2865,10 @@ export default class RFB extends EventTargetMixin {
         const encs = [];
 
         // In preference order
-        encs.push(encodings.encodingCopyRect);
+        // Disable copyrect when using multiple displays
+        if (this._display.screens.length === 1) {
+            encs.push(encodings.encodingCopyRect);
+        }
         // Only supported with full depth support
         if (this._fbDepth == 24) {
             encs.push(encodings.encodingTight);
@@ -3244,9 +3527,9 @@ export default class RFB extends EventTargetMixin {
         const payload = this._sock.rQshiftStr(len);
 
         if (status) {
-            console.log("Unix relay subscription succeeded");
+            Log.Info("Unix relay subscription succeeded");
         } else {
-            console.log("Unix relay subscription failed, " + payload);
+            Log.Warn("Unix relay subscription failed, " + payload);
         }
     }
 
@@ -3570,7 +3853,7 @@ export default class RFB extends EventTargetMixin {
         for (let i = 0; i < numberOfScreens; i += 1) {
             // Save the id and flags of the first screen
             if (i === 0) {
-                this._screenID = this._sock.rQshiftBytes(4);    // id
+                this._screenIndex = this._sock.rQshiftBytes(4);    // id
                 this._sock.rQskipBytes(2);                       // x-position
                 this._sock.rQskipBytes(2);                       // y-position
                 this._sock.rQskipBytes(2);                       // width
@@ -3687,7 +3970,12 @@ export default class RFB extends EventTargetMixin {
             rgbaPixels: rgba,
             hotx: hotx, hoty: hoty, w: w, h: h,
         };
+
         this._refreshCursor();
+
+        if (this._isPrimaryDisplay) {
+            this._proxyRFBMessage('updateCursor', [ rgba, hotx, hoty, w, h ]);
+        }
     }
 
     _shouldShowDotCursor() {
@@ -4061,40 +4349,49 @@ RFB.messages = {
         }
     },
 
-    setDesktopSize(sock, width, height, id, flags) {
+    setDesktopSize(sock, size, flags) {
         const buff = sock._sQ;
         const offset = sock._sQlen;
 
         buff[offset] = 251;              // msg-type
         buff[offset + 1] = 0;            // padding
-        buff[offset + 2] = width >> 8;   // width
-        buff[offset + 3] = width;
-        buff[offset + 4] = height >> 8;  // height
-        buff[offset + 5] = height;
+        buff[offset + 2] = size.serverWidth >> 8;   // width
+        buff[offset + 3] = size.serverWidth;
+        buff[offset + 4] = size.serverHeight >> 8;  // height
+        buff[offset + 5] = size.serverHeight;
 
-        buff[offset + 6] = 1;            // number-of-screens
+        buff[offset + 6] = size.screens.length;            // number-of-screens
         buff[offset + 7] = 0;            // padding
 
-        // screen array
-        buff[offset + 8] = id >> 24;     // id
-        buff[offset + 9] = id >> 16;
-        buff[offset + 10] = id >> 8;
-        buff[offset + 11] = id;
-        buff[offset + 12] = 0;           // x-position
-        buff[offset + 13] = 0;
-        buff[offset + 14] = 0;           // y-position
-        buff[offset + 15] = 0;
-        buff[offset + 16] = width >> 8;  // width
-        buff[offset + 17] = width;
-        buff[offset + 18] = height >> 8; // height
-        buff[offset + 19] = height;
-        buff[offset + 20] = flags >> 24; // flags
-        buff[offset + 21] = flags >> 16;
-        buff[offset + 22] = flags >> 8;
-        buff[offset + 23] = flags;
+        let i = 8;
+        for (let iS = 0; iS < size.screens.length; iS++) {
+            //screen id
+            buff[offset + i++] = iS >> 24;
+            buff[offset + i++] = iS >> 16;
+            buff[offset + i++] = iS >> 8;
+            buff[offset + i++] = iS;
+            //screen x position
+            buff[offset + i++] = size.screens[iS].x >> 8;
+            buff[offset + i++] = size.screens[iS].x;
+            //screen y position
+            buff[offset + i++] = size.screens[iS].y >> 8;
+            buff[offset + i++] = size.screens[iS].y;
+            //screen width
+            buff[offset + i++] = size.screens[iS].serverWidth >> 8;
+            buff[offset + i++] = size.screens[iS].serverWidth;
+            //screen height
+            buff[offset + i++] = size.screens[iS].serverHeight >> 8;
+            buff[offset + i++] = size.screens[iS].serverHeight;
+            //flags
+            buff[offset + i++] = flags >> 24;
+            buff[offset + i++] = flags >> 16;
+            buff[offset + i++] = flags >> 8;
+            buff[offset + i++] = flags;
+        }
 
-        sock._sQlen += 24;
+        sock._sQlen += i;
         sock.flush();
+
     },
 
     setMaxVideoResolution(sock, width, height) {

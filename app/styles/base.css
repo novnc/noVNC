@@ -897,7 +897,8 @@ select:active {
 #noVNC_container {
   width: 100%;
   height: 100%;
-  background-image: url('../images/splash.jpg')
+  background-image: url('../images/splash.jpg');
+  background-size: cover;
 }
 
 #noVNC_keyboardinput {
@@ -1190,4 +1191,205 @@ a:link {
 }
 a:visited {
   color: white;
+}
+
+/* ----------------------------------------
+ * Multi Display Arrangement
+ * ----------------------------------------
+ */
+#noVNC_connect_button {
+  background: rgba(0,0,0,0.7);
+  padding: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 100;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+#noVNC_connect_button .image {
+  color:#697ad6;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+#noVNC_connect_button .text {
+  color: #ffffff91
+}
+#noVNC_connect_button .heading {
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+#noVNC_connect_button:hover .image {
+  color:#298453;
+  
+}
+#noVNC_connect_button:hover .go {
+  transition: all 0.3s;
+  transform: translateX(5px);
+}
+#noVNC_connect_button .power {
+  transition: all 0.3s;
+  color: white!important;
+  transform: translateY(50px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#noVNC_connect_button:hover .power {
+  transform: translateY(0);
+}
+#noVNC_connect_button svg {
+  fill: currentColor;
+}
+#noVNC_identify_monitor {
+  position: fixed;
+  z-index: 999999;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 30px;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  border-bottom-left-radius: 10px;
+}
+#noVNC_identify_monitor.show {
+  display: flex;
+}
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.canvas {
+  background: rgb(225,225,226);
+  background: linear-gradient(0deg, rgba(225,225,226,1) 0%, rgba(237,237,238,1) 100%);  
+}
+.row {
+  background: #e9e9ea;
+  border-radius: 8px;
+  border: 1px solid #dcdcdd;
+  padding: 6px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.row input {
+  border: 1px solid #dcdcdd;
+  padding: 8px 2px;
+  text-align: right;
+  background-color: #ededee;
+}
+
+ #noVNC_displays {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: rgba(0,0,0,0.7);
+
+  cursor: pointer;
+
+  transition: 0.5s ease-in-out;
+
+
+  padding: 5px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  line-height: 25px;
+  word-wrap: break-word;
+
+}
+#noVNC_displays.noVNC_open {
+  display: flex;
+  transform: translateY(0);
+  visibility: visible;
+  opacity: 1;
+}
+#noVNC_displays .canvas {
+  display: flex;
+  width: 700px;
+  flex-direction: column;
+  border-radius: 15px;
+  background: #fdfdfd;
+  padding: 15px 20px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  position: relative;
+}
+#noVNC_displays .canvas-title {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0 10px;
+  line-height: 1;
+  line-height: 1.4;
+}
+#noVNC_displays .canvas-text {
+  font-size: 12px;
+  padding: 0 35px 0 10px;
+  opacity: 0.6;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+#noVNC_displays .arrange-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+#noVNC_displays .arrange-buttons button, #noVNC_displays .arrange-buttons .button {
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 4px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  font-size: 13px;
+  border: 1px solid #e5e5e5;
+  line-height: 1;
+}
+#noVNC_setting_enable_hidpi_option {
+  display: none!important;
+}
+#noVNC_setting_enable_hidpi_option.show {
+  display: flex!important;
+}
+#noVNC_refreshMonitors {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+}
+#noVNC_refreshMonitors_icon {
+  transition: all 0.3s;
+  transform-origin: center;
+}
+#noVNC_addMonitor {
+  background-color: #2196F3!important;
+  color: white;
+  border: none!important;
+}
+#noVNC_addMonitor svg {
+  margin-right: 5px;
+}
+#noVNC_displays .canvas canvas {
+  background: #f7f7f7;
+  border: 1px solid #ececec;
+  border-radius: 8px;
 }

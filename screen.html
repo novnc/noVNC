@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" class="noVNC_loading">
+<head>
+
+    <!--
+    noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+    This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+    -->
+    <title>Additional Display</title>
+
+    <meta charset="utf-8">
+
+    <!-- Icons (see app/images/icons/Makefile for what the sizes are for) -->
+    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/368_kasm_logo_only_16x16.png">
+    <link rel="icon" sizes="24x24" type="image/png" href="app/images/icons/368_kasm_logo_only_24x24.png">
+    <link rel="icon" sizes="32x32" type="image/png" href="app/images/icons/368_kasm_logo_only_32x32.png">
+    <link rel="icon" sizes="48x48" type="image/png" href="app/images/icons/368_kasm_logo_only_48x48.png">
+    <link rel="icon" sizes="60x60" type="image/png" href="app/images/icons/368_kasm_logo_only_60x60.png">
+    <link rel="icon" sizes="64x64" type="image/png" href="app/images/icons/368_kasm_logo_only_64x64.png">
+    <link rel="icon" sizes="72x72" type="image/png" href="app/images/icons/368_kasm_logo_only_72x72.png">
+    <link rel="icon" sizes="76x76" type="image/png" href="app/images/icons/368_kasm_logo_only_76x76.png">
+    <link rel="icon" sizes="96x96" type="image/png" href="app/images/icons/368_kasm_logo_only_96x96.png">
+    <link rel="icon" sizes="120x120" type="image/png" href="app/images/icons/368_kasm_logo_only_120x120.png">
+    <link rel="icon" sizes="144x144" type="image/png" href="app/images/icons/368_kasm_logo_only_144x144.png">
+    <link rel="icon" sizes="152x152" type="image/png" href="app/images/icons/368_kasm_logo_only_152x152.png">
+    <link rel="icon" sizes="192x192" type="image/png" href="app/images/icons/368_kasm_logo_only_192x192.png">
+    <!-- Firefox currently mishandles SVG, see #1419039
+    <link rel="icon" sizes="any" type="image/svg+xml" href="app/images/icons/kasm-icon.svg">
+    -->
+    <!-- Repeated last so that legacy handling will pick this -->
+    <link rel="icon" sizes="16x16" type="image/png" href="app/images/icons/368_kasm_logo_only_16x16.png">
+
+    <!-- Apple iOS Safari settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Home Screen Icons (favourites and bookmarks use the normal icons) -->
+    <link rel="apple-touch-icon" sizes="60x60" type="image/png" href="app/images/icons/368_kasm_logo_only_60x60.png">
+    <link rel="apple-touch-icon" sizes="76x76" type="image/png" href="app/images/icons/368_kasm_logo_only_76x76.png">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/368_kasm_logo_only_120x120.png">
+    <link rel="apple-touch-icon" sizes="152x152" type="image/png" href="app/images/icons/368_kasm_logo_only_152x152.png">
+
+    <script src="vendor/interact.min.js"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="app/styles/base.css">
+
+    <script src="app/error-handler.js"></script>
+
+    <script>
+        let isInsideKasmVDI = false;
+        try {
+            isInsideKasmVDI = (window.self !== window.top);
+        } catch (e) {
+            isInsideKasmVDI = true;
+        }
+    </script>
+
+    <script type="module" crossorigin="use-credentials" src="app/ui_screen.js"></script>
+</head>
+<body>
+    <div id="noVNC_fallback_error" class="noVNC_center">
+        <div>
+            <div id="noVNC_close_error" onclick="document.getElementById('noVNC_fallback_error').remove()"></div>
+            <div>KasmVNC encountered an error:</div>
+            <br>
+            <div id="noVNC_fallback_errormsg"></div>
+        </div>
+    </div>
+
+
+    <!-- Status Dialog -->
+    <div id="noVNC_status"></div>
+
+    <!-- Connect button -->
+    <div class="noVNC_center">
+        <div id="noVNC_connect_dlg">
+            <div id="noVNC_connect_button">
+                <div class="image display">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45"
+                        viewBox="0 0 576 512"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                        <path
+                            d="M64 16C37.5 16 16 37.5 16 64V352c0 26.5 21.5 48 48 48H231.8h.3H343.9h.3H512c26.5 0 48-21.5 48-48V64c0-26.5-21.5-48-48-48H64zM222.6 416H64c-35.3 0-64-28.7-64-64V64C0 28.7 28.7 0 64 0H512c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H353.4l13.3 80H440c4.4 0 8 3.6 8 8s-3.6 8-8 8H360 216 136c-4.4 0-8-3.6-8-8s3.6-8 8-8h73.2l13.3-80zm16.2 0l-13.3 80H350.6l-13.3-80H238.8zM496 80H80l0 256H496V80zM80 64H496c8.8 0 16 7.2 16 16V336c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16zm165.7 77.7L179.3 208l66.3 66.3c3.1 3.1 3.1 8.2 0 11.3s-8.2 3.1-11.3 0l-72-72c-3.1-3.1-3.1-8.2 0-11.3l72-72c3.1-3.1 8.2-3.1 11.3 0s3.1 8.2 0 11.3zm96-11.3l72 72c3.1 3.1 3.1 8.2 0 11.3l-72 72c-3.1 3.1-8.2 3.1-11.3 0s-3.1-8.2 0-11.3L396.7 208l-66.3-66.3c-3.1-3.1-3.1-8.2 0-11.3s8.2-3.1 11.3 0z" />
+                    </svg>
+                    <div class="power">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M272 16c0-8.8-7.2-16-16-16s-16 7.2-16 16V272c0 8.8 7.2 16 16 16s16-7.2 16-16V16zM164.3 78.2c7.8-4.1 10.9-13.7 6.9-21.6s-13.7-10.9-21.6-6.9C75 88.3 24 166.2 24 256c0 128.1 103.9 232 232 232s232-103.9 232-232c0-89.8-51-167.7-125.6-206.2c-7.8-4.1-17.5-1-21.6 6.9s-1 17.5 6.9 21.6C412.1 111.5 456 178.6 456 256c0 110.5-89.5 200-200 200S56 366.5 56 256c0-77.4 43.9-144.5 108.3-177.8z"/></svg>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="heading">Additional Display</div>
+                    <div>Click to connect this additional display</div>
+                </div>
+                <div class="image go">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M443.3 267.3c6.2-6.2 6.2-16.4 0-22.6l-176-176c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L393.4 240 16 240c-8.8 0-16 7.2-16 16s7.2 16 16 16l377.4 0L244.7 420.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l176-176z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- This is where the RFB elements will attach -->
+    <div id="noVNC_container">
+        <!-- Note that Google Chrome on Android doesn't respect any of these,
+             html attributes which attempt to disable text suggestions on the
+             on-screen keyboard. Let's hope Chrome implements the ime-mode
+             style for example -->
+        <textarea id="noVNC_keyboardinput" autocapitalize="off"
+            autocomplete="off" spellcheck="false" tabindex="-1"></textarea>
+    </div>
+    <div id="noVNC_identify_monitor">0</div>
+</body>

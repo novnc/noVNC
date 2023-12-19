@@ -47,3 +47,5 @@ This table keeps track of performance of pre-defined recordings, defined in the 
 | losangeles.1 | 08233e6 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2272ms |
 | newyork.1 | base64opt | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2273ms |
 | losangeles.1 | base64opt | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 1847ms |
+| newyork.1 | 4a6aa73 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 119 | False | 2128ms |
+| losangeles.1 | 4a6aa73 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 119 | False | 1766ms |
