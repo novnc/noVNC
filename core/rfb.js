@@ -147,7 +147,7 @@ export default class RFB extends EventTargetMixin {
         this._clipboardBinary = true;
         this._resendClipboardNextUserDrivenEvent = true;
         this._useUdp = true;
-        this._hiDpi = false;
+        this._hiDpi = 'hiDpi' in options ? !!options.hiDpi : false;
         this._enableQOI = false;
         this.TransitConnectionStates = {
             Tcp: Symbol("tcp"),
@@ -1680,10 +1680,11 @@ export default class RFB extends EventTargetMixin {
     _handleControlMessage(event) {
         if (this._isPrimaryDisplay) {
             // Secondary to Primary screen message
+            let size;
             switch (event.data.eventType) {
                 case 'register':
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
-                    const size = this._screenSize();
+                    size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     this._sendEncodings();
                     this._updateContinuousUpdates();
@@ -1694,6 +1695,8 @@ export default class RFB extends EventTargetMixin {
                     console.log('reattach message')
                     console.log(event.data)
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    size = this._screenSize();
+                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     this._sendEncodings();
                     this._updateContinuousUpdates();
                     this.dispatchEvent(new CustomEvent("screenregistered", {}));
@@ -1772,8 +1775,8 @@ export default class RFB extends EventTargetMixin {
             //let screen = this._screenSize().screens[0];
             //
             let size = this._screenSize();
-            this._display.resize(size.screens[0].containerWidth, size.screens[0].containerHeight);
-            this._display.autoscale(size.screens[0].containerWidth, size.screens[0].containerHeight, size.screens[0].scale);
+            this._display.resize(size.screens[0].serverWidth, size.screens[0].serverHeight);
+            this._display.autoscale(size.screens[0].serverWidth, size.screens[0].serverHeight, size.screens[0].scale);
             screen = this._screenSize().screens[0];
             
             const registertype = (currentScreen) ? 'reattach' : 'register'

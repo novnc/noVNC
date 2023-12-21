@@ -62,7 +62,8 @@ const UI = {
                         { 
                             shared: UI.getSetting('shared', true),
                             repeaterID: UI.getSetting('repeaterID', false),
-                            credentials: { password: null } 
+                            credentials: { password: null },
+                            hiDpi: UI.getSetting('enable_hidpi', true, false)
                         },
                         false // Not a primary display
                     );
@@ -96,7 +97,6 @@ const UI = {
         UI.rfb.keyboard.enableIME = UI.getSetting('enable_ime', true, false);
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
         UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc', true, false);
-        UI.rfb.enableHiDpi = UI.getSetting('enable_hidpi', true, false);
         UI.rfb.mouseButtonMapper = UI.initMouseButtonMapper();
         if (UI.rfb.videoQuality === 5) {
             UI.rfb.enableQOI = true;
