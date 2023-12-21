@@ -2105,6 +2105,9 @@ export default class RFB extends EventTargetMixin {
         ev.stopPropagation();
         ev.preventDefault();
 
+        // Ensure keys down are synced between client and server
+        this._keyboard.clearKeysDown(ev);
+
         // On MacOs we need to translate zooming CMD+wheel to CTRL+wheel
         if (isMac() && (this._keyboard._keyDownList["MetaLeft"] || this._keyboard._keyDownList["MetaRight"])) {
             this._keyboard._sendKeyEvent(this._keyboard._keyDownList["MetaLeft"], "MetaLeft", false);
