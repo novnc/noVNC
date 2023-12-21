@@ -24,7 +24,7 @@ body {
   padding:0;
   font-family: "Poppins", "Helvetica";
   letter-spacing: 0.05em;
-  background: white url('../images/icons/kasm_logo.svg') no-repeat fixed center;
+  background: white url('../images/splash.jpg') no-repeat fixed center;
   height:100%;
   touch-action: none;
 }
