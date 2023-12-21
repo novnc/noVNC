@@ -281,16 +281,16 @@ msgid "Cancel"
 msgstr "取消"
 
 msgid "Credentials are required"
-msgstr "需要证件"
+msgstr "需要凭证"
 
 msgid "Drag"
 msgstr "拖"
 
 msgid "Toggle Windows"
-msgstr "切换窗口"
+msgstr "切换 Windows"
 
 msgid "Windows"
-msgstr "视窗"
+msgstr "Windows"
 
 msgid "Quality:"
 msgstr "质量："
@@ -311,7 +311,7 @@ msgid "Send Credentials"
 msgstr "发送凭证"
 
 msgid "Keys"
-msgstr "钥匙"
+msgstr "按键"
 
 msgid "Game Cursor Mode"
 msgstr "游戏光标模式"
@@ -325,8 +325,8 @@ msgstr "游戏模式暂停，点击屏幕恢复游戏模式。"
 msgid "Clipboard Up"
 msgstr "向上剪贴板"
 
-msgid "CLipboard Down"
-msgstr "剪贴板下"
+msgid "Clipboard Down"
+msgstr "向下剪贴板"
 
 msgid "Clipboard Seamless"
 msgstr "无缝剪贴板"
@@ -350,7 +350,7 @@ msgid "Enable Pointer Lock"
 msgstr "启用指针锁定"
 
 msgid "IME Input Mode"
-msgstr "输入法输入法"
+msgstr "启用本地输入法"
 
 msgid "Show Virtual Keyboard Control"
 msgstr "显示虚拟键盘控制"
@@ -395,13 +395,13 @@ msgid "High"
 msgstr "高的"
 
 msgid "Extreme"
-msgstr "极端"
+msgstr "极致"
 
 msgid "Lossless"
 msgstr "无损"
 
 msgid "Custom"
-msgstr "风俗"
+msgstr "自定义"
 
 msgid "Anti-Aliasing:"
 msgstr "抗锯齿："
@@ -410,16 +410,16 @@ msgid "Auto Dynamic"
 msgstr "自动动态"
 
 msgid "Off"
-msgstr "离开"
+msgstr "关闭"
 
 msgid "On"
-msgstr "在"
+msgstr "开启"
 
 msgid "Dynamic Quality Min:"
-msgstr "动态质量分钟："
+msgstr "最低动态质量："
 
 msgid "Dynamic Quality Max:"
-msgstr "动态质量最大值："
+msgstr "最高动态质量："
 
 msgid "Treat Lossless:"
 msgstr "对待无损："
