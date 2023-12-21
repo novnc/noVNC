@@ -1738,6 +1738,11 @@ export default class RFB extends EventTargetMixin {
                         this._mouseLastScreenIndex = event.data.mouseLastScreenIndex;
                     }
                     break;
+                case 'receivedClipboard':
+                    if (event.data.mouseLastScreenIndex === this._display.screenIndex) {
+                        this._write_binary_clipboard(...event.data.args);
+                    }
+                    break;
                 case 'disconnect':
                     this.disconnect();
                     break;
@@ -3216,31 +3221,39 @@ export default class RFB extends EventTargetMixin {
             if (this.clipboardBinary) {
                 this._clipHash = 0;
 
-                navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
-                    () => {
-                        if (textdata) {
-                            this._clipHash = hashUInt8Array(textdata);
-                        }
-                    },
-                    (err) => { 
-                        Log.Error("Error writing to client clipboard: " + err);
-                        // Lets try writeText
-                        if (textdata.length > 0) {
-                            navigator.clipboard.writeText(textdata).then(
-                                () => {
-                                    this._clipHash = hashUInt8Array(textdata);
-                                },
-                                (err) => {
-                                    Log.Error("Error writing text to client clipboard: " + err);
-                                }
-                            );
-                        }
-                    }
-                );
+                if (this._mouseLastScreenIndex === 0) {
+                    this._write_binary_clipboard(clipItemData, textdata)
+                } else {
+                    this._proxyRFBMessage('receivedClipboard', [ clipItemData, textdata ]);
+                }
             }
         }
 
         return true;
+    }
+
+    _write_binary_clipboard(clipItemData, textdata) {
+        navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
+            () => {
+                if (textdata) {
+                    this._clipHash = hashUInt8Array(textdata);
+                }
+            },
+            (err) => { 
+                Log.Error("Error writing to client clipboard: " + err);
+                // Lets try writeText
+                if (textdata.length > 0) {
+                    navigator.clipboard.writeText(textdata).then(
+                        () => {
+                            this._clipHash = hashUInt8Array(textdata);
+                        },
+                        (err) => {
+                            Log.Error("Error writing text to client clipboard: " + err);
+                        }
+                    );
+                }
+            }
+        );
     }
 
     _handle_server_stats_msg() {
