@@ -147,7 +147,7 @@ export default class RFB extends EventTargetMixin {
         this._clipboardBinary = true;
         this._resendClipboardNextUserDrivenEvent = true;
         this._useUdp = true;
-        this._hiDpi = false;
+        this._hiDpi = 'hiDpi' in options ? !!options.hiDpi : false;
         this._enableQOI = false;
         this.TransitConnectionStates = {
             Tcp: Symbol("tcp"),
@@ -1680,10 +1680,11 @@ export default class RFB extends EventTargetMixin {
     _handleControlMessage(event) {
         if (this._isPrimaryDisplay) {
             // Secondary to Primary screen message
+            let size;
             switch (event.data.eventType) {
                 case 'register':
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
-                    const size = this._screenSize();
+                    size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     this._sendEncodings();
                     this._updateContinuousUpdates();
@@ -1694,6 +1695,10 @@ export default class RFB extends EventTargetMixin {
                     console.log('reattach message')
                     console.log(event.data)
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
+                    size = this._screenSize();
+                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
+                    this._sendEncodings();
+                    this._updateContinuousUpdates();
                     this.dispatchEvent(new CustomEvent("screenregistered", {}));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
                     break;
@@ -1736,6 +1741,11 @@ export default class RFB extends EventTargetMixin {
                         this._mouseLastScreenIndex = event.data.mouseLastScreenIndex;
                     }
                     break;
+                case 'receivedClipboard':
+                    if (event.data.mouseLastScreenIndex === this._display.screenIndex) {
+                        this._write_binary_clipboard(...event.data.args);
+                    }
+                    break;
                 case 'disconnect':
                     this.disconnect();
                     break;
@@ -1765,8 +1775,8 @@ export default class RFB extends EventTargetMixin {
             //let screen = this._screenSize().screens[0];
             //
             let size = this._screenSize();
-            this._display.resize(size.screens[0].containerWidth, size.screens[0].containerHeight);
-            this._display.autoscale(size.screens[0].containerWidth, size.screens[0].containerHeight, size.screens[0].scale);
+            this._display.resize(size.screens[0].serverWidth, size.screens[0].serverHeight);
+            this._display.autoscale(size.screens[0].serverWidth, size.screens[0].serverHeight, size.screens[0].scale);
             screen = this._screenSize().screens[0];
             
             const registertype = (currentScreen) ? 'reattach' : 'register'
@@ -2097,6 +2107,9 @@ export default class RFB extends EventTargetMixin {
 
         ev.stopPropagation();
         ev.preventDefault();
+
+        // Ensure keys down are synced between client and server
+        this._keyboard.clearKeysDown(ev);
 
         // On MacOs we need to translate zooming CMD+wheel to CTRL+wheel
         if (isMac() && (this._keyboard._keyDownList["MetaLeft"] || this._keyboard._keyDownList["MetaRight"])) {
@@ -2868,6 +2881,8 @@ export default class RFB extends EventTargetMixin {
         // Disable copyrect when using multiple displays
         if (this._display.screens.length === 1) {
             encs.push(encodings.encodingCopyRect);
+        } else {
+            Log.Debug("Multiple displays detected, disabling copyrect encoding.");
         }
         // Only supported with full depth support
         if (this._fbDepth == 24) {
@@ -3212,31 +3227,39 @@ export default class RFB extends EventTargetMixin {
             if (this.clipboardBinary) {
                 this._clipHash = 0;
 
-                navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
-                    () => {
-                        if (textdata) {
-                            this._clipHash = hashUInt8Array(textdata);
-                        }
-                    },
-                    (err) => { 
-                        Log.Error("Error writing to client clipboard: " + err);
-                        // Lets try writeText
-                        if (textdata.length > 0) {
-                            navigator.clipboard.writeText(textdata).then(
-                                () => {
-                                    this._clipHash = hashUInt8Array(textdata);
-                                },
-                                (err) => {
-                                    Log.Error("Error writing text to client clipboard: " + err);
-                                }
-                            );
-                        }
-                    }
-                );
+                if (this._mouseLastScreenIndex === 0) {
+                    this._write_binary_clipboard(clipItemData, textdata)
+                } else {
+                    this._proxyRFBMessage('receivedClipboard', [ clipItemData, textdata ]);
+                }
             }
         }
 
         return true;
+    }
+
+    _write_binary_clipboard(clipItemData, textdata) {
+        navigator.clipboard.write([new ClipboardItem(clipItemData)]).then(
+            () => {
+                if (textdata) {
+                    this._clipHash = hashUInt8Array(textdata);
+                }
+            },
+            (err) => { 
+                Log.Error("Error writing to client clipboard: " + err);
+                // Lets try writeText
+                if (textdata.length > 0) {
+                    navigator.clipboard.writeText(textdata).then(
+                        () => {
+                            this._clipHash = hashUInt8Array(textdata);
+                        },
+                        (err) => {
+                            Log.Error("Error writing text to client clipboard: " + err);
+                        }
+                    );
+                }
+            }
+        );
     }
 
     _handle_server_stats_msg() {
