@@ -1750,6 +1750,12 @@ const UI = {
                 case 'control_displays':
                     parent.postMessage({ action: 'can_control_displays', value: true}, '*' );
                     break;
+                case 'terminate':
+                    //terminate a session, different then disconnect in that it is assumed KasmVNC will be shutdown
+                    if (UI.rfb) {
+                        UI.rfb.terminate();
+                    }
+                    break;
 
             }
         }
