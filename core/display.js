@@ -124,7 +124,7 @@ export default class Display {
     // ===== PROPERTIES =====
 
     get screens() { return this._screens; }
-    get screenId() { return this._screenID; }
+    get screenID() { return this._screenID; }
     get screenIndex() {
         // A secondary screen should not have a screen index of 0, but it will be 0 until registration is complete
         // returning a -1 lets the caller know the screen has not been registered yet

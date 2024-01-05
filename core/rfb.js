@@ -123,7 +123,7 @@ export default class RFB extends EventTargetMixin {
         this._supportsContinuousUpdates = false;
         this._enabledContinuousUpdates = false;
         this._supportsSetDesktopSize = false;
-        this._screenID = uuidv4();
+        this._connectionID = window.location.href.split('?')[0].match(/^(.+)(\/)/)[0];
         this._screenIndex = 0;
         this._screenFlags = 0;
         this._qemuExtKeyEventSupported = false;
@@ -220,7 +220,7 @@ export default class RFB extends EventTargetMixin {
         this._secondaryDisplays = {};
         this._supportsBroadcastChannel = (typeof BroadcastChannel !== "undefined");
         if (this._supportsBroadcastChannel) {
-            this._controlChannel = new BroadcastChannel("registrationChannel");
+            this._controlChannel = new BroadcastChannel(this._connectionID);
             this._controlChannel.addEventListener('message', this._handleControlMessage.bind(this));
             Log.Debug("Attached to registrationChannel for secondary displays.")
             
@@ -331,6 +331,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     // ===== PROPERTIES =====
+    
+    get connectionID() { return this._connectionID; }
 
     get translateShortcuts() { return this._keyboard.translateShortcuts; }
     set translateShortcuts(value) {
@@ -1375,7 +1377,7 @@ export default class RFB extends EventTargetMixin {
             this._sock.close();
         } else {
             if (this._primaryDisplayChannel) {
-                this._primaryDisplayChannel.postMessage({eventType: 'unregister', screenID: this._screenID})
+                this._primaryDisplayChannel.postMessage({eventType: 'unregister', screenID: this._display.screenID})
                 this._primaryDisplayChannel.removeEventListener('message', this._handleSecondaryDisplayMessage);
                 this._primaryDisplayChannel.close();
                 this._primaryDisplayChannel = null;
@@ -1713,7 +1715,7 @@ export default class RFB extends EventTargetMixin {
         let message = { 
             eventType: messageType,
             args: data,
-            screenId: this._display.screenId,
+            screenID: this._display.screenID,
             screenIndex: this._display.screenIndex,
             mouseLastScreenIndex: this._mouseLastScreenIndex,
         }
@@ -1834,7 +1836,7 @@ export default class RFB extends EventTargetMixin {
         if (!this._isPrimaryDisplay){
             let message = {
                 eventType: 'unregister',
-                screenID: this._display.screenId
+                screenID: this._display.screenID
             }
             this._controlChannel.postMessage(message);
         }
