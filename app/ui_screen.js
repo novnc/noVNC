@@ -104,7 +104,7 @@ const UI = {
 
         if (UI.supportsBroadcastChannel) {
             console.log('add event listener')
-            UI.controlChannel = new BroadcastChannel("registrationChannel");
+            UI.controlChannel = new BroadcastChannel(UI.rfb.connectionID);
             UI.controlChannel.addEventListener('message', UI.handleControlMessage)
         }
 
