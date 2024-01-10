@@ -35,6 +35,7 @@ hash autocutsel 2>/dev/null || {
 }
 
 info "updating vnc startup initialization script @ ~/.vnc/xstartup"
+mkdir -p ~/.vnc
 cat > ~/.vnc/xstartup << EOF
 #!/bin/bash
 xrdb $HOME/.Xresources
@@ -44,11 +45,12 @@ EOF
 
 display=$(/opt/TurboVNC/bin/vncserver -list | grep -E "^:" | awk '{print $1}')
 
-if [ -z $display ]; then
-    info "restarting vnc server"
+if [ ! -z $display ]; then
+    info "restarting vnc server on display $display"
     /opt/TurboVNC/bin/vncserver -kill $display
-    /opt/TurboVNC/bin/vncserver -localhost -depth 24 -geometry 3440x1440
 fi
+/opt/TurboVNC/bin/vncserver -localhost -depth 24 -geometry 3440x1440
+
 cd utils
 
 # Start noVNC
