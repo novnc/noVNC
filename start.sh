@@ -1,5 +1,6 @@
 #!/bin/bash
 # Sample usage: RUN_IN_BACKGROUND=1 ./start.sh
+# set FORCE_KILL=1 to force restart vnc server and client if it is already running
 # set FORCE_REINSTALL_TURBOVNC=1 to reinstall turbovnc to the latest version
 # set RUN_IN_BACKGROUND=1 to start proxy and vnc client in background
 
@@ -12,6 +13,13 @@ cd "$SCRIPT_DIR"
 
 hasUpdated=0
 NOVNC_PORT=6080
+
+if [ -z $FORCE_KILL ]; then
+    if pgrep -f novnc_proxy >/dev/null && pgrep -f vncserver >/dev/null && pgrep -f xfce4 >/dev/null; then
+        printf "Virtual desktop already running on $NOVNC_PORT-$WEB_HOST/vnc.html\n"
+        exit
+    fi
+fi
 
 # desktop environment installation
 if ! dpkg-query -W -f='${Status}' xfce4 2>/dev/null | grep -q "install ok installed"; then
