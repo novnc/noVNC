@@ -1,8 +1,11 @@
 #!/bin/bash
+# By default, start script starts a gnome desktop environment on a vnc server, which can be connected via the web browser
+#
 # Sample usage: RUN_IN_BACKGROUND=1 ./start.sh
 # set FORCE_KILL=1 to force restart vnc server and client if it is already running
 # set FORCE_REINSTALL_TURBOVNC=1 to reinstall turbovnc to the latest version
 # set RUN_IN_BACKGROUND=1 to start proxy and vnc client in background
+# set DESKTOP_ENV=xfce to switch desktop environments to xfce instead of default gnome
 
 set -e
 
@@ -12,7 +15,10 @@ cd "$SCRIPT_DIR"
 . ./utils/shell-logger
 
 hasUpdated=0
+desktopEnv=${DESKTOP_ENV:-gnome} # Supports xfce or gnome, others like kde needs intervention in this script
 NOVNC_PORT=6080
+
+info "Selected Desktop environment :: $desktopEnv"
 
 if [ -z $FORCE_KILL ]; then
     if pgrep -f novnc_proxy >/dev/null && pgrep -f vncserver >/dev/null && pgrep -f xfce4 >/dev/null; then
@@ -21,12 +27,14 @@ if [ -z $FORCE_KILL ]; then
     fi
 fi
 
-# desktop environment installation
+# desktop environment installation - gnome installed by default in cloud workstation, so we skip that
 if ! dpkg-query -W -f='${Status}' xfce4 2>/dev/null | grep -q "install ok installed"; then
     sudo apt update
     hasUpdated=1
-    info "installing xfce4 desktop environment"
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y xfce4 xfce4-goodies
+    if [ $desktopEnv == "xfce" ]; then
+        info "installing xfce4 desktop environment"
+        sudo DEBIAN_FRONTEND=noninteractive apt install -y xfce4 xfce4-goodies
+    fi
 fi
 
 # vnc server installation
@@ -36,22 +44,31 @@ if [ ! -d /opt/TurboVNC ] || [ ! -z $FORCE_REINSTALL_TURBOVNC ]; then
     sudo dpkg -i ./vnc/turbovnc.deb # Install turbo vnc
 fi
 
-# utils
-hash autocutsel 2>/dev/null || { 
-    info "installing autocutsel for clipboard operations"
-    if [ $hasUpdated -eq 0 ]; then
-        sudo apt update
-    fi
-    sudo apt install autocutsel 
-}
-
 info "updating vnc startup initialization script @ ~/.vnc/xstartup"
 mkdir -p ~/.vnc
+
+if [ $desktopEnv == "gnome" ]; then
+    startCmd="$(which gnome-session) &"
+    wm=""
+elif [ $desktopEnv == "xfce" ]; then
+    startCmd="startxcfe4 &" # not required for turbovnc
+    wm="xfce"
+else
+    error "invalid desktop environment selected"
+    exit 1
+fi
+
+# All other vnc servers uses xstartup
 cat > ~/.vnc/xstartup << EOF
-#!/bin/bash
+#!/bin/sh
 xrdb $HOME/.Xresources
-# autocutsel -s CLIPBOARD -fork
-startxfce4 &
+$startCmd
+EOF
+chmod u+x ~/.vnc/xstartup
+
+# Turbo vnc uses this configuration instead
+cat > ~/.vnc/turbovncserver.conf << EOF
+\$wm = "$wm";
 EOF
 
 display=$(/opt/TurboVNC/bin/vncserver -list | grep -E "^:" | awk '{print $1}')
