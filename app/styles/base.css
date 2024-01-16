@@ -1371,6 +1371,12 @@ a:visited {
 #noVNC_setting_enable_hidpi_option.show {
   display: flex!important;
 }
+#noVNC_auto_placement_option {
+  display: none!important;
+}
+#noVNC_auto_placement_option.show {
+  display: flex!important;
+}
 #noVNC_refreshMonitors {
   position: absolute;
   top: 20px;

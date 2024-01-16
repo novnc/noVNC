@@ -1,0 +1,213 @@
+:root {
+    --text-color: rgb(147, 166, 188);
+    --bg: rgb(33 39 63 / 0.98);
+    --gray-500: 107 114 128;
+}
+.light {
+    --text-color: rgb(22, 45, 72);
+    --bg: rgba(234, 235, 240, 0.98);
+    --gray-500: 209 213 219;
+}
+#mySidenav {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    position: fixed;
+    z-index: 999999;
+    transition: 0.5s;
+    border-radius: 0;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(calc(-100% - 30px));
+    color: var(--text-color);
+}
+#mySidenav * {
+    box-sizing: border-box;
+}
+#mySidenav button {
+    border: 0;
+    color: var(--text-color);
+}
+.sidenavnew {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    position: fixed;
+    z-index: 999999;
+    background-color: var(--bg);
+    overflow-x: hidden;
+    transition: 0.5s;
+    border-radius: 0;
+    width: 100%;
+    overflow-y: auto;
+    height: 100%;
+    display: flex;
+    padding: 30px;
+    flex-direction: column;
+}
+#mySidenav .sidebar-icons-list .sidebar-icons {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: transparent;
+    margin: 0;
+    border-radius: 5px;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    height: auto;
+    gap: 12px;
+    text-align: initial;
+}
+#mySidenav.loadin {
+    transform: translateX(-100%);
+}
+#mySidenav .innertab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 5px;
+}
+#mySidenav.loadin.show_nav {
+    left: 0;
+    transform: translateX(0);
+}
+#mySidenav .tab {
+    position: absolute;
+    right: -30px;
+    top: calc(50% - 30px);
+    white-space: nowrap;
+}
+#menuTab.dragging {
+    padding-top: 5rem/* 80px */;
+    padding-bottom: 5rem/* 80px */;
+    margin-top: -5rem/* -80px */;
+    padding-right: 2rem/* 32px */;
+    margin-right: -2rem/* -32px */;
+}
+.sidebar-icon-container {
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+}
+.text-white {
+    --text-opacity: 1;
+    color: rgb(255 255 255 / var(--text-opacity));
+}
+.bg-gray-500 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--gray-500) / var(--tw-bg-opacity));
+}
+svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa {
+    overflow: visible;
+    box-sizing: content-box;
+}
+
+.svg-inline--fa.fa-lg {
+    vertical-align: -0.2em;
+}
+
+.fa-lg {
+    font-size: 1.25em;
+    line-height: 0.05em;
+    vertical-align: -0.075em;
+}
+
+.svg-inline--fa {
+    display: var(--fa-display, inline-block);
+    height: 1em;
+    overflow: visible;
+    vertical-align: -0.125em;
+}
+.bg-emerald-500 {
+    --bg-opacity: 1;
+    background-color: rgb(16 185 129 / var(--bg-opacity));
+}
+.bg-transparent {
+    background-color: transparent;
+}
+.touch-none {
+    touch-action: none;
+}
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+#mySidenav .tabinner {
+    background: var(--bg);
+    width: 30px;
+}
+.justify-between {
+    justify-content: space-between;
+}
+.rounded-r-lg {
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+.absolute {
+    position: absolute;
+}
+.overflow-hidden {
+    overflow: hidden;
+}
+.flex-col {
+    flex-direction: column;
+}
+.flex {
+    display: flex;
+}
+.py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+.bg-black\/5 {
+    background-color: rgb(0 0 0 / 0.05);
+}
+.rounded-tr-lg {
+    border-top-right-radius: 0.5rem;
+}
+.justify-center {
+    justify-content: center;
+}
+.items-center {
+    align-items: center;
+}
+.cursor-move {
+    cursor: move;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.py-5 {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.grid {
+    display: grid;
+}
+.font-bold {
+    font-weight: 700;
+}
+
+.text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+}
+.text-xs {
+    font-size: 0.75rem/* 12px */;
+    line-height: 1rem/* 16px */;
+}

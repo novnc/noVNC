@@ -12,15 +12,14 @@ const UI = {
     screens: [],
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
     controlChannel: null,
+    draggingTab: false,
     //Initial Loading of the UI
     prime() {
-        console.log('prime')
         this.start();
     },
 
     //Render default UI
     start() {
-        console.log('start')
         window.addEventListener("unload", (e) => { 
             if (UI.rfb) { 
                 UI.disconnect(); 
@@ -33,10 +32,88 @@ const UI = {
 
         UI.addDefaultHandlers();
         UI.updateVisualState('disconnected');
+
+        const webui_mode = window.localStorage.getItem('theme')?.toLowerCase() || 'dark'
+        document.getElementById('screen').classList.add(webui_mode);
+
     },
 
     addDefaultHandlers() {
         document.getElementById('noVNC_connect_button').addEventListener('click', UI.connect);
+        // Control panel events
+        document.getElementById('toggleMenu').addEventListener('click', UI.toggleMenu);
+        document.getElementById('closeMenu').addEventListener('click', UI.toggleMenu);
+        document.getElementById('fullscreenTrigger').addEventListener('click', UI.fullscreenTrigger);
+        document.getElementById('menuTab').addEventListener('mousemove', UI.dragTab);
+        document.getElementById('menuTab').addEventListener('mouseup', UI.dragEnd);
+        document.getElementById('menuTab').addEventListener('touchmove', UI.touchDragTab);
+        document.getElementById('dragHandler').addEventListener('mousedown', UI.dragStart);
+        document.getElementById('dragHandler').addEventListener('touchstart', UI.dragStart);
+        document.getElementById('dragHandler').addEventListener('mouseup', UI.dragEnd);
+        document.getElementById('dragHandler').addEventListener('touchend', UI.dragEnd);
+        document.getElementById('menuTab').addEventListener('mouseleave', UI.dragEnd);
+        // End control panel events
+    },
+
+    dragStart(e) {
+        UI.draggingTab = true
+    },
+    dragEnd(e) {
+        document.getElementById('menuTab').classList.remove('dragging')
+        UI.draggingTab = false
+    },
+
+    dragTab(e) {
+        if (UI.draggingTab) {
+            document.getElementById('menuTab').style.top = (e.clientY - 10) + 'px'
+            document.getElementById('menuTab').classList.add('dragging')
+        }
+    },
+    touchDragTab(e) {
+        if (UI.draggingTab) {
+            e.preventDefault()
+            const touch = e.touches[0]
+            document.getElementById('menuTab').style.top = (touch.clientY - 10) + 'px'
+            document.getElementById('menuTab').classList.add('dragging')
+        }
+    },
+
+    fullscreenTrigger() {
+        if (document.fullscreenElement || // alternative standard method
+            document.mozFullScreenElement || // currently working methods
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        } else {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            } else if (document.body.msRequestFullscreen) {
+                document.body.msRequestFullscreen();
+            }
+        }
+
+    },
+
+    toggleMenu() {
+        document.getElementById('mySidenav').classList.toggle('show_nav')
+        const show = document.getElementById('mySidenav').classList.contains('show_nav')
+        if (show) {
+            document.getElementById('toggleMenuIcon').classList.add('rotate-180')
+        } else {
+            document.getElementById('toggleMenuIcon').classList.remove('rotate-180')
+        }
     },
 
     getSetting(name, isBool, default_value) {
@@ -55,7 +132,16 @@ const UI = {
     },
 
     connect() {
-        console.log('connect')
+
+        let details = null
+        const initialAutoPlacementValue = window.localStorage.getItem('autoPlacement')
+        if (initialAutoPlacementValue === null) {
+            details = {
+                left: window.screenLeft,
+                top: window.screenTop
+            }
+        }
+
         UI.rfb = new RFB(document.getElementById('noVNC_container'),
                         document.getElementById('noVNC_keyboardinput'),
                         "", //URL
@@ -103,20 +189,17 @@ const UI = {
         }
 
         if (UI.supportsBroadcastChannel) {
-            console.log('add event listener')
             UI.controlChannel = new BroadcastChannel(UI.rfb.connectionID);
             UI.controlChannel.addEventListener('message', UI.handleControlMessage)
         }
 
         //attach this secondary display to the primary display
         if (UI.screenID === null) {
-            const screen = UI.rfb.attachSecondaryDisplay();
+            const screen = UI.rfb.attachSecondaryDisplay(details);
             UI.screenID = screen.screenID
             UI.screen = screen
         } else {
-            console.log('else reattach screens')
-            console.log(UI.screen)
-            UI.rfb.reattachSecondaryDisplay(UI.screen);
+            UI.rfb.reattachSecondaryDisplay(UI.screen, details);
         }
         document.querySelector('title').textContent = 'Display ' + UI.screenID
 
@@ -171,7 +254,6 @@ const UI = {
                 document.documentElement.classList.add("noVNC_disconnecting");
                 break;
             case 'disconnected':
-                console.log('disconnected')
                 document.documentElement.classList.add("noVNC_disconnected");
                 if (connect_el.classList.contains("noVNC_hidden")) {
                     connect_el.classList.remove('noVNC_hidden');
@@ -191,7 +273,6 @@ const UI = {
 
     identify(data) {
         UI.screens = data.screens
-        console.log('identify')
         const screen = data.screens.find(el => el.id === UI.screenID)
         if (screen) {
             document.getElementById('noVNC_identify_monitor').innerHTML = screen.num
@@ -274,7 +355,6 @@ const UI = {
         if (UI.rfb) {
             UI.rfb.disconnect();
             if (UI.supportsBroadcastChannel) {
-                console.log('remove event listeners')
                 UI.controlChannel.removeEventListener('message', UI.handleControlMessage);
                 UI.rfb.removeEventListener("connect", UI.connectFinished);
             }    
@@ -329,5 +409,9 @@ const UI = {
 }
 
 UI.prime();
+const initialAutoPlacementValue = window.localStorage.getItem('autoPlacement')
 
+if ('getScreenDetails' in window && initialAutoPlacementValue === null) {
+    UI.connect();
+}
 export default UI;

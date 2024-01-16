@@ -743,16 +743,16 @@ export default class RFB extends EventTargetMixin {
 
     // ===== PUBLIC METHODS =====
 
-    attachSecondaryDisplay() {
+    attachSecondaryDisplay(details) {
         this._updateConnectionState('connecting');
-        const screen = this._registerSecondaryDisplay();
+        const screen = this._registerSecondaryDisplay(false, details);
         this._updateConnectionState('connected');
         return screen
     }
 
-    reattachSecondaryDisplay(screen) {
+    reattachSecondaryDisplay(screen, details) {
         this._updateConnectionState('connecting');
-        this._registerSecondaryDisplay(screen);
+        this._registerSecondaryDisplay(screen, details);
         this._updateConnectionState('connected');
         return screen
     }
@@ -1543,7 +1543,15 @@ export default class RFB extends EventTargetMixin {
                    size.serverWidth + 'x' + size.serverHeight);
         } else if (this._display.screenIndex > 0) {
             //re-register the secondary display with new resolution
-            this._registerSecondaryDisplay();
+            let details = null
+            const initialAutoPlacementValue = window.localStorage.getItem('autoPlacement')
+            if (initialAutoPlacementValue === null) {
+                details = {
+                    left: window.screenLeft,
+                    top: window.screenTop
+                }
+            }
+            this._registerSecondaryDisplay(false, details);
         }
 
         if (this._display.screens.length > 1) {
@@ -1729,12 +1737,16 @@ export default class RFB extends EventTargetMixin {
             let coords;
             switch (event.data.eventType) {
                 case 'register':
+                    const details = {
+                        ...event.data.details,
+                        screenID: event.data.screenID
+                    }
                     this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
                     size = this._screenSize();
                     RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
                     this._sendEncodings();
                     this._updateContinuousUpdates();
-                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    this.dispatchEvent(new CustomEvent("screenregistered", { detail: details }));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
                 case 'reattach':
@@ -1843,7 +1855,7 @@ export default class RFB extends EventTargetMixin {
         
     }
 
-    _registerSecondaryDisplay(currentScreen = false) {
+    _registerSecondaryDisplay(currentScreen = false, details = null) {
         if (!this._isPrimaryDisplay) {
             //let screen = this._screenSize().screens[0];
             //
@@ -1864,7 +1876,8 @@ export default class RFB extends EventTargetMixin {
                 pixelRatio: screen.pixelRatio,
                 containerWidth: screen.containerWidth,
                 containerHeight: screen.containerHeight,
-                channel: null
+                channel: null,
+                details
             }
             this._controlChannel.postMessage(message);
 

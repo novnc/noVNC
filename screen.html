@@ -44,6 +44,7 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="app/styles/base.css">
+    <link rel="stylesheet" href="app/styles/screen.css">
 
     <script src="app/error-handler.js"></script>
 
@@ -58,7 +59,7 @@
 
     <script type="module" crossorigin="use-credentials" src="app/ui_screen.js"></script>
 </head>
-<body>
+<body id="screen">
     <div id="noVNC_fallback_error" class="noVNC_center">
         <div>
             <div id="noVNC_close_error" onclick="document.getElementById('noVNC_fallback_error').remove()"></div>
@@ -107,4 +108,81 @@
             autocomplete="off" spellcheck="false" tabindex="-1"></textarea>
     </div>
     <div id="noVNC_identify_monitor">0</div>
+
+    <div id="mySidenav" class="loadin">
+        <div id="menuTab" class="tab touch-none" style="top: 49px;">
+            <div class="flex flex-col tabinner rounded-r-lg">
+                <div id="dragHandler" class="flex justify-center cursor-move items-center bg-black/5 rounded-tr-lg py-1">
+                    <svg aria-hidden="true" focusable="false" data-prefix="fal" data-icon="grip-dots"
+                        class="svg-inline--fa fa-grip-dots " role="img" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 448 512">
+                        <path fill="currentColor"
+                            d="M384 192a16 16 0 1 0 0-32 16 16 0 1 0 0 32zm0-64a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM224 192a16 16 0 1 0 0-32 16 16 0 1 0 0 32zm0-64a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM48 176a16 16 0 1 0 32 0 16 16 0 1 0 -32 0zm64 0a48 48 0 1 1 -96 0 48 48 0 1 1 96 0zM384 352a16 16 0 1 0 0-32 16 16 0 1 0 0 32zm0-64a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM208 336a16 16 0 1 0 32 0 16 16 0 1 0 -32 0zm64 0a48 48 0 1 1 -96 0 48 48 0 1 1 96 0zM64 352a16 16 0 1 0 0-32 16 16 0 1 0 0 32zm0-64a48 48 0 1 1 0 96 48 48 0 1 1 0-96z">
+                        </path>
+                    </svg>
+                </div>
+                <div id="toggleMenu" class="cursor-pointer relative rounded-br-lg innertab">
+                    <div id="toggleMenuIcon" class="flex absolute">
+                        <svg aria-hidden="true" focusable="false" data-prefix="fal" data-icon="chevron-right"
+                            class="svg-inline--fa fa-chevron-right " role="img" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 320 512">
+                            <path fill="currentColor"
+                                d="M299.3 244.7c6.2 6.2 6.2 16.4 0 22.6l-192 192c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L265.4 256 84.7 75.3c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0l192 192z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sidenavnew">
+            <div class="flex justify-between">
+                <span class="text-xl font-bold">Control Panel</span>
+                <button id="closeMenu" class="bg-transparent">
+                    <svg aria-hidden="true" focusable="false" data-prefix="fal" data-icon="xmark"
+                        class="svg-inline--fa fa-xmark text-xl" role="img" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 384 512">
+                        <path fill="currentColor"
+                            d="M324.5 411.1c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6L214.6 256 347.1 123.5c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0L192 233.4 59.5 100.9c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L169.4 256 36.9 388.5c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L192 278.6 324.5 411.1z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-icons-list">
+                <div class="grid grid-cols-4 py-5">
+                    <button id="fullscreenTrigger" class="sidebar-icons !bg-transparent flex flex-col">
+                        <div id="fullscreenBg" class="sidebar-icon-container text-white bg-gray-500"><svg aria-hidden="true" focusable="false"
+                                data-prefix="fal" data-icon="expand" class="svg-inline--fa fa-expand fa-lg " role="img"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                <path fill="currentColor"
+                                    d="M144 32c8.8 0 16 7.2 16 16s-7.2 16-16 16H32V176c0 8.8-7.2 16-16 16s-16-7.2-16-16V48c0-8.8 7.2-16 16-16H144zM0 336c0-8.8 7.2-16 16-16s16 7.2 16 16V448H144c8.8 0 16 7.2 16 16s-7.2 16-16 16H16c-8.8 0-16-7.2-16-16V336zM432 32c8.8 0 16 7.2 16 16V176c0 8.8-7.2 16-16 16s-16-7.2-16-16V64H304c-8.8 0-16-7.2-16-16s7.2-16 16-16H432zM416 336c0-8.8 7.2-16 16-16s16 7.2 16 16V464c0 8.8-7.2 16-16 16H304c-8.8 0-16-7.2-16-16s7.2-16 16-16H416V336z">
+                                </path>
+                            </svg></div>
+                        <div class="flex flex-col">
+                            <div class="font-bold text-xs">Fullscreen</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fullscreenchanged(event) {
+            if (document.fullscreenElement) {
+                if ('keyboard' in navigator) {
+                    navigator.keyboard.lock(["Escape"]);
+                }
+                document.getElementById('fullscreenBg').classList.remove('bg-gray-500')
+                document.getElementById('fullscreenBg').classList.add('bg-emerald-500')
+            } else {
+                if ('keyboard' in navigator) {
+                    navigator.keyboard.unlock(["Escape"]);
+                }
+                document.getElementById('fullscreenBg').classList.remove('bg-emerald-500')
+                document.getElementById('fullscreenBg').classList.add('bg-gray-500')
+            }
+        }
+        document.addEventListener("fullscreenchange", fullscreenchanged);
+        
+    </script>
 </body>

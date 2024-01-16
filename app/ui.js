@@ -66,6 +66,7 @@ const UI = {
     sortedMonitors: [],
     selectedMonitor: null,
     refreshRotation: 0,
+    currentDisplay: null,
 
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
 
@@ -194,6 +195,15 @@ const UI = {
         const llevels = ['error', 'warn', 'info', 'debug'];
         for (let i = 0; i < llevels.length; i += 1) {
             UI.addOption(document.getElementById('noVNC_setting_logging'), llevels[i], llevels[i]);
+        }
+
+        if ('getScreenDetails' in window) {
+            document.getElementById('noVNC_auto_placement_option').classList.add("show");
+        }
+
+        const initialAutoPlacementValue = window.localStorage.getItem('autoPlacement')
+        if (initialAutoPlacementValue === null) {
+            document.getElementById("noVNC_auto_placement").checked = true
         }
 
         // Settings with immediate effects
@@ -507,6 +517,7 @@ const UI = {
         UI.addClickHandle('noVNC_settings_button', UI.toggleSettingsPanel);
 
         document.getElementById("noVNC_setting_enable_perf_stats").addEventListener('click', UI.showStats);
+        document.getElementById("noVNC_auto_placement").addEventListener('change', UI.setAutoPlacement);
 
         UI.addSettingChangeHandler('encrypt');
         UI.addSettingChangeHandler('resize');
@@ -594,6 +605,14 @@ const UI = {
             UI.addClickHandle('noVNC_addMonitor', UI.addSecondaryMonitor);
             UI.addClickHandle('noVNC_refreshMonitors', UI.displaysRefresh);
             
+        }
+    },
+
+    setAutoPlacement(e) {
+        if (e.target.checked === false) {
+            window.localStorage.setItem('autoPlacement', false)
+        } else {
+            window.localStorage.removeItem('autoPlacement')
         }
     },
 
@@ -1891,9 +1910,52 @@ const UI = {
         UI.draw()
     },
 
-    addSecondaryMonitor() {
+    normalizePlacementValues(details) {
+
+    },
+
+    increaseCurrentDisplay(details) {
+        const max = details.screens.length
+        const thisIndex = details.screens.findIndex(el => el === details.currentScreen)
+        if (max === 1) {
+            return 0
+        }
+        if (UI.currentDisplay === null) {
+            UI.currentDisplay = thisIndex
+        }
+        UI.currentDisplay += 1
+        if (UI.currentDisplay === thisIndex) {
+            UI.currentDisplay += 1
+        }
+        if (UI.currentDisplay >= max) {
+            UI.currentDisplay = 0
+        }
+        return UI.currentDisplay
+    },
+
+    async addSecondaryMonitor() {
         let new_display_path = window.location.pathname.replace(/[^/]*$/, '')
         let new_display_url = `${window.location.protocol}//${window.location.host}${new_display_path}screen.html`;
+
+        const auto_placement = document.getElementById('noVNC_auto_placement').checked
+        if (auto_placement && 'getScreenDetails' in window) {
+            let permission = false;
+            try {
+                const { state } = await navigator.permissions.query({ name: 'window-management' });
+                permission = (state === 'granted' || state === 'prompt');
+                if (permission && window.screen.isExtended) {
+                    const details = await window.getScreenDetails()
+                    const current = UI.increaseCurrentDisplay(details) 
+                    let screen = details.screens[current]
+                    const options = 'left='+screen.availLeft+',top='+screen.availTop+',width='+screen.availWidth+',height='+screen.availHeight+',fullscreen'
+                    window.open(new_display_url, '_blank', options);
+                    return
+                }
+            } catch (e) {
+                console.log(e)
+            // Nothing.
+            }
+        }
         
         Log.Debug(`Opening a secondary display ${new_display_url}`)
         window.open(new_display_url, '_blank', 'toolbar=0,location=0,menubar=0');
@@ -1997,7 +2059,12 @@ const UI = {
 
     rect(ctx, x, y, w, h) {
         ctx.beginPath();
-        ctx.roundRect(x, y, w, h, 5);
+        if (typeof ctx.roundRect !== 'undefined') {
+            ctx.roundRect(x, y, w, h, 5);
+        } else {
+            // fallback for old browsers
+            ctx.rect(x, y, w, h);
+        }
         ctx.stroke();
         ctx.closePath();
         ctx.fill();
@@ -2066,7 +2133,6 @@ const UI = {
         for (var i = 0; i < monitors.length; i++) {
             var monitor = monitors[i];
             var a = sortedMonitors.find(el => el.id === monitor.id)
-            console.log(a)
             screens.push({
                 screenID: a.id,
                 serverHeight: Math.round(a.h * scale),
@@ -2080,8 +2146,6 @@ const UI = {
             serverWidth: Math.round(width * scale),
             screens
         }
-        console.log('setScreenPlan')
-        console.log(screenPlan)
         UI.rfb.applyScreenPlan(screenPlan);
     },
 
@@ -2839,11 +2903,19 @@ const UI = {
 
     screenRegistered(e) {
         console.log('screen registered')
+        
         // Get the current screen plan
         // When a new display is added, it is defaulted to be placed to the far right relative to existing displays and to the top
         if (UI.rfb) {
             let screenPlan = UI.rfb.getScreenPlan();
-            console.log(screenPlan)
+            if (e && e.detail) {
+                const { left, top, screenID } = e.detail
+                const current = screenPlan.screens.findIndex(el => el.screenID === screenID)
+                if (current) {
+                    screenPlan.screens[current].x = left
+                    screenPlan.screens[current].y = top
+                }
+            }
 
             UI.updateMonitors(screenPlan)
             UI._identify(UI.monitors)
