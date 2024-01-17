@@ -57,9 +57,6 @@ export default class Display {
 
         this._targetCtx = this._target.getContext('2d');
 
-        // the visible canvas viewport (i.e. what actually gets seen)
-        //this._viewportLoc = { 'x': 0, 'y': 0, 'w': this._target.width, 'h': this._target.height };
-
         Log.Debug("User Agent: " + navigator.userAgent);
 
         // performance metrics
@@ -114,8 +111,6 @@ export default class Display {
         if (!this._isPrimaryDisplay) {
             this._screens[0].channel = new BroadcastChannel(`screen_${this._screenID}_channel`);
             this._screens[0].channel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
-        } else {
-            //this._animationFrameID = window.requestAnimationFrame( () => { this._pushAsyncFrame(); });
         }
 
         Log.Debug("<< Display.constructor");
@@ -214,13 +209,11 @@ export default class Display {
         //recalculate primary display container size
         this._screens[0].containerHeight = this._target.parentNode.offsetHeight;
         this._screens[0].containerWidth = this._target.parentNode.offsetWidth;
-        this._screens[0].width = this._target.parentNode.offsetWidth;
-        this._screens[0].height = this._target.parentNode.offsetHeight;
         this._screens[0].pixelRatio = window.devicePixelRatio;
-        //this._screens[0].width = this._target.width;
-        //this._screens[0].height = this._target.height;
+	this._screens[0].width = this._target.parentNode.offsetWidth;
+	this._screens[0].height = this._target.parentNode.offsetHeight;
 
-        //calculate server-side resolution of each screen
+        //calculate server-side and client-side resolution of each screen
         for (let i=0; i<this._screens.length; i++) {
             let width = max_width || this._screens[i].containerWidth;
             let height = max_height || this._screens[i].containerHeight;
@@ -254,7 +247,12 @@ export default class Display {
                 scale = 1 / scaleRatio;
                 Log.Info('Small device with hDPI screen detected, auto scaling at ' + scaleRatio + ' to ' + width + 'x' + height);
             }
-
+            
+            let clientServerRatioH = this._screens[i].containerHeight / height;
+            let clientServerRatioW = this._screens[i].containerWidth / width;
+            
+            this._screens[i].height = Math.floor(height * clientServerRatioH);
+            this._screens[i].width = Math.floor(width * clientServerRatioW);
             this._screens[i].serverWidth = width;
             this._screens[i].serverHeight = height;
             this._screens[i].scale = scale;
@@ -726,9 +724,9 @@ export default class Display {
             const fbAspectRatio = vp.width / vp.height;
 
             if (fbAspectRatio >= targetAspectRatio) {
-                scaleRatio = containerWidth / vp.width;
+                scaleRatio = containerWidth / vp.serverWidth;
             } else {
-                scaleRatio = containerHeight / vp.height;
+                scaleRatio = containerHeight / vp.serverHeight;
             }
         }
 
