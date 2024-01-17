@@ -11,6 +11,7 @@
 
 import * as Log from '../util/logging.js';
 import Inflator from "../inflator.js";
+import { hashUInt8Array } from '../util/int.js';
 
 export default class TightDecoder {
     constructor(display) {
@@ -21,6 +22,8 @@ export default class TightDecoder {
         this._len = 0;
         this._enableQOI = false;
         this._displayGlobal = display;
+        this._lastTransparentRectHash = '';
+        this._lastTransparentRectInfo = '';
 
         this._zlibs = [];
         for (let i = 0; i < 4; i++) {
@@ -183,43 +186,51 @@ export default class TightDecoder {
         return true;
     }
 
-    // intensity tinted
     _itRect(x, y, width, height, sock, display, depth, frame_id) {
         let data = this._readData(sock);
         if (data === null) {
             return false;
         }
+        
+        //filter out consecutive redundant data
+        let h = hashUInt8Array(data);
+        let info = `${x}.${y}.${width}.${height}`
+        if (!(h === this._lastTransparentRectHash && info === this._lastTransparentRectInfo)) {
+            const r = data[0];
+            const g = data[1];
+            const b = data[2];
+            const a = data[3];
 
-        const r = data[0];
-        const g = data[1];
-        const b = data[2];
-        const a = data[3];
+            const uncompressedSize = Math.floor(width * height / 2 + 1);
 
-        const uncompressedSize = width * height / 2 + 1;
+            this._itzlib.reset();
+            this._itzlib.setInput(data.slice(4));
+            data = this._itzlib.inflate(uncompressedSize);
+            this._itzlib.setInput(null);
 
-        this._itzlib.reset();
-        this._itzlib.setInput(data.slice(4));
-        data = this._itzlib.inflate(uncompressedSize);
-        this._itzlib.setInput(null);
+            // unpack
+            let rgba = new Uint8Array(width * height * 4 + 4);
+            for (let i = 0, d = 0; i < uncompressedSize; i++, d += 8) {
+                let p = data[i];
 
-        // unpack
-        let rgba = new Uint8Array(width * height * 4 + 4);
-        for (let i = 0, d = 0; i < uncompressedSize; i++, d += 8) {
-            let p = data[i];
+                rgba[d + 0] = r;
+                rgba[d + 1] = g;
+                rgba[d + 2] = b;
+                rgba[d + 3] = a * ((p & 15) << 4) / 255;
 
-            rgba[d + 0] = r;
-            rgba[d + 1] = g;
-            rgba[d + 2] = b;
-            rgba[d + 3] = a * ((p & 15) << 4) / 255;
+                rgba[d + 4] = r;
+                rgba[d + 5] = g;
+                rgba[d + 6] = b;
+                rgba[d + 7] = a * (p & 240) / 255;
+            }
 
-            rgba[d + 4] = r;
-            rgba[d + 5] = g;
-            rgba[d + 6] = b;
-            rgba[d + 7] = a * (p & 240) / 255;
+            let img = new ImageData(new Uint8ClampedArray(rgba.buffer, 0, width * height * 4), width, height);
+            display.transparentRect(x, y, width, height, img, frame_id, h);
+            this._lastTransparentRectHash = h;
+            this._lastTransparentRectInfo = info;
+        } else {
+            display.dummyRect(x, y, width, height, frame_id);
         }
-
-        let img = new ImageData(new Uint8ClampedArray(rgba.buffer, 0, width * height * 4), width, height);
-        display.transparentRect(x, y, width, height, img, frame_id);
 
         return true;
     }

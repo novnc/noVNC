@@ -54,7 +54,7 @@ export default class Inflate {
         }
 
         if (this.strm.next_out != expected) {
-            throw new Error("Incomplete zlib block");
+            throw new Error("Incomplete zlib block, got " + this.strm.next_out + " expected " + expected);
         }
 
         return new Uint8Array(this.strm.output.buffer, 0, this.strm.next_out);
