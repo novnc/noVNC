@@ -14,9 +14,7 @@
     "VERSION",
     "docs/API.md",
     "docs/LIBRARY.md",
-    "docs/LICENSE*",
-    "core",
-    "vendor/pako"
+    "docs/LICENSE*"
   ],
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
