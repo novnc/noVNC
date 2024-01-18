@@ -30,10 +30,10 @@ fi
 
 # desktop environment installation - gnome installed by default in cloud workstation, so we skip that
 if ! dpkg-query -W -f='${Status}' xfce4 2>/dev/null | grep -q "install ok installed"; then
-    sudo apt update
-    hasUpdated=1
     if [ $desktopEnv == "xfce" ]; then
         info "installing xfce4 desktop environment"
+        sudo apt update
+        hasUpdated=1
         sudo DEBIAN_FRONTEND=noninteractive apt install -y xfce4 xfce4-goodies
     fi
 fi
