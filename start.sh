@@ -1,7 +1,8 @@
 #!/bin/bash
 # By default, start script starts a gnome desktop environment on a vnc server, which can be connected via the web browser
 #
-# Sample usage: RUN_IN_BACKGROUND=1 ./start.sh
+# Sample usage 1: RUN_IN_BACKGROUND=1 ./start.sh
+# Sample usage 2: RUN_IN_BACKGROUND=1 DESKTOP_ENV=xfce ./start.sh
 # set FORCE_KILL=1 to force restart vnc server and client if it is already running
 # set FORCE_REINSTALL_TURBOVNC=1 to reinstall turbovnc to the latest version
 # set RUN_IN_BACKGROUND=1 to start proxy and vnc client in background
