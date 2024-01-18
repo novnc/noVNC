@@ -3,15 +3,21 @@
 #
 # Sample usage 1: RUN_IN_BACKGROUND=1 ./start.sh
 # Sample usage 2: RUN_IN_BACKGROUND=1 DESKTOP_ENV=xfce ./start.sh
+# Sample usage 3: RUN_IN_BACKGROUND=1 MUTE_ALL_LOGS=1 ./start.sh # for use in bash.rc automation, replace ./start.sh with full path
 # set FORCE_KILL=1 to force restart vnc server and client if it is already running
 # set FORCE_REINSTALL_TURBOVNC=1 to reinstall turbovnc to the latest version
 # set RUN_IN_BACKGROUND=1 to start proxy and vnc client in background
 # set DESKTOP_ENV=xfce to switch desktop environments to xfce instead of default gnome
+# set MUTE_ALL_LOGS=1 to mute all logs to console, for automation purposes
 
 set -e
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR"
+
+if [ ! -z $MUTE_ALL_LOGS ] && [ $MUTE_ALL_LOGS -eq 1 ]; then
+    export LOGGER_LEVEL=ERROR
+fi
 
 . ./utils/shell-logger
 
@@ -22,9 +28,11 @@ NOVNC_PORT=6080
 info "Selected Desktop environment :: $desktopEnv"
 
 if [ -z $FORCE_KILL ]; then
-    if pgrep -f novnc_proxy >/dev/null && pgrep -f vncserver >/dev/null && pgrep -f xfce4 >/dev/null; then
-        printf "Virtual desktop already running on $NOVNC_PORT-$WEB_HOST/vnc.html\n"
-        exit
+    if pgrep -f novnc_proxy >/dev/null && pgrep -f vncserver >/dev/null; then
+        if pgrep -fdesktopEnv $ >/dev/null; then
+            info "Virtual desktop already running on $NOVNC_PORT-$WEB_HOST/vnc.html\n"
+            exit
+        fi
     fi
 fi
 
@@ -101,7 +109,7 @@ if [ ! -z $RUN_IN_BACKGROUND ]; then
     info "running novnc proxy in background"
     mkdir -p ~/logs
     ./novnc_proxy --vnc localhost:$displayPort &> ~/logs/novnc.log &
-    printf "\nNavigate to this URL:\n\n$NOVNC_PORT-$WEB_HOST/vnc.html\n"
+    info "\nNavigate to this URL:\n\n$NOVNC_PORT-$WEB_HOST/vnc.html\n"
 else
     ./novnc_proxy --vnc localhost:$displayPort 
 fi

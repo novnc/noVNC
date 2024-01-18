@@ -8,6 +8,19 @@
 ./start.sh # Starts both vnc client and server
 ```
 
+### Allow clipboard
+For chrome users, please allow the vnc server to use your clipboard. Some clearing of cookies / cache / browsing history might be required
+```
+chrome://settings/content/clipboard
+```
+
+### Automation via bash.rc
+Replace `/home/user/workspace/noVNC/start.sh` with your actual full path of this repository and the start shell
+```sh
+RUN_IN_BACKGROUND=1 MUTE_ALL_LOGS=1 /home/user/workspace/noVNC/start.sh
+```
+
+
 ### Description
 
 noVNC is both a HTML VNC client JavaScript library and an application built on
@@ -24,15 +37,23 @@ for a more complete list with additional info and links.
 
 ### Table of Contents
 
-- [News/help/contact](#newshelpcontact)
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Browser Requirements](#browser-requirements)
-- [Server Requirements](#server-requirements)
-- [Quick Start](#quick-start)
-- [Installation from Snap Package](#installation-from-snap-package)
-- [Integration and Deployment](#integration-and-deployment)
-- [Authors/Contributors](#authorscontributors)
+- [noVNC: HTML VNC Client Library and Application](#novnc-html-vnc-client-library-and-application)
+  - [Quickstart](#quickstart)
+  - [Allow clipboard](#allow-clipboard)
+  - [Automation via bash.rc](#automation-via-bashrc)
+  - [Description](#description)
+  - [Table of Contents](#table-of-contents)
+  - [News/help/contact](#newshelpcontact)
+  - [Features](#features)
+  - [Screenshots](#screenshots)
+  - [Browser Requirements](#browser-requirements)
+  - [Server Requirements](#server-requirements)
+  - [Quick Start](#quick-start)
+  - [Installation from Snap Package](#installation-from-snap-package)
+    - [Running noVNC from Snap Directly](#running-novnc-from-snap-directly)
+    - [Running noVNC from Snap as a Service (Daemon)](#running-novnc-from-snap-as-a-service-daemon)
+  - [Integration and Deployment](#integration-and-deployment)
+  - [Authors/Contributors](#authorscontributors)
 
 ### News/help/contact
 
