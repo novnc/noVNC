@@ -81,5 +81,12 @@ module.exports = (config) => {
     singleRun: true,
   };
 
+  if (process.env.TEST_BROWSER_NAME === 'ChromeHeadless') {
+    let os = require('os');
+    if (os.platform() === 'win32') {
+      my_conf.client.mocha['timeout'] = 5000;
+    }
+  }
+
   config.set(my_conf);
 };
