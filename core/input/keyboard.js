@@ -48,7 +48,8 @@ export default class Keyboard {
         }
 
         Log.Debug("onkeyevent " + (down ? "down" : "up") +
-                ", keysym: " + keysym, ", code: " + code, + ", numlock: " + numlock + ", capslock: " + capslock);
+                  ", keysym: " + keysym, ", code: " + code +
+                  ", numlock: " + numlock + ", capslock: " + capslock);
         this.onkeyevent(keysym, code, down, numlock, capslock);
     }
 
