@@ -1745,10 +1745,9 @@ const UI = {
                     if (UI.rfb) {
                         UI.rfb.forcedResolutionX = event.data.value_x;
                         UI.rfb.forcedResolutionY = event.data.value_y;
+                        UI.forceSetting('forced_resolution_x', event.data.value_x, false);
+                        UI.forceSetting('forced_resolution_y', event.data.value_y, false);
                         UI.applyResizeMode();
-                        UI.rfb.forcedResolutionX = null;
-                        UI.rfb.forcedResolutionY = null;
-                        UI.rfb._resizeSession =  UI.getSetting('resize') === 'remote';
                     }
                     break;
                 case 'set_perf_stats':
@@ -1861,13 +1860,24 @@ const UI = {
     // Apply remote resizing or local scaling
     applyResizeMode() {
         if (!UI.rfb) return;
-
-        UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
-        UI.rfb.resizeSession = UI.getSetting('resize') === 'remote' || UI.rfb.forcedResolutionX && UI.rfb.forcedResolutionY;
+        const resize_setting = UI.getSetting('resize');
+        UI.rfb.clipViewport = resize_setting !== 'off';
+        UI.rfb.scaleViewport = resize_setting === 'scale';
+        UI.rfb.resizeSession = resize_setting === 'remote';
         UI.rfb.idleDisconnect = UI.getSetting('idle_disconnect');
         UI.rfb.videoQuality = UI.getSetting('video_quality');
         UI.rfb.enableWebP = UI.getSetting('enable_webp');
         UI.rfb.enableHiDpi = UI.getSetting('enable_hidpi');
+
+        if (UI.rfb.resizeSession) {
+            UI.rfb.forcedResolutionX = null;
+            UI.rfb.forcedResolutionY = null;
+        } else {
+            UI.rfb.forcedResolutionX = UI.getSetting('forced_resolution_x', false);
+            UI.rfb.forcedResolutionY = UI.getSetting('forced_resolution_y', false);
+        }
+
+        UI.rfb.updateConnectionSettings();
     },
 
 /* ------^-------
@@ -2582,6 +2592,7 @@ const UI = {
             } else {
                 UI.rfb.enableHiDpi = false;
             }
+            UI.applyResizeMode();
         }
     },
 

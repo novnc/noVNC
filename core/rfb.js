@@ -124,7 +124,6 @@ export default class RFB extends EventTargetMixin {
         this._enabledContinuousUpdates = false;
         this._supportsSetDesktopSize = false;
         this._connectionID = window.location.href.split('?')[0].match(/^(.+)(\/)/)[0];
-        this._screenIndex = 0;
         this._screenFlags = 0;
         this._qemuExtKeyEventSupported = false;
 
@@ -419,20 +418,13 @@ export default class RFB extends EventTargetMixin {
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
         this._clipViewport = viewport;
-        this._updateClip();
     }
 
     get scaleViewport() { return this._scaleViewport; }
     set scaleViewport(scale) {
-        this._scaleViewport = scale;
-        // Scaling trumps clipping, so we may need to adjust
-        // clipping when enabling or disabling scaling
-        if (scale && this._clipViewport) {
-            this._updateClip();
-        }
-        this._updateScale();
-        if (!scale && this._clipViewport) {
-            this._updateClip();
+        if (this._scaleViewport !== scale) {
+            this._scaleViewport = scale;
+            this._pendingApplyResolutionChange = true;
         }
     }
 
@@ -440,8 +432,8 @@ export default class RFB extends EventTargetMixin {
     set resizeSession(resize) {
         this._resizeSession = resize;
         if (resize) {
-            this._requestRemoteResize();
             this.scaleViewport = true;
+            this._pendingApplyResolutionChange = true;
         }
     }
 
@@ -671,9 +663,20 @@ export default class RFB extends EventTargetMixin {
     }
 
     get forcedResolutionX() { return this._forcedResolutionX; }
-    set forcedResolutionX(value) {this._forcedResolutionX = value;}
+    set forcedResolutionX(value) {
+        if (value !== this._forcedResolutionX) {
+            this._forcedResolutionX = value;
+            this._pendingApplyResolutionChange = true;
+        }
+    }
+
     get forcedResolutionY() { return this._forcedResolutionY; }
-    set forcedResolutionY(value) {this._forcedResolutionY = value;}
+    set forcedResolutionY(value) {
+        if (value !== this._forcedResolutionY) {
+            this._forcedResolutionY = value;
+            this._pendingApplyResolutionChange = true;
+        }
+    }
 
     get qualityLevel() {
         return this._qualityLevel;
@@ -732,15 +735,19 @@ export default class RFB extends EventTargetMixin {
     set enableHiDpi(value) {
         if (value !== this._hiDpi) {
             this._hiDpi = value;
-            this._requestRemoteResize();
-            if (this._display.screens.length > 1) {
-                //force secondary displays to re-register and thus apply new hdpi setting
-                this._proxyRFBMessage('forceResize', [ value ]);
-            }
+            this._pendingApplyResolutionChange = true;
+            this._display.applyServerResolution(0, 0, 0);
         }
     }
 
     // ===== PUBLIC METHODS =====
+
+    refreshSecondaryDisplays() {
+        //send secondary displays new settings
+        if (this._display.screens.length > 1) {
+            this._proxyRFBMessage('applySettings', [ this._hiDpi, this._clipViewport, this._scaleViewport, this._resizeSession, this._videoQuality, this._forcedResolutionX, this._forcedResolutionY ]);
+        }
+    }
 
     attachSecondaryDisplay(details) {
         this._updateConnectionState('connecting');
@@ -783,10 +790,23 @@ export default class RFB extends EventTargetMixin {
                 throw new Error("Screen plan contained fewer screens then there are registered.")
             }
 
-            this._display.applyScreenPlan(screenPlan);
-            const size = this._screenSize();
-            RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
-            this._updateContinuousUpdates();
+            //apply screen plan on primary display
+            let changes = this._display.applyScreenPlan(screenPlan);
+
+            if (changes) {
+                //send updates to secondary screens
+                for (let i = 0; i < screenPlan.screens.length; i++) {
+                    for (let z = 1; z < fullPlan.screens.length; z++) {
+                        if (screenPlan.screens[i].screenID == fullPlan.screens[z].screenID) {
+                            this._proxyRFBMessage('applyScreenPlan', [ fullPlan.screens[z].screenID, fullPlan.screens[z].screenIndex, screenPlan.screens[i].width, screenPlan.screens[i].height, screenPlan.screens[i].x, screenPlan.screens[i].y ]);
+                        }
+                    }
+                }
+
+                this._pendingApplyResolutionChange = true;
+            }
+            
+            return changes;
         }
     }
 
@@ -818,16 +838,33 @@ export default class RFB extends EventTargetMixin {
     This function must be called after changing any properties that effect rendering quality
     */
     updateConnectionSettings() {
-        if (this._rfbConnectionState === 'connected') {
+        if (this._rfbConnectionState === 'connected' && this._isPrimaryDisplay) {
             
             if (this._pendingApplyVideoRes) {
-                if (this._isPrimaryDisplay){
-                    RFB.messages.setMaxVideoResolution(this._sock, this._maxVideoResolutionX, this._maxVideoResolutionY);
-                }
+                RFB.messages.setMaxVideoResolution(this._sock, this._maxVideoResolutionX, this._maxVideoResolutionY);
             }
 
             if (this._pendingApplyResolutionChange) {
-                this._requestRemoteResize();
+                // Scaling trumps clipping, so we may need to adjust
+                // clipping when enabling or disabling scaling
+                if (this._scaleViewport && this._clipViewport) {
+                    this._updateClip();
+                }
+                this._updateScale();
+                if (!this._scaleViewport && this._clipViewport) {
+                    this._updateClip();
+                }
+
+                if (this._display.screens.length > 1) {
+                    this.refreshSecondaryDisplays();
+                } 
+
+                if (this._resizeSession || (this._forcedResolutionX && this._forcedResolutionY)) {
+                    this._screenSize();
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    clearTimeout(this._resizeTimeout);
+                    this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
+                }
             }
 
             if (this._pendingApplyEncodingChanges) {
@@ -837,6 +874,20 @@ export default class RFB extends EventTargetMixin {
             this._pendingApplyVideoRes = false;
             this._pendingApplyEncodingChanges = false;
             this._pendingApplyResolutionChange = false;
+        } else if (!this._isPrimaryDisplay) {
+            if (this._pendingApplyResolutionChange) {
+                if (this._scaleViewport && this._clipViewport) {
+                    this._updateClip();
+                }
+                this._updateScale();
+                if (!this._scaleViewport && this._clipViewport) {
+                    this._updateClip();
+                }
+            }
+
+            if (this._resizeSession || (this._forcedResolutionX && this._forcedResolutionY)) {
+                this._requestRemoteResize();
+            }
         }
         
     }
@@ -851,6 +902,7 @@ export default class RFB extends EventTargetMixin {
         } else {
             this._updateConnectionState('disconnecting');
             this._unregisterSecondaryDisplay();
+            this._rfbConnectionState = "";
         }
     }
 
@@ -1475,9 +1527,12 @@ export default class RFB extends EventTargetMixin {
         // If the window resized then our screen element might have
         // as well. Update the viewport dimensions.
         window.requestAnimationFrame(() => {
+            this._screenSize();
             this._updateClip();
             this._updateScale();
         });
+
+        this.dispatchEvent(new CustomEvent("screenregistered", { }));
 
         if (this._resizeSession) {
             // Request changing the resolution of the remote display to
@@ -1531,10 +1586,18 @@ export default class RFB extends EventTargetMixin {
         this._resizeTimeout = null;
 
         if (this._isPrimaryDisplay) {
-            if (!this._resizeSession || this._viewOnly ||
-                !this._supportsSetDesktopSize) {
+            if (
+                (this._viewOnly || !this._supportsSetDesktopSize) ||
+                (!this._resizeSession && !this._forcedResolutionX && !this._forcedResolutionY)
+            ) {
                 return;
             }
+
+            //zero out the server reported resolution
+            for (let i=0; i < this._display.screens.length; i++) {
+                this._display.applyServerResolution(0, 0, this._display.screens[i].screenIndex);
+            }
+
             const size = this._screenSize();
             RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
 
@@ -1550,17 +1613,14 @@ export default class RFB extends EventTargetMixin {
                     top: window.screenTop
                 }
             }
-            this._registerSecondaryDisplay(false, details);
-        }
-
-        if (this._display.screens.length > 1) {
-            this.dispatchEvent(new CustomEvent("screenregistered", {}));
+ 
+            this._registerSecondaryDisplay(this._display.screens[0], details);
         }
     }
 
     // Gets the the size of the available screen
     _screenSize (limited) {
-        return this._display.getScreenSize(this.videoQuality, this.forcedResolutionX, this.forcedResolutionY, this._hiDpi, limited);
+        return this._display.getScreenSize(this.videoQuality, this.forcedResolutionX, this.forcedResolutionY, this._hiDpi, limited, !this._resizeSession);
     }
 
     _fixScrollbars() {
@@ -1740,22 +1800,22 @@ export default class RFB extends EventTargetMixin {
                         ...event.data.details,
                         screenID: event.data.screenID
                     }
-                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
-                    size = this._screenSize();
-                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
-                    this._sendEncodings();
-                    this._updateContinuousUpdates();
+                    let screenIndex = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight);
+                    this._proxyRFBMessage('screenRegistrationConfirmed', [ this._display.screens[screenIndex].screenID, screenIndex ]);
+                    clearTimeout(this._resizeTimeout);
+                    this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
                     this.dispatchEvent(new CustomEvent("screenregistered", { detail: details }));
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
                 case 'reattach':
-                    this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth);
-                    size = this._screenSize();
-                    RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
-                    this._sendEncodings();
-                    this._updateContinuousUpdates();
-                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
-                    Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
+                    let changes = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight);
+                    
+                    if (changes) {
+                        clearTimeout(this._resizeTimeout);
+                        this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
+                        this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                        Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
+                    }
                     break;
                 case 'unregister':
                     if (this._display.removeScreen(event.data.screenID)) {
@@ -1799,9 +1859,14 @@ export default class RFB extends EventTargetMixin {
                     coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
                     this._mouseLastScreenIndex = event.data.screenIndex;
                     this._mousePos = { 'x': coords[0], 'y': coords[1] };
-                    this._mouseButtonMask &= event.data.args[2];
+                    this._mouseButtonMask &= ~event.data.args[2];
                     RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, this._mouseButtonMask);
                     break;
+                case 'scroll':
+                    coords = this._display.getServerRelativeCoordinates(event.data.screenIndex, event.data.args[0], event.data.args[1]);
+                    this._mouseLastScreenIndex = event.data.screenIndex;
+                    this._mousePos = { 'x': coords[0], 'y': coords[1] };
+                    RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, 0, event.data.args[2], event.data.args[3]);
                 case 'keyEvent':
                     RFB.messages.keyEvent(this._sock, ...event.data.args);
                     break;
@@ -1831,10 +1896,38 @@ export default class RFB extends EventTargetMixin {
                     this.disconnect();
                     window.close();
                     break;
-                case 'forceResize':
-                    this._hiDpi = event.data.args[0];
-                    this._updateScale();
-                    this._requestRemoteResize();
+                case 'applySettings':
+                        if (!this._isPrimaryDisplay) {
+                            this.enableHiDpi = event.data.args[0];
+                            this.clipViewport = event.data.args[1];
+                            this.scaleViewport = event.data.args[2];
+                            this.resizeSession = event.data.args[3];
+                            this.videoQuality = event.data.args[4];
+                            //TODO: add support for forced static resolution for multiple monitors
+                            //this._forcedResolutionX = event.data.args[5];
+                            //this._forcedResolutionY = event.data.args[6];
+
+                            //TODO, do we need to do this twice
+                            this.scaleViewport = event.data.args[3];
+                            this.updateConnectionSettings();
+                        }
+                        
+                break;
+                case 'applyScreenPlan':
+                    if (event.data.args[0] == this._display.screenID) {
+                        this._display.screens[0].screenIndex = event.data.args[1];
+                        this._display.screens[0].width = event.data.args[2];
+                        this._display.screens[0].height = event.data.args[3];
+                        this._display.screens[0].x = event.data.args[4];
+                        this._display.screens[0].y = event.data.args[5];
+                        
+                        this.updateConnectionSettings();
+                    }
+                    break;
+                case 'screenRegistrationConfirmed':
+                    if (event.data.args[0] == this._display.screenID) {
+                        this._display.screens[0].screenIndex = event.data.args[1];
+                    }
                     break;
             }
         }
@@ -1854,23 +1947,25 @@ export default class RFB extends EventTargetMixin {
 
     _registerSecondaryDisplay(currentScreen = false, details = null) {
         if (!this._isPrimaryDisplay) {
-            //let screen = this._screenSize().screens[0];
-            //
+            const registerType = (currentScreen) ? 'reattach' : 'register'
+
             let size = this._screenSize();
             this._display.resize(size.screens[0].serverWidth, size.screens[0].serverHeight);
             this._display.autoscale(size.screens[0].serverWidth, size.screens[0].serverHeight, size.screens[0].scale);
-            screen = this._screenSize().screens[0];
             
-            const registertype = (currentScreen) ? 'reattach' : 'register'
-
+            let screen = size.screens[0];
+            
             let message = {
-                eventType: registertype,
+                eventType: registerType,
                 screenID: screen.screenID,
                 width: screen.width,
                 height: screen.height,
                 x: currentScreen.x || 0,
                 y: currentScreen.y || 0,
                 pixelRatio: screen.pixelRatio,
+                scale: screen.scale,
+                serverWidth: screen.serverWidth,
+                serverHeight: screen.serverHeight,
                 containerWidth: screen.containerWidth,
                 containerHeight: screen.containerHeight,
                 channel: null,
@@ -1941,7 +2036,13 @@ export default class RFB extends EventTargetMixin {
             //Ensure the window was not moved to a different screen with a different pixel ratio
             if (this._display.screens[0].pixelRatio !== window.devicePixelRatio) {
                 Log.Debug("Window moved to another screen with different pixel ratio, sending resize request.");
-                this._requestRemoteResize();
+                if (this._isPrimaryDisplay && this._display.screens.length > 1) {
+                    //this.refreshSecondaryDisplays();
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                } else {
+                    this._requestRemoteResize();
+                }
+                
             }
         } else {
             Log.Debug("Mouse left Window");
@@ -2187,6 +2288,7 @@ export default class RFB extends EventTargetMixin {
     _sendMouse(x, y, mask) {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
+        if (!this._isPrimaryDisplay) { return; }
 
         if (this._pointerLock && this._pointerRelativeEnabled) {
 
@@ -2194,22 +2296,13 @@ export default class RFB extends EventTargetMixin {
             var rel_16_x = toSignedRelative16bit(x - this._pointerLockPos.x);
             var rel_16_y = toSignedRelative16bit(y - this._pointerLockPos.y);
 
-            if (this._isPrimaryDisplay){
-                RFB.messages.pointerEvent(this._sock, rel_16_x, rel_16_y, mask);
-            } else {
-                this._proxyRFBMessage('pointerEvent', [ rel_16_x, rel_16_y, mask ]);
-            }
+            RFB.messages.pointerEvent(this._sock, rel_16_x, rel_16_y, mask);
             
             // reset the cursor position to center
             this._mousePos = { x: this._pointerLockPos.x , y: this._pointerLockPos.y };
             this._cursor.move(this._pointerLockPos.x, this._pointerLockPos.y);
         } else {
-            if (this._isPrimaryDisplay) {
-                RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), mask);
-            } else {
-                this._proxyRFBMessage('pointerEvent', [ this._display.absX(x), this._display.absY(y), mask ]);
-            }
-            
+            RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), mask);
         }
         
     }
@@ -2218,12 +2311,11 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        if (this._isPrimaryDisplay){
+        if (this._isPrimaryDisplay) {
             RFB.messages.pointerEvent(this._sock, this._display.absX(x), this._display.absY(y), 0, dX, dY);
         } else {
-            this._proxyRFBMessage('pointerEvent', [ this._display.absX(x), this._display.absY(y), 0, dX, dY ]);
+            this._proxyRFBMessage('scroll', [ x, y, dX, dY ]);
         }
-        
     }
 
     _handleWheel(ev) {
@@ -4000,16 +4092,20 @@ export default class RFB extends EventTargetMixin {
 
         for (let i = 0; i < numberOfScreens; i += 1) {
             // Save the id and flags of the first screen
-            if (i === 0) {
-                this._screenIndex = this._sock.rQshiftBytes(4);    // id
-                this._sock.rQskipBytes(2);                       // x-position
-                this._sock.rQskipBytes(2);                       // y-position
-                this._sock.rQskipBytes(2);                       // width
-                this._sock.rQskipBytes(2);                       // height
+            let sI = this._sock.rQshift32();    // id
+            let x = this._sock.rQshift16();                       // width
+            let y = this._sock.rQshift16();                       // height
+            let w = this._sock.rQshift16();                       // width
+            let h = this._sock.rQshift16();                       // height
+            if (i == 0) {
+                this._screenIndex = 0;
                 this._screenFlags = this._sock.rQshiftBytes(4); // flags
             } else {
-                this._sock.rQskipBytes(16);
+                this._sock.rQskipBytes(4);
             }
+
+            this._display.applyServerResolution(w, h, i);
+            Log.Debug(`Server reported screen ${sI} with resolution ${w}x${h} at ${x}x${y}`);
         }
 
         /*
