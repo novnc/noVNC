@@ -1802,6 +1802,7 @@ export default class RFB extends EventTargetMixin {
                     }
                     let screenIndex = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight);
                     this._proxyRFBMessage('screenRegistrationConfirmed', [ this._display.screens[screenIndex].screenID, screenIndex ]);
+                    this._sendEncodings();
                     clearTimeout(this._resizeTimeout);
                     this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
                     this.dispatchEvent(new CustomEvent("screenregistered", { detail: details }));
