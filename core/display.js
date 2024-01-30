@@ -304,7 +304,7 @@ export default class Display {
         this._screens[i].width = Math.floor(width * clientServerRatioW);
         this._screens[i].serverWidth = width;
         this._screens[i].serverHeight = height;
-        this._screens[i].scale = this._screens[i].width / this._screens[i].serverWidth;
+        this._screens[i].scale = Math.min(clientServerRatioH, clientServerRatioW);
 
 
         for (i = 0; i < this._screens.length; i++) {

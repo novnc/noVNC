@@ -2922,7 +2922,7 @@ const UI = {
             if (e && e.detail) {
                 const { left, top, screenID } = e.detail
                 const current = screenPlan.screens.findIndex(el => el.screenID === screenID)
-                if (current) {
+                if (current > -1) {
                     screenPlan.screens[current].x = left
                     screenPlan.screens[current].y = top
                 }
