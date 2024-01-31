@@ -69,7 +69,9 @@ export default class Cursor {
             this._target.removeEventListener('mousemove', this._eventHandlers.mousemove, options);
             this._target.removeEventListener('mouseup', this._eventHandlers.mouseup, options);
 
-            document.body.removeChild(this._canvas);
+            if (document.contains(this._canvas)) {
+                document.body.removeChild(this._canvas);
+            }
         }
 
         this._target = null;
