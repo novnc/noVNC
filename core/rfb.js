@@ -2031,9 +2031,6 @@ export default class RFB extends EventTargetMixin {
     _handleMouseOut(ev) {
         if (ev.toElement !== null && ev.relatedTarget === null && ev.fromElement === null) {
             //mouse was outside of the window and just came in, this is our chance to do things
-            Log.Debug("Mouse came into Window");
-            Log.Debug(ev);
-
             //Ensure the window was not moved to a different screen with a different pixel ratio
             if (this._display.screens[0].pixelRatio !== window.devicePixelRatio) {
                 Log.Debug("Window moved to another screen with different pixel ratio, sending resize request.");

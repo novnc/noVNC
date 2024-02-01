@@ -1168,7 +1168,9 @@ export default class Display {
                             default:
                                 secondaryScreenRects++;
                                 a.img = null;
-                                this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                                if (this._screens[screenLocation.screenIndex].channel) {
+                                    this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                                }
                         }
                     }
                 }
@@ -1186,7 +1188,9 @@ export default class Display {
                     }
                     if (secondaryScreenRects > 0 && this._lastTransparentRectId !== this._transparentOverlayRect.hash_id) {
                         for (let sI = 1; sI < this._transparentOverlayRect.screenLocations.length; sI++) {
-                            this._screens[this._transparentOverlayRect.screenLocations[sI].screenIndex].channel.postMessage({ eventType: 'rect', rect: this._transparentOverlayRect, screenLocationIndex: sI });
+                            if (this._screens[this._transparentOverlayRect.screenLocations[sI].screenIndex].channel) {
+                                this._screens[this._transparentOverlayRect.screenLocations[sI].screenIndex].channel.postMessage({ eventType: 'rect', rect: this._transparentOverlayRect, screenLocationIndex: sI });
+                            }
                         }
                     }
                     this._lastTransparentRectId = this._transparentOverlayRect.hash_id;
@@ -1195,7 +1199,9 @@ export default class Display {
 
             if (secondaryScreenRects > 0) {
                 for (let i = 1; i < this.screens.length; i++) {
-                    this._screens[i].channel.postMessage({ eventType: 'frameComplete', frameId: frameId, rectCnt: secondaryScreenRects });
+                    if (this._screens[i].channel) {
+                        this._screens[i].channel.postMessage({ eventType: 'frameComplete', frameId: frameId, rectCnt: secondaryScreenRects });
+                    }
                 }
             }
 
