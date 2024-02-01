@@ -899,6 +899,11 @@ export default class Display {
                             break;
                     }
                     this._syncFrameQueue.push(rect);
+
+                    //if the secondary display is not in focus, the browser may not call requestAnimationFrame, thus we need to limit our buffer
+                    if (this._syncFrameQueue.length > 500) {
+                        this._syncFrameQueue.pop();
+                    }
                     break;
                 case 'frameComplete':
                         window.requestAnimationFrame( () => { this._pushSyncRects(); });
