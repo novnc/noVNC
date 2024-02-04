@@ -1532,7 +1532,11 @@ export default class RFB extends EventTargetMixin {
         // Finally, translate the coordinates to those relative to the
         // canvas and send the pointer move event to the remote machine.
         const posFromCanvas = clientToElement(safeX, safeY, this._canvas);
-        this._sendMouse(posFromCanvas.x, posFromCanvas.y, this._mouseButtonMask);
+        const hotspot = this._cursor.hotspot;
+        this._sendMouse(
+            posFromCanvas.x + hotspot.x, 
+            posFromCanvas.y + hotspot.y, 
+            this._mouseButtonMask);
     }
 
     _handleTouchpadOneTapEvent() {
@@ -1616,7 +1620,10 @@ export default class RFB extends EventTargetMixin {
      * @returns {{x: number, y: number}}
      */
     _getCursorPositionToCanvas() {
-        const cursorPos = this._cursor.position;
+        const cursorPos = {
+            x: this._cursor.position.x + this._cursor.hotspot.x,
+            y: this._cursor.position.y + this._cursor.hotspot.y
+        };
         return clientToElement(cursorPos.x, cursorPos.y, this._canvas);
     }
 

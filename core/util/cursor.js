@@ -43,6 +43,13 @@ export default class Cursor {
     get position() {
         return this._position;
     }
+
+     /**
+     * @returns {{ x: number, y: number }}
+     */
+     get hotspot() {
+        return this._hotSpot;
+    }
     
     attach(target) {
         if (this._target) {
