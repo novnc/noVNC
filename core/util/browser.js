@@ -11,17 +11,26 @@
 import * as Log from './logging.js';
 
 // Touch detection
-export let isTouchDevice = ('ontouchstart' in document.documentElement) ||
-                                 // requried for Chrome debugger
-                                 (document.ontouchstart !== undefined) ||
-                                 // required for MS Surface
-                                 (navigator.maxTouchPoints > 0) ||
-                                 (navigator.msMaxTouchPoints > 0);
+let _touchEventOccurred = false;
 window.addEventListener('touchstart', function onFirstTouch() {
-    isTouchDevice = true;
+    _touchEventOccurred = true;
     window.removeEventListener('touchstart', onFirstTouch, false);
 }, false);
 
+// This needs to be a function to allow the exported value
+// to update if touchstart event fires.  Also, the other
+// values are dynamic and can change without a page reload
+// (e.g. opening the emulator in dev tools), so we don't want
+// to assign them to a variable that captures their current value.
+export function isTouchDevice() {
+    return _touchEventOccurred ||
+        ('ontouchstart' in document.documentElement) ||
+        // requried for Chrome debugger
+        (document.ontouchstart !== undefined) ||
+        // required for MS Surface
+        (navigator.maxTouchPoints > 0) ||
+        (navigator.msMaxTouchPoints > 0);
+};
 
 // The goal is to find a certain physical width, the devicePixelRatio
 // brings us a bit closer but is not optimal.

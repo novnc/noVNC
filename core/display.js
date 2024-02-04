@@ -87,7 +87,37 @@ export default class Display {
         return this._fbHeight;
     }
 
+    get viewportLocation() {
+        return this._viewportLoc;
+    }
+
     // ===== PUBLIC METHODS =====
+
+    /**
+     * Attempt to move the viewport by the specified amounts
+     * and returns the amount of actual position change.
+     * @param {number} moveByX 
+     * @param {number} moveByY 
+     * @return {{ x: number, y: number }}
+     */
+    viewportTryMoveBy(moveByX, moveByY) {
+        if (moveByX === 0 && moveByY === 0) {
+            return {
+                x: 0,
+                y: 0
+            }
+        }
+
+        const vpX = this._viewportLoc.x;
+        const vpY = this._viewportLoc.y;
+
+        this.viewportChangePos(moveByX, moveByY);
+
+        return {
+            x: this._viewportLoc.x - vpX,
+            y: this._viewportLoc.y - vpY
+        }
+    }
 
     viewportChangePos(deltaX, deltaY) {
         const vp = this._viewportLoc;
@@ -431,6 +461,10 @@ export default class Display {
         }
 
         this._rescale(scaleRatio);
+    }
+
+    rescale(factor) {
+        this._rescale(factor);
     }
 
     // ===== PRIVATE METHODS =====

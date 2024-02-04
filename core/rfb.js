@@ -188,12 +188,16 @@ export default class RFB extends EventTargetMixin {
         this._viewportHasMoved = false;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
-
+        
         // Gesture state
         this._gestureLastTapTime = null;
         this._gestureFirstDoubleTapEv = null;
         this._gestureLastMagnitudeX = 0;
         this._gestureLastMagnitudeY = 0;
+        this._isTouchpadDragging = false;
+        this._touchpadTapTimeoutId = null;
+        this._lastTouchpadPinchMagnitude = 0;
+        this._currentPinchScale = 1;
 
         // Bound event handlers
         this._eventHandlers = {
@@ -290,7 +294,7 @@ export default class RFB extends EventTargetMixin {
         this._clippingViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
-        this.touchpadMode = false;
+        this._touchpadMode = false;
 
         this._showDotCursor = false;
         if (options.showDotCursor !== undefined) {
@@ -408,6 +412,24 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState === 'connected') {
             this._sendEncodings();
         }
+    }
+    
+    /**
+     * @returns {boolean}
+     */
+    get touchpadMode() {
+        return this._touchpadMode;
+    }
+
+    /**
+     * @param {boolean} enabled 
+     */
+    set touchpadMode(enabled) {
+        if (!this._gestures) {
+            return;
+        }
+        this._touchpadMode = enabled;
+        this._gestures.touchpadMode = enabled;
     }
 
     // ===== PUBLIC METHODS =====
@@ -528,6 +550,17 @@ export default class RFB extends EventTargetMixin {
 
             RFB.messages.clientCutText(this._sock, data);
         }
+    }
+
+    centerCursorInViewport() {
+        const container = document.getElementById('noVNC_container');
+        const containerBounds = container.getBoundingClientRect();
+        const x = containerBounds.left + (containerBounds.width * .5);
+        const y = containerBounds.top + (containerBounds.height * .5)
+        this._cursor.move(x, y);
+
+        const elementPos = clientToElement(x, y, this._canvas);
+        this._handleMouseMove(elementPos.x, elementPos.y);
     }
 
     getImageData() {
@@ -1264,21 +1297,57 @@ export default class RFB extends EventTargetMixin {
             case 'gesturestart':
                 switch (ev.detail.type) {
                     case 'onetap':
-                        this._handleTapEvent(ev, 0x1);
+                        if (this._touchpadMode) {
+                            this._handleTouchpadOneTapEvent();
+                        }
+                        else {
+                            this._handleTapEvent(ev, 0x1);
+                        }
                         break;
                     case 'twotap':
+                        if (this._touchpadMode) {
+                            this._sendTouchpadTwoTap();
+                            break;
+                        }
                         this._handleTapEvent(ev, 0x4);
                         break;
                     case 'threetap':
+                        if (this._touchpadMode) {
+                            this._sendTouchpadThreeTap();
+                            break;
+                        }
                         this._handleTapEvent(ev, 0x2);
                         break;
                     case 'drag':
+                        // In TouchpadMode, we don't want to move the cursor
+                        // at the start of dragging.  It should remain at its
+                        // current location.  We'll only press the left mouse
+                        // button if this is the second tap in a double-tap
+                        // sequence.
+                        if (this._touchpadMode) {
+                            if (this._touchpadTapTimeoutId > 0) {
+                                    this._clearTouchpadTapTimeoutId();
+                                    this._isTouchpadDragging = true;
+                                    this._mouseButtonMask = 0x1;
+                                    const cursorPos = this._getCursorPositionToCanvas();
+                                    this._sendMouse(cursorPos.x, cursorPos.y, 0x1);
+                                }
+                            break;
+                        }
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         this._handleMouseButton(pos.x, pos.y, true, 0x1);
                         break;
                     case 'longpress':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, true, 0x4);
+                        // In TouchpadMode, we want to start the right-click at the
+                        // current cursor location.
+                        if (this._touchpadMode) {
+                            const cursorPos = this._getCursorPositionToCanvas();
+                            this._handleMouseButton(cursorPos.x, cursorPos.y, true, 0x4);
+                        }
+                        else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            this._handleMouseButton(pos.x, pos.y, true, 0x4);
+                        }
                         break;
 
                     case 'twodrag':
@@ -1287,8 +1356,15 @@ export default class RFB extends EventTargetMixin {
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
                     case 'pinch':
-                        this._gestureLastMagnitudeX = Math.hypot(ev.detail.magnitudeX,
-                                                                 ev.detail.magnitudeY);
+                        magnitude = Math.hypot(
+                            ev.detail.magnitudeX,
+                            ev.detail.magnitudeY);
+
+                        if (this._touchpadMode) {
+                            this._lastTouchpadPinchMagnitude = magnitude;
+                            break;
+                        }
+                        this._gestureLastMagnitudeX = magnitude;
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
                 }
@@ -1302,13 +1378,22 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                     case 'longpress':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
+                        // In TouchpadMode, we want to move the cursor from its
+                        // current position, not to where the touch currently is.
+                        if (this._touchpadMode) {
+                            this._handleTouchpadMove(ev.detail.movementX, ev.detail.movementY);
+                        }
+                        else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                        }
                         break;
                     case 'twodrag':
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
-                        this._fakeMouseMove(ev, pos.x, pos.y);
+                        if (!this._touchpadMode) {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                        }
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
                             this._handleMouseButton(pos.x, pos.y, true, 0x8);
                             this._handleMouseButton(pos.x, pos.y, false, 0x8);
@@ -1331,11 +1416,18 @@ export default class RFB extends EventTargetMixin {
                         }
                         break;
                     case 'pinch':
+                        magnitude = Math.hypot(ev.detail.magnitudeX, ev.detail.magnitudeY);
+
+                        if (this._touchpadMode) {
+                            this._handleTouchpadPinchZoom(magnitude);
+                            break;
+                        }
+
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        magnitude = Math.hypot(ev.detail.magnitudeX, ev.detail.magnitudeY);
+                     
                         if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
                             this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                             while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
@@ -1363,15 +1455,201 @@ export default class RFB extends EventTargetMixin {
                     case 'twodrag':
                         break;
                     case 'drag':
+                        if (this._touchpadMode) {
+                            if (this._isTouchpadDragging) {
+                                this._mouseButtonMask = 0;
+                                const cursorPos = this._getCursorPositionToCanvas();
+                                this._sendMouse(cursorPos.x, cursorPos.y, 0);
+                                this._isTouchpadDragging = false;
+                            }
+                            break;
+                        }
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         this._handleMouseButton(pos.x, pos.y, false, 0x1);
                         break;
                     case 'longpress':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x4);
+                        // In TouchPad mode, we want to finish at the current cursor location.
+                        if (this._touchpadMode) {
+                            const cursorPos = this._getCursorPositionToCanvas();
+                            this._handleMouseButton(cursorPos.x, cursorPos.y, false, 0x4);
+                        }
+                        else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            this._handleMouseButton(pos.x, pos.y, false, 0x4);
+                        }
                         break;
                 }
                 break;
+        }
+    }
+
+    // TouchpadMode Private Methods
+       
+    /**
+     * @param {number} movementX 
+     * @param {number} movementY 
+     */
+    _handleTouchpadMove(movementX, movementY) {
+
+        // Add a multiplier to higher-velocity movements to
+        // traverse the screen quicker.
+        const xMultiplier = Math.max(5, Math.abs(movementX)) / 5;
+        movementX *= Math.min(xMultiplier, 4);
+
+        const yMultiplier = Math.max(5, Math.abs(movementY)) / 5;
+        movementY *= Math.min(yMultiplier, 4);
+
+        // Get the desired new location for the cursor.
+        let cursorPos = this._cursor.position;
+        let targetX = cursorPos.x + movementX;
+        let targetY = cursorPos.y + movementY;
+
+        // Constrain the location to the canvas bounds.
+        const canvasBounds = this._canvas.getBoundingClientRect();
+        const safeX = Math.max(canvasBounds.left, Math.min(targetX, canvasBounds.right));
+        const safeY = Math.max(canvasBounds.top, Math.min(targetY, canvasBounds.bottom));
+
+        // See if the cursor has moved outside the center deadzone.
+        const deadzone = this._getTouchpadCursorDeadZone();
+        const moveViewportX = 
+            Math.min(safeX - deadzone.left, 0) +
+            Math.max(safeX - deadzone.right, 0);
+
+        const moveViewportY =
+            Math.min(safeY - deadzone.top, 0) +
+            Math.max(safeY - deadzone.bottom, 0);
+
+        // Try moving the viewport, getting the actual amount it moved.
+        const viewportChange = this._display.viewportTryMoveBy(moveViewportX, moveViewportY);
+
+        // Subtract the viewport position change from the target
+        // cursor position.  This will cause it to stay at the
+        // edge of the deadzone if we're pushing against it, or
+        // move past it to the edge of the screen if the viewport
+        // can pan no further.
+        this._cursor.move(safeX - viewportChange.x, safeY - viewportChange.y);
+
+        // Finally, translate the coordinates to those relative to the
+        // canvas and send the pointer move event to the remote machine.
+        const posFromCanvas = clientToElement(safeX, safeY, this._canvas);
+        this._sendMouse(posFromCanvas.x, posFromCanvas.y, this._mouseButtonMask);
+    }
+
+    _handleTouchpadOneTapEvent() {
+        if (this._touchpadTapTimeoutId > 0) {
+            // A double-tap occurred.
+            this._clearTouchpadTapTimeoutId();
+            this._sendTouchpadTap();
+            this._sendTouchpadTap();
+            return;
+        }
+        
+        this._touchpadTapTimeoutId = window.setTimeout(() => {
+            this._clearTouchpadTapTimeoutId();
+            this._sendTouchpadTap();
+        }, 250);
+
+    }
+
+    /**
+     * 
+     * @param {number} magnitude 
+     */
+    _handleTouchpadPinchZoom(magnitude) {
+        if (this._lastTouchpadPinchMagnitude > 0) {
+            // Calculate the new pinch scale.
+            const container = document.getElementById('noVNC_container');
+            const magnitudeChange = this._lastTouchpadPinchMagnitude / magnitude;
+            const newScale = this._currentPinchScale * magnitudeChange;
+            this._currentPinchScale = Math.max(.25, Math.min(4, newScale));
+
+            // Capture the current viewport size.
+            const originalVpW = this._display.viewportLocation.w;
+            const originalVpH = this._display.viewportLocation.h;
+            
+            // Change viewport size based on new scale.
+            const newWidth = container.clientWidth * this._currentPinchScale;
+            const newHeight = container.clientHeight * this._currentPinchScale;
+            this._display.viewportChangeSize(newWidth, newHeight);
+            
+            // Apply scaling to CSS.
+            const visualScale = container.clientWidth / newWidth;
+            this._display.rescale(visualScale);
+        
+            // Adjust viewport location to keep it centered.
+            const moveX = (originalVpW - this._display.viewportLocation.w) / 2;
+            const moveY =  (originalVpH - this._display.viewportLocation.h) / 2;
+            this._display.viewportChangePos(moveX, moveY);
+        }
+        this._lastTouchpadPinchMagnitude = magnitude;
+    }
+
+    _clearTouchpadTapTimeoutId() {
+        window.clearTimeout(this._touchpadTapTimeoutId);
+        this._touchpadTapTimeoutId = 0;
+    }
+
+    _sendTouchpadTap() {
+        const cursorPos = this._getCursorPositionToCanvas();
+        this._sendMouse(cursorPos.x, cursorPos.y, 0x1);
+        this._sendMouse(cursorPos.x, cursorPos.y, 0);
+        this._mouseButtonMask = 0;
+    }
+    _sendTouchpadTwoTap() {
+        this._clearTouchpadTapTimeoutId();
+        const cursorPos = this._getCursorPositionToCanvas();
+        this._sendMouse(cursorPos.x, cursorPos.y, 0x4);
+        this._sendMouse(cursorPos.x, cursorPos.y, 0);
+        this._mouseButtonMask = 0;
+    }
+
+    _sendTouchpadThreeTap() {
+        this._clearTouchpadTapTimeoutId();
+        const cursorPos = this._getCursorPositionToCanvas();
+        this._sendMouse(cursorPos.x, cursorPos.y, 0x2);
+        this._sendMouse(cursorPos.x, cursorPos.y, 0);
+        this._mouseButtonMask = 0;
+    }
+
+    /**
+     * Gets the current cursor position, offset by the canvas client bounds.
+     * @returns {{x: number, y: number}}
+     */
+    _getCursorPositionToCanvas() {
+        const cursorPos = this._cursor.position;
+        return clientToElement(cursorPos.x, cursorPos.y, this._canvas);
+    }
+
+    /**
+     * Returns the center area within the canvas bounds where
+     * cursor movement won't trigger viewport movement.
+     * @returns {{
+     *  top: number,
+     *  bottom: number,
+     *  left: number,
+     *  right: number,
+     *  width: number,
+     *  height: number
+     * }}
+     */
+    _getTouchpadCursorDeadZone() {
+        const canvasBounds = this._canvas.getBoundingClientRect();
+        const canvasCenter = {
+            x: canvasBounds.width * .5,
+            y: canvasBounds.height * .5
+        }
+        const xFromCenter = canvasBounds.width * .1;
+        const yFromCenter = canvasBounds.height * .1;
+        const innerWidth = xFromCenter * 2;
+        const innerHeight = yFromCenter * 2;
+
+        return {
+            top: canvasCenter.y - yFromCenter,
+            bottom: canvasCenter.y + yFromCenter,
+            height: innerHeight,
+            left: canvasCenter.x - xFromCenter,
+            right: canvasCenter.x + xFromCenter,
+            width: innerWidth
         }
     }
 

@@ -6,7 +6,7 @@
 
 import { supportsCursorURIs, isTouchDevice } from './browser.js';
 
-const useFallback = !supportsCursorURIs || isTouchDevice;
+const useFallback = () => !supportsCursorURIs || isTouchDevice();
 
 export default class Cursor {
     constructor() {
@@ -14,7 +14,7 @@ export default class Cursor {
 
         this._canvas = document.createElement('canvas');
 
-        if (useFallback) {
+        if (useFallback()) {
             this._canvas.style.position = 'fixed';
             this._canvas.style.zIndex = '65535';
             this._canvas.style.pointerEvents = 'none';
@@ -37,6 +37,13 @@ export default class Cursor {
         };
     }
 
+    /**
+     * @returns {{ x: number, y: number }}
+     */
+    get position() {
+        return this._position;
+    }
+    
     attach(target) {
         if (this._target) {
             this.detach();
@@ -44,7 +51,7 @@ export default class Cursor {
 
         this._target = target;
 
-        if (useFallback) {
+        if (useFallback()) {
             document.body.appendChild(this._canvas);
 
             const options = { capture: true, passive: true };
@@ -62,7 +69,7 @@ export default class Cursor {
             return;
         }
 
-        if (useFallback) {
+        if (useFallback()) {
             const options = { capture: true, passive: true };
             this._target.removeEventListener('mouseover', this._eventHandlers.mouseover, options);
             this._target.removeEventListener('mouseleave', this._eventHandlers.mouseleave, options);
@@ -95,7 +102,7 @@ export default class Cursor {
         ctx.clearRect(0, 0, w, h);
         ctx.putImageData(img, 0, 0);
 
-        if (useFallback) {
+        if (useFallback()) {
             this._updatePosition();
         } else {
             let url = this._canvas.toDataURL();
@@ -116,7 +123,7 @@ export default class Cursor {
     // Mouse events might be emulated, this allows
     // moving the cursor in such cases
     move(clientX, clientY) {
-        if (!useFallback) {
+        if (!useFallback()) {
             return;
         }
         // clientX/clientY are relative the _visual viewport_,

@@ -18,7 +18,6 @@ const GH_PINCH     = 64;
 
 const GH_INITSTATE = 127;
 
-const GH_MOVE_THRESHOLD = 50;
 const GH_ANGLE_THRESHOLD = 90; // Degrees
 
 // Timeout when waiting for gestures (ms)
@@ -38,6 +37,7 @@ export default class GestureHandler {
         this._target = null;
 
         this._state = GH_INITSTATE;
+        this._touchpadMode = false;
 
         this._tracked = [];
         this._ignored = [];
@@ -50,6 +50,37 @@ export default class GestureHandler {
 
         this._boundEventHandler = this._eventHandler.bind(this);
     }
+
+    // ===== PROPERTIES =====
+
+    /**
+     * @returns {boolean}
+     */
+    get touchpadMode() {
+        return this._touchpadMode;
+    }
+
+    /**
+     * @param {boolean} enabled 
+     */
+    set touchpadMode(enabled) {
+        this._touchpadMode = enabled;
+    }
+
+    /**
+     * @returns {number}
+     */
+    get _ghMoveThreshold() {
+        // In TouchpadMode, we want movements to be very precise,
+        // so we'll reduce the movement threshold.
+        if (this._touchpadMode) {
+            return 5;
+        }
+
+        return 50;
+    }
+
+    // ===== PUBLIC METHODS =====
 
     attach(target) {
         this.detach();
@@ -64,7 +95,6 @@ export default class GestureHandler {
         this._target.addEventListener('touchcancel',
                                       this._boundEventHandler);
     }
-
     detach() {
         if (!this._target) {
             return;
@@ -84,6 +114,10 @@ export default class GestureHandler {
         this._target = null;
     }
 
+    /**
+     * 
+     * @param {TouchEvent} e 
+     */
     _eventHandler(e) {
         let fn;
 
@@ -102,7 +136,6 @@ export default class GestureHandler {
                 fn = this._touchEnd;
                 break;
         }
-
         for (let i = 0; i < e.changedTouches.length; i++) {
             let touch = e.changedTouches[i];
             fn.call(this, touch.identifier, touch.clientX, touch.clientY);
@@ -142,9 +175,11 @@ export default class GestureHandler {
             firstY: y,
             lastX: x,
             lastY: y,
-            angle: 0
+            movementX: 0,
+            movementY: 0,
+            angle: 0,
         });
-
+        
         switch (this._tracked.length) {
             case 1:
                 this._startLongpressTimeout();
@@ -164,7 +199,7 @@ export default class GestureHandler {
         }
     }
 
-    _touchMove(id, x, y) {
+   _touchMove(id, x, y) {
         let touch = this._tracked.find(t => t.id === id);
 
         // If this is an update for a touch we're not tracking, ignore it
@@ -173,6 +208,8 @@ export default class GestureHandler {
         }
 
         // Update the touches last position with the event coordinates
+        touch.movementX = x - touch.lastX;
+        touch.movementY = y - touch.lastY;
         touch.lastX = x;
         touch.lastY = y;
 
@@ -187,7 +224,7 @@ export default class GestureHandler {
 
         if (!this._hasDetectedGesture()) {
             // Ignore moves smaller than the minimum threshold
-            if (Math.hypot(deltaX, deltaY) < GH_MOVE_THRESHOLD) {
+            if (Math.hypot(deltaX, deltaY) < this._ghMoveThreshold) {
                 return;
             }
 
@@ -216,7 +253,7 @@ export default class GestureHandler {
                 // We know that the current touch moved far enough,
                 // but unless both touches moved further than their
                 // threshold we don't want to disqualify any gestures
-                if (prevDeltaMove > GH_MOVE_THRESHOLD) {
+                if (prevDeltaMove > this._ghMoveThreshold) {
 
                     // The angle difference between the direction of the touch points
                     let deltaAngle = Math.abs(touch.angle - prevTouch.angle);
@@ -457,6 +494,15 @@ export default class GestureHandler {
 
         detail['clientX'] = pos.x;
         detail['clientY'] = pos.y;
+
+        if (this._touchpadMode && 
+            this._tracked.length === 1) {
+
+            const touch = this._tracked[0];
+
+            detail['movementX'] = touch.movementX;
+            detail['movementY'] = touch.movementY;
+        }
 
         // FIXME: other coordinates?
 
