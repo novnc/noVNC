@@ -96,8 +96,8 @@ export default class Display {
     /**
      * Attempt to move the viewport by the specified amounts
      * and returns the amount of actual position change.
-     * @param {number} moveByX 
-     * @param {number} moveByY 
+     * @param {number} moveByX
+     * @param {number} moveByY
      * @return {{ x: number, y: number }}
      */
     viewportTryMoveBy(moveByX, moveByY) {
@@ -105,7 +105,7 @@ export default class Display {
             return {
                 x: 0,
                 y: 0
-            }
+            };
         }
 
         const vpX = this._viewportLoc.x;
@@ -116,7 +116,7 @@ export default class Display {
         return {
             x: this._viewportLoc.x - vpX,
             y: this._viewportLoc.y - vpY
-        }
+        };
     }
 
     viewportChangePos(deltaX, deltaY) {

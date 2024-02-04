@@ -61,7 +61,7 @@ export default class GestureHandler {
     }
 
     /**
-     * @param {boolean} enabled 
+     * @param {boolean} enabled
      */
     set touchpadMode(enabled) {
         this._touchpadMode = enabled;
@@ -115,8 +115,8 @@ export default class GestureHandler {
     }
 
     /**
-     * 
-     * @param {TouchEvent} e 
+     *
+     * @param {TouchEvent} e
      */
     _eventHandler(e) {
         let fn;
@@ -179,7 +179,7 @@ export default class GestureHandler {
             movementY: 0,
             angle: 0,
         });
-        
+
         switch (this._tracked.length) {
             case 1:
                 this._startLongpressTimeout();
@@ -199,7 +199,7 @@ export default class GestureHandler {
         }
     }
 
-   _touchMove(id, x, y) {
+    _touchMove(id, x, y) {
         let touch = this._tracked.find(t => t.id === id);
 
         // If this is an update for a touch we're not tracking, ignore it
@@ -495,7 +495,7 @@ export default class GestureHandler {
         detail['clientX'] = pos.x;
         detail['clientY'] = pos.y;
 
-        if (this._touchpadMode && 
+        if (this._touchpadMode &&
             this._tracked.length === 1) {
 
             const touch = this._tracked[0];

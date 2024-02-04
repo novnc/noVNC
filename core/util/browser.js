@@ -30,7 +30,7 @@ export function isTouchDevice() {
         // required for MS Surface
         (navigator.maxTouchPoints > 0) ||
         (navigator.msMaxTouchPoints > 0);
-};
+}
 
 // The goal is to find a certain physical width, the devicePixelRatio
 // brings us a bit closer but is not optimal.

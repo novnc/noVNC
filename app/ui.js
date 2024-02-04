@@ -465,10 +465,10 @@ const UI = {
     },
 
     /**
-     * @param {string} text 
-     * @param { "normal" | "info" | "warn" | "warning" | "error" } statusType 
-     * @param {number} time 
-     * @returns 
+     * @param {string} text
+     * @param { "normal" | "info" | "warn" | "warning" | "error" } statusType
+     * @param {number} time
+     * @returns
      */
     showStatus(text, statusType, time) {
         const statusElem = document.getElementById('noVNC_status');
@@ -1614,44 +1614,41 @@ const UI = {
      *   TOUCHPAD
      * ------v------*/
 
-        toggleTouchpadMode() {
-            if (!UI.rfb) return;
-    
-            UI.rfb.touchpadMode = !UI.rfb.touchpadMode;
-            WebUtil.writeSetting('touchpad_mode', UI.rfb.touchpadMode);
-            UI.updateTouchpadMode();
-            UI.updateViewDrag();
-        },
-    
-        updateTouchpadMode() {
-            if (UI.rfb.touchpadMode) {
-                UI.rfb.dragViewport = false;
-                
-                UI.forceSetting('resize', 'off');
-                UI.forceSetting('view_clip', true);
-                UI.forceSetting('show_dot', true);
+    toggleTouchpadMode() {
+        if (!UI.rfb) return;
 
-                UI.rfb.clipViewport = true;
-                UI.rfb.scaleViewport = false;
-                UI.rfb.resizeSession = false;
-                UI.rfb.showDotCursor = true;
-            }
-            else {
-                UI.enableSetting('resize');
-                UI.enableSetting('view_clip');
-                UI.enableSetting('show_dot');
-            }
+        UI.rfb.touchpadMode = !UI.rfb.touchpadMode;
+        WebUtil.writeSetting('touchpad_mode', UI.rfb.touchpadMode);
+        UI.updateTouchpadMode();
+        UI.updateViewDrag();
+    },
 
-            UI.updateViewDrag
+    updateTouchpadMode() {
+        if (UI.rfb.touchpadMode) {
+            UI.rfb.dragViewport = false;
 
-            const touchpadButton = document.getElementById('noVNC_touchpad_button');
-            if (UI.rfb.touchpadMode) {
-                touchpadButton.classList.add("noVNC_selected");
-            } else {
-                touchpadButton.classList.remove("noVNC_selected");
-            }
-        },
-    
+            UI.forceSetting('resize', 'off');
+            UI.forceSetting('view_clip', true);
+            UI.forceSetting('show_dot', true);
+
+            UI.rfb.clipViewport = true;
+            UI.rfb.scaleViewport = false;
+            UI.rfb.resizeSession = false;
+            UI.rfb.showDotCursor = true;
+        } else {
+            UI.enableSetting('resize');
+            UI.enableSetting('view_clip');
+            UI.enableSetting('show_dot');
+        }
+
+        const touchpadButton = document.getElementById('noVNC_touchpad_button');
+        if (UI.rfb.touchpadMode) {
+            touchpadButton.classList.add("noVNC_selected");
+        } else {
+            touchpadButton.classList.remove("noVNC_selected");
+        }
+    },
+
    /* ------^-------
     *   /TOUCHPAD
     * ==============

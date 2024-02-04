@@ -188,7 +188,7 @@ export default class RFB extends EventTargetMixin {
         this._viewportHasMoved = false;
         this._accumulatedWheelDeltaX = 0;
         this._accumulatedWheelDeltaY = 0;
-        
+
         // Gesture state
         this._gestureLastTapTime = null;
         this._gestureFirstDoubleTapEv = null;
@@ -413,7 +413,7 @@ export default class RFB extends EventTargetMixin {
             this._sendEncodings();
         }
     }
-    
+
     /**
      * @returns {boolean}
      */
@@ -422,7 +422,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     /**
-     * @param {boolean} enabled 
+     * @param {boolean} enabled
      */
     set touchpadMode(enabled) {
         if (!this._gestures) {
@@ -556,7 +556,7 @@ export default class RFB extends EventTargetMixin {
         const container = document.getElementById('noVNC_container');
         const containerBounds = container.getBoundingClientRect();
         const x = containerBounds.left + (containerBounds.width * .5);
-        const y = containerBounds.top + (containerBounds.height * .5)
+        const y = containerBounds.top + (containerBounds.height * .5);
         this._cursor.move(x, y);
 
         const elementPos = clientToElement(x, y, this._canvas);
@@ -1299,8 +1299,7 @@ export default class RFB extends EventTargetMixin {
                     case 'onetap':
                         if (this._touchpadMode) {
                             this._handleTouchpadOneTapEvent();
-                        }
-                        else {
+                        } else {
                             this._handleTapEvent(ev, 0x1);
                         }
                         break;
@@ -1326,12 +1325,12 @@ export default class RFB extends EventTargetMixin {
                         // sequence.
                         if (this._touchpadMode) {
                             if (this._touchpadTapTimeoutId > 0) {
-                                    this._clearTouchpadTapTimeoutId();
-                                    this._isTouchpadDragging = true;
-                                    this._mouseButtonMask = 0x1;
-                                    const cursorPos = this._getCursorPositionToCanvas();
-                                    this._sendMouse(cursorPos.x, cursorPos.y, 0x1);
-                                }
+                                this._clearTouchpadTapTimeoutId();
+                                this._isTouchpadDragging = true;
+                                this._mouseButtonMask = 0x1;
+                                const cursorPos = this._getCursorPositionToCanvas();
+                                this._sendMouse(cursorPos.x, cursorPos.y, 0x1);
+                            }
                             break;
                         }
                         this._fakeMouseMove(ev, pos.x, pos.y);
@@ -1343,8 +1342,7 @@ export default class RFB extends EventTargetMixin {
                         if (this._touchpadMode) {
                             const cursorPos = this._getCursorPositionToCanvas();
                             this._handleMouseButton(cursorPos.x, cursorPos.y, true, 0x4);
-                        }
-                        else {
+                        } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                             this._handleMouseButton(pos.x, pos.y, true, 0x4);
                         }
@@ -1382,8 +1380,7 @@ export default class RFB extends EventTargetMixin {
                         // current position, not to where the touch currently is.
                         if (this._touchpadMode) {
                             this._handleTouchpadMove(ev.detail.movementX, ev.detail.movementY);
-                        }
-                        else {
+                        } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                         }
                         break;
@@ -1427,7 +1424,7 @@ export default class RFB extends EventTargetMixin {
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                     
+
                         if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
                             this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                             while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
@@ -1472,8 +1469,7 @@ export default class RFB extends EventTargetMixin {
                         if (this._touchpadMode) {
                             const cursorPos = this._getCursorPositionToCanvas();
                             this._handleMouseButton(cursorPos.x, cursorPos.y, false, 0x4);
-                        }
-                        else {
+                        } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                             this._handleMouseButton(pos.x, pos.y, false, 0x4);
                         }
@@ -1484,10 +1480,10 @@ export default class RFB extends EventTargetMixin {
     }
 
     // TouchpadMode Private Methods
-       
+
     /**
-     * @param {number} movementX 
-     * @param {number} movementY 
+     * @param {number} movementX
+     * @param {number} movementY
      */
     _handleTouchpadMove(movementX, movementY) {
 
@@ -1511,12 +1507,10 @@ export default class RFB extends EventTargetMixin {
 
         // See if the cursor has moved outside the center deadzone.
         const deadzone = this._getTouchpadCursorDeadZone();
-        const moveViewportX = 
-            Math.min(safeX - deadzone.left, 0) +
+        const moveViewportX = Math.min(safeX - deadzone.left, 0) +
             Math.max(safeX - deadzone.right, 0);
 
-        const moveViewportY =
-            Math.min(safeY - deadzone.top, 0) +
+        const moveViewportY = Math.min(safeY - deadzone.top, 0) +
             Math.max(safeY - deadzone.bottom, 0);
 
         // Try moving the viewport, getting the actual amount it moved.
@@ -1534,8 +1528,8 @@ export default class RFB extends EventTargetMixin {
         const posFromCanvas = clientToElement(safeX, safeY, this._canvas);
         const hotspot = this._cursor.hotspot;
         this._sendMouse(
-            posFromCanvas.x + hotspot.x, 
-            posFromCanvas.y + hotspot.y, 
+            posFromCanvas.x + hotspot.x,
+            posFromCanvas.y + hotspot.y,
             this._mouseButtonMask);
     }
 
@@ -1547,7 +1541,7 @@ export default class RFB extends EventTargetMixin {
             this._sendTouchpadTap();
             return;
         }
-        
+
         this._touchpadTapTimeoutId = window.setTimeout(() => {
             this._clearTouchpadTapTimeoutId();
             this._sendTouchpadTap();
@@ -1556,8 +1550,8 @@ export default class RFB extends EventTargetMixin {
     }
 
     /**
-     * 
-     * @param {number} magnitude 
+     *
+     * @param {number} magnitude
      */
     _handleTouchpadPinchZoom(magnitude) {
         if (this._lastTouchpadPinchMagnitude > 0) {
@@ -1570,16 +1564,16 @@ export default class RFB extends EventTargetMixin {
             // Capture the current viewport size.
             const originalVpW = this._display.viewportLocation.w;
             const originalVpH = this._display.viewportLocation.h;
-            
+
             // Change viewport size based on new scale.
             const newWidth = container.clientWidth * this._currentPinchScale;
             const newHeight = container.clientHeight * this._currentPinchScale;
             this._display.viewportChangeSize(newWidth, newHeight);
-            
+
             // Apply scaling to CSS.
             const visualScale = container.clientWidth / newWidth;
             this._display.rescale(visualScale);
-        
+
             // Adjust viewport location to keep it centered.
             const moveX = (originalVpW - this._display.viewportLocation.w) / 2;
             const moveY =  (originalVpH - this._display.viewportLocation.h) / 2;
@@ -1644,7 +1638,7 @@ export default class RFB extends EventTargetMixin {
         const canvasCenter = {
             x: canvasBounds.width * .5,
             y: canvasBounds.height * .5
-        }
+        };
         const xFromCenter = canvasBounds.width * .1;
         const yFromCenter = canvasBounds.height * .1;
         const innerWidth = xFromCenter * 2;
@@ -1657,7 +1651,7 @@ export default class RFB extends EventTargetMixin {
             left: canvasCenter.x - xFromCenter,
             right: canvasCenter.x + xFromCenter,
             width: innerWidth
-        }
+        };
     }
 
     // Message Handlers
