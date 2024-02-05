@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const program = require('commander');
+const { program } = require('commander');
 const fs = require('fs');
 const fse = require('fs-extra');
 const babel = require('@babel/core');
