@@ -6,14 +6,14 @@ jobs:
   eslint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm update
       - run: npm run lint
   html:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm update
       - run: git ls-tree --name-only -r HEAD | grep -E "[.](html|css)$" | xargs ./utils/validate
