@@ -329,18 +329,24 @@ export default class Display {
     }
 
     applyScreenPlan(screenPlan) {
+        //check all screens for any changes, but only apply changes to primary screen, secondary screens will individually be updated and report back with their new settings
         let changes = false;
         for (let i = 0; i < screenPlan.screens.length; i++) {
             for (let z = 0; z < this._screens.length; z++) {
                 if (screenPlan.screens[i].screenID === this._screens[z].screenID) {
                     if (this._screens[z].x !== screenPlan.screens[i].x || this._screens[z].y !== screenPlan.screens[i].y) {
-                        this._screens[z].x = screenPlan.screens[i].x;
-                        this._screens[z].y = screenPlan.screens[i].y;
+                        if (z == 0) {
+                            this._screens[z].x = screenPlan.screens[i].x;
+                            this._screens[z].y = screenPlan.screens[i].y;
+                        }
                         changes = true;
                     }
                     if (this._screens[z].x2 !== this._screens[z].x + this._screens[z].serverWidth || this._screens[z].y2 !== this._screens[z].y + this._screens[z].serverHeight) {
-                        this._screens[z].x2 = this._screens[z].x + this._screens[z].serverWidth
-                        this._screens[z].y2 = this._screens[z].y + this._screens[z].serverHeight
+                        if (z == 0) {
+                            this._screens[z].x2 = this._screens[z].x + this._screens[z].serverWidth
+                            this._screens[z].y2 = this._screens[z].y + this._screens[z].serverHeight
+
+                        }
                         changes = true;
                     }
                 }
@@ -349,7 +355,7 @@ export default class Display {
         return changes;
     }
 
-    addScreen(screenID, width, height, pixelRatio, containerHeight, containerWidth, scale, serverWidth, serverHeight) {
+    addScreen(screenID, width, height, pixelRatio, containerHeight, containerWidth, scale, serverWidth, serverHeight, x, y) {
         if (!this._isPrimaryDisplay) {
             throw new Error("Cannot add a screen to a secondary display.");
         }
@@ -367,23 +373,26 @@ export default class Display {
 
         if (screenIdx > 0) {
             //existing screen, update
-            const screen = this._screens[screenIdx];
-            if (screen.serverHeight !== serverHeight || screen.serverWidth !== serverWidth || screen.width !== width || screen.height !== height || screen.containerHeight !== containerHeight || screen.containerWidth !== containerWidth || screen.scale !== screen.scale || screen.pixelRatio !== screen.pixelRatio) {
-                screen.width = width;
-                screen.height = height;
-                screen.containerHeight = containerHeight;
-                screen.containerWidth = containerWidth;
-                screen.pixelRatio = pixelRatio;
-                screen.scale = scale;
-                screen.serverWidth = serverWidth;
-                screen.serverHeight = serverHeight;
-                screen.x2 = screen.x + screen.serverWidth;
-                screen.y2 = screen.y + screen.serverHeight;
+            const existing_screen = this._screens[screenIdx];
+            if (existing_screen.serverHeight !== serverHeight || existing_screen.serverWidth !== serverWidth || existing_screen.width !== width || existing_screen.height !== height 
+                || existing_screen.containerHeight !== containerHeight || existing_screen.containerWidth !== containerWidth || existing_screen.scale !== scale || existing_screen.pixelRatio !== pixelRatio || 
+                existing_screen.x !== x || existing_screen.y !== y) {
+                existing_screen.width = width;
+                existing_screen.height = height;
+                existing_screen.containerHeight = containerHeight;
+                existing_screen.containerWidth = containerWidth;
+                existing_screen.pixelRatio = pixelRatio;
+                existing_screen.scale = scale;
+                existing_screen.serverWidth = serverWidth;
+                existing_screen.serverHeight = serverHeight;
+                existing_screen.x = x;
+                existing_screen.y = y;
+                existing_screen.x2 = existing_screen.x + existing_screen.serverWidth;
+                existing_screen.y2 = existing_screen.y + existing_screen.serverHeight;
                 return true;
             }
         } else {
             //New Screen, add to far right until user repositions it
-            let x = 0;
             for (let i = 0; i < this._screens.length; i++) {
                 x = Math.max(x, this._screens[i].x + this._screens[i].serverWidth);
             }

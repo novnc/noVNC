@@ -805,6 +805,8 @@ export default class RFB extends EventTargetMixin {
                 }
 
                 this._pendingApplyResolutionChange = true;
+            } else {
+                Log.Debug("Screen plan did not apply, no changes detected.");
             }
             
             return changes;
@@ -1814,7 +1816,7 @@ export default class RFB extends EventTargetMixin {
                         ...event.data.details,
                         screenID: event.data.screenID
                     }
-                    let screenIndex = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight);
+                    let screenIndex = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight, event.data.x, event.data.y);
                     this._proxyRFBMessage('screenRegistrationConfirmed', [ this._display.screens[screenIndex].screenID, screenIndex ]);
                     this._sendEncodings();
                     clearTimeout(this._resizeTimeout);
@@ -1823,14 +1825,12 @@ export default class RFB extends EventTargetMixin {
                     Log.Info(`Secondary monitor (${event.data.screenID}) has been registered.`);
                     break;
                 case 'reattach':
-                    let changes = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight);
+                    let changes = this._display.addScreen(event.data.screenID, event.data.width, event.data.height, event.data.pixelRatio, event.data.containerHeight, event.data.containerWidth, event.data.scale, event.data.serverWidth, event.data.serverHeight, event.data.x, event.data.y);
                     
-                    if (changes) {
-                        clearTimeout(this._resizeTimeout);
-                        this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
-                        this.dispatchEvent(new CustomEvent("screenregistered", {}));
-                        Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
-                    }
+                    clearTimeout(this._resizeTimeout);
+                    this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
+                    this.dispatchEvent(new CustomEvent("screenregistered", {}));
+                    Log.Info(`Secondary monitor (${event.data.screenID}) has been reattached.`);
                     break;
                 case 'unregister':
                     if (this._display.removeScreen(event.data.screenID)) {
@@ -2257,7 +2257,7 @@ export default class RFB extends EventTargetMixin {
 
         //Simulate a left click on focus change
         //this was added to aid multi-display, not requiring two clicks when switching between displays
-        if (this._sendLeftClickonNextMove) {
+        if (this._sendLeftClickonNextMove && this._display.screens.length > 1) {
             this._sendLeftClickonNextMove = false;
             this._handleMouseButton(this._mousePos.x, this._mousePos.y, true, 0x1);
             this._handleMouseButton(this._mousePos.x, this._mousePos.y, false, 0x1);
