@@ -206,7 +206,7 @@ const UI = {
         UI.screenID = screen.screenID
         UI.screen = screen
         document.querySelector('title').textContent = 'Display ' + UI.screenID
-
+        window.name = UI.screenID
 
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard

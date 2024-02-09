@@ -1391,6 +1391,8 @@ const UI = {
 
         UI.hideStatus();
 
+        window.name = 'primaryDisplay'
+
         if (!host) {
             Log.Error("Can't connect when host is: " + host);
             UI.showStatus(_("Must set host"), 'error');
