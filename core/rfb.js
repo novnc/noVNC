@@ -175,6 +175,7 @@ export default class RFB extends EventTargetMixin {
         this._disconnTimer = null;      // disconnection timer
         this._resizeTimeout = null;     // resize rate limiting
         this._mouseMoveTimer = null;
+        this._forceFullFrameUpdateTimeout = null;
 
         // Decoder states
         this._decoders = {};
@@ -4139,6 +4140,14 @@ export default class RFB extends EventTargetMixin {
                      + msg);
         } else {
             this._resize(this._FBU.width, this._FBU.height);
+        }
+
+        // There are certain conditions with multi-monitor that warrent forcing a full frame update after a delay
+        if (this._display.screens.length > 1) {
+            clearTimeout(this._forceFullFrameUpdateTimeout);
+            this._forceFullFrameUpdateTimeout = setTimeout(function(){
+                RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fbWidth, this._fbHeight)
+            }.bind(this), 500);
         }
 
         return true;
