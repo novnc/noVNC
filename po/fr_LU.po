@@ -15,10 +15,10 @@ msgid "Must set host"
 msgstr "Doit définir l'hôte"
 
 msgid "Connected (encrypted) to "
-msgstr "Connecté (crypté) à"
+msgstr "Connecté (chiffré) à"
 
 msgid "Connected (unencrypted) to "
-msgstr "Connecté (non crypté) à"
+msgstr "Connecté (non chiffré) à"
 
 msgid "Something went wrong, connection is closed"
 msgstr "Quelque chose s'est mal passé, la connexion est fermée"
