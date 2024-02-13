@@ -18,7 +18,7 @@ import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
 
-const PAGE_TITLE = "noVNC";
+const PAGE_TITLE = "auto-mcs";
 
 const UI = {
 
@@ -1734,7 +1734,7 @@ const UI = {
     updateDesktopName(e) {
         UI.desktopName = e.detail.name;
         // Display the desktop name in the document title
-        document.title = e.detail.name + " - " + PAGE_TITLE;
+        document.title = PAGE_TITLE;
     },
 
     bell(e) {
