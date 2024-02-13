@@ -1,3 +1,6 @@
+## Modded version for auto-mcs the shitbox thing
+
+
 ## noVNC: HTML VNC Client Library and Application
 
 [![Test Status](https://github.com/novnc/noVNC/workflows/Test/badge.svg)](https://github.com/novnc/noVNC/actions?query=workflow%3ATest)
@@ -77,6 +80,7 @@ Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 * Touch gestures for emulating common mouse actions
 * Licensed mainly under the [MPL 2.0](http://www.mozilla.org/MPL/2.0/), see
   [the license document](LICENSE.txt) for details
+* Clipboard support by Juanjo Díaz
 
 ### Screenshots
 

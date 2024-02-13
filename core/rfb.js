@@ -15,6 +15,7 @@ import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
 import Display from "./display.js";
+import Clipboard from "./clipboard.js";
 import Inflator from "./inflator.js";
 import Deflator from "./deflator.js";
 import Keyboard from "./input/keyboard.js";
@@ -149,7 +150,7 @@ export default class RFB extends EventTargetMixin {
         this._screenFlags = 0;
 
         this._qemuExtKeyEventSupported = false;
-
+        this._clipboard = null;
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
         this._clipboardServerCapabilitiesFormats = {};
@@ -258,6 +259,9 @@ export default class RFB extends EventTargetMixin {
             throw exc;
         }
 
+        this._clipboard = new Clipboard(this._canvas);
+        this._clipboard.onpaste = this.clipboardPasteFrom.bind(this);
+
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
         this._remoteCapsLock = null; // Null indicates unknown or irrelevant
@@ -311,8 +315,10 @@ export default class RFB extends EventTargetMixin {
             this._rfbConnectionState === "connected") {
             if (viewOnly) {
                 this._keyboard.ungrab();
+                this._clipboard.ungrab();
             } else {
                 this._keyboard.grab();
+                this._clipboard.grab();
             }
         }
     }
@@ -2091,7 +2097,7 @@ export default class RFB extends EventTargetMixin {
         this._setDesktopName(name);
         this._resize(width, height);
 
-        if (!this._viewOnly) { this._keyboard.grab(); }
+        if (!this._viewOnly) { this._keyboard.grab(); this._clipboard.grab(); }
 
         this._fbDepth = 24;
 
@@ -2201,6 +2207,21 @@ export default class RFB extends EventTargetMixin {
         return this._fail("Unexpected SetColorMapEntries message");
     }
 
+    _triggerClipboardEvent(text) {
+        this.dispatchEvent(new CustomEvent("clipboard", { detail: { text: text } }));
+
+        if (Clipboard.isSupported) {
+            const clipboardData = new DataTransfer();
+            clipboardData.setData("text/plain", text);
+            const clipboardEvent = new ClipboardEvent('copy', { clipboardData });
+            // Force initialization since the constructor is broken in Firefox
+            if (!clipboardEvent.clipboardData.items.length) {
+                clipboardEvent.clipboardData.items.add(text, "text/plain");
+            }
+            this._canvas.dispatchEvent(clipboardEvent);
+        }
+    }
+
     _handleServerCutText() {
         Log.Debug("ServerCutText");
 
@@ -2219,6 +2240,8 @@ export default class RFB extends EventTargetMixin {
             if (this._viewOnly) {
                 return true;
             }
+
+            this._triggerClipboardEvent(text);
 
             this.dispatchEvent(new CustomEvent(
                 "clipboard",
@@ -2357,6 +2380,8 @@ export default class RFB extends EventTargetMixin {
                     }
 
                     textData = textData.replace("\r\n", "\n");
+
+                    this._triggerClipboardEvent(textData);
 
                     this.dispatchEvent(new CustomEvent(
                         "clipboard",

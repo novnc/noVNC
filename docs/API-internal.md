@@ -18,6 +18,8 @@ keysym values.
 * __Display__ (core/display.js): Efficient 2D rendering abstraction
 layered on the HTML5 canvas element.
 
+* __Clipboard__ (core/clipboard.js): Clipboard event handler.
+
 * __Websock__ (core/websock.js): Websock client from websockify
 with transparent binary data support.
 [Websock API](https://github.com/novnc/websockify-js/wiki/websock.js) wiki page.
