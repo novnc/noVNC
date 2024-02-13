@@ -1604,6 +1604,7 @@ export default class RFB extends EventTargetMixin {
             }
 
             const size = this._screenSize();
+            this._forceFullFrameUpdateAfterResize = true;
             RFB.messages.setDesktopSize(this._sock, size, this._screenFlags);
 
             Log.Debug('Requested new desktop size: ' +
@@ -2204,7 +2205,7 @@ export default class RFB extends EventTargetMixin {
         this._sendLeftClickonNextMove = false;
     }
 
-    _handleMouseMove(x, y, down) {
+    _handleMouseMove(x, y, down, simulated=false) {
         if (this._viewportDragging) {
             const deltaX = this._viewportDragPos.x - x;
             const deltaY = this._viewportDragPos.y - y;
@@ -2223,8 +2224,9 @@ export default class RFB extends EventTargetMixin {
 
         // With multiple displays, it is possible to end up in a state where we lost the mouseup event
         // If a mouse move indicates no buttons are down but the current state shows something down, lets clear the plate
-        if (this._mouseButtonMask !== 0 && !down) {
+        if (this._mouseButtonMask !== 0 && !down && !simulated) {
             this._mouseButtonMask = 0;
+            Log.Debug('Mouse event button down mismatch with current mask, resetting mask to 0.')
         }
 
         this._mousePos = { 'x': x, 'y': y };
@@ -2373,7 +2375,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     _fakeMouseMove(ev, elementX, elementY) {
-        this._handleMouseMove(elementX, elementY, false);
+        this._handleMouseMove(elementX, elementY, false, true);
         this._cursor.move(ev.detail.clientX, ev.detail.clientY);
     }
 
@@ -4143,7 +4145,8 @@ export default class RFB extends EventTargetMixin {
         }
 
         // There are certain conditions with multi-monitor that warrent forcing a full frame update after a delay
-        if (this._display.screens.length > 1) {
+        if (this._display.screens.length > 1 && this._forceFullFrameUpdateAfterResize) {
+            this._forceFullFrameUpdateAfterResize = false;
             clearTimeout(this._forceFullFrameUpdateTimeout);
             this._forceFullFrameUpdateTimeout = setTimeout(function(){
                 RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fbWidth, this._fbHeight)
