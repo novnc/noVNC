@@ -618,10 +618,12 @@ const UI = {
         const anchor = document.getElementById('noVNC_control_bar_anchor');
         if (ptr.clientX < (window.innerWidth * 0.1)) {
             if (anchor.classList.contains("noVNC_right")) {
+                document.getElementById("noVNC_control_bar_handle").style.left = "40px";
                 UI.toggleControlbarSide();
             }
         } else if (ptr.clientX > (window.innerWidth * 0.9)) {
             if (!anchor.classList.contains("noVNC_right")) {
+                document.getElementById("noVNC_control_bar_handle").style.left = "-20px";
                 UI.toggleControlbarSide();
             }
         }
