@@ -582,9 +582,11 @@ const UI = {
         if (anchor.classList.contains("noVNC_right")) {
             WebUtil.writeSetting('controlbar_pos', 'left');
             anchor.classList.remove("noVNC_right");
+            document.getElementById("noVNC_control_bar_handle").style.left = "40px";
         } else {
             WebUtil.writeSetting('controlbar_pos', 'right');
             anchor.classList.add("noVNC_right");
+            document.getElementById("noVNC_control_bar_handle").style.left = "-20px";
         }
 
         // Consider this a movement of the handle
