@@ -625,6 +625,7 @@ html {
 
 .noVNC_version_wrapper {
   font-size: small;
+  opacity: 0.3;
 }
 
 .noVNC_version {
