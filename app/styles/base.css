@@ -707,7 +707,7 @@ html {
 
 #noVNC_connect_dlg {
   transition: 0.5s ease-in-out;
-
+  width: 50%;
   transform: scale(0, 0);
   visibility: hidden;
   opacity: 0;
@@ -721,11 +721,13 @@ html {
   transition: 0.5s ease-in-out;
   padding: 10px;
   margin-bottom: 10px;
-
   font-size: 80px;
   text-align: center;
-
   border-radius: 5px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 70px;
 }
 @media (max-width: 440px) {
   #noVNC_connect_dlg {
@@ -733,10 +735,6 @@ html {
   }
   #noVNC_connect_dlg .noVNC_logo {
     font-size: calc(25vw - 30px);
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 70px;
   }
 }
 #noVNC_connect_dlg div {
@@ -746,7 +744,9 @@ html {
   border-radius: 12px;
   text-align: center;
   font-size: 30px;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  margin: auto;
+  /* box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2); */
 }
 #noVNC_connect_button {
   width: 100%;
