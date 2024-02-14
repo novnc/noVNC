@@ -244,9 +244,6 @@ html {
   background-color: #0A0A16;
   border-radius: 0 10px 10px 0;
   
-  display: flex;
-  align-items: center;
-  
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none; /* Disable iOS image long-press popup */
