@@ -37,7 +37,7 @@ body {
   margin:0;
   padding:0;
   /*Background image with light grey curve.*/
-  background-color:#494949;
+  background-color:#1D1D2E;
   background-repeat:no-repeat;
   background-position:right bottom;
   height:100%;
@@ -742,6 +742,7 @@ html {
   border-radius: 12px;
   text-align: center;
   font-size: 30px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
 }
 #noVNC_connect_button {
   width: 100%;
