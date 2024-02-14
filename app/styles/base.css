@@ -733,6 +733,10 @@ html {
   }
   #noVNC_connect_dlg .noVNC_logo {
     font-size: calc(25vw - 30px);
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 70px;
   }
 }
 #noVNC_connect_dlg div {
@@ -752,6 +756,7 @@ html {
   background: #C1C1FF;
   color: #223;
   letter-spacing: 0.06em;
+  font-weight: 550;
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
@@ -765,6 +770,7 @@ html {
   color: #223;
   height: 1.3em;
   margin-left: -27px !important;
+  float: left;
 }
 
 /* ----------------------------------------
@@ -887,6 +893,7 @@ html {
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
   line-height: 0.9;
   text-shadow: 0.1em 0.1em 0 black;
+  width: 90%;
 }
 .noVNC_logo span{
   color:green;
