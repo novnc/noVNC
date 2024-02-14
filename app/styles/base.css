@@ -708,7 +708,7 @@ html {
 
 #noVNC_connect_dlg {
   transition: 0.5s ease-in-out;
-  width: 50%;
+  width: 40%;
   transform: scale(0, 0);
   visibility: hidden;
   opacity: 0;
