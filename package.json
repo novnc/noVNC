@@ -1,6 +1,6 @@
 {
   "name": "@novnc/novnc",
-  "version": "1.4.0",
+  "version": "yesVNC-0.0.1",
   "description": "An HTML5 VNC client",
   "browser": "lib/rfb",
   "directories": {
