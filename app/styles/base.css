@@ -685,7 +685,7 @@ html {
 }
 
 #noVNC_status.noVNC_status_normal {
-  background: rgba(141,230,172,1);
+  background: rgba(121,210,152,1);
 }
 #noVNC_status.noVNC_status_normal::before {
   content: url("../images/info.svg") " ";
