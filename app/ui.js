@@ -1734,7 +1734,7 @@ const UI = {
     updateDesktopName(e) {
         UI.desktopName = e.detail.name;
         // Display the desktop name in the document title
-        document.title = PAGE_TITLE;
+        document.title = PAGE_TITLE + " (connected)";
     },
 
     bell(e) {
