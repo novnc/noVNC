@@ -282,26 +282,26 @@ html {
   left: -15px;
   /* top: 0; */
   transform: translateY(35px);
-  width: calc(100% + 30px);
+  width: calc(100% + 35px);
   height: 50px;
   z-index: -1;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 12px;
   background-color: #0A0A16;
   /* background-image: url("../images/handle_bg.svg"); */
   background-repeat: no-repeat;
   background-position: right;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+  /* box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5); */
 }
 #noVNC_control_bar_handle:after {
   content: "";
   transition: transform 0.5s ease-in-out;
   background: url("../images/handle.svg");
   position: absolute;
-  top: 22px; /* (50px-6px)/2 */
+  top: 18.2px; /* (50px-13.2px)/2 */
   right: 5px;
-  width: 5px;
-  height: 6px;
+  width: 11px;
+  height: 13.2px;
 }
 #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
   transform: translateX(1px) rotate(180deg);
