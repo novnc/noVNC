@@ -444,11 +444,11 @@ html {
 
   padding: 15px;
 
-  background: #fff;
-  border-radius: 10px;
-  color: #000;
-  border: 2px solid #E0E0E0;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  background: #bebaff;
+  border-radius: 15px;
+  color: #223;
+  /* border: 2px solid #E0E0E0; */
+  /* box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5); */
 }
 .noVNC_panel.noVNC_open {
   visibility: visible;
@@ -494,16 +494,19 @@ html {
 
 .noVNC_panel .noVNC_heading {
   background-color: rgb(110, 132, 163);
-  border-radius: 5px;
+  border-radius: 20px;
+  color: rgb(193 193 255);
   padding: 5px;
   /* Compensate for padding in image */
   padding-right: 8px;
   color: white;
   font-size: 20px;
   white-space: nowrap;
+  background-color: #223;
 }
 .noVNC_panel .noVNC_heading img {
   vertical-align: bottom;
+  padding-right: 10px;
 }
 
 .noVNC_submit {
