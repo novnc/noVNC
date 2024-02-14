@@ -239,8 +239,8 @@ input:focus-visible::file-selector-button,
 button:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid rgb(74, 144, 217);
-  outline-offset: 1px;
+  outline: 2px solid rgb(255 255 255);
+  outline-offset: 0px;
 }
 input[type=file]:focus-visible {
   outline: none; /* We outline the button instead of the entire element */
