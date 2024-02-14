@@ -89,10 +89,10 @@ input[type=checkbox] {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background-color: white;
+  background-color: #222233;
+  border: 1px solid #222233;
+  border-radius: 4px;
   background-image: unset;
-  border: 1px solid dimgrey;
-  border-radius: 3px;
   width: 13px;
   height: 13px;
   padding: 0;
@@ -101,8 +101,8 @@ input[type=checkbox] {
   transition: 0.2s background-color linear;
 }
 input[type=checkbox]:checked {
-  background-color: rgb(110, 132, 163);
-  border-color: rgb(110, 132, 163);
+  background-color: rgb(178 158 255);
+  border-color: rgb(178 158 255);
 }
 input[type=checkbox]:checked::after {
   content: "";
