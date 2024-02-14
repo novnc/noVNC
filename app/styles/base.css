@@ -666,7 +666,7 @@ html {
 
   line-height: 1.6;
   word-wrap: break-word;
-  color: #fff;
+  color: rgba(0, 0, 0, 0.8);
 
   border-bottom: 1px solid rgba(0, 0, 0, 0.9);
 }
@@ -685,7 +685,7 @@ html {
 }
 
 #noVNC_status.noVNC_status_normal {
-  background: rgba(128,128,128,0.9);
+  background: rgba(141,230,172,0.9);
 }
 #noVNC_status.noVNC_status_normal::before {
   content: url("../images/info.svg") " ";
