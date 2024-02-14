@@ -737,23 +737,20 @@ html {
 }
 #noVNC_connect_dlg div {
   padding: 12px;
-
   background-color: #C1C1FF;
   color: #223;
   border-radius: 12px;
   text-align: center;
-  font-size: 20px;
-
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  font-size: 30px;
 }
 #noVNC_connect_button {
   width: 100%;
   padding: 5px 30px;
-
+  text-transform: uppercase;
   cursor: pointer;
-
   background: #C1C1FF;
   color: #223;
+  letter-spacing: 0.06em;
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
@@ -766,6 +763,7 @@ html {
   vertical-align: bottom;
   color: #223;
   height: 1.3em;
+  margin-left: -27px !important;
 }
 
 /* ----------------------------------------
