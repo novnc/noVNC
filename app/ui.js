@@ -18,7 +18,7 @@ import Keyboard from "../core/input/keyboard.js";
 import RFB from "../core/rfb.js";
 import * as WebUtil from "./webutil.js";
 
-const PAGE_TITLE = "noVNC";
+const PAGE_TITLE = "auto-mcs";
 
 const UI = {
 
@@ -582,9 +582,11 @@ const UI = {
         if (anchor.classList.contains("noVNC_right")) {
             WebUtil.writeSetting('controlbar_pos', 'left');
             anchor.classList.remove("noVNC_right");
+            document.getElementById("noVNC_control_bar_handle").style.left = "40px";
         } else {
             WebUtil.writeSetting('controlbar_pos', 'right');
             anchor.classList.add("noVNC_right");
+            document.getElementById("noVNC_control_bar_handle").style.left = "-20px";
         }
 
         // Consider this a movement of the handle
@@ -618,10 +620,12 @@ const UI = {
         const anchor = document.getElementById('noVNC_control_bar_anchor');
         if (ptr.clientX < (window.innerWidth * 0.1)) {
             if (anchor.classList.contains("noVNC_right")) {
+                document.getElementById("noVNC_control_bar_handle").style.left = "40px";
                 UI.toggleControlbarSide();
             }
         } else if (ptr.clientX > (window.innerWidth * 0.9)) {
             if (!anchor.classList.contains("noVNC_right")) {
+                document.getElementById("noVNC_control_bar_handle").style.left = "-20px";
                 UI.toggleControlbarSide();
             }
         }
@@ -1734,7 +1738,7 @@ const UI = {
     updateDesktopName(e) {
         UI.desktopName = e.detail.name;
         // Display the desktop name in the document title
-        document.title = e.detail.name + " - " + PAGE_TITLE;
+        document.title = PAGE_TITLE + " (connected)";
     },
 
     bell(e) {

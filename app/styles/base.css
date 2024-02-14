@@ -37,7 +37,7 @@ body {
   margin:0;
   padding:0;
   /*Background image with light grey curve.*/
-  background-color:#494949;
+  background-color:#1D1D2E;
   background-repeat:no-repeat;
   background-position:right bottom;
   height:100%;
@@ -241,16 +241,16 @@ html {
 
   transition: 0.5s ease-in-out;
 
-  background-color: rgb(110, 132, 163);
-  border-radius: 0 10px 10px 0;
-
+  background-color: #0A0A16;
+  border-radius: 25px;
+  
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none; /* Disable iOS image long-press popup */
 }
 #noVNC_control_bar.noVNC_open {
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
-  left: 0;
+  /* box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5); */
+  left: 10px;
 }
 #noVNC_control_bar::before {
   /* This extra element is to get a proper shadow */
@@ -261,16 +261,17 @@ html {
   width: 30px;
   left: -30px;
   transition: box-shadow 0.5s ease-in-out;
+  display: none;
 }
 #noVNC_control_bar.noVNC_open::before {
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
 }
 .noVNC_right #noVNC_control_bar {
   left: 100%;
-  border-radius: 10px 0 0 10px;
+  border-radius: 25px;
 }
 .noVNC_right #noVNC_control_bar.noVNC_open {
-  left: 0;
+  left: -10px;
 }
 .noVNC_right #noVNC_control_bar::before {
   visibility: hidden;
@@ -278,29 +279,29 @@ html {
 
 #noVNC_control_bar_handle {
   position: absolute;
-  left: -15px;
-  top: 0;
+  left: 40px;
+  /* top: 0; */
   transform: translateY(35px);
-  width: calc(100% + 30px);
+  width: 35px;
   height: 50px;
   z-index: -1;
   cursor: pointer;
-  border-radius: 5px;
-  background-color: rgb(83, 99, 122);
-  background-image: url("../images/handle_bg.svg");
+  border-radius: 12px;
+  background-color: #0A0A16;
+  /* background-image: url("../images/handle_bg.svg"); */
   background-repeat: no-repeat;
   background-position: right;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+  /* box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5); */
 }
 #noVNC_control_bar_handle:after {
   content: "";
   transition: transform 0.5s ease-in-out;
   background: url("../images/handle.svg");
   position: absolute;
-  top: 22px; /* (50px-6px)/2 */
+  top: 18.2px; /* (50px-13.2px)/2 */
   right: 5px;
-  width: 5px;
-  height: 6px;
+  width: 11px;
+  height: 13.2px;
 }
 #noVNC_control_bar.noVNC_open #noVNC_control_bar_handle:after {
   transform: translateX(1px) rotate(180deg);
@@ -389,8 +390,8 @@ html {
 #noVNC_control_bar .noVNC_button {
   padding: 4px 4px;
   vertical-align: middle;
-  border:1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border: 0px;
+  border-radius: 20px;
   background-color: transparent;
   background-image: unset; /* we don't want the gradiant from input.css */
 }
@@ -707,7 +708,7 @@ html {
 
 #noVNC_connect_dlg {
   transition: 0.5s ease-in-out;
-
+  width: 35%;
   transform: scale(0, 0);
   visibility: hidden;
   opacity: 0;
@@ -721,11 +722,13 @@ html {
   transition: 0.5s ease-in-out;
   padding: 10px;
   margin-bottom: 10px;
-
   font-size: 80px;
   text-align: center;
-
   border-radius: 5px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 70px;
 }
 @media (max-width: 440px) {
   #noVNC_connect_dlg {
@@ -737,36 +740,39 @@ html {
 }
 #noVNC_connect_dlg div {
   padding: 12px;
-
-  background-color: rgb(110, 132, 163);
+  background-color: #C1C1FF;
+  color: #223;
   border-radius: 12px;
   text-align: center;
-  font-size: 20px;
-
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  font-size: 30px;
+  width: 80%;
+  margin: auto;
+  /* box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2); */
 }
 #noVNC_connect_button {
   width: 100%;
   padding: 5px 30px;
-
+  text-transform: uppercase;
   cursor: pointer;
-
-  border-color: rgb(83, 99, 122);
-  border-radius: 5px;
-
-  background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
-  color: white;
+  background: #C1C1FF;
+  color: #223;
+  letter-spacing: 0.06em;
+  font-weight: 550;
+  border: 0px;
 
   /* This avoids it jumping around when :active */
   vertical-align: middle;
 }
 #noVNC_connect_button:hover {
-  background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
+  background: #C1C1FF;
 }
 
 #noVNC_connect_button img {
   vertical-align: bottom;
+  color: #223;
   height: 1.3em;
+  margin-left: -27px !important;
+  float: left;
 }
 
 /* ----------------------------------------
@@ -851,7 +857,7 @@ html {
 #noVNC_container {
   width: 100%;
   height: 100%;
-  background-color: #313131;
+  background-color: #1D1D2E;
   border-bottom-right-radius: 800px 600px;
   /*border-top-left-radius: 800px 600px;*/
 
@@ -889,6 +895,7 @@ html {
   font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
   line-height: 0.9;
   text-shadow: 0.1em 0.1em 0 black;
+  width: 90%;
 }
 .noVNC_logo span{
   color:green;
