@@ -279,7 +279,7 @@ html {
 
 #noVNC_control_bar_handle {
   position: absolute;
-  left: -15px;
+  left: 40px;
   /* top: 0; */
   transform: translateY(35px);
   width: 35px;
