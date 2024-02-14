@@ -928,17 +928,3 @@ html {
     font-size: 90px;
   }
 }
-
-/* Change checkboxes */
-input[type=checkbox] {
-    background-color: #222233;
-    border: 1px solid #222233;
-    border-radius: 4px;
-}
-
-input[type=checkbox]:checked {
-    background-color: rgb(178 158 255);
-    border-color: rgb(178 158 255);
-}
-
-
