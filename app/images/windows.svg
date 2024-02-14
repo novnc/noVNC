@@ -55,11 +55,11 @@
 </style>
 
 <path
-   style="fill:#ffffff;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+   style="fill:rgb(193, 193, 255);fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
    d="M 21 4 L 11 5.1757812 L 11 12 L 21 12 L 21 4 z M 10 5.2949219 L 4 6 L 4 12 L 10 12 L 10 5.2949219 z "
    transform="translate(-293,384)"
    id="path853" /><path
    id="path858"
    d="m -272,405 -10,-1.17578 V 397 h 10 z M -283,403.70508 -289,403 v -6 h 6 z"
-   style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+   style="fill:rgb(193, 193, 255);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
    inkscape:connector-curvature="0" /></svg>
