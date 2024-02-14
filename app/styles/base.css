@@ -282,7 +282,7 @@ html {
   left: -15px;
   /* top: 0; */
   transform: translateY(35px);
-  width: calc(100% + 35px);
+  width: 35px;
   height: 50px;
   z-index: -1;
   cursor: pointer;
