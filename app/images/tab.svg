@@ -73,14 +73,14 @@
      id="layer1"
      transform="translate(0,-1027.3622)">
     <path
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:rgb(193, 193, 255);fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        d="m 3,1031.3622 0,8 2,0 0,-4 0,-4 -2,0 z m 2,4 4,4 0,-3 13,0 0,-2 -13,0 0,-3 -4,4 z"
        id="rect5194"
        inkscape:connector-curvature="0" />
     <path
        id="path5211"
        d="m 22,1048.3622 0,-8 -2,0 0,4 0,4 2,0 z m -2,-4 -4,-4 0,3 -13,0 0,2 13,0 0,3 4,-4 z"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:rgb(193, 193, 255);fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        inkscape:connector-curvature="0" />
   </g>
 </svg>

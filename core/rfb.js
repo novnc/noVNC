@@ -39,7 +39,7 @@ import JPEGDecoder from "./decoders/jpeg.js";
 
 // How many seconds to wait for a disconnect to finish
 const DISCONNECT_TIMEOUT = 3;
-const DEFAULT_BACKGROUND = 'rgb(40, 40, 40)';
+const DEFAULT_BACKGROUND = '#1D1D2E';
 
 // Minimum wait (ms) between two mouse moves
 const MOUSE_MOVE_DELAY = 17;

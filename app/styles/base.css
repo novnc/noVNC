@@ -53,7 +53,7 @@ html {
 }
 
 .noVNC_disabled {
-  color: rgb(128, 128, 128);
+  color: rgb(123 115 154);
 }
 
 /* ----------------------------------------
@@ -404,7 +404,7 @@ html {
   background-color: rgba(0, 0, 0, 0.2);
 }
 #noVNC_control_bar .noVNC_button:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(155, 155, 255, 0.2);
 }
 #noVNC_control_bar .noVNC_button:not(:disabled):active {
   padding-top: 5px;
@@ -442,18 +442,17 @@ html {
   visibility: hidden;
   opacity: 0;
 
-  padding: 15px;
+  padding: 20px;
+  letter-spacing: 0.7px;
 
-  background: #fff;
-  border-radius: 10px;
-  color: #000;
-  border: 2px solid #E0E0E0;
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  background: rgb(69 62 75);
+  border-radius: 15px;
+  color: rgb(193 193 255);
 }
 .noVNC_panel.noVNC_open {
   visibility: visible;
   opacity: 1;
-  transform: translateX(75px);
+  transform: translateX(65px);
 }
 .noVNC_right .noVNC_vcenter {
   left: auto;
@@ -463,7 +462,7 @@ html {
   transform: translateX(-25px);
 }
 .noVNC_right .noVNC_panel.noVNC_open {
-  transform: translateX(-75px);
+  transform: translateX(-60px);
 }
 
 .noVNC_panel > * {
@@ -479,7 +478,7 @@ html {
 
 .noVNC_panel hr {
   border: none;
-  border-top: 1px solid rgb(192, 192, 192);
+  padding: 1px;
 }
 
 .noVNC_panel label {
@@ -494,16 +493,19 @@ html {
 
 .noVNC_panel .noVNC_heading {
   background-color: rgb(110, 132, 163);
-  border-radius: 5px;
+  border-radius: 20px;
+  color: rgb(193 193 255);
   padding: 5px;
   /* Compensate for padding in image */
   padding-right: 8px;
-  color: white;
   font-size: 20px;
   white-space: nowrap;
+  background-color: #223;
+  margin-bottom: 20px;
 }
 .noVNC_panel .noVNC_heading img {
   vertical-align: bottom;
+  padding-right: 10px;
 }
 
 .noVNC_submit {
@@ -571,7 +573,7 @@ html {
 }
 
 #noVNC_modifiers {
-  background-color: rgb(92, 92, 92);
+  background-color: rgb(69 62 75);
   border: none;
   padding: 10px;
 }
@@ -624,6 +626,7 @@ html {
 
 .noVNC_version_wrapper {
   font-size: small;
+  opacity: 0.3;
 }
 
 .noVNC_version {
@@ -664,7 +667,7 @@ html {
 
   line-height: 1.6;
   word-wrap: break-word;
-  color: #fff;
+  color: white;
 
   border-bottom: 1px solid rgba(0, 0, 0, 0.9);
 }
@@ -683,19 +686,19 @@ html {
 }
 
 #noVNC_status.noVNC_status_normal {
-  background: rgba(128,128,128,0.9);
+  background: rgba(121,210,152,1);
 }
 #noVNC_status.noVNC_status_normal::before {
   content: url("../images/info.svg") " ";
 }
 #noVNC_status.noVNC_status_error {
-  background: rgba(200,55,55,0.9);
+  background: rgba(200,55,55,1);
 }
 #noVNC_status.noVNC_status_error::before {
   content: url("../images/error.svg") " ";
 }
 #noVNC_status.noVNC_status_warn {
-  background: rgba(180,180,30,0.9);
+  background: rgba(180,180,30,1);
 }
 #noVNC_status.noVNC_status_warn::before {
   content: url("../images/warning.svg") " ";
@@ -831,7 +834,7 @@ html {
   right: 0;
 
   color: white;
-  background: rgba(0, 0, 0, 0.5);
+  background: #1D1D2E;
   z-index: 50;
 
   /*display: flex;*/

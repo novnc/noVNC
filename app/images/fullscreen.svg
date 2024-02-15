@@ -72,7 +72,7 @@
      id="layer1"
      transform="translate(0,-1027.3622)">
     <rect
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:rgb(193, 193, 255);stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect5006"
        width="17"
        height="17.000017"
@@ -80,7 +80,7 @@
        y="1031.3622"
        ry="3.0000174" />
     <path
-       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       style="fill:rgb(193, 193, 255);fill-opacity:1;fill-rule:evenodd;stroke:rgb(193, 193, 255);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
        d="m 7.5,1044.8622 4,0 -1.5,-1.5 1.5,-1.5 -1,-1 -1.5,1.5 -1.5,-1.5 0,4 z"
        id="path5017"
        inkscape:connector-curvature="0" />
@@ -88,6 +88,6 @@
        inkscape:connector-curvature="0"
        id="path5025"
        d="m 17.5,1034.8622 -4,0 1.5,1.5 -1.5,1.5 1,1 1.5,-1.5 1.5,1.5 0,-4 z"
-       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+       style="fill:rgb(193, 193, 255);fill-opacity:1;fill-rule:evenodd;stroke:rgb(193, 193, 255);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
   </g>
 </svg>
