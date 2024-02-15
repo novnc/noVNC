@@ -53,7 +53,7 @@ html {
 }
 
 .noVNC_disabled {
-  color: rgb(120 115 198);
+  color: rgb(123 115 154);
 }
 
 /* ----------------------------------------
@@ -445,9 +445,9 @@ html {
   padding: 20px;
   letter-spacing: 0.7px;
 
-  background: #bebaff;
+  background: rgb(69 62 75);
   border-radius: 15px;
-  color: #223;
+  color: rgb(193 193 255);
 }
 .noVNC_panel.noVNC_open {
   visibility: visible;
@@ -478,7 +478,6 @@ html {
 
 .noVNC_panel hr {
   border: none;
-  border-top: 1px solid rgb(192, 192, 192);
 }
 
 .noVNC_panel label {
