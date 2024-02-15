@@ -478,6 +478,7 @@ html {
 
 .noVNC_panel hr {
   border: none;
+  padding: 1px;
 }
 
 .noVNC_panel label {
@@ -500,6 +501,7 @@ html {
   font-size: 20px;
   white-space: nowrap;
   background-color: #223;
+  margin-bottom: 20px;
 }
 .noVNC_panel .noVNC_heading img {
   vertical-align: bottom;
