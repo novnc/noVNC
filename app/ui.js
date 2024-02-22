@@ -229,8 +229,9 @@ const UI = {
         document.getElementById("noVNC_control_bar")
             .addEventListener('keydown', UI.keepControlbar);
 
-        document.getElementById("noVNC_view_drag_button")
-            .addEventListener('click', UI.toggleViewDrag);
+        // // Agilicus Modified
+        // document.getElementById("noVNC_view_drag_button")
+        //     .addEventListener('click', UI.toggleViewDrag);
 
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('mousedown', UI.controlbarHandleMouseDown);
@@ -1058,7 +1059,7 @@ const UI = {
         UI.rfb.addEventListener("serververification", UI.serverVerify);
         UI.rfb.addEventListener("credentialsrequired", UI.credentials);
         UI.rfb.addEventListener("securityfailure", UI.securityFailed);
-        UI.rfb.addEventListener("clippingviewport", UI.updateViewDrag);
+        // UI.rfb.addEventListener("clippingviewport", UI.updateViewDrag);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
         UI.rfb.addEventListener("bell", UI.bell);
@@ -1112,6 +1113,9 @@ const UI = {
     connectFinished(e) {
         UI.connected = true;
         UI.inhibitReconnect = false;
+        // Agilicus modified from original file
+        // UI.toggleViewDrag();
+        UI.rfb.dragViewport = true;
 
         let msg;
         if (UI.getSetting('encrypt')) {
@@ -1363,7 +1367,7 @@ const UI = {
 
         // Changing the viewport may change the state of
         // the dragging button
-        UI.updateViewDrag();
+        // UI.updateViewDrag();
     },
 
 /* ------^-------
@@ -1372,12 +1376,12 @@ const UI = {
  *    VIEWDRAG
  * ------v------*/
 
-    toggleViewDrag() {
-        if (!UI.rfb) return;
+    // toggleViewDrag() {
+    //     if (!UI.rfb) return;
 
-        UI.rfb.dragViewport = !UI.rfb.dragViewport;
-        UI.updateViewDrag();
-    },
+    //     UI.rfb.dragViewport = !UI.rfb.dragViewport;
+    //     // UI.updateViewDrag();
+    // },
 
     updateViewDrag() {
         if (!UI.connected) return;

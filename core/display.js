@@ -433,6 +433,10 @@ export default class Display {
         this._rescale(scaleRatio);
     }
 
+    customrescale(factor) {
+        this._rescale(factor);
+    }
+
     // ===== PRIVATE METHODS =====
 
     _rescale(factor) {
