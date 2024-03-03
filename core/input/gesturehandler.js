@@ -186,14 +186,14 @@ export default class GestureHandler {
         }
 
         if (!this._hasDetectedGesture()) {
-            // Ignore moves smaller than the minimum threshold
-            if (Math.hypot(deltaX, deltaY) < GH_MOVE_THRESHOLD) {
-                return;
-            }
 
-            // Can't be a tap or long press as we've seen movement
-            this._state &= ~(GH_ONETAP | GH_TWOTAP | GH_THREETAP | GH_LONGPRESS);
-            this._stopLongpressTimeout();
+            let deltaMove = Math.hypot(deltaX, deltaY);
+
+            // Can't be a tap or long press if we've seen movement
+            if (deltaMove >= GH_MOVE_THRESHOLD) {
+                this._state &= ~(GH_ONETAP | GH_TWOTAP | GH_THREETAP | GH_LONGPRESS);
+                this._stopLongpressTimeout();
+            }
 
             if (this._tracked.length !== 1) {
                 this._state &= ~(GH_DRAG);
@@ -213,10 +213,10 @@ export default class GestureHandler {
                 let prevDeltaMove = Math.hypot(prevTouch.firstX - prevTouch.lastX,
                                                prevTouch.firstY - prevTouch.lastY);
 
-                // We know that the current touch moved far enough,
-                // but unless both touches moved further than their
-                // threshold we don't want to disqualify any gestures
-                if (prevDeltaMove > GH_MOVE_THRESHOLD) {
+                // Unless both touches moved further than their threshold we
+                // don't want to disqualify any gestures right now
+                if (deltaMove > GH_MOVE_THRESHOLD &&
+                    prevDeltaMove > GH_MOVE_THRESHOLD) {
 
                     // The angle difference between the direction of the touch points
                     let deltaAngle = Math.abs(touch.angle - prevTouch.angle);
@@ -234,7 +234,8 @@ export default class GestureHandler {
                     }
                 } else if (!this._isTwoTouchTimeoutRunning()) {
                     // We can't determine the gesture right now, let's
-                    // wait and see if more events are on their way
+                    // wait and see if more events are on their way.
+                    // If not, we'll have to decide which gesture it is.
                     this._startTwoTouchTimeout();
                 }
             }
@@ -260,6 +261,7 @@ export default class GestureHandler {
                 (this._tracked.length === 0)) {
                 this._state = GH_INITSTATE;
                 this._waitingRelease = false;
+                this._stopTwoTouchTimeout();
             }
             return;
         }
@@ -346,6 +348,7 @@ export default class GestureHandler {
         if ((this._ignored.length === 0)) {
             this._state = GH_INITSTATE;
             this._waitingRelease = false;
+            this._stopTwoTouchTimeout();
         }
     }
 
