@@ -1,4 +1,4 @@
-## Modded version for auto-mcs the shitbox thing
+## Modded version for dockerized auto-mcs
 
 
 ## noVNC: HTML VNC Client Library and Application
