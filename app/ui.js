@@ -1470,7 +1470,9 @@ const UI = {
         //Only explicitly request permission to clipboard on browsers that support binary clipboard access
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
-            navigator.permissions.query({ name: "clipboard-read" }).then((result) => { Log.Debug('binary clipboard enabled') });
+            navigator.permissions.query({ name: "clipboard-read" })
+                .then((result) => { Log.Debug('binary clipboard enabled') })
+                .catch(() => {});
         }
         // KASM-960 workaround, disable seamless on Safari
         if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) 
