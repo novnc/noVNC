@@ -910,8 +910,9 @@ export default class Display {
                     this._syncFrameQueue.push(rect);
 
                     //if the secondary display is not in focus, the browser may not call requestAnimationFrame, thus we need to limit our buffer
-                    if (this._syncFrameQueue.length > 500) {
-                        this._syncFrameQueue.pop();
+                    if (this._syncFrameQueue.length > 5000) {
+                        this._syncFrameQueue.shift();
+                        this._droppedRects++;
                     }
                     break;
                 case 'frameComplete':
@@ -953,7 +954,7 @@ export default class Display {
                     if (a.img.complete) {
                         this.drawImage(a.img, pos.x, pos.y, a.width, a.height);
                     } else {
-                        if (this._syncFrameQueue.length > 1000) {
+                        if (this._syncFrameQueue.length > 5000) {
                             this._syncFrameQueue.shift();
                             this._droppedRects++;
                         } else {
