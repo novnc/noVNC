@@ -12,7 +12,7 @@ import { toUnsigned32bit, toSigned32bit } from './util/int.js';
 import * as Log from './util/logging.js';
 import { encodeUTF8, decodeUTF8, uuidv4 } from './util/strings.js';
 import { hashUInt8Array } from './util/int.js';
-import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac, isIOS } from './util/browser.js';
+import { dragThreshold, supportsCursorURIs, isTouchDevice, isWindows, isMac, isIOS, isDesktop } from './util/browser.js';
 import { clientToElement } from './util/element.js';
 import { setCapture } from './util/events.js';
 import EventTargetMixin from './util/eventtarget.js';
@@ -2224,7 +2224,7 @@ export default class RFB extends EventTargetMixin {
 
         // With multiple displays, it is possible to end up in a state where we lost the mouseup event
         // If a mouse move indicates no buttons are down but the current state shows something down, lets clear the plate
-        if (this._mouseButtonMask !== 0 && !down && !simulated) {
+        if (this._display.screens.length > 1 && this._mouseButtonMask !== 0 && !down && !simulated && isDesktop()) {
             this._mouseButtonMask = 0;
             Log.Debug('Mouse event button down mismatch with current mask, resetting mask to 0.')
         }
@@ -2375,8 +2375,14 @@ export default class RFB extends EventTargetMixin {
     }
 
     _fakeMouseMove(ev, elementX, elementY) {
-        this._handleMouseMove(elementX, elementY, false, true);
-        this._cursor.move(ev.detail.clientX, ev.detail.clientY);
+        if (this._isPrimaryDisplay) {
+            this._handleMouseMove(elementX, elementY, false, true);
+            this._cursor.move(ev.detail.clientX, ev.detail.clientY);
+        } else {
+            this._proxyRFBMessage('mousemove', [ elementX, elementY, true, false ]);
+            this._cursor.move(ev.detail.clientX, ev.detail.clientY);
+
+        }
     }
 
     _handleTapEvent(ev, bmask) {
@@ -2406,8 +2412,20 @@ export default class RFB extends EventTargetMixin {
         this._gestureLastTapTime = Date.now();
 
         this._fakeMouseMove(this._gestureFirstDoubleTapEv, pos.x, pos.y);
-        this._handleMouseButton(pos.x, pos.y, true, bmask);
-        this._handleMouseButton(pos.x, pos.y, false, bmask);
+        this._fakeMouseButton(pos.x, pos.y, true, bmask);
+        this._fakeMouseButton(pos.x, pos.y, false, bmask);
+    }
+
+    _fakeMouseButton(x, y, down, mask) {
+        if (this._isPrimaryDisplay) {
+            this._handleMouseButton(x, y, down, mask);
+        } else {
+            if (down) {
+                this._proxyRFBMessage('mousedown', [ x, y, mask ]);
+            } else {
+                this._proxyRFBMessage('mouseup', [ x, y, mask ]);
+            }
+        }
     }
 
     _handleGesture(ev) {
@@ -2429,11 +2447,12 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, true, 0x1);
+
+                        this._fakeMouseButton(pos.x, pos.y, true, 0x1);
                         break;
                     case 'longpress':
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, true, 0x4);
+                        this._fakeMouseButton(pos.x, pos.y, true, 0x4);
                         break;
 
                     case 'twodrag':
@@ -2465,23 +2484,23 @@ export default class RFB extends EventTargetMixin {
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x8);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                            this._fakeMouseButton(pos.x, pos.y, true, 0x8);
+                            this._fakeMouseButton(pos.x, pos.y, false, 0x8);
                             this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x10);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                            this._fakeMouseButton(pos.x, pos.y, true, 0x10);
+                            this._fakeMouseButton(pos.x, pos.y, false, 0x10);
                             this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x20);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x20);
+                            this._fakeMouseButton(pos.x, pos.y, true, 0x20);
+                            this._fakeMouseButton(pos.x, pos.y, false, 0x20);
                             this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x40);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x40);
+                            this._fakeMouseButton(pos.x, pos.y, true, 0x40);
+                            this._fakeMouseButton(pos.x, pos.y, false, 0x40);
                             this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
                         }
                         break;
@@ -2494,13 +2513,13 @@ export default class RFB extends EventTargetMixin {
                         if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
                             this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                             while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, true, 0x8);
-                                this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                                this._fakeMouseButton(pos.x, pos.y, true, 0x8);
+                                this._fakeMouseButton(pos.x, pos.y, false, 0x8);
                                 this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
                             }
                             while ((magnitude -  this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, true, 0x10);
-                                this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                                this._fakeMouseButton(pos.x, pos.y, true, 0x10);
+                                this._fakeMouseButton(pos.x, pos.y, false, 0x10);
                                 this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
                             }
                         }
@@ -2519,11 +2538,11 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x1);
+                        this._fakeMouseButton(pos.x, pos.y, false, 0x1);
                         break;
                     case 'longpress':
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x4);
+                        this._fakeMouseButton(pos.x, pos.y, false, 0x4);
                         break;
                 }
                 break;

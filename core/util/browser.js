@@ -85,6 +85,10 @@ export function isWindows() {
     return navigator && !!(/win/i).exec(navigator.platform);
 }
 
+export function isLinux() {
+    return navigator && !!(/linux/i).exec(navigator.platform)
+}
+
 export function isIOS() {
     return navigator &&
            (!!(/ipad/i).exec(navigator.platform) ||
@@ -96,6 +100,18 @@ export function isSafari() {
     return navigator && (navigator.userAgent.indexOf('Safari') !== -1 &&
                          navigator.userAgent.indexOf('Chrome') === -1);
 }
+
+//is the client a desktop like operating system
+export function isDesktop() {
+    var userAgent = navigator.userAgent;
+    if (isIOS() || userAgent.indexOf("OculusBrowser") != -1 || userAgent.indexOf("SamsungBrowser") != -1) {
+        return false
+    } else if (userAgent.indexOf("Windows") != -1 || userAgent.indexOf("Mac") != -1 || userAgent.indexOf("X11") != -1 || userAgent.indexOf("Linux") != -1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 // Returns IE version number if IE or older Edge browser
 export function isIE() {

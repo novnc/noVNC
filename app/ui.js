@@ -427,6 +427,8 @@ const UI = {
     addTouchSpecificHandlers() {
         document.getElementById("noVNC_keyboard_button")
             .addEventListener('click', UI.toggleVirtualKeyboard);
+        document.getElementById("noVNC_keyboard_button")
+            .addEventListener('touch', UI.toggleVirtualKeyboard);
         document.getElementById("noVNC_keyboardinput")
             .addEventListener('focus', UI.onfocusVirtualKeyboard);
         document.getElementById("noVNC_keyboardinput")

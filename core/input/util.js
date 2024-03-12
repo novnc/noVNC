@@ -67,7 +67,7 @@ export function getKeycode(evt) {
 // Get 'KeyboardEvent.key', handling legacy browsers
 export function getKey(evt) {
     // Are we getting a proper key value?
-    if (evt.key !== undefined) {
+    if ((evt.key !== undefined) && (evt.key !== 'Unidentified')) {
         // Mozilla isn't fully in sync with the spec yet
         switch (evt.key) {
             case 'OS': return 'Meta';
