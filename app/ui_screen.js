@@ -211,7 +211,7 @@ const UI = {
         if (supportsBinaryClipboard()) {
             // explicitly request permission to the clipboard
             navigator.permissions.query({ name: "clipboard-read" })
-                .then((result) => { Log.Debug('binary clipboard enabled') });
+                .then((result) => { Log.Debug('binary clipboard enabled') })
                 .catch(() => {});
         }
     },
