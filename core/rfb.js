@@ -1872,6 +1872,7 @@ export default class RFB extends EventTargetMixin {
                     this._mouseLastScreenIndex = event.data.screenIndex;
                     this._mousePos = { 'x': coords[0], 'y': coords[1] };
                     RFB.messages.pointerEvent(this._sock, this._mousePos.x, this._mousePos.y, 0, event.data.args[2], event.data.args[3]);
+                    break;
                 case 'keyEvent':
                     RFB.messages.keyEvent(this._sock, ...event.data.args);
                     break;
