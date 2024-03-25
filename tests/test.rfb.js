@@ -3263,11 +3263,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
 
                     it('should update clipboard with correct escape characters from a Provide message ', function () {
-                        let expectedData = "Oh\nmy!";
+                        let expectedData = "Oh\nmy\n!";
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
 
-                        let text = encodeUTF8("Oh\r\nmy!\0");
+                        let text = encodeUTF8("Oh\r\nmy\r\n!\0");
 
                         let deflatedText = deflateWithSize(text);
 
