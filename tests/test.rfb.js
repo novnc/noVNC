@@ -776,6 +776,25 @@ describe('Remote Frame Buffer Protocol Client', function () {
             expect(client._display.autoscale).to.have.been.calledWith(40, 50);
         });
 
+        it('should update the scaling when the container returns to previous size', function () {
+            client._saveExpectedClientSize();
+
+            sinon.spy(client._display, "autoscale");
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+            clock.tick(1000);
+
+            container.style.width = '70px';
+            container.style.height = '80px';
+            fakeResizeObserver.fire();
+            clock.tick(1000);
+
+            expect(client._display.autoscale).to.have.been.calledTwice;
+            expect(client._display.autoscale).to.have.been.calledWith(70, 80);
+        });
+
         it('should update the scaling when the remote session resizes', function () {
             // Simple ExtendedDesktopSize FBU message
             const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
