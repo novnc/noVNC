@@ -52,6 +52,7 @@
     "None": "无",
     "Local Scaling": "本地缩放",
     "Remote Resizing": "远程调整大小",
+    "Resizing browser": "调整浏览器大小",
     "Advanced": "高级",
     "Repeater ID:": "中继站 ID",
     "WebSocket": "WebSocket",

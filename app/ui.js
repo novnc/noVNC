@@ -1066,6 +1066,7 @@ const UI = {
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.resizeBrowser = UI.getSetting('resize') === 'browser';
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
@@ -1319,6 +1320,7 @@ const UI = {
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        UI.rfb.resizeBrowser = UI.getSetting('resize') === 'browser';
     },
 
 /* ------^-------
@@ -1360,7 +1362,16 @@ const UI = {
             UI.enableSetting('view_clip');
             UI.rfb.clipViewport = UI.getSetting('view_clip');
         }
-
+        
+        // Determines whether it is a window.open window
+        // as window.open(\'/vnc/?token=token&autoconnect=1&resize=browser\',\'_blank\',\'toolbar=no,location=no,status=no,menubar=no,resizable=yes,width=800,height=420\');
+        var win = window.opener;
+        if(win == null){
+            document.getElementById("noVNC_setting_browser_resize").disabled = true;
+        }else{
+            document.getElementById("noVNC_setting_browser_resize").disabled = false;
+        }
+        
         // Changing the viewport may change the state of
         // the dragging button
         UI.updateViewDrag();
