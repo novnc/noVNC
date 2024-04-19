@@ -127,6 +127,10 @@ msgstr "Ctrl"
 msgid "Toggle Ctrl"
 msgstr "切换 Ctrl"
 
+#: ../vnc.html:136
+msgid "Edit clipboard content in the textarea below."
+msgstr "在下面的文本区域中编辑剪贴板内容。"
+
 #: ../vnc.html:139
 msgid "Alt"
 msgstr "Alt"
