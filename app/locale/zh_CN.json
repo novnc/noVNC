@@ -65,5 +65,6 @@
     "Disconnect": "中断连接",
     "Connect": "连接",
     "Password:": "密码：",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "Edit clipboard content in the textarea below.": "在下面的文本区域中编辑剪贴板内容。"
 }
