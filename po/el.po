@@ -1,5 +1,5 @@
 # Greek translations for noVNC package.
-# Copyright (C) 2016 Various Authors
+# Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Giannis Kosmas <kosmasgiannis@gmail.com>, 2016.
 #
@@ -31,7 +31,7 @@ msgstr "Επανασυνδέεται..."
 
 #: ../app/ui.js:422
 msgid "Internal error"
-msgstr "Εσωτερικό λάθος"
+msgstr "Εσωτερικό σφάλμα"
 
 #: ../app/ui.js:1019
 msgid "Must set host"
@@ -47,7 +47,7 @@ msgstr "Συνδέθηκε (μη κρυπτογραφημένα) με το "
 
 #: ../app/ui.js:1119
 msgid "Something went wrong, connection is closed"
-msgstr "Κάτι πήγε στραβά, η σύνδεση έκλεισε"
+msgstr "Κάτι πήγε στραβά, η σύνδεση διακόπηκε"
 
 #: ../app/ui.js:1129
 msgid "Disconnected"

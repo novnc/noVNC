@@ -16,40 +16,13 @@ protocol stream.
 
 ### Properties
 
-`viewOnly`
-  - Is a `boolean` indicating if any events (e.g. key presses or mouse
-    movement) should be prevented from being sent to the server.
-    Disabled by default.
+`background`
+  - Is a valid CSS [background][mdn-bg] style value indicating which
+    background style should be applied to the element containing the
+    remote session screen. The default value is `rgb(40, 40, 40)` (solid
+    gray color).
 
-`focusOnClick`
-  - Is a `boolean` indicating if keyboard focus should automatically be
-    moved to the canvas when a `mousedown` or `touchstart` event is
-    received.
-
-`touchButton`
-  - Is a `long` controlling the button mask that should be simulated
-    when a touch event is recieved. Uses the same values as
-    [`MouseEvent.button`](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button).
-    Is set to `1` by default.
-
-`viewportScale`
-  - Is a `double` indicating how the framebuffer contents should be
-    scaled before being rendered on to the canvas. See also
-    [`RFB.autoscale()`](#rfbautoscale). Is set to `1.0` by default.
-
-`clipViewport`
-  - Is a `boolean` indicating if the canvas should be clipped to its
-    container. When disabled the container must be able to handle the
-    resulting overflow. Disabled by default.
-
-`dragViewport`
-  - Is a `boolean` indicating if mouse events should control the
-    relative position of a clipped canvas. Only relevant if
-    `clipViewport` is enabled. Disabled by default.
-
-`isClipped` *Read only*
-  - Is a `boolean` indicating if the framebuffer is larger than the
-    current canvas, i.e. it is being clipped.
+[mdn-bg]: https://developer.mozilla.org/en-US/docs/Web/CSS/background
 
 `capabilities` *Read only*
   - Is an `Object` indicating which optional extensions are available
@@ -59,61 +32,123 @@ protocol stream.
     | name     | type      | description
     | -------- | --------- | -----------
     | `power`  | `boolean` | Machine power control is available
-    | `resize` | `boolean` | The framebuffer can be resized
+
+`clippingViewport` *Read only*
+  - Is a `boolean` indicating if the remote session is currently being
+    clipped to its container. Only relevant if `clipViewport` is
+    enabled.
+
+`clipViewport`
+  - Is a `boolean` indicating if the remote session should be clipped
+    to its container. When disabled scrollbars will be shown to handle
+    the resulting overflow. Disabled by default.
+
+`compressionLevel`
+  - Is an `int` in range `[0-9]` controlling the desired compression
+    level. Value `0` means no compression. Level 1 uses a minimum of CPU
+    resources and achieves weak compression ratios, while level 9 offers
+    best compression but is slow in terms of CPU consumption on the server
+    side. Use high levels with very slow network connections.
+    Default value is `2`.
+
+`dragViewport`
+  - Is a `boolean` indicating if mouse events should control the
+    relative position of a clipped remote session. Only relevant if
+    `clipViewport` is enabled. Disabled by default.
+
+`focusOnClick`
+  - Is a `boolean` indicating if keyboard focus should automatically be
+    moved to the remote session when a `mousedown` or `touchstart`
+    event is received. Enabled by default.
+
+`qualityLevel`
+  - Is an `int` in range `[0-9]` controlling the desired JPEG quality.
+    Value `0` implies low quality and `9` implies high quality.
+    Default value is `6`.
+
+`resizeSession`
+  - Is a `boolean` indicating if a request to resize the remote session
+    should be sent whenever the container changes dimensions. Disabled
+    by default.
+
+`scaleViewport`
+  - Is a `boolean` indicating if the remote session should be scaled
+    locally so it fits its container. When disabled it will be centered
+    if the remote session is smaller than its container, or handled
+    according to `clipViewport` if it is larger. Disabled by default.
+
+`showDotCursor`
+  - Is a `boolean` indicating whether a dot cursor should be shown
+    instead of a zero-sized or fully-transparent cursor if the server
+    sets such invisible cursor. Disabled by default.
+
+`viewOnly`
+  - Is a `boolean` indicating if any events (e.g. key presses or mouse
+    movement) should be prevented from being sent to the server.
+    Disabled by default.
 
 ### Events
-
-[`connect`](#connect)
-  - The `connect` event is fired when the `RFB` object has completed
-    the connection and handshaking with the server.
-
-[`disconnect`](#disconnected)
-  - The `disconnect` event is fired when the `RFB` object disconnects.
-
-[`credentialsrequired`](#credentialsrequired)
-  - The `credentialsrequired` event is fired when more credentials must
-    be given to continue.
-
-[`securityfailure`](#securityfailure)
-  - The `securityfailure` event is fired when the security negotiation
-    with the server fails.
-
-[`clipboard`](#clipboard)
-  - The `clipboard` event is fired when clipboard data is received from
-    the server.
 
 [`bell`](#bell)
   - The `bell` event is fired when a audible bell request is received
     from the server.
 
-[`fbresize`](#fbresize)
-  - The `fbresize` event is fired when the framebuffer size is changed.
+[`capabilities`](#capabilities)
+  - The `capabilities` event is fired when `RFB.capabilities` is
+    updated.
+
+[`clipboard`](#clipboard)
+  - The `clipboard` event is fired when clipboard data is received from
+    the server.
+
+[`clippingviewport`](#clippingviewport)
+  - The `clippingviewport` event is fired when `RFB.clippingViewport` is
+    updated.
+
+[`connect`](#connect)
+  - The `connect` event is fired when the `RFB` object has completed
+    the connection and handshaking with the server.
+
+[`credentialsrequired`](#credentialsrequired)
+  - The `credentialsrequired` event is fired when more credentials must
+    be given to continue.
 
 [`desktopname`](#desktopname)
   - The `desktopname` event is fired when the remote desktop name
     changes.
 
-[`capabilities`](#capabilities)
-  - The `capabilities` event is fired when `RFB.capabilities` is
-    updated.
+[`disconnect`](#disconnect)
+  - The `disconnect` event is fired when the `RFB` object disconnects.
+
+[`securityfailure`](#securityfailure)
+  - The `securityfailure` event is fired when the security negotiation
+    with the server fails.
+
+[`serververification`](#serververification)
+  - The `serververification` event is fired when the server identity
+    must be confirmed by the user.
 
 ### Methods
+
+[`RFB.approveServer()`](#rfbapproveserver)
+  - Proceed connecting to the server. Should be called after the
+    [`serververification`](#serververification) event has fired and the
+    user has verified the identity of the server.
+
+[`RFB.blur()`](#rfbblur)
+  - Remove keyboard focus from the remote session.
+
+[`RFB.clipboardPasteFrom()`](#rfbclipboardpastefrom)
+  - Send clipboard contents to server.
 
 [`RFB.disconnect()`](#rfbdisconnect)
   - Disconnect from the server.
 
-[`RFB.sendCredentials()`](#rfbsendcredentials)
-  - Send credentials to server. Should be called after the
-    [`credentialsrequired`](#credentialsrequired) event has fired.
+[`RFB.focus()`](#rfbfocus)
+  - Move keyboard focus to the remote session.
 
-[`RFB.sendKey()`](#rfbsendKey)
-  - Send a key event.
-
-[`RFB.sendCtrlAltDel()`](#rfbsendctrlaltdel)
-  - Send Ctrl-Alt-Del key sequence.
-
-[`RFB.machineShutdown()`](#rfbmachineshutdown)
-  - Request a shutdown of the remote machine.
+[`RFB.getImageData()`](#rfbgetimagedata)
+  - Return the current content of the screen as an ImageData array.
 
 [`RFB.machineReboot()`](#rfbmachinereboot)
   - Request a reboot of the remote machine.
@@ -121,18 +156,24 @@ protocol stream.
 [`RFB.machineReset()`](#rfbmachinereset)
   - Request a reset of the remote machine.
 
-[`RFB.clipboardPasteFrom()`](#rfbclipboardPasteFrom)
-  - Send clipboard contents to server.
+[`RFB.machineShutdown()`](#rfbmachineshutdown)
+  - Request a shutdown of the remote machine.
 
-[`RFB.autoscale()`](#rfbautoscale)
-  - Set `RFB.viewportScale` so that the framebuffer fits a specified
-    container.
+[`RFB.sendCredentials()`](#rfbsendcredentials)
+  - Send credentials to server. Should be called after the
+    [`credentialsrequired`](#credentialsrequired) event has fired.
 
-[`RFB.requestDesktopSize()`](#rfbrequestDesktopSize)
-  - Send a request to change the remote desktop size.
+[`RFB.sendCtrlAltDel()`](#rfbsendctrlaltdel)
+  - Send Ctrl-Alt-Del key sequence.
 
-[`RFB.viewportChangeSize()`](#rfbviewportChangeSize)
-  - Change size of the viewport.
+[`RFB.sendKey()`](#rfbsendkey)
+  - Send a key event.
+
+[`RFB.toBlob()`](#rfbtoblob)
+  - Return the current content of the screen as Blob encoded image file.
+
+[`RFB.toDataURL()`](#rfbtodataurl)
+  - Return the current content of the screen as data-url encoded image file.
 
 ### Details
 
@@ -143,18 +184,24 @@ connection to a specified VNC server.
 
 ##### Syntax
 
-    var rfb = new RFB( target, url [, options] );
+```js
+new RFB(target, urlOrChannel);
+new RFB(target, urlOrChannel, options);
+```
 
 ###### Parameters
 
 **`target`**
-  - A [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
-    that specifies where graphics should be rendered and input events
-    should be monitored.
+  - A block [`HTMLElement`][mdn-elem] that specifies where the `RFB`
+    object should attach itself. The existing contents of the
+    `HTMLElement` will be untouched, but new elements will be added
+    during the lifetime of the `RFB` object.
 
-**`url`**
+[mdn-elem]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
+
+**`urlOrChannel`**
   - A `DOMString` specifying the VNC server to connect to. This must be
-    a valid WebSocket URL.
+    a valid WebSocket URL. This can also be a `WebSocket` or `RTCDataChannel`.
 
 **`options`** *Optional*
   - An `Object` specifying extra details about how the connection
@@ -181,11 +228,51 @@ connection to a specified VNC server.
       - A `DOMString` specifying the ID to provide to any VNC repeater
         encountered.
 
+    `wsProtocols`
+      - An `Array` of `DOMString`s specifying the sub-protocols to use
+        in the WebSocket connection. Empty by default.
+
+#### bell
+
+The `bell` event is fired when the server has requested an audible
+bell.
+
+#### capabilities
+
+The `capabilities` event is fired whenever an entry is added or removed
+from `RFB.capabilities`. The `detail` property is an `Object` with the
+property `capabilities` containing the new value of `RFB.capabilities`.
+
+#### clippingviewport
+
+The `clippingviewport` event is fired whenever `RFB.clippingViewport`
+changes between `true` and `false`. The `detail` property is a `boolean`
+with the new value of `RFB.clippingViewport`.
+
+#### clipboard
+
+The `clipboard` event is fired when the server has sent clipboard data.
+The `detail` property is an `Object` containing the property `text`
+which is a `DOMString` with the clipboard data.
+
+#### credentialsrequired
+
+The `credentialsrequired` event is fired when the server requests more
+credentials than were specified to [`RFB()`](#rfb-1). The `detail`
+property is an `Object` containing the property `types` which is an
+`Array` of `DOMString` listing the credentials that are required.
+
 #### connect
 
 The `connect` event is fired after all the handshaking with the server
 is completed and the connection is fully established. After this event
 the `RFB` object is ready to recieve graphics updates and to send input.
+
+#### desktopname
+
+The `desktopname` event is fired when the name of the remote desktop
+changes. The `detail` property is an `Object` with the property `name`
+which is a `DOMString` specifying the new name.
 
 #### disconnect
 
@@ -194,13 +281,6 @@ terminated. The `detail` property is an `Object` that contains the
 property `clean`. `clean` is a `boolean` indicating if the termination
 was clean or not. In the event of an unexpected termination or an error
 `clean` will be set to false.
-
-#### credentialsrequired
-
-The `credentialsrequired` event is fired when the server requests more
-credentials than were specified to [`RFB()`](#rfb-1). The `detail`
-property is an `Object` containing the property `types` which is an
-`Array` of `DOMString` listing the credentials that are required.
 
 #### securityfailure
 
@@ -213,8 +293,7 @@ property is an `Object` containing the following properties:
 | `status` | `long`      | The failure status code
 | `reason` | `DOMString` | The **optional** reason for the failure
 
-The property `status` corresponds to the
-[SecurityResult](https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#securityresult)
+The property `status` corresponds to the [SecurityResult][rfb-secresult]
 status code in cases of failure. A status of zero will not be sent in
 this event since that indicates a successful security handshaking
 process. The optional property `reason` is provided by the server and
@@ -222,34 +301,61 @@ thus the language of the string is not known. However most servers will
 probably send English strings. The server can choose to not send a
 reason and in these cases the `reason` property will be omitted.
 
-#### clipboard
+[rfb-secresult]: https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#securityresult
 
-The `clipboard` event is fired when the server has sent clipboard data.
-The `detail` property is an `Object` containing the property `text`
-which is a `DOMString` with the clipboard data.
+#### serververification
 
-#### bell
+The `serververification` event is fired when the server provides
+information that allows the user to verify that it is the correct server
+and protect against a man-in-the-middle attack. The `detail` property is
+an `Object` containing the property `type` which is a `DOMString`
+specifying which type of information the server has provided. Other
+properties are also available, depending on the value of `type`:
 
-The `bell` event is fired when the server has requested an audible
-bell.
+`"RSA"`
+ - The server identity is verified using just a RSA key. The property
+   `publickey` is a `Uint8Array` containing the public key in a unsigned
+   big endian representation.
 
-#### fbresize
+#### RFB.approveServer()
 
-The `fbresize` event is fired when the framebuffer has changed
-dimensions. The `detail` property is an `Object` with the properties
-`width` and `height` specifying the new dimensions.
+The `RFB.approveServer()` method is used to signal that the user has
+verified the server identity provided in a `serververification` event
+and that the connection can continue.
 
-#### desktopname
+##### Syntax
 
-The `desktopname` event is fired when the name of the remote desktop
-changes. The `detail` property is an `Object` with the property `name`
-which is a `DOMString` specifying the new name.
+```js
+RFB.approveServer();
+```
 
-#### capabilities
+#### RFB.blur()
 
-The `capabilities` event is fired whenever an entry is added or removed
-from `RFB.capabilities`. The `detail` property is an `Object` with the
-property `capabilities` containing the new value of `RFB.capabilities`.
+The `RFB.blur()` method remove keyboard focus on the remote session.
+Keyboard events will no longer be sent to the remote server after this
+point.
+
+##### Syntax
+
+```js
+RFB.blur();
+```
+
+#### RFB.clipboardPasteFrom()
+
+The `RFB.clipboardPasteFrom()` method is used to send clipboard data
+to the remote server.
+
+##### Syntax
+
+```js
+RFB.clipboardPasteFrom(text);
+```
+
+###### Parameters
+
+**`text`**
+  - A `DOMString` specifying the clipboard data to send.
 
 #### RFB.disconnect()
 
@@ -258,67 +364,43 @@ connected server.
 
 ##### Syntax
 
-    RFB.disconnect( );
+```js
+RFB.disconnect();
+```
 
-#### RFB.sendCredentials()
+#### RFB.focus()
 
-The `RFB.sendCredentials()` method is used to provide the missing
-credentials after a `credentialsrequired` event has been fired.
+The `RFB.focus()` method sets the keyboard focus on the remote session.
+Keyboard events will be sent to the remote server after this point.
 
 ##### Syntax
 
-    RFB.sendCredentials( credentials );
+```js
+RFB.focus();
+RFB.focus(options);
+```
 
 ###### Parameters
 
-**`credentials`**
-  - An `Object` specifying the credentials to provide to the server
-    when authenticating. See [`RFB()`](#rfb-1) for details.
+**`options`** *Optional*
+  - A `object` providing options to control how the focus will be
+    performed. Please see [`HTMLElement.focus()`][mdn-focus] for
+    available options.
 
-#### RFB.sendKey()
+[mdn-focus]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus
 
-The `RFB.sendKey()` method is used to send a key event to the server.
+#### RFB.getImageData()
 
-##### Syntax
+The `RFB.getImageData()` method is used to return the current content of
+the screen encoded as [`ImageData`][mdn-imagedata].
 
-    RFB.sendKey( keysym, code [, down] );
-
-###### Parameters
-
-**`keysym`**
-  - A `long` specifying the RFB keysym to send. Can be `0` if a valid
-    **`code`** is specified.
-
-**`code`**
-  - A `DOMString` specifying the physical key to send. Valid values are
-    those that can be specified to
-    [`KeyboardEvent.code`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code).
-    If the physical key cannot be determined then `null` shall be
-    specified.
-
-**`down`** *Optional*
-  - A `boolean` specifying if a press or a release event should be
-    sent. If omitted then both a press and release event are sent.
-
-#### RFB.sendCtrlAltDel()
-
-The `RFB.sendCtrlAltDel()` method is used to send the key sequence
-*left Control*, *left Alt*, *Delete*. This is a convenience wrapper
-around [`RFB.sendKey()`](#rfbsendkey).
+[mdn-imagedata]: https://developer.mozilla.org/en-US/docs/Web/API/ImageData
 
 ##### Syntax
 
-    RFB.sendCtrlAltDel( );
-
-#### RFB.machineShutdown()
-
-The `RFB.machineShutdown()` method is used to request to shut down the
-remote machine. The capability `power` must be set for this method to
-have any effect.
-
-##### Syntax
-
-    RFB.machineShutdown( );
+```js
+RFB.getImageData();
+```
 
 #### RFB.machineReboot()
 
@@ -328,7 +410,9 @@ to have any effect.
 
 ##### Syntax
 
-    RFB.machineReboot( );
+```js
+RFB.machineReboot();
+```
 
 #### RFB.machineReset()
 
@@ -338,77 +422,125 @@ to have any effect.
 
 ##### Syntax
 
-    RFB.machineReset( );
+```js
+RFB.machineReset();
+```
 
-#### RFB.clipboardPasteFrom()
+#### RFB.machineShutdown()
 
-The `RFB.clipboardPasteFrom()` method is used to send clipboard data
-to the remote server.
-
-##### Syntax
-
-    RFB.clipboardPasteFrom( text );
-
-###### Parameters
-
-**`text`**
-  - A `DOMString` specifying the clipboard data to send. Currently only
-  characters from ISO 8859-1 are supported.
-
-#### RFB.autoscale()
-
-The `RFB.autoscale()` method is used to automatically adjust
-`RFB.viewportScale` to fit given dimensions.
-
-##### Syntax
-
-    RFB.autoscale( width, height );
-
-###### Parameters
-
-**`width`**
-  - A `long` specifying the maximum width of the canvas in CSS pixels.
-
-**`height`**
-  - A `long` specifying the maximum height of the canvas in CSS pixels.
-
-#### RFB.requestDesktopSize()
-
-The `RFB.requestDesktopSize()` method is used to request a change of
-the framebuffer. The capability `resize` must be set for this method to
+The `RFB.machineShutdown()` method is used to request to shut down the
+remote machine. The capability `power` must be set for this method to
 have any effect.
 
-Note that this is merely a request and the server may deny it.
-The [`fbresize`](#fbresize) event will be fired when the framebuffer
-actually changes dimensions.
+##### Syntax
+
+```js
+RFB.machineShutdown();
+```
+
+#### RFB.sendCredentials()
+
+The `RFB.sendCredentials()` method is used to provide the missing
+credentials after a `credentialsrequired` event has been fired.
 
 ##### Syntax
 
-    RFB.requestDesktopSize( width, height );
+```js
+RFB.sendCredentials(credentials);
+```
 
 ###### Parameters
 
-**`width`**
-  - A `long` specifying the new requested width in CSS pixels.
+**`credentials`**
+  - An `Object` specifying the credentials to provide to the server
+    when authenticating. See [`RFB()`](#rfb-1) for details.
 
-**`height`**
-  - A `long` specifying the new requested height in CSS pixels.
+#### RFB.sendCtrlAltDel()
 
-#### RFB.viewportChangeSize()
-
-The `RFB.viewportChangeSize()` method is used to change the size of the
-canvas rather than the underlying framebuffer.
-
-This method has no effect if `RFB.clipViewport` is set to `false`.
+The `RFB.sendCtrlAltDel()` method is used to send the key sequence
+*left Control*, *left Alt*, *Delete*. This is a convenience wrapper
+around [`RFB.sendKey()`](#rfbsendkey).
 
 ##### Syntax
 
-    RFB.viewportChangeSize( width, height );
+```js
+RFB.sendCtrlAltDel();
+```
+
+#### RFB.sendKey()
+
+The `RFB.sendKey()` method is used to send a key event to the server.
+
+##### Syntax
+
+```js
+RFB.sendKey(keysym, code);
+RFB.sendKey(keysym, code, down);
+```
 
 ###### Parameters
 
-**`width`**
-  - A `long` specifying the new width in CSS pixels.
+**`keysym`**
+  - A `long` specifying the RFB keysym to send. Can be `0` if a valid
+    **`code`** is specified.
 
-**`height`**
-  - A `long` specifying the new height in CSS pixels.
+**`code`**
+  - A `DOMString` specifying the physical key to send. Valid values are
+    those that can be specified to [`KeyboardEvent.code`][mdn-keycode].
+    If the physical key cannot be determined then `null` shall be
+    specified.
+
+[mdn-keycode]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
+
+**`down`** *Optional*
+  - A `boolean` specifying if a press or a release event should be
+    sent. If omitted then both a press and release event are sent.
+
+#### RFB.toBlob()
+
+The `RFB.toBlob()` method is used to return the current content of the
+screen encoded as [`Blob`][mdn-blob].
+
+[mdn-blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob
+
+##### Syntax
+
+```js
+RFB.toBlob(callback);
+RFB.toBlob(callback, type);
+RFB.toBlob(callback, type, quality);
+```
+
+###### Parameters
+
+**`callback`**
+  - A callback function which will receive the resulting
+    [`Blob`][mdn-blob] as the single argument
+
+**`type`** *Optional*
+  - A string indicating the requested MIME type of the image
+
+**`quality`** *Optional*
+  - A number between 0 and 1 indicating the image quality.
+
+#### RFB.toDataURL()
+
+The `RFB.toDataURL()` method is used to return the current content of the
+screen encoded as a data URL that could for example be put in the `src` attribute
+of an `img` tag.
+
+##### Syntax
+
+```js
+RFB.toDataURL();
+RFB.toDataURL(type);
+RFB.toDataURL(type, encoderOptions);
+```
+
+###### Parameters
+
+**`type`** *Optional*
+  - A string indicating the requested MIME type of the image
+
+**`encoderOptions`** *Optional*
+  - A number between 0 and 1 indicating the image quality.

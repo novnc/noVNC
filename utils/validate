@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+
+RET=0
+
+OUT=`mktemp`
+
+for fn in "$@"; do
+	echo "Validating $fn..."
+	echo
+
+	case $fn in
+		*.html)
+			type="text/html"
+			;;
+		*.css)
+			type="text/css"
+			;;
+		*)
+			echo "Unknown format!"
+			echo
+			RET=1
+			continue
+			;;
+	esac
+
+	curl --silent \
+		--header "Content-Type: ${type}; charset=utf-8" \
+		--data-binary @${fn} \
+		https://validator.w3.org/nu/?out=text > $OUT
+	cat $OUT
+	echo
+
+	# We don't fail the check for warnings as some warnings are
+	# not relevant for us, and we don't currently have a way to
+	# ignore just those
+	if grep -q -s -E "^Error:" $OUT; then
+		RET=1
+	fi
+done
+
+rm $OUT
+
+exit $RET

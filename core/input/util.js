@@ -3,19 +3,10 @@ import keysyms from "./keysymdef.js";
 import vkeys from "./vkeys.js";
 import fixedkeys from "./fixedkeys.js";
 import DOMKeyTable from "./domkeytable.js";
-
-function isMac() {
-    return navigator && !!(/mac/i).exec(navigator.platform);
-}
-function isIE() {
-    return navigator && !!(/trident/i).exec(navigator.userAgent);
-}
-function isEdge() {
-    return navigator && !!(/edge/i).exec(navigator.userAgent);
-}
+import * as browser from "../util/browser.js";
 
 // Get 'KeyboardEvent.code', handling legacy browsers
-export function getKeycode(evt){
+export function getKeycode(evt) {
     // Are we getting proper key identifiers?
     // (unfortunately Firefox and Chrome are crappy here and gives
     // us an empty string on some platforms, rather than leaving it
@@ -31,13 +22,12 @@ export function getKeycode(evt){
     }
 
     // The de-facto standard is to use Windows Virtual-Key codes
-    // in the 'keyCode' field for non-printable characters. However
-    // Webkit sets it to the same as charCode in 'keypress' events.
-    if ((evt.type !== 'keypress') && (evt.keyCode in vkeys)) {
-        var code = vkeys[evt.keyCode];
+    // in the 'keyCode' field for non-printable characters
+    if (evt.keyCode in vkeys) {
+        let code = vkeys[evt.keyCode];
 
         // macOS has messed up this code for some reason
-        if (isMac() && (code === 'ContextMenu')) {
+        if (browser.isMac() && (code === 'ContextMenu')) {
             code = 'MetaRight';
         }
 
@@ -77,30 +67,12 @@ export function getKeycode(evt){
 // Get 'KeyboardEvent.key', handling legacy browsers
 export function getKey(evt) {
     // Are we getting a proper key value?
-    if (evt.key !== undefined) {
-        // IE and Edge use some ancient version of the spec
-        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
-        switch (evt.key) {
-            case 'Spacebar': return ' ';
-            case 'Esc': return 'Escape';
-            case 'Scroll': return 'ScrollLock';
-            case 'Win': return 'Meta';
-            case 'Apps': return 'ContextMenu';
-            case 'Up': return 'ArrowUp';
-            case 'Left': return 'ArrowLeft';
-            case 'Right': return 'ArrowRight';
-            case 'Down': return 'ArrowDown';
-            case 'Del': return 'Delete';
-            case 'Divide': return '/';
-            case 'Multiply': return '*';
-            case 'Subtract': return '-';
-            case 'Add': return '+';
-            case 'Decimal': return evt.char;
-        }
-
+    if ((evt.key !== undefined) && (evt.key !== 'Unidentified')) {
         // Mozilla isn't fully in sync with the spec yet
         switch (evt.key) {
             case 'OS': return 'Meta';
+            case 'LaunchMyComputer': return 'LaunchApplication1';
+            case 'LaunchCalculator': return 'LaunchApplication2';
         }
 
         // iOS leaks some OS names
@@ -112,15 +84,16 @@ export function getKey(evt) {
             case 'UIKeyInputEscape': return 'Escape';
         }
 
-        // IE and Edge have broken handling of AltGraph so we cannot
-        // trust them for printable characters
-        if ((evt.key.length !== 1) || (!isIE() && !isEdge())) {
-            return evt.key;
+        // Broken behaviour in Chrome
+        if ((evt.key === '\x00') && (evt.code === 'NumpadDecimal')) {
+            return 'Delete';
         }
+
+        return evt.key;
     }
 
     // Try to deduce it based on the physical key
-    var code = getKeycode(evt);
+    const code = getKeycode(evt);
     if (code in fixedkeys) {
         return fixedkeys[code];
     }
@@ -135,8 +108,8 @@ export function getKey(evt) {
 }
 
 // Get the most reliable keysym value we can get from a key event
-export function getKeysym(evt){
-    var key = getKey(evt);
+export function getKeysym(evt) {
+    const key = getKey(evt);
 
     if (key === 'Unidentified') {
         return null;
@@ -144,15 +117,59 @@ export function getKeysym(evt){
 
     // First look up special keys
     if (key in DOMKeyTable) {
-        var location = evt.location;
+        let location = evt.location;
 
         // Safari screws up location for the right cmd key
         if ((key === 'Meta') && (location === 0)) {
             location = 2;
         }
 
+        // And for Clear
+        if ((key === 'Clear') && (location === 3)) {
+            let code = getKeycode(evt);
+            if (code === 'NumLock') {
+                location = 0;
+            }
+        }
+
         if ((location === undefined) || (location > 3)) {
             location = 0;
+        }
+
+        // The original Meta key now gets confused with the Windows key
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=1020141
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1232918
+        if (key === 'Meta') {
+            let code = getKeycode(evt);
+            if (code === 'AltLeft') {
+                return KeyTable.XK_Meta_L;
+            } else if (code === 'AltRight') {
+                return KeyTable.XK_Meta_R;
+            }
+        }
+
+        // macOS has Clear instead of NumLock, but the remote system is
+        // probably not macOS, so lying here is probably best...
+        if (key === 'Clear') {
+            let code = getKeycode(evt);
+            if (code === 'NumLock') {
+                return KeyTable.XK_Num_Lock;
+            }
+        }
+
+        // Windows sends alternating symbols for some keys when using a
+        // Japanese layout. We have no way of synchronising with the IM
+        // running on the remote system, so we send some combined keysym
+        // instead and hope for the best.
+        if (browser.isWindows()) {
+            switch (key) {
+                case 'Zenkaku':
+                case 'Hankaku':
+                    return KeyTable.XK_Zenkaku_Hankaku;
+                case 'Romaji':
+                case 'KanaMode':
+                    return KeyTable.XK_Romaji;
+            }
         }
 
         return DOMKeyTable[key][location];
@@ -160,14 +177,12 @@ export function getKeysym(evt){
 
     // Now we need to look at the Unicode symbol instead
 
-    var codepoint;
-
     // Special key? (FIXME: Should have been caught earlier)
     if (key.length !== 1) {
         return null;
     }
 
-    codepoint = key.charCodeAt();
+    const codepoint = key.charCodeAt();
     if (codepoint) {
         return keysyms.lookup(codepoint);
     }

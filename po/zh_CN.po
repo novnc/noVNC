@@ -1,0 +1,284 @@
+# Simplified Chinese translations for noVNC package.
+# Copyright (C) 2020 The noVNC Authors
+# This file is distributed under the same license as the noVNC package.
+# Peter Dave Hello <hsu@peterdavehello.org>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: noVNC 1.1.0\n"
+"Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
+"POT-Creation-Date: 2018-01-10 00:53+0800\n"
+"PO-Revision-Date: 2020-01-02 13:19+0800\n"
+"Last-Translator: CUI Wei <ghostplant@qq.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../app/ui.js:395
+msgid "Connecting..."
+msgstr "连接中..."
+
+#: ../app/ui.js:402
+msgid "Disconnecting..."
+msgstr "正在断开连接..."
+
+#: ../app/ui.js:408
+msgid "Reconnecting..."
+msgstr "重新连接中..."
+
+#: ../app/ui.js:413
+msgid "Internal error"
+msgstr "内部错误"
+
+#: ../app/ui.js:1015
+msgid "Must set host"
+msgstr "请提供主机名"
+
+#: ../app/ui.js:1097
+msgid "Connected (encrypted) to "
+msgstr "已连接到（加密）"
+
+#: ../app/ui.js:1099
+msgid "Connected (unencrypted) to "
+msgstr "已连接到（未加密）"
+
+#: ../app/ui.js:1120
+msgid "Something went wrong, connection is closed"
+msgstr "发生错误，连接已关闭"
+
+#: ../app/ui.js:1123
+msgid "Failed to connect to server"
+msgstr "无法连接到服务器"
+
+#: ../app/ui.js:1133
+msgid "Disconnected"
+msgstr "已断开连接"
+
+#: ../app/ui.js:1146
+msgid "New connection has been rejected with reason: "
+msgstr "连接被拒绝，原因："
+
+#: ../app/ui.js:1149
+msgid "New connection has been rejected"
+msgstr "连接被拒绝"
+
+#: ../app/ui.js:1170
+msgid "Password is required"
+msgstr "请提供密码"
+
+#: ../vnc.html:89
+msgid "noVNC encountered an error:"
+msgstr "noVNC 遇到一个错误："
+
+#: ../vnc.html:99
+msgid "Hide/Show the control bar"
+msgstr "显示/隐藏控制栏"
+
+#: ../vnc.html:106
+msgid "Move/Drag Viewport"
+msgstr "拖放显示范围"
+
+#: ../vnc.html:106
+msgid "viewport drag"
+msgstr "显示范围拖放"
+
+#: ../vnc.html:112 ../vnc.html:115 ../vnc.html:118 ../vnc.html:121
+msgid "Active Mouse Button"
+msgstr "启动鼠标按鍵"
+
+#: ../vnc.html:112
+msgid "No mousebutton"
+msgstr "禁用鼠标按鍵"
+
+#: ../vnc.html:115
+msgid "Left mousebutton"
+msgstr "鼠标左鍵"
+
+#: ../vnc.html:118
+msgid "Middle mousebutton"
+msgstr "鼠标中鍵"
+
+#: ../vnc.html:121
+msgid "Right mousebutton"
+msgstr "鼠标右鍵"
+
+#: ../vnc.html:124
+msgid "Keyboard"
+msgstr "键盘"
+
+#: ../vnc.html:124
+msgid "Show Keyboard"
+msgstr "显示键盘"
+
+#: ../vnc.html:131
+msgid "Extra keys"
+msgstr "额外按键"
+
+#: ../vnc.html:131
+msgid "Show Extra Keys"
+msgstr "显示额外按键"
+
+#: ../vnc.html:136
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: ../vnc.html:136
+msgid "Toggle Ctrl"
+msgstr "切换 Ctrl"
+
+#: ../vnc.html:139
+msgid "Alt"
+msgstr "Alt"
+
+#: ../vnc.html:139
+msgid "Toggle Alt"
+msgstr "切换 Alt"
+
+#: ../vnc.html:142
+msgid "Send Tab"
+msgstr "发送 Tab 键"
+
+#: ../vnc.html:142
+msgid "Tab"
+msgstr "Tab"
+
+#: ../vnc.html:145
+msgid "Esc"
+msgstr "Esc"
+
+#: ../vnc.html:145
+msgid "Send Escape"
+msgstr "发送 Escape 键"
+
+#: ../vnc.html:148
+msgid "Ctrl+Alt+Del"
+msgstr "Ctrl-Alt-Del"
+
+#: ../vnc.html:148
+msgid "Send Ctrl-Alt-Del"
+msgstr "发送 Ctrl-Alt-Del 键"
+
+#: ../vnc.html:156
+msgid "Shutdown/Reboot"
+msgstr "关机/重新启动"
+
+#: ../vnc.html:156
+msgid "Shutdown/Reboot..."
+msgstr "关机/重新启动..."
+
+#: ../vnc.html:162
+msgid "Power"
+msgstr "电源"
+
+#: ../vnc.html:164
+msgid "Shutdown"
+msgstr "关机"
+
+#: ../vnc.html:165
+msgid "Reboot"
+msgstr "重新启动"
+
+#: ../vnc.html:166
+msgid "Reset"
+msgstr "重置"
+
+#: ../vnc.html:171 ../vnc.html:177
+msgid "Clipboard"
+msgstr "剪贴板"
+
+#: ../vnc.html:181
+msgid "Clear"
+msgstr "清除"
+
+#: ../vnc.html:187
+msgid "Fullscreen"
+msgstr "全屏"
+
+#: ../vnc.html:192 ../vnc.html:199
+msgid "Settings"
+msgstr "设置"
+
+#: ../vnc.html:202
+msgid "Shared Mode"
+msgstr "分享模式"
+
+#: ../vnc.html:205
+msgid "View Only"
+msgstr "仅查看"
+
+#: ../vnc.html:209
+msgid "Clip to Window"
+msgstr "限制/裁切窗口大小"
+
+#: ../vnc.html:212
+msgid "Scaling Mode:"
+msgstr "缩放模式："
+
+#: ../vnc.html:214
+msgid "None"
+msgstr "无"
+
+#: ../vnc.html:215
+msgid "Local Scaling"
+msgstr "本地缩放"
+
+#: ../vnc.html:216
+msgid "Remote Resizing"
+msgstr "远程调整大小"
+
+#: ../vnc.html:221
+msgid "Advanced"
+msgstr "高级"
+
+#: ../vnc.html:224
+msgid "Repeater ID:"
+msgstr "中继站 ID"
+
+#: ../vnc.html:228
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: ../vnc.html:231
+msgid "Encrypt"
+msgstr "加密"
+
+#: ../vnc.html:234
+msgid "Host:"
+msgstr "主机："
+
+#: ../vnc.html:238
+msgid "Port:"
+msgstr "端口："
+
+#: ../vnc.html:242
+msgid "Path:"
+msgstr "路径："
+
+#: ../vnc.html:249
+msgid "Automatic Reconnect"
+msgstr "自动重新连接"
+
+#: ../vnc.html:252
+msgid "Reconnect Delay (ms):"
+msgstr "重新连接间隔 (ms)："
+
+#: ../vnc.html:258
+msgid "Logging:"
+msgstr "日志级别："
+
+#: ../vnc.html:270
+msgid "Disconnect"
+msgstr "中断连接"
+
+#: ../vnc.html:289
+msgid "Connect"
+msgstr "连接"
+
+#: ../vnc.html:299
+msgid "Password:"
+msgstr "密码："
+
+#: ../vnc.html:313
+msgid "Cancel"
+msgstr "取消"

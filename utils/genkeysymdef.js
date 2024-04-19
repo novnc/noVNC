@@ -1,72 +1,71 @@
 #!/usr/bin/env node
 /*
  * genkeysymdef: X11 keysymdef.h to JavaScript converter
- * Copyright 2013 jalf <git@jalf.dk>
- * Copyright 2017 Pierre Ossman for Cendio AB
+ * Copyright (C) 2018 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 
 "use strict";
 
-var fs = require('fs');
+const fs = require('fs');
 
-var show_help = process.argv.length === 2;
-var filename;
+let showHelp = process.argv.length === 2;
+let filename;
 
-for (var i = 2; i < process.argv.length; ++i) {
-  switch (process.argv[i]) {
-    case "--help":
-    case "-h":
-      show_help = true;
-      break;
-    case "--file":
-    case "-f":
-    default:
-      filename = process.argv[i];
-  }
+for (let i = 2; i < process.argv.length; ++i) {
+    switch (process.argv[i]) {
+        case "--help":
+        case "-h":
+            showHelp = true;
+            break;
+        case "--file":
+        case "-f":
+        default:
+            filename = process.argv[i];
+    }
 }
 
 if (!filename) {
-  show_help = true;
-  console.log("Error: No filename specified\n");
+    showHelp = true;
+    console.log("Error: No filename specified\n");
 }
 
-if (show_help) {
-  console.log("Parses a *nix keysymdef.h to generate Unicode code point mappings");
-  console.log("Usage: node parse.js [options] filename:");
-  console.log("  -h [ --help ]                 Produce this help message");
-  console.log("  filename                      The keysymdef.h file to parse");
-  return;
+if (showHelp) {
+    console.log("Parses a *nix keysymdef.h to generate Unicode code point mappings");
+    console.log("Usage: node parse.js [options] filename:");
+    console.log("  -h [ --help ]                 Produce this help message");
+    console.log("  filename                      The keysymdef.h file to parse");
+    process.exit(0);
 }
 
-var buf = fs.readFileSync(filename);
-var str = buf.toString('utf8');
+const buf = fs.readFileSync(filename);
+const str = buf.toString('utf8');
 
-var re = /^\#define XK_([a-zA-Z_0-9]+)\s+0x([0-9a-fA-F]+)\s*(\/\*\s*(.*)\s*\*\/)?\s*$/m;
+const re = /^#define XK_([a-zA-Z_0-9]+)\s+0x([0-9a-fA-F]+)\s*(\/\*\s*(.*)\s*\*\/)?\s*$/m;
 
-var arr = str.split('\n');
+const arr = str.split('\n');
 
-var codepoints = {};
+const codepoints = {};
 
-for (var i = 0; i < arr.length; ++i) {
-    var result = re.exec(arr[i]);
-    if (result){
-        var keyname = result[1];
-        var keysym = parseInt(result[2], 16);
-        var remainder = result[3];
+for (let i = 0; i < arr.length; ++i) {
+    const result = re.exec(arr[i]);
+    if (result) {
+        const keyname = result[1];
+        const keysym = parseInt(result[2], 16);
+        const remainder = result[3];
 
-        var unicodeRes = /U\+([0-9a-fA-F]+)/.exec(remainder);
+        const unicodeRes = /U\+([0-9a-fA-F]+)/.exec(remainder);
         if (unicodeRes) {
-            var unicode = parseInt(unicodeRes[1], 16);
+            const unicode = parseInt(unicodeRes[1], 16);
             // The first entry is the preferred one
-            if (!codepoints[unicode]){
+            if (!codepoints[unicode]) {
                 codepoints[unicode] = { keysym: keysym, name: keyname };
             }
         }
     }
 }
 
-var out =
+let out =
 "/*\n" +
 " * Mapping from Unicode codepoints to X11/RFB keysyms\n" +
 " *\n" +
@@ -76,17 +75,17 @@ var out =
 "\n" +
 "/* Functions at the bottom */\n" +
 "\n" +
-"var codepoints = {\n";
+"const codepoints = {\n";
 
 function toHex(num) {
-    var s = num.toString(16);
+    let s = num.toString(16);
     if (s.length < 4) {
         s = ("0000" + s).slice(-4);
     }
     return "0x" + s;
-};
+}
 
-for (var codepoint in codepoints) {
+for (let codepoint in codepoints) {
     codepoint = parseInt(codepoint);
 
     // Latin-1?
@@ -108,14 +107,14 @@ out +=
 "};\n" +
 "\n" +
 "export default {\n" +
-"    lookup : function(u) {\n" +
+"    lookup(u) {\n" +
 "        // Latin-1 is one-to-one mapping\n" +
 "        if ((u >= 0x20) && (u <= 0xff)) {\n" +
 "            return u;\n" +
 "        }\n" +
 "\n" +
 "        // Lookup table (fairly random)\n" +
-"        var keysym = codepoints[u];\n" +
+"        const keysym = codepoints[u];\n" +
 "        if (keysym !== undefined) {\n" +
 "            return keysym;\n" +
 "        }\n" +
