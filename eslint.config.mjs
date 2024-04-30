@@ -58,6 +58,7 @@ export default [
                                                        "asyncArrow": "always" }],
             "switch-colon-spacing": ["error"],
             "camelcase": ["error", { "allow": ["^XK_", "^XF86XK_"] }],
+            "no-console": ["error"],
         }
     },
     {
@@ -66,6 +67,9 @@ export default [
             globals: {
                 ...globals.node,
             }
+        },
+        rules: {
+            "no-console": 0,
         },
     },
     {

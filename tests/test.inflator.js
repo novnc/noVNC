@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const expect = chai.expect;
 
 import { deflateInit, deflate, Z_FULL_FLUSH } from "../vendor/pako/lib/zlib/deflate.js";

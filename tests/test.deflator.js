@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const expect = chai.expect;
 
 import { inflateInit, inflate } from "../vendor/pako/lib/zlib/inflate.js";
