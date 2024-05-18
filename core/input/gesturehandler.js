@@ -34,7 +34,8 @@ const GH_LONGPRESS_TIMEOUT = 1000;
 const GH_TWOTOUCH_TIMEOUT = 50;
 
 export default class GestureHandler {
-    constructor() {
+    constructor(display) {
+        this._display = display;
         this._target = null;
 
         this._state = GH_INITSTATE;
@@ -49,6 +50,10 @@ export default class GestureHandler {
         this._twoTouchTimeoutId = null;
 
         this._boundEventHandler = this._eventHandler.bind(this);
+
+        this.initialDistance = 0;
+        this.initialScale = 1;
+        this.currentScale = 1;
     }
 
     attach(target) {
@@ -432,6 +437,61 @@ export default class GestureHandler {
         this._pushEvent('gesturemove');
     }
 
+    onGestureStart(detail) {
+        this.initialDistance = Math.sqrt(detail.magnitudeX**2 + detail.magnitudeY**2);
+    
+        if (!this._initialCanvasWidth) {
+            this._initialCanvasWidth = this._target.width;
+        }
+        if (!this._initialCanvasHeight) {
+            this._initialCanvasHeight = this._target.height;
+        }
+    
+        const viewer = document.getElementById('noVNC_container');
+        this.MIN_SCALE_WIDTH = viewer.clientWidth / this._initialCanvasWidth;
+        this.MIN_SCALE_HEIGHT = viewer.clientHeight / this._initialCanvasHeight;
+        this.MIN_SCALE = Math.max(this.MIN_SCALE_WIDTH, this.MIN_SCALE_HEIGHT);
+    }  
+    
+    onGestureMove(detail) {
+        if (this.initialDistance === 0) return;
+
+        let currentDistance = Math.sqrt(detail.magnitudeX**2 + detail.magnitudeY**2);
+        let scaleFactor = 1 / (currentDistance / this.initialDistance);
+
+        this.currentScale = this.initialScale * scaleFactor;
+
+        // Basic constraints
+        if (this.currentScale < 0.5) this.currentScale = 0.5;
+        if (this.currentScale > 4) this.currentScale = 4;
+
+        this.applyZoom(this.currentScale, detail.clientX, detail.clientY);
+    }
+
+
+    onGestureEnd(detail) {
+        this.initialScale = this.currentScale;
+        this.initialDistance = 0;
+    }    
+    
+    applyZoom(scale, centerX, centerY) {
+        let newWidth = this._initialCanvasWidth * scale;
+        let newHeight = this._initialCanvasHeight * scale;
+    
+        this._display.viewportChangeSize(newWidth, newHeight);
+    
+        const viewer = document.getElementById('noVNC_container');
+        const viewerWidth = viewer.clientWidth;
+        const viewerHeight = viewer.clientHeight;
+    
+        const widthScale = viewerWidth / newWidth;
+        const heightScale = viewerHeight / newHeight;
+    
+        const visualScale = Math.min(widthScale, heightScale);
+        this._display.customrescale(visualScale);
+    }
+    
+    
     _pushEvent(type) {
         let detail = { type: this._stateToGesture(this._state) };
 
@@ -478,6 +538,16 @@ export default class GestureHandler {
                 let movement = this._getAverageMovement();
                 detail['magnitudeX'] = movement.x;
                 detail['magnitudeY'] = movement.y;
+            }
+        }
+        
+        if (this._state === GH_PINCH) {
+            if (type === 'gesturestart') {
+                this.onGestureStart(detail);
+            } else if (type === 'gesturemove') {
+                this.onGestureMove(detail);
+            } else if (type === 'gestureend') {
+                this.onGestureEnd(detail);
             }
         }
 

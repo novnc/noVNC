@@ -1,5 +1,5 @@
 {
-  "name": "@novnc/novnc",
+  "name": "@agilicus/novnc",
   "version": "1.4.0",
   "description": "An HTML5 VNC client",
   "browser": "lib/rfb",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/novnc/noVNC.git"
+    "url": "git+https://github.com/agilicus/noVNC.git"
   },
   "author": "Joel Martin <github@martintribe.org> (https://github.com/kanaka)",
   "contributors": [

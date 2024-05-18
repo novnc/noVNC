@@ -263,7 +263,7 @@ export default class RFB extends EventTargetMixin {
         this._remoteCapsLock = null; // Null indicates unknown or irrelevant
         this._remoteNumLock = null;
 
-        this._gestures = new GestureHandler();
+        this._gestures = new GestureHandler(this._display);
 
         this._sock = new Websock();
         this._sock.on('open', this._socketOpen.bind(this));
@@ -281,6 +281,8 @@ export default class RFB extends EventTargetMixin {
         Log.Debug("<< RFB.constructor");
 
         // ===== PROPERTIES =====
+
+        this.gestures = this._gestures;
 
         this.dragViewport = false;
         this.focusOnClick = true;
@@ -1443,7 +1445,7 @@ export default class RFB extends EventTargetMixin {
         ];
 
         return clientTypes.includes(type);
-    }
+    }  
 
     _negotiateSecurity() {
         if (this._rfbVersion >= 3.7) {
