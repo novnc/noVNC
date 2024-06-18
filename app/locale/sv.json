@@ -1,10 +1,11 @@
 {
-    "HTTPS is required for full functionality": "HTTPS krävs för full funktionalitet",
+    "Running without HTTPS is not recommended, crashes or other issues are likely.": "Det är ej rekommenderat att köra utan HTTPS, krascher och andra problem är troliga.",
     "Connecting...": "Ansluter...",
     "Disconnecting...": "Kopplar ner...",
     "Reconnecting...": "Återansluter...",
     "Internal error": "Internt fel",
     "Must set host": "Du måste specifiera en värd",
+    "Failed to connect to server: ": "Misslyckades att ansluta till servern: ",
     "Connected (encrypted) to ": "Ansluten (krypterat) till ",
     "Connected (unencrypted) to ": "Ansluten (okrypterat) till ",
     "Something went wrong, connection is closed": "Något gick fel, anslutningen avslutades",
