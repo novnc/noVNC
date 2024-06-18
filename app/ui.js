@@ -88,7 +88,7 @@ const UI = {
             });
 
         // Adapt the interface for touch screen devices
-        if (isTouchDevice) {
+        if (isTouchDevice()) {
             // Remove the address bar
             setTimeout(() => window.scrollTo(0, 1), 100);
         }
@@ -231,6 +231,9 @@ const UI = {
 
         document.getElementById("noVNC_view_drag_button")
             .addEventListener('click', UI.toggleViewDrag);
+
+        document.getElementById("noVNC_touchpad_button")
+            .addEventListener('click', UI.toggleTouchpadMode);
 
         document.getElementById("noVNC_control_bar_handle")
             .addEventListener('mousedown', UI.controlbarHandleMouseDown);
@@ -461,6 +464,12 @@ const UI = {
             .classList.remove('noVNC_open');
     },
 
+    /**
+     * @param {string} text
+     * @param { "normal" | "info" | "warn" | "warning" | "error" } statusType
+     * @param {number} time
+     * @returns
+     */
     showStatus(text, statusType, time) {
         const statusElem = document.getElementById('noVNC_status');
 
@@ -1069,8 +1078,10 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
+        UI.rfb.touchpadMode = WebUtil.readSetting('touchpad_mode', 'false') === 'true';
 
         UI.updateViewOnly(); // requires UI.rfb
+        UI.updateTouchpadMode();
     },
 
     disconnect() {
@@ -1124,6 +1135,12 @@ const UI = {
 
         // Do this last because it can only be used on rendered elements
         UI.rfb.focus();
+
+        // In touchpad mode, we want the cursor centered in the
+        // viewport at the start so we can see it.
+        if (UI.rfb.touchpadMode) {
+            UI.rfb.centerCursorInViewport();
+        }
     },
 
     disconnectFinished(e) {
@@ -1353,7 +1370,7 @@ const UI = {
             // Can't be clipping if viewport is scaled to fit
             UI.forceSetting('view_clip', false);
             UI.rfb.clipViewport  = false;
-        } else if (brokenScrollbars) {
+        } else if (brokenScrollbars || UI.rfb.touchpadMode) {
             UI.forceSetting('view_clip', true);
             UI.rfb.clipViewport = true;
         } else {
@@ -1377,12 +1394,17 @@ const UI = {
 
         UI.rfb.dragViewport = !UI.rfb.dragViewport;
         UI.updateViewDrag();
+        UI.updateTouchpadMode();
     },
 
     updateViewDrag() {
         if (!UI.connected) return;
 
         const viewDragButton = document.getElementById('noVNC_view_drag_button');
+
+        if (UI.rfb.dragViewport) {
+            UI.rfb.touchpadMode = false;
+        }
 
         if ((!UI.rfb.clipViewport || !UI.rfb.clippingViewport) &&
             UI.rfb.dragViewport) {
@@ -1437,7 +1459,7 @@ const UI = {
  * ------v------*/
 
     showVirtualKeyboard() {
-        if (!isTouchDevice) return;
+        if (!isTouchDevice()) return;
 
         const input = document.getElementById('noVNC_keyboardinput');
 
@@ -1455,7 +1477,7 @@ const UI = {
     },
 
     hideVirtualKeyboard() {
-        if (!isTouchDevice) return;
+        if (!isTouchDevice()) return;
 
         const input = document.getElementById('noVNC_keyboardinput');
 
@@ -1594,11 +1616,52 @@ const UI = {
         }
     },
 
-/* ------^-------
- *   /KEYBOARD
- * ==============
- *   EXTRA KEYS
- * ------v------*/
+    /* ------^-------
+     *  /KEYBOARD
+     * ==============
+     *   TOUCHPAD
+     * ------v------*/
+
+    toggleTouchpadMode() {
+        if (!UI.rfb) return;
+
+        UI.rfb.touchpadMode = !UI.rfb.touchpadMode;
+        WebUtil.writeSetting('touchpad_mode', UI.rfb.touchpadMode);
+        UI.updateTouchpadMode();
+        UI.updateViewDrag();
+    },
+
+    updateTouchpadMode() {
+        if (UI.rfb.touchpadMode) {
+            UI.rfb.dragViewport = false;
+
+            UI.forceSetting('resize', 'off');
+            UI.forceSetting('view_clip', true);
+            UI.forceSetting('show_dot', true);
+
+            UI.rfb.clipViewport = true;
+            UI.rfb.scaleViewport = false;
+            UI.rfb.resizeSession = false;
+            UI.rfb.showDotCursor = true;
+        } else {
+            UI.enableSetting('resize');
+            UI.enableSetting('view_clip');
+            UI.enableSetting('show_dot');
+        }
+
+        const touchpadButton = document.getElementById('noVNC_touchpad_button');
+        if (UI.rfb.touchpadMode) {
+            touchpadButton.classList.add("noVNC_selected");
+        } else {
+            touchpadButton.classList.remove("noVNC_selected");
+        }
+    },
+
+   /* ------^-------
+    *   /TOUCHPAD
+    * ==============
+    *   EXTRA KEYS
+    * ------v------*/
 
     openExtraKeys() {
         UI.closeAllPanels();
@@ -1712,12 +1775,14 @@ const UI = {
                 .classList.add('noVNC_hidden');
             document.getElementById('noVNC_clipboard_button')
                 .classList.add('noVNC_hidden');
+            document.getElementById('noVNC_clipboard_button')
+                .classList.add('noVNC_hidden');
         } else {
             document.getElementById('noVNC_keyboard_button')
                 .classList.remove('noVNC_hidden');
             document.getElementById('noVNC_toggle_extra_keys_button')
                 .classList.remove('noVNC_hidden');
-            document.getElementById('noVNC_clipboard_button')
+            document.getElementById('noVNC_touchpad_button')
                 .classList.remove('noVNC_hidden');
         }
     },
