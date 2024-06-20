@@ -290,6 +290,7 @@ export default class RFB extends EventTargetMixin {
         this._clippingViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
+        this._resizeBrowser = false;
 
         this._showDotCursor = false;
         if (options.showDotCursor !== undefined) {
@@ -349,6 +350,14 @@ export default class RFB extends EventTargetMixin {
         this._updateScale();
         if (!scale && this._clipViewport) {
             this._updateClip();
+        }
+    }
+
+    get resizeBrowser() { return this._resizeBrowser; }
+    set resizeBrowser(resize) {
+        this._resizeBrowser = resize;
+        if(this._resizeBrowser && (this._rfbConnectionState === 'connected')){
+            this._updateBrowserWindows(this._fbWidth, this._fbHeight);
         }
     }
 
@@ -2863,9 +2872,23 @@ export default class RFB extends EventTargetMixin {
                                              this._fbWidth, this._fbHeight);
     }
 
+    _updateBrowserWindows(width, height) {
+        if(this._resizeBrowser && (this._rfbConnectionState === 'connected')){
+            var fbWidth  = width;
+            var fbHeight = height;
+            var bodyWidth  = document.body.clientWidth;
+            var bodyHeight = document.body.clientHeight;
+            if((fbWidth != 0) && (fbHeight != 0)){
+                window.resizeBy(fbWidth - bodyWidth,fbHeight - bodyHeight);
+            }
+        }
+    }
+
     _resize(width, height) {
         this._fbWidth = width;
         this._fbHeight = height;
+        
+        this._updateBrowserWindows(width, height);
 
         this._display.resize(this._fbWidth, this._fbHeight);
 
