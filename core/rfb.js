@@ -53,6 +53,9 @@ const GESTURE_SCRLSENS = 50;
 const DOUBLE_TAP_TIMEOUT = 1000;
 const DOUBLE_TAP_THRESHOLD = 50;
 
+
+const KEEP_ALIVE_INTERVAL = 10 * 1000; // 10 seconds in milliseconds
+
 // Security types
 const securityTypeNone              = 1;
 const securityTypeVNCAuth           = 2;
@@ -208,7 +211,9 @@ export default class RFB extends EventTargetMixin {
 
         // main setup
         Log.Debug(">> RFB.constructor");
-
+        // Initialize a variable to keep track of the keepalive timer
+        this._keepaliveTimer = null;
+        
         // Create DOM elements
         this._screen = document.createElement('div');
         this._screen.style.display = 'flex';
@@ -2492,6 +2497,28 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
+  // Function to handle keepalive timeout
+  _handleKeepaliveTimeout() {
+    console.error(
+      "Keepalive timeout: No keepalive update received in the last 10 seconds."
+    );
+    // Additional error handling logic here
+    this._socketError(
+      "Keepalive timeout: No keepalive update received in the last 10 seconds."
+    );
+  }
+
+  // Function to reset the keepalive timer
+  _resetKeepaliveTimer() {
+    if (this._keepaliveTimer) {
+      clearTimeout(this._keepaliveTimer);
+    }
+    this._keepaliveTimer = setTimeout(
+      this._handleKeepaliveTimeout.bind(this),
+      KEEP_ALIVE_INTERVAL
+    );
+  }
+    
     _framebufferUpdate() {
         if (this._FBU.rects === 0) {
             if (this._sock.rQwait("FBU header", 3, 1)) { return false; }
@@ -2526,6 +2553,10 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.encoding = this._sock.rQshift32();
                 /* Encodings are signed */
                 this._FBU.encoding >>= 0;
+
+                if (this._FBU.width == 1 && this._FBU.height == 1 && KEEP_ALIVE_INTERVAL > 0) {
+                  this._resetKeepaliveTimer(); // Reset the keepalive timer on receiving a 1x1 update        }
+                }
             }
 
             if (!this._handleRect()) {
