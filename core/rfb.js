@@ -634,8 +634,10 @@ export default class RFB extends EventTargetMixin {
                 throw e;
             }
         }
+        if (KEEP_ALIVE_INTERVAL >0 && this._keepaliveTimer) clearTimeout(this._keepaliveTimer)
         clearTimeout(this._resizeTimeout);
         clearTimeout(this._mouseMoveTimer);
+        
         Log.Debug("<< RFB.disconnect");
     }
 
