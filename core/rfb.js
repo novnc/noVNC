@@ -91,7 +91,7 @@ const extendedClipboardActionProvide = 1 << 28;
 export default class RFB extends EventTargetMixin {
     constructor(target, urlOrChannel, options) {
         if (!target) {
-            throw new Error("Must specify target");
+            throw new ("Must specify target");
         }
         if (!urlOrChannel) {
             throw new Error("Must specify URL, WebSocket or RTCDataChannel");
@@ -2508,6 +2508,7 @@ export default class RFB extends EventTargetMixin {
     this._socketError(
       "Keepalive timeout: No keepalive update received in the last 10 seconds."
     );
+    this.disconnect();
   }
 
   // Function to reset the keepalive timer
