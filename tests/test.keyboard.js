@@ -14,6 +14,10 @@ describe('Key Event Handling', function () {
         }
         e.stopPropagation = sinon.spy();
         e.preventDefault = sinon.spy();
+        e.getModifierState = function (key) {
+            return e[key];
+        };
+
         return e;
     }
 
@@ -307,6 +311,50 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledTwice;
             expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+        });
+    });
+
+    describe('Modifier status info', function () {
+        let origNavigator;
+        beforeEach(function () {
+            // window.navigator is a protected read-only property in many
+            // environments, so we need to redefine it whilst running these
+            // tests.
+            origNavigator = Object.getOwnPropertyDescriptor(window, "navigator");
+
+            Object.defineProperty(window, "navigator", {value: {}});
+        });
+
+        afterEach(function () {
+            Object.defineProperty(window, "navigator", origNavigator);
+        });
+
+        it('should provide caps lock state', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'A', NumLock: false, CapsLock: true}));
+
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x41, "KeyA", true, false, true);
+        });
+
+        it('should provide num lock state', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'A', NumLock: true, CapsLock: false}));
+
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x41, "KeyA", true, true, false);
+        });
+
+        it('should have no num lock state on mac', function () {
+            window.navigator.platform = "Mac";
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'KeyA', key: 'A', NumLock: false, CapsLock: true}));
+
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0x41, "KeyA", true, null, true);
         });
     });
 

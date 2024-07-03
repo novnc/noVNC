@@ -3,7 +3,7 @@ const expect = chai.expect;
 import RFB from '../core/rfb.js';
 import Websock from '../core/websock.js';
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
-import { deflateInit, deflate } from "../vendor/pako/lib/zlib/deflate.js";
+import { deflateInit, deflate, Z_DEFAULT_COMPRESSION } from "../vendor/pako/lib/zlib/deflate.js";
 import { encodings } from '../core/encodings.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
@@ -54,7 +54,7 @@ function deflateWithSize(data) {
     let strm = new ZStream();
     let chunkSize = 1024 * 10 * 10;
     strm.output = new Uint8Array(chunkSize);
-    deflateInit(strm, 5);
+    deflateInit(strm, Z_DEFAULT_COMPRESSION);
 
     /* eslint-disable camelcase */
     strm.input = unCompData;
@@ -1257,6 +1257,14 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 1]));
                 expect(client._rfbInitState).to.equal('ServerInitialisation');
             });
+
+            it('should transition straight to ServerInitialisation on "no auth" for versions < 3.8', function () {
+                sendVer('003.007\n', client);
+                client._sock._websocket._getSentData();
+
+                sendSecurity(1, client);
+                expect(client._rfbInitState).to.equal('ServerInitialisation');
+            });
         });
 
         describe('Authentication', function () {
@@ -2230,16 +2238,36 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
 
         describe('Legacy SecurityResult', function () {
-            beforeEach(function () {
-                sendVer('003.007\n', client);
-                client._sock._websocket._getSentData();
-                sendSecurity(1, client);
-                client._sock._websocket._getSentData();
-            });
-
-            it('should not include reason in securityfailure event', function () {
+            it('should not include reason in securityfailure event for versions < 3.7', function () {
+                client.addEventListener("credentialsrequired", () => {
+                    client.sendCredentials({ password: 'passwd' });
+                });
                 const spy = sinon.spy();
                 client.addEventListener("securityfailure", spy);
+                sendVer('003.006\n', client);
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
+                const challenge = [];
+                for (let i = 0; i < 16; i++) { challenge[i] = i; }
+                client._sock._websocket._receiveData(new Uint8Array(challenge));
+
+                client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
+                expect(spy).to.have.been.calledOnce;
+                expect(spy.args[0][0].detail.status).to.equal(2);
+                expect('reason' in spy.args[0][0].detail).to.be.false;
+            });
+
+            it('should not include reason in securityfailure event for versions < 3.8', function () {
+                client.addEventListener("credentialsrequired", () => {
+                    client.sendCredentials({ password: 'passwd' });
+                });
+                const spy = sinon.spy();
+                client.addEventListener("securityfailure", spy);
+                sendVer('003.007\n', client);
+                sendSecurity(2, client);
+                const challenge = [];
+                for (let i = 0; i < 16; i++) { challenge[i] = i; }
+                client._sock._websocket._receiveData(new Uint8Array(challenge));
+
                 client._sock._websocket._receiveData(new Uint8Array([0, 0, 0, 2]));
                 expect(spy).to.have.been.calledOnce;
                 expect(spy.args[0][0].detail.status).to.equal(2);
@@ -2979,6 +3007,149 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     expect(spy.args[0][0].detail.name).to.equal('som€ nam€');
                 });
             });
+
+            describe('Caps Lock and Num Lock remote fixup', function () {
+                function sendLedStateUpdate(state) {
+                    let data = [];
+                    push8(data, state);
+                    sendFbuMsg([{ x: 0, y: 0, width: 0, height: 0, encoding: -261 }], [data], client);
+                }
+
+                let client;
+                beforeEach(function () {
+                    client = makeRFB();
+                    sinon.stub(client, 'sendKey');
+                });
+
+                it('should toggle caps lock if remote caps lock is on and local is off', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0x61, "KeyA", true);
+                });
+
+                it('should toggle caps lock if remote caps lock is off and local is on', function () {
+                    sendLedStateUpdate(0b011);
+                    client._handleKeyEvent(0x41, 'KeyA', true, null, true);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0x41, "KeyA", true);
+                });
+
+                it('should not toggle caps lock if remote caps lock is on and local is on', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0x41, 'KeyA', true, null, true);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0x41, "KeyA", true);
+                });
+
+                it('should not toggle caps lock if remote caps lock is off and local is off', function () {
+                    sendLedStateUpdate(0b011);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0x61, "KeyA", true);
+                });
+
+                it('should not toggle caps lock if the key is caps lock', function () {
+                    sendLedStateUpdate(0b011);
+                    client._handleKeyEvent(0xFFE5, 'CapsLock', true, null, true);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                });
+
+                it('should toggle caps lock only once', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+                    client._handleKeyEvent(0x61, 'KeyA', true, null, false);
+
+                    expect(client.sendKey).to.have.callCount(4);
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0x61, "KeyA", true);
+                    expect(client.sendKey.lastCall).to.have.been.calledWith(0x61, "KeyA", true);
+                });
+
+                it('should retain remote caps lock state on capslock key up', function () {
+                    sendLedStateUpdate(0b100);
+                    client._handleKeyEvent(0xFFE5, 'CapsLock', false, null, true);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFE5, "CapsLock", false);
+                    expect(client._remoteCapsLock).to.equal(true);
+                });
+
+                it('should toggle num lock if remote num lock is on and local is off', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFF7F, "NumLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                });
+
+                it('should toggle num lock if remote num lock is off and local is on', function () {
+                    sendLedStateUpdate(0b101);
+                    client._handleKeyEvent(0xFFB1, 'NumPad1', true, true, null);
+
+                    expect(client.sendKey).to.have.been.calledThrice;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFF7F, "NumLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0xFFB1, "NumPad1", true);
+                });
+
+                it('should not toggle num lock if remote num lock is on and local is on', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFFB1, 'NumPad1', true,  true, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFB1, "NumPad1", true);
+                });
+
+                it('should not toggle num lock if remote num lock is off and local is off', function () {
+                    sendLedStateUpdate(0b101);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                });
+
+                it('should not toggle num lock if the key is num lock', function () {
+                    sendLedStateUpdate(0b101);
+                    client._handleKeyEvent(0xFF7F, 'NumLock', true, true, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                });
+
+                it('should not toggle num lock if local state is unknown', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFFB1, 'NumPad1', true, null, null);
+
+                    expect(client.sendKey).to.have.been.calledOnce;
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFFB1, "NumPad1", true);
+                });
+
+                it('should toggle num lock only once', function () {
+                    sendLedStateUpdate(0b010);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+                    client._handleKeyEvent(0xFF9C, 'NumPad1', true, false, null);
+
+                    expect(client.sendKey).to.have.callCount(4);
+                    expect(client.sendKey.firstCall).to.have.been.calledWith(0xFF7F, "NumLock", true);
+                    expect(client.sendKey.secondCall).to.have.been.calledWith(0xFF7F, "NumLock", false);
+                    expect(client.sendKey.thirdCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                    expect(client.sendKey.lastCall).to.have.been.calledWith(0xFF9C, "NumPad1", true);
+                });
+            });
         });
 
         describe('XVP Message Handling', function () {
@@ -3092,11 +3263,11 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
 
                     it('should update clipboard with correct escape characters from a Provide message ', function () {
-                        let expectedData = "Oh\nmy!";
+                        let expectedData = "Oh\nmy\n!";
                         let data = [3, 0, 0, 0];
                         const flags = [0x10, 0x00, 0x00, 0x01];
 
-                        let text = encodeUTF8("Oh\r\nmy!\0");
+                        let text = encodeUTF8("Oh\r\nmy\r\n!\0");
 
                         let deflatedText = deflateWithSize(text);
 

@@ -8,13 +8,13 @@ usage() {
         echo "$*"
         echo
     fi
-    echo "Usage: ${NAME} [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT] [--ssl-only]"
+    echo "Usage: ${NAME} [--listen [HOST:]PORT] [--vnc VNC_HOST:PORT] [--cert CERT] [--ssl-only]"
     echo
     echo "Starts the WebSockets proxy and a mini-webserver and "
     echo "provides a cut-and-paste URL to go to."
     echo
-    echo "    --listen PORT         Port for proxy/webserver to listen on"
-    echo "                          Default: 6080"
+    echo "    --listen [HOST:]PORT  Port for proxy/webserver to listen on"
+    echo "                          Default: 6080 (on all interfaces)"
     echo "    --vnc VNC_HOST:PORT   VNC server host:port proxy target"
     echo "                          Default: localhost:5900"
     echo "    --cert CERT           Path to combined cert/key file, or just"
@@ -47,14 +47,16 @@ usage() {
 NAME="$(basename $0)"
 REAL_NAME="$(readlink -f $0)"
 HERE="$(cd "$(dirname "$REAL_NAME")" && pwd)"
+HOST=""
 PORT="6080"
+LISTEN="$PORT"
 VNC_DEST="localhost:5900"
 CERT=""
 KEY=""
 WEB=""
 proxy_pid=""
 SSLONLY=""
-RECORD_ARG=""
+RECORD=""
 SYSLOG_ARG=""
 HEARTBEAT_ARG=""
 IDLETIMEOUT_ARG=""
@@ -86,14 +88,14 @@ cleanup() {
 while [ "$*" ]; do
     param=$1; shift; OPTARG=$1
     case $param in
-    --listen)  PORT="${OPTARG}"; shift            ;;
+    --listen)  LISTEN="${OPTARG}"; shift            ;;
     --vnc)     VNC_DEST="${OPTARG}"; shift        ;;
     --cert)    CERT="${OPTARG}"; shift            ;;
     --key)     KEY="${OPTARG}"; shift             ;;
     --web)     WEB="${OPTARG}"; shift            ;;
     --ssl-only) SSLONLY="--ssl-only"             ;;
     --file-only) FILEONLY_ARG="--file-only"      ;;
-    --record) RECORD_ARG="--record ${OPTARG}"; shift ;;
+    --record) RECORD="${OPTARG}"; shift ;;
     --syslog) SYSLOG_ARG="--syslog ${OPTARG}"; shift ;;
     --heartbeat) HEARTBEAT_ARG="--heartbeat ${OPTARG}"; shift ;;
     --idle-timeout) IDLETIMEOUT_ARG="--idle-timeout ${OPTARG}"; shift ;;
@@ -107,14 +109,23 @@ while [ "$*" ]; do
     esac
 done
 
+if [ "$LISTEN" != "$PORT" ]; then
+    HOST=${LISTEN%:*}
+    PORT=${LISTEN##*:}
+    # if no host was given, restore
+    [ "$HOST" = "$PORT" ] && HOST=""
+fi
+
 # Sanity checks
-if bash -c "exec 7<>/dev/tcp/localhost/${PORT}" &> /dev/null; then
-    exec 7<&-
-    exec 7>&-
-    die "Port ${PORT} in use. Try --listen PORT"
-else
-    exec 7<&-
-    exec 7>&-
+if [ -z "${HOST}" ]; then
+    if bash -c "exec 7<>/dev/tcp/localhost/${PORT}" &> /dev/null; then
+        exec 7<&-
+        exec 7>&-
+        die "Port ${PORT} in use. Try --listen PORT"
+    else
+        exec 7<&-
+        exec 7>&-
+    fi
 fi
 
 trap "cleanup" TERM QUIT INT EXIT
@@ -191,9 +202,14 @@ else
     fi
 fi
 
-echo "Starting webserver and WebSockets proxy on port ${PORT}"
-#${HERE}/websockify --web ${WEB} ${CERT:+--cert ${CERT}} ${PORT} ${VNC_DEST} &
-${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} ${FILEONLY_ARG} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${PORT} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD_ARG} ${TIMEOUT_ARG} ${WEBAUTH_ARG} ${AUTHPLUGIN_ARG} ${AUTHSOURCE_ARG} &
+# Make all file paths absolute as websockify changes working directory
+WEB=`realpath "${WEB}"`
+[ -n "${CERT}" ] && CERT=`realpath "${CERT}"`
+[ -n "${KEY}" ] && KEY=`realpath "${KEY}"`
+[ -n "${RECORD}" ] && RECORD=`realpath "${RECORD}"`
+
+echo "Starting webserver and WebSockets proxy on${HOST:+ host ${HOST}} port ${PORT}"
+${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} ${FILEONLY_ARG} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${LISTEN} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD:+--record ${RECORD}} ${TIMEOUT_ARG} ${WEBAUTH_ARG} ${AUTHPLUGIN_ARG} ${AUTHSOURCE_ARG} &
 proxy_pid="$!"
 sleep 1
 if [ -z "$proxy_pid" ] || ! ps -eo pid= | grep -w "$proxy_pid" > /dev/null; then
@@ -202,11 +218,15 @@ if [ -z "$proxy_pid" ] || ! ps -eo pid= | grep -w "$proxy_pid" > /dev/null; then
     exit 1
 fi
 
+if [ -z "$HOST" ]; then
+    HOST=$(hostname)
+fi
+
 echo -e "\n\nNavigate to this URL:\n"
 if [ "x$SSLONLY" == "x" ]; then
-    echo -e "    http://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+    echo -e "    http://${HOST}:${PORT}/vnc.html?host=${HOST}&port=${PORT}\n"
 else
-    echo -e "    https://$(hostname):${PORT}/vnc.html?host=$(hostname)&port=${PORT}\n"
+    echo -e "    https://${HOST}:${PORT}/vnc.html?host=${HOST}&port=${PORT}\n"
 fi
 
 echo -e "Press Ctrl-C to exit\n\n"

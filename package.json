@@ -1,6 +1,6 @@
 {
   "name": "@novnc/novnc",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "An HTML5 VNC client",
   "browser": "lib/rfb",
   "directories": {
@@ -14,9 +14,7 @@
     "VERSION",
     "docs/API.md",
     "docs/LIBRARY.md",
-    "docs/LICENSE*",
-    "core",
-    "vendor/pako"
+    "docs/LICENSE*"
   ],
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
@@ -39,19 +37,14 @@
   "homepage": "https://github.com/novnc/noVNC",
   "devDependencies": {
     "@babel/core": "latest",
-    "@babel/plugin-syntax-dynamic-import": "latest",
-    "@babel/plugin-transform-modules-commonjs": "latest",
     "@babel/preset-env": "latest",
-    "@babel/cli": "latest",
     "babel-plugin-import-redirect": "latest",
     "browserify": "latest",
-    "babelify": "latest",
-    "core-js": "latest",
     "chai": "latest",
     "commander": "latest",
-    "es-module-loader": "latest",
     "eslint": "latest",
     "fs-extra": "latest",
+    "globals": "latest",
     "jsdom": "latest",
     "karma": "latest",
     "karma-mocha": "latest",

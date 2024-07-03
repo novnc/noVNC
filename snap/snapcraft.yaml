@@ -1,5 +1,5 @@
 name: novnc
-base: core18 # the base snap is the execution environment for this snap
+base: core22 # the base snap is the execution environment for this snap
 version: git
 summary: Open Source VNC client using HTML5 (WebSockets, Canvas)
 description: |
@@ -42,7 +42,7 @@ parts:
             - jq
 
     websockify:
-        source: https://github.com/novnc/websockify/archive/v0.11.0.tar.gz
+        source: https://github.com/novnc/websockify/archive/v0.12.0.tar.gz
         plugin: python
         stage-packages:
             - python3-numpy

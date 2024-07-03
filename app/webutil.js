@@ -212,7 +212,7 @@ function localStorageGet(name) {
     try {
         r = localStorage.getItem(name);
     } catch (e) {
-        if (e instanceof DOMException || !localStorage) {
+        if (e instanceof DOMException) {
             logOnce(cookiesMsg);
             logOnce("'localStorage.getItem(" + name + ")' failed: " + e,
                     "debug");
