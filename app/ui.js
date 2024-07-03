@@ -41,6 +41,7 @@ const UI = {
     inhibitReconnect: true,
     reconnectCallback: null,
     reconnectPassword: null,
+    disconnectStatusTimeout: null,
 
     prime() {
         return WebUtil.initSettings().then(() => {
@@ -1135,6 +1136,8 @@ const UI = {
     },
 
     reconnect() {
+        UI.disconnectStatusTimeout !== null && clearTimeout(UI.disconnectStatusTimeout);
+        UI.disconnectStatusTimeout = null;
         UI.reconnectCallback = null;
 
         // if reconnect has been disabled in the meantime, do nothing.
@@ -1191,7 +1194,11 @@ const UI = {
                 UI.showStatus(_("Something went wrong, connection is closed"),
                               'error');
             } else {
-                UI.showStatus(_("Failed to connect to server"), 'error');
+                UI.disconnectStatusTimeout !== null && clearTimeout(UI.disconnectStatusTimeout);
+                UI.disconnectStatusTimeout = setTimeout(() => {
+                    UI.showStatus(_("Failed to connect to server"), 'error');
+                    UI.disconnectStatusTimeout = null;
+                }, 20 * 1000);
             }
         }
         // If reconnecting is allowed process it now
