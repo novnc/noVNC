@@ -164,7 +164,7 @@ export function isFirefox() {
 
 export function supportsBinaryClipboard() {
     //Safari does support the clipbaord API but has a lot of security restrictions
-    if (isSafari()) { return false; }
+    if (isSafari() || isFirefox()) { return false; }
     return (navigator.clipboard && typeof navigator.clipboard.read === "function");
 }
 

@@ -274,16 +274,29 @@ const UI = {
         UI.initSetting('enable_hidpi', false);
         UI.toggleKeyboardControls();
 
-        if (WebUtil.isInsideKasmVDI()) {
+        if ((WebUtil.isInsideKasmVDI()) && (! WebUtil.getConfigVar('show_control_bar'))) {
             UI.initSetting('clipboard_up', false);
             UI.initSetting('clipboard_down', false);
+            // Get the value sent in via URL parameter, default to off
             UI.initSetting('clipboard_seamless', false);
+            // Kasm workspaces sets to true if it is allowed, but that does not mean it is supported
+            let clip_s = UI.getSetting('clipboard_seamless');
+            // Its enabled in Kasm Workspaces, but is it supported by the client
+            if (clip_s) {
+                if (isFirefox() || isSafari()) {
+                    UI.forceSetting('clipboard_seamless', false);
+                }
+            }
             UI.initSetting('enable_webp', false);
             UI.initSetting('resize', 'off');
         } else {
             UI.initSetting('clipboard_up', true);
             UI.initSetting('clipboard_down', true);
-            UI.initSetting('clipboard_seamless', true);
+            if (isFirefox() || isSafari()) {
+                UI.initSetting('clipboard_seamless', false);
+            } else {
+                UI.initSetting('clipboard_seamless', true);
+            }
             UI.initSetting('enable_webp', true);
             UI.initSetting('resize', 'remote');
         }
@@ -1148,14 +1161,22 @@ const UI = {
     // disable the labels that belong to disabled input elements.
     disableSetting(name) {
         const ctrl = document.getElementById('noVNC_setting_' + name);
-        ctrl.disabled = true;
-        ctrl.label.classList.add('noVNC_disabled');
+        if (ctrl) {
+            ctrl.disabled = true;
+            if (ctrl.label) {
+                ctrl.label.classList.add('noVNC_disabled');
+            }
+        }
     },
 
     enableSetting(name) {
         const ctrl = document.getElementById('noVNC_setting_' + name);
-        ctrl.disabled = false;
-        ctrl.label.classList.remove('noVNC_disabled');
+        if (ctrl) {
+            ctrl.disabled = false;
+            if (ctrl.label) {
+                ctrl.label.classList.remove('noVNC_disabled');
+            }
+        }
     },
 
 /* ------^-------
