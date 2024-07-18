@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Upload to s3
         run: ./uploadToS3.sh "${{ secrets.ASSETS_UPLOADER_KEY }}" "${{ secrets.ASSETS_UPLOADER_SECRET }}" "${{ github.event.release.tag_name }}"
