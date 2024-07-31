@@ -32,8 +32,6 @@ for a more complete list with additional info and links.
 ### News/help/contact
 
 The project website is found at [novnc.com](http://novnc.com).
-Notable commits, announcements and news are posted to
-[@noVNC](http://www.twitter.com/noVNC).
 
 If you are a noVNC developer/integrator/user (or want to be) please join the
 [noVNC discussion group](https://groups.google.com/forum/?fromgroups#!forum/novnc).
@@ -59,7 +57,6 @@ profits such as:
 [Electronic Frontier Foundation](https://www.eff.org/),
 [Against Malaria Foundation](http://www.againstmalaria.com/),
 [Nothing But Nets](http://www.nothingbutnets.net/), etc.
-Please tweet [@noVNC](http://www.twitter.com/noVNC) if you do.
 
 
 ### Features

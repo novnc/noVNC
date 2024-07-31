@@ -32,11 +32,13 @@ if (opt.argv.length != 2) {
 
 const data = po2json.parseFileSync(opt.argv[0]);
 
-const bodyPart = Object.keys(data).filter(msgid => msgid !== "").map((msgid) => {
-    if (msgid === "") return;
-    const msgstr = data[msgid][1];
-    return "    " + JSON.stringify(msgid) + ": " + JSON.stringify(msgstr);
-}).join(",\n");
+const bodyPart = Object.keys(data)
+    .filter(msgid => msgid !== "")
+    .filter(msgid => data[msgid][1] !== "")
+    .map((msgid) => {
+        const msgstr = data[msgid][1];
+        return "    " + JSON.stringify(msgid) + ": " + JSON.stringify(msgstr);
+    }).join(",\n");
 
 const output = "{\n" + bodyPart + "\n}";
 
