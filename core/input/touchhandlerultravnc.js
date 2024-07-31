@@ -88,12 +88,18 @@ export default class TouchHandlerUltraVNC {
             }
         } else if (ev.type === "touchend" || ev.type === "touchcancel") {
             for (let i = 0; i < ev.changedTouches.length; i++) {
-                const index = this._currentTouches.findIndex(t => t.event.identifier === ev.changedTouches[i].identifier);
-                if (index !== -1) {
-                    this._currentTouches[index].status = "POINTER_UP";
-                }
+                const indexes = this._getAllIndexes(this._currentTouches, (t) => t.event.identifier === ev.changedTouches[i].identifier)
+                indexes.forEach((index) => this._currentTouches[index].status = "POINTER_UP");
             }
         }
+    }
+
+    _getAllIndexes(arr, func) {
+        var indexes = [], i;
+        for (i = 0; i < arr.length; i++)
+            if (func(arr[i]))
+                indexes.push(i);
+        return indexes;
     }
 
     _dispatchTouchEvent(ev) {
