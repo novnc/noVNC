@@ -1419,9 +1419,9 @@ export default class RFB extends EventTargetMixin {
                                                  this._canvas);
    
             if ((valuatorFlag & TouchHandlerUltraVNC.LENGTH_16_flag) !== 0) {
-                let scaledX16 = Math.floor(scaledPosition.x) & 0xFFFF;
-                let scaledY16 = Math.floor(scaledPosition.y) & 0xFFFF;
-                let coordinates = (Math.floor(scaledX16) << 16) | (Math.floor(scaledY16));
+                let scaledX16 = this._display.absX(scaledPosition.x) & 0xFFFF;
+                let scaledY16 = this._display.absY(scaledPosition.y) & 0xFFFF;
+                let coordinates = (scaledX16 << 16) | scaledY16;
                 this._sock.sQpush32(coordinates);
             }
    
@@ -2535,15 +2535,20 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleGiiMsg() {
+        if (this._sock.rQwait("GII message subtype", 1, 1)) {
+            return false;
+        }
         let giiMsgSubtype = this._sock.rQshift8();
 
         switch (giiMsgSubtype) {
             case 129: // GII Version Message
+                if (this._sock.rQwait("GII version message", 34, 1)) { return false; }
                 this._sock.rQskipBytes(34);
                 RFB.messages.giiVersionMessage(this._sock);
                 RFB.messages.giiDeviceCreation(this._sock);
                 break;
             case 130: // GII Device Creation
+                if (this._sock.rQwait("GII device creation", 6, 1)) { return false; }
                 this._sock.rQshiftBytes(2);
                 this._gestures._giiDeviceOrigin = this._sock.rQshift32();
                 if (this._gestures._giiDeviceOrigin) this._gestures._isUltraVNCTouchActivated = true;
