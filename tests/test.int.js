@@ -1,4 +1,4 @@
-import { expect } from '../node_modules/chai/chai.js';
+import { expect } from 'chai';
 
 import { toUnsigned32bit, toSigned32bit } from '../core/util/int.js';
 

@@ -1,4 +1,4 @@
-import { expect } from '../node_modules/chai/chai.js';
+import { expect } from 'chai';
 
 import { isMac, isWindows, isIOS, isAndroid, isChromeOS,
          isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,

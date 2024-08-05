@@ -1,4 +1,4 @@
-import { expect } from '../node_modules/chai/chai.js';
+import { expect } from 'chai';
 
 import Base64 from '../core/base64.js';
 

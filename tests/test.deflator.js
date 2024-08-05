@@ -1,5 +1,5 @@
 import './assertions.js';
-import { expect } from '../node_modules/chai/chai.js';
+import { expect } from 'chai';
 
 import { inflateInit, inflate } from "../vendor/pako/lib/zlib/inflate.js";
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";

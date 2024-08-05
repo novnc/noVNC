@@ -1,5 +1,5 @@
 import './assertions.js';
-import { expect } from '../node_modules/chai/chai.js';
+import { expect } from 'chai';
 
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
