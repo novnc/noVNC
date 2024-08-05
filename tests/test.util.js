@@ -11,11 +11,11 @@ describe('Utils', function () {
 
     describe('logging functions', function () {
         beforeEach(function () {
-            sinon.spy(console, 'log');
-            sinon.spy(console, 'debug');
-            sinon.spy(console, 'warn');
-            sinon.spy(console, 'error');
-            sinon.spy(console, 'info');
+            sinon.stub(console, 'log');
+            sinon.stub(console, 'debug');
+            sinon.stub(console, 'warn');
+            sinon.stub(console, 'error');
+            sinon.stub(console, 'info');
         });
 
         afterEach(function () {
