@@ -182,16 +182,15 @@ describe('WebUtil', function () {
                 window.chrome = chrome;
             });
 
-            const csSandbox = sinon.createSandbox();
-
             beforeEach(function () {
                 settings = {};
-                csSandbox.spy(window.chrome.storage.sync, 'set');
-                csSandbox.spy(window.chrome.storage.sync, 'remove');
+                sinon.spy(window.chrome.storage.sync, 'set');
+                sinon.spy(window.chrome.storage.sync, 'remove');
                 return WebUtil.initSettings();
             });
             afterEach(function () {
-                csSandbox.restore();
+                window.chrome.storage.sync.set.restore();
+                window.chrome.storage.sync.remove.restore();
             });
 
             describe('writeSetting', function () {
