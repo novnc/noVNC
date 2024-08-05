@@ -1,3 +1,5 @@
+import { expect } from '../node_modules/chai/chai.js';
+
 import { deflateInit, deflate, Z_FULL_FLUSH } from "../vendor/pako/lib/zlib/deflate.js";
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
 import Inflator from "../core/inflator.js";

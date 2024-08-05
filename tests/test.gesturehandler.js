@@ -1,3 +1,6 @@
+import { expect } from '../node_modules/chai/chai.js';
+import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
+
 import EventTargetMixin from '../core/util/eventtarget.js';
 
 import GestureHandler from '../core/input/gesturehandler.js';

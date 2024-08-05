@@ -1,3 +1,6 @@
+import { expect } from '../node_modules/chai/chai.js';
+import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
+
 import Keyboard from '../core/input/keyboard.js';
 
 describe('Key Event Handling', function () {

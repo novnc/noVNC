@@ -1,3 +1,6 @@
+import { expect } from '../node_modules/chai/chai.js';
+import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
+
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 

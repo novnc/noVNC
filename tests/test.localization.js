@@ -1,3 +1,6 @@
+import { expect } from '../node_modules/chai/chai.js';
+import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
+
 import _, { Localizer, l10n } from '../app/localization.js';
 
 describe('Localization', function () {

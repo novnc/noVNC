@@ -1,3 +1,5 @@
+import { expect } from '../node_modules/chai/chai.js';
+
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
 
