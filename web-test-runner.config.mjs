@@ -72,5 +72,7 @@ export default {
     reporters: [
         defaultReporter(),
         summaryReporter(),
-    ]
+    ],
+    // We have small test files, so let's kill hangs quickly
+    testsFinishTimeout: 10000,
 };
