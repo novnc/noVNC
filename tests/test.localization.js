@@ -1,4 +1,3 @@
-const expect = chai.expect;
 import _, { Localizer, l10n } from '../app/localization.js';
 
 describe('Localization', function () {

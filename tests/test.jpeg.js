@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
 

@@ -1,7 +1,5 @@
 /* jshint expr: true */
 
-const expect = chai.expect;
-
 import * as WebUtil from '../app/webutil.js';
 
 describe('WebUtil', function () {

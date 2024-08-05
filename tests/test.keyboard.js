@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import Keyboard from '../core/input/keyboard.js';
 
 describe('Key Event Handling', function () {

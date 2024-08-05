@@ -55,7 +55,6 @@
     "karma-mocha-reporter": "latest",
     "karma-safari-launcher": "latest",
     "karma-script-launcher": "latest",
-    "karma-sinon-chai": "latest",
     "mocha": "latest",
     "node-getopt": "latest",
     "po2json": "latest",

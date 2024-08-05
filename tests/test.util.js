@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-const expect = chai.expect;
-
 import * as Log from '../core/util/logging.js';
 import { encodeUTF8, decodeUTF8 } from '../core/util/strings.js';
 
