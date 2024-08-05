@@ -51,7 +51,8 @@
     "po2json": "latest",
     "sinon": "latest",
     "sinon-chai": "latest",
-    "@web/test-runner": "latest"
+    "@web/test-runner": "latest",
+    "@web/test-runner-webdriver": "latest"
   },
   "keywords": [
     "vnc",
