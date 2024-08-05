@@ -44,7 +44,7 @@ module.exports = (config) => {
       { pattern: 'tests/test.*.js', type: 'module' },
       // test support files
       { pattern: 'tests/fake.*.js', included: false, type: 'module' },
-      { pattern: 'tests/assertions.js', type: 'module' },
+      { pattern: 'tests/assertions.js', included: false, type: 'module' },
     ],
 
     client: {

@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import './assertions.js';
 import { expect } from '../node_modules/chai/chai.js';
 import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
 

@@ -1,3 +1,4 @@
+import './assertions.js';
 import { expect } from '../node_modules/chai/chai.js';
 
 import { deflateInit, deflate, Z_FULL_FLUSH } from "../vendor/pako/lib/zlib/deflate.js";

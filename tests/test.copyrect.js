@@ -1,3 +1,4 @@
+import './assertions.js';
 import { expect } from '../node_modules/chai/chai.js';
 
 import Websock from '../core/websock.js';
