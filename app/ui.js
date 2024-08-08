@@ -1033,16 +1033,17 @@ const UI = {
 
         let url;
 
-        url = UI.getSetting('encrypt') ? 'wss' : 'ws';
+        url = new URL("https://" + host);
 
-        url += '://' + host;
+        url.protocol = UI.getSetting('encrypt') ? 'wss:' : 'ws:';
         if (port) {
-            url += ':' + port;
+            url.port = port;
         }
-        url += '/' + path;
+        url.pathname = '/' + path;
 
         try {
-            UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
+            UI.rfb = new RFB(document.getElementById('noVNC_container'),
+                             url.href,
                              { shared: UI.getSetting('shared'),
                                repeaterID: UI.getSetting('repeaterID'),
                                credentials: { password: password } });
