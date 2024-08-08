@@ -49,11 +49,40 @@
 
     <script type="module">
         import UI from "./app/ui.js";
+        import * as Log from './core/util/logging.js';
+
+        let response;
 
         let defaults = {};
         let mandatory = {};
 
-        // Override any defaults you need here:
+        // Default settings will be loaded from defaults.json. Mandatory
+        // settings will be loaded from mandatory.json, which the user
+        // cannot change.
+
+        try {
+            response = await fetch('./defaults.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+
+            defaults = await response.json();
+        } catch (err) {
+            Log.Error("Couldn't fetch defaults.json: " + err);
+        }
+
+        try {
+            response = await fetch('./mandatory.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+
+            mandatory = await response.json();
+        } catch (err) {
+            Log.Error("Couldn't fetch mandatory.json: " + err);
+        }
+
+        // You can also override any defaults you need here:
         //
         // defaults['host'] = 'vnc.example.com';
 
