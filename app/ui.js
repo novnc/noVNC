@@ -158,20 +158,7 @@ const UI = {
         UI.initSetting('logging', 'warn');
         UI.updateLogging();
 
-        // if port == 80 (or 443) then it won't be present and should be
-        // set manually
-        let port = window.location.port;
-        if (!port) {
-            if (window.location.protocol.substring(0, 5) == 'https') {
-                port = 443;
-            } else if (window.location.protocol.substring(0, 4) == 'http') {
-                port = 80;
-            }
-        }
-
         /* Populate the controls if defaults are provided in the URL */
-        UI.initSetting('host', window.location.hostname);
-        UI.initSetting('port', port);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
@@ -1021,25 +1008,27 @@ const UI = {
 
         UI.hideStatus();
 
-        if (!host) {
-            Log.Error("Can't connect when host is: " + host);
-            UI.showStatus(_("Must set host"), 'error');
-            return;
-        }
-
         UI.closeConnectPanel();
 
         UI.updateVisualState('connecting');
 
         let url;
 
-        url = new URL("https://" + host);
+        if (host) {
+            url = new URL("https://" + host);
 
-        url.protocol = UI.getSetting('encrypt') ? 'wss:' : 'ws:';
-        if (port) {
-            url.port = port;
+            url.protocol = UI.getSetting('encrypt') ? 'wss:' : 'ws:';
+            if (port) {
+                url.port = port;
+            }
+            url.pathname = '/' + path;
+        } else {
+            // Current (May 2024) browsers support relative WebSocket
+            // URLs natively, but we need to support older browsers for
+            // some time.
+            url = new URL(path, location.href);
+            url.protocol = (window.location.protocol === "https:") ? 'wss:' : 'ws:';
         }
-        url.pathname = '/' + path;
 
         try {
             UI.rfb = new RFB(document.getElementById('noVNC_container'),
