@@ -24,6 +24,7 @@ import keysyms from '../core/input/keysymdef.js';
 import Keyboard from '../core/input/keyboard.js';
 import RFB from '../core/rfb.js';
 import * as WebUtil from './webutil.js';
+import { TUNNEL_SERVER } from './constant.js';
 
 const PAGE_TITLE = 'noVNC';
 
@@ -900,6 +901,17 @@ const UI = {
 	/* ------^-------
 	 *  /CLIPBOARD
 	 * ==============
+	 *  SEARCH_PARAMS
+	 * ------v------*/
+
+	readParams(key) {
+		const urlParams = new URLSearchParams(window.location.search);
+		return urlParams.get(key);
+	},
+
+	/* ------^-------
+	 *  /SEARCH_PARAMS
+	 * ==============
 	 *  CONNECTION
 	 * ------v------*/
 
@@ -917,9 +929,9 @@ const UI = {
 			return;
 		}
 
-		const host = UI.getSetting('host');
-		const port = UI.getSetting('port');
-		const path = UI.getSetting('path');
+		const host = TUNNEL_SERVER;
+		const port = UI.readParams('port');
+		const path = 'websockify';
 
 		if (typeof password === 'undefined') {
 			password = WebUtil.getConfigVar('password');
