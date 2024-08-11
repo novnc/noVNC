@@ -9,7 +9,7 @@
 
 import * as Log from '../util/logging.js';
 
-class H264Parser {
+export class H264Parser {
     constructor(data) {
         this._data = data;
         this._index = 0;
@@ -109,7 +109,7 @@ class H264Parser {
     }
 }
 
-class H264Context {
+export class H264Context {
     constructor(width, height) {
         this.lastUsed = 0;
         this._width = width;
