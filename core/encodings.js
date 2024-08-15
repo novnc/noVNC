@@ -11,6 +11,7 @@ export const encodings = {
     encodingCopyRect: 1,
     encodingRRE: 2,
     encodingHextile: 5,
+    encodingZlib: 6,
     encodingTight: 7,
     encodingZRLE: 16,
     encodingTightPNG: -260,
@@ -40,6 +41,7 @@ export function encodingName(num) {
         case encodings.encodingCopyRect: return "CopyRect";
         case encodings.encodingRRE:      return "RRE";
         case encodings.encodingHextile:  return "Hextile";
+        case encodings.encodingZlib:     return "Zlib";
         case encodings.encodingTight:    return "Tight";
         case encodings.encodingZRLE:     return "ZRLE";
         case encodings.encodingTightPNG: return "TightPNG";
