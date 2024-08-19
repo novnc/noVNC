@@ -159,6 +159,8 @@ const UI = {
         UI.updateLogging();
 
         /* Populate the controls if defaults are provided in the URL */
+        UI.initSetting('host', '');
+        UI.initSetting('port', 0);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
         UI.initSetting('resize', 'off');
