@@ -99,7 +99,7 @@ while [ "$*" ]; do
     --syslog) SYSLOG_ARG="--syslog ${OPTARG}"; shift ;;
     --heartbeat) HEARTBEAT_ARG="--heartbeat ${OPTARG}"; shift ;;
     --idle-timeout) IDLETIMEOUT_ARG="--idle-timeout ${OPTARG}"; shift ;;
-    --timeout) TIMEOUT_ARG="--timeout ${OPTARG}"; shift ;;
+    --timeout) TIMEOUT_ARG="${OPTARG}"; shift ;;
     --web-auth) WEBAUTH_ARG="--web-auth"                ;;
     --auth-plugin) AUTHPLUGIN_ARG="--auth-plugin ${OPTARG}"; shift ;;
     --auth-source) AUTHSOURCE_ARG="--auth-source ${OPTARG}"; shift ;;
@@ -138,11 +138,11 @@ if [ -n "${WEB}" ]; then
 elif [ -e "$(pwd)/vnc.html" ]; then
     WEB=$(pwd)
 elif [ -e "${HERE}/../vnc.html" ]; then
-    WEB=${HERE}/../
+    WEB="${HERE}/../"
 elif [ -e "${HERE}/vnc.html" ]; then
-    WEB=${HERE}
+    WEB="${HERE}"
 elif [ -e "${HERE}/../share/novnc/vnc.html" ]; then
-    WEB=${HERE}/../share/novnc/
+    WEB="${HERE}/../share/novnc/"
 else
     die "Could not find vnc.html"
 fi
@@ -170,11 +170,11 @@ if [ -n "${KEY}" ]; then
 fi
 
 # try to find websockify (prefer local, try global, then download local)
-if [[ -d ${HERE}/websockify ]]; then
-    WEBSOCKIFY=${HERE}/websockify/run
+if [[ -d "${HERE}/websockify" ]]; then
+    WEBSOCKIFY="${HERE}/websockify/run"\
 
     if [[ ! -x $WEBSOCKIFY ]]; then
-        echo "The path ${HERE}/websockify exists, but $WEBSOCKIFY either does not exist or is not executable."
+        echo "The path "${HERE}/websockify exists, but $WEBSOCKIFY either does not exist or is not executable."
         echo "If you intended to use an installed websockify package, please remove ${HERE}/websockify."
         exit 1
     fi
@@ -209,7 +209,7 @@ WEB=`realpath "${WEB}"`
 [ -n "${RECORD}" ] && RECORD=`realpath "${RECORD}"`
 
 echo "Starting webserver and WebSockets proxy on${HOST:+ host ${HOST}} port ${PORT}"
-${WEBSOCKIFY} ${SYSLOG_ARG} ${SSLONLY} ${FILEONLY_ARG} --web ${WEB} ${CERT:+--cert ${CERT}} ${KEY:+--key ${KEY}} ${LISTEN} ${VNC_DEST} ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD:+--record ${RECORD}} ${TIMEOUT_ARG} ${WEBAUTH_ARG} ${AUTHPLUGIN_ARG} ${AUTHSOURCE_ARG} &
+"${WEBSOCKIFY}" ${SYSLOG_ARG:+--syslog "${SYSLOG_ARG}"} ${SSLONLY} ${FILEONLY_ARG} --web ${WEB} ${CERT:+--cert "${CERT}"} ${KEY:+--key "${KEY}"} "${LISTEN}" "${VNC_DEST}" ${HEARTBEAT_ARG} ${IDLETIMEOUT_ARG} ${RECORD:+--record "${RECORD}"} ${TIMEOUT_ARG:+--timeout "${TIMEOUT_ARG}"} ${WEBAUTH_ARG} ${AUTHPLUGIN_ARG} ${AUTHSOURCE_ARG} &
 proxy_pid="$!"
 sleep 1
 if [ -z "$proxy_pid" ] || ! ps -eo pid= | grep -w "$proxy_pid" > /dev/null; then
@@ -219,7 +219,7 @@ if [ -z "$proxy_pid" ] || ! ps -eo pid= | grep -w "$proxy_pid" > /dev/null; then
 fi
 
 if [ -z "$HOST" ]; then
-    HOST=$(hostname)
+    HOST="$(hostname)"
 fi
 
 echo -e "\n\nNavigate to this URL:\n"
