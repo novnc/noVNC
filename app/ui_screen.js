@@ -187,7 +187,11 @@ const UI = {
         UI.rfb.antiAliasing = UI.getSetting('anti_aliasing');
         UI.rfb.clipboardUp = UI.getSetting('clipboard_up', true, true);
         UI.rfb.clipboardDown = UI.getSetting('clipboard_down', true, true);
-        UI.rfb.clipboardSeamless = UI.getSetting('clipboard_seamless', true, true);
+        let seamlessClip = UI.getSetting('clipboard_seamless', true, true);
+        if (isFirefox() || isSafari()) {
+            seamlessClip = false;
+        }
+        UI.rfb.clipboardSeamless = seamlessClip
         UI.rfb.keyboard.enableIME = UI.getSetting('enable_ime', true, false);
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
         UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc', true, false);
