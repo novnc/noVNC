@@ -70,6 +70,26 @@ try {
 }
 export const hasScrollbarGutter = _hasScrollbarGutter;
 
+export let supportsWebCodecsH264Decode = false;
+
+async function _checkWebCodecsH264DecodeSupport() {
+    if (!('VideoDecoder' in window)) {
+        return;
+    }
+
+    // We'll need to make do with some placeholders here
+    const config = {
+        codec: 'avc1.42401f',
+        codedWidth: 1920,
+        codedHeight: 1080,
+        optimizeForLatency: true,
+    };
+
+    const result = await VideoDecoder.isConfigSupported(config);
+    supportsWebCodecsH264Decode = result.supported;
+}
+_checkWebCodecsH264DecodeSupport();
+
 /*
  * The functions for detection of platforms and browsers below are exported
  * but the use of these should be minimized as much as possible.
