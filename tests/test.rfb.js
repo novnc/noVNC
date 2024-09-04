@@ -1,8 +1,13 @@
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import RFB from '../core/rfb.js';
 import Websock from '../core/websock.js';
 import ZStream from "../vendor/pako/lib/zlib/zstream.js";
 import { deflateInit, deflate, Z_DEFAULT_COMPRESSION } from "../vendor/pako/lib/zlib/deflate.js";
 import { encodings } from '../core/encodings.js';
+import { initLogging } from '../core/util/logging.js';
 import { toUnsigned32bit } from '../core/util/int.js';
 import { encodeUTF8 } from '../core/util/strings.js';
 import KeyTable from '../core/input/keysym.js';
@@ -111,6 +116,9 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
         // Avoiding printing the entire Websock buffer on errors
         Websock.prototype.inspect = function () { return "[object Websock]"; };
+
+        // Avoid spamming test output
+        initLogging('none');
     });
 
     after(function () {

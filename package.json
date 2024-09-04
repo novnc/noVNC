@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "lint": "eslint app core po/po2js po/xgettext-html tests utils",
-    "test": "karma start karma.conf.js",
+    "test": "web-test-runner",
     "prepublish": "node ./utils/convert.js --clean"
   },
   "repository": {
@@ -46,22 +46,14 @@
     "fs-extra": "latest",
     "globals": "latest",
     "jsdom": "latest",
-    "karma": "latest",
-    "karma-mocha": "latest",
-    "karma-chrome-launcher": "latest",
-    "@chiragrupani/karma-chromium-edge-launcher": "latest",
-    "karma-firefox-launcher": "latest",
-    "karma-ie-launcher": "latest",
-    "karma-mocha-reporter": "latest",
-    "karma-safari-launcher": "latest",
-    "karma-script-launcher": "latest",
     "mocha": "latest",
     "node-getopt": "latest",
     "po2json": "latest",
     "sinon": "latest",
-    "sinon-chai": "latest"
+    "sinon-chai": "latest",
+    "@web/test-runner": "latest",
+    "@web/test-runner-webdriver": "latest"
   },
-  "dependencies": {},
   "keywords": [
     "vnc",
     "rfb",
