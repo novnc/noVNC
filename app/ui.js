@@ -43,8 +43,8 @@ const UI = {
     reconnectPassword: null,
 
     // Old browser resolution
-    bodyWidth_browser_resize:  0,
-    bodyHeight_browser_resize: 0,
+    bodyWidthBrowserResize:  0,
+    bodyHeightBrowserResize: 0,
 
     prime() {
         return WebUtil.initSettings().then(() => {
@@ -997,20 +997,20 @@ const UI = {
         let bodyHeight = document.body.clientHeight;
 
         let OldResolutionEqual = false;
-        if (UI.bodyWidth_browser_resize === document.body.clientWidth &&
-            UI.bodyHeight_browser_resize === document.body.clientHeight) {
+        if (UI.bodyWidthBrowserResize === document.body.clientWidth &&
+            UI.bodyHeightBrowserResize === document.body.clientHeight) {
                 OldResolutionEqual = true;
         }
-        if (UI.bodyHeight_browser_resize === 0 ||
+        if (UI.bodyHeightBrowserResize === 0 ||
             OldResolutionEqual) {
             if((width != 0) && (height != 0)) {
                 window.resizeBy(width - bodyWidth, height - bodyHeight);
-                UI.bodyWidth_browser_resize = width;
-                UI.bodyHeight_browser_resize = height;
+                UI.bodyWidthBrowserResize = width;
+                UI.bodyHeightBrowserResize = height;
             }
         } else {
             // disabled
-            UI.bodyWidth_browser_resize = 0;
+            UI.bodyWidthBrowserResize = 0;
         }
     },
 
@@ -1085,7 +1085,7 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         if (UI.getSetting('resize') === 'off') {
-            UI.bodyHeight_browser_resize = 0;
+            UI.bodyHeightBrowserResize = 0;
             UI.rfb.resizeBrowser = UI._updateBrowserWindows;
         } else {
             UI.rfb.resizeBrowser = false;
@@ -1344,7 +1344,7 @@ const UI = {
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
         if (UI.getSetting('resize') === 'off') {
-            UI.bodyHeight_browser_resize = 0;
+            UI.bodyHeightBrowserResize = 0;
             UI.rfb.resizeBrowser = UI._updateBrowserWindows;
         } else {
             UI.rfb.resizeBrowser = false;
