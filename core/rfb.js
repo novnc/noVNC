@@ -294,6 +294,7 @@ export default class RFB extends EventTargetMixin {
         this._clippingViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
+        this._resizeBrowser = false;
 
         this._showDotCursor = false;
         if (options.showDotCursor !== undefined) {
@@ -361,6 +362,14 @@ export default class RFB extends EventTargetMixin {
         this._resizeSession = resize;
         if (resize) {
             this._requestRemoteResize();
+        }
+    }
+
+    get resizeBrowser() { return this._resizeBrowser; }
+    set resizeBrowser(void_) {
+        this._resizeBrowser = void_;
+        if (this._resizeBrowser && (this._rfbConnectionState === 'connected')) {
+            this._resizeBrowser(this._fbWidth, this._fbHeight);
         }
     }
 
@@ -2874,6 +2883,10 @@ export default class RFB extends EventTargetMixin {
     _resize(width, height) {
         this._fbWidth = width;
         this._fbHeight = height;
+
+        if (this._resizeBrowser) {
+            this._resizeBrowser(width, height);
+        }
 
         this._display.resize(this._fbWidth, this._fbHeight);
 

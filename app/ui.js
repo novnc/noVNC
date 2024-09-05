@@ -42,6 +42,10 @@ const UI = {
     reconnectCallback: null,
     reconnectPassword: null,
 
+    // Old browser resolution
+    bodyWidthBrowserResize: 0,
+    bodyHeightBrowserResize: 0,
+
     prime() {
         return WebUtil.initSettings().then(() => {
             if (document.readyState === "interactive" || document.readyState === "complete") {
@@ -988,6 +992,28 @@ const UI = {
             .classList.remove("noVNC_open");
     },
 
+    _updateBrowserWindows(width, height) {
+        let bodyWidth  = document.body.clientWidth;
+        let bodyHeight = document.body.clientHeight;
+
+        let OldResolutionEqual = false;
+        if (UI.bodyWidthBrowserResize === document.body.clientWidth &&
+            UI.bodyHeightBrowserResize === document.body.clientHeight) {
+            OldResolutionEqual = true;
+        }
+        if (UI.bodyHeightBrowserResize === 0 ||
+            OldResolutionEqual) {
+            if ((width != 0) && (height != 0)) {
+                window.resizeBy(width - bodyWidth, height - bodyHeight);
+                UI.bodyWidthBrowserResize = width;
+                UI.bodyHeightBrowserResize = height;
+            }
+        } else {
+            // disabled
+            UI.bodyWidthBrowserResize = 0;
+        }
+    },
+
     connect(event, password) {
 
         // Ignore when rfb already exists
@@ -1058,6 +1084,12 @@ const UI = {
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        if (UI.getSetting('resize') === 'off') {
+            UI.bodyHeightBrowserResize = 0;
+            UI.rfb.resizeBrowser = UI._updateBrowserWindows;
+        } else {
+            UI.rfb.resizeBrowser = false;
+        }
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
@@ -1311,6 +1343,12 @@ const UI = {
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        if (UI.getSetting('resize') === 'off') {
+            UI.bodyHeightBrowserResize = 0;
+            UI.rfb.resizeBrowser = UI._updateBrowserWindows;
+        } else {
+            UI.rfb.resizeBrowser = false;
+        }
     },
 
 /* ------^-------
