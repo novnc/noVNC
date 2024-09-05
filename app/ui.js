@@ -43,7 +43,7 @@ const UI = {
     reconnectPassword: null,
 
     // Old browser resolution
-    bodyWidthBrowserResize:  0,
+    bodyWidthBrowserResize: 0,
     bodyHeightBrowserResize: 0,
 
     prime() {
@@ -999,11 +999,11 @@ const UI = {
         let OldResolutionEqual = false;
         if (UI.bodyWidthBrowserResize === document.body.clientWidth &&
             UI.bodyHeightBrowserResize === document.body.clientHeight) {
-                OldResolutionEqual = true;
+            OldResolutionEqual = true;
         }
         if (UI.bodyHeightBrowserResize === 0 ||
             OldResolutionEqual) {
-            if((width != 0) && (height != 0)) {
+            if ((width != 0) && (height != 0)) {
                 window.resizeBy(width - bodyWidth, height - bodyHeight);
                 UI.bodyWidthBrowserResize = width;
                 UI.bodyHeightBrowserResize = height;

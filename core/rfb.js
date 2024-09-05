@@ -368,7 +368,7 @@ export default class RFB extends EventTargetMixin {
     get resizeBrowser() { return this._resizeBrowser; }
     set resizeBrowser(void_) {
         this._resizeBrowser = void_;
-        if(this._resizeBrowser && (this._rfbConnectionState === 'connected')){
+        if (this._resizeBrowser && (this._rfbConnectionState === 'connected')) {
             this._resizeBrowser(this._fbWidth, this._fbHeight);
         }
     }
