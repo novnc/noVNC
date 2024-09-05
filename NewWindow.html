@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>noVNC</title>
+</head>
+
+<body>
+    <div id="top_bar">
+        <ul>
+            <li>
+                <label for="noVNC_setting_host">Host:</label>
+                <input id="noVNC_setting_host"></input>
+            </li>
+            <li>
+                <label for="noVNC_setting_port">Port:</label>
+                <input id="noVNC_setting_port" value="5701"></input>
+            </li>
+            <li>
+                <label for="noVNC_setting_path">Path:</label>
+                <input id="noVNC_setting_path" type="text" value="websockify">
+            </li>
+            <li>
+                <label for="noVNC_setting_token">token:</label>
+                <input id="noVNC_setting_token" type="text" value="">
+            </li>
+            <li>
+                <button type="button" onclick="OpenWindow();">Open Window</button>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        function OpenWindow() {
+            let rul;
+            // vnc. html/?token=token&autoconnect=1&resize=browser','_blank','toolbar=no,location=no,status=no,menubar=no,resizable=yes,width=800,height=420'
+
+            rul = "vnc.html?";
+
+            path = document.getElementById('noVNC_setting_path').value;
+            port = document.getElementById('noVNC_setting_port').value;
+            host = document.getElementById('noVNC_setting_host').value;
+            token = document.getElementById('noVNC_setting_token').value;
+
+            if (token) {
+                rul += "token=" + token + "&";
+            }
+            if (host) {
+                rul += "host=" + host + "&";
+            }
+            if (port) {
+                rul += "port=" + port + "&";
+            }
+            if (path) {
+                rul += "path=" + path + "&";
+            }
+
+            rul += "autoconnect=" + "1" + "&";
+            rul += "resize=" + "off";
+
+            window.open(rul,
+                '_blank',
+                'toolbar=no,location=no,status=no,menubar=no,resizable=yes,width=800,height=420'
+            );
+        }
+    </script>
+</body>
+</html>

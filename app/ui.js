@@ -42,6 +42,10 @@ const UI = {
     reconnectCallback: null,
     reconnectPassword: null,
 
+    // Old browser resolution
+    bodyWidth_browser_resize:  0,
+    bodyHeight_browser_resize: 0,
+
     prime() {
         return WebUtil.initSettings().then(() => {
             if (document.readyState === "interactive" || document.readyState === "complete") {
@@ -988,6 +992,28 @@ const UI = {
             .classList.remove("noVNC_open");
     },
 
+    _updateBrowserWindows(width, height) {
+        let bodyWidth  = document.body.clientWidth;
+        let bodyHeight = document.body.clientHeight;
+
+        let OldResolutionEqual = false;
+        if (UI.bodyWidth_browser_resize === document.body.clientWidth &&
+            UI.bodyHeight_browser_resize === document.body.clientHeight) {
+                OldResolutionEqual = true;
+        }
+        if (UI.bodyHeight_browser_resize === 0 ||
+            OldResolutionEqual) {
+            if((width != 0) && (height != 0)) {
+                window.resizeBy(width - bodyWidth, height - bodyHeight);
+                UI.bodyWidth_browser_resize = width;
+                UI.bodyHeight_browser_resize = height;
+            }
+        } else {
+            // disabled
+            UI.bodyWidth_browser_resize = 0;
+        }
+    },
+
     connect(event, password) {
 
         // Ignore when rfb already exists
@@ -1058,6 +1084,12 @@ const UI = {
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        if (UI.getSetting('resize') === 'off') {
+            UI.bodyHeight_browser_resize = 0;
+            UI.rfb.resizeBrowser = UI._updateBrowserWindows;
+        } else {
+            UI.rfb.resizeBrowser = false;
+        }
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
@@ -1311,6 +1343,12 @@ const UI = {
 
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
         UI.rfb.resizeSession = UI.getSetting('resize') === 'remote';
+        if (UI.getSetting('resize') === 'off') {
+            UI.bodyHeight_browser_resize = 0;
+            UI.rfb.resizeBrowser = UI._updateBrowserWindows;
+        } else {
+            UI.rfb.resizeBrowser = false;
+        }
     },
 
 /* ------^-------
