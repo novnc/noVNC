@@ -189,6 +189,12 @@ services.n6082.listen
 services.n6082.vnc
 ```
 
+
+### Note: Clipboard only serves over https . so do following tasks for Clipboard Sync :
+
+Create a pem file `openssl req -x509 -newkey rsa:2048 -keyout self.pem -out self.pem -days 365 -nodes`
+Make sure to add --ssl-only in the end of command `./utils/novnc_proxy  --vnc localhost:5901--ssl-only`
+
 ### Integration and Deployment
 
 Please see our other documents for how to integrate noVNC in your own software,
