@@ -980,7 +980,7 @@ const UI = {
     LocalclipboardSend() {
         const text = document.querySelector('#hidden_clipboard_sender').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
-        if(text && UI.rfb.clipboardPasteFrom){
+        if(text && UI.rfb){
             UI.rfb.clipboardPasteFrom(text);
         }
         Log.Debug("<< UI.clipboardSend");
