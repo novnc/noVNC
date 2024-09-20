@@ -338,5 +338,40 @@
         <source src="app/sounds/bell.oga" type="audio/ogg">
         <source src="app/sounds/bell.mp3" type="audio/mpeg">
     </audio>
+
+    <input type="hidden" id="hidden_clipboard_reciver" onclick="write_clipboard()" value="">
+    <input type="hidden" id="hidden_clipboard_sender" onclick="write_clipboard()" value="">
+    <script>
+    const syncClipboard = async () => {
+        const { state } = await navigator.permissions.query({ name: 'clipboard-write' });
+        document.addEventListener('mouseenter', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.querySelector('#hidden_clipboard_sender').value=text;
+                document.querySelector('#hidden_clipboard_sender').click();
+            } catch (error) {
+                console.log('Failed to read from clipboard:', error);
+            }
+        });
+    };
+    syncClipboard();
+    // snyc clipboard
+
+    try {
+        // Check if the Clipboard API is supported
+        if (!navigator.clipboard) {
+            console.log('Clipboard API not supported');
+        }
+    } catch (err) {
+        console.error('Error copying text: ', err);
+    }
+    // request for clipboard permission
+    
+    async function write_clipboard(){
+        let txt=document.querySelector('#hidden_clipboard_reciver').value;
+        await navigator.clipboard.writeText(txt);
+    }
+    // snyc write to local from remote
+    </script>
  </body>
 </html>
