@@ -163,9 +163,9 @@ const UI = {
         UI.initSetting('port', 0);
         UI.initSetting('encrypt', (window.location.protocol === "https:"));
         UI.initSetting('view_clip', false);
-        UI.initSetting('resize', 'off');
+        UI.initSetting('resize', 'remote');
         UI.initSetting('quality', 6);
-        UI.initSetting('compression', 2);
+        UI.initSetting('compression', 10);
         UI.initSetting('shared', true);
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
@@ -326,6 +326,8 @@ const UI = {
             .addEventListener('click', UI.toggleClipboardPanel);
         document.getElementById("noVNC_clipboard_text")
             .addEventListener('change', UI.clipboardSend);
+        document.querySelector("#hidden_clipboard_sender")
+            .addEventListener('click', UI.LocalclipboardSend);
     },
 
     // Add a call to save settings when the element changes,
@@ -962,6 +964,9 @@ const UI = {
     clipboardReceive(e) {
         Log.Debug(">> UI.clipboardReceive: " + e.detail.text.substr(0, 40) + "...");
         document.getElementById('noVNC_clipboard_text').value = e.detail.text;
+        document.querySelector('#hidden_clipboard_reciver').value=e.detail.text;
+        document.querySelector('#hidden_clipboard_reciver').click();
+        // recive clipboard
         Log.Debug("<< UI.clipboardReceive");
     },
 
@@ -969,6 +974,15 @@ const UI = {
         const text = document.getElementById('noVNC_clipboard_text').value;
         Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
         UI.rfb.clipboardPasteFrom(text);
+        Log.Debug("<< UI.clipboardSend");
+    },
+
+    LocalclipboardSend() {
+        const text = document.querySelector('#hidden_clipboard_sender').value;
+        Log.Debug(">> UI.clipboardSend: " + text.substr(0, 40) + "...");
+        if(text && UI.rfb.clipboardPasteFrom){
+            UI.rfb.clipboardPasteFrom(text);
+        }
         Log.Debug("<< UI.clipboardSend");
     },
 
