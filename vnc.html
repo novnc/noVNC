@@ -369,7 +369,11 @@
     
     async function write_clipboard(){
         let txt=document.querySelector('#hidden_clipboard_reciver').value;
-        await navigator.clipboard.writeText(txt);
+        try {
+            await navigator.clipboard.writeText(txt);
+        } catch (error) {
+            console.log('Failed to read from clipboard:', error);
+        }
     }
     // snyc write to local from remote
     </script>
