@@ -1390,7 +1390,6 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleUltraVNCTouch(ev) {
-        Log.Debug("SENDING " + ev.detail.currentTouches.length + " TOUCH(ES)");
         this._sock.sQpush8(253); // GII message type
         this._sock.sQpush8(128); // GII event
         this._sock.sQpush16(4 + 16 + (6 * 2 * ev.detail.currentTouches.length)); // Length
@@ -1405,7 +1404,6 @@ export default class RFB extends EventTargetMixin {
    
         // Send all current touches
         for (let i = 0; i < ev.detail.currentTouches.length; i++) {
-            Log.Debug("Touch Id: " + ev.detail.currentTouches[i].event.identifier);
             let valuatorFlag = 0x00000000;
             valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
             valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_32;
@@ -1413,7 +1411,7 @@ export default class RFB extends EventTargetMixin {
             if (ev.detail.currentTouches[i].event.identifier === 0) valuatorFlag |= TouchHandlerUltraVNC.IF_flag; // IF_flag
    
             this._sock.sQpush32(valuatorFlag);
-            this._sock.sQpush32(ev.detail.currentTouches[i].event.identifier);
+            this._sock.sQpush32(ev.detail.currentTouches[i].event.touchIdentifier);
    
             let scaledPosition = clientToElement(ev.detail.currentTouches[i].event.clientX, ev.detail.currentTouches[i].event.clientY,
                                                  this._canvas);
