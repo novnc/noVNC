@@ -61,7 +61,8 @@ export default class TouchHandlerUltraVNC {
     }
 
     _handleTouch(ev) {
-        Log.Debug("Gesture: " + ev.type);
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
 
         if (!this._isUltraVNCTouchActivated) {
             return;
@@ -69,6 +70,7 @@ export default class TouchHandlerUltraVNC {
 
         if (ev.type === "touchstart") {
             for (let i = 0; i < ev.changedTouches.length; i++) {
+                ev.changedTouches[i].touchIdentifier = this._getTouchIdentifier();
                 this._currentTouches.push({ event: ev.changedTouches[i], status: "POINTER_DOWN" });
             }
 
@@ -82,6 +84,7 @@ export default class TouchHandlerUltraVNC {
             for (let i = 0; i < ev.changedTouches.length; i++) {
                 const index = this._currentTouches.findIndex(t => t.event.identifier === ev.changedTouches[i].identifier);
                 if (index !== -1) {
+                    ev.changedTouches[i].touchIdentifier = this._currentTouches[index].event.touchIdentifier;
                     this._currentTouches[index].event = ev.changedTouches[i];
                     this._currentTouches[index].status = "POINTER_UPDATE";
                 }
@@ -100,6 +103,13 @@ export default class TouchHandlerUltraVNC {
             if (func(arr[i]))
                 indexes.push(i);
         return indexes;
+    }
+
+    _getTouchIdentifier() {
+        const ids = this._currentTouches.map((ev) => ev.event.touchIdentifier);
+        let i = 0;
+        while (ids.includes(i)) { i++; }
+        return i;
     }
 
     _dispatchTouchEvent(ev) {
