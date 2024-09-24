@@ -203,7 +203,7 @@ export default class Keyboard {
         if ((code === "ControlLeft") && browser.isWindows() &&
             !("ControlLeft" in this._keyDownList)) {
             this._altGrArmed = true;
-            this._altGrTimeout = setTimeout(this._handleAltGrTimeout.bind(this), 100);
+            this._altGrTimeout = setTimeout(this._interruptAltGrSequence.bind(this), 100);
             this._altGrCtrlTime = e.timeStamp;
             return;
         }
@@ -218,11 +218,7 @@ export default class Keyboard {
 
         // We can't get a release in the middle of an AltGr sequence, so
         // abort that detection
-        if (this._altGrArmed) {
-            this._altGrArmed = false;
-            clearTimeout(this._altGrTimeout);
-            this._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
-        }
+        this._interruptAltGrSequence();
 
         // See comment in _handleKeyDown()
         if ((browser.isMac() || browser.isIOS()) && (code === 'CapsLock')) {
@@ -249,14 +245,20 @@ export default class Keyboard {
         }
     }
 
-    _handleAltGrTimeout() {
-        this._altGrArmed = false;
-        clearTimeout(this._altGrTimeout);
-        this._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+    _interruptAltGrSequence() {
+        if (this._altGrArmed) {
+            this._altGrArmed = false;
+            clearTimeout(this._altGrTimeout);
+            this._sendKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
+        }
     }
 
     _allKeysUp() {
         Log.Debug(">> Keyboard.allKeysUp");
+
+        // Prevent control key being processed after losing focus.
+        this._interruptAltGrSequence();
+
         for (let code in this._keyDownList) {
             this._sendKeyEvent(this._keyDownList[code], code, false);
         }

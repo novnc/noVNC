@@ -79,7 +79,7 @@ export default [
                 ...globals.node,
                 ...globals.mocha,
                 sinon: false,
-                chai: false,
+                expect: false,
             }
         },
         rules: {

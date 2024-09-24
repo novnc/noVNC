@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import EventTargetMixin from '../core/util/eventtarget.js';
 
 import GestureHandler from '../core/input/gesturehandler.js';

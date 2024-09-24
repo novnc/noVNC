@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import Base64 from '../core/base64.js';
 import Display from '../core/display.js';
 

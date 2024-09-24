@@ -37,6 +37,15 @@ export default class FakeWebSocket {
         } else {
             data = new Uint8Array(data);
         }
+        if (this.bufferedAmount + data.length > this._sendQueue.length) {
+            let newlen = this._sendQueue.length;
+            while (this.bufferedAmount + data.length > newlen) {
+                newlen *= 2;
+            }
+            let newbuf = new Uint8Array(newlen);
+            newbuf.set(this._sendQueue);
+            this._sendQueue = newbuf;
+        }
         this._sendQueue.set(data, this.bufferedAmount);
         this.bufferedAmount += data.length;
     }

@@ -1,5 +1,3 @@
-const expect = chai.expect;
-
 import Keyboard from '../core/input/keyboard.js';
 
 describe('Key Event Handling', function () {
@@ -473,6 +471,22 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledThrice;
             expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
             expect(kbd.onkeyevent.thirdCall).to.have.been.calledWith(0x61, "KeyA", false);
+
+            // Check that the timer is properly dead
+            kbd.onkeyevent.resetHistory();
+            this.clock.tick(100);
+            expect(kbd.onkeyevent).to.not.have.been.called;
+        });
+
+        it('should release ControlLeft on blur', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1}));
+            expect(kbd.onkeyevent).to.not.have.been.called;
+            kbd._allKeysUp();
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
+            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xffe3, "ControlLeft", false);
 
             // Check that the timer is properly dead
             kbd.onkeyevent.resetHistory();

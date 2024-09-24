@@ -208,7 +208,7 @@ export default class Websock {
                 chunkSize = bytes.length - offset;
             }
 
-            this._sQ.set(bytes.subarray(offset, chunkSize), this._sQlen);
+            this._sQ.set(bytes.subarray(offset, offset + chunkSize), this._sQlen);
             this._sQlen += chunkSize;
             offset += chunkSize;
         }

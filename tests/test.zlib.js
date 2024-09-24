@@ -1,7 +1,7 @@
 import Websock from '../core/websock.js';
 import Display from '../core/display.js';
 
-import CopyRectDecoder from '../core/decoders/copyrect.js';
+import ZlibDecoder from '../core/decoders/zlib.js';
 
 import FakeWebSocket from './fake.websocket.js';
 
@@ -29,7 +29,7 @@ function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     return done;
 }
 
-describe('CopyRect Decoder', function () {
+describe('Zlib Decoder', function () {
     let decoder;
     let display;
 
@@ -37,45 +37,39 @@ describe('CopyRect Decoder', function () {
     after(FakeWebSocket.restore);
 
     beforeEach(function () {
-        decoder = new CopyRectDecoder();
+        decoder = new ZlibDecoder();
         display = new Display(document.createElement('canvas'));
         display.resize(4, 4);
     });
 
-    it('should handle the CopyRect encoding', function () {
-        // seed some initial data to copy
-        display.fillRect(0, 0, 4, 4, [ 0x11, 0x22, 0x33 ]);
-        display.fillRect(0, 0, 2, 2, [ 0x00, 0x00, 0xff ]);
-        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
-
+    it('should handle the Zlib encoding', function () {
         let done;
-        done = testDecodeRect(decoder, 0, 2, 2, 2,
-                              [0x00, 0x02, 0x00, 0x00],
-                              display, 24);
-        expect(done).to.be.true;
-        done = testDecodeRect(decoder, 2, 2, 2, 2,
-                              [0x00, 0x00, 0x00, 0x00],
-                              display, 24);
+
+        let zlibData = new Uint8Array([
+            0x00, 0x00, 0x00, 0x23, /* length */
+            0x78, 0x01, 0xfa, 0xcf, 0x00, 0x04, 0xff, 0x61, 0x04, 0x90, 0x01, 0x41, 0x50, 0xc1, 0xff, 0x0c,
+            0xef, 0x40, 0x02, 0xef, 0xfe, 0x33, 0xac, 0x02, 0xe2, 0xd5, 0x40, 0x8c, 0xce, 0x07, 0x00, 0x00,
+            0x00, 0xff, 0xff,
+        ]);
+        done = testDecodeRect(decoder, 0, 0, 4, 4, zlibData, display, 24);
         expect(done).to.be.true;
 
-        let targetData = new Uint8Array([
-            0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
-            0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
-            0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
-            0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255
+        let targetData = new Uint8ClampedArray([
+            0xff, 0x00, 0x00, 255, 0x00, 0xff, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
+            0x00, 0xff, 0x00, 255, 0xff, 0x00, 0x00, 255, 0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255,
+            0xee, 0x00, 0xff, 255, 0x00, 0xee, 0xff, 255, 0xaa, 0xee, 0xff, 255, 0xab, 0xee, 0xff, 255,
+            0xee, 0x00, 0xff, 255, 0x00, 0xee, 0xff, 255, 0xaa, 0xee, 0xff, 255, 0xab, 0xee, 0xff, 255
         ]);
 
         expect(display).to.have.displayed(targetData);
     });
 
     it('should handle empty rects', function () {
-        display.fillRect(0, 0, 4, 4, [ 0x00, 0x00, 0xff ]);
-        display.fillRect(2, 0, 2, 2, [ 0x00, 0xff, 0x00 ]);
-        display.fillRect(0, 2, 2, 2, [ 0x00, 0xff, 0x00 ]);
+        display.fillRect(0, 0, 4, 4, [0x00, 0x00, 0xff]);
+        display.fillRect(2, 0, 2, 2, [0x00, 0xff, 0x00]);
+        display.fillRect(0, 2, 2, 2, [0x00, 0xff, 0x00]);
 
-        let done = testDecodeRect(decoder, 1, 2, 0, 0,
-                                  [0x00, 0x00, 0x00, 0x00],
-                                  display, 24);
+        let done = testDecodeRect(decoder, 1, 2, 0, 0, [], display, 24);
 
         let targetData = new Uint8Array([
             0x00, 0x00, 0xff, 255, 0x00, 0x00, 0xff, 255, 0x00, 0xff, 0x00, 255, 0x00, 0xff, 0x00, 255,
