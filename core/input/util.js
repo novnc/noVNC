@@ -175,6 +175,10 @@ export function getKeysym(evt) {
         return DOMKeyTable[key][location];
     }
 
+    if(key === "Dead" ){
+        return getDeadKeysym(evt);
+    }
+
     // Now we need to look at the Unicode symbol instead
 
     // Special key? (FIXME: Should have been caught earlier)
@@ -188,4 +192,32 @@ export function getKeysym(evt) {
     }
 
     return null;
+}
+
+// Try to guess Keysym for Dead key. For now only should work for US-int
+// TODO test
+// TODO try to find and implement Dead keys for more keyboard layouts
+export function getDeadKeysym(evt) {
+    switch(evt.code){
+        case "Quote":
+            if (evt.shiftKey){
+                return KeyTable.XK_dead_diaeresis //
+            } else {
+                return KeyTable.XK_dead_acute // ´
+            }
+        case "Backquote":
+            if (evt.shiftKey){
+                return KeyTable.XK_dead_grave
+            } else {
+                return KeyTable.XK_dead_tilde
+            }
+        case 'Digit6':
+            if (evt.shiftKey){
+                return KeyTable.XK_dead_circumflex
+            }
+
+        default:
+            console.log(evt)
+            return null
+    }
 }
