@@ -49,7 +49,9 @@ async function haveH264Decode() {
         optimizeForLatency: true,
     };
 
-    _haveH264Decode = await VideoDecoder.isConfigSupported(config);
+    let support = await VideoDecoder.isConfigSupported(config);
+    _haveH264Decode = support.supported;
+
     return _haveH264Decode;
 }
 
