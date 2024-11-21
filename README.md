@@ -92,7 +92,7 @@ noVNC uses many modern web technologies so a formal requirement list is
 not available. However these are the minimum versions we are currently
 aware of:
 
-* Chrome 64, Firefox 79, Safari 13.4, Opera 51, Edge 79
+* Chrome 89, Firefox 89, Safari 15, Opera 75, Edge 89
 
 
 ### Server Requirements
