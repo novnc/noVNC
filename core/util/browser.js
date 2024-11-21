@@ -9,6 +9,7 @@
  */
 
 import * as Log from './logging.js';
+import Base64 from '../base64.js';
 
 // Touch detection
 export let isTouchDevice = ('ontouchstart' in document.documentElement) ||
@@ -74,7 +75,7 @@ export let supportsWebCodecsH264Decode = false;
 
 async function _checkWebCodecsH264DecodeSupport() {
     if (!('VideoDecoder' in window)) {
-        return;
+        return false;
     }
 
     // We'll need to make do with some placeholders here
@@ -85,10 +86,56 @@ async function _checkWebCodecsH264DecodeSupport() {
         optimizeForLatency: true,
     };
 
-    const result = await VideoDecoder.isConfigSupported(config);
-    supportsWebCodecsH264Decode = result.supported;
+    let support = await VideoDecoder.isConfigSupported(config);
+    if (!support.supported) {
+        return false;
+    }
+
+    // Firefox incorrectly reports supports for H.264 under some
+    // circumstances, so we need to actually test a real frame
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1932392
+
+    const data = new Uint8Array(Base64.decode(
+        'AAAAAWdCwBTZnpuAgICgAAADACAAAAZB4oVNAAAAAWjJYyyAAAABBgX//4Hc' +
+        'Rem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IHIzMTA4IDMxZTE5Zjkg' +
+        'LSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDIz' +
+        'IC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9u' +
+        'czogY2FiYWM9MCByZWY9NSBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4' +
+        'MTExIG1lPWhleCBzdWJtZT04IHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4' +
+        'ZWRfcmVmPTEgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0yIDh4' +
+        'OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJv' +
+        'bWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9MSBsb29rYWhlYWRfdGhyZWFkcz0x' +
+        'IHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9' +
+        'MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVz' +
+        'PTAgd2VpZ2h0cD0wIGtleWludD1pbmZpbml0ZSBrZXlpbnRfbWluPTI1IHNj' +
+        'ZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NTAgcmM9' +
+        'YWJyIG1idHJlZT0xIGJpdHJhdGU9NDAwIHJhdGV0b2w9MS4wIHFjb21wPTAu' +
+        'NjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFx' +
+        'PTE6MS4wMACAAAABZYiEBrxmKAAPVccAAS044AA5DRJMnkycJk4TPw=='));
+
+    let error = null;
+
+    let decoder = new VideoDecoder({
+        output: (frame) => {},
+        error: (e) => { error = e; },
+    });
+    let chunk = new EncodedVideoChunk({
+        timestamp: 0,
+        type: 'key',
+        data: data,
+    });
+
+    decoder.configure(config);
+    decoder.decode(chunk);
+    await decoder.flush();
+
+    if (error !== null) {
+        return false;
+    }
+
+    return true;
 }
-_checkWebCodecsH264DecodeSupport();
+supportsWebCodecsH264Decode = await _checkWebCodecsH264DecodeSupport();
 
 /*
  * The functions for detection of platforms and browsers below are exported
