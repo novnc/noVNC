@@ -113,10 +113,11 @@ async function _checkWebCodecsH264DecodeSupport() {
         'NjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFx' +
         'PTE6MS4wMACAAAABZYiEBrxmKAAPVccAAS044AA5DRJMnkycJk4TPw=='));
 
+    let gotframe = false;
     let error = null;
 
     let decoder = new VideoDecoder({
-        output: (frame) => {},
+        output: (frame) => { gotframe = true; },
         error: (e) => { error = e; },
     });
     let chunk = new EncodedVideoChunk({
@@ -133,6 +134,13 @@ async function _checkWebCodecsH264DecodeSupport() {
         // Firefox incorrectly throws an exception here
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1932566
         error = e;
+    }
+
+    // Firefox fails to deliver the error on Windows, so we need to
+    // check if we got a frame instead
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1932579
+    if (!gotframe) {
+        return false;
     }
 
     if (error !== null) {
