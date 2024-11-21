@@ -127,7 +127,13 @@ async function _checkWebCodecsH264DecodeSupport() {
 
     decoder.configure(config);
     decoder.decode(chunk);
-    await decoder.flush();
+    try {
+        await decoder.flush();
+    } catch (e) {
+        // Firefox incorrectly throws an exception here
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1932566
+        error = e;
+    }
 
     if (error !== null) {
         return false;
