@@ -1,6 +1,6 @@
 # Japanese translations for noVNC package
 # noVNC パッケージに対する日訳
-# Copyright (C) 2019 The noVNC Authors
+# Copyright (C) 2019 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # nnn1590 <nnn1590@nnn1590.org>, 2019-2020.
 #
@@ -88,7 +88,7 @@ msgid "Drag"
 msgstr "ドラッグ"
 
 #: ../vnc.html:76
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "ビューポートを移動/ドラッグ"
 
 #: ../vnc.html:82
@@ -96,7 +96,7 @@ msgid "Keyboard"
 msgstr "キーボード"
 
 #: ../vnc.html:82
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "キーボードを表示"
 
 #: ../vnc.html:87
@@ -104,7 +104,7 @@ msgid "Extra keys"
 msgstr "追加キー"
 
 #: ../vnc.html:87
-msgid "Show Extra Keys"
+msgid "Show extra keys"
 msgstr "追加キーを表示"
 
 #: ../vnc.html:92
@@ -188,7 +188,7 @@ msgid "Edit clipboard content in the textarea below."
 msgstr "以下の入力欄からクリップボードの内容を編集できます。"
 
 #: ../vnc.html:145
-msgid "Full Screen"
+msgid "Full screen"
 msgstr "全画面表示"
 
 #: ../vnc.html:150 ../vnc.html:156
@@ -196,19 +196,19 @@ msgid "Settings"
 msgstr "設定"
 
 #: ../vnc.html:160
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "共有モード"
 
 #: ../vnc.html:163
-msgid "View Only"
+msgid "View only"
 msgstr "表示専用"
 
 #: ../vnc.html:167
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "ウィンドウにクリップ"
 
 #: ../vnc.html:170
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "スケーリングモード:"
 
 #: ../vnc.html:172
@@ -216,11 +216,11 @@ msgid "None"
 msgstr "なし"
 
 #: ../vnc.html:173
-msgid "Local Scaling"
+msgid "Local scaling"
 msgstr "ローカルスケーリング"
 
 #: ../vnc.html:174
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "リモートでリサイズ"
 
 #: ../vnc.html:179
@@ -260,15 +260,15 @@ msgid "Path:"
 msgstr "パス:"
 
 #: ../vnc.html:216
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "自動再接続"
 
 #: ../vnc.html:219
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "再接続する遅延 (ミリ秒):"
 
 #: ../vnc.html:224
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr "カーソルがないときにドットを表示する"
 
 #: ../vnc.html:229
@@ -328,7 +328,7 @@ msgid "Password:"
 msgstr "パスワード:"
 
 #: ../vnc.html:314
-msgid "Send Credentials"
+msgid "Send credentials"
 msgstr "資格情報を送信"
 
 #: ../vnc.html:323

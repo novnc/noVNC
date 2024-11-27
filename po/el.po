@@ -1,5 +1,5 @@
 # Greek translations for noVNC package.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Giannis Kosmas <kosmasgiannis@gmail.com>, 2016.
 #

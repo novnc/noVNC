@@ -1,6 +1,6 @@
 # Dutch translations for noVNC package
 # Nederlandse vertalingen voor het pakket noVNC.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Loek Janssen <loekjanssen@gmail.com>, 2016.
 #
@@ -219,11 +219,11 @@ msgid "View Only"
 msgstr "Alleen Kijken"
 
 #: ../vnc.html:202
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "Randen buiten venster afsnijden"
 
 #: ../vnc.html:205
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Schaalmodus:"
 
 #: ../vnc.html:207
@@ -275,7 +275,7 @@ msgid "Reconnect Delay (ms):"
 msgstr "Vertraging voor Opnieuw Verbinden (ms):"
 
 #: ../vnc.html:250
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr "Geef stip weer indien geen cursor"
 
 #: ../vnc.html:255

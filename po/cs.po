@@ -1,5 +1,5 @@
 # Czech translations for noVNC package.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Petr <petr@kle.cz>, 2018.
 #
@@ -78,7 +78,7 @@ msgid "Hide/Show the control bar"
 msgstr "Skrýt/zobrazit ovládací panel"
 
 #: ../vnc.html:101
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "Přesunout/přetáhnout výřez"
 
 #: ../vnc.html:101
@@ -110,7 +110,7 @@ msgid "Keyboard"
 msgstr "Klávesnice"
 
 #: ../vnc.html:119
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "Zobrazit klávesnici"
 
 #: ../vnc.html:126
@@ -118,7 +118,7 @@ msgid "Extra keys"
 msgstr "Extra klávesy"
 
 #: ../vnc.html:126
-msgid "Show Extra Keys"
+msgid "Show extra keys"
 msgstr "Zobrazit extra klávesy"
 
 #: ../vnc.html:131
@@ -202,19 +202,19 @@ msgid "Settings"
 msgstr "Nastavení"
 
 #: ../vnc.html:197
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "Sdílený režim"
 
 #: ../vnc.html:200
-msgid "View Only"
+msgid "View only"
 msgstr "Pouze prohlížení"
 
 #: ../vnc.html:204
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "Přizpůsobit oknu"
 
 #: ../vnc.html:207
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Přizpůsobení velikosti"
 
 #: ../vnc.html:209
@@ -222,11 +222,11 @@ msgid "None"
 msgstr "Žádné"
 
 #: ../vnc.html:210
-msgid "Local Scaling"
+msgid "Local scaling"
 msgstr "Místní"
 
 #: ../vnc.html:211
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "Vzdálené"
 
 #: ../vnc.html:216
@@ -258,15 +258,15 @@ msgid "Path:"
 msgstr "Cesta"
 
 #: ../vnc.html:244
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "Automatická obnova připojení"
 
 #: ../vnc.html:247
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "Zpoždění připojení (ms)"
 
 #: ../vnc.html:252
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr "Tečka místo chybějícího kurzoru myši"
 
 #: ../vnc.html:257

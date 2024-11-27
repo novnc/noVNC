@@ -1,6 +1,6 @@
 # Swedish translations for noVNC package
 # Svenska översättningar för paketet noVNC.
-# Copyright (C) 2020 The noVNC Authors
+# Copyright (C) 2020 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Samuel Mannehed <samuel@cendio.se>, 2020.
 #
@@ -195,7 +195,7 @@ msgid "Edit clipboard content in the textarea below."
 msgstr "Redigera urklippets innehåll i fältet nedan."
 
 #: ../vnc.html:143
-msgid "Full Screen"
+msgid "Full screen"
 msgstr "Fullskärm"
 
 #: ../vnc.html:148 ../vnc.html:154
@@ -215,7 +215,7 @@ msgid "Clip to Window"
 msgstr "Begränsa till Fönster"
 
 #: ../vnc.html:168
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Skalningsläge:"
 
 #: ../vnc.html:170
@@ -271,11 +271,11 @@ msgid "Automatic Reconnect"
 msgstr "Automatisk Återanslutning"
 
 #: ../vnc.html:217
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "Fördröjning (ms):"
 
 #: ../vnc.html:222
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr "Visa prick när ingen muspekare finns"
 
 #: ../vnc.html:227

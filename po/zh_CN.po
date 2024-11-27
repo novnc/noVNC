@@ -1,5 +1,5 @@
 # Simplified Chinese translations for noVNC package.
-# Copyright (C) 2020 The noVNC Authors
+# Copyright (C) 2020 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Peter Dave Hello <hsu@peterdavehello.org>, 2018.
 #
@@ -60,7 +60,7 @@ msgid "Hide/Show the control bar"
 msgstr "显示/隐藏控制栏"
 
 #: ../vnc.html:106
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "移动/拖动窗口"
 
 #: ../vnc.html:106
@@ -92,7 +92,7 @@ msgid "Keyboard"
 msgstr "键盘"
 
 #: ../vnc.html:124
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "显示键盘"
 
 #: ../vnc.html:131
@@ -100,7 +100,7 @@ msgid "Extra keys"
 msgstr "额外按键"
 
 #: ../vnc.html:131
-msgid "Show Extra Keys"
+msgid "Show extra keys"
 msgstr "显示额外按键"
 
 #: ../vnc.html:136
@@ -192,19 +192,19 @@ msgid "Encrypt"
 msgstr "加密"
 
 #: ../vnc.html:202
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "分享模式"
 
 #: ../vnc.html:205
-msgid "View Only"
+msgid "View only"
 msgstr "仅查看"
 
 #: ../vnc.html:209
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "限制/裁切窗口大小"
 
 #: ../vnc.html:212
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "缩放模式："
 
 #: ../vnc.html:214
@@ -212,7 +212,7 @@ msgid "None"
 msgstr "无"
 
 #: ../vnc.html:215
-msgid "Local Scaling"
+msgid "Local scaling"
 msgstr "本地缩放"
 
 #: ../vnc.html:216
@@ -220,7 +220,7 @@ msgid "Local Downscaling"
 msgstr "降低本地尺寸"
 
 #: ../vnc.html:217
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "远程调整大小"
 
 #: ../vnc.html:222
@@ -252,11 +252,11 @@ msgid "Path:"
 msgstr "路径："
 
 #: ../vnc.html:254
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "自动重新连接"
 
 #: ../vnc.html:257
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "重新连接间隔 (ms)："
 
 #: ../vnc.html:263

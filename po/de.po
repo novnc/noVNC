@@ -1,6 +1,6 @@
 # German translations for noVNC package
 # German translation for noVNC.
-# Copyright (C) 2018 The noVNC Authors
+# Copyright (C) 2018 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Loek Janssen <loekjanssen@gmail.com>, 2016.
 #
@@ -76,7 +76,7 @@ msgid "Hide/Show the control bar"
 msgstr "Kontrollleiste verstecken/anzeigen"
 
 #: ../vnc.html:106
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr "Ansichtsfenster verschieben/ziehen"
 
 #: ../vnc.html:106
@@ -108,7 +108,7 @@ msgid "Keyboard"
 msgstr "Tastatur"
 
 #: ../vnc.html:124
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "Tastatur anzeigen"
 
 #: ../vnc.html:131
@@ -116,7 +116,7 @@ msgid "Extra keys"
 msgstr "Zusatztasten"
 
 #: ../vnc.html:131
-msgid "Show Extra Keys"
+msgid "Show extra keys"
 msgstr "Zusatztasten anzeigen"
 
 #: ../vnc.html:136
@@ -200,19 +200,19 @@ msgid "Settings"
 msgstr "Einstellungen"
 
 #: ../vnc.html:202
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "Geteilter Modus"
 
 #: ../vnc.html:205
-msgid "View Only"
+msgid "View only"
 msgstr "Nur betrachten"
 
 #: ../vnc.html:209
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr "Auf Fenster begrenzen"
 
 #: ../vnc.html:212
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Skalierungsmodus:"
 
 #: ../vnc.html:214
@@ -220,11 +220,11 @@ msgid "None"
 msgstr "Keiner"
 
 #: ../vnc.html:215
-msgid "Local Scaling"
+msgid "Local scaling"
 msgstr "Lokales skalieren"
 
 #: ../vnc.html:216
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr "Serverseitiges skalieren"
 
 #: ../vnc.html:221
@@ -256,11 +256,11 @@ msgid "Path:"
 msgstr "Pfad:"
 
 #: ../vnc.html:249
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr "Automatisch wiederverbinden"
 
 #: ../vnc.html:252
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr "Wiederverbindungsverzögerung (ms):"
 
 #: ../vnc.html:258

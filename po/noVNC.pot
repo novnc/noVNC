@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR The noVNC Authors
+# Copyright (C) YEAR The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -91,7 +91,7 @@ msgid "Drag"
 msgstr ""
 
 #: ../vnc.html:74
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr ""
 
 #: ../vnc.html:80
@@ -99,7 +99,7 @@ msgid "Keyboard"
 msgstr ""
 
 #: ../vnc.html:80
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr ""
 
 #: ../vnc.html:85
@@ -107,7 +107,7 @@ msgid "Extra keys"
 msgstr ""
 
 #: ../vnc.html:85
-msgid "Show Extra Keys"
+msgid "Show extra keys"
 msgstr ""
 
 #: ../vnc.html:90
@@ -191,7 +191,7 @@ msgid "Edit clipboard content in the textarea below."
 msgstr ""
 
 #: ../vnc.html:143
-msgid "Full Screen"
+msgid "Full screen"
 msgstr ""
 
 #: ../vnc.html:148 ../vnc.html:154
@@ -199,19 +199,19 @@ msgid "Settings"
 msgstr ""
 
 #: ../vnc.html:158
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr ""
 
 #: ../vnc.html:161
-msgid "View Only"
+msgid "View only"
 msgstr ""
 
 #: ../vnc.html:165
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr ""
 
 #: ../vnc.html:168
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr ""
 
 #: ../vnc.html:170
@@ -219,11 +219,11 @@ msgid "None"
 msgstr ""
 
 #: ../vnc.html:171
-msgid "Local Scaling"
+msgid "Local scaling"
 msgstr ""
 
 #: ../vnc.html:172
-msgid "Remote Resizing"
+msgid "Remote resizing"
 msgstr ""
 
 #: ../vnc.html:177
@@ -263,15 +263,15 @@ msgid "Path:"
 msgstr ""
 
 #: ../vnc.html:214
-msgid "Automatic Reconnect"
+msgid "Automatic reconnect"
 msgstr ""
 
 #: ../vnc.html:217
-msgid "Reconnect Delay (ms):"
+msgid "Reconnect delay (ms):"
 msgstr ""
 
 #: ../vnc.html:222
-msgid "Show Dot when No Cursor"
+msgid "Show dot when no cursor"
 msgstr ""
 
 #: ../vnc.html:227
@@ -329,7 +329,7 @@ msgid "Password:"
 msgstr ""
 
 #: ../vnc.html:312
-msgid "Send Credentials"
+msgid "Send credentials"
 msgstr ""
 
 #: ../vnc.html:321

@@ -1,6 +1,6 @@
 # Italian translations for noVNC
 # Traduzione italiana di noVNC
-# Copyright (C) 2022 The noVNC Authors
+# Copyright (C) 2022 The noVNC authors
 # This file is distributed under the same license as the noVNC package.
 # Fabio Fantoni <fabio.fantoni@m2r.biz>, 2022.
 #
@@ -84,7 +84,7 @@ msgid "Drag"
 msgstr ""
 
 #: ../vnc.html:78
-msgid "Move/Drag Viewport"
+msgid "Move/Drag viewport"
 msgstr ""
 
 #: ../vnc.html:84
@@ -92,7 +92,7 @@ msgid "Keyboard"
 msgstr "Tastiera"
 
 #: ../vnc.html:84
-msgid "Show Keyboard"
+msgid "Show keyboard"
 msgstr "Mostra tastiera"
 
 #: ../vnc.html:89
@@ -192,7 +192,7 @@ msgid "Settings"
 msgstr "Impostazioni"
 
 #: ../vnc.html:162
-msgid "Shared Mode"
+msgid "Shared mode"
 msgstr "Modalità condivisa"
 
 #: ../vnc.html:165
@@ -200,11 +200,11 @@ msgid "View Only"
 msgstr "Sola Visualizzazione"
 
 #: ../vnc.html:169
-msgid "Clip to Window"
+msgid "Clip to window"
 msgstr ""
 
 #: ../vnc.html:172
-msgid "Scaling Mode:"
+msgid "Scaling mode:"
 msgstr "Modalità di ridimensionamento:"
 
 #: ../vnc.html:174
