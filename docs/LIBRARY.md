@@ -16,7 +16,7 @@ noVNC includes a small example application called `vnc_lite.html`. This does
 not make use of all the features of noVNC, but is a good start to see how to
 do things.
 
-## Conversion of Modules
+## Conversion of modules
 
 noVNC is written using ECMAScript 6 modules. This is not supported by older
 versions of Node.js. To use noVNC with those older versions of Node.js the

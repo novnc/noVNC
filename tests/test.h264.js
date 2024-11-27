@@ -108,7 +108,7 @@ function almost(a, b) {
     return diff < 5;
 }
 
-describe('H.264 Parser', function () {
+describe('H.264 parser', function () {
     it('should parse constrained baseline video', function () {
         let parser = new H264Parser(redGreenBlue16x16Video);
 
@@ -130,7 +130,7 @@ describe('H.264 Parser', function () {
     });
 });
 
-describe('H.264 Decoder Unit Test', function () {
+describe('H.264 decoder unit test', function () {
     let decoder;
 
     beforeEach(function () {
@@ -181,7 +181,7 @@ describe('H.264 Decoder Unit Test', function () {
     });
 });
 
-describe('H.264 Decoder Functional Test', function () {
+describe('H.264 decoder functional test', function () {
     let decoder;
     let display;
 

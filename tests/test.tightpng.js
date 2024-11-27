@@ -29,7 +29,7 @@ function testDecodeRect(decoder, x, y, width, height, data, display, depth) {
     return done;
 }
 
-describe('TightPng Decoder', function () {
+describe('TightPng decoder', function () {
     let decoder;
     let display;
 

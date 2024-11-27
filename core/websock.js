@@ -1,6 +1,6 @@
 /*
  * Websock: high-performance buffering wrapper
- * Copyright (C) 2019 The noVNC Authors
+ * Copyright (C) 2019 The noVNC authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * Websock is similar to the standard WebSocket / RTCDataChannel object
@@ -70,7 +70,7 @@ export default class Websock {
         };
     }
 
-    // Getters and Setters
+    // Getters and setters
 
     get readyState() {
         let subState;
@@ -94,7 +94,7 @@ export default class Websock {
         return "unknown";
     }
 
-    // Receive Queue
+    // Receive queue
     rQpeek8() {
         return this._rQ[this._rQi];
     }
@@ -173,7 +173,7 @@ export default class Websock {
         return false;
     }
 
-    // Send Queue
+    // Send queue
 
     sQpush8(num) {
         this._sQensureSpace(1);
@@ -227,7 +227,7 @@ export default class Websock {
         }
     }
 
-    // Event Handlers
+    // Event handlers
     off(evt) {
         this._eventHandlers[evt] = () => {};
     }
@@ -325,7 +325,7 @@ export default class Websock {
         if (this._rQbufferSize > MAX_RQ_GROW_SIZE) {
             this._rQbufferSize = MAX_RQ_GROW_SIZE;
             if (this._rQbufferSize - (this._rQlen - this._rQi) < minFit) {
-                throw new Error("Receive Queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
+                throw new Error("Receive queue buffer exceeded " + MAX_RQ_GROW_SIZE + " bytes, and the new message could not fit");
             }
         }
 

@@ -41,7 +41,7 @@ function push32(arr, num) {
              num & 0xFF);
 }
 
-describe('RRE Decoder', function () {
+describe('RRE decoder', function () {
     let decoder;
     let display;
 

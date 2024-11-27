@@ -7,7 +7,7 @@
 
     This is a self-contained file which doesn't import WebUtil or external CSS.
 
-    Copyright (C) 2019 The noVNC Authors
+    Copyright (C) 2019 The noVNC authors
     noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
     This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
 
@@ -80,7 +80,7 @@
         // When this function is called, the server requires
         // credentials to authenticate
         function credentialsAreRequired(e) {
-            const password = prompt("Password Required:");
+            const password = prompt("Password required:");
             rfb.sendCredentials({ password: password });
         }
 

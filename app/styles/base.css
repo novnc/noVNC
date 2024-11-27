@@ -1,6 +1,6 @@
 /*
  * noVNC base CSS
- * Copyright (C) 2019 The noVNC Authors
+ * Copyright (C) 2019 The noVNC authors
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -213,7 +213,7 @@ html {
 }
 
 /* ----------------------------------------
- * Control Bar
+ * Control bar
  * ----------------------------------------
  */
 
@@ -629,13 +629,13 @@ html {
   margin-left: 1rem;
 }
 
-/* Connection Controls */
+/* Connection controls */
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
   display: none;
 }
 
 /* ----------------------------------------
- * Status Dialog
+ * Status dialog
  * ----------------------------------------
  */
 
@@ -701,7 +701,7 @@ html {
 }
 
 /* ----------------------------------------
- * Connect Dialog
+ * Connect dialog
  * ----------------------------------------
  */
 
@@ -770,7 +770,7 @@ html {
 }
 
 /* ----------------------------------------
- * Server verification Dialog
+ * Server verification dialog
  * ----------------------------------------
  */
 
@@ -787,7 +787,7 @@ html {
 }
 
 /* ----------------------------------------
- * Password Dialog
+ * Password dialog
  * ----------------------------------------
  */
 
@@ -806,7 +806,7 @@ html {
 
 
 /* ----------------------------------------
- * Main Area
+ * Main area
  * ----------------------------------------
  */
 

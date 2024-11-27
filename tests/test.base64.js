@@ -1,6 +1,6 @@
 import Base64 from '../core/base64.js';
 
-describe('Base64 Tools', function () {
+describe('Base64 tools', function () {
     "use strict";
 
     const BIN_ARR = new Array(256);

@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2019 The noVNC Authors
+ * Copyright (C) 2019 The noVNC authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -27,7 +27,7 @@ export function initLogging(level) {
 // the url can be requested in the following way:
 // https://www.example.com#myqueryparam=myvalue&password=secretvalue
 //
-// Even Mixing public and non public parameters will work:
+// Even mixing public and non public parameters will work:
 // https://www.example.com?nonsecretparam=example.com#password=secretvalue
 export function getQueryVar(name, defVal) {
     "use strict";

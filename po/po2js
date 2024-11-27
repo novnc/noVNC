@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * ps2js: gettext .po to noVNC .js converter
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2018 The noVNC authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

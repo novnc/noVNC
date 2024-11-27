@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2020 The noVNC Authors
+ * Copyright (C) 2020 The noVNC authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -1378,7 +1378,7 @@ export default class RFB extends EventTargetMixin {
         }
     }
 
-    // Message Handlers
+    // Message handlers
 
     _negotiateProtocolVersion() {
         if (this._sock.rQwait("version", 12)) {
@@ -2427,7 +2427,7 @@ export default class RFB extends EventTargetMixin {
 
         switch (xvpMsg) {
             case 0:  // XVP_FAIL
-                Log.Error("XVP Operation Failed");
+                Log.Error("XVP operation failed");
                 break;
             case 1:  // XVP_INIT
                 this._rfbXvpVer = xvpVer;
@@ -2756,7 +2756,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     _handleLedEvent() {
-        if (this._sock.rQwait("LED Status", 1)) {
+        if (this._sock.rQwait("LED status", 1)) {
             return false;
         }
 

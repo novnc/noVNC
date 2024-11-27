@@ -535,7 +535,7 @@ describe('Websock', function () {
         });
     });
 
-    describe('WebSocket Receiving', function () {
+    describe('WebSocket receiving', function () {
         let sock;
         beforeEach(function () {
             sock = new Websock();

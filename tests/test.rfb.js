@@ -67,7 +67,7 @@ function deflateWithSize(data) {
     return new Uint8Array(strm.output.buffer, 0, strm.next_out);
 }
 
-describe('Remote Frame Buffer Protocol Client', function () {
+describe('Remote Frame Buffer protocol client', function () {
     let clock;
     let raf;
     let fakeResizeObserver = null;
@@ -287,7 +287,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
     });
 
-    describe('Public API Basic Behavior', function () {
+    describe('Public API basic behavior', function () {
         let client;
         beforeEach(function () {
             client = makeRFB();
@@ -1027,7 +1027,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
     });
 
-    describe('Misc Internals', function () {
+    describe('Misc internals', function () {
         describe('#_fail', function () {
             let client;
             beforeEach(function () {
@@ -1068,7 +1068,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
     });
 
-    describe('Protocol Initialization States', function () {
+    describe('Protocol initialization states', function () {
         let client;
         beforeEach(function () {
             client = makeRFB();
@@ -1226,7 +1226,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Legacy Authentication', function () {
+        describe('Legacy authentication', function () {
             it('should fail on auth scheme 0 (pre 3.7) with the given message', function () {
                 const errMsg = "Whoopsies";
                 const data = [0, 0, 0, 0];
@@ -1286,7 +1286,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
-            describe('VNC Authentication (type 2) Handler', function () {
+            describe('VNC authentication (type 2) handler', function () {
                 it('should fire the credentialsrequired event if missing a password', function () {
                     const spy = sinon.spy();
                     client.addEventListener("credentialsrequired", spy);
@@ -1331,7 +1331,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('RSA-AES Authentication (type 6) Handler', function () {
+            describe('RSA-AES authentication (type 6) handler', function () {
                 function fakeGetRandomValues(arr) {
                     if (arr.length === 16) {
                         arr.set(new Uint8Array([
@@ -1776,7 +1776,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('ARD Authentication (type 30) Handler', function () {
+            describe('ARD authentication (type 30) handler', function () {
                 let byteArray = new Uint8Array(Array.from(new Uint8Array(128).keys()));
                 function fakeGetRandomValues(arr) {
                     if (arr.length == 128) {
@@ -1869,7 +1869,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('MSLogonII Authentication (type 113) Handler', function () {
+            describe('MSLogonII authentication (type 113) handler', function () {
                 function fakeGetRandomValues(arr) {
                     if (arr.length == 8) {
                         arr.set(new Uint8Array([0, 0, 0, 0, 5, 6, 7, 8]));
@@ -1952,7 +1952,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('XVP Authentication (type 22) Handler', function () {
+            describe('XVP authentication (type 22) handler', function () {
                 it('should fall through to standard VNC authentication upon completion', function () {
                     client.addEventListener("credentialsrequired", () => {
                         client.sendCredentials({ username: 'user',
@@ -2001,7 +2001,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('TightVNC Authentication (type 16) Handler', function () {
+            describe('TightVNC authentication (type 16) handler', function () {
                 beforeEach(function () {
                     sendSecurity(16, client);
                     client._sock._websocket._getSentData();  // skip the security reply
@@ -2088,7 +2088,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('VeNCrypt Authentication (type 19) Handler', function () {
+            describe('VeNCrypt authentication (type 19) handler', function () {
                 beforeEach(function () {
                     sendSecurity(19, client);
                     expect(client._sock).to.have.sent(new Uint8Array([19]));
@@ -2171,7 +2171,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 });
             });
 
-            describe('Plain Authentication (type 256) Handler', function () {
+            describe('Plain authentication (type 256) handler', function () {
                 beforeEach(function () {
                     sendSecurity(19, client);
                     expect(client._sock).to.have.sent(new Uint8Array([19]));
@@ -2430,7 +2430,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(client._keyboard.grab).to.have.been.calledOnce;
             });
 
-            describe('Initial Update Request', function () {
+            describe('Initial update request', function () {
                 beforeEach(function () {
                     sinon.spy(RFB.messages, "pixelFormat");
                     sinon.spy(RFB.messages, "clientEncodings");
@@ -2485,7 +2485,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
     });
 
-    describe('Protocol Message Processing After Completing Initialization', function () {
+    describe('Protocol message processing after completing initialization', function () {
         let client;
 
         beforeEach(function () {
@@ -2495,7 +2495,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             client._fbHeight = 20;
         });
 
-        describe('Framebuffer Update Handling', function () {
+        describe('Framebuffer update handling', function () {
             function sendFbuMsg(rectInfo, rectData, client, rectCnt) {
                 let data = [];
 
@@ -2576,7 +2576,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                 expect(callback.args[0][0].detail.clean).to.be.false;
             });
 
-            describe('Message Encoding Handlers', function () {
+            describe('Message encoding handlers', function () {
                 beforeEach(function () {
                     // a really small frame
                     client._fbWidth = 4;
@@ -2817,7 +2817,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                     });
                 });
 
-                describe('the VMware Cursor pseudo-encoding handler', function () {
+                describe('the VMware cursor pseudo-encoding handler', function () {
                     beforeEach(function () {
                         sinon.spy(client._cursor, 'change');
                     });
@@ -3150,7 +3150,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('XVP Message Handling', function () {
+        describe('XVP message handling', function () {
             it('should set the XVP version and fire the callback with the version on XVP_INIT', function () {
                 const spy = sinon.spy();
                 client.addEventListener("capabilities", spy);
@@ -3172,7 +3172,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Normal Clipboard Handling Receive', function () {
+        describe('Normal clipboard handling receive', function () {
             it('should fire the clipboard callback with the retrieved text on ServerCutText', function () {
                 const expectedStr = 'cheese!';
                 const data = [3, 0, 0, 0];
@@ -3187,7 +3187,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Extended clipboard Handling', function () {
+        describe('Extended clipboard handling', function () {
 
             describe('Extended clipboard initialization', function () {
                 beforeEach(function () {
@@ -3222,7 +3222,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
 
             });
 
-            describe('Extended Clipboard Handling Receive', function () {
+            describe('Extended clipboard handling receive', function () {
 
                 beforeEach(function () {
                     // Send our capabilities
@@ -3493,7 +3493,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
         });
     });
 
-    describe('Asynchronous Events', function () {
+    describe('Asynchronous events', function () {
         let client;
         let pointerEvent;
         let keyEvent;
@@ -3537,7 +3537,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             return res;
         }
 
-        describe('Mouse Events', function () {
+        describe('Mouse events', function () {
             function sendMouseMoveEvent(x, y) {
                 let pos = elementToClient(x, y);
                 let ev;
@@ -3663,7 +3663,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
                                                                  50, 70, 0x0);
             });
 
-            describe('Event Aggregation', function () {
+            describe('Event aggregation', function () {
                 it('should send a single pointer event on mouse movement', function () {
                     sendMouseMoveEvent(50, 70);
                     clock.tick(100);
@@ -3790,7 +3790,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Wheel Events', function () {
+        describe('Wheel events', function () {
             function sendWheelEvent(x, y, dx, dy, mode=0) {
                 let pos = elementToClient(x, y);
                 let ev;
@@ -3900,7 +3900,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('Keyboard Events', function () {
+        describe('Keyboard events', function () {
             it('should send a key message on a key press', function () {
                 let esock = new Websock();
                 let ews = new FakeWebSocket();
@@ -4613,7 +4613,7 @@ describe('Remote Frame Buffer Protocol Client', function () {
             });
         });
 
-        describe('WebSocket Events', function () {
+        describe('WebSocket events', function () {
             // message events
             it('should do nothing if we receive an empty message and have nothing in the queue', function () {
                 sinon.spy(client, "_normalMsg");
@@ -4901,7 +4901,7 @@ describe('RFB messages', function () {
         sock.attach(websock);
     });
 
-    describe('Input Events', function () {
+    describe('Input events', function () {
         it('should send correct data for keyboard events', function () {
             // FIXME: down should be boolean
             RFB.messages.keyEvent(sock, 0x12345678, 0);
@@ -4936,7 +4936,7 @@ describe('RFB messages', function () {
         });
     });
 
-    describe('Clipboard Events', function () {
+    describe('Clipboard events', function () {
         it('should send correct data for clipboard events', function () {
             RFB.messages.clientCutText(sock, new Uint8Array([ 0x01, 0x23, 0x45, 0x67 ]));
             let expected =
@@ -4946,7 +4946,7 @@ describe('RFB messages', function () {
         });
     });
 
-    describe('Extended Clipboard Handling Send', function () {
+    describe('Extended clipboard handling send', function () {
         it('should call clientCutText with correct Caps data', function () {
             let formats = {
                 0: 2,
@@ -5133,7 +5133,7 @@ describe('RFB messages', function () {
         });
     });
 
-    describe('Screen Layout', function () {
+    describe('Screen layout', function () {
         it('should send correct data for screen layout changes', function () {
             RFB.messages.setDesktopSize(sock, 12345, 54321, 0x12345678, 0x90abcdef);
             let expected =
@@ -5155,7 +5155,7 @@ describe('RFB messages', function () {
         });
     });
 
-    describe('Continuous Updates', function () {
+    describe('Continuous updates', function () {
         it('should send correct data for continuous updates configuration', function () {
             // FIXME: enable should be boolean
             RFB.messages.enableContinuousUpdates(sock, 0, 12345, 54321, 34343, 18181);
@@ -5165,7 +5165,7 @@ describe('RFB messages', function () {
         });
     });
 
-    describe('Pixel Format', function () {
+    describe('Pixel format', function () {
         it('should send correct data for normal depth', function () {
             RFB.messages.pixelFormat(sock, 24, true);
             let expected =

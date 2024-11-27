@@ -1,4 +1,4 @@
-# Embedding and Deploying noVNC Application
+# Embedding and deploying noVNC application
 
 This document describes how to embed and deploy the noVNC application, which
 includes settings and a full user interface. If you are looking for
@@ -71,8 +71,8 @@ query string. Currently the following options are available:
 * `logging` - The console log level. Can be one of `error`, `warn`, `info` or
   `debug`.
 
-## HTTP Serving Considerations
-### Browser Cache Issue
+## HTTP serving considerations
+### Browser cache issue
 
 If you serve noVNC files using a web server that provides an ETag header, and
 include any options in the query string, a nasty browser cache issue can bite
@@ -84,7 +84,7 @@ to always revalidate cached files using conditional requests. The correct
 semantics are achieved via the (confusingly named) `Cache-Control: no-cache`
 header that needs to be provided in the web server responses.
 
-### Example Server Configurations
+### Example server configurations
 
 Apache:
 

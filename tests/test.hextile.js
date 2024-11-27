@@ -36,7 +36,7 @@ function push32(arr, num) {
              num & 0xFF);
 }
 
-describe('Hextile Decoder', function () {
+describe('Hextile decoder', function () {
     let decoder;
     let display;
 

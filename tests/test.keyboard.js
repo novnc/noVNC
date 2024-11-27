@@ -1,6 +1,6 @@
 import Keyboard from '../core/input/keyboard.js';
 
-describe('Key Event Handling', function () {
+describe('Key event handling', function () {
     "use strict";
 
     // The real KeyboardEvent constructor might not work everywhere we
@@ -19,7 +19,7 @@ describe('Key Event Handling', function () {
         return e;
     }
 
-    describe('Decode Keyboard Events', function () {
+    describe('Decode keyboard events', function () {
         it('should decode keydown events', function (done) {
             const kbd = new Keyboard(document);
             kbd.onkeyevent = (keysym, code, down) => {
@@ -68,7 +68,7 @@ describe('Key Event Handling', function () {
         });
     });
 
-    describe('Track Key State', function () {
+    describe('Track key state', function () {
         it('should send release using the same keysym as the press', function (done) {
             const kbd = new Keyboard(document);
             kbd.onkeyevent = (keysym, code, down) => {
@@ -101,7 +101,7 @@ describe('Key Event Handling', function () {
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
 
-        describe('Legacy Events', function () {
+        describe('Legacy events', function () {
             it('should track keys using keyCode if no code', function (done) {
                 const kbd = new Keyboard(document);
                 kbd.onkeyevent = (keysym, code, down) => {
