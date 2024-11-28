@@ -152,6 +152,8 @@ export default class RFB extends EventTargetMixin {
 
         this._qemuExtKeyEventSupported = false;
 
+        this._extendedPointerEventSupported = false;
+
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
         this._clipboardServerCapabilitiesFormats = {};
@@ -1060,15 +1062,27 @@ export default class RFB extends EventTargetMixin {
         let pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
 
+        /* Map mouse back and forward mouse buttons (3 and 4) to 7 and 8
+         *
+         * NOTE: This only works on chromium-based browsers. There is
+         *       no support for firefox/safari.
+         */
+        let button = ev.button;
+        if (button == 3 || button == 4) {
+            button += 4;
+        } else if (button > 4) {
+            // Unsupported mouse button
+            return;
+        }
         switch (ev.type) {
             case 'mousedown':
                 setCapture(this._canvas);
                 this._handleMouseButton(pos.x, pos.y,
-                                        true, 1 << ev.button);
+                                        true, 1 << button);
                 break;
             case 'mouseup':
                 this._handleMouseButton(pos.x, pos.y,
-                                        false, 1 << ev.button);
+                                        false, 1 << button);
                 break;
             case 'mousemove':
                 this._handleMouseMove(pos.x, pos.y);
@@ -1163,8 +1177,20 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x),
-                                  this._display.absY(y), mask);
+        // Highest bit in mask is never sent to the server
+        if (mask & 0x8000) {
+            throw new Error("Illegal mouse button mask (mask: " + mask + ")");
+        }
+
+        let extendedMouseButtons = mask & 0x7f80;
+
+        if (this._extendedPointerEventSupported && extendedMouseButtons) {
+            RFB.messages.extendedPointerEvent(this._sock, this._display.absX(x),
+                                              this._display.absY(y), mask);
+        } else {
+            RFB.messages.pointerEvent(this._sock, this._display.absX(x),
+                                      this._display.absY(y), mask);
+        }
     }
 
     _handleWheel(ev) {
@@ -2146,6 +2172,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingContinuousUpdates);
         encs.push(encodings.pseudoEncodingDesktopName);
         encs.push(encodings.pseudoEncodingExtendedClipboard);
+        encs.push(encodings.pseudoEncodingExtendedMouseButtons);
 
         if (this._fbDepth == 24) {
             encs.push(encodings.pseudoEncodingVMwareCursor);
@@ -2575,6 +2602,10 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingExtendedDesktopSize:
                 return this._handleExtendedDesktopSize();
 
+            case encodings.pseudoEncodingExtendedMouseButtons:
+                this._extendedPointerEventSupported = true;
+                return true;
+
             case encodings.pseudoEncodingQEMULedEvent:
                 return this._handleLedEvent();
 
@@ -2983,10 +3014,35 @@ RFB.messages = {
     pointerEvent(sock, x, y, mask) {
         sock.sQpush8(5); // msg-type
 
+        // Marker bit must be set to 0, otherwise the server might
+        // confuse the marker bit with the highest bit in a normal
+        // PointerEvent message.
+        mask = mask & 0x7f;
         sock.sQpush8(mask);
 
         sock.sQpush16(x);
         sock.sQpush16(y);
+
+        sock.flush();
+    },
+
+    extendedPointerEvent(sock, x, y, mask) {
+        sock.sQpush8(5); // msg-type
+
+        let higherBits = (mask >> 7) & 0xff;
+
+        // Bits 2-7 are reserved
+        if (higherBits & 0xfc) {
+            throw new Error("Invalid mouse button mask: " + mask);
+        }
+
+        let lowerBits = mask & 0x7f;
+        lowerBits |= 0x80; // Set marker bit to 1
+
+        sock.sQpush8(lowerBits);
+        sock.sQpush16(x);
+        sock.sQpush16(y);
+        sock.sQpush8(higherBits);
 
         sock.flush();
     },

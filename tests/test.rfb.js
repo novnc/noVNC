@@ -4931,7 +4931,14 @@ describe('RFB messages', function () {
         it('should send correct data for pointer events', function () {
             RFB.messages.pointerEvent(sock, 12345, 54321, 0xab);
             let expected =
-                [ 5, 0xab, 0x30, 0x39, 0xd4, 0x31];
+                [ 5, 0x2b, 0x30, 0x39, 0xd4, 0x31];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for extended pointer events', function () {
+            RFB.messages.extendedPointerEvent(sock, 12345, 54321, 0xab);
+            let expected =
+                [ 5, 0xab, 0x30, 0x39, 0xd4, 0x31, 0x01];
             expect(sock).to.have.sent(new Uint8Array(expected));
         });
     });
