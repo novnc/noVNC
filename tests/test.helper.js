@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import keysyms from '../core/input/keysymdef.js';
 import * as KeyboardUtil from "../core/input/util.js";
 

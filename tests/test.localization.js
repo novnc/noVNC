@@ -1,3 +1,7 @@
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import _, { Localizer, l10n } from '../app/localization.js';
 
 describe('Localization', function () {
