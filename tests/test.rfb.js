@@ -3508,6 +3508,9 @@ describe('Remote Frame Buffer protocol client', function () {
             // client coordinate calculations
             client.focusOnClick = false;
 
+            // We need to keep track of MouseEvent.buttons state
+            client._buttonsState = 0;
+
             pointerEvent = sinon.spy(RFB.messages, 'pointerEvent');
             keyEvent = sinon.spy(RFB.messages, 'keyEvent');
             qemuKeyEvent = sinon.spy(RFB.messages, 'QEMUExtendedKeyEvent');
@@ -3546,7 +3549,8 @@ describe('Remote Frame Buffer protocol client', function () {
                                     { 'screenX': pos.x + window.screenX,
                                       'screenY': pos.y + window.screenY,
                                       'clientX': pos.x,
-                                      'clientY': pos.y });
+                                      'clientY': pos.y,
+                                      'buttons': client._buttonsState });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -3554,13 +3558,19 @@ describe('Remote Frame Buffer protocol client', function () {
                 let pos = elementToClient(x, y);
                 let ev;
 
+                if (down) {
+                    client._buttonsState |= RFB.convertButtonMask(1 << button);
+                } else {
+                    client._buttonsState &= ~RFB.convertButtonMask(1 << button);
+                }
+
                 ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
                                     { 'screenX': pos.x + window.screenX,
                                       'screenY': pos.y + window.screenY,
                                       'clientX': pos.x,
                                       'clientY': pos.y,
                                       'button': button,
-                                      'buttons': 1 << button });
+                                      'buttons': client._buttonsState });
                 client._canvas.dispatchEvent(ev);
             }
 
