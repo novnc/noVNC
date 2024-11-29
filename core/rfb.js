@@ -1031,6 +1031,35 @@ export default class RFB extends EventTargetMixin {
         this.sendKey(keysym, code, down);
     }
 
+    static _convertButtonMask(buttons) {
+        /* The bits in MouseEvent.buttons property correspond
+         * to the following mouse buttons:
+         *     0: Left
+         *     1: Right
+         *     2: Middle
+         *     3: Back
+         *     4: Forward
+         *
+         * These bits needs to be converted to what they are defined as
+         * in the RFB protocol.
+         */
+
+        const buttonMaskMap = {
+            0: 1 << 0, // Left
+            1: 1 << 2, // Right
+            2: 1 << 1, // Middle
+            3: 1 << 7, // Back
+        };
+
+        let bmask = 0;
+        for (let i = 0; i < 4; i++) {
+            if (buttons & (1 << i)) {
+                bmask |= buttonMaskMap[i];
+            }
+        }
+        return bmask;
+    }
+
     _handleMouse(ev) {
         /*
          * We don't check connection status or viewOnly here as the
@@ -1060,15 +1089,15 @@ export default class RFB extends EventTargetMixin {
         let pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
 
+        let bmask = RFB._convertButtonMask(ev.buttons);
+
         switch (ev.type) {
             case 'mousedown':
                 setCapture(this._canvas);
-                this._handleMouseButton(pos.x, pos.y,
-                                        true, 1 << ev.button);
+                this._handleMouseButton(pos.x, pos.y, true, bmask);
                 break;
             case 'mouseup':
-                this._handleMouseButton(pos.x, pos.y,
-                                        false, 1 << ev.button);
+                this._handleMouseButton(pos.x, pos.y, false, bmask);
                 break;
             case 'mousemove':
                 this._handleMouseMove(pos.x, pos.y);
@@ -1084,6 +1113,7 @@ export default class RFB extends EventTargetMixin {
                 this._viewportHasMoved = false;
 
                 // Skip sending mouse events
+                this._mouseButtonMask = bmask;
                 return;
             } else {
                 this._viewportDragging = false;
@@ -1097,7 +1127,7 @@ export default class RFB extends EventTargetMixin {
                 // Otherwise we treat this as a mouse click event.
                 // Send the button down event here, as the button up
                 // event is sent at the end of this function.
-                this._sendMouse(x, y, bmask);
+                this._sendMouse(x, y, this._mouseButtonMask);
             }
         }
 
@@ -1108,12 +1138,7 @@ export default class RFB extends EventTargetMixin {
             this._sendMouse(x, y, this._mouseButtonMask);
         }
 
-        if (down) {
-            this._mouseButtonMask |= bmask;
-        } else {
-            this._mouseButtonMask &= ~bmask;
-        }
-
+        this._mouseButtonMask = bmask;
         this._sendMouse(x, y, this._mouseButtonMask);
     }
 
@@ -1177,6 +1202,7 @@ export default class RFB extends EventTargetMixin {
         let pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
 
+        let bmask = RFB._convertButtonMask(ev.buttons);
         let dX = ev.deltaX;
         let dY = ev.deltaY;
 
@@ -1196,26 +1222,27 @@ export default class RFB extends EventTargetMixin {
         this._accumulatedWheelDeltaX += dX;
         this._accumulatedWheelDeltaY += dY;
 
+
         // Generate a mouse wheel step event when the accumulated delta
         // for one of the axes is large enough.
         if (Math.abs(this._accumulatedWheelDeltaX) >= WHEEL_STEP) {
             if (this._accumulatedWheelDeltaX < 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 5);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 5);
+                this._handleMouseButton(pos.x, pos.y, true, bmask | 1 << 5);
+                this._handleMouseButton(pos.x, pos.y, false, bmask);
             } else if (this._accumulatedWheelDeltaX > 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 6);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 6);
+                this._handleMouseButton(pos.x, pos.y, true, bmask | 1 << 6);
+                this._handleMouseButton(pos.x, pos.y, false, bmask);
             }
 
             this._accumulatedWheelDeltaX = 0;
         }
         if (Math.abs(this._accumulatedWheelDeltaY) >= WHEEL_STEP) {
             if (this._accumulatedWheelDeltaY < 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 3);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 3);
+                this._handleMouseButton(pos.x, pos.y, true, bmask | 1 << 3);
+                this._handleMouseButton(pos.x, pos.y, false, bmask);
             } else if (this._accumulatedWheelDeltaY > 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 4);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 4);
+                this._handleMouseButton(pos.x, pos.y, true, bmask | 1 << 4);
+                this._handleMouseButton(pos.x, pos.y, false, bmask);
             }
 
             this._accumulatedWheelDeltaY = 0;
@@ -1255,7 +1282,7 @@ export default class RFB extends EventTargetMixin {
 
         this._fakeMouseMove(this._gestureFirstDoubleTapEv, pos.x, pos.y);
         this._handleMouseButton(pos.x, pos.y, true, bmask);
-        this._handleMouseButton(pos.x, pos.y, false, bmask);
+        this._handleMouseButton(pos.x, pos.y, false, 0x0);
     }
 
     _handleGesture(ev) {
@@ -1307,33 +1334,34 @@ export default class RFB extends EventTargetMixin {
                     case 'longpress':
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
-                    case 'twodrag':
+                    case 'twodrag': {
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x8);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                            this._handleMouseButton(pos.x, pos.y, true, this._mouseButtonMask | 0x8);
+                            this._handleMouseButton(pos.x, pos.y, false, this._mouseButtonMask & ~0x8);
                             this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x10);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                            this._handleMouseButton(pos.x, pos.y, true, this._mouseButtonMask | 0x10);
+                            this._handleMouseButton(pos.x, pos.y, false, this._mouseButtonMask & ~0x10);
                             this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x20);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x20);
+                            this._handleMouseButton(pos.x, pos.y, true, this._mouseButtonMask | 0x20);
+                            this._handleMouseButton(pos.x, pos.y, false, this._mouseButtonMask & ~0x20);
                             this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x40);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x40);
+                            this._handleMouseButton(pos.x, pos.y, true, this._mouseButtonMask | 0x40);
+                            this._handleMouseButton(pos.x, pos.y, false, this._mouseButtonMask & ~0x40);
                             this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
                         }
                         break;
-                    case 'pinch':
+                    }
+                    case 'pinch': {
                         // Always scroll in the same position.
                         // We don't know if the mouse was moved so we need to move it
                         // every update.
@@ -1342,18 +1370,19 @@ export default class RFB extends EventTargetMixin {
                         if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
                             this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                             while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, true, 0x8);
-                                this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                                this._handleMouseButton(pos.x, pos.y, true, this._mouseButtonMask | 0x8);
+                                this._handleMouseButton(pos.x, pos.y, false, this._mouseButtonMask & ~0x8);
                                 this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
                             }
                             while ((magnitude -  this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, true, 0x10);
-                                this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                                this._handleMouseButton(pos.x, pos.y, true, this._mouseButtonMask | 0x10);
+                                this._handleMouseButton(pos.x, pos.y, false, this._mouseButtonMask & ~0x10);
                                 this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
                             }
                         }
                         this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", false);
                         break;
+                    }
                 }
                 break;
 
@@ -1367,11 +1396,11 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x1);
+                        this._handleMouseButton(pos.x, pos.y, false, 0x0);
                         break;
                     case 'longpress':
                         this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x4);
+                        this._handleMouseButton(pos.x, pos.y, false, 0x0);
                         break;
                 }
                 break;
