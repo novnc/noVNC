@@ -15,6 +15,48 @@ export default class TouchHandlerUltraVNC {
     static IDFORMAT_32    = 0x1;  // 32 bits ID
     static IDFORMAT_CLEAR = 0xF;  // No more touch points
 
+    // GII
+    static giiMsgType = 253;
+    static giiEventInjectionMsgType = 128;
+    static giiDeviceVersionMsgType = 129;
+    static giiDeviceCreationMsgType = 130;
+
+    static giiDeviceCreationMsgSize = 172;
+    static giiDeviceVersion = 1;
+    static giiDeviceVersionMsgSize = 2;
+
+    static giiEventInjectionHeaderSize = 4;
+    static giiEventInjectionSize = this.giiEventInjectionHeaderSize + 16;
+    static giiEventInjectionTouchSize = 12;
+    static giiEventInjectionEventType = 12;
+
+    static giiDeviceName = "NOVNC-MT";
+    static giiDeviceNameSize = 31;
+    static giiDeviceLongName = "noVNC Multitouch Device";
+    static giiDeviceLongNameSize = 74;
+    static giiDeviceShortName = "NMD";
+    static giiDeviceShortNameSize = 4;
+
+    static giiDNTerm = 0;
+    static giiVendorID = 0x0908;
+    static giiProductID = 0x000b;
+    static giiEventMask = 0x00002000;
+    static giiNumRegisters = 0;
+    static giiNumValuators = 1;
+    static giiNumButtons = 5;
+    static giiNumTouches = 6;
+    static giiIndex = 0;
+    static giiLNTerm = 0;
+    static giiSNTerm = 0;
+    static giiRangeMin = 0;
+    static giiRangeCenter = 0;
+    static giiRangeMax = 0;
+    static giiSIUnit = 0;
+    static giiSIAdd = 0;
+    static giiSIMul = 0;
+    static giiSIDiv = 0;
+    static giiSIShift = 0;
+
     constructor() {
         this._target = null;
 
