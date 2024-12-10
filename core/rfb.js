@@ -1472,6 +1472,164 @@ export default class RFB extends EventTargetMixin {
         this._sock.flush();
     }
 
+    _handleUltraVNCTouch(ev) {
+        this._sock.sQpush8(253); // GII message type
+        this._sock.sQpush8(128); // GII event
+        this._sock.sQpush16(4 + 16 + (6 * 2 * ev.detail.currentTouches.length)); // Length
+        this._sock.sQpush8(4 + 16 + (6 * 2 * ev.detail.currentTouches.length)); // eventSize
+        this._sock.sQpush8(12); // eventType
+        this._sock.sQpush16(0); // padding
+        this._sock.sQpush32(ev.detail.giiDeviceOrigin); // deviceOrigin
+        this._sock.sQpush32(ev.detail.currentTouches.length); // first
+        this._sock.sQpush32(6 * ev.detail.currentTouches.length); // count
+   
+        let pointerUpIds = [];
+   
+        // Send all current touches
+        for (let i = 0; i < ev.detail.currentTouches.length; i++) {
+            let valuatorFlag = 0x00000000;
+            valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
+            valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_32;
+            if (ev.detail.currentTouches[i].status !== "POINTER_UP") valuatorFlag |= TouchHandlerUltraVNC.PF_flag;
+            if (ev.detail.currentTouches[i].event.identifier === 0) valuatorFlag |= TouchHandlerUltraVNC.IF_flag; // IF_flag
+   
+            this._sock.sQpush32(valuatorFlag);
+            this._sock.sQpush32(ev.detail.currentTouches[i].event.touchIdentifier);
+   
+            let scaledPosition = clientToElement(ev.detail.currentTouches[i].event.clientX, ev.detail.currentTouches[i].event.clientY,
+                                                 this._canvas);
+   
+            if ((valuatorFlag & TouchHandlerUltraVNC.LENGTH_16_flag) !== 0) {
+                let scaledX16 = this._display.absX(scaledPosition.x) & 0xFFFF;
+                let scaledY16 = this._display.absY(scaledPosition.y) & 0xFFFF;
+                let coordinates = (scaledX16 << 16) | scaledY16;
+                this._sock.sQpush32(coordinates);
+            }
+   
+            // Keep track of last released touches
+            if (ev.detail.currentTouches[i].status === "POINTER_UP") {
+                pointerUpIds.push(ev.detail.currentTouches[i].event.identifier);
+            }
+        }
+   
+        this._sock.flush();
+   
+        // Remove released touches from current touches in handler
+        for (let i = 0; i < pointerUpIds.length; i++) {
+            const index = ev.detail.currentTouches.findIndex(t => t.event.identifier === pointerUpIds[i]);
+            if (index !== -1) {
+                this._gestures._removeTouch(index);
+            }
+        }
+   
+        // Interrupt touch sending interval
+        if (ev.detail.currentTouches.length === 0 && this._sendTouchesIntervalId !== -1) {
+            Log.Debug("NO MORE TOUCHES\n");
+            this._gestures._interruptTouches();
+            this._sendEmptyTouch(ev.detail.giiDeviceOrigin);
+            return;
+        }
+    }
+
+    _sendEmptyTouch(giiDeviceOrigin) {
+        let valuatorFlag = 0x00000000;
+        valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
+        valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_CLEAR;
+
+        this._sock.sQpush8(253); // GII message type
+        this._sock.sQpush8(128); // GII event
+        this._sock.sQpush16(24); // Header length
+        this._sock.sQpush8(24); // Event size
+        this._sock.sQpush8(12); // eventType
+        this._sock.sQpush16(0); // padding
+        this._sock.sQpush32(giiDeviceOrigin); // deviceOrigin
+        this._sock.sQpush32(1); // first
+        this._sock.sQpush32(4); // Count
+        this._sock.sQpush32(valuatorFlag); // Flag
+        this._sock.sQpush32(0); // Empty Id
+        this._sock.sQpush32(0); // Empty coordinates
+        this._sock.flush();
+    }
+
+    _handleUltraVNCTouch(ev) {
+        this._sock.sQpush8(253); // GII message type
+        this._sock.sQpush8(128); // GII event
+        this._sock.sQpush16(4 + 16 + (6 * 2 * ev.detail.currentTouches.length)); // Length
+        this._sock.sQpush8(4 + 16 + (6 * 2 * ev.detail.currentTouches.length)); // eventSize
+        this._sock.sQpush8(12); // eventType
+        this._sock.sQpush16(0); // padding
+        this._sock.sQpush32(ev.detail.giiDeviceOrigin); // deviceOrigin
+        this._sock.sQpush32(ev.detail.currentTouches.length); // first
+        this._sock.sQpush32(6 * ev.detail.currentTouches.length); // count
+   
+        let pointerUpIds = [];
+   
+        // Send all current touches
+        for (let i = 0; i < ev.detail.currentTouches.length; i++) {
+            let valuatorFlag = 0x00000000;
+            valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
+            valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_32;
+            if (ev.detail.currentTouches[i].status !== "POINTER_UP") valuatorFlag |= TouchHandlerUltraVNC.PF_flag;
+            if (ev.detail.currentTouches[i].event.identifier === 0) valuatorFlag |= TouchHandlerUltraVNC.IF_flag; // IF_flag
+   
+            this._sock.sQpush32(valuatorFlag);
+            this._sock.sQpush32(ev.detail.currentTouches[i].event.touchIdentifier);
+   
+            let scaledPosition = clientToElement(ev.detail.currentTouches[i].event.clientX, ev.detail.currentTouches[i].event.clientY,
+                                                 this._canvas);
+   
+            if ((valuatorFlag & TouchHandlerUltraVNC.LENGTH_16_flag) !== 0) {
+                let scaledX16 = this._display.absX(scaledPosition.x) & 0xFFFF;
+                let scaledY16 = this._display.absY(scaledPosition.y) & 0xFFFF;
+                let coordinates = (scaledX16 << 16) | scaledY16;
+                this._sock.sQpush32(coordinates);
+            }
+   
+            // Keep track of last released touches
+            if (ev.detail.currentTouches[i].status === "POINTER_UP") {
+                pointerUpIds.push(ev.detail.currentTouches[i].event.identifier);
+            }
+        }
+   
+        this._sock.flush();
+   
+        // Remove released touches from current touches in handler
+        for (let i = 0; i < pointerUpIds.length; i++) {
+            const index = ev.detail.currentTouches.findIndex(t => t.event.identifier === pointerUpIds[i]);
+            if (index !== -1) {
+                this._gestures._removeTouch(index);
+            }
+        }
+   
+        // Interrupt touch sending interval
+        if (ev.detail.currentTouches.length === 0 && this._sendTouchesIntervalId !== -1) {
+            Log.Debug("NO MORE TOUCHES\n");
+            this._gestures._interruptTouches();
+            this._sendEmptyTouch(ev.detail.giiDeviceOrigin);
+            return;
+        }
+    }
+
+    _sendEmptyTouch(giiDeviceOrigin) {
+        let valuatorFlag = 0x00000000;
+        valuatorFlag |= TouchHandlerUltraVNC.LENGTH_16_flag;
+        valuatorFlag |= TouchHandlerUltraVNC.IDFORMAT_CLEAR;
+
+        this._sock.sQpush8(253); // GII message type
+        this._sock.sQpush8(128); // GII event
+        this._sock.sQpush16(24); // Header length
+        this._sock.sQpush8(24); // Event size
+        this._sock.sQpush8(12); // eventType
+        this._sock.sQpush16(0); // padding
+        this._sock.sQpush32(giiDeviceOrigin); // deviceOrigin
+        this._sock.sQpush32(1); // first
+        this._sock.sQpush32(4); // Count
+        this._sock.sQpush32(valuatorFlag); // Flag
+        this._sock.sQpush32(0); // Empty Id
+        this._sock.sQpush32(0); // Empty coordinates
+        this._sock.flush();
+    }
+
     // Message handlers
 
     _negotiateProtocolVersion() {
