@@ -2464,10 +2464,10 @@ export default class RFB extends EventTargetMixin {
                 return this._handleSetColourMapMsg();
 
             case 2:  // Bell
-                Log.Debug("Bell");
-                this.dispatchEvent(new CustomEvent(
-                    "bell",
-                    { detail: {} }));
+                // Log.Debug("Bell");
+                // this.dispatchEvent(new CustomEvent(
+                //     "bell",
+                //     { detail: {} }));
                 return true;
 
             case 3:  // ServerCutText
