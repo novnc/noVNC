@@ -182,7 +182,6 @@ const UI = {
         UI.initSetting('quality', 6);
         UI.initSetting('compression', 2);
         UI.initSetting('shared', true);
-        UI.initSetting('bell', 'on');
         UI.initSetting('view_only', false);
         UI.initSetting('show_dot', false);
         UI.initSetting('path', 'websockify');
@@ -1088,7 +1087,6 @@ const UI = {
         UI.rfb.addEventListener("clippingviewport", UI.updateViewDrag);
         UI.rfb.addEventListener("capabilities", UI.updatePowerButton);
         UI.rfb.addEventListener("clipboard", UI.clipboardReceive);
-        UI.rfb.addEventListener("bell", UI.bell);
         UI.rfb.addEventListener("desktopname", UI.updateDesktopName);
         UI.rfb.clipViewport = UI.getSetting('view_clip');
         UI.rfb.scaleViewport = UI.getSetting('resize') === 'scale';
@@ -1764,23 +1762,23 @@ const UI = {
         document.title = e.detail.name + " - " + PAGE_TITLE;
     },
 
-    bell(e) {
-        if (UI.getSetting('bell') === 'on') {
-            const promise = document.getElementById('noVNC_bell').play();
-            // The standards disagree on the return value here
-            if (promise) {
-                promise.catch((e) => {
-                    if (e.name === "NotAllowedError") {
-                        // Ignore when the browser doesn't let us play audio.
-                        // It is common that the browsers require audio to be
-                        // initiated from a user action.
-                    } else {
-                        Log.Error("Unable to play bell: " + e);
-                    }
-                });
-            }
-        }
-    },
+    // bell(e) {
+    //     if (UI.getSetting('bell') === 'on') {
+    //         const promise = document.getElementById('noVNC_bell').play();
+    //         // The standards disagree on the return value here
+    //         if (promise) {
+    //             promise.catch((e) => {
+    //                 if (e.name === "NotAllowedError") {
+    //                     // Ignore when the browser doesn't let us play audio.
+    //                     // It is common that the browsers require audio to be
+    //                     // initiated from a user action.
+    //                 } else {
+    //                     Log.Error("Unable to play bell: " + e);
+    //                 }
+    //             });
+    //         }
+    //     }
+    // },
 
     //Helper to add options to dropdown.
     addOption(selectbox, text, value) {
