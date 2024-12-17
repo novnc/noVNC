@@ -17,20 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const getopt = require('node-getopt');
+const { program } = require('commander');
 const fs = require('fs');
 const po2json = require("po2json");
 
-const opt = getopt.create([
-    ['h', 'help', 'display this help'],
-]).bindHelp().parseSystem();
+program
+    .argument('<input>')
+    .argument('<output>')
+    .parse(process.argv);
 
-if (opt.argv.length != 2) {
-    console.error("Incorrect number of arguments given");
-    process.exit(1);
-}
-
-const data = po2json.parseFileSync(opt.argv[0]);
+const data = po2json.parseFileSync(program.args[0]);
 
 const bodyPart = Object.keys(data)
     .filter(msgid => msgid !== "")
@@ -42,4 +38,4 @@ const bodyPart = Object.keys(data)
 
 const output = "{\n" + bodyPart + "\n}";
 
-fs.writeFileSync(opt.argv[1], output);
+fs.writeFileSync(program.args[1], output);
