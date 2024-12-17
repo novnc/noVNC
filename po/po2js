@@ -19,22 +19,21 @@
 
 const { program } = require('commander');
 const fs = require('fs');
-const po2json = require("po2json");
+const pofile = require("pofile");
 
 program
     .argument('<input>')
     .argument('<output>')
     .parse(process.argv);
 
-const data = po2json.parseFileSync(program.args[0]);
+let data = fs.readFileSync(program.args[0], "utf8");
+let po = pofile.parse(data);
 
-const bodyPart = Object.keys(data)
-    .filter(msgid => msgid !== "")
-    .filter(msgid => data[msgid][1] !== "")
-    .map((msgid) => {
-        const msgstr = data[msgid][1];
-        return "    " + JSON.stringify(msgid) + ": " + JSON.stringify(msgstr);
-    }).join(",\n");
+const bodyPart = po.items
+    .filter(item => item.msgid !== "")
+    .filter(item => item.msgstr[0] !== "")
+    .map(item => "    " + JSON.stringify(item.msgid) + ": " + JSON.stringify(item.msgstr[0]))
+    .join(",\n");
 
 const output = "{\n" + bodyPart + "\n}";
 

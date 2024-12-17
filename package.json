@@ -56,7 +56,7 @@
     "karma-safari-launcher": "latest",
     "karma-script-launcher": "latest",
     "mocha": "latest",
-    "po2json": "latest",
+    "pofile": "latest",
     "sinon": "latest",
     "sinon-chai": "latest"
   },
