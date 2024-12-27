@@ -720,6 +720,7 @@ export default class RFB extends EventTargetMixin {
             currentHeight == this._expectedClientHeight;
     }
 
+    // Handle browser window resizes
     _handleResize() {
         // Don't change anything if the client size is already as expected
         if (this._clientHasExpectedSize()) {
@@ -2872,6 +2873,7 @@ export default class RFB extends EventTargetMixin {
                                              this._fbWidth, this._fbHeight);
     }
 
+    // Handle resize-messages from the server
     _resize(width, height) {
         this._fbWidth = width;
         this._fbHeight = height;
