@@ -730,6 +730,7 @@ export default class RFB extends EventTargetMixin {
         window.requestAnimationFrame(() => {
             this._updateClip();
             this._updateScale();
+            this._saveExpectedClientSize();
         });
 
         if (this._resizeSession) {
