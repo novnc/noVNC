@@ -124,5 +124,14 @@
     "Video Mode Height:": "Wysokość trybu wideo:",
     "Documentation": "Dokumentacja",
     "Drag Viewport": "Przeciągnij rzutnię",
-    "KasmVNC encountered an error:": "KasmVNC napotkał błąd:"
+    "KasmVNC encountered an error:": "KasmVNC napotkał błąd:",
+    "Displays": "Wyświetlacze",
+    "Enable Threaded Decoding": "Włącz dekodowanie wątkowe",
+    "Arrange Displays": "Uporządkuj wyświetlacze",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Przeciągnij i upuść, aby uporządkować wyświetlacze, nowe monitory są dodawane po prawej stronie poprzedniego monitora.",
+    "Add Monitor": "Dodaj monitor",
+    "Auto placement": "Automatyczne umieszczanie",
+    "Identify": "Zidentyfikować",
+    "Done": "Zrobione",
+    "Control Panel": "Panel sterowania"
 }

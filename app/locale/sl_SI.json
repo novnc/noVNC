@@ -116,5 +116,14 @@
     "Video Mode Height:": "Višina video načina:",
     "Documentation": "Dokumentacija",
     "Drag Viewport": "Povlecite vidno polje",
-    "KasmVNC encountered an error:": "KasmVNC je naletel na napako:"
+    "KasmVNC encountered an error:": "KasmVNC je naletel na napako:",
+    "Displays": "Zasloni",
+    "Enable Threaded Decoding": "Omogoči navojno dekodiranje",
+    "Arrange Displays": "Razporedi zaslone",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Povleci in spusti za razporeditev zaslonov, novi monitorji se dodajo na desno stran prejšnjega monitorja.",
+    "Add Monitor": "Dodaj monitor",
+    "Auto placement": "Samodejna umestitev",
+    "Identify": "Identificirati",
+    "Done": "Končano",
+    "Control Panel": "Nadzorna plošča"
 }

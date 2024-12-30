@@ -352,3 +352,30 @@ msgstr "Харах цонхыг чирэх"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC алдаа гарлаа:"
+
+msgid "Displays"
+msgstr "Дэлгэцүүд"
+
+msgid "Enable Threaded Decoding"
+msgstr "Treaded декодчилолыг идэвхжүүлэх"
+
+msgid "Arrange Displays"
+msgstr "Дэлгэцүүдийг зохион байгуулах"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Дэлгэцийг цэгцлэхийн тулд чирж, буулгахад өмнөх мониторын баруун гар талд шинэ мониторууд нэмэгддэг."
+
+msgid "Add Monitor"
+msgstr "Монитор нэмэх"
+
+msgid "Auto placement"
+msgstr "Автоматаар байршуулах"
+
+msgid "Identify"
+msgstr "Таних"
+
+msgid "Done"
+msgstr "Дууссан"
+
+msgid "Control Panel"
+msgstr "Хяналтын самбар"

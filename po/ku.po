@@ -352,3 +352,30 @@ msgstr "Portê Dîmenê Kaş bikin"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC rastî xeletiyek hat:"
+
+msgid "Displays"
+msgstr "Nişan dide"
+
+msgid "Enable Threaded Decoding"
+msgstr "Dekodkirina Mijara çalak bike"
+
+msgid "Arrange Displays"
+msgstr "Pêşandan rêz bikin"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Kaş bikin û daxin da ku dîmenan birêkûpêk bikin, çavdêrên nû li milê rastê yê çavdêriya berê têne zêdekirin."
+
+msgid "Add Monitor"
+msgstr "Monitor lê zêde bike"
+
+msgid "Auto placement"
+msgstr "Cihandina otomatîk"
+
+msgid "Identify"
+msgstr "Naskirin"
+
+msgid "Done"
+msgstr "Dest kirin"
+
+msgid "Control Panel"
+msgstr "Panela Kontrolê"

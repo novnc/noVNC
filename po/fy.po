@@ -352,3 +352,30 @@ msgstr "Sleep Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC tsjinkaam in flater:"
+
+msgid "Displays"
+msgstr "Displays"
+
+msgid "Enable Threaded Decoding"
+msgstr "Threaded Decoding ynskeakelje"
+
+msgid "Arrange Displays"
+msgstr "Arrange Displays"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Slep en drop om byldskermen te regeljen, nije monitors wurde tafoege oan 'e rjochterkant fan' e foarige monitor."
+
+msgid "Add Monitor"
+msgstr "Monitor taheakje"
+
+msgid "Auto placement"
+msgstr "Auto pleatsing"
+
+msgid "Identify"
+msgstr "Identifisearje"
+
+msgid "Done"
+msgstr "Klear"
+
+msgid "Control Panel"
+msgstr "Kontrolpaniel"

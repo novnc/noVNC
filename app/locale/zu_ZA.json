@@ -116,5 +116,14 @@
     "Video Mode Height:": "Ubude bemodi yevidiyo:",
     "Documentation": "Amadokhumenti",
     "Drag Viewport": "Hudula imbobo yokubuka",
-    "KasmVNC encountered an error:": "I-KasmVNC ihlangabezane nephutha:"
+    "KasmVNC encountered an error:": "I-KasmVNC ihlangabezane nephutha:",
+    "Displays": "Izibonisi",
+    "Enable Threaded Decoding": "Vumela ukuqoshwa okunentambo",
+    "Arrange Displays": "Hlela imibukiso",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Hudula bese udedela ukuze uhlele izibonisi, iziqaphi ezintsha zengezwa kwesokudla semonitha yangaphambilini.",
+    "Add Monitor": "Engeza i-Monitor",
+    "Auto placement": "Ukubekwa okuzenzakalelayo",
+    "Identify": "Khomba",
+    "Done": "Kwenziwe",
+    "Control Panel": "Iphaneli yokulawula"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "ຄວາມສູງຂອງໂໝດວິດີໂອ:",
     "Documentation": "ເອກະສານ",
     "Drag Viewport": "Drag Viewport",
-    "KasmVNC encountered an error:": "KasmVNC ພົບຂໍ້ຜິດພາດ:"
+    "KasmVNC encountered an error:": "KasmVNC ພົບຂໍ້ຜິດພາດ:",
+    "Displays": "ຈໍສະແດງຜົນ",
+    "Enable Threaded Decoding": "ເປີດໃຊ້ການຖອດລະຫັດກະທູ້",
+    "Arrange Displays": "ຈັດການສະແດງ",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ລາກແລະວາງລົງເພື່ອຈັດຈໍສະແດງຜົນ, ຈໍສະແດງຜົນໃຫມ່ຈະຖືກເພີ່ມໃສ່ເບື້ອງຂວາຂອງຈໍສະແດງຜົນກ່ອນ.",
+    "Add Monitor": "ເພີ່ມຈໍພາບ",
+    "Auto placement": "ການຈັດວາງອັດຕະໂນມັດ",
+    "Identify": "ກໍານົດ",
+    "Done": "ແລ້ວໆ",
+    "Control Panel": "ກະດານຄວບຄຸມ"
 }

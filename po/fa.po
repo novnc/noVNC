@@ -352,3 +352,30 @@ msgstr "ﺕﺭﻮﭙﯾﺎﻤﻧ ﮒﺭﺩ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:"
+
+msgid "Displays"
+msgstr "ﺶﯾﺎﻤﻧ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ﯼﺍ ﻪﺘﺷﺭ ﯽﯾﺎﺸﮔﺰﻣﺭ ﻥﺩﺮﮐ ﻝﺎﻌﻓ"
+
+msgid "Arrange Displays"
+msgstr " ﺎﻫ ﺶﯾﺎﻤﻧ ﺐﯿﺗﺮﺗ "
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ﺪﻧﻮﺷ ﯽﻣ ﻪﻓﺎﺿﺍ ﯽﻠﺒﻗ ﺭﻮﺘﯿﻧﺎﻣ ﺖﺳﺍﺭ ﺖﻤﺳ ﻪﺑ ﺪﯾﺪﺟ ﯼﺎﻫﺭﻮﺘﯿﻧﺎﻣ ،ﺪﯿﻨﮐ ﺎﻫﺭ ﻭ ﺪﯿﺸﮑﺑ ﺎﻫﺮﮕﺸﯾﺎﻤﻧ ﻥﺩﺮﮐ ﺐﺗﺮﻣ ﯼﺍﺮﺑ"
+
+msgid "Add Monitor"
+msgstr "ﺭﻮﺘﯿﻧﺎﻣ ﻥﺩﻭﺰﻓﺍ"
+
+msgid "Auto placement"
+msgstr "ﺭﺎﮐﺩﻮﺧ ﯼﺮﯿﮔﺭﺍﺮﻗ"
+
+msgid "Identify"
+msgstr "ﯽﯾﺎﺳﺎﻨﺷ"
+
+msgid "Done"
+msgstr "ﺪﺷ ﻡﺎﺠﻧﺍ"
+
+msgid "Control Panel"
+msgstr "ﻞﻨﭘ ﻝﺮﺘﻨﮐ"

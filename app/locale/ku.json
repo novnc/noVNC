@@ -116,5 +116,14 @@
     "Video Mode Height:": "Bilindahiya Moda Vîdyoyê:",
     "Documentation": "Belgekirin",
     "Drag Viewport": "Portê Dîmenê Kaş bikin",
-    "KasmVNC encountered an error:": "KasmVNC rastî xeletiyek hat:"
+    "KasmVNC encountered an error:": "KasmVNC rastî xeletiyek hat:",
+    "Displays": "Nişan dide",
+    "Enable Threaded Decoding": "Dekodkirina Mijara çalak bike",
+    "Arrange Displays": "Pêşandan rêz bikin",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Kaş bikin û daxin da ku dîmenan birêkûpêk bikin, çavdêrên nû li milê rastê yê çavdêriya berê têne zêdekirin.",
+    "Add Monitor": "Monitor lê zêde bike",
+    "Auto placement": "Cihandina otomatîk",
+    "Identify": "Naskirin",
+    "Done": "Dest kirin",
+    "Control Panel": "Panela Kontrolê"
 }

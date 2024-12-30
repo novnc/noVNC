@@ -352,3 +352,30 @@ msgstr "Seret Area Pandang"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC mengalami kesalahan:"
+
+msgid "Displays"
+msgstr "Menampilkan"
+
+msgid "Enable Threaded Decoding"
+msgstr "Aktifkan Decoding Berulir"
+
+msgid "Arrange Displays"
+msgstr "Atur Tampilan"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Seret dan lepas untuk mengatur tampilan, monitor baru ditambahkan ke sisi kanan monitor sebelumnya."
+
+msgid "Add Monitor"
+msgstr "Tambahkan Monitor"
+
+msgid "Auto placement"
+msgstr "Penempatan otomatis"
+
+msgid "Identify"
+msgstr "Mengenali"
+
+msgid "Done"
+msgstr "Selesai"
+
+msgid "Control Panel"
+msgstr "Panel Kontrol"

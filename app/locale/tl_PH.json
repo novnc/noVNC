@@ -116,5 +116,14 @@
     "Video Mode Height:": "Taas ng Video Mode:",
     "Documentation": "Dokumentasyon",
     "Drag Viewport": "I-drag ang Viewport",
-    "KasmVNC encountered an error:": "Nakaranas ng error ang KasmVNC:"
+    "KasmVNC encountered an error:": "Nakaranas ng error ang KasmVNC:",
+    "Displays": "Mga display",
+    "Enable Threaded Decoding": "I-enable ang Threaded Decoding",
+    "Arrange Displays": "Ayusin ang mga Display",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "I-drag at i-drop upang ayusin ang mga display, ang mga bagong monitor ay idinagdag sa kanang bahagi ng nakaraang monitor.",
+    "Add Monitor": "Magdagdag ng Monitor",
+    "Auto placement": "Auto placement",
+    "Identify": "Kilalanin",
+    "Done": "Tapos na",
+    "Control Panel": "Control Panel"
 }

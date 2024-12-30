@@ -352,3 +352,30 @@ msgstr "Drag Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC දෝෂයක් ඇති විය:"
+
+msgid "Displays"
+msgstr "දර්ශන"
+
+msgid "Enable Threaded Decoding"
+msgstr "නූල් විකේතනය සක්රිය කරන්න"
+
+msgid "Arrange Displays"
+msgstr "දර්ශන සකසන්න"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "දර්ශන සැකසීමට ඇද දමන්න, පෙර මොනිටරයේ දකුණු පැත්තට නව මොනිටර එකතු කරනු ලැබේ."
+
+msgid "Add Monitor"
+msgstr "මොනිටරය එක් කරන්න"
+
+msgid "Auto placement"
+msgstr "ස්වයං ස්ථානගත කිරීම"
+
+msgid "Identify"
+msgstr "හඳුනාගන්න"
+
+msgid "Done"
+msgstr "කරයි"
+
+msgid "Control Panel"
+msgstr "පාලන පුවරුව"

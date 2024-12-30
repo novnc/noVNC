@@ -352,3 +352,30 @@ msgstr "Fa Wiwo"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC pade aṣiṣe kan:"
+
+msgid "Displays"
+msgstr "Awọn ifihan"
+
+msgid "Enable Threaded Decoding"
+msgstr "Jeki Iyipada Iyipada Opopo ṣiṣẹ"
+
+msgid "Arrange Displays"
+msgstr "Ṣeto Awọn ifihan"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Fa ati ju silẹ lati ṣeto awọn ifihan, awọn diigi tuntun ti wa ni afikun si apa ọtun ti atẹle iṣaaju."
+
+msgid "Add Monitor"
+msgstr "Ṣafikun Atẹle"
+
+msgid "Auto placement"
+msgstr "Ipo laifọwọyi"
+
+msgid "Identify"
+msgstr "Ṣe idanimọ"
+
+msgid "Done"
+msgstr "Ti ṣe"
+
+msgid "Control Panel"
+msgstr "Ibi iwaju alabujuto"

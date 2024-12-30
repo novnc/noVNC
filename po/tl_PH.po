@@ -352,3 +352,30 @@ msgstr "I-drag ang Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "Nakaranas ng error ang KasmVNC:"
+
+msgid "Displays"
+msgstr "Mga display"
+
+msgid "Enable Threaded Decoding"
+msgstr "I-enable ang Threaded Decoding"
+
+msgid "Arrange Displays"
+msgstr "Ayusin ang mga Display"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "I-drag at i-drop upang ayusin ang mga display, ang mga bagong monitor ay idinagdag sa kanang bahagi ng nakaraang monitor."
+
+msgid "Add Monitor"
+msgstr "Magdagdag ng Monitor"
+
+msgid "Auto placement"
+msgstr "Auto placement"
+
+msgid "Identify"
+msgstr "Kilalanin"
+
+msgid "Done"
+msgstr "Tapos na"
+
+msgid "Control Panel"
+msgstr "Control Panel"

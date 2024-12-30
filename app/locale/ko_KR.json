@@ -124,5 +124,14 @@
     "Video Mode Height:": "비디오 모드 높이:",
     "Documentation": "선적 서류 비치",
     "Drag Viewport": "드래그 뷰포트",
-    "KasmVNC encountered an error:": "KasmVNC에 오류가 발생했습니다:"
+    "KasmVNC encountered an error:": "KasmVNC에 오류가 발생했습니다:",
+    "Displays": "디스플레이",
+    "Enable Threaded Decoding": "스레드 디코딩 활성화",
+    "Arrange Displays": "디스플레이 정렬",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "드래그 앤 드롭으로 디스플레이를 정렬하면 이전 모니터 오른쪽에 새 모니터가 추가됩니다.",
+    "Add Monitor": "모니터 추가",
+    "Auto placement": "자동 배치",
+    "Identify": "식별하다",
+    "Done": "완료",
+    "Control Panel": "제어판"
 }

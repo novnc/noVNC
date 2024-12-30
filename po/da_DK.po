@@ -352,3 +352,30 @@ msgstr "Træk visningsport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC stødte på en fejl:"
+
+msgid "Displays"
+msgstr "Skærmer"
+
+msgid "Enable Threaded Decoding"
+msgstr "Aktiver gevindafkodning"
+
+msgid "Arrange Displays"
+msgstr "Arranger skærme"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Træk og slip for at arrangere visninger, nye skærme tilføjes til højre på den forrige skærm."
+
+msgid "Add Monitor"
+msgstr "Tilføj skærm"
+
+msgid "Auto placement"
+msgstr "Automatisk placering"
+
+msgid "Identify"
+msgstr "Identificere"
+
+msgid "Done"
+msgstr "Udført"
+
+msgid "Control Panel"
+msgstr "Kontrolpanel"

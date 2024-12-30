@@ -463,3 +463,30 @@ msgstr "Přetáhnout výřez"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC narazil na chybu:"
+
+msgid "Displays"
+msgstr "zobrazuje"
+
+msgid "Enable Threaded Decoding"
+msgstr "Povolit dekódování vláken"
+
+msgid "Arrange Displays"
+msgstr "Uspořádat displeje"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Přetažením uspořádáte zobrazení, nové monitory se přidají na pravou stranu předchozího monitoru."
+
+msgid "Add Monitor"
+msgstr "Přidat monitor"
+
+msgid "Auto placement"
+msgstr "Automatické umístění"
+
+msgid "Identify"
+msgstr "Identifikovat"
+
+msgid "Done"
+msgstr "Hotovo"
+
+msgid "Control Panel"
+msgstr "Ovládací panel"

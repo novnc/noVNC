@@ -352,3 +352,30 @@ msgstr "Nézetablak húzása"
 
 msgid "KasmVNC encountered an error:"
 msgstr "A KasmVNC hibát észlelt:"
+
+msgid "Displays"
+msgstr "Kijelzők"
+
+msgid "Enable Threaded Decoding"
+msgstr "Szanál dekódolás engedélyezése"
+
+msgid "Arrange Displays"
+msgstr "A kijelzők elrendezése"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Drag and drop a kijelzők rendezéséhez, az új monitorok hozzáadódnak az előző monitor jobb oldalához."
+
+msgid "Add Monitor"
+msgstr "Monitor hozzáadása"
+
+msgid "Auto placement"
+msgstr "Automatikus elhelyezés"
+
+msgid "Identify"
+msgstr "Azonosítás"
+
+msgid "Done"
+msgstr "Kész"
+
+msgid "Control Panel"
+msgstr "Vezérlőpult"

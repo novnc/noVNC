@@ -352,3 +352,30 @@ msgstr "Перацягнуць акно прагляду"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC выявіў памылку:"
+
+msgid "Displays"
+msgstr "Дысплеі"
+
+msgid "Enable Threaded Decoding"
+msgstr "Уключыць шматразовае дэкадаванне"
+
+msgid "Arrange Displays"
+msgstr "Упарадкаваць дысплеі"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Перацягніце, каб упарадкаваць дысплеі, новыя маніторы дадаюцца справа ад папярэдняга манітора."
+
+msgid "Add Monitor"
+msgstr "Дадаць манітор"
+
+msgid "Auto placement"
+msgstr "Аўтаматычнае размяшчэнне"
+
+msgid "Identify"
+msgstr "Ідэнтыфікаваць"
+
+msgid "Done"
+msgstr "Гатова"
+
+msgid "Control Panel"
+msgstr "Панэль кіравання"

@@ -470,3 +470,30 @@ msgstr "Arrastrar ventana gráfica"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC encontró un error:"
+
+msgid "Displays"
+msgstr "Pantallas"
+
+msgid "Enable Threaded Decoding"
+msgstr "Habilitar decodificación por subprocesos"
+
+msgid "Arrange Displays"
+msgstr "Organizar pantallas"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Arrastre y suelte para organizar las pantallas; los nuevos monitores se agregan al lado derecho del monitor anterior"
+
+msgid "Add Monitor"
+msgstr "Agregar monitor"
+
+msgid "Auto placement"
+msgstr "Colocación automática"
+
+msgid "Identify"
+msgstr "Identificar"
+
+msgid "Done"
+msgstr "Hecho"
+
+msgid "Control Panel"
+msgstr "Panel de control"

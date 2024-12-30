@@ -116,5 +116,14 @@
     "Video Mode Height:": "Videó mód magassága:",
     "Documentation": "Dokumentáció",
     "Drag Viewport": "Nézetablak húzása",
-    "KasmVNC encountered an error:": "A KasmVNC hibát észlelt:"
+    "KasmVNC encountered an error:": "A KasmVNC hibát észlelt:",
+    "Displays": "Kijelzők",
+    "Enable Threaded Decoding": "Szanál dekódolás engedélyezése",
+    "Arrange Displays": "A kijelzők elrendezése",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Drag and drop a kijelzők rendezéséhez, az új monitorok hozzáadódnak az előző monitor jobb oldalához.",
+    "Add Monitor": "Monitor hozzáadása",
+    "Auto placement": "Automatikus elhelyezés",
+    "Identify": "Azonosítás",
+    "Done": "Kész",
+    "Control Panel": "Vezérlőpult"
 }

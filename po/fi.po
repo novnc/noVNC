@@ -352,3 +352,30 @@ msgstr "Vedä näkymä"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC havaitsi virheen:"
+
+msgid "Displays"
+msgstr "Näytöt"
+
+msgid "Enable Threaded Decoding"
+msgstr "Ota ketjutettu dekoodaus käyttöön"
+
+msgid "Arrange Displays"
+msgstr "Järjestä näytöt"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Järjestä näytöt vetämällä ja pudottamalla, uudet näytöt lisätään edellisen näytön oikealle puolelle."
+
+msgid "Add Monitor"
+msgstr "Lisää näyttö"
+
+msgid "Auto placement"
+msgstr "Automaattinen sijoitus"
+
+msgid "Identify"
+msgstr "Tunnistaa"
+
+msgid "Done"
+msgstr "Tehty"
+
+msgid "Control Panel"
+msgstr "Ohjauspaneeli"

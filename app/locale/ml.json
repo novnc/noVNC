@@ -116,5 +116,14 @@
     "Video Mode Height:": "വീഡിയോ മോഡ് ഉയരം:",
     "Documentation": "പ്രമാണീകരണം",
     "Drag Viewport": "വ്യൂപോർട്ട് വലിച്ചിടുക",
-    "KasmVNC encountered an error:": "KasmVNC ഒരു പിശക് നേരിട്ടു:"
+    "KasmVNC encountered an error:": "KasmVNC ഒരു പിശക് നേരിട്ടു:",
+    "Displays": "പ്രദർശനങ്ങൾ",
+    "Enable Threaded Decoding": "ത്രെഡഡ് ഡീകോഡിംഗ് പ്രവർത്തനക്ഷമമാക്കുക",
+    "Arrange Displays": "പ്രദർശനങ്ങൾ ക്രമീകരിക്കുക",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ഡിസ്u200cപ്ലേകൾ ക്രമീകരിക്കുന്നതിന് വലിച്ചിടുക, മുമ്പത്തെ മോണിറ്ററിൻ്റെ വലതുവശത്ത് പുതിയ മോണിറ്ററുകൾ ചേർത്തിരിക്കുന്നു.",
+    "Add Monitor": "മോണിറ്റർ ചേർക്കുക",
+    "Auto placement": "ഓട്ടോ പ്ലേസ്മെൻ്റ്",
+    "Identify": "തിരിച്ചറിയുക",
+    "Done": "പൂർത്തിയായി",
+    "Control Panel": "നിയന്ത്രണ പാനൽ"
 }

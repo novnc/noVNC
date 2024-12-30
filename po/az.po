@@ -352,3 +352,30 @@ msgstr "Görünüş sahəsini sürükləyin"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC xəta ilə qarşılaşdı:"
+
+msgid "Displays"
+msgstr "Ekranlar"
+
+msgid "Enable Threaded Decoding"
+msgstr "Yivli deşifrəni aktivləşdirin"
+
+msgid "Arrange Displays"
+msgstr "Ekranları təşkil et"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Ekranları tənzimləmək üçün sürükləyin və buraxın, yeni monitorlar əvvəlki monitorun sağ tərəfinə əlavə olunur."
+
+msgid "Add Monitor"
+msgstr "Monitor əlavə et"
+
+msgid "Auto placement"
+msgstr "Avtomatik yerləşdirmə"
+
+msgid "Identify"
+msgstr "müəyyən et"
+
+msgid "Done"
+msgstr "Bitti"
+
+msgid "Control Panel"
+msgstr "İdarə Paneli"

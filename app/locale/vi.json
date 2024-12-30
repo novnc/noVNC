@@ -116,5 +116,14 @@
     "Video Mode Height:": "Chiều cao chế độ video:",
     "Documentation": "Tài liệu",
     "Drag Viewport": "Kéo khung nhìn",
-    "KasmVNC encountered an error:": "KasmVNC gặp lỗi:"
+    "KasmVNC encountered an error:": "KasmVNC gặp lỗi:",
+    "Displays": "Hiển thị",
+    "Enable Threaded Decoding": "Kích hoạt giải mã theo chuỗi",
+    "Arrange Displays": "Sắp xếp hiển thị",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Kéo và thả để sắp xếp màn hình, màn hình mới được thêm vào phía bên phải màn hình trước đó.",
+    "Add Monitor": "Thêm màn hình",
+    "Auto placement": "Vị trí tự động",
+    "Identify": "Nhận dạng",
+    "Done": "Xong",
+    "Control Panel": "Bảng điều khiển"
 }

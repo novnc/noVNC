@@ -352,3 +352,30 @@ msgstr "Drag Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC huet e Feeler begéint:"
+
+msgid "Displays"
+msgstr "Displays"
+
+msgid "Enable Threaded Decoding"
+msgstr "Threaded Decoding aktivéieren"
+
+msgid "Arrange Displays"
+msgstr "Arrange Displays"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Drag and drop fir Affichage ze arrangéieren, nei Monitore ginn op der rietser Säit vum fréiere Monitor bäigefüügt."
+
+msgid "Add Monitor"
+msgstr "Add Monitor"
+
+msgid "Auto placement"
+msgstr "Auto Placement"
+
+msgid "Identify"
+msgstr "Identifikatioun"
+
+msgid "Done"
+msgstr "Gemaach"
+
+msgid "Control Panel"
+msgstr "Kontrollpanel"

@@ -352,3 +352,30 @@ msgstr "Hudula imbobo yokubuka"
 
 msgid "KasmVNC encountered an error:"
 msgstr "I-KasmVNC ihlangabezane nephutha:"
+
+msgid "Displays"
+msgstr "Izibonisi"
+
+msgid "Enable Threaded Decoding"
+msgstr "Vumela ukuqoshwa okunentambo"
+
+msgid "Arrange Displays"
+msgstr "Hlela imibukiso"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Hudula bese udedela ukuze uhlele izibonisi, iziqaphi ezintsha zengezwa kwesokudla semonitha yangaphambilini."
+
+msgid "Add Monitor"
+msgstr "Engeza i-Monitor"
+
+msgid "Auto placement"
+msgstr "Ukubekwa okuzenzakalelayo"
+
+msgid "Identify"
+msgstr "Khomba"
+
+msgid "Done"
+msgstr "Kwenziwe"
+
+msgid "Control Panel"
+msgstr "Iphaneli yokulawula"

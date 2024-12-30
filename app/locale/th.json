@@ -116,5 +116,14 @@
     "Video Mode Height:": "ความสูงของโหมดวิดีโอ:",
     "Documentation": "เอกสาร",
     "Drag Viewport": "ลากวิวพอร์ต",
-    "KasmVNC encountered an error:": "KasmVNC พบข้อผิดพลาด:"
+    "KasmVNC encountered an error:": "KasmVNC พบข้อผิดพลาด:",
+    "Displays": "จอแสดงผล",
+    "Enable Threaded Decoding": "เปิดใช้งานการถอดรหัสเธรด",
+    "Arrange Displays": "จัดวางจอแสดงผล",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ลากและวางเพื่อจัดเรียงจอแสดงผล จอภาพใหม่จะถูกเพิ่มทางด้านขวามือของจอภาพก่อนหน้า",
+    "Add Monitor": "เพิ่มจอภาพ",
+    "Auto placement": "ตำแหน่งอัตโนมัติ",
+    "Identify": "แยกแยะ",
+    "Done": "เสร็จแล้ว",
+    "Control Panel": "แผงควบคุม"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "የቪዲዮ ሁነታ ቁመት:",
     "Documentation": "ሰነድ",
     "Drag Viewport": "መመልከቻ ጎትት",
-    "KasmVNC encountered an error:": "KasmVNC ስህተት አጋጥሞታል::"
+    "KasmVNC encountered an error:": "KasmVNC ስህተት አጋጥሞታል::",
+    "Displays": "ማሳያዎች",
+    "Enable Threaded Decoding": "የተጣራ ኮድ ማውጣትን አንቃ",
+    "Arrange Displays": "ማሳያዎችን አዘጋጅ",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ማሳያዎችን ለማዘጋጀት ይጎትቱ እና ጣል ያድርጉ ፣ አዲስ መከታተያዎች በቀድሞው ማሳያ በቀኝ በኩል ይታከላሉ።",
+    "Add Monitor": "ክትትል አክል",
+    "Auto placement": "ራስ-ሰር አቀማመጥ",
+    "Identify": "መለየት",
+    "Done": "ተከናውኗል",
+    "Control Panel": "የቁጥጥር ፓነል"
 }

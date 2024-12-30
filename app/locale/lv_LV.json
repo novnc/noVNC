@@ -116,5 +116,14 @@
     "Video Mode Height:": "Video režīma augstums:",
     "Documentation": "Dokumentācija",
     "Drag Viewport": "Velciet skata logu",
-    "KasmVNC encountered an error:": "KasmVNC radās kļūda:"
+    "KasmVNC encountered an error:": "KasmVNC radās kļūda:",
+    "Displays": "Displeji",
+    "Enable Threaded Decoding": "Iespējot pavedienu dekodēšanu",
+    "Arrange Displays": "Sakārtot displejus",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Velciet un nometiet, lai sakārtotu displejus, jauni monitori tiek pievienoti iepriekšējā monitora labajā pusē.",
+    "Add Monitor": "Pievienot monitoru",
+    "Auto placement": "Automātiskā izvietošana",
+    "Identify": "Identificēt",
+    "Done": "Gatavs",
+    "Control Panel": "Vadības panelis"
 }

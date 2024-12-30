@@ -116,5 +116,14 @@
     "Video Mode Height:": "Videomodus Hoogte:",
     "Documentation": "Dokumentasie",
     "Drag Viewport": "Sleep Viewport",
-    "KasmVNC encountered an error:": "KasmVNC het 'n fout teëgekom:"
+    "KasmVNC encountered an error:": "KasmVNC het 'n fout teëgekom:",
+    "Displays": "Vertoon",
+    "Enable Threaded Decoding": "Aktiveer draaddekodering",
+    "Arrange Displays": "Reël skerms",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Sleep en los om skerms te rangskik, nuwe monitors word aan die regterkant van die vorige monitor bygevoeg.",
+    "Add Monitor": "Voeg monitor by",
+    "Auto placement": "Outoplasing",
+    "Identify": "Identifiseer",
+    "Done": "Klaar",
+    "Control Panel": "Beheerpaneel"
 }

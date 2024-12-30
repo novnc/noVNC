@@ -352,3 +352,30 @@ msgstr "ভিউপোর্ট টানুন"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC একটি ত্রুটির সম্মুখীন হয়েছে:"
+
+msgid "Displays"
+msgstr "প্রদর্শন করে"
+
+msgid "Enable Threaded Decoding"
+msgstr "থ্রেডেড ডিকোডিং সক্ষম করুন"
+
+msgid "Arrange Displays"
+msgstr "ডিসপ্লে সাজান"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ডিসপ্লে সাজানোর জন্য টেনে আনুন এবং ড্রপ করুন, আগের মনিটরের ডানদিকে নতুন মনিটর যোগ করা হয়েছে।"
+
+msgid "Add Monitor"
+msgstr "মনিটর যোগ করুন"
+
+msgid "Auto placement"
+msgstr "অটো প্লেসমেন্ট"
+
+msgid "Identify"
+msgstr "শনাক্ত করুন"
+
+msgid "Done"
+msgstr "হয়ে গেছে"
+
+msgid "Control Panel"
+msgstr "কন্ট্রোল প্যানেল"

@@ -116,5 +116,14 @@
     "Video Mode Height:": "Videotilan korkeus:",
     "Documentation": "Dokumentointi",
     "Drag Viewport": "Vedä näkymä",
-    "KasmVNC encountered an error:": "KasmVNC havaitsi virheen:"
+    "KasmVNC encountered an error:": "KasmVNC havaitsi virheen:",
+    "Displays": "Näytöt",
+    "Enable Threaded Decoding": "Ota ketjutettu dekoodaus käyttöön",
+    "Arrange Displays": "Järjestä näytöt",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Järjestä näytöt vetämällä ja pudottamalla, uudet näytöt lisätään edellisen näytön oikealle puolelle.",
+    "Add Monitor": "Lisää näyttö",
+    "Auto placement": "Automaattinen sijoitus",
+    "Identify": "Tunnistaa",
+    "Done": "Tehty",
+    "Control Panel": "Ohjauspaneeli"
 }

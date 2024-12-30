@@ -352,3 +352,30 @@ msgstr "Trennen Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC te rankontre yon erè:"
+
+msgid "Displays"
+msgstr "Montre"
+
+msgid "Enable Threaded Decoding"
+msgstr "Pèmèt dekodaj Threaded"
+
+msgid "Arrange Displays"
+msgstr "Aranje ekspozisyon"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Trene ak gout pou fè aranjman pou ekspozisyon, nouvo monitè yo ajoute sou bò dwat la nan monitè anvan an."
+
+msgid "Add Monitor"
+msgstr "Ajoute monitè"
+
+msgid "Auto placement"
+msgstr "Plasman oto"
+
+msgid "Identify"
+msgstr "Idantifye"
+
+msgid "Done"
+msgstr "Fè"
+
+msgid "Control Panel"
+msgstr "Panèl kontwòl"

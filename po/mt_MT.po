@@ -352,3 +352,30 @@ msgstr "Dragg Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC iltaqa' ma' żball:"
+
+msgid "Displays"
+msgstr "Displays"
+
+msgid "Enable Threaded Decoding"
+msgstr "Ippermetti Dekodifikazzjoni bil-kamin"
+
+msgid "Arrange Displays"
+msgstr "Irranġa Displays"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Drag and drop biex tirranġa wirjiet, monitors ġodda huma miżjuda man-naħa tal-lemin tal-monitor preċedenti."
+
+msgid "Add Monitor"
+msgstr "Żid Monitor"
+
+msgid "Auto placement"
+msgstr "Tqegħid awtomatiku"
+
+msgid "Identify"
+msgstr "Identifika"
+
+msgid "Done"
+msgstr "Magħmul"
+
+msgid "Control Panel"
+msgstr "Panew tal-Kontroll"

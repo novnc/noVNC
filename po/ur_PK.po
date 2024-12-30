@@ -352,3 +352,30 @@ msgstr "ﭦﺭﻮﭘ ﻮﯾﻭ ﮓﯾﺭﮈ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:"
+
+msgid "Displays"
+msgstr "ﮯﻠﭙﺳﮈ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ﮟﯾﺮﮐ ﻝﺎﻌﻓ ﻮﮐ ﮓﻧﮈﻮﮑﯾﮈ ﮈﮉﯾﺮﮭﺗ"
+
+msgid "Arrange Displays"
+msgstr "ﮟﯾﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮯﻠﭙﺳﮈ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "۔ﮟﯿﮨ ﮯﺌﮔ ﮯﯿﮐ ﻞﻣﺎﺷ ﺮﭩﯿﻧﺎﻣ ﮯﺌﻧ ﮟﯿﻣ ﮫﺗﺎﮨ ﮟﯿﺋﺍﺩ ﮯﮐ ﺮﭩﯿﻧﺎﻣ ﮯﻠﮭﭽﭘ ،ﮟﯾﺮﮐ ﭖﺍﺭﮈ ﮉﻨﯾﺍ ﮓﯾﺭﮈ ﮯﯿﻟ ﮯﮐ ﮯﻨﯾﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮯﻠﭙﺳﮈ"
+
+msgid "Add Monitor"
+msgstr "ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﺮﭩﯿﻧﺎﻣ"
+
+msgid "Auto placement"
+msgstr "ﭧﻨﻤﺴﯿﻠﭘ ﻮﭨﺁ"
+
+msgid "Identify"
+msgstr "ﺖﺧﺎﻨﺷ"
+
+msgid "Done"
+msgstr "ﺎﯿﮔ ﻮﮨ"
+
+msgid "Control Panel"
+msgstr "ﻞﻨﯿﭘ ﻝﻭﺮﭩﻨﮐ"

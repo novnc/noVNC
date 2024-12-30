@@ -116,5 +116,14 @@
     "Video Mode Height:": "Hæð myndbandshams:",
     "Documentation": "Skjölun",
     "Drag Viewport": "Dragðu útsýnisgátt",
-    "KasmVNC encountered an error:": "KasmVNC rakst á villu:"
+    "KasmVNC encountered an error:": "KasmVNC rakst á villu:",
+    "Displays": "Skjáir",
+    "Enable Threaded Decoding": "Virkja snittari afkóðun",
+    "Arrange Displays": "Raða skjánum",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Dragðu og slepptu til að raða skjáum, nýjum skjám er bætt við hægra megin á fyrri skjá.",
+    "Add Monitor": "Bæta við skjá",
+    "Auto placement": "Sjálfvirk staðsetning",
+    "Identify": "Auðkenna",
+    "Done": "Lokið",
+    "Control Panel": "Stjórnborð"
 }

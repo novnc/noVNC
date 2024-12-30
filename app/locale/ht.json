@@ -116,5 +116,14 @@
     "Video Mode Height:": "Watè mòd videyo:",
     "Documentation": "Dokimantasyon",
     "Drag Viewport": "Trennen Viewport",
-    "KasmVNC encountered an error:": "KasmVNC te rankontre yon erè:"
+    "KasmVNC encountered an error:": "KasmVNC te rankontre yon erè:",
+    "Displays": "Montre",
+    "Enable Threaded Decoding": "Pèmèt dekodaj Threaded",
+    "Arrange Displays": "Aranje ekspozisyon",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Trene ak gout pou fè aranjman pou ekspozisyon, nouvo monitè yo ajoute sou bò dwat la nan monitè anvan an.",
+    "Add Monitor": "Ajoute monitè",
+    "Auto placement": "Plasman oto",
+    "Identify": "Idantifye",
+    "Done": "Fè",
+    "Control Panel": "Panèl kontwòl"
 }

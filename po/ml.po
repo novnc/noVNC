@@ -352,3 +352,30 @@ msgstr "വ്യൂപോർട്ട് വലിച്ചിടുക"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ഒരു പിശക് നേരിട്ടു:"
+
+msgid "Displays"
+msgstr "പ്രദർശനങ്ങൾ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ത്രെഡഡ് ഡീകോഡിംഗ് പ്രവർത്തനക്ഷമമാക്കുക"
+
+msgid "Arrange Displays"
+msgstr "പ്രദർശനങ്ങൾ ക്രമീകരിക്കുക"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ഡിസ്u200cപ്ലേകൾ ക്രമീകരിക്കുന്നതിന് വലിച്ചിടുക, മുമ്പത്തെ മോണിറ്ററിൻ്റെ വലതുവശത്ത് പുതിയ മോണിറ്ററുകൾ ചേർത്തിരിക്കുന്നു."
+
+msgid "Add Monitor"
+msgstr "മോണിറ്റർ ചേർക്കുക"
+
+msgid "Auto placement"
+msgstr "ഓട്ടോ പ്ലേസ്മെൻ്റ്"
+
+msgid "Identify"
+msgstr "തിരിച്ചറിയുക"
+
+msgid "Done"
+msgstr "പൂർത്തിയായി"
+
+msgid "Control Panel"
+msgstr "നിയന്ത്രണ പാനൽ"

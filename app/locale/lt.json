@@ -116,5 +116,14 @@
     "Video Mode Height:": "Vaizdo režimo aukštis:",
     "Documentation": "Dokumentacija",
     "Drag Viewport": "Drag Viewport",
-    "KasmVNC encountered an error:": "KasmVNC susidūrė su klaida:"
+    "KasmVNC encountered an error:": "KasmVNC susidūrė su klaida:",
+    "Displays": "Ekranai",
+    "Enable Threaded Decoding": "Įgalinti gijų dekodavimą",
+    "Arrange Displays": "Išdėstyti ekranus",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Vilkite ir numeskite, kad sutvarkytumėte ekranus, nauji monitoriai pridedami dešinėje ankstesnio monitoriaus pusėje.",
+    "Add Monitor": "Pridėti monitorių",
+    "Auto placement": "Automatinis išdėstymas",
+    "Identify": "Identifikuoti",
+    "Done": "Atlikta",
+    "Control Panel": "Valdymo skydas"
 }

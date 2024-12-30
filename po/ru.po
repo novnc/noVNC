@@ -469,3 +469,30 @@ msgstr "Перетаскивание видового экрана"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC обнаружил ошибку:"
+
+msgid "Displays"
+msgstr "Дисплеи"
+
+msgid "Enable Threaded Decoding"
+msgstr "Включить потоковое декодирование"
+
+msgid "Arrange Displays"
+msgstr "Расставить витрины"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Перетащите, чтобы упорядочить дисплеи, новые мониторы добавляются справа от предыдущего монитора."
+
+msgid "Add Monitor"
+msgstr "Добавить монитор"
+
+msgid "Auto placement"
+msgstr "Авто размещение"
+
+msgid "Identify"
+msgstr "Идентифицировать"
+
+msgid "Done"
+msgstr "Сделанный"
+
+msgid "Control Panel"
+msgstr "Панель управления"

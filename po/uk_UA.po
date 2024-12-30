@@ -352,3 +352,30 @@ msgstr "Перетягнути вікно перегляду"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC виявив помилку:"
+
+msgid "Displays"
+msgstr "Дисплеї"
+
+msgid "Enable Threaded Decoding"
+msgstr "Увімкнути потокове декодування"
+
+msgid "Arrange Displays"
+msgstr "Упорядкувати дисплеї"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Перетягніть, щоб упорядкувати дисплеї, нові монітори додаються праворуч від попереднього монітора."
+
+msgid "Add Monitor"
+msgstr "Додати монітор"
+
+msgid "Auto placement"
+msgstr "Авторозміщення"
+
+msgid "Identify"
+msgstr "Ідентифікувати"
+
+msgid "Done"
+msgstr "Готово"
+
+msgid "Control Panel"
+msgstr "Панель керування"

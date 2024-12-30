@@ -352,3 +352,30 @@ msgstr "Arrastrar a xanela"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC atopou un erro:"
+
+msgid "Displays"
+msgstr "Pantallas"
+
+msgid "Enable Threaded Decoding"
+msgstr "Activar a decodificación por fíos"
+
+msgid "Arrange Displays"
+msgstr "Organizar pantallas"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Arrastra e solta para organizar as pantallas, engádense novos monitores ao lado dereito do monitor anterior"
+
+msgid "Add Monitor"
+msgstr "Engadir monitor"
+
+msgid "Auto placement"
+msgstr "Colocación automática"
+
+msgid "Identify"
+msgstr "Identificar"
+
+msgid "Done"
+msgstr "Feito"
+
+msgid "Control Panel"
+msgstr "Panel de control"

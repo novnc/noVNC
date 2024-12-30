@@ -116,5 +116,14 @@
     "Video Mode Height:": "Висина на режимот на видео:",
     "Documentation": "Документација",
     "Drag Viewport": "Повлечете го погледот",
-    "KasmVNC encountered an error:": "KasmVNC наиде на грешка:"
+    "KasmVNC encountered an error:": "KasmVNC наиде на грешка:",
+    "Displays": "Прикажи",
+    "Enable Threaded Decoding": "Овозможи декодирање со нишки",
+    "Arrange Displays": "Подредете ги приказите",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Повлечете и спуштете за да ги распоредите приказите, нови монитори се додаваат на десната страна на претходниот монитор.",
+    "Add Monitor": "Додај монитор",
+    "Auto placement": "Автоматско поставување",
+    "Identify": "Идентификувајте",
+    "Done": "Готово",
+    "Control Panel": "Контролен панел"
 }

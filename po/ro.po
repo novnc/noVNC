@@ -352,3 +352,30 @@ msgstr "Trasați fereastra de vizualizare"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC a întâmpinat o eroare:"
+
+msgid "Displays"
+msgstr "Afișări"
+
+msgid "Enable Threaded Decoding"
+msgstr "Activați decodarea threaded"
+
+msgid "Arrange Displays"
+msgstr "Aranjați afișajele"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Trasați și plasați pentru a aranja afișajele, monitoare noi sunt adăugate în partea dreaptă a monitorului anterior."
+
+msgid "Add Monitor"
+msgstr "Adăugați monitor"
+
+msgid "Auto placement"
+msgstr "Plasare automată"
+
+msgid "Identify"
+msgstr "Identifica"
+
+msgid "Done"
+msgstr "Făcut"
+
+msgid "Control Panel"
+msgstr "Panou de control"

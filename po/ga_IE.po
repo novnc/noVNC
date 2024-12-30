@@ -352,3 +352,30 @@ msgstr "Tarraing Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "Tharla earráid i KasmVNC:"
+
+msgid "Displays"
+msgstr "Taispeánann"
+
+msgid "Enable Threaded Decoding"
+msgstr "Cumasaigh Díchódú Snáithithe"
+
+msgid "Arrange Displays"
+msgstr "Socraigh taispeántais"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "msgstr "Tarraing agus scaoil chun taispeántais a shocrú, cuirtear monatóirí nua leis an taobh deas den mhonatóir roimhe seo."
+
+msgid "Add Monitor"
+msgstr "Cuir Monatóir Leis"
+
+msgid "Auto placement"
+msgstr "Suíomh uathoibríoch"
+
+msgid "Identify"
+msgstr "Aithnigh"
+
+msgid "Done"
+msgstr "Déanta"
+
+msgid "Control Panel"
+msgstr "Painéal Rialúcháin"

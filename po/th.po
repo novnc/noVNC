@@ -352,3 +352,30 @@ msgstr "ลากวิวพอร์ต"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC พบข้อผิดพลาด:"
+
+msgid "Displays"
+msgstr "จอแสดงผล"
+
+msgid "Enable Threaded Decoding"
+msgstr "เปิดใช้งานการถอดรหัสเธรด"
+
+msgid "Arrange Displays"
+msgstr "จัดวางจอแสดงผล"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ลากและวางเพื่อจัดเรียงจอแสดงผล จอภาพใหม่จะถูกเพิ่มทางด้านขวามือของจอภาพก่อนหน้า"
+
+msgid "Add Monitor"
+msgstr "เพิ่มจอภาพ"
+
+msgid "Auto placement"
+msgstr "ตำแหน่งอัตโนมัติ"
+
+msgid "Identify"
+msgstr "แยกแยะ"
+
+msgid "Done"
+msgstr "เสร็จแล้ว"
+
+msgid "Control Panel"
+msgstr "แผงควบคุม"

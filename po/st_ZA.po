@@ -352,3 +352,30 @@ msgstr "Hula Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC e fumane phoso:"
+
+msgid "Displays"
+msgstr "Lipontšo"
+
+msgid "Enable Threaded Decoding"
+msgstr "Enable Threaded Decoding"
+
+msgid "Arrange Displays"
+msgstr "Lokisa Lipontšo"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Hula le ho theola ho hlophisa lipontšo, li-monitor tse ncha li eketsoa ka letsohong le letona la mochine o fetileng."
+
+msgid "Add Monitor"
+msgstr "Eketsa Monitor"
+
+msgid "Auto placement"
+msgstr "Ho beha koloi"
+
+msgid "Identify"
+msgstr "Itseba"
+
+msgid "Done"
+msgstr "Ke qetile"
+
+msgid "Control Panel"
+msgstr "Lekhotla la taolo"

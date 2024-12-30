@@ -352,3 +352,30 @@ msgstr "טבמ תדוקנ רורג"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC האיגשב לקתנ:"
+
+msgid "Displays"
+msgstr "תוגוצת"
+
+msgid "Enable Threaded Decoding"
+msgstr "רושרש חונעפ רשפא"
+
+msgid "Arrange Displays"
+msgstr "תוגוצת רדס"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "םדוקה גצה לש ןימי דצב םיפסוותמ םישדח םיגצ ,תוגוצת רדסל ידכ ררחשו רורג"
+
+msgid "Add Monitor"
+msgstr "גצ ףסוה"
+
+msgid "Auto placement"
+msgstr "יטמוטוא םוקימ"
+
+msgid "Identify"
+msgstr "תוֹהזַלְ"
+
+msgid "Done"
+msgstr "השָׂעֲנַ"
+
+msgid "Control Panel"
+msgstr "הרָקָבַּ חַוּל"

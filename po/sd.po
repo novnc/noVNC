@@ -352,3 +352,30 @@ msgstr "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻳڏﮀ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:"
+
+msgid "Displays"
+msgstr "ﻮﭤ ﻲﺋﺎﺳڏ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ﮓﻧڊﻮڪﻳڊ ڊڊﻴٽ"
+
+msgid "Arrange Displays"
+msgstr "ﻮﻳڏ ﺐﻴﺗﺮﺗ ﻲﮐ ﺰﻴﻠﭙﺳڊ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ﺮٽﻴﻧﺎﻣ ﻦﻴﺌﮘﺍ ﻥﺎﮐ ﻲﺳﺎﭘ ﻱﺭﺍﻭ ﭣﮬ ﻲﭴﺎﺳ ﻦﮬﺁ ﺎﻳﻭ ﺎﻴڪ ﻞﻣﺎﺷ ﺮٽﻴﻧﺎﻣ ﻥﺍﻮﻧ ،ﻮﻳڏ ﻱڏﮀ ۽ ﻮﻴڪﮀ ءﻻ﻿ ﮡﻳڏ ﺐﻴﺗﺮﺗ ﻲﮐ ﻲﻠﭙﺳڊ"
+
+msgid "Add Monitor"
+msgstr "ﻮﻳﺮڪ ﻞﻣﺎﺷ ﺮٽﻴﻧﺎﻣ"
+
+msgid "Auto placement"
+msgstr "ﮡﺋﺎﮙﻟ ﺭﺎڪﺩﻮﺧ"
+
+msgid "Identify"
+msgstr "ﮡﮢﺎﭹﺳ"
+
+msgid "Done"
+msgstr "ﻮﻳﻭ ﻲﭤ"
+
+msgid "Control Panel"
+msgstr "ﻞﻨﻴﭘ ﻝﻭﺮٽﻨڪ"

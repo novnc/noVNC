@@ -124,5 +124,14 @@
     "Video Mode Height:": "Высота режима видео:",
     "Documentation": "Документация",
     "Drag Viewport": "Перетаскивание видового экрана",
-    "KasmVNC encountered an error:": "KasmVNC обнаружил ошибку:"
+    "KasmVNC encountered an error:": "KasmVNC обнаружил ошибку:",
+    "Displays": "Дисплеи",
+    "Enable Threaded Decoding": "Включить потоковое декодирование",
+    "Arrange Displays": "Расставить витрины",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Перетащите, чтобы упорядочить дисплеи, новые мониторы добавляются справа от предыдущего монитора.",
+    "Add Monitor": "Добавить монитор",
+    "Auto placement": "Авто размещение",
+    "Identify": "Идентифицировать",
+    "Done": "Сделанный",
+    "Control Panel": "Панель управления"
 }

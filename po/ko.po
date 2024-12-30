@@ -462,3 +462,30 @@ msgstr "드래그 뷰포트"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC에 오류가 발생했습니다:"
+
+msgid "Displays"
+msgstr "디스플레이"
+
+msgid "Enable Threaded Decoding"
+msgstr "스레드 디코딩 활성화"
+
+msgid "Arrange Displays"
+msgstr "디스플레이 정렬"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "드래그 앤 드롭으로 디스플레이를 정렬하면 이전 모니터 오른쪽에 새 모니터가 추가됩니다."
+
+msgid "Add Monitor"
+msgstr "모니터 추가"
+
+msgid "Auto placement"
+msgstr "자동 배치"
+
+msgid "Identify"
+msgstr "식별하다"
+
+msgid "Done"
+msgstr "완료"
+
+msgid "Control Panel"
+msgstr "제어판"

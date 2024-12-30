@@ -116,5 +116,14 @@
     "Video Mode Height:": "Videolägeshöjd:",
     "Documentation": "Dokumentation",
     "Drag Viewport": "Dra Viewport",
-    "KasmVNC encountered an error:": "KasmVNC stötte på ett fel:"
+    "KasmVNC encountered an error:": "KasmVNC stötte på ett fel:",
+    "Displays": "Skärmar",
+    "Enable Threaded Decoding": "Aktivera trådad avkodning",
+    "Arrange Displays": "Arrangera skärmar",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Dra och släpp för att ordna visningar, nya bildskärmar läggs till på höger sida av den föregående bildskärmen.",
+    "Add Monitor": "Lägg till bildskärm",
+    "Auto placement": "Automatisk placering",
+    "Identify": "Identifiera",
+    "Done": "Gjort",
+    "Control Panel": "Kontrollpanelen"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "ﻮﺋﺪﯾﻭ ﺖﻟﺎﺣ ﻉﺎﻔﺗﺭﺍ",
     "Documentation": "ﺕﺍﺪﻨﺘﺴﻣ",
     "Drag Viewport": "ﺕﺭﻮﭙﯾﺎﻤﻧ ﮒﺭﺩ",
-    "KasmVNC encountered an error:": "KasmVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:"
+    "KasmVNC encountered an error:": "KasmVNC ﺪﺷ ﻪﺟﺍﻮﻣ ﺎﻄﺧ ﮏﯾ ﺎﺑ:",
+    "Displays": "ﺶﯾﺎﻤﻧ",
+    "Enable Threaded Decoding": "ﯼﺍ ﻪﺘﺷﺭ ﯽﯾﺎﺸﮔﺰﻣﺭ ﻥﺩﺮﮐ ﻝﺎﻌﻓ",
+    "Arrange Displays": " ﺎﻫ ﺶﯾﺎﻤﻧ ﺐﯿﺗﺮﺗ ",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ﺪﻧﻮﺷ ﯽﻣ ﻪﻓﺎﺿﺍ ﯽﻠﺒﻗ ﺭﻮﺘﯿﻧﺎﻣ ﺖﺳﺍﺭ ﺖﻤﺳ ﻪﺑ ﺪﯾﺪﺟ ﯼﺎﻫﺭﻮﺘﯿﻧﺎﻣ ،ﺪﯿﻨﮐ ﺎﻫﺭ ﻭ ﺪﯿﺸﮑﺑ ﺎﻫﺮﮕﺸﯾﺎﻤﻧ ﻥﺩﺮﮐ ﺐﺗﺮﻣ ﯼﺍﺮﺑ",
+    "Add Monitor": "ﺭﻮﺘﯿﻧﺎﻣ ﻥﺩﻭﺰﻓﺍ",
+    "Auto placement": "ﺭﺎﮐﺩﻮﺧ ﯼﺮﯿﮔﺭﺍﺮﻗ",
+    "Identify": "ﯽﯾﺎﺳﺎﻨﺷ",
+    "Done": "ﺪﺷ ﻡﺎﺠﻧﺍ",
+    "Control Panel": "ﻞﻨﭘ ﻝﺮﺘﻨﮐ"
 }

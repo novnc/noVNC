@@ -116,5 +116,14 @@
     "Video Mode Height:": "Бейне режимінің биіктігі:",
     "Documentation": "Құжаттама",
     "Drag Viewport": "Көру алаңын сүйреу",
-    "KasmVNC encountered an error:": "KasmVNC қатеге тап болды:"
+    "KasmVNC encountered an error:": "KasmVNC қатеге тап болды:",
+    "Displays": "Дисплейлер",
+    "Enable Threaded Decoding": "Ағынды декодтауды қосу",
+    "Arrange Displays": "Дисплейлерді реттеу",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Дисплейлерді реттеу үшін сүйреп апарыңыз, жаңа мониторлар алдыңғы монитордың оң жағына қосылады.",
+    "Add Monitor": "Монитор қосу",
+    "Auto placement": "Автоматты орналастыру",
+    "Identify": "Анықтау",
+    "Done": "Дайын",
+    "Control Panel": "Басқару тақтасы"
 }

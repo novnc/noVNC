@@ -116,5 +116,14 @@
     "Video Mode Height:": "「ビデオモードの高さ:」",
     "Documentation": "ドキュメンテーション",
     "Drag Viewport": "「ビューポートをドラッグ」",
-    "KasmVNC encountered an error:": "「KasmVNC でエラーが発生しました:」"
+    "KasmVNC encountered an error:": "「KasmVNC でエラーが発生しました:」",
+    "Displays": "「ディスプレイ」",
+    "Enable Threaded Decoding": "「スレッドデコードを有効にする」",
+    "Arrange Displays": "「ディスプレイを整理する」",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "「ドラッグ アンド ドロップでディスプレイを配置すると、前のモニターの右側に新しいモニターが追加されます。」",
+    "Add Monitor": "「モニターの追加」",
+    "Auto placement": "「自動配置」",
+    "Identify": "識別する",
+    "Done": "終わり",
+    "Control Panel": "コントロールパネル"
 }

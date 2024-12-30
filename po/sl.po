@@ -352,3 +352,30 @@ msgstr "Povlecite vidno polje"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC je naletel na napako:"
+
+msgid "Displays"
+msgstr "Zasloni"
+
+msgid "Enable Threaded Decoding"
+msgstr "Omogoči navojno dekodiranje"
+
+msgid "Arrange Displays"
+msgstr "Razporedi zaslone"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Povleci in spusti za razporeditev zaslonov, novi monitorji se dodajo na desno stran prejšnjega monitorja."
+
+msgid "Add Monitor"
+msgstr "Dodaj monitor"
+
+msgid "Auto placement"
+msgstr "Samodejna umestitev"
+
+msgid "Identify"
+msgstr "Identificirati"
+
+msgid "Done"
+msgstr "Končano"
+
+msgid "Control Panel"
+msgstr "Nadzorna plošča"

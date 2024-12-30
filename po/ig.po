@@ -352,3 +352,30 @@ msgstr "Dọrọ nlegharị anya"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC zutere mperi:"
+
+msgid "Displays"
+msgstr "Ihe ngosi"
+
+msgid "Enable Threaded Decoding"
+msgstr "Kwado ngbanwe nke eriri"
+
+msgid "Arrange Displays"
+msgstr "Hazie ihe ngosi"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Dọrọ na dobe iji hazie ihe ngosi, a na-agbakwunye ndị nlekota ọhụrụ n'akụkụ aka nri nke nyocha gara aga."
+
+msgid "Add Monitor"
+msgstr "Tinye nlekota oru"
+
+msgid "Auto placement"
+msgstr "Ndokwa akpaaka"
+
+msgid "Identify"
+msgstr " mara"
+
+msgid "Done"
+msgstr "Emela"
+
+msgid "Control Panel"
+msgstr "Ogwe njikwa"
