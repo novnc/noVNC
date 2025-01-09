@@ -686,9 +686,9 @@ describe('Remote Frame Buffer protocol client', function () {
                 client._handleMouseButton(13, 9, 0x001);
                 client._handleMouseButton(13, 9, 0x000);
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+            });
 
-                RFB.messages.pointerEvent.resetHistory();
-
+            it('should send button messages when release with small movement', function () {
                 // Small movement
                 client._handleMouseButton(13, 9, 0x001);
                 client._handleMouseMove(15, 14);
