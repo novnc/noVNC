@@ -3851,7 +3851,7 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         describe('Wheel events', function () {
-            function sendWheelEvent(x, y, dx, dy, mode=0) {
+            function sendWheelEvent(x, y, dx, dy, mode=0, buttons=0) {
                 let pos = elementToClient(x, y, client);
                 let ev;
 
@@ -3862,7 +3862,8 @@ describe('Remote Frame Buffer protocol client', function () {
                                       'clientY': pos.y,
                                       'deltaX': dx,
                                       'deltaY': dy,
-                                      'deltaMode': mode });
+                                      'deltaMode': mode,
+                                      'buttons': buttons });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -3958,6 +3959,21 @@ describe('Remote Frame Buffer protocol client', function () {
                 expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
                                                                         10, 10, 0);
             });
+
+            it('should handle wheel event with buttons pressed', function () {
+                sendMouseButtonEvent(10, 10, true, 0x1, client);
+                sendWheelEvent(10, 10, 0, 50, 0, 0x1);
+
+                expect(pointerEvent).to.have.been.called.calledThrice;
+
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x1);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0x11);
+                expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x1);
+            });
+
         });
 
         describe('Keyboard events', function () {
