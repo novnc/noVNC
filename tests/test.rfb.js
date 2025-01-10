@@ -690,6 +690,10 @@ describe('Remote Frame Buffer protocol client', function () {
                 sendMouseButtonEvent(13, 9, false, 0, client);
 
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x1);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     13, 9, 0x0);
             });
 
             it('should send button messages when release with small movement', function () {
@@ -699,6 +703,10 @@ describe('Remote Frame Buffer protocol client', function () {
                 sendMouseButtonEvent(15, 14, false, 0, client);
 
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    15, 14, 0x1);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     15, 14, 0x0);
             });
 
             it('should not send button messages when in view only', function () {
@@ -714,6 +722,8 @@ describe('Remote Frame Buffer protocol client', function () {
                 client.dragViewport = false;
                 sendMouseButtonEvent(13, 9, true, 0, client);
                 expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x1);
             });
 
             it('should be initiate viewport dragging on sufficient movement', function () {
