@@ -1,0 +1,21 @@
+/*
+ * noVNC general CSS constant variables
+ * Copyright (C) 2025 The noVNC authors
+ * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+ * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+ */
+
+/* ---------- COLORS ----------- */
+
+:root {
+    --novnc-grey: rgb(128, 128, 128);
+    --novnc-lightgrey: rgb(192, 192, 192);
+    --novnc-darkgrey: rgb(92, 92, 92);
+
+    --novnc-blue: rgb(110, 132, 163);
+    --novnc-lightblue: rgb(74, 144, 217);
+    --novnc-darkblue: rgb(83, 99, 122);
+
+    --novnc-green: rgb(0, 128, 0);
+    --novnc-yellow: rgb(255, 255, 0);
+}

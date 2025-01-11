@@ -53,7 +53,7 @@ html {
 }
 
 .noVNC_disabled {
-    color: rgb(128, 128, 128);
+    color: var(--novnc-grey);
 }
 
 /* ----------------------------------------
@@ -241,7 +241,7 @@ html {
 
     transition: 0.5s ease-in-out;
 
-    background-color: rgb(110, 132, 163);
+    background-color: var(--novnc-blue);
     border-radius: 0 10px 10px 0;
 
     user-select: none;
@@ -286,7 +286,7 @@ html {
     z-index: -1;
     cursor: pointer;
     border-radius: 5px;
-    background-color: rgb(83, 99, 122);
+    background-color: var(--novnc-darkblue);
     background-image: url("../images/handle_bg.svg");
     background-repeat: no-repeat;
     background-position: right;
@@ -371,7 +371,7 @@ html {
     opacity: 0;
     transition: 0.2s ease-in-out;
     background: transparent;
-    box-shadow: 0 0 10px black, inset 0 0 10px 10px rgba(110, 132, 163, 0.8);
+    box-shadow: 0 0 10px black, inset 0 0 10px 10px var(--novnc-darkblue);
     border-radius: 10px;
     transition-delay: 0s;
 }
@@ -478,7 +478,7 @@ html {
 
 .noVNC_panel hr {
     border: none;
-    border-top: 1px solid rgb(192, 192, 192);
+    border-top: 1px solid var(--novnc-lightgrey);
 }
 
 .noVNC_panel label {
@@ -499,7 +499,7 @@ html {
 }
 
 .noVNC_panel .noVNC_heading {
-    background-color: rgb(110, 132, 163);
+    background-color: var(--novnc-blue);
     border-radius: 5px;
     padding: 5px;
     /* Compensate for padding in image */
@@ -577,7 +577,7 @@ html {
 }
 
 #noVNC_modifiers {
-    background-color: rgb(92, 92, 92);
+    background-color: var(--novnc-darkgrey);
     border: none;
     padding: 10px;
 }
@@ -745,7 +745,7 @@ html {
 #noVNC_connect_dlg div {
     padding: 12px;
 
-    background-color: rgb(110, 132, 163);
+    background-color: var(--novnc-blue);
     border-radius: 12px;
     text-align: center;
     font-size: 20px;
@@ -758,17 +758,17 @@ html {
 
     cursor: pointer;
 
-    border-color: rgb(83, 99, 122);
+    border-color: var(--novnc-darkblue);
     border-radius: 5px;
 
-    background: linear-gradient(to top, rgb(110, 132, 163), rgb(99, 119, 147));
+    background: linear-gradient(to top, var(--novnc-blue), rgb(99, 119, 147));
     color: white;
 
     /* This avoids it jumping around when :active */
     vertical-align: middle;
 }
 #noVNC_connect_button:hover {
-    background: linear-gradient(to top, rgb(110, 132, 163), rgb(105, 125, 155));
+    background: linear-gradient(to top, var(--novnc-blue), rgb(105, 125, 155));
 }
 
 #noVNC_connect_button img {
@@ -892,13 +892,13 @@ html {
 }
 
 .noVNC_logo {
-    color:yellow;
+    color: var(--novnc-yellow);
     font-family: 'Orbitron', 'OrbitronTTF', sans-serif;
     line-height: 0.9;
     text-shadow: 0.1em 0.1em 0 black;
 }
 .noVNC_logo span{
-    color:green;
+    color: var(--novnc-green);
 }
 
 #noVNC_bell {

@@ -21,7 +21,7 @@ input, input::file-selector-button, button, select, textarea {
     background: none;
 
     padding: 0.5em var(--input-xpadding);
-    border: 1px solid rgb(192, 192, 192);
+    border: 1px solid var(--novnc-lightgrey);
     border-radius: 5px;
     color: black;
     --bg-gradient: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
@@ -101,8 +101,8 @@ input[type=checkbox] {
     transition: 0.2s background-color linear;
 }
 input[type=checkbox]:checked {
-    background-color: rgb(110, 132, 163);
-    border-color: rgb(110, 132, 163);
+    background-color: var(--novnc-blue);
+    border-color: var(--novnc-blue);
 }
 input[type=checkbox]:checked::after {
     content: "";
@@ -127,7 +127,7 @@ input[type=radio] {
     transition: 0.2s border linear;
 }
 input[type=radio]:checked {
-    border: 6px solid rgb(110, 132, 163);
+    border: 6px solid var(--novnc-blue);
 }
 
 /*
@@ -143,12 +143,12 @@ input[type=range] {
 /* -webkit-slider.. & -moz-range.. cant be in selector lists:
    https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
 input[type=range]::-webkit-slider-runnable-track {
-    background-color: rgb(110, 132, 163);
+    background-color: var(--novnc-blue);
     height: 6px;
     border-radius: 3px;
 }
 input[type=range]::-moz-range-track {
-    background-color: rgb(110, 132, 163);
+    background-color: var(--novnc-blue);
     height: 6px;
     border-radius: 3px;
 }
@@ -239,7 +239,7 @@ input:focus-visible::file-selector-button,
 button:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-    outline: 2px solid rgb(74, 144, 217);
+    outline: 2px solid var(--novnc-lightblue);
     outline-offset: 1px;
 }
 input[type=file]:focus-visible {
