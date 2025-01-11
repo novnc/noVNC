@@ -1,6 +1,6 @@
 /*
  * noVNC general input element CSS
- * Copyright (C) 2022 The noVNC authors
+ * Copyright (C) 2025 The noVNC authors
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -8,6 +8,10 @@
 /*
  * Common for all inputs
  */
+:root {
+    --input-xpadding: 1em;
+}
+
 input, input::file-selector-button, button, select, textarea {
     /* Respect standard font settings */
     font: inherit;
@@ -16,7 +20,7 @@ input, input::file-selector-button, button, select, textarea {
     appearance: none;
     background: none;
 
-    padding: 5px;
+    padding: 0.5em var(--input-xpadding);
     border: 1px solid rgb(192, 192, 192);
     border-radius: 5px;
     color: black;
@@ -41,9 +45,6 @@ select {
     vertical-align: middle;
     margin-top: 0;
 
-    padding-left: 20px;
-    padding-right: 20px;
-
     /* Disable Chrome's touch tap highlight */
     -webkit-tap-highlight-color: transparent;
 }
@@ -60,10 +61,9 @@ select {
                   stroke-linecap="round" stroke-linejoin="round" /> \
         </svg>');
     background-image: var(--select-arrow), var(--bg-gradient);
-    background-position: calc(100% - 7px), left top;
+    background-position: calc(100% - var(--input-xpadding)), left top, left top;
     background-repeat: no-repeat;
-    padding-right: calc(2*7px + 8px);
-    padding-left: 7px;
+    padding-right: calc(2*var(--input-xpadding) + 8px);
 }
 /* FIXME: :active isn't set when the <select> is opened in Firefox:
           https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
