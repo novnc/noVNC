@@ -491,6 +491,13 @@ html {
     margin: 5px;
 }
 
+.noVNC_panel label > button,
+.noVNC_panel label > select,
+.noVNC_panel label > textarea,
+.noVNC_panel label > input:not([type=checkbox]):not([type=radio]) {
+    margin-left: 6px;
+}
+
 .noVNC_panel .noVNC_heading {
     background-color: rgb(110, 132, 163);
     border-radius: 5px;
