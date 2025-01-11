@@ -22,7 +22,7 @@ input, input::file-selector-button, button, select, textarea {
 
     padding: 0.5em var(--input-xpadding);
     border: 1px solid var(--novnc-lightgrey);
-    border-radius: 5px;
+    border-radius: 6px;
     color: black;
     --bg-gradient: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
     background-image: var(--bg-gradient);
@@ -156,7 +156,7 @@ input[type=range]::-webkit-slider-thumb {
     appearance: none;
     width: 18px;
     height: 20px;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: white;
     border: 1px solid dimgray;
     margin-top: -7px;
@@ -165,7 +165,7 @@ input[type=range]::-moz-range-thumb {
     appearance: none;
     width: 18px;
     height: 20px;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: white;
     border: 1px solid dimgray;
     margin-top: -7px;

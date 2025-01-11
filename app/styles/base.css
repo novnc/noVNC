@@ -174,7 +174,7 @@ html {
     font-weight: bold;
     color: #fff;
 
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
     background: rgba(200,55,55,0.8);
 }
@@ -242,7 +242,7 @@ html {
     transition: 0.5s ease-in-out;
 
     background-color: var(--novnc-blue);
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 12px 12px 0;
 
     user-select: none;
     -webkit-user-select: none;
@@ -267,7 +267,7 @@ html {
 }
 .noVNC_right #noVNC_control_bar {
     left: 100%;
-    border-radius: 10px 0 0 10px;
+    border-radius: 12px 0 0 12px;
 }
 .noVNC_right #noVNC_control_bar.noVNC_open {
     left: 0;
@@ -285,7 +285,7 @@ html {
     height: 50px;
     z-index: -1;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: var(--novnc-darkblue);
     background-image: url("../images/handle_bg.svg");
     background-repeat: no-repeat;
@@ -372,7 +372,7 @@ html {
     transition: 0.2s ease-in-out;
     background: transparent;
     box-shadow: 0 0 10px black, inset 0 0 10px 10px var(--novnc-darkblue);
-    border-radius: 10px;
+    border-radius: 12px;
     transition-delay: 0s;
 }
 #noVNC_control_bar_hint.noVNC_active {
@@ -444,7 +444,7 @@ html {
     padding: 15px;
 
     background: #fff;
-    border-radius: 10px;
+    border-radius: 12px;
     color: #000;
     border: 2px solid #E0E0E0;
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
@@ -500,7 +500,7 @@ html {
 
 .noVNC_panel .noVNC_heading {
     background-color: var(--novnc-blue);
-    border-radius: 5px;
+    border-radius: 6px;
     padding: 5px;
     /* Compensate for padding in image */
     padding-right: 8px;
@@ -534,7 +534,7 @@ html {
     margin-left: 10px;
     padding: 5px;
     background: rgba(0, 0, 0, 0.05);
-    border-radius: 5px;
+    border-radius: 6px;
 }
 .noVNC_expander:not(.noVNC_open) ~ * {
     display: none;
@@ -732,7 +732,7 @@ html {
     font-size: 80px;
     text-align: center;
 
-    border-radius: 5px;
+    border-radius: 6px;
 }
 @media (max-width: 440px) {
     #noVNC_connect_dlg {
@@ -759,7 +759,7 @@ html {
     cursor: pointer;
 
     border-color: var(--novnc-darkblue);
-    border-radius: 5px;
+    border-radius: 6px;
 
     background: linear-gradient(to top, var(--novnc-blue), rgb(99, 119, 147));
     color: white;
