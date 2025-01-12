@@ -53,12 +53,13 @@ select {
  */
 select {
     --select-arrow: url('data:image/svg+xml;utf8, \
-        <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
+        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
              xmlns="http://www.w3.org/2000/svg"> \
-            <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
-                  stroke="rgb(31,31,31)" fill="none" \
-                  stroke-linecap="round" stroke-linejoin="round" /> \
+            <path d="m10.5.5-5 5-5-5" fill="none" \
+                  stroke="black" stroke-width="1.5" \
+                  stroke-linecap="round" stroke-linejoin="round"/> \
         </svg>');
+
     /* FIXME: A bug in Firefox, requires a workaround for the background:
               https://bugzilla.mozilla.org/show_bug.cgi?id=1810958 */
     /* The dropdown list will show the select element's background above and
@@ -73,18 +74,18 @@ select {
         var(--grey-background);
     background-position: calc(100% - var(--input-xpadding)), left top, left top;
     background-repeat: no-repeat;
-    padding-right: calc(2*var(--input-xpadding) + 8px);
+    padding-right: calc(2*var(--input-xpadding) + 11px);
 }
 /* FIXME: :active isn't set when the <select> is opened in Firefox:
           https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
 select:active {
     /* Rotated arrow */
     background-image: url('data:image/svg+xml;utf8, \
-        <svg width="8" height="6" version="1.1" viewBox="0 0 8 6" \
-             xmlns="http://www.w3.org/2000/svg" transform="rotate(180)" > \
-            <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
-                  stroke="rgb(31,31,31)" fill="none" \
-                  stroke-linecap="round" stroke-linejoin="round" /> \
+        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
+             xmlns="http://www.w3.org/2000/svg" transform="rotate(180)"> \
+            <path d="m10.5.5-5 5-5-5" fill="none" \
+                  stroke="black" stroke-width="1.5" \
+                  stroke-linecap="round" stroke-linejoin="round"/> \
         </svg>'),
         var(--grey-background);
 }
