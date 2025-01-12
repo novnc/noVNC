@@ -149,61 +149,6 @@ input[type=image]:disabled {
     cursor: default;
 }
 
-/* ------- SELECT BUTTONS ------- */
-
-select {
-    --select-arrow: url('data:image/svg+xml;utf8, \
-        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
-             xmlns="http://www.w3.org/2000/svg"> \
-            <path d="m10.5.5-5 5-5-5" fill="none" \
-                  stroke="black" stroke-width="1.5" \
-                  stroke-linecap="round" stroke-linejoin="round"/> \
-        </svg>');
-
-    /* FIXME: A bug in Firefox, requires a workaround for the background:
-              https://bugzilla.mozilla.org/show_bug.cgi?id=1810958 */
-    /* The dropdown list will show the select element's background above and
-       below the options in Firefox. We want the entire dropdown to be white. */
-    background-color: white;
-    /* However, we don't want the select element to actually show a white
-       background, so let's place a gradient above it with the color we want. */
-    --grey-background: linear-gradient(var(--novnc-buttongrey) 100%,
-                                       transparent);
-    background-image:
-        var(--select-arrow),
-        var(--button-activation-overlay),
-        var(--grey-background);
-    background-position: calc(100% - var(--input-xpadding)), left top, left top;
-    background-repeat: no-repeat;
-    padding-right: calc(2*var(--input-xpadding) + 11px);
-}
-/* FIXME: :active isn't set when the <select> is opened in Firefox:
-          https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
-select:active {
-    /* Rotated arrow */
-    background-image: url('data:image/svg+xml;utf8, \
-        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
-             xmlns="http://www.w3.org/2000/svg" transform="rotate(180)"> \
-            <path d="m10.5.5-5 5-5-5" fill="none" \
-                  stroke="black" stroke-width="1.5" \
-                  stroke-linecap="round" stroke-linejoin="round"/> \
-        </svg>'),
-        var(--button-activation-overlay),
-        var(--grey-background);
-}
-select:disabled {
-    background-image:
-        var(--select-arrow),
-        var(--grey-background);
-}
-option {
-    /* Prevent Chrome from inheriting background-color from the <select> */
-    background-color: white;
-    color: black;
-    font-weight: normal;
-    background-image: var(--button-activation-overlay);
-}
-
 /* -- SHARED BETWEEN CHECKBOXES AND RADIOBUTTONS -- */
 
 input[type=radio],
@@ -380,4 +325,59 @@ input::file-selector-button {
 }
 input[type=file]:focus-visible {
     outline: none; /* We outline the button instead of the entire element */
+}
+
+/* ------- SELECT BUTTONS ------- */
+
+select {
+    --select-arrow: url('data:image/svg+xml;utf8, \
+        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
+             xmlns="http://www.w3.org/2000/svg"> \
+            <path d="m10.5.5-5 5-5-5" fill="none" \
+                  stroke="black" stroke-width="1.5" \
+                  stroke-linecap="round" stroke-linejoin="round"/> \
+        </svg>');
+
+    /* FIXME: A bug in Firefox, requires a workaround for the background:
+              https://bugzilla.mozilla.org/show_bug.cgi?id=1810958 */
+    /* The dropdown list will show the select element's background above and
+       below the options in Firefox. We want the entire dropdown to be white. */
+    background-color: white;
+    /* However, we don't want the select element to actually show a white
+       background, so let's place a gradient above it with the color we want. */
+    --grey-background: linear-gradient(var(--novnc-buttongrey) 100%,
+                                       transparent);
+    background-image:
+        var(--select-arrow),
+        var(--button-activation-overlay),
+        var(--grey-background);
+    background-position: calc(100% - var(--input-xpadding)), left top, left top;
+    background-repeat: no-repeat;
+    padding-right: calc(2*var(--input-xpadding) + 11px);
+}
+/* FIXME: :active isn't set when the <select> is opened in Firefox:
+          https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
+select:active {
+    /* Rotated arrow */
+    background-image: url('data:image/svg+xml;utf8, \
+        <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
+             xmlns="http://www.w3.org/2000/svg" transform="rotate(180)"> \
+            <path d="m10.5.5-5 5-5-5" fill="none" \
+                  stroke="black" stroke-width="1.5" \
+                  stroke-linecap="round" stroke-linejoin="round"/> \
+        </svg>'),
+        var(--button-activation-overlay),
+        var(--grey-background);
+}
+select:disabled {
+    background-image:
+        var(--select-arrow),
+        var(--grey-background);
+}
+option {
+    /* Prevent Chrome from inheriting background-color from the <select> */
+    background-color: white;
+    color: black;
+    font-weight: normal;
+    background-image: var(--button-activation-overlay);
 }
