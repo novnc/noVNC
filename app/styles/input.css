@@ -27,7 +27,8 @@ input::file-selector-button {
 input:disabled,
 textarea:disabled,
 button:disabled,
-select:disabled {
+select:disabled,
+label[disabled] {
     opacity: 0.4;
 }
 
