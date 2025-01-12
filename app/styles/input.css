@@ -129,6 +129,11 @@ select {
     /* Disable Chrome's touch tap highlight */
     -webkit-tap-highlight-color: transparent;
 }
+input[type=image]:disabled {
+    /* See Firefox bug:
+       https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
+    cursor: default;
+}
 
 /*
  * Select dropdowns
@@ -171,6 +176,11 @@ select:active {
                   stroke-linecap="round" stroke-linejoin="round"/> \
         </svg>'),
         var(--button-activation-overlay),
+        var(--grey-background);
+}
+select:disabled {
+    background-image:
+        var(--select-arrow),
         var(--grey-background);
 }
 option {
@@ -385,14 +395,4 @@ button:disabled,
 select:disabled,
 textarea:disabled {
     opacity: 0.4;
-}
-select:disabled {
-    background-image:
-        var(--select-arrow),
-        var(--grey-background);
-}
-input[type=image]:disabled {
-    /* See Firefox bug:
-       https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
-    cursor: default;
 }
