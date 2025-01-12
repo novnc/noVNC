@@ -5,9 +5,8 @@
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
-/*
- * Common for all inputs
- */
+/* ------- SHARED BETWEEN INPUT ELEMENTS -------- */
+
 :root {
     --input-xpadding: 1em;
 }
@@ -41,9 +40,7 @@ input:focus-visible::file-selector-button {
     outline-offset: 1px;
 }
 
-/*
- * Text input
- */
+/* ------- TEXT INPUT -------- */
 
 input:not([type]),
 input[type=date],
@@ -64,9 +61,7 @@ textarea {
     padding: calc(0.5em - 1px) var(--input-xpadding);
 }
 
-/*
- * Button activations
- */
+/* ------- BUTTON ACTIVATIONS -------- */
 
 /* A color overlay that depends on the activation level. The level can then be
    set for different states on an element, for example hover and click on a
@@ -129,9 +124,8 @@ input:disabled::file-selector-button,
     --button-activation-level: 0;
 }
 
-/*
- * Buttons
- */
+/* ------- BUTTONS -------- */
+
 input[type=button],
 input[type=color],
 input[type=image],
@@ -155,9 +149,8 @@ input[type=image]:disabled {
     cursor: default;
 }
 
-/*
- * Select dropdowns
- */
+/* ------- SELECT BUTTONS ------- */
+
 select {
     --select-arrow: url('data:image/svg+xml;utf8, \
         <svg width="11" height="6" version="1.1" viewBox="0 0 11 6" \
@@ -211,9 +204,7 @@ option {
     background-image: var(--button-activation-overlay);
 }
 
-/*
- * Shared between checkboxes and radiobuttons
- */
+/* -- SHARED BETWEEN CHECKBOXES AND RADIOBUTTONS -- */
 
 input[type=radio],
 input[type=checkbox] {
@@ -275,9 +266,8 @@ input[type=radio]::after {
     border-radius: 2px;
 }
 
-/*
- * Checkboxes
- */
+/* ------- CHECKBOXES ------- */
+
 input[type=checkbox] {
     border-radius: 4px;
 }
@@ -303,9 +293,8 @@ input[type=checkbox]:indeterminate::after {
     background-color: white;
 }
 
-/*
- * Radiobuttons
- */
+/* ------- RADIO BUTTONS ------- */
+
 input[type=radio] {
     border-radius: 50%;
     border: 1px solid transparent; /* To ensure a smooth transition */
@@ -336,9 +325,8 @@ input[type=radio]:indeterminate::after {
     background-color: black;
 }
 
-/*
- * Range sliders
- */
+/* ------- RANGE SLIDERS ------- */
+
 input[type=range] {
     border: unset;
     border-radius: 3px;
@@ -381,9 +369,8 @@ input[type=range]::-moz-range-thumb {
     margin-top: -7px;
 }
 
-/*
- * File choosers
- */
+/* ------- FILE CHOOSERS ------- */
+
 input[type=file] {
     background-image: none;
     border: none;
