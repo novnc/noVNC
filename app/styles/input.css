@@ -139,7 +139,9 @@ input[type=checkbox]:focus-visible {
     outline-color: var(--novnc-lightblue);
 }
 input[type=checkbox]::before,
-input[type=radio]::before {
+input[type=checkbox]::after,
+input[type=radio]::before,
+input[type=radio]::after {
     content: "";
     display: block; /* width & height doesn't work on inline elements */
     transition: inherit;
@@ -150,6 +152,13 @@ input[type=radio]::before {
        baseline of text inside them will be used instead. */
     position: absolute;
 }
+input[type=checkbox]::after,
+input[type=radio]::after {
+    width: 10px;
+    height: 2px;
+    background-color: transparent;
+    border-radius: 2px;
+}
 
 /*
  * Checkboxes
@@ -157,7 +166,8 @@ input[type=radio]::before {
 input[type=checkbox] {
     border-radius: 4px;
 }
-input[type=checkbox]:checked {
+input[type=checkbox]:checked,
+input[type=checkbox]:indeterminate {
     background-color: var(--novnc-blue);
 }
 input[type=checkbox]::before {
@@ -171,6 +181,9 @@ input[type=checkbox]::before {
 }
 input[type=checkbox]:checked::before {
     border-color: white;
+}
+input[type=checkbox]:indeterminate::after {
+    background-color: white;
 }
 
 /*
@@ -192,6 +205,9 @@ input[type=radio]::before {
 }
 input[type=radio]:checked::before {
     opacity: 1;
+}
+input[type=radio]:indeterminate::after {
+    background-color: black;
 }
 
 /*
