@@ -60,6 +60,22 @@ textarea {
     /* Account for borders on text inputs, buttons dont have borders */
     padding: calc(0.5em - 1px) var(--input-xpadding);
 }
+input:not([type]):focus-visible,
+input[type=date]:focus-visible,
+input[type=datetime-local]:focus-visible,
+input[type=email]:focus-visible,
+input[type=month]:focus-visible,
+input[type=number]:focus-visible,
+input[type=password]:focus-visible,
+input[type=search]:focus-visible,
+input[type=tel]:focus-visible,
+input[type=text]:focus-visible,
+input[type=time]:focus-visible,
+input[type=url]:focus-visible,
+input[type=week]:focus-visible,
+textarea:focus-visible {
+    outline-offset: -1px;
+}
 
 /* ------- BUTTON ACTIVATIONS -------- */
 
