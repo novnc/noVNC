@@ -77,6 +77,17 @@ textarea:focus-visible {
     outline-offset: -1px;
 }
 
+textarea {
+    margin: unset; /* Remove Firefox's built in margin */
+    /* Prevent layout from shifting when scrollbars show */
+    scrollbar-gutter: stable;
+    /* Make textareas show at minimum one line. This does not work when
+       using box-sizing border-box, in which case, vertical padding and
+       border width needs to be taken into account. */
+    min-height: 1em;
+    vertical-align: baseline; /* Firefox gives "text-bottom" by default */
+}
+
 /* ------- BUTTON ACTIVATIONS -------- */
 
 /* A color overlay that depends on the activation level. The level can then be
