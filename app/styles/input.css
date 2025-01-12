@@ -12,13 +12,32 @@
     --input-xpadding: 1em;
 }
 
-input, input::file-selector-button, button, select, textarea {
+input,
+textarea,
+button,
+select,
+input::file-selector-button {
     padding: 0.5em var(--input-xpadding);
     border-radius: 6px;
     appearance: none;
 
     /* Respect standard font settings */
     font: inherit;
+}
+input:disabled,
+textarea:disabled,
+button:disabled,
+select:disabled {
+    opacity: 0.4;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible::file-selector-button {
+    outline: 2px solid var(--novnc-lightblue);
+    outline-offset: 1px;
 }
 
 /*
@@ -371,28 +390,6 @@ input[type=file] {
 input::file-selector-button {
     margin-right: 6px;
 }
-
-/*
- * Focus (tab)
- */
-input:focus-visible,
-input:focus-visible::file-selector-button,
-button:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-    outline: 2px solid var(--novnc-lightblue);
-    outline-offset: 1px;
-}
 input[type=file]:focus-visible {
     outline: none; /* We outline the button instead of the entire element */
-}
-
-/*
- * Disabled
- */
-input:disabled,
-button:disabled,
-select:disabled,
-textarea:disabled {
-    opacity: 0.4;
 }
