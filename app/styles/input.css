@@ -19,6 +19,7 @@ input::file-selector-button {
     padding: 0.5em var(--input-xpadding);
     border-radius: 6px;
     appearance: none;
+    text-overflow: ellipsis;
 
     /* Respect standard font settings */
     font: inherit;
@@ -188,6 +189,16 @@ input[type=image]:disabled {
     /* See Firefox bug:
        https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
     cursor: default;
+}
+
+input[type=button],
+input[type=color],
+input[type=reset],
+input[type=submit] {
+    /* Workaround for text-overflow bugs in Firefox and Chromium:
+        https://bugzilla.mozilla.org/show_bug.cgi?id=1800077
+        https://bugs.chromium.org/p/chromium/issues/detail?id=1383144 */
+    overflow: clip;
 }
 
 /* -- SHARED BETWEEN CHECKBOXES AND RADIOBUTTONS -- */
@@ -395,6 +406,7 @@ select {
     background-position: calc(100% - var(--input-xpadding)), left top, left top;
     background-repeat: no-repeat;
     padding-right: calc(2*var(--input-xpadding) + 11px);
+    overflow: auto;
 }
 /* FIXME: :active isn't set when the <select> is opened in Firefox:
           https://bugzilla.mozilla.org/show_bug.cgi?id=1805406 */
