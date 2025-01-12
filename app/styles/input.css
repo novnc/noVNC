@@ -13,15 +13,35 @@
 }
 
 input, input::file-selector-button, button, select, textarea {
-    /* Respect standard font settings */
-    font: inherit;
-
-    /* Disable default rendering */
+    padding: 0.5em var(--input-xpadding);
+    border-radius: 6px;
     appearance: none;
 
-    padding: 0.5em var(--input-xpadding);
+    /* Respect standard font settings */
+    font: inherit;
+}
+
+/*
+ * Text input
+ */
+
+input:not([type]),
+input[type=date],
+input[type=datetime-local],
+input[type=email],
+input[type=month],
+input[type=number],
+input[type=password],
+input[type=search],
+input[type=tel],
+input[type=text],
+input[type=time],
+input[type=url],
+input[type=week],
+textarea {
     border: 1px solid var(--novnc-lightgrey);
-    border-radius: 6px;
+    /* Account for borders on text inputs, buttons dont have borders */
+    padding: calc(0.5em - 1px) var(--input-xpadding);
 }
 
 /*
@@ -100,7 +120,7 @@ input[type=submit],
 input::file-selector-button,
 button,
 select {
-    border-bottom-width: 2px;
+    border: none;
     color: black;
     font-weight: bold;
     background-color: var(--novnc-buttongrey);
@@ -170,7 +190,6 @@ input[type=checkbox] {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    border-color: transparent;
     background-color: var(--novnc-buttongrey);
     background-image: var(--button-activation-overlay);
     /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
