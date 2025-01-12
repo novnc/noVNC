@@ -381,7 +381,6 @@ input[type=file]:focus-visible {
  * Disabled
  */
 input:disabled,
-input:disabled::file-selector-button,
 button:disabled,
 select:disabled,
 textarea:disabled {
