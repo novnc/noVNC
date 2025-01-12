@@ -25,6 +25,71 @@ input, input::file-selector-button, button, select, textarea {
 }
 
 /*
+ * Button activations
+ */
+
+/* A color overlay that depends on the activation level. The level can then be
+   set for different states on an element, for example hover and click on a
+   <button>. */
+input, button, select, option,
+input::file-selector-button,
+.button-activations {
+    --button-activation-level: 0;
+    /* Note that CSS variables aren't functions, beware when inheriting */
+    --button-activation-alpha: calc(0.08 * var(--button-activation-level));
+    /* FIXME: We want the image() function instead of the linear-gradient()
+              function below. But it's not supported in the browsers yet. */
+    --button-activation-overlay:
+        linear-gradient(rgba(0, 0, 0, var(--button-activation-alpha))
+        100%, transparent);
+    --button-activation-overlay-light:
+        linear-gradient(rgba(255, 255, 255, calc(0.23 * var(--button-activation-level)))
+        100%, transparent);
+}
+.button-activations {
+    background-image: var(--button-activation-overlay);
+
+    /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
+    -webkit-tap-highlight-color: transparent;
+}
+/* When we want the light overlay on activations instead.
+   This is best used on elements with darker backgrounds. */
+.button-activations.light-overlay {
+    background-image: var(--button-activation-overlay-light);
+    /* Can't use the normal blend mode since that gives washed out colors. */
+    /* FIXME: For elements with these activation overlays we'd like only
+              the luminosity to change. The proprty "background-blend-mode" set
+              to "luminosity" sounds good, but it doesn't work as intended,
+              see: https://bugzilla.mozilla.org/show_bug.cgi?id=1806417 */
+    background-blend-mode: overlay;
+}
+
+input:hover, button:hover, select:hover, option:hover,
+input::file-selector-button:hover,
+.button-activations:hover {
+    --button-activation-level: 1;
+}
+/* Unfortunately we have to disable the :hover effect on touch devices,
+   otherwise the style lingers after tapping the button. */
+@media (any-pointer: coarse) {
+    input:hover, button:hover, select:hover, option:hover,
+    input::file-selector-button:hover,
+    .button-activations:hover {
+        --button-activation-level: 0;
+    }
+}
+input:active, button:active, select:active, option:active,
+input::file-selector-button:active,
+.button-activations:active {
+    --button-activation-level: 2;
+}
+input:disabled, button:disabled, select:disabled, select:disabled option,
+input:disabled::file-selector-button,
+.button-activations:disabled {
+    --button-activation-level: 0;
+}
+
+/*
  * Buttons
  */
 input[type=button],
@@ -36,13 +101,10 @@ input::file-selector-button,
 button,
 select {
     border-bottom-width: 2px;
-
-    /* This avoids it jumping around when :active */
-    vertical-align: middle;
-    margin-top: 0;
     color: black;
     font-weight: bold;
     background-color: var(--novnc-buttongrey);
+    background-image: var(--button-activation-overlay);
 
     /* Disable Chrome's touch tap highlight */
     -webkit-tap-highlight-color: transparent;
@@ -71,6 +133,7 @@ select {
                                        transparent);
     background-image:
         var(--select-arrow),
+        var(--button-activation-overlay),
         var(--grey-background);
     background-position: calc(100% - var(--input-xpadding)), left top, left top;
     background-repeat: no-repeat;
@@ -87,6 +150,7 @@ select:active {
                   stroke="black" stroke-width="1.5" \
                   stroke-linecap="round" stroke-linejoin="round"/> \
         </svg>'),
+        var(--button-activation-overlay),
         var(--grey-background);
 }
 option {
@@ -94,6 +158,7 @@ option {
     background-color: white;
     color: black;
     font-weight: normal;
+    background-image: var(--button-activation-overlay);
 }
 
 /*
@@ -107,6 +172,7 @@ input[type=checkbox] {
     align-items: center;
     border-color: transparent;
     background-color: var(--novnc-buttongrey);
+    background-image: var(--button-activation-overlay);
     /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
     -webkit-tap-highlight-color: transparent;
     width: 16px;
@@ -169,6 +235,8 @@ input[type=checkbox] {
 input[type=checkbox]:checked,
 input[type=checkbox]:indeterminate {
     background-color: var(--novnc-blue);
+    background-image: var(--button-activation-overlay-light);
+    background-blend-mode: overlay;
 }
 input[type=checkbox]::before {
     width: 25%;
@@ -196,11 +264,20 @@ input[type=radio] {
 input[type=radio]:checked {
     border: 4px solid var(--novnc-blue);
     background-color: white;
+    /* button-activation-overlay should be removed from the radio
+       element to not interfere with button-activation-overlay-light
+       that is set on the ::before element. */
+    background-image: none;
 }
 input[type=radio]::before {
     width: inherit;
     height: inherit;
     border-radius: inherit;
+    /* We can achieve the highlight overlay effect on border colors by
+       setting button-activation-overlay-light on an element that stays
+       on top (z-axis) of the element with a border. */
+    background-image: var(--button-activation-overlay-light);
+    mix-blend-mode: overlay;
     opacity: 0;
 }
 input[type=radio]:checked::before {
@@ -238,6 +315,9 @@ input[type=range]::-webkit-slider-thumb {
     height: 20px;
     border-radius: 6px;
     background-color: white;
+    background-image: var(--button-activation-overlay);
+    /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
+    -webkit-tap-highlight-color: transparent;
     border: 1px solid dimgray;
     margin-top: -7px;
 }
@@ -247,6 +327,7 @@ input[type=range]::-moz-range-thumb {
     height: 20px;
     border-radius: 6px;
     background-color: white;
+    background-image: var(--button-activation-overlay);
     border: 1px solid dimgray;
     margin-top: -7px;
 }
@@ -260,57 +341,6 @@ input[type=file] {
 }
 input::file-selector-button {
     margin-right: 6px;
-}
-
-/*
- * Hover
- */
-input[type=button]:hover,
-input[type=color]:hover,
-input[type=image]:hover,
-input[type=reset]:hover,
-input[type=submit]:hover,
-input::file-selector-button:hover,
-button:hover {
-    background-color: var(--novnc-lightgrey);
-}
-select:hover {
-    background-image:
-        var(--select-arrow),
-        linear-gradient(var(--novnc-lightgrey) 100%,
-                        transparent);
-}
-@media (any-pointer: coarse) {
-    /* We don't want a hover style after touch input */
-    input[type=button]:hover,
-    input[type=color]:hover,
-    input[type=image]:hover,
-    input[type=reset]:hover,
-    input[type=submit]:hover,
-    input::file-selector-button:hover,
-    button:hover {
-        background-color: var(--novnc-buttongrey);
-    }
-    select:hover {
-        background-image:
-            var(--select-arrow),
-            var(--grey-background);
-    }
-}
-
-/*
- * Active (clicked)
- */
-input[type=button]:active,
-input[type=color]:active,
-input[type=image]:active,
-input[type=reset]:active,
-input[type=submit]:active,
-input::file-selector-button:active,
-button:active,
-select:active {
-    border-bottom-width: 1px;
-    margin-top: 1px;
 }
 
 /*
@@ -337,21 +367,6 @@ button:disabled,
 select:disabled,
 textarea:disabled {
     opacity: 0.4;
-}
-input[type=button]:disabled,
-input[type=color]:disabled,
-input[type=image]:disabled,
-input[type=reset]:disabled,
-input[type=submit]:disabled,
-input:disabled::file-selector-button,
-button:disabled,
-select:disabled {
-    background-color: var(--novnc-buttongrey);
-    border-bottom-width: 2px;
-    margin-top: 0;
-}
-input[type=file]:disabled {
-    background-image: none;
 }
 select:disabled {
     background-image:
