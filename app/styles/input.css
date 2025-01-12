@@ -18,14 +18,10 @@ input, input::file-selector-button, button, select, textarea {
 
     /* Disable default rendering */
     appearance: none;
-    background: none;
 
     padding: 0.5em var(--input-xpadding);
     border: 1px solid var(--novnc-lightgrey);
     border-radius: 6px;
-    color: black;
-    --bg-gradient: linear-gradient(to top, rgb(255, 255, 255) 80%, rgb(240, 240, 240));
-    background-image: var(--bg-gradient);
 }
 
 /*
@@ -44,6 +40,8 @@ select {
     /* This avoids it jumping around when :active */
     vertical-align: middle;
     margin-top: 0;
+    color: black;
+    background-color: white;
 
     /* Disable Chrome's touch tap highlight */
     -webkit-tap-highlight-color: transparent;
@@ -60,7 +58,8 @@ select {
                   stroke="rgb(31,31,31)" fill="none" \
                   stroke-linecap="round" stroke-linejoin="round" /> \
         </svg>');
-    background-image: var(--select-arrow), var(--bg-gradient);
+    background-color: white;
+    background-image: var(--select-arrow);
     background-position: calc(100% - var(--input-xpadding)), left top, left top;
     background-repeat: no-repeat;
     padding-right: calc(2*var(--input-xpadding) + 8px);
@@ -75,7 +74,7 @@ select:active {
             <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
                   stroke="rgb(31,31,31)" fill="none" \
                   stroke-linecap="round" stroke-linejoin="round" /> \
-        </svg>'), var(--bg-gradient);
+        </svg>');
 }
 option {
     color: black;
@@ -192,13 +191,13 @@ input[type=reset]:hover,
 input[type=submit]:hover,
 input::file-selector-button:hover,
 button:hover {
-    background-image: linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
+    background-color: var(--novnc-lightgrey);
 }
 select:hover {
-    background-image: var(--select-arrow),
-        linear-gradient(to top, rgb(255, 255, 255), rgb(250, 250, 250));
-    background-position: calc(100% - 7px), left top;
-    background-repeat: no-repeat;
+    background-image:
+        var(--select-arrow),
+        linear-gradient(var(--novnc-lightgrey) 100%,
+                        transparent);
 }
 @media (any-pointer: coarse) {
     /* We don't want a hover style after touch input */
@@ -209,10 +208,10 @@ select:hover {
     input[type=submit]:hover,
     input::file-selector-button:hover,
     button:hover {
-        background-image: var(--bg-gradient);
+        background-color: white;
     }
     select:hover {
-        background-image: var(--select-arrow), var(--bg-gradient);
+        background-image: var(--select-arrow);
     }
 }
 
@@ -264,7 +263,7 @@ input[type=submit]:disabled,
 input:disabled::file-selector-button,
 button:disabled,
 select:disabled {
-    background-image: var(--bg-gradient);
+    background-color: white;
     border-bottom-width: 2px;
     margin-top: 0;
 }
@@ -272,7 +271,7 @@ input[type=file]:disabled {
     background-image: none;
 }
 select:disabled {
-    background-image: var(--select-arrow), var(--bg-gradient);
+    background-image: var(--select-arrow),
 }
 input[type=image]:disabled {
     /* See Firefox bug:

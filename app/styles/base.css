@@ -761,14 +761,14 @@ html {
     border-color: var(--novnc-darkblue);
     border-radius: 6px;
 
-    background: linear-gradient(to top, var(--novnc-blue), rgb(99, 119, 147));
+    background-color: var(--novnc-blue);
     color: white;
 
     /* This avoids it jumping around when :active */
     vertical-align: middle;
 }
 #noVNC_connect_button:hover {
-    background: linear-gradient(to top, var(--novnc-blue), rgb(105, 125, 155));
+    background-color: var(--novnc-darkblue);
 }
 
 #noVNC_connect_button img {
