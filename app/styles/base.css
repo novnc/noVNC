@@ -31,6 +31,7 @@
 
 :root {
     font-family: sans-serif;
+    line-height: 1.6;
 }
 
 body {
@@ -477,9 +478,12 @@ html {
 .noVNC_panel .noVNC_heading {
     background-color: var(--novnc-blue);
     border-radius: 6px;
-    padding: 5px;
+    padding: 5px 8px;
     /* Compensate for padding in image */
-    padding-right: 8px;
+    padding-right: 11px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     color: white;
     font-size: 20px;
     white-space: nowrap;
@@ -736,6 +740,11 @@ html {
     border-radius: 6px;
     background-color: var(--novnc-blue);
     color: white;
+
+    display: flex;
+    justify-content: center;
+    place-items: center;
+    gap: 4px;
 }
 
 #noVNC_connect_button img {

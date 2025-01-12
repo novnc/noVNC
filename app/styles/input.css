@@ -23,6 +23,7 @@ input::file-selector-button {
 
     /* Respect standard font settings */
     font: inherit;
+    line-height: 1.6;
 }
 input:disabled,
 textarea:disabled,
@@ -85,7 +86,7 @@ textarea {
     /* Make textareas show at minimum one line. This does not work when
        using box-sizing border-box, in which case, vertical padding and
        border width needs to be taken into account. */
-    min-height: 1em;
+    min-height: 1lh;
     vertical-align: baseline; /* Firefox gives "text-bottom" by default */
 }
 
