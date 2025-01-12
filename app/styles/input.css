@@ -182,11 +182,18 @@ select {
     font-weight: bold;
     background-color: var(--novnc-buttongrey);
     background-image: var(--button-activation-overlay);
-
+    cursor: pointer;
     /* Disable Chrome's touch tap highlight */
     -webkit-tap-highlight-color: transparent;
 }
-input[type=image]:disabled {
+input[type=button]:disabled,
+input[type=color]:disabled,
+input[type=image]:disabled,
+input[type=reset]:disabled,
+input[type=submit]:disabled,
+input:disabled::file-selector-button,
+button:disabled,
+select:disabled {
     /* See Firefox bug:
        https://bugzilla.mozilla.org/show_bug.cgi?id=1798304 */
     cursor: default;
@@ -331,6 +338,15 @@ input[type=range] {
     height: 20px;
     padding: 0;
     background: transparent;
+}
+input[type=range]:hover {
+    cursor: grab;
+}
+input[type=range]:active {
+    cursor: grabbing;
+}
+input[type=range]:disabled {
+    cursor: default;
 }
 /* -webkit-slider.. & -moz-range.. cant be in selector lists:
    https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
