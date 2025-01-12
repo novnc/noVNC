@@ -97,35 +97,80 @@ option {
 }
 
 /*
- * Checkboxes
+ * Shared between checkboxes and radiobuttons
  */
+
+input[type=radio],
 input[type=checkbox] {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background-color: white;
-    background-image: unset;
-    border: 1px solid dimgrey;
-    border-radius: 3px;
-    width: 13px;
-    height: 13px;
+    border-color: transparent;
+    background-color: var(--novnc-buttongrey);
+    /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
+    -webkit-tap-highlight-color: transparent;
+    width: 16px;
+    --checkradio-height: 16px;
+    height: var(--checkradio-height);
     padding: 0;
-    margin-right: 6px;
-    vertical-align: bottom;
-    transition: 0.2s background-color linear;
+    margin: 0 6px 0 0;
+    /* Don't have transitions for outline in order to be consistent
+       with other elements */
+    transition: all 0.2s, outline-color 0s, outline-offset 0s;
+
+    /* A transparent outline in order to work around a graphical clipping issue
+       in WebKit. See bug: https://bugs.webkit.org/show_bug.cgi?id=256003 */
+    outline: 1px solid transparent;
+    position: relative; /* Since ::before & ::after are absolute positioned */
+
+    /* We want to align with the middle of capital letters, this requires
+       a workaround. The default behavior is to align the bottom of the element
+       on top of the text baseline, this is too far up.
+       We want to push the element down half the difference in height between
+       it and a capital X. In our font, the height of a capital "X" is 0.698em.
+     */
+    vertical-align: calc(0px - (var(--checkradio-height) - 0.698em) / 2);
+    /* FIXME: Could write 1cap instead of 0.698em, but it's only supported in
+              Firefox as of 2023 */
+    /* FIXME: We probably want to use round() here, see bug 8148 */
+}
+input[type=radio]:focus-visible,
+input[type=checkbox]:focus-visible {
+    outline-color: var(--novnc-lightblue);
+}
+input[type=checkbox]::before,
+input[type=radio]::before {
+    content: "";
+    display: block; /* width & height doesn't work on inline elements */
+    transition: inherit;
+    /* Let's prevent the pseudo-elements from taking up layout space so that
+       the ::before and ::after pseudo-elements can be in the same place. This
+       is also required for vertical-align: baseline to work like we want it to
+       on radio/checkboxes. If the pseudo-elements take up layout space, the
+       baseline of text inside them will be used instead. */
+    position: absolute;
+}
+
+/*
+ * Checkboxes
+ */
+input[type=checkbox] {
+    border-radius: 4px;
 }
 input[type=checkbox]:checked {
     background-color: var(--novnc-blue);
-    border-color: var(--novnc-blue);
 }
-input[type=checkbox]:checked::after {
-    content: "";
-    display: block; /* width & height doesn't work on inline elements */
-    width: 3px;
-    height: 7px;
-    border: 1px solid white;
+input[type=checkbox]::before {
+    width: 25%;
+    height: 55%;
+    border-style: solid;
+    border-color: transparent;
     border-width: 0 2px 2px 0;
-    transform: rotate(40deg) translateY(-1px);
+    border-radius: 1px;
+    transform: translateY(-1px) rotate(35deg);
+}
+input[type=checkbox]:checked::before {
+    border-color: white;
 }
 
 /*
@@ -133,15 +178,20 @@ input[type=checkbox]:checked::after {
  */
 input[type=radio] {
     border-radius: 50%;
-    border: 1px solid dimgrey;
-    width: 12px;
-    height: 12px;
-    padding: 0;
-    margin-right: 6px;
-    transition: 0.2s border linear;
+    border: 1px solid transparent; /* To ensure a smooth transition */
 }
 input[type=radio]:checked {
-    border: 6px solid var(--novnc-blue);
+    border: 4px solid var(--novnc-blue);
+    background-color: white;
+}
+input[type=radio]::before {
+    width: inherit;
+    height: inherit;
+    border-radius: inherit;
+    opacity: 0;
+}
+input[type=radio]:checked::before {
+    opacity: 1;
 }
 
 /*
