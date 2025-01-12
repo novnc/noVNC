@@ -41,7 +41,8 @@ select {
     vertical-align: middle;
     margin-top: 0;
     color: black;
-    background-color: white;
+    font-weight: bold;
+    background-color: var(--novnc-buttongrey);
 
     /* Disable Chrome's touch tap highlight */
     -webkit-tap-highlight-color: transparent;
@@ -58,8 +59,18 @@ select {
                   stroke="rgb(31,31,31)" fill="none" \
                   stroke-linecap="round" stroke-linejoin="round" /> \
         </svg>');
+    /* FIXME: A bug in Firefox, requires a workaround for the background:
+              https://bugzilla.mozilla.org/show_bug.cgi?id=1810958 */
+    /* The dropdown list will show the select element's background above and
+       below the options in Firefox. We want the entire dropdown to be white. */
     background-color: white;
-    background-image: var(--select-arrow);
+    /* However, we don't want the select element to actually show a white
+       background, so let's place a gradient above it with the color we want. */
+    --grey-background: linear-gradient(var(--novnc-buttongrey) 100%,
+                                       transparent);
+    background-image:
+        var(--select-arrow),
+        var(--grey-background);
     background-position: calc(100% - var(--input-xpadding)), left top, left top;
     background-repeat: no-repeat;
     padding-right: calc(2*var(--input-xpadding) + 8px);
@@ -74,11 +85,14 @@ select:active {
             <path d="m6.5 1.5 -2.5 3 -2.5 -3 5 0" stroke-width="3" \
                   stroke="rgb(31,31,31)" fill="none" \
                   stroke-linecap="round" stroke-linejoin="round" /> \
-        </svg>');
+        </svg>'),
+        var(--grey-background);
 }
 option {
+    /* Prevent Chrome from inheriting background-color from the <select> */
+    background-color: white;
     color: black;
-    background: white;
+    font-weight: normal;
 }
 
 /*
@@ -208,10 +222,12 @@ select:hover {
     input[type=submit]:hover,
     input::file-selector-button:hover,
     button:hover {
-        background-color: white;
+        background-color: var(--novnc-buttongrey);
     }
     select:hover {
-        background-image: var(--select-arrow);
+        background-image:
+            var(--select-arrow),
+            var(--grey-background);
     }
 }
 
@@ -263,7 +279,7 @@ input[type=submit]:disabled,
 input:disabled::file-selector-button,
 button:disabled,
 select:disabled {
-    background-color: white;
+    background-color: var(--novnc-buttongrey);
     border-bottom-width: 2px;
     margin-top: 0;
 }
@@ -271,7 +287,9 @@ input[type=file]:disabled {
     background-image: none;
 }
 select:disabled {
-    background-image: var(--select-arrow),
+    background-image:
+        var(--select-arrow),
+        var(--grey-background);
 }
 input[type=image]:disabled {
     /* See Firefox bug:
