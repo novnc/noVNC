@@ -88,6 +88,20 @@ textarea {
     vertical-align: baseline; /* Firefox gives "text-bottom" by default */
 }
 
+/* ------- NUMBER PICKERS ------- */
+
+/* We can't style the number spinner buttons:
+   https://github.com/w3c/csswg-drafts/issues/8777 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    /* Get rid of increase/decrease buttons in WebKit */
+    appearance: none;
+}
+input[type=number] {
+    /* Get rid of increase/decrease buttons in Firefox */
+    appearance: textfield;
+}
+
 /* ------- BUTTON ACTIVATIONS -------- */
 
 /* A color overlay that depends on the activation level. The level can then be
