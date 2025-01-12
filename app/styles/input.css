@@ -176,6 +176,7 @@ input[type=submit],
 input::file-selector-button,
 button,
 select {
+    min-width: 8em;
     border: none;
     color: black;
     font-weight: bold;
