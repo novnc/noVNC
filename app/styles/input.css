@@ -528,3 +528,30 @@ option {
 option:checked {
     background-color: var(--novnc-lightgrey);
 }
+/* Change the look when the <select> isn't used as a dropdown. When "size"
+   or "multiple" are set, these elements behaves more like lists. */
+select[size]:not([size="1"]), select[multiple] {
+    background-color: white;
+    background-image: unset; /* Don't show the arrow and other gradients */
+    border: 1px solid var(--novnc-lightgrey);
+    padding: 0;
+    font-weight: normal; /* Without this, options get bold font in WebKit. */
+
+    /* As an exception to the "list"-look, multi-selects in Chrome on Android,
+       and Safari on iOS, are unfortunately designed to be shown as a single
+       line. We can mitigate this inconsistency by at least fixing the height
+       here. By setting a min-height that matches other input elements, it
+       doesn't look too much out of place:
+         (1px border * 2) + (6.5px padding * 2) + 24px line-height = 39px */
+    min-height: 39px;
+}
+select[size]:not([size="1"]):focus-visible,
+select[multiple]:focus-visible {
+    /* Text input style focus-visible highlight */
+    outline-offset: -1px;
+}
+select[size]:not([size="1"]) option, select[multiple] option {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px var(--input-xpadding);
+}
