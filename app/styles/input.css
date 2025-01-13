@@ -232,7 +232,7 @@ input[type=color]::-moz-color-swatch {
     border-radius: 6px;
 }
 
-/* -- SHARED BETWEEN CHECKBOXES AND RADIOBUTTONS -- */
+/* -- SHARED BETWEEN CHECKBOXES, RADIOBUTTONS AND THE TOGGLE CLASS -- */
 
 input[type=radio],
 input[type=checkbox] {
@@ -273,7 +273,7 @@ input[type=checkbox]:focus-visible {
     outline-color: var(--novnc-lightblue);
 }
 input[type=checkbox]::before,
-input[type=checkbox]::after,
+input[type=checkbox]:not(.toggle)::after,
 input[type=radio]::before,
 input[type=radio]::after {
     content: "";
@@ -286,7 +286,7 @@ input[type=radio]::after {
        baseline of text inside them will be used instead. */
     position: absolute;
 }
-input[type=checkbox]::after,
+input[type=checkbox]:not(.toggle)::after,
 input[type=radio]::after {
     width: 10px;
     height: 2px;
@@ -296,16 +296,16 @@ input[type=radio]::after {
 
 /* ------- CHECKBOXES ------- */
 
-input[type=checkbox] {
+input[type=checkbox]:not(.toggle) {
     border-radius: 4px;
 }
-input[type=checkbox]:checked,
-input[type=checkbox]:indeterminate {
+input[type=checkbox]:not(.toggle):checked,
+input[type=checkbox]:not(.toggle):indeterminate {
     background-color: var(--novnc-blue);
     background-image: var(--button-activation-overlay-light);
     background-blend-mode: overlay;
 }
-input[type=checkbox]::before {
+input[type=checkbox]:not(.toggle)::before {
     width: 25%;
     height: 55%;
     border-style: solid;
@@ -314,10 +314,10 @@ input[type=checkbox]::before {
     border-radius: 1px;
     transform: translateY(-1px) rotate(35deg);
 }
-input[type=checkbox]:checked::before {
+input[type=checkbox]:not(.toggle):checked::before {
     border-color: white;
 }
-input[type=checkbox]:indeterminate::after {
+input[type=checkbox]:not(.toggle):indeterminate::after {
     background-color: white;
 }
 
@@ -351,6 +351,54 @@ input[type=radio]:checked::before {
 }
 input[type=radio]:indeterminate::after {
     background-color: black;
+}
+
+/* ------- TOGGLE SWITCHES ------- */
+
+/* These are meant to be used instead of checkboxes in some cases. If all of
+   the following critera are true you should use a toggle switch:
+
+    * The choice is a simple ON/OFF or ENABLE/DISABLE
+    * The choice doesn't give the feeling of "I agree" or "I confirm"
+    * There are not multiple related & grouped options
+ */
+
+input[type=checkbox].toggle {
+    display: inline-block;
+    --checkradio-height: 18px; /* Height value used in calc, see above */
+    width: 31px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border-radius: 9px;
+}
+input[type=checkbox].toggle:disabled {
+    cursor: default;
+}
+input[type=checkbox].toggle:indeterminate {
+    background-color: var(--novnc-buttongrey);
+    background-image: var(--button-activation-overlay);
+}
+input[type=checkbox].toggle:checked {
+    background-color: var(--novnc-blue);
+    background-image: var(--button-activation-overlay-light);
+    background-blend-mode: overlay;
+}
+input[type=checkbox].toggle::before {
+    --circle-diameter: 10px;
+    --circle-offset: 4px;
+    width: var(--circle-diameter);
+    height: var(--circle-diameter);
+    top: var(--circle-offset);
+    left: var(--circle-offset);
+    background: white;
+    border-radius: 6px;
+}
+input[type=checkbox].toggle:checked::before {
+    left: calc(100% - var(--circle-offset) - var(--circle-diameter));
+}
+input[type=checkbox].toggle:indeterminate::before {
+    left: calc(50% - var(--circle-diameter) / 2);
 }
 
 /* ------- RANGE SLIDERS ------- */
