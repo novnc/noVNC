@@ -515,10 +515,16 @@ select:disabled {
         var(--select-arrow),
         var(--grey-background);
 }
+/* Note that styling for <option> doesn't work in all browsers
+   since its often drawn directly by the OS. We are generally very
+   limited in what we can change here. */
 option {
     /* Prevent Chrome from inheriting background-color from the <select> */
     background-color: white;
     color: black;
     font-weight: normal;
     background-image: var(--button-activation-overlay);
+}
+option:checked {
+    background-color: var(--novnc-lightgrey);
 }
