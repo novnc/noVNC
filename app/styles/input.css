@@ -405,8 +405,8 @@ input[type=checkbox].toggle:indeterminate::before {
 
 input[type=range] {
     border: unset;
-    border-radius: 3px;
-    height: 20px;
+    border-radius: 8px;
+    height: 15px;
     padding: 0;
     background: transparent;
 }
@@ -423,34 +423,35 @@ input[type=range]:disabled {
    https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
 input[type=range]::-webkit-slider-runnable-track {
     background-color: var(--novnc-blue);
-    height: 6px;
-    border-radius: 3px;
+    height: 7px;
+    border-radius: 4px;
 }
 input[type=range]::-moz-range-track {
     background-color: var(--novnc-blue);
-    height: 6px;
-    border-radius: 3px;
+    height: 7px;
+    border-radius: 4px;
 }
 input[type=range]::-webkit-slider-thumb {
     appearance: none;
-    width: 18px;
-    height: 20px;
-    border-radius: 6px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
     background-color: white;
     background-image: var(--button-activation-overlay);
     /* Disable Chrome's touch tap highlight to avoid conflicts with overlay */
     -webkit-tap-highlight-color: transparent;
-    border: 1px solid dimgray;
-    margin-top: -7px;
+    border: 3px solid var(--novnc-blue);
+    margin-top: -4px; /* (track height / 2) - (thumb height /2) */
 }
 input[type=range]::-moz-range-thumb {
     appearance: none;
-    width: 18px;
-    height: 20px;
-    border-radius: 6px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    box-sizing: border-box;
     background-color: white;
     background-image: var(--button-activation-overlay);
-    border: 1px solid dimgray;
+    border: 3px solid var(--novnc-blue);
     margin-top: -7px;
 }
 
