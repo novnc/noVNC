@@ -808,8 +808,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 gestureStart('drag', 13, 9, client);
                 gestureMove('drag', 43, 9, client);
 
-                // FIXME: We don't want to send a pointer event here
-                // expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
                 expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
 
@@ -834,8 +833,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 gestureStart('longpress', 13, 9, client);
                 gestureMove('longpress', 14, 9, client);
 
-                // FIXME: We don't want to send a pointer event here
-                // expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.not.have.been.called;
 
                 client._display.viewportChangePos.resetHistory();
@@ -845,8 +843,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 gestureEnd('longpress', 43, 9, client);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
-                // FIXME: We only want to move the viewport once
-                // expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
                 expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
             });
 
@@ -857,8 +854,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 gestureStart('longpress', 13, 9, client);
                 gestureMove('longpress', 14, 10, client);
 
-                // FIXME: We don't want to send a pointer event here
-                // expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.not.have.been.called;
 
                 client._display.viewportChangePos.resetHistory();
@@ -870,9 +866,9 @@ describe('Remote Frame Buffer protocol client', function () {
                 expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
                                                                                     14, 9, 0x0);
                 expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
-                                                                                    14, 9, 0x4);
+                                                                                     14, 9, 0x4);
                 expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
-                                                                                     14, 9, 0x0);
+                                                                                    14, 9, 0x0);
 
                 expect(client._display.viewportChangePos).to.not.have.been.called;
             });

@@ -1306,8 +1306,6 @@ export default class RFB extends EventTargetMixin {
                             this._viewportHasMoved = false;
                             this._viewportDragging = true;
                             this._viewportDragPos = {'x': pos.x, 'y': pos.y};
-
-                            this._fakeMouseMove(ev, pos.x, pos.y);
                         } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                             this._handleMouseButton(pos.x, pos.y, 0x1);
@@ -1320,8 +1318,6 @@ export default class RFB extends EventTargetMixin {
                             // sending any events to the server.
                             this._viewportHasMoved = false;
                             this._viewportDragPos = {'x': pos.x, 'y': pos.y};
-
-                            this._fakeMouseMove(ev, pos.x, pos.y);
                         } else {
                             this._fakeMouseMove(ev, pos.x, pos.y);
                             this._handleMouseButton(pos.x, pos.y, 0x4);
@@ -1360,8 +1356,9 @@ export default class RFB extends EventTargetMixin {
                                 this._viewportDragPos = {'x': pos.x, 'y': pos.y};
                                 this._display.viewportChangePos(deltaX, deltaY);
                             }
+                        } else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
                         }
-                        this._fakeMouseMove(ev, pos.x, pos.y);
                         break;
                     case 'twodrag':
                         // Always scroll in the same position.
