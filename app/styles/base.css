@@ -456,6 +456,7 @@ html {
 .noVNC_panel hr {
     border: none;
     border-top: 1px solid var(--novnc-lightgrey);
+    width: 100%; /* <hr> inside a flexbox will otherwise be 0px wide */
 }
 
 .noVNC_panel label {
@@ -493,8 +494,20 @@ html {
     vertical-align: bottom;
 }
 
-.noVNC_submit {
-    float: right;
+.noVNC_panel form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.noVNC_panel .button_row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+.noVNC_panel .button_row *:only-child {
+    margin-left: auto; /* Align single buttons to the right */
 }
 
 /* Expanders */
