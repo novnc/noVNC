@@ -486,6 +486,7 @@ html {
     gap: 6px;
     color: white;
     font-size: 20px;
+    font-weight: bold;
     white-space: nowrap;
 }
 .noVNC_panel .noVNC_heading img {
