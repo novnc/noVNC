@@ -409,6 +409,44 @@ input[type=range] {
     height: 15px;
     padding: 0;
     background: transparent;
+    /* Needed to get properly rounded corners on -moz-range-progress
+       when the thumb is all the way to the right. Without overflow
+       hidden, the pointy edges of the progress track shows to the
+       right of the thumb. */
+    overflow: hidden;
+}
+@supports selector(::-webkit-slider-thumb) {
+    input[type=range] {
+        /* Needs a fixed width to match clip-path */
+        width: 125px;
+        /* overflow: hidden is not ideal for hiding the left part of the box
+           shadow of -webkit-slider-thumb since it doesn't match the smaller
+           border-radius of the progress track. The below clip-path has two
+           circular sides to make the ends of the track have correctly rounded
+           corners. The clip path shape looks something like this:
+
+                  +-------------------------------+
+              /---|                               |---\
+             |                                         |
+              \---|                               |---/
+                  +-------------------------------+
+
+           The larger middle part of the clip path is made to have room for the
+           thumb. By using margins on the track, we prevent the thumb from
+           touching the ends of the track.
+         */
+        clip-path: path(' \
+         M 4.5 3 \
+         L 4.5 0 \
+         L 120.5 0 \
+         L 120.5 3 \
+         A 1 1 0 0 1 120.5 12 \
+         L 120.5 15 \
+         L 4.5 15 \
+         L 4.5 12 \
+         A 1 1 0 0 1 4.5 3 \
+        ');
+    }
 }
 input[type=range]:hover {
     cursor: grab;
@@ -419,17 +457,29 @@ input[type=range]:active {
 input[type=range]:disabled {
     cursor: default;
 }
+input[type=range]:focus-visible {
+    clip-path: none; /* Otherwise it hides the outline */
+}
 /* -webkit-slider.. & -moz-range.. cant be in selector lists:
    https://bugs.chromium.org/p/chromium/issues/detail?id=1154623 */
 input[type=range]::-webkit-slider-runnable-track {
-    background-color: var(--novnc-blue);
+    background-color: var(--novnc-buttongrey);
+    height: 7px;
+    border-radius: 4px;
+    margin: 0 3px;
+}
+input[type=range]::-moz-range-track {
+    background-color: var(--novnc-buttongrey);
     height: 7px;
     border-radius: 4px;
 }
-input[type=range]::-moz-range-track {
+input[type=range]::-moz-range-progress {
     background-color: var(--novnc-blue);
-    height: 7px;
-    border-radius: 4px;
+    height: 9px;
+    /* Needs rounded corners only on the left side. Otherwise the rounding of
+       the progress track starts before the thumb, when the thumb is close to
+       the left edge. */
+    border-radius: 5px 0 0 5px;
 }
 input[type=range]::-webkit-slider-thumb {
     appearance: none;
@@ -442,6 +492,30 @@ input[type=range]::-webkit-slider-thumb {
     -webkit-tap-highlight-color: transparent;
     border: 3px solid var(--novnc-blue);
     margin-top: -4px; /* (track height / 2) - (thumb height /2) */
+
+    /* Since there is no way to style the left part of the range track in
+       webkit, we add a large shadow (1000px wide) to the left of the thumb and
+       then crop it with a clip-path shaped like this:
+                              ___
+        +-------------------/     \
+        |      progress     |Thumb|
+        +-------------------\ ___ /
+
+        The large left part of the shadow is clipped by another clip-path on on
+        the main range input element. */
+    /* FIXME: We can remove the box shadow workaround when this is standardized:
+              https://github.com/w3c/csswg-drafts/issues/4410 */
+
+    box-shadow: calc(-100vw - 8px) 0 0 100vw var(--novnc-blue);
+    clip-path: path(' \
+     M -1000 3 \
+     L 3 3 \
+     L 15 7.5 \
+     A 1 1 0 0 1 0 7.5 \
+     A 1 1 0 0 1 15 7.5 \
+     L 3 12 \
+     L -1000 12 Z \
+    ');
 }
 input[type=range]::-moz-range-thumb {
     appearance: none;
