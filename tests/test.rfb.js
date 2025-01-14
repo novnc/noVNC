@@ -233,6 +233,30 @@ describe('Remote Frame Buffer protocol client', function () {
         client._canvas.dispatchEvent(ev);
     }
 
+    function sendFbuMsg(rectInfo, rectData, client, rectCnt) {
+        let data = [];
+
+        if (!rectCnt || rectCnt > -1) {
+            // header
+            data.push(0);  // msg type
+            data.push(0);  // padding
+            push16(data, rectCnt || rectData.length);
+        }
+
+        for (let i = 0; i < rectData.length; i++) {
+            if (rectInfo[i]) {
+                push16(data, rectInfo[i].x);
+                push16(data, rectInfo[i].y);
+                push16(data, rectInfo[i].width);
+                push16(data, rectInfo[i].height);
+                push32(data, rectInfo[i].encoding);
+            }
+            data = data.concat(rectData[i]);
+        }
+
+        client._sock._websocket._receiveData(new Uint8Array(data));
+    }
+
     describe('Connecting/Disconnecting', function () {
         describe('#RFB (constructor)', function () {
             let open, attach;
@@ -2757,30 +2781,6 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         describe('Framebuffer update handling', function () {
-            function sendFbuMsg(rectInfo, rectData, client, rectCnt) {
-                let data = [];
-
-                if (!rectCnt || rectCnt > -1) {
-                    // header
-                    data.push(0);  // msg type
-                    data.push(0);  // padding
-                    push16(data, rectCnt || rectData.length);
-                }
-
-                for (let i = 0; i < rectData.length; i++) {
-                    if (rectInfo[i]) {
-                        push16(data, rectInfo[i].x);
-                        push16(data, rectInfo[i].y);
-                        push16(data, rectInfo[i].width);
-                        push16(data, rectInfo[i].height);
-                        push32(data, rectInfo[i].encoding);
-                    }
-                    data = data.concat(rectData[i]);
-                }
-
-                client._sock._websocket._receiveData(new Uint8Array(data));
-            }
-
             it('should send an update request if there is sufficient data', function () {
                 let esock = new Websock();
                 let ews = new FakeWebSocket();
