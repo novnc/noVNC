@@ -737,9 +737,9 @@ html {
     }
 }
 #noVNC_connect_dlg div {
-    padding: 12px;
+    padding: 18px;
 
-    background-color: var(--novnc-blue);
+    background-color: var(--novnc-darkgrey);
     border-radius: 12px;
     text-align: center;
     font-size: 20px;
@@ -751,7 +751,7 @@ html {
     padding: 6px 30px;
     cursor: pointer;
     border-color: transparent;
-    border-radius: 6px;
+    border-radius: 12px;
     background-color: var(--novnc-blue);
     color: white;
 
