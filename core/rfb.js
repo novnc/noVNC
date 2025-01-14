@@ -1103,6 +1103,8 @@ export default class RFB extends EventTargetMixin {
                         this._viewportDragPos = {'x': pos.x, 'y': pos.y};
                         this._viewportHasMoved = false;
 
+                        this._flushMouseMoveTimer(pos.x, pos.y);
+
                         // Skip sending mouse events, instead save the current
                         // mouse mask so we can send it later.
                         this._mouseButtonMask = bmask;

@@ -898,6 +898,24 @@ describe('Remote Frame Buffer protocol client', function () {
 
                 expect(client._display.viewportChangePos).to.not.have.been.called;
             });
+
+            it('should flush move events when initiating viewport drag', function () {
+                sendMouseMoveEvent(13, 9, 0x0, client);
+                sendMouseMoveEvent(14, 9, 0x0, client);
+                sendMouseButtonEvent(14, 9, true, 0x1, client);
+
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x0);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     14, 9, 0x0);
+
+                RFB.messages.pointerEvent.resetHistory();
+
+                clock.tick(100);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;;
+            });
         });
     });
 
