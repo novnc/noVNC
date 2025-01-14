@@ -158,6 +158,81 @@ describe('Remote Frame Buffer protocol client', function () {
         return rfb;
     }
 
+    function elementToClient(x, y, client) {
+        let res = { x: 0, y: 0 };
+
+        let bounds = client._canvas.getBoundingClientRect();
+
+        /*
+         * If the canvas is on a fractional position we will calculate
+         * a fractional mouse position. But that gets truncated when we
+         * send the event, AND the same thing happens in RFB when it
+         * generates the PointerEvent message. To compensate for that
+         * fact we round the value upwards here.
+         */
+        res.x = Math.ceil(bounds.left + x);
+        res.y = Math.ceil(bounds.top + y);
+
+        return res;
+    }
+
+    function sendMouseMoveEvent(x, y, buttons, client) {
+        let pos = elementToClient(x, y, client);
+        let ev;
+
+        ev = new MouseEvent('mousemove',
+                            { 'screenX': pos.x + window.screenX,
+                              'screenY': pos.y + window.screenY,
+                              'clientX': pos.x,
+                              'clientY': pos.y,
+                              'buttons': buttons });
+        client._canvas.dispatchEvent(ev);
+    }
+
+    function sendMouseButtonEvent(x, y, down, buttons, client) {
+        let pos = elementToClient(x, y, client);
+        let ev;
+
+        ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
+                            { 'screenX': pos.x + window.screenX,
+                              'screenY': pos.y + window.screenY,
+                              'clientX': pos.x,
+                              'clientY': pos.y,
+                              'buttons': buttons});
+        client._canvas.dispatchEvent(ev);
+    }
+
+    function gestureStart(gestureType, x, y, client,
+                          magnitudeX = 0, magnitudeY = 0) {
+        let pos = elementToClient(x, y, client);
+        let detail = { type: gestureType, clientX: pos.x, clientY: pos.y };
+
+        detail.magnitudeX = magnitudeX;
+        detail.magnitudeY = magnitudeY;
+
+        let ev = new CustomEvent('gesturestart', { detail: detail });
+        client._canvas.dispatchEvent(ev);
+    }
+
+    function gestureMove(gestureType, x, y, client,
+                         magnitudeX = 0, magnitudeY = 0) {
+        let pos = elementToClient(x, y, client);
+        let detail = { type: gestureType, clientX: pos.x, clientY: pos.y };
+
+        detail.magnitudeX = magnitudeX;
+        detail.magnitudeY = magnitudeY;
+
+        let ev = new CustomEvent('gesturemove', { detail: detail }, client);
+        client._canvas.dispatchEvent(ev);
+    }
+
+    function gestureEnd(gestureType, x, y, client) {
+        let pos = elementToClient(x, y, client);
+        let detail = { type: gestureType, clientX: pos.x, clientY: pos.y };
+        let ev = new CustomEvent('gestureend', { detail: detail });
+        client._canvas.dispatchEvent(ev);
+    }
+
     describe('Connecting/Disconnecting', function () {
         describe('#RFB (constructor)', function () {
             let open, attach;
@@ -624,7 +699,10 @@ describe('Remote Frame Buffer protocol client', function () {
 
         describe('Dragging', function () {
             beforeEach(function () {
+                client = makeRFB();
                 client.dragViewport = true;
+                client._display.resize(100, 100);
+
                 sinon.spy(RFB.messages, "pointerEvent");
             });
 
@@ -633,52 +711,80 @@ describe('Remote Frame Buffer protocol client', function () {
             });
 
             it('should not send button messages when initiating viewport dragging', function () {
-                client._handleMouseButton(13, 9, 0x001);
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
 
             it('should send button messages when release without movement', function () {
                 // Just up and down
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseButton(13, 9, 0x000);
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
+                sendMouseButtonEvent(13, 9, false, 0x0, client);
+
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x1);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     13, 9, 0x0);
+            });
 
-                RFB.messages.pointerEvent.resetHistory();
+            it('should send button messages when tapping', function () {
+                // Just up and down
+                gestureStart('onetap', 13, 9, client);
+                gestureEnd('onetap', 13, 9, client);
 
+                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x0);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     13, 9, 0x1);
+                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x0);
+            });
+
+            it('should send button messages when release with small movement', function () {
                 // Small movement
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(15, 14);
-                client._handleMouseButton(15, 14, 0x000);
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
+                sendMouseMoveEvent(15, 14, 0x1, client);
+                sendMouseButtonEvent(15, 14, false, 0x0, client);
+
                 expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    15, 14, 0x1);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     15, 14, 0x0);
             });
 
             it('should not send button messages when in view only', function () {
                 client._viewOnly = true;
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseButton(13, 9, 0x000);
+
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
+                sendMouseButtonEvent(13, 9, false, 0x0, client);
+
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
 
             it('should send button message directly when drag is disabled', function () {
                 client.dragViewport = false;
-                client._handleMouseButton(13, 9, 0x001);
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
                 expect(RFB.messages.pointerEvent).to.have.been.calledOnce;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x1);
             });
 
             it('should be initiate viewport dragging on sufficient movement', function () {
                 sinon.spy(client._display, "viewportChangePos");
 
                 // Too small movement
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
+                sendMouseMoveEvent(18, 9, 0x1, client);
 
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(18, 9);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.not.have.been.called;
 
                 // Sufficient movement
 
-                client._handleMouseMove(43, 9);
+                sendMouseMoveEvent(43, 9, 0x1, client);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
@@ -688,19 +794,91 @@ describe('Remote Frame Buffer protocol client', function () {
 
                 // Now a small movement should move right away
 
-                client._handleMouseMove(43, 14);
+                sendMouseMoveEvent(43, 14, 0x1, client);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
                 expect(client._display.viewportChangePos).to.have.been.calledWith(0, -5);
             });
 
+            it('should initiate viewport dragging on sufficient drag gesture movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // Sufficient movement
+                gestureStart('drag', 13, 9, client);
+                gestureMove('drag', 43, 9, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
+
+                client._display.viewportChangePos.resetHistory();
+                RFB.messages.pointerEvent.resetHistory();
+
+                // Now a small movement should move right away
+
+                gestureMove('drag', 43, 14, client);
+                gestureEnd('drag', 43, 14, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(0, -5);
+            });
+
+            it('should initiate viewport dragging on sufficient longpress gesture movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // A small movement below the threshold should not move.
+                gestureStart('longpress', 13, 9, client);
+                gestureMove('longpress', 14, 9, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+
+                client._display.viewportChangePos.resetHistory();
+                RFB.messages.pointerEvent.resetHistory();
+
+                gestureMove('longpress', 43, 9, client);
+                gestureEnd('longpress', 43, 9, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
+            });
+
+            it('should send button messages on small longpress gesture movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // A small movement below the threshold should not move.
+                gestureStart('longpress', 13, 9, client);
+                gestureMove('longpress', 14, 10, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+
+                client._display.viewportChangePos.resetHistory();
+                RFB.messages.pointerEvent.resetHistory();
+
+                gestureEnd('longpress', 14, 9, client);
+
+                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    14, 9, 0x0);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     14, 9, 0x4);
+                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                                    14, 9, 0x0);
+
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+            });
+
             it('should not send button messages when dragging ends', function () {
                 // First the movement
 
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(43, 9);
-                client._handleMouseButton(43, 9, 0x000);
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
+                sendMouseMoveEvent(43, 9, 0x1, client);
+                sendMouseButtonEvent(43, 9, false, 0x0, client);
 
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
             });
@@ -708,17 +886,35 @@ describe('Remote Frame Buffer protocol client', function () {
             it('should terminate viewport dragging on a button up event', function () {
                 // First the dragging movement
 
-                client._handleMouseButton(13, 9, 0x001);
-                client._handleMouseMove(43, 9);
-                client._handleMouseButton(43, 9, 0x000);
+                sendMouseButtonEvent(13, 9, true, 0x1, client);
+                sendMouseMoveEvent(43, 9, 0x1, client);
+                sendMouseButtonEvent(43, 9, false, 0x0, client);
 
                 // Another movement now should not move the viewport
 
                 sinon.spy(client._display, "viewportChangePos");
 
-                client._handleMouseMove(43, 59);
+                sendMouseMoveEvent(43, 59, 0x0, client);
 
                 expect(client._display.viewportChangePos).to.not.have.been.called;
+            });
+
+            it('should flush move events when initiating viewport drag', function () {
+                sendMouseMoveEvent(13, 9, 0x0, client);
+                sendMouseMoveEvent(14, 9, 0x0, client);
+                sendMouseButtonEvent(14, 9, true, 0x1, client);
+
+                expect(RFB.messages.pointerEvent).to.have.been.calledTwice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x0);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     14, 9, 0x0);
+
+                RFB.messages.pointerEvent.resetHistory();
+
+                clock.tick(100);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;;
             });
         });
     });
@@ -3584,107 +3780,66 @@ describe('Remote Frame Buffer protocol client', function () {
             qemuKeyEvent.restore();
         });
 
-        function elementToClient(x, y) {
-            let res = { x: 0, y: 0 };
-
-            let bounds = client._canvas.getBoundingClientRect();
-
-            /*
-             * If the canvas is on a fractional position we will calculate
-             * a fractional mouse position. But that gets truncated when we
-             * send the event, AND the same thing happens in RFB when it
-             * generates the PointerEvent message. To compensate for that
-             * fact we round the value upwards here.
-             */
-            res.x = Math.ceil(bounds.left + x);
-            res.y = Math.ceil(bounds.top + y);
-
-            return res;
-        }
-
         describe('Mouse events', function () {
-            function sendMouseMoveEvent(x, y) {
-                let pos = elementToClient(x, y);
-                let ev;
-
-                ev = new MouseEvent('mousemove',
-                                    { 'screenX': pos.x + window.screenX,
-                                      'screenY': pos.y + window.screenY,
-                                      'clientX': pos.x,
-                                      'clientY': pos.y });
-                client._canvas.dispatchEvent(ev);
-            }
-
-            function sendMouseButtonEvent(x, y, down, button) {
-                let pos = elementToClient(x, y);
-                let ev;
-
-                ev = new MouseEvent(down ? 'mousedown' : 'mouseup',
-                                    { 'screenX': pos.x + window.screenX,
-                                      'screenY': pos.y + window.screenY,
-                                      'clientX': pos.x,
-                                      'clientY': pos.y,
-                                      'button': button,
-                                      'buttons': 1 << button });
-                client._canvas.dispatchEvent(ev);
-            }
 
             it('should not send button messages in view-only mode', function () {
                 client._viewOnly = true;
-                sendMouseButtonEvent(10, 10, true, 0);
+                sendMouseButtonEvent(10, 10, true, 0x1, client);
+
                 clock.tick(50);
                 expect(pointerEvent).to.not.have.been.called;
             });
 
             it('should not send movement messages in view-only mode', function () {
                 client._viewOnly = true;
-                sendMouseMoveEvent(10, 10);
+                sendMouseMoveEvent(10, 10, 0x0, client);
+
                 clock.tick(50);
                 expect(pointerEvent).to.not.have.been.called;
             });
 
             it('should handle left mouse button', function () {
-                sendMouseButtonEvent(10, 10, true, 0);
+                sendMouseButtonEvent(10, 10, true, 0x1, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  10, 10, 0x1);
                 pointerEvent.resetHistory();
 
-                sendMouseButtonEvent(10, 10, false, 0);
+                sendMouseButtonEvent(10, 10, false, 0x0, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  10, 10, 0x0);
             });
 
             it('should handle middle mouse button', function () {
-                sendMouseButtonEvent(10, 10, true, 1);
+                sendMouseButtonEvent(10, 10, true, 0x4, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  10, 10, 0x2);
                 pointerEvent.resetHistory();
 
-                sendMouseButtonEvent(10, 10, false, 1);
+                sendMouseButtonEvent(10, 10, false, 0x0, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  10, 10, 0x0);
             });
 
             it('should handle right mouse button', function () {
-                sendMouseButtonEvent(10, 10, true, 2);
+                sendMouseButtonEvent(10, 10, true, 0x2, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  10, 10, 0x4);
                 pointerEvent.resetHistory();
 
-                sendMouseButtonEvent(10, 10, false, 2);
+                sendMouseButtonEvent(10, 10, false, 0x0, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  10, 10, 0x0);
             });
 
             it('should handle multiple mouse buttons', function () {
-                sendMouseButtonEvent(10, 10, true, 0);
-                sendMouseButtonEvent(10, 10, true, 2);
+                sendMouseButtonEvent(10, 10, true, 0x1, client);
+                sendMouseButtonEvent(10, 10, true, 0x3, client);
 
                 expect(pointerEvent).to.have.been.calledTwice;
                 expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -3694,8 +3849,9 @@ describe('Remote Frame Buffer protocol client', function () {
 
                 pointerEvent.resetHistory();
 
-                sendMouseButtonEvent(10, 10, false, 0);
-                sendMouseButtonEvent(10, 10, false, 2);
+
+                sendMouseButtonEvent(10, 10, false, 0x2, client);
+                sendMouseButtonEvent(10, 10, false, 0x0, client);
 
                 expect(pointerEvent).to.have.been.calledTwice;
                 expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -3705,14 +3861,14 @@ describe('Remote Frame Buffer protocol client', function () {
             });
 
             it('should handle mouse movement', function () {
-                sendMouseMoveEvent(50, 70);
+                sendMouseMoveEvent(50, 70, 0x0, client);
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  50, 70, 0x0);
             });
 
             it('should handle click and drag', function () {
-                sendMouseButtonEvent(10, 10, true, 0);
-                sendMouseMoveEvent(50, 70);
+                sendMouseButtonEvent(10, 10, true, 0x1, client);
+                sendMouseMoveEvent(50, 70, 0x1, client);
 
                 expect(pointerEvent).to.have.been.calledTwice;
                 expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -3722,7 +3878,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                 pointerEvent.resetHistory();
 
-                sendMouseButtonEvent(50, 70, false, 0);
+                sendMouseButtonEvent(50, 70, false, 0x0, client);
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  50, 70, 0x0);
@@ -3730,15 +3886,15 @@ describe('Remote Frame Buffer protocol client', function () {
 
             describe('Event aggregation', function () {
                 it('should send a single pointer event on mouse movement', function () {
-                    sendMouseMoveEvent(50, 70);
+                    sendMouseMoveEvent(50, 70, 0x0, client);
                     clock.tick(100);
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      50, 70, 0x0);
                 });
 
                 it('should delay one move if two events are too close', function () {
-                    sendMouseMoveEvent(18, 30);
-                    sendMouseMoveEvent(20, 50);
+                    sendMouseMoveEvent(18, 30, 0x0, client);
+                    sendMouseMoveEvent(20, 50, 0x0, client);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      18, 30, 0x0);
@@ -3751,9 +3907,9 @@ describe('Remote Frame Buffer protocol client', function () {
                 });
 
                 it('should only send first and last move of many close events', function () {
-                    sendMouseMoveEvent(18, 30);
-                    sendMouseMoveEvent(20, 50);
-                    sendMouseMoveEvent(21, 55);
+                    sendMouseMoveEvent(18, 30, 0x0, client);
+                    sendMouseMoveEvent(20, 50, 0x0, client);
+                    sendMouseMoveEvent(21, 55, 0x0, client);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      18, 30, 0x0);
@@ -3767,46 +3923,46 @@ describe('Remote Frame Buffer protocol client', function () {
 
                 // We selected the 17ms since that is ~60 FPS
                 it('should send move events every 17 ms', function () {
-                    sendMouseMoveEvent(1, 10);  // instant send
+                    sendMouseMoveEvent(1, 10, 0x0, client);  // instant send
                     clock.tick(10);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      1, 10, 0x0);
                     pointerEvent.resetHistory();
 
-                    sendMouseMoveEvent(2, 20);  // delayed
+                    sendMouseMoveEvent(2, 20, 0x0, client);  // delayed
                     clock.tick(10);        // timeout send
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      2, 20, 0x0);
                     pointerEvent.resetHistory();
 
-                    sendMouseMoveEvent(3, 30);  // delayed
+                    sendMouseMoveEvent(3, 30, 0x0, client);  // delayed
                     clock.tick(10);
-                    sendMouseMoveEvent(4, 40);  // delayed
+                    sendMouseMoveEvent(4, 40, 0x0, client);  // delayed
                     clock.tick(10);        // timeout send
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      4, 40, 0x0);
                     pointerEvent.resetHistory();
 
-                    sendMouseMoveEvent(5, 50);  // delayed
+                    sendMouseMoveEvent(5, 50, 0x0, client);  // delayed
 
                     expect(pointerEvent).to.not.have.been.called;
                 });
 
                 it('should send waiting move events before a button press', function () {
-                    sendMouseMoveEvent(13, 9);
+                    sendMouseMoveEvent(13, 9, 0x0, client);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      13, 9, 0x0);
                     pointerEvent.resetHistory();
 
-                    sendMouseMoveEvent(20, 70);
+                    sendMouseMoveEvent(20, 70, 0x0, client);
 
                     expect(pointerEvent).to.not.have.been.called;
 
-                    sendMouseButtonEvent(20, 70, true, 0);
+                    sendMouseButtonEvent(20, 70, true, 0x1, client);
 
                     expect(pointerEvent).to.have.been.calledTwice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -3816,7 +3972,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 });
 
                 it('should send move events with enough time apart normally', function () {
-                    sendMouseMoveEvent(58, 60);
+                    sendMouseMoveEvent(58, 60, 0x0, client);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      58, 60, 0x0);
@@ -3824,7 +3980,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     clock.tick(20);
 
-                    sendMouseMoveEvent(25, 60);
+                    sendMouseMoveEvent(25, 60, 0x0, client);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      25, 60, 0x0);
@@ -3832,13 +3988,13 @@ describe('Remote Frame Buffer protocol client', function () {
                 });
 
                 it('should not send waiting move events if disconnected', function () {
-                    sendMouseMoveEvent(88, 99);
+                    sendMouseMoveEvent(88, 99, 0x0, client);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      88, 99, 0x0);
                     pointerEvent.resetHistory();
 
-                    sendMouseMoveEvent(66, 77);
+                    sendMouseMoveEvent(66, 77, 0x0, client);
                     client.disconnect();
                     clock.tick(20);
 
@@ -3856,8 +4012,8 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         describe('Wheel events', function () {
-            function sendWheelEvent(x, y, dx, dy, mode=0) {
-                let pos = elementToClient(x, y);
+            function sendWheelEvent(x, y, dx, dy, mode=0, buttons=0) {
+                let pos = elementToClient(x, y, client);
                 let ev;
 
                 ev = new WheelEvent('wheel',
@@ -3867,7 +4023,8 @@ describe('Remote Frame Buffer protocol client', function () {
                                       'clientY': pos.y,
                                       'deltaX': dx,
                                       'deltaY': dy,
-                                      'deltaMode': mode });
+                                      'deltaMode': mode,
+                                      'buttons': buttons });
                 client._canvas.dispatchEvent(ev);
             }
 
@@ -3963,6 +4120,21 @@ describe('Remote Frame Buffer protocol client', function () {
                 expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
                                                                         10, 10, 0);
             });
+
+            it('should handle wheel event with buttons pressed', function () {
+                sendMouseButtonEvent(10, 10, true, 0x1, client);
+                sendWheelEvent(10, 10, 0, 50, 0, 0x1);
+
+                expect(pointerEvent).to.have.been.called.calledThrice;
+
+                expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x1);
+                expect(pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                        10, 10, 0x11);
+                expect(pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                       10, 10, 0x1);
+            });
+
         });
 
         describe('Keyboard events', function () {
@@ -3988,43 +4160,12 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         describe('Gesture event handlers', function () {
-            function gestureStart(gestureType, x, y,
-                                  magnitudeX = 0, magnitudeY = 0) {
-                let pos = elementToClient(x, y);
-                let detail = {type: gestureType, clientX: pos.x, clientY: pos.y};
-
-                detail.magnitudeX = magnitudeX;
-                detail.magnitudeY = magnitudeY;
-
-                let ev = new CustomEvent('gesturestart', { detail: detail });
-                client._canvas.dispatchEvent(ev);
-            }
-
-            function gestureMove(gestureType, x, y,
-                                 magnitudeX = 0, magnitudeY = 0) {
-                let pos = elementToClient(x, y);
-                let detail = {type: gestureType, clientX: pos.x, clientY: pos.y};
-
-                detail.magnitudeX = magnitudeX;
-                detail.magnitudeY = magnitudeY;
-
-                let ev = new CustomEvent('gesturemove', { detail: detail });
-                client._canvas.dispatchEvent(ev);
-            }
-
-            function gestureEnd(gestureType, x, y) {
-                let pos = elementToClient(x, y);
-                let detail = {type: gestureType, clientX: pos.x, clientY: pos.y};
-                let ev = new CustomEvent('gestureend', { detail: detail });
-                client._canvas.dispatchEvent(ev);
-            }
-
             describe('Gesture onetap', function () {
                 it('should handle onetap events', function () {
                     let bmask = 0x1;
 
-                    gestureStart('onetap', 20, 40);
-                    gestureEnd('onetap', 20, 40);
+                    gestureStart('onetap', 20, 40, client);
+                    gestureEnd('onetap', 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4038,8 +4179,8 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should keep same position for multiple onetap events', function () {
                     let bmask = 0x1;
 
-                    gestureStart('onetap', 20, 40);
-                    gestureEnd('onetap', 20, 40);
+                    gestureStart('onetap', 20, 40, client);
+                    gestureEnd('onetap', 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4051,8 +4192,8 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureStart('onetap', 20, 50);
-                    gestureEnd('onetap', 20, 50);
+                    gestureStart('onetap', 20, 50, client);
+                    gestureEnd('onetap', 20, 50, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4064,8 +4205,8 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureStart('onetap', 30, 50);
-                    gestureEnd('onetap', 30, 50);
+                    gestureStart('onetap', 30, 50, client);
+                    gestureEnd('onetap', 30, 50, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4079,8 +4220,8 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should not keep same position for onetap events when too far apart', function () {
                     let bmask = 0x1;
 
-                    gestureStart('onetap', 20, 40);
-                    gestureEnd('onetap', 20, 40);
+                    gestureStart('onetap', 20, 40, client);
+                    gestureEnd('onetap', 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4092,8 +4233,8 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureStart('onetap', 80, 95);
-                    gestureEnd('onetap', 80, 95);
+                    gestureStart('onetap', 80, 95, client);
+                    gestureEnd('onetap', 80, 95, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4107,8 +4248,8 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should not keep same position for onetap events when enough time inbetween', function () {
                     let bmask = 0x1;
 
-                    gestureStart('onetap', 10, 20);
-                    gestureEnd('onetap', 10, 20);
+                    gestureStart('onetap', 10, 20, client);
+                    gestureEnd('onetap', 10, 20, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4121,8 +4262,8 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     this.clock.tick(1500);
 
-                    gestureStart('onetap', 15, 20);
-                    gestureEnd('onetap', 15, 20);
+                    gestureStart('onetap', 15, 20, client);
+                    gestureEnd('onetap', 15, 20, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4140,7 +4281,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture twotap events', function () {
                     let bmask = 0x4;
 
-                    gestureStart("twotap", 20, 40);
+                    gestureStart("twotap", 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4157,8 +4298,8 @@ describe('Remote Frame Buffer protocol client', function () {
                     for (let offset = 0;offset < 30;offset += 10) {
                         pointerEvent.resetHistory();
 
-                        gestureStart('twotap', 20, 40 + offset);
-                        gestureEnd('twotap', 20, 40 + offset);
+                        gestureStart('twotap', 20, 40 + offset, client);
+                        gestureEnd('twotap', 20, 40 + offset, client);
 
                         expect(pointerEvent).to.have.been.calledThrice;
                         expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4175,7 +4316,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture start for threetap events', function () {
                     let bmask = 0x2;
 
-                    gestureStart("threetap", 20, 40);
+                    gestureStart("threetap", 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4192,8 +4333,8 @@ describe('Remote Frame Buffer protocol client', function () {
                     for (let offset = 0;offset < 30;offset += 10) {
                         pointerEvent.resetHistory();
 
-                        gestureStart('threetap', 20, 40 + offset);
-                        gestureEnd('threetap', 20, 40 + offset);
+                        gestureStart('threetap', 20, 40 + offset, client);
+                        gestureEnd('threetap', 20, 40 + offset, client);
 
                         expect(pointerEvent).to.have.been.calledThrice;
                         expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4210,7 +4351,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture drag events', function () {
                     let bmask = 0x1;
 
-                    gestureStart('drag', 20, 40);
+                    gestureStart('drag', 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledTwice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4220,7 +4361,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('drag', 30, 50);
+                    gestureMove('drag', 30, 50, client);
                     clock.tick(50);
 
                     expect(pointerEvent).to.have.been.calledOnce;
@@ -4229,7 +4370,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureEnd('drag', 30, 50);
+                    gestureEnd('drag', 30, 50, client);
 
                     expect(pointerEvent).to.have.been.calledTwice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4243,7 +4384,7 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle long press events', function () {
                     let bmask = 0x4;
 
-                    gestureStart('longpress', 20, 40);
+                    gestureStart('longpress', 20, 40, client);
 
                     expect(pointerEvent).to.have.been.calledTwice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4252,7 +4393,7 @@ describe('Remote Frame Buffer protocol client', function () {
                                                                             20, 40, bmask);
                     pointerEvent.resetHistory();
 
-                    gestureMove('longpress', 40, 60);
+                    gestureMove('longpress', 40, 60, client);
                     clock.tick(50);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
@@ -4260,7 +4401,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureEnd('longpress', 40, 60);
+                    gestureEnd('longpress', 40, 60, client);
 
                     expect(pointerEvent).to.have.been.calledTwice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4274,14 +4415,14 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture twodrag up events', function () {
                     let bmask = 0x10; // Button mask for scroll down
 
-                    gestureStart('twodrag', 20, 40, 0, 0);
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 0, -60);
+                    gestureMove('twodrag', 20, 40, client, 0, -60);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4295,14 +4436,14 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture twodrag down events', function () {
                     let bmask = 0x8; // Button mask for scroll up
 
-                    gestureStart('twodrag', 20, 40, 0, 0);
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 0, 60);
+                    gestureMove('twodrag', 20, 40, client, 0, 60);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4316,14 +4457,14 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture twodrag right events', function () {
                     let bmask = 0x20; // Button mask for scroll right
 
-                    gestureStart('twodrag', 20, 40, 0, 0);
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 60, 0);
+                    gestureMove('twodrag', 20, 40, client, 60, 0);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4337,14 +4478,14 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle gesture twodrag left events', function () {
                     let bmask = 0x40; // Button mask for scroll left
 
-                    gestureStart('twodrag', 20, 40, 0, 0);
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, -60, 0);
+                    gestureMove('twodrag', 20, 40, client, -60, 0);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4359,14 +4500,14 @@ describe('Remote Frame Buffer protocol client', function () {
                     let scrlUp = 0x8; // Button mask for scroll up
                     let scrlRight = 0x20; // Button mask for scroll right
 
-                    gestureStart('twodrag', 20, 40, 0, 0);
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 60, 60);
+                    gestureMove('twodrag', 20, 40, client, 60, 60);
 
                     expect(pointerEvent).to.have.been.callCount(5);
                     expect(pointerEvent.getCall(0)).to.have.been.calledWith(client._sock,
@@ -4384,14 +4525,14 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle multiple small gesture twodrag events', function () {
                     let bmask = 0x8; // Button mask for scroll up
 
-                    gestureStart('twodrag', 20, 40, 0, 0);
+                    gestureStart('twodrag', 20, 40, client, 0, 0);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 0, 10);
+                    gestureMove('twodrag', 20, 40, client, 0, 10);
                     clock.tick(50);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
@@ -4399,7 +4540,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 0, 20);
+                    gestureMove('twodrag', 20, 40, client, 0, 20);
                     clock.tick(50);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
@@ -4407,7 +4548,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 20, 40, 0, 60);
+                    gestureMove('twodrag', 20, 40, client, 0, 60);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4421,14 +4562,14 @@ describe('Remote Frame Buffer protocol client', function () {
                 it('should handle large gesture twodrag events', function () {
                     let bmask = 0x8; // Button mask for scroll up
 
-                    gestureStart('twodrag', 30, 50, 0, 0);
+                    gestureStart('twodrag', 30, 50, client, 0, 0);
 
                     expect(pointerEvent).
                         to.have.been.calledOnceWith(client._sock, 30, 50, 0x0);
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('twodrag', 30, 50, 0, 200);
+                    gestureMove('twodrag', 30, 50, client, 0, 200);
 
                     expect(pointerEvent).to.have.callCount(7);
                     expect(pointerEvent.getCall(0)).to.have.been.calledWith(client._sock,
@@ -4453,7 +4594,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     let keysym = KeyTable.XK_Control_L;
                     let bmask = 0x10; // Button mask for scroll down
 
-                    gestureStart('pinch', 20, 40, 90, 90);
+                    gestureStart('pinch', 20, 40, client, 90, 90);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
@@ -4461,7 +4602,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('pinch', 20, 40, 30, 30);
+                    gestureMove('pinch', 20, 40, client, 30, 30);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4483,7 +4624,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     keyEvent.resetHistory();
 
-                    gestureEnd('pinch', 20, 40);
+                    gestureEnd('pinch', 20, 40, client);
 
                     expect(pointerEvent).to.not.have.been.called;
                     expect(keyEvent).to.not.have.been.called;
@@ -4493,7 +4634,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     let keysym = KeyTable.XK_Control_L;
                     let bmask = 0x8; // Button mask for scroll up
 
-                    gestureStart('pinch', 10, 20, 10, 20);
+                    gestureStart('pinch', 10, 20, client, 10, 20);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      10, 20, 0x0);
@@ -4501,7 +4642,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('pinch', 10, 20, 70, 80);
+                    gestureMove('pinch', 10, 20, client, 70, 80);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4523,7 +4664,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     keyEvent.resetHistory();
 
-                    gestureEnd('pinch', 10, 20);
+                    gestureEnd('pinch', 10, 20, client);
 
                     expect(pointerEvent).to.not.have.been.called;
                     expect(keyEvent).to.not.have.been.called;
@@ -4533,7 +4674,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     let keysym = KeyTable.XK_Control_L;
                     let bmask = 0x10; // Button mask for scroll down
 
-                    gestureStart('pinch', 20, 40, 150, 150);
+                    gestureStart('pinch', 20, 40, client, 150, 150);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
@@ -4541,7 +4682,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('pinch', 20, 40, 30, 30);
+                    gestureMove('pinch', 20, 40, client, 30, 30);
 
                     expect(pointerEvent).to.have.been.callCount(5);
                     expect(pointerEvent.getCall(0)).to.have.been.calledWith(client._sock,
@@ -4567,7 +4708,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     keyEvent.resetHistory();
 
-                    gestureEnd('pinch', 20, 40);
+                    gestureEnd('pinch', 20, 40, client);
 
                     expect(pointerEvent).to.not.have.been.called;
                     expect(keyEvent).to.not.have.been.called;
@@ -4577,7 +4718,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     let keysym = KeyTable.XK_Control_L;
                     let bmask = 0x8; // Button mask for scroll down
 
-                    gestureStart('pinch', 20, 40, 0, 10);
+                    gestureStart('pinch', 20, 40, client, 0, 10);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
@@ -4585,7 +4726,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('pinch', 20, 40, 0, 30);
+                    gestureMove('pinch', 20, 40, client, 0, 30);
                     clock.tick(50);
 
                     expect(pointerEvent).to.have.been.calledWith(client._sock,
@@ -4593,7 +4734,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('pinch', 20, 40, 0, 60);
+                    gestureMove('pinch', 20, 40, client, 0, 60);
                     clock.tick(50);
 
                     expect(pointerEvent).to.have.been.calledWith(client._sock,
@@ -4602,7 +4743,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     keyEvent.resetHistory();
 
-                    gestureMove('pinch', 20, 40, 0, 90);
+                    gestureMove('pinch', 20, 40, client, 0, 90);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4624,7 +4765,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     keyEvent.resetHistory();
 
-                    gestureEnd('pinch', 20, 40);
+                    gestureEnd('pinch', 20, 40, client);
 
                     expect(keyEvent).to.not.have.been.called;
                 });
@@ -4636,7 +4777,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     client._qemuExtKeyEventSupported = true;
 
-                    gestureStart('pinch', 20, 40, 90, 90);
+                    gestureStart('pinch', 20, 40, client, 90, 90);
 
                     expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                      20, 40, 0x0);
@@ -4644,7 +4785,7 @@ describe('Remote Frame Buffer protocol client', function () {
 
                     pointerEvent.resetHistory();
 
-                    gestureMove('pinch', 20, 40, 30, 30);
+                    gestureMove('pinch', 20, 40, client, 30, 30);
 
                     expect(pointerEvent).to.have.been.calledThrice;
                     expect(pointerEvent.firstCall).to.have.been.calledWith(client._sock,
@@ -4670,7 +4811,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     pointerEvent.resetHistory();
                     qemuKeyEvent.resetHistory();
 
-                    gestureEnd('pinch', 20, 40);
+                    gestureEnd('pinch', 20, 40, client);
 
                     expect(pointerEvent).to.not.have.been.called;
                     expect(qemuKeyEvent).to.not.have.been.called;
