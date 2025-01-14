@@ -1104,11 +1104,7 @@ export default class RFB extends EventTargetMixin {
         }
 
         // Flush waiting move event first
-        if (this._mouseMoveTimer !== null) {
-            clearTimeout(this._mouseMoveTimer);
-            this._mouseMoveTimer = null;
-            this._sendMouse(x, y, this._mouseButtonMask);
-        }
+        this._flushMouseMoveTimer(x, y);
 
         if (down) {
             this._mouseButtonMask |= bmask;
@@ -1377,6 +1373,14 @@ export default class RFB extends EventTargetMixin {
                         break;
                 }
                 break;
+        }
+    }
+
+    _flushMouseMoveTimer(x, y) {
+        if (this._mouseMoveTimer !== null) {
+            clearTimeout(this._mouseMoveTimer);
+            this._mouseMoveTimer = null;
+            this._sendMouse(x, y, this._mouseButtonMask);
         }
     }
 
