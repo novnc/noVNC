@@ -727,6 +727,20 @@ describe('Remote Frame Buffer protocol client', function () {
                                                                                      13, 9, 0x0);
             });
 
+            it('should send button messages when tapping', function () {
+                // Just up and down
+                gestureStart('onetap', 13, 9, client);
+                gestureEnd('onetap', 13, 9, client);
+
+                expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x0);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     13, 9, 0x1);
+                expect(RFB.messages.pointerEvent.thirdCall).to.have.been.calledWith(client._sock,
+                                                                                    13, 9, 0x0);
+            });
+
             it('should send button messages when release with small movement', function () {
                 // Small movement
                 sendMouseButtonEvent(13, 9, true, 0, client);
@@ -785,6 +799,85 @@ describe('Remote Frame Buffer protocol client', function () {
                 expect(RFB.messages.pointerEvent).to.not.have.been.called;
                 expect(client._display.viewportChangePos).to.have.been.calledOnce;
                 expect(client._display.viewportChangePos).to.have.been.calledWith(0, -5);
+            });
+
+            it('should initiate viewport dragging on sufficient drag gesture movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // Sufficient movement
+                gestureStart('drag', 13, 9, client);
+                gestureMove('drag', 43, 9, client);
+
+                // FIXME: We don't want to send a pointer event here
+                // expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
+
+                client._display.viewportChangePos.resetHistory();
+                RFB.messages.pointerEvent.resetHistory();
+
+                // Now a small movement should move right away
+
+                gestureMove('drag', 43, 14, client);
+                gestureEnd('drag', 43, 14, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+
+                // FIXME: We only want to move the viewport once
+                // expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(0, -5);
+            });
+
+            it('should initiate viewport dragging on sufficient longpress gesture movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // A small movement below the threshold should not move.
+                gestureStart('longpress', 13, 9, client);
+                gestureMove('longpress', 14, 9, client);
+
+                // FIXME: We don't want to send a pointer event here
+                // expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+
+                client._display.viewportChangePos.resetHistory();
+                RFB.messages.pointerEvent.resetHistory();
+
+                gestureMove('longpress', 43, 9, client);
+                gestureEnd('longpress', 43, 9, client);
+
+                expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                // FIXME: We only want to move the viewport once
+                // expect(client._display.viewportChangePos).to.have.been.calledOnce;
+                expect(client._display.viewportChangePos).to.have.been.calledWith(-30, 0);
+            });
+
+            it('should send button messages on small longpress gesture movement', function () {
+                sinon.spy(client._display, "viewportChangePos");
+
+                // A small movement below the threshold should not move.
+                gestureStart('longpress', 13, 9, client);
+                gestureMove('longpress', 14, 10, client);
+
+                // FIXME: We don't want to send a pointer event here
+                // expect(RFB.messages.pointerEvent).to.not.have.been.called;
+                expect(client._display.viewportChangePos).to.not.have.been.called;
+
+                client._display.viewportChangePos.resetHistory();
+                RFB.messages.pointerEvent.resetHistory();
+
+                gestureEnd('longpress', 14, 9, client);
+
+                // FIXME: We want the pointer event to come after the
+                //        'gestureEnd' call instead.
+                // expect(RFB.messages.pointerEvent).to.have.been.calledThrice;
+                // expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                //                                                                     14, 9, 0x0);
+                expect(RFB.messages.pointerEvent.firstCall).to.have.been.calledWith(client._sock,
+                                                                                    14, 9, 0x4);
+                expect(RFB.messages.pointerEvent.secondCall).to.have.been.calledWith(client._sock,
+                                                                                     14, 9, 0x0);
+
+                expect(client._display.viewportChangePos).to.not.have.been.called;
             });
 
             it('should not send button messages when dragging ends', function () {
