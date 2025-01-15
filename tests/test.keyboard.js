@@ -525,6 +525,37 @@ describe('Key event handling', function () {
             expect(kbd.onkeyevent).to.not.have.been.called;
         });
 
+        it('should generate AltGraph for quick Ctrl+AltGraph sequence', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
+            this.clock.tick(20);
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'AltGraph', location: 2, timeStamp: Date.now()}));
+            expect(kbd.onkeyevent).to.have.been.calledOnce;
+            expect(kbd.onkeyevent).to.have.been.calledWith(0xfe03, 'AltRight', true);
+
+            // Check that the timer is properly dead
+            kbd.onkeyevent.resetHistory();
+            this.clock.tick(100);
+            expect(kbd.onkeyevent).to.not.have.been.called;
+        });
+
+        it('should generate Ctrl, AltGraph for slow Ctrl+AltGraph sequence', function () {
+            const kbd = new Keyboard(document);
+            kbd.onkeyevent = sinon.spy();
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ControlLeft', key: 'Control', location: 1, timeStamp: Date.now()}));
+            this.clock.tick(60);
+            kbd._handleKeyDown(keyevent('keydown', {code: 'AltRight', key: 'AltGraph', location: 2, timeStamp: Date.now()}));
+            expect(kbd.onkeyevent).to.have.been.calledTwice;
+            expect(kbd.onkeyevent.firstCall).to.have.been.calledWith(0xffe3, "ControlLeft", true);
+            expect(kbd.onkeyevent.secondCall).to.have.been.calledWith(0xfe03, "AltRight", true);
+
+            // Check that the timer is properly dead
+            kbd.onkeyevent.resetHistory();
+            this.clock.tick(100);
+            expect(kbd.onkeyevent).to.not.have.been.called;
+        });
+
         it('should pass through single Alt', function () {
             const kbd = new Keyboard(document);
             kbd.onkeyevent = sinon.spy();
