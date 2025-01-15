@@ -233,6 +233,30 @@ describe('Remote Frame Buffer protocol client', function () {
         client._canvas.dispatchEvent(ev);
     }
 
+    function sendFbuMsg(rectInfo, rectData, client, rectCnt) {
+        let data = [];
+
+        if (!rectCnt || rectCnt > -1) {
+            // header
+            data.push(0);  // msg type
+            data.push(0);  // padding
+            push16(data, rectCnt || rectData.length);
+        }
+
+        for (let i = 0; i < rectData.length; i++) {
+            if (rectInfo[i]) {
+                push16(data, rectInfo[i].x);
+                push16(data, rectInfo[i].y);
+                push16(data, rectInfo[i].width);
+                push16(data, rectInfo[i].height);
+                push32(data, rectInfo[i].encoding);
+            }
+            data = data.concat(rectData[i]);
+        }
+
+        client._sock._websocket._receiveData(new Uint8Array(data));
+    }
+
     describe('Connecting/Disconnecting', function () {
         describe('#RFB (constructor)', function () {
             let open, attach;
@@ -2757,30 +2781,6 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         describe('Framebuffer update handling', function () {
-            function sendFbuMsg(rectInfo, rectData, client, rectCnt) {
-                let data = [];
-
-                if (!rectCnt || rectCnt > -1) {
-                    // header
-                    data.push(0);  // msg type
-                    data.push(0);  // padding
-                    push16(data, rectCnt || rectData.length);
-                }
-
-                for (let i = 0; i < rectData.length; i++) {
-                    if (rectInfo[i]) {
-                        push16(data, rectInfo[i].x);
-                        push16(data, rectInfo[i].y);
-                        push16(data, rectInfo[i].width);
-                        push16(data, rectInfo[i].height);
-                        push32(data, rectInfo[i].encoding);
-                    }
-                    data = data.concat(rectData[i]);
-                }
-
-                client._sock._websocket._receiveData(new Uint8Array(data));
-            }
-
             it('should send an update request if there is sufficient data', function () {
                 let esock = new Websock();
                 let ews = new FakeWebSocket();
@@ -3265,6 +3265,7 @@ describe('Remote Frame Buffer protocol client', function () {
                     expect(spy).to.have.been.calledOnce;
                     expect(spy.args[0][0].detail.name).to.equal('som€ nam€');
                 });
+
             });
 
             describe('Caps Lock and Num Lock remote fixup', function () {
@@ -3757,6 +3758,7 @@ describe('Remote Frame Buffer protocol client', function () {
     describe('Asynchronous events', function () {
         let client;
         let pointerEvent;
+        let extendedPointerEvent;
         let keyEvent;
         let qemuKeyEvent;
 
@@ -3770,12 +3772,14 @@ describe('Remote Frame Buffer protocol client', function () {
             client.focusOnClick = false;
 
             pointerEvent = sinon.spy(RFB.messages, 'pointerEvent');
+            extendedPointerEvent = sinon.spy(RFB.messages, 'extendedPointerEvent');
             keyEvent = sinon.spy(RFB.messages, 'keyEvent');
             qemuKeyEvent = sinon.spy(RFB.messages, 'QEMUExtendedKeyEvent');
         });
 
         afterEach(function () {
             pointerEvent.restore();
+            extendedPointerEvent.restore();
             keyEvent.restore();
             qemuKeyEvent.restore();
         });
@@ -3882,6 +3886,23 @@ describe('Remote Frame Buffer protocol client', function () {
 
                 expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
                                                                  50, 70, 0x0);
+            });
+
+            it('should send extended pointer event when server supports extended pointer events', function () {
+                // Enable extended pointer events
+                sendFbuMsg([{ x: 0, y: 0, width: 0, height: 0, encoding: -316 }], [[]], client);
+
+                sendMouseButtonEvent(50, 70, true, 0x10, client);
+
+                expect(extendedPointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                         50, 70, 0x100);
+            });
+
+            it('should send normal pointer event when server does not support extended pointer events', function () {
+                sendMouseButtonEvent(50, 70, true, 0x10, client);
+
+                expect(pointerEvent).to.have.been.calledOnceWith(client._sock,
+                                                                 50, 70, 0x100);
             });
 
             describe('Event aggregation', function () {
@@ -5135,10 +5156,35 @@ describe('RFB messages', function () {
         });
 
         it('should send correct data for pointer events', function () {
+            RFB.messages.pointerEvent(sock, 12345, 54321, 0x2b);
+            let expected =
+                [ 5, 0x2b, 0x30, 0x39, 0xd4, 0x31];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for pointer events with marker bit set', function () {
             RFB.messages.pointerEvent(sock, 12345, 54321, 0xab);
             let expected =
-                [ 5, 0xab, 0x30, 0x39, 0xd4, 0x31];
+                [ 5, 0x2b, 0x30, 0x39, 0xd4, 0x31];
             expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for pointer events with extended button bits set', function () {
+            RFB.messages.pointerEvent(sock, 12345, 54321, 0x3ab);
+            let expected =
+                [ 5, 0x2b, 0x30, 0x39, 0xd4, 0x31];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should send correct data for extended pointer events', function () {
+            RFB.messages.extendedPointerEvent(sock, 12345, 54321, 0xab);
+            let expected =
+                [ 5, 0xab, 0x30, 0x39, 0xd4, 0x31, 0x1];
+            expect(sock).to.have.sent(new Uint8Array(expected));
+        });
+
+        it('should not send invalid data for extended pointer events', function () {
+            expect(() => RFB.messages.extendedPointerEvent(sock, 12345, 54321, 0x3ab)).to.throw(Error);
         });
     });
 
