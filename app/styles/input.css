@@ -7,10 +7,6 @@
 
 /* ------- SHARED BETWEEN INPUT ELEMENTS -------- */
 
-:root {
-    --input-xpadding: 1em;
-}
-
 input,
 textarea,
 button,

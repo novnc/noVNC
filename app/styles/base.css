@@ -464,16 +464,24 @@ html {
     white-space: nowrap;
     margin: 5px;
 }
+@media (max-width: 540px) {
+    /* Allow wrapping on small screens */
+    .noVNC_panel label {
+        white-space: unset;
+    }
+}
 
 .noVNC_panel li {
     margin: 5px;
 }
 
-.noVNC_panel label > button,
-.noVNC_panel label > select,
-.noVNC_panel label > textarea,
-.noVNC_panel label > input:not([type=checkbox]):not([type=radio]) {
+.noVNC_panel button,
+.noVNC_panel select,
+.noVNC_panel textarea,
+.noVNC_panel input:not([type=checkbox]):not([type=radio]) {
     margin-left: 6px;
+    /* Prevent inputs in panels from being too wide */
+    max-width: calc(100% - 6px - var(--input-xpadding) * 2);
 }
 
 .noVNC_panel .noVNC_heading {

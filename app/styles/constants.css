@@ -22,3 +22,9 @@
     --novnc-green: rgb(0, 128, 0);
     --novnc-yellow: rgb(255, 255, 0);
 }
+
+/* ------ MISC PROPERTIES ------ */
+
+:root {
+    --input-xpadding: 1em;
+}
