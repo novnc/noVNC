@@ -28,16 +28,63 @@ for fn in "$@"; do
 	curl --silent \
 		--header "Content-Type: ${type}; charset=utf-8" \
 		--data-binary @${fn} \
-		https://validator.w3.org/nu/?out=text > $OUT
-	cat $OUT
-	echo
+		"https://validator.w3.org/nu/?out=gnu&level=error&asciiquotes=yes" \
+		> $OUT
 
 	# We don't fail the check for warnings as some warnings are
 	# not relevant for us, and we don't currently have a way to
 	# ignore just those
-	if grep -q -s -E "^Error:" $OUT; then
+	while read -r line; do
+		echo
+
+		line_info=$(echo $line | cut -d ":" -f 2)
+		start_info=$(echo $line_info | cut -d "-" -f 1)
+		end_info=$(echo $line_info | cut -d "-" -f 2)
+
+		line_start=$(echo $start_info | cut -d "." -f 1)
+		col_start=$(echo $start_info | cut -d "." -f 2)
+
+		line_end=$(echo $end_info | cut -d "." -f 1)
+		col_end=$(echo $end_info | cut -d "." -f 2)
+
+		error=$(echo $line | cut -d ":" -f 4-)
+
+		case $error in
+			*"\"scrollbar-gutter\": Property \"scrollbar-gutter\" doesn't exist.")
+				# FIXME: https://github.com/validator/validator/issues/1788
+				echo "Ignoring below error on line ${line_start}," \
+				     "the scrollbar-gutter property actually exist and is widely" \
+				     "supported:"
+				echo $error
+				continue
+				;;
+			*"\"clip-path\": \"path("*)
+				# FIXME: https://github.com/validator/validator/issues/1786
+				echo "Ignoring below error on line ${line_start}," \
+				     "the path() function is valid for clip-path and is" \
+				     "widely supported:"
+				echo $error
+				continue
+				;;
+			*"Parse Error.")
+				# FIXME: https://github.com/validator/validator/issues/1786
+				lineofselector=$(grep -n "@supports selector(" $fn | cut -d ":" -f 1)
+				linediff=$((lineofselector-line_start))
+				# Only ignore if parse error is within 50 lines of "selector()"
+				if [ ${linediff#-} -lt 50 ]; then
+					echo "Ignoring below error on line ${line_start}," \
+					     "the @supports selector() function should not give a parse" \
+					     "error:"
+					echo $error
+					continue
+				fi
+				;;
+		esac
+		echo "ERROR between line ${line_start} (col ${col_start})" \
+		     "and line ${line_end} (col ${col_end}):"
+		echo $error
 		RET=1
-	fi
+	done < "$OUT"
 done
 
 rm $OUT
