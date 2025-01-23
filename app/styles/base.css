@@ -535,7 +535,7 @@ html {
     margin: 5px;
     margin-left: 10px;
     padding: 5px;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.04);
     border-radius: 6px;
 }
 .noVNC_expander:not(.noVNC_open) ~ * {
