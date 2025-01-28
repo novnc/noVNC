@@ -37,6 +37,7 @@
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="app/images/icons/novnc-ios-180.png">
 
     <!-- Stylesheets -->
+    <link rel="stylesheet" href="app/styles/constants.css">
     <link rel="stylesheet" href="app/styles/base.css">
     <link rel="stylesheet" href="app/styles/input.css">
 
@@ -205,14 +206,26 @@
                 </div>
                 <ul>
                     <li>
-                        <label><input id="noVNC_setting_shared" type="checkbox"> Shared mode</label>
+                        <label>
+                            <input id="noVNC_setting_shared" type="checkbox"
+                                   class="toggle">
+                            Shared mode
+                        </label>
                     </li>
                     <li>
-                        <label><input id="noVNC_setting_view_only" type="checkbox"> View only</label>
+                        <label>
+                            <input id="noVNC_setting_view_only" type="checkbox"
+                                   class="toggle">
+                            View only
+                        </label>
                     </li>
                     <li><hr></li>
                     <li>
-                        <label><input id="noVNC_setting_view_clip" type="checkbox"> Clip to window</label>
+                        <label>
+                            <input id="noVNC_setting_view_clip" type="checkbox"
+                                   class="toggle">
+                            Clip to window
+                        </label>
                     </li>
                     <li>
                         <label for="noVNC_setting_resize">Scaling mode:</label>
@@ -243,7 +256,11 @@
                                 <div class="noVNC_expander">WebSocket</div>
                                 <div><ul>
                                     <li>
-                                        <label><input id="noVNC_setting_encrypt" type="checkbox"> Encrypt</label>
+                                        <label>
+                                            <input id="noVNC_setting_encrypt" type="checkbox"
+                                                   class="toggle">
+                                            Encrypt
+                                        </label>
                                     </li>
                                     <li>
                                         <label for="noVNC_setting_host">Host:</label>
@@ -261,7 +278,11 @@
                             </li>
                             <li><hr></li>
                             <li>
-                                <label><input id="noVNC_setting_reconnect" type="checkbox"> Automatic reconnect</label>
+                                <label>
+                                    <input id="noVNC_setting_reconnect" type="checkbox"
+                                           class="toggle">
+                                    Automatic reconnect
+                                </label>
                             </li>
                             <li>
                                 <label for="noVNC_setting_reconnect_delay">Reconnect delay (ms):</label>
@@ -269,7 +290,11 @@
                             </li>
                             <li><hr></li>
                             <li>
-                                <label><input id="noVNC_setting_show_dot" type="checkbox"> Show dot when no cursor</label>
+                                <label>
+                                    <input id="noVNC_setting_show_dot" type="checkbox"
+                                           class="toggle">
+                                    Show dot when no cursor
+                                </label>
                             </li>
                             <li><hr></li>
                             <!-- Logging selection dropdown -->
@@ -337,9 +362,9 @@
             Please verify that the information is correct and press
             "Approve". Otherwise press "Reject".
         </div>
-        <div>
-            <input id="noVNC_approve_server_button" type="submit" value="Approve" class="noVNC_submit">
-            <input id="noVNC_reject_server_button" type="button" value="Reject" class="noVNC_submit">
+        <div class="button_row">
+            <input id="noVNC_approve_server_button" type="submit" value="Approve">
+            <input id="noVNC_reject_server_button" type="button" value="Reject">
         </div>
     </form></div>
     </div>
@@ -358,8 +383,8 @@
             <label for="noVNC_password_input">Password:</label>
             <input id="noVNC_password_input" type="password">
         </div>
-        <div>
-            <input id="noVNC_credentials_button" type="submit" value="Send credentials" class="noVNC_submit">
+        <div class="button_row">
+            <input id="noVNC_credentials_button" type="submit" value="Send credentials">
         </div>
     </form></div>
     </div>
@@ -368,7 +393,7 @@
     <div id="noVNC_transition">
         <div id="noVNC_transition_text"></div>
         <div>
-        <input type="button" id="noVNC_cancel_reconnect_button" value="Cancel" class="noVNC_submit">
+        <input type="button" id="noVNC_cancel_reconnect_button" value="Cancel">
         </div>
         <div class="noVNC_spinner"></div>
     </div>
