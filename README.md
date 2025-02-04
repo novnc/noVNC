@@ -68,7 +68,7 @@ profits such as:
 * Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG,
   ZRLE, JPEG, Zlib
 * Supports scaling, clipping and resizing the desktop
-* Supports ExtendedMouseButtons pseudo-encoding
+* Supports back & forward mouse buttons
 * Local cursor rendering
 * Clipboard copy/paste with full Unicode support
 * Translations
