@@ -149,6 +149,8 @@ export default class RFB extends EventTargetMixin {
         this._supportsSetDesktopSize = false;
         this._screenID = 0;
         this._screenFlags = 0;
+        this._pendingRemoteResize = false;
+        this._lastResize = 0;
 
         this._qemuExtKeyEventSupported = false;
 
@@ -736,15 +738,9 @@ export default class RFB extends EventTargetMixin {
             this._saveExpectedClientSize();
         });
 
-        if (this._resizeSession) {
-            // Request changing the resolution of the remote display to
-            // the size of the local browser viewport.
-
-            // In order to not send multiple requests before the browser-resize
-            // is finished we wait 0.5 seconds before sending the request.
-            clearTimeout(this._resizeTimeout);
-            this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
-        }
+        // Request changing the resolution of the remote display to
+        // the size of the local browser viewport.
+        this._requestRemoteResize();
     }
 
     // Update state of clipping in Display object, and make sure the
@@ -794,16 +790,39 @@ export default class RFB extends EventTargetMixin {
     // Requests a change of remote desktop size. This message is an extension
     // and may only be sent if we have received an ExtendedDesktopSize message
     _requestRemoteResize() {
-        clearTimeout(this._resizeTimeout);
-        this._resizeTimeout = null;
-
-        if (!this._resizeSession || this._viewOnly ||
-            !this._supportsSetDesktopSize) {
+        if (!this._resizeSession) {
+            return;
+        }
+        if (this._viewOnly) {
+            return;
+        }
+        if (!this._supportsSetDesktopSize) {
             return;
         }
 
+        // Rate limit to one pending resize at a time
+        if (this._pendingRemoteResize) {
+            return;
+        }
+
+        // And no more than once every 100ms
+        if ((Date.now() - this._lastResize) < 100) {
+            clearTimeout(this._resizeTimeout);
+            this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this),
+                                             100 - (Date.now() - this._lastResize));
+            return;
+        }
+        this._resizeTimeout = null;
+
         const size = this._screenSize();
 
+        // Do we actually change anything?
+        if (size.w === this._fbWidth && size.h === this._fbHeight) {
+            return;
+        }
+
+        this._pendingRemoteResize = true;
+        this._lastResize = Date.now();
         RFB.messages.setDesktopSize(this._sock,
                                     Math.floor(size.w), Math.floor(size.h),
                                     this._screenID, this._screenFlags);
@@ -2913,6 +2932,10 @@ export default class RFB extends EventTargetMixin {
          *  2 - another client requested the resize
          */
 
+        if (this._FBU.x === 1) {
+            this._pendingRemoteResize = false;
+        }
+
         // We need to handle errors when we requested the resize.
         if (this._FBU.x === 1 && this._FBU.y !== 0) {
             let msg = "";
@@ -2942,6 +2965,12 @@ export default class RFB extends EventTargetMixin {
         // initial connect. And we don't know if the server supports
         // resizing until we've gotten here.
         if (firstUpdate) {
+            this._requestRemoteResize();
+        }
+
+        if (this._FBU.x === 1 && this._FBU.y === 0) {
+            // We might have resized again whilst waiting for the
+            // previous request, so check if we are in sync
             this._requestRemoteResize();
         }
 
