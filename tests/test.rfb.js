@@ -1070,9 +1070,16 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '70px';
             container.style.height = '80px';
 
+            sinon.spy(RFB.messages, "setDesktopSize");
+
             sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
 
-            sinon.spy(RFB.messages, "setDesktopSize");
+            if (RFB.messages.setDesktopSize.calledOnce) {
+                let width = RFB.messages.setDesktopSize.args[0][1];
+                let height = RFB.messages.setDesktopSize.args[0][2];
+                sendExtendedDesktopSize(client, 1, 0, width, height, 0x7890abcd, 0x12345678);
+                RFB.messages.setDesktopSize.resetHistory();
+            }
         });
 
         afterEach(function () {
@@ -1111,6 +1118,7 @@ describe('Remote Frame Buffer protocol client', function () {
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 70, 80, 0x7890abcd, 0x12345678);
 
+            sendExtendedDesktopSize(client, 1, 0, 70, 80, 0x7890abcd, 0x12345678);
             RFB.messages.setDesktopSize.resetHistory();
 
             // Second message should not trigger a resize
@@ -1163,6 +1171,8 @@ describe('Remote Frame Buffer protocol client', function () {
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 40, 50, 0x7890abcd, 0x12345678);
+
+            sendExtendedDesktopSize(client, 1, 0, 40, 50, 0x7890abcd, 0x12345678);
             RFB.messages.setDesktopSize.resetHistory();
 
             container.style.width = '70px';
