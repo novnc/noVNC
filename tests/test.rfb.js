@@ -1082,6 +1082,13 @@ describe('Remote Frame Buffer protocol client', function () {
         it('should only request a resize when turned on', function () {
             client.resizeSession = false;
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+            clock.tick(1000);
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
             client.resizeSession = true;
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
         });
