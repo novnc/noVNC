@@ -1,3 +1,7 @@
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import EventTargetMixin from '../core/util/eventtarget.js';
 
 import GestureHandler from '../core/input/gesturehandler.js';
