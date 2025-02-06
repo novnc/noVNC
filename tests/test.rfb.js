@@ -257,6 +257,29 @@ describe('Remote Frame Buffer protocol client', function () {
         client._sock._websocket._receiveData(new Uint8Array(data));
     }
 
+    function sendExtendedDesktopSize(client, reason, result, width, height, screenId, screenFlags) {
+        let rectInfo = { x: reason, y: result, width: width, height: height, encoding: -308 };
+        let rectData = [
+            0x01,        // number of screens = 1
+            0x00, 0x00,
+            0x00,        // padding
+            (screenId >> 24) & 0xff,
+            (screenId >> 16) & 0xff,
+            (screenId >> 8) & 0xff,
+            screenId & 0xff,
+            0x00, 0x00,  // screen x
+            0x00, 0x00,  // screen y
+            (width >> 8) & 0xff,
+            width & 0xff,
+            (height >> 8) & 0xff,
+            height & 0xff,
+            (screenFlags >> 24) & 0xff,
+            (screenFlags >> 16) & 0xff,
+            (screenFlags >> 8) & 0xff,
+            screenFlags & 0xff];
+        sendFbuMsg([rectInfo], [rectData], client);
+    }
+
     describe('Connecting/Disconnecting', function () {
         describe('#RFB (constructor)', function () {
             let open, attach;
@@ -650,20 +673,13 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         it('should update the viewport when the remote session resizes', function () {
-            // Simple ExtendedDesktopSize FBU message
-            const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
-                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
-                               0x00, 0x00, 0x00, 0x00 ];
-
             sinon.spy(client._display, "viewportChangeSize");
 
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
+            // Simple ExtendedDesktopSize FBU message
+            sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
             // The resize will cause scrollbars on the container, this causes a
             // resize observation in the browsers
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             // FIXME: Display implicitly calls viewportChangeSize() when
             //        resizing the framebuffer, hence calledTwice.
@@ -951,27 +967,7 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.height = '80px';
             client.scaleViewport = true;
 
-            const incoming = [ 0x00,        // msg-type=FBU
-                               0x00,        // padding
-                               0x00, 0x01,  // number of rects = 1
-                               0x00, 0x00,  // reason = server initialized
-                               0x00, 0x00,  // status = no error
-                               0x00, 0x04,  // new width = 4
-                               0x00, 0x04,  // new height = 4
-                               0xff, 0xff,
-                               0xfe, 0xcc,  // enc = (-308) ExtendedDesktopSize
-                               0x01,        // number of screens = 1
-                               0x00, 0x00,
-                               0x00,        // padding
-                               0x78, 0x90,
-                               0xab, 0xcd,  // screen id = 0
-                               0x00, 0x00,  // screen x = 0
-                               0x00, 0x00,  // screen y = 0
-                               0x00, 0x04,  // screen width = 4
-                               0x00, 0x04,  // screen height = 4
-                               0x12, 0x34,
-                               0x56, 0x78]; // screen flags
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
+            sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
         });
 
         it('should update display scale factor when changing the property', function () {
@@ -1039,20 +1035,12 @@ describe('Remote Frame Buffer protocol client', function () {
         });
 
         it('should update the scaling when the remote session resizes', function () {
-            // Simple ExtendedDesktopSize FBU message
-            const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0xff, 0x00, 0xff, 0xff, 0xff, 0xfe, 0xcc,
-                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0xff,
-                               0x00, 0x00, 0x00, 0x00 ];
-
             sinon.spy(client._display, "autoscale");
 
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
+            sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
             // The resize will cause scrollbars on the container, this causes a
             // resize observation in the browsers
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(client._display.autoscale).to.have.been.calledOnce;
             expect(client._display.autoscale).to.have.been.calledWith(70, 80);
@@ -1080,29 +1068,17 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '70px';
             container.style.height = '80px';
 
-            const incoming = [ 0x00,        // msg-type=FBU
-                               0x00,        // padding
-                               0x00, 0x01,  // number of rects = 1
-                               0x00, 0x00,  // reason = server initialized
-                               0x00, 0x00,  // status = no error
-                               0x00, 0x04,  // new width = 4
-                               0x00, 0x04,  // new height = 4
-                               0xff, 0xff,
-                               0xfe, 0xcc,  // enc = (-308) ExtendedDesktopSize
-                               0x01,        // number of screens = 1
-                               0x00, 0x00,
-                               0x00,        // padding
-                               0x78, 0x90,
-                               0xab, 0xcd,  // screen id = 0
-                               0x00, 0x00,  // screen x = 0
-                               0x00, 0x00,  // screen y = 0
-                               0x00, 0x04,  // screen width = 4
-                               0x00, 0x04,  // screen height = 4
-                               0x12, 0x34,
-                               0x56, 0x78]; // screen flags
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
-
             sinon.spy(RFB.messages, "setDesktopSize");
+
+            sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
+
+            if (RFB.messages.setDesktopSize.calledOnce) {
+                let width = RFB.messages.setDesktopSize.args[0][1];
+                let height = RFB.messages.setDesktopSize.args[0][2];
+                sendExtendedDesktopSize(client, 1, 0, width, height, 0x7890abcd, 0x12345678);
+                RFB.messages.setDesktopSize.resetHistory();
+                clock.tick(10000);
+            }
         });
 
         afterEach(function () {
@@ -1112,6 +1088,12 @@ describe('Remote Frame Buffer protocol client', function () {
         it('should only request a resize when turned on', function () {
             client.resizeSession = false;
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
             client.resizeSession = true;
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
         });
@@ -1124,31 +1106,9 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '70px';
             container.style.height = '80px';
 
-            // Simple ExtendedDesktopSize FBU message
-            const incoming = [ 0x00,        // msg-type=FBU
-                               0x00,        // padding
-                               0x00, 0x01,  // number of rects = 1
-                               0x00, 0x00,  // reason = server initialized
-                               0x00, 0x00,  // status = no error
-                               0x00, 0x04,  // new width = 4
-                               0x00, 0x04,  // new height = 4
-                               0xff, 0xff,
-                               0xfe, 0xcc,  // enc = (-308) ExtendedDesktopSize
-                               0x01,        // number of screens = 1
-                               0x00, 0x00,
-                               0x00,        // padding
-                               0x78, 0x90,
-                               0xab, 0xcd,  // screen id = 0
-                               0x00, 0x00,  // screen x = 0
-                               0x00, 0x00,  // screen y = 0
-                               0x00, 0x04,  // screen width = 4
-                               0x00, 0x04,  // screen height = 4
-                               0x12, 0x34,
-                               0x56, 0x78]; // screen flags
-
             // First message should trigger a resize
 
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
+            sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
 
             // It should match the current size of the container,
             // not the reported size from the server
@@ -1156,11 +1116,12 @@ describe('Remote Frame Buffer protocol client', function () {
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 70, 80, 0x7890abcd, 0x12345678);
 
+            sendExtendedDesktopSize(client, 1, 0, 70, 80, 0x7890abcd, 0x12345678);
             RFB.messages.setDesktopSize.resetHistory();
 
             // Second message should not trigger a resize
 
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
+            sendExtendedDesktopSize(client, 0, 0, 4, 4, 0x7890abcd, 0x12345678);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
@@ -1169,7 +1130,6 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
@@ -1180,27 +1140,19 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 40, 50, 0x7890abcd, 0x12345678);
 
             // Server responds with the requested size 40x50
-            const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
-                               0x00, 0x28, 0x00, 0x32, 0xff, 0xff, 0xfe, 0xcc,
-                               0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00, 0x32,
-                               0x00, 0x00, 0x00, 0x00];
-
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
-            clock.tick(1000);
+            sendExtendedDesktopSize(client, 1, 0, 40, 50, 0x7890abcd, 0x12345678);
 
             RFB.messages.setDesktopSize.resetHistory();
 
             // size is still 40x50
-            fakeResizeObserver.fire();
             clock.tick(1000);
+            fakeResizeObserver.fire();
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
@@ -1209,43 +1161,135 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 40, 50, 0x7890abcd, 0x12345678);
+
+            sendExtendedDesktopSize(client, 1, 0, 40, 50, 0x7890abcd, 0x12345678);
             RFB.messages.setDesktopSize.resetHistory();
 
+            clock.tick(1000);
             container.style.width = '70px';
             container.style.height = '80px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 70, 80, 0x7890abcd, 0x12345678);
         });
 
-        it('should not resize until the container size is stable', function () {
+        it('should rate limit resizes', function () {
             container.style.width = '20px';
             container.style.height = '30px';
             fakeResizeObserver.fire();
-            clock.tick(400);
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                sinon.match.object, 20, 30, 0x7890abcd, 0x12345678);
+
+            sendExtendedDesktopSize(client, 1, 0, 20, 30, 0x7890abcd, 0x12345678);
+            RFB.messages.setDesktopSize.resetHistory();
+
+            clock.tick(20);
+
+            container.style.width = '30px';
+            container.style.height = '40px';
+            fakeResizeObserver.fire();
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            clock.tick(20);
 
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(400);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
 
-            clock.tick(200);
+            clock.tick(80);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
                 sinon.match.object, 40, 50, 0x7890abcd, 0x12345678);
+        });
+
+        it('should not have overlapping resize requests', function () {
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+
+            RFB.messages.setDesktopSize.resetHistory();
+
+            clock.tick(1000);
+            container.style.width = '20px';
+            container.style.height = '30px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should finalize any pending resizes', function () {
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+
+            RFB.messages.setDesktopSize.resetHistory();
+
+            clock.tick(1000);
+            container.style.width = '20px';
+            container.style.height = '30px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            // Server responds with the requested size 40x50
+            sendExtendedDesktopSize(client, 1, 0, 40, 50, 0x7890abcd, 0x12345678);
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+            expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
+                sinon.match.object, 20, 30, 0x7890abcd, 0x12345678);
+        });
+
+        it('should not finalize any pending resize if not needed', function () {
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+
+            RFB.messages.setDesktopSize.resetHistory();
+
+            // Server responds with the requested size 40x50
+            sendExtendedDesktopSize(client, 1, 0, 40, 50, 0x7890abcd, 0x12345678);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+        });
+
+        it('should not finalize any pending resizes on errors', function () {
+            container.style.width = '40px';
+            container.style.height = '50px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
+
+            RFB.messages.setDesktopSize.resetHistory();
+
+            clock.tick(1000);
+            container.style.width = '20px';
+            container.style.height = '30px';
+            fakeResizeObserver.fire();
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
+
+            // Server failed the requested size 40x50
+            sendExtendedDesktopSize(client, 1, 1, 40, 50, 0x7890abcd, 0x12345678);
+
+            expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
 
         it('should not resize when resize is disabled', function () {
@@ -1254,7 +1298,6 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
@@ -1265,7 +1308,6 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
@@ -1276,27 +1318,18 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '40px';
             container.style.height = '50px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
         });
 
         it('should not try to override a server resize', function () {
-            // Simple ExtendedDesktopSize FBU message, new size: 100x100
-            const incoming = [ 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x64, 0x00, 0x64, 0xff, 0xff, 0xfe, 0xcc,
-                               0x01, 0x00, 0x00, 0x00, 0xab, 0xab, 0xab, 0xab,
-                               0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04,
-                               0x11, 0x22, 0x33, 0x44 ];
-
             // Note that this will cause the browser to display scrollbars
             // since the framebuffer is 100x100 and the container is 70x80.
             // The usable space (clientWidth/clientHeight) will be even smaller
             // due to the scrollbars taking up space.
-            client._sock._websocket._receiveData(new Uint8Array(incoming));
+            sendExtendedDesktopSize(client, 0, 0, 100, 100, 0xabababab, 0x11223344);
             // The scrollbars cause the ResizeObserver to fire
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.not.have.been.called;
 
@@ -1304,7 +1337,6 @@ describe('Remote Frame Buffer protocol client', function () {
             container.style.width = '120px';
             container.style.height = '130px';
             fakeResizeObserver.fire();
-            clock.tick(1000);
 
             expect(RFB.messages.setDesktopSize).to.have.been.calledOnce;
             expect(RFB.messages.setDesktopSize).to.have.been.calledWith(
