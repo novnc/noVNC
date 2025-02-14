@@ -66,7 +66,7 @@ profits such as:
   RSA-AES, Tight, VeNCrypt Plain, XVP, Apple's Diffie-Hellman,
   UltraVNC's MSLogonII
 * Supported VNC encodings: raw, copyrect, rre, hextile, tight, tightPNG,
-  ZRLE, JPEG, Zlib
+  ZRLE, JPEG, Zlib, H.264
 * Supports scaling, clipping and resizing the desktop
 * Supports back & forward mouse buttons
 * Local cursor rendering
