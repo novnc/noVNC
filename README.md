@@ -143,7 +143,7 @@ If you want to use certificate files, due to standard snap confinement restricti
 #### Running noVNC from snap as a service (daemon)
 The snap package also has the capability to run a 'novnc' service which can be
 configured to listen on multiple ports connecting to multiple VNC servers 
-(effectively a service runing multiple instances of novnc).
+(effectively a service running multiple instances of novnc).
 Instructions (with example values):
 
 List current services (out-of-box this will be blank):
