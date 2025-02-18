@@ -290,14 +290,14 @@ export default class RFB extends EventTargetMixin {
 
         // ===== PROPERTIES =====
 
-        this.dragViewport = false;
-        this.focusOnClick = true;
+        this.dragViewport = options.dragViewport || false;
+        this.focusOnClick = options.dragViewport || true;
 
-        this._viewOnly = false;
-        this._clipViewport = false;
-        this._clippingViewport = false;
-        this._scaleViewport = false;
-        this._resizeSession = false;
+        this._viewOnly = options.viewOnly || false;
+        this._clipViewport = options.clipViewport || false;
+        this._clippingViewport = options.clippingViewport || false;
+        this._scaleViewport = options.scaleViewport || false;
+        this._resizeSession = options.resizeSession || false;
 
         this._showDotCursor = false;
         if (options.showDotCursor !== undefined) {
@@ -305,8 +305,8 @@ export default class RFB extends EventTargetMixin {
             this._showDotCursor = options.showDotCursor;
         }
 
-        this._qualityLevel = 6;
-        this._compressionLevel = 2;
+        this._qualityLevel = options.qualityLevel ?? 6;
+        this._compressionLevel = options.compressionLevel ?? 2;
     }
 
     // ===== PROPERTIES =====
