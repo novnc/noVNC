@@ -25,6 +25,9 @@ window.updateSetting = (name, value) => {
     }
 }
 
+import '@interactjs/pointer-events'
+import '@interactjs/actions/drag'
+import interact from '@interactjs/interact';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import * as Log from '../core/util/logging.js';
@@ -67,6 +70,7 @@ const UI = {
     selectedMonitor: null,
     refreshRotation: 0,
     currentDisplay: null,
+    displayWindows: ['primary'],
 
     supportsBroadcastChannel: (typeof BroadcastChannel !== "undefined"),
 
@@ -84,7 +88,13 @@ const UI = {
 
     // Render default UI and initialize settings menu
     start() {
-        //initialize settings then apply quality presents
+
+        // If secondary monitor skip init
+        if (window.location.href.includes("screen.html")) {
+            return;
+        }
+
+        // Initialize settings then apply quality presents
         UI.initSettings();
         UI.updateQuality();
 
@@ -265,6 +275,7 @@ const UI = {
         UI.initSetting('prefer_local_cursor', true);
         UI.initSetting('toggle_control_panel', false);
         UI.initSetting('enable_perf_stats', false);
+        UI.initSetting('enable_threading', true);
         UI.initSetting('virtual_keyboard_visible', false);
         UI.initSetting('enable_ime', false);
         UI.initSetting('enable_webrtc', false);
@@ -529,6 +540,7 @@ const UI = {
         UI.addClickHandle('noVNC_settings_button', UI.toggleSettingsPanel);
 
         document.getElementById("noVNC_setting_enable_perf_stats").addEventListener('click', UI.showStats);
+        document.getElementById("noVNC_setting_enable_threading").addEventListener('click', UI.threading);
         document.getElementById("noVNC_auto_placement").addEventListener('change', UI.setAutoPlacement);
 
         UI.addSettingChangeHandler('encrypt');
@@ -597,6 +609,8 @@ const UI = {
         UI.addSettingChangeHandler('enable_webrtc', UI.toggleWebRTC);
         UI.addSettingChangeHandler('enable_hidpi');
         UI.addSettingChangeHandler('enable_hidpi', UI.enableHiDpi);
+        UI.addSettingChangeHandler('enable_threading');
+        UI.addSettingChangeHandler('enable_threading', UI.threading);
     },
 
     addFullscreenHandlers() {
@@ -740,6 +754,17 @@ const UI = {
             UI.statsInterval = null;
         }
         
+    },
+
+    threading() {
+        if (UI.rfb) {
+            if (UI.getSetting('enable_threading')) {
+                UI.rfb.threading = true;
+            } else {
+                UI.rfb.threading = false;
+            }
+        }
+        UI.saveSetting('enable_threading');
     },
 
     showStatus(text, statusType, time, kasm = false) {
@@ -1482,6 +1507,7 @@ const UI = {
         UI.rfb.clipboardBinary = supportsBinaryClipboard() && UI.rfb.clipboardSeamless;
         UI.rfb.enableWebRTC = UI.getSetting('enable_webrtc');
         UI.rfb.enableHiDpi = UI.getSetting('enable_hidpi');
+        UI.rfb.threading = UI.getSetting('enable_threading');
         UI.rfb.mouseButtonMapper = UI.initMouseButtonMapper();
         if (UI.rfb.videoQuality === 5) {
             UI.rfb.enableQOI = true;
@@ -1792,6 +1818,10 @@ const UI = {
                 case 'control_displays':
                     parent.postMessage({ action: 'can_control_displays', value: true}, '*' );
                     break;
+                case 'enable_threading':
+                    UI.forceSetting('enable_threading', event.data.value, false);
+                    UI.threading();
+                    break;
                 case 'terminate':
                     //terminate a session, different then disconnect in that it is assumed KasmVNC will be shutdown
                     if (UI.rfb) {
@@ -1892,6 +1922,7 @@ const UI = {
         UI.rfb.videoQuality = UI.getSetting('video_quality');
         UI.rfb.enableWebP = UI.getSetting('enable_webp');
         UI.rfb.enableHiDpi = UI.getSetting('enable_hidpi');
+        UI.rfb.threading = UI.getSetting('enable_threading');
 
         if (UI.rfb.resizeSession) {
             UI.rfb.forcedResolutionX = null;
@@ -1982,8 +2013,9 @@ const UI = {
                     const current = UI.increaseCurrentDisplay(details) 
                     let screen = details.screens[current]
                     const options = 'left='+screen.availLeft+',top='+screen.availTop+',width='+screen.availWidth+',height='+screen.availHeight+',fullscreen'
-                    window.open(new_display_url, '_blank', options);
-                    return
+                    let newdisplay = window.open(new_display_url, '_blank', options);
+                    UI.displayWindows.push(newdisplay);
+                    return;
                 }
             } catch (e) {
                 console.log(e)
@@ -1992,7 +2024,8 @@ const UI = {
         }
         
         Log.Debug(`Opening a secondary display ${new_display_url}`)
-        window.open(new_display_url, '_blank', 'toolbar=0,location=0,menubar=0');
+        let newdisplay = window.open(new_display_url, '_blank', 'toolbar=0,location=0,menubar=0');
+        UI.displayWindows.push(newdisplay);
     },
 
     initMonitors(screenPlan) {
@@ -2545,6 +2578,7 @@ const UI = {
             UI.rfb.videoQuality = parseInt(UI.getSetting('video_quality'));
             UI.rfb.enableQOI = enable_qoi;
             UI.rfb.enableHiDpi = UI.getSetting('enable_hidpi');
+            UI.rfb.threading = UI.getSetting('enable_threading');
 
             // Gracefully update settings server side
             UI.rfb.updateConnectionSettings();
