@@ -1058,7 +1058,12 @@ const UI = {
             if (port) {
                 url.port = port;
             }
-            url.pathname = '/' + path;
+
+            // "./" is needed to force URL() to interpret the path-variable as
+            // a path and not as an URL. This is relevant if for example path
+            // starts with more than one "/", in which case it would be
+            // interpreted as a host name instead.
+            url = new URL("./" + path, url);
         } else {
             // Current (May 2024) browsers support relative WebSocket
             // URLs natively, but we need to support older browsers for
