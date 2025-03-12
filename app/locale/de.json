@@ -65,5 +65,10 @@
     "Connect": "Verbinden",
     "Password:": "Passwort:",
     "Cancel": "Abbrechen",
-    "Canvas not supported.": "Canvas nicht unterstützt."
+    "Canvas not supported.": "Canvas nicht unterstützt.",
+    "Disconnect timeout": "Zeitüberschreitung beim Trennen",
+    "Local Downscaling": "Lokales herunterskalieren",
+    "Local Cursor": "Lokaler Mauszeiger",
+    "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "'Clipping-Modus' aktiviert, Scrollbalken in 'IE-Vollbildmodus' werden nicht unterstützt",
+    "True Color": "True Color"
 }

@@ -65,5 +65,16 @@
     "Connect": "Połącz",
     "Password:": "Hasło:",
     "Cancel": "Anuluj",
-    "Canvas not supported.": "Element Canvas nie jest wspierany."
+    "Canvas not supported.": "Element Canvas nie jest wspierany.",
+    "Disconnect timeout": "Timeout rozłączenia",
+    "Local Downscaling": "Downscaling lokalny",
+    "Local Cursor": "Lokalny kursor",
+    "Forcing clipping mode since scrollbars aren't supported by IE in fullscreen": "Wymuszam clipping mode ponieważ paski przewijania nie są wspierane przez IE w trybie pełnoekranowym",
+    "True Color": "True Color",
+    "Style:": "Styl:",
+    "default": "domyślny",
+    "Apply": "Zapisz",
+    "Connection": "Połączenie",
+    "Token:": "Token:",
+    "Send Password": "Wyślij Hasło"
 }
