@@ -31,6 +31,7 @@ export const encodings = {
     pseudoEncodingXvp: -309,
     pseudoEncodingFence: -312,
     pseudoEncodingContinuousUpdates: -313,
+    pseudoEncodingExtendedMouseButtons: -316,
     pseudoEncodingCompressLevel9: -247,
     pseudoEncodingCompressLevel0: -256,
     pseudoEncodingVMwareCursor: 0x574d5664,

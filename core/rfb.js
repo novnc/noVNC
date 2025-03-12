@@ -151,8 +151,12 @@ export default class RFB extends EventTargetMixin {
         this._supportsSetDesktopSize = false;
         this._screenID = 0;
         this._screenFlags = 0;
+        this._pendingRemoteResize = false;
+        this._lastResize = 0;
 
         this._qemuExtKeyEventSupported = false;
+
+        this._extendedPointerEventSupported = false;
 
         this._clipboardText = null;
         this._clipboardServerCapabilitiesActions = {};
@@ -743,6 +747,7 @@ export default class RFB extends EventTargetMixin {
             currentHeight == this._expectedClientHeight;
     }
 
+    // Handle browser window resizes
     _handleResize() {
         // Don't change anything if the client size is already as expected
         if (this._clientHasExpectedSize()) {
@@ -753,17 +758,12 @@ export default class RFB extends EventTargetMixin {
         window.requestAnimationFrame(() => {
             this._updateClip();
             this._updateScale();
+            this._saveExpectedClientSize();
         });
 
-        if (this._resizeSession) {
-            // Request changing the resolution of the remote display to
-            // the size of the local browser viewport.
-
-            // In order to not send multiple requests before the browser-resize
-            // is finished we wait 0.5 seconds before sending the request.
-            clearTimeout(this._resizeTimeout);
-            this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this), 500);
-        }
+        // Request changing the resolution of the remote display to
+        // the size of the local browser viewport.
+        this._requestRemoteResize();
     }
 
     // Update state of clipping in Display object, and make sure the
@@ -813,16 +813,39 @@ export default class RFB extends EventTargetMixin {
     // Requests a change of remote desktop size. This message is an extension
     // and may only be sent if we have received an ExtendedDesktopSize message
     _requestRemoteResize() {
-        clearTimeout(this._resizeTimeout);
-        this._resizeTimeout = null;
-
-        if (!this._resizeSession || this._viewOnly ||
-            !this._supportsSetDesktopSize) {
+        if (!this._resizeSession) {
+            return;
+        }
+        if (this._viewOnly) {
+            return;
+        }
+        if (!this._supportsSetDesktopSize) {
             return;
         }
 
+        // Rate limit to one pending resize at a time
+        if (this._pendingRemoteResize) {
+            return;
+        }
+
+        // And no more than once every 100ms
+        if ((Date.now() - this._lastResize) < 100) {
+            clearTimeout(this._resizeTimeout);
+            this._resizeTimeout = setTimeout(this._requestRemoteResize.bind(this),
+                                             100 - (Date.now() - this._lastResize));
+            return;
+        }
+        this._resizeTimeout = null;
+
         const size = this._screenSize();
 
+        // Do we actually change anything?
+        if (size.w === this._fbWidth && size.h === this._fbHeight) {
+            return;
+        }
+
+        this._pendingRemoteResize = true;
+        this._lastResize = Date.now();
         RFB.messages.setDesktopSize(this._sock,
                                     Math.floor(size.w), Math.floor(size.h),
                                     this._screenID, this._screenFlags);
@@ -1054,6 +1077,36 @@ export default class RFB extends EventTargetMixin {
         this.sendKey(keysym, code, down);
     }
 
+    static _convertButtonMask(buttons) {
+        /* The bits in MouseEvent.buttons property correspond
+         * to the following mouse buttons:
+         *     0: Left
+         *     1: Right
+         *     2: Middle
+         *     3: Back
+         *     4: Forward
+         *
+         * These bits needs to be converted to what they are defined as
+         * in the RFB protocol.
+         */
+
+        const buttonMaskMap = {
+            0: 1 << 0, // Left
+            1: 1 << 2, // Right
+            2: 1 << 1, // Middle
+            3: 1 << 7, // Back
+            4: 1 << 8, // Forward
+        };
+
+        let bmask = 0;
+        for (let i = 0; i < 5; i++) {
+            if (buttons & (1 << i)) {
+                bmask |= buttonMaskMap[i];
+            }
+        }
+        return bmask;
+    }
+
     _handleMouse(ev) {
         /*
          * We don't check connection status or viewOnly here as the
@@ -1083,80 +1136,75 @@ export default class RFB extends EventTargetMixin {
         let pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
 
+        let bmask = RFB._convertButtonMask(ev.buttons);
+
+        let down = ev.type == 'mousedown';
         switch (ev.type) {
             case 'mousedown':
-                setCapture(this._canvas);
-                this._handleMouseButton(pos.x, pos.y,
-                                        true, 1 << ev.button);
-                break;
             case 'mouseup':
-                this._handleMouseButton(pos.x, pos.y,
-                                        false, 1 << ev.button);
+                if (this.dragViewport) {
+                    if (down && !this._viewportDragging) {
+                        this._viewportDragging = true;
+                        this._viewportDragPos = {'x': pos.x, 'y': pos.y};
+                        this._viewportHasMoved = false;
+
+                        this._flushMouseMoveTimer(pos.x, pos.y);
+
+                        // Skip sending mouse events, instead save the current
+                        // mouse mask so we can send it later.
+                        this._mouseButtonMask = bmask;
+                        break;
+                    } else {
+                        this._viewportDragging = false;
+
+                        // If we actually performed a drag then we are done
+                        // here and should not send any mouse events
+                        if (this._viewportHasMoved) {
+                            this._mouseButtonMask = bmask;
+                            break;
+                        }
+                        // Otherwise we treat this as a mouse click event.
+                        // Send the previously saved button mask, followed
+                        // by the current button mask at the end of this
+                        // function.
+                        this._sendMouse(pos.x, pos.y,  this._mouseButtonMask);
+                    }
+                }
+                if (down) {
+                    setCapture(this._canvas);
+                }
+                this._handleMouseButton(pos.x, pos.y, bmask);
                 break;
             case 'mousemove':
+                if (this._viewportDragging) {
+                    const deltaX = this._viewportDragPos.x - pos.x;
+                    const deltaY = this._viewportDragPos.y - pos.y;
+
+                    if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
+                                                   Math.abs(deltaY) > dragThreshold)) {
+                        this._viewportHasMoved = true;
+
+                        this._viewportDragPos = {'x': pos.x, 'y': pos.y};
+                        this._display.viewportChangePos(deltaX, deltaY);
+                    }
+
+                    // Skip sending mouse events
+                    break;
+                }
                 this._handleMouseMove(pos.x, pos.y);
                 break;
         }
     }
 
-    _handleMouseButton(x, y, down, bmask) {
-        if (this.dragViewport) {
-            if (down && !this._viewportDragging) {
-                this._viewportDragging = true;
-                this._viewportDragPos = {'x': x, 'y': y};
-                this._viewportHasMoved = false;
-
-                // Skip sending mouse events
-                return;
-            } else {
-                this._viewportDragging = false;
-
-                // If we actually performed a drag then we are done
-                // here and should not send any mouse events
-                if (this._viewportHasMoved) {
-                    return;
-                }
-
-                // Otherwise we treat this as a mouse click event.
-                // Send the button down event here, as the button up
-                // event is sent at the end of this function.
-                this._sendMouse(x, y, bmask);
-            }
-        }
-
+    _handleMouseButton(x, y, bmask) {
         // Flush waiting move event first
-        if (this._mouseMoveTimer !== null) {
-            clearTimeout(this._mouseMoveTimer);
-            this._mouseMoveTimer = null;
-            this._sendMouse(x, y, this._mouseButtonMask);
-        }
+        this._flushMouseMoveTimer(x, y);
 
-        if (down) {
-            this._mouseButtonMask |= bmask;
-        } else {
-            this._mouseButtonMask &= ~bmask;
-        }
-
+        this._mouseButtonMask = bmask;
         this._sendMouse(x, y, this._mouseButtonMask);
     }
 
     _handleMouseMove(x, y) {
-        if (this._viewportDragging) {
-            const deltaX = this._viewportDragPos.x - x;
-            const deltaY = this._viewportDragPos.y - y;
-
-            if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
-                                           Math.abs(deltaY) > dragThreshold)) {
-                this._viewportHasMoved = true;
-
-                this._viewportDragPos = {'x': x, 'y': y};
-                this._display.viewportChangePos(deltaX, deltaY);
-            }
-
-            // Skip sending mouse events
-            return;
-        }
-
         this._mousePos = { 'x': x, 'y': y };
 
         // Limit many mouse move events to one every MOUSE_MOVE_DELAY ms
@@ -1186,8 +1234,20 @@ export default class RFB extends EventTargetMixin {
         if (this._rfbConnectionState !== 'connected') { return; }
         if (this._viewOnly) { return; } // View only, skip mouse events
 
-        RFB.messages.pointerEvent(this._sock, this._display.absX(x),
-                                  this._display.absY(y), mask);
+        // Highest bit in mask is never sent to the server
+        if (mask & 0x8000) {
+            throw new Error("Illegal mouse button mask (mask: " + mask + ")");
+        }
+
+        let extendedMouseButtons = mask & 0x7f80;
+
+        if (this._extendedPointerEventSupported && extendedMouseButtons) {
+            RFB.messages.extendedPointerEvent(this._sock, this._display.absX(x),
+                                              this._display.absY(y), mask);
+        } else {
+            RFB.messages.pointerEvent(this._sock, this._display.absX(x),
+                                      this._display.absY(y), mask);
+        }
     }
 
     _handleWheel(ev) {
@@ -1200,6 +1260,7 @@ export default class RFB extends EventTargetMixin {
         let pos = clientToElement(ev.clientX, ev.clientY,
                                   this._canvas);
 
+        let bmask = RFB._convertButtonMask(ev.buttons);
         let dX = ev.deltaX;
         let dY = ev.deltaY;
 
@@ -1219,26 +1280,27 @@ export default class RFB extends EventTargetMixin {
         this._accumulatedWheelDeltaX += dX;
         this._accumulatedWheelDeltaY += dY;
 
+
         // Generate a mouse wheel step event when the accumulated delta
         // for one of the axes is large enough.
         if (Math.abs(this._accumulatedWheelDeltaX) >= WHEEL_STEP) {
             if (this._accumulatedWheelDeltaX < 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 5);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 5);
+                this._handleMouseButton(pos.x, pos.y, bmask | 1 << 5);
+                this._handleMouseButton(pos.x, pos.y, bmask);
             } else if (this._accumulatedWheelDeltaX > 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 6);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 6);
+                this._handleMouseButton(pos.x, pos.y, bmask | 1 << 6);
+                this._handleMouseButton(pos.x, pos.y, bmask);
             }
 
             this._accumulatedWheelDeltaX = 0;
         }
         if (Math.abs(this._accumulatedWheelDeltaY) >= WHEEL_STEP) {
             if (this._accumulatedWheelDeltaY < 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 3);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 3);
+                this._handleMouseButton(pos.x, pos.y, bmask | 1 << 3);
+                this._handleMouseButton(pos.x, pos.y, bmask);
             } else if (this._accumulatedWheelDeltaY > 0) {
-                this._handleMouseButton(pos.x, pos.y, true, 1 << 4);
-                this._handleMouseButton(pos.x, pos.y, false, 1 << 4);
+                this._handleMouseButton(pos.x, pos.y, bmask | 1 << 4);
+                this._handleMouseButton(pos.x, pos.y, bmask);
             }
 
             this._accumulatedWheelDeltaY = 0;
@@ -1277,8 +1339,8 @@ export default class RFB extends EventTargetMixin {
         this._gestureLastTapTime = Date.now();
 
         this._fakeMouseMove(this._gestureFirstDoubleTapEv, pos.x, pos.y);
-        this._handleMouseButton(pos.x, pos.y, true, bmask);
-        this._handleMouseButton(pos.x, pos.y, false, bmask);
+        this._handleMouseButton(pos.x, pos.y, bmask);
+        this._handleMouseButton(pos.x, pos.y, 0x0);
     }
 
     _handleGesture(ev) {
@@ -1299,14 +1361,27 @@ export default class RFB extends EventTargetMixin {
                         this._handleTapEvent(ev, 0x2);
                         break;
                     case 'drag':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, true, 0x1);
+                        if (this.dragViewport) {
+                            this._viewportHasMoved = false;
+                            this._viewportDragging = true;
+                            this._viewportDragPos = {'x': pos.x, 'y': pos.y};
+                        } else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            this._handleMouseButton(pos.x, pos.y, 0x1);
+                        }
                         break;
                     case 'longpress':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, true, 0x4);
+                        if (this.dragViewport) {
+                            // If dragViewport is true, we need to wait to see
+                            // if we have dragged outside the threshold before
+                            // sending any events to the server.
+                            this._viewportHasMoved = false;
+                            this._viewportDragPos = {'x': pos.x, 'y': pos.y};
+                        } else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            this._handleMouseButton(pos.x, pos.y, 0x4);
+                        }
                         break;
-
                     case 'twodrag':
                         this._gestureLastMagnitudeX = ev.detail.magnitudeX;
                         this._gestureLastMagnitudeY = ev.detail.magnitudeY;
@@ -1328,7 +1403,21 @@ export default class RFB extends EventTargetMixin {
                         break;
                     case 'drag':
                     case 'longpress':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
+                        if (this.dragViewport) {
+                            this._viewportDragging = true;
+                            const deltaX = this._viewportDragPos.x - pos.x;
+                            const deltaY = this._viewportDragPos.y - pos.y;
+
+                            if (this._viewportHasMoved || (Math.abs(deltaX) > dragThreshold ||
+                                                           Math.abs(deltaY) > dragThreshold)) {
+                                this._viewportHasMoved = true;
+
+                                this._viewportDragPos = {'x': pos.x, 'y': pos.y};
+                                this._display.viewportChangePos(deltaX, deltaY);
+                            }
+                        } else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                        }
                         break;
                     case 'twodrag':
                         // Always scroll in the same position.
@@ -1336,23 +1425,23 @@ export default class RFB extends EventTargetMixin {
                         // every update.
                         this._fakeMouseMove(ev, pos.x, pos.y);
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x8);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                            this._handleMouseButton(pos.x, pos.y, 0x8);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
                             this._gestureLastMagnitudeY += GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeY - this._gestureLastMagnitudeY) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x10);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                            this._handleMouseButton(pos.x, pos.y, 0x10);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
                             this._gestureLastMagnitudeY -= GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) > GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x20);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x20);
+                            this._handleMouseButton(pos.x, pos.y, 0x20);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
                             this._gestureLastMagnitudeX += GESTURE_SCRLSENS;
                         }
                         while ((ev.detail.magnitudeX - this._gestureLastMagnitudeX) < -GESTURE_SCRLSENS) {
-                            this._handleMouseButton(pos.x, pos.y, true, 0x40);
-                            this._handleMouseButton(pos.x, pos.y, false, 0x40);
+                            this._handleMouseButton(pos.x, pos.y, 0x40);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
                             this._gestureLastMagnitudeX -= GESTURE_SCRLSENS;
                         }
                         break;
@@ -1365,13 +1454,13 @@ export default class RFB extends EventTargetMixin {
                         if (Math.abs(magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
                             this._handleKeyEvent(KeyTable.XK_Control_L, "ControlLeft", true);
                             while ((magnitude - this._gestureLastMagnitudeX) > GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, true, 0x8);
-                                this._handleMouseButton(pos.x, pos.y, false, 0x8);
+                                this._handleMouseButton(pos.x, pos.y, 0x8);
+                                this._handleMouseButton(pos.x, pos.y, 0x0);
                                 this._gestureLastMagnitudeX += GESTURE_ZOOMSENS;
                             }
                             while ((magnitude -  this._gestureLastMagnitudeX) < -GESTURE_ZOOMSENS) {
-                                this._handleMouseButton(pos.x, pos.y, true, 0x10);
-                                this._handleMouseButton(pos.x, pos.y, false, 0x10);
+                                this._handleMouseButton(pos.x, pos.y, 0x10);
+                                this._handleMouseButton(pos.x, pos.y, 0x0);
                                 this._gestureLastMagnitudeX -= GESTURE_ZOOMSENS;
                             }
                         }
@@ -1389,12 +1478,32 @@ export default class RFB extends EventTargetMixin {
                     case 'twodrag':
                         break;
                     case 'drag':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x1);
+                        if (this.dragViewport) {
+                            this._viewportDragging = false;
+                        } else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
+                        }
                         break;
                     case 'longpress':
-                        this._fakeMouseMove(ev, pos.x, pos.y);
-                        this._handleMouseButton(pos.x, pos.y, false, 0x4);
+                        if (this._viewportHasMoved) {
+                            // We don't want to send any events if we have moved
+                            // our viewport
+                            break;
+                        }
+
+                        if (this.dragViewport && !this._viewportHasMoved) {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            // If dragViewport is true, we need to wait to see
+                            // if we have dragged outside the threshold before
+                            // sending any events to the server.
+                            this._handleMouseButton(pos.x, pos.y, 0x4);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
+                            this._viewportDragging = false;
+                        } else {
+                            this._fakeMouseMove(ev, pos.x, pos.y);
+                            this._handleMouseButton(pos.x, pos.y, 0x0);
+                        }
                         break;
                 }
                 break;
@@ -1477,6 +1586,14 @@ export default class RFB extends EventTargetMixin {
         this._sock.sQpush32(0); // empty Id
         this._sock.sQpush32(0); // empty coordinates
         this._sock.flush();
+    }
+
+    _flushMouseMoveTimer(x, y) {
+        if (this._mouseMoveTimer !== null) {
+            clearTimeout(this._mouseMoveTimer);
+            this._mouseMoveTimer = null;
+            this._sendMouse(x, y, this._mouseButtonMask);
+        }
     }
 
     // Message handlers
@@ -2247,6 +2364,7 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingContinuousUpdates);
         encs.push(encodings.pseudoEncodingDesktopName);
         encs.push(encodings.pseudoEncodingExtendedClipboard);
+        encs.push(encodings.pseudoEncodingExtendedMouseButtons);
 
         if (this._gesturesMode === 'ultravnc') {
             encs.push(encodings.pseudoEncodingGii);
@@ -2707,6 +2825,10 @@ export default class RFB extends EventTargetMixin {
             case encodings.pseudoEncodingExtendedDesktopSize:
                 return this._handleExtendedDesktopSize();
 
+            case encodings.pseudoEncodingExtendedMouseButtons:
+                this._extendedPointerEventSupported = true;
+                return true;
+
             case encodings.pseudoEncodingQEMULedEvent:
                 return this._handleLedEvent();
 
@@ -2942,6 +3064,10 @@ export default class RFB extends EventTargetMixin {
          *  2 - another client requested the resize
          */
 
+        if (this._FBU.x === 1) {
+            this._pendingRemoteResize = false;
+        }
+
         // We need to handle errors when we requested the resize.
         if (this._FBU.x === 1 && this._FBU.y !== 0) {
             let msg = "";
@@ -2974,6 +3100,12 @@ export default class RFB extends EventTargetMixin {
             this._requestRemoteResize();
         }
 
+        if (this._FBU.x === 1 && this._FBU.y === 0) {
+            // We might have resized again whilst waiting for the
+            // previous request, so check if we are in sync
+            this._requestRemoteResize();
+        }
+
         return true;
     }
 
@@ -3003,6 +3135,7 @@ export default class RFB extends EventTargetMixin {
                                              this._fbWidth, this._fbHeight);
     }
 
+    // Handle resize-messages from the server
     _resize(width, height) {
         this._fbWidth = width;
         this._fbHeight = height;
@@ -3125,10 +3258,35 @@ RFB.messages = {
     pointerEvent(sock, x, y, mask) {
         sock.sQpush8(5); // msg-type
 
+        // Marker bit must be set to 0, otherwise the server might
+        // confuse the marker bit with the highest bit in a normal
+        // PointerEvent message.
+        mask = mask & 0x7f;
         sock.sQpush8(mask);
 
         sock.sQpush16(x);
         sock.sQpush16(y);
+
+        sock.flush();
+    },
+
+    extendedPointerEvent(sock, x, y, mask) {
+        sock.sQpush8(5); // msg-type
+
+        let higherBits = (mask >> 7) & 0xff;
+
+        // Bits 2-7 are reserved
+        if (higherBits & 0xfc) {
+            throw new Error("Invalid mouse button mask: " + mask);
+        }
+
+        let lowerBits = mask & 0x7f;
+        lowerBits |= 0x80; // Set marker bit to 1
+
+        sock.sQpush8(lowerBits);
+        sock.sQpush16(x);
+        sock.sQpush16(y);
+        sock.sQpush8(higherBits);
 
         sock.flush();
     },
