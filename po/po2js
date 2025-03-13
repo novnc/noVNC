@@ -32,6 +32,8 @@ let po = pofile.parse(data);
 const bodyPart = po.items
     .filter(item => item.msgid !== "")
     .filter(item => item.msgstr[0] !== "")
+    .filter(item => !item.flags.fuzzy)
+    .filter(item => !item.obsolete)
     .map(item => "    " + JSON.stringify(item.msgid) + ": " + JSON.stringify(item.msgstr[0]))
     .join(",\n");
 
