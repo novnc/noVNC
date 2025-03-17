@@ -15,7 +15,7 @@ update-js: $(JSONFILES)
 %.po: FORCE
 	msgmerge --update --lang=$* $@ noVNC.pot
 ../app/locale/%.json: FORCE
-	./po2js $*.po $@
+	./po2js.cjs $*.po $@
 
 update-pot:
 	xgettext --output=noVNC.js.pot \
@@ -29,7 +29,7 @@ update-pot:
 		../app/*.js \
 		../core/*.js \
 		../core/input/*.js
-	./xgettext-html --output=noVNC.html.pot \
+	./xgettext-html.cjs --output=noVNC.html.pot \
 		../vnc.html
 	msgcat --output-file=noVNC.pot \
 		--sort-by-file noVNC.js.pot noVNC.html.pot
