@@ -24,7 +24,7 @@ const paths = {
 // calling the callback for all normal files found.
 const walkDir = async (basePath, cb, filter) => {
     const files = await fs.promises.readdir(basePath);
-    const paths = files.map((filename) => path.join(basePath, filename));
+    const paths = files.map(filename => path.join(basePath, filename));
     return Promise.all(
         paths.map(async (filepath) => {
             const stats = await fs.promises.lstat(filepath);
