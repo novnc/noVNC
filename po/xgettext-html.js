@@ -106,7 +106,7 @@ let output = "";
 
 for (let str in strings) {
     output += "#:";
-    for (location in strings[str]) {
+    for (let location in strings[str]) {
         output += " " + location;
     }
     output += "\n";
