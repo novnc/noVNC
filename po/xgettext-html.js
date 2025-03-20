@@ -5,9 +5,9 @@
  * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 
-const { program } = require('commander');
-const jsdom = require("jsdom");
-const fs = require("fs");
+import { program } from 'commander';
+import jsdom from 'jsdom';
+import fs from 'fs';
 
 program
     .argument('<INPUT...>')

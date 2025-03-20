@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { program } = require('commander');
-const fs = require('fs');
-const pofile = require("pofile");
+import { program } from 'commander';
+import fs from 'fs';
+import pofile from "pofile";
 
 program
     .argument('<input>')

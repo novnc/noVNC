@@ -18,9 +18,9 @@
     "docs/LICENSE*"
   ],
   "scripts": {
-    "lint": "eslint app core po/po2js.cjs po/xgettext-html.cjs tests utils",
+    "lint": "eslint app core po/po2js.js po/xgettext-html.js tests utils",
     "test": "karma start karma.conf.cjs",
-    "prepare": "node ./utils/convert.cjs --clean"
+    "prepare": "node ./utils/build.js --clean"
   },
   "repository": {
     "type": "git",
