@@ -64,7 +64,7 @@ function makeLibFiles(sourceMaps) {
         plugins: [],
         presets: [
             [ '@babel/preset-env',
-              { modules: 'commonjs' } ]
+              { modules: false } ]
         ],
         ast: false,
         sourceMaps: sourceMaps,
