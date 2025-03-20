@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "eslint app core po/po2js.js po/xgettext-html.js tests utils",
     "test": "karma start karma.conf.cjs",
-    "prepare": "node ./utils/build.js --clean"
+    "prepare": "node ./utils/convert.js --clean"
   },
   "repository": {
     "type": "git",
