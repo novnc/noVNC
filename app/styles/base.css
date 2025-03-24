@@ -617,7 +617,7 @@ html {
 #noVNC_settings textarea,
 #noVNC_settings input:not([type=checkbox]):not([type=radio]) {
     margin-left: 6px;
-    /* Prevent inputs in panels from being too wide */
+    /* Prevent inputs in settings from being too wide */
     max-width: calc(100% - 6px - var(--input-xpadding) * 2);
 }
 
