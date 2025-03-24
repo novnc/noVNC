@@ -475,15 +475,6 @@ html {
     margin: 5px;
 }
 
-.noVNC_panel button,
-.noVNC_panel select,
-.noVNC_panel textarea,
-.noVNC_panel input:not([type=checkbox]):not([type=radio]) {
-    margin-left: 6px;
-    /* Prevent inputs in panels from being too wide */
-    max-width: calc(100% - 6px - var(--input-xpadding) * 2);
-}
-
 .noVNC_panel .noVNC_heading {
     background-color: var(--novnc-blue);
     border-radius: 6px;
@@ -621,6 +612,15 @@ html {
     list-style: none;
     padding: 0px;
 }
+#noVNC_settings button,
+#noVNC_settings select,
+#noVNC_settings textarea,
+#noVNC_settings input:not([type=checkbox]):not([type=radio]) {
+    margin-left: 6px;
+    /* Prevent inputs in panels from being too wide */
+    max-width: calc(100% - 6px - var(--input-xpadding) * 2);
+}
+
 #noVNC_setting_port {
     width: 80px;
 }
