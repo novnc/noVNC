@@ -333,6 +333,12 @@ const UI = {
             .addEventListener('click', UI.rejectServer);
         document.getElementById("noVNC_credentials_button")
             .addEventListener('click', UI.setCredentials);
+
+        document.addEventListener('click', function(event) {
+            if (UI.rfb !== undefined) {
+                UI.rfb.allow_audio();
+            }
+        });
     },
 
     addClipboardHandlers() {
