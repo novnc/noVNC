@@ -189,6 +189,7 @@ const UI = {
         UI.initSetting('repeaterID', '');
         UI.initSetting('reconnect', false);
         UI.initSetting('reconnect_delay', 5000);
+        UI.initSetting('enable_audio', true);
     },
     // Adds a link to the label elements on the corresponding input elements
     setupSettingLabels() {
@@ -385,6 +386,8 @@ const UI = {
         UI.addSettingChangeHandler('logging', UI.updateLogging);
         UI.addSettingChangeHandler('reconnect');
         UI.addSettingChangeHandler('reconnect_delay');
+        UI.addSettingChangeHandler('enable_audio');
+        UI.addSettingChangeHandler('enable_audio', UI.updateEnableAudio);
     },
 
     addFullscreenHandlers() {
@@ -898,6 +901,7 @@ const UI = {
         UI.updateSetting('logging');
         UI.updateSetting('reconnect');
         UI.updateSetting('reconnect_delay');
+        UI.updateSetting('enable_audio');
 
         document.getElementById('noVNC_settings')
             .classList.add("noVNC_open");
@@ -1109,6 +1113,8 @@ const UI = {
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
 
         UI.updateViewOnly(); // requires UI.rfb
+        UI.updateEnableAudio(); // requires UI.rfb
+
     },
 
     disconnect() {
@@ -1799,6 +1805,11 @@ const UI = {
         optn.text = text;
         optn.value = value;
         selectbox.options.add(optn);
+    },
+
+    updateEnableAudio() {
+        if (!UI.rfb) return;
+        UI.rfb.enable_audio(UI.getSetting('enable_audio'));
     },
 
 /* ------^-------

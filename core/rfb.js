@@ -156,6 +156,7 @@ export default class RFB extends EventTargetMixin {
 
         this._qemuAudioSupported = false;
         this._page_had_user_interaction = false;
+        this._audio_enable = false;
         this._audio_next_start = 0;
         this._audio_sample_rate = 44100;
         this._audio_channels = 2;
@@ -2781,7 +2782,7 @@ export default class RFB extends EventTargetMixin {
                 }
             }
 
-            if (this._page_had_user_interaction) {
+            if (this._page_had_user_interaction && this._audio_enable) {
                 let ctime = this._audio_context.currentTime;
                 if (ctime > this._audio_next_start) {
                     this._audio_next_start = ctime;
@@ -2798,6 +2799,19 @@ export default class RFB extends EventTargetMixin {
         }
 
         return true;
+    }
+
+    enable_audio(value) {
+        if (this._audio_enable !== value) {
+            this._audio_enable = value;
+            if (this._qemuAudioSupported) {
+                if (this._audio_enable) {
+                    RFB.messages.enableQemuAudioUpdates(this._sock, this._audio_channels, this._audio_sample_rate);
+                } else {
+                    RFB.messages.disableQemuAudioUpdates(this._sock);
+                }
+            }
+        }
     }
 
     allow_audio() {
@@ -3409,6 +3423,14 @@ RFB.messages = {
         sock.sQpush16(y);
         sock.sQpush16(width);
         sock.sQpush16(height);
+
+        sock.flush();
+    },
+
+    disableQemuAudioUpdates(sock, channels, sample_rate) {
+        sock.sQpush8(255); // msg-type
+        sock.sQpush8(1); // submessage-type
+        sock.sQpush16(1); // disable audio
 
         sock.flush();
     },
