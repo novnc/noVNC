@@ -117,7 +117,7 @@ async function _checkWebCodecsH264DecodeSupport() {
     let error = null;
 
     let decoder = new VideoDecoder({
-        output: (frame) => { gotframe = true; },
+        output: (frame) => { gotframe = true; frame.close(); },
         error: (e) => { error = e; },
     });
     let chunk = new EncodedVideoChunk({
