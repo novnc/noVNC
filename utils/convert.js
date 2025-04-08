@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const { program } = require('commander');
-const fs = require('fs');
-const fse = require('fs-extra');
-const babel = require('@babel/core');
+import path from 'path';
+import { program } from 'commander';
+import fs from 'fs';
+import fse from 'fs-extra';
+import babel from '@babel/core';
+import { fileURLToPath } from 'url';
 
 program
     .option('-m, --with-source-maps [type]', 'output source maps when not generating a bundled app (type may be empty for external source maps, inline for inline source maps, or both) ')
     .option('--clean', 'clear the lib folder before building')
     .parse(process.argv);
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // the various important paths
 const paths = {
@@ -64,7 +67,7 @@ function makeLibFiles(sourceMaps) {
         plugins: [],
         presets: [
             [ '@babel/preset-env',
-              { modules: 'commonjs' } ]
+              { modules: false } ]
         ],
         ast: false,
         sourceMaps: sourceMaps,
