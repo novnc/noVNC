@@ -78,8 +78,6 @@ export default [
             globals: {
                 ...globals.node,
                 ...globals.mocha,
-                sinon: false,
-                expect: false,
             }
         },
         rules: {
