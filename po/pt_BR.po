@@ -100,7 +100,7 @@ msgstr "Teclas adicionais"
 
 #: ../vnc.html:89
 msgid "Show extra keys"
-msgstr "Mostar teclas adicionais"
+msgstr "Mostrar teclas adicionais"
 
 #: ../vnc.html:94
 msgid "Ctrl"
