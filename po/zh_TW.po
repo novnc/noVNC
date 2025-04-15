@@ -2,15 +2,16 @@
 # Copyright (C) 2018 The noVNC Authors
 # This file is distributed under the same license as the noVNC package.
 # Peter Dave Hello <hsu@peterdavehello.org>, 2018.
+# Jim Huang <jserv@ccns.ncku.edu.tw>, 2024
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: noVNC 1.0.0-testing.2\n"
 "Report-Msgid-Bugs-To: novnc@googlegroups.com\n"
 "POT-Creation-Date: 2018-01-10 00:53+0800\n"
-"PO-Revision-Date: 2018-01-10 01:33+0800\n"
-"Last-Translator: Peter Dave Hello <hsu@peterdavehello.org>\n"
-"Language-Team: Peter Dave Hello <hsu@peterdavehello.org>\n"
+"PO-Revision-Date: 2024-10-12 01:33+0800\n"
+"Last-Translator: Jim Huang <jserv@ccns.ncku.edu.tw>\n"
+"Language-Team: Jim Huang <jserv@ccns.ncku.edu.tw>\n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -38,11 +39,11 @@ msgstr "請提供主機資訊"
 
 #: ../app/ui.js:1097
 msgid "Connected (encrypted) to "
-msgstr "已加密連線到"
+msgstr "已連線到(加密的)"
 
 #: ../app/ui.js:1099
 msgid "Connected (unencrypted) to "
-msgstr "未加密連線到"
+msgstr "已連線到(未加密的)"
 
 #: ../app/ui.js:1120
 msgid "Something went wrong, connection is closed"
@@ -155,7 +156,7 @@ msgstr "Ctrl-Alt-Del"
 
 #: ../vnc.html:148
 msgid "Send Ctrl-Alt-Del"
-msgstr "送出 Ctrl-Alt-Del 快捷鍵"
+msgstr "送出 Ctrl-Alt-Del 組合鍵"
 
 #: ../vnc.html:156
 msgid "Shutdown/Reboot"
@@ -199,11 +200,11 @@ msgstr "設定"
 
 #: ../vnc.html:202
 msgid "Shared Mode"
-msgstr "分享模式"
+msgstr "共享模式"
 
 #: ../vnc.html:205
 msgid "View Only"
-msgstr "僅檢視"
+msgstr "僅供檢視"
 
 #: ../vnc.html:209
 msgid "Clip to Window"
@@ -219,7 +220,7 @@ msgstr "無"
 
 #: ../vnc.html:215
 msgid "Local Scaling"
-msgstr "本機縮放"
+msgstr "本地縮放"
 
 #: ../vnc.html:216
 msgid "Remote Resizing"
@@ -231,7 +232,7 @@ msgstr "進階"
 
 #: ../vnc.html:224
 msgid "Repeater ID:"
-msgstr "中繼站 ID"
+msgstr "中繼站代號"
 
 #: ../vnc.html:228
 msgid "WebSocket"
@@ -247,7 +248,7 @@ msgstr "主機："
 
 #: ../vnc.html:238
 msgid "Port:"
-msgstr "連接埠："
+msgstr "埠號："
 
 #: ../vnc.html:242
 msgid "Path:"
@@ -263,7 +264,7 @@ msgstr "重新連線間隔 (ms)："
 
 #: ../vnc.html:258
 msgid "Logging:"
-msgstr "日誌級別："
+msgstr "日誌等級："
 
 #: ../vnc.html:270
 msgid "Disconnect"
@@ -282,61 +283,61 @@ msgid "Cancel"
 msgstr "取消"
 
 msgid "Credentials are required"
-msgstr "需要證件"
+msgstr "需要憑證"
 
 msgid "Drag"
-msgstr "拖"
+msgstr "拖曳"
 
 msgid "Toggle Windows"
-msgstr "切換窗口"
+msgstr "切換視窗"
 
 msgid "Windows"
 msgstr "視窗"
 
 msgid "Quality:"
-msgstr "質量："
+msgstr "品質："
 
 msgid "Compression level:"
-msgstr "壓縮級別："
+msgstr "壓縮等級："
 
 msgid "Show Dot when No Cursor"
-msgstr "沒有光標時顯示點"
+msgstr "沒有游標時以像素點顯示"
 
 msgid "Version:"
 msgstr "版本："
 
 msgid "Username:"
-msgstr "用戶名："
+msgstr "使用者名稱："
 
 msgid "Send Credentials"
 msgstr "發送憑證"
 
 msgid "Keys"
-msgstr "鑰匙"
+msgstr "按鍵"
 
 msgid "Game Cursor Mode"
-msgstr "遊戲光標模式"
+msgstr "遊戲游標模式"
 
 msgid "Press Esc Key to Exit Pointer Lock Mode"
-msgstr "按 Esc 鍵退出指針鎖定模式"
+msgstr "按下 Esc 鍵以退出游標鎖定模式"
 
 msgid "Game Mode paused, click on screen to resume Game Mode."
-msgstr "遊戲模式暫停，點擊屏幕恢復遊戲模式。"
+msgstr "遊戲模式已暫停，點擊螢幕以恢復遊戲模式。"
 
 msgid "Clipboard Up"
-msgstr "向上剪貼板"
+msgstr "剪貼簿向上"
 
 msgid "CLipboard Down"
-msgstr "剪貼板下"
+msgstr "剪貼簿向下"
 
 msgid "Clipboard Seamless"
-msgstr "無縫剪貼板"
+msgstr "無縫剪貼簿"
 
 msgid "Prefer Local Cursor"
-msgstr "首選本地光標"
+msgstr "偏好本地游標"
 
 msgid "Translate keyboard shortcuts"
-msgstr "翻譯鍵盤快捷鍵"
+msgstr "轉換鍵盤快捷鍵"
 
 msgid "Enable WebRTC UDP Transit"
 msgstr "啟用 WebRTC UDP 傳輸"
@@ -348,19 +349,19 @@ msgid "Enable Performance Stats"
 msgstr "啟用性能統計"
 
 msgid "Enable Pointer Lock"
-msgstr "啟用指針鎖定"
+msgstr "啟用游標鎖定"
 
 msgid "IME Input Mode"
-msgstr "輸入法輸入法"
+msgstr "啟用本地輸入法"
 
 msgid "Show Virtual Keyboard Control"
 msgstr "顯示虛擬鍵盤控制"
 
 msgid "Toggle Control Panel via Keystrokes"
-msgstr "通過擊鍵切換控制面板"
+msgstr "藉由按鍵來切換控制面板"
 
 msgid "Render Native Resolution"
-msgstr "渲染本機分辨率"
+msgstr "原生算繪解析度"
 
 msgid "Keyboard Shortcuts"
 msgstr "鍵盤快捷鍵"
@@ -372,13 +373,13 @@ msgid "1 - Toggle Control Panel"
 msgstr "1 - 切換控制面板"
 
 msgid "2 - Toggle Game Pointer Mode"
-msgstr "2 - 切換遊戲指針模式"
+msgstr "2 - 切換遊戲游標模式"
 
 msgid "3 - Toggle Pointer Lock"
-msgstr "3 - 切換指針鎖定"
+msgstr "3 - 切換游標鎖定"
 
 msgid "Stream Quality"
-msgstr "流媒體質量"
+msgstr "串流品質"
 
 msgid "Preset Modes:"
 msgstr "預設模式："
@@ -387,25 +388,25 @@ msgid "Static"
 msgstr "靜止的"
 
 msgid "Low"
-msgstr "低的"
+msgstr "粗略"
 
 msgid "Medium"
-msgstr "中等的"
+msgstr "中等"
 
 msgid "High"
-msgstr "高的"
+msgstr "高度"
 
 msgid "Extreme"
-msgstr "極端"
+msgstr "極致"
 
 msgid "Lossless"
 msgstr "無損"
 
 msgid "Custom"
-msgstr "風俗"
+msgstr "自訂"
 
 msgid "Anti-Aliasing:"
-msgstr "抗鋸齒："
+msgstr "反鋸齒："
 
 msgid "Auto Dynamic"
 msgstr "自動動態"
@@ -417,46 +418,46 @@ msgid "On"
 msgstr "在"
 
 msgid "Dynamic Quality Min:"
-msgstr "動態質量分鐘："
+msgstr "動態品質最小值："
 
 msgid "Dynamic Quality Max:"
-msgstr "動態質量最大值："
+msgstr "動態品質最大值："
 
 msgid "Treat Lossless:"
 msgstr "對待無損："
 
 msgid "Frame Rate:"
-msgstr "幀率："
+msgstr "影格率："
 
 msgid "Video JPEG Quality:"
-msgstr "視頻 JPEG 質量："
+msgstr "視訊 JPEG 品質："
 
 msgid "Video WEBP Quality:"
-msgstr "視頻 WEBP 質量："
+msgstr "視訊 WebP 品質："
 
 msgid "Video Area:"
-msgstr "視頻區："
+msgstr "視訊區域："
 
 msgid "Video Time:"
-msgstr "視頻時間："
+msgstr "視訊時間："
 
 msgid "Video Out Time:"
-msgstr "視頻輸出時間："
+msgstr "視訊輸出時間："
 
 msgid "Video Mode Width:"
-msgstr "視頻模式寬度："
+msgstr "視訊模式寬度："
 
 msgid "Video Mode Height:"
-msgstr "視頻模式高度："
+msgstr "視訊模式高度："
 
 msgid "Documentation"
-msgstr "文檔"
+msgstr "文件"
 
 msgid "Drag Viewport"
-msgstr "拖動視口"
+msgstr "拖曳視角"
 
 msgid "KasmVNC encountered an error:"
-msgstr "KasmVNC 遇到錯誤："
+msgstr "KasmVNC 遭遇執行錯誤："
 
 msgid "Displays"
 msgstr "「展示」"
