@@ -62,7 +62,7 @@ export default [
         }
     },
     {
-        files: ["po/po2js", "po/xgettext-html"],
+        files: ["po/po2js.js", "po/xgettext-html.js"],
         languageOptions: {
             globals: {
                 ...globals.node,
