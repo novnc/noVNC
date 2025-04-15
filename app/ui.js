@@ -1887,6 +1887,9 @@ const UI = {
             } else if (document.body.msRequestFullscreen) {
                 document.body.msRequestFullscreen();
             }
+            if(navigator.keyboard && navigator.keyboard.lock){
+                navigator.keyboard.lock(['Escape']);
+            }
         }
         UI.updateFullscreenButton();
     },
