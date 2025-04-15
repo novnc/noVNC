@@ -352,3 +352,30 @@ msgstr "Визпортны тарту"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC хата белән очрашты:"
+
+msgid "Displays"
+msgstr "Күрсәтү"
+
+msgid "Enable Threaded Decoding"
+msgstr "Threadепле декодлау мөмкинлеген бирегез"
+
+msgid "Arrange Displays"
+msgstr "Күрсәтүләрне тәртипкә китерегез"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Дисплейларны тәртипкә китерү өчен сузыгыз һәм төшерегез, алдагы мониторның уң ягына яңа мониторлар өстәлә."
+
+msgid "Add Monitor"
+msgstr "Монитор өстәгез"
+
+msgid "Auto placement"
+msgstr "Авто урнаштыру"
+
+msgid "Identify"
+msgstr "Ачыклагыз"
+
+msgid "Done"
+msgstr "Булды"
+
+msgid "Control Panel"
+msgstr "Контроль панель"

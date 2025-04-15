@@ -352,3 +352,30 @@ msgstr "Кашолакунии Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ба хатогӣ дучор шуд:"
+
+msgid "Displays"
+msgstr "Намоишҳо"
+
+msgid "Enable Threaded Decoding"
+msgstr "Расмгузории риштаро фаъол созед"
+
+msgid "Arrange Displays"
+msgstr "Ташкили намоишҳо"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Барои тартиб додани намоишҳо кашола карда партоед, мониторҳои нав ба тарафи рости монитори қаблӣ илова карда мешаванд."
+
+msgid "Add Monitor"
+msgstr "Илова кардани монитор"
+
+msgid "Auto placement"
+msgstr "Ҷойгиркунии худкор"
+
+msgid "Identify"
+msgstr "Муайян кардан"
+
+msgid "Done"
+msgstr "Иҷро шуд"
+
+msgid "Control Panel"
+msgstr "Сафҳаи идоракунӣ"

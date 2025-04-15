@@ -116,5 +116,14 @@
     "Video Mode Height:": "ﻲﺋﺎﭽﻧﻭﺍ ڊﻮﻣ ﻮﻳڊﻭ",
     "Documentation": "ﺰﻳﻭﺎﺘﺳﺩ",
     "Drag Viewport": "ٽﺭﻮﭘ ﻮﺌﻳڏ ﻮﻳڏﮀ",
-    "KasmVNC encountered an error:": "KasmVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:"
+    "KasmVNC encountered an error:": "KasmVNC ﻮﻴڪ ﻦﻬﻨﻣ ﻥﺎﺳ ﻲﻄﻠﻏ ڪﻫ:",
+    "Displays": "ﻮﭤ ﻲﺋﺎﺳڏ",
+    "Enable Threaded Decoding": "ﻮﻳﺮڪ ﻝﺎﻌﻓ ﻲﮐ ﮓﻧڊﻮڪﻳڊ ڊڊﻴٽ",
+    "Arrange Displays": "ﻮﻳڏ ﺐﻴﺗﺮﺗ ﻲﮐ ﺰﻴﻠﭙﺳڊ",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ﺮٽﻴﻧﺎﻣ ﻦﻴﺌﮘﺍ ﻥﺎﮐ ﻲﺳﺎﭘ ﻱﺭﺍﻭ ﭣﮬ ﻲﭴﺎﺳ ﻦﮬﺁ ﺎﻳﻭ ﺎﻴڪ ﻞﻣﺎﺷ ﺮٽﻴﻧﺎﻣ ﻥﺍﻮﻧ ،ﻮﻳڏ ﻱڏﮀ ۽ ﻮﻴڪﮀ ءﻻ﻿ ﮡﻳڏ ﺐﻴﺗﺮﺗ ﻲﮐ ﻲﻠﭙﺳڊ",
+    "Add Monitor": "ﻮﻳﺮڪ ﻞﻣﺎﺷ ﺮٽﻴﻧﺎﻣ",
+    "Auto placement": "ﮡﺋﺎﮙﻟ ﺭﺎڪﺩﻮﺧ",
+    "Identify": "ﮡﮢﺎﭹﺳ",
+    "Done": "ﻮﻳﻭ ﻲﭤ",
+    "Control Panel": "ﻞﻨﻴﭘ ﻝﻭﺮٽﻨڪ"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "Għoli tal-Modalità Video:",
     "Documentation": "Dokumentazzjoni",
     "Drag Viewport": "Dragg Viewport",
-    "KasmVNC encountered an error:": "KasmVNC iltaqa' ma' żball:"
+    "KasmVNC encountered an error:": "KasmVNC iltaqa' ma' żball:",
+    "Displays": "Displays",
+    "Enable Threaded Decoding": "Ippermetti Dekodifikazzjoni bil-kamin",
+    "Arrange Displays": "Irranġa Displays",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Drag and drop biex tirranġa wirjiet, monitors ġodda huma miżjuda man-naħa tal-lemin tal-monitor preċedenti.",
+    "Add Monitor": "Żid Monitor",
+    "Auto placement": "Tqegħid awtomatiku",
+    "Identify": "Identifika",
+    "Done": "Magħmul",
+    "Control Panel": "Panew tal-Kontroll"
 }

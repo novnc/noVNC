@@ -352,3 +352,30 @@ msgstr "Arrossegar la finestra gràfica"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ha trobat un error:"
+
+msgid "Displays"
+msgstr "Pantalles"
+
+msgid "Enable Threaded Decoding"
+msgstr "Activa la descodificació de fils"
+
+msgid "Arrange Displays"
+msgstr "Organitzar les pantalles"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Arrossegueu i deixeu anar per organitzar les pantalles, s'afegeixen monitors nous a la part dreta del monitor anterior"
+
+msgid "Add Monitor"
+msgstr "Afegeix un monitor"
+
+msgid "Auto placement"
+msgstr "Ubicació automàtica"
+
+msgid "Identify"
+msgstr "Identificar"
+
+msgid "Done"
+msgstr "Fet"
+
+msgid "Control Panel"
+msgstr "Tauler de control"

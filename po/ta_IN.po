@@ -352,3 +352,30 @@ msgstr "வியூபோர்ட்டை இழுக்கவும்"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ஒரு பிழையை எதிர்கொண்டது:"
+
+msgid "Displays"
+msgstr "காட்சிகள்"
+
+msgid "Enable Threaded Decoding"
+msgstr "த்ரெட் செய்யப்பட்ட டிகோடிங்கை இயக்கு"
+
+msgid "Arrange Displays"
+msgstr "காட்சிகளை ஏற்பாடு செய்"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "காட்சிகளை ஒழுங்கமைக்க இழுத்து விடுங்கள், முந்தைய மானிட்டரின் வலது புறத்தில் புதிய மானிட்டர்கள் சேர்க்கப்படுகின்றன."
+
+msgid "Add Monitor"
+msgstr "மானிட்டரைச் சேர்"
+
+msgid "Auto placement"
+msgstr "தானியங்கு இடம்"
+
+msgid "Identify"
+msgstr "அடையாளம்"
+
+msgid "Done"
+msgstr "முடிந்தது"
+
+msgid "Control Panel"
+msgstr "கண்ட்ரோல் பேனல்"

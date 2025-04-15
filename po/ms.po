@@ -352,3 +352,30 @@ msgstr "Seret Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC mengalami ralat:"
+
+msgid "Displays"
+msgstr "Paparan"
+
+msgid "Enable Threaded Decoding"
+msgstr "Dayakan Penyahkodan Berulir"
+
+msgid "Arrange Displays"
+msgstr "Susun Paparan"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Seret dan lepaskan untuk mengatur paparan, monitor baharu ditambahkan pada sebelah kanan monitor sebelumnya."
+
+msgid "Add Monitor"
+msgstr "Tambah Monitor"
+
+msgid "Auto placement"
+msgstr "Auto peletakan"
+
+msgid "Identify"
+msgstr "Kenal pasti"
+
+msgid "Done"
+msgstr "Selesai"
+
+msgid "Control Panel"
+msgstr "Panel Kawalan"

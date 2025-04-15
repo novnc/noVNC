@@ -352,3 +352,30 @@ msgstr "טראָפּויוו ןפּעלש"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC תועט אַ טרעטנאָלפּעג:"
+
+msgid "Displays"
+msgstr "זיילפּסיד"
+
+msgid "Enable Threaded Decoding"
+msgstr "גנידואָקיד םעדאָפ ןבעג"
+
+msgid "Arrange Displays"
+msgstr "זיילפּסיד ןלעטש"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ראָטינאָמ עקידרעירפ יד ןופ טיַיז טכער יד וצ ףיסומ ןענעז סראָטינאָמ יַינ ,זיילפּסיד ןגיילוצ וצ ןלאַפ ןוא ןפּעלש"
+
+msgid "Add Monitor"
+msgstr "ראָטינאָמ גייל"
+
+msgid "Auto placement"
+msgstr "טנאַמסיילפּ אָטואַ"
+
+msgid "Identify"
+msgstr "ןריציפיטנעדי"
+
+msgid "Done"
+msgstr "ןאטעג"
+
+msgid "Control Panel"
+msgstr "לענאַפּ לאָרטנאָק"

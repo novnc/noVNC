@@ -352,3 +352,30 @@ msgstr "Darstellungsfenster ziehen"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC hat einen Fehler festgestellt:"
+
+msgid "Displays"
+msgstr "Anzeigen"
+
+msgid "Enable Threaded Decoding"
+msgstr "Threaded-Dekodierung aktivieren"
+
+msgid "Arrange Displays"
+msgstr "Anzeigen anordnen"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Zum Anordnen von Anzeigen per Drag-and-Drop. Neue Monitore werden auf der rechten Seite des vorherigen Monitors hinzugefügt."
+
+msgid "Add Monitor"
+msgstr "Monitor hinzufügen"
+
+msgid "Auto placement"
+msgstr "Automatische Platzierung"
+
+msgid "Identify"
+msgstr "Identifizieren"
+
+msgid "Done"
+msgstr "Erledigt"
+
+msgid "Control Panel"
+msgstr "Bedienfeld"

@@ -457,3 +457,30 @@ msgstr "拖動視口"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC 遇到錯誤："
+
+msgid "Displays"
+msgstr "「展示」"
+
+msgid "Enable Threaded Decoding"
+msgstr "啟用線程解碼"
+
+msgid "Arrange Displays"
+msgstr "排列顯示"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "拖放以排列顯示，新顯示器將添加到前一個顯示器的右側。"
+
+msgid "Add Monitor"
+msgstr "添加監視器"
+
+msgid "Auto placement"
+msgstr "自動放置"
+
+msgid "Identify"
+msgstr "確認"
+
+msgid "Done"
+msgstr "完畢"
+
+msgid "Control Panel"
+msgstr "控制面板"

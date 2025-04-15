@@ -116,5 +116,14 @@
     "Video Mode Height:": "Boemo ba Mokhoa oa Video:",
     "Documentation": "Litokomane",
     "Drag Viewport": "Hula Viewport",
-    "KasmVNC encountered an error:": "KasmVNC e fumane phoso:"
+    "KasmVNC encountered an error:": "KasmVNC e fumane phoso:",
+    "Displays": "Lipontšo",
+    "Enable Threaded Decoding": "Enable Threaded Decoding",
+    "Arrange Displays": "Lokisa Lipontšo",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Hula le ho theola ho hlophisa lipontšo, li-monitor tse ncha li eketsoa ka letsohong le letona la mochine o fetileng.",
+    "Add Monitor": "Eketsa Monitor",
+    "Auto placement": "Ho beha koloi",
+    "Identify": "Itseba",
+    "Done": "Ke qetile",
+    "Control Panel": "Lekhotla la taolo"
 }

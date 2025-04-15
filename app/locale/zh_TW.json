@@ -123,5 +123,14 @@
     "Video Mode Height:": "視頻模式高度：",
     "Documentation": "文檔",
     "Drag Viewport": "拖動視口",
-    "KasmVNC encountered an error:": "KasmVNC 遇到錯誤："
+    "KasmVNC encountered an error:": "KasmVNC 遇到錯誤：",
+    "Displays": "「展示」",
+    "Enable Threaded Decoding": "啟用線程解碼",
+    "Arrange Displays": "排列顯示",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "拖放以排列顯示，新顯示器將添加到前一個顯示器的右側。",
+    "Add Monitor": "添加監視器",
+    "Auto placement": "自動放置",
+    "Identify": "確認",
+    "Done": "完畢",
+    "Control Panel": "控制面板"
 }

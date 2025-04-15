@@ -116,5 +116,14 @@
     "Video Mode Height:": "Habka Fiidiyowga Dhererka:",
     "Documentation": "Documentation",
     "Drag Viewport": "Deegaanka Jiid",
-    "KasmVNC encountered an error:": "KasmVNC waxay la kulantay cilad:"
+    "KasmVNC encountered an error:": "KasmVNC waxay la kulantay cilad:",
+    "Displays": "Muuqaal",
+    "Enable Threaded Decoding": "Kor u yeel kood-samaynta xadhigga leh",
+    "Arrange Displays": "Habee bandhigyada",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Jiid oo dhig si aad u habayso bandhigyo, kormeerayaal cusub ayaa lagu daraa dhinaca midig ee kormeerihii hore.",
+    "Add Monitor": "Kudar Kormeeraha",
+    "Auto placement": " Meelaynta otomaatiga ah",
+    "Identify": "Aqoonso",
+    "Done": "La dhameeyay",
+    "Control Panel": "Control Panel"
 }

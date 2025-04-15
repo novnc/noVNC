@@ -116,5 +116,14 @@
     "Video Mode Height:": "Uchder Modd Fideo:",
     "Documentation": "Dogfennaeth",
     "Drag Viewport": "Llusgwch Viewport",
-    "KasmVNC encountered an error:": "Mae KasmVNC wedi dod ar draws gwall:"
+    "KasmVNC encountered an error:": "Mae KasmVNC wedi dod ar draws gwall:",
+    "Displays": "Arddangos",
+    "Enable Threaded Decoding": "Galluogi Dadgodio Threaded",
+    "Arrange Displays": "Trefnu Arddangosfeydd",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Llusgo a gollwng i drefnu arddangosfeydd, mae monitorau newydd yn cael eu hychwanegu at ochr dde'r monitor blaenorol.",
+    "Add Monitor": "Ychwanegu monitor",
+    "Auto placement": "Lleoliad ceir",
+    "Identify": "Adnabod",
+    "Done": "Gwneud",
+    "Control Panel": "Panel Rheoli"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "ვიდეო რეჟიმის სიმაღლე:",
     "Documentation": "დოკუმენტაცია",
     "Drag Viewport": "გადაათრიეთ ხედის პორტი",
-    "KasmVNC encountered an error:": "KasmVNC შეექმნა შეცდომა:"
+    "KasmVNC encountered an error:": "KasmVNC შეექმნა შეცდომა:",
+    "Displays": "ჩვენები",
+    "Enable Threaded Decoding": "ჩართეთ ნაკადიანი დეკოდირება",
+    "Arrange Displays": "ჩვენების მოწყობა",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "გადაათრიეთ და ჩამოაგდეთ ჩვენების მოსაწყობად, ახალი მონიტორები დაემატება წინა მონიტორის მარჯვენა მხარეს.",
+    "Add Monitor": "მონიტორის დამატება",
+    "Auto placement": "ავტომატური განთავსება",
+    "Identify": "იდენტიფიცირება",
+    "Done": "შესრულებულია",
+    "Control Panel": "საკონტროლო პანელი"
 }

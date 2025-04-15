@@ -352,3 +352,30 @@ msgstr "ಡ್ರ್ಯಾಗ್ ವ್ಯೂಪೋರ್ಟ್"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ದೋಷವನ್ನು ಎದುರಿಸಿದೆ:"
+
+msgid "Displays"
+msgstr "ಪ್ರದರ್ಶನಗಳು"
+
+msgid "Enable Threaded Decoding"
+msgstr "ಥ್ರೆಡ್ ಡಿಕೋಡಿಂಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Arrange Displays"
+msgstr "ಪ್ರದರ್ಶನಗಳನ್ನು ಜೋಡಿಸಿ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ಪ್ರದರ್ಶನಗಳನ್ನು ಜೋಡಿಸಲು ಎಳೆಯಿರಿ ಮತ್ತು ಬಿಡಿ, ಹಿಂದಿನ ಮಾನಿಟರ್u200cನ ಬಲಭಾಗಕ್ಕೆ ಹೊಸ ಮಾನಿಟರ್u200cಗಳನ್ನು ಸೇರಿಸಲಾಗುತ್ತದೆ."
+
+msgid "Add Monitor"
+msgstr "ಮಾನಿಟರ್ ಸೇರಿಸಿ"
+
+msgid "Auto placement"
+msgstr "ಸ್ವಯಂ ನಿಯೋಜನೆ"
+
+msgid "Identify"
+msgstr "ಗುರುತಿಸು"
+
+msgid "Done"
+msgstr "ಮುಗಿದಿದೆ"
+
+msgid "Control Panel"
+msgstr "ನಿಯಂತ್ರಣ ಫಲಕ"

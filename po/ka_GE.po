@@ -352,3 +352,30 @@ msgstr "გადაათრიეთ ხედის პორტი"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC შეექმნა შეცდომა:"
+
+msgid "Displays"
+msgstr "ჩვენები"
+
+msgid "Enable Threaded Decoding"
+msgstr "ჩართეთ ნაკადიანი დეკოდირება"
+
+msgid "Arrange Displays"
+msgstr "ჩვენების მოწყობა"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "გადაათრიეთ და ჩამოაგდეთ ჩვენების მოსაწყობად, ახალი მონიტორები დაემატება წინა მონიტორის მარჯვენა მხარეს."
+
+msgid "Add Monitor"
+msgstr "მონიტორის დამატება"
+
+msgid "Auto placement"
+msgstr "ავტომატური განთავსება"
+
+msgid "Identify"
+msgstr "იდენტიფიცირება"
+
+msgid "Done"
+msgstr "შესრულებულია"
+
+msgid "Control Panel"
+msgstr "საკონტროლო პანელი"

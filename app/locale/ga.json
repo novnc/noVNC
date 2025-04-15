@@ -116,5 +116,9 @@
     "Video Mode Height:": "Airde Mód Físe:",
     "Documentation": "Doiciméad",
     "Drag Viewport": "Tarraing Viewport",
-    "KasmVNC encountered an error:": "Tharla earráid i KasmVNC:"
+    "KasmVNC encountered an error:": "Tharla earráid i KasmVNC:",
+    "Displays": "Taispeánann",
+    "Enable Threaded Decoding": "Cumasaigh Díchódú Snáithithe",
+    "Arrange Displays": "Socraigh taispeántais",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "msgstr "
 }

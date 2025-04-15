@@ -352,3 +352,30 @@ msgstr "Deegaanka Jiid"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC waxay la kulantay cilad:"
+
+msgid "Displays"
+msgstr "Muuqaal"
+
+msgid "Enable Threaded Decoding"
+msgstr "Kor u yeel kood-samaynta xadhigga leh"
+
+msgid "Arrange Displays"
+msgstr "Habee bandhigyada"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Jiid oo dhig si aad u habayso bandhigyo, kormeerayaal cusub ayaa lagu daraa dhinaca midig ee kormeerihii hore."
+
+msgid "Add Monitor"
+msgstr "Kudar Kormeeraha"
+
+msgid "Auto placement"
+msgstr " Meelaynta otomaatiga ah"
+
+msgid "Identify"
+msgstr "Aqoonso"
+
+msgid "Done"
+msgstr "La dhameeyay"
+
+msgid "Control Panel"
+msgstr "Control Panel"

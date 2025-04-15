@@ -116,5 +116,14 @@
     "Video Mode Height:": "Videorežiimi kõrgus:",
     "Documentation": "Dokumentatsioon",
     "Drag Viewport": "Lohistamisvaade",
-    "KasmVNC encountered an error:": "KasmVNC-s ilmnes viga:"
+    "KasmVNC encountered an error:": "KasmVNC-s ilmnes viga:",
+    "Displays": "Ekraanid",
+    "Enable Threaded Decoding": "Luba keermestatud dekodeerimine",
+    "Arrange Displays": "Ekraanide korraldamine",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Kuvade korraldamiseks pukseerige, uued monitorid lisatakse eelmise kuvari paremale küljele.",
+    "Add Monitor": "Lisa monitor",
+    "Auto placement": "Automaatne paigutus",
+    "Identify": "Tuvasta",
+    "Done": "Valmis",
+    "Control Panel": "Juhtpaneel"
 }

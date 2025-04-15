@@ -116,5 +116,14 @@
     "Video Mode Height:": "Haavo maodely video:",
     "Documentation": "Dokumentation",
     "Drag Viewport": "Drag Viewport",
-    "KasmVNC encountered an error:": "Nahita hadisoana ny KasmVNC:"
+    "KasmVNC encountered an error:": "Nahita hadisoana ny KasmVNC:",
+    "Displays": "Fampisehoana",
+    "Enable Threaded Decoding": "Alefaso ny decoding misy kofehy",
+    "Arrange Displays": "Mandamina fampisehoana",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Drag and drop to handamina fampisehoana, misy mpanara-maso vaovao ampiana eo amin'ny ilany havanana amin'ny monitor teo aloha.",
+    "Add Monitor": "Ampio Monitor",
+    "Auto placement": "Fametrahana fiara",
+    "Identify": "Tantara",
+    "Done": "vita",
+    "Control Panel": "Takelaka fikirakirana"
 }

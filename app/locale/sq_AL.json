@@ -116,5 +116,14 @@
     "Video Mode Height:": "Lartësia e modalitetit të videos:",
     "Documentation": "Dokumentacioni",
     "Drag Viewport": "Zvarrit portin e shikimit",
-    "KasmVNC encountered an error:": "KasmVNC hasi në një gabim:"
+    "KasmVNC encountered an error:": "KasmVNC hasi në një gabim:",
+    "Displays": "Shfaq",
+    "Enable Threaded Decoding": "Aktivizo dekodimin e filetuar",
+    "Arrange Displays": "Rregulloni ekranet",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Zvarrit dhe lësho për të rregulluar ekranet, monitorët e rinj shtohen në anën e djathtë të monitorit të mëparshëm.",
+    "Add Monitor": "Shto Monitor",
+    "Auto placement": "Vendosja automatike",
+    "Identify": "Identifiko",
+    "Done": "U krye",
+    "Control Panel": "Paneli i kontrollit"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "Bideo moduaren altuera:",
     "Documentation": "Dokumentazioa",
     "Drag Viewport": "Arrastatu ikuspegia",
-    "KasmVNC encountered an error:": "KasmVNC-k errore bat aurkitu du:"
+    "KasmVNC encountered an error:": "KasmVNC-k errore bat aurkitu du:",
+    "Displays": "Bistaratzeak",
+    "Enable Threaded Decoding": "Gaitu haria deskodetzea",
+    "Arrange Displays": "Antolatu pantailak",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Arrastatu eta jaregin pantailak antolatzeko, aurreko monitorearen eskuineko aldean monitore berriak gehitzen dira.",
+    "Add Monitor": "Gehitu monitorea",
+    "Auto placement": "Kokapen automatikoa",
+    "Identify": "Identifikatu",
+    "Done": "Bukatu",
+    "Control Panel": "Kontrol panela"
 }

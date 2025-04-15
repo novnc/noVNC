@@ -116,5 +116,14 @@
     "Video Mode Height:": "ﯽﺋﺎﭽﻧﻭﺍ ﯽﮐ ﮈﻮﻣ ﻮﯾﮉﯾﻭ",
     "Documentation": "ﺕﺍﺰﯾﻭﺎﺘﺳﺩ",
     "Drag Viewport": "ﭦﺭﻮﭘ ﻮﯾﻭ ﮓﯾﺭﮈ",
-    "KasmVNC encountered an error:": "KasmVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:"
+    "KasmVNC encountered an error:": "KasmVNC ﺍﮍﭘ ﺎﻧﺮﮐ ﺎﻨﻣﺎﺳ ﺎﮐ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﻮﮐ:",
+    "Displays": "ﮯﻠﭙﺳﮈ",
+    "Enable Threaded Decoding": "ﮟﯾﺮﮐ ﻝﺎﻌﻓ ﻮﮐ ﮓﻧﮈﻮﮑﯾﮈ ﮈﮉﯾﺮﮭﺗ",
+    "Arrange Displays": "ﮟﯾﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮯﻠﭙﺳﮈ",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "۔ﮟﯿﮨ ﮯﺌﮔ ﮯﯿﮐ ﻞﻣﺎﺷ ﺮﭩﯿﻧﺎﻣ ﮯﺌﻧ ﮟﯿﻣ ﮫﺗﺎﮨ ﮟﯿﺋﺍﺩ ﮯﮐ ﺮﭩﯿﻧﺎﻣ ﮯﻠﮭﭽﭘ ،ﮟﯾﺮﮐ ﭖﺍﺭﮈ ﮉﻨﯾﺍ ﮓﯾﺭﮈ ﮯﯿﻟ ﮯﮐ ﮯﻨﯾﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮯﻠﭙﺳﮈ",
+    "Add Monitor": "ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﺮﭩﯿﻧﺎﻣ",
+    "Auto placement": "ﭧﻨﻤﺴﯿﻠﭘ ﻮﭨﺁ",
+    "Identify": "ﺖﺧﺎﻨﺷ",
+    "Done": "ﺎﯿﮔ ﻮﮨ",
+    "Control Panel": "ﻞﻨﯿﭘ ﻝﻭﺮﭩﻨﮐ"
 }

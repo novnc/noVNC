@@ -116,5 +116,14 @@
     "Video Mode Height:": "వీడియో మోడ్ ఎత్తు:",
     "Documentation": "డాక్యుమెంటేషన్",
     "Drag Viewport": "డ్రాగ్ వ్యూపోర్ట్",
-    "KasmVNC encountered an error:": "KasmVNC లోపాన్ని ఎదుర్కొంది:"
+    "KasmVNC encountered an error:": "KasmVNC లోపాన్ని ఎదుర్కొంది:",
+    "Displays": "ప్రదర్శనలు",
+    "Enable Threaded Decoding": "థ్రెడ్ డీకోడింగ్u200cని ప్రారంభించు",
+    "Arrange Displays": "ప్రదర్శనలను అమర్చు",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "డిస్ప్లేలను ఏర్పాటు చేయడానికి లాగండి మరియు వదలండి, మునుపటి మానిటర్ యొక్క కుడి వైపున కొత్త మానిటర్లు జోడించబడ్డాయి.",
+    "Add Monitor": "మానిటర్u200cని జోడించు",
+    "Auto placement": "ఆటో ప్లేస్u200cమెంట్",
+    "Identify": "గుర్తించండి",
+    "Done": "పూర్తయింది",
+    "Control Panel": "కంట్రోల్ ప్యానెల్"
 }

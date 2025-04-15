@@ -352,3 +352,30 @@ msgstr "డ్రాగ్ వ్యూపోర్ట్"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC లోపాన్ని ఎదుర్కొంది:"
+
+msgid "Displays"
+msgstr "ప్రదర్శనలు"
+
+msgid "Enable Threaded Decoding"
+msgstr "థ్రెడ్ డీకోడింగ్u200cని ప్రారంభించు"
+
+msgid "Arrange Displays"
+msgstr "ప్రదర్శనలను అమర్చు"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "డిస్ప్లేలను ఏర్పాటు చేయడానికి లాగండి మరియు వదలండి, మునుపటి మానిటర్ యొక్క కుడి వైపున కొత్త మానిటర్లు జోడించబడ్డాయి."
+
+msgid "Add Monitor"
+msgstr "మానిటర్u200cని జోడించు"
+
+msgid "Auto placement"
+msgstr "ఆటో ప్లేస్u200cమెంట్"
+
+msgid "Identify"
+msgstr "గుర్తించండి"
+
+msgid "Done"
+msgstr "పూర్తయింది"
+
+msgid "Control Panel"
+msgstr "కంట్రోల్ ప్యానెల్"

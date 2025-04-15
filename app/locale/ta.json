@@ -116,5 +116,14 @@
     "Video Mode Height:": "வீடியோ பயன்முறை உயரம்:",
     "Documentation": "ஆவணம்",
     "Drag Viewport": "வியூபோர்ட்டை இழுக்கவும்",
-    "KasmVNC encountered an error:": "KasmVNC ஒரு பிழையை எதிர்கொண்டது:"
+    "KasmVNC encountered an error:": "KasmVNC ஒரு பிழையை எதிர்கொண்டது:",
+    "Displays": "காட்சிகள்",
+    "Enable Threaded Decoding": "த்ரெட் செய்யப்பட்ட டிகோடிங்கை இயக்கு",
+    "Arrange Displays": "காட்சிகளை ஏற்பாடு செய்",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "காட்சிகளை ஒழுங்கமைக்க இழுத்து விடுங்கள், முந்தைய மானிட்டரின் வலது புறத்தில் புதிய மானிட்டர்கள் சேர்க்கப்படுகின்றன.",
+    "Add Monitor": "மானிட்டரைச் சேர்",
+    "Auto placement": "தானியங்கு இடம்",
+    "Identify": "அடையாளம்",
+    "Done": "முடிந்தது",
+    "Control Panel": "கண்ட்ரோல் பேனல்"
 }

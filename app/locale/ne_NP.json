@@ -116,5 +116,14 @@
     "Video Mode Height:": "भिडियो मोड उचाइ:",
     "Documentation": "कागजात",
     "Drag Viewport": "ड्र्याग भ्यूपोर्ट",
-    "KasmVNC encountered an error:": "KasmVNC ले त्रुटिको सामना गर्यो:"
+    "KasmVNC encountered an error:": "KasmVNC ले त्रुटिको सामना गर्यो:",
+    "Displays": "प्रदर्शन",
+    "Enable Threaded Decoding": "थ्रेडेड डिकोडिङ सक्षम गर्नुहोस्",
+    "Arrange Displays": "प्रदर्शनहरू व्यवस्थित गर्नुहोस्",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "डिस्प्लेहरू व्यवस्थित गर्न तान्नुहोस् र छोड्नुहोस्, नयाँ मोनिटरहरू अघिल्लो मनिटरको दाहिने हातमा थपिएका छन्।",
+    "Add Monitor": "मोनिटर थप्नुहोस्",
+    "Auto placement": "स्वत: नियुक्ति",
+    "Identify": "पहिचान",
+    "Done": "सम्पन्न",
+    "Control Panel": "नियन्त्रण कक्ष"
 }

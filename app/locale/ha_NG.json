@@ -116,5 +116,14 @@
     "Video Mode Height:": "Tsarin Yanayin Bidiyo:",
     "Documentation": "Takardu",
     "Drag Viewport": "Jawo Viewport",
-    "KasmVNC encountered an error:": "KasmVNC ya ci karo da kuskure:"
+    "KasmVNC encountered an error:": "KasmVNC ya ci karo da kuskure:",
+    "Displays": "Nunawa",
+    "Enable Threaded Decoding": "Kuna Ƙaddamar da Zare",
+    "Arrange Displays": "Shirya Nuni",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Jawo da sauke don shirya nuni, ana ƙara sababbin masu saka idanu zuwa gefen dama na mai duba baya.",
+    "Add Monitor": "Ƙara Monitor",
+    "Auto placement": "Ajiye ta atomatik",
+    "Identify": "Gane",
+    "Done": "An gama",
+    "Control Panel": "Control Panel"
 }

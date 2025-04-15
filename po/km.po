@@ -352,3 +352,30 @@ msgstr "ច្រកទិដ្ឋភាពអូស"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC បានជួបប្រទះបញ្ហាមួយ៖"
+
+msgid "Displays"
+msgstr "ការបង្ហាញ"
+
+msgid "Enable Threaded Decoding"
+msgstr "បើកការឌិកូដខ្សែស្រឡាយ"
+
+msgid "Arrange Displays"
+msgstr "រៀបចំការបង្ហាញ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "msgstr "អូសហើយទម្លាក់ដើម្បីរៀបចំការបង្ហាញ ម៉ូនីទ័រថ្មីត្រូវបានបន្ថែមទៅផ្នែកខាងស្តាំនៃម៉ូនីទ័រមុន ។"
+
+msgid "Add Monitor"
+msgstr "បន្ថែមម៉ូនីទ័រ"
+
+msgid "Auto placement"
+msgstr "ការដាក់ដោយស្វ័យប្រវត្តិ"
+
+msgid "Identify"
+msgstr "កំណត់អត្តសញ្ញាណ"
+
+msgid "Done"
+msgstr "រួចរាល់"
+
+msgid "Control Panel"
+msgstr "ផ្ទាំងបញ្ជា"

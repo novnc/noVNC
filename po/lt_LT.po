@@ -352,3 +352,30 @@ msgstr "Drag Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC susidūrė su klaida:"
+
+msgid "Displays"
+msgstr "Ekranai"
+
+msgid "Enable Threaded Decoding"
+msgstr "Įgalinti gijų dekodavimą"
+
+msgid "Arrange Displays"
+msgstr "Išdėstyti ekranus"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Vilkite ir numeskite, kad sutvarkytumėte ekranus, nauji monitoriai pridedami dešinėje ankstesnio monitoriaus pusėje."
+
+msgid "Add Monitor"
+msgstr "Pridėti monitorių"
+
+msgid "Auto placement"
+msgstr "Automatinis išdėstymas"
+
+msgid "Identify"
+msgstr "Identifikuoti"
+
+msgid "Done"
+msgstr "Atlikta"
+
+msgid "Control Panel"
+msgstr "Valdymo skydas"

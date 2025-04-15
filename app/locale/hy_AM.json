@@ -116,5 +116,14 @@
     "Video Mode Height:": "Տեսանյութի ռեժիմի բարձրություն.",
     "Documentation": "Փաստաթղթեր",
     "Drag Viewport": "Քաշել տեսադաշտը",
-    "KasmVNC encountered an error:": "KasmVNC-ն սխալ է հանդիպել."
+    "KasmVNC encountered an error:": "KasmVNC-ն սխալ է հանդիպել.",
+    "Displays": "Ցուցադրումներ",
+    "Enable Threaded Decoding": "Միացնել թելային ապակոդավորումը",
+    "Arrange Displays": "Դասավորել ցուցադրությունները",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Քաշեք և թողեք էկրանները դասավորելու համար, նոր մոնիտորներ են ավելացվում նախորդ մոնիտորի աջ կողմում:",
+    "Add Monitor": "Ավելացնել մոնիտոր",
+    "Auto placement": "Ավտոմատ տեղադրում",
+    "Identify": "Նույնականացնել",
+    "Done": "Կատարված է",
+    "Control Panel": "Կառավարման վահանակ"
 }

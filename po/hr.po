@@ -352,3 +352,30 @@ msgstr "Povucite okvir za prikaz"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC je naišao na pogrešku:"
+
+msgid "Displays"
+msgstr "Zasloni"
+
+msgid "Enable Threaded Decoding"
+msgstr "Omogući dekodiranje nitima"
+
+msgid "Arrange Displays"
+msgstr "Rasporedi zaslone"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Povucite i ispustite za raspored zaslona, novi monitori se dodaju na desnu stranu prethodnog monitora."
+
+msgid "Add Monitor"
+msgstr "Dodaj monitor"
+
+msgid "Auto placement"
+msgstr "Automatsko postavljanje"
+
+msgid "Identify"
+msgstr "Identificirati"
+
+msgid "Done"
+msgstr "gotovo"
+
+msgid "Control Panel"
+msgstr "Upravljačka ploča"

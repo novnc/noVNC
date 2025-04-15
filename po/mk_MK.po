@@ -352,3 +352,30 @@ msgstr "Повлечете го погледот"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC наиде на грешка:"
+
+msgid "Displays"
+msgstr "Прикажи"
+
+msgid "Enable Threaded Decoding"
+msgstr "Овозможи декодирање со нишки"
+
+msgid "Arrange Displays"
+msgstr "Подредете ги приказите"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Повлечете и спуштете за да ги распоредите приказите, нови монитори се додаваат на десната страна на претходниот монитор."
+
+msgid "Add Monitor"
+msgstr "Додај монитор"
+
+msgid "Auto placement"
+msgstr "Автоматско поставување"
+
+msgid "Identify"
+msgstr "Идентификувајте"
+
+msgid "Done"
+msgstr "Готово"
+
+msgid "Control Panel"
+msgstr "Контролен панел"

@@ -116,5 +116,14 @@
     "Video Mode Height:": "ﻮﻳﺪﻴﻔﻟﺍ ﻊﺿﻭ ﻉﺎﻔﺗﺭﺍ",
     "Documentation": "ﻖﻴﺛﻮﺗ",
     "Drag Viewport": "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳﺍ",
-    "KasmVNC encountered an error:": "ﺄﻄﺧ KasmVNC ﻪﺟﺍﻭ"
+    "KasmVNC encountered an error:": "ﺄﻄﺧ KasmVNC ﻪﺟﺍﻭ",
+    "Displays": "ﺽﺮﻌﻳ",
+    "Enable Threaded Decoding": "ﺮﻴﻔﺸﺘﻟﺍ ﻚﻓ ﻦﻴﻜﻤﺗ",
+    "Arrange Displays": "ﺽﻭﺮﻌﻟﺍ ﺐﻴﺗﺮﺗ",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ﺔﻘﺑﺎﺴﻟﺍ ﺔﺷﺎﺸﻟﺍ ﻦﻣ ﻦﻤﻳﻷ﻿ﺍ ﺐﻧﺎﺠﻟﺍ ﻰﻟﺇ ﺓﺪﻳﺪﺟ ﺕﺎﺷﺎﺷ ﺔﻓﺎﺿﺇ ﻢﺘﺗﻭ ،ﺽﺮﻌﻟﺍ ﺕﺎﺷﺎﺷ ﺐﻴﺗﺮﺘﻟ ﺕﻼ﻿ﻓﻹ﻿ﺍﻭ ﺐﺤﺴﻟﺎﺑ ﻢﻗ",
+    "Add Monitor": "ﺐﻗﺍﺮﻣ ﺔﻓﺎﺿﺇ",
+    "Auto placement": "ﻲﺋﺎﻘﻠﺘﻟﺍ ﻊﺿﻮﺘﻟﺍ",
+    "Identify": "ﻒﻳﺮﻌﺗ",
+    "Done": "ﻲﻬﺘﻨﻣ",
+    "Control Panel": "ﻢﻜﺤﺘﻟﺍ ﺔﺣﻮﻟ"
 }

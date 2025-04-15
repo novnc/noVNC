@@ -116,5 +116,14 @@
     "Video Mode Height:": "Urefu wa Modi ya Video:",
     "Documentation": "Nyaraka",
     "Drag Viewport": "Buruta Viewport",
-    "KasmVNC encountered an error:": "KasmVNC ilipata hitilafu:"
+    "KasmVNC encountered an error:": "KasmVNC ilipata hitilafu:",
+    "Displays": "Maonyesho",
+    "Enable Threaded Decoding": "Washa Usimbuaji wa nyuzi",
+    "Arrange Displays": "Panga Maonyesho",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Buruta na uangushe ili kupanga maonyesho, wachunguzi wapya huongezwa kwa upande wa kulia wa kifuatilizi kilichotangulia.",
+    "Add Monitor": "Ongeza Monitor",
+    "Auto placement": "Uwekaji otomatiki",
+    "Identify": "Tambua",
+    "Done": "Nimemaliza",
+    "Control Panel": "Jopo la Kudhibiti"
 }

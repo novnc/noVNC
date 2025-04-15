@@ -116,5 +116,14 @@
     "Video Mode Height:": "Výška režimu videa:",
     "Documentation": "dokumentácia",
     "Drag Viewport": "Pretiahnuť výrez",
-    "KasmVNC encountered an error:": "KasmVNC narazil na chybu:"
+    "KasmVNC encountered an error:": "KasmVNC narazil na chybu:",
+    "Displays": "zobrazuje",
+    "Enable Threaded Decoding": "Povoliť dekódovanie vlákien",
+    "Arrange Displays": "Usporiadať displeje",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Pretiahnutím myšou usporiadate zobrazenia, nové monitory sa pridajú na pravú stranu predchádzajúceho monitora.",
+    "Add Monitor": "Pridať monitor",
+    "Auto placement": "Automatické umiestnenie",
+    "Identify": "identifikovať",
+    "Done": "Hotovo",
+    "Control Panel": "Ovládací panel"
 }

@@ -352,3 +352,30 @@ msgstr "Zvarrit portin e shikimit"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC hasi në një gabim:"
+
+msgid "Displays"
+msgstr "Shfaq"
+
+msgid "Enable Threaded Decoding"
+msgstr "Aktivizo dekodimin e filetuar"
+
+msgid "Arrange Displays"
+msgstr "Rregulloni ekranet"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Zvarrit dhe lësho për të rregulluar ekranet, monitorët e rinj shtohen në anën e djathtë të monitorit të mëparshëm."
+
+msgid "Add Monitor"
+msgstr "Shto Monitor"
+
+msgid "Auto placement"
+msgstr "Vendosja automatike"
+
+msgid "Identify"
+msgstr "Identifiko"
+
+msgid "Done"
+msgstr "U krye"
+
+msgid "Control Panel"
+msgstr "Paneli i kontrollit"

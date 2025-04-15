@@ -285,41 +285,41 @@ msgid "Canvas not supported."
 msgstr "Element Canvas nie jest wspierany."
 
 #~ msgid "Disconnect timeout"
-#~ msgstr """"""""""""Timeout rozłączenia"
+#~ msgstr """"""""""""""Timeout rozłączenia"
 
 #~ msgid "Local Downscaling"
-#~ msgstr """"""""""""Downscaling lokalny"
+#~ msgstr """"""""""""""Downscaling lokalny"
 
 #~ msgid "Local Cursor"
-#~ msgstr """"""""""""Lokalny kursor"
+#~ msgstr """"""""""""""Lokalny kursor"
 
 #~ msgid ""
 #~ "Forcing clipping mode since scrollbars aren't supported by IE in "
 #~ "fullscreen"
-#~ msgstr """""""""""""
+#~ msgstr """""""""""""""
 #~ "Wymuszam clipping mode ponieważ paski przewijania nie są wspierane przez "
 #~ "IE w trybie pełnoekranowym"
 
 #~ msgid "True Color"
-#~ msgstr """"""""""""True Color"
+#~ msgstr """"""""""""""True Color"
 
 #~ msgid "Style:"
-#~ msgstr """"""""""""Styl:"
+#~ msgstr """"""""""""""Styl:"
 
 #~ msgid "default"
-#~ msgstr """"""""""""domyślny"
+#~ msgstr """"""""""""""domyślny"
 
 #~ msgid "Apply"
-#~ msgstr """"""""""""Zapisz"
+#~ msgstr """"""""""""""Zapisz"
 
 #~ msgid "Connection"
-#~ msgstr """"""""""""Połączenie"
+#~ msgstr """"""""""""""Połączenie"
 
 #~ msgid "Token:"
-#~ msgstr """"""""""""Token:"
+#~ msgstr """"""""""""""Token:"
 
 #~ msgid "Send Password"
-#~ msgstr """"""""""""Wyślij Hasło"
+#~ msgstr """"""""""""""Wyślij Hasło"
 
 msgid "Failed to connect to server"
 msgstr "Błąd połączenia z serwerem"
@@ -500,3 +500,30 @@ msgstr "Przeciągnij rzutnię"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC napotkał błąd:"
+
+msgid "Displays"
+msgstr "Wyświetlacze"
+
+msgid "Enable Threaded Decoding"
+msgstr "Włącz dekodowanie wątkowe"
+
+msgid "Arrange Displays"
+msgstr "Uporządkuj wyświetlacze"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Przeciągnij i upuść, aby uporządkować wyświetlacze, nowe monitory są dodawane po prawej stronie poprzedniego monitora."
+
+msgid "Add Monitor"
+msgstr "Dodaj monitor"
+
+msgid "Auto placement"
+msgstr "Automatyczne umieszczanie"
+
+msgid "Identify"
+msgstr "Zidentyfikować"
+
+msgid "Done"
+msgstr "Zrobione"
+
+msgid "Control Panel"
+msgstr "Panel sterowania"

@@ -116,5 +116,14 @@
     "Video Mode Height:": "Video rejimi hündürlüyü:",
     "Documentation": "Sənədlər",
     "Drag Viewport": "Görünüş sahəsini sürükləyin",
-    "KasmVNC encountered an error:": "KasmVNC xəta ilə qarşılaşdı:"
+    "KasmVNC encountered an error:": "KasmVNC xəta ilə qarşılaşdı:",
+    "Displays": "Ekranlar",
+    "Enable Threaded Decoding": "Yivli deşifrəni aktivləşdirin",
+    "Arrange Displays": "Ekranları təşkil et",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Ekranları tənzimləmək üçün sürükləyin və buraxın, yeni monitorlar əvvəlki monitorun sağ tərəfinə əlavə olunur.",
+    "Add Monitor": "Monitor əlavə et",
+    "Auto placement": "Avtomatik yerləşdirmə",
+    "Identify": "müəyyən et",
+    "Done": "Bitti",
+    "Control Panel": "İdarə Paneli"
 }

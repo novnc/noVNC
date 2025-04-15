@@ -352,3 +352,30 @@ msgstr "ګﯾﺭډ ﺪﯿﻟ ﺪﯿﻟ ﺩ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ﻮﺷ ﺦﻣ ﻩﺮﺳ ﯥﻨﺗﻭﺮﯧﺗ ﯤﻮﯾ ﺩ:"
+
+msgid "Displays"
+msgstr "ﻱﻮﮐ ﻩﺭﺎﮑښ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ﺉړﮐ ﻝﺎﻌﻓ ﻮﻟﻮﮐ ډﻮﮐ ﻱﻮﺷ ﺭﺎﺗ ﺩ"
+
+msgid "Arrange Displays"
+msgstr "ﻝﻮﮐ ﻢﯿﻈﻨﺗ ﻮﻧﻮﻧﻮﺗﺭﺍﺪﻨﻧ ﺩ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ﻱﻮﺷ ﻪﻓﺎﺿﺍ ﻪﺗ ﺥړﺍ ﻲښ ﺮټﯿﻧﺎﻣ ﻲﻧﺍﻮﺨﭘ ﺩ ﻪﻧﻭﺮټﯿﻧﺎﻣ ﻱﻮﻧ ،ﺉړﮐ ﭖﺍﺭډ ﻭﺍ ګﯾﺭډ ﻩﺭﺎﭙﻟ ﻮﻟﻮﮐ ﻢﯿﻈﻨﺗ ﯥﻧﺩﻮښ ﺩ"
+
+msgid "Add Monitor"
+msgstr "ﺉړﮐ ﻪﻓﺎﺿﺍ ﺮټﯿﻧﺎﻣ"
+
+msgid "Auto placement"
+msgstr "ﻝﻮﮐ ﯼﺎځﺮﭘ ﯼﺎځ ﺕﺎﻣﻮﺗﺍ ﺩ"
+
+msgid "Identify"
+msgstr "ﻝﺪﻧﮋﯿﭘ"
+
+msgid "Done"
+msgstr "ﯼﻮﺷ"
+
+msgid "Control Panel"
+msgstr "ﻩﺭﺍﺩﺍ ﻦﯿﻤﻀﺗ ﺩ"

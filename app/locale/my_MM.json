@@ -116,5 +116,14 @@
     "Video Mode Height:": "ဗီဒီယိုမုဒ် အမြင့်-",
     "Documentation": "စာရွက်စာတမ်း",
     "Drag Viewport": "ရှုထောင့်ကို ဆွဲယူပါ",
-    "KasmVNC encountered an error:": "KasmVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-"
+    "KasmVNC encountered an error:": "KasmVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-",
+    "Displays": "ပြသမှုများ",
+    "Enable Threaded Decoding": "Treaded Decoding ကိုဖွင့်ပါ",
+    "Arrange Displays": "ပြကွက်များစီစဉ်ခြင်း",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ပြသမှုများကို စီစဉ်ရန် ဖိဆွဲကာ လွှတ်ချလိုက်ပါ၊ ယခင် မော်နီတာ၏ ညာဘက်ခြမ်းတွင် မော်နီတာအသစ်များကို ထည့်သွင်းထားသည်။",
+    "Add Monitor": "မော်နီတာထည့်ပါ",
+    "Auto placement": "အလိုအလျောက် နေရာချထားခြင်း",
+    "Identify": "ဖော်ထုတ်",
+    "Done": "ပြီးပြီ",
+    "Control Panel": "ထိန်းချုပ်ရာနေရာ"
 }

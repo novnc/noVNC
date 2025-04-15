@@ -116,5 +116,14 @@
     "Video Mode Height:": "Видео горимын өндөр:",
     "Documentation": "Баримт бичиг",
     "Drag Viewport": "Харах цонхыг чирэх",
-    "KasmVNC encountered an error:": "KasmVNC алдаа гарлаа:"
+    "KasmVNC encountered an error:": "KasmVNC алдаа гарлаа:",
+    "Displays": "Дэлгэцүүд",
+    "Enable Threaded Decoding": "Treaded декодчилолыг идэвхжүүлэх",
+    "Arrange Displays": "Дэлгэцүүдийг зохион байгуулах",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Дэлгэцийг цэгцлэхийн тулд чирж, буулгахад өмнөх мониторын баруун гар талд шинэ мониторууд нэмэгддэг.",
+    "Add Monitor": "Монитор нэмэх",
+    "Auto placement": "Автоматаар байршуулах",
+    "Identify": "Таних",
+    "Done": "Дууссан",
+    "Control Panel": "Хяналтын самбар"
 }

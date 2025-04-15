@@ -352,3 +352,30 @@ msgstr "Buruta Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ilipata hitilafu:"
+
+msgid "Displays"
+msgstr "Maonyesho"
+
+msgid "Enable Threaded Decoding"
+msgstr "Washa Usimbuaji wa nyuzi"
+
+msgid "Arrange Displays"
+msgstr "Panga Maonyesho"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Buruta na uangushe ili kupanga maonyesho, wachunguzi wapya huongezwa kwa upande wa kulia wa kifuatilizi kilichotangulia."
+
+msgid "Add Monitor"
+msgstr "Ongeza Monitor"
+
+msgid "Auto placement"
+msgstr "Uwekaji otomatiki"
+
+msgid "Identify"
+msgstr "Tambua"
+
+msgid "Done"
+msgstr "Nimemaliza"
+
+msgid "Control Panel"
+msgstr "Jopo la Kudhibiti"

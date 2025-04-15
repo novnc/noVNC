@@ -352,3 +352,30 @@ msgstr "ડ્રેગ વ્યૂપોર્ટ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ને એક ભૂલ આવી:"
+
+msgid "Displays"
+msgstr "ડિસ્પ્લે"
+
+msgid "Enable Threaded Decoding"
+msgstr "થ્રેડેડ ડીકોડિંગ સક્ષમ કરો"
+
+msgid "Arrange Displays"
+msgstr "ડિસ્પ્લે ગોઠવો"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ડિસ્પ્લે ગોઠવવા માટે ખેંચો અને છોડો, નવા મોનિટર અગાઉના મોનિટરની જમણી બાજુએ ઉમેરવામાં આવે છે."
+
+msgid "Add Monitor"
+msgstr "મોનિટર ઉમેરો"
+
+msgid "Auto placement"
+msgstr "ઓટો પ્લેસમેન્ટ"
+
+msgid "Identify"
+msgstr "ઓળખો"
+
+msgid "Done"
+msgstr "થઈ ગયું"
+
+msgid "Control Panel"
+msgstr "નિયંત્રણ પેનલ"

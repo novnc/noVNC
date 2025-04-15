@@ -352,3 +352,30 @@ msgstr "Thatha indawo yokujonga"
 
 msgid "KasmVNC encountered an error:"
 msgstr "I-KasmVNC ifumene impazamo:"
+
+msgid "Displays"
+msgstr "Imiboniso"
+
+msgid "Enable Threaded Decoding"
+msgstr "Yenza idikhowudi enemisonto"
+
+msgid "Arrange Displays"
+msgstr "Lungiselela imiboniso"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Hamba kwaye ulahle ukuze ulungiselele imiboniso, iimonitha ezintsha zongezwa kwicala lasekunene leemoni ezidlulileyo."
+
+msgid "Add Monitor"
+msgstr "Yongeza iMonitor"
+
+msgid "Auto placement"
+msgstr "Ukubekwa ngokuzenzekela"
+
+msgid "Identify"
+msgstr "Chonga"
+
+msgid "Done"
+msgstr "Gqibile"
+
+msgid "Control Panel"
+msgstr "Iphaneli yokulawula"

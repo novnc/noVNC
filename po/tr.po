@@ -463,3 +463,30 @@ msgstr "Görüntü Penceresini Sürükleyin"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC bir hatayla karşılaştı:"
+
+msgid "Displays"
+msgstr "Ekranlar"
+
+msgid "Enable Threaded Decoding"
+msgstr "Dişli Kod Çözmeyi Etkinleştir"
+
+msgid "Arrange Displays"
+msgstr "Göstergeleri Düzenle"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Ekranları düzenlemek için sürükleyip bırakın, yeni monitörler önceki monitörün sağ tarafına eklenir."
+
+msgid "Add Monitor"
+msgstr "Monitör Ekle"
+
+msgid "Auto placement"
+msgstr "Otomatik yerleştirme"
+
+msgid "Identify"
+msgstr "Tanımlamak"
+
+msgid "Done"
+msgstr "Tamamlamak"
+
+msgid "Control Panel"
+msgstr "Kontrol Paneli"

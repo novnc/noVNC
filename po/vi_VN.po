@@ -352,3 +352,30 @@ msgstr "Kéo khung nhìn"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC gặp lỗi:"
+
+msgid "Displays"
+msgstr "Hiển thị"
+
+msgid "Enable Threaded Decoding"
+msgstr "Kích hoạt giải mã theo chuỗi"
+
+msgid "Arrange Displays"
+msgstr "Sắp xếp hiển thị"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Kéo và thả để sắp xếp màn hình, màn hình mới được thêm vào phía bên phải màn hình trước đó."
+
+msgid "Add Monitor"
+msgstr "Thêm màn hình"
+
+msgid "Auto placement"
+msgstr "Vị trí tự động"
+
+msgid "Identify"
+msgstr "Nhận dạng"
+
+msgid "Done"
+msgstr "Xong"
+
+msgid "Control Panel"
+msgstr "Bảng điều khiển"

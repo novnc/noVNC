@@ -116,5 +116,14 @@
     "Video Mode Height:": "Ụdị vidiyo dị elu:",
     "Documentation": "Akwụkwọ",
     "Drag Viewport": "Dọrọ nlegharị anya",
-    "KasmVNC encountered an error:": "KasmVNC zutere mperi:"
+    "KasmVNC encountered an error:": "KasmVNC zutere mperi:",
+    "Displays": "Ihe ngosi",
+    "Enable Threaded Decoding": "Kwado ngbanwe nke eriri",
+    "Arrange Displays": "Hazie ihe ngosi",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Dọrọ na dobe iji hazie ihe ngosi, a na-agbakwunye ndị nlekota ọhụrụ n'akụkụ aka nri nke nyocha gara aga.",
+    "Add Monitor": "Tinye nlekota oru",
+    "Auto placement": "Ndokwa akpaaka",
+    "Identify": " mara",
+    "Done": "Emela",
+    "Control Panel": "Ogwe njikwa"
 }

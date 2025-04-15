@@ -352,3 +352,30 @@ msgstr "Faire glisser la fenêtre"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC a rencontré une erreur :"
+
+msgid "Displays"
+msgstr "Affichages"
+
+msgid "Enable Threaded Decoding"
+msgstr "Activer le décodage threadé"
+
+msgid "Arrange Displays"
+msgstr "Organiser les affichages"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Faites glisser et déposez pour organiser les affichages, les nouveaux moniteurs sont ajoutés sur le côté droit du moniteur précédent."
+
+msgid "Add Monitor"
+msgstr "Ajouter un moniteur"
+
+msgid "Auto placement"
+msgstr "Placement automatique"
+
+msgid "Identify"
+msgstr "Identifier"
+
+msgid "Done"
+msgstr "Fait"
+
+msgid "Control Panel"
+msgstr "Panneau de contrôle"

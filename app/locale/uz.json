@@ -116,5 +116,14 @@
     "Video Mode Height:": "Video rejimi balandligi:",
     "Documentation": "Hujjatlar",
     "Drag Viewport": "Ko'rish oynasini sudrab olib boring",
-    "KasmVNC encountered an error:": "KasmVNC xatolikka duch keldi:"
+    "KasmVNC encountered an error:": "KasmVNC xatolikka duch keldi:",
+    "Displays": "Displeylar",
+    "Enable Threaded Decoding": "Treaded dekodlashni yoqish",
+    "Arrange Displays": "Ko'rgazmalarni tartibga solish",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Displeylarni tartibga solish uchun sudrab olib tashlang, oldingi monitorning o'ng tomoniga yangi monitorlar qo'shiladi.",
+    "Add Monitor": "Monitor qo'shish",
+    "Auto placement": "Avtomatik joylashtirish",
+    "Identify": "Aniqlash",
+    "Done": "Bajarildi",
+    "Control Panel": "Boshqaruv paneli"
 }

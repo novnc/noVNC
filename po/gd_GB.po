@@ -352,3 +352,30 @@ msgstr "Slaod am port-seallaidh"
 
 msgid "KasmVNC encountered an error:"
 msgstr "Thachair KasmVNC ri mearachd:"
+
+msgid "Displays"
+msgstr "Taisbeanadh"
+
+msgid "Enable Threaded Decoding"
+msgstr "Cuir an comas còdachadh snàthainn"
+
+msgid "Arrange Displays"
+msgstr "Cuir air dòigh taisbeanaidhean"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Slaod is leig às gus taisbeanaidhean a chuir air dòigh, thèid sgrùdairean ùra a chuir ri taobh deas an sgrùdaidh roimhe."
+
+msgid "Add Monitor"
+msgstr "Cuir ris a' mhonatair"
+
+msgid "Auto placement"
+msgstr "Suidheachadh fèin-ghluasadach"
+
+msgid "Identify"
+msgstr "Aithnich"
+
+msgid "Done"
+msgstr "Dèan"
+
+msgid "Control Panel"
+msgstr "Pannal Smachd"

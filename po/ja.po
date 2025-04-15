@@ -297,28 +297,28 @@ msgid "Cancel"
 msgstr "キャンセル"
 
 #~ msgid "Password is required"
-#~ msgstr """"""""""""パスワードが必要です"
+#~ msgstr """"""""""""""パスワードが必要です"
 
 #~ msgid "viewport drag"
-#~ msgstr """"""""""""ビューポートをドラッグ"
+#~ msgstr """"""""""""""ビューポートをドラッグ"
 
 #~ msgid "Active Mouse Button"
-#~ msgstr """"""""""""アクティブなマウスボタン"
+#~ msgstr """"""""""""""アクティブなマウスボタン"
 
 #~ msgid "No mousebutton"
-#~ msgstr """"""""""""マウスボタンなし"
+#~ msgstr """"""""""""""マウスボタンなし"
 
 #~ msgid "Left mousebutton"
-#~ msgstr """"""""""""左マウスボタン"
+#~ msgstr """"""""""""""左マウスボタン"
 
 #~ msgid "Middle mousebutton"
-#~ msgstr """"""""""""中マウスボタン"
+#~ msgstr """"""""""""""中マウスボタン"
 
 #~ msgid "Right mousebutton"
-#~ msgstr """"""""""""右マウスボタン"
+#~ msgstr """"""""""""""右マウスボタン"
 
 #~ msgid "Send Password"
-#~ msgstr """"""""""""パスワードを送信"
+#~ msgstr """"""""""""""パスワードを送信"
 
 msgid "Keys"
 msgstr "「キー」"
@@ -466,3 +466,30 @@ msgstr "「ビューポートをドラッグ」"
 
 msgid "KasmVNC encountered an error:"
 msgstr "「KasmVNC でエラーが発生しました:」"
+
+msgid "Displays"
+msgstr "「ディスプレイ」"
+
+msgid "Enable Threaded Decoding"
+msgstr "「スレッドデコードを有効にする」"
+
+msgid "Arrange Displays"
+msgstr "「ディスプレイを整理する」"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "「ドラッグ アンド ドロップでディスプレイを配置すると、前のモニターの右側に新しいモニターが追加されます。」"
+
+msgid "Add Monitor"
+msgstr "「モニターの追加」"
+
+msgid "Auto placement"
+msgstr "「自動配置」"
+
+msgid "Identify"
+msgstr "識別する"
+
+msgid "Done"
+msgstr "終わり"
+
+msgid "Control Panel"
+msgstr "コントロールパネル"

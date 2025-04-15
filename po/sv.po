@@ -441,3 +441,30 @@ msgstr "Dra Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC stötte på ett fel:"
+
+msgid "Displays"
+msgstr "Skärmar"
+
+msgid "Enable Threaded Decoding"
+msgstr "Aktivera trådad avkodning"
+
+msgid "Arrange Displays"
+msgstr "Arrangera skärmar"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Dra och släpp för att ordna visningar, nya bildskärmar läggs till på höger sida av den föregående bildskärmen."
+
+msgid "Add Monitor"
+msgstr "Lägg till bildskärm"
+
+msgid "Auto placement"
+msgstr "Automatisk placering"
+
+msgid "Identify"
+msgstr "Identifiera"
+
+msgid "Done"
+msgstr "Gjort"
+
+msgid "Control Panel"
+msgstr "Kontrollpanelen"

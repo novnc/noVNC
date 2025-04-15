@@ -116,5 +116,14 @@
     "Video Mode Height:": "Altura do modo de vídeo:",
     "Documentation": "Documentação",
     "Drag Viewport": "Arrastar janela de visualização",
-    "KasmVNC encountered an error:": "KasmVNC encontrou um erro:"
+    "KasmVNC encountered an error:": "KasmVNC encontrou um erro:",
+    "Displays": "Exibições",
+    "Enable Threaded Decoding": "Ativar decodificação encadeada",
+    "Arrange Displays": "Organizar exibições",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Arraste e solte para organizar as exibições, novos monitores são adicionados ao lado direito do monitor anterior.",
+    "Add Monitor": "Adicionar monitor",
+    "Auto placement": "Posicionamento automático",
+    "Identify": "Identificar",
+    "Done": "Feito",
+    "Control Panel": "Painel de controle"
 }

@@ -116,5 +116,14 @@
     "Video Mode Height:": "Hichte fan fideomodus:",
     "Documentation": "Dokumintaasje",
     "Drag Viewport": "Sleep Viewport",
-    "KasmVNC encountered an error:": "KasmVNC tsjinkaam in flater:"
+    "KasmVNC encountered an error:": "KasmVNC tsjinkaam in flater:",
+    "Displays": "Displays",
+    "Enable Threaded Decoding": "Threaded Decoding ynskeakelje",
+    "Arrange Displays": "Arrange Displays",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Slep en drop om byldskermen te regeljen, nije monitors wurde tafoege oan 'e rjochterkant fan' e foarige monitor.",
+    "Add Monitor": "Monitor taheakje",
+    "Auto placement": "Auto pleatsing",
+    "Identify": "Identifisearje",
+    "Done": "Klear",
+    "Control Panel": "Kontrolpaniel"
 }

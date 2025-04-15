@@ -352,3 +352,30 @@ msgstr "Изглед с плъзгане"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC откри грешка:"
+
+msgid "Displays"
+msgstr "Дисплеи"
+
+msgid "Enable Threaded Decoding"
+msgstr "Активиране на резбово декодиране"
+
+msgid "Arrange Displays"
+msgstr "Подреждане на дисплеи"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Плъзнете и пуснете, за да подредите дисплеите, новите монитори се добавят от дясната страна на предишния монитор."
+
+msgid "Add Monitor"
+msgstr "Добавяне на монитор"
+
+msgid "Auto placement"
+msgstr "Автоматично разположение"
+
+msgid "Identify"
+msgstr "Идентифицирай"
+
+msgid "Done"
+msgstr "Готово"
+
+msgid "Control Panel"
+msgstr "Контролен панел"

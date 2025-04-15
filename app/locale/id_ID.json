@@ -116,5 +116,14 @@
     "Video Mode Height:": "Tinggi Mode Video:",
     "Documentation": "Dokumentasi",
     "Drag Viewport": "Seret Area Pandang",
-    "KasmVNC encountered an error:": "KasmVNC mengalami kesalahan:"
+    "KasmVNC encountered an error:": "KasmVNC mengalami kesalahan:",
+    "Displays": "Menampilkan",
+    "Enable Threaded Decoding": "Aktifkan Decoding Berulir",
+    "Arrange Displays": "Atur Tampilan",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Seret dan lepas untuk mengatur tampilan, monitor baru ditambahkan ke sisi kanan monitor sebelumnya.",
+    "Add Monitor": "Tambahkan Monitor",
+    "Auto placement": "Penempatan otomatis",
+    "Identify": "Mengenali",
+    "Done": "Selesai",
+    "Control Panel": "Panel Kontrol"
 }

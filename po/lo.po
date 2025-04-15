@@ -352,3 +352,30 @@ msgstr "Drag Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ພົບຂໍ້ຜິດພາດ:"
+
+msgid "Displays"
+msgstr "ຈໍສະແດງຜົນ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ເປີດໃຊ້ການຖອດລະຫັດກະທູ້"
+
+msgid "Arrange Displays"
+msgstr "ຈັດການສະແດງ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ລາກແລະວາງລົງເພື່ອຈັດຈໍສະແດງຜົນ, ຈໍສະແດງຜົນໃຫມ່ຈະຖືກເພີ່ມໃສ່ເບື້ອງຂວາຂອງຈໍສະແດງຜົນກ່ອນ."
+
+msgid "Add Monitor"
+msgstr "ເພີ່ມຈໍພາບ"
+
+msgid "Auto placement"
+msgstr "ການຈັດວາງອັດຕະໂນມັດ"
+
+msgid "Identify"
+msgstr "ກໍານົດ"
+
+msgid "Done"
+msgstr "ແລ້ວໆ"
+
+msgid "Control Panel"
+msgstr "ກະດານຄວບຄຸມ"

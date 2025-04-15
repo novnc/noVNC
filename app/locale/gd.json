@@ -116,5 +116,14 @@
     "Video Mode Height:": "Àrd modh bhidio:",
     "Documentation": "Sgrìobhainn",
     "Drag Viewport": "Slaod am port-seallaidh",
-    "KasmVNC encountered an error:": "Thachair KasmVNC ri mearachd:"
+    "KasmVNC encountered an error:": "Thachair KasmVNC ri mearachd:",
+    "Displays": "Taisbeanadh",
+    "Enable Threaded Decoding": "Cuir an comas còdachadh snàthainn",
+    "Arrange Displays": "Cuir air dòigh taisbeanaidhean",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Slaod is leig às gus taisbeanaidhean a chuir air dòigh, thèid sgrùdairean ùra a chuir ri taobh deas an sgrùdaidh roimhe.",
+    "Add Monitor": "Cuir ris a' mhonatair",
+    "Auto placement": "Suidheachadh fèin-ghluasadach",
+    "Identify": "Aithnich",
+    "Done": "Dèan",
+    "Control Panel": "Pannal Smachd"
 }

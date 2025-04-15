@@ -352,3 +352,30 @@ msgstr "व्यूपोर्ट खींचें"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC में एक त्रुटि आई:"
+
+msgid "Displays"
+msgstr "प्रदर्शित करता है"
+
+msgid "Enable Threaded Decoding"
+msgstr "थ्रेडेड डिकोडिंग सक्षम करें"
+
+msgid "Arrange Displays"
+msgstr "प्रदर्शन व्यवस्थित करें"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "डिस्प्ले को व्यवस्थित करने के लिए खींचें और छोड़ें, नए मॉनिटर पिछले मॉनिटर के दाईं ओर जोड़े जाते हैं।"
+
+msgid "Add Monitor"
+msgstr "मॉनिटर जोड़ें"
+
+msgid "Auto placement"
+msgstr "ऑटो प्लेसमेंट"
+
+msgid "Identify"
+msgstr "पहचान करना"
+
+msgid "Done"
+msgstr "हो गया"
+
+msgid "Control Panel"
+msgstr "कंट्रोल पैनल"

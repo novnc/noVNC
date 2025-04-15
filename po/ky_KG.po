@@ -352,3 +352,30 @@ msgstr "Көрүү портун сүйрөө"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC катага туш болду:"
+
+msgid "Displays"
+msgstr "Дисплейлер"
+
+msgid "Enable Threaded Decoding"
+msgstr "Жиптик декоддоону иштетүү"
+
+msgid "Arrange Displays"
+msgstr "Дисплейлерди уюштуруу"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Дисплейлерди иретке келтирүү үчүн сүйрөп барып таштаңыз, жаңы мониторлор мурунку монитордун оң жагына кошулат."
+
+msgid "Add Monitor"
+msgstr "Монитор кошуу"
+
+msgid "Auto placement"
+msgstr "Авто жайгаштыруу"
+
+msgid "Identify"
+msgstr "аныктоо"
+
+msgid "Done"
+msgstr "Бүттү"
+
+msgid "Control Panel"
+msgstr "Башкаруу панели"

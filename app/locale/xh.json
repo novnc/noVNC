@@ -116,5 +116,14 @@
     "Video Mode Height:": "Ubude beModi yeVidiyo:",
     "Documentation": "Amaxwebhu",
     "Drag Viewport": "Thatha indawo yokujonga",
-    "KasmVNC encountered an error:": "I-KasmVNC ifumene impazamo:"
+    "KasmVNC encountered an error:": "I-KasmVNC ifumene impazamo:",
+    "Displays": "Imiboniso",
+    "Enable Threaded Decoding": "Yenza idikhowudi enemisonto",
+    "Arrange Displays": "Lungiselela imiboniso",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Hamba kwaye ulahle ukuze ulungiselele imiboniso, iimonitha ezintsha zongezwa kwicala lasekunene leemoni ezidlulileyo.",
+    "Add Monitor": "Yongeza iMonitor",
+    "Auto placement": "Ukubekwa ngokuzenzekela",
+    "Identify": "Chonga",
+    "Done": "Gqibile",
+    "Control Panel": "Iphaneli yokulawula"
 }

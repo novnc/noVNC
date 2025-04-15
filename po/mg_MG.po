@@ -352,3 +352,30 @@ msgstr "Drag Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "Nahita hadisoana ny KasmVNC:"
+
+msgid "Displays"
+msgstr "Fampisehoana"
+
+msgid "Enable Threaded Decoding"
+msgstr "Alefaso ny decoding misy kofehy"
+
+msgid "Arrange Displays"
+msgstr "Mandamina fampisehoana"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Drag and drop to handamina fampisehoana, misy mpanara-maso vaovao ampiana eo amin'ny ilany havanana amin'ny monitor teo aloha."
+
+msgid "Add Monitor"
+msgstr "Ampio Monitor"
+
+msgid "Auto placement"
+msgstr "Fametrahana fiara"
+
+msgid "Identify"
+msgstr "Tantara"
+
+msgid "Done"
+msgstr "vita"
+
+msgid "Control Panel"
+msgstr "Takelaka fikirakirana"

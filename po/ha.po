@@ -352,3 +352,30 @@ msgstr "Jawo Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ya ci karo da kuskure:"
+
+msgid "Displays"
+msgstr "Nunawa"
+
+msgid "Enable Threaded Decoding"
+msgstr "Kuna Ƙaddamar da Zare"
+
+msgid "Arrange Displays"
+msgstr "Shirya Nuni"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Jawo da sauke don shirya nuni, ana ƙara sababbin masu saka idanu zuwa gefen dama na mai duba baya."
+
+msgid "Add Monitor"
+msgstr "Ƙara Monitor"
+
+msgid "Auto placement"
+msgstr "Ajiye ta atomatik"
+
+msgid "Identify"
+msgstr "Gane"
+
+msgid "Done"
+msgstr "An gama"
+
+msgid "Control Panel"
+msgstr "Control Panel"

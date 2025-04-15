@@ -352,3 +352,30 @@ msgstr "Քաշել տեսադաշտը"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC-ն սխալ է հանդիպել."
+
+msgid "Displays"
+msgstr "Ցուցադրումներ"
+
+msgid "Enable Threaded Decoding"
+msgstr "Միացնել թելային ապակոդավորումը"
+
+msgid "Arrange Displays"
+msgstr "Դասավորել ցուցադրությունները"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Քաշեք և թողեք էկրանները դասավորելու համար, նոր մոնիտորներ են ավելացվում նախորդ մոնիտորի աջ կողմում:"
+
+msgid "Add Monitor"
+msgstr "Ավելացնել մոնիտոր"
+
+msgid "Auto placement"
+msgstr "Ավտոմատ տեղադրում"
+
+msgid "Identify"
+msgstr "Նույնականացնել"
+
+msgid "Done"
+msgstr "Կատարված է"
+
+msgid "Control Panel"
+msgstr "Կառավարման վահանակ"

@@ -352,3 +352,30 @@ msgstr "Trascina finestra"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ha rilevato un errore:"
+
+msgid "Displays"
+msgstr "Visualizza"
+
+msgid "Enable Threaded Decoding"
+msgstr "Abilita decodifica threaded"
+
+msgid "Arrange Displays"
+msgstr "Disponi visualizzazioni"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Trascina e rilascia per organizzare i display, i nuovi monitor vengono aggiunti sul lato destro del monitor precedente."
+
+msgid "Add Monitor"
+msgstr "Aggiungi monitor"
+
+msgid "Auto placement"
+msgstr "Posizionamento automatico"
+
+msgid "Identify"
+msgstr "Identificare"
+
+msgid "Done"
+msgstr "Fatto"
+
+msgid "Control Panel"
+msgstr "Pannello di controllo"

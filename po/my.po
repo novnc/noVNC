@@ -352,3 +352,30 @@ msgstr "ရှုထောင့်ကို ဆွဲယူပါ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC သည် အမှားအယွင်းတစ်ခု ကြုံတွေ့ခဲ့သည်-"
+
+msgid "Displays"
+msgstr "ပြသမှုများ"
+
+msgid "Enable Threaded Decoding"
+msgstr "Treaded Decoding ကိုဖွင့်ပါ"
+
+msgid "Arrange Displays"
+msgstr "ပြကွက်များစီစဉ်ခြင်း"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ပြသမှုများကို စီစဉ်ရန် ဖိဆွဲကာ လွှတ်ချလိုက်ပါ၊ ယခင် မော်နီတာ၏ ညာဘက်ခြမ်းတွင် မော်နီတာအသစ်များကို ထည့်သွင်းထားသည်။"
+
+msgid "Add Monitor"
+msgstr "မော်နီတာထည့်ပါ"
+
+msgid "Auto placement"
+msgstr "အလိုအလျောက် နေရာချထားခြင်း"
+
+msgid "Identify"
+msgstr "ဖော်ထုတ်"
+
+msgid "Done"
+msgstr "ပြီးပြီ"
+
+msgid "Control Panel"
+msgstr "ထိန်းချုပ်ရာနေရာ"

@@ -352,3 +352,30 @@ msgstr "Dragðu útsýnisgátt"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC rakst á villu:"
+
+msgid "Displays"
+msgstr "Skjáir"
+
+msgid "Enable Threaded Decoding"
+msgstr "Virkja snittari afkóðun"
+
+msgid "Arrange Displays"
+msgstr "Raða skjánum"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Dragðu og slepptu til að raða skjáum, nýjum skjám er bætt við hægra megin á fyrri skjá."
+
+msgid "Add Monitor"
+msgstr "Bæta við skjá"
+
+msgid "Auto placement"
+msgstr "Sjálfvirk staðsetning"
+
+msgid "Identify"
+msgstr "Auðkenna"
+
+msgid "Done"
+msgstr "Lokið"
+
+msgid "Control Panel"
+msgstr "Stjórnborð"

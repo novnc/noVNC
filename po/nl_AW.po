@@ -300,21 +300,21 @@ msgid "Cancel"
 msgstr "Annuleren"
 
 #~ msgid "Disconnect timeout"
-#~ msgstr """"""""""""Timeout tijdens verbreken van verbinding"
+#~ msgstr """"""""""""""Timeout tijdens verbreken van verbinding"
 
 #~ msgid "Local Downscaling"
-#~ msgstr """"""""""""Lokaal Neerschalen"
+#~ msgstr """"""""""""""Lokaal Neerschalen"
 
 #~ msgid "Local Cursor"
-#~ msgstr """"""""""""Lokale Cursor"
+#~ msgstr """"""""""""""Lokale Cursor"
 
 #~ msgid "Canvas not supported."
-#~ msgstr """"""""""""Canvas wordt niet ondersteund."
+#~ msgstr """"""""""""""Canvas wordt niet ondersteund."
 
 #~ msgid ""
 #~ "Forcing clipping mode since scrollbars aren't supported by IE in "
 #~ "fullscreen"
-#~ msgstr """""""""""""
+#~ msgstr """""""""""""""
 #~ "''Clipping mode' ingeschakeld, omdat schuifbalken in volledige-scherm-"
 #~ "modus in IE niet worden ondersteund"
 
@@ -485,3 +485,30 @@ msgstr "Sleep Viewport"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC heeft een fout aangetroffen:"
+
+msgid "Displays"
+msgstr "Displays"
+
+msgid "Enable Threaded Decoding"
+msgstr "Ingeschakelde decodering inschakelen"
+
+msgid "Arrange Displays"
+msgstr "Displays regelen"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Slepen en neerzetten om de weergaven te ordenen, nieuwe monitoren worden toegevoegd aan de rechterkant van de vorige monitor."
+
+msgid "Add Monitor"
+msgstr "Monitor toevoegen"
+
+msgid "Auto placement"
+msgstr "Automatische plaatsing"
+
+msgid "Identify"
+msgstr "Identificeren"
+
+msgid "Done"
+msgstr "Klaar"
+
+msgid "Control Panel"
+msgstr "Configuratiescherm"

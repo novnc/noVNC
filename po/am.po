@@ -352,3 +352,30 @@ msgstr "መመልከቻ ጎትት"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC ስህተት አጋጥሞታል::"
+
+msgid "Displays"
+msgstr "ማሳያዎች"
+
+msgid "Enable Threaded Decoding"
+msgstr "የተጣራ ኮድ ማውጣትን አንቃ"
+
+msgid "Arrange Displays"
+msgstr "ማሳያዎችን አዘጋጅ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ማሳያዎችን ለማዘጋጀት ይጎትቱ እና ጣል ያድርጉ ፣ አዲስ መከታተያዎች በቀድሞው ማሳያ በቀኝ በኩል ይታከላሉ።"
+
+msgid "Add Monitor"
+msgstr "ክትትል አክል"
+
+msgid "Auto placement"
+msgstr "ራስ-ሰር አቀማመጥ"
+
+msgid "Identify"
+msgstr "መለየት"
+
+msgid "Done"
+msgstr "ተከናውኗል"
+
+msgid "Control Panel"
+msgstr "የቁጥጥር ፓነል"

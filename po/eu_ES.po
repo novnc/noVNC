@@ -352,3 +352,30 @@ msgstr "Arrastatu ikuspegia"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC-k errore bat aurkitu du:"
+
+msgid "Displays"
+msgstr "Bistaratzeak"
+
+msgid "Enable Threaded Decoding"
+msgstr "Gaitu haria deskodetzea"
+
+msgid "Arrange Displays"
+msgstr "Antolatu pantailak"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Arrastatu eta jaregin pantailak antolatzeko, aurreko monitorearen eskuineko aldean monitore berriak gehitzen dira."
+
+msgid "Add Monitor"
+msgstr "Gehitu monitorea"
+
+msgid "Auto placement"
+msgstr "Kokapen automatikoa"
+
+msgid "Identify"
+msgstr "Identifikatu"
+
+msgid "Done"
+msgstr "Bukatu"
+
+msgid "Control Panel"
+msgstr "Kontrol panela"

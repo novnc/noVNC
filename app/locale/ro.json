@@ -116,5 +116,14 @@
     "Video Mode Height:": "Înălțimea modului video:",
     "Documentation": "Documentație",
     "Drag Viewport": "Trasați fereastra de vizualizare",
-    "KasmVNC encountered an error:": "KasmVNC a întâmpinat o eroare:"
+    "KasmVNC encountered an error:": "KasmVNC a întâmpinat o eroare:",
+    "Displays": "Afișări",
+    "Enable Threaded Decoding": "Activați decodarea threaded",
+    "Arrange Displays": "Aranjați afișajele",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Trasați și plasați pentru a aranja afișajele, monitoare noi sunt adăugate în partea dreaptă a monitorului anterior.",
+    "Add Monitor": "Adăugați monitor",
+    "Auto placement": "Plasare automată",
+    "Identify": "Identifica",
+    "Done": "Făcut",
+    "Control Panel": "Panou de control"
 }

@@ -352,3 +352,30 @@ msgstr "ﺽﺮﻌﻟﺍ ﺬﻔﻨﻣ ﺐﺤﺳﺍ"
 
 msgid "KasmVNC encountered an error:"
 msgstr "ﺄﻄﺧ KasmVNC ﻪﺟﺍﻭ"
+
+msgid "Displays"
+msgstr "ﺽﺮﻌﻳ"
+
+msgid "Enable Threaded Decoding"
+msgstr "ﺮﻴﻔﺸﺘﻟﺍ ﻚﻓ ﻦﻴﻜﻤﺗ"
+
+msgid "Arrange Displays"
+msgstr "ﺽﻭﺮﻌﻟﺍ ﺐﻴﺗﺮﺗ"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "ﺔﻘﺑﺎﺴﻟﺍ ﺔﺷﺎﺸﻟﺍ ﻦﻣ ﻦﻤﻳﻷ﻿ﺍ ﺐﻧﺎﺠﻟﺍ ﻰﻟﺇ ﺓﺪﻳﺪﺟ ﺕﺎﺷﺎﺷ ﺔﻓﺎﺿﺇ ﻢﺘﺗﻭ ،ﺽﺮﻌﻟﺍ ﺕﺎﺷﺎﺷ ﺐﻴﺗﺮﺘﻟ ﺕﻼ﻿ﻓﻹ﻿ﺍﻭ ﺐﺤﺴﻟﺎﺑ ﻢﻗ"
+
+msgid "Add Monitor"
+msgstr "ﺐﻗﺍﺮﻣ ﺔﻓﺎﺿﺇ"
+
+msgid "Auto placement"
+msgstr "ﻲﺋﺎﻘﻠﺘﻟﺍ ﻊﺿﻮﺘﻟﺍ"
+
+msgid "Identify"
+msgstr "ﻒﻳﺮﻌﺗ"
+
+msgid "Done"
+msgstr "ﻲﻬﺘﻨﻣ"
+
+msgid "Control Panel"
+msgstr "ﻢﻜﺤﺘﻟﺍ ﺔﺣﻮﻟ"

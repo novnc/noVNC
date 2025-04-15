@@ -116,5 +116,14 @@
     "Video Mode Height:": "Teitei Aratau Ataata:",
     "Documentation": "Tuhinga",
     "Drag Viewport": "Toia Tauranga Tirohanga",
-    "KasmVNC encountered an error:": "I hapa a KasmVNC:"
+    "KasmVNC encountered an error:": "I hapa a KasmVNC:",
+    "Displays": "Whakaatu",
+    "Enable Threaded Decoding": "Whakahohe Wetewaehere Miro",
+    "Arrange Displays": "Whakaritea nga Whakaaturanga",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Toia me te maturuturu ki te whakarite whakaaturanga, ka taapirihia nga kaitirotiro hou ki te taha matau o te kaitirotiro o mua.",
+    "Add Monitor": "Tāpiri Aroturuki",
+    "Auto placement": "Tuhinga Aunoa",
+    "Identify": "Tautuhia",
+    "Done": "Kua oti",
+    "Control Panel": "Paewhiri Mana"
 }

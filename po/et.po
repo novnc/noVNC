@@ -352,3 +352,30 @@ msgstr "Lohistamisvaade"
 
 msgid "KasmVNC encountered an error:"
 msgstr "KasmVNC-s ilmnes viga:"
+
+msgid "Displays"
+msgstr "Ekraanid"
+
+msgid "Enable Threaded Decoding"
+msgstr "Luba keermestatud dekodeerimine"
+
+msgid "Arrange Displays"
+msgstr "Ekraanide korraldamine"
+
+msgid "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor."
+msgstr "Kuvade korraldamiseks pukseerige, uued monitorid lisatakse eelmise kuvari paremale küljele."
+
+msgid "Add Monitor"
+msgstr "Lisa monitor"
+
+msgid "Auto placement"
+msgstr "Automaatne paigutus"
+
+msgid "Identify"
+msgstr "Tuvasta"
+
+msgid "Done"
+msgstr "Valmis"
+
+msgid "Control Panel"
+msgstr "Juhtpaneel"

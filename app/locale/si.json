@@ -116,5 +116,14 @@
     "Video Mode Height:": "වීඩියෝ මාදිලියේ උස:",
     "Documentation": "ලේඛන",
     "Drag Viewport": "Drag Viewport",
-    "KasmVNC encountered an error:": "KasmVNC දෝෂයක් ඇති විය:"
+    "KasmVNC encountered an error:": "KasmVNC දෝෂයක් ඇති විය:",
+    "Displays": "දර්ශන",
+    "Enable Threaded Decoding": "නූල් විකේතනය සක්රිය කරන්න",
+    "Arrange Displays": "දර්ශන සකසන්න",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "දර්ශන සැකසීමට ඇද දමන්න, පෙර මොනිටරයේ දකුණු පැත්තට නව මොනිටර එකතු කරනු ලැබේ.",
+    "Add Monitor": "මොනිටරය එක් කරන්න",
+    "Auto placement": "ස්වයං ස්ථානගත කිරීම",
+    "Identify": "හඳුනාගන්න",
+    "Done": "කරයි",
+    "Control Panel": "පාලන පුවරුව"
 }

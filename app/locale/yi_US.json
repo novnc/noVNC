@@ -116,5 +116,14 @@
     "Video Mode Height:": "ךייה עדאָמ אעדיוו",
     "Documentation": "ןאָיטאַטנעמוקאָד",
     "Drag Viewport": "טראָפּויוו ןפּעלש",
-    "KasmVNC encountered an error:": "KasmVNC תועט אַ טרעטנאָלפּעג:"
+    "KasmVNC encountered an error:": "KasmVNC תועט אַ טרעטנאָלפּעג:",
+    "Displays": "זיילפּסיד",
+    "Enable Threaded Decoding": "גנידואָקיד םעדאָפ ןבעג",
+    "Arrange Displays": "זיילפּסיד ןלעטש",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "ראָטינאָמ עקידרעירפ יד ןופ טיַיז טכער יד וצ ףיסומ ןענעז סראָטינאָמ יַינ ,זיילפּסיד ןגיילוצ וצ ןלאַפ ןוא ןפּעלש",
+    "Add Monitor": "ראָטינאָמ גייל",
+    "Auto placement": "טנאַמסיילפּ אָטואַ",
+    "Identify": "ןריציפיטנעדי",
+    "Done": "ןאטעג",
+    "Control Panel": "לענאַפּ לאָרטנאָק"
 }

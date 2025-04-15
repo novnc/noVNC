@@ -116,5 +116,14 @@
     "Video Mode Height:": "Бандии ҳолати видео:",
     "Documentation": "Ҳуҷҷатҳо",
     "Drag Viewport": "Кашолакунии Viewport",
-    "KasmVNC encountered an error:": "KasmVNC ба хатогӣ дучор шуд:"
+    "KasmVNC encountered an error:": "KasmVNC ба хатогӣ дучор шуд:",
+    "Displays": "Намоишҳо",
+    "Enable Threaded Decoding": "Расмгузории риштаро фаъол созед",
+    "Arrange Displays": "Ташкили намоишҳо",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Барои тартиб додани намоишҳо кашола карда партоед, мониторҳои нав ба тарафи рости монитори қаблӣ илова карда мешаванд.",
+    "Add Monitor": "Илова кардани монитор",
+    "Auto placement": "Ҷойгиркунии худкор",
+    "Identify": "Муайян кардан",
+    "Done": "Иҷро шуд",
+    "Control Panel": "Сафҳаи идоракунӣ"
 }

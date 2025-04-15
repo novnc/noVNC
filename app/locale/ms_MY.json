@@ -116,5 +116,14 @@
     "Video Mode Height:": "Ketinggian Mod Video:",
     "Documentation": "Dokumentasi",
     "Drag Viewport": "Seret Viewport",
-    "KasmVNC encountered an error:": "KasmVNC mengalami ralat:"
+    "KasmVNC encountered an error:": "KasmVNC mengalami ralat:",
+    "Displays": "Paparan",
+    "Enable Threaded Decoding": "Dayakan Penyahkodan Berulir",
+    "Arrange Displays": "Susun Paparan",
+    "Drag and drop to arrange displays, new monitors are added to the right hand side of the previous monitor.": "Seret dan lepaskan untuk mengatur paparan, monitor baharu ditambahkan pada sebelah kanan monitor sebelumnya.",
+    "Add Monitor": "Tambah Monitor",
+    "Auto placement": "Auto peletakan",
+    "Identify": "Kenal pasti",
+    "Done": "Selesai",
+    "Control Panel": "Panel Kawalan"
 }
