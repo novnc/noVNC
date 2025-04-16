@@ -1551,18 +1551,19 @@ const UI = {
             //keep alive for websocket connection to stay open, since we may not control reverse proxies
             //send a keep alive within a window that we control
             UI._sessionTimeoutInterval = setInterval(function() {
+                if (UI.rfb) {
+                    const timeSinceLastActivityInS = (Date.now() - UI.rfb.lastActiveAt) / 1000;
+                    let idleDisconnectInS = 1200; //20 minute default 
+                    if (Number.isFinite(parseFloat(UI.rfb.idleDisconnect))) {
+                        idleDisconnectInS = parseFloat(UI.rfb.idleDisconnect) * 60;
+                    }
 
-                const timeSinceLastActivityInS = (Date.now() - UI.rfb.lastActiveAt) / 1000;
-                let idleDisconnectInS = 1200; //20 minute default 
-                if (Number.isFinite(parseFloat(UI.rfb.idleDisconnect))) {
-                    idleDisconnectInS = parseFloat(UI.rfb.idleDisconnect) * 60;
-                }
-
-                if (timeSinceLastActivityInS > idleDisconnectInS) {
-                    parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
-                } else {
-                    //send keep-alive
-                    UI.rfb.sendKey(1, null, false);
+                    if (timeSinceLastActivityInS > idleDisconnectInS) {
+                        parent.postMessage({ action: 'idle_session_timeout', value: 'Idle session timeout exceeded'}, '*' );
+                    } else {
+                        //send keep-alive
+                        UI.rfb.sendKey(1, null, false);
+                    }
                 }
             }, 5000);
         } else {
