@@ -12,7 +12,7 @@ export default class RawDecoder {
         this._lines = 0;
     }
 
-    decodeRect(x, y, width, height, sock, display, depth) {
+    decodeRect(x, y, width, height, sock, display, depth, bgrMode = false) {
         if ((width === 0) || (height === 0)) {
             return true;
         }
@@ -43,11 +43,20 @@ export default class RawDecoder {
                     newdata[i * 4 + 3] = 255;
                 }
                 data = newdata;
-            }
-
-            // Max sure the image is fully opaque
-            for (let i = 0; i < width; i++) {
-                data[i * 4 + 3] = 255;
+            } else if (bgrMode) {
+                // In bgrMode we need to switch the red and blue bytes
+                // so that the data is in RGB order
+                for (let i = 0; i < width; i++) {
+                    let j = i * 4;
+                    let red = data[j];
+                    data[j] = data[j + 2];
+                    data[j + 2] = red;
+                }
+            } else {
+                // Make sure the image is fully opaque
+                for (let i = 0; i < width; i++) {
+                    data[i * 4 + 3] = 255;
+                }
             }
 
             display.blitImage(x, curY, width, 1, data, 0);

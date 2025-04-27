@@ -2210,18 +2210,29 @@ export default class RFB extends EventTargetMixin {
 
         // we're past the point where we could backtrack, so it's safe to call this
         this._setDesktopName(name);
+        Log.Info("Connected to server: '" + this._fbName + "'");
         this._resize(width, height);
 
         if (!this._viewOnly) { this._keyboard.grab(); }
 
         this._fbDepth = 24;
+        this._BGRmode = false;
 
         if (this._fbName === "Intel(r) AMT KVM") {
             Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
             this._fbDepth = 8;
+        } else if (this._fbName === "Qt for Embedded Linux VNC Server" || 
+                   this._fbName.indexOf("Qt") !== -1) {
+            // Qt has a bug (as of QT 6.4) where, if the endian-ness is 'little' and the _fbDepth is 24, it does not honour the noVNC reqested 
+            // redshift/blueshift values. In these conditions it triggers a performance bypass in the Qt code which just uses the raw
+            // Qt frambuffer byte order (https://github.com/qt/qtbase/blob/5.15.2/src/plugins/platforms/vnc/qvncclient.cpp#L113) which is BGR
+            // vs the RGB noVNC wants. Since noVNC always operates in little endian and fbDepth 24, it always triggers this bug
+            // So, for Qt we change to BGR ordering. Note that Qt only uses raw encoding and noVNC only supports this mode in the raw decoder
+            Log.Info("Detected Qt VNC server. Enabling BGR color mode.");
+            this._BGRmode = true;
         }
 
-        RFB.messages.pixelFormat(this._sock, this._fbDepth, true);
+        RFB.messages.pixelFormat(this._sock, this._fbDepth, true, this._BGRmode);
         this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fbWidth, this._fbHeight);
 
@@ -2989,7 +3000,7 @@ export default class RFB extends EventTargetMixin {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,
-                                      this._fbDepth);
+                                      this._fbDepth, this._BGRmode);
         } catch (err) {
             this._fail("Error decoding rect: " + err);
             return false;
@@ -3314,7 +3325,7 @@ RFB.messages = {
         sock.flush();
     },
 
-    pixelFormat(sock, depth, trueColor) {
+    pixelFormat(sock, depth, trueColor, bgrMode) {
         let bpp;
 
         if (depth > 16) {
@@ -3342,9 +3353,15 @@ RFB.messages = {
         sock.sQpush16((1 << bits) - 1); // green-max
         sock.sQpush16((1 << bits) - 1); // blue-max
 
-        sock.sQpush8(bits * 0); // red-shift
-        sock.sQpush8(bits * 1); // green-shift
-        sock.sQpush8(bits * 2); // blue-shift
+        if (bgrMode) {
+            sock.sQpush8(bits * 2); // red-shift
+            sock.sQpush8(bits * 1); // green-shift
+            sock.sQpush8(bits * 0); // blue-shift
+        } else {
+            sock.sQpush8(bits * 0); // red-shift
+            sock.sQpush8(bits * 1); // green-shift
+            sock.sQpush8(bits * 2); // blue-shift
+        }
 
         sock.sQpush8(0); // padding
         sock.sQpush8(0); // padding
