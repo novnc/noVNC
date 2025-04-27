@@ -3010,11 +3010,20 @@ export default class RFB extends EventTargetMixin {
             return false;
         }
 
+        // Force BGR mode for specific server types
+        const forceBGR = this._fbName === "Virtualization" || 
+                         (this._fbName && this._fbName.indexOf("Virtualization") !== -1);
+        
+        if (forceBGR) {
+            Log.Info("Forcing BGR mode for Virtualization server");
+        }
+
         try {
             return decoder.decodeRect(this._FBU.x, this._FBU.y,
                                       this._FBU.width, this._FBU.height,
                                       this._sock, this._display,
-                                      this._fbDepth, this._BGRmode);
+                                      this._fbDepth, 
+                                      this._BGRmode || forceBGR);  // Always enable BGR mode for Virtualization
         } catch (err) {
             this._fail("Error decoding rect: " + err);
             return false;
