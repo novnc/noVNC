@@ -12,13 +12,25 @@ import * as Log from '../util/logging.js';
 export default class RawDecoder {
     constructor() {
         this._lines = 0;
+        this._serverName = null;
     }
 
     decodeRect(x, y, width, height, sock, display, depth, bgrMode = false) {
-        // Log BGR mode status for the first few rects to debug
+        // Check if we're connecting to a Virtualization server
+        if (!this._serverName && sock._rfb && sock._rfb._fbName) {
+            this._serverName = sock._rfb._fbName;
+            Log.Info("RawDecoder: Connected to server: " + this._serverName);
+        }
+
+        // Special handling for known BGR servers that don't honor pixel format
+        const forceSwap = this._serverName === 'Virtualization';
+
+        // Always log if we're using BGR mode or forcing a swap
         if (this._lines === 0) {
-            Log.Debug("RawDecoder: Processing rectangle with " +
-                      (bgrMode ? "BGR" : "RGB") + " mode, depth: " + depth);
+            Log.Info("RawDecoder: Processing rectangle with " +
+                     (bgrMode ? "BGR" : "RGB") + " mode" + 
+                     (forceSwap ? " (FORCING BGR swap for Virtualization server)" : "") +
+                     ", depth: " + depth);
         }
 
         if ((width === 0) || (height === 0)) {
@@ -52,8 +64,8 @@ export default class RawDecoder {
                         sample += data[i] + " ";
                     }
                 }
-                Log.Debug("RawDecoder: First " + Math.min(16, width) + 
-                          " pixels (before processing): " + sample);
+                Log.Info("RawDecoder: First " + Math.min(16, width) + 
+                         " pixels (before processing): " + sample);
             }
 
             // Convert data if needed
@@ -66,10 +78,11 @@ export default class RawDecoder {
                     newdata[i * 4 + 3] = 255;
                 }
                 data = newdata;
-            } else if (bgrMode) {
-                // In bgrMode we need to switch the red and blue bytes
+            } else if (bgrMode || forceSwap) {
+                // In bgrMode or when forced we need to switch the red and blue bytes
                 // so that the data is in RGB order
-                Log.Debug("RawDecoder: Applying BGR swap for line " + curY);
+                Log.Info("RawDecoder: Applying BGR swap for line " + curY + 
+                        (forceSwap ? " (FORCED)" : ""));
                 for (let i = 0; i < width; i++) {
                     let j = i * 4;
                     let red = data[j];
@@ -90,8 +103,8 @@ export default class RawDecoder {
                     sample += "[" + data[i*4] + "," + data[i*4+1] + "," + 
                               data[i*4+2] + "," + data[i*4+3] + "] ";
                 }
-                Log.Debug("RawDecoder: First " + Math.min(16, width) + 
-                          " pixels (after processing): " + sample);
+                Log.Info("RawDecoder: First " + Math.min(16, width) + 
+                         " pixels (after processing): " + sample);
             }
 
             display.blitImage(x, curY, width, 1, data, 0);
