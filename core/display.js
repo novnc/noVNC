@@ -23,6 +23,9 @@ export default class Display {
 
         this._prevDrawStyle = "";
 
+        // Flag to indicate if this is a Virtualization server (for color handling)
+        this._isVirtualizationServer = false;
+
         Log.Debug(">> Display.constructor");
 
         // The visible canvas
@@ -61,6 +64,14 @@ export default class Display {
 
         this._scale = 1.0;
         this._clipViewport = false;
+    }
+
+    // Method to set server type
+    setVirtualizationServer(isVirtualization) {
+        if (isVirtualization) {
+            Log.Info("Display: Setting display mode for Virtualization server (applying BGR swap)");
+        }
+        this._isVirtualizationServer = isVirtualization;
     }
 
     // ===== PROPERTIES =====
@@ -407,12 +418,55 @@ export default class Display {
                 'height': height,
             });
         } else {
-            // NB(directxman12): arr must be an Type Array view
-            let data = new Uint8ClampedArray(arr.buffer,
-                                             arr.byteOffset + offset,
-                                             width * height * 4);
-            let img = new ImageData(data, width, height);
-            this._drawCtx.putImageData(img, x, y);
+            // For Virtualization server, swap R and B channels
+            if (this._isVirtualizationServer) {
+                // Log on first call for debugging
+                if (y === 0 && x === 0) {
+                    Log.Info("Display: Applying BGR swap for Virtualization server");
+                    let beforeSample = "";
+                    for (let i = 0; i < Math.min(4, width); i++) {
+                        let idx = i * 4;
+                        beforeSample += "[" + arr[idx + offset] + "," + arr[idx + offset + 1] + "," + 
+                                  arr[idx + offset + 2] + "] ";
+                    }
+                    Log.Info("Before swap sample: " + beforeSample);
+                }
+                
+                // Create a copy of arr so we don't modify the original
+                const tempArr = new Uint8Array(width * height * 4);
+                for (let i = 0; i < width * height; i++) {
+                    const idx = i * 4 + offset;
+                    // Copy with R and B swapped
+                    tempArr[i * 4] = arr[idx + 2];     // R ← B
+                    tempArr[i * 4 + 1] = arr[idx + 1]; // G unchanged
+                    tempArr[i * 4 + 2] = arr[idx];     // B ← R
+                    tempArr[i * 4 + 3] = arr[idx + 3]; // A unchanged
+                }
+                
+                // Log sample after swap for first line
+                if (y === 0 && x === 0) {
+                    let afterSample = "";
+                    for (let i = 0; i < Math.min(4, width); i++) {
+                        let idx = i * 4;
+                        afterSample += "[" + tempArr[idx] + "," + tempArr[idx + 1] + "," + 
+                                  tempArr[idx + 2] + "] ";
+                    }
+                    Log.Info("After swap sample: " + afterSample);
+                }
+                
+                // Use the swapped data
+                const data = new Uint8ClampedArray(tempArr.buffer, 0, width * height * 4);
+                const img = new ImageData(data, width, height);
+                this._drawCtx.putImageData(img, x, y);
+            } else {
+                // Standard handling for other servers
+                const data = new Uint8ClampedArray(arr.buffer,
+                                                arr.byteOffset + offset,
+                                                width * height * 4);
+                const img = new ImageData(data, width, height);
+                this._drawCtx.putImageData(img, x, y);
+            }
+            
             this._damage(x, y, width, height);
         }
     }

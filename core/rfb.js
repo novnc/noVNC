@@ -704,6 +704,17 @@ export default class RFB extends EventTargetMixin {
 
     _setDesktopName(name) {
         this._fbName = name;
+        Log.Info("Connected to server: '" + this._fbName + "'");
+
+        // Check if this is a Virtualization server
+        if (this._fbName === "Virtualization" || 
+            (this._fbName && this._fbName.indexOf("Virtualization") !== -1)) {
+            Log.Info("Detected Virtualization server - enabling special color handling");
+            if (this._display) {
+                this._display.setVirtualizationServer(true);
+            }
+        }
+
         this.dispatchEvent(new CustomEvent(
             "desktopname",
             { detail: { name: this._fbName } }));
