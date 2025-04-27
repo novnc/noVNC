@@ -7,12 +7,20 @@
  *
  */
 
+import * as Log from '../util/logging.js';
+
 export default class RawDecoder {
     constructor() {
         this._lines = 0;
     }
 
     decodeRect(x, y, width, height, sock, display, depth, bgrMode = false) {
+        // Log BGR mode status for the first few rects to debug
+        if (this._lines === 0) {
+            Log.Debug("RawDecoder: Processing rectangle with " +
+                      (bgrMode ? "BGR" : "RGB") + " mode, depth: " + depth);
+        }
+
         if ((width === 0) || (height === 0)) {
             return true;
         }
@@ -33,6 +41,21 @@ export default class RawDecoder {
 
             let data = sock.rQshiftBytes(bytesPerLine, false);
 
+            // For debugging - show a sample of the data for the first rect
+            if (this._lines === height && curY === y) {
+                let sample = "";
+                for (let i = 0; i < Math.min(16, width); i++) {
+                    if (pixelSize === 4) {
+                        sample += "[" + data[i*4] + "," + data[i*4+1] + "," + 
+                                  data[i*4+2] + "," + data[i*4+3] + "] ";
+                    } else {
+                        sample += data[i] + " ";
+                    }
+                }
+                Log.Debug("RawDecoder: First " + Math.min(16, width) + 
+                          " pixels (before processing): " + sample);
+            }
+
             // Convert data if needed
             if (depth == 8) {
                 const newdata = new Uint8Array(width * 4);
@@ -46,6 +69,7 @@ export default class RawDecoder {
             } else if (bgrMode) {
                 // In bgrMode we need to switch the red and blue bytes
                 // so that the data is in RGB order
+                Log.Debug("RawDecoder: Applying BGR swap for line " + curY);
                 for (let i = 0; i < width; i++) {
                     let j = i * 4;
                     let red = data[j];
@@ -57,6 +81,17 @@ export default class RawDecoder {
                 for (let i = 0; i < width; i++) {
                     data[i * 4 + 3] = 255;
                 }
+            }
+
+            // For debugging - show processed data for the first rect
+            if (this._lines === height && curY === y) {
+                let sample = "";
+                for (let i = 0; i < Math.min(16, width); i++) {
+                    sample += "[" + data[i*4] + "," + data[i*4+1] + "," + 
+                              data[i*4+2] + "," + data[i*4+3] + "] ";
+                }
+                Log.Debug("RawDecoder: First " + Math.min(16, width) + 
+                          " pixels (after processing): " + sample);
             }
 
             display.blitImage(x, curY, width, 1, data, 0);
