@@ -2218,17 +2218,27 @@ export default class RFB extends EventTargetMixin {
         this._fbDepth = 24;
         this._BGRmode = false;
 
+        // In the _negotiateServerInit method, after setting the desktop name and logging
+        // Add detection based on color shifts or known server names
+
+        // First, log and keep the original server color configuration
+        Log.Info("Server color shifts - Red: " + redShift + ", Green: " + greenShift + ", Blue: " + blueShift);
+
+        // Update the condition for BGR detection
         if (this._fbName === "Intel(r) AMT KVM") {
             Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
             this._fbDepth = 8;
         } else if (this._fbName === "Qt for Embedded Linux VNC Server" || 
-                   this._fbName.indexOf("Qt") !== -1) {
-            // Qt has a bug (as of QT 6.4) where, if the endian-ness is 'little' and the _fbDepth is 24, it does not honour the noVNC reqested 
-            // redshift/blueshift values. In these conditions it triggers a performance bypass in the Qt code which just uses the raw
-            // Qt frambuffer byte order (https://github.com/qt/qtbase/blob/5.15.2/src/plugins/platforms/vnc/qvncclient.cpp#L113) which is BGR
-            // vs the RGB noVNC wants. Since noVNC always operates in little endian and fbDepth 24, it always triggers this bug
-            // So, for Qt we change to BGR ordering. Note that Qt only uses raw encoding and noVNC only supports this mode in the raw decoder
-            Log.Info("Detected Qt VNC server. Enabling BGR color mode.");
+                   this._fbName.indexOf("Qt") !== -1 ||
+                   this._fbName === "Virtualization" ||
+                   (redShift === 16 && greenShift === 8 && blueShift === 0)) {
+            // Some VNC servers (Qt, Virtualization, etc.) send the framebuffer with BGR order
+            // instead of RGB. This happens when red/green/blue shifts are 16/8/0 respectively.
+            // This is likely due to internal optimizations in these servers which bypass RGB conversion.
+            Log.Info("Detected BGR color mode (red shift: " + redShift + 
+                     ", green shift: " + greenShift + 
+                     ", blue shift: " + blueShift + 
+                     "). Enabling BGR compatibility mode.");
             this._BGRmode = true;
         }
 
