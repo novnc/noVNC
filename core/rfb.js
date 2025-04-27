@@ -2224,7 +2224,8 @@ export default class RFB extends EventTargetMixin {
         // First, log and keep the original server color configuration
         Log.Info("Server color shifts - Red: " + redShift + ", Green: " + greenShift + ", Blue: " + blueShift);
 
-        // Update the condition for BGR detection
+        // Update the condition for BGR detection - but always request RGB format
+        let needsBGRHandling = false;
         if (this._fbName === "Intel(r) AMT KVM") {
             Log.Warn("Intel AMT KVM only supports 8/16 bit depths. Using low color mode.");
             this._fbDepth = 8;
@@ -2232,17 +2233,20 @@ export default class RFB extends EventTargetMixin {
                    this._fbName.indexOf("Qt") !== -1 ||
                    this._fbName === "Virtualization" ||
                    (redShift === 16 && greenShift === 8 && blueShift === 0)) {
-            // Some VNC servers (Qt, Virtualization, etc.) send the framebuffer with BGR order
-            // instead of RGB. This happens when red/green/blue shifts are 16/8/0 respectively.
-            // This is likely due to internal optimizations in these servers which bypass RGB conversion.
-            Log.Info("Detected BGR color mode (red shift: " + redShift + 
+            // For these servers, request RGB format directly to avoid color swapping
+            Log.Info("Detected BGR server (red shift: " + redShift + 
                      ", green shift: " + greenShift + 
                      ", blue shift: " + blueShift + 
-                     "). Enabling BGR compatibility mode.");
-            this._BGRmode = true;
+                     "). Forcing RGB color format in the request.");
+            needsBGRHandling = true;
         }
 
-        RFB.messages.pixelFormat(this._sock, this._fbDepth, true, this._BGRmode);
+        // Override BGR mode to always be false, to force RGB request
+        RFB.messages.pixelFormat(this._sock, this._fbDepth, true, false);
+
+        // But remember if we need BGR handling for later frame buffer updates
+        this._BGRmode = needsBGRHandling;
+
         this._sendEncodings();
         RFB.messages.fbUpdateRequest(this._sock, false, 0, 0, this._fbWidth, this._fbHeight);
 
