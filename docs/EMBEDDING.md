@@ -37,13 +37,18 @@ query string. Currently the following options are available:
 * `reconnect_delay` - How long to wait in milliseconds before attempting to
   reconnect.
 
-* `host` - The WebSocket host to connect to.
+* `host` - The WebSocket host to connect to. This setting is deprecated
+  in favor of specifying a URL in `path`.
 
-* `port` - The WebSocket port to connect to.
+* `port` - The WebSocket port to connect to. This setting is deprecated
+  in favor of specifying a URL in `path`.
 
-* `encrypt` - If TLS should be used for the WebSocket connection.
+* `encrypt` - If TLS should be used for the WebSocket connection. This
+  setting is deprecated in favor of specifying a URL in `path`.
 
-* `path` - The WebSocket path to use.
+* `path` - The WebSocket URL to use. It can be either an absolute URL,
+  or a URL relative vnc.html. If `host` is specified, then `path` will
+  be interpreted as the path component in the URL instead.
 
 * `password` - The password sent to the server, if required.
 
