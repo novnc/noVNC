@@ -25,8 +25,27 @@ server and setting up a WebSocket proxy to the VNC server.
 
 ## Parameters
 
-The noVNC application can be controlled by including certain settings in the
-query string. Currently the following options are available:
+The noVNC application can be controlled via a number of settings. All of
+them are available in the UI for the user to change, but they can also
+be set via other means:
+
+* Via the URL, either as a query parameter:
+
+  ```
+  https://www.example.com/vnc.html?reconnect=0&shared=1
+  ```
+
+  or as a fragment:
+
+  ```
+  https://www.example.com/vnc.html#reconnect=0&shared=1
+  ```
+
+  The latter might be preferred as it is not sent to the server.
+
+* Via the files `defaults.json` and `mandatory.json`
+
+Currently, the following options are available:
 
 * `autoconnect` - Automatically connect as soon as the page has finished
   loading.
