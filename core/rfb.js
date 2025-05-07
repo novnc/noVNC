@@ -300,10 +300,6 @@ export default class RFB extends EventTargetMixin {
         this._resizeSession = false;
 
         this._showDotCursor = false;
-        if (options.showDotCursor !== undefined) {
-            Log.Warn("Specifying showDotCursor as a RFB constructor argument is deprecated");
-            this._showDotCursor = options.showDotCursor;
-        }
 
         this._qualityLevel = 6;
         this._compressionLevel = 2;
