@@ -335,6 +335,10 @@ export default class Display {
                 'color': color
             });
         } else {
+            // For Virtualization server, swap R and B channels
+            if (this._isVirtualizationServer) {
+                color = [color[2], color[1], color[0]];
+            }
             this._setFillColor(color);
             this._drawCtx.fillRect(x, y, width, height);
             this._damage(x, y, width, height);
