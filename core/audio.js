@@ -23,7 +23,8 @@
 //
 // ## Audio format
 //
-// We use/expect U16 raw audio data.
+// We use/expect U16, little endian, raw audio data,
+// interleaved channel data:  [L0, R0, L1, R1, ...]
 
 import * as Log from './util/logging.js';
 
@@ -38,6 +39,7 @@ export default class Audio {
         // ===== PROPERTIES =====
         this._sample_rate = sample_rate;
         this._nchannels = nchannels;
+        this._little_endian = true;
     }
 
     // ===== PROPERTIES =====
@@ -127,6 +129,7 @@ export default class Audio {
     _pitchScale(payload, factor) {
         let sample_bytes = 2*this._nchannels;
         let new_length = Math.ceil(payload.length/(factor*sample_bytes));
+        const payload_view = new DataView(payload);
 
         let buffer = this._context.createBuffer(this._nchannels, new_length, this._sample_rate);
         for (let ch = 0; ch < this._nchannels; ch++) {
@@ -138,14 +141,14 @@ export default class Audio {
                 let second_weight = pos_float % 1;
                 let first_weight = 1 - second_weight;
                 let p = j*sample_bytes + channel_offset;
-                let value0 = payload[p] + payload[p+1]*256;
+                let value0 = payload_view.getUint16(p, this._little_endian);
                 p += sample_bytes;
                 let value1 = value0;
                 if (p < payload.length) {
-                    value1 = payload[p] + payload[p+1]*256;
+                    value1 = payload_view.getUint16(p, this._little_endian);
                 }
                 let value = (value0*first_weight + value1*second_weight);
-                channel[i] = (value / 32768.0) - 1.0;
+                channel[i] = (value - 32768) / 32768.0;
             }
         }
         return buffer;
