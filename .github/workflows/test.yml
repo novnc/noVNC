@@ -10,13 +10,13 @@ jobs:
           - ubuntu-latest
           - windows-latest
         browser:
-          - ChromeHeadless
-          - FirefoxHeadless
+          - chrome
+          - firefox
         include:
           - os: macos-latest
-            browser: Safari
+            browser: safari
           - os: windows-latest
-            browser: EdgeHeadless
+            browser: edge
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:

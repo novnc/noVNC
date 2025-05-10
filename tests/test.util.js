@@ -1,4 +1,8 @@
 /* eslint-disable no-console */
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import * as Log from '../core/util/logging.js';
 import { encodeUTF8, decodeUTF8 } from '../core/util/strings.js';
 
@@ -7,11 +11,11 @@ describe('Utils', function () {
 
     describe('logging functions', function () {
         beforeEach(function () {
-            sinon.spy(console, 'log');
-            sinon.spy(console, 'debug');
-            sinon.spy(console, 'warn');
-            sinon.spy(console, 'error');
-            sinon.spy(console, 'info');
+            sinon.stub(console, 'log');
+            sinon.stub(console, 'debug');
+            sinon.stub(console, 'warn');
+            sinon.stub(console, 'error');
+            sinon.stub(console, 'info');
         });
 
         afterEach(function () {

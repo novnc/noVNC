@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import { isMac, isWindows, isIOS, isAndroid, isChromeOS,
          isSafari, isFirefox, isChrome, isChromium, isOpera, isEdge,
          isGecko, isWebKit, isBlink } from '../core/util/browser.js';

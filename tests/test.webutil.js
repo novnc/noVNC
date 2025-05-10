@@ -1,6 +1,11 @@
 /* jshint expr: true */
 
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import * as WebUtil from '../app/webutil.js';
+import { initLogging } from '../core/util/logging.js';
 
 describe('WebUtil', function () {
     "use strict";
@@ -63,6 +68,9 @@ describe('WebUtil', function () {
             before(function () {
                 chrome = window.chrome;
                 window.chrome = null;
+
+                // Avoid spamming test output
+                initLogging('none');
             });
             after(function () {
                 window.chrome = chrome;

@@ -1,10 +1,6 @@
-import * as chai from '../node_modules/chai/chai.js';
-import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
-import sinonChai from '../node_modules/sinon-chai/lib/sinon-chai.js';
+import * as chai from 'chai';
+import sinonChai from 'sinon-chai';
 
-window.expect = chai.expect;
-
-window.sinon = sinon;
 chai.use(sinonChai);
 
 // noVNC specific assertions

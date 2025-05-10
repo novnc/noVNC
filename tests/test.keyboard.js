@@ -1,3 +1,7 @@
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import Keyboard from '../core/input/keyboard.js';
 
 describe('Key event handling', function () {
@@ -622,7 +626,7 @@ describe('Key event handling', function () {
             expect(kbd.onkeyevent).to.have.been.calledWith(0xffe1, 'ShiftLeft', true);
             kbd.onkeyevent.resetHistory();
 
-            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'Shift', location: 2}));
+            kbd._handleKeyDown(keyevent('keydown', {code: 'ShiftRight', key: 'ShiftFoo', location: 2}));
             expect(kbd.onkeyevent).to.have.been.calledOnce;
             expect(kbd.onkeyevent).to.have.been.calledWith(0xffe2, 'ShiftRight', true);
             kbd.onkeyevent.resetHistory();

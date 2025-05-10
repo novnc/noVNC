@@ -1,3 +1,7 @@
+import './assertions.js';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import Websock from '../core/websock.js';
 import FakeWebSocket from './fake.websocket.js';
 

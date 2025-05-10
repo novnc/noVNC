@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import { toUnsigned32bit, toSigned32bit } from '../core/util/int.js';
 
 describe('Integer casting', function () {
