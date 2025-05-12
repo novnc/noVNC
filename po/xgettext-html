@@ -5,9 +5,9 @@
  * Licensed under MPL 2.0 (see LICENSE.txt)
  */
 
-const { program } = require('commander');
-const jsdom = require("jsdom");
-const fs = require("fs");
+import { program } from 'commander';
+import jsdom from 'jsdom';
+import fs from 'fs';
 
 program
     .argument('<INPUT...>')
@@ -106,7 +106,7 @@ let output = "";
 
 for (let str in strings) {
     output += "#:";
-    for (location in strings[str]) {
+    for (let location in strings[str]) {
         output += " " + location;
     }
     output += "\n";
