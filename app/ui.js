@@ -655,17 +655,14 @@ const UI = {
  * ------v------*/
     // Ignore clicks that are propogated from child elements in sub panels
     isControlPanelItemClick(e) {
-        if (!(e && e.target && e.target.classList && e.target.parentNode &&
+        return e && e.target && e.target.classList && e.target.parentNode &&
             (
-                e.target.classList.contains('noVNC_button') && e.target.parentNode.id !== 'noVNC_modifiers' || 
+                e.target.classList.contains('noVNC_button') && e.target.parentNode.id !== 'noVNC_modifiers' ||
                 e.target.classList.contains('noVNC_button_div') ||
                 e.target.classList.contains('noVNC_heading')
-            )
-            )) {
-            return false;
-        }
+            );
 
-        return true;
+
     },
 
     // Disable/enable controls depending on connection state
@@ -741,19 +738,24 @@ const UI = {
     showStats() {
         UI.saveSetting('enable_perf_stats');
 
-        let enable_stats = UI.getSetting('enable_perf_stats');
-        if (enable_stats === true && UI.statsInterval == undefined) {
-            document.getElementById("noVNC_connection_stats").style.visibility = "visible";
-            UI.statsInterval = setInterval(function() {
+        const element = document.getElementById("noVNC_connection_stats");
+        const statusElem = document.getElementById('noVNC_status');
+        const enable_stats = UI.getSetting('enable_perf_stats');
+        if (enable_stats === true) {
+            if (UI.statsInterval !== undefined) {
+                clearInterval(UI.statsInterval);
+            }
+            element.style.visibility = "visible";
+            UI.statsInterval = setInterval(function () {
                 if (UI.rfb !== undefined) {
                     UI.rfb.requestBottleneckStats();
                 }
-            }  , 5000);
+            }, 5000);
         } else {
-            document.getElementById("noVNC_connection_stats").style.visibility = "hidden";
-            UI.statsInterval = null;
+            element.style.visibility = "hidden";
+            clearInterval(UI.statsInterval);
+            UI.statsInterval = undefined;
         }
-        
     },
 
     threading() {
@@ -1681,6 +1683,8 @@ const UI = {
             UI.forceReconnect = false;
             UI.connect(null, UI.reconnectPassword);
         }
+
+        UI.showStats();
     },
 
     securityFailed(e) {
@@ -2623,11 +2627,7 @@ const UI = {
 
     toggleIMEMode() {
         if (UI.rfb) {
-            if (UI.getSetting('enable_ime')) {
-                UI.rfb.keyboard.enableIME = true;
-            } else {
-                UI.rfb.keyboard.enableIME = false;
-            }
+            UI.rfb.keyboard.enableIME = !!UI.getSetting('enable_ime');
         }
     },
 
@@ -2638,22 +2638,14 @@ const UI = {
                 return;
             }
 
-            if (UI.getSetting('enable_webrtc')) {
-                UI.rfb.enableWebRTC = true;
-            } else {
-                UI.rfb.enableWebRTC = false;
-            }
+            UI.rfb.enableWebRTC = !!UI.getSetting('enable_webrtc');
             UI.updateQuality();
         }
     },
 
     enableHiDpi() {
         if (UI.rfb) {
-            if (UI.getSetting('enable_hidpi')) {
-                UI.rfb.enableHiDpi = true;
-            } else {
-                UI.rfb.enableHiDpi = false;
-            }
+            UI.rfb.enableHiDpi = !!UI.getSetting('enable_hidpi');
             UI.applyResizeMode();
         }
     },

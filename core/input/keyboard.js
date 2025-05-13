@@ -221,14 +221,14 @@ export default class Keyboard {
                 newLen = newValue.length;
             }
             const oldLen = oldValue.length;
-    
+
             let inputs = newLen - oldLen;
             let backspaces = inputs < 0 ? -inputs : 0;
 
             // Compare the old string with the new to account for
             // text-corrections or other input that modify existing text
             for (let i = 0; i < Math.min(oldLen, newLen); i++) {
-                if (newValue.charAt(i) != oldValue.charAt(i)) {
+                if (newValue.charAt(i) !== oldValue.charAt(i)) {
                     inputs = newLen - i;
                     backspaces = oldLen - i;
                     break;
@@ -273,7 +273,7 @@ export default class Keyboard {
         const code = this._getKeyCode(e);
         let keysym = KeyboardUtil.getKeysym(e);
         this.clearKeysDown(e);
-        
+
         if (this._isIMEInteraction(e)) {
             //skip event if IME related
             Log.Debug("Skipping keydown, IME interaction, code: " + code + " keysym: " + keysym + " keycode: " + e.keyCode);

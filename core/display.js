@@ -70,15 +70,18 @@ export default class Display {
         this._forcedFrameCnt = 0;
         this._missingFlipRect = 0;
         this._lateFlipRect = 0;
-        this._frameStatsInterval = setInterval(function() {
-            let delta = Date.now() - this._lastFlip;
+        this._frameStatsInterval = setInterval(() => {
+            const now = Date.now();
+            const delta = now - this._lastFlip;
             if (delta > 0) {
                 this._fps = (this._flipCnt / (delta / 1000)).toFixed(2);
             }
             Log.Debug('Dropped Frames: ' + this._droppedFrames + ' Dropped Rects: ' + this._droppedRects + ' Forced Frames: ' + this._forcedFrameCnt + ' Missing Flips: ' + this._missingFlipRect + ' Late Flips: ' + this._lateFlipRect);
             this._flipCnt = 0;
-            this._lastFlip = Date.now();
-        }.bind(this), 5000);
+            this._lastFlip = now;
+
+
+        }, 5000);
 
         // ===== PROPERTIES =====
 
@@ -585,7 +588,6 @@ export default class Display {
             }
         }
 
-        
 
         // Readjust the viewport as it may be incorrectly sized
         // and positioned
@@ -604,7 +606,7 @@ export default class Display {
             'type': 'flip',
             'frame_id': frame_id,
             'rect_cnt': rect_cnt,
-            'screenLocations': [ { screenIndex: 0, x: 0, y: 0 } ]
+            'screenLocations': [{screenIndex: 0, x: 0, y: 0}]
         });
     }
 
@@ -657,7 +659,7 @@ export default class Display {
                 height: height,
                 color: color,
                 frame_id: frame_id
-            }
+            };
             this._processRectScreens(rect);
             this._asyncRenderQPush(rect);
         } else {
@@ -681,7 +683,7 @@ export default class Display {
                 'width': w,
                 'height': h,
                 'frame_id': frame_id
-            }
+            };
             this._processRectScreens(rect);
             this._asyncRenderQPush(rect);
         } else {
@@ -711,7 +713,7 @@ export default class Display {
         if ((width === 0) || (height === 0)) {
             return;
         }
-        
+
         let rect = {
             'type': 'img',
             'img': null,
@@ -720,7 +722,7 @@ export default class Display {
             'width': width,
             'height': height,
             'frame_id': frame_id
-        }
+        };
         this._processRectScreens(rect);
 
         if (rect.inPrimary) {
@@ -744,7 +746,7 @@ export default class Display {
             return;
         }
 
-        var rect = {
+        let rect = {
             'type': 'transparent',
             'img': null,
             'x': x,
@@ -754,15 +756,15 @@ export default class Display {
             'frame_id': frame_id,
             'arr': img,
             'hash_id': hashId
-        }
+        };
         this._processRectScreens(rect);
 
         if (rect.inPrimary) {
             let imageBmpPromise = createImageBitmap(img);
-            imageBmpPromise.then( function(bitmap) {
+            imageBmpPromise.then((bitmap) => {
                 this._transparentOverlayImg = bitmap;
                 this.enableCanvasBuffer = true;
-            }.bind(this) );
+            });
         }
 
         this._transparentOverlayRect = rect;
@@ -778,7 +780,7 @@ export default class Display {
             'width': width,
             'height': height,
             'frame_id': frame_id
-        }
+        };
         this._processRectScreens(rect);
         this._asyncRenderQPush(rect);
     }
@@ -798,7 +800,7 @@ export default class Display {
                 'width': width,
                 'height': height,
                 'frame_id': frame_id
-            }
+            };
             this._processRectScreens(rect);
             this._asyncRenderQPush(rect);
         } else {
@@ -811,9 +813,7 @@ export default class Display {
                 this._drawCtx.putImageData(img, x, y);
             } else {
                 this._targetCtx.putImageData(img, x, y);
-                
             }
-            
         }
     }
 
@@ -827,7 +827,7 @@ export default class Display {
                 'width': width,
                 'height': height,
                 'frame_id': frame_id
-            }
+            };
             this._processRectScreens(rect);
             this._asyncRenderQPush(rect);
         } else {
@@ -884,10 +884,10 @@ export default class Display {
     _handleSecondaryDisplayMessage(event) {
         if (!this._isPrimaryDisplay && event.data) {
             switch (event.data.eventType) {
-                case 'rect':
+                case 'rect': {
                     let rect = event.data.rect;
                     //overwrite screen locations when received on the secondary display
-                    rect.screenLocations = [ rect.screenLocations[event.data.screenLocationIndex] ]
+                    rect.screenLocations = [rect.screenLocations[event.data.screenLocationIndex]];
                     rect.screenLocations[0].screenIndex = 0;
                     switch (rect.type) {
                         case 'img':
@@ -896,16 +896,17 @@ export default class Display {
                             rect.img.src = rect.src;
                             rect.type = 'img';
                             break;
-                        case 'transparent':
+                        case 'transparent': {
                             let imageBmpPromise = createImageBitmap(rect.arr);
-                            imageBmpPromise.then( function(img) {
+                            imageBmpPromise.then((img) => {
                                 this._transparentOverlayImg = img;
                                 if (!this.enableCanvasBuffer) {
                                     this._enableCanvasBuffer = true;
                                 }
-                            }.bind(this) );
+                            });
                             this._transparentOverlayRect = rect;
                             break;
+                        }
                     }
                     this._syncFrameQueue.push(rect);
 
@@ -915,9 +916,12 @@ export default class Display {
                         this._droppedRects++;
                     }
                     break;
+                }
                 case 'frameComplete':
-                        window.requestAnimationFrame( () => { this._pushSyncRects(); });
-                        break;
+                    window.requestAnimationFrame(() => {
+                        this._pushSyncRects();
+                    });
+                    break;
                 case 'registered':
                         if (!this._isPrimaryDisplay) {
                             this._screens[0].screenIndex = event.data.screenIndex;
@@ -1293,8 +1297,8 @@ export default class Display {
 
         Log.Info('Pixel Ratio: ' + window.devicePixelRatio + ', VNC Scale: ' + factor + 'VNC Res: ' + vp.serverWidth + 'x' + vp.serverHeight);
 
-        var pixR = Math.abs(Math.ceil(window.devicePixelRatio));
-        var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        let pixR = Math.abs(Math.ceil(window.devicePixelRatio));
+        let isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
         if (this.antiAliasing === 2 || (this.antiAliasing === 0 && factor === 1 && this._target.style.imageRendering !== 'pixelated' && pixR === window.devicePixelRatio && vp.width > 0)) {
             this._target.style.imageRendering = ((!isFirefox) ? 'pixelated' : 'crisp-edges' );
