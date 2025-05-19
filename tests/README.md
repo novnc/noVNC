@@ -23,6 +23,11 @@ mv /home/ubuntu/record.bin.8 /usr/share/kasmvnc/www/recordings
 
 Place recordings on the KasmVNC server in the /usr/share/kasmvnc/www/recordings directory, you may need to create this directory. Then navigate to https://server-ip:8444/tests/vnc_playback.html?data=record.bin.8 where record.bin.8 is the name of the playback file you placed in the recordings directory.
 
+**If you are running a Dev container for KasmVNC** and running the front-end using nodejs, create a directory public/recordings from the root of the frontend code and place the videos in that location.
+
+**Threaded Decoding**
+When threaded decoding on the client was added to KasmVNC in 1.4.0, this disrupted the playback testing framework. When threaded encoding is enabled, the client does not block on rendering, therefore the server will send frames as fast as it can regardless of if the client can process the frames or not. In this playback framework, the VNC session recording is played back without a frame rate limit and if threaded decoding is enabled the client will process as much of it as possible and end up discarding frames. To account for this, a target frame rate was added to the playback UI. When testing with threaded decoding enabled, be sure to set the iterations to 1 and provide a target frame rate. Keep increasing the target frame rate until you start dropping frames and then back the frame rate down until you get near 0. 
+
 ## Pre-Test Modifications
 
 Before running performance testing using recording playback, you need to run noVNC from source, rather than the 'compiled' webpack. See the docs at docs/DEVELOP.md for running noVNC from source. 
@@ -39,13 +44,17 @@ The following recordings are used by Kasm Technologies to provide repeatable per
 
 ## Historical Statistics
 
-This table keeps track of performance of pre-defined recordings, defined in the previous section, on static hardware that can be replicated over time to track performance improvements.
+This table keeps track of performance of pre-defined recordings, defined in the previous section, on static hardware that can be replicated over time to track performance improvements. Multi-threaded decoding was added during noVNC 1.3.0 development, previous testing did not include this feature.
 
-| File | Commit | Hardware | OS | Browser | Webpacked | Result Avg |
-|------|-----|----|----|---------|-------|---------|
-| newyork.1 | 08233e6 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2446ms |
-| losangeles.1 | 08233e6 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2272ms |
-| newyork.1 | base64opt | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2273ms |
-| losangeles.1 | base64opt | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 1847ms |
-| newyork.1 | 4a6aa73 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 119 | False | 2128ms |
-| losangeles.1 | 4a6aa73 | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 119 | False | 1766ms |
+| File | Commit/Version | Threaded | Hardware | OS | Browser | Webpacked | Result Avg |
+|------|--------|----------|----------|----|---------|-----------|------------|
+| newyork.1 | 08233e6 | N/A | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2446ms |
+| losangeles.1 | 08233e6 | N/A | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2272ms |
+| newyork.1 | base64opt | N/A | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 2273ms |
+| losangeles.1 | base64opt | N/A | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 106 | False | 1847ms |
+| newyork.1 | 4a6aa73 | N/A | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 119 | False | 2128ms |
+| losangeles.1 | 4a6aa73 | N/A | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 119 | False | 1766ms |
+| newyork.1 | 1.3.0 | off | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 135 | False | 1956ms |
+| newyork.1 | 1.3.0 | **On** | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 135 | False | 696ms |
+| losangeles.1 | 1.3.0 | off | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 135 | False | 1166ms |
+| losangeles.1 | 1.3.0 | **On** | Macbook M1 Pro, 32GB RAM | macOS 12.2 | Chrome 135 | False | 789ms |

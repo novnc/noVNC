@@ -12,6 +12,7 @@ import Base64 from "./base64.js";
 import { toSigned32bit } from './util/int.js';
 import { isWindows } from './util/browser.js';
 import { uuidv4 } from './util/strings.js';
+import UI from '../app/ui.js';
 
 export default class Display {
     constructor(target, isPrimaryDisplay) {
@@ -65,7 +66,9 @@ export default class Display {
         // performance metrics
         this._flipCnt = 0;
         this._lastFlip = Date.now();
-        this._droppedFrames = 0;
+        this._droppedFrames = 0; // total count
+        this._droppedFramesRate = 0; //frames dropped per second
+        this._droppedFramesCnt = 0; //dropper frames temp counter
         this._droppedRects = 0;
         this._forcedFrameCnt = 0;
         this._missingFlipRect = 0;
@@ -74,8 +77,16 @@ export default class Display {
             let delta = Date.now() - this._lastFlip;
             if (delta > 0) {
                 this._fps = (this._flipCnt / (delta / 1000)).toFixed(2);
+                if (this._droppedFrames > this._droppedFramesCnt) {
+                    let droppedFrames = this._droppedFrames - this._droppedFramesCnt;
+                    this._droppedFramesRate = (droppedFrames / (delta / 1000)).toFixed(2);
+                } else {
+                    this._droppedFramesRate = 0;
+                }
+                this._droppedFramesCnt = this._droppedFrames;
             }
             Log.Debug('Dropped Frames: ' + this._droppedFrames + ' Dropped Rects: ' + this._droppedRects + ' Forced Frames: ' + this._forcedFrameCnt + ' Missing Flips: ' + this._missingFlipRect + ' Late Flips: ' + this._lateFlipRect);
+
             this._flipCnt = 0;
             this._lastFlip = Date.now();
         }.bind(this), 5000);
@@ -111,6 +122,8 @@ export default class Display {
             x2: 0,
             y2: 0
         }];
+        this._threading = true;
+        this._primaryChannel = null;
 
         //optional offscreen canvas
         this._enableCanvasBuffer = false;
@@ -123,8 +136,7 @@ export default class Display {
         this.onflush = () => {  }; // A flush request has finished
 
         if (!this._isPrimaryDisplay) {
-            this._screens[0].channel = new BroadcastChannel(`screen_${this._screenID}_channel`);
-            this._screens[0].channel.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
+            window.addEventListener('message', this._handleSecondaryDisplayMessage.bind(this));
         }
 
         Log.Debug("<< Display.constructor");
@@ -177,6 +189,11 @@ export default class Display {
         this._rescale(scale);
     }
 
+    get threading() { return this._threading; }
+    set threading(bool) {
+        this._threading = bool;
+    }
+
     get clipViewport() { return this._clipViewport; }
     set clipViewport(viewport) {
         this._clipViewport = viewport;
@@ -202,6 +219,7 @@ export default class Display {
     }
 
     get fps() { return this._fps; }
+    get droppedFps() { return this._droppedFramesRate; }
 
     // ===== PUBLIC METHODS =====
 
@@ -411,14 +429,11 @@ export default class Display {
                 pixelRatio: pixelRatio,
                 containerHeight: containerHeight,
                 containerWidth: containerWidth,
-                channel: null,
+                channel: UI.displayWindows[this.screens.length],
                 scale: scale,
                 x2: x + serverWidth,
                 y2: serverHeight
             }
-
-            new_screen.channel = new BroadcastChannel(`screen_${screenID}_channel`);
-            //new_screen.channel.message = this._handleSecondaryDisplayMessage().bind(this);
 
             this._screens.push(new_screen);
             new_screen.channel.postMessage({ eventType: "registered", screenIndex: new_screen.screenIndex });
@@ -436,7 +451,7 @@ export default class Display {
                 if (this._screens[i].screenID == screenID) {
                     //flush all rects on target screen
                     this._flushRectsScreen(i);
-                    this._screens[i].channel.close();
+                    UI.displayWindows.splice(i, 1);
                     this._screens.splice(i, 1);
                     removed = true;
                     break;
@@ -706,12 +721,39 @@ export default class Display {
         }
     }
 
+    _handleVidChunk(data, chunk) {
+        let rect = data[0];
+        let that = data[1];
+        let imageDecoder = data[2];
+        imageDecoder.close();
+        rect.img = chunk.image;
+        that._asyncRenderQPush(rect);
+    }
+
     imageRect(x, y, width, height, mime, arr, frame_id) {
         /* The internal logic cannot handle empty images, so bail early */
         if ((width === 0) || (height === 0)) {
             return;
         }
-        
+
+        // Use threaded image decoder
+        if ((typeof ImageDecoder !== 'undefined') && (this._threading)) {
+            let imageDecoder = new ImageDecoder({ data: arr, type: mime });
+            let rect = {
+                'type': 'vid',  
+                'img': null,
+                'x': x,
+                'y': y,
+                'width': width,
+                'height': height,
+                'frame_id': frame_id,
+                'mime': mime
+            }
+            this._processRectScreens(rect);
+            imageDecoder.decode().then(this._handleVidChunk.bind(null,[rect,this,imageDecoder]));
+            return;
+        }
+
         let rect = {
             'type': 'img',
             'img': null,
@@ -785,11 +827,17 @@ export default class Display {
 
     blitImage(x, y, width, height, arr, offset, frame_id, fromQueue) {
         if (!fromQueue) {
+            var buf;
+            if (!ArrayBuffer.isView(arr)) {
+                buf = arr;          
+            } else {                
+                buf = arr.buffer;
+            }
             // NB(directxman12): it's technically more performant here to use preallocated arrays,
             // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
             // this probably isn't getting called *nearly* as much
             const newArr = new Uint8Array(width * height * 4);
-            newArr.set(new Uint8Array(arr.buffer, 0, newArr.length));
+            newArr.set(new Uint8Array(buf, 0, newArr.length));
             let rect = {
                 'type': 'blit',
                 'data': newArr,
@@ -802,10 +850,17 @@ export default class Display {
             this._processRectScreens(rect);
             this._asyncRenderQPush(rect);
         } else {
-            // NB(directxman12): arr must be an Type Array view
-            let data = new Uint8ClampedArray(arr.buffer,
+            var data;
+            if (!ArrayBuffer.isView(arr)) {
+                data = new Uint8ClampedArray(arr,
+                                             arr.length + offset,
+                                             width * height * 4);
+            } else {
+                data = new Uint8ClampedArray(arr.buffer,
                                              arr.byteOffset + offset,
                                              width * height * 4);
+            }
+            // NB(directxman12): arr must be an Type Array view
             let img = new ImageData(data, width, height);
             if (this._enableCanvasBuffer) {
                 this._drawCtx.putImageData(img, x, y);
@@ -891,6 +946,9 @@ export default class Display {
                     rect.screenLocations[0].screenIndex = 0;
                     switch (rect.type) {
                         case 'img':
+                            rect.img = new Image();
+                            rect.img.src = rect.src;
+                            break;
                         case '_img':
                             rect.img = new Image();
                             rect.img.src = rect.src;
@@ -961,6 +1019,10 @@ export default class Display {
                             break whileLoop;
                         }
                     }
+                    break;
+                case 'vid':
+                    this.drawImage(a.img, pos.x, pos.y, a.width, a.height);
+                    a.img.close();
                     break;
                 default:
                     this._syncFrameQueue.shift();
@@ -1170,6 +1232,9 @@ export default class Display {
                             case 'img':
                                 this.drawImage(a.img, screenLocation.x, screenLocation.y, a.width, a.height);
                                 break;
+                            case 'vid':
+                                this.drawImage(a.img, screenLocation.x, screenLocation.y, a.width, a.height);
+                                break;
                             default:
                                 continue;
                         }
@@ -1180,11 +1245,74 @@ export default class Display {
                             case 'transparent':
                             case 'flip':
                                 break;
+                            case 'vid':
+                                secondaryScreenRects++;
+                                if (this._screens[screenLocation.screenIndex].channel) {
+                                    this._screens[screenLocation.screenIndex].channel.postMessage({
+                                        eventType: 'rect',
+                                        rect: {
+                                           'type': 'vid',
+                                           'img': a.img,
+                                           'x': a.x,
+                                           'y': a.y,
+                                           'width': a.width,
+                                           'height': a.height,
+                                           'frame_id': a.frame_id,
+                                           'screenLocations': a.screenLocations
+                                        },
+                                        screenLocationIndex: sI
+                                    }, [a.img]);
+                                }
+                                break;
+                            case 'blit':
+                                secondaryScreenRects++;
+                                let buf = a.data.buffer;
+                                if (this._screens[screenLocation.screenIndex].channel) {
+                                    this._screens[screenLocation.screenIndex].channel.postMessage({
+                                        eventType: 'rect',
+                                        rect: {
+                                           'type': 'blit',
+                                           'img': null,
+                                           'data': buf,
+                                           'x': a.x,
+                                           'y': a.y,
+                                           'width': a.width,
+                                           'height': a.height,
+                                           'frame_id': a.frame_id,
+                                           'screenLocations': a.screenLocations
+                                        },
+                                        screenLocationIndex: sI
+                                    }, [buf]);
+                                }
+                                break;
+                            case 'img':
+                                secondaryScreenRects++;
+                                if (this._screens[screenLocation.screenIndex].channel) {
+                                    this._screens[screenLocation.screenIndex].channel.postMessage({
+                                        eventType: 'rect', 
+                                        rect: {
+                                           'type': 'img',
+                                           'img': null,
+                                           'x': a.x,
+                                           'y': a.y,
+                                           'width': a.width,
+                                           'height': a.height,
+                                           'frame_id': a.frame_id,
+                                           'screenLocations': a.screenLocations,
+                                           'src' : a.src
+                                        },
+                                        screenLocationIndex: sI
+                                    });
+                                }
+                                break;
                             default:
                                 secondaryScreenRects++;
-                                a.img = null;
-                                if (this._screens[screenLocation.screenIndex].channel) {
-                                    this._screens[screenLocation.screenIndex].channel.postMessage({ eventType: 'rect', rect: a, screenLocationIndex: sI });
+                                    if (this._screens[screenLocation.screenIndex].channel) {
+                                        this._screens[screenLocation.screenIndex].channel.postMessage({
+                                        eventType: 'rect',
+                                        rect: a,
+                                        screenLocationIndex: sI
+                                    });
                                 }
                         }
                     }

@@ -15,7 +15,6 @@ program
 const paths = {
     main: path.resolve(__dirname, '..'),
     core: path.resolve(__dirname, '..', 'core'),
-    vendor: path.resolve(__dirname, '..', 'vendor'),
     libDirBase: path.resolve(__dirname, '..', 'lib'),
 };
 
@@ -116,10 +115,6 @@ function makeLibFiles(sourceMaps) {
         });
 
     Promise.resolve()
-        .then(() => {
-            const handler = handleDir.bind(null, false, paths.main);
-            return walkDir(paths.vendor, handler);
-        })
         .then(() => {
             const handler = handleDir.bind(null, true, paths.core);
             return walkDir(paths.core, handler);

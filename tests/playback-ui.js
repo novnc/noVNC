@@ -41,6 +41,8 @@ function enableUI() {
         document.getElementById('mode1').checked = true;
     }
 
+    document.getElementById('threaded_decoding_on').checked = true;
+
     /* eslint-disable-next-line camelcase */
     message("Loaded " + VNC_frame_data.length + " frames");
 
@@ -101,7 +103,7 @@ function enableUI() {
 }
 
 class IterationPlayer {
-    constructor(iterations, frames) {
+    constructor(iterations, frames, targetFramerate, threadedDecoding) {
         this._iterations = iterations;
 
         this._iteration = undefined;
@@ -111,6 +113,10 @@ class IterationPlayer {
 
         this._frames = frames;
 
+        this._targetFramerate = targetFramerate;
+        
+        this._threadedDecoding = threadedDecoding;
+        
         this._state = 'running';
 
         this.onfinish = () => {};
@@ -138,8 +144,14 @@ class IterationPlayer {
             this._finish();
             return;
         }
-
-        player.run(this._realtime, false);
+            
+        if (this._iteration > 1) {
+            setTimeout(() => {
+                player.run(this._realtime, false, this._targetFramerate, this._threadedDecoding);
+            }, 1000);
+        } else {
+            player.run(this._realtime, false, this._targetFramerate, this._threadedDecoding);
+        }
     }
 
     _finish() {
@@ -153,11 +165,15 @@ class IterationPlayer {
         this.onfinish(evt);
     }
 
-    _iterationFinish(duration) {
+    _iterationFinish(duration, droppedFrames, droppedRects, numFrames) {
         const evt = new CustomEvent('iterationfinish',
                                     { detail:
                                       { duration: duration,
-                                        number: this._iteration } } );
+                                        number: this._iteration,
+                                        droppedFrames: droppedFrames,
+                                        droppedRects: droppedRects,
+                                        numFrames: numFrames
+                                    } } );
         this.oniterationfinish(evt);
 
         this._nextIteration();
@@ -182,6 +198,7 @@ function start() {
     document.getElementById('startButton').disabled = true;
 
     const iterations = document.getElementById('iterations').value;
+    const targetFramerate = Number(document.getElementById('targetFramerate').value);
 
     let realtime;
 
@@ -193,9 +210,20 @@ function start() {
         realtime = true;
     }
 
-    const player = new IterationPlayer(iterations, frames);
+    let threaded_decoding;
+
+    if (document.getElementById('threaded_decoding_on').checked) {
+        message(`Starting playback with Threaded Decoding,`);
+        threaded_decoding = true;
+    } else {
+        message(`Starting playback on decoding on main thread.`);
+        threaded_decoding = false;
+    }
+
+    const player = new IterationPlayer(iterations, frames, targetFramerate, threaded_decoding);
     player.oniterationfinish = (evt) => {
-        message(`Iteration ${evt.detail.number} took ${evt.detail.duration}ms`);
+        const fps = Math.round(evt.detail.numFrames / (evt.detail.duration / 1000))
+        message(`Iteration ${evt.detail.number} took ${evt.detail.duration}ms at ${fps} FPS, Dropping ${evt.detail.droppedFrames} of ${evt.detail.numFrames} Frames and ${evt.detail.droppedRects} Rects`);
     };
     player.onrfbdisconnected = (evt) => {
         if (!evt.detail.clean) {

@@ -1380,7 +1380,7 @@ const UI = {
             try {
                 let obj = JSON.parse(e.detail.text);
                 let fps = UI.rfb.statsFps;
-                document.getElementById("noVNC_connection_stats").innerHTML = "CPU: " + obj[0] + "/" + obj[1] + " | Network: " + obj[2] + "/" + obj[3] + " | FPS: " + fps;
+                document.getElementById("noVNC_connection_stats").innerHTML = "CPU: " + obj[0] + "/" + obj[1] + " | Network: " + obj[2] + "/" + obj[3] + " | FPS: " + UI.rfb.statsFps + " Dropped FPS: " + UI.rfb.statsDroppedFps;
                 console.log(e.detail.text);
             } catch (err) {
                 console.log('Invalid bottleneck stats recieved from server.')

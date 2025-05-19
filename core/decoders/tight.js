@@ -12,6 +12,7 @@
 import * as Log from '../util/logging.js';
 import Inflator from "../inflator.js";
 import { hashUInt8Array } from '../util/int.js';
+import qoiWorker from './qoi/decoder.js?worker';
 
 export default class TightDecoder {
     constructor(display) {
@@ -493,7 +494,7 @@ export default class TightDecoder {
         this._qoiRects = [];
         this._rectQlooping = false;
         for (let i = 0; i < this._threads; i++) {
-            this._workers.push(new Worker("core/decoders/qoi/decoder.js"));
+            this._workers.push(new qoiWorker());
             this._workers[i].onmessage = (evt) => {
                 this._availableWorkers.push(i);
                 switch(evt.data.result) {

@@ -53,7 +53,3 @@ KasmVNC is an absolute requirement. This fork of noVNC is explicitly modified to
 ## Running noVNC
 
 KasmVNC has a built in web server and the web code is baked into KasmVNC. There are no instructions to provide, just install KasmVNC follow the instructions to configure and run it.
-
-## Development
-
-The noVNC code is webpacked for performance reasons. The CI pipeline in the KasmVNC project is responsible for building the web code and packaging it with KasmVNC.

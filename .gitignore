@@ -10,3 +10,7 @@ recordings
 *.swp
 *~
 noVNC-*.tgz
+/dist
+/index.html
+/package-lock.json
+/kasmvnc-version.txt

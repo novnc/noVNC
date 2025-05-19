@@ -27,15 +27,22 @@ module.exports = (config) => {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'sinon-chai'],
+    frameworks: ['mocha'],
 
-    // list of files / patterns to load in the browser (loaded in order)
+    // list of files / patterns to load in the browser
     files: [
+      // node modules
+      { pattern: 'node_modules/chai/**', included: false },
+      { pattern: 'node_modules/sinon/**', included: false },
+      { pattern: 'node_modules/sinon-chai/**', included: false },
+      // modules to test
       { pattern: 'app/localization.js', included: false, type: 'module' },
       { pattern: 'app/webutil.js', included: false, type: 'module' },
       { pattern: 'core/**/*.js', included: false, type: 'module' },
       { pattern: 'vendor/pako/**/*.js', included: false, type: 'module' },
+      // tests
       { pattern: 'tests/test.*.js', type: 'module' },
+      // test support files
       { pattern: 'tests/fake.*.js', included: false, type: 'module' },
       { pattern: 'tests/assertions.js', type: 'module' },
     ],
